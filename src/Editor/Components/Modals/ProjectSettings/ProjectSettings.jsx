@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { Button, Modal, ModalHeader, ModalBody, ModalFooter, FormGroup, Label, Input } from 'reactstrap';
+import { Button, Modal, ModalHeader, ModalBody, FormGroup, Label, Input } from 'reactstrap';
 
 class ProjectSettings extends Component {
   constructor(props) {
@@ -32,8 +32,13 @@ class ProjectSettings extends Component {
   }
 
   setProjectName (event) {
-    this.state.project.name = event.target.value;
-    this.setState({project: this.state.project});
+    event.persist();
+    this.setState(prevState => ({
+      project: {
+          ...prevState.project,
+          name: event.target.value,
+      }
+    }));
   }
 
   render() {
