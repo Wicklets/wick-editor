@@ -7,6 +7,8 @@ import { Button } from 'reactstrap';
 import Canvas from './Components/Canvas/Canvas';
 import ProjectSettings from './Components/Modals/ProjectSettings/ProjectSettings';
 
+import Inspector from './Components/Inspector/Inspector';
+
 class Editor extends Component {
   render() {
     return (
@@ -38,7 +40,7 @@ class Editor extends Component {
                     {/* Asset Library */}
                     <SplitPane split="horizontal" minSize={300} maxSize={500} primary="second">
                       {/* Inpsector */}
-                      <div className="pane-inspector">Inspector</div>
+                      <div className="pane-inspector"><Inspector /></div>
                       <div className="pane-assetLibrary">Asset Library</div>
                     </SplitPane>
                   </div>
