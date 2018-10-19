@@ -3,7 +3,6 @@ import './Editor.css';
 import './styles/split-pane.css'
 import SplitPane from "react-split-pane";
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { Button } from 'reactstrap';
 import Canvas from './Components/Canvas/Canvas';
 import ProjectSettings from './Components/Modals/ProjectSettings/ProjectSettings';
 
