@@ -9,11 +9,11 @@ class Editor extends Component {
   render() {
     return (
       {/* Menu Bar */},
-      <SplitPane split="horizontal" minSize={50} maxSize={50}>
+      <SplitPane allowResize={false} split="horizontal" minSize={50} maxSize={50}>
         <div className="pane-menuBar">MenuBar</div>
         <div>
           {/* Toolbox */}
-          <SplitPane split="vertical" minSize={50} maxSize={50}>
+          <SplitPane allowResize={false} split="vertical" minSize={50} maxSize={100}>
             <div className="pane-toolBox">ToolBox</div>
             <div>
                {/* Inspector */}
@@ -50,17 +50,3 @@ class Editor extends Component {
 }
 
 export default Editor
-
-// <div>Pane 1</div>
-// <SplitPane split="vertical" minSize={400} maxSize={500} defaultSize="50%">
-//   <div>Pane 2</div>
-//   <SplitPane split="vertical" >
-//     <SplitPane split="horizontal">
-//       <div>Pane 4</div>
-//       <SplitPane split="horizontal">
-//         <div>Pane 5</div>
-//       </SplitPane>
-//     </SplitPane>
-//     <div>Pane 3</div>
-//   </SplitPane>
-// </SplitPane>
