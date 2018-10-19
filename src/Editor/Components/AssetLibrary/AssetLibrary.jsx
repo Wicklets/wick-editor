@@ -1,19 +1,19 @@
 import React, { Component } from 'react';
-import './_inspector.scss';
+import './_assetlibrary.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Button } from 'reactstrap';
 
 import DockedTitle from '../Util/DockedTitle/DockedTitle';
 
-class Inspector extends Component {
+class AssetLibrary extends Component {
   render() {
     return(
-      <div className="inspector">
-        <DockedTitle title={"Inspector"}></DockedTitle>
+      <div className="asset-library">
+        <DockedTitle title={"Asset Library"}></DockedTitle>
       </div>
 
     )
   }
 }
 
-export default Inspector
+export default AssetLibrary

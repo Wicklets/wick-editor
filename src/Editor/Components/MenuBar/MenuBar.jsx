@@ -1,19 +1,19 @@
 import React, { Component } from 'react';
-import './_inspector.scss';
+import './_menubar.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Button } from 'reactstrap';
 
 import DockedTitle from '../Util/DockedTitle/DockedTitle';
 
-class Inspector extends Component {
+class MenuBar extends Component {
   render() {
     return(
-      <div className="inspector">
-        <DockedTitle title={"Inspector"}></DockedTitle>
+      <div className="menu-bar">
+        <DockedTitle title={"Menu Bar"}></DockedTitle>
       </div>
 
     )
   }
 }
 
-export default Inspector
+export default MenuBar
