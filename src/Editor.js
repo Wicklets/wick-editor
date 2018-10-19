@@ -8,31 +8,38 @@ import { Button } from 'reactstrap';
 class Editor extends Component {
   render() {
     return (
-      // Menu Bar
+      {/* Menu Bar */},
       <SplitPane split="horizontal" minSize={50} maxSize={50}>
         <div className="pane-menuBar">MenuBar</div>
         <div>
-          // Toolbox
+          {/* Toolbox */}
           <SplitPane split="vertical" minSize={50} maxSize={50}>
             <div className="pane-toolBox">ToolBox</div>
             <div>
-               // Inspector
+               {/* Inspector */}
                 <SplitPane split="vertical" minSize={300} maxSize={500} primary="second">
                   <div>
-                    // Timeline
+                    {/* Timeline */}
                     <SplitPane split="horizontal" minSize={200} maxSize={350}>
                       <div className="pane-timeline">Timeline</div>
                       <div>
-                        // Code Editor
+                        {/* Code Editor */}
                         <SplitPane split="horizontal" minSize={50} maxSize={400} primary="second">
-                          // Canvas
+                          {/* Canvas */}
                           <div className="pane-canvas">Canvas</div>
                           <div className="pane-codeEditor">Code Editor</div>
                         </SplitPane>
                       </div>
                     </SplitPane>
                   </div>
-                  <div className="pane-inspector">Inspector</div>
+                  <div>
+                    {/* Asset Library */}
+                    <SplitPane split="horizontal" minSize={300} maxSize={500} primary="second">
+                      {/* Inpsector */}
+                      <div className="pane-inspector">Inspector</div>
+                      <div className="pane-assetLibrary">Asset Library</div>
+                    </SplitPane>
+                  </div>
                 </SplitPane>
             </div>
           </SplitPane>
