@@ -4,9 +4,10 @@ import './Editor.css';
 class Editor extends Component {
   render() {
     return (
-      <div className="wick-editor">
-
-      </div>
+      <SplitPane split="vertical" minSize={50} defaultSize={100}>
+        <div></div>
+        <div></div>
+      </SplitPane>
     )
   }
 }
