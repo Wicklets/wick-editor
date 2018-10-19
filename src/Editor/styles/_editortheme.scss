@@ -27,10 +27,32 @@ $flame: #F55A23;
 $flame-light: #FF7848;
 $flame-dark: #E6460E;
 
-$interface-veryDark: #111111;
-$interface-deepDark: #373737;
-$interface-dark: #464646;
-$interface-midDark: #606060;
-$interface-medium: #888888;
+$interface-primary: #464646; // most background colors
+$text-primary: #FFFFFF; // most text
 
-$interface-veryDark-text: $heather-grey-dark;
+$interface-secondary: #535353; // interface title headers, some backgrounds
+$text-secondary: #ADADAD; // some text
+
+$interface-tertiary: #919191; // search bars
+$text-tertiary: #626262; // search text
+
+$interface-quaternary: #C4C4C4; // interface background highlights
+
+$interface-input-background: #FFFFFF;
+$interface-input-text: #535353;
+
+$interface-selection: $wick-green-dark;
+$interface-hover: $wick-green;
+$interface-highlight: $wick-green-light;
+
+$interface-spotlight: $magenta;
+$interface-spotlight-dark: $magenta-dark;
+$interface-spotlight-light: $magenta-light; 
+
+$interface-spotlight-text: #FFFFFF;
+
+$interface-warning: $flame;
+$interface-warning-dark: $flame-dark;
+$interface-warning-light: $flame-light;
+
+$interface-warning-text: #FFFFFF;

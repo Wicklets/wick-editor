@@ -1,5 +1,7 @@
 @import '../../styles/_editortheme.scss';
 
+$inspector-left-padding: 10px;
+
 .inspector {
   width: 100%;
   height: 100%;
@@ -7,8 +9,9 @@
 }
 
 .selection-name-container {
-  margin: 0 auto;
   display: flex;
+  position: relative;
+  padding-left: $inspector-left-padding;
 }
 
 .selection-icon {
