@@ -5,3 +5,19 @@
   height: 100%;
   background-color: $deep-cereulian-light;
 }
+
+.selection-name-container {
+  margin: 0 auto;
+  display: flex;
+}
+
+.selection-icon {
+  width: 50px;
+  height: 50px;
+}
+
+.selection-name {
+  font-size: 2em;
+  padding-left: 10px;
+  color: $heather-grey-light;
+}
