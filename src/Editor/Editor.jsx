@@ -4,6 +4,7 @@ import './styles/split-pane.css'
 import SplitPane from "react-split-pane";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Button } from 'reactstrap';
+import Canvas from './Components/Canvas/Canvas';
 import ProjectSettings from './Components/Modals/ProjectSettings/ProjectSettings';
 
 import Inspector from './Components/Inspector/Inspector';
@@ -29,7 +30,7 @@ class Editor extends Component {
                         {/* Code Editor */}
                         <SplitPane split="horizontal" minSize={50} maxSize={400} primary="second">
                           {/* Canvas */}
-                          <div className="pane-canvas">Canvas</div>
+                          <div className="pane-canvas"><Canvas></Canvas></div>
                           <div className="pane-codeEditor">Code Editor</div>
                         </SplitPane>
                       </div>
