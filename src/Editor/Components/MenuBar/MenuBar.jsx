@@ -8,7 +8,7 @@ import DockedTitle from '../Util/DockedTitle/DockedTitle';
 class MenuBar extends Component {
   render() {
     return(
-      <div className="menu-bar">
+      <div className="docked-pane menu-bar">
         <DockedTitle title={"Menu Bar"}></DockedTitle>
       </div>
 

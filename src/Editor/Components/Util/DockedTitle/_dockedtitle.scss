@@ -1,0 +1,14 @@
+@import '../../../styles/_editortheme.scss';
+
+.title-box {
+  position: relative;
+  background-color: $interface-secondary;
+  color: $interface-secondary-text;
+
+  padding-top: 2px;
+  padding-bottom: 2px;
+  margin: 8px;
+
+  border-radius: $interface-roundness-primary;
+  text-align: center;
+}

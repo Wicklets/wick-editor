@@ -8,7 +8,7 @@ import DockedTitle from '../Util/DockedTitle/DockedTitle';
 class Toolbox extends Component {
   render() {
     return(
-      <div className="tool-box">
+      <div className="docked-pane tool-box">
         <DockedTitle title={"Toolbox"}></DockedTitle>
       </div>
 

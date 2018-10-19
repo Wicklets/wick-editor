@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
-import './DockedTitle.css';
+import './_dockedtitle.scss';
 
 class DockedTitle extends Component {
   render() {
     return(
-      <div className="titleBox">{this.props.title}</div>
+      <div className="title-box">{this.props.title}</div>
     )
   }
 }

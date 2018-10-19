@@ -8,7 +8,7 @@ import DockedTitle from '../Util/DockedTitle/DockedTitle';
 class AssetLibrary extends Component {
   render() {
     return(
-      <div className="asset-library">
+      <div className="docked-pane asset-library">
         <DockedTitle title={"Asset Library"}></DockedTitle>
       </div>
 

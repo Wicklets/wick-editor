@@ -11,7 +11,7 @@ import iconSettings from '../../../resources/inspector-icons/settings.png';
 class Inspector extends Component {
   render() {
     return(
-      <div className="inspector">
+      <div className="docked-pane inspector">
         <DockedTitle title={"Inspector"}></DockedTitle>
         <div className="selection-name-container">
           <img className="selection-icon" src={iconSettings}></img>

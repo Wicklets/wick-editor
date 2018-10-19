@@ -1,4 +1,8 @@
 // editorTheme.scss
+
+// Define Color Scheme
+
+// Default palette
 $heather-grey: #F5F5F5;
 $heather-grey-light: #F9F9F9;
 $heather-grey-dark: #EAEAEA;
@@ -27,14 +31,15 @@ $flame: #F55A23;
 $flame-light: #FF7848;
 $flame-dark: #E6460E;
 
+// interface palette
 $interface-primary: #464646; // most background colors
-$text-primary: #FFFFFF; // most text
+$interface-primary-text: #FFFFFF; // most text
 
 $interface-secondary: #535353; // interface title headers, some backgrounds
-$text-secondary: #ADADAD; // some text
+$interface-secondary-text: #ADADAD; // some text
 
 $interface-tertiary: #919191; // search bars
-$text-tertiary: #626262; // search text
+$interface-tertiary-text: #626262; // search text
 
 $interface-quaternary: #C4C4C4; // interface background highlights
 
@@ -49,7 +54,7 @@ $interface-tooltip: $sleepy-sky;
 $interface-tooltip-dark: $sleepy-sky-dark;
 $interface-tooltip-light: $sleepy-sky-light;
 
-$interface-tooltip-text: #333333;
+$interface-tooltip-text: #222222;
 
 $interface-spotlight: $magenta;
 $interface-spotlight-dark: $magenta-dark;
@@ -62,3 +67,8 @@ $interface-warning-dark: $flame-dark;
 $interface-warning-light: $flame-light;
 
 $interface-warning-text: #FFFFFF;
+
+// define interface element properties
+
+$interface-roundness-primary: 2px;
+$interface-roundness-secondary: 4px;

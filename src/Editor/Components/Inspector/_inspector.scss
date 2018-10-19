@@ -1,11 +1,12 @@
 @import '../../styles/_editortheme.scss';
+@import '../../styles/_dockedpane.scss';
 
 $inspector-left-padding: 10px;
 
 .inspector {
   width: 100%;
   height: 100%;
-  background-color: $deep-cereulian-light;
+  background-color: $interface-primary;
 }
 
 .selection-name-container {

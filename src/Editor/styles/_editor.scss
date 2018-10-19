@@ -3,4 +3,10 @@
 .pane {
   width: 100%;
   height: 100%;
+  background-color: $interface-primary;
+  overflow: hidden;
+}
+
+.dockedPane {
+  overflow: hidden;
 }
