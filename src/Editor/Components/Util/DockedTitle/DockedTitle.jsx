@@ -4,7 +4,7 @@ import './DockedTitle.css';
 class DockedTitle extends Component {
   render() {
     return(
-      <div></div>
+      <div className="titleBox">{this.props.title}</div>
     )
   }
 }
