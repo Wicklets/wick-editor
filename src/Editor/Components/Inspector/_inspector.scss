@@ -2,6 +2,7 @@
 @import '../../styles/_dockedpane.scss';
 
 $inspector-left-padding: 10px;
+$inspector-selection-icon-size: 40px;
 
 .inspector {
   width: 100%;
@@ -16,12 +17,14 @@ $inspector-left-padding: 10px;
 }
 
 .selection-icon {
-  width: 50px;
-  height: 50px;
+  width: $inspector-selection-icon-size;
+  height: $inspector-selection-icon-size;
 }
 
 .selection-name {
-  font-size: 2em;
+  font-size: 28px;
   padding-left: 10px;
   color: $heather-grey-light;
+  text-align: center;
+  line-height: $inspector-selection-icon-size;
 }
