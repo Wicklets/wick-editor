@@ -2,11 +2,12 @@ import React, { Component } from 'react';
 import './Editor.css';
 import './styles/split-pane.css'
 import SplitPane from "react-split-pane";
+import 'bootstrap/dist/css/bootstrap.min.css';
+import { Button } from 'reactstrap';
 
 class Editor extends Component {
   render() {
     return (
-
       <SplitPane split="horizontal" minSize={50} maxSize={50}>
         <div className="pane-menuBar">MenuBar</div>
         <div>
