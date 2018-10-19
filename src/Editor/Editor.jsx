@@ -4,13 +4,14 @@ import './styles/split-pane.css'
 import SplitPane from "react-split-pane";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Button } from 'reactstrap';
+import ProjectSettings from './Components/Modals/ProjectSettings/ProjectSettings';
 
 class Editor extends Component {
   render() {
     return (
       {/* Menu Bar */},
       <SplitPane allowResize={false} split="horizontal" minSize={50} maxSize={50}>
-        <div className="pane-menuBar">MenuBar</div>
+        <div className="pane-menuBar">MenuBar<ProjectSettings></ProjectSettings></div>
         <div>
           {/* Toolbox */}
           <SplitPane allowResize={false} split="vertical" minSize={50} maxSize={100}>
