@@ -31,9 +31,9 @@ class Editor extends Component {
                       <div className="pane pane-timeline"><Timeline /></div>
                       <div>
                         {/* Code Editor */}
-                        <SplitPane split="horizontal" minSize={50} maxSize={400} primary="second">
+                        <SplitPane defaultSize="70%" split="horizontal" minSize={50} maxSize="75%">
                           {/* Canvas */}
-                          <div className="pane pane-canvas"></div>
+                          <div className="pane pane-canvas"><Canvas /></div>
                           <div className="pane pane-codeEditor"><CodeEditor /></div>
                         </SplitPane>
                       </div>
