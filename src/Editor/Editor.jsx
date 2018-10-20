@@ -3,9 +3,8 @@ import './styles/_editor.scss';
 import './styles/_splitpane.scss'
 import SplitPane from "react-split-pane";
 import 'bootstrap/dist/css/bootstrap.min.css';
-import Canvas from './Components/Canvas/Canvas';
-import ProjectSettings from './Components/Modals/ProjectSettings/ProjectSettings';
 
+import Canvas from './Components/Canvas/Canvas';
 import Inspector from './Components/Inspector/Inspector';
 import MenuBar from './Components/MenuBar/MenuBar';
 import Timeline from './Components/Timeline/Timeline';

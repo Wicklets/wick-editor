@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import './_timeline.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { Button } from 'reactstrap';
 
 import DockedTitle from '../Util/DockedTitle/DockedTitle';
 
