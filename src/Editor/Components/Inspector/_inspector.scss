@@ -5,9 +5,9 @@ $inspector-left-padding: 10px;
 $inspector-selection-icon-size: 40px;
 
 .inspector {
-  width: auto;
-  height: auto;
-  background-color: $interface-primary;
+  width: 100%;
+  height: 100%;
+  background-color: $sleepy-sky-dark;
 }
 
 .selection-name-container {
