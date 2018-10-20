@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import './_menubar.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { Button } from 'reactstrap';
 
 import DockedTitle from '../Util/DockedTitle/DockedTitle';
 

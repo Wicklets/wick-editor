@@ -14,7 +14,7 @@ class Inspector extends Component {
       <div className="docked-pane inspector">
         <DockedTitle title={"Inspector"}></DockedTitle>
         <div className="selection-name-container">
-          <img className="selection-icon" src={iconSettings}></img>
+          <img className="selection-icon" alt="" src={iconSettings}></img>
           <div className="selection-name">Inspector</div>
         </div>
       </div>
