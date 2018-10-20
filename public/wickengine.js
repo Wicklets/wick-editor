@@ -3097,7 +3097,7 @@ var Flatted = function (Primitive, primitive) {
 })();
 /*!
  *  Spatial Plugin - Adds support for stereo and 3D audio where Web Audio is supported.
- *
+ *  
  *  howler.js v2.0.15
  *  howlerjs.com
  *
@@ -20994,7 +20994,7 @@ class Wick {
 
 }
 
-console.log('%cWick Engine ' + Wick.version, 'color: #00ffff; font-size: 20px; font-weight: bold; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;');
+console.log("Wick Engine 1.0 is available");
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 Wick.View = class {
   static get ENABLE_CACHE() {
@@ -21042,7 +21042,7 @@ Wick.FrameView = class extends Wick.View {
   /* Setters */
 
   /* Methods */
-  //
+  // 
 
 
   updateModelUsingView(frame) {
@@ -22444,5 +22444,3 @@ Wick.Button = class extends Wick.Symbol {
   }
 
 };
-
-window.Wick = Wick;
