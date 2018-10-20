@@ -41,7 +41,7 @@ class Editor extends Component {
                   </div>
                   <div>
                     {/* Asset Library */}
-                    <SplitPane split="horizontal" minSize={300} maxSize={500} primary="second">
+                    <SplitPane split="horizontal" defaultSize={200} minSize={50} maxSize={400} primary="second">
                       {/* Inpsector */}
                       <div className="pane pane-inspector"><Inspector /></div>
                       <div className="pane pane-assetLibrary"><AssetLibrary /></div>
