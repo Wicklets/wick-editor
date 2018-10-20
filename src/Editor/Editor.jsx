@@ -13,6 +13,11 @@ import AssetLibrary from './Components/AssetLibrary/AssetLibrary';
 import CodeEditor from './Components/CodeEditor/CodeEditor';
 
 class Editor extends Component {
+
+  onCodeResize() {
+
+  }
+
   render() {
     return (
       {/* Menu Bar */},
@@ -20,20 +25,20 @@ class Editor extends Component {
         <div className="pane pane-menuBar"><MenuBar /></div>
         <div>
           {/* Toolbox */}
-          <SplitPane allowResize={false} split="vertical" minSize={50} maxSize={100}>
+          <SplitPane allowResize={false} split="vertical" minSize={50}>
             <div className="pane pane-toolBox"><Toolbox /></div>
             <div>
                {/* Inspector */}
-                <SplitPane split="vertical" minSize={300} maxSize={500} primary="second">
+                <SplitPane split="vertical" minSize={200} primary="second">
                   <div>
                     {/* Timeline */}
-                    <SplitPane split="horizontal" minSize={200} maxSize={350}>
+                    <SplitPane split="horizontal" minSize={50} maxSize={350}>
                       <div className="pane pane-timeline"><Timeline /></div>
                       <div>
-                        {/* Code Editor */}
-                        <SplitPane defaultSize="70%" split="horizontal" minSize={50} maxSize="75%">
-                          {/* Canvas */}
+                        {/* Canvas */}
+                        <SplitPane defaultSize="70%" split="horizontal" minSize={100}>
                           <div className="pane pane-canvas"><Canvas /></div>
+                          {/* Code Editor */}
                           <div className="pane pane-codeEditor"><CodeEditor /></div>
                         </SplitPane>
                       </div>
@@ -41,7 +46,7 @@ class Editor extends Component {
                   </div>
                   <div>
                     {/* Asset Library */}
-                    <SplitPane split="horizontal" defaultSize={200} minSize={50} maxSize={400} primary="second">
+                    <SplitPane split="horizontal" defaultSize="70%" minSize={50}>
                       {/* Inpsector */}
                       <div className="pane pane-inspector"><Inspector /></div>
                       <div className="pane pane-assetLibrary"><AssetLibrary /></div>
