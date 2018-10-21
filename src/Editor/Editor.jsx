@@ -33,15 +33,11 @@ class Editor extends Component {
     }
 
     onResize (e) {
-      if (e.domElement) {
-        e.domElement.classList.add('resizing')
-      }
+      console.log('onResize')
     }
 
     onStopResize (e) {
-      if (e.domElement) {
-        e.domElement.classList.remove('resizing')
-      }
+      console.log('onStopResize')
     }
 
     renderHeader() {
@@ -100,7 +96,7 @@ class Editor extends Component {
           <ReflexElement className="header" flex={0.05}>
             {this.renderHeader()}
           </ReflexElement>
-          <ReflexElement>
+          <ReflexElement {...this.resizeProps}>
             <ReflexContainer orientation="vertical">
 
               <ReflexElement flex={0.05} {...this.resizeProps}>
@@ -111,7 +107,7 @@ class Editor extends Component {
                 {this.renderMiddlePanel()}
               </ReflexElement>
 
-              <ReflexSplitter{...this.resizeProps}/>
+              <ReflexSplitter {...this.resizeProps}/>
 
               <ReflexElement flex={0.2} {...this.resizeProps}>
                 {this.renderRightSidebar()}
