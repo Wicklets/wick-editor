@@ -239,21 +239,6 @@ var AnimationTimeline = new (function ft () {
             triggerEvent(e);
             self.repaint();
         });
-
-        $(window).keypress(function (e) {
-            if(e.key === 'ArrowRight') {
-                scroll.x -= 10;
-            } else if (e.key === 'ArrowLeft') {
-                scroll.x += 10;
-                if(scroll.x > 0) scroll.x = 0;
-            } else if (e.key === 'ArrowDown') {
-                scroll.y -= 10
-            } else if (e.key === 'ArrowUp') {
-                scroll.y += 10
-                if(scroll.y > 0) scroll.y = 0;
-            }
-            self.repaint();
-        });
     }
 
     function handleMouseMove (e) {
