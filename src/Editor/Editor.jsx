@@ -39,56 +39,56 @@ class Editor extends Component {
 
     render () {
       return (
-        <ReflexContainer orientation="horizontal">
-          <ReflexElement className="header" flex={0.05}>
-            {/* Header */}
-            <DockedPanel><MenuBar /></DockedPanel>
-          </ReflexElement>
-          <ReflexElement {...this.resizeProps}>
-            <ReflexContainer orientation="vertical">
+          <ReflexContainer orientation="horizontal">
+            <ReflexElement className="header" flex={0.05}>
+              {/* Header */}
+              <DockedPanel><MenuBar /></DockedPanel>
+            </ReflexElement>
+            <ReflexElement {...this.resizeProps}>
+              <ReflexContainer orientation="vertical">
 
-              <ReflexElement flex={0.05} {...this.resizeProps}>
-                {/* Left Sidebar */}
-                <DockedPanel><Toolbox /></DockedPanel>
-              </ReflexElement>
+                <ReflexElement flex={0.05} {...this.resizeProps}>
+                  {/* Left Sidebar */}
+                  <DockedPanel><Toolbox /></DockedPanel>
+                </ReflexElement>
 
-              <ReflexElement {...this.resizeProps}>
-                {/* Middle Panel */}
-                <ReflexContainer orientation="horizontal">
-                  <ReflexElement flex={0.2} {...this.resizeProps}>
-                    <DockedPanel><Timeline /></DockedPanel>
-                  </ReflexElement>
-                  <ReflexSplitter {...this.resizeProps}/>
-                  <ReflexElement {...this.resizeProps}>
-                    <DockedPanel><Canvas /></DockedPanel>
-                  </ReflexElement>
-                  <ReflexSplitter {...this.resizeProps}/>
-                  <ReflexElement flex={0.2} {...this.resizeProps}>
-                    <DockedPanel><CodeEditor /></DockedPanel>
-                  </ReflexElement>
-                </ReflexContainer>
-              </ReflexElement>
+                <ReflexElement {...this.resizeProps}>
+                  {/* Middle Panel */}
+                  <ReflexContainer orientation="horizontal">
+                    <ReflexElement flex={0.2} {...this.resizeProps}>
+                      <DockedPanel><Timeline /></DockedPanel>
+                    </ReflexElement>
+                    <ReflexSplitter {...this.resizeProps}/>
+                    <ReflexElement {...this.resizeProps}>
+                      <DockedPanel><Canvas /></DockedPanel>
+                    </ReflexElement>
+                    <ReflexSplitter {...this.resizeProps}/>
+                    <ReflexElement flex={0.2} {...this.resizeProps}>
+                      <DockedPanel><CodeEditor /></DockedPanel>
+                    </ReflexElement>
+                  </ReflexContainer>
+                </ReflexElement>
 
-              <ReflexSplitter {...this.resizeProps}/>
+                <ReflexSplitter {...this.resizeProps}/>
 
-              <ReflexElement flex={0.2} {...this.resizeProps}>
-                {/* Right Sidebar */}
-                <ReflexContainer orientation="horizontal">
-                  <ReflexElement {...this.resizeProps}>
-                    <DockedPanel><Inspector /></DockedPanel>
-                  </ReflexElement>
+                <ReflexElement flex={0.2} {...this.resizeProps}>
+                  {/* Right Sidebar */}
+                  <ReflexContainer orientation="horizontal">
+                    <ReflexElement {...this.resizeProps}>
+                      <DockedPanel><Inspector /></DockedPanel>
+                    </ReflexElement>
 
-                  <ReflexSplitter {...this.resizeProps}/>
+                    <ReflexSplitter {...this.resizeProps}/>
 
-                  <ReflexElement {...this.resizeProps}>
-                    <DockedPanel><AssetLibrary /></DockedPanel>
-                  </ReflexElement>
-                </ReflexContainer>
-              </ReflexElement>
+                    <ReflexElement {...this.resizeProps}>
+                      <DockedPanel><AssetLibrary /></DockedPanel>
+                    </ReflexElement>
+                  </ReflexContainer>
+                </ReflexElement>
 
-            </ReflexContainer>
-          </ReflexElement>
-        </ReflexContainer>
+              </ReflexContainer>
+            </ReflexElement>
+          </ReflexContainer>
       )
   }
 
