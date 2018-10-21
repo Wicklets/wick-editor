@@ -7,8 +7,9 @@ import DockedTitle from 'Editor/Util/DockedTitle/DockedTitle';
 class CodeEditor extends Component {
   render() {
     return(
-      <div className="docked-pane code-editor">
+      <div className="code-editor">
         <DockedTitle title={"Code Editor"}></DockedTitle>
+
       </div>
 
     )
