@@ -34,7 +34,7 @@ class Editor extends Component {
     }
 
     onStopResize (e) {
-      
+
     }
 
     render () {

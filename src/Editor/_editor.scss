@@ -18,16 +18,34 @@ div {
   overflow: hidden !important;
 }
 
-.reflex-element.resizing {
-  background-color: rgba(255, 0, 0, 0.20);
-}
-
-.reflex-splitter.resizing {
-  background-color: rgba(255, 0, 0, 0.5);
-}
-
 .handle {
   background: #eae9e9;
   padding: 8px 0 0 8px;
   height: 28px;
+}
+
+.reflex-splitter {
+  transition: background-color 0.0s ease !important;
+  background-color: green !important;
+}
+.reflex-splitter:hover {
+    background-color: yellow !important;
+}
+
+.reflex-layout.vertical > .reflex-splitter {
+    border-right: 0px solid #c6c6c6 !important;
+    border-left: 0px solid #c6c6c6 !important;
+    width: 12px !important;
+}
+
+.reflex-layout.horizontal > .reflex-splitter {
+  border-top: 0px solid #c6c6c6 !important;
+  border-bottom: 0px solid #c6c6c6 !important;
+  height: 12px !important;
+}
+
+.reflex-splitter {
+  background-image: url('../resources/gnurl-horizontal.png');
+  background-repeat: no-repeat;
+  background-position: center;
 }
