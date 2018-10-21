@@ -30,11 +30,11 @@ class Editor extends Component {
     }
 
     onResize (e) {
-      console.log('onResize')
+      window.dispatchEvent(new Event('resize'));
     }
 
     onStopResize (e) {
-      console.log('onStopResize')
+      
     }
 
     render () {

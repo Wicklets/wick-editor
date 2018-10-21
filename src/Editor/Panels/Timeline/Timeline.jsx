@@ -4,7 +4,6 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 class Timeline extends Component {
   componentDidMount () {
-    console.log(this.refs.container)
     window.AnimationTimeline.setup(this.refs.container, function () {
         window.AnimationTimeline.setData({
             playheadPosition: 1,
