@@ -1,0 +1,9 @@
+@import 'Editor/_wickbrand.scss';
+
+.wick-input {
+  margin: 2px;
+  border-radius: $interface-input-roundness;
+  border: none;
+  background-color: #FFFFFF;
+  color: $interface-tertiary-text;
+}

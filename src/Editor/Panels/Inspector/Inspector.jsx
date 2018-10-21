@@ -3,6 +3,7 @@ import './_inspector.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 import DockedTitle from 'Editor/Util/DockedTitle/DockedTitle';
+import WickInput from 'Editor/Util/WickInput/WickInput';
 import InspectorTitle from './InspectorTitle/InspectorTitle';
 
 class Inspector extends Component {
@@ -11,8 +12,9 @@ class Inspector extends Component {
       <div className="docked-pane inspector">
         <DockedTitle title={"Inspector"}></DockedTitle>
         <InspectorTitle />
+        <WickInput type="number"></WickInput>
+        <WickInput type="string"></WickInput>
       </div>
-
     )
   }
 }
