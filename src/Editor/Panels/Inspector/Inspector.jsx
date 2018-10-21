@@ -11,7 +11,7 @@ class Inspector extends Component {
     return(
       <div className="docked-pane inspector">
         <DockedTitle title={"Inspector"}></DockedTitle>
-        <InspectorTitle />
+        <InspectorTitle type="settings"/>
         <WickInput type="number"></WickInput>
         <WickInput type="string"></WickInput>
       </div>
