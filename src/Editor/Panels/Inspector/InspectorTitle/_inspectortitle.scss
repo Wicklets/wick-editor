@@ -1,0 +1,22 @@
+@import 'Editor/_wickbrand.scss';
+@import '../_inspector.scss';
+
+.selection-name-container {
+  display: flex;
+  position: relative;
+  padding-left: $inspector-left-padding;
+  margin-top: 6px;
+}
+
+.selection-icon {
+  width: $inspector-selection-icon-size;
+  height: $inspector-selection-icon-size;
+}
+
+.selection-name {
+  font-size: 28px;
+  padding-left: 10px;
+  color: $heather-grey-light;
+  text-align: center;
+  line-height: $inspector-selection-icon-size;
+}

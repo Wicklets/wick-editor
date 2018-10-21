@@ -7,24 +7,5 @@ $inspector-selection-icon-size: 40px;
   background-color: $sleepy-sky-dark;
   width: 100%;
   height: 100%;
-  overflow: hidden; 
-}
-
-.selection-name-container {
-  display: flex;
-  position: relative;
-  padding-left: $inspector-left-padding;
-}
-
-.selection-icon {
-  width: $inspector-selection-icon-size;
-  height: $inspector-selection-icon-size;
-}
-
-.selection-name {
-  font-size: 28px;
-  padding-left: 10px;
-  color: $heather-grey-light;
-  text-align: center;
-  line-height: $inspector-selection-icon-size;
+  overflow: hidden;
 }
