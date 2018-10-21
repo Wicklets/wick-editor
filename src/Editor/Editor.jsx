@@ -17,32 +17,48 @@ import Timeline from './Panels/Timeline/Timeline';
 import Toolbox from './Panels/Toolbox/Toolbox';
 import AssetLibrary from './Panels/AssetLibrary/AssetLibrary';
 import CodeEditor from './Panels/CodeEditor/CodeEditor';
-
+import ModalHandler from './Modals/ModalHandler/ModalHandler';
 
 class Editor extends Component {
 
-    constructor () {
-      super()
-      this.resizeProps = {
-        onStopResize: this.onStopResize.bind(this),
-        onResize: this.onResize.bind(this)
-      }
+  constructor () {
+    super();
+    this.state = {
+      project: null,
+      openModalName: null,
     }
-
-    onResize (e) {
-      window.dispatchEvent(new Event('resize'));
+    this.resizeProps = {
+      onStopResize: this.onStopResize.bind(this),
+      onResize: this.onResize.bind(this)
     }
+  }
 
-    onStopResize (e) {
+  componentWillMount () {
+    var project = new window.Wick.Project();
+    this.setState({project: project});
+  }
 
-    }
+  onResize (e) {
+    window.dispatchEvent(new Event('resize'));
+  }
 
-    render () {
+  onStopResize (e) {
+
+  }
+
+  openModal (name) {
+    this.setState({
+      openModalName: name,
+    });
+  }
+
+  render () {
       return (
         <ReflexContainer orientation="horizontal">
           <ReflexElement className="header" flex={0.05}>
+            <ModalHandler openModal={this.openModal.bind(this)} openModalName={this.state.openModalName} />
             {/* Header */}
-            <DockedPanel><MenuBar /></DockedPanel>
+            <DockedPanel><MenuBar openModal={this.openModal.bind(this)} /></DockedPanel>
           </ReflexElement>
           <ReflexElement {...this.resizeProps}>
             <ReflexContainer orientation="vertical">
@@ -91,7 +107,6 @@ class Editor extends Component {
         </ReflexContainer>
       )
   }
-
 }
 
 export default Editor

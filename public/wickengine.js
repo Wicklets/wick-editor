@@ -20994,7 +20994,9 @@ class Wick {
 
 }
 
-console.log("Wick Engine 1.0 is available");
+console.log("Wick Engine 1.0 is available"); // Ensure that the Wick class is accessible in environments where globals are finicky (react, webpack, etc)
+
+window.Wick = Wick;
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 Wick.View = class {
   static get ENABLE_CACHE() {
