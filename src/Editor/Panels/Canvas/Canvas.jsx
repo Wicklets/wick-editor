@@ -9,6 +9,13 @@ class Canvas extends Component {
     p.fillColor = 'blue';
     p.strokeColor = 'red';
     p.strokeWidth = 5;
+    window.onresize = function () {
+      var widthDiff = paper.view.viewSize.width - $('.paper-canvas-container').width();
+      var heightDiff = paper.view.viewSize.height - $('.paper-canvas-container').height();
+      paper.view.viewSize.width = $('.paper-canvas-container').width();
+      paper.view.viewSize.height = $('.paper-canvas-container').height();
+      paper.view.center = paper.view.center.add(new window.paper.Point(widthDiff/2/window.paper.view.zoom, heightDiff/2/window.paper.view.zoom))
+    }
   }
 
   render() {
