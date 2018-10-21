@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import './_toolbox.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-import DockedTitle from '../Util/DockedTitle/DockedTitle';
+import DockedTitle from 'Editor/Util/DockedTitle/DockedTitle';
 
 class Toolbox extends Component {
   render() {

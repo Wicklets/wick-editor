@@ -2,8 +2,6 @@ import React, { Component } from 'react';
 import './_timeline.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-import DockedTitle from '../Util/DockedTitle/DockedTitle';
-
 class Timeline extends Component {
   componentDidMount () {
     console.log(this.refs.container)

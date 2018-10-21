@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
-import './_assetlibrary.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-import DockedTitle from '../Util/DockedTitle/DockedTitle';
+import DockedTitle from 'Editor/Util/DockedTitle/DockedTitle';
+
+import './_assetlibrary.scss';
 
 class AssetLibrary extends Component {
   render() {
@@ -10,7 +11,6 @@ class AssetLibrary extends Component {
       <div className="docked-pane asset-library">
         <DockedTitle title={"Asset Library"}></DockedTitle>
       </div>
-
     )
   }
 }

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import './_menubar.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-import DockedTitle from '../Util/DockedTitle/DockedTitle';
+import DockedTitle from 'Editor/Util/DockedTitle/DockedTitle';
 
 class MenuBar extends Component {
   render() {
@@ -10,7 +10,6 @@ class MenuBar extends Component {
       <div className="docked-pane menu-bar">
         <DockedTitle title={"Menu Bar"}></DockedTitle>
       </div>
-
     )
   }
 }

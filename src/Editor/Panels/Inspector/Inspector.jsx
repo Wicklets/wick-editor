@@ -2,10 +2,8 @@ import React, { Component } from 'react';
 import './_inspector.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-// component imports
-import DockedTitle from '../Util/DockedTitle/DockedTitle';
+import DockedTitle from 'Editor/Util/DockedTitle/DockedTitle';
 
-// icon imports
 import iconSettings from '../../../resources/inspector-icons/settings.png';
 
 class Inspector extends Component {

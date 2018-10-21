@@ -7,8 +7,8 @@
     "node-sass": "^4.9.4",
     "react": "^16.5.2",
     "react-dom": "^16.5.2",
+    "react-reflex": "^2.2.9",
     "react-scripts": "2.0.5",
-    "react-split-pane": "^0.1.84",
     "reactstrap": "^6.5.0"
   },
   "scripts": {

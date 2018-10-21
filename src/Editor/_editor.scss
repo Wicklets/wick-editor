@@ -1,0 +1,204 @@
+@import './_wickbrand.scss';
+
+div {
+  font-family: "Nunito", "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif
+}
+
+.editor {
+  width: 100%;
+  height: 100%;
+}
+
+//
+
+.reflex-element {
+  background-color: rgba(1, 210, 248, 0.06);
+  overflow: hidden !important;
+}
+
+.reflex-element.resizing {
+  background-color: rgba(255, 0, 0, 0.20);
+}
+
+.reflex-splitter.resizing {
+  background-color: rgba(255, 0, 0, 0.5);
+}
+
+.pane-content {
+  text-align: center;
+  position: relative;
+  user-select: none;
+  height: 100%;
+}
+
+.pane-content > label {
+  position: relative;
+  top:30%;
+}
+
+.header {
+  background-color: rgba(1, 210, 248, 0.30);
+  border-bottom: 1px solid #c6c6c6;
+  overflow: hidden !important;
+}
+
+.footer {
+  background-color: rgba(1, 210, 248, 0.30);
+  border-top: 1px solid #c6c6c6;
+  overflow: hidden !important;
+  text-align: center;
+}
+
+.left-pane {
+  background-color: rgb(34, 34, 34);
+  color: #03d8ff;
+}
+
+.middle-pane {
+  background-color: rgb(255, 255, 255);
+}
+
+.right-pane {
+  background-color: rgb(3, 216, 255);
+}
+
+.bottom-pane {
+  background-color: rgb(34, 34, 34);
+  color: #03d8ff;
+}
+
+.pane-control {
+  border-bottom: 1px solid #c6c6c6;
+  background-color: #b3f2fd;
+  overflow: hidden;
+  height: 25px;
+}
+
+.pane-control > label {
+  white-space: nowrap;
+  margin-left: 10px;
+  margin-top: 4px;
+  font-size: 14px;
+  float: left;
+}
+
+.pane-control > button {
+  transition-timing-function: ease;
+  transition-duration: 1.0s;
+  transition-property: all;
+  transition-delay: 0.0s;
+
+  border: 1px solid #eeeeee;
+  background-color: #c6c6c6;
+  border-radius: 6px;
+  position: relative;
+  margin-right: 4px;
+  overflow: hidden;
+  margin-top: 4px;
+  outline: none;
+  float: right;
+  height: 17px;
+  width: 30px;
+}
+
+.pane-control > button:hover {
+  border: 1px solid #0c63ff;
+}
+
+.pane-control > button > label {
+  transition-timing-function: ease;
+  transition-duration: 1.0s;
+  transition-property: all;
+  transition-delay: 0.0s;
+
+  position: relative;
+  font-size: 20px;
+  color: #f0fcff;
+  top: -8px;
+}
+
+.pane-control > button:hover > label {
+  color: #0c63ff;
+}
+
+.ctrl-pane-content {
+  height: calc(100% - 26px);
+  overflow: hidden;
+}
+
+.ctrl-pane-content > label {
+  position: relative;
+  top:30%;
+}
+
+.handle {
+  background: #eae9e9;
+  padding: 8px 0 0 8px;
+  height: 28px;
+}
+
+#demo-basic {
+  border: 1px solid #0c63ff;
+  background-color: white;
+  height: 250px;
+}
+
+#demo-basic-splitter {
+  border: 1px solid #0c63ff;
+  background-color: white;
+  height: 250px;
+}
+
+#demo-splitter-propagation-2x {
+  border: 1px solid #0c63ff;
+  background-color: white;
+  height: 250px;
+}
+
+#demo-splitter-propagation-3x {
+  border: 1px solid #0c63ff;
+  background-color: white;
+  height: 250px;
+}
+
+#demo-advanced {
+  border: 1px solid #0c63ff;
+  background-color: white;
+  height: 600px;
+}
+
+#demo-controls {
+  border: 1px solid #0c63ff;
+  background-color: white;
+  height: 400px;
+}
+
+#demo-size-aware {
+  border: 1px solid #0c63ff;
+  background-color: white;
+  height: 280px;
+}
+
+#demo-storage {
+  border: 1px solid #0c63ff;
+  background-color: white;
+  height: 280px;
+}
+
+#demo-collapse {
+  border: 1px solid #0c63ff;
+  background-color: white;
+  height: 280px;
+}
+
+#demo-handle {
+  border: 1px solid #0c63ff;
+  background-color: white;
+  height: 280px;
+}
+
+#page-footer-filler {
+  height: 100px;
+}

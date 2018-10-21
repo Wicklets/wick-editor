@@ -1,63 +1,154 @@
 import React, { Component } from 'react';
-import './styles/_editor.scss';
-import './styles/_splitpane.scss'
-import SplitPane from "react-split-pane";
+import './_editor.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-import Canvas from './Components/Canvas/Canvas';
-import Inspector from './Components/Inspector/Inspector';
-import MenuBar from './Components/MenuBar/MenuBar';
-import Timeline from './Components/Timeline/Timeline';
-import Toolbox from './Components/Toolbox/Toolbox';
-import AssetLibrary from './Components/AssetLibrary/AssetLibrary';
-import CodeEditor from './Components/CodeEditor/CodeEditor';
+import 'react-reflex/styles.css'
+import {
+  ReflexContainer,
+  ReflexSplitter,
+  ReflexElement
+} from 'react-reflex'
+
+/*
+import Canvas from './Panels/Canvas/Canvas';
+import Inspector from './Panels/Inspector/Inspector';
+import MenuBar from './Panels/MenuBar/MenuBar';
+import Timeline from './Panels/Timeline/Timeline';
+import Toolbox from './Panels/Toolbox/Toolbox';
+import AssetLibrary from './Panels/AssetLibrary/AssetLibrary';
+import CodeEditor from './Panels/CodeEditor/CodeEditor';
+*/
 
 class Editor extends Component {
 
-  onCodeResize() {
+    constructor () {
 
-  }
+      super()
 
-  render() {
-    return (
-      {/* Menu Bar */},
-      <SplitPane allowResize={false} split="horizontal" minSize={50} maxSize={50}>
-        <div className="pane pane-menuBar"><MenuBar /></div>
-        <div>
-          {/* Toolbox */}
-          <SplitPane allowResize={false} split="vertical" minSize={50}>
-            <div className="pane pane-toolBox"><Toolbox /></div>
-            <div>
-               {/* Inspector */}
-                <SplitPane split="vertical" minSize={200} primary="second">
-                  <div>
-                    {/* Timeline */}
-                    <SplitPane split="horizontal" minSize={50} maxSize={350}>
-                      <div className="pane pane-timeline"><Timeline /></div>
-                      <div>
-                        {/* Canvas */}
-                        <SplitPane defaultSize="70%" split="horizontal" minSize={100}>
-                          <div className="pane pane-canvas"><Canvas /></div>
-                          {/* Code Editor */}
-                          <div className="pane pane-codeEditor"><CodeEditor /></div>
-                        </SplitPane>
-                      </div>
-                    </SplitPane>
-                  </div>
-                  <div>
-                    {/* Asset Library */}
-                    <SplitPane split="horizontal" defaultSize="70%" minSize={50}>
-                      {/* Inpsector */}
-                      <div className="pane pane-inspector"><Inspector /></div>
-                      <div className="pane pane-assetLibrary"><AssetLibrary /></div>
-                    </SplitPane>
-                  </div>
-                </SplitPane>
+      this.resizeProps = {
+        onStopResize: this.onStopResize.bind(this),
+        onResize: this.onResize.bind(this)
+      }
+    }
+
+    onResize (e) {
+
+      if (e.domElement) {
+
+        e.domElement.classList.add('resizing')
+      }
+    }
+
+    onStopResize (e) {
+
+      if (e.domElement) {
+
+        e.domElement.classList.remove('resizing')
+      }
+    }
+
+    render () {
+
+      return (
+        <ReflexContainer orientation="horizontal">
+          <ReflexElement className="header" flex={0.1}>
+            <div className="pane-content">
+              <label>
+                Header (fixed)
+              </label>
             </div>
-          </SplitPane>
-        </div>
-      </SplitPane>
-    );
+          </ReflexElement>
+          <ReflexElement>
+            <ReflexContainer orientation="vertical">
+              <ReflexElement {...this.resizeProps}>
+                <ReflexContainer orientation="horizontal">
+                  <ReflexElement {...this.resizeProps}>
+                    <div className="pane-content">
+                      <div style={{height: '30%'}}/>
+                      <label style={{height: '0%'}}>
+                        Left Pane <br/> Top
+                        <br/>
+                        (splitter propagation)
+                      </label>
+                    </div>
+                  </ReflexElement>
+                  <ReflexSplitter propagate={true} {...this.resizeProps}/>
+                  <ReflexElement {...this.resizeProps}>
+                    <div className="pane-content">
+                      <div style={{height: '30%'}}/>
+                      <label style={{height: '0%'}}>
+                        Left Pane <br/> Middle
+                        <br/>
+                        (splitter propagation)
+                      </label>
+                    </div>
+                  </ReflexElement>
+                  <ReflexSplitter propagate={true} {...this.resizeProps}/>
+                  <ReflexElement {...this.resizeProps}>
+                    <div className="pane-content">
+                      <div style={{height: '30%'}}/>
+                      <label style={{height: '0%'}}>
+                        Left Pane <br/> Bottom
+                        <br/>
+                        (splitter propagation)
+                      </label>
+                    </div>
+                  </ReflexElement>
+                </ReflexContainer>
+              </ReflexElement>
+              <ReflexSplitter {...this.resizeProps}/>
+              <ReflexElement flex={0.5} {...this.resizeProps}>
+                <div className="pane-content">
+                  <label>
+                    Middle Pane
+                  </label>
+                </div>
+              </ReflexElement>
+              <ReflexSplitter{...this.resizeProps}/>
+              <ReflexElement {...this.resizeProps}>
+                <ReflexContainer orientation="horizontal">
+                  <ReflexElement {...this.resizeProps}>
+                    <div>
+                      <ReflexContainer orientation="vertical">
+                        <ReflexElement {...this.resizeProps}>
+                          <div className="pane-content">
+                            <label>
+                              Right Pane <br/> Upper-Left
+                            </label>
+                          </div>
+                        </ReflexElement>
+                        <ReflexSplitter/>
+                        <ReflexElement {...this.resizeProps}>
+                          <div className="pane-content">
+                            <label>
+                              Right Pane <br/> Upper-Right
+                            </label>
+                          </div>
+                        </ReflexElement>
+                      </ReflexContainer>
+                    </div>
+                  </ReflexElement>
+                  <ReflexSplitter {...this.resizeProps}/>
+                  <ReflexElement {...this.resizeProps}>
+                    <div className="pane-content">
+                      <label>
+                        Right Pane <br/> Bottom
+                      </label>
+                    </div>
+                  </ReflexElement>
+                </ReflexContainer>
+              </ReflexElement>
+            </ReflexContainer>
+          </ReflexElement>
+          <ReflexElement className="footer" flex={0.1}>
+            <div className="pane-content">
+              <label>
+                Footer (fixed)
+              </label>
+            </div>
+          </ReflexElement>
+        </ReflexContainer>
+      )
   }
 }
 
