@@ -42,53 +42,77 @@ class Editor extends Component {
       }
     }
 
+    renderHeader() {
+      return (
+        <ReflexElement className="header" flex={0.05}>
+          <div className="pane-content">Menubar</div>
+        </ReflexElement>
+      )
+    }
+
+    renderLeftSidebar () {
+      return (
+        <div className="pane-content">Toolbox</div>
+      )
+    }
+
+    renderMiddlePanel () {
+      return (
+        <ReflexContainer orientation="horizontal">
+          <ReflexElement flex={0.2} {...this.resizeProps}>
+            <div className="pane-content">Timeline</div>
+          </ReflexElement>
+
+          <ReflexSplitter {...this.resizeProps}/>
+
+          <ReflexElement {...this.resizeProps}>
+            <div className="pane-content">Canvas</div>
+          </ReflexElement>
+
+          <ReflexSplitter {...this.resizeProps}/>
+
+          <ReflexElement flex={0.2} {...this.resizeProps}>
+            <div className="pane-content">Code Editor</div>
+          </ReflexElement>
+        </ReflexContainer>
+      )
+    }
+
+    renderRightSidebar () {
+      return (
+        <ReflexContainer orientation="horizontal">
+          <ReflexElement {...this.resizeProps}>
+            <div className="pane-content">Inspector</div>
+          </ReflexElement>
+
+          <ReflexSplitter {...this.resizeProps}/>
+
+          <ReflexElement {...this.resizeProps}>
+            <div className="pane-content">Asset Library</div>
+          </ReflexElement>
+        </ReflexContainer>
+      )
+    }
+
     render () {
       return (
         <ReflexContainer orientation="horizontal">
-
-          <ReflexElement className="header" flex={0.05}>
-            <div className="pane-content">Header (Fixed)</div>
-          </ReflexElement>
-
+          {this.renderHeader()}
           <ReflexElement>
             <ReflexContainer orientation="vertical">
+
               <ReflexElement flex={0.05} {...this.resizeProps}>
-                <div className="pane-content">Sidebar (Fixed)</div>
+                {this.renderLeftSidebar()}
               </ReflexElement>
+
               <ReflexElement {...this.resizeProps}>
-                <ReflexContainer orientation="horizontal">
-                  <ReflexElement flex={0.2} {...this.resizeProps}>
-                    <div className="pane-content">Center Pane Top</div>
-                  </ReflexElement>
-
-                  <ReflexSplitter {...this.resizeProps}/>
-
-                  <ReflexElement {...this.resizeProps}>
-                    <div className="pane-content">Center Pane Middle</div>
-                  </ReflexElement>
-
-                  <ReflexSplitter {...this.resizeProps}/>
-
-                  <ReflexElement flex={0.2} {...this.resizeProps}>
-                    <div className="pane-content">Center Pane Bottom</div>
-                  </ReflexElement>
-                </ReflexContainer>
+                {this.renderMiddlePanel()}
               </ReflexElement>
 
               <ReflexSplitter{...this.resizeProps}/>
 
               <ReflexElement flex={0.2} {...this.resizeProps}>
-                <ReflexContainer orientation="horizontal">
-                  <ReflexElement {...this.resizeProps}>
-                    <div className="pane-content">Right Pane Top</div>
-                  </ReflexElement>
-
-                  <ReflexSplitter {...this.resizeProps}/>
-
-                  <ReflexElement {...this.resizeProps}>
-                    <div className="pane-content">Right Pane Bottom</div>
-                  </ReflexElement>
-                </ReflexContainer>
+                {this.renderRightSidebar()}
               </ReflexElement>
 
             </ReflexContainer>
