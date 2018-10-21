@@ -5,7 +5,7 @@ class Canvas extends Component {
   componentDidMount() {
     window.paper.setup(this.refs.canvas);
     var p = new window.paper.Path.Circle(new window.paper.Point(30,30), 50);
-    p.fillColor = 'blue';
+    p.fillColor = 'green';
     p.strokeColor = 'red';
     p.strokeWidth = 5;
     window.onresize = function () {
@@ -15,6 +15,7 @@ class Canvas extends Component {
       window.paper.view.viewSize.height = window.$('.paper-canvas-container').height();
       window.paper.view.center = window.paper.view.center.add(new window.paper.Point(widthDiff/2/window.paper.view.zoom, heightDiff/2/window.paper.view.zoom))
     }
+    window.paper.drawingTools.potraceBrush.activate();
   }
 
   render() {
