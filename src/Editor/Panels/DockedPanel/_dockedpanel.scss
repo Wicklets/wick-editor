@@ -1,0 +1,8 @@
+@import 'Editor/_wickbrand.scss';
+
+.docked-panel {
+  position: relative;
+  user-select: none;
+  height: 100%;
+  border: 1px solid red;
+}

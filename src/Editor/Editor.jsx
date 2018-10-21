@@ -9,6 +9,8 @@ import {
   ReflexElement
 } from 'react-reflex'
 
+import DockedPanel from './Panels/DockedPanel/DockedPanel';
+
 /*
 import Canvas from './Panels/Canvas/Canvas';
 import Inspector from './Panels/Inspector/Inspector';
@@ -44,13 +46,13 @@ class Editor extends Component {
 
     renderHeader() {
       return (
-        <div className="pane-content">Menubar</div>
+        <DockedPanel>Menubar</DockedPanel>
       )
     }
 
     renderLeftSidebar () {
       return (
-        <div className="pane-content">Toolbox</div>
+        <DockedPanel>Toolbox</DockedPanel>
       )
     }
 
@@ -58,19 +60,19 @@ class Editor extends Component {
       return (
         <ReflexContainer orientation="horizontal">
           <ReflexElement flex={0.2} {...this.resizeProps}>
-            <div className="pane-content">Timeline</div>
+            <DockedPanel>Timeline</DockedPanel>
           </ReflexElement>
 
           <ReflexSplitter {...this.resizeProps}/>
 
           <ReflexElement {...this.resizeProps}>
-            <div className="pane-content">Canvas</div>
+            <DockedPanel>Canvas</DockedPanel>
           </ReflexElement>
 
           <ReflexSplitter {...this.resizeProps}/>
 
           <ReflexElement flex={0.2} {...this.resizeProps}>
-            <div className="pane-content">Code Editor</div>
+            <DockedPanel>Code Editor</DockedPanel>
           </ReflexElement>
         </ReflexContainer>
       )
@@ -80,13 +82,13 @@ class Editor extends Component {
       return (
         <ReflexContainer orientation="horizontal">
           <ReflexElement {...this.resizeProps}>
-            <div className="pane-content">Inspector</div>
+            <DockedPanel>Inspector</DockedPanel>
           </ReflexElement>
 
           <ReflexSplitter {...this.resizeProps}/>
 
           <ReflexElement {...this.resizeProps}>
-            <div className="pane-content">Asset Library</div>
+            <DockedPanel>Asset Library</DockedPanel>
           </ReflexElement>
         </ReflexContainer>
       )
