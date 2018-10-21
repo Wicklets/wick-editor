@@ -44,9 +44,7 @@ class Editor extends Component {
 
     renderHeader() {
       return (
-        <ReflexElement className="header" flex={0.05}>
-          <div className="pane-content">Menubar</div>
-        </ReflexElement>
+        <div className="pane-content">Menubar</div>
       )
     }
 
@@ -97,7 +95,9 @@ class Editor extends Component {
     render () {
       return (
         <ReflexContainer orientation="horizontal">
-          {this.renderHeader()}
+          <ReflexElement className="header" flex={0.05}>
+            {this.renderHeader()}
+          </ReflexElement>
           <ReflexElement>
             <ReflexContainer orientation="vertical">
 
