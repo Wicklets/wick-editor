@@ -3,10 +3,6 @@ import React, { Component } from 'react';
 import ProjectSettings from '../ProjectSettings/ProjectSettings'
 
 class ModalHandler extends Component {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     return (
       <div>

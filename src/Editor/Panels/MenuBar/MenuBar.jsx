@@ -3,8 +3,6 @@ import './_menubar.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Button } from 'reactstrap';
 
-import DockedTitle from 'Editor/Util/DockedTitle/DockedTitle';
-
 class MenuBar extends Component {
   render() {
     return(

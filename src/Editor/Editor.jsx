@@ -23,10 +23,12 @@ class Editor extends Component {
 
   constructor () {
     super();
+
     this.state = {
       project: null,
       openModalName: null,
     }
+
     this.resizeProps = {
       onStopResize: this.onStopResize.bind(this),
       onResize: this.onResize.bind(this)
@@ -76,7 +78,7 @@ class Editor extends Component {
                           project={this.state.project}
                           updateProjectSettings={this.updateProjectSettings} />
             {/* Header */}
-            <DockedPanel><MenuBar openModal={this.openModal.bind(this)} /></DockedPanel>
+            <DockedPanel><MenuBar openModal={this.openModal} /></DockedPanel>
           </ReflexElement>
           <ReflexElement {...this.resizeProps}>
             <ReflexContainer orientation="vertical">
@@ -90,7 +92,11 @@ class Editor extends Component {
                 {/* Middle Panel */}
                 <ReflexContainer orientation="horizontal">
                   <ReflexElement flex={0.2} {...this.resizeProps}>
-                    <DockedPanel><Timeline /></DockedPanel>
+                    <DockedPanel>
+                      <Timeline
+                        timeline={this.state.project.focus}
+                      />
+                    </DockedPanel>
                   </ReflexElement>
                   <ReflexSplitter {...this.resizeProps}/>
                   <ReflexElement {...this.resizeProps}>

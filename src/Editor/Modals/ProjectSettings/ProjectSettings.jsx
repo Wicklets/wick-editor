@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import { SketchPicker } from 'react-color';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter, FormGroup, Label, Input } from 'reactstrap';
+import ColorPicker from 'Editor/Util/ColorPicker/ColorPicker';
 
 class ProjectSettings extends Component {
   constructor(props) {
@@ -60,6 +60,7 @@ class ProjectSettings extends Component {
   }
 
   changeProjectBackgroundColor (color) {
+    console.log(color)
     this.setState({
       backgroundColor: color.hex
     });
@@ -102,11 +103,11 @@ class ProjectSettings extends Component {
                    onChange={this.changeProjectFramerate}
             />
           <Label for="projectBackgroundColor">Background Color</Label>
-          <SketchPicker
-            disableAlpha={true}
-            color={ this.state.backgroundColor }
-            onChangeComplete={ this.changeProjectBackgroundColor }
-          />
+            <ColorPicker
+              disableAlpha={true}
+              color={this.state.backgroundColor}
+              onColorChange={this.changeProjectBackgroundColor}
+            />
           </FormGroup>
         </ModalBody>
         <ModalFooter>
