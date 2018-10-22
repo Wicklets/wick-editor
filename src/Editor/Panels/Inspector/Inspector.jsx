@@ -7,13 +7,42 @@ import WickInput from 'Editor/Util/WickInput/WickInput';
 import InspectorTitle from './InspectorTitle/InspectorTitle';
 
 class Inspector extends Component {
+  constructor () {
+    super();
+    this.state = {
+      type: "brush",
+    }
+  }
+
+  renderCursor() {
+    return (
+      <InspectorTitle type={"cursor"} title={"Cursor"}/>
+    )
+  }
+
+  renderBrush() {
+    return (
+      <div>
+        <InspectorTitle type={"brush"} title={"Brush"} />
+      </div>
+    )
+  }
+
+  renderDisplay() {
+    if (this.state.type === "cursor") {
+      return(this.renderCursor());
+    } else if (this.state.type === "brush") {
+      return(this.renderBrush());
+    }
+  }
+
   render() {
     return(
       <div className="docked-pane inspector">
         <DockedTitle title={"Inspector"}></DockedTitle>
-        <InspectorTitle type={"settings"}/>
-        <WickInput type="number"></WickInput>
-        <WickInput type="string"></WickInput>
+        <div className="inspector-content">
+          {this.renderDisplay()}
+        </div>
       </div>
     )
   }
