@@ -105,6 +105,7 @@ class ProjectSettings extends Component {
           <Label for="projectBackgroundColor">Background Color</Label>
             <ColorPicker
               disableAlpha={true}
+              placement={'bottom'}
               color={this.state.backgroundColor}
               onColorChange={this.changeProjectBackgroundColor}
             />

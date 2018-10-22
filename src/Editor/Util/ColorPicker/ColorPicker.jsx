@@ -22,10 +22,13 @@ class ColorPicker extends Component {
   render() {
     return(
       <div>
-        <Button id="Popover1" onClick={this.toggle}>
-          Launch Popover
-        </Button>
-        <Popover placement="bottom" isOpen={this.state.open} target="Popover1" toggle={this.toggle}>
+        <Button id="Popover1" onClick={this.toggle}></Button>
+        <Popover
+          placement={this.props.placement}
+          isOpen={this.state.open}
+          target="Popover1"
+          toggle={this.toggle}
+        >
           <SketchPicker
             disableAlpha={ this.props.disableAlpha }
             color={ this.props.color }
