@@ -21091,7 +21091,8 @@ Wick.FrameView = class extends Wick.View {
     this._pathsLayer.name = 'frame_paths_' + frame.uuid; // Load asset dataURLs into rasters
 
     if (frame.pathsSVG) {
-      frame.pathsSVG[1].children.forEach(child => {
+      var paths = JSON.parse(frame.pathsSVG);
+      paths[1].children.forEach(child => {
         if (child[0] === 'Raster') {
           var assetUUID = child[1].data.asset;
 
@@ -21100,15 +21101,15 @@ Wick.FrameView = class extends Wick.View {
           child[1].source = asset.src;
         }
       });
+
+      this._pathsLayer.importJSON(paths); // TODO only do importJSON this when absolutely neccessary - this is the slowest part of the view.
+      // This only needs to happen when the model changes the 'paths' variable.
+      // That happens when History.undo/redo is called.
+      // We could:
+      // Set a 'dirty' flag on undo/redo
+      // Check to see if frame.pathsSVG changed right here in FrameView (would that be slow?)
+
     }
-
-    this._pathsLayer.importJSON(frame.pathsSVG); // TODO only do importJSON this when absolutely neccessary - this is the slowest part of the view.
-    // This only needs to happen when the model changes the 'paths' variable.
-    // That happens when History.undo/redo is called.
-    // We could:
-    // Set a 'dirty' flag on undo/redo
-    // Check to see if frame.pathsSVG changed right here in FrameView (would that be slow?)
-
   }
 
   _updateGroupsLayerUsingModel(frame) {
@@ -21225,44 +21226,6 @@ Wick.Base = class {
     this._project = null;
     this._classname = this.classname;
   }
-
-  static deserialize(json) {
-    var data;
-
-    if (typeof json === 'string') {
-      data = Flatted.parse(json);
-    } else {
-      data = json;
-    }
-
-    var obj;
-
-    if (data._classname) {
-      obj = new Wick[data._classname]();
-    } else {
-      obj = data;
-    }
-
-    if (obj instanceof Wick.Project) {
-      obj._project = obj;
-    }
-
-    for (var key in data) {
-      if (data[key] instanceof Array) {
-        obj[key] = data[key].map(elem => {
-          var child = Wick.Base.deserialize(elem);
-          child._parent = obj;
-          child._project = obj._project;
-          return child;
-        });
-      } else if (data[key] && data[key]._classname) {// This is handled somehow by deserializing _children array??
-      } else {
-        obj[key] = data[key];
-      }
-    }
-
-    return obj;
-  }
   /* Getters */
 
 
@@ -21307,6 +21270,7 @@ Wick.Base = class {
     this._children.push(child);
 
     child.parent = this;
+    child.project = this.project;
   }
 
   _removeChild(child) {
@@ -21335,15 +21299,18 @@ Wick.Base = class {
     return foundChild;
   }
 
-  clone(object) {
-    if (!object) object = new Wick.Base();
-    object._uuid = uuidv4(); // Don't clone UUIDs
+  _regenUUIDs() {
+    this._uuid = uuidv4();
 
-    return object;
+    this._children.forEach(child => {
+      child._regenUUIDs();
+    });
   }
 
-  serialize() {
-    return Flatted.stringify(this);
+  clone(object) {
+    if (!object) object = new Wick.Base();
+    object._uuid = this._uuid;
+    return object;
   }
 
 };
@@ -21470,8 +21437,20 @@ Wick.Project = class extends Wick.Base {
     this._removeChild(asset);
   }
 
-  clone() {
-    return Wick.Project.deserialize(this.serialize());
+  clone(object) {
+    if (!object) object = new Wick.Project();
+    super.clone(object);
+    object.name = this.name;
+    object.width = this.name;
+    object.height = this.name;
+    object.backgroundColor = this.name;
+    object.framerate = this.name;
+    object.setRoot(this.root.clone());
+    object.focus = object._childByUUID(this.focus.uuid);
+    this.assets.forEach(asset => {
+      object.addAsset(asset.clone());
+    });
+    return object;
   }
 
   _refreshAssetUUIDRefs() {
@@ -21890,6 +21869,8 @@ Wick.SymbolPrototypeAsset = class extends Wick.Asset {
 
   useSymbolAsSource(symbol) {
     this.timeline = symbol.timeline.clone();
+
+    this.timeline._regenUUIDs();
   }
 
   createInstance() {
@@ -21915,6 +21896,9 @@ Wick.SymbolPrototypeAsset = class extends Wick.Asset {
 
   updateAssetFromSymbol(symbol) {
     this.timeline = symbol.timeline.clone();
+
+    this.timeline._regenUUIDs();
+
     var self = this;
     this.linkedSymbols.forEach(linkedSymbol => {
       if (linkedSymbol === symbol) return; // This one should already be synced, of course
@@ -21924,7 +21908,11 @@ Wick.SymbolPrototypeAsset = class extends Wick.Asset {
   }
 
   updateSymbolFromAsset(symbol) {
-    symbol.setTimeline(this.timeline.clone());
+    var timeline = this.timeline.clone();
+
+    timeline._regenUUIDs();
+
+    symbol.setTimeline(timeline);
   }
 
   clone(object) {

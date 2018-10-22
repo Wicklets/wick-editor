@@ -3483,872 +3483,6 @@ var potrace;
 
   potrace.fromFunction = fromFunction;
 })(potrace || (potrace = {}));
-/*
-    Copyright (c) 2018 Zach Rispoli (zrispo)
-
-    Permission is hereby granted, free of charge, to any person obtaining a copy
-    of this software and associated documentation files (the "Software"), to deal
-    in the Software without restriction, including without limitation the rights
-    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    copies of the Software, and to permit persons to whom the Software is
-    furnished to do so, subject to the following conditions:
-
-    The above copyright notice and this permission notice shall be included in all
-    copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    SOFTWARE.
- */
-
-/* 
-    Brush Cursor Generator
-    For creating Flash-like cursors for drawing tools
-
-    by zrispo (github.com/zrispo) (zach@wickeditor.com)
- */
-var BrushCursorGen = {
-  create: function (color, size) {
-    var canvas = document.createElement("canvas");
-    canvas.width = 128;
-    canvas.height = 128;
-    var context = canvas.getContext('2d');
-    var centerX = canvas.width / 2;
-    var centerY = canvas.height / 2;
-    var radius = size / 2;
-    context.beginPath();
-    context.arc(centerX, centerY, radius + 1, 0, 2 * Math.PI, false);
-    context.fillStyle = invert(color);
-    context.fill();
-    context.beginPath();
-    context.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
-    context.fillStyle = color;
-    context.fill();
-    return 'url(' + canvas.toDataURL() + ') 64 64,default';
-  }
-};
-/*
-    Copyright (c) 2018 Zach Rispoli (zrispo)
-
-    Permission is hereby granted, free of charge, to any person obtaining a copy
-    of this software and associated documentation files (the "Software"), to deal
-    in the Software without restriction, including without limitation the rights
-    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    copies of the Software, and to permit persons to whom the Software is
-    furnished to do so, subject to the following conditions:
-
-    The above copyright notice and this permission notice shall be included in all
-    copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    SOFTWARE.
- */
-
-/* 
-    paper-erase.js
-    Adds erase() to the paper Layer class which erases paths in that layer using
-    the shape of a given path. Use this to make a vector eraser!
-    
-    by zrispo (github.com/zrispo) (zach@wickeditor.com)
- */
-(function () {
-  // Splits a CompoundPath with multiple CW children into individual pieces
-  function splitCompoundPath(compoundPath) {
-    // Create lists of 'holes' (CCW children) and 'parts' (CW children)
-    var holes = [];
-    var parts = [];
-    compoundPath.children.forEach(function (child) {
-      if (!child.clockwise) {
-        holes.push(child);
-      } else {
-        var part = child.clone({
-          insert: false
-        });
-        part.fillColor = compoundPath.fillColor;
-        part.insertAbove(compoundPath);
-        parts.push(part);
-      }
-    }); // Find hole ownership for each 'part'
-
-    parts.forEach(function (part) {
-      var cmp;
-      holes.forEach(function (hole) {
-        if (part.bounds.contains(hole.bounds)) {
-          if (!cmp) {
-            cmp = new paper.CompoundPath({
-              insert: false
-            });
-            cmp.insertAbove(part);
-            cmp.addChild(part.clone({
-              insert: false
-            }));
-          }
-
-          cmp.addChild(hole);
-        }
-
-        if (cmp) {
-          cmp.fillColor = compoundPath.fillColor;
-          cmp.insertAbove(part);
-          part.remove();
-        }
-      });
-    });
-    compoundPath.remove();
-  }
-
-  function eraseFill(path, eraserPath) {
-    if (path.closePath) path.closePath();
-    var res = path.subtract(eraserPath, {
-      insert: false,
-      trace: true
-    });
-    res.fillColor = path.fillColor;
-
-    if (res.children) {
-      res.insertAbove(path);
-      path.remove();
-      splitCompoundPath(res);
-    } else {
-      res.insertAbove(path);
-      path.remove();
-    }
-
-    path.remove();
-  }
-
-  function eraseStroke(path, eraserPath) {
-    var res = path.subtract(eraserPath, {
-      insert: false,
-      trace: false
-    });
-
-    if (res.children) {
-      // Since the path is only strokes, it's trivial to split it into individual paths
-      var children = [];
-      res.children.forEach(function (child) {
-        children.push(child);
-      });
-      children.forEach(function (child) {
-        child.insertAbove(path);
-        child.name = null;
-      });
-      res.remove();
-    } else {
-      res.insertAbove(path);
-    }
-
-    path.remove();
-  }
-
-  function splitPath(path) {
-    var fill = path.clone({
-      insert: false
-    });
-    fill.strokeColor = null;
-    fill.strokeWidth = 1;
-    fill.name = null;
-    var stroke = path.clone({
-      insert: false
-    });
-    stroke.fillColor = null;
-    stroke.name = null;
-    fill.insertAbove(path);
-    stroke.insertAbove(fill);
-    path.remove();
-    return {
-      fill: fill,
-      stroke: stroke
-    };
-  }
-
-  function eraseWithPath(eraserPath) {
-    var touchingPaths = [];
-    this.children.forEach(function (child) {
-      if (eraserPath.bounds.intersects(child.bounds)) {
-        touchingPaths.push(child);
-      }
-    });
-    touchingPaths.forEach(function (path) {
-      if (path.strokeColor && path.fillColor) {
-        var res = splitPath(path);
-        eraseFill(res.fill, eraserPath);
-        eraseStroke(res.stroke, eraserPath);
-      } else if (path.fillColor) {
-        eraseFill(path, eraserPath);
-      } else if (path.strokeColor) {
-        eraseStroke(path, eraserPath);
-      } else {// Probably a group or a raster.
-      }
-    });
-  }
-
-  paper.Layer.inject({
-    erase: eraseWithPath
-  });
-})();
-/*
-    Copyright (c) 2018 Zach Rispoli (zrispo)
-
-    Permission is hereby granted, free of charge, to any person obtaining a copy
-    of this software and associated documentation files (the "Software"), to deal
-    in the Software without restriction, including without limitation the rights
-    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    copies of the Software, and to permit persons to whom the Software is
-    furnished to do so, subject to the following conditions:
-
-    The above copyright notice and this permission notice shall be included in all
-    copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    SOFTWARE.
- */
-
-/* 
-    paper-floodfill-hole.js
-    Adds hole() to the paper Layer class which finds the shape of the hole
-    at a certain point. Use this to make a vector fill bucket!
-
-    This version uses a flood fill + potrace method of filling holes.
-
-    Adapted from the FillBucket tool from old Wick
-    
-    by zrispo (github.com/zrispo) (zach@wickeditor.com)
- */
-(function () {
-  var VERBOSE = false;
-  var PREVIEW_IMAGE = false;
-  var callback;
-  var layer;
-  var layerPathsGroup;
-  var layerPathsRaster;
-  var layerPathsImageData;
-  var layerPathsImageDataFloodFilled;
-  var layerPathsImageDataFloodFilledAndProcessed;
-  var layerPathsImageFloodFilledAndProcessed;
-  var floodFillX;
-  var floodFillY;
-  var floodFillCanvas;
-  var floodFillCtx;
-  var floodFillImageData;
-  var floodFillProcessedImage;
-  var resultHolePath;
-  var N_RASTER_CLONE = 1;
-  var RASTER_BASE_RESOLUTION = 1.75;
-  var FILL_TOLERANCE = 35;
-  var CLONE_WIDTH_SHRINK = 1.0;
-  var SHRINK_AMT = 0.85;
-
-  function createLayerPathsGroup() {
-    layerGroup = new paper.Group({
-      insert: false
-    });
-    layer.children.forEach(function (child) {
-      if (child._class !== 'Path' && child._class !== 'CompoundPath') return;
-
-      for (var i = 0; i < N_RASTER_CLONE; i++) {
-        var clone = child.clone({
-          insert: false
-        });
-        clone.strokeWidth *= CLONE_WIDTH_SHRINK;
-        layerGroup.addChild(clone);
-      }
-    });
-
-    if (layerGroup.children.length === 0) {
-      console.log('paper.hole: No paths to fill holes of.');
-      layerGroup = null;
-    }
-  }
-
-  function rasterizeLayerGroup() {
-    var rasterResolution = paper.view.resolution * RASTER_BASE_RESOLUTION / window.devicePixelRatio;
-    layerPathsRaster = layerGroup.rasterize(rasterResolution, {
-      insert: false
-    });
-  }
-
-  function generateImageDataFromRaster() {
-    var rasterCanvas = layerPathsRaster.canvas;
-    var rasterCtx = rasterCanvas.getContext('2d');
-    layerPathsImageData = rasterCtx.getImageData(0, 0, layerPathsRaster.width, layerPathsRaster.height);
-  }
-
-  function floodfillImageData() {
-    var rasterPosition = layerPathsRaster.bounds.topLeft;
-    var x = (floodFillX - rasterPosition.x) * RASTER_BASE_RESOLUTION;
-    var y = (floodFillY - rasterPosition.y) * RASTER_BASE_RESOLUTION;
-    x = Math.round(x);
-    y = Math.round(y);
-    floodFillCanvas = document.createElement('canvas');
-    floodFillCanvas.width = layerPathsRaster.canvas.width;
-    floodFillCanvas.height = layerPathsRaster.canvas.height;
-
-    if (x < 0 || y < 0 || x >= floodFillCanvas.width || y >= floodFillCanvas.height) {
-      if (VERBOSE) console.log('x,y out of bounds of floodfill image. no fill possible.');
-      giveUp();
-    }
-
-    floodFillCtx = floodFillCanvas.getContext('2d');
-    floodFillCtx.putImageData(layerPathsImageData, 0, 0);
-    floodFillCtx.fillStyle = "rgba(123,124,125,1)";
-    floodFillCtx.fillFlood(x, y, FILL_TOLERANCE);
-    floodFillImageData = floodFillCtx.getImageData(0, 0, floodFillCanvas.width, floodFillCanvas.height);
-  }
-
-  function processImageData(callback) {
-    var imageDataRaw = floodFillImageData.data;
-
-    for (var i = 0; i < imageDataRaw.length; i += 4) {
-      if (imageDataRaw[i] === 123 && imageDataRaw[i + 1] === 124 && imageDataRaw[i + 2] === 125) {
-        imageDataRaw[i] = 0;
-        imageDataRaw[i + 1] = 0;
-        imageDataRaw[i + 2] = 0;
-        imageDataRaw[i + 3] = 255;
-      } else if (imageDataRaw[i + 3] !== 0) {
-        imageDataRaw[i] = 255;
-        imageDataRaw[i + 1] = 0;
-        imageDataRaw[i + 2] = 0;
-        imageDataRaw[i + 3] = 255;
-      } else {
-        imageDataRaw[i] = 1;
-        imageDataRaw[i + 1] = 0;
-        imageDataRaw[i + 2] = 0;
-        imageDataRaw[i + 3] = 0;
-      }
-    }
-
-    var w = floodFillCanvas.width;
-    var h = floodFillCanvas.height;
-    var r = 4;
-
-    for (var this_x = 0; this_x < w; this_x++) {
-      for (var this_y = 0; this_y < h; this_y++) {
-        var thisPix = getPixelAt(this_x, this_y, w, h, imageDataRaw);
-
-        if (thisPix && thisPix.r === 255) {
-          for (var offset_x = -r; offset_x <= r; offset_x++) {
-            for (var offset_y = -r; offset_y <= r; offset_y++) {
-              var other_x = this_x + offset_x;
-              var other_y = this_y + offset_y;
-              var otherPix = getPixelAt(other_x, other_y, w, h, imageDataRaw);
-
-              if (otherPix && otherPix.r === 0) {
-                setPixelAt(this_x, this_y, w, h, imageDataRaw, {
-                  r: 1,
-                  g: 255,
-                  b: 0,
-                  a: 255
-                });
-              }
-            }
-          }
-        }
-      }
-    }
-
-    for (var i = 0; i < imageDataRaw.length; i += 4) {
-      if (imageDataRaw[i] === 255) {
-        imageDataRaw[i] = 0;
-        imageDataRaw[i + 1] = 0;
-        imageDataRaw[i + 2] = 0;
-        imageDataRaw[i + 3] = 0;
-      }
-    }
-
-    floodFillCtx.putImageData(floodFillImageData, 0, 0);
-    floodFillProcessedImage = new Image();
-
-    floodFillProcessedImage.onload = function () {
-      if (PREVIEW_IMAGE) previewImage(floodFillProcessedImage);
-      callback();
-    };
-
-    floodFillProcessedImage.src = floodFillCanvas.toDataURL();
-  }
-
-  function checkForLeakyHole() {
-    var w = floodFillProcessedImage.width;
-    var h = floodFillProcessedImage.height;
-
-    for (var x = 0; x < floodFillProcessedImage.width; x++) {
-      if (getPixelAt(x, 0, w, h, floodFillImageData.data).r === 0 && getPixelAt(x, 0, w, h, floodFillImageData.data).a === 255) {
-        giveUp();
-      }
-    }
-  }
-
-  function potraceImageData() {
-    var svgString = potrace.fromImage(floodFillProcessedImage).toSVG(1);
-    var xmlString = svgString,
-        parser = new DOMParser(),
-        doc = parser.parseFromString(xmlString, "text/xml");
-    resultHolePath = paper.project.importSVG(doc, {
-      insert: true
-    });
-    resultHolePath.name = null;
-    resultHolePath.remove();
-  }
-
-  function processFinalResultPath() {
-    resultHolePath.scale(1 / RASTER_BASE_RESOLUTION, new paper.Point(0, 0));
-    var rasterPosition = layerPathsRaster.bounds.topLeft;
-    resultHolePath.position.x += rasterPosition.x;
-    resultHolePath.position.y += rasterPosition.y;
-    expandHole(resultHolePath);
-  }
-  /* Utilities */
-
-
-  function getPixelAt(x, y, width, height, imageData) {
-    if (x < 0 || y < 0 || x >= width || y >= height) return null;
-    var offset = (y * width + x) * 4;
-    return {
-      r: imageData[offset],
-      g: imageData[offset + 1],
-      b: imageData[offset + 2],
-      a: imageData[offset + 3]
-    };
-  }
-
-  function setPixelAt(x, y, width, height, imageData, color) {
-    var offset = (y * width + x) * 4;
-    imageData[offset] = color.r;
-    imageData[offset + 1] = color.g;
-    imageData[offset + 2] = color.b;
-    imageData[offset + 3] = color.a;
-  } // http://www.felixeve.co.uk/how-to-rotate-a-point-around-an-origin-with-javascript/
-
-
-  function rotate_point(pointX, pointY, originX, originY, angle) {
-    angle = angle * Math.PI / 180.0;
-    return {
-      x: Math.cos(angle) * (pointX - originX) - Math.sin(angle) * (pointY - originY) + originX,
-      y: Math.sin(angle) * (pointX - originX) + Math.cos(angle) * (pointY - originY) + originY
-    };
-  }
-
-  function previewImage(image) {
-    var win = window.open('', 'Title', 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, width=' + image.width + ', height=' + image.height + ', top=100, left=100');
-    win.document.body.innerHTML = '<div><img src= ' + image.src + '></div>';
-  }
-
-  function expandHole(path) {
-    if (path instanceof paper.Group) {
-      path = path.children[0];
-    }
-
-    var children;
-
-    if (path instanceof paper.Path) {
-      children = [path];
-    } else if (path instanceof paper.CompoundPath) {
-      children = path.children;
-    }
-
-    children.forEach(function (hole) {
-      var normals = [];
-      hole.closePath();
-      hole.segments.forEach(function (segment) {
-        var a = segment.previous.point;
-        var b = segment.point;
-        var c = segment.next.point;
-        var ab = {
-          x: b.x - a.x,
-          y: b.y - a.y
-        };
-        var cb = {
-          x: b.x - c.x,
-          y: b.y - c.y
-        };
-        var d = {
-          x: ab.x - cb.x,
-          y: ab.y - cb.y
-        };
-        d.h = Math.sqrt(d.x * d.x + d.y * d.y);
-        d.x /= d.h;
-        d.y /= d.h;
-        d = rotate_point(d.x, d.y, 0, 0, 90);
-        normals.push({
-          x: d.x,
-          y: d.y
-        });
-      });
-
-      for (var i = 0; i < hole.segments.length; i++) {
-        var segment = hole.segments[i];
-        var normal = normals[i];
-        segment.point.x += normal.x * -SHRINK_AMT;
-        segment.point.y += normal.y * -SHRINK_AMT;
-      }
-    });
-  }
-
-  function giveUp() {
-    callback(null);
-    throw new Error();
-  }
-  /* Add hole() to paper.Layer */
-
-
-  paper.Layer.inject({
-    hole: function (args) {
-      if (!args) console.error('paper.hole: args is required');
-      if (!args.point) console.error('paper.hole: args.point is required');
-      if (!args.callback) console.error('paper.hole: args.callback is required');
-      callback = args.callback;
-      layer = this;
-      floodFillX = args.point.x;
-      floodFillY = args.point.y;
-      createLayerPathsGroup();
-      rasterizeLayerGroup();
-      generateImageDataFromRaster();
-      floodfillImageData();
-      processImageData(function () {
-        checkForLeakyHole();
-        potraceImageData();
-        processFinalResultPath();
-        callback(resultHolePath);
-      });
-    }
-  });
-})();
-/*
-    Copyright (c) 2018 Zach Rispoli (zrispo)
-
-    Permission is hereby granted, free of charge, to any person obtaining a copy
-    of this software and associated documentation files (the "Software"), to deal
-    in the Software without restriction, including without limitation the rights
-    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    copies of the Software, and to permit persons to whom the Software is
-    furnished to do so, subject to the following conditions:
-
-    The above copyright notice and this permission notice shall be included in all
-    copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    SOFTWARE.
- */
-
-/* 
-    paper-potrace.js
-    Adds a potrace() method to paper Items that runs potrace on a rasterized
-    version of that Item.
-    
-    by zrispo (github.com/zrispo) (zach@wickeditor.com)
- */
-paper.Path.inject({
-  potrace: function (args) {
-    var self = this;
-    if (!args) args = {};
-    var finalRasterResolution = paper.view.resolution * args.resolution / window.devicePixelRatio;
-    var raster = this.rasterize(finalRasterResolution);
-    raster.remove();
-    var rasterDataURL = raster.toDataURL(); // https://oov.github.io/potrace/
-
-    var img = new Image();
-
-    img.onload = function () {
-      var svg = potrace.fromImage(img).toSVG(1 / args.resolution);
-      var potracePath = paper.project.importSVG(svg);
-      potracePath.position.x = self.position.x;
-      potracePath.position.y = self.position.y;
-      potracePath.remove();
-      potracePath.children[0].closed = true;
-      args.done(potracePath.children[0]);
-    };
-
-    img.src = rasterDataURL;
-  }
-});
-/*
-    Copyright (c) 2018 Zach Rispoli (zrispo)
-
-    Permission is hereby granted, free of charge, to any person obtaining a copy
-    of this software and associated documentation files (the "Software"), to deal
-    in the Software without restriction, including without limitation the rights
-    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    copies of the Software, and to permit persons to whom the Software is
-    furnished to do so, subject to the following conditions:
-
-    The above copyright notice and this permission notice shall be included in all
-    copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    SOFTWARE.
- */
-
-/* 
-    paper-subtraction-hole.js
-    Adds hole() to the paper Layer class which finds the shape of the hole
-    at a certain point. Use this to make a vector fill bucket!
-
-    This version uses a naive method of uniting all paths on-screen, inverting
-    them, and finding the path that contains the mouse point. This doesn't work
-    when there are open paths, i.e. lines.
-
-    Adapted from the paperholefinder.js file from old Wick
-    
-    by zrispo (github.com/zrispo) (zach@wickeditor.com)
-    Zj is very proud of this code.
- */
-(function () {
-  // Return the shape of the smallest hole in 'paperProject' 
-  // that would be created by clicking the mouse at 'point'.
-  function getHoleShapeAtPosition(layer, point) {
-    var path = getLayerAsSinglePath(layer);
-    var holeShapes = getHolesOfPathAsShapes(path);
-    var filledHoleShape = getSmallestShapeContainingPoint(path, holeShapes, point);
-    return filledHoleShape;
-  } // Unites all paths in paperProject into one super path
-
-
-  function getLayerAsSinglePath(layer) {
-    var layerPaths = layer.children;
-    var superPath = layerPaths[0].clone({
-      insert: false
-    }); // Unite all paths together into a superpath.
-
-    for (var i = 1; i < layerPaths.length; i++) {
-      var path = layerPaths[i];
-      if (superPath.closePath) superPath.closePath();
-
-      if (path.children) {
-        path.children.forEach(function (child) {
-          if (child.closePath) child.closePath();
-        });
-      }
-
-      superPath = superPath.unite(path);
-    }
-
-    return superPath;
-  } // Returns shapes of all holes of a given path
-
-
-  function getHolesOfPathAsShapes(path) {
-    var holeShapes = []; // Get an inverted version of the path by subtracting it from a giant rectangle.
-
-    var hugeRectangle = new paper.Path.Rectangle(new paper.Point(-1000, -1000), new paper.Size(2000, 2000));
-    var negativeSpace = hugeRectangle.subtract(path);
-    hugeRectangle.remove();
-    negativeSpace.remove(); // Convert holes into paths representing the shapes of the holes.
-
-    negativeSpace.children.forEach(function (child) {
-      if (child.clockwise && child.area !== 4000000) {
-        // Are you serious?
-        var clone = child.clone({
-          insert: false
-        });
-        var group = new paper.Group({
-          insert: false
-        });
-        group.addChild(clone);
-        clone.clockwise = false;
-        clone.fillColor = 'green';
-        group.fillRule = 'evenodd';
-        holeShapes.push(clone);
-      }
-    });
-    return holeShapes;
-  } // Returns smallest shape from 'shapes' that contains 'point'
-  // Needs the original path shape and the shapes of its holes.
-  // Returns null if no holes contain the point.
-
-
-  function getSmallestShapeContainingPoint(originalPathShape, holeShapes, point) {
-    var shapesContainingPoint = getShapesContainingPoint(holeShapes, point);
-
-    if (shapesContainingPoint.length === 0) {
-      // No shapes contained the point.
-      return null;
-    } else {
-      // >=1 shapes contain the point - process the smallest one and return it.
-      var smallestShape = shapesContainingPoint[0];
-      return removeSubholesFromHoleShape(smallestShape, originalPathShape, holeShapes);
-    }
-  } // Returns shapes from 'shapes' that contain 'point' in order from smallest to largest
-
-
-  function getShapesContainingPoint(shapes, point) {
-    var shapesContainingPoint = [];
-    shapes.forEach(function (shape) {
-      if (shape.contains(point)) {
-        shapesContainingPoint.push(shape);
-      }
-    });
-    shapesContainingPoint.sort(function (a, b) {
-      return b.area - a.area;
-    });
-    return shapesContainingPoint;
-  }
-
-  function removeSubholesFromHoleShape(holeShape, originalPathShape, holeShapes) {
-    var holeShapeSubholesRemoved = holeShape;
-    holeShapes.forEach(function (holeShapeToSubtract) {
-      if (holeShapeToSubtract.area === holeShapeSubholesRemoved.area) return;
-      if (holeShapeToSubtract.area < holeShapeSubholesRemoved.area) return;
-      holeShapeSubholesRemoved = holeShapeSubholesRemoved.subtract(holeShapeToSubtract);
-    });
-    var holeShapeOriginalPathRemoved = holeShapeSubholesRemoved.subtract(originalPathShape);
-    return holeShapeOriginalPathRemoved;
-  } // "Expands" a path by moving all points outwards in the direction of their normals
-
-
-  function expandHole(path) {
-    var HOLE_EXPAND_AMT = 0.4;
-    var children;
-
-    if (path instanceof paper.Path) {
-      children = [path];
-    } else if (path instanceof paper.CompoundPath) {
-      children = path.children;
-    }
-
-    children.forEach(function (hole) {
-      var normals = [];
-      hole.closePath();
-      hole.segments.forEach(function (segment) {
-        // Calculate normal
-        var a = segment.previous.point;
-        var b = segment.point;
-        var c = segment.next.point;
-        var ab = {
-          x: b.x - a.x,
-          y: b.y - a.y
-        };
-        var cb = {
-          x: b.x - c.x,
-          y: b.y - c.y
-        };
-        var d = {
-          x: ab.x - cb.x,
-          y: ab.y - cb.y
-        };
-        d.h = Math.sqrt(d.x * d.x + d.y * d.y);
-        d.x /= d.h;
-        d.y /= d.h;
-        d = rotate_point(d.x, d.y, 0, 0, 90);
-        normals.push({
-          x: d.x,
-          y: d.y
-        });
-      });
-
-      for (var i = 0; i < hole.segments.length; i++) {
-        var segment = hole.segments[i];
-        var normal = normals[i];
-        segment.point.x += normal.x * -HOLE_EXPAND_AMT;
-        segment.point.y += normal.y * -HOLE_EXPAND_AMT;
-      }
-    });
-  } // http://www.felixeve.co.uk/how-to-rotate-a-point-around-an-origin-with-javascript/
-
-
-  function rotate_point(pointX, pointY, originX, originY, angle) {
-    angle = angle * Math.PI / 180.0;
-    return {
-      x: Math.cos(angle) * (pointX - originX) - Math.sin(angle) * (pointY - originY) + originX,
-      y: Math.sin(angle) * (pointX - originX) + Math.cos(angle) * (pointY - originY) + originY
-    };
-  }
-
-  paper.Layer.inject({
-    hole: function (args) {
-      if (!args) console.error('paper.hole: args is required');
-      if (!args.point) if (!args) console.error('paper.hole: args.point is required');
-      var holeShape = getHoleShapeAtPosition(this, args.point);
-      expandHole(holeShape);
-      return holeShape;
-    }
-  });
-})();
-/*
-    Copyright (c) 2018 Zach Rispoli (zrispo)
-
-    Permission is hereby granted, free of charge, to any person obtaining a copy
-    of this software and associated documentation files (the "Software"), to deal
-    in the Software without restriction, including without limitation the rights
-    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    copies of the Software, and to permit persons to whom the Software is
-    furnished to do so, subject to the following conditions:
-
-    The above copyright notice and this permission notice shall be included in all
-    copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    SOFTWARE.
- */
-(function () {
-  // TODO this doesn't work if the TextItem is rotated
-  var editElem = $('<input type="text">');
-  editElem.css('position', 'absolute');
-  editElem.css('width', '100px');
-  editElem.css('height', '100px');
-  editElem.css('left', '0px');
-  editElem.css('top', '0px');
-  editElem.css('background-color', 'red');
-  editElem.css('border', 'none');
-  paper.TextItem.inject({
-    attachTextArea: function () {
-      $(paper.view.element.offsetParent).append(editElem);
-      editElem.focus();
-      var position = paper.view.projectToView(this.bounds.topLeft.x, this.bounds.topLeft.y);
-      var width = this.bounds.width * paper.view.zoom;
-      var height = this.bounds.height * paper.view.zoom;
-      var fontSize = this.fontSize * paper.view.zoom;
-      var fontFamily = this.fontFamily;
-      var content = this.content;
-      editElem.css('left', position.x + 'px');
-      editElem.css('top', position.y + 'px');
-      editElem.css('width', width + 'px');
-      editElem.css('height', height + 'px');
-      editElem.css('font-family', fontFamily);
-      editElem.css('font-size', fontSize);
-      editElem.val(content);
-    },
-    edit: function () {
-      this.attachTextArea();
-      var self = this;
-      editElem.on('keyup paste', function () {
-        self.content = editElem.val();
-        self.attachTextArea();
-      });
-    },
-    finishEditing: function () {
-      editElem.remove();
-    }
-  });
-})();
 (() => {
   var croquis;
   var croquisDOMElement;
@@ -4467,6 +3601,7 @@ paper.Path.inject({
 
     if (!guiLayer) {
       guiLayer = new paper.Layer();
+      guiLayer.name = 'cursorGUILayer';
     } else {
       paper.project.addLayer(guiLayer);
     }
@@ -5582,4 +4717,870 @@ FillBucket.fillHole = function (point) {
       zoomBox = null;
     }
   }
+})();
+/*
+    Copyright (c) 2018 Zach Rispoli (zrispo)
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
+ */
+
+/* 
+    Brush Cursor Generator
+    For creating Flash-like cursors for drawing tools
+
+    by zrispo (github.com/zrispo) (zach@wickeditor.com)
+ */
+var BrushCursorGen = {
+  create: function (color, size) {
+    var canvas = document.createElement("canvas");
+    canvas.width = 128;
+    canvas.height = 128;
+    var context = canvas.getContext('2d');
+    var centerX = canvas.width / 2;
+    var centerY = canvas.height / 2;
+    var radius = size / 2;
+    context.beginPath();
+    context.arc(centerX, centerY, radius + 1, 0, 2 * Math.PI, false);
+    context.fillStyle = invert(color);
+    context.fill();
+    context.beginPath();
+    context.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
+    context.fillStyle = color;
+    context.fill();
+    return 'url(' + canvas.toDataURL() + ') 64 64,default';
+  }
+};
+/*
+    Copyright (c) 2018 Zach Rispoli (zrispo)
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
+ */
+
+/* 
+    paper-erase.js
+    Adds erase() to the paper Layer class which erases paths in that layer using
+    the shape of a given path. Use this to make a vector eraser!
+    
+    by zrispo (github.com/zrispo) (zach@wickeditor.com)
+ */
+(function () {
+  // Splits a CompoundPath with multiple CW children into individual pieces
+  function splitCompoundPath(compoundPath) {
+    // Create lists of 'holes' (CCW children) and 'parts' (CW children)
+    var holes = [];
+    var parts = [];
+    compoundPath.children.forEach(function (child) {
+      if (!child.clockwise) {
+        holes.push(child);
+      } else {
+        var part = child.clone({
+          insert: false
+        });
+        part.fillColor = compoundPath.fillColor;
+        part.insertAbove(compoundPath);
+        parts.push(part);
+      }
+    }); // Find hole ownership for each 'part'
+
+    parts.forEach(function (part) {
+      var cmp;
+      holes.forEach(function (hole) {
+        if (part.bounds.contains(hole.bounds)) {
+          if (!cmp) {
+            cmp = new paper.CompoundPath({
+              insert: false
+            });
+            cmp.insertAbove(part);
+            cmp.addChild(part.clone({
+              insert: false
+            }));
+          }
+
+          cmp.addChild(hole);
+        }
+
+        if (cmp) {
+          cmp.fillColor = compoundPath.fillColor;
+          cmp.insertAbove(part);
+          part.remove();
+        }
+      });
+    });
+    compoundPath.remove();
+  }
+
+  function eraseFill(path, eraserPath) {
+    if (path.closePath) path.closePath();
+    var res = path.subtract(eraserPath, {
+      insert: false,
+      trace: true
+    });
+    res.fillColor = path.fillColor;
+
+    if (res.children) {
+      res.insertAbove(path);
+      path.remove();
+      splitCompoundPath(res);
+    } else {
+      res.insertAbove(path);
+      path.remove();
+    }
+
+    path.remove();
+  }
+
+  function eraseStroke(path, eraserPath) {
+    var res = path.subtract(eraserPath, {
+      insert: false,
+      trace: false
+    });
+
+    if (res.children) {
+      // Since the path is only strokes, it's trivial to split it into individual paths
+      var children = [];
+      res.children.forEach(function (child) {
+        children.push(child);
+      });
+      children.forEach(function (child) {
+        child.insertAbove(path);
+        child.name = null;
+      });
+      res.remove();
+    } else {
+      res.insertAbove(path);
+    }
+
+    path.remove();
+  }
+
+  function splitPath(path) {
+    var fill = path.clone({
+      insert: false
+    });
+    fill.strokeColor = null;
+    fill.strokeWidth = 1;
+    fill.name = null;
+    var stroke = path.clone({
+      insert: false
+    });
+    stroke.fillColor = null;
+    stroke.name = null;
+    fill.insertAbove(path);
+    stroke.insertAbove(fill);
+    path.remove();
+    return {
+      fill: fill,
+      stroke: stroke
+    };
+  }
+
+  function eraseWithPath(eraserPath) {
+    var touchingPaths = [];
+    this.children.forEach(function (child) {
+      if (eraserPath.bounds.intersects(child.bounds)) {
+        touchingPaths.push(child);
+      }
+    });
+    touchingPaths.forEach(function (path) {
+      if (path.strokeColor && path.fillColor) {
+        var res = splitPath(path);
+        eraseFill(res.fill, eraserPath);
+        eraseStroke(res.stroke, eraserPath);
+      } else if (path.fillColor) {
+        eraseFill(path, eraserPath);
+      } else if (path.strokeColor) {
+        eraseStroke(path, eraserPath);
+      } else {// Probably a group or a raster.
+      }
+    });
+  }
+
+  paper.Layer.inject({
+    erase: eraseWithPath
+  });
+})();
+/*
+    Copyright (c) 2018 Zach Rispoli (zrispo)
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
+ */
+
+/* 
+    paper-floodfill-hole.js
+    Adds hole() to the paper Layer class which finds the shape of the hole
+    at a certain point. Use this to make a vector fill bucket!
+
+    This version uses a flood fill + potrace method of filling holes.
+
+    Adapted from the FillBucket tool from old Wick
+    
+    by zrispo (github.com/zrispo) (zach@wickeditor.com)
+ */
+(function () {
+  var VERBOSE = false;
+  var PREVIEW_IMAGE = false;
+  var callback;
+  var layer;
+  var layerPathsGroup;
+  var layerPathsRaster;
+  var layerPathsImageData;
+  var layerPathsImageDataFloodFilled;
+  var layerPathsImageDataFloodFilledAndProcessed;
+  var layerPathsImageFloodFilledAndProcessed;
+  var floodFillX;
+  var floodFillY;
+  var floodFillCanvas;
+  var floodFillCtx;
+  var floodFillImageData;
+  var floodFillProcessedImage;
+  var resultHolePath;
+  var N_RASTER_CLONE = 1;
+  var RASTER_BASE_RESOLUTION = 1.75;
+  var FILL_TOLERANCE = 35;
+  var CLONE_WIDTH_SHRINK = 1.0;
+  var SHRINK_AMT = 0.85;
+
+  function createLayerPathsGroup() {
+    layerGroup = new paper.Group({
+      insert: false
+    });
+    layer.children.forEach(function (child) {
+      if (child._class !== 'Path' && child._class !== 'CompoundPath') return;
+
+      for (var i = 0; i < N_RASTER_CLONE; i++) {
+        var clone = child.clone({
+          insert: false
+        });
+        clone.strokeWidth *= CLONE_WIDTH_SHRINK;
+        layerGroup.addChild(clone);
+      }
+    });
+
+    if (layerGroup.children.length === 0) {
+      console.log('paper.hole: No paths to fill holes of.');
+      layerGroup = null;
+    }
+  }
+
+  function rasterizeLayerGroup() {
+    var rasterResolution = paper.view.resolution * RASTER_BASE_RESOLUTION / window.devicePixelRatio;
+    layerPathsRaster = layerGroup.rasterize(rasterResolution, {
+      insert: false
+    });
+  }
+
+  function generateImageDataFromRaster() {
+    var rasterCanvas = layerPathsRaster.canvas;
+    var rasterCtx = rasterCanvas.getContext('2d');
+    layerPathsImageData = rasterCtx.getImageData(0, 0, layerPathsRaster.width, layerPathsRaster.height);
+  }
+
+  function floodfillImageData() {
+    var rasterPosition = layerPathsRaster.bounds.topLeft;
+    var x = (floodFillX - rasterPosition.x) * RASTER_BASE_RESOLUTION;
+    var y = (floodFillY - rasterPosition.y) * RASTER_BASE_RESOLUTION;
+    x = Math.round(x);
+    y = Math.round(y);
+    floodFillCanvas = document.createElement('canvas');
+    floodFillCanvas.width = layerPathsRaster.canvas.width;
+    floodFillCanvas.height = layerPathsRaster.canvas.height;
+
+    if (x < 0 || y < 0 || x >= floodFillCanvas.width || y >= floodFillCanvas.height) {
+      if (VERBOSE) console.log('x,y out of bounds of floodfill image. no fill possible.');
+      giveUp();
+    }
+
+    floodFillCtx = floodFillCanvas.getContext('2d');
+    floodFillCtx.putImageData(layerPathsImageData, 0, 0);
+    floodFillCtx.fillStyle = "rgba(123,124,125,1)";
+    floodFillCtx.fillFlood(x, y, FILL_TOLERANCE);
+    floodFillImageData = floodFillCtx.getImageData(0, 0, floodFillCanvas.width, floodFillCanvas.height);
+  }
+
+  function processImageData(callback) {
+    var imageDataRaw = floodFillImageData.data;
+
+    for (var i = 0; i < imageDataRaw.length; i += 4) {
+      if (imageDataRaw[i] === 123 && imageDataRaw[i + 1] === 124 && imageDataRaw[i + 2] === 125) {
+        imageDataRaw[i] = 0;
+        imageDataRaw[i + 1] = 0;
+        imageDataRaw[i + 2] = 0;
+        imageDataRaw[i + 3] = 255;
+      } else if (imageDataRaw[i + 3] !== 0) {
+        imageDataRaw[i] = 255;
+        imageDataRaw[i + 1] = 0;
+        imageDataRaw[i + 2] = 0;
+        imageDataRaw[i + 3] = 255;
+      } else {
+        imageDataRaw[i] = 1;
+        imageDataRaw[i + 1] = 0;
+        imageDataRaw[i + 2] = 0;
+        imageDataRaw[i + 3] = 0;
+      }
+    }
+
+    var w = floodFillCanvas.width;
+    var h = floodFillCanvas.height;
+    var r = 4;
+
+    for (var this_x = 0; this_x < w; this_x++) {
+      for (var this_y = 0; this_y < h; this_y++) {
+        var thisPix = getPixelAt(this_x, this_y, w, h, imageDataRaw);
+
+        if (thisPix && thisPix.r === 255) {
+          for (var offset_x = -r; offset_x <= r; offset_x++) {
+            for (var offset_y = -r; offset_y <= r; offset_y++) {
+              var other_x = this_x + offset_x;
+              var other_y = this_y + offset_y;
+              var otherPix = getPixelAt(other_x, other_y, w, h, imageDataRaw);
+
+              if (otherPix && otherPix.r === 0) {
+                setPixelAt(this_x, this_y, w, h, imageDataRaw, {
+                  r: 1,
+                  g: 255,
+                  b: 0,
+                  a: 255
+                });
+              }
+            }
+          }
+        }
+      }
+    }
+
+    for (var i = 0; i < imageDataRaw.length; i += 4) {
+      if (imageDataRaw[i] === 255) {
+        imageDataRaw[i] = 0;
+        imageDataRaw[i + 1] = 0;
+        imageDataRaw[i + 2] = 0;
+        imageDataRaw[i + 3] = 0;
+      }
+    }
+
+    floodFillCtx.putImageData(floodFillImageData, 0, 0);
+    floodFillProcessedImage = new Image();
+
+    floodFillProcessedImage.onload = function () {
+      if (PREVIEW_IMAGE) previewImage(floodFillProcessedImage);
+      callback();
+    };
+
+    floodFillProcessedImage.src = floodFillCanvas.toDataURL();
+  }
+
+  function checkForLeakyHole() {
+    var w = floodFillProcessedImage.width;
+    var h = floodFillProcessedImage.height;
+
+    for (var x = 0; x < floodFillProcessedImage.width; x++) {
+      if (getPixelAt(x, 0, w, h, floodFillImageData.data).r === 0 && getPixelAt(x, 0, w, h, floodFillImageData.data).a === 255) {
+        giveUp();
+      }
+    }
+  }
+
+  function potraceImageData() {
+    var svgString = potrace.fromImage(floodFillProcessedImage).toSVG(1);
+    var xmlString = svgString,
+        parser = new DOMParser(),
+        doc = parser.parseFromString(xmlString, "text/xml");
+    resultHolePath = paper.project.importSVG(doc, {
+      insert: true
+    });
+    resultHolePath.name = null;
+    resultHolePath.remove();
+  }
+
+  function processFinalResultPath() {
+    resultHolePath.scale(1 / RASTER_BASE_RESOLUTION, new paper.Point(0, 0));
+    var rasterPosition = layerPathsRaster.bounds.topLeft;
+    resultHolePath.position.x += rasterPosition.x;
+    resultHolePath.position.y += rasterPosition.y;
+    expandHole(resultHolePath);
+  }
+  /* Utilities */
+
+
+  function getPixelAt(x, y, width, height, imageData) {
+    if (x < 0 || y < 0 || x >= width || y >= height) return null;
+    var offset = (y * width + x) * 4;
+    return {
+      r: imageData[offset],
+      g: imageData[offset + 1],
+      b: imageData[offset + 2],
+      a: imageData[offset + 3]
+    };
+  }
+
+  function setPixelAt(x, y, width, height, imageData, color) {
+    var offset = (y * width + x) * 4;
+    imageData[offset] = color.r;
+    imageData[offset + 1] = color.g;
+    imageData[offset + 2] = color.b;
+    imageData[offset + 3] = color.a;
+  } // http://www.felixeve.co.uk/how-to-rotate-a-point-around-an-origin-with-javascript/
+
+
+  function rotate_point(pointX, pointY, originX, originY, angle) {
+    angle = angle * Math.PI / 180.0;
+    return {
+      x: Math.cos(angle) * (pointX - originX) - Math.sin(angle) * (pointY - originY) + originX,
+      y: Math.sin(angle) * (pointX - originX) + Math.cos(angle) * (pointY - originY) + originY
+    };
+  }
+
+  function previewImage(image) {
+    var win = window.open('', 'Title', 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, width=' + image.width + ', height=' + image.height + ', top=100, left=100');
+    win.document.body.innerHTML = '<div><img src= ' + image.src + '></div>';
+  }
+
+  function expandHole(path) {
+    if (path instanceof paper.Group) {
+      path = path.children[0];
+    }
+
+    var children;
+
+    if (path instanceof paper.Path) {
+      children = [path];
+    } else if (path instanceof paper.CompoundPath) {
+      children = path.children;
+    }
+
+    children.forEach(function (hole) {
+      var normals = [];
+      hole.closePath();
+      hole.segments.forEach(function (segment) {
+        var a = segment.previous.point;
+        var b = segment.point;
+        var c = segment.next.point;
+        var ab = {
+          x: b.x - a.x,
+          y: b.y - a.y
+        };
+        var cb = {
+          x: b.x - c.x,
+          y: b.y - c.y
+        };
+        var d = {
+          x: ab.x - cb.x,
+          y: ab.y - cb.y
+        };
+        d.h = Math.sqrt(d.x * d.x + d.y * d.y);
+        d.x /= d.h;
+        d.y /= d.h;
+        d = rotate_point(d.x, d.y, 0, 0, 90);
+        normals.push({
+          x: d.x,
+          y: d.y
+        });
+      });
+
+      for (var i = 0; i < hole.segments.length; i++) {
+        var segment = hole.segments[i];
+        var normal = normals[i];
+        segment.point.x += normal.x * -SHRINK_AMT;
+        segment.point.y += normal.y * -SHRINK_AMT;
+      }
+    });
+  }
+
+  function giveUp() {
+    callback(null);
+    throw new Error();
+  }
+  /* Add hole() to paper.Layer */
+
+
+  paper.Layer.inject({
+    hole: function (args) {
+      if (!args) console.error('paper.hole: args is required');
+      if (!args.point) console.error('paper.hole: args.point is required');
+      if (!args.callback) console.error('paper.hole: args.callback is required');
+      callback = args.callback;
+      layer = this;
+      floodFillX = args.point.x;
+      floodFillY = args.point.y;
+      createLayerPathsGroup();
+      rasterizeLayerGroup();
+      generateImageDataFromRaster();
+      floodfillImageData();
+      processImageData(function () {
+        checkForLeakyHole();
+        potraceImageData();
+        processFinalResultPath();
+        callback(resultHolePath);
+      });
+    }
+  });
+})();
+/*
+    Copyright (c) 2018 Zach Rispoli (zrispo)
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
+ */
+
+/* 
+    paper-potrace.js
+    Adds a potrace() method to paper Items that runs potrace on a rasterized
+    version of that Item.
+    
+    by zrispo (github.com/zrispo) (zach@wickeditor.com)
+ */
+paper.Path.inject({
+  potrace: function (args) {
+    var self = this;
+    if (!args) args = {};
+    var finalRasterResolution = paper.view.resolution * args.resolution / window.devicePixelRatio;
+    var raster = this.rasterize(finalRasterResolution);
+    raster.remove();
+    var rasterDataURL = raster.toDataURL(); // https://oov.github.io/potrace/
+
+    var img = new Image();
+
+    img.onload = function () {
+      var svg = potrace.fromImage(img).toSVG(1 / args.resolution);
+      var potracePath = paper.project.importSVG(svg);
+      potracePath.position.x = self.position.x;
+      potracePath.position.y = self.position.y;
+      potracePath.remove();
+      potracePath.children[0].closed = true;
+      args.done(potracePath.children[0]);
+    };
+
+    img.src = rasterDataURL;
+  }
+});
+/*
+    Copyright (c) 2018 Zach Rispoli (zrispo)
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
+ */
+
+/* 
+    paper-subtraction-hole.js
+    Adds hole() to the paper Layer class which finds the shape of the hole
+    at a certain point. Use this to make a vector fill bucket!
+
+    This version uses a naive method of uniting all paths on-screen, inverting
+    them, and finding the path that contains the mouse point. This doesn't work
+    when there are open paths, i.e. lines.
+
+    Adapted from the paperholefinder.js file from old Wick
+    
+    by zrispo (github.com/zrispo) (zach@wickeditor.com)
+    Zj is very proud of this code.
+ */
+(function () {
+  // Return the shape of the smallest hole in 'paperProject' 
+  // that would be created by clicking the mouse at 'point'.
+  function getHoleShapeAtPosition(layer, point) {
+    var path = getLayerAsSinglePath(layer);
+    var holeShapes = getHolesOfPathAsShapes(path);
+    var filledHoleShape = getSmallestShapeContainingPoint(path, holeShapes, point);
+    return filledHoleShape;
+  } // Unites all paths in paperProject into one super path
+
+
+  function getLayerAsSinglePath(layer) {
+    var layerPaths = layer.children;
+    var superPath = layerPaths[0].clone({
+      insert: false
+    }); // Unite all paths together into a superpath.
+
+    for (var i = 1; i < layerPaths.length; i++) {
+      var path = layerPaths[i];
+      if (superPath.closePath) superPath.closePath();
+
+      if (path.children) {
+        path.children.forEach(function (child) {
+          if (child.closePath) child.closePath();
+        });
+      }
+
+      superPath = superPath.unite(path);
+    }
+
+    return superPath;
+  } // Returns shapes of all holes of a given path
+
+
+  function getHolesOfPathAsShapes(path) {
+    var holeShapes = []; // Get an inverted version of the path by subtracting it from a giant rectangle.
+
+    var hugeRectangle = new paper.Path.Rectangle(new paper.Point(-1000, -1000), new paper.Size(2000, 2000));
+    var negativeSpace = hugeRectangle.subtract(path);
+    hugeRectangle.remove();
+    negativeSpace.remove(); // Convert holes into paths representing the shapes of the holes.
+
+    negativeSpace.children.forEach(function (child) {
+      if (child.clockwise && child.area !== 4000000) {
+        // Are you serious?
+        var clone = child.clone({
+          insert: false
+        });
+        var group = new paper.Group({
+          insert: false
+        });
+        group.addChild(clone);
+        clone.clockwise = false;
+        clone.fillColor = 'green';
+        group.fillRule = 'evenodd';
+        holeShapes.push(clone);
+      }
+    });
+    return holeShapes;
+  } // Returns smallest shape from 'shapes' that contains 'point'
+  // Needs the original path shape and the shapes of its holes.
+  // Returns null if no holes contain the point.
+
+
+  function getSmallestShapeContainingPoint(originalPathShape, holeShapes, point) {
+    var shapesContainingPoint = getShapesContainingPoint(holeShapes, point);
+
+    if (shapesContainingPoint.length === 0) {
+      // No shapes contained the point.
+      return null;
+    } else {
+      // >=1 shapes contain the point - process the smallest one and return it.
+      var smallestShape = shapesContainingPoint[0];
+      return removeSubholesFromHoleShape(smallestShape, originalPathShape, holeShapes);
+    }
+  } // Returns shapes from 'shapes' that contain 'point' in order from smallest to largest
+
+
+  function getShapesContainingPoint(shapes, point) {
+    var shapesContainingPoint = [];
+    shapes.forEach(function (shape) {
+      if (shape.contains(point)) {
+        shapesContainingPoint.push(shape);
+      }
+    });
+    shapesContainingPoint.sort(function (a, b) {
+      return b.area - a.area;
+    });
+    return shapesContainingPoint;
+  }
+
+  function removeSubholesFromHoleShape(holeShape, originalPathShape, holeShapes) {
+    var holeShapeSubholesRemoved = holeShape;
+    holeShapes.forEach(function (holeShapeToSubtract) {
+      if (holeShapeToSubtract.area === holeShapeSubholesRemoved.area) return;
+      if (holeShapeToSubtract.area < holeShapeSubholesRemoved.area) return;
+      holeShapeSubholesRemoved = holeShapeSubholesRemoved.subtract(holeShapeToSubtract);
+    });
+    var holeShapeOriginalPathRemoved = holeShapeSubholesRemoved.subtract(originalPathShape);
+    return holeShapeOriginalPathRemoved;
+  } // "Expands" a path by moving all points outwards in the direction of their normals
+
+
+  function expandHole(path) {
+    var HOLE_EXPAND_AMT = 0.4;
+    var children;
+
+    if (path instanceof paper.Path) {
+      children = [path];
+    } else if (path instanceof paper.CompoundPath) {
+      children = path.children;
+    }
+
+    children.forEach(function (hole) {
+      var normals = [];
+      hole.closePath();
+      hole.segments.forEach(function (segment) {
+        // Calculate normal
+        var a = segment.previous.point;
+        var b = segment.point;
+        var c = segment.next.point;
+        var ab = {
+          x: b.x - a.x,
+          y: b.y - a.y
+        };
+        var cb = {
+          x: b.x - c.x,
+          y: b.y - c.y
+        };
+        var d = {
+          x: ab.x - cb.x,
+          y: ab.y - cb.y
+        };
+        d.h = Math.sqrt(d.x * d.x + d.y * d.y);
+        d.x /= d.h;
+        d.y /= d.h;
+        d = rotate_point(d.x, d.y, 0, 0, 90);
+        normals.push({
+          x: d.x,
+          y: d.y
+        });
+      });
+
+      for (var i = 0; i < hole.segments.length; i++) {
+        var segment = hole.segments[i];
+        var normal = normals[i];
+        segment.point.x += normal.x * -HOLE_EXPAND_AMT;
+        segment.point.y += normal.y * -HOLE_EXPAND_AMT;
+      }
+    });
+  } // http://www.felixeve.co.uk/how-to-rotate-a-point-around-an-origin-with-javascript/
+
+
+  function rotate_point(pointX, pointY, originX, originY, angle) {
+    angle = angle * Math.PI / 180.0;
+    return {
+      x: Math.cos(angle) * (pointX - originX) - Math.sin(angle) * (pointY - originY) + originX,
+      y: Math.sin(angle) * (pointX - originX) + Math.cos(angle) * (pointY - originY) + originY
+    };
+  }
+
+  paper.Layer.inject({
+    hole: function (args) {
+      if (!args) console.error('paper.hole: args is required');
+      if (!args.point) if (!args) console.error('paper.hole: args.point is required');
+      var holeShape = getHoleShapeAtPosition(this, args.point);
+      expandHole(holeShape);
+      return holeShape;
+    }
+  });
+})();
+/*
+    Copyright (c) 2018 Zach Rispoli (zrispo)
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
+ */
+(function () {
+  // TODO this doesn't work if the TextItem is rotated
+  var editElem = $('<input type="text">');
+  editElem.css('position', 'absolute');
+  editElem.css('width', '100px');
+  editElem.css('height', '100px');
+  editElem.css('left', '0px');
+  editElem.css('top', '0px');
+  editElem.css('background-color', 'red');
+  editElem.css('border', 'none');
+  paper.TextItem.inject({
+    attachTextArea: function () {
+      $(paper.view.element.offsetParent).append(editElem);
+      editElem.focus();
+      var position = paper.view.projectToView(this.bounds.topLeft.x, this.bounds.topLeft.y);
+      var width = this.bounds.width * paper.view.zoom;
+      var height = this.bounds.height * paper.view.zoom;
+      var fontSize = this.fontSize * paper.view.zoom;
+      var fontFamily = this.fontFamily;
+      var content = this.content;
+      editElem.css('left', position.x + 'px');
+      editElem.css('top', position.y + 'px');
+      editElem.css('width', width + 'px');
+      editElem.css('height', height + 'px');
+      editElem.css('font-family', fontFamily);
+      editElem.css('font-size', fontSize);
+      editElem.val(content);
+    },
+    edit: function () {
+      this.attachTextArea();
+      var self = this;
+      editElem.on('keyup paste', function () {
+        self.content = editElem.val();
+        self.attachTextArea();
+      });
+    },
+    finishEditing: function () {
+      editElem.remove();
+    }
+  });
 })();
