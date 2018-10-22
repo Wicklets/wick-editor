@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { render } from 'react-dom';
 import AceEditor from 'react-ace';
 
 import 'brace/mode/javascript';
