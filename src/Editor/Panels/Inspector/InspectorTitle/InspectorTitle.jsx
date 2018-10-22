@@ -3,6 +3,7 @@ import './_inspectortitle.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 import iconSettings from 'resources/inspector-icons/selection-icons/settings.png';
+import iconCursor from 'resources/tool-icons/cursor.svg';
 import iconUnknown from 'resources/inspector-icons/selection-icons/unknown.svg';
 
 class InspectorTitle extends Component {
@@ -15,6 +16,13 @@ class InspectorTitle extends Component {
           src={iconSettings}>
         </img>
       )
+    } else if (type === "cursor") {
+      return (
+        <img className="selection-icon"
+          alt="cursor icon"
+          src={iconCursor}>
+        </img>
+      )
     } else {
       return (
         <img className="selection-icon"
@@ -25,9 +33,9 @@ class InspectorTitle extends Component {
     }
   }
 
-  renderName(type) {
+  renderName(name) {
     return (
-      <div className="selection-name">{type}</div>
+      <div className="selection-name">{name}</div>
     )
   }
 
@@ -35,7 +43,7 @@ class InspectorTitle extends Component {
     return(
         <div className="selection-name-container">
           {this.renderIcon(this.props.type)}
-          {this.renderName(this.props.type)}
+          {this.renderName(this.props.title)}
         </div>
 
     )
