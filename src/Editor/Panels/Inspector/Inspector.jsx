@@ -55,9 +55,7 @@ class Inspector extends Component {
     return(
       <div className="docked-pane inspector">
         <DockedTitle title={"Inspector"}></DockedTitle>
-        <div className="inspector-content">
-          {this.renderDisplay()}
-        </div>
+        {this.renderDisplay()}
       </div>
     )
   }
