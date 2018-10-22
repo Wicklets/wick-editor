@@ -5,6 +5,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import DockedTitle from 'Editor/Util/DockedTitle/DockedTitle';
 import WickInput from 'Editor/Util/WickInput/WickInput';
 import InspectorTitle from './InspectorTitle/InspectorTitle';
+import InspectorInput from './InspectorInput/InspectorInput'; 
 
 class Inspector extends Component {
   constructor () {
