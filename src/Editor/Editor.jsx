@@ -45,6 +45,7 @@ class Editor extends Component {
 
   componentWillMount () {
     var project = new window.Wick.Project();
+    project.root.timeline.layers[0].frames[0].pathsSVG = ('["Layer",{"applyMatrix":true,"children":[["Path",{"applyMatrix":true,"segments":[[[75,100],[0,13.80712],[0,-13.80712]],[[100,75],[-13.80712,0],[13.80712,0]],[[125,100],[0,-13.80712],[0,13.80712]],[[100,125],[13.80712,0],[-13.80712,0]]],"closed":true,"fillColor":[1,0,0]}]]}]');
     this.setState({project: project});
   }
 
@@ -124,7 +125,11 @@ class Editor extends Component {
                   </ReflexElement>
                   <ReflexSplitter {...this.resizeProps}/>
                   <ReflexElement {...this.resizeProps}>
-                    <DockedPanel><Canvas /></DockedPanel>
+                    <DockedPanel>
+                      <Canvas
+                        project={this.state.project}
+                      />
+                    </DockedPanel>
                   </ReflexElement>
                   <ReflexSplitter {...this.resizeProps}/>
                   <ReflexElement flex={0.2} {...this.resizeProps}>
