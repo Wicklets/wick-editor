@@ -37,6 +37,7 @@ class Editor extends Component {
       onResize: this.onResize.bind(this)
     }
 
+    this.updateProject = this.updateProject.bind(this);
     this.updateProjectSettings = this.updateProjectSettings.bind(this);
     this.openModal = this.openModal.bind(this);
     this.activateTool = this.activateTool.bind(this);
@@ -69,14 +70,16 @@ class Editor extends Component {
   }
 
   updateProjectSettings (settings) {
-    var nextProject = window.Wick.Project.deserialize(this.state.project.serialize());
+    var nextProject = this.state.project.clone();
     nextProject.name = settings.name;
     nextProject.width = settings.width;
     nextProject.height = settings.height;
     nextProject.framerate = settings.framerate;
     nextProject.backgroundColor = settings.backgroundColor;
-    nextProject.focus.timeline.layers[0].frames[0].end = 10;
+    this.updateProject(nextProject);
+  }
 
+  updateProject (nextProject) {
     this.setState(prevState => ({
       project: nextProject,
     }));
@@ -114,7 +117,8 @@ class Editor extends Component {
                   <ReflexElement flex={0.2} {...this.resizeProps}>
                     <DockedPanel>
                       <Timeline
-                        focus={this.state.project.focus}
+                        project={this.state.project}
+                        updateProject={this.updateProject}
                       />
                     </DockedPanel>
                   </ReflexElement>

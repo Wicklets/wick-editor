@@ -21470,6 +21470,10 @@ Wick.Project = class extends Wick.Base {
     this._removeChild(asset);
   }
 
+  clone() {
+    return Wick.Project.deserialize(this.serialize());
+  }
+
   _refreshAssetUUIDRefs() {
     var assets = this.assets;
     assets.forEach(asset => {
