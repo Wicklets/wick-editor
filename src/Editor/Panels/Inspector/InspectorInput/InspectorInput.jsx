@@ -7,7 +7,8 @@ import WickInput from 'Editor/Util/WickInput/WickInput';
 class InspectorInput extends Component {
   render() {
     return(
-      <div></div>
+      <div>
+      </div>
     )
   }
 }
