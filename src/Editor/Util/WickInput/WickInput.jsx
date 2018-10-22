@@ -5,6 +5,7 @@ import 'rc-slider/assets/index.css'
 import NumericInput from 'react-numeric-input';
 import Slider from 'rc-slider';
 import Select from 'react-select';
+import ColorPicker from 'Editor/Util/ColorPicker/ColorPicker';
 
 class WickInput extends Component {
   render() {
@@ -30,6 +31,11 @@ class WickInput extends Component {
       return (
         <Select className="wick-select"
             {...this.props.inputProps}></Select>
+      )
+    } else if (this.props.type === "color") {
+      return (
+        <ColorPicker className="wick-color-picker"
+            {...this.props.inputProps}></ColorPicker>
       )
     }
   }

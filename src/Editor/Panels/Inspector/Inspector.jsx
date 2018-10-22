@@ -36,7 +36,7 @@ class Inspector extends Component {
           <div class="inspector-row">
             <InspectorRow icon="fillcolor"
                             input1={{type: "numeric",}}
-                            input2={{type: "select",}}/>
+                            input2={{type: "color",}}/>
           </div>
         </div>
       </div>
