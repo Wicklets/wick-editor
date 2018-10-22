@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="100px" height="100px" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 48.1 (47250) - http://www.bohemiancoding.com/sketch -->
+    <title>Artboard 3</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <rect id="path-1" x="24" y="44" width="41" height="41"></rect>
+    </defs>
+    <g id="Assets" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Artboard-3">
+            <path d="M47,37.5903973 C50.0259005,29.2822122 57.9948336,23.3494399 67.3494399,23.3494399 C79.3067141,23.3494399 89,33.0427258 89,45 C89,56.9572742 79.3067141,66.6505601 67.3494399,66.6505601 C66.4329166,66.6505601 65.5296947,66.5936101 64.6431199,66.4830558 L64.6431199,45 L51.1679015,45 L47,37.5903973 Z" id="Combined-Shape" stroke="#FFFFFF" stroke-width="3"></path>
+            <g id="Rectangle-6">
+                <use fill-opacity="0" fill="#FFFFFF" fill-rule="evenodd" xlink:href="#path-1"></use>
+                <rect stroke="#FFFFFF" stroke-width="3" x="25.5" y="45.5" width="38" height="38"></rect>
+            </g>
+            <path d="M51.0625,45 L25,45 L25,52 L10,52 L32.5,12 L51.0625,45 Z" id="Combined-Shape" stroke="#FFFFFF" stroke-width="3"></path>
+        </g>
+    </g>
+</svg>

@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import './_inspectortitle.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-import iconSettings from 'resources/inspector-icons/settings.png';
-import iconUnknown from 'resources/inspector-icons/unknown.svg'
+import iconSettings from 'resources/inspector-icons/selection-icons/settings.png';
+import iconUnknown from 'resources/inspector-icons/selection-icons/unknown.svg';
 
 class InspectorTitle extends Component {
 
