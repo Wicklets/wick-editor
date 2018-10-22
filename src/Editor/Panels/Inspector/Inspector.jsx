@@ -10,19 +10,20 @@ class Inspector extends Component {
   constructor () {
     super();
     this.state = {
-      type: "cursor",
+      type: "brush",
     }
-
-    this.renderDisplay = this.renderDisplay.bind(this);
-    this.renderCursor = this.renderCursor.bind(this);
   }
 
   renderCursor() {
-    return(
+    return (
+      <InspectorTitle type={"cursor"} title={"Cursor"}/>
+    )
+  }
+
+  renderBrush() {
+    return (
       <div>
-        <InspectorTitle type={"cursor"} title={"Cursor"}/>
-        <WickInput type="number"></WickInput>
-        <WickInput type="string"></WickInput>
+        <InspectorTitle type={"brush"} title={"Brush"} />
       </div>
     )
   }
@@ -30,6 +31,8 @@ class Inspector extends Component {
   renderDisplay() {
     if (this.state.type === "cursor") {
       return(this.renderCursor());
+    } else if (this.state.type === "brush") {
+      return(this.renderBrush());
     }
   }
 
