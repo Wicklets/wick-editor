@@ -13,6 +13,14 @@ class Timeline extends Component {
     window.AnimationTimeline.setup(this.refs.container, function () {
       self.sendStateToTimelineView();
     });
+    window.AnimationTimeline.onChange(e => {
+      console.log('onChange');
+      console.log(e);
+    });
+    window.AnimationTimeline.onSoftChange(e => {
+      console.log('onSoftChange');
+      console.log(e);
+    });
   }
 
   componentDidUpdate () {
