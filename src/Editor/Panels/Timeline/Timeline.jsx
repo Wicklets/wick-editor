@@ -13,13 +13,17 @@ class Timeline extends Component {
     window.AnimationTimeline.setup(this.refs.container, function () {
       self.sendStateToTimelineView();
     });
+
     window.AnimationTimeline.onChange(e => {
-      console.log('onChange');
-      console.log(e);
+      var nextProject = this.props.project.clone();
+      if(e.playhead) {
+        nextProject.focus.timeline.playheadPosition = e.playhead;
+      }
+      this.props.updateProject(nextProject);
     });
+
     window.AnimationTimeline.onSoftChange(e => {
-      console.log('onSoftChange');
-      console.log(e);
+
     });
   }
 
@@ -28,7 +32,7 @@ class Timeline extends Component {
   }
 
   sendStateToTimelineView () {
-    var focus = this.props.focus;
+    var focus = this.props.project.focus;
     window.AnimationTimeline.setData({
       layers: focus.timeline.layers.map(layer => {
         return {

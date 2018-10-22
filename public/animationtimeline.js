@@ -1173,6 +1173,8 @@ var AnimationTimeline = new (function ft () {
 
             onChangeFn&&onChangeFn({
                 frames: [frame],
+                playhead: playhead.position,
+                layerIndex: activeLayerIndex,
             });
         } else {
             selectionBox.getObjectsInside().forEach(function (obj) {
@@ -1245,6 +1247,8 @@ var AnimationTimeline = new (function ft () {
         } else {
             onChangeFn&&onChangeFn({
                 frames: e.frames,
+                playhead: playhead.position,
+                layerIndex: activeLayerIndex,
             });
         }
     }
@@ -1381,6 +1385,7 @@ var AnimationTimeline = new (function ft () {
 
         onChangeFn&&onChangeFn({
             layers: [layer],
+            layerIndex: activeLayerIndex,
         });
     }
 
@@ -1405,7 +1410,8 @@ var AnimationTimeline = new (function ft () {
         activeLayerIndex = layers.indexOf(e.layer);
 
         onChangeFn&&onChangeFn({
-            layers: layers
+            layers: layers,
+            layerIndex: activeLayerIndex,
         });
     }
 
