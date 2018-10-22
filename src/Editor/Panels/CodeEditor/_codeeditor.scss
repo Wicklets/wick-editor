@@ -4,5 +4,10 @@
   background-color: $wick-green;
   width: 100%;
   height: 100%;
-  overflow: hidden; 
+  overflow: hidden;
+}
+
+#ace-editor {
+  width: 100% !important;
+  height: 100% !important;
 }

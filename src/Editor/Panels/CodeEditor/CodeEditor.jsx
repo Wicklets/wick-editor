@@ -1,19 +1,24 @@
 import React, { Component } from 'react';
-import './_codeeditor.scss';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import AceEditor from 'react-ace';
 
-import DockedTitle from 'Editor/Util/DockedTitle/DockedTitle';
+import 'brace/mode/javascript';
+import 'brace/theme/monokai';
+
+import './_codeeditor.scss';
 
 class CodeEditor extends Component {
   render() {
-    return(
+    return (
       <div className="code-editor">
-        <DockedTitle title={"Code Editor"}></DockedTitle>
-
+        <AceEditor
+          mode="javascript"
+          theme="monokai"
+          name="ace-editor"
+          fontSize={14}
+        />
       </div>
-
-    )
+    );
   }
 }
 
-export default CodeEditor
+export default CodeEditor;
