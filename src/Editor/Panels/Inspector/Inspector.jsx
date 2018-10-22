@@ -4,7 +4,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 import DockedTitle from 'Editor/Util/DockedTitle/DockedTitle';
 import InspectorTitle from './InspectorTitle/InspectorTitle';
-// import InspectorInput from './InspectorInput/InspectorInput';
+import InspectorInput from './InspectorInput/InspectorInput';
 
 class Inspector extends Component {
   constructor () {
@@ -24,6 +24,9 @@ class Inspector extends Component {
     return (
       <div>
         <InspectorTitle type={"brush"} title={"Brush"} />
+        <div className="inspector-content">
+          <InspectorInput />
+        </div>
       </div>
     )
   }
