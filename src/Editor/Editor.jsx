@@ -52,11 +52,24 @@ class Editor extends Component {
     });
   }
 
+  updateProjectSettings (settings) {
+    console.log(settings);
+    this.setState(prevState => ({
+      project: {
+          ...prevState.project,
+          name: settings.name,
+      }
+    }));
+  }
+
   render () {
       return (
         <ReflexContainer orientation="horizontal">
           <ReflexElement className="header" flex={0.05}>
-            <ModalHandler openModal={this.openModal.bind(this)} openModalName={this.state.openModalName} />
+            <ModalHandler openModal={this.openModal.bind(this)}
+                          openModalName={this.state.openModalName}
+                          project={this.state.project}
+                          updateProjectSettings={this.updateProjectSettings.bind(this)} />
             {/* Header */}
             <DockedPanel><MenuBar openModal={this.openModal.bind(this)} /></DockedPanel>
           </ReflexElement>
