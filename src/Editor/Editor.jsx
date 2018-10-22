@@ -58,14 +58,16 @@ class Editor extends Component {
   }
 
   updateProjectSettings (settings) {
+    var nextProject = window.Wick.Project.deserialize(this.state.project.serialize());
+    nextProject.name = settings.name;
+    nextProject.width = settings.width;
+    nextProject.height = settings.height;
+    nextProject.framerate = settings.framerate;
+    nextProject.backgroundColor = settings.backgroundColor;
+    nextProject.focus.timeline.layers[0].frames[0].end = 10;
+
     this.setState(prevState => ({
-      project: {
-          name: settings.name,
-          width: settings.width,
-          height: settings.height,
-          framerate: settings.framerate,
-          backgroundColor: settings.backgroundColor,
-      }
+      project: nextProject,
     }));
   }
 
@@ -94,7 +96,7 @@ class Editor extends Component {
                   <ReflexElement flex={0.2} {...this.resizeProps}>
                     <DockedPanel>
                       <Timeline
-                        timeline={this.state.project.focus}
+                        focus={this.state.project.focus}
                       />
                     </DockedPanel>
                   </ReflexElement>

@@ -3,74 +3,51 @@ import './_timeline.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 class Timeline extends Component {
+  constructor(props) {
+    super(props);
+    this.sendStateToTimelineView = this.sendStateToTimelineView.bind(this);
+  }
+
   componentDidMount () {
+    var self = this;
     window.AnimationTimeline.setup(this.refs.container, function () {
-        window.AnimationTimeline.setData({
-            playheadPosition: 1,
-            activeLayerIndex: 0,
-            onionSkinEnabled: false,
-            onionSkinSeekForwards: 1,
-            onionSkinSeekBackwards: 1,
-            layers: [
-                {
-                    label: 'Layer 1',
-                    locked: false,
-                    hidden: false,
-                    frames: [
-                        {
-                            label: 'Frame A',
-                            start: 1,
-                            end: 1,
-                            tweens: [],
-                        }
-                    ]
-                },
-                {
-                    label: 'Layer 2',
-                    locked: false,
-                    hidden: false,
-                    frames: [
-                        {
-                            label: 'Frame B',
-                            start: 1,
-                            end: 3,
-                            tweens: [],
-                        },
-                        {
-                            label: 'Frame C',
-                            start: 4,
-                            end: 6,
-                            tweens: [],
-                        }
-                    ]
-                },
-                {
-                    label: 'Layer 3',
-                    locked: false,
-                    hidden: false,
-                    frames: [
-                        {
-                            label: 'Frame D',
-                            start: 1,
-                            end: 10,
-                            tweens: [
-                                {
-                                    playheadPosition: 0,
-                                },
-                                {
-                                    playheadPosition: 4,
-                                },
-                                {
-                                    playheadPosition: 9,
-                                }
-                            ]
-                        }
-                    ]
+      self.sendStateToTimelineView();
+    });
+  }
+
+  componentDidUpdate () {
+    this.sendStateToTimelineView();
+  }
+
+  sendStateToTimelineView () {
+    var focus = this.props.focus;
+    window.AnimationTimeline.setData({
+      layers: focus.timeline.layers.map(layer => {
+        return {
+          label: layer.title,
+          locked: layer.locked,
+          hidden: layer.hidden,
+          frames: layer.frames.map(frame => {
+            return {
+              label: frame.identifier,
+              start: frame.start,
+              end: frame.end,
+              tweens: frame.tweens.map(tween => {
+                return {
+                  playheadPosition: tween.playheadPosition,
                 }
-            ]
-        });
-        window.AnimationTimeline.repaint();
-      });
+              })
+            }
+          }),
+        }
+      }),
+      playheadPosition: focus.timeline.playheadPosition,
+      activeLayerIndex: focus.timeline.layersPosition,
+      onionSkinEnabled: focus.timeline.onionSkinEnabled,
+      onionSkinSeekForwards: focus.timeline.seekFramesForwards,
+      onionSkinSeekBackwards: focus.timeline.seekFramesBackwards,
+    });
+    window.AnimationTimeline.repaint();
   }
 
   render() {
