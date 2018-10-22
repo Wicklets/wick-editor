@@ -3,13 +3,12 @@
 
 $inspector-element-margin: 4px;
 $icon-width: $inspector-row-height;
-$input-space: calc(100% - #{$icon-width});
-$input-unit: calc(#{$input-space} * 0.45);
-$input-divider: calc(#{$input-space} * .1);
-$divider-width: calc(calc(#{$input-space} * 0.05) - 2 * #{$inspector-element-margin});
+$input-margin: calc(2*#{$inspector-element-margin});
+$input-space: calc(calc(100% - #{$icon-width}) - #{$input-margin});
 $single-input-size: $input-space;
-$double-input-width: calc(#{$input-divider} + 2 * #{$input-unit});
-$double-input-size: 10px;
+$double-input-container-width: $input-space;
+$double-input-divider-width: calc(#{$input-space} * 0.1);
+$double-input-unit-width: calc(#{$input-space} * 0.45);
 
 .inspector-row {
   width: 100%;
@@ -24,22 +23,25 @@ $double-input-size: 10px;
 .inspector-input-element {
   display: inline-block;
   height: 100%;
+  margin-left: $inspector-element-margin;
+  margin-right: $inspector-element-margin;
 }
 
 .single-input-element {
   width: $single-input-size;
-  // width: calc(100% - #{$inspector-row-height} - 2 * #{$inspector-element-margin});
 }
 
 .double-input-element {
-  width: $double-input-size;
+  width: $double-input-unit-width;
 }
 
 .input-divider {
   color: $interface-primary-text;
-  width: calc(5% - 2 * #{$inspector-element-margin});
+  width: $double-input-divider-width;
+  text-align: center;
 }
 
 .double-input {
-  width: $double-input-width;
+  width: $double-input-container-width;
+  display: inline-block;
 }
