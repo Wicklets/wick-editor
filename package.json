@@ -12,6 +12,7 @@
     "react-numeric-input": "^2.2.3",
     "react-reflex": "^2.2.9",
     "react-scripts": "2.0.5",
+    "react-select": "^2.1.0",
     "reactstrap": "^6.5.0"
   },
   "scripts": {

@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
 import './_wickinput.scss';
+import 'rc-slider/assets/index.css'
 
 import NumericInput from 'react-numeric-input';
 import Slider from 'rc-slider';
+import Select from 'react-select';
 
 class WickInput extends Component {
   render() {
@@ -13,7 +15,7 @@ class WickInput extends Component {
           {...this.props.inputProps}
           ></NumericInput>
       )
-    } else if (this.props.type==="string") {
+    } else if (this.props.type==="text") {
       return (
         <input className="wick-input"
                type="text"
@@ -23,6 +25,11 @@ class WickInput extends Component {
       return (
         <Slider className="wick-slider"
                 {...this.props.inputProps}></Slider>
+      )
+    } else if (this.props.type === "select") {
+      return (
+        <Select className="wick-select"
+            {...this.props.inputProps}></Select>
       )
     }
   }
