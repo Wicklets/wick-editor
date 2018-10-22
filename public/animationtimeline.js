@@ -72,6 +72,9 @@ var AnimationTimeline = new (function ft () {
 
     var scrollbar;
 
+    var onChangeFn;
+    var onSoftChangeFn;
+
     self.setup = function (_elem, callback) {
         elem = _elem;
         elem.style.position = 'relative';
@@ -194,6 +197,14 @@ var AnimationTimeline = new (function ft () {
             });
             return layer;
         });
+    }
+
+    self.onChange = function (fn) {
+        onChangeFn = fn;
+    }
+
+    self.onSoftChange = function (fn) {
+        onSoftChangeFn = fn;
     }
 
     self.frameAtXY = function (x, y) {
@@ -462,7 +473,7 @@ var AnimationTimeline = new (function ft () {
 /* Layer */
 
     function Layer (args) {
-        this.uuid = args.uuid;
+        this.id = args.id;
 
         this.locked = args.locked;
         this.hidden = args.hidden;
@@ -548,7 +559,7 @@ var AnimationTimeline = new (function ft () {
 /* Frame */
 
     function Frame (args) {
-        this.uuid = args.uuid;
+        this.id = args.id;
         this.start = args.start || 0;
         this.end = args.end || (args.start + 1);
         this.layer = args.layer;
@@ -753,7 +764,7 @@ var AnimationTimeline = new (function ft () {
     function Tween (args) {
         this.playheadPosition = args.playheadPosition;
         this.state = args.selected ? 'selected' : 'inactive';
-        this.uuid = args.uuid;
+        this.id = args.id;
         this.frame = args.frame;
 
         this.bounds = null;
@@ -1058,16 +1069,32 @@ var AnimationTimeline = new (function ft () {
     }
 
     self.onNumberLineMouseDown = function (e) {
+        var oldPlayhead = playhead.position;
         playhead.position = e.col + 1;
+
+        if(oldPlayhead !== playhead.position) {
+            onSoftChangeFn&&onSoftChangeFn({
+                playhead: playhead.position,
+            });
+        }
     }
 
     self.onNumberLineMouseDrag = function (e) {
+        var oldPlayhead = playhead.position;
         playhead.position = e.col + 1;
         if(playhead.position < 1) playhead.position = 1;
+
+        if(oldPlayhead !== playhead.position) {
+            onSoftChangeFn&&onSoftChangeFn({
+                playhead: playhead.position,
+            });
+        }
     }
 
     self.onNumberLineMouseUp = function (e) {
-        
+        onChangeFn&&onChangeFn({
+            playhead: playhead.position,
+        });
     }
 
     // Onion seek start
@@ -1136,12 +1163,17 @@ var AnimationTimeline = new (function ft () {
             playhead.position = e.col + 1;
             activeLayerIndex = e.row;
 
-            layers[activeLayerIndex].frames.push(new Frame({
+            var frame = new Frame({
                 start: playhead.position, 
                 end: playhead.position,
                 layer: layers[activeLayerIndex],
                 tweens: [],
-            }));
+            });
+            layers[activeLayerIndex].frames.push(frame);
+
+            onChangeFn&&onChangeFn({
+                frames: [frame],
+            });
         } else {
             selectionBox.getObjectsInside().forEach(function (obj) {
                 obj.select();
@@ -1209,6 +1241,10 @@ var AnimationTimeline = new (function ft () {
         if(!validState) {
             e.frames.forEach(function (frame) {
                 frame.recoverState();
+            });
+        } else {
+            onChangeFn&&onChangeFn({
+                frames: e.frames,
             });
         }
     }
@@ -1313,6 +1349,10 @@ var AnimationTimeline = new (function ft () {
         e.tweens.forEach(function (tween) {
             tween.drop();
         });
+
+        onChangeFn&&onChangeFn({
+            tweens: e.tweens,
+        });
     }
 
     // BlankLayer
@@ -1330,13 +1370,18 @@ var AnimationTimeline = new (function ft () {
     }
 
     self.onBlankLayerMouseUp = function (e) {
-        layers.push(new Layer({
+        var layer = new Layer({
             index: layers.length,
             locked: false,
             hidden: false,
             frames: [],
-        }));
+        });
+        layers.push(layer);
         activeLayerIndex = layers.length-1;
+
+        onChangeFn&&onChangeFn({
+            layers: [layer],
+        });
     }
 
     // Layer
@@ -1358,6 +1403,10 @@ var AnimationTimeline = new (function ft () {
         e.layer.drop();
         e.layer.dragging = false;
         activeLayerIndex = layers.indexOf(e.layer);
+
+        onChangeFn&&onChangeFn({
+            layers: layers
+        });
     }
 
     // Button
