@@ -10,10 +10,12 @@ class ModalHandler extends Component {
   render() {
     return (
       <div>
-        <ProjectSettings project={this.props.project}
-                         updateProjectSettings={this.props.updateProjectSettings}
-                         openModal={this.props.openModal}
-                         open={this.props.openModalName === 'ProjectSettings'} />
+        <ProjectSettings
+          project={this.props.project}
+          updateProjectSettings={this.props.updateProjectSettings}
+          openModal={this.props.openModal}
+          open={this.props.openModalName === 'ProjectSettings'}
+        />
       </div>
     );
   }

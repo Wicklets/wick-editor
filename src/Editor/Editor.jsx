@@ -31,6 +31,9 @@ class Editor extends Component {
       onStopResize: this.onStopResize.bind(this),
       onResize: this.onResize.bind(this)
     }
+
+    this.updateProjectSettings = this.updateProjectSettings.bind(this);
+    this.openModal = this.openModal.bind(this);
   }
 
   componentWillMount () {
@@ -53,11 +56,13 @@ class Editor extends Component {
   }
 
   updateProjectSettings (settings) {
-    console.log(settings);
     this.setState(prevState => ({
       project: {
-          ...prevState.project,
           name: settings.name,
+          width: settings.width,
+          height: settings.height,
+          framerate: settings.framerate,
+          backgroundColor: settings.backgroundColor,
       }
     }));
   }
@@ -66,10 +71,10 @@ class Editor extends Component {
       return (
         <ReflexContainer orientation="horizontal">
           <ReflexElement className="header" flex={0.05}>
-            <ModalHandler openModal={this.openModal.bind(this)}
+            <ModalHandler openModal={this.openModal}
                           openModalName={this.state.openModalName}
                           project={this.state.project}
-                          updateProjectSettings={this.updateProjectSettings.bind(this)} />
+                          updateProjectSettings={this.updateProjectSettings} />
             {/* Header */}
             <DockedPanel><MenuBar openModal={this.openModal.bind(this)} /></DockedPanel>
           </ReflexElement>
