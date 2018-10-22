@@ -60,7 +60,6 @@ class ProjectSettings extends Component {
   }
 
   changeProjectBackgroundColor (color) {
-    console.log(color)
     this.setState({
       backgroundColor: color.hex
     });
@@ -104,6 +103,7 @@ class ProjectSettings extends Component {
             />
           <Label for="projectBackgroundColor">Background Color</Label>
             <ColorPicker
+              id="project-background-color-picker"
               disableAlpha={true}
               placement={'bottom'}
               color={this.state.backgroundColor}

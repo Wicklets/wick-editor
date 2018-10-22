@@ -22,11 +22,11 @@ class ColorPicker extends Component {
   render() {
     return(
       <div>
-        <Button id="Popover1" onClick={this.toggle}></Button>
+        <Button id={this.props.id + '-button'} onClick={this.toggle}></Button>
         <Popover
           placement={this.props.placement}
           isOpen={this.state.open}
-          target="Popover1"
+          target={this.props.id + '-button'}
           toggle={this.toggle}
         >
           <SketchPicker

@@ -27,6 +27,9 @@ class Editor extends Component {
     this.state = {
       project: null,
       openModalName: null,
+      fillColor: '#ff0000',
+      strokeColor: '#ffff00',
+      activeTool: 'potraceBrush',
     }
 
     this.resizeProps = {
@@ -36,6 +39,7 @@ class Editor extends Component {
 
     this.updateProjectSettings = this.updateProjectSettings.bind(this);
     this.openModal = this.openModal.bind(this);
+    this.activateTool = this.activateTool.bind(this);
   }
 
   componentWillMount () {
@@ -54,6 +58,13 @@ class Editor extends Component {
   openModal (name) {
     this.setState({
       openModalName: name,
+    });
+  }
+
+  activateTool (toolName) {
+    window.paper.drawingTools[toolName].activate();
+    this.setState({
+      activeTool: toolName
     });
   }
 
@@ -87,7 +98,14 @@ class Editor extends Component {
 
               <ReflexElement flex={0.05} {...this.resizeProps}>
                 {/* Left Sidebar */}
-                <DockedPanel><Toolbox /></DockedPanel>
+                <DockedPanel>
+                  <Toolbox
+                    activeTool={this.state.activeTool}
+                    fillColor={this.state.fillColor}
+                    strokeColor={this.state.strokeColor}
+                    activateTool={this.activateTool}
+                  />
+                </DockedPanel>
               </ReflexElement>
 
               <ReflexElement {...this.resizeProps}>
