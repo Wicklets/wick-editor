@@ -4,7 +4,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 import DockedTitle from 'Editor/Util/DockedTitle/DockedTitle';
 import InspectorTitle from './InspectorTitle/InspectorTitle';
-import InspectorInput from './InspectorInput/InspectorInput';
+import InspectorRow from './InspectorRow/InspectorRow';
 
 class Inspector extends Component {
   constructor () {
@@ -25,12 +25,19 @@ class Inspector extends Component {
       <div>
         <InspectorTitle type={"brush"} title={"Brush"} />
         <div className="inspector-content">
-          <InspectorInput icon="brushsize"
-                          input1={{type: "numeric",}}/>
-          <InspectorInput icon="brushsmoothness"
-                          input1={{type: "numeric",}}/>
-          <InspectorInput icon="fillcolor"
-                          input1={{type: "numeric",}}/>
+          <div class="inspector-row">
+            <InspectorRow icon="brushsize"
+                            input1={{type: "numeric",}}/>
+          </div>
+          <div class="inspector-row">
+            <InspectorRow icon="brushsmoothness"
+                            input1={{type: "numeric",}}/>
+          </div>
+          <div class="inspector-row">
+            <InspectorRow icon="fillcolor"
+                            input1={{type: "numeric",}}
+                            input2={{type: "numeric",}}/>
+          </div>
         </div>
       </div>
     )

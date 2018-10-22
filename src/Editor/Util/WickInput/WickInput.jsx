@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import './_wickinput.scss';
 
 import NumericInput from 'react-numeric-input';
-import Slider, { Range } from 'rc-slider';
+import Slider from 'rc-slider';
 
 class WickInput extends Component {
   render() {
