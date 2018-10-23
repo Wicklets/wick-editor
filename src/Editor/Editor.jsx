@@ -120,7 +120,7 @@ class Editor extends Component {
   render () {
       return (
         <ReflexContainer orientation="horizontal">
-          <ReflexElement className="header" flex={0.05}>
+          <ReflexElement className="header" size={50}>
             <ModalHandler openModal={this.openModal}
                           openModalName={this.state.openModalName}
                           project={this.state.project}
@@ -131,7 +131,7 @@ class Editor extends Component {
           <ReflexElement {...this.resizeProps}>
             <ReflexContainer orientation="vertical">
 
-              <ReflexElement flex={0.05} {...this.resizeProps}>
+              <ReflexElement size={50} {...this.resizeProps}>
                 {/* Left Sidebar */}
                 <DockedPanel>
                   <Toolbox
@@ -146,6 +146,7 @@ class Editor extends Component {
               <ReflexElement {...this.resizeProps}>
                 {/* Middle Panel */}
                 <ReflexContainer orientation="horizontal">
+                  {/* Timeline */}
                   <ReflexElement flex={0.2} {...this.resizeProps}>
                     <DockedPanel>
                       <Timeline
@@ -155,6 +156,7 @@ class Editor extends Component {
                     </DockedPanel>
                   </ReflexElement>
                   <ReflexSplitter {...this.resizeProps}/>
+                  {/* Canvas */}
                   <ReflexElement {...this.resizeProps}>
                     <DockedPanel>
                       <Canvas
@@ -165,6 +167,7 @@ class Editor extends Component {
                     </DockedPanel>
                   </ReflexElement>
                   <ReflexSplitter {...this.resizeProps}/>
+                  {/* Code Editor */}
                   <ReflexElement flex={0.2} {...this.resizeProps}>
                     <DockedPanel><CodeEditor /></DockedPanel>
                   </ReflexElement>

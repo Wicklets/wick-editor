@@ -19,11 +19,11 @@
 }
 
 .reflex-splitter {
-  transition: background-color 0.0s ease !important;
-  background-color: green !important;
+  transition: background-color 0.5s ease !important;
+  background-color: $interface-secondary !important;
 }
 .reflex-splitter:hover {
-    background-color: yellow !important;
+    background-color: $interface-tertiary !important;
 }
 
 .reflex-layout.vertical > .reflex-splitter {
@@ -39,7 +39,7 @@
 }
 
 .reflex-splitter {
-  background-image: url('../resources/gnurl-horizontal.png');
+  background-image: url('../resources/interface/gnurl-horizontal.png');
   background-repeat: no-repeat;
   background-position: center;
 }
