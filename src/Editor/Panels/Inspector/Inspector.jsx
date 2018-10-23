@@ -6,6 +6,13 @@ import DockedTitle from 'Editor/Util/DockedTitle/DockedTitle';
 import InspectorTitle from './InspectorTitle/InspectorTitle';
 import InspectorRow from './InspectorRow/InspectorRow';
 
+import InspectorNumericSlider from './InspectorRow/InspectorRowTypes/InspectorNumericSlider';
+import InspectorTextInput from './InspectorRow/InspectorRowTypes/InspectorNumericSlider';
+import InspectorNumericInput from './InspectorRow/InspectorRowTypes/InspectorNumericInput';
+import InspectorDualNumericInput from './InspectorRow/InspectorRowTypes/InspectorDualNumericInput';
+import InspectorSelector from './InspectorRow/InspectorRowTypes/InspectorSelector';
+import InspectorColorPicker from './InspectorRow/InspectorRowTypes/InspectorColorPicker';
+
 class Inspector extends Component {
   constructor () {
     super();
@@ -68,264 +75,94 @@ class Inspector extends Component {
   }
 
   // Inspector Row Types
-  renderNumericSlider(args) {
-    return(
-      <div className="inspector-row">
-        <InspectorRow icon={args.icon}
-                      input1={
-                        {type: "numeric",
-                        value: args.val,
-                        onChange: args.onChange}
-                      }
-                      input2={
-                        {type: "slider",
-                         value: args.val,
-                         onChange: args.onChange}
-                       }
-                       divider={false}/>
-      </div>
-    )
-  }
-
-  renderTextInput(args) {
-    return (
-      <div className="inspector-row">
-        <InspectorRow
-          icon={args.icon}
-          input1={
-            {type: "text",
-             value: args.val,
-             onChange: args.onChange}
-          }
-          />
-
-      </div>
-    )
-  }
-
-  renderNumericInput(args) {
-    return(
-      <div className="inspector-row">
-        <InspectorRow icon={args.icon}
-                      input1={
-                        {type: "numeric",
-                        value: args.val,
-                        onChange: args.onChange}
-                      }/>
-      </div>
-    )
-  }
-
-  renderDualNumericInput(args) {
-    return (
-      <div className="inspector-row">
-        <InspectorRow
-          icon={args.icon}
-          input1={
-            {
-              type:"numeric",
-              value: args.val1,
-              onChange: args.onChange1,
-            }
-          }
-          input2={
-            {
-              type:"numeric",
-              value: args.val2,
-              onChange: args.onChange2,
-            }
-          }
-          divider={args.divider}
-          />
-      </div>
-    )
-  }
-
-  renderSelector(args) {
-    return(
-      <div className="inspector-row">
-        <InspectorRow icon={args.icon}
-                      input1={
-                        {type: "select",
-                         defaultValue: args.value,
-                         options: args.options,
-                         onChange: args.onChange,
-                         className: "select-inspector"}
-                      }/>
-      </div>
-    )
-  }
-
-  renderColorPicker(args) {
-    return (
-      <div className="inspector-row">
-        <InspectorRow icon={args.icon}
-                        input1={{type: "color",
-                                 color: args.val,
-                                 onChangeComplete: args.onChange,
-                                 id: args.id}}
-                        />
-      </div>
-    )
-  }
-
   renderBrushSize(args) {
-    return(
-      this.renderNumericSlider({
-        icon:"brushsize",
-        val: args.val,
-        onChange: args.onChange})
+    return (
+      <InspectorNumericSlider icon="brushsize" val={args.val} onChange={args.onChange} divider={false}/>
     )
   }
 
   renderSmoothness(args) {
-    return(
-        this.renderNumericSlider({
-          icon:"brushsmoothness",
-          val: args.val,
-          onChange: args.onChange})
+    return (
+      <InspectorNumericSlider icon="brushsmoothness" val={args.val} onChange={args.onChange} divider={false}/>
     )
   }
 
   renderStrokeSize(args) {
-    return(
-      this.renderNumericSlider({
-        icon:"strokewidth",
-        val: args.val,
-        onChange: args.onChange})
+    return (
+      <InspectorNumericSlider icon="strokewidth" val={args.val} onChange={args.onChange} divider={false}/>
     )
   }
 
   renderFillColor(args) {
     return(
-        this.renderColorPicker({
-          icon:"fillcolor",
-          val: args.val,
-          onChange: args.onChange,
-          id: args.id})
+      <InspectorColorPicker icon="fillcolor" val={args.val} onChange={args.onChange} id={args.id} />
     )
   }
 
   renderStrokeColor(args) {
     return(
-      this.renderColorPicker({
-        icon:"strokecolor",
-        val: args.val,
-        onChange: args.onChange,
-        id: args.id})
+      <InspectorColorPicker icon="strokecolor" val={args.val} onChange={args.onChange} id={args.id} />
     )
   }
 
   renderBorderRadius(args) {
     return (
-      this.renderNumericInput({
-        icon:"cornerroundness",
-        val: args.val,
-        onChange: args.onChange,
-      })
+      <InspectorNumericInput icon="cornerroundness" val={args.val} onChange={args.onChange} />
     )
   }
 
   renderFonts(args) {
     return (
-      this.renderSelector({
-        icon:"fontfamily",
-        value:args.val,
-        options:args.options,
-        onChange: args.onChange,
-      })
+      <InspectorSelector icon="fontfamily" value={args.val} options={args.options} onChange={args.onChange} />
     )
   }
 
   renderFontSize(args) {
     return (
-      this.renderNumericInput({
-        icon:"fontsize",
-        val: args.val,
-        onChange: args.onChange,
-      })
+      <InspectorNumericInput icon="fontsize" val={args.val} onChange={args.onChange} />
     )
   }
 
   renderName(args) {
     return (
-      this.renderTextInput({
-        icon:"name",
-        val: args.val,
-        onChange: args.onChange,
-      })
+      <InspectorTextInput icon="name" val={args.val} onChange={args.onChange} />
     )
   }
 
   renderFrameLength(args) {
     return (
-      this.renderNumericInput({
-        icon:"framelength",
-        val: args.val,
-        onChange: args.onChange,
-      })
+      <InspectorNumericInput icon="framelength" val={args.val} onChange={args.onChange} />
     )
   }
 
   renderPosition(args) {
     return (
-      this.renderDualNumericInput( {
-        icon:"position",
-        val1: args.val1,
-        val2: args.val2,
-        onChange1: args.onChange1,
-        onChange2: args.onChange2,
-        divider: true,
-        }
-      )
+      <InspectorDualNumericInput icon="position" val1={args.val1} val2={args.val2} onChange1={args.onChange1} onChange2={args.onChange2} divider={true} />
     )
   }
 
   renderSize(args) {
     return (
-      this.renderDualNumericInput( {
-        icon:"size",
-        val1: args.val1,
-        val2: args.val2,
-        onChange1: args.onChange1,
-        onChange2: args.onChange2,
-        divider: true,
-        }
-      )
+      <InspectorDualNumericInput icon="size" val1={args.val1} val2={args.val2} onChange1={args.onChange1} onChange2={args.onChange2} divider={true} />
+
     )
   }
 
   renderScale(args) {
     return (
-      this.renderDualNumericInput( {
-        icon:"scale",
-        val1: args.val1,
-        val2: args.val2,
-        onChange1: args.onChange1,
-        onChange2: args.onChange2,
-        divider: true,
-        }
-      )
+      <InspectorDualNumericInput icon="scale" val1={args.val1} val2={args.val2} onChange1={args.onChange1} onChange2={args.onChange2} divider={true} />
     )
   }
 
   renderRotation(args) {
     return (
-      this.renderNumericInput({
-        icon:"rotation",
-        val: args.val,
-        onChange: args.onChange,
-      })
+      <InspectorNumericInput icon="rotation" val={args.val} onChange={args.onChange} />
     )
   }
 
   renderOpacity(args) {
     return (
-      this.renderNumericInput({
-        icon:"opacity",
-        val: args.val,
-        onChange: args.onChange,
-      })
+      <InspectorNumericInput icon="rotation" val={args.val} onChange={args.onChange} />
     )
   }
 
@@ -352,9 +189,185 @@ class Inspector extends Component {
   renderEraser() {
     return (
       <div>
-        <InspectorTitle type={"brush"} title={"Brush"} />
+        <InspectorTitle type={"eraser"} title={"Eraser"} />
         <div className="inspector-content">
           {this.renderBrushSize({val:this.state.dummySize, onChange:this.handleChange})}
+        </div>
+      </div>
+    )
+  }
+
+  renderFillBucket() {
+    return (
+      <div>
+        <InspectorTitle type={"fillbucket"} title={"Fill Bucket"} />
+        <div className="inspector-content">
+          {this.renderFillColor({val:this.state.dummyColor, onChange:this.handleColorChange, id:"inspector-brush-fill-color-picker"})}
+        </div>
+      </div>
+    )
+  }
+
+  renderRectangle() {
+    return (
+      <div>
+        <InspectorTitle type={"rectangle"} title={"Rectangle"} />
+        <div className="inspector-content">
+          {this.renderFillColor({val:this.state.dummyColor, onChange:this.handleColorChange, id:"inspector-brush-fill-color-picker"})}
+          {this.renderStrokeColor({val:this.state.dummyColor, onChange:this.handleColorChange, id:"inspector-brush-fill-color-picker"})}
+          {this.renderStrokeSize({val:this.state.dummySize, onChange:this.handleChange})}
+          {this.renderBorderRadius({val:this.state.dummySize, onChange:this.handleChange})}
+        </div>
+      </div>
+    )
+  }
+
+  renderEllipse() {
+    return (
+      <div>
+        <InspectorTitle type={"ellipse"} title={"Ellipse"} />
+        <div className="inspector-content">
+        </div>
+      </div>
+    )
+  }
+
+  renderLine() {
+    return (
+      <div>
+        <InspectorTitle type={"line"} title={"Line"} />
+        <div className="inspector-content">
+        </div>
+      </div>
+    )
+  }
+
+  renderEyeDropper() {
+    return (
+      <div>
+        <InspectorTitle type={"eyedropper"} title={"Eye Dropper"} />
+        <div className="inspector-content">
+        </div>
+      </div>
+    )
+  }
+
+  renderEyeDropper() {
+    return (
+      <div>
+        <InspectorTitle type={"eyedropper"} title={"Eye Dropper"} />
+        <div className="inspector-content">
+        </div>
+      </div>
+    )
+  }
+
+  renderText() {
+    return (
+      <div>
+        <InspectorTitle type={"text"} title={"Text"} />
+        <div className="inspector-content">
+        </div>
+      </div>
+    )
+  }
+
+  renderZoom() {
+    return (
+      <div>
+        <InspectorTitle type={"zoom"} title={"Zoom"} />
+        <div className="inspector-content">
+        </div>
+      </div>
+    )
+  }
+
+  renderPan() {
+    return (
+      <div>
+        <InspectorTitle type={"pan"} title={"Pan"} />
+        <div className="inspector-content">
+        </div>
+      </div>
+    )
+  }
+
+  renderFrame() {
+    return (
+      <div>
+        <InspectorTitle type={"frame"} title={"Frame"} />
+        <div className="inspector-content">
+        </div>
+      </div>
+    )
+  }
+
+  renderMultiFrame() {
+    return (
+      <div>
+        <InspectorTitle type={"multiframe"} title={"Multiple Frames"} />
+        <div className="inspector-content">
+        </div>
+      </div>
+    )
+  }
+
+  renderGroup() {
+    return (
+      <div>
+        <InspectorTitle type={"group"} title={"Group"} />
+        <div className="inspector-content">
+        </div>
+      </div>
+    )
+  }
+
+  renderMultiGroup() {
+    return (
+      <div>
+        <InspectorTitle type={"multigroup"} title={"Multiple Groups"} />
+        <div className="inspector-content">
+        </div>
+      </div>
+    )
+  }
+
+  renderClip() {
+    return (
+      <div>
+        <InspectorTitle type={"clip"} title={"Clip"} />
+        <div className="inspector-content">
+        </div>
+      </div>
+    )
+  }
+
+  renderButton() {
+    return (
+      <div>
+        <InspectorTitle type={"button"} title={"Button"} />
+        <div className="inspector-content">
+        </div>
+      </div>
+    )
+  }
+
+
+  renderPath() {
+    return (
+      <div>
+        <InspectorTitle type={"path"} title={"Path"} />
+        <div className="inspector-content">
+        </div>
+      </div>
+    )
+  }
+
+  renderMultiPath() {
+    return (
+      <div>
+        <InspectorTitle type={"multipath"} title={"Multiple Paths"} />
+        <div className="inspector-content">
         </div>
       </div>
     )
