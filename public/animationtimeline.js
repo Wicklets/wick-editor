@@ -177,17 +177,20 @@ var AnimationTimeline = new (function ft () {
 
         layers = data.layers.map(layerData => {
             var layer = new Layer({
+                id: layerData.id,
                 locked: layerData.locked,
                 hidden: layerData.hidden,
             });
             layer.frames = layerData.frames.map(frameData => {
                 var frame = new Frame({
+                    id: frameData.id,
                     start: frameData.start,
                     end: frameData.end,
                     layer: layer,
                 });
                 frame.tweens = frameData.tweens.map(tweenData => {
                     var tween = new Tween({
+                        id: tweenData.id,
                         playheadPosition: tweenData.playheadPosition,
                         frame: frame,
                     });
@@ -1140,8 +1143,10 @@ var AnimationTimeline = new (function ft () {
     }
 
     self.onBlankFrameMouseDown = function (e) {
-        if(e.row < layers.length)
+        if(e.row < layers.length) {
             playhead.position = e.col + 1;
+            activeLayerIndex = e.row;
+        }
 
         if(!e.shiftKey) {
             allFrames().forEach(function (frame) {
@@ -1291,6 +1296,11 @@ var AnimationTimeline = new (function ft () {
         }
 
         playhead.position = e.frame.start;
+
+        onChangeFn&&onChangeFn({
+            frames: [e.frame],
+            playhead: playhead.position,
+        });
     }
 
     // Frame Right Edge
@@ -1317,6 +1327,11 @@ var AnimationTimeline = new (function ft () {
         }
 
         playhead.position = e.frame.end;
+
+        onChangeFn&&onChangeFn({
+            frames: [e.frame],
+            playhead: playhead.position,
+        });
     }
 
     // Tween

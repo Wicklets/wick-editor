@@ -21534,7 +21534,7 @@ Wick.Timeline = class extends Wick.Base {
   constructor() {
     super();
     this.playheadPosition = 1;
-    this.layersPosition = 1;
+    this.activeLayerIndex = 0;
     this.playing = true;
     this.onionSkinEnabled = false;
     this.seekFramesForwards = 1;
@@ -21565,6 +21565,10 @@ Wick.Timeline = class extends Wick.Base {
       start: this.playheadPosition - this.seekFramesBackwards,
       end: this.playheadPosition + this.seekFramesForwards
     };
+  }
+
+  get activeLayer() {
+    return this.layers[this.activeLayerIndex];
   }
 
   get activeFrames() {
@@ -21616,7 +21620,7 @@ Wick.Timeline = class extends Wick.Base {
     if (!object) object = new Wick.Timeline();
     super.clone(object);
     object.playheadPosition = this.playheadPosition;
-    object.layersPosition = this.layersPosition;
+    object.activeLayerIndex = this.activeLayerIndex;
     object.playing = this.playing;
     object.onionSkinEnabled = this.onionSkinEnabled;
     object.seekFramesForwards = this.seekFramesForwards;
