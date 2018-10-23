@@ -5,13 +5,13 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 class Timeline extends Component {
   constructor(props) {
     super(props);
-    this.sendStateToTimelineView = this.sendStateToTimelineView.bind(this);
+    this.sendPropsToCanvas = this.sendPropsToCanvas.bind(this);
   }
 
   componentDidMount () {
     var self = this;
     window.AnimationTimeline.setup(this.refs.container, function () {
-      self.sendStateToTimelineView();
+      self.sendPropsToCanvas();
     });
 
     window.AnimationTimeline.onChange(e => {
@@ -79,10 +79,10 @@ class Timeline extends Component {
   }
 
   componentDidUpdate () {
-    this.sendStateToTimelineView();
+    this.sendPropsToCanvas();
   }
 
-  sendStateToTimelineView () {
+  sendPropsToCanvas () {
     var focus = this.props.project.focus;
     window.AnimationTimeline.setData({
       layers: focus.timeline.layers.map(layer => {
