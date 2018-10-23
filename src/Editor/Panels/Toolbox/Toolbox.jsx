@@ -74,23 +74,28 @@ class Toolbox extends Component {
           name="zoom"
           {...this.iconProps}
         />
-        <ColorPicker
-          id="fill-color-picker"
-          placement={'right'}
-          color={this.props.fillColor}
-          onColorChange={(color) => {
-            console.log(color);
-          }}
-        />
-        <ColorPicker
-          id="stroke-color-picker"
-          placement={'right'}
-          color={this.props.strokeColor}
-          onColorChange={(color) => {
-            console.log(color);
-          }}
-        />
+        <div id="fill-color-picker-container">
+          <ColorPicker
+            id="fill-color-picker"
+            placement={'right'}
+            color={this.props.fillColor}
+            onColorChange={(color) => {
+              console.log(color);
+            }}
+          />
+        </div>
+        <div id="stroke-color-picker-container">
+          <ColorPicker
+            id="stroke-color-picker"
+            placement={'right'}
+            color={this.props.strokeColor}
+            onColorChange={(color) => {
+              console.log(color);
+            }}
+          />
+        </div>
       </div>
+
     )
   }
 }

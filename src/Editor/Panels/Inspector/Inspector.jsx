@@ -11,7 +11,101 @@ class Inspector extends Component {
     super();
     this.state = {
       type: "brush",
+      dummySize: 10,
+      dummyColor: "#FFAABB"
     }
+
+    this.handleChange = this.handleChange.bind(this);
+    this.handleColorChange = this.handleColorChange.bind(this);
+  }
+
+  handleChange(val) {
+    console.log("EYY");
+    this.setState(
+      {dummySize: val}
+    )
+  }
+
+  handleColorChange(val) {
+    console.log("Color Change");
+    this.setState(
+      {dummyColor: val}
+    )
+  }
+
+  renderNumericSlider(args) {
+    return(
+      <div className="inspector-row">
+        <InspectorRow icon={args.icon}
+                      input1={
+                        {type: "numeric",
+                        value: args.val,
+                        onChange: args.onChange}
+                      }
+                      input2={
+                        {type: "slider",
+                         value: args.val,
+                         onChange: args.onChange}
+                       }
+                       divider={false}/>
+      </div>
+    )
+  }
+
+  renderColorPicker(args) {
+    return (
+      <div className="inspector-row">
+        <InspectorRow icon={args.icon}
+                        input1={{type: "color",
+                                 color: args.val,
+                                 onChangeComplete: args.onChange,
+                                 id: args.id}}
+                        />
+      </div>
+    )
+  }
+
+  renderBrushSize(args) {
+    return(
+      this.renderNumericSlider({icon:"brushsize",
+                                 val: args.val,
+                                 onChange: args.onChange})
+          )
+  }
+
+  renderSmoothness(args) {
+    return(
+        this.renderNumericSlider({icon:"brushsmoothness",
+                                   val: args.val,
+                                   onChange: args.onChange})
+          )
+  }
+
+  renderStrokeSize(args) {
+    return(
+      this.renderNumericSlider({icon:"strokewidth",
+                                val: args.val,
+                                onChange: args.onChange})
+    )
+  }
+
+  renderFillColor(args) {
+    return(
+        this.renderColorPicker({icon:"fillcolor",
+                                   val: args.val,
+                                   onChange: args.onChange,
+                                   id: args.id})
+          )
+  }
+
+  renderStrokeColor(args) {
+    return(
+      this.renderColorPicker({
+        icon:"strokecolor",
+        val: args.val,
+        onChange: args.onChange,
+        id: args.id})
+    )
   }
 
   renderCursor() {
@@ -21,24 +115,25 @@ class Inspector extends Component {
   }
 
   renderBrush() {
+    console.log(this.state.dummySize);
     return (
       <div>
         <InspectorTitle type={"brush"} title={"Brush"} />
         <div className="inspector-content">
-          <div className="inspector-row">
-            <InspectorRow icon="brushsize"
-                            input1={{type: "numeric",}}/>
-          </div>
-          <div className="inspector-row">
-            <InspectorRow icon="brushsmoothness"
-                            input1={{type: "numeric",}}/>
-          </div>
-          <div className="inspector-row">
-            <InspectorRow icon="fillcolor"
-                            input1={{type: "numeric",}}
-                            input2={{type: "color",}}/>
-          </div>
+          {this.renderBrushSize({val:this.state.dummySize, onChange:this.handleChange})}
+          {this.renderStrokeSize({val:this.state.dummySize, onChange:this.handleChange})}
+          {this.renderSmoothness({val:this.state.dummySize, onChange:this.handleChange})}
+          {this.renderFillColor({val:this.state.dummyColor, onChange:this.handleColorChange, id:"inspector-brush-fill-color-picker"})}
+          {this.renderStrokeColor({val:this.state.dummyColor, onChange:this.handleColorChange, id:"inspector-brush-stroke-color-picker"})}
         </div>
+      </div>
+    )
+  }
+
+  renderEraser() {
+    return (
+      <div>
+        <InspectorTitle type={"brush"} title={"Brush"} />
       </div>
     )
   }

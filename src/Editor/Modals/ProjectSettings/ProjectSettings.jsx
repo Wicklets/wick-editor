@@ -107,7 +107,7 @@ class ProjectSettings extends Component {
               disableAlpha={true}
               placement={'bottom'}
               color={this.state.backgroundColor}
-              onColorChange={this.changeProjectBackgroundColor}
+              onChangeComplete={this.changeProjectBackgroundColor}
             />
           </FormGroup>
         </ModalBody>

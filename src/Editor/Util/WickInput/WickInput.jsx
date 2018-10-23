@@ -34,6 +34,8 @@ class WickInput extends Component {
             {...this.props}></Select>
       )
     } else if (this.props.type === "color") {
+
+      console.log(this.props);
       return (
         <ColorPicker className="wick-color-picker"
             {...this.props}></ColorPicker>
