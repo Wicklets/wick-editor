@@ -10,6 +10,7 @@ class ColorPicker extends Component {
 
     this.state = {
       open: false,
+      color: "#FFFFFF"
     }
 
     this.toggle = this.toggle.bind(this);
@@ -23,8 +24,8 @@ class ColorPicker extends Component {
 
   render() {
     return(
-      <div>
-        <Button id={this.props.id + '-button'} onClick={this.toggle}></Button>
+      <div className="color-picker">
+        <Button className="btn-color-picker" id={this.props.id + '-button'} onClick={this.toggle}></Button>
         <Popover
           placement={this.props.placement}
           isOpen={this.state.open}
