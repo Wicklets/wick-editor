@@ -4263,7 +4263,7 @@ paper.Path.inject({
   paper.drawingTools.cursor = tool;
 
   tool.onActivate = function (e) {
-    clearSelection();
+    selectedItems = [];
     var currentActiveLayer = paper.project.activeLayer;
 
     if (!guiLayer) {
@@ -4277,11 +4277,33 @@ paper.Path.inject({
   };
 
   tool.onDeactivate = function (e) {
+    clearSelection();
     guiLayer.remove();
   };
 
   tool.onSelectionChanged = function (fn) {
     onSelectionChangedFn = fn;
+  };
+
+  tool.getSelectedItems = function () {
+    return selectedItems;
+  };
+
+  tool.setSelectedItems = function (items) {
+    selectedItems = items;
+  };
+
+  tool.getSelectionBounds = function () {
+    return selectionBounds || {
+      left: 0,
+      top: 0,
+      width: 0,
+      height: 0
+    };
+  };
+
+  tool.getGUILayer = function () {
+    return guiLayer;
   };
   /* Base mouse events */
 
@@ -4296,7 +4318,7 @@ paper.Path.inject({
       curve: true,
       segments: true,
       match: function (result) {
-        return result.item.layer !== guiLayer;
+        return result.item.layer !== guiLayer && !result.item.layer.locked;
       }
     });
 
@@ -4330,7 +4352,6 @@ paper.Path.inject({
   tool.onMouseDown_canvas = function (e) {
     if (!e.modifiers.shift) {
       clearSelection();
-      selectItems([]);
     }
 
     boxStart = new paper.Point(e.point.x, e.point.y);
@@ -4356,7 +4377,7 @@ paper.Path.inject({
     var itemsInBox = [];
     var itemsToCheck = [];
     paper.project.layers.filter(layer => {
-      return layer !== guiLayer;
+      return layer !== guiLayer && !layer.locked;
     }).forEach(function (layer) {
       itemsToCheck = itemsToCheck.concat(layer.children);
     });
@@ -4449,7 +4470,10 @@ paper.Path.inject({
     tool.scaleSelection(resizeX, resizeY, pivot);
   };
 
-  tool.onMouseUp_scaleHandle = function (e) {};
+  tool.onMouseUp_scaleHandle = function (e) {
+    buildGUILayer();
+    onSelectionChangedFn && onSelectionChangedFn();
+  };
   /* Rotation hotspot mouse events */
 
 
@@ -4474,7 +4498,10 @@ paper.Path.inject({
     tool.rotateSelection(rotationAmount, pivot);
   };
 
-  tool.onMouseUp_rotationHotspot = function (e) {};
+  tool.onMouseUp_rotationHotspot = function (e) {
+    buildGUILayer();
+    onSelectionChangedFn && onSelectionChangedFn();
+  };
   /* Generic item mouse events */
 
 
@@ -4484,7 +4511,7 @@ paper.Path.inject({
 
   tool.onMouseDown_item = function (e) {
     if (!e.modifiers.shift && !itemIsSelected(projectTarget.item)) {
-      clearSelection();
+      selectedItems = [];
     }
 
     selectItem(projectTarget.item);
@@ -4494,7 +4521,10 @@ paper.Path.inject({
     tool.translateSelection(e.delta.x, e.delta.y);
   };
 
-  tool.onMouseUp_item = function (e) {};
+  tool.onMouseUp_item = function (e) {
+    buildGUILayer();
+    onSelectionChangedFn && onSelectionChangedFn();
+  };
   /* Segment mouse events */
 
 
@@ -4513,6 +4543,8 @@ paper.Path.inject({
     if (e.delta.x === 0 && e.delta.y === 0) {
       if (!e.modifiers.shift) clearSelection();
       selectItem(projectTarget.item);
+    } else {
+      onSelectionChangedFn && onSelectionChangedFn();
     }
   };
   /* Curve mouse events */
@@ -4568,6 +4600,8 @@ paper.Path.inject({
     if (e.delta.x === 0 && e.delta.y === 0) {
       if (!e.modifiers.shift) clearSelection();
       selectItem(projectTarget.item);
+    } else {
+      onSelectionChangedFn && onSelectionChangedFn();
     }
   };
   /* Selection box transformations */
@@ -4583,7 +4617,6 @@ paper.Path.inject({
       child.position.y += y;
     });
     calculateBounds();
-    onSelectionChangedFn && onSelectionChangedFn();
   };
 
   tool.rotateSelection = function (r, pivot) {
@@ -4595,7 +4628,6 @@ paper.Path.inject({
       child.rotate(r, pivot);
     });
     calculateBounds();
-    onSelectionChangedFn && onSelectionChangedFn();
   };
 
   tool.scaleSelection = function (x, y, pivot) {
@@ -4613,7 +4645,6 @@ paper.Path.inject({
       child.scale(1 / x, 1 / y, child.position);
     });
     calculateBounds();
-    onSelectionChangedFn && onSelectionChangedFn();
   };
   /* Utils */
 
@@ -4783,11 +4814,11 @@ paper.Path.inject({
 
   function selectItem(item) {
     selectItems([item]);
-    onSelectionChangedFn && onSelectionChangedFn();
   }
 
   function clearSelection() {
     selectedItems = [];
+    buildGUILayer();
     onSelectionChangedFn && onSelectionChangedFn();
   }
 

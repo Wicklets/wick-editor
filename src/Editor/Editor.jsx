@@ -36,24 +36,6 @@ class Editor extends Component {
         brushSmoothing: 0.5,
         borderRadius: 0,
       },
-      selectionBox: {
-        active: false,
-        position: {
-          x: 0,
-          y: 0,
-        },
-        width: 0,
-        height: 0,
-        scale: {
-          x: 1.0,
-          y: 1.0,
-        },
-        rotation: 0,
-        opacity: 1.0,
-        fillColor: '#FFFFFF',
-        strokeColor: '#FFFFFF',
-        strokeWidth: 1,
-      }
     }
 
     this.resizeProps = {
@@ -63,7 +45,6 @@ class Editor extends Component {
 
     this.updateProject = this.updateProject.bind(this);
     this.updateProjectSettings = this.updateProjectSettings.bind(this);
-    this.updateSelectionBox = this.updateSelectionBox.bind(this);
     this.openModal = this.openModal.bind(this);
     this.activateTool = this.activateTool.bind(this);
   }
@@ -103,12 +84,6 @@ class Editor extends Component {
     nextProject.framerate = settings.framerate;
     nextProject.backgroundColor = settings.backgroundColor;
     this.updateProject(nextProject);
-  }
-
-  updateSelectionBox (attributes) {
-    this.setState({
-      selectionBox: attributes,
-    });
   }
 
   updateProject (nextProject) {
@@ -161,8 +136,8 @@ class Editor extends Component {
                     <DockedPanel>
                       <Canvas
                         project={this.state.project}
-                        selectionBox={this.state.selectionBox}
-                        updateSelectionBox={this.updateSelectionBox}
+                        updateProject={this.updateProject}
+                        activeTool={this.state.activeTool}
                       />
                     </DockedPanel>
                   </ReflexElement>
