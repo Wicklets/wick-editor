@@ -14,29 +14,29 @@ class WickInput extends Component {
         //eslint-disable-next-line
         <NumericInput style={false}
           className="wick-input"
-          {...this.props.inputProps}
+          {...this.props}
           ></NumericInput>
       )
     } else if (this.props.type==="text") {
       return (
         <input className="wick-input"
                type="text"
-               {...this.props.inputProps}></input>
+               {...this.props}></input>
       )
     } else if (this.props.type === "slider") {
       return (
         <Slider className="wick-slider"
-                {...this.props.inputProps}></Slider>
+                {...this.props}></Slider>
       )
     } else if (this.props.type === "select") {
       return (
         <Select className="wick-select"
-            {...this.props.inputProps}></Select>
+            {...this.props}></Select>
       )
     } else if (this.props.type === "color") {
       return (
         <ColorPicker className="wick-color-picker"
-            {...this.props.inputProps}></ColorPicker>
+            {...this.props}></ColorPicker>
       )
     }
   }
