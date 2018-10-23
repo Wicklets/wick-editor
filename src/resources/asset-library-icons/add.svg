@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="47px" height="38px" viewBox="0 0 47 38" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 43.1 (39012) - http://www.bohemiancoding.com/sketch -->
+    <title>fab copy</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <filter x="-67.7%" y="-61.1%" width="235.5%" height="350.0%" filterUnits="objectBoundingBox" id="filter-1">
+            <feOffset dx="0" dy="9" in="SourceAlpha" result="shadowOffsetOuter1"></feOffset>
+            <feGaussianBlur stdDeviation="3.5" in="shadowOffsetOuter1" result="shadowBlurOuter1"></feGaussianBlur>
+            <feColorMatrix values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.5 0" type="matrix" in="shadowBlurOuter1" result="shadowMatrixOuter1"></feColorMatrix>
+            <feMerge>
+                <feMergeNode in="shadowMatrixOuter1"></feMergeNode>
+                <feMergeNode in="SourceGraphic"></feMergeNode>
+            </feMerge>
+        </filter>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="99.0214445%" id="linearGradient-2">
+            <stop stop-color="#000000" stop-opacity="0" offset="0%"></stop>
+            <stop stop-color="#000000" stop-opacity="0.02" offset="80%"></stop>
+            <stop stop-color="#000000" stop-opacity="0.04" offset="100%"></stop>
+        </linearGradient>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-3">
+            <stop stop-color="#FFFFFF" stop-opacity="0.12" offset="0%"></stop>
+            <stop stop-color="#FFFFFF" stop-opacity="0.06" offset="20%"></stop>
+            <stop stop-color="#FFFFFF" stop-opacity="0" offset="100%"></stop>
+        </linearGradient>
+        <path d="M29.2668796,18 C30.2240556,18 31,17.2265625 31,16.2740843 L31,1.72591567 C31,0.772718766 30.2337036,-4.70535434e-16 29.2668796,-2.21046349e-16 L1.7331204,6.88404443e-15 C0.775944435,7.13104384e-15 -3.99908942e-15,0.7734375 -1.52437012e-17,1.72591567 L6.08340873e-14,16.2740843 C6.48209392e-14,17.2272812 0.766296387,18 1.7331204,18 L29.2668796,18 Z" id="path-4"></path>
+        <filter x="-25.8%" y="-27.8%" width="151.6%" height="188.9%" filterUnits="objectBoundingBox" id="filter-5">
+            <feOffset dx="0" dy="2" in="SourceAlpha" result="shadowOffsetOuter1"></feOffset>
+            <feGaussianBlur stdDeviation="1" in="shadowOffsetOuter1" result="shadowBlurOuter1"></feGaussianBlur>
+            <feComposite in="shadowBlurOuter1" in2="SourceAlpha" operator="out" result="shadowBlurOuter1"></feComposite>
+            <feColorMatrix values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.237601902 0" type="matrix" in="shadowBlurOuter1" result="shadowMatrixOuter1"></feColorMatrix>
+            <feOffset dx="0" dy="0" in="SourceAlpha" result="shadowOffsetOuter2"></feOffset>
+            <feGaussianBlur stdDeviation="1" in="shadowOffsetOuter2" result="shadowBlurOuter2"></feGaussianBlur>
+            <feComposite in="shadowBlurOuter2" in2="SourceAlpha" operator="out" result="shadowBlurOuter2"></feComposite>
+            <feColorMatrix values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.12 0" type="matrix" in="shadowBlurOuter2" result="shadowMatrixOuter2"></feColorMatrix>
+            <feOffset dx="0" dy="1" in="SourceAlpha" result="shadowOffsetOuter3"></feOffset>
+            <feGaussianBlur stdDeviation="0.5" in="shadowOffsetOuter3" result="shadowBlurOuter3"></feGaussianBlur>
+            <feComposite in="shadowBlurOuter3" in2="SourceAlpha" operator="out" result="shadowBlurOuter3"></feComposite>
+            <feColorMatrix values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.24 0" type="matrix" in="shadowBlurOuter3" result="shadowMatrixOuter3"></feColorMatrix>
+            <feOffset dx="0" dy="0" in="SourceAlpha" result="shadowOffsetOuter4"></feOffset>
+            <feGaussianBlur stdDeviation="0.5" in="shadowOffsetOuter4" result="shadowBlurOuter4"></feGaussianBlur>
+            <feComposite in="shadowBlurOuter4" in2="SourceAlpha" operator="out" result="shadowBlurOuter4"></feComposite>
+            <feColorMatrix values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.12 0" type="matrix" in="shadowBlurOuter4" result="shadowMatrixOuter4"></feColorMatrix>
+            <feMerge>
+                <feMergeNode in="shadowMatrixOuter1"></feMergeNode>
+                <feMergeNode in="shadowMatrixOuter2"></feMergeNode>
+                <feMergeNode in="shadowMatrixOuter3"></feMergeNode>
+                <feMergeNode in="shadowMatrixOuter4"></feMergeNode>
+            </feMerge>
+        </filter>
+    </defs>
+    <g id="Refined" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="z-copy-11" transform="translate(-380.000000, -37.000000)">
+            <g id="fab-copy" filter="url(#filter-1)" transform="translate(388.000000, 39.000000)">
+                <g id="bg">
+                    <use fill="black" fill-opacity="1" filter="url(#filter-5)" xlink:href="#path-4"></use>
+                    <use fill="#FFFFFF" fill-rule="evenodd" xlink:href="#path-4"></use>
+                    <path stroke="url(#linearGradient-2)" stroke-width="0.575" d="M29.2668796,17.7125 L1.7331204,17.7125 C0.928390271,17.7125 0.2875,17.0718103 0.2875,16.2740843 L0.2875,1.72591567 C0.2875,0.932221263 0.934726438,0.2875 1.7331204,0.2875 L29.2668796,0.2875 C30.0716097,0.2875 30.7125,0.928189663 30.7125,1.72591567 L30.7125,16.2740843 C30.7125,17.0677787 30.0652736,17.7125 29.2668796,17.7125 Z"></path>
+                    <path stroke="url(#linearGradient-3)" stroke-width="0.575" d="M29.2668796,17.7125 L1.7331204,17.7125 C0.928390271,17.7125 0.2875,17.0718103 0.2875,16.2740843 L0.2875,1.72591567 C0.2875,0.932221263 0.934726438,0.2875 1.7331204,0.2875 L29.2668796,0.2875 C30.0716097,0.2875 30.7125,0.928189663 30.7125,1.72591567 L30.7125,16.2740843 C30.7125,17.0677787 30.0652736,17.7125 29.2668796,17.7125 Z"></path>
+                </g>
+                <g id="Material/Icons-black/add" opacity="0.54" transform="translate(12.097561, 6.000000)" fill="#000000">
+                    <polygon id="Shape" points="3 0 3 3 0 3 0 4 3 4 3 7 4 7 4 4 7 4 7 3 4 3 4 0"></polygon>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>
