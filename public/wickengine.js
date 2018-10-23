@@ -21109,6 +21109,8 @@ Wick.FrameView = class extends Wick.View {
       // Set a 'dirty' flag on undo/redo
       // Check to see if frame.pathsSVG changed right here in FrameView (would that be slow?)
 
+    } else {
+      this._pathsLayer.removeChildren();
     }
   }
 
@@ -21193,6 +21195,7 @@ Wick.ProjectView = class extends Wick.View {
   constructor(model) {
     super(model);
     this._layers = [];
+    this._bgLayer = null;
   }
   /* Getters */
 
@@ -21205,6 +21208,23 @@ Wick.ProjectView = class extends Wick.View {
 
   updateViewUsingModel(project) {
     this._layers = [];
+
+    if (!this._bgLayer) {
+      this._bgLayer = new paper.Layer();
+      this._bgLayer.name = 'project_bg';
+    }
+
+    this._bgLayer.removeChildren();
+
+    this._bgLayer.locked = true;
+    var bgRect = new paper.Path.Rectangle(new paper.Point(0, 0), new paper.Point(project.width, project.height));
+    bgRect.remove();
+    bgRect.fillColor = project.backgroundColor;
+
+    this._bgLayer.addChild(bgRect);
+
+    this._layers.push(this._bgLayer);
+
     project.focus.timeline.activeFrames.forEach(frame => {
       var frameView = Wick.View.cache[frame.uuid];
       if (!frameView) frameView = new Wick.FrameView(frame);
@@ -21441,10 +21461,10 @@ Wick.Project = class extends Wick.Base {
     if (!object) object = new Wick.Project();
     super.clone(object);
     object.name = this.name;
-    object.width = this.name;
-    object.height = this.name;
-    object.backgroundColor = this.name;
-    object.framerate = this.name;
+    object.width = this.width;
+    object.height = this.height;
+    object.backgroundColor = this.backgroundColor;
+    object.framerate = this.framerate;
     object.setRoot(this.root.clone());
     object.focus = object._childByUUID(this.focus.uuid);
     this.assets.forEach(asset => {
