@@ -1,8 +1,29 @@
 @import 'Editor/_wickbrand.scss';
 
+$asset-library-padding: 6px;
+
 .asset-library {
   background-color: $flame;
   width: 100%;
   height: 100%;
   overflow: hidden;
+  background-color: $interface-primary;
+}
+
+.asset-container {
+  padding-left: $asset-library-padding;
+  padding-right: $asset-library-padding;
+  margin-top: 4px;
+}
+
+.asset-node {
+  border-radius: $interface-roundness-primary;
+  padding-left: 4px;
+  background-color: $interface-secondary;
+  color: $interface-secondary-text;
+  margin-top: 2px;
+}
+
+.asset-node:hover {
+    cursor: grab;
 }
