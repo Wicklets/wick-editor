@@ -25,15 +25,15 @@ class Inspector extends Component {
       <div>
         <InspectorTitle type={"brush"} title={"Brush"} />
         <div className="inspector-content">
-          <div class="inspector-row">
+          <div className="inspector-row">
             <InspectorRow icon="brushsize"
                             input1={{type: "numeric",}}/>
           </div>
-          <div class="inspector-row">
+          <div className="inspector-row">
             <InspectorRow icon="brushsmoothness"
                             input1={{type: "numeric",}}/>
           </div>
-          <div class="inspector-row">
+          <div className="inspector-row">
             <InspectorRow icon="fillcolor"
                             input1={{type: "numeric",}}
                             input2={{type: "color",}}/>
