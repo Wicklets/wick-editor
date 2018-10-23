@@ -68,8 +68,14 @@ class Timeline extends Component {
     });
 
     window.AnimationTimeline.onSoftChange(e => {
-
+      console.log('onSoftChange');
+      console.log(e);
     });
+
+    window.AnimationTimeline.onSelectionChange(e => {
+      console.log('onSelectionChange');
+      console.log(e);
+    })
   }
 
   componentDidUpdate () {

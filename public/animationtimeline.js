@@ -22,7 +22,7 @@
 
 /* 
     animationtimeline.js
-    Library for canvas based animation timeline GUI for Wick
+    An HTML5 timeline GUI for animation tools.
     by zrispo (zach@wickeditor.com)
  */
 
@@ -74,6 +74,7 @@ var AnimationTimeline = new (function ft () {
 
     var onChangeFn;
     var onSoftChangeFn;
+    var onSelectionChangeFn;
 
     self.setup = function (_elem, callback) {
         elem = _elem;
@@ -187,12 +188,14 @@ var AnimationTimeline = new (function ft () {
                     start: frameData.start,
                     end: frameData.end,
                     layer: layer,
+                    selected: frameData.selected,
                 });
                 frame.tweens = frameData.tweens.map(tweenData => {
                     var tween = new Tween({
                         id: tweenData.id,
                         playheadPosition: tweenData.playheadPosition,
                         frame: frame,
+                        selected: tweenData.selected,
                     });
                     return tween;
                 });
@@ -208,6 +211,10 @@ var AnimationTimeline = new (function ft () {
 
     self.onSoftChange = function (fn) {
         onSoftChangeFn = fn;
+    }
+
+    self.onSelectionChange = function (fn) {
+        onSelectionChangeFn = fn;
     }
 
     self.frameAtXY = function (x, y) {
@@ -1157,6 +1164,11 @@ var AnimationTimeline = new (function ft () {
             });
         }
         selectionBox.setStart(e.x, e.y);
+
+        onSelectionChangeFn({
+            frames: selectedFrames(),
+            tweens: selectedTweens(),
+        });
     }
 
     self.onBlankFrameMouseDrag = function (e) {
@@ -1221,6 +1233,11 @@ var AnimationTimeline = new (function ft () {
                 e.frame.select();
             }
         }
+
+        onSelectionChangeFn({
+            frames: selectedFrames(),
+            tweens: selectedTweens(),
+        });
     }
 
     self.onFrameMouseDrag = function (e) {
@@ -1356,6 +1373,17 @@ var AnimationTimeline = new (function ft () {
                 e.tween.select();
             }
         }
+
+        allFrames().forEach(frame => {
+            if(frame !== e.tween.frame) {
+                frame.deselect();
+            }
+        });
+
+        onSelectionChangeFn({
+            frames: selectedFrames(),
+            tweens: selectedTweens(),
+        });
     }
 
     self.onTweenMouseDrag = function (e) {

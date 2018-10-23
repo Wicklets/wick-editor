@@ -21225,7 +21225,7 @@ Wick.ProjectView = class extends Wick.View {
 
     this._layers.push(this._bgLayer);
 
-    project.focus.timeline.activeFrames.forEach(frame => {
+    project.focus.timeline.activeFrames.reverse().forEach(frame => {
       var frameView = Wick.View.cache[frame.uuid];
       if (!frameView) frameView = new Wick.FrameView(frame);
       frameView.updateViewUsingModel(frame);
