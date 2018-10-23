@@ -18,9 +18,14 @@ class Canvas extends Component {
     }
     window.paper.drawingTools.potraceBrush.activate();
     this.sendStateToCanvasView();
+
+    window.paper.drawingTools.cursor.onSelectionChanged(function (e) {
+      console.log(e);
+    });
   }
 
   componentDidUpdate () {
+    console.log(this.props.selectionBox);
     this.sendStateToCanvasView();
   }
 

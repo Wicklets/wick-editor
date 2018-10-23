@@ -4164,10 +4164,18 @@ paper.Path.inject({
       croquisDOMElement.style.position = 'absolute';
       croquisDOMElement.style.left = '0px';
       croquisDOMElement.style.top = '0px';
+      croquisDOMElement.style.width = '100%';
+      croquisDOMElement.style.height = '100%';
       croquisDOMElement.style.display = 'block';
       croquisDOMElement.style.pointerEvents = 'none';
 
       paper.view._element.parentElement.appendChild(croquisDOMElement);
+
+      croquis.setCanvasSize(paper.view.bounds.width, paper.view.bounds.height);
+
+      window.onresize = function () {
+        croquis.setCanvasSize(paper.view.bounds.width, paper.view.bounds.height);
+      };
     }
   };
 
@@ -4249,7 +4257,7 @@ paper.Path.inject({
   var prerotation;
   var prerotationAmount;
   var prerotationPivot;
-  var onSelectionTransformedCallback;
+  var onSelectionChangedFn;
   var tool = new paper.Tool();
   paper.drawingTools = paper.drawingTools || {};
   paper.drawingTools.cursor = tool;
@@ -4270,6 +4278,10 @@ paper.Path.inject({
 
   tool.onDeactivate = function (e) {
     guiLayer.remove();
+  };
+
+  tool.onSelectionChanged = function (fn) {
+    onSelectionChangedFn = fn;
   };
   /* Base mouse events */
 
@@ -4571,7 +4583,7 @@ paper.Path.inject({
       child.position.y += y;
     });
     calculateBounds();
-    onSelectionTransformedCallback && onSelectionTransformedCallback();
+    onSelectionChangedFn && onSelectionChangedFn();
   };
 
   tool.rotateSelection = function (r, pivot) {
@@ -4583,7 +4595,7 @@ paper.Path.inject({
       child.rotate(r, pivot);
     });
     calculateBounds();
-    onSelectionTransformedCallback && onSelectionTransformedCallback();
+    onSelectionChangedFn && onSelectionChangedFn();
   };
 
   tool.scaleSelection = function (x, y, pivot) {
@@ -4601,7 +4613,7 @@ paper.Path.inject({
       child.scale(1 / x, 1 / y, child.position);
     });
     calculateBounds();
-    onSelectionTransformedCallback && onSelectionTransformedCallback();
+    onSelectionChangedFn && onSelectionChangedFn();
   };
   /* Utils */
 
@@ -4766,14 +4778,17 @@ paper.Path.inject({
       }
     });
     buildGUILayer();
+    onSelectionChangedFn && onSelectionChangedFn();
   }
 
   function selectItem(item) {
     selectItems([item]);
+    onSelectionChangedFn && onSelectionChangedFn();
   }
 
   function clearSelection() {
     selectedItems = [];
+    onSelectionChangedFn && onSelectionChangedFn();
   }
 
   function itemIsSelected(item) {
