@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import { Button, Popover } from 'reactstrap';
 import { SketchPicker } from 'react-color';
 
+import './_colorpicker.scss';
+
 class ColorPicker extends Component {
   constructor (props) {
     super(props);
