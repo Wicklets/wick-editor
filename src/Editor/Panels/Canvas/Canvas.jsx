@@ -21,10 +21,10 @@ class Canvas extends Component {
     this.sendStateToCanvasView();
 
     window.paper.drawingTools.cursor.onSelectionChanged(function (e) {
-      console.log('onSelectionChanged fired')
+      console.log('onSelectionChanged fired');
     });
     window.paper.drawingTools.onCanvasModified(function (e) {
-      console.log('onCanvasModified fired.')
+      console.log('onCanvasModified fired.');
     });
   }
 
