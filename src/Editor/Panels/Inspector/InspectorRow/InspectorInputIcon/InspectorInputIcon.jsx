@@ -20,6 +20,7 @@ import iconScale from "resources/inspector-icons/property-icons/scale.svg";
 import iconSize from "resources/inspector-icons/property-icons/size.svg";
 import iconSound from "resources/inspector-icons/property-icons/sound.svg";
 import iconStrokeColor from "resources/inspector-icons/property-icons/strokecolor.svg";
+import iconStrokeWidth from "resources/inspector-icons/property-icons/strokewidth.png";
 import iconVolume from "resources/inspector-icons/property-icons/volume.svg";
 import iconUnknown from "resources/inspector-icons/selection-icons/unknown.svg";
 
@@ -45,6 +46,7 @@ class InspectorInputIcon extends Component {
       "size": iconSize,
       "sound": iconSound,
       "strokecolor": iconStrokeColor,
+      "strokewidth": iconStrokeWidth,
       "volume": iconVolume,
       "unknown": iconUnknown,
     }

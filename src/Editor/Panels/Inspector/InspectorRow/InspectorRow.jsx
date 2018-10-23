@@ -5,6 +5,12 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import WickInput from 'Editor/Util/WickInput/WickInput';
 import InspectorInputIcon from './InspectorInputIcon/InspectorInputIcon';
 
+// Quick documentation...
+// input1: object: input information, all props pased to child
+// input2: object: input information, all props pased to child
+// icon: image reference
+// divider: boolean: show x or don't show x, default to show x.
+
 class InspectorInput extends Component {
   renderSingleComponent() {
     return (
@@ -23,6 +29,8 @@ class InspectorInput extends Component {
   }
 
   renderDoubleComponent() {
+    let divider = (this.props.divider || this.props.divider === undefined) ? "x" : "";
+
     return (
       <div className="inspector-row">
         {/* Icon */}
@@ -36,7 +44,7 @@ class InspectorInput extends Component {
             <WickInput  {...this.props.input1}/>
           </div>
           {/* Divider */}
-          <div className="input-divider inspector-input-element">x</div>
+          <div className="input-divider inspector-input-element">{divider}</div>
           {/* Right Element */}
           <div className="double-input-element inspector-input-element">
             <WickInput {...this.props.input2}/>
