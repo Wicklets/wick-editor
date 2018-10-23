@@ -27,9 +27,32 @@ class Editor extends Component {
     this.state = {
       project: null,
       openModalName: null,
-      fillColor: '#ff0000',
-      strokeColor: '#ffff00',
       activeTool: 'potraceBrush',
+      toolSettings: {
+        fillColor: '#ff0000',
+        strokeColor: '#ffff00',
+        strokeWidth: 1,
+        brushSize: 10,
+        brushSmoothing: 0.5,
+        borderRadius: 0,
+      },
+      selectionBox: {
+        position: {
+          x: 0,
+          y: 0,
+        },
+        width: 0,
+        height: 0,
+        scale: {
+          x: 1.0,
+          y: 1.0,
+        },
+        rotation: 0,
+        opacity: 1.0,
+        fillColor: '#FFFFFF',
+        strokeColor: '#FFFFFF',
+        strokeWidth: 1,
+      }
     }
 
     this.resizeProps = {
