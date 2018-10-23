@@ -3717,390 +3717,6 @@ var BrushCursorGen = {
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     SOFTWARE.
  */
-
-/* 
-    paper-floodfill-hole.js
-    Adds hole() to the paper Layer class which finds the shape of the hole
-    at a certain point. Use this to make a vector fill bucket!
-
-    This version uses a flood fill + potrace method of filling holes.
-
-    Adapted from the FillBucket tool from old Wick
-    
-    by zrispo (github.com/zrispo) (zach@wickeditor.com)
- */
-(function () {
-  var VERBOSE = false;
-  var PREVIEW_IMAGE = false;
-  var callback;
-  var layer;
-  var layerPathsGroup;
-  var layerPathsRaster;
-  var layerPathsImageData;
-  var layerPathsImageDataFloodFilled;
-  var layerPathsImageDataFloodFilledAndProcessed;
-  var layerPathsImageFloodFilledAndProcessed;
-  var floodFillX;
-  var floodFillY;
-  var floodFillCanvas;
-  var floodFillCtx;
-  var floodFillImageData;
-  var floodFillProcessedImage;
-  var resultHolePath;
-  var N_RASTER_CLONE = 1;
-  var RASTER_BASE_RESOLUTION = 1.75;
-  var FILL_TOLERANCE = 35;
-  var CLONE_WIDTH_SHRINK = 1.0;
-  var SHRINK_AMT = 0.85;
-
-  function createLayerPathsGroup() {
-    layerGroup = new paper.Group({
-      insert: false
-    });
-    layer.children.forEach(function (child) {
-      if (child._class !== 'Path' && child._class !== 'CompoundPath') return;
-
-      for (var i = 0; i < N_RASTER_CLONE; i++) {
-        var clone = child.clone({
-          insert: false
-        });
-        clone.strokeWidth *= CLONE_WIDTH_SHRINK;
-        layerGroup.addChild(clone);
-      }
-    });
-
-    if (layerGroup.children.length === 0) {
-      console.log('paper.hole: No paths to fill holes of.');
-      layerGroup = null;
-    }
-  }
-
-  function rasterizeLayerGroup() {
-    var rasterResolution = paper.view.resolution * RASTER_BASE_RESOLUTION / window.devicePixelRatio;
-    layerPathsRaster = layerGroup.rasterize(rasterResolution, {
-      insert: false
-    });
-  }
-
-  function generateImageDataFromRaster() {
-    var rasterCanvas = layerPathsRaster.canvas;
-    var rasterCtx = rasterCanvas.getContext('2d');
-    layerPathsImageData = rasterCtx.getImageData(0, 0, layerPathsRaster.width, layerPathsRaster.height);
-  }
-
-  function floodfillImageData() {
-    var rasterPosition = layerPathsRaster.bounds.topLeft;
-    var x = (floodFillX - rasterPosition.x) * RASTER_BASE_RESOLUTION;
-    var y = (floodFillY - rasterPosition.y) * RASTER_BASE_RESOLUTION;
-    x = Math.round(x);
-    y = Math.round(y);
-    floodFillCanvas = document.createElement('canvas');
-    floodFillCanvas.width = layerPathsRaster.canvas.width;
-    floodFillCanvas.height = layerPathsRaster.canvas.height;
-
-    if (x < 0 || y < 0 || x >= floodFillCanvas.width || y >= floodFillCanvas.height) {
-      if (VERBOSE) console.log('x,y out of bounds of floodfill image. no fill possible.');
-      giveUp();
-    }
-
-    floodFillCtx = floodFillCanvas.getContext('2d');
-    floodFillCtx.putImageData(layerPathsImageData, 0, 0);
-    floodFillCtx.fillStyle = "rgba(123,124,125,1)";
-    floodFillCtx.fillFlood(x, y, FILL_TOLERANCE);
-    floodFillImageData = floodFillCtx.getImageData(0, 0, floodFillCanvas.width, floodFillCanvas.height);
-  }
-
-  function processImageData(callback) {
-    var imageDataRaw = floodFillImageData.data;
-
-    for (var i = 0; i < imageDataRaw.length; i += 4) {
-      if (imageDataRaw[i] === 123 && imageDataRaw[i + 1] === 124 && imageDataRaw[i + 2] === 125) {
-        imageDataRaw[i] = 0;
-        imageDataRaw[i + 1] = 0;
-        imageDataRaw[i + 2] = 0;
-        imageDataRaw[i + 3] = 255;
-      } else if (imageDataRaw[i + 3] !== 0) {
-        imageDataRaw[i] = 255;
-        imageDataRaw[i + 1] = 0;
-        imageDataRaw[i + 2] = 0;
-        imageDataRaw[i + 3] = 255;
-      } else {
-        imageDataRaw[i] = 1;
-        imageDataRaw[i + 1] = 0;
-        imageDataRaw[i + 2] = 0;
-        imageDataRaw[i + 3] = 0;
-      }
-    }
-
-    var w = floodFillCanvas.width;
-    var h = floodFillCanvas.height;
-    var r = 4;
-
-    for (var this_x = 0; this_x < w; this_x++) {
-      for (var this_y = 0; this_y < h; this_y++) {
-        var thisPix = getPixelAt(this_x, this_y, w, h, imageDataRaw);
-
-        if (thisPix && thisPix.r === 255) {
-          for (var offset_x = -r; offset_x <= r; offset_x++) {
-            for (var offset_y = -r; offset_y <= r; offset_y++) {
-              var other_x = this_x + offset_x;
-              var other_y = this_y + offset_y;
-              var otherPix = getPixelAt(other_x, other_y, w, h, imageDataRaw);
-
-              if (otherPix && otherPix.r === 0) {
-                setPixelAt(this_x, this_y, w, h, imageDataRaw, {
-                  r: 1,
-                  g: 255,
-                  b: 0,
-                  a: 255
-                });
-              }
-            }
-          }
-        }
-      }
-    }
-
-    for (var i = 0; i < imageDataRaw.length; i += 4) {
-      if (imageDataRaw[i] === 255) {
-        imageDataRaw[i] = 0;
-        imageDataRaw[i + 1] = 0;
-        imageDataRaw[i + 2] = 0;
-        imageDataRaw[i + 3] = 0;
-      }
-    }
-
-    floodFillCtx.putImageData(floodFillImageData, 0, 0);
-    floodFillProcessedImage = new Image();
-
-    floodFillProcessedImage.onload = function () {
-      if (PREVIEW_IMAGE) previewImage(floodFillProcessedImage);
-      callback();
-    };
-
-    floodFillProcessedImage.src = floodFillCanvas.toDataURL();
-  }
-
-  function checkForLeakyHole() {
-    var w = floodFillProcessedImage.width;
-    var h = floodFillProcessedImage.height;
-
-    for (var x = 0; x < floodFillProcessedImage.width; x++) {
-      if (getPixelAt(x, 0, w, h, floodFillImageData.data).r === 0 && getPixelAt(x, 0, w, h, floodFillImageData.data).a === 255) {
-        giveUp();
-      }
-    }
-  }
-
-  function potraceImageData() {
-    var svgString = potrace.fromImage(floodFillProcessedImage).toSVG(1);
-    var xmlString = svgString,
-        parser = new DOMParser(),
-        doc = parser.parseFromString(xmlString, "text/xml");
-    resultHolePath = paper.project.importSVG(doc, {
-      insert: true
-    });
-    resultHolePath.name = null;
-    resultHolePath.remove();
-  }
-
-  function processFinalResultPath() {
-    resultHolePath.scale(1 / RASTER_BASE_RESOLUTION, new paper.Point(0, 0));
-    var rasterPosition = layerPathsRaster.bounds.topLeft;
-    resultHolePath.position.x += rasterPosition.x;
-    resultHolePath.position.y += rasterPosition.y;
-    expandHole(resultHolePath);
-  }
-  /* Utilities */
-
-
-  function getPixelAt(x, y, width, height, imageData) {
-    if (x < 0 || y < 0 || x >= width || y >= height) return null;
-    var offset = (y * width + x) * 4;
-    return {
-      r: imageData[offset],
-      g: imageData[offset + 1],
-      b: imageData[offset + 2],
-      a: imageData[offset + 3]
-    };
-  }
-
-  function setPixelAt(x, y, width, height, imageData, color) {
-    var offset = (y * width + x) * 4;
-    imageData[offset] = color.r;
-    imageData[offset + 1] = color.g;
-    imageData[offset + 2] = color.b;
-    imageData[offset + 3] = color.a;
-  } // http://www.felixeve.co.uk/how-to-rotate-a-point-around-an-origin-with-javascript/
-
-
-  function rotate_point(pointX, pointY, originX, originY, angle) {
-    angle = angle * Math.PI / 180.0;
-    return {
-      x: Math.cos(angle) * (pointX - originX) - Math.sin(angle) * (pointY - originY) + originX,
-      y: Math.sin(angle) * (pointX - originX) + Math.cos(angle) * (pointY - originY) + originY
-    };
-  }
-
-  function previewImage(image) {
-    var win = window.open('', 'Title', 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, width=' + image.width + ', height=' + image.height + ', top=100, left=100');
-    win.document.body.innerHTML = '<div><img src= ' + image.src + '></div>';
-  }
-
-  function expandHole(path) {
-    if (path instanceof paper.Group) {
-      path = path.children[0];
-    }
-
-    var children;
-
-    if (path instanceof paper.Path) {
-      children = [path];
-    } else if (path instanceof paper.CompoundPath) {
-      children = path.children;
-    }
-
-    children.forEach(function (hole) {
-      var normals = [];
-      hole.closePath();
-      hole.segments.forEach(function (segment) {
-        var a = segment.previous.point;
-        var b = segment.point;
-        var c = segment.next.point;
-        var ab = {
-          x: b.x - a.x,
-          y: b.y - a.y
-        };
-        var cb = {
-          x: b.x - c.x,
-          y: b.y - c.y
-        };
-        var d = {
-          x: ab.x - cb.x,
-          y: ab.y - cb.y
-        };
-        d.h = Math.sqrt(d.x * d.x + d.y * d.y);
-        d.x /= d.h;
-        d.y /= d.h;
-        d = rotate_point(d.x, d.y, 0, 0, 90);
-        normals.push({
-          x: d.x,
-          y: d.y
-        });
-      });
-
-      for (var i = 0; i < hole.segments.length; i++) {
-        var segment = hole.segments[i];
-        var normal = normals[i];
-        segment.point.x += normal.x * -SHRINK_AMT;
-        segment.point.y += normal.y * -SHRINK_AMT;
-      }
-    });
-  }
-
-  function giveUp() {
-    callback(null);
-    throw new Error();
-  }
-  /* Add hole() to paper.Layer */
-
-
-  paper.Layer.inject({
-    hole: function (args) {
-      if (!args) console.error('paper.hole: args is required');
-      if (!args.point) console.error('paper.hole: args.point is required');
-      if (!args.callback) console.error('paper.hole: args.callback is required');
-      callback = args.callback;
-      layer = this;
-      floodFillX = args.point.x;
-      floodFillY = args.point.y;
-      createLayerPathsGroup();
-      rasterizeLayerGroup();
-      generateImageDataFromRaster();
-      floodfillImageData();
-      processImageData(function () {
-        checkForLeakyHole();
-        potraceImageData();
-        processFinalResultPath();
-        callback(resultHolePath);
-      });
-    }
-  });
-})();
-/*
-    Copyright (c) 2018 Zach Rispoli (zrispo)
-
-    Permission is hereby granted, free of charge, to any person obtaining a copy
-    of this software and associated documentation files (the "Software"), to deal
-    in the Software without restriction, including without limitation the rights
-    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    copies of the Software, and to permit persons to whom the Software is
-    furnished to do so, subject to the following conditions:
-
-    The above copyright notice and this permission notice shall be included in all
-    copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    SOFTWARE.
- */
-
-/* 
-    paper-potrace.js
-    Adds a potrace() method to paper Items that runs potrace on a rasterized
-    version of that Item.
-    
-    by zrispo (github.com/zrispo) (zach@wickeditor.com)
- */
-paper.Path.inject({
-  potrace: function (args) {
-    var self = this;
-    if (!args) args = {};
-    var finalRasterResolution = paper.view.resolution * args.resolution / window.devicePixelRatio;
-    var raster = this.rasterize(finalRasterResolution);
-    raster.remove();
-    var rasterDataURL = raster.toDataURL(); // https://oov.github.io/potrace/
-
-    var img = new Image();
-
-    img.onload = function () {
-      var svg = potrace.fromImage(img).toSVG(1 / args.resolution);
-      var potracePath = paper.project.importSVG(svg);
-      potracePath.position.x = self.position.x;
-      potracePath.position.y = self.position.y;
-      potracePath.remove();
-      potracePath.children[0].closed = true;
-      args.done(potracePath.children[0]);
-    };
-
-    img.src = rasterDataURL;
-  }
-});
-/*
-    Copyright (c) 2018 Zach Rispoli (zrispo)
-
-    Permission is hereby granted, free of charge, to any person obtaining a copy
-    of this software and associated documentation files (the "Software"), to deal
-    in the Software without restriction, including without limitation the rights
-    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    copies of the Software, and to permit persons to whom the Software is
-    furnished to do so, subject to the following conditions:
-
-    The above copyright notice and this permission notice shall be included in all
-    copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    SOFTWARE.
- */
 (function () {
   // TODO this doesn't work if the TextItem is rotated
   var editElem = $('<input type="text">');
@@ -4142,12 +3758,20 @@ paper.Path.inject({
     }
   });
 })();
+paper.drawingTools = {};
+
+paper.drawingTools.fireCanvasModified = function (e) {
+  paper.drawingTools._onCanvasModifiedCallback(e);
+};
+
+paper.drawingTools.onCanvasModified = function (fn) {
+  paper.drawingTools._onCanvasModifiedCallback = fn;
+};
 (() => {
   var croquis;
   var croquisDOMElement;
   var croquisBrush;
   var tool = new paper.Tool();
-  paper.drawingTools = paper.drawingTools || {};
   paper.drawingTools.croquisBrush = tool;
 
   tool.onActivate = function (e) {
@@ -4215,6 +3839,7 @@ paper.Path.inject({
         potracePath.children[0].closed = true;
         paper.project.activeLayer.addChild(potracePath);
         croquis.clearLayer();
+        paper.drawingTools.fireCanvasModified();
       };
 
       img.src = document.getElementsByClassName('croquis-layer-canvas')[1].toDataURL();
@@ -4259,7 +3884,6 @@ paper.Path.inject({
   var prerotationPivot;
   var onSelectionChangedFn;
   var tool = new paper.Tool();
-  paper.drawingTools = paper.drawingTools || {};
   paper.drawingTools.cursor = tool;
 
   tool.onActivate = function (e) {
@@ -4278,6 +3902,7 @@ paper.Path.inject({
 
   tool.onDeactivate = function (e) {
     clearSelection();
+    onSelectionChangedFn && onSelectionChangedFn();
     guiLayer.remove();
   };
 
@@ -4352,6 +3977,7 @@ paper.Path.inject({
   tool.onMouseDown_canvas = function (e) {
     if (!e.modifiers.shift) {
       clearSelection();
+      onSelectionChangedFn && onSelectionChangedFn();
     }
 
     boxStart = new paper.Point(e.point.x, e.point.y);
@@ -4399,6 +4025,7 @@ paper.Path.inject({
     selectionBox.remove();
     selectionBox = null;
     selectItems(itemsInBox);
+    onSelectionChangedFn && onSelectionChangedFn();
   };
   /* Scale handle mouse events */
 
@@ -4472,7 +4099,7 @@ paper.Path.inject({
 
   tool.onMouseUp_scaleHandle = function (e) {
     buildGUILayer();
-    onSelectionChangedFn && onSelectionChangedFn();
+    paper.drawingTools.fireCanvasModified();
   };
   /* Rotation hotspot mouse events */
 
@@ -4500,7 +4127,7 @@ paper.Path.inject({
 
   tool.onMouseUp_rotationHotspot = function (e) {
     buildGUILayer();
-    onSelectionChangedFn && onSelectionChangedFn();
+    paper.drawingTools.fireCanvasModified();
   };
   /* Generic item mouse events */
 
@@ -4515,6 +4142,7 @@ paper.Path.inject({
     }
 
     selectItem(projectTarget.item);
+    onSelectionChangedFn && onSelectionChangedFn();
   };
 
   tool.onMouseDrag_item = function (e) {
@@ -4523,7 +4151,7 @@ paper.Path.inject({
 
   tool.onMouseUp_item = function (e) {
     buildGUILayer();
-    onSelectionChangedFn && onSelectionChangedFn();
+    if (e.delta.x !== 0 || e.delta.y !== 0) paper.drawingTools.fireCanvasModified();
   };
   /* Segment mouse events */
 
@@ -4543,8 +4171,9 @@ paper.Path.inject({
     if (e.delta.x === 0 && e.delta.y === 0) {
       if (!e.modifiers.shift) clearSelection();
       selectItem(projectTarget.item);
-    } else {
       onSelectionChangedFn && onSelectionChangedFn();
+    } else {
+      paper.drawingTools.fireCanvasModified();
     }
   };
   /* Curve mouse events */
@@ -4600,8 +4229,9 @@ paper.Path.inject({
     if (e.delta.x === 0 && e.delta.y === 0) {
       if (!e.modifiers.shift) clearSelection();
       selectItem(projectTarget.item);
-    } else {
       onSelectionChangedFn && onSelectionChangedFn();
+    } else {
+      paper.drawingTools.fireCanvasModified();
     }
   };
   /* Selection box transformations */
@@ -4809,7 +4439,6 @@ paper.Path.inject({
       }
     });
     buildGUILayer();
-    onSelectionChangedFn && onSelectionChangedFn();
   }
 
   function selectItem(item) {
@@ -4819,7 +4448,6 @@ paper.Path.inject({
   function clearSelection() {
     selectedItems = [];
     buildGUILayer();
-    onSelectionChangedFn && onSelectionChangedFn();
   }
 
   function itemIsSelected(item) {
@@ -4831,7 +4459,6 @@ paper.Path.inject({
   var topLeft;
   var bottomRight;
   var tool = new paper.Tool();
-  paper.drawingTools = paper.drawingTools || {};
   paper.drawingTools.ellipse = tool;
   tool.fillColor = '#ff0000';
   tool.strokeColor = '#000000';
@@ -4876,6 +4503,7 @@ paper.Path.inject({
   tool.onMouseUp = function (e) {
     if (!path) return;
     path = null;
+    paper.drawingTools.fireCanvasModified();
   };
 })();
 (() => {
@@ -4883,9 +4511,8 @@ paper.Path.inject({
   var cursorSize;
   var cursor;
   var tool = new paper.Tool();
-  paper.drawingTools = paper.drawingTools || {};
   paper.drawingTools.eraser = tool;
-  tool.size = 5;
+  tool.size = 10;
 
   tool.onActivate = function (e) {
     cursorSize = null;
@@ -4936,6 +4563,7 @@ paper.Path.inject({
         path.remove();
         paper.project.activeLayer.erase(tracedPath, {});
         path = null;
+        paper.drawingTools.fireCanvasModified();
       },
       resolution: smoothing * paper.view.zoom
     });
@@ -4948,7 +4576,6 @@ paper.Path.inject({
   var colorPreviewBorder;
   var colorPreview;
   var tool = new paper.Tool();
-  paper.drawingTools = paper.drawingTools || {};
   paper.drawingTools.eyedropper = tool;
 
   tool.onActivate = function (e) {
@@ -5002,7 +4629,6 @@ paper.Path.inject({
 (() => {
   var CURSOR_FILL_BUCKET = 'cursors/fillbucket.png';
   var tool = new paper.Tool();
-  paper.drawingTools = paper.drawingTools || {};
   paper.drawingTools.fillBucket = tool;
   tool.fillColor = '#ff0000';
 
@@ -5027,6 +4653,7 @@ paper.Path.inject({
           if (path) {
             path.fillColor = tool.fillColor;
             paper.project.activeLayer.addChild(path);
+            paper.drawingTools.fireCanvasModified();
           }
         }
       });
@@ -5042,7 +4669,6 @@ paper.Path.inject({
   var startPoint;
   var endPoint;
   var tool = new paper.Tool();
-  paper.drawingTools = paper.drawingTools || {};
   paper.drawingTools.line = tool;
   tool.strokeColor = 'black';
   tool.strokeWidth = 1;
@@ -5079,11 +4705,11 @@ paper.Path.inject({
   tool.onMouseUp = function (e) {
     if (!path) return;
     path = null;
+    paper.drawingTools.fireCanvasModified();
   };
 })();
 (() => {
   var tool = new paper.Tool();
-  paper.drawingTools = paper.drawingTools || {};
   paper.drawingTools.pan = tool;
 
   tool.onActivate = function (e) {};
@@ -5107,7 +4733,6 @@ paper.Path.inject({
   var CURSOR_PENCIL = 'cursors/pencil.png';
   var path;
   var tool = new paper.Tool();
-  paper.drawingTools = paper.drawingTools || {};
   paper.drawingTools.pencil = tool;
   tool.strokeWidth = 1;
   tool.strokeColor = '#000000';
@@ -5139,6 +4764,7 @@ paper.Path.inject({
 
   tool.onMouseUp = function (e) {
     path = null;
+    paper.drawingTools.fireCanvasModified();
   };
 })();
 (() => {
@@ -5147,7 +4773,6 @@ paper.Path.inject({
   var cursorColor;
   var cursorSize;
   var tool = new paper.Tool();
-  paper.drawingTools = paper.drawingTools || {};
   paper.drawingTools.potraceBrush = tool;
   tool.color = '#ff0000';
   tool.size = 10;
@@ -5204,6 +4829,7 @@ paper.Path.inject({
         paper.project.activeLayer.addChild(tracedPath);
         path.remove();
         path = null;
+        paper.drawingTools.fireCanvasModified();
       },
       resolution: tool.smoothing * paper.view.zoom
     });
@@ -5214,7 +4840,6 @@ paper.Path.inject({
   var topLeft;
   var bottomRight;
   var tool = new paper.Tool();
-  paper.drawingTools = paper.drawingTools || {};
   paper.drawingTools.rectangle = tool;
   tool.fillColor = '#ff0000';
   tool.strokeColor = '#000000';
@@ -5259,12 +4884,12 @@ paper.Path.inject({
   tool.onMouseUp = function (e) {
     if (!path) return;
     path = null;
+    paper.drawingTools.fireCanvasModified();
   };
 })();
 (() => {
   var CURSOR_TEXT = 'cursors/text.png';
   var tool = new paper.Tool();
-  paper.drawingTools = paper.drawingTools || {};
   paper.drawingTools.text = tool;
   var hoveredOverText;
   var editingText;
@@ -5275,6 +4900,7 @@ paper.Path.inject({
     if (editingText) {
       editingText.finishEditing();
       editingText = null;
+      paper.drawingTools.fireCanvasModified();
     }
 
     hoveredOverText = null;
@@ -5296,6 +4922,7 @@ paper.Path.inject({
     if (editingText) {
       editingText.finishEditing();
       editingText = null;
+      paper.drawingTools.fireCanvasModified();
     } else if (hoveredOverText) {
       editingText = hoveredOverText;
       e.item.edit();
@@ -5305,6 +4932,7 @@ paper.Path.inject({
       text.fillColor = 'black';
       text.content = 'This is some text';
       text.fontSize = 14;
+      paper.drawingTools.fireCanvasModified();
     }
   };
 
@@ -5315,7 +4943,6 @@ paper.Path.inject({
 (() => {
   var zoomBox;
   var tool = new paper.Tool();
-  paper.drawingTools = paper.drawingTools || {};
   paper.drawingTools.zoom = tool;
 
   tool.onActivate = function (e) {};
