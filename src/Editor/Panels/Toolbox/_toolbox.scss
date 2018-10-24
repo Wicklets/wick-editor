@@ -11,9 +11,9 @@
 
 .color-container {
   margin-top: 4px;
-  background-color: $magenta;
   border-radius: 8px;
-  border: 4px solid  $interface-tertiary;
+  border: 4px solid $interface-secondary;
+  cursor: pointer; 
 }
 
 #fill-color-picker-container {
@@ -24,4 +24,5 @@
 #stroke-color-picker-container {
   height: 40px;
   width: 40px;
+  box-sizing: border-box;
 }

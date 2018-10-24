@@ -100,7 +100,7 @@ class Toolbox extends Component {
             placement="right"
             />
         </div>
-        <div className="color-container" id="stroke-color-picker-container" style={{backgroundColor:this.state.strokeColor}}>
+        <div className="color-container" id="stroke-color-picker-container" style={{borderColor:this.state.strokeColor}}>
           <WickInput
             type="color"
             color= {this.state.strokeColor}
