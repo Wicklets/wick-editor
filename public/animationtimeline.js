@@ -139,6 +139,7 @@ var AnimationTimeline = new (function ft () {
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
         var dpr = window.devicePixelRatio;
+        ctx.save()
         ctx.scale(dpr,dpr);
 
         ctx.save();
@@ -179,6 +180,8 @@ var AnimationTimeline = new (function ft () {
             layers.forEach(function (layer) {
                 layer.repaintDropGhost();
             });
+        ctx.restore();
+
         ctx.restore();
     }
 
