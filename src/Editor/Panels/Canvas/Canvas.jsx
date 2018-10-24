@@ -51,7 +51,7 @@ class Canvas extends Component {
   }
 
   sendPropsToCanvas () {
-    //
+    
   }
 
   render() {
