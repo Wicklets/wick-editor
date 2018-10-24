@@ -3640,7 +3640,6 @@ var BrushCursorGen = {
       });
       children.forEach(function (child) {
         child.insertAbove(path);
-        child.name = null;
       });
       res.remove();
     } else {
@@ -3656,12 +3655,10 @@ var BrushCursorGen = {
     });
     fill.strokeColor = null;
     fill.strokeWidth = 1;
-    fill.name = null;
     var stroke = path.clone({
       insert: false
     });
     stroke.fillColor = null;
-    stroke.name = null;
     fill.insertAbove(path);
     stroke.insertAbove(fill);
     path.remove();
@@ -3742,7 +3739,9 @@ paper.Path.inject({
       potracePath.position.x = self.position.x;
       potracePath.position.y = self.position.y;
       potracePath.remove();
+      potracePath.closed = true;
       potracePath.children[0].closed = true;
+      potracePath.applyMatrix = true;
       args.done(potracePath.children[0]);
     };
 
@@ -4171,7 +4170,8 @@ paper.drawingTools.onCanvasModified = function (fn) {
   tool.onMouseDown_rotationHotspot = function (e) {};
 
   tool.onMouseDrag_rotationHotspot = function (e) {
-    var pivot = selectedItems.length === 1 ? selectedItems[0].position : selectionBounds.center;
+    //var pivot = selectedItems.length === 1 ? selectedItems[0].position : selectionBounds.center;
+    var pivot = selectionBounds.center;
     var oldAngle = e.lastPoint.subtract(pivot).angle;
     var newAngle = e.point.subtract(pivot).angle;
     var rotationAmount = newAngle - oldAngle;
@@ -4298,8 +4298,7 @@ paper.drawingTools.onCanvasModified = function (fn) {
     guiLayer.children.forEach(function (child) {
       child.position.x += x;
       child.position.y += y;
-    });
-    calculateBounds();
+    }); //calculateBounds();
   };
 
   tool.rotateSelection = function (r, pivot) {
@@ -4309,8 +4308,7 @@ paper.drawingTools.onCanvasModified = function (fn) {
     });
     guiLayer.children.forEach(function (child) {
       child.rotate(r, pivot);
-    });
-    calculateBounds();
+    }); //calculateBounds();
   };
 
   tool.scaleSelection = function (x, y, pivot) {
@@ -4371,9 +4369,8 @@ paper.drawingTools.onCanvasModified = function (fn) {
       });
     }
 
-    if (selectionBounds) {
-      selectionBounds.x += 0.5;
-      selectionBounds.y += 0.5;
+    if (selectionBounds) {//selectionBounds.x += 0.5;
+      //selectionBounds.y += 0.5;
     }
   }
 
@@ -4441,6 +4438,14 @@ paper.drawingTools.onCanvasModified = function (fn) {
   function createCenterpoint() {
     if (selectedItems.length === 1 && selectedItems[0]._class === 'Group') {
       var item = new paper.Path.Circle(selectedItems[0].position, HANDLE_RADIUS / paper.view.zoom);
+      item.remove();
+      item.strokeWidth = 1 / paper.view.zoom;
+      item.strokeColor = 'green';
+      item.fillColor = SELECTION_BOX_FILLCOLOR;
+      item.name = 'selectionBoxCenterpoint';
+      guiLayer.addChild(item);
+    } else {
+      var item = new paper.Path.Circle(selectionBounds.center, HANDLE_RADIUS / paper.view.zoom);
       item.remove();
       item.strokeWidth = 1 / paper.view.zoom;
       item.strokeColor = 'green';
