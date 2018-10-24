@@ -1544,7 +1544,8 @@ var AnimationTimeline = new (function ft () {
     // BlankLayer
 
     self.onBlankLayerMouseMove = function (e) {
-        hoverLayer.active = true;
+        if(e.y < canvas.height - NUMBER_LINE_HEIGHT)
+            hoverLayer.active = true;
     }
 
     self.onBlankLayerMouseDown = function (e) {
