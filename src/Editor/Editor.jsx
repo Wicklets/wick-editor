@@ -26,6 +26,7 @@ class Editor extends Component {
 
     this.state = {
       project: null,
+      selection: [],
       openModalName: null,
       activeTool: 'potraceBrush',
       toolSettings: {
@@ -44,15 +45,22 @@ class Editor extends Component {
     }
 
     this.updateProject = this.updateProject.bind(this);
-    this.updateProjectSettings = this.updateProjectSettings.bind(this);
+    this.updateSelection = this.updateSelection.bind(this);
+    this.changeFrameLength = this.changeFrameLength.bind(this);
     this.openModal = this.openModal.bind(this);
     this.activateTool = this.activateTool.bind(this);
+    this.getSelection = this.getSelection.bind(this);
   }
 
   componentWillMount () {
-    var project = new window.Wick.Project();
+    let project = new window.Wick.Project();
     project.root.timeline.layers[0].frames[0].pathsSVG = ('["Layer",{"applyMatrix":true,"children":[["Path",{"applyMatrix":true,"segments":[[[75,100],[0,13.80712],[0,-13.80712]],[[100,75],[-13.80712,0],[13.80712,0]],[[125,100],[0,-13.80712],[0,13.80712]],[[100,125],[13.80712,0],[-13.80712,0]]],"closed":true,"fillColor":[1,0,0]}]]}]');
     this.setState({project: project});
+  }
+
+  componentDidMount () {
+    let frame = this.state.project.focus.timeline.layers[0].frames[0];
+    this.changeFrameLength(frame, 10);
   }
 
   onResize (e) {
@@ -76,20 +84,60 @@ class Editor extends Component {
     });
   }
 
-  updateProjectSettings (settings) {
-    var nextProject = this.state.project.clone();
-    nextProject.name = settings.name;
-    nextProject.width = settings.width;
-    nextProject.height = settings.height;
-    nextProject.framerate = settings.framerate;
-    nextProject.backgroundColor = settings.backgroundColor;
-    this.updateProject(nextProject);
-  }
-
   updateProject (nextProject) {
     this.setState(prevState => ({
       project: nextProject,
     }));
+  }
+
+  updateSelection (nextSelection) {
+    this.setState(prevState => ({
+      selection: nextSelection,
+    }));
+  }
+
+  changeFrameLength (frame, newLength) {
+    /*this.setState(prevState => {
+      frame.end = 100;
+      return prevState;
+    });*/
+  }
+
+  getSelection () {
+    let visibleLayers = this.state.project.focus.timeline.layers;
+    let selectablePaths = [].concat.apply([], visibleLayers.map(layer => {
+      return layer.activeFrame.svg.children;
+    }));
+    let selectableGroups = [].concat.apply([], visibleLayers.map(layer => {
+      return layer.activeFrame.groups;
+    }));
+    let selectableFrames = [].concat.apply([], visibleLayers.map(layer => {
+      return layer.frames;
+    }));
+    let selectableTweens = [].concat.apply([], selectableFrames.map(layer => {
+      return layer.tweens;
+    }));
+
+    var ids = this.state.selection;
+    let selectedPaths = selectablePaths.filter(path => {
+      return ids.indexOf(path.id) !== -1;
+    });
+    let selectedGroups = selectableGroups.filter(group => {
+      return ids.indexOf(group.uuid) !== -1;
+    });
+    let selectedFrames = selectableFrames.filter(frame => {
+      return ids.indexOf(frame.uuid) !== -1;
+    });
+    let selectedTweens = selectableTweens.filter(tween => {
+      return ids.indexOf(tween.uuid) !== -1;
+    });
+
+    return {
+      paths: selectedPaths,
+      groups: selectedGroups,
+      frames: selectedFrames,
+      tweens: selectedTweens,
+    }
   }
 
   render () {
@@ -99,7 +147,7 @@ class Editor extends Component {
             <ModalHandler openModal={this.openModal}
                           openModalName={this.state.openModalName}
                           project={this.state.project}
-                          updateProjectSettings={this.updateProjectSettings} />
+                          updateProject={this.updateProject} />
             {/* Header */}
             <DockedPanel><MenuBar openModal={this.openModal} /></DockedPanel>
           </ReflexElement>
@@ -126,7 +174,9 @@ class Editor extends Component {
                     <DockedPanel>
                       <Timeline
                         project={this.state.project}
+                        selection={this.state.selection}
                         updateProject={this.updateProject}
+                        updateSelection={this.updateSelection}
                       />
                     </DockedPanel>
                   </ReflexElement>
@@ -137,6 +187,7 @@ class Editor extends Component {
                       <Canvas
                         project={this.state.project}
                         updateProject={this.updateProject}
+                        updateSelection={this.updateSelection}
                         activeTool={this.state.activeTool}
                       />
                     </DockedPanel>

@@ -66,7 +66,13 @@ class ProjectSettings extends Component {
   }
 
   updateProjectSettings () {
-    this.props.updateProjectSettings(this.state);
+    var nextProject = this.props.project.clone();
+    nextProject.name = this.state.name;
+    nextProject.width = this.state.width;
+    nextProject.height = this.state.height;
+    nextProject.framerate = this.state.framerate;
+    nextProject.backgroundColor = this.state.backgroundColor;
+    this.props.updateProject(this.state);
     this.toggle();
   }
 

@@ -5,13 +5,13 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 class Timeline extends Component {
   constructor(props) {
     super(props);
-    this.sendStateToTimelineView = this.sendStateToTimelineView.bind(this);
+    this.sendPropsToCanvas = this.sendPropsToCanvas.bind(this);
   }
 
   componentDidMount () {
     var self = this;
     window.AnimationTimeline.setup(this.refs.container, function () {
-      self.sendStateToTimelineView();
+      self.sendPropsToCanvas();
     });
 
     window.AnimationTimeline.onChange(e => {
@@ -75,15 +75,25 @@ class Timeline extends Component {
     window.AnimationTimeline.onSelectionChange(e => {
       console.log('onSelectionChange');
       console.log(e);
+
+      let frameIDs = e.frames.map(frame => {
+        return frame.id;
+      });
+      let tweenIDs = e.tweens.map(tween => {
+        return tween.id;
+      });
+
+      this.props.updateSelection(frameIDs.concat(tweenIDs));
     })
   }
 
   componentDidUpdate () {
-    this.sendStateToTimelineView();
+    this.sendPropsToCanvas();
   }
 
-  sendStateToTimelineView () {
+  sendPropsToCanvas () {
     var focus = this.props.project.focus;
+    var selection = this.props.selection;
     window.AnimationTimeline.setData({
       layers: focus.timeline.layers.map(layer => {
         return {
@@ -97,9 +107,11 @@ class Timeline extends Component {
               label: frame.identifier,
               start: frame.start,
               end: frame.end,
+              selected: selection.indexOf(frame.uuid) !== -1,
               tweens: frame.tweens.map(tween => {
                 return {
                   uuid: tween.uuid,
+                  selected: selection.indexOf(tween.uuid) !== -1,
                   playheadPosition: tween.playheadPosition,
                 }
               })

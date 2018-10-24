@@ -41,9 +41,9 @@ var AnimationTimeline = new (function ft () {
     var LOCK_BUTTON_OFFSET = 0;
     var HIDE_BUTTON_OFFSET = 25;
 
-    var interfaceDark = '#333';
+    var interfaceDark = '#444';
     var interfaceMidDark = '#666';
-    var interfaceMedium = '#999';
+    var interfaceMedium = '#888';
 
     var elem;
     var canvas;
@@ -141,10 +141,15 @@ var AnimationTimeline = new (function ft () {
         ctx.save();
         ctx.translate(LAYERS_WIDTH, 0);
         ctx.translate(scroll.x, scroll.y);
+            numberline.repaint();
+
             ctx.save();
             ctx.translate(0, NUMBER_LINE_HEIGHT);
 
                 grid.repaint();
+                allFrames().forEach(function (frame) {
+                    frame.repaintDropGhost();
+                });
                 allFrames().forEach(function (frame) {
                     frame.repaint();
                 });
@@ -152,7 +157,6 @@ var AnimationTimeline = new (function ft () {
 
             ctx.restore();
 
-            numberline.repaint();
             playhead.repaint();
         ctx.restore();
 
@@ -189,6 +193,7 @@ var AnimationTimeline = new (function ft () {
                     end: frameData.end,
                     layer: layer,
                     selected: frameData.selected,
+                    contentful: frameData.contentful,
                 });
                 frame.tweens = frameData.tweens.map(tweenData => {
                     var tween = new Tween({
@@ -574,6 +579,7 @@ var AnimationTimeline = new (function ft () {
         this.end = args.end || (args.start + 1);
         this.layer = args.layer;
         this.tweens = args.tweens || [];
+        this.contentful = args.contentful;
         
         this.state = args.selected ? 'selected' : 'inactive';
 
@@ -615,34 +621,27 @@ var AnimationTimeline = new (function ft () {
 
         this.dropGhostBounds = {};
         this.dropGhostBounds.left = this.getDropStart()*GRID_CELL_WIDTH;
-        this.dropGhostBounds.top = this.getDropLayer()*GRID_CELL_HEIGHT;
+        this.dropGhostBounds.top = this.getDropLayerIndex()*GRID_CELL_HEIGHT;
         this.dropGhostBounds.right = this.getDropEnd()*GRID_CELL_WIDTH;
-        this.dropGhostBounds.top = this.dropGhostBounds.top + GRID_CELL_HEIGHT;
+        this.dropGhostBounds.bottom = this.dropGhostBounds.top + GRID_CELL_HEIGHT;
     }
 
     Frame.prototype.repaint = function () {
         this.regenBounds();
 
-        // Drop ghost
-        if(this.draggingOffset.x !== 0 && this.draggingOffset.y !== 0) {
-            ctx.beginPath();
-            ctx.fillStyle = 'rgba(200,200,255,0.3)';
-            ctx.rect(this.dropGhostBounds.left, 
-                     this.dropGhostBounds.top, 
-                     this.dropGhostBounds.width, 
-                     this.dropGhostBounds.height);
-            ctx.stroke();
-            ctx.closePath();
-        }
-
         // Frame 
         ctx.beginPath();
-        ctx.strokeStyle = 'gray';
-        ctx.fillStyle = this.state === 'selected' ? 'rgb(200,230,255)' : 'white';
-        ctx.rect(this.bounds.left + this.draggingOffset.x + this.leftDragOffset, 
-                 this.bounds.top + this.draggingOffset.y, 
-                 this.bounds.width + this.rightDragOffset - this.leftDragOffset, 
-                 this.bounds.height);
+        ctx.strokeStyle = this.state === 'selected' ? 'yellow' : 'gray';
+        ctx.fillStyle = this.tweens.length === 0 ? (this.contentful ? '#ddd' : 'white') : 'rgb(200,230,255)';
+        ctx.lineWidth = this.state === 'selected' ? 5 : 1;
+        var shrink = 1;
+        roundRect(ctx, 
+            this.bounds.left + this.draggingOffset.x + this.leftDragOffset + shrink, 
+            this.bounds.top + this.draggingOffset.y + shrink, 
+            this.bounds.width + this.rightDragOffset - this.leftDragOffset - shrink, 
+            this.bounds.height - shrink, 
+            2, 
+            true, true);
         ctx.stroke();
         ctx.fill();
         ctx.closePath();
@@ -673,10 +672,39 @@ var AnimationTimeline = new (function ft () {
         ctx.save();
         ctx.translate(this.bounds.left + this.draggingOffset.x, 
                       this.bounds.top + this.draggingOffset.y);
+        if(this.tweens.length === 0) {
+            ctx.beginPath();
+            ctx.strokeStyle = this.contentful ? 'black' : 'gray';
+            ctx.fillStyle = this.contentful ? 'black' : 'white';
+            ctx.lineWidth = 1.5;
+            ctx.arc(
+                GRID_CELL_WIDTH/2, 
+                GRID_CELL_HEIGHT/3*2, 
+                GRID_CELL_WIDTH*0.25,
+                0,
+                2*Math.PI);
+            ctx.stroke();
+            ctx.fill();
+            ctx.closePath();
+        } else {
             this.tweens.forEach(function (tween) {
                 tween.repaint();
             });
+        }
         ctx.restore();
+    }
+
+    Frame.prototype.repaintDropGhost = function () {
+        if(this.draggingOffset.x !== 0 && this.draggingOffset.y !== 0) {
+            ctx.beginPath();
+            ctx.fillStyle = 'rgba(200,200,255,0.3)';
+            ctx.rect(this.dropGhostBounds.left - GRID_CELL_WIDTH, 
+                     this.dropGhostBounds.top, 
+                     this.dropGhostBounds.right - this.dropGhostBounds.left + GRID_CELL_WIDTH, 
+                     this.dropGhostBounds.bottom - this.dropGhostBounds.top);
+            ctx.fill();
+            ctx.closePath();
+        }
     }
 
     Frame.prototype.select = function () {
@@ -751,10 +779,14 @@ var AnimationTimeline = new (function ft () {
         return this.end + XYToRowCol(x).col;
     }
 
-    Frame.prototype.getDropLayer = function () {
+    Frame.prototype.getDropLayerIndex = function () {
         var l = this.layer.getIndex() + Math.round(this.draggingOffset.y / GRID_CELL_HEIGHT);
         var i = Math.min(layers.length-1, Math.max(0, l));
-        return layers[i];
+        return i;
+    }
+
+    Frame.prototype.getDropLayer = function () {
+        return layers[this.getDropLayerIndex()];
     }
 
     Frame.prototype.touches = function (frame) {
@@ -910,17 +942,24 @@ var AnimationTimeline = new (function ft () {
     Numberline.prototype.repaint = function () {
         var offset = Math.round(-scroll.x/GRID_CELL_WIDTH);
 
+        ctx.beginPath();
+        ctx.fillStyle = '#222';
+        ctx.rect(0,0,canvas.width,NUMBER_LINE_HEIGHT);
+        ctx.fill();
+        ctx.closePath();
+
         for(var i = offset; i < canvas.width/GRID_CELL_WIDTH + offset; i++) {
             var x = i*GRID_CELL_WIDTH;
             var f = i+1;
             if(f%5 == 0 || f==1) {
-                ctx.fillStyle = 'gray';
+                ctx.fillStyle = 'white';
                 ctx.font = "12px Arial";
-                ctx.fillText(f,x,10);
+                var padding = 3;
+                ctx.fillText(f,x+padding,10);
 
-                ctx.strokeStyle = interfaceMidDark;
+                ctx.strokeStyle = 'white';
             } else {
-                ctx.strokeStyle = interfaceMedium;
+                ctx.strokeStyle = interfaceMidDark;
             }
             ctx.beginPath();
             ctx.moveTo(x+0.5,0);
