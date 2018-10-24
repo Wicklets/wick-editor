@@ -72,9 +72,11 @@ class Editor extends Component {
   }
 
   openModal (name) {
-    this.setState({
-      openModalName: name,
-    });
+    if (this.state.openModalName !== name) {
+      this.setState({
+        openModalName: name,
+      });
+    }
   }
 
   activateTool (toolName) {
@@ -149,7 +151,7 @@ class Editor extends Component {
                           project={this.state.project}
                           updateProject={this.updateProject} />
             {/* Header */}
-            <DockedPanel><MenuBar openModal={this.openModal} /></DockedPanel>
+            <DockedPanel><MenuBar openModal={this.openModal} projectName={this.state.project.name}/></DockedPanel>
           </ReflexElement>
           <ReflexElement {...this.resizeProps}>
               <ReflexContainer orientation="vertical">

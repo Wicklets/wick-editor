@@ -4,6 +4,8 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { Wrapper, Button, Menu, MenuItem } from 'react-aria-menubutton';
 import ReactTooltip from 'react-tooltip'
 
+import iconSettings from 'resources/inspector-icons/selection-icons/settings.png';
+
 const fileItems = ['New Project', 'Open Project', 'Save Project', 'Export', 'Project Settings'];
 const editItems = ['Undo', 'Redo', 'Cut', 'Copy', 'Paste', 'Delete'];
 const importItems = ['Image', 'Sound'];
@@ -53,9 +55,11 @@ class MenuBar extends Component {
           {this.renderButton("Help", helpItems)}
           {this.renderButton("About", aboutItems)}
           {this.renderButton("Run", runItems)}
-
         </div>
-        {/*<Button onClick={() => {this.props.openModal('ProjectSettings')}}>Project Settings</Button>*/}
+        <div className="project-settings-preview" onClick={() => this.props.openModal('ProjectSettings')}>
+          {this.props.projectName}
+          <img className="project-settings-image" src={iconSettings} alt="settings icon" />
+        </div>
       </div>
     )
   }

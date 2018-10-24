@@ -11,7 +11,7 @@
   position:fixed;
   top: 0;
   left: 0;
-  width: 100%;
+  width: 40%;
   z-index: 1000 !important;
   overflow: visible !important;
   display: table;
@@ -26,6 +26,21 @@
 .btn-menu-wrapper {
   width: 100px;
   height: 25px;
+}
+
+.project-settings-preview {
+  float: right;
+  height: 100%;
+  color: #FFF;
+}
+
+.project-settings-preview:hover {
+  cursor: pointer;
+}
+
+.project-settings-image {
+  height: 100%;
+  padding: 8px;
 }
 
 .AriaMenuButton {
