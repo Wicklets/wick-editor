@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import './_toolbox.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-import ColorPicker from 'Editor/Util/ColorPicker/ColorPicker';
 import ToolButton from 'Editor/Util/ToolButton/ToolButton';
 import WickInput from 'Editor/Util/WickInput/WickInput';
 
