@@ -96,7 +96,7 @@ class Toolbox extends Component {
             type="color"
             color= {this.state.fillColor}
             onChangeComplete={(color) => this.setState({fillColor: color.hex})}
-            id={this.props.id}
+            id="tool-box-fill-color"
             placement="right"
             />
         </div>
@@ -105,7 +105,7 @@ class Toolbox extends Component {
             type="color"
             color= {this.state.strokeColor}
             onChangeComplete={(color) => this.setState({strokeColor: color.hex})}
-            id={this.props.id}
+            id="tool-box-stroke-color"
             placement="right"
             />
         </div>

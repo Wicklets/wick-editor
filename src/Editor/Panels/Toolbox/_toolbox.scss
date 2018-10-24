@@ -12,7 +12,8 @@
 .color-container {
   margin-top: 4px;
   background-color: $magenta;
-  border-radius: $interface-roundness-secondary;
+  border-radius: 8px;
+  border: 4px solid  $interface-tertiary;
 }
 
 #fill-color-picker-container {
