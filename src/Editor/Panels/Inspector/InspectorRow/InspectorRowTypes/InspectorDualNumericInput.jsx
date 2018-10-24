@@ -16,7 +16,7 @@ class InspectorDualNumericInput extends Component {
                         value: this.props.val1,
                         onChange: this.props.onChange1}
                       }
-                      input1={
+                      input2={
                         {type: "numeric",
                         value: this.props.val2,
                         onChange: this.props.onChange2}
