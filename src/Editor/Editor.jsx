@@ -28,9 +28,9 @@ class Editor extends Component {
       project: null,
       selection: [],
       openModalName: null,
-      activeTool: 'potraceBrush',
+      activeTool: 'croquisBrush',
       toolSettings: {
-        fillColor: '#ff0000',
+        fillColor: '#ffaabb',
         strokeColor: '#ffff00',
         strokeWidth: 1,
         brushSize: 10,

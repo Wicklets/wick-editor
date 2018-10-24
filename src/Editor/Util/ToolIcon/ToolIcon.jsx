@@ -34,7 +34,7 @@ class ToolIcon extends Component {
 
   render() {
     return (
-      <img className="img-tool-icon" src={this.icons[this.props.name]} />
+      <img className="img-tool-icon" alt={this.props.name+" icon"} src={this.icons[this.props.name]} />
     )
   }
 }
