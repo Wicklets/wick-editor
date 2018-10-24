@@ -1,5 +1,27 @@
+@import 'Editor/_wickbrand.scss';
 
 .tool-button {
   padding: 0px;
-  width: 100%;
+  height: 40px;
+  width: 40px;
+  border-radius: $interface-roundness-secondary;
+  background-color: $interface-secondary;
+  border: none;
+  color: $interface-secondary-text;
+  margin: 0 auto;
+  margin-top: 4px;
+  transition: .3s;
+}
+
+.tool-button:hover {
+  background-color: $wick-green-light;
+  color: $interface-tertiary-text;
+  transition: .3s;
+  cursor: grab;
+}
+
+.active-tool {
+  background-color: $wick-green-dark;
+  color: $interface-tertiary-text;
+  transition: .1s;
 }

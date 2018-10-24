@@ -15,6 +15,7 @@ import iconMultipleObjects from "resources/inspector-icons/property-icons/multip
 import iconName from "resources/inspector-icons/property-icons/name.svg";
 import iconOpacity from "resources/inspector-icons/property-icons/opacity.svg";
 import iconPaint from "resources/inspector-icons/property-icons/paint.svg";
+import iconPosition from "resources/inspector-icons/property-icons/position.svg";
 import iconRotation from "resources/inspector-icons/property-icons/rotation.svg";
 import iconScale from "resources/inspector-icons/property-icons/scale.svg";
 import iconSize from "resources/inspector-icons/property-icons/size.svg";
@@ -35,12 +36,13 @@ class InspectorInputIcon extends Component {
       "fillcolor": iconFillColor,
       "fontfamily": iconFontFamily,
       "fontsize": iconFontSize,
-      "frameLength": iconFrameLength,
+      "framelength": iconFrameLength,
       "framerate": iconFrameRate,
       "multipleobjects": iconMultipleObjects,
       "name": iconName,
       "opacity": iconOpacity,
       "paint": iconPaint,
+      "position": iconPosition,
       "rotation": iconRotation,
       "scale": iconScale,
       "size": iconSize,
