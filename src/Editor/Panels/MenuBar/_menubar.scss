@@ -5,6 +5,7 @@
   width: 100%;
   background-color: #000;
   overflow: visible;
+  border-bottom: 2px solid $interface-primary;
 }
 
 .menu-bar-overlay {
@@ -60,8 +61,8 @@
   border-radius: 4px;
   font-family: Nunito;
   font-weight: 900;
-  padding: 6px 10px;
-  height: 25px;
+  padding: 4px 10px;
+  height: 23px;
   text-align: center;
   vertical-align: center;
   outline: 0;
@@ -104,7 +105,7 @@
   margin: 4px 0 0 0;
   width: 150px;
   height: auto;
-  border-left: 2px solid $wick-green;
+  border-left: 1px solid $wick-green;
 }
 
 .AriaMenuButton-menu--flushRight {
