@@ -1,6 +1,25 @@
+/*
+ * Copyright 2018 WICKLETS LLC
+ *
+ * This file is part of Wick Editor.
+ *
+ * Wick Editor is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Wick Editor is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Wick Editor.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 import React, { Component } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { Button, Modal, ModalHeader, ModalBody, ModalFooter, FormGroup, Label, Input } from 'reactstrap';
+import { Button, Modal, ModalHeader, ModalBody, ModalFooter, } from 'reactstrap';
 
 import 'Editor/_wickbrand.scss';
 import './_alphawarning.scss';
@@ -25,8 +44,8 @@ class AlphaWarning extends Component {
 
   render() {
     return (
-      <Modal id="alpha-modal" isOpen={this.state.modal} toggle={this.toggle} className={this.props.className}>
-        <ModalHeader toggle={this.toggle}>Wick Editor 1.0 Alpha v0</ModalHeader>
+      <Modal id="alpha-modal" backdrop="static" isOpen={this.state.modal} toggle={this.toggle} className={this.props.className}>
+        <ModalHeader className="alpha-warning-header" toggle={this.toggle}>Wick Editor 1.0 Alpha v0</ModalHeader>
         <ModalBody>
           <h3>Welcome to Wick Editor 1.0</h3>
           <h5>In this alpha test, you'll have access to some of the most <b>basic</b> features of the Wick Editor.</h5>
@@ -34,8 +53,8 @@ class AlphaWarning extends Component {
           <p>More features and changes are on the way!</p>
         </ModalBody>
         <ModalFooter>
+          <Button className="alpha-warning-modal-button" color="wick-warning" onClick={() => window.location.href="http://www.wickeditor.com"}>No Thanks...</Button>
           <Button className="alpha-warning-modal-button" color="wick-accept" onClick={this.toggle}>Try the Alpha</Button>{' '}
-          <Button className="alpha-warning-modal-button" color="wick-warning" onClick={() => window.location.href="http://www.wickeditor.com"}>Send me Back!</Button>
         </ModalFooter>
       </Modal>
     );

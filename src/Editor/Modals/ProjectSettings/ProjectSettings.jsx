@@ -1,7 +1,27 @@
+/*
+ * Copyright 2018 WICKLETS LLC
+ *
+ * This file is part of Wick Editor.
+ *
+ * Wick Editor is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Wick Editor is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Wick Editor.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 import React, { Component } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter, FormGroup, Label, Input } from 'reactstrap';
-import ColorPicker from 'Editor/Util/ColorPicker/ColorPicker';
+import WickInput from 'Editor/Util/WickInput/WickInput';
+import './_projectsettings.scss';
 
 class ProjectSettings extends Component {
   constructor(props) {
@@ -86,40 +106,43 @@ class ProjectSettings extends Component {
         <ModalHeader toggle={this.toggle}>Project Settings</ModalHeader>
         <ModalBody>
           <FormGroup>
-            <Label for="projectName">Project name</Label>
+            <Label className="project-property-label" for="projectName">Project name</Label>
             <Input id="projectName"
                    placeholder="New Project"
                    defaultValue={this.props.project.name}
                    onChange={this.changeProjectName}
             />
-          <Label for="projectWidth">Width</Label>
+          <Label className="project-property-label" for="projectWidth">Width</Label>
             <Input id="projectWidth"
                    defaultValue={this.props.project.width}
                    onChange={this.changeProjectWidth}
             />
-          <Label for="projectHeight">Width</Label>
+          <Label className="project-property-label" for="projectHeight">Height</Label>
             <Input id="projectHeight"
                    defaultValue={this.props.project.height}
                    onChange={this.changeProjectHeight}
             />
-          <Label for="projectFramerate">Framerate (FPS)</Label>
+          <Label className="project-property-label" for="projectFramerate">Framerate (FPS)</Label>
             <Input id="projectFramerate"
                    defaultValue={this.props.project.framerate}
                    onChange={this.changeProjectFramerate}
             />
-          <Label for="projectBackgroundColor">Background Color</Label>
-            <ColorPicker
+          <Label className="project-property-label" for="projectBackgroundColor">Background Color</Label>
+          <div id="background-color-picker-container" style={{width:"100%", height:"30px", backgroundColor:this.state.backgroundColor, borderRadius:"6px"}}>
+            <WickInput
+              type="color"
               id="project-background-color-picker"
               disableAlpha={true}
               placement={'bottom'}
               color={this.state.backgroundColor}
               onChangeComplete={this.changeProjectBackgroundColor}
-            />
+              />
+          </div>
           </FormGroup>
         </ModalBody>
         <ModalFooter>
-          <Button color="primary" onClick={this.updateProjectSettings}>Done</Button>{' '}
-          <Button color="secondary" onClick={this.toggle}>Cancel</Button>
+          <Button color="wick-warning" onClick={this.toggle}>Cancel</Button>
+          <Button color="wick-accept" onClick={this.updateProjectSettings}>Save Settings</Button>{' '}
         </ModalFooter>
       </Modal>
     );

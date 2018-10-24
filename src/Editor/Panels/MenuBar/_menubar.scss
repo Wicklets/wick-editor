@@ -1,3 +1,22 @@
+/*
+ * Copyright 2018 WICKLETS LLC
+ *
+ * This file is part of Wick Editor.
+ *
+ * Wick Editor is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Wick Editor is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Wick Editor.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 @import 'Editor/_wickbrand.scss';
 
 .menu-bar {
@@ -5,14 +24,14 @@
   width: 100%;
   background-color: #000;
   overflow: visible;
+  border-bottom: 2px solid $interface-primary;
 }
 
 .menu-bar-overlay {
   position:fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
+  width: 40%;
   z-index: 1000 !important;
   overflow: visible !important;
   display: table;
@@ -21,11 +40,29 @@
 .menu-items {
   padding-left: 0px;
   list-style-type: none;
+  margin-bottom: 0px;
 }
 
 .btn-menu-wrapper {
   width: 100px;
   height: 25px;
+}
+
+.project-settings-preview {
+  float: right;
+  height: 100%;
+  color: #FFF;
+  vertical-align: middle;
+  text-align: center;
+}
+
+.project-settings-preview:hover {
+  cursor: pointer;
+}
+
+.project-settings-image {
+  height: 100%;
+  padding: 8px;
 }
 
 .AriaMenuButton {
@@ -45,11 +82,11 @@
   border-radius: 4px;
   font-family: Nunito;
   font-weight: 900;
-  padding: 6px 10px;
-  height: 25px;
+  padding: 4px 10px;
+  height: 23px;
   text-align: center;
   vertical-align: center;
-  outline: 0; 
+  outline: 0;
 }
 
 .AriaMenuButton-trigger::after {
@@ -89,7 +126,7 @@
   margin: 4px 0 0 0;
   width: 150px;
   height: auto;
-  border-left: 2px solid $wick-green;
+  border-left: 1px solid $wick-green;
 }
 
 .AriaMenuButton-menu--flushRight {
