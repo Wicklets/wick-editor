@@ -3,6 +3,16 @@
 .menu-bar {
   height: 100%;
   width: 100%;
-  background-color: $heather-grey-dark;
-  overflow: visible; 
+  background-color: $interface-primary;
+  overflow: visible;
+}
+
+.menu-bar-overlay {
+  position:fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 200px;
+  z-index: 9999999999 !important;
+  overflow: visible !important;
 }

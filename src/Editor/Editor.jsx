@@ -152,72 +152,72 @@ class Editor extends Component {
             <DockedPanel><MenuBar openModal={this.openModal} /></DockedPanel>
           </ReflexElement>
           <ReflexElement {...this.resizeProps}>
-            <ReflexContainer orientation="vertical">
+              <ReflexContainer orientation="vertical">
 
-              <ReflexElement size={50} {...this.resizeProps} style={{minWidth:"50px",maxWidth:"50px"}}>
-                {/* Left Sidebar */}
-                <DockedPanel>
-                  <Toolbox
-                    activeTool={this.state.activeTool}
-                    fillColor={this.state.fillColor}
-                    strokeColor={this.state.strokeColor}
-                    activateTool={this.activateTool}
-                  />
-                </DockedPanel>
-              </ReflexElement>
+                <ReflexElement size={50} {...this.resizeProps} style={{minWidth:"50px",maxWidth:"50px"}}>
+                  {/* Left Sidebar */}
+                  <DockedPanel>
+                    <Toolbox
+                      activeTool={this.state.activeTool}
+                      fillColor={this.state.fillColor}
+                      strokeColor={this.state.strokeColor}
+                      activateTool={this.activateTool}
+                    />
+                  </DockedPanel>
+                </ReflexElement>
 
-              <ReflexElement {...this.resizeProps}>
-                {/* Middle Panel */}
-                <ReflexContainer orientation="horizontal">
-                  {/* Timeline */}
-                  <ReflexElement size={150} {...this.resizeProps}>
-                    <DockedPanel>
-                      <Timeline
-                        project={this.state.project}
-                        selection={this.state.selection}
-                        updateProject={this.updateProject}
-                        updateSelection={this.updateSelection}
-                      />
-                    </DockedPanel>
-                  </ReflexElement>
-                  <ReflexSplitter {...this.resizeProps}/>
-                  {/* Canvas */}
-                  <ReflexElement {...this.resizeProps}>
-                    <DockedPanel>
-                      <Canvas
-                        project={this.state.project}
-                        updateProject={this.updateProject}
-                        updateSelection={this.updateSelection}
-                        activeTool={this.state.activeTool}
-                      />
-                    </DockedPanel>
-                  </ReflexElement>
-                  <ReflexSplitter {...this.resizeProps}/>
-                  {/* Code Editor */}
-                  <ReflexElement size={150} {...this.resizeProps}>
-                    <DockedPanel><CodeEditor /></DockedPanel>
-                  </ReflexElement>
-                </ReflexContainer>
-              </ReflexElement>
+                <ReflexElement {...this.resizeProps}>
+                  {/* Middle Panel */}
+                  <ReflexContainer orientation="horizontal">
+                    {/* Timeline */}
+                    <ReflexElement size={150} {...this.resizeProps}>
+                      <DockedPanel>
+                        <Timeline
+                          project={this.state.project}
+                          selection={this.state.selection}
+                          updateProject={this.updateProject}
+                          updateSelection={this.updateSelection}
+                        />
+                      </DockedPanel>
+                    </ReflexElement>
+                    <ReflexSplitter {...this.resizeProps}/>
+                    {/* Canvas */}
+                    <ReflexElement {...this.resizeProps}>
+                      <DockedPanel>
+                        <Canvas
+                          project={this.state.project}
+                          updateProject={this.updateProject}
+                          updateSelection={this.updateSelection}
+                          activeTool={this.state.activeTool}
+                        />
+                      </DockedPanel>
+                    </ReflexElement>
+                    <ReflexSplitter {...this.resizeProps}/>
+                    {/* Code Editor */}
+                    <ReflexElement size={150} {...this.resizeProps}>
+                      <DockedPanel><CodeEditor /></DockedPanel>
+                    </ReflexElement>
+                  </ReflexContainer>
+                </ReflexElement>
 
-              <ReflexSplitter {...this.resizeProps}/>
+                <ReflexSplitter {...this.resizeProps}/>
 
-              <ReflexElement size={250} {...this.resizeProps}>
-                {/* Right Sidebar */}
-                <ReflexContainer orientation="horizontal">
-                  <ReflexElement {...this.resizeProps}>
-                    <DockedPanel><Inspector /></DockedPanel>
-                  </ReflexElement>
+                <ReflexElement size={250} {...this.resizeProps}>
+                  {/* Right Sidebar */}
+                  <ReflexContainer orientation="horizontal">
+                    <ReflexElement {...this.resizeProps}>
+                      <DockedPanel><Inspector /></DockedPanel>
+                    </ReflexElement>
 
-                  <ReflexSplitter {...this.resizeProps}/>
+                    <ReflexSplitter {...this.resizeProps}/>
 
-                  <ReflexElement {...this.resizeProps}>
-                    <DockedPanel><AssetLibrary /></DockedPanel>
-                  </ReflexElement>
-                </ReflexContainer>
-              </ReflexElement>
+                    <ReflexElement {...this.resizeProps}>
+                      <DockedPanel><AssetLibrary /></DockedPanel>
+                    </ReflexElement>
+                  </ReflexContainer>
+                </ReflexElement>
 
-            </ReflexContainer>
+              </ReflexContainer>
           </ReflexElement>
         </ReflexContainer>
       )
