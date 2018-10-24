@@ -3,7 +3,7 @@
 .menu-bar {
   height: 100%;
   width: 100%;
-  background-color: $interface-primary;
+  background-color: #000;
   overflow: visible;
 }
 
@@ -15,4 +15,107 @@
   height: 200px;
   z-index: 9999999999 !important;
   overflow: visible !important;
+  display: table;
+}
+
+.menu-items {
+  padding-left: 0px;
+  list-style-type: none;
+}
+
+.btn-menu-wrapper {
+  width: 100px;
+  height: 25px;
+}
+
+.AriaMenuButton {
+  display: inline-block;
+  position: relative;
+}
+
+.AriaMenuButton-trigger {
+  cursor: pointer;
+  display: table-cell;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  background-color: #000;
+  color: #FFF;
+  border-radius: 4px;
+  font-weight: bold;
+  padding: 6px 10px;
+  height: 25px;
+  text-align: center;
+  vertical-align: center;
+}
+
+.AriaMenuButton-trigger::after {
+  display: inline-block;
+  margin-left: 3px;
+  position: relative;
+  top: 3px;
+  border-color: currentColor transparent transparent;
+  border-width: 5px 4px;
+  border-style: solid;
+}
+
+.AriaMenuButton-trigger:hover,
+.AriaMenuButton-trigger:focus,
+.AriaMenuButton-trigger.is-open {
+  background-color: $wick-green;
+  color: #FFF;
+  transition: 0.2s;
+}
+
+.AriaMenuButton-trigger:active,
+.AriaMenuButton-trigger.is-open {
+  background-color: $wick-green-dark;
+  color: #FFF;
+}
+
+.AriaMenuButton-menu {
+  background-color: #000;
+  color: #FFF;
+  list-style-type: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 99;
+  padding-left: 0;
+  border-radius: 4px;
+  margin: 4px 0 0 0;
+  width: 150px;
+  height: auto;
+  border-left: 2px solid $wick-green;
+}
+
+.AriaMenuButton-menu--flushRight {
+  right: 0;
+}
+
+.AriaMenuButton-menuItem {
+  cursor: pointer;
+  padding: 4px;
+}
+
+.AriaMenuButton-menuItemWrapper:first-of-type .AriaMenuButton-menuItem {
+  border-top-right-radius: 3px;
+  border-top-left-radius: 3px;
+}
+
+.AriaMenuButton-menuItemWrapper:last-of-type .AriaMenuButton-menuItem {
+  border-bottom-right-radius: 3px;
+  border-bottom-left-radius: 3px;
+}
+
+.AriaMenuButton-menuItem:hover,
+.AriaMenuButton-menuItem:focus {
+  background-color: $wick-green;
+  color: #FFF;
+}
+
+.AriaMenuButton-menuItem.is-selected {
+  cursor: default;
+  font-weight: bold;
 }

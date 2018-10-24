@@ -8,6 +8,7 @@
     "rc-slider": "^8.6.3",
     "react": "^16.5.2",
     "react-ace": "^6.2.0",
+    "react-aria-menubutton": "^6.0.1",
     "react-color": "^2.14.1",
     "react-dom": "^16.5.2",
     "react-numeric-input": "^2.2.3",

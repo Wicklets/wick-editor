@@ -18,21 +18,10 @@ class Toolbox extends Component {
       toolIsActive: this.toolIsActive.bind(this),
       activateTool: this.props.activateTool,
     };
-
-    this.handleFill = this.handleFill.bind(this);
   }
 
   toolIsActive (toolName) {
     return toolName === this.props.activeTool;
-  }
-
-  handleFill(color) {
-    console.log(color);
-      this.setState(
-        {
-          fillColor: color.hex,
-        }
-      )
   }
 
   render() {
