@@ -122,8 +122,8 @@ class ProjectSettings extends Component {
           </FormGroup>
         </ModalBody>
         <ModalFooter>
-          <Button color="primary" onClick={this.updateProjectSettings}>Done</Button>{' '}
-          <Button color="secondary" onClick={this.toggle}>Cancel</Button>
+          <Button color="wick-warning" onClick={this.toggle}>Cancel</Button>
+          <Button color="wick-accept" onClick={this.updateProjectSettings}>Save Settings</Button>{' '}
         </ModalFooter>
       </Modal>
     );

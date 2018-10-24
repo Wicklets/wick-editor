@@ -34,8 +34,8 @@ class AlphaWarning extends Component {
           <p>More features and changes are on the way!</p>
         </ModalBody>
         <ModalFooter>
-          <Button className="alpha-warning-modal-button" color="wick-accept" onClick={this.toggle}>Try the Alpha</Button>{' '}
           <Button className="alpha-warning-modal-button" color="wick-warning" onClick={() => window.location.href="http://www.wickeditor.com"}>No Thanks...</Button>
+          <Button className="alpha-warning-modal-button" color="wick-accept" onClick={this.toggle}>Try the Alpha</Button>{' '}
         </ModalFooter>
       </Modal>
     );
