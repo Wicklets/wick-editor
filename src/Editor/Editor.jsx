@@ -46,6 +46,7 @@ class Editor extends Component {
 
     this.updateProject = this.updateProject.bind(this);
     this.updateSelection = this.updateSelection.bind(this);
+    this.changeFrameLength = this.changeFrameLength.bind(this);
     this.openModal = this.openModal.bind(this);
     this.activateTool = this.activateTool.bind(this);
     this.getSelection = this.getSelection.bind(this);
@@ -58,7 +59,8 @@ class Editor extends Component {
   }
 
   componentDidMount () {
-
+    let frame = this.state.project.focus.timeline.layers[0].frames[0];
+    this.changeFrameLength(frame, 10);
   }
 
   onResize (e) {
@@ -92,6 +94,13 @@ class Editor extends Component {
     this.setState(prevState => ({
       selection: nextSelection,
     }));
+  }
+
+  changeFrameLength (frame, newLength) {
+    /*this.setState(prevState => {
+      frame.end = 100;
+      return prevState;
+    });*/
   }
 
   getSelection () {
@@ -132,9 +141,6 @@ class Editor extends Component {
   }
 
   render () {
-    console.log('well here it is')
-    console.log(this.getSelection());
-
       return (
         <ReflexContainer orientation="horizontal">
           <ReflexElement className="header" size={50}>
