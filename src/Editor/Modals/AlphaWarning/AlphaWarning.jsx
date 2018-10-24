@@ -25,8 +25,8 @@ class AlphaWarning extends Component {
 
   render() {
     return (
-      <Modal id="alpha-modal" isOpen={this.state.modal} toggle={this.toggle} className={this.props.className}>
-        <ModalHeader toggle={this.toggle}>Wick Editor 1.0 Alpha v0</ModalHeader>
+      <Modal id="alpha-modal" backdrop="static" isOpen={this.state.modal} toggle={this.toggle} className={this.props.className}>
+        <ModalHeader className="alpha-warning-header" toggle={this.toggle} close={false}>Wick Editor 1.0 Alpha v0</ModalHeader>
         <ModalBody>
           <h3>Welcome to Wick Editor 1.0</h3>
           <h5>In this alpha test, you'll have access to some of the most <b>basic</b> features of the Wick Editor.</h5>
@@ -35,7 +35,7 @@ class AlphaWarning extends Component {
         </ModalBody>
         <ModalFooter>
           <Button className="alpha-warning-modal-button" color="wick-accept" onClick={this.toggle}>Try the Alpha</Button>{' '}
-          <Button className="alpha-warning-modal-button" color="wick-warning" onClick={() => window.location.href="http://www.wickeditor.com"}>Send me Back!</Button>
+          <Button className="alpha-warning-modal-button" color="wick-warning" onClick={() => window.location.href="http://www.wickeditor.com"}>No Thanks...</Button>
         </ModalFooter>
       </Modal>
     );

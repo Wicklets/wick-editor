@@ -74,7 +74,7 @@ $interface-warning-text: #FFFFFF;
 .btn-wick-warning {
   background: $interface-warning-dark;
   border: $interface-warning-dark;
-  color: #FFFFFF
+  color: $interface-primary-text;
 }
 .btn-wick-warning:hover {
   background: darken($interface-warning-dark, 7.5%);
@@ -88,7 +88,7 @@ $interface-warning-text: #FFFFFF;
 .btn-wick-accept {
   background: $wick-green-dark;
   border: $wick-green-dark;
-  color: #FFFFFF;
+  color: $interface-primary-text;
 }
 .btn-wick-accept:hover {
   background: darken($wick-green-dark, 7.5%);

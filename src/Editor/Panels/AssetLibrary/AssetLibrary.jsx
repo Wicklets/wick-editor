@@ -15,12 +15,12 @@ class AssetLibrary extends Component {
     super(props);
     this.state ={
       assets: [
-        { name:"a1", uuid:"1"},
-        { name:"b2", uuid:"2"},
-        { name:"c3", uuid:"3"},
-        { name:"a4", uuid:"4"},
-        { name:"b5", uuid:"5"},
-        { name:"c6", uuid:"6"},
+        // { name:"a1", uuid:"1"},
+        // { name:"b2", uuid:"2"},
+        // { name:"c3", uuid:"3"},
+        // { name:"a4", uuid:"4"},
+        // { name:"b5", uuid:"5"},
+        // { name:"c6", uuid:"6"},
       ]
     }
     this.makeNode = this.makeNode.bind(this);

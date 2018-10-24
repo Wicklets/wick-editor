@@ -1,8 +1,6 @@
 @import 'Editor/_wickbrand.scss';
 
 .alpha-warning-modal-button {
-  margin: 0 auto;
-  font-weight: 600;
   font-family: Nunito;
 }
 
@@ -16,7 +14,7 @@
 }
 
 .modal-backdrop {
-  background-color: darken($wick-green, 30%);
+  background-color: #000;
 }
 
 .modal-content {
@@ -30,4 +28,8 @@
 
 .modal-header {
   border-bottom: 1px solid $interface-secondary;
+}
+
+.alpha-warning-header .close {
+  display: none;
 }
