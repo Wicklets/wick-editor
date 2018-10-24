@@ -72,32 +72,31 @@ $interface-warning-text: #FFFFFF;
 // define Bootstrap 4 button Mixins
 /*button-variant($background, $border, $hover-background: darken($background, 7.5%), $hover-border: darken($border, 10%), $active-background: darken($background, 10%), $active-border: darken($border, 12.5%))*/
 .btn-wick-warning {
-  background: $interface-warning;
-  border: $interface-warning;
+  background: $interface-warning-dark;
+  border: $interface-warning-dark;
   color: #FFFFFF
 }
 .btn-wick-warning:hover {
-  background: darken($interface-warning, 7.5%);
-  border: darken($interface-warning, 7.5%);
+  background: darken($interface-warning-dark, 7.5%);
+  border: darken($interface-warning-dark, 7.5%);
 }
 .btn-wick-warning:active {
-  background: darken($interface-warning, 12.5%);
-  border: darken($interface-warning, 12.5%);
+  background: darken($interface-warning-dark, 12.5%);
+  border: darken($interface-warning-dark, 12.5%);
 }
 
 .btn-wick-accept {
-  background: $wick-green;
-  border: $wick-green;
+  background: $wick-green-dark;
+  border: $wick-green-dark;
   color: #FFFFFF;
-  font-weight: bold;
 }
 .btn-wick-accept:hover {
-  background: darken($wick-green, 7.5%);
-  border: darken($wick-green, 7.5%);
+  background: darken($wick-green-dark, 7.5%);
+  border: darken($wick-green-dark, 7.5%);
 }
 .btn-wick-accept:active {
-  background: darken($wick-green, 12.5%);
-  border: darken($wick-green, 12.5%);
+  background: darken($wick-green-dark, 12.5%);
+  border: darken($wick-green-dark, 12.5%);
 }
 // define interface element properties
 

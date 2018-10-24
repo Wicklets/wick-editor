@@ -143,7 +143,7 @@ class Editor extends Component {
   render () {
       return (
         <ReflexContainer orientation="horizontal">
-          <ReflexElement className="header" size={37}>
+          <ReflexElement className="header" size={37} style={{minHeight:"37px",maxHeight:"37px"}}>
             <ModalHandler openModal={this.openModal}
                           openModalName={this.state.openModalName}
                           project={this.state.project}
