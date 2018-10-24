@@ -26,7 +26,7 @@ class AlphaWarning extends Component {
   render() {
     return (
       <Modal id="alpha-modal" backdrop="static" isOpen={this.state.modal} toggle={this.toggle} className={this.props.className}>
-        <ModalHeader className="alpha-warning-header" toggle={this.toggle} close={false}>Wick Editor 1.0 Alpha v0</ModalHeader>
+        <ModalHeader className="alpha-warning-header" toggle={this.toggle}>Wick Editor 1.0 Alpha v0</ModalHeader>
         <ModalBody>
           <h3>Welcome to Wick Editor 1.0</h3>
           <h5>In this alpha test, you'll have access to some of the most <b>basic</b> features of the Wick Editor.</h5>
