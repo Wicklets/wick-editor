@@ -1,0 +1,12 @@
+@import 'Editor/_wickbrand.scss';
+
+.alpha-warning-modal-button {
+  font-family: Nunito;
+  font-weight: bold;
+  margin: 0 auto;
+}
+
+
+.modal-backdrop {
+  background-color: darken($wick-green, 30%);
+}

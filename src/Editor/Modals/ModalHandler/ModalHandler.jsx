@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 
-import ProjectSettings from '../ProjectSettings/ProjectSettings'
+import ProjectSettings from '../ProjectSettings/ProjectSettings';
+import AlphaWarning from '../AlphaWarning/AlphaWarning';
 
 class ModalHandler extends Component {
   render() {
@@ -12,6 +13,7 @@ class ModalHandler extends Component {
           openModal={this.props.openModal}
           open={this.props.openModalName === 'ProjectSettings'}
         />
+      <AlphaWarning className="alpha-warning"/>
       </div>
     );
   }
