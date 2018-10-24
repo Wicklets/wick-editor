@@ -154,7 +154,7 @@ class Editor extends Component {
           <ReflexElement {...this.resizeProps}>
             <ReflexContainer orientation="vertical">
 
-              <ReflexElement size={50} {...this.resizeProps}>
+              <ReflexElement size={50} {...this.resizeProps} style={{minWidth:"50px",maxWidth:"50px"}}>
                 {/* Left Sidebar */}
                 <DockedPanel>
                   <Toolbox
@@ -170,7 +170,7 @@ class Editor extends Component {
                 {/* Middle Panel */}
                 <ReflexContainer orientation="horizontal">
                   {/* Timeline */}
-                  <ReflexElement flex={0.2} {...this.resizeProps}>
+                  <ReflexElement size={150} {...this.resizeProps}>
                     <DockedPanel>
                       <Timeline
                         project={this.state.project}
@@ -194,7 +194,7 @@ class Editor extends Component {
                   </ReflexElement>
                   <ReflexSplitter {...this.resizeProps}/>
                   {/* Code Editor */}
-                  <ReflexElement flex={0.2} {...this.resizeProps}>
+                  <ReflexElement size={150} {...this.resizeProps}>
                     <DockedPanel><CodeEditor /></DockedPanel>
                   </ReflexElement>
                 </ReflexContainer>
@@ -202,7 +202,7 @@ class Editor extends Component {
 
               <ReflexSplitter {...this.resizeProps}/>
 
-              <ReflexElement flex={0.2} {...this.resizeProps}>
+              <ReflexElement size={250} {...this.resizeProps}>
                 {/* Right Sidebar */}
                 <ReflexContainer orientation="horizontal">
                   <ReflexElement {...this.resizeProps}>

@@ -10,7 +10,7 @@ class ColorPicker extends Component {
 
     this.state = {
       open: false,
-      color: "#FFFFFF"
+      color: this.props.color === undefined ? "#FFFFFF" : this.props.color,
     }
 
     this.toggle = this.toggle.bind(this);
