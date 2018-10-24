@@ -43,7 +43,7 @@ class Timeline extends Component {
             wickFrame.start = frame.start;
             wickFrame.end = frame.end;
             wickFrame.parent.removeFrame(wickFrame);
-            nextProject.focus.timeline.activeLayer.addFrame(wickFrame);
+            nextProject.focus.timeline.layers[frame.layer.getIndex()].addFrame(wickFrame);
           } else {
             // Create
             let wickFrame = new window.Wick.Frame();

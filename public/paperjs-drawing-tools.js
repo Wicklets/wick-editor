@@ -3868,28 +3868,35 @@ paper.drawingTools.onCanvasModified = function (fn) {
     croquis.setToolStabilizeLevel(10);
     croquis.setToolStabilizeWeight(0.5);
     var penPressure = 1;
-    croquis.down(e.point.x, e.point.y, penPressure);
+    var point = paper.view.projectToView(e.point.x, e.point.y);
+    croquis.down(point.x, point.y, penPressure);
   };
 
   tool.onMouseDrag = function (e) {
     var penPressure = 1;
-    croquis.move(e.point.x, e.point.y, penPressure);
+    var point = paper.view.projectToView(e.point.x, e.point.y);
+    croquis.move(point.x, point.y, penPressure);
   };
 
   tool.onMouseUp = function (e) {
     // TODO Eraser throws exception on paths created here. Maybe need to close paths?
-    var resolution = 1;
+    var resolution = paper.view.zoom;
     var penPressure = 1;
-    croquis.up(e.point.x, e.point.y, penPressure);
+    var point = paper.view.projectToView(e.point.x, e.point.y);
+    croquis.up(point.x, point.y, penPressure);
     setTimeout(function () {
       var img = new Image();
 
       img.onload = function () {
         var svg = potrace.fromImage(img).toSVG(1 / resolution);
         var potracePath = paper.project.importSVG(svg);
+        potracePath.position.x += paper.view.bounds.x;
+        potracePath.position.y += paper.view.bounds.y;
         potracePath.remove();
+        potracePath.closed = true;
         potracePath.children[0].closed = true;
-        paper.project.activeLayer.addChild(potracePath);
+        potracePath.applyMatrix = true;
+        paper.project.activeLayer.addChild(potracePath.children[0]);
         croquis.clearLayer();
         paper.drawingTools.fireCanvasModified();
       };
@@ -4438,14 +4445,6 @@ paper.drawingTools.onCanvasModified = function (fn) {
   function createCenterpoint() {
     if (selectedItems.length === 1 && selectedItems[0]._class === 'Group') {
       var item = new paper.Path.Circle(selectedItems[0].position, HANDLE_RADIUS / paper.view.zoom);
-      item.remove();
-      item.strokeWidth = 1 / paper.view.zoom;
-      item.strokeColor = 'green';
-      item.fillColor = SELECTION_BOX_FILLCOLOR;
-      item.name = 'selectionBoxCenterpoint';
-      guiLayer.addChild(item);
-    } else {
-      var item = new paper.Path.Circle(selectionBounds.center, HANDLE_RADIUS / paper.view.zoom);
       item.remove();
       item.strokeWidth = 1 / paper.view.zoom;
       item.strokeColor = 'green';

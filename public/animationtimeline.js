@@ -34,7 +34,7 @@ var AnimationTimeline = new (function ft () {
     var EDGE_DRAG_TOLERANCE = 4;
     var LAYERS_GUI_WIDTH = 80;
     var NUMBER_LINE_HEIGHT = 15;
-    var LAYERS_WIDTH = 45;
+    var LAYERS_WIDTH = 100;
     var TWEEN_ICON_SIZE = 10;
     var TWEEN_ICON_HEIGHT = GRID_CELL_HEIGHT * 2/3;
     var BUTTON_SIZE = 15;
@@ -49,6 +49,7 @@ var AnimationTimeline = new (function ft () {
     var canvas;
     var ctx;
     var scrollbarContainer;
+    var scrollbarContainerContent;
 
     var itemName;
     var eventName;
@@ -87,6 +88,19 @@ var AnimationTimeline = new (function ft () {
         scrollbarContainer.style.height = '100%';
         scrollbarContainer.style.overflow = 'hidden';
         scrollbarContainer.style.backgroundColor = 'rgba(0,0,0,0)';
+        elem.appendChild(scrollbarContainer);
+
+        scrollbarContainerContent = document.createElement('div');
+        scrollbarContainerContent.id = 'scrollable-content';
+        scrollbarContainer.appendChild(scrollbarContainerContent);
+
+        canvas = document.createElement('canvas');
+        canvas.style.position = 'absolute';
+        canvas.className = 'animationtimeline-canvas';
+        canvas.style.width = '100%';
+        canvas.style.height = '100%';
+        elem.appendChild(canvas);
+
         scrollbar = new PerfectScrollbar(scrollbarContainer);
         scrollbarContainer.addEventListener('ps-scroll-x', (e) => {
             var sx = parseInt($('.ps__rail-x').css('left'));
@@ -98,20 +112,6 @@ var AnimationTimeline = new (function ft () {
             scroll.y = -sy;
             self.repaint();
         });
-        elem.appendChild(scrollbarContainer);
-
-        var scrollbarContainerContent = document.createElement('div');
-        scrollbarContainerContent.style.width = '2000px';
-        scrollbarContainerContent.style.height = '1000px';
-        scrollbarContainerContent.id = 'bogobogo';
-        scrollbarContainer.appendChild(scrollbarContainerContent);
-
-        canvas = document.createElement('canvas');
-        canvas.style.position = 'absolute';
-        canvas.className = 'animationtimeline-canvas';
-        canvas.style.width = 'calc(100%)';
-        canvas.style.height = 'calc(100%)';
-        elem.appendChild(canvas);
 
         attachMouseEvents();
 
@@ -130,6 +130,9 @@ var AnimationTimeline = new (function ft () {
     }
 
     self.repaint = function () {
+        scrollbarContainerContent.style.width = '2000px';
+        scrollbarContainerContent.style.height = (layers.length*GRID_CELL_HEIGHT*1.5)+'px';
+
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         ctx.fillStyle = interfaceDark;
@@ -146,12 +149,19 @@ var AnimationTimeline = new (function ft () {
             ctx.save();
             ctx.translate(0, NUMBER_LINE_HEIGHT);
 
+                layers.forEach(layer => {
+                    layer.repaintFramesStrip();
+                });
+
                 grid.repaint();
                 allFrames().forEach(function (frame) {
                     frame.repaintDropGhost();
                 });
                 allFrames().forEach(function (frame) {
-                    frame.repaint();
+                    if(frame.state === 'inactive') frame.repaint();
+                });
+                allFrames().forEach(function (frame) {
+                    if(frame.state === 'selected') frame.repaint();
                 });
                 selectionBox.repaint();
 
@@ -494,7 +504,7 @@ var AnimationTimeline = new (function ft () {
         this.hidden = args.hidden;
         this.frames = args.frames || [];
 
-        var self = this;
+        /*var self = this;
         this.lockButton = new Button({
             clickFn: function () {
                 self.locked = !self.locked;
@@ -517,29 +527,39 @@ var AnimationTimeline = new (function ft () {
             icon: '',
             layer: this,
         });
-        this.buttons = [this.lockButton, this.hideButton];
+        this.buttons = [this.lockButton, this.hideButton];*/
+        this.buttons = [];
 
         this.dragging = false;
         this.draggingOffset = 0;
     }
 
     Layer.prototype.repaint = function () {
+        var active = this.getIndex() === activeLayerIndex;
+
         // Layer
-        ctx.fillStyle = 'blue';
-        ctx.fillRect(0, 
-                     this.getIndex() * GRID_CELL_HEIGHT, 
-                     LAYERS_WIDTH, 
-                     GRID_CELL_HEIGHT);
+        ctx.fillStyle = active ? '#46bbf8' : '#4a6588';
+        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = 'white';
+        var shrink = 2.5;
+        roundRect(ctx, 
+            0 + shrink, 
+            this.getIndex() * GRID_CELL_HEIGHT + shrink, 
+            LAYERS_WIDTH - shrink*2, 
+            GRID_CELL_HEIGHT - shrink*2, 
+            1.5, 
+            true, true);
 
         // Buttons
-        this.lockButton.repaint();
-        this.hideButton.repaint();
+        this.buttons.forEach(button => {
+            button.repaint();
+        });
 
         // Active layer effect
-        if(this.getIndex() === activeLayerIndex) {
+        /*if(this.getIndex() === activeLayerIndex) {
             ctx.fillStyle = 'green';
             ctx.fillRect(0, this.getIndex()*GRID_CELL_HEIGHT + GRID_CELL_HEIGHT/2, 10, 10);
-        }
+        }*/
     }
 
     Layer.prototype.repaintDropGhost = function () {
@@ -550,6 +570,21 @@ var AnimationTimeline = new (function ft () {
                          LAYERS_WIDTH,
                          2);
         }
+    }
+
+    Layer.prototype.repaintFramesStrip = function () {
+        ctx.fillStyle = '#c2c2c2';
+        ctx.strokeStyle = '#cccccc';
+        ctx.beginPath();
+        var shrink = 3.5;
+        ctx.rect(
+            -scroll.x,
+            this.getIndex()*GRID_CELL_HEIGHT + shrink,
+            canvas.width,
+            GRID_CELL_HEIGHT - shrink*2);
+        ctx.closePath();
+        ctx.stroke();
+        ctx.fill();
     }
 
     Layer.prototype.drop = function () {
@@ -903,18 +938,18 @@ var AnimationTimeline = new (function ft () {
         var gridH = layers.length*GRID_CELL_HEIGHT;
         var offset = Math.round(-scroll.x/GRID_CELL_WIDTH);
 
-        ctx.strokeStyle = interfaceMedium;
+        ctx.strokeStyle = '#444';
         ctx.lineWidth = "1px";
 
         // Horizontal lines
-        for(var i = 0; i <= gridH/cellH; i++) {
+        /*for(var i = 0; i <= gridH/cellH; i++) {
             var y = i*cellH;
             ctx.beginPath();
             ctx.moveTo(-scroll.x+0.5, y+0.5);
             ctx.lineTo(-scroll.x+gridW+0.5, y+0.5);
             ctx.stroke();
             ctx.closePath();
-        }
+        }*/
 
         // Vertical lines
         for(var i = offset; i < gridW/cellW+offset; i++) {
@@ -942,11 +977,14 @@ var AnimationTimeline = new (function ft () {
     Numberline.prototype.repaint = function () {
         var offset = Math.round(-scroll.x/GRID_CELL_WIDTH);
 
-        ctx.beginPath();
-        ctx.fillStyle = '#222';
-        ctx.rect(0,0,canvas.width,NUMBER_LINE_HEIGHT);
-        ctx.fill();
-        ctx.closePath();
+        ctx.save();
+            ctx.translate(-scroll.x, 0);
+            ctx.beginPath();
+            ctx.fillStyle = '#222';
+            ctx.rect(-LAYERS_WIDTH,0,canvas.width,NUMBER_LINE_HEIGHT);
+            ctx.fill();
+            ctx.closePath();
+        ctx.restore();
 
         for(var i = offset; i < canvas.width/GRID_CELL_WIDTH + offset; i++) {
             var x = i*GRID_CELL_WIDTH;
@@ -1427,7 +1465,7 @@ var AnimationTimeline = new (function ft () {
 
     self.onTweenMouseDrag = function (e) {
         e.tweens.forEach(function (tween) {
-            tween.draggingOffset = e.delta.x;
+            tween.draggingOffset = Math.round(e.delta.x / GRID_CELL_WIDTH) * GRID_CELL_WIDTH;
         });
     }
 
