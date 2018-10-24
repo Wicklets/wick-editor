@@ -15,6 +15,7 @@
     "react-reflex": "^2.2.9",
     "react-scripts": "2.0.5",
     "react-select": "^2.1.0",
+    "react-tooltip": "^3.9.0",
     "reactstrap": "^6.5.0"
   },
   "scripts": {

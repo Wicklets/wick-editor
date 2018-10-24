@@ -3,6 +3,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 import DockedTitle from 'Editor/Util/DockedTitle/DockedTitle';
 import { Button } from 'reactstrap';
+import ReactTooltip from 'react-tooltip'
 
 import './_assetlibrary.scss';
 
@@ -56,8 +57,11 @@ class AssetLibrary extends Component {
 
   render() {
     return(
-      <div className="docked-pane asset-library">
+      <div data-tip data-for='asset-library-coming-soon' className="docked-pane asset-library">
         <DockedTitle title={"Asset Library"}></DockedTitle>
+        <ReactTooltip id="asset-library-coming-soon" type='error' place='top' effect='solid' aria-haspopup='true'>
+          <span>Coming Soon!</span>
+        </ReactTooltip>
         <div className="asset-container">
           {this.state.assets.map(this.makeNode)}
         </div>
