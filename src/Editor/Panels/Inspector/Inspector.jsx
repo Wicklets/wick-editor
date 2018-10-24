@@ -4,7 +4,6 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 import DockedTitle from 'Editor/Util/DockedTitle/DockedTitle';
 import InspectorTitle from './InspectorTitle/InspectorTitle';
-import InspectorRow from './InspectorRow/InspectorRow';
 
 import InspectorNumericSlider from './InspectorRow/InspectorRowTypes/InspectorNumericSlider';
 import InspectorTextInput from './InspectorRow/InspectorRowTypes/InspectorTextInput';

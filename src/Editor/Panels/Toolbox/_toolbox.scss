@@ -6,4 +6,21 @@
   height: 100%;
   overflow: hidden;
   background-color: $interface-primary;
+  padding-left: 5px;
+}
+
+.color-container {
+  margin-top: 4px;
+  background-color: $magenta;
+  border-radius: $interface-roundness-secondary;
+}
+
+#fill-color-picker-container {
+  height: 40px;
+  width: 40px;
+}
+
+#stroke-color-picker-container {
+  height: 40px;
+  width: 40px;
 }

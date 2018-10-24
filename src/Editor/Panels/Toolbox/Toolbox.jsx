@@ -4,19 +4,36 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 import ColorPicker from 'Editor/Util/ColorPicker/ColorPicker';
 import ToolButton from 'Editor/Util/ToolButton/ToolButton';
+import WickInput from 'Editor/Util/WickInput/WickInput';
 
 class Toolbox extends Component {
   constructor (props) {
     super(props);
 
+    this.state = {
+      fillColor: "#FF1155",
+      strokeColor: "#FFAABB",
+    }
+
     this.iconProps = {
       toolIsActive: this.toolIsActive.bind(this),
       activateTool: this.props.activateTool,
     };
+
+    this.handleFill = this.handleFill.bind(this);
   }
 
   toolIsActive (toolName) {
     return toolName === this.props.activeTool;
+  }
+
+  handleFill(color) {
+    console.log(color);
+      this.setState(
+        {
+          fillColor: color.hex,
+        }
+      )
   }
 
   render() {
@@ -74,25 +91,23 @@ class Toolbox extends Component {
           name="zoom"
           {...this.iconProps}
         />
-        <div id="fill-color-picker-container">
-          <ColorPicker
-            id="fill-color-picker"
-            placement={'right'}
-            color={this.props.fillColor}
-            onColorChange={(color) => {
-              console.log(color);
-            }}
-          />
+      <div className="color-container" id="fill-color-picker-container" style={{backgroundColor:this.state.fillColor}}>
+          <WickInput
+            type="color"
+            color= {this.state.fillColor}
+            onChangeComplete={(color) => this.setState({fillColor: color.hex})}
+            id={this.props.id}
+            placement="right"
+            />
         </div>
-        <div id="stroke-color-picker-container">
-          <ColorPicker
-            id="stroke-color-picker"
-            placement={'right'}
-            color={this.props.strokeColor}
-            onColorChange={(color) => {
-              console.log(color);
-            }}
-          />
+        <div className="color-container" id="stroke-color-picker-container" style={{backgroundColor:this.state.strokeColor}}>
+          <WickInput
+            type="color"
+            color= {this.state.strokeColor}
+            onChangeComplete={(color) => this.setState({strokeColor: color.hex})}
+            id={this.props.id}
+            placement="right"
+            />
         </div>
       </div>
 

@@ -3,10 +3,6 @@ import React, { Component } from 'react';
 import InspectorRow from '../InspectorRow';
 
 class InspectorTextInput extends Component {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     return(
       <div className="inspector-row">

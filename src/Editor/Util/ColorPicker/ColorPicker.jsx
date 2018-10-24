@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Button, Popover } from 'reactstrap';
+import { Popover } from 'reactstrap';
 import { SketchPicker } from 'react-color';
 
 import './_colorpicker.scss';
@@ -25,7 +25,7 @@ class ColorPicker extends Component {
   render() {
     return(
       <div className="color-picker">
-        <Button className="btn-color-picker" id={this.props.id + '-button'} onClick={this.toggle}></Button>
+        <div className="btn-color-picker" id={this.props.id + '-button'} onClick={this.toggle} />
         <Popover
           placement={this.props.placement}
           isOpen={this.state.open}

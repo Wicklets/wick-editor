@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { Button } from 'reactstrap';
-
 import './_toolbutton.scss'
 
 class ToolButton extends Component {
