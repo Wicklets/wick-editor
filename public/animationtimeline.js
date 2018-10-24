@@ -1,26 +1,23 @@
 /*
-    Copyright (c) 2018 Zach Rispoli (zrispo)
-
-    Permission is hereby granted, free of charge, to any person obtaining a copy
-    of this software and associated documentation files (the "Software"), to deal
-    in the Software without restriction, including without limitation the rights
-    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    copies of the Software, and to permit persons to whom the Software is
-    furnished to do so, subject to the following conditions:
-
-    The above copyright notice and this permission notice shall be included in all
-    copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    SOFTWARE.
+ * Copyright 2018 WICKLETS LLC
+ *
+ * This file is part of AnimationTimeline.js.
+ *
+ * AnimationTimeline.js is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * AnimationTimeline.js is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with AnimationTimeline.js.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-/* 
+/*
     animationtimeline.js
     An HTML5 timeline GUI for animation tools.
     by zrispo (zach@wickeditor.com)
@@ -31,7 +28,7 @@ var AnimationTimeline = new (function ft () {
 
     var GRID_CELL_WIDTH = 20;
     var GRID_CELL_HEIGHT = 30;
-    var EDGE_DRAG_TOLERANCE = 4;
+    var EDGE_DRAG_TOLERANCE = 5;
     var LAYERS_GUI_WIDTH = 80;
     var NUMBER_LINE_HEIGHT = 15;
     var LAYERS_WIDTH = 100;
@@ -70,6 +67,8 @@ var AnimationTimeline = new (function ft () {
     var grid = new Grid();
     var numberline = new Numberline();
     var selectionBox = new SelectionBox();
+    var hoverFrame = new HoverFrame();
+    var hoverLayer = new HoverLayer();
 
     var scrollbar;
 
@@ -116,7 +115,7 @@ var AnimationTimeline = new (function ft () {
         attachMouseEvents();
 
         ctx = canvas.getContext('2d');
-        
+
         var callbackCalled = false;
         $( window ).resize(function() {
             canvas.width = $(canvas)[0].clientWidth * window.devicePixelRatio;
@@ -139,7 +138,7 @@ var AnimationTimeline = new (function ft () {
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
         var dpr = window.devicePixelRatio;
-        ctx.save()
+        ctx.save();
         ctx.scale(dpr,dpr);
 
         ctx.save();
@@ -153,6 +152,8 @@ var AnimationTimeline = new (function ft () {
                 layers.forEach(layer => {
                     layer.repaintFramesStrip();
                 });
+
+                hoverFrame.repaint();
 
                 grid.repaint();
                 allFrames().forEach(function (frame) {
@@ -180,6 +181,7 @@ var AnimationTimeline = new (function ft () {
             layers.forEach(function (layer) {
                 layer.repaintDropGhost();
             });
+            hoverLayer.repaint();
         ctx.restore();
 
         ctx.restore();
@@ -198,6 +200,7 @@ var AnimationTimeline = new (function ft () {
                 id: layerData.id,
                 locked: layerData.locked,
                 hidden: layerData.hidden,
+                label: layerData.label,
             });
             layer.frames = layerData.frames.map(frameData => {
                 var frame = new Frame({
@@ -365,7 +368,7 @@ var AnimationTimeline = new (function ft () {
             clickedFrame = frame;
         } else {
             if(e.x < 0 && e.y < 0) {
-                // NOTE: This is the top-left corner of the timeline 
+                // NOTE: This is the top-left corner of the timeline
                 // which isn't actually supposed to do anything.
                 itemName = 'NumberLine';
             } else if (e.y < 0) {
@@ -388,6 +391,8 @@ var AnimationTimeline = new (function ft () {
     }
 
     function resetHoverEffects () {
+        hoverFrame.active = false;
+        hoverLayer.active = false;
         allFrames().forEach(function (f) {
             f.highlightDragEdge = null;
         });
@@ -417,8 +422,8 @@ var AnimationTimeline = new (function ft () {
 /* Timeline utils */
 
     function selectedFrames () {
-        return allFrames().filter(function (f) { 
-            return f.isSelected(); 
+        return allFrames().filter(function (f) {
+            return f.isSelected();
         });
     }
 
@@ -433,7 +438,7 @@ var AnimationTimeline = new (function ft () {
     }
 
     function allFrames () {
-        return alllayers().map(function (layer) { 
+        return alllayers().map(function (layer) {
             return layer.frames;
         }).reduce(function (a,b) {
             return a.concat(b);
@@ -441,7 +446,7 @@ var AnimationTimeline = new (function ft () {
     }
 
     function allTweens () {
-        return allFrames().map(function (frame) { 
+        return allFrames().map(function (frame) {
             return frame.tweens;
         }).reduce(function (a,b) {
             return a.concat(b);
@@ -475,9 +480,9 @@ var AnimationTimeline = new (function ft () {
         // Button body
         ctx.beginPath();
         ctx.fillStyle = this.isToggledFn() ? 'green' : 'red';
-        ctx.rect(this.bounds.left, 
+        ctx.rect(this.bounds.left,
                  this.bounds.top,
-                 this.bounds.width, 
+                 this.bounds.width,
                  this.bounds.height);
         ctx.fill();
         ctx.closePath();
@@ -506,6 +511,7 @@ var AnimationTimeline = new (function ft () {
         this.locked = args.locked;
         this.hidden = args.hidden;
         this.frames = args.frames || [];
+        this.label = args.label;
 
         /*var self = this;
         this.lockButton = new Button({
@@ -545,13 +551,18 @@ var AnimationTimeline = new (function ft () {
         ctx.lineWidth = 1.5;
         ctx.strokeStyle = 'white';
         var shrink = 2.5;
-        roundRect(ctx, 
-            0 + shrink, 
-            this.getIndex() * GRID_CELL_HEIGHT + shrink, 
-            LAYERS_WIDTH - shrink*2, 
-            GRID_CELL_HEIGHT - shrink*2, 
-            1.5, 
+        roundRect(ctx,
+            0 + shrink,
+            this.getIndex() * GRID_CELL_HEIGHT + shrink,
+            LAYERS_WIDTH - shrink*2,
+            GRID_CELL_HEIGHT - shrink*2,
+            1.5,
             true, true);
+
+        ctx.fillStyle = 'white';
+        ctx.font = "12px Arial";
+        var padding = 3;
+        ctx.fillText(this.label, 9, this.getIndex() * GRID_CELL_HEIGHT + GRID_CELL_HEIGHT/1.5);
 
         // Buttons
         this.buttons.forEach(button => {
@@ -618,7 +629,7 @@ var AnimationTimeline = new (function ft () {
         this.layer = args.layer;
         this.tweens = args.tweens || [];
         this.contentful = args.contentful;
-        
+
         this.state = args.selected ? 'selected' : 'inactive';
 
         this.prevState = {
@@ -667,18 +678,18 @@ var AnimationTimeline = new (function ft () {
     Frame.prototype.repaint = function () {
         this.regenBounds();
 
-        // Frame 
+        // Frame
         ctx.beginPath();
-        ctx.strokeStyle = this.state === 'selected' ? 'yellow' : 'gray';
+        ctx.strokeStyle = this.state === 'selected' ? 'rgba(255,255,0,0.65)' : 'gray';
         ctx.fillStyle = this.tweens.length === 0 ? (this.contentful ? '#ddd' : 'white') : 'rgb(200,230,255)';
         ctx.lineWidth = this.state === 'selected' ? 5 : 1;
         var shrink = 1;
-        roundRect(ctx, 
-            this.bounds.left + this.draggingOffset.x + this.leftDragOffset + shrink, 
-            this.bounds.top + this.draggingOffset.y + shrink, 
-            this.bounds.width + this.rightDragOffset - this.leftDragOffset - shrink, 
-            this.bounds.height - shrink, 
-            2, 
+        roundRect(ctx,
+            this.bounds.left + this.draggingOffset.x + this.leftDragOffset + shrink,
+            this.bounds.top + this.draggingOffset.y + shrink,
+            this.bounds.width + this.rightDragOffset - this.leftDragOffset - shrink,
+            this.bounds.height - shrink,
+            2,
             true, true);
         ctx.stroke();
         ctx.fill();
@@ -686,21 +697,21 @@ var AnimationTimeline = new (function ft () {
 
         if(this.highlightDragEdge === 'left') {
             // Left edge highlight
-            ctx.fillStyle = this.highlightDragEdge ? 'red' : 'white';
+            ctx.fillStyle = this.highlightDragEdge ? 'rgba(255,255,0,0.5)' : 'white';
             ctx.beginPath();
-            ctx.rect(this.leftEdgeBounds.left + this.leftDragOffset, 
-                     this.leftEdgeBounds.top, 
-                     this.leftEdgeBounds.width, 
+            ctx.rect(this.leftEdgeBounds.left + this.leftDragOffset,
+                     this.leftEdgeBounds.top,
+                     this.leftEdgeBounds.width,
                      this.leftEdgeBounds.height);
             ctx.fill();
             ctx.closePath();
         } else if (this.highlightDragEdge === 'right') {
             // Right edge highlight
-            ctx.fillStyle = this.highlightDragEdge ? 'red' : 'white';
+            ctx.fillStyle = this.highlightDragEdge ? 'rgba(255,255,0,0.5)' : 'white';
             ctx.beginPath();
-            ctx.rect(this.rightEdgeBounds.left + this.rightDragOffset, 
-                     this.rightEdgeBounds.top, 
-                     this.rightEdgeBounds.width, 
+            ctx.rect(this.rightEdgeBounds.left + this.rightDragOffset,
+                     this.rightEdgeBounds.top,
+                     this.rightEdgeBounds.width,
                      this.rightEdgeBounds.height);
             ctx.fill();
             ctx.closePath();
@@ -708,7 +719,7 @@ var AnimationTimeline = new (function ft () {
 
         // Tweens
         ctx.save();
-        ctx.translate(this.bounds.left + this.draggingOffset.x, 
+        ctx.translate(this.bounds.left + this.draggingOffset.x,
                       this.bounds.top + this.draggingOffset.y);
         if(this.tweens.length === 0) {
             ctx.beginPath();
@@ -716,8 +727,8 @@ var AnimationTimeline = new (function ft () {
             ctx.fillStyle = this.contentful ? 'black' : 'white';
             ctx.lineWidth = 1.5;
             ctx.arc(
-                GRID_CELL_WIDTH/2, 
-                GRID_CELL_HEIGHT/3*2, 
+                GRID_CELL_WIDTH/2,
+                GRID_CELL_HEIGHT/3*2,
                 GRID_CELL_WIDTH*0.25,
                 0,
                 2*Math.PI);
@@ -736,9 +747,9 @@ var AnimationTimeline = new (function ft () {
         if(this.draggingOffset.x !== 0 && this.draggingOffset.y !== 0) {
             ctx.beginPath();
             ctx.fillStyle = 'rgba(200,200,255,0.3)';
-            ctx.rect(this.dropGhostBounds.left - GRID_CELL_WIDTH, 
-                     this.dropGhostBounds.top, 
-                     this.dropGhostBounds.right - this.dropGhostBounds.left + GRID_CELL_WIDTH, 
+            ctx.rect(this.dropGhostBounds.left - GRID_CELL_WIDTH,
+                     this.dropGhostBounds.top,
+                     this.dropGhostBounds.right - this.dropGhostBounds.left + GRID_CELL_WIDTH,
                      this.dropGhostBounds.bottom - this.dropGhostBounds.top);
             ctx.fill();
             ctx.closePath();
@@ -794,7 +805,7 @@ var AnimationTimeline = new (function ft () {
     Frame.prototype.isValid = function () {
         if(this.start <= 0 || this.end <= 0) {
             return false;
-        }   
+        }
         var onTopOfOtherFrame = false;
         var self = this;
         allFrames().filter(function (frame) {
@@ -857,9 +868,9 @@ var AnimationTimeline = new (function ft () {
 
         ctx.beginPath();
         ctx.fillStyle = this.state === 'selected' ? 'red' : 'green';
-        ctx.rect(this.bounds.left + this.draggingOffset, 
-                 this.bounds.top, 
-                 this.bounds.width, 
+        ctx.rect(this.bounds.left + this.draggingOffset,
+                 this.bounds.top,
+                 this.bounds.width,
                  this.bounds.height);
         ctx.fill();
         ctx.closePath();
@@ -914,7 +925,7 @@ var AnimationTimeline = new (function ft () {
     }
 
     Playhead.prototype.repaint = function () {
-        var x = (this.position-1) * GRID_CELL_WIDTH + GRID_CELL_WIDTH/2; 
+        var x = (this.position-1) * GRID_CELL_WIDTH + GRID_CELL_WIDTH/2;
         ctx.strokeStyle = 'red';
         ctx.beginPath();
         ctx.moveTo(x,0);
@@ -1015,15 +1026,15 @@ var AnimationTimeline = new (function ft () {
             var p = playhead.position-1;
             var seekBackwardsX = (p - this.seekBackwards) * GRID_CELL_WIDTH + this.seekBackwardsDragOffset;
             var seekForwardsX = (p + this.seekForwards) * GRID_CELL_WIDTH + this.seekForwardsDragOffset;
-            ctx.rect(seekBackwardsX, 
-                     0, 
-                     GRID_CELL_WIDTH, 
+            ctx.rect(seekBackwardsX,
+                     0,
+                     GRID_CELL_WIDTH,
                      NUMBER_LINE_HEIGHT);
             ctx.fill();
 
-            ctx.rect(seekForwardsX, 
-                     0, 
-                     GRID_CELL_WIDTH, 
+            ctx.rect(seekForwardsX,
+                     0,
+                     GRID_CELL_WIDTH,
                      NUMBER_LINE_HEIGHT);
             ctx.fill();
         }
@@ -1096,11 +1107,53 @@ var AnimationTimeline = new (function ft () {
         ctx.beginPath();
         ctx.strokeStyle = 'rgba(100,100,100,0.5)';
         ctx.fillStyle = 'rgba(100,100,100,0.5)';
-        ctx.rect(this.bounds.left, 
-                 this.bounds.top, 
-                 this.bounds.right - this.bounds.left, 
+        ctx.rect(this.bounds.left,
+                 this.bounds.top,
+                 this.bounds.right - this.bounds.left,
                  this.bounds.bottom - this.bounds.top);
         ctx.stroke();
+        ctx.fill();
+        ctx.closePath();
+    }
+
+/* HoverFrame */
+
+    function HoverFrame () {
+        this.active = false;
+        this.row = 0;
+        this.col = 0;
+    }
+
+    HoverFrame.prototype.repaint = function () {
+        if(!this.active) return;
+        ctx.beginPath();
+        ctx.fillStyle = 'rgba(255,255,255,0.5)';
+        ctx.rect(this.col * GRID_CELL_WIDTH, 
+                 this.row * GRID_CELL_HEIGHT, 
+                 GRID_CELL_WIDTH, 
+                 GRID_CELL_HEIGHT);
+        ctx.fill();
+        ctx.closePath();
+    }
+
+/* HoverLayer */
+
+    function HoverLayer () {
+        this.active = false;
+    }
+
+    HoverLayer.prototype.repaint = function () {
+        if(!this.active) return;
+        ctx.beginPath();
+        ctx.fillStyle = 'rgba(255,255,255,0.5)';
+        var shrink = 1;
+        roundRect(ctx, 
+            0 + shrink, 
+            layers.length * GRID_CELL_HEIGHT + shrink, 
+            LAYERS_WIDTH - shrink*2, 
+            GRID_CELL_HEIGHT - shrink*2, 
+            1.5, 
+            true, false);
         ctx.fill();
         ctx.closePath();
     }
@@ -1123,8 +1176,8 @@ var AnimationTimeline = new (function ft () {
     }
 
     function boundsIntersect (boundsA, boundsB) {
-        return !(boundsB.left > boundsA.right || 
-                 boundsB.right < boundsA.left || 
+        return !(boundsB.left > boundsA.right ||
+                 boundsB.right < boundsA.left ||
                  boundsB.top > boundsA.bottom ||
                  boundsB.bottom < boundsA.top);
     }
@@ -1194,7 +1247,7 @@ var AnimationTimeline = new (function ft () {
     }
 
     self.onOnionSeekStartMouseDown = function (e) {
-        
+
     }
 
     self.onOnionSeekStartMouseDrag = function (e) {
@@ -1212,7 +1265,7 @@ var AnimationTimeline = new (function ft () {
     }
 
     self.onOnionSeekEndMouseDown = function (e) {
-        
+
     }
 
     self.onOnionSeekEndMouseDrag = function (e) {
@@ -1226,7 +1279,13 @@ var AnimationTimeline = new (function ft () {
     // BlankFrame
 
     self.onBlankFrameMouseMove = function (e) {
-
+        if(e.row < layers.length) {
+            hoverFrame.row = e.row;
+            hoverFrame.col = e.col;
+            hoverFrame.active = true;
+        } else {
+            hoverFrame.active = false;
+        }
     }
 
     self.onBlankFrameMouseDown = function (e) {
@@ -1261,7 +1320,7 @@ var AnimationTimeline = new (function ft () {
             activeLayerIndex = e.row;
 
             var frame = new Frame({
-                start: playhead.position, 
+                start: playhead.position,
                 end: playhead.position,
                 layer: layers[activeLayerIndex],
                 tweens: [],
@@ -1485,15 +1544,15 @@ var AnimationTimeline = new (function ft () {
     // BlankLayer
 
     self.onBlankLayerMouseMove = function (e) {
-
+        hoverLayer.active = true;
     }
 
     self.onBlankLayerMouseDown = function (e) {
-        
+
     }
 
     self.onBlankLayerMouseDrag = function (e) {
-        
+
     }
 
     self.onBlankLayerMouseUp = function (e) {
@@ -1502,6 +1561,7 @@ var AnimationTimeline = new (function ft () {
             locked: false,
             hidden: false,
             frames: [],
+            label: 'Layer ' + (layers.length+1),
         });
         layers.push(layer);
         activeLayerIndex = layers.length-1;
@@ -1541,7 +1601,7 @@ var AnimationTimeline = new (function ft () {
     // Button
 
     self.onButtonMouseMove = function (e) {
-        
+
     }
 
     self.onButtonMouseDown = function (e) {
@@ -1549,11 +1609,11 @@ var AnimationTimeline = new (function ft () {
     }
 
     self.onButtonMouseDrag = function (e) {
-        
+
     }
 
     self.onButtonMouseUp = function (e) {
-        
+
     }
 
 })();
