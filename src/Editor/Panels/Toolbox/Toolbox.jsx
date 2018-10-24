@@ -28,35 +28,11 @@ class Toolbox extends Component {
     return(
       <div className="docked-pane tool-box">
         <ToolButton
-          name="croquisBrush"
-          {...this.iconProps}
-        />
-        <ToolButton
           name="cursor"
           {...this.iconProps}
         />
         <ToolButton
-          name="ellipse"
-          {...this.iconProps}
-        />
-        <ToolButton
-          name="eraser"
-          {...this.iconProps}
-        />
-        <ToolButton
-          name="eyedropper"
-          {...this.iconProps}
-        />
-        <ToolButton
-          name="fillBucket"
-          {...this.iconProps}
-        />
-        <ToolButton
-          name="line"
-          {...this.iconProps}
-        />
-        <ToolButton
-          name="pan"
+          name="croquisBrush"
           {...this.iconProps}
         />
         <ToolButton
@@ -64,7 +40,7 @@ class Toolbox extends Component {
           {...this.iconProps}
         />
         <ToolButton
-          name="potraceBrush"
+          name="eraser"
           {...this.iconProps}
         />
         <ToolButton
@@ -72,13 +48,38 @@ class Toolbox extends Component {
           {...this.iconProps}
         />
         <ToolButton
-          name="text"
+          name="ellipse"
+          {...this.iconProps}
+        />
+        <ToolButton
+          name="line"
+          {...this.iconProps}
+        />
+        <ToolButton
+          name="eyedropper"
+          {...this.iconProps}
+        />
+        <ToolButton
+          name="pan"
           {...this.iconProps}
         />
         <ToolButton
           name="zoom"
           {...this.iconProps}
         />
+        {/*<ToolButton
+          name="fillBucket"
+          {...this.iconProps}
+        />
+        <ToolButton
+          name="text"
+          {...this.iconProps}
+        />
+        <ToolButton
+          name="potraceBrush"
+          {...this.iconProps}
+        />*/}
+
       <div className="color-container" id="fill-color-picker-container" style={{backgroundColor:this.state.fillColor}}>
           <WickInput
             type="color"

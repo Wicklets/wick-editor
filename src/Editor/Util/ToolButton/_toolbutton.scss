@@ -3,13 +3,13 @@
 .tool-button {
   padding: 0px;
   height: 40px;
-  width: 40px;
+  width: 100%;
   border-radius: $interface-roundness-secondary;
-  background-color: $interface-secondary;
+  background-color: $interface-primary;
   border: none;
   color: $interface-secondary-text;
   margin: 0 auto;
-  margin-top: 4px;
+  margin-top: 6px;
   transition: .3s;
 }
 
@@ -24,4 +24,9 @@
   background-color: $wick-green-dark;
   color: $interface-tertiary-text;
   transition: .1s;
+}
+
+.img-tool-icon {
+  width: 100%;
+  height: 100%;
 }
