@@ -28,11 +28,6 @@ class Toolbox extends Component {
   constructor (props) {
     super(props);
 
-    this.state = {
-      fillColor: "#FF1155",
-      strokeColor: "#FFAABB",
-    }
-
     this.iconProps = {
       toolIsActive: this.toolIsActive.bind(this),
       activateTool: this.props.activateTool,
@@ -99,20 +94,20 @@ class Toolbox extends Component {
           {...this.iconProps}
         />*/}
 
-      <div className="color-container" id="fill-color-picker-container" style={{backgroundColor:this.state.fillColor}}>
+      <div className="color-container" id="fill-color-picker-container" style={{backgroundColor:this.props.toolSettings.fillColor}}>
           <WickInput
             type="color"
-            color= {this.state.fillColor}
-            onChangeComplete={(color) => this.setState({fillColor: color.hex})}
+            color= {this.props.toolSettings.fillColor}
+            onChangeComplete={(color) => this.props.updateSettings({fillColor: color.hex})}
             id="tool-box-fill-color"
             placement="right"
             />
         </div>
-        <div className="color-container" id="stroke-color-picker-container" style={{borderColor:this.state.strokeColor}}>
+        <div className="color-container" id="stroke-color-picker-container" style={{borderColor:this.props.toolSettings.strokeColor}}>
           <WickInput
             type="color"
-            color= {this.state.strokeColor}
-            onChangeComplete={(color) => this.setState({strokeColor: color.hex})}
+            color= {this.props.toolSettings.strokeColor}
+            onChangeComplete={(color) => this.props.updateSettings({strokeColor: color.hex})}
             id="tool-box-stroke-color"
             placement="right"
             />

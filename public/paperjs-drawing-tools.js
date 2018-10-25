@@ -3484,28 +3484,25 @@ var potrace;
   potrace.fromFunction = fromFunction;
 })(potrace || (potrace = {}));
 /*
-    Copyright (c) 2018 Zach Rispoli (zrispo)
-
-    Permission is hereby granted, free of charge, to any person obtaining a copy
-    of this software and associated documentation files (the "Software"), to deal
-    in the Software without restriction, including without limitation the rights
-    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    copies of the Software, and to permit persons to whom the Software is
-    furnished to do so, subject to the following conditions:
-
-    The above copyright notice and this permission notice shall be included in all
-    copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    SOFTWARE.
+ * Copyright 2018 WICKLETS LLC
+ *
+ * This file is part of Paper.js-drawing-tools.
+ *
+ * Paper.js-drawing-tools is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Paper.js-drawing-tools is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Paper.js-drawing-tools.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-/* 
+/*
     Brush Cursor Generator
     For creating Flash-like cursors for drawing tools
 
@@ -3532,32 +3529,29 @@ var BrushCursorGen = {
   }
 };
 /*
-    Copyright (c) 2018 Zach Rispoli (zrispo)
-
-    Permission is hereby granted, free of charge, to any person obtaining a copy
-    of this software and associated documentation files (the "Software"), to deal
-    in the Software without restriction, including without limitation the rights
-    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    copies of the Software, and to permit persons to whom the Software is
-    furnished to do so, subject to the following conditions:
-
-    The above copyright notice and this permission notice shall be included in all
-    copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    SOFTWARE.
+ * Copyright 2018 WICKLETS LLC
+ *
+ * This file is part of Paper.js-drawing-tools.
+ *
+ * Paper.js-drawing-tools is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Paper.js-drawing-tools is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Paper.js-drawing-tools.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-/* 
+/*
     paper-erase.js
     Adds erase() to the paper Layer class which erases paths in that layer using
     the shape of a given path. Use this to make a vector eraser!
-    
+
     by zrispo (github.com/zrispo) (zach@wickeditor.com)
  */
 (function () {
@@ -3694,32 +3688,29 @@ var BrushCursorGen = {
   });
 })();
 /*
-    Copyright (c) 2018 Zach Rispoli (zrispo)
-
-    Permission is hereby granted, free of charge, to any person obtaining a copy
-    of this software and associated documentation files (the "Software"), to deal
-    in the Software without restriction, including without limitation the rights
-    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    copies of the Software, and to permit persons to whom the Software is
-    furnished to do so, subject to the following conditions:
-
-    The above copyright notice and this permission notice shall be included in all
-    copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    SOFTWARE.
+ * Copyright 2018 WICKLETS LLC
+ *
+ * This file is part of Paper.js-drawing-tools.
+ *
+ * Paper.js-drawing-tools is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Paper.js-drawing-tools is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Paper.js-drawing-tools.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-/* 
+/*
     paper-potrace.js
     Adds a potrace() method to paper Items that runs potrace on a rasterized
     version of that Item.
-    
+
     by zrispo (github.com/zrispo) (zach@wickeditor.com)
  */
 paper.Path.inject({
@@ -3749,25 +3740,22 @@ paper.Path.inject({
   }
 });
 /*
-    Copyright (c) 2018 Zach Rispoli (zrispo)
-
-    Permission is hereby granted, free of charge, to any person obtaining a copy
-    of this software and associated documentation files (the "Software"), to deal
-    in the Software without restriction, including without limitation the rights
-    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    copies of the Software, and to permit persons to whom the Software is
-    furnished to do so, subject to the following conditions:
-
-    The above copyright notice and this permission notice shall be included in all
-    copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    SOFTWARE.
+ * Copyright 2018 WICKLETS LLC
+ *
+ * This file is part of Paper.js-drawing-tools.
+ *
+ * Paper.js-drawing-tools is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Paper.js-drawing-tools is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Paper.js-drawing-tools.  If not, see <https://www.gnu.org/licenses/>.
  */
 (function () {
   // TODO this doesn't work if the TextItem is rotated
@@ -3810,6 +3798,24 @@ paper.Path.inject({
     }
   });
 })();
+/*
+ * Copyright 2018 WICKLETS LLC
+ *
+ * This file is part of Paper.js-drawing-tools.
+ *
+ * Paper.js-drawing-tools is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Paper.js-drawing-tools is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Paper.js-drawing-tools.  If not, see <https://www.gnu.org/licenses/>.
+ */
 paper.drawingTools = {};
 
 paper.drawingTools.fireCanvasModified = function (e) {
@@ -3819,12 +3825,31 @@ paper.drawingTools.fireCanvasModified = function (e) {
 paper.drawingTools.onCanvasModified = function (fn) {
   paper.drawingTools._onCanvasModifiedCallback = fn;
 };
+/*
+ * Copyright 2018 WICKLETS LLC
+ *
+ * This file is part of Paper.js-drawing-tools.
+ *
+ * Paper.js-drawing-tools is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Paper.js-drawing-tools is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Paper.js-drawing-tools.  If not, see <https://www.gnu.org/licenses/>.
+ */
 (() => {
   var croquis;
   var croquisDOMElement;
   var croquisBrush;
   var tool = new paper.Tool();
   paper.drawingTools.croquisBrush = tool;
+  tool.fillColor = '#000000';
 
   tool.onActivate = function (e) {
     if (!croquis) {
@@ -3863,7 +3888,7 @@ paper.drawingTools.onCanvasModified = function (fn) {
 
   tool.onMouseDown = function (e) {
     croquisBrush.setSize(10);
-    croquisBrush.setColor('#ff0000');
+    croquisBrush.setColor(tool.fillColor);
     croquisBrush.setSpacing(0.2);
     croquis.setToolStabilizeLevel(10);
     croquis.setToolStabilizeWeight(0.5);
@@ -3890,6 +3915,7 @@ paper.drawingTools.onCanvasModified = function (fn) {
       img.onload = function () {
         var svg = potrace.fromImage(img).toSVG(1 / resolution);
         var potracePath = paper.project.importSVG(svg);
+        potracePath.fillColor = tool.fillColor;
         potracePath.position.x += paper.view.bounds.x;
         potracePath.position.y += paper.view.bounds.y;
         potracePath.remove();
@@ -3905,6 +3931,24 @@ paper.drawingTools.onCanvasModified = function (fn) {
     }, 20);
   };
 })();
+/*
+ * Copyright 2018 WICKLETS LLC
+ *
+ * This file is part of Paper.js-drawing-tools.
+ *
+ * Paper.js-drawing-tools is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Paper.js-drawing-tools is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Paper.js-drawing-tools.  If not, see <https://www.gnu.org/licenses/>.
+ */
 (() => {
   /* Consts */
   var SELECTION_BOX_STROKECOLOR = 'rgba(100,150,255,1.0)';
@@ -4511,6 +4555,24 @@ paper.drawingTools.onCanvasModified = function (fn) {
     return selectedItems.indexOf(item) !== -1;
   }
 })();
+/*
+ * Copyright 2018 WICKLETS LLC
+ *
+ * This file is part of Paper.js-drawing-tools.
+ *
+ * Paper.js-drawing-tools is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Paper.js-drawing-tools is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Paper.js-drawing-tools.  If not, see <https://www.gnu.org/licenses/>.
+ */
 (() => {
   var path;
   var topLeft;
@@ -4563,13 +4625,31 @@ paper.drawingTools.onCanvasModified = function (fn) {
     paper.drawingTools.fireCanvasModified();
   };
 })();
+/*
+ * Copyright 2018 WICKLETS LLC
+ *
+ * This file is part of Paper.js-drawing-tools.
+ *
+ * Paper.js-drawing-tools is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Paper.js-drawing-tools is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Paper.js-drawing-tools.  If not, see <https://www.gnu.org/licenses/>.
+ */
 (() => {
   var path;
   var cursorSize;
   var cursor;
   var tool = new paper.Tool();
   paper.drawingTools.eraser = tool;
-  tool.size = 10;
+  tool.brushSize = 10;
 
   tool.onActivate = function (e) {
     cursorSize = null;
@@ -4584,11 +4664,11 @@ paper.drawingTools.onCanvasModified = function (fn) {
 
   tool.onMouseMove = function (e) {
     // Don't render cursor after every mouse move, cache and only render when size changes
-    cursorNeedsRegen = tool.size !== cursorSize;
+    cursorNeedsRegen = tool.brushSize !== cursorSize;
 
     if (cursorNeedsRegen) {
-      cursor = BrushCursorGen.create('#ffffff', tool.size);
-      cursorSize = tool.size;
+      cursor = BrushCursorGen.create('#ffffff', tool.brushSize);
+      cursorSize = tool.brushSize;
       paper.view._element.style.cursor = cursor;
     }
   };
@@ -4598,7 +4678,7 @@ paper.drawingTools.onCanvasModified = function (fn) {
       path = new paper.Path({
         strokeColor: 'white',
         strokeCap: 'round',
-        strokeWidth: tool.size / paper.view.zoom
+        strokeWidth: tool.brushSize / paper.view.zoom
       });
     } // Add two points so we always at least have a dot.
 
@@ -4626,6 +4706,24 @@ paper.drawingTools.onCanvasModified = function (fn) {
     });
   };
 })();
+/*
+ * Copyright 2018 WICKLETS LLC
+ *
+ * This file is part of Paper.js-drawing-tools.
+ *
+ * Paper.js-drawing-tools is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Paper.js-drawing-tools is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Paper.js-drawing-tools.  If not, see <https://www.gnu.org/licenses/>.
+ */
 (() => {
   var CURSOR_EYEDROPPER = 'cursors/eyedropper.png';
   var canvasCtx;
@@ -4683,6 +4781,24 @@ paper.drawingTools.onCanvasModified = function (fn) {
     }
   }
 })();
+/*
+ * Copyright 2018 WICKLETS LLC
+ *
+ * This file is part of Paper.js-drawing-tools.
+ *
+ * Paper.js-drawing-tools is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Paper.js-drawing-tools is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Paper.js-drawing-tools.  If not, see <https://www.gnu.org/licenses/>.
+ */
 (() => {
   var CURSOR_FILL_BUCKET = 'cursors/fillbucket.png';
   var tool = new paper.Tool();
@@ -4721,6 +4837,24 @@ paper.drawingTools.onCanvasModified = function (fn) {
 
   tool.onMouseUp = function (e) {};
 })();
+/*
+ * Copyright 2018 WICKLETS LLC
+ *
+ * This file is part of Paper.js-drawing-tools.
+ *
+ * Paper.js-drawing-tools is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Paper.js-drawing-tools is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Paper.js-drawing-tools.  If not, see <https://www.gnu.org/licenses/>.
+ */
 (() => {
   var path;
   var startPoint;
@@ -4765,6 +4899,24 @@ paper.drawingTools.onCanvasModified = function (fn) {
     paper.drawingTools.fireCanvasModified();
   };
 })();
+/*
+ * Copyright 2018 WICKLETS LLC
+ *
+ * This file is part of Paper.js-drawing-tools.
+ *
+ * Paper.js-drawing-tools is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Paper.js-drawing-tools is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Paper.js-drawing-tools.  If not, see <https://www.gnu.org/licenses/>.
+ */
 (() => {
   var tool = new paper.Tool();
   paper.drawingTools.pan = tool;
@@ -4786,6 +4938,24 @@ paper.drawingTools.onCanvasModified = function (fn) {
 
   tool.onMouseUp = function (e) {};
 })();
+/*
+ * Copyright 2018 WICKLETS LLC
+ *
+ * This file is part of Paper.js-drawing-tools.
+ *
+ * Paper.js-drawing-tools is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Paper.js-drawing-tools is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Paper.js-drawing-tools.  If not, see <https://www.gnu.org/licenses/>.
+ */
 (() => {
   var CURSOR_PENCIL = 'cursors/pencil.png';
   var path;
@@ -4824,6 +4994,24 @@ paper.drawingTools.onCanvasModified = function (fn) {
     paper.drawingTools.fireCanvasModified();
   };
 })();
+/*
+ * Copyright 2018 WICKLETS LLC
+ *
+ * This file is part of Paper.js-drawing-tools.
+ *
+ * Paper.js-drawing-tools is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Paper.js-drawing-tools is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Paper.js-drawing-tools.  If not, see <https://www.gnu.org/licenses/>.
+ */
 (() => {
   var path;
   var cursor;
@@ -4831,8 +5019,8 @@ paper.drawingTools.onCanvasModified = function (fn) {
   var cursorSize;
   var tool = new paper.Tool();
   paper.drawingTools.potraceBrush = tool;
-  tool.color = '#ff0000';
-  tool.size = 10;
+  tool.fillColor = '#ff0000';
+  tool.brushSize = 10;
   tool.smoothing = 0.5;
 
   tool.onActivate = function (e) {
@@ -4849,12 +5037,12 @@ paper.drawingTools.onCanvasModified = function (fn) {
 
   tool.onMouseMove = function (e) {
     // Don't render cursor after every mouse move, cache and only render when size or color changes
-    var cursorNeedsRegen = tool.color !== cursorColor || tool.size !== cursorSize;
+    var cursorNeedsRegen = tool.fillColor !== cursorColor || tool.brushSize !== cursorSize;
 
     if (cursorNeedsRegen) {
-      cursor = BrushCursorGen.create(tool.color, tool.size);
-      cursorColor = tool.color;
-      cursorSize = tool.size;
+      cursor = BrushCursorGen.create(tool.fillColor, tool.brushSize);
+      cursorColor = tool.fillColor;
+      cursorSize = tool.brushSize;
       paper.view._element.style.cursor = cursor;
     }
   };
@@ -4862,9 +5050,9 @@ paper.drawingTools.onCanvasModified = function (fn) {
   tool.onMouseDown = function (e) {
     if (!path) {
       path = new paper.Path({
-        strokeColor: tool.color,
+        strokeColor: tool.fillColor,
         strokeCap: 'round',
-        strokeWidth: tool.size / paper.view.zoom
+        strokeWidth: tool.brushSize / paper.view.zoom
       });
     } // Add an extra point so we're guaranteed to at least have a dot.
 
@@ -4882,7 +5070,7 @@ paper.drawingTools.onCanvasModified = function (fn) {
     if (!path) return;
     path.potrace({
       done: function (tracedPath) {
-        tracedPath.fillColor = tool.color;
+        tracedPath.fillColor = tool.fillColor;
         paper.project.activeLayer.addChild(tracedPath);
         path.remove();
         path = null;
@@ -4892,6 +5080,24 @@ paper.drawingTools.onCanvasModified = function (fn) {
     });
   };
 })();
+/*
+ * Copyright 2018 WICKLETS LLC
+ *
+ * This file is part of Paper.js-drawing-tools.
+ *
+ * Paper.js-drawing-tools is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Paper.js-drawing-tools is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Paper.js-drawing-tools.  If not, see <https://www.gnu.org/licenses/>.
+ */
 (() => {
   var path;
   var topLeft;
@@ -4944,6 +5150,24 @@ paper.drawingTools.onCanvasModified = function (fn) {
     paper.drawingTools.fireCanvasModified();
   };
 })();
+/*
+ * Copyright 2018 WICKLETS LLC
+ *
+ * This file is part of Paper.js-drawing-tools.
+ *
+ * Paper.js-drawing-tools is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Paper.js-drawing-tools is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Paper.js-drawing-tools.  If not, see <https://www.gnu.org/licenses/>.
+ */
 (() => {
   var CURSOR_TEXT = 'cursors/text.png';
   var tool = new paper.Tool();
@@ -4997,6 +5221,24 @@ paper.drawingTools.onCanvasModified = function (fn) {
 
   tool.onMouseUp = function (e) {};
 })();
+/*
+ * Copyright 2018 WICKLETS LLC
+ *
+ * This file is part of Paper.js-drawing-tools.
+ *
+ * Paper.js-drawing-tools is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Paper.js-drawing-tools is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Paper.js-drawing-tools.  If not, see <https://www.gnu.org/licenses/>.
+ */
 (() => {
   var zoomBox;
   var tool = new paper.Tool();
