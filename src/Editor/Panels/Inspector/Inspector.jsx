@@ -32,10 +32,10 @@ import InspectorSelector from './InspectorRow/InspectorRowTypes/InspectorSelecto
 import InspectorColorPicker from './InspectorRow/InspectorRowTypes/InspectorColorPicker';
 
 class Inspector extends Component {
-  constructor () {
-    super();
+  constructor (props) {
+    super(props);
     this.state = {
-      type: "path",
+      type: this.props.activeTool,
       dummySize: 10,
       dummyColor: "#FFAABB",
       dummyFonts: [
@@ -58,6 +58,7 @@ class Inspector extends Component {
     this.inspectorContentRenderFunctions = {
       "cursor": this.renderCursor.bind(this),
       "brush": this.renderBrush.bind(this),
+      "croquisBrush": this.renderBrush.bind(this),
       "eraser": this.renderEraser.bind(this),
       "fillbucket": this.renderFillBucket.bind(this),
       "rectangle": this.renderRectangle.bind(this),
@@ -216,12 +217,17 @@ class Inspector extends Component {
     )
   }
 
+  handleToolSettingChange(setting, newVal) {
+    this.props.toolSettings[setting] = newVal;
+    this.props.updateToolSettings(this.props.toolSettings);
+  }
+
   renderBrush() {
     return (
       <div>
         <InspectorTitle type={"brush"} title={"Brush"} />
         <div className="inspector-content">
-          {this.renderBrushSize({val:this.state.dummySize, onChange:this.handleChange})}
+          {this.renderBrushSize({val:this.props.toolSettings.brushSize, onChange:(val) => this.handleToolSettingChange('brushSize', val)})}
           {this.renderSmoothness({val:this.state.dummySize, onChange:this.handleChange})}
           {this.renderFillColor({val:this.state.dummyColor, onChange:this.handleColorChange, id:"inspector-brush-fill-color-picker"})}
         </div>
@@ -453,6 +459,7 @@ class Inspector extends Component {
   }
 
   render() {
+    console.log(this.props.activeTool);
     return(
       <div className="docked-pane inspector">
         <DockedTitle title={"Inspector"}></DockedTitle>

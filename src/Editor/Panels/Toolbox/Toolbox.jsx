@@ -27,7 +27,6 @@ import WickInput from 'Editor/Util/WickInput/WickInput';
 class Toolbox extends Component {
   constructor (props) {
     super(props);
-
     this.state = {
       fillColor: "#FF1155",
       strokeColor: "#FFAABB",

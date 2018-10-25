@@ -57,6 +57,7 @@ class Editor extends Component {
         brushSize: 10,
         brushSmoothing: 0.5,
         borderRadius: 0,
+        pressureOn: false,
       },
       windowWidth: 0,
       windowHeight: 0,
@@ -73,25 +74,13 @@ class Editor extends Component {
     this.openModal = this.openModal.bind(this);
     this.activateTool = this.activateTool.bind(this);
     this.getSelection = this.getSelection.bind(this);
-    this.updateDimensions = this.updateDimensions.bind(this);
-  }
-
-  updateDimensions() {
-    this.setState({
-      windowWidth: window.innerWidth,
-      windowHeight: window.innerHeight,
-    })
+    this.updateToolSettings = this.updateToolSettings.bind(this);
   }
 
   componentWillMount () {
     let project = new window.Wick.Project();
     project.root.timeline.layers[0].frames[0].pathsSVG = ('["Layer",{"applyMatrix":true,"children":[["Path",{"applyMatrix":true,"segments":[[[75,100],[0,13.80712],[0,-13.80712]],[[100,75],[-13.80712,0],[13.80712,0]],[[125,100],[0,-13.80712],[0,13.80712]],[[100,125],[13.80712,0],[-13.80712,0]]],"closed":true,"fillColor":[1,0,0]}]]}]');
     this.setState({project: project});
-    window.addEventListener('resize', this.updateDimensions)
-  }
-
-  componentWillUnmount () {
-    window.removeEventListener("resize", this.updateDimensions);
   }
 
   componentDidMount () {
@@ -132,6 +121,12 @@ class Editor extends Component {
     this.setState(prevState => ({
       selection: nextSelection,
     }));
+  }
+
+  updateToolSettings (newToolSettings) {
+    this.setState({
+      toolSettings: newToolSettings,
+    });
   }
 
   changeFrameLength (frame, newLength) {
@@ -204,8 +199,9 @@ class Editor extends Component {
       'activate-pan': (() => this.activateTool("pan")),
       'activate-zoom': (() => this.activateTool("zoom")),
     }
-
+console.log(this.state.toolSettings.brushSize); 
       return (
+
         <HotKeys keyMap={keyMap} handlers={handlers} style={{width:"100%", height:"100%"}}>
         <ReflexContainer orientation="horizontal">
           <ReflexElement className="header" size={37} style={{minHeight:"37px",maxHeight:"37px"}}>
@@ -271,7 +267,7 @@ class Editor extends Component {
                   {/* Right Sidebar */}
                   <ReflexContainer orientation="horizontal">
                     <ReflexElement {...this.resizeProps}>
-                      <DockedPanel><Inspector /></DockedPanel>
+                      <DockedPanel><Inspector activeTool={this.state.activeTool} toolSettings={this.state.toolSettings} updateToolSettings={this.updateToolSettings}/></DockedPanel>
                     </ReflexElement>
 
                     <ReflexSplitter {...this.resizeProps}/>
