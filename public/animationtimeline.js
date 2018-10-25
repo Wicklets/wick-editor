@@ -1544,8 +1544,11 @@ var AnimationTimeline = new (function ft () {
     // BlankLayer
 
     self.onBlankLayerMouseMove = function (e) {
-        if(e.y < canvas.height - NUMBER_LINE_HEIGHT)
+        if(e.y < canvas.height - NUMBER_LINE_HEIGHT 
+        && e.x > -LAYERS_WIDTH
+        && e.y < (layers.length+1) * GRID_CELL_HEIGHT) {
             hoverLayer.active = true;
+        }
     }
 
     self.onBlankLayerMouseDown = function (e) {
@@ -1557,20 +1560,22 @@ var AnimationTimeline = new (function ft () {
     }
 
     self.onBlankLayerMouseUp = function (e) {
-        var layer = new Layer({
-            index: layers.length,
-            locked: false,
-            hidden: false,
-            frames: [],
-            label: 'Layer ' + (layers.length+1),
-        });
-        layers.push(layer);
-        activeLayerIndex = layers.length-1;
+        if(hoverLayer.active) {
+            var layer = new Layer({
+                index: layers.length,
+                locked: false,
+                hidden: false,
+                frames: [],
+                label: 'Layer ' + (layers.length+1),
+            });
+            layers.push(layer);
+            activeLayerIndex = layers.length-1;
 
-        onChangeFn&&onChangeFn({
-            layers: [layer],
-            layerIndex: activeLayerIndex,
-        });
+            onChangeFn&&onChangeFn({
+                layers: [layer],
+                layerIndex: activeLayerIndex,
+            });
+        }
     }
 
     // Layer

@@ -18,23 +18,20 @@
  */
 
 import React, { Component } from 'react';
+import ReactResizeDetector from 'react-resize-detector';
+
 import './_canvas.scss';
 
 class Canvas extends Component {
   constructor (props) {
     super(props);
+
+    this.onResize = this.onResize.bind(this);
     this.sendPropsToCanvas = this.sendPropsToCanvas.bind(this);
   }
 
   componentDidMount() {
     window.paper.setup(this.refs.canvas);
-    window.onresize = function () {
-      var widthDiff = window.paper.view.viewSize.width - window.$('.paper-canvas-container').width();
-      var heightDiff = window.paper.view.viewSize.height - window.$('.paper-canvas-container').height();
-      window.paper.view.viewSize.width = window.$('.paper-canvas-container').width();
-      window.paper.view.viewSize.height = window.$('.paper-canvas-container').height();
-      window.paper.view.center = window.paper.view.center.add(new window.paper.Point(widthDiff/2/window.paper.view.zoom, heightDiff/2/window.paper.view.zoom))
-    }
     window.paper.drawingTools.croquisBrush.activate();
 
     window.paper.drawingTools.cursor.onSelectionChanged(function (e) {
@@ -52,6 +49,16 @@ class Canvas extends Component {
 
   componentDidUpdate () {
     this.sendPropsToCanvas();
+  }
+
+  onResize (width, height) {
+    /*
+    var widthDiff = window.paper.view.viewSize.width - width;
+    var heightDiff = window.paper.view.viewSize.height - height;
+    window.paper.view.viewSize.width = width;
+    window.paper.view.viewSize.height = height;
+    window.paper.view.center = window.paper.view.center.add(new window.paper.Point(widthDiff/2/window.paper.view.zoom, heightDiff/2/window.paper.view.zoom))
+    */
   }
 
   sendPropsToCanvas () {
@@ -85,9 +92,11 @@ class Canvas extends Component {
 
   render() {
     return (
-      <div className="paper-canvas-container">
-        <canvas className="paper-canvas" ref="canvas" resize="true" />
-      </div>
+      <ReactResizeDetector handleWidth handleHeight onResize={this.onResize}>
+        <div className="paper-canvas-container">
+          <canvas className="paper-canvas" ref="canvas" resize="true" />
+        </div>
+      </ReactResizeDetector>
     );
   }
 }
