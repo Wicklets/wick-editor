@@ -51,7 +51,29 @@ class Canvas extends Component {
   }
 
   sendPropsToCanvas () {
-    
+    let removeLayers = window.paper.project.layers.filter(layer => {
+      return !layer.name
+          || layer.name.startsWith('frame')
+          || layer.name.startsWith('project')
+    });
+    removeLayers.forEach(layer => {
+      layer.remove();
+    });
+
+    let bg = new window.paper.Layer();
+    bg.locked = true;
+    var bgRect = new window.paper.Path.Rectangle(
+      new window.paper.Point(0,0),
+      new window.paper.Point(this.props.project.width, this.props.project.height),
+    );
+    bgRect.remove();
+    bgRect.fillColor = this.props.project.backgroundColor;
+    bg.addChild(bgRect);
+    window.paper.project.addLayer(bg);
+
+    this.props.project.focus.timeline.activeFrames.forEach(frame => {
+      window.paper.project.addLayer(frame.svg);
+    });
   }
 
   render() {
