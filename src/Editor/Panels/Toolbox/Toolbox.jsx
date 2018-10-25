@@ -39,9 +39,6 @@ class Toolbox extends Component {
   }
 
   render() {
-    let updateToolSettings = this.props.updateToolSettings;
-    console.log(updateToolSettings)
-
     return(
       <div className="docked-pane tool-box">
         <ToolButton
@@ -101,7 +98,10 @@ class Toolbox extends Component {
           <WickInput
             type="color"
             color= {this.props.toolSettings.fillColor}
-            onChangeComplete={(color) => updateToolSettings({fillColor: color.hex})}
+            onChangeComplete={(color) => this.props.updateToolSettings({
+              fillColor: color.hex,
+              strokeColor: this.props.toolSettings.strokeColor,
+            })}
             id="tool-box-fill-color"
             placement="right"
             />
@@ -110,7 +110,10 @@ class Toolbox extends Component {
           <WickInput
             type="color"
             color= {this.props.toolSettings.strokeColor}
-            onChangeComplete={(color) => updateToolSettings({strokeColor: color.hex})}
+            onChangeComplete={(color) => this.props.updateToolSettings({
+              fillColor: this.props.toolSettings.fillColor,
+              strokeColor: color.hex,
+            })}
             id="tool-box-stroke-color"
             placement="right"
             />
