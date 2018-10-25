@@ -199,7 +199,7 @@ class Editor extends Component {
       'activate-pan': (() => this.activateTool("pan")),
       'activate-zoom': (() => this.activateTool("zoom")),
     }
-console.log(this.state.toolSettings.brushSize); 
+console.log(this.state.toolSettings.brushSize);
       return (
 
         <HotKeys keyMap={keyMap} handlers={handlers} style={{width:"100%", height:"100%"}}>
@@ -221,6 +221,7 @@ console.log(this.state.toolSettings.brushSize);
                     <Toolbox
                       activeTool={this.state.activeTool}
                       toolSettings={this.state.toolSettings}
+                      updateToolSettings={this.updateToolSettings}
                       fillColor={this.state.fillColor}
                       strokeColor={this.state.strokeColor}
                       activateTool={this.activateTool}
