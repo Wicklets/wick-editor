@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="400px" height="400px" viewBox="0 0 400 400" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 42 (36781) - http://www.bohemiancoding.com/sketch -->
+    <title>Erase</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <rect id="path-1" x="390" y="4209" width="400" height="400"></rect>
+        <mask id="mask-2" maskContentUnits="userSpaceOnUse" maskUnits="objectBoundingBox" x="0" y="0" width="400" height="400" fill="white">
+            <use xlink:href="#path-1"></use>
+        </mask>
+        <path d="M203.438425,243.737424 C206.924503,244.798573 210.169119,245.982302 212.817383,247.201324 L216.37935,248.840932 C214.420681,250.476082 208.214731,257.412588 205.003758,259.034141 C201.792786,260.655694 205.003758,259.034141 205.003758,259.034141 C201.052014,261.948468 190.470887,264.310996 181.369584,264.310996 L14.1275731,264.310996 C5.02652329,264.310996 -1.21002637,257.023121 0.198551811,248.028587 L0.229331718,247.83204 L0.771321732,246.189405 C3.62355348,237.545007 13.3120921,230.912998 22.4018479,231.375917 L147.431935,237.743401 L33.5981627,123.909629 C19.929297,110.240763 19.7984118,87.9570462 33.3124122,74.1308123 L91.1162454,14.9914534 C103.856024,1.95732938 128.094383,-3.64502875 145.272564,2.4848119 L147.267608,3.19672107 L266.964636,133.584902 C279.289708,147.01083 278.827805,168.348044 265.94221,181.233639 L203.438425,243.737424 Z M121.028479,178.495808 L169.899669,227.366999 C174.589743,232.057072 182.192818,232.05624 186.882766,227.366293 L248.724892,165.524166 C253.414855,160.834204 253.415156,153.230628 248.725598,148.54107 L199.854408,99.66988 C195.164334,94.9798064 187.561259,94.9806382 182.871311,99.6705856 L121.029185,161.512712 C116.339222,166.202675 116.338922,173.806251 121.028479,178.495808 Z" id="path-3"></path>
+        <filter x="-50%" y="-50%" width="200%" height="200%" filterUnits="objectBoundingBox" id="filter-4">
+            <feOffset dx="0" dy="8" in="SourceAlpha" result="shadowOffsetOuter1"></feOffset>
+            <feGaussianBlur stdDeviation="5.5" in="shadowOffsetOuter1" result="shadowBlurOuter1"></feGaussianBlur>
+            <feColorMatrix values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.5 0" type="matrix" in="shadowBlurOuter1"></feColorMatrix>
+        </filter>
+        <path d="M202.001082,254.645676 C200.749523,255.088296 199.402721,255.329149 197.999807,255.329149 L23.0001934,255.329149 C16.3726696,255.329149 11,249.958023 11,243.329149 C11,236.701732 16.3742581,231.329149 23.0001934,231.329149 L159.151038,231.329149 L51.7496707,123.927781 C38.080805,110.258916 38.0849669,88.0931437 51.7473167,74.4307939 L114.510019,11.6680918 C127.399761,-1.22165049 148.297315,-1.22249818 161.184168,11.6643548 L284.097455,134.577642 C296.985134,147.465321 296.979313,168.366197 284.093718,181.251791 L219.922643,245.422867 C214.860456,250.485054 208.563171,253.559299 202.001082,254.645676 Z M139.179987,178.513961 L188.051177,227.385151 C192.741251,232.075225 200.344326,232.074393 205.034274,227.384446 L266.8764,165.542319 C271.566363,160.852357 271.566664,153.248781 266.877106,148.559223 L218.005916,99.6880327 C213.315842,94.9979591 205.712767,94.9987909 201.022819,99.6887384 L139.180693,161.530865 C134.49073,166.220827 134.49043,173.824403 139.179987,178.513961 Z" id="path-5"></path>
+        <filter x="-50%" y="-50%" width="200%" height="200%" filterUnits="objectBoundingBox" id="filter-6">
+            <feOffset dx="0" dy="2" in="SourceAlpha" result="shadowOffsetOuter1"></feOffset>
+            <feGaussianBlur stdDeviation="4" in="shadowOffsetOuter1" result="shadowBlurOuter1"></feGaussianBlur>
+            <feColorMatrix values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.5 0" type="matrix" in="shadowBlurOuter1"></feColorMatrix>
+        </filter>
+    </defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Artboard-6-Copy" transform="translate(-390.000000, -4209.000000)">
+            <use id="Rectangle-4-Copy-8" stroke-opacity="0" stroke="#979797" mask="url(#mask-2)" stroke-width="2" xlink:href="#path-1"></use>
+            <g id="Erase" transform="translate(447.000000, 4269.000000)">
+                <g id="Combined-Shape-Copy-3">
+                    <use fill="black" fill-opacity="1" filter="url(#filter-4)" xlink:href="#path-3"></use>
+                    <use fill="#BFBFBF" fill-rule="evenodd" xlink:href="#path-3"></use>
+                </g>
+                <g id="Combined-Shape-Copy-4">
+                    <use fill="black" fill-opacity="1" filter="url(#filter-6)" xlink:href="#path-5"></use>
+                    <use fill="#FFFFFF" fill-rule="evenodd" xlink:href="#path-5"></use>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

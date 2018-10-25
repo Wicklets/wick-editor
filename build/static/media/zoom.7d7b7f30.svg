@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="400px"
+   height="400px"
+   viewBox="0 0 400 400"
+   version="1.1"
+   id="svg2"
+   inkscape:version="0.91 r13725"
+   sodipodi:docname="Zoom.svg">
+  <metadata
+     id="metadata46">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="640"
+     inkscape:window-height="480"
+     id="namedview44"
+     showgrid="false"
+     inkscape:zoom="0.59"
+     inkscape:cx="200"
+     inkscape:cy="151.22131"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg2" />
+  <!-- Generator: Sketch 42 (36781) - http://www.bohemiancoding.com/sketch -->
+  <title
+     id="title4">Zoom</title>
+  <desc
+     id="desc6">Created with Sketch.</desc>
+  <defs
+     id="defs8">
+    <rect
+       id="path-1"
+       x="390"
+       y="3259"
+       width="400"
+       height="400" />
+    <mask
+       id="mask-2"
+       maskContentUnits="userSpaceOnUse"
+       maskUnits="objectBoundingBox"
+       x="0"
+       y="0"
+       width="400"
+       height="400"
+       fill="white">
+      <use
+         xlink:href="#path-1"
+         id="use12" />
+    </mask>
+    <path
+       d="M19.7672924,97.6807253 C19.7422634,134.920115 49.6928689,164.822198 87.0884626,164.892727 C123.894737,164.960981 154.027372,134.769956 154.084256,97.7717306 C154.138865,60.8212829 124.092694,30.6530091 87.1749264,30.5870302 C49.8453182,30.5233264 19.7923214,60.4345102 19.7672924,97.6807253 M163.199361,139.035832 C162.241433,140.776309 162.466694,141.779643 163.85239,143.160649 C185.393253,164.599235 206.840826,186.133376 228.390791,207.565136 C234.613909,213.7535 238.181679,221.040754 238.370534,229.81822 C238.536076,237.488946 249.215495,231.335102 244.426581,236.940133 C239.637667,242.545163 223.925766,256.927121 219.316643,258.851202 C207.867015,263.628983 194.512909,260.9375 185.648094,252.073578 C162.355201,228.780759 139.046381,205.503865 115.803546,182.165543 C114.411024,180.766336 113.268791,180.436441 111.371138,180.982473 C67.092571,193.705021 21.4806409,170.758022 5.40975076,127.735242 C-9.61126438,87.5157694 8.78329456,43.9325878 42.64398,19.3657076 C76.5046654,-5.20117252 63.4022382,13.161343 75.757154,11.6670177 C122.135882,6.05881294 163.652158,36.3544943 172.293987,82.2371172 C173.233712,87.2287607 173.456698,92.3546371 174.009611,97.4168097 C173.72064,112.205179 170.321248,126.103972 163.199361,139.035832 Z"
+       id="path-3" />
+    <filter
+       x="-50%"
+       y="-50%"
+       width="200%"
+       height="200%"
+       filterUnits="objectBoundingBox"
+       id="filter-4">
+      <feOffset
+         dx="0"
+         dy="8"
+         in="SourceAlpha"
+         result="shadowOffsetOuter1"
+         id="feOffset16" />
+      <feGaussianBlur
+         stdDeviation="5.5"
+         in="shadowOffsetOuter1"
+         result="shadowBlurOuter1"
+         id="feGaussianBlur18" />
+      <feColorMatrix
+         values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.511011096 0"
+         type="matrix"
+         in="shadowBlurOuter1"
+         id="feColorMatrix20" />
+    </filter>
+    <path
+       d="M31.7672924,86.6807253 C31.7422634,123.920115 61.6928689,153.822198 99.0884626,153.892727 C135.894737,153.960981 166.027372,123.769956 166.084256,86.7717306 C166.138865,49.8212829 136.092694,19.6530091 99.1749264,19.5870302 C61.8453182,19.5233264 31.7923214,49.4345102 31.7672924,86.6807253 M186.009611,86.4168097 C185.72064,101.205179 182.321248,115.103972 175.199361,128.035832 C174.241433,129.776309 174.466694,130.779643 175.85239,132.160649 C197.393253,153.599235 218.840826,175.133376 240.390791,196.565136 C246.613909,202.7535 250.181679,210.040754 250.370534,218.81822 C250.643578,231.470239 243.023386,242.964215 231.316643,247.851202 C219.867015,252.628983 206.512909,249.9375 197.648094,241.073578 C174.355201,217.780759 151.046381,194.503865 127.803546,171.165543 C126.411024,169.766336 125.268791,169.436441 123.371138,169.982473 C79.092571,182.705021 33.4806409,159.758022 17.4097508,116.735242 C-1.97634348,64.8280653 32.8867711,7.30358292 87.757154,0.667017697 C134.135882,-4.94118706 175.652158,25.3544943 184.293987,71.2371172 C185.233712,76.2287607 185.456698,81.3546371 186.009611,86.4168097"
+       id="path-5" />
+    <filter
+       x="-50%"
+       y="-50%"
+       width="200%"
+       height="200%"
+       filterUnits="objectBoundingBox"
+       id="filter-6">
+      <feOffset
+         dx="0"
+         dy="2"
+         in="SourceAlpha"
+         result="shadowOffsetOuter1"
+         id="feOffset24" />
+      <feGaussianBlur
+         stdDeviation="4"
+         in="shadowOffsetOuter1"
+         result="shadowBlurOuter1"
+         id="feGaussianBlur26" />
+      <feColorMatrix
+         values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.5 0"
+         type="matrix"
+         in="shadowBlurOuter1"
+         id="feColorMatrix28" />
+    </filter>
+  </defs>
+  <g
+     id="Page-1"
+     transform="matrix(1.1615029,0,0,1.165319,-31.20417,-38.268598)"
+     style="fill:none;fill-rule:evenodd;stroke:none;stroke-width:1">
+    <g
+       id="Artboard-6-Copy"
+       transform="translate(-390,-3259)">
+      <use
+         id="Rectangle-4-Copy-6"
+         mask="url(#mask-2)"
+         xlink:href="#path-1"
+         style="stroke:#979797;stroke-width:2;stroke-opacity:0"
+         x="0"
+         y="0"
+         width="100%"
+         height="100%" />
+      <g
+         id="Zoom"
+         transform="translate(465,3328)">
+        <g
+           id="Fill-35-Copy">
+          <use
+             xlink:href="#path-3"
+             id="use35"
+             style="fill:#000000;fill-opacity:1;filter:url(#filter-4)"
+             x="0"
+             y="0"
+             width="100%"
+             height="100%" />
+          <use
+             xlink:href="#path-3"
+             id="use37"
+             style="fill:#bfbfbf;fill-rule:evenodd"
+             x="0"
+             y="0"
+             width="100%"
+             height="100%" />
+        </g>
+        <g
+           id="Fill-35">
+          <use
+             xlink:href="#path-5"
+             id="use40"
+             style="fill:#000000;fill-opacity:1;filter:url(#filter-6)"
+             x="0"
+             y="0"
+             width="100%"
+             height="100%" />
+          <use
+             xlink:href="#path-5"
+             id="use42"
+             style="fill:#ffffff;fill-rule:evenodd"
+             x="0"
+             y="0"
+             width="100%"
+             height="100%" />
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>
