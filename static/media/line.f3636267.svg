@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="400px" height="400px" viewBox="0 0 400 400" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 42 (36781) - http://www.bohemiancoding.com/sketch -->
+    <title>Line</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <rect id="path-1" x="390" y="5634" width="400" height="400"></rect>
+        <mask id="mask-2" maskContentUnits="userSpaceOnUse" maskUnits="objectBoundingBox" x="0" y="0" width="400" height="400" fill="white">
+            <use xlink:href="#path-1"></use>
+        </mask>
+        <path d="M-37.7365456,138.235639 C-36.4263663,130.045111 -27.0739359,123.407407 -16.862329,123.40991 L294.554228,123.486231 C304.77256,123.488736 317.868698,130.239724 323.791359,138.545478 L328.952421,145.783189 L328.952421,145.783189 C322.150108,151.097376 308.357745,155.710477 298.144769,156.086896 L-4.87149466,167.255141 C-15.0837782,167.631534 -28.2941413,161.289046 -33.2258129,154.641432 L-33.2258129,154.641432 C-33.2258129,154.641432 -40.2244411,148.076784 -37.7365456,138.235639 C-35.2486501,128.394495 -37.7365456,138.235639 -37.7365456,138.235639 Z" id="path-3"></path>
+        <filter x="-50%" y="-50%" width="200%" height="200%" filterUnits="objectBoundingBox" id="filter-4">
+            <feOffset dx="0" dy="8" in="SourceAlpha" result="shadowOffsetOuter1"></feOffset>
+            <feGaussianBlur stdDeviation="5.5" in="shadowOffsetOuter1" result="shadowBlurOuter1"></feGaussianBlur>
+            <feColorMatrix values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.5 0" type="matrix" in="shadowBlurOuter1"></feColorMatrix>
+        </filter>
+        <rect id="path-5" x="-22.5563492" y="128.539105" width="354.190909" height="32" rx="16"></rect>
+        <filter x="-50%" y="-50%" width="200%" height="200%" filterUnits="objectBoundingBox" id="filter-6">
+            <feOffset dx="0" dy="2" in="SourceAlpha" result="shadowOffsetOuter1"></feOffset>
+            <feGaussianBlur stdDeviation="4" in="shadowOffsetOuter1" result="shadowBlurOuter1"></feGaussianBlur>
+            <feColorMatrix values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.5 0" type="matrix" in="shadowBlurOuter1"></feColorMatrix>
+        </filter>
+    </defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Artboard-6-Copy" transform="translate(-390.000000, -5634.000000)">
+            <use id="Rectangle-4-Copy-11" stroke-opacity="0" stroke="#979797" mask="url(#mask-2)" stroke-width="2" xlink:href="#path-1"></use>
+            <g id="Line" transform="translate(445.000000, 5689.000000)">
+                <g id="Rectangle-8-Copy-4" transform="translate(145.340504, 145.340504) rotate(-45.000000) translate(-145.340504, -145.340504) ">
+                    <use fill="black" fill-opacity="1" filter="url(#filter-4)" xlink:href="#path-3"></use>
+                    <use fill="#BFBFBF" fill-rule="evenodd" xlink:href="#path-3"></use>
+                </g>
+                <g id="Rectangle-8-Copy-5" transform="translate(154.539105, 144.539105) rotate(-45.000000) translate(-154.539105, -144.539105) ">
+                    <use fill="black" fill-opacity="1" filter="url(#filter-6)" xlink:href="#path-5"></use>
+                    <use fill="#FFFFFF" fill-rule="evenodd" xlink:href="#path-5"></use>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

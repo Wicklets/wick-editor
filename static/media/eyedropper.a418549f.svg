@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="400px"
+   height="400px"
+   viewBox="0 0 400 400"
+   version="1.1"
+   id="svg2"
+   inkscape:version="0.91 r13725"
+   sodipodi:docname="Dropper.svg">
+  <metadata
+     id="metadata46">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="640"
+     inkscape:window-height="480"
+     id="namedview44"
+     showgrid="false"
+     inkscape:zoom="0.59"
+     inkscape:cx="200"
+     inkscape:cy="200"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg2" />
+  <!-- Generator: Sketch 42 (36781) - http://www.bohemiancoding.com/sketch -->
+  <title
+     id="title4">Dropper</title>
+  <desc
+     id="desc6">Created with Sketch.</desc>
+  <defs
+     id="defs8">
+    <rect
+       id="path-1"
+       x="390"
+       y="2309"
+       width="400"
+       height="400" />
+    <mask
+       id="mask-2"
+       maskContentUnits="userSpaceOnUse"
+       maskUnits="objectBoundingBox"
+       x="0"
+       y="0"
+       width="400"
+       height="400"
+       fill="white">
+      <use
+         xlink:href="#path-1"
+         id="use12" />
+    </mask>
+    <path
+       d="M49.989209,208.284566 C48.5566159,209.717015 28.7261619,226.058442 25.8764752,223.209043 L25.0948595,222.427506 L21.8266873,219.159663 C19.8206141,217.153792 36.5246053,197.688431 37.9594126,196.255982 L156.147236,78.0778608 L159.840536,81.7707887 C160.343161,82.3995606 160.879,83.0084066 161.461337,83.5906848 C162.043674,84.172963 162.654795,84.7087475 163.283631,85.2135363 L166.038106,87.9677343 L168.179246,90.1064444 L49.989209,208.284566 Z M211.851478,65.6574017 L238.273632,39.2379119 C246.922331,30.5900843 246.922331,16.4360746 238.273632,7.78824695 C236.580987,6.09577312 261.007396,4.61733457 246.189727,2.09249139 C231.372058,-0.432351786 216.595144,-2.61043826 206.818582,7.78824695 L180.398642,34.2055228 C180.398642,34.2055228 190.506263,25.5234791 187.44887,22.4669713 C184.391478,19.4104634 172.083196,20.8831563 172.083196,20.8831563 C168.960941,20.8831563 162.702686,20.208706 160.444193,22.4669713 L135.093716,47.8126781 C132.835223,50.0709433 132.835223,53.7682992 135.093716,56.0265645 L142.615383,63.5452595 L22.8488294,183.299739 C20.3667013,185.781617 -4.28408528,220.006159 0.65138614,224.941132 L22.8488294,247.136338 C23.9811168,248.268511 45.8363493,242.563442 48.921336,241.538629 C52.0063226,240.513817 61.0797524,225.351787 62.9924349,223.439297 L182.758989,103.684818 L189.979524,110.906839 C192.238017,113.165104 194.284704,105.943083 196.543197,103.684818 L223.542501,85.558918 C225.800994,83.3006527 225.800994,79.6055108 223.542501,77.3450315 L211.851478,65.6574017 Z"
+       id="path-3" />
+    <filter
+       x="-50%"
+       y="-50%"
+       width="200%"
+       height="200%"
+       filterUnits="objectBoundingBox"
+       id="filter-4">
+      <feOffset
+         dx="0"
+         dy="8"
+         in="SourceAlpha"
+         result="shadowOffsetOuter1"
+         id="feOffset16" />
+      <feGaussianBlur
+         stdDeviation="5.5"
+         in="shadowOffsetOuter1"
+         result="shadowBlurOuter1"
+         id="feGaussianBlur18" />
+      <feColorMatrix
+         values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.511011096 0"
+         type="matrix"
+         in="shadowBlurOuter1"
+         id="feColorMatrix20" />
+    </filter>
+    <path
+       d="M68.7360306,207.98385 C67.3034375,209.416299 47.4729834,225.757726 44.6232967,222.908327 L43.841681,222.12679 L40.5735088,218.858947 C38.5674357,216.853076 55.2714268,197.387715 56.7062341,195.955267 L174.894057,77.777145 L178.587358,81.470073 C179.089983,82.0988449 179.625821,82.7076909 180.208158,83.2899691 C180.790495,83.8722473 181.401617,84.4080318 182.030452,84.9128205 L184.784928,87.6670186 L186.926068,89.8057286 L68.7360306,207.98385 Z M229.5983,65.356686 L256.020453,38.9371962 C264.669153,30.2893686 264.669153,16.1353588 256.020453,7.48753121 C247.36954,-1.1625104 233.216317,-1.1625104 224.565403,7.48753121 L198.145464,33.904807 L186.403515,22.1662555 C184.145022,19.9079902 180.449507,19.9079902 178.191014,22.1662555 L152.840538,47.5119623 C150.582045,49.7702276 150.582045,53.4675835 152.840538,55.7258488 L160.362205,63.2445438 L40.5956509,182.999023 C38.1135228,185.480901 11.6770646,218.966256 16.612536,223.90123 L38.8099792,246.096435 C43.7454506,251.031409 78.2571284,225.620459 80.7392565,223.138581 L200.50581,103.384102 L207.726345,110.606123 C209.984838,112.864388 213.680353,112.864388 215.938846,110.606123 L241.289322,85.2582023 C243.547815,82.999937 243.547815,79.3047951 241.289322,77.0443158 L229.5983,65.356686 Z"
+       id="path-5" />
+    <filter
+       x="-50%"
+       y="-50%"
+       width="200%"
+       height="200%"
+       filterUnits="objectBoundingBox"
+       id="filter-6">
+      <feOffset
+         dx="0"
+         dy="2"
+         in="SourceAlpha"
+         result="shadowOffsetOuter1"
+         id="feOffset24" />
+      <feGaussianBlur
+         stdDeviation="4"
+         in="shadowOffsetOuter1"
+         result="shadowBlurOuter1"
+         id="feGaussianBlur26" />
+      <feColorMatrix
+         values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.5 0"
+         type="matrix"
+         in="shadowBlurOuter1"
+         id="feColorMatrix28" />
+    </filter>
+  </defs>
+  <g
+     id="Page-1"
+     transform="matrix(1.1036324,0,0,1.0950716,-21.587891,-17.190314)"
+     style="fill:none;fill-rule:evenodd;stroke:none;stroke-width:1">
+    <g
+       id="Artboard-6-Copy"
+       transform="translate(-390,-2309)">
+      <use
+         id="Rectangle-4-Copy-4"
+         mask="url(#mask-2)"
+         xlink:href="#path-1"
+         style="stroke:#979797;stroke-width:2;stroke-opacity:0"
+         x="0"
+         y="0"
+         width="100%"
+         height="100%" />
+      <g
+         id="Dropper"
+         transform="translate(460,2384)">
+        <g
+           id="Fill-33-Copy-5">
+          <use
+             xlink:href="#path-3"
+             id="use35"
+             style="fill:#000000;fill-opacity:1;filter:url(#filter-4)"
+             x="0"
+             y="0"
+             width="100%"
+             height="100%" />
+          <use
+             xlink:href="#path-3"
+             id="use37"
+             style="fill:#bfbfbf;fill-rule:evenodd"
+             x="0"
+             y="0"
+             width="100%"
+             height="100%" />
+        </g>
+        <g
+           id="Fill-33-Copy-6">
+          <use
+             xlink:href="#path-5"
+             id="use40"
+             style="fill:#000000;fill-opacity:1;filter:url(#filter-6)"
+             x="0"
+             y="0"
+             width="100%"
+             height="100%" />
+          <use
+             xlink:href="#path-5"
+             id="use42"
+             style="fill:#ffffff;fill-rule:evenodd"
+             x="0"
+             y="0"
+             width="100%"
+             height="100%" />
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>
