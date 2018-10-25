@@ -75,6 +75,7 @@ class Editor extends Component {
     this.activateTool = this.activateTool.bind(this);
     this.getSelection = this.getSelection.bind(this);
     this.updateToolSettings = this.updateToolSettings.bind(this);
+    this.deleteSelectedObjects = this.deleteSelectedObjects.bind(this);
   }
 
   componentWillMount () {
@@ -127,6 +128,22 @@ class Editor extends Component {
     this.setState({
       toolSettings: newToolSettings,
     });
+  }
+
+  deleteSelectedObjects () {
+    var selection = this.getSelection();
+
+    selection.paths.forEach(path => {
+      path.remove();
+    });
+    selection.frames.forEach(frame => {
+      frame.parent.removeFrame(frame);
+    });
+
+    this.setState(prevState => ({
+      project: prevState.project,
+      selection: []
+    }));
   }
 
   changeFrameLength (frame, newLength) {
@@ -185,6 +202,7 @@ class Editor extends Component {
       'activate-eyedropper': 'v',
       'activate-pan': 'space',
       'activate-zoom': 'z',
+      'delete': 'q',
     }
 
     const handlers = {
@@ -198,6 +216,7 @@ class Editor extends Component {
       'activate-eyedropper': (() => this.activateTool("eyedropper")),
       'activate-pan': (() => this.activateTool("pan")),
       'activate-zoom': (() => this.activateTool("zoom")),
+      'delete': (() => this.deleteSelectedObjects()),
     }
 console.log(this.state.toolSettings.brushSize);
       return (

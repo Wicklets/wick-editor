@@ -34,8 +34,8 @@ class Canvas extends Component {
     window.paper.setup(this.refs.canvas);
     window.paper.drawingTools.croquisBrush.activate();
     window.paper.view.center = new window.paper.Point(
-      this.props.project.width - window.paper.view.bounds.width/2,
-      this.props.project.height - window.paper.view.bounds.height/2
+      this.props.project.width/2,
+      this.props.project.height/2
     );
 
     window.paper.drawingTools.cursor.onSelectionChanged(function (e) {
@@ -70,7 +70,7 @@ class Canvas extends Component {
     window.paper.drawingTools[this.props.activeTool].fillColor = this.props.toolSettings.fillColor;
     window.paper.drawingTools[this.props.activeTool].strokeColor = this.props.toolSettings.strokeColor;
     window.paper.drawingTools[this.props.activeTool].brushSize = this.props.toolSettings.brushSize;
-    
+
     let removeLayers = window.paper.project.layers.filter(layer => {
       return true;
     });
