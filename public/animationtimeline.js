@@ -680,7 +680,7 @@ var AnimationTimeline = new (function ft () {
 
         // Frame
         ctx.beginPath();
-        ctx.strokeStyle = this.state === 'selected' ? 'rgba(255,255,0,0.65)' : 'gray';
+        ctx.strokeStyle = this.state === 'selected' ? '#F55A23' : 'gray';
         ctx.fillStyle = this.tweens.length === 0 ? (this.contentful ? '#ddd' : 'white') : 'rgb(200,230,255)';
         ctx.lineWidth = this.state === 'selected' ? 5 : 1;
         var shrink = 1;
