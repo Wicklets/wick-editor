@@ -92,7 +92,7 @@ class ProjectSettings extends Component {
     nextProject.height = this.state.height;
     nextProject.framerate = this.state.framerate;
     nextProject.backgroundColor = this.state.backgroundColor;
-    this.props.updateProject(this.state);
+    this.props.updateProject(nextProject);
     this.toggle();
   }
 

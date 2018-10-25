@@ -252,7 +252,7 @@ console.log(this.state.toolSettings.brushSize);
                   {/* Middle Panel */}
                   <ReflexContainer orientation="horizontal">
                     {/* Timeline */}
-                    <ReflexElement size={150} {...this.resizeProps}>
+                    <ReflexElement size={100} {...this.resizeProps}>
                       <DockedPanel>
                         <Timeline
                           project={this.state.project}
@@ -277,7 +277,7 @@ console.log(this.state.toolSettings.brushSize);
                     </ReflexElement>
                     <ReflexSplitter {...this.resizeProps}/>
                     {/* Code Editor */}
-                    <ReflexElement size={150} {...this.resizeProps}>
+                    <ReflexElement size={1} {...this.resizeProps}>
                       <DockedPanel><CodeEditor /></DockedPanel>
                     </ReflexElement>
                   </ReflexContainer>
