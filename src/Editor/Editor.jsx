@@ -220,6 +220,7 @@ console.log(this.state.toolSettings.brushSize);
                   <DockedPanel>
                     <Toolbox
                       activeTool={this.state.activeTool}
+                      toolSettings={this.state.toolSettings}
                       fillColor={this.state.fillColor}
                       strokeColor={this.state.strokeColor}
                       activateTool={this.activateTool}
@@ -247,6 +248,7 @@ console.log(this.state.toolSettings.brushSize);
                       <DockedPanel>
                         <Canvas
                           project={this.state.project}
+                          toolSettings={this.state.toolSettings}
                           updateProject={this.updateProject}
                           updateSelection={this.updateSelection}
                           activeTool={this.state.activeTool}
