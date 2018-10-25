@@ -18,24 +18,25 @@
  */
 
 import React, { Component } from 'react';
+import ReactResizeDetector from 'react-resize-detector';
+
 import './_canvas.scss';
 
 class Canvas extends Component {
   constructor (props) {
     super(props);
+
+    this.onResize = this.onResize.bind(this);
     this.sendPropsToCanvas = this.sendPropsToCanvas.bind(this);
   }
 
   componentDidMount() {
     window.paper.setup(this.refs.canvas);
-    window.onresize = function () {
-      var widthDiff = window.paper.view.viewSize.width - window.$('.paper-canvas-container').width();
-      var heightDiff = window.paper.view.viewSize.height - window.$('.paper-canvas-container').height();
-      window.paper.view.viewSize.width = window.$('.paper-canvas-container').width();
-      window.paper.view.viewSize.height = window.$('.paper-canvas-container').height();
-      window.paper.view.center = window.paper.view.center.add(new window.paper.Point(widthDiff/2/window.paper.view.zoom, heightDiff/2/window.paper.view.zoom))
-    }
     window.paper.drawingTools.croquisBrush.activate();
+    window.paper.view.center = new window.paper.Point(
+      this.props.project.width - window.paper.view.bounds.width/2,
+      this.props.project.height - window.paper.view.bounds.height/2
+    );
 
     window.paper.drawingTools.cursor.onSelectionChanged(function (e) {
       console.log('onSelectionChanged fired');
@@ -54,11 +55,20 @@ class Canvas extends Component {
     this.sendPropsToCanvas();
   }
 
+  onResize (width, height) {
+    /*var widthDiff = window.paper.view.bounds.width - width;
+    var heightDiff = window.paper.view.bounds.height - height;
+    window.paper.view.viewSize.width = width;
+    window.paper.view.viewSize.height = height;
+    window.paper.view.center = window.paper.view.center.add(new window.paper.Point(
+      widthDiff/2/window.paper.view.zoom,
+      heightDiff/2/window.paper.view.zoom
+    ));*/
+  }
+
   sendPropsToCanvas () {
     let removeLayers = window.paper.project.layers.filter(layer => {
-      return !layer.name
-          || layer.name.startsWith('frame')
-          || layer.name.startsWith('project')
+      return true;
     });
     removeLayers.forEach(layer => {
       layer.remove();
@@ -75,6 +85,11 @@ class Canvas extends Component {
     bg.addChild(bgRect);
     window.paper.project.addLayer(bg);
 
+    if(this.props.activeTool === 'cursor') {
+      window.paper.project.addLayer(window.paper.drawingTools.cursor.getGUILayer());
+      window.paper.project.layers['cursorGUILayer'].bringToFront();
+    }
+
     this.props.project.focus.timeline.activeFrames.forEach(frame => {
       window.paper.project.addLayer(frame.svg);
       if(frame === this.props.project.focus.timeline.activeLayer.activeFrame) {
@@ -85,9 +100,11 @@ class Canvas extends Component {
 
   render() {
     return (
-      <div className="paper-canvas-container">
-        <canvas className="paper-canvas" ref="canvas" resize="true" />
-      </div>
+      <ReactResizeDetector handleWidth handleHeight onResize={this.onResize}>
+        <div className="paper-canvas-container">
+          <canvas className="paper-canvas" ref="canvas" resize="true" />
+        </div>
+      </ReactResizeDetector>
     );
   }
 }
