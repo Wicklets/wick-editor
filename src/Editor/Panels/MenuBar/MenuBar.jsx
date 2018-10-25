@@ -65,7 +65,7 @@ class MenuBar extends Component {
     return(
       <div className="docked-pane menu-bar">
         <div className="menu-bar-overlay">
-          <ReactTooltip id="menu-bar-coming-soon" type='error' place='bottom' effect='solid' aria-haspopup='true'>
+          <ReactTooltip id="menu-bar-coming-soon" type='error' place='right' effect='solid' aria-haspopup='true'>
             <span>Coming Soon!</span>
           </ReactTooltip>
           {this.renderButton("File", fileItems)}
