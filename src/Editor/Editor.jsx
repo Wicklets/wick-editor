@@ -37,6 +37,8 @@ import Toolbox from './Panels/Toolbox/Toolbox';
 import AssetLibrary from './Panels/AssetLibrary/AssetLibrary';
 import CodeEditor from './Panels/CodeEditor/CodeEditor';
 import ModalHandler from './Modals/ModalHandler/ModalHandler';
+import { HotKeys } from 'react-hotkeys';
+// import keyMap from './hotKeyMap';
 
 class Editor extends Component {
 
@@ -56,6 +58,8 @@ class Editor extends Component {
         brushSmoothing: 0.5,
         borderRadius: 0,
       },
+      windowWidth: 0,
+      windowHeight: 0,
     }
 
     this.resizeProps = {
@@ -69,12 +73,25 @@ class Editor extends Component {
     this.openModal = this.openModal.bind(this);
     this.activateTool = this.activateTool.bind(this);
     this.getSelection = this.getSelection.bind(this);
+    this.updateDimensions = this.updateDimensions.bind(this);
+  }
+
+  updateDimensions() {
+    this.setState({
+      windowWidth: window.innerWidth,
+      windowHeight: window.innerHeight,
+    })
   }
 
   componentWillMount () {
     let project = new window.Wick.Project();
     project.root.timeline.layers[0].frames[0].pathsSVG = ('["Layer",{"applyMatrix":true,"children":[["Path",{"applyMatrix":true,"segments":[[[75,100],[0,13.80712],[0,-13.80712]],[[100,75],[-13.80712,0],[13.80712,0]],[[125,100],[0,-13.80712],[0,13.80712]],[[100,125],[13.80712,0],[-13.80712,0]]],"closed":true,"fillColor":[1,0,0]}]]}]');
     this.setState({project: project});
+    window.addEventListener('resize', this.updateDimensions)
+  }
+
+  componentWillUnmount () {
+    window.removeEventListener("resize", this.updateDimensions);
   }
 
   componentDidMount () {
@@ -162,7 +179,34 @@ class Editor extends Component {
   }
 
   render () {
+    const keyMap = {
+      'activate-brush': 'b',
+      'activate-cursor': 'c',
+      'activate-pencil': 'p',
+      'activate-eraser': 'e',
+      'activate-rectangle': 'r',
+      'activate-ellipse': 'o',
+      'activate-line': 'l',
+      'activate-eyedropper': 'v',
+      'activate-pan': 'space',
+      'activate-zoom': 'z',
+    }
+
+    const handlers = {
+      'activate-brush': (() => this.activateTool("croquisBrush")),
+      'activate-cursor': (() => this.activateTool("cursor")),
+      'activate-pencil': (() => this.activateTool("pencil")),
+      'activate-eraser': (() => this.activateTool("eraser")),
+      'activate-rectangle': (() => this.activateTool("rectangle")),
+      'activate-ellipse': (() => this.activateTool("ellipse")),
+      'activate-line': (() => this.activateTool("line")),
+      'activate-eyedropper': (() => this.activateTool("eyedropper")),
+      'activate-pan': (() => this.activateTool("pan")),
+      'activate-zoom': (() => this.activateTool("zoom")),
+    }
+
       return (
+        <HotKeys keyMap={keyMap} handlers={handlers} style={{width:"100%", height:"100%"}}>
         <ReflexContainer orientation="horizontal">
           <ReflexElement className="header" size={37} style={{minHeight:"37px",maxHeight:"37px"}}>
             <ModalHandler openModal={this.openModal}
@@ -175,7 +219,7 @@ class Editor extends Component {
           <ReflexElement {...this.resizeProps}>
               <ReflexContainer orientation="vertical">
 
-                <ReflexElement size={50} {...this.resizeProps} style={{minWidth:"50px",maxWidth:"50px"}}>
+                <ReflexElement size={50} {...this.resizeProps} maxWidth="50px"style={{minWidth:"50px",maxWidth:"50px"}}>
                   {/* Left Sidebar */}
                   <DockedPanel>
                     <Toolbox
@@ -241,6 +285,7 @@ class Editor extends Component {
               </ReflexContainer>
           </ReflexElement>
         </ReflexContainer>
+      </HotKeys>
       )
   }
 }
