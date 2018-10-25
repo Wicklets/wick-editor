@@ -3847,11 +3847,18 @@ paper.drawingTools.onCanvasModified = function (fn) {
   var croquis;
   var croquisDOMElement;
   var croquisBrush;
+  var cursor;
+  var cursorColor;
+  var cursorSize;
   var tool = new paper.Tool();
   paper.drawingTools.croquisBrush = tool;
+  tool.brushSize = 10;
   tool.fillColor = '#000000';
 
   tool.onActivate = function (e) {
+    cursorColor = null;
+    cursorSize = null;
+
     if (!croquis) {
       croquis = new Croquis();
       croquis.setCanvasSize(500, 500);
@@ -3883,11 +3890,19 @@ paper.drawingTools.onCanvasModified = function (fn) {
   tool.onDeactivate = function (e) {};
 
   tool.onMouseMove = function (e) {
-    paper.view._element.style.cursor = 'crosshair';
+    // Don't render cursor after every mouse move, cache and only render when size or color changes
+    var cursorNeedsRegen = tool.fillColor !== cursorColor || tool.brushSize !== cursorSize;
+
+    if (cursorNeedsRegen) {
+      cursor = BrushCursorGen.create(tool.fillColor, tool.brushSize);
+      cursorColor = tool.fillColor;
+      cursorSize = tool.brushSize;
+      paper.view._element.style.cursor = cursor;
+    }
   };
 
   tool.onMouseDown = function (e) {
-    croquisBrush.setSize(10);
+    croquisBrush.setSize(tool.brushSize);
     croquisBrush.setColor(tool.fillColor);
     croquisBrush.setSpacing(0.2);
     croquis.setToolStabilizeLevel(10);
