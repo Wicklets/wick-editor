@@ -33,6 +33,10 @@ class Canvas extends Component {
   componentDidMount() {
     window.paper.setup(this.refs.canvas);
     window.paper.drawingTools.croquisBrush.activate();
+    window.paper.view.center = new window.paper.Point(
+      this.props.project.width - window.paper.view.bounds.width/2,
+      this.props.project.height - window.paper.view.bounds.height/2
+    );
 
     window.paper.drawingTools.cursor.onSelectionChanged(function (e) {
       console.log('onSelectionChanged fired');
@@ -52,20 +56,19 @@ class Canvas extends Component {
   }
 
   onResize (width, height) {
-    /*
-    var widthDiff = window.paper.view.viewSize.width - width;
-    var heightDiff = window.paper.view.viewSize.height - height;
+    /*var widthDiff = window.paper.view.bounds.width - width;
+    var heightDiff = window.paper.view.bounds.height - height;
     window.paper.view.viewSize.width = width;
     window.paper.view.viewSize.height = height;
-    window.paper.view.center = window.paper.view.center.add(new window.paper.Point(widthDiff/2/window.paper.view.zoom, heightDiff/2/window.paper.view.zoom))
-    */
+    window.paper.view.center = window.paper.view.center.add(new window.paper.Point(
+      widthDiff/2/window.paper.view.zoom,
+      heightDiff/2/window.paper.view.zoom
+    ));*/
   }
 
   sendPropsToCanvas () {
     let removeLayers = window.paper.project.layers.filter(layer => {
-      return !layer.name
-          || layer.name.startsWith('frame')
-          || layer.name.startsWith('project')
+      return true;
     });
     removeLayers.forEach(layer => {
       layer.remove();
@@ -81,6 +84,11 @@ class Canvas extends Component {
     bgRect.fillColor = this.props.project.backgroundColor;
     bg.addChild(bgRect);
     window.paper.project.addLayer(bg);
+
+    if(this.props.activeTool === 'cursor') {
+      window.paper.project.addLayer(window.paper.drawingTools.cursor.getGUILayer());
+      window.paper.project.layers['cursorGUILayer'].bringToFront();
+    }
 
     this.props.project.focus.timeline.activeFrames.forEach(frame => {
       window.paper.project.addLayer(frame.svg);
