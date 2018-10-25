@@ -87,8 +87,13 @@ class Timeline extends Component {
     });
 
     window.AnimationTimeline.onSoftChange(e => {
-      console.log('onSoftChange');
-      console.log(e);
+      //console.log('onSoftChange');
+      //console.log(e);
+      let nextProject = this.props.project.clone();
+      if(e.playhead !== undefined) {
+        nextProject.focus.timeline.playheadPosition = e.playhead;
+      }
+      self.props.updateProject(nextProject);
     });
 
     window.AnimationTimeline.onSelectionChange(e => {
@@ -110,6 +115,10 @@ class Timeline extends Component {
     this.sendPropsToCanvas();
   }
 
+  shouldComponentUpdate () {
+    return true;
+  }
+
   sendPropsToCanvas () {
     var focus = this.props.project.focus;
     var selection = this.props.selection;
@@ -121,12 +130,14 @@ class Timeline extends Component {
           locked: layer.locked,
           hidden: layer.hidden,
           frames: layer.frames.map(frame => {
+            console.log(frame.svg.children)
             return {
               id: frame.uuid,
               label: frame.identifier,
               start: frame.start,
               end: frame.end,
               selected: selection.indexOf(frame.uuid) !== -1,
+              contentful: frame.svg.children.length > 0,
               tweens: frame.tweens.map(tween => {
                 return {
                   uuid: tween.uuid,

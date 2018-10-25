@@ -35,15 +35,19 @@ class Canvas extends Component {
       window.paper.view.viewSize.height = window.$('.paper-canvas-container').height();
       window.paper.view.center = window.paper.view.center.add(new window.paper.Point(widthDiff/2/window.paper.view.zoom, heightDiff/2/window.paper.view.zoom))
     }
-    window.paper.drawingTools.potraceBrush.activate();
+    window.paper.drawingTools.croquisBrush.activate();
 
     window.paper.drawingTools.cursor.onSelectionChanged(function (e) {
       console.log('onSelectionChanged fired');
     });
 
+    var self = this;
     window.paper.drawingTools.onCanvasModified(function (e) {
       console.log('onCanvasModified fired.');
+      self.props.updateProject(self.props.project);
     });
+
+    this.sendPropsToCanvas();
   }
 
   componentDidUpdate () {
@@ -73,6 +77,9 @@ class Canvas extends Component {
 
     this.props.project.focus.timeline.activeFrames.forEach(frame => {
       window.paper.project.addLayer(frame.svg);
+      if(frame === this.props.project.focus.timeline.activeLayer.activeFrame) {
+        frame.svg.activate();
+      }
     });
   }
 
