@@ -52,7 +52,7 @@ class Editor extends Component {
       activeTool: 'croquisBrush',
       toolSettings: {
         fillColor: '#ffaabb',
-        strokeColor: '#ffff00',
+        strokeColor: '#000',
         strokeWidth: 1,
         brushSize: 10,
         brushSmoothing: 0.5,

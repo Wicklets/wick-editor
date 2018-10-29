@@ -57,7 +57,6 @@ class ToolButton extends Component {
   render() {
     return(
       <div
-        type="button"
         className={this.props.toolIsActive(this.props.name) ? "tool-button active-tool" : "tool-button"}
         onClick={() => {this.props.activateTool(this.props.name)}}
         >
