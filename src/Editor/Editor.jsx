@@ -125,8 +125,16 @@ class Editor extends Component {
   }
 
   updateToolSettings (newToolSettings) {
+
+    let updatedToolSettings = this.state.toolSettings;
+
+    // Update only provided settings.
+    Object.keys(newToolSettings).forEach((key) =>
+      updatedToolSettings[key] = newToolSettings[key]
+    )
+
     this.setState({
-      toolSettings: newToolSettings,
+      toolSettings: updatedToolSettings,
     });
   }
 
