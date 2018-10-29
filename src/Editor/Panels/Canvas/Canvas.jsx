@@ -67,9 +67,11 @@ class Canvas extends Component {
   }
 
   sendPropsToCanvas () {
-    window.paper.drawingTools[this.props.activeTool].fillColor = this.props.toolSettings.fillColor;
-    window.paper.drawingTools[this.props.activeTool].strokeColor = this.props.toolSettings.strokeColor;
-    window.paper.drawingTools[this.props.activeTool].brushSize = this.props.toolSettings.brushSize;
+
+    // Update all tool settings
+    Object.keys(this.props.toolSettings).forEach(
+      (key) => window.paper.drawingTools[this.props.activeTool][key] = this.props.toolSettings[key]
+    );
 
     let removeLayers = window.paper.project.layers.filter(layer => {
       return true;
