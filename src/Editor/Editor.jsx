@@ -61,6 +61,7 @@ class Editor extends Component {
       },
       windowWidth: 0,
       windowHeight: 0,
+      key: 111111,
     }
 
     this.resizeProps = {
@@ -79,6 +80,9 @@ class Editor extends Component {
     this.getSelection = this.getSelection.bind(this);
     this.updateToolSettings = this.updateToolSettings.bind(this);
     this.deleteSelectedObjects = this.deleteSelectedObjects.bind(this);
+
+    // Force window resize to  update the entire app for react reflex...
+    window.addEventListener('resize', (e) => this.setState({key:Math.random()}));
   }
 
   componentWillMount () {
@@ -146,6 +150,7 @@ class Editor extends Component {
     selection.paths.forEach(path => {
       path.remove();
     });
+
     selection.frames.forEach(frame => {
       frame.parent.removeFrame(frame);
     });
@@ -201,91 +206,93 @@ class Editor extends Component {
   }
 
   render () {
+    console.log("Rendering");
       return (
-
-        <HotKeys keyMap={this.hotKeyInterface.getKeyMap()} handlers={this.hotKeyInterface.getHandlers()} style={{width:"100%", height:"100%"}}>
-        <ReflexContainer orientation="horizontal">
-          <ReflexElement className="header" size={37} style={{minHeight:"37px",maxHeight:"37px"}}>
-            <ModalHandler openModal={this.openModal}
-                          openModalName={this.state.openModalName}
-                          project={this.state.project}
-                          updateProject={this.updateProject} />
-            {/* Header */}
-            <DockedPanel><MenuBar openModal={this.openModal} projectName={this.state.project.name}/></DockedPanel>
-          </ReflexElement>
-          <ReflexElement {...this.resizeProps}>
-              <ReflexContainer orientation="vertical">
-
-                <ReflexElement size={50} {...this.resizeProps} maxWidth="50px"style={{minWidth:"50px",maxWidth:"50px"}}>
-                  {/* Left Sidebar */}
-                  <DockedPanel>
-                    <Toolbox
-                      activeTool={this.state.activeTool}
-                      toolSettings={this.state.toolSettings}
-                      updateToolSettings={this.updateToolSettings}
-                      fillColor={this.state.fillColor}
-                      strokeColor={this.state.strokeColor}
-                      activateTool={this.activateTool}
-                    />
-                  </DockedPanel>
-                </ReflexElement>
-
-                <ReflexElement {...this.resizeProps}>
+        <HotKeys
+          keyMap={this.hotKeyInterface.getKeyMap()}
+          handlers={this.hotKeyInterface.getHandlers()}
+          style={{width:"100%", height:"100%"}}>
+          <div id="editor">
+            <div id="menu-bar-container">
+              <ModalHandler openModal={this.openModal}
+                            openModalName={this.state.openModalName}
+                            project={this.state.project}
+                            updateProject={this.updateProject} />
+              {/* Header */}
+              <DockedPanel><MenuBar openModal={this.openModal} projectName={this.state.project.name}/></DockedPanel>
+            </div>
+            <div id="editor-body">
+              <div id="tool-box-container">
+                <DockedPanel>
+                  <Toolbox
+                    activeTool={this.state.activeTool}
+                    toolSettings={this.state.toolSettings}
+                    updateToolSettings={this.updateToolSettings}
+                    fillColor={this.state.fillColor}
+                    strokeColor={this.state.strokeColor}
+                    activateTool={this.activateTool}
+                  />
+                </DockedPanel>
+              </div>
+              <div id="flexible-container">
+                {/* TODO:The 'key' update below is a hack to force ReflexContainers to re render on window resize and should be replaced ASAP */}
+                <ReflexContainer orientation="vertical">
                   {/* Middle Panel */}
-                  <ReflexContainer orientation="horizontal">
-                    {/* Timeline */}
-                    <ReflexElement size={100} {...this.resizeProps}>
-                      <DockedPanel>
-                        <Timeline
-                          project={this.state.project}
-                          selection={this.state.selection}
-                          updateProject={this.updateProject}
-                          updateSelection={this.updateSelection}
-                        />
-                      </DockedPanel>
-                    </ReflexElement>
-                    <ReflexSplitter {...this.resizeProps}/>
-                    {/* Canvas */}
-                    <ReflexElement {...this.resizeProps}>
-                      <DockedPanel>
-                        <Canvas
-                          project={this.state.project}
-                          toolSettings={this.state.toolSettings}
-                          updateProject={this.updateProject}
-                          updateSelection={this.updateSelection}
-                          activeTool={this.state.activeTool}
-                        />
-                      </DockedPanel>
-                    </ReflexElement>
-                    <ReflexSplitter {...this.resizeProps}/>
-                    {/* Code Editor */}
-                    <ReflexElement size={1} {...this.resizeProps}>
-                      <DockedPanel><CodeEditor /></DockedPanel>
-                    </ReflexElement>
-                  </ReflexContainer>
-                </ReflexElement>
+                  <ReflexElement {...this.resizeProps}>
+                    <ReflexContainer orientation="horizontal">
+                      {/* Timeline */}
+                      <ReflexElement size={100} {...this.resizeProps}>
+                        <DockedPanel>
+                          <Timeline
+                            project={this.state.project}
+                            selection={this.state.selection}
+                            updateProject={this.updateProject}
+                            updateSelection={this.updateSelection}
+                          />
+                        </DockedPanel>
+                      </ReflexElement>
+                      <ReflexSplitter {...this.resizeProps}/>
+                      {/* Canvas */}
+                      <ReflexElement {...this.resizeProps}>
+                        <DockedPanel>
+                          <Canvas
+                            project={this.state.project}
+                            toolSettings={this.state.toolSettings}
+                            updateProject={this.updateProject}
+                            updateSelection={this.updateSelection}
+                            activeTool={this.state.activeTool}
+                          />
+                        </DockedPanel>
+                      </ReflexElement>
+                      <ReflexSplitter {...this.resizeProps}/>
+                      {/* Code Editor */}
+                      <ReflexElement size={1} {...this.resizeProps}>
+                        <DockedPanel><CodeEditor /></DockedPanel>
+                      </ReflexElement>
+                    </ReflexContainer>
+                  </ReflexElement>
 
-                <ReflexSplitter {...this.resizeProps}/>
+                  <ReflexSplitter {...this.resizeProps}/>
 
-                <ReflexElement size={250} {...this.resizeProps}>
-                  {/* Right Sidebar */}
-                  <ReflexContainer orientation="horizontal">
-                    <ReflexElement {...this.resizeProps}>
-                      <DockedPanel><Inspector activeTool={this.state.activeTool} toolSettings={this.state.toolSettings} updateToolSettings={this.updateToolSettings}/></DockedPanel>
-                    </ReflexElement>
+                {/* Right Sidebar */}
+                  <ReflexElement size={250} {...this.resizeProps}>
+                    <ReflexContainer orientation="horizontal">
+                      <ReflexElement {...this.resizeProps}>
+                        <DockedPanel><Inspector activeTool={this.state.activeTool} toolSettings={this.state.toolSettings} updateToolSettings={this.updateToolSettings}/></DockedPanel>
+                      </ReflexElement>
 
-                    <ReflexSplitter {...this.resizeProps}/>
+                      <ReflexSplitter {...this.resizeProps}/>
 
-                    <ReflexElement {...this.resizeProps}>
-                      <DockedPanel><AssetLibrary /></DockedPanel>
-                    </ReflexElement>
-                  </ReflexContainer>
-                </ReflexElement>
-
-              </ReflexContainer>
-          </ReflexElement>
-        </ReflexContainer>
-      </HotKeys>
+                      <ReflexElement {...this.resizeProps}>
+                        <DockedPanel><AssetLibrary /></DockedPanel>
+                      </ReflexElement>
+                    </ReflexContainer>
+                  </ReflexElement>
+                </ReflexContainer>
+              </div>
+            </div>
+          </div>
+        </HotKeys>
       )
   }
 }

@@ -19,15 +19,64 @@
 
 @import './_wickbrand.scss';
 
-.editor {
+$menu-bar-height: 50px;
+$tool-box-width: 50px;
+
+body {
+  overflow: hidden;
+}
+
+#editor {
   width: 100%;
   height: 100%;
+  background-color: red;
+}
+
+#menu-bar-container {
+  width: 100%;
+  height: 50px;
+  background-color: green;
+}
+
+#editor-body {
+  width: 100%;
+  height: calc(100% - #{$menu-bar-height};
+  background-color: blue;
+  overflow: hidden;
+}
+
+#tool-box-container {
+  height: 100%;
+  width: $tool-box-width;
+  background-color: #000;
+  display: inline-block;
+}
+
+#flexible-container {
+  height: calc(100% - #{$menu-bar-height});
+  width: calc(100% - #{$tool-box-width});
+  background-color: #AAA;
+  display: inline-block;
+  position: absolute;
+  top: #{$menu-bar-height};
+}
+
+.center-container {
+  background-color: #ffaabb;
+}
+
+.right-container {
+  background-color: #aabbcc;
+}
+
+.right-reflex-container {
+  height: 100%;
+  background-color: #aabbcc;
 }
 
 /* Basic re-flex panel/splitter styling */
 
 .reflex-element {
-  background-color: white;
   overflow: hidden !important;
 }
 

@@ -7,7 +7,7 @@ class HotKeyInterface extends Object {
     this.createKeyMap = this.createKeyMap.bind(this);
     this.createHandlers = this.createHandlers.bind(this);
     this.createKeyMap();
-    this.createHandlers(); 
+    this.createHandlers();
   }
 
   // Create mappings of actions to keys
@@ -45,7 +45,6 @@ class HotKeyInterface extends Object {
   }
 
   getKeyMap() {
-    console.log(this.keyMap);
     return this.keyMap;
   }
 
