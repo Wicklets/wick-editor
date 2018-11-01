@@ -116,20 +116,17 @@ var AnimationTimeline = new (function ft () {
 
         ctx = canvas.getContext('2d');
 
-        var callbackCalled = false;
-        $( window ).resize(function() {
-            canvas.width = $(canvas)[0].clientWidth * window.devicePixelRatio;
-            canvas.height = $(canvas)[0].clientHeight * window.devicePixelRatio;
-            self.repaint();
-            if(!callbackCalled) callback();
-            callbackCalled = true;
-        });
+        callback();
+    }
 
-        window.dispatchEvent(new Event('resize'));
+    self.resize = function () {
+      canvas.width = $(canvas)[0].clientWidth * window.devicePixelRatio;
+      canvas.height = $(canvas)[0].clientHeight * window.devicePixelRatio;
+      self.repaint();
     }
 
     self.repaint = function () {
-        scrollbarContainerContent.style.width = '2000px';
+        scrollbarContainerContent.style.width = (totalLength()*GRID_CELL_WIDTH*2+1500)+'px';
         scrollbarContainerContent.style.height = (layers.length*GRID_CELL_HEIGHT*1.5)+'px';
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -431,6 +428,14 @@ var AnimationTimeline = new (function ft () {
         return allTweens().filter(function (tween) {
             return tween.isSelected();
         });
+    }
+
+    function totalLength () {
+        return allFrames().map(frame => {
+            return frame.end;
+        }).sort((a,b) => {
+            return b - a;
+        })[0] || 0;
     }
 
     function alllayers () {
@@ -866,12 +871,25 @@ var AnimationTimeline = new (function ft () {
     Tween.prototype.repaint = function () {
         this.regenBounds();
 
-        ctx.beginPath();
+        /*ctx.beginPath();
         ctx.fillStyle = this.state === 'selected' ? 'red' : 'green';
         ctx.rect(this.bounds.left + this.draggingOffset,
                  this.bounds.top,
                  this.bounds.width,
                  this.bounds.height);
+        ctx.fill();
+        ctx.closePath();*/
+        ctx.beginPath();
+        ctx.strokeStyle = this.state === 'selected' ? '#F55A23' : 'black';
+        ctx.lineWidth = this.state === 'selected' ? 5 : 1;
+        ctx.fillStyle = 'black';
+        ctx.arc(
+            this.bounds.left + this.draggingOffset + this.bounds.width/2,
+            this.bounds.top,
+            this.bounds.width/2,
+            0,
+            2*Math.PI);
+        ctx.stroke();
         ctx.fill();
         ctx.closePath();
     }
@@ -1128,9 +1146,9 @@ var AnimationTimeline = new (function ft () {
         if(!this.active) return;
         ctx.beginPath();
         ctx.fillStyle = 'rgba(255,255,255,0.5)';
-        ctx.rect(this.col * GRID_CELL_WIDTH, 
-                 this.row * GRID_CELL_HEIGHT, 
-                 GRID_CELL_WIDTH, 
+        ctx.rect(this.col * GRID_CELL_WIDTH,
+                 this.row * GRID_CELL_HEIGHT,
+                 GRID_CELL_WIDTH,
                  GRID_CELL_HEIGHT);
         ctx.fill();
         ctx.closePath();
@@ -1147,12 +1165,12 @@ var AnimationTimeline = new (function ft () {
         ctx.beginPath();
         ctx.fillStyle = 'rgba(255,255,255,0.5)';
         var shrink = 1;
-        roundRect(ctx, 
-            0 + shrink, 
-            layers.length * GRID_CELL_HEIGHT + shrink, 
-            LAYERS_WIDTH - shrink*2, 
-            GRID_CELL_HEIGHT - shrink*2, 
-            1.5, 
+        roundRect(ctx,
+            0 + shrink,
+            layers.length * GRID_CELL_HEIGHT + shrink,
+            LAYERS_WIDTH - shrink*2,
+            GRID_CELL_HEIGHT - shrink*2,
+            1.5,
             true, false);
         ctx.fill();
         ctx.closePath();
@@ -1544,7 +1562,7 @@ var AnimationTimeline = new (function ft () {
     // BlankLayer
 
     self.onBlankLayerMouseMove = function (e) {
-        if(e.y < canvas.height - NUMBER_LINE_HEIGHT 
+        if(e.y < canvas.height - NUMBER_LINE_HEIGHT
         && e.x > -LAYERS_WIDTH
         && e.y < (layers.length+1) * GRID_CELL_HEIGHT) {
             hoverLayer.active = true;

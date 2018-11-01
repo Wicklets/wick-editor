@@ -74,7 +74,6 @@ class Editor extends Component {
 
     this.updateProject = this.updateProject.bind(this);
     this.updateSelection = this.updateSelection.bind(this);
-    this.changeFrameLength = this.changeFrameLength.bind(this);
     this.openModal = this.openModal.bind(this);
     this.activateTool = this.activateTool.bind(this);
     this.getSelection = this.getSelection.bind(this);
@@ -87,17 +86,15 @@ class Editor extends Component {
 
   componentWillMount () {
     let project = new window.Wick.Project();
-    project.root.timeline.layers[0].frames[0].pathsSVG = ('["Layer",{"applyMatrix":true,"children":[["Path",{"applyMatrix":true,"segments":[[[75,100],[0,13.80712],[0,-13.80712]],[[100,75],[-13.80712,0],[13.80712,0]],[[125,100],[0,-13.80712],[0,13.80712]],[[100,125],[13.80712,0],[-13.80712,0]]],"closed":true,"fillColor":[1,0,0]}]]}]');
     this.setState({project: project});
   }
 
   componentDidMount () {
-    let frame = this.state.project.focus.timeline.layers[0].frames[0];
-    this.changeFrameLength(frame, 10);
+
   }
 
   onResize (e) {
-    window.dispatchEvent(new Event('resize'));
+
   }
 
   onStopResize (e) {
@@ -113,7 +110,6 @@ class Editor extends Component {
   }
 
   activateTool (toolName) {
-    window.paper.drawingTools[toolName].activate();
     this.setState({
       activeTool: toolName
     });
@@ -159,13 +155,6 @@ class Editor extends Component {
       project: prevState.project,
       selection: []
     }));
-  }
-
-  changeFrameLength (frame, newLength) {
-    /*this.setState(prevState => {
-      frame.end = 100;
-      return prevState;
-    });*/
   }
 
   getSelection () {

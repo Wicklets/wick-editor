@@ -18,16 +18,44 @@
  */
 
 import React, { Component } from 'react';
+import ReactResizeDetector from 'react-resize-detector';
+
 import './_timeline.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 class Timeline extends Component {
   constructor(props) {
     super(props);
-    this.sendPropsToCanvas = this.sendPropsToCanvas.bind(this);
+    this.onResize = this.onResize.bind(this);
   }
 
   componentDidMount () {
+    let AnimationTimeline = window.AnimationTimeline;
+    AnimationTimeline.setup(this.refs.container, function () {
+      AnimationTimeline.setData({
+        playheadPosition: 1,
+        activeLayerIndex: 0,
+        onionSkinEnabled: false,
+        onionSkinSeekForwards: 1,
+        onionSkinSeekBackwards: 1,
+        layers: [],
+      });
+      AnimationTimeline.repaint();
+    });
+
+    AnimationTimeline.onChange(e => {
+
+    });
+
+    AnimationTimeline.onSoftChange(e => {
+
+    });
+
+    AnimationTimeline.onSelectionChange(e => {
+
+    });
+
+    /*
     var self = this;
     window.AnimationTimeline.setup(this.refs.container, function () {
       self.sendPropsToCanvas();
@@ -109,17 +137,15 @@ class Timeline extends Component {
 
       this.props.updateSelection(frameIDs.concat(tweenIDs));
     })
+    */
   }
 
   componentDidUpdate () {
-    this.sendPropsToCanvas();
-  }
 
-  shouldComponentUpdate () {
-    return true;
   }
 
   sendPropsToCanvas () {
+    /*
     var focus = this.props.project.focus;
     var selection = this.props.selection;
     window.AnimationTimeline.setData({
@@ -130,7 +156,6 @@ class Timeline extends Component {
           locked: layer.locked,
           hidden: layer.hidden,
           frames: layer.frames.map(frame => {
-            console.log(frame.svg.children)
             return {
               id: frame.uuid,
               label: frame.identifier,
@@ -156,11 +181,18 @@ class Timeline extends Component {
       onionSkinSeekBackwards: focus.timeline.seekFramesBackwards,
     });
     window.AnimationTimeline.repaint();
+    */
+  }
+
+  onResize (width, height) {
+    window.AnimationTimeline.resize();
   }
 
   render() {
     return(
+      <ReactResizeDetector handleWidth handleHeight onResize={this.onResize}>
         <div id="animationtimeline" ref="container"></div>
+      </ReactResizeDetector>
     )
   }
 }
