@@ -18,17 +18,11 @@
  */
 
 import React, { Component } from 'react';
-import ReactResizeDetector from 'react-resize-detector';
 
 import './_timeline.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 class Timeline extends Component {
-  constructor(props) {
-    super(props);
-    this.onResize = this.onResize.bind(this);
-  }
-
   componentDidMount () {
     let AnimationTimeline = window.AnimationTimeline;
     AnimationTimeline.setup(this.refs.container, function () {
@@ -40,6 +34,7 @@ class Timeline extends Component {
         onionSkinSeekBackwards: 1,
         layers: [],
       });
+      AnimationTimeline.resize();
       AnimationTimeline.repaint();
     });
 
@@ -60,15 +55,9 @@ class Timeline extends Component {
 
   }
 
-  onResize (width, height) {
-    window.AnimationTimeline.resize();
-  }
-
   render() {
     return(
-      <ReactResizeDetector handleWidth handleHeight onResize={this.onResize}>
-        <div id="animationtimeline" ref="container"></div>
-      </ReactResizeDetector>
+      <div id="animationtimeline" ref="container"></div>
     )
   }
 }
