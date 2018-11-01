@@ -22,7 +22,11 @@ import './_dockedpanel.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 class DockedPanel extends Component {
+  shouldComponentUpdate() {
+    return false; 
+  }
   render() {
+    console.log("RENDERING Docked panel");
     return(
       <div className="docked-panel">{this.props.children}</div>
     )
