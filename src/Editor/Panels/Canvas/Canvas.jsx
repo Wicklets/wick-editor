@@ -26,16 +26,16 @@ class Canvas extends Component {
   constructor (props) {
     super(props);
     this.wickCanvas = null;
-    this.onResize = this.onResize.bind(this);
   }
 
   componentDidMount() {
     this.wickCanvas = new window.WickCanvas();
     window.WickCanvas.setup(this.refs.container);
+    window.WickCanvas.resize();
 
-    /*let wickProject = new window.Wick.Project();
+    let wickProject = new window.Wick.Project();
     wickProject.root.timeline.layers[0].frames[0].svg = '<g xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" fill-rule=\"nonzero\" stroke=\"none\" stroke-width=\"1\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke-miterlimit=\"10\" stroke-dasharray=\"\" stroke-dashoffset=\"0\" font-family=\"none\" font-weight=\"none\" font-size=\"none\" text-anchor=\"none\" style=\"mix-blend-mode: normal\"><path d=\"M20,0c0,-16.56854 13.43146,-30 30,-30c16.56854,0 30,13.43146 30,30c0,16.56854 -13.43146,30 -30,30c-16.56854,0 -30,-13.43146 -30,-30z\" fill=\"#ff0000\"/><path d=\"M20,50c0,-16.56854 13.43146,-30 30,-30c16.56854,0 30,13.43146 30,30c0,16.56854 -13.43146,30 -30,30c-16.56854,0 -30,-13.43146 -30,-30z\" fill=\"#0000ff\"/><path d=\"M-30,50c0,-16.56854 13.43146,-30 30,-30c16.56854,0 30,13.43146 30,30c0,16.56854 -13.43146,30 -30,30c-16.56854,0 -30,-13.43146 -30,-30z\" fill=\"#00ff00\"/></g>';
-    this.wickCanvas.render(wickProject);*/
+    this.wickCanvas.render(wickProject);
 
     window.paper.drawingTools.cursor.onSelectionChanged(e => {
 
@@ -52,16 +52,9 @@ class Canvas extends Component {
     window.paper.drawingTools[this.props.activeTool].activate();
   }
 
-  onResize (width, height) {
-    window.WickCanvas.resize();
-  }
-
   render() {
-    console.log("Rendering Canvas"); 
     return (
-      <ReactResizeDetector handleWidth handleHeight onResize={this.onResize}>
-        <div id="wick-canvas-container" ref="container"></div>
-      </ReactResizeDetector>
+      <div id="wick-canvas-container" ref="container"></div>
     );
   }
 }

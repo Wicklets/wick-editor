@@ -26,7 +26,6 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 class Timeline extends Component {
   constructor(props) {
     super(props);
-    this.onResize = this.onResize.bind(this);
   }
 
   componentDidMount () {
@@ -40,6 +39,7 @@ class Timeline extends Component {
         onionSkinSeekBackwards: 1,
         layers: [],
       });
+      AnimationTimeline.resize();
       AnimationTimeline.repaint();
     });
 
@@ -60,15 +60,9 @@ class Timeline extends Component {
 
   }
 
-  onResize (width, height) {
-    window.AnimationTimeline.resize();
-  }
-
   render() {
     return(
-      <ReactResizeDetector handleWidth handleHeight onResize={this.onResize}>
-        <div id="animationtimeline" ref="container"></div>
-      </ReactResizeDetector>
+      <div id="animationtimeline" ref="container"></div>
     )
   }
 }

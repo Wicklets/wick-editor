@@ -92,6 +92,8 @@ class Editor extends Component {
   }
 
   onResize (e) {
+    window.WickCanvas.resize();
+    window.AnimationTimeline.resize();
   }
 
   onStopResize = ({domElement, component}) => {
