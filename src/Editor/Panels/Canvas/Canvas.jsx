@@ -43,6 +43,8 @@ class Canvas extends Component {
     window.paper.drawingTools.onCanvasModified(e => {
 
     });
+
+    window.paper.drawingTools[this.props.activeTool].activate();
   }
 
   componentDidUpdate () {

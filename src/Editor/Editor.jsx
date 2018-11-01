@@ -49,7 +49,7 @@ class Editor extends Component {
       project: null,
       selection: [],
       openModalName: null,
-      activeTool: 'croquisBrush',
+      activeTool: 'cursor',
       toolSettings: {
         fillColor: '#ffaabb',
         strokeColor: '#000',

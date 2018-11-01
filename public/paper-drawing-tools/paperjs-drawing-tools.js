@@ -3878,13 +3878,13 @@ paper.drawingTools.onCanvasModified = function (fn) {
       croquisDOMElement.style.pointerEvents = 'none';
 
       paper.view._element.parentElement.appendChild(croquisDOMElement);
-
-      croquis.setCanvasSize(paper.view.bounds.width, paper.view.bounds.height);
-
-      window.onresize = function () {
-        croquis.setCanvasSize(paper.view.bounds.width, paper.view.bounds.height);
-      };
     }
+
+    croquis.setCanvasSize(paper.view.bounds.width, paper.view.bounds.height);
+
+    paper.view.onResize = function () {
+      croquis.setCanvasSize(paper.view.bounds.width, paper.view.bounds.height);
+    };
   };
 
   tool.onDeactivate = function (e) {};
