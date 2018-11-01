@@ -237,7 +237,6 @@ class Inspector extends Component {
   }
 
   renderPencil() {
-    console.log("!!!Pencil!!!!");
     return (
       <div>
         <InspectorTitle type={"pencil"} title={"Pencil"} />
@@ -474,7 +473,6 @@ class Inspector extends Component {
   }
 
   render() {
-    console.log(this.props.activeTool);
     return(
       <div className="docked-pane inspector">
         <DockedTitle title={"Inspector"}></DockedTitle>

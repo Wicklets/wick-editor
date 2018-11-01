@@ -105,6 +105,7 @@ class Canvas extends Component {
   }
 
   render() {
+    console.log("Rendering Canvas"); 
     return (
       <ReactResizeDetector handleWidth handleHeight onResize={this.onResize}>
         <div className="paper-canvas-container">

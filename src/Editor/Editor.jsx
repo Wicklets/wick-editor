@@ -61,7 +61,7 @@ class Editor extends Component {
       },
       windowWidth: 0,
       windowHeight: 0,
-      key: 111111,
+      rightPanelSize: 250,
     }
 
     this.resizeProps = {
@@ -81,8 +81,6 @@ class Editor extends Component {
     this.updateToolSettings = this.updateToolSettings.bind(this);
     this.deleteSelectedObjects = this.deleteSelectedObjects.bind(this);
 
-    // Force window resize to  update the entire app for react reflex...
-    window.addEventListener('resize', (e) => this.setState({key:Math.random()}));
   }
 
   componentWillMount () {
@@ -97,12 +95,11 @@ class Editor extends Component {
   }
 
   onResize (e) {
-    window.dispatchEvent(new Event('resize'));
   }
 
-  onStopResize (e) {
-
+  onStopResize = ({domElement, component}) => {
   }
+
 
   openModal (name) {
     if (this.state.openModalName !== name) {
@@ -206,7 +203,6 @@ class Editor extends Component {
   }
 
   render () {
-    console.log("Rendering");
       return (
         <HotKeys
           keyMap={this.hotKeyInterface.getKeyMap()}
@@ -275,15 +271,25 @@ class Editor extends Component {
                   <ReflexSplitter {...this.resizeProps}/>
 
                 {/* Right Sidebar */}
-                  <ReflexElement size={250} {...this.resizeProps}>
+                  <ReflexElement
+                    size={150}
+                    maxSize={250} minSize={150}
+                    {...this.resizeProps}>
                     <ReflexContainer orientation="horizontal">
-                      <ReflexElement {...this.resizeProps}>
-                        <DockedPanel><Inspector activeTool={this.state.activeTool} toolSettings={this.state.toolSettings} updateToolSettings={this.updateToolSettings}/></DockedPanel>
+                      {/* Inspector */}
+                      <ReflexElement propagateDimensions={true} minSize={200} {...this.resizeProps}>
+                        <DockedPanel>
+                          <Inspector
+                            activeTool={this.state.activeTool}
+                            toolSettings={this.state.toolSettings}
+                            updateToolSettings={this.updateToolSettings}/>
+                        </DockedPanel>
                       </ReflexElement>
 
                       <ReflexSplitter {...this.resizeProps}/>
 
-                      <ReflexElement {...this.resizeProps}>
+                      {/* Asset Library */}
+                      <ReflexElement { ...this.resizeProps}>
                         <DockedPanel><AssetLibrary /></DockedPanel>
                       </ReflexElement>
                     </ReflexContainer>

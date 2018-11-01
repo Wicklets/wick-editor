@@ -97,8 +97,6 @@ class Timeline extends Component {
     });
 
     window.AnimationTimeline.onSelectionChange(e => {
-      console.log('onSelectionChange');
-      console.log(e);
 
       let frameIDs = e.frames.map(frame => {
         return frame.id;
@@ -130,7 +128,6 @@ class Timeline extends Component {
           locked: layer.locked,
           hidden: layer.hidden,
           frames: layer.frames.map(frame => {
-            console.log(frame.svg.children)
             return {
               id: frame.uuid,
               label: frame.identifier,
