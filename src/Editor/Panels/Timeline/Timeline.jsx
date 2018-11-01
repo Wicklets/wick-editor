@@ -18,16 +18,11 @@
  */
 
 import React, { Component } from 'react';
-import ReactResizeDetector from 'react-resize-detector';
 
 import './_timeline.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 class Timeline extends Component {
-  constructor(props) {
-    super(props);
-  }
-
   componentDidMount () {
     let AnimationTimeline = window.AnimationTimeline;
     AnimationTimeline.setup(this.refs.container, function () {
