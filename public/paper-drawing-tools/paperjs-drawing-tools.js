@@ -3878,13 +3878,13 @@ paper.drawingTools.onCanvasModified = function (fn) {
       croquisDOMElement.style.pointerEvents = 'none';
 
       paper.view._element.parentElement.appendChild(croquisDOMElement);
-
-      croquis.setCanvasSize(paper.view.bounds.width, paper.view.bounds.height);
-
-      window.onresize = function () {
-        croquis.setCanvasSize(paper.view.bounds.width, paper.view.bounds.height);
-      };
     }
+
+    croquis.setCanvasSize(paper.view.bounds.width, paper.view.bounds.height);
+
+    paper.view.onResize = function () {
+      croquis.setCanvasSize(paper.view.bounds.width, paper.view.bounds.height);
+    };
   };
 
   tool.onDeactivate = function (e) {};
@@ -3970,7 +3970,8 @@ paper.drawingTools.onCanvasModified = function (fn) {
   var SELECTION_BOX_FILLCOLOR = 'rgba(255,255,255,0.3)';
   var SELECTION_SUBBOX_STROKECOLOR = 'rgba(100,150,255,0.75)';
   var ROTATION_HANDLE_COLOR = 'rgba(255,0,0,0.0001)';
-  var HANDLE_RADIUS = 4;
+  var HOVER_PREVIEW_COLOR = 'rgba(100,150,255,1.0)';
+  var HANDLE_RADIUS = 5;
   var ROTATION_HANDLE_RADIUS = 20;
   var HANDLE_NAMES = ['topLeft', 'topCenter', 'topRight', 'rightCenter', 'leftCenter', 'bottomRight', 'bottomCenter', 'bottomLeft'];
   var CURSOR_DEFAULT = 'cursors/default.png';
@@ -4000,6 +4001,7 @@ paper.drawingTools.onCanvasModified = function (fn) {
   var prerotation;
   var prerotationAmount;
   var prerotationPivot;
+  var hoverPreview;
   var onSelectionChangedFn;
   var tool = new paper.Tool();
   paper.drawingTools.cursor = tool;
@@ -4052,6 +4054,11 @@ paper.drawingTools.onCanvasModified = function (fn) {
 
 
   tool.onMouseMove = function (e) {
+    if (hoverPreview) {
+      hoverPreview.remove();
+      hoverPreview = null;
+    }
+
     guiTarget = guiLayer.hitTest(e.point, {
       fill: true
     });
@@ -4060,6 +4067,7 @@ paper.drawingTools.onCanvasModified = function (fn) {
       stroke: true,
       curve: true,
       segments: true,
+      tolerance: 2,
       match: function (result) {
         return result.item.layer !== guiLayer && !result.item.layer.locked;
       }
@@ -4207,8 +4215,7 @@ paper.drawingTools.onCanvasModified = function (fn) {
         resizeX = max;
         resizeY = max;
       }
-    } // Prevent negative scaling. TODO this could be better
-
+    }
 
     if (selectionBounds.width * resizeX < 1) resizeX = 1;
     if (selectionBounds.height * resizeY < 1) resizeY = 1;
@@ -4277,13 +4284,16 @@ paper.drawingTools.onCanvasModified = function (fn) {
 
   tool.onMouseMove_segment = function (e) {
     paper.view._element.style.cursor = 'url(' + CURSOR_SEGMENT + ') 32 32, auto';
+    hoverPreview = new paper.Path.Circle(projectTarget.segment.point, HANDLE_RADIUS / paper.view.zoom);
+    hoverPreview.strokeColor = HOVER_PREVIEW_COLOR;
+    hoverPreview.fillColor = HOVER_PREVIEW_COLOR;
   };
 
   tool.onMouseDown_segment = function (e) {};
 
   tool.onMouseDrag_segment = function (e) {
-    // TODO Flash-like segment dragging
     projectTarget.segment.point = projectTarget.segment.point.add(e.delta);
+    hoverPreview.position = projectTarget.segment.point;
   };
 
   tool.onMouseUp_segment = function (e) {
@@ -4300,6 +4310,13 @@ paper.drawingTools.onCanvasModified = function (fn) {
 
   tool.onMouseMove_curve = function (e) {
     paper.view._element.style.cursor = 'url(' + CURSOR_CURVE + ') 32 32, auto';
+    hoverPreview = new paper.Path();
+    hoverPreview.strokeWidth = 2;
+    hoverPreview.strokeColor = HOVER_PREVIEW_COLOR;
+    hoverPreview.add(new paper.Point(projectTarget.location.curve.point1));
+    hoverPreview.add(new paper.Point(projectTarget.location.curve.point2));
+    hoverPreview.segments[0].handleOut = projectTarget.location.curve.handle1;
+    hoverPreview.segments[1].handleIn = projectTarget.location.curve.handle2;
   };
 
   tool.onMouseDown_curve = function (e) {
@@ -4307,10 +4324,8 @@ paper.drawingTools.onCanvasModified = function (fn) {
       var location = projectTarget.location;
       var path = projectTarget.item;
       newSegment = path.insert(location.index + 1, e.point);
-    } else if (e.modifiers.shift) {
-      var curve = projectTarget.location.curve;
-      curve.segment1.handleOut = new paper.Point(0, 0);
-      curve.segment2.handleIn = new paper.Point(0, 0);
+      if (hoverPreview) hoverPreview.remove();
+      hoverPreview = null;
     }
 
     draggingCurve = projectTarget.location.curve;
@@ -4339,6 +4354,8 @@ paper.drawingTools.onCanvasModified = function (fn) {
       handleIn.y += e.delta.y;
       handleOut.x += e.delta.x;
       handleOut.y += e.delta.y;
+      hoverPreview.segments[0].handleOut = draggingCurve.handle1;
+      hoverPreview.segments[1].handleIn = draggingCurve.handle2;
     }
   };
 
@@ -4378,7 +4395,6 @@ paper.drawingTools.onCanvasModified = function (fn) {
   };
 
   tool.scaleSelection = function (x, y, pivot) {
-    // TODO this is broken for rotated objects
     if (!pivot) pivot = selectionBounds.topLeft;
     selectedItems.forEach(function (item) {
       item.scale(x, y, pivot);
@@ -4450,8 +4466,7 @@ paper.drawingTools.onCanvasModified = function (fn) {
   }
 
   function createSubBorders() {
-    if (selectedItems.length < 2) return; // TODO fix rotated groups have rotated subborders, subborders should never be rotated
-
+    if (selectedItems.length < 2) return;
     selectedItems.forEach(function (selectedItem) {
       var r = selectedItem.rotation;
       selectedItem.rotation = 0;

@@ -25,92 +25,42 @@ import './_canvas.scss';
 class Canvas extends Component {
   constructor (props) {
     super(props);
-
+    this.wickCanvas = null;
     this.onResize = this.onResize.bind(this);
-    this.sendPropsToCanvas = this.sendPropsToCanvas.bind(this);
   }
 
   componentDidMount() {
-    window.paper.setup(this.refs.canvas);
-    window.paper.drawingTools.croquisBrush.activate();
-    window.paper.view.center = new window.paper.Point(
-      this.props.project.width/2,
-      this.props.project.height/2
-    );
+    this.wickCanvas = new window.WickCanvas();
+    window.WickCanvas.setup(this.refs.container);
 
-    window.paper.drawingTools.cursor.onSelectionChanged(function (e) {
-      console.log('onSelectionChanged fired');
+    /*let wickProject = new window.Wick.Project();
+    wickProject.root.timeline.layers[0].frames[0].svg = '<g xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" fill-rule=\"nonzero\" stroke=\"none\" stroke-width=\"1\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke-miterlimit=\"10\" stroke-dasharray=\"\" stroke-dashoffset=\"0\" font-family=\"none\" font-weight=\"none\" font-size=\"none\" text-anchor=\"none\" style=\"mix-blend-mode: normal\"><path d=\"M20,0c0,-16.56854 13.43146,-30 30,-30c16.56854,0 30,13.43146 30,30c0,16.56854 -13.43146,30 -30,30c-16.56854,0 -30,-13.43146 -30,-30z\" fill=\"#ff0000\"/><path d=\"M20,50c0,-16.56854 13.43146,-30 30,-30c16.56854,0 30,13.43146 30,30c0,16.56854 -13.43146,30 -30,30c-16.56854,0 -30,-13.43146 -30,-30z\" fill=\"#0000ff\"/><path d=\"M-30,50c0,-16.56854 13.43146,-30 30,-30c16.56854,0 30,13.43146 30,30c0,16.56854 -13.43146,30 -30,30c-16.56854,0 -30,-13.43146 -30,-30z\" fill=\"#00ff00\"/></g>';
+    this.wickCanvas.render(wickProject);*/
+
+    window.paper.drawingTools.cursor.onSelectionChanged(e => {
+
+    });
+    window.paper.drawingTools.onCanvasModified(e => {
+
     });
 
-    var self = this;
-    window.paper.drawingTools.onCanvasModified(function (e) {
-      console.log('onCanvasModified fired.');
-      self.props.updateProject(self.props.project);
-    });
-
-    this.sendPropsToCanvas();
+    window.paper.drawingTools[this.props.activeTool].activate();
   }
 
   componentDidUpdate () {
-    this.sendPropsToCanvas();
+    //wickCanvas.render(wickProject);
+    window.paper.drawingTools[this.props.activeTool].activate();
   }
 
   onResize (width, height) {
-    /*var widthDiff = window.paper.view.bounds.width - width;
-    var heightDiff = window.paper.view.bounds.height - height;
-    window.paper.view.viewSize.width = width;
-    window.paper.view.viewSize.height = height;
-    window.paper.view.center = window.paper.view.center.add(new window.paper.Point(
-      widthDiff/2/window.paper.view.zoom,
-      heightDiff/2/window.paper.view.zoom
-    ));*/
-  }
-
-  sendPropsToCanvas () {
-
-    // Update all tool settings
-    Object.keys(this.props.toolSettings).forEach(
-      (key) => window.paper.drawingTools[this.props.activeTool][key] = this.props.toolSettings[key]
-    );
-
-    let removeLayers = window.paper.project.layers.filter(layer => {
-      return true;
-    });
-    removeLayers.forEach(layer => {
-      layer.remove();
-    });
-
-    let bg = new window.paper.Layer();
-    bg.locked = true;
-    var bgRect = new window.paper.Path.Rectangle(
-      new window.paper.Point(0,0),
-      new window.paper.Point(this.props.project.width, this.props.project.height),
-    );
-    bgRect.remove();
-    bgRect.fillColor = this.props.project.backgroundColor;
-    bg.addChild(bgRect);
-    window.paper.project.addLayer(bg);
-
-    if(this.props.activeTool === 'cursor') {
-      window.paper.project.addLayer(window.paper.drawingTools.cursor.getGUILayer());
-      window.paper.project.layers['cursorGUILayer'].bringToFront();
-    }
-
-    this.props.project.focus.timeline.activeFrames.forEach(frame => {
-      window.paper.project.addLayer(frame.svg);
-      if(frame === this.props.project.focus.timeline.activeLayer.activeFrame) {
-        frame.svg.activate();
-      }
-    });
+    window.WickCanvas.resize();
   }
 
   render() {
     console.log("Rendering Canvas"); 
     return (
       <ReactResizeDetector handleWidth handleHeight onResize={this.onResize}>
-        <div className="paper-canvas-container">
-          <canvas className="paper-canvas" ref="canvas" resize="true" />
-        </div>
+        <div id="wick-canvas-container" ref="container"></div>
       </ReactResizeDetector>
     );
   }
