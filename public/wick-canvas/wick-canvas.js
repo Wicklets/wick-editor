@@ -15957,6 +15957,8 @@ class WickCanvas {
     this._projectView._contentLayers.forEach(layer => {
       paper.project.addLayer(layer);
     });
+
+    paper.project.layers['wick_frame_' + wickProject.focus.timeline.activeLayer.activeFrame.uuid + '_paths'].activate();
   }
 
 } // Make sure WickCanvas class is availble globally
