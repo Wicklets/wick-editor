@@ -59,9 +59,6 @@ class Editor extends Component {
         borderRadius: 0,
         pressureOn: false,
       },
-      windowWidth: 0,
-      windowHeight: 0,
-      rightPanelSize: 250,
     }
 
     this.resizeProps = {
