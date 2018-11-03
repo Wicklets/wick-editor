@@ -31,6 +31,7 @@ class Canvas extends Component {
     this.wickCanvas = new window.WickCanvas();
     window.WickCanvas.setup(this.refs.container);
     window.WickCanvas.resize();
+    this.wickCanvas.render(this.props.project);
 
     window.paper.drawingTools.cursor.onSelectionChanged(e => {
 
@@ -42,8 +43,6 @@ class Canvas extends Component {
   }
 
   componentDidUpdate () {
-    console.log('Canvas updated')
-
     this.wickCanvas.render(this.props.project);
 
     let tool = window.paper.drawingTools[this.props.activeTool]
