@@ -4155,6 +4155,8 @@ paper.View.inject({
  */
 paper.drawingTools = {};
 
+paper.drawingTools._onCanvasModifiedCallback = function () {};
+
 paper.drawingTools.fireCanvasModified = function (e) {
   paper.drawingTools._onCanvasModifiedCallback(e);
 };
@@ -4266,7 +4268,9 @@ paper.drawingTools.onCanvasModified = function (fn) {
         potracePath.applyMatrix = true;
         paper.project.activeLayer.addChild(potracePath.children[0]);
         croquis.clearLayer();
-        paper.drawingTools.fireCanvasModified();
+        paper.drawingTools.fireCanvasModified({
+          layers: [paper.project.activeLayer]
+        });
       };
 
       img.src = document.getElementsByClassName('croquis-layer-canvas')[1].toDataURL();
@@ -4363,6 +4367,16 @@ paper.drawingTools.onCanvasModified = function (fn) {
 
   tool.setSelectedItems = function (items) {
     selectedItems = items;
+  };
+
+  tool.getSelectionLayers = function () {
+    var layers = [];
+    tool.getSelectedItems().forEach(item => {
+      if (layers.indexOf(item.layer) === -1) {
+        layers.push(item.layer);
+      }
+    });
+    return layers;
   };
 
   tool.getSelectionBounds = function () {
@@ -4551,7 +4565,9 @@ paper.drawingTools.onCanvasModified = function (fn) {
 
   tool.onMouseUp_scaleHandle = function (e) {
     buildGUILayer();
-    paper.drawingTools.fireCanvasModified();
+    paper.drawingTools.fireCanvasModified({
+      layers: tool.getSelectionLayers()
+    });
   };
   /* Rotation hotspot mouse events */
 
@@ -4580,7 +4596,9 @@ paper.drawingTools.onCanvasModified = function (fn) {
 
   tool.onMouseUp_rotationHotspot = function (e) {
     buildGUILayer();
-    paper.drawingTools.fireCanvasModified();
+    paper.drawingTools.fireCanvasModified({
+      layers: tool.getSelectionLayers()
+    });
   };
   /* Generic item mouse events */
 
@@ -4604,7 +4622,9 @@ paper.drawingTools.onCanvasModified = function (fn) {
 
   tool.onMouseUp_item = function (e) {
     buildGUILayer();
-    if (e.delta.x !== 0 || e.delta.y !== 0) paper.drawingTools.fireCanvasModified();
+    if (e.delta.x !== 0 || e.delta.y !== 0) paper.drawingTools.fireCanvasModified({
+      layers: tool.getSelectionLayers()
+    });
   };
   /* Segment mouse events */
 
@@ -4629,7 +4649,9 @@ paper.drawingTools.onCanvasModified = function (fn) {
       selectItem(projectTarget.item);
       onSelectionChangedFn && onSelectionChangedFn();
     } else {
-      paper.drawingTools.fireCanvasModified();
+      paper.drawingTools.fireCanvasModified({
+        layers: tool.getSelectionLayers()
+      });
     }
   };
   /* Curve mouse events */
@@ -4694,7 +4716,9 @@ paper.drawingTools.onCanvasModified = function (fn) {
       selectItem(projectTarget.item);
       onSelectionChangedFn && onSelectionChangedFn();
     } else {
-      paper.drawingTools.fireCanvasModified();
+      paper.drawingTools.fireCanvasModified({
+        layers: tool.getSelectionLayers()
+      });
     }
   };
   /* Selection box transformations */
@@ -4960,9 +4984,9 @@ paper.drawingTools.onCanvasModified = function (fn) {
 
   tool.onMouseDrag = function (e) {
     if (path) path.remove();
-    bottomRight = e.point; // Lock width and height if alt is held down
+    bottomRight = e.point; // Lock width and height if shift is held down
 
-    if (e.modifiers.alt) {
+    if (e.modifiers.shift) {
       var d = bottomRight.subtract(topLeft);
       var max = Math.max(Math.abs(d.x), Math.abs(d.y));
       bottomRight.x = topLeft.x + max * (d.x < 0 ? -1 : 1);
@@ -4979,7 +5003,9 @@ paper.drawingTools.onCanvasModified = function (fn) {
   tool.onMouseUp = function (e) {
     if (!path) return;
     path = null;
-    paper.drawingTools.fireCanvasModified();
+    paper.drawingTools.fireCanvasModified({
+      layers: [paper.project.activeLayer]
+    });
   };
 })();
 /*
@@ -5057,7 +5083,9 @@ paper.drawingTools.onCanvasModified = function (fn) {
         path.remove();
         paper.project.activeLayer.erase(tracedPath, {});
         path = null;
-        paper.drawingTools.fireCanvasModified();
+        paper.drawingTools.fireCanvasModified({
+          layers: [paper.project.activeLayer]
+        });
       },
       resolution: smoothing * paper.view.zoom
     });
@@ -5183,7 +5211,9 @@ paper.drawingTools.onCanvasModified = function (fn) {
           if (path) {
             path.fillColor = tool.fillColor;
             paper.project.activeLayer.addChild(path);
-            paper.drawingTools.fireCanvasModified();
+            paper.drawingTools.fireCanvasModified({
+              layers: [paper.project.activeLayer]
+            });
           }
         }
       });
@@ -5253,7 +5283,9 @@ paper.drawingTools.onCanvasModified = function (fn) {
   tool.onMouseUp = function (e) {
     if (!path) return;
     path = null;
-    paper.drawingTools.fireCanvasModified();
+    paper.drawingTools.fireCanvasModified({
+      layers: [paper.project.activeLayer]
+    });
   };
 })();
 /*
@@ -5348,7 +5380,9 @@ paper.drawingTools.onCanvasModified = function (fn) {
 
   tool.onMouseUp = function (e) {
     path = null;
-    paper.drawingTools.fireCanvasModified();
+    paper.drawingTools.fireCanvasModified({
+      layers: [paper.project.activeLayer]
+    });
   };
 })();
 /*
@@ -5431,7 +5465,9 @@ paper.drawingTools.onCanvasModified = function (fn) {
         paper.project.activeLayer.addChild(tracedPath);
         path.remove();
         path = null;
-        paper.drawingTools.fireCanvasModified();
+        paper.drawingTools.fireCanvasModified({
+          layers: [paper.project.activeLayer]
+        });
       },
       resolution: tool.smoothing * paper.view.zoom
     });
@@ -5485,9 +5521,9 @@ paper.drawingTools.onCanvasModified = function (fn) {
 
   tool.onMouseDrag = function (e) {
     if (path) path.remove();
-    bottomRight = e.point; // Lock width and height if alt is held down
+    bottomRight = e.point; // Lock width and height if shift is held down
 
-    if (e.modifiers.alt) {
+    if (e.modifiers.shift) {
       var d = bottomRight.subtract(topLeft);
       var max = Math.max(Math.abs(d.x), Math.abs(d.y));
       bottomRight.x = topLeft.x + max * (d.x < 0 ? -1 : 1);
@@ -5504,7 +5540,9 @@ paper.drawingTools.onCanvasModified = function (fn) {
   tool.onMouseUp = function (e) {
     if (!path) return;
     path = null;
-    paper.drawingTools.fireCanvasModified();
+    paper.drawingTools.fireCanvasModified({
+      layers: [paper.project.activeLayer]
+    });
   };
 })();
 /*
@@ -5570,7 +5608,9 @@ paper.drawingTools.onCanvasModified = function (fn) {
       text.fillColor = 'black';
       text.content = 'This is some text';
       text.fontSize = 14;
-      paper.drawingTools.fireCanvasModified();
+      paper.drawingTools.fireCanvasModified({
+        layers: [paper.project.activeLayer]
+      });
     }
   };
 
