@@ -43,8 +43,14 @@ class Canvas extends Component {
 
   componentDidUpdate () {
     console.log('Canvas updated')
+
     this.wickCanvas.render(this.props.project);
-    window.paper.drawingTools[this.props.activeTool].activate();
+
+    let tool = window.paper.drawingTools[this.props.activeTool]
+    tool.activate();
+    Object.keys(this.props.toolSettings).forEach(key => {
+      tool[key] = this.props.toolSettings[key];
+    });
   }
 
   render() {
