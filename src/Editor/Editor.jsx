@@ -85,7 +85,7 @@ class Editor extends Component {
   }
 
   componentDidMount () {
-
+    // console.log(this.refs.hotkeysContainer);
   }
 
   onResize (e) {
@@ -195,7 +195,8 @@ class Editor extends Component {
         <HotKeys
           keyMap={this.hotKeyInterface.getKeyMap()}
           handlers={this.hotKeyInterface.getHandlers()}
-          style={{width:"100%", height:"100%"}}>
+          style={{width:"100%", height:"100%"}}
+          ref="hotkeysContainer">
           <div id="editor">
             <div id="menu-bar-container">
               <ModalHandler openModal={this.openModal}

@@ -33,6 +33,8 @@ class ColorPicker extends Component {
     }
 
     this.toggle = this.toggle.bind(this);
+
+    this.style = this.props.stroke === true ? {borderColor:this.props.color,} : {backgroundColor:this.props.color,};
   }
 
   toggle () {
@@ -43,8 +45,7 @@ class ColorPicker extends Component {
 
   render() {
     return(
-      <div className="color-picker">
-        <div className="btn-color-picker" id={this.props.id + '-button'} onClick={this.toggle} />
+      <div className="btn-color-picker" id={this.props.id + '-button'} onClick={this.toggle} style={this.style}>
         <Popover
           placement={this.props.placement}
           isOpen={this.state.open}
