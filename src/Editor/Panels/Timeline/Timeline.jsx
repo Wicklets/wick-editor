@@ -39,7 +39,6 @@ class Timeline extends Component {
     });
 
     AnimationTimeline.onChange(e => {
-      /*
       var nextProject = this.props.project.clone();
       if(e.playhead !== undefined) {
         nextProject.focus.timeline.playheadPosition = e.playhead;
@@ -90,7 +89,6 @@ class Timeline extends Component {
         });
       }
       this.props.updateProject(nextProject);
-      */
     });
 
     AnimationTimeline.onSoftChange(e => {
