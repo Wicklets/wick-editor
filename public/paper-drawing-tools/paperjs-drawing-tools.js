@@ -4195,6 +4195,7 @@ paper.drawingTools.onCanvasModified = function (fn) {
 
   tool.onActivate = function (e) {
     if (!croquis) {
+      paper.view.enablePressure();
       croquis = new Croquis();
       croquis.setCanvasSize(500, 500);
       croquis.addLayer();

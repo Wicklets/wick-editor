@@ -33,11 +33,12 @@ class Canvas extends Component {
     window.WickCanvas.resize();
     this.wickCanvas.render(this.props.project);
 
+    let self = this;
     window.paper.drawingTools.cursor.onSelectionChanged(e => {
 
     });
     window.paper.drawingTools.onCanvasModified(e => {
-      console.log('onCanvasModified');
+      self.wickCanvas.applyChanges(self.props.project, e.layers);
     });
     window.paper.drawingTools[this.props.activeTool].activate();
   }
