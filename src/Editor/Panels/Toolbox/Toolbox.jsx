@@ -94,7 +94,7 @@ class Toolbox extends Component {
           {...this.iconProps}
         />*/}
 
-      <div className="color-container" id="fill-color-picker-container" style={{backgroundColor:this.props.toolSettings.fillColor}}>
+      <div className="color-container" id="fill-color-picker-container">
           <WickInput
             type="color"
             color= {this.props.toolSettings.fillColor}
@@ -106,7 +106,7 @@ class Toolbox extends Component {
             placement="right"
             />
         </div>
-        <div className="color-container" id="stroke-color-picker-container" style={{borderColor:this.props.toolSettings.strokeColor}}>
+        <div className ="color-container" id="stroke-color-picker-container">
           <WickInput
             type="color"
             color= {this.props.toolSettings.strokeColor}
@@ -116,6 +116,7 @@ class Toolbox extends Component {
             })}
             id="tool-box-stroke-color"
             placement="right"
+            stroke={true}
             />
         </div>
       </div>
