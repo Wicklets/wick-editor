@@ -31,6 +31,9 @@ class Canvas extends Component {
     this.wickCanvas = new window.WickCanvas();
     window.WickCanvas.setup(this.refs.container);
     window.WickCanvas.resize();
+    window.paper.view.zoom = 1;
+    window.paper.view.center = new window.paper.Point(this.props.project.width/2,
+                                                      this.props.project.height/2);
     this.wickCanvas.render(this.props.project);
 
     let self = this;
