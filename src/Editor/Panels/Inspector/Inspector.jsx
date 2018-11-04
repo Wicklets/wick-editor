@@ -30,6 +30,7 @@ import InspectorNumericInput from './InspectorRow/InspectorRowTypes/InspectorNum
 import InspectorDualNumericInput from './InspectorRow/InspectorRowTypes/InspectorDualNumericInput';
 import InspectorSelector from './InspectorRow/InspectorRowTypes/InspectorSelector';
 import InspectorColorPicker from './InspectorRow/InspectorRowTypes/InspectorColorPicker';
+import InspectorCheckbox from './InspectorRow/InspectorRowTypes/InspectorCheckbox';
 
 class Inspector extends Component {
   constructor (props) {
@@ -121,20 +122,33 @@ class Inspector extends Component {
 
   // Inspector Row Types
   renderBrushSize(args) {
+    console.log(this.props)
     return (
-      <InspectorNumericSlider icon="brushsize" val={this.props.toolSettings.brushSize} onChange={(val) => this.handleToolSettingChange('brushSize', val)} divider={false}/>
+      <InspectorNumericSlider
+        icon="brushsize"
+        val={this.props.toolSettings.brushSize}
+        onChange={(val) => this.handleToolSettingChange('brushSize', val)}
+        divider={false}/>
     )
   }
 
   renderSmoothness(args) {
     return (
-      <InspectorNumericSlider icon="brushsmoothness" val={args.val} onChange={args.onChange} divider={false}/>
+      <InspectorNumericSlider
+        icon="brushsmoothness"
+        val={args.val}
+        onChange={args.onChange}
+        divider={false}/>
     )
   }
 
   renderStrokeWidth(args) {
     return (
-      <InspectorNumericSlider icon="strokewidth" val={this.props.toolSettings.strokeWidth} onChange={(val) => this.handleToolSettingChange('strokeWidth', val)} divider={false}/>
+      <InspectorNumericSlider
+        icon="strokewidth"
+        val={args.strokeWidth}
+        onChange={(val) => this.handleToolSettingChange('strokeWidth', val)}
+        divider={false}/>
     )
   }
 
@@ -211,6 +225,15 @@ class Inspector extends Component {
     )
   }
 
+  renderPressure(args) {
+    return (
+      <InspectorCheckbox
+        icon="pressure"
+        defaultChecked={this.props.toolSettings.pressureOn}
+        onChange={() => this.handleToolSettingChange('pressureOn', !this.props.toolSettings.pressureOn)} />
+    )
+  }
+
   // Selection contents and properties
   renderCursor() {
     return (
@@ -229,6 +252,7 @@ class Inspector extends Component {
         <InspectorTitle type={"brush"} title={"Brush"} />
         <div className="inspector-content">
           {this.renderBrushSize()}
+          {this.renderPressure()}
           {/*{this.renderSmoothness({val:this.state.dummySize, onChange:this.handleChange})}*/}
           {/*{this.renderFillColor({val:this.state.dummyColor, onChange:this.handleColorChange, id:"inspector-brush-fill-color-picker"})}*/}
         </div>

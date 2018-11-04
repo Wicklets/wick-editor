@@ -17,26 +17,24 @@
  * along with Wick Editor.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-@import 'Editor/_wickbrand.scss';
+import React, { Component } from 'react';
 
-.wick-input {
-  padding: 2px;
-  width: 100%;
-  height: 100%;
-  border-radius: $interface-input-roundness;
-  border: none;
-  background-color: $interface-quaternary;
-  color: $interface-tertiary-text;
+import InspectorRow from '../InspectorRow';
+
+class InspectorCheckbox extends Component {
+  render() {
+    return(
+      <div className="inspector-row">
+        <InspectorRow icon={this.props.icon}
+                      input1={
+                        {type: "checkbox",
+                        defaultChecked: this.props.defaultChecked,
+                        onChange: this.props.onChange}
+                      }
+                    />
+      </div>
+    )
+  }
 }
 
-.wick-slider {
-  padding:2px;
-  width: 100%;
-  height: 100%;
-  border-radius: $interface-input-roundness;
-}
-
-.wick-checkbox {
-  height: 100%;
-  width: 100%; 
-}
+export default InspectorCheckbox
