@@ -146,7 +146,7 @@ class Inspector extends Component {
     return (
       <InspectorNumericSlider
         icon="strokewidth"
-        val={args.strokeWidth}
+        val={this.props.toolSettings.strokeWidth}
         onChange={(val) => this.handleToolSettingChange('strokeWidth', val)}
         divider={false}/>
     )

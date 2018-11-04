@@ -40,7 +40,7 @@ class Toolbox extends Component {
 
   render() {
     return(
-      <div className="docked-pane tool-box">
+      <div className="tool-box">
         <ToolButton
           name="cursor"
           {...this.iconProps}
