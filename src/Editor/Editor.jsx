@@ -204,7 +204,9 @@ class Editor extends Component {
                             project={this.state.project}
                             updateProject={this.updateProject} />
               {/* Header */}
-              <DockedPanel><MenuBar openModal={this.openModal} projectName={this.state.project.name}/></DockedPanel>
+              <DockedPanel>
+                <MenuBar openModal={this.openModal} projectName={this.state.project.name}/>
+              </DockedPanel>
             </div>
             <div id="editor-body">
               <div id="tool-box-container">

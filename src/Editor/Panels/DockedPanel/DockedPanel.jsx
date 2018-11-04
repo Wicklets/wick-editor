@@ -17,11 +17,11 @@
  * along with Wick Editor.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, { Component } from 'react';
+import React, { Component, PureComponent } from 'react';
 import './_dockedpanel.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-class DockedPanel extends Component {
+class DockedPanel extends PureComponent {
   render() {
     return(
       <div className="docked-panel">{this.props.children}</div>
