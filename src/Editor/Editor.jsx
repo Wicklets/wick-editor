@@ -94,8 +94,8 @@ class Editor extends Component {
   }
 
   onStopResize = ({domElement, component}) => {
-  }
 
+  }
 
   openModal (name) {
     if (this.state.openModalName !== name) {

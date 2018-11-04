@@ -15936,6 +15936,11 @@ class WickCanvas {
   static resize() {
     var newWidth = this.elem.offsetWidth;
     var newHeight = this.elem.offsetHeight;
+    var oldWidth = paper.view.viewSize.width;
+    var oldHeight = paper.view.viewSize.height;
+    var diffWidth = oldWidth - newWidth;
+    var diffHeight = oldHeight - newHeight;
+    paper.view.center = paper.view.center.add(new paper.Point(diffWidth / 2, diffHeight / 2));
     paper.view.viewSize.width = newWidth;
     paper.view.viewSize.height = newHeight;
   }
