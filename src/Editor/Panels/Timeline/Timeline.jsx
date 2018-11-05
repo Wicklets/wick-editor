@@ -92,7 +92,7 @@ class Timeline extends Component {
     });
 
     AnimationTimeline.onSoftChange(e => {
-
+      
     });
 
     AnimationTimeline.onSelectionChange(e => {

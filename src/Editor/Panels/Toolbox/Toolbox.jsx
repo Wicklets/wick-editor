@@ -46,7 +46,7 @@ class Toolbox extends Component {
           {...this.iconProps}
         />
         <ToolButton
-          name="croquisBrush"
+          name="brush"
           {...this.iconProps}
         />
         <ToolButton
@@ -87,10 +87,6 @@ class Toolbox extends Component {
         />
         <ToolButton
           name="text"
-          {...this.iconProps}
-        />
-        <ToolButton
-          name="potraceBrush"
           {...this.iconProps}
         />*/}
 

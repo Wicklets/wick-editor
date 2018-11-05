@@ -4034,7 +4034,6 @@ paper.Path.inject({
       potracePath.remove();
       potracePath.closed = true;
       potracePath.children[0].closed = true;
-      potracePath.applyMatrix = true;
       args.done(potracePath.children[0]);
     };
 
@@ -4122,13 +4121,13 @@ paper.View.inject({
   pressure: 1,
   enablePressure: function (args) {
     let self = this;
-    let MIN_PRESSURE = .14;
+    let MIN_PRESSURE = 0.14;
     $(this.element.parentElement).pressure({
       change: function (force, event) {
-        self.pressure = $.pressureMap(force, 0, 1, MIN_PRESSURE, 1);
+        self.pressure = $.pressureMap(force, 0.0, 1.0, MIN_PRESSURE, 1.0);
       },
       end: function () {
-        self.pressure = 1;
+        self.pressure = 1.0;
       }
     }, {
       polyfill: false
@@ -4187,11 +4186,16 @@ paper.drawingTools.onCanvasModified = function (fn) {
   var croquisDOMElement;
   var croquisBrush;
   var cursor;
+  var lastPressure;
   var tool = new paper.Tool();
-  paper.drawingTools.croquisBrush = tool;
+  paper.drawingTools.brush = tool;
   tool.pressureEnabled = true;
   tool.brushSize = 10;
+  tool.brushStabilizerLevel = 3;
+  tool.brushStabilizerWeight = 0.5;
+  tool.potraceResolution = 1.0;
   tool.fillColor = '#000000';
+  var BRUSH_POINT_SPACING = 0.2;
 
   tool.onActivate = function (e) {
     if (!croquis) {
@@ -4237,9 +4241,9 @@ paper.drawingTools.onCanvasModified = function (fn) {
   tool.onMouseDown = function (e) {
     croquisBrush.setSize(tool.brushSize);
     croquisBrush.setColor(tool.fillColor);
-    croquisBrush.setSpacing(0.2);
-    croquis.setToolStabilizeLevel(3);
-    croquis.setToolStabilizeWeight(0.5);
+    croquisBrush.setSpacing(BRUSH_POINT_SPACING);
+    croquis.setToolStabilizeLevel(tool.brushStabilizerLevel);
+    croquis.setToolStabilizeWeight(tool.brushStabilizerWeight);
     var point = paper.view.projectToView(e.point.x, e.point.y);
     croquis.down(point.x, point.y, tool.getPressure());
   };
@@ -4247,18 +4251,19 @@ paper.drawingTools.onCanvasModified = function (fn) {
   tool.onMouseDrag = function (e) {
     var point = paper.view.projectToView(e.point.x, e.point.y);
     croquis.move(point.x, point.y, tool.getPressure());
+    lastPressure = tool.getPressure();
     cursor = BrushCursorGen.create(tool.fillColor, tool.brushSize * tool.getPressure());
     paper.view._element.style.cursor = cursor;
   };
 
   tool.onMouseUp = function (e) {
     var point = paper.view.projectToView(e.point.x, e.point.y);
-    croquis.up(point.x, point.y, tool.getPressure());
+    croquis.up(point.x, point.y, lastPressure);
     setTimeout(function () {
       var img = new Image();
 
       img.onload = function () {
-        var svg = potrace.fromImage(img).toSVG(1 / paper.view.zoom);
+        var svg = potrace.fromImage(img).toSVG(1 / tool.potraceResolution / paper.view.zoom);
         var potracePath = paper.project.importSVG(svg);
         potracePath.fillColor = tool.fillColor;
         potracePath.position.x += paper.view.bounds.x;
@@ -4274,7 +4279,13 @@ paper.drawingTools.onCanvasModified = function (fn) {
         });
       };
 
-      img.src = document.getElementsByClassName('croquis-layer-canvas')[1].toDataURL();
+      var canvas = document.getElementsByClassName('croquis-layer-canvas')[1];
+      var resizedCanvas = document.createElement("canvas");
+      var resizedContext = resizedCanvas.getContext("2d");
+      resizedCanvas.width = canvas.width * tool.potraceResolution;
+      resizedCanvas.height = canvas.height * tool.potraceResolution;
+      resizedContext.drawImage(canvas, 0, 0, resizedCanvas.width, resizedCanvas.height);
+      img.src = resizedCanvas.toDataURL();
     }, 20);
   };
 })();
@@ -4298,11 +4309,13 @@ paper.drawingTools.onCanvasModified = function (fn) {
  */
 (() => {
   /* Consts */
+  var SELECTION_TOLERANCE = 3;
   var SELECTION_BOX_STROKECOLOR = 'rgba(100,150,255,1.0)';
   var SELECTION_BOX_FILLCOLOR = 'rgba(255,255,255,0.3)';
   var SELECTION_SUBBOX_STROKECOLOR = 'rgba(100,150,255,0.75)';
   var ROTATION_HANDLE_COLOR = 'rgba(255,0,0,0.0001)';
   var HOVER_PREVIEW_COLOR = 'rgba(100,150,255,1.0)';
+  var HOVER_PREVIEW_STROKEWIDTH = 1.5;
   var HANDLE_RADIUS = 5;
   var ROTATION_HANDLE_RADIUS = 20;
   var HANDLE_NAMES = ['topLeft', 'topCenter', 'topRight', 'rightCenter', 'leftCenter', 'bottomRight', 'bottomCenter', 'bottomLeft'];
@@ -4367,7 +4380,8 @@ paper.drawingTools.onCanvasModified = function (fn) {
   };
 
   tool.setSelectedItems = function (items) {
-    selectedItems = items;
+    clearSelection();
+    selectItems(items);
   };
 
   tool.getSelectionLayers = function () {
@@ -4392,6 +4406,22 @@ paper.drawingTools.onCanvasModified = function (fn) {
   tool.getGUILayer = function () {
     return guiLayer;
   };
+
+  tool.flipSelectionHorizontally = function () {
+    tool.flipSelection('horizontal');
+  };
+
+  tool.flipSelectionVertically = function () {
+    tool.flipSelection('vertical');
+  };
+
+  tool.selectAll = function () {
+    selectAll();
+  };
+
+  tool.deselectAll = function () {
+    clearSelection();
+  };
   /* Base mouse events */
 
 
@@ -4401,26 +4431,8 @@ paper.drawingTools.onCanvasModified = function (fn) {
       hoverPreview = null;
     }
 
-    guiTarget = guiLayer.hitTest(e.point, {
-      fill: true
-    });
-    projectTarget = paper.project.hitTest(e.point, {
-      fill: true,
-      stroke: true,
-      curve: true,
-      segments: true,
-      tolerance: 2,
-      match: function (result) {
-        return result.item.layer !== guiLayer && !result.item.layer.locked;
-      }
-    });
-
-    if (projectTarget) {
-      while (projectTarget.item.parent.className !== 'Layer') {
-        projectTarget.item = projectTarget.item.parent;
-      }
-    }
-
+    guiTarget = determineGUITarget(e);
+    projectTarget = determineProjectTarget(e);
     forwardMouseEvent(e, 'Move');
   };
 
@@ -4551,8 +4563,8 @@ paper.drawingTools.onCanvasModified = function (fn) {
     } else if (handleDir === 'topCenter' || handleDir === 'bottomCenter') {
       resizeX = 1;
     } else {
-      // Holding alt locks aspect ratio.
-      if (e.modifiers.alt) {
+      // Holding shift locks aspect ratio.
+      if (e.modifiers.shift) {
         var max = Math.max(resizeX, resizeY);
         resizeX = max;
         resizeY = max;
@@ -4634,6 +4646,7 @@ paper.drawingTools.onCanvasModified = function (fn) {
     paper.view._element.style.cursor = 'url(' + CURSOR_SEGMENT + ') 32 32, auto';
     hoverPreview = new paper.Path.Circle(projectTarget.segment.point, HANDLE_RADIUS / paper.view.zoom);
     hoverPreview.strokeColor = HOVER_PREVIEW_COLOR;
+    hoverPreview.strokeWidth = HOVER_PREVIEW_STROKEWIDTH;
     hoverPreview.fillColor = HOVER_PREVIEW_COLOR;
   };
 
@@ -4733,7 +4746,7 @@ paper.drawingTools.onCanvasModified = function (fn) {
     guiLayer.children.forEach(function (child) {
       child.position.x += x;
       child.position.y += y;
-    }); //calculateBounds();
+    });
   };
 
   tool.rotateSelection = function (r, pivot) {
@@ -4743,7 +4756,7 @@ paper.drawingTools.onCanvasModified = function (fn) {
     });
     guiLayer.children.forEach(function (child) {
       child.rotate(r, pivot);
-    }); //calculateBounds();
+    });
   };
 
   tool.scaleSelection = function (x, y, pivot) {
@@ -4761,12 +4774,24 @@ paper.drawingTools.onCanvasModified = function (fn) {
     });
     calculateBounds();
   };
+
+  tool.flipSelection = function (direction) {
+    var pivot = selectionBounds.center;
+    selectedItems.forEach(function (item) {
+      item.scale(direction === 'horizontal' ? -1 : 1, direction === 'vertical' ? -1 : 1, pivot);
+    });
+    buildGUILayer();
+    paper.drawingTools.fireCanvasModified({
+      layers: tool.getSelectionLayers()
+    });
+  };
   /* Utils */
 
 
   function buildGUILayer() {
     guiLayer.clear();
     if (selectedItems.length === 0) return;
+    forceApplyMatrix();
     calculateBounds();
     createSelectionBorder();
     createSubBorders();
@@ -4779,6 +4804,17 @@ paper.drawingTools.onCanvasModified = function (fn) {
         child.rotate(prerotationAmount, prerotationPivot);
       });
     }
+  }
+
+  function forceApplyMatrix() {
+    // For selectionbox transforms to work correctly, anything that isn't a group
+    // or a raster must have applyMatrix set to true so paths won't have an extra
+    // transformation to deal with, all of their information can be stored in svg
+    selectedItems.forEach(item => {
+      if (item instanceof paper.Path || item instanceof paper.CompoundPath) {
+        item.applyMatrix = true;
+      }
+    });
   }
 
   function calculateBounds() {
@@ -4880,37 +4916,63 @@ paper.drawingTools.onCanvasModified = function (fn) {
     }
   }
 
-  function forwardMouseEvent(e, type) {
-    var target = null;
+  function forwardMouseEvent(e, mouseEventName) {
+    var itemType;
 
     if (guiTarget) {
       if (guiTarget.item.name.startsWith('selectionBoxScaleHandle_')) {
-        target = 'scaleHandle';
+        itemType = 'scaleHandle';
         draggingScaleHandle = guiTarget.item;
       } else if (guiTarget.item.name.startsWith('selectionBoxRotationHandle_')) {
-        target = 'rotationHotspot';
+        itemType = 'rotationHotspot';
         draggingRotationHotspot = guiTarget.item;
       }
     } else if (projectTarget) {
       if (projectTarget.type === 'fill' || selectedItems.indexOf(projectTarget.item) !== -1) {
-        target = 'item';
+        itemType = 'item';
       } else if (projectTarget.type === 'segment') {
-        target = 'segment';
+        itemType = 'segment';
       } else if (projectTarget.type === 'curve' || projectTarget.type === 'stroke') {
-        target = 'curve';
+        itemType = 'curve';
       } else if (projectTarget.type === 'pixel') {
-        target = 'item';
+        itemType = 'item';
       }
     } else {
-      target = 'canvas';
+      itemType = 'canvas';
     }
 
-    if (target) {
-      var fnName = 'onMouse' + type + '_' + target;
+    if (itemType) {
+      var fnName = 'onMouse' + mouseEventName + '_' + itemType;
       tool[fnName](e);
-    } else {
-      throw new Error("oh no coudlnt determine target :((((("); //TODO handle this better
     }
+  }
+
+  function determineGUITarget(e) {
+    return guiLayer.hitTest(e.point, {
+      fill: true
+    });
+  }
+
+  function determineProjectTarget(e) {
+    var projectTarget = projectTarget = paper.project.hitTest(e.point, {
+      fill: true,
+      stroke: true,
+      curves: true,
+      segments: true,
+      tolerance: SELECTION_TOLERANCE,
+      match: function (result) {
+        return result.item.layer !== guiLayer && !result.item.layer.locked;
+      }
+    });
+
+    if (projectTarget) {
+      while (projectTarget.item.parent.className !== 'Layer') {
+        projectTarget.type = 'fill';
+        projectTarget.item = projectTarget.item.parent;
+      }
+    }
+
+    return projectTarget;
   }
   /* Selection API */
 
@@ -4926,6 +4988,18 @@ paper.drawingTools.onCanvasModified = function (fn) {
 
   function selectItem(item) {
     selectItems([item]);
+  }
+
+  function selectAll() {
+    var all = [];
+    paper.project.layers.forEach(layer => {
+      if (layer.locked) return;
+      layer.children.forEach(child => {
+        all.push(child);
+      });
+    });
+    clearSelection();
+    selectItems(all);
   }
 
   function clearSelection() {
@@ -4999,6 +5073,7 @@ paper.drawingTools.onCanvasModified = function (fn) {
     path.fillColor = tool.fillColor;
     path.strokeColor = tool.strokeColor;
     path.strokeWidth = tool.strokeWidth;
+    path.strokeCap = 'round';
   };
 
   tool.onMouseUp = function (e) {
@@ -5116,6 +5191,9 @@ paper.drawingTools.onCanvasModified = function (fn) {
   var hoverColor;
   var colorPreviewBorder;
   var colorPreview;
+
+  var _colorChosenCallback;
+
   var tool = new paper.Tool();
   paper.drawingTools.eyedropper = tool;
 
@@ -5125,6 +5203,10 @@ paper.drawingTools.onCanvasModified = function (fn) {
 
   tool.onDeactivate = function (e) {
     destroyColorPreview();
+  };
+
+  tool.onColorChosen = function (callback) {
+    _colorChosenCallback = callback;
   };
 
   tool.onMouseMove = function (e) {
@@ -5138,7 +5220,11 @@ paper.drawingTools.onCanvasModified = function (fn) {
     createColorPreview(e.point);
   };
 
-  tool.onMouseDown = function (e) {};
+  tool.onMouseDown = function (e) {
+    _colorChosenCallback && _colorChosenCallback({
+      color: hoverColor
+    });
+  };
 
   tool.onMouseDrag = function (e) {};
 
@@ -5249,7 +5335,7 @@ paper.drawingTools.onCanvasModified = function (fn) {
   var endPoint;
   var tool = new paper.Tool();
   paper.drawingTools.line = tool;
-  tool.strokeColor = 'black';
+  tool.strokeColor = '#000000';
   tool.strokeWidth = 1;
 
   tool.onActivate = function (e) {};
@@ -5277,6 +5363,7 @@ paper.drawingTools.onCanvasModified = function (fn) {
 
     endPoint = e.point;
     path = new paper.Path.Line(startPoint, endPoint);
+    path.strokeCap = 'round';
     path.strokeColor = tool.strokeColor;
     path.strokeWidth = tool.strokeWidth;
   };
@@ -5349,10 +5436,13 @@ paper.drawingTools.onCanvasModified = function (fn) {
 (() => {
   var CURSOR_PENCIL = 'cursors/pencil.png';
   var path;
+  var lastAddedPoint;
   var tool = new paper.Tool();
   paper.drawingTools.pencil = tool;
   tool.strokeWidth = 1;
   tool.strokeColor = '#000000';
+  tool.smoothness = 0;
+  tool.simplifyAmount = 0;
 
   tool.onActivate = function (e) {};
 
@@ -5375,102 +5465,23 @@ paper.drawingTools.onCanvasModified = function (fn) {
   };
 
   tool.onMouseDrag = function (e) {
-    path.add(e.point);
-    path.smooth();
+    var d = lastAddedPoint && lastAddedPoint.subtract(e.point).length;
+
+    if (!lastAddedPoint || d > tool.smoothness) {
+      lastAddedPoint = e.point;
+      path.add(e.point);
+      path.smooth();
+    }
   };
 
   tool.onMouseUp = function (e) {
+    if (tool.simplifyAmount !== 0) {
+      path.simplify(tool.simplifyAmount);
+    }
+
     path = null;
     paper.drawingTools.fireCanvasModified({
       layers: [paper.project.activeLayer]
-    });
-  };
-})();
-/*
- * Copyright 2018 WICKLETS LLC
- *
- * This file is part of Paper.js-drawing-tools.
- *
- * Paper.js-drawing-tools is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Paper.js-drawing-tools is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with Paper.js-drawing-tools.  If not, see <https://www.gnu.org/licenses/>.
- */
-(() => {
-  var path;
-  var cursor;
-  var cursorColor;
-  var cursorSize;
-  var tool = new paper.Tool();
-  paper.drawingTools.potraceBrush = tool;
-  tool.fillColor = '#000000';
-  tool.brushSize = 10;
-  tool.smoothing = 0.5;
-
-  tool.onActivate = function (e) {
-    cursorColor = null;
-    cursorSize = null;
-  };
-
-  tool.onDeactivate = function (e) {
-    if (path) {
-      path.remove();
-      path = null;
-    }
-  };
-
-  tool.onMouseMove = function (e) {
-    // Don't render cursor after every mouse move, cache and only render when size or color changes
-    var cursorNeedsRegen = tool.fillColor !== cursorColor || tool.brushSize !== cursorSize;
-
-    if (cursorNeedsRegen) {
-      cursor = BrushCursorGen.create(tool.fillColor, tool.brushSize);
-      cursorColor = tool.fillColor;
-      cursorSize = tool.brushSize;
-      paper.view._element.style.cursor = cursor;
-    }
-  };
-
-  tool.onMouseDown = function (e) {
-    if (!path) {
-      path = new paper.Path({
-        strokeColor: tool.fillColor,
-        strokeCap: 'round',
-        strokeWidth: tool.brushSize / paper.view.zoom
-      });
-    } // Add an extra point so we're guaranteed to at least have a dot.
-
-
-    path.add(e.point);
-    path.add(e.point);
-  };
-
-  tool.onMouseDrag = function (e) {
-    path.add(e.point);
-    path.smooth();
-  };
-
-  tool.onMouseUp = function (e) {
-    if (!path) return;
-    path.potrace({
-      done: function (tracedPath) {
-        tracedPath.fillColor = tool.fillColor;
-        paper.project.activeLayer.addChild(tracedPath);
-        path.remove();
-        path = null;
-        paper.drawingTools.fireCanvasModified({
-          layers: [paper.project.activeLayer]
-        });
-      },
-      resolution: tool.smoothing * paper.view.zoom
     });
   };
 })();
@@ -5501,6 +5512,7 @@ paper.drawingTools.onCanvasModified = function (fn) {
   tool.fillColor = '#ff0000';
   tool.strokeColor = '#000000';
   tool.strokeWidth = 1;
+  tool.cornerRadius = 0;
 
   tool.onActivate = function (e) {};
 
@@ -5532,10 +5544,17 @@ paper.drawingTools.onCanvasModified = function (fn) {
     }
 
     var bounds = new paper.Rectangle(new paper.Point(topLeft.x, topLeft.y), new paper.Point(bottomRight.x, bottomRight.y));
-    path = new paper.Path.Rectangle(bounds);
+
+    if (tool.cornerRadius !== 0) {
+      path = new paper.Path.Rectangle(bounds, tool.cornerRadius);
+    } else {
+      path = new paper.Path.Rectangle(bounds);
+    }
+
     path.fillColor = tool.fillColor;
     path.strokeColor = tool.strokeColor;
     path.strokeWidth = tool.strokeWidth;
+    path.strokeCap = 'round';
   };
 
   tool.onMouseUp = function (e) {
