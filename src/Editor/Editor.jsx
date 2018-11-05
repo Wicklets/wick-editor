@@ -64,7 +64,7 @@ class Editor extends Component {
     }
 
     // Milliseconds to throttle resize events by.
-    this.resizeThrottleAmount = 10;
+    this.resizeThrottleAmount = 3;
 
     this.resizeProps = {
       onStopResize: throttle(this.onStopResize.bind(this), this.resizeThrottleAmount),
