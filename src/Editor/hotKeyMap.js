@@ -30,7 +30,7 @@ class HotKeyInterface extends Object {
 
   createHandlers() {
     this.handlers =     {
-          'activate-brush': (() => this.editor.activateTool("croquisBrush")),
+          'activate-brush': (() => this.editor.activateTool("brush")),
           'activate-cursor': (() => this.editor.activateTool("cursor")),
           'activate-pencil': (() => this.editor.activateTool("pencil")),
           'activate-eraser': (() => this.editor.activateTool("eraser")),

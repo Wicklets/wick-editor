@@ -40,7 +40,7 @@ class ToolButton extends Component {
     super(props);
 
     this.icons = {
-      "croquisBrush":iconBrush,
+      "brush":iconBrush,
       "cursor":iconCursor,
       "ellipse":iconEllipse,
       "rectangle":iconRectangle,

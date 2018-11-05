@@ -59,7 +59,6 @@ class Inspector extends Component {
     this.inspectorContentRenderFunctions = {
       "cursor": this.renderCursor.bind(this),
       "brush": this.renderBrush.bind(this),
-      "croquisBrush": this.renderBrush.bind(this),
       "pencil": this.renderPencil.bind(this),
       "eraser": this.renderEraser.bind(this),
       "fillbucket": this.renderFillBucket.bind(this),
