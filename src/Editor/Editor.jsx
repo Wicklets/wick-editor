@@ -82,6 +82,7 @@ class Editor extends Component {
     this.updateToolSettings = this.updateToolSettings.bind(this);
     this.deleteSelectedObjects = this.deleteSelectedObjects.bind(this);
 
+    // Bind window resizes to editor resize events.
     window.addEventListener("resize", this.resizeProps.onResize);
   }
 
