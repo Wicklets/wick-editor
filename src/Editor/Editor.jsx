@@ -63,9 +63,12 @@ class Editor extends Component {
       },
     }
 
+    // Milliseconds to throttle resize events by.
+    this.resizeThrottleAmount = 10;
+
     this.resizeProps = {
-      onStopResize: this.onStopResize.bind(this),
-      onResize: this.onResize.bind(this)
+      onStopResize: throttle(this.onStopResize.bind(this), this.resizeThrottleAmount),
+      onResize: throttle(this.onResize.bind(this), this.resizeThrottleAmount)
     }
 
     // define hotkeys
@@ -79,9 +82,7 @@ class Editor extends Component {
     this.updateToolSettings = this.updateToolSettings.bind(this);
     this.deleteSelectedObjects = this.deleteSelectedObjects.bind(this);
 
-    // Resize the canvas on resize at a throttled speed.
-    let throttledUpdate = throttle(this.onResize, 20);
-    window.addEventListener("resize", throttledUpdate);
+    window.addEventListener("resize", this.resizeProps.onResize);
   }
 
   componentWillMount () {
