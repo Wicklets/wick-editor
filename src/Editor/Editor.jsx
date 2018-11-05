@@ -40,6 +40,8 @@ import ModalHandler from './Modals/ModalHandler/ModalHandler';
 import { HotKeys } from 'react-hotkeys';
 import HotKeyInterface from './hotKeyMap';
 
+import {throttle} from 'underscore';
+
 class Editor extends Component {
 
   constructor () {
@@ -77,6 +79,9 @@ class Editor extends Component {
     this.updateToolSettings = this.updateToolSettings.bind(this);
     this.deleteSelectedObjects = this.deleteSelectedObjects.bind(this);
 
+    // Resize the canvas on resize at a throttled speed.
+    let throttledUpdate = throttle(this.onResize, 20);
+    window.addEventListener("resize", throttledUpdate);
   }
 
   componentWillMount () {
