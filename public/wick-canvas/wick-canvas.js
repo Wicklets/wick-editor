@@ -15965,8 +15965,12 @@ class WickCanvas {
     // (this is so that drawing tools will draw onto the correct frame)
 
 
-    var activeFrameUUID = wickProject.focus.timeline.activeLayer.activeFrame.uuid;
-    paper.project.layers['wick_frame_' + activeFrameUUID + '_paths'].activate();
+    var activeFrame = wickProject.focus.timeline.activeLayer.activeFrame;
+
+    if (activeFrame) {
+      var activeFrameUUID = activeFrame.uuid;
+      paper.project.layers['wick_frame_' + activeFrameUUID + '_paths'].activate();
+    }
   }
 
   applyChanges(wickProject, layers) {
