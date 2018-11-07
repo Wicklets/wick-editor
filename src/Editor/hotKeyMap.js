@@ -25,6 +25,7 @@ class HotKeyInterface extends Object {
       'activate-pan': 'space',
       'activate-zoom': 'z',
       'delete': 'q',
+      'do-nothing': 'backspace',
     }
   }
 
@@ -41,6 +42,7 @@ class HotKeyInterface extends Object {
           'activate-pan': (() => this.editor.activateTool("pan")),
           'activate-zoom': (() => this.editor.activateTool("zoom")),
           'delete': (() => this.editor.deleteSelectedObjects()),
+          'do-nothin': (() => console.log("donothing")), 
     }
   }
 
