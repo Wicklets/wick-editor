@@ -59,7 +59,7 @@ class Editor extends Component {
         brushSize: 10,
         brushSmoothing: 0.5,
         borderRadius: 0,
-        pressureOn: false,
+        pressureEnabled: false,
       },
     }
 

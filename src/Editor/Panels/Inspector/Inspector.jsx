@@ -228,8 +228,8 @@ class Inspector extends Component {
     return (
       <InspectorCheckbox
         icon="pressure"
-        defaultChecked={this.props.toolSettings.pressureOn}
-        onChange={() => this.handleToolSettingChange('pressureOn', !this.props.toolSettings.pressureOn)} />
+        defaultChecked={this.props.toolSettings.pressureEnabled}
+        onChange={() => this.handleToolSettingChange('pressureEnabled', !this.props.toolSettings.pressureOn)} />
     )
   }
 
