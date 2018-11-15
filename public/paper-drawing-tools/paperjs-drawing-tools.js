@@ -3810,6 +3810,8 @@ paper.DrawingTools = class {
   }
 
   fireCanvasModified(e) {
+    this._ensureUniqueIDs();
+
     this._onCanvasModifiedCallback && this._onCanvasModifiedCallback(e);
   }
 
@@ -3823,6 +3825,14 @@ paper.DrawingTools = class {
 
   onSelectionChanged(fn) {
     this._onSelectionChangedCallback = fn;
+  }
+
+  _ensureUniqueIDs() {
+    paper.project.layers.forEach(layer => {
+      layer.children.forEach(child => {
+        if (!child.name) child.name = Math.random() + '-';
+      });
+    });
   }
 
 };
@@ -4401,6 +4411,20 @@ paper.MultiSelection = class {
     }
   }
 
+  addItemByName(name) {
+    var item = null;
+
+    this._selectableLayers().forEach(layer => {
+      if (layer.children[name]) {
+        item = layer.children[name];
+      }
+    });
+
+    if (item) {
+      this.addItem(item);
+    }
+  }
+
   removeItem(item) {
     this._selectedItems = this._selectedItems.filter(seekItem => {
       return seekItem !== item;
@@ -4417,14 +4441,13 @@ paper.MultiSelection = class {
 
   selectAll() {
     var selectableItems = [];
-    var guiLayer = this._guiLayer;
-    paper.project.layers.forEach(layer => {
-      if (layer.locked) return;
-      if (layer === guiLayer) return;
+
+    this._selectableLayers().forEach(layer => {
       layer.children.forEach(child => {
         selectableItems.push(child);
       });
     });
+
     this.clear();
     var self = this;
     selectableItems.forEach(item => {
@@ -4643,6 +4666,13 @@ paper.MultiSelection = class {
     });
 
     return layers;
+  }
+
+  _selectableLayers() {
+    var self = this;
+    return paper.project.layers.filter(layer => {
+      return !layer.locked && layer !== self._guiLayer;
+    });
   }
 
 };
