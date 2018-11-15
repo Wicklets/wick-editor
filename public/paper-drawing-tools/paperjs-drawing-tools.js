@@ -4432,7 +4432,9 @@ paper.MultiSelection = class {
   }
 
   isItemSelected(item) {
-    return this._selectedItems.indexOf(item) !== -1;
+    return this._selectedItems.find(seekItem => {
+      return seekItem.name === item.name;
+    });
   }
 
   clear() {
@@ -5309,11 +5311,12 @@ class BrushCursorGen {
 
   tool._onMouseDown_item = function (e) {
     if (!e.modifiers.shift && !paper.project.selection.isItemSelected(projectTarget.item)) {
-      selectedItems = [];
+      paper.project.selection.clear();
     }
 
     paper.project.selection.addItem(projectTarget.item);
     paper.project.selection.updateGUI();
+    paper.drawingTools.fireSelectionChanged();
   };
 
   tool._onMouseDrag_item = function (e) {
@@ -5353,8 +5356,9 @@ class BrushCursorGen {
       paper.project.selection.selectItem(projectTarget.item);
       paper.drawingTools.fireSelectionChanged();
     } else {
+      hoverPreview.remove();
       paper.drawingTools.fireCanvasModified({
-        layers: paper.project.selection._getLayersOfSelectedItems()
+        layers: [projectTarget.item.layer]
       });
       paper.project.selection.updateGUI();
     }
@@ -5424,8 +5428,9 @@ class BrushCursorGen {
       paper.project.selection.selectItem(projectTarget.item);
       paper.drawingTools.fireSelectionChanged();
     } else {
+      hoverPreview.remove();
       paper.drawingTools.fireCanvasModified({
-        layers: paper.project.selection._getLayersOfSelectedItems()
+        layers: [projectTarget.item.layer]
       });
       paper.project.selection.updateGUI();
     }
