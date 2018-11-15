@@ -49,6 +49,7 @@ class Editor extends Component {
 
     this.state = {
       project: null,
+      canvasSelection: [],
       openModalName: null,
       activeTool: 'cursor',
       toolSettings: {
@@ -69,9 +70,10 @@ class Editor extends Component {
     this.hotKeyInterface = new HotKeyInterface(this);
 
     this.updateProject = this.updateProject.bind(this);
+    this.updateToolSettings = this.updateToolSettings.bind(this);
+    this.updateCanvasSelection = this.updateCanvasSelection.bind(this);
     this.openModal = this.openModal.bind(this);
     this.activateTool = this.activateTool.bind(this);
-    this.updateToolSettings = this.updateToolSettings.bind(this);
     this.resizeProps = {
       onStopResize: throttle(this.onStopResize.bind(this), this.resizeThrottleAmount),
       onResize: throttle(this.onResize.bind(this), this.resizeThrottleAmount)
@@ -132,6 +134,12 @@ class Editor extends Component {
     });
   }
 
+  updateCanvasSelection (nextCanvasSelection) {
+    this.setState(prevState => ({
+      canvasSelection: nextCanvasSelection,
+    }));
+  }
+
   render () {
       return (
         <HotKeys
@@ -185,7 +193,9 @@ class Editor extends Component {
                           <Canvas
                             project={this.state.project}
                             toolSettings={this.state.toolSettings}
+                            canvasSelection={this.state.canvasSelection}
                             updateProject={this.updateProject}
+                            updateCanvasSelection={this.updateCanvasSelection}
                             activeTool={this.state.activeTool}
                           />
                         </DockedPanel>

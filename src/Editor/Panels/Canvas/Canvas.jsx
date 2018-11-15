@@ -60,6 +60,11 @@ class Canvas extends Component {
 
   updateCanvas () {
     this.wickCanvas.render(this.props.project);
+    window.paper.project.selection.clear();
+    this.props.canvasSelection.forEach(uuid => {
+      // TODO find item by uuid and select it
+    });
+    window.paper.project.selection.updateGUI();
   }
 
   updateActiveTool () {
@@ -76,8 +81,9 @@ class Canvas extends Component {
   }
 
   onSelectionChanged (e) {
-    console.log('onSelectionChanged');
-    console.log(e);
+    this.props.updateCanvasSelection(window.paper.project.selection.items.map(item => {
+      // TODO return uuid of item
+    }));
   }
 
   render() {
