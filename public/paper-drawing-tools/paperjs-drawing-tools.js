@@ -2026,6 +2026,308 @@ var floodfill = function () {
     }(a || (a = {})), t.invert = a, t.default = a;
   }]).default;
 });
+// Pressure v2.1.2 | Created By Stuart Yamartino | MIT License | 2015 - 2017
+!function (e, t) {
+  "function" == typeof define && define.amd ? define(["jquery"], t) : "object" == typeof exports ? module.exports = t(require("jquery")) : e.jQuery__pressure = t(e.jQuery);
+}(this, function (e) {
+  "use strict";
+
+  function t(e, t) {
+    if (!e) throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+    return !t || "object" != typeof t && "function" != typeof t ? e : t;
+  }
+
+  function s(e, t) {
+    if ("function" != typeof t && null !== t) throw new TypeError("Super expression must either be null or a function, not " + typeof t);
+    e.prototype = Object.create(t && t.prototype, {
+      constructor: {
+        value: e,
+        enumerable: !1,
+        writable: !0,
+        configurable: !0
+      }
+    }), t && (Object.setPrototypeOf ? Object.setPrototypeOf(e, t) : e.__proto__ = t);
+  }
+
+  function n(e, t) {
+    if (!(e instanceof t)) throw new TypeError("Cannot call a class as a function");
+  }
+
+  var i = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (e) {
+    return typeof e;
+  } : function (e) {
+    return e && "function" == typeof Symbol && e.constructor === Symbol && e !== Symbol.prototype ? "symbol" : typeof e;
+  },
+      r = function () {
+    function e(e, t) {
+      for (var s = 0; s < t.length; s++) {
+        var n = t[s];
+        n.enumerable = n.enumerable || !1, n.configurable = !0, "value" in n && (n.writable = !0), Object.defineProperty(e, n.key, n);
+      }
+    }
+
+    return function (t, s, n) {
+      return s && e(t.prototype, s), n && e(t, n), t;
+    };
+  }();
+
+  if (!e) throw new Error("Pressure jQuery requires jQuery to be loaded.");
+  e.fn.pressure = function (e, t) {
+    return p(this, e, t), this;
+  }, e.pressureConfig = function (e) {
+    d.set(e);
+  }, e.pressureMap = function (e, t, s, n, i) {
+    return f.apply(null, arguments);
+  };
+
+  var o = function () {
+    function e(t, s, i) {
+      n(this, e), this.routeEvents(t, s, i), this.preventSelect(t, i);
+    }
+
+    return r(e, [{
+      key: "routeEvents",
+      value: function (e, t, s) {
+        var n = d.get("only", s);
+        this.adapter = !v || "pointer" !== n && null !== n ? !P || "touch" !== n && null !== n ? !y || "mouse" !== n && null !== n ? new u(e, t).bindUnsupportedEvent() : new h(e, t, s).bindEvents() : new l(e, t, s).bindEvents() : new c(e, t, s).bindEvents();
+      }
+    }, {
+      key: "preventSelect",
+      value: function (e, t) {
+        d.get("preventSelect", t) && (e.style.webkitTouchCallout = "none", e.style.webkitUserSelect = "none", e.style.khtmlUserSelect = "none", e.style.MozUserSelect = "none", e.style.msUserSelect = "none", e.style.userSelect = "none");
+      }
+    }]), e;
+  }(),
+      u = function () {
+    function e(t, s, i) {
+      n(this, e), this.el = t, this.block = s, this.options = i, this.pressed = !1, this.deepPressed = !1, this.nativeSupport = !1, this.runningPolyfill = !1, this.runKey = Math.random();
+    }
+
+    return r(e, [{
+      key: "setPressed",
+      value: function (e) {
+        this.pressed = e;
+      }
+    }, {
+      key: "setDeepPressed",
+      value: function (e) {
+        this.deepPressed = e;
+      }
+    }, {
+      key: "isPressed",
+      value: function () {
+        return this.pressed;
+      }
+    }, {
+      key: "isDeepPressed",
+      value: function () {
+        return this.deepPressed;
+      }
+    }, {
+      key: "add",
+      value: function (e, t) {
+        this.el.addEventListener(e, t, !1);
+      }
+    }, {
+      key: "runClosure",
+      value: function (e) {
+        e in this.block && this.block[e].apply(this.el, Array.prototype.slice.call(arguments, 1));
+      }
+    }, {
+      key: "fail",
+      value: function (e, t) {
+        d.get("polyfill", this.options) ? this.runKey === t && this.runPolyfill(e) : this.runClosure("unsupported", e);
+      }
+    }, {
+      key: "bindUnsupportedEvent",
+      value: function () {
+        var e = this;
+        this.add(P ? "touchstart" : "mousedown", function (t) {
+          return e.runClosure("unsupported", t);
+        });
+      }
+    }, {
+      key: "_startPress",
+      value: function (e) {
+        this.isPressed() === !1 && (this.runningPolyfill = !1, this.setPressed(!0), this.runClosure("start", e));
+      }
+    }, {
+      key: "_startDeepPress",
+      value: function (e) {
+        this.isPressed() && this.isDeepPressed() === !1 && (this.setDeepPressed(!0), this.runClosure("startDeepPress", e));
+      }
+    }, {
+      key: "_changePress",
+      value: function (e, t) {
+        this.nativeSupport = !0, this.runClosure("change", e, t);
+      }
+    }, {
+      key: "_endDeepPress",
+      value: function () {
+        this.isPressed() && this.isDeepPressed() && (this.setDeepPressed(!1), this.runClosure("endDeepPress"));
+      }
+    }, {
+      key: "_endPress",
+      value: function () {
+        this.runningPolyfill === !1 ? (this.isPressed() && (this._endDeepPress(), this.setPressed(!1), this.runClosure("end")), this.runKey = Math.random(), this.nativeSupport = !1) : this.setPressed(!1);
+      }
+    }, {
+      key: "deepPress",
+      value: function (e, t) {
+        e >= .5 ? this._startDeepPress(t) : this._endDeepPress();
+      }
+    }, {
+      key: "runPolyfill",
+      value: function (e) {
+        this.increment = 0 === d.get("polyfillSpeedUp", this.options) ? 1 : 10 / d.get("polyfillSpeedUp", this.options), this.decrement = 0 === d.get("polyfillSpeedDown", this.options) ? 1 : 10 / d.get("polyfillSpeedDown", this.options), this.setPressed(!0), this.runClosure("start", e), this.runningPolyfill === !1 && this.loopPolyfillForce(0, e);
+      }
+    }, {
+      key: "loopPolyfillForce",
+      value: function (e, t) {
+        this.nativeSupport === !1 && (this.isPressed() ? (this.runningPolyfill = !0, e = e + this.increment > 1 ? 1 : e + this.increment, this.runClosure("change", e, t), this.deepPress(e, t), setTimeout(this.loopPolyfillForce.bind(this, e, t), 10)) : (e = e - this.decrement < 0 ? 0 : e - this.decrement, e < .5 && this.isDeepPressed() && (this.setDeepPressed(!1), this.runClosure("endDeepPress")), 0 === e ? (this.runningPolyfill = !1, this.setPressed(!0), this._endPress()) : (this.runClosure("change", e, t), this.deepPress(e, t), setTimeout(this.loopPolyfillForce.bind(this, e, t), 10))));
+      }
+    }]), e;
+  }(),
+      h = function (e) {
+    function i(e, s, r) {
+      return n(this, i), t(this, (i.__proto__ || Object.getPrototypeOf(i)).call(this, e, s, r));
+    }
+
+    return s(i, e), r(i, [{
+      key: "bindEvents",
+      value: function () {
+        this.add("webkitmouseforcewillbegin", this._startPress.bind(this)), this.add("mousedown", this.support.bind(this)), this.add("webkitmouseforcechanged", this.change.bind(this)), this.add("webkitmouseforcedown", this._startDeepPress.bind(this)), this.add("webkitmouseforceup", this._endDeepPress.bind(this)), this.add("mouseleave", this._endPress.bind(this)), this.add("mouseup", this._endPress.bind(this));
+      }
+    }, {
+      key: "support",
+      value: function (e) {
+        this.isPressed() === !1 && this.fail(e, this.runKey);
+      }
+    }, {
+      key: "change",
+      value: function (e) {
+        this.isPressed() && e.webkitForce > 0 && this._changePress(this.normalizeForce(e.webkitForce), e);
+      }
+    }, {
+      key: "normalizeForce",
+      value: function (e) {
+        return this.reachOne(f(e, 1, 3, 0, 1));
+      }
+    }, {
+      key: "reachOne",
+      value: function (e) {
+        return e > .995 ? 1 : e;
+      }
+    }]), i;
+  }(u),
+      l = function (e) {
+    function i(e, s, r) {
+      return n(this, i), t(this, (i.__proto__ || Object.getPrototypeOf(i)).call(this, e, s, r));
+    }
+
+    return s(i, e), r(i, [{
+      key: "bindEvents",
+      value: function () {
+        g ? (this.add("touchforcechange", this.start.bind(this)), this.add("touchstart", this.support.bind(this, 0)), this.add("touchend", this._endPress.bind(this))) : (this.add("touchstart", this.startLegacy.bind(this)), this.add("touchend", this._endPress.bind(this)));
+      }
+    }, {
+      key: "start",
+      value: function (e) {
+        e.touches.length > 0 && (this._startPress(e), this.touch = this.selectTouch(e), this.touch && this._changePress(this.touch.force, e));
+      }
+    }, {
+      key: "support",
+      value: function (e, t) {
+        var s = arguments.length > 2 && void 0 !== arguments[2] ? arguments[2] : this.runKey;
+        this.isPressed() === !1 && (e <= 6 ? (e++, setTimeout(this.support.bind(this, e, t, s), 10)) : this.fail(t, s));
+      }
+    }, {
+      key: "startLegacy",
+      value: function (e) {
+        this.initialForce = e.touches[0].force, this.supportLegacy(0, e, this.runKey, this.initialForce);
+      }
+    }, {
+      key: "supportLegacy",
+      value: function (e, t, s, n) {
+        n !== this.initialForce ? (this._startPress(t), this.loopForce(t)) : e <= 6 ? (e++, setTimeout(this.supportLegacy.bind(this, e, t, s, n), 10)) : this.fail(t, s);
+      }
+    }, {
+      key: "loopForce",
+      value: function (e) {
+        this.isPressed() && (this.touch = this.selectTouch(e), setTimeout(this.loopForce.bind(this, e), 10), this._changePress(this.touch.force, e));
+      }
+    }, {
+      key: "selectTouch",
+      value: function (e) {
+        if (1 === e.touches.length) return this.returnTouch(e.touches[0], e);
+
+        for (var t = 0; t < e.touches.length; t++) if (e.touches[t].target === this.el || this.el.contains(e.touches[t].target)) return this.returnTouch(e.touches[t], e);
+      }
+    }, {
+      key: "returnTouch",
+      value: function (e, t) {
+        return this.deepPress(e.force, t), e;
+      }
+    }]), i;
+  }(u),
+      c = function (e) {
+    function i(e, s, r) {
+      return n(this, i), t(this, (i.__proto__ || Object.getPrototypeOf(i)).call(this, e, s, r));
+    }
+
+    return s(i, e), r(i, [{
+      key: "bindEvents",
+      value: function () {
+        this.add("pointerdown", this.support.bind(this)), this.add("pointermove", this.change.bind(this)), this.add("pointerup", this._endPress.bind(this)), this.add("pointerleave", this._endPress.bind(this));
+      }
+    }, {
+      key: "support",
+      value: function (e) {
+        this.isPressed() === !1 && (0 === e.pressure || .5 === e.pressure || e.pressure > 1 ? this.fail(e, this.runKey) : (this._startPress(e), this._changePress(e.pressure, e)));
+      }
+    }, {
+      key: "change",
+      value: function (e) {
+        this.isPressed() && e.pressure > 0 && .5 !== e.pressure && (this._changePress(e.pressure, e), this.deepPress(e.pressure, e));
+      }
+    }]), i;
+  }(u),
+      d = {
+    polyfill: !0,
+    polyfillSpeedUp: 1e3,
+    polyfillSpeedDown: 0,
+    preventSelect: !0,
+    only: null,
+    get: function (e, t) {
+      return t.hasOwnProperty(e) ? t[e] : this[e];
+    },
+    set: function (e) {
+      for (var t in e) e.hasOwnProperty(t) && this.hasOwnProperty(t) && "get" != t && "set" != t && (this[t] = e[t]);
+    }
+  },
+      p = function (e, t) {
+    var s = arguments.length > 2 && void 0 !== arguments[2] ? arguments[2] : {};
+    if ("string" == typeof e || e instanceof String) for (var n = document.querySelectorAll(e), i = 0; i < n.length; i++) new o(n[i], t, s);else if (a(e)) new o(e, t, s);else for (var i = 0; i < e.length; i++) new o(e[i], t, s);
+  },
+      a = function (e) {
+    return "object" === ("undefined" == typeof HTMLElement ? "undefined" : i(HTMLElement)) ? e instanceof HTMLElement : e && "object" === (void 0 === e ? "undefined" : i(e)) && null !== e && 1 === e.nodeType && "string" == typeof e.nodeName;
+  },
+      f = function (e, t, s, n, i) {
+    return (e - t) * (i - n) / (s - t) + n;
+  },
+      y = !1,
+      P = !1,
+      v = !1,
+      b = !1,
+      g = !1;
+
+  if ("undefined" != typeof window) {
+    if ("undefined" != typeof Touch) try {
+      (Touch.prototype.hasOwnProperty("force") || "force" in new Touch()) && (b = !0);
+    } catch (e) {}
+    P = "ontouchstart" in window.document && b, y = "onmousemove" in window.document && !P, v = "onpointermove" in window.document, g = "ontouchforcechange" in window.document;
+  }
+});
 /*
  * TypeScript port of Potrace (http://potrace.sourceforge.net).
  * https://github.com/oov/potrace
@@ -3483,308 +3785,6 @@ var potrace;
 
   potrace.fromFunction = fromFunction;
 })(potrace || (potrace = {}));
-// Pressure v2.1.2 | Created By Stuart Yamartino | MIT License | 2015 - 2017
-!function (e, t) {
-  "function" == typeof define && define.amd ? define(["jquery"], t) : "object" == typeof exports ? module.exports = t(require("jquery")) : e.jQuery__pressure = t(e.jQuery);
-}(this, function (e) {
-  "use strict";
-
-  function t(e, t) {
-    if (!e) throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-    return !t || "object" != typeof t && "function" != typeof t ? e : t;
-  }
-
-  function s(e, t) {
-    if ("function" != typeof t && null !== t) throw new TypeError("Super expression must either be null or a function, not " + typeof t);
-    e.prototype = Object.create(t && t.prototype, {
-      constructor: {
-        value: e,
-        enumerable: !1,
-        writable: !0,
-        configurable: !0
-      }
-    }), t && (Object.setPrototypeOf ? Object.setPrototypeOf(e, t) : e.__proto__ = t);
-  }
-
-  function n(e, t) {
-    if (!(e instanceof t)) throw new TypeError("Cannot call a class as a function");
-  }
-
-  var i = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (e) {
-    return typeof e;
-  } : function (e) {
-    return e && "function" == typeof Symbol && e.constructor === Symbol && e !== Symbol.prototype ? "symbol" : typeof e;
-  },
-      r = function () {
-    function e(e, t) {
-      for (var s = 0; s < t.length; s++) {
-        var n = t[s];
-        n.enumerable = n.enumerable || !1, n.configurable = !0, "value" in n && (n.writable = !0), Object.defineProperty(e, n.key, n);
-      }
-    }
-
-    return function (t, s, n) {
-      return s && e(t.prototype, s), n && e(t, n), t;
-    };
-  }();
-
-  if (!e) throw new Error("Pressure jQuery requires jQuery to be loaded.");
-  e.fn.pressure = function (e, t) {
-    return p(this, e, t), this;
-  }, e.pressureConfig = function (e) {
-    d.set(e);
-  }, e.pressureMap = function (e, t, s, n, i) {
-    return f.apply(null, arguments);
-  };
-
-  var o = function () {
-    function e(t, s, i) {
-      n(this, e), this.routeEvents(t, s, i), this.preventSelect(t, i);
-    }
-
-    return r(e, [{
-      key: "routeEvents",
-      value: function (e, t, s) {
-        var n = d.get("only", s);
-        this.adapter = !v || "pointer" !== n && null !== n ? !P || "touch" !== n && null !== n ? !y || "mouse" !== n && null !== n ? new u(e, t).bindUnsupportedEvent() : new h(e, t, s).bindEvents() : new l(e, t, s).bindEvents() : new c(e, t, s).bindEvents();
-      }
-    }, {
-      key: "preventSelect",
-      value: function (e, t) {
-        d.get("preventSelect", t) && (e.style.webkitTouchCallout = "none", e.style.webkitUserSelect = "none", e.style.khtmlUserSelect = "none", e.style.MozUserSelect = "none", e.style.msUserSelect = "none", e.style.userSelect = "none");
-      }
-    }]), e;
-  }(),
-      u = function () {
-    function e(t, s, i) {
-      n(this, e), this.el = t, this.block = s, this.options = i, this.pressed = !1, this.deepPressed = !1, this.nativeSupport = !1, this.runningPolyfill = !1, this.runKey = Math.random();
-    }
-
-    return r(e, [{
-      key: "setPressed",
-      value: function (e) {
-        this.pressed = e;
-      }
-    }, {
-      key: "setDeepPressed",
-      value: function (e) {
-        this.deepPressed = e;
-      }
-    }, {
-      key: "isPressed",
-      value: function () {
-        return this.pressed;
-      }
-    }, {
-      key: "isDeepPressed",
-      value: function () {
-        return this.deepPressed;
-      }
-    }, {
-      key: "add",
-      value: function (e, t) {
-        this.el.addEventListener(e, t, !1);
-      }
-    }, {
-      key: "runClosure",
-      value: function (e) {
-        e in this.block && this.block[e].apply(this.el, Array.prototype.slice.call(arguments, 1));
-      }
-    }, {
-      key: "fail",
-      value: function (e, t) {
-        d.get("polyfill", this.options) ? this.runKey === t && this.runPolyfill(e) : this.runClosure("unsupported", e);
-      }
-    }, {
-      key: "bindUnsupportedEvent",
-      value: function () {
-        var e = this;
-        this.add(P ? "touchstart" : "mousedown", function (t) {
-          return e.runClosure("unsupported", t);
-        });
-      }
-    }, {
-      key: "_startPress",
-      value: function (e) {
-        this.isPressed() === !1 && (this.runningPolyfill = !1, this.setPressed(!0), this.runClosure("start", e));
-      }
-    }, {
-      key: "_startDeepPress",
-      value: function (e) {
-        this.isPressed() && this.isDeepPressed() === !1 && (this.setDeepPressed(!0), this.runClosure("startDeepPress", e));
-      }
-    }, {
-      key: "_changePress",
-      value: function (e, t) {
-        this.nativeSupport = !0, this.runClosure("change", e, t);
-      }
-    }, {
-      key: "_endDeepPress",
-      value: function () {
-        this.isPressed() && this.isDeepPressed() && (this.setDeepPressed(!1), this.runClosure("endDeepPress"));
-      }
-    }, {
-      key: "_endPress",
-      value: function () {
-        this.runningPolyfill === !1 ? (this.isPressed() && (this._endDeepPress(), this.setPressed(!1), this.runClosure("end")), this.runKey = Math.random(), this.nativeSupport = !1) : this.setPressed(!1);
-      }
-    }, {
-      key: "deepPress",
-      value: function (e, t) {
-        e >= .5 ? this._startDeepPress(t) : this._endDeepPress();
-      }
-    }, {
-      key: "runPolyfill",
-      value: function (e) {
-        this.increment = 0 === d.get("polyfillSpeedUp", this.options) ? 1 : 10 / d.get("polyfillSpeedUp", this.options), this.decrement = 0 === d.get("polyfillSpeedDown", this.options) ? 1 : 10 / d.get("polyfillSpeedDown", this.options), this.setPressed(!0), this.runClosure("start", e), this.runningPolyfill === !1 && this.loopPolyfillForce(0, e);
-      }
-    }, {
-      key: "loopPolyfillForce",
-      value: function (e, t) {
-        this.nativeSupport === !1 && (this.isPressed() ? (this.runningPolyfill = !0, e = e + this.increment > 1 ? 1 : e + this.increment, this.runClosure("change", e, t), this.deepPress(e, t), setTimeout(this.loopPolyfillForce.bind(this, e, t), 10)) : (e = e - this.decrement < 0 ? 0 : e - this.decrement, e < .5 && this.isDeepPressed() && (this.setDeepPressed(!1), this.runClosure("endDeepPress")), 0 === e ? (this.runningPolyfill = !1, this.setPressed(!0), this._endPress()) : (this.runClosure("change", e, t), this.deepPress(e, t), setTimeout(this.loopPolyfillForce.bind(this, e, t), 10))));
-      }
-    }]), e;
-  }(),
-      h = function (e) {
-    function i(e, s, r) {
-      return n(this, i), t(this, (i.__proto__ || Object.getPrototypeOf(i)).call(this, e, s, r));
-    }
-
-    return s(i, e), r(i, [{
-      key: "bindEvents",
-      value: function () {
-        this.add("webkitmouseforcewillbegin", this._startPress.bind(this)), this.add("mousedown", this.support.bind(this)), this.add("webkitmouseforcechanged", this.change.bind(this)), this.add("webkitmouseforcedown", this._startDeepPress.bind(this)), this.add("webkitmouseforceup", this._endDeepPress.bind(this)), this.add("mouseleave", this._endPress.bind(this)), this.add("mouseup", this._endPress.bind(this));
-      }
-    }, {
-      key: "support",
-      value: function (e) {
-        this.isPressed() === !1 && this.fail(e, this.runKey);
-      }
-    }, {
-      key: "change",
-      value: function (e) {
-        this.isPressed() && e.webkitForce > 0 && this._changePress(this.normalizeForce(e.webkitForce), e);
-      }
-    }, {
-      key: "normalizeForce",
-      value: function (e) {
-        return this.reachOne(f(e, 1, 3, 0, 1));
-      }
-    }, {
-      key: "reachOne",
-      value: function (e) {
-        return e > .995 ? 1 : e;
-      }
-    }]), i;
-  }(u),
-      l = function (e) {
-    function i(e, s, r) {
-      return n(this, i), t(this, (i.__proto__ || Object.getPrototypeOf(i)).call(this, e, s, r));
-    }
-
-    return s(i, e), r(i, [{
-      key: "bindEvents",
-      value: function () {
-        g ? (this.add("touchforcechange", this.start.bind(this)), this.add("touchstart", this.support.bind(this, 0)), this.add("touchend", this._endPress.bind(this))) : (this.add("touchstart", this.startLegacy.bind(this)), this.add("touchend", this._endPress.bind(this)));
-      }
-    }, {
-      key: "start",
-      value: function (e) {
-        e.touches.length > 0 && (this._startPress(e), this.touch = this.selectTouch(e), this.touch && this._changePress(this.touch.force, e));
-      }
-    }, {
-      key: "support",
-      value: function (e, t) {
-        var s = arguments.length > 2 && void 0 !== arguments[2] ? arguments[2] : this.runKey;
-        this.isPressed() === !1 && (e <= 6 ? (e++, setTimeout(this.support.bind(this, e, t, s), 10)) : this.fail(t, s));
-      }
-    }, {
-      key: "startLegacy",
-      value: function (e) {
-        this.initialForce = e.touches[0].force, this.supportLegacy(0, e, this.runKey, this.initialForce);
-      }
-    }, {
-      key: "supportLegacy",
-      value: function (e, t, s, n) {
-        n !== this.initialForce ? (this._startPress(t), this.loopForce(t)) : e <= 6 ? (e++, setTimeout(this.supportLegacy.bind(this, e, t, s, n), 10)) : this.fail(t, s);
-      }
-    }, {
-      key: "loopForce",
-      value: function (e) {
-        this.isPressed() && (this.touch = this.selectTouch(e), setTimeout(this.loopForce.bind(this, e), 10), this._changePress(this.touch.force, e));
-      }
-    }, {
-      key: "selectTouch",
-      value: function (e) {
-        if (1 === e.touches.length) return this.returnTouch(e.touches[0], e);
-
-        for (var t = 0; t < e.touches.length; t++) if (e.touches[t].target === this.el || this.el.contains(e.touches[t].target)) return this.returnTouch(e.touches[t], e);
-      }
-    }, {
-      key: "returnTouch",
-      value: function (e, t) {
-        return this.deepPress(e.force, t), e;
-      }
-    }]), i;
-  }(u),
-      c = function (e) {
-    function i(e, s, r) {
-      return n(this, i), t(this, (i.__proto__ || Object.getPrototypeOf(i)).call(this, e, s, r));
-    }
-
-    return s(i, e), r(i, [{
-      key: "bindEvents",
-      value: function () {
-        this.add("pointerdown", this.support.bind(this)), this.add("pointermove", this.change.bind(this)), this.add("pointerup", this._endPress.bind(this)), this.add("pointerleave", this._endPress.bind(this));
-      }
-    }, {
-      key: "support",
-      value: function (e) {
-        this.isPressed() === !1 && (0 === e.pressure || .5 === e.pressure || e.pressure > 1 ? this.fail(e, this.runKey) : (this._startPress(e), this._changePress(e.pressure, e)));
-      }
-    }, {
-      key: "change",
-      value: function (e) {
-        this.isPressed() && e.pressure > 0 && .5 !== e.pressure && (this._changePress(e.pressure, e), this.deepPress(e.pressure, e));
-      }
-    }]), i;
-  }(u),
-      d = {
-    polyfill: !0,
-    polyfillSpeedUp: 1e3,
-    polyfillSpeedDown: 0,
-    preventSelect: !0,
-    only: null,
-    get: function (e, t) {
-      return t.hasOwnProperty(e) ? t[e] : this[e];
-    },
-    set: function (e) {
-      for (var t in e) e.hasOwnProperty(t) && this.hasOwnProperty(t) && "get" != t && "set" != t && (this[t] = e[t]);
-    }
-  },
-      p = function (e, t) {
-    var s = arguments.length > 2 && void 0 !== arguments[2] ? arguments[2] : {};
-    if ("string" == typeof e || e instanceof String) for (var n = document.querySelectorAll(e), i = 0; i < n.length; i++) new o(n[i], t, s);else if (a(e)) new o(e, t, s);else for (var i = 0; i < e.length; i++) new o(e[i], t, s);
-  },
-      a = function (e) {
-    return "object" === ("undefined" == typeof HTMLElement ? "undefined" : i(HTMLElement)) ? e instanceof HTMLElement : e && "object" === (void 0 === e ? "undefined" : i(e)) && null !== e && 1 === e.nodeType && "string" == typeof e.nodeName;
-  },
-      f = function (e, t, s, n, i) {
-    return (e - t) * (i - n) / (s - t) + n;
-  },
-      y = !1,
-      P = !1,
-      v = !1,
-      b = !1,
-      g = !1;
-
-  if ("undefined" != typeof window) {
-    if ("undefined" != typeof Touch) try {
-      (Touch.prototype.hasOwnProperty("force") || "force" in new Touch()) && (b = !0);
-    } catch (e) {}
-    P = "ontouchstart" in window.document && b, y = "onmousemove" in window.document && !P, v = "onpointermove" in window.document, g = "ontouchforcechange" in window.document;
-  }
-});
 /*
  * Copyright 2018 WICKLETS LLC
  *
@@ -3803,33 +3803,30 @@ var potrace;
  * You should have received a copy of the GNU General Public License
  * along with Paper.js-drawing-tools.  If not, see <https://www.gnu.org/licenses/>.
  */
-
-/*
-    Brush Cursor Generator
-    For creating Flash-like cursors for drawing tools
-
-    by zrispo (github.com/zrispo) (zach@wickeditor.com)
- */
-var BrushCursorGen = {
-  create: function (color, size) {
-    var canvas = document.createElement("canvas");
-    canvas.width = 128;
-    canvas.height = 128;
-    var context = canvas.getContext('2d');
-    var centerX = canvas.width / 2;
-    var centerY = canvas.height / 2;
-    var radius = size / 2;
-    context.beginPath();
-    context.arc(centerX, centerY, radius + 1, 0, 2 * Math.PI, false);
-    context.fillStyle = invert(color);
-    context.fill();
-    context.beginPath();
-    context.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
-    context.fillStyle = color;
-    context.fill();
-    return 'url(' + canvas.toDataURL() + ') 64 64,default';
+paper.DrawingTools = class {
+  constructor() {
+    this._onCanvasModifiedCallback = null;
+    this._onSelectionChangedCallback = null;
   }
+
+  fireCanvasModified(e) {
+    this._onCanvasModifiedCallback && this._onCanvasModifiedCallback(e);
+  }
+
+  fireSelectionChanged(e) {
+    this._onSelectionChangedCallback && this._onSelectionChangedCallback(e);
+  }
+
+  onCanvasModified(fn) {
+    this._onCanvasModifiedCallback = fn;
+  }
+
+  onSelectionChanged(fn) {
+    this._onSelectionChangedCallback = fn;
+  }
+
 };
+paper.drawingTools = new paper.DrawingTools();
 /*
  * Copyright 2018 WICKLETS LLC
  *
@@ -3915,7 +3912,10 @@ var BrushCursorGen = {
       path.remove();
       splitCompoundPath(res);
     } else {
-      res.insertAbove(path);
+      if (res.segments.length > 0) {
+        res.insertAbove(path);
+      }
+
       path.remove();
     }
 
@@ -3939,7 +3939,8 @@ var BrushCursorGen = {
       });
       res.remove();
     } else {
-      res.insertAbove(path);
+      res.remove();
+      if (res.segments.length > 0) res.insertAbove(path);
     }
 
     path.remove();
@@ -3980,7 +3981,7 @@ var BrushCursorGen = {
         eraseFill(path, eraserPath);
       } else if (path.strokeColor) {
         eraseStroke(path, eraserPath);
-      } else {// Probably a group or a raster.
+      } else {// Probably a group or a raster, don't erase it.
       }
     });
   }
@@ -3989,6 +3990,665 @@ var BrushCursorGen = {
     erase: eraseWithPath
   });
 })();
+/*
+ * Copyright 2018 WICKLETS LLC
+ *
+ * This file is part of Paper.js-drawing-tools.
+ *
+ * Paper.js-drawing-tools is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Paper.js-drawing-tools is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Paper.js-drawing-tools.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+/*
+    paper-hole.js
+    Adds hole() to the paper Layer class which finds the shape of the hole
+    at a certain point. Use this to make a vector fill bucket!
+
+    This version uses a flood fill + potrace method of filling holes.
+
+    Adapted from the FillBucket tool from old Wick
+
+    by zrispo (github.com/zrispo) (zach@wickeditor.com)
+ */
+(function () {
+  var VERBOSE = false;
+  var PREVIEW_IMAGE = false;
+  var onError;
+  var onFinish;
+  var layer;
+  var layerGroup;
+  var layerPathsGroup;
+  var layerPathsRaster;
+  var layerPathsImageData;
+  var layerPathsImageDataFloodFilled;
+  var layerPathsImageDataFloodFilledAndProcessed;
+  var layerPathsImageFloodFilledAndProcessed;
+  var floodFillX;
+  var floodFillY;
+  var floodFillCanvas;
+  var floodFillCtx;
+  var floodFillImageData;
+  var floodFillProcessedImage;
+  var resultHolePath;
+  var N_RASTER_CLONE = 1;
+  var RASTER_BASE_RESOLUTION = 1.75;
+  var FILL_TOLERANCE = 35;
+  var CLONE_WIDTH_SHRINK = 1.0;
+  var SHRINK_AMT = 2.5;
+
+  function tryToChangeColorOfExistingShape() {}
+
+  function createLayerPathsGroup(callback) {
+    layerGroup = new paper.Group({
+      insert: false
+    });
+    layer.children.forEach(function (child) {
+      if (child._class !== 'Path' && child._class !== 'CompoundPath') return;
+
+      for (var i = 0; i < N_RASTER_CLONE; i++) {
+        var clone = child.clone({
+          insert: false
+        });
+        clone.strokeWidth *= CLONE_WIDTH_SHRINK;
+        layerGroup.addChild(clone);
+      }
+    });
+
+    if (layerGroup.children.length === 0) {
+      onError('NO_PATHS');
+    } else {
+      callback();
+    }
+  }
+
+  function rasterizeLayerGroup() {
+    var rasterResolution = paper.view.resolution * RASTER_BASE_RESOLUTION / window.devicePixelRatio;
+    layerPathsRaster = layerGroup.rasterize(rasterResolution, {
+      insert: false
+    });
+  }
+
+  function generateImageDataFromRaster() {
+    var rasterCanvas = layerPathsRaster.canvas;
+    var rasterCtx = rasterCanvas.getContext('2d');
+    layerPathsImageData = rasterCtx.getImageData(0, 0, layerPathsRaster.width, layerPathsRaster.height);
+  }
+
+  function floodfillImageData(callback) {
+    var rasterPosition = layerPathsRaster.bounds.topLeft;
+    var x = (floodFillX - rasterPosition.x) * RASTER_BASE_RESOLUTION;
+    var y = (floodFillY - rasterPosition.y) * RASTER_BASE_RESOLUTION;
+    x = Math.round(x);
+    y = Math.round(y);
+    floodFillCanvas = document.createElement('canvas');
+    floodFillCanvas.width = layerPathsRaster.canvas.width;
+    floodFillCanvas.height = layerPathsRaster.canvas.height;
+
+    if (x < 0 || y < 0 || x >= floodFillCanvas.width || y >= floodFillCanvas.height) {
+      onError('OUT_OF_BOUNDS');
+    } else {
+      floodFillCtx = floodFillCanvas.getContext('2d');
+      floodFillCtx.putImageData(layerPathsImageData, 0, 0);
+      floodFillCtx.fillStyle = "rgba(123,124,125,1)";
+      floodFillCtx.fillFlood(x, y, FILL_TOLERANCE);
+      floodFillImageData = floodFillCtx.getImageData(0, 0, floodFillCanvas.width, floodFillCanvas.height);
+      callback();
+    }
+  }
+
+  function processImageData(callback) {
+    var imageDataRaw = floodFillImageData.data;
+
+    for (var i = 0; i < imageDataRaw.length; i += 4) {
+      if (imageDataRaw[i] === 123 && imageDataRaw[i + 1] === 124 && imageDataRaw[i + 2] === 125) {
+        imageDataRaw[i] = 0;
+        imageDataRaw[i + 1] = 0;
+        imageDataRaw[i + 2] = 0;
+        imageDataRaw[i + 3] = 255;
+      } else if (imageDataRaw[i + 3] !== 0) {
+        imageDataRaw[i] = 255;
+        imageDataRaw[i + 1] = 0;
+        imageDataRaw[i + 2] = 0;
+        imageDataRaw[i + 3] = 255;
+      } else {
+        imageDataRaw[i] = 1;
+        imageDataRaw[i + 1] = 0;
+        imageDataRaw[i + 2] = 0;
+        imageDataRaw[i + 3] = 0;
+      }
+    }
+
+    var w = floodFillCanvas.width;
+    var h = floodFillCanvas.height;
+    var r = 4;
+
+    for (var this_x = 0; this_x < w; this_x++) {
+      for (var this_y = 0; this_y < h; this_y++) {
+        var thisPix = getPixelAt(this_x, this_y, w, h, imageDataRaw);
+
+        if (thisPix && thisPix.r === 255) {
+          for (var offset_x = -r; offset_x <= r; offset_x++) {
+            for (var offset_y = -r; offset_y <= r; offset_y++) {
+              var other_x = this_x + offset_x;
+              var other_y = this_y + offset_y;
+              var otherPix = getPixelAt(other_x, other_y, w, h, imageDataRaw);
+
+              if (otherPix && otherPix.r === 0) {
+                setPixelAt(this_x, this_y, w, h, imageDataRaw, {
+                  r: 1,
+                  g: 255,
+                  b: 0,
+                  a: 255
+                });
+              }
+            }
+          }
+        }
+      }
+    }
+
+    for (var i = 0; i < imageDataRaw.length; i += 4) {
+      if (imageDataRaw[i] === 255) {
+        imageDataRaw[i] = 0;
+        imageDataRaw[i + 1] = 0;
+        imageDataRaw[i + 2] = 0;
+        imageDataRaw[i + 3] = 0;
+      }
+    }
+
+    floodFillCtx.putImageData(floodFillImageData, 0, 0);
+    floodFillProcessedImage = new Image();
+
+    floodFillProcessedImage.onload = function () {
+      if (PREVIEW_IMAGE) previewImage(floodFillProcessedImage);
+      callback();
+    };
+
+    floodFillProcessedImage.src = floodFillCanvas.toDataURL();
+  }
+
+  function checkForLeakyHole(callback) {
+    var holeIsLeaky = false;
+    var w = floodFillProcessedImage.width;
+    var h = floodFillProcessedImage.height;
+
+    for (var x = 0; x < floodFillProcessedImage.width; x++) {
+      if (getPixelAt(x, 0, w, h, floodFillImageData.data).r === 0 && getPixelAt(x, 0, w, h, floodFillImageData.data).a === 255) {
+        holeIsLeaky = true;
+        onError('LEAKY_HOLE');
+        break;
+      }
+    }
+
+    if (!holeIsLeaky) {
+      callback();
+    }
+  }
+
+  function potraceImageData() {
+    var svgString = potrace.fromImage(floodFillProcessedImage).toSVG(1);
+    var xmlString = svgString,
+        parser = new DOMParser(),
+        doc = parser.parseFromString(xmlString, "text/xml");
+    resultHolePath = paper.project.importSVG(doc, {
+      insert: true
+    });
+    resultHolePath.remove();
+  }
+
+  function processFinalResultPath() {
+    resultHolePath.scale(1 / RASTER_BASE_RESOLUTION, new paper.Point(0, 0));
+    var rasterPosition = layerPathsRaster.bounds.topLeft;
+    resultHolePath.position.x += rasterPosition.x;
+    resultHolePath.position.y += rasterPosition.y;
+    expandHole(resultHolePath);
+  }
+  /* Utilities */
+
+
+  function getPixelAt(x, y, width, height, imageData) {
+    if (x < 0 || y < 0 || x >= width || y >= height) return null;
+    var offset = (y * width + x) * 4;
+    return {
+      r: imageData[offset],
+      g: imageData[offset + 1],
+      b: imageData[offset + 2],
+      a: imageData[offset + 3]
+    };
+  }
+
+  function setPixelAt(x, y, width, height, imageData, color) {
+    var offset = (y * width + x) * 4;
+    imageData[offset] = color.r;
+    imageData[offset + 1] = color.g;
+    imageData[offset + 2] = color.b;
+    imageData[offset + 3] = color.a;
+  } // http://www.felixeve.co.uk/how-to-rotate-a-point-around-an-origin-with-javascript/
+
+
+  function rotate_point(pointX, pointY, originX, originY, angle) {
+    angle = angle * Math.PI / 180.0;
+    return {
+      x: Math.cos(angle) * (pointX - originX) - Math.sin(angle) * (pointY - originY) + originX,
+      y: Math.sin(angle) * (pointX - originX) + Math.cos(angle) * (pointY - originY) + originY
+    };
+  }
+
+  function previewImage(image) {
+    var win = window.open('', 'Title', 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, width=' + image.width + ', height=' + image.height + ', top=100, left=100');
+    win.document.body.innerHTML = '<div><img src= ' + image.src + '></div>';
+  }
+
+  function expandHole(path) {
+    if (path instanceof paper.Group) {
+      path = path.children[0];
+    }
+
+    var children;
+
+    if (path instanceof paper.Path) {
+      children = [path];
+    } else if (path instanceof paper.CompoundPath) {
+      children = path.children;
+    }
+
+    children.forEach(function (hole) {
+      var normals = [];
+      hole.closePath();
+      hole.segments.forEach(function (segment) {
+        var a = segment.previous.point;
+        var b = segment.point;
+        var c = segment.next.point;
+        var ab = {
+          x: b.x - a.x,
+          y: b.y - a.y
+        };
+        var cb = {
+          x: b.x - c.x,
+          y: b.y - c.y
+        };
+        var d = {
+          x: ab.x - cb.x,
+          y: ab.y - cb.y
+        };
+        d.h = Math.sqrt(d.x * d.x + d.y * d.y);
+        d.x /= d.h;
+        d.y /= d.h;
+        d = rotate_point(d.x, d.y, 0, 0, 90);
+        normals.push({
+          x: d.x,
+          y: d.y
+        });
+      });
+
+      for (var i = 0; i < hole.segments.length; i++) {
+        var segment = hole.segments[i];
+        var normal = normals[i];
+        segment.point.x += normal.x * -SHRINK_AMT;
+        segment.point.y += normal.y * -SHRINK_AMT;
+      }
+    });
+  }
+  /* Add hole() to paper.Layer */
+
+
+  paper.Layer.inject({
+    hole: function (args) {
+      if (!args) console.error('paper.hole: args is required');
+      if (!args.point) console.error('paper.hole: args.point is required');
+      if (!args.onFinish) console.error('paper.hole: args.onFinish is required');
+      if (!args.onError) console.error('paper.hole: args.onError is required');
+      onFinish = args.onFinish;
+      onError = args.onError;
+      layer = this;
+      floodFillX = args.point.x;
+      floodFillY = args.point.y;
+      tryToChangeColorOfExistingShape();
+      createLayerPathsGroup(function () {
+        rasterizeLayerGroup();
+        generateImageDataFromRaster();
+        floodfillImageData(function () {
+          processImageData(function () {
+            checkForLeakyHole(function () {
+              potraceImageData();
+              processFinalResultPath();
+              onFinish(resultHolePath);
+            });
+          });
+        });
+      });
+    }
+  });
+})();
+/*
+ * Copyright 2018 WICKLETS LLC
+ *
+ * This file is part of Paper.js-drawing-tools.
+ *
+ * Paper.js-drawing-tools is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Paper.js-drawing-tools is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Paper.js-drawing-tools.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+/*
+    paper-multiselection.js
+    Adds functionality for a selection box for transforming multiple objects.
+
+    by zrispo (github.com/zrispo) (zach@wickeditor.com)
+ */
+paper.MultiSelection = class {
+  constructor() {
+    this.SELECTION_BOX_STROKECOLOR = 'rgba(100,150,255,1.0)';
+    this.SELECTION_BOX_FILLCOLOR = 'rgba(255,255,255,0.3)';
+    this.SELECTION_SUBBOX_STROKECOLOR = 'rgba(100,150,255,0.75)';
+    this.ROTATION_HANDLE_COLOR = 'rgba(255,0,0,0.0001)';
+    this.HANDLE_RADIUS = 5;
+    this.ROTATION_HANDLE_RADIUS = 20;
+    this.HANDLE_NAMES = ['topLeft', 'topCenter', 'topRight', 'rightCenter', 'leftCenter', 'bottomRight', 'bottomCenter', 'bottomLeft'];
+    this._selectedItems = [];
+    this._selectionBounds = null;
+    this._guiLayer = null;
+    this._prerotation = null;
+    this._prerotationAmount = null;
+    this._prerotationPivot = null;
+  }
+
+  get guiLayer() {
+    if (!this._guiLayer) {
+      this._guiLayer = new paper.Layer();
+      this._guiLayer.name = 'MultiSelectionGUI';
+
+      this._guiLayer.remove();
+    }
+
+    return this._guiLayer;
+  }
+
+  get items() {
+    return this._selectedItems;
+  }
+
+  get bounds() {
+    return this._selectionBounds;
+  }
+
+  updateGUI() {
+    this._rebuildGUI();
+  }
+
+  addItem(item) {
+    if (!this.isItemSelected(item)) {
+      this._selectedItems.push(item);
+    }
+  }
+
+  removeItem(item) {
+    this._selectedItems = this._selectedItems.filter(seekItem => {
+      return seekItem !== item;
+    });
+  }
+
+  isItemSelected(item) {
+    return this._selectedItems.indexOf(item) !== -1;
+  }
+
+  clear() {
+    this._selectedItems = [];
+  }
+
+  selectAll() {
+    var selectableItems = [];
+    var guiLayer = this._guiLayer;
+    paper.project.layers.forEach(layer => {
+      if (layer.locked) return;
+      if (layer === guiLayer) return;
+      layer.children.forEach(child => {
+        selectableItems.push(child);
+      });
+    });
+    this.clear();
+    var self = this;
+    selectableItems.forEach(item => {
+      self.addItem(item);
+    });
+  }
+
+  deleteSelectedItems() {
+    this._selectedItems.forEach(item => {
+      item.remove();
+    });
+
+    this.clear();
+  }
+
+  translate(x, y) {
+    this._selectedItems.forEach(function (item) {
+      item.position.x += x;
+      item.position.y += y;
+    });
+
+    this.guiLayer.children.forEach(function (child) {
+      child.position.x += x;
+      child.position.y += y;
+    });
+  }
+
+  rotate(r, pivot) {
+    if (!pivot) pivot = this.bounds.center;
+
+    this._selectedItems.forEach(item => {
+      item.rotate(r, pivot);
+    });
+
+    this.guiLayer.children.forEach(child => {
+      child.rotate(r, pivot);
+    });
+  }
+
+  scale(x, y, pivot) {
+    if (!pivot) pivot = this.bounds.topLeft;
+
+    this._selectedItems.forEach(function (item) {
+      item.scale(x, y, pivot);
+    });
+
+    this.guiLayer.children.forEach(function (child) {
+      child.scale(x, y, pivot);
+    });
+    this.guiLayer.children.filter(function (child) {
+      return child.name.startsWith('selectionBoxScaleHandle_') || child.name === 'selectionBoxCenterpoint';
+    }).forEach(function (child) {
+      child.scale(1 / x, 1 / y, child.position);
+    });
+
+    this._recalculateBounds();
+  }
+
+  flip(direction) {
+    var pivot = this._selectionBounds.center;
+
+    this._selectedItems.forEach(function (item) {
+      item.scale(direction === 'horizontal' ? -1 : 1, direction === 'vertical' ? -1 : 1, pivot);
+    });
+
+    this._rebuildGUI();
+  }
+
+  _recalculateBounds() {
+    this._selectionBounds = null;
+
+    if (this._selectedItems.length === 1) {
+      var item = this._selectedItems[0];
+      this.prerotation = true;
+      this.prerotationAmount = item.rotation;
+      this.prerotationPivot = item.position;
+      item.rotation = 0;
+      this._selectionBounds = item.bounds.clone();
+      item.rotation = this.prerotationAmount;
+    } else {
+      this.prerotation = false;
+      var self = this;
+
+      this._selectedItems.forEach(function (item) {
+        if (!self._selectionBounds) {
+          self._selectionBounds = item.bounds.clone();
+        } else {
+          self._selectionBounds = self._selectionBounds.unite(item.bounds);
+        }
+      });
+    }
+  }
+
+  _rebuildGUI() {
+    this.guiLayer.clear();
+    if (this._selectedItems.length === 0) return;
+
+    this._recalculateBounds();
+
+    this._forceApplyMatrixOnAllItems();
+
+    this._createSelectionBorder();
+
+    this._createSubBorders();
+
+    this._createRotationHotspots();
+
+    this._createHandles();
+
+    this._createCenterpoint();
+
+    if (this.prerotation) {
+      var prerotationAmount = this.prerotationAmount;
+      var prerotationPivot = this.prerotationPivot;
+
+      this._guiLayer.children.forEach(function (child) {
+        child.rotate(prerotationAmount, prerotationPivot);
+      });
+    }
+  }
+
+  _forceApplyMatrixOnAllItems() {
+    // For selectionbox transforms to work correctly, anything that isn't a group
+    // or a raster must have applyMatrix set to true so paths won't have an extra
+    // transformation to deal with, all of their information can be stored in svg
+    this._selectedItems.forEach(item => {
+      if (item instanceof paper.Path || item instanceof paper.CompoundPath) {
+        item.applyMatrix = true;
+      }
+    });
+  }
+
+  _createSelectionBorder() {
+    var item = new paper.Path.RoundRectangle(this.bounds, 0);
+    item.remove();
+    item.strokeColor = this.SELECTION_BOX_STROKECOLOR;
+    item.strokeWidth = 1 / paper.view.zoom;
+    item.name = 'selectionBoxBorder';
+    this.guiLayer.addChild(item);
+  }
+
+  _createSubBorders() {
+    if (this._selectedItems.length < 2) return;
+    var self = this;
+
+    this._selectedItems.forEach(function (selectedItem) {
+      var r = selectedItem.rotation;
+      selectedItem.rotation = 0;
+      var item = new paper.Path.RoundRectangle(selectedItem.bounds, 0);
+      item.strokeColor = self.SELECTION_SUBBOX_STROKECOLOR;
+      item.strokeWidth = 1 / paper.view.zoom;
+      item.remove();
+      item.name = 'selectionBoxSubBorder_' + self._selectedItems.indexOf(selectedItem);
+      item.rotate(r, selectedItem.position);
+
+      self._guiLayer.addChild(item);
+
+      selectedItem.rotation = r;
+    });
+  }
+
+  _createHandles() {
+    var self = this;
+    this.HANDLE_NAMES.forEach(function (dir) {
+      var corner = self.bounds[dir];
+      var item = new paper.Path.Circle(corner, self.HANDLE_RADIUS / paper.view.zoom);
+      item.remove();
+      item.strokeWidth = 1.2 / paper.view.zoom;
+      item.strokeColor = self.SELECTION_BOX_STROKECOLOR;
+      item.fillColor = self.SELECTION_BOX_FILLCOLOR;
+      item.name = 'selectionBoxScaleHandle_' + dir;
+      self.guiLayer.addChild(item);
+    });
+  }
+
+  _createRotationHotspots() {
+    var self = this;
+    this.HANDLE_NAMES.forEach(function (dir) {
+      if (dir.includes('Center')) return;
+      var p = self.bounds[dir].clone();
+      var item = new paper.Path([new paper.Point(0, 0), new paper.Point(0, self.ROTATION_HANDLE_RADIUS), new paper.Point(self.ROTATION_HANDLE_RADIUS, self.ROTATION_HANDLE_RADIUS), new paper.Point(self.ROTATION_HANDLE_RADIUS, -self.ROTATION_HANDLE_RADIUS), new paper.Point(-self.ROTATION_HANDLE_RADIUS, -self.ROTATION_HANDLE_RADIUS), new paper.Point(-self.ROTATION_HANDLE_RADIUS, 0)]);
+      item.fillColor = self.ROTATION_HANDLE_COLOR;
+      item.name = 'selectionBoxRotationHandle_' + dir;
+      item.rotate({
+        'topRight': 0,
+        'bottomRight': 90,
+        'bottomLeft': 180,
+        'topLeft': 270
+      }[dir]);
+      item.position.x = p.x;
+      item.position.y = p.y;
+      item.remove();
+      self.guiLayer.addChild(item);
+    });
+  }
+
+  _createCenterpoint() {
+    if (this._selectedItems.length === 1 && this._selectedItems[0]._class === 'Group') {
+      var item = new paper.Path.Circle(this._selectedItems[0].position, this.HANDLE_RADIUS / paper.view.zoom);
+      item.remove();
+      item.strokeWidth = 1 / paper.view.zoom;
+      item.strokeColor = 'green';
+      item.fillColor = this.SELECTION_BOX_FILLCOLOR;
+      item.name = 'selectionBoxCenterpoint';
+      this.guiLayer.addChild(item);
+    }
+  }
+
+  _getLayersOfSelectedItems() {
+    var layers = [];
+
+    this._selectedItems.forEach(item => {
+      if (layers.indexOf(item.layer) === -1) {
+        layers.push(item.layer);
+      }
+    });
+
+    return layers;
+  }
+
+};
+paper.Project.inject({
+  selection: new paper.MultiSelection()
+});
 /*
  * Copyright 2018 WICKLETS LLC
  *
@@ -4018,11 +4678,18 @@ var BrushCursorGen = {
 paper.Path.inject({
   potrace: function (args) {
     var self = this;
-    if (!args) args = {};
+    if (!args) throw new Error('Path.potrace: args is required.');
+    if (!args.resolution) throw new Error('Path.potrace: args.resolution is required.');
+    if (!args.done) throw new Error('Path.potrace: args.done is required.');
     var finalRasterResolution = paper.view.resolution * args.resolution / window.devicePixelRatio;
     var raster = this.rasterize(finalRasterResolution);
     raster.remove();
-    var rasterDataURL = raster.toDataURL(); // https://oov.github.io/potrace/
+    var rasterDataURL = raster.toDataURL();
+
+    if (rasterDataURL === 'data:,') {
+      args.done(null);
+    } // https://oov.github.io/potrace/
+
 
     var img = new Image();
 
@@ -4152,17 +4819,78 @@ paper.View.inject({
  * You should have received a copy of the GNU General Public License
  * along with Paper.js-drawing-tools.  If not, see <https://www.gnu.org/licenses/>.
  */
-paper.drawingTools = {};
+paper.View.inject({
+  enableGestures: function (args) {// TODO
+  }
+});
+/*
+ * Copyright 2018 WICKLETS LLC
+ *
+ * This file is part of Paper.js-drawing-tools.
+ *
+ * Paper.js-drawing-tools is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Paper.js-drawing-tools is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Paper.js-drawing-tools.  If not, see <https://www.gnu.org/licenses/>.
+ */
+paper.View.inject({
+  enableScrollToZoom: function (args) {// TODO
+  }
+});
+/*
+ * Copyright 2018 WICKLETS LLC
+ *
+ * This file is part of Paper.js-drawing-tools.
+ *
+ * Paper.js-drawing-tools is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Paper.js-drawing-tools is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Paper.js-drawing-tools.  If not, see <https://www.gnu.org/licenses/>.
+ */
 
-paper.drawingTools._onCanvasModifiedCallback = function () {};
+/*
+    Brush Cursor Generator
+    For creating Flash-like cursors for drawing tools
 
-paper.drawingTools.fireCanvasModified = function (e) {
-  paper.drawingTools._onCanvasModifiedCallback(e);
-};
+    by zrispo (github.com/zrispo) (zach@wickeditor.com)
+ */
+class BrushCursorGen {
+  static create(color, size) {
+    var canvas = document.createElement("canvas");
+    canvas.width = 128;
+    canvas.height = 128;
+    var context = canvas.getContext('2d');
+    var centerX = canvas.width / 2;
+    var centerY = canvas.height / 2;
+    var radius = size / 2;
+    context.beginPath();
+    context.arc(centerX, centerY, radius + 1, 0, 2 * Math.PI, false);
+    context.fillStyle = invert(color);
+    context.fill();
+    context.beginPath();
+    context.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
+    context.fillStyle = color;
+    context.fill();
+    return 'url(' + canvas.toDataURL() + ') 64 64,default';
+  }
 
-paper.drawingTools.onCanvasModified = function (fn) {
-  paper.drawingTools._onCanvasModifiedCallback = fn;
-};
+}
 /*
  * Copyright 2018 WICKLETS LLC
  *
@@ -4308,17 +5036,12 @@ paper.drawingTools.onCanvasModified = function (fn) {
  * along with Paper.js-drawing-tools.  If not, see <https://www.gnu.org/licenses/>.
  */
 (() => {
-  /* Consts */
-  var SELECTION_TOLERANCE = 3;
   var SELECTION_BOX_STROKECOLOR = 'rgba(100,150,255,1.0)';
   var SELECTION_BOX_FILLCOLOR = 'rgba(255,255,255,0.3)';
-  var SELECTION_SUBBOX_STROKECOLOR = 'rgba(100,150,255,0.75)';
-  var ROTATION_HANDLE_COLOR = 'rgba(255,0,0,0.0001)';
   var HOVER_PREVIEW_COLOR = 'rgba(100,150,255,1.0)';
   var HOVER_PREVIEW_STROKEWIDTH = 1.5;
-  var HANDLE_RADIUS = 5;
-  var ROTATION_HANDLE_RADIUS = 20;
-  var HANDLE_NAMES = ['topLeft', 'topCenter', 'topRight', 'rightCenter', 'leftCenter', 'bottomRight', 'bottomCenter', 'bottomLeft'];
+  var HOVER_PREVIEW_SEGMENT_RADIUS = 5;
+  var HOVER_PREVIEW_SEGMENT_FILLCOLOR = '#ffffff';
   var CURSOR_DEFAULT = 'cursors/default.png';
   var CURSOR_SCALE_TOP_RIGHT_BOTTOM_LEFT = 'cursors/scale-top-right-bottom-left.png';
   var CURSOR_SCALE_TOP_LEFT_BOTTOM_RIGHT = 'cursors/scale-top-left-bottom-right.png';
@@ -4331,7 +5054,8 @@ paper.drawingTools.onCanvasModified = function (fn) {
   var CURSOR_MOVE = 'cursors/move.png';
   var CURSOR_SEGMENT = 'cursors/segment.png';
   var CURSOR_CURVE = 'cursors/curve.png';
-  var guiLayer;
+  var SELECTION_TOLERANCE = 3;
+  var selectedItems;
   var guiTarget;
   var projectTarget;
   var newSegment;
@@ -4339,91 +5063,21 @@ paper.drawingTools.onCanvasModified = function (fn) {
   var boxStart;
   var boxEnd;
   var selectionBox;
-  var selectedItems;
-  var selectionBounds;
   var draggingScaleHandle;
   var draggingRotationHotspot;
-  var prerotation;
-  var prerotationAmount;
-  var prerotationPivot;
   var hoverPreview;
-  var onSelectionChangedFn;
   var tool = new paper.Tool();
   paper.drawingTools.cursor = tool;
 
   tool.onActivate = function (e) {
     selectedItems = [];
-    var currentActiveLayer = paper.project.activeLayer;
-
-    if (!guiLayer) {
-      guiLayer = new paper.Layer();
-      guiLayer.name = 'cursorGUILayer';
-    } else {
-      paper.project.addLayer(guiLayer);
-    }
-
-    currentActiveLayer.activate();
+    paper.project.addLayer(paper.project.selection.guiLayer);
   };
 
   tool.onDeactivate = function (e) {
-    clearSelection();
-    onSelectionChangedFn && onSelectionChangedFn();
-    guiLayer.remove();
+    paper.project.selection.clear();
+    paper.project.selection.guiLayer.remove();
   };
-
-  tool.onSelectionChanged = function (fn) {
-    onSelectionChangedFn = fn;
-  };
-
-  tool.getSelectedItems = function () {
-    return selectedItems;
-  };
-
-  tool.setSelectedItems = function (items) {
-    clearSelection();
-    selectItems(items);
-  };
-
-  tool.getSelectionLayers = function () {
-    var layers = [];
-    tool.getSelectedItems().forEach(item => {
-      if (layers.indexOf(item.layer) === -1) {
-        layers.push(item.layer);
-      }
-    });
-    return layers;
-  };
-
-  tool.getSelectionBounds = function () {
-    return selectionBounds || {
-      left: 0,
-      top: 0,
-      width: 0,
-      height: 0
-    };
-  };
-
-  tool.getGUILayer = function () {
-    return guiLayer;
-  };
-
-  tool.flipSelectionHorizontally = function () {
-    tool.flipSelection('horizontal');
-  };
-
-  tool.flipSelectionVertically = function () {
-    tool.flipSelection('vertical');
-  };
-
-  tool.selectAll = function () {
-    selectAll();
-  };
-
-  tool.deselectAll = function () {
-    clearSelection();
-  };
-  /* Base mouse events */
-
 
   tool.onMouseMove = function (e) {
     if (hoverPreview) {
@@ -4450,21 +5104,22 @@ paper.drawingTools.onCanvasModified = function (fn) {
   /* Canvas mouse events */
 
 
-  tool.onMouseMove_canvas = function (e) {
+  tool._onMouseMove_canvas = function (e) {
     paper.view._element.style.cursor = 'url(' + CURSOR_DEFAULT + ') 32 32, auto';
   };
 
-  tool.onMouseDown_canvas = function (e) {
+  tool._onMouseDown_canvas = function (e) {
     if (!e.modifiers.shift) {
-      clearSelection();
-      onSelectionChangedFn && onSelectionChangedFn();
+      paper.project.selection.clear();
+      paper.project.selection.updateGUI();
+      paper.drawingTools.fireSelectionChanged();
     }
 
     boxStart = new paper.Point(e.point.x, e.point.y);
     boxEnd = new paper.Point(e.point.x, e.point.y);
   };
 
-  tool.onMouseDrag_canvas = function (e) {
+  tool._onMouseDrag_canvas = function (e) {
     if (selectionBox) selectionBox.remove();
     boxEnd = new paper.Point(e.point.x, e.point.y);
     var bounds = new paper.Rectangle(boxStart, boxEnd);
@@ -4474,16 +5129,16 @@ paper.drawingTools.onCanvasModified = function (fn) {
     selectionBox.remove();
     selectionBox.fillColor = SELECTION_BOX_FILLCOLOR;
     selectionBox.strokeColor = SELECTION_BOX_STROKECOLOR;
-    guiLayer.addChild(selectionBox);
+    paper.project.selection.guiLayer.addChild(selectionBox);
   };
 
-  tool.onMouseUp_canvas = function (e) {
+  tool._onMouseUp_canvas = function (e) {
     if (!selectionBox) return;
     var mode = e.modifiers.alt ? 'contains' : 'intersects';
     var itemsInBox = [];
     var itemsToCheck = [];
     paper.project.layers.filter(layer => {
-      return layer !== guiLayer && !layer.locked;
+      return layer !== paper.project.selection.guiLayer && !layer.locked;
     }).forEach(function (layer) {
       itemsToCheck = itemsToCheck.concat(layer.children);
     });
@@ -4504,13 +5159,16 @@ paper.drawingTools.onCanvasModified = function (fn) {
     });
     selectionBox.remove();
     selectionBox = null;
-    selectItems(itemsInBox);
-    onSelectionChangedFn && onSelectionChangedFn();
+    itemsInBox.forEach(item => {
+      paper.project.selection.addItem(item);
+      paper.project.selection.updateGUI();
+    });
+    paper.drawingTools.fireSelectionChanged();
   };
   /* Scale handle mouse events */
 
 
-  tool.onMouseMove_scaleHandle = function (e) {
+  tool._onMouseMove_scaleHandle = function (e) {
     var handleDir = guiTarget.item.name.split("_")[1];
     var cursorOptions = {
       topCenter: CURSOR_SCALE_VERTICAL,
@@ -4525,11 +5183,11 @@ paper.drawingTools.onCanvasModified = function (fn) {
     paper.view._element.style.cursor = 'url("' + cursorOptions[handleDir] + '") 32 32, auto';
   };
 
-  tool.onMouseDown_scaleHandle = function (e) {};
+  tool._onMouseDown_scaleHandle = function (e) {};
 
-  tool.onMouseDrag_scaleHandle = function (e) {
+  tool._onMouseDrag_scaleHandle = function (e) {
     var handleDir = draggingScaleHandle.name.split('_')[1];
-    var pivot = selectionBounds[{
+    var pivot = paper.project.selection.bounds[{
       'topLeft': 'bottomRight',
       'topRight': 'bottomLeft',
       'bottomRight': 'topLeft',
@@ -4555,8 +5213,8 @@ paper.drawingTools.onCanvasModified = function (fn) {
       resizeY = e.point.y - pivot.y;
     }
 
-    resizeX /= selectionBounds.width;
-    resizeY /= selectionBounds.height; // Lock horizontal/vertical scaling.
+    resizeX /= paper.project.selection.bounds.width;
+    resizeY /= paper.project.selection.bounds.height; // Lock horizontal/vertical scaling.
 
     if (handleDir === 'leftCenter' || handleDir === 'rightCenter') {
       resizeY = 1;
@@ -4571,21 +5229,21 @@ paper.drawingTools.onCanvasModified = function (fn) {
       }
     }
 
-    if (selectionBounds.width * resizeX < 1) resizeX = 1;
-    if (selectionBounds.height * resizeY < 1) resizeY = 1;
-    tool.scaleSelection(resizeX, resizeY, pivot);
+    if (paper.project.selection.bounds.width * resizeX < 1) resizeX = 1;
+    if (paper.project.selection.bounds.height * resizeY < 1) resizeY = 1;
+    paper.project.selection.scale(resizeX, resizeY, pivot);
   };
 
-  tool.onMouseUp_scaleHandle = function (e) {
-    buildGUILayer();
+  tool._onMouseUp_scaleHandle = function (e) {
     paper.drawingTools.fireCanvasModified({
-      layers: tool.getSelectionLayers()
+      layers: paper.project.selection._getLayersOfSelectedItems()
     });
+    paper.project.selection.updateGUI();
   };
   /* Rotation hotspot mouse events */
 
 
-  tool.onMouseMove_rotationHotspot = function (e) {
+  tool._onMouseMove_rotationHotspot = function (e) {
     var handleDir = guiTarget.item.name.split("_")[1];
     var cursorOptions = {
       topLeft: CURSOR_ROTATE_TOP_LEFT,
@@ -4596,82 +5254,85 @@ paper.drawingTools.onCanvasModified = function (fn) {
     paper.view._element.style.cursor = 'url("' + cursorOptions[handleDir] + '") 32 32, auto';
   };
 
-  tool.onMouseDown_rotationHotspot = function (e) {};
+  tool._onMouseDown_rotationHotspot = function (e) {};
 
-  tool.onMouseDrag_rotationHotspot = function (e) {
-    //var pivot = selectedItems.length === 1 ? selectedItems[0].position : selectionBounds.center;
-    var pivot = selectionBounds.center;
+  tool._onMouseDrag_rotationHotspot = function (e) {
+    var pivot = paper.project.selection.bounds.center;
     var oldAngle = e.lastPoint.subtract(pivot).angle;
     var newAngle = e.point.subtract(pivot).angle;
     var rotationAmount = newAngle - oldAngle;
-    tool.rotateSelection(rotationAmount, pivot);
+    paper.project.selection.rotate(rotationAmount, pivot);
   };
 
-  tool.onMouseUp_rotationHotspot = function (e) {
-    buildGUILayer();
+  tool._onMouseUp_rotationHotspot = function (e) {
     paper.drawingTools.fireCanvasModified({
-      layers: tool.getSelectionLayers()
+      layers: paper.project.selection._getLayersOfSelectedItems()
     });
+    paper.project.selection.updateGUI();
   };
   /* Generic item mouse events */
 
 
-  tool.onMouseMove_item = function (e) {
+  tool._onMouseMove_item = function (e) {
     paper.view._element.style.cursor = 'url(' + CURSOR_MOVE + ') 32 32, auto';
   };
 
-  tool.onMouseDown_item = function (e) {
-    if (!e.modifiers.shift && !itemIsSelected(projectTarget.item)) {
+  tool._onMouseDown_item = function (e) {
+    if (!e.modifiers.shift && !paper.project.selection.isItemSelected(projectTarget.item)) {
       selectedItems = [];
     }
 
-    selectItem(projectTarget.item);
-    onSelectionChangedFn && onSelectionChangedFn();
+    paper.project.selection.addItem(projectTarget.item);
+    paper.project.selection.updateGUI();
   };
 
-  tool.onMouseDrag_item = function (e) {
-    tool.translateSelection(e.delta.x, e.delta.y);
+  tool._onMouseDrag_item = function (e) {
+    paper.project.selection.translate(e.delta.x, e.delta.y);
   };
 
-  tool.onMouseUp_item = function (e) {
-    buildGUILayer();
-    if (e.delta.x !== 0 || e.delta.y !== 0) paper.drawingTools.fireCanvasModified({
-      layers: tool.getSelectionLayers()
-    });
+  tool._onMouseUp_item = function (e) {
+    if (e.delta.x !== 0 || e.delta.y !== 0) {
+      paper.drawingTools.fireCanvasModified({
+        layers: paper.project.selection._getLayersOfSelectedItems()
+      });
+    }
+
+    paper.project.selection.updateGUI();
   };
   /* Segment mouse events */
 
 
-  tool.onMouseMove_segment = function (e) {
+  tool._onMouseMove_segment = function (e) {
     paper.view._element.style.cursor = 'url(' + CURSOR_SEGMENT + ') 32 32, auto';
-    hoverPreview = new paper.Path.Circle(projectTarget.segment.point, HANDLE_RADIUS / paper.view.zoom);
+    hoverPreview = new paper.Path.Circle(projectTarget.segment.point, HOVER_PREVIEW_SEGMENT_RADIUS / paper.view.zoom);
     hoverPreview.strokeColor = HOVER_PREVIEW_COLOR;
     hoverPreview.strokeWidth = HOVER_PREVIEW_STROKEWIDTH;
-    hoverPreview.fillColor = HOVER_PREVIEW_COLOR;
+    hoverPreview.fillColor = HOVER_PREVIEW_SEGMENT_FILLCOLOR;
   };
 
-  tool.onMouseDown_segment = function (e) {};
+  tool._onMouseDown_segment = function (e) {};
 
-  tool.onMouseDrag_segment = function (e) {
+  tool._onMouseDrag_segment = function (e) {
     projectTarget.segment.point = projectTarget.segment.point.add(e.delta);
     hoverPreview.position = projectTarget.segment.point;
   };
 
-  tool.onMouseUp_segment = function (e) {
+  tool._onMouseUp_segment = function (e) {
     if (e.delta.x === 0 && e.delta.y === 0) {
-      if (!e.modifiers.shift) clearSelection();
-      selectItem(projectTarget.item);
-      onSelectionChangedFn && onSelectionChangedFn();
+      if (!e.modifiers.shift) paper.project.selection.clear();
+      paper.project.selection.selectItem(projectTarget.item);
+      paper.drawingTools.fireSelectionChanged();
     } else {
       paper.drawingTools.fireCanvasModified({
-        layers: tool.getSelectionLayers()
+        layers: paper.project.selection._getLayersOfSelectedItems()
       });
+      paper.project.selection.updateGUI();
     }
   };
   /* Curve mouse events */
 
 
-  tool.onMouseMove_curve = function (e) {
+  tool._onMouseMove_curve = function (e) {
     paper.view._element.style.cursor = 'url(' + CURSOR_CURVE + ') 32 32, auto';
     hoverPreview = new paper.Path();
     hoverPreview.strokeWidth = 2;
@@ -4682,7 +5343,7 @@ paper.drawingTools.onCanvasModified = function (fn) {
     hoverPreview.segments[1].handleIn = projectTarget.location.curve.handle2;
   };
 
-  tool.onMouseDown_curve = function (e) {
+  tool._onMouseDown_curve = function (e) {
     if (e.modifiers.alt) {
       var location = projectTarget.location;
       var path = projectTarget.item;
@@ -4694,7 +5355,7 @@ paper.drawingTools.onCanvasModified = function (fn) {
     draggingCurve = projectTarget.location.curve;
   };
 
-  tool.onMouseDrag_curve = function (e) {
+  tool._onMouseDrag_curve = function (e) {
     if (newSegment) {
       newSegment.point = newSegment.point.add(e.delta);
     } else {
@@ -4722,201 +5383,36 @@ paper.drawingTools.onCanvasModified = function (fn) {
     }
   };
 
-  tool.onMouseUp_curve = function (e) {
+  tool._onMouseUp_curve = function (e) {
     newSegment = null;
 
     if (e.delta.x === 0 && e.delta.y === 0) {
-      if (!e.modifiers.shift) clearSelection();
-      selectItem(projectTarget.item);
-      onSelectionChangedFn && onSelectionChangedFn();
+      if (!e.modifiers.shift) {
+        paper.project.selection.clear();
+      }
+
+      paper.project.selection.selectItem(projectTarget.item);
+      paper.drawingTools.fireSelectionChanged();
     } else {
       paper.drawingTools.fireCanvasModified({
-        layers: tool.getSelectionLayers()
+        layers: paper.project.selection._getLayersOfSelectedItems()
       });
+      paper.project.selection.updateGUI();
     }
   };
-  /* Selection box transformations */
+  /* Util */
 
-
-  tool.translateSelection = function (x, y) {
-    selectedItems.forEach(function (item) {
-      item.position.x += x;
-      item.position.y += y;
-    });
-    guiLayer.children.forEach(function (child) {
-      child.position.x += x;
-      child.position.y += y;
-    });
-  };
-
-  tool.rotateSelection = function (r, pivot) {
-    if (!pivot) pivot = selectionBounds.center;
-    selectedItems.forEach(function (item) {
-      item.rotate(r, pivot);
-    });
-    guiLayer.children.forEach(function (child) {
-      child.rotate(r, pivot);
-    });
-  };
-
-  tool.scaleSelection = function (x, y, pivot) {
-    if (!pivot) pivot = selectionBounds.topLeft;
-    selectedItems.forEach(function (item) {
-      item.scale(x, y, pivot);
-    });
-    guiLayer.children.forEach(function (child) {
-      child.scale(x, y, pivot);
-    });
-    guiLayer.children.filter(function (child) {
-      return child.name.startsWith('selectionBoxScaleHandle_') || child.name === 'selectionBoxCenterpoint';
-    }).forEach(function (child) {
-      child.scale(1 / x, 1 / y, child.position);
-    });
-    calculateBounds();
-  };
-
-  tool.flipSelection = function (direction) {
-    var pivot = selectionBounds.center;
-    selectedItems.forEach(function (item) {
-      item.scale(direction === 'horizontal' ? -1 : 1, direction === 'vertical' ? -1 : 1, pivot);
-    });
-    buildGUILayer();
-    paper.drawingTools.fireCanvasModified({
-      layers: tool.getSelectionLayers()
-    });
-  };
-  /* Utils */
-
-
-  function buildGUILayer() {
-    guiLayer.clear();
-    if (selectedItems.length === 0) return;
-    forceApplyMatrix();
-    calculateBounds();
-    createSelectionBorder();
-    createSubBorders();
-    createRotationHotspots();
-    createHandles();
-    createCenterpoint();
-
-    if (prerotation) {
-      guiLayer.children.forEach(function (child) {
-        child.rotate(prerotationAmount, prerotationPivot);
-      });
-    }
-  }
-
-  function forceApplyMatrix() {
-    // For selectionbox transforms to work correctly, anything that isn't a group
-    // or a raster must have applyMatrix set to true so paths won't have an extra
-    // transformation to deal with, all of their information can be stored in svg
-    selectedItems.forEach(item => {
-      if (item instanceof paper.Path || item instanceof paper.CompoundPath) {
-        item.applyMatrix = true;
-      }
-    });
-  }
-
-  function calculateBounds() {
-    selectionBounds = null;
-
-    if (selectedItems.length === 1) {
-      var item = selectedItems[0];
-      prerotation = true;
-      prerotationAmount = item.rotation;
-      prerotationPivot = item.position;
-      item.rotation = 0;
-      selectionBounds = item.bounds.clone();
-      item.rotation = prerotationAmount;
-    } else {
-      prerotation = false;
-      selectedItems.forEach(function (item) {
-        if (!selectionBounds) {
-          selectionBounds = item.bounds.clone();
-        } else {
-          selectionBounds = selectionBounds.unite(item.bounds);
-        }
-      });
-    }
-
-    if (selectionBounds) {//selectionBounds.x += 0.5;
-      //selectionBounds.y += 0.5;
-    }
-  }
-
-  function createSelectionBorder() {
-    var item = new paper.Path.RoundRectangle(selectionBounds, 0);
-    item.remove();
-    item.strokeColor = SELECTION_BOX_STROKECOLOR;
-    item.strokeWidth = 1 / paper.view.zoom;
-    item.name = 'selectionBoxBorder';
-    guiLayer.addChild(item);
-  }
-
-  function createSubBorders() {
-    if (selectedItems.length < 2) return;
-    selectedItems.forEach(function (selectedItem) {
-      var r = selectedItem.rotation;
-      selectedItem.rotation = 0;
-      var item = new paper.Path.RoundRectangle(selectedItem.bounds, 0);
-      item.bounds.x += 0.5;
-      item.bounds.y += 0.5;
-      item.strokeColor = SELECTION_SUBBOX_STROKECOLOR;
-      item.strokeWidth = 1 / paper.view.zoom;
-      item.remove();
-      item.name = 'selectionBoxSubBorder_' + selectedItems.indexOf(item);
-      item.rotate(r, selectedItem.position);
-      guiLayer.addChild(item);
-      selectedItem.rotation = r;
-    });
-  }
-
-  function createHandles() {
-    HANDLE_NAMES.forEach(function (dir) {
-      var corner = selectionBounds[dir];
-      var item = new paper.Path.Circle(corner, HANDLE_RADIUS / paper.view.zoom);
-      item.remove();
-      item.strokeWidth = 1.2 / paper.view.zoom;
-      item.strokeColor = SELECTION_BOX_STROKECOLOR;
-      item.fillColor = SELECTION_BOX_FILLCOLOR;
-      item.name = 'selectionBoxScaleHandle_' + dir;
-      guiLayer.addChild(item);
-    });
-  }
-
-  function createRotationHotspots() {
-    HANDLE_NAMES.forEach(function (dir) {
-      if (dir.includes('Center')) return;
-      var p = selectionBounds[dir].clone();
-      var item = new paper.Path([new paper.Point(0, 0), new paper.Point(0, ROTATION_HANDLE_RADIUS), new paper.Point(ROTATION_HANDLE_RADIUS, ROTATION_HANDLE_RADIUS), new paper.Point(ROTATION_HANDLE_RADIUS, -ROTATION_HANDLE_RADIUS), new paper.Point(-ROTATION_HANDLE_RADIUS, -ROTATION_HANDLE_RADIUS), new paper.Point(-ROTATION_HANDLE_RADIUS, 0)]);
-      item.fillColor = ROTATION_HANDLE_COLOR;
-      item.name = 'selectionBoxRotationHandle_' + dir;
-      item.rotate({
-        'topRight': 0,
-        'bottomRight': 90,
-        'bottomLeft': 180,
-        'topLeft': 270
-      }[dir]);
-      item.position.x = p.x;
-      item.position.y = p.y;
-      item.remove();
-      guiLayer.addChild(item);
-    });
-  }
-
-  function createCenterpoint() {
-    if (selectedItems.length === 1 && selectedItems[0]._class === 'Group') {
-      var item = new paper.Path.Circle(selectedItems[0].position, HANDLE_RADIUS / paper.view.zoom);
-      item.remove();
-      item.strokeWidth = 1 / paper.view.zoom;
-      item.strokeColor = 'green';
-      item.fillColor = SELECTION_BOX_FILLCOLOR;
-      item.name = 'selectionBoxCenterpoint';
-      guiLayer.addChild(item);
-    }
-  }
 
   function forwardMouseEvent(e, mouseEventName) {
+    var itemType = determineTargetType();
+
+    if (itemType) {
+      var fnName = '_onMouse' + mouseEventName + '_' + itemType;
+      tool[fnName](e);
+    }
+  }
+
+  function determineTargetType() {
     var itemType;
 
     if (guiTarget) {
@@ -4928,7 +5424,7 @@ paper.drawingTools.onCanvasModified = function (fn) {
         draggingRotationHotspot = guiTarget.item;
       }
     } else if (projectTarget) {
-      if (projectTarget.type === 'fill' || selectedItems.indexOf(projectTarget.item) !== -1) {
+      if (projectTarget.type === 'fill' || paper.project.selection.isItemSelected(projectTarget.item)) {
         itemType = 'item';
       } else if (projectTarget.type === 'segment') {
         itemType = 'segment';
@@ -4941,27 +5437,24 @@ paper.drawingTools.onCanvasModified = function (fn) {
       itemType = 'canvas';
     }
 
-    if (itemType) {
-      var fnName = 'onMouse' + mouseEventName + '_' + itemType;
-      tool[fnName](e);
-    }
+    return itemType;
   }
 
   function determineGUITarget(e) {
-    return guiLayer.hitTest(e.point, {
+    return paper.project.selection.guiLayer.hitTest(e.point, {
       fill: true
     });
   }
 
   function determineProjectTarget(e) {
-    var projectTarget = projectTarget = paper.project.hitTest(e.point, {
+    var projectTarget = paper.project.hitTest(e.point, {
       fill: true,
       stroke: true,
       curves: true,
       segments: true,
       tolerance: SELECTION_TOLERANCE,
       match: function (result) {
-        return result.item.layer !== guiLayer && !result.item.layer.locked;
+        return result.item.layer !== paper.project.selection.guiLayer && !result.item.layer.locked;
       }
     });
 
@@ -4973,42 +5466,6 @@ paper.drawingTools.onCanvasModified = function (fn) {
     }
 
     return projectTarget;
-  }
-  /* Selection API */
-
-
-  function selectItems(items) {
-    items.forEach(item => {
-      if (selectedItems.indexOf(item) === -1) {
-        selectedItems.push(item);
-      }
-    });
-    buildGUILayer();
-  }
-
-  function selectItem(item) {
-    selectItems([item]);
-  }
-
-  function selectAll() {
-    var all = [];
-    paper.project.layers.forEach(layer => {
-      if (layer.locked) return;
-      layer.children.forEach(child => {
-        all.push(child);
-      });
-    });
-    clearSelection();
-    selectItems(all);
-  }
-
-  function clearSelection() {
-    selectedItems = [];
-    buildGUILayer();
-  }
-
-  function itemIsSelected(item) {
-    return selectedItems.indexOf(item) !== -1;
   }
 })();
 /*
@@ -5123,7 +5580,7 @@ paper.drawingTools.onCanvasModified = function (fn) {
 
   tool.onMouseMove = function (e) {
     // Don't render cursor after every mouse move, cache and only render when size changes
-    cursorNeedsRegen = tool.brushSize !== cursorSize;
+    var cursorNeedsRegen = tool.brushSize !== cursorSize;
 
     if (cursorNeedsRegen) {
       cursor = BrushCursorGen.create('#ffffff', tool.brushSize);
@@ -5413,7 +5870,11 @@ paper.drawingTools.onCanvasModified = function (fn) {
     paper.view.center = paper.view.center.add(d);
   };
 
-  tool.onMouseUp = function (e) {};
+  tool.onMouseUp = function (e) {
+    paper.drawingTools.fireCanvasModified({
+      layers: []
+    });
+  };
 })();
 /*
  * Copyright 2018 WICKLETS LLC
@@ -5695,6 +6156,10 @@ paper.drawingTools.onCanvasModified = function (fn) {
 
       paper.view.scale(zoomAmount, e.point);
     }
+
+    paper.drawingTools.fireCanvasModified({
+      layers: []
+    });
   };
 
   function createZoomBox(e) {

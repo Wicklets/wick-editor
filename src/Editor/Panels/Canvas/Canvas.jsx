@@ -24,36 +24,60 @@ import './_canvas.scss';
 class Canvas extends Component {
   constructor (props) {
     super(props);
+
     this.wickCanvas = null;
+
+    this.updateCanvas = this.updateCanvas.bind(this);
+    this.updateActiveTool = this.updateActiveTool.bind(this);
+    this.onCanvasModified = this.onCanvasModified.bind(this);
+    this.onSelectionChanged = this.onSelectionChanged.bind(this);
   }
 
   componentDidMount() {
     this.wickCanvas = new window.WickCanvas();
     window.WickCanvas.setup(this.refs.container);
     window.WickCanvas.resize();
+
+    // This will go somewhere else later
     window.paper.view.zoom = 1;
-    window.paper.view.center = new window.paper.Point(this.props.project.width/2,
-                                                      this.props.project.height/2);
-    this.wickCanvas.render(this.props.project);
+    window.paper.view.center = new window.paper.Point(
+      this.props.project.width/2,
+      this.props.project.height/2);
 
-    let self = this;
-    window.paper.drawingTools.cursor.onSelectionChanged(e => {
+    window.paper.drawingTools.onCanvasModified(this.onCanvasModified);
+    window.paper.drawingTools.onSelectionChanged(this.onSelectionChanged);
 
-    });
-    window.paper.drawingTools.onCanvasModified(e => {
-      self.wickCanvas.applyChanges(self.props.project, e.layers);
-    });
-    window.paper.drawingTools[this.props.activeTool].activate();
+    this.updateCanvas();
+    this.updateActiveTool();
   }
 
   componentDidUpdate () {
     this.wickCanvas.render(this.props.project);
 
-    let tool = window.paper.drawingTools[this.props.activeTool]
+    this.updateCanvas();
+    this.updateActiveTool();
+  }
+
+  updateCanvas () {
+    this.wickCanvas.render(this.props.project);
+  }
+
+  updateActiveTool () {
+    let tool = window.paper.drawingTools[this.props.activeTool];
     tool.activate();
     Object.keys(this.props.toolSettings).forEach(key => {
       tool[key] = this.props.toolSettings[key];
     });
+  }
+
+  onCanvasModified (e) {
+    this.wickCanvas.applyChanges(this.props.project, e.layers);
+    this.props.updateProject(this.props.project);
+  }
+
+  onSelectionChanged (e) {
+    console.log('onSelectionChanged');
+    console.log(e);
   }
 
   render() {

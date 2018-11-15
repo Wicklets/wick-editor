@@ -121,7 +121,6 @@ class Inspector extends Component {
 
   // Inspector Row Types
   renderBrushSize(args) {
-    console.log(this.props)
     return (
       <InspectorNumericSlider
         icon="brushsize"

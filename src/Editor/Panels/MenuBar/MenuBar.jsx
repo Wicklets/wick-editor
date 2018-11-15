@@ -20,7 +20,7 @@
 import React, { Component } from 'react';
 import './_menubar.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { Wrapper, Button, Menu, MenuItem } from 'react-aria-menubutton';
+import { Wrapper, Button, Menu } from 'react-aria-menubutton';
 import ReactTooltip from 'react-tooltip'
 
 import iconSettings from 'resources/inspector-icons/selection-icons/settings.png';
@@ -34,32 +34,20 @@ const runItems = [];
 
 class MenuBar extends Component {
   renderButton(menuName, items) {
-    const menuItems = items.map((word, i) => {
-          return (
-            <li className="AriaMenuButton-menuItemWrapper" key={i}>
-              <div>
-                <MenuItem className='AriaMenuButton-menuItem'>
-                  {word}
-                </MenuItem>
-              </div>
-            </li>
-          );
-        });
-
-        return (
-          <Wrapper data-tip data-for="menu-bar-coming-soon"
-            className="AriaMenuButton"
-            onSelection={(e,v) => console.log("HANDLE")}
-          >
-            <Button className="AriaMenuButton-trigger">
-              {menuName}
-            </Button>
-            <Menu className="AriaMenuButton-menu">
-              <ul className="menu-items"></ul>
-            </Menu>
-          </Wrapper>
-        );
-      }
+    return (
+      <Wrapper data-tip data-for="menu-bar-coming-soon"
+        className="AriaMenuButton"
+        onSelection={(e,v) => console.log("HANDLE")}
+      >
+        <Button className="AriaMenuButton-trigger">
+          {menuName}
+        </Button>
+        <Menu className="AriaMenuButton-menu">
+          <ul className="menu-items"></ul>
+        </Menu>
+      </Wrapper>
+    );
+  }
 
   render() {
     return(

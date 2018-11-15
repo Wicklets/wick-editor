@@ -92,7 +92,7 @@ class Timeline extends Component {
     });
 
     AnimationTimeline.onSoftChange(e => {
-      
+
     });
 
     AnimationTimeline.onSelectionChange(e => {
@@ -107,7 +107,7 @@ class Timeline extends Component {
   updateAnimationTimelineData () {
     let AnimationTimeline = window.AnimationTimeline;
     let timeline = this.props.project.focus.timeline;
-    let selection = this.props.selection;
+    let selectedFrames = [];
 
     AnimationTimeline.setData({
       playheadPosition: timeline.playheadPosition,
@@ -127,12 +127,12 @@ class Timeline extends Component {
               label: frame.identifier,
               start: frame.start,
               end: frame.end,
-              selected: selection.indexOf(frame.uuid) !== -1,
-              contentful: false, // TODO!
+              selected: selectedFrames.indexOf(frame.uuid) !== -1,
+              contentful: frame.contentful,
               tweens: frame.tweens.map(tween => {
                 return {
                   uuid: tween.uuid,
-                  selected: selection.indexOf(tween.uuid) !== -1,
+                  selected: selectedFrames.indexOf(tween.uuid) !== -1,
                   playheadPosition: tween.playheadPosition,
                 }
               }),

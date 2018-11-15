@@ -49,7 +49,6 @@ class Editor extends Component {
 
     this.state = {
       project: null,
-      selection: [],
       openModalName: null,
       activeTool: 'cursor',
       toolSettings: {
@@ -61,26 +60,22 @@ class Editor extends Component {
         borderRadius: 0,
         pressureEnabled: false,
       },
-    }
+    };
 
     // Milliseconds to throttle resize events by.
     this.resizeThrottleAmount = 3;
-
-    this.resizeProps = {
-      onStopResize: throttle(this.onStopResize.bind(this), this.resizeThrottleAmount),
-      onResize: throttle(this.onResize.bind(this), this.resizeThrottleAmount)
-    }
 
     // define hotkeys
     this.hotKeyInterface = new HotKeyInterface(this);
 
     this.updateProject = this.updateProject.bind(this);
-    this.updateSelection = this.updateSelection.bind(this);
     this.openModal = this.openModal.bind(this);
     this.activateTool = this.activateTool.bind(this);
-    this.getSelection = this.getSelection.bind(this);
     this.updateToolSettings = this.updateToolSettings.bind(this);
-    this.deleteSelectedObjects = this.deleteSelectedObjects.bind(this);
+    this.resizeProps = {
+      onStopResize: throttle(this.onStopResize.bind(this), this.resizeThrottleAmount),
+      onResize: throttle(this.onResize.bind(this), this.resizeThrottleAmount)
+    };
 
     // Bind window resizes to editor resize events.
     window.addEventListener("resize", this.resizeProps.onResize);
@@ -92,7 +87,7 @@ class Editor extends Component {
   }
 
   componentDidMount () {
-    // console.log(this.refs.hotkeysContainer);
+
   }
 
   onResize (e) {
@@ -124,12 +119,6 @@ class Editor extends Component {
     }));
   }
 
-  updateSelection (nextSelection) {
-    this.setState(prevState => ({
-      selection: nextSelection,
-    }));
-  }
-
   updateToolSettings (newToolSettings) {
     let updatedToolSettings = this.state.toolSettings;
 
@@ -141,60 +130,6 @@ class Editor extends Component {
     this.setState({
       toolSettings: updatedToolSettings,
     });
-  }
-
-  deleteSelectedObjects () {
-    var selection = this.getSelection();
-
-    selection.paths.forEach(path => {
-      path.remove();
-    });
-
-    selection.frames.forEach(frame => {
-      frame.parent.removeFrame(frame);
-    });
-
-    this.setState(prevState => ({
-      project: prevState.project,
-      selection: []
-    }));
-  }
-
-  getSelection () {
-    let visibleLayers = this.state.project.focus.timeline.layers;
-    let selectablePaths = [].concat.apply([], visibleLayers.map(layer => {
-      return layer.activeFrame.svg.children;
-    }));
-    let selectableGroups = [].concat.apply([], visibleLayers.map(layer => {
-      return layer.activeFrame.groups;
-    }));
-    let selectableFrames = [].concat.apply([], visibleLayers.map(layer => {
-      return layer.frames;
-    }));
-    let selectableTweens = [].concat.apply([], selectableFrames.map(layer => {
-      return layer.tweens;
-    }));
-
-    var ids = this.state.selection;
-    let selectedPaths = selectablePaths.filter(path => {
-      return ids.indexOf(path.id) !== -1;
-    });
-    let selectedGroups = selectableGroups.filter(group => {
-      return ids.indexOf(group.uuid) !== -1;
-    });
-    let selectedFrames = selectableFrames.filter(frame => {
-      return ids.indexOf(frame.uuid) !== -1;
-    });
-    let selectedTweens = selectableTweens.filter(tween => {
-      return ids.indexOf(tween.uuid) !== -1;
-    });
-
-    return {
-      paths: selectedPaths,
-      groups: selectedGroups,
-      frames: selectedFrames,
-      tweens: selectedTweens,
-    }
   }
 
   render () {
@@ -239,9 +174,7 @@ class Editor extends Component {
                         <DockedPanel>
                           <Timeline
                             project={this.state.project}
-                            selection={this.state.selection}
                             updateProject={this.updateProject}
-                            updateSelection={this.updateSelection}
                           />
                         </DockedPanel>
                       </ReflexElement>
@@ -253,7 +186,6 @@ class Editor extends Component {
                             project={this.state.project}
                             toolSettings={this.state.toolSettings}
                             updateProject={this.updateProject}
-                            updateSelection={this.updateSelection}
                             activeTool={this.state.activeTool}
                           />
                         </DockedPanel>

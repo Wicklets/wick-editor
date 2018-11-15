@@ -17,7 +17,7 @@
  * along with Wick Editor.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, { Component, PureComponent } from 'react';
+import React, { PureComponent } from 'react';
 import './_dockedpanel.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
