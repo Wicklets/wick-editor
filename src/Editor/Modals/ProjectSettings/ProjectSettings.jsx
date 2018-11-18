@@ -35,6 +35,11 @@ class ProjectSettings extends Component {
       backgroundColor: this.props.project.backgroundColor,
     }
 
+    // Set minimums for project settings.
+    this.projectMinWidth = 1;
+    this.projectMinHeight = 1;
+    this.projectMinFramerate = 1;
+
     this.changeProjectName = this.changeProjectName.bind(this);
     this.changeProjectWidth = this.changeProjectWidth.bind(this);
     this.changeProjectHeight = this.changeProjectHeight.bind(this);
@@ -113,22 +118,25 @@ class ProjectSettings extends Component {
             <WickInput
               id="projectWidth"
               type="numeric"
+              min={this.projectMinWidth}
               defaultValue={this.props.project.width}
-              onChange={this.changeProjectWidth}
+              onValid={this.changeProjectWidth}
             />
           <Label className="project-property-label" for="projectHeight">Height</Label>
             <WickInput
               id="projectHeight"
               type="numeric"
+              min={this.projectMinHeight}
               defaultValue={this.props.project.height}
-              onChange={this.changeProjectHeight}
+              onValid={this.changeProjectHeight}
             />
           <Label className="project-property-label" for="projectFramerate">Framerate (FPS)</Label>
             <WickInput
               id="projectFramerate"
               type="numeric"
+              min={this.projectMinFramerate}
               defaultValue={this.props.project.framerate}
-              onChange={this.changeProjectFramerate}
+              onValid={this.changeProjectFramerate}
             />
           <Label className="project-property-label" for="projectBackgroundColor">Background Color</Label>
           <div id="background-color-picker-container" style={{width:"100%", height:"30px", backgroundColor:this.state.backgroundColor, borderRadius:"6px"}}>
