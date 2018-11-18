@@ -28,11 +28,11 @@ class ProjectSettings extends Component {
     super(props);
 
     this.state = {
-      name: null,
-      width: null,
-      height: null,
-      framerate: null,
-      backgroundColor: null,
+      name: this.props.project.name,
+      width: this.props.project.width,
+      height: this.props.project.height,
+      framerate: this.props.project.framerate,
+      backgroundColor: this.props.project.backgroundColor,
     }
 
     this.changeProjectName = this.changeProjectName.bind(this);
@@ -46,13 +46,6 @@ class ProjectSettings extends Component {
   }
 
   componentWillMount () {
-    this.setState({
-      name: this.props.project.name,
-      width: this.props.project.width,
-      height: this.props.project.height,
-      framerate: this.props.project.framerate,
-      backgroundColor: this.props.project.backgroundColor,
-    });
   }
 
   changeProjectName (event) {
@@ -61,21 +54,21 @@ class ProjectSettings extends Component {
     });
   }
 
-  changeProjectWidth (event) {
+  changeProjectWidth (widthAsNumber) {
     this.setState({
-      width: event.target.value
+      width: widthAsNumber
     });
   }
 
-  changeProjectHeight (event) {
+  changeProjectHeight (heightAsNumber) {
     this.setState({
-      height: event.target.value
+      height: heightAsNumber
     });
   }
 
-  changeProjectFramerate (event) {
+  changeProjectFramerate (framerateAsNumber) {
     this.setState({
-      framerate: event.target.value
+      framerate: framerateAsNumber
     });
   }
 
@@ -87,11 +80,13 @@ class ProjectSettings extends Component {
 
   updateProjectSettings () {
     var nextProject = this.props.project.clone();
+    console.log("before", nextProject);
     nextProject.name = this.state.name;
     nextProject.width = this.state.width;
     nextProject.height = this.state.height;
     nextProject.framerate = this.state.framerate;
     nextProject.backgroundColor = this.state.backgroundColor;
+    console.log("after", nextProject);
     this.props.updateProject(nextProject);
     this.toggle();
   }
@@ -107,25 +102,33 @@ class ProjectSettings extends Component {
         <ModalBody>
           <FormGroup>
             <Label className="project-property-label" for="projectName">Project name</Label>
-            <Input id="projectName"
-                   placeholder="New Project"
-                   defaultValue={this.props.project.name}
-                   onChange={this.changeProjectName}
+            <WickInput
+              id="projectName"
+              type="text"
+              placeholder="New Project"
+              defaultValue={this.props.project.name}
+              onChange={this.changeProjectName}
             />
           <Label className="project-property-label" for="projectWidth">Width</Label>
-            <Input id="projectWidth"
-                   defaultValue={this.props.project.width}
-                   onChange={this.changeProjectWidth}
+            <WickInput
+              id="projectWidth"
+              type="numeric"
+              defaultValue={this.props.project.width}
+              onChange={this.changeProjectWidth}
             />
           <Label className="project-property-label" for="projectHeight">Height</Label>
-            <Input id="projectHeight"
-                   defaultValue={this.props.project.height}
-                   onChange={this.changeProjectHeight}
+            <WickInput
+              id="projectHeight"
+              type="numeric"
+              defaultValue={this.props.project.height}
+              onChange={this.changeProjectHeight}
             />
           <Label className="project-property-label" for="projectFramerate">Framerate (FPS)</Label>
-            <Input id="projectFramerate"
-                   defaultValue={this.props.project.framerate}
-                   onChange={this.changeProjectFramerate}
+            <WickInput
+              id="projectFramerate"
+              type="numeric"
+              defaultValue={this.props.project.framerate}
+              onChange={this.changeProjectFramerate}
             />
           <Label className="project-property-label" for="projectBackgroundColor">Background Color</Label>
           <div id="background-color-picker-container" style={{width:"100%", height:"30px", backgroundColor:this.state.backgroundColor, borderRadius:"6px"}}>
