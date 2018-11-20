@@ -24,7 +24,6 @@ import InspectorRow from '../InspectorRow';
 class InspectorColorPicker extends Component {
   render() {
     return(
-      <div className="inspector-row">
         <InspectorRow icon={this.props.icon}
                       input1={
                         {type: "color",
@@ -33,7 +32,6 @@ class InspectorColorPicker extends Component {
                         id: this.props.id}
                       }
                     />
-      </div>
     )
   }
 }

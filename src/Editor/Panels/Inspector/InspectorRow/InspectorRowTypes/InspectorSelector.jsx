@@ -24,7 +24,6 @@ import InspectorRow from '../InspectorRow';
 class InspectorSelector extends Component {
   render() {
     return(
-      <div className="inspector-row">
         <InspectorRow icon={this.props.icon}
                       input1={
                         {type: "select",
@@ -34,7 +33,6 @@ class InspectorSelector extends Component {
                         className: this.props.className}
                       }
                     />
-      </div>
     )
   }
 }

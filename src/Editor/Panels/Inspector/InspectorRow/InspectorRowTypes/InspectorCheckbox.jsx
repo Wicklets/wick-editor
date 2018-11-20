@@ -24,7 +24,6 @@ import InspectorRow from '../InspectorRow';
 class InspectorCheckbox extends Component {
   render() {
     return(
-      <div className="inspector-row">
         <InspectorRow icon={this.props.icon}
                       input1={
                         {type: "checkbox",
@@ -32,7 +31,6 @@ class InspectorCheckbox extends Component {
                         onChange: this.props.onChange}
                       }
                     />
-      </div>
     )
   }
 }
