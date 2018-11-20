@@ -130,12 +130,12 @@ class Inspector extends Component {
     )
   }
 
-  renderSmoothness(args) {
+  renderSmoothness() {
     return (
       <InspectorNumericSlider
         icon="brushsmoothness"
-        val={args.val}
-        onChange={args.onChange}
+        val={this.props.toolSettings.brushSmoothness}
+        onChange={(val) => this.handleToolSettingChange('brushSmoothness', val)}
         divider={false}/>
     )
   }
@@ -164,7 +164,11 @@ class Inspector extends Component {
 
   renderBorderRadius(args) {
     return (
-      <InspectorNumericInput icon="cornerroundness" val={args.val} onChange={args.onChange} />
+      <InspectorNumericSlider
+        icon="cornerroundness"
+        val={this.props.toolSettings.borderRadius}
+        onChange={(val) => this.handleToolSettingChange("borderRadius", val)}
+        divider={false} />
     )
   }
 
@@ -223,7 +227,7 @@ class Inspector extends Component {
     )
   }
 
-  renderPressure(args) {
+  renderPressureToggle(args) {
     return (
       <InspectorCheckbox
         icon="pressure"
@@ -250,8 +254,8 @@ class Inspector extends Component {
         <InspectorTitle type={"brush"} title={"Brush"} />
         <div className="inspector-content">
           {this.renderBrushSize()}
-          {this.renderPressure()}
-          {/*{this.renderSmoothness({val:this.state.dummySize, onChange:this.handleChange})}*/}
+          {this.renderPressureToggle()}
+          {this.renderSmoothness()}
           {/*{this.renderFillColor({val:this.state.dummyColor, onChange:this.handleColorChange, id:"inspector-brush-fill-color-picker"})}*/}
         </div>
       </div>
@@ -264,7 +268,8 @@ class Inspector extends Component {
         <InspectorTitle type={"pencil"} title={"Pencil"} />
         <div className="inspector-content">
           {this.renderStrokeWidth()}
-          {/*{this.renderSmoothness({val:this.state.dummySize, onChange:this.handleChange})}*/}
+          {this.renderPressureToggle()}
+          {this.renderSmoothness()}
           {/*{this.renderFillColor({val:this.state.dummyColor, onChange:this.handleColorChange, id:"inspector-brush-fill-color-picker"})}*/}
         </div>
       </div>
@@ -277,6 +282,8 @@ class Inspector extends Component {
         <InspectorTitle type={"eraser"} title={"Eraser"} />
         <div className="inspector-content">
           {this.renderBrushSize()}
+          {this.renderPressureToggle()}
+          {this.renderSmoothness()}
         </div>
       </div>
     )
@@ -299,6 +306,7 @@ class Inspector extends Component {
         <InspectorTitle type={"rectangle"} title={"Rectangle"} />
         <div className="inspector-content">
           {this.renderStrokeWidth()}
+          {this.renderBorderRadius()}
           {/*{this.renderFillColor({val:this.state.dummyColor, onChange:this.handleColorChange, id:"inspector-brush-fill-color-picker"})}
           {this.renderStrokeColor({val:this.state.dummyColor, onChange:this.handleColorChange, id:"inspector-brush-fill-color-picker"})}
           {this.renderBorderRadius({val:this.state.dummySize, onChange:this.handleChange})}*/}
