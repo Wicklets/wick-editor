@@ -36,7 +36,7 @@ class Inspector extends Component {
   constructor (props) {
     super(props);
     this.state = {
-      content: this.props.activeTool,
+      content: "path",
       dummySize: 10,
       dummyColor: "#FFAABB",
       dummyFonts: [
@@ -162,7 +162,32 @@ class Inspector extends Component {
 
   renderFillColor(args) {
     return(
-      <InspectorColorPicker icon="fillcolor" val={args.val} onChange={args.onChange} id={args.id} />
+      <InspectorColorPicker
+        icon="fillcolor"
+        val={args.val}
+        onChange={args.onChange}
+        id={args.id} />
+    )
+  }
+
+  renderSelectionFillColor() {
+    return(
+      <InspectorColorPicker
+        icon="fillcolor"
+        val={this.props.selectionProperties.fillColor}
+        onChange={(col) => this.handleSelectionPropertyChange('fillColor', col.hex)}
+        id={"inspector-selection-fill-color"} />
+    )
+  }
+
+  renderSelectionStrokeColor() {
+    return(
+      <InspectorColorPicker
+        icon="strokecolor"
+        val={this.props.selectionProperties.strokeColor}
+        onChange={(col) => this.handleSelectionPropertyChange('strokeColor', col.hex)}
+        id={"inspector-selection-stroke-color"}
+        stroke={true}/>
     )
   }
 
@@ -509,8 +534,8 @@ class Inspector extends Component {
         {this.renderName()}
         {this.renderTransformProperties()}
         {this.renderSelectionStrokeWidth()}
-        {this.renderFillColor({val:this.state.dummyColor, onChange:this.handleColorChange, id:"inspector-brush-fill-color-picker"})}
-        {this.renderStrokeColor({val:this.state.dummyColor, onChange:this.handleColorChange, id:"inspector-brush-fill-color-picker"})}
+        {this.renderSelectionFillColor()}
+        {this.renderSelectionStrokeColor()}
       </div>
     )
   }
@@ -544,8 +569,8 @@ class Inspector extends Component {
   }
 
   renderDisplay() {
-    if (this.props.activeTool in this.inspectorContentRenderFunctions){
-      let renderFunction = this.inspectorContentRenderFunctions[this.props.activeTool];
+    if (this.state.content in this.inspectorContentRenderFunctions){
+      let renderFunction = this.inspectorContentRenderFunctions[this.state.content];
       return(renderFunction());
     } else {
       this.renderUnknown();

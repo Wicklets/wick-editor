@@ -29,7 +29,8 @@ class InspectorColorPicker extends Component {
                         {type: "color",
                         color: this.props.val,
                         onChangeComplete: this.props.onChange,
-                        id: this.props.id}
+                        id: this.props.id,
+                        stroke: !this.props.stroke ? false : this.props.stroke,}
                       }
                     />
     )
