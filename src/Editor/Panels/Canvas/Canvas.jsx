@@ -74,6 +74,9 @@ class Canvas extends Component {
     Object.keys(this.props.toolSettings).forEach(key => {
       tool[key] = this.props.toolSettings[key];
     });
+
+    if(!this.props.project.focus.timeline.activeLayer.activeFrame)
+      window.paper.drawingTools.none.activate();
   }
 
   onCanvasModified (e) {

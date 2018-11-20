@@ -31,7 +31,7 @@ class HotKeyInterface extends Object {
   }
 
   createHandlers() {
-    this.handlers =     {
+    this.handlers = {
           'activate-brush': (() => this.editor.activateTool("brush")),
           'activate-cursor': (() => this.editor.activateTool("cursor")),
           'activate-pencil': (() => this.editor.activateTool("pencil")),
@@ -42,7 +42,7 @@ class HotKeyInterface extends Object {
           'activate-eyedropper': (() => this.editor.activateTool("eyedropper")),
           'activate-pan': (() => this.editor.activateTool("pan")),
           'activate-zoom': (() => this.editor.activateTool("zoom")),
-          'delete': (() => window.paper.project.selection.deleteSelectedItems()),
+          'delete': (() => window.paper.drawingTools.cursor.deleteSelectedItems()),
           'do-nothin': (() => console.log("donothing")),
     }
   }

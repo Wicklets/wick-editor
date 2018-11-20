@@ -16043,24 +16043,23 @@ WickCanvas.Frame = class {
         wickGroup.opacity = child.opacity;
       });
     } else if (layer.data.type === 'paths') {
-      // Replace hrefs with asset UUIDs
-      // TODO
-
-      /*svg[1].children.forEach(child => {
-          if(child[0] === 'Raster') {
-              child[1].source = child[1].asset;
-          }
-      });*/
-      // Export layer as SVG string
       var origName = layer.name;
       var origData = layer.data;
       layer.name = undefined;
       layer.data = undefined;
-      wickFrame.svg = layer.exportSVG({
-        asString: true
+      var svg = layer.exportSVG({
+        asString: false
       });
       layer.name = origName;
       layer.data = origData;
+
+      for (var i = 0; i < svg.children.length; i++) {
+        svg.children[i].setAttribute('href', '');
+      }
+
+      var container = document.createElement('div');
+      container.appendChild(svg);
+      wickFrame.svg = container.innerHTML;
     }
   }
 
@@ -16080,17 +16079,13 @@ WickCanvas.Frame = class {
 
       this._pathsLayer.addChildren(this._pathsLayer.children[0].removeChildren());
 
-      this._pathsLayer.children[0].remove(); // TODO Load asset dataURLs into rasters
+      this._pathsLayer.children[0].remove();
 
-      /*var paths = JSON.parse(wickFrame.pathsSVG);
-      paths[1].children.forEach(child => {
-          if(child[0] === 'Raster') {
-              var assetUUID = child[1].data.asset;
-              var asset = wickFrame.project._childByUUID(assetUUID);
-              child[1].source = asset.src;
-          }
-      });*/
-
+      this._pathsLayer.children.forEach(child => {
+        if (child.className === 'Raster') {
+          child.source = wickFrame.project.assets[child.data.asset].src;
+        }
+      });
     }
   }
 

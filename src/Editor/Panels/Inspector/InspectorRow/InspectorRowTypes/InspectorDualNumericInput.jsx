@@ -24,7 +24,6 @@ import InspectorRow from '../InspectorRow';
 class InspectorDualNumericInput extends Component {
   render() {
     return(
-      <div className="inspector-row">
         <InspectorRow icon={this.props.icon}
                       input1={
                         {type: "numeric",
@@ -38,7 +37,6 @@ class InspectorDualNumericInput extends Component {
                       }
                       divider={this.props.divider}
                     />
-      </div>
     )
   }
 }

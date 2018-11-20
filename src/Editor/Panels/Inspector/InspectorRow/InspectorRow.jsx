@@ -35,9 +35,7 @@ class InspectorInput extends Component {
     return (
       <div className="inspector-row">
         {/* Icon */}
-        <div className="input-icon">
-          <InspectorInputIcon className="input-icon" type={this.props.icon}/>
-        </div>
+        <InspectorInputIcon className="input-icon" type={this.props.icon}/>
         {/* Input */}
         <div  className="single-input-element inspector-input-element">
           <WickInput {...this.props.input1}/>
@@ -53,9 +51,7 @@ class InspectorInput extends Component {
     return (
       <div className="inspector-row">
         {/* Icon */}
-        <div className="input-icon">
-          <InspectorInputIcon type={this.props.icon}/>
-        </div>
+        <InspectorInputIcon type={this.props.icon}/>
         {/* Double Input*/}
         <div className="double-input">
           {/* Left Element */}

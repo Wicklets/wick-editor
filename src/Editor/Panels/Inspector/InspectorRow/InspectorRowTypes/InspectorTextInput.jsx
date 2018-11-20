@@ -24,7 +24,6 @@ import InspectorRow from '../InspectorRow';
 class InspectorTextInput extends Component {
   render() {
     return(
-      <div className="inspector-row">
         <InspectorRow icon={this.props.icon}
                       input1={
                         {type: "text",
@@ -32,7 +31,6 @@ class InspectorTextInput extends Component {
                         onChange: this.props.onChange}
                       }
                     />
-      </div>
     )
   }
 }

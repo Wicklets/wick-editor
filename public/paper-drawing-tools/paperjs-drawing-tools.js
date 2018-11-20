@@ -4461,8 +4461,6 @@ paper.MultiSelection = class {
     this._selectedItems.forEach(item => {
       item.remove();
     });
-
-    this.clear();
   }
 
   translate(x, y) {
@@ -5130,6 +5128,28 @@ class BrushCursorGen {
 
   tool.onMouseUp = function (e) {
     forwardMouseEvent(e, 'Up');
+  };
+  /*  */
+
+
+  tool.deleteSelectedItems = function () {
+    var layers = paper.project.selection._getLayersOfSelectedItems(); // Save layers here because we can't get them once items are deleted!
+
+
+    paper.project.selection.deleteSelectedItems();
+    paper.drawingTools.fireCanvasModified({
+      layers: layers
+    });
+    paper.project.selection.clear();
+    paper.project.selection.updateGUI();
+    paper.drawingTools.fireSelectionChanged();
+  };
+
+  tool.flipSelectedItems = function (dir) {
+    paper.project.selection.flip(dir);
+    paper.drawingTools.fireCanvasModified({
+      layers: paper.project.selection._getLayersOfSelectedItems()
+    });
   };
   /* Canvas mouse events */
 

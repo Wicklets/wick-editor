@@ -24,7 +24,6 @@ import InspectorRow from '../InspectorRow';
 class InspectorNumericSlider extends Component {
   render() {
     return(
-      <div className="inspector-row">
         <InspectorRow icon={this.props.icon}
                       input1={
                         {type: "numeric",
@@ -37,7 +36,6 @@ class InspectorNumericSlider extends Component {
                          onChange: this.props.onChange}
                        }
                        divider={this.props.divider}/>
-      </div>
     )
   }
 }

@@ -21,5 +21,6 @@
 @import '../../_inspector.scss';
 
 .inspector-input-icon {
-  height: 100%;
+  height: calc(#{$inspector-row-height} * 0.8);
+  display: inline-block;
 }
