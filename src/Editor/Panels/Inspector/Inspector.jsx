@@ -160,13 +160,13 @@ class Inspector extends Component {
     )
   }
 
-  renderFillColor(args) {
+  renderFillColor() {
     return(
       <InspectorColorPicker
         icon="fillcolor"
-        val={args.val}
-        onChange={args.onChange}
-        id={args.id} />
+        val={this.props.toolSettings.fillColor}
+        onChange={(col) => this.handleToolSettingChange('fillColor', col.hex)}
+        id={"inspector-tool-fill-color"} />
     )
   }
 
@@ -180,6 +180,17 @@ class Inspector extends Component {
     )
   }
 
+  renderStrokeColor() {
+    return(
+      <InspectorColorPicker
+        icon="strokecolor"
+        val={this.props.toolSettings.strokeColor}
+        onChange={(col) => this.handleToolSettingChange('strokeColor', col.hex)}
+        id={"inspector-tool-stroke-color"} />
+    )
+  }
+
+
   renderSelectionStrokeColor() {
     return(
       <InspectorColorPicker
@@ -191,13 +202,7 @@ class Inspector extends Component {
     )
   }
 
-  renderStrokeColor(args) {
-    return(
-      <InspectorColorPicker icon="strokecolor" val={args.val} onChange={args.onChange} id={args.id} />
-    )
-  }
-
-  renderBorderRadius(args) {
+  renderBorderRadius() {
     return (
       <InspectorNumericSlider
         icon="cornerroundness"
