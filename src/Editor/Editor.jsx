@@ -216,18 +216,7 @@ class Editor extends Component {
                     <ReflexContainer orientation="horizontal">
                       {/* Inspector */}
                       <ReflexElement propagateDimensions={true} minSize={200} {...this.resizeProps}>
-<<<<<<< HEAD
                         <DockedPanel>{this.renderInspector()}</DockedPanel>
-=======
-                        <DockedPanel>
-                          <Inspector
-                            activeTool={this.state.activeTool}
-                            toolSettings={this.state.toolSettings}
-                            updateToolSettings={this.updateToolSettings}
-                            selectionProperties={this.state.selectionProperties}
-                            updateSelectionProperties={this.updateSelectionProperties}/>
-                        </DockedPanel>
->>>>>>> dfa8c105a538725fe195304614eb41c7e274dd65
                       </ReflexElement>
 
                       <ReflexSplitter {...this.resizeProps}/>
@@ -302,7 +291,8 @@ class Editor extends Component {
         activeTool={this.state.activeTool}
         toolSettings={this.state.toolSettings}
         updateToolSettings={this.updateToolSettings}
-      />
+        selectionProperties={this.state.selectionProperties}
+        updateSelectionProperties={this.updateSelectionProperties}/>
     );
   }
 
