@@ -36,7 +36,7 @@ class Inspector extends Component {
   constructor (props) {
     super(props);
     this.state = {
-      type: this.props.activeTool,
+      content: "path",
       dummySize: 10,
       dummyColor: "#FFAABB",
       dummyFonts: [
@@ -196,34 +196,58 @@ class Inspector extends Component {
     )
   }
 
-  renderPosition(args) {
+  renderPosition() {
     return (
-      <InspectorDualNumericInput icon="position" val1={args.val1} val2={args.val2} onChange1={args.onChange1} onChange2={args.onChange2} divider={true} />
+      <InspectorDualNumericInput
+        icon="position"
+        val1={this.props.selectionProperties.x}
+        val2={this.props.selectionProperties.y}
+        onChange1={(val) => this.handleSelectionPropertyChange('x', val)}
+        onChange2={(val) => this.handleSelectionPropertyChange('y', val)}
+        divider={true} />
     )
   }
 
-  renderSize(args) {
+  renderSize() {
     return (
-      <InspectorDualNumericInput icon="size" val1={args.val1} val2={args.val2} onChange1={args.onChange1} onChange2={args.onChange2} divider={true} />
+      <InspectorDualNumericInput
+        icon="size"
+        val1={this.props.selectionProperties.width}
+        val2={this.props.selectionProperties.height}
+        onChange1={(val) => this.handleSelectionPropertyChange('width', val)}
+        onChange2={(val) => this.handleSelectionPropertyChange('height', val)}
+        divider={true} />
 
     )
   }
 
-  renderScale(args) {
+  renderScale() {
     return (
-      <InspectorDualNumericInput icon="scale" val1={args.val1} val2={args.val2} onChange1={args.onChange1} onChange2={args.onChange2} divider={true} />
+      <InspectorDualNumericInput
+        icon="scale"
+        val1={this.props.selectionProperties.scaleW}
+        val2={this.props.selectionProperties.scaleH}
+        onChange1={(val) => this.handleSelectionPropertyChange('scaleW', val)}
+        onChange2={(val) => this.handleSelectionPropertyChange('scaleH', val)}
+        divider={true} />
     )
   }
 
-  renderRotation(args) {
+  renderRotation() {
     return (
-      <InspectorNumericInput icon="rotation" val={args.val} onChange={args.onChange} />
+      <InspectorNumericInput
+        icon="rotation"
+        val={this.props.selectionProperties.rotation}
+        onChange={(val) => this.handleSelectionPropertyChange('rotation', val)} />
     )
   }
 
   renderOpacity(args) {
     return (
-      <InspectorNumericInput icon="opacity" val={args.val} onChange={args.onChange} />
+      <InspectorNumericInput
+        icon="opacity"
+        val={this.props.selectionProperties.opacity}
+        onChange={(val) => this.handleSelectionPropertyChange('opacity', val)} />
     )
   }
 
@@ -233,6 +257,18 @@ class Inspector extends Component {
         icon="pressure"
         defaultChecked={this.props.toolSettings.pressureEnabled}
         onChange={() => this.handleToolSettingChange('pressureEnabled', !this.props.toolSettings.pressureOn)} />
+    )
+  }
+
+  renderTransformProperties() {
+    return (
+      <div class="inspector-transform-properties">
+        {this.renderPosition()}
+        {this.renderSize()}
+        {this.renderScale()}
+        {this.renderRotation()}
+        {this.renderOpacity()}
+      </div>
     )
   }
 
@@ -246,6 +282,11 @@ class Inspector extends Component {
   handleToolSettingChange(setting, newVal) {
     this.props.toolSettings[setting] = newVal;
     this.props.updateToolSettings(this.props.toolSettings);
+  }
+
+  handleSelectionPropertyChange(property, newVal) {
+    this.props.selectionProperties[property] = newVal;
+    this.props.updateSelectionProperties(this.props.selectionProperties);
   }
 
   renderBrush() {
@@ -453,11 +494,7 @@ class Inspector extends Component {
     return(
       <div className="inspector-content">
         {this.renderName({val:this.state.dummyName, onChange:this.handleNameChange})}
-        {this.renderPosition({val1:this.state.pos1, val2:this.state.pos2, onChange1:this.handlePos1, onChange2:this.handlePos2, divider: true})}
-        {this.renderSize({val1:this.state.pos1, val2:this.state.pos2, onChange1:this.handlePos1, onChange2:this.handlePos2, divider: true})}
-        {this.renderScale({val1:this.state.pos1, val2:this.state.pos2, onChange1:this.handlePos1, onChange2:this.handlePos2, divider: true})}
-        {this.renderRotation({val:this.state.dummySize, onChange:this.handleChange})}
-        {this.renderOpacity({val:this.state.dummySize, onChange:this.handleChange})}
+        {this.renderTransformProperties()}
         {this.renderStrokeWidth({val1:this.state.pos1, val2:this.state.pos2, onChange1:this.handlePos1, onChange2:this.handlePos2, divider: true})}
         {this.renderFillColor({val:this.state.dummyColor, onChange:this.handleColorChange, id:"inspector-brush-fill-color-picker"})}
         {this.renderStrokeColor({val:this.state.dummyColor, onChange:this.handleColorChange, id:"inspector-brush-fill-color-picker"})}
@@ -494,8 +531,8 @@ class Inspector extends Component {
   }
 
   renderDisplay() {
-    if (this.props.activeTool in this.inspectorContentRenderFunctions){
-      let renderFunction = this.inspectorContentRenderFunctions[this.props.activeTool];
+    if (this.state.content in this.inspectorContentRenderFunctions){
+      let renderFunction = this.inspectorContentRenderFunctions[this.state.content];
       return(renderFunction());
     } else {
       this.renderUnknown();

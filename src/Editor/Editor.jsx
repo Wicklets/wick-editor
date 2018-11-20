@@ -62,6 +62,20 @@ class Editor extends Component {
         borderRadius: 0,
         pressureEnabled: false,
       },
+      selectionProperties: {
+        name: "selectedObject",
+        x:0,
+        y:0,
+        width: 100,
+        height: 100,
+        scaleW: 1,
+        scaleH: 1,
+        rotation: 0,
+        opacity: 1,
+        strokeWidth: 1,
+        fillColor: '#ffaa66',
+        strokeColor: '#666',
+      }
     };
 
     // Milliseconds to throttle resize events by.
@@ -72,6 +86,7 @@ class Editor extends Component {
 
     this.updateProject = this.updateProject.bind(this);
     this.updateToolSettings = this.updateToolSettings.bind(this);
+    this.updateSelectionProperties = this.updateSelectionProperties.bind(this);
     this.updateCanvasSelection = this.updateCanvasSelection.bind(this);
     this.openModal = this.openModal.bind(this);
     this.activateTool = this.activateTool.bind(this);
@@ -133,6 +148,20 @@ class Editor extends Component {
     this.setState({
       toolSettings: updatedToolSettings,
     });
+  }
+
+  updateSelectionProperties (newSelectionProperties) {
+    let updatedSelectionProperties = this.state.selectionProperties;
+
+    // Update only provided settings.
+    Object.keys(newSelectionProperties).forEach((key) =>
+      updatedSelectionProperties[key] = newSelectionProperties[key]
+    )
+
+    this.setState({
+      selectionProperties: updatedSelectionProperties,
+    });
+
   }
 
   updateCanvasSelection (nextCanvasSelection) {
@@ -223,7 +252,9 @@ class Editor extends Component {
                           <Inspector
                             activeTool={this.state.activeTool}
                             toolSettings={this.state.toolSettings}
-                            updateToolSettings={this.updateToolSettings}/>
+                            updateToolSettings={this.updateToolSettings}
+                            selectionProperties={this.state.selectionProperties}
+                            updateSelectionProperties={this.updateSelectionProperties}/>
                         </DockedPanel>
                       </ReflexElement>
 
