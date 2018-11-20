@@ -140,12 +140,22 @@ class Inspector extends Component {
     )
   }
 
-  renderStrokeWidth(args) {
+  renderStrokeWidth() {
     return (
       <InspectorNumericSlider
         icon="strokewidth"
         val={this.props.toolSettings.strokeWidth}
         onChange={(val) => this.handleToolSettingChange('strokeWidth', val)}
+        divider={false}/>
+    )
+  }
+
+  renderSelectionStrokeWidth() {
+    return (
+      <InspectorNumericSlider
+        icon="strokewidth"
+        val={this.props.selectionProperties.strokeWidth}
+        onChange={(val) => this.handleSelectionPropertyChange('strokeWidth', val)}
         divider={false}/>
     )
   }
@@ -184,9 +194,12 @@ class Inspector extends Component {
     )
   }
 
-  renderName(args) {
+  renderName() {
     return (
-      <InspectorTextInput icon="name" val={args.val} onChange={args.onChange} />
+      <InspectorTextInput
+        icon="name"
+        val={this.props.selectionProperties.name}
+        onChange={(val) => this.updateSelectionProperties('name', val)} />
     )
   }
 
@@ -493,9 +506,9 @@ class Inspector extends Component {
   renderPathContent() {
     return(
       <div className="inspector-content">
-        {this.renderName({val:this.state.dummyName, onChange:this.handleNameChange})}
+        {this.renderName()}
         {this.renderTransformProperties()}
-        {this.renderStrokeWidth({val1:this.state.pos1, val2:this.state.pos2, onChange1:this.handlePos1, onChange2:this.handlePos2, divider: true})}
+        {this.renderSelectionStrokeWidth()}
         {this.renderFillColor({val:this.state.dummyColor, onChange:this.handleColorChange, id:"inspector-brush-fill-color-picker"})}
         {this.renderStrokeColor({val:this.state.dummyColor, onChange:this.handleColorChange, id:"inspector-brush-fill-color-picker"})}
       </div>

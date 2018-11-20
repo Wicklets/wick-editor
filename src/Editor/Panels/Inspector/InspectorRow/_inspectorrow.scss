@@ -29,19 +29,18 @@ $double-input-container-width: $input-space;
 $double-input-divider-width: calc(#{$input-space} * 0.1);
 $double-input-unit-width: calc(#{$input-space} * 0.45);
 
+
+
 .inspector-row {
   width: 100%;
   height: 100%;
-}
-
-.input-icon {
-  height: 100%;
-  display: inline-block;
+  height: $inspector-row-height;
+  margin-top:4px; 
 }
 
 .inspector-input-element {
   display: inline-block;
-  height: 100%;
+  height: $inspector-row-height;
   margin-left: $inspector-element-margin;
   margin-right: $inspector-element-margin;
 }
