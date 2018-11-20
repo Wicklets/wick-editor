@@ -54,26 +54,32 @@ class ProjectSettings extends Component {
   }
 
   changeProjectName (event) {
+    let proposedName = event.target.value;
+    let cleanProjectName = (!proposedName) ? "New Project" : proposedName;
     this.setState({
-      name: event.target.value
+      name: cleanProjectName,
     });
   }
 
+
   changeProjectWidth (widthAsNumber) {
+    let cleanWidthAsNumber = (!widthAsNumber) ? this.projectMinWidth : Math.max(this.projectMinWidth, widthAsNumber);
     this.setState({
-      width: widthAsNumber
+      width: cleanWidthAsNumber,
     });
   }
 
   changeProjectHeight (heightAsNumber) {
+    let cleanHeightAsNumber = (!heightAsNumber) ? this.projectMinHeight : Math.max(this.projectMinHeight, heightAsNumber);
     this.setState({
-      height: heightAsNumber
+      height: cleanHeightAsNumber,
     });
   }
 
   changeProjectFramerate (framerateAsNumber) {
+    let cleanFramerateAsNumber = (!framerateAsNumber) ? this.projectMinFramerate : Math.max(this.projectMinFramerate, framerateAsNumber);
     this.setState({
-      framerate: framerateAsNumber
+      framerate: cleanFramerateAsNumber
     });
   }
 
@@ -86,6 +92,7 @@ class ProjectSettings extends Component {
   updateProjectSettings () {
     var nextProject = this.props.project.clone();
     console.log("before", nextProject);
+    console.log("before state", this.state);
     nextProject.name = this.state.name;
     nextProject.width = this.state.width;
     nextProject.height = this.state.height;
@@ -120,7 +127,7 @@ class ProjectSettings extends Component {
               type="numeric"
               min={this.projectMinWidth}
               defaultValue={this.props.project.width}
-              onValid={this.changeProjectWidth}
+              onChange = {this.changeProjectWidth}
             />
           <Label className="project-property-label" for="projectHeight">Height</Label>
             <WickInput
@@ -128,7 +135,7 @@ class ProjectSettings extends Component {
               type="numeric"
               min={this.projectMinHeight}
               defaultValue={this.props.project.height}
-              onValid={this.changeProjectHeight}
+              onChange={this.changeProjectHeight}
             />
           <Label className="project-property-label" for="projectFramerate">Framerate (FPS)</Label>
             <WickInput
@@ -136,7 +143,7 @@ class ProjectSettings extends Component {
               type="numeric"
               min={this.projectMinFramerate}
               defaultValue={this.props.project.framerate}
-              onValid={this.changeProjectFramerate}
+              onChange={this.changeProjectFramerate}
             />
           <Label className="project-property-label" for="projectBackgroundColor">Background Color</Label>
           <div id="background-color-picker-container" style={{width:"100%", height:"30px", backgroundColor:this.state.backgroundColor, borderRadius:"6px"}}>
