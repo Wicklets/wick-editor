@@ -36,7 +36,7 @@ class Inspector extends Component {
   constructor (props) {
     super(props);
     this.state = {
-      content: "path",
+      content: this.props.activeTool,
       dummySize: 10,
       dummyColor: "#FFAABB",
       dummyFonts: [
@@ -544,8 +544,8 @@ class Inspector extends Component {
   }
 
   renderDisplay() {
-    if (this.state.content in this.inspectorContentRenderFunctions){
-      let renderFunction = this.inspectorContentRenderFunctions[this.state.content];
+    if (this.props.activeTool in this.inspectorContentRenderFunctions){
+      let renderFunction = this.inspectorContentRenderFunctions[this.props.activeTool];
       return(renderFunction());
     } else {
       this.renderUnknown();
