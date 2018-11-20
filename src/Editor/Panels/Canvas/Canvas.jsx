@@ -65,6 +65,7 @@ class Canvas extends Component {
       window.paper.project.selection.addItemByName(uuid);
     });
     window.paper.project.selection.updateGUI();
+    window.paper.project.addLayer(window.paper.project.selection.guiLayer);
   }
 
   updateActiveTool () {

@@ -20,13 +20,9 @@
 import React, { Component } from 'react';
 import './_editor.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
-
 import 'react-reflex/styles.css'
-import {
-  ReflexContainer,
-  ReflexSplitter,
-  ReflexElement
-} from 'react-reflex'
+import { ReflexContainer, ReflexSplitter, ReflexElement } from 'react-reflex'
+import { throttle } from 'underscore';
 
 import DockedPanel from './Panels/DockedPanel/DockedPanel';
 import Canvas from './Panels/Canvas/Canvas';
@@ -40,8 +36,6 @@ import ModalHandler from './Modals/ModalHandler/ModalHandler';
 import { HotKeys } from 'react-hotkeys';
 import HotKeyInterface from './hotKeyMap';
 
-import {throttle} from 'underscore';
-
 class Editor extends Component {
 
   constructor () {
@@ -50,7 +44,6 @@ class Editor extends Component {
     this.state = {
       project: null,
       canvasSelection: [],
-      openModalName: null,
       activeTool: 'cursor',
       toolSettings: {
         fillColor: '#ffaabb',
@@ -61,6 +54,12 @@ class Editor extends Component {
         borderRadius: 0,
         pressureEnabled: false,
       },
+      zoom: 1,
+      pan: {
+        x: 0,
+        y: 0,
+      },
+      openModalName: null,
     };
 
     // Milliseconds to throttle resize events by.
@@ -154,56 +153,30 @@ class Editor extends Component {
                             project={this.state.project}
                             updateProject={this.updateProject} />
               {/* Header */}
-              <DockedPanel>
-                <MenuBar openModal={this.openModal} projectName={this.state.project.name}/>
-              </DockedPanel>
+              <DockedPanel>{this.renderMenuBar()}</DockedPanel>
             </div>
             <div id="editor-body">
               <div id="tool-box-container">
-                <DockedPanel>
-                  <Toolbox
-                    activeTool={this.state.activeTool}
-                    toolSettings={this.state.toolSettings}
-                    updateToolSettings={this.updateToolSettings}
-                    fillColor={this.state.fillColor}
-                    strokeColor={this.state.strokeColor}
-                    activateTool={this.activateTool}
-                  />
-                </DockedPanel>
+                <DockedPanel>{this.renderToolbox()}</DockedPanel>
               </div>
               <div id="flexible-container">
-                {/* TODO:The 'key' update below is a hack to force ReflexContainers to re render on window resize and should be replaced ASAP */}
                 <ReflexContainer orientation="vertical">
                   {/* Middle Panel */}
                   <ReflexElement {...this.resizeProps}>
                     <ReflexContainer orientation="horizontal">
                       {/* Timeline */}
                       <ReflexElement size={100} {...this.resizeProps}>
-                        <DockedPanel>
-                          <Timeline
-                            project={this.state.project}
-                            updateProject={this.updateProject}
-                          />
-                        </DockedPanel>
+                        <DockedPanel>{this.renderTimeline()}</DockedPanel>
                       </ReflexElement>
                       <ReflexSplitter {...this.resizeProps}/>
                       {/* Canvas */}
                       <ReflexElement {...this.resizeProps}>
-                        <DockedPanel>
-                          <Canvas
-                            project={this.state.project}
-                            toolSettings={this.state.toolSettings}
-                            canvasSelection={this.state.canvasSelection}
-                            updateProject={this.updateProject}
-                            updateCanvasSelection={this.updateCanvasSelection}
-                            activeTool={this.state.activeTool}
-                          />
-                        </DockedPanel>
+                        <DockedPanel>{this.renderCanvas()}</DockedPanel>
                       </ReflexElement>
                       <ReflexSplitter {...this.resizeProps}/>
                       {/* Code Editor */}
                       <ReflexElement size={1} {...this.resizeProps}>
-                        <DockedPanel><CodeEditor /></DockedPanel>
+                        <DockedPanel>this.renderCodeEditor();</DockedPanel>
                       </ReflexElement>
                     </ReflexContainer>
                   </ReflexElement>
@@ -218,19 +191,14 @@ class Editor extends Component {
                     <ReflexContainer orientation="horizontal">
                       {/* Inspector */}
                       <ReflexElement propagateDimensions={true} minSize={200} {...this.resizeProps}>
-                        <DockedPanel>
-                          <Inspector
-                            activeTool={this.state.activeTool}
-                            toolSettings={this.state.toolSettings}
-                            updateToolSettings={this.updateToolSettings}/>
-                        </DockedPanel>
+                        <DockedPanel>{this.renderInspector()}</DockedPanel>
                       </ReflexElement>
 
                       <ReflexSplitter {...this.resizeProps}/>
 
                       {/* Asset Library */}
                       <ReflexElement { ...this.resizeProps}>
-                        <DockedPanel><AssetLibrary /></DockedPanel>
+                        <DockedPanel>{this.renderAssetLibrary()}</DockedPanel>
                       </ReflexElement>
                     </ReflexContainer>
                   </ReflexElement>
@@ -240,6 +208,72 @@ class Editor extends Component {
           </div>
         </HotKeys>
       )
+  }
+
+  renderMenuBar () {
+    return (
+      <MenuBar
+        openModal={this.openModal}
+        projectName={this.state.project.name}
+      />
+    );
+  }
+
+  renderToolbox () {
+    return (
+      <Toolbox
+        activeTool={this.state.activeTool}
+        toolSettings={this.state.toolSettings}
+        updateToolSettings={this.updateToolSettings}
+        fillColor={this.state.fillColor}
+        strokeColor={this.state.strokeColor}
+        activateTool={this.activateTool}
+      />
+    );
+  }
+
+  renderTimeline () {
+    return  (
+      <Timeline
+        project={this.state.project}
+        updateProject={this.updateProject}
+      />
+    );
+  }
+
+  renderCanvas () {
+    return (
+      <Canvas
+        project={this.state.project}
+        toolSettings={this.state.toolSettings}
+        canvasSelection={this.state.canvasSelection}
+        updateProject={this.updateProject}
+        updateCanvasSelection={this.updateCanvasSelection}
+        activeTool={this.state.activeTool}
+      />
+    );
+  }
+
+  renderCodeEditor () {
+    return (
+      <CodeEditor />
+    );
+  }
+
+  renderInspector () {
+    return (
+      <Inspector
+        activeTool={this.state.activeTool}
+        toolSettings={this.state.toolSettings}
+        updateToolSettings={this.updateToolSettings}
+      />
+    );
+  }
+
+  renderAssetLibrary () {
+    return (
+      <AssetLibrary />
+    );
   }
 }
 

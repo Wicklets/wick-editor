@@ -4432,9 +4432,9 @@ paper.MultiSelection = class {
   }
 
   isItemSelected(item) {
-    return this._selectedItems.find(seekItem => {
-      return seekItem.name === item.name;
-    });
+    return this._selectedItems.filter(seekItem => {
+      return seekItem.name && seekItem.name === item.name || seekItem === item;
+    }).length > 0;
   }
 
   clear() {
@@ -5103,12 +5103,10 @@ class BrushCursorGen {
 
   tool.onActivate = function (e) {
     selectedItems = [];
-    paper.project.addLayer(paper.project.selection.guiLayer);
   };
 
   tool.onDeactivate = function (e) {
     paper.project.selection.clear();
-    paper.project.selection.guiLayer.remove();
   };
 
   tool.onMouseMove = function (e) {
@@ -5353,7 +5351,7 @@ class BrushCursorGen {
   tool._onMouseUp_segment = function (e) {
     if (e.delta.x === 0 && e.delta.y === 0) {
       if (!e.modifiers.shift) paper.project.selection.clear();
-      paper.project.selection.selectItem(projectTarget.item);
+      paper.project.selection.addItem(projectTarget.item);
       paper.drawingTools.fireSelectionChanged();
     } else {
       hoverPreview.remove();
@@ -5425,7 +5423,7 @@ class BrushCursorGen {
         paper.project.selection.clear();
       }
 
-      paper.project.selection.selectItem(projectTarget.item);
+      paper.project.selection.addItem(projectTarget.item);
       paper.drawingTools.fireSelectionChanged();
     } else {
       hoverPreview.remove();
@@ -5494,7 +5492,7 @@ class BrushCursorGen {
     });
 
     if (projectTarget) {
-      while (projectTarget.item.parent.className !== 'Layer') {
+      while (projectTarget.item.parent.className !== 'Layer' && projectTarget.item.parent.className !== 'CompoundPath') {
         projectTarget.type = 'fill';
         projectTarget.item = projectTarget.item.parent;
       }
@@ -5778,25 +5776,40 @@ class BrushCursorGen {
   };
 
   tool.onMouseDown = function (e) {
-    setTimeout(function () {
-      paper.view._element.style.cursor = 'wait';
-    }, 0);
-    setTimeout(function () {
-      paper.project.activeLayer.hole({
-        point: e.point,
-        callback: function (path) {
-          paper.view._element.style.cursor = 'default';
+    var hitResult = paper.project.activeLayer.hitTest(e.point, {
+      fill: true
+    });
 
-          if (path) {
-            path.fillColor = tool.fillColor;
-            paper.project.activeLayer.addChild(path);
-            paper.drawingTools.fireCanvasModified({
-              layers: [paper.project.activeLayer]
-            });
-          }
-        }
+    if (hitResult && hitResult.item) {
+      hitResult.item.fillColor = tool.fillColor;
+      paper.drawingTools.fireCanvasModified({
+        layers: [paper.project.activeLayer]
       });
-    }, 50);
+    } else {
+      setTimeout(function () {
+        paper.view._element.style.cursor = 'wait';
+      }, 0);
+      setTimeout(function () {
+        paper.project.activeLayer.hole({
+          point: e.point,
+          onFinish: function (path) {
+            paper.view._element.style.cursor = 'default';
+
+            if (path) {
+              path.fillColor = tool.fillColor;
+              paper.project.activeLayer.addChild(path);
+              paper.drawingTools.fireCanvasModified({
+                layers: [paper.project.activeLayer]
+              });
+            }
+          },
+          onError: function (message) {
+            paper.view._element.style.cursor = 'default';
+            console.log("Fill bucket onError: " + message);
+          }
+        });
+      }, 50);
+    }
   };
 
   tool.onMouseDrag = function (e) {};
@@ -5867,6 +5880,42 @@ class BrushCursorGen {
       layers: [paper.project.activeLayer]
     });
   };
+})();
+/*
+ * Copyright 2018 WICKLETS LLC
+ *
+ * This file is part of Paper.js-drawing-tools.
+ *
+ * Paper.js-drawing-tools is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Paper.js-drawing-tools is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Paper.js-drawing-tools.  If not, see <https://www.gnu.org/licenses/>.
+ */
+(() => {
+  var tool = new paper.Tool();
+  paper.drawingTools.none = tool;
+
+  tool.onActivate = function (e) {};
+
+  tool.onDeactivate = function (e) {};
+
+  tool.onMouseMove = function (e) {
+    paper.view._element.style.cursor = 'not-allowed';
+  };
+
+  tool.onMouseDown = function (e) {};
+
+  tool.onMouseDrag = function (e) {};
+
+  tool.onMouseUp = function (e) {};
 })();
 /*
  * Copyright 2018 WICKLETS LLC

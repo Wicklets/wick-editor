@@ -2,6 +2,7 @@
 class HotKeyInterface extends Object {
   // Take in wick editor
   constructor(editor) {
+    console.log(editor)
     super();
     this.editor = editor;
     this.createKeyMap = this.createKeyMap.bind(this);
@@ -41,8 +42,8 @@ class HotKeyInterface extends Object {
           'activate-eyedropper': (() => this.editor.activateTool("eyedropper")),
           'activate-pan': (() => this.editor.activateTool("pan")),
           'activate-zoom': (() => this.editor.activateTool("zoom")),
-          'delete': (() => this.editor.deleteSelectedObjects()),
-          'do-nothin': (() => console.log("donothing")), 
+          'delete': (() => window.paper.project.selection.deleteSelectedItems()),
+          'do-nothin': (() => console.log("donothing")),
     }
   }
 
