@@ -59,7 +59,7 @@ class InspectorTitle extends Component {
     return(
         <div className="selection-name-container">
           {this.renderIcon(this.props.type)}
-          {this.renderName(this.props.title)}
+          {this.renderName(this.props.title + " Options")}
         </div>
 
     )

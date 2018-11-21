@@ -63,6 +63,7 @@ class Editor extends Component {
         pressureEnabled: false,
       },
       selectionProperties: {
+        content: "path",
         name: "selectedObject",
         x:0,
         y:0,
@@ -75,6 +76,8 @@ class Editor extends Component {
         strokeWidth: 1,
         fillColor: '#ffaa66',
         strokeColor: '#666',
+        frameLength: 0,
+        sound: "needs a uuid",
       }
     };
 
