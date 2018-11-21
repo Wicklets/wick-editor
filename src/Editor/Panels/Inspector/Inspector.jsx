@@ -78,6 +78,7 @@ class Inspector extends Component {
       "path": this.renderPath.bind(this),
       "multipath": this.renderMultiPath.bind(this),
     }
+
     this.renderDisplay = this.renderDisplay.bind(this);
     this.renderGroupContent = this.renderGroupContent.bind(this);
     this.renderPathContent = this.renderPathContent.bind(this);
@@ -120,7 +121,7 @@ class Inspector extends Component {
   }
 
   // Inspector Row Types
-  renderBrushSize(args) {
+  renderBrushSize() {
     return (
       <InspectorNumericSlider
         icon="brushsize"
@@ -233,9 +234,12 @@ class Inspector extends Component {
     )
   }
 
-  renderFrameLength(args) {
+  renderFrameLength() {
     return (
-      <InspectorNumericInput icon="framelength" val={args.val} onChange={args.onChange} />
+      <InspectorNumericInput
+        icon="framelength"
+        val={this.props.selectionProperties.frameLength}
+        onChange={(val) => this.updateSelectionProperties('frameLength', val)} />
     )
   }
 
@@ -285,7 +289,7 @@ class Inspector extends Component {
     )
   }
 
-  renderOpacity(args) {
+  renderOpacity() {
     return (
       <InspectorNumericInput
         icon="opacity"
@@ -294,7 +298,7 @@ class Inspector extends Component {
     )
   }
 
-  renderPressureToggle(args) {
+  renderPressureToggle() {
     return (
       <InspectorCheckbox
         icon="pressure"
@@ -469,8 +473,8 @@ class Inspector extends Component {
       <div>
         <InspectorTitle type={"frame"} title={"Frame"} />
         <div className="inspector-content">
-          {this.renderName({val:this.state.dummyName, onChange:this.handleNameChange})}
-          {this.renderFrameLength({val:this.state.dummySize, onChange:this.handleChange})}
+          {this.renderName()}
+          {this.renderFrameLength()}
         </div>
       </div>
     )
@@ -485,18 +489,16 @@ class Inspector extends Component {
       </div>
     )
   }
+
   renderGroupContent() {
     return (
       <div className="inspector-content">
-        {this.renderName({val:this.state.dummyName, onChange:this.handleNameChange})}
-        {this.renderPosition({val1:this.state.pos1, val2:this.state.pos2, onChange1:this.handlePos1, onChange2:this.handlePos2, divider: true})}
-        {this.renderSize({val1:this.state.pos1, val2:this.state.pos2, onChange1:this.handlePos1, onChange2:this.handlePos2, divider: true})}
-        {this.renderScale({val1:this.state.pos1, val2:this.state.pos2, onChange1:this.handlePos1, onChange2:this.handlePos2, divider: true})}
-        {this.renderRotation({val:this.state.dummySize, onChange:this.handleChange})}
-        {this.renderOpacity({val:this.state.dummySize, onChange:this.handleChange})}
+        {this.renderName()}
+        {this.renderTransformProperties()}
       </div>
     )
   }
+
   renderGroup() {
     return (
       <div>
@@ -574,8 +576,8 @@ class Inspector extends Component {
   }
 
   renderDisplay() {
-    if (this.state.content in this.inspectorContentRenderFunctions){
-      let renderFunction = this.inspectorContentRenderFunctions[this.state.content];
+    if (this.props.selectionProperties.content in this.inspectorContentRenderFunctions){
+      let renderFunction = this.inspectorContentRenderFunctions[this.props.selectionProperties.content];
       return(renderFunction());
     } else {
       this.renderUnknown();
