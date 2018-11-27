@@ -21,8 +21,6 @@ import React, { Component } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 import DockedTitle from 'Editor/Util/DockedTitle/DockedTitle';
-import { Button } from 'reactstrap';
-import ReactTooltip from 'react-tooltip';
 import Asset from './Asset/Asset';
 
 import './_assetlibrary.scss';
@@ -48,10 +46,13 @@ class AssetLibrary extends Component {
     console.log("EDIT", uuid);
   }
 
-  makeNode(assetObject) {
-    return (
-      <Asset asset={assetObject}/>
-    )
+  makeNode(assetObject, i) {
+    console.log("Making Node");
+    console.log(assetObject);
+
+    let asset = <Asset key={i} asset={assetObject} />;
+    console.log(asset);
+    return asset;
   }
 
   render() {
@@ -59,7 +60,9 @@ class AssetLibrary extends Component {
       <div className="docked-pane asset-library">
         <DockedTitle title={"Asset Library"}></DockedTitle>
         <div className="asset-container">
-          {this.props.assets.map(this.makeNode)}
+
+          <Asset asset={this.props.assets[0]}/>
+          {/*{this.props.assets.map(this.makeNode)}*/}
         </div>
       </div>
     )

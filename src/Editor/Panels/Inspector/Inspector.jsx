@@ -309,7 +309,7 @@ class Inspector extends Component {
 
   renderTransformProperties() {
     return (
-      <div class="inspector-transform-properties">
+      <div className="inspector-transform-properties">
         {this.renderPosition()}
         {this.renderSize()}
         {this.renderScale()}

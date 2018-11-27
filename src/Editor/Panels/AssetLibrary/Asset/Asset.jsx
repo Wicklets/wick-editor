@@ -18,20 +18,38 @@
  */
 
 import React, { Component } from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css';
-
+import { DragSource } from 'react-dnd';
 import './_asset.scss';
 
-class Asset extends Component {
-  constructor(props) {
-    super(props);
-  }
+const assetSource = {
+  beginDrag(props, monitor, component) {
+    // Return the data describing the dragged item
+    return {};
+  },
+}
 
+/**
+ * Specifies which props to inject into your component.
+ */
+function collect(connect, monitor) {
+  return {
+    connectDragSource: connect.dragSource(),
+  }
+}
+
+class Asset extends Component {
   render() {
-    return(
-      <span class="asset-item">{this.props.asset.name}</span>
+    console.log("RENDERING ASSET");
+    // These props are injected by React DnD, as defined by the `collect` function above:
+    const { connectDragSource } = this.props;
+
+    return connectDragSource (
+      <div className="asset-item">
+        {this.props.asset.name}
+      </div>
     )
   }
 }
 
-export default Asset
+// export default Asset
+export default DragSource("Asset", assetSource, collect)(Asset)
