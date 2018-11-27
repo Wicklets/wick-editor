@@ -19,42 +19,23 @@
 
 @import 'Editor/_wickbrand.scss';
 
-$asset-library-padding: 6px;
+$asset-height: 24px;
 
-.asset-library {
-  background-color: $flame;
+.asset-item {
   width: 100%;
-  height: 100%;
-  overflow: hidden;
-  background-color: $interface-primary;
-  margin-bottom: 10px;
-}
-
-.asset-container {
-  padding-left: $asset-library-padding;
-  padding-right: $asset-library-padding;
+  height: $asset-height;
+  line-height: $asset-height;
+  background-color: $interface-secondary;
+  color: $interface-secondary-text;
+  display: block;
   margin-top: 4px;
-  height: inherit;
-  overflow-y: auto;
-  margin-bottom: 50px;
+  padding-left: 4px;
+  vertical-align: center;
+  border-radius: $interface-roundness-primary;
 }
 
-.filter-bar {
-  height: 20px;
-  padding-left: $asset-library-padding;
-  padding-right: $asset-library-padding;
-}
-
-.btn-container {
-  display: table;
-  margin-left: auto;
-  margin-right: 0;
-  width: auto;
-}
-
-.btn-asset-action {
-  display: table-cell;
-  margin-left: 2px;
-  margin-right: 2px;
-  padding:2px;
+.asset-item:hover {
+  background-color: $interface-tertiary;
+  color: $interface-tertiary-text;
+  cursor: grab; 
 }

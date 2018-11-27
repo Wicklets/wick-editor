@@ -12,6 +12,8 @@
     "react-ace": "^6.2.0",
     "react-aria-menubutton": "^6.0.1",
     "react-color": "^2.14.1",
+    "react-dnd": "^6.0.0",
+    "react-dnd-html5-backend": "^6.0.0",
     "react-dom": "^16.5.2",
     "react-hotkeys": "^1.1.4",
     "react-numeric-input": "^2.2.3",

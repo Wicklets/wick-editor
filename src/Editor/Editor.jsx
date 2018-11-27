@@ -19,7 +19,10 @@
 
 import React, { Component } from 'react';
 import './_editor.scss';
+
 import 'bootstrap/dist/css/bootstrap.min.css';
+import HTML5Backend from 'react-dnd-html5-backend'
+import { DragDropContextProvider } from "react-dnd";
 import 'react-reflex/styles.css'
 import { ReflexContainer, ReflexSplitter, ReflexElement } from 'react-reflex'
 import { throttle } from 'underscore';
@@ -73,6 +76,23 @@ class Editor extends Component {
         sound: "needs a uuid",
       },
       openModalName: null,
+      assets: [
+        {
+          name:"Asset One",
+          uuid:"default-uuid",
+          type:"asset",
+        },
+        {
+          name:"Asset Two",
+          uuid:"default-uuid2",
+          type:"img",
+        },
+        {
+          name:"Asset Three",
+          uuid:"default-uuid3",
+          type:"sound",
+        }
+      ]
     };
 
     // Milliseconds to throttle resize events by.
@@ -85,6 +105,7 @@ class Editor extends Component {
     this.updateToolSettings = this.updateToolSettings.bind(this);
     this.updateSelectionProperties = this.updateSelectionProperties.bind(this);
     this.updateCanvasSelection = this.updateCanvasSelection.bind(this);
+    this.updateAssets = this.updateAssets.bind(this);
     this.openModal = this.openModal.bind(this);
     this.activateTool = this.activateTool.bind(this);
     this.resizeProps = {
@@ -167,148 +188,117 @@ class Editor extends Component {
     }));
   }
 
+  updateAssets (updatedAssets) {
+    console.log("Updating Assets", updatedAssets);
+  }
+
   render () {
       return (
-        <HotKeys
-          keyMap={this.hotKeyInterface.getKeyMap()}
-          handlers={this.hotKeyInterface.getHandlers()}
-          style={{width:"100%", height:"100%"}}
-          ref="hotkeysContainer">
-          <div id="editor">
-            <div id="menu-bar-container">
-              {this.renderModalHandler()}
-              {/* Header */}
-              <DockedPanel>{this.renderMenuBar()}</DockedPanel>
-            </div>
-            <div id="editor-body">
-              <div id="tool-box-container">
-                <DockedPanel>{this.renderToolbox()}</DockedPanel>
+        <DragDropContextProvider backend={HTML5Backend}>
+          <HotKeys
+            keyMap={this.hotKeyInterface.getKeyMap()}
+            handlers={this.hotKeyInterface.getHandlers()}
+            style={{width:"100%", height:"100%"}}
+            ref="hotkeysContainer">
+            <div id="editor">
+              <div id="menu-bar-container">
+                <ModalHandler openModal={this.openModal}
+                              openModalName={this.state.openModalName}
+                              project={this.state.project}
+                              updateProject={this.updateProject} />
+                {/* Header */}
+                <DockedPanel>
+                  <MenuBar openModal={this.openModal} projectName={this.state.project.name}/>
+                </DockedPanel>
               </div>
-              <div id="flexible-container">
-                <ReflexContainer orientation="vertical">
-                  {/* Middle Panel */}
-                  <ReflexElement {...this.resizeProps}>
-                    <ReflexContainer orientation="horizontal">
-                      {/* Timeline */}
-                      <ReflexElement size={100} {...this.resizeProps}>
-                        <DockedPanel>{this.renderTimeline()}</DockedPanel>
-                      </ReflexElement>
-                      <ReflexSplitter {...this.resizeProps}/>
-                      {/* Canvas */}
-                      <ReflexElement {...this.resizeProps}>
-                        <DockedPanel>{this.renderCanvas()}</DockedPanel>
-                      </ReflexElement>
-                      <ReflexSplitter {...this.resizeProps}/>
-                      {/* Code Editor */}
-                      <ReflexElement size={1} {...this.resizeProps}>
-                        <DockedPanel>this.renderCodeEditor();</DockedPanel>
-                      </ReflexElement>
-                    </ReflexContainer>
-                  </ReflexElement>
+              <div id="editor-body">
+                <div id="tool-box-container">
+                  <DockedPanel>
+                    <Toolbox
+                      activeTool={this.state.activeTool}
+                      toolSettings={this.state.toolSettings}
+                      updateToolSettings={this.updateToolSettings}
+                      fillColor={this.state.fillColor}
+                      strokeColor={this.state.strokeColor}
+                      activateTool={this.activateTool}
+                    />
+                  </DockedPanel>
+                </div>
+                <div id="flexible-container">
+                  {/* TODO:The 'key' update below is a hack to force ReflexContainers to re render on window resize and should be replaced ASAP */}
+                  <ReflexContainer orientation="vertical">
+                    {/* Middle Panel */}
+                    <ReflexElement {...this.resizeProps}>
+                      <ReflexContainer orientation="horizontal">
+                        {/* Timeline */}
+                        <ReflexElement size={100} {...this.resizeProps}>
+                          <DockedPanel>
+                            <Timeline
+                              project={this.state.project}
+                              updateProject={this.updateProject}
+                            />
+                          </DockedPanel>
+                        </ReflexElement>
+                        <ReflexSplitter {...this.resizeProps}/>
+                        {/* Canvas */}
+                        <ReflexElement {...this.resizeProps}>
+                          <DockedPanel>
+                            <Canvas
+                              project={this.state.project}
+                              toolSettings={this.state.toolSettings}
+                              canvasSelection={this.state.canvasSelection}
+                              updateProject={this.updateProject}
+                              updateCanvasSelection={this.updateCanvasSelection}
+                              activeTool={this.state.activeTool}
+                            />
+                          </DockedPanel>
+                        </ReflexElement>
+                        <ReflexSplitter {...this.resizeProps}/>
+                        {/* Code Editor */}
+                        <ReflexElement size={1} {...this.resizeProps}>
+                          <DockedPanel><CodeEditor /></DockedPanel>
+                        </ReflexElement>
+                      </ReflexContainer>
+                    </ReflexElement>
 
-                  <ReflexSplitter {...this.resizeProps}/>
+                    <ReflexSplitter {...this.resizeProps}/>
 
-                {/* Right Sidebar */}
-                  <ReflexElement
-                    size={150}
-                    maxSize={250} minSize={150}
-                    {...this.resizeProps}>
-                    <ReflexContainer orientation="horizontal">
-                      {/* Inspector */}
-                      <ReflexElement propagateDimensions={true} minSize={200} {...this.resizeProps}>
-                        <DockedPanel>{this.renderInspector()}</DockedPanel>
-                      </ReflexElement>
+                  {/* Right Sidebar */}
+                    <ReflexElement
+                      size={150}
+                      maxSize={250} minSize={150}
+                      {...this.resizeProps}>
+                      <ReflexContainer orientation="horizontal">
+                        {/* Inspector */}
+                        <ReflexElement propagateDimensions={true} minSize={200} {...this.resizeProps}>
+                          <DockedPanel>
+                            <Inspector
+                              activeTool={this.state.activeTool}
+                              toolSettings={this.state.toolSettings}
+                              updateToolSettings={this.updateToolSettings}
+                              selectionProperties={this.state.selectionProperties}
+                              updateSelectionProperties={this.updateSelectionProperties}/>
+                          </DockedPanel>
+                        </ReflexElement>
 
-                      <ReflexSplitter {...this.resizeProps}/>
+                        <ReflexSplitter {...this.resizeProps}/>
 
-                      {/* Asset Library */}
-                      <ReflexElement { ...this.resizeProps}>
-                        <DockedPanel>{this.renderAssetLibrary()}</DockedPanel>
-                      </ReflexElement>
-                    </ReflexContainer>
-                  </ReflexElement>
-                </ReflexContainer>
+                        {/* Asset Library */}
+                        <ReflexElement { ...this.resizeProps}>
+                          <DockedPanel>
+                            <AssetLibrary
+                              assets={this.state.assets}
+                              updateAssets={this.updateAssets}/></DockedPanel>
+                        </ReflexElement>
+                      </ReflexContainer>
+                    </ReflexElement>
+                  </ReflexContainer>
+                </div>
               </div>
             </div>
-          </div>
-        </HotKeys>
+          </HotKeys>
+        </DragDropContextProvider>
       )
-  }
-
-  renderModalHandler () {
-    return (
-      <ModalHandler openModal={this.openModal}
-                    openModalName={this.state.openModalName}
-                    project={this.state.project}
-                    updateProject={this.updateProject} />
-    );
-  }
-
-  renderMenuBar () {
-    return (
-      <MenuBar
-        openModal={this.openModal}
-        projectName={this.state.project.name}
-      />
-    );
-  }
-
-  renderToolbox () {
-    return (
-      <Toolbox
-        activeTool={this.state.activeTool}
-        toolSettings={this.state.toolSettings}
-        updateToolSettings={this.updateToolSettings}
-        fillColor={this.state.fillColor}
-        strokeColor={this.state.strokeColor}
-        activateTool={this.activateTool}
-      />
-    );
-  }
-
-  renderTimeline () {
-    return  (
-      <Timeline
-        project={this.state.project}
-        updateProject={this.updateProject}
-      />
-    );
-  }
-
-  renderCanvas () {
-    return (
-      <Canvas
-        project={this.state.project}
-        toolSettings={this.state.toolSettings}
-        canvasSelection={this.state.canvasSelection}
-        updateProject={this.updateProject}
-        updateCanvasSelection={this.updateCanvasSelection}
-        activeTool={this.state.activeTool}
-      />
-    );
-  }
-
-  renderCodeEditor () {
-    return (
-      <CodeEditor />
-    );
-  }
-
-  renderInspector () {
-    return (
-      <Inspector
-        activeTool={this.state.activeTool}
-        toolSettings={this.state.toolSettings}
-        updateToolSettings={this.updateToolSettings}
-        selectionProperties={this.state.selectionProperties}
-        updateSelectionProperties={this.updateSelectionProperties}/>
-    );
-  }
-
-  renderAssetLibrary () {
-    return (
-      <AssetLibrary />
-    );
   }
 }
 
