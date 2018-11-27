@@ -35,11 +35,13 @@ $double-input-unit-width: calc(#{$input-space} * 0.45);
   width: 100%;
   height: 100%;
   height: $inspector-row-height;
+  margin-bottom: 4px;
 }
 
 .inspector-input-element {
   display: inline-block;
   height: $inspector-row-height;
+  margin-left: $inspector-element-margin;
 }
 
 .single-input-element {

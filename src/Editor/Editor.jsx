@@ -56,6 +56,7 @@ class Editor extends Component {
         pressureEnabled: false,
       },
       selectionProperties: {
+        content: "path",
         name: "selectedObject",
         x:0,
         y:0,
@@ -68,6 +69,8 @@ class Editor extends Component {
         strokeWidth: 1,
         fillColor: '#ffaa66',
         strokeColor: '#666',
+        frameLength: 0,
+        sound: "needs a uuid",
       },
       openModalName: null,
     };
@@ -173,10 +176,7 @@ class Editor extends Component {
           ref="hotkeysContainer">
           <div id="editor">
             <div id="menu-bar-container">
-              <ModalHandler openModal={this.openModal}
-                            openModalName={this.state.openModalName}
-                            project={this.state.project}
-                            updateProject={this.updateProject} />
+              {this.renderModalHandler()}
               {/* Header */}
               <DockedPanel>{this.renderMenuBar()}</DockedPanel>
             </div>
@@ -233,6 +233,15 @@ class Editor extends Component {
           </div>
         </HotKeys>
       )
+  }
+
+  renderModalHandler () {
+    return (
+      <ModalHandler openModal={this.openModal}
+                    openModalName={this.state.openModalName}
+                    project={this.state.project}
+                    updateProject={this.updateProject} />
+    );
   }
 
   renderMenuBar () {
