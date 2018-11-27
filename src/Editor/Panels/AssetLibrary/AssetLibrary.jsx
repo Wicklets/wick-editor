@@ -60,7 +60,6 @@ class AssetLibrary extends Component {
       <div className="docked-pane asset-library">
         <DockedTitle title={"Asset Library"}></DockedTitle>
         <div className="asset-container">
-
           <Asset asset={this.props.assets[0]}/>
           {/*{this.props.assets.map(this.makeNode)}*/}
         </div>

@@ -81,11 +81,11 @@ class Toolbox extends Component {
           name="zoom"
           {...this.iconProps}
         />
-        {/*<ToolButton
-          name="fillBucket"
+        <ToolButton
+          name="fillbucket"
           {...this.iconProps}
         />
-        <ToolButton
+        {/*<ToolButton
           name="text"
           {...this.iconProps}
         />*/}

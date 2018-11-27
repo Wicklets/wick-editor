@@ -30,6 +30,7 @@ import iconEyeDropper from 'resources/tool-icons/eyedropper.svg';
 import iconEraser from 'resources/tool-icons/eraser.svg';
 import iconPan from 'resources/tool-icons/pan.svg';
 import iconZoom from 'resources/tool-icons/zoom.svg';
+import iconFillBucket from 'resources/tool-icons/bucket.svg';
 
 class ToolIcon extends Component {
   constructor(props) {
@@ -46,7 +47,7 @@ class ToolIcon extends Component {
       "eraser":iconEraser,
       "pan":iconPan,
       "zoom":iconZoom,
-
+      "fillbucket": iconFillBucket,
     }
   }
 
