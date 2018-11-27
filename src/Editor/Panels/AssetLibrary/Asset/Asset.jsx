@@ -40,7 +40,6 @@ function collect(connect, monitor) {
 
 class Asset extends Component {
   render() {
-    console.log("RENDERING ASSET");
     // These props are injected by React DnD, as defined by the `collect` function above:
     const { connectDragSource } = this.props;
 
