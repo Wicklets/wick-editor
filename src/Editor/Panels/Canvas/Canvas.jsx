@@ -18,8 +18,26 @@
  */
 
 import React, { Component } from 'react';
+import { DropTarget } from 'react-dnd';
+import DragDropTypes from 'Editor/DragDropTypes.js';
 
 import './_canvas.scss';
+
+// Specification for drag and drop
+const canvasTarget = {
+  drop(props) {
+    console.log(props);
+    alert("Dropped something on the canvas");
+  }
+}
+
+function collect(connect, monitor) {
+  return {
+    connectDropTarget: connect.dropTarget(),
+    isOver: monitor.isOver()
+  };
+}
+
 
 class Canvas extends Component {
   constructor (props) {
@@ -31,11 +49,13 @@ class Canvas extends Component {
     this.updateActiveTool = this.updateActiveTool.bind(this);
     this.onCanvasModified = this.onCanvasModified.bind(this);
     this.onSelectionChanged = this.onSelectionChanged.bind(this);
+
+    this.canvasContainer = React.createRef();
   }
 
   componentDidMount() {
     this.wickCanvas = new window.WickCanvas();
-    window.WickCanvas.setup(this.refs.container);
+    window.WickCanvas.setup(this.canvasContainer.current);
     window.WickCanvas.resize();
 
     // This will go somewhere else later
@@ -91,10 +111,18 @@ class Canvas extends Component {
   }
 
   render() {
-    return (
-      <div id="wick-canvas-container" ref="container"></div>
-    );
+    const { connectDropTarget, isOver } = this.props;
+    const highlightStyle = {
+
+    }
+
+    return connectDropTarget (
+      <div id="canvas-container-wrapper" style={{width:"100%", height:"100%"}}>
+        { isOver && <div className="drag-drop-overlay" /> }
+        <div id="wick-canvas-container" ref={this.canvasContainer}></div>
+      </div>
+    )
   }
 }
 
-export default Canvas
+export default DropTarget(DragDropTypes.CANVAS, canvasTarget, collect)(Canvas);
