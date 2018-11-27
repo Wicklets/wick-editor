@@ -78,7 +78,24 @@ class Editor extends Component {
         strokeColor: '#666',
         frameLength: 0,
         sound: "needs a uuid",
-      }
+      },
+      assets: [
+        {
+          name:"Asset One",
+          uuid:"default-uuid",
+          type:"asset",
+        },
+        {
+          name:"Asset Two",
+          uuid:"default-uuid2",
+          type:"img",
+        },
+        {
+          name:"Asset Three",
+          uuid:"default-uuid3",
+          type:"sound",
+        }
+      ]
     };
 
     // Milliseconds to throttle resize events by.
@@ -91,6 +108,7 @@ class Editor extends Component {
     this.updateToolSettings = this.updateToolSettings.bind(this);
     this.updateSelectionProperties = this.updateSelectionProperties.bind(this);
     this.updateCanvasSelection = this.updateCanvasSelection.bind(this);
+    this.updateAssets = this.updateAssets.bind(this);
     this.openModal = this.openModal.bind(this);
     this.activateTool = this.activateTool.bind(this);
     this.resizeProps = {
@@ -171,6 +189,10 @@ class Editor extends Component {
     this.setState(prevState => ({
       canvasSelection: nextCanvasSelection,
     }));
+  }
+
+  updateAssets (updatedAssets) {
+    console.log("Updating Assets", updatedAssets);
   }
 
   render () {
@@ -265,7 +287,10 @@ class Editor extends Component {
 
                       {/* Asset Library */}
                       <ReflexElement { ...this.resizeProps}>
-                        <DockedPanel><AssetLibrary /></DockedPanel>
+                        <DockedPanel>
+                          <AssetLibrary
+                            assets={this.state.assets}
+                            updateAssets={this.updateAssets}/></DockedPanel>
                       </ReflexElement>
                     </ReflexContainer>
                   </ReflexElement>

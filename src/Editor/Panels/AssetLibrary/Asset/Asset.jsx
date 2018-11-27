@@ -29,7 +29,7 @@ class Asset extends Component {
 
   render() {
     return(
-      <span class="asset-item">{self.props.name}</span>
+      <span class="asset-item">{this.props.asset.name}</span>
     )
   }
 }
