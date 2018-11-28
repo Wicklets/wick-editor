@@ -76,6 +76,8 @@ var AnimationTimeline = new (function ft () {
     var onSoftChangeFn;
     var onSelectionChangeFn;
 
+    var onionButton;
+
     self.setup = function (_elem, callback) {
         elem = _elem;
         elem.style.position = 'relative';
@@ -112,6 +114,18 @@ var AnimationTimeline = new (function ft () {
             self.repaint();
         });
 
+        onionButton = document.createElement('div');
+        onionButton.className = 'onion-skin-button';
+        onionButton.onclick = function () {
+            numberline.onionSkinEnabled = !numberline.onionSkinEnabled;
+            self.rebuild();
+            self.repaint();
+            onChangeFn&&onChangeFn({
+                onionSkinEnabled: numberline.onionSkinEnabled
+            });
+        }
+        elem.appendChild(onionButton);
+
         attachMouseEvents();
 
         ctx = canvas.getContext('2d');
@@ -123,6 +137,10 @@ var AnimationTimeline = new (function ft () {
       canvas.width = $(canvas)[0].clientWidth * window.devicePixelRatio;
       canvas.height = $(canvas)[0].clientHeight * window.devicePixelRatio;
       self.repaint();
+    }
+
+    self.rebuild = function () {
+        onionButton.innerHTML = numberline.onionSkinEnabled ? 'y' : 'n';
     }
 
     self.repaint = function () {
@@ -169,6 +187,12 @@ var AnimationTimeline = new (function ft () {
             playhead.repaint();
         ctx.restore();
 
+        ctx.fillStyle = interfaceDark;
+        ctx.fillRect(0, 0, LAYERS_WIDTH, canvas.height);
+
+        ctx.fillStyle = '#000';
+        ctx.fillRect(0, 0, LAYERS_WIDTH, NUMBER_LINE_HEIGHT);
+
         ctx.save();
         ctx.translate(0, NUMBER_LINE_HEIGHT);
         ctx.translate(0, scroll.y);
@@ -188,7 +212,7 @@ var AnimationTimeline = new (function ft () {
         playhead.position = data.playheadPosition;
         activeLayerIndex = data.activeLayerIndex;
 
-        numberline.onionEnabled = data.onionSkinEnabled;
+        numberline.onionSkinEnabled = data.onionSkinEnabled;
         numberline.seekForwards = data.onionSkinSeekForwards;
         numberline.seekBackwards = data.onionSkinSeekBackwards;
 
@@ -207,6 +231,7 @@ var AnimationTimeline = new (function ft () {
                     layer: layer,
                     selected: frameData.selected,
                     contentful: frameData.contentful,
+                    hasSound: frameData.hasSound,
                 });
                 frame.tweens = frameData.tweens.map(tweenData => {
                     var tween = new Tween({
@@ -221,6 +246,8 @@ var AnimationTimeline = new (function ft () {
             });
             return layer;
         });
+
+        self.rebuild();
     }
 
     self.onChange = function (fn) {
@@ -370,7 +397,7 @@ var AnimationTimeline = new (function ft () {
                 itemName = 'NumberLine';
             } else if (e.y < 0) {
                 var f = Math.floor(e.x / GRID_CELL_WIDTH) + 1;
-                if(numberline.onionEnabled) {
+                if(numberline.onionSkinEnabled) {
                     if(f === playhead.position - numberline.seekBackwards) {
                         itemName = 'OnionSeekStart';
                     } else if (f === playhead.position + numberline.seekForwards) {
@@ -518,7 +545,7 @@ var AnimationTimeline = new (function ft () {
         this.frames = args.frames || [];
         this.label = args.label;
 
-        /*var self = this;
+        var self = this;
         this.lockButton = new Button({
             clickFn: function () {
                 self.locked = !self.locked;
@@ -541,8 +568,7 @@ var AnimationTimeline = new (function ft () {
             icon: '',
             layer: this,
         });
-        this.buttons = [this.lockButton, this.hideButton];*/
-        this.buttons = [];
+        this.buttons = [this.lockButton, this.hideButton];
 
         this.dragging = false;
         this.draggingOffset = 0;
@@ -573,12 +599,6 @@ var AnimationTimeline = new (function ft () {
         this.buttons.forEach(button => {
             button.repaint();
         });
-
-        // Active layer effect
-        /*if(this.getIndex() === activeLayerIndex) {
-            ctx.fillStyle = 'green';
-            ctx.fillRect(0, this.getIndex()*GRID_CELL_HEIGHT + GRID_CELL_HEIGHT/2, 10, 10);
-        }*/
     }
 
     Layer.prototype.repaintDropGhost = function () {
@@ -634,6 +654,7 @@ var AnimationTimeline = new (function ft () {
         this.layer = args.layer;
         this.tweens = args.tweens || [];
         this.contentful = args.contentful;
+        this.hasSound = args.hasSound;
 
         this.state = args.selected ? 'selected' : 'inactive';
 
@@ -696,6 +717,19 @@ var AnimationTimeline = new (function ft () {
             this.bounds.height - shrink,
             2,
             true, true);
+        if(this.hasSound) {
+            ctx.save();
+            ctx.translate(this.bounds.left + this.draggingOffset.x,
+                          this.bounds.top + this.draggingOffset.y);
+                roundRect(ctx,
+                    0,
+                    0,
+                    15,
+                    15,
+                    2,
+                    true, true);
+            ctx.restore();
+        }
         ctx.stroke();
         ctx.fill();
         ctx.closePath();
@@ -997,7 +1031,7 @@ var AnimationTimeline = new (function ft () {
 /* NumberLine */
 
     function Numberline () {
-        this.onionEnabled = false;
+        this.onionSkinEnabled = false;
 
         this.seekForwards = null;
         this.seekBackwards = null;
@@ -1007,7 +1041,7 @@ var AnimationTimeline = new (function ft () {
     }
 
     Numberline.prototype.repaint = function () {
-        var offset = Math.round(-scroll.x/GRID_CELL_WIDTH);
+        var offset = Math.round(-scroll.x/GRID_CELL_WIDTH)-1;
 
         ctx.save();
             ctx.translate(-scroll.x, 0);
@@ -1038,7 +1072,7 @@ var AnimationTimeline = new (function ft () {
             ctx.closePath();
         }
 
-        if(this.onionEnabled) {
+        if(this.onionSkinEnabled) {
             ctx.fillStyle = 'blue';
 
             var p = playhead.position-1;
@@ -1061,12 +1095,14 @@ var AnimationTimeline = new (function ft () {
     Numberline.prototype.dropSeekStart = function () {
         var d = Math.round(numberline.seekBackwardsDragOffset/GRID_CELL_WIDTH);
         this.seekBackwards -= d;
+        this.seekBackwards = Math.max(this.seekBackwards, 0);
         this.seekBackwardsDragOffset = 0;
     }
 
     Numberline.prototype.dropSeekEnd = function () {
         var d = Math.round(numberline.seekForwardsDragOffset/GRID_CELL_WIDTH);
         this.seekForwards += d;
+        this.seekForwards = Math.max(this.seekForwards, 0);
         this.seekForwardsDragOffset = 0;
     }
 
@@ -1274,6 +1310,9 @@ var AnimationTimeline = new (function ft () {
 
     self.onOnionSeekStartMouseUp = function (e) {
         numberline.dropSeekStart();
+        onChangeFn&&onChangeFn({
+            onionSkinSeekBackwards: numberline.seekBackwards
+        });
     }
 
     // Onion seek end
@@ -1292,6 +1331,9 @@ var AnimationTimeline = new (function ft () {
 
     self.onOnionSeekEndMouseUp = function (e) {
         numberline.dropSeekEnd();
+        onChangeFn&&onChangeFn({
+            onionSkinSeekForwards: numberline.seekForwards
+        });
     }
 
     // BlankFrame
