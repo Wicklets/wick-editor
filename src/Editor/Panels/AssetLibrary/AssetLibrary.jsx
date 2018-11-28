@@ -47,11 +47,7 @@ class AssetLibrary extends Component {
   }
 
   makeNode(assetObject, i) {
-    console.log("Making Node");
-    console.log(assetObject);
-
     let asset = <Asset key={i} asset={assetObject} />;
-    console.log(asset);
     return asset;
   }
 
