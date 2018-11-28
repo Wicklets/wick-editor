@@ -20,6 +20,7 @@
 import React, { Component } from 'react';
 import { DragSource } from 'react-dnd';
 import './_asset.scss';
+import DragDropTypes from 'Editor/DragDropTypes.js';
 
 const assetSource = {
   beginDrag(props, monitor, component) {
@@ -52,4 +53,4 @@ class Asset extends Component {
 }
 
 // export default Asset
-export default DragSource("Asset", assetSource, collect)(Asset)
+export default DragSource(DragDropTypes.ASSET, assetSource, collect)(Asset)
