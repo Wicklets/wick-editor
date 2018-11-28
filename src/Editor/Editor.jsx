@@ -44,6 +44,21 @@ class Editor extends Component {
   constructor () {
     super();
 
+    // Temporary asset generation function.
+    function genAssets() {
+        let assets = [];
+        let items = ["asset", "img", "sound", "clip", "button"]
+
+        for (var i=0; i< 100; i++) {
+          let a = {};
+          a.name = "Asset " + i;
+          a.uuid = "" + i;
+          a.type = items[Math.floor(Math.random()*items.length)]
+          assets.push(a);
+        }
+        return assets;
+    }
+
     this.state = {
       project: null,
       canvasSelection: [],
@@ -76,23 +91,7 @@ class Editor extends Component {
         sound: "needs a uuid",
       },
       openModalName: null,
-      assets: [
-        {
-          name:"Asset One",
-          uuid:"default-uuid",
-          type:"asset",
-        },
-        {
-          name:"Asset Two",
-          uuid:"default-uuid2",
-          type:"img",
-        },
-        {
-          name:"Asset Three",
-          uuid:"default-uuid3",
-          type:"sound",
-        }
-      ]
+      assets: genAssets(),
     };
 
     // Milliseconds to throttle resize events by.
