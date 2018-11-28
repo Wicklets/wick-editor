@@ -23,12 +23,12 @@
   position: relative;
   background-color: $interface-secondary;
   color: $interface-secondary-text;
-
   padding-top: 2px;
   padding-bottom: 2px;
-  margin-top: 6px;
-  margin-left: 6px;
-  margin-right: 6px;
+  height: $docked-title-height;
+  margin-top: $docked-margin;
+  margin-left: $docked-margin;
+  margin-right: $docked-margin;
   border-radius: $interface-roundness-primary;
   text-align: center;
 }
