@@ -25,10 +25,6 @@ import 'Editor/_wickbrand.scss';
 import './_alphawarning.scss';
 
 class AlphaWarning extends Component {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     return (
       <Modal id="alpha-modal" isOpen={this.props.open} toggle={this.props.toggle} className={this.props.className}>

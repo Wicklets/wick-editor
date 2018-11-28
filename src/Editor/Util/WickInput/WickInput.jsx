@@ -32,7 +32,6 @@ class WickInput extends Component {
       return (
         //eslint-disable-next-line
         <NumericInput
-          style={false}
           className="wick-input"
           {...this.props}
           ></NumericInput>
