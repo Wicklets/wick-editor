@@ -47,10 +47,10 @@ class ProjectSettings extends Component {
     this.changeProjectBackgroundColor = this.changeProjectBackgroundColor.bind(this);
 
     this.updateProjectSettings = this.updateProjectSettings.bind(this);
-    this.toggle = this.toggle.bind(this);
   }
 
   componentWillMount () {
+
   }
 
   changeProjectName (event) {
@@ -60,7 +60,6 @@ class ProjectSettings extends Component {
       name: cleanProjectName,
     });
   }
-
 
   changeProjectWidth (widthAsNumber) {
     let cleanWidthAsNumber = (!widthAsNumber) ? this.projectMinWidth : Math.max(this.projectMinWidth, widthAsNumber);
@@ -100,17 +99,13 @@ class ProjectSettings extends Component {
     nextProject.backgroundColor = this.state.backgroundColor;
     console.log("after", nextProject);
     this.props.updateProject(nextProject);
-    this.toggle();
-  }
-
-  toggle () {
-    this.props.openModal(null);
+    this.props.toggle();
   }
 
   render() {
     return (
-      <Modal isOpen={this.props.open} toggle={this.toggle} className={this.props.className}>
-        <ModalHeader toggle={this.toggle}>Project Settings</ModalHeader>
+      <Modal isOpen={this.props.open} toggle={this.props.toggle} className={this.props.className}>
+        <ModalHeader toggle={this.props.toggle}>Project Settings</ModalHeader>
         <ModalBody>
           <FormGroup>
             <Label className="project-property-label" for="projectName">Project name</Label>
