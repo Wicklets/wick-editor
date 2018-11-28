@@ -25,7 +25,7 @@ import DragDropTypes from 'Editor/DragDropTypes.js';
 const assetSource = {
   beginDrag(props, monitor, component) {
     // Return the data describing the dragged item
-    return {};
+    return props.asset;
   },
 }
 

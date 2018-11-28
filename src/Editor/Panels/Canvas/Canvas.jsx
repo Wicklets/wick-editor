@@ -25,16 +25,25 @@ import './_canvas.scss';
 
 // Specification for drag and drop
 const canvasTarget = {
-  drop(props) {
-    console.log(props);
-    alert("Dropped something on the canvas");
+  // canDrop(props, monitor) {
+  //   // Dragged item
+  //   let draggedItem = monitor.getItem();
+  // }
+
+  drop(props, monitor, component) {
+    // Drop location
+    const { x, y } = monitor.getClientOffset();
+
+    // Dragged item
+    let draggedItem = monitor.getItem();
+    alert("Dropped Asset:" + draggedItem.name + " on the canvas at X:" + x + " Y:" + y);
   }
 }
 
 function collect(connect, monitor) {
   return {
     connectDropTarget: connect.dropTarget(),
-    isOver: monitor.isOver()
+    isOver: monitor.isOver(),
   };
 }
 
