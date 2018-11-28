@@ -5477,7 +5477,9 @@ class BrushCursorGen {
         draggingRotationHotspot = guiTarget.item;
       }
     } else if (projectTarget) {
-      if (projectTarget.type === 'fill' || paper.project.selection.isItemSelected(projectTarget.item)) {
+      var isSelected = paper.project.selection.isItemSelected(projectTarget.item) || paper.project.selection.isItemSelected(projectTarget.item.parent);
+
+      if (projectTarget.type === 'fill' || isSelected) {
         itemType = 'item';
       } else if (projectTarget.type === 'segment') {
         itemType = 'segment';
