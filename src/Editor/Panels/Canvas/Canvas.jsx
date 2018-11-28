@@ -121,9 +121,6 @@ class Canvas extends Component {
 
   render() {
     const { connectDropTarget, isOver } = this.props;
-    const highlightStyle = {
-
-    }
 
     return connectDropTarget (
       <div id="canvas-container-wrapper" style={{width:"100%", height:"100%"}}>

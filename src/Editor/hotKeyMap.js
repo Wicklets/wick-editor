@@ -2,7 +2,6 @@
 class HotKeyInterface extends Object {
   // Take in wick editor
   constructor(editor) {
-    console.log(editor)
     super();
     this.editor = editor;
     this.createKeyMap = this.createKeyMap.bind(this);
