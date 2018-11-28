@@ -90,7 +90,6 @@ class Editor extends Component {
         frameLength: 0,
         sound: "needs a uuid",
       },
-      openModalName: null,
       assets: genAssets(),
       openModalName: 'AlphaWarning',
       previewPlaying: false,
