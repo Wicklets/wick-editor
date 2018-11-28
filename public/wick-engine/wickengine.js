@@ -2302,6 +2302,10 @@ Wick.Project = class extends Wick.Base {
     this._removeChild(asset);
   }
 
+  tick() {
+    this.focus.tick();
+  }
+
   clone(object) {
     if (!object) object = new Wick.Project();
     super.clone(object);
@@ -3137,10 +3141,6 @@ Wick.Tickable = class extends Wick.Base {
   get classname() {
     return 'Tickable';
   }
-
-  get onScreen() {
-    return this.parent.onScreen;
-  }
   /* Setters */
 
   /* Methods */
@@ -3225,6 +3225,7 @@ Wick.Frame = class extends Wick.Tickable {
     this.tweens = [];
     this._soundAssetUUID = null;
     this._soundWantsToPlay = false;
+    this._soundWantsToStop = false;
     this._soundStartOffsetMS = 0;
     this.setScript(new Wick.Script());
   }
@@ -3276,6 +3277,18 @@ Wick.Frame = class extends Wick.Tickable {
 
     return this._svgDom.children[0].children.length > 0;
   }
+
+  get soundWantsToPlay() {
+    return this._soundWantsToPlay;
+  }
+
+  get soundWantsToStop() {
+    return this._soundWantsToStop;
+  }
+
+  get soundStartOffsetMS() {
+    return this._soundStartOffsetMS;
+  }
   /* Setters */
 
 
@@ -3296,6 +3309,10 @@ Wick.Frame = class extends Wick.Tickable {
 
   inRange(start, end) {
     return this.inPosition(start) || this.inPosition(end) || this.start >= start && this.start <= end || this.end >= start && this.end <= end;
+  }
+
+  onScreen() {
+    return this.inPosition(this.parent.parent.playheadPosition);
   }
 
   addGroup(group) {
@@ -3358,6 +3375,7 @@ Wick.Frame = class extends Wick.Tickable {
 
   onDeactivated() {
     super.onDeactivated();
+    this._soundWantsToStop = true;
   }
 
   clone(object) {
@@ -3575,15 +3593,36 @@ Wick.Clip = class extends Wick.Group {
 
   onActivated() {
     super.onActivated();
+
+    this._tickChildren();
   }
 
   onActive() {
     super.onActive();
     this.timeline.advance();
+
+    this._tickChildren();
   }
 
   onDeactivated() {
     super.onDeactivated();
+
+    this._tickChildren();
+  }
+
+  _tickChildren() {
+    this.timeline.layers.forEach(layer => {
+      layer.frames.forEach(frame => {
+        frame.tick();
+        frame.groups.forEach(group => {
+          group.tick();
+        });
+      });
+    });
+  }
+
+  onScreen() {
+    return this.parent.onScreen;
   }
 
   clone(object) {

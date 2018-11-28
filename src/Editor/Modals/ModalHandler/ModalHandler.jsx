@@ -31,8 +31,14 @@ class ModalHandler extends Component {
           updateProject={this.props.updateProject}
           openModal={this.props.openModal}
           open={this.props.openModalName === 'ProjectSettings'}
+          toggle={() => this.props.openModal(null)}
         />
-      <AlphaWarning className="alpha-warning"/>
+        <AlphaWarning
+          className="alpha-warning"
+          openModal={this.props.openModal}
+          open={this.props.openModalName === 'AlphaWarning'}
+          toggle={() => this.props.openModal(null)}
+        />
       </div>
     );
   }

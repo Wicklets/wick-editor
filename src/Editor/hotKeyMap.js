@@ -25,25 +25,26 @@ class HotKeyInterface extends Object {
       'activate-eyedropper': 'v',
       'activate-pan': 'space',
       'activate-zoom': 'z',
-      'delete': 'q',
-      'do-nothing': 'backspace',
+      'delete': 'backspace',
+      'preview-play-toggle': 'space',
     }
   }
 
   createHandlers() {
     this.handlers = {
-          'activate-brush': (() => this.editor.activateTool("brush")),
-          'activate-cursor': (() => this.editor.activateTool("cursor")),
-          'activate-pencil': (() => this.editor.activateTool("pencil")),
-          'activate-eraser': (() => this.editor.activateTool("eraser")),
-          'activate-rectangle': (() => this.editor.activateTool("rectangle")),
-          'activate-ellipse': (() => this.editor.activateTool("ellipse")),
-          'activate-line': (() => this.editor.activateTool("line")),
-          'activate-eyedropper': (() => this.editor.activateTool("eyedropper")),
-          'activate-pan': (() => this.editor.activateTool("pan")),
-          'activate-zoom': (() => this.editor.activateTool("zoom")),
-          'delete': (() => window.paper.drawingTools.cursor.deleteSelectedItems()),
-          'do-nothin': (() => console.log("donothing")),
+      'activate-brush': (() => this.editor.activateTool("brush")),
+      'activate-cursor': (() => this.editor.activateTool("cursor")),
+      'activate-pencil': (() => this.editor.activateTool("pencil")),
+      'activate-eraser': (() => this.editor.activateTool("eraser")),
+      'activate-rectangle': (() => this.editor.activateTool("rectangle")),
+      'activate-ellipse': (() => this.editor.activateTool("ellipse")),
+      'activate-line': (() => this.editor.activateTool("line")),
+      'activate-eyedropper': (() => this.editor.activateTool("eyedropper")),
+      'activate-pan': (() => this.editor.activateTool("pan")),
+      'activate-zoom': (() => this.editor.activateTool("zoom")),
+      'delete': ((e) =>  {e.preventDefault();window.paper.drawingTools.cursor.deleteSelectedItems();}),
+      'preview-play-toggle': (() => this.editor.togglePreviewPlaying()),
+      'do-nothing': (() => console.log("donothing")),
     }
   }
 

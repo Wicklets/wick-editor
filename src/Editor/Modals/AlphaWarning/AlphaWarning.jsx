@@ -27,25 +27,12 @@ import './_alphawarning.scss';
 class AlphaWarning extends Component {
   constructor(props) {
     super(props);
-
-    this.state = {
-      modal: true
-    }
-
-    this.toggle = this.toggle.bind(this);
   }
-
-  toggle() {
-    this.setState({
-      modal: !this.state.modal
-    });
-  }
-
 
   render() {
     return (
-      <Modal id="alpha-modal" backdrop="static" isOpen={this.state.modal} toggle={this.toggle} className={this.props.className}>
-        <ModalHeader className="alpha-warning-header" toggle={this.toggle}>Wick Editor Alpha</ModalHeader>
+      <Modal id="alpha-modal" isOpen={this.props.open} toggle={this.props.toggle} className={this.props.className}>
+        <ModalHeader toggle={this.props.toggle} className="alpha-warning-header">Wick Editor Alpha</ModalHeader>
         <ModalBody>
           <h3>Welcome to Wick Editor 1.0 v1</h3>
           <h5>In this alpha test, you'll have access to some of the most <b>basic</b> features of the Wick Editor.</h5>
@@ -54,7 +41,7 @@ class AlphaWarning extends Component {
         </ModalBody>
         <ModalFooter>
           <Button className="alpha-warning-modal-button" color="wick-warning" onClick={() => window.location.href="http://www.wickeditor.com"}>No Thanks...</Button>
-          <Button className="alpha-warning-modal-button" color="wick-accept" onClick={this.toggle}>Try the Alpha</Button>{' '}
+          <Button className="alpha-warning-modal-button" color="wick-accept" onClick={this.props.toggle}>Try the Alpha</Button>{' '}
         </ModalFooter>
       </Modal>
     );

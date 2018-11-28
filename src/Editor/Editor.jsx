@@ -26,6 +26,7 @@ import { DragDropContextProvider } from "react-dnd";
 import 'react-reflex/styles.css'
 import { ReflexContainer, ReflexSplitter, ReflexElement } from 'react-reflex'
 import { throttle } from 'underscore';
+import { HotKeys } from 'react-hotkeys';
 
 import DockedPanel from './Panels/DockedPanel/DockedPanel';
 import Canvas from './Panels/Canvas/Canvas';
@@ -36,7 +37,6 @@ import Toolbox from './Panels/Toolbox/Toolbox';
 import AssetLibrary from './Panels/AssetLibrary/AssetLibrary';
 import CodeEditor from './Panels/CodeEditor/CodeEditor';
 import ModalHandler from './Modals/ModalHandler/ModalHandler';
-import { HotKeys } from 'react-hotkeys';
 import HotKeyInterface from './hotKeyMap';
 
 class Editor extends Component {
@@ -92,6 +92,8 @@ class Editor extends Component {
       },
       openModalName: null,
       assets: genAssets(),
+      openModalName: 'AlphaWarning',
+      previewPlaying: false,
     };
 
     // Milliseconds to throttle resize events by.
@@ -100,6 +102,8 @@ class Editor extends Component {
     // define hotkeys
     this.hotKeyInterface = new HotKeyInterface(this);
 
+    this.tickLoopIntervalID = null;
+
     this.updateProject = this.updateProject.bind(this);
     this.updateToolSettings = this.updateToolSettings.bind(this);
     this.updateSelectionProperties = this.updateSelectionProperties.bind(this);
@@ -107,6 +111,10 @@ class Editor extends Component {
     this.updateAssets = this.updateAssets.bind(this);
     this.openModal = this.openModal.bind(this);
     this.activateTool = this.activateTool.bind(this);
+    this.togglePreviewPlaying = this.togglePreviewPlaying.bind(this);
+    this.startTickLoop = this.startTickLoop.bind(this);
+    this.stopTickLoop = this.stopTickLoop.bind(this);
+    this.refocusEditor = this.refocusEditor.bind(this);
     this.resizeProps = {
       onStopResize: throttle(this.onStopResize.bind(this), this.resizeThrottleAmount),
       onResize: throttle(this.onResize.bind(this), this.resizeThrottleAmount)
@@ -122,7 +130,17 @@ class Editor extends Component {
   }
 
   componentDidMount () {
+    this.refocusEditor();
+  }
 
+  componentDidUpdate (prevProps, prevState) {
+    if(this.state.previewPlaying && !prevState.previewPlaying) {
+      this.startTickLoop();
+    }
+
+    if(!this.state.previewPlaying && prevState.previewPlaying) {
+      this.stopTickLoop();
+    }
   }
 
   onResize (e) {
@@ -140,12 +158,35 @@ class Editor extends Component {
         openModalName: name,
       });
     }
+    this.refocusEditor();
   }
 
   activateTool (toolName) {
     this.setState({
       activeTool: toolName
     });
+  }
+
+  togglePreviewPlaying () {
+    this.setState(prevState => ({
+      previewPlaying: !prevState.previewPlaying,
+    }));
+  }
+
+  startTickLoop () {
+    this.tickLoopIntervalID = setInterval(() => {
+      var nextProject = this.state.project;
+      nextProject.tick();
+      this.updateProject(nextProject);
+    }, 1000 / this.state.project.framerate);
+  }
+
+  stopTickLoop () {
+    clearInterval(this.tickLoopIntervalID);
+  }
+
+  refocusEditor () {
+    window.document.getElementById('hotkeys-container').focus();
   }
 
   updateProject (nextProject) {
@@ -198,7 +239,7 @@ class Editor extends Component {
             keyMap={this.hotKeyInterface.getKeyMap()}
             handlers={this.hotKeyInterface.getHandlers()}
             style={{width:"100%", height:"100%"}}
-            ref="hotkeysContainer">
+            id='hotkeys-container'>
             <div id="editor">
               <div id="menu-bar-container">
                 <ModalHandler openModal={this.openModal}

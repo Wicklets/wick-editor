@@ -46,6 +46,9 @@ class Timeline extends Component {
       if(e.layerIndex !== undefined) {
         nextProject.focus.timeline.activeLayerIndex = e.layerIndex;
       }
+      if(e.onionSkinEnabled) {
+
+      }
       if(e.layers) {
         e.layers.forEach(layer => {
           if(layer.id) {
