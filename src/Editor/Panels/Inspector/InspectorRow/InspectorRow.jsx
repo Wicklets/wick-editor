@@ -22,7 +22,8 @@ import './_inspectorrow.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 import WickInput from 'Editor/Util/WickInput/WickInput';
-import InspectorInputIcon from './InspectorInputIcon/InspectorInputIcon';
+import RowIcon from 'Editor/Util/RowIcon/RowIcon';
+
 
 // Quick documentation...
 // input1: object: input information, all props pased to child
@@ -35,7 +36,7 @@ class InspectorInput extends Component {
     return (
       <div className="inspector-row">
         {/* Icon */}
-        <InspectorInputIcon className="input-icon" type={this.props.icon}/>
+        <RowIcon type={this.props.icon}/>
         {/* Input */}
         <div  className="single-input-element inspector-input-element">
           <WickInput {...this.props.input1}/>
@@ -51,7 +52,7 @@ class InspectorInput extends Component {
     return (
       <div className="inspector-row">
         {/* Icon */}
-        <InspectorInputIcon type={this.props.icon}/>
+        <RowIcon type={this.props.icon}/>
         {/* Double Input*/}
         <div className="double-input">
           {/* Left Element */}
