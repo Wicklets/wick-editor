@@ -21,6 +21,7 @@ import React, { Component } from 'react';
 import { DragSource } from 'react-dnd';
 import './_asset.scss';
 import DragDropTypes from 'Editor/DragDropTypes.js';
+import RowIcon from 'Editor/Util/RowIcon/RowIcon';
 
 const assetSource = {
   beginDrag(props, monitor, component) {
@@ -45,7 +46,8 @@ class Asset extends Component {
 
     return connectDragSource (
       <div className="asset-item">
-        {this.props.asset.name}
+        <RowIcon type="sound" />
+        <span className="asset-name-text">{this.props.asset.name}</span>
       </div>
     )
   }

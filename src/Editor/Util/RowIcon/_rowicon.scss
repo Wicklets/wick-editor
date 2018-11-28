@@ -19,27 +19,7 @@
 
 @import 'Editor/_wickbrand.scss';
 
-$asset-height: 24px;
-
-.asset-item {
-  width: 100%;
-  height: $asset-height;
-  line-height: $asset-height;
-  background-color: $interface-tertiary;
-  color: $interface-tertiary-text;
-  display: block;
-  margin-top: 4px;
-  padding-left: 4px;
-  vertical-align: center;
-  border-radius: $interface-roundness-primary;
-}
-
-.asset-item:hover {
-  background-color: $interface-quaternary;
-  color: $interface-tertiary-text;
-  cursor: grab;
-}
-
-.asset-name-text {
-  margin-left: 4px; 
+.row-icon {
+  height: 80%; 
+  display: inline-block;
 }
