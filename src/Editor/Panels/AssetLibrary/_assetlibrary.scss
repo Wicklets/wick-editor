@@ -33,11 +33,13 @@ $asset-library-padding: 6px;
 .asset-container {
   padding-left: $asset-library-padding;
   padding-right: $asset-library-padding;
-  margin-top: 4px;
+  margin-top: $docked-margin;
+  margin-left: $docked-margin;
+  margin-right: $docked-margin;
   height: calc(100% - (3 * #{$docked-margin}) - #{$docked-title-height});
-  width: 100%;
   overflow-y: auto;
   display: block;
+  background-color: $interface-secondary;
 }
 
 .filter-bar {

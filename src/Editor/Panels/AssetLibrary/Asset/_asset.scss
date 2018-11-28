@@ -25,8 +25,8 @@ $asset-height: 24px;
   width: 100%;
   height: $asset-height;
   line-height: $asset-height;
-  background-color: $interface-secondary;
-  color: $interface-secondary-text;
+  background-color: $interface-tertiary;
+  color: $interface-tertiary-text;
   display: block;
   margin-top: 4px;
   padding-left: 4px;
@@ -35,7 +35,7 @@ $asset-height: 24px;
 }
 
 .asset-item:hover {
-  background-color: $interface-tertiary;
+  background-color: $interface-quaternary;
   color: $interface-tertiary-text;
-  cursor: grab; 
+  cursor: grab;
 }
