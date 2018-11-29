@@ -46,15 +46,14 @@ class Timeline extends Component {
       if(e.layerIndex !== undefined) {
         nextProject.focus.timeline.activeLayerIndex = e.layerIndex;
       }
-      if(e.onionSkinEnabled) {
-
-      }
       if(e.layers) {
         e.layers.forEach(layer => {
           if(layer.id) {
             // Update
             let wickLayer = nextProject._childByUUID(layer.id);
             nextProject.focus.timeline.moveLayer(wickLayer, layer.getIndex());
+            wickLayer.locked = layer.locked;
+            wickLayer.hidden = layer.hidden;
           } else {
             // Create
             let wickLayer = new window.Wick.Layer();
@@ -92,6 +91,12 @@ class Timeline extends Component {
         });
       }
       this.props.updateProject(nextProject);
+      
+      this.props.updateOnionSkinSettings(
+        e.onionSkinEnabled !== undefined ? e.onionSkinEnabled : this.props.onionSkinEnabled,
+        e.onionSkinSeekBackwards !== undefined ? e.onionSkinSeekBackwards : this.props.onionSkinSeekBackwards,
+        e.onionSkinSeekForwards !== undefined ? e.onionSkinSeekForwards : this.props.onionSkinSeekForwards,
+      );
     });
 
     AnimationTimeline.onSoftChange(e => {
@@ -115,9 +120,9 @@ class Timeline extends Component {
     AnimationTimeline.setData({
       playheadPosition: timeline.playheadPosition,
       activeLayerIndex: timeline.activeLayerIndex,
-      onionSkinEnabled: timeline.onionSkinEnabled,
-      onionSkinSeekForwards: timeline.seekFramesForwards,
-      onionSkinSeekBackwards: timeline.seekFramesBackwards,
+      onionSkinEnabled: this.props.onionSkinEnabled,
+      onionSkinSeekForwards: this.props.onionSkinSeekForwards,
+      onionSkinSeekBackwards: this.props.onionSkinSeekBackwards,
       layers: timeline.layers.map(layer => {
         return {
           id: layer.uuid,

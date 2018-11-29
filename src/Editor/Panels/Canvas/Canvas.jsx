@@ -88,7 +88,11 @@ class Canvas extends Component {
   }
 
   updateCanvas () {
-    this.wickCanvas.render(this.props.project);
+    this.wickCanvas.render(this.props.project, {
+      onionSkinEnabled: this.props.onionSkinEnabled,
+      onionSkinSeekBackwards: this.props.onionSkinSeekBackwards,
+      onionSkinSeekForwards: this.props.onionSkinSeekForwards,
+    });
     window.paper.project.selection.clear();
     this.props.canvasSelection.forEach(uuid => {
       window.paper.project.selection.addItemByName(uuid);
@@ -104,8 +108,10 @@ class Canvas extends Component {
       tool[key] = this.props.toolSettings[key];
     });
 
-    if(!this.props.project.focus.timeline.activeLayer.activeFrame)
+    if(!this.props.project.focus.timeline.activeLayer.activeFrame ||
+       this.props.project.focus.timeline.activeLayer.locked) {
       window.paper.drawingTools.none.activate();
+    }
   }
 
   onCanvasModified (e) {

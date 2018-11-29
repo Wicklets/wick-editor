@@ -549,6 +549,9 @@ var AnimationTimeline = new (function ft () {
         this.lockButton = new Button({
             clickFn: function () {
                 self.locked = !self.locked;
+                onChangeFn&&onChangeFn({
+                    layers: [self],
+                });
             },
             isToggledFn: function () {
                 return self.locked;
@@ -560,6 +563,9 @@ var AnimationTimeline = new (function ft () {
         this.hideButton = new Button({
             clickFn: function () {
                 self.hidden = !self.hidden;
+                onChangeFn&&onChangeFn({
+                    layers: [self],
+                });
             },
             isToggledFn: function () {
                 return self.hidden;

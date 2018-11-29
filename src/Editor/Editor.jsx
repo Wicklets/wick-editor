@@ -49,7 +49,7 @@ class Editor extends Component {
         let assets = [];
         let items = ["asset", "img", "sound", "clip", "button"]
 
-        for (var i=0; i< 100; i++) {
+        for (var i=0; i< 1; i++) {
           let a = {};
           a.name = "Asset " + i;
           a.uuid = "" + i;
@@ -62,6 +62,9 @@ class Editor extends Component {
     this.state = {
       project: null,
       canvasSelection: [],
+      onionSkinEnabled: false,
+      onionSkinSeekForwards: 1,
+      onionSkinSeekBackwards: 1,
       activeTool: 'cursor',
       toolSettings: {
         fillColor: '#ffaabb',
@@ -104,6 +107,7 @@ class Editor extends Component {
     this.tickLoopIntervalID = null;
 
     this.updateProject = this.updateProject.bind(this);
+    this.updateOnionSkinSettings = this.updateOnionSkinSettings.bind(this);
     this.updateToolSettings = this.updateToolSettings.bind(this);
     this.updateSelectionProperties = this.updateSelectionProperties.bind(this);
     this.updateCanvasSelection = this.updateCanvasSelection.bind(this);
@@ -194,6 +198,14 @@ class Editor extends Component {
     }));
   }
 
+  updateOnionSkinSettings (enabled, seekBackwards, seekForwards) {
+    this.setState(prevState => ({
+      onionSkinEnabled: enabled,
+      onionSkinSeekBackwards: seekBackwards,
+      onionSkinSeekForwards: seekForwards,
+    }));
+  }
+
   updateToolSettings (newToolSettings) {
     let updatedToolSettings = this.state.toolSettings;
 
@@ -275,6 +287,10 @@ class Editor extends Component {
                             <Timeline
                               project={this.state.project}
                               updateProject={this.updateProject}
+                              updateOnionSkinSettings={this.updateOnionSkinSettings}
+                              onionSkinEnabled={this.state.onionSkinEnabled}
+                              onionSkinSeekBackwards={this.state.onionSkinSeekBackwards}
+                              onionSkinSeekForwards={this.state.onionSkinSeekForwards}
                             />
                           </DockedPanel>
                         </ReflexElement>
@@ -289,6 +305,9 @@ class Editor extends Component {
                               updateProject={this.updateProject}
                               updateCanvasSelection={this.updateCanvasSelection}
                               activeTool={this.state.activeTool}
+                              onionSkinEnabled={this.state.onionSkinEnabled}
+                              onionSkinSeekBackwards={this.state.onionSkinSeekBackwards}
+                              onionSkinSeekForwards={this.state.onionSkinSeekForwards}
                             />
                           </DockedPanel>
                         </ReflexElement>
