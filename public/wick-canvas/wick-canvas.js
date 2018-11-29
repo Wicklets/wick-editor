@@ -16183,7 +16183,7 @@ WickCanvas.Layer = class {
 
     if (options.onionSkinEnabled) {
       wickLayer.frames.filter(frame => {
-        return !frame.inPosition(options.playheadPosition) && frame.inRange(options.playheadPosition - options.seekBackwards, options.playheadPosition + options.seekForwards);
+        return !frame.inPosition(options.playheadPosition) && frame.inRange(options.playheadPosition - options.onionSkinSeekBackwards, options.playheadPosition + options.onionSkinSeekForwards);
       }).forEach(onionFrame => {
         var frameView = self._framesCache[onionFrame.uuid];
         if (!frameView) frameView = new WickCanvas.Frame(onionFrame);
@@ -16196,6 +16196,7 @@ WickCanvas.Layer = class {
 
       this._onionFrameLayers.forEach(layer => {
         layer.locked = true;
+        layer.opacity = 0.3;
       });
     }
   }
@@ -16275,6 +16276,7 @@ WickCanvas.Timeline = class {
     options = options || {};
     options.playheadPosition = wickTimeline.playheadPosition;
     this._contentLayers = [];
+    this._onionSkinLayers = [];
     var self = this;
     wickTimeline.layers.reduce((ary, ele) => {
       ary.unshift(ele);
