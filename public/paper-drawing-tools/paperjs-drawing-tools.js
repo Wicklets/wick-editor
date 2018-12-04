@@ -4461,6 +4461,8 @@ paper.MultiSelection = class {
     this._selectedItems.forEach(item => {
       item.remove();
     });
+
+    this.clear();
   }
 
   translate(x, y) {
@@ -5514,8 +5516,12 @@ class BrushCursorGen {
     });
 
     if (projectTarget) {
-      while (projectTarget.item.parent.className !== 'Layer' && projectTarget.item.parent.className !== 'CompoundPath') {
+      while (projectTarget.item.parent.className === 'Group') {
         projectTarget.type = 'fill';
+        projectTarget.item = projectTarget.item.parent;
+      }
+
+      if (projectTarget.item.parent.className === 'CompoundPath') {
         projectTarget.item = projectTarget.item.parent;
       }
     }

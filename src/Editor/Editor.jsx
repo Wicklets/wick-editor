@@ -95,7 +95,7 @@ class Editor extends Component {
         sound: "needs a uuid",
       },
       assets: genAssets(),
-      openModalName: 'AlphaWarning',
+      openModalName: null,
       previewPlaying: false,
     };
 
