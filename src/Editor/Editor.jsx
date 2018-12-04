@@ -61,7 +61,6 @@ class Editor extends Component {
 
     this.state = {
       project: null,
-      canvasSelection: [],
       onionSkinEnabled: false,
       onionSkinSeekForwards: 1,
       onionSkinSeekBackwards: 1,
@@ -78,6 +77,8 @@ class Editor extends Component {
       },
       selectionProperties: {
         content: "path",
+        canvasUUIDs: [],
+        timelineUUIDs: [],
         name: "selectedObject",
         x:0,
         y:0,
@@ -110,7 +111,6 @@ class Editor extends Component {
     this.updateOnionSkinSettings = this.updateOnionSkinSettings.bind(this);
     this.updateToolSettings = this.updateToolSettings.bind(this);
     this.updateSelectionProperties = this.updateSelectionProperties.bind(this);
-    this.updateCanvasSelection = this.updateCanvasSelection.bind(this);
     this.updateAssets = this.updateAssets.bind(this);
     this.openModal = this.openModal.bind(this);
     this.activateTool = this.activateTool.bind(this);
@@ -233,12 +233,6 @@ class Editor extends Component {
 
   }
 
-  updateCanvasSelection (nextCanvasSelection) {
-    this.setState(prevState => ({
-      canvasSelection: nextCanvasSelection,
-    }));
-  }
-
   updateAssets (updatedAssets) {
     console.log("Updating Assets", updatedAssets);
   }
@@ -301,13 +295,13 @@ class Editor extends Component {
                             <Canvas
                               project={this.state.project}
                               toolSettings={this.state.toolSettings}
-                              canvasSelection={this.state.canvasSelection}
                               updateProject={this.updateProject}
-                              updateCanvasSelection={this.updateCanvasSelection}
                               activeTool={this.state.activeTool}
                               onionSkinEnabled={this.state.onionSkinEnabled}
                               onionSkinSeekBackwards={this.state.onionSkinSeekBackwards}
                               onionSkinSeekForwards={this.state.onionSkinSeekForwards}
+                              selectionProperties={this.state.selectionProperties}
+                              updateSelectionProperties={this.updateSelectionProperties}
                             />
                           </DockedPanel>
                         </ReflexElement>

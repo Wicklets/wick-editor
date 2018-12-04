@@ -30,9 +30,6 @@ class CodeEditor extends Component {
   render() {
     return (
       <div data-tip data-for="code-editor-coming-soon" className="code-editor">
-        <ReactTooltip id="code-editor-coming-soon" type='error' place='top' effect='solid' aria-haspopup='true'>
-          <span>Coming Soon!</span>
-        </ReactTooltip>
         <AceEditor
           mode="javascript"
           theme="monokai"

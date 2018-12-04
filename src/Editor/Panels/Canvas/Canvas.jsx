@@ -94,7 +94,7 @@ class Canvas extends Component {
       onionSkinSeekForwards: this.props.onionSkinSeekForwards,
     });
     window.paper.project.selection.clear();
-    this.props.canvasSelection.forEach(uuid => {
+    this.props.selectionProperties.canvasUUIDs.forEach(uuid => {
       window.paper.project.selection.addItemByName(uuid);
     });
     window.paper.project.selection.updateGUI();
@@ -120,9 +120,11 @@ class Canvas extends Component {
   }
 
   onSelectionChanged (e) {
-    this.props.updateCanvasSelection(window.paper.project.selection.items.map(item => {
-      return item.name;
-    }));
+    this.props.updateSelectionProperties({
+      canvasUUIDs: window.paper.project.selection.items.map(item => {
+        return item.name;
+      })
+    });
   }
 
   render() {
