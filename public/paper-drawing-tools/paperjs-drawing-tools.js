@@ -5792,7 +5792,7 @@ class BrushCursorGen {
 (() => {
   var CURSOR_FILL_BUCKET = 'cursors/fillbucket.png';
   var tool = new paper.Tool();
-  paper.drawingTools.fillBucket = tool;
+  paper.drawingTools.fillbucket = tool;
   tool.fillColor = '#ff0000';
 
   tool.onActivate = function (e) {};
