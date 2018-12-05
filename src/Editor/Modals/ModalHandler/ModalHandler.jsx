@@ -21,6 +21,7 @@ import React, { Component } from 'react';
 
 import ProjectSettings from '../ProjectSettings/ProjectSettings';
 import AlphaWarning from '../AlphaWarning/AlphaWarning';
+import ConvertToSymbol from '../ConvertToSymbol/ConvertToSymbol';
 
 class ModalHandler extends Component {
   render() {
@@ -37,6 +38,14 @@ class ModalHandler extends Component {
           className="alpha-warning"
           openModal={this.props.openModal}
           open={this.props.openModalName === 'AlphaWarning'}
+          toggle={() => this.props.openModal(null)}
+        />
+      <ConvertToSymbol
+          project={this.props.project}
+          updateProject={this.props.updateProject}
+          selectionProperties={this.props.selectionProperties}
+          openModal={this.props.openModal}
+          open={this.props.openModalName === 'ConvertToSymbol'}
           toggle={() => this.props.openModal(null)}
         />
       </div>

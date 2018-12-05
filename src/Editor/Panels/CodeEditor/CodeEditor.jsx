@@ -38,6 +38,7 @@ class CodeEditor extends PureComponent {
   }
 
   render() {
+    this.refs.reactAceComponent && this.refs.reactAceComponent.editor.resize();
     return (
       <div className="code-editor">
         {this.selectionIsScriptable(this.props.selectionProperties)
@@ -54,6 +55,7 @@ class CodeEditor extends PureComponent {
         theme="monokai"
         name="ace-editor"
         fontSize={14}
+        ref="reactAceComponent"
         onChange={(e) => {this.updateSelectionScript(this.props.selectionProperties, this.props.project, e)}}
         editorProps={{$blockScrolling: true}}
         value={this.getSelectionScript(this.props.selectionProperties, this.props.project).src}

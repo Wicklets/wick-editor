@@ -259,10 +259,13 @@ class Editor extends Component {
             id='hotkeys-container'>
             <div id="editor">
               <div id="menu-bar-container">
-                <ModalHandler openModal={this.openModal}
-                              openModalName={this.state.openModalName}
-                              project={this.state.project}
-                              updateProject={this.updateProject} />
+                <ModalHandler
+                  openModal={this.openModal}
+                  openModalName={this.state.openModalName}
+                  project={this.state.project}
+                  updateProject={this.updateProject}
+                  selectionProperties={this.state.selectionProperties}
+                />
                 {/* Header */}
                 <DockedPanel>
                   <MenuBar openModal={this.openModal} projectName={this.state.project.name}/>

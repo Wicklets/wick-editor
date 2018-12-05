@@ -25,6 +25,7 @@ class HotKeyInterface extends Object {
       'activate-pan': 'space',
       'activate-zoom': 'z',
       'delete': 'backspace',
+      'convert-to-symbol': '4',
       'preview-play-toggle': 'space',
     }
   }
@@ -43,6 +44,7 @@ class HotKeyInterface extends Object {
       'activate-zoom': (() => this.editor.activateTool("zoom")),
       'delete': (() =>  {window.paper.drawingTools.cursor.deleteSelectedItems();}),
       'preview-play-toggle': (() => this.editor.togglePreviewPlaying()),
+      'convert-to-symbol': (() => this.editor.openModal('ConvertToSymbol')),
       'do-nothing': (() => console.log("donothing")),
     }
 
