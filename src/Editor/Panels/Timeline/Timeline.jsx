@@ -32,80 +32,19 @@ class Timeline extends Component {
     let AnimationTimeline = window.AnimationTimeline;
     let self = this;
 
+    this.onChange = this.onChange.bind(this);
+    this.onSoftChange = this.onSoftChange.bind(this);
+    this.onSelectionChange = this.onSelectionChange.bind(this);
+
     AnimationTimeline.setup(this.refs.container, function () {
       self.updateAnimationTimelineData();
       AnimationTimeline.resize();
       AnimationTimeline.repaint();
     });
 
-    AnimationTimeline.onChange(e => {
-      var nextProject = this.props.project.clone();
-      if(e.playhead !== undefined) {
-        nextProject.focus.timeline.playheadPosition = e.playhead;
-      }
-      if(e.layerIndex !== undefined) {
-        nextProject.focus.timeline.activeLayerIndex = e.layerIndex;
-      }
-      if(e.layers) {
-        e.layers.forEach(layer => {
-          if(layer.id) {
-            // Update
-            let wickLayer = nextProject._childByUUID(layer.id);
-            nextProject.focus.timeline.moveLayer(wickLayer, layer.getIndex());
-            wickLayer.locked = layer.locked;
-            wickLayer.hidden = layer.hidden;
-          } else {
-            // Create
-            let wickLayer = new window.Wick.Layer();
-            nextProject.focus.timeline.addLayer(wickLayer);
-          }
-        });
-      }
-      if(e.frames) {
-        e.frames.forEach(frame => {
-          if(frame.id) {
-            // Update
-            let wickFrame = nextProject._childByUUID(frame.id);
-            wickFrame.start = frame.start;
-            wickFrame.end = frame.end;
-            wickFrame.parent.removeFrame(wickFrame);
-            nextProject.focus.timeline.layers[frame.layer.getIndex()].addFrame(wickFrame);
-          } else {
-            // Create
-            let wickFrame = new window.Wick.Frame();
-            wickFrame.start = frame.start;
-            wickFrame.end = frame.end;
-            nextProject.focus.timeline.activeLayer.addFrame(wickFrame);
-          }
-        });
-      }
-      if(e.tweens) {
-        e.tweens.forEach(tween => {
-          if(tween.id) {
-            // Update
-            var wickTween = nextProject._childByUUID(tween.id);
-            wickTween.playheadPosition = tween.playheadPosition;
-          } else {
-            // Create
-          }
-        });
-      }
-      this.props.updateProject(nextProject);
-      
-      this.props.updateOnionSkinSettings(
-        e.onionSkinEnabled !== undefined ? e.onionSkinEnabled : this.props.onionSkinEnabled,
-        e.onionSkinSeekBackwards !== undefined ? e.onionSkinSeekBackwards : this.props.onionSkinSeekBackwards,
-        e.onionSkinSeekForwards !== undefined ? e.onionSkinSeekForwards : this.props.onionSkinSeekForwards,
-      );
-    });
-
-    AnimationTimeline.onSoftChange(e => {
-
-    });
-
-    AnimationTimeline.onSelectionChange(e => {
-
-    });
+    AnimationTimeline.onChange(this.onChange);
+    AnimationTimeline.onSoftChange(this.onSoftChange);
+    AnimationTimeline.onSelectionChange(this.onSelectionChange);
   }
 
   componentDidUpdate () {
@@ -115,7 +54,7 @@ class Timeline extends Component {
   updateAnimationTimelineData () {
     let AnimationTimeline = window.AnimationTimeline;
     let timeline = this.props.project.focus.timeline;
-    let selectedFrames = [];
+    let selectedUUIDs = this.props.selectionProperties.timelineUUIDs;
 
     AnimationTimeline.setData({
       playheadPosition: timeline.playheadPosition,
@@ -135,12 +74,12 @@ class Timeline extends Component {
               label: frame.identifier,
               start: frame.start,
               end: frame.end,
-              selected: selectedFrames.indexOf(frame.uuid) !== -1,
+              selected: selectedUUIDs.indexOf(frame.uuid) !== -1,
               contentful: frame.contentful,
               tweens: frame.tweens.map(tween => {
                 return {
                   uuid: tween.uuid,
-                  selected: selectedFrames.indexOf(tween.uuid) !== -1,
+                  selected: selectedUUIDs.indexOf(tween.uuid) !== -1,
                   playheadPosition: tween.playheadPosition,
                 }
               }),
@@ -150,6 +89,79 @@ class Timeline extends Component {
       })
     });
     AnimationTimeline.repaint();
+  }
+
+  onChange (e) {
+    var nextProject = this.props.project.clone();
+    if(e.playhead !== undefined) {
+      nextProject.focus.timeline.playheadPosition = e.playhead;
+    }
+    if(e.layerIndex !== undefined) {
+      nextProject.focus.timeline.activeLayerIndex = e.layerIndex;
+    }
+    if(e.layers) {
+      e.layers.forEach(layer => {
+        if(layer.id) {
+          // Update
+          let wickLayer = nextProject._childByUUID(layer.id);
+          nextProject.focus.timeline.moveLayer(wickLayer, layer.getIndex());
+          wickLayer.locked = layer.locked;
+          wickLayer.hidden = layer.hidden;
+        } else {
+          // Create
+          let wickLayer = new window.Wick.Layer();
+          nextProject.focus.timeline.addLayer(wickLayer);
+        }
+      });
+    }
+    if(e.frames) {
+      e.frames.forEach(frame => {
+        if(frame.id) {
+          // Update
+          let wickFrame = nextProject._childByUUID(frame.id);
+          wickFrame.start = frame.start;
+          wickFrame.end = frame.end;
+          wickFrame.parent.removeFrame(wickFrame);
+          nextProject.focus.timeline.layers[frame.layer.getIndex()].addFrame(wickFrame);
+        } else {
+          // Create
+          let wickFrame = new window.Wick.Frame();
+          wickFrame.start = frame.start;
+          wickFrame.end = frame.end;
+          nextProject.focus.timeline.activeLayer.addFrame(wickFrame);
+        }
+      });
+    }
+    if(e.tweens) {
+      e.tweens.forEach(tween => {
+        if(tween.id) {
+          // Update
+          var wickTween = nextProject._childByUUID(tween.id);
+          wickTween.playheadPosition = tween.playheadPosition;
+        } else {
+          // Create
+        }
+      });
+    }
+    this.props.updateProject(nextProject);
+
+    this.props.updateOnionSkinSettings(
+      e.onionSkinEnabled !== undefined ? e.onionSkinEnabled : this.props.onionSkinEnabled,
+      e.onionSkinSeekBackwards !== undefined ? e.onionSkinSeekBackwards : this.props.onionSkinSeekBackwards,
+      e.onionSkinSeekForwards !== undefined ? e.onionSkinSeekForwards : this.props.onionSkinSeekForwards,
+    );
+  }
+
+  onSoftChange (e) {
+
+  }
+
+  onSelectionChange (e) {
+    this.props.updateSelectionProperties({
+      timelineUUIDs: e.frames.map(frame => {
+        return frame.id;
+      }),
+    });
   }
 
   render() {

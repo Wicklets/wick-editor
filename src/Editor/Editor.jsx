@@ -225,7 +225,14 @@ class Editor extends Component {
     // Update only provided settings.
     Object.keys(newSelectionProperties).forEach((key) =>
       updatedSelectionProperties[key] = newSelectionProperties[key]
-    )
+    );
+
+    // Only timeline objects OR canvas objects can be selected at once.
+    if(newSelectionProperties.canvasUUIDs) {
+      updatedSelectionProperties.timelineUUIDs = [];
+    } else if (newSelectionProperties.timelineUUIDs) {
+      updatedSelectionProperties.canvasUUIDs = [];
+    }
 
     this.setState({
       selectionProperties: updatedSelectionProperties,
@@ -285,6 +292,8 @@ class Editor extends Component {
                               onionSkinEnabled={this.state.onionSkinEnabled}
                               onionSkinSeekBackwards={this.state.onionSkinSeekBackwards}
                               onionSkinSeekForwards={this.state.onionSkinSeekForwards}
+                              selectionProperties={this.state.selectionProperties}
+                              updateSelectionProperties={this.updateSelectionProperties}
                             />
                           </DockedPanel>
                         </ReflexElement>
@@ -329,7 +338,8 @@ class Editor extends Component {
                               toolSettings={this.state.toolSettings}
                               updateToolSettings={this.updateToolSettings}
                               selectionProperties={this.state.selectionProperties}
-                              updateSelectionProperties={this.updateSelectionProperties}/>
+                              updateSelectionProperties={this.updateSelectionProperties}
+                            />
                           </DockedPanel>
                         </ReflexElement>
 

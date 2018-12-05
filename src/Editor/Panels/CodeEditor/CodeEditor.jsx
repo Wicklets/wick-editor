@@ -19,7 +19,6 @@
 
 import React, { Component } from 'react';
 import AceEditor from 'react-ace';
-import ReactTooltip from 'react-tooltip'
 
 import 'brace/mode/javascript';
 import 'brace/theme/monokai';
