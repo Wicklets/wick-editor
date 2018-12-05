@@ -76,7 +76,7 @@ class Editor extends Component {
         pressureEnabled: false,
       },
       selectionProperties: {
-        content: "path",
+        content: "none",
         canvasUUIDs: [],
         timelineUUIDs: [],
         name: "selectedObject",
@@ -232,6 +232,11 @@ class Editor extends Component {
       updatedSelectionProperties.timelineUUIDs = [];
     } else if (newSelectionProperties.timelineUUIDs) {
       updatedSelectionProperties.canvasUUIDs = [];
+    }
+
+    if(updatedSelectionProperties.canvasUUIDs.length === 0
+    && updatedSelectionProperties.timelineUUIDs.length === 0) {
+      updatedSelectionProperties.content = 'none';
     }
 
     this.setState({

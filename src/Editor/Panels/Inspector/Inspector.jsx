@@ -69,6 +69,7 @@ class Inspector extends Component {
       "text": this.renderText.bind(this),
       "zoom": this.renderZoom.bind(this),
       "pan": this.renderPan.bind(this),
+      "none": (()=>{}),
       "frame": this.renderFrame.bind(this),
       "multiframe": this.renderMultiFrame.bind(this),
       "group": this.renderGroup.bind(this),
@@ -230,7 +231,7 @@ class Inspector extends Component {
       <InspectorTextInput
         icon="name"
         val={this.props.selectionProperties.name}
-        onChange={(val) => this.updateSelectionProperties('name', val)} />
+        onChange={(val) => this.props.updateSelectionProperties('name', val)} />
     )
   }
 
@@ -239,7 +240,7 @@ class Inspector extends Component {
       <InspectorNumericInput
         icon="framelength"
         val={this.props.selectionProperties.frameLength}
-        onChange={(val) => this.updateSelectionProperties('frameLength', val)} />
+        onChange={(val) => this.props.updateSelectionProperties('frameLength', val)} />
     )
   }
 
