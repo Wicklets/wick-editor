@@ -120,17 +120,23 @@ class Canvas extends Component {
   }
 
   onSelectionChanged (e) {
+    var selectedItems = window.paper.project.selection.items;
+
+    var newSelectionProperties = {
+      canvasUUIDs: selectedItems.map(item => {
+        return item.name;
+      }),
+      content: selectedItems.length > 1 ? 'multipath' : 'path',
+    };
+
     if(window.paper.project.selection.items.length > 0) {
-      this.props.updateSelectionProperties({
-        canvasUUIDs: window.paper.project.selection.items.map(item => {
-          return item.name;
-        }),
-        x: window.paper.project.selection.bounds.left,
-        y: window.paper.project.selection.bounds.top,
-        width: window.paper.project.selection.bounds.width,
-        height: window.paper.project.selection.bounds.height,
-      });
+      newSelectionProperties.x = window.paper.project.selection.bounds.left;
+      newSelectionProperties.y = window.paper.project.selection.bounds.top;
+      newSelectionProperties.width = window.paper.project.selection.bounds.width;
+      newSelectionProperties.height = window.paper.project.selection.bounds.height;
     }
+
+    this.props.updateSelectionProperties(newSelectionProperties);
   }
 
   render() {

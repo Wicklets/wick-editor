@@ -161,6 +161,7 @@ class Timeline extends Component {
       timelineUUIDs: e.frames.map(frame => {
         return frame.id;
       }),
+      content: e.frames.length > 1 ? 'multiframe' : 'frame',
     });
   }
 

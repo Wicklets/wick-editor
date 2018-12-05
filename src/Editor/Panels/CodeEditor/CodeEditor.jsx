@@ -26,17 +26,67 @@ import 'brace/theme/monokai';
 import './_codeeditor.scss';
 
 class CodeEditor extends Component {
+  constructor (props) {
+    super(props);
+
+    this.renderAceEditor = this.renderAceEditor.bind(this);
+    this.renderNotScriptableInfo = this.renderNotScriptableInfo.bind(this);
+
+    this.selectionIsScriptable = this.selectionIsScriptable.bind(this);
+    this.getSelectionScript = this.getSelectionScript.bind(this);
+    this.updateSelectionScript = this.updateSelectionScript.bind(this);
+  }
+
   render() {
     return (
-      <div data-tip data-for="code-editor-coming-soon" className="code-editor">
-        <AceEditor
-          mode="javascript"
-          theme="monokai"
-          name="ace-editor"
-          fontSize={14}
-        />
+      <div className="code-editor">
+        {this.selectionIsScriptable(this.props.selectionProperties)
+          ? this.renderAceEditor()
+          : this.renderNotScriptableInfo()}
       </div>
     );
+  }
+
+  renderAceEditor () {
+    return (
+      <AceEditor
+        mode="javascript"
+        theme="monokai"
+        name="ace-editor"
+        fontSize={14}
+        onChange={(e) => {this.updateSelectionScript(this.props.selectionProperties, this.props.project, e)}}
+        editorProps={{$blockScrolling: true}}
+        value={this.getSelectionScript(this.props.selectionProperties, this.props.project).src}
+      />
+    );
+  }
+
+  renderNotScriptableInfo () {
+    return (
+      <div>not scriptable</div>
+    )
+  }
+
+  selectionIsScriptable (selectionProps) {
+    return selectionProps.content === 'frame'
+        || selectionProps.content === 'clip'
+        || selectionProps.content === 'button';
+  }
+
+  getSelectionScript (selectionProps, project) {
+    if(selectionProps.content === 'frame') {
+      return project._childByUUID(selectionProps.timelineUUIDs[0]).script;
+    } else if (selectionProps.content === 'clip') {
+
+    } else if (selectionProps.content === 'button') {
+
+    }
+  }
+
+  updateSelectionScript (selectionProps, project, newScript) {
+    let script = this.getSelectionScript(selectionProps, project);
+    script.src = newScript;
+    this.props.updateProject(project);
   }
 }
 

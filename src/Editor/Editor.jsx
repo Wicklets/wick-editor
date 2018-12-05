@@ -317,7 +317,14 @@ class Editor extends Component {
                         <ReflexSplitter {...this.resizeProps}/>
                         {/* Code Editor */}
                         <ReflexElement size={1} {...this.resizeProps}>
-                          <DockedPanel><CodeEditor /></DockedPanel>
+                          <DockedPanel>
+                            <CodeEditor
+                              project={this.state.project}
+                              updateProject={this.updateProject}
+                              selectionProperties={this.state.selectionProperties}
+                              updateSelectionProperties={this.updateSelectionProperties}
+                            />
+                          </DockedPanel>
                         </ReflexElement>
                       </ReflexContainer>
                     </ReflexElement>
