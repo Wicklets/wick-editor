@@ -41,9 +41,17 @@ class HotKeyInterface extends Object {
       'activate-eyedropper': (() => this.editor.activateTool("eyedropper")),
       'activate-pan': (() => this.editor.activateTool("pan")),
       'activate-zoom': (() => this.editor.activateTool("zoom")),
-      'delete': ((e) =>  {e.preventDefault();window.paper.drawingTools.cursor.deleteSelectedItems();}),
+      'delete': (() =>  {window.paper.drawingTools.cursor.deleteSelectedItems();}),
       'preview-play-toggle': (() => this.editor.togglePreviewPlaying()),
       'do-nothing': (() => console.log("donothing")),
+    }
+
+    for(let name in this.handlers) {
+      let origHandler = this.handlers[name];
+      this.handlers[name] = ((e) => {
+        if(e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA')
+          origHandler();
+      });
     }
   }
 

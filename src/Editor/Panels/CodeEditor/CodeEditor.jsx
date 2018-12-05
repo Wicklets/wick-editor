@@ -17,7 +17,7 @@
  * along with Wick Editor.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import AceEditor from 'react-ace';
 
 import 'brace/mode/javascript';
@@ -25,7 +25,7 @@ import 'brace/theme/monokai';
 
 import './_codeeditor.scss';
 
-class CodeEditor extends Component {
+class CodeEditor extends PureComponent {
   constructor (props) {
     super(props);
 

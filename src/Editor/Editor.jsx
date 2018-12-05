@@ -220,7 +220,7 @@ class Editor extends Component {
   }
 
   updateSelectionProperties (newSelectionProperties) {
-    let updatedSelectionProperties = this.state.selectionProperties;
+    let updatedSelectionProperties = JSON.parse(JSON.stringify(this.state.selectionProperties));
 
     // Update only provided settings.
     Object.keys(newSelectionProperties).forEach((key) =>
