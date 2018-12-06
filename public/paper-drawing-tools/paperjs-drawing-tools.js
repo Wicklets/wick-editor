@@ -5549,6 +5549,8 @@ class BrushCursorGen {
         projectTarget.item = projectTarget.item.parent;
       }
     }
+
+    return projectTarget;
   }
 })();
 /*
