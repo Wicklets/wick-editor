@@ -26,6 +26,8 @@ class HotKeyInterface extends Object {
       'activate-zoom': 'z',
       'delete': 'backspace',
       'convert-to-symbol': '4',
+      'edit-symbol': '5',
+      'return-to-root': '6',
       'preview-play-toggle': 'space',
     }
   }
@@ -42,9 +44,11 @@ class HotKeyInterface extends Object {
       'activate-eyedropper': (() => this.editor.activateTool("eyedropper")),
       'activate-pan': (() => this.editor.activateTool("pan")),
       'activate-zoom': (() => this.editor.activateTool("zoom")),
-      'delete': (() =>  {window.paper.drawingTools.cursor.deleteSelectedItems();}),
+      'delete': (() =>  window.paper.drawingTools.cursor.deleteSelectedItems()),
       'preview-play-toggle': (() => this.editor.togglePreviewPlaying()),
       'convert-to-symbol': (() => this.editor.openModal('ConvertToSymbol')),
+      'edit-symbol': (() => this.editor.focusSelectedSymbol()),
+      'return-to-root': (() => this.editor.returnToRoot()),
       'do-nothing': (() => console.log("donothing")),
     }
 

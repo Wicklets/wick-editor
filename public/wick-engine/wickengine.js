@@ -3271,6 +3271,7 @@ Wick.Frame = class extends Wick.Tickable {
   }
 
   get contentful() {
+    if (this.groups.length > 0) return true;
     if (this._svgString === '') return false;
 
     this._parseSVG();

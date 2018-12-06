@@ -114,6 +114,9 @@ class Editor extends Component {
     this.updateAssets = this.updateAssets.bind(this);
     this.openModal = this.openModal.bind(this);
     this.activateTool = this.activateTool.bind(this);
+    this.focusSymbol = this.focusSymbol.bind(this);
+    this.focusSelectedSymbol = this.focusSelectedSymbol.bind(this);
+    this.returnToRoot = this.returnToRoot.bind(this);
     this.togglePreviewPlaying = this.togglePreviewPlaying.bind(this);
     this.startTickLoop = this.startTickLoop.bind(this);
     this.stopTickLoop = this.stopTickLoop.bind(this);
@@ -162,6 +165,22 @@ class Editor extends Component {
       });
     }
     this.refocusEditor();
+  }
+
+  focusSymbol (symbol) {
+    this.state.project.focus = symbol;
+    this.updateProject(this.state.project);
+  }
+
+  focusSelectedSymbol () {
+    let symbolUUID = this.state.selectionProperties.canvasUUIDs[0];
+    symbolUUID = symbolUUID.split('_')[2];
+    let symbol = this.state.project._childByUUID(symbolUUID);
+    this.focusSymbol(symbol);
+  }
+
+  returnToRoot () {
+    this.focusSymbol(this.state.project.root);
   }
 
   activateTool (toolName) {

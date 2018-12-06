@@ -4518,6 +4518,21 @@ paper.MultiSelection = class {
     this._rebuildGUI();
   }
 
+  exportSVG() {
+    var exportGroup = new paper.Group();
+    exportGroup.remove();
+
+    this._selectedItems.forEach(item => {
+      var clone = item.clone();
+      clone.name = undefined;
+      exportGroup.addChild(clone);
+    });
+
+    return exportGroup.exportSVG({
+      asString: true
+    });
+  }
+
   _recalculateBounds() {
     this._selectionBounds = null;
 
@@ -5018,7 +5033,13 @@ class BrushCursorGen {
 
   tool.onMouseUp = function (e) {
     var point = paper.view.projectToView(e.point.x, e.point.y);
-    croquis.up(point.x, point.y, lastPressure);
+
+    try {
+      croquis.up(point.x, point.y, lastPressure);
+    } catch (e) {
+      return;
+    }
+
     setTimeout(function () {
       var img = new Image();
 
@@ -5516,17 +5537,18 @@ class BrushCursorGen {
     });
 
     if (projectTarget) {
-      while (projectTarget.item.parent.className === 'Group') {
+      if (projectTarget.item.parent.parent) {
         projectTarget.type = 'fill';
-        projectTarget.item = projectTarget.item.parent;
+
+        while (projectTarget.item.parent.parent) {
+          projectTarget.item = projectTarget.item.parent;
+        }
       }
 
       if (projectTarget.item.parent.className === 'CompoundPath') {
         projectTarget.item = projectTarget.item.parent;
       }
     }
-
-    return projectTarget;
   }
 })();
 /*
