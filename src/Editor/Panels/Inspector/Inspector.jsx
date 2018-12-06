@@ -71,12 +71,13 @@ class Inspector extends Component {
       "pan": this.renderPan.bind(this),
       "frame": this.renderFrame.bind(this),
       "multiframe": this.renderMultiFrame.bind(this),
-      "group": this.renderGroup.bind(this),
       "clip": this.renderClip.bind(this),
       "button": this.renderButton.bind(this),
+      "group": this.renderGroup.bind(this),
       "multigroup": this.renderMultiGroup.bind(this),
       "path": this.renderPath.bind(this),
       "multipath": this.renderMultiPath.bind(this),
+      "multimixed": this.renderMultiMixed.bind(this),
     }
 
     this.renderDisplay = this.renderDisplay.bind(this);
@@ -561,6 +562,15 @@ class Inspector extends Component {
       <div>
         <InspectorTitle type={"multipath"} title={"Multiple Paths"} />
         {this.renderPathContent()}
+      </div>
+    )
+  }
+
+  renderMultiMixed() {
+    return (
+      <div>
+        <InspectorTitle type={"multimixed"} title={"Mixed Selection"} />
+        {this.renderTransformProperties()}
       </div>
     )
   }

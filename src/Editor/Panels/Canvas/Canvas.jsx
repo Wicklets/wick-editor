@@ -122,11 +122,28 @@ class Canvas extends Component {
   onSelectionChanged (e) {
     var selectedItems = window.paper.project.selection.items;
 
+    let types = selectedItems.map(item => {
+      if(item.className === 'Path' || item.className === 'CompoundPath') {
+        return 'Path';
+      } else if (item.className === 'Group') {
+        return 'Group';
+      }
+    });
+
+    let content = null;
+    if(types.indexOf('Path') !== -1 && types.indexOf('Group') !== -1) {
+      content = 'multimixed';
+    } else if(types.indexOf('Path') !== -1) {
+      content = selectedItems.length > 1 ? 'multipath' : 'path'
+    } else if(types.indexOf('Group') !== -1) {
+      content = selectedItems.length > 1 ? 'multigroup' : 'group'
+    }
+
     var newSelectionProperties = {
       canvasUUIDs: selectedItems.map(item => {
         return item.name;
       }),
-      content: selectedItems.length > 1 ? 'multipath' : 'path',
+      content: content,
     };
 
     if(window.paper.project.selection.items.length > 0) {
