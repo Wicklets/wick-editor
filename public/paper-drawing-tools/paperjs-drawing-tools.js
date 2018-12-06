@@ -5537,16 +5537,16 @@ class BrushCursorGen {
     });
 
     if (projectTarget) {
+      if (projectTarget.item.parent.className === 'CompoundPath') {
+        projectTarget.item = projectTarget.item.parent;
+      }
+
       if (projectTarget.item.parent.parent) {
         projectTarget.type = 'fill';
 
         while (projectTarget.item.parent.parent) {
           projectTarget.item = projectTarget.item.parent;
         }
-      }
-
-      if (projectTarget.item.parent.className === 'CompoundPath') {
-        projectTarget.item = projectTarget.item.parent;
       }
     }
 

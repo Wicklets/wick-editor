@@ -69,7 +69,6 @@ class Inspector extends Component {
       "text": this.renderText.bind(this),
       "zoom": this.renderZoom.bind(this),
       "pan": this.renderPan.bind(this),
-      "none": (()=>{}),
       "frame": this.renderFrame.bind(this),
       "multiframe": this.renderMultiFrame.bind(this),
       "group": this.renderGroup.bind(this),
@@ -577,8 +576,11 @@ class Inspector extends Component {
   }
 
   renderDisplay() {
-    if (this.props.selectionProperties.content in this.inspectorContentRenderFunctions){
+    if (this.props.selectionProperties.content in this.inspectorContentRenderFunctions) {
       let renderFunction = this.inspectorContentRenderFunctions[this.props.selectionProperties.content];
+      return(renderFunction());
+    } else if (this.props.activeTool in this.inspectorContentRenderFunctions) {
+      let renderFunction = this.inspectorContentRenderFunctions[this.props.activeTool];
       return(renderFunction());
     } else {
       this.renderUnknown();
