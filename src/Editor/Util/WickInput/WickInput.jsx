@@ -25,6 +25,7 @@ import NumericInput from 'react-numeric-input';
 import Slider from 'rc-slider';
 import Select from 'react-select';
 import ColorPicker from 'Editor/Util/ColorPicker/ColorPicker';
+import { Input } from 'reactstrap';
 
 class WickInput extends Component {
   render() {
@@ -64,6 +65,14 @@ class WickInput extends Component {
           type="checkbox"
           {...this.props}/>
       )
+    } else if (this.props.type === "radio") {
+      if(!this.props.name) throw new Error("WickInput radio buttons require a name.");
+      return (
+        <Input
+          type="radio"
+          {...this.props}
+        />
+      );
     }
   }
 }

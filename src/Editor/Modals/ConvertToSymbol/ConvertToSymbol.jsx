@@ -19,26 +19,51 @@
 
 import React, { Component } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { Button, Modal, ModalHeader, ModalBody, ModalFooter, FormGroup, Label } from 'reactstrap';
+import { Input, Form, Button, Modal, ModalHeader, ModalBody, ModalFooter, FormGroup, Label } from 'reactstrap';
 import WickInput from 'Editor/Util/WickInput/WickInput';
 import './_converttosymbol.scss';
 
 class ConvertToSymbol extends Component {
+  constructor (props) {
+    super(props);
+    this.convertSelectionToSymbol = this.convertSelectionToSymbol.bind(this);
+  }
+
   render() {
     return (
       <Modal isOpen={this.props.open} toggle={this.props.toggle} className={this.props.className}>
         <ModalHeader toggle={this.props.toggle}>Convert To Symbol</ModalHeader>
         <ModalBody>
           <FormGroup>
-            {this.props.selectionProperties.canvasUUIDs.length}
+            <Label for="symbolName">Name</Label>
+            <Input type="text" name="symbolName" id="symbolName" placeholder="New Symbol" />
+          </FormGroup>
+          <FormGroup>
+            <Input
+              type="radio"
+              name="symbolType"
+            />
+          {'Clip'}
+          </FormGroup>
+          <FormGroup>
+            <Input
+              type="radio"
+              name="symbolType"
+            />
+          {'Button'}
           </FormGroup>
         </ModalBody>
         <ModalFooter>
           <Button color="wick-warning" onClick={this.props.toggle}>Cancel</Button>
-          <Button color="wick-accept" onClick={(()=>{})}>Create</Button>{' '}
+          <Button color="wick-accept" onClick={this.convertSelectionToSymbol}>Create</Button>{' '}
         </ModalFooter>
       </Modal>
     );
+  }
+
+  convertSelectionToSymbol () {
+    console.log(this.props.selectionProperties.canvasUUIDs.length);
+    this.props.toggle();
   }
 }
 
