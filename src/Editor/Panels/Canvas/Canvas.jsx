@@ -128,6 +128,7 @@ class Canvas extends Component {
       } else if (item.className === 'Group') {
         return 'Group';
       }
+      return null;
     });
 
     let content = null;

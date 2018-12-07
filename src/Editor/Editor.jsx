@@ -168,8 +168,9 @@ class Editor extends Component {
   }
 
   focusSymbol (symbol) {
-    this.state.project.focus = symbol;
-    this.updateProject(this.state.project);
+    var newProject = this.state.project.clone();
+    newProject.focus = symbol;
+    this.updateProject(newProject);
   }
 
   focusSelectedSymbol () {

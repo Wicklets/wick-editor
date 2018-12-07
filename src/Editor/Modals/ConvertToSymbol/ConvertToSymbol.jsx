@@ -19,8 +19,7 @@
 
 import React, { Component } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { Input, Form, Button, Modal, ModalHeader, ModalBody, ModalFooter, FormGroup, Label } from 'reactstrap';
-import WickInput from 'Editor/Util/WickInput/WickInput';
+import { Input, Button, Modal, ModalHeader, ModalBody, ModalFooter, FormGroup, Label } from 'reactstrap';
 import './_converttosymbol.scss';
 
 class ConvertToSymbol extends Component {
