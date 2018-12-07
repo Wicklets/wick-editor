@@ -31,13 +31,39 @@ var AnimationTimeline = new (function ft () {
     var EDGE_DRAG_TOLERANCE = 5;
     var LAYERS_GUI_WIDTH = 80;
     var NUMBER_LINE_HEIGHT = 15;
-    var LAYERS_WIDTH = 100;
+    var LAYERS_WIDTH = 140;
+    var LAYER_NAME_LEFT_PADDING = 70;
+    var LOCK_BUTTON_OFFSET = 0;
+    var HIDE_BUTTON_OFFSET = 25;
+    var LAYER_BUTTON_PADDING = 25;
+    var LAYER_BUTTON_SPACING = LAYER_NAME_LEFT_PADDING/3;
     var TWEEN_ICON_SIZE = 10;
     var TWEEN_ICON_HEIGHT = GRID_CELL_HEIGHT * 2/3;
     var BUTTON_SIZE = 15;
-    var LOCK_BUTTON_OFFSET = 0;
-    var HIDE_BUTTON_OFFSET = 25;
 
+    // Create Custom load image and draw image function because html5 images
+    // are very difficult to work with...
+    function drawImageInBounds(img, bounds) {
+      if (img.ready) {
+        ctx.drawImage(img, bounds.left, bounds.top, bounds.width, bounds.height);
+      }
+    }
+
+    function loadImage (src) {
+      var img = new Image();
+      img.onload = function () {
+        img.ready = true;
+        self.repaint();
+      }
+      img.src = src;
+      return img
+    }
+
+    // Load image icons
+    var ICON_LOCK = loadImage("./resources/lock.png");
+    var ICON_EYE = loadImage("./resources/eye.png");
+
+    // Load interface colors
     var interfaceDark = '#444';
     var interfaceMidDark = '#666';
     var interfaceMedium = '#888';
@@ -116,6 +142,11 @@ var AnimationTimeline = new (function ft () {
 
         onionButton = document.createElement('div');
         onionButton.className = 'onion-skin-button';
+
+        // Update onionButton Style
+        onionButton.style.top = "0px";
+        onionButton.style.left = (LAYERS_WIDTH-20)+"px";
+
         onionButton.onclick = function () {
             numberline.onionSkinEnabled = !numberline.onionSkinEnabled;
             self.rebuild();
@@ -140,7 +171,9 @@ var AnimationTimeline = new (function ft () {
     }
 
     self.rebuild = function () {
-        onionButton.innerHTML = numberline.onionSkinEnabled ? 'y' : 'n';
+        let selected = "white";
+        let deselected = "gray";
+        onionButton.style.backgroundColor = numberline.onionSkinEnabled ? selected : deselected;
     }
 
     self.repaint = function () {
@@ -511,7 +544,7 @@ var AnimationTimeline = new (function ft () {
 
         // Button body
         ctx.beginPath();
-        ctx.fillStyle = this.isToggledFn() ? 'green' : 'red';
+        ctx.fillStyle = this.isToggledFn() ? 'white' : 'gray';
         ctx.rect(this.bounds.left,
                  this.bounds.top,
                  this.bounds.width,
@@ -519,17 +552,22 @@ var AnimationTimeline = new (function ft () {
         ctx.fill();
         ctx.closePath();
 
-        // Icon
+        // Draw HTML 5 Element Icon
+        if (this.icon === "lock") {
+          self.drawLock(this.bounds);
+        } else if (this.icon === "eye") {
+          self.drawEye(this.bounds);
+        }
 
     }
 
     Button.prototype.regenBounds = function () {
         this.bounds = {};
 
-        this.bounds.top = this.layer.getIndex() * GRID_CELL_HEIGHT;
-        this.bounds.left = this.offset;
+        this.bounds.top = this.y - BUTTON_SIZE/2;
+        this.bounds.left = this.x;
         this.bounds.bottom = this.bounds.top + BUTTON_SIZE;
-        this.bounds.right = this.offset + BUTTON_SIZE;
+        this.bounds.right = this.bounds.left + BUTTON_SIZE;
 
         this.bounds.width = this.bounds.right - this.bounds.left;
         this.bounds.height = this.bounds.bottom - this.bounds.top;
@@ -556,8 +594,7 @@ var AnimationTimeline = new (function ft () {
             isToggledFn: function () {
                 return self.locked;
             },
-            offset: LOCK_BUTTON_OFFSET,
-            icon: '',
+            icon: "lock",
             layer: this,
         });
         this.hideButton = new Button({
@@ -570,8 +607,7 @@ var AnimationTimeline = new (function ft () {
             isToggledFn: function () {
                 return self.hidden;
             },
-            offset: HIDE_BUTTON_OFFSET,
-            icon: '',
+            icon: "eye",
             layer: this,
         });
         this.buttons = [this.lockButton, this.hideButton];
@@ -596,15 +632,39 @@ var AnimationTimeline = new (function ft () {
             1.5,
             true, true);
 
+        // Layer Name Text
         ctx.fillStyle = 'white';
         ctx.font = "12px Arial";
-        var padding = 3;
-        ctx.fillText(this.label, 9, this.getIndex() * GRID_CELL_HEIGHT + GRID_CELL_HEIGHT/1.5);
+        let layerNamePosition = this.getLayerNamePosition();
+        ctx.fillText(this.label, layerNamePosition.x, layerNamePosition.y);
 
         // Buttons
-        this.buttons.forEach(button => {
-            button.repaint();
-        });
+        this.drawLayerButtons();
+    }
+
+    Layer.prototype.drawLayerButtons = function () {
+      for (let i=0; i<this.buttons.length; i++) {
+        let button = this.buttons[i];
+
+        let x = LAYER_BUTTON_PADDING + LAYER_BUTTON_SPACING*i;
+        let y = this.getLayerCenter();
+
+        button.x = x;
+        button.y = y;
+
+        button.repaint();
+      }
+    }
+
+    Layer.prototype.getLayerNamePosition = function () {
+      let layerNamePosition = {};
+      layerNamePosition.x = LAYER_NAME_LEFT_PADDING;
+      layerNamePosition.y = this.getLayerCenter() + GRID_CELL_HEIGHT*.15;
+      return layerNamePosition;
+    }
+
+    Layer.prototype.getLayerCenter = function () {
+      return this.getIndex() * GRID_CELL_HEIGHT + GRID_CELL_HEIGHT*.5;
     }
 
     Layer.prototype.repaintDropGhost = function () {
@@ -848,9 +908,15 @@ var AnimationTimeline = new (function ft () {
     }
 
     Frame.prototype.isValid = function () {
-        if(this.start <= 0 || this.end <= 0) {
+        if (this.start <= 0 || this.end <= 0) { // Frame off screen
             return false;
+        } else if (this.start > this.end) { // Left to Right Inverted Frame
+          return false;
+        } else if (this.end < this.start) { // Right to Left Inverted Frame
+          return false;
         }
+
+        // Ensure the frame is not on top of another frame
         var onTopOfOtherFrame = false;
         var self = this;
         allFrames().filter(function (frame) {
@@ -860,6 +926,7 @@ var AnimationTimeline = new (function ft () {
                 onTopOfOtherFrame = true;
             }
         });
+
         return !onTopOfOtherFrame;
     }
 
@@ -1687,5 +1754,80 @@ var AnimationTimeline = new (function ft () {
     self.onButtonMouseUp = function (e) {
 
     }
+
+    self.drawLock = function (bounds) {
+      // Determine Bounds of Lock based on bounds of incoming space.
+      let handleSizeAmt = .25;
+      let handleSize = bounds.width * handleSizeAmt;
+
+      let handleSpacingAmt = (1-handleSizeAmt)/2;
+      let handleSpacing = bounds.width * handleSpacingAmt;
+
+      let lockSizeAmt = .45;
+      let lockSize = bounds.width * lockSizeAmt;
+
+      let lockSpacingAmt = (1-lockSizeAmt)/2;
+      lockSpacing = bounds.width * lockSpacingAmt;
+
+      let handleX = bounds.left + handleSpacing;
+      let handleY = bounds.top + handleSpacing/2;
+
+      let lockX = bounds.left + lockSpacing;
+      let lockY = handleY + handleSize;
+
+      let dot
+
+      // Handle
+      ctx.beginPath();
+        ctx.rect(handleX,
+                 handleY,
+                 handleSize,
+                 handleSize);
+        ctx.strokeStyle = 'black';
+        ctx.stroke();
+      ctx.closePath();
+
+      // Lock Body
+      ctx.beginPath();
+        ctx.rect(lockX,
+                 lockY,
+                 lockSize,
+                 lockSize);
+       ctx.strokeStyle = 'black';
+       ctx.stroke();
+     ctx.closePath();
+
+     // Key Hole
+     ctx.beginPath();
+       ctx.arc(lockX + lockSize/2, lockY + lockSize/2, lockSize/8, 0, 2 * Math.PI, false);
+       ctx.strokeStyle = 'black';
+       ctx.stroke();
+     ctx.closePath();
+    }
+
+    self.drawEye = function (bounds) {
+
+      let centerX = bounds.left + bounds.width/2;
+      let centerY = bounds.top + bounds.height/2;
+
+      let innerEyeSize = bounds.width/8;
+      let outerEyeSize = bounds.width/3;
+
+     // Key Hole
+     ctx.beginPath();
+       ctx.arc(centerX, centerY, innerEyeSize, 0, 2 * Math.PI, false);
+       ctx.fillStyle = 'black';
+       ctx.fill();
+       ctx.strokeStyle = 'black';
+       ctx.stroke();
+     ctx.closePath();
+
+     ctx.beginPath();
+       ctx.arc(centerX, centerY, outerEyeSize, 0, 2 * Math.PI, false);
+       ctx.strokeStyle = 'black';
+       ctx.stroke();
+     ctx.closePath();
+    }
+
 
 })();

@@ -1,19 +1,16 @@
 .onion-skin-button {
     position: absolute;
-    left: 0px;
-    top: 0px;
+    /* left: 120px;
+    top: 0px; */
     width: 16px;
     height: 16px;
-    background-color: cyan;
     cursor: pointer;
     z-index: 2;
     border-radius: 4px;
+    background: url('./resources/onion.png') no-repeat;
+    background-size: 100% 100%;
 }
 
 .onion-skin-button:hover {
     background-color: orange;
-}
-
-.onion-skin-button:active {
-    background-color: red;
 }
