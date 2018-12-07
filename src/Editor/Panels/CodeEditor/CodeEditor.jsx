@@ -71,17 +71,14 @@ class CodeEditor extends PureComponent {
 
   selectionIsScriptable (selectionProps) {
     return selectionProps.content === 'frame'
-        || selectionProps.content === 'clip'
-        || selectionProps.content === 'button';
+        || selectionProps.content === 'group';
   }
 
   getSelectionScript (selectionProps, project) {
     if(selectionProps.content === 'frame') {
       return project._childByUUID(selectionProps.timelineUUIDs[0]).script;
-    } else if (selectionProps.content === 'clip') {
-
-    } else if (selectionProps.content === 'button') {
-
+    } else if (selectionProps.content === 'group') {
+      return project._childByUUID(selectionProps.canvasUUIDs[0].split('_')[2]).script;
     }
   }
 
