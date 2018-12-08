@@ -306,7 +306,6 @@ class Editor extends Component {
                     {/* Middle Panel */}
                     <ReflexElement {...this.resizeProps}>
                       <ReflexContainer orientation="horizontal">
-                        {/* Timeline */}
                         <ReflexElement minSize={50} maxSize={50} size={50} {...this.resizeProps}>
                           <DockedPanel>
                             <Toolbox
@@ -319,24 +318,38 @@ class Editor extends Component {
                             />
                           </DockedPanel>
                         </ReflexElement>
-                        {/* Canvas */}
                         <ReflexElement {...this.resizeProps}>
-                          <DockedPanel>
-                            <Canvas
-                              project={this.state.project}
-                              toolSettings={this.state.toolSettings}
-                              updateProject={this.updateProject}
-                              activeTool={this.state.activeTool}
-                              onionSkinEnabled={this.state.onionSkinEnabled}
-                              onionSkinSeekBackwards={this.state.onionSkinSeekBackwards}
-                              onionSkinSeekForwards={this.state.onionSkinSeekForwards}
-                              selectionProperties={this.state.selectionProperties}
-                              updateSelectionProperties={this.updateSelectionProperties}
-                            />
-                          </DockedPanel>
+                          <ReflexContainer orientation="vertical">
+                            <ReflexElement minSize={0} size={0.1} {...this.resizeProps}>
+                              <DockedPanel>
+                                <CodeEditor
+                                  project={this.state.project}
+                                  updateProject={this.updateProject}
+                                  selectionProperties={this.state.selectionProperties}
+                                  updateSelectionProperties={this.updateSelectionProperties}
+                                />
+                              </DockedPanel>
+                            </ReflexElement>
+                            <ReflexSplitter {...this.resizeProps}/>
+                            <ReflexElement>
+                              <DockedPanel>
+                                <Canvas
+                                  project={this.state.project}
+                                  toolSettings={this.state.toolSettings}
+                                  updateProject={this.updateProject}
+                                  activeTool={this.state.activeTool}
+                                  onionSkinEnabled={this.state.onionSkinEnabled}
+                                  onionSkinSeekBackwards={this.state.onionSkinSeekBackwards}
+                                  onionSkinSeekForwards={this.state.onionSkinSeekForwards}
+                                  selectionProperties={this.state.selectionProperties}
+                                  updateSelectionProperties={this.updateSelectionProperties}
+                                />
+                              </DockedPanel>
+                            </ReflexElement>
+
+                          </ReflexContainer>
                         </ReflexElement>
                         <ReflexSplitter {...this.resizeProps}/>
-                        {/* Code Editor */}
                         <ReflexElement minSize={50} size={100} {...this.resizeProps}>
                           <DockedPanel>
                             <Timeline
