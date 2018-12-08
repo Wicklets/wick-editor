@@ -65,6 +65,7 @@ class Editor extends Component {
       onionSkinSeekForwards: 1,
       onionSkinSeekBackwards: 1,
       activeTool: 'cursor',
+      resizeKey: 1,
       toolSettings: {
         fillColor: '#ffaabb',
         strokeColor: '#000',
@@ -123,11 +124,12 @@ class Editor extends Component {
     this.refocusEditor = this.refocusEditor.bind(this);
     this.resizeProps = {
       onStopResize: throttle(this.onStopResize.bind(this), this.resizeThrottleAmount),
-      onResize: throttle(this.onResize.bind(this), this.resizeThrottleAmount)
+      onResize: throttle(this.onResize.bind(this), this.resizeThrottleAmount),
+      onWindowResize: throttle(this.onWindowResize.bind(this), this.resizeThrottleAmount),
     };
 
     // Bind window resizes to editor resize events.
-    window.addEventListener("resize", this.resizeProps.onResize);
+    window.addEventListener("resize", this.resizeProps.onWindowResize);
   }
 
   componentWillMount () {
@@ -147,6 +149,13 @@ class Editor extends Component {
     if(!this.state.previewPlaying && prevState.previewPlaying) {
       this.stopTickLoop();
     }
+  }
+
+  // This is using a hack to force window resizes.
+  onWindowResize () {
+    this.setState({
+      resizeKey: Math.random(),
+    })
   }
 
   onResize (e) {
@@ -292,40 +301,24 @@ class Editor extends Component {
                 </DockedPanel>
               </div>
               <div id="editor-body">
-                <div id="tool-box-container">
-                  <DockedPanel>
-                    <Toolbox
-                      activeTool={this.state.activeTool}
-                      toolSettings={this.state.toolSettings}
-                      updateToolSettings={this.updateToolSettings}
-                      fillColor={this.state.fillColor}
-                      strokeColor={this.state.strokeColor}
-                      activateTool={this.activateTool}
-                    />
-                  </DockedPanel>
-                </div>
                 <div id="flexible-container">
-                  {/* TODO:The 'key' update below is a hack to force ReflexContainers to re render on window resize and should be replaced ASAP */}
-                  <ReflexContainer orientation="vertical">
+                  <ReflexContainer key={this.state.resizeKey} orientation="vertical">
                     {/* Middle Panel */}
                     <ReflexElement {...this.resizeProps}>
                       <ReflexContainer orientation="horizontal">
                         {/* Timeline */}
-                        <ReflexElement size={100} {...this.resizeProps}>
+                        <ReflexElement minSize={50} maxSize={50} size={50} {...this.resizeProps}>
                           <DockedPanel>
-                            <Timeline
-                              project={this.state.project}
-                              updateProject={this.updateProject}
-                              updateOnionSkinSettings={this.updateOnionSkinSettings}
-                              onionSkinEnabled={this.state.onionSkinEnabled}
-                              onionSkinSeekBackwards={this.state.onionSkinSeekBackwards}
-                              onionSkinSeekForwards={this.state.onionSkinSeekForwards}
-                              selectionProperties={this.state.selectionProperties}
-                              updateSelectionProperties={this.updateSelectionProperties}
+                            <Toolbox
+                              activeTool={this.state.activeTool}
+                              toolSettings={this.state.toolSettings}
+                              updateToolSettings={this.updateToolSettings}
+                              fillColor={this.state.fillColor}
+                              strokeColor={this.state.strokeColor}
+                              activateTool={this.activateTool}
                             />
                           </DockedPanel>
                         </ReflexElement>
-                        <ReflexSplitter {...this.resizeProps}/>
                         {/* Canvas */}
                         <ReflexElement {...this.resizeProps}>
                           <DockedPanel>
@@ -344,11 +337,15 @@ class Editor extends Component {
                         </ReflexElement>
                         <ReflexSplitter {...this.resizeProps}/>
                         {/* Code Editor */}
-                        <ReflexElement size={1} {...this.resizeProps}>
+                        <ReflexElement minSize={50} size={100} {...this.resizeProps}>
                           <DockedPanel>
-                            <CodeEditor
+                            <Timeline
                               project={this.state.project}
                               updateProject={this.updateProject}
+                              updateOnionSkinSettings={this.updateOnionSkinSettings}
+                              onionSkinEnabled={this.state.onionSkinEnabled}
+                              onionSkinSeekBackwards={this.state.onionSkinSeekBackwards}
+                              onionSkinSeekForwards={this.state.onionSkinSeekForwards}
                               selectionProperties={this.state.selectionProperties}
                               updateSelectionProperties={this.updateSelectionProperties}
                             />
@@ -361,12 +358,12 @@ class Editor extends Component {
 
                   {/* Right Sidebar */}
                     <ReflexElement
-                      size={150}
+                      size={240}
                       maxSize={250} minSize={150}
                       {...this.resizeProps}>
                       <ReflexContainer orientation="horizontal">
                         {/* Inspector */}
-                        <ReflexElement propagateDimensions={true} minSize={200} {...this.resizeProps}>
+                        <ReflexElement propagateDimensions={true} minSize={200}{...this.resizeProps}>
                           <DockedPanel>
                             <Inspector
                               activeTool={this.state.activeTool}
@@ -381,7 +378,7 @@ class Editor extends Component {
                         <ReflexSplitter {...this.resizeProps}/>
 
                         {/* Asset Library */}
-                        <ReflexElement { ...this.resizeProps}>
+                        <ReflexElement size={200} { ...this.resizeProps}>
                           <DockedPanel>
                             <AssetLibrary
                               assets={this.state.assets}

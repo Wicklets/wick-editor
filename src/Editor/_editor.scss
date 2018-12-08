@@ -54,7 +54,7 @@ body {
 
 #flexible-container {
   height: calc(100% - #{$menu-bar-height});
-  width: calc(100% - #{$tool-box-width});
+  width: 100%;
   background-color: #AAA;
   display: inline-block;
   position: absolute;

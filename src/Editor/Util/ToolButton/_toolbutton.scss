@@ -22,14 +22,12 @@
 .tool-button {
   padding: 0px;
   height: 40px;
-  width: 100%;
+  width: 40px;
   border-radius: $interface-roundness-secondary;
   background-color: $interface-primary;
   border: none;
   color: $interface-secondary-text;
-  margin: 0 auto;
   transition: .3s;
-  margin-top: 4px;
 }
 
 .tool-button:hover {
