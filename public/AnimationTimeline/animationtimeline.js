@@ -31,13 +31,39 @@ var AnimationTimeline = new (function ft () {
     var EDGE_DRAG_TOLERANCE = 5;
     var LAYERS_GUI_WIDTH = 80;
     var NUMBER_LINE_HEIGHT = 15;
-    var LAYERS_WIDTH = 100;
+    var LAYERS_WIDTH = 140;
+    var LAYER_NAME_LEFT_PADDING = 70;
+    var LOCK_BUTTON_OFFSET = 0;
+    var HIDE_BUTTON_OFFSET = 25;
+    var LAYER_BUTTON_PADDING = 25;
+    var LAYER_BUTTON_SPACING = LAYER_NAME_LEFT_PADDING/3;
     var TWEEN_ICON_SIZE = 10;
     var TWEEN_ICON_HEIGHT = GRID_CELL_HEIGHT * 2/3;
     var BUTTON_SIZE = 15;
-    var LOCK_BUTTON_OFFSET = 0;
-    var HIDE_BUTTON_OFFSET = 25;
 
+    // Create Custom load image and draw image function because html5 images
+    // are very difficult to work with...
+    function drawImageInBounds(img, bounds) {
+      if (img.ready) {
+        ctx.drawImage(img, bounds.left, bounds.top, bounds.width, bounds.height);
+      }
+    }
+
+    function loadImage (src) {
+      var img = new Image();
+      img.onload = function () {
+        img.ready = true;
+        self.repaint();
+      }
+      img.src = src;
+      return img
+    }
+
+    // Load image icons
+    var ICON_LOCK = loadImage("../resources/lock.png");
+    var ICON_EYE = loadImage("../resources/eye.png");
+
+    // Load interface colors
     var interfaceDark = '#444';
     var interfaceMidDark = '#666';
     var interfaceMedium = '#888';
@@ -116,6 +142,11 @@ var AnimationTimeline = new (function ft () {
 
         onionButton = document.createElement('div');
         onionButton.className = 'onion-skin-button';
+
+        // Update onionButton Style
+        onionButton.style.top = "0px";
+        onionButton.style.left = (LAYERS_WIDTH-20)+"px";
+
         onionButton.onclick = function () {
             numberline.onionSkinEnabled = !numberline.onionSkinEnabled;
             self.rebuild();
@@ -140,7 +171,9 @@ var AnimationTimeline = new (function ft () {
     }
 
     self.rebuild = function () {
-        onionButton.innerHTML = numberline.onionSkinEnabled ? 'y' : 'n';
+        let selected = "white";
+        let deselected = "gray";
+        onionButton.style.backgroundColor = numberline.onionSkinEnabled ? selected : deselected;
     }
 
     self.repaint = function () {
@@ -511,7 +544,7 @@ var AnimationTimeline = new (function ft () {
 
         // Button body
         ctx.beginPath();
-        ctx.fillStyle = this.isToggledFn() ? 'green' : 'red';
+        ctx.fillStyle = this.isToggledFn() ? 'white' : 'gray';
         ctx.rect(this.bounds.left,
                  this.bounds.top,
                  this.bounds.width,
@@ -520,16 +553,16 @@ var AnimationTimeline = new (function ft () {
         ctx.closePath();
 
         // Icon
-
+        drawImageInBounds(this.icon, this.bounds);
     }
 
     Button.prototype.regenBounds = function () {
         this.bounds = {};
 
-        this.bounds.top = this.layer.getIndex() * GRID_CELL_HEIGHT;
-        this.bounds.left = this.offset;
+        this.bounds.top = this.y - BUTTON_SIZE/2;
+        this.bounds.left = this.x;
         this.bounds.bottom = this.bounds.top + BUTTON_SIZE;
-        this.bounds.right = this.offset + BUTTON_SIZE;
+        this.bounds.right = this.bounds.left + BUTTON_SIZE;
 
         this.bounds.width = this.bounds.right - this.bounds.left;
         this.bounds.height = this.bounds.bottom - this.bounds.top;
@@ -556,8 +589,7 @@ var AnimationTimeline = new (function ft () {
             isToggledFn: function () {
                 return self.locked;
             },
-            offset: LOCK_BUTTON_OFFSET,
-            icon: '',
+            icon: ICON_LOCK,
             layer: this,
         });
         this.hideButton = new Button({
@@ -570,8 +602,7 @@ var AnimationTimeline = new (function ft () {
             isToggledFn: function () {
                 return self.hidden;
             },
-            offset: HIDE_BUTTON_OFFSET,
-            icon: '',
+            icon: ICON_EYE,
             layer: this,
         });
         this.buttons = [this.lockButton, this.hideButton];
@@ -596,15 +627,39 @@ var AnimationTimeline = new (function ft () {
             1.5,
             true, true);
 
+        // Layer Name Text
         ctx.fillStyle = 'white';
         ctx.font = "12px Arial";
-        var padding = 3;
-        ctx.fillText(this.label, 9, this.getIndex() * GRID_CELL_HEIGHT + GRID_CELL_HEIGHT/1.5);
+        let layerNamePosition = this.getLayerNamePosition();
+        ctx.fillText(this.label, layerNamePosition.x, layerNamePosition.y);
 
         // Buttons
-        this.buttons.forEach(button => {
-            button.repaint();
-        });
+        this.drawLayerButtons();
+    }
+
+    Layer.prototype.drawLayerButtons = function () {
+      for (let i=0; i<this.buttons.length; i++) {
+        let button = this.buttons[i];
+
+        let x = LAYER_BUTTON_PADDING + LAYER_BUTTON_SPACING*i;
+        let y = this.getLayerCenter();
+
+        button.x = x;
+        button.y = y;
+
+        button.repaint();
+      }
+    }
+
+    Layer.prototype.getLayerNamePosition = function () {
+      let layerNamePosition = {};
+      layerNamePosition.x = LAYER_NAME_LEFT_PADDING;
+      layerNamePosition.y = this.getLayerCenter() + GRID_CELL_HEIGHT*.15;
+      return layerNamePosition;
+    }
+
+    Layer.prototype.getLayerCenter = function () {
+      return this.getIndex() * GRID_CELL_HEIGHT + GRID_CELL_HEIGHT*.5;
     }
 
     Layer.prototype.repaintDropGhost = function () {
