@@ -22,6 +22,7 @@ import './_toolbox.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 import ToolButton from 'Editor/Util/ToolButton/ToolButton';
+import PlayButton from 'Editor/Util/PlayButton/PlayButton';
 import WickInput from 'Editor/Util/WickInput/WickInput';
 
 class Toolbox extends Component {
@@ -102,7 +103,7 @@ class Toolbox extends Component {
             placement="bottom"
             />
         </div>
-        <div className ="color-container" id="stroke-color-picker-container">
+        <div className="color-container" id="stroke-color-picker-container">
           <WickInput
             type="color"
             color= {this.props.toolSettings.strokeColor}
@@ -115,7 +116,14 @@ class Toolbox extends Component {
             stroke={true}
             />
         </div>
+
+        <PlayButton
+          className="action-button"
+          playing={this.props.previewPlaying}
+          onClick={this.props.togglePreviewPlaying}/>
       </div>
+
+
 
     )
   }

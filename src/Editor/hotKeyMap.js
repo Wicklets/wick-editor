@@ -28,7 +28,7 @@ class HotKeyInterface extends Object {
       'convert-to-symbol': '4',
       'edit-symbol': '5',
       'return-to-root': '6',
-      'preview-play-toggle': 'space',
+      'preview-play-toggle': 'enter',
     }
   }
 

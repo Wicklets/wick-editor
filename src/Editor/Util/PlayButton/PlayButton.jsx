@@ -17,33 +17,22 @@
  * along with Wick Editor.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-@import 'Editor/_wickbrand.scss';
+import React, { Component } from 'react';
+import './_playbutton.scss'
 
-.tool-box {
-  width: 100%;
-  height: 100%;
-  background-color: $interface-primary;
-  padding-left: 5px;
-  padding-right: 5px;
+import iconPlay from 'resources/action-icons/play.png';
+import iconPause from 'resources/action-icons/pause.png';
+
+class PlayButton extends Component {
+  render() {
+    return (
+      <img
+        className={"play-icon " + this.props.className}
+        alt={"playing icon"}
+        src={(this.props.playing ? iconPause : iconPlay)}
+        onClick={this.props.onClick}/>
+    )
+  }
 }
 
-.tool-button {
-  float: left;
-  margin: 5px;
-}
-
-.action-button {
-  float: right; 
-}
-
-.color-container {
-  cursor: pointer;
-  width: 40px;
-  height: 40px;
-  float: left;
-  margin: 5px;
-}
-
-#stroke-color-picker-container {
-  box-sizing: border-box;
-}
+export default PlayButton

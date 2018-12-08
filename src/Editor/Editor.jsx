@@ -200,6 +200,7 @@ class Editor extends Component {
   }
 
   togglePreviewPlaying () {
+    console.log("toggling");
     this.setState(prevState => ({
       previewPlaying: !prevState.previewPlaying,
     }));
@@ -315,6 +316,8 @@ class Editor extends Component {
                               fillColor={this.state.fillColor}
                               strokeColor={this.state.strokeColor}
                               activateTool={this.activateTool}
+                              previewPlaying={this.state.previewPlaying}
+                              togglePreviewPlaying={this.togglePreviewPlaying}
                             />
                           </DockedPanel>
                         </ReflexElement>
