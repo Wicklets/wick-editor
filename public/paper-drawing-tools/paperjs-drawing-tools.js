@@ -5234,8 +5234,8 @@ class BrushCursorGen {
     selectionBox = null;
     itemsInBox.forEach(item => {
       paper.project.selection.addItem(item);
-      paper.project.selection.updateGUI();
     });
+    paper.project.selection.updateGUI();
     paper.drawingTools.fireSelectionChanged();
   };
   /* Scale handle mouse events */
@@ -5395,13 +5395,14 @@ class BrushCursorGen {
     if (e.delta.x === 0 && e.delta.y === 0) {
       if (!e.modifiers.shift) paper.project.selection.clear();
       paper.project.selection.addItem(projectTarget.item);
+      paper.project.selection.updateGUI();
       paper.drawingTools.fireSelectionChanged();
     } else {
       hoverPreview.remove();
+      paper.project.selection.updateGUI();
       paper.drawingTools.fireCanvasModified({
         layers: [projectTarget.item.layer]
       });
-      paper.project.selection.updateGUI();
     }
   };
   /* Curve mouse events */
@@ -5467,13 +5468,14 @@ class BrushCursorGen {
       }
 
       paper.project.selection.addItem(projectTarget.item);
+      paper.project.selection.updateGUI();
       paper.drawingTools.fireSelectionChanged();
     } else {
       hoverPreview.remove();
+      paper.project.selection.updateGUI();
       paper.drawingTools.fireCanvasModified({
         layers: [projectTarget.item.layer]
       });
-      paper.project.selection.updateGUI();
     }
   };
   /* Util */
