@@ -99,7 +99,7 @@ class Toolbox extends Component {
               strokeColor: this.props.toolSettings.strokeColor,
             })}
             id="tool-box-fill-color"
-            placement="right"
+            placement="bottom"
             />
         </div>
         <div className ="color-container" id="stroke-color-picker-container">
@@ -111,7 +111,7 @@ class Toolbox extends Component {
               strokeColor: color.hex,
             })}
             id="tool-box-stroke-color"
-            placement="right"
+            placement="bottom"
             stroke={true}
             />
         </div>
