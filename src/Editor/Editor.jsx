@@ -49,7 +49,7 @@ class Editor extends Component {
         let assets = [];
         let items = ["asset", "img", "sound", "clip", "button"]
 
-        for (var i=0; i< 1; i++) {
+        for (var i=0; i< 0; i++) {
           let a = {};
           a.name = "Asset " + i;
           a.uuid = "" + i;
@@ -73,7 +73,7 @@ class Editor extends Component {
         brushSize: 10,
         brushSmoothing: 0.9,
         brushSmoothness: 10,
-        borderRadius: 0,
+        cornerRadius: 0,
         pressureEnabled: false,
       },
       selectionProperties: {

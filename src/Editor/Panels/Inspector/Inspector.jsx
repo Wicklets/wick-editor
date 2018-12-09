@@ -204,12 +204,12 @@ class Inspector extends Component {
     )
   }
 
-  renderBorderRadius() {
+  renderCornerRoundness() {
     return (
       <InspectorNumericSlider
         icon="cornerroundness"
-        val={this.props.toolSettings.borderRadius}
-        onChange={(val) => this.handleToolSettingChange("borderRadius", val)}
+        val={this.props.toolSettings.cornerRadius}
+        onChange={(val) => this.handleToolSettingChange("cornerRadius", val)}
         divider={false} />
     )
   }
@@ -344,7 +344,7 @@ class Inspector extends Component {
         <div className="inspector-content">
           {this.renderBrushSize()}
           {this.renderPressureToggle()}
-          {this.renderSmoothness()}
+          {/*{this.renderSmoothness()}*/}
           {/*{this.renderFillColor({val:this.state.dummyColor, onChange:this.handleColorChange, id:"inspector-brush-fill-color-picker"})}*/}
         </div>
       </div>
@@ -358,7 +358,7 @@ class Inspector extends Component {
         <div className="inspector-content">
           {this.renderStrokeWidth()}
           {this.renderPressureToggle()}
-          {this.renderSmoothness()}
+          {/*{this.renderSmoothness()}*/}
           {/*{this.renderFillColor({val:this.state.dummyColor, onChange:this.handleColorChange, id:"inspector-brush-fill-color-picker"})}*/}
         </div>
       </div>
@@ -372,7 +372,7 @@ class Inspector extends Component {
         <div className="inspector-content">
           {this.renderBrushSize()}
           {this.renderPressureToggle()}
-          {this.renderSmoothness()}
+          {/*{this.renderSmoothness()}*/}
         </div>
       </div>
     )
@@ -395,10 +395,8 @@ class Inspector extends Component {
         <InspectorTitle type={"rectangle"} title={"Rectangle"} />
         <div className="inspector-content">
           {this.renderStrokeWidth()}
-          {this.renderBorderRadius()}
-          {/*{this.renderFillColor({val:this.state.dummyColor, onChange:this.handleColorChange, id:"inspector-brush-fill-color-picker"})}
-          {this.renderStrokeColor({val:this.state.dummyColor, onChange:this.handleColorChange, id:"inspector-brush-fill-color-picker"})}
-          {this.renderBorderRadius({val:this.state.dummySize, onChange:this.handleChange})}*/}
+          {this.renderCornerRoundness()}
+          {/*{this.renderFillColor({val:this.state.dummyColor, onChange:this.handleColorChange, id:"inspector-brush-fill-color-picker"})}*/}
         </div>
       </div>
     )
