@@ -4214,6 +4214,7 @@ paper.drawingTools = new paper.DrawingTools();
       insert: true
     });
     resultHolePath.remove();
+    resultHolePath = resultHolePath.children[0];
   }
 
   function processFinalResultPath() {
@@ -5851,6 +5852,7 @@ class BrushCursorGen {
 
             if (path) {
               path.fillColor = tool.fillColor;
+              path.name = null;
               paper.project.activeLayer.addChild(path);
               paper.drawingTools.fireCanvasModified({
                 layers: [paper.project.activeLayer]

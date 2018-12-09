@@ -554,11 +554,85 @@ var AnimationTimeline = new (function ft () {
 
         // Draw HTML 5 Element Icon
         if (this.icon === "lock") {
-          self.drawLock(this.bounds);
+          this.drawLock(this.bounds);
         } else if (this.icon === "eye") {
-          self.drawEye(this.bounds);
+          this.drawEye(this.bounds);
         }
 
+    }
+
+    Button.prototype.drawLock = function (bounds) {
+      // Determine Bounds of Lock based on bounds of incoming space.
+      let handleSizeAmt = .25;
+      let handleSize = bounds.width * handleSizeAmt;
+
+      let handleSpacingAmt = (1-handleSizeAmt)/2;
+      let handleSpacing = bounds.width * handleSpacingAmt;
+
+      let lockSizeAmt = .45;
+      let lockSize = bounds.width * lockSizeAmt;
+
+      let lockSpacingAmt = (1-lockSizeAmt)/2;
+      lockSpacing = bounds.width * lockSpacingAmt;
+
+      let handleX = bounds.left + handleSpacing;
+      let handleY = bounds.top + handleSpacing/2;
+
+      let lockX = bounds.left + lockSpacing;
+      let lockY = handleY + handleSize;
+
+      let dot
+
+      // Handle
+      ctx.beginPath();
+        ctx.rect(handleX,
+                 handleY,
+                 handleSize,
+                 handleSize);
+        ctx.strokeStyle = 'black';
+        ctx.stroke();
+      ctx.closePath();
+
+      // Lock Body
+      ctx.beginPath();
+        ctx.rect(lockX,
+                 lockY,
+                 lockSize,
+                 lockSize);
+       ctx.strokeStyle = 'black';
+       ctx.stroke();
+     ctx.closePath();
+
+     // Key Hole
+     ctx.beginPath();
+       ctx.arc(lockX + lockSize/2, lockY + lockSize/2, lockSize/8, 0, 2 * Math.PI, false);
+       ctx.strokeStyle = 'black';
+       ctx.stroke();
+     ctx.closePath();
+    }
+
+    Button.prototype.drawEye = function (bounds) {
+
+      let centerX = bounds.left + bounds.width/2;
+      let centerY = bounds.top + bounds.height/2;
+
+      let innerEyeSize = bounds.width/8;
+      let outerEyeSize = bounds.width/3;
+
+     // Key Hole
+     ctx.beginPath();
+       ctx.arc(centerX, centerY, innerEyeSize, 0, 2 * Math.PI, false);
+       ctx.fillStyle = 'black';
+       ctx.fill();
+       ctx.strokeStyle = 'black';
+       ctx.stroke();
+     ctx.closePath();
+
+     ctx.beginPath();
+       ctx.arc(centerX, centerY, outerEyeSize, 0, 2 * Math.PI, false);
+       ctx.strokeStyle = 'black';
+       ctx.stroke();
+     ctx.closePath();
     }
 
     Button.prototype.regenBounds = function () {
@@ -1572,8 +1646,13 @@ var AnimationTimeline = new (function ft () {
     }
 
     self.onFrameLeftEdgeMouseDrag = function (e) {
-        // Round to nearest cell to snap to grid
-        e.frame.leftDragOffset = Math.round(e.delta.x / GRID_CELL_WIDTH) * GRID_CELL_WIDTH;
+        var cellsDragged = Math.round(e.delta.x / GRID_CELL_WIDTH);
+
+        // Prevent 'inside out' frame
+        if(e.frame.start + cellsDragged > e.frame.end) {
+            cellsDragged = e.frame.end - e.frame.start;
+        }
+        e.frame.leftDragOffset = cellsDragged * GRID_CELL_WIDTH;
 
         playhead.position = e.frame.start + XYToRowCol(e.frame.leftDragOffset).col;
     }
@@ -1603,8 +1682,13 @@ var AnimationTimeline = new (function ft () {
     }
 
     self.onFrameRightEdgeMouseDrag = function (e) {
-        // Round to nearest cell to snap to grid
-        e.frame.rightDragOffset = Math.round(e.delta.x / GRID_CELL_WIDTH) * GRID_CELL_WIDTH;
+        var cellsDragged = Math.round(e.delta.x / GRID_CELL_WIDTH);
+
+        // Prevent 'inside out' frame
+        if(e.frame.end + cellsDragged < e.frame.start) {
+            cellsDragged = e.frame.start - e.frame.end;
+        }
+        e.frame.rightDragOffset = cellsDragged * GRID_CELL_WIDTH;
 
         playhead.position = e.frame.end + XYToRowCol(e.frame.rightDragOffset).col;
     }
@@ -1754,80 +1838,5 @@ var AnimationTimeline = new (function ft () {
     self.onButtonMouseUp = function (e) {
 
     }
-
-    self.drawLock = function (bounds) {
-      // Determine Bounds of Lock based on bounds of incoming space.
-      let handleSizeAmt = .25;
-      let handleSize = bounds.width * handleSizeAmt;
-
-      let handleSpacingAmt = (1-handleSizeAmt)/2;
-      let handleSpacing = bounds.width * handleSpacingAmt;
-
-      let lockSizeAmt = .45;
-      let lockSize = bounds.width * lockSizeAmt;
-
-      let lockSpacingAmt = (1-lockSizeAmt)/2;
-      lockSpacing = bounds.width * lockSpacingAmt;
-
-      let handleX = bounds.left + handleSpacing;
-      let handleY = bounds.top + handleSpacing/2;
-
-      let lockX = bounds.left + lockSpacing;
-      let lockY = handleY + handleSize;
-
-      let dot
-
-      // Handle
-      ctx.beginPath();
-        ctx.rect(handleX,
-                 handleY,
-                 handleSize,
-                 handleSize);
-        ctx.strokeStyle = 'black';
-        ctx.stroke();
-      ctx.closePath();
-
-      // Lock Body
-      ctx.beginPath();
-        ctx.rect(lockX,
-                 lockY,
-                 lockSize,
-                 lockSize);
-       ctx.strokeStyle = 'black';
-       ctx.stroke();
-     ctx.closePath();
-
-     // Key Hole
-     ctx.beginPath();
-       ctx.arc(lockX + lockSize/2, lockY + lockSize/2, lockSize/8, 0, 2 * Math.PI, false);
-       ctx.strokeStyle = 'black';
-       ctx.stroke();
-     ctx.closePath();
-    }
-
-    self.drawEye = function (bounds) {
-
-      let centerX = bounds.left + bounds.width/2;
-      let centerY = bounds.top + bounds.height/2;
-
-      let innerEyeSize = bounds.width/8;
-      let outerEyeSize = bounds.width/3;
-
-     // Key Hole
-     ctx.beginPath();
-       ctx.arc(centerX, centerY, innerEyeSize, 0, 2 * Math.PI, false);
-       ctx.fillStyle = 'black';
-       ctx.fill();
-       ctx.strokeStyle = 'black';
-       ctx.stroke();
-     ctx.closePath();
-
-     ctx.beginPath();
-       ctx.arc(centerX, centerY, outerEyeSize, 0, 2 * Math.PI, false);
-       ctx.strokeStyle = 'black';
-       ctx.stroke();
-     ctx.closePath();
-    }
-
 
 })();
