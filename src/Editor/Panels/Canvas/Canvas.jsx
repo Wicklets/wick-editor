@@ -109,7 +109,8 @@ class Canvas extends Component {
     });
 
     if(!this.props.project.focus.timeline.activeLayer.activeFrame ||
-       this.props.project.focus.timeline.activeLayer.locked) {
+       this.props.project.focus.timeline.activeLayer.locked ||
+       this.props.project.focus.timeline.activeLayer.hidden) {
       window.paper.drawingTools.none.activate();
     }
   }

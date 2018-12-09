@@ -15978,7 +15978,7 @@ class WickCanvas {
 
     var activeFrame = wickProject.focus.timeline.activeLayer.activeFrame;
 
-    if (activeFrame) {
+    if (activeFrame && !activeFrame.parent.hidden) {
       var activeFrameUUID = activeFrame.uuid;
       paper.project.layers['wick_frame_' + activeFrameUUID + '_paths'].activate();
     }

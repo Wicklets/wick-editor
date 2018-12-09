@@ -273,7 +273,6 @@ class Editor extends Component {
     this.setState({
       selectionProperties: updatedSelectionProperties,
     });
-
   }
 
   deleteSelection () {
