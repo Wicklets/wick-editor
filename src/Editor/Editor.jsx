@@ -112,6 +112,7 @@ class Editor extends Component {
     this.updateOnionSkinSettings = this.updateOnionSkinSettings.bind(this);
     this.updateToolSettings = this.updateToolSettings.bind(this);
     this.updateSelectionProperties = this.updateSelectionProperties.bind(this);
+    this.deleteSelection = this.deleteSelection.bind(this);
     this.updateAssets = this.updateAssets.bind(this);
     this.openModal = this.openModal.bind(this);
     this.activateTool = this.activateTool.bind(this);
@@ -273,6 +274,19 @@ class Editor extends Component {
       selectionProperties: updatedSelectionProperties,
     });
 
+  }
+
+  deleteSelection () {
+    let content = this.state.selectionProperties.content
+    if(['path', 'multipath', 'group', 'multigroup', 'multimixed', 'button', 'clip'].indexOf(content) !== -1) {
+      window.paper.drawingTools.cursor.deleteSelectedItems();
+    } else if (content === 'frame' || content === 'multiframe') {
+      this.state.selectionProperties.timelineUUIDs.forEach(uuid => {
+        let frame = this.state.project._childByUUID(uuid);
+        frame.parent.removeFrame(frame);
+      })
+      this.updateProject(this.state.project);
+    }
   }
 
   updateAssets (updatedAssets) {

@@ -44,7 +44,7 @@ class HotKeyInterface extends Object {
       'activate-eyedropper': (() => this.editor.activateTool("eyedropper")),
       'activate-pan': (() => this.editor.activateTool("pan")),
       'activate-zoom': (() => this.editor.activateTool("zoom")),
-      'delete': (() =>  window.paper.drawingTools.cursor.deleteSelectedItems()),
+      'delete': (() =>  this.editor.deleteSelection()),
       'preview-play-toggle': (() => this.editor.togglePreviewPlaying()),
       'convert-to-symbol': (() => this.editor.openModal('ConvertToSymbol')),
       'edit-symbol': (() => this.editor.focusSelectedSymbol()),
