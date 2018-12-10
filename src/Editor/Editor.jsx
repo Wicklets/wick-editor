@@ -105,8 +105,8 @@ class Editor extends Component {
     };
 
     // Milliseconds to throttle resize events by.
-    this.resizeThrottleAmount = 3;
-    this.windowResizeThrottleAmount = 100;
+    this.resizeThrottleAmount = 10;
+    this.windowResizeThrottleAmount = 300;
 
     // define hotkeys
     this.hotKeyInterface = new HotKeyInterface(this);
@@ -175,38 +175,42 @@ class Editor extends Component {
 
   }
 
-  getSize = (domElement) => {
-    switch (this.props.orientation) {
-      case 'horizontal':
-        return domElement.offsetHeight
-      case 'vertical':
-      default:
-        return domElement.offsetWidth
-    }
+  getSizeHorizontal = (domElement) => {
+    return domElement.offsetHeight;
+  }
+
+  getSizeVertical = (domElement) => {
+    return domElement.offsetWidth;
   }
 
   onStopInspectorResize = ({domElement, component}) => {
     this.setState({
-      inspectorSize: this.getSize(domElement)
+      inspectorSize: this.getSizeVertical(domElement)
     })
   }
 
   onStopAssetLibraryResize = ({domElement, component}) => {
     this.setState({
-      assetLibrarySize: this.getSize(domElement)
+      assetLibrarySize: this.getSizeHorizontal(domElement)
     })
   }
 
   onStopCodeEditorResize = ({domElement, component}) => {
     this.setState({
-      codeEditorSize: this.getSize(domElement)
+      codeEditorSize: this.getSizeVertical(domElement)
     })
   }
 
   onStopTimelineResize = ({domElement, component}) => {
+    var size = this.getSizeHorizontal(domElement);
+
     this.setState({
-      timelineSize: this.getSize(domElement)
+      timelineSize: size
     })
+
+    console.log(size);
+
+
   }
 
   openModal (name) {
