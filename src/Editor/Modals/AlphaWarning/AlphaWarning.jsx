@@ -30,9 +30,9 @@ class AlphaWarning extends Component {
       <Modal id="alpha-modal" isOpen={this.props.open} toggle={this.props.toggle} className={this.props.className}>
         <ModalHeader toggle={this.props.toggle} className="alpha-warning-header">Wick Editor Alpha</ModalHeader>
         <ModalBody>
-          <h3>Welcome to Wick Editor 1.0 v1</h3>
+          <h3>Welcome to Wick Editor 1.0 v2</h3>
           <h5>In this alpha test, you'll have access to some of the most <b>basic</b> features of the Wick Editor.</h5>
-          <p>Right now, you can test some of the new drawing tools, and our new and improved engine! This demo is missing functionality, tools, and much of the styling, but we hope it shows you what is possible with the new Wick Editor 1.0.</p>
+          <p>Right now, you can test some of the new drawing tools, our new and improved engine, and some scripting capabilities! This demo is missing functionality, tools, and much of the styling, but we hope it shows you what is possible with the new Wick Editor 1.0.</p>
           <p>More features and changes are on the way!</p>
         </ModalBody>
         <ModalFooter>
