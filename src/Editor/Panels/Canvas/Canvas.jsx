@@ -60,6 +60,11 @@ class Canvas extends Component {
     this.onSelectionChanged = this.onSelectionChanged.bind(this);
 
     this.canvasContainer = React.createRef();
+    console.log("Bleh");
+  }
+
+  shouldComponentUpdate() {
+    return false; 
   }
 
   componentDidMount() {
