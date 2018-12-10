@@ -106,7 +106,7 @@ class Editor extends Component {
 
     // Milliseconds to throttle resize events by.
     this.resizeThrottleAmount = 3;
-    this.windowResizeThrottleAmount = 300;
+    this.windowResizeThrottleAmount = 100;
 
     // define hotkeys
     this.hotKeyInterface = new HotKeyInterface(this);
@@ -161,11 +161,9 @@ class Editor extends Component {
     }
   }
 
-  // This is using a hack to force window resizes.
+  // Ensure that all elements resize on window resize.
   onWindowResize () {
-    this.setState({
-      resizeKey: Math.random(),
-    })
+    this.resizeProps.onResize();
   }
 
   onResize (e) {
@@ -359,10 +357,10 @@ class Editor extends Component {
               </div>
               <div id="editor-body">
                 <div id="flexible-container">
-                  <ReflexContainer key={this.state.resizeKey} orientation="vertical">
+                  <ReflexContainer windowResizeAware={true} orientation="vertical">
                     {/* Middle Panel */}
                     <ReflexElement {...this.resizeProps}>
-                      <ReflexContainer orientation="horizontal">
+                      <ReflexContainer windowResizeAware={true} orientation="horizontal">
                         <ReflexElement
                           minSize={50}
                           maxSize={50}
