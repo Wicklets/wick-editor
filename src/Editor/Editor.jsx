@@ -98,10 +98,15 @@ class Editor extends Component {
       assets: genAssets(),
       openModalName: null,
       previewPlaying: false,
+      inspectorSize: 250,
+      codeEditorSize: 0.1,
+      timelineSize: 100,
+      assetLibrarySize: 100,
     };
 
     // Milliseconds to throttle resize events by.
     this.resizeThrottleAmount = 3;
+    this.windowResizeThrottleAmount = 300;
 
     // define hotkeys
     this.hotKeyInterface = new HotKeyInterface(this);
@@ -125,8 +130,12 @@ class Editor extends Component {
     this.refocusEditor = this.refocusEditor.bind(this);
     this.resizeProps = {
       onStopResize: throttle(this.onStopResize.bind(this), this.resizeThrottleAmount),
+      onStopInspectorResize: throttle(this.onStopInspectorResize.bind(this), this.resizeThrottleAmount),
+      onStopAssetLibraryResize: throttle(this.onStopAssetLibraryResize.bind(this), this.resizeThrottleAmount),
+      onStopTimelineResize: throttle(this.onStopTimelineResize.bind(this), this.resizeThrottleAmount),
+      onStopCodeEditorResize: throttle(this.onStopCodeEditorResize.bind(this), this.resizeThrottleAmount),
       onResize: throttle(this.onResize.bind(this), this.resizeThrottleAmount),
-      onWindowResize: throttle(this.onWindowResize.bind(this), this.resizeThrottleAmount),
+      onWindowResize: throttle(this.onWindowResize.bind(this), this.windowResizeThrottleAmount),
     };
 
     // Bind window resizes to editor resize events.
@@ -166,6 +175,44 @@ class Editor extends Component {
 
   onStopResize = ({domElement, component}) => {
 
+  }
+
+  getSize = (domElement) => {
+    switch (this.props.orientation) {
+      case 'horizontal':
+        return domElement.offsetHeight
+      case 'vertical':
+      default:
+        return domElement.offsetWidth
+    }
+  }
+
+  onStopInspectorResize = ({domElement, component}) => {
+    console.log("Inspector");
+    this.setState({
+      inspectorSize: this.getSize(domElement)
+    })
+  }
+
+  onStopAssetLibraryResize = ({domElement, component}) => {
+    console.log("Asset");
+    this.setState({
+      assetLibrarySize: this.getSize(domElement)
+    })
+  }
+
+  onStopCodeEditorResize = ({domElement, component}) => {
+    console.log("Code");
+    this.setState({
+      codeEditorSize: this.getSize(domElement)
+    })
+  }
+
+  onStopTimelineResize = ({domElement, component}) => {
+    console.log("Timeline");
+    this.setState({
+      timelineSize: this.getSize(domElement)
+    })
   }
 
   openModal (name) {
@@ -320,7 +367,12 @@ class Editor extends Component {
                     {/* Middle Panel */}
                     <ReflexElement {...this.resizeProps}>
                       <ReflexContainer orientation="horizontal">
-                        <ReflexElement minSize={50} maxSize={50} size={50} {...this.resizeProps}>
+                        <ReflexElement
+                          minSize={50}
+                          maxSize={50}
+                          size={50}
+                          onResize={this.resizeProps.onResize}
+                          onStopResize={this.resizeProps.onStopResize}>
                           <DockedPanel>
                             <Toolbox
                               activeTool={this.state.activeTool}
@@ -336,7 +388,11 @@ class Editor extends Component {
                         </ReflexElement>
                         <ReflexElement {...this.resizeProps}>
                           <ReflexContainer orientation="vertical">
-                            <ReflexElement minSize={0} size={0.1} {...this.resizeProps}>
+                            <ReflexElement
+                              minSize={0}
+                              size={this.state.codeEditorSize}
+                              onResize={this.resizeProps.onResize}
+                              onStopResize={this.resizeProps.onStopCodeEditorResize}>
                               <DockedPanel>
                                 <CodeEditor
                                   project={this.state.project}
@@ -366,7 +422,11 @@ class Editor extends Component {
                           </ReflexContainer>
                         </ReflexElement>
                         <ReflexSplitter {...this.resizeProps}/>
-                        <ReflexElement minSize={50} size={100} {...this.resizeProps}>
+                        <ReflexElement
+                          minSize={50}
+                          size={this.state.timelineSize}
+                          onResize={this.resizeProps.onResize}
+                          onStopResize={this.resizeProps.onStopTimelineResize}>
                           <DockedPanel>
                             <Timeline
                               project={this.state.project}
@@ -387,9 +447,10 @@ class Editor extends Component {
 
                   {/* Right Sidebar */}
                     <ReflexElement
-                      size={240}
+                      size={this.state.inspectorSize}
                       maxSize={250} minSize={150}
-                      {...this.resizeProps}>
+                      onResize={this.resizeProps.onResize}
+                      onStopResize={this.resizeProps.onStopInspectorResize}>
                       <ReflexContainer orientation="horizontal">
                         {/* Inspector */}
                         <ReflexElement propagateDimensions={true} minSize={200}{...this.resizeProps}>
@@ -407,7 +468,10 @@ class Editor extends Component {
                         <ReflexSplitter {...this.resizeProps}/>
 
                         {/* Asset Library */}
-                        <ReflexElement size={200} { ...this.resizeProps}>
+                        <ReflexElement
+                          size={this.state.assetLibrarySize}
+                          onResize={this.resizeProps.onResize}
+                          onStopResize={this.resizeProps.onStopAssetLibraryResize}>
                           <DockedPanel>
                             <AssetLibrary
                               assets={this.state.assets}
