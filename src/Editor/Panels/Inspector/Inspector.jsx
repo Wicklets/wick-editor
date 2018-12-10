@@ -35,19 +35,6 @@ import InspectorCheckbox from './InspectorRow/InspectorRowTypes/InspectorCheckbo
 class Inspector extends Component {
   constructor (props) {
     super(props);
-    this.state = {
-      content: "path",
-      dummySize: 10,
-      dummyColor: "#FFAABB",
-      dummyFonts: [
-        {value:"apple",label:"Apple"},
-        {value:"banana",label:"Banana"},
-        {value:"strawberry",label:"Strawberry"}],
-      dummySelectedFont:{value:"apple",label:"Apple"},
-      dummyName:"Jiminy",
-      pos1: 50,
-      pos2: 38,
-    }
 
     this.handleChange = this.handleChange.bind(this);
     this.handleColorChange = this.handleColorChange.bind(this);
@@ -345,7 +332,6 @@ class Inspector extends Component {
           {this.renderBrushSize()}
           {this.renderPressureToggle()}
           {/*{this.renderSmoothness()}*/}
-          {/*{this.renderFillColor({val:this.state.dummyColor, onChange:this.handleColorChange, id:"inspector-brush-fill-color-picker"})}*/}
         </div>
       </div>
     )
@@ -359,7 +345,6 @@ class Inspector extends Component {
           {this.renderStrokeWidth()}
           {this.renderPressureToggle()}
           {/*{this.renderSmoothness()}*/}
-          {/*{this.renderFillColor({val:this.state.dummyColor, onChange:this.handleColorChange, id:"inspector-brush-fill-color-picker"})}*/}
         </div>
       </div>
     )
@@ -383,7 +368,6 @@ class Inspector extends Component {
       <div>
         <InspectorTitle type={"fillbucket"} title={"Fill Bucket"} />
         <div className="inspector-content">
-          {/*{this.renderFillColor({val:this.state.dummyColor, onChange:this.handleColorChange, id:"inspector-brush-fill-color-picker"})}*/}
         </div>
       </div>
     )
@@ -396,7 +380,6 @@ class Inspector extends Component {
         <div className="inspector-content">
           {this.renderStrokeWidth()}
           {this.renderCornerRoundness()}
-          {/*{this.renderFillColor({val:this.state.dummyColor, onChange:this.handleColorChange, id:"inspector-brush-fill-color-picker"})}*/}
         </div>
       </div>
     )
@@ -408,8 +391,6 @@ class Inspector extends Component {
         <InspectorTitle type={"ellipse"} title={"Ellipse"} />
         <div className="inspector-content">
           {this.renderStrokeWidth()}
-          {/*{this.renderFillColor({val:this.state.dummyColor, onChange:this.handleColorChange, id:"inspector-brush-fill-color-picker"})}
-          {this.renderStrokeColor({val:this.state.dummyColor, onChange:this.handleColorChange, id:"inspector-brush-fill-color-picker"})}*/}
         </div>
       </div>
     )
@@ -421,7 +402,6 @@ class Inspector extends Component {
         <InspectorTitle type={"line"} title={"Line"} />
         <div className="inspector-content">
           {this.renderStrokeWidth()}
-          {/*{this.renderStrokeColor({val:this.state.dummyColor, onChange:this.handleColorChange, id:"inspector-brush-fill-color-picker"})}*/}
         </div>
       </div>
     )
