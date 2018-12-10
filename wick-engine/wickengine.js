@@ -1983,6 +1983,17 @@ Wick.Base = class {
     this._project = null;
     this._classname = this.classname;
   }
+
+  static deserialize(data) {
+    var object = Wick[data.classname]._deserialize(data, new Wick[data.classname]());
+
+    return object;
+  }
+
+  static _deserialize(data, object) {
+    object._uuid = data.uuid;
+    return object;
+  }
   /* Getters */
 
 
@@ -2070,6 +2081,13 @@ Wick.Base = class {
     return object;
   }
 
+  serialize() {
+    var data = {};
+    data.classname = this.classname;
+    data.uuid = this._uuid;
+    return data;
+  }
+
 };
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
@@ -2099,6 +2117,18 @@ Wick.Layer = class extends Wick.Base {
     this.title = title || 'New Layer';
     this.frames = [];
   }
+
+  static _deserialize(data, object) {
+    super._deserialize(data, object);
+
+    object.locked = data.locked;
+    object.hidden = data.hidden;
+    object.title = data.title;
+    data.frames.forEach(frameData => {
+      object.addFrame(Wick.Frame.deserialize(frameData));
+    });
+    return object;
+  }
   /* Getters */
 
 
@@ -2121,19 +2151,7 @@ Wick.Layer = class extends Wick.Base {
   }
 
   get activeFrame() {
-    return this.frames.find(frame => {
-      return frame.onScreen;
-    });
-  }
-
-  get onionSkinnedFrames() {
-    if (!this.parent || !this.parent.onionSkinEnabled) {
-      return [];
-    } else {
-      return this.frames.filter(frame => {
-        return frame.onionSkinned;
-      });
-    }
+    return this.getFrame(this.parent.playheadPosition);
   }
   /* Setters */
 
@@ -2154,6 +2172,12 @@ Wick.Layer = class extends Wick.Base {
     this._removeChild(frame);
   }
 
+  getFrame(playheadPosition) {
+    return this.frames.find(frame => {
+      return frame.inPosition(playheadPosition);
+    });
+  }
+
   clone(object) {
     if (!object) object = new Wick.Layer();
     super.clone(object);
@@ -2164,6 +2188,17 @@ Wick.Layer = class extends Wick.Base {
       object.addFrame(frame.clone());
     });
     return object;
+  }
+
+  serialize() {
+    var data = super.serialize();
+    data.locked = this.locked;
+    data.hidden = this.hidden;
+    data.title = this.title;
+    data.frames = this.frames.map(frame => {
+      return frame.serialize();
+    });
+    return data;
   }
 
 };
@@ -2199,9 +2234,26 @@ Wick.Project = class extends Wick.Base {
     this.setRoot(new Wick.Clip());
     this.root.timeline.addLayer(new Wick.Layer());
     this.root.timeline.layers[0].addFrame(new Wick.Frame());
-    this.focus = this.root;
+    this._focus = this.root.uuid;
     this.project = this;
     this.assets = [];
+  }
+
+  static _deserialize(data, object) {
+    super._deserialize(data, object);
+
+    object.name = data.name;
+    object.width = data.width;
+    object.height = data.height;
+    object.framerate = data.framerate;
+    object.backgroundColor = data.backgroundColor;
+    object.setRoot(Wick.Clip.deserialize(data.root));
+    object.focus = object.root;
+    object.project = object;
+    data.assets.forEach(assetData => {
+      object.addAsset(Wick.Asset.deserialize(assetData));
+    });
+    return object;
   }
   /* Getters */
 
@@ -2209,8 +2261,16 @@ Wick.Project = class extends Wick.Base {
   get classname() {
     return 'Project';
   }
+
+  get focus() {
+    return this._childByUUID(this._focus);
+  }
   /* Setters */
 
+
+  set focus(clip) {
+    this._focus = clip.uuid;
+  }
   /* Methods */
 
 
@@ -2242,6 +2302,10 @@ Wick.Project = class extends Wick.Base {
     this._removeChild(asset);
   }
 
+  tick() {
+    this.focus.tick();
+  }
+
   clone(object) {
     if (!object) object = new Wick.Project();
     super.clone(object);
@@ -2256,6 +2320,20 @@ Wick.Project = class extends Wick.Base {
       object.addAsset(asset.clone());
     });
     return object;
+  }
+
+  serialize() {
+    var data = super.serialize();
+    data.name = this.name;
+    data.width = this.width;
+    data.height = this.height;
+    data.backgroundColor = this.backgroundColor;
+    data.framerate = this.framerate;
+    data.root = this.root.serialize();
+    data.assets = this.assets.map(asset => {
+      return asset.serialize();
+    });
+    return data;
   }
 
   _refreshAssetUUIDRefs() {
@@ -2294,6 +2372,13 @@ Wick.Script = class extends Wick.Base {
   constructor() {
     super();
     this.src = '';
+  }
+
+  static _deserialize(data, object) {
+    super._deserialize(data, object);
+
+    object.src = data.src;
+    return object;
   }
   /* Getters */
 
@@ -2352,6 +2437,12 @@ Wick.Script = class extends Wick.Base {
     return object;
   }
 
+  serialize() {
+    var data = super.serialize();
+    data.src = this.src;
+    return data;
+  }
+
 };
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
@@ -2378,11 +2469,19 @@ Wick.Timeline = class extends Wick.Base {
     super();
     this.playheadPosition = 1;
     this.activeLayerIndex = 0;
-    this.playing = true;
-    this.onionSkinEnabled = false;
-    this.seekFramesForwards = 1;
-    this.seekFramesBackwards = 1;
+    this._playing = true;
     this.layers = [];
+  }
+
+  static _deserialize(data, object) {
+    super._deserialize(data, object);
+
+    object.playheadPosition = data.playheadPosition;
+    object.activeLayerIndex = data.activeLayerIndex;
+    data.layers.forEach(layerData => {
+      object.addLayer(Wick.Layer.deserialize(layerData));
+    });
+    return object;
   }
   /* Getters */
 
@@ -2401,13 +2500,6 @@ Wick.Timeline = class extends Wick.Base {
       }
     });
     return length;
-  }
-
-  get onionSkinRange() {
-    return {
-      start: this.playheadPosition - this.seekFramesBackwards,
-      end: this.playheadPosition + this.seekFramesForwards
-    };
   }
 
   get activeLayer() {
@@ -2450,11 +2542,11 @@ Wick.Timeline = class extends Wick.Base {
   }
 
   advance() {
-    if (this.playing) {
+    if (this._playing) {
       this.playheadPosition++;
 
       if (this.playheadPosition > this.length) {
-        this.playheadPosition = 0;
+        this.playheadPosition = 1;
       }
     }
   }
@@ -2464,14 +2556,20 @@ Wick.Timeline = class extends Wick.Base {
     super.clone(object);
     object.playheadPosition = this.playheadPosition;
     object.activeLayerIndex = this.activeLayerIndex;
-    object.playing = this.playing;
-    object.onionSkinEnabled = this.onionSkinEnabled;
-    object.seekFramesForwards = this.seekFramesForwards;
-    object.seekFramesBackwards = this.seekFramesBackwards;
     this.layers.forEach(layer => {
       object.addLayer(layer.clone());
     });
     return object;
+  }
+
+  serialize() {
+    var data = super.serialize();
+    data.playheadPosition = this.playheadPosition;
+    data.activeLayerIndex = this.activeLayerIndex;
+    data.layers = this.layers.map(layer => {
+      return layer.serialize();
+    });
+    return data;
   }
 
 };
@@ -2506,6 +2604,20 @@ Wick.Tween = class extends Wick.Base {
     this.rotation = rotation === undefined ? 0 : rotation;
     this.fullRotations = fullRotations === undefined ? 0 : fullRotations;
     this.opacity = opacity === undefined ? 1 : opacity;
+  }
+
+  static _deserialize(data, object) {
+    super._deserialize(data, object);
+
+    object.playheadPosition = data.playheadPosition;
+    object.x = data.x;
+    object.y = data.y;
+    object.scaleX = data.scaleX;
+    object.scaleY = data.scaleY;
+    object.rotation = data.rotation;
+    object.fullRotations = data.fullRotations;
+    object.opacity = data.opacity;
+    return object;
   }
 
   static get TWEEN_VALUE_NAMES() {
@@ -2571,6 +2683,19 @@ Wick.Tween = class extends Wick.Base {
     return object;
   }
 
+  serialize() {
+    var data = super.serialize();
+    data.playheadPosition = this.playheadPosition;
+    data.x = this.x;
+    data.y = this.y;
+    data.scaleX = this.scaleX;
+    data.scaleY = this.scaleY;
+    data.rotation = this.rotation;
+    data.fullRotations = this.fullRotations;
+    data.opacity = this.opacity;
+    return data;
+  }
+
 };
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
@@ -2598,6 +2723,14 @@ Wick.Asset = class extends Wick.Base {
     this.filename = filename;
     this._src = null;
     this.onload = null;
+  }
+
+  static _deserialize(data, object) {
+    super._deserialize(data, object);
+
+    object.filename = data.filename;
+    object.src = data.src;
+    return object;
   }
   /* Getters */
 
@@ -2630,6 +2763,13 @@ Wick.Asset = class extends Wick.Base {
     return object;
   }
 
+  serialize() {
+    var data = super.serialize();
+    data.src = this.src;
+    data.filename = this.filename;
+    return data;
+  }
+
 };
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
@@ -2655,6 +2795,12 @@ Wick.ImageAsset = class extends Wick.Asset {
   constructor() {
     super();
     this.html5Image = null;
+  }
+
+  static _deserialize(data, object) {
+    super._deserialize(data, object);
+
+    return object;
   }
   /* Getters */
 
@@ -2701,6 +2847,11 @@ Wick.ImageAsset = class extends Wick.Asset {
     return object;
   }
 
+  serialize() {
+    var data = super.serialize();
+    return data;
+  }
+
 };
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
@@ -2727,6 +2878,12 @@ Wick.SoundAsset = class extends Wick.Asset {
     super();
     this.html5Sound = null;
     this._loaded = false;
+  }
+
+  static _deserialize(data, object) {
+    super._deserialize(data, object);
+
+    return object;
   }
   /* Getters */
 
@@ -2769,6 +2926,11 @@ Wick.SoundAsset = class extends Wick.Asset {
     return object;
   }
 
+  serialize() {
+    var data = super.serialize();
+    return data;
+  }
+
 };
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
@@ -2793,8 +2955,15 @@ Wick.SoundAsset = class extends Wick.Asset {
 Wick.SymbolPrototypeAsset = class extends Wick.Asset {
   constructor() {
     super();
-    this.timeline = null;
+    this.timeline = new Wick.Timeline();
     this.linkedSymbols = [];
+  }
+
+  static _deserialize(data, object) {
+    super._deserialize(data, object);
+
+    object.timeline = Wick.Timeline.deserialize(data.timeline);
+    return object;
   }
   /* Getters */
 
@@ -2863,8 +3032,13 @@ Wick.SymbolPrototypeAsset = class extends Wick.Asset {
     if (!object) object = new Wick.SymbolPrototypeAsset();
     super.clone(object);
     object.timeline = this.timeline.clone();
-    object.type = this.type;
     return object;
+  }
+
+  serialize() {
+    var data = super.serialize();
+    data.timeline = this.timeline.serialize();
+    return data;
   }
 
 };
@@ -2892,6 +3066,12 @@ Wick.ButtonPrototypeAsset = class extends Wick.SymbolPrototypeAsset {
   constructor() {
     super();
   }
+
+  static _deserialize(data, object) {
+    super._deserialize(data, object);
+
+    return object;
+  }
   /* Getters */
 
 
@@ -2913,6 +3093,11 @@ Wick.ButtonPrototypeAsset = class extends Wick.SymbolPrototypeAsset {
     if (!object) object = new Wick.ButtonPrototypeAsset();
     super.clone(object);
     return object;
+  }
+
+  serialize() {
+    var data = super.serialize();
+    return data;
   }
 
 };
@@ -2943,15 +3128,18 @@ Wick.Tickable = class extends Wick.Base {
     this._onscreen = false;
     this._onscreenLastTick = false;
   }
+
+  static _deserialize(data, object) {
+    super._deserialize(data, object);
+
+    object.identifier = data.identifier;
+    return object;
+  }
   /* Getters */
 
 
   get classname() {
     return 'Tickable';
-  }
-
-  get onScreen() {
-    return this.parent.onScreen;
   }
   /* Setters */
 
@@ -2997,6 +3185,12 @@ Wick.Tickable = class extends Wick.Base {
     return object;
   }
 
+  serialize() {
+    var data = super.serialize();
+    data.identifier = this.identifier;
+    return data;
+  }
+
 };
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
@@ -3019,29 +3213,44 @@ Wick.Tickable = class extends Wick.Base {
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
 Wick.Frame = class extends Wick.Tickable {
-  static get ONION_SKIN_BASE_OPACITY() {
-    return 0.5;
-  }
-
   constructor(start, end) {
     super();
     this.start = start || 1;
     this.end = end || this.start;
     this.script = null;
     this.groups = [];
-    this.svg = null;
+    this._svgString = '';
+    this._svgDom = null;
+    this._svgDirty = false;
     this.tweens = [];
+    this._soundAssetUUID = null;
+    this._soundWantsToPlay = false;
+    this._soundWantsToStop = false;
+    this._soundStartOffsetMS = 0;
     this.setScript(new Wick.Script());
+  }
+
+  static _deserialize(data, object) {
+    super._deserialize(data, object);
+
+    object.start = data.start;
+    object.end = data.end;
+    object.script = Wick.Script.deserialize(data.script);
+    data.groups.forEach(groupData => {
+      object.addGroup(Wick.Group.deserialize(groupData));
+    });
+    object.svg = data.svg;
+    object._soundAssetUUID = data.sound;
+    data.tweens.forEach(tweenData => {
+      object.addTween(Wick.Tween.deserialize(tweenData));
+    });
+    return object;
   }
   /* Getters */
 
 
   get classname() {
     return 'Frame';
-  }
-
-  get onScreen() {
-    return this.inPosition(this.parentTimeline.playheadPosition);
   }
 
   get length() {
@@ -3052,24 +3261,46 @@ Wick.Frame = class extends Wick.Tickable {
     return this.start + (this.end - this.start) / 2;
   }
 
-  get parentLayer() {
-    return this.parent;
+  get svg() {
+    return this._svgString;
   }
 
-  get parentTimeline() {
-    return this.parentLayer.parent;
+  get sound() {
+    var uuid = this._soundAssetUUID;
+    return uuid ? this.project.assets[uuid] : null;
   }
 
-  get onionSkinned() {
-    if (this.inPosition(this.parentTimeline.playheadPosition)) {
-      return false;
-    } else {
-      var range = this.parentTimeline.onionSkinRange;
-      return this.inRange(range.start, range.end);
-    }
+  get contentful() {
+    if (this.groups.length > 0) return true;
+    if (this._svgString === '') return false;
+
+    this._parseSVG();
+
+    return this._svgDom.children[0].children.length > 0;
+  }
+
+  get soundWantsToPlay() {
+    return this._soundWantsToPlay;
+  }
+
+  get soundWantsToStop() {
+    return this._soundWantsToStop;
+  }
+
+  get soundStartOffsetMS() {
+    return this._soundStartOffsetMS;
   }
   /* Setters */
 
+
+  set svg(svgString) {
+    this._svgString = svgString;
+    this._svgDirty = true;
+  }
+
+  set sound(soundAsset) {
+    this._soundAssetUUID = soundAsset.uuid;
+  }
   /* Methods */
 
 
@@ -3081,30 +3312,8 @@ Wick.Frame = class extends Wick.Tickable {
     return this.inPosition(start) || this.inPosition(end) || this.start >= start && this.start <= end || this.end >= start && this.end <= end;
   }
 
-  onionSkinAmount(seekBackwards, seekForwards, playheadPosition) {
-    var dist = playheadPosition - this.midpoint;
-    var ratio;
-
-    if (dist < 0) {
-      dist = -dist;
-      ratio = dist / seekBackwards;
-    } else {
-      ratio = dist / seekForwards;
-    }
-
-    return 1 - ratio;
-  }
-
-  onionSkinOpacity() {
-    if (!this.onionSkinned) {
-      return 1;
-    } else {
-      var playheadPosition = this.parentTimeline.playheadPosition;
-      var start = this.parentTimeline.onionSkinStart;
-      var end = this.parentTimeline.onionSkinEnd;
-      var onionSkinAmount = this.onionSkinAmount(start, end, playheadPosition);
-      return onionSkinAmount * Wick.Frame.ONION_SKIN_BASE_OPACITY;
-    }
+  onScreen() {
+    return this.inPosition(this.parent.parent.playheadPosition);
   }
 
   addGroup(group) {
@@ -3153,6 +3362,11 @@ Wick.Frame = class extends Wick.Tickable {
     super.onActivated();
     this.script.run();
     this.script.runFn('load');
+
+    if (this.sound) {
+      this._soundWantsToPlay = true;
+      this._soundStartOffsetMS = this._calculateSoundStartOffsetMS();
+    }
   }
 
   onActive() {
@@ -3162,6 +3376,7 @@ Wick.Frame = class extends Wick.Tickable {
 
   onDeactivated() {
     super.onDeactivated();
+    this._soundWantsToStop = true;
   }
 
   clone(object) {
@@ -3174,10 +3389,42 @@ Wick.Frame = class extends Wick.Tickable {
       object.addGroup(group.clone());
     });
     object.svg = this.svg;
+    object._soundAssetUUID = this._soundAssetUUID;
     this.tweens.forEach(tween => {
       object.addTween(tween.clone());
     });
     return object;
+  }
+
+  serialize() {
+    var data = super.serialize();
+    data.start = this.start;
+    data.end = this.end;
+    data.script = this.script.serialize();
+    data.groups = this.groups.map(group => {
+      return group.serialize();
+    });
+    data.svg = this._svgString;
+    data.sound = this._soundAssetUUID;
+    data.tweens = this.tweens.map(tween => {
+      return tween.serialize();
+    });
+    return data;
+  }
+
+  _parseSVG() {
+    if (this._svgDom === null || this._svgDirty) {
+      this._svgDirty = false;
+      var parser = new DOMParser();
+      var doc = parser.parseFromString(this._svgString, "application/xml");
+      this._svgDom = doc;
+    }
+  }
+
+  _calculateSoundStartOffsetMS() {
+    var offsetFrames = this.parent.parent.playheadPosition - this.start;
+    var offsetMS = offsetFrames * 1000 / this.project.framerate;
+    return offsetMS;
   }
 
 };
@@ -3212,6 +3459,19 @@ Wick.Group = class extends Wick.Tickable {
     this.scaleY = 1;
     this.rotation = 0;
     this.opacity = 1;
+  }
+
+  static _deserialize(data, object) {
+    super._deserialize(data, object);
+
+    object.x = data.x;
+    object.y = data.y;
+    object.scaleX = data.scaleX;
+    object.scaleY = data.scaleY;
+    object.rotation = data.rotation;
+    object.opacity = data.opacity;
+    object.setTimeline(Wick.Timeline.deserialize(data.timeline));
+    return object;
   }
   /* Getters */
 
@@ -3274,6 +3534,18 @@ Wick.Group = class extends Wick.Tickable {
     return object;
   }
 
+  serialize() {
+    var data = super.serialize();
+    data.x = this.x;
+    data.y = this.y;
+    data.scaleX = this.scaleX;
+    data.scaleY = this.scaleY;
+    data.rotation = this.rotation;
+    data.opacity = this.opacity;
+    data.timeline = this.timeline.serialize();
+    return data;
+  }
+
 };
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
@@ -3299,6 +3571,12 @@ Wick.Clip = class extends Wick.Group {
   constructor() {
     super();
   }
+
+  static _deserialize(data, object) {
+    super._deserialize(data, object);
+
+    return object;
+  }
   /* Getters */
 
   /* Setters */
@@ -3316,21 +3594,47 @@ Wick.Clip = class extends Wick.Group {
 
   onActivated() {
     super.onActivated();
+
+    this._tickChildren();
   }
 
   onActive() {
     super.onActive();
     this.timeline.advance();
+
+    this._tickChildren();
   }
 
   onDeactivated() {
     super.onDeactivated();
+
+    this._tickChildren();
+  }
+
+  _tickChildren() {
+    this.timeline.layers.forEach(layer => {
+      layer.frames.forEach(frame => {
+        frame.tick();
+        frame.groups.forEach(group => {
+          group.tick();
+        });
+      });
+    });
+  }
+
+  onScreen() {
+    return this.parent.onScreen;
   }
 
   clone(object) {
     if (!object) object = new Wick.Clip();
     super.clone(object);
     return object;
+  }
+
+  serialize() {
+    var data = super.serialize();
+    return data;
   }
 
 };
@@ -3359,6 +3663,13 @@ Wick.Symbol = class extends Wick.Clip {
     super();
     this.script = null;
     this.setScript(new Wick.Script());
+  }
+
+  static _deserialize(data, object) {
+    super._deserialize(data, object);
+
+    object.setScript(Wick.Script.deserialize(data.script));
+    return object;
   }
   /* Getters */
 
@@ -3407,6 +3718,12 @@ Wick.Symbol = class extends Wick.Clip {
     return object;
   }
 
+  serialize() {
+    var data = super.serialize();
+    data.script = this.script.serialize();
+    return data;
+  }
+
 };
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
@@ -3435,6 +3752,12 @@ Wick.Button = class extends Wick.Symbol {
     this._mouseDown = false;
     this._mouseJustEntered = false;
     this._mouseJustClicked = false;
+  }
+
+  static _deserialize(data, object) {
+    super._deserialize(data, object);
+
+    return object;
   }
   /* Getters */
 
@@ -3506,6 +3829,11 @@ Wick.Button = class extends Wick.Symbol {
     if (!object) object = new Wick.Button(this.prototypeAsset);
     super.clone(object);
     return object;
+  }
+
+  serialize() {
+    var data = super.serialize();
+    return data;
   }
 
 };

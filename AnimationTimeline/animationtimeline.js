@@ -31,13 +31,39 @@ var AnimationTimeline = new (function ft () {
     var EDGE_DRAG_TOLERANCE = 5;
     var LAYERS_GUI_WIDTH = 80;
     var NUMBER_LINE_HEIGHT = 15;
-    var LAYERS_WIDTH = 100;
+    var LAYERS_WIDTH = 140;
+    var LAYER_NAME_LEFT_PADDING = 70;
+    var LOCK_BUTTON_OFFSET = 0;
+    var HIDE_BUTTON_OFFSET = 25;
+    var LAYER_BUTTON_PADDING = 25;
+    var LAYER_BUTTON_SPACING = LAYER_NAME_LEFT_PADDING/3;
     var TWEEN_ICON_SIZE = 10;
     var TWEEN_ICON_HEIGHT = GRID_CELL_HEIGHT * 2/3;
     var BUTTON_SIZE = 15;
-    var LOCK_BUTTON_OFFSET = 0;
-    var HIDE_BUTTON_OFFSET = 25;
 
+    // Create Custom load image and draw image function because html5 images
+    // are very difficult to work with...
+    function drawImageInBounds(img, bounds) {
+      if (img.ready) {
+        ctx.drawImage(img, bounds.left, bounds.top, bounds.width, bounds.height);
+      }
+    }
+
+    function loadImage (src) {
+      var img = new Image();
+      img.onload = function () {
+        img.ready = true;
+        self.repaint();
+      }
+      img.src = src;
+      return img
+    }
+
+    // Load image icons
+    var ICON_LOCK = loadImage("./resources/lock.png");
+    var ICON_EYE = loadImage("./resources/eye.png");
+
+    // Load interface colors
     var interfaceDark = '#444';
     var interfaceMidDark = '#666';
     var interfaceMedium = '#888';
@@ -76,6 +102,8 @@ var AnimationTimeline = new (function ft () {
     var onSoftChangeFn;
     var onSelectionChangeFn;
 
+    var onionButton;
+
     self.setup = function (_elem, callback) {
         elem = _elem;
         elem.style.position = 'relative';
@@ -112,6 +140,23 @@ var AnimationTimeline = new (function ft () {
             self.repaint();
         });
 
+        onionButton = document.createElement('div');
+        onionButton.className = 'onion-skin-button';
+
+        // Update onionButton Style
+        onionButton.style.top = "0px";
+        onionButton.style.left = (LAYERS_WIDTH-20)+"px";
+
+        onionButton.onclick = function () {
+            numberline.onionSkinEnabled = !numberline.onionSkinEnabled;
+            self.rebuild();
+            self.repaint();
+            onChangeFn&&onChangeFn({
+                onionSkinEnabled: numberline.onionSkinEnabled
+            });
+        }
+        elem.appendChild(onionButton);
+
         attachMouseEvents();
 
         ctx = canvas.getContext('2d');
@@ -123,6 +168,12 @@ var AnimationTimeline = new (function ft () {
       canvas.width = $(canvas)[0].clientWidth * window.devicePixelRatio;
       canvas.height = $(canvas)[0].clientHeight * window.devicePixelRatio;
       self.repaint();
+    }
+
+    self.rebuild = function () {
+        let selected = "white";
+        let deselected = "gray";
+        onionButton.style.backgroundColor = numberline.onionSkinEnabled ? selected : deselected;
     }
 
     self.repaint = function () {
@@ -169,6 +220,12 @@ var AnimationTimeline = new (function ft () {
             playhead.repaint();
         ctx.restore();
 
+        ctx.fillStyle = interfaceDark;
+        ctx.fillRect(0, 0, LAYERS_WIDTH, canvas.height);
+
+        ctx.fillStyle = '#000';
+        ctx.fillRect(0, 0, LAYERS_WIDTH, NUMBER_LINE_HEIGHT);
+
         ctx.save();
         ctx.translate(0, NUMBER_LINE_HEIGHT);
         ctx.translate(0, scroll.y);
@@ -188,7 +245,7 @@ var AnimationTimeline = new (function ft () {
         playhead.position = data.playheadPosition;
         activeLayerIndex = data.activeLayerIndex;
 
-        numberline.onionEnabled = data.onionSkinEnabled;
+        numberline.onionSkinEnabled = data.onionSkinEnabled;
         numberline.seekForwards = data.onionSkinSeekForwards;
         numberline.seekBackwards = data.onionSkinSeekBackwards;
 
@@ -207,6 +264,7 @@ var AnimationTimeline = new (function ft () {
                     layer: layer,
                     selected: frameData.selected,
                     contentful: frameData.contentful,
+                    hasSound: frameData.hasSound,
                 });
                 frame.tweens = frameData.tweens.map(tweenData => {
                     var tween = new Tween({
@@ -221,6 +279,8 @@ var AnimationTimeline = new (function ft () {
             });
             return layer;
         });
+
+        self.rebuild();
     }
 
     self.onChange = function (fn) {
@@ -370,7 +430,7 @@ var AnimationTimeline = new (function ft () {
                 itemName = 'NumberLine';
             } else if (e.y < 0) {
                 var f = Math.floor(e.x / GRID_CELL_WIDTH) + 1;
-                if(numberline.onionEnabled) {
+                if(numberline.onionSkinEnabled) {
                     if(f === playhead.position - numberline.seekBackwards) {
                         itemName = 'OnionSeekStart';
                     } else if (f === playhead.position + numberline.seekForwards) {
@@ -484,7 +544,7 @@ var AnimationTimeline = new (function ft () {
 
         // Button body
         ctx.beginPath();
-        ctx.fillStyle = this.isToggledFn() ? 'green' : 'red';
+        ctx.fillStyle = this.isToggledFn() ? 'white' : 'gray';
         ctx.rect(this.bounds.left,
                  this.bounds.top,
                  this.bounds.width,
@@ -492,17 +552,96 @@ var AnimationTimeline = new (function ft () {
         ctx.fill();
         ctx.closePath();
 
-        // Icon
+        // Draw HTML 5 Element Icon
+        if (this.icon === "lock") {
+          this.drawLock(this.bounds);
+        } else if (this.icon === "eye") {
+          this.drawEye(this.bounds);
+        }
 
+    }
+
+    Button.prototype.drawLock = function (bounds) {
+      // Determine Bounds of Lock based on bounds of incoming space.
+      let handleSizeAmt = .25;
+      let handleSize = bounds.width * handleSizeAmt;
+
+      let handleSpacingAmt = (1-handleSizeAmt)/2;
+      let handleSpacing = bounds.width * handleSpacingAmt;
+
+      let lockSizeAmt = .45;
+      let lockSize = bounds.width * lockSizeAmt;
+
+      let lockSpacingAmt = (1-lockSizeAmt)/2;
+      lockSpacing = bounds.width * lockSpacingAmt;
+
+      let handleX = bounds.left + handleSpacing;
+      let handleY = bounds.top + handleSpacing/2;
+
+      let lockX = bounds.left + lockSpacing;
+      let lockY = handleY + handleSize;
+
+      let dot
+
+      // Handle
+      ctx.beginPath();
+        ctx.rect(handleX,
+                 handleY,
+                 handleSize,
+                 handleSize);
+        ctx.strokeStyle = 'black';
+        ctx.stroke();
+      ctx.closePath();
+
+      // Lock Body
+      ctx.beginPath();
+        ctx.rect(lockX,
+                 lockY,
+                 lockSize,
+                 lockSize);
+       ctx.strokeStyle = 'black';
+       ctx.stroke();
+     ctx.closePath();
+
+     // Key Hole
+     ctx.beginPath();
+       ctx.arc(lockX + lockSize/2, lockY + lockSize/2, lockSize/8, 0, 2 * Math.PI, false);
+       ctx.strokeStyle = 'black';
+       ctx.stroke();
+     ctx.closePath();
+    }
+
+    Button.prototype.drawEye = function (bounds) {
+
+      let centerX = bounds.left + bounds.width/2;
+      let centerY = bounds.top + bounds.height/2;
+
+      let innerEyeSize = bounds.width/8;
+      let outerEyeSize = bounds.width/3;
+
+     // Key Hole
+     ctx.beginPath();
+       ctx.arc(centerX, centerY, innerEyeSize, 0, 2 * Math.PI, false);
+       ctx.fillStyle = 'black';
+       ctx.fill();
+       ctx.strokeStyle = 'black';
+       ctx.stroke();
+     ctx.closePath();
+
+     ctx.beginPath();
+       ctx.arc(centerX, centerY, outerEyeSize, 0, 2 * Math.PI, false);
+       ctx.strokeStyle = 'black';
+       ctx.stroke();
+     ctx.closePath();
     }
 
     Button.prototype.regenBounds = function () {
         this.bounds = {};
 
-        this.bounds.top = this.layer.getIndex() * GRID_CELL_HEIGHT;
-        this.bounds.left = this.offset;
+        this.bounds.top = this.y - BUTTON_SIZE/2;
+        this.bounds.left = this.x;
         this.bounds.bottom = this.bounds.top + BUTTON_SIZE;
-        this.bounds.right = this.offset + BUTTON_SIZE;
+        this.bounds.right = this.bounds.left + BUTTON_SIZE;
 
         this.bounds.width = this.bounds.right - this.bounds.left;
         this.bounds.height = this.bounds.bottom - this.bounds.top;
@@ -518,31 +657,34 @@ var AnimationTimeline = new (function ft () {
         this.frames = args.frames || [];
         this.label = args.label;
 
-        /*var self = this;
+        var self = this;
         this.lockButton = new Button({
             clickFn: function () {
                 self.locked = !self.locked;
+                onChangeFn&&onChangeFn({
+                    layers: [self],
+                });
             },
             isToggledFn: function () {
                 return self.locked;
             },
-            offset: LOCK_BUTTON_OFFSET,
-            icon: '',
+            icon: "lock",
             layer: this,
         });
         this.hideButton = new Button({
             clickFn: function () {
                 self.hidden = !self.hidden;
+                onChangeFn&&onChangeFn({
+                    layers: [self],
+                });
             },
             isToggledFn: function () {
                 return self.hidden;
             },
-            offset: HIDE_BUTTON_OFFSET,
-            icon: '',
+            icon: "eye",
             layer: this,
         });
-        this.buttons = [this.lockButton, this.hideButton];*/
-        this.buttons = [];
+        this.buttons = [this.lockButton, this.hideButton];
 
         this.dragging = false;
         this.draggingOffset = 0;
@@ -564,21 +706,39 @@ var AnimationTimeline = new (function ft () {
             1.5,
             true, true);
 
+        // Layer Name Text
         ctx.fillStyle = 'white';
         ctx.font = "12px Arial";
-        var padding = 3;
-        ctx.fillText(this.label, 9, this.getIndex() * GRID_CELL_HEIGHT + GRID_CELL_HEIGHT/1.5);
+        let layerNamePosition = this.getLayerNamePosition();
+        ctx.fillText(this.label, layerNamePosition.x, layerNamePosition.y);
 
         // Buttons
-        this.buttons.forEach(button => {
-            button.repaint();
-        });
+        this.drawLayerButtons();
+    }
 
-        // Active layer effect
-        /*if(this.getIndex() === activeLayerIndex) {
-            ctx.fillStyle = 'green';
-            ctx.fillRect(0, this.getIndex()*GRID_CELL_HEIGHT + GRID_CELL_HEIGHT/2, 10, 10);
-        }*/
+    Layer.prototype.drawLayerButtons = function () {
+      for (let i=0; i<this.buttons.length; i++) {
+        let button = this.buttons[i];
+
+        let x = LAYER_BUTTON_PADDING + LAYER_BUTTON_SPACING*i;
+        let y = this.getLayerCenter();
+
+        button.x = x;
+        button.y = y;
+
+        button.repaint();
+      }
+    }
+
+    Layer.prototype.getLayerNamePosition = function () {
+      let layerNamePosition = {};
+      layerNamePosition.x = LAYER_NAME_LEFT_PADDING;
+      layerNamePosition.y = this.getLayerCenter() + GRID_CELL_HEIGHT*.15;
+      return layerNamePosition;
+    }
+
+    Layer.prototype.getLayerCenter = function () {
+      return this.getIndex() * GRID_CELL_HEIGHT + GRID_CELL_HEIGHT*.5;
     }
 
     Layer.prototype.repaintDropGhost = function () {
@@ -634,6 +794,7 @@ var AnimationTimeline = new (function ft () {
         this.layer = args.layer;
         this.tweens = args.tweens || [];
         this.contentful = args.contentful;
+        this.hasSound = args.hasSound;
 
         this.state = args.selected ? 'selected' : 'inactive';
 
@@ -696,6 +857,19 @@ var AnimationTimeline = new (function ft () {
             this.bounds.height - shrink,
             2,
             true, true);
+        if(this.hasSound) {
+            ctx.save();
+            ctx.translate(this.bounds.left + this.draggingOffset.x,
+                          this.bounds.top + this.draggingOffset.y);
+                roundRect(ctx,
+                    0,
+                    0,
+                    15,
+                    15,
+                    2,
+                    true, true);
+            ctx.restore();
+        }
         ctx.stroke();
         ctx.fill();
         ctx.closePath();
@@ -808,9 +982,15 @@ var AnimationTimeline = new (function ft () {
     }
 
     Frame.prototype.isValid = function () {
-        if(this.start <= 0 || this.end <= 0) {
+        if (this.start <= 0 || this.end <= 0) { // Frame off screen
             return false;
+        } else if (this.start > this.end) { // Left to Right Inverted Frame
+          return false;
+        } else if (this.end < this.start) { // Right to Left Inverted Frame
+          return false;
         }
+
+        // Ensure the frame is not on top of another frame
         var onTopOfOtherFrame = false;
         var self = this;
         allFrames().filter(function (frame) {
@@ -820,6 +1000,7 @@ var AnimationTimeline = new (function ft () {
                 onTopOfOtherFrame = true;
             }
         });
+
         return !onTopOfOtherFrame;
     }
 
@@ -997,7 +1178,7 @@ var AnimationTimeline = new (function ft () {
 /* NumberLine */
 
     function Numberline () {
-        this.onionEnabled = false;
+        this.onionSkinEnabled = false;
 
         this.seekForwards = null;
         this.seekBackwards = null;
@@ -1007,7 +1188,7 @@ var AnimationTimeline = new (function ft () {
     }
 
     Numberline.prototype.repaint = function () {
-        var offset = Math.round(-scroll.x/GRID_CELL_WIDTH);
+        var offset = Math.round(-scroll.x/GRID_CELL_WIDTH)-1;
 
         ctx.save();
             ctx.translate(-scroll.x, 0);
@@ -1038,7 +1219,7 @@ var AnimationTimeline = new (function ft () {
             ctx.closePath();
         }
 
-        if(this.onionEnabled) {
+        if(this.onionSkinEnabled) {
             ctx.fillStyle = 'blue';
 
             var p = playhead.position-1;
@@ -1061,12 +1242,14 @@ var AnimationTimeline = new (function ft () {
     Numberline.prototype.dropSeekStart = function () {
         var d = Math.round(numberline.seekBackwardsDragOffset/GRID_CELL_WIDTH);
         this.seekBackwards -= d;
+        this.seekBackwards = Math.max(this.seekBackwards, 0);
         this.seekBackwardsDragOffset = 0;
     }
 
     Numberline.prototype.dropSeekEnd = function () {
         var d = Math.round(numberline.seekForwardsDragOffset/GRID_CELL_WIDTH);
         this.seekForwards += d;
+        this.seekForwards = Math.max(this.seekForwards, 0);
         this.seekForwardsDragOffset = 0;
     }
 
@@ -1274,6 +1457,9 @@ var AnimationTimeline = new (function ft () {
 
     self.onOnionSeekStartMouseUp = function (e) {
         numberline.dropSeekStart();
+        onChangeFn&&onChangeFn({
+            onionSkinSeekBackwards: numberline.seekBackwards
+        });
     }
 
     // Onion seek end
@@ -1292,6 +1478,9 @@ var AnimationTimeline = new (function ft () {
 
     self.onOnionSeekEndMouseUp = function (e) {
         numberline.dropSeekEnd();
+        onChangeFn&&onChangeFn({
+            onionSkinSeekForwards: numberline.seekForwards
+        });
     }
 
     // BlankFrame
@@ -1457,8 +1646,13 @@ var AnimationTimeline = new (function ft () {
     }
 
     self.onFrameLeftEdgeMouseDrag = function (e) {
-        // Round to nearest cell to snap to grid
-        e.frame.leftDragOffset = Math.round(e.delta.x / GRID_CELL_WIDTH) * GRID_CELL_WIDTH;
+        var cellsDragged = Math.round(e.delta.x / GRID_CELL_WIDTH);
+
+        // Prevent 'inside out' frame
+        if(e.frame.start + cellsDragged > e.frame.end) {
+            cellsDragged = e.frame.end - e.frame.start;
+        }
+        e.frame.leftDragOffset = cellsDragged * GRID_CELL_WIDTH;
 
         playhead.position = e.frame.start + XYToRowCol(e.frame.leftDragOffset).col;
     }
@@ -1488,8 +1682,13 @@ var AnimationTimeline = new (function ft () {
     }
 
     self.onFrameRightEdgeMouseDrag = function (e) {
-        // Round to nearest cell to snap to grid
-        e.frame.rightDragOffset = Math.round(e.delta.x / GRID_CELL_WIDTH) * GRID_CELL_WIDTH;
+        var cellsDragged = Math.round(e.delta.x / GRID_CELL_WIDTH);
+
+        // Prevent 'inside out' frame
+        if(e.frame.end + cellsDragged < e.frame.start) {
+            cellsDragged = e.frame.start - e.frame.end;
+        }
+        e.frame.rightDragOffset = cellsDragged * GRID_CELL_WIDTH;
 
         playhead.position = e.frame.end + XYToRowCol(e.frame.rightDragOffset).col;
     }

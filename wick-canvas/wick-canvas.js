@@ -15949,25 +15949,36 @@ class WickCanvas {
     this._projectView = null;
   }
 
-  render(wickProject) {
+  render(wickProject, options) {
+    options = options || {};
+
     if (!this._projectView) {
       this._projectView = new WickCanvas.Project(wickProject);
     }
 
-    this._projectView.render(wickProject);
+    this._projectView.render(wickProject, options);
 
     paper.project.clear();
     paper.project.addLayer(this._projectView._bgLayer);
 
     this._projectView._contentLayers.forEach(layer => {
       paper.project.addLayer(layer);
-    }); // Make sure the active layer in the paper project is the paths layer of the active wick frame
+    }); // Update view transforms
+
+
+    if (options.zoom) {
+      paper.view.zoom = options.zoom;
+    }
+
+    if (options.pan) {
+      paper.view.center = new paper.Point(options.pan.x, options.pan.y);
+    } // Make sure the active layer in the paper project is the paths layer of the active wick frame
     // (this is so that drawing tools will draw onto the correct frame)
 
 
     var activeFrame = wickProject.focus.timeline.activeLayer.activeFrame;
 
-    if (activeFrame) {
+    if (activeFrame && !activeFrame.parent.hidden) {
       var activeFrameUUID = activeFrame.uuid;
       paper.project.layers['wick_frame_' + activeFrameUUID + '_paths'].activate();
     }
@@ -16011,8 +16022,16 @@ WickCanvas.Frame = class {
   static applyChanges(wickFrame, layer) {
     if (layer.data.type === 'groups') {
       // Reorder groups
-      // TODO
-      // Update group transforms
+      var groups = wickFrame.groups.concat([]);
+      groups.forEach(group => {
+        wickFrame.removeGroup(group);
+      });
+      layer.children.forEach(child => {
+        wickFrame.addGroup(groups.find(g => {
+          return g.uuid === child.data.wickUUID;
+        }));
+      }); // Update group transforms
+
       layer.children.forEach(child => {
         var wickGroup = wickFrame._childByUUID(child.data.wickUUID);
 
@@ -16024,62 +16043,53 @@ WickCanvas.Frame = class {
         wickGroup.opacity = child.opacity;
       });
     } else if (layer.data.type === 'paths') {
-      // Replace hrefs with asset UUIDs
-      // TODO
-
-      /*svg[1].children.forEach(child => {
-          if(child[0] === 'Raster') {
-              child[1].source = child[1].asset;
-          }
-      });*/
-      // Export layer as SVG string
       var origName = layer.name;
       var origData = layer.data;
       layer.name = undefined;
       layer.data = undefined;
-      wickFrame.svg = layer.exportSVG({
-        asString: true
+      var svg = layer.exportSVG({
+        asString: false
       });
       layer.name = origName;
       layer.data = origData;
+
+      for (var i = 0; i < svg.children.length; i++) {
+        svg.children[i].setAttribute('href', '');
+      }
+
+      var container = document.createElement('div');
+      container.appendChild(svg);
+      wickFrame.svg = container.innerHTML;
     }
   }
 
-  render(wickFrame) {
-    this._renderPaths(wickFrame);
+  render(wickFrame, options) {
+    options = options || {};
 
-    this._renderGroups(wickFrame);
+    this._renderPaths(wickFrame, options);
+
+    this._renderGroups(wickFrame, options);
   }
 
-  _renderPaths(wickFrame) {
+  _renderPaths(wickFrame, options) {
     this._pathsLayer.removeChildren();
 
     if (wickFrame.svg) {
-      // TODO only do importJSON this when absolutely neccessary - this is the slowest part of the view.
-      // This only needs to happen when the model changes the 'paths' variable.
-      // That happens when History.undo/redo is called.
-      // We could:
-      // Set a 'dirty' flag on undo/redo
-      // Check to see if wickFrame.pathsSVG changed right here in FrameView (would that be slow?)
       this._pathsLayer.importSVG(wickFrame.svg);
 
       this._pathsLayer.addChildren(this._pathsLayer.children[0].removeChildren());
 
-      this._pathsLayer.children[0].remove(); // TODO Load asset dataURLs into rasters
+      this._pathsLayer.children[0].remove();
 
-      /*var paths = JSON.parse(wickFrame.pathsSVG);
-      paths[1].children.forEach(child => {
-          if(child[0] === 'Raster') {
-              var assetUUID = child[1].data.asset;
-              var asset = wickFrame.project._childByUUID(assetUUID);
-              child[1].source = asset.src;
-          }
-      });*/
-
+      this._pathsLayer.children.forEach(child => {
+        if (child.className === 'Raster') {
+          child.source = wickFrame.project.assets[child.data.asset].src;
+        }
+      });
     }
   }
 
-  _renderGroups(wickFrame) {
+  _renderGroups(wickFrame, options) {
     this._groupsLayer.removeChildren();
 
     var self = this;
@@ -16091,7 +16101,7 @@ WickCanvas.Frame = class {
         self._groupsViewCache[group.uuid] = view;
       }
 
-      view.render(group);
+      view.render(group, options);
 
       self._groupsLayer.addChild(view._group);
     });
@@ -16112,7 +16122,9 @@ WickCanvas.Group = class {
     };
   }
 
-  render(wickGroup) {
+  render(wickGroup, options) {
+    options = options || {};
+
     if (!this._timelineView) {
       this._timelineView = new WickCanvas.Timeline(wickGroup.timeline);
     }
@@ -16143,19 +16155,19 @@ WickCanvas.Layer = class {
     this._onionFrameLayers = [];
   }
 
-  render(wickLayer) {
-    var self = this;
+  render(wickLayer, options) {
+    options = options || {
+      playheadPosition: 1
+    };
+    var self = this; // Add active frame layers
+
     this._frameLayers = [];
-    var wickFrame = wickLayer.activeFrame;
+    var wickFrame = wickLayer.getFrame(options.playheadPosition);
 
     if (wickFrame) {
       var frameView = self._framesCache[wickFrame.uuid];
-
-      if (!frameView) {
-        frameView = new WickCanvas.Frame(wickFrame);
-      }
-
-      frameView.render(wickFrame);
+      if (!frameView) frameView = new WickCanvas.Frame(wickFrame);
+      frameView.render(wickFrame, options);
 
       this._frameLayers.push(frameView._groupsLayer);
 
@@ -16164,19 +16176,18 @@ WickCanvas.Layer = class {
 
     this._frameLayers.forEach(layer => {
       layer.locked = wickLayer.locked;
-    });
+    }); // Add onion skinned frame layers
+
 
     this._onionFrameLayers = [];
 
-    if (wickLayer.parent && wickLayer.parent.onionSkinEnabled) {
-      wickLayer.onionSkinnedFrames.forEach(onionFrame => {
+    if (options.onionSkinEnabled) {
+      wickLayer.frames.filter(frame => {
+        return !frame.inPosition(options.playheadPosition) && frame.inRange(options.playheadPosition - options.onionSkinSeekBackwards, options.playheadPosition + options.onionSkinSeekForwards);
+      }).forEach(onionFrame => {
         var frameView = self._framesCache[onionFrame.uuid];
-
-        if (!frameView) {
-          frameView = new WickCanvas.Frame(onionFrame);
-        }
-
-        frameView.render(onionFrame);
+        if (!frameView) frameView = new WickCanvas.Frame(onionFrame);
+        frameView.render(onionFrame, options);
 
         this._onionFrameLayers.push(frameView._groupsLayer);
 
@@ -16185,6 +16196,7 @@ WickCanvas.Layer = class {
 
       this._onionFrameLayers.forEach(layer => {
         layer.locked = true;
+        layer.opacity = 0.3;
       });
     }
   }
@@ -16206,8 +16218,9 @@ WickCanvas.Project = class {
     this._contentLayers = [];
   }
 
-  render(wickProject) {
-    // Generate background layer
+  render(wickProject, options) {
+    options = options || {}; // Generate background layer
+
     this._bgLayer.removeChildren();
 
     this._bgLayer.locked = true;
@@ -16245,7 +16258,7 @@ WickCanvas.Project = class {
       this._timelineCache[wickTimeline.uuid] = timelineView;
     }
 
-    timelineView.render(wickTimeline);
+    timelineView.render(wickTimeline, options);
     this._contentLayers = [];
     this._contentLayers = this._contentLayers.concat(timelineView._onionSkinLayers);
     this._contentLayers = this._contentLayers.concat(timelineView._contentLayers);
@@ -16259,10 +16272,16 @@ WickCanvas.Timeline = class {
     this._onionSkinLayers = [];
   }
 
-  render(wickTimeline) {
+  render(wickTimeline, options) {
+    options = options || {};
+    options.playheadPosition = wickTimeline.playheadPosition;
     this._contentLayers = [];
+    this._onionSkinLayers = [];
     var self = this;
-    wickTimeline.layers.forEach(wickLayer => {
+    wickTimeline.layers.reduce((ary, ele) => {
+      ary.unshift(ele);
+      return ary;
+    }, []).forEach(wickLayer => {
       if (wickLayer.hidden) return;
       var layerView = self._layersCache[wickLayer.uuid];
 
@@ -16270,7 +16289,7 @@ WickCanvas.Timeline = class {
         layerView = new WickCanvas.Layer(wickLayer);
       }
 
-      layerView.render(wickLayer);
+      layerView.render(wickLayer, options);
       self._contentLayers = self._contentLayers.concat(layerView._frameLayers);
       self._onionSkinLayers = self._onionSkinLayers.concat(layerView._onionFrameLayers);
     });
