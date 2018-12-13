@@ -25,10 +25,10 @@ $icon-width: $inspector-row-height;
 $input-container-margin: 4px;
 $input-margin: calc(2*#{$inspector-element-margin});
 $input-space: calc(calc(100% - #{$icon-width}) - #{$input-margin});
-$single-input-size: $input-space;
+$single-input-size: 100%;
 $double-input-container-width: $input-space;
-$double-input-divider-width: calc(#{$input-space} * 0.1);
-$double-input-unit-width: calc(#{$input-space} * 0.45);
+$double-input-divider-width: 10%;
+$double-input-unit-width: 45%;
 
 
 
