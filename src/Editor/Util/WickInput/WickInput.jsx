@@ -34,6 +34,7 @@ class WickInput extends Component {
         <NumericInput
           style={false}
           className="wick-input"
+          precision={2}
           {...this.props}
           ></NumericInput>
       )
