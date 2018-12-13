@@ -32,16 +32,11 @@ import RowIcon from 'Editor/Util/RowIcon/RowIcon';
 // divider: boolean: show x or don't show x, default to show x.
 
 class InspectorInput extends Component {
+
   renderSingleComponent() {
     return (
-      <div className="inspector-row">
-        {/* Icon */}
-        <RowIcon type={this.props.icon}/>
-        {/* Input */}
-        <div  className="single-input-element inspector-input-element">
-          <WickInput {...this.props.input1}/>
-        </div>
-
+      <div  className="single-input-element inspector-input-element">
+        <WickInput {...this.props.input1}/>
       </div>
     )
   }
@@ -50,10 +45,6 @@ class InspectorInput extends Component {
     let divider = (this.props.divider || this.props.divider === undefined) ? "x" : "";
 
     return (
-      <div className="inspector-row">
-        {/* Icon */}
-        <RowIcon type={this.props.icon}/>
-        {/* Double Input*/}
         <div className="double-input">
           {/* Left Element */}
           <div className="double-input-element inspector-input-element">
@@ -66,16 +57,29 @@ class InspectorInput extends Component {
             <WickInput {...this.props.input2}/>
           </div>
         </div>
-      </div>
     )
   }
 
-  render() {
+  renderInputs() {
     if (this.props.input2 === undefined) {
       return(this.renderSingleComponent());
     } else {
       return(this.renderDoubleComponent());
     }
+  }
+
+  render() {
+    return (
+      <div className="inspector-row">
+        {/* Icon */}
+        <RowIcon type={this.props.icon}/>
+        {/* Input */}
+        <div className="inspector-input-container">
+          {this.renderInputs()}
+        </div>
+
+      </div>
+    )
   }
 }
 
