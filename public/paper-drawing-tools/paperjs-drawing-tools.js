@@ -4524,7 +4524,10 @@ paper.MultiSelection = class {
     exportGroup.remove();
 
     this._selectedItems.forEach(item => {
+      if (item.className === 'Group') return;
       var clone = item.clone();
+      clone.position.x -= this._selectionBounds.center.x;
+      clone.position.y -= this._selectionBounds.center.y;
       clone.name = undefined;
       exportGroup.addChild(clone);
     });
