@@ -62,19 +62,19 @@ class ConvertToSymbol extends Component {
 
   convertSelectionToSymbol () {
     let svg = window.paper.project.selection.exportSVG();
-    let groups = [] // get groups
+    let clips = [] // get groups
 
-    let symbol = new window.Wick.Symbol();
-    symbol.timeline.addLayer(new window.Wick.Layer());
-    symbol.timeline.layers[0].addFrame(new window.Wick.Frame());
-    symbol.timeline.layers[0].frames[0].svg = svg;
-    groups.forEach(group => {
-      symbol.timeline.layers[0].frames[0].addGroup(group);
+    let clip = new window.Wick.Clip();
+    clip.timeline.addLayer(new window.Wick.Layer());
+    clip.timeline.layers[0].addFrame(new window.Wick.Frame());
+    clip.timeline.layers[0].frames[0].svg = svg;
+    clips.forEach(clip => {
+      clip.timeline.layers[0].frames[0].addClip(clip);
     });
 
     window.paper.drawingTools.cursor.deleteSelectedItems();
 
-    this.props.project.focus.timeline.activeLayer.activeFrame.addGroup(symbol);
+    this.props.project.focus.timeline.activeLayer.activeFrame.addClip(clip);
     this.props.updateProject(this.props.project);
 
     this.props.toggle();

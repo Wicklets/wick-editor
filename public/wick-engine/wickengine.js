@@ -2372,6 +2372,7 @@ Wick.Script = class extends Wick.Base {
   constructor() {
     super();
     this.src = '';
+    this._apiWrapperObject = null;
   }
 
   static _deserialize(data, object) {
@@ -2392,24 +2393,40 @@ Wick.Script = class extends Wick.Base {
 
 
   run() {
-    if (!this.parent._wickFn) {
-      var src_js = this._convertWickFunctions();
-
-      this.parent._wickFn = Function('scopeObj', src_js);
+    if (!this._apiWrapperObject) {
+      this._apiWrapperObject = new Wick.Script.API.Clip(this.parent);
     }
 
-    return this.parent._wickFn(this.parent);
+    if (!this._apiWrapperObject._wickFn) {
+      var src_js = this._convertWickFunctions();
+
+      this._apiWrapperObject._wickFn = Function('scopeObj', src_js);
+    }
+
+    this._apiWrapperObject._attachGlobals();
+
+    var result = this._apiWrapperObject._wickFn(this._apiWrapperObject);
+
+    this._apiWrapperObject._cleanupGlobals();
+
+    return result;
   }
 
   runFn(fn) {
-    var fullFnName = Wick.Script.WICK_SCRIPT_FN_PREFIX + fn;
-
-    if (!this.parent._wickFn) {
+    if (!this._apiWrapperObject || !this._apiWrapperObject._wickFn) {
       this.run();
     }
 
-    if (this.parent[fullFnName]) {
-      return this.parent[fullFnName](this.parent);
+    var fullFnName = Wick.Script.WICK_SCRIPT_FN_PREFIX + fn;
+
+    if (this._apiWrapperObject[fullFnName]) {
+      this._apiWrapperObject._attachGlobals();
+
+      var result = this._apiWrapperObject[fullFnName](this._apiWrapperObject);
+
+      this._apiWrapperObject._cleanupGlobals();
+
+      return result;
     }
   }
 
@@ -2464,12 +2481,161 @@ Wick.Script = class extends Wick.Base {
 * You should have received a copy of the GNU General Public License
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
+Wick.Script.API = class {
+  constructor(context) {
+    this.context = context;
+  }
+
+};
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* Copyright 2018 WICKLETS LLC
+*
+* This file is part of Wick Engine.
+*
+* Wick Engine is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Wick Engine is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+*/
+Wick.Script.API.Global = class extends Wick.Script.API {
+  constructor(context) {
+    super(context);
+  }
+
+  stop() {
+    this.context.parentTimeline._playing = false;
+  }
+
+  play() {
+    this.context.parentTimeline._playing = true;
+  }
+
+  gotoAndStop(frame) {
+    this.context.parentTimeline._playing = false;
+    this.context.parentTimeline._forceNextFrame = frame;
+  }
+
+  gotoAndPlay(frame) {
+    this.context.parentTimeline._playing = true;
+    this.context.parentTimeline._forceNextFrame = frame;
+  }
+
+  _attachGlobals() {
+    window.gotoAndStop = this.gotoAndStop;
+  }
+
+  _cleanupGlobals() {
+    delete window.gotoAndStop;
+  }
+
+};
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* Copyright 2018 WICKLETS LLC
+*
+* This file is part of Wick Engine.
+*
+* Wick Engine is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Wick Engine is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+*/
+Wick.Script.API.Clip = class extends Wick.Script.API.Global {
+  constructor(context) {
+    super(context);
+  }
+
+  stop(frame) {
+    this.context.timeline._playing = false;
+  }
+
+  play(frame) {
+    this.context.timeline._playing = true;
+  }
+
+  gotoAndStop(frame) {
+    this.context.timeline._playing = false;
+    this.context.timeline._forceNextFrame = frame;
+  }
+
+  gotoAndPlay(frame) {
+    this.context.timeline._playing = true;
+    this.context.timeline._forceNextFrame = frame;
+  }
+
+};
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* Copyright 2018 WICKLETS LLC
+*
+* This file is part of Wick Engine.
+*
+* Wick Engine is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Wick Engine is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+*/
+Wick.Script.API.Frame = class extends Wick.Script.API.Global {
+  constructor(context) {
+    super(context);
+  }
+
+};
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* Copyright 2018 WICKLETS LLC
+*
+* This file is part of Wick Engine.
+*
+* Wick Engine is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Wick Engine is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+*/
 Wick.Timeline = class extends Wick.Base {
   constructor() {
     super();
     this.playheadPosition = 1;
     this.activeLayerIndex = 0;
     this._playing = true;
+    this._forceNextFrame = null;
     this.layers = [];
   }
 
@@ -2542,7 +2708,10 @@ Wick.Timeline = class extends Wick.Base {
   }
 
   advance() {
-    if (this._playing) {
+    if (this._forceNextFrame) {
+      this.playheadPosition = this._forceNextFrame;
+      this._forceNextFrame = null;
+    } else if (this._playing) {
       this.playheadPosition++;
 
       if (this.playheadPosition > this.length) {
@@ -2952,11 +3121,11 @@ Wick.SoundAsset = class extends Wick.Asset {
 * You should have received a copy of the GNU General Public License
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
-Wick.SymbolPrototypeAsset = class extends Wick.Asset {
+Wick.ClipAsset = class extends Wick.Asset {
   constructor() {
     super();
     this.timeline = new Wick.Timeline();
-    this.linkedSymbols = [];
+    this.linkedClips = [];
   }
 
   static _deserialize(data, object) {
@@ -2969,7 +3138,7 @@ Wick.SymbolPrototypeAsset = class extends Wick.Asset {
 
 
   get classname() {
-    return 'SymbolPrototypeAsset';
+    return 'ClipAsset';
   }
 
   get isLoaded() {
@@ -2980,56 +3149,52 @@ Wick.SymbolPrototypeAsset = class extends Wick.Asset {
   /* Methods */
 
 
-  useSymbolAsSource(symbol) {
-    this.timeline = symbol.timeline.clone();
+  useClipAsSource(clip) {
+    this.timeline = clip.timeline.clone();
 
     this.timeline._regenUUIDs();
   }
 
   createInstance() {
-    var symbol = new Wick.Symbol();
-    this.useAsSourceForSymbol(symbol);
-    this.updateSymbolFromAsset(symbol);
-    return symbol;
+    var clip = new Wick.Clip();
+    this.useAsSourceForClip(clip);
+    this.updateClipFromAsset(clip);
+    return clip;
   }
 
-  useAsSourceForSymbol(symbol) {
-    if (symbol._symbolPrototype) {
-      symbol._symbolPrototype.removeAsSourceForSymbol(symbol);
-    }
-
-    this.linkedSymbols.push(symbol);
+  useAsSourceForClip(clip) {
+    this.linkedClips.push(clip);
   }
 
-  removeAsSourceForSymbol(symbol) {
-    this.linkedSymbols = this.linkedSymbols.filter(checkSymbol => {
-      return checkSymbol !== symbol;
+  removeAsSourceForClip(clip) {
+    this.linkedClips = this.linkedClips.filter(checkClip => {
+      return checkClip !== clip;
     });
   }
 
-  updateAssetFromSymbol(symbol) {
-    this.timeline = symbol.timeline.clone();
+  updateAssetFromClip(clip) {
+    this.timeline = clip.timeline.clone();
 
     this.timeline._regenUUIDs();
 
     var self = this;
-    this.linkedSymbols.forEach(linkedSymbol => {
-      if (linkedSymbol === symbol) return; // This one should already be synced, of course
+    this.linkedClips.forEach(linkedClip => {
+      if (linkedClip === clip) return; // This one should already be synced, of course
 
-      this.updateSymbolFromAsset(linkedSymbol);
+      this.updateClipFromAsset(linkedClip);
     });
   }
 
-  updateSymbolFromAsset(symbol) {
+  updateClipFromAsset(clip) {
     var timeline = this.timeline.clone();
 
     timeline._regenUUIDs();
 
-    symbol.setTimeline(timeline);
+    clip.setTimeline(timeline);
   }
 
   clone(object) {
-    if (!object) object = new Wick.SymbolPrototypeAsset();
+    if (!object) object = new Wick.ClipAsset();
     super.clone(object);
     object.timeline = this.timeline.clone();
     return object;
@@ -3062,7 +3227,7 @@ Wick.SymbolPrototypeAsset = class extends Wick.Asset {
 * You should have received a copy of the GNU General Public License
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
-Wick.ButtonPrototypeAsset = class extends Wick.SymbolPrototypeAsset {
+Wick.ButtonAsset = class extends Wick.ClipAsset {
   constructor() {
     super();
   }
@@ -3076,7 +3241,7 @@ Wick.ButtonPrototypeAsset = class extends Wick.SymbolPrototypeAsset {
 
 
   get classname() {
-    return 'ButtonPrototypeAsset';
+    return 'ButtonAsset';
   }
   /* Setters */
 
@@ -3085,12 +3250,12 @@ Wick.ButtonPrototypeAsset = class extends Wick.SymbolPrototypeAsset {
 
   createInstance() {
     var button = new Wick.Button();
-    this.useAsSourceForSymbol(button);
+    this.useAsSourceForClip(button);
     return button;
   }
 
   clone(object) {
-    if (!object) object = new Wick.ButtonPrototypeAsset();
+    if (!object) object = new Wick.ButtonAsset();
     super.clone(object);
     return object;
   }
@@ -3218,7 +3383,7 @@ Wick.Frame = class extends Wick.Tickable {
     this.start = start || 1;
     this.end = end || this.start;
     this.script = null;
-    this.groups = [];
+    this.clips = [];
     this._svgString = '';
     this._svgDom = null;
     this._svgDirty = false;
@@ -3236,8 +3401,8 @@ Wick.Frame = class extends Wick.Tickable {
     object.start = data.start;
     object.end = data.end;
     object.script = Wick.Script.deserialize(data.script);
-    data.groups.forEach(groupData => {
-      object.addGroup(Wick.Group.deserialize(groupData));
+    data.clips.forEach(clipData => {
+      object.addClip(Wick.Clip.deserialize(clipData));
     });
     object.svg = data.svg;
     object._soundAssetUUID = data.sound;
@@ -3271,7 +3436,7 @@ Wick.Frame = class extends Wick.Tickable {
   }
 
   get contentful() {
-    if (this.groups.length > 0) return true;
+    if (this.clips.length > 0) return true;
     if (this._svgString === '') return false;
 
     this._parseSVG();
@@ -3316,18 +3481,18 @@ Wick.Frame = class extends Wick.Tickable {
     return this.inPosition(this.parent.parent.playheadPosition);
   }
 
-  addGroup(group) {
-    this.groups.push(group);
+  addClip(clip) {
+    this.clips.push(clip);
 
-    this._addChild(group);
+    this._addChild(clip);
   }
 
-  removeGroup(group) {
-    this.groups = this.groups.filter(checkGroup => {
-      return checkGroup !== group;
+  removeClip(clip) {
+    this.clips = this.clips.filter(checkClip => {
+      return checkClip !== clip;
     });
 
-    this._removeChild(group);
+    this._removeChild(clip);
   }
 
   addTween(tween) {
@@ -3385,8 +3550,8 @@ Wick.Frame = class extends Wick.Tickable {
     object.start = this.start;
     object.end = this.end;
     object.setScript(this.script.clone());
-    this.groups.forEach(group => {
-      object.addGroup(group.clone());
+    this.clips.forEach(clip => {
+      object.addClip(clip.clone());
     });
     object.svg = this.svg;
     object._soundAssetUUID = this._soundAssetUUID;
@@ -3401,8 +3566,8 @@ Wick.Frame = class extends Wick.Tickable {
     data.start = this.start;
     data.end = this.end;
     data.script = this.script.serialize();
-    data.groups = this.groups.map(group => {
-      return group.serialize();
+    data.clips = this.clips.map(clip => {
+      return clip.serialize();
     });
     data.svg = this._svgString;
     data.sound = this._soundAssetUUID;
@@ -3448,7 +3613,7 @@ Wick.Frame = class extends Wick.Tickable {
 * You should have received a copy of the GNU General Public License
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
-Wick.Group = class extends Wick.Tickable {
+Wick.Clip = class extends Wick.Tickable {
   constructor() {
     super();
     this.timeline = null;
@@ -3459,6 +3624,8 @@ Wick.Group = class extends Wick.Tickable {
     this.scaleY = 1;
     this.rotation = 0;
     this.opacity = 1;
+    this.script = null;
+    this.setScript(new Wick.Script());
   }
 
   static _deserialize(data, object) {
@@ -3471,13 +3638,14 @@ Wick.Group = class extends Wick.Tickable {
     object.rotation = data.rotation;
     object.opacity = data.opacity;
     object.setTimeline(Wick.Timeline.deserialize(data.timeline));
+    object.setScript(Wick.Script.deserialize(data.script));
     return object;
   }
   /* Getters */
 
 
   get classname() {
-    return 'Group';
+    return 'Clip';
   }
   /* Setters */
 
@@ -3497,190 +3665,13 @@ Wick.Group = class extends Wick.Tickable {
   breakApart() {
     var self = this;
     this.timeline.activeFrames.forEach(frame => {
-      frame.groups.forEach(group => {
-        frame.removeGroup(group);
-        self.parent.addGroup(group);
+      frame.clips.forEach(clip => {
+        frame.removeClip(clip);
+        self.parent.addClip(clip);
       });
     });
-    this.parent.removeGroup(this);
+    this.parent.removeClip(this);
   }
-
-  onInactive() {
-    super.onInactive();
-  }
-
-  onActivated() {
-    super.onActivated();
-  }
-
-  onActive() {
-    super.onActive();
-  }
-
-  onDeactivated() {
-    super.onDeactivated();
-  }
-
-  clone(object) {
-    if (!object) object = new Wick.Group();
-    super.clone(object);
-    object.setTimeline(this.timeline.clone());
-    object.x = this.x;
-    object.y = this.y;
-    object.scaleX = this.scaleX;
-    object.scaleY = this.scaleY;
-    object.rotation = this.rotation;
-    object.opacity = this.opacity;
-    return object;
-  }
-
-  serialize() {
-    var data = super.serialize();
-    data.x = this.x;
-    data.y = this.y;
-    data.scaleX = this.scaleX;
-    data.scaleY = this.scaleY;
-    data.rotation = this.rotation;
-    data.opacity = this.opacity;
-    data.timeline = this.timeline.serialize();
-    return data;
-  }
-
-};
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2018 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-Wick.Clip = class extends Wick.Group {
-  constructor() {
-    super();
-  }
-
-  static _deserialize(data, object) {
-    super._deserialize(data, object);
-
-    return object;
-  }
-  /* Getters */
-
-  /* Setters */
-
-  /* Methods */
-
-
-  get classname() {
-    return 'Clip';
-  }
-
-  onInactive() {
-    super.onInactive();
-  }
-
-  onActivated() {
-    super.onActivated();
-
-    this._tickChildren();
-  }
-
-  onActive() {
-    super.onActive();
-    this.timeline.advance();
-
-    this._tickChildren();
-  }
-
-  onDeactivated() {
-    super.onDeactivated();
-
-    this._tickChildren();
-  }
-
-  _tickChildren() {
-    this.timeline.layers.forEach(layer => {
-      layer.frames.forEach(frame => {
-        frame.tick();
-        frame.groups.forEach(group => {
-          group.tick();
-        });
-      });
-    });
-  }
-
-  onScreen() {
-    return this.parent.onScreen;
-  }
-
-  clone(object) {
-    if (!object) object = new Wick.Clip();
-    super.clone(object);
-    return object;
-  }
-
-  serialize() {
-    var data = super.serialize();
-    return data;
-  }
-
-};
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2018 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-Wick.Symbol = class extends Wick.Clip {
-  constructor() {
-    super();
-    this.script = null;
-    this.setScript(new Wick.Script());
-  }
-
-  static _deserialize(data, object) {
-    super._deserialize(data, object);
-
-    object.setScript(Wick.Script.deserialize(data.script));
-    return object;
-  }
-  /* Getters */
-
-
-  get classname() {
-    return 'Symbol';
-  }
-  /* Setters */
-
-  /* Methods */
-
 
   onInactive() {
     super.onInactive();
@@ -3690,15 +3681,22 @@ Wick.Symbol = class extends Wick.Clip {
     super.onActivated();
     this.script.run();
     this.script.runFn('load');
+
+    this._tickChildren();
   }
 
   onActive() {
     super.onActive();
     this.script.runFn('update');
+    this.timeline.advance();
+
+    this._tickChildren();
   }
 
   onDeactivated() {
     super.onDeactivated();
+
+    this._tickChildren();
   }
 
   setScript(script) {
@@ -3711,15 +3709,44 @@ Wick.Symbol = class extends Wick.Clip {
     this._addChild(script);
   }
 
+  _tickChildren() {
+    this.timeline.layers.forEach(layer => {
+      layer.frames.forEach(frame => {
+        frame.tick();
+        frame.clips.forEach(clip => {
+          clip.tick();
+        });
+      });
+    });
+  }
+
+  onScreen() {
+    return this.parent.onScreen;
+  }
+
   clone(object) {
-    if (!object) object = new Wick.Symbol();
+    if (!object) object = new Wick.Clip();
     super.clone(object);
+    object.x = this.x;
+    object.y = this.y;
+    object.scaleX = this.scaleX;
+    object.scaleY = this.scaleY;
+    object.rotation = this.rotation;
+    object.opacity = this.opacity;
+    object.setTimeline(this.timeline.clone());
     object.setScript(this.script.clone());
     return object;
   }
 
   serialize() {
     var data = super.serialize();
+    data.x = this.x;
+    data.y = this.y;
+    data.scaleX = this.scaleX;
+    data.scaleY = this.scaleY;
+    data.rotation = this.rotation;
+    data.opacity = this.opacity;
+    data.timeline = this.timeline.serialize();
     data.script = this.script.serialize();
     return data;
   }
@@ -3745,7 +3772,7 @@ Wick.Symbol = class extends Wick.Clip {
 * You should have received a copy of the GNU General Public License
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
-Wick.Button = class extends Wick.Symbol {
+Wick.Button = class extends Wick.Clip {
   constructor() {
     super();
     this._mouseOver = false;

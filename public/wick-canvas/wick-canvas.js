@@ -15951,6 +15951,7 @@ class WickCanvas {
 
   render(wickProject, options) {
     options = options || {};
+    WickCanvas.InteractTool.project = wickProject;
 
     if (!this._projectView) {
       this._projectView = new WickCanvas.Project(wickProject);
@@ -15998,15 +15999,15 @@ class WickCanvas {
 window.WickCanvas = WickCanvas;
 WickCanvas.Frame = class {
   constructor(wickFrame) {
-    this._groupsViewCache = {};
-    this._groupsLayer = new paper.Layer();
+    this._clipsViewCache = {};
+    this._clipsLayer = new paper.Layer();
 
-    this._groupsLayer.remove();
+    this._clipsLayer.remove();
 
-    this._groupsLayer.name = 'wick_frame_' + wickFrame.uuid + '_groups';
-    this._groupsLayer.data = {
+    this._clipsLayer.name = 'wick_frame_' + wickFrame.uuid + '_clips';
+    this._clipsLayer.data = {
       wickUUID: wickFrame.uuid,
-      type: 'groups'
+      type: 'clips'
     };
     this._pathsLayer = new paper.Layer();
 
@@ -16020,27 +16021,27 @@ WickCanvas.Frame = class {
   }
 
   static applyChanges(wickFrame, layer) {
-    if (layer.data.type === 'groups') {
-      // Reorder groups
-      var groups = wickFrame.groups.concat([]);
-      groups.forEach(group => {
-        wickFrame.removeGroup(group);
+    if (layer.data.type === 'clips') {
+      // Reorder clips
+      var clips = wickFrame.clips.concat([]);
+      clips.forEach(clip => {
+        wickFrame.removeClip(clip);
       });
       layer.children.forEach(child => {
-        wickFrame.addGroup(groups.find(g => {
+        wickFrame.addClip(clips.find(g => {
           return g.uuid === child.data.wickUUID;
         }));
-      }); // Update group transforms
+      }); // Update clip transforms
 
       layer.children.forEach(child => {
-        var wickGroup = wickFrame._childByUUID(child.data.wickUUID);
+        var wickClip = wickFrame._childByUUID(child.data.wickUUID);
 
-        wickGroup.x = child.position.x;
-        wickGroup.y = child.position.y;
-        wickGroup.scaleX = child.scaling.x;
-        wickGroup.scaleY = child.scaling.y;
-        wickGroup.rotation = child.rotation;
-        wickGroup.opacity = child.opacity;
+        wickClip.x = child.position.x;
+        wickClip.y = child.position.y;
+        wickClip.scaleX = child.scaling.x;
+        wickClip.scaleY = child.scaling.y;
+        wickClip.rotation = child.rotation;
+        wickClip.opacity = child.opacity;
       });
     } else if (layer.data.type === 'paths') {
       var origName = layer.name;
@@ -16068,7 +16069,7 @@ WickCanvas.Frame = class {
 
     this._renderPaths(wickFrame, options);
 
-    this._renderGroups(wickFrame, options);
+    this._renderClips(wickFrame, options);
   }
 
   _renderPaths(wickFrame, options) {
@@ -16089,47 +16090,47 @@ WickCanvas.Frame = class {
     }
   }
 
-  _renderGroups(wickFrame, options) {
-    this._groupsLayer.removeChildren();
+  _renderClips(wickFrame, options) {
+    this._clipsLayer.removeChildren();
 
     var self = this;
-    wickFrame.groups.forEach(group => {
-      var view = self._groupsViewCache[group.uuid];
+    wickFrame.clips.forEach(clip => {
+      var view = self._clipsViewCache[clip.uuid];
 
       if (!view) {
-        view = new WickCanvas.Group(group);
-        self._groupsViewCache[group.uuid] = view;
+        view = new WickCanvas.Clip(clip);
+        self._clipsViewCache[clip.uuid] = view;
       }
 
-      view.render(group, options);
+      view.render(clip, options);
 
-      self._groupsLayer.addChild(view._group);
+      self._clipsLayer.addChild(view._group);
     });
   }
 
 };
-WickCanvas.Group = class {
-  constructor(wickGroup) {
+WickCanvas.Clip = class {
+  constructor(wickClip) {
     this._timelineView = null;
     this._group = new paper.Group();
 
     this._group.remove();
 
     this._group.applyMatrix = false;
-    this._group.name = 'wick_group_' + wickGroup.uuid;
+    this._group.name = 'wick_clip_' + wickClip.uuid;
     this._group.data = {
-      wickUUID: wickGroup.uuid
+      wickUUID: wickClip.uuid
     };
   }
 
-  render(wickGroup, options) {
+  render(wickClip, options) {
     options = options || {};
 
     if (!this._timelineView) {
-      this._timelineView = new WickCanvas.Timeline(wickGroup.timeline);
+      this._timelineView = new WickCanvas.Timeline(wickClip.timeline);
     }
 
-    this._timelineView.render(wickGroup.timeline);
+    this._timelineView.render(wickClip.timeline);
 
     this._group.removeChildren();
 
@@ -16139,12 +16140,13 @@ WickCanvas.Group = class {
       self._group.addChild(layer);
     });
 
-    this._group.position.x = wickGroup.x;
-    this._group.position.y = wickGroup.y;
-    this._group.rotation = wickGroup.rotation;
-    this._group.scaling.x = wickGroup.scaleX;
-    this._group.scaling.y = wickGroup.scaleY;
-    this._group.opacity = wickGroup.opacity;
+    this._group.pivot = new paper.Point(0, 0);
+    this._group.position.x = wickClip.x;
+    this._group.position.y = wickClip.y;
+    this._group.rotation = wickClip.rotation;
+    this._group.scaling.x = wickClip.scaleX;
+    this._group.scaling.y = wickClip.scaleY;
+    this._group.opacity = wickClip.opacity;
   }
 
 };
@@ -16169,7 +16171,7 @@ WickCanvas.Layer = class {
       if (!frameView) frameView = new WickCanvas.Frame(wickFrame);
       frameView.render(wickFrame, options);
 
-      this._frameLayers.push(frameView._groupsLayer);
+      this._frameLayers.push(frameView._clipsLayer);
 
       this._frameLayers.push(frameView._pathsLayer);
     }
@@ -16189,7 +16191,7 @@ WickCanvas.Layer = class {
         if (!frameView) frameView = new WickCanvas.Frame(onionFrame);
         frameView.render(onionFrame, options);
 
-        this._onionFrameLayers.push(frameView._groupsLayer);
+        this._onionFrameLayers.push(frameView._clipsLayer);
 
         this._onionFrameLayers.push(frameView._pathsLayer);
       });
@@ -16296,3 +16298,56 @@ WickCanvas.Timeline = class {
   }
 
 };
+WickCanvas.InteractTool = (() => {
+  var tool = new paper.Tool();
+
+  tool.onActivate = function (e) {};
+
+  tool.onDeactivate = function (e) {};
+
+  tool.onMouseMove = function (e) {
+    var mouseTargets = this._getMouseTargets(e);
+
+    if (mouseTargets.find(mouseTarget => {
+      return mouseTarget instanceof Wick.Button;
+    })) {
+      paper.view._element.style.cursor = 'pointer';
+    } else {
+      paper.view._element.style.cursor = 'default';
+    }
+
+    return mouseTargets;
+  };
+
+  tool.onMouseDown = function (e) {};
+
+  tool.onMouseDrag = function (e) {};
+
+  tool.onMouseUp = function (e) {};
+
+  tool._getMouseTargets = function (e) {
+    var hitResult = paper.project.hitTest(e.point, {
+      fill: true,
+      stroke: true,
+      curves: true,
+      segments: true
+    });
+    if (!hitResult) return [];
+    var mouseTargets = [];
+
+    while (hitResult.item.parent) {
+      var name = hitResult.item.parent.name;
+
+      if (name && name.includes('wick_clip_')) {
+        var uuid = name.split('wick_clip_')[1];
+        mouseTargets.push(this.project._childByUUID(uuid));
+      }
+
+      hitResult.item = hitResult.item.parent;
+    }
+
+    return mouseTargets;
+  };
+
+  return tool;
+})();
