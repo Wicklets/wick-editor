@@ -118,7 +118,7 @@ class Toolbox extends Component {
         </div>
 
         <PlayButton
-          className="action-button"
+          className="play-button"
           playing={this.props.previewPlaying}
           onClick={this.props.togglePreviewPlaying}/>
       </div>

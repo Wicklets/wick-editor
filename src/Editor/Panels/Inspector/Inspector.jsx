@@ -22,6 +22,7 @@ import './_inspector.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 import DockedTitle from 'Editor/Util/DockedTitle/DockedTitle';
+import ActionButton from 'Editor/Util/ActionButton/ActionButton';
 import InspectorTitle from './InspectorTitle/InspectorTitle';
 
 import InspectorNumericSlider from './InspectorRow/InspectorRowTypes/InspectorNumericSlider';
@@ -563,6 +564,14 @@ class Inspector extends Component {
     )
   }
 
+  renderConvertToSymbol() {
+    return(
+      <div className="inspector-button-long inspector-content">
+        <ActionButton style={{backgroundColor:"cyan", color:"white",}} text="Convert to Symbol"/>
+      </div>
+    )
+  }
+
   renderDisplay() {
     if (this.props.selectionProperties.content in this.inspectorContentRenderFunctions) {
       let renderFunction = this.inspectorContentRenderFunctions[this.props.selectionProperties.content];
@@ -580,6 +589,7 @@ class Inspector extends Component {
       <div className="docked-pane inspector">
         <DockedTitle title={"Inspector"}></DockedTitle>
         {this.renderDisplay()}
+        {this.renderConvertToSymbol()}
       </div>
     )
   }

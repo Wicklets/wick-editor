@@ -23,10 +23,8 @@ import './_actionbutton.scss'
 class ActionButton extends Component {
   render() {
     return (
-      <div className="action-button">
-        <div className="action-button-icon">
-          {this.props.text}
-        </div>
+      <div className="action-button" style={this.props.style}>
+          <span>{this.props.text}</span>
       </div>
     )
   }

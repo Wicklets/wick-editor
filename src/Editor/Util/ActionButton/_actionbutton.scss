@@ -20,7 +20,11 @@
 @import 'Editor/_wickbrand.scss';
 
 .action-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
   width: 100%;
   height: 100%;
-  border-radius: $interface-roundness-primary; 
+  border-radius: $interface-roundness-primary;
 }
