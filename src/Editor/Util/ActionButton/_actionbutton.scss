@@ -19,23 +19,8 @@
 
 @import 'Editor/_wickbrand.scss';
 
-$inspector-padding: 10px;
-$inspector-selection-icon-size: 40px;
-$inspector-row-height: 25px;
-
-.inspector {
-  background-color: $interface-primary;
+.action-button {
   width: 100%;
   height: 100%;
-  overflow: hidden;
-}
-
-.inspector-content {
-  padding-left: $inspector-padding;
-  padding-right: $inspector-padding;
-
-}
-
-.select-inspector {
-  height: 20px;
+  border-radius: $interface-roundness-primary; 
 }

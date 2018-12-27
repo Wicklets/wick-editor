@@ -17,25 +17,19 @@
  * along with Wick Editor.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-@import 'Editor/_wickbrand.scss';
+import React, { Component } from 'react';
+import './_actionbutton.scss'
 
-$inspector-padding: 10px;
-$inspector-selection-icon-size: 40px;
-$inspector-row-height: 25px;
-
-.inspector {
-  background-color: $interface-primary;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
+class ActionButton extends Component {
+  render() {
+    return (
+      <div className="action-button">
+        <div className="action-button-icon">
+          {this.props.text}
+        </div>
+      </div>
+    )
+  }
 }
 
-.inspector-content {
-  padding-left: $inspector-padding;
-  padding-right: $inspector-padding;
-
-}
-
-.select-inspector {
-  height: 20px;
-}
+export default ActionButton
