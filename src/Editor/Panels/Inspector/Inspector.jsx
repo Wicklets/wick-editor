@@ -22,7 +22,7 @@ import './_inspector.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 import DockedTitle from 'Editor/Util/DockedTitle/DockedTitle';
-import ActionButton from 'Editor/Util/ActionButton/ActionButton';
+import WickInput from 'Editor/Util/WickInput/WickInput';
 import InspectorTitle from './InspectorTitle/InspectorTitle';
 
 import InspectorNumericSlider from './InspectorRow/InspectorRowTypes/InspectorNumericSlider';
@@ -566,8 +566,8 @@ class Inspector extends Component {
 
   renderConvertToSymbol() {
     return(
-      <div className="inspector-button-long inspector-content">
-        <ActionButton style={{backgroundColor:"cyan", color:"white",}} text="Convert to Symbol"/>
+      <div className="inspector-button-long">
+        <WickInput className="button-convert-to-symbol" type="button" onClick={this.props.convertToSymbol}>Convert to Symbol</WickInput>
       </div>
     )
   }
@@ -584,12 +584,20 @@ class Inspector extends Component {
     }
   }
 
+  renderActions() {
+    return(
+      <div className="inspector-content">
+        {this.props.selectionProperties.canConvertToSymbol && this.renderConvertToSymbol()}
+      </div>
+    )
+  }
+
   render() {
     return(
       <div className="docked-pane inspector">
         <DockedTitle title={"Inspector"}></DockedTitle>
         {this.renderDisplay()}
-        {this.renderConvertToSymbol()}
+        {this.renderActions()}
       </div>
     )
   }

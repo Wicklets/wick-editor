@@ -74,6 +74,10 @@ class WickInput extends Component {
           {...this.props}
         />
       );
+    } else if (this.props.type === "button") {
+      return (
+        <div className={"wick-button" + " " + this.props.className} onClick={this.props.onClick}>{this.props.children}</div>
+      )
     }
   }
 }

@@ -94,6 +94,10 @@ class Editor extends Component {
         strokeColor: '#666',
         frameLength: 0,
         sound: "needs a uuid",
+        canConvertToSymbol: true,
+        canConvertToGroup: false,
+        canBreakApart: false,
+        canAddScript: false,
       },
       assets: genAssets(),
       openModalName: "AlphaWarning",
@@ -459,6 +463,7 @@ class Editor extends Component {
                               updateToolSettings={this.updateToolSettings}
                               selectionProperties={this.state.selectionProperties}
                               updateSelectionProperties={this.updateSelectionProperties}
+                              convertToSymbol={() => this.openModal("ConvertToSymbol")}
                             />
                           </DockedPanel>
                         </ReflexElement>
