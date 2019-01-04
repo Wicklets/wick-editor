@@ -2009,6 +2009,14 @@ Wick.Base = class {
     return this._parent;
   }
 
+  get parentFrame() {
+    return this._parentByInstanceOf(Wick.Frame);
+  }
+
+  get parentTimeline() {
+    return this._parentByInstanceOf(Wick.Timeline);
+  }
+
   get project() {
     return this._project;
   }
@@ -2065,6 +2073,16 @@ Wick.Base = class {
     });
 
     return foundChild;
+  }
+
+  _parentByInstanceOf(seekClass) {
+    var instanceParent = this.parent;
+
+    while (instanceParent !== undefined && instanceParent !== null && !(instanceParent instanceof seekClass)) {
+      instanceParent = instanceParent.parent;
+    }
+
+    return instanceParent;
   }
 
   _regenUUIDs() {
@@ -2372,7 +2390,8 @@ Wick.Script = class extends Wick.Base {
   constructor() {
     super();
     this.src = '';
-    this._apiWrapperObject = null;
+    this._wrapper = null;
+    this._globalWrapper = null;
   }
 
   static _deserialize(data, object) {
@@ -2390,44 +2409,64 @@ Wick.Script = class extends Wick.Base {
   /* Setters */
 
   /* Methods */
+  // TODO this needs cleanup
 
 
   run() {
-    if (!this._apiWrapperObject) {
-      this._apiWrapperObject = new Wick.Script.API.Clip(this.parent);
-    }
+    this._createWrappers();
 
-    if (!this._apiWrapperObject._wickFn) {
+    if (!this._wrapper._wickFn) {
       var src_js = this._convertWickFunctions();
 
-      this._apiWrapperObject._wickFn = Function('scopeObj', src_js);
+      this._wrapper._wickFn = Function('scopeObj', src_js);
     }
 
-    this._apiWrapperObject._attachGlobals();
+    this._globalWrapper.attachToWindow();
 
-    var result = this._apiWrapperObject._wickFn(this._apiWrapperObject);
+    if (this.parent instanceof Wick.Clip) this._wrapper.attachToClip();
 
-    this._apiWrapperObject._cleanupGlobals();
+    var result = this._wrapper._wickFn(this._wrapper);
 
+    this._globalWrapper.detachFromWindow();
+
+    if (this.parent instanceof Wick.Clip) this._wrapper.detatchFromClip();
     return result;
-  }
+  } // TODO this needs cleanup
+
 
   runFn(fn) {
-    if (!this._apiWrapperObject || !this._apiWrapperObject._wickFn) {
+    if (!this._wrapper || !this._wrapper._wickFn) {
       this.run();
     }
 
     var fullFnName = Wick.Script.WICK_SCRIPT_FN_PREFIX + fn;
 
-    if (this._apiWrapperObject[fullFnName]) {
-      this._apiWrapperObject._attachGlobals();
+    if (this._wrapper[fullFnName]) {
+      this._globalWrapper.attachToWindow();
 
-      var result = this._apiWrapperObject[fullFnName](this._apiWrapperObject);
+      if (this.parent instanceof Wick.Clip) this._wrapper.attachToClip();
 
-      this._apiWrapperObject._cleanupGlobals();
+      var result = this._wrapper[fullFnName](this._wrapper);
 
+      this._globalWrapper.detachFromWindow();
+
+      if (this.parent instanceof Wick.Clip) this._wrapper.detatchFromClip();
       return result;
     }
+  } // TODO this needs cleanup
+
+
+  attachChildClipReferences() {
+    this._createWrappers();
+
+    if (this.parent instanceof Wick.Clip) this._wrapper.attachToClip();
+  } // TODO this needs cleanup
+
+
+  detatchChildClipReferences() {
+    this._createWrappers();
+
+    if (this.parent instanceof Wick.Clip) this._wrapper.detatchFromClip();
   }
 
   _convertWickFunctions() {
@@ -2445,6 +2484,17 @@ Wick.Script = class extends Wick.Base {
     } while (m);
 
     return script;
+  }
+
+  _createWrappers() {
+    if (!this._wrapper) {
+      if (this.parent instanceof Wick.Clip) this._wrapper = new Wick.Script.ClipWrapper(this.parent);else if (this.parent instanceof Wick.Frame) this._wrapper = new Wick.Script.FrameWrapper(this.parent);else // This is here just so that tests pass even when attaching a script to an empty object
+        this._wrapper = new Wick.Script.ClipWrapper(this.parent);
+    }
+
+    if (!this._globalWrapper) {
+      this._globalWrapper = new Wick.Script.GlobalWrapper(this.parent);
+    }
   }
 
   clone(object) {
@@ -2481,7 +2531,7 @@ Wick.Script = class extends Wick.Base {
 * You should have received a copy of the GNU General Public License
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
-Wick.Script.API = class {
+Wick.Script.Wrapper = class {
   constructor(context) {
     this.context = context;
   }
@@ -2507,7 +2557,7 @@ Wick.Script.API = class {
 * You should have received a copy of the GNU General Public License
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
-Wick.Script.API.Global = class extends Wick.Script.API {
+Wick.Script.GlobalWrapper = class extends Wick.Script.Wrapper {
   constructor(context) {
     super(context);
   }
@@ -2530,12 +2580,43 @@ Wick.Script.API.Global = class extends Wick.Script.API {
     this.context.parentTimeline._forceNextFrame = frame;
   }
 
-  _attachGlobals() {
-    window.gotoAndStop = this.gotoAndStop;
+  attachToWindow() {
+    window.stop = this.stop.bind(this);
+    window.play = this.play.bind(this);
+    window.gotoAndStop = this.gotoAndStop.bind(this);
+    window.gotoAndPlay = this.gotoAndPlay.bind(this);
+
+    this._attachNamedClipsAccess();
   }
 
-  _cleanupGlobals() {
+  detachFromWindow() {
+    delete window.stop;
+    delete window.play;
     delete window.gotoAndStop;
+    delete window.gotoAndPlay;
+
+    this._detatchNamedClipsAccess();
+  }
+
+  _attachNamedClipsAccess() {
+    this._generateNamedClipsList().forEach(clip => {
+      clip.script.attachChildClipReferences();
+      window[clip.identifier] = clip.script._wrapper;
+    });
+  }
+
+  _detatchNamedClipsAccess() {
+    this._generateNamedClipsList().forEach(clip => {
+      clip.script.detatchChildClipReferences();
+      delete window[clip.identifier];
+    });
+  }
+
+  _generateNamedClipsList() {
+    if (!this.context.parentFrame) return [];
+    return this.context.parentFrame.clips.filter(clip => {
+      return clip.identifier !== undefined;
+    });
   }
 
 };
@@ -2559,16 +2640,16 @@ Wick.Script.API.Global = class extends Wick.Script.API {
 * You should have received a copy of the GNU General Public License
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
-Wick.Script.API.Clip = class extends Wick.Script.API.Global {
+Wick.Script.ClipWrapper = class extends Wick.Script.Wrapper {
   constructor(context) {
     super(context);
   }
 
-  stop(frame) {
+  stop() {
     this.context.timeline._playing = false;
   }
 
-  play(frame) {
+  play() {
     this.context.timeline._playing = true;
   }
 
@@ -2582,6 +2663,44 @@ Wick.Script.API.Clip = class extends Wick.Script.API.Global {
     this.context.timeline._forceNextFrame = frame;
   }
 
+  attachToClip() {
+    this._attachNamedChildrenClipsAccess();
+  }
+
+  detatchFromClip() {
+    this._deatachNamedChildrenClipsAccess();
+  }
+
+  _attachNamedChildrenClipsAccess() {
+    var self = this;
+
+    this._generateNamedChildClipsList().forEach(clip => {
+      clip.script.attachChildClipReferences();
+      self[clip.identifier] = clip.script._wrapper;
+    });
+  }
+
+  _deatachNamedChildrenClipsAccess() {
+    var self = this;
+
+    this._generateNamedChildClipsList().forEach(clip => {
+      clip.script.detatchChildClipReferences();
+      delete self[clip.identifier];
+    });
+  }
+
+  _generateNamedChildClipsList() {
+    var childClips = [];
+    this.context.timeline.activeFrames.forEach(frame => {
+      frame.clips.forEach(clip => {
+        if (clip.identifier) {
+          childClips.push(clip);
+        }
+      });
+    });
+    return childClips;
+  }
+
 };
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
@@ -2603,7 +2722,7 @@ Wick.Script.API.Clip = class extends Wick.Script.API.Global {
 * You should have received a copy of the GNU General Public License
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
-Wick.Script.API.Frame = class extends Wick.Script.API.Global {
+Wick.Script.FrameWrapper = class extends Wick.Script.Wrapper {
   constructor(context) {
     super(context);
   }
@@ -3774,11 +3893,10 @@ Wick.Clip = class extends Wick.Tickable {
 */
 Wick.Button = class extends Wick.Clip {
   constructor() {
-    super();
-    this._mouseOver = false;
-    this._mouseDown = false;
-    this._mouseJustEntered = false;
-    this._mouseJustClicked = false;
+    super(); // 'out' | 'over' | 'down'
+
+    this._mouseState = 'out';
+    this._lastMouseState = 'out';
   }
 
   static _deserialize(data, object) {
@@ -3797,23 +3915,9 @@ Wick.Button = class extends Wick.Clip {
   /* Methods */
 
 
-  onMouseEnter() {
-    this._mouseOver = true;
-    this._mouseJustEntered = true;
-  }
-
-  onMouseLeave() {
-    this._mouseOver = false;
-    this._mouseDown = false;
-  }
-
-  onMouseDown() {
-    this._mouseDown = true;
-    this._mouseJustClicked = true;
-  }
-
-  onMouseUp() {
-    this._mouseDown = false;
+  setMouseState(newState) {
+    this._lastMouseState = this._mouseState;
+    this._mouseState = newState;
   }
 
   onInactive() {
@@ -3829,22 +3933,16 @@ Wick.Button = class extends Wick.Clip {
     super.onActive();
     this.timeline.playheadPosition = 1;
 
-    if (this._mouseOver) {
+    if (this._mouseState === 'over') {
       this.timeline.playheadPosition = 2;
-    }
-
-    if (this._mouseDown) {
+    } else if (this._mouseState === 'down') {
       this.timeline.playheadPosition = 3;
     }
 
-    if (this._mouseJustEntered) {
+    if (this._mouseState === 'over' && this._lastMouseState === 'out') {
       this.script.runFn('rollover');
-      this._mouseJustEntered = false;
-    }
-
-    if (this._mouseJustClicked) {
+    } else if (this._mouseState === 'down' && this._lastMouseState === 'over') {
       this.script.runFn('click');
-      this._mouseJustClicked = false;
     }
   }
 
