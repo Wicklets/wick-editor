@@ -36,7 +36,6 @@ import InspectorCheckbox from './InspectorRow/InspectorRowTypes/InspectorCheckbo
 class Inspector extends Component {
   constructor (props) {
     super(props);
-
     this.handleChange = this.handleChange.bind(this);
     this.handleColorChange = this.handleColorChange.bind(this);
     this.handleFontChange = this.handleFontChange.bind(this);
@@ -71,6 +70,9 @@ class Inspector extends Component {
     this.renderDisplay = this.renderDisplay.bind(this);
     this.renderGroupContent = this.renderGroupContent.bind(this);
     this.renderPathContent = this.renderPathContent.bind(this);
+    this.renderActionButtonRow = this.renderActionButtonRow.bind(this);
+    this.renderButton = this.renderButton.bind(this);
+    this.renderActions = this.renderActions.bind(this);
   }
 
   handleChange(val) {
@@ -564,14 +566,6 @@ class Inspector extends Component {
     )
   }
 
-  renderConvertToSymbol() {
-    return(
-      <div className="inspector-button-long">
-        <WickInput className="button-convert-to-symbol" type="button" onClick={this.props.convertToSymbol}>Convert to Symbol</WickInput>
-      </div>
-    )
-  }
-
   renderDisplay() {
     if (this.props.selectionProperties.content in this.inspectorContentRenderFunctions) {
       let renderFunction = this.inspectorContentRenderFunctions[this.props.selectionProperties.content];
@@ -584,10 +578,37 @@ class Inspector extends Component {
     }
   }
 
+  renderButton(btn) {
+    console.log("Rendering Button");
+    console.log(btn);
+    let colorClass = btn.color === undefined ? "button-blue" : "button-"+btn.color;
+    return (
+      <div className="inspector-button-long">
+        <WickInput
+          className={colorClass}
+          type="button"
+          onClick={btn.action}>{btn.name === undefined ? "Action Button" : btn.name}
+        </WickInput>
+      </div>
+    )
+  }
+
+  renderActionButtonRow(actionList) {
+    console.log("Rendering Row");
+    console.log(actionList);
+    return (
+      <div className="inspector-action-row">
+        {actionList.map(this.renderButton)}
+      </div>
+    )
+  }
+
   renderActions() {
+    console.log("Rendering Actions");
+    console.log(this.props.selectionProperties.actions);
     return(
       <div className="inspector-content">
-        {this.props.selectionProperties.canConvertToSymbol && this.renderConvertToSymbol()}
+        {this.props.selectionProperties.actions.map(this.renderActionButtonRow)}
       </div>
     )
   }

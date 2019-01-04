@@ -66,3 +66,22 @@ $inspector-button-height: 40px;
   background-color: navy;
   color: white;
 }
+
+// Button color schemes
+.button-blue {
+  -webkit-transition-duration: 0.4s; /* Safari */
+  transition-duration: 0.2s;
+
+  background-color: cyan;
+  color: black;
+}
+
+.button-blue:hover {
+  background-color: blue;
+  color: white;
+}
+
+.button-blue:active {
+  background-color: navy;
+  color: white;
+}

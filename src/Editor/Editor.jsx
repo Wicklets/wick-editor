@@ -94,10 +94,17 @@ class Editor extends Component {
         strokeColor: '#666',
         frameLength: 0,
         sound: "needs a uuid",
-        canConvertToSymbol: true,
-        canConvertToGroup: false,
-        canBreakApart: false,
-        canAddScript: false,
+        actions: [
+          [
+            {
+              name: "Convert to Symbol",
+              action: () => this.openModal("ConvertToSymbol"),
+              color: "blue",
+              tooltip: "Convert to Symbol",
+              icon: undefined,
+            }
+          ]
+        ],
       },
       assets: genAssets(),
       openModalName: "AlphaWarning",
