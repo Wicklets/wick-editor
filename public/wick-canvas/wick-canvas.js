@@ -16300,33 +16300,54 @@ WickCanvas.Timeline = class {
 };
 WickCanvas.InteractTool = (() => {
   var tool = new paper.Tool();
+  var mouseButtonState = null;
+  var mousePosition = null;
 
-  tool.onActivate = function (e) {};
+  tool.onActivate = function (e) {
+    mouseButtonState = 'up';
+    mousePosition = new paper.Point();
+  };
 
   tool.onDeactivate = function (e) {};
 
   tool.onMouseMove = function (e) {
-    var mouseTargets = this._getMouseTargets(e);
+    mousePosition = e.point;
+  };
 
-    if (mouseTargets.find(mouseTarget => {
+  tool.onMouseDown = function (e) {
+    mouseButtonState = 'down';
+  };
+
+  tool.onMouseDrag = function (e) {};
+
+  tool.onMouseUp = function (e) {
+    mouseButtonState = 'up';
+  };
+
+  tool.processMouseInputPreTick = function () {
+    var mouseTargets = this._getMouseTargets(mousePosition);
+
+    var buttonTargets = mouseTargets.filter(mouseTarget => {
       return mouseTarget instanceof Wick.Button;
-    })) {
+    });
+
+    if (buttonTargets.length > 0) {
       paper.view._element.style.cursor = 'pointer';
     } else {
       paper.view._element.style.cursor = 'default';
     }
 
-    return mouseTargets;
+    buttonTargets.forEach(buttonTarget => {
+      if (mouseButtonState === 'up') {
+        buttonTarget.setMouseState('over');
+      } else if (mouseButtonState === 'down') {
+        buttonTarget.setMouseState('down');
+      }
+    }); // TODO get all active buttons that aren't in buttonTargets and set their mouse state to 'out'
   };
 
-  tool.onMouseDown = function (e) {};
-
-  tool.onMouseDrag = function (e) {};
-
-  tool.onMouseUp = function (e) {};
-
-  tool._getMouseTargets = function (e) {
-    var hitResult = paper.project.hitTest(e.point, {
+  tool._getMouseTargets = function (point) {
+    var hitResult = paper.project.hitTest(point, {
       fill: true,
       stroke: true,
       curves: true,
