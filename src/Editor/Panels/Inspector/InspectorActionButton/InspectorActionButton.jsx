@@ -31,8 +31,6 @@ class InspectorActionButton extends Component {
 
     let colorClass = btn.color === undefined ? "button-blue" : "button-"+btn.color;
     let btnID = btn.id === undefined ? 'inspector-button-tooltip-nyi' : btn.id;
-    let iconDefault = btn.name === undefined ? "A" : btn.name[0];
-
 
     return(
       <div data-tip data-for={btnID} className="inspector-button">
@@ -48,10 +46,7 @@ class InspectorActionButton extends Component {
           className={colorClass}
           type="button"
           onClick={btn.action}>
-          <ToolIcon
-            name={this.props.btn.icon}
-            default={iconDefault}>
-          </ToolIcon>
+          <ToolIcon name={this.props.btn.icon} />
         </WickInput>
       </div>
 

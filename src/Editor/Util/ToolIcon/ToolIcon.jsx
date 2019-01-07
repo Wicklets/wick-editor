@@ -31,6 +31,7 @@ import iconEraser from 'resources/tool-icons/eraser.svg';
 import iconPan from 'resources/tool-icons/pan.svg';
 import iconZoom from 'resources/tool-icons/zoom.svg';
 import iconFillBucket from 'resources/tool-icons/bucket.svg';
+import iconUnknown from 'resources/inspector-icons/selection-icons/unknown.svg';
 
 class ToolIcon extends Component {
   constructor(props) {
@@ -51,20 +52,27 @@ class ToolIcon extends Component {
     }
   }
 
-  render() {
+  getSource() {
     if (this.props.name in this.icons) {
+      return this.icons[this.props.name];
+    } else {
+      return iconUnknown;
+    }
+  }
+
+  render() {
+    if (this.props.name in this.icons || this.props.default === undefined) {
       return (
         <img
           className="img-tool-icon"
           alt={this.props.name+" icon"}
-          src={this.icons[this.props.name]} />
+          src={this.getSource()} />
       )
     } else {
       return (
-        <div className="img-tool-icon">{this.props.default === undefined ? "X" : this.props.default}</div>
+        <div className="img-tool-icon">{this.props.default}</div>
       )
     }
-
   }
 }
 
