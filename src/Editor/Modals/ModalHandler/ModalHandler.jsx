@@ -31,22 +31,22 @@ class ModalHandler extends Component {
           project={this.props.project}
           updateProject={this.props.updateProject}
           openModal={this.props.openModal}
-          open={this.props.openModalName === 'ProjectSettings'}
-          toggle={() => this.props.openModal(null)}
+          open={this.props.activeModalName === 'ProjectSettings'}
+          toggle={this.props.closeActiveModal}
         />
         <AlphaWarning
           className="alpha-warning"
           openModal={this.props.openModal}
-          open={this.props.openModalName === 'AlphaWarning'}
-          toggle={() => this.props.openModal(null)}
+          open={this.props.activeModalName === 'AlphaWarning'}
+          toggle={this.props.closeActiveModal}
         />
       <ConvertToSymbol
           project={this.props.project}
           updateProject={this.props.updateProject}
           selectionProperties={this.props.selectionProperties}
           openModal={this.props.openModal}
-          open={this.props.openModalName === 'ConvertToSymbol'}
-          toggle={() => this.props.openModal(null)}
+          open={this.props.activeModalName === 'ConvertToSymbol'}
+          toggle={this.props.closeActiveModal}
         />
       </div>
     );

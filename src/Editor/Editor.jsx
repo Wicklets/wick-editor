@@ -62,19 +62,21 @@ class Editor extends Component {
         cornerRadius: 0,
         pressureEnabled: false,
       },
-      openModalName: "AlphaWarning",
+      activeModalName: "AlphaWarning",
       previewPlaying: false,
       inspectorSize: 250,
       codeEditorSize: 0.1,
       timelineSize: 100,
       assetLibrarySize: 150,
     };
+    this.updateEditorState = this.updateEditorState.bind(this);
 
     // Init hotkeys
     this.hotKeyInterface = new HotKeyInterface(this);
 
     // Modals
     this.openModal = this.openModal.bind(this);
+    this.closeActiveModal = this.closeActiveModal.bind(this);
 
     // Preview play
     this.tickLoopIntervalID = null;
@@ -157,10 +159,18 @@ class Editor extends Component {
     });
   }
 
+  updateEditorState (state) {
+    this.setState(state);
+  }
+
+  closeActiveModal () {
+    this.openModal(null);
+  }
+
   openModal (name) {
-    if (this.state.openModalName !== name) {
+    if (this.state.activeModalName !== name) {
       this.setState({
-        openModalName: name,
+        activeModalName: name,
       });
     }
     this.refocusEditor();
@@ -199,7 +209,9 @@ class Editor extends Component {
             <div id="editor">
               <div id="menu-bar-container">
                 <ModalHandler
-                  openModalName={this.state.openModalName}
+                  activeModalName={this.state.activeModalName}
+                  openModal={this.openModal}
+                  closeActiveModal={this.closeActiveModal}
                   project={this.state.project}
                   selection={this.state.selection}
                 />

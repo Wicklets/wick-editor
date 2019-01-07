@@ -47,7 +47,6 @@ function collect(connect, monitor) {
   };
 }
 
-
 class Canvas extends Component {
   constructor (props) {
     super(props);
@@ -94,7 +93,7 @@ class Canvas extends Component {
       onionSkinSeekForwards: this.props.onionSkinSeekForwards,
     });
     window.paper.project.selection.clear();
-    this.props.selectionProperties.canvasUUIDs.forEach(uuid => {
+    this.props.selection.canvasUUIDs.forEach(uuid => {
       window.paper.project.selection.addItemByName(uuid);
     });
     window.paper.project.selection.updateGUI();
@@ -141,21 +140,20 @@ class Canvas extends Component {
       content = selectedItems.length > 1 ? 'multigroup' : 'group'
     }
 
-    var newSelectionProperties = {
-      canvasUUIDs: selectedItems.map(item => {
-        return item.name;
-      }),
-      content: content,
-    };
+    this.props.selection.canvasUUIDs = selectedItems.map(item => {
+      return item.name;
+    });
 
     if(window.paper.project.selection.items.length > 0) {
-      newSelectionProperties.x = window.paper.project.selection.bounds.left;
-      newSelectionProperties.y = window.paper.project.selection.bounds.top;
-      newSelectionProperties.width = window.paper.project.selection.bounds.width;
-      newSelectionProperties.height = window.paper.project.selection.bounds.height;
+      this.props.selection.x = window.paper.project.selection.bounds.left;
+      this.props.selection.y = window.paper.project.selection.bounds.top;
+      this.props.selection.width = window.paper.project.selection.bounds.width;
+      this.props.selection.height = window.paper.project.selection.bounds.height;
     }
 
-    this.props.updateSelectionProperties(newSelectionProperties);
+    this.props.updateEditorState({
+      selection: this.props.selection,
+    });
   }
 
   render() {

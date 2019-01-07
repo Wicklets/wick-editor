@@ -54,7 +54,7 @@ class Timeline extends Component {
   updateAnimationTimelineData () {
     let AnimationTimeline = window.AnimationTimeline;
     let timeline = this.props.project.focus.timeline;
-    let selectedUUIDs = this.props.selectionProperties.timelineUUIDs;
+    let selectedUUIDs = this.props.selection.timelineUUIDs;
 
     AnimationTimeline.setData({
       playheadPosition: timeline.playheadPosition,

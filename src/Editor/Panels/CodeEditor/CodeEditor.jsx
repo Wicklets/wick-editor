@@ -41,7 +41,7 @@ class CodeEditor extends PureComponent {
     this.refs.reactAceComponent && this.refs.reactAceComponent.editor.resize();
     return (
       <div className="code-editor">
-        {this.selectionIsScriptable(this.props.selectionProperties)
+        {this.selectionIsScriptable(this.props.selection)
           ? this.renderAceEditor()
           : this.renderNotScriptableInfo()}
       </div>
@@ -56,9 +56,9 @@ class CodeEditor extends PureComponent {
         name="ace-editor"
         fontSize={14}
         ref="reactAceComponent"
-        onChange={(e) => {this.updateSelectionScript(this.props.selectionProperties, this.props.project, e)}}
+        onChange={(e) => {this.updateSelectionScript(this.props.selection, this.props.project, e)}}
         editorProps={{$blockScrolling: true}}
-        value={this.getSelectionScript(this.props.selectionProperties, this.props.project).src}
+        value={this.getSelectionScript(this.props.selection, this.props.project).src}
       />
     );
   }
@@ -69,9 +69,9 @@ class CodeEditor extends PureComponent {
     )
   }
 
-  selectionIsScriptable (selectionProps) {
-    return selectionProps.content === 'frame'
-        || selectionProps.content === 'group';
+  selectionIsScriptable (selection) {
+    return selection.type === 'frame'
+        || selection.type === 'group';
   }
 
   getSelectionScript (selectionProps, project) {

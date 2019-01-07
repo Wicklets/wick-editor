@@ -1,6 +1,7 @@
 class Selection {
   constructor () {
-    this._uuids = [];
+    this._canvasUUIDs = [];
+    this._timelineUUIDs = [];
 
     this.name = '';
     this.x = 0;
@@ -16,30 +17,40 @@ class Selection {
     this.strokeColor = '#000000';
   }
 
-  get content () {
+  get type () {
     return 'multimixed';
   }
 
-  set objects (objects) {
-    this.uuids = objects.map(obj => {
-      return obj.uuid;
-    });
+  get canvasUUIDs () {
+    return this._canvasUUIDs;
   }
 
-  set uuids (uuids) {
-    this._uuids = uuids;
+  get timelineUUIDs () {
+    return this._timelineUUIDs;
   }
 
-  get actions () {
+  get possibleActions () {
     return [
-      {
-        name: "Convert to Symbol",
-        fn: () => this.openModal("ConvertToSymbol"),
-        color: "blue",
-        tooltip: "Convert to Symbol",
-        icon: undefined,
-      }
+      [
+        {
+          name: "Convert to Symbol",
+          fn: () => this.openModal("ConvertToSymbol"),
+          color: "blue",
+          tooltip: "Convert to Symbol",
+          icon: undefined,
+        }
+      ]
     ];
+  }
+
+  set canvasUUIDs (uuids) {
+    this._canvasUUIDs = uuids;
+    this._timelineUUIDs = [];
+  }
+
+  set timelineUUIDs (uuids) {
+    this._canvasUUIDs = [];
+    this._timelineUUIDs = uuids;
   }
 }
 

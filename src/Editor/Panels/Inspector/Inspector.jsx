@@ -579,8 +579,6 @@ class Inspector extends Component {
   }
 
   renderButton(btn) {
-    console.log("Rendering Button");
-    console.log(btn);
     let colorClass = btn.color === undefined ? "button-blue" : "button-"+btn.color;
     return (
       <div className="inspector-button-long">
@@ -593,22 +591,18 @@ class Inspector extends Component {
     )
   }
 
-  renderActionButtonRow(actionList) {
-    console.log("Rendering Row");
-    console.log(actionList);
+  renderActionButtonRow(actions) {
     return (
       <div className="inspector-action-row">
-        {actionList.map(this.renderButton)}
+        {actions.map(this.renderButton)}
       </div>
     )
   }
 
   renderActions() {
-    console.log("Rendering Actions");
-    console.log(this.props.selection.actions);
     return(
       <div className="inspector-content">
-        {this.props.selection.actions.map(this.renderActionButtonRow)}
+        {this.props.selection.possibleActions.map(this.renderActionButtonRow)}
       </div>
     )
   }
