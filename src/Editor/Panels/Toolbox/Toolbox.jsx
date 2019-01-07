@@ -31,7 +31,9 @@ class Toolbox extends Component {
 
     this.iconProps = {
       toolIsActive: this.toolIsActive.bind(this),
-      activateTool: this.props.activateTool,
+      activateTool: (newTool) => {this.props.updateEditorState({
+        activeTool: newTool
+      })},
     };
   }
 
@@ -122,9 +124,6 @@ class Toolbox extends Component {
           playing={this.props.previewPlaying}
           onClick={this.props.togglePreviewPlaying}/>
       </div>
-
-
-
     )
   }
 }

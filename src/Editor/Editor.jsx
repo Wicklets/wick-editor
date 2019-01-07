@@ -234,6 +234,7 @@ class Editor extends Component {
                           onStopResize={this.resizeProps.onStopResize}>
                           <DockedPanel>
                             <Toolbox
+                              updateEditorState={this.updateEditorState}
                               activeTool={this.state.activeTool}
                               toolSettings={this.state.toolSettings}
                               previewPlaying={this.state.previewPlaying}
