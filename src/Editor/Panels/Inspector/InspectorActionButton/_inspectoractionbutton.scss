@@ -45,7 +45,6 @@
   color: white;
 }
 
-// Button color schemes
 .button-sky {
   -webkit-transition-duration: $inspector-transition-duration; /* Safari */
   transition-duration: $inspector-transition-duration;
@@ -61,5 +60,59 @@
 
 .button-sky:active {
   background-color: #8DDED6;
+  color: black;
+}
+
+.button-red {
+  -webkit-transition-duration: $inspector-transition-duration; /* Safari */
+  transition-duration: $inspector-transition-duration;
+
+  background-color: #FD384C;
+  color: white;
+}
+
+.button-red:hover {
+  background-color: #FF5372;
+  color: white;
+}
+
+.button-red:active {
+  background-color: #E61E07;
+  color: white;
+}
+
+.button-green {
+  -webkit-transition-duration: $inspector-transition-duration; /* Safari */
+  transition-duration: $inspector-transition-duration;
+
+  background-color: #00D9A7;
+  color: black;
+}
+
+.button-green:hover {
+  background-color: #29F1A3;
+  color: black;
+}
+
+.button-green:active {
+  background-color: #01C094;
+  color: black;
+}
+
+.button-yellow {
+  -webkit-transition-duration: $inspector-transition-duration; /* Safari */
+  transition-duration: $inspector-transition-duration;
+
+  background-color: #FFC835;
+  color: black;
+}
+
+.button-yellow:hover {
+  background-color: #FFE243;
+  color: black;
+}
+
+.button-yellow:active {
+  background-color: #E9AA02;
   color: black;
 }
