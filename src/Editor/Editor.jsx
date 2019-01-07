@@ -102,6 +102,15 @@ class Editor extends Component {
               color: "blue",
               tooltip: "Convert to Symbol",
               icon: undefined,
+              id: "convert-to-symbol-action"
+            },
+            {
+              name: "Convert to Symbol 2",
+              action: () => this.openModal("ConvertToSymbol"),
+              color: "blue",
+              tooltip: "Symbol Conversion",
+              icon: "pan",
+              id: "convert-to-symbol-action-2",
             }
           ]
         ],

@@ -52,9 +52,19 @@ class ToolIcon extends Component {
   }
 
   render() {
-    return (
-      <img className="img-tool-icon" alt={this.props.name+" icon"} src={this.icons[this.props.name]} />
-    )
+    if (this.props.name in this.icons) {
+      return (
+        <img
+          className="img-tool-icon"
+          alt={this.props.name+" icon"}
+          src={this.icons[this.props.name]} />
+      )
+    } else {
+      return (
+        <div className="img-tool-icon">{this.props.default === undefined ? "X" : this.props.default}</div>
+      )
+    }
+
   }
 }
 

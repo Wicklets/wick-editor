@@ -18,44 +18,48 @@
  */
 
 @import 'Editor/_wickbrand.scss';
+@import '../_inspector.scss';
 
-.wick-input {
-  padding: 2px;
-  width: 100%;
-  height: 100%;
-  border-radius: $interface-input-roundness;
-  border: none;
-  background-color: $interface-input-background;
-  color: $interface-input-text;
+.inspector-button {
+  height: $inspector-button-height;
+  min-width: $inspector-button-min-width;
+  margin-right: 4px;
 }
 
-.wick-slider {
-  width: 100%;
-  height: 100%;
-  border-radius: $interface-input-roundness;
-  margin-top: auto;
-}
+// Button color schemes
+.button-blue {
+  -webkit-transition-duration: $inspector-transition-duration; /* Safari */
+  transition-duration: $inspector-transition-duration;
 
-.wick-checkbox {
-  height: 100%;
-  width: 100%;
-}
-
-.wick-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  width: 100%;
-  height: 100%;
-
-  background-color: #4CAF50; /* Green */
-  border: none;
+  background-color: #2719FF;
   color: white;
-  text-align: center;
-  text-decoration: none;
-  border-radius: $interface-roundness-primary;
-  cursor: pointer;
+}
 
-  padding: 4px;
+.button-blue:hover {
+  background-color: #2C45FF;
+  color: white;
+}
+
+.button-blue:active {
+  background-color: #2000DD;
+  color: white;
+}
+
+// Button color schemes
+.button-blue {
+  -webkit-transition-duration: 0.4s; /* Safari */
+  transition-duration: 0.2s;
+
+  background-color: #2719FF;
+  color: white;
+}
+
+.button-blue:hover {
+  background-color: #2C45FF;
+  color: white;
+}
+
+.button-blue:active {
+  background-color: #2000DD;
+  color: white;
 }

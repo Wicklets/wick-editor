@@ -23,6 +23,9 @@ $inspector-padding: 10px;
 $inspector-selection-icon-size: 40px;
 $inspector-row-height: 25px;
 $inspector-button-height: 40px;
+$inspector-button-min-width: 40px;
+
+$inspector-transition-duration: 0.2s;
 
 .inspector {
   background-color: $interface-primary;
@@ -41,47 +44,8 @@ $inspector-button-height: 40px;
   height: 20px;
 }
 
-.inspector-button-long {
-  width: 100%;
-  height: $inspector-button-height;
-}
-
-
-// Convert to symbol properties
-
-.button-convert-to-symbol {
-  -webkit-transition-duration: 0.4s; /* Safari */
-  transition-duration: 0.2s;
-
-  background-color: cyan;
-  color: black;
-}
-
-.button-convert-to-symbol:hover {
-  background-color: blue;
-  color: white;
-}
-
-.button-convert-to-symbol:active {
-  background-color: navy;
-  color: white;
-}
-
-// Button color schemes
-.button-blue {
-  -webkit-transition-duration: 0.4s; /* Safari */
-  transition-duration: 0.2s;
-
-  background-color: cyan;
-  color: black;
-}
-
-.button-blue:hover {
-  background-color: blue;
-  color: white;
-}
-
-.button-blue:active {
-  background-color: navy;
-  color: white;
+.inspector-action-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }

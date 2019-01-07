@@ -22,7 +22,6 @@ import './_inspector.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 import DockedTitle from 'Editor/Util/DockedTitle/DockedTitle';
-import WickInput from 'Editor/Util/WickInput/WickInput';
 import InspectorTitle from './InspectorTitle/InspectorTitle';
 
 import InspectorNumericSlider from './InspectorRow/InspectorRowTypes/InspectorNumericSlider';
@@ -32,6 +31,7 @@ import InspectorDualNumericInput from './InspectorRow/InspectorRowTypes/Inspecto
 import InspectorSelector from './InspectorRow/InspectorRowTypes/InspectorSelector';
 import InspectorColorPicker from './InspectorRow/InspectorRowTypes/InspectorColorPicker';
 import InspectorCheckbox from './InspectorRow/InspectorRowTypes/InspectorCheckbox';
+import InspectorActionButton from './InspectorActionButton/InspectorActionButton';
 
 class Inspector extends Component {
   constructor (props) {
@@ -578,34 +578,21 @@ class Inspector extends Component {
     }
   }
 
-  renderButton(btn) {
-    console.log("Rendering Button");
-    console.log(btn);
-    let colorClass = btn.color === undefined ? "button-blue" : "button-"+btn.color;
+  renderActionButton(btn, i) {
     return (
-      <div className="inspector-button-long">
-        <WickInput
-          className={colorClass}
-          type="button"
-          onClick={btn.action}>{btn.name === undefined ? "Action Button" : btn.name}
-        </WickInput>
-      </div>
+      <InspectorActionButton key={i} btn={btn} />
     )
   }
 
-  renderActionButtonRow(actionList) {
-    console.log("Rendering Row");
-    console.log(actionList);
+  renderActionButtonRow(actionList, i) {
     return (
-      <div className="inspector-action-row">
-        {actionList.map(this.renderButton)}
+      <div key={i} className="inspector-action-row">
+        {actionList.map(this.renderActionButton)}
       </div>
     )
   }
 
   renderActions() {
-    console.log("Rendering Actions");
-    console.log(this.props.selectionProperties.actions);
     return(
       <div className="inspector-content">
         {this.props.selectionProperties.actions.map(this.renderActionButtonRow)}
