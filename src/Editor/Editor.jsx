@@ -18,6 +18,7 @@
  */
 
 import React, { Component } from 'react';
+
 import './_editor.scss';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -38,34 +39,19 @@ import AssetLibrary from './Panels/AssetLibrary/AssetLibrary';
 import CodeEditor from './Panels/CodeEditor/CodeEditor';
 import ModalHandler from './Modals/ModalHandler/ModalHandler';
 import HotKeyInterface from './hotKeyMap';
+import Selection from '../core/Selection';
 
 class Editor extends Component {
-
   constructor () {
     super();
 
-    // Temporary asset generation function.
-    function genAssets() {
-        let assets = [];
-        let items = ["asset", "img", "sound", "clip", "button"]
-
-        for (var i=0; i< 0; i++) {
-          let a = {};
-          a.name = "Asset " + i;
-          a.uuid = "" + i;
-          a.type = items[Math.floor(Math.random()*items.length)]
-          assets.push(a);
-        }
-        return assets;
-    }
-
     this.state = {
       project: null,
+      selection: new Selection(),
       onionSkinEnabled: false,
       onionSkinSeekForwards: 1,
       onionSkinSeekBackwards: 1,
       activeTool: 'cursor',
-      resizeKey: 1,
       toolSettings: {
         fillColor: '#ffaabb',
         strokeColor: '#000',
@@ -76,37 +62,6 @@ class Editor extends Component {
         cornerRadius: 0,
         pressureEnabled: false,
       },
-      selectionProperties: {
-        content: "none",
-        canvasUUIDs: [],
-        timelineUUIDs: [],
-        name: "selectedObject",
-        x:0,
-        y:0,
-        width: 100,
-        height: 100,
-        scaleW: 1,
-        scaleH: 1,
-        rotation: 0,
-        opacity: 1,
-        strokeWidth: 1,
-        fillColor: '#ffaa66',
-        strokeColor: '#666',
-        frameLength: 0,
-        sound: "needs a uuid",
-        actions: [
-          [
-            {
-              name: "Convert to Symbol",
-              action: () => this.openModal("ConvertToSymbol"),
-              color: "blue",
-              tooltip: "Convert to Symbol",
-              icon: undefined,
-            }
-          ]
-        ],
-      },
-      assets: genAssets(),
       openModalName: "AlphaWarning",
       previewPlaying: false,
       inspectorSize: 250,
@@ -115,30 +70,21 @@ class Editor extends Component {
       assetLibrarySize: 150,
     };
 
-    // Milliseconds to throttle resize events by.
-    this.resizeThrottleAmount = 10;
-    this.windowResizeThrottleAmount = 300;
-
-    // define hotkeys
+    // Init hotkeys
     this.hotKeyInterface = new HotKeyInterface(this);
 
-    this.tickLoopIntervalID = null;
-
-    this.updateProject = this.updateProject.bind(this);
-    this.updateOnionSkinSettings = this.updateOnionSkinSettings.bind(this);
-    this.updateToolSettings = this.updateToolSettings.bind(this);
-    this.updateSelectionProperties = this.updateSelectionProperties.bind(this);
-    this.deleteSelection = this.deleteSelection.bind(this);
-    this.updateAssets = this.updateAssets.bind(this);
+    // Modals
     this.openModal = this.openModal.bind(this);
-    this.activateTool = this.activateTool.bind(this);
-    this.focusSymbol = this.focusSymbol.bind(this);
-    this.focusSelectedSymbol = this.focusSelectedSymbol.bind(this);
-    this.returnToRoot = this.returnToRoot.bind(this);
+
+    // Preview play
+    this.tickLoopIntervalID = null;
     this.togglePreviewPlaying = this.togglePreviewPlaying.bind(this);
     this.startTickLoop = this.startTickLoop.bind(this);
     this.stopTickLoop = this.stopTickLoop.bind(this);
-    this.refocusEditor = this.refocusEditor.bind(this);
+
+    // Resiable panels
+    this.RESIZE_THROTTLE_AMOUNT_MS = 10;
+    this.WINDOW_RESIZE_THROTTLE_AMOUNT_MS = 300;
     this.resizeProps = {
       onStopResize: throttle(this.onStopResize.bind(this), this.resizeThrottleAmount),
       onStopInspectorResize: throttle(this.onStopInspectorResize.bind(this), this.resizeThrottleAmount),
@@ -148,14 +94,13 @@ class Editor extends Component {
       onResize: throttle(this.onResize.bind(this), this.resizeThrottleAmount),
       onWindowResize: throttle(this.onWindowResize.bind(this), this.windowResizeThrottleAmount),
     };
-
-    // Bind window resizes to editor resize events.
     window.addEventListener("resize", this.resizeProps.onWindowResize);
+
+    this.refocusEditor = this.refocusEditor.bind(this);
   }
 
   componentWillMount () {
-    let project = new window.Wick.Project();
-    this.setState({project: project});
+    this.setState({project: new window.Wick.Project()});
   }
 
   componentDidMount () {
@@ -172,8 +117,8 @@ class Editor extends Component {
     }
   }
 
-  // Ensure that all elements resize on window resize.
   onWindowResize () {
+    // Ensure that all elements resize on window resize.
     this.resizeProps.onResize();
   }
 
@@ -186,30 +131,22 @@ class Editor extends Component {
 
   }
 
-  getSizeHorizontal = (domElement) => {
-    return domElement.offsetHeight;
-  }
-
-  getSizeVertical = (domElement) => {
-    return domElement.offsetWidth;
-  }
-
   onStopInspectorResize = ({domElement, component}) => {
     this.setState({
-      inspectorSize: this.getSizeVertical(domElement)
-    })
+      inspectorSize: domElement.offsetWidth
+    });
   }
 
   onStopAssetLibraryResize = ({domElement, component}) => {
     this.setState({
-      assetLibrarySize: this.getSizeHorizontal(domElement)
-    })
+      assetLibrarySize: domElement.offsetWidth
+    });
   }
 
   onStopCodeEditorResize = ({domElement, component}) => {
     this.setState({
       codeEditorSize: this.getSizeVertical(domElement)
-    })
+    });
   }
 
   onStopTimelineResize = ({domElement, component}) => {
@@ -217,11 +154,7 @@ class Editor extends Component {
 
     this.setState({
       timelineSize: size
-    })
-
-    console.log(size);
-
-
+    });
   }
 
   openModal (name) {
@@ -233,31 +166,7 @@ class Editor extends Component {
     this.refocusEditor();
   }
 
-  focusSymbol (symbol) {
-    var newProject = this.state.project.clone();
-    newProject.focus = symbol;
-    this.updateProject(newProject);
-  }
-
-  focusSelectedSymbol () {
-    let symbolUUID = this.state.selectionProperties.canvasUUIDs[0];
-    symbolUUID = symbolUUID.split('_')[2];
-    let symbol = this.state.project._childByUUID(symbolUUID);
-    this.focusSymbol(symbol);
-  }
-
-  returnToRoot () {
-    this.focusSymbol(this.state.project.root);
-  }
-
-  activateTool (toolName) {
-    this.setState({
-      activeTool: toolName
-    });
-  }
-
   togglePreviewPlaying () {
-    console.log("toggling");
     this.setState(prevState => ({
       previewPlaying: !prevState.previewPlaying,
     }));
@@ -279,75 +188,6 @@ class Editor extends Component {
     window.document.getElementById('hotkeys-container').focus();
   }
 
-  updateProject (nextProject) {
-    this.setState(prevState => ({
-      project: nextProject,
-    }));
-  }
-
-  updateOnionSkinSettings (enabled, seekBackwards, seekForwards) {
-    this.setState(prevState => ({
-      onionSkinEnabled: enabled,
-      onionSkinSeekBackwards: seekBackwards,
-      onionSkinSeekForwards: seekForwards,
-    }));
-  }
-
-  updateToolSettings (newToolSettings) {
-    let updatedToolSettings = this.state.toolSettings;
-
-    // Update only provided settings.
-    Object.keys(newToolSettings).forEach((key) =>
-      updatedToolSettings[key] = newToolSettings[key]
-    )
-
-    this.setState({
-      toolSettings: updatedToolSettings,
-    });
-  }
-
-  updateSelectionProperties (newSelectionProperties) {
-    let updatedSelectionProperties = JSON.parse(JSON.stringify(this.state.selectionProperties));
-
-    // Update only provided settings.
-    Object.keys(newSelectionProperties).forEach((key) =>
-      updatedSelectionProperties[key] = newSelectionProperties[key]
-    );
-
-    // Only timeline objects OR canvas objects can be selected at once.
-    if(newSelectionProperties.canvasUUIDs) {
-      updatedSelectionProperties.timelineUUIDs = [];
-    } else if (newSelectionProperties.timelineUUIDs) {
-      updatedSelectionProperties.canvasUUIDs = [];
-    }
-
-    if(updatedSelectionProperties.canvasUUIDs.length === 0
-    && updatedSelectionProperties.timelineUUIDs.length === 0) {
-      updatedSelectionProperties.content = 'none';
-    }
-
-    this.setState({
-      selectionProperties: updatedSelectionProperties,
-    });
-  }
-
-  deleteSelection () {
-    let content = this.state.selectionProperties.content
-    if(['path', 'multipath', 'group', 'multigroup', 'multimixed', 'button', 'clip'].indexOf(content) !== -1) {
-      window.paper.drawingTools.cursor.deleteSelectedItems();
-    } else if (content === 'frame' || content === 'multiframe') {
-      this.state.selectionProperties.timelineUUIDs.forEach(uuid => {
-        let frame = this.state.project._childByUUID(uuid);
-        frame.parent.removeFrame(frame);
-      })
-      this.updateProject(this.state.project);
-    }
-  }
-
-  updateAssets (updatedAssets) {
-    console.log("Updating Assets", updatedAssets);
-  }
-
   render () {
       return (
         <DragDropContextProvider backend={HTML5Backend}>
@@ -359,11 +199,9 @@ class Editor extends Component {
             <div id="editor">
               <div id="menu-bar-container">
                 <ModalHandler
-                  openModal={this.openModal}
                   openModalName={this.state.openModalName}
                   project={this.state.project}
-                  updateProject={this.updateProject}
-                  selectionProperties={this.state.selectionProperties}
+                  selection={this.state.selection}
                 />
                 {/* Header */}
                 <DockedPanel>
@@ -386,10 +224,6 @@ class Editor extends Component {
                             <Toolbox
                               activeTool={this.state.activeTool}
                               toolSettings={this.state.toolSettings}
-                              updateToolSettings={this.updateToolSettings}
-                              fillColor={this.state.fillColor}
-                              strokeColor={this.state.strokeColor}
-                              activateTool={this.activateTool}
                               previewPlaying={this.state.previewPlaying}
                               togglePreviewPlaying={this.togglePreviewPlaying}
                             />
@@ -405,9 +239,7 @@ class Editor extends Component {
                               <DockedPanel>
                                 <CodeEditor
                                   project={this.state.project}
-                                  updateProject={this.updateProject}
-                                  selectionProperties={this.state.selectionProperties}
-                                  updateSelectionProperties={this.updateSelectionProperties}
+                                  selection={this.state.selection}
                                 />
                               </DockedPanel>
                             </ReflexElement>
@@ -416,14 +248,12 @@ class Editor extends Component {
                               <DockedPanel>
                                 <Canvas
                                   project={this.state.project}
+                                  selection={this.state.selection}
                                   toolSettings={this.state.toolSettings}
-                                  updateProject={this.updateProject}
                                   activeTool={this.state.activeTool}
                                   onionSkinEnabled={this.state.onionSkinEnabled}
                                   onionSkinSeekBackwards={this.state.onionSkinSeekBackwards}
                                   onionSkinSeekForwards={this.state.onionSkinSeekForwards}
-                                  selectionProperties={this.state.selectionProperties}
-                                  updateSelectionProperties={this.updateSelectionProperties}
                                 />
                               </DockedPanel>
                             </ReflexElement>
@@ -439,13 +269,10 @@ class Editor extends Component {
                           <DockedPanel>
                             <Timeline
                               project={this.state.project}
-                              updateProject={this.updateProject}
-                              updateOnionSkinSettings={this.updateOnionSkinSettings}
+                              selection={this.state.selection}
                               onionSkinEnabled={this.state.onionSkinEnabled}
                               onionSkinSeekBackwards={this.state.onionSkinSeekBackwards}
                               onionSkinSeekForwards={this.state.onionSkinSeekForwards}
-                              selectionProperties={this.state.selectionProperties}
-                              updateSelectionProperties={this.updateSelectionProperties}
                             />
                           </DockedPanel>
                         </ReflexElement>
@@ -467,10 +294,7 @@ class Editor extends Component {
                             <Inspector
                               activeTool={this.state.activeTool}
                               toolSettings={this.state.toolSettings}
-                              updateToolSettings={this.updateToolSettings}
-                              selectionProperties={this.state.selectionProperties}
-                              updateSelectionProperties={this.updateSelectionProperties}
-                              convertToSymbol={() => this.openModal("ConvertToSymbol")}
+                              selection={this.state.selection}
                             />
                           </DockedPanel>
                         </ReflexElement>
@@ -484,8 +308,9 @@ class Editor extends Component {
                           onStopResize={this.resizeProps.onStopAssetLibraryResize}>
                           <DockedPanel>
                             <AssetLibrary
-                              assets={this.state.assets}
-                              updateAssets={this.updateAssets}/></DockedPanel>
+                              project={this.state.project}
+                            />
+                          </DockedPanel>
                         </ReflexElement>
                       </ReflexContainer>
                     </ReflexElement>

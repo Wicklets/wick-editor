@@ -146,7 +146,7 @@ class Inspector extends Component {
     return (
       <InspectorNumericSlider
         icon="strokewidth"
-        val={this.props.selectionProperties.strokeWidth}
+        val={this.props.selection.strokeWidth}
         onChange={(val) => this.handleSelectionPropertyChange('strokeWidth', val)}
         divider={false}/>
     )
@@ -166,7 +166,7 @@ class Inspector extends Component {
     return(
       <InspectorColorPicker
         icon="fillcolor"
-        val={this.props.selectionProperties.fillColor}
+        val={this.props.selection.fillColor}
         onChange={(col) => this.handleSelectionPropertyChange('fillColor', col.hex)}
         id={"inspector-selection-fill-color"} />
     )
@@ -187,7 +187,7 @@ class Inspector extends Component {
     return(
       <InspectorColorPicker
         icon="strokecolor"
-        val={this.props.selectionProperties.strokeColor}
+        val={this.props.selection.strokeColor}
         onChange={(col) => this.handleSelectionPropertyChange('strokeColor', col.hex)}
         id={"inspector-selection-stroke-color"}
         stroke={true}/>
@@ -220,8 +220,8 @@ class Inspector extends Component {
     return (
       <InspectorTextInput
         icon="name"
-        val={this.props.selectionProperties.name}
-        onChange={(val) => this.props.updateSelectionProperties('name', val)} />
+        val={this.props.selection.name}
+        onChange={(val) => this.props.updateselection('name', val)} />
     )
   }
 
@@ -229,8 +229,8 @@ class Inspector extends Component {
     return (
       <InspectorNumericInput
         icon="framelength"
-        val={this.props.selectionProperties.frameLength}
-        onChange={(val) => this.props.updateSelectionProperties('frameLength', val)} />
+        val={this.props.selection.frameLength}
+        onChange={(val) => this.props.updateselection('frameLength', val)} />
     )
   }
 
@@ -238,8 +238,8 @@ class Inspector extends Component {
     return (
       <InspectorDualNumericInput
         icon="position"
-        val1={this.props.selectionProperties.x}
-        val2={this.props.selectionProperties.y}
+        val1={this.props.selection.x}
+        val2={this.props.selection.y}
         onChange1={(val) => this.handleSelectionPropertyChange('x', val)}
         onChange2={(val) => this.handleSelectionPropertyChange('y', val)}
         divider={true} />
@@ -250,8 +250,8 @@ class Inspector extends Component {
     return (
       <InspectorDualNumericInput
         icon="size"
-        val1={this.props.selectionProperties.width}
-        val2={this.props.selectionProperties.height}
+        val1={this.props.selection.width}
+        val2={this.props.selection.height}
         onChange1={(val) => this.handleSelectionPropertyChange('width', val)}
         onChange2={(val) => this.handleSelectionPropertyChange('height', val)}
         divider={true} />
@@ -263,8 +263,8 @@ class Inspector extends Component {
     return (
       <InspectorDualNumericInput
         icon="scale"
-        val1={this.props.selectionProperties.scaleW}
-        val2={this.props.selectionProperties.scaleH}
+        val1={this.props.selection.scaleW}
+        val2={this.props.selection.scaleH}
         onChange1={(val) => this.handleSelectionPropertyChange('scaleW', val)}
         onChange2={(val) => this.handleSelectionPropertyChange('scaleH', val)}
         divider={true} />
@@ -275,7 +275,7 @@ class Inspector extends Component {
     return (
       <InspectorNumericInput
         icon="rotation"
-        val={this.props.selectionProperties.rotation}
+        val={this.props.selection.rotation}
         onChange={(val) => this.handleSelectionPropertyChange('rotation', val)} />
     )
   }
@@ -284,7 +284,7 @@ class Inspector extends Component {
     return (
       <InspectorNumericInput
         icon="opacity"
-        val={this.props.selectionProperties.opacity}
+        val={this.props.selection.opacity}
         onChange={(val) => this.handleSelectionPropertyChange('opacity', val)} />
     )
   }
@@ -323,8 +323,8 @@ class Inspector extends Component {
   }
 
   handleSelectionPropertyChange(property, newVal) {
-    this.props.selectionProperties[property] = newVal;
-    this.props.updateSelectionProperties(this.props.selectionProperties);
+    this.props.selection[property] = newVal;
+    this.props.updateselection(this.props.selection);
   }
 
   renderBrush() {
@@ -567,8 +567,8 @@ class Inspector extends Component {
   }
 
   renderDisplay() {
-    if (this.props.selectionProperties.content in this.inspectorContentRenderFunctions) {
-      let renderFunction = this.inspectorContentRenderFunctions[this.props.selectionProperties.content];
+    if (this.props.selection.content in this.inspectorContentRenderFunctions) {
+      let renderFunction = this.inspectorContentRenderFunctions[this.props.selection.content];
       return(renderFunction());
     } else if (this.props.activeTool in this.inspectorContentRenderFunctions) {
       let renderFunction = this.inspectorContentRenderFunctions[this.props.activeTool];
@@ -605,10 +605,10 @@ class Inspector extends Component {
 
   renderActions() {
     console.log("Rendering Actions");
-    console.log(this.props.selectionProperties.actions);
+    console.log(this.props.selection.actions);
     return(
       <div className="inspector-content">
-        {this.props.selectionProperties.actions.map(this.renderActionButtonRow)}
+        {this.props.selection.actions.map(this.renderActionButtonRow)}
       </div>
     )
   }
