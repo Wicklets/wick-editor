@@ -21,6 +21,7 @@ import React, { Component } from 'react';
 
 import './_timeline.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import AnimationTimeline from 'core/AnimationTimeline';
 
 class Timeline extends Component {
   constructor (props) {
