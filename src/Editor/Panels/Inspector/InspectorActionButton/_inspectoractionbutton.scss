@@ -46,20 +46,20 @@
 }
 
 // Button color schemes
-.button-blue {
-  -webkit-transition-duration: 0.4s; /* Safari */
-  transition-duration: 0.2s;
+.button-sky {
+  -webkit-transition-duration: $inspector-transition-duration; /* Safari */
+  transition-duration: $inspector-transition-duration;
 
-  background-color: #2719FF;
-  color: white;
+  background-color: #BBF6F0;
+  color: black;
 }
 
-.button-blue:hover {
-  background-color: #2C45FF;
-  color: white;
+.button-sky:hover {
+  background-color: #D3F8F4;
+  color: black;
 }
 
-.button-blue:active {
-  background-color: #2000DD;
-  color: white;
+.button-sky:active {
+  background-color: #8DDED6;
+  color: black;
 }
