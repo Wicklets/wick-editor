@@ -29,6 +29,8 @@ class Timeline extends Component {
   }
 
   componentDidMount () {
+    this.props.onRef(this);
+
     let AnimationTimeline = window.AnimationTimeline;
     let self = this;
 
@@ -54,7 +56,9 @@ class Timeline extends Component {
   updateAnimationTimelineData () {
     let AnimationTimeline = window.AnimationTimeline;
     let timeline = this.props.project.focus.timeline;
-    let selectedUUIDs = this.props.selectionProperties.timelineUUIDs;
+    let selectedUUIDs = this.props.selection.selectedTimelineObjects.map(obj => {
+      return obj.uuid;
+    });
 
     AnimationTimeline.setData({
       playheadPosition: timeline.playheadPosition,
@@ -143,13 +147,13 @@ class Timeline extends Component {
         }
       });
     }
-    this.props.updateProject(nextProject);
-
-    this.props.updateOnionSkinSettings(
-      e.onionSkinEnabled !== undefined ? e.onionSkinEnabled : this.props.onionSkinEnabled,
-      e.onionSkinSeekBackwards !== undefined ? e.onionSkinSeekBackwards : this.props.onionSkinSeekBackwards,
-      e.onionSkinSeekForwards !== undefined ? e.onionSkinSeekForwards : this.props.onionSkinSeekForwards,
-    );
+    this.props.updateEditorState({
+      project: nextProject,
+      selection: this.props.selection,
+      onionSkinEnabled: e.onionSkinEnabled !== undefined ? e.onionSkinEnabled : this.props.onionSkinEnabled,
+      onionSkinSeekBackwards: e.onionSkinSeekBackwards !== undefined ? e.onionSkinSeekBackwards : this.props.onionSkinSeekBackwards,
+      onionSkinSeekForwards: e.onionSkinSeekForwards !== undefined ? e.onionSkinSeekForwards : this.props.onionSkinSeekForwards,
+    });
   }
 
   onSoftChange (e) {
@@ -157,11 +161,12 @@ class Timeline extends Component {
   }
 
   onSelectionChange (e) {
-    this.props.updateSelectionProperties({
-      timelineUUIDs: e.frames.map(frame => {
-        return frame.id;
-      }),
-      content: e.frames.length > 1 ? 'multiframe' : 'frame',
+    let self = this;
+    this.props.selection.selectObjects(e.frames.map(frame => {
+      return self.props.project._childByUUID(frame.id);
+    }));
+    this.props.updateEditorState({
+      selection: this.props.selection,
     });
   }
 

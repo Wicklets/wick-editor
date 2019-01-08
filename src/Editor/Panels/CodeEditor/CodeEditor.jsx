@@ -17,7 +17,7 @@
  * along with Wick Editor.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import AceEditor from 'react-ace';
 
 import 'brace/mode/javascript';
@@ -25,7 +25,7 @@ import 'brace/theme/monokai';
 
 import './_codeeditor.scss';
 
-class CodeEditor extends PureComponent {
+class CodeEditor extends Component {
   constructor (props) {
     super(props);
 
@@ -41,7 +41,7 @@ class CodeEditor extends PureComponent {
     this.refs.reactAceComponent && this.refs.reactAceComponent.editor.resize();
     return (
       <div className="code-editor">
-        {this.selectionIsScriptable(this.props.selectionProperties)
+        {this.selectionIsScriptable(this.props.selection)
           ? this.renderAceEditor()
           : this.renderNotScriptableInfo()}
       </div>
@@ -56,9 +56,9 @@ class CodeEditor extends PureComponent {
         name="ace-editor"
         fontSize={14}
         ref="reactAceComponent"
-        onChange={(e) => {this.updateSelectionScript(this.props.selectionProperties, this.props.project, e)}}
+        onChange={(e) => {this.updateSelectionScript(this.props.selection, this.props.project, e)}}
         editorProps={{$blockScrolling: true}}
-        value={this.getSelectionScript(this.props.selectionProperties, this.props.project).src}
+        value={this.getSelectionScript(this.props.selection, this.props.project).src}
       />
     );
   }
@@ -69,23 +69,25 @@ class CodeEditor extends PureComponent {
     )
   }
 
-  selectionIsScriptable (selectionProps) {
-    return selectionProps.content === 'frame'
-        || selectionProps.content === 'group';
+  selectionIsScriptable (selection) {
+    return selection.type === 'frame'
+        || selection.type === 'clip'
+        || selection.type === 'button';
   }
 
-  getSelectionScript (selectionProps, project) {
-    if(selectionProps.content === 'frame') {
-      return project._childByUUID(selectionProps.timelineUUIDs[0]).script;
-    } else if (selectionProps.content === 'group') {
-      return project._childByUUID(selectionProps.canvasUUIDs[0].split('_')[2]).script;
+  getSelectionScript (selection, project) {
+    if(selection.type === 'frame') {
+      return project._childByUUID(selection.selectedFrames[0].uuid).script;
+    } else if (selection.type === 'clip'
+            || selection.type === 'button') {
+      return project._childByUUID(selection.selectedClips[0].uuid).script;
     }
   }
 
-  updateSelectionScript (selectionProps, project, newScript) {
-    let script = this.getSelectionScript(selectionProps, project);
+  updateSelectionScript (selection, project, newScript) {
+    let script = this.getSelectionScript(selection, project);
     script.src = newScript;
-    this.props.updateProject(project);
+    this.props.updateEditorState({project:project});
   }
 }
 

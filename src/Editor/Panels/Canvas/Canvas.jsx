@@ -47,7 +47,6 @@ function collect(connect, monitor) {
   };
 }
 
-
 class Canvas extends Component {
   constructor (props) {
     super(props);
@@ -55,7 +54,9 @@ class Canvas extends Component {
     this.wickCanvas = null;
 
     this.updateCanvas = this.updateCanvas.bind(this);
+    this.updateSelection = this.updateSelection.bind(this);
     this.updateActiveTool = this.updateActiveTool.bind(this);
+
     this.onCanvasModified = this.onCanvasModified.bind(this);
     this.onSelectionChanged = this.onSelectionChanged.bind(this);
 
@@ -63,11 +64,12 @@ class Canvas extends Component {
   }
 
   componentDidMount() {
+    this.props.onRef(this);
+    
     this.wickCanvas = new window.WickCanvas();
     window.WickCanvas.setup(this.canvasContainer.current);
     window.WickCanvas.resize();
 
-    // This will go somewhere else later
     window.paper.view.zoom = 1;
     window.paper.view.center = new window.paper.Point(
       this.props.project.width/2,
@@ -84,6 +86,7 @@ class Canvas extends Component {
     this.wickCanvas.render(this.props.project);
 
     this.updateCanvas();
+    this.updateSelection();
     this.updateActiveTool();
   }
 
@@ -93,10 +96,17 @@ class Canvas extends Component {
       onionSkinSeekBackwards: this.props.onionSkinSeekBackwards,
       onionSkinSeekForwards: this.props.onionSkinSeekForwards,
     });
+  }
+
+  updateSelection () {
     window.paper.project.selection.clear();
-    this.props.selectionProperties.canvasUUIDs.forEach(uuid => {
-      window.paper.project.selection.addItemByName(uuid);
+    this.props.selection.selectedPaths.forEach(obj => {
+      window.paper.project.selection.addItemByName(obj.name);
     });
+    this.props.selection.selectedClips.forEach(obj => {
+      window.paper.project.selection.addItemByName('wick_clip_'+obj.uuid);
+    });
+    // TODO update selection transforms based on this.props.selection.width/height/x/y/etc
     window.paper.project.selection.updateGUI();
     window.paper.project.addLayer(window.paper.project.selection.guiLayer);
   }
@@ -117,45 +127,22 @@ class Canvas extends Component {
 
   onCanvasModified (e) {
     this.wickCanvas.applyChanges(this.props.project, e.layers);
-    this.props.updateProject(this.props.project);
+    this.props.updateEditorState({project:this.props.project});
   }
 
   onSelectionChanged (e) {
-    var selectedItems = window.paper.project.selection.items;
-
-    let types = selectedItems.map(item => {
-      if(item.className === 'Path' || item.className === 'CompoundPath') {
-        return 'Path';
-      } else if (item.className === 'Group') {
-        return 'Group';
-      }
-      return null;
-    });
-
-    let content = null;
-    if(types.indexOf('Path') !== -1 && types.indexOf('Group') !== -1) {
-      content = 'multimixed';
-    } else if(types.indexOf('Path') !== -1) {
-      content = selectedItems.length > 1 ? 'multipath' : 'path'
-    } else if(types.indexOf('Group') !== -1) {
-      content = selectedItems.length > 1 ? 'multigroup' : 'group'
-    }
-
-    var newSelectionProperties = {
-      canvasUUIDs: selectedItems.map(item => {
-        return item.name;
-      }),
-      content: content,
-    };
+    this.props.selection.selectObjects(window.paper.project.selection.items);
 
     if(window.paper.project.selection.items.length > 0) {
-      newSelectionProperties.x = window.paper.project.selection.bounds.left;
-      newSelectionProperties.y = window.paper.project.selection.bounds.top;
-      newSelectionProperties.width = window.paper.project.selection.bounds.width;
-      newSelectionProperties.height = window.paper.project.selection.bounds.height;
+      this.props.selection.x = window.paper.project.selection.bounds.left;
+      this.props.selection.y = window.paper.project.selection.bounds.top;
+      this.props.selection.width = window.paper.project.selection.bounds.width;
+      this.props.selection.height = window.paper.project.selection.bounds.height;
     }
 
-    this.props.updateSelectionProperties(newSelectionProperties);
+    this.props.updateEditorState({
+      selection: this.props.selection,
+    });
   }
 
   render() {
