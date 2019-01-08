@@ -75,6 +75,9 @@ class Editor extends Component {
     // Init hotkeys
     this.hotKeyInterface = new HotKeyInterface(this);
 
+    // Tools
+    this.activateTool = this.activateTool.bind(this);
+
     // Modals
     this.openModal = this.openModal.bind(this);
     this.closeActiveModal = this.closeActiveModal.bind(this);
@@ -178,6 +181,12 @@ class Editor extends Component {
     this.setState(state);
   }
 
+  activateTool (tool) {
+    this.updateEditorState({
+      activeTool: tool
+    });
+  }
+
   closeActiveModal () {
     this.openModal(null);
   }
@@ -252,6 +261,7 @@ class Editor extends Component {
                             <Toolbox
                               updateEditorState={this.updateEditorState}
                               activeTool={this.state.activeTool}
+                              activateTool={this.activateTool}
                               toolSettings={this.state.toolSettings}
                               previewPlaying={this.state.previewPlaying}
                               togglePreviewPlaying={this.togglePreviewPlaying}

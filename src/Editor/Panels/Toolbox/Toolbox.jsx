@@ -31,9 +31,7 @@ class Toolbox extends Component {
 
     this.iconProps = {
       toolIsActive: this.toolIsActive.bind(this),
-      activateTool: (newTool) => {this.props.updateEditorState({
-        activeTool: newTool
-      })},
+      activateTool: this.props.activateTool,
     };
   }
 
