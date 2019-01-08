@@ -326,7 +326,9 @@ class Inspector extends Component {
 
   handleSelectionPropertyChange(property, newVal) {
     this.props.selection[property] = newVal;
-    this.props.updateselection(this.props.selection);
+    this.props.updateEditorState({
+      selection: this.props.selection
+    });
   }
 
   renderBrush() {

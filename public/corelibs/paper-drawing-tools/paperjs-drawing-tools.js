@@ -4476,6 +4476,8 @@ paper.MultiSelection = class {
       child.position.x += x;
       child.position.y += y;
     });
+
+    this._recalculateBounds();
   }
 
   rotate(r, pivot) {
@@ -4488,6 +4490,8 @@ paper.MultiSelection = class {
     this.guiLayer.children.forEach(child => {
       child.rotate(r, pivot);
     });
+
+    this._recalculateBounds();
   }
 
   scale(x, y, pivot) {
@@ -4517,6 +4521,34 @@ paper.MultiSelection = class {
     });
 
     this._rebuildGUI();
+  }
+
+  setPosition(x, y) {
+    var dx = x - this.bounds.left;
+    var dy = y - this.bounds.top;
+    this.translate(dx, dy);
+  }
+
+  setRotation(r) {
+    var dr = r - this._prerotationAmount;
+    this.rotate(dr);
+  }
+
+  setScale(x, y) {
+    if (this._selectedItems.length === 1) {
+      var item = this._selectedItems[0];
+      var dx = x / item.scaling.x;
+      var dy = y / item.scaling.y;
+      this.scale(dx, dy);
+    } else {
+      this.scale(x, y);
+    }
+  }
+
+  setWidthHeight(w, h) {
+    var sx = w / this._selectionBounds.width;
+    var sy = h / this._selectionBounds.height;
+    this.scale(sx, sy);
   }
 
   exportSVG() {

@@ -57,6 +57,7 @@ class Canvas extends Component {
     this.updateSelection = this.updateSelection.bind(this);
     this.updateActiveTool = this.updateActiveTool.bind(this);
 
+    this.updateSelectionTransformsProps = this.updateSelectionTransformsProps.bind(this);
     this.onCanvasModified = this.onCanvasModified.bind(this);
     this.onSelectionChanged = this.onSelectionChanged.bind(this);
 
@@ -65,7 +66,7 @@ class Canvas extends Component {
 
   componentDidMount() {
     this.props.onRef(this);
-    
+
     this.wickCanvas = new window.WickCanvas();
     window.WickCanvas.setup(this.canvasContainer.current);
     window.WickCanvas.resize();
@@ -106,7 +107,13 @@ class Canvas extends Component {
     this.props.selection.selectedClips.forEach(obj => {
       window.paper.project.selection.addItemByName('wick_clip_'+obj.uuid);
     });
-    // TODO update selection transforms based on this.props.selection.width/height/x/y/etc
+    if(this.props.selection.selectedCanvasObjects.length > 0) {
+      window.paper.project.selection.setPosition(this.props.selection.x, this.props.selection.y);
+      window.paper.project.selection.setWidthHeight(this.props.selection.width, this.props.selection.height);
+      window.paper.project.selection.setScale(this.props.selection.scaleW, this.props.selection.scaleH);
+      window.paper.project.selection.setRotation(this.props.selection.rotation);
+      this.wickCanvas.applyChanges(this.props.project, window.paper.project.layers);
+    }
     window.paper.project.selection.updateGUI();
     window.paper.project.addLayer(window.paper.project.selection.guiLayer);
   }
@@ -125,20 +132,33 @@ class Canvas extends Component {
     }
   }
 
-  onCanvasModified (e) {
-    this.wickCanvas.applyChanges(this.props.project, e.layers);
-    this.props.updateEditorState({project:this.props.project});
-  }
-
-  onSelectionChanged (e) {
-    this.props.selection.selectObjects(window.paper.project.selection.items);
-
+  updateSelectionTransformsProps () {
     if(window.paper.project.selection.items.length > 0) {
       this.props.selection.x = window.paper.project.selection.bounds.left;
       this.props.selection.y = window.paper.project.selection.bounds.top;
       this.props.selection.width = window.paper.project.selection.bounds.width;
       this.props.selection.height = window.paper.project.selection.bounds.height;
+      this.props.selection.scaleW = 1;
+      this.props.selection.scaleH = 1;
+      // TODO: the rest of the transforms
     }
+  }
+
+  onCanvasModified (e) {
+    this.wickCanvas.applyChanges(this.props.project, e.layers);
+
+    this.updateSelectionTransformsProps();
+
+    this.props.updateEditorState({
+      project: this.props.project,
+      selection: this.props.selection,
+    });
+  }
+
+  onSelectionChanged (e) {
+    this.props.selection.selectObjects(window.paper.project.selection.items);
+
+    this.updateSelectionTransformsProps();
 
     this.props.updateEditorState({
       selection: this.props.selection,
