@@ -62,11 +62,11 @@ class Inspector extends Component {
       "multitween": this.renderMultiTween.bind(this),
       "clip": this.renderClip.bind(this),
       "button": this.renderButton.bind(this),
-      "group": this.renderGroup.bind(this),
-      "multigroup": this.renderMultiGroup.bind(this),
       "path": this.renderPath.bind(this),
       "multipath": this.renderMultiPath.bind(this),
-      "multimixed": this.renderMultiMixed.bind(this),
+      "multitimelinemixed": this.renderMultiTimelineMixed.bind(this),
+      "multicanvasmixed": this.renderMultiCanvasMixed.bind(this),
+      "asset": this.renderAsset.bind(this),
     }
 
     this.renderDisplay = this.renderDisplay.bind(this);
@@ -569,11 +569,27 @@ class Inspector extends Component {
     )
   }
 
-  renderMultiMixed() {
+  renderMultiCanvasMixed() {
     return (
       <div>
-        <InspectorTitle type={"multimixed"} title={"Mixed Selection"} />
+        <InspectorTitle type={"multicanvasmixed"} title={"Mixed Selection"} />
         {this.renderTransformProperties()}
+      </div>
+    )
+  }
+
+  renderMultiTimelineMixed() {
+    return (
+      <div>
+        <InspectorTitle type={"multitimelinemixed"} title={"Mixed Selection"} />
+      </div>
+    )
+  }
+
+  renderAsset() {
+    return (
+      <div>
+        <InspectorTitle type={"asset"} title={"Asset"} />
       </div>
     )
   }

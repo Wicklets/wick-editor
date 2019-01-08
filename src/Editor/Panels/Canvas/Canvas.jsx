@@ -66,7 +66,6 @@ class Canvas extends Component {
     window.WickCanvas.setup(this.canvasContainer.current);
     window.WickCanvas.resize();
 
-    // This will go somewhere else later
     window.paper.view.zoom = 1;
     window.paper.view.center = new window.paper.Point(
       this.props.project.width/2,
@@ -93,9 +92,10 @@ class Canvas extends Component {
       onionSkinSeekForwards: this.props.onionSkinSeekForwards,
     });
     window.paper.project.selection.clear();
-    this.props.selection.canvasObjects.forEach(obj => {
+    this.props.selection.selectedCanvasObjects.forEach(obj => {
       window.paper.project.selection.addItemByName(obj.name);
     });
+    // TODO update selection transforms based on this.props.selection.width/height/x/y/etc
     window.paper.project.selection.updateGUI();
     window.paper.project.addLayer(window.paper.project.selection.guiLayer);
   }
@@ -120,7 +120,7 @@ class Canvas extends Component {
   }
 
   onSelectionChanged (e) {
-    this.props.selection.canvasObjects = window.paper.project.selection.items;
+    this.props.selection.selectObjects(window.paper.project.selection.items);
 
     if(window.paper.project.selection.items.length > 0) {
       this.props.selection.x = window.paper.project.selection.bounds.left;

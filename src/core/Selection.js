@@ -1,8 +1,6 @@
 class Selection {
   constructor () {
-    this._canvasObjects = [];
-    this._timelineObjects = [];
-    this._assetLibraryObjects = [];
+    this._selectedObjects = [];
 
     this.project = null;
 
@@ -21,66 +19,38 @@ class Selection {
   }
 
   get type () {
-    if(this._canvasObjects.length > 0) {
-      return this._canvasSelectionType;
-    } else if (this._timelineObjects.length > 0) {
-      return this._timelineSelectionType;
-    } else if (this._assetLibraryObjects.length > 0) {
-      return this._assetLibrarySelectionType;
+    if(this.selectedObjects.length > 0) {
+      if(this.selectedCanvasObjects.length > 0) {
+        if(this.selectedCanvasObjects.length === 1) {
+          if(this.selectedPaths.length === 1) {
+            return 'path';
+          } else if(this.selectedClips.length === 1) {
+            if(this.selectedClips[0] instanceof window.Wick.Button) {
+              return 'button'
+            } else if(this.selectedClips[0] instanceof window.Wick.Clip) {
+              return 'clip';
+            }
+          }
+        } else {
+          return 'multicanvasmixed';
+        }
+      } else if (this.selectedTimelineObjects.length > 0) {
+        if(this.selectedFrames.length > 0 && this.selectedTweens.length > 0) {
+          return 'multitimeline';
+        } else if(this.selectedFrames.length > 1) {
+          return 'multiframe';
+        } else if(this.selectedFrames.length > 0) {
+          return 'frame';
+        } else if(this.selectedTweens.length > 1) {
+          return 'mulittween';
+        } else if(this.selectedTweens.length > 0) {
+          return 'tween';
+        }
+      } else if (this.selectedAssets.length > 0) {
+        return 'asset';
+      }
     }
     return null;
-  }
-
-  get _canvasSelectionType () {
-    let self = this;
-    let types = this._canvasObjects.map(obj => {
-      if(obj instanceof window.paper.Path) {
-        return 'Path';
-      } else {
-        console.log(self.project)
-      }
-    });
-    console.log(types);
-    return 'multipath';
-  }
-
-  get _timelineSelectionType () {
-    var types = this._timelineObjects.map(object => {
-      return object.classname;
-    });
-    if(types.length === 1) {
-      return types[0];
-    } else {
-      if(this._allSameType(types, 'Frame')) {
-        return 'multiframe';
-      } else if(this._allSameType(types, 'Tween')) {
-        return 'multitween';
-      } else {
-        return 'multimixed';
-      }
-    }
-  }
-
-  get _assetLibrarySelectionType () {
-    if(this._assetLibraryObjects[0].classname === 'ButtonAsset') {
-      return 'buttonasset';
-    } else if(this._assetLibraryObjects[0].classname === 'ClipAsset') {
-      return 'clipasset';
-    } else if(this._assetLibraryObjects[0].classname === 'ImageAsset') {
-      return 'imageasset';
-    } else if(this._assetLibraryObjects[0].classname === 'SoundAsset') {
-      return 'soundasset';
-    }
-  }
-
-  _allSameType (types, type) {
-    let allSameType = true;
-    types.forEach(seekType => {
-      if(seekType !== type) {
-        allSameType = false;
-      }
-    })
-    return allSameType;
   }
 
   get possibleActions () {
@@ -97,28 +67,52 @@ class Selection {
     ];
   }
 
-  set canvasObjects (objects) {
-    this._canvasObjects = objects;
+  selectObjects (objects) {
+    this._selectedObjects = objects;
   }
 
-  set timelineObjects (objects) {
-    this._timelineObjects = objects;
+  get selectedObjects () {
+    return this._selectedObjects;
   }
 
-  set assetLibraryObjects (objects) {
-    this._assetLibraryObjects = objects;
+  get selectedCanvasObjects () {
+    return this.selectedClips.concat(this.selectedPaths);
   }
 
-  get canvasObjects () {
-    return this._canvasObjects;
+  get selectedPaths () {
+    return this._selectedObjects.filter(object => {
+      return object instanceof window.paper.Path
+          || object instanceof window.paper.CompoundPath;
+    });
   }
 
-  get timelineObjects () {
-    return this._timelineObjects;
+  get selectedClips () {
+    return this._selectedObjects.filter(object => {
+      return object instanceof window.Wick.Button
+          || object instanceof window.Wick.Clip;
+    });
   }
 
-  get assetLibraryObjects () {
-    return this._assetLibraryObjects;
+  get selectedTimelineObjects () {
+    return this.selectedFrames.concat(this.selectedTweens);
+  }
+
+  get selectedFrames () {
+    return this._selectedObjects.filter(object => {
+      return object instanceof window.Wick.Frame;
+    });
+  }
+
+  get selectedTweens () {
+    return this._selectedObjects.filter(object => {
+      return object instanceof window.Wick.Tween;
+    });
+  }
+
+  get selectedAssets () {
+    return this._selectedObjects.filter(object => {
+      return object instanceof window.Wick.Asset;
+    });
   }
 }
 
