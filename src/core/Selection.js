@@ -88,8 +88,9 @@ class Selection {
 
   get selectedClips () {
     return this._selectedObjects.filter(object => {
-      return object instanceof window.Wick.Button
-          || object instanceof window.Wick.Clip;
+      return object instanceof window.paper.Group;
+    }).map(obj => {
+      return this.project._childByUUID(obj.data.wickUUID);
     });
   }
 

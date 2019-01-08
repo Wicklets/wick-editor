@@ -54,7 +54,9 @@ class Canvas extends Component {
     this.wickCanvas = null;
 
     this.updateCanvas = this.updateCanvas.bind(this);
+    this.updateSelection = this.updateSelection.bind(this);
     this.updateActiveTool = this.updateActiveTool.bind(this);
+
     this.onCanvasModified = this.onCanvasModified.bind(this);
     this.onSelectionChanged = this.onSelectionChanged.bind(this);
 
@@ -62,6 +64,8 @@ class Canvas extends Component {
   }
 
   componentDidMount() {
+    this.props.onRef(this);
+    
     this.wickCanvas = new window.WickCanvas();
     window.WickCanvas.setup(this.canvasContainer.current);
     window.WickCanvas.resize();
@@ -82,6 +86,7 @@ class Canvas extends Component {
     this.wickCanvas.render(this.props.project);
 
     this.updateCanvas();
+    this.updateSelection();
     this.updateActiveTool();
   }
 
@@ -91,9 +96,15 @@ class Canvas extends Component {
       onionSkinSeekBackwards: this.props.onionSkinSeekBackwards,
       onionSkinSeekForwards: this.props.onionSkinSeekForwards,
     });
+  }
+
+  updateSelection () {
     window.paper.project.selection.clear();
-    this.props.selection.selectedCanvasObjects.forEach(obj => {
+    this.props.selection.selectedPaths.forEach(obj => {
       window.paper.project.selection.addItemByName(obj.name);
+    });
+    this.props.selection.selectedClips.forEach(obj => {
+      window.paper.project.selection.addItemByName('wick_clip_'+obj.uuid);
     });
     // TODO update selection transforms based on this.props.selection.width/height/x/y/etc
     window.paper.project.selection.updateGUI();

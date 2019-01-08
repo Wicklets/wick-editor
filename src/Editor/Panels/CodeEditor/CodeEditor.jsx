@@ -17,7 +17,7 @@
  * along with Wick Editor.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import AceEditor from 'react-ace';
 
 import 'brace/mode/javascript';
@@ -25,7 +25,7 @@ import 'brace/theme/monokai';
 
 import './_codeeditor.scss';
 
-class CodeEditor extends PureComponent {
+class CodeEditor extends Component {
   constructor (props) {
     super(props);
 
@@ -71,19 +71,21 @@ class CodeEditor extends PureComponent {
 
   selectionIsScriptable (selection) {
     return selection.type === 'frame'
-        || selection.type === 'group';
+        || selection.type === 'clip'
+        || selection.type === 'button';
   }
 
-  getSelectionScript (selectionProps, project) {
-    if(selectionProps.content === 'frame') {
-      return project._childByUUID(selectionProps.timelineUUIDs[0]).script;
-    } else if (selectionProps.content === 'group') {
-      return project._childByUUID(selectionProps.canvasUUIDs[0].split('_')[2]).script;
+  getSelectionScript (selection, project) {
+    if(selection.type === 'frame') {
+      return project._childByUUID(selection.selectedFrames[0].uuid).script;
+    } else if (selection.type === 'clip'
+            || selection.type === 'button') {
+      return project._childByUUID(selection.selectedClips[0].uuid).script;
     }
   }
 
-  updateSelectionScript (selectionProps, project, newScript) {
-    let script = this.getSelectionScript(selectionProps, project);
+  updateSelectionScript (selection, project, newScript) {
+    let script = this.getSelectionScript(selection, project);
     script.src = newScript;
     this.props.updateEditorState({project:project});
   }

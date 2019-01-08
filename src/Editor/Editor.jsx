@@ -62,7 +62,7 @@ class Editor extends Component {
         cornerRadius: 0,
         pressureEnabled: false,
       },
-      activeModalName: "AlphaWarning",
+      activeModalName: /*"AlphaWarning"*/null,
       previewPlaying: false,
       inspectorSize: 250,
       codeEditorSize: 0.1,
@@ -83,6 +83,8 @@ class Editor extends Component {
     this.togglePreviewPlaying = this.togglePreviewPlaying.bind(this);
     this.startTickLoop = this.startTickLoop.bind(this);
     this.stopTickLoop = this.stopTickLoop.bind(this);
+    this.canvasRef = React.createRef();
+    this.timelineRef = React.createRef(); // These refs are created so we don't have to update the state (slow) during preview play.
 
     // Resiable panels
     this.RESIZE_THROTTLE_AMOUNT_MS = 10;
@@ -137,21 +139,29 @@ class Editor extends Component {
 
   }
 
+  getSizeHorizontal (domElement) {
+    return domElement.offsetWidth;
+  }
+
+  getSizeVertical (domElement) {
+    return domElement.offsetHeight;
+  }
+
   onStopInspectorResize = ({domElement, component}) => {
     this.setState({
-      inspectorSize: domElement.offsetWidth
+      inspectorSize: this.getSizeHorizontal(domElement)
     });
   }
 
   onStopAssetLibraryResize = ({domElement, component}) => {
     this.setState({
-      assetLibrarySize: domElement.offsetWidth
+      assetLibrarySize: this.getSizeVertical(domElement)
     });
   }
 
   onStopCodeEditorResize = ({domElement, component}) => {
     this.setState({
-      codeEditorSize: this.getSizeVertical(domElement)
+      codeEditorSize: this.getSizeHorizontal(domElement)
     });
   }
 
@@ -189,9 +199,9 @@ class Editor extends Component {
 
   startTickLoop () {
     this.tickLoopIntervalID = setInterval(() => {
-      var nextProject = this.state.project;
-      nextProject.tick();
-      this.updateEditorState({project:nextProject});
+      this.state.project.tick();
+      this.canvasRef.updateCanvas();
+      this.timelineRef.updateAnimationTimelineData();
     }, 1000 / this.state.project.framerate);
   }
 
@@ -275,6 +285,7 @@ class Editor extends Component {
                                   onionSkinEnabled={this.state.onionSkinEnabled}
                                   onionSkinSeekBackwards={this.state.onionSkinSeekBackwards}
                                   onionSkinSeekForwards={this.state.onionSkinSeekForwards}
+                                  onRef={ref => this.canvasRef = ref}
                                 />
                               </DockedPanel>
                             </ReflexElement>
@@ -295,6 +306,7 @@ class Editor extends Component {
                               onionSkinEnabled={this.state.onionSkinEnabled}
                               onionSkinSeekBackwards={this.state.onionSkinSeekBackwards}
                               onionSkinSeekForwards={this.state.onionSkinSeekForwards}
+                              onRef={ref => this.timelineRef = ref}
                             />
                           </DockedPanel>
                         </ReflexElement>
