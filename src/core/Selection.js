@@ -57,7 +57,7 @@ class Selection {
     return [
       [
         {
-          action: () => this.openModal("ConvertToSymbol"),
+          action: () => this.editor.openModal("ConvertToSymbol"),
           color: "blue",
           tooltip: "Convert to Symbol",
           icon: undefined,
@@ -65,7 +65,7 @@ class Selection {
         },
         {
           name: "Convert to Symbol 2",
-          action: () => this.openModal("ConvertToSymbol"),
+          action: () => this.editor.openModal("ConvertToSymbol"),
           color: "blue",
           tooltip: "Symbol Conversion",
           icon: "pan",
@@ -75,9 +75,17 @@ class Selection {
       [
         {
           name: "Convert to Symbol",
-          action: () => this.openModal("ConvertToSymbol"),
+          action: () => this.editor.openModal("ConvertToSymbol"),
           color: "sky",
           tooltip: "Symbua",
+          icon: undefined,
+          id: "convert-to-symbol-action-row2"
+        },
+        {
+          name: "Delete",
+          action: () => this.deleteSelectedObjects(),
+          color: "sky",
+          tooltip: "Delete",
           icon: undefined,
           id: "convert-to-symbol-action-row2"
         },
@@ -131,6 +139,32 @@ class Selection {
   get selectedAssets () {
     return this._selectedObjects.filter(object => {
       return object instanceof window.Wick.Asset;
+    });
+  }
+
+  deleteSelectedObjects () {
+    if(this.selectedCanvasObjects.length > 0) {
+      this.deleteCanvasObjects();
+    } else if (this.selectedTimelineObjects.length > 0) {
+      this.deleteTimelineObjects();
+    }
+  }
+
+  deleteCanvasObjects () {
+    this.selectObjects([]);
+    window.paper.drawingTools.cursor.deleteSelectedItems(); // This updates the editor state for us.
+  }
+
+  deleteTimelineObjects () {
+    this.selectedFrames.forEach(f => {
+      let frame = this.editor.state.project._childByUUID(f.uuid);
+      frame.parent.removeFrame(frame);
+    });
+
+    this.selectObjects([]);
+
+    this.editor.updateEditorState({
+      project: this.editor.state.project
     });
   }
 }
