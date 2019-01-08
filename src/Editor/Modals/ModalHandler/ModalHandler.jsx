@@ -29,7 +29,7 @@ class ModalHandler extends Component {
       <div>
         <ProjectSettings
           project={this.props.project}
-          updateProject={this.props.updateProject}
+          updateEditorState={this.props.updateEditorState}
           openModal={this.props.openModal}
           open={this.props.activeModalName === 'ProjectSettings'}
           toggle={this.props.closeActiveModal}
@@ -42,7 +42,7 @@ class ModalHandler extends Component {
         />
       <ConvertToSymbol
           project={this.props.project}
-          updateProject={this.props.updateProject}
+          updateEditorState={this.props.updateEditorState}
           selectionProperties={this.props.selectionProperties}
           openModal={this.props.openModal}
           open={this.props.activeModalName === 'ConvertToSymbol'}

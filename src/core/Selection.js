@@ -1,7 +1,10 @@
 class Selection {
   constructor () {
-    this._canvasUUIDs = [];
-    this._timelineUUIDs = [];
+    this._canvasObjects = [];
+    this._timelineObjects = [];
+    this._assetLibraryObjects = [];
+
+    this.project = null;
 
     this.name = '';
     this.x = 0;
@@ -18,15 +21,66 @@ class Selection {
   }
 
   get type () {
-    return 'multimixed';
+    if(this._canvasObjects.length > 0) {
+      return this._canvasSelectionType;
+    } else if (this._timelineObjects.length > 0) {
+      return this._timelineSelectionType;
+    } else if (this._assetLibraryObjects.length > 0) {
+      return this._assetLibrarySelectionType;
+    }
+    return null;
   }
 
-  get canvasUUIDs () {
-    return this._canvasUUIDs;
+  get _canvasSelectionType () {
+    let self = this;
+    let types = this._canvasObjects.map(obj => {
+      if(obj instanceof window.paper.Path) {
+        return 'Path';
+      } else {
+        console.log(self.project)
+      }
+    });
+    console.log(types);
+    return 'multipath';
   }
 
-  get timelineUUIDs () {
-    return this._timelineUUIDs;
+  get _timelineSelectionType () {
+    var types = this._timelineObjects.map(object => {
+      return object.classname;
+    });
+    if(types.length === 1) {
+      return types[0];
+    } else {
+      if(this._allSameType(types, 'Frame')) {
+        return 'multiframe';
+      } else if(this._allSameType(types, 'Tween')) {
+        return 'multitween';
+      } else {
+        return 'multimixed';
+      }
+    }
+  }
+
+  get _assetLibrarySelectionType () {
+    if(this._assetLibraryObjects[0].classname === 'ButtonAsset') {
+      return 'buttonasset';
+    } else if(this._assetLibraryObjects[0].classname === 'ClipAsset') {
+      return 'clipasset';
+    } else if(this._assetLibraryObjects[0].classname === 'ImageAsset') {
+      return 'imageasset';
+    } else if(this._assetLibraryObjects[0].classname === 'SoundAsset') {
+      return 'soundasset';
+    }
+  }
+
+  _allSameType (types, type) {
+    let allSameType = true;
+    types.forEach(seekType => {
+      if(seekType !== type) {
+        allSameType = false;
+      }
+    })
+    return allSameType;
   }
 
   get possibleActions () {
@@ -43,14 +97,28 @@ class Selection {
     ];
   }
 
-  set canvasUUIDs (uuids) {
-    this._canvasUUIDs = uuids;
-    this._timelineUUIDs = [];
+  set canvasObjects (objects) {
+    this._canvasObjects = objects;
   }
 
-  set timelineUUIDs (uuids) {
-    this._canvasUUIDs = [];
-    this._timelineUUIDs = uuids;
+  set timelineObjects (objects) {
+    this._timelineObjects = objects;
+  }
+
+  set assetLibraryObjects (objects) {
+    this._assetLibraryObjects = objects;
+  }
+
+  get canvasObjects () {
+    return this._canvasObjects;
+  }
+
+  get timelineObjects () {
+    return this._timelineObjects;
+  }
+
+  get assetLibraryObjects () {
+    return this._assetLibraryObjects;
   }
 }
 

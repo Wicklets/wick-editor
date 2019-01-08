@@ -93,8 +93,8 @@ class Canvas extends Component {
       onionSkinSeekForwards: this.props.onionSkinSeekForwards,
     });
     window.paper.project.selection.clear();
-    this.props.selection.canvasUUIDs.forEach(uuid => {
-      window.paper.project.selection.addItemByName(uuid);
+    this.props.selection.canvasObjects.forEach(obj => {
+      window.paper.project.selection.addItemByName(obj.name);
     });
     window.paper.project.selection.updateGUI();
     window.paper.project.addLayer(window.paper.project.selection.guiLayer);
@@ -116,33 +116,11 @@ class Canvas extends Component {
 
   onCanvasModified (e) {
     this.wickCanvas.applyChanges(this.props.project, e.layers);
-    this.props.updateProject(this.props.project);
+    this.props.updateEditorState({project:this.props.project});
   }
 
   onSelectionChanged (e) {
-    var selectedItems = window.paper.project.selection.items;
-
-    let types = selectedItems.map(item => {
-      if(item.className === 'Path' || item.className === 'CompoundPath') {
-        return 'Path';
-      } else if (item.className === 'Group') {
-        return 'Group';
-      }
-      return null;
-    });
-
-    let content = null;
-    if(types.indexOf('Path') !== -1 && types.indexOf('Group') !== -1) {
-      content = 'multimixed';
-    } else if(types.indexOf('Path') !== -1) {
-      content = selectedItems.length > 1 ? 'multipath' : 'path'
-    } else if(types.indexOf('Group') !== -1) {
-      content = selectedItems.length > 1 ? 'multigroup' : 'group'
-    }
-
-    this.props.selection.canvasUUIDs = selectedItems.map(item => {
-      return item.name;
-    });
+    this.props.selection.canvasObjects = window.paper.project.selection.items;
 
     if(window.paper.project.selection.items.length > 0) {
       this.props.selection.x = window.paper.project.selection.bounds.left;

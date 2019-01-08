@@ -21,7 +21,6 @@ import React, { Component } from 'react';
 
 import './_timeline.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import AnimationTimeline from 'core/AnimationTimeline';
 
 class Timeline extends Component {
   constructor (props) {
@@ -55,7 +54,9 @@ class Timeline extends Component {
   updateAnimationTimelineData () {
     let AnimationTimeline = window.AnimationTimeline;
     let timeline = this.props.project.focus.timeline;
-    let selectedUUIDs = this.props.selection.timelineUUIDs;
+    let selectedUUIDs = this.props.selection.timelineObjects.map(obj => {
+      return obj.uuid;
+    });
 
     AnimationTimeline.setData({
       playheadPosition: timeline.playheadPosition,
@@ -144,7 +145,7 @@ class Timeline extends Component {
         }
       });
     }
-    this.props.updateProject(nextProject);
+    this.props.updateEditorState({project:nextProject});
 
     this.props.updateOnionSkinSettings(
       e.onionSkinEnabled !== undefined ? e.onionSkinEnabled : this.props.onionSkinEnabled,

@@ -98,7 +98,7 @@ class ProjectSettings extends Component {
     nextProject.framerate = this.state.framerate;
     nextProject.backgroundColor = this.state.backgroundColor;
     console.log("after", nextProject);
-    this.props.updateProject(nextProject);
+    this.props.updateEditorState({project:nextProject});
     this.props.toggle();
   }
 

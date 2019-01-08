@@ -75,7 +75,7 @@ class ConvertToSymbol extends Component {
     window.paper.drawingTools.cursor.deleteSelectedItems();
 
     this.props.project.focus.timeline.activeLayer.activeFrame.addClip(clip);
-    this.props.updateProject(this.props.project);
+    this.props.updateEditorState({project:this.props.project});
 
     this.props.toggle();
   }

@@ -58,6 +58,8 @@ class Inspector extends Component {
       "pan": this.renderPan.bind(this),
       "frame": this.renderFrame.bind(this),
       "multiframe": this.renderMultiFrame.bind(this),
+      "tween": this.renderTween.bind(this),
+      "multitween": this.renderMultiTween.bind(this),
       "clip": this.renderClip.bind(this),
       "button": this.renderButton.bind(this),
       "group": this.renderGroup.bind(this),
@@ -472,6 +474,26 @@ class Inspector extends Component {
     )
   }
 
+  renderTween() {
+    return (
+      <div>
+        <InspectorTitle type={"tween"} title={"Tween"} />
+        <div className="inspector-content">
+        </div>
+      </div>
+    )
+  }
+
+  renderMultiTween() {
+    return (
+      <div>
+        <InspectorTitle type={"multitween"} title={"Multiple Tweens"} />
+        <div className="inspector-content">
+        </div>
+      </div>
+    )
+  }
+
   renderGroupContent() {
     return (
       <div className="inspector-content">
@@ -567,8 +589,8 @@ class Inspector extends Component {
   }
 
   renderDisplay() {
-    if (this.props.selection.content in this.inspectorContentRenderFunctions) {
-      let renderFunction = this.inspectorContentRenderFunctions[this.props.selection.content];
+    if (this.props.selection.type in this.inspectorContentRenderFunctions) {
+      let renderFunction = this.inspectorContentRenderFunctions[this.props.selection.type];
       return(renderFunction());
     } else if (this.props.activeTool in this.inspectorContentRenderFunctions) {
       let renderFunction = this.inspectorContentRenderFunctions[this.props.activeTool];

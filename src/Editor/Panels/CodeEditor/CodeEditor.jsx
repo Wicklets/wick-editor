@@ -85,7 +85,7 @@ class CodeEditor extends PureComponent {
   updateSelectionScript (selectionProps, project, newScript) {
     let script = this.getSelectionScript(selectionProps, project);
     script.src = newScript;
-    this.props.updateProject(project);
+    this.props.updateEditorState({project:project});
   }
 }
 

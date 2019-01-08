@@ -109,6 +109,10 @@ class Editor extends Component {
     this.refocusEditor();
   }
 
+  componentWillUpdate () {
+    this.state.selection.project = this.state.project;
+  }
+
   componentDidUpdate (prevProps, prevState) {
     if(this.state.previewPlaying && !prevState.previewPlaying) {
       this.startTickLoop();
@@ -160,6 +164,7 @@ class Editor extends Component {
   }
 
   updateEditorState (state) {
+    // Check if state.project is modified here. If it is, serialize the current project and push it onto the undo stack.
     this.setState(state);
   }
 
@@ -186,7 +191,7 @@ class Editor extends Component {
     this.tickLoopIntervalID = setInterval(() => {
       var nextProject = this.state.project;
       nextProject.tick();
-      this.updateProject(nextProject);
+      this.updateEditorState({project:nextProject});
     }, 1000 / this.state.project.framerate);
   }
 
@@ -212,6 +217,7 @@ class Editor extends Component {
                   activeModalName={this.state.activeModalName}
                   openModal={this.openModal}
                   closeActiveModal={this.closeActiveModal}
+                  updateEditorState={this.updateEditorState}
                   project={this.state.project}
                   selection={this.state.selection}
                 />
@@ -253,6 +259,7 @@ class Editor extends Component {
                                 <CodeEditor
                                   project={this.state.project}
                                   selection={this.state.selection}
+                                  updateEditorState={this.updateEditorState}
                                 />
                               </DockedPanel>
                             </ReflexElement>
@@ -262,6 +269,7 @@ class Editor extends Component {
                                 <Canvas
                                   project={this.state.project}
                                   selection={this.state.selection}
+                                  updateEditorState={this.updateEditorState}
                                   toolSettings={this.state.toolSettings}
                                   activeTool={this.state.activeTool}
                                   onionSkinEnabled={this.state.onionSkinEnabled}
@@ -283,6 +291,7 @@ class Editor extends Component {
                             <Timeline
                               project={this.state.project}
                               selection={this.state.selection}
+                              updateEditorState={this.updateEditorState}
                               onionSkinEnabled={this.state.onionSkinEnabled}
                               onionSkinSeekBackwards={this.state.onionSkinSeekBackwards}
                               onionSkinSeekForwards={this.state.onionSkinSeekForwards}
@@ -306,6 +315,7 @@ class Editor extends Component {
                           <DockedPanel>
                             <Inspector
                               activeTool={this.state.activeTool}
+                              updateEditorState={this.updateEditorState}
                               toolSettings={this.state.toolSettings}
                               selection={this.state.selection}
                             />
@@ -322,6 +332,7 @@ class Editor extends Component {
                           <DockedPanel>
                             <AssetLibrary
                               project={this.state.project}
+                              updateEditorState={this.updateEditorState}
                             />
                           </DockedPanel>
                         </ReflexElement>
