@@ -321,7 +321,11 @@ class Inspector extends Component {
 
   handleToolSettingChange(setting, newVal) {
     this.props.toolSettings[setting] = newVal;
-    this.props.updateToolSettings(this.props.toolSettings);
+    this.props.updateEditorState({
+      toolSettings: {
+        ...this.props.toolSettings,
+      }
+    });
   }
 
   handleSelectionPropertyChange(property, newVal) {
