@@ -40,6 +40,7 @@ import CodeEditor from './Panels/CodeEditor/CodeEditor';
 import ModalHandler from './Modals/ModalHandler/ModalHandler';
 import HotKeyInterface from './hotKeyMap';
 import Selection from '../core/Selection';
+import UndoRedo from '../core/UndoRedo';
 
 class Editor extends Component {
   constructor () {
@@ -47,7 +48,8 @@ class Editor extends Component {
 
     this.state = {
       project: null,
-      selection: new Selection(),
+      selection: new Selection(this),
+      undoRedo: new UndoRedo(this),
       onionSkinEnabled: false,
       onionSkinSeekForwards: 1,
       onionSkinSeekBackwards: 1,
@@ -107,11 +109,8 @@ class Editor extends Component {
   }
 
   componentDidMount () {
+    this.state.undoRedo.saveState();
     this.refocusEditor();
-  }
-
-  componentWillUpdate () {
-    this.state.selection.project = this.state.project;
   }
 
   componentDidUpdate (prevProps, prevState) {
@@ -173,7 +172,9 @@ class Editor extends Component {
   }
 
   updateEditorState (state) {
-    // Check if state.project is modified here. If it is, serialize the current project and push it onto the undo stack.
+    if (state.project && !state.dontPushToUndoRedoStack) {
+      this.state.undoRedo.saveState();
+    }
     this.setState(state);
   }
 

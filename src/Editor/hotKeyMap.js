@@ -29,6 +29,8 @@ class HotKeyInterface extends Object {
       'edit-symbol': '5',
       'return-to-root': '6',
       'preview-play-toggle': 'enter',
+      'undo': 'ctrl+z',
+      'redo': 'ctrl+y',
     }
   }
 
@@ -49,6 +51,8 @@ class HotKeyInterface extends Object {
       'convert-to-symbol': (() => this.editor.openModal('ConvertToSymbol')),
       'edit-symbol': (() => this.editor.focusSelectedSymbol()),
       'return-to-root': (() => this.editor.returnToRoot()),
+      'undo': (() => this.editor.state.undoRedo.undo()),
+      'redo': (() => this.editor.state.undoRedo.redo()),
       'do-nothing': (() => console.log("donothing")),
     }
 

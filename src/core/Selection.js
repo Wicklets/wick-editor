@@ -1,8 +1,8 @@
 class Selection {
-  constructor () {
+  constructor (editor) {
     this._selectedObjects = [];
 
-    this.project = null;
+    this.editor = editor;
 
     this.name = '';
     this.x = 0;
@@ -108,7 +108,7 @@ class Selection {
     return this._selectedObjects.filter(object => {
       return object instanceof window.paper.Group;
     }).map(obj => {
-      return this.project._childByUUID(obj.data.wickUUID);
+      return this.editor.state.project._childByUUID(obj.data.wickUUID);
     });
   }
 
