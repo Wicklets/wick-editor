@@ -18,7 +18,7 @@ class UndoRedo {
   }
 
   undo () {
-    if(this._undoStack.length === 0) return false;
+    if(this._undoStack.length <= 1) return false;
 
     let currentState = this._undoStack.pop();
     this._redoStack.push(currentState);
