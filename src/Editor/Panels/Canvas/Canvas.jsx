@@ -108,11 +108,11 @@ class Canvas extends Component {
       window.paper.project.selection.addItemByName('wick_clip_'+obj.uuid);
     });
     if(this.props.selection.selectedCanvasObjects.length > 0) {
-      window.paper.project.selection.setPosition(this.props.selection.x, this.props.selection.y);
-      window.paper.project.selection.setWidthHeight(this.props.selection.width, this.props.selection.height);
-      window.paper.project.selection.setScale(this.props.selection.scaleW, this.props.selection.scaleH);
-      window.paper.project.selection.setRotation(this.props.selection.rotation);
-      this.wickCanvas.applyChanges(this.props.project, window.paper.project.layers);
+      //window.paper.project.selection.setPosition(this.props.selection.x, this.props.selection.y);
+      //window.paper.project.selection.setWidthHeight(this.props.selection.width, this.props.selection.height);
+      //window.paper.project.selection.setScale(this.props.selection.scaleW, this.props.selection.scaleH);
+      //window.paper.project.selection.setRotation(this.props.selection.rotation);
+      //this.wickCanvas.applyChanges(this.props.project, window.paper.project.layers);
     }
     window.paper.project.selection.updateGUI();
     window.paper.project.addLayer(window.paper.project.selection.guiLayer);

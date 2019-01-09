@@ -185,9 +185,15 @@ class Selection {
   }
 
   deserialize (data) {
+    var paths = window.paper.project.layers.map(layer => {
+      return layer.children;
+    }).flat();
+
     this._selectedObjects = data.map(objData => {
       if(objData.type === 'path') {
-        return null;
+        return paths.find(path => {
+          return path.name === objData.name;
+        })
       } else if (objData.type === 'wickobject') {
         return this.editor.state.project._childByUUID(objData.uuid);
       }
