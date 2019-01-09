@@ -22,6 +22,7 @@ import './_toolbox.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 import ToolButton from 'Editor/Util/ToolButton/ToolButton';
+import ActionButton from 'Editor/Util/ActionButton/ActionButton';
 import PlayButton from 'Editor/Util/PlayButton/PlayButton';
 import WickInput from 'Editor/Util/WickInput/WickInput';
 
@@ -44,46 +45,57 @@ class Toolbox extends Component {
       <div className="tool-box">
         <ToolButton
           name="cursor"
+          tooltip="Cursor"
           {...this.iconProps}
         />
         <ToolButton
           name="brush"
+          tooltip="Brush"
           {...this.iconProps}
         />
         <ToolButton
           name="pencil"
+          tooltip="Pencil"
           {...this.iconProps}
         />
         <ToolButton
           name="eraser"
+          tooltip="Eraser"
           {...this.iconProps}
         />
         <ToolButton
           name="rectangle"
+          tooltip="Rectangle"
           {...this.iconProps}
         />
         <ToolButton
           name="ellipse"
+          tooltip="Ellipse"
           {...this.iconProps}
         />
         <ToolButton
           name="line"
+          tooltip="Line"
           {...this.iconProps}
         />
         <ToolButton
           name="eyedropper"
+          tooltip="Eyedropper"
           {...this.iconProps}
         />
         <ToolButton
           name="pan"
+          tooltip="Pan"
           {...this.iconProps}
         />
         <ToolButton
           name="zoom"
+          tooltip="Zoom"
           {...this.iconProps}
         />
         <ToolButton
           name="fillbucket"
+          tooltip="Fill Bucket"
           {...this.iconProps}
         />
         {/*<ToolButton
