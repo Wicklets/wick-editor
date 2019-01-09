@@ -87,7 +87,7 @@ class Selection {
           color: "sky",
           tooltip: "Delete",
           icon: undefined,
-          id: "convert-to-symbol-action-row2"
+          id: "convert-to-symbol-action-row3"
         },
       ]
     ];

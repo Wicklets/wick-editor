@@ -19,9 +19,7 @@
 
 import React, { Component } from 'react';
 import './_inspectoractionbutton.scss';
-import WickInput from 'Editor/Util/WickInput/WickInput';
-import ReactTooltip from 'react-tooltip'
-import ToolIcon from 'Editor/Util/ToolIcon/ToolIcon';
+import ActionButton from 'Editor/Util/ActionButton/ActionButton';
 
 class InspectorActionButton extends Component {
   render() {
@@ -29,25 +27,18 @@ class InspectorActionButton extends Component {
 
     if (btn === undefined) return (<div />)
 
-    let colorClass = btn.color === undefined ? "button-blue" : "button-"+btn.color;
-    let btnID = btn.id === undefined ? 'inspector-button-tooltip-nyi' : btn.id;
+    let colorClass = btn.color === undefined ? "blue" : btn.color;
+    let btnID = btn.id === undefined ? 'tooltip-nyi' : btn.id;
 
     return(
-      <div data-tip data-for={btnID} className="inspector-button">
-        <ReactTooltip
-          id={btnID}
-          type='info'
-          place='top'
-          effect='solid'
-          aria-haspopup='true'>
-          <span>{btn.tooltip === undefined ? 'No Tooltip' : btn.tooltip}</span>
-        </ReactTooltip>
-        <WickInput
-          className={colorClass}
-          type="button"
-          onClick={btn.action}>
-          <ToolIcon name={this.props.btn.icon} />
-        </WickInput>
+      <div className="inspector-button">
+        <ActionButton
+          color={colorClass}
+          id={"inspector-button-" + btnID}
+          tooltip={btn.tooltip}
+          action={ () => btn.action }
+          tooltipPlace="top"
+          icon={btn.icon}/>
       </div>
 
     )
