@@ -59,7 +59,7 @@ class AssetLibrary extends Component {
         <div className="btn-asset-upload">
           <ActionButton
             color="green"
-            action={() => alert("Upload Asset")}
+            action={() => this.props.openFileDialog()}
             id="button-asset-upload"
             text="Upload Asset" />
         </div>

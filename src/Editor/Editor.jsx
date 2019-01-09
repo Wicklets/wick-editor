@@ -28,6 +28,7 @@ import 'react-reflex/styles.css'
 import { ReflexContainer, ReflexSplitter, ReflexElement } from 'react-reflex'
 import { throttle } from 'underscore';
 import { HotKeys } from 'react-hotkeys';
+import Dropzone from 'react-dropzone';
 
 import DockedPanel from './Panels/DockedPanel/DockedPanel';
 import Canvas from './Panels/Canvas/Canvas';
@@ -222,150 +223,165 @@ class Editor extends Component {
     window.document.getElementById('hotkeys-container').focus();
   }
 
+  addAssets (files) {
+    alert(JSON.stringify(files.map(f => f.name)));
+  }
+
   render () {
       return (
-        <DragDropContextProvider backend={HTML5Backend}>
-          <HotKeys
-            keyMap={this.hotKeyInterface.getKeyMap()}
-            handlers={this.hotKeyInterface.getHandlers()}
-            style={{width:"100%", height:"100%"}}
-            id='hotkeys-container'>
-            <div id="editor">
-              <div id="menu-bar-container">
-                <ModalHandler
-                  activeModalName={this.state.activeModalName}
-                  openModal={this.openModal}
-                  closeActiveModal={this.closeActiveModal}
-                  updateEditorState={this.updateEditorState}
-                  project={this.state.project}
-                  selection={this.state.selection}
-                />
-                {/* Header */}
-                <DockedPanel>
-                  <MenuBar openModal={this.openModal} projectName={this.state.project.name}/>
-                </DockedPanel>
-              </div>
-              <div id="editor-body">
-                <div id="flexible-container">
-                  <ReflexContainer windowResizeAware={true} orientation="vertical">
-                    {/* Middle Panel */}
-                    <ReflexElement {...this.resizeProps}>
-                      <ReflexContainer windowResizeAware={true} orientation="horizontal">
-                        <ReflexElement
-                          minSize={50}
-                          maxSize={50}
-                          size={50}
-                          onResize={this.resizeProps.onResize}
-                          onStopResize={this.resizeProps.onStopResize}>
-                          <DockedPanel>
-                            <Toolbox
-                              updateEditorState={this.updateEditorState}
-                              activeTool={this.state.activeTool}
-                              activateTool={this.activateTool}
-                              toolSettings={this.state.toolSettings}
-                              previewPlaying={this.state.previewPlaying}
-                              togglePreviewPlaying={this.togglePreviewPlaying}
-                            />
-                          </DockedPanel>
-                        </ReflexElement>
-                        <ReflexElement {...this.resizeProps}>
-                          <ReflexContainer orientation="vertical">
-                            <ReflexElement
-                              minSize={0}
-                              size={this.state.codeEditorSize}
-                              onResize={this.resizeProps.onResize}
-                              onStopResize={this.resizeProps.onStopCodeEditorResize}>
-                              <DockedPanel>
-                                <CodeEditor
-                                  project={this.state.project}
-                                  selection={this.state.selection}
-                                  updateEditorState={this.updateEditorState}
-                                />
-                              </DockedPanel>
-                            </ReflexElement>
-                            <ReflexSplitter {...this.resizeProps}/>
-                            <ReflexElement>
-                              <DockedPanel>
-                                <Canvas
-                                  project={this.state.project}
-                                  selection={this.state.selection}
-                                  updateEditorState={this.updateEditorState}
-                                  toolSettings={this.state.toolSettings}
-                                  activeTool={this.state.activeTool}
-                                  onionSkinEnabled={this.state.onionSkinEnabled}
-                                  onionSkinSeekBackwards={this.state.onionSkinSeekBackwards}
-                                  onionSkinSeekForwards={this.state.onionSkinSeekForwards}
-                                  onRef={ref => this.canvasRef = ref}
-                                />
-                              </DockedPanel>
-                            </ReflexElement>
+    <Dropzone
+      onDrop={files => this.addAssets(files)}
+      disableClick
+    >
+      {({getRootProps, getInputProps, open}) => (
+        <div {...getRootProps()}>
+          <input {...getInputProps()} />
+          <DragDropContextProvider backend={HTML5Backend}>
+            <HotKeys
+              keyMap={this.hotKeyInterface.getKeyMap()}
+              handlers={this.hotKeyInterface.getHandlers()}
+              style={{width:"100%", height:"100%"}}
+              id='hotkeys-container'>
+              <div id="editor">
+                <div id="menu-bar-container">
+                  <ModalHandler
+                    activeModalName={this.state.activeModalName}
+                    openModal={this.openModal}
+                    closeActiveModal={this.closeActiveModal}
+                    updateEditorState={this.updateEditorState}
+                    project={this.state.project}
+                    selection={this.state.selection}
+                  />
+                  {/* Header */}
+                  <DockedPanel>
+                    <MenuBar openModal={this.openModal} projectName={this.state.project.name}/>
+                  </DockedPanel>
+                </div>
+                <div id="editor-body">
+                  <div id="flexible-container">
+                    <ReflexContainer windowResizeAware={true} orientation="vertical">
+                      {/* Middle Panel */}
+                      <ReflexElement {...this.resizeProps}>
+                        <ReflexContainer windowResizeAware={true} orientation="horizontal">
+                          <ReflexElement
+                            minSize={50}
+                            maxSize={50}
+                            size={50}
+                            onResize={this.resizeProps.onResize}
+                            onStopResize={this.resizeProps.onStopResize}>
+                            <DockedPanel>
+                              <Toolbox
+                                updateEditorState={this.updateEditorState}
+                                activeTool={this.state.activeTool}
+                                activateTool={this.activateTool}
+                                toolSettings={this.state.toolSettings}
+                                previewPlaying={this.state.previewPlaying}
+                                togglePreviewPlaying={this.togglePreviewPlaying}
+                              />
+                            </DockedPanel>
+                          </ReflexElement>
+                          <ReflexElement {...this.resizeProps}>
+                            <ReflexContainer orientation="vertical">
+                              <ReflexElement
+                                minSize={0}
+                                size={this.state.codeEditorSize}
+                                onResize={this.resizeProps.onResize}
+                                onStopResize={this.resizeProps.onStopCodeEditorResize}>
+                                <DockedPanel>
+                                  <CodeEditor
+                                    project={this.state.project}
+                                    selection={this.state.selection}
+                                    updateEditorState={this.updateEditorState}
+                                  />
+                                </DockedPanel>
+                              </ReflexElement>
+                              <ReflexSplitter {...this.resizeProps}/>
+                              <ReflexElement>
+                                <DockedPanel>
+                                  <Canvas
+                                    project={this.state.project}
+                                    selection={this.state.selection}
+                                    updateEditorState={this.updateEditorState}
+                                    toolSettings={this.state.toolSettings}
+                                    activeTool={this.state.activeTool}
+                                    onionSkinEnabled={this.state.onionSkinEnabled}
+                                    onionSkinSeekBackwards={this.state.onionSkinSeekBackwards}
+                                    onionSkinSeekForwards={this.state.onionSkinSeekForwards}
+                                    onRef={ref => this.canvasRef = ref}
+                                  />
+                                </DockedPanel>
+                              </ReflexElement>
 
-                          </ReflexContainer>
-                        </ReflexElement>
-                        <ReflexSplitter {...this.resizeProps}/>
-                        <ReflexElement
-                          minSize={50}
-                          size={this.state.timelineSize}
-                          onResize={this.resizeProps.onResize}
-                          onStopResize={this.resizeProps.onStopTimelineResize}>
-                          <DockedPanel>
-                            <Timeline
-                              project={this.state.project}
-                              selection={this.state.selection}
-                              updateEditorState={this.updateEditorState}
-                              onionSkinEnabled={this.state.onionSkinEnabled}
-                              onionSkinSeekBackwards={this.state.onionSkinSeekBackwards}
-                              onionSkinSeekForwards={this.state.onionSkinSeekForwards}
-                              onRef={ref => this.timelineRef = ref}
-                            />
-                          </DockedPanel>
-                        </ReflexElement>
-                      </ReflexContainer>
-                    </ReflexElement>
+                            </ReflexContainer>
+                          </ReflexElement>
+                          <ReflexSplitter {...this.resizeProps}/>
+                          <ReflexElement
+                            minSize={50}
+                            size={this.state.timelineSize}
+                            onResize={this.resizeProps.onResize}
+                            onStopResize={this.resizeProps.onStopTimelineResize}>
+                            <DockedPanel>
+                              <Timeline
+                                project={this.state.project}
+                                selection={this.state.selection}
+                                updateEditorState={this.updateEditorState}
+                                onionSkinEnabled={this.state.onionSkinEnabled}
+                                onionSkinSeekBackwards={this.state.onionSkinSeekBackwards}
+                                onionSkinSeekForwards={this.state.onionSkinSeekForwards}
+                                onRef={ref => this.timelineRef = ref}
+                              />
+                            </DockedPanel>
+                          </ReflexElement>
+                        </ReflexContainer>
+                      </ReflexElement>
 
-                    <ReflexSplitter {...this.resizeProps}/>
+                      <ReflexSplitter {...this.resizeProps}/>
 
-                  {/* Right Sidebar */}
-                    <ReflexElement
-                      size={this.state.inspectorSize}
-                      maxSize={250} minSize={150}
-                      onResize={this.resizeProps.onResize}
-                      onStopResize={this.resizeProps.onStopInspectorResize}>
-                      <ReflexContainer orientation="horizontal">
-                        {/* Inspector */}
-                        <ReflexElement propagateDimensions={true} minSize={200}{...this.resizeProps}>
-                          <DockedPanel>
-                            <Inspector
-                              activeTool={this.state.activeTool}
-                              updateEditorState={this.updateEditorState}
-                              toolSettings={this.state.toolSettings}
-                              selection={this.state.selection}
-                            />
-                          </DockedPanel>
-                        </ReflexElement>
+                    {/* Right Sidebar */}
+                      <ReflexElement
+                        size={this.state.inspectorSize}
+                        maxSize={250} minSize={150}
+                        onResize={this.resizeProps.onResize}
+                        onStopResize={this.resizeProps.onStopInspectorResize}>
+                        <ReflexContainer orientation="horizontal">
+                          {/* Inspector */}
+                          <ReflexElement propagateDimensions={true} minSize={200}{...this.resizeProps}>
+                            <DockedPanel>
+                              <Inspector
+                                activeTool={this.state.activeTool}
+                                updateEditorState={this.updateEditorState}
+                                toolSettings={this.state.toolSettings}
+                                selection={this.state.selection}
+                              />
+                            </DockedPanel>
+                          </ReflexElement>
 
-                        <ReflexSplitter {...this.resizeProps}/>
+                          <ReflexSplitter {...this.resizeProps}/>
 
-                        {/* Asset Library */}
-                        <ReflexElement
-                          size={this.state.assetLibrarySize}
-                          onResize={this.resizeProps.onResize}
-                          onStopResize={this.resizeProps.onStopAssetLibraryResize}>
-                          <DockedPanel>
-                            <AssetLibrary
-                              project={this.state.project}
-                              updateEditorState={this.updateEditorState}
-                            />
-                          </DockedPanel>
-                        </ReflexElement>
-                      </ReflexContainer>
-                    </ReflexElement>
-                  </ReflexContainer>
+                          {/* Asset Library */}
+                          <ReflexElement
+                            size={this.state.assetLibrarySize}
+                            onResize={this.resizeProps.onResize}
+                            onStopResize={this.resizeProps.onStopAssetLibraryResize}>
+                            <DockedPanel>
+                              <AssetLibrary
+                                project={this.state.project}
+                                updateEditorState={this.updateEditorState}
+                                openFileDialog={() => open()}
+                              />
+                            </DockedPanel>
+                          </ReflexElement>
+                        </ReflexContainer>
+                      </ReflexElement>
+                    </ReflexContainer>
+                  </div>
                 </div>
               </div>
-            </div>
-          </HotKeys>
-        </DragDropContextProvider>
+            </HotKeys>
+          </DragDropContextProvider>
+        </div>
+      )}
+      </Dropzone>
       )
   }
 }
