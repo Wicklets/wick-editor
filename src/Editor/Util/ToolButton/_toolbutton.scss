@@ -27,18 +27,4 @@
   background-color: $interface-primary;
   border: none;
   color: $interface-secondary-text;
-  transition: .3s;
-}
-
-.tool-button:hover {
-  background-color: $wick-green-light;
-  color: $interface-tertiary-text;
-  transition: .3s;
-  cursor: pointer;
-}
-
-.active-tool {
-  background-color: $wick-green-dark;
-  color: $interface-tertiary-text;
-  transition: .1s;
 }

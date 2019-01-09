@@ -21,17 +21,22 @@ import React, { Component } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './_toolbutton.scss'
 
+import ActionButton from 'Editor/Util/ActionButton/ActionButton';
 
 import ToolIcon from 'Editor/Util/ToolIcon/ToolIcon';
 
 class ToolButton extends Component {
   render() {
     return(
-      <div
-        className={this.props.toolIsActive(this.props.name) ? "tool-button active-tool" : "tool-button"}
-        onClick={() => {this.props.activateTool(this.props.name)}}
-        >
-        <ToolIcon name={this.props.name} />
+      <div className="tool-button">
+        <ActionButton
+          color="tool"
+          isActive={ () => this.props.toolIsActive(this.props.name) }
+          id={"tool-button-" + this.props.name}
+          tooltip={this.props.name}
+          action={ () => this.props.activateTool(this.props.name) }
+          tooltipPlace="bottom"
+          icon={this.props.name}/>
       </div>
     )
   }
