@@ -167,6 +167,33 @@ class Selection {
       project: this.editor.state.project
     });
   }
+
+  serialize () {
+    return this._selectedObjects.map(obj => {
+      if(obj instanceof window.paper.Path || obj instanceof window.paper.CompoundPath) {
+        return {
+          type: 'path',
+          name: obj.name,
+        }
+      } else {
+        return {
+          type: 'wickobject',
+          uuid: obj.uuid,
+        }
+      }
+    });
+  }
+
+  deserialize (data) {
+    this._selectedObjects = data.map(objData => {
+      if(objData.type === 'path') {
+        return null;
+      } else if (objData.type === 'wickobject') {
+        return this.editor.state.project._childByUUID(objData.uuid);
+      }
+    });
+    return this;
+  }
 }
 
 export default Selection;

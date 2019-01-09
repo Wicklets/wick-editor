@@ -45,20 +45,26 @@ class UndoRedo {
   }
 
   _generateProjectState () {
-    return this.editor.state.project.serialize();
+    return {
+      project: this.editor.state.project.serialize(),
+      selection: this.editor.state.selection.serialize(),
+    };
   }
 
   _recoverProjectState (state) {
     this.editor.updateEditorState({
       dontPushToUndoRedoStack: true,
-      project: window.Wick.Project.deserialize(state),
+      project: window.Wick.Project.deserialize(state.project),
+      selection: this.editor.state.selection.deserialize(state.selection),
     });
   }
 
   _logStacks () {
     console.log('UNDOREDO STACKS')
     console.log(this._undoStack.length);
+    console.log(this._undoStack);
     console.log(this._redoStack.length);
+    console.log(this._redoStack);
     console.log(' ');
   }
 }
