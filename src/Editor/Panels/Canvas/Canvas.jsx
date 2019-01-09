@@ -107,15 +107,30 @@ class Canvas extends Component {
     this.props.selection.selectedClips.forEach(obj => {
       window.paper.project.selection.addItemByName('wick_clip_'+obj.uuid);
     });
-    if(this.props.selection.selectedCanvasObjects.length > 0) {
-      //window.paper.project.selection.setPosition(this.props.selection.x, this.props.selection.y);
-      //window.paper.project.selection.setWidthHeight(this.props.selection.width, this.props.selection.height);
-      //window.paper.project.selection.setScale(this.props.selection.scaleW, this.props.selection.scaleH);
-      //window.paper.project.selection.setRotation(this.props.selection.rotation);
-      //this.wickCanvas.applyChanges(this.props.project, window.paper.project.layers);
-    }
     window.paper.project.selection.updateGUI();
+    if(this.props.selection.selectedCanvasObjects.length > 0) {
+      this.updateSelectionAttributes();
+      this.wickCanvas.applyChanges(this.props.project, window.paper.project.layers);
+    }
     window.paper.project.addLayer(window.paper.project.selection.guiLayer);
+  }
+
+  updateSelectionAttributes () {
+    let selection = window.paper.project.selection;
+    let attributes = this.props.selection.attributes;
+
+    let x = attributes.x;
+    let y = attributes.y;
+    let width = attributes.width;
+    let height = attributes.height;
+    let scaleW = attributes.scaleW;
+    let scaleH = attributes.scaleH;
+    let rotation = attributes.rotation;
+
+    selection.setPosition(x, y);
+    selection.setWidthHeight(width, height);
+    selection.setScale(scaleW, scaleH);
+    selection.setRotation(rotation);
   }
 
   updateActiveTool () {
@@ -134,12 +149,13 @@ class Canvas extends Component {
 
   updateSelectionTransformsProps () {
     if(window.paper.project.selection.items.length > 0) {
-      this.props.selection.x = window.paper.project.selection.bounds.left;
-      this.props.selection.y = window.paper.project.selection.bounds.top;
-      this.props.selection.width = window.paper.project.selection.bounds.width;
-      this.props.selection.height = window.paper.project.selection.bounds.height;
-      this.props.selection.scaleW = 1;
-      this.props.selection.scaleH = 1;
+      let attributes = this.props.selection.attributes;
+      attributes.x = window.paper.project.selection.bounds.left;
+      attributes.y = window.paper.project.selection.bounds.top;
+      attributes.width = window.paper.project.selection.bounds.width;
+      attributes.height = window.paper.project.selection.bounds.height;
+      attributes.scaleW = 1;
+      attributes.scaleH = 1;
       // TODO: the rest of the transforms
     }
   }

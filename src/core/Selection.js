@@ -4,18 +4,20 @@ class Selection {
 
     this.editor = editor;
 
-    this.name = '';
-    this.x = 0;
-    this.y = 0;
-    this.width = 0;
-    this.height = 0;
-    this.scaleW = 0;
-    this.scaleH = 0;
-    this.rotation = 0;
-    this.opacity = 0;
-    this.strokeWidth = 0;
-    this.fillColor = '#000000';
-    this.strokeColor = '#000000';
+    this.attributes = {
+      name: '',
+      x: 0,
+      y: 0,
+      width: 0,
+      height: 0,
+      scaleW: 0,
+      scaleH: 0,
+      rotation: 0,
+      opacity: 0,
+      strokeWidth: 0,
+      fillColor: '#000000',
+      strokeColor: '#000000',
+    }
   }
 
   get type () {
@@ -169,27 +171,32 @@ class Selection {
   }
 
   serialize () {
-    return this._selectedObjects.map(obj => {
-      if(obj instanceof window.paper.Path || obj instanceof window.paper.CompoundPath) {
-        return {
-          type: 'path',
-          name: obj.name,
+    return {
+      objects: this._selectedObjects.map(obj => {
+        if(obj instanceof window.paper.Path || obj instanceof window.paper.CompoundPath) {
+          return {
+            type: 'path',
+            name: obj.name,
+          }
+        } else {
+          return {
+            type: 'wickobject',
+            uuid: obj.uuid,
+          }
         }
-      } else {
-        return {
-          type: 'wickobject',
-          uuid: obj.uuid,
-        }
-      }
-    });
+      }),
+      attributes: Object.assign({}, this.attributes),
+    };
   }
 
   deserialize (data) {
+    this.attributes = Object.assign({}, data.attributes);
+
     var paths = window.paper.project.layers.map(layer => {
       return layer.children;
     }).flat();
 
-    this._selectedObjects = data.map(objData => {
+    this._selectedObjects = data.objects.map(objData => {
       if(objData.type === 'path') {
         return paths.find(path => {
           return path.name === objData.name;
