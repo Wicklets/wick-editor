@@ -22,6 +22,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 import DockedTitle from 'Editor/Util/DockedTitle/DockedTitle';
 import Asset from './Asset/Asset';
+import ActionButton from 'Editor/Util/ActionButton/ActionButton';
 
 import './_assetlibrary.scss';
 
@@ -55,6 +56,13 @@ class AssetLibrary extends Component {
     return(
       <div className="docked-pane asset-library">
         <DockedTitle title={"Asset Library"}></DockedTitle>
+        <div className="btn-asset-upload">
+          <ActionButton
+            color="green"
+            action={() => alert("Upload Asset")}
+            id="button-asset-upload"
+            text="Upload Asset" />
+        </div>
         <div className="asset-container">
           {this.props.project.assets.map(this.makeNode)}
         </div>

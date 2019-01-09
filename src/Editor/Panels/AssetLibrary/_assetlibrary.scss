@@ -20,6 +20,7 @@
 @import 'Editor/_wickbrand.scss';
 
 $asset-library-padding: 6px;
+$upload-button-height: 30px;
 
 .asset-library {
   background-color: $flame;
@@ -36,7 +37,7 @@ $asset-library-padding: 6px;
   margin-top: $docked-margin;
   margin-left: $docked-margin;
   margin-right: $docked-margin;
-  height: calc(100% - (3 * #{$docked-margin}) - #{$docked-title-height});
+  height: calc(100% - (4 * #{$docked-margin}) - #{$docked-title-height} - #{$upload-button-height});
   overflow-y: auto;
   display: block;
   background-color: $interface-secondary;
@@ -60,4 +61,12 @@ $asset-library-padding: 6px;
   margin-left: 2px;
   margin-right: 2px;
   padding:2px;
+}
+
+.btn-asset-upload {
+  width: 100% - calc(2 * #{$docked-margin});
+  height: $upload-button-height;
+  margin-top: $docked-margin;
+  margin-left: $docked-margin;
+  margin-right: $docked-margin;
 }
