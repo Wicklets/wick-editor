@@ -5257,11 +5257,7 @@ class BrushCursorGen {
           itemsInBox.push(item);
         }
       } else if (mode === 'intersects') {
-        var boundsIntersect = selectionBox.bounds.intersects(item.bounds);
-        var shapesIntersect = selectionBox.intersects(item);
-        var boundsContain = selectionBox.bounds.contains(item.bounds);
-
-        if (boundsIntersect && shapesIntersect || boundsContain) {
+        if (shapesIntersect(item, selectionBox)) {
           itemsInBox.push(item);
         }
       }
@@ -5589,6 +5585,62 @@ class BrushCursorGen {
     }
 
     return projectTarget;
+  }
+  /*itemA.getIntersections(itemB).length
+  function recursiveIntersects (itemA, itemB) {
+      if(itemA instanceof paper.Group) {
+          var intersects = false;
+          itemA.children.forEach(child => {
+              child.position.x -= itemB.position.x;
+              child.position.y -= itemB.position.y;
+              if(!intersects && recursiveIntersects(child, itemB)) {
+                  intersects = true;
+              }
+              child.position.x += itemB.position.x;
+              child.position.y += itemB.position.y;
+          });
+          return intersects;
+      } else {
+          return itemA.intersects(itemB);
+      }
+  }
+  */
+
+  /*
+  var boundsIntersect = selectionBox.bounds.intersects(item.bounds);
+  var shapesIntersect = item.intersects(selectionBox);
+  var boundsContain = selectionBox.bounds.contains(item.bounds);
+  if((boundsIntersect && shapesIntersect) || boundsContain) {
+      itemsInBox.push(item);
+  }
+  */
+
+
+  function shapesIntersect(itemA, itemB) {
+    if (itemA instanceof paper.Group) {
+      var intersects = false;
+      var itemBClone = itemB.clone(); //console.log(itemA.pivot)
+
+      itemBClone.position.x -= itemA.position.x;
+      itemBClone.position.y -= itemA.position.y;
+      itemA.children.forEach(child => {
+        if (!intersects && shapesIntersect(child, itemBClone)) {
+          intersects = true;
+        }
+      });
+      return intersects;
+    } else {
+      //console.log(itemA.getIntersections(itemB).length)
+      //var boundsIntersect = itemB.bounds.intersects(itemA.bounds);
+      var shapesDoIntersect = itemB.intersects(itemA);
+      var boundsContain = itemB.bounds.contains(itemA.bounds);
+
+      if (
+      /*boundsIntersect || */
+      shapesDoIntersect || boundsContain) {
+        return true;
+      }
+    }
   }
 })();
 /*
