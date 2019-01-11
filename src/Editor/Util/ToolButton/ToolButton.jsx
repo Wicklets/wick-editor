@@ -23,8 +23,6 @@ import './_toolbutton.scss'
 
 import ActionButton from 'Editor/Util/ActionButton/ActionButton';
 
-import ToolIcon from 'Editor/Util/ToolIcon/ToolIcon';
-
 class ToolButton extends Component {
   render() {
     return(

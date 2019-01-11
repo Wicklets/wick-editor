@@ -22,7 +22,6 @@ import './_toolbox.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 import ToolButton from 'Editor/Util/ToolButton/ToolButton';
-import ActionButton from 'Editor/Util/ActionButton/ActionButton';
 import PlayButton from 'Editor/Util/PlayButton/PlayButton';
 import WickInput from 'Editor/Util/WickInput/WickInput';
 
