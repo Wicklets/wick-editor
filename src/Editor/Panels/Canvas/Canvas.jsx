@@ -119,7 +119,6 @@ class Canvas extends Component {
     let selection = window.paper.project.selection;
     let attributes = this.props.selection.attributes;
 
-    console.log(attributes)
     selection.setPosition(attributes.x, attributes.y);
     selection.setWidthHeight(attributes.width, attributes.height);
     selection.setScale(attributes.scaleW, attributes.scaleH);
