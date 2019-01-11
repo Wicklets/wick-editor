@@ -61,7 +61,8 @@ class AssetLibrary extends Component {
             color="green"
             action={() => this.props.openFileDialog()}
             id="button-asset-upload"
-            text="Upload Asset" />
+            tooltip="Upload Asset"
+            icon="upload" />
         </div>
         <div className="asset-container">
           {this.props.assets.map(this.makeNode)}

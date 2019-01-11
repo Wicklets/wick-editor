@@ -31,6 +31,7 @@ import iconEraser from 'resources/tool-icons/eraser.svg';
 import iconPan from 'resources/tool-icons/pan.svg';
 import iconZoom from 'resources/tool-icons/zoom.svg';
 import iconFillBucket from 'resources/tool-icons/bucket.svg';
+import iconUpload from 'resources/tool-icons/upload.svg';
 import iconUnknown from 'resources/inspector-icons/selection-icons/unknown.svg';
 
 class ToolIcon extends Component {
@@ -49,6 +50,7 @@ class ToolIcon extends Component {
       "pan":iconPan,
       "zoom":iconZoom,
       "fillbucket": iconFillBucket,
+      "upload": iconUpload, 
     }
   }
 
