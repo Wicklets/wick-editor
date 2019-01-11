@@ -244,9 +244,9 @@ class Editor extends Component {
 
     if (accepted.length <= 0) return;
 
-    let file = accepted[0];
-
-    window.Wick.Asset.createAsset(file, this.addAsset);
+    accepted.forEach(file =>
+      window.Wick.Asset.createAsset(file, this.addAsset),
+    )
   }
 
   render () {
