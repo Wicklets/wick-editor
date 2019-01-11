@@ -119,18 +119,15 @@ class Canvas extends Component {
     let selection = window.paper.project.selection;
     let attributes = this.props.selection.attributes;
 
-    let x = attributes.x;
-    let y = attributes.y;
-    let width = attributes.width;
-    let height = attributes.height;
-    let scaleW = attributes.scaleW;
-    let scaleH = attributes.scaleH;
-    let rotation = attributes.rotation;
-
-    selection.setPosition(x, y);
-    selection.setWidthHeight(width, height);
-    selection.setScale(scaleW, scaleH);
-    selection.setRotation(rotation);
+    console.log(attributes)
+    selection.setPosition(attributes.x, attributes.y);
+    selection.setWidthHeight(attributes.width, attributes.height);
+    selection.setScale(attributes.scaleW, attributes.scaleH);
+    selection.setRotation(attributes.rotation);
+    selection.setFillColor(attributes.fillColor);
+    selection.setStrokeColor(attributes.strokeColor);
+    selection.setOpacity(attributes.opacity);
+    selection.setStrokeWidth(attributes.strokeWidth);
   }
 
   updateActiveTool () {
@@ -156,7 +153,12 @@ class Canvas extends Component {
       attributes.height = window.paper.project.selection.bounds.height;
       attributes.scaleW = 1;
       attributes.scaleH = 1;
-      // TODO: the rest of the transforms
+
+      let firstItem = window.paper.project.selection.items[0];
+      attributes.fillColor = firstItem.fillColor ? firstItem.fillColor.toCSS() : 'rgba(0,0,0,0)';
+      attributes.strokeColor = firstItem.strokeColor ? firstItem.strokeColor.toCSS() : 'rgba(0,0,0,0)';
+      attributes.opacity = firstItem.opacity ? firstItem.opacity : 1;
+      attributes.strokeWidth = firstItem.strokeWidth ? firstItem.strokeWidth : 0;
     }
   }
 

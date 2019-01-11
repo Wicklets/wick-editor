@@ -113,6 +113,14 @@ class Inspector extends Component {
     )
   }
 
+  toRgbaString (col) {
+    let r = col.rgb.r;
+    let g = col.rgb.g;
+    let b = col.rgb.b;
+    let a = col.rgb.a;
+    return 'rgba(' + r + ',' + g + ',' + b + ',' + a + ')';
+  }
+
   // Inspector Row Types
   renderBrushSize() {
     return (
@@ -159,7 +167,7 @@ class Inspector extends Component {
       <InspectorColorPicker
         icon="fillcolor"
         val={this.props.toolSettings.fillColor}
-        onChange={(col) => this.handleToolSettingChange('fillColor', col.hex)}
+        onChange={(col) => this.handleToolSettingChange('fillColor', this.toRgbaString(col))}
         id={"inspector-tool-fill-color"} />
     )
   }
@@ -169,7 +177,7 @@ class Inspector extends Component {
       <InspectorColorPicker
         icon="fillcolor"
         val={this.props.selection.attributes.fillColor}
-        onChange={(col) => this.handleSelectionPropertyChange('fillColor', col.hex)}
+        onChange={(col) => this.handleSelectionPropertyChange('fillColor', this.toRgbaString(col))}
         id={"inspector-selection-fill-color"} />
     )
   }
@@ -179,7 +187,7 @@ class Inspector extends Component {
       <InspectorColorPicker
         icon="strokecolor"
         val={this.props.toolSettings.strokeColor}
-        onChange={(col) => this.handleToolSettingChange('strokeColor', col.hex)}
+        onChange={(col) => this.handleToolSettingChange('strokeColor', this.toRgbaString(col))}
         id={"inspector-tool-stroke-color"} />
     )
   }
@@ -190,7 +198,7 @@ class Inspector extends Component {
       <InspectorColorPicker
         icon="strokecolor"
         val={this.props.selection.attributes.strokeColor}
-        onChange={(col) => this.handleSelectionPropertyChange('strokeColor', col.hex)}
+        onChange={(col) => this.handleSelectionPropertyChange('strokeColor', this.toRgbaString(col))}
         id={"inspector-selection-stroke-color"}
         stroke={true}/>
     )

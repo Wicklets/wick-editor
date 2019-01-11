@@ -4551,6 +4551,36 @@ paper.MultiSelection = class {
     this.scale(sx, sy);
   }
 
+  setFillColor(fillColor) {
+    this._selectedItems.filter(item => {
+      return item instanceof paper.Path || item instanceof paper.CompoundPath;
+    }).forEach(item => {
+      item.fillColor = fillColor;
+    });
+  }
+
+  setStrokeColor(strokeColor) {
+    this._selectedItems.filter(item => {
+      return item instanceof paper.Path || item instanceof paper.CompoundPath;
+    }).forEach(item => {
+      item.strokeColor = strokeColor;
+    });
+  }
+
+  setOpacity(opacity) {
+    this._selectedItems.forEach(item => {
+      item.opacity = opacity;
+    });
+  }
+
+  setStrokeWidth(strokeWidth) {
+    this._selectedItems.filter(item => {
+      return item instanceof paper.Path || item instanceof paper.CompoundPath;
+    }).forEach(item => {
+      item.strokeWidth = strokeWidth;
+    });
+  }
+
   exportSVG() {
     var exportGroup = new paper.Group();
     exportGroup.remove();
