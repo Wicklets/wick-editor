@@ -177,7 +177,7 @@ class Editor extends Component {
   }
 
   updateEditorState (state) {
-    if (state.project && !state.dontPushToUndoRedoStack) {
+    if ((state.project || state.selection) && !state.dontPushToUndoRedoStack) {
       this.state.undoRedo.saveState();
     }
     this.setState(state);

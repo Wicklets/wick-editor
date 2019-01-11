@@ -107,15 +107,26 @@ class Canvas extends Component {
     this.props.selection.selectedClips.forEach(obj => {
       window.paper.project.selection.addItemByName('wick_clip_'+obj.uuid);
     });
+    window.paper.project.selection.updateGUI();
     if(this.props.selection.selectedCanvasObjects.length > 0) {
-      window.paper.project.selection.setPosition(this.props.selection.x, this.props.selection.y);
-      window.paper.project.selection.setWidthHeight(this.props.selection.width, this.props.selection.height);
-      window.paper.project.selection.setScale(this.props.selection.scaleW, this.props.selection.scaleH);
-      window.paper.project.selection.setRotation(this.props.selection.rotation);
+      this.updateSelectionAttributes();
       this.wickCanvas.applyChanges(this.props.project, window.paper.project.layers);
     }
-    window.paper.project.selection.updateGUI();
     window.paper.project.addLayer(window.paper.project.selection.guiLayer);
+  }
+
+  updateSelectionAttributes () {
+    let selection = window.paper.project.selection;
+    let attributes = this.props.selection.attributes;
+
+    selection.setPosition(attributes.x, attributes.y);
+    selection.setWidthHeight(attributes.width, attributes.height);
+    selection.setScale(attributes.scaleW, attributes.scaleH);
+    selection.setRotation(attributes.rotation);
+    selection.setFillColor(attributes.fillColor);
+    selection.setStrokeColor(attributes.strokeColor);
+    selection.setOpacity(attributes.opacity);
+    selection.setStrokeWidth(attributes.strokeWidth);
   }
 
   updateActiveTool () {
@@ -134,13 +145,19 @@ class Canvas extends Component {
 
   updateSelectionTransformsProps () {
     if(window.paper.project.selection.items.length > 0) {
-      this.props.selection.x = window.paper.project.selection.bounds.left;
-      this.props.selection.y = window.paper.project.selection.bounds.top;
-      this.props.selection.width = window.paper.project.selection.bounds.width;
-      this.props.selection.height = window.paper.project.selection.bounds.height;
-      this.props.selection.scaleW = 1;
-      this.props.selection.scaleH = 1;
-      // TODO: the rest of the transforms
+      let attributes = this.props.selection.attributes;
+      attributes.x = window.paper.project.selection.bounds.left;
+      attributes.y = window.paper.project.selection.bounds.top;
+      attributes.width = window.paper.project.selection.bounds.width;
+      attributes.height = window.paper.project.selection.bounds.height;
+      attributes.scaleW = 1;
+      attributes.scaleH = 1;
+
+      let firstItem = window.paper.project.selection.items[0];
+      attributes.fillColor = firstItem.fillColor ? firstItem.fillColor.toCSS() : 'rgba(0,0,0,0)';
+      attributes.strokeColor = firstItem.strokeColor ? firstItem.strokeColor.toCSS() : 'rgba(0,0,0,0)';
+      attributes.opacity = firstItem.opacity ? firstItem.opacity : 1;
+      attributes.strokeWidth = firstItem.strokeWidth ? firstItem.strokeWidth : 0;
     }
   }
 
