@@ -64,7 +64,7 @@ class AssetLibrary extends Component {
             text="Upload Asset" />
         </div>
         <div className="asset-container">
-          {this.props.project.assets.map(this.makeNode)}
+          {this.props.assets.map(this.makeNode)}
         </div>
       </div>
     )

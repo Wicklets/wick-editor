@@ -3012,6 +3012,51 @@ Wick.Asset = class extends Wick.Base {
     this._src = null;
     this.onload = null;
   }
+  /**
+   * Returns all valid MIME types for files which can be converted to Wick Engine Assets.
+   * @return {string[]} Array of strings of MIME types in the form MediaType/Subtype.
+   */
+
+
+  static getMIMETypes() {
+    let imageTypes = Wick.ImageAsset.getMIMETypes();
+    let soundTypes = Wick.SoundAsset.getMIMETypes();
+    return imageTypes.concat(soundTypes);
+  }
+  /**
+   * Creates an asset from a File object for use within the Wick Engine.
+   * @param {File} file File object to be read and converted into an asset.
+   * @param {function} callback Function which will be passed the Wick Asset on file load. Can be passed undefined on improper file input.
+   */
+
+
+  static createAsset(file, callback) {
+    let imageTypes = Wick.ImageAsset.getMIMETypes();
+    let soundTypes = Wick.SoundAsset.getMIMETypes();
+    let asset = undefined;
+
+    if (imageTypes.indexOf(file.type) > -1) {
+      asset = new Wick.ImageAsset();
+    } else if (soundTypes.indexOf(file.type) > -1) {
+      asset = new Wick.SoundAsset();
+    }
+
+    if (asset === undefined) {
+      callback(undefined);
+      return;
+    }
+
+    let reader = new FileReader();
+
+    reader.onload = function () {
+      let dataURL = reader.result;
+      asset.src = dataURL;
+      asset.filename = file.name;
+      callback(asset);
+    };
+
+    reader.readAsDataURL(file);
+  }
 
   static _deserialize(data, object) {
     super._deserialize(data, object);
@@ -3083,6 +3128,15 @@ Wick.ImageAsset = class extends Wick.Asset {
   constructor() {
     super();
     this.html5Image = null;
+  }
+  /**
+   * Returns valid MIME types for an Image Asset.
+   * @returns {string[]} Array of strings representing MIME types in the form image/Subtype.
+   */
+
+
+  static getMIMETypes() {
+    return ['image/jpeg', 'image/png', 'image/bmp', 'image/gif'];
   }
 
   static _deserialize(data, object) {
@@ -3167,6 +3221,15 @@ Wick.SoundAsset = class extends Wick.Asset {
     this.html5Sound = null;
     this._loaded = false;
   }
+  /**
+   * Returns valid MIME types for a Sound Asset.
+   * @returns {string[]} Array of strings representing MIME types in the form audio/Subtype.
+   */
+
+
+  static getMIMETypes() {
+    return ['audio/mpeg3', 'audio/x-mpeg-3', 'audio/ogg'];
+  }
 
   static _deserialize(data, object) {
     super._deserialize(data, object);
@@ -3245,6 +3308,10 @@ Wick.ClipAsset = class extends Wick.Asset {
     super();
     this.timeline = new Wick.Timeline();
     this.linkedClips = [];
+  }
+
+  static getMIMETypes() {
+    return [];
   }
 
   static _deserialize(data, object) {
@@ -3349,6 +3416,10 @@ Wick.ClipAsset = class extends Wick.Asset {
 Wick.ButtonAsset = class extends Wick.ClipAsset {
   constructor() {
     super();
+  }
+
+  static getMIMETypes() {
+    return [];
   }
 
   static _deserialize(data, object) {

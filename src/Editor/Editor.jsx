@@ -23,7 +23,7 @@ import './_editor.scss';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import HTML5Backend from 'react-dnd-html5-backend'
-import { DragDropContextProvider } from "react-dnd";
+import { DragDropContext } from "react-dnd";
 import 'react-reflex/styles.css'
 import { ReflexContainer, ReflexSplitter, ReflexElement } from 'react-reflex'
 import { throttle } from 'underscore';
@@ -78,6 +78,7 @@ class Editor extends Component {
 
     // Tools
     this.activateTool = this.activateTool.bind(this);
+    this.addAsset = this.addAsset.bind(this);
 
     // Modals
     this.openModal = this.openModal.bind(this);
@@ -223,20 +224,41 @@ class Editor extends Component {
     window.document.getElementById('hotkeys-container').focus();
   }
 
-  addAssets (files) {
-    alert(JSON.stringify(files.map(f => f.name)));
+  addAsset (asset) {
+    if (asset === undefined) { return }
+
+    let newProject = this.state.project;
+    newProject.addAsset(asset);
+
+    this.updateEditorState({
+      project: newProject,
+    });
+
+    // this.state.project.addAsset(asset);
+  }
+
+  createAssets (accepted, rejected) {
+    if (rejected.length > 0) {
+      alert("The Wick Editor could not accept these files." + JSON.stringify(rejected.map(f => f.name)));
+    }
+
+    if (accepted.length <= 0) return;
+
+    let file = accepted[0];
+
+    window.Wick.Asset.createAsset(file, this.addAsset);
   }
 
   render () {
       return (
     <Dropzone
-      onDrop={files => this.addAssets(files)}
+      accept={window.Wick.Asset.getMIMETypes()}
+      onDrop={(accepted, rejected) => this.createAssets(accepted, rejected)}
       disableClick
     >
       {({getRootProps, getInputProps, open}) => (
         <div {...getRootProps()}>
           <input {...getInputProps()} />
-          <DragDropContextProvider backend={HTML5Backend}>
             <HotKeys
               keyMap={this.hotKeyInterface.getKeyMap()}
               handlers={this.hotKeyInterface.getHandlers()}
@@ -365,7 +387,7 @@ class Editor extends Component {
                             onStopResize={this.resizeProps.onStopAssetLibraryResize}>
                             <DockedPanel>
                               <AssetLibrary
-                                project={this.state.project}
+                                assets={this.state.project.assets}
                                 updateEditorState={this.updateEditorState}
                                 openFileDialog={() => open()}
                               />
@@ -378,7 +400,6 @@ class Editor extends Component {
                 </div>
               </div>
             </HotKeys>
-          </DragDropContextProvider>
         </div>
       )}
       </Dropzone>
@@ -386,4 +407,4 @@ class Editor extends Component {
   }
 }
 
-export default Editor
+export default DragDropContext(HTML5Backend)(Editor)

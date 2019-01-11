@@ -26,7 +26,11 @@ import RowIcon from 'Editor/Util/RowIcon/RowIcon';
 const assetSource = {
   beginDrag(props, monitor, component) {
     // Return the data describing the dragged item
-    return props.asset;
+    let info = {
+      uuid : props.asset.uuid,
+    }
+
+    return info;
   },
 }
 
@@ -44,12 +48,19 @@ class Asset extends Component {
     // These props are injected by React DnD, as defined by the `collect` function above:
     const { connectDragSource } = this.props;
 
+    console.log(this.props);
     return connectDragSource (
       <div className="asset-item">
         <RowIcon type="sound" />
-        <span className="asset-name-text">{this.props.asset.name}</span>
+        <span className="asset-name-text">{this.props.asset.filename}</span>
       </div>
     )
+    // return (
+    //   <div className="asset-item">
+    //     <RowIcon type="sound" />
+    //     <span className="asset-name-text">{this.props.asset.filename}</span>
+    //   </div>
+    // )
   }
 }
 
