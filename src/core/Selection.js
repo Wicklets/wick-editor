@@ -64,33 +64,17 @@ class Selection {
           color: "blue",
           tooltip: "Convert to Symbol",
           icon: undefined,
-          id: "convert-to-symbol-action"
-        },
-        {
-          name: "Convert to Symbol 2",
-          action: () => this.editor.openModal("ConvertToSymbol"),
-          color: "blue",
-          tooltip: "Symbol Conversion",
-          icon: "pan",
-          id: "convert-to-symbol-action-2",
+          id: "convert-to-symbol-action",
         }
       ],
       [
-        {
-          name: "Convert to Symbol",
-          action: () => this.editor.openModal("ConvertToSymbol"),
-          color: "sky",
-          tooltip: "Symbua",
-          icon: undefined,
-          id: "convert-to-symbol-action-row2"
-        },
         {
           name: "Delete",
           action: () => this.deleteSelectedObjects(),
           color: "sky",
           tooltip: "Delete",
           icon: undefined,
-          id: "convert-to-symbol-action-row3"
+          id: "action-button-delete",
         },
       ]
     ];
