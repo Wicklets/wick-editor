@@ -24,10 +24,6 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import ToolIcon from 'Editor/Util/ToolIcon/ToolIcon';
 
 class RowIcon extends Component {
-  constructor() {
-    super();
-  }
-
   render() {
     return(
       <div className="row-icon">

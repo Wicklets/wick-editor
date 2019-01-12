@@ -44,13 +44,29 @@ function collect(connect, monitor) {
 }
 
 class Asset extends Component {
+
+  getIcon(classname) {
+    if (classname === "ImageAsset") {
+      return "image";
+    } else if (classname === "SoundAsset") {
+      return "sound";
+    } else if (classname === "ClipAsset") {
+      return "clip";
+    } else if (classname === "ButtonAsset") {
+      return "button";
+    } else {
+      return "asset";
+    }
+  }
+
   render() {
     // These props are injected by React DnD, as defined by the `collect` function above:
     const { connectDragSource } = this.props;
 
+    let icon = this.getIcon(this.props.asset.classname);
     return connectDragSource (
       <div className="asset-item">
-        <RowIcon type="sound" />
+        <RowIcon type={icon} />
         <span className="asset-name-text">{this.props.asset.filename}</span>
       </div>
     )

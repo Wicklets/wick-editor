@@ -36,6 +36,11 @@ import iconFillBucket from 'resources/tool-icons/bucket.svg';
 // Actions
 import iconUpload from 'resources/tool-icons/upload.svg';
 
+// Assets
+import iconImage from 'resources/tool-icons/image.svg';
+import iconGear from 'resources/inspector-icons/selection-icons/settings.png';
+import iconGroup from 'resources/tool-icons/group.svg';
+
 // Rows
 import iconBrushSize from "resources/inspector-icons/property-icons/brushsize.svg";
 import iconBrushSmoothness from "resources/inspector-icons/property-icons/brushsmoothness.svg";
@@ -77,6 +82,8 @@ class ToolIcon extends Component {
       "pan":iconPan,
       "zoom":iconZoom,
       "fillbucket": iconFillBucket,
+      "image": iconImage,
+      "imageAsset": iconImage,
       "upload": iconUpload,
       "brushsize": iconBrushSize,
       "brushsmoothness": iconBrushSmoothness,
@@ -87,6 +94,7 @@ class ToolIcon extends Component {
       "fontsize": iconFontSize,
       "framelength": iconFrameLength,
       "framerate": iconFrameRate,
+      "group": iconGroup,
       "multipleobjects": iconMultipleObjects,
       "name": iconName,
       "opacity": iconOpacity,
@@ -95,8 +103,10 @@ class ToolIcon extends Component {
       "pressure": iconPressure,
       "rotation": iconRotation,
       "scale": iconScale,
+      "gear": iconGear,
       "size": iconSize,
       "sound": iconSound,
+      "SoundAsset": iconSound,
       "strokecolor": iconStrokeColor,
       "strokewidth": iconStrokeWidth,
       "volume": iconVolume,
