@@ -556,7 +556,6 @@ class Inspector extends Component {
   renderPathContent() {
     return(
       <div className="inspector-content">
-        {this.renderName()}
         {this.renderTransformProperties()}
         {this.renderSelectionStrokeWidth()}
         {this.renderSelectionFillColor()}
