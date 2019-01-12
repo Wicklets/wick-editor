@@ -40,7 +40,7 @@ class AssetLibrary extends Component {
   }
 
   handleAdd(uuid) {
-    console.log("ADD", uuid);
+    this.props.openFileDialog();
   }
 
   handleEdit(uuid) {
@@ -59,9 +59,9 @@ class AssetLibrary extends Component {
         <div className="btn-asset-upload">
           <ActionButton
             color="green"
-            action={() => this.props.openFileDialog()}
+            action={this.handleAdd}
             id="button-asset-upload"
-            tooltip="Upload Asset"
+            tooltip="Upload Assets"
             icon="upload" />
         </div>
         <div className="asset-container">

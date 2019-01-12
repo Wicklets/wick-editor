@@ -26,8 +26,8 @@ import RowIcon from 'Editor/Util/RowIcon/RowIcon';
 
 
 // Quick documentation...
-// input1: object: input information, all props pased to child
-// input2: object: input information, all props pased to child
+// input1: object: input information, all props passed to child
+// input2: object: input information, all props passed to child
 // icon: image reference
 // divider: boolean: show x or don't show x, default to show x.
 

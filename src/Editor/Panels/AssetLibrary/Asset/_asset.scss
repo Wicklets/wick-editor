@@ -27,12 +27,15 @@ $asset-height: 24px;
   line-height: $asset-height;
   background-color: $interface-tertiary;
   color: $interface-tertiary-text;
-  display: block;
   margin-top: 4px;
   padding-left: 4px;
   vertical-align: center;
   border-radius: $interface-roundness-primary;
-  overflow: hidden; 
+  overflow: hidden;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .asset-item:hover {
@@ -43,4 +46,6 @@ $asset-height: 24px;
 
 .asset-name-text {
   margin-left: 4px;
+  white-space: nowrap;
+  overflow: scroll; 
 }
