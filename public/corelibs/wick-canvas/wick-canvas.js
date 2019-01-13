@@ -16072,6 +16072,18 @@ WickCanvas.Frame = class {
     this._renderClips(wickFrame, options);
   }
 
+  createImageFromAsset(imageAsset, done) {
+    var self = this;
+    var raster = new paper.Raster(imageAsset.src);
+    raster.remove();
+
+    raster.onLoad = function () {
+      self._pathsLayer.addChild(raster);
+
+      done(raster);
+    };
+  }
+
   _renderPaths(wickFrame, options) {
     this._pathsLayer.removeChildren();
 
