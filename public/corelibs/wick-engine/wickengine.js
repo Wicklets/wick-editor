@@ -2301,6 +2301,46 @@ Wick.Project = class extends Wick.Base {
 
     this._addChild(this.root);
   }
+  /**
+   * Creates an asset from a File object for use within the Wick Engine, and adds that asset to the project.
+   * @param {File} file File object to be read and converted into an asset.
+   * @param {function} callback Function which will be passed the Wick Asset on file load. Can be passed undefined on improper file input.
+   */
+
+
+  import(file) {
+    var self = this;
+    let imageTypes = Wick.ImageAsset.getMIMETypes();
+    let soundTypes = Wick.SoundAsset.getMIMETypes();
+    let asset = undefined;
+
+    if (imageTypes.indexOf(file.type) !== -1) {
+      asset = new Wick.ImageAsset();
+    } else if (soundTypes.indexOf(file.type) !== -1) {
+      asset = new Wick.SoundAsset();
+    }
+
+    if (asset === undefined) {
+      callback(undefined);
+      return;
+    }
+
+    let reader = new FileReader();
+
+    reader.onload = function () {
+      let dataURL = reader.result;
+
+      asset.onload = function () {
+        self.addAsset(asset);
+        callback(asset);
+      };
+
+      asset.src = dataURL;
+      asset.filename = file.name;
+    };
+
+    reader.readAsDataURL(file);
+  }
 
   addAsset(asset) {
     this.assets.push(asset);
@@ -3013,7 +3053,7 @@ Wick.Asset = class extends Wick.Base {
     this.onload = null;
   }
   /**
-   * Returns all valid MIME types for files which can be converted to Wick Engine Assets.
+   * Returns all valid MIME types for files which can be converted to Wick Assets.
    * @return {string[]} Array of strings of MIME types in the form MediaType/Subtype.
    */
 
@@ -3022,40 +3062,6 @@ Wick.Asset = class extends Wick.Base {
     let imageTypes = Wick.ImageAsset.getMIMETypes();
     let soundTypes = Wick.SoundAsset.getMIMETypes();
     return imageTypes.concat(soundTypes);
-  }
-  /**
-   * Creates an asset from a File object for use within the Wick Engine.
-   * @param {File} file File object to be read and converted into an asset.
-   * @param {function} callback Function which will be passed the Wick Asset on file load. Can be passed undefined on improper file input.
-   */
-
-
-  static createAsset(file, callback) {
-    let imageTypes = Wick.ImageAsset.getMIMETypes();
-    let soundTypes = Wick.SoundAsset.getMIMETypes();
-    let asset = undefined;
-
-    if (imageTypes.indexOf(file.type) > -1) {
-      asset = new Wick.ImageAsset();
-    } else if (soundTypes.indexOf(file.type) > -1) {
-      asset = new Wick.SoundAsset();
-    }
-
-    if (asset === undefined) {
-      callback(undefined);
-      return;
-    }
-
-    let reader = new FileReader();
-
-    reader.onload = function () {
-      let dataURL = reader.result;
-      asset.src = dataURL;
-      asset.filename = file.name;
-      callback(asset);
-    };
-
-    reader.readAsDataURL(file);
   }
 
   static _deserialize(data, object) {
