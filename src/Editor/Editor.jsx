@@ -180,6 +180,10 @@ class Editor extends Component {
     if ((state.project || state.selection) && !state.dontPushToUndoRedoStack) {
       this.state.undoRedo.saveState();
     }
+    if(state.activeTool && state.activeTool !== 'cursor') {
+      this.state.selection.selectObjects([]);
+      state.selection = this.state.selection;
+    }
     this.setState(state);
   }
 
