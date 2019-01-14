@@ -34,8 +34,13 @@ class Selection {
             }
           }
         } else {
-          // TODO add cases for multipath and multiclip
-          return 'multicanvasmixed';
+          if (this.selectedPaths.length === 0 && this.selectedClips.length > 0) {
+            return 'multiclip'
+          } else if (this.selectedClips.length === 0 && this.selectedPaths.length > 0) {
+            return 'multipath';
+          } else {
+            return 'multicanvasmixed';
+          }
         }
       } else if (this.selectedTimelineObjects.length > 0) {
         if(this.selectedFrames.length > 0 && this.selectedTweens.length > 0) {
