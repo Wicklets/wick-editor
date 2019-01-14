@@ -21562,8 +21562,17 @@ Wick.Script = class extends Wick.Base {
     this._globalWrapper.attachToWindow();
 
     if (this.parent instanceof Wick.Clip) this._wrapper.attachToClip();
+    var result;
 
-    var result = this._wrapper._wickFn(this._wrapper);
+    try {
+      result = {};
+      result.status = 'success';
+      result.value = this._wrapper._wickFn(this._wrapper);
+    } catch (e) {
+      result = {};
+      result.status = 'error';
+      result.error = this._generateErrorInfo(e);
+    }
 
     this._globalWrapper.detachFromWindow();
 
@@ -21583,8 +21592,17 @@ Wick.Script = class extends Wick.Base {
       this._globalWrapper.attachToWindow();
 
       if (this.parent instanceof Wick.Clip) this._wrapper.attachToClip();
+      var result;
 
-      var result = this._wrapper[fullFnName](this._wrapper);
+      try {
+        result = {};
+        result.status = 'success';
+        result.value = this._wrapper[fullFnName](this._wrapper);
+      } catch (e) {
+        result = {};
+        result.status = 'error';
+        result.error = this._generateErrorInfo(e);
+      }
 
       this._globalWrapper.detachFromWindow();
 
@@ -21633,6 +21651,24 @@ Wick.Script = class extends Wick.Base {
     if (!this._globalWrapper) {
       this._globalWrapper = new Wick.Script.GlobalWrapper(this.parent);
     }
+  }
+
+  _generateErrorInfo(error) {
+    var lineNumber = null;
+    error.stack.split('\n').forEach(line => {
+      if (lineNumber !== null) return;
+      var split = line.split(':');
+      var lineString = split[split.length - 2];
+      var lineInt = parseInt(lineString);
+
+      if (!isNaN(lineInt)) {
+        lineNumber = lineInt - 2;
+      }
+    });
+    return {
+      line: lineNumber,
+      message: error.message
+    };
   }
 
   clone(object) {
@@ -23528,11 +23564,11 @@ Wick.Canvas.Project = class {
       var originCrosshair = new paper.Group({
         insert: false
       });
-      var vertical = new paper.Path.Line(new paper.Point(0, -this.ORIGIN_CROSSHAIR_SIZE), new paper.Point(0, this.ORIGIN_CROSSHAIR_SIZE));
-      vertical.strokeColor = this.ORIGIN_CROSSHAIR_COLOR;
+      var vertical = new paper.Path.Line(new paper.Point(0, -Wick.Canvas.Project.ORIGIN_CROSSHAIR_SIZE), new paper.Point(0, Wick.Canvas.Project.ORIGIN_CROSSHAIR_SIZE));
+      vertical.strokeColor = Wick.Canvas.Project.ORIGIN_CROSSHAIR_COLOR;
       vertical.strokeWidth = 1;
-      var horizontal = new paper.Path.Line(new paper.Point(-this.ORIGIN_CROSSHAIR_SIZE, 0), new paper.Point(this.ORIGIN_CROSSHAIR_SIZE, 0));
-      horizontal.strokeColor = this.ORIGIN_CROSSHAIR_COLOR;
+      var horizontal = new paper.Path.Line(new paper.Point(-Wick.Canvas.Project.ORIGIN_CROSSHAIR_SIZE, 0), new paper.Point(Wick.Canvas.Project.ORIGIN_CROSSHAIR_SIZE, 0));
+      horizontal.strokeColor = Wick.Canvas.Project.ORIGIN_CROSSHAIR_COLOR;
       horizontal.strokeWidth = 1;
       originCrosshair.addChild(vertical);
       originCrosshair.addChild(horizontal);
