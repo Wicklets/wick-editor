@@ -4402,6 +4402,14 @@ paper.MultiSelection = class {
     return this._selectionBounds;
   }
 
+  get rotationPoint() {
+    if (this._selectedItems.length === 1) {
+      return this._selectedItems[0].position;
+    } else {
+      return this.bounds.center;
+    }
+  }
+
   updateGUI() {
     this._rebuildGUI();
   }
@@ -5392,7 +5400,7 @@ class BrushCursorGen {
   tool._onMouseDown_rotationHotspot = function (e) {};
 
   tool._onMouseDrag_rotationHotspot = function (e) {
-    var pivot = paper.project.selection.bounds.center;
+    var pivot = paper.project.selection.rotationPoint;
     var oldAngle = e.lastPoint.subtract(pivot).angle;
     var newAngle = e.point.subtract(pivot).angle;
     var rotationAmount = newAngle - oldAngle;
@@ -5649,10 +5657,8 @@ class BrushCursorGen {
   function shapesIntersect(itemA, itemB) {
     if (itemA instanceof paper.Group) {
       var intersects = false;
-      var itemBClone = itemB.clone(); //console.log(itemA.pivot)
-
-      itemBClone.position.x -= itemA.position.x;
-      itemBClone.position.y -= itemA.position.y;
+      var itemBClone = itemB.clone();
+      itemBClone.transform(itemA.matrix.inverted());
       itemA.children.forEach(child => {
         if (!intersects && shapesIntersect(child, itemBClone)) {
           intersects = true;
