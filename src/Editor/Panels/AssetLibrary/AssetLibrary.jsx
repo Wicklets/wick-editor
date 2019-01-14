@@ -49,10 +49,18 @@ class AssetLibrary extends Component {
   }
 
   onSelectionChanged (selectedObjects) {
-    this.props.selection.selectObjects(selectedObjects);
+    let selection = this.props.selection
+    selection.selectObjects(selectedObjects);
+
+    if (selectedObjects.length === 1) {
+      let object = selectedObjects[0];
+      selection.attributes.name = object.name;
+      selection.attributes.filename = object.filename;
+      selection.attributes.src = object.src;
+    }
 
     this.props.updateEditorState({
-      selection: this.props.selection,
+      selection: selection,
     });
   }
 

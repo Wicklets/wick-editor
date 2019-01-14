@@ -227,6 +227,7 @@ class Inspector extends Component {
   }
 
   renderName() {
+    console.log(this.props.selection);
     return (
       <InspectorTextInput
         icon="name"
@@ -603,6 +604,9 @@ class Inspector extends Component {
     return (
       <div>
         <InspectorTitle type={"asset"} title={"Asset"} />
+        <div className="inspector-content">
+          {this.renderName()}
+        </div>
       </div>
     )
   }

@@ -6,6 +6,8 @@ class Selection {
 
     this.attributes = {
       name: '',
+      filename: '',
+      src: '',
       x: 0,
       y: 0,
       width: 0,
