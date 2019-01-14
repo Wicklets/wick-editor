@@ -21434,6 +21434,7 @@ Wick.Project = class extends Wick.Base {
 
       asset.src = dataURL;
       asset.filename = file.name;
+      asset.name = file.name;
     };
 
     reader.readAsDataURL(file);
@@ -23142,6 +23143,10 @@ Wick.Button = class extends Wick.Clip {
 };
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 Wick.Canvas = class {
+  static get DEFAULT_CANVAS_BG_COLOR() {
+    return 'rgb(187, 187, 187)';
+  }
+
   static setup(elem) {
     this.elem = elem;
     var canvas = document.createElement('canvas');
@@ -23152,6 +23157,7 @@ Wick.Canvas = class {
     this._soundUUIDsLoaded = [];
     this._soundsCache = {};
     elem.appendChild(canvas);
+    this.canvas = canvas;
   }
 
   static resize() {
@@ -23172,6 +23178,7 @@ Wick.Canvas = class {
 
     raster.onLoad = function () {
       raster.remove();
+      raster.data.asset = imageAsset.uuid;
       done(raster);
     };
   }
@@ -23219,6 +23226,15 @@ Wick.Canvas = class {
     if (activeFrame && !activeFrame.parent.hidden) {
       var activeFrameUUID = activeFrame.uuid;
       paper.project.layers['wick_frame_' + activeFrameUUID + '_paths'].activate();
+    } // Update canvas background color so that it's:
+    // - Default gray if in root, or
+    // - the project bg color if inside a clip
+
+
+    if (wickProject.focus === wickProject.root) {
+      Wick.Canvas.canvas.style.backgroundColor = Wick.Canvas.DEFAULT_CANVAS_BG_COLOR;
+    } else {
+      Wick.Canvas.canvas.style.backgroundColor = wickProject.backgroundColor;
     }
   }
 
