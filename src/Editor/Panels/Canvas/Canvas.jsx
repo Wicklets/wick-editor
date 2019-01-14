@@ -67,9 +67,9 @@ class Canvas extends Component {
   componentDidMount() {
     this.props.onRef(this);
 
-    this.wickCanvas = new window.WickCanvas();
-    window.WickCanvas.setup(this.canvasContainer.current);
-    window.WickCanvas.resize();
+    this.wickCanvas = new window.Wick.Canvas();
+    window.Wick.Canvas.setup(this.canvasContainer.current);
+    window.Wick.Canvas.resize();
 
     window.paper.view.zoom = 1;
     window.paper.view.center = new window.paper.Point(
