@@ -1,6 +1,3 @@
-// ISSUES
-// selection needs to be part of history!!!!!!!!
-
 class UndoRedo {
   constructor (editor) {
     this.editor = editor;
