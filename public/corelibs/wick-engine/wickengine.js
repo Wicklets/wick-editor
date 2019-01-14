@@ -2308,7 +2308,7 @@ Wick.Project = class extends Wick.Base {
    */
 
 
-  import(file) {
+  import(file, callback) {
     var self = this;
     let imageTypes = Wick.ImageAsset.getMIMETypes();
     let soundTypes = Wick.SoundAsset.getMIMETypes();

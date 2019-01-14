@@ -248,9 +248,12 @@ class Editor extends Component {
 
     if (accepted.length <= 0) return;
 
-    accepted.forEach(file =>
-      window.Wick.Asset.createAsset(file, this.addAsset),
-    )
+    accepted.forEach(file => {
+      this.state.project.import(file, function (asset) {
+        console.log('import success')
+        console.log(asset)
+      });
+    });
   }
 
   render () {
