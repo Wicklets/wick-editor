@@ -160,6 +160,23 @@ class Selection {
     });
   }
 
+  focusObject (object) {
+    this.editor.state.selection.selectObjects([]);
+    this.editor.state.project.focus = this.editor.state.project.root._childByUUID(object.uuid);
+    this.editor.updateEditorState({
+      selection: this.editor.state.selection,
+      project: this.editor.state.project
+    });
+  }
+
+  focusSelectedObject () {
+    this.focusObject(this.selectedClips[0]);
+  }
+
+  focusParentObject () {
+    this.focusObject(this.editor.state.project.focus._parentByInstanceOf(window.Wick.Clip));
+  }
+
   serialize () {
     return {
       objects: this._selectedObjects.map(obj => {

@@ -71,6 +71,8 @@ class ConvertToSymbol extends Component {
     clips.forEach(clip => {
       clip.timeline.layers[0].frames[0].addClip(clip);
     });
+    clip.x = window.paper.project.selection.bounds.center.x;
+    clip.y = window.paper.project.selection.bounds.center.y;
 
     window.paper.drawingTools.cursor.deleteSelectedItems();
 
