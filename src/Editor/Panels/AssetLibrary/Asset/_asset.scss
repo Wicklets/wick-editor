@@ -35,7 +35,6 @@ $asset-height: 24px;
 
   display: flex;
   align-items: center;
-  justify-content: center;
 }
 
 .asset-item:hover {
@@ -47,5 +46,5 @@ $asset-height: 24px;
 .asset-name-text {
   margin-left: 4px;
   white-space: nowrap;
-  overflow: scroll; 
+  overflow: scroll;
 }
