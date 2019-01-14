@@ -32,16 +32,11 @@ import InspectorSelector from './InspectorRow/InspectorRowTypes/InspectorSelecto
 import InspectorColorPicker from './InspectorRow/InspectorRowTypes/InspectorColorPicker';
 import InspectorCheckbox from './InspectorRow/InspectorRowTypes/InspectorCheckbox';
 import InspectorActionButton from './InspectorActionButton/InspectorActionButton';
+import InspectorImagePreview from './InspectorPreview/InspectorPreviewTypes/InspectorImagePreview';
 
 class Inspector extends Component {
   constructor (props) {
     super(props);
-    this.handleChange = this.handleChange.bind(this);
-    this.handleColorChange = this.handleColorChange.bind(this);
-    this.handleFontChange = this.handleFontChange.bind(this);
-    this.handleNameChange = this.handleNameChange.bind(this);
-    this.handlePos1 = this.handlePos1.bind(this);
-    this.handlePos2 = this.handlePos2.bind(this);
 
     this.inspectorContentRenderFunctions = {
       "cursor": this.renderCursor.bind(this),
@@ -75,42 +70,6 @@ class Inspector extends Component {
     this.renderActionButtonRow = this.renderActionButtonRow.bind(this);
     this.renderButton = this.renderButton.bind(this);
     this.renderActions = this.renderActions.bind(this);
-  }
-
-  handleChange(val) {
-    this.setState(
-      {dummySize: val}
-    )
-  }
-
-  handleColorChange(val) {
-    this.setState(
-      {dummyColor: val}
-    )
-  }
-
-  handleFontChange(val) {
-    this.setState(
-      {dummySelectedFont:val}
-    )
-  }
-
-  handleNameChange(val) {
-    this.setState(
-      {dummyName:val.target.value}
-    )
-  }
-
-  handlePos1(val) {
-    this.setState(
-      {pos1: val}
-    )
-  }
-
-  handlePos2(val) {
-    this.setState(
-      {pos2: val}
-    )
   }
 
   toRgbaString (col) {
@@ -231,7 +190,7 @@ class Inspector extends Component {
       <InspectorTextInput
         icon="name"
         val={this.props.selection.attributes.name}
-        onChange={(val) => this.handleSelectionPropertyChange('name', val)} />
+        onChange={(val) => this.handleSelectionPropertyChange('name', val.value)} />
     )
   }
 
@@ -240,8 +199,15 @@ class Inspector extends Component {
       <InspectorTextInput
         icon="name"
         val={this.props.selection.attributes.filename}
-        onChange={(val) => this.handleSelectionPropertyChange('filename', val)}
         readOnly={true} />
+    )
+  }
+
+  renderImagePreview() {
+    return (
+      <InspectorImagePreview
+        icon="image"
+        src={this.props.selection.attributes.src} />
     )
   }
 
@@ -616,6 +582,7 @@ class Inspector extends Component {
         <div className="inspector-content">
           {this.renderName()}
           {this.renderFilename()}
+          {this.renderImagePreview()}
         </div>
       </div>
     )

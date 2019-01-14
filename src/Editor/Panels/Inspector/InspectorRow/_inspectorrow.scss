@@ -30,15 +30,16 @@ $double-input-container-width: $input-space;
 $double-input-divider-width: 10%;
 $double-input-unit-width: 45%;
 
-
-
 .inspector-row {
   display: flex;
   align-items: center;
   width: 100%;
-  height: 100%;
   height: $inspector-row-height;
   margin-bottom: 4px;
+}
+
+.inspector-preview-row {
+  height: $inspector-image-preview-size;
 }
 
 .inspector-input-container {

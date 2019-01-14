@@ -389,7 +389,6 @@ class Editor extends Component {
                                 updateEditorState={this.updateEditorState}
                                 openFileDialog={() => open()}
                                 selection={this.state.selection}
-                                updateEditorState={this.updateEditorState}
                               />
                             </DockedPanel>
                           </ReflexElement>

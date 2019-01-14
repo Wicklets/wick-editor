@@ -17,38 +17,25 @@
  * along with Wick Editor.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-@import 'Editor/_wickbrand.scss';
+import React, { Component } from 'react';
 
-$inspector-padding: 10px;
-$inspector-selection-icon-size: 40px;
-$inspector-row-height: 25px;
-$inspector-button-height: 40px;
-$inspector-button-min-width: 40px;
-$inspector-image-preview-size: 100px; 
+import InspectorPreview from 'Editor/Panels/Inspector/InspectorPreview/InspectorPreview';
 
-$inspector-transition-duration: 0.2s;
-
-.inspector {
-  background-color: $interface-primary;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
+class InspectorImagePreview extends Component {
+  render() {
+    return(
+        <InspectorPreview
+          icon={this.props.icon}
+          preview={true}
+          info={
+            {
+              type: "image",
+              src: this.props.src
+            }
+          }
+        />
+    )
+  }
 }
 
-.inspector-content {
-  padding-left: $inspector-padding;
-  padding-right: $inspector-padding;
-
-}
-
-.select-inspector {
-  height: 20px;
-}
-
-.inspector-action-row {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  margin-bottom: 4px;
-}
+export default InspectorImagePreview
