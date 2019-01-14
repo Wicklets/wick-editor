@@ -33,6 +33,7 @@ class AssetLibrary extends Component {
     this.handleDelete = this.handleDelete.bind(this);
     this.handleAdd = this.handleAdd.bind(this);
     this.handleEdit = this.handleEdit.bind(this);
+    this.onSelectionChanged = this.onSelectionChanged.bind(this);
   }
 
   handleDelete(uuid) {
@@ -47,9 +48,21 @@ class AssetLibrary extends Component {
     console.log("EDIT", uuid);
   }
 
+  onSelectionChanged (selectedObjects) {
+    this.props.selection.selectObjects(selectedObjects);
+
+    this.props.updateEditorState({
+      selection: this.props.selection,
+    });
+  }
+
   makeNode(assetObject, i) {
-    let asset = <Asset key={i} asset={assetObject} />;
-    return asset;
+    return (
+      <Asset
+       key={i}
+       asset={assetObject}
+       onClick={() => this.onSelectionChanged([assetObject])}/>
+    )
   }
 
   render() {

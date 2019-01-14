@@ -65,7 +65,7 @@ class Asset extends Component {
 
     let icon = this.getIcon(this.props.asset.classname);
     return connectDragSource (
-      <div className="asset-item">
+      <div className="asset-item" onClick={this.props.onClick}>
         <RowIcon type={icon} />
         <span className="asset-name-text">{this.props.asset.filename}</span>
       </div>

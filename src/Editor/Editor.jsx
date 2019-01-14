@@ -78,7 +78,7 @@ class Editor extends Component {
 
     // Tools
     this.activateTool = this.activateTool.bind(this);
-    this.addAsset = this.addAsset.bind(this);
+    this.createAssets = this.createAssets.bind(this);
 
     // Modals
     this.openModal = this.openModal.bind(this);
@@ -228,20 +228,8 @@ class Editor extends Component {
     window.document.getElementById('hotkeys-container').focus();
   }
 
-  addAsset (asset) {
-    if (asset === undefined) { return }
-
-    let newProject = this.state.project;
-    newProject.addAsset(asset);
-
-    this.updateEditorState({
-      project: newProject,
-    });
-
-    // this.state.project.addAsset(asset);
-  }
-
   createAssets (accepted, rejected) {
+    let self = this;
     if (rejected.length > 0) {
       alert("The Wick Editor could not accept these files." + JSON.stringify(rejected.map(f => f.name)));
     }
@@ -250,10 +238,14 @@ class Editor extends Component {
 
     accepted.forEach(file => {
       this.state.project.import(file, function (asset) {
-        console.log('import success')
-        console.log(asset)
+        // After import success, update editor state.
+        self.updateEditorState({
+          project: self.state.project,
+        });
       });
+
     });
+
   }
 
   render () {
@@ -277,7 +269,6 @@ class Editor extends Component {
                     activeModalName={this.state.activeModalName}
                     openModal={this.openModal}
                     closeActiveModal={this.closeActiveModal}
-                    updateEditorState={this.updateEditorState}
                     project={this.state.project}
                     selection={this.state.selection}
                   />
@@ -397,6 +388,8 @@ class Editor extends Component {
                                 assets={this.state.project.assets}
                                 updateEditorState={this.updateEditorState}
                                 openFileDialog={() => open()}
+                                selection={this.state.selection}
+                                updateEditorState={this.updateEditorState}
                               />
                             </DockedPanel>
                           </ReflexElement>
