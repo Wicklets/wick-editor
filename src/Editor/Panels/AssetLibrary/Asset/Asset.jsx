@@ -23,6 +23,8 @@ import './_asset.scss';
 import DragDropTypes from 'Editor/DragDropTypes.js';
 import RowIcon from 'Editor/Util/RowIcon/RowIcon';
 
+var classNames = require('classnames');
+
 const assetSource = {
   beginDrag(props, monitor, component) {
     // Return the data describing the dragged item
@@ -65,7 +67,7 @@ class Asset extends Component {
 
     let icon = this.getIcon(this.props.asset.classname);
     return connectDragSource (
-      <div className="asset-item" onClick={this.props.onClick}>
+      <div className={classNames("asset-item", {"asset-selected": this.props.isSelected})} onClick={this.props.onClick}>
         <RowIcon type={icon} />
         <span className="asset-name-text">{this.props.asset.filename}</span>
       </div>

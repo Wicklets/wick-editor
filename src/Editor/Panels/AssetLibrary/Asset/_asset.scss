@@ -48,3 +48,9 @@ $asset-height: 24px;
   white-space: nowrap;
   overflow: scroll;
 }
+
+.asset-item.asset-selected {
+  transition: .2s; 
+  background-color: $wick-green-dark;
+  color: white;
+}
