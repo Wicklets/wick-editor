@@ -23,42 +23,60 @@ class Selection {
   get type () {
     if(this.selectedObjects.length > 0) {
       if(this.selectedCanvasObjects.length > 0) {
-        if(this.selectedCanvasObjects.length === 1) {
-          if(this.selectedPaths.length === 1) {
-            return 'path';
-          } else if(this.selectedClips.length === 1) {
-            if(this.selectedClips[0] instanceof window.Wick.Button) {
-              return 'button'
-            } else if(this.selectedClips[0] instanceof window.Wick.Clip) {
-              return 'clip';
-            }
-          }
-        } else {
-          if (this.selectedPaths.length === 0 && this.selectedClips.length > 0) {
-            return 'multiclip'
-          } else if (this.selectedClips.length === 0 && this.selectedPaths.length > 0) {
-            return 'multipath';
-          } else {
-            return 'multicanvasmixed';
-          }
-        }
+        return this.canvasObjectType;
       } else if (this.selectedTimelineObjects.length > 0) {
-        if(this.selectedFrames.length > 0 && this.selectedTweens.length > 0) {
-          return 'multitimeline';
-        } else if(this.selectedFrames.length > 1) {
-          return 'multiframe';
-        } else if(this.selectedFrames.length > 0) {
-          return 'frame';
-        } else if(this.selectedTweens.length > 1) {
-          return 'mulittween';
-        } else if(this.selectedTweens.length > 0) {
-          return 'tween';
-        }
+        return this.timelineObjectType;
       } else if (this.selectedAssets.length > 0) {
-        return 'asset';
+        return this.assetObjectType;
       }
     }
     return null;
+  }
+
+  get canvasObjectType () {
+    // Single object type
+    if(this.selectedCanvasObjects.length === 1) {
+      if(this.selectedPaths.length === 1) {
+        return 'path';
+      } else if(this.selectedClips.length === 1) {
+        if(this.selectedClips[0] instanceof window.Wick.Button) {
+          return 'button'
+        } else if(this.selectedClips[0] instanceof window.Wick.Clip) {
+          return 'clip';
+        }
+      }
+    } else {
+      // Multi Object Type
+      if (this.selectedPaths.length === 0 && this.selectedClips.length > 0) {
+        return 'multiclip'
+      } else if (this.selectedClips.length === 0 && this.selectedPaths.length > 0) {
+        return 'multipath';
+      } else {
+        return 'multicanvasmixed';
+      }
+    }
+
+    return null;
+  }
+
+  get timelineObjectType () {
+    if(this.selectedFrames.length > 0 && this.selectedTweens.length > 0) {
+      return 'multitimeline';
+    } else if(this.selectedFrames.length > 1) {
+      return 'multiframe';
+    } else if(this.selectedFrames.length > 0) {
+      return 'frame';
+    } else if(this.selectedTweens.length > 1) {
+      return 'mulittween';
+    } else if(this.selectedTweens.length > 0) {
+      return 'tween';
+    }
+
+    return null;
+  }
+
+  get assetObjectType () {
+    return 'asset';
   }
 
   get possibleActions () {
