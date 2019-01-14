@@ -85,10 +85,6 @@ class Selection {
     ];
   }
 
-  selectObjects (objects) {
-    this._selectedObjects = objects;
-  }
-
   get selectedObjects () {
     return this._selectedObjects;
   }
@@ -134,6 +130,10 @@ class Selection {
     });
   }
 
+  selectObjects (objects) {
+    this._selectedObjects = objects;
+  }
+
   deleteSelectedObjects () {
     if(this.selectedCanvasObjects.length > 0) {
       this.deleteCanvasObjects();
@@ -175,6 +175,12 @@ class Selection {
 
   focusParentObject () {
     this.focusObject(this.editor.state.project.focus._parentByInstanceOf(window.Wick.Clip));
+  }
+
+  isObjectSelected (object) {
+    return this._selectedObjects.find(seekObject => {
+      return object.uuid === seekObject.uuid;
+    }) !== undefined;
   }
 
   serialize () {
