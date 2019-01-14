@@ -27,6 +27,8 @@ import Select from 'react-select';
 import ColorPicker from 'Editor/Util/ColorPicker/ColorPicker';
 import { Input } from 'reactstrap';
 
+var classNames = require('classnames');
+
 class WickInput extends Component {
   render() {
     if (this.props.type==="numeric") {
@@ -40,7 +42,7 @@ class WickInput extends Component {
       )
     } else if (this.props.type==="text") {
       return (
-        <input className="wick-input"
+        <input className={classNames("wick-input", {"read-only":this.props.readOnly})}
                type="text"
                {...this.props}></input>
       )

@@ -227,12 +227,21 @@ class Inspector extends Component {
   }
 
   renderName() {
-    console.log(this.props.selection);
     return (
       <InspectorTextInput
         icon="name"
         val={this.props.selection.attributes.name}
-        onChange={(val) => this.props.updateselection('name', val)} />
+        onChange={(val) => this.handleSelectionPropertyChange('name', val)} />
+    )
+  }
+
+  renderFilename() {
+    return (
+      <InspectorTextInput
+        icon="name"
+        val={this.props.selection.attributes.filename}
+        onChange={(val) => this.handleSelectionPropertyChange('filename', val)}
+        readOnly={true} />
     )
   }
 
@@ -241,7 +250,7 @@ class Inspector extends Component {
       <InspectorNumericInput
         icon="framelength"
         val={this.props.selection.attributes.frameLength}
-        onChange={(val) => this.props.updateselection('frameLength', val)} />
+        onChange={(val) => this.handleSelectionPropertyChange('frameLength', val)} />
     )
   }
 
@@ -606,6 +615,7 @@ class Inspector extends Component {
         <InspectorTitle type={"asset"} title={"Asset"} />
         <div className="inspector-content">
           {this.renderName()}
+          {this.renderFilename()}
         </div>
       </div>
     )

@@ -29,6 +29,10 @@
   color: $interface-input-text;
 }
 
+.wick-input.read-only {
+    background-color: gray;
+}
+
 .wick-slider {
   width: 100%;
   height: 100%;

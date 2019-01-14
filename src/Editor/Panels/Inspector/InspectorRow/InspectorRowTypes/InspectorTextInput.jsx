@@ -28,7 +28,8 @@ class InspectorTextInput extends Component {
                       input1={
                         {type: "text",
                         value: this.props.val,
-                        onChange: this.props.onChange}
+                        onChange: this.props.onChange,
+                        readOnly: this.props.readOnly}
                       }
                     />
     )
