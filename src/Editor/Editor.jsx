@@ -271,6 +271,7 @@ class Editor extends Component {
                     closeActiveModal={this.closeActiveModal}
                     project={this.state.project}
                     selection={this.state.selection}
+                    updateEditorState={this.updateEditorState}
                   />
                   {/* Header */}
                   <DockedPanel>
