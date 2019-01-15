@@ -47,7 +47,7 @@ function blankSelection () {
       frames: [],
       tweens: [],
     },
-    cavnas: {
+    canvas: {
       paths: [],
       clips: [],
     },
@@ -92,6 +92,7 @@ class Editor extends Component {
     this.selectObjects = this.selectObjects.bind(this);
     this.isObjectSelected = this.isObjectSelected.bind(this);
     this.getSelectionType = this.getSelectionType.bind(this);
+    this.getActiveTool = this.getActiveTool.bind(this);
 
     // Init hotkeys
     this.hotKeyInterface = new HotKeyInterface(this);
@@ -246,7 +247,6 @@ class Editor extends Component {
    * @returns {string} The string representation of the type of object/objects selected
    */
   getSelectionType () {
-    console.log(this)
     let selection = this.state.selection;
 
     let numTimelineObjects = this.getSelectedTimelineObjects().length;
@@ -299,6 +299,92 @@ class Editor extends Component {
     } else {
       return null;
     }
+  }
+
+  /**
+   * Returns all selected objects on the timeline.
+   * @returns {(<Wick.Frame>|<Wick.Tween>)[]} An array containing the selected tweens and frames
+   */
+  getSelectedTimelineObjects () {
+    return this.getSelectedFrames().concat(this.getSelectedTweens());
+  }
+
+  /**
+   * Returns all selected frames.
+   * @returns {<Wick.Frame>)[]} An array containing the selected frames.
+   */
+  getSelectedFrames () {
+    return this.state.selection.timeline.frames.map(uuid => {
+      return this.state.project._childByUUID(uuid);
+    });
+  }
+
+  /**
+   * Returns all selected tweens.
+   * @returns {<Wick.Tween>)[]} An array containing the selected tweens.
+   */
+  getSelectedTweens () {
+    return this.state.selection.timeline.tweens.map(uuid => {
+      return this.state.project._childByUUID(uuid);
+    });
+  }
+
+  /**
+   * Returns all selected objects on the timeline.
+   * @returns {(<paper.Item>|<Wick.Clip>|<Wick.Button>)[]} An array containing the selected clips and paths
+   */
+  getSelectedCanvasObjects () {
+    return this.getSelectedPaths().concat(this.getSelectedClips());
+  }
+
+  /**
+   * Returns all selected paths.
+   * @returns {<paper.Item>)[]} An array containing the selected paths.
+   */
+  getSelectedPaths () {
+    return [];
+  }
+
+  /**
+   * Returns all selected clips.
+   * @returns {<Wick.Clip>)[]} An array containing the selected clips.
+   */
+  getSelectedClips () {
+    return this.state.selection.canvas.clips.map(uuid => {
+      return this.state.project._childByUUID[uuid];
+    });
+  }
+
+  /**
+   * Returns all selected buttons.
+   * @returns {<paper.Item>)[]} An array containing the selected buttons.
+   */
+  getSelectedButtons () {
+    return this.getSelectedClips().filter(clip => {
+      return clip instanceof window.Wick.Button;
+    });
+  }
+
+  /**
+   * Returns all selected objects in the asset library.
+   * @returns {(<Wick.ImageAsset>|<Wick.SoundAsset>)[]} An array containing the selected assets
+   */
+  getSelectedAssetLibraryObjects () {
+    return this.state.selection.assetLibrary.assets.map(uuid => {
+      return this.state.project._childByUUID(uuid);
+    });
+  }
+
+  getSelectedSoundAssets () {
+    return this.getSelectedAssetLibraryObjects().filter(asset => {
+      return asset instanceof window.Wick.SoundAsset;
+    });
+  }
+
+  getSelectedImageAssets () {
+    return this.getSelectedAssetLibraryObjects().filter(asset => {
+      return asset instanceof window.Wick.ImageAsset;
+    });
   }
 
   /**
