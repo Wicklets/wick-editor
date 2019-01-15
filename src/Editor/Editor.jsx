@@ -91,6 +91,7 @@ class Editor extends Component {
     // Selection methods
     this.selectObjects = this.selectObjects.bind(this);
     this.isObjectSelected = this.isObjectSelected.bind(this);
+    this.getSelectionType = this.getSelectionType.bind(this);
 
     // Init hotkeys
     this.hotKeyInterface = new HotKeyInterface(this);
@@ -233,7 +234,10 @@ class Editor extends Component {
    */
   setToolSettings (newToolSettings) {
     this.setState({
-      toolSettings:
+      toolSettings: {
+        ...this.state.toolSettings,
+        ...newToolSettings,
+      }
     });
   }
 
@@ -242,6 +246,7 @@ class Editor extends Component {
    * @returns {string} The string representation of the type of object/objects selected
    */
   getSelectionType () {
+    console.log(this)
     let selection = this.state.selection;
 
     let numTimelineObjects = this.getSelectedTimelineObjects().length;
@@ -270,18 +275,56 @@ class Editor extends Component {
     } else if(this.getSelectedCanvasObjects().length > 0) {
       if(this.getSelectedPaths().length > 0 && this.getSelectedClips().length > 0) {
         return 'multicanvasmixed';
-      } 
+      }
     } else if(this.getSelectedAssetLibraryObjects().length > 0) {
 
     }
   }
 
+  /**
+   * Returns an object containing all attributes of the selection.
+   * @returns {object} The object containing all the selection attributes.
+   */
   getSelectionAttributes () {
-
+    return {
+      name: this.getSelectionName(),
+    };
   }
 
-  setSelectionAttributes (newSelectionAttributes) {
+  /**
+   * Returns the name of the selected object.
+   * @returns {string} The name of the selected object.
+   */
+  getSelectionName () {
+    if(this.getSelectedClips().length === 1) {
+      return this.getSelectedClips()[0].name;
+    } else if (this.getSelectedAssetLibraryObjects().length === 1) {
+      return this.getSelectedAssetLibraryObjects()[0].name;
+    } else {
+      return null;
+    }
+  }
 
+  /**
+   * Updates the state of the selection with new values.
+   * @param {object} newSelectionAttributes - A object containing the new values of the selection to use to update the state.
+   */
+  setSelectionAttributes (newSelectionAttributes) {
+    if(newSelectionAttributes.name) {
+      this.setSelectionName(newSelectionAttributes.name);
+    }
+  }
+
+  /**
+   * Updates the name of the selected object.
+   * @param {string} newName - The name to use.
+   */
+  setSelectionName (newName) {
+    if(this.getSelectedClips().length === 1) {
+      this.getSelectedClips()[0].name = newName;
+    } else if (this.getSelectedAssetLibraryObjects().length === 1) {
+      this.getSelectedAssetLibraryObjects()[0].name = newName;
+    }
   }
 
   /**
