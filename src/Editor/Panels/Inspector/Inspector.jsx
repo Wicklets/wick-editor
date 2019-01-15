@@ -84,7 +84,11 @@ class Inspector extends Component {
       "multipath": this.renderMultiPath.bind(this),
       "multitimelinemixed": this.renderMultiTimelineMixed.bind(this),
       "multicanvasmixed": this.renderMultiCanvasMixed.bind(this),
-      "asset": this.renderAsset.bind(this),
+      "imageasset": this.renderAsset.bind(this),
+      "soundasset": this.renderAsset.bind(this),
+      "multiassetmixed": this.renderAsset.bind(this),
+      "multisoundasset": this.renderAsset.bind(this),
+      "multiimageasset": this.renderAsset.bind(this),
     }
 
     this.renderDisplay = this.renderDisplay.bind(this);
@@ -108,7 +112,7 @@ class Inspector extends Component {
     return (
       <InspectorNumericSlider
         icon="brushsize"
-        val={this.props.toolSettings.brushSize}
+        val={this.props.getToolSettings().brushSize}
         onChange={(val) => this.handleToolSettingChange('brushSize', val)}
         divider={false}/>
     )
@@ -118,7 +122,7 @@ class Inspector extends Component {
     return (
       <InspectorNumericSlider
         icon="brushsmoothness"
-        val={this.props.toolSettings.brushSmoothness}
+        val={this.props.getToolSettings().brushSmoothness}
         onChange={(val) => this.handleToolSettingChange('brushSmoothness', val)}
         divider={false}/>
     )
@@ -128,7 +132,7 @@ class Inspector extends Component {
     return (
       <InspectorNumericSlider
         icon="strokewidth"
-        val={this.props.toolSettings.strokeWidth}
+        val={this.props.getToolSettings().strokeWidth}
         onChange={(val) => this.handleToolSettingChange('strokeWidth', val)}
         divider={false}/>
     )
@@ -148,7 +152,7 @@ class Inspector extends Component {
     return(
       <InspectorColorPicker
         icon="fillcolor"
-        val={this.props.toolSettings.fillColor}
+        val={this.props.getToolSettings().fillColor}
         onChange={(col) => this.handleToolSettingChange('fillColor', this.toRgbaString(col))}
         id={"inspector-tool-fill-color"} />
     )
@@ -168,7 +172,7 @@ class Inspector extends Component {
     return(
       <InspectorColorPicker
         icon="strokecolor"
-        val={this.props.toolSettings.strokeColor}
+        val={this.props.getToolSettings().strokeColor}
         onChange={(col) => this.handleToolSettingChange('strokeColor', this.toRgbaString(col))}
         id={"inspector-tool-stroke-color"} />
     )
@@ -190,7 +194,7 @@ class Inspector extends Component {
     return (
       <InspectorNumericSlider
         icon="cornerroundness"
-        val={this.props.toolSettings.cornerRadius}
+        val={this.props.getToolSettings().cornerRadius}
         onChange={(val) => this.handleToolSettingChange("cornerRadius", val)}
         divider={false} />
     )
@@ -214,9 +218,8 @@ class Inspector extends Component {
         icon="name"
         val={this.props.getSelectionAttributes().name}
         onChange={(val) => {
-          console.log(val);
           this.props.setSelectionAttributes({
-            name: val,
+            name: val.value,
           });
         }} />
     )
@@ -307,8 +310,8 @@ class Inspector extends Component {
     return (
       <InspectorCheckbox
         icon="pressure"
-        defaultChecked={this.props.toolSettings.pressureEnabled}
-        onChange={() => this.handleToolSettingChange('pressureEnabled', !this.props.toolSettings.pressureOn)} />
+        defaultChecked={this.props.getToolSettings().pressureEnabled}
+        onChange={() => this.handleToolSettingChange('pressureEnabled', !this.props.getToolSettings().pressureOn)} />
     )
   }
 
@@ -332,12 +335,9 @@ class Inspector extends Component {
   }
 
   handleToolSettingChange(setting, newVal) {
-    this.props.toolSettings[setting] = newVal;
-    this.props.updateEditorState({
-      toolSettings: {
-        ...this.props.toolSettings,
-      }
-    });
+    var newSettings = {};
+    newSettings[setting] = newVal;
+    this.props.setToolSettings(newSettings);
   }
 
   handleSelectionPropertyChange(property, newVal) {

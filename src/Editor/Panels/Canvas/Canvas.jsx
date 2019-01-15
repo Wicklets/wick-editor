@@ -166,6 +166,7 @@ class Canvas extends Component {
   }
 
   onCanvasModified (e) {
+    /*
     this.wickCanvas.applyChanges(this.props.project, e.layers);
 
     this.updateSelectionTransformsProps();
@@ -174,6 +175,7 @@ class Canvas extends Component {
       project: this.props.project,
       selection: this.props.selection,
     });
+    */
   }
 
   onSelectionChanged (e) {

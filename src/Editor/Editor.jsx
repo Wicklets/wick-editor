@@ -93,6 +93,10 @@ class Editor extends Component {
     this.isObjectSelected = this.isObjectSelected.bind(this);
     this.getSelectionType = this.getSelectionType.bind(this);
     this.getActiveTool = this.getActiveTool.bind(this);
+    this.getToolSettings = this.getToolSettings.bind(this);
+    this.setToolSettings = this.setToolSettings.bind(this);
+    this.getSelectionAttributes = this.getSelectionAttributes.bind(this);
+    this.setSelectionAttributes = this.setSelectionAttributes.bind(this);
 
     // Init hotkeys
     this.hotKeyInterface = new HotKeyInterface(this);
@@ -674,7 +678,7 @@ class Editor extends Component {
                               <Inspector
                                 getActiveTool={this.getActiveTool}
                                 getToolSettings={this.getToolSettings}
-                                setToolSettings={this.updateToolSettings}
+                                setToolSettings={this.setToolSettings}
                                 getSelectionType={this.getSelectionType}
                                 getSelectionAttributes={this.getSelectionAttributes}
                                 setSelectionAttributes={this.setSelectionAttributes}
