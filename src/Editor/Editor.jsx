@@ -260,24 +260,44 @@ class Editor extends Component {
     let numSoundAssets = this.getSelectedSoundAssets().length;
     let numImageAssets = this.getSelectedImageAssets().length;
 
-    if(this.getSelectedTimelineObjects().length > 0) {
-      if(this.getSelectedFrames().length > 0 && this.getSelectedTweens().length > 0) {
+    if(numTimelineObjects > 0) {
+      if(numFrames > 0 && numTweens > 0) {
         return 'multitimeline';
-      } else if (this.getSelectedFrames().length === 1) {
+      } else if (numFrames === 1) {
         return 'frame';
-      } else if (this.getSelectedTweens().length === 1) {
+      } else if (numTweens === 1) {
         return 'tween';
-      } else if (this.getSelectedFrames().length > 1) {
+      } else if (numFrames > 1) {
         return 'multiframe';
-      } else if (this.getSelectedTweens().length > 1) {
+      } else if (numTweens > 1) {
         return 'multitween';
       }
-    } else if(this.getSelectedCanvasObjects().length > 0) {
-      if(this.getSelectedPaths().length > 0 && this.getSelectedClips().length > 0) {
+    } else if(numCanvasObjects > 0) {
+      if(numPaths > 0 && numClips > 0) {
         return 'multicanvasmixed';
+      } else if (numPaths === 1) {
+        return 'path';
+      } else if (numClips === 1) {
+        return 'clip';
+      } else if (numPaths > 1) {
+        return 'multipath';
+      } else if (numClips > 1) {
+        return 'multiclip';
       }
-    } else if(this.getSelectedAssetLibraryObjects().length > 0) {
-
+    } else if(numAssetLibraryObjects > 0) {
+      if (numSoundAssets > 0 && numImageAssets > 0) {
+        return 'multiassetmixed';
+      } else if (numSoundAssets === 1) {
+        return 'soundasset';
+      } else if (numImageAssets === 1) {
+        return 'imageasset';
+      } else if (numSoundAssets > 1) {
+        return 'multisoundasset';
+      } else if (numImageAssets > 1) {
+        return 'multiimageasset';
+      }
+    } else {
+      return null;
     }
   }
 
