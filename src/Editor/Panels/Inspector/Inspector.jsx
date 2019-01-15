@@ -38,6 +38,29 @@ class Inspector extends Component {
   constructor (props) {
     super(props);
 
+    /* this is temporary so the app doesnt crash - zj*/
+    this.state = {
+      selection: {
+        possibleActions: [],
+        attributes: {
+          name: '',
+          filename: '',
+          src: '',
+          x: 0,
+          y: 0,
+          width: 0,
+          height: 0,
+          scaleW: 0,
+          scaleH: 0,
+          rotation: 0,
+          opacity: 0,
+          strokeWidth: 0,
+          fillColor: '#000000',
+          strokeColor: '#000000',
+        }
+      }
+    };
+
     this.inspectorContentRenderFunctions = {
       "cursor": this.renderCursor.bind(this),
       "brush": this.renderBrush.bind(this),
@@ -115,7 +138,7 @@ class Inspector extends Component {
     return (
       <InspectorNumericSlider
         icon="strokewidth"
-        val={this.props.selection.attributes.strokeWidth}
+        val={this.state.selection.attributes.strokeWidth}
         onChange={(val) => this.handleSelectionPropertyChange('strokeWidth', val)}
         divider={false}/>
     )
@@ -135,7 +158,7 @@ class Inspector extends Component {
     return(
       <InspectorColorPicker
         icon="fillcolor"
-        val={this.props.selection.attributes.fillColor}
+        val={this.state.selection.attributes.fillColor}
         onChange={(col) => this.handleSelectionPropertyChange('fillColor', this.toRgbaString(col))}
         id={"inspector-selection-fill-color"} />
     )
@@ -156,7 +179,7 @@ class Inspector extends Component {
     return(
       <InspectorColorPicker
         icon="strokecolor"
-        val={this.props.selection.attributes.strokeColor}
+        val={this.state.selection.attributes.strokeColor}
         onChange={(col) => this.handleSelectionPropertyChange('strokeColor', this.toRgbaString(col))}
         id={"inspector-selection-stroke-color"}
         stroke={true}/>
@@ -189,8 +212,13 @@ class Inspector extends Component {
     return (
       <InspectorTextInput
         icon="name"
-        val={this.props.selection.attributes.name}
-        onChange={(val) => this.handleSelectionPropertyChange('name', val.value)} />
+        val={this.props.getSelectionAttributes().name}
+        onChange={(val) => {
+          console.log(val);
+          this.props.setSelectionAttributes({
+            name: val,
+          });
+        }} />
     )
   }
 
@@ -198,7 +226,7 @@ class Inspector extends Component {
     return (
       <InspectorTextInput
         icon="name"
-        val={this.props.selection.attributes.filename}
+        val={this.state.selection.attributes.filename}
         readOnly={true} />
     )
   }
@@ -207,7 +235,7 @@ class Inspector extends Component {
     return (
       <InspectorImagePreview
         icon="image"
-        src={this.props.selection.attributes.src} />
+        src={this.state.selection.attributes.src} />
     )
   }
 
@@ -215,7 +243,7 @@ class Inspector extends Component {
     return (
       <InspectorNumericInput
         icon="framelength"
-        val={this.props.selection.attributes.frameLength}
+        val={this.state.selection.attributes.frameLength}
         onChange={(val) => this.handleSelectionPropertyChange('frameLength', val)} />
     )
   }
@@ -224,8 +252,8 @@ class Inspector extends Component {
     return (
       <InspectorDualNumericInput
         icon="position"
-        val1={this.props.selection.attributes.x}
-        val2={this.props.selection.attributes.y}
+        val1={this.state.selection.attributes.x}
+        val2={this.state.selection.attributes.y}
         onChange1={(val) => this.handleSelectionPropertyChange('x', val)}
         onChange2={(val) => this.handleSelectionPropertyChange('y', val)}
         divider={true} />
@@ -236,8 +264,8 @@ class Inspector extends Component {
     return (
       <InspectorDualNumericInput
         icon="size"
-        val1={this.props.selection.attributes.width}
-        val2={this.props.selection.attributes.height}
+        val1={this.state.selection.attributes.width}
+        val2={this.state.selection.attributes.height}
         onChange1={(val) => this.handleSelectionPropertyChange('width', val)}
         onChange2={(val) => this.handleSelectionPropertyChange('height', val)}
         divider={true} />
@@ -249,8 +277,8 @@ class Inspector extends Component {
     return (
       <InspectorDualNumericInput
         icon="scale"
-        val1={this.props.selection.attributes.scaleW}
-        val2={this.props.selection.attributes.scaleH}
+        val1={this.state.selection.attributes.scaleW}
+        val2={this.state.selection.attributes.scaleH}
         onChange1={(val) => this.handleSelectionPropertyChange('scaleW', val)}
         onChange2={(val) => this.handleSelectionPropertyChange('scaleH', val)}
         divider={true} />
@@ -261,7 +289,7 @@ class Inspector extends Component {
     return (
       <InspectorNumericInput
         icon="rotation"
-        val={this.props.selection.attributes.rotation}
+        val={this.state.selection.attributes.rotation}
         onChange={(val) => this.handleSelectionPropertyChange('rotation', val)} />
     )
   }
@@ -270,7 +298,7 @@ class Inspector extends Component {
     return (
       <InspectorNumericInput
         icon="opacity"
-        val={this.props.selection.attributes.opacity}
+        val={this.state.selection.attributes.opacity}
         onChange={(val) => this.handleSelectionPropertyChange('opacity', val)} />
     )
   }
@@ -313,9 +341,9 @@ class Inspector extends Component {
   }
 
   handleSelectionPropertyChange(property, newVal) {
-    this.props.selection.attributes[property] = newVal;
+    this.state.selection.attributes[property] = newVal;
     this.props.updateEditorState({
-      selection: this.props.selection
+      selection: this.state.selection
     });
   }
 
@@ -599,15 +627,19 @@ class Inspector extends Component {
   }
 
   renderDisplay() {
-    if (this.props.selection.type in this.inspectorContentRenderFunctions) {
-      let renderFunction = this.inspectorContentRenderFunctions[this.props.selection.type];
-      return(renderFunction());
-    } else if (this.props.activeTool in this.inspectorContentRenderFunctions) {
-      let renderFunction = this.inspectorContentRenderFunctions[this.props.activeTool];
-      return(renderFunction());
+    let selectionType = this.props.getSelectionType();
+    let activeTool = this.props.getActiveTool();
+
+    let renderFunction = null;
+    if (selectionType in this.inspectorContentRenderFunctions) {
+      renderFunction = this.inspectorContentRenderFunctions[selectionType];
+    } else if (activeTool in this.inspectorContentRenderFunctions) {
+      renderFunction = this.inspectorContentRenderFunctions[activeTool];
     } else {
-      this.renderUnknown();
+      renderFunction = this.renderUnknown;
     }
+
+    return (renderFunction());
   }
 
   renderActionButton(btn, i) {
@@ -627,7 +659,7 @@ class Inspector extends Component {
   renderActions() {
     return(
       <div className="inspector-content">
-        {this.props.selection.possibleActions.map(this.renderActionButtonRow)}
+        {this.state.selection.possibleActions.map(this.renderActionButtonRow)}
       </div>
     )
   }

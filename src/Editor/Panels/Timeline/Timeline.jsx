@@ -54,6 +54,7 @@ class Timeline extends Component {
   }
 
   updateAnimationTimelineData () {
+    /*
     let AnimationTimeline = window.AnimationTimeline;
     let timeline = this.props.project.focus.timeline;
     let selectedUUIDs = this.props.selection.selectedTimelineObjects.map(obj => {
@@ -93,6 +94,7 @@ class Timeline extends Component {
       })
     });
     AnimationTimeline.repaint();
+    */
   }
 
   onChange (e) {

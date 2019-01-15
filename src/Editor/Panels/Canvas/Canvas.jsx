@@ -84,7 +84,7 @@ class Canvas extends Component {
   }
 
   componentDidUpdate () {
-    this.wickCanvas.render(this.props.project);
+    //this.wickCanvas.render(this.props.project);
 
     this.updateCanvas();
     this.updateSelection();
@@ -100,6 +100,7 @@ class Canvas extends Component {
   }
 
   updateSelection () {
+    /*
     window.paper.project.selection.clear();
     this.props.selection.selectedPaths.forEach(obj => {
       window.paper.project.selection.addItemByName(obj.name);
@@ -112,6 +113,7 @@ class Canvas extends Component {
       this.updateSelectionAttributes();
       this.wickCanvas.applyChanges(this.props.project, window.paper.project.layers);
     }
+    */
     window.paper.project.addLayer(window.paper.project.selection.guiLayer);
   }
 
@@ -144,6 +146,7 @@ class Canvas extends Component {
   }
 
   updateSelectionTransformsProps () {
+    /*
     if(window.paper.project.selection.items.length > 0) {
       let attributes = this.props.selection.attributes;
       attributes.x = window.paper.project.selection.bounds.left;
@@ -159,6 +162,7 @@ class Canvas extends Component {
       attributes.opacity = firstItem.opacity ? firstItem.opacity : 1;
       attributes.strokeWidth = firstItem.strokeWidth ? firstItem.strokeWidth : 0;
     }
+    */
   }
 
   onCanvasModified (e) {
@@ -173,6 +177,7 @@ class Canvas extends Component {
   }
 
   onSelectionChanged (e) {
+    /*
     this.props.selection.selectObjects(window.paper.project.selection.items);
 
     this.updateSelectionTransformsProps();
@@ -180,6 +185,7 @@ class Canvas extends Component {
     this.props.updateEditorState({
       selection: this.props.selection,
     });
+    */
   }
 
   render() {

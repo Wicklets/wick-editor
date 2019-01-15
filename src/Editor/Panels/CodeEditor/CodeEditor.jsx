@@ -70,9 +70,12 @@ class CodeEditor extends Component {
   }
 
   selectionIsScriptable (selection) {
+    return false;
+    /*
     return selection.type === 'frame'
         || selection.type === 'clip'
         || selection.type === 'button';
+        */
   }
 
   getSelectionScript (selection, project) {

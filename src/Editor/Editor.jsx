@@ -40,8 +40,22 @@ import AssetLibrary from './Panels/AssetLibrary/AssetLibrary';
 import CodeEditor from './Panels/CodeEditor/CodeEditor';
 import ModalHandler from './Modals/ModalHandler/ModalHandler';
 import HotKeyInterface from './hotKeyMap';
-import Selection from '../core/Selection';
-import UndoRedo from '../core/UndoRedo';
+
+function blankSelection () {
+  return {
+    timeline: {
+      frames: [],
+      tweens: [],
+    },
+    cavnas: {
+      paths: [],
+      clips: [],
+    },
+    assetLibrary: {
+      assets: [],
+    },
+  };
+}
 
 class Editor extends Component {
   constructor () {
@@ -49,11 +63,12 @@ class Editor extends Component {
 
     this.state = {
       project: null,
-      selection: new Selection(this),
-      undoRedo: new UndoRedo(this),
+      paper: null,
+      canvas: null,
       onionSkinEnabled: false,
       onionSkinSeekForwards: 1,
       onionSkinSeekBackwards: 1,
+      selection: blankSelection(),
       activeTool: 'cursor',
       toolSettings: {
         fillColor: '#ffaabb',
@@ -73,6 +88,10 @@ class Editor extends Component {
     };
     this.updateEditorState = this.updateEditorState.bind(this);
 
+    // Selection methods
+    this.selectObjects = this.selectObjects.bind(this);
+    this.isObjectSelected = this.isObjectSelected.bind(this);
+
     // Init hotkeys
     this.hotKeyInterface = new HotKeyInterface(this);
 
@@ -83,14 +102,6 @@ class Editor extends Component {
     // Modals
     this.openModal = this.openModal.bind(this);
     this.closeActiveModal = this.closeActiveModal.bind(this);
-
-    // Preview play
-    this.tickLoopIntervalID = null;
-    this.togglePreviewPlaying = this.togglePreviewPlaying.bind(this);
-    this.startTickLoop = this.startTickLoop.bind(this);
-    this.stopTickLoop = this.stopTickLoop.bind(this);
-    this.canvasRef = React.createRef();
-    this.timelineRef = React.createRef(); // These refs are created so we don't have to update the state (slow) during preview play.
 
     // Resiable panels
     this.RESIZE_THROTTLE_AMOUNT_MS = 10;
@@ -110,22 +121,19 @@ class Editor extends Component {
   }
 
   componentWillMount () {
-    this.setState({project: new window.Wick.Project()});
+    this.setState({
+      project: new window.Wick.Project(),
+      paper: window.paper,
+      canvas: new window.Wick.Canvas(),
+    });
   }
 
   componentDidMount () {
-    this.state.undoRedo.saveState();
     this.refocusEditor();
   }
 
   componentDidUpdate (prevProps, prevState) {
-    if(this.state.previewPlaying && !prevState.previewPlaying) {
-      this.startTickLoop();
-    }
 
-    if(!this.state.previewPlaying && prevState.previewPlaying) {
-      this.stopTickLoop();
-    }
   }
 
   onWindowResize () {
@@ -177,13 +185,6 @@ class Editor extends Component {
   }
 
   updateEditorState (state) {
-    if ((state.project || state.selection) && !state.dontPushToUndoRedoStack) {
-      this.state.undoRedo.saveState();
-    }
-    if(state.activeTool && state.activeTool !== 'cursor') {
-      this.state.selection.selectObjects([]);
-      state.selection = this.state.selection;
-    }
     this.setState(state);
   }
 
@@ -206,26 +207,183 @@ class Editor extends Component {
     this.refocusEditor();
   }
 
-  togglePreviewPlaying () {
-    this.setState(prevState => ({
-      previewPlaying: !prevState.previewPlaying,
-    }));
-  }
-
-  startTickLoop () {
-    this.tickLoopIntervalID = setInterval(() => {
-      this.state.project.tick();
-      this.canvasRef.updateCanvas();
-      this.timelineRef.updateAnimationTimelineData();
-    }, 1000 / this.state.project.framerate);
-  }
-
-  stopTickLoop () {
-    clearInterval(this.tickLoopIntervalID);
-  }
-
   refocusEditor () {
     window.document.getElementById('hotkeys-container').focus();
+  }
+
+  /**
+   * Returns the name of the active tool.
+   * @returns {string} The string representation active tool name.
+   */
+  getActiveTool () {
+    return this.state.activeTool;
+  }
+
+  /**
+   * Returns an object containing the tool settings.
+   * @returns {object} The object containing the tool settings.
+   */
+  getToolSettings () {
+    return this.state.toolSettings;
+  }
+
+  /**
+   * Updates the tool settings state.
+   * @param {object} newToolSettings - An object of key-value pairs where the keys represent tool settings and the values represent the values to change those settings to.
+   */
+  setToolSettings (newToolSettings) {
+    this.setState({
+      toolSettings:
+    });
+  }
+
+  /**
+   * Determines the type of the object/objects that are in the selection state.
+   * @returns {string} The string representation of the type of object/objects selected
+   */
+  getSelectionType () {
+    let selection = this.state.selection;
+
+    let numTimelineObjects = this.getSelectedTimelineObjects().length;
+    let numFrames = this.getSelectedFrames().length;
+    let numTweens = this.getSelectedTweens().length;
+    let numCanvasObjects = this.getSelectedCanvasObjects().length;
+    let numPaths = this.getSelectedPaths().length;
+    let numClips = this.getSelectedClips().length;
+    let numButtons = this.getSelectedButtons().length;
+    let numAssetLibraryObjects = this.getSelectedAssetLibraryObjects().length;
+    let numSoundAssets = this.getSelectedSoundAssets().length;
+    let numImageAssets = this.getSelectedImageAssets().length;
+
+    if(this.getSelectedTimelineObjects().length > 0) {
+      if(this.getSelectedFrames().length > 0 && this.getSelectedTweens().length > 0) {
+        return 'multitimeline';
+      } else if (this.getSelectedFrames().length === 1) {
+        return 'frame';
+      } else if (this.getSelectedTweens().length === 1) {
+        return 'tween';
+      } else if (this.getSelectedFrames().length > 1) {
+        return 'multiframe';
+      } else if (this.getSelectedTweens().length > 1) {
+        return 'multitween';
+      }
+    } else if(this.getSelectedCanvasObjects().length > 0) {
+      if(this.getSelectedPaths().length > 0 && this.getSelectedClips().length > 0) {
+        return 'multicanvasmixed';
+      } 
+    } else if(this.getSelectedAssetLibraryObjects().length > 0) {
+
+    }
+  }
+
+  getSelectionAttributes () {
+
+  }
+
+  setSelectionAttributes (newSelectionAttributes) {
+
+  }
+
+  /**
+   * Determines the selection type of an object, and returns it as a string.
+   * @param {object} object - The object to find the type of.
+   */
+  selectionTypeOfObject (object) {
+    if(object instanceof window.Wick.Asset) {
+      return 'asset';
+    } else {
+      return null;
+    }
+  }
+
+  /**
+   * Adds an asset to the selection.
+   * @param {<Wick.Asset>} asset - The asset to add to the selection.
+   */
+  addAssetToSelection (asset) {
+    let assets = this.state.selection.assetLibrary.assets;
+    this.setState({
+      selection: {
+        ...this.state.selection,
+        assetLibrary: {
+          assets: assets.concat([asset.uuid]),
+        },
+      }
+    });
+  }
+
+  /**
+   * Adds an object to the selection.
+   * @param {object} object - The object to add to the selection.
+   * @return {boolean} True if object was successfully added to the selection, false otherwise.
+   */
+  addObjectToSelection (object) {
+    let type = this.selectionTypeOfObject(object);
+    if(!type) return false;
+    if(type === 'asset') {
+      this.addAssetToSelection(object);
+    }
+    return true;
+  }
+
+  /**
+   * Adds multiple objects to the selection.
+   * @param {object[]} objects - The objects to add to the selection.
+   */
+  addObjectsToSelection (objects) {
+    objects.forEach(object => {
+      this.addObjectToSelection(object);
+    });
+  }
+
+  /**
+   * Clears the editors selection state.
+   */
+  clearSelection () {
+    this.setState({
+      selection: blankSelection(),
+    });
+  }
+
+  /**
+   * Clears the selection, then adds the given object to the selection.
+   * @param {object} object - The object to add to the selection.
+   * @return {boolean} True if object was successfully added to the selection, false otherwise.
+   */
+  selectObject (object) {
+    return this.selectObjects([object]);
+  }
+
+  /**
+   * Clears the selection, then adds the given objects to the selection.
+   * @param {object[]} objects - The objects to add to the selection.
+   */
+  selectObjects (objects) {
+    this.clearSelection();
+    this.addObjectsToSelection(objects);
+  }
+
+  /**
+   * Determines if a given asset is selected.
+   * @param {<Wick.Asset>} object - Asset to check selection status
+   * @returns {boolean} - True if the asset is selected, false otherwise
+   */
+  isAssetSelected (asset) {
+    return this.state.selection.assetLibrary.assets.indexOf(asset.uuid) > -1;
+  }
+
+  /**
+   * Determines if a given object is selected.
+   * @param {object} object - Selection object to check if it is selected
+   * @returns {boolean} - True if the object is selected, false otherwise
+   */
+  isObjectSelected (object) {
+    let type = this.selectionTypeOfObject(object);
+    if(type === 'asset') {
+      return this.isAssetSelected(object);
+    } else {
+      return false;
+    }
   }
 
   createAssets (accepted, rejected) {
@@ -270,7 +428,6 @@ class Editor extends Component {
                     openModal={this.openModal}
                     closeActiveModal={this.closeActiveModal}
                     project={this.state.project}
-                    selection={this.state.selection}
                     updateEditorState={this.updateEditorState}
                   />
                   {/* Header */}
@@ -311,7 +468,6 @@ class Editor extends Component {
                                 <DockedPanel>
                                   <CodeEditor
                                     project={this.state.project}
-                                    selection={this.state.selection}
                                     updateEditorState={this.updateEditorState}
                                   />
                                 </DockedPanel>
@@ -321,7 +477,6 @@ class Editor extends Component {
                                 <DockedPanel>
                                   <Canvas
                                     project={this.state.project}
-                                    selection={this.state.selection}
                                     updateEditorState={this.updateEditorState}
                                     toolSettings={this.state.toolSettings}
                                     activeTool={this.state.activeTool}
@@ -344,7 +499,6 @@ class Editor extends Component {
                             <DockedPanel>
                               <Timeline
                                 project={this.state.project}
-                                selection={this.state.selection}
                                 updateEditorState={this.updateEditorState}
                                 onionSkinEnabled={this.state.onionSkinEnabled}
                                 onionSkinSeekBackwards={this.state.onionSkinSeekBackwards}
@@ -369,10 +523,12 @@ class Editor extends Component {
                           <ReflexElement propagateDimensions={true} minSize={200}{...this.resizeProps}>
                             <DockedPanel>
                               <Inspector
-                                activeTool={this.state.activeTool}
-                                updateEditorState={this.updateEditorState}
-                                toolSettings={this.state.toolSettings}
-                                selection={this.state.selection}
+                                getActiveTool={this.getActiveTool}
+                                getToolSettings={this.getToolSettings}
+                                setToolSettings={this.updateToolSettings}
+                                getSelectionType={this.getSelectionType}
+                                getSelectionAttributes={this.getSelectionAttributes}
+                                setSelectionAttributes={this.setSelectionAttributes}
                               />
                             </DockedPanel>
                           </ReflexElement>
@@ -387,9 +543,9 @@ class Editor extends Component {
                             <DockedPanel>
                               <AssetLibrary
                                 assets={this.state.project.assets}
-                                updateEditorState={this.updateEditorState}
                                 openFileDialog={() => open()}
-                                selection={this.state.selection}
+                                selectObjects={this.selectObjects}
+                                isObjectSelected={this.isObjectSelected}
                               />
                             </DockedPanel>
                           </ReflexElement>
