@@ -42,22 +42,6 @@ class Inspector extends Component {
     this.state = {
       selection: {
         possibleActions: [],
-        attributes: {
-          name: '',
-          filename: '',
-          src: '',
-          x: 0,
-          y: 0,
-          width: 0,
-          height: 0,
-          scaleW: 0,
-          scaleH: 0,
-          rotation: 0,
-          opacity: 0,
-          strokeWidth: 0,
-          fillColor: '#000000',
-          strokeColor: '#000000',
-        }
       }
     };
 
@@ -328,10 +312,10 @@ class Inspector extends Component {
     return (
       <InspectorDualNumericInput
         icon="scale"
-        val1={this.getSelectionAttribute('scaleW')}
-        val2={this.getSelectionAttribute('scaleH')}
-        onChange1={(val) => this.setSelectionAttribute('scaleW', val)}
-        onChange2={(val) => this.setSelectionAttribute('scaleH', val)}
+        val1={this.getSelectionAttribute('scaleX')}
+        val2={this.getSelectionAttribute('scaleY')}
+        onChange1={(val) => this.setSelectionAttribute('scaleX', val)}
+        onChange2={(val) => this.setSelectionAttribute('scaleY', val)}
         divider={true} />
     )
   }

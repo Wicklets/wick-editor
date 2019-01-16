@@ -314,7 +314,16 @@ class EditorCore extends Component {
       filename: this.getSelectionFilename(),
       src: this.getSelectionSrc(),
       x: this.getSelectionPositionX(),
+      y: this.getSelectionPositionY(),
       width: this.getSelectionWidth(),
+      height: this.getSelectionHeight(),
+      scaleW: this.getSelectionScaleW(),
+      scaleH: this.getSelectionScaleH(),
+      rotation: this.getSelectionRotation(),
+      opacity: this.getSelectionOpacity(),
+      strokeWidth: this.getSelectionStrokeWidth(),
+      fillColor: this.getSelectionFillColor(),
+      strokeColor: this.getSelectionStrokeColor(),
     };
   }
 
@@ -352,19 +361,135 @@ class EditorCore extends Component {
     }
   }
 
+  /**
+   * Return the x position of the current canvas selection.
+   * @return {number|null} The x position of the current canvas selection. Returns null if no canvas object is selected.
+   */
   getSelectionPositionX () {
     if(this.getSelectedCanvasObjects().length > 0) {
-      return window.paper.project.selection.bounds.x;
+      return window.paper.project.selection.position.x;
     } else {
-      return 0;
+      return null;
     }
   }
 
+  /**
+   * Return the y position of the current canvas selection.
+   * @return {number|null} The y position of the current canvas selection. Returns null if no canvas object is selected.
+   */
+  getSelectionPositionY () {
+    if(this.getSelectedCanvasObjects().length > 0) {
+      return window.paper.project.selection.position.y;
+    } else {
+      return null;
+    }
+  }
+
+  /**
+   * Return the width of the current canvas selection.
+   * @return {number|null} The width of the current canvas selection. Returns null if no canvas object is selected.
+   */
   getSelectionWidth () {
     if(this.getSelectedCanvasObjects().length > 0) {
       return window.paper.project.selection.bounds.width;
     } else {
-      return 0;
+      return null;
+    }
+  }
+
+  /**
+   * Return the height of the current canvas selection.
+   * @return {number|null} The height of the current canvas selection. Returns null if no canvas object is selected.
+   */
+  getSelectionHeight () {
+    if(this.getSelectedCanvasObjects().length > 0) {
+      return window.paper.project.selection.bounds.height;
+    } else {
+      return null;
+    }
+  }
+
+  /**
+   * Return the scale width of the current selection.
+   * @return {number|null} The scale width of the current canvas selection. Returns null if no canvas object is selected.
+   */
+  getSelectionScaleW () {
+    if(this.getSelectedCanvasObjects().length > 0) {
+      return window.paper.project.selection.scale.x;
+    } else {
+      return null;
+    }
+  }
+
+  /**
+   * Return the scale height of the current selection.
+   * @return {number|null} The scale height of the current canvas selection. Returns null if no canvas object is selected.
+   */
+  getSelectionScaleH () {
+    if(this.getSelectedCanvasObjects().length > 0) {
+      return window.paper.project.selection.scale.y;
+    } else {
+      return null;
+    }
+  }
+
+  /**
+   * Return the rotation of the current selection.
+   * @return {number|null} The rotation of the current canvas selection. Returns null if no canvas object is selected.
+   */
+  getSelectionRotation () {
+    if(this.getSelectedCanvasObjects().length > 0) {
+      return window.paper.project.selection.rotation;
+    } else {
+      return null;
+    }
+  }
+
+  /**
+   * Return the opacity of the current selection.
+   * @return {number|null} The opacity of the current canvas selection. Returns null if no canvas object is selected.
+   */
+  getSelectionOpacity () {
+    if(this.getSelectedCanvasObjects().length > 0) {
+      return window.paper.project.selection.opacity;
+    } else {
+      return null;
+    }
+  }
+
+  /**
+   * Return the stroke width of the current selection.
+   * @return {number|null} The stroke width of the current canvas selection. Returns null if no canvas object is selected.
+   */
+  getSelectionStrokeWidth () {
+    if(this.getSelectedCanvasObjects().length > 0) {
+      return window.paper.project.selection.strokeWidth;
+    } else {
+      return null;
+    }
+  }
+
+  /**
+   * Return the stroke color of the current selection.
+   * @return {string|null} The stroke color of the current canvas selection. Returns null if no canvas object is selected.
+   */
+  getSelectionStrokeColor () {
+    if(this.getSelectedCanvasObjects().length > 0) {
+      return window.paper.project.selection.strokeColor;
+    } else {
+      return null;
+    }
+  }
+
+  /**
+   * Return the fill color of the current selection.
+   * @return {string|null} The fill color of the current canvas selection. Returns null if no canvas object is selected.
+   */
+  getSelectionFillColor () {
+    if(this.getSelectedCanvasObjects().length > 0) {
+      return window.paper.project.selection.fillColor;
+    } else {
+      return null;
     }
   }
 
@@ -387,18 +512,31 @@ class EditorCore extends Component {
    * @param {object} newSelectionAttributes - A object containing the new values of the selection to use to update the state.
    */
   setSelectionAttributes (newSelectionAttributes) {
-    if(newSelectionAttributes.name) {
-      this.setSelectionName(newSelectionAttributes.name);
+
+    // Valid selection setting functions
+    let setSelectionFunctions = {
+      name: this.setSelectionName,
+      x: this.setSelectionPositionX,
+      y: this.setSelectionPositionY,
+      width: this.setSelectionWidth,
+      height: this.setSelectionHeight,
+      scaleX: this.setSelectionScaleX,
+      scaleY: this.setSelectionScaleY,
+      rotation: this.setSelectionRotation,
+      opacity: this.setSelectionOpacity,
+      strokeWidth: this.setSelectionStrokeWidth,
+      strokeColor: this.setSelectionStrokeColor,
+      fillColor: this.setSelectionFillColor,
     }
-    if(newSelectionAttributes.x !== undefined) {
-      this.setSelectionPositionX(newSelectionAttributes.x);
-    }
-    if(newSelectionAttributes.width) {
-      this.setSelectionWidth(newSelectionAttributes.width);
-    }
-    this.setEditorState({
-      project: this.state.project
-    });
+
+    // Only apply setting changes for valid functions.
+    Object.keys(newSelectionAttributes).forEach(key => {
+      if (key in setSelectionFunctions) {
+        setSelectionFunctions[key](newSelectionAttributes[key]);
+      }
+    })
+
+    this.forceUpdateProject();
   }
 
   /**
@@ -413,6 +551,10 @@ class EditorCore extends Component {
     }
   }
 
+  /**
+   * Sets the x position of the current canvas selection.
+   * @param {number} x The new value for the x position for the current canvas selection.
+   */
   setSelectionPositionX (x) {
     if(this.getSelectedCanvasObjects().length > 0) {
       let y = window.paper.project.selection.bounds.y;
@@ -421,13 +563,121 @@ class EditorCore extends Component {
     }
   }
 
-  setSelectionWidth (width) {
+  /**
+   * Sets the y position of the current canvas selection.
+   * @param {number} y The new value for the y position for the current canvas selection.
+   */
+  setSelectionPositionY (y) {
     if(this.getSelectedCanvasObjects().length > 0) {
-      let height = window.paper.project.selection.bounds.height;
-      window.paper.project.selection.setWidthHeight(width, height);
+      let x = window.paper.project.selection.bounds.x;
+      window.paper.project.selection.setPosition(x, y);
       this.applyCanvasChangesToProject();
     }
   }
+
+  /**
+   * Sets the width of the current canvas selection.
+   * @param {number} width The new value for the width for the current canvas selection.
+   */
+  setSelectionWidth (width) {
+    if(this.getSelectedCanvasObjects().length > 0) {
+      let height = window.paper.project.selection.bounds.height;
+      window.paper.project.selection.setSize(width, height);
+      this.applyCanvasChangesToProject();
+    }
+  }
+
+  /**
+   * Sets the height of the current canvas selection.
+   * @param {number} height The new value for the height for the current canvas selection.
+   */
+  setSelectionHeight (height) {
+    if(this.getSelectedCanvasObjects().length > 0) {
+      let width = window.paper.project.selection.bounds.width;
+      window.paper.project.selection.setSize(width, height);
+      this.applyCanvasChangesToProject();
+    }
+  }
+
+  /**
+   * Sets the horizontal scale of the current canvas selection.
+   * @param {number} scaleX The new value for the horizontal scale for the current canvas selection.
+   */
+  setSelectionScaleX (scaleX) {
+    if(this.getSelectedCanvasObjects().length > 0) {
+      let scaleY = window.paper.project.selection.scale.y;
+      window.paper.project.selection.setScale(scaleX, scaleY);
+      this.applyCanvasChangesToProject();
+    }
+  }
+
+  /**
+   * Sets the vertical scale of the current canvas selection.
+   * @param {number} scaleY The new value for the vertical scale for the current canvas selection.
+   */
+  setSelectionScaleY (scaleY) {
+    if(this.getSelectedCanvasObjects().length > 0) {
+      let scaleX = window.paper.project.selection.scale.x;
+      window.paper.project.selection.setScale(scaleX, scaleY);
+      this.applyCanvasChangesToProject();
+    }
+  }
+
+  /**
+   * Sets the rotation of the current canvas selection.
+   * @param {number} rotation The new value for the rotation of the current canvas selection.
+   */
+  setSelectionRotation (rotation) {
+    if(this.getSelectedCanvasObjects().length > 0) {
+      window.paper.project.selection.setRotation(rotation);
+      this.applyCanvasChangesToProject();
+    }
+  }
+
+  /**
+   * Sets the opacity of the current canvas selection.
+   * @param {number} opacity The new value for the opacity of the current canvas selection.
+   */
+  setSelectionOpacity (opacity) {
+    if(this.getSelectedCanvasObjects().length > 0) {
+      window.paper.project.selection.setOpacity(opacity);
+      this.applyCanvasChangesToProject();
+    }
+  }
+
+  /**
+   * Sets the stroke width of the current canvas selection.
+   * @param {number} strokeWidth The new value for the stroke width of the current canvas selection.
+   */
+  setSelectionStrokeWidth (strokeWidth) {
+    if(this.getSelectedCanvasObjects().length > 0) {
+      window.paper.project.selection.setStrokeWidth(strokeWidth);
+      this.applyCanvasChangesToProject();
+    }
+  }
+
+  /**
+   * Sets the stroke color of the current canvas selection.
+   * @param {string} strokeColor The new value for the stroke color of the current canvas selection.
+   */
+  setSelectionStrokeColor (strokeColor) {
+    if(this.getSelectedCanvasObjects().length > 0) {
+      window.paper.project.selection.setStrokeColor(strokeColor);
+      this.applyCanvasChangesToProject();
+    }
+  }
+
+  /**
+   * Sets the fill color of the current canvas selection.
+   * @param {string} fillColor The new value for the fill color of the current canvas selection.
+   */
+  setSelectionFillColor (fillColor) {
+    if(this.getSelectedCanvasObjects().length > 0) {
+      window.paper.project.selection.setFillColor(fillColor);
+      this.applyCanvasChangesToProject();
+    }
+  }
+
 
   /**
    * Determines the selection type of an object, and returns it as a string.
