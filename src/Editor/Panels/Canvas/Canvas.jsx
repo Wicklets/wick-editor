@@ -85,7 +85,6 @@ class Canvas extends Component {
 
   onSelectionChanged (e) {
     this.props.selectObjects(window.paper.project.selection.items);
-    this.props.forceUpdateProject();
   }
 
   render() {
