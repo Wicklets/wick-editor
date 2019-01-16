@@ -32,7 +32,7 @@ class ToolButton extends Component {
           isActive={ () => this.props.toolIsActive(this.props.name) }
           id={"tool-button-" + this.props.name}
           tooltip={this.props.tooltip}
-          action={ () => this.props.activateTool(this.props.name) }
+          action={ () => this.props.setActiveTool(this.props.name) }
           tooltipPlace="bottom"
           icon={this.props.name}/>
       </div>

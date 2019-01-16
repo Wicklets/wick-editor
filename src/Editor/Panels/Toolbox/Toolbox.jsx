@@ -31,12 +31,12 @@ class Toolbox extends Component {
 
     this.iconProps = {
       toolIsActive: this.toolIsActive.bind(this),
-      activateTool: this.props.activateTool,
+      setActiveTool: this.props.setActiveTool,
     };
   }
 
   toolIsActive (toolName) {
-    return toolName === this.props.activeTool;
+    return toolName === this.props.getActiveTool();
   }
 
   render() {
