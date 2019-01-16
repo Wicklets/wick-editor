@@ -60,6 +60,8 @@ class Canvas extends Component {
   }
 
   componentDidMount() {
+    this.props.onRef(this);
+    
     this.wickCanvas = this.props.canvas;
     window.Wick.Canvas.setup(this.canvasContainer.current);
     window.Wick.Canvas.resize();

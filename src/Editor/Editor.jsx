@@ -83,6 +83,10 @@ class Editor extends EditorCore {
     window.addEventListener("resize", this.resizeProps.onWindowResize);
 
     this.refocusEditor = this.refocusEditor.bind(this);
+
+    // Refs to canvas and timeline (for fast preview play rendering)
+    this.canvasRef = null;
+    this.timeli = null;
   }
 
   componentWillMount () {
@@ -98,6 +102,8 @@ class Editor extends EditorCore {
   }
 
   updateCanvas () {
+    this.timelineRef.updateAnimationTimelineData && this.timelineRef.updateAnimationTimelineData();
+
     // re-render the canvas
     this.state.canvas.render(this.state.project, {
       onionSkinEnabled: this.state.onionSkinEnabled,
@@ -197,22 +203,6 @@ class Editor extends EditorCore {
     window.document.getElementById('hotkeys-container').focus();
   }
 
-  blankSelection () {
-    return {
-      timeline: {
-        frames: [],
-        tweens: [],
-      },
-      canvas: {
-        paths: [],
-        clips: [],
-      },
-      assetLibrary: {
-        assets: [],
-      },
-    };
-  }
-
   render () {
       return (
     <Dropzone
@@ -293,6 +283,7 @@ class Editor extends EditorCore {
                                     paper={this.state.paper}
                                     selectObjects={this.selectObjects}
                                     updateCanvas={this.updateCanvas}
+                                    onRef={ref => this.timelineRef = ref}
                                   />
                                 </DockedPanel>
                               </ReflexElement>
@@ -308,11 +299,12 @@ class Editor extends EditorCore {
                             <DockedPanel>
                               <Timeline
                                 project={this.state.project}
-                                updateEditorState={this.updateEditorState}
-                                onionSkinEnabled={this.state.onionSkinEnabled}
-                                onionSkinSeekBackwards={this.state.onionSkinSeekBackwards}
-                                onionSkinSeekForwards={this.state.onionSkinSeekForwards}
-                                onRef={ref => this.timelineRef = ref}
+                                getSelectedTimelineObjects={this.getSelectedTimelineObjects}
+                                selectObjects={this.selectObjects}
+                                forceUpdateProject={this.forceUpdateProject}
+                                setOnionSkinOptions={this.setOnionSkinOptions}
+                                getOnionSkinOptions={this.getOnionSkinOptions}
+                                onRef={ref => this.canvasRef = ref}
                               />
                             </DockedPanel>
                           </ReflexElement>

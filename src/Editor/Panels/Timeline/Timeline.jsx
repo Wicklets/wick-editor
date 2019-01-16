@@ -54,10 +54,9 @@ class Timeline extends Component {
   }
 
   updateAnimationTimelineData () {
-    /*
     let AnimationTimeline = window.AnimationTimeline;
     let timeline = this.props.project.focus.timeline;
-    let selectedUUIDs = this.props.selection.selectedTimelineObjects.map(obj => {
+    let selectedUUIDs = this.props.getSelectedTimelineObjects().map(obj => {
       return obj.uuid;
     });
 
@@ -94,11 +93,10 @@ class Timeline extends Component {
       })
     });
     AnimationTimeline.repaint();
-    */
   }
 
   onChange (e) {
-    var nextProject = this.props.project.clone();
+    var nextProject = this.props.project;
     if(e.playhead !== undefined) {
       nextProject.focus.timeline.playheadPosition = e.playhead;
     }
@@ -149,13 +147,14 @@ class Timeline extends Component {
         }
       });
     }
-    this.props.updateEditorState({
-      project: nextProject,
-      selection: this.props.selection,
-      onionSkinEnabled: e.onionSkinEnabled !== undefined ? e.onionSkinEnabled : this.props.onionSkinEnabled,
-      onionSkinSeekBackwards: e.onionSkinSeekBackwards !== undefined ? e.onionSkinSeekBackwards : this.props.onionSkinSeekBackwards,
-      onionSkinSeekForwards: e.onionSkinSeekForwards !== undefined ? e.onionSkinSeekForwards : this.props.onionSkinSeekForwards,
-    });
+
+    let newOnionSkinOptions = this.props.getOnionSkinOptions();
+    newOnionSkinOptions.enabled = e.onionSkinEnabled !== undefined ? newOnionSkinOptions.enabled : e.onionSkinEnabled;
+    newOnionSkinOptions.seekBackwards = e.onionSkinSeekBackwards !== undefined ? newOnionSkinOptions.seekBackwards : e.onionSkinSeekBackwards;
+    newOnionSkinOptions.seekForwards = e.onionSkinSeekForwards !== undefined ? newOnionSkinOptions.seekForwards : e.onionSkinSeekForwards;
+
+    this.props.setOnionSkinOptions(newOnionSkinOptions);
+    this.props.forceUpdateProject();
   }
 
   onSoftChange (e) {
@@ -164,12 +163,9 @@ class Timeline extends Component {
 
   onSelectionChange (e) {
     let self = this;
-    this.props.selection.selectObjects(e.frames.map(frame => {
+    this.props.selectObjects(e.frames.map(frame => {
       return self.props.project._childByUUID(frame.id);
     }));
-    this.props.updateEditorState({
-      selection: this.props.selection,
-    });
   }
 
   render() {

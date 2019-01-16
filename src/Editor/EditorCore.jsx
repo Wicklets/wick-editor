@@ -49,6 +49,7 @@ class EditorCore extends Component {
     this.selectObjects = this.selectObjects.bind(this);
     this.isObjectSelected = this.isObjectSelected.bind(this);
     this.getSelectionType = this.getSelectionType.bind(this);
+    this.getSelectedTimelineObjects = this.getSelectedTimelineObjects.bind(this);
     this.getActiveTool = this.getActiveTool.bind(this);
     this.setActiveTool = this.setActiveTool.bind(this);
     this.getToolSettings = this.getToolSettings.bind(this);
@@ -56,6 +57,10 @@ class EditorCore extends Component {
     this.getSelectionAttributes = this.getSelectionAttributes.bind(this);
     this.setSelectionAttributes = this.setSelectionAttributes.bind(this);
     this.convertSelectionToSymbol = this.convertSelectionToSymbol.bind(this);
+    this.focusSelectedObject = this.focusSelectedObject.bind(this);
+    this.focusObjectOneLevelUp = this.focusObjectOneLevelUp.bind(this);
+    this.getOnionSkinOptions = this.getOnionSkinOptions.bind(this);
+    this.setOnionSkinOptions = this.setOnionSkinOptions.bind(this);
   }
 
   /**
@@ -374,6 +379,10 @@ class EditorCore extends Component {
     } else if (object instanceof window.paper.Path
             || object instanceof window.paper.CompoundPath) {
       return 'path';
+    } else if (object instanceof window.Wick.Frame) {
+      return 'frame';
+    } else if (object instanceof window.Wick.Tween) {
+      return 'tween';
     }
   }
 
@@ -410,6 +419,16 @@ class EditorCore extends Component {
     return selection;
   }
 
+  addFrameToSelection (frame, selection) {
+    selection.timeline.frames.push(frame.uuid);
+    return selection;
+  }
+
+  addTweenToSelection (tween, selection) {
+    selection.timeline.tweens.push(tween.uuid);
+    return selection;
+  }
+
   /**
    * Adds an object to the selection.
    * @param {object} object - The object to add to the selection.
@@ -425,6 +444,10 @@ class EditorCore extends Component {
       selection = this.addPathToSelection(object, selection);
     } else if(type === 'clip') {
       selection = this.addClipToSelection(object, selection);
+    } else if(type === 'frame') {
+      selection = this.addFrameToSelection(object, selection);
+    } else if(type === 'tween') {
+      selection = this.addTweenToSelection(object, selection);
     }
     return selection;
   }
@@ -469,6 +492,22 @@ class EditorCore extends Component {
     });
   }
 
+  blankSelection () {
+    return {
+      timeline: {
+        frames: [],
+        tweens: [],
+      },
+      canvas: {
+        paths: [],
+        clips: [],
+      },
+      assetLibrary: {
+        assets: [],
+      },
+    };
+  }
+
   /**
    * Determines if a given asset is selected.
    * @param {<Wick.Asset>} object - Asset to check selection status
@@ -476,6 +515,42 @@ class EditorCore extends Component {
    */
   isAssetSelected (asset) {
     return this.state.selection.assetLibrary.assets.indexOf(asset.uuid) > -1;
+  }
+
+  /**
+   * Determines if a given path is selected.
+   * @param {<paper.Path>} path - Path to check selection status
+   * @returns {boolean} - True if the path is selected, false otherwise
+   */
+  isPathSelected (path) {
+    return this.state.selection.canvas.paths.indexOf(path.name) > -1;
+  }
+
+  /**
+   * Determines if a given clip is selected.
+   * @param {<Wick.Clip>} path - Clip to check selection status
+   * @returns {boolean} - True if the clip is selected, false otherwise
+   */
+  isClipSelected (clip) {
+    return this.state.selection.canvas.clips.indexOf(clip.uuid) > -1;
+  }
+
+  /**
+   * Determines if a given tween is selected.
+   * @param {<Wick.Tween>} tween - Tween to check selection status
+   * @returns {boolean} - True if the tween is selected, false otherwise
+   */
+  isTweenSelected (tween) {
+    return this.state.selection.timeline.tweens.indexOf(tween.uuid) > -1;
+  }
+
+  /**
+   * Determines if a given frame is selected.
+   * @param {<Wick.Frame>} path - Frame to check selection status
+   * @returns {boolean} - True if the frame is selected, false otherwise
+   */
+  isFrameSelected (frame) {
+    return this.state.selection.timeline.frames.indexOf(frame.uuid) > -1;
   }
 
   /**
@@ -487,6 +562,14 @@ class EditorCore extends Component {
     let type = this.selectionTypeOfObject(object);
     if(type === 'asset') {
       return this.isAssetSelected(object);
+    } else if(type === 'path') {
+      return this.isPathSelected(object);
+    } else if(type === 'clip') {
+      return this.isClipSelected(object);
+    } else if(type === 'tween') {
+      return this.isTweenSelected(object);
+    } else if(type === 'frame') {
+      return this.isFrameSelected(object);
     } else {
       return false;
     }
@@ -509,10 +592,67 @@ class EditorCore extends Component {
     clip.x = this.state.paper.project.selection.bounds.center.x;
     clip.y = this.state.paper.project.selection.bounds.center.y;
 
-    //this.state.paper.drawingTools.cursor.deleteSelectedItems(); // TODO need to delete old paths/clips
+    this.deleteSelectedCanvasObjects();
 
     this.state.project.focus.timeline.activeLayer.activeFrame.addClip(clip);
     this.forceUpdateProject();
+  }
+
+  /**
+   * Deletes all selected objects on the canvas.
+   * @returns {<paper.Path>|<paper.CompoundPath>|<paper.Group>[]} The objects that were deleted from the timeline.
+   */
+  deleteSelectedCanvasObjects () {
+    return this.state.paper.drawingTools.cursor.deleteSelectedItems();
+  }
+
+  /**
+   * Deletes all selected objects on the timeline.
+   * @returns {<Wick.Frame>|<Wick.Tween>[]} The objects that were deleted from the timeline.
+   */
+  deleteSelectedTimelineObjects () {
+    this.getSelectedFrames().forEach(frame => {
+      frame.parent.removeFrame(frame);
+    });
+    this.getSelectedTweens().forEach(tween => {
+      tween.parent.removeTween(tween);
+    });
+  }
+
+  /**
+   * Deletes all selected assets.
+   * @returns {<Wick.Asset>[]} The assets that were deleted.
+   */
+  deleteSelectedAssetLibraryObjects () {
+    this.getSelectedAssetLibraryObjects().forEach(asset => {
+      asset.project.removeAsset(asset);
+    });
+  }
+
+  /**
+   * Deletes all selected objects.
+   * @returns {object[]} The objects that were deleted.
+   */
+  deleteSelectedObjects () {
+    let result = [];
+    console.log(this.getSelectedTimelineObjects())
+    if(this.getSelectedCanvasObjects().length > 0) {
+      result = this.deleteSelectedCanvasObjects();
+    } else if(this.getSelectedTimelineObjects().length > 0) {
+      result = this.deleteSelectedTimelineObjects();
+    } else if(this.getSelectedAssetLibraryObjects().length > 0) {
+      result = this.deleteSelectedAssetLibraryObjects();
+    }
+    this.clearSelection();
+    return result;
+  }
+
+  focusSelectedObject () {
+
+  }
+
+  focusObjectOneLevelUp () {
+
   }
 
   /**
@@ -536,6 +676,18 @@ class EditorCore extends Component {
         });
       });
     });
+  }
+
+  getOnionSkinOptions () {
+    return {
+      enabled: this.state.onionSkinEnabled,
+      seekForwards: this.state.onionSkinSeekForwards,
+      seekBackwards: this.state.onionSkinSeekBackwards
+    }
+  }
+
+  setOnionSkinOptions (onionSkinOptions) {
+
   }
 }
 
