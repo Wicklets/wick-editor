@@ -69,10 +69,15 @@ class EditorCore extends Component {
    * @param {object} newState - the state object to send to setState.
    */
   setEditorState (newState) {
-    console.log(newState)
-    if (newState.project || newState.selection) {
+    if (newState.project) {
       this.state.history.saveState();
+    } else if (newState.selection) {
+      if (JSON.stringify(newState.selection) !== JSON.stringify(this.state.selection)) {
+        this.state.history.saveState();
+      }
     }
+
+    newState.history = this.state.history;
     this.setState(newState);
   }
 
@@ -529,12 +534,13 @@ class EditorCore extends Component {
   }
 
   /**
-   * Clears the selection, then adds the given objects to the selection.
+   * Clears the selection, then adds the given objects to the selection. No changes will be made if the selection does not change.
    * @param {object[]} objects - The objects to add to the selection.
    */
   selectObjects (objects) {
+
     this.setEditorState({
-      selection: this.addObjectsToSelection(objects, this.blankSelection())
+      selection: this.addObjectsToSelection(objects, this.blankSelection()),
     });
   }
 
