@@ -4414,7 +4414,7 @@ paper.MultiSelection = class {
     return this.bounds.height;
   }
 
-  get scale() {
+  get scaling() {
     if (this.items.length === 1) {
       return this.items[0].scaling;
     } else {
@@ -4424,7 +4424,7 @@ paper.MultiSelection = class {
 
   get rotation() {
     if (this.items.length === 1) {
-      return this.items[0].scaling;
+      return this.items[0].rotation;
     } else {
       return 0;
     }
@@ -4834,7 +4834,11 @@ paper.MultiSelection = class {
 
   _selectedItemsShareColor(colorName) {
     return this._arrayAllEqual(this.items.map(item => {
-      return item[colorName].toCSS();
+      if (item[colorName] === null || item[colorName] === undefined) {
+        return null;
+      } else {
+        return item[colorName].toCSS();
+      }
     }));
   }
 

@@ -58,6 +58,17 @@ class EditorCore extends Component {
     this.setToolSettings = this.setToolSettings.bind(this);
     this.getSelectionAttributes = this.getSelectionAttributes.bind(this);
     this.setSelectionAttributes = this.setSelectionAttributes.bind(this);
+    this.setSelectionPositionX = this.setSelectionPositionX.bind(this);
+    this.setSelectionPositionY = this.setSelectionPositionY.bind(this);
+    this.setSelectionWidth = this.setSelectionWidth.bind(this);
+    this.setSelectionHeight = this.setSelectionHeight.bind(this);
+    this.setSelectionScaleX = this.setSelectionScaleX.bind(this);
+    this.setSelectionScaleY = this.setSelectionScaleY.bind(this);
+    this.setSelectionRotation = this.setSelectionRotation.bind(this);
+    this.setSelectionOpacity = this.setSelectionOpacity.bind(this);
+    this.setSelectionStrokeWidth = this.setSelectionStrokeWidth.bind(this);
+    this.setSelectionFillColor = this.setSelectionFillColor.bind(this);
+    this.setSelectionStrokeColor = this.setSelectionStrokeColor.bind(this);
     this.convertSelectionToSymbol = this.convertSelectionToSymbol.bind(this);
     this.focusSelectedObject = this.focusSelectedObject.bind(this);
     this.focusObjectOneLevelUp = this.focusObjectOneLevelUp.bind(this);
@@ -317,8 +328,8 @@ class EditorCore extends Component {
       y: this.getSelectionPositionY(),
       width: this.getSelectionWidth(),
       height: this.getSelectionHeight(),
-      scaleW: this.getSelectionScaleW(),
-      scaleH: this.getSelectionScaleH(),
+      scaleX: this.getSelectionScaleX(),
+      scaleY: this.getSelectionScaleY(),
       rotation: this.getSelectionRotation(),
       opacity: this.getSelectionOpacity(),
       strokeWidth: this.getSelectionStrokeWidth(),
@@ -413,9 +424,9 @@ class EditorCore extends Component {
    * Return the scale width of the current selection.
    * @return {number|null} The scale width of the current canvas selection. Returns null if no canvas object is selected.
    */
-  getSelectionScaleW () {
+  getSelectionScaleX () {
     if(this.getSelectedCanvasObjects().length > 0) {
-      return window.paper.project.selection.scale.x;
+      return window.paper.project.selection.scaling.x;
     } else {
       return null;
     }
@@ -425,9 +436,9 @@ class EditorCore extends Component {
    * Return the scale height of the current selection.
    * @return {number|null} The scale height of the current canvas selection. Returns null if no canvas object is selected.
    */
-  getSelectionScaleH () {
+  getSelectionScaleY () {
     if(this.getSelectedCanvasObjects().length > 0) {
-      return window.paper.project.selection.scale.y;
+      return window.paper.project.selection.scaling.y;
     } else {
       return null;
     }
@@ -605,7 +616,7 @@ class EditorCore extends Component {
    */
   setSelectionScaleX (scaleX) {
     if(this.getSelectedCanvasObjects().length > 0) {
-      let scaleY = window.paper.project.selection.scale.y;
+      let scaleY = window.paper.project.selection.scaling.y;
       window.paper.project.selection.setScale(scaleX, scaleY);
       this.applyCanvasChangesToProject();
     }
@@ -617,7 +628,7 @@ class EditorCore extends Component {
    */
   setSelectionScaleY (scaleY) {
     if(this.getSelectedCanvasObjects().length > 0) {
-      let scaleX = window.paper.project.selection.scale.x;
+      let scaleX = window.paper.project.selection.scaling.x;
       window.paper.project.selection.setScale(scaleX, scaleY);
       this.applyCanvasChangesToProject();
     }
@@ -990,7 +1001,6 @@ class EditorCore extends Component {
       })
     }
   }
-
 
   focusSelectedObject () {
 
