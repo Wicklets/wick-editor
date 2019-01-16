@@ -298,7 +298,8 @@ class Editor extends EditorCore {
                               <Toolbox
                                 getActiveTool={this.getActiveTool}
                                 setActiveTool={this.setActiveTool}
-                                toolSettings={this.state.toolSettings}
+                                getToolSettings={this.getToolSettings}
+                                setToolSettings={this.setToolSettings}
                                 previewPlaying={this.state.previewPlaying}
                                 togglePreviewPlaying={this.togglePreviewPlaying}
                               />
