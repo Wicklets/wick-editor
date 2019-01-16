@@ -334,7 +334,7 @@ class EditorCore extends Component {
     if(this.getSelectedCanvasObjects().length > 0) {
       return window.paper.project.selection.bounds.x;
     } else {
-      return new 0;
+      return 0;
     }
   }
 
