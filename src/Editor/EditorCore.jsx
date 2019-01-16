@@ -42,7 +42,6 @@ class EditorCore extends Component {
         cornerRadius: 0,
         pressureEnabled: false,
       },
-      previewPlaying: false,
     }
 
     this.forceUpdateProject = this.forceUpdateProject.bind(this);

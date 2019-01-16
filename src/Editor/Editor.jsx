@@ -53,6 +53,7 @@ class Editor extends EditorCore {
       codeEditorSize: 0.1,
       timelineSize: 100,
       assetLibrarySize: 150,
+      previewPlaying: false,
     };
 
     // Init hotkeys
@@ -67,6 +68,8 @@ class Editor extends EditorCore {
 
     // Canvas
     this.updateCanvas = this.updateCanvas.bind(this);
+    this.rerenderCanvas = this.rerenderCanvas.bind(this);
+    this.rerenderTimeline = this.rerenderTimeline.bind(this);
 
     // Resiable panels
     this.RESIZE_THROTTLE_AMOUNT_MS = 10;
@@ -84,9 +87,15 @@ class Editor extends EditorCore {
 
     this.refocusEditor = this.refocusEditor.bind(this);
 
-    // Refs to canvas and timeline (for fast preview play rendering)
-    this.canvasRef = null;
-    this.timeli = null;
+    // Preview play tick loop
+    this.tickLoopIntervalID = null;
+    this.togglePreviewPlaying = this.togglePreviewPlaying.bind(this);
+    this.startTickLoop = this.startTickLoop.bind(this);
+    this.stopTickLoop = this.stopTickLoop.bind(this);
+
+    // References to canvas and timeline (for fast preview play rendering)
+    this.canvasRef = React.createRef();
+    this.timelineRef = React.createRef();
   }
 
   componentWillMount () {
@@ -99,17 +108,19 @@ class Editor extends EditorCore {
 
   componentDidUpdate (prevProps, prevState) {
     this.updateCanvas();
+
+    if(this.state.previewPlaying && !prevState.previewPlaying) {
+      this.startTickLoop();
+    }
+
+    if(!this.state.previewPlaying && prevState.previewPlaying) {
+      this.stopTickLoop();
+    }
   }
 
   updateCanvas () {
-    this.timelineRef.updateAnimationTimelineData && this.timelineRef.updateAnimationTimelineData();
-
     // re-render the canvas
-    this.state.canvas.render(this.state.project, {
-      onionSkinEnabled: this.state.onionSkinEnabled,
-      onionSkinSeekBackwards: this.state.onionSkinSeekBackwards,
-      onionSkinSeekForwards: this.state.onionSkinSeekForwards,
-    });
+    this.rerenderCanvas();
 
     // update the paper.js selection using the editor selection state
     window.paper.project.selection.clear();
@@ -136,6 +147,18 @@ class Editor extends EditorCore {
        this.state.project.focus.timeline.activeLayer.hidden) {
       window.paper.drawingTools.none.activate();
     }
+  }
+
+  rerenderCanvas () {
+    this.state.canvas.render(this.state.project, {
+      onionSkinEnabled: this.state.onionSkinEnabled,
+      onionSkinSeekBackwards: this.state.onionSkinSeekBackwards,
+      onionSkinSeekForwards: this.state.onionSkinSeekForwards,
+    });
+  }
+
+  rerenderTimeline () {
+
   }
 
   applyCanvasChangesToProject () {
@@ -206,6 +229,24 @@ class Editor extends EditorCore {
 
   refocusEditor () {
     window.document.getElementById('hotkeys-container').focus();
+  }
+
+  togglePreviewPlaying () {
+    this.setState(prevState => ({
+      previewPlaying: !prevState.previewPlaying,
+    }));
+  }
+
+  startTickLoop () {
+    this.tickLoopIntervalID = setInterval(() => {
+      this.state.project.tick();
+      this.rerenderCanvas();
+      this.rerenderTimeline();
+    }, 1000 / this.state.project.framerate);
+  }
+
+  stopTickLoop () {
+    clearInterval(this.tickLoopIntervalID);
   }
 
   render () {
@@ -288,7 +329,7 @@ class Editor extends EditorCore {
                                     paper={this.state.paper}
                                     selectObjects={this.selectObjects}
                                     updateCanvas={this.updateCanvas}
-                                    onRef={ref => this.timelineRef = ref}
+                                    onRef={ref => this.canvasRef = ref}
                                   />
                                 </DockedPanel>
                               </ReflexElement>
@@ -309,7 +350,7 @@ class Editor extends EditorCore {
                                 forceUpdateProject={this.forceUpdateProject}
                                 setOnionSkinOptions={this.setOnionSkinOptions}
                                 getOnionSkinOptions={this.getOnionSkinOptions}
-                                onRef={ref => this.canvasRef = ref}
+                                onRef={ref => this.timelineRef = ref}
                               />
                             </DockedPanel>
                           </ReflexElement>
