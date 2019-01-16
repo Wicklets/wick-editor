@@ -106,6 +106,7 @@ class Editor extends EditorCore {
 
   componentDidMount () {
     this.refocusEditor();
+    this.state.history.saveState();
   }
 
   componentDidUpdate (prevProps, prevState) {

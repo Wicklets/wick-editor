@@ -69,7 +69,6 @@ class EditorCore extends Component {
    * @param {object} newState - the state object to send to setState.
    */
   setEditorState (newState) {
-    console.log(newState)
     if (newState.project || newState.selection) {
       this.state.history.saveState();
     }
@@ -547,6 +546,10 @@ class EditorCore extends Component {
     });
   }
 
+  /**
+   * Use this to clear the selection.
+   * @returns A state object representing a selection where nothing is selected.
+   */
   blankSelection () {
     return {
       timeline: {
@@ -690,7 +693,6 @@ class EditorCore extends Component {
    */
   deleteSelectedObjects () {
     let result = [];
-    console.log(this.getSelectedTimelineObjects())
     if(this.getSelectedCanvasObjects().length > 0) {
       result = this.deleteSelectedCanvasObjects();
     } else if(this.getSelectedTimelineObjects().length > 0) {
