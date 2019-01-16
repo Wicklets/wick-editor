@@ -4402,6 +4402,66 @@ paper.MultiSelection = class {
     return this._selectionBounds;
   }
 
+  get position() {
+    return new paper.Point(this.bounds.x, this.bounds.y);
+  }
+
+  get width() {
+    return this.bounds.width;
+  }
+
+  get height() {
+    return this.bounds.height;
+  }
+
+  get scale() {
+    if (this.items.length === 1) {
+      return this.items[0].scaling;
+    } else {
+      return new paper.Point(1, 1);
+    }
+  }
+
+  get rotation() {
+    if (this.items.length === 1) {
+      return this.items[0].scaling;
+    } else {
+      return 0;
+    }
+  }
+
+  get opacity() {
+    if (this._selectedItemsShareValue('opacity')) {
+      return this.items[0].opacity;
+    } else {
+      return null;
+    }
+  }
+
+  get strokeWidth() {
+    if (this._selectedItemsShareValue('strokeWidth')) {
+      return this.items[0].strokeWidth;
+    } else {
+      return null;
+    }
+  }
+
+  get strokeColor() {
+    if (this._selectedItemsShareColor('strokeColor')) {
+      return this.items[0].strokeColor;
+    } else {
+      return null;
+    }
+  }
+
+  get fillColor() {
+    if (this._selectedItemsShareColor('fillColor')) {
+      return this.items[0].fillColor;
+    } else {
+      return null;
+    }
+  }
+
   get rotationPoint() {
     if (this._selectedItems.length === 1) {
       return this._selectedItems[0].position;
@@ -4553,7 +4613,7 @@ paper.MultiSelection = class {
     }
   }
 
-  setWidthHeight(w, h) {
+  setSize(w, h) {
     var sx = w / this._selectionBounds.width;
     var sy = h / this._selectionBounds.height;
     this.scale(sx, sy);
@@ -4764,6 +4824,30 @@ paper.MultiSelection = class {
     return paper.project.layers.filter(layer => {
       return !layer.locked && layer !== self._guiLayer;
     });
+  }
+
+  _selectedItemsShareValue(valueName) {
+    return this._arrayAllEqual(this.items.map(item => {
+      return item[valueName];
+    }));
+  }
+
+  _selectedItemsShareColor(colorName) {
+    return this._arrayAllEqual(this.items.map(item => {
+      return item[colorName].toCSS();
+    }));
+  }
+
+  _arrayAllEqual(array) {
+    if (array.length === 0) return false;
+    var allEqual = true;
+    var checkValue = array[0];
+    array.forEach(item => {
+      if (item !== checkValue) {
+        allEqual = false;
+      }
+    });
+    return allEqual;
   }
 
 };
@@ -5624,35 +5708,6 @@ class BrushCursorGen {
 
     return projectTarget;
   }
-  /*itemA.getIntersections(itemB).length
-  function recursiveIntersects (itemA, itemB) {
-      if(itemA instanceof paper.Group) {
-          var intersects = false;
-          itemA.children.forEach(child => {
-              child.position.x -= itemB.position.x;
-              child.position.y -= itemB.position.y;
-              if(!intersects && recursiveIntersects(child, itemB)) {
-                  intersects = true;
-              }
-              child.position.x += itemB.position.x;
-              child.position.y += itemB.position.y;
-          });
-          return intersects;
-      } else {
-          return itemA.intersects(itemB);
-      }
-  }
-  */
-
-  /*
-  var boundsIntersect = selectionBox.bounds.intersects(item.bounds);
-  var shapesIntersect = item.intersects(selectionBox);
-  var boundsContain = selectionBox.bounds.contains(item.bounds);
-  if((boundsIntersect && shapesIntersect) || boundsContain) {
-      itemsInBox.push(item);
-  }
-  */
-
 
   function shapesIntersect(itemA, itemB) {
     if (itemA instanceof paper.Group) {
@@ -5666,14 +5721,10 @@ class BrushCursorGen {
       });
       return intersects;
     } else {
-      //console.log(itemA.getIntersections(itemB).length)
-      //var boundsIntersect = itemB.bounds.intersects(itemA.bounds);
       var shapesDoIntersect = itemB.intersects(itemA);
       var boundsContain = itemB.bounds.contains(itemA.bounds);
 
-      if (
-      /*boundsIntersect || */
-      shapesDoIntersect || boundsContain) {
+      if (shapesDoIntersect || boundsContain) {
         return true;
       }
     }
