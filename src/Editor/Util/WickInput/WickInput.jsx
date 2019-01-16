@@ -41,10 +41,15 @@ class WickInput extends Component {
           ></NumericInput>
       )
     } else if (this.props.type==="text") {
+      let wrappedOnChange = (val) => {
+        this.props.onChange(val.target.value);
+      };
       return (
         <input className={classNames("wick-input", {"read-only":this.props.readOnly})}
                type="text"
-               {...this.props}></input>
+               {...this.props}
+               onChange={this.props.onChange ? wrappedOnChange : null}
+        ></input>
       )
     } else if (this.props.type === "slider") {
       return (

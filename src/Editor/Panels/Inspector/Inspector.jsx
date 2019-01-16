@@ -219,7 +219,7 @@ class Inspector extends Component {
         val={this.props.getSelectionAttributes().name}
         onChange={(val) => {
           this.props.setSelectionAttributes({
-            name: val.value,
+            name: val,
           });
         }} />
     )
