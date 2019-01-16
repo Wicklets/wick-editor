@@ -291,6 +291,8 @@ class EditorCore extends Component {
       name: this.getSelectionName(),
       filename: this.getSelectionFilename(),
       src: this.getSelectionSrc(),
+      x: this.getSelectionPositionX(),
+      width: this.getSelectionWidth(),
     };
   }
 
@@ -328,6 +330,22 @@ class EditorCore extends Component {
     }
   }
 
+  getSelectionPositionX () {
+    if(this.getSelectedCanvasObjects().length > 0) {
+      return window.paper.project.selection.bounds.x;
+    } else {
+      return new 0;
+    }
+  }
+
+  getSelectionWidth () {
+    if(this.getSelectedCanvasObjects().length > 0) {
+      return window.paper.project.selection.bounds.width;
+    } else {
+      return 0;
+    }
+  }
+
   /**
    * Returns the source of the selected object.
    * @returns {string|null} The src dataURL of the selected object. Returns null if selection type does not have a src property.
@@ -350,6 +368,12 @@ class EditorCore extends Component {
     if(newSelectionAttributes.name) {
       this.setSelectionName(newSelectionAttributes.name);
     }
+    if(newSelectionAttributes.x !== undefined) {
+      this.setSelectionPositionX(newSelectionAttributes.x);
+    }
+    if(newSelectionAttributes.width) {
+      this.setSelectionWidth(newSelectionAttributes.width);
+    }
     this.setState({
       project: this.state.project
     });
@@ -364,6 +388,22 @@ class EditorCore extends Component {
       this.getSelectedClips()[0].name = newName;
     } else if (this.getSelectedAssetLibraryObjects().length === 1) {
       this.getSelectedAssetLibraryObjects()[0].name = newName;
+    }
+  }
+
+  setSelectionPositionX (x) {
+    if(this.getSelectedCanvasObjects().length > 0) {
+      let y = window.paper.project.selection.bounds.y;
+      window.paper.project.selection.setPosition(x, y);
+      this.applyCanvasChangesToProject();
+    }
+  }
+
+  setSelectionWidth (width) {
+    if(this.getSelectedCanvasObjects().length > 0) {
+      let height = window.paper.project.selection.bounds.height;
+      window.paper.project.selection.setWidthHeight(width, height);
+      this.applyCanvasChangesToProject();
     }
   }
 

@@ -255,9 +255,9 @@ class Inspector extends Component {
     return (
       <InspectorDualNumericInput
         icon="position"
-        val1={this.state.selection.attributes.x}
+        val1={this.props.getSelectionAttributes().x}
         val2={this.state.selection.attributes.y}
-        onChange1={(val) => this.handleSelectionPropertyChange('x', val)}
+        onChange1={(val) => this.props.setSelectionAttributes({x: val})}
         onChange2={(val) => this.handleSelectionPropertyChange('y', val)}
         divider={true} />
     )
@@ -267,12 +267,11 @@ class Inspector extends Component {
     return (
       <InspectorDualNumericInput
         icon="size"
-        val1={this.state.selection.attributes.width}
+        val1={this.props.getSelectionAttributes().width}
         val2={this.state.selection.attributes.height}
-        onChange1={(val) => this.handleSelectionPropertyChange('width', val)}
+        onChange1={(val) => this.props.setSelectionAttributes({width: val})}
         onChange2={(val) => this.handleSelectionPropertyChange('height', val)}
         divider={true} />
-
     )
   }
 

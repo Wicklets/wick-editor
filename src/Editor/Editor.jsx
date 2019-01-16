@@ -138,6 +138,11 @@ class Editor extends EditorCore {
     }
   }
 
+  applyCanvasChangesToProject () {
+    this.state.canvas.applyChanges(this.state.project, window.paper.project.layers);
+    this.forceUpdate();
+  }
+
   onWindowResize () {
     // Ensure that all elements resize on window resize.
     this.resizeProps.onResize();
