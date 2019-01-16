@@ -44,15 +44,14 @@ class UndoRedo {
   _generateProjectState () {
     return {
       project: this.editor.state.project.serialize(),
-      selection: this.editor.state.selection.serialize(),
+      selection: JSON.parse(JSON.stringify(this.editor.state.selection)),
     };
   }
 
   _recoverProjectState (state) {
-    this.editor.updateEditorState({
-      dontPushToUndoRedoStack: true,
+    this.editor.setState({
       project: window.Wick.Project.deserialize(state.project),
-      selection: this.editor.state.selection.deserialize(state.selection),
+      selection: JSON.parse(JSON.stringify(state.selection)),
     });
   }
 

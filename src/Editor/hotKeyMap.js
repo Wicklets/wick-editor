@@ -51,8 +51,8 @@ class HotKeyInterface extends Object {
       'convert-to-symbol': (() => this.editor.openModal('ConvertToSymbol')),
       'edit-selection': (() => this.editor.focusSelectedObject()),
       'edit-parent': (() => this.editor.focusObjectOneLevelUp()),
-      'undo': (() => this.editor.state.undoRedo.undo()),
-      'redo': (() => this.editor.state.undoRedo.redo()),
+      'undo': (() => this.editor.state.history.undo()),
+      'redo': (() => this.editor.state.history.redo()),
       'do-nothing': (() => console.log("donothing")),
     }
 

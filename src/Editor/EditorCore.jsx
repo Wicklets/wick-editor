@@ -44,6 +44,7 @@ class EditorCore extends Component {
       },
     }
 
+    this.setEditorState = this.setEditorState.bind(this);
     this.forceUpdateProject = this.forceUpdateProject.bind(this);
     this.selectObjects = this.selectObjects.bind(this);
     this.isObjectSelected = this.isObjectSelected.bind(this);
@@ -63,10 +64,22 @@ class EditorCore extends Component {
   }
 
   /**
+   * A wrapper for setState that checks if the project or selection changed. If either one did, current state is pushed to the history stack.
+   * @param {object} newState - the state object to send to setState.
+   */
+  setEditorState (newState) {
+    console.log(newState)
+    if (newState.project || newState.selection) {
+      this.state.history.saveState();
+    }
+    this.setState(newState);
+  }
+
+  /**
    * This function must be called after changing properties of the project without calling setState.
    */
   forceUpdateProject () {
-    this.setState({
+    this.setEditorState({
       project: this.state.project,
     });
   }
@@ -95,10 +108,11 @@ class EditorCore extends Component {
    * @param {string} newTool - The string representation of the tool to switch to.
    */
   setActiveTool (newTool) {
-    this.setState({
-      selection: newTool === 'cursor' ? this.state.selection : this.blankSelection(),
-      activeTool: newTool,
-    });
+    let newState = { activeTool: newTool };
+    if(this.state.activeTool === 'cursor' && newTool !== 'cursor') {
+      newState.selection = this.blankSelection();
+    }
+    this.setEditorState(newState);
   }
 
   /**
@@ -114,7 +128,7 @@ class EditorCore extends Component {
    * @param {object} newToolSettings - An object of key-value pairs where the keys represent tool settings and the values represent the values to change those settings to.
    */
   setToolSettings (newToolSettings) {
-    this.setState({
+    this.setEditorState({
       toolSettings: {
         ...this.state.toolSettings,
         ...newToolSettings,
@@ -374,7 +388,7 @@ class EditorCore extends Component {
     if(newSelectionAttributes.width) {
       this.setSelectionWidth(newSelectionAttributes.width);
     }
-    this.setState({
+    this.setEditorState({
       project: this.state.project
     });
   }
@@ -518,7 +532,7 @@ class EditorCore extends Component {
    * @param {object[]} objects - The objects to add to the selection.
    */
   selectObjects (objects) {
-    this.setState({
+    this.setEditorState({
       selection: this.addObjectsToSelection(objects, this.blankSelection())
     });
   }
@@ -527,7 +541,7 @@ class EditorCore extends Component {
    * Clears the selection.
    */
   clearSelection () {
-    this.setState({
+    this.setEditorState({
       selection: this.blankSelection()
     });
   }
@@ -711,7 +725,7 @@ class EditorCore extends Component {
     acceptedFiles.forEach(file => {
       this.state.project.import(file, function (asset) {
         // After import success, update editor state.
-        self.setState({
+        self.setEditorState({
           project: self.state.project,
         });
       });

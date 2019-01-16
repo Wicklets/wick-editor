@@ -31,6 +31,7 @@ import { HotKeys } from 'react-hotkeys';
 import Dropzone from 'react-dropzone';
 
 import EditorCore from './EditorCore';
+import UndoRedo from '../core/UndoRedo';
 import DockedPanel from './Panels/DockedPanel/DockedPanel';
 import Canvas from './Panels/Canvas/Canvas';
 import Inspector from './Panels/Inspector/Inspector';
@@ -54,6 +55,7 @@ class Editor extends EditorCore {
       timelineSize: 100,
       assetLibrarySize: 150,
       previewPlaying: false,
+      history: new UndoRedo(this),
     };
 
     // Init hotkeys
