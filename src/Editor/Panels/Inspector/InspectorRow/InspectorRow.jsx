@@ -24,8 +24,6 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import RowIcon from 'Editor/Util/RowIcon/RowIcon';
 import InspectorInput from 'Editor/Panels/Inspector/InspectorRow/InspectorInput/InspectorInput';
 
-var classNames = require('classnames');
-
 class InspectorRow extends Component {
 
   render() {

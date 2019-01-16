@@ -27,7 +27,7 @@ class InspectorPreview extends Component {
     if (this.props.info.type === "image") {
       return (
         <div className="inspector-image-preview-container">
-          <img className="inspector-image-preview" src={this.props.info.src} />
+          <img alt='' className="inspector-image-preview" src={this.props.info.src} />
         </div>
       )
     } else {

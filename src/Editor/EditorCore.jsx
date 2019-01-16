@@ -17,7 +17,7 @@
  * along with Wick Editor.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, { Component } from 'react';
+import { Component } from 'react';
 
 class EditorCore extends Component {
   constructor () {
@@ -111,15 +111,12 @@ class EditorCore extends Component {
    * @returns {string} The string representation of the type of object/objects selected
    */
   getSelectionType () {
-    let selection = this.state.selection;
-
     let numTimelineObjects = this.getSelectedTimelineObjects().length;
     let numFrames = this.getSelectedFrames().length;
     let numTweens = this.getSelectedTweens().length;
     let numCanvasObjects = this.getSelectedCanvasObjects().length;
     let numPaths = this.getSelectedPaths().length;
     let numClips = this.getSelectedClips().length;
-    let numButtons = this.getSelectedButtons().length;
     let numAssetLibraryObjects = this.getSelectedAssetLibraryObjects().length;
     let numSoundAssets = this.getSelectedSoundAssets().length;
     let numImageAssets = this.getSelectedImageAssets().length;
