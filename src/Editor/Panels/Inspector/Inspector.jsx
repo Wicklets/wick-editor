@@ -97,6 +97,52 @@ class Inspector extends Component {
     this.renderActionButtonRow = this.renderActionButtonRow.bind(this);
     this.renderButton = this.renderButton.bind(this);
     this.renderActions = this.renderActions.bind(this);
+
+    this.getToolSetting = this.getToolSetting.bind(this);
+    this.setToolSetting = this.setToolSetting.bind(this);
+
+    this.getSelectionAttribute = this.getSelectionAttribute.bind(this);
+    this.setSelectionAttribute = this.setSelectionAttribute.bind(this);
+  }
+
+  /**
+   * Returns the value of an editor tool setting.
+   * @param  {string} setting Setting value to retrieve
+   * @return {string|number} Value of requested setting. Returns undefined if setting does no exist.
+   */
+  getToolSetting (setting) {
+    return this.props.getToolSettings()[setting];
+  }
+
+  /**
+   * Updates the value of a tool setting within the editor.
+   * @param {string} setting  Name of the setting to update.
+   * @param {string|number} newValue Value to update selected tool setting to.
+   */
+  setToolSetting (setting, newValue) {
+    let newToolSetting = {}
+    newToolSetting[setting] = newValue;
+    this.props.setToolSettings(newToolSetting);
+  }
+
+  /**
+   * Returns the value of a requested selection attribute.
+   * @param  {string} attribute Selection attribute to retrieve.
+   * @return {string|number} Value of the selection attribute to retrieve. Returns undefined is attribute does not exist.
+   */
+  getSelectionAttribute (attribute) {
+    return this.props.getSelectionAttributes()[attribute];
+  }
+
+  /**
+   * Updates the value of a selection attribute for the selected item in the editor.
+   * @param {string} attribute Name of the attribute to update.
+   * @param {string|number} newValue  New value of the attribute to update.
+   */
+  setSelectionAttribute (attribute, newValue) {
+    let newSelectionAttributes = {}
+    newSelectionAttributes[attribute] = newValue;
+    this.props.setSelectionAttributes(newSelectionAttributes);
   }
 
   toRgbaString (col) {
@@ -112,8 +158,8 @@ class Inspector extends Component {
     return (
       <InspectorNumericSlider
         icon="brushsize"
-        val={this.props.getToolSettings().brushSize}
-        onChange={(val) => this.handleToolSettingChange('brushSize', val)}
+        val={this.getToolSetting('brushSize')}
+        onChange={(val) => this.setToolSetting('brushSize', val)}
         divider={false}/>
     )
   }
@@ -122,8 +168,8 @@ class Inspector extends Component {
     return (
       <InspectorNumericSlider
         icon="brushsmoothness"
-        val={this.props.getToolSettings().brushSmoothness}
-        onChange={(val) => this.handleToolSettingChange('brushSmoothness', val)}
+        val={this.getToolSetting('brushSmoothness')}
+        onChange={(val) => this.setToolSetting('brushSmoothness', val)}
         divider={false}/>
     )
   }
@@ -132,8 +178,8 @@ class Inspector extends Component {
     return (
       <InspectorNumericSlider
         icon="strokewidth"
-        val={this.props.getToolSettings().strokeWidth}
-        onChange={(val) => this.handleToolSettingChange('strokeWidth', val)}
+        val={this.getToolSetting('strokeWidth')}
+        onChange={(val) => this.setToolSetting('strokeWidth', val)}
         divider={false}/>
     )
   }
@@ -142,8 +188,8 @@ class Inspector extends Component {
     return (
       <InspectorNumericSlider
         icon="strokewidth"
-        val={this.state.selection.attributes.strokeWidth}
-        onChange={(val) => this.handleSelectionPropertyChange('strokeWidth', val)}
+        val={this.getSelectionAttribute('strokeWidth')}
+        onChange={(val) => this.setSelectionAttribute('strokeWidth', val)}
         divider={false}/>
     )
   }
@@ -152,8 +198,8 @@ class Inspector extends Component {
     return(
       <InspectorColorPicker
         icon="fillcolor"
-        val={this.props.getToolSettings().fillColor}
-        onChange={(col) => this.handleToolSettingChange('fillColor', this.toRgbaString(col))}
+        val={this.getToolSetting('fillColor')}
+        onChange={(col) => this.setToolSetting('fillColor', this.toRgbaString(col))}
         id={"inspector-tool-fill-color"} />
     )
   }
@@ -162,8 +208,8 @@ class Inspector extends Component {
     return(
       <InspectorColorPicker
         icon="fillcolor"
-        val={this.state.selection.attributes.fillColor}
-        onChange={(col) => this.handleSelectionPropertyChange('fillColor', this.toRgbaString(col))}
+        val={this.getSelectionAttribute('fillColor')}
+        onChange={(col) => this.setSelectionAttribute('fillColor', this.toRgbaString(col))}
         id={"inspector-selection-fill-color"} />
     )
   }
@@ -172,8 +218,8 @@ class Inspector extends Component {
     return(
       <InspectorColorPicker
         icon="strokecolor"
-        val={this.props.getToolSettings().strokeColor}
-        onChange={(col) => this.handleToolSettingChange('strokeColor', this.toRgbaString(col))}
+        val={this.getToolSetting('strokeColor')}
+        onChange={(col) => this.setToolSetting('strokeColor', this.toRgbaString(col))}
         id={"inspector-tool-stroke-color"} />
     )
   }
@@ -183,8 +229,8 @@ class Inspector extends Component {
     return(
       <InspectorColorPicker
         icon="strokecolor"
-        val={this.state.selection.attributes.strokeColor}
-        onChange={(col) => this.handleSelectionPropertyChange('strokeColor', this.toRgbaString(col))}
+        val={this.getSelectionAttribute('strokeColor')}
+        onChange={(col) => this.setSelectionAttribute('strokeColor', this.toRgbaString(col))}
         id={"inspector-selection-stroke-color"}
         stroke={true}/>
     )
@@ -194,21 +240,28 @@ class Inspector extends Component {
     return (
       <InspectorNumericSlider
         icon="cornerroundness"
-        val={this.props.getToolSettings().cornerRadius}
-        onChange={(val) => this.handleToolSettingChange("cornerRadius", val)}
+        val={this.getToolSetting('cornerRadius')}
+        onChange={(val) => this.setToolSetting("cornerRadius", val)}
         divider={false} />
     )
   }
 
   renderFonts(args) {
     return (
-      <InspectorSelector icon="fontfamily" value={args.val} options={args.options} onChange={args.onChange} />
+      <InspectorSelector
+        icon="fontfamily"
+        value={args.val}
+        options={args.options}
+        onChange={args.onChange} />
     )
   }
 
   renderFontSize(args) {
     return (
-      <InspectorNumericInput icon="fontsize" val={args.val} onChange={args.onChange} />
+      <InspectorNumericInput
+        icon="fontsize"
+        val={args.val}
+        onChange={args.onChange} />
     )
   }
 
@@ -216,12 +269,8 @@ class Inspector extends Component {
     return (
       <InspectorTextInput
         icon="name"
-        val={this.props.getSelectionAttributes().name}
-        onChange={(val) => {
-          this.props.setSelectionAttributes({
-            name: val,
-          });
-        }} />
+        val={this.getSelectionAttribute('name')}
+        onChange={(val) => {this.setSelectionAttribute('name', val);}} />
     )
   }
 
@@ -229,7 +278,7 @@ class Inspector extends Component {
     return (
       <InspectorTextInput
         icon="name"
-        val={this.props.getSelectionAttributes().filename}
+        val={this.getSelectionAttribute('filename')}
         readOnly={true} />
     )
   }
@@ -238,7 +287,7 @@ class Inspector extends Component {
     return (
       <InspectorImagePreview
         icon="image"
-        src={this.props.getSelectionAttributes().src} />
+        src={this.getSelectionAttribute('src')} />
     )
   }
 
@@ -246,8 +295,8 @@ class Inspector extends Component {
     return (
       <InspectorNumericInput
         icon="framelength"
-        val={this.state.selection.attributes.frameLength}
-        onChange={(val) => this.handleSelectionPropertyChange('frameLength', val)} />
+        val={this.getSelectionAttribute('frameLength')}
+        onChange={(val) => this.setSelectionAttribute('frameLength', val)} />
     )
   }
 
@@ -255,10 +304,10 @@ class Inspector extends Component {
     return (
       <InspectorDualNumericInput
         icon="position"
-        val1={this.props.getSelectionAttributes().x}
-        val2={this.state.selection.attributes.y}
-        onChange1={(val) => this.props.setSelectionAttributes({x: val})}
-        onChange2={(val) => this.handleSelectionPropertyChange('y', val)}
+        val1={this.getSelectionAttribute('x')}
+        val2={this.getSelectionAttribute('y')}
+        onChange1={(val) => this.setSelectionAttribute('x', val)}
+        onChange2={(val) => this.setSelectionAttribute('y', val)}
         divider={true} />
     )
   }
@@ -267,10 +316,10 @@ class Inspector extends Component {
     return (
       <InspectorDualNumericInput
         icon="size"
-        val1={this.props.getSelectionAttributes().width}
-        val2={this.state.selection.attributes.height}
-        onChange1={(val) => this.props.setSelectionAttributes({width: val})}
-        onChange2={(val) => this.handleSelectionPropertyChange('height', val)}
+        val1={this.getSelectionAttribute('width')}
+        val2={this.getSelectionAttribute('height')}
+        onChange1={(val) => this.setSelectionAttribute('width', val)}
+        onChange2={(val) => this.setSelectionAttribute('height', val)}
         divider={true} />
     )
   }
@@ -279,10 +328,10 @@ class Inspector extends Component {
     return (
       <InspectorDualNumericInput
         icon="scale"
-        val1={this.state.selection.attributes.scaleW}
-        val2={this.state.selection.attributes.scaleH}
-        onChange1={(val) => this.handleSelectionPropertyChange('scaleW', val)}
-        onChange2={(val) => this.handleSelectionPropertyChange('scaleH', val)}
+        val1={this.getSelectionAttribute('scaleW')}
+        val2={this.getSelectionAttribute('scaleH')}
+        onChange1={(val) => this.setSelectionAttribute('scaleW', val)}
+        onChange2={(val) => this.setSelectionAttribute('scaleH', val)}
         divider={true} />
     )
   }
@@ -291,8 +340,8 @@ class Inspector extends Component {
     return (
       <InspectorNumericInput
         icon="rotation"
-        val={this.state.selection.attributes.rotation}
-        onChange={(val) => this.handleSelectionPropertyChange('rotation', val)} />
+        val={this.getSelectionAttribute('rotation')}
+        onChange={(val) => this.setSelectionAttribute('rotation', val)} />
     )
   }
 
@@ -300,8 +349,8 @@ class Inspector extends Component {
     return (
       <InspectorNumericInput
         icon="opacity"
-        val={this.state.selection.attributes.opacity}
-        onChange={(val) => this.handleSelectionPropertyChange('opacity', val)} />
+        val={this.getSelectionAttribute('opacity')}
+        onChange={(val) => this.setSelectionAttribute('opacity', val)} />
     )
   }
 
@@ -309,8 +358,8 @@ class Inspector extends Component {
     return (
       <InspectorCheckbox
         icon="pressure"
-        defaultChecked={this.props.getToolSettings().pressureEnabled}
-        onChange={() => this.handleToolSettingChange('pressureEnabled', !this.props.getToolSettings().pressureOn)} />
+        defaultChecked={this.getSelectionAttribute('pressureEnabled')}
+        onChange={() => this.setSelectionAttribute('pressureEnabled', !this.props.getToolSettings().pressureOn)} />
     )
   }
 
@@ -331,19 +380,6 @@ class Inspector extends Component {
     return (
       <InspectorTitle type={"cursor"} title={"Cursor"}/>
     )
-  }
-
-  handleToolSettingChange(setting, newVal) {
-    var newSettings = {};
-    newSettings[setting] = newVal;
-    this.props.setToolSettings(newSettings);
-  }
-
-  handleSelectionPropertyChange(property, newVal) {
-    this.state.selection.attributes[property] = newVal;
-    this.props.updateEditorState({
-      selection: this.state.selection
-    });
   }
 
   renderBrush() {
