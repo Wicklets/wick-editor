@@ -42,7 +42,6 @@ class EditorCore extends Component {
         cornerRadius: 0,
         pressureEnabled: false,
       },
-      previewPlaying: false,
     }
 
     this.forceUpdateProject = this.forceUpdateProject.bind(this);
@@ -98,6 +97,7 @@ class EditorCore extends Component {
    */
   setActiveTool (newTool) {
     this.setState({
+      selection: newTool === 'cursor' ? this.state.selection : this.blankSelection(),
       activeTool: newTool,
     });
   }
