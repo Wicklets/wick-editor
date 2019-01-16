@@ -315,7 +315,10 @@ class Editor extends EditorCore {
                                 <DockedPanel>
                                   <CodeEditor
                                     project={this.state.project}
-                                    updateEditorState={this.updateEditorState}
+                                    getSelectionType={this.getSelectionType}
+                                    getSelectedFrames={this.getSelectedFrames}
+                                    getSelectedClips={this.getSelectedClips}
+                                    forceUpdateProject={this.forceUpdateProject}
                                   />
                                 </DockedPanel>
                               </ReflexElement>
@@ -325,8 +328,6 @@ class Editor extends EditorCore {
                                   <Canvas
                                     project={this.state.project}
                                     forceUpdateProject={this.forceUpdateProject}
-                                    toolSettings={this.state.toolSettings}
-                                    activeTool={this.state.activeTool}
                                     canvas={this.state.canvas}
                                     paper={this.state.paper}
                                     selectObjects={this.selectObjects}

@@ -50,6 +50,8 @@ class EditorCore extends Component {
     this.isObjectSelected = this.isObjectSelected.bind(this);
     this.getSelectionType = this.getSelectionType.bind(this);
     this.getSelectedTimelineObjects = this.getSelectedTimelineObjects.bind(this);
+    this.getSelectedFrames = this.getSelectedFrames.bind(this);
+    this.getSelectedClips = this.getSelectedClips.bind(this);
     this.getActiveTool = this.getActiveTool.bind(this);
     this.setActiveTool = this.setActiveTool.bind(this);
     this.getToolSettings = this.getToolSettings.bind(this);

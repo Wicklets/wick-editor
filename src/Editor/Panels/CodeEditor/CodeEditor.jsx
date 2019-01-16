@@ -33,15 +33,15 @@ class CodeEditor extends Component {
     this.renderNotScriptableInfo = this.renderNotScriptableInfo.bind(this);
 
     this.selectionIsScriptable = this.selectionIsScriptable.bind(this);
-    this.getSelectionScript = this.getSelectionScript.bind(this);
-    this.updateSelectionScript = this.updateSelectionScript.bind(this);
+    this.getScriptOfSelection = this.getScriptOfSelection.bind(this);
+    this.updateScriptOfSelection = this.updateScriptOfSelection.bind(this);
   }
 
   render() {
     this.refs.reactAceComponent && this.refs.reactAceComponent.editor.resize();
     return (
       <div className="code-editor">
-        {this.selectionIsScriptable(this.props.selection)
+        {this.selectionIsScriptable()
           ? this.renderAceEditor()
           : this.renderNotScriptableInfo()}
       </div>
@@ -56,9 +56,9 @@ class CodeEditor extends Component {
         name="ace-editor"
         fontSize={14}
         ref="reactAceComponent"
-        onChange={(e) => {this.updateSelectionScript(this.props.selection, this.props.project, e)}}
+        onChange={(e) => {this.updateScriptOfSelection(e)}}
         editorProps={{$blockScrolling: true}}
-        value={this.getSelectionScript(this.props.selection, this.props.project).src}
+        value={this.getScriptOfSelection().src}
       />
     );
   }
@@ -69,28 +69,27 @@ class CodeEditor extends Component {
     )
   }
 
-  selectionIsScriptable (selection) {
-    return false;
-    /*
-    return selection.type === 'frame'
-        || selection.type === 'clip'
-        || selection.type === 'button';
-        */
+  selectionIsScriptable () {
+    let type = this.props.getSelectionType();
+    return type === 'frame'
+        || type === 'clip'
+        || type === 'button';
   }
 
-  getSelectionScript (selection, project) {
-    if(selection.type === 'frame') {
-      return project._childByUUID(selection.selectedFrames[0].uuid).script;
-    } else if (selection.type === 'clip'
-            || selection.type === 'button') {
-      return project._childByUUID(selection.selectedClips[0].uuid).script;
+  getScriptOfSelection (selection, project) {
+    let type = this.props.getSelectionType();
+    if(type === 'frame') {
+      return this.props.getSelectedFrames()[0].script;
+    } else if (type === 'clip'
+            || type === 'button') {
+      return this.props.getSelectedClips()[0].script;
     }
   }
 
-  updateSelectionScript (selection, project, newScript) {
-    let script = this.getSelectionScript(selection, project);
-    script.src = newScript;
-    this.props.updateEditorState({project:project});
+  updateScriptOfSelection (newScriptSrc) {
+    let script = this.getScriptOfSelection();
+    script.src = newScriptSrc;
+    this.props.forceUpdateProject();
   }
 }
 
