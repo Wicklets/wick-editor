@@ -258,22 +258,62 @@ class EditorCore extends Component {
   getSelectionAttributes () {
     return {
       name: this.getSelectionName(),
+      filename: this.getSelectionFilename(),
+      src: this.getSelectionSrc(),
     };
   }
 
   /**
    * Returns the name of the selected object.
-   * @returns {string} The name of the selected object.
+   * @returns {string|null} The name of the selected object. Returns null if selection type does not have a name.
    */
   getSelectionName () {
-    if(this.getSelectedClips().length === 1) {
+    let selectionType = this.getSelectionType();
+
+    if (selectionType === 'clip') {
       return this.getSelectedClips()[0].name;
-    } else if (this.getSelectedAssetLibraryObjects().length === 1) {
-      return this.getSelectedAssetLibraryObjects()[0].name;
+    } else if (selectionType === 'imageasset') {
+      return this.getSelectedImageAssets()[0].name;
+    } else if (selectionType === 'soundasset') {
+      return this.getSelectedSoundAssets()[0].name;
+    } else if (selectionType === 'frame') {
+      return this.getSelectedFrames()[0].name;
     } else {
       return null;
     }
+
   }
+
+  /**
+   * Returns the filename of the selected object.
+   * @returns {string|null} The filename of the selected object. Returns null if selection type does not have a filename.
+   */
+  getSelectionFilename () {
+    let selectionType = this.getSelectionType();
+
+    if (selectionType === 'imageasset' || selectionType === 'soundasset') {
+      return this.getSelectedAssetLibraryObjects()[0].filename;
+    } else {
+      return null;
+    }
+
+  }
+
+  /**
+   * Returns the source of the selected object.
+   * @returns {string|null} The src dataURL of the selected object. Returns null if selection type does not have a src property.
+   */
+  getSelectionSrc () {
+    let selectionType = this.getSelectionType();
+
+    if (selectionType === 'imageasset' || selectionType === 'soundasset') {
+      return this.getSelectedAssetLibraryObjects()[0].src;
+    } else {
+      return null;
+    }
+
+  }
+
 
   /**
    * Updates the state of the selection with new values.

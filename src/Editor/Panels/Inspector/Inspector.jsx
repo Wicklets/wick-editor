@@ -229,7 +229,7 @@ class Inspector extends Component {
     return (
       <InspectorTextInput
         icon="name"
-        val={this.state.selection.attributes.filename}
+        val={this.props.getSelectionAttributes().filename}
         readOnly={true} />
     )
   }
@@ -238,7 +238,7 @@ class Inspector extends Component {
     return (
       <InspectorImagePreview
         icon="image"
-        src={this.state.selection.attributes.src} />
+        src={this.props.getSelectionAttributes().src} />
     )
   }
 
