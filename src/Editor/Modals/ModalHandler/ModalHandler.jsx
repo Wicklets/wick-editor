@@ -36,6 +36,7 @@ class ModalHandler extends Component {
           {...this.modalProps}
           project={this.props.project}
           open={this.props.activeModalName === 'ProjectSettings'}
+          updateProjectSettings={this.props.updateProjectSettings}
         />
         <AlphaWarning
           {...this.modalProps}

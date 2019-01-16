@@ -46,7 +46,7 @@ class ProjectSettings extends Component {
     this.changeProjectFramerate = this.changeProjectFramerate.bind(this);
     this.changeProjectBackgroundColor = this.changeProjectBackgroundColor.bind(this);
 
-    this.updateProjectSettings = this.updateProjectSettings.bind(this);
+    this.acceptProjectSettings = this.acceptProjectSettings.bind(this);
   }
 
   componentWillMount () {
@@ -88,17 +88,16 @@ class ProjectSettings extends Component {
     });
   }
 
-  updateProjectSettings () {
-    var nextProject = this.props.project.clone();
-    console.log("before", nextProject);
-    console.log("before state", this.state);
-    nextProject.name = this.state.name;
-    nextProject.width = this.state.width;
-    nextProject.height = this.state.height;
-    nextProject.framerate = this.state.framerate;
-    nextProject.backgroundColor = this.state.backgroundColor;
-    console.log("after", nextProject);
-    this.props.updateEditorState({project:nextProject});
+  acceptProjectSettings () {
+    let newSettings = {
+      name: this.state.name,
+      width: this.state.width,
+      height: this.state.height,
+      backgroundColor: this.state.backgroundColor,
+      framerate: this.state.framerate,
+    }
+
+    this.props.updateProjectSettings(newSettings);
     this.props.toggle();
   }
 
@@ -155,7 +154,7 @@ class ProjectSettings extends Component {
         </ModalBody>
         <ModalFooter>
           <Button color="wick-warning" onClick={this.props.toggle}>Cancel</Button>
-          <Button color="wick-accept" onClick={this.updateProjectSettings}>Save Settings</Button>{' '}
+          <Button color="wick-accept" onClick={this.acceptProjectSettings}>Save Settings</Button>{' '}
         </ModalFooter>
       </Modal>
     );
