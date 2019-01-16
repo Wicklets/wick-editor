@@ -96,6 +96,7 @@ class EditorCore extends Component {
    */
   setActiveTool (newTool) {
     this.setState({
+      selection: newTool === 'cursor' ? this.state.selection : this.blankSelection(),
       activeTool: newTool,
     });
   }
