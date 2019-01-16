@@ -326,9 +326,6 @@ class Editor extends EditorCore {
                                     forceUpdateProject={this.forceUpdateProject}
                                     toolSettings={this.state.toolSettings}
                                     activeTool={this.state.activeTool}
-                                    onionSkinEnabled={this.state.onionSkinEnabled}
-                                    onionSkinSeekBackwards={this.state.onionSkinSeekBackwards}
-                                    onionSkinSeekForwards={this.state.onionSkinSeekForwards}
                                     canvas={this.state.canvas}
                                     paper={this.state.paper}
                                     selectObjects={this.selectObjects}

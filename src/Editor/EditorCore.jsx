@@ -771,16 +771,31 @@ class EditorCore extends Component {
     });
   }
 
+  /**
+   * Returns an object containing the onion skin options.
+   * @returns the object containing the onion skin options.
+   */
   getOnionSkinOptions () {
     return {
-      enabled: this.state.onionSkinEnabled,
-      seekForwards: this.state.onionSkinSeekForwards,
-      seekBackwards: this.state.onionSkinSeekBackwards
-    }
+      onionSkinEnabled: this.state.onionSkinEnabled,
+      onionSkinSeekForwards: this.state.onionSkinSeekForwards,
+      onionSkinSeekBackwards: this.state.onionSkinSeekBackwards
+    };
   }
 
+  /**
+   * Updates the onion skin settings in the state.
+   * @param onionSkinOptions an object containing the new settings to use.
+   */
   setOnionSkinOptions (onionSkinOptions) {
-
+    let validOnionSkinOptions = ['onionSkinEnabled', 'onionSkinSeekForwards', 'onionSkinSeekBackwards'];
+    let newOnionSkinOptions = {};
+    Object.keys(onionSkinOptions).forEach(optionName => {
+      if(validOnionSkinOptions.indexOf(optionName) === -1) return;
+      if(onionSkinOptions[optionName] === undefined) return;
+      newOnionSkinOptions[optionName] = onionSkinOptions[optionName];
+    });
+    this.setEditorState(newOnionSkinOptions);
   }
 }
 

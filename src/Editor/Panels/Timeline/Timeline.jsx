@@ -59,13 +59,14 @@ class Timeline extends Component {
     let selectedUUIDs = this.props.getSelectedTimelineObjects().map(obj => {
       return obj.uuid;
     });
+    let onionSkinOptions = this.props.getOnionSkinOptions();
 
     AnimationTimeline.setData({
       playheadPosition: timeline.playheadPosition,
       activeLayerIndex: timeline.activeLayerIndex,
-      onionSkinEnabled: this.props.onionSkinEnabled,
-      onionSkinSeekForwards: this.props.onionSkinSeekForwards,
-      onionSkinSeekBackwards: this.props.onionSkinSeekBackwards,
+      onionSkinEnabled: onionSkinOptions.onionSkinEnabled,
+      onionSkinSeekForwards: onionSkinOptions.onionSkinSeekForwards,
+      onionSkinSeekBackwards:onionSkinOptions.onionSkinSeekBackwards,
       layers: timeline.layers.map(layer => {
         return {
           id: layer.uuid,
@@ -148,12 +149,11 @@ class Timeline extends Component {
       });
     }
 
-    let newOnionSkinOptions = this.props.getOnionSkinOptions();
-    newOnionSkinOptions.enabled = e.onionSkinEnabled !== undefined ? newOnionSkinOptions.enabled : e.onionSkinEnabled;
-    newOnionSkinOptions.seekBackwards = e.onionSkinSeekBackwards !== undefined ? newOnionSkinOptions.seekBackwards : e.onionSkinSeekBackwards;
-    newOnionSkinOptions.seekForwards = e.onionSkinSeekForwards !== undefined ? newOnionSkinOptions.seekForwards : e.onionSkinSeekForwards;
-
-    this.props.setOnionSkinOptions(newOnionSkinOptions);
+    this.props.setOnionSkinOptions({
+      onionSkinEnabled: e.onionSkinEnabled,
+      onionSkinSeekBackwards: e.onionSkinSeekBackwards,
+      onionSkinSeekForwards: e.onionSkinSeekForwards,
+    });
     this.props.forceUpdateProject();
   }
 
