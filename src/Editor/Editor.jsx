@@ -65,6 +65,9 @@ class Editor extends EditorCore {
     this.openModal = this.openModal.bind(this);
     this.closeActiveModal = this.closeActiveModal.bind(this);
 
+    // Canvas
+    this.updateCanvas = this.updateCanvas.bind(this);
+
     // Resiable panels
     this.RESIZE_THROTTLE_AMOUNT_MS = 10;
     this.WINDOW_RESIZE_THROTTLE_AMOUNT_MS = 300;
@@ -91,7 +94,42 @@ class Editor extends EditorCore {
   }
 
   componentDidUpdate (prevProps, prevState) {
+    this.updateCanvas();
+  }
 
+  updateCanvas () {
+    // re-render the canvas
+    this.state.canvas.render(this.state.project, {
+      onionSkinEnabled: this.state.onionSkinEnabled,
+      onionSkinSeekBackwards: this.state.onionSkinSeekBackwards,
+      onionSkinSeekForwards: this.state.onionSkinSeekForwards,
+    });
+
+    // update the paper.js selection using the editor selection state
+    window.paper.project.selection.clear();
+    this.getSelectedPaths().forEach(path => {
+      window.paper.project.selection.addItemByName(path.name);
+    });
+    this.getSelectedClips().forEach(clip => {
+      window.paper.project.selection.addItemByName('wick_clip_'+clip.uuid);
+    });
+    window.paper.project.selection.updateGUI();
+
+    window.paper.project.addLayer(window.paper.project.selection.guiLayer);
+
+    // update the paper.js active tool based on the editor active tool state.
+    let tool = window.paper.drawingTools[this.state.activeTool];
+    tool.activate();
+    Object.keys(this.state.toolSettings).forEach(key => {
+      tool[key] = this.state.toolSettings[key];
+    });
+
+    // if there is no layer/frame to draw on, activate the 'none' tool.
+    if(!this.state.project.focus.timeline.activeLayer.activeFrame ||
+       this.state.project.focus.timeline.activeLayer.locked ||
+       this.state.project.focus.timeline.activeLayer.hidden) {
+      window.paper.drawingTools.none.activate();
+    }
   }
 
   onWindowResize () {
@@ -197,7 +235,7 @@ class Editor extends EditorCore {
                     openModal={this.openModal}
                     closeActiveModal={this.closeActiveModal}
                     project={this.state.project}
-                    updateEditorState={this.updateEditorState}
+                    convertSelectionToSymbol={this.convertSelectionToSymbol}
                   />
                   {/* Header */}
                   <DockedPanel>
@@ -245,13 +283,16 @@ class Editor extends EditorCore {
                                 <DockedPanel>
                                   <Canvas
                                     project={this.state.project}
-                                    updateEditorState={this.updateEditorState}
+                                    forceUpdateProject={this.forceUpdateProject}
                                     toolSettings={this.state.toolSettings}
                                     activeTool={this.state.activeTool}
                                     onionSkinEnabled={this.state.onionSkinEnabled}
                                     onionSkinSeekBackwards={this.state.onionSkinSeekBackwards}
                                     onionSkinSeekForwards={this.state.onionSkinSeekForwards}
-                                    onRef={ref => this.canvasRef = ref}
+                                    canvas={this.state.canvas}
+                                    paper={this.state.paper}
+                                    selectObjects={this.selectObjects}
+                                    updateCanvas={this.updateCanvas}
                                   />
                                 </DockedPanel>
                               </ReflexElement>

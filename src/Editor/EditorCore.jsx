@@ -45,6 +45,7 @@ class EditorCore extends Component {
       previewPlaying: false,
     }
 
+    this.forceUpdateProject = this.forceUpdateProject.bind(this);
     this.selectObjects = this.selectObjects.bind(this);
     this.isObjectSelected = this.isObjectSelected.bind(this);
     this.getSelectionType = this.getSelectionType.bind(this);
@@ -54,6 +55,16 @@ class EditorCore extends Component {
     this.setToolSettings = this.setToolSettings.bind(this);
     this.getSelectionAttributes = this.getSelectionAttributes.bind(this);
     this.setSelectionAttributes = this.setSelectionAttributes.bind(this);
+    this.convertSelectionToSymbol = this.convertSelectionToSymbol.bind(this);
+  }
+
+  /**
+   * This function must be called after changing properties of the project without calling setState.
+   */
+  forceUpdateProject () {
+    this.setState({
+      project: this.state.project,
+    });
   }
 
   /**
@@ -203,7 +214,17 @@ class EditorCore extends Component {
    * @returns {<paper.Item>)[]} An array containing the selected paths.
    */
   getSelectedPaths () {
-    return [];
+    if(!this.state.paper.project) return [];
+
+    let paths = [];
+    this.state.paper.project.layers.forEach(layer => {
+      layer.children.forEach(child => {
+        if(this.state.selection.canvas.paths.indexOf(child.name) > -1) {
+          paths.push(child);
+        }
+      });
+    });
+    return paths;
   }
 
   /**
@@ -212,7 +233,7 @@ class EditorCore extends Component {
    */
   getSelectedClips () {
     return this.state.selection.canvas.clips.map(uuid => {
-      return this.state.project._childByUUID[uuid];
+      return this.state.project._childByUUID(uuid);
     });
   }
 
@@ -236,12 +257,20 @@ class EditorCore extends Component {
     });
   }
 
+  /**
+   * Returns all selected sound assets from the asset library.
+   * @returns {(<Wick.SoundAsset>)[]} An array containing the selected sound assets.
+   */
   getSelectedSoundAssets () {
     return this.getSelectedAssetLibraryObjects().filter(asset => {
       return asset instanceof window.Wick.SoundAsset;
     });
   }
 
+  /**
+   * Returns all selected image assets from the asset library.
+   * @returns {(<Wick.ImageAsset>)[]} An array containing the selected image assets.
+   */
   getSelectedImageAssets () {
     return this.getSelectedAssetLibraryObjects().filter(asset => {
       return asset instanceof window.Wick.ImageAsset;
@@ -278,7 +307,6 @@ class EditorCore extends Component {
     } else {
       return null;
     }
-
   }
 
   /**
@@ -293,7 +321,6 @@ class EditorCore extends Component {
     } else {
       return null;
     }
-
   }
 
   /**
@@ -308,9 +335,7 @@ class EditorCore extends Component {
     } else {
       return null;
     }
-
   }
-
 
   /**
    * Updates the state of the selection with new values.
@@ -344,67 +369,85 @@ class EditorCore extends Component {
   selectionTypeOfObject (object) {
     if(object instanceof window.Wick.Asset) {
       return 'asset';
-    } else {
-      return null;
+    } else if (object instanceof window.paper.Group) {
+      return 'clip';
+    } else if (object instanceof window.paper.Path
+            || object instanceof window.paper.CompoundPath) {
+      return 'path';
     }
   }
 
   /**
    * Adds an asset to the selection.
    * @param {<Wick.Asset>} asset - The asset to add to the selection.
+   * @param {object} selection - The selection to add the asset to.
+   * @returns {object} The updated selection.
    */
-  addAssetToSelection (asset) {
-    let assets = this.state.selection.assetLibrary.assets;
-    this.setState({
-      selection: {
-        ...this.state.selection,
-        assetLibrary: {
-          assets: assets.concat([asset.uuid]),
-        },
-      }
-    });
+  addAssetToSelection (asset, selection) {
+    selection.assetLibrary.assets.push(asset.uuid);
+    return selection;
+  }
+
+  /**
+   * Adds a clip to the selection.
+   * @param {<paper.Group>} clip - The clip to add to the selection.
+   * @param {object} selection - The selection to add the clip to.
+   * @returns {object} The updated selection.
+   */
+  addClipToSelection (clip, selection) {
+    selection.canvas.clips.push(clip.data.wickUUID);
+    return selection;
+  }
+
+  /**
+   * Adds a path to the selection.
+   * @param {<paper.Path>|<paper.CompoundPath>} path - The path to add to the selection.
+   * @param {object} selection - The selection to add the path to.
+   * @returns {object} The updated selection.
+   */
+  addPathToSelection (path, selection) {
+    selection.canvas.paths.push(path.name);
+    return selection;
   }
 
   /**
    * Adds an object to the selection.
    * @param {object} object - The object to add to the selection.
-   * @return {boolean} True if object was successfully added to the selection, false otherwise.
+   * @param {object} selection - The selection to add the object to.
+   * @return {object} The updated selection.
    */
-  addObjectToSelection (object) {
+  addObjectToSelection (object, selection) {
     let type = this.selectionTypeOfObject(object);
     if(!type) return false;
     if(type === 'asset') {
-      this.addAssetToSelection(object);
+      selection = this.addAssetToSelection(object, selection);
+    } else if(type === 'path') {
+      selection = this.addPathToSelection(object, selection);
+    } else if(type === 'clip') {
+      selection = this.addClipToSelection(object, selection);
     }
-    return true;
+    return selection;
   }
 
   /**
    * Adds multiple objects to the selection.
    * @param {object[]} objects - The objects to add to the selection.
+   * @param {object} selection - The selection to add the objects to.
+   * @return {object} The updated selection.
    */
-  addObjectsToSelection (objects) {
+  addObjectsToSelection (objects, selection) {
     objects.forEach(object => {
-      this.addObjectToSelection(object);
+      selection = this.addObjectToSelection(object, selection);
     });
-  }
-
-  /**
-   * Clears the editors selection state.
-   */
-  clearSelection () {
-    this.setState({
-      selection: this.blankSelection(),
-    });
+    return selection;
   }
 
   /**
    * Clears the selection, then adds the given object to the selection.
    * @param {object} object - The object to add to the selection.
-   * @return {boolean} True if object was successfully added to the selection, false otherwise.
    */
   selectObject (object) {
-    return this.selectObjects([object]);
+    this.selectObjects([object]);
   }
 
   /**
@@ -412,8 +455,18 @@ class EditorCore extends Component {
    * @param {object[]} objects - The objects to add to the selection.
    */
   selectObjects (objects) {
-    this.clearSelection();
-    this.addObjectsToSelection(objects);
+    this.setState({
+      selection: this.addObjectsToSelection(objects, this.blankSelection())
+    });
+  }
+
+  /**
+   * Clears the selection.
+   */
+  clearSelection () {
+    this.setState({
+      selection: this.blankSelection()
+    });
   }
 
   /**
@@ -437,6 +490,29 @@ class EditorCore extends Component {
     } else {
       return false;
     }
+  }
+
+  /**
+   * Creates a new symbol from the selected paths and clips and adds it to the project.
+   */
+  convertSelectionToSymbol () {
+    let svg = window.paper.project.selection.exportSVG();
+    let clips = [] // TODO get groups
+
+    let clip = new window.Wick.Clip();
+    clip.timeline.addLayer(new window.Wick.Layer());
+    clip.timeline.layers[0].addFrame(new window.Wick.Frame());
+    clip.timeline.layers[0].frames[0].svg = svg;
+    clips.forEach(clip => {
+      clip.timeline.layers[0].frames[0].addClip(clip);
+    });
+    clip.x = this.state.paper.project.selection.bounds.center.x;
+    clip.y = this.state.paper.project.selection.bounds.center.y;
+
+    //this.state.paper.drawingTools.cursor.deleteSelectedItems(); // TODO need to delete old paths/clips
+
+    this.state.project.focus.timeline.activeLayer.activeFrame.addClip(clip);
+    this.forceUpdateProject();
   }
 
   /**

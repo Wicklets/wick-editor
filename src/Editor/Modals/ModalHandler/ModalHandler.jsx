@@ -25,28 +25,27 @@ import ConvertToSymbol from '../ConvertToSymbol/ConvertToSymbol';
 
 class ModalHandler extends Component {
   render() {
+    this.modalProps = {
+      openModal: this.props.openModal,
+      toggle: this.props.closeActiveModal
+    };
+
     return (
       <div>
         <ProjectSettings
+          {...this.modalProps}
           project={this.props.project}
-          updateEditorState={this.props.updateEditorState}
-          openModal={this.props.openModal}
           open={this.props.activeModalName === 'ProjectSettings'}
-          toggle={this.props.closeActiveModal}
         />
         <AlphaWarning
+          {...this.modalProps}
           className="alpha-warning"
-          openModal={this.props.openModal}
           open={this.props.activeModalName === 'AlphaWarning'}
-          toggle={this.props.closeActiveModal}
         />
       <ConvertToSymbol
-          project={this.props.project}
-          updateEditorState={this.props.updateEditorState}
-          selectionProperties={this.props.selectionProperties}
-          openModal={this.props.openModal}
+          {...this.modalProps}
           open={this.props.activeModalName === 'ConvertToSymbol'}
-          toggle={this.props.closeActiveModal}
+          convertSelectionToSymbol={this.props.convertSelectionToSymbol}
         />
       </div>
     );

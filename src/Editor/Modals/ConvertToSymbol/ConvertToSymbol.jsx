@@ -61,24 +61,7 @@ class ConvertToSymbol extends Component {
   }
 
   convertSelectionToSymbol () {
-    let svg = window.paper.project.selection.exportSVG();
-    let clips = [] // get groups
-
-    let clip = new window.Wick.Clip();
-    clip.timeline.addLayer(new window.Wick.Layer());
-    clip.timeline.layers[0].addFrame(new window.Wick.Frame());
-    clip.timeline.layers[0].frames[0].svg = svg;
-    clips.forEach(clip => {
-      clip.timeline.layers[0].frames[0].addClip(clip);
-    });
-    clip.x = window.paper.project.selection.bounds.center.x;
-    clip.y = window.paper.project.selection.bounds.center.y;
-
-    window.paper.drawingTools.cursor.deleteSelectedItems();
-
-    this.props.project.focus.timeline.activeLayer.activeFrame.addClip(clip);
-    this.props.updateEditorState({project:this.props.project});
-
+    this.props.convertSelectionToSymbol();
     this.props.toggle();
   }
 }
