@@ -274,6 +274,7 @@ class Editor extends EditorCore {
                     closeActiveModal={this.closeActiveModal}
                     project={this.state.project}
                     convertSelectionToSymbol={this.convertSelectionToSymbol}
+                    updateProjectSettings={this.updateProjectSettings}
                   />
                   {/* Header */}
                   <DockedPanel>

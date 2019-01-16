@@ -61,6 +61,7 @@ class EditorCore extends Component {
     this.focusObjectOneLevelUp = this.focusObjectOneLevelUp.bind(this);
     this.getOnionSkinOptions = this.getOnionSkinOptions.bind(this);
     this.setOnionSkinOptions = this.setOnionSkinOptions.bind(this);
+    this.updateProjectSettings = this.updateProjectSettings.bind(this);
   }
 
   /**
@@ -700,6 +701,35 @@ class EditorCore extends Component {
     this.clearSelection();
     return result;
   }
+
+  /**
+   * Updates the Wick Project settings with new values passed in as an object. Will make no changes if input is invalid or the same as the previous settings.
+   * @param {object} newSettings an object containing all of the settings to update within the project. Accepts valid project settings such as 'name', 'width', 'height', 'framerate', and 'backgroundColor'.
+   */
+  updateProjectSettings (newSettings) {
+    let updatedProject = this.state.project.clone();
+
+    let validKeys = ["name", "width", "height", "backgroundColor", "framerate"]
+
+    let updated = false;
+
+    Object.keys(newSettings).forEach(key => {
+      if (validKeys.indexOf(key) === -1) return;
+
+      let oldVal = this.state.project[key];
+      if (oldVal !== newSettings[key]) {
+        updatedProject[key] = newSettings[key];
+        updated = true;
+      }
+    })
+
+    if (updated) {
+      this.setState({
+        project: updatedProject,
+      })
+    }
+  }
+
 
   focusSelectedObject () {
 
