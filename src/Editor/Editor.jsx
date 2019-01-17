@@ -42,6 +42,8 @@ import AssetLibrary from './Panels/AssetLibrary/AssetLibrary';
 import CodeEditor from './Panels/CodeEditor/CodeEditor';
 import ModalHandler from './Modals/ModalHandler/ModalHandler';
 import HotKeyInterface from './hotKeyMap';
+import ActionMapInterface from './actionMap';
+
 
 class Editor extends EditorCore {
   constructor () {
@@ -60,6 +62,9 @@ class Editor extends EditorCore {
 
     // Init hotkeys
     this.hotKeyInterface = new HotKeyInterface(this);
+
+    // Init actions
+    this.actionMapInterface = new ActionMapInterface(this);
 
     // Tools
     this.createAssets = this.createAssets.bind(this);
@@ -381,6 +386,7 @@ class Editor extends EditorCore {
                                 getSelectionType={this.getSelectionType}
                                 getSelectionAttributes={this.getSelectionAttributes}
                                 setSelectionAttributes={this.setSelectionAttributes}
+                                getSelectionActions={this.getSelectionActions}
                               />
                             </DockedPanel>
                           </ReflexElement>

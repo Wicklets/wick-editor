@@ -497,6 +497,40 @@ class EditorCore extends Component {
   }
 
   /**
+   * Returns all actions to be displayed using the current selection. Utilizes the ActionMapInterface.
+   * @return {EditorAction[][]} An array of arrays of editor actions as defined by the editor action map.
+   */
+  getSelectionActions = () => {
+    let actionGroups = this.actionMapInterface.actionGroups;
+    let actions = [];
+
+    Object.keys(actionGroups).forEach(key => {
+      let actionGroup = actionGroups[key];
+      if (!actionGroup.on()) return;
+
+      let subActions = actionGroup.actions;
+
+      if ('color' in actionGroup) {
+        subActions.forEach(subAction => {
+          subAction.color = actionGroup.color;
+        });
+      }
+
+      actions.push(subActions);
+    })
+    return actions;
+  }
+
+  /**
+   * Returns the number of objects selected on the canvas.
+   * @return {number} Number of canvas objects selected.
+   */
+  getNumCanvasObjectsSelected = () => {
+    return this.state.selection.canvas.paths.length + this.state.selection.canvas.clips.length;
+  }
+
+
+  /**
    * Updates the state of the selection with new values.
    * @param {object} newSelectionAttributes - A object containing the new values of the selection to use to update the state.
    */

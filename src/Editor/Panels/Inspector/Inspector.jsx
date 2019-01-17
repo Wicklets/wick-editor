@@ -678,7 +678,7 @@ class Inspector extends Component {
   renderActions() {
     return(
       <div className="inspector-content">
-        {this.state.selection.possibleActions.map(this.renderActionButtonRow)}
+        {this.props.getSelectionActions().map(this.renderActionButtonRow)}
       </div>
     )
   }
