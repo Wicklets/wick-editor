@@ -668,7 +668,8 @@ class EditorCore extends Component {
     } else if (object instanceof window.paper.Group) {
       return 'clip';
     } else if (object instanceof window.paper.Path
-            || object instanceof window.paper.CompoundPath) {
+            || object instanceof window.paper.CompoundPath
+            || object instanceof window.paper.Raster) {
       return 'path';
     } else if (object instanceof window.Wick.Frame) {
       return 'frame';
@@ -701,7 +702,7 @@ class EditorCore extends Component {
 
   /**
    * Adds a path to the selection.
-   * @param {<paper.Path>|<paper.CompoundPath>} path - The path to add to the selection.
+   * @param {<paper.Path>|<paper.CompoundPath>|<paper.Raster>} path - The path to add to the selection.
    * @param {object} selection - The selection to add the path to.
    * @returns {object} The updated selection.
    */
@@ -815,7 +816,7 @@ class EditorCore extends Component {
 
   /**
    * Determines if a given path is selected.
-   * @param {<paper.Path>} path - Path to check selection status
+   * @param {<paper.Path>|<paper.CompoundPath>|<paper.Raster>} path - Path to check selection status
    * @returns {boolean} - True if the path is selected, false otherwise
    */
   isPathSelected = (path) => {
