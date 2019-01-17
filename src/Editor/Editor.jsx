@@ -333,6 +333,7 @@ class Editor extends EditorCore {
                                     selectObjects={this.selectObjects}
                                     updateCanvas={this.updateCanvas}
                                     onRef={ref => this.canvasRef = ref}
+                                    createImageFromAsset={this.createImageFromAsset}
                                   />
                                 </DockedPanel>
                               </ReflexElement>

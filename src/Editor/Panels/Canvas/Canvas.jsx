@@ -37,6 +37,8 @@ const canvasTarget = {
     // Dragged item
     let draggedItem = monitor.getItem();
     alert("Dropped Asset:" + draggedItem.uuid + " on the canvas at X:" + x + " Y:" + y);
+
+    props.createImageFromAsset(draggedItem.uuid, x, y);
   }
 }
 

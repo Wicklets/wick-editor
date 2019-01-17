@@ -954,6 +954,20 @@ class EditorCore extends Component {
   }
 
   /**
+   * Creates an image from an asset's uuid and places it on the canvas.
+   * @param {string} uuid The UUID of the desired asset.
+   * @param {number} x    The x location of the image after creation in relation to the window.
+   * @param {number} y    The y location of the image after creation in relation to the window.
+   */
+  createImageFromAsset = (uuid, x, y) => {
+    let asset = props.project._childByUUID(draggedItem.uuid);
+    window.Wick.Canvas.createImageFromAsset(asset, (raster) => {
+      //console.log(raster)
+      window.paper.project.activeLayer.addChild(raster);
+    });
+  }
+
+  /**
    * Updates the Wick Project settings with new values passed in as an object. Will make no changes if input is invalid or the same as the previous settings.
    * @param {object} newSettings an object containing all of the settings to update within the project. Accepts valid project settings such as 'name', 'width', 'height', 'framerate', and 'backgroundColor'.
    */
