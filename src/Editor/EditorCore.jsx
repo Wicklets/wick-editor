@@ -43,45 +43,13 @@ class EditorCore extends Component {
         pressureEnabled: false,
       },
     }
-
-    this.setEditorState = this.setEditorState.bind(this);
-    this.forceUpdateProject = this.forceUpdateProject.bind(this);
-    this.selectObjects = this.selectObjects.bind(this);
-    this.isObjectSelected = this.isObjectSelected.bind(this);
-    this.getSelectionType = this.getSelectionType.bind(this);
-    this.getSelectedTimelineObjects = this.getSelectedTimelineObjects.bind(this);
-    this.getSelectedFrames = this.getSelectedFrames.bind(this);
-    this.getSelectedClips = this.getSelectedClips.bind(this);
-    this.getActiveTool = this.getActiveTool.bind(this);
-    this.setActiveTool = this.setActiveTool.bind(this);
-    this.getToolSettings = this.getToolSettings.bind(this);
-    this.setToolSettings = this.setToolSettings.bind(this);
-    this.getSelectionAttributes = this.getSelectionAttributes.bind(this);
-    this.setSelectionAttributes = this.setSelectionAttributes.bind(this);
-    this.setSelectionPositionX = this.setSelectionPositionX.bind(this);
-    this.setSelectionPositionY = this.setSelectionPositionY.bind(this);
-    this.setSelectionWidth = this.setSelectionWidth.bind(this);
-    this.setSelectionHeight = this.setSelectionHeight.bind(this);
-    this.setSelectionScaleX = this.setSelectionScaleX.bind(this);
-    this.setSelectionScaleY = this.setSelectionScaleY.bind(this);
-    this.setSelectionRotation = this.setSelectionRotation.bind(this);
-    this.setSelectionOpacity = this.setSelectionOpacity.bind(this);
-    this.setSelectionStrokeWidth = this.setSelectionStrokeWidth.bind(this);
-    this.setSelectionFillColor = this.setSelectionFillColor.bind(this);
-    this.setSelectionStrokeColor = this.setSelectionStrokeColor.bind(this);
-    this.convertSelectionToSymbol = this.convertSelectionToSymbol.bind(this);
-    this.focusSelectedObject = this.focusSelectedObject.bind(this);
-    this.focusObjectOneLevelUp = this.focusObjectOneLevelUp.bind(this);
-    this.getOnionSkinOptions = this.getOnionSkinOptions.bind(this);
-    this.setOnionSkinOptions = this.setOnionSkinOptions.bind(this);
-    this.updateProjectSettings = this.updateProjectSettings.bind(this);
   }
 
   /**
    * A wrapper for setState that checks if the project or selection changed. If either one did, current state is pushed to the history stack.
    * @param {object} newState - the state object to send to setState.
    */
-  setEditorState (newState) {
+  setEditorState = (newState) => {
     if (newState.project) {
       this.state.history.saveState();
     } else if (newState.selection) {
@@ -97,7 +65,7 @@ class EditorCore extends Component {
   /**
    * This function must be called after changing properties of the project without calling setState.
    */
-  forceUpdateProject () {
+  forceUpdateProject = () => {
     this.setEditorState({
       project: this.state.project,
     });
@@ -106,7 +74,7 @@ class EditorCore extends Component {
   /**
    * Initializes the Wick Engine and the paper.js renderer
    */
-  initializeEngine () {
+  initializeEngine = () => {
     this.setState({
       project: new window.Wick.Project(),
       paper: window.paper,
@@ -118,7 +86,7 @@ class EditorCore extends Component {
    * Returns the name of the active tool.
    * @returns {string} The string representation active tool name.
    */
-  getActiveTool () {
+  getActiveTool = () => {
     return this.state.activeTool;
   }
 
@@ -126,7 +94,7 @@ class EditorCore extends Component {
    * Change the active tool.
    * @param {string} newTool - The string representation of the tool to switch to.
    */
-  setActiveTool (newTool) {
+  setActiveTool = (newTool) => {
     let newState = { activeTool: newTool };
     if(this.state.activeTool === 'cursor' && newTool !== 'cursor') {
       newState.selection = this.blankSelection();
@@ -138,7 +106,7 @@ class EditorCore extends Component {
    * Returns an object containing the tool settings.
    * @returns {object} The object containing the tool settings.
    */
-  getToolSettings () {
+  getToolSettings = () => {
     return this.state.toolSettings;
   }
 
@@ -146,7 +114,7 @@ class EditorCore extends Component {
    * Updates the tool settings state.
    * @param {object} newToolSettings - An object of key-value pairs where the keys represent tool settings and the values represent the values to change those settings to.
    */
-  setToolSettings (newToolSettings) {
+  setToolSettings = (newToolSettings) => {
     this.setEditorState({
       toolSettings: {
         ...this.state.toolSettings,
@@ -159,7 +127,7 @@ class EditorCore extends Component {
    * Determines the type of the object/objects that are in the selection state.
    * @returns {string} The string representation of the type of object/objects selected
    */
-  getSelectionType () {
+  getSelectionType = () => {
     let numTimelineObjects = this.getSelectedTimelineObjects().length;
     let numFrames = this.getSelectedFrames().length;
     let numTweens = this.getSelectedTweens().length;
@@ -215,7 +183,7 @@ class EditorCore extends Component {
    * Returns all selected objects on the timeline.
    * @returns {(<Wick.Frame>|<Wick.Tween>)[]} An array containing the selected tweens and frames
    */
-  getSelectedTimelineObjects () {
+  getSelectedTimelineObjects = () => {
     return this.getSelectedFrames().concat(this.getSelectedTweens());
   }
 
@@ -223,7 +191,7 @@ class EditorCore extends Component {
    * Returns all selected frames.
    * @returns {<Wick.Frame>)[]} An array containing the selected frames.
    */
-  getSelectedFrames () {
+  getSelectedFrames = () => {
     return this.state.selection.timeline.frames.map(uuid => {
       return this.state.project._childByUUID(uuid);
     });
@@ -233,7 +201,7 @@ class EditorCore extends Component {
    * Returns all selected tweens.
    * @returns {<Wick.Tween>)[]} An array containing the selected tweens.
    */
-  getSelectedTweens () {
+  getSelectedTweens = () => {
     return this.state.selection.timeline.tweens.map(uuid => {
       return this.state.project._childByUUID(uuid);
     });
@@ -243,7 +211,7 @@ class EditorCore extends Component {
    * Returns all selected objects on the timeline.
    * @returns {(<paper.Item>|<Wick.Clip>|<Wick.Button>)[]} An array containing the selected clips and paths
    */
-  getSelectedCanvasObjects () {
+  getSelectedCanvasObjects = () => {
     return this.getSelectedPaths().concat(this.getSelectedClips());
   }
 
@@ -251,7 +219,7 @@ class EditorCore extends Component {
    * Returns all selected paths.
    * @returns {<paper.Item>)[]} An array containing the selected paths.
    */
-  getSelectedPaths () {
+  getSelectedPaths = () => {
     if(!this.state.paper.project) return [];
 
     let paths = [];
@@ -269,7 +237,7 @@ class EditorCore extends Component {
    * Returns all selected clips.
    * @returns {<Wick.Clip>)[]} An array containing the selected clips.
    */
-  getSelectedClips () {
+  getSelectedClips = () => {
     return this.state.selection.canvas.clips.map(uuid => {
       return this.state.project._childByUUID(uuid);
     });
@@ -279,7 +247,7 @@ class EditorCore extends Component {
    * Returns all selected buttons.
    * @returns {<paper.Item>)[]} An array containing the selected buttons.
    */
-  getSelectedButtons () {
+  getSelectedButtons = () => {
     return this.getSelectedClips().filter(clip => {
       return clip instanceof window.Wick.Button;
     });
@@ -289,7 +257,7 @@ class EditorCore extends Component {
    * Returns all selected objects in the asset library.
    * @returns {(<Wick.ImageAsset>|<Wick.SoundAsset>)[]} An array containing the selected assets
    */
-  getSelectedAssetLibraryObjects () {
+  getSelectedAssetLibraryObjects = () => {
     return this.state.selection.assetLibrary.assets.map(uuid => {
       return this.state.project._childByUUID(uuid);
     });
@@ -299,7 +267,7 @@ class EditorCore extends Component {
    * Returns all selected sound assets from the asset library.
    * @returns {(<Wick.SoundAsset>)[]} An array containing the selected sound assets.
    */
-  getSelectedSoundAssets () {
+  getSelectedSoundAssets = () => {
     return this.getSelectedAssetLibraryObjects().filter(asset => {
       return asset instanceof window.Wick.SoundAsset;
     });
@@ -309,7 +277,7 @@ class EditorCore extends Component {
    * Returns all selected image assets from the asset library.
    * @returns {(<Wick.ImageAsset>)[]} An array containing the selected image assets.
    */
-  getSelectedImageAssets () {
+  getSelectedImageAssets = () => {
     return this.getSelectedAssetLibraryObjects().filter(asset => {
       return asset instanceof window.Wick.ImageAsset;
     });
@@ -319,7 +287,7 @@ class EditorCore extends Component {
    * Returns an object containing all attributes of the selection.
    * @returns {object} The object containing all the selection attributes.
    */
-  getSelectionAttributes () {
+  getSelectionAttributes = () => {
     return {
       name: this.getSelectionName(),
       filename: this.getSelectionFilename(),
@@ -342,7 +310,7 @@ class EditorCore extends Component {
    * Returns the name of the selected object.
    * @returns {string|null} The name of the selected object. Returns null if selection type does not have a name.
    */
-  getSelectionName () {
+  getSelectionName = () => {
     let selectionType = this.getSelectionType();
 
     if (selectionType === 'clip') {
@@ -362,7 +330,7 @@ class EditorCore extends Component {
    * Returns the filename of the selected object.
    * @returns {string|null} The filename of the selected object. Returns null if selection type does not have a filename.
    */
-  getSelectionFilename () {
+  getSelectionFilename = () => {
     let selectionType = this.getSelectionType();
 
     if (selectionType === 'imageasset' || selectionType === 'soundasset') {
@@ -376,7 +344,7 @@ class EditorCore extends Component {
    * Return the x position of the current canvas selection.
    * @return {number|null} The x position of the current canvas selection. Returns null if no canvas object is selected.
    */
-  getSelectionPositionX () {
+  getSelectionPositionX = () => {
     if(this.getSelectedCanvasObjects().length > 0) {
       return window.paper.project.selection.position.x;
     } else {
@@ -388,7 +356,7 @@ class EditorCore extends Component {
    * Return the y position of the current canvas selection.
    * @return {number|null} The y position of the current canvas selection. Returns null if no canvas object is selected.
    */
-  getSelectionPositionY () {
+  getSelectionPositionY = () => {
     if(this.getSelectedCanvasObjects().length > 0) {
       return window.paper.project.selection.position.y;
     } else {
@@ -400,7 +368,7 @@ class EditorCore extends Component {
    * Return the width of the current canvas selection.
    * @return {number|null} The width of the current canvas selection. Returns null if no canvas object is selected.
    */
-  getSelectionWidth () {
+  getSelectionWidth = () => {
     if(this.getSelectedCanvasObjects().length > 0) {
       return window.paper.project.selection.bounds.width;
     } else {
@@ -412,7 +380,7 @@ class EditorCore extends Component {
    * Return the height of the current canvas selection.
    * @return {number|null} The height of the current canvas selection. Returns null if no canvas object is selected.
    */
-  getSelectionHeight () {
+  getSelectionHeight = () => {
     if(this.getSelectedCanvasObjects().length > 0) {
       return window.paper.project.selection.bounds.height;
     } else {
@@ -424,7 +392,7 @@ class EditorCore extends Component {
    * Return the scale width of the current selection.
    * @return {number|null} The scale width of the current canvas selection. Returns null if no canvas object is selected.
    */
-  getSelectionScaleX () {
+  getSelectionScaleX = () => {
     if(this.getSelectedCanvasObjects().length > 0) {
       return window.paper.project.selection.scaling.x;
     } else {
@@ -436,7 +404,7 @@ class EditorCore extends Component {
    * Return the scale height of the current selection.
    * @return {number|null} The scale height of the current canvas selection. Returns null if no canvas object is selected.
    */
-  getSelectionScaleY () {
+  getSelectionScaleY = () => {
     if(this.getSelectedCanvasObjects().length > 0) {
       return window.paper.project.selection.scaling.y;
     } else {
@@ -448,7 +416,7 @@ class EditorCore extends Component {
    * Return the rotation of the current selection.
    * @return {number|null} The rotation of the current canvas selection. Returns null if no canvas object is selected.
    */
-  getSelectionRotation () {
+  getSelectionRotation = () => {
     if(this.getSelectedCanvasObjects().length > 0) {
       return window.paper.project.selection.rotation;
     } else {
@@ -460,7 +428,7 @@ class EditorCore extends Component {
    * Return the opacity of the current selection.
    * @return {number|null} The opacity of the current canvas selection. Returns null if no canvas object is selected.
    */
-  getSelectionOpacity () {
+  getSelectionOpacity = () => {
     if(this.getSelectedCanvasObjects().length > 0) {
       return window.paper.project.selection.opacity;
     } else {
@@ -472,7 +440,7 @@ class EditorCore extends Component {
    * Return the stroke width of the current selection.
    * @return {number|null} The stroke width of the current canvas selection. Returns null if no canvas object is selected.
    */
-  getSelectionStrokeWidth () {
+  getSelectionStrokeWidth = () => {
     if(this.getSelectedCanvasObjects().length > 0) {
       return window.paper.project.selection.strokeWidth;
     } else {
@@ -484,7 +452,7 @@ class EditorCore extends Component {
    * Return the stroke color of the current selection.
    * @return {string|null} The stroke color of the current canvas selection. Returns null if no canvas object is selected.
    */
-  getSelectionStrokeColor () {
+  getSelectionStrokeColor = () => {
     if(this.getSelectedCanvasObjects().length > 0) {
       return window.paper.project.selection.strokeColor;
     } else {
@@ -496,7 +464,7 @@ class EditorCore extends Component {
    * Return the fill color of the current selection.
    * @return {string|null} The fill color of the current canvas selection. Returns null if no canvas object is selected.
    */
-  getSelectionFillColor () {
+  getSelectionFillColor = () => {
     if(this.getSelectedCanvasObjects().length > 0) {
       return window.paper.project.selection.fillColor;
     } else {
@@ -508,7 +476,7 @@ class EditorCore extends Component {
    * Returns the source of the selected object.
    * @returns {string|null} The src dataURL of the selected object. Returns null if selection type does not have a src property.
    */
-  getSelectionSrc () {
+  getSelectionSrc = () => {
     let selectionType = this.getSelectionType();
 
     if (selectionType === 'imageasset' || selectionType === 'soundasset') {
@@ -522,7 +490,7 @@ class EditorCore extends Component {
    * Updates the state of the selection with new values.
    * @param {object} newSelectionAttributes - A object containing the new values of the selection to use to update the state.
    */
-  setSelectionAttributes (newSelectionAttributes) {
+  setSelectionAttributes = (newSelectionAttributes) => {
 
     // Valid selection setting functions
     let setSelectionFunctions = {
@@ -554,7 +522,7 @@ class EditorCore extends Component {
    * Updates the name of the selected object.
    * @param {string} newName - The name to use.
    */
-  setSelectionName (newName) {
+  setSelectionName = (newName) => {
     if(this.getSelectedClips().length === 1) {
       this.getSelectedClips()[0].name = newName;
     } else if (this.getSelectedAssetLibraryObjects().length === 1) {
@@ -566,7 +534,7 @@ class EditorCore extends Component {
    * Sets the x position of the current canvas selection.
    * @param {number} x The new value for the x position for the current canvas selection.
    */
-  setSelectionPositionX (x) {
+  setSelectionPositionX = (x) => {
     if(this.getSelectedCanvasObjects().length > 0) {
       let y = window.paper.project.selection.bounds.y;
       window.paper.project.selection.setPosition(x, y);
@@ -578,7 +546,7 @@ class EditorCore extends Component {
    * Sets the y position of the current canvas selection.
    * @param {number} y The new value for the y position for the current canvas selection.
    */
-  setSelectionPositionY (y) {
+  setSelectionPositionY = (y) => {
     if(this.getSelectedCanvasObjects().length > 0) {
       let x = window.paper.project.selection.bounds.x;
       window.paper.project.selection.setPosition(x, y);
@@ -590,7 +558,7 @@ class EditorCore extends Component {
    * Sets the width of the current canvas selection.
    * @param {number} width The new value for the width for the current canvas selection.
    */
-  setSelectionWidth (width) {
+  setSelectionWidth = (width) => {
     if(this.getSelectedCanvasObjects().length > 0) {
       let height = window.paper.project.selection.bounds.height;
       window.paper.project.selection.setSize(width, height);
@@ -602,7 +570,7 @@ class EditorCore extends Component {
    * Sets the height of the current canvas selection.
    * @param {number} height The new value for the height for the current canvas selection.
    */
-  setSelectionHeight (height) {
+  setSelectionHeight = (height) => {
     if(this.getSelectedCanvasObjects().length > 0) {
       let width = window.paper.project.selection.bounds.width;
       window.paper.project.selection.setSize(width, height);
@@ -614,7 +582,7 @@ class EditorCore extends Component {
    * Sets the horizontal scale of the current canvas selection.
    * @param {number} scaleX The new value for the horizontal scale for the current canvas selection.
    */
-  setSelectionScaleX (scaleX) {
+  setSelectionScaleX = (scaleX) => {
     if(this.getSelectedCanvasObjects().length > 0) {
       let scaleY = window.paper.project.selection.scaling.y;
       window.paper.project.selection.setScale(scaleX, scaleY);
@@ -626,7 +594,7 @@ class EditorCore extends Component {
    * Sets the vertical scale of the current canvas selection.
    * @param {number} scaleY The new value for the vertical scale for the current canvas selection.
    */
-  setSelectionScaleY (scaleY) {
+  setSelectionScaleY = (scaleY) => {
     if(this.getSelectedCanvasObjects().length > 0) {
       let scaleX = window.paper.project.selection.scaling.x;
       window.paper.project.selection.setScale(scaleX, scaleY);
@@ -638,7 +606,7 @@ class EditorCore extends Component {
    * Sets the rotation of the current canvas selection.
    * @param {number} rotation The new value for the rotation of the current canvas selection.
    */
-  setSelectionRotation (rotation) {
+  setSelectionRotation = (rotation) => {
     if(this.getSelectedCanvasObjects().length > 0) {
       window.paper.project.selection.setRotation(rotation);
       this.applyCanvasChangesToProject();
@@ -649,7 +617,7 @@ class EditorCore extends Component {
    * Sets the opacity of the current canvas selection.
    * @param {number} opacity The new value for the opacity of the current canvas selection.
    */
-  setSelectionOpacity (opacity) {
+  setSelectionOpacity = (opacity) => {
     if(this.getSelectedCanvasObjects().length > 0) {
       window.paper.project.selection.setOpacity(opacity);
       this.applyCanvasChangesToProject();
@@ -660,7 +628,7 @@ class EditorCore extends Component {
    * Sets the stroke width of the current canvas selection.
    * @param {number} strokeWidth The new value for the stroke width of the current canvas selection.
    */
-  setSelectionStrokeWidth (strokeWidth) {
+  setSelectionStrokeWidth = (strokeWidth) => {
     if(this.getSelectedCanvasObjects().length > 0) {
       window.paper.project.selection.setStrokeWidth(strokeWidth);
       this.applyCanvasChangesToProject();
@@ -671,7 +639,7 @@ class EditorCore extends Component {
    * Sets the stroke color of the current canvas selection.
    * @param {string} strokeColor The new value for the stroke color of the current canvas selection.
    */
-  setSelectionStrokeColor (strokeColor) {
+  setSelectionStrokeColor = (strokeColor) => {
     if(this.getSelectedCanvasObjects().length > 0) {
       window.paper.project.selection.setStrokeColor(strokeColor);
       this.applyCanvasChangesToProject();
@@ -682,7 +650,7 @@ class EditorCore extends Component {
    * Sets the fill color of the current canvas selection.
    * @param {string} fillColor The new value for the fill color of the current canvas selection.
    */
-  setSelectionFillColor (fillColor) {
+  setSelectionFillColor = (fillColor) => {
     if(this.getSelectedCanvasObjects().length > 0) {
       window.paper.project.selection.setFillColor(fillColor);
       this.applyCanvasChangesToProject();
@@ -694,7 +662,7 @@ class EditorCore extends Component {
    * Determines the selection type of an object, and returns it as a string.
    * @param {object} object - The object to find the type of.
    */
-  selectionTypeOfObject (object) {
+  selectionTypeOfObject = (object) => {
     if(object instanceof window.Wick.Asset) {
       return 'asset';
     } else if (object instanceof window.paper.Group) {
@@ -715,7 +683,7 @@ class EditorCore extends Component {
    * @param {object} selection - The selection to add the asset to.
    * @returns {object} The updated selection.
    */
-  addAssetToSelection (asset, selection) {
+  addAssetToSelection = (asset, selection) => {
     selection.assetLibrary.assets.push(asset.uuid);
     return selection;
   }
@@ -726,7 +694,7 @@ class EditorCore extends Component {
    * @param {object} selection - The selection to add the clip to.
    * @returns {object} The updated selection.
    */
-  addClipToSelection (clip, selection) {
+  addClipToSelection = (clip, selection) => {
     selection.canvas.clips.push(clip.data.wickUUID);
     return selection;
   }
@@ -737,17 +705,17 @@ class EditorCore extends Component {
    * @param {object} selection - The selection to add the path to.
    * @returns {object} The updated selection.
    */
-  addPathToSelection (path, selection) {
+  addPathToSelection = (path, selection) => {
     selection.canvas.paths.push(path.name);
     return selection;
   }
 
-  addFrameToSelection (frame, selection) {
+  addFrameToSelection = (frame, selection) => {
     selection.timeline.frames.push(frame.uuid);
     return selection;
   }
 
-  addTweenToSelection (tween, selection) {
+  addTweenToSelection = (tween, selection) => {
     selection.timeline.tweens.push(tween.uuid);
     return selection;
   }
@@ -758,7 +726,7 @@ class EditorCore extends Component {
    * @param {object} selection - The selection to add the object to.
    * @return {object} The updated selection.
    */
-  addObjectToSelection (object, selection) {
+  addObjectToSelection = (object, selection) => {
     let type = this.selectionTypeOfObject(object);
     if(!type) return false;
     if(type === 'asset') {
@@ -781,7 +749,7 @@ class EditorCore extends Component {
    * @param {object} selection - The selection to add the objects to.
    * @return {object} The updated selection.
    */
-  addObjectsToSelection (objects, selection) {
+  addObjectsToSelection = (objects, selection) => {
     objects.forEach(object => {
       selection = this.addObjectToSelection(object, selection);
     });
@@ -792,7 +760,7 @@ class EditorCore extends Component {
    * Clears the selection, then adds the given object to the selection.
    * @param {object} object - The object to add to the selection.
    */
-  selectObject (object) {
+  selectObject = (object) => {
     this.selectObjects([object]);
   }
 
@@ -800,7 +768,7 @@ class EditorCore extends Component {
    * Clears the selection, then adds the given objects to the selection. No changes will be made if the selection does not change.
    * @param {object[]} objects - The objects to add to the selection.
    */
-  selectObjects (objects) {
+  selectObjects = (objects) => {
 
     this.setEditorState({
       selection: this.addObjectsToSelection(objects, this.blankSelection()),
@@ -810,7 +778,7 @@ class EditorCore extends Component {
   /**
    * Clears the selection.
    */
-  clearSelection () {
+  clearSelection = () => {
     this.setEditorState({
       selection: this.blankSelection()
     });
@@ -820,7 +788,7 @@ class EditorCore extends Component {
    * Use this to clear the selection.
    * @returns A state object representing a selection where nothing is selected.
    */
-  blankSelection () {
+  blankSelection = () => {
     return {
       timeline: {
         frames: [],
@@ -841,7 +809,7 @@ class EditorCore extends Component {
    * @param {<Wick.Asset>} object - Asset to check selection status
    * @returns {boolean} - True if the asset is selected, false otherwise
    */
-  isAssetSelected (asset) {
+  isAssetSelected = (asset) => {
     return this.state.selection.assetLibrary.assets.indexOf(asset.uuid) > -1;
   }
 
@@ -850,7 +818,7 @@ class EditorCore extends Component {
    * @param {<paper.Path>} path - Path to check selection status
    * @returns {boolean} - True if the path is selected, false otherwise
    */
-  isPathSelected (path) {
+  isPathSelected = (path) => {
     return this.state.selection.canvas.paths.indexOf(path.name) > -1;
   }
 
@@ -859,7 +827,7 @@ class EditorCore extends Component {
    * @param {<Wick.Clip>} path - Clip to check selection status
    * @returns {boolean} - True if the clip is selected, false otherwise
    */
-  isClipSelected (clip) {
+  isClipSelected = (clip) => {
     return this.state.selection.canvas.clips.indexOf(clip.uuid) > -1;
   }
 
@@ -868,7 +836,7 @@ class EditorCore extends Component {
    * @param {<Wick.Tween>} tween - Tween to check selection status
    * @returns {boolean} - True if the tween is selected, false otherwise
    */
-  isTweenSelected (tween) {
+  isTweenSelected = (tween) => {
     return this.state.selection.timeline.tweens.indexOf(tween.uuid) > -1;
   }
 
@@ -877,7 +845,7 @@ class EditorCore extends Component {
    * @param {<Wick.Frame>} path - Frame to check selection status
    * @returns {boolean} - True if the frame is selected, false otherwise
    */
-  isFrameSelected (frame) {
+  isFrameSelected = (frame) => {
     return this.state.selection.timeline.frames.indexOf(frame.uuid) > -1;
   }
 
@@ -886,7 +854,7 @@ class EditorCore extends Component {
    * @param {object} object - Selection object to check if it is selected
    * @returns {boolean} - True if the object is selected, false otherwise
    */
-  isObjectSelected (object) {
+  isObjectSelected = (object) => {
     let type = this.selectionTypeOfObject(object);
     if(type === 'asset') {
       return this.isAssetSelected(object);
@@ -906,7 +874,7 @@ class EditorCore extends Component {
   /**
    * Creates a new symbol from the selected paths and clips and adds it to the project.
    */
-  convertSelectionToSymbol () {
+  convertSelectionToSymbol = () => {
     let svg = window.paper.project.selection.exportSVG();
     let clips = [] // TODO get groups
 
@@ -930,7 +898,7 @@ class EditorCore extends Component {
    * Deletes all selected objects on the canvas.
    * @returns {<paper.Path>|<paper.CompoundPath>|<paper.Group>[]} The objects that were deleted from the timeline.
    */
-  deleteSelectedCanvasObjects () {
+  deleteSelectedCanvasObjects = () => {
     return this.state.paper.drawingTools.cursor.deleteSelectedItems();
   }
 
@@ -938,7 +906,7 @@ class EditorCore extends Component {
    * Deletes all selected objects on the timeline.
    * @returns {<Wick.Frame>|<Wick.Tween>[]} The objects that were deleted from the timeline.
    */
-  deleteSelectedTimelineObjects () {
+  deleteSelectedTimelineObjects = () => {
     this.getSelectedFrames().forEach(frame => {
       frame.parent.removeFrame(frame);
     });
@@ -951,7 +919,7 @@ class EditorCore extends Component {
    * Deletes all selected assets.
    * @returns {<Wick.Asset>[]} The assets that were deleted.
    */
-  deleteSelectedAssetLibraryObjects () {
+  deleteSelectedAssetLibraryObjects = () => {
     this.getSelectedAssetLibraryObjects().forEach(asset => {
       asset.project.removeAsset(asset);
     });
@@ -961,7 +929,7 @@ class EditorCore extends Component {
    * Deletes all selected objects.
    * @returns {object[]} The objects that were deleted.
    */
-  deleteSelectedObjects () {
+  deleteSelectedObjects = () => {
     let result = [];
     if(this.getSelectedCanvasObjects().length > 0) {
       result = this.deleteSelectedCanvasObjects();
@@ -978,7 +946,7 @@ class EditorCore extends Component {
    * Updates the Wick Project settings with new values passed in as an object. Will make no changes if input is invalid or the same as the previous settings.
    * @param {object} newSettings an object containing all of the settings to update within the project. Accepts valid project settings such as 'name', 'width', 'height', 'framerate', and 'backgroundColor'.
    */
-  updateProjectSettings (newSettings) {
+  updateProjectSettings = (newSettings) => {
     let updatedProject = this.state.project.clone();
 
     let validKeys = ["name", "width", "height", "backgroundColor", "framerate"]
@@ -1002,11 +970,11 @@ class EditorCore extends Component {
     }
   }
 
-  focusSelectedObject () {
+  focusSelectedObject = () => {
 
   }
 
-  focusObjectOneLevelUp () {
+  focusObjectOneLevelUp = () => {
 
   }
 
@@ -1015,7 +983,7 @@ class EditorCore extends Component {
    * @param {File[]} acceptedFiles - Files uploaded by user with supported MIME types to import into the project
    * @param {File[]} rejectedFiles - Files uploaded by user with unsupported MIME types.
    */
-  createAssets (acceptedFiles, rejectedFiles) {
+  createAssets = (acceptedFiles, rejectedFiles) => {
     let self = this;
     if (rejectedFiles.length > 0) {
       alert("The Wick Editor could not accept these files." + JSON.stringify(rejectedFiles.map(f => f.name)));
@@ -1037,7 +1005,7 @@ class EditorCore extends Component {
    * Returns an object containing the onion skin options.
    * @returns the object containing the onion skin options.
    */
-  getOnionSkinOptions () {
+  getOnionSkinOptions = () => {
     return {
       onionSkinEnabled: this.state.onionSkinEnabled,
       onionSkinSeekForwards: this.state.onionSkinSeekForwards,
@@ -1049,7 +1017,7 @@ class EditorCore extends Component {
    * Updates the onion skin settings in the state.
    * @param onionSkinOptions an object containing the new settings to use.
    */
-  setOnionSkinOptions (onionSkinOptions) {
+  setOnionSkinOptions = (onionSkinOptions) => {
     let validOnionSkinOptions = ['onionSkinEnabled', 'onionSkinSeekForwards', 'onionSkinSeekBackwards'];
     let newOnionSkinOptions = {};
     Object.keys(onionSkinOptions).forEach(optionName => {
