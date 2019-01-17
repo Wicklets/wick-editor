@@ -123,6 +123,7 @@ class Editor extends EditorCore {
 
   updateCanvas () {
     // re-render the canvas
+    //console.log(this.state.project.focus.timeline.activeLayer.activeFrame.svg)
     this.rerenderCanvas();
 
     // update the paper.js selection using the editor selection state

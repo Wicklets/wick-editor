@@ -960,10 +960,12 @@ class EditorCore extends Component {
    * @param {number} y    The y location of the image after creation in relation to the window.
    */
   createImageFromAsset = (uuid, x, y) => {
-    let asset = props.project._childByUUID(draggedItem.uuid);
+    let asset = this.state.project._childByUUID(uuid);
     window.Wick.Canvas.createImageFromAsset(asset, (raster) => {
       //console.log(raster)
+      raster.name = Math.random()+'img';
       window.paper.project.activeLayer.addChild(raster);
+      this.applyCanvasChangesToProject();
     });
   }
 
@@ -974,7 +976,7 @@ class EditorCore extends Component {
   updateProjectSettings = (newSettings) => {
     let updatedProject = this.state.project.clone();
 
-    let validKeys = ["name", "width", "height", "backgroundColor", "framerate"]
+    let validKeys = ["name", "width", "height", "backgroundColor", "framerate"];
 
     let updated = false;
 

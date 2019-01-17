@@ -1351,8 +1351,8 @@ function convertRange(value, r1, r2) {
         return null;
       } else if (typeof sprite === 'undefined') {
         // Use the default sound sprite (plays the full audio length).
-        sprite = '__default'; // Check if there is a single paused sound that isn't ended. 
-        // If there is, play that sound. If not, continue as usual.  
+        sprite = '__default'; // Check if there is a single paused sound that isn't ended.
+        // If there is, play that sound. If not, continue as usual.
 
         if (!self._playLock) {
           var num = 0;
@@ -3133,7 +3133,7 @@ function convertRange(value, r1, r2) {
 })();
 /*!
  *  Spatial Plugin - Adds support for stereo and 3D audio where Web Audio is supported.
- *  
+ *
  *  howler.js v2.1.1
  *  howlerjs.com
  *
@@ -23366,7 +23366,7 @@ Wick.Canvas.Frame = class {
       layer.data = origData;
 
       for (var i = 0; i < svg.children.length; i++) {
-        svg.children[i].setAttribute('href', '');
+        svg.children[i].removeAttribute('href');
       }
 
       var container = document.createElement('div');
