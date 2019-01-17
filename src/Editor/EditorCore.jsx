@@ -486,7 +486,12 @@ class EditorCore extends Component {
    */
   getSelectionStrokeColor () {
     if(this.getSelectedCanvasObjects().length > 0) {
-      return window.paper.project.selection.strokeColor;
+      let strokeColor = window.paper.project.selection.strokeColor;
+      if (strokeColor === null || strokeColor === undefined) {
+        return null;
+      } else {
+        return strokeColor.toCSS();
+      }
     } else {
       return null;
     }
@@ -498,7 +503,12 @@ class EditorCore extends Component {
    */
   getSelectionFillColor () {
     if(this.getSelectedCanvasObjects().length > 0) {
-      return window.paper.project.selection.fillColor;
+      let fillColor = window.paper.project.selection.fillColor;
+      if (fillColor === null || fillColor === undefined) {
+        return null;
+      } else {
+        return fillColor.toCSS();
+      }
     } else {
       return null;
     }
