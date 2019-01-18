@@ -141,7 +141,7 @@ class ActionMapInterface extends Object {
   createActionGroups () {
     this.actionGroups = {
       common: {
-        on: ( () => true ),
+        on: ( () => this.editor.getSelectionType() !== null ),
         actions: [
           this.editorActions['deleteSelection'],
           this.editorActions['duplicateSelection'],
