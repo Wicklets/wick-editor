@@ -35,6 +35,8 @@ import iconFillBucket from 'resources/tool-icons/bucket.svg';
 
 // Actions
 import iconUpload from 'resources/tool-icons/upload.svg';
+import iconDelete from 'resources/tool-icons/delete.svg';
+import iconDuplicate from 'resources/tool-icons/duplicate.svg';
 
 // Assets
 import iconImage from 'resources/tool-icons/image.svg';
@@ -88,6 +90,8 @@ class ToolIcon extends Component {
       "brushsize": iconBrushSize,
       "brushsmoothness": iconBrushSmoothness,
       "cornerroundness": iconCornerRoundness,
+      "delete": iconDelete,
+      "duplicate": iconDuplicate,
       "ease": iconEase,
       "fillcolor": iconFillColor,
       "fontfamily": iconFontFamily,
