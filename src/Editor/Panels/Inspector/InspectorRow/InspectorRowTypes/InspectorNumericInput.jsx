@@ -24,13 +24,15 @@ import InspectorRow from '../InspectorRow';
 class InspectorNumericInput extends Component {
   render() {
     return(
-        <InspectorRow icon={this.props.icon}
-                      input1={
-                        {type: "numeric",
-                        value: this.props.val,
-                        onChange: this.props.onChange}
-                      }
-                    />
+        <InspectorRow
+          {...this.props}
+          icon={this.props.icon}
+          input1={
+            {type: "numeric",
+            value: this.props.val,
+            onChange: this.props.onChange}
+          }
+        />
     )
   }
 }

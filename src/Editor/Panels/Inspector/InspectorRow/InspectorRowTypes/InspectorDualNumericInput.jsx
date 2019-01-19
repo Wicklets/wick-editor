@@ -24,19 +24,21 @@ import InspectorRow from '../InspectorRow';
 class InspectorDualNumericInput extends Component {
   render() {
     return(
-        <InspectorRow icon={this.props.icon}
-                      input1={
-                        {type: "numeric",
-                        value: this.props.val1,
-                        onChange: this.props.onChange1}
-                      }
-                      input2={
-                        {type: "numeric",
-                        value: this.props.val2,
-                        onChange: this.props.onChange2}
-                      }
-                      divider={this.props.divider}
-                    />
+        <InspectorRow
+          {...this.props}
+          icon={this.props.icon}
+          input1={
+            {type: "numeric",
+            value: this.props.val1,
+            onChange: this.props.onChange1}
+          }
+          input2={
+            {type: "numeric",
+            value: this.props.val2,
+            onChange: this.props.onChange2}
+          }
+          divider={this.props.divider}
+        />
     )
   }
 }

@@ -24,14 +24,16 @@ import InspectorRow from '../InspectorRow';
 class InspectorTextInput extends Component {
   render() {
     return(
-        <InspectorRow icon={this.props.icon}
-                      input1={
-                        {type: "text",
-                        value: this.props.val,
-                        onChange: this.props.onChange,
-                        readOnly: this.props.readOnly}
-                      }
-                    />
+        <InspectorRow
+          {...this.props}
+          icon={this.props.icon}
+          input1={
+            {type: "text",
+            value: this.props.val,
+            onChange: this.props.onChange,
+            readOnly: this.props.readOnly}
+          }
+        />
     )
   }
 }

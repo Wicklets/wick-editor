@@ -18,6 +18,7 @@
  */
 
 import React, { Component } from 'react';
+import ReactTooltip from 'react-tooltip'
 import './_rowicon.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -25,12 +26,26 @@ import ToolIcon from 'Editor/Util/ToolIcon/ToolIcon';
 
 class RowIcon extends Component {
   render() {
+    let iconID = this.props.id === undefined ? 'row-icon-tooltip-NYI' : "row-icon-" + this.props.id;
+
     return(
-      <div className="row-icon">
+      <div data-tip data-for={iconID} className="row-icon">
+        { (this.props.tooltip !== undefined) && (
+            <ReactTooltip
+              id={iconID}
+              type='info'
+              place={this.props.tooltipPlace === undefined ? 'left' : this.props.tooltipPlace}
+              effect='solid'
+              aria-haspopup='true'>
+              <span>{this.props.tooltip}</span>
+            </ReactTooltip>
+          )
+        }
         <ToolIcon name={this.props.type} />
       </div>
     )
   }
 }
+
 
 export default RowIcon

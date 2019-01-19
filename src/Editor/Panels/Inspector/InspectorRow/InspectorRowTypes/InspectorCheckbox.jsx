@@ -24,13 +24,15 @@ import InspectorRow from '../InspectorRow';
 class InspectorCheckbox extends Component {
   render() {
     return(
-        <InspectorRow icon={this.props.icon}
-                      input1={
-                        {type: "checkbox",
-                        defaultChecked: this.props.defaultChecked,
-                        onChange: this.props.onChange}
-                      }
-                    />
+        <InspectorRow 
+          {...this.props}
+          icon={this.props.icon}
+          input1={
+            {type: "checkbox",
+            defaultChecked: this.props.defaultChecked,
+            onChange: this.props.onChange}
+          }
+        />
     )
   }
 }

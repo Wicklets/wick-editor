@@ -141,46 +141,55 @@ class Inspector extends Component {
   renderBrushSize() {
     return (
       <InspectorNumericSlider
+        tooltip="Brush Size"
         icon="brushsize"
         val={this.getToolSetting('brushSize')}
         onChange={(val) => this.setToolSetting('brushSize', val)}
-        divider={false}/>
+        divider={false}
+        id="inspector-brush-size"/>
     )
   }
 
   renderSmoothness() {
     return (
       <InspectorNumericSlider
+        tooltip="Brush Smoothness"
         icon="brushsmoothness"
         val={this.getToolSetting('brushSmoothness')}
         onChange={(val) => this.setToolSetting('brushSmoothness', val)}
-        divider={false}/>
+        divider={false}
+        id="inspector-brush-smoothness"/>
     )
   }
 
   renderStrokeWidth() {
     return (
       <InspectorNumericSlider
+        tooltip="Stroke Width"
         icon="strokewidth"
         val={this.getToolSetting('strokeWidth')}
         onChange={(val) => this.setToolSetting('strokeWidth', val)}
-        divider={false}/>
+        divider={false}
+        id="inspector-stroke-width"/>
     )
   }
 
   renderSelectionStrokeWidth() {
     return (
       <InspectorNumericSlider
+        tooltip="Stroke Width"
         icon="strokewidth"
         val={this.getSelectionAttribute('strokeWidth')}
         onChange={(val) => this.setSelectionAttribute('strokeWidth', val)}
-        divider={false}/>
+        divider={false}
+        id="inspector-selection-stroke-width"/>
     )
   }
 
   renderFillColor() {
     return(
       <InspectorColorPicker
+        tooltip="Fill Color"
         icon="fillcolor"
         val={this.getToolSetting('fillColor')}
         onChange={(col) => this.setToolSetting('fillColor', this.toRgbaString(col))}
@@ -191,6 +200,7 @@ class Inspector extends Component {
   renderSelectionFillColor() {
     return(
       <InspectorColorPicker
+        tooltip="Fill Color"
         icon="fillcolor"
         val={this.getSelectionAttribute('fillColor')}
         onChange={(col) => this.setSelectionAttribute('fillColor', this.toRgbaString(col))}
@@ -201,6 +211,7 @@ class Inspector extends Component {
   renderStrokeColor() {
     return(
       <InspectorColorPicker
+        tooltip="Stroke Color"
         icon="strokecolor"
         val={this.getToolSetting('strokeColor')}
         onChange={(col) => this.setToolSetting('strokeColor', this.toRgbaString(col))}
@@ -212,6 +223,7 @@ class Inspector extends Component {
   renderSelectionStrokeColor() {
     return(
       <InspectorColorPicker
+        tooltip="Stroke Color"
         icon="strokecolor"
         val={this.getSelectionAttribute('strokeColor')}
         onChange={(col) => this.setSelectionAttribute('strokeColor', this.toRgbaString(col))}
@@ -223,10 +235,12 @@ class Inspector extends Component {
   renderCornerRoundness() {
     return (
       <InspectorNumericSlider
+        tooltip="Corner Roundness"
         icon="cornerroundness"
         val={this.getToolSetting('cornerRadius')}
         onChange={(val) => this.setToolSetting("cornerRadius", val)}
-        divider={false} />
+        divider={false}
+        id="inspector-corner-radius"/>
     )
   }
 
@@ -252,18 +266,22 @@ class Inspector extends Component {
   renderName() {
     return (
       <InspectorTextInput
+        tooltip="Name"
         icon="name"
         val={this.getSelectionAttribute('name')}
-        onChange={(val) => {this.setSelectionAttribute('name', val);}} />
+        onChange={(val) => {this.setSelectionAttribute('name', val);}}
+        id="inspector-name" />
     )
   }
 
   renderFilename() {
     return (
       <InspectorTextInput
+        tooltip="File Name"
         icon="name"
         val={this.getSelectionAttribute('filename')}
-        readOnly={true} />
+        readOnly={true}
+        id="inspector-file-name"/>
     )
   }
 
@@ -271,79 +289,94 @@ class Inspector extends Component {
     return (
       <InspectorImagePreview
         icon="image"
-        src={this.getSelectionAttribute('src')} />
+        src={this.getSelectionAttribute('src')}
+        id="inspector-image-preview" />
     )
   }
 
   renderFrameLength() {
     return (
       <InspectorNumericInput
+        tooltip="Frame Length"
         icon="framelength"
         val={this.getSelectionAttribute('frameLength')}
-        onChange={(val) => this.setSelectionAttribute('frameLength', val)} />
+        onChange={(val) => this.setSelectionAttribute('frameLength', val)}
+        id="inspector-frame-length" />
     )
   }
 
   renderPosition() {
     return (
       <InspectorDualNumericInput
+        tooltip="Position"
         icon="position"
         val1={this.getSelectionAttribute('x')}
         val2={this.getSelectionAttribute('y')}
         onChange1={(val) => this.setSelectionAttribute('x', val)}
         onChange2={(val) => this.setSelectionAttribute('y', val)}
-        divider={true} />
+        divider={true}
+        id="inspector-position" />
     )
   }
 
   renderSize() {
     return (
       <InspectorDualNumericInput
+        tooltip="Size"
         icon="size"
         val1={this.getSelectionAttribute('width')}
         val2={this.getSelectionAttribute('height')}
         onChange1={(val) => this.setSelectionAttribute('width', val)}
         onChange2={(val) => this.setSelectionAttribute('height', val)}
-        divider={true} />
+        divider={true}
+        id="inspector-size" />
     )
   }
 
   renderScale() {
     return (
       <InspectorDualNumericInput
+        tooltip="Scale"
         icon="scale"
         val1={this.getSelectionAttribute('scaleX')}
         val2={this.getSelectionAttribute('scaleY')}
         onChange1={(val) => this.setSelectionAttribute('scaleX', val)}
         onChange2={(val) => this.setSelectionAttribute('scaleY', val)}
-        divider={true} />
+        divider={true}
+        id="inspector-scale" />
     )
   }
 
   renderRotation() {
     return (
       <InspectorNumericInput
+        tooltip="Rotation"
         icon="rotation"
         val={this.getSelectionAttribute('rotation')}
-        onChange={(val) => this.setSelectionAttribute('rotation', val)} />
+        onChange={(val) => this.setSelectionAttribute('rotation', val)}
+        id="inspector-rotation" />
     )
   }
 
   renderOpacity() {
     return (
       <InspectorNumericInput
+        tooltip="Opacity"
         icon="opacity"
         val={this.getSelectionAttribute('opacity')}
-        onChange={(val) => this.setSelectionAttribute('opacity', val)} />
+        onChange={(val) => this.setSelectionAttribute('opacity', val)}
+        id="inspector-opacity"/>
     )
   }
 
   renderPressureToggle() {
     return (
       <InspectorCheckbox
+        tooltip="Enable Pressure"
         icon="pressure"
         defaultChecked={this.getSelectionAttribute('pressureEnabled')}
-        onChange={() => this.setSelectionAttribute('pressureEnabled', !this.props.getToolSettings().pressureOn)} />
+        onChange={() => this.setSelectionAttribute('pressureEnabled', !this.props.getToolSettings().pressureOn)}
+        id="inspector-pressure-toggle" />
     )
   }
 

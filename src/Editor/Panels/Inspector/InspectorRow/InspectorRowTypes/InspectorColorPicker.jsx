@@ -24,15 +24,17 @@ import InspectorRow from '../InspectorRow';
 class InspectorColorPicker extends Component {
   render() {
     return(
-        <InspectorRow icon={this.props.icon}
-                      input1={
-                        {type: "color",
-                        color: this.props.val,
-                        onChangeComplete: this.props.onChange,
-                        id: this.props.id,
-                        stroke: !this.props.stroke ? false : this.props.stroke,}
-                      }
-                    />
+        <InspectorRow
+          {...this.props}
+          icon={this.props.icon}
+          input1={
+            {type: "color",
+            color: this.props.val,
+            onChangeComplete: this.props.onChange,
+            id: this.props.id,
+            stroke: !this.props.stroke ? false : this.props.stroke,}
+          }
+        />
     )
   }
 }

@@ -30,7 +30,10 @@ class InspectorRow extends Component {
     return (
       <div className="inspector-row">
         {/* Icon */}
-        <RowIcon type={this.props.icon}/>
+        <RowIcon
+          tooltip={this.props.tooltip}
+          id={this.props.id === undefined ? "undefined-row-icon-" + this.props.icon : this.props.id + "-icon"}
+          type={this.props.icon}/>
         {/* Input or Preview*/}
         <div className="inspector-input-container">
           <InspectorInput {...this.props} />
