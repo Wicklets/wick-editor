@@ -663,13 +663,17 @@ class Inspector extends Component {
 
   renderActionButton(btn, i) {
     return (
-      <InspectorActionButton key={i} btn={btn} />
+      <InspectorActionButton
+        key={i}
+        btn={btn} />
     )
   }
 
   renderActionButtonRow(actionList, i) {
     return (
-      <div key={i} className="inspector-action-row">
+      <div
+        key={i}
+        className="inspector-action-row">
         {actionList.map(this.renderActionButton)}
       </div>
     )

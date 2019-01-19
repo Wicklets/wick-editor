@@ -3,3 +3,4 @@
 'Layers' by K Ξ L L Ξ R from the Noun Project, Edited by Luca Damasco | in tool-icons/group.svg
 'Trash' by Trishul from the Noun Project, Edited by Luca Damasco | in tool-icons/delete.svg
 'duplicate' by Adrien Coquet from the Noun Project, Edited by Luca Damasco | in tool-icons/duplicate.svg
+'action' by Ganesh Ramakrishna  from the Noun Project, Edited by Luca Damasco | in tool-icons/actions.svg

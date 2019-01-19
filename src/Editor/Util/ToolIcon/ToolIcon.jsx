@@ -34,6 +34,7 @@ import iconZoom from 'resources/tool-icons/zoom.svg';
 import iconFillBucket from 'resources/tool-icons/bucket.svg';
 
 // Actions
+import iconAction from 'resources/tool-icons/action.svg';
 import iconUpload from 'resources/tool-icons/upload.svg';
 import iconDelete from 'resources/tool-icons/delete.svg';
 import iconDuplicate from 'resources/tool-icons/duplicate.svg';
@@ -87,6 +88,7 @@ class ToolIcon extends Component {
       "image": iconImage,
       "imageAsset": iconImage,
       "upload": iconUpload,
+      "action": iconAction,
       "brushsize": iconBrushSize,
       "brushsmoothness": iconBrushSmoothness,
       "cornerroundness": iconCornerRoundness,

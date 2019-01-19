@@ -36,7 +36,7 @@ class InspectorActionButton extends Component {
           color={colorClass}
           id={"inspector-button-" + btnID}
           tooltip={btn.tooltip}
-          action={ () => btn.action }
+          action={btn.action}
           tooltipPlace="top"
           icon={btn.icon}/>
       </div>
