@@ -44,6 +44,10 @@ import iconBringForwards from 'resources/tool-icons/bringForwards.svg';
 import iconBringToFront from 'resources/tool-icons/bringToFront.svg';
 import iconSendBackwards from 'resources/tool-icons/sendBackwards.svg';
 import iconSendToBack from 'resources/tool-icons/sendToBack.svg';
+import iconTimeline from 'resources/tool-icons/timeline.svg';
+import iconScript from 'resources/tool-icons/script.svg';
+import iconSymbol from 'resources/tool-icons/symbol.svg';
+
 // Assets
 import iconImage from 'resources/tool-icons/image.svg';
 import iconGear from 'resources/inspector-icons/selection-icons/settings.png';
@@ -126,6 +130,9 @@ class ToolIcon extends Component {
       "SoundAsset": iconSound,
       "strokecolor": iconStrokeColor,
       "strokewidth": iconStrokeWidth,
+      "symbol": iconSymbol,
+      "timeline": iconTimeline,
+      "script": iconScript, 
       "volume": iconVolume,
     }
   }

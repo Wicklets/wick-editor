@@ -947,6 +947,7 @@ class EditorCore extends Component {
   deleteSelectedCanvasObjects = () => {
     let result = this.state.paper.project.selection.delete();
     this.applyCanvasChangesToProject();
+    this.clearSelection(); 
     return result;
   }
 

@@ -44,7 +44,6 @@ import ModalHandler from './Modals/ModalHandler/ModalHandler';
 import HotKeyInterface from './hotKeyMap';
 import ActionMapInterface from './actionMap';
 
-
 class Editor extends EditorCore {
   constructor () {
     super();
@@ -234,6 +233,23 @@ class Editor extends EditorCore {
       });
     }
     this.refocusEditor();
+  }
+
+  /**
+   * Opens and closes the code editor depending on the state of the codeEditor.
+   */
+  toggleCodeEditor = () => {
+    const minSize = .1;
+    const openSize = 500;
+
+    let newSize = minSize;
+    if (this.state.codeEditorSize < 10) {
+      newSize = openSize;
+    }
+
+    this.setState( {
+      codeEditorSize: newSize,
+    })
   }
 
   refocusEditor () {
