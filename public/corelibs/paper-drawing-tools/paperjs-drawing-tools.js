@@ -4526,7 +4526,7 @@ paper.MultiSelection = class {
     });
   }
 
-  deleteSelectedItems() {
+  delete() {
     this._selectedItems.forEach(item => {
       item.remove();
     });
@@ -4589,6 +4589,42 @@ paper.MultiSelection = class {
     });
 
     this._rebuildGUI();
+  }
+
+  flipHorizontally() {
+    this.flip('horizontal');
+  }
+
+  flipVertically() {
+    this.flip('vertical');
+  }
+
+  sendToBack() {
+    this._selectionSortedByZIndex().reverse().forEach(item => {
+      item.sendToBack();
+    });
+  }
+
+  bringToFront() {
+    this._selectionSortedByZIndex().forEach(item => {
+      item.bringToFront();
+    });
+  }
+
+  sendBackwards() {
+    this._selectionSortedByZIndex().reverse().forEach(item => {
+      if (item.previousSibling && this._selectedItems.indexOf(item.previousSibling) === -1) {
+        item.insertBelow(item.previousSibling);
+      }
+    });
+  }
+
+  bringForwards() {
+    this._selectionSortedByZIndex().forEach(item => {
+      if (item.nextSibling && this._selectedItems.indexOf(item.nextSibling) === -1) {
+        item.insertAbove(item.nextSibling);
+      }
+    });
   }
 
   setPosition(x, y) {
@@ -4840,6 +4876,12 @@ paper.MultiSelection = class {
         return item[colorName].toCSS();
       }
     }));
+  }
+
+  _selectionSortedByZIndex() {
+    return this._selectedItems.sort(function (a, b) {
+      return a.index - b.index;
+    });
   }
 
   _arrayAllEqual(array) {

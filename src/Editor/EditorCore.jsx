@@ -944,7 +944,9 @@ class EditorCore extends Component {
    * @returns {<paper.Path>|<paper.CompoundPath>|<paper.Group>[]} The objects that were deleted from the timeline.
    */
   deleteSelectedCanvasObjects = () => {
-    return this.state.paper.drawingTools.cursor.deleteSelectedItems();
+    let result = this.state.paper.project.selection.deleteSelectedItems();
+    this.applyCanvasChangesToProject();
+    return result;
   }
 
   /**
@@ -985,6 +987,38 @@ class EditorCore extends Component {
     }
     this.clearSelection();
     return result;
+  }
+
+  /**
+   * Moves the selected objects on the canvas to the back.
+   */
+  sendSelectionToBack = () => {
+    this.state.paper.project.selection.sendToBack();
+    this.applyCanvasChangesToProject();
+  }
+
+  /**
+   * Moves the selected objects on the canvas to the front.
+   */
+  sendSelectionToFront = () => {
+    this.state.paper.project.selection.bringToFront();
+    this.applyCanvasChangesToProject();
+  }
+
+  /**
+   * Moves the selected objects on the canvas backwards.
+   */
+  moveSelectionBackwards = () => {
+    this.state.paper.project.selection.sendBackwards();
+    this.applyCanvasChangesToProject();
+  }
+
+  /**
+   * Moves the selected objects on the canvas forwards.
+   */
+  moveSelectionForwards = () => {
+    this.state.paper.project.selection.bringForwards();
+    this.applyCanvasChangesToProject();
   }
 
   /**
