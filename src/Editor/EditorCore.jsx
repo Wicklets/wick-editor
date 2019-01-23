@@ -944,7 +944,9 @@ class EditorCore extends Component {
    * @returns {<paper.Path>|<paper.CompoundPath>|<paper.Group>[]} The objects that were deleted from the timeline.
    */
   deleteSelectedCanvasObjects = () => {
-    return this.state.paper.selection.deleteSelectedItems();
+    let result = this.state.paper.project.selection.deleteSelectedItems();
+    this.applyCanvasChangesToProject();
+    return result;
   }
 
   /**
