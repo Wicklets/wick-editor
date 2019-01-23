@@ -20,12 +20,12 @@
 import React, { Component } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Input, Button, Modal, ModalHeader, ModalBody, ModalFooter, FormGroup, Label } from 'reactstrap';
-import './_converttosymbol.scss';
+import './_createsymbol.scss';
 
-class ConvertToSymbol extends Component {
+class CreateSymbol extends Component {
   constructor (props) {
     super(props);
-    this.convertSelectionToSymbol = this.convertSelectionToSymbol.bind(this);
+    this.createClipFromSelection = this.createClipFromSelection.bind(this);
   }
 
   render() {
@@ -54,16 +54,16 @@ class ConvertToSymbol extends Component {
         </ModalBody>
         <ModalFooter>
           <Button color="wick-warning" onClick={this.props.toggle}>Cancel</Button>
-          <Button color="wick-accept" onClick={this.convertSelectionToSymbol}>Create</Button>{' '}
+          <Button color="wick-accept" onClick={this.createClipFromSelection}>Create</Button>{' '}
         </ModalFooter>
       </Modal>
     );
   }
 
-  convertSelectionToSymbol () {
-    this.props.convertSelectionToSymbol();
+  createClipFromSelection () {
+    this.props.createClipFromSelection();
     this.props.toggle();
   }
 }
 
-export default ConvertToSymbol
+export default CreateSymbol

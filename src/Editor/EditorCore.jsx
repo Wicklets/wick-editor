@@ -919,7 +919,7 @@ class EditorCore extends Component {
   /**
    * Creates a new symbol from the selected paths and clips and adds it to the project.
    */
-  convertSelectionToSymbol = () => {
+  createClipFromSelection = () => {
     let svg = window.paper.project.selection.exportSVG();
     let clips = [] // TODO get groups
 
@@ -930,8 +930,9 @@ class EditorCore extends Component {
     clips.forEach(clip => {
       clip.timeline.layers[0].frames[0].addClip(clip);
     });
-    clip.x = this.state.paper.project.selection.bounds.center.x;
-    clip.y = this.state.paper.project.selection.bounds.center.y;
+    console.log(this.state.paper.project.selection.bounds)
+    clip.transform.x = this.state.paper.project.selection.bounds.center.x;
+    clip.transform.y = this.state.paper.project.selection.bounds.center.y;
 
     this.deleteSelectedCanvasObjects();
 
@@ -1069,7 +1070,7 @@ class EditorCore extends Component {
    * Sets the project focus to the timeline of the currently selected clip.
    */
   focusTimelineOfSelectedObject = () => {
-    this.project.focus = this.getSelectedClips()[0];
+    this.state.project.focus = this.getSelectedClips()[0];
     this.forceUpdateProject();
   }
 
