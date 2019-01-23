@@ -701,7 +701,6 @@ class EditorCore extends Component {
     }
   }
 
-
   /**
    * Determines the selection type of an object, and returns it as a string.
    * @param {object} object - The object to find the type of.
@@ -709,7 +708,8 @@ class EditorCore extends Component {
   selectionTypeOfObject = (object) => {
     if(object instanceof window.Wick.Asset) {
       return 'asset';
-    } else if (object instanceof window.paper.Group) {
+    } else if (object instanceof window.paper.Group
+            || object instanceof window.Wick.Clip) {
       return 'clip';
     } else if (object instanceof window.paper.Path
             || object instanceof window.paper.CompoundPath
@@ -735,12 +735,12 @@ class EditorCore extends Component {
 
   /**
    * Adds a clip to the selection.
-   * @param {<paper.Group>} clip - The clip to add to the selection.
+   * @param {<paper.Group>|<Wick.Clip>} clip - The clip to add to the selection.
    * @param {object} selection - The selection to add the clip to.
    * @returns {object} The updated selection.
    */
   addClipToSelection = (clip, selection) => {
-    selection.canvas.clips.push(clip.data.wickUUID);
+    selection.canvas.clips.push(clip.uuid || clip.data.wickUUID);
     return selection;
   }
 
@@ -755,11 +755,23 @@ class EditorCore extends Component {
     return selection;
   }
 
+  /**
+   * Adds a frame to the selection.
+   * @param {Wick.Frame} frame - The frame to add to the selection.
+   * @param {object} selection - The selection to add the frame to.
+   * @returns {object} The updated selection.
+   */
   addFrameToSelection = (frame, selection) => {
     selection.timeline.frames.push(frame.uuid);
     return selection;
   }
 
+  /**
+   * Adds a tween to the selection.
+   * @param {Wick.Tween} tween - The tween to add to the selection.
+   * @param {object} selection - The selection to add the tween to.
+   * @returns {object} The updated selection.
+   */
   addTweenToSelection = (tween, selection) => {
     selection.timeline.tweens.push(tween.uuid);
     return selection;
@@ -930,14 +942,14 @@ class EditorCore extends Component {
     clips.forEach(clip => {
       clip.timeline.layers[0].frames[0].addClip(clip);
     });
-    console.log(this.state.paper.project.selection.bounds)
     clip.transform.x = this.state.paper.project.selection.bounds.center.x;
     clip.transform.y = this.state.paper.project.selection.bounds.center.y;
 
     this.deleteSelectedCanvasObjects();
 
     this.state.project.focus.timeline.activeLayer.activeFrame.addClip(clip);
-    this.forceUpdateProject();
+    this.selectObject(clip);
+    //this.forceUpdateProject();
   }
 
   /**
@@ -947,7 +959,7 @@ class EditorCore extends Component {
   deleteSelectedCanvasObjects = () => {
     let result = this.state.paper.project.selection.delete();
     this.applyCanvasChangesToProject();
-    this.clearSelection(); 
+    this.clearSelection();
     return result;
   }
 
@@ -1072,6 +1084,15 @@ class EditorCore extends Component {
    */
   focusTimelineOfSelectedObject = () => {
     this.state.project.focus = this.getSelectedClips()[0];
+    this.forceUpdateProject();
+  }
+
+  /**
+   * Sets the project focus to the parent timeline of the currently selected clip.
+   */
+  focusTimelineOfParentObject = () => {
+    if(this.state.project.focus === this.state.project.root) return;
+    this.state.project.focus = this.state.project.focus.parent._getParentByInstanceOf(window.Wick.Clip);
     this.forceUpdateProject();
   }
 

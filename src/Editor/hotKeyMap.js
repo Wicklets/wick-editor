@@ -28,6 +28,7 @@ class HotKeyInterface extends Object {
       'preview-play-toggle': 'enter',
       'undo': 'ctrl+z',
       'redo': 'ctrl+y',
+      'leave-focus': '8',
     }
   }
 
@@ -47,6 +48,7 @@ class HotKeyInterface extends Object {
       'preview-play-toggle': (() => this.editor.togglePreviewPlaying()),
       'undo': (() => this.editor.state.history.undo()),
       'redo': (() => this.editor.state.history.redo()),
+      'leave-focus': (() => this.editor.focusTimelineOfParentObject()),
       'do-nothing': (() => console.log("donothing")),
     }
 
