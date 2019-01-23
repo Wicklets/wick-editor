@@ -1113,8 +1113,11 @@ class EditorCore extends Component {
     });
   }
 
+  /**
+   * Begin the symbol creation process.
+   */
   beginSymbolCreation = () => {
-    this.openModal("convertToSymbol");
+    this.openModal("CreateSymbol");
   }
 
   /**
