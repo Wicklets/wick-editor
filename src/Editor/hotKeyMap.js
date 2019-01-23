@@ -26,8 +26,8 @@ class HotKeyInterface extends Object {
       'activate-zoom': 'z',
       'delete': 'backspace',
       'preview-play-toggle': 'enter',
-      'undo': 'ctrl+z',
-      'redo': 'ctrl+y',
+      'undo': ['ctrl+z','command+z'],
+      'redo': ['ctrl+y','command+y'],
     }
   }
 
