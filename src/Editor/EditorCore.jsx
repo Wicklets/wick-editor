@@ -944,7 +944,7 @@ class EditorCore extends Component {
    * @returns {<paper.Path>|<paper.CompoundPath>|<paper.Group>[]} The objects that were deleted from the timeline.
    */
   deleteSelectedCanvasObjects = () => {
-    let result = this.state.paper.project.selection.deleteSelectedItems();
+    let result = this.state.paper.project.selection.delete();
     this.applyCanvasChangesToProject();
     return result;
   }
@@ -1065,12 +1065,12 @@ class EditorCore extends Component {
     }
   }
 
-  focusSelectedObject = () => {
-
-  }
-
-  focusObjectOneLevelUp = () => {
-
+  /**
+   * Sets the project focus to the timeline of the currently selected clip.
+   */
+  focusTimelineOfSelectedObject = () => {
+    this.project.focus = this.getSelectedClips()[0];
+    this.forceUpdateProject();
   }
 
   /**

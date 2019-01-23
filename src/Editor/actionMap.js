@@ -105,8 +105,8 @@ class ActionMapInterface extends Object {
       },
       editClipTimeline: {
         icon: 'editTimeline',
-        tooltip: 'Edit Clip Timeline(NYI)',
-        action: () => console.error('NYI'),
+        tooltip: 'Edit Clip Timeline',
+        action: () => this.editor.focusTimelineOfSelectedObject(),
         color: 'sky',
         id: 'action-edit-timeline',
       },
