@@ -108,7 +108,7 @@ class Timeline extends Component {
       e.layers.forEach(layer => {
         if(layer.id) {
           // Update
-          let wickLayer = nextProject._childByUUID(layer.id);
+          let wickLayer = nextProject.getChildByUUID(layer.id);
           nextProject.focus.timeline.moveLayer(wickLayer, layer.getIndex());
           wickLayer.locked = layer.locked;
           wickLayer.hidden = layer.hidden;
@@ -123,7 +123,7 @@ class Timeline extends Component {
       e.frames.forEach(frame => {
         if(frame.id) {
           // Update
-          let wickFrame = nextProject._childByUUID(frame.id);
+          let wickFrame = nextProject.getChildByUUID(frame.id);
           wickFrame.start = frame.start;
           wickFrame.end = frame.end;
           wickFrame.parent.removeFrame(wickFrame);
@@ -141,7 +141,7 @@ class Timeline extends Component {
       e.tweens.forEach(tween => {
         if(tween.id) {
           // Update
-          var wickTween = nextProject._childByUUID(tween.id);
+          var wickTween = nextProject.getChildByUUID(tween.id);
           wickTween.playheadPosition = tween.playheadPosition;
         } else {
           // Create
@@ -164,7 +164,7 @@ class Timeline extends Component {
   onSelectionChange (e) {
     let self = this;
     this.props.selectObjects(e.frames.map(frame => {
-      return self.props.project._childByUUID(frame.id);
+      return self.props.project.getChildByUUID(frame.id);
     }));
   }
 
