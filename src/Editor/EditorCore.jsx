@@ -1112,6 +1112,10 @@ class EditorCore extends Component {
     });
   }
 
+  beginSymbolCreation = () => {
+    this.openModal("convertToSymbol");
+  }
+
   /**
    * Returns an object containing the onion skin options.
    * @returns the object containing the onion skin options.

@@ -22,21 +22,21 @@ class ActionMapInterface extends Object {
       flipHorizontal: {
         icon: 'flipHorizontal',
         tooltip: 'Flip Horizontal',
-        action: (() => this.editor.flipSelectedHorizontal()),
+        action: this.editor.flipSelectedHorizontal,
         color: 'green',
         id: 'action-flip-horizontal',
       },
       flipVertical: {
         icon: 'flipVertical',
         tooltip: 'Flip Vertical',
-        action: (() => this.editor.flipSelectedVertical()),
+        action: this.editor.flipSelectedVertical,
         color: 'green',
         id: 'action-flip-vertical',
       },
       deleteSelection: {
         icon: 'delete',
         tooltip: 'Delete Selection',
-        action: (() => this.editor.deleteSelectedObjects()),
+        action: this.editor.deleteSelectedObjects,
         color: 'red',
         id: 'action-delete',
       },
@@ -50,28 +50,28 @@ class ActionMapInterface extends Object {
       sendToBack: {
         icon: 'sendToBack',
         tooltip: 'Send to Back',
-        action: () => this.editor.sendSelectionToBack(),
+        action: this.editor.sendSelectionToBack,
         color: 'blue',
         id: 'action-send-to-back',
       },
       sendToFront: {
         icon: 'bringToFront',
         tooltip: 'Bring to Front',
-        action: () => this.editor.sendSelectionToFront(),
+        action: this.editor.sendSelectionToFront,
         color: 'blue',
         id: 'action-send-to-front',
       },
       moveBackward: {
         icon: 'sendBackwards',
         tooltip: 'Send Backward',
-        action: () => this.editor.moveSelectionBackwards(),
+        action: this.editor.moveSelectionBackwards,
         color: 'blue',
         id: 'action-move-backward',
       },
       moveForward: {
         icon: 'bringForwards',
         tooltip: 'Send Forward',
-        action: () => this.editor.moveSelectionForwards(),
+        action: this.editor.moveSelectionForwards,
         color: 'blue',
         id: 'action-move-forward',
       },
@@ -81,20 +81,6 @@ class ActionMapInterface extends Object {
         action: () => console.error('NYI'),
         color: 'yellow',
         id: 'action-create-group',
-      },
-      createClipFromSelection: {
-        icon: 'createClip',
-        tooltip: 'Create Clip from Selection(NYI)',
-        action: () => console.error('NYI'),
-        color: 'yellow',
-        id: 'action-create-clip',
-      },
-      createButtonFromSelection: {
-        icon: 'createButton',
-        tooltip: 'Create Button from Selection(NYI)',
-        action: () => console.error('NYI'),
-        color: 'yellow',
-        id: 'action-create-button',
       },
       editScriptOfSelection: {
         icon: 'editScript',
@@ -106,7 +92,7 @@ class ActionMapInterface extends Object {
       editClipTimeline: {
         icon: 'editTimeline',
         tooltip: 'Edit Clip Timeline',
-        action: () => this.editor.focusTimelineOfSelectedObject(),
+        action: this.editor.focusTimelineOfSelectedObject,
         color: 'sky',
         id: 'action-edit-timeline',
       },
@@ -130,7 +116,14 @@ class ActionMapInterface extends Object {
         action: () => console.error('NYI'),
         color: 'green',
         id: 'action-extend-frame-to-playhead',
-      }
+      },
+      createSymbolFromSelection: {
+        icon: 'createSymbol',
+        tooltip: 'Create Symbol from Selection(NYI)',
+        action: this.editor.beginSymbolCreation,
+        color: 'green',
+        id: 'action-convert-to-symbol',
+      },
     }
   }
 
@@ -190,6 +183,7 @@ class ActionMapInterface extends Object {
         actions: [
           this.editorActions['flipHorizontal'],
           this.editorActions['flipVertical'],
+          this.editorActions['createSymbolFromSelection'],
         ],
         color: 'sky',
       },
@@ -197,8 +191,6 @@ class ActionMapInterface extends Object {
         on: ( () => this.editor.getNumCanvasObjectsSelected() > 1),
         actions: [
           this.editorActions['createGroupFromSelection'],
-          this.editorActions['createClipFromSelection'],
-          this.editorActions['createButtonFromSelection']
         ],
         color: 'sky',
       }
