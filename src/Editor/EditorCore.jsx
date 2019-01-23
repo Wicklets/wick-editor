@@ -990,6 +990,38 @@ class EditorCore extends Component {
   }
 
   /**
+   * Moves the selected objects on the canvas to the back.
+   */
+  sendSelectionToBack = () => {
+    this.state.paper.project.selection.sendToBack();
+    this.applyCanvasChangesToProject();
+  }
+
+  /**
+   * Moves the selected objects on the canvas to the front.
+   */
+  sendSelectionToFront = () => {
+    this.state.paper.project.selection.bringToFront();
+    this.applyCanvasChangesToProject();
+  }
+
+  /**
+   * Moves the selected objects on the canvas backwards.
+   */
+  moveSelectionBackwards = () => {
+    this.state.paper.project.selection.sendBackwards();
+    this.applyCanvasChangesToProject();
+  }
+
+  /**
+   * Moves the selected objects on the canvas forwards.
+   */
+  moveSelectionForwards = () => {
+    this.state.paper.project.selection.bringForwards();
+    this.applyCanvasChangesToProject();
+  }
+
+  /**
    * Creates an image from an asset's uuid and places it on the canvas.
    * @param {string} uuid The UUID of the desired asset.
    * @param {number} x    The x location of the image after creation in relation to the window.
