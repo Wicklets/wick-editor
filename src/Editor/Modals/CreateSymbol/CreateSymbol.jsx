@@ -20,9 +20,9 @@
 import React, { Component } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Input, Button, Modal, ModalHeader, ModalBody, ModalFooter, FormGroup, Label } from 'reactstrap';
-import './_converttosymbol.scss';
+import './_createsymbol.scss';
 
-class ConvertToSymbol extends Component {
+class CreateSymbol extends Component {
   constructor (props) {
     super(props);
     this.createClipFromSelection = this.createClipFromSelection.bind(this);
@@ -66,4 +66,4 @@ class ConvertToSymbol extends Component {
   }
 }
 
-export default ConvertToSymbol
+export default CreateSymbol

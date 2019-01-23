@@ -21,7 +21,7 @@ import React, { Component } from 'react';
 
 import ProjectSettings from '../ProjectSettings/ProjectSettings';
 import AlphaWarning from '../AlphaWarning/AlphaWarning';
-import ConvertToSymbol from '../ConvertToSymbol/ConvertToSymbol';
+import CreateSymbol from '../CreateSymbol/CreateSymbol';
 
 class ModalHandler extends Component {
   render() {
@@ -43,9 +43,9 @@ class ModalHandler extends Component {
           className="alpha-warning"
           open={this.props.activeModalName === 'AlphaWarning'}
         />
-      <ConvertToSymbol
+      <CreateSymbol
           {...this.modalProps}
-          open={this.props.activeModalName === 'ConvertToSymbol'}
+          open={this.props.activeModalName === 'CreateSymbol'}
           createClipFromSelection={this.props.createClipFromSelection}
         />
       </div>
