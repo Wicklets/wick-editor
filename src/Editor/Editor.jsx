@@ -280,7 +280,7 @@ class Editor extends EditorCore {
                     openModal={this.openModal}
                     closeActiveModal={this.closeActiveModal}
                     project={this.state.project}
-                    convertSelectionToSymbol={this.convertSelectionToSymbol}
+                    createClipFromSelection={this.createClipFromSelection}
                     updateProjectSettings={this.updateProjectSettings}
                   />
                   {/* Header */}

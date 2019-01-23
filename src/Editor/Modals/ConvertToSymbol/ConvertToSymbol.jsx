@@ -25,7 +25,7 @@ import './_converttosymbol.scss';
 class ConvertToSymbol extends Component {
   constructor (props) {
     super(props);
-    this.convertSelectionToSymbol = this.convertSelectionToSymbol.bind(this);
+    this.createClipFromSelection = this.createClipFromSelection.bind(this);
   }
 
   render() {
@@ -54,14 +54,14 @@ class ConvertToSymbol extends Component {
         </ModalBody>
         <ModalFooter>
           <Button color="wick-warning" onClick={this.props.toggle}>Cancel</Button>
-          <Button color="wick-accept" onClick={this.convertSelectionToSymbol}>Create</Button>{' '}
+          <Button color="wick-accept" onClick={this.createClipFromSelection}>Create</Button>{' '}
         </ModalFooter>
       </Modal>
     );
   }
 
-  convertSelectionToSymbol () {
-    this.props.convertSelectionToSymbol();
+  createClipFromSelection () {
+    this.props.createClipFromSelection();
     this.props.toggle();
   }
 }

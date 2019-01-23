@@ -46,7 +46,7 @@ class ModalHandler extends Component {
       <ConvertToSymbol
           {...this.modalProps}
           open={this.props.activeModalName === 'ConvertToSymbol'}
-          convertSelectionToSymbol={this.props.convertSelectionToSymbol}
+          createClipFromSelection={this.props.createClipFromSelection}
         />
       </div>
     );
