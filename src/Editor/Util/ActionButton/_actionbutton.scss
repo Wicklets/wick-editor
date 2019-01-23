@@ -54,22 +54,22 @@ $action-button-transition-duration: .2s;
   -webkit-transition-duration: $action-button-transition-duration; /* Safari */
   transition-duration: $action-button-transition-duration;
 
-  background-color: #BBF6F0;
+  background-color: #8DDED6;
   color: black;
 }
 
 .action-button-sky:hover {
-  background-color: #D3F8F4;
+  background-color: #BBF6F0;
   color: black;
 }
 
 .action-button-sky:active {
-  background-color: #8DDED6;
+  background-color: #D3F8F4;
   color: black;
 }
 
 .action-button-sky.active-button {
-  background-color: #8DDED6;
+  background-color: #D3F8F4;
   color: black;
 }
 

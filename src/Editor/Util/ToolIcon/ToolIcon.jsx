@@ -38,7 +38,12 @@ import iconAction from 'resources/tool-icons/action.svg';
 import iconUpload from 'resources/tool-icons/upload.svg';
 import iconDelete from 'resources/tool-icons/delete.svg';
 import iconDuplicate from 'resources/tool-icons/duplicate.svg';
-
+import iconFlipHorizontal from 'resources/tool-icons/flipHorizontal.svg';
+import iconFlipVertical from 'resources/tool-icons/flipVertical.svg';
+import iconBringForwards from 'resources/tool-icons/bringForwards.svg';
+import iconBringToFront from 'resources/tool-icons/bringToFront.svg';
+import iconSendBackwards from 'resources/tool-icons/sendBackwards.svg';
+import iconSendToBack from 'resources/tool-icons/sendToBack.svg';
 // Assets
 import iconImage from 'resources/tool-icons/image.svg';
 import iconGear from 'resources/inspector-icons/selection-icons/settings.png';
@@ -100,6 +105,8 @@ class ToolIcon extends Component {
       "fontsize": iconFontSize,
       "framelength": iconFrameLength,
       "framerate": iconFrameRate,
+      "flipHorizontal": iconFlipHorizontal,
+      "flipVertical": iconFlipVertical,
       "group": iconGroup,
       "multipleobjects": iconMultipleObjects,
       "name": iconName,
@@ -109,6 +116,10 @@ class ToolIcon extends Component {
       "pressure": iconPressure,
       "rotation": iconRotation,
       "scale": iconScale,
+      "sendToBack": iconSendToBack,
+      "sendBackwards": iconSendBackwards,
+      "bringToFront": iconBringToFront,
+      "bringForwards": iconBringForwards,
       "gear": iconGear,
       "size": iconSize,
       "sound": iconSound,

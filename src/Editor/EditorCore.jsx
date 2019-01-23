@@ -1074,6 +1074,22 @@ class EditorCore extends Component {
   }
 
   /**
+   * Horizontally flips the canvas selection.
+   */
+  flipSelectedHorizontal = () => {
+    this.state.paper.project.selection.flip('horizontal');
+    this.applyCanvasChangesToProject();
+  }
+
+  /**
+   * Vertically flips the canvas selection.
+   */
+  flipSelectedVertical = () => {
+    this.state.paper.project.selection.flip('vertical');
+    this.applyCanvasChangesToProject();
+  }
+
+  /**
    * Creates and imports Wick Assets from the acceptedFiles list, and displays an alert message for rejected files.
    * @param {File[]} acceptedFiles - Files uploaded by user with supported MIME types to import into the project
    * @param {File[]} rejectedFiles - Files uploaded by user with unsupported MIME types.
