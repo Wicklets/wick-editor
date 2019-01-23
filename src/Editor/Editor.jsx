@@ -48,6 +48,9 @@ class Editor extends EditorCore {
   constructor () {
     super();
 
+    // History (undo/redo stacks)
+    this.history = new UndoRedo(this);
+
     // GUI state
     this.state = {
       ...this.state,
@@ -56,7 +59,6 @@ class Editor extends EditorCore {
       timelineSize: 100,
       assetLibrarySize: 150,
       previewPlaying: false,
-      history: new UndoRedo(this),
     };
 
     // Init hotkeys
@@ -110,7 +112,7 @@ class Editor extends EditorCore {
 
   componentDidMount () {
     this.refocusEditor();
-    this.state.history.saveState();
+    this.history.saveState(this.state.selection, this.state.project);
   }
 
   componentDidUpdate (prevProps, prevState) {
@@ -171,7 +173,6 @@ class Editor extends EditorCore {
 
   applyCanvasChangesToProject () {
     this.state.canvas.applyChanges(this.state.project, window.paper.project.layers);
-    this.forceUpdate();
   }
 
   onWindowResize () {

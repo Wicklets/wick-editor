@@ -8,8 +8,8 @@ class UndoRedo {
     this.LOG_STACKS = false;
   }
 
-  saveState () {
-    this._undoStack.push(this._generateProjectState());
+  saveState (selection, project) {
+    this._undoStack.push(this._generateProjectState(selection, project));
 
     if(this.LOG_STACKS) this._logStacks();
   }
@@ -41,10 +41,10 @@ class UndoRedo {
     return true;
   }
 
-  _generateProjectState () {
+  _generateProjectState (selection, project) {
     return {
-      project: this.editor.state.project.serialize(),
-      selection: JSON.parse(JSON.stringify(this.editor.state.selection)),
+      project: project.serialize(),
+      selection: JSON.parse(JSON.stringify(selection)),
     };
   }
 

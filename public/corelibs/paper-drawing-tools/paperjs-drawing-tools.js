@@ -4697,7 +4697,7 @@ paper.MultiSelection = class {
       var clone = item.clone();
       clone.position.x -= this._selectionBounds.center.x;
       clone.position.y -= this._selectionBounds.center.y;
-      clone.name = Math.random() + '-';
+      //clone.name = Math.random() + '-';
       exportGroup.addChild(clone);
     });
 

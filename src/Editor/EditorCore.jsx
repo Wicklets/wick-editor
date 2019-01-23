@@ -23,6 +23,8 @@ class EditorCore extends Component {
   constructor () {
     super();
 
+    this.freezeHistory = false;
+
     this.state = {
       project: null,
       paper: null,
@@ -49,17 +51,18 @@ class EditorCore extends Component {
    * A wrapper for setState that checks if the project or selection changed. If either one did, current state is pushed to the history stack.
    * @param {object} newState - the state object to send to setState.
    */
-  setEditorState = (newState) => {
-    if (newState.project) {
-      this.state.history.saveState();
-    } else if (newState.selection) {
-      if (JSON.stringify(newState.selection) !== JSON.stringify(this.state.selection)) {
-        this.state.history.saveState();
+  setEditorState = (newState, callback) => {
+    if(!this.freezeHistory) {
+      if (newState.project && newState.selection) {
+        this.history.saveState(newState.selection, newState.project);
+      } else if (newState.project) {
+        this.history.saveState(this.state.selection, newState.project);
+      } else if (newState.selection && JSON.stringify(newState.selection) !== JSON.stringify(this.state.selection)) {
+        this.history.saveState(newState.selection, this.state.project);
       }
     }
 
-    newState.history = this.state.history;
-    this.setState(newState);
+    this.setState(newState, callback);
   }
 
   /**
@@ -68,6 +71,7 @@ class EditorCore extends Component {
   forceUpdateProject = () => {
     this.setEditorState({
       project: this.state.project,
+      selection: this.state.selection,
     });
   }
 
@@ -817,19 +821,18 @@ class EditorCore extends Component {
    * Clears the selection, then adds the given object to the selection.
    * @param {object} object - The object to add to the selection.
    */
-  selectObject = (object) => {
-    this.selectObjects([object]);
+  selectObject = (object, callback) => {
+    this.selectObjects([object], callback);
   }
 
   /**
    * Clears the selection, then adds the given objects to the selection. No changes will be made if the selection does not change.
    * @param {object[]} objects - The objects to add to the selection.
    */
-  selectObjects = (objects) => {
-
+  selectObjects = (objects, callback) => {
     this.setEditorState({
       selection: this.addObjectsToSelection(objects, this.blankSelection()),
-    });
+    }, callback);
   }
 
   /**
@@ -932,31 +935,103 @@ class EditorCore extends Component {
    * Creates a new symbol from the selected paths and clips and adds it to the project.
    */
   createClipFromSelection = () => {
+    this.freezeHistory = true;
+
+    // Create blank clip
+    let newClip = new window.Wick.Clip();
+    newClip.timeline.addLayer(new window.Wick.Layer());
+    newClip.timeline.layers[0].addFrame(new window.Wick.Frame());
+
+    // Calculate position of new clip
+    let clipX = this.state.paper.project.selection.bounds.center.x;
+    let clipY = this.state.paper.project.selection.bounds.center.y;
+
+    // Export selected SVG
     let svg = window.paper.project.selection.exportSVG();
-    let clips = this.getSelectedClips();
-    clips.forEach(clip => {
-      //clip.parent.removeClip(clip);
+
+    // Import svg into clip's first frame
+    newClip.timeline.layers[0].frames[0].svg = svg;
+
+    // Reposition selected clips
+    this.getSelectedClips().forEach(clip => {
+      clip.transform.x -= clipX;
+      clip.transform.y -= clipY;
     });
 
-    let clip = new window.Wick.Clip();
-    let x = this.state.paper.project.selection.bounds.center.x;
-    let y = this.state.paper.project.selection.bounds.center.y;
-    clip.timeline.addLayer(new window.Wick.Layer());
-    clip.timeline.layers[0].addFrame(new window.Wick.Frame());
-    clip.timeline.layers[0].frames[0].svg = svg;
-    clips.forEach(subclip => {
-      subclip.transform.x -= x;
-      subclip.transform.y -= y;
-      clip.timeline.layers[0].frames[0].addClip(subclip);
+    // Clone selected clips
+    let clonedClips = this.getSelectedClips().map(clip => {
+      return clip.clone(true);
     });
-    clip.transform.x = x;
-    clip.transform.y = y;
 
-    this.deleteSelectedCanvasObjects();
+    // Add cloned clips to blank clip
+    clonedClips.forEach(clip => {
+      newClip.timeline.layers[0].frames[0].addClip(clip.clone(true));
+    });
 
-    this.state.project.focus.timeline.activeLayer.activeFrame.addClip(clip);
-    this.selectObject(clip);
-    //this.forceUpdateProject();
+    // Reposition new clip
+    newClip.transform.x += clipX;
+    newClip.transform.y += clipY;
+
+    // Delete existing objects
+    window.paper.project.selection.delete();
+    this.applyCanvasChangesToProject();
+
+    // Clear selection
+    this.clearSelection();
+
+    // Add clip to focus
+    this.state.project.focus.timeline.activeLayer.activeFrame.addClip(newClip);
+
+    // Select clip
+    this.selectObject(newClip, () => {
+      this.freezeHistory = false;
+      this.forceUpdateProject();
+    });
+  }
+
+  /**
+   * Break apart the selected clip(s) and select the objects that were contained within those clip(s).
+   */
+  breakApartSelection = () => {
+    /*
+    let results = [];
+    this.getSelectedClips().forEach(clip => {
+      results = results.concat(this.breakApartClip(clip));
+    });
+    this.clearSelection();
+    //this.forceUpdate();
+    //this.selectObjects(results);
+    */
+  }
+
+  /**
+   * Break apart a clip.
+   * @param {Wick.Clip} clip - Clip to break apart
+   * @returns {object[]} - The objects that were contained within the clip.
+   */
+  breakApartClip = (clip) => {
+    /*
+    //clip.parent.removeClip(clip);
+    clip.timeline.activeFrames.map(frame => {
+      return frame.svg;
+    }).forEach(svg => {
+      let imported = window.paper.project.importSVG(svg);
+      imported.children.forEach(child => {
+        child.position = new window.paper.Point(
+          child.position.x + clip.transform.x,
+          child.position.y + clip.transform.y);
+      });
+      window.paper.project.activeLayer.addChildren(imported.removeChildren());
+      imported.remove();
+    });
+    this.state.canvas.applyChanges(this.state.project, window.paper.project.layers);
+    clip.timeline.activeFrames.forEach(frame => {
+      frame.clips.forEach(clip => {
+        //this.state.project.focus.timeline.activeLayer.activeFrame.addClip(clip);
+      });
+    });
+    clip.parent.removeClip(clip);
+    */
   }
 
   /**
@@ -1051,7 +1126,6 @@ class EditorCore extends Component {
   createImageFromAsset = (uuid, x, y) => {
     let asset = this.state.project.getChildByUUID(uuid);
     window.Wick.Canvas.createImageFromAsset(asset, (raster) => {
-      //console.log(raster)
       raster.name = Math.random()+'img';
       window.paper.project.activeLayer.addChild(raster);
       this.applyCanvasChangesToProject();
