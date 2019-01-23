@@ -193,7 +193,7 @@ class EditorCore extends Component {
    */
   getSelectedFrames = () => {
     return this.state.selection.timeline.frames.map(uuid => {
-      return this.state.project._childByUUID(uuid);
+      return this.state.project.getChildByUUID(uuid);
     });
   }
 
@@ -203,7 +203,7 @@ class EditorCore extends Component {
    */
   getSelectedTweens = () => {
     return this.state.selection.timeline.tweens.map(uuid => {
-      return this.state.project._childByUUID(uuid);
+      return this.state.project.getChildByUUID(uuid);
     });
   }
 
@@ -239,7 +239,7 @@ class EditorCore extends Component {
    */
   getSelectedClips = () => {
     return this.state.selection.canvas.clips.map(uuid => {
-      return this.state.project._childByUUID(uuid);
+      return this.state.project.getChildByUUID(uuid);
     });
   }
 
@@ -259,7 +259,7 @@ class EditorCore extends Component {
    */
   getSelectedAssetLibraryObjects = () => {
     return this.state.selection.assetLibrary.assets.map(uuid => {
-      return this.state.project._childByUUID(uuid);
+      return this.state.project.getChildByUUID(uuid);
     });
   }
 
@@ -1028,7 +1028,7 @@ class EditorCore extends Component {
    * @param {number} y    The y location of the image after creation in relation to the window.
    */
   createImageFromAsset = (uuid, x, y) => {
-    let asset = this.state.project._childByUUID(uuid);
+    let asset = this.state.project.getChildByUUID(uuid);
     window.Wick.Canvas.createImageFromAsset(asset, (raster) => {
       //console.log(raster)
       raster.name = Math.random()+'img';
