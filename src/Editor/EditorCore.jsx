@@ -933,17 +933,24 @@ class EditorCore extends Component {
    */
   createClipFromSelection = () => {
     let svg = window.paper.project.selection.exportSVG();
-    let clips = [] // TODO get groups
+    let clips = this.getSelectedClips();
+    clips.forEach(clip => {
+      //clip.parent.removeClip(clip);
+    });
 
     let clip = new window.Wick.Clip();
+    let x = this.state.paper.project.selection.bounds.center.x;
+    let y = this.state.paper.project.selection.bounds.center.y;
     clip.timeline.addLayer(new window.Wick.Layer());
     clip.timeline.layers[0].addFrame(new window.Wick.Frame());
     clip.timeline.layers[0].frames[0].svg = svg;
-    clips.forEach(clip => {
-      clip.timeline.layers[0].frames[0].addClip(clip);
+    clips.forEach(subclip => {
+      subclip.transform.x -= x;
+      subclip.transform.y -= y;
+      clip.timeline.layers[0].frames[0].addClip(subclip);
     });
-    clip.transform.x = this.state.paper.project.selection.bounds.center.x;
-    clip.transform.y = this.state.paper.project.selection.bounds.center.y;
+    clip.transform.x = x;
+    clip.transform.y = y;
 
     this.deleteSelectedCanvasObjects();
 
