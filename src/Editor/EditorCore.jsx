@@ -44,7 +44,7 @@ class EditorCore extends Component {
   setActiveTool = (newTool) => {
     let newState = { activeTool: newTool };
     if(this.state.activeTool === 'cursor' && newTool !== 'cursor') {
-      newState.selection = this.blankSelection();
+      newState.selection = this.emptySelection();
     }
     this.setStateWrapper(newState);
   }
@@ -75,7 +75,7 @@ class EditorCore extends Component {
    * @return {object} Selection object containing Wick Objects and paths.
    */
   getAllSelectedObjects = () => {
-    let selection = this.blankSelection();
+    let selection = this.emptySelection();
     selection.timeline.frames = this.getSelectedFrames();
     selection.timeline.tweens = this.getSelectedTweens();
     selection.canvas.paths = this.getSelectedPaths();
@@ -107,7 +107,7 @@ class EditorCore extends Component {
       return serialized;
     }
 
-    let newSelection = this.blankSelection();
+    let newSelection = this.emptySelection();
 
     newSelection.timeline.frames = serializeArray(selectedObjects.timeline.frames);
     newSelection.timeline.tweens = serializeArray(selectedObjects.timeline.tweens);
@@ -141,7 +141,7 @@ class EditorCore extends Component {
       return deserialized;
     }
 
-    let newSelection = this.blankSelection();
+    let newSelection = this.emptySelection();
     newSelection.timeline.frames = deserializeArray(selection.timeline.frames);
     newSelection.timeline.tweens = deserializeArray(selection.timeline.tweens);
     newSelection.canvas.paths = deserializeArray(selection.canvas.paths, true);
@@ -850,7 +850,7 @@ class EditorCore extends Component {
    * @param {object[]} objects - The objects to add to the selection.
    */
   selectObjects = (objects) => {
-    let newSelection = this.addObjectsToSelection(objects, this.blankSelection());
+    let newSelection = this.addObjectsToSelection(objects, this.emptySelection());
     this.setStateWrapper({selection: newSelection,});
     return newSelection;
   }
@@ -859,8 +859,8 @@ class EditorCore extends Component {
    * Clears the selection.
    */
   clearSelection = () => {
-    let newSelection = this.blankSelection();
-    this.setStateWrapper({selection: this.blankSelection()});
+    let newSelection = this.emptySelection();
+    this.setStateWrapper({selection: this.emptySelection()});
     return newSelection;
   }
 
@@ -868,7 +868,7 @@ class EditorCore extends Component {
    * Use this to clear the selection.
    * @returns A state object representing a selection where nothing is selected.
    */
-  blankSelection = () => {
+  emptySelection = () => {
     return {
       timeline: {
         frames: [],
@@ -1159,6 +1159,7 @@ class EditorCore extends Component {
     this.project.focus = this.getSelectedClips()[0];
     this.setStateWrapper({
       project: this.project.serialize(),
+      selection: this.emptySelection(),
     });
   }
 
@@ -1170,6 +1171,7 @@ class EditorCore extends Component {
     this.project.focus = this.project.focus.parent._getParentByInstanceOf(window.Wick.Clip);
     this.setStateWrapper({
       project: this.project.serialize(),
+      selection: this.emptySelection(),
     });
   }
 

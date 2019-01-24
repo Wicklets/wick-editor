@@ -60,7 +60,7 @@ class Editor extends EditorCore {
     // GUI state
     this.state = {
       project: null,
-      selection: this.blankSelection(),
+      selection: this.emptySelection(),
       activeTool: 'cursor',
       toolSettings: {
         fillColor: '#ffaabb',
