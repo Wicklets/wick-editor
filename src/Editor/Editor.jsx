@@ -142,7 +142,7 @@ class Editor extends EditorCore {
    */
   setStateWrapper = (nextState) => {
     if(this.lockState) return;
-    
+
     nextState = {
       ...this.state,
       ...nextState,
@@ -201,6 +201,54 @@ class Editor extends EditorCore {
        this.project.focus.timeline.activeLayer.hidden) {
       window.paper.drawingTools.none.activate();
     }
+
+    // if preview playing, use the Interact tool
+    if(this.state.previewPlaying) {
+      window.Wick.Canvas.InteractTool.activate();
+    }
+  }
+
+  updateTimeline = () => {
+    let AnimationTimeline = window.AnimationTimeline;
+    let timeline = this.project.focus.timeline;
+    let selectedUUIDs = this.getSelectedTimelineObjects().map(obj => {
+      return obj.uuid;
+    });
+    let onionSkinOptions = this.getOnionSkinOptions();
+
+    AnimationTimeline.setData({
+      playheadPosition: timeline.playheadPosition,
+      activeLayerIndex: timeline.activeLayerIndex,
+      onionSkinEnabled: onionSkinOptions.onionSkinEnabled,
+      onionSkinSeekForwards: onionSkinOptions.onionSkinSeekForwards,
+      onionSkinSeekBackwards:onionSkinOptions.onionSkinSeekBackwards,
+      layers: timeline.layers.map(layer => {
+        return {
+          id: layer.uuid,
+          label: layer.name,
+          locked: layer.locked,
+          hidden: layer.hidden,
+          frames: layer.frames.map(frame => {
+            return {
+              id: frame.uuid,
+              label: frame.identifier,
+              start: frame.start,
+              end: frame.end,
+              selected: selectedUUIDs.indexOf(frame.uuid) !== -1,
+              contentful: frame.contentful,
+              tweens: frame.tweens.map(tween => {
+                return {
+                  uuid: tween.uuid,
+                  selected: selectedUUIDs.indexOf(tween.uuid) !== -1,
+                  playheadPosition: tween.playheadPosition,
+                }
+              }),
+            }
+          }),
+        }
+      })
+    });
+    AnimationTimeline.repaint();
   }
 
   applyCanvasChangesToProject = () => {
@@ -303,8 +351,8 @@ class Editor extends EditorCore {
   startTickLoop = () => {
     this.tickLoopIntervalID = setInterval(() => {
       this.project.tick();
-      this.rerenderCanvas();
-      this.rerenderTimeline();
+      this.updateCanvas();
+      this.updateTimeline();
     }, 1000 / this.project.framerate);
   }
 
@@ -315,7 +363,7 @@ class Editor extends EditorCore {
   render = () => {
       return (
     <Dropzone
-      accept={window.Wick.Asset.getMIMETypes()}
+      accept={window.Wick.Asset.getValidMIMETypes()}
       onDrop={(accepted, rejected) => this.createAssets(accepted, rejected)}
       disableClick
     >
@@ -334,7 +382,7 @@ class Editor extends EditorCore {
                     openModal={this.openModal}
                     closeActiveModal={this.closeActiveModal}
                     project={this.project}
-                    createClipFromSelection={this.createClipFromSelection}
+                    createSymbolFromSelection={this.createSymbolFromSelection}
                     updateProjectSettings={this.updateProjectSettings}
                   />
                   {/* Header */}
@@ -409,6 +457,7 @@ class Editor extends EditorCore {
                               <Timeline
                                 project={this.project}
                                 updateProjectState={this.updateProjectState}
+                                updateTimeline={this.updateTimeline}
                                 getSelectedTimelineObjects={this.getSelectedTimelineObjects}
                                 selectObjects={this.selectObjects}
                                 setOnionSkinOptions={this.setOnionSkinOptions}

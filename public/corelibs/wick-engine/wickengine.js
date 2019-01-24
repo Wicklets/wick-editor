@@ -35181,7 +35181,37 @@ Wick.Project = class extends Wick.Base {
    */
 
 
-  static fromWickFile(wickFile, callback) {}
+  static fromWickFile(wickFile, callback) {
+    var zip = new JSZip();
+    zip.loadAsync(wickFile).then(function (contents) {
+      contents.files['project.json'].async('text').then(function (projectJSON) {
+        var loadedAssetCount = 0;
+        var projectData = JSON.parse(projectJSON);
+        projectData.assets.forEach(assetData => {
+          var assetFile = contents.files['assets/' + assetData.uuid + '.' + assetData.fileExtension];
+          assetFile.async('base64').then(assetFileData => {
+            var assetSrc = 'data:' + assetData.MIMEType + ';base64,' + assetFileData;
+            assetData.src = assetSrc;
+          }).catch(e => {
+            console.log('Error loading asset file.');
+            console.log(e);
+            callback(null);
+          }).finally(() => {
+            loadedAssetCount++;
+
+            if (loadedAssetCount === projectData.assets.length) {
+              var project = Wick.Project.deserialize(projectData);
+              callback(project);
+            }
+          });
+        });
+      });
+    }).catch(function (e) {
+      console.log('Error loading project zip.');
+      console.log(e);
+      callback(null);
+    });
+  }
   /**
    * String representation of class name: "Project"
    * @return {string} 
@@ -35241,8 +35271,8 @@ Wick.Project = class extends Wick.Base {
 
   importFile(file, callback) {
     var self = this;
-    let imageTypes = Wick.ImageAsset.getMIMETypes();
-    let soundTypes = Wick.SoundAsset.getMIMETypes();
+    let imageTypes = Wick.ImageAsset.getValidMIMETypes();
+    let soundTypes = Wick.SoundAsset.getValidMIMETypes();
     let asset = undefined;
 
     if (imageTypes.indexOf(file.type) !== -1) {
@@ -35335,18 +35365,29 @@ Wick.Project = class extends Wick.Base {
 
 
   exportAsWickFile(callback) {
-    var zip = new JSZip(); // TODO strip asset srcs
+    var projectData = this.serialize();
+    var zip = new JSZip(); // Create assets folder
 
-    zip.file("project.json", JSON.stringify(this.serialize(), null, 2));
-    zip.file("README.txt", 'info for user can go here');
-    var assets = zip.folder("assets");
-    this.assets.forEach(asset => {
-      // TODO determine file extensions
-      //console.log(asset.src.split(',')[1])
-      assets.file(asset.uuid + '.png', asset.src.split(',')[1], {
+    var assetsFolder = zip.folder("assets"); // Populate assets folder with files
+
+    this.assets.filter(asset => {
+      return asset instanceof Wick.ImageAsset || asset instanceof Wick.SoundAsset;
+    }).forEach(asset => {
+      // Create file from asset dataurl, add it to assets folder
+      var fileExtension = asset.MIMEType.split('/')[1];
+      var filename = asset.uuid;
+      var data = asset.src.split(',')[1];
+      assetsFolder.file(filename + '.' + fileExtension, data, {
         base64: true
-      });
-    });
+      }); // Strip asset dataurls (saves space)
+
+      projectData.assets.find(assetData => {
+        return assetData.uuid === asset.uuid;
+      }).src = null;
+    }); // Add project json and extra info file to root directory of zip file
+
+    zip.file("project.json", JSON.stringify(projectData, null, 2));
+    zip.file("README.txt", 'some extra info about the wick filetype can go here.');
     zip.generateAsync({
       type: "blob"
     }).then(callback);
@@ -36148,11 +36189,11 @@ Wick.Transformation = class extends Wick.Base {
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
 Wick.Asset = class extends Wick.Base {
-  constructor(filename) {
+  constructor(filename, src) {
     super();
     this.name = filename;
     this.filename = filename;
-    this._src = null;
+    this._src = src;
     this.onload = null;
   }
   /**
@@ -36161,9 +36202,9 @@ Wick.Asset = class extends Wick.Base {
    */
 
 
-  static getMIMETypes() {
-    let imageTypes = Wick.ImageAsset.getMIMETypes();
-    let soundTypes = Wick.SoundAsset.getMIMETypes();
+  static getValidMIMETypes() {
+    let imageTypes = Wick.ImageAsset.getValidMIMETypes();
+    let soundTypes = Wick.SoundAsset.getValidMIMETypes();
     return imageTypes.concat(soundTypes);
   }
 
@@ -36175,8 +36216,6 @@ Wick.Asset = class extends Wick.Base {
     object.src = data.src;
     return object;
   }
-  /* Getters */
-
 
   get classname() {
     return 'Asset';
@@ -36186,17 +36225,21 @@ Wick.Asset = class extends Wick.Base {
     return this._src;
   }
 
-  get isLoaded() {
-    console.error('All Wick.Asset subclasses must override isLoaded().');
-  }
-  /* Setters */
-
-
   set src(src) {
     this._src = src;
   }
-  /* Methods */
 
+  get isLoaded() {
+    console.error('All Wick.Asset subclasses must override isLoaded().');
+  }
+
+  get MIMEType() {
+    return this.src && this.src.split(':')[1].split(',')[0].split(';')[0];
+  }
+
+  get fileExtension() {
+    return this.MIMEType && this.MIMEType.split('/')[1];
+  }
 
   serialize() {
     var data = super.serialize();
@@ -36228,17 +36271,17 @@ Wick.Asset = class extends Wick.Base {
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
 Wick.ImageAsset = class extends Wick.Asset {
-  constructor() {
-    super();
+  constructor(filename, src) {
+    super(filename, src);
     this.html5Image = null;
   }
   /**
-   * Returns valid MIME types for an Image Asset.
-   * @returns {string[]} Array of strings representing MIME types in the form image/Subtype.
+   * Valid MIME types for image assets.
+   * @returns {string[]} Array of strings representing MIME types in the form image/filetype.
    */
 
 
-  static getMIMETypes() {
+  static getValidMIMETypes() {
     return ['image/jpeg', 'image/png', 'image/bmp', 'image/gif'];
   }
 
@@ -36247,8 +36290,6 @@ Wick.ImageAsset = class extends Wick.Asset {
 
     return object;
   }
-  /* Getters */
-
 
   get classname() {
     return 'ImageAsset';
@@ -36256,6 +36297,18 @@ Wick.ImageAsset = class extends Wick.Asset {
 
   get src() {
     return super.src;
+  }
+
+  set src(src) {
+    super.src = src;
+    this.html5Image = new Image();
+    var self = this;
+
+    this.html5Image.onload = function () {
+      self.onload && self.onload();
+    };
+
+    this.html5Image.src = src;
   }
 
   get width() {
@@ -36269,25 +36322,11 @@ Wick.ImageAsset = class extends Wick.Asset {
   get isLoaded() {
     return this.html5Image !== null;
   }
-  /* Setters */
-
-
-  set src(src) {
-    super.src = src;
-    this.html5Image = new Image();
-    var self = this;
-
-    this.html5Image.onload = function () {
-      self.onload && self.onload();
-    };
-
-    this.html5Image.src = src;
-  }
-  /* Methods */
-
 
   serialize() {
     var data = super.serialize();
+    data.MIMEType = this.MIMEType;
+    data.fileExtension = this.fileExtension;
     return data;
   }
 
@@ -36313,8 +36352,8 @@ Wick.ImageAsset = class extends Wick.Asset {
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
 Wick.SoundAsset = class extends Wick.Asset {
-  constructor() {
-    super();
+  constructor(filename, src) {
+    super(filename, src);
     this.html5Sound = null;
     this._loaded = false;
   }
@@ -36324,7 +36363,7 @@ Wick.SoundAsset = class extends Wick.Asset {
    */
 
 
-  static getMIMETypes() {
+  static getValidMIMETypes() {
     return ['audio/mpeg3', 'audio/x-mpeg-3', 'audio/ogg'];
   }
 
@@ -36370,6 +36409,8 @@ Wick.SoundAsset = class extends Wick.Asset {
 
   serialize() {
     var data = super.serialize();
+    data.MIMEType = this.MIMEType;
+    data.fileExtension = this.fileExtension;
     return data;
   }
 
@@ -36401,7 +36442,7 @@ Wick.ClipAsset = class extends Wick.Asset {
     this.linkedClips = [];
   }
 
-  static getMIMETypes() {
+  static getValidMIMETypes() {
     return [];
   }
 
@@ -36459,7 +36500,7 @@ Wick.ClipAsset = class extends Wick.Asset {
 
   updateClipFromAsset(clip) {
     var timeline = this.timeline.clone(false);
-    clip.setTimeline(timeline);
+    clip.timeline = timeline;
   }
 
   serialize() {
@@ -36494,7 +36535,7 @@ Wick.ButtonAsset = class extends Wick.ClipAsset {
     super();
   }
 
-  static getMIMETypes() {
+  static getValidMIMETypes() {
     return [];
   }
 
@@ -36923,8 +36964,8 @@ Wick.Frame = class extends Wick.Tickable {
 Wick.Clip = class extends Wick.Tickable {
   constructor() {
     super();
-    this.timeline = null;
-    this.setTimeline(new Wick.Timeline());
+    this._timeline = null;
+    this.timeline = new Wick.Timeline();
     this.transform = new Wick.Transformation();
   }
 
@@ -36932,11 +36973,9 @@ Wick.Clip = class extends Wick.Tickable {
     super._deserialize(data, object);
 
     object.transform = Wick.Transformation.deserialize(data.transform);
-    object.setTimeline(Wick.Timeline.deserialize(data.timeline));
+    object.timeline = Wick.Timeline.deserialize(data.timeline);
     return object;
   }
-  /* Getters */
-
 
   get classname() {
     return 'Clip';
@@ -36949,19 +36988,19 @@ Wick.Clip = class extends Wick.Tickable {
   get isRoot() {
     return this.project && this === this.project.focus;
   }
-  /* Setters */
 
-  /* Methods */
+  get timeline() {
+    return this._timeline;
+  }
 
-
-  setTimeline(timeline) {
-    if (this.timeline) {
-      this._removeChild(this.timeline);
+  set timeline(timeline) {
+    if (this._timeline) {
+      this._removeChild(this._timeline);
     }
 
-    this.timeline = timeline;
+    this._timeline = timeline;
 
-    this._addChild(this.timeline);
+    this._addChild(this._timeline);
   }
 
   _onInactive() {
@@ -37053,16 +37092,10 @@ Wick.Button = class extends Wick.Clip {
 
     return object;
   }
-  /* Getters */
-
 
   get classname() {
     return 'Button';
   }
-  /* Setters */
-
-  /* Methods */
-
 
   setMouseState(newState) {
     this._lastMouseState = this._mouseState;
@@ -37070,13 +37103,14 @@ Wick.Button = class extends Wick.Clip {
   }
 
   _onInactive() {
-    super._onInactive();
+    return super._onInactive();
   }
 
   _onActivated() {
-    super._onActivated();
+    var result = super._onActivated();
 
     this.timeline.playheadPosition = 1;
+    return result;
   }
 
   _onActive() {
@@ -37104,7 +37138,7 @@ Wick.Button = class extends Wick.Clip {
   }
 
   _onDeactivated() {
-    super._onDeactivated();
+    return super._onDeactivated();
   }
 
   serialize() {
