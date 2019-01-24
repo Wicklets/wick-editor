@@ -1274,8 +1274,9 @@ class EditorCore extends Component {
     paths.forEach(path => {
       path.name = Math.random() + '-';
       window.paper.project.activeLayer.addChild(path);
-      this.applyCanvasChangesToProject()
     });
+    this.applyCanvasChangesToProject();
+    this.setState({project:this.project.serialize()});
   }
 
   /**
