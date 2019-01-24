@@ -68,7 +68,7 @@ class Timeline extends Component {
       layers: timeline.layers.map(layer => {
         return {
           id: layer.uuid,
-          label: layer.title,
+          label: layer.name,
           locked: layer.locked,
           hidden: layer.hidden,
           frames: layer.frames.map(frame => {
