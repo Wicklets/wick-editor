@@ -92,6 +92,12 @@ class EditorCore extends Component {
   serializeSelection = () => {
     let selectedObjects = this.getAllSelectedObjects();
 
+    /**
+     * Serializes an array of Wick Object or paths.
+     * @param  {object[]} arr Array of Wick objects.
+     * @param  {boolean} path Run path serialization function if true.
+     * @return {string[]}     Array of serialized Wick Objects and paths.
+     */
     let serializeArray = function (arr, path) {
       let serialized = [];
       arr.forEach( (item) => {
@@ -111,6 +117,7 @@ class EditorCore extends Component {
 
     newSelection.timeline.frames = serializeArray(selectedObjects.timeline.frames);
     newSelection.timeline.tweens = serializeArray(selectedObjects.timeline.tweens);
+    newSelection.timeline.layers = serializeArray(selectedObjects.timeline.layers);
     newSelection.canvas.paths = serializeArray(selectedObjects.canvas.paths, true);
     newSelection.canvas.clips = serializeArray(selectedObjects.canvas.clips);
     newSelection.assetLibrary.assets = serializeArray(selectedObjects.assetLibrary.assets);
@@ -124,7 +131,12 @@ class EditorCore extends Component {
    * @return {object} Parsed selection.
    */
   deserializeSelection = (selection) => {
-
+    /**
+     * Deserialize a selection array.
+     * @param  {string[]} arr  array to deserialize
+     * @param  {boolean} path If True, use path deserialization.
+     * @return {object[]}     The parsed objects in an array.
+     */
     let deserializeArray = function (arr, path) {
       let deserialized = [];
       arr.forEach( (item) => {
@@ -132,8 +144,9 @@ class EditorCore extends Component {
           let newPath = new window.paper.Path();
           newPath.importJSON(item);
           deserialized.push(newPath);
-        } else if (item.deserialize) {
-          deserialized.push(item.deserialize());
+        } else if (item.classname) {
+          let wickObject = window.Wick[item.classname].deserialize(item);
+          deserialized.push(wickObject);
         } else {
           deserialized.push(item);
         }
@@ -144,6 +157,7 @@ class EditorCore extends Component {
     let newSelection = this.emptySelection();
     newSelection.timeline.frames = deserializeArray(selection.timeline.frames);
     newSelection.timeline.tweens = deserializeArray(selection.timeline.tweens);
+    newSelection.timeline.layers = deserializeArray(selection.timeline.layers);
     newSelection.canvas.paths = deserializeArray(selection.canvas.paths, true);
     newSelection.canvas.clips = deserializeArray(selection.canvas.clips);
     newSelection.assetLibrary.assets = deserializeArray(selection.assetLibrary.assets);
@@ -873,6 +887,7 @@ class EditorCore extends Component {
       timeline: {
         frames: [],
         tweens: [],
+        layers: [],
       },
       canvas: {
         paths: [],
@@ -1207,7 +1222,7 @@ class EditorCore extends Component {
     acceptedFiles.forEach(file => {
       this.project.importFile(file, function (asset) {
         // After import success, update editor state.
-        this.setStateWrapper({project: this.project.serialize()});
+        self.setStateWrapper({project: self.project.serialize()});
       });
     });
   }
@@ -1260,7 +1275,7 @@ class EditorCore extends Component {
       let deserialized = this.deserializeSelection(serializedSelection);
       this.addSelectionToProject(deserialized);
     }).catch((err) => {
-      console.log("Error when pasting to clipboard.")
+      console.error("Error when pasting from clipboard.")
       console.error(err);
     });
   }
@@ -1270,14 +1285,40 @@ class EditorCore extends Component {
    * @param {object} selection deserialized selection object to add to project.
    */
   addSelectionToProject = (selection) => {
-    let paths = selection.canvas.paths;
+    if (selection.canvas) {
+      if (selection.canvas.paths) {
+        selection.canvas.paths.forEach(path => {
+          path.name = Math.random() + '-'; //TODO: Change to UUID system.
+          window.paper.project.activeLayer.addChild(path);
+        });
+        this.applyCanvasChangesToProject();
+      }
 
-    // TODO: Finish
-    paths.forEach(path => {
-      path.name = Math.random() + '-';
-      window.paper.project.activeLayer.addChild(path);
-    });
-    this.applyCanvasChangesToProject();
+      if (selection.canvas.clips) {
+        selection.canvas.clips.forEach(clip => {
+          let clone = clip.clone(false);
+          this.project.focus.timeline.activeLayer.activeFrame.addClip(clone); //TODO simplify API
+        });
+      }
+    }
+
+    if (selection.assetLibrary) {
+      if (selection.assetLibrary.assets) {
+        selection.assetLibrary.assets.forEach(asset => {
+          let clone = asset.clone();
+          this.project.addAsset(clone); //TODO: Check for asset collisions.
+        });
+      }
+    }
+
+    //TODO: Complete timeline pasting selection.
+    if (selection.timeline) {
+      if (selection.timeline.frames) {
+        if (selection.timeline.frames.length > 0) {alert("NYI: Wick Editor Alpha cannot paste frames!")}
+        if (selection.timeline.layers.length > 0) {alert("NYI: Wick Editor Alpha cannot layers frames!")}
+      }
+    }
+
     this.setState({project:this.project.serialize()});
   }
 
