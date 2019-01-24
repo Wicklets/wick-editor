@@ -31,6 +31,8 @@ class HotKeyInterface extends Object {
       'copy': ['ctrl+c','command+c'],
       'paste': ['ctrl+v', 'command+v'],
       'cut': ['ctrl+x', 'command+x'],
+      'break-apart': 'ctrl+b',
+      'leave-focus': '8',
     }
   }
 
@@ -48,8 +50,10 @@ class HotKeyInterface extends Object {
       'activate-zoom': (() => this.editor.setActiveTool("zoom")),
       'delete': (() =>  this.editor.deleteSelectedObjects()),
       'preview-play-toggle': (() => this.editor.togglePreviewPlaying()),
-      'undo': (() => this.editor.state.history.undo()),
-      'redo': (() => this.editor.state.history.redo()),
+      'break-apart': (() => this.editor.breakApartSelection()),
+      'undo': (() => this.editor.history.undo()),
+      'redo': (() => this.editor.history.redo()),
+      'leave-focus': (() => this.editor.focusTimelineOfParentObject()),
       'do-nothing': (() => console.log("donothing")),
       'copy': this.editor.copySelectionToClipboard,
       'cut': this.editor.cutSelectionToClipboard,

@@ -3827,10 +3827,13 @@ paper.DrawingTools = class {
     this._onSelectionChangedCallback = fn;
   }
 
-  _ensureUniqueIDs() {
-    paper.project.layers.forEach(layer => {
+  _ensureUniqueIDs(layers) {
+    if (!layers) layers = paper.project.layers;
+    var self = this;
+    layers.forEach(layer => {
       layer.children.forEach(child => {
         if (!child.name) child.name = Math.random() + '-';
+        if (child.layers) self._ensureUniqueIDs(child.layers);
       });
     });
   }
@@ -4694,7 +4697,7 @@ paper.MultiSelection = class {
       var clone = item.clone();
       clone.position.x -= this._selectionBounds.center.x;
       clone.position.y -= this._selectionBounds.center.y;
-      clone.name = undefined;
+      //clone.name = Math.random() + '-';
       exportGroup.addChild(clone);
     });
 

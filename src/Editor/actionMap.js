@@ -98,8 +98,8 @@ class ActionMapInterface extends Object {
       },
       breakApart: {
         icon: 'breakApart',
-        tooltip: 'Break Apart Group(NYI)',
-        action: () => console.error('NYI'),
+        tooltip: 'Break Apart',
+        action: this.editor.breakApartSelection,
         color: 'red',
         id: 'action-break-apart',
       },
