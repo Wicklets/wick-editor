@@ -28,6 +28,9 @@ class HotKeyInterface extends Object {
       'preview-play-toggle': 'enter',
       'undo': ['ctrl+z','command+z'],
       'redo': ['ctrl+y','command+y'],
+      'copy': ['ctrl+c','command+c'],
+      'paste': ['ctrl+v', 'command+v'],
+      'cut': ['ctrl+x', 'command+x'],
     }
   }
 
@@ -48,6 +51,10 @@ class HotKeyInterface extends Object {
       'undo': (() => this.editor.state.history.undo()),
       'redo': (() => this.editor.state.history.redo()),
       'do-nothing': (() => console.log("donothing")),
+      'copy': this.editor.copySelectionToClipboard,
+      'cut': this.editor.cutSelectionToClipboard,
+      'paste': this.editor.pasteFromClipboard,
+
     }
 
     for(let name in this.handlers) {

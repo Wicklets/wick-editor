@@ -18,6 +18,7 @@
  */
 
 import { Component } from 'react';
+import localForage from 'localforage';
 
 class EditorCore extends Component {
   constructor () {
@@ -80,6 +81,18 @@ class EditorCore extends Component {
       paper: window.paper,
       canvas: new window.Wick.Canvas(),
     });
+
+    this.initializeStorage();
+  }
+
+  /**
+   * Initialize the local storage system.
+   */
+  initializeStorage = () => {
+    localForage.config({
+      name        : 'WickEditor',
+      description : 'Live Data storage of the Wick Editor app.'
+    });
   }
 
   /**
@@ -121,6 +134,87 @@ class EditorCore extends Component {
         ...newToolSettings,
       }
     });
+  }
+
+  /**
+   * Returns all objects currently selected.
+   * @return {object} Selection object containing Wick Objects and paths.
+   */
+  getAllSelectedObjects = () => {
+    let selection = this.blankSelection();
+    selection.timeline.frames = this.getSelectedFrames();
+    selection.timeline.tweens = this.getSelectedTweens();
+    selection.canvas.paths = this.getSelectedPaths();
+    selection.canvas.clips = this.getSelectedClips();
+    selection.assetLibrary.assets = this.getSelectedAssetLibraryObjects();
+    return selection;
+  }
+
+
+  /**
+   * Returns a serialized version of the selection.
+   * @return {object} Serialized representation of the selection.
+   */
+  serializeSelection = () => {
+    let selectedObjects = this.getAllSelectedObjects();
+
+    let serializeArray = function (arr, path) {
+      let serialized = [];
+      arr.forEach( (item) => {
+        if (path) {
+          // Serializing path
+          serialized.push(item.exportJSON());
+        } else if (item.serialize && item instanceof window.Wick.Base) {
+          serialized.push(item.serialize());
+        } else {
+          serialized.push(item);
+        }
+      });
+      return serialized;
+    }
+
+    let newSelection = this.blankSelection();
+
+    newSelection.timeline.frames = serializeArray(selectedObjects.timeline.frames);
+    newSelection.timeline.tweens = serializeArray(selectedObjects.timeline.tweens);
+    newSelection.canvas.paths = serializeArray(selectedObjects.canvas.paths, true);
+    newSelection.canvas.clips = serializeArray(selectedObjects.canvas.clips);
+    newSelection.assetLibrary.assets = serializeArray(selectedObjects.assetLibrary.assets);
+
+    return newSelection;
+  }
+
+  /**
+   * Parses a serialized selection.
+   * @param {serialized} selection selection object.
+   * @return {object} Parsed selection.
+   */
+  deserializeSelection = (selection) => {
+
+    let deserializeArray = function (arr, path) {
+      let deserialized = [];
+      arr.forEach( (item) => {
+        if (path) {
+          let newPath = new window.paper.Path();
+          newPath.importJSON(item);
+          deserialized.push(newPath);
+        } else if (item.deserialize) {
+          deserialized.push(item.deserialize());
+        } else {
+          deserialized.push(item);
+        }
+      });
+      return deserialized;
+    }
+
+    let newSelection = this.blankSelection();
+    newSelection.timeline.frames = deserializeArray(selection.timeline.frames);
+    newSelection.timeline.tweens = deserializeArray(selection.timeline.tweens);
+    newSelection.canvas.paths = deserializeArray(selection.canvas.paths, true);
+    newSelection.canvas.clips = deserializeArray(selection.canvas.clips);
+    newSelection.assetLibrary.assets = deserializeArray(selection.assetLibrary.assets);
+
+    return newSelection;
   }
 
   /**
@@ -814,7 +908,6 @@ class EditorCore extends Component {
    * @param {object[]} objects - The objects to add to the selection.
    */
   selectObjects = (objects) => {
-
     this.setEditorState({
       selection: this.addObjectsToSelection(objects, this.blankSelection()),
     });
@@ -947,7 +1040,7 @@ class EditorCore extends Component {
   deleteSelectedCanvasObjects = () => {
     let result = this.state.paper.project.selection.delete();
     this.applyCanvasChangesToProject();
-    this.clearSelection(); 
+    this.clearSelection();
     return result;
   }
 
@@ -1105,7 +1198,7 @@ class EditorCore extends Component {
     if (acceptedFiles.length <= 0) return;
 
     acceptedFiles.forEach(file => {
-      this.state.project.import(file, function (asset) {
+      this.state.project.importFile(file, function (asset) {
         // After import success, update editor state.
         self.setEditorState({
           project: self.state.project,
@@ -1131,6 +1224,55 @@ class EditorCore extends Component {
       onionSkinSeekForwards: this.state.onionSkinSeekForwards,
       onionSkinSeekBackwards: this.state.onionSkinSeekBackwards
     };
+  }
+
+  /**
+   * Copies the selection state and selected objects to the clipboard.
+   */
+  copySelectionToClipboard = () => {
+    let serializedSelection = this.serializeSelection();
+    localForage.setItem('wickClipboard', serializedSelection).then(() => {
+    }).catch( (err) => {
+      console.error("Error when copying to clipboard.");
+      console.error(err);
+    });
+  }
+
+  /**
+   * Copies the selected objects to the clipboard and then deletes them from the project.
+   */
+  cutSelectionToClipboard = () => {
+    this.copySelectionToClipboard();
+    this.deleteSelectedObjects();
+  }
+
+  /**
+   * Attempts to paste in objects on the clipboard if they are available. Expects clipboard contains a serialized selection.
+   * @return {[type]} [description]
+   */
+  pasteFromClipboard = () => {
+    localForage.getItem('wickClipboard').then((serializedSelection) => {
+      let deserialized = this.deserializeSelection(serializedSelection);
+      this.addSelectionToProject(deserialized);
+    }).catch((err) => {
+      console.log("Error when pasting to clipboard.")
+      console.error(err);
+    });
+  }
+
+  /**
+   * Adds a deserialized selection to the project.
+   * @param {object} selection deserialized selection object to add to project.
+   */
+  addSelectionToProject = (selection) => {
+    let paths = selection.canvas.paths;
+
+    // TODO: Finish
+    paths.forEach(path => {
+      path.name = Math.random() + '-';
+      window.paper.project.activeLayer.addChild(path);
+      this.applyCanvasChangesToProject()
+    });
   }
 
   /**
