@@ -1546,6 +1546,11 @@ var AnimationTimeline = new (function ft () {
         }
 
         selectionBox.deactivate();
+
+        onSelectionChangeFn({
+            frames: selectedFrames(),
+            tweens: selectedTweens(),
+        });
     }
 
     self.onBlankFrameRightClick = function (e) {

@@ -123,6 +123,7 @@ class Editor extends EditorCore {
       description : 'Live Data storage of the Wick Editor app.'
     });
 
+    // Setup the initial project state
     this.setState({
       ...this.state,
       project: this.project.serialize(),
@@ -141,10 +142,12 @@ class Editor extends EditorCore {
    */
   setStateWrapper = (nextState) => {
     if(this.lockState) return;
+    
     nextState = {
       ...this.state,
       ...nextState,
     }
+
     let projectOrSelectionWillChange = this.projectOrSelectionChanged(this.state, nextState);
     this.setState(nextState, () => {
       if(projectOrSelectionWillChange) {
