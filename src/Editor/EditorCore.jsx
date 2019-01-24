@@ -1031,7 +1031,19 @@ class EditorCore extends Component {
    * Break apart the selected clip(s) and select the objects that were contained within those clip(s).
    */
   breakApartSelection = () => {
+    this.lockState = true;
 
+    let results = [];
+    this.getSelectedClips().forEach(clip => {
+      results = results.concat(this.breakApartClip(clip));
+    });
+    let newSelection = this.selectObjects(results);
+
+    this.lockState = false;
+    this.setStateWrapper({
+      project: this.project.serialize(),
+      selection: newSelection,
+    });
   }
 
   /**
@@ -1040,7 +1052,39 @@ class EditorCore extends Component {
    * @returns {object[]} - The objects that were contained within the clip.
    */
   breakApartClip = (clip) => {
+    let itemsInsideClip = [];
 
+    // Add paths from inside clip
+    clip.timeline.activeFrames.map(frame => {
+      return frame.svg;
+    }).forEach(svg => {
+      let imported = window.paper.project.importSVG(svg);
+      imported.children.forEach(child => {
+        child.position = new window.paper.Point(
+          child.position.x + clip.transform.x,
+          child.position.y + clip.transform.y);
+      });
+      let children = imported.removeChildren();
+      itemsInsideClip = itemsInsideClip.concat(children);
+      window.paper.project.activeLayer.addChildren(children);
+      imported.remove();
+    });
+    this.canvas.applyChanges(this.project, window.paper.project.layers);
+
+    // Add subclips from inside clip
+    clip.timeline.activeFrames.forEach(frame => {
+      frame.clips.forEach(subclip => {
+        this.project.focus.timeline.activeLayer.activeFrame.addClip(subclip);
+        subclip.transform.x += clip.transform.x;
+        subclip.transform.y += clip.transform.y;
+        itemsInsideClip.push(subclip);
+      });
+    });
+
+    // Delete clip, since we broke it apart
+    clip.parent.removeClip(clip);
+
+    return itemsInsideClip;
   }
 
   /**
@@ -1050,7 +1094,6 @@ class EditorCore extends Component {
   deleteSelectedCanvasObjects = () => {
     let result = this.paper.project.selection.delete();
     this.applyCanvasChangesToProject();
-    this.clearSelection();
     return result;
   }
 

@@ -51,6 +51,7 @@ class UndoRedo {
   _recoverProjectState (state) {
     this.editor.project = window.Wick.Project.deserialize(state.project);
     this.editor.setState({
+      ...this.editor.state,
       project: state.project,
       selection: state.selection,
     });
