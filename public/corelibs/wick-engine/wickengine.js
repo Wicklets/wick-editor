@@ -36364,7 +36364,7 @@ Wick.SoundAsset = class extends Wick.Asset {
 
 
   static getValidMIMETypes() {
-    return ['audio/mpeg3', 'audio/x-mpeg-3', 'audio/ogg'];
+    return ['audio/mpeg3', 'audio/x-mpeg-3', 'audio/ogg', 'audio/wav'];
   }
 
   static _deserialize(data, object) {
