@@ -89,7 +89,7 @@ class CodeEditor extends Component {
   updateScriptOfSelection (newScriptSrc) {
     let script = this.getScriptOfSelection();
     script.src = newScriptSrc;
-    this.props.forceUpdateProject();
+    this.props.updateProjectState(this.props.project.serialize());
   }
 }
 

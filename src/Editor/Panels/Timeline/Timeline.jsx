@@ -29,8 +29,6 @@ class Timeline extends Component {
   }
 
   componentDidMount () {
-    this.props.onRef(this);
-
     let AnimationTimeline = window.AnimationTimeline;
     let self = this;
 
@@ -70,7 +68,7 @@ class Timeline extends Component {
       layers: timeline.layers.map(layer => {
         return {
           id: layer.uuid,
-          label: layer.title,
+          label: layer.name,
           locked: layer.locked,
           hidden: layer.hidden,
           frames: layer.frames.map(frame => {
@@ -154,7 +152,7 @@ class Timeline extends Component {
       onionSkinSeekBackwards: e.onionSkinSeekBackwards,
       onionSkinSeekForwards: e.onionSkinSeekForwards,
     });
-    this.props.forceUpdateProject();
+    this.props.updateProjectState(this.props.project.serialize());
   }
 
   onSoftChange (e) {

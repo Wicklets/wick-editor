@@ -29,6 +29,7 @@ import { ReflexContainer, ReflexSplitter, ReflexElement } from 'react-reflex'
 import { throttle } from 'underscore';
 import { HotKeys } from 'react-hotkeys';
 import Dropzone from 'react-dropzone';
+import localForage from 'localforage';
 
 import EditorCore from './EditorCore';
 import UndoRedo from '../core/UndoRedo';
@@ -51,9 +52,31 @@ class Editor extends EditorCore {
     // History (undo/redo stacks)
     this.history = new UndoRedo(this);
 
+    // "Live" editor states
+    this.project = null;
+    this.paper = null;
+    this.canvas = null;
+
     // GUI state
     this.state = {
-      ...this.state,
+      project: null,
+      selection: this.blankSelection(),
+      activeTool: 'cursor',
+      toolSettings: {
+        fillColor: '#ffaabb',
+        strokeColor: '#000',
+        strokeWidth: 1,
+        brushSize: 10,
+        brushSmoothing: 0.9,
+        brushSmoothness: 10,
+        cornerRadius: 0,
+        pressureEnabled: false,
+      },
+      onionSkinEnabled: false,
+      onionSkinSeekForwards: 1,
+      onionSkinSeekBackwards: 1,
+      previewPlaying: false,
+      activeModalName: null,
       inspectorSize: 250,
       codeEditorSize: 0.1,
       timelineSize: 100,
@@ -67,55 +90,66 @@ class Editor extends EditorCore {
     // Init actions
     this.actionMapInterface = new ActionMapInterface(this);
 
-    // Tools
-    this.createAssets = this.createAssets.bind(this);
-
-    // Modals
-    this.openModal = this.openModal.bind(this);
-    this.closeActiveModal = this.closeActiveModal.bind(this);
-
-    // Canvas
-    this.updateCanvas = this.updateCanvas.bind(this);
-    this.rerenderCanvas = this.rerenderCanvas.bind(this);
-    this.rerenderTimeline = this.rerenderTimeline.bind(this);
-
     // Resiable panels
     this.RESIZE_THROTTLE_AMOUNT_MS = 10;
     this.WINDOW_RESIZE_THROTTLE_AMOUNT_MS = 300;
     this.resizeProps = {
-      onStopResize: throttle(this.onStopResize.bind(this), this.resizeThrottleAmount),
-      onStopInspectorResize: throttle(this.onStopInspectorResize.bind(this), this.resizeThrottleAmount),
-      onStopAssetLibraryResize: throttle(this.onStopAssetLibraryResize.bind(this), this.resizeThrottleAmount),
-      onStopTimelineResize: throttle(this.onStopTimelineResize.bind(this), this.resizeThrottleAmount),
-      onStopCodeEditorResize: throttle(this.onStopCodeEditorResize.bind(this), this.resizeThrottleAmount),
-      onResize: throttle(this.onResize.bind(this), this.resizeThrottleAmount),
-      onWindowResize: throttle(this.onWindowResize.bind(this), this.windowResizeThrottleAmount),
+      onStopResize: throttle(this.onStopResize, this.resizeThrottleAmount),
+      onStopInspectorResize: throttle(this.onStopInspectorResize, this.resizeThrottleAmount),
+      onStopAssetLibraryResize: throttle(this.onStopAssetLibraryResize, this.resizeThrottleAmount),
+      onStopTimelineResize: throttle(this.onStopTimelineResize, this.resizeThrottleAmount),
+      onStopCodeEditorResize: throttle(this.onStopCodeEditorResize, this.resizeThrottleAmount),
+      onResize: throttle(this.onResize, this.resizeThrottleAmount),
+      onWindowResize: throttle(this.onWindowResize, this.windowResizeThrottleAmount),
     };
     window.addEventListener("resize", this.resizeProps.onWindowResize);
 
-    this.refocusEditor = this.refocusEditor.bind(this);
-
     // Preview play tick loop
     this.tickLoopIntervalID = null;
-    this.togglePreviewPlaying = this.togglePreviewPlaying.bind(this);
-    this.startTickLoop = this.startTickLoop.bind(this);
-    this.stopTickLoop = this.stopTickLoop.bind(this);
 
-    // References to canvas and timeline (for fast preview play rendering)
-    this.canvasRef = React.createRef();
-    this.timelineRef = React.createRef();
+    // Lock state flag
+    this.lockState = false;
   }
 
-  componentWillMount () {
-    this.initializeEngine();
+  componentWillMount = () => {
+    // Initialize "live" engine state
+    this.project = new window.Wick.Project();
+    this.paper = window.paper;
+    this.canvas = new window.Wick.Canvas();
+
+    // Initialize local storage
+    localForage.config({
+      name        : 'WickEditor',
+      description : 'Live Data storage of the Wick Editor app.'
+    });
+
+    this.setState({
+      ...this.state,
+      project: this.project.serialize(),
+    }, () => {
+      this.history.saveState();
+    });
   }
 
-  componentDidMount () {
+  componentDidMount = () => {
     this.refocusEditor();
-    this.history.saveState(this.state.selection, this.state.project);
   }
 
-  componentDidUpdate (prevProps, prevState) {
+  setStateWrapper = (nextState) => {
+    if(this.lockState) return;
+    nextState = {
+      ...this.state,
+      ...nextState,
+    }
+    let projectOrSelectionWillChange = this.projectOrSelectionChanged(this.state, nextState);
+    this.setState(nextState, () => {
+      if(projectOrSelectionWillChange) {
+        this.history.saveState();
+      }
+    });
+  }
+
+  componentDidUpdate = (prevProps, prevState) => {
     this.updateCanvas();
 
     if(this.state.previewPlaying && !prevState.previewPlaying) {
@@ -127,10 +161,13 @@ class Editor extends EditorCore {
     }
   }
 
-  updateCanvas () {
+  updateCanvas = () => {
     // re-render the canvas
-    //console.log(this.state.project.focus.timeline.activeLayer.activeFrame.svg)
-    this.rerenderCanvas();
+    this.canvas.render(this.project, {
+      onionSkinEnabled: this.state.onionSkinEnabled,
+      onionSkinSeekBackwards: this.state.onionSkinSeekBackwards,
+      onionSkinSeekForwards: this.state.onionSkinSeekForwards,
+    });
 
     // update the paper.js selection using the editor selection state
     window.paper.project.selection.clear();
@@ -152,35 +189,28 @@ class Editor extends EditorCore {
     });
 
     // if there is no layer/frame to draw on, activate the 'none' tool.
-    if(!this.state.project.focus.timeline.activeLayer.activeFrame ||
-       this.state.project.focus.timeline.activeLayer.locked ||
-       this.state.project.focus.timeline.activeLayer.hidden) {
+    if(!this.project.focus.timeline.activeLayer.activeFrame ||
+       this.project.focus.timeline.activeLayer.locked ||
+       this.project.focus.timeline.activeLayer.hidden) {
       window.paper.drawingTools.none.activate();
     }
   }
 
-  rerenderCanvas () {
-    this.state.canvas.render(this.state.project, {
-      onionSkinEnabled: this.state.onionSkinEnabled,
-      onionSkinSeekBackwards: this.state.onionSkinSeekBackwards,
-      onionSkinSeekForwards: this.state.onionSkinSeekForwards,
-    });
+  applyCanvasChangesToProject = () => {
+    this.canvas.applyChanges(this.project, window.paper.project.layers);
   }
 
-  rerenderTimeline () {
-
+  projectOrSelectionChanged = (state, nextState) => {
+    return JSON.stringify(state.project) !== JSON.stringify(nextState.project)
+        || JSON.stringify(state.selection) !== JSON.stringify(nextState.selection);
   }
 
-  applyCanvasChangesToProject () {
-    this.state.canvas.applyChanges(this.state.project, window.paper.project.layers);
-  }
-
-  onWindowResize () {
+  onWindowResize = () => {
     // Ensure that all elements resize on window resize.
     this.resizeProps.onResize();
   }
 
-  onResize (e) {
+  onResize = (e) => {
     window.Wick.Canvas.resize();
     window.AnimationTimeline.resize();
   }
@@ -189,11 +219,11 @@ class Editor extends EditorCore {
 
   }
 
-  getSizeHorizontal (domElement) {
+  getSizeHorizontal = (domElement) => {
     return domElement.offsetWidth;
   }
 
-  getSizeVertical (domElement) {
+  getSizeVertical = (domElement) => {
     return domElement.offsetHeight;
   }
 
@@ -223,17 +253,17 @@ class Editor extends EditorCore {
     });
   }
 
-  closeActiveModal () {
-    this.openModal(null);
-  }
-
-  openModal (name) {
+  openModal = (name) => {
     if (this.state.activeModalName !== name) {
       this.setState({
         activeModalName: name,
       });
     }
     this.refocusEditor();
+  }
+
+  closeActiveModal = () => {
+    this.openModal(null);
   }
 
   /**
@@ -253,29 +283,29 @@ class Editor extends EditorCore {
     })
   }
 
-  refocusEditor () {
+  refocusEditor = () => {
     window.document.getElementById('hotkeys-container').focus();
   }
 
-  togglePreviewPlaying () {
+  togglePreviewPlaying = () => {
     this.setState(prevState => ({
       previewPlaying: !prevState.previewPlaying,
     }));
   }
 
-  startTickLoop () {
+  startTickLoop = () => {
     this.tickLoopIntervalID = setInterval(() => {
-      this.state.project.tick();
+      this.project.tick();
       this.rerenderCanvas();
       this.rerenderTimeline();
-    }, 1000 / this.state.project.framerate);
+    }, 1000 / this.project.framerate);
   }
 
-  stopTickLoop () {
+  stopTickLoop = () => {
     clearInterval(this.tickLoopIntervalID);
   }
 
-  render () {
+  render = () => {
       return (
     <Dropzone
       accept={window.Wick.Asset.getMIMETypes()}
@@ -296,13 +326,13 @@ class Editor extends EditorCore {
                     activeModalName={this.state.activeModalName}
                     openModal={this.openModal}
                     closeActiveModal={this.closeActiveModal}
-                    project={this.state.project}
+                    project={this.project}
                     createClipFromSelection={this.createClipFromSelection}
                     updateProjectSettings={this.updateProjectSettings}
                   />
                   {/* Header */}
                   <DockedPanel>
-                    <MenuBar openModal={this.openModal} projectName={this.state.project.name}/>
+                    <MenuBar openModal={this.openModal} projectName={this.project.name}/>
                   </DockedPanel>
                 </div>
                 <div id="editor-body">
@@ -337,11 +367,11 @@ class Editor extends EditorCore {
                                 onStopResize={this.resizeProps.onStopCodeEditorResize}>
                                 <DockedPanel>
                                   <CodeEditor
-                                    project={this.state.project}
+                                    project={this.project}
+                                    updateProjectState={this.updateProjectState}
                                     getSelectionType={this.getSelectionType}
                                     getSelectedFrames={this.getSelectedFrames}
                                     getSelectedClips={this.getSelectedClips}
-                                    forceUpdateProject={this.forceUpdateProject}
                                   />
                                 </DockedPanel>
                               </ReflexElement>
@@ -349,13 +379,12 @@ class Editor extends EditorCore {
                               <ReflexElement>
                                 <DockedPanel>
                                   <Canvas
-                                    project={this.state.project}
-                                    forceUpdateProject={this.forceUpdateProject}
-                                    canvas={this.state.canvas}
-                                    paper={this.state.paper}
+                                    project={this.project}
+                                    updateProjectState={this.updateProjectState}
+                                    canvas={this.canvas}
+                                    paper={this.paper}
                                     selectObjects={this.selectObjects}
                                     updateCanvas={this.updateCanvas}
-                                    onRef={ref => this.canvasRef = ref}
                                     createImageFromAsset={this.createImageFromAsset}
                                   />
                                 </DockedPanel>
@@ -371,10 +400,10 @@ class Editor extends EditorCore {
                             onStopResize={this.resizeProps.onStopTimelineResize}>
                             <DockedPanel>
                               <Timeline
-                                project={this.state.project}
+                                project={this.project}
+                                updateProjectState={this.updateProjectState}
                                 getSelectedTimelineObjects={this.getSelectedTimelineObjects}
                                 selectObjects={this.selectObjects}
-                                forceUpdateProject={this.forceUpdateProject}
                                 setOnionSkinOptions={this.setOnionSkinOptions}
                                 getOnionSkinOptions={this.getOnionSkinOptions}
                                 onRef={ref => this.timelineRef = ref}
@@ -417,7 +446,7 @@ class Editor extends EditorCore {
                             onStopResize={this.resizeProps.onStopAssetLibraryResize}>
                             <DockedPanel>
                               <AssetLibrary
-                                assets={this.state.project.assets}
+                                assets={this.project.assets}
                                 openFileDialog={() => open()}
                                 selectObjects={this.selectObjects}
                                 isObjectSelected={this.isObjectSelected}
