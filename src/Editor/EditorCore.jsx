@@ -23,15 +23,11 @@ class EditorCore extends Component {
   constructor () {
     super();
 
-    this.freezeHistory = false;
-
     this.state = {
-      project: null,
-      paper: null,
-      canvas: null,
       onionSkinEnabled: false,
       onionSkinSeekForwards: 1,
       onionSkinSeekBackwards: 1,
+      project: null,
       selection: this.blankSelection(),
       activeTool: 'cursor',
       toolSettings: {
@@ -48,41 +44,14 @@ class EditorCore extends Component {
   }
 
   /**
-   * A wrapper for setState that checks if the project or selection changed. If either one did, current state is pushed to the history stack.
-   * @param {object} newState - the state object to send to setState.
-   */
-  setEditorState = (newState, callback) => {
-    if(!this.freezeHistory) {
-      if (newState.project && newState.selection) {
-        this.history.saveState(newState.selection, newState.project);
-      } else if (newState.project) {
-        this.history.saveState(this.state.selection, newState.project);
-      } else if (newState.selection && JSON.stringify(newState.selection) !== JSON.stringify(this.state.selection)) {
-        this.history.saveState(newState.selection, this.state.project);
-      }
-    }
-
-    this.setState(newState, callback);
-  }
-
-  /**
-   * This function must be called after changing properties of the project without calling setState.
-   */
-  forceUpdateProject = () => {
-    this.setEditorState({
-      project: this.state.project,
-      selection: this.state.selection,
-    });
-  }
-
-  /**
    * Initializes the Wick Engine and the paper.js renderer
    */
   initializeEngine = () => {
+    this.project = new window.Wick.Project();
+    this.paper = window.paper;
+    this.canvas = new window.Wick.Canvas();
     this.setState({
-      project: new window.Wick.Project(),
-      paper: window.paper,
-      canvas: new window.Wick.Canvas(),
+      project: this.project.serialize(),
     });
   }
 
@@ -103,7 +72,7 @@ class EditorCore extends Component {
     if(this.state.activeTool === 'cursor' && newTool !== 'cursor') {
       newState.selection = this.blankSelection();
     }
-    this.setEditorState(newState);
+    console.error('need to push history here!!!');
   }
 
   /**
@@ -119,7 +88,7 @@ class EditorCore extends Component {
    * @param {object} newToolSettings - An object of key-value pairs where the keys represent tool settings and the values represent the values to change those settings to.
    */
   setToolSettings = (newToolSettings) => {
-    this.setEditorState({
+    this.setState({
       toolSettings: {
         ...this.state.toolSettings,
         ...newToolSettings,
@@ -197,7 +166,7 @@ class EditorCore extends Component {
    */
   getSelectedFrames = () => {
     return this.state.selection.timeline.frames.map(uuid => {
-      return this.state.project.getChildByUUID(uuid);
+      return this.project.getChildByUUID(uuid);
     });
   }
 
@@ -207,7 +176,7 @@ class EditorCore extends Component {
    */
   getSelectedTweens = () => {
     return this.state.selection.timeline.tweens.map(uuid => {
-      return this.state.project.getChildByUUID(uuid);
+      return this.project.getChildByUUID(uuid);
     });
   }
 
@@ -224,10 +193,10 @@ class EditorCore extends Component {
    * @returns {<paper.Item>)[]} An array containing the selected paths.
    */
   getSelectedPaths = () => {
-    if(!this.state.paper.project) return [];
+    if(!this.paper.project) return [];
 
     let paths = [];
-    this.state.paper.project.layers.forEach(layer => {
+    this.paper.project.layers.forEach(layer => {
       layer.children.forEach(child => {
         if(this.state.selection.canvas.paths.indexOf(child.name) > -1) {
           paths.push(child);
@@ -243,7 +212,7 @@ class EditorCore extends Component {
    */
   getSelectedClips = () => {
     return this.state.selection.canvas.clips.map(uuid => {
-      return this.state.project.getChildByUUID(uuid);
+      return this.project.getChildByUUID(uuid);
     });
   }
 
@@ -263,7 +232,7 @@ class EditorCore extends Component {
    */
   getSelectedAssetLibraryObjects = () => {
     return this.state.selection.assetLibrary.assets.map(uuid => {
-      return this.state.project.getChildByUUID(uuid);
+      return this.project.getChildByUUID(uuid);
     });
   }
 
@@ -532,7 +501,6 @@ class EditorCore extends Component {
   getNumCanvasObjectsSelected = () => {
     return this.state.selection.canvas.paths.length + this.state.selection.canvas.clips.length;
   }
-
 
   /**
    * Updates the state of the selection with new values.
@@ -829,19 +797,23 @@ class EditorCore extends Component {
    * Clears the selection, then adds the given objects to the selection. No changes will be made if the selection does not change.
    * @param {object[]} objects - The objects to add to the selection.
    */
-  selectObjects = (objects, callback) => {
-    this.setEditorState({
+  selectObjects = (objects) => {
+    console.error('replace this')
+    /*this.setEditorState({
       selection: this.addObjectsToSelection(objects, this.blankSelection()),
-    }, callback);
+    }, callback);*/
   }
 
   /**
    * Clears the selection.
    */
   clearSelection = () => {
+    console.error('replace this');
+    /*
     this.setEditorState({
       selection: this.blankSelection()
     });
+    */
   }
 
   /**
@@ -935,16 +907,14 @@ class EditorCore extends Component {
    * Creates a new symbol from the selected paths and clips and adds it to the project.
    */
   createClipFromSelection = () => {
-    this.freezeHistory = true;
-
     // Create blank clip
     let newClip = new window.Wick.Clip();
     newClip.timeline.addLayer(new window.Wick.Layer());
     newClip.timeline.layers[0].addFrame(new window.Wick.Frame());
 
     // Calculate position of new clip
-    let clipX = this.state.paper.project.selection.bounds.center.x;
-    let clipY = this.state.paper.project.selection.bounds.center.y;
+    let clipX = this.paper.project.selection.bounds.center.x;
+    let clipY = this.paper.project.selection.bounds.center.y;
 
     // Export selected SVG
     let svg = window.paper.project.selection.exportSVG();
@@ -980,13 +950,10 @@ class EditorCore extends Component {
     this.clearSelection();
 
     // Add clip to focus
-    this.state.project.focus.timeline.activeLayer.activeFrame.addClip(newClip);
+    this.project.focus.timeline.activeLayer.activeFrame.addClip(newClip);
 
     // Select clip
-    this.selectObject(newClip, () => {
-      this.freezeHistory = false;
-      this.forceUpdateProject();
-    });
+    this.selectObject(newClip);
   }
 
   /**
@@ -1024,10 +991,10 @@ class EditorCore extends Component {
       window.paper.project.activeLayer.addChildren(imported.removeChildren());
       imported.remove();
     });
-    this.state.canvas.applyChanges(this.state.project, window.paper.project.layers);
+    this.state.canvas.applyChanges(this.project, window.paper.project.layers);
     clip.timeline.activeFrames.forEach(frame => {
       frame.clips.forEach(clip => {
-        //this.state.project.focus.timeline.activeLayer.activeFrame.addClip(clip);
+        //this.project.focus.timeline.activeLayer.activeFrame.addClip(clip);
       });
     });
     clip.parent.removeClip(clip);
@@ -1039,7 +1006,7 @@ class EditorCore extends Component {
    * @returns {<paper.Path>|<paper.CompoundPath>|<paper.Group>[]} The objects that were deleted from the timeline.
    */
   deleteSelectedCanvasObjects = () => {
-    let result = this.state.paper.project.selection.delete();
+    let result = this.paper.project.selection.delete();
     this.applyCanvasChangesToProject();
     this.clearSelection();
     return result;
@@ -1089,7 +1056,7 @@ class EditorCore extends Component {
    * Moves the selected objects on the canvas to the back.
    */
   sendSelectionToBack = () => {
-    this.state.paper.project.selection.sendToBack();
+    this.paper.project.selection.sendToBack();
     this.applyCanvasChangesToProject();
   }
 
@@ -1097,7 +1064,7 @@ class EditorCore extends Component {
    * Moves the selected objects on the canvas to the front.
    */
   sendSelectionToFront = () => {
-    this.state.paper.project.selection.bringToFront();
+    this.paper.project.selection.bringToFront();
     this.applyCanvasChangesToProject();
   }
 
@@ -1105,7 +1072,7 @@ class EditorCore extends Component {
    * Moves the selected objects on the canvas backwards.
    */
   moveSelectionBackwards = () => {
-    this.state.paper.project.selection.sendBackwards();
+    this.paper.project.selection.sendBackwards();
     this.applyCanvasChangesToProject();
   }
 
@@ -1113,7 +1080,7 @@ class EditorCore extends Component {
    * Moves the selected objects on the canvas forwards.
    */
   moveSelectionForwards = () => {
-    this.state.paper.project.selection.bringForwards();
+    this.paper.project.selection.bringForwards();
     this.applyCanvasChangesToProject();
   }
 
@@ -1124,7 +1091,7 @@ class EditorCore extends Component {
    * @param {number} y    The y location of the image after creation in relation to the window.
    */
   createImageFromAsset = (uuid, x, y) => {
-    let asset = this.state.project.getChildByUUID(uuid);
+    let asset = this.project.getChildByUUID(uuid);
     window.Wick.Canvas.createImageFromAsset(asset, (raster) => {
       raster.name = Math.random()+'img';
       window.paper.project.activeLayer.addChild(raster);
@@ -1137,7 +1104,7 @@ class EditorCore extends Component {
    * @param {object} newSettings an object containing all of the settings to update within the project. Accepts valid project settings such as 'name', 'width', 'height', 'framerate', and 'backgroundColor'.
    */
   updateProjectSettings = (newSettings) => {
-    let updatedProject = this.state.project.clone();
+    let updatedProject = this.project.clone();
 
     let validKeys = ["name", "width", "height", "backgroundColor", "framerate"];
 
@@ -1146,7 +1113,7 @@ class EditorCore extends Component {
     Object.keys(newSettings).forEach(key => {
       if (validKeys.indexOf(key) === -1) return;
 
-      let oldVal = this.state.project[key];
+      let oldVal = this.project[key];
       if (oldVal !== newSettings[key]) {
         updatedProject[key] = newSettings[key];
         updated = true;
@@ -1154,9 +1121,7 @@ class EditorCore extends Component {
     })
 
     if (updated) {
-      this.setState({
-        project: updatedProject,
-      })
+
     }
   }
 
@@ -1164,7 +1129,7 @@ class EditorCore extends Component {
    * Sets the project focus to the timeline of the currently selected clip.
    */
   focusTimelineOfSelectedObject = () => {
-    this.state.project.focus = this.getSelectedClips()[0];
+    this.project.focus = this.getSelectedClips()[0];
     this.forceUpdateProject();
   }
 
@@ -1172,8 +1137,8 @@ class EditorCore extends Component {
    * Sets the project focus to the parent timeline of the currently selected clip.
    */
   focusTimelineOfParentObject = () => {
-    if(this.state.project.focus === this.state.project.root) return;
-    this.state.project.focus = this.state.project.focus.parent._getParentByInstanceOf(window.Wick.Clip);
+    if(this.project.focus === this.project.root) return;
+    this.project.focus = this.project.focus.parent._getParentByInstanceOf(window.Wick.Clip);
     this.forceUpdateProject();
   }
 
@@ -1181,7 +1146,7 @@ class EditorCore extends Component {
    * Horizontally flips the canvas selection.
    */
   flipSelectedHorizontal = () => {
-    this.state.paper.project.selection.flip('horizontal');
+    this.paper.project.selection.flip('horizontal');
     this.applyCanvasChangesToProject();
   }
 
@@ -1189,7 +1154,7 @@ class EditorCore extends Component {
    * Vertically flips the canvas selection.
    */
   flipSelectedVertical = () => {
-    this.state.paper.project.selection.flip('vertical');
+    this.paper.project.selection.flip('vertical');
     this.applyCanvasChangesToProject();
   }
 
@@ -1207,11 +1172,9 @@ class EditorCore extends Component {
     if (acceptedFiles.length <= 0) return;
 
     acceptedFiles.forEach(file => {
-      this.state.project.import(file, function (asset) {
+      this.project.import(file, function (asset) {
         // After import success, update editor state.
-        self.setEditorState({
-          project: self.state.project,
-        });
+
       });
     });
   }
@@ -1247,7 +1210,7 @@ class EditorCore extends Component {
       if(onionSkinOptions[optionName] === undefined) return;
       newOnionSkinOptions[optionName] = onionSkinOptions[optionName];
     });
-    this.setEditorState(newOnionSkinOptions);
+    this.setState(newOnionSkinOptions);
   }
 }
 

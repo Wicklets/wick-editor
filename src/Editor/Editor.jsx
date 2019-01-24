@@ -51,6 +51,11 @@ class Editor extends EditorCore {
     // History (undo/redo stacks)
     this.history = new UndoRedo(this);
 
+    // 
+    this.project = null;
+    this.paper = null;
+    this.canvas = null;
+
     // GUI state
     this.state = {
       ...this.state,
@@ -112,7 +117,6 @@ class Editor extends EditorCore {
 
   componentDidMount () {
     this.refocusEditor();
-    this.history.saveState(this.state.selection, this.state.project);
   }
 
   componentDidUpdate (prevProps, prevState) {
@@ -129,7 +133,6 @@ class Editor extends EditorCore {
 
   updateCanvas () {
     // re-render the canvas
-    //console.log(this.state.project.focus.timeline.activeLayer.activeFrame.svg)
     this.rerenderCanvas();
 
     // update the paper.js selection using the editor selection state
@@ -152,15 +155,15 @@ class Editor extends EditorCore {
     });
 
     // if there is no layer/frame to draw on, activate the 'none' tool.
-    if(!this.state.project.focus.timeline.activeLayer.activeFrame ||
-       this.state.project.focus.timeline.activeLayer.locked ||
-       this.state.project.focus.timeline.activeLayer.hidden) {
+    if(!this.project.focus.timeline.activeLayer.activeFrame ||
+       this.project.focus.timeline.activeLayer.locked ||
+       this.project.focus.timeline.activeLayer.hidden) {
       window.paper.drawingTools.none.activate();
     }
   }
 
   rerenderCanvas () {
-    this.state.canvas.render(this.state.project, {
+    this.canvas.render(this.project, {
       onionSkinEnabled: this.state.onionSkinEnabled,
       onionSkinSeekBackwards: this.state.onionSkinSeekBackwards,
       onionSkinSeekForwards: this.state.onionSkinSeekForwards,
@@ -172,7 +175,7 @@ class Editor extends EditorCore {
   }
 
   applyCanvasChangesToProject () {
-    this.state.canvas.applyChanges(this.state.project, window.paper.project.layers);
+    this.canvas.applyChanges(this.project, window.paper.project.layers);
   }
 
   onWindowResize () {
@@ -265,10 +268,10 @@ class Editor extends EditorCore {
 
   startTickLoop () {
     this.tickLoopIntervalID = setInterval(() => {
-      this.state.project.tick();
+      this.project.tick();
       this.rerenderCanvas();
       this.rerenderTimeline();
-    }, 1000 / this.state.project.framerate);
+    }, 1000 / this.project.framerate);
   }
 
   stopTickLoop () {
@@ -296,13 +299,13 @@ class Editor extends EditorCore {
                     activeModalName={this.state.activeModalName}
                     openModal={this.openModal}
                     closeActiveModal={this.closeActiveModal}
-                    project={this.state.project}
+                    project={this.project}
                     createClipFromSelection={this.createClipFromSelection}
                     updateProjectSettings={this.updateProjectSettings}
                   />
                   {/* Header */}
                   <DockedPanel>
-                    <MenuBar openModal={this.openModal} projectName={this.state.project.name}/>
+                    <MenuBar openModal={this.openModal} projectName={this.project.name}/>
                   </DockedPanel>
                 </div>
                 <div id="editor-body">
@@ -337,7 +340,7 @@ class Editor extends EditorCore {
                                 onStopResize={this.resizeProps.onStopCodeEditorResize}>
                                 <DockedPanel>
                                   <CodeEditor
-                                    project={this.state.project}
+                                    project={this.project}
                                     getSelectionType={this.getSelectionType}
                                     getSelectedFrames={this.getSelectedFrames}
                                     getSelectedClips={this.getSelectedClips}
@@ -349,10 +352,10 @@ class Editor extends EditorCore {
                               <ReflexElement>
                                 <DockedPanel>
                                   <Canvas
-                                    project={this.state.project}
+                                    project={this.project}
                                     forceUpdateProject={this.forceUpdateProject}
-                                    canvas={this.state.canvas}
-                                    paper={this.state.paper}
+                                    canvas={this.canvas}
+                                    paper={this.paper}
                                     selectObjects={this.selectObjects}
                                     updateCanvas={this.updateCanvas}
                                     onRef={ref => this.canvasRef = ref}
@@ -371,7 +374,7 @@ class Editor extends EditorCore {
                             onStopResize={this.resizeProps.onStopTimelineResize}>
                             <DockedPanel>
                               <Timeline
-                                project={this.state.project}
+                                project={this.project}
                                 getSelectedTimelineObjects={this.getSelectedTimelineObjects}
                                 selectObjects={this.selectObjects}
                                 forceUpdateProject={this.forceUpdateProject}
@@ -417,7 +420,7 @@ class Editor extends EditorCore {
                             onStopResize={this.resizeProps.onStopAssetLibraryResize}>
                             <DockedPanel>
                               <AssetLibrary
-                                assets={this.state.project.assets}
+                                assets={this.project.assets}
                                 openFileDialog={() => open()}
                                 selectObjects={this.selectObjects}
                                 isObjectSelected={this.isObjectSelected}
