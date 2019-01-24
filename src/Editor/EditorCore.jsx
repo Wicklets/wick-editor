@@ -1060,6 +1060,8 @@ class EditorCore extends Component {
     clip.timeline.activeFrames.forEach(frame => {
       frame.clips.forEach(subclip => {
         this.project.focus.timeline.activeLayer.activeFrame.addClip(subclip);
+        subclip.transform.x += clip.transform.x;
+        subclip.transform.y += clip.transform.y;
         itemsInsideClip.push(subclip);
       });
     });
