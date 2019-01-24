@@ -20,39 +20,12 @@
 import { Component } from 'react';
 
 class EditorCore extends Component {
-  constructor () {
-    super();
-
-    this.state = {
-      onionSkinEnabled: false,
-      onionSkinSeekForwards: 1,
-      onionSkinSeekBackwards: 1,
-      project: null,
-      selection: this.blankSelection(),
-      activeTool: 'cursor',
-      toolSettings: {
-        fillColor: '#ffaabb',
-        strokeColor: '#000',
-        strokeWidth: 1,
-        brushSize: 10,
-        brushSmoothing: 0.9,
-        brushSmoothness: 10,
-        cornerRadius: 0,
-        pressureEnabled: false,
-      },
-    }
-  }
-
   /**
-   * Initializes the Wick Engine and the paper.js renderer
+   * Updates the state using new project data.
+   * @param {object} nextProjectState - Object containing serialized project data.
    */
-  initializeEngine = () => {
-    this.project = new window.Wick.Project();
-    this.paper = window.paper;
-    this.canvas = new window.Wick.Canvas();
-    this.setState({
-      project: this.project.serialize(),
-    });
+  updateProjectState = (nextProjectState) => {
+    this.setStateWrapper({project: nextProjectState});
   }
 
   /**
@@ -72,7 +45,7 @@ class EditorCore extends Component {
     if(this.state.activeTool === 'cursor' && newTool !== 'cursor') {
       newState.selection = this.blankSelection();
     }
-    console.error('need to push history here!!!');
+    this.setStateWrapper(newState);
   }
 
   /**
@@ -88,7 +61,7 @@ class EditorCore extends Component {
    * @param {object} newToolSettings - An object of key-value pairs where the keys represent tool settings and the values represent the values to change those settings to.
    */
   setToolSettings = (newToolSettings) => {
-    this.setState({
+    this.setStateWrapper({
       toolSettings: {
         ...this.state.toolSettings,
         ...newToolSettings,
@@ -507,7 +480,6 @@ class EditorCore extends Component {
    * @param {object} newSelectionAttributes - A object containing the new values of the selection to use to update the state.
    */
   setSelectionAttributes = (newSelectionAttributes) => {
-
     // Valid selection setting functions
     let setSelectionFunctions = {
       name: this.setSelectionName,
@@ -529,9 +501,7 @@ class EditorCore extends Component {
       if (key in setSelectionFunctions) {
         setSelectionFunctions[key](newSelectionAttributes[key]);
       }
-    })
-
-    this.forceUpdateProject();
+    });
   }
 
   /**
@@ -790,7 +760,7 @@ class EditorCore extends Component {
    * @param {object} object - The object to add to the selection.
    */
   selectObject = (object, callback) => {
-    this.selectObjects([object], callback);
+    return this.selectObjects([object]);
   }
 
   /**
@@ -798,22 +768,18 @@ class EditorCore extends Component {
    * @param {object[]} objects - The objects to add to the selection.
    */
   selectObjects = (objects) => {
-    console.error('replace this')
-    /*this.setEditorState({
-      selection: this.addObjectsToSelection(objects, this.blankSelection()),
-    }, callback);*/
+    let newSelection = this.addObjectsToSelection(objects, this.blankSelection());
+    this.setStateWrapper({selection: newSelection,});
+    return newSelection;
   }
 
   /**
    * Clears the selection.
    */
   clearSelection = () => {
-    console.error('replace this');
-    /*
-    this.setEditorState({
-      selection: this.blankSelection()
-    });
-    */
+    let newSelection = this.blankSelection();
+    this.setStateWrapper({selection: this.blankSelection()});
+    return newSelection;
   }
 
   /**
@@ -907,6 +873,8 @@ class EditorCore extends Component {
    * Creates a new symbol from the selected paths and clips and adds it to the project.
    */
   createClipFromSelection = () => {
+    this.lockState = true;
+
     // Create blank clip
     let newClip = new window.Wick.Clip();
     newClip.timeline.addLayer(new window.Wick.Layer());
@@ -953,22 +921,20 @@ class EditorCore extends Component {
     this.project.focus.timeline.activeLayer.activeFrame.addClip(newClip);
 
     // Select clip
-    this.selectObject(newClip);
+    let newSelection = this.selectObject(newClip);
+
+    this.lockState = false;
+    this.setStateWrapper({
+      project: this.project.serialize(),
+      selection: newSelection,
+    });
   }
 
   /**
    * Break apart the selected clip(s) and select the objects that were contained within those clip(s).
    */
   breakApartSelection = () => {
-    /*
-    let results = [];
-    this.getSelectedClips().forEach(clip => {
-      results = results.concat(this.breakApartClip(clip));
-    });
-    this.clearSelection();
-    //this.forceUpdate();
-    //this.selectObjects(results);
-    */
+
   }
 
   /**
@@ -977,28 +943,7 @@ class EditorCore extends Component {
    * @returns {object[]} - The objects that were contained within the clip.
    */
   breakApartClip = (clip) => {
-    /*
-    //clip.parent.removeClip(clip);
-    clip.timeline.activeFrames.map(frame => {
-      return frame.svg;
-    }).forEach(svg => {
-      let imported = window.paper.project.importSVG(svg);
-      imported.children.forEach(child => {
-        child.position = new window.paper.Point(
-          child.position.x + clip.transform.x,
-          child.position.y + clip.transform.y);
-      });
-      window.paper.project.activeLayer.addChildren(imported.removeChildren());
-      imported.remove();
-    });
-    this.state.canvas.applyChanges(this.project, window.paper.project.layers);
-    clip.timeline.activeFrames.forEach(frame => {
-      frame.clips.forEach(clip => {
-        //this.project.focus.timeline.activeLayer.activeFrame.addClip(clip);
-      });
-    });
-    clip.parent.removeClip(clip);
-    */
+
   }
 
   /**
@@ -1130,7 +1075,9 @@ class EditorCore extends Component {
    */
   focusTimelineOfSelectedObject = () => {
     this.project.focus = this.getSelectedClips()[0];
-    this.forceUpdateProject();
+    this.setStateWrapper({
+      project: this.project.serialize(),
+    });
   }
 
   /**
@@ -1139,7 +1086,9 @@ class EditorCore extends Component {
   focusTimelineOfParentObject = () => {
     if(this.project.focus === this.project.root) return;
     this.project.focus = this.project.focus.parent._getParentByInstanceOf(window.Wick.Clip);
-    this.forceUpdateProject();
+    this.setStateWrapper({
+      project: this.project.serialize(),
+    });
   }
 
   /**
@@ -1210,7 +1159,7 @@ class EditorCore extends Component {
       if(onionSkinOptions[optionName] === undefined) return;
       newOnionSkinOptions[optionName] = onionSkinOptions[optionName];
     });
-    this.setState(newOnionSkinOptions);
+    this.setStateWrapper(newOnionSkinOptions);
   }
 }
 

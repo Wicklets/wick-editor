@@ -62,8 +62,6 @@ class Canvas extends Component {
   }
 
   componentDidMount() {
-    this.props.onRef(this);
-
     this.wickCanvas = this.props.canvas;
     window.Wick.Canvas.setup(this.canvasContainer.current);
     window.Wick.Canvas.resize();
@@ -82,7 +80,7 @@ class Canvas extends Component {
 
   onCanvasModified (e) {
     this.wickCanvas.applyChanges(this.props.project, e.layers);
-    this.props.forceUpdateProject();
+    this.props.updateProjectState(this.props.project.serialize());
   }
 
   onSelectionChanged (e) {
@@ -99,22 +97,6 @@ class Canvas extends Component {
       </div>
     )
   }
-
-  /*
-  updateSelectionAttributes () {
-    let selection = window.paper.project.selection;
-    let attributes = this.props.selection.attributes;
-
-    selection.setPosition(attributes.x, attributes.y);
-    selection.setWidthHeight(attributes.width, attributes.height);
-    selection.setScale(attributes.scaleW, attributes.scaleH);
-    selection.setRotation(attributes.rotation);
-    selection.setFillColor(attributes.fillColor);
-    selection.setStrokeColor(attributes.strokeColor);
-    selection.setOpacity(attributes.opacity);
-    selection.setStrokeWidth(attributes.strokeWidth);
-  }
-  */
 }
 
 export default DropTarget(DragDropTypes.CANVAS, canvasTarget, collect)(Canvas);

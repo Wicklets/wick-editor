@@ -29,8 +29,6 @@ class Timeline extends Component {
   }
 
   componentDidMount () {
-    this.props.onRef(this);
-
     let AnimationTimeline = window.AnimationTimeline;
     let self = this;
 
@@ -154,7 +152,7 @@ class Timeline extends Component {
       onionSkinSeekBackwards: e.onionSkinSeekBackwards,
       onionSkinSeekForwards: e.onionSkinSeekForwards,
     });
-    this.props.forceUpdateProject();
+    this.props.updateProjectState(this.props.project.serialize());
   }
 
   onSoftChange (e) {

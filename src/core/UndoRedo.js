@@ -8,8 +8,8 @@ class UndoRedo {
     this.LOG_STACKS = false;
   }
 
-  saveState (selection, project) {
-    this._undoStack.push(this._generateProjectState(selection, project));
+  saveState () {
+    this._undoStack.push(this._generateProjectState());
 
     if(this.LOG_STACKS) this._logStacks();
   }
@@ -41,22 +41,23 @@ class UndoRedo {
     return true;
   }
 
-  _generateProjectState (selection, project) {
+  _generateProjectState () {
     return {
-      project: project.serialize(),
-      selection: JSON.parse(JSON.stringify(selection)),
+      project: this.editor.state.project,
+      selection: this.editor.state.selection,
     };
   }
 
   _recoverProjectState (state) {
+    this.editor.project = window.Wick.Project.deserialize(state.project);
     this.editor.setState({
-      project: window.Wick.Project.deserialize(state.project),
-      selection: JSON.parse(JSON.stringify(state.selection)),
+      project: state.project,
+      selection: state.selection,
     });
   }
 
   _logStacks () {
-    console.log('UNDOREDO STACKS')
+    console.log('UNDO/REDO STACKS:')
     console.log(this._undoStack.length);
     console.log(this._undoStack);
     console.log(this._redoStack.length);
