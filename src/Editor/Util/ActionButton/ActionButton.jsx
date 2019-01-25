@@ -51,7 +51,8 @@ class ActionButton extends Component {
           className={finalClassName}
           type="button"
           onClick={this.props.action}>
-          <ToolIcon name={this.props.icon} />
+          {this.props.icon && <ToolIcon name={this.props.icon} />}
+          {this.props.text && <div>{this.props.text}</div>}
         </WickInput>
       </div>
     )

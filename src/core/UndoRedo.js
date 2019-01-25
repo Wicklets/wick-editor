@@ -41,6 +41,11 @@ class UndoRedo {
     return true;
   }
 
+  clearHistory () {
+    this._undoStack = [];
+    this._redoStack = [];
+  }
+
   _generateProjectState () {
     return {
       project: this.editor.state.project,

@@ -19,7 +19,7 @@
 
 @import './_wickbrand.scss';
 
-$menu-bar-height: 50px;
+$menu-bar-height: 36px;
 $tool-box-width: 50px;
 
 $splitter-size: 6px;
@@ -38,7 +38,7 @@ body {
 
 #menu-bar-container {
   width: 100%;
-  height: 50px;
+  height: $menu-bar-height;
   background-color: green;
 }
 

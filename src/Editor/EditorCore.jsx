@@ -19,6 +19,7 @@
 
 import { Component } from 'react';
 import localForage from 'localforage';
+import { saveAs } from 'file-saver';
 
 class EditorCore extends Component {
   /**
@@ -131,6 +132,7 @@ class EditorCore extends Component {
    * @return {object} Parsed selection.
    */
   deserializeSelection = (selection) => {
+    if (selection === undefined) { console.error("Selection is undefined"); return;}
     /**
      * Deserialize a selection array.
      * @param  {string[]} arr  array to deserialize
@@ -1377,7 +1379,9 @@ class EditorCore extends Component {
       return;
     }
 
-    this.addSelectionToProject(this.deserializeSelection(this.serializeSelection()));
+    let serialized = this.serializeSelection();
+    let deserialized = this.deserializeSelection(serialized);
+    this.addSelectionToProject(deserialized);
   }
 
   /**
@@ -1393,6 +1397,47 @@ class EditorCore extends Component {
       newOnionSkinOptions[optionName] = onionSkinOptions[optionName];
     });
     this.setStateWrapper(newOnionSkinOptions);
+  }
+
+  /**
+   * Export the current project as a Wick File using the save as dialog.
+   */
+  exportProjectAsWickFile = () => {
+    /**
+     * Attempts to safely open a saveAs dialog to save a file.
+     * @param  {File} file the file to save. if undefined, an alert is thrown.
+     */
+    let safeExport = (file) => {
+      if (file === undefined) {
+        alert("Cannot download project. Project is undefined.");
+        return;
+      }
+      saveAs(file, this.project.name + '.zip');
+    }
+    this.project.exportAsWickFile(safeExport);
+  }
+
+  /**
+   * Imports a wick file into the editor.
+   * @param {File} file Zipped wick file to import.
+   */
+  importProjectAsWickFile = (file) => {
+    this.project.fromWickFile(file, this.setupNewProject);
+  }
+
+  /**
+   * Sets up a new project in the editor. This operation will remove the history, and all other ability to retrieve your project.
+   * @param  {Wick.Project} project project to load.
+   */
+  setupNewProject = (project) => {
+    this.resetEditorForLoad();
+    this.project = project;
+    let newSelection = this.emptySelection();
+    this.setStateWrapper({
+      project: this.project.serialize(),
+      selection: newSelection,
+    });
+
   }
 }
 

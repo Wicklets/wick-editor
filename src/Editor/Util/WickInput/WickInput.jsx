@@ -44,6 +44,7 @@ class WickInput extends Component {
       let wrappedOnChange = (val) => {
         this.props.onChange(val.target.value);
       };
+
       return (
         <input className={classNames("wick-input", {"read-only":this.props.readOnly})}
                type="text"

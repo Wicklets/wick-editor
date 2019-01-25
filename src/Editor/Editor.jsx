@@ -147,6 +147,14 @@ class Editor extends EditorCore {
   }
 
   /**
+   * Resets the editor in preparation for a project load.
+   */
+  resetEditorForLoad = () => {
+    this.history.clearHistory();
+    this.history.saveState();
+  }
+
+  /**
    * Calls this.setState with a new state, and checks if the project or selection state changed, and if it did, saves the current state to the history. This function does nothing if this.lockState is set to true.
    * @param {object} nextState - The state to pass along to this.setState.
    */
@@ -404,7 +412,10 @@ class Editor extends EditorCore {
                   />
                   {/* Header */}
                   <DockedPanel>
-                    <MenuBar openModal={this.openModal} projectName={this.project.name}/>
+                    <MenuBar
+                      openModal={this.openModal}
+                      projectName={this.project.name}
+                      exportProjectAsWickFile={this.exportProjectAsWickFile}/>
                   </DockedPanel>
                 </div>
                 <div id="editor-body">
