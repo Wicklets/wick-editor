@@ -46,7 +46,7 @@ class ModalHandler extends Component {
       <CreateSymbol
           {...this.modalProps}
           open={this.props.activeModalName === 'CreateSymbol'}
-          createClipFromSelection={this.props.createClipFromSelection}
+          createSymbolFromSelection={this.props.createSymbolFromSelection}
         />
       </div>
     );

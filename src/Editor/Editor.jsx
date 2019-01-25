@@ -106,6 +106,9 @@ class Editor extends EditorCore {
     // Preview play tick loop
     this.tickLoopIntervalID = null;
 
+    // Save the project state before preview playing so we can retrieve it later
+    this.beforePreviewPlayProjectState = null;
+
     // Lock state flag
     this.lockState = false;
   }
@@ -175,13 +178,15 @@ class Editor extends EditorCore {
     }
   }
 
-  updateCanvas = () => {
+  updateCanvas = (skipUpdateSelection) => {
     // re-render the canvas
     this.canvas.render(this.project, {
       onionSkinEnabled: this.state.onionSkinEnabled,
       onionSkinSeekBackwards: this.state.onionSkinSeekBackwards,
       onionSkinSeekForwards: this.state.onionSkinSeekForwards,
     });
+
+    if(skipUpdateSelection) return;
 
     // update the paper.js selection using the editor selection state
     window.paper.project.selection.clear();
@@ -208,6 +213,54 @@ class Editor extends EditorCore {
        this.project.focus.timeline.activeLayer.hidden) {
       window.paper.drawingTools.none.activate();
     }
+
+    // if preview playing, use the Interact tool
+    if(this.state.previewPlaying) {
+      window.Wick.Canvas.InteractTool.activate();
+    }
+  }
+
+  updateTimeline = () => {
+    let AnimationTimeline = window.AnimationTimeline;
+    let timeline = this.project.focus.timeline;
+    let selectedUUIDs = this.getSelectedTimelineObjects().map(obj => {
+      return obj.uuid;
+    });
+    let onionSkinOptions = this.getOnionSkinOptions();
+
+    AnimationTimeline.setData({
+      playheadPosition: timeline.playheadPosition,
+      activeLayerIndex: timeline.activeLayerIndex,
+      onionSkinEnabled: onionSkinOptions.onionSkinEnabled,
+      onionSkinSeekForwards: onionSkinOptions.onionSkinSeekForwards,
+      onionSkinSeekBackwards:onionSkinOptions.onionSkinSeekBackwards,
+      layers: timeline.layers.map(layer => {
+        return {
+          id: layer.uuid,
+          label: layer.name,
+          locked: layer.locked,
+          hidden: layer.hidden,
+          frames: layer.frames.map(frame => {
+            return {
+              id: frame.uuid,
+              label: frame.identifier,
+              start: frame.start,
+              end: frame.end,
+              selected: selectedUUIDs.indexOf(frame.uuid) !== -1,
+              contentful: frame.contentful,
+              tweens: frame.tweens.map(tween => {
+                return {
+                  uuid: tween.uuid,
+                  selected: selectedUUIDs.indexOf(tween.uuid) !== -1,
+                  playheadPosition: tween.playheadPosition,
+                }
+              }),
+            }
+          }),
+        }
+      })
+    });
+    AnimationTimeline.repaint();
   }
 
   applyCanvasChangesToProject = () => {
@@ -308,21 +361,26 @@ class Editor extends EditorCore {
   }
 
   startTickLoop = () => {
+    this.beforePreviewPlayProjectState = this.project.serialize();
     this.tickLoopIntervalID = setInterval(() => {
       this.project.tick();
-      this.rerenderCanvas();
-      this.rerenderTimeline();
+      window.Wick.Canvas.InteractTool.processMouseInputPreTick();
+      this.updateCanvas(true);
+      this.updateTimeline();
     }, 1000 / this.project.framerate);
   }
 
   stopTickLoop = () => {
     clearInterval(this.tickLoopIntervalID);
+
+    this.project = window.Wick.Project.deserialize(this.beforePreviewPlayProjectState);
+    this.setState({project: this.beforePreviewPlayProjectState});
   }
 
   render = () => {
       return (
     <Dropzone
-      accept={window.Wick.Asset.getMIMETypes()}
+      accept={window.Wick.Asset.getValidMIMETypes()}
       onDrop={(accepted, rejected) => this.createAssets(accepted, rejected)}
       disableClick
     >
@@ -341,7 +399,7 @@ class Editor extends EditorCore {
                     openModal={this.openModal}
                     closeActiveModal={this.closeActiveModal}
                     project={this.project}
-                    createClipFromSelection={this.createClipFromSelection}
+                    createSymbolFromSelection={this.createSymbolFromSelection}
                     updateProjectSettings={this.updateProjectSettings}
                   />
                   {/* Header */}
@@ -416,6 +474,7 @@ class Editor extends EditorCore {
                               <Timeline
                                 project={this.project}
                                 updateProjectState={this.updateProjectState}
+                                updateTimeline={this.updateTimeline}
                                 getSelectedTimelineObjects={this.getSelectedTimelineObjects}
                                 selectObjects={this.selectObjects}
                                 setOnionSkinOptions={this.setOnionSkinOptions}

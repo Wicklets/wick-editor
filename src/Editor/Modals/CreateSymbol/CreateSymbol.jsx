@@ -21,47 +21,69 @@ import React, { Component } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Input, Button, Modal, ModalHeader, ModalBody, ModalFooter, FormGroup, Label } from 'reactstrap';
 import './_createsymbol.scss';
+import WickInput from 'Editor/Util/WickInput/WickInput';
 
 class CreateSymbol extends Component {
   constructor (props) {
     super(props);
-    this.createClipFromSelection = this.createClipFromSelection.bind(this);
+
+    this.state = {
+      symbolType: 'Clip',
+      symbolName: 'New Symbol',
+    }
   }
 
-  render() {
+  render () {
     return (
       <Modal isOpen={this.props.open} toggle={this.props.toggle} className={this.props.className}>
         <ModalHeader toggle={this.props.toggle}>Convert To Symbol</ModalHeader>
         <ModalBody>
           <FormGroup>
             <Label for="symbolName">Name</Label>
-            <Input type="text" name="symbolName" id="symbolName" placeholder="New Symbol" />
+            <WickInput type="text" onChange={this.updateSymbolName} placeholder="New Symbol" />
           </FormGroup>
-          <FormGroup>
-            <Input
+          <FormGroup id="create-symbol-modal-symbol-type-selection">
+            <WickInput
               type="radio"
-              name="symbolType"
-            />
-          {'Clip'}
-          </FormGroup>
-          <FormGroup>
-            <Input
+              name="symbol_type"
+              value={'Clip'}
+              checked={this.state.symbolType === 'Clip'}
+              onChange={() => this.updateSymbolType('Clip')}
+            />Clip
+            <br />
+            <WickInput
               type="radio"
-              name="symbolType"
-            />
-          {'Button'}
+              name="symbol_type"
+              value={'Button'}
+              checked={this.state.symbolType === 'Button'}
+              onChange={() => this.updateSymbolType('Button')}
+            />Button
           </FormGroup>
         </ModalBody>
         <ModalFooter>
           <Button color="wick-warning" onClick={this.props.toggle}>Cancel</Button>
-          <Button color="wick-accept" onClick={this.createClipFromSelection}>Create</Button>{' '}
+          <Button color="wick-accept" onClick={this.createSymbolFromSelection}>Create</Button>{' '}
         </ModalFooter>
       </Modal>
     );
   }
 
-  createClipFromSelection () {
-    this.props.createClipFromSelection();
+  updateSymbolType = (newSymbolType) => {
+    this.setState({
+      ...this.state,
+      symbolType: newSymbolType
+    });
+  }
+
+  updateSymbolName = (newSymbolName) => {
+    this.setState({
+      ...this.state,
+      symbolName: newSymbolName
+    });
+  }
+
+  createSymbolFromSelection = () => {
+    this.props.createSymbolFromSelection(this.state.symbolName, this.state.symbolType);
     this.props.toggle();
   }
 }

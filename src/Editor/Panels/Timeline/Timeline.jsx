@@ -23,11 +23,6 @@ import './_timeline.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 class Timeline extends Component {
-  constructor (props) {
-    super(props);
-    this.updateAnimationTimelineData = this.updateAnimationTimelineData.bind(this);
-  }
-
   componentDidMount () {
     let AnimationTimeline = window.AnimationTimeline;
     let self = this;
@@ -37,7 +32,7 @@ class Timeline extends Component {
     this.onSelectionChange = this.onSelectionChange.bind(this);
 
     AnimationTimeline.setup(this.refs.container, function () {
-      self.updateAnimationTimelineData();
+      self.props.updateTimeline();
       AnimationTimeline.resize();
       AnimationTimeline.repaint();
     });
@@ -48,53 +43,10 @@ class Timeline extends Component {
   }
 
   componentDidUpdate () {
-    this.updateAnimationTimelineData();
+    this.props.updateTimeline();
   }
 
-  updateAnimationTimelineData () {
-    let AnimationTimeline = window.AnimationTimeline;
-    let timeline = this.props.project.focus.timeline;
-    let selectedUUIDs = this.props.getSelectedTimelineObjects().map(obj => {
-      return obj.uuid;
-    });
-    let onionSkinOptions = this.props.getOnionSkinOptions();
-
-    AnimationTimeline.setData({
-      playheadPosition: timeline.playheadPosition,
-      activeLayerIndex: timeline.activeLayerIndex,
-      onionSkinEnabled: onionSkinOptions.onionSkinEnabled,
-      onionSkinSeekForwards: onionSkinOptions.onionSkinSeekForwards,
-      onionSkinSeekBackwards:onionSkinOptions.onionSkinSeekBackwards,
-      layers: timeline.layers.map(layer => {
-        return {
-          id: layer.uuid,
-          label: layer.name,
-          locked: layer.locked,
-          hidden: layer.hidden,
-          frames: layer.frames.map(frame => {
-            return {
-              id: frame.uuid,
-              label: frame.identifier,
-              start: frame.start,
-              end: frame.end,
-              selected: selectedUUIDs.indexOf(frame.uuid) !== -1,
-              contentful: frame.contentful,
-              tweens: frame.tweens.map(tween => {
-                return {
-                  uuid: tween.uuid,
-                  selected: selectedUUIDs.indexOf(tween.uuid) !== -1,
-                  playheadPosition: tween.playheadPosition,
-                }
-              }),
-            }
-          }),
-        }
-      })
-    });
-    AnimationTimeline.repaint();
-  }
-
-  onChange (e) {
+  onChange = (e) => {
     var nextProject = this.props.project;
     if(e.playhead !== undefined) {
       nextProject.focus.timeline.playheadPosition = e.playhead;
@@ -155,11 +107,11 @@ class Timeline extends Component {
     this.props.updateProjectState(this.props.project.serialize());
   }
 
-  onSoftChange (e) {
+  onSoftChange = (e) => {
 
   }
 
-  onSelectionChange (e) {
+  onSelectionChange = (e) => {
     let self = this;
     this.props.selectObjects(e.frames.map(frame => {
       return self.props.project.getChildByUUID(frame.id);

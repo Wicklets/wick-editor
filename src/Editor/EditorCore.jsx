@@ -969,11 +969,12 @@ class EditorCore extends Component {
   /**
    * Creates a new symbol from the selected paths and clips and adds it to the project.
    */
-  createClipFromSelection = () => {
+  createSymbolFromSelection = (name, type) => {
     this.lockState = true;
 
     // Create blank clip
-    let newClip = new window.Wick.Clip();
+    let newClip = new window.Wick[type]();
+    newClip.name = name;
     newClip.timeline.addLayer(new window.Wick.Layer());
     newClip.timeline.layers[0].addFrame(new window.Wick.Frame());
 
