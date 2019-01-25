@@ -554,6 +554,7 @@ class EditorCore extends Component {
 
       if ('color' in actionGroup) {
         subActions.forEach(subAction => {
+          if (subAction === undefined) { console.error("Subaction '" + key + "' is undefined.")}
           subAction.color = actionGroup.color;
         });
       }

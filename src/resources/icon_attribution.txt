@@ -5,5 +5,6 @@
 'duplicate' by Adrien Coquet from the Noun Project, Edited by Luca Damasco | in tool-icons/duplicate.svg
 'action' by Ganesh Ramakrishna  from the Noun Project, Edited by Luca Damasco | in tool-icons/actions.svg
 'Mirror' Vertically by Ben Davis from the Noun Project, Edited by Luca Damasco | in tool-icons/flipHorizontal.svg and tool-icons/flipVertical.svg
-'Bring to Front' by Ben Davis from the Noun Project, Edited by Luca Damsaco | in tool-icons/ ... sendToBack.svg, sendBackwards.svg, bringToFront.svg, bringForwards.svg
+'Bring to Front' by Ben Davis from the Noun Project, Edited by Luca Damasco | in tool-icons/ ... sendToBack.svg, sendBackwards.svg, bringToFront.svg, bringForwards.svg
 'timeline' by IconMark from the Noun Project, Edited by Luca Damasco | in tool-icons/ ... timeline.svg, symbol.svg
+'Leave' by Morten Halvorsen from the Noun Project, Edited by Luca Damasco | in tool-icons/ ... leaveUp.svg,

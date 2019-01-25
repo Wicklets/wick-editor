@@ -117,6 +117,13 @@ class ActionMapInterface extends Object {
         color: 'green',
         id: 'action-convert-to-symbol',
       },
+      returnToParentTimeline: {
+        icon: 'leaveUp',
+        tooltip: 'Return to Parent Timeline',
+        action: this.editor.focusTimelineOfParentObject,
+        color: 'green',
+        id: 'action-return-to-parent-timeline',
+      }
     }
   }
 
@@ -126,6 +133,13 @@ class ActionMapInterface extends Object {
    */
   createActionGroups () {
     this.actionGroups = {
+      focus: {
+        on: ( () => !(this.editor.project.focus === this.editor.project.root )),
+        actions: [
+          this.editorActions['returnToParentTimeline'],
+        ],
+        color: 'red',
+      },
       common: {
         on: ( () => this.editor.getSelectionType() !== null ),
         actions: [

@@ -47,6 +47,7 @@ import iconSendToBack from 'resources/tool-icons/sendToBack.svg';
 import iconTimeline from 'resources/tool-icons/timeline.svg';
 import iconScript from 'resources/tool-icons/script.svg';
 import iconSymbol from 'resources/tool-icons/symbol.svg';
+import iconLeaveUp from 'resources/tool-icons/leaveUp.svg';
 
 // Assets
 import iconImage from 'resources/tool-icons/image.svg';
@@ -96,6 +97,7 @@ class ToolIcon extends Component {
       "fillbucket": iconFillBucket,
       "image": iconImage,
       "imageAsset": iconImage,
+      "leaveUp": iconLeaveUp,
       "upload": iconUpload,
       "action": iconAction,
       "brushsize": iconBrushSize,
@@ -132,7 +134,7 @@ class ToolIcon extends Component {
       "strokewidth": iconStrokeWidth,
       "symbol": iconSymbol,
       "timeline": iconTimeline,
-      "script": iconScript, 
+      "script": iconScript,
       "volume": iconVolume,
     }
   }
