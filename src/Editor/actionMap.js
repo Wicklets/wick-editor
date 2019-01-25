@@ -110,13 +110,6 @@ class ActionMapInterface extends Object {
         color: 'green',
         id: 'action-add-tween',
       },
-      extendFrameToPlayhead: {
-        icon: 'timeline',
-        tooltip: 'Extend Frame to Playhead(NYI)',
-        action: () => console.error('NYI'),
-        color: 'green',
-        id: 'action-extend-frame-to-playhead',
-      },
       createSymbolFromSelection: {
         icon: 'symbol',
         tooltip: 'Create Symbol from Selection',
@@ -153,7 +146,6 @@ class ActionMapInterface extends Object {
         on: ( () => this.editor.getSelectionType() === 'frame' ),
         actions: [
           this.editorActions['addTweenToSelection'],
-          this.editorActions['extendFrameToPlayhead'],
           this.editorActions['toggleCodeEditor'],
         ],
         color: 'green',

@@ -81,7 +81,6 @@ class Editor extends EditorCore {
       codeEditorSize: 0.1,
       timelineSize: 100,
       assetLibrarySize: 150,
-      previewPlaying: false,
     };
 
     // Init hotkeys
@@ -130,6 +129,14 @@ class Editor extends EditorCore {
     }, () => {
       this.history.saveState();
     });
+
+
+    // Leave Page warning.
+    window.onbeforeunload = function(event) {
+      var confirmationMessage = 'Warning: All unsaved changes will be lost!';
+      (event || window.event).returnValue = confirmationMessage; //Gecko + IE
+      return confirmationMessage; //Gecko + Webkit, Safari, Chrome etc.
+    };
   }
 
   componentDidMount = () => {
@@ -142,7 +149,7 @@ class Editor extends EditorCore {
    */
   setStateWrapper = (nextState) => {
     if(this.lockState) return;
-    
+
     nextState = {
       ...this.state,
       ...nextState,

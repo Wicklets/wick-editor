@@ -24,7 +24,7 @@ class HotKeyInterface extends Object {
       'activate-eyedropper': 'v',
       'activate-pan': 'space',
       'activate-zoom': 'z',
-      'delete': 'backspace',
+      'delete': ['backspace', 'del'],
       'preview-play-toggle': 'enter',
       'undo': ['ctrl+z','command+z'],
       'redo': ['ctrl+y','command+y'],
@@ -64,6 +64,7 @@ class HotKeyInterface extends Object {
     for(let name in this.handlers) {
       let origHandler = this.handlers[name];
       this.handlers[name] = ((e) => {
+        e.preventDefault();
         if(e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA')
           origHandler();
       });
