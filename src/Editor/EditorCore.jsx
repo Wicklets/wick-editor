@@ -1062,6 +1062,7 @@ class EditorCore extends Component {
     }).forEach(svg => {
       let imported = window.paper.project.importSVG(svg);
       imported.children.forEach(child => {
+        child.name = Math.random()+'-';
         child.position = new window.paper.Point(
           child.position.x + clip.transform.x,
           child.position.y + clip.transform.y);
