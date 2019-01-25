@@ -1180,8 +1180,12 @@ class EditorCore extends Component {
     let asset = this.project.getChildByUUID(uuid);
     window.Wick.Canvas.createImageFromAsset(asset, (raster) => {
       raster.name = Math.random()+'img';
+      console.log("TODO set position correctly");
       window.paper.project.activeLayer.addChild(raster);
       this.applyCanvasChangesToProject();
+      this.setStateWrapper({
+        project: this.project.serialize(),
+      });
     });
   }
 

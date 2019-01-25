@@ -1351,8 +1351,8 @@ function convertRange(value, r1, r2) {
         return null;
       } else if (typeof sprite === 'undefined') {
         // Use the default sound sprite (plays the full audio length).
-        sprite = '__default'; // Check if there is a single paused sound that isn't ended.
-        // If there is, play that sound. If not, continue as usual.
+        sprite = '__default'; // Check if there is a single paused sound that isn't ended. 
+        // If there is, play that sound. If not, continue as usual.  
 
         if (!self._playLock) {
           var num = 0;
@@ -3133,7 +3133,7 @@ function convertRange(value, r1, r2) {
 })();
 /*!
  *  Spatial Plugin - Adds support for stereo and 3D audio where Web Audio is supported.
- *
+ *  
  *  howler.js v2.1.1
  *  howlerjs.com
  *
@@ -8647,7 +8647,7 @@ https://github.com/nodeca/pako/blob/master/LICENSE
 
       $export.U = 64; // safe
 
-      $export.R = 128; // real proto method for `library`
+      $export.R = 128; // real proto method for `library` 
 
       module.exports = $export;
     }, {
@@ -12884,29 +12884,29 @@ https://github.com/nodeca/pako/blob/master/LICENSE
          When large enough input and output buffers are supplied to inflate(), for
          example, a 16K input buffer and a 64K output buffer, more than 95% of the
          inflate execution time is spent in this routine.
-
+      
          Entry assumptions:
-
+      
               state.mode === LEN
               strm.avail_in >= 6
               strm.avail_out >= 258
               start >= strm.avail_out
               state.bits < 8
-
+      
          On return, state.mode is one of:
-
+      
               LEN -- ran out of enough output space or enough available input
               TYPE -- reached end of block code, inflate() to interpret next block
               BAD -- error in block data
-
+      
          Notes:
-
+      
           - The maximum input bits used by a length/distance pair is 15 bits for the
             length code, 5 bits for the length extra, 15 bits for the distance code,
             and 13 bits for the distance extra.  This totals 48 bits, or six bytes.
             Therefore if strm.avail_in >= 6, then there is enough input to avoid
             checking for available input while decoding.
-
+      
           - The maximum bytes that a single length/distance pair can output is 258
             bytes, which is the maximum length that can be coded.  inflate_fast()
             requires strm.avail_out >= 258 for each loop to avoid checking for
@@ -13801,7 +13801,7 @@ https://github.com/nodeca/pako/blob/master/LICENSE
        inflate call, but the end of the deflate stream has not been reached yet.
        It is also called to create a window for dictionary data when a dictionary
        is loaded.
-
+      
        Providing output buffers larger than 32K to inflate() should provide a speed
        advantage, since only the last 32K of output is copied to the sliding window
        upon return from inflate(), and since all distances after the first 32K of
@@ -35214,7 +35214,7 @@ Wick.Project = class extends Wick.Base {
   }
   /**
    * String representation of class name: "Project"
-   * @return {string}
+   * @return {string} 
    */
 
 
@@ -35860,7 +35860,7 @@ Wick.Timeline = class extends Wick.Base {
   }
   /**
    * String representation of class name: "Timeline"
-   * @return {string}
+   * @return {string} 
    */
 
 
@@ -36010,9 +36010,9 @@ Wick.Tween = class extends Wick.Base {
   }
   /**
    * Create a tween by interpolating two existing tweens.
-   * @param {Wick.Tween} tweenA -
-   * @param {Wick.Tween} tweenB -
-   * @param {Number} playheadPosition -
+   * @param {Wick.Tween} tweenA - 
+   * @param {Wick.Tween} tweenB - 
+   * @param {Number} playheadPosition - 
    */
 
 
@@ -36054,10 +36054,10 @@ Wick.Tween = class extends Wick.Base {
     return object;
   }
   /**
-   * Calculate a value
-   * @param {Wick.Tween} tweenA -
-   * @param {Wick.Tween} tweenB -
-   * @param {number} playheadPosition -
+   * Calculate a value 
+   * @param {Wick.Tween} tweenA - 
+   * @param {Wick.Tween} tweenB - 
+   * @param {number} playheadPosition - 
    */
 
 
@@ -36117,12 +36117,12 @@ Wick.Tween = class extends Wick.Base {
 Wick.Transformation = class extends Wick.Base {
   /**
    * Creates a Transformation.
-   * @param {number} x -
-   * @param {number} y -
-   * @param {number} scaleX -
-   * @param {number} scaleY -
+   * @param {number} x - 
+   * @param {number} y - 
+   * @param {number} scaleX - 
+   * @param {number} scaleY - 
    * @param {number} rotation -
-   * @param {number} opacity -
+   * @param {number} opacity -  
    */
   constructor(x, y, scaleX, scaleY, rotation, opacity) {
     super();
@@ -36274,6 +36274,7 @@ Wick.ImageAsset = class extends Wick.Asset {
   constructor(filename, src) {
     super(filename, src);
     this.html5Image = null;
+    this.paperjsRaster = null;
   }
   /**
    * Valid MIME types for image assets.
@@ -36305,7 +36306,14 @@ Wick.ImageAsset = class extends Wick.Asset {
     var self = this;
 
     this.html5Image.onload = function () {
-      self.onload && self.onload();
+      self.paperjsRaster = new paper.Raster({
+        insert: false
+      });
+      self.paperjsRaster.image = self.html5Image;
+
+      self.paperjsRaster.onLoad = function () {
+        self.onload && self.onload();
+      };
     };
 
     this.html5Image.src = src;
@@ -36986,7 +36994,7 @@ Wick.Clip = class extends Wick.Tickable {
   }
 
   get isRoot() {
-    return this.project && this === this.project.focus;
+    return this.project && this === this.project.root;
   }
 
   get timeline() {
@@ -37327,6 +37335,12 @@ Wick.Canvas.Frame = class {
       var origData = layer.data;
       layer.name = undefined;
       layer.data = undefined;
+      layer.children.forEach(child => {
+        if (child instanceof paper.Raster) {
+          child.data.rasterX = child.position.x;
+          child.data.rasterY = child.position.y;
+        }
+      });
       var svg = layer.exportSVG({
         asString: false
       });
@@ -37334,7 +37348,7 @@ Wick.Canvas.Frame = class {
       layer.data = origData;
 
       for (var i = 0; i < svg.children.length; i++) {
-        svg.children[i].setAttribute('href', '');
+        svg.children[i].removeAttribute('href');
       }
 
       var container = document.createElement('div');
@@ -37365,7 +37379,16 @@ Wick.Canvas.Frame = class {
 
       this._pathsLayer.children.forEach(child => {
         if (child.className === 'Raster') {
-          child.source = wickFrame.project.assets[child.data.asset].src;
+          var asset = wickFrame.project.assets[child.data.asset];
+          var raster = asset.paperjsRaster.clone();
+          raster.matrix = child.matrix.clone();
+          raster.data = child.data;
+          if (raster.data.rasterX) raster.position.x = raster.data.rasterX;
+          if (raster.data.rasterY) raster.position.y = raster.data.rasterY;
+          raster.insertAbove(child);
+          raster.name = child.name;
+          child.remove(); //child.source = wickFrame.project.assets[child.data.asset].src;
+          //child.image = wickFrame.project.assets[child.data.asset].html5Image;
         }
       });
     }
