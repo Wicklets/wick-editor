@@ -66,6 +66,11 @@ class Canvas extends Component {
     window.Wick.Canvas.setup(this.canvasContainer.current);
     window.Wick.Canvas.resize();
 
+    this.canvasContainer.current.children[0].setAttribute('tabindex', 0);
+    this.canvasContainer.current.children[0].onclick = (e) => {
+      this.canvasContainer.current.children[0].focus();
+    }
+
     window.paper.view.zoom = 1;
     window.paper.view.center = new window.paper.Point(
       this.props.project.width/2,
