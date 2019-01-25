@@ -554,6 +554,7 @@ class EditorCore extends Component {
 
       if ('color' in actionGroup) {
         subActions.forEach(subAction => {
+          if (subAction === undefined) { console.error("Subaction '" + key + "' is undefined.")}
           subAction.color = actionGroup.color;
         });
       }
@@ -1368,6 +1369,19 @@ class EditorCore extends Component {
     }
 
     this.setState({project:this.project.serialize()});
+  }
+
+  /**
+   * Duplicates the currently selected object.
+   */
+  duplicateSelection = () => {
+    let disallowed = ['frame', 'layer'];
+    if (disallowed.indexOf(this.getSelectionType()) > -1) {
+      alert("Wick Editor can't duplicate '" + this.getSelectionType() + "' objects yet!");
+      return;
+    }
+
+    this.addSelectionToProject(this.deserializeSelection(this.serializeSelection()));
   }
 
   /**
