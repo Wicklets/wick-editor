@@ -1368,6 +1368,19 @@ class EditorCore extends Component {
   }
 
   /**
+   * Duplicates the currently selected object.
+   */
+  duplicateSelection = () => {
+    let disallowed = ['frame', 'layer'];
+    if (disallowed.indexOf(this.getSelectionType()) > -1) {
+      alert("Wick Editor can't duplicate '" + this.getSelectionType() + "' objects yet!");
+      return;
+    }
+
+    this.addSelectionToProject(this.deserializeSelection(this.serializeSelection()));
+  }
+
+  /**
    * Updates the onion skin settings in the state.
    * @param onionSkinOptions an object containing the new settings to use.
    */

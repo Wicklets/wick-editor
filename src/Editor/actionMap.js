@@ -42,8 +42,8 @@ class ActionMapInterface extends Object {
       },
       duplicateSelection: {
         icon: 'duplicate',
-        tooltip: 'Duplicate Selection(NYI)',
-        action: () => console.error('NYI'),
+        tooltip: 'Duplicate Selection',
+        action: this.editor.duplicateSelection,
         color: 'red',
         id: 'action-duplicate',
       },
