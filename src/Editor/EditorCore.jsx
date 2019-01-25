@@ -1220,7 +1220,7 @@ class EditorCore extends Component {
    * Sets the project focus to the timeline of the currently selected clip.
    */
   focusTimelineOfSelectedObject = () => {
-    this.project.focus = this.getSelectedClips()[0];
+    this.focusClip(this.getSelectedClips()[0]);
     this.setStateWrapper({
       project: this.project.serialize(),
       selection: this.emptySelection(),
@@ -1232,11 +1232,26 @@ class EditorCore extends Component {
    */
   focusTimelineOfParentObject = () => {
     if(this.project.focus === this.project.root) return;
-    this.project.focus = this.project.focus.parent._getParentByInstanceOf(window.Wick.Clip);
+    this.focusClip(this.project.focus.parent._getParentByInstanceOf(window.Wick.Clip));
     this.setStateWrapper({
       project: this.project.serialize(),
       selection: this.emptySelection(),
     });
+  }
+
+  /**
+   * Sets the focus to a specific Clip.
+   * @param {Wick.Clip} clip - the clip to focus.
+   */
+  focusClip = (clip) => {
+    if(clip === this.project.root) {
+      let cx = this.project.width / 2;
+      let cy = this.project.height / 2;
+      window.paper.view.center = new window.paper.Point(cx,cy);
+    } else {
+      window.paper.view.center = new window.paper.Point(0,0);
+    }
+    this.project.focus = clip;
   }
 
   /**
