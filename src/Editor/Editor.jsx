@@ -107,6 +107,9 @@ class Editor extends EditorCore {
     // Preview play tick loop
     this.tickLoopIntervalID = null;
 
+    // Save the project state before preview playing so we can retrieve it later
+    this.beforePreviewPlayProjectState = null;
+
     // Lock state flag
     this.lockState = false;
   }
@@ -168,13 +171,15 @@ class Editor extends EditorCore {
     }
   }
 
-  updateCanvas = () => {
+  updateCanvas = (skipUpdateSelection) => {
     // re-render the canvas
     this.canvas.render(this.project, {
       onionSkinEnabled: this.state.onionSkinEnabled,
       onionSkinSeekBackwards: this.state.onionSkinSeekBackwards,
       onionSkinSeekForwards: this.state.onionSkinSeekForwards,
     });
+
+    if(skipUpdateSelection) return;
 
     // update the paper.js selection using the editor selection state
     window.paper.project.selection.clear();
@@ -349,15 +354,20 @@ class Editor extends EditorCore {
   }
 
   startTickLoop = () => {
+    this.beforePreviewPlayProjectState = this.project.serialize();
     this.tickLoopIntervalID = setInterval(() => {
       this.project.tick();
-      this.updateCanvas();
+      window.Wick.Canvas.InteractTool.processMouseInputPreTick();
+      this.updateCanvas(true);
       this.updateTimeline();
     }, 1000 / this.project.framerate);
   }
 
   stopTickLoop = () => {
     clearInterval(this.tickLoopIntervalID);
+
+    this.project = window.Wick.Project.deserialize(this.beforePreviewPlayProjectState);
+    this.setState({project: this.beforePreviewPlayProjectState});
   }
 
   render = () => {
