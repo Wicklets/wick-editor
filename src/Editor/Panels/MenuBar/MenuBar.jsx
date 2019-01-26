@@ -20,19 +20,43 @@
 import React, { Component } from 'react';
 import './_menubar.scss';
 import MenuBarButton from './MenuBarButton/MenuBarButton';
+import WickInput from 'Editor/Util/WickInput/WickInput';
 
 import iconSettings from 'resources/inspector-icons/selection-icons/settings.png';
 
 class MenuBar extends Component {
+
+  constructor(props) {
+    super();
+    this.openFileRef = React.createRef();
+  }
+
+  handleWickFileLoad = (e) => {
+    var self = this;
+    var file = e.target.files[0];
+    if (!file) {
+      return;
+    }
+
+    self.props.importProjectAsWickFile(file);
+  }
+
   render() {
     return(
       <div className="docked-pane menu-bar">
         <MenuBarButton
           text="Save"
-          action={this.props.exportProjectAsWickFile}></MenuBarButton>
+          action={this.props.exportProjectAsWickFile}/>
+        {/* Add hidden file input to retrieve wick files. */}
+        <input
+          type='file'
+          accept='.zip, .wick'
+          style={{display:'none'}}
+          ref={this.openFileRef}
+          onChange={this.handleWickFileLoad} />
         <MenuBarButton
           text="Open"
-          action={() => {console.log("OPEN")}}></MenuBarButton>
+          action={() => {this.openFileRef.current.click()}}/>
         <div className="project-settings-preview" onClick={() => this.props.openModal('ProjectSettings')}>
           {this.props.projectName}
           <img className="project-settings-image" src={iconSettings} alt="settings icon" />

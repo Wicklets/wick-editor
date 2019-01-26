@@ -1412,7 +1412,7 @@ class EditorCore extends Component {
         alert("Cannot download project. Project is undefined.");
         return;
       }
-      saveAs(file, this.project.name + '.zip');
+      saveAs(file, this.project.name + '.wick');
     }
     this.project.exportAsWickFile(safeExport);
   }
@@ -1422,7 +1422,9 @@ class EditorCore extends Component {
    * @param {File} file Zipped wick file to import.
    */
   importProjectAsWickFile = (file) => {
-    this.project.fromWickFile(file, this.setupNewProject);
+    console.log(file)
+    window.Wick.Project.fromWickFile(file, this.setupNewProject);
+    console.log("We sent the file");
   }
 
   /**
@@ -1430,6 +1432,7 @@ class EditorCore extends Component {
    * @param  {Wick.Project} project project to load.
    */
   setupNewProject = (project) => {
+    console.log("setup");
     this.resetEditorForLoad();
     this.project = project;
     let newSelection = this.emptySelection();

@@ -415,7 +415,8 @@ class Editor extends EditorCore {
                     <MenuBar
                       openModal={this.openModal}
                       projectName={this.project.name}
-                      exportProjectAsWickFile={this.exportProjectAsWickFile}/>
+                      exportProjectAsWickFile={this.exportProjectAsWickFile}
+                      importProjectAsWickFile={this.importProjectAsWickFile}/>
                   </DockedPanel>
                 </div>
                 <div id="editor-body">
