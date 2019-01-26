@@ -27,7 +27,8 @@ class MenuBarButton extends Component {
       <div className="menu-bar-button">
         <ActionButton
           text={this.props.text}
-          action={this.props.action}>
+          action={this.props.action}
+          color='menu'>
         </ActionButton>
       </div>
     )

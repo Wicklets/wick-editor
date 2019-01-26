@@ -22,7 +22,7 @@
 .menu-bar {
   height: 100%;
   width: 100%;
-  background-color: #000;
+  background-color: $interface-menu-bar-background;
   overflow: visible;
   border-bottom: 2px solid $interface-primary;
   display: flex;

@@ -164,3 +164,26 @@ $action-button-transition-duration: .2s;
   background-color: $wick-green-dark;
   color: black;
 }
+
+.action-button-menu {
+  -webkit-transition-duration: $action-button-transition-duration; /* Safari */
+  transition-duration: $action-button-transition-duration;
+
+  background-color: $interface-menu-bar-background;
+  color: white;
+}
+
+.action-button-menu:hover {
+  background-color: $wick-green-light;
+  color: black;
+}
+
+.action-button-menu:active {
+  background-color: $wick-green-dark;
+  color: black;
+}
+
+.action-button-menu.active-button {
+  background-color: $wick-green-dark;
+  color: black;
+}
