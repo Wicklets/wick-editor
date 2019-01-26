@@ -1194,12 +1194,20 @@ class EditorCore extends Component {
   }
 
   /**
+   * Updates the React state with a new project.
+   * @param  {Wick.Project} newProject The Wick Project to update the React state with.
+   */
+  updateProject = () => {
+    this.setState( {
+      project: this.project.serialize(),
+    })
+  }
+
+  /**
    * Updates the Wick Project settings with new values passed in as an object. Will make no changes if input is invalid or the same as the previous settings.
    * @param {object} newSettings an object containing all of the settings to update within the project. Accepts valid project settings such as 'name', 'width', 'height', 'framerate', and 'backgroundColor'.
    */
   updateProjectSettings = (newSettings) => {
-    let updatedProject = this.project.clone();
-
     let validKeys = ["name", "width", "height", "backgroundColor", "framerate"];
 
     let updated = false;
@@ -1209,13 +1217,13 @@ class EditorCore extends Component {
 
       let oldVal = this.project[key];
       if (oldVal !== newSettings[key]) {
-        updatedProject[key] = newSettings[key];
+        this.project[key] = newSettings[key];
         updated = true;
       }
     })
 
     if (updated) {
-
+      this.updateProject();
     }
   }
 
