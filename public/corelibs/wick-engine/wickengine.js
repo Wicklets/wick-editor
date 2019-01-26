@@ -35220,7 +35220,7 @@ Wick.Project = class extends Wick.Base {
   }
   /**
    * String representation of class name: "Project"
-   * @return {string}
+   * @return {string} 
    */
 
 
