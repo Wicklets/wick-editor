@@ -385,7 +385,7 @@ class Editor extends EditorCore {
   stopTickLoop = () => {
     clearInterval(this.tickLoopIntervalID);
 
-    this.loadLiveProjectFromState(this.beforePreviewPlayProjectState, function () {
+    this.loadLiveProjectFromState(this.beforePreviewPlayProjectState, () => {
       this.setState({project: this.beforePreviewPlayProjectState});
     });
   }
