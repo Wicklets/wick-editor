@@ -19,34 +19,8 @@
 
 @import 'Editor/_wickbrand.scss';
 
-.menu-bar {
+.menu-bar-button {
+  width: 60px;
   height: 100%;
-  width: 100%;
-  background-color: $interface-menu-bar-background;
-  overflow: visible;
-  border-bottom: 2px solid $interface-primary;
-  display: flex;
-  align-items: center;
-}
-
-.project-settings-preview {
-  height: 100%;
-  color: #FFF;
-  vertical-align: middle;
-  text-align: center;
-  display: flex;
-  align-items: center;
-
-  position: absolute;
-  right: 0;
-}
-
-.project-settings-preview:hover {
-  cursor: pointer;
-}
-
-.project-settings-image {
-  height: 80%;
-  padding-left: 8px;
-  padding-right: 8px;
+  float: left;
 }

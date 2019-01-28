@@ -17,36 +17,22 @@
  * along with Wick Editor.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-@import 'Editor/_wickbrand.scss';
+import React, { Component } from 'react';
+import './_menubarbutton.scss';
+import ActionButton from 'Editor/Util/ActionButton/ActionButton';
 
-.menu-bar {
-  height: 100%;
-  width: 100%;
-  background-color: $interface-menu-bar-background;
-  overflow: visible;
-  border-bottom: 2px solid $interface-primary;
-  display: flex;
-  align-items: center;
+class MenuBarButton extends Component {
+  render() {
+    return(
+      <div className="menu-bar-button">
+        <ActionButton
+          text={this.props.text}
+          action={this.props.action}
+          color='menu'>
+        </ActionButton>
+      </div>
+    )
+  }
 }
 
-.project-settings-preview {
-  height: 100%;
-  color: #FFF;
-  vertical-align: middle;
-  text-align: center;
-  display: flex;
-  align-items: center;
-
-  position: absolute;
-  right: 0;
-}
-
-.project-settings-preview:hover {
-  cursor: pointer;
-}
-
-.project-settings-image {
-  height: 80%;
-  padding-left: 8px;
-  padding-right: 8px;
-}
+export default MenuBarButton

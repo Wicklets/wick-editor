@@ -19,6 +19,7 @@
 
 import { Component } from 'react';
 import localForage from 'localforage';
+import { saveAs } from 'file-saver';
 
 class EditorCore extends Component {
   /**
@@ -109,6 +110,7 @@ class EditorCore extends Component {
    * @return {object} Parsed selection.
    */
   deserializeSelection = (selection) => {
+    if (selection === undefined) { console.error("Selection is undefined"); return;}
     /**
      * Deserialize a selection array.
      * @param  {string[]} arr  array to deserialize
@@ -1156,6 +1158,16 @@ class EditorCore extends Component {
   }
 
   /**
+   * Updates the React state with a new project.
+   * @param  {Wick.Project} newProject The Wick Project to update the React state with.
+   */
+  updateProject = () => {
+    this.setState( {
+      project: this.project.serialize(),
+    })
+  }
+
+  /**
    * Updates the Wick Project settings with new values passed in as an object. Will make no changes if input is invalid or the same as the previous settings.
    * @param {object} newSettings an object containing all of the settings to update within the project. Accepts valid project settings such as 'name', 'width', 'height', 'framerate', and 'backgroundColor'.
    */
@@ -1169,13 +1181,13 @@ class EditorCore extends Component {
 
       let oldVal = this.project[key];
       if (oldVal !== newSettings[key]) {
-        updatedProject[key] = newSettings[key];
+        this.project[key] = newSettings[key];
         updated = true;
       }
     });
 
     if (updated) {
-
+      this.updateProject();
     }
   }
 
@@ -1357,7 +1369,9 @@ class EditorCore extends Component {
       return;
     }
 
-    this.addSelectionToProject(this.deserializeSelection(this.serializeSelection()));
+    let serialized = this.serializeSelection();
+    let deserialized = this.deserializeSelection(serialized);
+    this.addSelectionToProject(deserialized);
   }
 
   /**
@@ -1373,6 +1387,50 @@ class EditorCore extends Component {
       newOnionSkinOptions[optionName] = onionSkinOptions[optionName];
     });
     this.setStateWrapper(newOnionSkinOptions);
+  }
+
+  /**
+   * Export the current project as a Wick File using the save as dialog.
+   */
+  exportProjectAsWickFile = () => {
+    /**
+     * Attempts to safely open a saveAs dialog to save a file.
+     * @param  {File} file the file to save. if undefined, an alert is thrown.
+     */
+    let safeExport = (file) => {
+      if (file === undefined) {
+        alert("Cannot download project. Project is undefined.");
+        return;
+      }
+      saveAs(file, this.project.name + '.wick');
+    }
+    this.project.exportAsWickFile(safeExport);
+  }
+
+  /**
+   * Imports a wick file into the editor.
+   * @param {File} file Zipped wick file to import.
+   */
+  importProjectAsWickFile = (file) => {
+    console.log(file)
+    window.Wick.Project.fromWickFile(file, this.setupNewProject);
+    console.log("We sent the file");
+  }
+
+  /**
+   * Sets up a new project in the editor. This operation will remove the history, and all other ability to retrieve your project.
+   * @param  {Wick.Project} project project to load.
+   */
+  setupNewProject = (project) => {
+    console.log("setup");
+    this.resetEditorForLoad();
+    this.project = project;
+    let newSelection = this.emptySelection();
+    this.setStateWrapper({
+      project: this.project.serialize(),
+      selection: newSelection,
+    });
+
   }
 }
 

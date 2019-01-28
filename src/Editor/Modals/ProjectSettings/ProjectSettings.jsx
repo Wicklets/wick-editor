@@ -36,59 +36,50 @@ class ProjectSettings extends Component {
     }
 
     // Set minimums for project settings.
+    // TODO: Add this to the engine.
     this.projectMinWidth = 1;
     this.projectMinHeight = 1;
     this.projectMinFramerate = 1;
-
-    this.changeProjectName = this.changeProjectName.bind(this);
-    this.changeProjectWidth = this.changeProjectWidth.bind(this);
-    this.changeProjectHeight = this.changeProjectHeight.bind(this);
-    this.changeProjectFramerate = this.changeProjectFramerate.bind(this);
-    this.changeProjectBackgroundColor = this.changeProjectBackgroundColor.bind(this);
-
-    this.acceptProjectSettings = this.acceptProjectSettings.bind(this);
   }
 
-  componentWillMount () {
-
-  }
-
-  changeProjectName (event) {
-    let proposedName = event.target.value;
-    let cleanProjectName = (!proposedName) ? "New Project" : proposedName;
+  changeProjectName = (proposedName) => {
+    let cleanProjectName = "New Project";
+    if (proposedName !== "") {
+      cleanProjectName = proposedName;
+    }
     this.setState({
       name: cleanProjectName,
     });
   }
 
-  changeProjectWidth (widthAsNumber) {
+  changeProjectWidth = (widthAsNumber) => {
     let cleanWidthAsNumber = (!widthAsNumber) ? this.projectMinWidth : Math.max(this.projectMinWidth, widthAsNumber);
     this.setState({
       width: cleanWidthAsNumber,
     });
   }
 
-  changeProjectHeight (heightAsNumber) {
+  changeProjectHeight = (heightAsNumber) => {
     let cleanHeightAsNumber = (!heightAsNumber) ? this.projectMinHeight : Math.max(this.projectMinHeight, heightAsNumber);
     this.setState({
       height: cleanHeightAsNumber,
     });
   }
 
-  changeProjectFramerate (framerateAsNumber) {
+  changeProjectFramerate = (framerateAsNumber) => {
     let cleanFramerateAsNumber = (!framerateAsNumber) ? this.projectMinFramerate : Math.max(this.projectMinFramerate, framerateAsNumber);
     this.setState({
       framerate: cleanFramerateAsNumber
     });
   }
 
-  changeProjectBackgroundColor (color) {
+  changeProjectBackgroundColor = (color) => {
     this.setState({
       backgroundColor: color.hex
     });
   }
 
-  acceptProjectSettings () {
+  acceptProjectSettings = () => {
     let newSettings = {
       name: this.state.name,
       width: this.state.width,

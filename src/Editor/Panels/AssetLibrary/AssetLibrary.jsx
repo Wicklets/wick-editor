@@ -57,7 +57,21 @@ class AssetLibrary extends Component {
     )
   }
 
+  /**
+   * Sorts an array of assets by their names.
+   * @param  {Wick.Asset[]} assets An array of Wick.Asset objects.
+   * @return {Wick.Asset[]}        Returns a sorted array of Wick.Assets.
+   */
+  sortAssets = (assets) => {
+    let copiedAssets = [].concat(assets);
+
+    // Perform alphabetic sort.
+    copiedAssets.sort( (a,b) => a.name.localeCompare(b.name) );
+    return copiedAssets;
+  }
+
   render() {
+    let sortedAssets = this.sortAssets(this.props.assets);
     return(
       <div className="docked-pane asset-library">
         <DockedTitle title={"Asset Library"}></DockedTitle>
@@ -70,7 +84,7 @@ class AssetLibrary extends Component {
             icon="upload" />
         </div>
         <div className="asset-container">
-          {this.props.assets.map(this.makeNode)}
+          {sortedAssets.map(this.makeNode)}
         </div>
       </div>
     )
