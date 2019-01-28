@@ -62,9 +62,9 @@ class Canvas extends Component {
   }
 
   componentDidMount() {
-    this.wickCanvas = this.props.canvas;
-    window.Wick.Canvas.setup(this.canvasContainer.current);
-    window.Wick.Canvas.resize();
+    this.wickCanvas = new window.Wick.Canvas(this.canvasContainer.current);
+    this.props.setWickCanvas(this.wickCanvas);
+    this.wickCanvas.resize();
 
     this.canvasContainer.current.children[0].setAttribute('tabindex', 0);
     this.canvasContainer.current.children[0].onclick = (e) => {
@@ -89,7 +89,9 @@ class Canvas extends Component {
   }
 
   onSelectionChanged (e) {
-    this.props.selectObjects(window.paper.project.selection.items);
+    this.props.selectObjects(window.paper.project.selection.items.map(item => {
+      return this.props.project.getChildByUUID(item.uuid);
+    }));
   }
 
   render() {

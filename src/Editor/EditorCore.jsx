@@ -91,36 +91,14 @@ class EditorCore extends Component {
    */
   serializeSelection = () => {
     let selectedObjects = this.getAllSelectedObjects();
-
-    /**
-     * Serializes an array of Wick Object or paths.
-     * @param  {object[]} arr Array of Wick objects.
-     * @param  {boolean} path Run path serialization function if true.
-     * @return {string[]}     Array of serialized Wick Objects and paths.
-     */
-    let serializeArray = function (arr, path) {
-      let serialized = [];
-      arr.forEach( (item) => {
-        if (path) {
-          // Serializing path
-          serialized.push(item.exportJSON());
-        } else if (item.serialize && item instanceof window.Wick.Base) {
-          serialized.push(item.serialize());
-        } else {
-          serialized.push(item);
-        }
-      });
-      return serialized;
-    }
-
     let newSelection = this.emptySelection();
 
-    newSelection.timeline.frames = serializeArray(selectedObjects.timeline.frames);
-    newSelection.timeline.tweens = serializeArray(selectedObjects.timeline.tweens);
-    newSelection.timeline.layers = serializeArray(selectedObjects.timeline.layers);
-    newSelection.canvas.paths = serializeArray(selectedObjects.canvas.paths, true);
-    newSelection.canvas.clips = serializeArray(selectedObjects.canvas.clips);
-    newSelection.assetLibrary.assets = serializeArray(selectedObjects.assetLibrary.assets);
+    newSelection.timeline.frames = selectedObjects.timeline.frames.map(item => item.serialize);
+    newSelection.timeline.tweens = selectedObjects.timeline.tweens.map(item => item.serialize);
+    newSelection.timeline.layers = selectedObjects.timeline.layers.map(item => item.serialize);
+    newSelection.canvas.paths = selectedObjects.canvas.paths.map(item => item.serialize);
+    newSelection.canvas.clips = selectedObjects.canvas.clips.map(item => item.serialize);
+    newSelection.assetLibrary.assets = selectedObjects.assetLibrary.assets.map(item => item.serialize);
 
     return newSelection;
   }
@@ -134,24 +112,12 @@ class EditorCore extends Component {
     /**
      * Deserialize a selection array.
      * @param  {string[]} arr  array to deserialize
-     * @param  {boolean} path If True, use path deserialization.
      * @return {object[]}     The parsed objects in an array.
      */
-    let deserializeArray = function (arr, path) {
-      let deserialized = [];
-      arr.forEach( (item) => {
-        if (path) {
-          let newPath = new window.paper.Path();
-          newPath.importJSON(item);
-          deserialized.push(newPath);
-        } else if (item.classname) {
-          let wickObject = window.Wick[item.classname].deserialize(item);
-          deserialized.push(wickObject);
-        } else {
-          deserialized.push(item);
-        }
-      });
-      return deserialized;
+    let deserializeArray = function (arr) {
+      return arr.map(item => {
+        return window.Wick[item.classname].deserialize(item);
+      })
     }
 
     let newSelection = this.emptySelection();
@@ -251,7 +217,7 @@ class EditorCore extends Component {
 
   /**
    * Returns all selected objects on the timeline.
-   * @returns {(<paper.Item>|<Wick.Clip>|<Wick.Button>)[]} An array containing the selected clips and paths
+   * @returns {(<Wick.Path>|<Wick.Clip>|<Wick.Button>)[]} An array containing the selected clips and paths
    */
   getSelectedCanvasObjects = () => {
     return this.getSelectedPaths().concat(this.getSelectedClips());
@@ -259,20 +225,12 @@ class EditorCore extends Component {
 
   /**
    * Returns all selected paths.
-   * @returns {<paper.Item>)[]} An array containing the selected paths.
+   * @returns {<Wick.Path>)[]} An array containing the selected paths.
    */
   getSelectedPaths = () => {
-    if(!this.paper.project) return [];
-
-    let paths = [];
-    this.paper.project.layers.forEach(layer => {
-      layer.children.forEach(child => {
-        if(this.state.selection.canvas.paths.indexOf(child.name) > -1) {
-          paths.push(child);
-        }
-      });
+    return this.state.selection.canvas.paths.map(uuid => {
+      return this.project.getChildByUUID(uuid);
     });
-    return paths;
   }
 
   /**
@@ -287,7 +245,7 @@ class EditorCore extends Component {
 
   /**
    * Returns all selected buttons.
-   * @returns {<paper.Item>)[]} An array containing the selected buttons.
+   * @returns {<Wick.Button>)[]} An array containing the selected buttons.
    */
   getSelectedButtons = () => {
     return this.getSelectedClips().filter(clip => {
@@ -747,12 +705,9 @@ class EditorCore extends Component {
   selectionTypeOfObject = (object) => {
     if(object instanceof window.Wick.Asset) {
       return 'asset';
-    } else if (object instanceof window.paper.Group
-            || object instanceof window.Wick.Clip) {
+    } else if (object instanceof window.Wick.Clip) {
       return 'clip';
-    } else if (object instanceof window.paper.Path
-            || object instanceof window.paper.CompoundPath
-            || object instanceof window.paper.Raster) {
+    } else if (object instanceof window.Wick.Path) {
       return 'path';
     } else if (object instanceof window.Wick.Frame) {
       return 'frame';
@@ -774,23 +729,23 @@ class EditorCore extends Component {
 
   /**
    * Adds a clip to the selection.
-   * @param {<paper.Group>|<Wick.Clip>} clip - The clip to add to the selection.
+   * @param {<Wick.Clip>} clip - The clip to add to the selection.
    * @param {object} selection - The selection to add the clip to.
    * @returns {object} The updated selection.
    */
   addClipToSelection = (clip, selection) => {
-    selection.canvas.clips.push(clip.uuid || clip.data.wickUUID);
+    selection.canvas.clips.push(clip.uuid);
     return selection;
   }
 
   /**
    * Adds a path to the selection.
-   * @param {<paper.Path>|<paper.CompoundPath>|<paper.Raster>} path - The path to add to the selection.
+   * @param {<Wick.Path>} path - The path to add to the selection.
    * @param {object} selection - The selection to add the path to.
    * @returns {object} The updated selection.
    */
   addPathToSelection = (path, selection) => {
-    selection.canvas.paths.push(path.name);
+    selection.canvas.paths.push(path.uuid);
     return selection;
   }
 
@@ -911,11 +866,11 @@ class EditorCore extends Component {
 
   /**
    * Determines if a given path is selected.
-   * @param {<paper.Path>|<paper.CompoundPath>|<paper.Raster>} path - Path to check selection status
+   * @param {<Wick.Path>} path - Path to check selection status
    * @returns {boolean} - True if the path is selected, false otherwise
    */
   isPathSelected = (path) => {
-    return this.state.selection.canvas.paths.indexOf(path.name) > -1;
+    return this.state.selection.canvas.paths.indexOf(path.uuid) > -1;
   }
 
   /**
@@ -971,6 +926,7 @@ class EditorCore extends Component {
    * Creates a new symbol from the selected paths and clips and adds it to the project.
    */
   createSymbolFromSelection = (name, type) => {
+    /*
     this.lockState = true;
 
     // Create blank clip
@@ -1027,12 +983,14 @@ class EditorCore extends Component {
       project: this.project.serialize(),
       selection: newSelection,
     });
+    */
   }
 
   /**
    * Break apart the selected clip(s) and select the objects that were contained within those clip(s).
    */
   breakApartSelection = () => {
+    /*
     this.lockState = true;
 
     let results = [];
@@ -1046,6 +1004,7 @@ class EditorCore extends Component {
       project: this.project.serialize(),
       selection: newSelection,
     });
+    */
   }
 
   /**
@@ -1054,6 +1013,7 @@ class EditorCore extends Component {
    * @returns {object[]} - The objects that were contained within the clip.
    */
   breakApartClip = (clip) => {
+    /*
     let itemsInsideClip = [];
 
     // Add paths from inside clip
@@ -1088,28 +1048,30 @@ class EditorCore extends Component {
     clip.parent.removeClip(clip);
 
     return itemsInsideClip;
+    */
   }
 
   /**
    * Deletes all selected objects on the canvas.
-   * @returns {<paper.Path>|<paper.CompoundPath>|<paper.Group>[]} The objects that were deleted from the timeline.
    */
   deleteSelectedCanvasObjects = () => {
-    let result = this.paper.project.selection.delete();
-    this.applyCanvasChangesToProject();
-    return result;
+    this.getSelectedPaths().forEach(path => {
+      path.remove();
+    });
+    this.getSelectedClips().forEach(clip => {
+      clip.remove();
+    });
   }
 
   /**
    * Deletes all selected objects on the timeline.
-   * @returns {<Wick.Frame>|<Wick.Tween>[]} The objects that were deleted from the timeline.
    */
   deleteSelectedTimelineObjects = () => {
     this.getSelectedFrames().forEach(frame => {
-      frame.parent.removeFrame(frame);
+      frame.remove();
     });
     this.getSelectedTweens().forEach(tween => {
-      tween.parent.removeTween(tween);
+      tween.remove();
     });
   }
 
@@ -1179,6 +1141,7 @@ class EditorCore extends Component {
    * @param {number} y    The y location of the image after creation in relation to the window.
    */
   createImageFromAsset = (uuid, x, y) => {
+    /*
     let asset = this.project.getChildByUUID(uuid);
     window.Wick.Canvas.createImageFromAsset(asset, (raster) => {
       raster.name = Math.random()+'img';
@@ -1189,6 +1152,7 @@ class EditorCore extends Component {
         project: this.project.serialize(),
       });
     });
+    */
   }
 
   /**
@@ -1197,9 +1161,7 @@ class EditorCore extends Component {
    */
   updateProjectSettings = (newSettings) => {
     let updatedProject = this.project.clone();
-
     let validKeys = ["name", "width", "height", "backgroundColor", "framerate"];
-
     let updated = false;
 
     Object.keys(newSettings).forEach(key => {
@@ -1210,7 +1172,7 @@ class EditorCore extends Component {
         updatedProject[key] = newSettings[key];
         updated = true;
       }
-    })
+    });
 
     if (updated) {
 
@@ -1259,7 +1221,7 @@ class EditorCore extends Component {
    * Horizontally flips the canvas selection.
    */
   flipSelectedHorizontal = () => {
-    this.paper.project.selection.flip('horizontal');
+    this.paper.project.selection.flipHorizontally();
     this.applyCanvasChangesToProject();
   }
 
@@ -1267,7 +1229,7 @@ class EditorCore extends Component {
    * Vertically flips the canvas selection.
    */
   flipSelectedVertical = () => {
-    this.paper.project.selection.flip('vertical');
+    this.paper.project.selection.flipVertically();
     this.applyCanvasChangesToProject();
   }
 
@@ -1353,16 +1315,14 @@ class EditorCore extends Component {
     if (selection.canvas) {
       if (selection.canvas.paths) {
         selection.canvas.paths.forEach(path => {
-          path.name = Math.random() + '-'; //TODO: Change to UUID system.
-          window.paper.project.activeLayer.addChild(path);
+          this.project.activeFrame.addPath(path);
         });
-        this.applyCanvasChangesToProject();
       }
 
       if (selection.canvas.clips) {
         selection.canvas.clips.forEach(clip => {
           let clone = clip.clone(false);
-          this.project.focus.timeline.activeLayer.activeFrame.addClip(clone); //TODO simplify API
+          this.project.activeFrame.addClip(clone);
         });
       }
     }

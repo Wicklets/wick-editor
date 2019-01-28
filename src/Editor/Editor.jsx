@@ -121,7 +121,7 @@ class Editor extends EditorCore {
     // Initialize "live" engine state
     this.project = new window.Wick.Project();
     this.paper = window.paper;
-    this.canvas = new window.Wick.Canvas();
+    this.canvas = null;
 
     // Initialize local storage
     localForage.config({
@@ -413,6 +413,10 @@ class Editor extends EditorCore {
     })
   }
 
+  setWickCanvas = (wickCanvas) => {
+    this.canvas = wickCanvas;
+  }
+
   render = () => {
       return (
     <Dropzone
@@ -494,6 +498,7 @@ class Editor extends EditorCore {
                                     selectObjects={this.selectObjects}
                                     updateCanvas={this.updateCanvas}
                                     createImageFromAsset={this.createImageFromAsset}
+                                    setWickCanvas={this.setWickCanvas}
                                   />
                                 </DockedPanel>
                               </ReflexElement>
