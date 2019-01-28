@@ -203,7 +203,7 @@ class Editor extends EditorCore {
     // update the paper.js selection using the editor selection state
     window.paper.project.selection.clear();
     this.getSelectedPaths().forEach(path => {
-      window.paper.project.selection.addItemByName(path.name);
+      window.paper.project.selection.addItemByName(path.uuid);
     });
     this.getSelectedClips().forEach(clip => {
       window.paper.project.selection.addItemByName('wick_clip_'+clip.uuid);
@@ -290,7 +290,7 @@ class Editor extends EditorCore {
   }
 
   onResize = (e) => {
-    window.Wick.Canvas.resize();
+    this.canvas.resize();
     window.AnimationTimeline.resize();
   }
 

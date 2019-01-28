@@ -90,7 +90,7 @@ class Canvas extends Component {
 
   onSelectionChanged (e) {
     this.props.selectObjects(window.paper.project.selection.items.map(item => {
-      return this.props.project.getChildByUUID(item.uuid);
+      return this.props.project.getChildByUUID(item.name);
     }));
   }
 

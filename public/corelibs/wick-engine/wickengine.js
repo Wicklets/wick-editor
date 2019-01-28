@@ -36280,6 +36280,12 @@ Wick.Path = class extends Wick.Base {
     } else {
       this.importJSON(pathData, assets);
     }
+
+    if (this._paperPath.name) {
+      this._uuid = this._paperPath.name;
+    } else {
+      this._paperPath.name = this.uuid;
+    }
   }
 
   static _deserialize(data, object) {
@@ -37518,9 +37524,12 @@ Wick.Canvas.Frame = class {
         wickFrame.removePath(path);
       });
       layer.children.forEach(child => {
-        wickFrame.addPath(new Wick.Path(child.exportJSON({
+        var pathJSON = child.exportJSON({
           asString: false
-        })));
+        });
+        var wickPath = new Wick.Path(pathJSON);
+        wickFrame.addPath(wickPath);
+        child.name = wickPath.uuid;
       });
     }
   }

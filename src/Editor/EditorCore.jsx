@@ -823,7 +823,7 @@ class EditorCore extends Component {
    */
   selectObjects = (objects) => {
     let newSelection = this.addObjectsToSelection(objects, this.emptySelection());
-    this.setStateWrapper({selection: newSelection,});
+    this.setStateWrapper({selection: newSelection});
     return newSelection;
   }
 
@@ -1412,9 +1412,7 @@ class EditorCore extends Component {
    * @param {File} file Zipped wick file to import.
    */
   importProjectAsWickFile = (file) => {
-    console.log(file)
     window.Wick.Project.fromWickFile(file, this.setupNewProject);
-    console.log("We sent the file");
   }
 
   /**
@@ -1422,7 +1420,6 @@ class EditorCore extends Component {
    * @param  {Wick.Project} project project to load.
    */
   setupNewProject = (project) => {
-    console.log("setup");
     this.resetEditorForLoad();
     this.project = project;
     let newSelection = this.emptySelection();
