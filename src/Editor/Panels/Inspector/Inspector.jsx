@@ -368,8 +368,8 @@ class Inspector extends Component {
       <InspectorCheckbox
         tooltip="Enable Pressure"
         icon="pressure"
-        defaultChecked={this.getSelectionAttribute('pressureEnabled')}
-        onChange={() => this.setSelectionAttribute('pressureEnabled', !this.props.getToolSettings().pressureOn)}
+        defaultChecked={this.getToolSetting('pressureEnabled')}
+        onChange={() => this.setToolSetting('pressureEnabled', !this.getToolSetting('pressureEnabled'))}
         id="inspector-pressure-toggle" />
     )
   }

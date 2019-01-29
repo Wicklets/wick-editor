@@ -71,6 +71,7 @@ class Editor extends EditorCore {
         brushSmoothness: 10,
         cornerRadius: 0,
         pressureEnabled: false,
+        sizeJump: 5,
       },
       onionSkinEnabled: false,
       onionSkinSeekForwards: 1,
@@ -111,6 +112,10 @@ class Editor extends EditorCore {
 
     // Lock state flag
     this.lockState = false;
+
+    // Auto Save
+    this.autoSaveDelay = 5000; // millisecond delay
+    this.throttledAutoSaveProject = throttle(this.autoSaveProject, this.autoSaveDelay);
   }
 
   componentWillMount = () => {
@@ -124,6 +129,7 @@ class Editor extends EditorCore {
       name        : 'WickEditor',
       description : 'Live Data storage of the Wick Editor app.'
     });
+    this.autoSaveKey = "wickEditorAutosave";
 
     // Setup the initial project state
     this.setState({
@@ -168,8 +174,17 @@ class Editor extends EditorCore {
     this.setState(nextState, () => {
       if(projectOrSelectionWillChange) {
         this.history.saveState();
+        this.throttledAutoSaveProject();
       }
     });
+  }
+
+  /**
+   * Autosave the project in the state, if it exists.
+   */
+  autoSaveProject = () => {
+    if (this.project === undefined) {return}
+    localForage.setItem(this.autoSaveKey, this.project.serialize());
   }
 
   componentDidUpdate = (prevProps, prevState) => {
@@ -454,7 +469,7 @@ class Editor extends EditorCore {
                                 <DockedPanel>
                                   <CodeEditor
                                     project={this.project}
-                                    updateProjectState={this.updateProjectState}
+                                    updateProjectInState={this.updateProjectInState}
                                     getSelectionType={this.getSelectionType}
                                     getSelectedFrames={this.getSelectedFrames}
                                     getSelectedClips={this.getSelectedClips}
@@ -466,7 +481,7 @@ class Editor extends EditorCore {
                                 <DockedPanel>
                                   <Canvas
                                     project={this.project}
-                                    updateProjectState={this.updateProjectState}
+                                    updateProjectInState={this.updateProjectInState}
                                     canvas={this.canvas}
                                     paper={this.paper}
                                     selectObjects={this.selectObjects}
@@ -488,7 +503,7 @@ class Editor extends EditorCore {
                             <DockedPanel>
                               <Timeline
                                 project={this.project}
-                                updateProjectState={this.updateProjectState}
+                                updateProjectInState={this.updateProjectInState}
                                 updateTimeline={this.updateTimeline}
                                 getSelectedTimelineObjects={this.getSelectedTimelineObjects}
                                 selectObjects={this.selectObjects}
@@ -511,7 +526,7 @@ class Editor extends EditorCore {
                         onStopResize={this.resizeProps.onStopInspectorResize}>
                         <ReflexContainer orientation="horizontal">
                           {/* Inspector */}
-                          <ReflexElement propagateDimensions={true} minSize={200}{...this.resizeProps}>
+                          <ReflexElement minSize={200}{...this.resizeProps}>
                             <DockedPanel>
                               <Inspector
                                 getActiveTool={this.getActiveTool}

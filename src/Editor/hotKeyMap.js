@@ -31,8 +31,11 @@ class HotKeyInterface extends Object {
       'copy': ['ctrl+c','command+c'],
       'paste': ['ctrl+v', 'command+v'],
       'cut': ['ctrl+x', 'command+x'],
+      'auto-load': ['alt+a+v'],
+      'clear-auto-save': ['alt+a+c'],
       'break-apart': 'ctrl+b',
-      'leave-focus': '8',
+      'grow-brush-size': ']',
+      'shrink-brush-size': '[',
     }
   }
 
@@ -58,7 +61,10 @@ class HotKeyInterface extends Object {
       'copy': this.editor.copySelectionToClipboard,
       'cut': this.editor.cutSelectionToClipboard,
       'paste': this.editor.pasteFromClipboard,
-
+      'auto-load': this.editor.attemptAutoLoad,
+      'clear-auto-save': this.editor.clearAutoSavedProject,
+      'grow-brush-size': this.editor.growBrushSize,
+      'shrink-brush-size': this.editor.shrinkBrushSize, 
     }
 
     for(let name in this.handlers) {
@@ -68,7 +74,7 @@ class HotKeyInterface extends Object {
         if(e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
           e.preventDefault();
           origHandler();
-        } 
+        }
       });
     }
   }
