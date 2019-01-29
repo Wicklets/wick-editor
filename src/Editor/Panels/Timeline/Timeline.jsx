@@ -47,25 +47,25 @@ class Timeline extends Component {
   }
 
   onChange = (e) => {
-    var nextProject = this.props.project;
+    let project = this.props.project;
     if(e.playhead !== undefined) {
-      nextProject.focus.timeline.playheadPosition = e.playhead;
+      project.focus.timeline.playheadPosition = e.playhead;
     }
     if(e.layerIndex !== undefined) {
-      nextProject.focus.timeline.activeLayerIndex = e.layerIndex;
+      project.focus.timeline.activeLayerIndex = e.layerIndex;
     }
     if(e.layers) {
       e.layers.forEach(layer => {
         if(layer.id) {
           // Update
-          let wickLayer = nextProject.getChildByUUID(layer.id);
-          nextProject.focus.timeline.moveLayer(wickLayer, layer.getIndex());
+          let wickLayer = project.getChildByUUID(layer.id);
+          project.focus.timeline.moveLayer(wickLayer, layer.getIndex());
           wickLayer.locked = layer.locked;
           wickLayer.hidden = layer.hidden;
         } else {
           // Create
           let wickLayer = new window.Wick.Layer();
-          nextProject.focus.timeline.addLayer(wickLayer);
+          project.focus.timeline.addLayer(wickLayer);
         }
       });
     }
@@ -73,17 +73,15 @@ class Timeline extends Component {
       e.frames.forEach(frame => {
         if(frame.id) {
           // Update
-          let wickFrame = nextProject.getChildByUUID(frame.id);
+          let wickFrame = project.getChildByUUID(frame.id);
           wickFrame.start = frame.start;
           wickFrame.end = frame.end;
-          wickFrame.parent.removeFrame(wickFrame);
-          nextProject.focus.timeline.layers[frame.layer.getIndex()].addFrame(wickFrame);
         } else {
           // Create
           let wickFrame = new window.Wick.Frame();
           wickFrame.start = frame.start;
           wickFrame.end = frame.end;
-          nextProject.focus.timeline.activeLayer.addFrame(wickFrame);
+          project.focus.timeline.activeLayer.addFrame(wickFrame);
         }
       });
     }
@@ -91,7 +89,7 @@ class Timeline extends Component {
       e.tweens.forEach(tween => {
         if(tween.id) {
           // Update
-          var wickTween = nextProject.getChildByUUID(tween.id);
+          var wickTween = project.getChildByUUID(tween.id);
           wickTween.playheadPosition = tween.playheadPosition;
         } else {
           // Create
@@ -104,7 +102,7 @@ class Timeline extends Component {
       onionSkinSeekBackwards: e.onionSkinSeekBackwards,
       onionSkinSeekForwards: e.onionSkinSeekForwards,
     });
-    this.props.updateProjectInState(); 
+    this.props.updateProjectInState();
   }
 
   onSoftChange = (e) => {
