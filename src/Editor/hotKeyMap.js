@@ -64,9 +64,11 @@ class HotKeyInterface extends Object {
     for(let name in this.handlers) {
       let origHandler = this.handlers[name];
       this.handlers[name] = ((e) => {
-        e.preventDefault();
-        if(e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA')
+        // If we are not on a text input area, use the original hotkey function and prevent the default action.
+        if(e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+          e.preventDefault();
           origHandler();
+        } 
       });
     }
   }
