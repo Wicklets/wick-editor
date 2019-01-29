@@ -115,6 +115,10 @@ class Editor extends EditorCore {
 
     // Lock state flag
     this.lockState = false;
+
+    // Auto Save
+    this.autoSaveDelay = 5000; // millisecond delay
+    this.throttledAutoSaveProject = throttle(this.autoSaveProject, this.autoSaveDelay);
   }
 
   componentWillMount = () => {
@@ -128,6 +132,7 @@ class Editor extends EditorCore {
       name        : 'WickEditor',
       description : 'Live Data storage of the Wick Editor app.'
     });
+    this.autoSaveKey = "wickEditorAutosave";
 
     // Setup the initial project state
     this.setState({
@@ -174,8 +179,17 @@ class Editor extends EditorCore {
     this.setState(nextState, () => {
       if(projectOrSelectionWillChange) {
         this.history.saveState();
+        this.throttledAutoSaveProject();
       }
     });
+  }
+
+  /**
+   * Autosave the project in the state, if it exists.
+   */
+  autoSaveProject = () => {
+    if (this.project === undefined) {return}
+    localForage.setItem(this.autoSaveKey, this.project.serialize());
   }
 
   componentDidUpdate = (prevProps, prevState) => {

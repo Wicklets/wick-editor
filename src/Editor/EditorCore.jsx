@@ -1393,6 +1393,32 @@ class EditorCore extends Component {
 
     this.updateProjectAndSelectionInState();
   }
+
+  /**
+   * Attempts to automatically load an autosaved project if it exists. Does nothing if not autosaved project is stored.
+   */
+  attemptAutoLoad = () => {
+    let loadProject = (serializedProject) => {
+      console.log("Attempting to Load", serializedProject);
+      if (!serializedProject) {
+        //TODO: Remove Dead code
+        console.log("No AutoSave Found");
+        return;
+      }
+
+      let deserialized = window.Wick.Project.deserialize(serializedProject);
+      this.project = deserialized;
+      this.updateProjectInState();
+    }
+    localForage.getItem(this.autoSaveKey).then(loadProject);
+  }
+
+  /**
+   * Clears any autosaved project from local storage.
+   */
+  clearAutoSavedProject = () => {
+    localForage.removeItem(this.autoSaveKey).then(() => console.log("AutoSave cleared!"));
+  }
 }
 
 export default EditorCore;
