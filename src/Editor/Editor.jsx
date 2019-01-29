@@ -564,7 +564,7 @@ class Editor extends EditorCore {
                         onStopResize={this.resizeProps.onStopInspectorResize}>
                         <ReflexContainer orientation="horizontal">
                           {/* Inspector */}
-                          <ReflexElement propagateDimensions={true} minSize={200}{...this.resizeProps}>
+                          <ReflexElement minSize={200}{...this.resizeProps}>
                             <DockedPanel>
                               <Inspector
                                 getActiveTool={this.getActiveTool}
