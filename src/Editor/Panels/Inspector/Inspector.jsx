@@ -81,12 +81,6 @@ class Inspector extends Component {
     this.renderActionButtonRow = this.renderActionButtonRow.bind(this);
     this.renderButton = this.renderButton.bind(this);
     this.renderActions = this.renderActions.bind(this);
-
-    this.getToolSetting = this.getToolSetting.bind(this);
-    this.setToolSetting = this.setToolSetting.bind(this);
-
-    this.getSelectionAttribute = this.getSelectionAttribute.bind(this);
-    this.setSelectionAttribute = this.setSelectionAttribute.bind(this);
   }
 
   /**
@@ -94,7 +88,7 @@ class Inspector extends Component {
    * @param  {string} setting Setting value to retrieve
    * @return {string|number} Value of requested setting. Returns undefined if setting does no exist.
    */
-  getToolSetting (setting) {
+  getToolSetting = (setting) => {
     return this.props.getToolSettings()[setting];
   }
 
@@ -103,7 +97,7 @@ class Inspector extends Component {
    * @param {string} setting  Name of the setting to update.
    * @param {string|number} newValue Value to update selected tool setting to.
    */
-  setToolSetting (setting, newValue) {
+  setToolSetting = (setting, newValue) => {
     let newToolSetting = {}
     newToolSetting[setting] = newValue;
     this.props.setToolSettings(newToolSetting);
@@ -114,7 +108,7 @@ class Inspector extends Component {
    * @param  {string} attribute Selection attribute to retrieve.
    * @return {string|number} Value of the selection attribute to retrieve. Returns undefined is attribute does not exist.
    */
-  getSelectionAttribute (attribute) {
+  getSelectionAttribute = (attribute) => {
     return this.props.getSelectionAttributes()[attribute];
   }
 
@@ -123,7 +117,7 @@ class Inspector extends Component {
    * @param {string} attribute Name of the attribute to update.
    * @param {string|number} newValue  New value of the attribute to update.
    */
-  setSelectionAttribute (attribute, newValue) {
+  setSelectionAttribute = (attribute, newValue) => {
     let newSelectionAttributes = {}
     newSelectionAttributes[attribute] = newValue;
     this.props.setSelectionAttributes(newSelectionAttributes);

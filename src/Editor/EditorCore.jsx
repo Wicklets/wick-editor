@@ -562,14 +562,20 @@ class EditorCore extends Component {
   }
 
   /**
-   * Updates the name of the selected object.
+   * Updates the name of the selected object. Does nothing if multiple objects are selected.
    * @param {string} newName - The name to use.
    */
   setSelectionName = (newName) => {
+    // Only change name of selected objects if one is in selection.
     if(this.getSelectedClips().length === 1) {
       this.getSelectedClips()[0].name = newName;
+      this.updateProject();
     } else if (this.getSelectedAssetLibraryObjects().length === 1) {
       this.getSelectedAssetLibraryObjects()[0].name = newName;
+      this.updateProject();
+    } else if (this.getSelectedFrames().length === 1) {
+      this.getSelectedFrames()[0].name = newName;
+      this.updateProject();
     }
   }
 
