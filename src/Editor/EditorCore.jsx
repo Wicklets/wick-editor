@@ -64,6 +64,40 @@ class EditorCore extends Component {
   }
 
   /**
+   * Shrinks the brush size by toolSettings.sizeJump if a brush tool is selected.
+   */
+  shrinkBrushSize = () => {
+    if (this.getActiveTool() !== 'brush' && this.getActiveTool() !== 'eraser') { return }
+
+    let toolSettings = this.getToolSettings();
+    let minimum = 1;
+
+    let brushSize = toolSettings.brushSize;
+    let newBrushSize = Math.max(brushSize-toolSettings.sizeJump, minimum);
+
+    this.setToolSettings({
+      brushSize: newBrushSize,
+    });
+  }
+
+  /**
+   * Grows the brush size by toolSettings.sizeJump if a brush tool is selected.
+   */
+  growBrushSize = () => {
+    if (this.getActiveTool() !== 'brush' && this.getActiveTool() !== 'eraser') { return }
+
+    let toolSettings = this.getToolSettings();
+    let maximum = 100;
+
+    let brushSize = toolSettings.brushSize;
+    let newBrushSize = Math.min(brushSize+toolSettings.sizeJump, maximum);
+
+    this.setToolSettings({
+      brushSize: newBrushSize,
+    });
+  }
+
+  /**
    * Returns all objects currently selected.
    * @return {object} Selection object containing Wick Objects and paths.
    */

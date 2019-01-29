@@ -34,7 +34,8 @@ class HotKeyInterface extends Object {
       'auto-load': ['alt+a+v'],
       'clear-auto-save': ['alt+a+c'],
       'break-apart': 'ctrl+b',
-      'leave-focus': '8',
+      'grow-brush-size': ']',
+      'shrink-brush-size': '[',
     }
   }
 
@@ -62,6 +63,8 @@ class HotKeyInterface extends Object {
       'paste': this.editor.pasteFromClipboard,
       'auto-load': this.editor.attemptAutoLoad,
       'clear-auto-save': this.editor.clearAutoSavedProject,
+      'grow-brush-size': this.editor.growBrushSize,
+      'shrink-brush-size': this.editor.shrinkBrushSize, 
     }
 
     for(let name in this.handlers) {

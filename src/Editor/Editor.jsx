@@ -75,6 +75,7 @@ class Editor extends EditorCore {
         brushSmoothness: 10,
         cornerRadius: 0,
         pressureEnabled: false,
+        sizeJump: 5,
       },
       onionSkinEnabled: false,
       onionSkinSeekForwards: 1,
