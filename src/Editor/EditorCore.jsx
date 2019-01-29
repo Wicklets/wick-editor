@@ -1265,7 +1265,7 @@ class EditorCore extends Component {
     acceptedFiles.forEach(file => {
       this.project.importFile(file, function (asset) {
         // After import success, update editor state.
-        self.updateProject();
+        self.updateProjectInState();
       });
     });
   }
