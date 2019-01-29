@@ -85,7 +85,7 @@ class Canvas extends Component {
 
   onCanvasModified (e) {
     this.wickCanvas.applyChanges(this.props.project, e.layers);
-    this.props.updateProjectState(this.props.project.serialize());
+    this.props.updateProjectInState();
   }
 
   onSelectionChanged (e) {

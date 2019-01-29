@@ -492,7 +492,7 @@ class Editor extends EditorCore {
                                 <DockedPanel>
                                   <CodeEditor
                                     project={this.project}
-                                    updateProjectState={this.updateProjectState}
+                                    updateProjectInState={this.updateProjectInState}
                                     getSelectionType={this.getSelectionType}
                                     getSelectedFrames={this.getSelectedFrames}
                                     getSelectedClips={this.getSelectedClips}
@@ -504,7 +504,7 @@ class Editor extends EditorCore {
                                 <DockedPanel>
                                   <Canvas
                                     project={this.project}
-                                    updateProjectState={this.updateProjectState}
+                                    updateProjectInState={this.updateProjectInState}
                                     canvas={this.canvas}
                                     paper={this.paper}
                                     selectObjects={this.selectObjects}
@@ -526,7 +526,7 @@ class Editor extends EditorCore {
                             <DockedPanel>
                               <Timeline
                                 project={this.project}
-                                updateProjectState={this.updateProjectState}
+                                updateProjectInState={this.updateProjectInState}
                                 updateTimeline={this.updateTimeline}
                                 getSelectedTimelineObjects={this.getSelectedTimelineObjects}
                                 selectObjects={this.selectObjects}

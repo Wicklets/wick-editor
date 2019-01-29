@@ -104,7 +104,7 @@ class Timeline extends Component {
       onionSkinSeekBackwards: e.onionSkinSeekBackwards,
       onionSkinSeekForwards: e.onionSkinSeekForwards,
     });
-    this.props.updateProjectState(this.props.project.serialize());
+    this.props.updateProjectInState(); 
   }
 
   onSoftChange = (e) => {

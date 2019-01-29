@@ -23,14 +23,6 @@ import { saveAs } from 'file-saver';
 
 class EditorCore extends Component {
   /**
-   * Updates the state using new project data.
-   * @param {object} nextProjectState - Object containing serialized project data.
-   */
-  updateProjectState = (nextProjectState) => {
-    this.setStateWrapper({project: nextProjectState});
-  }
-
-  /**
    * Returns the name of the active tool.
    * @returns {string} The string representation active tool name.
    */
@@ -569,13 +561,13 @@ class EditorCore extends Component {
     // Only change name of selected objects if one is in selection.
     if(this.getSelectedClips().length === 1) {
       this.getSelectedClips()[0].name = newName;
-      this.updateProject();
+      this.updateProjectInState();
     } else if (this.getSelectedAssetLibraryObjects().length === 1) {
       this.getSelectedAssetLibraryObjects()[0].name = newName;
-      this.updateProject();
+      this.updateProjectInState();
     } else if (this.getSelectedFrames().length === 1) {
       this.getSelectedFrames()[0].name = newName;
-      this.updateProject();
+      this.updateProjectInState();;
     }
   }
 
@@ -974,10 +966,8 @@ class EditorCore extends Component {
     let newSelection = this.selectObject(newClip);
 
     this.lockState = false;
-    this.setStateWrapper({
-      project: this.project.serialize(),
-      selection: newSelection,
-    });
+
+    this.updateProjectAndSelectionInState(newSelection);
   }
 
   /**
@@ -993,10 +983,8 @@ class EditorCore extends Component {
     let newSelection = this.selectObjects(results);
 
     this.lockState = false;
-    this.setStateWrapper({
-      project: this.project.serialize(),
-      selection: newSelection,
-    });
+
+    this.updateProjectAndSelectionInState(newSelection);
   }
 
   /**
@@ -1121,18 +1109,33 @@ class EditorCore extends Component {
     let asset = this.project.getChildByUUID(uuid);
     let path = new window.Wick.Path(["Raster",{"applyMatrix":false,"crossOrigin":"","source":"asset","asset":uuid}], [asset]);
     this.project.activeFrame.addPath(path);
-    this.setStateWrapper({
-      project: this.project.serialize(),
-    });
+
+    this.updateProjectInState();
   }
 
   /**
    * Updates the React state with a new project.
    * @param  {Wick.Project} newProject The Wick Project to update the React state with.
    */
-  updateProject = () => {
-    this.setState( {
+  updateProjectInState = () => {
+    this.setStateWrapper( {
       project: this.project.serialize(),
+    } );
+
+  }
+
+  /**
+   * Updates the React state with the new project and a new selection.
+   * @param  {object} selection Object representing new selection. If no selection is provided, selection is set to empty.
+   */
+  updateProjectAndSelectionInState = (newSelection) => {
+    if (newSelection === undefined) {
+      newSelection = this.emptySelection();
+    }
+
+    this.setStateWrapper( {
+      project: this.project.serialize(),
+      selection: newSelection,
     })
   }
 
@@ -1156,7 +1159,7 @@ class EditorCore extends Component {
     });
 
     if (updated) {
-      this.updateProject();
+      this.updateProjectInState();
     }
   }
 
@@ -1165,10 +1168,8 @@ class EditorCore extends Component {
    */
   focusTimelineOfSelectedObject = () => {
     this.focusClip(this.getSelectedClips()[0]);
-    this.setStateWrapper({
-      project: this.project.serialize(),
-      selection: this.emptySelection(),
-    });
+
+    this.updateProjectAndSelectionInState();
   }
 
   /**
@@ -1177,10 +1178,8 @@ class EditorCore extends Component {
   focusTimelineOfParentObject = () => {
     if(this.project.focus === this.project.root) return;
     this.focusClip(this.project.focus.parent._getParentByInstanceOf(window.Wick.Clip));
-    this.setStateWrapper({
-      project: this.project.serialize(),
-      selection: this.emptySelection(),
-    });
+
+    this.updateProjectAndSelectionInState();
   }
 
   /**
@@ -1230,7 +1229,7 @@ class EditorCore extends Component {
     acceptedFiles.forEach(file => {
       this.project.importFile(file, function (asset) {
         // After import success, update editor state.
-        self.setStateWrapper({project: self.project.serialize()});
+        self.updateProject();
       });
     });
   }
@@ -1325,7 +1324,7 @@ class EditorCore extends Component {
       }
     }
 
-    this.setState({project:this.project.serialize()});
+    this.updateProjectInState();
   }
 
   /**
@@ -1391,12 +1390,8 @@ class EditorCore extends Component {
   setupNewProject = (project) => {
     this.resetEditorForLoad();
     this.project = project;
-    let newSelection = this.emptySelection();
-    this.setStateWrapper({
-      project: this.project.serialize(),
-      selection: newSelection,
-    });
 
+    this.updateProjectAndSelectionInState();
   }
 }
 
