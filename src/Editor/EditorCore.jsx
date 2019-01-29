@@ -1003,13 +1003,13 @@ class EditorCore extends Component {
 
     clip.timeline.activeLayer.activeFrames.forEach(frame => {
       // Add paths from inside clip
-      frame.paths.forEach(path = > {
+      frame.paths.forEach(path => {
         path.remove();
         this.project.activeFrame.addPath(path.clone());
         itemsInsideClip.push(path);
       });
       // Add clips from inside clip
-      frame.clips.forEach(subclip = > {
+      frame.clips.forEach(subclip => {
         subclip.remove();
         this.project.activeFrame.addClip(subclip.clone());
         itemsInsideClip.push(subclip);
