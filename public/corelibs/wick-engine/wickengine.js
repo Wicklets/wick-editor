@@ -34738,6 +34738,70 @@ window.Wick = Wick;
 */
 
 /**
+ * Global utility class for storing and retrieving large file data.
+ */
+WickFileCache = class {
+  /**
+   * Create a WickFileCache.
+   */
+  constructor() {
+    this._files = {};
+  }
+  /**
+   * Get info for a file by its UUID.
+   * @param {string} uuid - The UUID of the file
+   * @returns {object} The file info
+   */
+
+
+  getFile(uuid) {
+    return this._files[uuid];
+  }
+  /**
+   * Add a file to the cache.
+   * @param {string} src - The file source
+   * @param {string} uuid - The UUID of the file
+   */
+
+
+  addFile(src, uuid) {
+    this._files[uuid] = {
+      src: src
+    };
+  }
+  /**
+   * Clear the cache.
+   */
+
+
+  clear(file, uuid) {
+    this._files = {};
+  }
+
+};
+Wick.FileCache = new WickFileCache();
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* Copyright 2018 WICKLETS LLC
+*
+* This file is part of Wick Engine.
+*
+* Wick Engine is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Wick Engine is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
+/**
  * The base class for all objects within the Wick Engine.
  */
 Wick.Base = class {
@@ -35226,8 +35290,9 @@ Wick.Project = class extends Wick.Base {
           projectData.assets.forEach(assetData => {
             var assetFile = contents.files['assets/' + assetData.uuid + '.' + assetData.fileExtension];
             assetFile.async('base64').then(assetFileData => {
-              var assetSrc = 'data:' + assetData.MIMEType + ';base64,' + assetFileData;
-              assetData.src = assetSrc;
+              var assetSrc = 'data:' + assetData.MIMEType + ';base64,' + assetFileData; //assetData.src = assetSrc;
+
+              Wick.FileCache.addFile(assetSrc, assetData.uuid);
             }).catch(e => {
               console.log('Error loading asset file.');
               console.log(e);
@@ -35443,11 +35508,7 @@ Wick.Project = class extends Wick.Base {
       var data = asset.src.split(',')[1];
       assetsFolder.file(filename + '.' + fileExtension, data, {
         base64: true
-      }); // Strip asset dataurls (saves space)
-
-      projectData.assets.find(assetData => {
-        return assetData.uuid === asset.uuid;
-      }).src = null;
+      });
     }); // Add project json and extra info file to root directory of zip file
 
     zip.file("project.json", JSON.stringify(projectData, null, 2));
@@ -36269,7 +36330,7 @@ Wick.Path = class extends Wick.Base {
    * @param {object} pathData - Data for the path, see paper.js exportAsJSON for format info.
    * @param {Wick.Asset[]} assets - Assets to load image source from (for rasters).
    */
-  constructor(pathData, assets) {
+  constructor(pathData) {
     super();
     this._assetUUID = null;
 
@@ -36278,7 +36339,7 @@ Wick.Path = class extends Wick.Base {
         insert: false
       });
     } else {
-      this.importJSON(pathData, assets);
+      this.importJSON(pathData);
     }
 
     if (this._paperPath.name) {
@@ -36327,13 +36388,11 @@ Wick.Path = class extends Wick.Base {
    */
 
 
-  importJSON(json, assets) {
+  importJSON(json) {
     if (json[0] === "Raster") {
       this._assetUUID = json[1].asset;
-      var asset = assets.find(asset => {
-        return asset.uuid === json[1].asset;
-      });
-      json[1].source = asset.src;
+      var src = Wick.FileCache.getFile(this._assetUUID).src;
+      json[1].source = src;
     }
 
     this._paperPath = paper.importJSON(json);
@@ -36388,7 +36447,7 @@ Wick.Asset = class extends Wick.Base {
     super();
     this.name = filename;
     this.filename = filename;
-    this._src = src;
+    Wick.FileCache.addFile(src, this.uuid);
     this.onload = null;
   }
   /**
@@ -36408,7 +36467,6 @@ Wick.Asset = class extends Wick.Base {
 
     object.name = data.name;
     object.filename = data.filename;
-    object.src = data.src;
     return object;
   }
 
@@ -36417,11 +36475,11 @@ Wick.Asset = class extends Wick.Base {
   }
 
   get src() {
-    return this._src;
+    return Wick.FileCache.getFile(this.uuid).src;
   }
 
   set src(src) {
-    this._src = src;
+    Wick.FileCache.addFile(src, this.uuid);
   }
 
   get isLoaded() {
@@ -36438,7 +36496,6 @@ Wick.Asset = class extends Wick.Base {
 
   serialize() {
     var data = super.serialize();
-    data.src = this.src;
     data.name = this.name;
     data.filename = this.filename;
     return data;
@@ -37507,39 +37564,53 @@ Wick.Canvas.Frame = class {
 
   static applyChanges(wickFrame, layer) {
     if (layer.data.type === 'clips') {
-      // Reorder clips
-      var clips = wickFrame.clips.concat([]);
-      clips.forEach(clip => {
-        wickFrame.removeClip(clip);
-      });
-      layer.children.forEach(child => {
-        wickFrame.addClip(clips.find(g => {
-          return g.uuid === child.data.wickUUID;
-        }));
-      }); // Update clip transforms
-
-      layer.children.forEach(child => {
-        var wickClip = wickFrame.getChildByUUID(child.data.wickUUID);
-        wickClip.transform.x = child.position.x;
-        wickClip.transform.y = child.position.y;
-        wickClip.transform.scaleX = child.scaling.x;
-        wickClip.transform.scaleY = child.scaling.y;
-        wickClip.transform.rotation = child.rotation;
-        wickClip.transform.opacity = child.opacity;
-      });
+      Wick.Canvas.Frame.applyClipChanges(wickFrame, layer);
     } else if (layer.data.type === 'paths') {
-      wickFrame.paths.forEach(path => {
-        wickFrame.removePath(path);
-      });
-      layer.children.forEach(child => {
-        var pathJSON = child.exportJSON({
-          asString: false
-        });
-        var wickPath = new Wick.Path(pathJSON, wickFrame.project.assets);
-        wickFrame.addPath(wickPath);
-        child.name = wickPath.uuid;
-      });
+      Wick.Canvas.Frame.applyPathChanges(wickFrame, layer);
     }
+  }
+
+  static applyClipChanges(wickFrame, layer) {
+    // Reorder clips
+    var clips = wickFrame.clips.concat([]);
+    clips.forEach(clip => {
+      wickFrame.removeClip(clip);
+    });
+    layer.children.forEach(child => {
+      wickFrame.addClip(clips.find(g => {
+        return g.uuid === child.data.wickUUID;
+      }));
+    }); // Update clip transforms
+
+    layer.children.forEach(child => {
+      var wickClip = wickFrame.getChildByUUID(child.data.wickUUID);
+      wickClip.transform.x = child.position.x;
+      wickClip.transform.y = child.position.y;
+      wickClip.transform.scaleX = child.scaling.x;
+      wickClip.transform.scaleY = child.scaling.y;
+      wickClip.transform.rotation = child.rotation;
+      wickClip.transform.opacity = child.opacity;
+    });
+  }
+
+  static applyPathChanges(wickFrame, layer) {
+    wickFrame.paths.forEach(path => {
+      wickFrame.removePath(path);
+    });
+    layer.children.forEach(child => {
+      var pathJSON = child.exportJSON({
+        asString: false
+      });
+
+      if (pathJSON[0] === "Raster") {
+        pathJSON[1].asset = child.data.asset;
+        pathJSON[1].source = 'asset';
+      }
+
+      var wickPath = new Wick.Path(pathJSON);
+      wickFrame.addPath(wickPath);
+      child.name = wickPath.uuid;
+    });
   }
 
   render(wickFrame, options) {
@@ -37554,7 +37625,11 @@ Wick.Canvas.Frame = class {
     this._pathsLayer.removeChildren();
 
     wickFrame.paths.forEach(path => {
-      this._pathsLayer.addChild(path.paperPath.clone());
+      var pathClone = path.paperPath.clone();
+
+      this._pathsLayer.addChild(pathClone);
+
+      pathClone.data.asset = path._assetUUID;
     });
   }
 
