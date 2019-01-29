@@ -928,56 +928,43 @@ class EditorCore extends Component {
    * Creates a new symbol from the selected paths and clips and adds it to the project.
    */
   createSymbolFromSelection = (name, type) => {
-    /*
     this.lockState = true;
 
     // Create blank clip
     let newClip = new window.Wick[type]();
     newClip.name = name;
     newClip.timeline.addLayer(new window.Wick.Layer());
-    newClip.timeline.layers[0].addFrame(new window.Wick.Frame());
+    newClip.timeline.activeLayer.addFrame(new window.Wick.Frame());
 
     // Calculate position of new clip
-    let clipX = this.paper.project.selection.bounds.center.x;
-    let clipY = this.paper.project.selection.bounds.center.y;
+    newClip.transform.x = this.paper.project.selection.bounds.center.x;
+    newClip.transform.y = this.paper.project.selection.bounds.center.y;
 
-    // Export selected SVG
-    let svg = window.paper.project.selection.exportSVG();
-
-    // Import svg into clip's first frame
-    newClip.timeline.layers[0].frames[0].svg = svg;
-
-    // Reposition selected clips
+    // Reposition selected clips and paths
     this.getSelectedClips().forEach(clip => {
-      clip.transform.x -= clipX;
-      clip.transform.y -= clipY;
+      clip.transform.x -= newClip.transform.x;
+      clip.transform.y -= newClip.transform.y;
+    });
+    this.getSelectedPaths().forEach(path => {
+      path.paperPath.position.x -= newClip.transform.x;
+      path.paperPath.position.y -= newClip.transform.y;
     });
 
-    // Clone selected clips
-    let clonedClips = this.getSelectedClips().map(clip => {
-      return clip.clone(true);
+    // Add selected clips and paths to new clip
+    this.getSelectedClips().forEach(clip => {
+      newClip.activeFrame.addClip(clip.clone(true));
+    });
+    this.getSelectedPaths().forEach(path => {
+      newClip.activeFrame.addPath(path.clone(true));
     });
 
-    // Add cloned clips to blank clip
-    clonedClips.forEach(clip => {
-      newClip.timeline.layers[0].frames[0].addClip(clip.clone(true));
-    });
+    // Delete selected objects
+    this.deleteSelectedObjects();
 
-    // Reposition new clip
-    newClip.transform.x += clipX;
-    newClip.transform.y += clipY;
+    // Add new clip
+    this.project.activeFrame.addClip(newClip);
 
-    // Delete existing objects
-    window.paper.project.selection.delete();
-    this.applyCanvasChangesToProject();
-
-    // Clear selection
-    this.clearSelection();
-
-    // Add clip to focus
-    this.project.focus.timeline.activeLayer.activeFrame.addClip(newClip);
-
-    // Select clip
+    // Select new clip
     let newSelection = this.selectObject(newClip);
 
     this.lockState = false;
@@ -985,14 +972,12 @@ class EditorCore extends Component {
       project: this.project.serialize(),
       selection: newSelection,
     });
-    */
   }
 
   /**
    * Break apart the selected clip(s) and select the objects that were contained within those clip(s).
    */
   breakApartSelection = () => {
-    /*
     this.lockState = true;
 
     let results = [];
@@ -1006,7 +991,6 @@ class EditorCore extends Component {
       project: this.project.serialize(),
       selection: newSelection,
     });
-    */
   }
 
   /**
@@ -1015,42 +999,27 @@ class EditorCore extends Component {
    * @returns {object[]} - The objects that were contained within the clip.
    */
   breakApartClip = (clip) => {
-    /*
     let itemsInsideClip = [];
 
-    // Add paths from inside clip
-    clip.timeline.activeFrames.map(frame => {
-      return frame.svg;
-    }).forEach(svg => {
-      let imported = window.paper.project.importSVG(svg);
-      imported.children.forEach(child => {
-        child.name = Math.random()+'-';
-        child.position = new window.paper.Point(
-          child.position.x + clip.transform.x,
-          child.position.y + clip.transform.y);
+    clip.timeline.activeLayer.activeFrames.forEach(frame => {
+      // Add paths from inside clip
+      frame.paths.forEach(path = > {
+        path.remove();
+        this.project.activeFrame.addPath(path.clone());
+        itemsInsideClip.push(path);
       });
-      let children = imported.removeChildren();
-      itemsInsideClip = itemsInsideClip.concat(children);
-      window.paper.project.activeLayer.addChildren(children);
-      imported.remove();
-    });
-    this.canvas.applyChanges(this.project, window.paper.project.layers);
-
-    // Add subclips from inside clip
-    clip.timeline.activeFrames.forEach(frame => {
-      frame.clips.forEach(subclip => {
-        this.project.focus.timeline.activeLayer.activeFrame.addClip(subclip);
-        subclip.transform.x += clip.transform.x;
-        subclip.transform.y += clip.transform.y;
+      // Add clips from inside clip
+      frame.clips.forEach(subclip = > {
+        subclip.remove();
+        this.project.activeFrame.addClip(subclip.clone());
         itemsInsideClip.push(subclip);
       });
     });
 
-    // Delete clip, since we broke it apart
-    clip.parent.removeClip(clip);
+    // Delete original clip
+    clip.remove();
 
     return itemsInsideClip;
-    */
   }
 
   /**

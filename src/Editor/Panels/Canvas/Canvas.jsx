@@ -90,7 +90,9 @@ class Canvas extends Component {
 
   onSelectionChanged (e) {
     this.props.selectObjects(window.paper.project.selection.items.map(item => {
-      return this.props.project.getChildByUUID(item.name);
+      let name = item.name;
+      if(name.startsWith('wick_clip_')) name = name.split('wick_clip_')[1];
+      return this.props.project.getChildByUUID(name);
     }));
   }
 

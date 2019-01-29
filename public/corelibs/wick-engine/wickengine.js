@@ -37201,6 +37201,14 @@ Wick.Clip = class extends Wick.Tickable {
     this._addChild(this._timeline);
   }
 
+  get activeLayer() {
+    return this.timeline.activeLayer;
+  }
+
+  get activeFrame() {
+    return this.activeLayer.activeFrame;
+  }
+
   remove() {
     this.parent.removeClip(this);
   }
