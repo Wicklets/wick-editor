@@ -31,10 +31,10 @@ class AlphaWarning extends Component {
   render() {
     return (
       <Modal id="alpha-modal" isOpen={this.props.open} toggle={this.props.toggle} className={this.props.className}>
-        <ModalHeader toggle={this.props.toggle} className="alpha-warning-header">Wick Editor Alpha {this.getVersion()}</ModalHeader>
+        <ModalHeader toggle={this.props.toggle} className="alpha-warning-header">Wick Editor 1.0 Alpha {this.getVersion()}</ModalHeader>
         <ModalBody>
-          <h5>This is an alpha test of version 1.0 of the Wick Editor.</h5>
-          <h6>Wick Editor Alpha {this.getVersion()} Includes:</h6>
+          <h4>This is an alpha test of version 1.0 of the Wick Editor.</h4>
+          <h5>Wick Editor Alpha {this.getVersion()} Includes:</h5>
           <ul>
             <li>Cut/Copy/Paste/Delete</li>
             <li>Clips and Animated Clip Editing</li>
