@@ -25,15 +25,28 @@ import 'Editor/_wickbrand.scss';
 import './_alphawarning.scss';
 
 class AlphaWarning extends Component {
+  getVersion() {
+    return "v3"
+  }
   render() {
     return (
       <Modal id="alpha-modal" isOpen={this.props.open} toggle={this.props.toggle} className={this.props.className}>
-        <ModalHeader toggle={this.props.toggle} className="alpha-warning-header">Wick Editor Alpha</ModalHeader>
+        <ModalHeader toggle={this.props.toggle} className="alpha-warning-header">Wick Editor Alpha {this.getVersion()}</ModalHeader>
         <ModalBody>
-          <h3>Welcome to Wick Editor 1.0 v2</h3>
-          <h5>In this alpha test, you'll have access to some of the most <b>basic</b> features of the Wick Editor.</h5>
-          <p>Right now, you can test some of the new drawing tools, our new and improved engine, and some scripting capabilities! This demo is missing functionality, tools, and much of the styling, but we hope it shows you what is possible with the new Wick Editor 1.0.</p>
-          <p>More features and changes are on the way!</p>
+          <h5>This is an alpha test of version 1.0 of the Wick Editor.</h5>
+          <h6>Wick Editor Alpha {this.getVersion()} Includes:</h6>
+          <ul>
+            <li>Cut/Copy/Paste/Delete</li>
+            <li>Clips and Animated Clip Editing</li>
+            <li>Interactive Objects with Code</li>
+            <li>Interactive Preview Play</li>
+            <li>Assets (Images)</li>
+            <li>Project Saving and Opening</li>
+            <li>~20 Editor Actions</li>
+            <li>Full Functional Inspector</li>
+            <li>Save Project Warnings</li>
+          </ul>
+          <a href="forum.wickeditor.com">Report all bugs on the forums as an "Alpha Bug!"</a>
         </ModalBody>
         <ModalFooter>
           <Button className="alpha-warning-modal-button" color="wick-warning" onClick={() => window.location.href="http://www.wickeditor.com"}>No Thanks...</Button>
