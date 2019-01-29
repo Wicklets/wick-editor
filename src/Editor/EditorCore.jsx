@@ -1067,6 +1067,8 @@ class EditorCore extends Component {
    * @returns {object[]} The objects that were deleted.
    */
   deleteSelectedObjects = () => {
+    this.lockState = true;
+
     let result = [];
     if(this.getSelectedCanvasObjects().length > 0) {
       result = this.deleteSelectedCanvasObjects();
@@ -1075,7 +1077,13 @@ class EditorCore extends Component {
     } else if(this.getSelectedAssetLibraryObjects().length > 0) {
       result = this.deleteSelectedAssetLibraryObjects();
     }
-    this.clearSelection();
+
+    this.lockState = false;
+    this.setStateWrapper({
+      project: this.project.serialize(),
+      selection: this.emptySelection(),
+    });
+
     return result;
   }
 
@@ -1396,7 +1404,6 @@ class EditorCore extends Component {
       project: this.project.serialize(),
       selection: newSelection,
     });
-
   }
 }
 

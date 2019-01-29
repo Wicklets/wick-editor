@@ -35419,15 +35419,11 @@ Wick.Project = class extends Wick.Base {
 
     reader.onload = function () {
       let dataURL = reader.result;
-
-      asset.onload = function () {
-        self.addAsset(asset);
-        callback(asset);
-      };
-
       asset.src = dataURL;
       asset.filename = file.name;
       asset.name = file.name;
+      self.addAsset(asset);
+      callback(asset);
     };
 
     reader.readAsDataURL(file);
@@ -36525,8 +36521,6 @@ Wick.Asset = class extends Wick.Base {
 Wick.ImageAsset = class extends Wick.Asset {
   constructor(filename, src) {
     super(filename, src);
-    this.html5Image = null;
-    this.paperjsRaster = null;
     this.src = src;
   }
   /**
@@ -36555,33 +36549,6 @@ Wick.ImageAsset = class extends Wick.Asset {
 
   set src(src) {
     super.src = src;
-    this.html5Image = new Image();
-    var self = this;
-
-    this.html5Image.onload = function () {
-      self.paperjsRaster = new paper.Raster({
-        insert: false
-      });
-      self.paperjsRaster.image = self.html5Image;
-
-      self.paperjsRaster.onLoad = function () {
-        self.onload && self.onload();
-      };
-    };
-
-    this.html5Image.src = src;
-  }
-
-  get width() {
-    return this.html5Image.width;
-  }
-
-  get height() {
-    return this.html5Image.height;
-  }
-
-  get isLoaded() {
-    return this.html5Image !== null;
   }
 
   serialize() {
@@ -36615,8 +36582,6 @@ Wick.ImageAsset = class extends Wick.Asset {
 Wick.SoundAsset = class extends Wick.Asset {
   constructor(filename, src) {
     super(filename, src);
-    this.html5Sound = null;
-    this._loaded = false;
   }
   /**
    * Returns valid MIME types for a Sound Asset.
@@ -36643,27 +36608,11 @@ Wick.SoundAsset = class extends Wick.Asset {
   get src() {
     return super.src;
   }
-
-  get duration() {
-    return this.html5Sound.duration;
-  }
-
-  get isLoaded() {
-    return this._loaded;
-  }
   /* Setters */
 
 
   set src(src) {
     super.src = src;
-    this.html5Sound = document.createElement('audio');
-    var self = this;
-    this.html5Sound.addEventListener("canplay", () => {
-      self._loaded = true;
-      self.onload && self.onload();
-    });
-    this.html5Sound.setAttribute('src', super.src);
-    this.html5Sound.load();
   }
   /* Methods */
 

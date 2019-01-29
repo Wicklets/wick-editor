@@ -33,7 +33,6 @@ import localForage from 'localforage';
 
 import EditorCore from './EditorCore';
 import UndoRedo from '../core/UndoRedo';
-import AssetCache from '../core/AssetCache';
 import DockedPanel from './Panels/DockedPanel/DockedPanel';
 import Canvas from './Panels/Canvas/Canvas';
 import Inspector from './Panels/Inspector/Inspector';
@@ -52,9 +51,6 @@ class Editor extends EditorCore {
 
     // History (undo/redo stacks)
     this.history = new UndoRedo(this);
-
-    // Asset cache
-    this.assetCache = new AssetCache(this);
 
     // "Live" editor states
     this.project = null;
@@ -137,7 +133,6 @@ class Editor extends EditorCore {
       this.history.saveState();
     });
 
-
     // Leave Page warning.
     window.onbeforeunload = function(event) {
       var confirmationMessage = 'Warning: All unsaved changes will be lost!';
@@ -155,7 +150,6 @@ class Editor extends EditorCore {
    */
   resetEditorForLoad = () => {
     this.history.clearHistory();
-    this.history.saveState();
   }
 
   /**
@@ -385,40 +379,8 @@ class Editor extends EditorCore {
   stopTickLoop = () => {
     clearInterval(this.tickLoopIntervalID);
 
-    this.loadLiveProjectFromState(this.beforePreviewPlayProjectState, () => {
-      this.setState({project: this.beforePreviewPlayProjectState});
-    });
-  }
-
-  loadLiveProjectFromState = (projectState, callback) => {
-    this.project = window.Wick.Project.deserialize(projectState);
-
-    if(this.project.assets.length === 0) {
-      callback();
-      return;
-    }
-
-    let assetCache = this.assetCache;
-
-    this.project.assets.forEach(asset => {
-      let cacheEntry = assetCache.getCachedDataForAsset(asset);
-      if(cacheEntry) {
-        asset.html5Image = cacheEntry.html5Image;
-        asset.paperjsRaster = cacheEntry.paperjsRaster;
-      }
-    });
-
-    let assetLoadedCount = 0;
-    let totalAssetsCount = this.project.assets.length;
-    this.project.assets.forEach(asset => {
-      asset.onload = () => {
-        assetCache.setCachedDataForAsset(asset);
-        assetLoadedCount++;
-        if(assetLoadedCount === totalAssetsCount) {
-          callback();
-        }
-      }
-    })
+    this.project = window.Wick.Project.deserialize(this.beforePreviewPlayProjectState);
+    this.setState({project: this.beforePreviewPlayProjectState});
   }
 
   setWickCanvas = (wickCanvas) => {
