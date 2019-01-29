@@ -20,7 +20,6 @@
 import React, { Component } from 'react';
 import './_menubar.scss';
 import MenuBarButton from './MenuBarButton/MenuBarButton';
-import WickInput from 'Editor/Util/WickInput/WickInput';
 
 import iconSettings from 'resources/inspector-icons/selection-icons/settings.png';
 

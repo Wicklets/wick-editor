@@ -1100,7 +1100,7 @@ class EditorCore extends Component {
       result = this.deleteSelectedAssetLibraryObjects();
     }
     this.lockState = false;
-    this.updateProjectAndSelectionInState(); 
+    this.updateProjectAndSelectionInState();
     return result;
   }
 
@@ -1181,7 +1181,6 @@ class EditorCore extends Component {
    * @param {object} newSettings an object containing all of the settings to update within the project. Accepts valid project settings such as 'name', 'width', 'height', 'framerate', and 'backgroundColor'.
    */
   updateProjectSettings = (newSettings) => {
-    let updatedProject = this.project.clone();
     let validKeys = ["name", "width", "height", "backgroundColor", "framerate"];
     let updated = false;
 
