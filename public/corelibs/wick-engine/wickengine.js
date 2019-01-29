@@ -37535,7 +37535,7 @@ Wick.Canvas.Frame = class {
         var pathJSON = child.exportJSON({
           asString: false
         });
-        var wickPath = new Wick.Path(pathJSON);
+        var wickPath = new Wick.Path(pathJSON, wickFrame.project.assets);
         wickFrame.addPath(wickPath);
         child.name = wickPath.uuid;
       });

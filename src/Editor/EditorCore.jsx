@@ -1118,18 +1118,12 @@ class EditorCore extends Component {
    * @param {number} y    The y location of the image after creation in relation to the window.
    */
   createImageFromAsset = (uuid, x, y) => {
-    /*
     let asset = this.project.getChildByUUID(uuid);
-    window.Wick.Canvas.createImageFromAsset(asset, (raster) => {
-      raster.name = Math.random()+'img';
-      console.log("TODO set position correctly");
-      window.paper.project.activeLayer.addChild(raster);
-      this.applyCanvasChangesToProject();
-      this.setStateWrapper({
-        project: this.project.serialize(),
-      });
+    let path = new window.Wick.Path(["Raster",{"applyMatrix":false,"crossOrigin":"","source":"asset","asset":uuid}], [asset]);
+    this.project.activeFrame.addPath(path);
+    this.setStateWrapper({
+      project: this.project.serialize(),
     });
-    */
   }
 
   /**

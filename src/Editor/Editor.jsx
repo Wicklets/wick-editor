@@ -228,7 +228,7 @@ class Editor extends EditorCore {
 
     // if preview playing, use the Interact tool
     if(this.state.previewPlaying) {
-      window.Wick.Canvas.InteractTool.activate();
+      this.canvas.interactTool.activate();
     }
   }
 
@@ -376,7 +376,7 @@ class Editor extends EditorCore {
     this.beforePreviewPlayProjectState = this.project.serialize();
     this.tickLoopIntervalID = setInterval(() => {
       this.project.tick();
-      window.Wick.Canvas.InteractTool.processMouseInputPreTick();
+      this.canvas.interactTool.processMouseInputPreTick();
       this.updateCanvas(true);
       this.updateTimeline();
     }, 1000 / this.project.framerate);
