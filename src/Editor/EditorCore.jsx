@@ -94,12 +94,12 @@ class EditorCore extends Component {
     let selectedObjects = this.getAllSelectedObjects();
     let newSelection = this.emptySelection();
 
-    newSelection.timeline.frames = selectedObjects.timeline.frames.map(item => item.serialize);
-    newSelection.timeline.tweens = selectedObjects.timeline.tweens.map(item => item.serialize);
-    newSelection.timeline.layers = selectedObjects.timeline.layers.map(item => item.serialize);
-    newSelection.canvas.paths = selectedObjects.canvas.paths.map(item => item.serialize);
-    newSelection.canvas.clips = selectedObjects.canvas.clips.map(item => item.serialize);
-    newSelection.assetLibrary.assets = selectedObjects.assetLibrary.assets.map(item => item.serialize);
+    newSelection.timeline.frames = selectedObjects.timeline.frames.map(item => item.serialize());
+    newSelection.timeline.tweens = selectedObjects.timeline.tweens.map(item => item.serialize());
+    newSelection.timeline.layers = selectedObjects.timeline.layers.map(item => item.serialize());
+    newSelection.canvas.paths = selectedObjects.canvas.paths.map(item => item.serialize());
+    newSelection.canvas.clips = selectedObjects.canvas.clips.map(item => item.serialize());
+    newSelection.assetLibrary.assets = selectedObjects.assetLibrary.assets.map(item => item.serialize());
 
     return newSelection;
   }
