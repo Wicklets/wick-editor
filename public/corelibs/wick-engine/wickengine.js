@@ -34828,18 +34828,6 @@ Wick.Base = class {
     return object;
   }
   /**
-   * A method which must be re-implemented and then called as super by all Wick Base subclasses upon deserialization.
-   * @param  {object} data   Serialized data that was returned by a Base Object's serialize function.
-   * @param  {object} object An object created by the public facing deserialize method.
-   * @return {Wick.Base}     A deserialized Base Object. Can be any Wick Base subclass.
-   */
-
-
-  static _deserialize(data, object) {
-    object._uuid = data.uuid;
-    return object;
-  }
-  /**
    * Returns the classname of a Wick Base object.
    * @type {string}
    */
@@ -34929,29 +34917,32 @@ Wick.Base = class {
     });
   }
   /**
-   * Adds a child to the Wick Base object. Should be called after _removeChild is performed on an existing parent object.
-   * @param {Wick.Base} child The child object to add to the Wick Base.
+   * Converts Wick Base object into a generic object contianing raw data and eliminating parent references.
+   * @return {object} Plain JavaScript object representing Wick Base.
    */
 
 
-  _addChild(child) {
-    this._children.push(child);
-
-    child.parent = this;
-    child.project = this.project;
+  serialize() {
+    var data = {};
+    data.classname = this.classname;
+    data.uuid = this._uuid;
+    return data;
   }
   /**
-   * Removes a child from the Wick Base object. Should be called before _addChild.
-   * @param  {Wick.Base} child The child to remove from the object.
+   * Returns a copy of a Wick Base object.
+   * @param {bool} retainUUIDs Will give all cloned Wick Base objects new UUIDs if set to true.
+   * @return {Wick.Base} New copied object.
    */
 
 
-  _removeChild(child) {
-    child.parent = null;
-    child.project = null;
-    this._children = this._children.filter(seekChild => {
-      return seekChild !== child;
-    });
+  clone(retainUUIDs) {
+    var clone = Wick.Base.deserialize(this.serialize());
+
+    if (!retainUUIDs) {
+      clone._regenUUIDs();
+    }
+
+    return clone;
   }
   /**
    * Returns a child object within this Wick.Base object which has the associated UUID, if it exists.
@@ -34978,12 +34969,26 @@ Wick.Base = class {
 
     return foundChild;
   }
-  /**
-   * Recursively finds a specific parent with a given classname.
-   * @param  {Class} seekClass Wick Base Subclass to search for. Of the form Wick.Base, or Wick.Frame etc.
-   * @return {Wick.Base|null}       The parent object if it was found.
-   */
 
+  static _deserialize(data, object) {
+    object._uuid = data.uuid;
+    return object;
+  }
+
+  _addChild(child) {
+    this._children.push(child);
+
+    child.parent = this;
+    child.project = this.project;
+  }
+
+  _removeChild(child) {
+    child.parent = null;
+    child.project = null;
+    this._children = this._children.filter(seekChild => {
+      return seekChild !== child;
+    });
+  }
 
   _getParentByInstanceOf(seekClass) {
     if (!this.parent) return null;
@@ -34994,55 +34999,15 @@ Wick.Base = class {
       if (!this.parent._getParentByInstanceOf) return null;
       return this.parent._getParentByInstanceOf(seekClass);
     }
-    /*
-    if(this instanceof seekClass) {
-        return this;
-    } else {
-        if(!this.parent || !this.parent._getParentByInstanceOf) return null;
-        return this.parent._getParentByInstanceOf(seekClass);
-    }
-    */
-
   }
-  /**
-   * Regenerates UUIDs for an object and all children of that object.
-   */
-
 
   _regenUUIDs() {
     this._uuid = uuidv4();
+    if (this.paperPath) this.paperPath.name = this._uuid; // hack to fix path cloning for now
 
     this._children.forEach(child => {
       child._regenUUIDs();
     });
-  }
-  /**
-   * Returns a copy of a Wick Base object.
-   * @param {bool} retainUUIDs Will give all cloned Wick Base objects new UUIDs if set to true.
-   * @return {Wick.Base} New copied object.
-   */
-
-
-  clone(retainUUIDs) {
-    var clone = Wick.Base.deserialize(this.serialize());
-
-    if (!retainUUIDs) {
-      clone._regenUUIDs();
-    }
-
-    return clone;
-  }
-  /**
-   * Converts Wick Base object into a generic object contianing raw data and eliminating parent references.
-   * @return {object} Plain JavaScript object representing Wick Base.
-   */
-
-
-  serialize() {
-    var data = {};
-    data.classname = this.classname;
-    data.uuid = this._uuid;
-    return data;
   }
 
 };
@@ -35094,11 +35059,17 @@ Wick.Layer = class extends Wick.Base {
     });
     return object;
   }
-  /**
-   * The string representation of the classname: 'Layer'.
-   * @type {string}
-   */
 
+  serialize() {
+    var data = super.serialize();
+    data.locked = this.locked;
+    data.hidden = this.hidden;
+    data.name = this.name;
+    data.frames = this.frames.map(frame => {
+      return frame.serialize();
+    });
+    return data;
+  }
 
   get classname() {
     return 'Layer';
@@ -35180,22 +35151,6 @@ Wick.Layer = class extends Wick.Base {
       return frame.inPosition(playheadPosition);
     });
   }
-  /**
-   * Serialize the Layer.
-   * @return {object} A JavaScript object which represents a layer as raw data.
-   */
-
-
-  serialize() {
-    var data = super.serialize();
-    data.locked = this.locked;
-    data.hidden = this.hidden;
-    data.name = this.name;
-    data.frames = this.frames.map(frame => {
-      return frame.serialize();
-    });
-    return data;
-  }
 
 };
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
@@ -35246,12 +35201,6 @@ Wick.Project = class extends Wick.Base {
     this.project = this;
     this._assets = [];
   }
-  /**
-   * Adds serialized data to a wick project.
-   * @param {object} data - Serialized project data.
-   * @param {Wick.Project} object - The project to add data to.
-   */
-
 
   static _deserialize(data, object) {
     super._deserialize(data, object);
@@ -35268,6 +35217,20 @@ Wick.Project = class extends Wick.Base {
       object.addAsset(Wick.Asset.deserialize(assetData));
     });
     return object;
+  }
+
+  serialize() {
+    var data = super.serialize();
+    data.name = this.name;
+    data.width = this.width;
+    data.height = this.height;
+    data.backgroundColor = this.backgroundColor;
+    data.framerate = this.framerate;
+    data.root = this.root.serialize();
+    data.assets = this.assets.map(asset => {
+      return asset.serialize();
+    });
+    return data;
   }
   /**
    * Create a project from a wick file.
@@ -35465,25 +35428,6 @@ Wick.Project = class extends Wick.Base {
     return this.focus.tick();
   }
   /**
-   * Serializes the project.
-   * @returns {object} The project data as a plain object.
-   */
-
-
-  serialize() {
-    var data = super.serialize();
-    data.name = this.name;
-    data.width = this.width;
-    data.height = this.height;
-    data.backgroundColor = this.backgroundColor;
-    data.framerate = this.framerate;
-    data.root = this.root.serialize();
-    data.assets = this.assets.map(asset => {
-      return asset.serialize();
-    });
-    return data;
-  }
-  /**
    * Creates a wick file from the project.
    * @param {function} callback - Function called when the file is created. Contains the file as a parameter.
    */
@@ -35513,10 +35457,6 @@ Wick.Project = class extends Wick.Base {
       type: "blob"
     }).then(callback);
   }
-  /**
-   * Recursively gives this object and children new UUIDs.
-   */
-
 
   _refreshAssetUUIDRefs() {
     var assets = this.assets;
@@ -35564,17 +35504,16 @@ Wick.Script = class extends Wick.Base {
     object.src = data.src;
     return object;
   }
-  /* Getters */
 
+  serialize() {
+    var data = super.serialize();
+    data.src = this.src;
+    return data;
+  }
 
   get classname() {
     return 'Script';
   }
-  /* Setters */
-
-  /* Methods */
-  // TODO this needs cleanup
-
 
   run() {
     this._createWrappers();
@@ -35642,23 +35581,17 @@ Wick.Script = class extends Wick.Base {
   } // TODO this needs cleanup
 
 
-  attachChildClipReferences() {
+  _attachChildClipReferences() {
     this._createWrappers();
 
     if (this.parent instanceof Wick.Clip) this._wrapper.attachToClip();
   } // TODO this needs cleanup
 
 
-  detatchChildClipReferences() {
+  _detatchChildClipReferences() {
     this._createWrappers();
 
     if (this.parent instanceof Wick.Clip) this._wrapper.detatchFromClip();
-  }
-
-  serialize() {
-    var data = super.serialize();
-    data.src = this.src;
-    return data;
   }
 
   _convertWickFunctions() {
@@ -35758,25 +35691,55 @@ Wick.Script.Wrapper = class {
 Wick.Script.GlobalWrapper = class extends Wick.Script.Wrapper {
   constructor(context) {
     super(context);
-  }
+  } // Editor API Functions
+
+  /**
+   * Stops the timeline that the object belongs to.
+   * @example
+   * stop();
+   */
+
 
   stop() {
     this.context.parentTimeline._playing = false;
   }
+  /**
+   * Plays the timeline that the object belongs to.
+   * @example
+   * play();
+   */
+
 
   play() {
     this.context.parentTimeline._playing = true;
   }
+  /**
+   * Moves a the playhead of the timeline the object belongs to to a specific position and stops the timeline on that position.
+   * @param  {number|string} frame A number or string representing the frame to move the playhead to. If a string is provided, the object's parent timeline must have a frame with that name.
+   * gotoAndStop(1);
+   * @example
+   * gotoAndStop("frameName");
+   */
+
 
   gotoAndStop(frame) {
     this.context.parentTimeline._playing = false;
     this.context.parentTimeline._forceNextFrame = frame;
   }
+  /**
+   * Moves a the playhead of the timeline the object belongs to to a specific position and plays the timeline from that position.
+   * @param  {number|string} frame A number or string representing the frame to move the playhead to. If a string is provided, the object's parent timeline must have a frame with that name.
+   * gotoAndPlay(1);
+   * @example
+   * gotoAndPlay("frameName");
+   */
+
 
   gotoAndPlay(frame) {
     this.context.parentTimeline._playing = true;
     this.context.parentTimeline._forceNextFrame = frame;
-  }
+  } // Internal API functions
+
 
   attachToWindow() {
     window.stop = this.stop.bind(this);
@@ -35798,14 +35761,16 @@ Wick.Script.GlobalWrapper = class extends Wick.Script.Wrapper {
 
   _attachNamedClipsAccess() {
     this._generateNamedClipsList().forEach(clip => {
-      clip.script.attachChildClipReferences();
+      clip.script._attachChildClipReferences();
+
       window[clip.identifier] = clip.script._wrapper;
     });
   }
 
   _detatchNamedClipsAccess() {
     this._generateNamedClipsList().forEach(clip => {
-      clip.script.detatchChildClipReferences();
+      clip.script._detatchChildClipReferences();
+
       delete window[clip.identifier];
     });
   }
@@ -35841,25 +35806,57 @@ Wick.Script.GlobalWrapper = class extends Wick.Script.Wrapper {
 Wick.Script.ClipWrapper = class extends Wick.Script.Wrapper {
   constructor(context) {
     super(context);
-  }
+  } // Editor API functions
+
+  /**
+   * Stops a clip's timeline on that clip's current playhead position.
+   * @example
+   * clipName.stop();
+   */
+
 
   stop() {
     this.context.timeline._playing = false;
   }
+  /**
+   * Plays a clip's timeline from that clip's current playhead position.
+   * @example
+   * clipName.play();
+   */
+
 
   play() {
     this.context.timeline._playing = true;
   }
+  /**
+   * Moves a clip's playhead to a specific position and stops that clip's timeline on that position.
+   * @param  {number|string} frame A number or string representing the frame to move the playhead to. If a string is provided, the clip must have a frame with the same name as the string.
+   * @example
+   * clipName.gotoAndStop(1);
+   * @example
+   * clipName.gotoAndStop("frameName");
+   */
+
 
   gotoAndStop(frame) {
     this.context.timeline._playing = false;
     this.context.timeline._forceNextFrame = frame;
   }
+  /**
+   * Moves a clip's playhead to a specific position and plays that clip's timeline from that position.
+   * @param  {number|string} frame A number or string representing the frame to move the playhead to. If a string is provided, the clip must have a frame with the same name as the string.
+   * @example
+   * clipName.gotoAndPlay(1);
+   * @example
+   * clipName.gotoAndPlay("frameName");
+   */
+
 
   gotoAndPlay(frame) {
     this.context.timeline._playing = true;
     this.context.timeline._forceNextFrame = frame;
-  }
+  } // Engine API functions.
+
 
   attachToClip() {
     this._attachNamedChildrenClipsAccess();
@@ -35873,7 +35870,8 @@ Wick.Script.ClipWrapper = class extends Wick.Script.Wrapper {
     var self = this;
 
     this._generateNamedChildClipsList().forEach(clip => {
-      clip.script.attachChildClipReferences();
+      clip.script._attachChildClipReferences();
+
       self[clip.identifier] = clip.script._wrapper;
     });
   }
@@ -35882,7 +35880,8 @@ Wick.Script.ClipWrapper = class extends Wick.Script.Wrapper {
     var self = this;
 
     this._generateNamedChildClipsList().forEach(clip => {
-      clip.script.detatchChildClipReferences();
+      clip.script._detatchChildClipReferences();
+
       delete self[clip.identifier];
     });
   }
@@ -35962,12 +35961,6 @@ Wick.Timeline = class extends Wick.Base {
     this._forceNextFrame = null;
     this.layers = [];
   }
-  /**
-   * Adds serialized data to a timeline.
-   * @param {object} data - Serialized timeline data.
-   * @param {Wick.Timeline} object - The timeline to add data to.
-   */
-
 
   static _deserialize(data, object) {
     super._deserialize(data, object);
@@ -35979,11 +35972,16 @@ Wick.Timeline = class extends Wick.Base {
     });
     return object;
   }
-  /**
-   * String representation of class name: "Timeline"
-   * @return {string} 
-   */
 
+  serialize() {
+    var data = super.serialize();
+    data.playheadPosition = this.playheadPosition;
+    data.activeLayerIndex = this.activeLayerIndex;
+    data.layers = this.layers.map(layer => {
+      return layer.serialize();
+    });
+    return data;
+  }
 
   get classname() {
     return 'Timeline';
@@ -36092,21 +36090,6 @@ Wick.Timeline = class extends Wick.Base {
       }
     }
   }
-  /**
-   * Serializes the timeline.
-   * @returns {object} The timeline data as a plain object.
-   */
-
-
-  serialize() {
-    var data = super.serialize();
-    data.playheadPosition = this.playheadPosition;
-    data.activeLayerIndex = this.activeLayerIndex;
-    data.layers = this.layers.map(layer => {
-      return layer.serialize();
-    });
-    return data;
-  }
 
 };
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
@@ -36175,6 +36158,14 @@ Wick.Tween = class extends Wick.Base {
     return interpTween;
   }
 
+  serialize() {
+    var data = super.serialize();
+    data.playheadPosition = this.playheadPosition;
+    data.transform = this.transform.serialize();
+    data.fullRotations = this.fullRotations;
+    return data;
+  }
+
   static _deserialize(data, object) {
     super._deserialize(data, object);
 
@@ -36209,14 +36200,6 @@ Wick.Tween = class extends Wick.Base {
 
   applyTransformsToClip(clip) {
     clip.transform = this.transform.clone(true);
-  }
-
-  serialize() {
-    var data = super.serialize();
-    data.playheadPosition = this.playheadPosition;
-    data.transform = this.transform.serialize();
-    data.fullRotations = this.fullRotations;
-    return data;
   }
 
 };
@@ -36262,6 +36245,17 @@ Wick.Transformation = class extends Wick.Base {
     this.opacity = opacity === undefined ? 1 : opacity;
   }
 
+  serialize() {
+    var data = super.serialize();
+    data.x = this.x;
+    data.y = this.y;
+    data.scaleX = this.scaleX;
+    data.scaleY = this.scaleY;
+    data.rotation = this.rotation;
+    data.opacity = this.opacity;
+    return data;
+  }
+
   static _deserialize(data, object) {
     super._deserialize(data, object);
 
@@ -36273,26 +36267,9 @@ Wick.Transformation = class extends Wick.Base {
     object.opacity = data.opacity;
     return object;
   }
-  /* Getters */
-
 
   get classname() {
     return 'Transformation';
-  }
-  /* Setters */
-
-  /* Methods */
-
-
-  serialize() {
-    var data = super.serialize();
-    data.x = this.x;
-    data.y = this.y;
-    data.scaleX = this.scaleX;
-    data.scaleY = this.scaleY;
-    data.rotation = this.rotation;
-    data.opacity = this.opacity;
-    return data;
   }
 
 };
@@ -36351,11 +36328,12 @@ Wick.Path = class extends Wick.Base {
     object.importJSON(data.pathJSON);
     return object;
   }
-  /**
-   * The string representation of the classname: 'Path'.
-   * @type {string}
-   */
 
+  serialize() {
+    var data = super.serialize();
+    data.pathJSON = this.exportJSON();
+    return data;
+  }
 
   get classname() {
     return 'Path';
@@ -36380,7 +36358,6 @@ Wick.Path = class extends Wick.Base {
   /**
    * Import paper.js path data into this Wick Path, replacing the current path data.
    * @param {object} pathData - Data for the path, see paper.js exportAsJSON for format info.
-   * @param {Wick.Asset[]} assets - Assets to load image source from (for rasters).
    */
 
 
@@ -36411,12 +36388,6 @@ Wick.Path = class extends Wick.Base {
     return json;
   }
 
-  serialize() {
-    var data = super.serialize();
-    data.pathJSON = this.exportJSON();
-    return data;
-  }
-
 };
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
@@ -36439,23 +36410,22 @@ Wick.Path = class extends Wick.Base {
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
 Wick.Asset = class extends Wick.Base {
+  /**
+   * Returns all valid MIME types for files which can be converted to Wick Assets.
+   * @return {string[]} Array of strings of MIME types in the form MediaType/Subtype.
+   */
+  static getValidMIMETypes() {
+    let imageTypes = Wick.ImageAsset.getValidMIMETypes();
+    let soundTypes = Wick.SoundAsset.getValidMIMETypes();
+    return imageTypes.concat(soundTypes);
+  }
+
   constructor(filename, src) {
     super();
     this.name = filename;
     this.filename = filename;
     Wick.FileCache.addFile(src, this.uuid);
     this.onload = null;
-  }
-  /**
-   * Returns all valid MIME types for files which can be converted to Wick Assets.
-   * @return {string[]} Array of strings of MIME types in the form MediaType/Subtype.
-   */
-
-
-  static getValidMIMETypes() {
-    let imageTypes = Wick.ImageAsset.getValidMIMETypes();
-    let soundTypes = Wick.SoundAsset.getValidMIMETypes();
-    return imageTypes.concat(soundTypes);
   }
 
   static _deserialize(data, object) {
@@ -36464,6 +36434,13 @@ Wick.Asset = class extends Wick.Base {
     object.name = data.name;
     object.filename = data.filename;
     return object;
+  }
+
+  serialize() {
+    var data = super.serialize();
+    data.name = this.name;
+    data.filename = this.filename;
+    return data;
   }
 
   get classname() {
@@ -36490,13 +36467,6 @@ Wick.Asset = class extends Wick.Base {
     return this.MIMEType && this.MIMEType.split('/')[1];
   }
 
-  serialize() {
-    var data = super.serialize();
-    data.name = this.name;
-    data.filename = this.filename;
-    return data;
-  }
-
 };
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
@@ -36519,18 +36489,24 @@ Wick.Asset = class extends Wick.Base {
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
 Wick.ImageAsset = class extends Wick.Asset {
-  constructor(filename, src) {
-    super(filename, src);
-    this.src = src;
-  }
   /**
    * Valid MIME types for image assets.
    * @returns {string[]} Array of strings representing MIME types in the form image/filetype.
    */
-
-
   static getValidMIMETypes() {
     return ['image/jpeg', 'image/png', 'image/bmp', 'image/gif'];
+  }
+
+  constructor(filename, src) {
+    super(filename, src);
+    this.src = src;
+  }
+
+  serialize() {
+    var data = super.serialize();
+    data.MIMEType = this.MIMEType;
+    data.fileExtension = this.fileExtension;
+    return data;
   }
 
   static _deserialize(data, object) {
@@ -36549,13 +36525,6 @@ Wick.ImageAsset = class extends Wick.Asset {
 
   set src(src) {
     super.src = src;
-  }
-
-  serialize() {
-    var data = super.serialize();
-    data.MIMEType = this.MIMEType;
-    data.fileExtension = this.fileExtension;
-    return data;
   }
 
 };
@@ -36580,17 +36549,16 @@ Wick.ImageAsset = class extends Wick.Asset {
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
 Wick.SoundAsset = class extends Wick.Asset {
-  constructor(filename, src) {
-    super(filename, src);
-  }
   /**
    * Returns valid MIME types for a Sound Asset.
    * @returns {string[]} Array of strings representing MIME types in the form audio/Subtype.
    */
-
-
   static getValidMIMETypes() {
     return ['audio/mpeg3', 'audio/x-mpeg-3', 'audio/ogg', 'audio/wav'];
+  }
+
+  constructor(filename, src) {
+    super(filename, src);
   }
 
   static _deserialize(data, object) {
@@ -36598,8 +36566,13 @@ Wick.SoundAsset = class extends Wick.Asset {
 
     return object;
   }
-  /* Getters */
 
+  serialize() {
+    var data = super.serialize();
+    data.MIMEType = this.MIMEType;
+    data.fileExtension = this.fileExtension;
+    return data;
+  }
 
   get classname() {
     return 'SoundAsset';
@@ -36608,20 +36581,9 @@ Wick.SoundAsset = class extends Wick.Asset {
   get src() {
     return super.src;
   }
-  /* Setters */
-
 
   set src(src) {
     super.src = src;
-  }
-  /* Methods */
-
-
-  serialize() {
-    var data = super.serialize();
-    data.MIMEType = this.MIMEType;
-    data.fileExtension = this.fileExtension;
-    return data;
   }
 
 };
@@ -36661,6 +36623,12 @@ Wick.ClipAsset = class extends Wick.Asset {
 
     object.timeline = Wick.Timeline.deserialize(data.timeline);
     return object;
+  }
+
+  serialize() {
+    var data = super.serialize();
+    data.timeline = this.timeline.serialize();
+    return data;
   }
 
   get classname() {
@@ -36707,12 +36675,6 @@ Wick.ClipAsset = class extends Wick.Asset {
     clip.timeline = timeline;
   }
 
-  serialize() {
-    var data = super.serialize();
-    data.timeline = this.timeline.serialize();
-    return data;
-  }
-
 };
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
@@ -36748,26 +36710,20 @@ Wick.ButtonAsset = class extends Wick.ClipAsset {
 
     return object;
   }
-  /* Getters */
 
+  serialize() {
+    var data = super.serialize();
+    return data;
+  }
 
   get classname() {
     return 'ButtonAsset';
   }
-  /* Setters */
-
-  /* Methods */
-
 
   createInstance() {
     var button = new Wick.Button();
     this.useAsSourceForClip(button);
     return button;
-  }
-
-  serialize() {
-    var data = super.serialize();
-    return data;
   }
 
 };
@@ -36791,32 +36747,64 @@ Wick.ButtonAsset = class extends Wick.ClipAsset {
 * You should have received a copy of the GNU General Public License
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
+
+/**
+ * A class that is extended by any wick object that ticks.
+ */
 Wick.Tickable = class extends Wick.Base {
+  /**
+   * Create a new tickable object.
+   */
   constructor() {
     super();
     this.identifier = null;
     this._onscreen = false;
     this._onscreenLastTick = false;
-    this.script = null;
-    this.setScript(new Wick.Script());
+    this._script = null;
+    this.script = new Wick.Script();
   }
 
   static _deserialize(data, object) {
     super._deserialize(data, object);
 
     object.identifier = data.identifier;
-    object.setScript(Wick.Script.deserialize(data.script));
+    object.script = Wick.Script.deserialize(data.script);
     return object;
   }
-  /* Getters */
 
+  serialize() {
+    var data = super.serialize();
+    data.identifier = this.identifier;
+    data.script = this.script.serialize();
+    return data;
+  }
 
   get classname() {
     return 'Tickable';
   }
-  /* Setters */
+  /**
+   * The script that will be ran during a tick.
+   * @type {Wick.Script}
+   */
 
-  /* Methods */
+
+  get script() {
+    return this._script;
+  }
+
+  set script(script) {
+    if (this._script) {
+      this._removeChild(this._script);
+    }
+
+    this._script = script;
+
+    this._addChild(script);
+  }
+  /**
+   * The tick routine to be called when the object ticks.
+   * @returns {object} - An object with information about the result from ticking.
+   */
 
 
   tick() {
@@ -36833,16 +36821,6 @@ Wick.Tickable = class extends Wick.Base {
     } else if (!this._onscreen && this._onscreenLastTick) {
       return this._onDeactivated();
     }
-  }
-
-  setScript(script) {
-    if (this.script) {
-      this._removeChild(this.script);
-    }
-
-    this.script = script;
-
-    this._addChild(script);
   }
 
   _onInactive() {
@@ -36867,13 +36845,6 @@ Wick.Tickable = class extends Wick.Base {
     return 'onDeactivated';
   }
 
-  serialize() {
-    var data = super.serialize();
-    data.identifier = this.identifier;
-    data.script = this.script.serialize();
-    return data;
-  }
-
 };
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
@@ -36895,7 +36866,16 @@ Wick.Tickable = class extends Wick.Base {
 * You should have received a copy of the GNU General Public License
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
+
+/**
+ * A class representing a frame.
+ */
 Wick.Frame = class extends Wick.Tickable {
+  /**
+   * Create a new frame.
+   * @param {number} start - The start of the frame. Optional, defaults to 1.
+   * @param {number} end - The end of the frame. Optional, defaults to start.
+   */
   constructor(start, end) {
     super();
     this.start = start || 1;
@@ -36927,21 +36907,58 @@ Wick.Frame = class extends Wick.Tickable {
     return object;
   }
 
+  serialize() {
+    var data = super.serialize();
+    data.start = this.start;
+    data.end = this.end;
+    data.clips = this._clips.map(clip => {
+      return clip.serialize();
+    });
+    data.paths = this._paths.map(path => {
+      return path.serialize();
+    });
+    data.sound = this._soundAssetUUID;
+    data.tweens = this.tweens.map(tween => {
+      return tween.serialize();
+    });
+    return data;
+  }
+
   get classname() {
     return 'Frame';
   }
+  /**
+   * The length of the frame.
+   * @type {number}
+   */
+
 
   get length() {
     return this.end - this.start + 1;
   }
+  /**
+   * The midpoint of the frame.
+   * @type {number}
+   */
+
 
   get midpoint() {
     return this.start + (this.end - this.start) / 2;
   }
+  /**
+   * Is true if the frame is currently visible.
+   * @type {boolean}
+   */
+
 
   get onScreen() {
     return this.inPosition(this.parent.parent.playheadPosition);
   }
+  /**
+   * The sound on the frame.
+   * @type {Wick.SoundAsset}
+   */
+
 
   get sound() {
     var uuid = this._soundAssetUUID;
@@ -36951,48 +36968,105 @@ Wick.Frame = class extends Wick.Tickable {
   set sound(soundAsset) {
     this._soundAssetUUID = soundAsset.uuid;
   }
+  /**
+   * The paths on the frame.
+   * @type {Wick.Path[]}
+   */
+
 
   get paths() {
     return this._paths;
   }
+  /**
+   * The clips on the frame.
+   * @type {Wick.Clip[]}
+   */
+
 
   get clips() {
     return this._clips;
   }
+  /**
+   * True if there are clips or paths on the frame.
+   * @type {boolean}
+   */
+
 
   get contentful() {
-    return this.paths.length > 0;
+    return this.paths.length > 0 || this.clips.length > 0;
   }
+  /**
+   * True if the frame wants to play its sound (the playhead has just moved onto the frame).
+   * @type {boolean}
+   */
+
 
   get soundWantsToPlay() {
     return this._soundWantsToPlay;
   }
+  /**
+   * True if the frame wants to stop its sound (the playhead has just moved off of the frame).
+   * @type {boolean}
+   */
+
 
   get soundWantsToStop() {
     return this._soundWantsToStop;
   }
+  /**
+   * The number of milliseconds to offset the start of the sound.
+   * @type {number}
+   */
+
 
   get soundStartOffsetMS() {
     return this._soundStartOffsetMS;
   }
+  /**
+   * Removes this frame from its parent layer.
+   */
+
 
   remove() {
     this.parent.removeFrame(this);
   }
+  /**
+   * True if the playhead is on this frame.
+   * @param {number} playheadPosition - the position of the playhead.
+   * @return {boolean}
+   */
+
 
   inPosition(playheadPosition) {
     return this.start <= playheadPosition && this.end >= playheadPosition;
   }
+  /**
+   * True if the frame exists within the given range.
+   * @param {number} start - the start of the range to check.
+   * @param {number} end - the end of the range to check.
+   * @return {boolean}
+   */
+
 
   inRange(start, end) {
     return this.inPosition(start) || this.inPosition(end) || this.start >= start && this.start <= end || this.end >= start && this.end <= end;
   }
+  /**
+   * Add a clip to the frame.
+   * @param {Wick.Clip} clip - the clip to add.
+   */
+
 
   addClip(clip) {
     this._clips.push(clip);
 
     this._addChild(clip);
   }
+  /**
+   * Remove a clip from the frame.
+   * @param {Wick.Clip} clip - the clip to remove.
+   */
+
 
   removeClip(clip) {
     this._clips = this._clips.filter(checkClip => {
@@ -37001,12 +37075,22 @@ Wick.Frame = class extends Wick.Tickable {
 
     this._removeChild(clip);
   }
+  /**
+   * Add a path to the frame.
+   * @param {Wick.Path} path - the path to add.
+   */
+
 
   addPath(path) {
     this._paths.push(path);
 
     this._addChild(path);
   }
+  /**
+   * Remove a path from the frame.
+   * @param {Wick.Path} path - the path to remove.
+   */
+
 
   removePath(path) {
     this._paths = this._paths.filter(checkPath => {
@@ -37015,22 +37099,13 @@ Wick.Frame = class extends Wick.Tickable {
 
     this._removeChild(path);
   }
+  /**
+   * The tween being used to transform the objects on the frame.
+   * @returns {Wick.Tween} tween - the active tween.
+   */
 
-  addTween(tween) {
-    this.tweens.push(tween);
 
-    this._addChild(tween);
-  }
-
-  removeTween(tween) {
-    this.tweens = this.tweens.filter(checkTween => {
-      return checkTween !== tween;
-    });
-
-    this._removeChild(tween);
-  }
-
-  getActiveTween() {
+  get activeTween() {
     var playheadPosition = this._getRelativePlayheadPosition();
 
     var seekBackwardsPosition = playheadPosition;
@@ -37061,12 +37136,46 @@ Wick.Frame = class extends Wick.Tickable {
       return null;
     }
   }
+  /**
+   * Add a tween to the frame.
+   * @param {Wick.Tween} tween - the tween to add.
+   */
+
+
+  addTween(tween) {
+    this.tweens.push(tween);
+
+    this._addChild(tween);
+  }
+  /**
+   * Remove a tween from the frame.
+   * @param {Wick.Tween} tween - the tween to remove.
+   */
+
+
+  removeTween(tween) {
+    this.tweens = this.tweens.filter(checkTween => {
+      return checkTween !== tween;
+    });
+
+    this._removeChild(tween);
+  }
+  /**
+   * Get the tween at the given playhead position. Returns null if there is no tween.
+   * @param {number} playheadPosition - the playhead position to look for tweens at.
+   * @returns {Wick.Tween} the tween at the given playhead position.
+   */
+
 
   getTweenAtPosition(playheadPosition) {
     return this.tweens.find(tween => {
       return tween.playheadPosition === playheadPosition;
     });
   }
+  /**
+   * Applies the transformation of current tween to the objects on the frame.
+   */
+
 
   applyTweenTransforms() {
     var tween = this.getActiveTween();
@@ -37117,23 +37226,6 @@ Wick.Frame = class extends Wick.Tickable {
     };
   }
 
-  serialize() {
-    var data = super.serialize();
-    data.start = this.start;
-    data.end = this.end;
-    data.clips = this._clips.map(clip => {
-      return clip.serialize();
-    });
-    data.paths = this._paths.map(path => {
-      return path.serialize();
-    });
-    data.sound = this._soundAssetUUID;
-    data.tweens = this.tweens.map(tween => {
-      return tween.serialize();
-    });
-    return data;
-  }
-
   _getSoundStartOffsetMS() {
     var offsetFrames = this.parent.parent.playheadPosition - this.start;
     var offsetMS = offsetFrames * 1000 / this.project.framerate;
@@ -37179,6 +37271,13 @@ Wick.Clip = class extends Wick.Tickable {
     object.transform = Wick.Transformation.deserialize(data.transform);
     object.timeline = Wick.Timeline.deserialize(data.timeline);
     return object;
+  }
+
+  serialize() {
+    var data = super.serialize();
+    data.transform = this.transform.serialize();
+    data.timeline = this.timeline.serialize();
+    return data;
   }
 
   get classname() {
@@ -37267,13 +37366,6 @@ Wick.Clip = class extends Wick.Tickable {
     return childrenResult;
   }
 
-  serialize() {
-    var data = super.serialize();
-    data.transform = this.transform.serialize();
-    data.timeline = this.timeline.serialize();
-    return data;
-  }
-
 };
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
@@ -37307,6 +37399,11 @@ Wick.Button = class extends Wick.Clip {
     super._deserialize(data, object);
 
     return object;
+  }
+
+  serialize() {
+    var data = super.serialize();
+    return data;
   }
 
   get classname() {
@@ -37355,11 +37452,6 @@ Wick.Button = class extends Wick.Clip {
 
   _onDeactivated() {
     return super._onDeactivated();
-  }
-
-  serialize() {
-    var data = super.serialize();
-    return data;
   }
 
 };
@@ -37919,8 +38011,7 @@ Wick.Canvas.InteractTool = class {
     };
 
     tool.processMouseInputPreTick = function (project) {
-      var mouseTargets = this._getMouseTargets(mousePosition, project);
-
+      var mouseTargets = this.getMouseTargets(mousePosition, project);
       var buttonTargets = mouseTargets.filter(mouseTarget => {
         return mouseTarget instanceof Wick.Button;
       });
@@ -37940,7 +38031,7 @@ Wick.Canvas.InteractTool = class {
       }); // TODO get all active buttons that aren't in buttonTargets and set their mouse state to 'out'
     };
 
-    tool._getMouseTargets = function (point, project) {
+    tool.getMouseTargets = function (point, project) {
       var hitResult = paper.project.hitTest(point, {
         fill: true,
         stroke: true,
