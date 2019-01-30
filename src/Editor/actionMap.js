@@ -170,7 +170,7 @@ class ActionMapInterface extends Object {
           return type === 'clip' || type === 'button' || type === 'group';
         }),
         actions: [
-          this.editorActions['breakApart'],
+          // this.editorActions['breakApart'], // TODO: Re-enable break apart
         ],
         color: 'red',
       },
@@ -196,7 +196,7 @@ class ActionMapInterface extends Object {
       canvasSelectionGrouping: {
         on: ( () => this.editor.getNumCanvasObjectsSelected() > 1),
         actions: [
-          this.editorActions['createGroupFromSelection'],
+          // this.editorActions['createGroupFromSelection'], // TODO: Re-enable grouping
         ],
         color: 'sky',
       }
