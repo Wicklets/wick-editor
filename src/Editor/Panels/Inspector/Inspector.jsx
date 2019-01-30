@@ -412,7 +412,7 @@ class Inspector extends Component {
         <InspectorTitle type={"pencil"} title={"Pencil"} />
         <div className="inspector-content">
           {this.renderStrokeWidth()}
-          {this.renderPressureToggle()}
+          {/*{this.renderPressureToggle()}*/}
           {/*{this.renderSmoothness()}*/}
         </div>
       </div>
@@ -425,7 +425,7 @@ class Inspector extends Component {
         <InspectorTitle type={"eraser"} title={"Eraser"} />
         <div className="inspector-content">
           {this.renderBrushSize()}
-          {this.renderPressureToggle()}
+          {/*{this.renderPressureToggle()}*/}
           {/*{this.renderSmoothness()}*/}
         </div>
       </div>
