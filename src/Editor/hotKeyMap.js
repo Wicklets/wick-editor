@@ -25,7 +25,7 @@ class HotKeyInterface extends Object {
       'activate-pan': 'space',
       'activate-zoom': 'z',
       'delete': ['backspace', 'del'],
-      'preview-play-toggle': 'enter',
+      'preview-play-toggle': ['ctrl+enter','command+enter'],
       'undo': ['ctrl+z','command+z'],
       'redo': ['ctrl+y','command+y'],
       'copy': ['ctrl+c','command+c'],
@@ -64,7 +64,7 @@ class HotKeyInterface extends Object {
       'auto-load': this.editor.attemptAutoLoad,
       'clear-auto-save': this.editor.clearAutoSavedProject,
       'grow-brush-size': this.editor.growBrushSize,
-      'shrink-brush-size': this.editor.shrinkBrushSize, 
+      'shrink-brush-size': this.editor.shrinkBrushSize,
     }
 
     for(let name in this.handlers) {
