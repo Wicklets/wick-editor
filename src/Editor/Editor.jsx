@@ -121,8 +121,7 @@ class Editor extends EditorCore {
 
   componentWillMount = () => {
     // Initialize Google Analytics
-    ReactGA.initialize('UA-1334611534-1');
-    ReactGA.pageview(window.location.pathname + window.location.search);
+    ReactGA.initialize('UA-1334611534-1', { standardImplementation: true });
     
     // Initialize "live" engine state
     this.project = new window.Wick.Project();
