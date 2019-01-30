@@ -46,7 +46,7 @@ class AlphaWarning extends Component {
             <li>Full Functional Inspector</li>
             <li>Save Project Warnings</li>
           </ul>
-          <a href="forum.wickeditor.com">Report all bugs on the forums as an "Alpha Bug!"</a>
+          <a target="_blank" rel="noopener noreferrer" href="https://forum.wickeditor.com">Report all bugs on the forums as an "Alpha Bug!"</a>
         </ModalBody>
         <ModalFooter>
           <Button className="alpha-warning-modal-button" color="wick-warning" onClick={() => window.location.href="http://www.wickeditor.com"}>No Thanks...</Button>
