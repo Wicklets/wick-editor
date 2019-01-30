@@ -78,7 +78,7 @@ class Editor extends EditorCore {
       onionSkinSeekForwards: 1,
       onionSkinSeekBackwards: 1,
       previewPlaying: false,
-      activeModalName: "AlphaWarning",
+      activeModalName: null,//"AlphaWarning",
       inspectorSize: 250,
       codeEditorSize: 0.1,
       timelineSize: 100,
@@ -122,7 +122,7 @@ class Editor extends EditorCore {
   componentWillMount = () => {
     // Initialize Google Analytics
     ReactGA.initialize('UA-1334611534-1', { standardImplementation: true });
-    
+
     // Initialize "live" engine state
     this.project = new window.Wick.Project();
     this.paper = window.paper;
