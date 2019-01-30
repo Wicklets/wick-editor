@@ -36311,6 +36311,7 @@ Wick.Path = class extends Wick.Base {
       this._paperPath = new paper.Path({
         insert: false
       });
+      this._paperPath.applyMatrix = true;
     } else {
       this.importJSON(pathData);
     }
@@ -36369,6 +36370,7 @@ Wick.Path = class extends Wick.Base {
     }
 
     this._paperPath = paper.importJSON(json);
+    this._paperPath.applyMatrix = true;
   }
   /**
    * Export the Wick Path as paper.js Path json data.

@@ -972,22 +972,20 @@ class EditorCore extends Component {
     newClip.transform.x = this.paper.project.selection.bounds.center.x;
     newClip.transform.y = this.paper.project.selection.bounds.center.y;
 
-    // Reposition selected clips and paths
-    this.getSelectedClips().forEach(clip => {
-      clip.transform.x -= newClip.transform.x;
-      clip.transform.y -= newClip.transform.y;
-    });
-    this.getSelectedPaths().forEach(path => {
-      path.paperPath.position.x -= newClip.transform.x;
-      path.paperPath.position.y -= newClip.transform.y;
-    });
-
     // Add selected clips and paths to new clip
     this.getSelectedClips().forEach(clip => {
-      newClip.activeFrame.addClip(clip.clone());
+      let clone = clip.clone();
+      newClip.activeFrame.addClip(clone);
+      clone.transform.x -= newClip.transform.x;
+      clone.transform.y -= newClip.transform.y;
     });
     this.getSelectedPaths().forEach(path => {
-      newClip.activeFrame.addPath(path.clone());
+      let clone = path.clone();
+      newClip.activeFrame.addPath(clone);
+      clone.paperPath.position = new window.paper.Point(
+        clone.paperPath.position.x - newClip.transform.x,
+        clone.paperPath.position.y - newClip.transform.y
+      );
     });
 
     // Delete selected objects
