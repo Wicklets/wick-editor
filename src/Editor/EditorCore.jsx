@@ -1157,8 +1157,7 @@ class EditorCore extends Component {
   updateProjectInState = () => {
     this.setStateWrapper( {
       project: this.project.serialize(),
-    } );
-
+    });
   }
 
   /**
@@ -1328,10 +1327,14 @@ class EditorCore extends Component {
    * @param {object} selection deserialized selection object to add to project.
    */
   addSelectionToProject = (selection) => {
+    let newObjects = [];
+    
     if (selection.canvas) {
       if (selection.canvas.paths) {
         selection.canvas.paths.forEach(path => {
-          this.project.activeFrame.addPath(path);
+          let clone = path.clone(false);
+          this.project.activeFrame.addPath(clone);
+          newObjects.push(clone);
         });
       }
 
@@ -1339,6 +1342,7 @@ class EditorCore extends Component {
         selection.canvas.clips.forEach(clip => {
           let clone = clip.clone(false);
           this.project.activeFrame.addClip(clone);
+          newObjects.push(clone);
         });
       }
     }
@@ -1346,8 +1350,9 @@ class EditorCore extends Component {
     if (selection.assetLibrary) {
       if (selection.assetLibrary.assets) {
         selection.assetLibrary.assets.forEach(asset => {
-          let clone = asset.clone();
-          this.project.addAsset(clone); //TODO: Check for asset collisions.
+          let clone = asset.clone(false);
+          this.project.addAsset(clone);
+          newObjects.push(clone);
         });
       }
     }
@@ -1360,7 +1365,10 @@ class EditorCore extends Component {
       }
     }
 
-    this.updateProjectInState();
+    this.setStateWrapper({
+      project: this.project.serialize(),
+      selection: this.selectObjects(newObjects),
+    });
   }
 
   /**
