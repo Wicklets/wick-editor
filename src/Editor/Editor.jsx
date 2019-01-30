@@ -18,6 +18,7 @@
  */
 
 import React from 'react';
+import ReactGA from 'react-ga';
 
 import './_editor.scss';
 
@@ -119,6 +120,10 @@ class Editor extends EditorCore {
   }
 
   componentWillMount = () => {
+    // Initialize Google Analytics
+    ReactGA.initialize('UA-1334611534-1');
+    ReactGA.pageview(window.location.pathname + window.location.search);
+    
     // Initialize "live" engine state
     this.project = new window.Wick.Project();
     this.paper = window.paper;
