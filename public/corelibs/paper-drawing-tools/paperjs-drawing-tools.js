@@ -6498,9 +6498,12 @@ class BrushCursorGen {
 
   tool.onMouseUp = function (e) {
     if (zoomBox) {
-      var bounds = zoomBox.bounds;
-      paper.view.center = bounds.center;
-      paper.view.zoom = paper.view.bounds.height / bounds.height;
+      if (zoomBoxIsValidSize()) {
+        var bounds = zoomBox.bounds;
+        paper.view.center = bounds.center;
+        paper.view.zoom = paper.view.bounds.height / bounds.height;
+      }
+
       deleteZoomBox();
     } else {
       var zoomAmount = e.modifiers.alt ? ZOOM_OUT_AMOUNT : ZOOM_IN_AMOUNT;
@@ -6532,5 +6535,9 @@ class BrushCursorGen {
       zoomBox.remove();
       zoomBox = null;
     }
+  }
+
+  function zoomBoxIsValidSize() {
+    return zoomBox.bounds.width > 5 && zoomBox.bounds.height > 5;
   }
 })();
