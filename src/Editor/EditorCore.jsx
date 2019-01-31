@@ -216,6 +216,18 @@ class EditorCore extends Component {
   }
 
   /**
+   * Returns true if the selection is scriptable.
+   * @return {boolean} True if the selection is scriptable.
+   */
+  selectionIsScriptable = () => {
+    let type = this.getSelectionType();
+    return type === 'frame'
+        || type === 'clip'
+        || type === 'button';
+  }
+
+
+  /**
    * Returns all selected objects on the timeline.
    * @returns {(<Wick.Frame>|<Wick.Tween>)[]} An array containing the selected tweens and frames
    */

@@ -20,6 +20,7 @@
 @import 'Editor/_wickbrand.scss';
 
 $code-editor-drag-handle-height: 30px;
+$code-editor-details-width: 150px;
 
 #code-editor-resizeable {
   z-index: 1000;
@@ -27,9 +28,7 @@ $code-editor-drag-handle-height: 30px;
   border: none;
 }
 
-#ace-editor {
-  height: 100% !important;
-  width: 100% !important;
+.ace-editor {
   box-sizing: border-box;
 }
 
@@ -56,10 +55,26 @@ $code-editor-drag-handle-height: 30px;
 }
 
 .code-editor-body {
+  display: flex;
   position: absolute;
   width: 100%;
   height: calc(100% - #{$code-editor-drag-handle-height});
   overflow: hidden;
+}
+
+.code-editor-details-panel {
+  width: $code-editor-details-width;
+  height: 100%;
+  background-color: cyan;
+  float: left;
+  flex-grow: 0;
+  flex-shrink: 0;
+}
+
+.code-editor-code-panel {
+  width: 100%;
+  height: 100%;
+  float: left;
 }
 
 .code-editor-close-button {

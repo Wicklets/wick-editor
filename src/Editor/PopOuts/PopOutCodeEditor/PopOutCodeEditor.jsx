@@ -33,34 +33,45 @@ import './_popoutcodeditor.scss';
 class PopOutCodeEditor extends Component {
   constructor(props) {
     super(props);
+
+    this.editors = [];
   }
 
+  /**
+   * Adds a new editor to the list of editors.
+   * @param  {AceEditor} editor Ace Editor object which has been created.
+   */
+  addNewEditor = (editor) => {
+    this.editors.push(editor);
+  }
+
+  /**
+   * Render an ace editor.
+   */
   renderAceEditor = () => {
     return (
       <AceEditor
+        onLoad={this.addNewEditor}
         mode="javascript"
         theme="monokai"
         name="ace-editor"
         fontSize={14}
-        ref="reactAceComponent"
+        width="100%"
+        height="100%"
         onChange={(e) => {this.updateScriptOfSelection(e)}}
-        editorProps={{$blockScrolling: true}}
         value={this.getScriptOfSelection().src}
       />
     );
   }
 
+  /**
+   * Render a div in place of the code editor for a non selectable object.
+   * @return {<div>} JSX Div that displays a "no scriptable object selected" error.
+   */
   renderNotScriptableInfo = () => {
     return (
       <div className="code-editor-unscriptable-warning">No Scriptable Object Selected</div>
     )
-  }
-
-  selectionIsScriptable = () => {
-    let type = this.props.getSelectionType();
-    return type === 'frame'
-        || type === 'clip'
-        || type === 'button';
   }
 
   getScriptOfSelection = (selection, project) => {
@@ -90,6 +101,10 @@ class PopOutCodeEditor extends Component {
     this.props.updateCodeEditorProperties({
       width: ref.style.width,
       height: ref.style.height,
+    });
+
+    this.editors.forEach(editor => {
+      editor.resize();
     });
   }
 
@@ -128,9 +143,13 @@ class PopOutCodeEditor extends Component {
           </div>
         </div>
         <div className="code-editor-body">
-          {this.selectionIsScriptable()
-            ? this.renderAceEditor()
-            : this.renderNotScriptableInfo()}
+          <div className="code-editor-details-panel">
+          </div>
+          <div className="code-editor-code-panel">
+            {this.props.selectionIsScriptable()
+              ? this.renderAceEditor()
+              : this.renderNotScriptableInfo()}
+          </div>
         </div>
       </Rnd>
     );

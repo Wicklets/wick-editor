@@ -573,6 +573,7 @@ class Editor extends EditorCore {
               updateCodeEditorProperties={this.updateCodeEditorProperties}
               project={this.project}
               updateProjectInState={this.updateProjectInState}
+              selectionIsScriptable={this.selectionIsScriptable}
               getSelectionType={this.getSelectionType}
               getSelectedFrames={this.getSelectedFrames}
               getSelectedClips={this.getSelectedClips}
