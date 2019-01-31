@@ -33,14 +33,6 @@ import './_popoutcodeditor.scss';
 class PopOutCodeEditor extends Component {
   constructor(props) {
     super(props);
-
-    this.state = {
-      width: 400,
-      height: 300,
-      x: window.innerWidth/2 - 150,
-      y: window.innerHeight/2 - 150,
-    }
-
   }
 
   renderAceEditor = () => {
@@ -88,17 +80,17 @@ class PopOutCodeEditor extends Component {
   }
 
   onDragHandler = (e, d) => {
-    this.setState( {
+    this.props.updateCodeEditorProperties({
       x: d.x,
       y: d.y,
-    })
+    });
   }
 
   onResizeHandler = (e, dir, ref, delta, position) => {
-    this.setState( {
+    this.props.updateCodeEditorProperties({
       width: ref.style.width,
       height: ref.style.height,
-    })
+    });
   }
 
   onCloseHandler = () => {
@@ -116,10 +108,10 @@ class PopOutCodeEditor extends Component {
         onResize={this.onResizeHandler}
         onDrag={this.onDragHandler}
         default={{
-          x: this.state.x,
-          y: this.state.y,
-          width: this.state.width,
-          height: this.state.height,
+          x: this.props.codeEditorProperties.x,
+          y: this.props.codeEditorProperties.y,
+          width: this.props.codeEditorProperties.width,
+          height: this.props.codeEditorProperties.height,
         }}
       >
         <div

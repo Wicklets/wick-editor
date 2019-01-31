@@ -80,6 +80,12 @@ class Editor extends EditorCore {
       previewPlaying: false,
       activeModalName: null,
       codeEditorOpen: false,
+      codeEditorProperties: {
+        width: 300,
+        height: 250,
+        x: window.innerWidth/2 - 150,
+        y: window.innerHeight/2 - 125,
+      },
       inspectorSize: 250,
       codeEditorSize: 0.1,
       timelineSize: 100,
@@ -320,6 +326,21 @@ class Editor extends EditorCore {
     return domElement.offsetHeight;
   }
 
+  /**
+   * Updates the code editor properties in the state.
+   * @param  {object} newProperties object with new code editor properties. Can include width, height, x, y.
+   */
+  updateCodeEditorProperties = (newProperties) => {
+    let finalProperties = this.state.codeEditorProperties;
+    Object.keys(newProperties).forEach(key => {
+      finalProperties[key] = newProperties[key];
+    });
+
+    this.setStateWrapper({
+      codeEditorProperties: finalProperties,
+    });
+  }
+
   onStopInspectorResize = ({domElement, component}) => {
     this.setState({
       inspectorSize: this.getSizeHorizontal(domElement)
@@ -546,12 +567,14 @@ class Editor extends EditorCore {
             </HotKeys>
           {this.state.codeEditorOpen &&
             <PopOutCodeEditor
-            project={this.project}
-            updateProjectInState={this.updateProjectInState}
-            getSelectionType={this.getSelectionType}
-            getSelectedFrames={this.getSelectedFrames}
-            getSelectedClips={this.getSelectedClips}
-            toggleCodeEditor={this.toggleCodeEditor}/>}
+              codeEditorProperties={this.state.codeEditorProperties}
+              updateCodeEditorProperties={this.updateCodeEditorProperties}
+              project={this.project}
+              updateProjectInState={this.updateProjectInState}
+              getSelectionType={this.getSelectionType}
+              getSelectedFrames={this.getSelectedFrames}
+              getSelectedClips={this.getSelectedClips}
+              toggleCodeEditor={this.toggleCodeEditor}/>}
         </div>
       )}
       </Dropzone>
