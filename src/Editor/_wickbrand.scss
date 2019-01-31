@@ -88,7 +88,7 @@ $interface-warning-light: $flame-light;
 
 $interface-warning-text: #FFFFFF;
 
-$interface-menu-bar-background: black; 
+$interface-menu-bar-background: black;
 
 // define Bootstrap 4 button Mixins
 /*button-variant($background, $border, $hover-background: darken($background, 7.5%), $hover-border: darken($border, 10%), $active-background: darken($background, 10%), $active-border: darken($border, 12.5%))*/
@@ -120,6 +120,9 @@ $interface-menu-bar-background: black;
   border: darken($wick-green-dark, 12.5%);
 }
 // define interface element properties
+$splitter-size: 6px;
+$splitter-color: $interface-tertiary-text;
+$splitter-highlight-color: $interface-tertiary;
 
 $interface-roundness-primary: 2px;
 $interface-roundness-secondary: 4px;

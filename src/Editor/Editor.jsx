@@ -45,6 +45,7 @@ import CodeEditor from './Panels/CodeEditor/CodeEditor';
 import ModalHandler from './Modals/ModalHandler/ModalHandler';
 import HotKeyInterface from './hotKeyMap';
 import ActionMapInterface from './actionMap';
+import PopOutCodeEditor from './PopOuts/PopOutCodeEditor/PopOutCodeEditor';
 
 class Editor extends EditorCore {
   constructor () {
@@ -122,7 +123,7 @@ class Editor extends EditorCore {
   componentWillMount = () => {
     // Initialize Google Analytics
     ReactGA.initialize('UA-1334611534-1', { standardImplementation: true });
-    
+
     // Initialize "live" engine state
     this.project = new window.Wick.Project();
     this.paper = window.paper;
@@ -567,6 +568,7 @@ class Editor extends EditorCore {
                 </div>
               </div>
             </HotKeys>
+          <PopOutCodeEditor /> 
         </div>
       )}
       </Dropzone>
