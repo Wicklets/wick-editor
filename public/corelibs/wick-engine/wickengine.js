@@ -37990,6 +37990,7 @@ Wick.Canvas.InteractTool = class {
     this.paperTool = tool;
     var mouseButtonState = null;
     var mousePosition = null;
+    var lastButtonTarget = null;
 
     tool.onActivate = function (e) {
       mouseButtonState = 'up';
@@ -38020,17 +38021,21 @@ Wick.Canvas.InteractTool = class {
 
       if (buttonTargets.length > 0) {
         paper.view._element.style.cursor = 'pointer';
-      } else {
-        paper.view._element.style.cursor = 'default';
-      }
+        var buttonTarget = buttonTargets[0];
+        lastButtonTarget = buttonTarget;
 
-      buttonTargets.forEach(buttonTarget => {
         if (mouseButtonState === 'up') {
           buttonTarget.setMouseState('over');
         } else if (mouseButtonState === 'down') {
           buttonTarget.setMouseState('down');
         }
-      }); // TODO get all active buttons that aren't in buttonTargets and set their mouse state to 'out'
+      } else {
+        paper.view._element.style.cursor = 'default';
+      }
+
+      if (lastButtonTarget && lastButtonTarget !== buttonTargets[0]) {
+        lastButtonTarget.setMouseState('out');
+      }
     };
 
     tool.getMouseTargets = function (point, project) {
