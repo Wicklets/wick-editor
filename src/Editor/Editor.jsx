@@ -403,7 +403,7 @@ class Editor extends EditorCore {
     this.beforePreviewPlayProjectState = this.project.serialize();
     this.tickLoopIntervalID = setInterval(() => {
       this.project.tick();
-      this.canvas.interactTool.processMouseInputPreTick();
+      this.canvas.interactTool.processMouseInputPreTick(this.project);
       this.updateCanvas(true);
       this.updateTimeline();
     }, 1000 / this.project.framerate);
