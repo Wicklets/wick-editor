@@ -1,0 +1,54 @@
+@import 'Editor/_wickbrand.scss';
+
+.react-tabs {
+  display: flex;
+  flex-direction: column;
+  -webkit-tap-highlight-color: transparent;
+  height: 100%;
+
+  &__tab-list {
+    margin: 0 0 0px;
+    padding: 0;
+  }
+
+  &__tab {
+    display: inline-block;
+    border-bottom: none;
+    bottom: -1px;
+    position: relative;
+    list-style: none;
+    padding: 6px 12px;
+    cursor: pointer;
+
+    &--selected {
+      background: $interface-secondary;
+      border-color: $interface-quaternary;
+      color: $interface-secondary-text;
+      border-radius: 5px 5px 0 0;
+    }
+
+    &--disabled {
+      color: GrayText;
+      cursor: default;
+    }
+
+    &:focus {
+      box-shadow: 0 0 5px hsl(208, 99%, 50%);
+      border-color: hsl(208, 99%, 50%);
+      outline: none;
+
+    }
+  }
+
+  &__tab-panel {
+    display: none;
+    width: 100%;
+    height: 100%;
+
+    &--selected {
+      display: block;
+      background-color: $interface-secondary;
+      height: 100%;
+    }
+  }
+}

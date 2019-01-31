@@ -9,8 +9,10 @@ class WickCodeDetailsPanel extends Component {
     return (
       <div className='code-editor-details-panel'>
         <div className='code-editor-thumbnail-preview'>
+          Thumbnail
         </div>
         <div className='code-editor-reference'>
+          Reference
         </div>
       </div>
     );

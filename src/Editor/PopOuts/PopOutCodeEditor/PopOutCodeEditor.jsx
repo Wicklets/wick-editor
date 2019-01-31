@@ -23,6 +23,7 @@ import AceEditor from 'react-ace';
 
 import ActionButton from 'Editor/Util/ActionButton/ActionButton';
 import WickCodeDetailsPanel from './WickCodeDetailsPanel/WickCodeDetailsPanel';
+import WickTabCodeEditor from './WickTabCodeEditor/WickTabCodeEditor';
 
 // Import Ace Editor themes.
 import 'brace/mode/javascript';
@@ -43,26 +44,8 @@ class PopOutCodeEditor extends Component {
    * @param  {AceEditor} editor Ace Editor object which has been created.
    */
   addNewEditor = (editor) => {
+    console.log("addNew");
     this.editors.push(editor);
-  }
-
-  /**
-   * Render an ace editor.
-   */
-  renderAceEditor = () => {
-    return (
-      <AceEditor
-        onLoad={this.addNewEditor}
-        mode="javascript"
-        theme="monokai"
-        name="ace-editor"
-        fontSize={14}
-        width="100%"
-        height="100%"
-        onChange={(e) => {this.updateScriptOfSelection(e)}}
-        value={this.getScriptOfSelection().src}
-      />
-    );
   }
 
   /**
@@ -73,22 +56,6 @@ class PopOutCodeEditor extends Component {
     return (
       <div className="code-editor-unscriptable-warning">No Scriptable Object Selected</div>
     )
-  }
-
-  getScriptOfSelection = (selection, project) => {
-    let type = this.props.getSelectionType();
-    if(type === 'frame') {
-      return this.props.getSelectedFrames()[0].script;
-    } else if (type === 'clip'
-            || type === 'button') {
-      return this.props.getSelectedClips()[0].script;
-    }
-  }
-
-  updateScriptOfSelection = (newScriptSrc) => {
-    let script = this.getScriptOfSelection();
-    script.src = newScriptSrc;
-    this.props.updateProjectInState();
   }
 
   onDragHandler = (e, d) => {
@@ -104,13 +71,27 @@ class PopOutCodeEditor extends Component {
       height: ref.style.height,
     });
 
+    console.log("Resize");
+
     this.editors.forEach(editor => {
+      console.log("Resizing Editor");
       editor.resize();
     });
   }
 
   onCloseHandler = () => {
     this.props.toggleCodeEditor();
+  }
+
+  renderCodeEditor = () => {
+    return (
+      <WickTabCodeEditor
+        addNewEditor={this.addNewEditor}
+        updateProjectInState={this.props.updateProjectInState}
+        getSelectedClips={this.props.getSelectedClips}
+        getSelectedFrames={this.props.getSelectedFrames}
+        getSelectionType={this.props.getSelectionType}/>
+    )
   }
 
   render() {
@@ -121,8 +102,8 @@ class PopOutCodeEditor extends Component {
         dragHandleClassName="code-editor-drag-handle"
         minWidth={this.props.codeEditorProperties.minWidth}
         minHeight={this.props.codeEditorProperties.minHeight}
-        onResize={this.onResizeHandler}
-        onDrag={this.onDragHandler}
+        onResizeStop={this.onResizeHandler}
+        onDragStop={this.onDragHandler}
         default={{
           x: this.props.codeEditorProperties.x,
           y: this.props.codeEditorProperties.y,
@@ -147,7 +128,7 @@ class PopOutCodeEditor extends Component {
           <WickCodeDetailsPanel />
           <div className="code-editor-code-panel">
             {this.props.selectionIsScriptable()
-              ? this.renderAceEditor()
+              ? this.renderCodeEditor()
               : this.renderNotScriptableInfo()}
           </div>
         </div>

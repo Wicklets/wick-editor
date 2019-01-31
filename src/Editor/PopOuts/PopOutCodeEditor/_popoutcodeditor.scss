@@ -21,14 +21,13 @@
 
 $code-editor-drag-handle-height: 30px;
 $code-editor-details-width: 150px;
-$code-editor-thumbnail-height: 100px; 
+$code-editor-thumbnail-height: 100px;
 
 #code-editor-resizeable {
   z-index: 1000;
   background-color: $interface-primary;
   border: none;
-  border-radius: $interface-roundness-primary;
-  overflow: hidden;
+  box-shadow: 2px 2px 5px;
 }
 
 .ace-editor {
