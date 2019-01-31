@@ -3933,6 +3933,7 @@ paper.drawingTools = new paper.DrawingTools();
       var children = [];
       res.children.forEach(function (child) {
         children.push(child);
+        child.name = null;
       });
       children.forEach(function (child) {
         child.insertAbove(path);
@@ -3950,11 +3951,13 @@ paper.drawingTools = new paper.DrawingTools();
     var fill = path.clone({
       insert: false
     });
+    fill.name = null;
     fill.strokeColor = null;
     fill.strokeWidth = 1;
     var stroke = path.clone({
       insert: false
     });
+    stroke.name = null;
     stroke.fillColor = null;
     fill.insertAbove(path);
     stroke.insertAbove(fill);
@@ -6468,6 +6471,10 @@ class BrushCursorGen {
  * along with Paper.js-drawing-tools.  If not, see <https://www.gnu.org/licenses/>.
  */
 (() => {
+  var ZOOM_MIN = 0.1;
+  var ZOOM_MAX = 20;
+  var ZOOM_IN_AMOUNT = 1.25;
+  var ZOOM_OUT_AMOUNT = 0.8;
   var zoomBox;
   var tool = new paper.Tool();
   paper.drawingTools.zoom = tool;
@@ -6496,15 +6503,14 @@ class BrushCursorGen {
       paper.view.zoom = paper.view.bounds.height / bounds.height;
       deleteZoomBox();
     } else {
-      var zoomAmount = 1;
-
-      if (e.modifiers.alt) {
-        zoomAmount = 0.8;
-      } else {
-        zoomAmount = 1.25;
-      }
-
+      var zoomAmount = e.modifiers.alt ? ZOOM_OUT_AMOUNT : ZOOM_IN_AMOUNT;
       paper.view.scale(zoomAmount, e.point);
+    }
+
+    if (paper.view.zoom <= ZOOM_MIN) {
+      paper.view.zoom = ZOOM_MIN;
+    } else if (paper.view.zoom >= ZOOM_MAX) {
+      paper.view.zoom = ZOOM_MAX;
     }
 
     paper.drawingTools.fireCanvasModified({

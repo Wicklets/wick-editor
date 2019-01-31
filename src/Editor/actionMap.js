@@ -170,7 +170,7 @@ class ActionMapInterface extends Object {
           return type === 'clip' || type === 'button' || type === 'group';
         }),
         actions: [
-          // this.editorActions['breakApart'], // TODO: Re-enable break apart
+          this.editorActions['breakApart'],
         ],
         color: 'red',
       },

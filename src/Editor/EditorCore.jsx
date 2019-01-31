@@ -972,22 +972,20 @@ class EditorCore extends Component {
     newClip.transform.x = this.paper.project.selection.bounds.center.x;
     newClip.transform.y = this.paper.project.selection.bounds.center.y;
 
-    // Reposition selected clips and paths
-    this.getSelectedClips().forEach(clip => {
-      clip.transform.x -= newClip.transform.x;
-      clip.transform.y -= newClip.transform.y;
-    });
-    this.getSelectedPaths().forEach(path => {
-      path.paperPath.position.x -= newClip.transform.x;
-      path.paperPath.position.y -= newClip.transform.y;
-    });
-
     // Add selected clips and paths to new clip
     this.getSelectedClips().forEach(clip => {
-      newClip.activeFrame.addClip(clip.clone(true));
+      let clone = clip.clone();
+      newClip.activeFrame.addClip(clone);
+      clone.transform.x -= newClip.transform.x;
+      clone.transform.y -= newClip.transform.y;
     });
     this.getSelectedPaths().forEach(path => {
-      newClip.activeFrame.addPath(path.clone(true));
+      let clone = path.clone();
+      newClip.activeFrame.addPath(clone);
+      clone.paperPath.position = new window.paper.Point(
+        clone.paperPath.position.x - newClip.transform.x,
+        clone.paperPath.position.y - newClip.transform.y
+      );
     });
 
     // Delete selected objects
@@ -1018,7 +1016,10 @@ class EditorCore extends Component {
 
     this.lockState = false;
 
-    this.updateProjectAndSelectionInState(newSelection);
+    this.setStateWrapper({
+      project: this.project.serialize(),
+      selection: newSelection,
+    });
   }
 
   /**
@@ -1029,18 +1030,24 @@ class EditorCore extends Component {
   breakApartClip = (clip) => {
     let itemsInsideClip = [];
 
-    clip.timeline.activeLayer.activeFrames.forEach(frame => {
+    clip.timeline.activeFrames.forEach(frame => {
       // Add paths from inside clip
       frame.paths.forEach(path => {
         path.remove();
-        this.project.activeFrame.addPath(path.clone());
-        itemsInsideClip.push(path);
+        let clone = path.clone();
+        clone.paperPath.position.x += clip.transform.x;
+        clone.paperPath.position.y += clip.transform.y;
+        this.project.activeFrame.addPath(clone);
+        itemsInsideClip.push(clone);
       });
       // Add clips from inside clip
       frame.clips.forEach(subclip => {
         subclip.remove();
-        this.project.activeFrame.addClip(subclip.clone());
-        itemsInsideClip.push(subclip);
+        let clone = subclip.clone();
+        clone.transform.x += clip.transform.x;
+        clone.transform.y += clip.transform.y;
+        this.project.activeFrame.addClip(clone);
+        itemsInsideClip.push(clone);
       });
     });
 
@@ -1328,7 +1335,7 @@ class EditorCore extends Component {
    */
   addSelectionToProject = (selection) => {
     let newObjects = [];
-    
+
     if (selection.canvas) {
       if (selection.canvas.paths) {
         selection.canvas.paths.forEach(path => {
