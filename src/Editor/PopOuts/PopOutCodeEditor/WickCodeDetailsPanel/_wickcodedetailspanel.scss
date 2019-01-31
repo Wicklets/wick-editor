@@ -1,0 +1,28 @@
+@import 'Editor/_wickbrand.scss';
+@import '../_popoutcodeditor.scss';
+
+.code-editor-details-panel {
+  display: flex;
+  flex-direction: column;
+  width: $code-editor-details-width;
+  height: 100%;
+  float: left;
+  flex-grow: 0;
+  flex-shrink: 0;
+}
+
+.code-editor-thumbnail-preview {
+  width: $code-editor-details-width;
+  height: $code-editor-thumbnail-height;
+  background-color: pink;
+  float: none;
+  flex-grow: 0;
+  flex-shrink: 0;
+}
+
+.code-editor-reference {
+  width: $code-editor-details-width;
+  height: 100%;
+  background-color: red;
+  float: none;
+}

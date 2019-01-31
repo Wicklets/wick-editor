@@ -22,6 +22,7 @@ import { Rnd } from "react-rnd";
 import AceEditor from 'react-ace';
 
 import ActionButton from 'Editor/Util/ActionButton/ActionButton';
+import WickCodeDetailsPanel from './WickCodeDetailsPanel/WickCodeDetailsPanel';
 
 // Import Ace Editor themes.
 import 'brace/mode/javascript';
@@ -143,8 +144,7 @@ class PopOutCodeEditor extends Component {
           </div>
         </div>
         <div className="code-editor-body">
-          <div className="code-editor-details-panel">
-          </div>
+          <WickCodeDetailsPanel />
           <div className="code-editor-code-panel">
             {this.props.selectionIsScriptable()
               ? this.renderAceEditor()
