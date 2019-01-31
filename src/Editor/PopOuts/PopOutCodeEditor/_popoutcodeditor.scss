@@ -26,6 +26,8 @@ $code-editor-details-width: 150px;
   z-index: 1000;
   background-color: $interface-primary;
   border: none;
+  border-radius: $interface-roundness-primary;
+  overflow: hidden;
 }
 
 .ace-editor {
