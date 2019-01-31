@@ -60,7 +60,7 @@ class PopOutCodeEditor extends Component {
 
   renderNotScriptableInfo = () => {
     return (
-      <div>not scriptable</div>
+      <div className="code-editor-unscriptable-warning">No Scriptable Object Selected</div>
     )
   }
 
