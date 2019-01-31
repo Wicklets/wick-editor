@@ -18,9 +18,15 @@
  */
 
 import React, { Component } from 'react';
-// import Draggable from 'react-draggable';
-// import { Resizable, ResizableBox } from 'react-resizable';
 import { Rnd } from "react-rnd";
+import AceEditor from 'react-ace';
+
+import ActionButton from 'Editor/Util/ActionButton/ActionButton';
+
+// Import Ace Editor themes.
+import 'brace/mode/javascript';
+import 'brace/theme/monokai';
+
 
 import './_popoutcodeditor.scss';
 
@@ -29,10 +35,74 @@ class PopOutCodeEditor extends Component {
     super(props);
 
     this.state = {
-      width: 300,
+      width: 400,
       height: 300,
+      x: window.innerWidth/2 - 150,
+      y: window.innerHeight/2 - 150,
     }
 
+  }
+
+  renderAceEditor = () => {
+    return (
+      <AceEditor
+        mode="javascript"
+        theme="monokai"
+        name="ace-editor"
+        fontSize={14}
+        ref="reactAceComponent"
+        onChange={(e) => {this.updateScriptOfSelection(e)}}
+        editorProps={{$blockScrolling: true}}
+        value={this.getScriptOfSelection().src}
+      />
+    );
+  }
+
+  renderNotScriptableInfo = () => {
+    return (
+      <div>not scriptable</div>
+    )
+  }
+
+  selectionIsScriptable = () => {
+    let type = this.props.getSelectionType();
+    return type === 'frame'
+        || type === 'clip'
+        || type === 'button';
+  }
+
+  getScriptOfSelection = (selection, project) => {
+    let type = this.props.getSelectionType();
+    if(type === 'frame') {
+      return this.props.getSelectedFrames()[0].script;
+    } else if (type === 'clip'
+            || type === 'button') {
+      return this.props.getSelectedClips()[0].script;
+    }
+  }
+
+  updateScriptOfSelection = (newScriptSrc) => {
+    let script = this.getScriptOfSelection();
+    script.src = newScriptSrc;
+    this.props.updateProjectInState();
+  }
+
+  onDragHandler = (e, d) => {
+    this.setState( {
+      x: d.x,
+      y: d.y,
+    })
+  }
+
+  onResizeHandler = (e, dir, ref, delta, position) => {
+    this.setState( {
+      width: ref.style.width,
+      height: ref.style.height,
+    })
+  }
+
+  onCloseHandler = () => {
+    this.props.toggleCodeEditor();
   }
 
   render() {
@@ -41,45 +111,38 @@ class PopOutCodeEditor extends Component {
         id="code-editor-resizeable"
         bounds="window"
         dragHandleClassName="code-editor-drag-handle"
+        minWidth={300}
+        minHeight={250}
+        onResize={this.onResizeHandler}
+        onDrag={this.onDragHandler}
         default={{
-          x: 0,
-          y: 0,
-          width: 320,
-          height: 200
+          x: this.state.x,
+          y: this.state.y,
+          width: this.state.width,
+          height: this.state.height,
         }}
       >
         <div
-          className="code-editor-drag-handle"/>
+          className="code-editor-drag-handle">
+          <div className="code-editor-title">
+            {"Code Editor |"}
+            <span className="code-editor-selection-type"> {"editing: " + this.props.getSelectionType()} </span>
+          </div>
+          <div className="code-editor-close-button">
+            <ActionButton
+              icon="close"
+              action={this.onCloseHandler}
+              color="red"/>
+          </div>
+        </div>
+        <div className="code-editor-body">
+          {this.selectionIsScriptable()
+            ? this.renderAceEditor()
+            : this.renderNotScriptableInfo()}
+        </div>
       </Rnd>
     );
   }
 }
 
 export default PopOutCodeEditor;
-
-/*
-        <Draggable
-          handle="strong">
-          <ResizableBox
-            id="code-editor-resizeable"
-            classname="code-editor-resizer"
-            width={this.state.width}
-            height={this.state.height}
-            onResize={this.onResize}
-            handleSize={[20,20]}>
-          <div
-            className="code-editor-resizer"
-            style={
-              {
-                width: this.state.width + 'px',
-                height: this.state.height + 'px'
-              }}>
-            <strong>
-              <div
-                className="code-editor-drag-handle">Drag here</div>
-            </strong>
-            <div>You must click my handle to drag me</div>
-          </div>
-        </ResizableBox>
-      </Draggable>
-      */

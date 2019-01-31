@@ -49,6 +49,7 @@ import iconScript from 'resources/tool-icons/script.svg';
 import iconSymbol from 'resources/tool-icons/symbol.svg';
 import iconLeaveUp from 'resources/tool-icons/leaveUp.svg';
 import iconBreakApart from 'resources/tool-icons/breakApart.svg';
+import iconClose from 'resources/tool-icons/close.svg';
 
 // Assets
 import iconImage from 'resources/tool-icons/image.svg';
@@ -101,10 +102,11 @@ class ToolIcon extends Component {
       "leaveUp": iconLeaveUp,
       "upload": iconUpload,
       "action": iconAction,
-      "breakApart": iconBreakApart, 
+      "breakApart": iconBreakApart,
       "brushsize": iconBrushSize,
       "brushsmoothness": iconBrushSmoothness,
       "cornerroundness": iconCornerRoundness,
+      "close": iconClose,
       "delete": iconDelete,
       "duplicate": iconDuplicate,
       "ease": iconEase,

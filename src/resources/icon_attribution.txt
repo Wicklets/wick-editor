@@ -8,4 +8,5 @@
 'Bring to Front' by Ben Davis from the Noun Project, Edited by Luca Damasco | in tool-icons/ ... sendToBack.svg, sendBackwards.svg, bringToFront.svg, bringForwards.svg
 'timeline' by IconMark from the Noun Project, Edited by Luca Damasco | in tool-icons/ ... timeline.svg, symbol.svg
 'Leave' by Morten Halvorsen from the Noun Project, Edited by Luca Damasco | in tool-icons/ ... leaveUp.svg,
-'break' by Adrien Coquet from the Noun Project, Edited by Luca Damasco | in tool-icons/breakApart.svg, 
+'break' by Adrien Coquet from the Noun Project, Edited by Luca Damasco | in tool-icons/breakApart.svg,
+'Close' by Icon Depot from the Noun Project, Edited by Luca Damasco | in tool-icons/close.svg,

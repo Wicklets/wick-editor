@@ -24,15 +24,46 @@ $code-editor-drag-handle-height: 30px;
 #code-editor-resizeable {
   z-index: 1000;
   background-color: $interface-primary;
-  border: $splitter-size solid $splitter-color;
+  border: none;
+}
+
+#ace-editor {
+  height: 100% !important;
+  width: 100% !important;
+  box-sizing: border-box;
 }
 
 .code-editor-drag-handle {
-  position:absolute;
-  top: 0;
-  left: 0;
   background-color: $interface-secondary;
   width: 100%;
   height: $code-editor-drag-handle-height;
   cursor: grab;
+}
+
+.code-editor-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $interface-primary-text;
+  float: left;
+  height: 100%;
+  margin-left: 6px;
+}
+
+.code-editor-selection-type {
+  color: $interface-secondary-text;
+}
+
+.code-editor-body {
+  position: absolute;
+  width: 100%;
+  height: calc(100% - #{$code-editor-drag-handle-height});
+  overflow: hidden;
+}
+
+.code-editor-close-button {
+  height: 100%;
+  width: $code-editor-drag-handle-height;
+  padding: 2px;
+  float: right;
 }

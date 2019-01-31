@@ -41,7 +41,6 @@ import MenuBar from './Panels/MenuBar/MenuBar';
 import Timeline from './Panels/Timeline/Timeline';
 import Toolbox from './Panels/Toolbox/Toolbox';
 import AssetLibrary from './Panels/AssetLibrary/AssetLibrary';
-import CodeEditor from './Panels/CodeEditor/CodeEditor';
 import ModalHandler from './Modals/ModalHandler/ModalHandler';
 import HotKeyInterface from './hotKeyMap';
 import ActionMapInterface from './actionMap';
@@ -80,6 +79,7 @@ class Editor extends EditorCore {
       onionSkinSeekBackwards: 1,
       previewPlaying: false,
       activeModalName: "AlphaWarning",
+      codeEditorOpen: false,
       inspectorSize: 250,
       codeEditorSize: 0.1,
       timelineSize: 100,
@@ -363,16 +363,8 @@ class Editor extends EditorCore {
    * Opens and closes the code editor depending on the state of the codeEditor.
    */
   toggleCodeEditor = () => {
-    const minSize = .1;
-    const openSize = 500;
-
-    let newSize = minSize;
-    if (this.state.codeEditorSize < 10) {
-      newSize = openSize;
-    }
-
     this.setState( {
-      codeEditorSize: newSize,
+      codeEditorOpen: !this.state.codeEditorOpen,
     })
   }
 
@@ -466,22 +458,6 @@ class Editor extends EditorCore {
                           </ReflexElement>
                           <ReflexElement {...this.resizeProps}>
                             <ReflexContainer orientation="vertical">
-                              <ReflexElement
-                                minSize={0}
-                                size={this.state.codeEditorSize}
-                                onResize={this.resizeProps.onResize}
-                                onStopResize={this.resizeProps.onStopCodeEditorResize}>
-                                <DockedPanel>
-                                  <CodeEditor
-                                    project={this.project}
-                                    updateProjectInState={this.updateProjectInState}
-                                    getSelectionType={this.getSelectionType}
-                                    getSelectedFrames={this.getSelectedFrames}
-                                    getSelectedClips={this.getSelectedClips}
-                                  />
-                                </DockedPanel>
-                              </ReflexElement>
-                              <ReflexSplitter {...this.resizeProps}/>
                               <ReflexElement>
                                 <DockedPanel>
                                   <Canvas
@@ -568,7 +544,14 @@ class Editor extends EditorCore {
                 </div>
               </div>
             </HotKeys>
-          <PopOutCodeEditor /> 
+          {this.state.codeEditorOpen &&
+            <PopOutCodeEditor
+            project={this.project}
+            updateProjectInState={this.updateProjectInState}
+            getSelectionType={this.getSelectionType}
+            getSelectedFrames={this.getSelectedFrames}
+            getSelectedClips={this.getSelectedClips}
+            toggleCodeEditor={this.toggleCodeEditor}/>}
         </div>
       )}
       </Dropzone>
