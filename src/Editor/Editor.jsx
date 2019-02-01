@@ -183,6 +183,8 @@ class Editor extends EditorCore {
       ...nextState,
     }
 
+    window.paper.drawingTools.text.finishEditingText();
+
     let projectOrSelectionWillChange = this.projectOrSelectionChanged(this.state, nextState);
     this.setState(nextState, () => {
       if(projectOrSelectionWillChange) {

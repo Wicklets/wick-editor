@@ -3975,7 +3975,9 @@ paper.drawingTools = new paper.DrawingTools();
         touchingPaths.push(child);
       }
     });
-    touchingPaths.forEach(function (path) {
+    touchingPaths.filter(path => {
+      return path instanceof paper.Path || path instanceof paper.CompoundPath;
+    }).forEach(path => {
       if (path.strokeColor && path.fillColor) {
         var res = splitPath(path);
         eraseFill(res.fill, eraserPath);
@@ -3984,7 +3986,6 @@ paper.drawingTools = new paper.DrawingTools();
         eraseFill(path, eraserPath);
       } else if (path.strokeColor) {
         eraseStroke(path, eraserPath);
-      } else {// Probably a group or a raster, don't erase it.
       }
     });
   }
@@ -4970,40 +4971,55 @@ paper.Path.inject({
  * along with Paper.js-drawing-tools.  If not, see <https://www.gnu.org/licenses/>.
  */
 (function () {
-  // TODO this doesn't work if the TextItem is rotated
-  var editElem = $('<input type="text">');
+  var editElem = $('<textarea style="resize: none;">');
   editElem.css('position', 'absolute');
   editElem.css('width', '100px');
   editElem.css('height', '100px');
   editElem.css('left', '0px');
   editElem.css('top', '0px');
-  editElem.css('background-color', 'red');
+  editElem.css('resize', 'none');
+  editElem.css('line-height', '1.2');
+  editElem.css('background-color', '#ffffff');
+  editElem.css('box-sizing', 'content-box');
+  editElem.css('-moz-box-sizing', 'content-box');
+  editElem.css('-webkit-box-sizing', 'content-box');
   editElem.css('border', 'none');
   paper.TextItem.inject({
     attachTextArea: function () {
       $(paper.view.element.offsetParent).append(editElem);
       editElem.focus();
-      var position = paper.view.projectToView(this.bounds.topLeft.x, this.bounds.topLeft.y);
-      var width = this.bounds.width * paper.view.zoom;
-      var height = this.bounds.height * paper.view.zoom;
+      var clone = this.clone();
+      clone.rotation = 0;
+      clone.scaling = new paper.Point(1, 1);
+      clone.remove();
+      var width = clone.bounds.width * paper.view.zoom;
+      var height = clone.bounds.height * paper.view.zoom;
+      editElem.css('width', width + 'px');
+      editElem.css('height', height + 'px');
+      editElem.css('outline', 1 * paper.view.zoom + 'px dashed black');
+      var position = paper.view.projectToView(clone.bounds.topLeft.x, clone.bounds.topLeft.y);
+      var scale = this.scaling;
+      var rotation = this.rotation;
       var fontSize = this.fontSize * paper.view.zoom;
       var fontFamily = this.fontFamily;
       var content = this.content;
-      editElem.css('left', position.x + 'px');
-      editElem.css('top', position.y + 'px');
-      editElem.css('width', width + 'px');
-      editElem.css('height', height + 'px');
       editElem.css('font-family', fontFamily);
       editElem.css('font-size', fontSize);
       editElem.val(content);
+      var transformString = '';
+      transformString += 'translate(' + position.x + 'px,' + position.y + 'px) ';
+      transformString += 'rotate(' + rotation + 'deg) ';
+      transformString += 'scale(' + scale.x + ',' + scale.y + ') ';
+      editElem.css('transform', transformString);
     },
     edit: function () {
       this.attachTextArea();
       var self = this;
-      editElem.on('keyup paste', function () {
-        self.content = editElem.val();
+
+      editElem[0].oninput = function () {
+        self.content = editElem[0].value;
         self.attachTextArea();
-      });
+      };
     },
     finishEditing: function () {
       editElem.remove();
@@ -6408,9 +6424,7 @@ class BrushCursorGen {
 
   tool.onDeactivate = function (e) {
     if (editingText) {
-      editingText.finishEditing();
-      editingText = null;
-      paper.drawingTools.fireCanvasModified();
+      tool.finishEditingText();
     }
 
     hoveredOverText = null;
@@ -6419,7 +6433,7 @@ class BrushCursorGen {
   tool.onMouseMove = function (e) {
     paper.view._element.style.cursor = 'default';
 
-    if (e.item && e.item.className === 'PointText') {
+    if (e.item && e.item.className === 'PointText' && !e.item.parent.parent) {
       hoveredOverText = e.item;
       paper.view._element.style.cursor = 'text';
     } else {
@@ -6430,9 +6444,7 @@ class BrushCursorGen {
 
   tool.onMouseDown = function (e) {
     if (editingText) {
-      editingText.finishEditing();
-      editingText = null;
-      paper.drawingTools.fireCanvasModified();
+      tool.finishEditingText();
     } else if (hoveredOverText) {
       editingText = hoveredOverText;
       e.item.edit();
@@ -6451,6 +6463,15 @@ class BrushCursorGen {
   tool.onMouseDrag = function (e) {};
 
   tool.onMouseUp = function (e) {};
+
+  tool.finishEditingText = function () {
+    if (!editingText) return;
+    editingText.finishEditing();
+    editingText = null;
+    paper.drawingTools.fireCanvasModified({
+      layers: [paper.project.activeLayer]
+    });
+  };
 })();
 /*
  * Copyright 2018 WICKLETS LLC
@@ -6498,9 +6519,12 @@ class BrushCursorGen {
 
   tool.onMouseUp = function (e) {
     if (zoomBox) {
-      var bounds = zoomBox.bounds;
-      paper.view.center = bounds.center;
-      paper.view.zoom = paper.view.bounds.height / bounds.height;
+      if (zoomBoxIsValidSize()) {
+        var bounds = zoomBox.bounds;
+        paper.view.center = bounds.center;
+        paper.view.zoom = paper.view.bounds.height / bounds.height;
+      }
+
       deleteZoomBox();
     } else {
       var zoomAmount = e.modifiers.alt ? ZOOM_OUT_AMOUNT : ZOOM_IN_AMOUNT;
@@ -6532,5 +6556,9 @@ class BrushCursorGen {
       zoomBox.remove();
       zoomBox = null;
     }
+  }
+
+  function zoomBoxIsValidSize() {
+    return zoomBox.bounds.width > 5 && zoomBox.bounds.height > 5;
   }
 })();

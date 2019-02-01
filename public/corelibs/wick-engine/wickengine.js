@@ -36074,6 +36074,21 @@ Wick.Timeline = class extends Wick.Base {
     this.layers.splice(index, 0, layer);
   }
   /**
+   * Gets the frames at the given playhead position. 
+   * @param {number} playheadPosition - the playhead position to search.
+   * @returns {Wick.Frame[]} The frames at the playhead position.
+   */
+
+
+  getFramesAtPlayheadPosition(playheadPosition) {
+    var frames = [];
+    this.layers.forEach(layer => {
+      var frame = layer.getFrameAtPlayheadPosition(playheadPosition);
+      if (frame) frames.push(frame);
+    });
+    return frames;
+  }
+  /**
    * Advances the timeline one frame forwards. Loops back to beginning if the end is reached.
    */
 
@@ -36457,10 +36472,6 @@ Wick.Asset = class extends Wick.Base {
     Wick.FileCache.addFile(src, this.uuid);
   }
 
-  get isLoaded() {
-    console.error('All Wick.Asset subclasses must override isLoaded().');
-  }
-
   get MIMEType() {
     return this.src && this.src.split(':')[1].split(',')[0].split(';')[0];
   }
@@ -36635,10 +36646,6 @@ Wick.ClipAsset = class extends Wick.Asset {
 
   get classname() {
     return 'ClipAsset';
-  }
-
-  get isLoaded() {
-    return true; // Because nothing is loaded async
   }
 
   useClipAsSource(clip) {
@@ -37432,11 +37439,19 @@ Wick.Button = class extends Wick.Clip {
     super._onActive();
 
     this.timeline.playheadPosition = 1;
+    var frame2Exists = this.timeline.getFramesAtPlayheadPosition(2).length > 0;
+    var frame3Exists = this.timeline.getFramesAtPlayheadPosition(3).length > 0;
 
     if (this._mouseState === 'over') {
-      this.timeline.playheadPosition = 2;
+      if (frame2Exists) {
+        this.timeline.playheadPosition = 2;
+      }
     } else if (this._mouseState === 'down') {
-      this.timeline.playheadPosition = 3;
+      if (frame3Exists) {
+        this.timeline.playheadPosition = 3;
+      } else if (frame2Exists) {
+        this.timeline.playheadPosition = 2;
+      }
     }
 
     if (this._mouseState === 'over' && this._lastMouseState === 'out') {

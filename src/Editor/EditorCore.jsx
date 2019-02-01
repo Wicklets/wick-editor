@@ -1284,6 +1284,7 @@ class EditorCore extends Component {
    */
   focusTimelineOfParentObject = () => {
     if(this.project.focus === this.project.root) return;
+    this.project.focus.timeline.playheadPosition = 1;
     this.focusClip(this.project.focus.parent._getParentByInstanceOf(window.Wick.Clip));
 
     this.updateProjectAndSelectionInState();
