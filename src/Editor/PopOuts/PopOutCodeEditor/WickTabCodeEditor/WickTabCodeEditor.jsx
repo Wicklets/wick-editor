@@ -11,31 +11,48 @@ import '../_popoutcodeditor.scss';
 
 class WickTabCodeEditor extends Component {
 
-  renderNewAceEditor = () => {
+  renderNewAceEditor = (scriptObject) => {
     return (
       <WickAceEditor
         addNewEditor={this.props.addNewEditor}
-        updateProjectInState={this.props.updateProjectInState}
-        getSelectedClips={this.props.getSelectedClips}
-        getSelectedFrames={this.props.getSelectedFrames}
-        getSelectionType={this.props.getSelectionType} />
+        onUpdate={scriptObject.onUpdate}
+        getSelectionType={this.props.getSelectionType}
+        script={scriptObject.script}
+        name={scriptObject.name} />
+    )
+  }
+
+  renderNewCodePanel = (s, i) => {
+    return  (
+      <TabPanel
+        key={i}>{this.renderNewAceEditor(s)}</TabPanel>
+
+    )
+  }
+
+  renderNewCodeTab = (s, i) => {
+    return (
+      <Tab
+        key={i}>{s.name}</Tab>
+    )
+  }
+
+  renderAddEventTab = () => {
+    return (
+      <Tab>+</Tab>
     )
   }
 
   render () {
+    let scripts = this.props.getScriptsOfSelection();
     return (
       <div className='code-editor-tab-code-editor'>
         <Tabs>
           <TabList>
-            <Tab>Code</Tab>
-            <Tab>Other</Tab>
+            {scripts.map(this.renderNewCodeTab) }
+            {this.renderAddEventTab()}
           </TabList>
-          <TabPanel>
-            {this.renderNewAceEditor()}
-          </TabPanel>
-          <TabPanel>
-            <h2>Any content 2</h2>
-          </TabPanel>
+          {scripts.map(this.renderNewCodePanel) }
         </Tabs>
       </div>
     );

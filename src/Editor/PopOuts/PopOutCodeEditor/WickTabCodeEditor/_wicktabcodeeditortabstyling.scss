@@ -17,11 +17,12 @@
     bottom: -1px;
     position: relative;
     list-style: none;
-    padding: 6px 12px;
+    padding: 3px 6px;
     cursor: pointer;
     background-color: $interface-secondary;
     color: $interface-secondary-text;
     border-radius: 5px 5px 0 0;
+    width: 60px;
 
     &--selected {
       background: $interface-tertiary;

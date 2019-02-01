@@ -323,6 +323,56 @@ class EditorCore extends Component {
     });
   }
 
+  getScriptOfSelection = () => {
+    let type = this.props.getSelectionType();
+    if(type === 'frame') {
+      return this.props.getSelectedFrames()[0].script;
+    } else if (type === 'clip'
+            || type === 'button') {
+      return this.props.getSelectedClips()[0].script;
+    }
+  }
+
+  /**
+   * Returns all scripts of the selection;
+   * @return {object[]} Array of objects describing the scripts of the currently selected object.
+   */
+  getScriptsOfSelection = () => {
+    return [
+      {
+        name: 'mousePressed',
+        script: "This is a mousePressed script",
+        onUpdate: (s) => console.log("Updating " + s),
+      },
+      {
+        name: 'keyPressed',
+        script: "This is a keyPressed script",
+        onUpdate: (s) => console.log("Updating " + s),
+      },
+      {
+        name: 'update',
+        script: "This is an update script",
+        onUpdate: (s) => console.log("Updating " + s),
+      }
+    ]
+  }
+
+  /**
+   * Returns all event script types which can be added to the selection.
+   * @return {string[]} Array of strings representing all events which can be added to the selection.
+   */
+  getAvailableEventsOfSelection = () => {
+    return ['keyDown', 'keyUp', 'onLoad'];
+  }
+
+  /**
+   * Adds an event by name to the currently selected object, if possible.
+   * @param {string} eventName event to add to the currently selected object.
+   */
+  addEventToSelection = (eventName) => {
+    console.log("Add Event to Selection: " + eventName);
+  }
+
   /**
    * Returns an object containing all attributes of the selection.
    * @returns {object} The object containing all the selection attributes.

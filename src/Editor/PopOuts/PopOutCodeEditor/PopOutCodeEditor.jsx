@@ -19,7 +19,6 @@
 
 import React, { Component } from 'react';
 import { Rnd } from "react-rnd";
-import AceEditor from 'react-ace';
 
 import ActionButton from 'Editor/Util/ActionButton/ActionButton';
 import WickCodeDetailsPanel from './WickCodeDetailsPanel/WickCodeDetailsPanel';
@@ -44,7 +43,6 @@ class PopOutCodeEditor extends Component {
    * @param  {AceEditor} editor Ace Editor object which has been created.
    */
   addNewEditor = (editor) => {
-    console.log("addNew");
     this.editors.push(editor);
   }
 
@@ -88,9 +86,10 @@ class PopOutCodeEditor extends Component {
       <WickTabCodeEditor
         addNewEditor={this.addNewEditor}
         updateProjectInState={this.props.updateProjectInState}
-        getSelectedClips={this.props.getSelectedClips}
-        getSelectedFrames={this.props.getSelectedFrames}
-        getSelectionType={this.props.getSelectionType}/>
+        getSelectionType={this.props.getSelectionType}
+        getScriptsOfSelection={this.props.getScriptsOfSelection}
+        getAvailableEventsOfSelection={this.getAvailableEventsOfSelection}
+        addEventToSelection={this.addEventToSelection}/>
     )
   }
 

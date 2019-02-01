@@ -571,13 +571,12 @@ class Editor extends EditorCore {
             <PopOutCodeEditor
               codeEditorProperties={this.state.codeEditorProperties}
               updateCodeEditorProperties={this.updateCodeEditorProperties}
-              project={this.project}
-              updateProjectInState={this.updateProjectInState}
               selectionIsScriptable={this.selectionIsScriptable}
               getSelectionType={this.getSelectionType}
-              getSelectedFrames={this.getSelectedFrames}
-              getSelectedClips={this.getSelectedClips}
-              toggleCodeEditor={this.toggleCodeEditor}/>}
+              getScriptsOfSelection={this.getScriptsOfSelection}
+              toggleCodeEditor={this.toggleCodeEditor}
+              getAvailableEventsOfSelection={this.getAvailableEventsOfSelection}
+              addEventToSelection={this.addEventToSelection}/>}
         </div>
       )}
       </Dropzone>
