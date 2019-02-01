@@ -4971,12 +4971,14 @@ paper.Path.inject({
  * along with Paper.js-drawing-tools.  If not, see <https://www.gnu.org/licenses/>.
  */
 (function () {
-  var editElem = $('<input type="text">');
+  var editElem = $('<textarea style="resize: none;">');
   editElem.css('position', 'absolute');
   editElem.css('width', '100px');
   editElem.css('height', '100px');
   editElem.css('left', '0px');
   editElem.css('top', '0px');
+  editElem.css('resize', 'none');
+  editElem.css('line-height', '1.2');
   editElem.css('background-color', '#ffffff');
   editElem.css('box-sizing', 'content-box');
   editElem.css('-moz-box-sizing', 'content-box');
