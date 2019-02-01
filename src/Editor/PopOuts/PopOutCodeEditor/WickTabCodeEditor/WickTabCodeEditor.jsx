@@ -49,7 +49,7 @@ class WickTabCodeEditor extends Component {
         <AddEventButton
           key={i}
           text={ev}
-          action={() => {console.log("Adding " + ev)}} />
+          action={() => this.props.addEventToSelection(ev)} />
       )
   }
 
