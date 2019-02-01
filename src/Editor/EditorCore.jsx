@@ -343,16 +343,19 @@ class EditorCore extends Component {
         name: 'mousePressed',
         script: "This is a mousePressed script",
         onUpdate: (s) => console.log("Updating " + s),
+        remove: () => console.log("Removing")
       },
       {
         name: 'keyPressed',
         script: "This is a keyPressed script",
         onUpdate: (s) => console.log("Updating " + s),
+        remove: () => console.log("Removing")
       },
       {
         name: 'update',
         script: "This is an update script",
         onUpdate: (s) => console.log("Updating " + s),
+        remove: () => console.log("Removing")
       }
     ]
   }

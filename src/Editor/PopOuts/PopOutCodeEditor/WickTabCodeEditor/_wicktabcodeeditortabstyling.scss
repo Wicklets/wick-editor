@@ -7,8 +7,11 @@
   height: 100%;
 
   &__tab-list {
+    width:100%;
     margin: 0 0 0px;
     padding: 0;
+    white-space: nowrap;
+    overflow-x: scroll;
   }
 
   &__tab {
@@ -22,7 +25,6 @@
     background-color: $interface-secondary;
     color: $interface-secondary-text;
     border-radius: 5px 5px 0 0;
-    width: 60px;
 
     &--selected {
       background: $interface-tertiary;

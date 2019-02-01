@@ -3,6 +3,7 @@ import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 
 import WickAceEditor from './WickAceEditor/WickAceEditor';
 import AddEventButton from './AddEventButton/AddEventButton';
+import ActionButton from 'Editor/Util/ActionButton/ActionButton';
 
 import './_wicktabcodeeditor.scss';
 import './_wicktabcodeeditortabstyling.scss';
@@ -68,6 +69,12 @@ class WickTabCodeEditor extends Component {
       <div className='code-editor-tab-code-editor'>
         <Tabs>
           <TabList>
+            <div className='code-tab-delete'>
+              <ActionButton
+                icon="delete"
+                color="red"
+                action={()=>{console.log("deleting")}} />
+            </div>
             {scripts.map(this.renderNewCodeTab) }
             {this.renderAddEventTab()}
           </TabList>

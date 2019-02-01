@@ -88,6 +88,7 @@ class PopOutCodeEditor extends Component {
         updateProjectInState={this.props.updateProjectInState}
         getSelectionType={this.props.getSelectionType}
         getScriptsOfSelection={this.props.getScriptsOfSelection}
+        updateScriptOfSelection={this.props.updateScriptOfSelection}
         getAvailableEventsOfSelection={this.props.getAvailableEventsOfSelection}
         addEventToSelection={this.props.addEventToSelection}/>
     )
