@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 
 import WickAceEditor from './WickAceEditor/WickAceEditor';
+import AddEventButton from './AddEventButton/AddEventButton';
 
 import './_wicktabcodeeditor.scss';
 import './_wicktabcodeeditortabstyling.scss';
@@ -43,6 +44,24 @@ class WickTabCodeEditor extends Component {
     )
   }
 
+  renderAddEventButton = (ev, i) => {
+    return (
+        <AddEventButton
+          key={i}
+          text={ev}
+          action={() => {console.log("Adding " + ev)}} />
+      )
+  }
+
+  renderAddEventTabPanel = () => {
+    let availableEvents = this.props.getAvailableEventsOfSelection();
+    return (
+      <TabPanel>
+        {availableEvents.map(this.renderAddEventButton)}
+      </TabPanel>
+    );
+  }
+
   render () {
     let scripts = this.props.getScriptsOfSelection();
     return (
@@ -53,6 +72,7 @@ class WickTabCodeEditor extends Component {
             {this.renderAddEventTab()}
           </TabList>
           {scripts.map(this.renderNewCodePanel) }
+          {this.renderAddEventTabPanel()}
         </Tabs>
       </div>
     );
