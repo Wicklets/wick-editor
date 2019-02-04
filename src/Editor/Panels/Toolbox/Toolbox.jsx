@@ -82,11 +82,11 @@ class Toolbox extends Component {
           tooltip="Text"
           {...this.iconProps}
         />
-        <ToolButton
+        {/*<ToolButton
           name="eyedropper"
           tooltip="Eyedropper"
           {...this.iconProps}
-        />
+        />*/}
         <ToolButton
           name="pan"
           tooltip="Pan"
