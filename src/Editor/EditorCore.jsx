@@ -36,9 +36,7 @@ class EditorCore extends Component {
    */
   setActiveTool = (newTool) => {
     let newState = { activeTool: newTool };
-    if(this.state.activeTool === 'cursor' && newTool !== 'cursor') {
-      newState.selection = this.emptySelection();
-    }
+    newState.selection = this.emptySelection();
     this.setStateWrapper(newState);
   }
 
@@ -1443,9 +1441,12 @@ class EditorCore extends Component {
       }
     }
 
+    let newSelection = this.emptySelection();
+    this.addObjectsToSelection(newObjects, newSelection);
+
     this.setStateWrapper({
       project: this.project.serialize(),
-      selection: this.selectObjects(newObjects),
+      selection: newSelection,
     });
   }
 
