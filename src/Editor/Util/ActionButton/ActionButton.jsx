@@ -35,25 +35,30 @@ class ActionButton extends Component {
 
     let finalClassName = classNames(colorClass, {'active-button' : isActive()})
 
+    // Detect if on mobile
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+
     return (
       <div data-tip data-for={btnID} className="action-button">
-        { (this.props.tooltip !== undefined) && (
-        <ReactTooltip
-          id={btnID}
-          type='info'
-          place={this.props.tooltipPlace === undefined ? 'top' : this.props.tooltipPlace}
-          effect='solid'
-          aria-haspopup='true'>
-          <span>{this.props.tooltip}</span>
-        </ReactTooltip> )
-      }
         <WickInput
           className={finalClassName}
           type="button"
-          onClick={this.props.action}>
+          onClick={this.props.action}
+          onTouch={this.props.action}>
           {this.props.icon && <ToolIcon name={this.props.icon} />}
           {this.props.text && <div>{this.props.text}</div>}
         </WickInput>
+          { (this.props.tooltip !== undefined) && (
+          <ReactTooltip
+            disable={isMobile}
+            id={btnID}
+            type='info'
+            place={this.props.tooltipPlace === undefined ? 'top' : this.props.tooltipPlace}
+            effect='solid'
+            aria-haspopup='true'>
+            <span>{this.props.tooltip}</span>
+          </ReactTooltip> )
+        }
       </div>
     )
   }
