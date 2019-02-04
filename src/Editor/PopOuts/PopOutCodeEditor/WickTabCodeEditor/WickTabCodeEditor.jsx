@@ -12,22 +12,28 @@ import '../_popoutcodeditor.scss';
 // Import default tab style
 
 class WickTabCodeEditor extends Component {
+  constructor(props) {
+    super(props);
 
-  renderNewAceEditor = (scriptObject) => {
+    this.state = {
+      tabIndex: 0,
+    }
+  }
+
+  renderNewAceEditor = (event) => {
     return (
       <WickAceEditor
         addNewEditor={this.props.addNewEditor}
-        onUpdate={scriptObject.onUpdate}
-        getSelectionType={this.props.getSelectionType}
-        script={scriptObject.script}
-        name={scriptObject.name} />
+        onUpdate={(src) => {this.props.script.updateEvent(event.name, src)} }
+        script={event.src}
+        name={event.name} />
     )
   }
 
-  renderNewCodePanel = (s, i) => {
+  renderNewCodePanel = (event, i) => {
     return  (
       <TabPanel
-        key={i}>{this.renderNewAceEditor(s)}</TabPanel>
+        key={i}>{this.renderNewAceEditor(event)}</TabPanel>
 
     )
   }
@@ -45,17 +51,17 @@ class WickTabCodeEditor extends Component {
     )
   }
 
-  renderAddEventButton = (ev, i) => {
+  renderAddEventButton = (eventName, i) => {
     return (
         <AddEventButton
           key={i}
-          text={ev}
-          action={() => this.props.addEventToSelection(ev)} />
+          text={eventName}
+          action={() => this.props.script.addEvent(eventName)} />
       )
   }
 
   renderAddEventTabPanel = () => {
-    let availableEvents = this.props.getAvailableEventsOfSelection();
+    let availableEvents = this.props.script.getAvailableEvents();
     return (
       <TabPanel>
         {availableEvents.map(this.renderAddEventButton)}
@@ -63,22 +69,38 @@ class WickTabCodeEditor extends Component {
     );
   }
 
+  removeSelectedTab = () => {
+    let events = this.props.script.getEvents();
+
+    if (this.state.tabIndex < 0 || this.state.tabIndex >= events.length) {
+      return
+    }
+
+    let event = events[this.state.tabIndex];
+    this.props.script.removeEvent(event.name);
+  }
+
   render () {
-    let scripts = this.props.getScriptsOfSelection();
+    let events = this.props.script.getEvents();
     return (
       <div className='code-editor-tab-code-editor'>
-        <Tabs>
+        <Tabs
+          selectedIndex={this.state.tabIndex}
+          onSelect={tabIndex => this.setState({ tabIndex })}>
           <TabList>
+            {/* Add In Delete Button */}
             <div className='code-tab-delete'>
               <ActionButton
                 icon="delete"
                 color="red"
-                action={()=>{console.log("deleting")}} />
+                action={this.removeSelectedTab} />
             </div>
-            {scripts.map(this.renderNewCodeTab) }
+            {/* Add In Event Tabs */}
+            {events.map(this.renderNewCodeTab) }
+            {/* Render "Add Event" button */}
             {this.renderAddEventTab()}
           </TabList>
-          {scripts.map(this.renderNewCodePanel) }
+          {events.map(this.renderNewCodePanel) }
           {this.renderAddEventTabPanel()}
         </Tabs>
       </div>

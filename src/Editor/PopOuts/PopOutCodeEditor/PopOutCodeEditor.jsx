@@ -86,11 +86,7 @@ class PopOutCodeEditor extends Component {
       <WickTabCodeEditor
         addNewEditor={this.addNewEditor}
         updateProjectInState={this.props.updateProjectInState}
-        getSelectionType={this.props.getSelectionType}
-        getScriptsOfSelection={this.props.getScriptsOfSelection}
-        updateScriptOfSelection={this.props.updateScriptOfSelection}
-        getAvailableEventsOfSelection={this.props.getAvailableEventsOfSelection}
-        addEventToSelection={this.props.addEventToSelection}/>
+        script={this.props.script}/>
     )
   }
 
@@ -125,7 +121,7 @@ class PopOutCodeEditor extends Component {
           </div>
         </div>
         <div className="code-editor-body">
-          <WickCodeDetailsPanel />
+          {/*<WickCodeDetailsPanel />*/}
           <div className="code-editor-code-panel">
             {this.props.selectionIsScriptable()
               ? this.renderCodeEditor()

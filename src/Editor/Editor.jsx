@@ -575,11 +575,8 @@ class Editor extends EditorCore {
               updateCodeEditorProperties={this.updateCodeEditorProperties}
               selectionIsScriptable={this.selectionIsScriptable}
               getSelectionType={this.getSelectionType}
-              getScriptsOfSelection={this.getScriptsOfSelection}
-              toggleCodeEditor={this.toggleCodeEditor}
-              getAvailableEventsOfSelection={this.getAvailableEventsOfSelection}
-              addEventToSelection={this.addEventToSelection}
-              updateScriptOfSelection={this.updateScriptOfSelection}/>}
+              script={this.getScriptOfSelection()}
+              toggleCodeEditor={this.toggleCodeEditor}/>}
         </div>
       )}
       </Dropzone>
