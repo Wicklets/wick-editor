@@ -31,115 +31,115 @@ $action-button-transition-duration: .2s;
   -webkit-transition-duration: $action-button-transition-duration; /* Safari */
   transition-duration: $action-button-transition-duration;
 
-  background-color: #2719FF;
-  color: white;
+  background-color: $deep-cereulian;
+  color: $deep-cereulian-text;
 }
 
 .action-button-blue:hover {
-  background-color: #2C45FF;
-  color: white;
+  background-color: $deep-cereulian-light;
+  color: $deep-cereulian-text;
 }
 
 .action-button-blue:active {
-  background-color: #2000DD;
-  color: white;
+  background-color: $deep-cereulian-dark;
+  color: $deep-cereulian-text;
 }
 
 .action-button-blue.active-button {
-  background-color: #2000DD;
-  color: white;
+  background-color: $deep-cereulian-dark;
+  color: $deep-cereulian-text;
 }
 
 .action-button-sky {
   -webkit-transition-duration: $action-button-transition-duration; /* Safari */
   transition-duration: $action-button-transition-duration;
 
-  background-color: #8DDED6;
-  color: black;
+  background-color: $sleepy-sky-dark;
+  color: $sleepy-sky-text;
 }
 
 .action-button-sky:hover {
-  background-color: #BBF6F0;
-  color: black;
+  background-color: $sleepy-sky;
+  color: $sleepy-sky-text;
 }
 
 .action-button-sky:active {
-  background-color: #D3F8F4;
-  color: black;
+  background-color: $sleepy-sky-light;
+  color: $sleepy-sky-text;
 }
 
 .action-button-sky.active-button {
-  background-color: #D3F8F4;
-  color: black;
+  background-color: $sleepy-sky-light;
+  color: $sleepy-sky-text;
 }
 
 .action-button-red {
   -webkit-transition-duration: $action-button-transition-duration; /* Safari */
   transition-duration: $action-button-transition-duration;
 
-  background-color: #FD384C;
-  color: white;
+  background-color: $wick-red;
+  color: $wick-red-text;
 }
 
 .action-button-red:hover {
-  background-color: #FF5372;
-  color: white;
+  background-color: $wick-red-light;
+  color: $wick-red-text;
 }
 
 .action-button-red:active {
-  background-color: #E61E07;
-  color: white;
+  background-color: $wick-red-dark;
+  color: $wick-red-text;
 }
 
 .action-button-red.active-button {
-  background-color: #E61E07;
-  color: white;
+  background-color: $wick-red-dark;
+  color: $wick-red-text;
 }
 
 .action-button-green {
   -webkit-transition-duration: $action-button-transition-duration; /* Safari */
   transition-duration: $action-button-transition-duration;
 
-  background-color: #00D9A7;
-  color: black;
+  background-color: $wick-green;
+  color: $wick-green-text;
 }
 
 .action-button-green:hover {
-  background-color: #29F1A3;
-  color: black;
+  background-color: $wick-green-light;
+  color: $wick-green-text;
 }
 
 .action-button-green:active {
-  background-color: #01C094;
-  color: black;
+  background-color: $wick-green-dark;
+  color: $wick-green-text;
 }
 
 .action-button-green.active-button {
-  background-color: #01C094;
-  color: black;
+  background-color: $wick-green-dark;
+  color: $wick-green-text;
 }
 
 .action-button-yellow {
   -webkit-transition-duration: $action-button-transition-duration; /* Safari */
   transition-duration: $action-button-transition-duration;
 
-  background-color: #FFC835;
-  color: black;
+  background-color: $wick-yellow;
+  color: $wick-yellow-text;
 }
 
 .action-button-yellow:hover {
-  background-color: #FFE243;
-  color: black;
+  background-color: $wick-yellow-light;
+  color: $wick-yellow-text;
 }
 
 .action-button-yellow:active {
-  background-color: #E9AA02;
-  color: black;
+  background-color: $wick-yellow-dark;
+  color: $wick-yellow-text;
 }
 
 .action-button-yellow.active-button {
-  background-color: #E9AA02;
-  color: black;
+  background-color: $wick-yellow-dark;
+  color: $wick-yellow-text;
 }
 
 .action-button-tool {

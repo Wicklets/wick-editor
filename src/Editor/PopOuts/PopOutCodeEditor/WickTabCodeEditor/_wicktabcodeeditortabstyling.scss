@@ -58,3 +58,39 @@
     }
   }
 }
+
+.react-tab-yellow {
+  background-color: $wick-yellow-dark;
+  color: $wick-yellow-text;
+}
+
+.react-tab-yellow.react-tabs__tab--selected {
+  background-color: $wick-yellow-light;
+}
+
+.react-tab-red {
+  background-color: $wick-red-dark;
+  color: $wick-red-text;
+}
+
+.react-tab-red.react-tabs__tab--selected {
+  background-color: $wick-red-light;
+}
+
+.react-tab-sky {
+  background-color: $sleepy-sky-dark;
+  color: $sleepy-sky-text;
+}
+
+.react-tab-sky.react-tabs__tab--selected {
+  background-color: $sleepy-sky-light;
+}
+
+.react-tab-green {
+  background-color: $wick-green-dark;
+  color: $wick-green-text;
+}
+
+.react-tab-green.react-tabs__tab--selected {
+  background-color: $wick-green-light;
+}

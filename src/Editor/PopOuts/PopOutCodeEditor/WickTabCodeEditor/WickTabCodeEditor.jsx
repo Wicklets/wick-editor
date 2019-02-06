@@ -20,6 +20,16 @@ class WickTabCodeEditor extends Component {
     }
   }
 
+  pickColor = (text) => {
+    if (text.includes('mouse')) {
+      return 'green';
+    } else if (text.includes('key')) {
+      return 'yellow';
+    } else {
+      return 'sky';
+    }
+  }
+
   renderNewAceEditor = (script) => {
     return (
       <WickAceEditor
@@ -41,6 +51,7 @@ class WickTabCodeEditor extends Component {
   renderNewCodeTab = (s, i) => {
     return (
       <Tab
+        className={"react-tabs__tab react-tab-" + this.pickColor(s.name)}
         key={i}>{s.name}</Tab>
     )
   }
@@ -56,6 +67,7 @@ class WickTabCodeEditor extends Component {
         <AddScriptButton
           key={i}
           text={scriptName}
+          pickColor={this.pickColor}
           action={() => this.addScript(scriptName)} />
       )
   }
@@ -69,7 +81,9 @@ class WickTabCodeEditor extends Component {
     let availableScripts = this.props.script.getAvailableScripts();
     return (
       <TabPanel>
-        {availableScripts.map(this.renderAddScriptButton)}
+        <div id="add-scripts-panel-container">
+          {availableScripts.map(this.renderAddScriptButton)}
+        </div>
       </TabPanel>
     );
   }
