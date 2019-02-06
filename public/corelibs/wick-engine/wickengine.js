@@ -630,6 +630,226 @@ TWEEN.Interpolation = {
   }
 })(this);
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*!
+* atomic v4.2.1: A tiny, Promise-based vanilla JS Ajax/HTTP plugin with great browser support.
+* (c) 2018 Chris Ferdinandi
+* MIT License
+* https://github.com/cferdinandi/atomic
+*/
+(function (root, factory) {
+  if (typeof define === 'function' && define.amd) {
+    define([], function () {
+      return factory(root);
+    });
+  } else if (typeof exports === 'object') {
+    module.exports = factory(root);
+  } else {
+    window.atomic = factory(root);
+  }
+})(typeof global !== 'undefined' ? global : typeof window !== 'undefined' ? window : this, function (window) {
+  'use strict'; //
+  // Variables
+  //
+
+  var settings; // Default settings
+
+  var defaults = {
+    method: 'GET',
+    username: null,
+    password: null,
+    data: {},
+    headers: {
+      'Content-type': 'application/x-www-form-urlencoded'
+    },
+    responseType: 'text',
+    timeout: null,
+    withCredentials: false
+  }; //
+  // Methods
+  //
+
+  /**
+   * Feature test
+   * @return {Boolean} If true, required methods and APIs are supported
+   */
+
+  var supports = function () {
+    return 'XMLHttpRequest' in window && 'JSON' in window && 'Promise' in window;
+  };
+  /**
+   * Merge two or more objects together.
+   * @param   {Object}   objects  The objects to merge together
+   * @returns {Object}            Merged values of defaults and options
+   */
+
+
+  var extend = function () {
+    // Variables
+    var extended = {}; // Merge the object into the extended object
+
+    var merge = function (obj) {
+      for (var prop in obj) {
+        if (obj.hasOwnProperty(prop)) {
+          if (Object.prototype.toString.call(obj[prop]) === '[object Object]') {
+            extended[prop] = extend(extended[prop], obj[prop]);
+          } else {
+            extended[prop] = obj[prop];
+          }
+        }
+      }
+    }; // Loop through each object and conduct a merge
+
+
+    for (var i = 0; i < arguments.length; i++) {
+      var obj = arguments[i];
+      merge(obj);
+    }
+
+    return extended;
+  };
+  /**
+   * Parse text response into JSON
+   * @private
+   * @param  {String} req The response
+   * @return {Array}      A JSON Object of the responseText, plus the orginal response
+   */
+
+
+  var parse = function (req) {
+    var result;
+
+    if (settings.responseType !== 'text' && settings.responseType !== '') {
+      return {
+        data: req.response,
+        xhr: req
+      };
+    }
+
+    try {
+      result = JSON.parse(req.responseText);
+    } catch (e) {
+      result = req.responseText;
+    }
+
+    return {
+      data: result,
+      xhr: req
+    };
+  };
+  /**
+   * Convert an object into a query string
+   * @link   https://blog.garstasio.com/you-dont-need-jquery/ajax/
+   * @param  {Object|Array|String} obj The object
+   * @return {String}                  The query string
+   */
+
+
+  var param = function (obj) {
+    // If already a string, or if a FormData object, return it as-is
+    if (typeof obj === 'string' || Object.prototype.toString.call(obj) === '[object FormData]') return obj; // If the content-type is set to JSON, stringify the JSON object
+
+    if (/application\/json/i.test(settings.headers['Content-type']) || Object.prototype.toString.call(obj) === '[object Array]') return JSON.stringify(obj); // Otherwise, convert object to a serialized string
+
+    var encoded = [];
+
+    for (var prop in obj) {
+      if (obj.hasOwnProperty(prop)) {
+        encoded.push(encodeURIComponent(prop) + '=' + encodeURIComponent(obj[prop]));
+      }
+    }
+
+    return encoded.join('&');
+  };
+  /**
+   * Make an XHR request, returned as a Promise
+   * @param  {String} url The request URL
+   * @return {Promise}    The XHR request Promise
+   */
+
+
+  var makeRequest = function (url) {
+    // Create the XHR request
+    var request = new XMLHttpRequest(); // Setup the Promise
+
+    var xhrPromise = new Promise(function (resolve, reject) {
+      // Setup our listener to process compeleted requests
+      request.onreadystatechange = function () {
+        // Only run if the request is complete
+        if (request.readyState !== 4) return; // Process the response
+
+        if (request.status >= 200 && request.status < 300) {
+          // If successful
+          resolve(parse(request));
+        } else {
+          // If failed
+          reject({
+            status: request.status,
+            statusText: request.statusText
+          });
+        }
+      }; // Setup our HTTP request
+
+
+      request.open(settings.method, url, true, settings.username, settings.password);
+      request.responseType = settings.responseType; // Add headers
+
+      for (var header in settings.headers) {
+        if (settings.headers.hasOwnProperty(header)) {
+          request.setRequestHeader(header, settings.headers[header]);
+        }
+      } // Set timeout
+
+
+      if (settings.timeout) {
+        request.timeout = settings.timeout;
+
+        request.ontimeout = function (e) {
+          reject({
+            status: 408,
+            statusText: 'Request timeout'
+          });
+        };
+      } // Add withCredentials
+
+
+      if (settings.withCredentials) {
+        request.withCredentials = true;
+      } // Send the request
+
+
+      request.send(param(settings.data));
+    }); // Cancel the XHR request
+
+    xhrPromise.cancel = function () {
+      request.abort();
+    }; // Return the request as a Promise
+
+
+    return xhrPromise;
+  };
+  /**
+   * Instatiate Atomic
+   * @param {String} url      The request URL
+   * @param {Object} options  A set of options for the request [optional]
+   */
+
+
+  var Atomic = function (url, options) {
+    // Check browser support
+    if (!supports()) throw 'Atomic: This browser does not support the methods used in this plugin.'; // Merge options into defaults
+
+    settings = extend(defaults, options || {}); // Make request
+
+    return makeRequest(url);
+  }; //
+  // Public Methods
+  //
+
+
+  return Atomic;
+});
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
 // https://stackoverflow.com/questions/14224535/scaling-between-two-number-ranges
 function convertRange(value, r1, r2) {
   return (value - r1[0]) * (r2[1] - r2[0]) / (r1[1] - r1[0]) + r2[0];
@@ -35200,6 +35420,13 @@ Wick.Project = class extends Wick.Base {
     this._focus = this.root.uuid;
     this.project = this;
     this._assets = [];
+    this._mousePosition = {
+      x: 0,
+      y: 0
+    };
+    this._mouseHoverTargets = [];
+    this._mouseDownTargets = [];
+    this._isMouseDown = false;
   }
 
   static _deserialize(data, object) {
@@ -35253,8 +35480,7 @@ Wick.Project = class extends Wick.Base {
           projectData.assets.forEach(assetData => {
             var assetFile = contents.files['assets/' + assetData.uuid + '.' + assetData.fileExtension];
             assetFile.async('base64').then(assetFileData => {
-              var assetSrc = 'data:' + assetData.MIMEType + ';base64,' + assetFileData; //assetData.src = assetSrc;
-
+              var assetSrc = 'data:' + assetData.MIMEType + ';base64,' + assetFileData;
               Wick.FileCache.addFile(assetSrc, assetData.uuid);
             }).catch(e => {
               console.log('Error loading asset file.');
@@ -35275,6 +35501,20 @@ Wick.Project = class extends Wick.Base {
       console.log('Error loading project zip.');
       console.log(e);
       callback(null);
+    });
+  }
+
+  static fromWickFileURL(url, callback) {
+    atomic(url, {
+      responseType: 'blob'
+    }).then(function (response) {
+      var wickFile = response.data;
+      Wick.Project.fromWickFile(wickFile, callback);
+    }).catch(function (error) {
+      console.log('Error loading project from URL.');
+      console.log(error.status); // xhr.status
+
+      console.log(error.statusText); // xhr.statusText
     });
   }
   /**
@@ -35353,6 +35593,76 @@ Wick.Project = class extends Wick.Base {
     this._root = clip;
 
     this._addChild(this._root);
+  }
+  /**
+   * The position of the mouse
+   * @type {object}
+   */
+
+
+  get mousePosition() {
+    return this._mousePosition;
+  }
+
+  set mousePosition(mousePosition) {
+    this._mousePosition = mousePosition;
+  }
+  /**
+   * The objects currently hovered over by the mouse.
+   * @type {Wick.Tickable[]}
+   */
+
+
+  get mouseHoverTargets() {
+    return this._mouseHoverTargets;
+  }
+
+  set mouseHoverTargets(mouseHoverTargets) {
+    this._mouseHoverTargets = mouseHoverTargets;
+  }
+  /**
+   * The objects currently clicked by the mouse.
+   * @type {Wick.Tickable[]}
+   */
+
+
+  get mouseDownTargets() {
+    return this._mouseDownTargets;
+  }
+
+  set mouseDownTargets(mouseDownTargets) {
+    this._mouseDownTargets = mouseDownTargets;
+  }
+  /**
+   * Determine if an object is being hovered over.
+   * @type {boolean}
+   */
+
+
+  isMouseHoverTarget(tickable) {
+    return this.mouseHoverTargets.indexOf(tickable) !== -1;
+  }
+  /**
+   * Determine if an object is being clicked.
+   * @type {boolean}
+   */
+
+
+  isMouseDownTarget(tickable) {
+    return this.mouseDownTargets.indexOf(tickable) !== -1;
+  }
+  /**
+   * Determine if the mouse is down.
+   * @type {boolean}
+   */
+
+
+  get isMouseDown() {
+    return this._isMouseDown;
+  }
+
+  set isMouseDown(isMouseDown) {
+    this._isMouseDown = isMouseDown;
   }
   /**
    * Creates an asset from a File object and adds that asset to the project.
@@ -35486,465 +35796,6 @@ Wick.Project = class extends Wick.Base {
 * You should have received a copy of the GNU General Public License
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
-Wick.Script = class extends Wick.Base {
-  static get WICK_SCRIPT_FN_PREFIX() {
-    return '_wick_script_';
-  }
-
-  constructor() {
-    super();
-    this.src = '';
-    this._wrapper = null;
-    this._globalWrapper = null;
-  }
-
-  static _deserialize(data, object) {
-    super._deserialize(data, object);
-
-    object.src = data.src;
-    return object;
-  }
-
-  serialize() {
-    var data = super.serialize();
-    data.src = this.src;
-    return data;
-  }
-
-  get classname() {
-    return 'Script';
-  }
-
-  run() {
-    this._createWrappers();
-
-    if (!this._wrapper._wickFn) {
-      var src_js = this._convertWickFunctions();
-
-      this._wrapper._wickFn = Function('scopeObj', src_js);
-    }
-
-    this._globalWrapper.attachToWindow();
-
-    if (this.parent instanceof Wick.Clip) this._wrapper.attachToClip();
-    var result;
-
-    try {
-      result = {};
-      result.status = 'success';
-      result.value = this._wrapper._wickFn(this._wrapper);
-    } catch (e) {
-      result = {};
-      result.status = 'error';
-      result.error = this._generateErrorInfo(e);
-    }
-
-    this._globalWrapper.detachFromWindow();
-
-    if (this.parent instanceof Wick.Clip) this._wrapper.detatchFromClip();
-    return result;
-  } // TODO this needs cleanup
-
-
-  runFn(fn) {
-    if (!this._wrapper || !this._wrapper._wickFn) {
-      this.run();
-    }
-
-    var fullFnName = Wick.Script.WICK_SCRIPT_FN_PREFIX + fn;
-
-    if (this._wrapper[fullFnName]) {
-      this._globalWrapper.attachToWindow();
-
-      if (this.parent instanceof Wick.Clip) this._wrapper.attachToClip();
-      var result;
-
-      try {
-        result = {};
-        result.status = 'success';
-        result.value = this._wrapper[fullFnName](this._wrapper);
-      } catch (e) {
-        result = {};
-        result.status = 'error';
-        result.error = this._generateErrorInfo(e);
-      }
-
-      this._globalWrapper.detachFromWindow();
-
-      if (this.parent instanceof Wick.Clip) this._wrapper.detatchFromClip();
-      return result;
-    } else {
-      return {
-        status: 'success'
-      };
-    }
-  } // TODO this needs cleanup
-
-
-  _attachChildClipReferences() {
-    this._createWrappers();
-
-    if (this.parent instanceof Wick.Clip) this._wrapper.attachToClip();
-  } // TODO this needs cleanup
-
-
-  _detatchChildClipReferences() {
-    this._createWrappers();
-
-    if (this.parent instanceof Wick.Clip) this._wrapper.detatchFromClip();
-  }
-
-  _convertWickFunctions() {
-    var script = this.src;
-    var regex = / *on *\( *[a-zA-Z]+ *\)/gm;
-    var m;
-
-    do {
-      m = regex.exec(script, 'g');
-
-      if (m) {
-        var eventName = m[0].split('(')[1].split(')')[0];
-        script = script.replace(m[0], 'scopeObj.' + Wick.Script.WICK_SCRIPT_FN_PREFIX + eventName + ' = function ()');
-      }
-    } while (m);
-
-    return script;
-  }
-
-  _createWrappers() {
-    if (!this._wrapper) {
-      if (this.parent instanceof Wick.Clip) this._wrapper = new Wick.Script.ClipWrapper(this.parent);else if (this.parent instanceof Wick.Frame) this._wrapper = new Wick.Script.FrameWrapper(this.parent);else // This is here just so that tests pass even when attaching a script to an empty object
-        this._wrapper = new Wick.Script.ClipWrapper(this.parent);
-    }
-
-    if (!this._globalWrapper) {
-      this._globalWrapper = new Wick.Script.GlobalWrapper(this.parent);
-    }
-  }
-
-  _generateErrorInfo(error) {
-    var lineNumber = null;
-    error.stack.split('\n').forEach(line => {
-      if (lineNumber !== null) return;
-      var split = line.split(':');
-      var lineString = split[split.length - 2];
-      var lineInt = parseInt(lineString);
-
-      if (!isNaN(lineInt)) {
-        lineNumber = lineInt - 2;
-      }
-    });
-    return {
-      line: lineNumber,
-      message: error.message,
-      uuid: this.parent.uuid
-    };
-  }
-
-};
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2018 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-Wick.Script.Wrapper = class {
-  constructor(context) {
-    this.context = context;
-  }
-
-};
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2018 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-Wick.Script.GlobalWrapper = class extends Wick.Script.Wrapper {
-  constructor(context) {
-    super(context);
-  } // Editor API Functions
-
-  /**
-   * Stops the timeline that the object belongs to.
-   * @example
-   * stop();
-   */
-
-
-  stop() {
-    this.context.parentTimeline._playing = false;
-  }
-  /**
-   * Plays the timeline that the object belongs to.
-   * @example
-   * play();
-   */
-
-
-  play() {
-    this.context.parentTimeline._playing = true;
-  }
-  /**
-   * Moves a the playhead of the timeline the object belongs to to a specific position and stops the timeline on that position.
-   * @param  {number|string} frame A number or string representing the frame to move the playhead to. If a string is provided, the object's parent timeline must have a frame with that name.
-   * gotoAndStop(1);
-   * @example
-   * gotoAndStop("frameName");
-   */
-
-
-  gotoAndStop(frame) {
-    this.context.parentTimeline._playing = false;
-    this.context.parentTimeline._forceNextFrame = frame;
-  }
-  /**
-   * Moves a the playhead of the timeline the object belongs to to a specific position and plays the timeline from that position.
-   * @param  {number|string} frame A number or string representing the frame to move the playhead to. If a string is provided, the object's parent timeline must have a frame with that name.
-   * gotoAndPlay(1);
-   * @example
-   * gotoAndPlay("frameName");
-   */
-
-
-  gotoAndPlay(frame) {
-    this.context.parentTimeline._playing = true;
-    this.context.parentTimeline._forceNextFrame = frame;
-  } // Internal API functions
-
-
-  attachToWindow() {
-    window.stop = this.stop.bind(this);
-    window.play = this.play.bind(this);
-    window.gotoAndStop = this.gotoAndStop.bind(this);
-    window.gotoAndPlay = this.gotoAndPlay.bind(this);
-
-    this._attachNamedClipsAccess();
-  }
-
-  detachFromWindow() {
-    delete window.stop;
-    delete window.play;
-    delete window.gotoAndStop;
-    delete window.gotoAndPlay;
-
-    this._detatchNamedClipsAccess();
-  }
-
-  _attachNamedClipsAccess() {
-    this._generateNamedClipsList().forEach(clip => {
-      clip.script._attachChildClipReferences();
-
-      window[clip.identifier] = clip.script._wrapper;
-    });
-  }
-
-  _detatchNamedClipsAccess() {
-    this._generateNamedClipsList().forEach(clip => {
-      clip.script._detatchChildClipReferences();
-
-      delete window[clip.identifier];
-    });
-  }
-
-  _generateNamedClipsList() {
-    if (!this.context.parentFrame) return [];
-    return this.context.parentFrame.clips.filter(clip => {
-      return clip.identifier !== undefined;
-    });
-  }
-
-};
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2018 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-Wick.Script.ClipWrapper = class extends Wick.Script.Wrapper {
-  constructor(context) {
-    super(context);
-  } // Editor API functions
-
-  /**
-   * Stops a clip's timeline on that clip's current playhead position.
-   * @example
-   * clipName.stop();
-   */
-
-
-  stop() {
-    this.context.timeline._playing = false;
-  }
-  /**
-   * Plays a clip's timeline from that clip's current playhead position.
-   * @example
-   * clipName.play();
-   */
-
-
-  play() {
-    this.context.timeline._playing = true;
-  }
-  /**
-   * Moves a clip's playhead to a specific position and stops that clip's timeline on that position.
-   * @param  {number|string} frame A number or string representing the frame to move the playhead to. If a string is provided, the clip must have a frame with the same name as the string.
-   * @example
-   * clipName.gotoAndStop(1);
-   * @example
-   * clipName.gotoAndStop("frameName");
-   */
-
-
-  gotoAndStop(frame) {
-    this.context.timeline._playing = false;
-    this.context.timeline._forceNextFrame = frame;
-  }
-  /**
-   * Moves a clip's playhead to a specific position and plays that clip's timeline from that position.
-   * @param  {number|string} frame A number or string representing the frame to move the playhead to. If a string is provided, the clip must have a frame with the same name as the string.
-   * @example
-   * clipName.gotoAndPlay(1);
-   * @example
-   * clipName.gotoAndPlay("frameName");
-   */
-
-
-  gotoAndPlay(frame) {
-    this.context.timeline._playing = true;
-    this.context.timeline._forceNextFrame = frame;
-  } // Engine API functions.
-
-
-  attachToClip() {
-    this._attachNamedChildrenClipsAccess();
-  }
-
-  detatchFromClip() {
-    this._deatachNamedChildrenClipsAccess();
-  }
-
-  _attachNamedChildrenClipsAccess() {
-    var self = this;
-
-    this._generateNamedChildClipsList().forEach(clip => {
-      clip.script._attachChildClipReferences();
-
-      self[clip.identifier] = clip.script._wrapper;
-    });
-  }
-
-  _deatachNamedChildrenClipsAccess() {
-    var self = this;
-
-    this._generateNamedChildClipsList().forEach(clip => {
-      clip.script._detatchChildClipReferences();
-
-      delete self[clip.identifier];
-    });
-  }
-
-  _generateNamedChildClipsList() {
-    var childClips = [];
-    this.context.timeline.activeFrames.forEach(frame => {
-      frame.clips.forEach(clip => {
-        if (clip.identifier) {
-          childClips.push(clip);
-        }
-      });
-    });
-    return childClips;
-  }
-
-};
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2018 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-Wick.Script.FrameWrapper = class extends Wick.Script.Wrapper {
-  constructor(context) {
-    super(context);
-  }
-
-};
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2018 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
 
 /**
  * Class representing a Wick Timeline.
@@ -36037,6 +35888,21 @@ Wick.Timeline = class extends Wick.Base {
 
   get activeFrame() {
     return this.activeLayer.activeFrame;
+  }
+  /**
+   * All frames inside the timeline.
+   * @type {Wick.Frame[]}
+   */
+
+
+  get frames() {
+    var frames = [];
+    this.layers.forEach(layer => {
+      layer.frames.forEach(frame => {
+        frames.push(frame);
+      });
+    });
+    return frames;
   }
   /**
    * Adds a layer to the timeline.
@@ -36572,6 +36438,7 @@ Wick.SoundAsset = class extends Wick.Asset {
 
   constructor(filename, src) {
     super(filename, src);
+    this._howl = null;
   }
 
   static _deserialize(data, object) {
@@ -36597,6 +36464,31 @@ Wick.SoundAsset = class extends Wick.Asset {
 
   set src(src) {
     super.src = src;
+  }
+
+  play(seekMS) {
+    // Lazily create the howler instance
+    if (!this._howl) {
+      this._howl = new Howl({
+        src: [this.src]
+      });
+    } // Play the sound, saving the ID returned by howler
+
+
+    var id = this._howl.play(); // Skip parts of the sound if we need to
+
+
+    if (seekMS) {
+      this._howl.seek(seekMS / 1000, id);
+    }
+
+    return id;
+  }
+
+  stop(id) {
+    if (!this._howl) return;
+
+    this._howl.stop(id);
   }
 
 };
@@ -36766,49 +36658,103 @@ Wick.Tickable = class extends Wick.Base {
    */
   constructor() {
     super();
-    this.identifier = null;
+    this._identifier = null;
     this._onscreen = false;
     this._onscreenLastTick = false;
-    this._script = null;
-    this.script = new Wick.Script();
+    this._scripts = [];
+    this._mouseState = 'out';
+    this._lastMouseState = 'out';
+    this.cursor = 'default';
   }
 
   static _deserialize(data, object) {
     super._deserialize(data, object);
 
     object.identifier = data.identifier;
-    object.script = Wick.Script.deserialize(data.script);
+    object._scripts = [].concat(data.scripts);
+    object.cursor = data.cursor;
     return object;
   }
 
   serialize() {
     var data = super.serialize();
     data.identifier = this.identifier;
-    data.script = this.script.serialize();
+    data.scripts = [].concat(this._scripts);
+    data.cursor = this.cursor;
     return data;
   }
 
   get classname() {
     return 'Tickable';
   }
-  /**
-   * The script that will be ran during a tick.
-   * @type {Wick.Script}
-   */
 
-
-  get script() {
-    return this._script;
+  get identifier() {
+    return this._identifier;
   }
 
-  set script(script) {
-    if (this._script) {
-      this._removeChild(this._script);
+  set identifier(identifier) {
+    // TODO check for valid name
+    this._identifier = identifier;
+  }
+
+  get scripts() {
+    return this._scripts;
+  }
+
+  get onScreen() {
+    if (!this.parent) return false;
+    return this.parent.onScreen;
+  }
+
+  addScript(name, src) {
+    if (this.hasScript(name)) return;
+
+    this._scripts.push({
+      name: name,
+      src: ''
+    });
+
+    if (src) {
+      this.updateScript(name, src);
+    }
+  }
+
+  getScript(name) {
+    return this._scripts.find(script => {
+      return script.name === name;
+    });
+  }
+
+  hasScript(name) {
+    return this.getScript(name) !== undefined;
+  }
+
+  updateScript(name, src) {
+    this.getScript(name).src = src;
+  }
+
+  removeScript(name) {
+    this._scripts = this._scripts.filter(script => {
+      return script.name !== script;
+    });
+  }
+
+  runScript(name) {
+    if (!this.hasScript(name)) return null;
+    var script = this.getScript(name);
+    var api = new GlobalAPI(this);
+    var otherObjects = this.parentClip ? this.parentClip.activeNamedChildren : [];
+    var otherObjectNames = otherObjects.map(obj => obj.identifier);
+    var fn = new Function(api.apiMemberNames.concat(otherObjectNames), script.src);
+    fn = fn.bind(this);
+
+    try {
+      fn(...api.apiMembers, ...otherObjects);
+    } catch (e) {
+      return this._generateErrorInfo(e);
     }
 
-    this._script = script;
-
-    this._addChild(script);
+    return null;
   }
   /**
    * The tick routine to be called when the object ticks.
@@ -36819,7 +36765,10 @@ Wick.Tickable = class extends Wick.Base {
   tick() {
     // Update onScreen flags.
     this._onscreenLastTick = this._onscreen;
-    this._onscreen = this.onScreen; // Call tick event function that corresponds to state.
+    this._onscreen = this.onScreen; // Update mouse states.
+
+    this._lastMouseState = this._mouseState;
+    this._mouseState = this._getMouseState(); // Call tick event function that corresponds to state.
 
     if (!this._onscreen && !this._onscreenLastTick) {
       return this._onInactive();
@@ -36833,25 +36782,102 @@ Wick.Tickable = class extends Wick.Base {
   }
 
   _onInactive() {
-    return 'onInactive';
+    return null;
   }
 
   _onActivated() {
-    var mainResult = this.script.run();
-    if (mainResult.status === 'error') return mainResult;
-    var onLoadResult = this.script.runFn('load');
-    if (onLoadResult.status === 'error') return onLoadResult;
-    return 'onActivated';
+    return this.runScript('load');
   }
 
   _onActive() {
-    var result = this.script.runFn('update');
-    if (result.status === 'error') return result;
-    return 'onActive';
+    var error = this.runScript('update');
+    if (error) return error;
+    var current = this._mouseState;
+    var last = this._lastMouseState; // Mouse enter
+
+    if (last === 'out' && current !== 'out') {
+      var error = this.runScript('mouseenter');
+      if (error) return error;
+    } // Mouse down
+
+
+    if (current === 'down') {
+      var error = this.runScript('mousedown');
+      if (error) return error;
+    } // Mouse pressed
+
+
+    if (last === 'over' && current === 'down') {
+      var error = this.runScript('mousepressed');
+      if (error) return error;
+    } // Mouse up
+
+
+    if (last === 'down' && current === 'over') {
+      var error = this.runScript('mouseup');
+      if (error) return error;
+    } // Mouse leave
+
+
+    if (last !== 'out' && current === 'out') {
+      var error = this.runScript('mouseleave');
+      if (error) return error;
+    } // Mouse hover
+
+
+    if (current === 'over') {
+      var error = this.runScript('mousehover');
+      if (error) return error;
+    } // Mouse drag
+
+
+    if (last === 'down' && current === 'down' && this.project.isMouseDownTarget(this)) {
+      var error = this.runScript('mousedrag');
+      if (error) return error;
+    } // Mouse click
+
+
+    if (last === 'down' && current === 'over' && this.project.isMouseDownTarget(this)) {
+      var error = this.runScript('mouseclick');
+      if (error) return error;
+    }
   }
 
   _onDeactivated() {
-    return 'onDeactivated';
+    return this.runScript('unload');
+  }
+
+  _generateErrorInfo(error) {
+    var lineNumber = null;
+    error.stack.split('\n').forEach(line => {
+      if (lineNumber !== null) return;
+      var split = line.split(':');
+      var lineString = split[split.length - 2];
+      var lineInt = parseInt(lineString);
+
+      if (!isNaN(lineInt)) {
+        lineNumber = lineInt - 2;
+      }
+    });
+    return {
+      line: lineNumber,
+      message: error.message,
+      uuid: this.uuid
+    };
+  }
+
+  _getMouseState() {
+    var mouseState = 'out';
+
+    if (this.project && this.project.isMouseHoverTarget(this)) {
+      if (this.project.isMouseDown) {
+        mouseState = 'down';
+      } else {
+        mouseState = 'over';
+      }
+    }
+
+    return mouseState;
   }
 
 };
@@ -36896,6 +36922,7 @@ Wick.Frame = class extends Wick.Tickable {
     this._soundWantsToPlay = false;
     this._soundWantsToStop = false;
     this._soundStartOffsetMS = 0;
+    this._soundID = null;
   }
 
   static _deserialize(data, object) {
@@ -36961,6 +36988,7 @@ Wick.Frame = class extends Wick.Tickable {
 
 
   get onScreen() {
+    if (!this.parent) return true;
     return this.inPosition(this.parent.parent.playheadPosition);
   }
   /**
@@ -37117,23 +37145,9 @@ Wick.Frame = class extends Wick.Tickable {
   get activeTween() {
     var playheadPosition = this._getRelativePlayheadPosition();
 
-    var seekBackwardsPosition = playheadPosition;
-    var seekBackwardsTween = null;
+    var seekBackwardsTween = this._seekTweenBehind(playheadPosition);
 
-    while (seekBackwardsPosition > 0) {
-      seekBackwardsTween = this.getTweenAtPosition(seekBackwardsPosition);
-      seekBackwardsPosition--;
-      if (seekBackwardsTween) break;
-    }
-
-    var seekForwardsPosition = playheadPosition;
-    var seekForwardsTween = null;
-
-    while (seekForwardsPosition > 0) {
-      seekForwardsTween = this.getTweenAtPosition(seekForwardsPosition);
-      seekForwardsPosition++;
-      if (seekForwardsTween) break;
-    }
+    var seekForwardsTween = this._seekTweenInFront(playheadPosition);
 
     if (seekBackwardsTween && seekForwardsTween) {
       return Wick.Tween.interpolate(seekBackwardsTween, seekForwardsTween, playheadPosition);
@@ -37195,44 +37209,50 @@ Wick.Frame = class extends Wick.Tickable {
   }
 
   _onInactive() {
-    super._onInactive();
-
-    return {
-      status: 'success'
-    };
+    return super._onInactive();
   }
 
   _onActivated() {
-    var result = super._onActivated();
+    var error = super._onActivated();
 
-    if (result.status === 'error') return result;
+    if (error) return error;
 
     if (this.sound) {
       this._soundWantsToPlay = true;
       this._soundStartOffsetMS = this._getSoundStartOffsetMS();
+      this._soundID = this.sound.play(this._soundStartOffsetMS);
     }
 
-    return {
-      status: 'success'
-    };
+    return this._tickChildren();
   }
 
   _onActive() {
-    var result = super._onActive();
+    var error = super._onActive();
 
-    if (result.status === 'error') return result;
-    return {
-      status: 'success'
-    };
+    if (error) return error;
+    return this._tickChildren();
   }
 
   _onDeactivated() {
-    super._onDeactivated();
+    var error = super._onDeactivated();
 
-    this._soundWantsToStop = true;
-    return {
-      status: 'success'
-    };
+    if (error) return error;
+
+    if (this.sound) {
+      this._soundWantsToStop = true;
+      this.sound.stop(this._soundID);
+    }
+
+    return this._tickChildren();
+  }
+
+  _tickChildren() {
+    var childError = null;
+    this.clips.forEach(clip => {
+      if (childError) return;
+      childError = clip.tick();
+    });
+    return childError;
   }
 
   _getSoundStartOffsetMS() {
@@ -37243,6 +37263,32 @@ Wick.Frame = class extends Wick.Tickable {
 
   _getRelativePlayheadPosition() {
     return this.parentTimeline.playheadPosition - this.start + 1;
+  }
+
+  _seekTweenBehind(playheadPosition) {
+    var seekBackwardsPosition = playheadPosition;
+    var seekBackwardsTween = null;
+
+    while (seekBackwardsPosition > 0) {
+      seekBackwardsTween = this.getTweenAtPosition(seekBackwardsPosition);
+      seekBackwardsPosition--;
+      if (seekBackwardsTween) break;
+    }
+
+    return seekBackwardsTween;
+  }
+
+  _seekTweenInFront(playheadPosition) {
+    var seekForwardsPosition = playheadPosition;
+    var seekForwardsTween = null;
+
+    while (seekForwardsPosition > 0) {
+      seekForwardsTween = this.getTweenAtPosition(seekForwardsPosition);
+      seekForwardsPosition++;
+      if (seekForwardsTween) break;
+    }
+
+    return seekForwardsTween;
   }
 
 };
@@ -37272,6 +37318,7 @@ Wick.Clip = class extends Wick.Tickable {
     this._timeline = null;
     this.timeline = new Wick.Timeline();
     this.transform = new Wick.Transformation();
+    this.cursor = 'default';
   }
 
   static _deserialize(data, object) {
@@ -37294,7 +37341,13 @@ Wick.Clip = class extends Wick.Tickable {
   }
 
   get onScreen() {
-    return this.isRoot || this.parent.onScreen;
+    if (this.isRoot) {
+      return true;
+    } else if (this.parent) {
+      return this.parent.onScreen;
+    } else {
+      return true;
+    }
   }
 
   get isRoot() {
@@ -37323,56 +37376,178 @@ Wick.Clip = class extends Wick.Tickable {
     return this.activeLayer.activeFrame;
   }
 
+  get namedChildren() {
+    var namedChildren = [];
+    this.timeline.frames.forEach(frame => {
+      if (frame.identifier) {
+        namedChildren.push(frame);
+      }
+
+      frame.clips.forEach(clip => {
+        if (clip.identifier) {
+          namedChildren.push(clip);
+        }
+      });
+    });
+    return namedChildren;
+  }
+
+  get activeNamedChildren() {
+    return this.namedChildren.filter(child => {
+      return child.onScreen;
+    });
+  }
+
   remove() {
     this.parent.removeClip(this);
   }
 
-  _onInactive() {
-    super._onInactive();
+  runScripts() {
+    super.runScripts();
+    this.timeline.frames.forEach(frame => {
+      frame.runScripts();
+    });
+  }
+  /**
+   * Stops a clip's timeline on that clip's current playhead position.
+   * @example
+   * clipName.stop();
+   */
 
-    return {
-      status: 'success'
-    };
+
+  stop() {
+    this.timeline._playing = false;
+  }
+  /**
+   * Plays a clip's timeline from that clip's current playhead position.
+   * @example
+   * clipName.play();
+   */
+
+
+  play() {
+    this.timeline._playing = true;
+  }
+  /**
+   * Moves a clip's playhead to a specific position and stops that clip's timeline on that position.
+   * @param  {number|string} frame A number or string representing the frame to move the playhead to. If a string is provided, the clip must have a frame with the same name as the string.
+   * @example
+   * clipName.gotoAndStop(1);
+   * @example
+   * clipName.gotoAndStop("frameName");
+   */
+
+
+  gotoAndStop(frame) {
+    this.timeline._playing = false;
+    this.timeline._forceNextFrame = frame;
+  }
+  /**
+   * Moves a clip's playhead to a specific position and plays that clip's timeline from that position.
+   * @param  {number|string} frame A number or string representing the frame to move the playhead to. If a string is provided, the clip must have a frame with the same name as the string.
+   * @example
+   * clipName.gotoAndPlay(1);
+   * @example
+   * clipName.gotoAndPlay("frameName");
+   */
+
+
+  gotoAndPlay(frame) {
+    this.timeline._playing = true;
+    this.timeline._forceNextFrame = frame;
+  }
+
+  get x() {
+    return this.transform.x;
+  }
+
+  set x(x) {
+    this.transform.x = x;
+  }
+
+  get y() {
+    return this.transform.y;
+  }
+
+  set y(y) {
+    this.transform.y = y;
+  }
+
+  get scaleX() {
+    return this.transform.scaleX;
+  }
+
+  set scaleX(scaleX) {
+    this.transform.scaleX = scaleX;
+  }
+
+  get scaleY() {
+    return this.transform.scaleY;
+  }
+
+  set scaleY(scaleY) {
+    this.transform.scaleY = scaleY;
+  }
+
+  get rotation() {
+    return this.transform.rotation;
+  }
+
+  set rotation(rotation) {
+    this.transform.rotation = rotation;
+  }
+
+  get opacity() {
+    return this.transform.opacity;
+  }
+
+  set opacity(opacity) {
+    this.transform.opacity = opacity;
+    this.transform.opacity = Math.min(1, this.transform.opacity);
+    this.transform.opacity = Math.max(0, this.transform.opacity);
+  }
+
+  get lineage() {
+    if (this.isRoot) {
+      return [this];
+    } else {
+      return [this].concat(this.parentClip.lineage);
+    }
+  }
+
+  _onInactive() {
+    return super._onInactive();
   }
 
   _onActivated() {
-    var result = super._onActivated();
+    var error = super._onActivated();
 
-    if (result.status === 'error') return result;
+    if (error) return error;
     return this._tickChildren();
   }
 
   _onActive() {
-    var result = super._onActive();
+    var error = super._onActive();
 
-    if (result.status === 'error') return result;
+    if (error) return error;
     this.timeline.advance();
     return this._tickChildren();
   }
 
   _onDeactivated() {
-    super._onDeactivated();
+    var error = super._onDeactivated();
 
+    if (error) return error;
     return this._tickChildren();
   }
 
   _tickChildren() {
-    var childrenResult = {
-      status: 'success'
-    };
-    this.timeline.layers.forEach(layer => {
-      layer.frames.forEach(frame => {
-        if (childrenResult.status === 'error') return;
-        var frameResult = frame.tick();
-        if (frameResult.status === 'error') childrenResult = frameResult;
-        frame.clips.forEach(clip => {
-          if (childrenResult.status === 'error') return;
-          var clipResult = clip.tick();
-          if (clipResult.status === 'error') childrenResult = clipResult;
-        });
-      });
+    var childError = null;
+    this.timeline.frames.forEach(frame => {
+      if (childError) return;
+      childError = frame.tick();
     });
-    return childrenResult;
+    return childError;
   }
 
 };
@@ -37398,10 +37573,8 @@ Wick.Clip = class extends Wick.Tickable {
 */
 Wick.Button = class extends Wick.Clip {
   constructor() {
-    super(); // 'out' | 'over' | 'down'
-
-    this._mouseState = 'out';
-    this._lastMouseState = 'out';
+    super();
+    this.cursor = 'pointer';
   }
 
   static _deserialize(data, object) {
@@ -37419,25 +37592,21 @@ Wick.Button = class extends Wick.Clip {
     return 'Button';
   }
 
-  setMouseState(newState) {
-    this._lastMouseState = this._mouseState;
-    this._mouseState = newState;
-  }
-
   _onInactive() {
     return super._onInactive();
   }
 
   _onActivated() {
-    var result = super._onActivated();
+    var error = super._onActivated();
 
     this.timeline.playheadPosition = 1;
-    return result;
+    return error;
   }
 
   _onActive() {
-    super._onActive();
+    var error = super._onActive();
 
+    if (error) return error;
     this.timeline.playheadPosition = 1;
     var frame2Exists = this.timeline.getFramesAtPlayheadPosition(2).length > 0;
     var frame3Exists = this.timeline.getFramesAtPlayheadPosition(3).length > 0;
@@ -37454,21 +37623,94 @@ Wick.Button = class extends Wick.Clip {
       }
     }
 
-    if (this._mouseState === 'over' && this._lastMouseState === 'out') {
-      var result = this.script.runFn('rollover');
-      if (result.status === 'error') return result;
-    } else if (this._mouseState === 'down' && this._lastMouseState === 'over') {
-      var result = this.script.runFn('click');
-      if (result.status === 'error') return result;
-    }
-
-    return {
-      status: 'success'
-    };
+    return null;
   }
 
   _onDeactivated() {
-    return super._onDeactivated();
+    super._onDeactivated();
+  }
+
+};
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* Copyright 2018 WICKLETS LLC
+*
+* This file is part of Wick Engine.
+*
+* Wick Engine is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Wick Engine is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+*/
+GlobalAPI = class {
+  constructor(scriptOwner) {
+    this.scriptOwner = scriptOwner;
+  }
+
+  get apiMemberNames() {
+    var allNames = Object.getOwnPropertyNames(Object.getPrototypeOf(this));
+    var names = allNames.filter(name => {
+      return ['constructor', 'apiMemberNames', 'apiMembers'].indexOf(name) === -1;
+    });
+    return names;
+  }
+
+  get apiMembers() {
+    var members = this.apiMemberNames.map(name => {
+      return this[name];
+    });
+    var boundFunctions = members.map(fn => {
+      if (fn instanceof Function) {
+        return fn.bind(this);
+      } else {
+        return fn;
+      }
+    });
+    return boundFunctions;
+  }
+
+  stop() {
+    this.scriptOwner.parentClip.stop();
+  }
+
+  play() {
+    this.scriptOwner.parentClip.play();
+  }
+
+  gotoAndStop(frame) {
+    this.scriptOwner.parentClip.gotoAndStop(frame);
+  }
+
+  gotoAndPlay(frame) {
+    this.scriptOwner.parentClip.gotoAndStop(frame);
+  }
+
+  get project() {
+    var project = this.scriptOwner.project && this.scriptOwner.project.root;
+
+    if (project) {
+      // Attach some aliases to the project settings
+      project.width = this.scriptOwner.project.width;
+      project.height = this.scriptOwner.project.height;
+      project.framerate = this.scriptOwner.project.framerate;
+      project.backgroundColor = this.scriptOwner.project.backgroundColor;
+      project.name = this.scriptOwner.project.name;
+    }
+
+    return project;
+  }
+
+  get parent() {
+    return this.scriptOwner.parentClip;
   }
 
 };
@@ -37498,16 +37740,19 @@ Wick.Canvas = class {
   }
 
   constructor(canvasContainer) {
-    if (!canvasContainer) canvasContainer = document.createElement('div');
-    this.canvasContainer = canvasContainer;
-    this.interactTool = new Wick.Canvas.InteractTool().paperTool;
+    this.tickIntervalID = null;
+    this._projectView = null;
+    this.interactTool = new Wick.Canvas.InteractTool().paperTool; // Setup canvas element and paper.js
+
     var canvas = document.createElement('canvas');
     canvas.style.width = '100%';
     canvas.style.height = '100%';
-    paper.setup(canvas);
-    canvasContainer.appendChild(canvas);
     this.canvas = canvas;
-    this._projectView = null;
+    paper.setup(canvas); // Attach canvas to given container div (create a dummy if one doesn't exist)
+
+    if (!canvasContainer) canvasContainer = document.createElement('div');
+    this.canvasContainer = canvasContainer;
+    canvasContainer.appendChild(canvas);
   }
 
   resize() {
@@ -37525,29 +37770,22 @@ Wick.Canvas = class {
   render(wickProject, options) {
     options = options || {};
     options.canvas = this;
-    Wick.Canvas.InteractTool.project = wickProject;
+    this.interactTool.processMouseInputPreTick(wickProject); // Lazily create project view
 
     if (!this._projectView) {
       this._projectView = new Wick.Canvas.Project(wickProject);
-    }
+    } // Render the project!
 
-    this._projectView.render(wickProject, options);
+
+    this._projectView.render(wickProject, options); // Build paper project layers
+
 
     paper.project.clear();
     paper.project.addLayer(this._projectView._bgLayer);
 
     this._projectView._contentLayers.forEach(layer => {
       paper.project.addLayer(layer);
-    }); // Update view transforms
-
-
-    if (options.zoom) {
-      paper.view.zoom = options.zoom;
-    }
-
-    if (options.pan) {
-      paper.view.center = new paper.Point(options.pan.x, options.pan.y);
-    } // Make sure the active layer in the paper project is the paths layer of the active wick frame
+    }); // Make sure the active layer in the paper project is the paths layer of the active wick frame
     // (this is so that drawing tools will draw onto the correct frame)
 
 
@@ -37566,6 +37804,18 @@ Wick.Canvas = class {
     } else {
       this.canvas.style.backgroundColor = wickProject.backgroundColor;
     }
+  }
+
+  run(wickProject) {
+    this.tickIntervalID = setInterval(() => {
+      wickProject.tick();
+      this.render(wickProject);
+    }, 1000 / wickProject.framerate);
+  }
+
+  stop() {
+    clearInterval(this.tickIntervalID);
+    this.tickIntervalID = null;
   }
 
   applyChanges(wickProject, layers) {
@@ -38003,6 +38253,8 @@ Wick.Canvas.InteractTool = class {
   constructor() {
     var tool = new paper.Tool();
     this.paperTool = tool;
+    var mouseJustPressed = false;
+    var mouseJustReleased = false;
     var mouseButtonState = null;
     var mousePosition = null;
     var lastButtonTarget = null;
@@ -38019,38 +38271,37 @@ Wick.Canvas.InteractTool = class {
     };
 
     tool.onMouseDown = function (e) {
+      mouseJustPressed = true;
       mouseButtonState = 'down';
     };
 
-    tool.onMouseDrag = function (e) {};
-
     tool.onMouseUp = function (e) {
+      mouseJustReleased = true;
       mouseButtonState = 'up';
     };
 
     tool.processMouseInputPreTick = function (project) {
       var mouseTargets = this.getMouseTargets(mousePosition, project);
-      var buttonTargets = mouseTargets.filter(mouseTarget => {
-        return mouseTarget instanceof Wick.Button;
-      });
 
-      if (buttonTargets.length > 0) {
-        paper.view._element.style.cursor = 'pointer';
-        var buttonTarget = buttonTargets[0];
-        lastButtonTarget = buttonTarget;
+      if (mouseButtonState === 'down') {
+        project.isMouseDown = true;
 
-        if (mouseButtonState === 'up') {
-          buttonTarget.setMouseState('over');
-        } else if (mouseButtonState === 'down') {
-          buttonTarget.setMouseState('down');
+        if (mouseJustPressed) {
+          project.mouseDownTargets = mouseTargets;
         }
+      } else if (mouseButtonState === 'up') {
+        project.isMouseDown = false;
+        project.mouseHoverTargets = mouseTargets;
+      }
+
+      if (mouseTargets.length > 0) {
+        paper.view._element.style.cursor = mouseTargets[0].cursor;
       } else {
         paper.view._element.style.cursor = 'default';
       }
 
-      if (lastButtonTarget && lastButtonTarget !== buttonTargets[0]) {
-        lastButtonTarget.setMouseState('out');
-      }
+      mouseJustPressed = false;
+      mouseJustReleased = false;
     };
 
     tool.getMouseTargets = function (point, project) {
@@ -38059,22 +38310,26 @@ Wick.Canvas.InteractTool = class {
         stroke: true,
         curves: true,
         segments: true
-      });
-      if (!hitResult) return [];
-      var mouseTargets = [];
+      }); // Check for clips under the mouse.
 
-      while (hitResult.item.parent) {
-        var name = hitResult.item.parent.name;
+      if (hitResult) {
+        var uuid = hitResult.item.name;
+        var path = project.getChildByUUID(uuid);
 
-        if (name && name.includes('wick_clip_')) {
-          var uuid = name.split('wick_clip_')[1];
-          mouseTargets.push(project.getChildByUUID(uuid));
+        if (!path.parentClip.isRoot) {
+          var clip = path.parentClip;
+          var lineageWithoutRoot = clip.lineage;
+          lineageWithoutRoot.pop();
+          return lineageWithoutRoot;
         }
+      } // No clips are under the mouse, so the frame is under the mouse.
 
-        hitResult.item = hitResult.item.parent;
+
+      if (project.activeFrame) {
+        return [project.activeFrame];
+      } else {
+        return [];
       }
-
-      return mouseTargets;
     };
   }
 
