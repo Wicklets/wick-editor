@@ -69,10 +69,7 @@ class PopOutCodeEditor extends Component {
       height: ref.style.height,
     });
 
-    console.log("Resize");
-
     this.editors.forEach(editor => {
-      console.log("Resizing Editor");
       editor.resize();
     });
   }
@@ -86,8 +83,13 @@ class PopOutCodeEditor extends Component {
       <WickTabCodeEditor
         addNewEditor={this.addNewEditor}
         updateProjectInState={this.props.updateProjectInState}
-        script={this.props.script}/>
+        script={this.props.script}
+        rerenderCodeEditor={this.rerenderCodeEditor}/>
     )
+  }
+
+  rerenderCodeEditor = () => {
+    this.forceUpdate(); 
   }
 
   render() {

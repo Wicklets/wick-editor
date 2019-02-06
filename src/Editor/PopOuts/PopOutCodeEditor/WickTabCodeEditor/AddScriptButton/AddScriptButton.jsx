@@ -2,13 +2,13 @@ import React, { Component } from 'react';
 
 import ActionButton from 'Editor/Util/ActionButton/ActionButton';
 
-import './_addeventbutton.scss';
+import './_addscriptbutton.scss';
 
-class AddEventButton extends Component {
+class AddScriptButton extends Component {
 
   render() {
     return (
-      <div className="add-event-button-wrapper">
+      <div className="add-script-button-wrapper">
         <ActionButton
           text={"+" +  this.props.text}
           action={this.props.action}
@@ -18,4 +18,4 @@ class AddEventButton extends Component {
   }
 }
 
-export default AddEventButton
+export default AddScriptButton

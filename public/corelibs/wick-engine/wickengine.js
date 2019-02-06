@@ -36675,6 +36675,24 @@ Wick.Tickable = class extends Wick.Base {
     object.cursor = data.cursor;
     return object;
   }
+  /**
+   * Returns a list of all possible events for this object.
+   * @return {string[]} Array of all possible scripts.
+   */
+
+
+  static getPossibleScripts() {
+    return ['update', 'load', 'unload', 'mouseenter', 'mouseleave', 'mousepressed', 'mousedown', 'mouseup', 'mousehover', 'mousedrag', 'mouseclick', 'keypressed', 'keyreleased', 'keydown', 'keyup'];
+  }
+  /**
+   * Returns a list of script names which are not currently in use for this object.
+   * @return {string[]} Available script names.
+   */
+
+
+  getAvailableScripts() {
+    return this.constructor.getPossibleScripts().filter(script => !this.hasScript(script));
+  }
 
   serialize() {
     var data = super.serialize();
@@ -36707,6 +36725,7 @@ Wick.Tickable = class extends Wick.Base {
   }
 
   addScript(name, src) {
+    console.log(this);
     if (this.hasScript(name)) return;
 
     this._scripts.push({

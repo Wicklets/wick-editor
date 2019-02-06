@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 
 import WickAceEditor from './WickAceEditor/WickAceEditor';
-import AddEventButton from './AddEventButton/AddEventButton';
+import AddScriptButton from './AddScriptButton/AddScriptButton';
 import ActionButton from 'Editor/Util/ActionButton/ActionButton';
 
 import './_wicktabcodeeditor.scss';
@@ -20,20 +20,20 @@ class WickTabCodeEditor extends Component {
     }
   }
 
-  renderNewAceEditor = (event) => {
+  renderNewAceEditor = (script) => {
     return (
       <WickAceEditor
         addNewEditor={this.props.addNewEditor}
-        onUpdate={(src) => {this.props.script.updateEvent(event.name, src)} }
-        script={event.src}
-        name={event.name} />
+        onUpdate={(src) => {this.props.script.updateScript(script.name, src)} }
+        script={script.src}
+        name={script.name} />
     )
   }
 
-  renderNewCodePanel = (event, i) => {
+  renderNewCodePanel = (script, i) => {
     return  (
       <TabPanel
-        key={i}>{this.renderNewAceEditor(event)}</TabPanel>
+        key={i}>{this.renderNewAceEditor(script)}</TabPanel>
 
     )
   }
@@ -45,43 +45,49 @@ class WickTabCodeEditor extends Component {
     )
   }
 
-  renderAddEventTab = () => {
+  renderAddScriptTab = () => {
     return (
       <Tab>+</Tab>
     )
   }
 
-  renderAddEventButton = (eventName, i) => {
+  renderAddScriptButton = (scriptName, i) => {
     return (
-        <AddEventButton
+        <AddScriptButton
           key={i}
-          text={eventName}
-          action={() => this.props.script.addEvent(eventName)} />
+          text={scriptName}
+          action={() => this.addScript(scriptName)} />
       )
   }
 
-  renderAddEventTabPanel = () => {
-    let availableEvents = this.props.script.getAvailableEvents();
+  addScript = (scriptName) => {
+    this.props.script.addScript(scriptName);
+    this.props.rerenderCodeEditor();
+  }
+
+  renderAddScriptTabPanel = () => {
+    let availableScripts = this.props.script.getAvailableScripts();
     return (
       <TabPanel>
-        {availableEvents.map(this.renderAddEventButton)}
+        {availableScripts.map(this.renderAddScriptButton)}
       </TabPanel>
     );
   }
 
   removeSelectedTab = () => {
-    let events = this.props.script.getEvents();
+    let scripts = this.props.script.scripts;
 
-    if (this.state.tabIndex < 0 || this.state.tabIndex >= events.length) {
+    if (this.state.tabIndex < 0 || this.state.tabIndex >= scripts.length) {
       return
     }
 
-    let event = events[this.state.tabIndex];
-    this.props.script.removeEvent(event.name);
+    let script = scripts[this.state.tabIndex];
+    this.props.script.removeScript(script.name);
+    this.props.rerenderCodeEditor();
   }
 
   render () {
-    let events = this.props.script.getEvents();
+    let scripts = this.props.script.scripts;
     return (
       <div className='code-editor-tab-code-editor'>
         <Tabs
@@ -95,13 +101,13 @@ class WickTabCodeEditor extends Component {
                 color="red"
                 action={this.removeSelectedTab} />
             </div>
-            {/* Add In Event Tabs */}
-            {events.map(this.renderNewCodeTab) }
-            {/* Render "Add Event" button */}
-            {this.renderAddEventTab()}
+            {/* Add In Script Tabs */}
+            {scripts.map(this.renderNewCodeTab) }
+            {/* Render "Add Script" button */}
+            {this.renderAddScriptTab()}
           </TabList>
-          {events.map(this.renderNewCodePanel) }
-          {this.renderAddEventTabPanel()}
+          {scripts.map(this.renderNewCodePanel) }
+          {this.renderAddScriptTabPanel()}
         </Tabs>
       </div>
     );

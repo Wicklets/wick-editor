@@ -321,58 +321,34 @@ class EditorCore extends Component {
     });
   }
 
+  /**
+   * Returns the selected scriptable object if selection is a single scriptable object.
+   * @return {object|undefined} selected scriptable object.
+   */
+  getSelectedScriptableObject = () => {
+    if (!this.selectionIsScriptable()) return undefined;
+
+    let type = this.getSelectionType();
+
+    if (type === 'frame') {
+      return this.getSelectedFrames()[0];
+    } else if (type === 'clip') {
+      return this.getSelectedClips()[0];
+    } else if (type === 'button') {
+      return this.getSelectedButtons()[0];
+    }
+  }
+
 
   /**
    * Returns the script object of the selection
    * @return {object()|null} Script of selected object, null if object is not scriptable.
    */
   getScriptOfSelection = () => {
-    let type = this.getSelectionType();
-    if(type === 'frame') {
-      return {
-        getEvents: (() => [
-          {
-            name: 'mousePressed',
-            src: "This is a mousePressed script",
-          },
-          {
-            name: 'keyPressed',
-            src: "This is a keyPressed script",
-          },
-          {
-            name: 'update',
-            src: "This is an update script",
-          }
-        ]),
-        addEvent: (eventName) => {console.log("Add event: " + eventName)},
-        removeEvent: (eventName) => {console.log("Remove event: " + eventName)},
-        getAvailableEvents:  () => ['keyDown', 'keyUp', 'onLoad'],
-        updateEvent: (name, src) => {console.log("Updating Event: " + name + " : " + src)}
-      }
-      // TODO: return this.props.getSelectedFrames()[0].script;
-    } else if (type === 'clip'
-            || type === 'button') {
-              return {
-                getEvents: (() => [
-                  {
-                    name: 'mousePressed',
-                    src: "This is a mousePressed script",
-                  },
-                  {
-                    name: 'keyPressed',
-                    src: "This is a keyPressed script",
-                  },
-                  {
-                    name: 'update',
-                    src: "This is an update script",
-                  }
-                ]),
-                addEvent: (eventName) => {console.log("Add event: " + eventName)},
-                removeEvent: (eventName) => {console.log("Remove event: " + eventName)},
-                getAvailableEvents: () => ['keyDown', 'keyUp', 'onLoad'],
-                updateEvent: (name, src) => {console.log("Updating Event: " + name + " : " + src)}
-              }
-      // TODO: return this.props.getSelectedClips()[0].script;
+    if (this.selectionIsScriptable()) {
+      let type = this.getSelectionType();
+      let selectedObject = this.getSelectedScriptableObject();
+      return selectedObject
     } else {
       console.error("Selected object is not scriptable!");
       return null
