@@ -27,9 +27,10 @@ class CreateSymbol extends Component {
   constructor (props) {
     super(props);
 
+    this.defaultName = "New Symbol"
     this.state = {
       symbolType: 'Clip',
-      symbolName: 'New Symbol',
+      symbolName: '',
     }
   }
 
@@ -40,7 +41,11 @@ class CreateSymbol extends Component {
         <ModalBody>
           <FormGroup>
             <Label for="symbolName">Name</Label>
-            <WickInput type="text" onChange={this.updateSymbolName} placeholder="New Symbol" />
+            <WickInput
+              type="text"
+              value={this.state.symbolName}
+              onChange={this.updateSymbolName}
+              placeholder="New Symbol" />
           </FormGroup>
           <FormGroup id="create-symbol-modal-symbol-type-selection">
             <WickInput
@@ -83,7 +88,8 @@ class CreateSymbol extends Component {
   }
 
   createSymbolFromSelection = () => {
-    this.props.createSymbolFromSelection(this.state.symbolName, this.state.symbolType);
+    let name = this.state.symbolName === '' ? this.defaultName : this.state.symbolName;
+    this.props.createSymbolFromSelection(name, this.state.symbolType);
     this.props.toggle();
   }
 }
