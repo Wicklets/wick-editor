@@ -346,9 +346,8 @@ class EditorCore extends Component {
    */
   getScriptOfSelection = () => {
     if (this.selectionIsScriptable()) {
-      let type = this.getSelectionType();
       let selectedObject = this.getSelectedScriptableObject();
-      return selectedObject
+      return selectedObject;
     } else {
       console.error("Selected object is not scriptable!");
       return null
@@ -386,13 +385,13 @@ class EditorCore extends Component {
     let selectionType = this.getSelectionType();
 
     if (selectionType === 'clip') {
-      return this.getSelectedClips()[0].name;
+      return this.getSelectedClips()[0].identifier;
     } else if (selectionType === 'imageasset') {
       return this.getSelectedImageAssets()[0].name;
     } else if (selectionType === 'soundasset') {
       return this.getSelectedSoundAssets()[0].name;
     } else if (selectionType === 'frame') {
-      return this.getSelectedFrames()[0].name;
+      return this.getSelectedFrames()[0].identifier;
     } else {
       return null;
     }
@@ -638,14 +637,17 @@ class EditorCore extends Component {
   setSelectionName = (newName) => {
     // Only change name of selected objects if one is in selection.
     if(this.getSelectedClips().length === 1) {
-      this.getSelectedClips()[0].name = newName;
-      this.updateProjectInState();
-    } else if (this.getSelectedAssetLibraryObjects().length === 1) {
-      this.getSelectedAssetLibraryObjects()[0].name = newName;
+      let clip = this.getSelectedClips()[0];
+      clip.identifier = newName;
       this.updateProjectInState();
     } else if (this.getSelectedFrames().length === 1) {
-      this.getSelectedFrames()[0].name = newName;
-      this.updateProjectInState();;
+      let frame = this.getSelectedFrames()[0];
+      frame.identifier = newName;
+      this.updateProjectInState();
+    } else if (this.getSelectedAssetLibraryObjects().length === 1) {
+      let asset = this.getSelectedAssetLibraryObjects()[0];
+      asset.name = newName;
+      this.updateProjectInState();
     }
   }
 
@@ -1008,7 +1010,7 @@ class EditorCore extends Component {
 
     // Create blank clip
     let newClip = new window.Wick[type]();
-    newClip.name = name;
+    newClip.identifier = name;
     newClip.timeline.addLayer(new window.Wick.Layer());
     newClip.timeline.activeLayer.addFrame(new window.Wick.Frame());
 

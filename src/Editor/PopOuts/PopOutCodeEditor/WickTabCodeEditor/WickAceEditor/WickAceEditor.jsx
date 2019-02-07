@@ -28,6 +28,7 @@ class WickAceEditor extends Component {
         width="100%"
         height="100%"
         onChange={(e) => {this.props.onUpdate(e)}}
+        editorProps={{$blockScrolling: true}}
         value={this.props.script}
       />
     );
