@@ -27,6 +27,8 @@ class ProjectSettings extends Component {
   constructor(props) {
     super(props);
 
+    this.defaultName = "New Project";
+
     this.state = {
       name: this.props.project.name,
       width: this.props.project.width,
@@ -43,12 +45,8 @@ class ProjectSettings extends Component {
   }
 
   changeProjectName = (proposedName) => {
-    let cleanProjectName = "New Project";
-    if (proposedName !== "") {
-      cleanProjectName = proposedName;
-    }
     this.setState({
-      name: cleanProjectName,
+      name: proposedName,
     });
   }
 
@@ -81,7 +79,7 @@ class ProjectSettings extends Component {
 
   acceptProjectSettings = () => {
     let newSettings = {
-      name: this.state.name,
+      name: this.state.name === '' ? this.defaultName : this.state.name,
       width: this.state.width,
       height: this.state.height,
       backgroundColor: this.state.backgroundColor,
@@ -102,8 +100,8 @@ class ProjectSettings extends Component {
             <WickInput
               id="projectName"
               type="text"
-              placeholder="New Project"
-              defaultValue={this.props.project.name}
+              value={this.state.name}
+              placeholder={this.defaultName}
               onChange={this.changeProjectName}
             />
           <Label className="project-property-label" for="projectWidth">Width</Label>
