@@ -19,10 +19,8 @@
 
 import React, { Component } from 'react';
 import './_wickinput.scss';
-import 'rc-slider/assets/index.css'
 
 import NumericInput from 'react-numeric-input';
-import Slider from 'rc-slider';
 import Select from 'react-select';
 import ColorPicker from 'Editor/Util/ColorPicker/ColorPicker';
 import { Input } from 'reactstrap';
@@ -90,9 +88,18 @@ class WickInput extends Component {
         ></input>
       )
     } else if (this.props.type === "slider") {
+
+      // Spit out the value of a text box back to the onChange function.
+      let wrappedOnChange = (val) => {
+        this.props.onChange(val.target.value);
+      };
       return (
-        <Slider className="wick-slider"
-                {...this.props}></Slider>
+        <input
+          {...this.props}
+          className="wick-slider"
+          type='range'
+          onChange={this.props.onChange ? wrappedOnChange : null}
+          />
       )
     } else if (this.props.type === "select") {
       return (
