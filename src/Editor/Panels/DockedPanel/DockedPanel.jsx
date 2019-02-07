@@ -24,7 +24,10 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 class DockedPanel extends PureComponent {
   render() {
     return(
-      <div className="docked-panel">{this.props.children}</div>
+      <div className="docked-panel">
+        {this.props.showOverlay && <div className="docked-panel-overlay" />}
+        {this.props.children}
+      </div>
     )
   }
 }

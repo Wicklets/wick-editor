@@ -450,7 +450,7 @@ class Editor extends EditorCore {
                     updateProjectSettings={this.updateProjectSettings}
                   />
                   {/* Header */}
-                  <DockedPanel>
+                  <DockedPanel showOverlay={this.state.previewPlaying}>
                     <MenuBar
                       openModal={this.openModal}
                       projectName={this.project.name}
@@ -506,7 +506,7 @@ class Editor extends EditorCore {
                             size={this.state.timelineSize}
                             onResize={this.resizeProps.onResize}
                             onStopResize={this.resizeProps.onStopTimelineResize}>
-                            <DockedPanel>
+                            <DockedPanel  showOverlay={this.state.previewPlaying}>
                               <Timeline
                                 project={this.project}
                                 updateProjectInState={this.updateProjectInState}
@@ -533,7 +533,7 @@ class Editor extends EditorCore {
                         <ReflexContainer orientation="horizontal">
                           {/* Inspector */}
                           <ReflexElement minSize={200}{...this.resizeProps}>
-                            <DockedPanel>
+                            <DockedPanel showOverlay={this.state.previewPlaying}>
                               <Inspector
                                 getActiveTool={this.getActiveTool}
                                 getToolSettings={this.getToolSettings}
@@ -553,7 +553,7 @@ class Editor extends EditorCore {
                             size={this.state.assetLibrarySize}
                             onResize={this.resizeProps.onResize}
                             onStopResize={this.resizeProps.onStopAssetLibraryResize}>
-                            <DockedPanel>
+                            <DockedPanel showOverlay={this.state.previewPlaying}>
                               <AssetLibrary
                                 assets={this.project.assets}
                                 openFileDialog={() => open()}
