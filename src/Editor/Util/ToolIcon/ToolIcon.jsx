@@ -51,6 +51,8 @@ import iconSymbol from 'resources/tool-icons/symbol.svg';
 import iconLeaveUp from 'resources/tool-icons/leaveUp.svg';
 import iconBreakApart from 'resources/tool-icons/breakApart.svg';
 import iconClose from 'resources/tool-icons/close.svg';
+import iconUndo from 'resources/tool-icons/undo.svg';
+import iconRedo from 'resources/tool-icons/redo.svg';
 
 // Assets
 import iconImage from 'resources/tool-icons/image.svg';
@@ -127,6 +129,8 @@ class ToolIcon extends Component {
       "position": iconPosition,
       "pressure": iconPressure,
       "rotation": iconRotation,
+      "undo": iconUndo,
+      "redo": iconRedo,
       "scale": iconScale,
       "sendToBack": iconSendToBack,
       "sendBackwards": iconSendBackwards,

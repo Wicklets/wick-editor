@@ -24,7 +24,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import ToolButton from 'Editor/Util/ToolButton/ToolButton';
 import PlayButton from 'Editor/Util/PlayButton/PlayButton';
 import WickInput from 'Editor/Util/WickInput/WickInput';
-
+import ActionButton from 'Editor/Util/ActionButton/ActionButton';
 class Toolbox extends Component {
   constructor (props) {
     super(props);
@@ -131,10 +131,32 @@ class Toolbox extends Component {
             />
         </div>
 
-        <PlayButton
-          className="play-button"
-          playing={this.props.previewPlaying}
-          onClick={this.props.togglePreviewPlaying}/>
+        <div className="toolbox-actions-right">
+          <div className="toolbox-action-button">
+            <ActionButton
+              id='toolbox-undo-button'
+              icon='undo'
+              color='tool'
+              action={this.props.undoAction}
+              tooltip='undo'
+              tooltipPlace='bottom'/>
+          </div>
+          <div className="toolbox-action-button">
+            <ActionButton
+              id='toolbox-redo-button'
+              icon='redo'
+              color='tool'
+              action={this.props.redoAction}
+              tooltip='redo'
+              tooltipPlace='bottom'/>
+          </div>
+          <div className="toolbox-action-button">
+            <PlayButton
+              className="play-button"
+              playing={this.props.previewPlaying}
+              onClick={this.props.togglePreviewPlaying}/>
+          </div>
+        </div>
       </div>
     )
   }

@@ -39,10 +39,18 @@ $toolbox-min-button-size: 40px;
   min-width: $toolbox-min-button-size;
 }
 
-.play-button {
+.toolbox-actions-right {
   float: right;
   margin-left: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.toolbox-action-button {
+  width: $toolbox-min-button-size;
   min-width: $toolbox-min-button-size;
+  height: $toolbox-min-button-size;
 }
 
 .color-container {
@@ -51,7 +59,7 @@ $toolbox-min-button-size: 40px;
   height: 40px;
   float: left;
   margin-left: $tool-button-margin;
-    min-width: $toolbox-min-button-size;
+  min-width: $toolbox-min-button-size;
 }
 
 #stroke-color-picker-container {

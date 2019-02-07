@@ -478,6 +478,8 @@ class Editor extends EditorCore {
                                 setToolSettings={this.setToolSettings}
                                 previewPlaying={this.state.previewPlaying}
                                 togglePreviewPlaying={this.togglePreviewPlaying}
+                                undoAction={() => this.history.undo()}
+                                redoAction={() => this.history.redo()}
                               />
                             </DockedPanel>
                           </ReflexElement>
