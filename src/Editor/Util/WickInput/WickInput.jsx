@@ -30,16 +30,49 @@ import { Input } from 'reactstrap';
 var classNames = require('classnames');
 
 class WickInput extends Component {
+
+  renderNumeric = () => {
+    // TODO: Replace this custom rolled zero removal with a tested solution.
+    let format = (num) => {
+      let split = num.split('.')
+      let body = split[0];
+      let trail = split[1];
+
+      if(trail.length === 2) {
+        if (trail.charAt(1) === '0') {
+          trail = trail.charAt(0);
+        }
+      }
+
+      if (trail.length === 1) {
+        if (trail.charAt(0) === '0') {
+          trail = '';
+        }
+      }
+
+      let separator = '';
+      if (trail.length > 0) {
+        separator = '.'
+      }
+
+      return body + separator + trail;
+    }
+    return (
+      <NumericInput
+        style={false}
+        className="wick-input"
+        precision={2}
+        format={format}
+        {...this.props}
+        ></NumericInput>
+    )
+  }
+
   render() {
     if (this.props.type==="numeric") {
       return (
-        <NumericInput
-          style={false}
-          className="wick-input"
-          precision={2}
-          {...this.props}
-          ></NumericInput>
-      )
+        this.renderNumeric()
+      );
     } else if (this.props.type==="text") {
 
       // Spit out the value of a text box back to the onChange function.
@@ -51,6 +84,7 @@ class WickInput extends Component {
         <input
           className={classNames("wick-input", {"read-only":this.props.readOnly})}
           {...this.props}
+          value={this.props.value ? this.props.value : ''}
           type="text"
           onChange={this.props.onChange ? wrappedOnChange : null}
         ></input>
