@@ -30,7 +30,11 @@ $toolbox-min-button-size: 40px;
   padding-right: 5px;
   display: flex;
   align-items: center;
-  overflow: auto;
+  overflow: hidden;
+}
+
+.tool-box:hover {
+  overflow-x: auto;
 }
 
 .tool-button {

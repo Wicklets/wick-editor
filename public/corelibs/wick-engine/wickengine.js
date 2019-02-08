@@ -35427,6 +35427,9 @@ Wick.Project = class extends Wick.Base {
     this._mouseHoverTargets = [];
     this._mouseDownTargets = [];
     this._isMouseDown = false;
+    this._keysDown = [];
+    this._keysLastDown = [];
+    this._currentKey = null;
   }
 
   static _deserialize(data, object) {
@@ -35567,6 +35570,34 @@ Wick.Project = class extends Wick.Base {
     return this.activeLayer.activeFrame;
   }
   /**
+   * Adds an asset to the project.
+   * @param {Wick.Asset} asset - The asset to add to the project.
+   */
+
+
+  addAsset(asset) {
+    this.assets.push(asset);
+
+    this._refreshAssetUUIDRefs();
+
+    this._addChild(asset);
+  }
+  /**
+   * Removes an asset from the project.
+   * @param {Wick.Asset} asset - The asset to remove from the project.
+   */
+
+
+  removeAsset(asset) {
+    this.assets = this.assets.filter(checkAsset => {
+      return checkAsset !== asset;
+    });
+
+    this._refreshAssetUUIDRefs();
+
+    this._removeChild(asset);
+  }
+  /**
    * The assets belonging to the project.
    * @type {Wick.Asset[]}
    */
@@ -35665,6 +35696,44 @@ Wick.Project = class extends Wick.Base {
     this._isMouseDown = isMouseDown;
   }
   /**
+   * The keys that are currenty held down.
+   * @type {string[]}
+   */
+
+
+  get keysDown() {
+    return this._keysDown;
+  }
+
+  set keysDown(keysDown) {
+    this._keysDown = keysDown;
+  }
+  /**
+   * The keys were just pressed (i.e., are currently held down, but were not last tick).
+   * @type {string[]}
+   */
+
+
+  get keysJustPressed() {
+    // keys that are in _keysDown, but not in _keysLastDown
+    return this._keysDown.filter(key => {
+      return this._keysLastDown.indexOf(key) === -1;
+    });
+  }
+  /**
+   * The key to be used in the global 'key' variable in the scripting API. Update currentKey before you run any key script. 
+   * @type {string[]}
+   */
+
+
+  get currentKey() {
+    return this._currentKey;
+  }
+
+  set currentKey(currentKey) {
+    this._currentKey = currentKey;
+  }
+  /**
    * Creates an asset from a File object and adds that asset to the project.
    * @param {File} file File object to be read and converted into an asset.
    * @param {function} callback Function with the created Wick Asset. Can be passed undefined on improper file input.
@@ -35702,40 +35771,14 @@ Wick.Project = class extends Wick.Base {
     reader.readAsDataURL(file);
   }
   /**
-   * Adds an asset to the project.
-   * @param {Wick.Asset} asset - The asset to add to the project.
-   */
-
-
-  addAsset(asset) {
-    this.assets.push(asset);
-
-    this._refreshAssetUUIDRefs();
-
-    this._addChild(asset);
-  }
-  /**
-   * Removes an asset from the project.
-   * @param {Wick.Asset} asset - The asset to remove from the project.
-   */
-
-
-  removeAsset(asset) {
-    this.assets = this.assets.filter(checkAsset => {
-      return checkAsset !== asset;
-    });
-
-    this._refreshAssetUUIDRefs();
-
-    this._removeChild(asset);
-  }
-  /**
    * Ticks the project.
    */
 
 
   tick() {
-    return this.focus.tick();
+    var error = this.focus.tick();
+    this._keysLastDown = [].concat(this._keysDown);
+    return error;
   }
   /**
    * Creates a wick file from the project.
@@ -36654,8 +36697,17 @@ Wick.ButtonAsset = class extends Wick.ClipAsset {
  */
 Wick.Tickable = class extends Wick.Base {
   /**
+   * Returns a list of all possible events for this object.
+   * @return {string[]} Array of all possible scripts.
+   */
+  static get possibleScripts() {
+    return ['update', 'load', 'unload', 'mouseenter', 'mouseleave', 'mousepressed', 'mousedown', 'mouseup', 'mousehover', 'mousedrag', 'mouseclick', 'keypressed', 'keyreleased', 'keydown', 'keyup'];
+  }
+  /**
    * Create a new tickable object.
    */
+
+
   constructor() {
     super();
     this._identifier = null;
@@ -36675,24 +36727,6 @@ Wick.Tickable = class extends Wick.Base {
     object.cursor = data.cursor;
     return object;
   }
-  /**
-   * Returns a list of all possible events for this object.
-   * @return {string[]} Array of all possible scripts.
-   */
-
-
-  static getPossibleScripts() {
-    return ['update', 'load', 'unload', 'mouseenter', 'mouseleave', 'mousepressed', 'mousedown', 'mouseup', 'mousehover', 'mousedrag', 'mouseclick', 'keypressed', 'keyreleased', 'keydown', 'keyup'];
-  }
-  /**
-   * Returns a list of script names which are not currently in use for this object.
-   * @return {string[]} Available script names.
-   */
-
-
-  getAvailableScripts() {
-    return this.constructor.getPossibleScripts().filter(script => !this.hasScript(script));
-  }
 
   serialize() {
     var data = super.serialize();
@@ -36711,7 +36745,7 @@ Wick.Tickable = class extends Wick.Base {
   }
 
   set identifier(identifier) {
-    // TODO check for valid name
+    // TODO check for valid names
     this._identifier = identifier;
   }
 
@@ -36725,7 +36759,6 @@ Wick.Tickable = class extends Wick.Base {
   }
 
   addScript(name, src) {
-    console.log(this);
     if (this.hasScript(name)) return;
 
     this._scripts.push({
@@ -36743,6 +36776,15 @@ Wick.Tickable = class extends Wick.Base {
       return script.name === name;
     });
   }
+  /**
+   * Returns a list of script names which are not currently in use for this object.
+   * @return {string[]} Available script names.
+   */
+
+
+  getAvailableScripts() {
+    return Wick.Tickable.possibleScripts.filter(script => !this.hasScript(script));
+  }
 
   hasScript(name) {
     return this.getScript(name) !== undefined;
@@ -36754,7 +36796,7 @@ Wick.Tickable = class extends Wick.Base {
 
   removeScript(name) {
     this._scripts = this._scripts.filter(script => {
-      return script.name !== script;
+      return script.name !== name;
     });
   }
 
@@ -36859,7 +36901,22 @@ Wick.Tickable = class extends Wick.Base {
     if (last === 'down' && current === 'over' && this.project.isMouseDownTarget(this)) {
       var error = this.runScript('mouseclick');
       if (error) return error;
-    }
+    } // Key events require the Tickable object to be inside of a project. Don't run them if there is no project
+
+
+    if (!this.project) return null; // Key down
+
+    this.project.project.keysDown.forEach(key => {
+      this.project.currentKey = key;
+      var error = this.runScript('keydown');
+      if (error) return error;
+    }); // Key press
+
+    this.project.keysJustPressed.forEach(key => {
+      this.project.currentKey = key;
+      var error = this.runScript('keypress');
+      if (error) return error;
+    });
   }
 
   _onDeactivated() {
@@ -37732,6 +37789,16 @@ GlobalAPI = class {
     return this.scriptOwner.parentClip;
   }
 
+  get key() {
+    if (!this.scriptOwner.project) return null;
+    return this.scriptOwner.project.currentKey;
+  }
+
+  get keys() {
+    if (!this.scriptOwner.project) return null;
+    return this.scriptOwner.project.keysDown;
+  }
+
 };
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
@@ -37788,8 +37855,7 @@ Wick.Canvas = class {
 
   render(wickProject, options) {
     options = options || {};
-    options.canvas = this;
-    this.interactTool.processMouseInputPreTick(wickProject); // Lazily create project view
+    options.canvas = this; // Lazily create project view
 
     if (!this._projectView) {
       this._projectView = new Wick.Canvas.Project(wickProject);
@@ -37827,6 +37893,7 @@ Wick.Canvas = class {
 
   run(wickProject) {
     this.tickIntervalID = setInterval(() => {
+      this.interactTool.processInputPreTick(wickProject);
       wickProject.tick();
       this.render(wickProject);
     }, 1000 / wickProject.framerate);
@@ -38276,7 +38343,7 @@ Wick.Canvas.InteractTool = class {
     var mouseJustReleased = false;
     var mouseButtonState = null;
     var mousePosition = null;
-    var lastButtonTarget = null;
+    var keysDown = [];
 
     tool.onActivate = function (e) {
       mouseButtonState = 'up';
@@ -38297,6 +38364,31 @@ Wick.Canvas.InteractTool = class {
     tool.onMouseUp = function (e) {
       mouseJustReleased = true;
       mouseButtonState = 'up';
+    };
+
+    tool.onKeyDown = function (e) {
+      if (keysDown.indexOf(e.key) === -1) {
+        keysDown.push(e.key);
+      }
+
+      return false;
+    };
+
+    tool.onKeyUp = function (e) {
+      keysDown = keysDown.filter(key => {
+        return key !== e.key;
+      });
+      return false;
+    };
+
+    tool.processInputPreTick = function (project) {
+      tool.processKeyInputPreTick(project);
+      tool.processMouseInputPreTick(project);
+    };
+
+    tool.processKeyInputPreTick = function (project) {
+      project.keysDown = keysDown;
+      keysDown = [];
     };
 
     tool.processMouseInputPreTick = function (project) {

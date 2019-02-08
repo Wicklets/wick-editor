@@ -1,3 +1,22 @@
+/*
+ * Copyright 2018 WICKLETS LLC
+ *
+ * This file is part of Wick Editor.
+ *
+ * Wick Editor is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Wick Editor is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Wick Editor.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 import React, { Component } from 'react';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 
@@ -88,14 +107,29 @@ class WickTabCodeEditor extends Component {
     );
   }
 
+  renderDeleteTabButton = () => {
+    return (
+      <div className='code-tab-delete'>
+        <ActionButton
+          icon="delete"
+          color="red"
+          action={this.removeSelectedTab} />
+      </div>
+    )
+  }
+
   removeSelectedTab = () => {
     let scripts = this.props.script.scripts;
 
+    console.log("removing");
     if (this.state.tabIndex < 0 || this.state.tabIndex >= scripts.length) {
       return
     }
+    console.log("phase 2: delete ", this.state.tabIndex);
 
     let script = scripts[this.state.tabIndex];
+
+    console.log(script);
     this.props.script.removeScript(script.name);
     this.props.rerenderCodeEditor();
   }
@@ -109,12 +143,7 @@ class WickTabCodeEditor extends Component {
           onSelect={tabIndex => this.setState({ tabIndex })}>
           <TabList>
             {/* Add In Delete Button */}
-            <div className='code-tab-delete'>
-              <ActionButton
-                icon="delete"
-                color="red"
-                action={this.removeSelectedTab} />
-            </div>
+            {this.renderDeleteTabButton()}
             {/* Add In Script Tabs */}
             {scripts.map(this.renderNewCodeTab) }
             {/* Render "Add Script" button */}
