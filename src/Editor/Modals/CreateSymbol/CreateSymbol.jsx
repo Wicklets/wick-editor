@@ -27,7 +27,7 @@ class CreateSymbol extends Component {
   constructor (props) {
     super(props);
 
-    this.defaultName = "New Symbol"
+    this.defaultName = "New_Symbol"
     this.state = {
       symbolType: 'Clip',
       symbolName: '',
@@ -45,7 +45,7 @@ class CreateSymbol extends Component {
               type="text"
               value={this.state.symbolName}
               onChange={this.updateSymbolName}
-              placeholder="New Symbol" />
+              placeholder={this.defaultName} />
           </FormGroup>
           <FormGroup id="create-symbol-modal-symbol-type-selection">
             <WickInput

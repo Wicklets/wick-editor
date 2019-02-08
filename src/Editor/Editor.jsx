@@ -406,8 +406,8 @@ class Editor extends EditorCore {
   startTickLoop = () => {
     this.beforePreviewPlayProjectState = this.project.serialize();
     this.tickLoopIntervalID = setInterval(() => {
-      this.project.tick();
-      this.canvas.interactTool.processMouseInputPreTick(this.project);
+      let error = this.project.tick();
+      this.canvas.interactTool.processInputPreTick(this.project);
       this.updateCanvas(true);
       this.updateTimeline();
     }, 1000 / this.project.framerate);

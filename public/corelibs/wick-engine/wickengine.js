@@ -35721,7 +35721,18 @@ Wick.Project = class extends Wick.Base {
     });
   }
   /**
-   * The key to be used in the global 'key' variable in the scripting API. Update currentKey before you run any key script. 
+   * The keys that were just released (i.e. were down last tick back are no longer down.)
+   * @return {string[]}
+   */
+
+
+  get keysJustReleased() {
+    return this._keysLastDown.filter(key => {
+      return this._keysDown.indexOf(key) === -1;
+    });
+  }
+  /**
+   * The key to be used in the global 'key' variable in the scripting API. Update currentKey before you run any key script.
    * @type {string[]}
    */
 
@@ -36701,7 +36712,7 @@ Wick.Tickable = class extends Wick.Base {
    * @return {string[]} Array of all possible scripts.
    */
   static get possibleScripts() {
-    return ['update', 'load', 'unload', 'mouseenter', 'mouseleave', 'mousepressed', 'mousedown', 'mouseup', 'mousehover', 'mousedrag', 'mouseclick', 'keypressed', 'keyreleased', 'keydown', 'keyup'];
+    return ['update', 'load', 'unload', 'mouseenter', 'mouseleave', 'mousepressed', 'mousedown', 'mouseup', 'mousehover', 'mousedrag', 'mouseclick', 'keypressed', 'keyreleased', 'keydown'];
   }
   /**
    * Create a new tickable object.
@@ -36912,9 +36923,15 @@ Wick.Tickable = class extends Wick.Base {
       if (error) return error;
     }); // Key press
 
-    this.project.keysJustPressed.forEach(key => {
+    this.project.project.keysJustPressed.forEach(key => {
       this.project.currentKey = key;
-      var error = this.runScript('keypress');
+      var error = this.runScript('keypressed');
+      if (error) return error;
+    }); // Key released
+
+    this.project.project.keysJustReleased.forEach(key => {
+      this.project.currentKey = key;
+      var error = this.runScript('keyreleased');
       if (error) return error;
     });
   }
@@ -38388,7 +38405,6 @@ Wick.Canvas.InteractTool = class {
 
     tool.processKeyInputPreTick = function (project) {
       project.keysDown = keysDown;
-      keysDown = [];
     };
 
     tool.processMouseInputPreTick = function (project) {
