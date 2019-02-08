@@ -435,8 +435,8 @@ class Editor extends EditorCore {
         <div {...getRootProps()}>
           <input {...getInputProps()} />
             <HotKeys
-              keyMap={this.hotKeyInterface.getKeyMap()}
-              handlers={this.hotKeyInterface.getHandlers()}
+              keyMap={this.state.previewPlaying ? this.hotKeyInterface.getEssentialKeyMap() : this.hotKeyInterface.getKeyMap()}
+              handlers={this.state.previewPlaying ? this.hotKeyInterface.getEssentialKeyHandlers() : this.hotKeyInterface.getHandlers()}
               style={{width:"100%", height:"100%"}}
               id='hotkeys-container'>
               <div id="editor">

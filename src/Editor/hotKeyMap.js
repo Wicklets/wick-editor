@@ -1,18 +1,38 @@
+/*
+ * Copyright 2018 WICKLETS LLC
+ *
+ * This file is part of Wick Editor.
+ *
+ * Wick Editor is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Wick Editor is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Wick Editor.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 // Use React Hotkeys style mappings
 class HotKeyInterface extends Object {
   // Take in wick editor
   constructor(editor) {
     super();
     this.editor = editor;
-    this.createKeyMap = this.createKeyMap.bind(this);
-    this.createHandlers = this.createHandlers.bind(this);
     this.createKeyMap();
     this.createHandlers();
+
+    // Keys that should always work.
+    this.essentialKeys = ['preview-play-toggle'];
   }
 
   // Create mappings of actions to keys
   // SINGLE: action:'key' | OR: action:['keya','keyb'] | AND: action 'keya+keyb'
-  createKeyMap() {
+  createKeyMap = () => {
     this.keyMap = {
       'activate-brush': 'b',
       'activate-cursor': 'c',
@@ -39,7 +59,7 @@ class HotKeyInterface extends Object {
     }
   }
 
-  createHandlers() {
+  createHandlers = () => {
     this.handlers = {
       'activate-brush': (() => this.editor.setActiveTool("brush")),
       'activate-cursor': (() => this.editor.setActiveTool("cursor")),
@@ -79,12 +99,38 @@ class HotKeyInterface extends Object {
     }
   }
 
-  getKeyMap() {
+  getKeyMap = () => {
     return this.keyMap;
   }
 
-  getHandlers() {
+  getHandlers = () => {
     return this.handlers;
+  }
+
+  getEssentialKeyMap = () => {
+    return this.filterObject(this.essentialKeys, this.getKeyMap());
+  }
+
+  getEssentialKeyHandlers = () => {
+    return this.filterObject(this.essentialKeys, this.getHandlers());
+  }
+
+  /**
+   * Returns a filtered object that only contains provided keys
+   * @param  {string[]} filters list of strings to filter.
+   * @param  {object} obj     object to filter.
+   * @return {object}         filtered object
+   */
+  filterObject(filters, obj) {
+    let map = {}
+
+    this.essentialKeys.forEach(key => {
+      if (key in obj) {
+        map[key] = obj[key]
+      }
+    });
+
+    return map;
   }
 }
 
