@@ -124,7 +124,7 @@ class Editor extends EditorCore {
     this.lockState = false;
 
     // Auto Save
-    this.autoSaveDelay = 5000; // millisecond delay
+    this.autoSaveDelay = 1000; // millisecond delay
     this.throttledAutoSaveProject = throttle(this.autoSaveProject, this.autoSaveDelay);
   }
 
@@ -162,6 +162,17 @@ class Editor extends EditorCore {
 
   componentDidMount = () => {
     this.refocusEditor();
+
+    this.showAutosavedProjects()
+  }
+
+  showAutosavedProjects = () => {
+    this.doesAutoSavedProjectExist(bool => { if (bool) {
+        this.setStateWrapper({
+          activeModalName: 'AutosaveWarning',
+        });
+      }
+    });
   }
 
   /**
@@ -198,7 +209,7 @@ class Editor extends EditorCore {
    * Autosave the project in the state, if it exists.
    */
   autoSaveProject = () => {
-    if (this.project === undefined) {return}
+    if (this.project === undefined) return
     localForage.setItem(this.autoSaveKey, this.project.serialize());
   }
 
@@ -448,6 +459,7 @@ class Editor extends EditorCore {
                     project={this.project}
                     createSymbolFromSelection={this.createSymbolFromSelection}
                     updateProjectSettings={this.updateProjectSettings}
+                    loadAutosavedProject={this.attemptAutoLoad}
                   />
                   {/* Header */}
                   <DockedPanel showOverlay={this.state.previewPlaying}>

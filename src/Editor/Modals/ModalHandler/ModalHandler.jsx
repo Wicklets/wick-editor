@@ -22,6 +22,7 @@ import React, { Component } from 'react';
 import ProjectSettings from '../ProjectSettings/ProjectSettings';
 import AlphaWarning from '../AlphaWarning/AlphaWarning';
 import CreateSymbol from '../CreateSymbol/CreateSymbol';
+import AutosaveWarning from '../AutosaveWarning/AutosaveWarning';
 
 class ModalHandler extends Component {
   render() {
@@ -47,6 +48,11 @@ class ModalHandler extends Component {
           {...this.modalProps}
           open={this.props.activeModalName === 'CreateSymbol'}
           createSymbolFromSelection={this.props.createSymbolFromSelection}
+        />
+      <AutosaveWarning
+          {...this.modalProps}
+          open={this.props.activeModalName === 'AutosaveWarning'}
+          loadAutosavedProject={this.props.loadAutosavedProject}
         />
       </div>
     );

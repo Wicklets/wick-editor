@@ -1503,7 +1503,7 @@ class EditorCore extends Component {
       console.log("Attempting to Load", serializedProject);
       if (!serializedProject) {
         //TODO: Remove Dead code
-        console.log("No AutoSave Found");
+        console.error("No AutoSave Found");
         return;
       }
 
@@ -1511,7 +1511,24 @@ class EditorCore extends Component {
       this.project = deserialized;
       this.updateProjectInState();
     }
+
     localForage.getItem(this.autoSaveKey).then(loadProject);
+  }
+
+  /**
+   * Check if auto saved project exists.
+   * @param  {Function} callback a callback which receives a boolean. True if an autosave exists.
+   */
+  doesAutoSavedProjectExist = (callback) => {
+    let checkProject = (serializedProject) => {
+      if (serializedProject) {
+        callback(true);
+      } else {
+        callback(false);
+      }
+    }
+
+    localForage.getItem(this.autoSaveKey).then(checkProject);
   }
 
   /**
