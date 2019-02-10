@@ -42,7 +42,7 @@ class WickTabCodeEditor extends Component {
   }
 
   componentDidUpdate = () => {
-    if (this.props.errors && this.props.errors instanceof Array && this.props.errors !== []) {
+    if (this.props.errors && this.props.errors instanceof Array && this.props.errors.length > 0) {
       this.focusError = this.props.errors[0];
     }
   }

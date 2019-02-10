@@ -53,9 +53,13 @@ $code-editor-thumbnail-height: 100px;
   margin-left: 6px;
 }
 
-.code-editor-selection-type {
+.code-editor-information {
   margin-left: 4px;
   color: $interface-secondary-text;
+}
+
+.code-editor-information.code-editor-error-information {
+  color: $wick-red-light;
 }
 
 .code-editor-body {
