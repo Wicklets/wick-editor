@@ -58,6 +58,9 @@ class Editor extends EditorCore {
     this.paper = null;
     this.canvas = null;
 
+    // For focusing
+    this.canvasElement = null;
+
     // GUI state
     this.state = {
       project: null,
@@ -88,11 +91,15 @@ class Editor extends EditorCore {
         minWidth: 300,
         minHeight: 250,
       },
+      codeErrors: [],
       inspectorSize: 250,
       codeEditorSize: 0.1,
       timelineSize: 100,
       assetLibrarySize: 150,
     };
+
+    // Set up error.
+    this.error = null;
 
     // Init hotkeys
     this.hotKeyInterface = new HotKeyInterface(this);
@@ -223,6 +230,14 @@ class Editor extends EditorCore {
     if(!this.state.previewPlaying && prevState.previewPlaying) {
       this.stopTickLoop();
     }
+  }
+
+  /**
+   * Updates the canvas element ref in the dom.
+   * @param  {React.ref} canvasElementRef Reference to the canvas object.
+   */
+  updateCanvasElementRef = (canvasRef) => {
+    this.canvasElement = canvasRef;
   }
 
   updateCanvas = (skipUpdateSelection) => {
@@ -408,22 +423,61 @@ class Editor extends EditorCore {
     window.document.getElementById('hotkeys-container').focus();
   }
 
-  togglePreviewPlaying = () => {
-    this.setState(prevState => ({
-      previewPlaying: !prevState.previewPlaying,
-    }));
+  focusCanvasElement = () => {
+    this.canvasElement.focus();
   }
 
+  /**
+   * Toggles the preview play between on and off states.
+   */
+  togglePreviewPlaying = () => {
+    let nextState = !this.state.previewPlaying;
+    this.setState(prevState => ({
+      previewPlaying: nextState,
+    }));
+
+    if(nextState) {
+      this.focusCanvasElement();
+    }
+  }
+
+  /**
+   * Stops the project if it is currently preview playing and displays provided
+   * errors in the code editor.
+   * @param  {object[]} errors Array of error objects.
+   */
+  stopPreviewPlaying = (errors) => {
+    this.stopTickLoop();
+    this.setStateWrapper({
+      previewPlaying: false,
+      codeErrors: errors === undefined ? [] : errors,
+    });
+  }
+
+  /**
+   * Begins running the project at the projects framerate in the in-editor
+   * player. The loop will stop if an error is returned by the the project.
+   */
   startTickLoop = () => {
     this.beforePreviewPlayProjectState = this.project.serialize();
     this.tickLoopIntervalID = setInterval(() => {
       let error = this.project.tick();
+
+      if (error) {
+        this.stopPreviewPlaying([error]);
+        return;
+      }
+
       this.canvas.interactTool.processInputPreTick(this.project);
       this.updateCanvas(true);
       this.updateTimeline();
     }, 1000 / this.project.framerate);
   }
 
+  /**
+   * Stops the current tick loop which is running the project. Returns the
+   * project to the state it was in before it was run.
+   */
   stopTickLoop = () => {
     clearInterval(this.tickLoopIntervalID);
 
@@ -506,6 +560,7 @@ class Editor extends EditorCore {
                                     paper={this.paper}
                                     selectObjects={this.selectObjects}
                                     updateCanvas={this.updateCanvas}
+                                    updateCanvasElementRef={this.updateCanvasElementRef}
                                     createImageFromAsset={this.createImageFromAsset}
                                     setWickCanvas={this.setWickCanvas}
                                   />
