@@ -465,8 +465,6 @@ class Editor extends EditorCore {
 
     if (errors.length > 0) {
       let uuid = errors[0].uuid;
-      console.log(this.project.getChildByUUID(uuid))
-      console.log(this.project);
       this.selectObject(this.project.getChildByUUID(uuid))
     }
   }

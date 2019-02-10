@@ -33,17 +33,22 @@ class WickAceEditor extends Component {
     this.props.addNewEditor(e);
   }
 
-  mapErrorsToAnnotations = (errors) => {
-    let annotations = [];
+  mapErrorsToMarkers = (errors) => {
+    let markers = [];
 
     errors.forEach(error => {
       let a = {};
-      a.row = error.lineNumber;
-      a.text = error.message;
-      annotations.push(a);
-    }); 
+      a.startRow = error.lineNumber-1;
+      a.endRow = error.lineNumber-1;
+      a.startCol = 0;
+      a.endCol = 1000; // Set length to an arbitrary amount that should encompass the whole line.
+      a.className = 'error-marker';
+      a.type = 'background';
+      markers.push(a);
+    });
 
-    return annotations;
+    console.log(markers);
+    return markers;
   }
   /**
    * Render an ace editor.
@@ -61,7 +66,7 @@ class WickAceEditor extends Component {
         onChange={(e) => {this.props.onUpdate(e)}}
         editorProps={{$blockScrolling: true}}
         value={this.props.script}
-        annotations={this.mapErrorsToAnnotations(this.props.errors)}
+        markers={this.mapErrorsToMarkers(this.props.errors)}
       />
     );
   }
