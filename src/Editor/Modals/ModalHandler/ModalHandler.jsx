@@ -26,31 +26,30 @@ import AutosaveWarning from '../AutosaveWarning/AutosaveWarning';
 
 class ModalHandler extends Component {
   render() {
-    this.modalProps = {
-      openModal: this.props.openModal,
-      toggle: this.props.closeActiveModal
-    };
-
     return (
       <div>
         <ProjectSettings
-          {...this.modalProps}
+          openModal={this.props.openModal}
+          toggle={this.props.closeActiveModal}
           project={this.props.project}
           open={this.props.activeModalName === 'ProjectSettings'}
           updateProjectSettings={this.props.updateProjectSettings}
         />
         <AlphaWarning
-          {...this.modalProps}
+          openModal={this.props.openModal}
+          toggle={this.props.closeActiveModal}
           className="alpha-warning"
           open={this.props.activeModalName === 'AlphaWarning'}
         />
       <CreateSymbol
-          {...this.modalProps}
+          openModal={this.props.openModal}
+          toggle={this.props.closeActiveModal}
           open={this.props.activeModalName === 'CreateSymbol'}
           createSymbolFromSelection={this.props.createSymbolFromSelection}
         />
       <AutosaveWarning
-          {...this.modalProps}
+          openModal={this.props.openModal}
+          toggle={this.props.closeActiveModal}
           open={this.props.activeModalName === 'AutosaveWarning'}
           loadAutosavedProject={this.props.loadAutosavedProject}
         />

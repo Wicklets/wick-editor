@@ -81,7 +81,8 @@ class Editor extends EditorCore {
       onionSkinSeekForwards: 1,
       onionSkinSeekBackwards: 1,
       previewPlaying: false,
-      activeModalName: null,
+      activeModalName: 'AlphaWarning',
+      activeModalQueue: [],
       codeEditorOpen: false,
       codeEditorProperties: {
         width: 500,
@@ -174,9 +175,7 @@ class Editor extends EditorCore {
 
   showAutosavedProjects = () => {
     this.doesAutoSavedProjectExist(bool => { if (bool) {
-        this.setStateWrapper({
-          activeModalName: 'AutosaveWarning',
-        });
+      this.queueModal('AutosaveWarning');
       }
     });
   }
@@ -436,19 +435,46 @@ class Editor extends EditorCore {
    * @param  {string} name name of the modal to open.
    */
   openModal = (name) => {
-    if (this.state.activeModalName !== name) {
-      this.setState({
-        activeModalName: name,
-      });
-    }
+    this.setState({
+      activeModalName: name,
+    });
     this.refocusEditor();
   }
 
   /**
-   * Closes any active modal, if there is one.
+   * Queues a modal to be opened at the next opportunity.
+   * @param  {string} name [description]
+   */
+  queueModal = (name) => {
+    if (this.state.activeModalName !== name) {
+      // If there is another modal up, queue the modal.
+      if (this.state.activeModalName !== null && this.state.activeModalQueue.indexOf(name) === -1) {
+        this.setState(prevState => {
+          return {
+            activeModalQueue: [name].concat(prevState.activeModalQueue),
+          }
+        });
+      // Otherwise, just open it.
+      } else {
+        this.openModal(name)
+      }
+    }
+  }
+
+  /**
+   * Closes the active modal, if there is one. Opens the next modal in the
+   * if necessary.
    */
   closeActiveModal = () => {
-    this.openModal(null);
+    let oldQueue = [].concat(this.state.activeModalQueue);
+    if (oldQueue.length === 0) {
+      this.openModal(null);
+      return;
+    }
+    var newModalName = oldQueue.shift();
+    this.setState({
+      activeModalQueue: oldQueue,
+    }, () => this.openModal(newModalName));
   }
 
   /**
