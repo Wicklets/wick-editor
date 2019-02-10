@@ -904,7 +904,6 @@ class EditorCore extends Component {
     this.setStateWrapper({
       selection: newSelection
     });
-    console.log(this.state.selection); 
     return newSelection;
   }
 

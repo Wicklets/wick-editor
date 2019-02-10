@@ -93,7 +93,6 @@ class Editor extends EditorCore {
       },
       codeErrors: [],
       inspectorSize: 250,
-      codeEditorSize: 0.1,
       timelineSize: 100,
       assetLibrarySize: 150,
     };
@@ -371,24 +370,59 @@ class Editor extends EditorCore {
     });
   }
 
+  /**
+   * Removes all code errors.
+   */
+  removeCodeErrors = () => {
+    this.setStateWrapper({
+      codeErrors: [],
+    });
+  }
+
+  /**
+   * An event called when a minor code update happens as defined by the code editor.
+   */
+  onMinorScriptUpdate = () => {
+    if (this.state.codeErrors.length > 0) {
+      this.removeCodeErrors();
+    }
+  }
+
+  /**
+   * An event called when a major code update happens as defined by the code editor.
+   * @return {[type]} [description]
+   */
+  onMajorScriptUpdate = () => {
+
+  }
+
+  /**
+   * Called when the inspector is resized.
+   * @param  {DomElement} domElement DOM element containing the inspector
+   * @param  {React.Component} component  React component of the inspector.
+   */
   onStopInspectorResize = ({domElement, component}) => {
     this.setState({
       inspectorSize: this.getSizeHorizontal(domElement)
     });
   }
 
+  /**
+   * Called when the asset library is resized.
+   * @param  {DomElement} domElement DOM element containing the asset library
+   * @param  {React.Component} component  React component of the asset library
+   */
   onStopAssetLibraryResize = ({domElement, component}) => {
     this.setState({
       assetLibrarySize: this.getSizeVertical(domElement)
     });
   }
 
-  onStopCodeEditorResize = ({domElement, component}) => {
-    this.setState({
-      codeEditorSize: this.getSizeHorizontal(domElement)
-    });
-  }
-
+  /**
+   * Called when the timeline is resized.
+   * @param  {DomElement} domElement DOM element containing the timeline
+   * @param  {React.Component} component  React component of the timeline.
+   */
   onStopTimelineResize = ({domElement, component}) => {
     var size = this.getSizeHorizontal(domElement);
 
@@ -397,6 +431,10 @@ class Editor extends EditorCore {
     });
   }
 
+  /**
+   * Opens the requested modal.
+   * @param  {string} name name of the modal to open.
+   */
   openModal = (name) => {
     if (this.state.activeModalName !== name) {
       this.setState({
@@ -406,6 +444,9 @@ class Editor extends EditorCore {
     this.refocusEditor();
   }
 
+  /**
+   * Closes any active modal, if there is one.
+   */
   closeActiveModal = () => {
     this.openModal(null);
   }
@@ -419,10 +460,16 @@ class Editor extends EditorCore {
     })
   }
 
+  /**
+   * Focus the editor DOM element.
+   */
   refocusEditor = () => {
     window.document.getElementById('hotkeys-container').focus();
   }
 
+  /**
+   * Focuses the canvas DOM element.
+   */
   focusCanvasElement = () => {
     this.canvasElement.focus();
   }
@@ -434,6 +481,7 @@ class Editor extends EditorCore {
     let nextState = !this.state.previewPlaying;
     this.setState(prevState => ({
       previewPlaying: nextState,
+      codeErrors: [],
     }));
 
     if(nextState) {
@@ -458,6 +506,10 @@ class Editor extends EditorCore {
     }
   }
 
+  /**
+   * Show code errors in the code edito by pooping it up.
+   * @param  {object[]} errors Array of error objects.
+   */
   showCodeErrors = (errors) => {
     this.setStateWrapper({
       codeEditorOpen: errors === undefined ? this.state.codeEditorOpen : true,
@@ -661,7 +713,9 @@ class Editor extends EditorCore {
               getSelectionType={this.getSelectionType}
               script={this.getScriptOfSelection()}
               toggleCodeEditor={this.toggleCodeEditor}
-              errors={this.state.codeErrors}/>}
+              errors={this.state.codeErrors}
+              onMinorScriptUpdate={this.onMinorScriptUpdate}
+              onMajorScriptUpdate={this.onMajorScriptUpdate}/>}
         </div>
       )}
       </Dropzone>

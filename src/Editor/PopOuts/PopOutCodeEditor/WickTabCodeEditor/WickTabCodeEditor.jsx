@@ -58,10 +58,15 @@ class WickTabCodeEditor extends Component {
   }
 
   renderNewAceEditor = (script) => {
+    let wrappedUpdate = (src) => {
+      this.props.script.updateScript(script.name, src);
+      this.props.onMinorScriptUpdate(src);
+    }
+
     return (
       <WickAceEditor
         addNewEditor={this.props.addNewEditor}
-        onUpdate={(src) => {this.props.script.updateScript(script.name, src)} }
+        onUpdate={wrappedUpdate}
         script={script.src}
         name={script.name}
         errors={this.props.errors.filter(error => {return error.name === script.name})}/>

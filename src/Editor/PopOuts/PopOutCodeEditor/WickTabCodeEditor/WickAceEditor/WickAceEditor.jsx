@@ -46,8 +46,6 @@ class WickAceEditor extends Component {
       a.type = 'background';
       markers.push(a);
     });
-
-    console.log(markers);
     return markers;
   }
   /**
