@@ -102,7 +102,8 @@ class PopOutCodeEditor extends Component {
 
   getCodeEditorInfo = () => {
     if (this.codeHasErrors()) {
-      return "error: " + this.props.errors[0].message;
+      let error = this.props.errors[0];
+      return "error: on " + error.name + ' | ' + error.message;
     } else {
       return "editing: " + this.props.getSelectionType()
     }
