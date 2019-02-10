@@ -901,7 +901,10 @@ class EditorCore extends Component {
    */
   selectObjects = (objects) => {
     let newSelection = this.addObjectsToSelection(objects, this.emptySelection());
-    this.setStateWrapper({selection: newSelection});
+    this.setStateWrapper({
+      selection: newSelection
+    });
+    console.log(this.state.selection); 
     return newSelection;
   }
 

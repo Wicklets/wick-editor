@@ -452,6 +452,23 @@ class Editor extends EditorCore {
       previewPlaying: false,
       codeErrors: errors === undefined ? [] : errors,
     });
+
+    if (errors) {
+      this.showCodeErrors(errors);
+    }
+  }
+
+  showCodeErrors = (errors) => {
+    this.setStateWrapper({
+      codeEditorOpen: errors === undefined ? this.state.codeEditorOpen : true,
+    });
+
+    if (errors.length > 0) {
+      let uuid = errors[0].uuid;
+      console.log(this.project.getChildByUUID(uuid))
+      console.log(this.project);
+      this.selectObject(this.project.getChildByUUID(uuid))
+    }
   }
 
   /**
@@ -645,7 +662,8 @@ class Editor extends EditorCore {
               selectionIsScriptable={this.selectionIsScriptable}
               getSelectionType={this.getSelectionType}
               script={this.getScriptOfSelection()}
-              toggleCodeEditor={this.toggleCodeEditor}/>}
+              toggleCodeEditor={this.toggleCodeEditor}
+              errors={this.state.codeErrors}/>}
         </div>
       )}
       </Dropzone>

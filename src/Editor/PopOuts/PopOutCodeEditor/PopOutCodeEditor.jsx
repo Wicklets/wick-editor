@@ -83,7 +83,8 @@ class PopOutCodeEditor extends Component {
         addNewEditor={this.addNewEditor}
         updateProjectInState={this.props.updateProjectInState}
         script={this.props.script}
-        rerenderCodeEditor={this.rerenderCodeEditor}/>
+        rerenderCodeEditor={this.rerenderCodeEditor}
+        errors={this.props.errors}/>
     )
   }
 

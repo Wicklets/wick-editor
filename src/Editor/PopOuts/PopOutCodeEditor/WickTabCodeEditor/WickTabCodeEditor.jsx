@@ -37,6 +37,14 @@ class WickTabCodeEditor extends Component {
     this.state = {
       tabIndex: 0,
     }
+
+    this.focusError = null;
+  }
+
+  componentDidUpdate = () => {
+    if (this.props.errors && this.props.errors instanceof Array && this.props.errors !== []) {
+      this.focusError = this.props.errors[0];
+    }
   }
 
   pickColor = (text) => {
@@ -55,7 +63,8 @@ class WickTabCodeEditor extends Component {
         addNewEditor={this.props.addNewEditor}
         onUpdate={(src) => {this.props.script.updateScript(script.name, src)} }
         script={script.src}
-        name={script.name} />
+        name={script.name}
+        errors={this.props.errors.filter(error => {return error.name === script.name})}/>
     )
   }
 
