@@ -43,23 +43,29 @@ class MenuBar extends Component {
   render() {
     return(
       <div className="docked-pane menu-bar">
-        <MenuBarButton
-          text="Save"
-          action={this.props.exportProjectAsWickFile}/>
-        {/* Add hidden file input to retrieve wick files. */}
-        <input
-          type='file'
-          accept='.zip, .wick'
-          style={{display:'none'}}
-          ref={this.openFileRef}
-          onChange={this.handleWickFileLoad} />
-        <MenuBarButton
-          text="Open"
-          action={() => {this.openFileRef.current.click()}}/>
-        <div className="project-settings-preview" onClick={() => this.props.openModal('ProjectSettings')}>
+        <div className="menu-bar-project-name" onClick={() => this.props.openModal('ProjectSettings')}>
           {this.props.projectName}
-          <img className="project-settings-image" src={iconSettings} alt="settings icon" />
         </div>
+        <div className="menu-bar-actions-container">
+          <MenuBarButton
+            text="Save"
+            action={this.props.exportProjectAsWickFile}/>
+          {/* Add hidden file input to retrieve wick files. */}
+          <input
+            type='file'
+            accept='.zip, .wick'
+            style={{display:'none'}}
+            ref={this.openFileRef}
+            onChange={this.handleWickFileLoad} />
+          <MenuBarButton
+            text="Open"
+            action={() => {this.openFileRef.current.click()}}/>
+
+          <div className="project-settings-preview" onClick={() => this.props.openModal('ProjectSettings')}>
+            <img className="project-settings-image" src={iconSettings} alt="settings icon" />
+          </div>
+        </div>
+
       </div>
     )
   }

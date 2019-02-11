@@ -107,6 +107,19 @@ $interface-warning-text: #FFFFFF;
 
 $interface-menu-bar-background: black;
 
+// Spring 2019 color scheme
+$editor-primary: #303030;
+$editor-primary-property-text: #AFAFAF;
+$editor-primary-outline: #191919;
+
+$editor-menubar-project-text:#CACACA;
+$editor-menubar-option-text: #8A8A8A;
+
+$editor-green-highlight: #1EE29A;
+
+$editor-outline-padding: 4px; 
+
+
 // define Bootstrap 4 button Mixins
 /*button-variant($background, $border, $hover-background: darken($background, 7.5%), $hover-border: darken($border, 10%), $active-background: darken($background, 10%), $active-border: darken($border, 12.5%))*/
 .btn-wick-warning {
