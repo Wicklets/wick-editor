@@ -58,14 +58,14 @@ class PopOutCodeEditor extends Component {
   }
 
   onDragHandler = (e, d) => {
-    this.props.updateCodeEditorProperties({
+    this.props.updateCodeEditorWindowProperties({
       x: d.x,
       y: d.y,
     });
   }
 
   onResizeHandler = (e, dir, ref, delta, position) => {
-    this.props.updateCodeEditorProperties({
+    this.props.updateCodeEditorWindowProperties({
       width: ref.style.width,
       height: ref.style.height,
     });
@@ -115,15 +115,15 @@ class PopOutCodeEditor extends Component {
         id="code-editor-resizeable"
         bounds="window"
         dragHandleClassName="code-editor-drag-handle"
-        minWidth={this.props.codeEditorProperties.minWidth}
-        minHeight={this.props.codeEditorProperties.minHeight}
+        minWidth={this.props.codeEditorWindowProperties.minWidth}
+        minHeight={this.props.codeEditorWindowProperties.minHeight}
         onResizeStop={this.onResizeHandler}
         onDragStop={this.onDragHandler}
         default={{
-          x: this.props.codeEditorProperties.x,
-          y: this.props.codeEditorProperties.y,
-          width: this.props.codeEditorProperties.width,
-          height: this.props.codeEditorProperties.height,
+          x: this.props.codeEditorWindowProperties.x,
+          y: this.props.codeEditorWindowProperties.y,
+          width: this.props.codeEditorWindowProperties.width,
+          height: this.props.codeEditorWindowProperties.height,
         }}
       >
         <div

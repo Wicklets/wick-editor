@@ -84,7 +84,7 @@ class Editor extends EditorCore {
       activeModalName: 'AlphaWarning',
       activeModalQueue: [],
       codeEditorOpen: false,
-      codeEditorProperties: {
+      codeEditorWindowProperties: {
         width: 500,
         height: 250,
         x: window.innerWidth/2 - 250,
@@ -358,14 +358,14 @@ class Editor extends EditorCore {
    * Updates the code editor properties in the state.
    * @param  {object} newProperties object with new code editor properties. Can include width, height, x, y.
    */
-  updateCodeEditorProperties = (newProperties) => {
-    let finalProperties = this.state.codeEditorProperties;
+  updateCodeEditorWindowProperties = (newProperties) => {
+    let finalProperties = this.state.codeEditorWindowProperties;
     Object.keys(newProperties).forEach(key => {
       finalProperties[key] = newProperties[key];
     });
 
-    this.setStateWrapper({
-      codeEditorProperties: finalProperties,
+    this.setState({
+      codeEditorWindowProperties: finalProperties,
     });
   }
 
@@ -373,7 +373,7 @@ class Editor extends EditorCore {
    * Removes all code errors.
    */
   removeCodeErrors = () => {
-    this.setStateWrapper({
+    this.setState({
       codeErrors: [],
     });
   }
@@ -522,7 +522,7 @@ class Editor extends EditorCore {
    */
   stopPreviewPlaying = (errors) => {
     this.stopTickLoop();
-    this.setStateWrapper({
+    this.setState({
       previewPlaying: false,
       codeErrors: errors === undefined ? [] : errors,
     });
@@ -533,11 +533,11 @@ class Editor extends EditorCore {
   }
 
   /**
-   * Show code errors in the code edito by pooping it up.
+   * Show code errors in the code editor by pooping it up.
    * @param  {object[]} errors Array of error objects.
    */
   showCodeErrors = (errors) => {
-    this.setStateWrapper({
+    this.setState({
       codeEditorOpen: errors === undefined ? this.state.codeEditorOpen : true,
     });
 
@@ -733,8 +733,8 @@ class Editor extends EditorCore {
             </HotKeys>
           {this.state.codeEditorOpen &&
             <PopOutCodeEditor
-              codeEditorProperties={this.state.codeEditorProperties}
-              updateCodeEditorProperties={this.updateCodeEditorProperties}
+              codeEditorWindowProperties={this.state.codeEditorWindowProperties}
+              updateCodeEditorWindowProperties={this.updateCodeEditorWindowProperties}
               selectionIsScriptable={this.selectionIsScriptable}
               getSelectionType={this.getSelectionType}
               script={this.getScriptOfSelection()}
