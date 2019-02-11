@@ -81,6 +81,7 @@ class Canvas extends Component {
     window.paper.drawingTools.onSelectionChanged(this.onSelectionChanged);
 
     this.props.updateCanvas();
+    this.props.updateCanvasElementRef(this.canvasContainer.current.children[0]); 
   }
 
   onCanvasModified (e) {

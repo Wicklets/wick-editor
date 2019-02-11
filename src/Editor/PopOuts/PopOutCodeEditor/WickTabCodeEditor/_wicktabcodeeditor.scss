@@ -8,13 +8,13 @@
 .code-tab-delete {
   width: 30px;
   min-width: 30px;
-  height: 100%;
+  height: 30px;
   float: left;
 }
 
 #add-scripts-panel-container {
   width: 100%;
-  height: 100%;
+  height: calc(100% - #{$editor-tab-list-height};
   overflow-y: scroll;
 
   display: flex;

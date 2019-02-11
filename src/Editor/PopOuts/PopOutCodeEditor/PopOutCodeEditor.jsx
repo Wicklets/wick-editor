@@ -30,6 +30,8 @@ import 'brace/theme/monokai';
 
 import './_popoutcodeditor.scss';
 
+var classNames = require('classnames');
+
 class PopOutCodeEditor extends Component {
   constructor(props) {
     super(props);
@@ -83,12 +85,28 @@ class PopOutCodeEditor extends Component {
         addNewEditor={this.addNewEditor}
         updateProjectInState={this.props.updateProjectInState}
         script={this.props.script}
-        rerenderCodeEditor={this.rerenderCodeEditor}/>
+        rerenderCodeEditor={this.rerenderCodeEditor}
+        errors={this.props.errors}
+        onMinorScriptUpdate={this.props.onMinorScriptUpdate}
+        onMajorScriptUpdate={this.props.onMajorScriptUpdate}/>
     )
   }
 
   rerenderCodeEditor = () => {
     this.forceUpdate();
+  }
+
+  codeHasErrors = () => {
+    return this.props.errors && this.props.errors.length > 0;
+  }
+
+  getCodeEditorInfo = () => {
+    if (this.codeHasErrors()) {
+      let error = this.props.errors[0];
+      return "error: on " + error.name + ' | ' + error.message;
+    } else {
+      return "editing: " + this.props.getSelectionType()
+    }
   }
 
   render() {
@@ -112,7 +130,10 @@ class PopOutCodeEditor extends Component {
           className="code-editor-drag-handle">
           <div className="code-editor-title">
             {"Code Editor |"}
-            <span className="code-editor-selection-type"> {"editing: " + this.props.getSelectionType()} </span>
+            <span
+              className={classNames("code-editor-information",
+                {'code-editor-error-information':this.codeHasErrors()})}>
+              {this.getCodeEditorInfo()} </span>
           </div>
           <div className="code-editor-close-button">
             <ActionButton

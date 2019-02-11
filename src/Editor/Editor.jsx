@@ -58,6 +58,9 @@ class Editor extends EditorCore {
     this.paper = null;
     this.canvas = null;
 
+    // For focusing
+    this.canvasElement = null;
+
     // GUI state
     this.state = {
       project: null,
@@ -78,7 +81,8 @@ class Editor extends EditorCore {
       onionSkinSeekForwards: 1,
       onionSkinSeekBackwards: 1,
       previewPlaying: false,
-      activeModalName: null,
+      activeModalName: 'AlphaWarning',
+      activeModalQueue: [],
       codeEditorOpen: false,
       codeEditorProperties: {
         width: 500,
@@ -88,11 +92,14 @@ class Editor extends EditorCore {
         minWidth: 300,
         minHeight: 250,
       },
+      codeErrors: [],
       inspectorSize: 250,
-      codeEditorSize: 0.1,
       timelineSize: 100,
       assetLibrarySize: 150,
     };
+
+    // Set up error.
+    this.error = null;
 
     // Init hotkeys
     this.hotKeyInterface = new HotKeyInterface(this);
@@ -124,7 +131,7 @@ class Editor extends EditorCore {
     this.lockState = false;
 
     // Auto Save
-    this.autoSaveDelay = 5000; // millisecond delay
+    this.autoSaveDelay = 1000; // millisecond delay
     this.throttledAutoSaveProject = throttle(this.autoSaveProject, this.autoSaveDelay);
   }
 
@@ -162,6 +169,15 @@ class Editor extends EditorCore {
 
   componentDidMount = () => {
     this.refocusEditor();
+
+    this.showAutosavedProjects()
+  }
+
+  showAutosavedProjects = () => {
+    this.doesAutoSavedProjectExist(bool => { if (bool) {
+      this.queueModal('AutosaveWarning');
+      }
+    });
   }
 
   /**
@@ -198,7 +214,7 @@ class Editor extends EditorCore {
    * Autosave the project in the state, if it exists.
    */
   autoSaveProject = () => {
-    if (this.project === undefined) {return}
+    if (this.project === undefined) return
     localForage.setItem(this.autoSaveKey, this.project.serialize());
   }
 
@@ -212,6 +228,14 @@ class Editor extends EditorCore {
     if(!this.state.previewPlaying && prevState.previewPlaying) {
       this.stopTickLoop();
     }
+  }
+
+  /**
+   * Updates the canvas element ref in the dom.
+   * @param  {React.ref} canvasElementRef Reference to the canvas object.
+   */
+  updateCanvasElementRef = (canvasRef) => {
+    this.canvasElement = canvasRef;
   }
 
   updateCanvas = (skipUpdateSelection) => {
@@ -345,24 +369,59 @@ class Editor extends EditorCore {
     });
   }
 
+  /**
+   * Removes all code errors.
+   */
+  removeCodeErrors = () => {
+    this.setStateWrapper({
+      codeErrors: [],
+    });
+  }
+
+  /**
+   * An event called when a minor code update happens as defined by the code editor.
+   */
+  onMinorScriptUpdate = () => {
+    if (this.state.codeErrors.length > 0) {
+      this.removeCodeErrors();
+    }
+  }
+
+  /**
+   * An event called when a major code update happens as defined by the code editor.
+   * @return {[type]} [description]
+   */
+  onMajorScriptUpdate = () => {
+
+  }
+
+  /**
+   * Called when the inspector is resized.
+   * @param  {DomElement} domElement DOM element containing the inspector
+   * @param  {React.Component} component  React component of the inspector.
+   */
   onStopInspectorResize = ({domElement, component}) => {
     this.setState({
       inspectorSize: this.getSizeHorizontal(domElement)
     });
   }
 
+  /**
+   * Called when the asset library is resized.
+   * @param  {DomElement} domElement DOM element containing the asset library
+   * @param  {React.Component} component  React component of the asset library
+   */
   onStopAssetLibraryResize = ({domElement, component}) => {
     this.setState({
       assetLibrarySize: this.getSizeVertical(domElement)
     });
   }
 
-  onStopCodeEditorResize = ({domElement, component}) => {
-    this.setState({
-      codeEditorSize: this.getSizeHorizontal(domElement)
-    });
-  }
-
+  /**
+   * Called when the timeline is resized.
+   * @param  {DomElement} domElement DOM element containing the timeline
+   * @param  {React.Component} component  React component of the timeline.
+   */
   onStopTimelineResize = ({domElement, component}) => {
     var size = this.getSizeHorizontal(domElement);
 
@@ -371,17 +430,51 @@ class Editor extends EditorCore {
     });
   }
 
+  /**
+   * Opens the requested modal.
+   * @param  {string} name name of the modal to open.
+   */
   openModal = (name) => {
-    if (this.state.activeModalName !== name) {
-      this.setState({
-        activeModalName: name,
-      });
-    }
+    this.setState({
+      activeModalName: name,
+    });
     this.refocusEditor();
   }
 
+  /**
+   * Queues a modal to be opened at the next opportunity.
+   * @param  {string} name [description]
+   */
+  queueModal = (name) => {
+    if (this.state.activeModalName !== name) {
+      // If there is another modal up, queue the modal.
+      if (this.state.activeModalName !== null && this.state.activeModalQueue.indexOf(name) === -1) {
+        this.setState(prevState => {
+          return {
+            activeModalQueue: [name].concat(prevState.activeModalQueue),
+          }
+        });
+      // Otherwise, just open it.
+      } else {
+        this.openModal(name)
+      }
+    }
+  }
+
+  /**
+   * Closes the active modal, if there is one. Opens the next modal in the
+   * if necessary.
+   */
   closeActiveModal = () => {
-    this.openModal(null);
+    let oldQueue = [].concat(this.state.activeModalQueue);
+    if (oldQueue.length === 0) {
+      this.openModal(null);
+      return;
+    }
+    var newModalName = oldQueue.shift();
+    this.setState({
+      activeModalQueue: oldQueue,
+    }, () => this.openModal(newModalName));
   }
 
   /**
@@ -393,26 +486,91 @@ class Editor extends EditorCore {
     })
   }
 
+  /**
+   * Focus the editor DOM element.
+   */
   refocusEditor = () => {
     window.document.getElementById('hotkeys-container').focus();
   }
 
-  togglePreviewPlaying = () => {
-    this.setState(prevState => ({
-      previewPlaying: !prevState.previewPlaying,
-    }));
+  /**
+   * Focuses the canvas DOM element.
+   */
+  focusCanvasElement = () => {
+    this.canvasElement.focus();
   }
 
+  /**
+   * Toggles the preview play between on and off states.
+   */
+  togglePreviewPlaying = () => {
+    let nextState = !this.state.previewPlaying;
+    this.setState(prevState => ({
+      previewPlaying: nextState,
+      codeErrors: [],
+    }));
+
+    if(nextState) {
+      this.focusCanvasElement();
+    }
+  }
+
+  /**
+   * Stops the project if it is currently preview playing and displays provided
+   * errors in the code editor.
+   * @param  {object[]} errors Array of error objects.
+   */
+  stopPreviewPlaying = (errors) => {
+    this.stopTickLoop();
+    this.setStateWrapper({
+      previewPlaying: false,
+      codeErrors: errors === undefined ? [] : errors,
+    });
+
+    if (errors) {
+      this.showCodeErrors(errors);
+    }
+  }
+
+  /**
+   * Show code errors in the code edito by pooping it up.
+   * @param  {object[]} errors Array of error objects.
+   */
+  showCodeErrors = (errors) => {
+    this.setStateWrapper({
+      codeEditorOpen: errors === undefined ? this.state.codeEditorOpen : true,
+    });
+
+    if (errors.length > 0) {
+      let uuid = errors[0].uuid;
+      this.selectObject(this.project.getChildByUUID(uuid))
+    }
+  }
+
+  /**
+   * Begins running the project at the projects framerate in the in-editor
+   * player. The loop will stop if an error is returned by the the project.
+   */
   startTickLoop = () => {
     this.beforePreviewPlayProjectState = this.project.serialize();
     this.tickLoopIntervalID = setInterval(() => {
-      this.project.tick();
-      this.canvas.interactTool.processMouseInputPreTick(this.project);
+      let error = this.project.tick();
+
+      if (error) {
+        this.stopPreviewPlaying([error]);
+        return;
+      }
+
+      this.canvas.interactTool.processInputPreTick(this.project);
       this.updateCanvas(true);
       this.updateTimeline();
     }, 1000 / this.project.framerate);
   }
 
+  /**
+   * Stops the current tick loop which is running the project. Returns the
+   * project to the state it was in before it was run.
+   */
   stopTickLoop = () => {
     clearInterval(this.tickLoopIntervalID);
 
@@ -435,8 +593,8 @@ class Editor extends EditorCore {
         <div {...getRootProps()}>
           <input {...getInputProps()} />
             <HotKeys
-              keyMap={this.hotKeyInterface.getKeyMap()}
-              handlers={this.hotKeyInterface.getHandlers()}
+              keyMap={this.state.previewPlaying ? this.hotKeyInterface.getEssentialKeyMap() : this.hotKeyInterface.getKeyMap()}
+              handlers={this.state.previewPlaying ? this.hotKeyInterface.getEssentialKeyHandlers() : this.hotKeyInterface.getHandlers()}
               style={{width:"100%", height:"100%"}}
               id='hotkeys-container'>
               <div id="editor">
@@ -448,6 +606,7 @@ class Editor extends EditorCore {
                     project={this.project}
                     createSymbolFromSelection={this.createSymbolFromSelection}
                     updateProjectSettings={this.updateProjectSettings}
+                    loadAutosavedProject={this.attemptAutoLoad}
                   />
                   {/* Header */}
                   <DockedPanel showOverlay={this.state.previewPlaying}>
@@ -494,6 +653,7 @@ class Editor extends EditorCore {
                                     paper={this.paper}
                                     selectObjects={this.selectObjects}
                                     updateCanvas={this.updateCanvas}
+                                    updateCanvasElementRef={this.updateCanvasElementRef}
                                     createImageFromAsset={this.createImageFromAsset}
                                     setWickCanvas={this.setWickCanvas}
                                   />
@@ -578,7 +738,10 @@ class Editor extends EditorCore {
               selectionIsScriptable={this.selectionIsScriptable}
               getSelectionType={this.getSelectionType}
               script={this.getScriptOfSelection()}
-              toggleCodeEditor={this.toggleCodeEditor}/>}
+              toggleCodeEditor={this.toggleCodeEditor}
+              errors={this.state.codeErrors}
+              onMinorScriptUpdate={this.onMinorScriptUpdate}
+              onMajorScriptUpdate={this.onMajorScriptUpdate}/>}
         </div>
       )}
       </Dropzone>

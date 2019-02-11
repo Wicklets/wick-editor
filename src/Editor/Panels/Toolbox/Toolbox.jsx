@@ -25,6 +25,7 @@ import ToolButton from 'Editor/Util/ToolButton/ToolButton';
 import PlayButton from 'Editor/Util/PlayButton/PlayButton';
 import WickInput from 'Editor/Util/WickInput/WickInput';
 import ActionButton from 'Editor/Util/ActionButton/ActionButton';
+
 class Toolbox extends Component {
   constructor (props) {
     super(props);

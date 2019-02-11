@@ -1,1 +1,6 @@
 @import 'Editor/_wickbrand.scss';
+
+.error-marker {
+  position: absolute;
+  background-color: $wick-red-light;
+}

@@ -21,12 +21,11 @@ import React, { Component } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter, } from 'reactstrap';
 
-import 'Editor/_wickbrand.scss';
 import './_alphawarning.scss';
 
 class AlphaWarning extends Component {
   getVersion() {
-    return "v3"
+    return "v4"
   }
   render() {
     return (
@@ -36,15 +35,14 @@ class AlphaWarning extends Component {
           <h4>This is an alpha test of version 1.0 of the Wick Editor.</h4>
           <h5>Wick Editor Alpha {this.getVersion()} Includes:</h5>
           <ul>
-            <li>Cut/Copy/Paste/Delete</li>
-            <li>Clips and Animated Clip Editing</li>
-            <li>Interactive Objects with Code</li>
-            <li>Interactive Preview Play</li>
-            <li>Assets (Images)</li>
-            <li>Project Saving and Opening</li>
-            <li>~20 Editor Actions</li>
-            <li>Full Functional Inspector</li>
-            <li>Save Project Warnings</li>
+            <li>New Undo/Redo Interactions</li>
+            <li>Autosaving / Autoloading</li>
+            <li>New Event Based Scripting System</li>
+            <li>Mouse, Key and On Load Events</li>
+            <li>Timeline scripts (gotoAndPlay, gotoAndStop)</li>
+            <li>Syntax Error Handling</li>
+            <li>Runtime Error Handling</li>
+            <li>Many, many, bugfixes...</li>
           </ul>
           <a target="_blank" rel="noopener noreferrer" href="https://forum.wickeditor.com">Report all bugs on the forums as an "Alpha Bug!"</a>
         </ModalBody>

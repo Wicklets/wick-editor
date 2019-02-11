@@ -1,3 +1,22 @@
+/*
+ * Copyright 2018 WICKLETS LLC
+ *
+ * This file is part of Wick Editor.
+ *
+ * Wick Editor is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Wick Editor is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Wick Editor.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 import React, { Component } from 'react';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 
@@ -18,6 +37,14 @@ class WickTabCodeEditor extends Component {
     this.state = {
       tabIndex: 0,
     }
+
+    this.focusError = null;
+  }
+
+  componentDidUpdate = () => {
+    if (this.props.errors && this.props.errors instanceof Array && this.props.errors.length > 0) {
+      this.focusError = this.props.errors[0];
+    }
   }
 
   pickColor = (text) => {
@@ -31,12 +58,18 @@ class WickTabCodeEditor extends Component {
   }
 
   renderNewAceEditor = (script) => {
+    let wrappedUpdate = (src) => {
+      this.props.script.updateScript(script.name, src);
+      this.props.onMinorScriptUpdate(src);
+    }
+
     return (
       <WickAceEditor
         addNewEditor={this.props.addNewEditor}
-        onUpdate={(src) => {this.props.script.updateScript(script.name, src)} }
+        onUpdate={wrappedUpdate}
         script={script.src}
-        name={script.name} />
+        name={script.name}
+        errors={this.props.errors.filter(error => {return error.name === script.name})}/>
     )
   }
 
@@ -88,14 +121,25 @@ class WickTabCodeEditor extends Component {
     );
   }
 
+  renderDeleteTabButton = () => {
+    return (
+      <div className='code-tab-delete'>
+        <ActionButton
+          icon="delete"
+          color="red"
+          action={this.removeSelectedTab} />
+      </div>
+    )
+  }
+
   removeSelectedTab = () => {
     let scripts = this.props.script.scripts;
 
     if (this.state.tabIndex < 0 || this.state.tabIndex >= scripts.length) {
       return
     }
-
     let script = scripts[this.state.tabIndex];
+
     this.props.script.removeScript(script.name);
     this.props.rerenderCodeEditor();
   }
@@ -109,12 +153,7 @@ class WickTabCodeEditor extends Component {
           onSelect={tabIndex => this.setState({ tabIndex })}>
           <TabList>
             {/* Add In Delete Button */}
-            <div className='code-tab-delete'>
-              <ActionButton
-                icon="delete"
-                color="red"
-                action={this.removeSelectedTab} />
-            </div>
+            {this.renderDeleteTabButton()}
             {/* Add In Script Tabs */}
             {scripts.map(this.renderNewCodeTab) }
             {/* Render "Add Script" button */}
