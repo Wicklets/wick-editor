@@ -3809,6 +3809,12 @@ paper.DrawingTools = class {
     this._onSelectionChangedCallback = null;
   }
 
+  setup() {
+    paper.project.clear();
+    this._onCanvasModifiedCallback = null;
+    this._onSelectionChangedCallback = null;
+  }
+
   fireCanvasModified(e) {
     this._onCanvasModifiedCallback && this._onCanvasModifiedCallback(e);
   }
@@ -5233,12 +5239,23 @@ class BrushCursorGen {
     croquis.setToolStabilizeLevel(tool.brushStabilizerLevel);
     croquis.setToolStabilizeWeight(tool.brushStabilizerWeight);
     var point = paper.view.projectToView(e.point.x, e.point.y);
-    croquis.down(point.x, point.y, tool.getPressure());
+
+    try {
+      croquis.down(point.x, point.y, tool.getPressure());
+    } catch (e) {
+      console.log(e);
+    }
   };
 
   tool.onMouseDrag = function (e) {
     var point = paper.view.projectToView(e.point.x, e.point.y);
-    croquis.move(point.x, point.y, tool.getPressure());
+
+    try {
+      croquis.move(point.x, point.y, tool.getPressure());
+    } catch (e) {
+      console.log(e);
+    }
+
     lastPressure = tool.getPressure();
     cursor = BrushCursorGen.create(tool.fillColor, tool.brushSize * tool.getPressure());
     paper.view._element.style.cursor = cursor;
@@ -5265,7 +5282,6 @@ class BrushCursorGen {
         potracePath.remove();
         potracePath.closed = true;
         potracePath.children[0].closed = true;
-        potracePath.applyMatrix = true;
         paper.project.activeLayer.addChild(potracePath.children[0]);
         croquis.clearLayer();
         paper.drawingTools.fireCanvasModified({

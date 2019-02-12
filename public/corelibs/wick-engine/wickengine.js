@@ -12258,6 +12258,30 @@ function convertRange(value, r1, r2) {
   };
 })();
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
+'use strict';
+/*!
+ * is-var-name | ISC (c) Shinnosuke Watanabe
+ * https://github.com/shinnn/is-var-name
+*/
+
+function isVarName(str) {
+  if (typeof str !== 'string') {
+    return false;
+  }
+
+  if (str.trim() !== str) {
+    return false;
+  }
+
+  try {
+    new Function(str, 'var ' + str);
+  } catch (e) {
+    return false;
+  }
+
+  return true;
+}
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*!
 JSZip v3.1.5 - A JavaScript class for generating and reading zip files
@@ -43281,6 +43305,22 @@ Wick.Base = class {
     return object;
   }
   /**
+   * Converts Wick Base object into a generic object contianing raw data and eliminating parent references.
+   * @return {object} Plain JavaScript object representing Wick Base.
+   */
+
+
+  serialize() {
+    return this._serialize();
+  }
+
+  _serialize() {
+    var data = {};
+    data.classname = this.classname;
+    data.uuid = this._uuid;
+    return data;
+  }
+  /**
    * Returns the classname of a Wick Base object.
    * @type {string}
    */
@@ -43368,18 +43408,6 @@ Wick.Base = class {
       child.project = project;
       return child;
     });
-  }
-  /**
-   * Converts Wick Base object into a generic object contianing raw data and eliminating parent references.
-   * @return {object} Plain JavaScript object representing Wick Base.
-   */
-
-
-  serialize() {
-    var data = {};
-    data.classname = this.classname;
-    data.uuid = this._uuid;
-    return data;
   }
   /**
    * Returns a copy of a Wick Base object.
@@ -44174,7 +44202,7 @@ Wick.Timeline = class extends Wick.Base {
 
 
   get activeFrame() {
-    return this.activeLayer.activeFrame;
+    return this.activeLayer && this.activeLayer.activeFrame;
   }
   /**
    * All frames inside the timeline.
@@ -44479,7 +44507,7 @@ Wick.Path = class extends Wick.Base {
       this._paperPath = new paper.Path({
         insert: false
       });
-      this._paperPath.applyMatrix = true;
+      this._paperPath.applyMatrix = false;
     } else {
       this.importJSON(pathData);
     }
@@ -44538,7 +44566,7 @@ Wick.Path = class extends Wick.Base {
     }
 
     this._paperPath = paper.importJSON(json);
-    this._paperPath.applyMatrix = true;
+    this._paperPath.applyMatrix = false;
   }
   /**
    * Export the Wick Path as paper.js Path json data.
@@ -44989,8 +45017,9 @@ Wick.Tickable = class extends Wick.Base {
   }
 
   set identifier(identifier) {
-    // TODO check for valid names
-    this._identifier = identifier;
+    if (isVarName(identifier)) {
+      this._identifier = identifier;
+    }
   }
 
   get scripts() {
@@ -45083,7 +45112,10 @@ Wick.Tickable = class extends Wick.Base {
 
 
   tick() {
-    // Update onScreen flags.
+    // Update named child references
+    this._attachChildClipReferences(); // Update onScreen flags.
+
+
     this._onscreenLastTick = this._onscreen;
     this._onscreen = this.onScreen; // Update mouse states.
 
@@ -45233,6 +45265,9 @@ Wick.Tickable = class extends Wick.Base {
     }
 
     return mouseState;
+  }
+
+  _attachChildClipReferences() {// Implemented by Wick.Clip and Wick.Frame.
   }
 
 };
@@ -45646,6 +45681,16 @@ Wick.Frame = class extends Wick.Tickable {
     return seekForwardsTween;
   }
 
+  _attachChildClipReferences() {
+    this.clips.forEach(clip => {
+      if (clip.identifier) {
+        this[clip.identifier] = clip;
+
+        clip._attachChildClipReferences();
+      }
+    });
+  }
+
 };
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
@@ -45903,6 +45948,21 @@ Wick.Clip = class extends Wick.Tickable {
       childError = frame.tick();
     });
     return childError;
+  }
+
+  _attachChildClipReferences() {
+    // There are no frames, or the playhead is over an empty space
+    if (!this.timeline.activeFrame) {
+      return [];
+    }
+
+    this.timeline.activeFrame.clips.forEach(clip => {
+      if (clip.identifier) {
+        this[clip.identifier] = clip;
+
+        clip._attachChildClipReferences();
+      }
+    });
   }
 
 };
@@ -46407,6 +46467,10 @@ Wick.Canvas.Clip = class {
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
 Wick.Canvas.Layer = class {
+  static get BASE_ONION_OPACITY() {
+    return 0.7;
+  }
+
   constructor(wickLayer) {
     this._framesCache = {};
     this._frameLayers = [];
@@ -46450,11 +46514,20 @@ Wick.Canvas.Layer = class {
         this._onionFrameLayers.push(frameView._clipsLayer);
 
         this._onionFrameLayers.push(frameView._pathsLayer);
-      });
 
-      this._onionFrameLayers.forEach(layer => {
-        layer.locked = true;
-        layer.opacity = 0.3;
+        var onionMult = 1;
+
+        if (onionFrame.midpoint < options.playheadPosition) {
+          var onionMult = 1 - (options.playheadPosition - onionFrame.midpoint - 1) / options.onionSkinSeekBackwards;
+        } else if (onionFrame.midpoint > options.playheadPosition) {
+          var onionMult = 1 - (onionFrame.midpoint - options.playheadPosition - 1) / options.onionSkinSeekForwards;
+        }
+
+        var opacity = onionMult * Wick.Canvas.Layer.BASE_ONION_OPACITY;
+        frameView._clipsLayer.opacity = opacity;
+        frameView._pathsLayer.opacity = opacity;
+        frameView._clipsLayer.locked = true;
+        frameView._pathsLayer.locked = true;
       });
     }
   }
