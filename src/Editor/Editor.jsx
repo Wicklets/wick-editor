@@ -684,7 +684,7 @@ class Editor extends EditorCore {
                         </ReflexContainer>
                       </ReflexElement>
 
-                      <ReflexSplitter {...this.resizeProps}/>
+                      {/*<ReflexSplitter {...this.resizeProps}/>*/}
 
                     {/* Right Sidebar */}
                       <ReflexElement

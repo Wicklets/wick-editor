@@ -74,15 +74,20 @@ class AssetLibrary extends Component {
     let sortedAssets = this.sortAssets(this.props.assets);
     return(
       <div className="docked-pane asset-library">
-        <DockedTitle title={"Asset Library"}></DockedTitle>
-        <div className="btn-asset-upload">
-          <ActionButton
-            color="green"
-            action={this.handleAdd}
-            id="button-asset-upload"
-            tooltip="Upload Assets"
-            icon="upload" />
+        <div className="asset-library-title-container">
+          <div className="asset-library-title-text">
+            Asset Library
+          </div>
+          <div className="btn-asset-upload">
+            <ActionButton
+              color="green"
+              action={this.handleAdd}
+              id="button-asset-upload"
+              tooltip="Upload Assets"
+              icon="upload" />
+          </div>
         </div>
+
         <div className="asset-container">
           {sortedAssets.map(this.makeNode)}
         </div>

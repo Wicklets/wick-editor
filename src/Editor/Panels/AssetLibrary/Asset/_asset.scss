@@ -43,6 +43,11 @@ $asset-height: 24px;
   cursor: grab;
 }
 
+.asset-icon {
+  width: $asset-height;
+  height: $asset-height;
+}
+
 .asset-name-text {
   margin-left: 4px;
   white-space: nowrap;
@@ -50,7 +55,7 @@ $asset-height: 24px;
 }
 
 .asset-item.asset-selected {
-  transition: .2s; 
+  transition: .2s;
   background-color: $wick-green-dark;
   color: white;
 }
