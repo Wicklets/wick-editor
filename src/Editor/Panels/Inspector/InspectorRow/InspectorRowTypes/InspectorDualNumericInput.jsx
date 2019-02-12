@@ -26,7 +26,6 @@ class InspectorDualNumericInput extends Component {
     return(
         <InspectorRow
           {...this.props}
-          icon={this.props.icon}
           input1={
             {type: "numeric",
             value: this.props.val1,

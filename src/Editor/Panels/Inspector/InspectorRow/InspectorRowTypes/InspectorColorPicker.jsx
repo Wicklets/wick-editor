@@ -26,13 +26,15 @@ class InspectorColorPicker extends Component {
     return(
         <InspectorRow
           {...this.props}
-          icon={this.props.icon}
           input1={
-            {type: "color",
-            color: this.props.val,
-            onChangeComplete: this.props.onChange,
-            id: this.props.id,
-            stroke: !this.props.stroke ? false : this.props.stroke,}
+            {
+              type: "color",
+              color: this.props.val,
+              onChangeComplete: this.props.onChange,
+              id: this.props.id,
+              stroke: !this.props.stroke ? false : this.props.stroke,
+              placement: "left",
+            }
           }
         />
     )

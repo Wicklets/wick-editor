@@ -354,11 +354,12 @@ class Inspector extends Component {
 
   renderOpacity() {
     return (
-      <InspectorNumericInput
+      <InspectorNumericSlider
         tooltip="Opacity"
         icon="opacity"
         val={this.getSelectionAttribute('opacity')}
         onChange={(val) => this.setSelectionAttribute('opacity', val)}
+        divider={false}
         id="inspector-opacity"/>
     )
   }
@@ -717,7 +718,6 @@ class Inspector extends Component {
   render() {
     return(
       <div className="docked-pane inspector">
-        <DockedTitle title={"Inspector"}></DockedTitle>
         {this.renderDisplay()}
         {this.renderActions()}
       </div>

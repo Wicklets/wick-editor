@@ -21,7 +21,6 @@ import React, { Component } from 'react';
 import './_inspectorrow.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-import RowIcon from 'Editor/Util/RowIcon/RowIcon';
 import InspectorInput from 'Editor/Panels/Inspector/InspectorRow/InspectorInput/InspectorInput';
 
 class InspectorRow extends Component {
@@ -29,11 +28,10 @@ class InspectorRow extends Component {
   render() {
     return (
       <div className="inspector-row">
-        {/* Icon */}
-        <RowIcon
-          tooltip={this.props.tooltip}
-          id={this.props.id === undefined ? "undefined-row-icon-" + this.props.icon : this.props.id + "-icon"}
-          type={this.props.icon}/>
+        {/* Identifier */}
+        <div className="inspector-row-identifier">
+          {this.props.tooltip}
+        </div>
         {/* Input or Preview*/}
         <div className="inspector-input-container">
           <InspectorInput {...this.props} />

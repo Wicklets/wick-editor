@@ -26,7 +26,6 @@ import WickInput from 'Editor/Util/WickInput/WickInput';
 // Quick documentation...
 // input1: object: input information, all props passed to child
 // input2: object: input information, all props passed to child
-// icon: image reference
 // divider: boolean: show x or don't show x, default to show x.
 
 class InspectorInput extends Component {

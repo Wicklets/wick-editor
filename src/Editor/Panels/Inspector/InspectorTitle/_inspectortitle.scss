@@ -20,21 +20,34 @@
 @import 'Editor/_wickbrand.scss';
 @import '../_inspector.scss';
 
-.selection-name-container {
+.inspector-title {
+  height: 50px;
+  padding-left: $inspector-padding;
+  padding-right: $inspector-padding;
+  white-space: nowrap;
   display: flex;
-  position: relative;
-  margin-top: 6px;
+  align-items: center;
 }
 
-.selection-icon {
-  width: $inspector-selection-icon-size;
-  height: $inspector-selection-icon-size;
+.inspector-title-name {
+  font-size: 30px;
+  color: $editor-primary-property-text;
+  font-family: 'Nunito Sans';
+  display: inline-block;
 }
 
-.selection-name {
-  font-size: 28px;
-  padding-left: 10px;
-  color: $heather-grey-light;
-  text-align: center;
-  line-height: $inspector-selection-icon-size;
+.inspector-title-selection-type {
+  height: 80%;
+  display: inline-flex;
+  align-items: center;
+  font-size: 20px;
+  color: $editor-menubar-project-text;
+  margin-left: 20px;
+}
+
+.inspector-selection-type-icon-container {
+  width: 30px;
+  height: 30px;
+  margin-right: 5px;
+  display: inline-block;
 }

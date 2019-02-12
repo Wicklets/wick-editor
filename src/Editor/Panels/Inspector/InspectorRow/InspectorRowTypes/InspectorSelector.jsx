@@ -26,7 +26,6 @@ class InspectorSelector extends Component {
     return(
         <InspectorRow
           {...this.props}
-          icon={this.props.icon}
           input1={
             {type: "select",
             defaultValue: this.props.value,

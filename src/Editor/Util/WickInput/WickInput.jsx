@@ -58,7 +58,7 @@ class WickInput extends Component {
     return (
       <NumericInput
         style={false}
-        className="wick-input"
+        className="wick-numeric-input"
         precision={2}
         format={format}
         {...this.props}
@@ -108,7 +108,8 @@ class WickInput extends Component {
       )
     } else if (this.props.type === "color") {
       return (
-        <ColorPicker className="wick-color-picker"
+        <ColorPicker
+          className="wick-color-picker"
           {...this.props}/>
       )
     } else if (this.props.type === "checkbox") {

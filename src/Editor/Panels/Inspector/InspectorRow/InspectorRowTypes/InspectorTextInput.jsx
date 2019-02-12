@@ -26,7 +26,6 @@ class InspectorTextInput extends Component {
     return(
         <InspectorRow
           {...this.props}
-          icon={this.props.icon}
           input1={
             {type: "text",
             value: this.props.val,

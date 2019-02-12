@@ -56,7 +56,7 @@ class ColorPicker extends Component {
         onClick={this.toggle}
         style={this.getStyle()}>
         <Popover
-          placement={"bottom"}
+          placement={this.props.placement}
           isOpen={this.state.open}
           target={itemID}
           toggle={this.toggle}

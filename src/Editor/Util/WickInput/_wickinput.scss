@@ -29,6 +29,17 @@
   color: $interface-input-text;
 }
 
+.wick-numeric-input {
+  padding: 2px;
+  width: 100%;
+  height: 100%;
+  border-radius: $interface-input-roundness;
+  border: none;
+  background-color: $editor-primary;
+  color: $editor-primary-property-text;
+  border: 4px solid $editor-primary-outline
+}
+
 .wick-input.read-only {
     background-color: gray;
 }

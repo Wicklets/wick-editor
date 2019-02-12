@@ -688,8 +688,8 @@ class Editor extends EditorCore {
 
                     {/* Right Sidebar */}
                       <ReflexElement
-                        size={this.state.inspectorSize}
-                        maxSize={250} minSize={150}
+                        size={300}
+                        maxSize={300} minSize={300}
                         onResize={this.resizeProps.onResize}
                         onStopResize={this.resizeProps.onStopInspectorResize}>
                         <ReflexContainer orientation="horizontal">

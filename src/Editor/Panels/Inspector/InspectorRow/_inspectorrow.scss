@@ -21,14 +21,29 @@
 @import '../_inspector.scss';
 
 $inspector-element-margin: 4px;
-$icon-width: $inspector-row-height;
+$row-identifier-width: 175px;
 $input-container-margin: 4px;
 $input-margin: calc(2*#{$inspector-element-margin});
-$input-space: calc(calc(100% - #{$icon-width}) - #{$input-margin});
+$input-space: calc(calc(100% - #{$row-identifier-width}) - #{$input-margin});
 $single-input-size: 100%;
 $double-input-container-width: $input-space;
 $double-input-divider-width: 10%;
 $double-input-unit-width: 45%;
+
+.inspector-row-identifier {
+  width: $row-identifier-width;
+  max-width: $row-identifier-width;
+  height: 100%;
+  color: $editor-primary-property-text;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.inspector-row-identifier:hover {
+  overflow: auto;
+}
 
 .inspector-row {
   display: flex;
