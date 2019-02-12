@@ -57,14 +57,10 @@
 }
 
 .project-settings-preview {
-  height: 100%;
-  display: flex;
-  align-items: center;
-}
-
-.project-settings-image {
   height: 80%;
   padding-left: 8px;
   padding-right: 16px;
+  display: flex;
+  align-items: center;
   cursor: pointer;
 }

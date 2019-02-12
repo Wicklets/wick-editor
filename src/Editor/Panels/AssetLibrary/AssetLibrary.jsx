@@ -23,31 +23,37 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import DockedTitle from 'Editor/Util/DockedTitle/DockedTitle';
 import Asset from './Asset/Asset';
 import ActionButton from 'Editor/Util/ActionButton/ActionButton';
+import WickInput from 'Editor/Util/WickInput/WickInput';
+import ToolIcon from 'Editor/Util/ToolIcon/ToolIcon';
 
 import './_assetlibrary.scss';
 
 class AssetLibrary extends Component {
   constructor(props) {
     super(props);
-    this.makeNode = this.makeNode.bind(this);
-    this.handleDelete = this.handleDelete.bind(this);
-    this.handleAdd = this.handleAdd.bind(this);
-    this.handleEdit = this.handleEdit.bind(this);
+
+    this.state = {
+      filterText: '',
+    }
   }
 
-  handleDelete(uuid) {
-    console.log("DEL", uuid);
-  }
-
-  handleAdd(uuid) {
+  handleAdd = (uuid) => {
     this.props.openFileDialog();
   }
 
-  handleEdit(uuid) {
-    console.log("EDIT", uuid);
+  updateFilter = (text) => {
+    this.setState({
+      filterText: text,
+    });
   }
 
-  makeNode(assetObject, i) {
+  filterArray = (array) => {
+    return array.filter( item => {
+        return item.name.includes(this.state.filterText);
+    });
+  }
+
+  makeNode = (assetObject, i) => {
     return (
       <Asset
        key={i}
@@ -70,26 +76,45 @@ class AssetLibrary extends Component {
     return copiedAssets;
   }
 
+  renderTitle = () => {
+    return (
+      <div className="asset-library-title-container">
+        <div className="asset-library-title-text">
+          Asset Library
+        </div>
+        <div className="btn-asset-upload">
+          <ActionButton
+            color="green"
+            action={this.handleAdd}
+            id="button-asset-upload"
+            tooltip="Upload Assets"
+            text="upload" />
+        </div>
+      </div>
+    )
+  }
+
   render() {
-    let sortedAssets = this.sortAssets(this.props.assets);
+    let filteredAssets = this.filterArray(this.props.assets)
+    let sortedFilteredAssets = this.sortAssets(filteredAssets);
     return(
       <div className="docked-pane asset-library">
-        <div className="asset-library-title-container">
-          <div className="asset-library-title-text">
-            Asset Library
+        {this.renderTitle()}
+        <div className="asset-library-body">
+          <div className="asset-library-filter">
+            <div className="asset-library-filter-icon">
+              <ToolIcon name="search" />
+            </div>
+            <WickInput
+              id="asset-library-filter-input"
+              placeholder="filter..."
+              type="text"
+              onChange={this.updateFilter}
+              value={this.state.filterText}/>
           </div>
-          <div className="btn-asset-upload">
-            <ActionButton
-              color="green"
-              action={this.handleAdd}
-              id="button-asset-upload"
-              tooltip="Upload Assets"
-              icon="upload" />
+          <div className="asset-library-asset-container">
+            {sortedFilteredAssets.map(this.makeNode)}
           </div>
-        </div>
-
-        <div className="asset-container">
-          {sortedAssets.map(this.makeNode)}
         </div>
       </div>
     )

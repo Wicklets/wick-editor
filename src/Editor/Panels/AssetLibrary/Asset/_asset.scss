@@ -20,32 +20,40 @@
 @import 'Editor/_wickbrand.scss';
 
 $asset-height: 24px;
+$asset-margin: 4px;
 
 .asset-item {
-  width: 100%;
+  transition: .2s;
+  width: calc(100% - 2 * #{$asset-margin};
   height: $asset-height;
   line-height: $asset-height;
-  background-color: $interface-tertiary;
-  color: $interface-tertiary-text;
-  margin-top: 4px;
-  padding-left: 4px;
+  background-color: $editor-secondary;
+  color: $editor-secondary-text;
+  margin-top: $asset-margin;
+  margin-left: $asset-margin;
+  margin-right: $asset-margin;
+  padding-left: $asset-margin;
+  padding-right: $asset-margin;
   vertical-align: center;
   border-radius: $interface-roundness-primary;
   overflow: hidden;
+  box-sizing: border-box;
 
   display: flex;
   align-items: center;
 }
 
 .asset-item:hover {
-  background-color: $interface-quaternary;
-  color: $interface-tertiary-text;
+  background-color: $editor-primary;
+  color: $editor-primary-property-text;
   cursor: grab;
+
+  overflow: auto;
 }
 
 .asset-icon {
-  width: $asset-height;
-  height: $asset-height;
+  width: calc(#{$asset-height} * .8);
+  height: calc(#{$asset-height} * .8);
 }
 
 .asset-name-text {
@@ -56,6 +64,6 @@ $asset-height: 24px;
 
 .asset-item.asset-selected {
   transition: .2s;
-  background-color: $wick-green-dark;
-  color: white;
+  background-color: $editor-primary;
+  color: $editor-primary-property-text;
 }

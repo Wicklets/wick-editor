@@ -19,8 +19,8 @@
 
 @import 'Editor/_wickbrand.scss';
 
-$asset-library-padding: 6px;
 $upload-button-height: 30px;
+$filter-height: 40px;
 
 .asset-library {
   width: 100%;
@@ -29,44 +29,73 @@ $upload-button-height: 30px;
   background-color: $editor-primary;
   border-right: $editor-outline-padding solid $editor-primary-outline;
   border-left: $editor-outline-padding solid $editor-primary-outline;
+  border-bottom: $editor-outline-padding solid $editor-primary-outline;
   margin-bottom: 10px;
   padding-left: $editor-panel-padding;
   padding-right: $editor-panel-padding;
+  display: flex;
+  flex-direction: column;
 }
 
-.asset-container {
+.asset-library-title-container {
+  display: flex;
+  align-items: center;
   margin-top: $docked-margin;
-  height: calc(100% - (4 * #{$docked-margin}) - #{$docked-title-height} - #{$upload-button-height});
-  overflow-y: auto;
-  display: block;
-  background-color: $interface-secondary;
 }
 
 .asset-library-title-text {
   color: $editor-primary-property-text;
   font-size: 20px;
-}
-
-.filter-bar {
-  height: 20px;
-}
-
-.btn-container {
-  display: table;
-  margin-left: auto;
-  margin-right: 0;
-  width: auto;
-}
-
-.btn-asset-action {
-  display: table-cell;
-  margin-left: 2px;
-  margin-right: 2px;
-  padding:2px;
+  display: inline-flex;
+  align-items: center;
+  width: 200px;
 }
 
 .btn-asset-upload {
-  width: calc(100% - calc(2 * #{$docked-margin}));
+  width: 100px;
   height: $upload-button-height;
+  display: inline-block;
+  margin-left: auto;
+}
+
+.asset-library-body {
+  height: 100%;
+  background-color: $editor-tertiary;
   margin-top: $docked-margin;
+  margin-bottom: $docked-margin;
+  border-radius: 4px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.asset-library-filter {
+  top: 0;
+  width: 100%;
+  height: $filter-height;
+  max-height: $filter-height;
+  background-color: $editor-secondary;
+  display: flex;
+  align-items: center;
+}
+
+.asset-library-filter-icon {
+  height: calc(#{$filter-height} * .5);
+  width: calc(#{$filter-height} * .5);
+  margin-left: 4px;
+  margin-right: 4px;
+}
+
+.asset-library-asset-container {
+  height: 100%;
+}
+
+#asset-library-filter-input {
+  background: transparent;
+  border: none;
+  color: $editor-primary-property-text;
+}
+
+#asset-library-filter-input::placeholder {
+  color: $editor-primary-property-text;
 }

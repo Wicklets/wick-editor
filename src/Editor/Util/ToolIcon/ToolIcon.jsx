@@ -56,8 +56,9 @@ import iconRedo from 'resources/tool-icons/redo.svg';
 
 // Assets
 import iconImage from 'resources/tool-icons/image.svg';
-import iconGear from 'resources/inspector-icons/selection-icons/settings.png';
+import iconGear from 'resources/tool-icons/settings.svg';
 import iconGroup from 'resources/tool-icons/group.svg';
+import iconSearch from 'resources/tool-icons/search.svg';
 
 // Rows
 import iconBrushSize from "resources/inspector-icons/property-icons/brushsize.svg";
@@ -112,6 +113,7 @@ class ToolIcon extends Component {
       "cornerroundness": iconCornerRoundness,
       "close": iconClose,
       "delete": iconDelete,
+      "search": iconSearch,
       "duplicate": iconDuplicate,
       "ease": iconEase,
       "fillcolor": iconFillColor,

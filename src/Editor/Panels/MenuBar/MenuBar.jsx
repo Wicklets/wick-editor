@@ -20,8 +20,7 @@
 import React, { Component } from 'react';
 import './_menubar.scss';
 import MenuBarButton from './MenuBarButton/MenuBarButton';
-
-import iconSettings from 'resources/inspector-icons/selection-icons/settings.png';
+import ToolIcon from 'Editor/Util/ToolIcon/ToolIcon';
 
 class MenuBar extends Component {
 
@@ -62,7 +61,7 @@ class MenuBar extends Component {
             action={() => {this.openFileRef.current.click()}}/>
 
           <div className="project-settings-preview" onClick={() => this.props.openModal('ProjectSettings')}>
-            <img className="project-settings-image" src={iconSettings} alt="settings icon" />
+            <ToolIcon name='gear' />
           </div>
         </div>
 
