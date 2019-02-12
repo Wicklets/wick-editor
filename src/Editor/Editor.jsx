@@ -423,8 +423,9 @@ class Editor extends EditorCore {
    * @param  {React.Component} component  React component of the timeline.
    */
   onStopTimelineResize = ({domElement, component}) => {
-    var size = this.getSizeHorizontal(domElement);
+    var size = this.getSizeVertical(domElement);
 
+    console.log(size); 
     this.setState({
       timelineSize: size
     });
@@ -664,7 +665,7 @@ class Editor extends EditorCore {
                           </ReflexElement>
                           <ReflexSplitter {...this.resizeProps}/>
                           <ReflexElement
-                            minSize={50}
+                            minSize={100}
                             size={this.state.timelineSize}
                             onResize={this.resizeProps.onResize}
                             onStopResize={this.resizeProps.onStopTimelineResize}>
