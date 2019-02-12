@@ -425,7 +425,7 @@ class Editor extends EditorCore {
   onStopTimelineResize = ({domElement, component}) => {
     var size = this.getSizeVertical(domElement);
 
-    console.log(size); 
+    console.log(size);
     this.setState({
       timelineSize: size
     });
@@ -713,6 +713,7 @@ class Editor extends EditorCore {
 
                           {/* Asset Library */}
                           <ReflexElement
+                            minSize={100}
                             size={this.state.assetLibrarySize}
                             onResize={this.resizeProps.onResize}
                             onStopResize={this.resizeProps.onStopAssetLibraryResize}>
