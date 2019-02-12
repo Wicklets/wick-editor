@@ -48,17 +48,19 @@ class ColorPicker extends Component {
   }
 
   render() {
+    let itemID = this.props.id + '-button';
     return(
       <div
         className={"btn-color-picker"}
-        id={this.props.id + '-button'}
+        id={itemID}
         onClick={this.toggle}
         style={this.getStyle()}>
         <Popover
-          placement={this.props.placement}
+          placement={"bottom"}
           isOpen={this.state.open}
-          target={this.props.id + '-button'}
+          target={itemID}
           toggle={this.toggle}
+          boundariesElement={window}
         >
           <SketchPicker
             disableAlpha={ this.props.disableAlpha }

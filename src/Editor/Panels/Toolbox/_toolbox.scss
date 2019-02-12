@@ -19,16 +19,20 @@
 
 @import 'Editor/_wickbrand.scss';
 
-$tool-button-margin: 5px;
-$toolbox-min-button-size: 40px;
+$tool-button-margin: 3px;
+$toolbox-min-button-size: 35px;
 
 .tool-box {
   width: 100%;
   height: 100%;
-  background-color: $interface-primary;
+  background-color: $editor-primary;
   padding-left: 5px;
   padding-right: 5px;
   display: flex;
+  box-sizing: border-box;
+  border: $editor-outline-padding solid $editor-primary-outline;
+  border-top: none;
+  border-right: none;
   align-items: center;
   overflow: hidden;
 }
@@ -39,8 +43,14 @@ $toolbox-min-button-size: 40px;
 
 .tool-button {
   float: left;
-  margin-left: $tool-button-margin;
   min-width: $toolbox-min-button-size;
+  width: $toolbox-min-button-size;
+  height: $toolbox-min-button-size;
+}
+
+.toolbox-item {
+  margin-left: $tool-button-margin;
+  margin-right: $tool-button-margin;
 }
 
 .toolbox-actions-right {
@@ -59,11 +69,18 @@ $toolbox-min-button-size: 40px;
 
 .color-container {
   cursor: pointer;
-  width: 40px;
-  height: 40px;
+  width: 35px;
+  height: 35px;
   float: left;
-  margin-left: $tool-button-margin;
-  min-width: $toolbox-min-button-size;
+  min-width: 35px;
+}
+
+#tool-box-stroke-color-button {
+  border-radius: 20px;
+}
+
+#tool-box-fill-color-button {
+  border-radius: 20px;
 }
 
 #stroke-color-picker-container {

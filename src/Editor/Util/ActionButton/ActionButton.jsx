@@ -32,6 +32,7 @@ class ActionButton extends Component {
     let colorClass = this.props.color === undefined ? "action-button-blue" : "action-button-"+this.props.color;
     let btnID = this.props.id === undefined ? 'action-button-tooltip-nyi' : this.props.id;
     let isActive = this.props.isActive === undefined ? () => false : this.props.isActive;
+    let propClassName = this.props.className ? this.props.className : '';
 
     let finalClassName = classNames(colorClass, {'active-button' : isActive()})
 
@@ -39,7 +40,7 @@ class ActionButton extends Component {
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
 
     return (
-      <div data-tip data-for={btnID} className="action-button">
+      <div data-tip data-for={btnID} className={classNames("action-button", propClassName)}>
         <WickInput
           className={finalClassName}
           type="button"

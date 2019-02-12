@@ -117,7 +117,7 @@ $editor-menubar-option-text: #8A8A8A;
 
 $editor-green-highlight: #1EE29A;
 
-$editor-outline-padding: 4px; 
+$editor-outline-padding: 4px;
 
 
 // define Bootstrap 4 button Mixins
@@ -150,9 +150,9 @@ $editor-outline-padding: 4px;
   border: darken($wick-green-dark, 12.5%);
 }
 // define interface element properties
-$splitter-size: 6px;
-$splitter-color: $interface-tertiary-text;
-$splitter-highlight-color: $interface-tertiary;
+$splitter-size: $editor-outline-padding;
+$splitter-color: $editor-primary-outline;
+$splitter-highlight-color: $editor-primary;
 
 $interface-roundness-primary: 2px;
 $interface-roundness-secondary: 4px;

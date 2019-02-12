@@ -81,7 +81,7 @@ class Editor extends EditorCore {
       onionSkinSeekForwards: 1,
       onionSkinSeekBackwards: 1,
       previewPlaying: false,
-      activeModalName: 'AlphaWarning',
+      activeModalName: null,
       activeModalQueue: [],
       codeEditorOpen: false,
       codeEditorWindowProperties: {

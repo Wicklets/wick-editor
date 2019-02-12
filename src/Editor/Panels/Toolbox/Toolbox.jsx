@@ -21,94 +21,42 @@ import React, { Component } from 'react';
 import './_toolbox.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-import ToolButton from 'Editor/Util/ToolButton/ToolButton';
 import PlayButton from 'Editor/Util/PlayButton/PlayButton';
 import WickInput from 'Editor/Util/WickInput/WickInput';
 import ActionButton from 'Editor/Util/ActionButton/ActionButton';
 
 class Toolbox extends Component {
-  constructor (props) {
-    super(props);
-
-    this.iconProps = {
-      toolIsActive: this.toolIsActive.bind(this),
-      setActiveTool: this.props.setActiveTool,
-    };
-  }
-
-  toolIsActive (toolName) {
-    return toolName === this.props.getActiveTool();
+  renderToolButton = (name, tooltip) => {
+    return (
+      <ActionButton
+        color="tool"
+        isActive={ () => this.props.getActiveTool() === name }
+        id={"tool-button-" + name}
+        tooltip={tooltip}
+        action={ () => this.props.setActiveTool(name) }
+        tooltipPlace="bottom"
+        icon={name}
+        className="tool-button toolbox-item"/>
+    )
   }
 
   render() {
     return(
       <div className="tool-box">
-        <ToolButton
-          name="cursor"
-          tooltip="Cursor"
-          {...this.iconProps}
-        />
-        <ToolButton
-          name="brush"
-          tooltip="Brush"
-          {...this.iconProps}
-        />
-        <ToolButton
-          name="pencil"
-          tooltip="Pencil"
-          {...this.iconProps}
-        />
-        <ToolButton
-          name="eraser"
-          tooltip="Eraser"
-          {...this.iconProps}
-        />
-        <ToolButton
-          name="rectangle"
-          tooltip="Rectangle"
-          {...this.iconProps}
-        />
-        <ToolButton
-          name="ellipse"
-          tooltip="Ellipse"
-          {...this.iconProps}
-        />
-        <ToolButton
-          name="line"
-          tooltip="Line"
-          {...this.iconProps}
-        />
-        <ToolButton
-          name="text"
-          tooltip="Text"
-          {...this.iconProps}
-        />
-        {/*<ToolButton
-          name="eyedropper"
-          tooltip="Eyedropper"
-          {...this.iconProps}
-        />*/}
-        <ToolButton
-          name="pan"
-          tooltip="Pan"
-          {...this.iconProps}
-        />
-        <ToolButton
-          name="zoom"
-          tooltip="Zoom"
-          {...this.iconProps}
-        />
-        <ToolButton
-          name="fillbucket"
-          tooltip="Fill Bucket"
-          {...this.iconProps}
-        />
-        {/*<ToolButton
-          name="text"
-          {...this.iconProps}
-        />*/}
+        {this.renderToolButton('cursor', "Cursor")}
+        {this.renderToolButton('brush', "Brush")}
+        {this.renderToolButton('pencil', "Pencil")}
+        {this.renderToolButton('eraser', "Eraser")}
+        {this.renderToolButton('rectangle', "Rectangle")}
+        {this.renderToolButton('ellipse', "Ellipse")}
+        {this.renderToolButton('line', "Line")}
+        {this.renderToolButton('text', "Text")}
+        {/*{this.renderToolButton('eyedropper', "Eyedropper")}*/}
+        {this.renderToolButton('pan', "Pan")}
+        {this.renderToolButton('zoom', "Zoom")}
+        {this.renderToolButton('fillbucket', "Fill Bucket")}
 
-      <div className="color-container" id="fill-color-picker-container">
+      <div className="color-container toolbox-item" id="fill-color-picker-container">
           <WickInput
             type="color"
             color= {this.props.getToolSettings().fillColor}
@@ -119,7 +67,7 @@ class Toolbox extends Component {
             placement="bottom"
             />
         </div>
-        <div className="color-container" id="stroke-color-picker-container">
+        <div className="color-container toolbox-item" id="stroke-color-picker-container">
           <WickInput
             type="color"
             color= {this.props.getToolSettings().strokeColor}
@@ -133,27 +81,29 @@ class Toolbox extends Component {
         </div>
 
         <div className="toolbox-actions-right">
-          <div className="toolbox-action-button">
+          <div className="toolbox-action-button toolbox-item">
             <ActionButton
               id='toolbox-undo-button'
               icon='undo'
               color='tool'
               action={this.props.undoAction}
               tooltip='undo'
-              tooltipPlace='bottom'/>
+              tooltipPlace='bottom'
+              className='tool-button'/>
           </div>
-          <div className="toolbox-action-button">
+          <div className="toolbox-action-button toolbox-item">
             <ActionButton
               id='toolbox-redo-button'
               icon='redo'
               color='tool'
               action={this.props.redoAction}
               tooltip='redo'
-              tooltipPlace='bottom'/>
+              tooltipPlace='bottom'
+              className='tool-button'/>
           </div>
-          <div className="toolbox-action-button">
+          <div className="toolbox-action-button toolbox-item">
             <PlayButton
-              className="play-button"
+              className="play-button tool-button"
               playing={this.props.previewPlaying}
               onClick={this.props.togglePreviewPlaying}/>
           </div>

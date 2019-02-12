@@ -25,7 +25,8 @@
   background-color: $editor-primary;
   overflow: visible;
   border: $editor-outline-padding solid $editor-primary-outline;
-  display: border-box;
+  display: flex;
+  box-sizing: border-box;
   align-items: center;
 }
 
