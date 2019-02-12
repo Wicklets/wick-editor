@@ -56,15 +56,10 @@ class Editor extends EditorCore {
     // "Live" editor states
     this.project = null;
     this.paper = null;
-    this.canvas = null;
-
-    // For focusing
-    this.canvasElement = null;
 
     // GUI state
     this.state = {
       project: null,
-      selection: this.emptySelection(),
       activeTool: 'cursor',
       toolSettings: {
         fillColor: '#ffaabb',
@@ -77,9 +72,6 @@ class Editor extends EditorCore {
         pressureEnabled: false,
         sizeJump: 5,
       },
-      onionSkinEnabled: false,
-      onionSkinSeekForwards: 1,
-      onionSkinSeekBackwards: 1,
       previewPlaying: false,
       activeModalName: null,
       activeModalQueue: [],
@@ -121,9 +113,6 @@ class Editor extends EditorCore {
     };
     window.addEventListener("resize", this.resizeProps.onWindowResize);
 
-    // Preview play tick loop
-    this.tickLoopIntervalID = null;
-
     // Save the project state before preview playing so we can retrieve it later
     this.beforePreviewPlayProjectState = null;
 
@@ -142,7 +131,6 @@ class Editor extends EditorCore {
     // Initialize "live" engine state
     this.project = new window.Wick.Project();
     this.paper = window.paper;
-    this.canvas = null;
 
     // Initialize local storage
     localForage.config({
@@ -169,91 +157,18 @@ class Editor extends EditorCore {
 
   componentDidMount = () => {
     this.refocusEditor();
-
-    this.showAutosavedProjects()
-  }
-
-  showAutosavedProjects = () => {
-    this.doesAutoSavedProjectExist(bool => { if (bool) {
-      this.queueModal('AutosaveWarning');
-      }
-    });
-  }
-
-  /**
-   * Resets the editor in preparation for a project load.
-   */
-  resetEditorForLoad = () => {
-    this.history.clearHistory();
-  }
-
-  /**
-   * Calls this.setState with a new state, and checks if the project or selection state changed, and if it did, saves the current state to the history. This function does nothing if this.lockState is set to true.
-   * @param {object} nextState - The state to pass along to this.setState.
-   */
-  setStateWrapper = (nextState) => {
-    if(this.lockState) return;
-
-    nextState = {
-      ...this.state,
-      ...nextState,
-    }
-
-    window.paper.drawingTools.text.finishEditingText();
-
-    let projectOrSelectionWillChange = this.projectOrSelectionChanged(this.state, nextState);
-    this.setState(nextState, () => {
-      if(projectOrSelectionWillChange) {
-        this.history.saveState();
-        this.throttledAutoSaveProject();
-      }
-    });
-  }
-
-  /**
-   * Autosave the project in the state, if it exists.
-   */
-  autoSaveProject = () => {
-    if (this.project === undefined) return
-    localForage.setItem(this.autoSaveKey, this.project.serialize());
+    this.showAutosavedProjects();
   }
 
   componentDidUpdate = (prevProps, prevState) => {
-    this.updateCanvas();
+    //Render wick canvas stuff
+    this.project.view.render();
 
-    if(this.state.previewPlaying && !prevState.previewPlaying) {
-      this.startTickLoop();
-    }
-
-    if(!this.state.previewPlaying && prevState.previewPlaying) {
-      this.stopTickLoop();
-    }
-  }
-
-  /**
-   * Updates the canvas element ref in the dom.
-   * @param  {React.ref} canvasElementRef Reference to the canvas object.
-   */
-  updateCanvasElementRef = (canvasRef) => {
-    this.canvasElement = canvasRef;
-  }
-
-  updateCanvas = (skipUpdateSelection) => {
-    // re-render the canvas
-    this.canvas.render(this.project, {
-      onionSkinEnabled: this.state.onionSkinEnabled,
-      onionSkinSeekBackwards: this.state.onionSkinSeekBackwards,
-      onionSkinSeekForwards: this.state.onionSkinSeekForwards,
-    });
-
-    if(skipUpdateSelection) return;
-
-    // update the paper.js selection using the editor selection state
     window.paper.project.selection.clear();
-    this.getSelectedPaths().forEach(path => {
+    this.project.selection.getSelectedObjects('Path').forEach(path => {
       window.paper.project.selection.addItemByName(path.uuid);
     });
-    this.getSelectedClips().forEach(clip => {
+    this.project.selection.getSelectedObjects('Clip').forEach(clip => {
       window.paper.project.selection.addItemByName('wick_clip_'+clip.uuid);
     });
     window.paper.project.selection.updateGUI();
@@ -278,58 +193,54 @@ class Editor extends EditorCore {
     if(this.state.previewPlaying) {
       this.canvas.interactTool.activate();
     }
+
+    if(this.state.previewPlaying && !prevState.previewPlaying) {
+      this.beforePreviewPlayProjectState = this.project.serialize();
+      this.project.play({
+        onError: (error) => {
+          this.stopPreviewPlaying(error)
+        },
+        onAfterTick: () => {
+          // Force re-render timeline...
+        },
+        onBeforeTick: () => {
+
+        },
+      });
+    }
+
+    if(!this.state.previewPlaying && prevState.previewPlaying) {
+      this.project.stop();
+      this.project = window.Wick.Project.deserialize(this.beforePreviewPlayProjectState);
+    }
   }
 
-  updateTimeline = () => {
-    let AnimationTimeline = window.AnimationTimeline;
-    let timeline = this.project.focus.timeline;
-    let selectedUUIDs = this.getSelectedTimelineObjects().map(obj => {
-      return obj.uuid;
-    });
-    let onionSkinOptions = this.getOnionSkinOptions();
+//
 
-    AnimationTimeline.setData({
-      playheadPosition: timeline.playheadPosition,
-      activeLayerIndex: timeline.activeLayerIndex,
-      onionSkinEnabled: onionSkinOptions.onionSkinEnabled,
-      onionSkinSeekForwards: onionSkinOptions.onionSkinSeekForwards,
-      onionSkinSeekBackwards:onionSkinOptions.onionSkinSeekBackwards,
-      layers: timeline.layers.map(layer => {
-        return {
-          id: layer.uuid,
-          label: layer.name,
-          locked: layer.locked,
-          hidden: layer.hidden,
-          frames: layer.frames.map(frame => {
-            return {
-              id: frame.uuid,
-              label: frame.identifier,
-              start: frame.start,
-              end: frame.end,
-              selected: selectedUUIDs.indexOf(frame.uuid) !== -1,
-              contentful: frame.contentful,
-              tweens: frame.tweens.map(tween => {
-                return {
-                  uuid: tween.uuid,
-                  selected: selectedUUIDs.indexOf(tween.uuid) !== -1,
-                  playheadPosition: tween.playheadPosition,
-                }
-              }),
-            }
-          }),
-        }
-      })
+  showAutosavedProjects = () => {
+    this.doesAutoSavedProjectExist(bool => { if (bool) {
+      this.queueModal('AutosaveWarning');
+      }
     });
-    AnimationTimeline.repaint();
   }
 
-  applyCanvasChangesToProject = () => {
-    this.canvas.applyChanges(this.project, window.paper.project.layers);
+  /**
+   * Resets the editor in preparation for a project load.
+   */
+  resetEditorForLoad = () => {
+    this.history.clearHistory();
+  }
+
+  /**
+   * Autosave the project in the state, if it exists.
+   */
+  autoSaveProject = () => {
+    if (this.project === undefined) return
+    localForage.setItem(this.autoSaveKey, this.project.serialize());
   }
 
   projectOrSelectionChanged = (state, nextState) => {
-    return JSON.stringify(state.project) !== JSON.stringify(nextState.project)
-        || JSON.stringify(state.selection) !== JSON.stringify(nextState.selection);
+    return JSON.stringify(state.project) !== JSON.stringify(nextState.project);
   }
 
   onWindowResize = () => {
@@ -338,7 +249,7 @@ class Editor extends EditorCore {
   }
 
   onResize = (e) => {
-    this.canvas.resize();
+    this.project.view.resize();
     window.AnimationTimeline.resize();
   }
 
@@ -494,13 +405,6 @@ class Editor extends EditorCore {
   }
 
   /**
-   * Focuses the canvas DOM element.
-   */
-  focusCanvasElement = () => {
-    this.canvasElement.focus();
-  }
-
-  /**
    * Toggles the preview play between on and off states.
    */
   togglePreviewPlaying = () => {
@@ -547,41 +451,6 @@ class Editor extends EditorCore {
     }
   }
 
-  /**
-   * Begins running the project at the projects framerate in the in-editor
-   * player. The loop will stop if an error is returned by the the project.
-   */
-  startTickLoop = () => {
-    this.beforePreviewPlayProjectState = this.project.serialize();
-    this.tickLoopIntervalID = setInterval(() => {
-      let error = this.project.tick();
-
-      if (error) {
-        this.stopPreviewPlaying([error]);
-        return;
-      }
-
-      this.canvas.interactTool.processInputPreTick(this.project);
-      this.updateCanvas(true);
-      this.updateTimeline();
-    }, 1000 / this.project.framerate);
-  }
-
-  /**
-   * Stops the current tick loop which is running the project. Returns the
-   * project to the state it was in before it was run.
-   */
-  stopTickLoop = () => {
-    clearInterval(this.tickLoopIntervalID);
-
-    this.project = window.Wick.Project.deserialize(this.beforePreviewPlayProjectState);
-    this.setState({project: this.beforePreviewPlayProjectState});
-  }
-
-  setWickCanvas = (wickCanvas) => {
-    this.canvas = wickCanvas;
-  }
-
   render = () => {
       return (
     <Dropzone
@@ -614,7 +483,8 @@ class Editor extends EditorCore {
                       openModal={this.openModal}
                       projectName={this.project.name}
                       exportProjectAsWickFile={this.exportProjectAsWickFile}
-                      importProjectAsWickFile={this.importProjectAsWickFile}/>
+                      importProjectAsWickFile={this.importProjectAsWickFile}
+                    />
                   </DockedPanel>
                 </div>
                 <div id="editor-body">
@@ -648,14 +518,9 @@ class Editor extends EditorCore {
                                 <DockedPanel>
                                   <Canvas
                                     project={this.project}
-                                    updateProjectInState={this.updateProjectInState}
-                                    canvas={this.canvas}
                                     paper={this.paper}
                                     selectObjects={this.selectObjects}
-                                    updateCanvas={this.updateCanvas}
-                                    updateCanvasElementRef={this.updateCanvasElementRef}
                                     createImageFromAsset={this.createImageFromAsset}
-                                    setWickCanvas={this.setWickCanvas}
                                   />
                                 </DockedPanel>
                               </ReflexElement>
@@ -671,8 +536,6 @@ class Editor extends EditorCore {
                             <DockedPanel  showOverlay={this.state.previewPlaying}>
                               <Timeline
                                 project={this.project}
-                                updateProjectInState={this.updateProjectInState}
-                                updateTimeline={this.updateTimeline}
                                 getSelectedTimelineObjects={this.getSelectedTimelineObjects}
                                 selectObjects={this.selectObjects}
                                 setOnionSkinOptions={this.setOnionSkinOptions}

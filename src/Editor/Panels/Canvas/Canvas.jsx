@@ -53,8 +53,6 @@ class Canvas extends Component {
   constructor (props) {
     super(props);
 
-    this.wickCanvas = null;
-
     this.onCanvasModified = this.onCanvasModified.bind(this);
     this.onSelectionChanged = this.onSelectionChanged.bind(this);
 
@@ -62,13 +60,13 @@ class Canvas extends Component {
   }
 
   componentDidMount() {
-    this.wickCanvas = new window.Wick.Canvas(this.canvasContainer.current);
-    this.props.setWickCanvas(this.wickCanvas);
-    this.wickCanvas.resize();
+    this.canvasContainer = this.canvasContainer.current;
+    this.props.project.view.setCanvasContainer(this.canvasContainer);
+    this.props.project.view.resize();
 
-    this.canvasContainer.current.children[0].setAttribute('tabindex', 0);
-    this.canvasContainer.current.children[0].onclick = (e) => {
-      this.canvasContainer.current.children[0].focus();
+    this.canvasContainer.children[0].setAttribute('tabindex', 0);
+    this.canvasContainer.children[0].onclick = (e) => {
+      this.canvasContainer.children[0].focus();
     }
 
     window.paper.view.zoom = 1;
@@ -79,14 +77,14 @@ class Canvas extends Component {
 
     window.paper.drawingTools.onCanvasModified(this.onCanvasModified);
     window.paper.drawingTools.onSelectionChanged(this.onSelectionChanged);
-
-    this.props.updateCanvas();
-    this.props.updateCanvasElementRef(this.canvasContainer.current.children[0]); 
   }
 
   onCanvasModified (e) {
-    this.wickCanvas.applyChanges(this.props.project, e.layers);
-    this.props.updateProjectInState();
+    return;
+    this.project.view.applyChanges();
+    this.props.setState({
+      project: this.props.project.serialize(),
+    });
   }
 
   onSelectionChanged (e) {

@@ -35,9 +35,9 @@ class EditorCore extends Component {
    * @param {string} newTool - The string representation of the tool to switch to.
    */
   setActiveTool = (newTool) => {
-    let newState = { activeTool: newTool };
-    newState.selection = this.emptySelection();
-    this.setStateWrapper(newState);
+    this.setState({
+      activeTool: newTool
+    });
   }
 
   /**
@@ -53,7 +53,7 @@ class EditorCore extends Component {
    * @param {object} newToolSettings - An object of key-value pairs where the keys represent tool settings and the values represent the values to change those settings to.
    */
   setToolSettings = (newToolSettings) => {
-    this.setStateWrapper({
+    this.setState({
       toolSettings: {
         ...this.state.toolSettings,
         ...newToolSettings,
@@ -109,7 +109,6 @@ class EditorCore extends Component {
     return selection;
   }
 
-
   /**
    * Returns a serialized version of the selection.
    * @return {object} Serialized representation of the selection.
@@ -162,55 +161,7 @@ class EditorCore extends Component {
    * @returns {string} The string representation of the type of object/objects selected
    */
   getSelectionType = () => {
-    let numTimelineObjects = this.getSelectedTimelineObjects().length;
-    let numFrames = this.getSelectedFrames().length;
-    let numTweens = this.getSelectedTweens().length;
-    let numCanvasObjects = this.getSelectedCanvasObjects().length;
-    let numPaths = this.getSelectedPaths().length;
-    let numClips = this.getSelectedClips().length;
-    let numAssetLibraryObjects = this.getSelectedAssetLibraryObjects().length;
-    let numSoundAssets = this.getSelectedSoundAssets().length;
-    let numImageAssets = this.getSelectedImageAssets().length;
-
-    if(numTimelineObjects > 0) {
-      if(numFrames > 0 && numTweens > 0) {
-        return 'multitimeline';
-      } else if (numFrames === 1) {
-        return 'frame';
-      } else if (numTweens === 1) {
-        return 'tween';
-      } else if (numFrames > 1) {
-        return 'multiframe';
-      } else if (numTweens > 1) {
-        return 'multitween';
-      }
-    } else if(numCanvasObjects > 0) {
-      if(numPaths > 0 && numClips > 0) {
-        return 'multicanvasmixed';
-      } else if (numPaths === 1) {
-        return 'path';
-      } else if (numClips === 1) {
-        return 'clip';
-      } else if (numPaths > 1) {
-        return 'multipath';
-      } else if (numClips > 1) {
-        return 'multiclip';
-      }
-    } else if(numAssetLibraryObjects > 0) {
-      if (numSoundAssets > 0 && numImageAssets > 0) {
-        return 'multiassetmixed';
-      } else if (numSoundAssets === 1) {
-        return 'soundasset';
-      } else if (numImageAssets === 1) {
-        return 'imageasset';
-      } else if (numSoundAssets > 1) {
-        return 'multisoundasset';
-      } else if (numImageAssets > 1) {
-        return 'multiimageasset';
-      }
-    } else {
-      return null;
-    }
+    return this.project.selection.types[0];
   }
 
   /**
@@ -218,10 +169,10 @@ class EditorCore extends Component {
    * @return {boolean} True if the selection is scriptable.
    */
   selectionIsScriptable = () => {
-    let type = this.getSelectionType();
-    return type === 'frame'
-        || type === 'clip'
-        || type === 'button';
+    return this.project.selection.numObjects === 1
+        && (this.project.selection.types[0] === 'Clip' ||
+            this.project.selection.types[0] === 'Frame' ||
+            this.project.selection.types[0] === 'Button');
   }
 
 
@@ -230,7 +181,7 @@ class EditorCore extends Component {
    * @returns {(<Wick.Frame>|<Wick.Tween>)[]} An array containing the selected tweens and frames
    */
   getSelectedTimelineObjects = () => {
-    return this.getSelectedFrames().concat(this.getSelectedTweens());
+    return this.project.selection.getSelectedObjects('Timeline');
   }
 
   /**
@@ -238,9 +189,7 @@ class EditorCore extends Component {
    * @returns {<Wick.Frame>)[]} An array containing the selected frames.
    */
   getSelectedFrames = () => {
-    return this.state.selection.timeline.frames.map(uuid => {
-      return this.project.getChildByUUID(uuid);
-    });
+    return this.project.selection.getSelectedObjects('Frame');
   }
 
   /**
@@ -248,9 +197,7 @@ class EditorCore extends Component {
    * @returns {<Wick.Tween>)[]} An array containing the selected tweens.
    */
   getSelectedTweens = () => {
-    return this.state.selection.timeline.tweens.map(uuid => {
-      return this.project.getChildByUUID(uuid);
-    });
+    return this.project.selection.getSelectedObjects('Tween');
   }
 
   /**
@@ -258,7 +205,7 @@ class EditorCore extends Component {
    * @returns {(<Wick.Path>|<Wick.Clip>|<Wick.Button>)[]} An array containing the selected clips and paths
    */
   getSelectedCanvasObjects = () => {
-    return this.getSelectedPaths().concat(this.getSelectedClips());
+    return this.project.selection.getSelectedObjects('Canvas');
   }
 
   /**
@@ -266,9 +213,7 @@ class EditorCore extends Component {
    * @returns {<Wick.Path>)[]} An array containing the selected paths.
    */
   getSelectedPaths = () => {
-    return this.state.selection.canvas.paths.map(uuid => {
-      return this.project.getChildByUUID(uuid);
-    });
+    return this.project.selection.getSelectedObjects('Path');
   }
 
   /**
@@ -276,9 +221,7 @@ class EditorCore extends Component {
    * @returns {<Wick.Clip>)[]} An array containing the selected clips.
    */
   getSelectedClips = () => {
-    return this.state.selection.canvas.clips.map(uuid => {
-      return this.project.getChildByUUID(uuid);
-    });
+    return this.project.selection.getSelectedObjects('Clip');
   }
 
   /**
@@ -286,9 +229,7 @@ class EditorCore extends Component {
    * @returns {<Wick.Button>)[]} An array containing the selected buttons.
    */
   getSelectedButtons = () => {
-    return this.getSelectedClips().filter(clip => {
-      return clip instanceof window.Wick.Button;
-    });
+    return this.project.selection.getSelectedObjects('Button');
   }
 
   /**
@@ -296,9 +237,7 @@ class EditorCore extends Component {
    * @returns {(<Wick.ImageAsset>|<Wick.SoundAsset>)[]} An array containing the selected assets
    */
   getSelectedAssetLibraryObjects = () => {
-    return this.state.selection.assetLibrary.assets.map(uuid => {
-      return this.project.getChildByUUID(uuid);
-    });
+    return this.project.selection.getSelectedObjects('AssetLibrary');
   }
 
   /**
@@ -306,9 +245,7 @@ class EditorCore extends Component {
    * @returns {(<Wick.SoundAsset>)[]} An array containing the selected sound assets.
    */
   getSelectedSoundAssets = () => {
-    return this.getSelectedAssetLibraryObjects().filter(asset => {
-      return asset instanceof window.Wick.SoundAsset;
-    });
+    return this.project.selection.getSelectedObjects('SoundAsset');
   }
 
   /**
@@ -316,42 +253,16 @@ class EditorCore extends Component {
    * @returns {(<Wick.ImageAsset>)[]} An array containing the selected image assets.
    */
   getSelectedImageAssets = () => {
-    return this.getSelectedAssetLibraryObjects().filter(asset => {
-      return asset instanceof window.Wick.ImageAsset;
-    });
+    return this.project.selection.getSelectedObjects('ImageAsset');
   }
 
   /**
    * Returns the selected scriptable object if selection is a single scriptable object.
-   * @return {object|undefined} selected scriptable object.
+   * @return {object|null} selected scriptable object.
    */
   getSelectedScriptableObject = () => {
-    if (!this.selectionIsScriptable()) return undefined;
-
-    let type = this.getSelectionType();
-
-    if (type === 'frame') {
-      return this.getSelectedFrames()[0];
-    } else if (type === 'clip') {
-      return this.getSelectedClips()[0];
-    } else if (type === 'button') {
-      return this.getSelectedButtons()[0];
-    }
-  }
-
-
-  /**
-   * Returns the script object of the selection
-   * @return {object()|null} Script of selected object, null if object is not scriptable.
-   */
-  getScriptOfSelection = () => {
-    if (this.selectionIsScriptable()) {
-      let selectedObject = this.getSelectedScriptableObject();
-      return selectedObject;
-    } else {
-      console.error("Selected object is not scriptable!");
-      return null
-    }
+    return this.project.selection.getSelectedObject().isScriptable
+        && this.project.selection.getSelectedObject();
   }
 
   /**
@@ -360,211 +271,21 @@ class EditorCore extends Component {
    */
   getSelectionAttributes = () => {
     return {
-      name: this.getSelectionName(),
-      filename: this.getSelectionFilename(),
-      src: this.getSelectionSrc(),
-      x: this.getSelectionPositionX(),
-      y: this.getSelectionPositionY(),
-      width: this.getSelectionWidth(),
-      height: this.getSelectionHeight(),
-      scaleX: this.getSelectionScaleX(),
-      scaleY: this.getSelectionScaleY(),
-      rotation: this.getSelectionRotation(),
-      opacity: this.getSelectionOpacity(),
-      strokeWidth: this.getSelectionStrokeWidth(),
-      fillColor: this.getSelectionFillColor(),
-      strokeColor: this.getSelectionStrokeColor(),
+      name: '',
+      filename: '',
+      src: '',
+      x: 0,
+      y: 0,
+      width: 0,
+      height: 0,
+      scaleX: 0,
+      scaleY: 0,
+      rotation: 0,
+      opacity: 0,
+      strokeWidth: 0,
+      fillColor: 0,
+      strokeColor: 0,
     };
-  }
-
-  /**
-   * Returns the name of the selected object.
-   * @returns {string|null} The name of the selected object. Returns null if selection type does not have a name.
-   */
-  getSelectionName = () => {
-    let selectionType = this.getSelectionType();
-
-    if (selectionType === 'clip') {
-      return this.getSelectedClips()[0].identifier;
-    } else if (selectionType === 'imageasset') {
-      return this.getSelectedImageAssets()[0].name;
-    } else if (selectionType === 'soundasset') {
-      return this.getSelectedSoundAssets()[0].name;
-    } else if (selectionType === 'frame') {
-      return this.getSelectedFrames()[0].identifier;
-    } else {
-      return null;
-    }
-  }
-
-  /**
-   * Returns the filename of the selected object.
-   * @returns {string|null} The filename of the selected object. Returns null if selection type does not have a filename.
-   */
-  getSelectionFilename = () => {
-    let selectionType = this.getSelectionType();
-
-    if (selectionType === 'imageasset' || selectionType === 'soundasset') {
-      return this.getSelectedAssetLibraryObjects()[0].filename;
-    } else {
-      return null;
-    }
-  }
-
-  /**
-   * Return the x position of the current canvas selection.
-   * @return {number|null} The x position of the current canvas selection. Returns null if no canvas object is selected.
-   */
-  getSelectionPositionX = () => {
-    if(this.getSelectedCanvasObjects().length > 0) {
-      return window.paper.project.selection.position.x;
-    } else {
-      return null;
-    }
-  }
-
-  /**
-   * Return the y position of the current canvas selection.
-   * @return {number|null} The y position of the current canvas selection. Returns null if no canvas object is selected.
-   */
-  getSelectionPositionY = () => {
-    if(this.getSelectedCanvasObjects().length > 0) {
-      return window.paper.project.selection.position.y;
-    } else {
-      return null;
-    }
-  }
-
-  /**
-   * Return the width of the current canvas selection.
-   * @return {number|null} The width of the current canvas selection. Returns null if no canvas object is selected.
-   */
-  getSelectionWidth = () => {
-    if(this.getSelectedCanvasObjects().length > 0) {
-      return window.paper.project.selection.bounds.width;
-    } else {
-      return null;
-    }
-  }
-
-  /**
-   * Return the height of the current canvas selection.
-   * @return {number|null} The height of the current canvas selection. Returns null if no canvas object is selected.
-   */
-  getSelectionHeight = () => {
-    if(this.getSelectedCanvasObjects().length > 0) {
-      return window.paper.project.selection.bounds.height;
-    } else {
-      return null;
-    }
-  }
-
-  /**
-   * Return the scale width of the current selection.
-   * @return {number|null} The scale width of the current canvas selection. Returns null if no canvas object is selected.
-   */
-  getSelectionScaleX = () => {
-    if(this.getSelectedCanvasObjects().length > 0) {
-      return window.paper.project.selection.scaling.x;
-    } else {
-      return null;
-    }
-  }
-
-  /**
-   * Return the scale height of the current selection.
-   * @return {number|null} The scale height of the current canvas selection. Returns null if no canvas object is selected.
-   */
-  getSelectionScaleY = () => {
-    if(this.getSelectedCanvasObjects().length > 0) {
-      return window.paper.project.selection.scaling.y;
-    } else {
-      return null;
-    }
-  }
-
-  /**
-   * Return the rotation of the current selection.
-   * @return {number|null} The rotation of the current canvas selection. Returns null if no canvas object is selected.
-   */
-  getSelectionRotation = () => {
-    if(this.getSelectedCanvasObjects().length > 0) {
-      return window.paper.project.selection.rotation;
-    } else {
-      return null;
-    }
-  }
-
-  /**
-   * Return the opacity of the current selection.
-   * @return {number|null} The opacity of the current canvas selection. Returns null if no canvas object is selected.
-   */
-  getSelectionOpacity = () => {
-    if(this.getSelectedCanvasObjects().length > 0) {
-      return window.paper.project.selection.opacity;
-    } else {
-      return null;
-    }
-  }
-
-  /**
-   * Return the stroke width of the current selection.
-   * @return {number|null} The stroke width of the current canvas selection. Returns null if no canvas object is selected.
-   */
-  getSelectionStrokeWidth = () => {
-    if(this.getSelectedCanvasObjects().length > 0) {
-      return window.paper.project.selection.strokeWidth;
-    } else {
-      return null;
-    }
-  }
-
-  /**
-   * Return the stroke color of the current selection.
-   * @return {string|null} The stroke color of the current canvas selection. Returns null if no canvas object is selected.
-   */
-  getSelectionStrokeColor = () => {
-    if(this.getSelectedCanvasObjects().length > 0) {
-      let strokeColor = window.paper.project.selection.strokeColor;
-      if (strokeColor === null || strokeColor === undefined) {
-        return null;
-      } else {
-        return strokeColor.toCSS();
-      }
-    } else {
-      return null;
-    }
-  }
-
-  /**
-   * Return the fill color of the current selection.
-   * @return {string|null} The fill color of the current canvas selection. Returns null if no canvas object is selected.
-   */
-  getSelectionFillColor = () => {
-    if(this.getSelectedCanvasObjects().length > 0) {
-      let fillColor = window.paper.project.selection.fillColor;
-      if (fillColor === null || fillColor === undefined) {
-        return null;
-      } else {
-        return fillColor.toCSS();
-      }
-    } else {
-      return null;
-    }
-  }
-
-  /**
-   * Returns the source of the selected object.
-   * @returns {string|null} The src dataURL of the selected object. Returns null if selection type does not have a src property.
-   */
-  getSelectionSrc = () => {
-    let selectionType = this.getSelectionType();
-
-    if (selectionType === 'imageasset' || selectionType === 'soundasset') {
-      return this.getSelectedAssetLibraryObjects()[0].src;
-    } else {
-      return null;
-    }
   }
 
   /**
@@ -598,7 +319,7 @@ class EditorCore extends Component {
    * @return {number} Number of canvas objects selected.
    */
   getNumCanvasObjectsSelected = () => {
-    return this.state.selection.canvas.paths.length + this.state.selection.canvas.clips.length;
+    return this.project.selection.numObjects;
   }
 
   /**
@@ -607,6 +328,7 @@ class EditorCore extends Component {
    */
   setSelectionAttributes = (newSelectionAttributes) => {
     // Valid selection setting functions
+    /*
     let setSelectionFunctions = {
       name: this.setSelectionName,
       x: this.setSelectionPositionX,
@@ -628,271 +350,15 @@ class EditorCore extends Component {
         setSelectionFunctions[key](newSelectionAttributes[key]);
       }
     });
-  }
-
-  /**
-   * Updates the name of the selected object. Does nothing if multiple objects are selected.
-   * @param {string} newName - The name to use.
-   */
-  setSelectionName = (newName) => {
-    // Only change name of selected objects if one is in selection.
-    if(this.getSelectedClips().length === 1) {
-      let clip = this.getSelectedClips()[0];
-      clip.identifier = newName;
-      this.updateProjectInState();
-    } else if (this.getSelectedFrames().length === 1) {
-      let frame = this.getSelectedFrames()[0];
-      frame.identifier = newName;
-      this.updateProjectInState();
-    } else if (this.getSelectedAssetLibraryObjects().length === 1) {
-      let asset = this.getSelectedAssetLibraryObjects()[0];
-      asset.name = newName;
-      this.updateProjectInState();
-    }
-  }
-
-  /**
-   * Sets the x position of the current canvas selection.
-   * @param {number} x The new value for the x position for the current canvas selection.
-   */
-  setSelectionPositionX = (x) => {
-    if(this.getSelectedCanvasObjects().length > 0) {
-      let y = window.paper.project.selection.bounds.y;
-      window.paper.project.selection.setPosition(x, y);
-      this.applyCanvasChangesToProject();
-    }
-  }
-
-  /**
-   * Sets the y position of the current canvas selection.
-   * @param {number} y The new value for the y position for the current canvas selection.
-   */
-  setSelectionPositionY = (y) => {
-    if(this.getSelectedCanvasObjects().length > 0) {
-      let x = window.paper.project.selection.bounds.x;
-      window.paper.project.selection.setPosition(x, y);
-      this.applyCanvasChangesToProject();
-    }
-  }
-
-  /**
-   * Sets the width of the current canvas selection.
-   * @param {number} width The new value for the width for the current canvas selection.
-   */
-  setSelectionWidth = (width) => {
-    if(this.getSelectedCanvasObjects().length > 0) {
-      let height = window.paper.project.selection.bounds.height;
-      window.paper.project.selection.setSize(width, height);
-      this.applyCanvasChangesToProject();
-    }
-  }
-
-  /**
-   * Sets the height of the current canvas selection.
-   * @param {number} height The new value for the height for the current canvas selection.
-   */
-  setSelectionHeight = (height) => {
-    if(this.getSelectedCanvasObjects().length > 0) {
-      let width = window.paper.project.selection.bounds.width;
-      window.paper.project.selection.setSize(width, height);
-      this.applyCanvasChangesToProject();
-    }
-  }
-
-  /**
-   * Sets the horizontal scale of the current canvas selection.
-   * @param {number} scaleX The new value for the horizontal scale for the current canvas selection.
-   */
-  setSelectionScaleX = (scaleX) => {
-    if(this.getSelectedCanvasObjects().length > 0) {
-      let scaleY = window.paper.project.selection.scaling.y;
-      window.paper.project.selection.setScale(scaleX, scaleY);
-      this.applyCanvasChangesToProject();
-    }
-  }
-
-  /**
-   * Sets the vertical scale of the current canvas selection.
-   * @param {number} scaleY The new value for the vertical scale for the current canvas selection.
-   */
-  setSelectionScaleY = (scaleY) => {
-    if(this.getSelectedCanvasObjects().length > 0) {
-      let scaleX = window.paper.project.selection.scaling.x;
-      window.paper.project.selection.setScale(scaleX, scaleY);
-      this.applyCanvasChangesToProject();
-    }
-  }
-
-  /**
-   * Sets the rotation of the current canvas selection.
-   * @param {number} rotation The new value for the rotation of the current canvas selection.
-   */
-  setSelectionRotation = (rotation) => {
-    if(this.getSelectedCanvasObjects().length > 0) {
-      window.paper.project.selection.setRotation(rotation);
-      this.applyCanvasChangesToProject();
-    }
-  }
-
-  /**
-   * Sets the opacity of the current canvas selection.
-   * @param {number} opacity The new value for the opacity of the current canvas selection.
-   */
-  setSelectionOpacity = (opacity) => {
-    if(this.getSelectedCanvasObjects().length > 0) {
-      window.paper.project.selection.setOpacity(opacity);
-      this.applyCanvasChangesToProject();
-    }
-  }
-
-  /**
-   * Sets the stroke width of the current canvas selection.
-   * @param {number} strokeWidth The new value for the stroke width of the current canvas selection.
-   */
-  setSelectionStrokeWidth = (strokeWidth) => {
-    if(this.getSelectedCanvasObjects().length > 0) {
-      window.paper.project.selection.setStrokeWidth(strokeWidth);
-      this.applyCanvasChangesToProject();
-    }
-  }
-
-  /**
-   * Sets the stroke color of the current canvas selection.
-   * @param {string} strokeColor The new value for the stroke color of the current canvas selection.
-   */
-  setSelectionStrokeColor = (strokeColor) => {
-    if(this.getSelectedCanvasObjects().length > 0) {
-      window.paper.project.selection.setStrokeColor(strokeColor);
-      this.applyCanvasChangesToProject();
-    }
-  }
-
-  /**
-   * Sets the fill color of the current canvas selection.
-   * @param {string} fillColor The new value for the fill color of the current canvas selection.
-   */
-  setSelectionFillColor = (fillColor) => {
-    if(this.getSelectedCanvasObjects().length > 0) {
-      window.paper.project.selection.setFillColor(fillColor);
-      this.applyCanvasChangesToProject();
-    }
-  }
-
-  /**
-   * Determines the selection type of an object, and returns it as a string.
-   * @param {object} object - The object to find the type of.
-   */
-  selectionTypeOfObject = (object) => {
-    if(object instanceof window.Wick.Asset) {
-      return 'asset';
-    } else if (object instanceof window.Wick.Clip) {
-      return 'clip';
-    } else if (object instanceof window.Wick.Path) {
-      return 'path';
-    } else if (object instanceof window.Wick.Frame) {
-      return 'frame';
-    } else if (object instanceof window.Wick.Tween) {
-      return 'tween';
-    }
-  }
-
-  /**
-   * Adds an asset to the selection.
-   * @param {<Wick.Asset>} asset - The asset to add to the selection.
-   * @param {object} selection - The selection to add the asset to.
-   * @returns {object} The updated selection.
-   */
-  addAssetToSelection = (asset, selection) => {
-    selection.assetLibrary.assets.push(asset.uuid);
-    return selection;
-  }
-
-  /**
-   * Adds a clip to the selection.
-   * @param {<Wick.Clip>} clip - The clip to add to the selection.
-   * @param {object} selection - The selection to add the clip to.
-   * @returns {object} The updated selection.
-   */
-  addClipToSelection = (clip, selection) => {
-    selection.canvas.clips.push(clip.uuid);
-    return selection;
-  }
-
-  /**
-   * Adds a path to the selection.
-   * @param {<Wick.Path>} path - The path to add to the selection.
-   * @param {object} selection - The selection to add the path to.
-   * @returns {object} The updated selection.
-   */
-  addPathToSelection = (path, selection) => {
-    selection.canvas.paths.push(path.uuid);
-    return selection;
-  }
-
-  /**
-   * Adds a frame to the selection.
-   * @param {Wick.Frame} frame - The frame to add to the selection.
-   * @param {object} selection - The selection to add the frame to.
-   * @returns {object} The updated selection.
-   */
-  addFrameToSelection = (frame, selection) => {
-    selection.timeline.frames.push(frame.uuid);
-    return selection;
-  }
-
-  /**
-   * Adds a tween to the selection.
-   * @param {Wick.Tween} tween - The tween to add to the selection.
-   * @param {object} selection - The selection to add the tween to.
-   * @returns {object} The updated selection.
-   */
-  addTweenToSelection = (tween, selection) => {
-    selection.timeline.tweens.push(tween.uuid);
-    return selection;
-  }
-
-  /**
-   * Adds an object to the selection.
-   * @param {object} object - The object to add to the selection.
-   * @param {object} selection - The selection to add the object to.
-   * @return {object} The updated selection.
-   */
-  addObjectToSelection = (object, selection) => {
-    let type = this.selectionTypeOfObject(object);
-    if(!type) return false;
-    if(type === 'asset') {
-      selection = this.addAssetToSelection(object, selection);
-    } else if(type === 'path') {
-      selection = this.addPathToSelection(object, selection);
-    } else if(type === 'clip') {
-      selection = this.addClipToSelection(object, selection);
-    } else if(type === 'frame') {
-      selection = this.addFrameToSelection(object, selection);
-    } else if(type === 'tween') {
-      selection = this.addTweenToSelection(object, selection);
-    }
-    return selection;
-  }
-
-  /**
-   * Adds multiple objects to the selection.
-   * @param {object[]} objects - The objects to add to the selection.
-   * @param {object} selection - The selection to add the objects to.
-   * @return {object} The updated selection.
-   */
-  addObjectsToSelection = (objects, selection) => {
-    objects.forEach(object => {
-      selection = this.addObjectToSelection(object, selection);
-    });
-    return selection;
+    */
   }
 
   /**
    * Clears the selection, then adds the given object to the selection.
    * @param {object} object - The object to add to the selection.
    */
-  selectObject = (object, callback) => {
-    return this.selectObjects([object]);
+  selectObject = (object) => {
+    this.project.selection.select(object);
   }
 
   /**
@@ -900,86 +366,16 @@ class EditorCore extends Component {
    * @param {object[]} objects - The objects to add to the selection.
    */
   selectObjects = (objects) => {
-    let newSelection = this.addObjectsToSelection(objects, this.emptySelection());
-    this.setStateWrapper({
-      selection: newSelection
+    objects.forEach(object => {
+      this.selectObject(object);
     });
-    return newSelection;
   }
 
   /**
    * Clears the selection.
    */
   clearSelection = () => {
-    let newSelection = this.emptySelection();
-    this.setStateWrapper({selection: this.emptySelection()});
-    return newSelection;
-  }
-
-  /**
-   * Use this to clear the selection.
-   * @returns A state object representing a selection where nothing is selected.
-   */
-  emptySelection = () => {
-    return {
-      timeline: {
-        frames: [],
-        tweens: [],
-        layers: [],
-      },
-      canvas: {
-        paths: [],
-        clips: [],
-      },
-      assetLibrary: {
-        assets: [],
-      },
-    };
-  }
-
-  /**
-   * Determines if a given asset is selected.
-   * @param {<Wick.Asset>} object - Asset to check selection status
-   * @returns {boolean} - True if the asset is selected, false otherwise
-   */
-  isAssetSelected = (asset) => {
-    return this.state.selection.assetLibrary.assets.indexOf(asset.uuid) > -1;
-  }
-
-  /**
-   * Determines if a given path is selected.
-   * @param {<Wick.Path>} path - Path to check selection status
-   * @returns {boolean} - True if the path is selected, false otherwise
-   */
-  isPathSelected = (path) => {
-    return this.state.selection.canvas.paths.indexOf(path.uuid) > -1;
-  }
-
-  /**
-   * Determines if a given clip is selected.
-   * @param {<Wick.Clip>} path - Clip to check selection status
-   * @returns {boolean} - True if the clip is selected, false otherwise
-   */
-  isClipSelected = (clip) => {
-    return this.state.selection.canvas.clips.indexOf(clip.uuid) > -1;
-  }
-
-  /**
-   * Determines if a given tween is selected.
-   * @param {<Wick.Tween>} tween - Tween to check selection status
-   * @returns {boolean} - True if the tween is selected, false otherwise
-   */
-  isTweenSelected = (tween) => {
-    return this.state.selection.timeline.tweens.indexOf(tween.uuid) > -1;
-  }
-
-  /**
-   * Determines if a given frame is selected.
-   * @param {<Wick.Frame>} path - Frame to check selection status
-   * @returns {boolean} - True if the frame is selected, false otherwise
-   */
-  isFrameSelected = (frame) => {
-    return this.state.selection.timeline.frames.indexOf(frame.uuid) > -1;
+    this.project.selection.clear();
   }
 
   /**
@@ -988,155 +384,25 @@ class EditorCore extends Component {
    * @returns {boolean} - True if the object is selected, false otherwise
    */
   isObjectSelected = (object) => {
-    let type = this.selectionTypeOfObject(object);
-    if(type === 'asset') {
-      return this.isAssetSelected(object);
-    } else if(type === 'path') {
-      return this.isPathSelected(object);
-    } else if(type === 'clip') {
-      return this.isClipSelected(object);
-    } else if(type === 'tween') {
-      return this.isTweenSelected(object);
-    } else if(type === 'frame') {
-      return this.isFrameSelected(object);
-    } else {
-      return false;
-    }
+    return this.project.selection.isObjectSelected(object);
   }
 
   /**
    * Creates a new symbol from the selected paths and clips and adds it to the project.
    */
   createSymbolFromSelection = (name, type) => {
-    this.lockState = true;
-
-    // Create blank clip
-    let newClip = new window.Wick[type]();
-    newClip.identifier = name;
-    newClip.timeline.addLayer(new window.Wick.Layer());
-    newClip.timeline.activeLayer.addFrame(new window.Wick.Frame());
-
-    // Calculate position of new clip
-    newClip.transform.x = this.paper.project.selection.bounds.center.x;
-    newClip.transform.y = this.paper.project.selection.bounds.center.y;
-
-    // Add selected clips and paths to new clip
-    this.getSelectedClips().forEach(clip => {
-      let clone = clip.clone();
-      newClip.activeFrame.addClip(clone);
-      clone.transform.x -= newClip.transform.x;
-      clone.transform.y -= newClip.transform.y;
-    });
-    this.getSelectedPaths().forEach(path => {
-      let clone = path.clone();
-      newClip.activeFrame.addPath(clone);
-      clone.paperPath.position = new window.paper.Point(
-        clone.paperPath.position.x - newClip.transform.x,
-        clone.paperPath.position.y - newClip.transform.y
-      );
-    });
-
-    // Delete selected objects
-    this.deleteSelectedObjects();
-
-    // Add new clip
-    this.project.activeFrame.addClip(newClip);
-
-    // Select new clip
-    let newSelection = this.selectObject(newClip);
-
-    this.lockState = false;
-
-    this.updateProjectAndSelectionInState(newSelection);
+    if(type === 'Button') {
+      this.project.createButtonFromSelection(name);
+    } else if (type === 'Clip') {
+      this.project.createClipFromSelection(name);
+    }
   }
 
   /**
    * Break apart the selected clip(s) and select the objects that were contained within those clip(s).
    */
   breakApartSelection = () => {
-    this.lockState = true;
-
-    let results = [];
-    this.getSelectedClips().forEach(clip => {
-      results = results.concat(this.breakApartClip(clip));
-    });
-    let newSelection = this.selectObjects(results);
-
-    this.lockState = false;
-
-    this.setStateWrapper({
-      project: this.project.serialize(),
-      selection: newSelection,
-    });
-  }
-
-  /**
-   * Break apart a clip.
-   * @param {Wick.Clip} clip - Clip to break apart
-   * @returns {object[]} - The objects that were contained within the clip.
-   */
-  breakApartClip = (clip) => {
-    let itemsInsideClip = [];
-
-    clip.timeline.activeFrames.forEach(frame => {
-      // Add paths from inside clip
-      frame.paths.forEach(path => {
-        path.remove();
-        let clone = path.clone();
-        clone.paperPath.position.x += clip.transform.x;
-        clone.paperPath.position.y += clip.transform.y;
-        this.project.activeFrame.addPath(clone);
-        itemsInsideClip.push(clone);
-      });
-      // Add clips from inside clip
-      frame.clips.forEach(subclip => {
-        subclip.remove();
-        let clone = subclip.clone();
-        clone.transform.x += clip.transform.x;
-        clone.transform.y += clip.transform.y;
-        this.project.activeFrame.addClip(clone);
-        itemsInsideClip.push(clone);
-      });
-    });
-
-    // Delete original clip
-    clip.remove();
-
-    return itemsInsideClip;
-  }
-
-  /**
-   * Deletes all selected objects on the canvas.
-   */
-  deleteSelectedCanvasObjects = () => {
-    this.getSelectedPaths().forEach(path => {
-      path.remove();
-    });
-    this.getSelectedClips().forEach(clip => {
-      clip.remove();
-    });
-  }
-
-  /**
-   * Deletes all selected objects on the timeline.
-   */
-  deleteSelectedTimelineObjects = () => {
-    this.getSelectedFrames().forEach(frame => {
-      frame.remove();
-    });
-    this.getSelectedTweens().forEach(tween => {
-      tween.remove();
-    });
-  }
-
-  /**
-   * Deletes all selected assets.
-   * @returns {<Wick.Asset>[]} The assets that were deleted.
-   */
-  deleteSelectedAssetLibraryObjects = () => {
-    this.getSelectedAssetLibraryObjects().forEach(asset => {
-      asset.project.removeAsset(asset);
-    });
+    this.project.breakApartSelection();
   }
 
   /**
@@ -1144,51 +410,35 @@ class EditorCore extends Component {
    * @returns {object[]} The objects that were deleted.
    */
   deleteSelectedObjects = () => {
-    this.lockState = true;
-
-    let result = [];
-    if(this.getSelectedCanvasObjects().length > 0) {
-      result = this.deleteSelectedCanvasObjects();
-    } else if(this.getSelectedTimelineObjects().length > 0) {
-      result = this.deleteSelectedTimelineObjects();
-    } else if(this.getSelectedAssetLibraryObjects().length > 0) {
-      result = this.deleteSelectedAssetLibraryObjects();
-    }
-    this.lockState = false;
-    this.updateProjectAndSelectionInState();
-    return result;
+    this.project.deleteSelectedObjects();
   }
 
   /**
    * Moves the selected objects on the canvas to the back.
    */
   sendSelectionToBack = () => {
-    this.paper.project.selection.sendToBack();
-    this.applyCanvasChangesToProject();
+    this.project.sendSelectionToBack();
   }
 
   /**
    * Moves the selected objects on the canvas to the front.
    */
   sendSelectionToFront = () => {
-    this.paper.project.selection.bringToFront();
-    this.applyCanvasChangesToProject();
+    this.project.bringSelectionToFront();
   }
 
   /**
    * Moves the selected objects on the canvas backwards.
    */
   moveSelectionBackwards = () => {
-    this.paper.project.selection.sendBackwards();
-    this.applyCanvasChangesToProject();
+    this.project.sendSelectionBackwards();
   }
 
   /**
    * Moves the selected objects on the canvas forwards.
    */
   moveSelectionForwards = () => {
-    this.paper.project.selection.bringForwards();
-    this.applyCanvasChangesToProject();
+    this.project.bringSelectionForwards();
   }
 
   /**
@@ -1198,36 +448,7 @@ class EditorCore extends Component {
    * @param {number} y    The y location of the image after creation in relation to the window.
    */
   createImageFromAsset = (uuid, x, y) => {
-    let asset = this.project.getChildByUUID(uuid);
-    let path = new window.Wick.Path(["Raster",{"applyMatrix":false,"crossOrigin":"","source":"asset","asset":uuid}], [asset]);
-    this.project.activeFrame.addPath(path);
-
-    this.updateProjectInState();
-  }
-
-  /**
-   * Updates the React state with a new project.
-   * @param  {Wick.Project} newProject The Wick Project to update the React state with.
-   */
-  updateProjectInState = () => {
-    this.setStateWrapper( {
-      project: this.project.serialize(),
-    });
-  }
-
-  /**
-   * Updates the React state with the new project and a new selection.
-   * @param  {object} selection Object representing new selection. If no selection is provided, selection is set to empty.
-   */
-  updateProjectAndSelectionInState = (newSelection) => {
-    if (newSelection === undefined) {
-      newSelection = this.emptySelection();
-    }
-
-    this.setStateWrapper( {
-      project: this.project.serialize(),
-      selection: newSelection,
-    })
+    this.project.createImagePathFromAsset(uuid, x, y);
   }
 
   /**
@@ -1249,7 +470,7 @@ class EditorCore extends Component {
     });
 
     if (updated) {
-      this.updateProjectInState();
+
     }
   }
 
@@ -1257,20 +478,14 @@ class EditorCore extends Component {
    * Sets the project focus to the timeline of the currently selected clip.
    */
   focusTimelineOfSelectedObject = () => {
-    this.focusClip(this.getSelectedClips()[0]);
-
-    this.updateProjectAndSelectionInState();
+    this.project.focusTimelineOfSelectedClip();
   }
 
   /**
    * Sets the project focus to the parent timeline of the currently selected clip.
    */
-  focusTimelineOfParentObject = () => {
-    if(this.project.focus === this.project.root) return;
-    this.project.focus.timeline.playheadPosition = 1;
-    this.focusClip(this.project.focus.parent._getParentByInstanceOf(window.Wick.Clip));
-
-    this.updateProjectAndSelectionInState();
+  focusTimelineOfParentClip = () => {
+    this.project.focusTimelineOfParentClip();
   }
 
   /**
@@ -1292,16 +507,14 @@ class EditorCore extends Component {
    * Horizontally flips the canvas selection.
    */
   flipSelectedHorizontal = () => {
-    this.paper.project.selection.flipHorizontally();
-    this.applyCanvasChangesToProject();
+    this.project.flipSelectionHorizontally();
   }
 
   /**
    * Vertically flips the canvas selection.
    */
   flipSelectedVertical = () => {
-    this.paper.project.selection.flipVertically();
-    this.applyCanvasChangesToProject();
+    this.project.flipSelectionVertically();
   }
 
   /**
@@ -1318,9 +531,9 @@ class EditorCore extends Component {
     if (acceptedFiles.length <= 0) return;
 
     acceptedFiles.forEach(file => {
-      this.project.importFile(file, function (asset) {
+      this.project.importFile(file, asset => {
         // After import success, update editor state.
-        self.updateProjectInState();
+
       });
     });
   }
@@ -1338,9 +551,9 @@ class EditorCore extends Component {
    */
   getOnionSkinOptions = () => {
     return {
-      onionSkinEnabled: this.state.onionSkinEnabled,
-      onionSkinSeekForwards: this.state.onionSkinSeekForwards,
-      onionSkinSeekBackwards: this.state.onionSkinSeekBackwards
+      onionSkinEnabled: this.project.onionSkinEnabled,
+      onionSkinSeekForwards: this.project.onionSkinSeekForwards,
+      onionSkinSeekBackwards: this.project.onionSkinSeekBackwards
     };
   }
 
@@ -1423,11 +636,6 @@ class EditorCore extends Component {
 
     let newSelection = this.emptySelection();
     this.addObjectsToSelection(newObjects, newSelection);
-
-    this.setStateWrapper({
-      project: this.project.serialize(),
-      selection: newSelection,
-    });
   }
 
   /**
@@ -1452,12 +660,11 @@ class EditorCore extends Component {
   setOnionSkinOptions = (onionSkinOptions) => {
     let validOnionSkinOptions = ['onionSkinEnabled', 'onionSkinSeekForwards', 'onionSkinSeekBackwards'];
     let newOnionSkinOptions = {};
-    Object.keys(onionSkinOptions).forEach(optionName => {
-      if(validOnionSkinOptions.indexOf(optionName) === -1) return;
-      if(onionSkinOptions[optionName] === undefined) return;
-      newOnionSkinOptions[optionName] = onionSkinOptions[optionName];
+    Object.keys(onionSkinOptions).forEach(onionSkinOptionName => {
+      if(validOnionSkinOptions.indexOf(onionSkinOptionName) === -1) return;
+      if(onionSkinOptions[onionSkinOptionName] === undefined) return;
+      this.project[onionSkinOptionName] = onionSkinOptions[onionSkinOptionName];
     });
-    this.setStateWrapper(newOnionSkinOptions);
   }
 
   /**
@@ -1502,7 +709,6 @@ class EditorCore extends Component {
    */
   attemptAutoLoad = () => {
     let loadProject = (serializedProject) => {
-      console.log("Attempting to Load", serializedProject);
       if (!serializedProject) {
         //TODO: Remove Dead code
         console.error("No AutoSave Found");
@@ -1511,7 +717,6 @@ class EditorCore extends Component {
 
       let deserialized = window.Wick.Project.deserialize(serializedProject);
       this.project = deserialized;
-      this.updateProjectInState();
     }
 
     localForage.getItem(this.autoSaveKey).then(loadProject);

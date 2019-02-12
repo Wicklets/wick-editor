@@ -83,7 +83,6 @@ class PopOutCodeEditor extends Component {
     return (
       <WickTabCodeEditor
         addNewEditor={this.addNewEditor}
-        updateProjectInState={this.props.updateProjectInState}
         script={this.props.script}
         rerenderCodeEditor={this.rerenderCodeEditor}
         errors={this.props.errors}

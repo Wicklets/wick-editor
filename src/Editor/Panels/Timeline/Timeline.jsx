@@ -32,7 +32,6 @@ class Timeline extends Component {
     this.onSelectionChange = this.onSelectionChange.bind(this);
 
     AnimationTimeline.setup(this.refs.container, function () {
-      self.props.updateTimeline();
       AnimationTimeline.resize();
       AnimationTimeline.repaint();
     });
@@ -43,7 +42,44 @@ class Timeline extends Component {
   }
 
   componentDidUpdate () {
-    this.props.updateTimeline();
+    let AnimationTimeline = window.AnimationTimeline;
+    let timeline = this.props.project.focus.timeline;
+    let selectedUUIDs = this.props.project.selection._uuids;
+    let onionSkinOptions = {};
+
+    AnimationTimeline.setData({
+      playheadPosition: timeline.playheadPosition,
+      activeLayerIndex: timeline.activeLayerIndex,
+      onionSkinEnabled: onionSkinOptions.onionSkinEnabled,
+      onionSkinSeekForwards: onionSkinOptions.onionSkinSeekForwards,
+      onionSkinSeekBackwards:onionSkinOptions.onionSkinSeekBackwards,
+      layers: timeline.layers.map(layer => {
+        return {
+          id: layer.uuid,
+          label: layer.name,
+          locked: layer.locked,
+          hidden: layer.hidden,
+          frames: layer.frames.map(frame => {
+            return {
+              id: frame.uuid,
+              label: frame.identifier,
+              start: frame.start,
+              end: frame.end,
+              selected: selectedUUIDs.indexOf(frame.uuid) !== -1,
+              contentful: frame.contentful,
+              tweens: frame.tweens.map(tween => {
+                return {
+                  uuid: tween.uuid,
+                  selected: selectedUUIDs.indexOf(tween.uuid) !== -1,
+                  playheadPosition: tween.playheadPosition,
+                }
+              }),
+            }
+          }),
+        }
+      })
+    });
+    AnimationTimeline.repaint();
   }
 
   onChange = (e) => {
@@ -102,7 +138,6 @@ class Timeline extends Component {
       onionSkinSeekBackwards: e.onionSkinSeekBackwards,
       onionSkinSeekForwards: e.onionSkinSeekForwards,
     });
-    this.props.updateProjectInState();
   }
 
   onSoftChange = (e) => {
