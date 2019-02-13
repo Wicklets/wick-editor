@@ -24,6 +24,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import PlayButton from 'Editor/Util/PlayButton/PlayButton';
 import WickInput from 'Editor/Util/WickInput/WickInput';
 import ActionButton from 'Editor/Util/ActionButton/ActionButton';
+import ToolboxBreak from './ToolboxBreak/ToolboxBreak';
 
 class Toolbox extends Component {
   renderToolButton = (name, tooltip) => {
@@ -80,7 +81,9 @@ class Toolbox extends Component {
             />
         </div>
 
-        <div className="toolbox-actions-right">
+        <ToolboxBreak />
+
+        <div className="toolbox-actions-center">
           <div className="toolbox-action-button toolbox-item">
             <ActionButton
               id='toolbox-undo-button'
@@ -101,6 +104,8 @@ class Toolbox extends Component {
               tooltipPlace='bottom'
               className='tool-button'/>
           </div>
+        </div>
+        <div className="toolbox-actions-right">
           <div className="toolbox-action-button toolbox-item">
             <PlayButton
               className="play-button tool-button"

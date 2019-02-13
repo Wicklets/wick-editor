@@ -49,7 +49,7 @@ class AssetLibrary extends Component {
 
   filterArray = (array) => {
     return array.filter( item => {
-        return item.name.includes(this.state.filterText);
+        return item.name.toLowerCase().includes(this.state.filterText.toLowerCase());
     });
   }
 

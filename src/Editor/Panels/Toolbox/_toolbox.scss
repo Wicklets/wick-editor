@@ -61,6 +61,14 @@ $toolbox-min-button-size: 35px;
   align-items: center;
 }
 
+.toolbox-actions-center {
+  float: left;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+
 .toolbox-action-button {
   width: $toolbox-min-button-size;
   min-width: $toolbox-min-button-size;

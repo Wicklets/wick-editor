@@ -554,6 +554,7 @@ class Editor extends EditorCore {
 
                           {/* Asset Library */}
                           <ReflexElement
+                            minSize={100}
                             size={this.state.assetLibrarySize}
                             onResize={this.resizeProps.onResize}
                             onStopResize={this.resizeProps.onStopAssetLibraryResize}>
