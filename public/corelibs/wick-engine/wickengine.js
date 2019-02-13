@@ -44476,6 +44476,10 @@ Wick.Project = class extends Wick.Base {
     return this.activeLayer.activeFrame;
   }
 
+  get activeFrames() {
+    return this.focus.timeline.activeFrames;
+  }
+
   getAllFrames(recursive) {
     return this.root.timeline.getAllFrames(recursive);
   }

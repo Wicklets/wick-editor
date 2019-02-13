@@ -320,6 +320,20 @@ class EditorCore extends Component {
    */
   clearSelection = () => {
     this.project.selection.clear();
+    this.projectDidChange();
+  }
+
+  selectAll = () => {
+    this.project.selection.clear();
+    this.project.activeFrames.forEach(frame => {
+      frame.paths.forEach(path => {
+        this.project.selection.select(path);
+      });
+      frame.clips.forEach(clip => {
+        this.project.selection.select(clip);
+      });
+    });
+    this.projectDidChange();
   }
 
   /**
