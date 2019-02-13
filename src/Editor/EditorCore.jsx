@@ -559,7 +559,9 @@ class EditorCore extends Component {
     });
 
     this.project.selection.clear();
-    this.project.selection.
+    selection.forEach(object => {
+      this.project.selection.select(object);
+    })
 
     this.projectDidChange();
   }
