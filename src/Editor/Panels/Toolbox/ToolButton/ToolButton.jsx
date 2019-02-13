@@ -32,12 +32,12 @@ class ToolButton extends Component {
     super(props);
     this.state = {
       popoverOpen: false,
-      leftPosition: 0,
     }
 
-    this.class="tool-button-container";
-    this.containerID=this.class + '-' + this.props.name;
-
+    this.parentContainerClass="tool-button-container";
+    this.settingsContainerClass="tool-button-settings-container";
+    this.parentContainerID=this.parentContainerClass + '-' + this.props.name;
+    this.settingsContainerID=this.settingsContainerClass + '-' + this.props.name;
 
     // Connect the onScroll callback to the parent component if it exists.
     if (this.props.onScroll) {
@@ -53,12 +53,13 @@ class ToolButton extends Component {
    * Sets the position of the settings button to the left of the container.
    */
   setLeft = () => {
-    let element = document.getElementById(this.containerID);
+    let element = document.getElementById(this.parentContainerID);
     if (!element) return
+
     let rect = element.getBoundingClientRect();
-    this.setState({
-      leftPosition: rect.left,
-    });
+    let childElement = document.getElementById(this.settingsContainerID);
+    if (!childElement) return
+    childElement.style.left = rect.left + 'px';
   }
 
   togglePopover = () => {
@@ -94,16 +95,14 @@ class ToolButton extends Component {
   render () {
     return (
       <div
-        id={this.containerID}
-        className={classNames(this.class, this.props.className ? this.props.className : '')}>
+        id={this.parentContainerID}
+        className={classNames(this.parentContainerClass, this.props.className ? this.props.className : '')}>
           <div className="tool-button-select-container">
             {this.renderSelectButton(this.props.name, this.props.tooltip)}
           </div>
           <div
-            className="tool-button-settings-container"
-            style={{
-              left: this.state.leftPosition,
-            }}>
+            id={this.settingsContainerID}
+            className={this.settingsContainerClass}>
             {this.renderSettingsButton(this.props.settings)}
           </div>
           <Popover
