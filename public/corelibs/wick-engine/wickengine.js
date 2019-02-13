@@ -44089,7 +44089,7 @@ Wick.Base = class {
 
   _regenUUIDs() {
     this._uuid = uuidv4();
-    if (this.paperPath) this.paperPath.name = this._uuid; // hack to fix path cloning for now
+    if (this.paperPath) this.paperPath.data.wickUUID = this._uuid; // hack to fix path cloning for now
 
     this._children.forEach(child => {
       child._regenUUIDs();
@@ -44341,7 +44341,9 @@ Wick.Project = class extends Wick.Base {
     object.onionSkinSeekBackwards = data.onionSkinSeekBackwards;
     object.root = Wick.Clip.deserialize(data.root);
     object.focus = object.root;
-    object.selection = Wick.Selection.deserialize(data.selection);
+    object.selection = Wick.Selection.deserialize(data.selection || {
+      classname: 'Selection'
+    });
     object.project = object;
     data.assets.forEach(assetData => {
       object.addAsset(Wick.Asset.deserialize(assetData));
@@ -44879,7 +44881,7 @@ Wick.Selection = class extends Wick.Base {
   static _deserialize(data, object) {
     super._deserialize(data, object);
 
-    object._uuids = [].concat(data.uuids);
+    object._uuids = [].concat(data.uuids || []);
     return object;
   }
 
@@ -45910,7 +45912,7 @@ Wick.Tickable = class extends Wick.Base {
     super._deserialize(data, object);
 
     object.identifier = data.identifier;
-    object._scripts = [].concat(data.scripts);
+    object._scripts = [].concat(data.scripts || []);
     object.cursor = data.cursor;
     return object;
   }

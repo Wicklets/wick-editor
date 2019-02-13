@@ -96,67 +96,6 @@ class EditorCore extends Component {
   }
 
   /**
-   * Returns all objects currently selected.
-   * @return {object} Selection object containing Wick Objects and paths.
-   */
-  getAllSelectedObjects = () => {
-    let selection = this.emptySelection();
-    selection.timeline.frames = this.getSelectedFrames();
-    selection.timeline.tweens = this.getSelectedTweens();
-    selection.canvas.paths = this.getSelectedPaths();
-    selection.canvas.clips = this.getSelectedClips();
-    selection.assetLibrary.assets = this.getSelectedAssetLibraryObjects();
-    return selection;
-  }
-
-  /**
-   * Returns a serialized version of the selection.
-   * @return {object} Serialized representation of the selection.
-   */
-  serializeSelection = () => {
-    let selectedObjects = this.getAllSelectedObjects();
-    let newSelection = this.emptySelection();
-
-    newSelection.timeline.frames = selectedObjects.timeline.frames.map(item => item.serialize());
-    newSelection.timeline.tweens = selectedObjects.timeline.tweens.map(item => item.serialize());
-    newSelection.timeline.layers = selectedObjects.timeline.layers.map(item => item.serialize());
-    newSelection.canvas.paths = selectedObjects.canvas.paths.map(item => item.serialize());
-    newSelection.canvas.clips = selectedObjects.canvas.clips.map(item => item.serialize());
-    newSelection.assetLibrary.assets = selectedObjects.assetLibrary.assets.map(item => item.serialize());
-
-    return newSelection;
-  }
-
-  /**
-   * Parses a serialized selection.
-   * @param {serialized} selection selection object.
-   * @return {object} Parsed selection.
-   */
-  deserializeSelection = (selection) => {
-    if (selection === undefined) { console.error("Selection is undefined"); return;}
-    /**
-     * Deserialize a selection array.
-     * @param  {string[]} arr  array to deserialize
-     * @return {object[]}     The parsed objects in an array.
-     */
-    let deserializeArray = function (arr) {
-      return arr.map(item => {
-        return window.Wick[item.classname].deserialize(item);
-      })
-    }
-
-    let newSelection = this.emptySelection();
-    newSelection.timeline.frames = deserializeArray(selection.timeline.frames);
-    newSelection.timeline.tweens = deserializeArray(selection.timeline.tweens);
-    newSelection.timeline.layers = deserializeArray(selection.timeline.layers);
-    newSelection.canvas.paths = deserializeArray(selection.canvas.paths, true);
-    newSelection.canvas.clips = deserializeArray(selection.canvas.clips);
-    newSelection.assetLibrary.assets = deserializeArray(selection.assetLibrary.assets);
-
-    return newSelection;
-  }
-
-  /**
    * Determines the type of the object/objects that are in the selection state.
    * @returns {string} The string representation of the type of object/objects selected
    */
@@ -463,7 +402,7 @@ class EditorCore extends Component {
     });
 
     if (updated) {
-
+      this.projectDidChange();
     }
   }
 
@@ -548,6 +487,27 @@ class EditorCore extends Component {
   }
 
   /**
+   * Returns a serialized version of the selection.
+   * @return {object[]} array of serialized objects
+   */
+  serializeSelection = () => {
+    return this.project.selection.getSelectedObjects().map(object => {
+      return object.clone(false).serialize();
+    });
+  }
+
+  /**
+   * Parses a serialized selection.
+   * @param {object[]} selection array of serialized object.
+   * @return {object[]} array of deserialzed objects
+   */
+  deserializeSelection = (selection) => {
+    return selection.map(data => {
+      return window.Wick.Base.deserialize(data);
+    });
+  }
+
+  /**
    * Copies the selection state and selected objects to the clipboard.
    */
   copySelectionToClipboard = () => {
@@ -586,46 +546,22 @@ class EditorCore extends Component {
    * @param {object} selection deserialized selection object to add to project.
    */
   addSelectionToProject = (selection) => {
-    let newObjects = [];
+    selection.filter(object => {
+      return object instanceof window.Wick.Path;
+    }).forEach(path => {
+      this.project.activeFrame.addPath(path);
+    });
 
-    if (selection.canvas) {
-      if (selection.canvas.paths) {
-        selection.canvas.paths.forEach(path => {
-          let clone = path.clone(false);
-          this.project.activeFrame.addPath(clone);
-          newObjects.push(clone);
-        });
-      }
+    selection.filter(object => {
+      return object instanceof window.Wick.Clip;
+    }).forEach(clip => {
+      this.project.activeFrame.addClip(clip);
+    });
 
-      if (selection.canvas.clips) {
-        selection.canvas.clips.forEach(clip => {
-          let clone = clip.clone(false);
-          this.project.activeFrame.addClip(clone);
-          newObjects.push(clone);
-        });
-      }
-    }
+    this.project.selection.clear();
+    this.project.selection.
 
-    if (selection.assetLibrary) {
-      if (selection.assetLibrary.assets) {
-        selection.assetLibrary.assets.forEach(asset => {
-          let clone = asset.clone(false);
-          this.project.addAsset(clone);
-          newObjects.push(clone);
-        });
-      }
-    }
-
-    //TODO: Complete timeline pasting selection.
-    if (selection.timeline) {
-      if (selection.timeline.frames) {
-        if (selection.timeline.frames.length > 0) {alert("NYI: Wick Editor Alpha cannot paste frames!")}
-        if (selection.timeline.layers.length > 0) {alert("NYI: Wick Editor Alpha cannot layers frames!")}
-      }
-    }
-
-    let newSelection = this.emptySelection();
-    this.addObjectsToSelection(newObjects, newSelection);
+    this.projectDidChange();
   }
 
   /**
@@ -684,6 +620,7 @@ class EditorCore extends Component {
    */
   attemptAutoLoad = () => {
     let loadProject = (serializedProject) => {
+      console.log(serializedProject)
       if (!serializedProject) {
         //TODO: Remove Dead code
         console.error("No AutoSave Found");
