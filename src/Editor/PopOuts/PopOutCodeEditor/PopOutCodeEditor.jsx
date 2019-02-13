@@ -22,6 +22,7 @@ import { Rnd } from "react-rnd";
 
 import ActionButton from 'Editor/Util/ActionButton/ActionButton';
 import WickTabCodeEditor from './WickTabCodeEditor/WickTabCodeEditor';
+import WickCodeDetailsPanel from './WickCodeDetailsPanel/WickCodeDetailsPanel'
 
 // Import Ace Editor themes.
 import 'brace/mode/javascript';

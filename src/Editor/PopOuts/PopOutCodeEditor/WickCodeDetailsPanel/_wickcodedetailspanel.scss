@@ -10,19 +10,3 @@
   flex-grow: 0;
   flex-shrink: 0;
 }
-
-.code-editor-thumbnail-preview {
-  width: $code-editor-details-width;
-  height: $code-editor-thumbnail-height;
-  background-color: pink;
-  float: none;
-  flex-grow: 0;
-  flex-shrink: 0;
-}
-
-.code-editor-reference {
-  width: $code-editor-details-width;
-  height: 100%;
-  background-color: red;
-  float: none;
-}

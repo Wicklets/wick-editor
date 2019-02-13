@@ -25,8 +25,8 @@
   height: 100%;
   border-radius: $interface-input-roundness;
   border: none;
-  background-color: $interface-input-background;
-  color: $interface-input-text;
+  background-color: $editor-text-input-background;
+  color: $editor-text-input-text;
 }
 
 .wick-numeric-input {

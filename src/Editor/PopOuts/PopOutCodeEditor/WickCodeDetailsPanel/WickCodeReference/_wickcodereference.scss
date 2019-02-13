@@ -1,0 +1,9 @@
+@import 'Editor/_wickbrand.scss';
+@import '../_wickcodedetailspanel.scss';
+
+#code-editor-reference {
+  width: $code-editor-details-width;
+  height: 100%;
+  background-color: red;
+  float: none;
+}

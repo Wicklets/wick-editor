@@ -27,9 +27,11 @@ class SelectionPreview extends Component {
 
   render () {
     return (
-      <img
-      className="code-editor-selection-preview"
-      src={this.props.imgSource ? this.props.imgSource : missingImage} />
+      <div className='code-editor-thumbnail-preview'>
+        <img
+        className="code-editor-selection-preview"
+        src={this.props.imgSource ? this.props.imgSource : missingImage} />
+      </div>
     );
   }
 
