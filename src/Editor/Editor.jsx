@@ -178,6 +178,9 @@ class Editor extends EditorCore {
     if(!this.state.previewPlaying && prevState.previewPlaying) {
       this.project.stop();
       this.project = window.Wick.Project.deserialize(this.beforePreviewPlayProjectState);
+      this.setState({
+        project: this.beforePreviewPlayProjectState,
+      });
     }
   }
 
@@ -589,7 +592,7 @@ class Editor extends EditorCore {
               updateCodeEditorWindowProperties={this.updateCodeEditorWindowProperties}
               selectionIsScriptable={this.selectionIsScriptable}
               getSelectionType={this.getSelectionType}
-              script={this.getScriptOfSelection()}
+              script={this.getSelectedObjectScript()}
               toggleCodeEditor={this.toggleCodeEditor}
               errors={this.state.codeErrors}
               onMinorScriptUpdate={this.onMinorScriptUpdate}
