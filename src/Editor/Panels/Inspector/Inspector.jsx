@@ -21,7 +21,6 @@ import React, { Component } from 'react';
 import './_inspector.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-import DockedTitle from 'Editor/Util/DockedTitle/DockedTitle';
 import InspectorTitle from './InspectorTitle/InspectorTitle';
 
 import InspectorNumericSlider from './InspectorRow/InspectorRowTypes/InspectorNumericSlider';
