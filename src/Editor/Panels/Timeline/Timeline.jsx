@@ -32,7 +32,6 @@ class Timeline extends Component {
     this.onSelectionChange = this.onSelectionChange.bind(this);
 
     AnimationTimeline.setup(this.refs.container, function () {
-      self.props.updateTimeline();
       AnimationTimeline.resize();
       AnimationTimeline.repaint();
     });
@@ -43,11 +42,49 @@ class Timeline extends Component {
   }
 
   componentDidUpdate () {
-    this.props.updateTimeline();
+    let AnimationTimeline = window.AnimationTimeline;
+    let timeline = this.props.project.focus.timeline;
+    let selectedUUIDs = this.props.project.selection._uuids;
+    let project = this.props.project;
+
+    AnimationTimeline.setData({
+      playheadPosition: timeline.playheadPosition,
+      activeLayerIndex: timeline.activeLayerIndex,
+      onionSkinEnabled: project.onionSkinEnabled,
+      onionSkinSeekForwards: project.onionSkinSeekForwards,
+      onionSkinSeekBackwards:project.onionSkinSeekBackwards,
+      layers: timeline.layers.map(layer => {
+        return {
+          id: layer.uuid,
+          label: layer.name,
+          locked: layer.locked,
+          hidden: layer.hidden,
+          frames: layer.frames.map(frame => {
+            return {
+              id: frame.uuid,
+              label: frame.identifier,
+              start: frame.start,
+              end: frame.end,
+              selected: selectedUUIDs.indexOf(frame.uuid) !== -1,
+              contentful: frame.contentful,
+              tweens: frame.tweens.map(tween => {
+                return {
+                  uuid: tween.uuid,
+                  selected: selectedUUIDs.indexOf(tween.uuid) !== -1,
+                  playheadPosition: tween.playheadPosition,
+                }
+              }),
+            }
+          }),
+        }
+      })
+    });
+    AnimationTimeline.repaint();
   }
 
   onChange = (e) => {
     let project = this.props.project;
+
     if(e.playhead !== undefined) {
       project.focus.timeline.playheadPosition = e.playhead;
     }
@@ -97,12 +134,11 @@ class Timeline extends Component {
       });
     }
 
-    this.props.setOnionSkinOptions({
-      onionSkinEnabled: e.onionSkinEnabled,
-      onionSkinSeekBackwards: e.onionSkinSeekBackwards,
-      onionSkinSeekForwards: e.onionSkinSeekForwards,
-    });
-    this.props.updateProjectInState();
+    if(e.onionSkinEnabled) project.onionSkinEnabled = e.onionSkinEnabled;
+    if(e.onionSkinSeekForwards) project.onionSkinSeekForwards = e.onionSkinSeekForwards;
+    if(e.onionSkinSeekBackwards) project.onionSkinSeekBackwards = e.onionSkinSeekBackwards;
+
+    this.props.projectDidChange();
   }
 
   onSoftChange = (e) => {
@@ -110,10 +146,15 @@ class Timeline extends Component {
   }
 
   onSelectionChange = (e) => {
-    let self = this;
-    this.props.selectObjects(e.frames.map(frame => {
-      return self.props.project.getChildByUUID(frame.id);
-    }));
+    let project = this.props.project;
+
+    project.selection.clear();
+    e.frames.forEach(frame => {
+      let object = project.getChildByUUID(frame.id);
+      project.selection.select(object);
+    });
+
+    this.props.projectDidChange();
   }
 
   render() {

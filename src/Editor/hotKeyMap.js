@@ -56,6 +56,7 @@ class HotKeyInterface extends Object {
       'break-apart': 'ctrl+b',
       'grow-brush-size': ']',
       'shrink-brush-size': '[',
+      'select-all': ['ctrl+a', 'command+a'],
     }
   }
 
@@ -71,12 +72,12 @@ class HotKeyInterface extends Object {
       'activate-eyedropper': (() => this.editor.setActiveTool("eyedropper")),
       'activate-pan': (() => this.editor.setActiveTool("pan")),
       'activate-zoom': (() => this.editor.setActiveTool("zoom")),
-      'delete': (() =>  this.editor.deleteSelectedObjects()),
-      'preview-play-toggle': (() => this.editor.togglePreviewPlaying()),
-      'break-apart': (() => this.editor.breakApartSelection()),
-      'undo': (() => this.editor.history.undo()),
-      'redo': (() => this.editor.history.redo()),
-      'leave-focus': (() => this.editor.focusTimelineOfParentObject()),
+      'delete': this.editor.deleteSelectedObjects,
+      'preview-play-toggle': this.editor.togglePreviewPlaying,
+      'break-apart': this.editor.breakApartSelection,
+      'undo': this.editor.undoAction,
+      'redo': this.editor.redoAction,
+      'leave-focus': this.editor.focusTimelineOfParentObject,
       'do-nothing': (() => console.log("donothing")),
       'copy': this.editor.copySelectionToClipboard,
       'cut': this.editor.cutSelectionToClipboard,
@@ -85,6 +86,7 @@ class HotKeyInterface extends Object {
       'clear-auto-save': this.editor.clearAutoSavedProject,
       'grow-brush-size': this.editor.growBrushSize,
       'shrink-brush-size': this.editor.shrinkBrushSize,
+      'select-all': this.editor.selectAll,
     }
 
     for(let name in this.handlers) {

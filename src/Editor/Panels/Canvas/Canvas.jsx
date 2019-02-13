@@ -22,6 +22,7 @@ import { DropTarget } from 'react-dnd';
 import DragDropTypes from 'Editor/DragDropTypes.js';
 
 import './_canvas.scss';
+import styles from './_canvas.scss';
 
 // Specification for drag and drop
 const canvasTarget = {
@@ -53,8 +54,6 @@ class Canvas extends Component {
   constructor (props) {
     super(props);
 
-    this.wickCanvas = null;
-
     this.onCanvasModified = this.onCanvasModified.bind(this);
     this.onSelectionChanged = this.onSelectionChanged.bind(this);
 
@@ -62,39 +61,78 @@ class Canvas extends Component {
   }
 
   componentDidMount() {
-    this.wickCanvas = new window.Wick.Canvas(this.canvasContainer.current);
-    this.props.setWickCanvas(this.wickCanvas);
-    this.wickCanvas.resize();
+    let canvasContainerElem = this.canvasContainer.current;
 
-    this.canvasContainer.current.children[0].setAttribute('tabindex', 0);
-    this.canvasContainer.current.children[0].onclick = (e) => {
-      this.canvasContainer.current.children[0].focus();
+    this.props.project.view.setCanvasContainer(canvasContainerElem);
+    this.props.project.view.resize();
+
+    canvasContainerElem.children[0].setAttribute('tabindex', 0);
+    canvasContainerElem.children[0].onclick = (e) => {
+      canvasContainerElem.children[0].focus();
     }
-
-    window.paper.view.zoom = 1;
-    window.paper.view.center = new window.paper.Point(
-      this.props.project.width/2,
-      this.props.project.height/2
-    );
 
     window.paper.drawingTools.onCanvasModified(this.onCanvasModified);
     window.paper.drawingTools.onSelectionChanged(this.onSelectionChanged);
 
-    this.props.updateCanvas();
-    this.props.updateCanvasElementRef(this.canvasContainer.current.children[0]); 
+    this.updateCanvas();
+    this.props.project.view.recenter();
+  }
+
+  componentDidUpdate () {
+    this.updateCanvas();
   }
 
   onCanvasModified (e) {
-    this.wickCanvas.applyChanges(this.props.project, e.layers);
-    this.props.updateProjectInState();
+    this.props.project.view.applyChanges();
+    this.props.projectDidChange();
   }
 
   onSelectionChanged (e) {
-    this.props.selectObjects(window.paper.project.selection.items.map(item => {
-      let name = item.name;
-      if(name.startsWith('wick_clip_')) name = name.split('wick_clip_')[1];
-      return this.props.project.getChildByUUID(name);
-    }));
+    let paper = this.props.paper;
+    let project = this.props.project;
+
+    project.selection.clear();
+    paper.project.selection.items.forEach(item => {
+      let object = project.getChildByUUID(item.data.wickUUID);
+      project.selection.select(object);
+    });
+
+    this.props.projectDidChange();
+  }
+
+  updateCanvas = () => {
+    let project = this.props.project;
+    let paper = this.props.paper;
+    let activeTool = this.props.activeTool;
+    let toolSettings = this.props.toolSettings;
+    let previewPlaying = this.props.previewPlaying;
+    let canvasContainerElem = this.canvasContainer.current;
+
+    // Render wick project
+    project.view.canvasBGColor = styles.editorCanvasBorder;
+    project.view.render();
+    if(project.view.setCanvasContainer(canvasContainerElem)) {
+      project.view.recenter();
+    }
+
+    // update the paper.js active tool based on the editor active tool state.
+    let tool = paper.drawingTools[activeTool];
+    tool.activate();
+    Object.keys(toolSettings).forEach(key => {
+      tool[key] = toolSettings[key];
+    });
+
+    // if there is no layer/frame to draw on, activate the 'none' tool.
+    if(project.activeFrame === null ||
+       project.activeLayer.locked ||
+       project.activeLayer.hidden) {
+      paper.drawingTools.none.activate();
+    }
+
+    // if preview playing, use the Interact tool
+    if(previewPlaying) {
+      project.view.interactTool.activate();
+    }
   }
 
   render() {

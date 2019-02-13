@@ -125,6 +125,8 @@ $editor-tertiary: #4A4A4A;
 
 $editor-green-highlight: #1EE29A;
 
+$editor-canvas-border: #6A6A6A;
+
 $editor-outline-padding: 6px;
 $editor-panel-padding: 10px;
 
@@ -169,3 +171,8 @@ $interface-input-roundness: 5px;
 
 $docked-title-height: 26px;
 $docked-margin: 6px;
+
+// Export some colors to be used in JS in some places (canvas, timeline)
+:export {
+  editorCanvasBorder: $editor-canvas-border;
+}
