@@ -313,6 +313,7 @@ class EditorCore extends Component {
     objects.forEach(object => {
       this.selectObject(object);
     });
+    this.projectDidChange();
   }
 
   /**

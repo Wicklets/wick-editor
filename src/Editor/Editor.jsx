@@ -178,6 +178,9 @@ class Editor extends EditorCore {
     if(!this.state.previewPlaying && prevState.previewPlaying) {
       this.project.stop();
       this.project = window.Wick.Project.deserialize(this.beforePreviewPlayProjectState);
+      this.setState({
+        project: this.beforePreviewPlayProjectState,
+      });
     }
   }
 
