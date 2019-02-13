@@ -45,14 +45,14 @@ class Timeline extends Component {
     let AnimationTimeline = window.AnimationTimeline;
     let timeline = this.props.project.focus.timeline;
     let selectedUUIDs = this.props.project.selection._uuids;
-    let onionSkinOptions = {};
+    let project = this.props.project;
 
     AnimationTimeline.setData({
       playheadPosition: timeline.playheadPosition,
       activeLayerIndex: timeline.activeLayerIndex,
-      onionSkinEnabled: onionSkinOptions.onionSkinEnabled,
-      onionSkinSeekForwards: onionSkinOptions.onionSkinSeekForwards,
-      onionSkinSeekBackwards:onionSkinOptions.onionSkinSeekBackwards,
+      onionSkinEnabled: project.onionSkinEnabled,
+      onionSkinSeekForwards: project.onionSkinSeekForwards,
+      onionSkinSeekBackwards:project.onionSkinSeekBackwards,
       layers: timeline.layers.map(layer => {
         return {
           id: layer.uuid,
@@ -84,6 +84,7 @@ class Timeline extends Component {
 
   onChange = (e) => {
     let project = this.props.project;
+
     if(e.playhead !== undefined) {
       project.focus.timeline.playheadPosition = e.playhead;
     }
@@ -133,11 +134,11 @@ class Timeline extends Component {
       });
     }
 
-    this.props.setOnionSkinOptions({
-      onionSkinEnabled: e.onionSkinEnabled,
-      onionSkinSeekBackwards: e.onionSkinSeekBackwards,
-      onionSkinSeekForwards: e.onionSkinSeekForwards,
-    });
+    if(e.onionSkinEnabled) project.onionSkinEnabled = e.onionSkinEnabled;
+    if(e.onionSkinSeekForwards) project.onionSkinSeekForwards = e.onionSkinSeekForwards;
+    if(e.onionSkinSeekBackwards) project.onionSkinSeekBackwards = e.onionSkinSeekBackwards;
+
+    this.props.projectDidChange();
   }
 
   onSoftChange = (e) => {
@@ -145,10 +146,15 @@ class Timeline extends Component {
   }
 
   onSelectionChange = (e) => {
-    let self = this;
-    this.props.selectObjects(e.frames.map(frame => {
-      return self.props.project.getChildByUUID(frame.id);
-    }));
+    let project = this.props.project;
+
+    project.selection.clear();
+    e.frames.forEach(frame => {
+      let object = project.getChildByUUID(frame.id);
+      project.selection.select(object);
+    });
+
+    this.props.projectDidChange();
   }
 
   render() {

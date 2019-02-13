@@ -391,11 +391,8 @@ class EditorCore extends Component {
    * Creates a new symbol from the selected paths and clips and adds it to the project.
    */
   createSymbolFromSelection = (name, type) => {
-    if(type === 'Button') {
-      this.project.createButtonFromSelection(name);
-    } else if (type === 'Clip') {
-      this.project.createClipFromSelection(name);
-    }
+    this.project.createSymbolFromSelection(name, type);
+    this.projectDidChange();
   }
 
   /**
@@ -403,6 +400,7 @@ class EditorCore extends Component {
    */
   breakApartSelection = () => {
     this.project.breakApartSelection();
+    this.projectDidChange();
   }
 
   /**
@@ -411,6 +409,7 @@ class EditorCore extends Component {
    */
   deleteSelectedObjects = () => {
     this.project.deleteSelectedObjects();
+    this.projectDidChange();
   }
 
   /**
@@ -418,6 +417,7 @@ class EditorCore extends Component {
    */
   sendSelectionToBack = () => {
     this.project.sendSelectionToBack();
+    this.projectDidChange();
   }
 
   /**
@@ -425,6 +425,7 @@ class EditorCore extends Component {
    */
   sendSelectionToFront = () => {
     this.project.bringSelectionToFront();
+    this.projectDidChange();
   }
 
   /**
@@ -432,6 +433,7 @@ class EditorCore extends Component {
    */
   moveSelectionBackwards = () => {
     this.project.sendSelectionBackwards();
+    this.projectDidChange();
   }
 
   /**
@@ -439,6 +441,7 @@ class EditorCore extends Component {
    */
   moveSelectionForwards = () => {
     this.project.bringSelectionForwards();
+    this.projectDidChange();
   }
 
   /**
@@ -494,9 +497,7 @@ class EditorCore extends Component {
    */
   focusClip = (clip) => {
     if(clip === this.project.root) {
-      let cx = this.project.width / 2;
-      let cy = this.project.height / 2;
-      window.paper.view.center = new window.paper.Point(cx,cy);
+      this.project.view.recenter();
     } else {
       window.paper.view.center = new window.paper.Point(0,0);
     }
@@ -543,18 +544,6 @@ class EditorCore extends Component {
    */
   beginSymbolCreation = () => {
     this.openModal("CreateSymbol");
-  }
-
-  /**
-   * Returns an object containing the onion skin options.
-   * @returns the object containing the onion skin options.
-   */
-  getOnionSkinOptions = () => {
-    return {
-      onionSkinEnabled: this.project.onionSkinEnabled,
-      onionSkinSeekForwards: this.project.onionSkinSeekForwards,
-      onionSkinSeekBackwards: this.project.onionSkinSeekBackwards
-    };
   }
 
   /**
@@ -654,20 +643,6 @@ class EditorCore extends Component {
   }
 
   /**
-   * Updates the onion skin settings in the state.
-   * @param onionSkinOptions an object containing the new settings to use.
-   */
-  setOnionSkinOptions = (onionSkinOptions) => {
-    let validOnionSkinOptions = ['onionSkinEnabled', 'onionSkinSeekForwards', 'onionSkinSeekBackwards'];
-    let newOnionSkinOptions = {};
-    Object.keys(onionSkinOptions).forEach(onionSkinOptionName => {
-      if(validOnionSkinOptions.indexOf(onionSkinOptionName) === -1) return;
-      if(onionSkinOptions[onionSkinOptionName] === undefined) return;
-      this.project[onionSkinOptionName] = onionSkinOptions[onionSkinOptionName];
-    });
-  }
-
-  /**
    * Export the current project as a Wick File using the save as dialog.
    */
   exportProjectAsWickFile = () => {
@@ -700,8 +675,7 @@ class EditorCore extends Component {
   setupNewProject = (project) => {
     this.resetEditorForLoad();
     this.project = project;
-
-    this.updateProjectAndSelectionInState();
+    this.projectDidChange();
   }
 
   /**

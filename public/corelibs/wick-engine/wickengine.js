@@ -43352,10 +43352,8 @@ Wick.Base = class {
   }
 
   set identifier(identifier) {
-    // TODO handle duplicate names
-    if (isVarName(identifier)) {
-      this._identifier = identifier;
-    }
+    if (!isVarName(identifier)) return;
+    this._identifier = this._getUniqueIdentifier(identifier);
   }
 
   get view() {
@@ -43544,6 +43542,19 @@ Wick.Base = class {
       return new viewClass();
     } else {
       return null;
+    }
+  }
+
+  _getUniqueIdentifier(identifier) {
+    if (!this.parent) return identifier;
+    var idenfifiers = this.parent.children.map(child => {
+      return child.identifier;
+    });
+
+    if (idenfifiers.indexOf(identifier) === -1) {
+      return identifier;
+    } else {
+      return identifier + ' copy';
     }
   }
 
@@ -43899,6 +43910,10 @@ Wick.Project = class extends Wick.Base {
   get activeFrame() {
     return this.activeLayer.activeFrame;
   }
+
+  getAllFrames(recursive) {
+    return this.root.timeline.getAllFrames(recursive);
+  }
   /**
    * The project selection.
    * @type {Wick.Selection}
@@ -44132,25 +44147,62 @@ Wick.Project = class extends Wick.Base {
     reader.readAsDataURL(file);
   }
 
-  deleteSelectedObjects() {}
-
-  createImagePathFromAsset(asset, x, y) {}
-
-  createClipFromSelection(name) {
-    var clip = new Wick.Clip(this.selection.getSelectedObjects());
-    this.activeFrame.addClip(clip);
+  deleteSelectedObjects() {
+    this.selection.getSelectedObjects().forEach(object => {
+      object.remove && object.remove();
+    });
+    this.selection.clear();
   }
 
-  createButtonFromSelection(name) {
-    var button = new Wick.Button(this.selection.getSelectedObjects());
-    this.activeFrame.addClip(button);
+  createImagePathFromAsset(asset, x, y, callback) {
+    var path = new window.Wick.Path(["Raster", {
+      "applyMatrix": false,
+      "crossOrigin": "",
+      "source": "asset",
+      "asset": asset.uuid
+    }], [asset]);
+
+    path.paperPath.onLoad = () => {
+      this.activeFrame.addPath(path);
+      callback(path);
+    };
   }
 
-  breakApartSelection() {}
+  createSymbolFromSelection(name, type) {
+    var transform = new Wick.Transformation();
+    transform.x = 0; // TODO
 
-  focusTimelineOfSelectedClip() {}
+    transform.y = 0; // TODO
 
-  focusTimelineOfParentClip() {}
+    var clip = new Wick[type](name, this.selection.getSelectedObjects('Canvas'), transform);
+    this.activeFrame.addClip(clip); // TODO add to asset library
+
+    this.selection.clear();
+    this.selection.select(clip);
+  }
+
+  breakApartSelection() {
+    var leftovers = [];
+    this.selection.getSelectedObjects('Clip').forEach(clip => {
+      leftovers = leftovers.concat(clip.breakApart());
+    });
+    this.selection.clear();
+    leftovers.forEach(object => {
+      this.selection.select(object);
+    });
+  }
+
+  focusTimelineOfSelectedClip() {
+    if (this.selection.getSelectedObject() instanceof Wick.Clip) {
+      this.focus = this.selection.getSelectedObject();
+    }
+  }
+
+  focusTimelineOfParentClip() {
+    if (!this.focus.isRoot) {
+      this.focus = this.focus.parentClip;
+    }
+  }
   /**
    * Creates a wick file from the project.
    * @param {function} callback - Function called when the file is created. Contains the file as a parameter.
@@ -44537,6 +44589,22 @@ Wick.Timeline = class extends Wick.Base {
     });
     return frames;
   }
+
+  getAllFrames(recursive) {
+    var allFrames = [];
+    this.layers.forEach(layer => {
+      allFrames = allFrames.concat(layer.frames);
+
+      if (recursive) {
+        layer.frames.forEach(frame => {
+          frame.clips.forEach(clip => {
+            allFrames = allFrames.concat(clip.timeline.getAllFrames(recursive));
+          });
+        });
+      }
+    });
+    return allFrames;
+  }
   /**
    * Advances the timeline one frame forwards. Loops back to beginning if the end is reached.
    */
@@ -44779,10 +44847,11 @@ Wick.Path = class extends Wick.Base {
       this.importJSON(pathData);
     }
 
-    if (this._paperPath.name) {
-      this._uuid = this._paperPath.name;
+    if (this._paperPath.data.wickUUID) {
+      this._uuid = this._paperPath.data.wickUUID;
     } else {
-      this._paperPath.name = this.uuid;
+      this._paperPath.data.wickUUID = this.uuid;
+      this._paperPath.data.wickType = 'path';
     }
   }
 
@@ -44975,7 +45044,15 @@ Wick.ImageAsset = class extends Wick.Asset {
     return object;
   }
 
-  removeAllInstances() {}
+  removeAllInstances() {
+    this.project.getAllFrames().forEach(frame => {
+      frame.paths.forEach(path => {
+        if (path.paperPath.asset === this.uuid) {
+          path.remove();
+        }
+      });
+    });
+  }
 
   get classname() {
     return 'ImageAsset';
@@ -45719,6 +45796,10 @@ Wick.Frame = class extends Wick.Tickable {
 
 
   addClip(clip) {
+    if (clip.parent) {
+      clip.remove();
+    }
+
     this._clips.push(clip);
 
     this._addChild(clip);
@@ -45743,6 +45824,10 @@ Wick.Frame = class extends Wick.Tickable {
 
 
   addPath(path) {
+    if (path.parent) {
+      path.remove();
+    }
+
     this._paths.push(path);
 
     this._addChild(path);
@@ -45944,12 +46029,33 @@ Wick.Frame = class extends Wick.Tickable {
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
 Wick.Clip = class extends Wick.Tickable {
-  constructor() {
+  constructor(identifier, objects, transform) {
     super();
     this._timeline = null;
     this.timeline = new Wick.Timeline();
-    this.transform = new Wick.Transformation();
+    this.identifier = identifier || 'New Symbol';
+    this.transform = transform || new Wick.Transformation();
     this.cursor = 'default';
+
+    if (objects) {
+      this.timeline.addLayer(new Wick.Layer());
+      this.timeline.activeLayer.addFrame(new Wick.Frame());
+      var clips = objects.filter(object => {
+        return object instanceof Wick.Clip;
+      });
+      clips.forEach(clip => {
+        clip.transform.x -= this.transform.x;
+        clip.transform.y -= this.transform.y;
+        this.activeFrame.addClip(clip);
+      });
+      var paths = objects.filter(object => {
+        return object instanceof Wick.Path;
+      });
+      paths.forEach(path => {
+        path.paperPath.position = new paper.Point(path.paperPath.position.x - this.transform.x, path.paperPath.position.y - this.transform.y);
+        this.activeFrame.addPath(path);
+      });
+    }
   }
 
   static _deserialize(data, object) {
@@ -46031,6 +46137,26 @@ Wick.Clip = class extends Wick.Tickable {
 
   remove() {
     this.parent.removeClip(this);
+  }
+
+  breakApart() {
+    var leftovers = [];
+    this.timeline.activeFrames.forEach(frame => {
+      frame.clips.forEach(clip => {
+        clip.transform.x += this.transform.x;
+        clip.transform.y += this.transform.y;
+        this.parentTimeline.activeFrame.addClip(clip);
+        leftovers.push(clip);
+      });
+      frame.paths.forEach(path => {
+        path.paperPath.position.x += this.transform.x;
+        path.paperPath.position.y += this.transform.y;
+        this.parentTimeline.activeFrame.addPath(path);
+        leftovers.push(path);
+      });
+    });
+    this.remove();
+    return leftovers;
   }
 
   runScripts() {
@@ -46218,8 +46344,8 @@ Wick.Clip = class extends Wick.Tickable {
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
 Wick.Button = class extends Wick.Clip {
-  constructor() {
-    super();
+  constructor(paths, clips) {
+    super(paths, clips);
     this.cursor = 'pointer';
   }
 
@@ -46603,15 +46729,26 @@ Wick.View.Project = class extends Wick.View {
 
   setCanvasContainer(canvasContainer) {
     this.canvasContainer = canvasContainer;
-    this.canvasContainer.appendChild(this.canvas);
+
+    if (this.canvas !== this.canvasContainer.children[0]) {
+      if (this.canvasContainer.children.length === 0) {
+        this.canvasContainer.appendChild(this.canvas);
+      } else {
+        this.canvasContainer.removeChild(this.canvasContainer.children[0]);
+        this.canvasContainer.appendChild(this.canvas);
+      }
+
+      this.resize();
+      return true;
+    } else {
+      return false;
+    }
   }
 
   resize() {
     if (!this.canvasContainer) return;
     var newWidth = this.canvasContainer.offsetWidth;
     var newHeight = this.canvasContainer.offsetHeight;
-    console.log(newWidth);
-    console.log(newHeight);
     var oldWidth = paper.view.viewSize.width;
     var oldHeight = paper.view.viewSize.height;
     var diffWidth = oldWidth - newWidth;
@@ -46619,6 +46756,13 @@ Wick.View.Project = class extends Wick.View {
     paper.view.center = paper.view.center.add(new paper.Point(diffWidth / 2, diffHeight / 2));
     paper.view.viewSize.width = newWidth;
     paper.view.viewSize.height = newHeight;
+  }
+
+  recenter() {
+    let cx = this.model.width / 2;
+    let cy = this.model.height / 2;
+    paper.view.zoom = 1;
+    paper.view.center = new paper.Point(cx, cy);
   }
 
   render() {
@@ -46664,7 +46808,7 @@ Wick.View.Project = class extends Wick.View {
 
   applyChanges() {
     this.model.focus.timeline.activeFrames.forEach(frame => {
-      frame.applyChanges();
+      frame.view.applyChanges();
     });
   }
 
@@ -46948,7 +47092,7 @@ Wick.InteractTool = class {
       }); // Check for clips under the mouse.
 
       if (hitResult) {
-        var uuid = hitResult.item.name;
+        var uuid = hitResult.item.data.wickUUID;
         var path = project.getChildByUUID(uuid);
 
         if (!path.parentClip.isRoot) {

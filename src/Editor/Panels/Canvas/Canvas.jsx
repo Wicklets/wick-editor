@@ -60,39 +60,90 @@ class Canvas extends Component {
   }
 
   componentDidMount() {
-    this.canvasContainer = this.canvasContainer.current;
-    this.props.project.view.setCanvasContainer(this.canvasContainer);
+    let canvasContainerElem = this.canvasContainer.current;
+
+    this.props.project.view.setCanvasContainer(canvasContainerElem);
     this.props.project.view.resize();
 
-    this.canvasContainer.children[0].setAttribute('tabindex', 0);
-    this.canvasContainer.children[0].onclick = (e) => {
-      this.canvasContainer.children[0].focus();
+    canvasContainerElem.children[0].setAttribute('tabindex', 0);
+    canvasContainerElem.children[0].onclick = (e) => {
+      canvasContainerElem.children[0].focus();
     }
-
-    window.paper.view.zoom = 1;
-    window.paper.view.center = new window.paper.Point(
-      this.props.project.width/2,
-      this.props.project.height/2
-    );
 
     window.paper.drawingTools.onCanvasModified(this.onCanvasModified);
     window.paper.drawingTools.onSelectionChanged(this.onSelectionChanged);
+
+    this.updateCanvas();
+    this.props.project.view.recenter();
+  }
+
+  componentDidUpdate () {
+    this.updateCanvas();
   }
 
   onCanvasModified (e) {
-    return;
-    this.project.view.applyChanges();
-    this.props.setState({
-      project: this.props.project.serialize(),
-    });
+    this.props.project.view.applyChanges();
+    this.props.projectDidChange();
   }
 
   onSelectionChanged (e) {
-    this.props.selectObjects(window.paper.project.selection.items.map(item => {
-      let name = item.name;
-      if(name.startsWith('wick_clip_')) name = name.split('wick_clip_')[1];
-      return this.props.project.getChildByUUID(name);
-    }));
+    let paper = this.props.paper;
+    let project = this.props.project;
+
+    project.selection.clear();
+    paper.project.selection.items.forEach(item => {
+      let object = project.getChildByUUID(item.data.wickUUID);
+      project.selection.select(object);
+    });
+
+    this.props.projectDidChange();
+  }
+
+  updateCanvas = () => {
+    let project = this.props.project;
+    let paper = this.props.paper;
+    let activeTool = this.props.activeTool;
+    let toolSettings = this.props.toolSettings;
+    let previewPlaying = this.props.previewPlaying;
+    let canvasContainerElem = this.canvasContainer.current;
+
+    // Render wick project
+    project.view.render();
+    if(project.view.setCanvasContainer(canvasContainerElem)) {
+      project.view.recenter();
+    }
+
+    paper.project.selection.clear();
+    project.selection.getSelectedObjects('Path').forEach(path => {
+      paper.project.selection.addItem(path.parent.view.pathsLayer.children.find(seekPath => {
+        return seekPath.data.wickUUID === path.uuid;
+      }));
+    });
+    project.selection.getSelectedObjects('Clip').forEach(clip => {
+      paper.project.selection.addItem(clip.view.group);
+    });
+    paper.project.selection.updateGUI();
+
+    paper.project.addLayer(paper.project.selection.guiLayer);
+
+    // update the paper.js active tool based on the editor active tool state.
+    let tool = paper.drawingTools[activeTool];
+    tool.activate();
+    Object.keys(toolSettings).forEach(key => {
+      tool[key] = toolSettings[key];
+    });
+
+    // if there is no layer/frame to draw on, activate the 'none' tool.
+    if(project.activeFrame === null ||
+       project.activeLayer.locked ||
+       project.activeLayer.hidden) {
+      paper.drawingTools.none.activate();
+    }
+
+    // if preview playing, use the Interact tool
+    if(previewPlaying) {
+      project.view.interactTool.activate();
+    }
   }
 
   render() {

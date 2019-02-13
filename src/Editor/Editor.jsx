@@ -161,39 +161,6 @@ class Editor extends EditorCore {
   }
 
   componentDidUpdate = (prevProps, prevState) => {
-    //Render wick canvas stuff
-    this.project.view.render();
-
-    window.paper.project.selection.clear();
-    this.project.selection.getSelectedObjects('Path').forEach(path => {
-      window.paper.project.selection.addItemByName(path.uuid);
-    });
-    this.project.selection.getSelectedObjects('Clip').forEach(clip => {
-      window.paper.project.selection.addItemByName('wick_clip_'+clip.uuid);
-    });
-    window.paper.project.selection.updateGUI();
-
-    window.paper.project.addLayer(window.paper.project.selection.guiLayer);
-
-    // update the paper.js active tool based on the editor active tool state.
-    let tool = window.paper.drawingTools[this.state.activeTool];
-    tool.activate();
-    Object.keys(this.state.toolSettings).forEach(key => {
-      tool[key] = this.state.toolSettings[key];
-    });
-
-    // if there is no layer/frame to draw on, activate the 'none' tool.
-    if(!this.project.focus.timeline.activeLayer.activeFrame ||
-       this.project.focus.timeline.activeLayer.locked ||
-       this.project.focus.timeline.activeLayer.hidden) {
-      window.paper.drawingTools.none.activate();
-    }
-
-    // if preview playing, use the Interact tool
-    if(this.state.previewPlaying) {
-      this.canvas.interactTool.activate();
-    }
-
     if(this.state.previewPlaying && !prevState.previewPlaying) {
       this.beforePreviewPlayProjectState = this.project.serialize();
       this.project.play({
@@ -336,7 +303,6 @@ class Editor extends EditorCore {
   onStopTimelineResize = ({domElement, component}) => {
     var size = this.getSizeVertical(domElement);
 
-    console.log(size); 
     this.setState({
       timelineSize: size
     });
@@ -416,7 +382,7 @@ class Editor extends EditorCore {
     }));
 
     if(nextState) {
-      this.focusCanvasElement();
+      // Focus canvas element here
     }
   }
 
@@ -450,6 +416,12 @@ class Editor extends EditorCore {
       let uuid = errors[0].uuid;
       this.selectObject(this.project.getChildByUUID(uuid))
     }
+  }
+
+  projectDidChange = () => {
+    this.setState({
+      project: this.project.serialize(),
+    });
   }
 
   render = () => {
@@ -519,8 +491,12 @@ class Editor extends EditorCore {
                                 <DockedPanel>
                                   <Canvas
                                     project={this.project}
+                                    projectDidChange={this.projectDidChange}
+                                    projectData={this.state.project}
                                     paper={this.paper}
-                                    selectObjects={this.selectObjects}
+                                    activeTool={this.state.activeTool}
+                                    toolSettings={this.state.toolSettings}
+                                    previewPlaying={this.state.previewPlaying}
                                     createImageFromAsset={this.createImageFromAsset}
                                   />
                                 </DockedPanel>
@@ -537,6 +513,8 @@ class Editor extends EditorCore {
                             <DockedPanel  showOverlay={this.state.previewPlaying}>
                               <Timeline
                                 project={this.project}
+                                projectDidChange={this.projectDidChange}
+                                projectData={this.state.project}
                                 getSelectedTimelineObjects={this.getSelectedTimelineObjects}
                                 selectObjects={this.selectObjects}
                                 setOnionSkinOptions={this.setOnionSkinOptions}
