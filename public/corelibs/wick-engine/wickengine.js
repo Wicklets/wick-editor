@@ -47290,6 +47290,7 @@ Wick.View.Project = class extends Wick.View {
     this.bgLayer.remove();
     paper.project.clear();
     this.interactTool = new Wick.InteractTool().paperTool;
+    this.canvasBGColor = null;
   }
 
   setCanvasContainer(canvasContainer) {
@@ -47338,7 +47339,7 @@ Wick.View.Project = class extends Wick.View {
     paper.project.addLayer(this.bgLayer);
 
     if (this.model.focus === this.model.root) {
-      this.canvas.style.backgroundColor = Wick.View.Project.DEFAULT_CANVAS_BG_COLOR;
+      this.canvas.style.backgroundColor = this.canvasBGColor || Wick.View.Project.DEFAULT_CANVAS_BG_COLOR;
       var bgRect = new paper.Path.Rectangle(new paper.Point(0, 0), new paper.Point(this.model.width, this.model.height));
       bgRect.remove();
       bgRect.fillColor = this.model.backgroundColor;

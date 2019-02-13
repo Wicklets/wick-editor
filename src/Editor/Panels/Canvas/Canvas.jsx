@@ -22,6 +22,7 @@ import { DropTarget } from 'react-dnd';
 import DragDropTypes from 'Editor/DragDropTypes.js';
 
 import './_canvas.scss';
+import styles from './_canvas.scss';
 
 // Specification for drag and drop
 const canvasTarget = {
@@ -108,6 +109,7 @@ class Canvas extends Component {
     let canvasContainerElem = this.canvasContainer.current;
 
     // Render wick project
+    project.view.canvasBGColor = styles.editorCanvasBorder;
     project.view.render();
     if(project.view.setCanvasContainer(canvasContainerElem)) {
       project.view.recenter();
