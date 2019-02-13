@@ -20,8 +20,10 @@
 @import 'Editor/_wickbrand.scss';
 
 $tool-button-margin: 3px;
-$toolbox-min-button-size: 30px;
-$toolbox-settings-bar-height: 16px;
+$toolbox-min-button-size: 40px;
+$toolbox-settings-bar-height: 20px;
+
+$toolbox-height: 65px;
 
 .tool-box {
   width: 100%;
@@ -60,7 +62,7 @@ $toolbox-settings-bar-height: 16px;
   height: $toolbox-min-button-size;
   margin-left: $tool-button-margin;
   margin-right: $tool-button-margin;
-  margin-top: 2px;
+  margin-top: calc( calc(#{$toolbox-height} - #{$toolbox-min-button-size} - #{$toolbox-settings-bar-height}) / 2 );
 }
 
 .toolbox-actions-right {
