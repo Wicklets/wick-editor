@@ -184,3 +184,24 @@ $action-button-transition-duration: .2s;
 .action-button-menu.active-button {
   color: $editor-menubar-project-text;
 }
+
+.action-button-tool-settings {
+  -webkit-transition-duration: $action-button-transition-duration; /* Safari */
+  transition-duration: $action-button-transition-duration;
+
+  background-color: $editor-secondary;
+  color: $editor-secondary-text;
+}
+
+.action-button-tool-settings:hover {
+  background-color: $editor-tertiary;
+  color: $editor-primary-property-text;
+}
+
+.action-button-tool-settings:active {
+  background-color: $editor-tertiary;
+}
+
+.action-button-tool-settings.active-button {
+  background-color: $editor-tertiary;
+}

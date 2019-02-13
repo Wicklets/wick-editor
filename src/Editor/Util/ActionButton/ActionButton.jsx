@@ -40,7 +40,7 @@ class ActionButton extends Component {
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
 
     return (
-      <div data-tip data-for={btnID} className={classNames("action-button", propClassName)}>
+      <div data-tip data-for={btnID} id={btnID} className={classNames("action-button", propClassName)}>
         <WickInput
           className={finalClassName}
           type="button"

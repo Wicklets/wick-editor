@@ -25,37 +25,63 @@ import PlayButton from 'Editor/Util/PlayButton/PlayButton';
 import WickInput from 'Editor/Util/WickInput/WickInput';
 import ActionButton from 'Editor/Util/ActionButton/ActionButton';
 import ToolboxBreak from './ToolboxBreak/ToolboxBreak';
+import ToolButton from './ToolButton/ToolButton';
 
 class Toolbox extends Component {
-  renderToolButton = (name, tooltip) => {
-    return (
-      <ActionButton
-        color="tool"
-        isActive={ () => this.props.getActiveTool() === name }
-        id={"tool-button-" + name}
-        tooltip={tooltip}
-        action={ () => this.props.setActiveTool(name) }
-        tooltipPlace="bottom"
-        icon={name}
-        className="tool-button toolbox-item"/>
-    )
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      openSettings: null,
+    }
+
+    this.toolButtonProps = {
+      getActiveTool: this.props.getActiveTool,
+      setActiveTool: this.props.setActiveTool,
+      onScroll: this.addScrollFunction,
+      className: 'toolbox-item',
+    }
+
+    // List of callbacks to call on Scroll.
+    this.scrollFns = [];
+  }
+
+  /**
+   * Adds a callback function to a list of callback functions to be called on
+   * scroll.
+   * @param {Function} fn function to be called when this component is scrolled.
+   */
+  addScrollFunction = (fn) => {
+    this.scrollFns.push(fn);
+  }
+
+  /**
+   * Calls all callback functions for child components if they exists when
+   * scrolled.
+   * @param  {DOM Event} e Scroll event.
+   */
+  onScroll = (e) => {
+    this.scrollFns.forEach(fn => {
+      fn();
+    });
   }
 
   render() {
     return(
-      <div className="tool-box">
-        {this.renderToolButton('cursor', "Cursor")}
-        {this.renderToolButton('brush', "Brush")}
-        {this.renderToolButton('pencil', "Pencil")}
-        {this.renderToolButton('eraser', "Eraser")}
-        {this.renderToolButton('rectangle', "Rectangle")}
-        {this.renderToolButton('ellipse', "Ellipse")}
-        {this.renderToolButton('line', "Line")}
-        {this.renderToolButton('text', "Text")}
-        {/*{this.renderToolButton('eyedropper', "Eyedropper")}*/}
-        {this.renderToolButton('pan', "Pan")}
-        {this.renderToolButton('zoom', "Zoom")}
-        {this.renderToolButton('fillbucket', "Fill Bucket")}
+      <div
+        className="tool-box"
+        onScroll={this.onScroll}>
+        <ToolButton {...this.toolButtonProps} name='cursor' tooltip="Cursor" />
+        <ToolButton {...this.toolButtonProps} name='brush' tooltip="Brush" />
+        <ToolButton {...this.toolButtonProps} name='pencil' tooltip="Pencil" />
+        <ToolButton {...this.toolButtonProps} name='eraser' tooltip="Eraser" />
+        <ToolButton {...this.toolButtonProps} name='rectangle' tooltip="Rectangle" />
+        <ToolButton {...this.toolButtonProps} name='ellipse' tooltip="Ellipse" />
+        <ToolButton {...this.toolButtonProps} name='line' tooltip="Line" />
+        <ToolButton {...this.toolButtonProps} name='text' tooltip="Text" />
+        <ToolButton {...this.toolButtonProps} name='pan' tooltip="Pan" />
+        <ToolButton {...this.toolButtonProps} name='zoom' tooltip="Zoom" />
+        <ToolButton {...this.toolButtonProps} name='fillbucket' tooltip="Fill Bucket" />
 
       <div className="color-container toolbox-item" id="fill-color-picker-container">
           <WickInput
@@ -81,38 +107,36 @@ class Toolbox extends Component {
             />
         </div>
 
-        <ToolboxBreak />
+        <ToolboxBreak className="toolbox-item"/>
 
-        <div className="toolbox-actions-center">
-          <div className="toolbox-action-button toolbox-item">
-            <ActionButton
-              id='toolbox-undo-button'
-              icon='undo'
-              color='tool'
-              action={this.props.undoAction}
-              tooltip='undo'
-              tooltipPlace='bottom'
-              className='tool-button'/>
-          </div>
-          <div className="toolbox-action-button toolbox-item">
-            <ActionButton
-              id='toolbox-redo-button'
-              icon='redo'
-              color='tool'
-              action={this.props.redoAction}
-              tooltip='redo'
-              tooltipPlace='bottom'
-              className='tool-button'/>
-          </div>
+        <div className="toolbox-actions-center toolbox-item">
+          <ActionButton
+            id='toolbox-undo-button'
+            icon='undo'
+            color='tool'
+            action={this.props.undoAction}
+            tooltip='undo'
+            tooltipPlace='bottom'
+            className='tool-button'/>
         </div>
-        <div className="toolbox-actions-right">
-          <div className="toolbox-action-button toolbox-item">
-            <PlayButton
-              className="play-button tool-button"
-              playing={this.props.previewPlaying}
-              onClick={this.props.togglePreviewPlaying}/>
-          </div>
+        <div className="toolbox-actions-center toolbox-item">
+          <ActionButton
+            id='toolbox-redo-button'
+            icon='redo'
+            color='tool'
+            action={this.props.redoAction}
+            tooltip='redo'
+            tooltipPlace='bottom'
+            className='tool-button'/>
         </div>
+
+        <div className="toolbox-actions-right toolbox-item">
+          <PlayButton
+            className="play-button tool-button"
+            playing={this.props.previewPlaying}
+            onClick={this.props.togglePreviewPlaying}/>
+        </div>
+
       </div>
     )
   }

@@ -60,7 +60,7 @@ class ColorPicker extends Component {
           isOpen={this.state.open}
           target={itemID}
           toggle={this.toggle}
-          boundariesElement={window}
+          boundariesElement={'viewport'}
         >
           <SketchPicker
             disableAlpha={ this.props.disableAlpha }

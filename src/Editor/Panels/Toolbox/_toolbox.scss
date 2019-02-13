@@ -20,7 +20,8 @@
 @import 'Editor/_wickbrand.scss';
 
 $tool-button-margin: 3px;
-$toolbox-min-button-size: 35px;
+$toolbox-min-button-size: 30px;
+$toolbox-settings-bar-height: 16px;
 
 .tool-box {
   width: 100%;
@@ -28,13 +29,13 @@ $toolbox-min-button-size: 35px;
   background-color: $editor-primary;
   padding-left: 5px;
   padding-right: 5px;
-  display: flex;
-  box-sizing: border-box;
   border: $editor-outline-padding solid $editor-primary-outline;
   border-top: none;
   border-right: none;
-  align-items: center;
+  border-bottom: $toolbox-settings-bar-height solid $editor-primary-outline;;
   overflow: hidden;
+  display: flex;
+  flex-direction: row;
 }
 
 .tool-box:hover {
@@ -48,9 +49,18 @@ $toolbox-min-button-size: 35px;
   height: $toolbox-min-button-size;
 }
 
+.toolbox-break {
+  height: 70%;
+  margin-top: 5px;
+}
+
 .toolbox-item {
+  width: $toolbox-min-button-size;
+  min-width: $toolbox-min-button-size;
+  height: $toolbox-min-button-size;
   margin-left: $tool-button-margin;
   margin-right: $tool-button-margin;
+  margin-top: 2px;
 }
 
 .toolbox-actions-right {
@@ -68,19 +78,12 @@ $toolbox-min-button-size: 35px;
   align-items: center;
 }
 
-
-.toolbox-action-button {
-  width: $toolbox-min-button-size;
-  min-width: $toolbox-min-button-size;
-  height: $toolbox-min-button-size;
-}
-
 .color-container {
   cursor: pointer;
-  width: 35px;
-  height: 35px;
+  width: $toolbox-min-button-size;
+  height: $toolbox-min-button-size;
   float: left;
-  min-width: 35px;
+  min-width: $toolbox-min-button-size;
 }
 
 #tool-box-stroke-color-button {
