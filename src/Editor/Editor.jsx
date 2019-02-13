@@ -131,6 +131,7 @@ class Editor extends EditorCore {
     // Initialize "live" engine state
     this.project = new window.Wick.Project();
     this.paper = window.paper;
+    this.history.saveState();
 
     // Initialize local storage
     localForage.config({
@@ -143,8 +144,6 @@ class Editor extends EditorCore {
     this.setState({
       ...this.state,
       project: this.project.serialize(),
-    }, () => {
-      this.history.saveState();
     });
 
     // Leave Page warning.
@@ -204,10 +203,6 @@ class Editor extends EditorCore {
   autoSaveProject = () => {
     if (this.project === undefined) return
     localForage.setItem(this.autoSaveKey, this.project.serialize());
-  }
-
-  projectOrSelectionChanged = (state, nextState) => {
-    return JSON.stringify(state.project) !== JSON.stringify(nextState.project);
   }
 
   onWindowResize = () => {
@@ -418,10 +413,24 @@ class Editor extends EditorCore {
     }
   }
 
+  undoAction = () => {
+    this.history.undo();
+  }
+
+  redoAction = () => {
+    this.history.redo();
+  }
+
   projectDidChange = () => {
-    this.setState({
-      project: this.project.serialize(),
-    });
+    let projectSerialized = this.project.serialize();
+    // Double check to see if the project was really changed
+    // (This shouldn't be neccessary, but AnimationTimeline was firing multiple projectDidChange calls.)
+    if(JSON.stringify(this.state.project) !== JSON.stringify(projectSerialized)) {
+      this.history.saveState();
+      this.setState({
+        project: projectSerialized,
+      });
+    }
   }
 
   render = () => {
@@ -480,8 +489,8 @@ class Editor extends EditorCore {
                                 setToolSettings={this.setToolSettings}
                                 previewPlaying={this.state.previewPlaying}
                                 togglePreviewPlaying={this.togglePreviewPlaying}
-                                undoAction={() => this.history.undo()}
-                                redoAction={() => this.history.redo()}
+                                undoAction={this.undoAction}
+                                redoAction={this.redoAction}
                               />
                             </DockedPanel>
                           </ReflexElement>

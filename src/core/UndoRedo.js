@@ -48,8 +48,7 @@ class UndoRedo {
 
   _generateProjectState () {
     return {
-      project: this.editor.state.project,
-      selection: this.editor.state.selection,
+      project: this.editor.project.serialize(),
     };
   }
 
@@ -58,8 +57,8 @@ class UndoRedo {
     this.editor.setState({
       ...this.editor.state,
       project: state.project,
-      selection: state.selection,
     });
+    this.editor.refocusEditor(); // Why do we need to do this...? Why does the setState call here change the focus?
   }
 
   _logStacks () {

@@ -3915,10 +3915,12 @@ paper.drawingTools = new paper.DrawingTools();
 
     if (res.children) {
       res.insertAbove(path);
+      res.data = {};
       path.remove();
       splitCompoundPath(res);
     } else {
       if (res.segments.length > 0) {
+        res.data = {};
         res.insertAbove(path);
       }
 
@@ -3938,6 +3940,7 @@ paper.drawingTools = new paper.DrawingTools();
       // Since the path is only strokes, it's trivial to split it into individual paths
       var children = [];
       res.children.forEach(function (child) {
+        child.data = {};
         children.push(child);
         child.name = null;
       });
