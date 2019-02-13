@@ -113,19 +113,6 @@ class Canvas extends Component {
       project.view.recenter();
     }
 
-    paper.project.selection.clear();
-    project.selection.getSelectedObjects('Path').forEach(path => {
-      paper.project.selection.addItem(path.parent.view.pathsLayer.children.find(seekPath => {
-        return seekPath.data.wickUUID === path.uuid;
-      }));
-    });
-    project.selection.getSelectedObjects('Clip').forEach(clip => {
-      paper.project.selection.addItem(clip.view.group);
-    });
-    paper.project.selection.updateGUI();
-
-    paper.project.addLayer(paper.project.selection.guiLayer);
-
     // update the paper.js active tool based on the editor active tool state.
     let tool = paper.drawingTools[activeTool];
     tool.activate();

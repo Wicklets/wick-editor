@@ -161,7 +161,7 @@ class EditorCore extends Component {
    * @returns {string} The string representation of the type of object/objects selected
    */
   getSelectionType = () => {
-    return this.project.selection.types[0];
+    return null;
   }
 
   /**
@@ -451,7 +451,7 @@ class EditorCore extends Component {
    * @param {number} y    The y location of the image after creation in relation to the window.
    */
   createImageFromAsset = (uuid, x, y) => {
-    this.project.createImagePathFromAsset(uuid, x, y);
+    this.project.createImagePathFromAsset(this.project.getChildByUUID(uuid), x, y);
   }
 
   /**
