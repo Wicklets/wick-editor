@@ -35,6 +35,11 @@ class EditorCore extends Component {
    * @param {string} newTool - The string representation of the tool to switch to.
    */
   setActiveTool = (newTool) => {
+    if(newTool !== this.state.activeTool) {
+      this.project.selection.clear();
+      this.projectDidChange();
+    }
+
     this.setState({
       activeTool: newTool
     });
