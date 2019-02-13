@@ -592,7 +592,7 @@ class Editor extends EditorCore {
               updateCodeEditorWindowProperties={this.updateCodeEditorWindowProperties}
               selectionIsScriptable={this.selectionIsScriptable}
               getSelectionType={this.getSelectionType}
-              script={this.getScriptOfSelection()}
+              script={this.getSelectedObjectScript()}
               toggleCodeEditor={this.toggleCodeEditor}
               errors={this.state.codeErrors}
               onMinorScriptUpdate={this.onMinorScriptUpdate}

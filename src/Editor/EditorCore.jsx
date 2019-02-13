@@ -105,7 +105,55 @@ class EditorCore extends Component {
    * @returns {string} The string representation of the type of object/objects selected
    */
   getSelectionType = () => {
-    return null;
+    let selection = this.project.selection;
+
+    if(selection.location === 'Canvas') {
+      if(selection.numObjects === 1) {
+        if(selection.getSelectedObject() instanceof window.Wick.Path) {
+          return 'path';
+        } else if(selection.getSelectedObject() instanceof window.Wick.Button) {
+          return 'button';
+        } else if(selection.getSelectedObject() instanceof window.Wick.Clip) {
+          return 'clip';
+        }
+      } else if (selection.types.length === 1) {
+        if (selection.types[0] === 'Path') {
+          return 'multipath';
+        } else {
+          return 'multicanvasmixed';
+        }
+      } else {
+        return 'multicanvasmixed';
+      }
+    } else if (selection.location === 'Timeline') {
+      if(selection.numObjects === 1) {
+        if(selection.getSelectedObject() instanceof window.Wick.Frame) {
+          return 'frame';
+        } else if(selection.getSelectedObject() instanceof window.Wick.Layer) {
+          return 'layer';
+        } else if(selection.getSelectedObject() instanceof window.Wick.Tween) {
+          return 'tween';
+        }
+      } else if (selection.types.length === 1) {
+        if(selection.getSelectedObject() instanceof window.Wick.Frame) {
+          return 'multiframe';
+        } else if(selection.getSelectedObject() instanceof window.Wick.Layer) {
+          return 'multilayer';
+        } else if(selection.getSelectedObject() instanceof window.Wick.Tween) {
+          return 'multitween';
+        }
+      } else {
+        return 'multitimelinemixed';
+      }
+    } else if (selection.location === 'AssetLibrary') {
+      if(selection.getSelectedObjects()[0] instanceof window.Wick.ImageAsset) {
+        return 'imageasset';
+      } else if(selection.getSelectedObjects()[0] instanceof window.Wick.SoundAsset) {
+        return 'soundasset';
+      }
+    } else {
+      return null;
+    }
   }
 
   /**
@@ -119,6 +167,13 @@ class EditorCore extends Component {
             this.project.selection.types[0] === 'Button');
   }
 
+  getSelectedObjectScript = () => {
+    if(this.selectionIsScriptable()) {
+      return this.project.selection.getSelectedObject();
+    } else {
+      return null;
+    }
+  }
 
   /**
    * Returns all selected objects on the timeline.
@@ -434,6 +489,7 @@ class EditorCore extends Component {
    */
   focusTimelineOfSelectedObject = () => {
     this.project.focusTimelineOfSelectedClip();
+    this.projectDidChange();
   }
 
   /**
@@ -441,6 +497,7 @@ class EditorCore extends Component {
    */
   focusTimelineOfParentClip = () => {
     this.project.focusTimelineOfParentClip();
+    this.projectDidChange();
   }
 
   /**
