@@ -323,6 +323,9 @@ class EditorCore extends Component {
     this.projectDidChange();
   }
 
+  /**
+   * Selects everything on the canvas.
+   */
   selectAll = () => {
     this.project.selection.clear();
     this.project.activeFrames.forEach(frame => {

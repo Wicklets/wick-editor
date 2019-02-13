@@ -5213,8 +5213,6 @@ class BrushCursorGen {
       croquisDOMElement.style.height = '100%';
       croquisDOMElement.style.display = 'block';
       croquisDOMElement.style.pointerEvents = 'none';
-
-      paper.view._element.parentElement.appendChild(croquisDOMElement);
     }
 
     croquis.setCanvasSize(paper.view.bounds.width, paper.view.bounds.height);
@@ -5231,6 +5229,10 @@ class BrushCursorGen {
   tool.onDeactivate = function (e) {};
 
   tool.onMouseMove = function (e) {
+    if (!paper.view._element.parentElement.contains(croquisDOMElement)) {
+      paper.view._element.parentElement.appendChild(croquisDOMElement);
+    }
+
     cursor = BrushCursorGen.create(tool.fillColor, tool.brushSize * tool.getPressure());
     paper.view._element.style.cursor = cursor;
   };
