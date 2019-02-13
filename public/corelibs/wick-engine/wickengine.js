@@ -47308,7 +47308,7 @@ Wick.View.Project = class extends Wick.View {
       if (this.canvasContainer.children.length === 0) {
         this.canvasContainer.appendChild(this.canvas);
       } else {
-        this.canvasContainer.removeChild(this.canvasContainer.children[0]);
+        this.canvasContainer.innerHTML = '';
         this.canvasContainer.appendChild(this.canvas);
       }
 
