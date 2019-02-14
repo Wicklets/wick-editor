@@ -17,8 +17,6 @@ class SettingsPanel extends Component {
       "ellipse": this.renderEllipseSettings,
       "line": this.renderLineSettings,
       "text": this.renderTextSettings,
-      "pan": this.renderPanSettings,
-      "zoom": this.renderZoomSettings,
       "fillbucket": this.renderFillBucketSettings,
     }
   }
@@ -26,7 +24,16 @@ class SettingsPanel extends Component {
   render () {
     return (
       <div id='settings-panel-container'>
+        {this.props.activeTool in this.settingsFunctions && this.renderSettingsHeader()}
         {this.renderSettings()}
+      </div>
+    );
+  }
+
+  renderSettingsHeader = () => {
+    return (
+      <div className="settings-container-header">
+        Tool Options
       </div>
     );
   }
@@ -106,20 +113,6 @@ class SettingsPanel extends Component {
     return (
       <div className='settings-input-container'>
         {this.renderFontSize()}
-      </div>
-    );
-  }
-
-  renderPanSettings = () => {
-    return (
-      <div className='settings-input-container'>
-      </div>
-    );
-  }
-
-  renderZoomSettings = () => {
-    return (
-      <div className='settings-input-container'>
       </div>
     );
   }

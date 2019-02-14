@@ -1,6 +1,8 @@
 @import 'Editor/_wickbrand.scss';
 
 $setting-splitter-height: 2px;
+$settings-container-width: 80px;
+$setting-height: 80px;
 
 #settings-panel-container {
   display: flex;
@@ -14,8 +16,8 @@ $setting-splitter-height: 2px;
 }
 
 .setting-container {
-  width: 80px;
-  height: 80px;
+  width: $settings-container-width;
+  height: $setting-height;
   background-color: $editor-primary;
   box-sizing: content-box;
   display: flex;
@@ -23,8 +25,20 @@ $setting-splitter-height: 2px;
   justify-content: center;
 }
 
-.setting-container:first-child {
+.settings-container-header {
+  width: $settings-container-width;
+  height: 20px;
+  background-color: $editor-primary-outline;
+  color: $editor-secondary-text;
   border-top-right-radius: 4px;
+  font-size: 12px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.setting-container:first-child {
   border-bottom: $setting-splitter-height solid $editor-primary-outline;
 }
 
