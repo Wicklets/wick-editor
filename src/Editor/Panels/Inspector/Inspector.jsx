@@ -453,7 +453,7 @@ class Inspector extends Component {
   renderUnknown() {
     return (
       <div>
-        <InspectorTitle type={"unknown"} title={"Unknown"} />
+        <InspectorTitle />
         <div className="inspector-content">
         </div>
       </div>
