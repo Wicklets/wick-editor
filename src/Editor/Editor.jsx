@@ -66,11 +66,17 @@ class Editor extends EditorCore {
         strokeColor: '#000',
         strokeWidth: 1,
         brushSize: 10,
+        eraserSize: 10,
         brushSmoothing: 0.9,
         brushSmoothness: 10,
         cornerRadius: 0,
         pressureEnabled: false,
         sizeJump: 5,
+        pixelDropper: true,
+        fontSize: 20,
+        fontFamily: 'Nunito',
+        selectPoints: false,
+        selectCurves: false,
       },
       previewPlaying: false,
       activeModalName: null,
@@ -488,7 +494,7 @@ class Editor extends EditorCore {
                               <Toolbox
                                 getActiveTool={this.getActiveTool}
                                 setActiveTool={this.setActiveTool}
-                                getToolSettings={this.getToolSettings}
+                                toolSettings={this.state.toolSettings}
                                 setToolSettings={this.setToolSettings}
                                 previewPlaying={this.state.previewPlaying}
                                 togglePreviewPlaying={this.togglePreviewPlaying}

@@ -21,7 +21,7 @@ import React, { Component } from 'react';
 
 import ActionButton from 'Editor/Util/ActionButton/ActionButton';
 
-import { Popover, PopoverBody } from 'reactstrap';
+import ToolSettingsPopover from './ToolSettingsPopover/ToolSettingsPopover';
 
 import './_toolbutton.scss';
 
@@ -30,9 +30,6 @@ var classNames = require('classnames');
 class ToolButton extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      popoverOpen: false,
-    }
 
     this.parentContainerClass="tool-button-container";
     this.settingsContainerClass="tool-button-settings-container";
@@ -62,12 +59,6 @@ class ToolButton extends Component {
     childElement.style.left = rect.left + 'px';
   }
 
-  togglePopover = () => {
-    this.setState({
-      popoverOpen: !this.state.popoverOpen,
-    });
-  }
-
   renderSelectButton = (name, tooltip) => {
     return (
       <ActionButton
@@ -88,7 +79,7 @@ class ToolButton extends Component {
         color="tool-settings"
         id={"tool-settings-" + this.props.name}
         className="tool-button-settings"
-        action={this.togglePopover}/>
+        action={() => this.props.setPopover(this.props.name)}/>
     );
   }
 
@@ -105,14 +96,12 @@ class ToolButton extends Component {
             className={this.settingsContainerClass}>
             {this.renderSettingsButton(this.props.settings)}
           </div>
-          <Popover
-            placement='bottom'
-            isOpen={this.state.popoverOpen}
-            target={"tool-settings-" + this.props.name}
-            toggle={this.togglePopover}
-            boundariesElement={'viewport'}>
-            <PopoverBody>{this.props.name}</PopoverBody>
-          </Popover>
+          <ToolSettingsPopover
+            isOpen={this.props.popoverOn}
+            setPopover={this.props.setPopover}
+            toolSettings={this.props.toolSettings}
+            setToolSettings={this.props.setToolSettings}
+            name={this.props.name} />
       </div>
     );
   }

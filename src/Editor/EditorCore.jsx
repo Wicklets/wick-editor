@@ -58,6 +58,7 @@ class EditorCore extends Component {
    * @param {object} newToolSettings - An object of key-value pairs where the keys represent tool settings and the values represent the values to change those settings to.
    */
   setToolSettings = (newToolSettings) => {
+    console.log(newToolSettings);
     this.setState({
       toolSettings: {
         ...this.state.toolSettings,

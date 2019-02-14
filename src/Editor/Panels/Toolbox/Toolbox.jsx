@@ -33,17 +33,32 @@ class Toolbox extends Component {
 
     this.state = {
       openSettings: null,
+      popover: null,
     }
 
     this.toolButtonProps = {
       getActiveTool: this.props.getActiveTool,
       setActiveTool: this.props.setActiveTool,
       onScroll: this.addScrollFunction,
+      popoverOn: this.popoverOn,
+      setPopover: this.setPopover,
+      toolSettings: this.props.toolSettings,
+      setToolSettings: this.props.setToolSettings,
       className: 'toolbox-item',
     }
 
     // List of callbacks to call on Scroll.
     this.scrollFns = [];
+  }
+
+  popoverOn = (name) => {
+    return name === this.state.popover;
+  }
+
+  setPopover = (name) => {
+    this.setState({
+      popover: name,
+    });
   }
 
   /**
@@ -86,7 +101,7 @@ class Toolbox extends Component {
       <div className="color-container toolbox-item" id="fill-color-picker-container">
           <WickInput
             type="color"
-            color= {this.props.getToolSettings().fillColor}
+            color= {this.props.toolSettings.fillColor}
             onChangeComplete={(color) => {
               this.props.setToolSettings({fillColor: color.hex})
             }}
@@ -97,7 +112,7 @@ class Toolbox extends Component {
         <div className="color-container toolbox-item" id="stroke-color-picker-container">
           <WickInput
             type="color"
-            color= {this.props.getToolSettings().strokeColor}
+            color= {this.props.toolSettings.strokeColor}
             onChangeComplete={(color) => {
               this.props.setToolSettings({strokeColor: color.hex})
             }}
