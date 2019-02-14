@@ -565,6 +565,7 @@ class Editor extends EditorCore {
                                     createImageFromAsset={this.createImageFromAsset}
                                   />
                                   <SettingsPanel
+                                    hidePanel={this.state.previewPlaying}
                                     activeTool={this.state.activeTool}
                                     toolSettings={this.state.toolSettings}
                                     setToolSettings={this.setToolSettings}

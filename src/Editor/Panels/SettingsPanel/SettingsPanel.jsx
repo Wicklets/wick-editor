@@ -21,12 +21,16 @@ class SettingsPanel extends Component {
   }
 
   render () {
-    return (
-      <div id='settings-panel-container'>
-        {this.props.activeTool in this.settingsFunctions && this.renderSettingsHeader()}
-        {this.renderSettings()}
-      </div>
-    );
+    if (this.props.hidePanel) {
+      return (<div id='settings-panel-container'/>)
+    } else {
+      return (
+        <div id='settings-panel-container'>
+          {this.props.activeTool in this.settingsFunctions && this.renderSettingsHeader()}
+          {this.renderSettings()}
+        </div>
+      );
+    }
   }
 
   renderSettingsHeader = () => {
