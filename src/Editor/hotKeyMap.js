@@ -45,7 +45,7 @@ class HotKeyInterface extends Object {
       'activate-pan': 'space',
       'activate-zoom': 'z',
       'delete': ['backspace', 'del'],
-      'preview-play-toggle': ['ctrl+enter','command+enter'],
+      'preview-play-toggle': ['enter','enter'],
       'undo': ['ctrl+z','command+z'],
       'redo': ['ctrl+y','command+y'],
       'copy': ['ctrl+c','command+c'],
