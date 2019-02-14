@@ -56,6 +56,8 @@ class HotKeyInterface extends Object {
       'break-apart': 'ctrl+b',
       'grow-brush-size': ']',
       'shrink-brush-size': '[',
+      'move-playhead-forwards': '.',
+      'move-playhead-backwards': ',',
       'select-all': ['ctrl+a', 'command+a'],
     }
   }
@@ -86,6 +88,8 @@ class HotKeyInterface extends Object {
       'clear-auto-save': this.editor.clearAutoSavedProject,
       'grow-brush-size': this.editor.growBrushSize,
       'shrink-brush-size': this.editor.shrinkBrushSize,
+      'move-playhead-forwards': this.editor.movePlayheadForwards,
+      'move-playhead-backwards': this.editor.movePlayheadBackwards,
       'select-all': this.editor.selectAll,
     }
 

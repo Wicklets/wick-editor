@@ -101,6 +101,18 @@ class EditorCore extends Component {
     });
   }
 
+  movePlayheadForwards = () => {
+    let timeline = this.project.focus.timeline;
+    timeline.playheadPosition ++;
+    this.projectDidChange();
+  }
+
+  movePlayheadBackwards = () => {
+    let timeline = this.project.focus.timeline;
+    timeline.playheadPosition = Math.max(1, timeline.playheadPosition - 1);
+    this.projectDidChange();
+  }
+
   /**
    * Determines the type of the object/objects that are in the selection state.
    * @returns {string} The string representation of the type of object/objects selected

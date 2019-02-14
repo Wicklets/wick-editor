@@ -44799,7 +44799,11 @@ Wick.Project = class extends Wick.Base {
     zip.file("project.json", JSON.stringify(projectData, null, 2));
     zip.file("README.txt", 'some extra info about the wick filetype can go here.');
     zip.generateAsync({
-      type: "blob"
+      type: "blob",
+      compression: "DEFLATE",
+      compressionOptions: {
+        level: 9
+      }
     }).then(callback);
   }
   /**
@@ -47198,7 +47202,7 @@ Wick.View.Button = class extends Wick.View.Clip {};
 */
 Wick.View.Layer = class extends Wick.View {
   static get BASE_ONION_OPACITY() {
-    return 0.7;
+    return 0.35;
   }
 
   constructor(wickLayer) {
@@ -47216,6 +47220,10 @@ Wick.View.Layer = class extends Wick.View {
       frame.view.render();
       this.activeFrameLayers.push(frame.view.clipsLayer);
       this.activeFrameLayers.push(frame.view.pathsLayer);
+      frame.view.clipsLayer.locked = false;
+      frame.view.pathsLayer.locked = false;
+      frame.view.clipsLayer.opacity = 1.0;
+      frame.view.pathsLayer.opacity = 1.0;
     }
 
     this.activeFrameLayers.forEach(layer => {
@@ -47243,11 +47251,12 @@ Wick.View.Layer = class extends Wick.View {
           var onionMult = 1 - (frame.midpoint - playheadPosition - 1) / onionSkinSeekForwards;
         }
 
+        onionMult = Math.min(1, onionMult);
         var opacity = onionMult * Wick.View.Layer.BASE_ONION_OPACITY;
-        frame.view.clipsLayer.opacity = opacity;
-        frame.view.pathsLayer.opacity = opacity;
         frame.view.clipsLayer.locked = true;
         frame.view.pathsLayer.locked = true;
+        frame.view.clipsLayer.opacity = opacity;
+        frame.view.pathsLayer.opacity = opacity;
       });
     }
   }

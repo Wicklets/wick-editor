@@ -39,47 +39,14 @@ class Timeline extends Component {
     AnimationTimeline.onChange(this.onChange);
     AnimationTimeline.onSoftChange(this.onSoftChange);
     AnimationTimeline.onSelectionChange(this.onSelectionChange);
+
+    this.updateTimeline();
+
+    this.props.onRef(this);
   }
 
   componentDidUpdate () {
-    let AnimationTimeline = window.AnimationTimeline;
-    let timeline = this.props.project.focus.timeline;
-    let selectedUUIDs = this.props.project.selection._uuids;
-    let project = this.props.project;
-
-    AnimationTimeline.setData({
-      playheadPosition: timeline.playheadPosition,
-      activeLayerIndex: timeline.activeLayerIndex,
-      onionSkinEnabled: project.onionSkinEnabled,
-      onionSkinSeekForwards: project.onionSkinSeekForwards,
-      onionSkinSeekBackwards:project.onionSkinSeekBackwards,
-      layers: timeline.layers.map(layer => {
-        return {
-          id: layer.uuid,
-          label: layer.name,
-          locked: layer.locked,
-          hidden: layer.hidden,
-          frames: layer.frames.map(frame => {
-            return {
-              id: frame.uuid,
-              label: frame.identifier,
-              start: frame.start,
-              end: frame.end,
-              selected: selectedUUIDs.indexOf(frame.uuid) !== -1,
-              contentful: frame.contentful,
-              tweens: frame.tweens.map(tween => {
-                return {
-                  uuid: tween.uuid,
-                  selected: selectedUUIDs.indexOf(tween.uuid) !== -1,
-                  playheadPosition: tween.playheadPosition,
-                }
-              }),
-            }
-          }),
-        }
-      })
-    });
-    AnimationTimeline.repaint();
+    this.updateTimeline();
   }
 
   onChange = (e) => {
@@ -134,15 +101,19 @@ class Timeline extends Component {
       });
     }
 
-    if(e.onionSkinEnabled) project.onionSkinEnabled = e.onionSkinEnabled;
-    if(e.onionSkinSeekForwards) project.onionSkinSeekForwards = e.onionSkinSeekForwards;
-    if(e.onionSkinSeekBackwards) project.onionSkinSeekBackwards = e.onionSkinSeekBackwards;
+    if(e.onionSkinEnabled !== undefined)
+      project.onionSkinEnabled = e.onionSkinEnabled;
+    if(e.onionSkinSeekForwards !== undefined)
+      project.onionSkinSeekForwards = e.onionSkinSeekForwards;
+    if(e.onionSkinSeekBackwards !== undefined)
+      project.onionSkinSeekBackwards = e.onionSkinSeekBackwards;
 
     this.props.projectDidChange();
   }
 
   onSoftChange = (e) => {
-
+    this.props.project.focus.timeline.playheadPosition = e.playheadPosition;
+    this.props.project.view.render();
   }
 
   onSelectionChange = (e) => {
@@ -155,6 +126,47 @@ class Timeline extends Component {
     });
 
     this.props.projectDidChange();
+  }
+
+  updateTimeline = () => {
+    let AnimationTimeline = window.AnimationTimeline;
+    let timeline = this.props.project.focus.timeline;
+    let selectedUUIDs = this.props.project.selection._uuids;
+    let project = this.props.project;
+
+    AnimationTimeline.setData({
+      playheadPosition: timeline.playheadPosition,
+      activeLayerIndex: timeline.activeLayerIndex,
+      onionSkinEnabled: project.onionSkinEnabled,
+      onionSkinSeekForwards: project.onionSkinSeekForwards,
+      onionSkinSeekBackwards:project.onionSkinSeekBackwards,
+      layers: timeline.layers.map(layer => {
+        return {
+          id: layer.uuid,
+          label: layer.name,
+          locked: layer.locked,
+          hidden: layer.hidden,
+          frames: layer.frames.map(frame => {
+            return {
+              id: frame.uuid,
+              label: frame.identifier,
+              start: frame.start,
+              end: frame.end,
+              selected: selectedUUIDs.indexOf(frame.uuid) !== -1,
+              contentful: frame.contentful,
+              tweens: frame.tweens.map(tween => {
+                return {
+                  uuid: tween.uuid,
+                  selected: selectedUUIDs.indexOf(tween.uuid) !== -1,
+                  playheadPosition: tween.playheadPosition,
+                }
+              }),
+            }
+          }),
+        }
+      })
+    });
+    AnimationTimeline.repaint();
   }
 
   render() {
