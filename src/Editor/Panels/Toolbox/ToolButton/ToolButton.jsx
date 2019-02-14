@@ -21,8 +21,6 @@ import React, { Component } from 'react';
 
 import ActionButton from 'Editor/Util/ActionButton/ActionButton';
 
-import ToolSettingsPopover from './ToolSettingsPopover/ToolSettingsPopover';
-
 import './_toolbutton.scss';
 
 var classNames = require('classnames');

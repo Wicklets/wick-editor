@@ -38,10 +38,19 @@ class EditorCore extends Component {
     if(newTool !== this.state.activeTool) {
       this.project.selection.clear();
       this.projectDidChange();
-    }
 
+      this.lastUsedTool = this.state.activeTool;
+      this.setState({
+        activeTool: newTool
+      });
+    }
+  }
+
+  activateLastTool = () => {
+    console.log(this.lastUsedTool)
+    if(!this.lastUsedTool) return;
     this.setState({
-      activeTool: newTool
+      activeTool: this.lastUsedTool,
     });
   }
 
