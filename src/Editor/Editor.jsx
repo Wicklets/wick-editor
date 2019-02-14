@@ -561,7 +561,6 @@ class Editor extends EditorCore {
                           <ReflexElement minSize={200}{...this.resizeProps}>
                             <DockedPanel showOverlay={this.state.previewPlaying}>
                               <Inspector
-                                getActiveTool={this.getActiveTool}
                                 getToolSettings={this.getToolSettings}
                                 setToolSettings={this.setToolSettings}
                                 getSelectionType={this.getSelectionType}

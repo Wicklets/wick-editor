@@ -45,18 +45,6 @@ class Inspector extends Component {
     };
 
     this.inspectorContentRenderFunctions = {
-      "cursor": this.renderCursor.bind(this),
-      "brush": this.renderBrush.bind(this),
-      "pencil": this.renderPencil.bind(this),
-      "eraser": this.renderEraser.bind(this),
-      "fillbucket": this.renderFillBucket.bind(this),
-      "rectangle": this.renderRectangle.bind(this),
-      "ellipse": this.renderEllipse.bind(this),
-      "line": this.renderLine.bind(this),
-      "eyedropper": this.renderEyeDropper.bind(this),
-      "text": this.renderText.bind(this),
-      "zoom": this.renderZoom.bind(this),
-      "pan": this.renderPan.bind(this),
       "frame": this.renderFrame.bind(this),
       "multiframe": this.renderMultiFrame.bind(this),
       "tween": this.renderTween.bind(this),
@@ -131,42 +119,6 @@ class Inspector extends Component {
   }
 
   // Inspector Row Types
-  renderBrushSize() {
-    return (
-      <InspectorNumericSlider
-        tooltip="Brush Size"
-        icon="brushsize"
-        val={this.getToolSetting('brushSize')}
-        onChange={(val) => this.setToolSetting('brushSize', val)}
-        divider={false}
-        id="inspector-brush-size"/>
-    )
-  }
-
-  renderSmoothness() {
-    return (
-      <InspectorNumericSlider
-        tooltip="Brush Smoothness"
-        icon="brushsmoothness"
-        val={this.getToolSetting('brushSmoothness')}
-        onChange={(val) => this.setToolSetting('brushSmoothness', val)}
-        divider={false}
-        id="inspector-brush-smoothness"/>
-    )
-  }
-
-  renderStrokeWidth() {
-    return (
-      <InspectorNumericSlider
-        tooltip="Stroke Width"
-        icon="strokewidth"
-        val={this.getToolSetting('strokeWidth')}
-        onChange={(val) => this.setToolSetting('strokeWidth', val)}
-        divider={false}
-        id="inspector-stroke-width"/>
-    )
-  }
-
   renderSelectionStrokeWidth() {
     return (
       <InspectorNumericSlider
@@ -176,17 +128,6 @@ class Inspector extends Component {
         onChange={(val) => this.setSelectionAttribute('strokeWidth', val)}
         divider={false}
         id="inspector-selection-stroke-width"/>
-    )
-  }
-
-  renderFillColor() {
-    return(
-      <InspectorColorPicker
-        tooltip="Fill Color"
-        icon="fillcolor"
-        val={this.getToolSetting('fillColor')}
-        onChange={(col) => this.setToolSetting('fillColor', this.toRgbaString(col))}
-        id={"inspector-tool-fill-color"} />
     )
   }
 
@@ -201,18 +142,6 @@ class Inspector extends Component {
     )
   }
 
-  renderStrokeColor() {
-    return(
-      <InspectorColorPicker
-        tooltip="Stroke Color"
-        icon="strokecolor"
-        val={this.getToolSetting('strokeColor')}
-        onChange={(col) => this.setToolSetting('strokeColor', this.toRgbaString(col))}
-        id={"inspector-tool-stroke-color"} />
-    )
-  }
-
-
   renderSelectionStrokeColor() {
     return(
       <InspectorColorPicker
@@ -222,18 +151,6 @@ class Inspector extends Component {
         onChange={(col) => this.setSelectionAttribute('strokeColor', this.toRgbaString(col))}
         id={"inspector-selection-stroke-color"}
         stroke={true}/>
-    )
-  }
-
-  renderCornerRoundness() {
-    return (
-      <InspectorNumericSlider
-        tooltip="Corner Roundness"
-        icon="cornerroundness"
-        val={this.getToolSetting('cornerRadius')}
-        onChange={(val) => this.setToolSetting("cornerRadius", val)}
-        divider={false}
-        id="inspector-corner-radius"/>
     )
   }
 
@@ -387,135 +304,6 @@ class Inspector extends Component {
   }
 
   // Selection contents and properties
-  renderCursor() {
-    return (
-      <InspectorTitle type={"cursor"} title={"Cursor"}/>
-    )
-  }
-
-  renderBrush() {
-    return (
-      <div>
-        <InspectorTitle type={"brush"} title={"Brush"} />
-        <div className="inspector-content">
-          {this.renderBrushSize()}
-          {this.renderPressureToggle()}
-          {/*{this.renderSmoothness()}*/}
-        </div>
-      </div>
-    )
-  }
-
-  renderPencil() {
-    return (
-      <div>
-        <InspectorTitle type={"pencil"} title={"Pencil"} />
-        <div className="inspector-content">
-          {this.renderStrokeWidth()}
-          {/*{this.renderPressureToggle()}*/}
-          {/*{this.renderSmoothness()}*/}
-        </div>
-      </div>
-    )
-  }
-
-  renderEraser() {
-    return (
-      <div>
-        <InspectorTitle type={"eraser"} title={"Eraser"} />
-        <div className="inspector-content">
-          {this.renderBrushSize()}
-          {/*{this.renderPressureToggle()}*/}
-          {/*{this.renderSmoothness()}*/}
-        </div>
-      </div>
-    )
-  }
-
-  renderFillBucket() {
-    return (
-      <div>
-        <InspectorTitle type={"fillbucket"} title={"Fill Bucket"} />
-        <div className="inspector-content">
-        </div>
-      </div>
-    )
-  }
-
-  renderRectangle() {
-    return (
-      <div>
-        <InspectorTitle type={"rectangle"} title={"Rectangle"} />
-        <div className="inspector-content">
-          {this.renderStrokeWidth()}
-          {this.renderCornerRoundness()}
-        </div>
-      </div>
-    )
-  }
-
-  renderEllipse() {
-    return (
-      <div>
-        <InspectorTitle type={"ellipse"} title={"Ellipse"} />
-        <div className="inspector-content">
-          {this.renderStrokeWidth()}
-        </div>
-      </div>
-    )
-  }
-
-  renderLine() {
-    return (
-      <div>
-        <InspectorTitle type={"line"} title={"Line"} />
-        <div className="inspector-content">
-          {this.renderStrokeWidth()}
-        </div>
-      </div>
-    )
-  }
-
-  renderEyeDropper() {
-    return (
-      <div>
-        <InspectorTitle type={"eyedropper"} title={"Eye Dropper"} />
-        <div className="inspector-content">
-        </div>
-      </div>
-    )
-  }
-
-  renderText() {
-    return (
-      <div>
-        <InspectorTitle type={"text"} title={"Text"} />
-        <div className="inspector-content">
-        </div>
-      </div>
-    )
-  }
-
-  renderZoom() {
-    return (
-      <div>
-        <InspectorTitle type={"zoom"} title={"Zoom"} />
-        <div className="inspector-content">
-        </div>
-      </div>
-    )
-  }
-
-  renderPan() {
-    return (
-      <div>
-        <InspectorTitle type={"pan"} title={"Pan"} />
-        <div className="inspector-content">
-        </div>
-      </div>
-    )
-  }
-
   renderFrame() {
     return (
       <div>
@@ -674,13 +462,10 @@ class Inspector extends Component {
 
   renderDisplay() {
     let selectionType = this.props.getSelectionType();
-    let activeTool = this.props.getActiveTool();
 
     let renderFunction = null;
     if (selectionType in this.inspectorContentRenderFunctions) {
       renderFunction = this.inspectorContentRenderFunctions[selectionType];
-    } else if (activeTool in this.inspectorContentRenderFunctions) {
-      renderFunction = this.inspectorContentRenderFunctions[activeTool];
     } else {
       renderFunction = this.renderUnknown;
     }
