@@ -65,8 +65,6 @@ class Toolbox extends Component {
         <ToolButton activeTool={this.props.activeTool} toolSettings={this.props.toolSettings} {...this.toolButtonProps} name='ellipse' tooltip="Ellipse" />
         <ToolButton activeTool={this.props.activeTool} toolSettings={this.props.toolSettings} {...this.toolButtonProps} name='line' tooltip="Line" />
         <ToolButton activeTool={this.props.activeTool} toolSettings={this.props.toolSettings} {...this.toolButtonProps} name='text' tooltip="Text" />
-        <ToolButton activeTool={this.props.activeTool} toolSettings={this.props.toolSettings} {...this.toolButtonProps} name='pan' tooltip="Pan" />
-        <ToolButton activeTool={this.props.activeTool} toolSettings={this.props.toolSettings} {...this.toolButtonProps} name='zoom' tooltip="Zoom" />
         <ToolButton activeTool={this.props.activeTool} toolSettings={this.props.toolSettings} {...this.toolButtonProps} name='fillbucket' tooltip="Fill Bucket" />
 
       <div className="color-container toolbox-item" id="fill-color-picker-container">
@@ -115,14 +113,6 @@ class Toolbox extends Component {
             tooltipPlace='bottom'
             className='tool-button'/>
         </div>
-
-        <div className="toolbox-actions-right toolbox-item">
-          <PlayButton
-            className="play-button tool-button"
-            playing={this.props.previewPlaying}
-            onClick={this.props.togglePreviewPlaying}/>
-        </div>
-
       </div>
     )
   }

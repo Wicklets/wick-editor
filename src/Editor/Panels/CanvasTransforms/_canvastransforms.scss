@@ -1,0 +1,21 @@
+@import 'Editor/_wickbrand.scss';
+
+$canvas-transforms-size: 60px;
+
+.canvas-transforms-widget {
+  position: absolute;
+  right: 0px;
+  bottom: 0px;
+  height: $canvas-transforms-size;
+  margin-right: 10px;
+  margin-bottom: 10px;
+  display: flex;
+  background-color: gray;
+  border-radius: 4px;
+}
+
+.canvas-transform-button {
+  width: $canvas-transforms-size;
+  height: $canvas-transforms-size;
+  padding: 4px;
+}

@@ -40,6 +40,7 @@ import Inspector from './Panels/Inspector/Inspector';
 import MenuBar from './Panels/MenuBar/MenuBar';
 import Timeline from './Panels/Timeline/Timeline';
 import SettingsPanel from './Panels/SettingsPanel/SettingsPanel';
+import CanvasTransforms from './Panels/CanvasTransforms/CanvasTransforms';
 import Toolbox from './Panels/Toolbox/Toolbox';
 import AssetLibrary from './Panels/AssetLibrary/AssetLibrary';
 import ModalHandler from './Modals/ModalHandler/ModalHandler';
@@ -563,6 +564,11 @@ class Editor extends EditorCore {
                                     toolSettings={this.state.toolSettings}
                                     setToolSettings={this.setToolSettings}
                                     toolRestrictions={this.toolRestrictions}/>
+                                  <CanvasTransforms
+                                    setActiveTool={this.setActiveTool}
+                                    activeTool={this.state.activeTool}
+                                    previewPlaying={this.state.previewPlaying}
+                                    togglePreviewPlaying={this.togglePreviewPlaying}/>
                                 </DockedPanel>
                               </ReflexElement>
 
