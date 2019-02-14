@@ -88,7 +88,6 @@ class WickInput extends Component {
         ></input>
       )
     } else if (this.props.type === "slider") {
-
       // Spit out the value of a text box back to the onChange function.
       let wrappedOnChange = (val) => {
         this.props.onChange(val.target.value);
@@ -96,7 +95,7 @@ class WickInput extends Component {
       return (
         <input
           {...this.props}
-          className="wick-slider"
+          className={classNames("wick-slider", this.props.className ? this.props.className : '')}
           type='range'
           onChange={this.props.onChange ? wrappedOnChange : null}
           />

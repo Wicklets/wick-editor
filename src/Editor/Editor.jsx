@@ -97,6 +97,44 @@ class Editor extends EditorCore {
       assetLibrarySize: 150,
     };
 
+    this.toolRestrictions = {
+      strokeWidth: {
+        min: 0,
+        max: 100,
+        step: 1,
+      },
+      brushSize: {
+        min: 0,
+        max: 100,
+        step: 1,
+      },
+      eraserSize: {
+        min: 0,
+        max: 100,
+        step: 1,
+      },
+      brushSmoothing: {
+        min: 0,
+        max: 100,
+        step: 1,
+      },
+      opacity: {
+        min: 0,
+        max: 1,
+        step: .01,
+      },
+      cornerRadius: {
+        min: 0,
+        max: 100,
+        step: 1,
+      },
+      fontSize: {
+        min: 0,
+        max: 1000,
+        step: 1,
+      }
+    }
+
     // Set up error.
     this.error = null;
 
@@ -522,7 +560,8 @@ class Editor extends EditorCore {
                                   <SettingsPanel
                                     activeTool={this.state.activeTool}
                                     toolSettings={this.state.toolSettings}
-                                    setToolSettings={this.setToolSettings}/>
+                                    setToolSettings={this.setToolSettings}
+                                    toolRestrictions={this.toolRestrictions}/>
                                 </DockedPanel>
                               </ReflexElement>
 
