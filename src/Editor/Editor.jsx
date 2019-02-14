@@ -567,8 +567,8 @@ class Editor extends EditorCore {
                                 getToolSettings={this.getToolSettings}
                                 setToolSettings={this.setToolSettings}
                                 getSelectionType={this.getSelectionType}
-                                getSelectionAttributes={this.getSelectionAttributes}
-                                setSelectionAttributes={this.setSelectionAttributes}
+                                getSelectionAttribute={this.getSelectionAttribute}
+                                setSelectionAttribute={this.setSelectionAttribute}
                                 getSelectionActions={this.getSelectionActions}
                               />
                             </DockedPanel>

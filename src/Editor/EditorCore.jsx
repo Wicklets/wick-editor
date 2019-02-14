@@ -285,29 +285,6 @@ class EditorCore extends Component {
   }
 
   /**
-   * Returns an object containing all attributes of the selection.
-   * @returns {object} The object containing all the selection attributes.
-   */
-  getSelectionAttributes = () => {
-    return {
-      name: '',
-      filename: '',
-      src: '',
-      x: 0,
-      y: 0,
-      width: 0,
-      height: 0,
-      scaleX: 0,
-      scaleY: 0,
-      rotation: 0,
-      opacity: 0,
-      strokeWidth: 0,
-      fillColor: 0,
-      strokeColor: 0,
-    };
-  }
-
-  /**
    * Returns all actions to be displayed using the current selection. Utilizes the ActionMapInterface.
    * @return {EditorAction[][]} An array of arrays of editor actions as defined by the editor action map.
    */
@@ -412,6 +389,25 @@ class EditorCore extends Component {
         this.project.selection.select(clip);
       });
     });
+    this.projectDidChange();
+  }
+
+  /**
+   * Returns the value of a requested selection attribute.
+   * @param  {string} attribute Selection attribute to retrieve.
+   * @return {string|number|undefined} Value of the selection attribute to retrieve. Returns undefined is attribute does not exist.
+   */
+  getSelectionAttribute = (attribute) => {
+    return this.project.selection[attribute];
+  }
+
+  /**
+   * Updates the value of a selection attribute for the selected item in the editor.
+   * @param {string} attribute Name of the attribute to update.
+   * @param {string|number} newValue  New value of the attribute to update.
+   */
+  setSelectionAttribute = (attribute, newValue) => {
+    this.project.selection[attribute] = newValue;
     this.projectDidChange();
   }
 

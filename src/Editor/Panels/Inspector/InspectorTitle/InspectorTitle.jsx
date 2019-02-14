@@ -24,14 +24,22 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import ToolIcon from 'Editor/Util/ToolIcon/ToolIcon';
 
 class InspectorTitle extends Component {
+
+  renderSelectionType = () => {
+    return (
+      <div className="inspector-title-selection-type">
+        <div className="inspector-selection-type-icon-container">
+          <ToolIcon name={this.props.type} />
+        </div>
+        {this.props.title}
+      </div>
+    )
+  }
   render() {
     return(
       <div className="inspector-title">
         <div className="inspector-title-name">Inspector</div>
-        <div className="inspector-title-selection-type">
-          <div className="inspector-selection-type-icon-container">
-            <ToolIcon name={this.props.type} />
-          </div>{this.props.title}</div>
+        {this.props.type && this.props.title && this.renderSelectionType()}
       </div>
     )
   }
