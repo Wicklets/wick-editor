@@ -556,7 +556,8 @@ class Editor extends EditorCore {
                                     activeTool={this.state.activeTool}
                                     toolSettings={this.state.toolSettings}
                                     previewPlaying={this.state.previewPlaying}
-                                    createImageFromAsset={this.createImageFromAsset}/>
+                                    createImageFromAsset={this.createImageFromAsset}
+                                  />
                                   <SettingsPanel
                                     activeTool={this.state.activeTool}
                                     toolSettings={this.state.toolSettings}

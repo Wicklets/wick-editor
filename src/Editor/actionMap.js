@@ -120,7 +120,7 @@ class ActionMapInterface extends Object {
       returnToParentTimeline: {
         icon: 'leaveUp',
         tooltip: 'Return to Parent Timeline',
-        action: this.editor.focusTimelineOfParentObject,
+        action: this.editor.focusTimelineOfParentClip,
         color: 'green',
         id: 'action-return-to-parent-timeline',
       }

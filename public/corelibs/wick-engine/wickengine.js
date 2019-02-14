@@ -44303,6 +44303,11 @@ Wick.Project = class extends Wick.Base {
     this.height = height || 405;
     this.framerate = framerate || 12;
     this.backgroundColor = backgroundColor || '#ffffff';
+    this.pan = {
+      x: this.width / 2,
+      y: this.height / 2
+    };
+    this.zoom = 1.0;
     this.onionSkinEnabled = false;
     this.onionSkinSeekBackwards = 1;
     this.onionSkinSeekForwards = 1;
@@ -44336,9 +44341,17 @@ Wick.Project = class extends Wick.Base {
     object.height = data.height;
     object.framerate = data.framerate;
     object.backgroundColor = data.backgroundColor;
-    object.onionSkinEnabled = data.onionSkinEnabled;
-    object.onionSkinSeekForwards = data.onionSkinSeekForwards;
-    object.onionSkinSeekBackwards = data.onionSkinSeekBackwards;
+    object.pan = data.pan ? {
+      x: data.pan.x,
+      y: data.pan.y
+    } : {
+      x: 0,
+      y: 0
+    };
+    object.zoom = data.zoom || 1.0;
+    object.onionSkinEnabled = data.onionSkinEnabled || false;
+    object.onionSkinSeekForwards = data.onionSkinSeekForwards || 1;
+    object.onionSkinSeekBackwards = data.onionSkinSeekBackwards || 1;
     object.root = Wick.Clip.deserialize(data.root);
     object.focus = object.root;
     object.selection = Wick.Selection.deserialize(data.selection || {
@@ -44358,6 +44371,11 @@ Wick.Project = class extends Wick.Base {
     data.height = this.height;
     data.backgroundColor = this.backgroundColor;
     data.framerate = this.framerate;
+    data.zoom = this.zoom;
+    data.pan = {
+      x: this.pan.x,
+      y: this.pan.y
+    };
     data.onionSkinEnabled = this.onionSkinEnabled;
     data.onionSkinSeekForwards = this.onionSkinSeekForwards;
     data.onionSkinSeekBackwards = this.onionSkinSeekBackwards;
@@ -44764,12 +44782,17 @@ Wick.Project = class extends Wick.Base {
   focusTimelineOfSelectedClip() {
     if (this.selection.getSelectedObject() instanceof Wick.Clip) {
       this.focus = this.selection.getSelectedObject();
+      this.selection.clear();
+      this.recenter();
     }
   }
 
   focusTimelineOfParentClip() {
     if (!this.focus.isRoot) {
+      console.log('?');
       this.focus = this.focus.parentClip;
+      this.selection.clear();
+      this.recenter();
     }
   }
   /**
@@ -44846,6 +44869,26 @@ Wick.Project = class extends Wick.Base {
   stop() {
     clearInterval(this._tickIntervalID);
     this._tickIntervalID = null;
+  }
+  /**
+   * Resets zoom and pan.
+   */
+
+
+  recenter() {
+    if (this.focus.isRoot) {
+      this.pan = {
+        x: this.width / 2,
+        y: this.height / 2
+      };
+    } else {
+      this.pan = {
+        x: 0,
+        y: 0
+      };
+    }
+
+    this.zoom = 1;
   }
 
   _refreshAssetUUIDRefs() {
@@ -47341,15 +47384,11 @@ Wick.View.Project = class extends Wick.View {
     paper.view.viewSize.height = newHeight;
   }
 
-  recenter() {
-    let cx = this.model.width / 2;
-    let cy = this.model.height / 2;
-    paper.view.zoom = 1;
-    paper.view.center = new paper.Point(cx, cy);
-  }
-
   render() {
-    paper.project.clear(); // Generate background layer
+    paper.project.clear(); // Update zoom and pan
+
+    paper.view.zoom = this.model.zoom;
+    paper.view.center = new paper.Point(this.model.pan.x, this.model.pan.y); // Generate background layer
 
     this.bgLayer.removeChildren();
     this.bgLayer.locked = true;
