@@ -76,7 +76,7 @@ class Inspector extends Component {
    * @return {string|number|undefined} Value of the selection attribute to retrieve. Returns undefined is attribute does not exist.
    */
   getSelectionAttribute = (attribute) => {
-    return this.props.selection[attribute];
+    return this.props.getSelectionAttribute(attribute);
   }
 
   /**
@@ -85,7 +85,7 @@ class Inspector extends Component {
    * @param {string|number} newValue  New value of the attribute to update.
    */
   setSelectionAttribute = (attribute, newValue) => {
-    this.props.selection[attribute] = newValue;
+    this.props.setSelectionAttribute(attribute, newValue);
   }
 
   toRgbaString (col) {
