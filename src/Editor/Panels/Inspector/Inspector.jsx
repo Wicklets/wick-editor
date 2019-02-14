@@ -71,32 +71,12 @@ class Inspector extends Component {
   }
 
   /**
-   * Returns the value of an editor tool setting.
-   * @param  {string} setting Setting value to retrieve
-   * @return {string|number} Value of requested setting. Returns undefined if setting does no exist.
-   */
-  getToolSetting = (setting) => {
-    return this.props.getToolSettings()[setting];
-  }
-
-  /**
-   * Updates the value of a tool setting within the editor.
-   * @param {string} setting  Name of the setting to update.
-   * @param {string|number} newValue Value to update selected tool setting to.
-   */
-  setToolSetting = (setting, newValue) => {
-    let newToolSetting = {}
-    newToolSetting[setting] = newValue;
-    this.props.setToolSettings(newToolSetting);
-  }
-
-  /**
    * Returns the value of a requested selection attribute.
    * @param  {string} attribute Selection attribute to retrieve.
-   * @return {string|number} Value of the selection attribute to retrieve. Returns undefined is attribute does not exist.
+   * @return {string|number|undefined} Value of the selection attribute to retrieve. Returns undefined is attribute does not exist.
    */
   getSelectionAttribute = (attribute) => {
-    return this.props.getSelectionAttributes()[attribute];
+    return this.props.selection[attribute];
   }
 
   /**
@@ -105,9 +85,7 @@ class Inspector extends Component {
    * @param {string|number} newValue  New value of the attribute to update.
    */
   setSelectionAttribute = (attribute, newValue) => {
-    let newSelectionAttributes = {}
-    newSelectionAttributes[attribute] = newValue;
-    this.props.setSelectionAttributes(newSelectionAttributes);
+    this.props.selection[attribute] = newValue;
   }
 
   toRgbaString (col) {
@@ -277,17 +255,6 @@ class Inspector extends Component {
         onChange={(val) => this.setSelectionAttribute('opacity', val)}
         divider={false}
         id="inspector-opacity"/>
-    )
-  }
-
-  renderPressureToggle() {
-    return (
-      <InspectorCheckbox
-        tooltip="Enable Pressure"
-        icon="pressure"
-        defaultChecked={this.getToolSetting('pressureEnabled')}
-        onChange={() => this.setToolSetting('pressureEnabled', !this.getToolSetting('pressureEnabled'))}
-        id="inspector-pressure-toggle" />
     )
   }
 
