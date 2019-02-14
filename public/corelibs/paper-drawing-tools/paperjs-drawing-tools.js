@@ -4735,6 +4735,12 @@ paper.MultiSelection = class {
     this.guiLayer.clear();
     if (this._selectedItems.length === 0) return;
 
+    this._selectedItems.filter(item => {
+      return item instanceof paper.Path || item instanceof paper.CompoundPath;
+    }).forEach(item => {
+      item.applyMatrix = true;
+    });
+
     this._recalculateBounds();
 
     this._forceApplyMatrixOnAllItems();
@@ -5196,7 +5202,6 @@ class BrushCursorGen {
 
   tool.onActivate = function (e) {
     if (!croquis) {
-      paper.view.enablePressure();
       croquis = new Croquis();
       croquis.setCanvasSize(500, 500);
       croquis.addLayer();
@@ -5214,12 +5219,6 @@ class BrushCursorGen {
       croquisDOMElement.style.display = 'block';
       croquisDOMElement.style.pointerEvents = 'none';
     }
-
-    croquis.setCanvasSize(paper.view.bounds.width, paper.view.bounds.height);
-
-    paper.view.onResize = function () {
-      croquis.setCanvasSize(paper.view.bounds.width, paper.view.bounds.height);
-    };
   };
 
   tool.getPressure = function () {
@@ -5229,8 +5228,17 @@ class BrushCursorGen {
   tool.onDeactivate = function (e) {};
 
   tool.onMouseMove = function (e) {
+    // Update croquis element and pressure options
     if (!paper.view._element.parentElement.contains(croquisDOMElement)) {
+      paper.view.enablePressure();
+
       paper.view._element.parentElement.appendChild(croquisDOMElement);
+    }
+
+    console.log(paper.view.bounds.width);
+
+    if (croquis.getCanvasWidth() !== paper.view._element.width || croquis.getCanvasHeight() !== paper.view._element.height) {
+      croquis.setCanvasSize(paper.view._element.width, paper.view._element.height);
     }
 
     cursor = BrushCursorGen.create(tool.fillColor, tool.brushSize * tool.getPressure());
@@ -5355,6 +5363,8 @@ class BrushCursorGen {
   var hoverPreview;
   var tool = new paper.Tool();
   paper.drawingTools.cursor = tool;
+  tool.selectPoints = true;
+  tool.selectCurves = true;
 
   tool.onActivate = function (e) {
     selectedItems = [];
@@ -5535,6 +5545,7 @@ class BrushCursorGen {
     if (paper.project.selection.bounds.width * resizeX < 1) resizeX = 1;
     if (paper.project.selection.bounds.height * resizeY < 1) resizeY = 1;
     paper.project.selection.scale(resizeX, resizeY, pivot);
+    console.log(paper.project.selection.items[0]);
   };
 
   tool._onMouseUp_scaleHandle = function (e) {
@@ -5759,9 +5770,9 @@ class BrushCursorGen {
   function determineProjectTarget(e) {
     var projectTarget = paper.project.hitTest(e.point, {
       fill: true,
-      stroke: true,
-      curves: true,
-      segments: true,
+      stroke: tool.selectCurves,
+      curves: tool.selectCurves,
+      segments: tool.selectPoints,
       tolerance: SELECTION_TOLERANCE,
       match: function (result) {
         return result.item.layer !== paper.project.selection.guiLayer && !result.item.layer.locked;
@@ -6539,18 +6550,16 @@ class BrushCursorGen {
   };
 
   tool.onMouseUp = function (e) {
-    if (zoomBox) {
-      if (zoomBoxIsValidSize()) {
-        var bounds = zoomBox.bounds;
-        paper.view.center = bounds.center;
-        paper.view.zoom = paper.view.bounds.height / bounds.height;
-      }
-
-      deleteZoomBox();
+    if (zoomBox && zoomBoxIsValidSize()) {
+      var bounds = zoomBox.bounds;
+      paper.view.center = bounds.center;
+      paper.view.zoom = paper.view.bounds.height / bounds.height;
     } else {
       var zoomAmount = e.modifiers.alt ? ZOOM_OUT_AMOUNT : ZOOM_IN_AMOUNT;
       paper.view.scale(zoomAmount, e.point);
     }
+
+    deleteZoomBox();
 
     if (paper.view.zoom <= ZOOM_MIN) {
       paper.view.zoom = ZOOM_MIN;

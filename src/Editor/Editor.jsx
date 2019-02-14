@@ -62,7 +62,7 @@ class Editor extends EditorCore {
       project: null,
       activeTool: 'cursor',
       toolSettings: {
-        fillColor: '#ffaabb',
+        fillColor: '#000',
         strokeColor: '#000',
         strokeWidth: 1,
         brushSize: 10,
@@ -128,6 +128,8 @@ class Editor extends EditorCore {
     // Auto Save
     this.autoSaveDelay = 1000; // millisecond delay
     this.throttledAutoSaveProject = throttle(this.autoSaveProject, this.autoSaveDelay);
+
+    this.timelineComponent = null;
   }
 
   componentWillMount = () => {
@@ -173,7 +175,7 @@ class Editor extends EditorCore {
           this.stopPreviewPlaying(error)
         },
         onAfterTick: () => {
-          // Force re-render timeline...
+          this.timelineComponent.updateTimeline();
         },
         onBeforeTick: () => {
 
@@ -537,7 +539,7 @@ class Editor extends EditorCore {
                                 selectObjects={this.selectObjects}
                                 setOnionSkinOptions={this.setOnionSkinOptions}
                                 getOnionSkinOptions={this.getOnionSkinOptions}
-                                onRef={ref => this.timelineRef = ref}
+                                onRef={ref => this.timelineComponent = ref}
                               />
                             </DockedPanel>
                           </ReflexElement>
