@@ -54,9 +54,6 @@ class Canvas extends Component {
   constructor (props) {
     super(props);
 
-    this.onCanvasModified = this.onCanvasModified.bind(this);
-    this.onSelectionChanged = this.onSelectionChanged.bind(this);
-
     this.canvasContainer = React.createRef();
   }
 
@@ -73,21 +70,22 @@ class Canvas extends Component {
 
     window.paper.drawingTools.onCanvasModified(this.onCanvasModified);
     window.paper.drawingTools.onSelectionChanged(this.onSelectionChanged);
+    window.paper.drawingTools.onCanvasViewChanged(this.onCanvasViewChanged);
 
     this.updateCanvas();
-    this.props.project.view.recenter();
+    //this.props.project.view.recenter();
   }
 
   componentDidUpdate () {
     this.updateCanvas();
   }
 
-  onCanvasModified (e) {
+  onCanvasModified = (e) => {
     this.props.project.view.applyChanges();
     this.props.projectDidChange();
   }
 
-  onSelectionChanged (e) {
+  onSelectionChanged = (e) => {
     let paper = this.props.paper;
     let project = this.props.project;
 
@@ -100,6 +98,12 @@ class Canvas extends Component {
     this.props.projectDidChange();
   }
 
+  onCanvasViewChanged = (e) => {
+    this.props.project.zoom = window.paper.view.zoom;
+    this.props.project.pan.x = window.paper.view.center.x;
+    this.props.project.pan.y = window.paper.view.center.y;
+  }
+
   updateCanvas = () => {
     let project = this.props.project;
     let paper = this.props.paper;
@@ -110,10 +114,10 @@ class Canvas extends Component {
 
     // Render wick project
     project.view.canvasBGColor = styles.editorCanvasBorder;
-    project.view.render();
     if(project.view.setCanvasContainer(canvasContainerElem)) {
-      project.view.recenter();
+      //project.view.recenter();
     }
+    project.view.render();
 
     // update the paper.js active tool based on the editor active tool state.
     let tool = paper.drawingTools[activeTool];

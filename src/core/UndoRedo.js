@@ -53,7 +53,11 @@ class UndoRedo {
   }
 
   _recoverProjectState (state) {
+    let currentZoom = this.editor.project.zoom;
+    let currentPan = {x:this.editor.project.pan.x, y:this.editor.project.pan.y};
     this.editor.project = window.Wick.Project.deserialize(state.project);
+    this.editor.project.zoom = currentZoom;
+    this.editor.project.pan = currentPan;
     this.editor.setState({
       ...this.editor.state,
       project: state.project,

@@ -47,7 +47,6 @@ class EditorCore extends Component {
   }
 
   activateLastTool = () => {
-    console.log(this.lastUsedTool)
     if(!this.lastUsedTool) return;
     this.setState({
       activeTool: this.lastUsedTool,
@@ -67,7 +66,6 @@ class EditorCore extends Component {
    * @param {object} newToolSettings - An object of key-value pairs where the keys represent tool settings and the values represent the values to change those settings to.
    */
   setToolSettings = (newToolSettings) => {
-    console.log(newToolSettings);
     this.setState({
       toolSettings: {
         ...this.state.toolSettings,
@@ -523,19 +521,6 @@ class EditorCore extends Component {
   }
 
   /**
-   * Sets the focus to a specific Clip.
-   * @param {Wick.Clip} clip - the clip to focus.
-   */
-  focusClip = (clip) => {
-    if(clip === this.project.root) {
-      this.project.view.recenter();
-    } else {
-      window.paper.view.center = new window.paper.Point(0,0);
-    }
-    this.project.focus = clip;
-  }
-
-  /**
    * Horizontally flips the canvas selection.
    */
   flipSelectedHorizontal = () => {
@@ -724,7 +709,6 @@ class EditorCore extends Component {
    */
   attemptAutoLoad = () => {
     let loadProject = (serializedProject) => {
-      console.log(serializedProject)
       if (!serializedProject) {
         //TODO: Remove Dead code
         console.error("No AutoSave Found");

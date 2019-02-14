@@ -3807,28 +3807,38 @@ paper.DrawingTools = class {
   constructor() {
     this._onCanvasModifiedCallback = null;
     this._onSelectionChangedCallback = null;
+    this._onCanvasViewChangedCallback = null;
   }
 
   setup() {
     paper.project.clear();
     this._onCanvasModifiedCallback = null;
     this._onSelectionChangedCallback = null;
+    this._onCanvasViewChangedCallback = null;
   }
 
   fireCanvasModified(e) {
     this._onCanvasModifiedCallback && this._onCanvasModifiedCallback(e);
   }
 
-  fireSelectionChanged(e) {
-    this._onSelectionChangedCallback && this._onSelectionChangedCallback(e);
-  }
-
   onCanvasModified(fn) {
     this._onCanvasModifiedCallback = fn;
   }
 
+  fireSelectionChanged(e) {
+    this._onSelectionChangedCallback && this._onSelectionChangedCallback(e);
+  }
+
   onSelectionChanged(fn) {
     this._onSelectionChangedCallback = fn;
+  }
+
+  fireCanvasViewChanged(e) {
+    this._onCanvasViewChangedCallback && this._onCanvasViewChangedCallback(e);
+  }
+
+  onCanvasViewChanged(fn) {
+    this._onCanvasViewChangedCallback = fn;
   }
 
 };
@@ -5235,8 +5245,6 @@ class BrushCursorGen {
       paper.view._element.parentElement.appendChild(croquisDOMElement);
     }
 
-    console.log(paper.view.bounds.width);
-
     if (croquis.getCanvasWidth() !== paper.view._element.width || croquis.getCanvasHeight() !== paper.view._element.height) {
       croquis.setCanvasSize(paper.view._element.width, paper.view._element.height);
     }
@@ -6272,9 +6280,7 @@ class BrushCursorGen {
   };
 
   tool.onMouseUp = function (e) {
-    paper.drawingTools.fireCanvasModified({
-      layers: []
-    });
+    paper.drawingTools.fireCanvasViewChanged({});
   };
 })();
 /*
@@ -6567,9 +6573,7 @@ class BrushCursorGen {
       paper.view.zoom = ZOOM_MAX;
     }
 
-    paper.drawingTools.fireCanvasModified({
-      layers: []
-    });
+    paper.drawingTools.fireCanvasViewChanged({});
   };
 
   function createZoomBox(e) {
