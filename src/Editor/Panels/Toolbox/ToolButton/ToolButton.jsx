@@ -28,42 +28,11 @@ import './_toolbutton.scss';
 var classNames = require('classnames');
 
 class ToolButton extends Component {
-  constructor(props) {
-    super(props);
-
-    this.parentContainerClass="tool-button-container";
-    this.settingsContainerClass="tool-button-settings-container";
-    this.parentContainerID=this.parentContainerClass + '-' + this.props.name;
-    this.settingsContainerID=this.settingsContainerClass + '-' + this.props.name;
-
-    // Connect the onScroll callback to the parent component if it exists.
-    if (this.props.onScroll) {
-      this.props.onScroll(this.setLeft);
-    }
-  }
-
-  componentDidMount = () => {
-    this.setLeft();
-  }
-
-  /**
-   * Sets the position of the settings button to the left of the container.
-   */
-  setLeft = () => {
-    let element = document.getElementById(this.parentContainerID);
-    if (!element) return
-
-    let rect = element.getBoundingClientRect();
-    let childElement = document.getElementById(this.settingsContainerID);
-    if (!childElement) return
-    childElement.style.left = rect.left + 'px';
-  }
-
   renderSelectButton = (name, tooltip) => {
     return (
       <ActionButton
         color="tool"
-        isActive={ () => this.props.getActiveTool() === name }
+        isActive={ () => this.props.activeTool === name }
         id={"tool-button-" + name}
         tooltip={tooltip}
         action={ () => this.props.setActiveTool(name) }
@@ -73,38 +42,13 @@ class ToolButton extends Component {
     )
   }
 
-  renderSettingsButton = (settings) => {
-    return (
-      <ActionButton
-        color="tool-settings"
-        id={"tool-settings-" + this.props.name}
-        className="tool-button-settings"
-        action={() => {
-          this.props.setPopover(this.props.name);
-          this.props.setActiveTool(this.props.name);
-        }}/>
-    );
-  }
-
   render () {
     return (
       <div
-        id={this.parentContainerID}
-        className={classNames(this.parentContainerClass, this.props.className ? this.props.className : '')}>
+        className={this.props.className ? this.props.className : ''}>
           <div className="tool-button-select-container">
             {this.renderSelectButton(this.props.name, this.props.tooltip)}
           </div>
-          <div
-            id={this.settingsContainerID}
-            className={this.settingsContainerClass}>
-            {this.renderSettingsButton(this.props.settings)}
-          </div>
-          <ToolSettingsPopover
-            isOpen={this.props.popoverOn}
-            setPopover={this.props.setPopover}
-            toolSettings={this.props.toolSettings}
-            setToolSettings={this.props.setToolSettings}
-            name={this.props.name} />
       </div>
     );
   }

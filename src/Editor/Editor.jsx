@@ -486,14 +486,14 @@ class Editor extends EditorCore {
                       <ReflexElement {...this.resizeProps}>
                         <ReflexContainer windowResizeAware={true} orientation="horizontal">
                           <ReflexElement
-                            minSize={65}
-                            maxSize={65}
-                            size={65}
+                            minSize={50}
+                            maxSize={50}
+                            size={50}
                             onResize={this.resizeProps.onResize}
                             onStopResize={this.resizeProps.onStopResize}>
                             <DockedPanel>
                               <Toolbox
-                                getActiveTool={this.getActiveTool}
+                                activeTool={this.state.activeTool}
                                 setActiveTool={this.setActiveTool}
                                 toolSettings={this.state.toolSettings}
                                 setToolSettings={this.setToolSettings}

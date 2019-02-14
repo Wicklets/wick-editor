@@ -21,9 +21,7 @@
 
 $tool-button-margin: 3px;
 $toolbox-min-button-size: 40px;
-$toolbox-settings-bar-height: 20px;
-
-$toolbox-height: 65px;
+$toolbox-height: 50px;
 
 .tool-box {
   width: 100%;
@@ -34,10 +32,10 @@ $toolbox-height: 65px;
   border: $editor-outline-padding solid $editor-primary-outline;
   border-top: none;
   border-right: none;
-  border-bottom: $toolbox-settings-bar-height solid $editor-primary-outline;;
   overflow: hidden;
   display: flex;
   flex-direction: row;
+  align-items: center;
 }
 
 .tool-box:hover {
@@ -53,7 +51,6 @@ $toolbox-height: 65px;
 
 .toolbox-break {
   height: 70%;
-  margin-top: 5px;
 }
 
 .toolbox-item {
@@ -62,7 +59,6 @@ $toolbox-height: 65px;
   height: $toolbox-min-button-size;
   margin-left: $tool-button-margin;
   margin-right: $tool-button-margin;
-  margin-top: calc( calc(#{$toolbox-height} - #{$toolbox-min-button-size} - #{$toolbox-settings-bar-height}) / 2 );
 }
 
 .toolbox-actions-right {

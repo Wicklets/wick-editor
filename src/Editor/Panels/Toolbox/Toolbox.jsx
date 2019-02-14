@@ -36,13 +36,10 @@ class Toolbox extends Component {
       popover: null,
     }
 
+    console.log("ACTIVE", this.props.activeTool);
+
     this.toolButtonProps = {
-      getActiveTool: this.props.getActiveTool,
       setActiveTool: this.props.setActiveTool,
-      onScroll: this.addScrollFunction,
-      popoverOn: this.popoverOn,
-      setPopover: this.setPopover,
-      toolSettings: this.props.toolSettings,
       setToolSettings: this.props.setToolSettings,
       className: 'toolbox-item',
     }
@@ -51,52 +48,26 @@ class Toolbox extends Component {
     this.scrollFns = [];
   }
 
-  popoverOn = (name) => {
-    return name === this.state.popover;
+  onComponentUpdate = () => {
+    this.toolButtonProps.activeTool = this.props.activeTool;
   }
 
-  setPopover = (name) => {
-    this.setState({
-      popover: name,
-    });
-  }
-
-  /**
-   * Adds a callback function to a list of callback functions to be called on
-   * scroll.
-   * @param {Function} fn function to be called when this component is scrolled.
-   */
-  addScrollFunction = (fn) => {
-    this.scrollFns.push(fn);
-  }
-
-  /**
-   * Calls all callback functions for child components if they exists when
-   * scrolled.
-   * @param  {DOM Event} e Scroll event.
-   */
-  onScroll = (e) => {
-    this.scrollFns.forEach(fn => {
-      fn();
-    });
-  }
 
   render() {
     return(
       <div
-        className="tool-box"
-        onScroll={this.onScroll}>
-        <ToolButton {...this.toolButtonProps} name='cursor' tooltip="Cursor" />
-        <ToolButton {...this.toolButtonProps} name='brush' tooltip="Brush" />
-        <ToolButton {...this.toolButtonProps} name='pencil' tooltip="Pencil" />
-        <ToolButton {...this.toolButtonProps} name='eraser' tooltip="Eraser" />
-        <ToolButton {...this.toolButtonProps} name='rectangle' tooltip="Rectangle" />
-        <ToolButton {...this.toolButtonProps} name='ellipse' tooltip="Ellipse" />
-        <ToolButton {...this.toolButtonProps} name='line' tooltip="Line" />
-        <ToolButton {...this.toolButtonProps} name='text' tooltip="Text" />
-        <ToolButton {...this.toolButtonProps} name='pan' tooltip="Pan" />
-        <ToolButton {...this.toolButtonProps} name='zoom' tooltip="Zoom" />
-        <ToolButton {...this.toolButtonProps} name='fillbucket' tooltip="Fill Bucket" />
+        className="tool-box">
+        <ToolButton activeTool={this.props.activeTool} toolSettings={this.props.toolSettings} {...this.toolButtonProps} name='cursor' tooltip="Cursor" />
+        <ToolButton activeTool={this.props.activeTool} toolSettings={this.props.toolSettings} {...this.toolButtonProps} name='brush' tooltip="Brush" />
+        <ToolButton activeTool={this.props.activeTool} toolSettings={this.props.toolSettings} {...this.toolButtonProps} name='pencil' tooltip="Pencil" />
+        <ToolButton activeTool={this.props.activeTool} toolSettings={this.props.toolSettings} {...this.toolButtonProps} name='eraser' tooltip="Eraser" />
+        <ToolButton activeTool={this.props.activeTool} toolSettings={this.props.toolSettings} {...this.toolButtonProps} name='rectangle' tooltip="Rectangle" />
+        <ToolButton activeTool={this.props.activeTool} toolSettings={this.props.toolSettings} {...this.toolButtonProps} name='ellipse' tooltip="Ellipse" />
+        <ToolButton activeTool={this.props.activeTool} toolSettings={this.props.toolSettings} {...this.toolButtonProps} name='line' tooltip="Line" />
+        <ToolButton activeTool={this.props.activeTool} toolSettings={this.props.toolSettings} {...this.toolButtonProps} name='text' tooltip="Text" />
+        <ToolButton activeTool={this.props.activeTool} toolSettings={this.props.toolSettings} {...this.toolButtonProps} name='pan' tooltip="Pan" />
+        <ToolButton activeTool={this.props.activeTool} toolSettings={this.props.toolSettings} {...this.toolButtonProps} name='zoom' tooltip="Zoom" />
+        <ToolButton activeTool={this.props.activeTool} toolSettings={this.props.toolSettings} {...this.toolButtonProps} name='fillbucket' tooltip="Fill Bucket" />
 
       <div className="color-container toolbox-item" id="fill-color-picker-container">
           <WickInput

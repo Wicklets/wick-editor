@@ -23,7 +23,6 @@
 $tool-button-container-width: $toolbox-min-button-size;
 $tool-button-container-height: $toolbox-min-button-size;
 $tool-button-select-container-height: $tool-button-container-height;
-$tool-button-settings-container-height: calc(#{$toolbox-settings-bar-height} * .75);
 
 .tool-button-container {
   width: $tool-button-container-width;
@@ -37,12 +36,4 @@ $tool-button-settings-container-height: calc(#{$toolbox-settings-bar-height} * .
 .tool-button-select-container {
   width: $tool-button-select-container-height;
   height: $tool-button-select-container-height;
-}
-
-.tool-button-settings-container {
-  width: $tool-button-select-container-height;
-  height: $tool-button-settings-container-height;
-  position: absolute;
-  bottom: calc(calc(#{$toolbox-settings-bar-height} - #{$tool-button-settings-container-height}) / 2);
-  // left: THIS IS SET WITHIN THE JS in order to live update.
 }
