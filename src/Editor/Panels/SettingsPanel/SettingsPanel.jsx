@@ -44,7 +44,7 @@ class SettingsPanel extends Component {
     }
 
     return (
-      <div className="default">DEFAULT</div>
+      <div className="default"></div>
     )
   }
 
