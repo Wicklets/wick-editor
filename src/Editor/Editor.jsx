@@ -133,6 +133,11 @@ class Editor extends EditorCore {
         min: 0,
         max: 1000,
         step: 1,
+      },
+      zoomPercentage: {
+        min: 10,
+        max: 2000,
+        step: 10,
       }
     }
 
@@ -532,7 +537,7 @@ class Editor extends EditorCore {
                             size={50}
                             onResize={this.resizeProps.onResize}
                             onStopResize={this.resizeProps.onStopResize}>
-                            <DockedPanel>
+                            <DockedPanel showOverlay={this.state.previewPlaying}>
                               <Toolbox
                                 activeTool={this.state.activeTool}
                                 setActiveTool={this.setActiveTool}
@@ -565,6 +570,8 @@ class Editor extends EditorCore {
                                     setToolSettings={this.setToolSettings}
                                     toolRestrictions={this.toolRestrictions}/>
                                   <CanvasTransforms
+                                    hideTransformations={this.state.previewPlaying}
+                                    recenterCanvas={this.recenterCanvas}
                                     setActiveTool={this.setActiveTool}
                                     activeTool={this.state.activeTool}
                                     previewPlaying={this.state.previewPlaying}

@@ -10,7 +10,7 @@ $canvas-transforms-size: 60px;
   margin-right: 10px;
   margin-bottom: 10px;
   display: flex;
-  background-color: gray;
+  background-color: $editor-primary-outline;
   border-radius: 4px;
 }
 
@@ -18,4 +18,8 @@ $canvas-transforms-size: 60px;
   width: $canvas-transforms-size;
   height: $canvas-transforms-size;
   padding: 4px;
+}
+
+.transforms-container {
+  display: flex;
 }

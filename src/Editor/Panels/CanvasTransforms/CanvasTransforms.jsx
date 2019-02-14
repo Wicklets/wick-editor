@@ -5,24 +5,34 @@ import PlayButton from 'Editor/Util/PlayButton/PlayButton';
 import './_canvastransforms.scss';
 
 class CanvasTransforms extends Component {
-  renderTransformButton(name, tooltip) {
+  renderTransformButton(action, name, tooltip) {
     return (
       <ActionButton
         color="tool"
         isActive={ () => this.props.activeTool === name }
         id={"canvas-transform-button-" + name}
         tooltip={tooltip}
-        action={ () => this.props.setActiveTool(name) }
+        action={action}
         tooltipPlace={"top"}
         icon={name}
         className="canvas-transform-button"/>
     )
   }
+
+  renderTransformations = () => {
+    return (
+      <div className='transforms-container'>
+        {this.renderTransformButton(() => {this.props.setActiveTool('pan')}, 'pan', 'Pan')}
+        {this.renderTransformButton(() => {this.props.setActiveTool('zoom')}, 'zoom', 'Zoom')}
+        {this.renderTransformButton(() => {this.props.recenterCanvas()}, 'recenter', 'Recenter')}
+      </div>
+    );
+  }
+
   render () {
     return (
       <div className="canvas-transforms-widget">
-        {this.renderTransformButton('pan', 'Pan')}
-        {this.renderTransformButton('zoom', 'Zoom')}
+        {!this.props.hideTransformations && this.renderTransformations()}
         <PlayButton
           className="play-button canvas-transform-button"
           playing={this.props.previewPlaying}
