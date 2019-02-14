@@ -58,10 +58,10 @@ class WickInput extends Component {
     return (
       <NumericInput
         style={false}
-        className="wick-numeric-input"
         precision={2}
         format={format}
         {...this.props}
+        className={classNames("wick-numeric-input", this.props.className ? this.props.className : '')}
         ></NumericInput>
     )
   }

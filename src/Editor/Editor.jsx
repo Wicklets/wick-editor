@@ -39,6 +39,7 @@ import Canvas from './Panels/Canvas/Canvas';
 import Inspector from './Panels/Inspector/Inspector';
 import MenuBar from './Panels/MenuBar/MenuBar';
 import Timeline from './Panels/Timeline/Timeline';
+import SettingsPanel from './Panels/SettingsPanel/SettingsPanel';
 import Toolbox from './Panels/Toolbox/Toolbox';
 import AssetLibrary from './Panels/AssetLibrary/AssetLibrary';
 import ModalHandler from './Modals/ModalHandler/ModalHandler';
@@ -515,8 +516,11 @@ class Editor extends EditorCore {
                                     activeTool={this.state.activeTool}
                                     toolSettings={this.state.toolSettings}
                                     previewPlaying={this.state.previewPlaying}
-                                    createImageFromAsset={this.createImageFromAsset}
-                                  />
+                                    createImageFromAsset={this.createImageFromAsset}/>
+                                  <SettingsPanel
+                                    activeTool={this.state.activeTool}
+                                    toolSettings={this.state.toolSettings}
+                                    setToolSettings={this.setToolSettings}/>
                                 </DockedPanel>
                               </ReflexElement>
 

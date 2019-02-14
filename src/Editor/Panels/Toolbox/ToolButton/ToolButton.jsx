@@ -79,7 +79,10 @@ class ToolButton extends Component {
         color="tool-settings"
         id={"tool-settings-" + this.props.name}
         className="tool-button-settings"
-        action={() => this.props.setPopover(this.props.name)}/>
+        action={() => {
+          this.props.setPopover(this.props.name);
+          this.props.setActiveTool(this.props.name);
+        }}/>
     );
   }
 
