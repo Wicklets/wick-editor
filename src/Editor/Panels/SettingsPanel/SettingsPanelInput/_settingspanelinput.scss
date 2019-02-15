@@ -38,14 +38,18 @@ $settings-input-size: 25px;
   height: $settings-input-size;
 }
 
-.settings-numeric-slider {
-  width: 100%;
+.settings-slider-wick-input-container {
   height: $settings-input-size;
 }
 
-.settings-checkbox-input {
+.settings-checkbox-wick-input-container {
   height: $settings-input-size;
   width: $settings-input-size;
+}
+
+.settings-numeric-wick-input-container {
+  width: 100%;
+  height: $settings-input-size;
 }
 
 .setting-input-container {

@@ -23,11 +23,83 @@ import './_wickinput.scss';
 import NumericInput from 'react-numeric-input';
 import Select from 'react-select';
 import ColorPicker from 'Editor/Util/ColorPicker/ColorPicker';
+import ReactTooltip from 'react-tooltip'
 import { Input } from 'reactstrap';
 
 var classNames = require('classnames');
 
+/**
+ * Creates an input to be used in the Wick Editor
+ * prop {string} className The classname to apply to the input element
+ *
+ * prop {string} containerclassname The classname to apply to the container
+ * element of the input.
+ *
+ * prop {string} tooltip The tooltip text to display on the container of the
+ * element. No tooltip is shown if this is not provided.
+ *
+ * props {string} tooltipID A unique id which is required to properly display
+ * the tooltip.
+ *
+ * prop {string} tooltipPlace 'top', 'bottom', 'left', 'right'. Defaults to 'bottom'.
+ *
+ * All remaining props will be applied directly to the input element.
+ * @extends Component
+ */
 class WickInput extends Component {
+  render() {
+    let tooltipID = this.props.tooltipID === undefined ? 'action-button-tooltip-nyi' : this.props.tooltipID;
+
+    return (
+      <div
+        data-tip
+        data-for={tooltipID}
+        id={tooltipID}
+        className={classNames("wick-input-container", this.props.containerclassname)}>
+        { (this.props.tooltip !== undefined) && this.renderTooltip(tooltipID) }
+        { this.renderContent() }
+      </div>
+    )
+  }
+
+  renderTooltip = (tooltipID) => {
+    // Detect if on mobile to disable tooltips.
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+
+    return (
+      <ReactTooltip
+        disable={isMobile}
+        id={tooltipID}
+        type='info'
+        place={this.props.tooltipPlace === undefined ? 'bottom' : this.props.tooltipPlace}
+        effect='solid'
+        aria-haspopup='true'>
+        <span>{this.props.tooltip}</span>
+      </ReactTooltip>
+    )
+  }
+
+  renderContent = () => {
+    if (this.props.type==="numeric") {
+      return ( this.renderNumeric() );
+    } else if (this.props.type==="text") {
+      return ( this.renderText() );
+    } else if (this.props.type === "slider") {
+      return ( this.renderSlider() );
+    } else if (this.props.type === "select") {
+      return ( this.renderSelect() );
+    } else if (this.props.type === "color") {
+      return ( this.renderColor());
+    } else if (this.props.type === "checkbox") {
+      return ( this.renderCheckbox() );
+    } else if (this.props.type === "radio") {
+      return ( this.renderRadio() );
+    } else if (this.props.type === "button") {
+      return ( this.renderButton() );
+    } else {
+      return ( this.renderButton() ); // default to a button.
+    }
+  }
 
   renderNumeric = () => {
     // TODO: Replace this custom rolled zero removal with a tested solution.
@@ -61,76 +133,88 @@ class WickInput extends Component {
         precision={2}
         format={format}
         {...this.props}
-        className={classNames("wick-numeric-input", this.props.className ? this.props.className : '')}
+        className={classNames("wick-numeric-input", this.props.className)}
         ></NumericInput>
     )
   }
 
-  render() {
-    if (this.props.type==="numeric") {
-      return (
-        this.renderNumeric()
-      );
-    } else if (this.props.type==="text") {
+  renderText = () => {
+    // Spit out the value of a text box back to the onChange function.
+    let wrappedOnChange = (val) => {
+      this.props.onChange(val.target.value);
+    };
 
-      // Spit out the value of a text box back to the onChange function.
-      let wrappedOnChange = (val) => {
-        this.props.onChange(val.target.value);
-      };
+    return (
+      <input
+        className={classNames("wick-input", {"read-only":this.props.readOnly})}
+        {...this.props}
+        value={this.props.value ? this.props.value : ''}
+        type="text"
+        onChange={this.props.onChange ? wrappedOnChange : null}
+      ></input>
+    );
+  }
 
-      return (
-        <input
-          className={classNames("wick-input", {"read-only":this.props.readOnly})}
-          {...this.props}
-          value={this.props.value ? this.props.value : ''}
-          type="text"
-          onChange={this.props.onChange ? wrappedOnChange : null}
-        ></input>
-      )
-    } else if (this.props.type === "slider") {
-      // Spit out the value of a text box back to the onChange function.
-      let wrappedOnChange = (val) => {
-        this.props.onChange(val.target.value);
-      };
-      return (
-        <input
-          {...this.props}
-          className={classNames("wick-slider", this.props.className ? this.props.className : '')}
-          type='range'
-          onChange={this.props.onChange ? wrappedOnChange : null}
-          />
-      )
-    } else if (this.props.type === "select") {
-      return (
-        <Select className="wick-select"
-            {...this.props}></Select>
-      )
-    } else if (this.props.type === "color") {
-      return (
-        <ColorPicker
-          className="wick-color-picker"
-          {...this.props}/>
-      )
-    } else if (this.props.type === "checkbox") {
-      return (
-        <input
-          className="wick-checkbox"
-          type="checkbox"
-          {...this.props}/>
-      )
-    } else if (this.props.type === "radio") {
-      if(!this.props.name) throw new Error("WickInput radio buttons require a name.");
-      return (
-        <Input
-          type="radio"
-          {...this.props}
+  renderSlider = () => {
+    // Spit out the value of a text box back to the onChange function.
+    let wrappedOnChange = (val) => {
+      this.props.onChange(val.target.value);
+    };
+    return (
+      <input
+        {...this.props}
+        className={classNames("wick-slider", this.props.className)}
+        type='range'
+        onChange={this.props.onChange ? wrappedOnChange : null}
         />
-      );
-    } else if (this.props.type === "button") {
-      return (
-        <div className={"wick-button " + this.props.className} onClick={this.props.onClick}>{this.props.children}</div>
-      )
-    }
+    );
+  }
+
+  renderColor = () => {
+    return (
+      <ColorPicker
+        className={classNames("wick-color-picker", this.props.className)}
+        {...this.props}/>
+    );
+  }
+
+  renderSelect = () => {
+    return (
+      <Select
+          {...this.props}
+          className={classNames("wick-select", this.props.className)}
+          ></Select>
+    );
+  }
+
+  renderCheckbox = () => {
+    return (
+      <input
+        {...this.props}
+        type="checkbox"
+        className={classNames("wick-checkbox", this.props.className)}/>
+    );
+  }
+
+  renderRadio = () => {
+    if(!this.props.name) throw new Error("WickInput radio buttons require a name.");
+    return (
+      <Input
+        type="radio"
+        {...this.props}
+        className={classNames("wick-radio", this.props.className)}
+      />
+    );
+  }
+
+  renderButton = () => {
+    return (
+      <div
+        onClick={this.props.onClick}
+        className={classNames("wick-button ", this.props.className)}>
+        {this.props.children}
+      </div>
+    );
   }
 }
 

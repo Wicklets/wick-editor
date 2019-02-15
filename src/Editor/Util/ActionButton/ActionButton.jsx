@@ -20,7 +20,6 @@
 import React, { Component } from 'react';
 
 import WickInput from 'Editor/Util/WickInput/WickInput';
-import ReactTooltip from 'react-tooltip'
 import ToolIcon from 'Editor/Util/ToolIcon/ToolIcon';
 
 import './_actionbutton.scss';
@@ -29,37 +28,26 @@ var classNames = require('classnames');
 
 class ActionButton extends Component {
   render() {
-    let colorClass = this.props.color === undefined ? "action-button-blue" : "action-button-"+this.props.color;
-    let btnID = this.props.id === undefined ? 'action-button-tooltip-nyi' : this.props.id;
     let isActive = this.props.isActive === undefined ? () => false : this.props.isActive;
-    let propClassName = this.props.className ? this.props.className : '';
 
-    let finalClassName = classNames(colorClass, {'active-button' : isActive()})
+    let colorClass = this.props.color === undefined ? "action-button-blue" : "action-button-"+this.props.color;
+    let finalColorClassName = classNames(colorClass, {'active-button' : isActive()})
 
-    // Detect if on mobile
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+    let tooltipID = this.props.id === undefined ? 'action-button-tooltip-nyi' : ('action-button-tooltip-' + this.props.id);
 
     return (
-      <div data-tip data-for={btnID} id={btnID} className={classNames("action-button", propClassName)}>
+      <div className={classNames("action-button", this.props.className)}>
         <WickInput
-          className={finalClassName}
+          tooltip={this.props.tooltip}
+          tooltipID={tooltipID}
+          tooltipPlace={this.props.tooltipPlace}
+          className={finalColorClassName}
           type="button"
           onClick={this.props.action}
           onTouch={this.props.action}>
           {this.props.icon && <ToolIcon name={this.props.icon} />}
           {this.props.text && <div>{this.props.text}</div>}
         </WickInput>
-          { (this.props.tooltip !== undefined) && (
-          <ReactTooltip
-            disable={isMobile}
-            id={btnID}
-            type='info'
-            place={this.props.tooltipPlace === undefined ? 'top' : this.props.tooltipPlace}
-            effect='solid'
-            aria-haspopup='true'>
-            <span>{this.props.tooltip}</span>
-          </ReactTooltip> )
-        }
       </div>
     )
   }

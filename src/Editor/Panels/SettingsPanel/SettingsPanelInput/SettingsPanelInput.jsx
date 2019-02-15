@@ -37,12 +37,14 @@ class SettingsPanelInput extends Component {
       <div className="settings-numeric-input-container">
         <WickInput
           type="numeric"
+          containerclassname="settings-numeric-wick-input-container"
           className="settings-numeric-input"
           onChange={this.props.onChange}
           value={this.props.value}
           {...this.props.inputRestrictions}/>
         <WickInput
           type="slider"
+          containerclassname="settings-slider-wick-input-container"
           className="settings-numeric-slider"
           onChange={this.props.onChange}
           value={this.props.value}
@@ -55,6 +57,7 @@ class SettingsPanelInput extends Component {
     return (
       <WickInput
         type="checkbox"
+        containerclassname="settings-checkbox-wick-input-container"
         className="settings-checkbox-input"
         onChange={this.props.onChange}
         defaultChecked={this.props.value}

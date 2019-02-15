@@ -78,10 +78,10 @@ $toolbox-height: 50px;
 
 .color-container {
   cursor: pointer;
-  width: $toolbox-min-button-size;
-  height: $toolbox-min-button-size;
+  width: calc(#{$toolbox-min-button-size} * .85);
+  height: calc(#{$toolbox-min-button-size} * .85);
   float: left;
-  min-width: $toolbox-min-button-size;
+  min-width:  calc(#{$toolbox-min-button-size} * .85);
 }
 
 #tool-box-stroke-color-button {

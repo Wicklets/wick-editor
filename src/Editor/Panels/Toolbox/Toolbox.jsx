@@ -75,6 +75,8 @@ class Toolbox extends Component {
               this.props.setToolSettings({fillColor: color.hex})
             }}
             id="tool-box-fill-color"
+            tooltipID="tool-box-fill-color"
+            tooltip="Fill Color"
             placement="bottom"
             />
         </div>
@@ -86,6 +88,8 @@ class Toolbox extends Component {
               this.props.setToolSettings({strokeColor: color.hex})
             }}
             id="tool-box-stroke-color"
+            tooltipID="tool-box-stroke-color"
+            tooltip="Stroke Color"
             placement="bottom"
             stroke={true}
             />
