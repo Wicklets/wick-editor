@@ -44190,7 +44190,7 @@ Wick.Layer = class extends Wick.Base {
 
 
   get index() {
-    return this.parent.layers.indexOf(this);
+    return this.parent && this.parent.layers.indexOf(this);
   }
   /**
    * The length of the layer in frames.
@@ -44232,6 +44232,7 @@ Wick.Layer = class extends Wick.Base {
 
 
   addFrame(frame) {
+    frame._originalLayerIndex = this.index;
     this.frames.push(frame);
 
     this._addChild(frame);
@@ -44259,6 +44260,19 @@ Wick.Layer = class extends Wick.Base {
   getFrameAtPlayheadPosition(playheadPosition) {
     return this.frames.find(frame => {
       return frame.inPosition(playheadPosition);
+    });
+  }
+  /**
+   * Gets all frames in the layer that are between the two given playhead positions.
+   * @param {number} playheadPositionStart - The start of the range to search
+   * @param {number} playheadPositionEnd - The end of the range to search
+   * @return {Wick.Frame[]} The frames in the given range.
+   */
+
+
+  getFramesInRange(playheadPositionStart, playheadPositionEnd) {
+    return this.frames.filter(frame => {
+      return frame.inRange(playheadPositionStart, playheadPositionEnd);
     });
   }
 
@@ -44789,7 +44803,6 @@ Wick.Project = class extends Wick.Base {
 
   focusTimelineOfParentClip() {
     if (!this.focus.isRoot) {
-      console.log('?');
       this.focus = this.focus.parentClip;
       this.selection.clear();
       this.recenter();
@@ -45224,6 +45237,73 @@ Wick.Timeline = class extends Wick.Base {
       }
     });
     return allFrames;
+  }
+  /**
+   * Gets all frames in the layer that are between the two given playhead positions and layer indices.
+   * @param {number} playheadPositionStart - The start of the horizontal range to search
+   * @param {number} playheadPositionEnd - The end of the horizontal range to search
+   * @param {number} layerIndexStart - The start of the vertical range to search
+   * @param {number} layerIndexEnd - The end of the vertical range to search
+   * @return {Wick.Frame[]} The frames in the given range.
+   */
+
+
+  getFramesInRange(playheadPositionStart, playheadPositionEnd, layerIndexStart, layerIndexEnd) {
+    var framesInRange = [];
+    this.layers.filter(layer => {
+      return layer.index >= layerIndexStart && layer.index <= layerIndexEnd;
+    }).forEach(layer => {
+      framesInRange = framesInRange.concat(layer.getFramesInRange(playheadPositionStart, playheadPositionEnd));
+    });
+    return framesInRange;
+  }
+
+  insertFrames(frames, playheadPosition, layerIndex) {
+    if (frames.length === 0) return;
+
+    function calculateRange(frames) {
+      var playheadStart = frames[0].start;
+      var playheadEnd = frames[0].end;
+      var layerStart = frames[0].layerIndex;
+      var layerEnd = frames[0].layerIndex;
+      frames.forEach(frame => {
+        playheadStart = Math.min(playheadStart, frame.start);
+        playheadEnd = Math.max(playheadEnd, frame.end);
+        layerStart = Math.min(layerStart, frame.layerIndex);
+        layerEnd = Math.max(layerEnd, frame.layerIndex);
+      });
+      return {
+        playheadStart: playheadStart,
+        playheadEnd: playheadEnd,
+        layerStart: layerStart,
+        layerEnd: layerEnd
+      };
+    }
+
+    var range = calculateRange(frames); // Use start and end playhead positions to calculate length, add resulting length to all starts/ends of frames
+
+    var length = range.playheadEnd - range.playheadStart;
+    frames.forEach(frame => {
+      frame.start += length;
+      frame.end += length;
+    });
+    var checkCollisionsRange = calculateRange(frames); // While there are frames in the range,
+
+    while (this.getFramesInRange(checkCollisionsRange.playheadStart, checkCollisionsRange.playheadEnd, checkCollisionsRange.layerStart, checkCollisionsRange.layerEnd).length > 0) {
+      //   Add 1 to all frame starts and ends
+      frames.forEach(frame => {
+        frame.start += 1;
+        frame.end += 1;
+      }); //   Calculate start and end playhead positions from frameInfo
+      //   Calculate start and end layer indices from frameInfo
+
+      checkCollisionsRange = calculateRange(frames);
+    } // Add the frames in frameInfo into their given layers (their starts and ends should be correct already)
+
+
+    frames.forEach(frame => {
+      this.layers[frame.layerIndex].addFrame(frame);
+    });
   }
   /**
    * Advances the timeline one frame forwards. Loops back to beginning if the end is reached.
@@ -46267,6 +46347,7 @@ Wick.Frame = class extends Wick.Tickable {
     super();
     this.start = start || 1;
     this.end = end || this.start;
+    this._originalLayerIndex = null;
     this._clips = [];
     this._paths = [];
     this.tweens = [];
@@ -46288,6 +46369,7 @@ Wick.Frame = class extends Wick.Tickable {
     data.tweens.forEach(tweenData => {
       object.addTween(Wick.Tween.deserialize(tweenData));
     });
+    object._originalLayerIndex = data.originalLayerIndex;
     return object;
   }
 
@@ -46305,6 +46387,7 @@ Wick.Frame = class extends Wick.Tickable {
     data.tweens = this.tweens.map(tween => {
       return tween.serialize();
     });
+    data.originalLayerIndex = this._originalLayerIndex;
     return data;
   }
 
@@ -46379,6 +46462,15 @@ Wick.Frame = class extends Wick.Tickable {
 
   get contentful() {
     return this.paths.length > 0 || this.clips.length > 0;
+  }
+  /**
+   * The index of the parent layer.
+   * @type {number}
+   */
+
+
+  get layerIndex() {
+    return this._originalLayerIndex;
   }
   /**
    * Removes this frame from its parent layer.

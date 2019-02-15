@@ -641,10 +641,14 @@ class EditorCore extends Component {
       this.project.activeFrame.addClip(clip);
     });
 
+    this.project.focus.timeline.insertFrames(selection.filter(object => {
+      return object instanceof window.Wick.Frame;
+    }));
+
     this.project.selection.clear();
     selection.forEach(object => {
       this.project.selection.select(object);
-    })
+    });
 
     this.projectDidChange();
   }
@@ -738,7 +742,9 @@ class EditorCore extends Component {
    * Clears any autosaved project from local storage.
    */
   clearAutoSavedProject = () => {
-    localForage.removeItem(this.autoSaveKey).then(() => console.log("AutoSave cleared!"));
+    localForage.removeItem(this.autoSaveKey).then(() => {
+      // Autosaved cleared
+    });
   }
 }
 
