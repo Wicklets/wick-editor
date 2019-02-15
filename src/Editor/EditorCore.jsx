@@ -54,6 +54,25 @@ class EditorCore extends Component {
   }
 
   /**
+   * Recenters the canvas.
+   */
+  recenterCanvas = () => {
+    this.project.recenter();
+    this.projectDidChange();
+  }
+
+  /**
+   * Updates the zoom level of the project.
+   * @param  {number} zoomPercentage The value to set the zoom percentage to.
+   */
+  updateZoom = (zoomPercentage) => {
+    let adjustedMinZoom = Math.max(zoomPercentage, this.toolRestrictions.zoomPercentage.min);
+    let adjustedZoom = Math.min(adjustedMinZoom, this.toolRestrictions.zoomPercentage.max);
+    this.project.zoom = adjustedZoom/100;
+    this.projectDidChange();
+  }
+
+  /**
    * Returns an object containing the tool settings.
    * @returns {object} The object containing the tool settings.
    */

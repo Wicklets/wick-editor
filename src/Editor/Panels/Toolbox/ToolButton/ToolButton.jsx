@@ -34,7 +34,7 @@ class ToolButton extends Component {
         id={"tool-button-" + name}
         tooltip={tooltip}
         action={ () => this.props.setActiveTool(name) }
-        tooltipPlace="bottom"
+        tooltipPlace={this.props.tooltipPlace ? this.props.tooltipPlace : "bottom"}
         icon={name}
         className="tool-button-select"/>
     )

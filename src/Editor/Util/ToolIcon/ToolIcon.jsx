@@ -53,6 +53,7 @@ import iconBreakApart from 'resources/tool-icons/breakApart.svg';
 import iconClose from 'resources/tool-icons/close.svg';
 import iconUndo from 'resources/tool-icons/undo.svg';
 import iconRedo from 'resources/tool-icons/redo.svg';
+import iconRecenter from 'resources/tool-icons/recenter.svg';
 
 // Assets
 import iconImage from 'resources/tool-icons/image.svg';
@@ -139,6 +140,7 @@ class ToolIcon extends Component {
       "bringToFront": iconBringToFront,
       "bringForwards": iconBringForwards,
       "gear": iconGear,
+      "recenter": iconRecenter, 
       "size": iconSize,
       "sound": iconSound,
       "SoundAsset": iconSound,

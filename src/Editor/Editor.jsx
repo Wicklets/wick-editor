@@ -40,6 +40,7 @@ import Inspector from './Panels/Inspector/Inspector';
 import MenuBar from './Panels/MenuBar/MenuBar';
 import Timeline from './Panels/Timeline/Timeline';
 import SettingsPanel from './Panels/SettingsPanel/SettingsPanel';
+import CanvasTransforms from './Panels/CanvasTransforms/CanvasTransforms';
 import Toolbox from './Panels/Toolbox/Toolbox';
 import AssetLibrary from './Panels/AssetLibrary/AssetLibrary';
 import ModalHandler from './Modals/ModalHandler/ModalHandler';
@@ -96,6 +97,49 @@ class Editor extends EditorCore {
       timelineSize: 100,
       assetLibrarySize: 150,
     };
+
+    this.toolRestrictions = {
+      strokeWidth: {
+        min: 0,
+        max: 100,
+        step: 1,
+      },
+      brushSize: {
+        min: 0,
+        max: 100,
+        step: 1,
+      },
+      eraserSize: {
+        min: 0,
+        max: 100,
+        step: 1,
+      },
+      brushSmoothing: {
+        min: 0,
+        max: 100,
+        step: 1,
+      },
+      opacity: {
+        min: 0,
+        max: 1,
+        step: .01,
+      },
+      cornerRadius: {
+        min: 0,
+        max: 100,
+        step: 1,
+      },
+      fontSize: {
+        min: 0,
+        max: 1000,
+        step: 1,
+      },
+      zoomPercentage: {
+        min: 10,
+        max: 2000,
+        step: 10,
+      }
+    }
 
     // Set up error.
     this.error = null;
@@ -493,7 +537,7 @@ class Editor extends EditorCore {
                             size={50}
                             onResize={this.resizeProps.onResize}
                             onStopResize={this.resizeProps.onStopResize}>
-                            <DockedPanel>
+                            <DockedPanel showOverlay={this.state.previewPlaying}>
                               <Toolbox
                                 activeTool={this.state.activeTool}
                                 setActiveTool={this.setActiveTool}
@@ -521,9 +565,18 @@ class Editor extends EditorCore {
                                     createImageFromAsset={this.createImageFromAsset}
                                   />
                                   <SettingsPanel
+                                    hidePanel={this.state.previewPlaying}
                                     activeTool={this.state.activeTool}
                                     toolSettings={this.state.toolSettings}
-                                    setToolSettings={this.setToolSettings}/>
+                                    setToolSettings={this.setToolSettings}
+                                    toolRestrictions={this.toolRestrictions}/>
+                                  <CanvasTransforms
+                                    hideTransformations={this.state.previewPlaying}
+                                    recenterCanvas={this.recenterCanvas}
+                                    setActiveTool={this.setActiveTool}
+                                    activeTool={this.state.activeTool}
+                                    previewPlaying={this.state.previewPlaying}
+                                    togglePreviewPlaying={this.togglePreviewPlaying}/>
                                 </DockedPanel>
                               </ReflexElement>
 

@@ -23,14 +23,24 @@ $settings-input-size: 25px;
 
 .settings-text-label {
   color: $editor-primary-property-text;
-  font-size: 14px;
+  font-size: 12px;
+  bottom: 0px;
   text-align: center;
+}
+
+.settings-numeric-input-container {
+  padding-top: 4px;
+  height: 100%;
+  width: 80%;
 }
 
 .settings-numeric-input {
   height: $settings-input-size;
-  width: 80%;
-  margin-left: 10%;
+}
+
+.settings-numeric-slider {
+  width: 100%;
+  height: $settings-input-size;
 }
 
 .settings-checkbox-input {
@@ -39,6 +49,8 @@ $settings-input-size: 25px;
 }
 
 .setting-input-container {
+  height: 100%;
+  width: 100%;
   display: flex;
   flex-direction: column;
   justify-content: center;

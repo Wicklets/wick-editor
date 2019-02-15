@@ -34,13 +34,21 @@ class SettingsPanelInput extends Component {
 
   renderNumericInput = () => {
     return (
-      <WickInput
-        type="numeric"
-        className="settings-numeric-input"
-        onChange={this.props.onChange}
-        value={this.props.value}
-        />
-    );
+      <div className="settings-numeric-input-container">
+        <WickInput
+          type="numeric"
+          className="settings-numeric-input"
+          onChange={this.props.onChange}
+          value={this.props.value}
+          {...this.props.inputRestrictions}/>
+        <WickInput
+          type="slider"
+          className="settings-numeric-slider"
+          onChange={this.props.onChange}
+          value={this.props.value}
+          {...this.props.inputRestrictions} />
+      </div>
+    )
   }
 
   renderCheckboxInput = () => {
@@ -67,7 +75,7 @@ class SettingsPanelInput extends Component {
 
   renderSettingsNumeric = () => {
     return (
-      <div className="setting-input-container settings-number-input-container">
+      <div className="setting-input-container">
         {this.renderNumericInput()}
         {this.renderTextLabel()}
       </div>
@@ -76,7 +84,7 @@ class SettingsPanelInput extends Component {
 
   renderSettingsCheckbox = () => {
     return (
-      <div className="setting-input-container settings-checkbox-input-container">
+      <div className="setting-input-container">
         {this.renderCheckboxInput()}
         {this.renderTextLabel()}
       </div>
@@ -85,7 +93,7 @@ class SettingsPanelInput extends Component {
 
   renderSettingsDropdown = () => {
     return (
-      <div className="setting-input-container settings-dropdown-input-container">
+      <div className="setting-input-container">
         {this.renderDropdownInput()}
         {this.renderTextLabel()}
       </div>

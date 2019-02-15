@@ -17,23 +17,26 @@ class SettingsPanel extends Component {
       "ellipse": this.renderEllipseSettings,
       "line": this.renderLineSettings,
       "text": this.renderTextSettings,
-      "fillbucket": this.renderFillBucketSettings,
     }
   }
 
   render () {
-    return (
-      <div id='settings-panel-container'>
-        {this.props.activeTool in this.settingsFunctions && this.renderSettingsHeader()}
-        {this.renderSettings()}
-      </div>
-    );
+    if (this.props.hidePanel) {
+      return (<div id='settings-panel-container'/>)
+    } else {
+      return (
+        <div id='settings-panel-container'>
+          {this.props.activeTool in this.settingsFunctions && this.renderSettingsHeader()}
+          {this.renderSettings()}
+        </div>
+      );
+    }
   }
 
   renderSettingsHeader = () => {
     return (
       <div className="settings-container-header">
-        Tool Options
+        Options
       </div>
     );
   }
@@ -117,13 +120,6 @@ class SettingsPanel extends Component {
     );
   }
 
-  renderFillBucketSettings = () => {
-    return (
-      <div className='settings-input-container'>
-      </div>
-    );
-  }
-
   renderEnablePressure = () => {
     return (
       <SettingsPanelInput
@@ -160,7 +156,8 @@ class SettingsPanel extends Component {
         name='Corner Radius'
         type='numeric'
         value={this.getToolSetting('cornerRadius')}
-        onChange={(val) => this.setToolSetting('cornerRadius', val)}/>
+        onChange={(val) => this.setToolSetting('cornerRadius', val)}
+        inputRestrictions={this.props.toolRestrictions.cornerRadius}/>
     )
   }
 
@@ -170,7 +167,8 @@ class SettingsPanel extends Component {
         name='Brush Smoothing'
         type='numeric'
         value={this.getToolSetting('brushSmoothing')}
-        onChange={(val) => this.setToolSetting('brushSmoothing', val)}/>
+        onChange={(val) => this.setToolSetting('brushSmoothing', val)}
+        inputRestrictions={this.props.toolRestrictions.brushSmoothing}/>
     )
   }
 
@@ -180,7 +178,8 @@ class SettingsPanel extends Component {
         name='Font Size'
         type='numeric'
         value={this.getToolSetting('fontSize')}
-        onChange={(val) => this.setToolSetting('fontSize', val)}/>
+        onChange={(val) => this.setToolSetting('fontSize', val)}
+        inputRestrictions={this.props.toolRestrictions.fontSize}/>
     )
   }
 
@@ -190,7 +189,8 @@ class SettingsPanel extends Component {
         name='Eraser Size'
         type='numeric'
         value={this.getToolSetting('eraserSize')}
-        onChange={(val) => this.setToolSetting('eraserSize', val)}/>
+        onChange={(val) => this.setToolSetting('eraserSize', val)}
+        inputRestrictions={this.props.toolRestrictions.eraserSize}/>
     )
   }
 
@@ -200,7 +200,8 @@ class SettingsPanel extends Component {
         name='Stroke Width'
         type='numeric'
         value={this.getToolSetting('strokeWidth')}
-        onChange={(val) => this.setToolSetting('strokeWidth', val)}/>
+        onChange={(val) => this.setToolSetting('strokeWidth', val)}
+        inputRestrictions={this.props.toolRestrictions.strokeWidth}/>
     )
   }
 
@@ -230,7 +231,8 @@ class SettingsPanel extends Component {
         name='Brush Size'
         type='numeric'
         value={this.getToolSetting('brushSize')}
-        onChange={(val) => this.setToolSetting('brushSize', val)}/>
+        onChange={(val) => this.setToolSetting('brushSize', val)}
+        inputRestrictions={this.props.toolRestrictions.brushSize}/>
     )
   }
 

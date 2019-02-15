@@ -1,8 +1,8 @@
 @import 'Editor/_wickbrand.scss';
 
 $setting-splitter-height: 2px;
-$settings-container-width: 80px;
-$setting-height: 80px;
+$settings-container-width: 70px;
+$setting-height: 90px;
 
 #settings-panel-container {
   display: flex;
@@ -15,14 +15,15 @@ $setting-height: 80px;
   transform: translateY(-50%);
 }
 
+.setting-input-container {
+  width: 100%;
+}
+
 .setting-container {
   width: $settings-container-width;
   height: $setting-height;
   background-color: $editor-primary;
   box-sizing: content-box;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
 }
 
 .settings-container-header {
