@@ -41959,7 +41959,10 @@ paper.MultiSelection = class {
 
   get scaling() {
     if (this.items.length === 1) {
-      return this.items[0].scaling;
+      return this.items[0].scaling || {
+        x: 1,
+        y: 1
+      };
     } else {
       return new paper.Point(1, 1);
     }
@@ -41991,7 +41994,8 @@ paper.MultiSelection = class {
 
   get strokeColor() {
     if (this._selectedItemsShareColor('strokeColor')) {
-      return this.items[0].strokeColor;
+      var color = this.items[0].strokeColor;
+      return color && color.toCSS();
     } else {
       return null;
     }
@@ -41999,7 +42003,8 @@ paper.MultiSelection = class {
 
   get fillColor() {
     if (this._selectedItemsShareColor('fillColor')) {
-      return this.items[0].fillColor;
+      var color = this.items[0].fillColor;
+      return color && color.toCSS();
     } else {
       return null;
     }
@@ -42274,6 +42279,12 @@ paper.MultiSelection = class {
   _rebuildGUI() {
     this.guiLayer.clear();
     if (this._selectedItems.length === 0) return;
+
+    this._selectedItems.filter(item => {
+      return item instanceof paper.Path || item instanceof paper.CompoundPath;
+    }).forEach(item => {
+      item.applyMatrix = true;
+    });
 
     this._recalculateBounds();
 
@@ -44969,6 +44980,8 @@ Wick.Selection = class extends Wick.Base {
     }
 
     this._uuids.push(object.uuid);
+
+    this.project.view.render();
   }
 
   deselect(object) {
@@ -45027,6 +45040,94 @@ Wick.Selection = class extends Wick.Base {
 
   get numObjects() {
     return this._uuids.length;
+  }
+
+  get x() {
+    return this.view.x;
+  }
+
+  set x(x) {
+    this.view.x = x;
+  }
+
+  get y() {
+    return this.view.y;
+  }
+
+  set y(y) {
+    this.view.y = y;
+  }
+
+  get width() {
+    return this.view.width;
+  }
+
+  set width(width) {
+    this.view.width = width;
+  }
+
+  get height() {
+    return this.view.height;
+  }
+
+  set height(height) {
+    this.view.height = height;
+  }
+
+  get scaleX() {
+    return this.view.scaleX;
+  }
+
+  set scaleX(scaleX) {
+    this.view.scaleX = scaleX;
+  }
+
+  get scaleY() {
+    return this.view.scaleY;
+  }
+
+  set scaleY(scaleY) {
+    this.view.scaleY = scaleY;
+  }
+
+  get rotation() {
+    return this.view.rotation;
+  }
+
+  set rotation(rotation) {
+    this.view.rotation = rotation;
+  }
+
+  get fillColor() {
+    return this.view.fillColor;
+  }
+
+  set fillColor(fillColor) {
+    this.view.fillColor = fillColor;
+  }
+
+  get strokeWidth() {
+    return this.view.strokeWidth;
+  }
+
+  set strokeWidth(strokeWidth) {
+    this.view.strokeWidth = strokeWidth;
+  }
+
+  get strokeColor() {
+    return this.view.strokeColor;
+  }
+
+  set strokeColor(strokeColor) {
+    this.view.strokeColor = strokeColor;
+  }
+
+  get opacity() {
+    return this.view.opacity;
+  }
+
+  set opacity(opacity) {
+    this.view.opacity = opacity;
   }
 
   clear() {
@@ -47563,15 +47664,117 @@ Wick.View.Selection = class extends Wick.View {
     var project = this.model.project;
     paper.project.selection.clear();
     project.selection.getSelectedObjects('Path').forEach(path => {
-      /*paper.project.selection.addItem(path.parent.view.pathsLayer.children.find(seekPath => {
-          return seekPath.data.wickUUID === path.uuid;
-      }));*/
       paper.project.selection.addItem(path.paperPath);
     });
     project.selection.getSelectedObjects('Clip').forEach(clip => {
       paper.project.selection.addItem(clip.view.group);
     });
     paper.project.selection.updateGUI();
+  }
+
+  get x() {
+    return paper.project.selection.bounds.x;
+  }
+
+  set x(x) {
+    let y = paper.project.selection.bounds.y;
+    paper.project.selection.setPosition(x, y);
+    this.model.project.view.applyChanges();
+  }
+
+  get y() {
+    return paper.project.selection.bounds.y;
+  }
+
+  set y(y) {
+    let x = paper.project.selection.bounds.x;
+    paper.project.selection.setPosition(x, y);
+    this.model.project.view.applyChanges();
+  }
+
+  get width() {
+    return paper.project.selection.bounds.width;
+  }
+
+  set width(width) {
+    let height = paper.project.selection.bounds.height;
+    paper.project.selection.setSize(width, height);
+    this.model.project.view.applyChanges();
+  }
+
+  get height() {
+    return paper.project.selection.bounds.height;
+  }
+
+  set height(height) {
+    let width = paper.project.selection.bounds.width;
+    paper.project.selection.setSize(width, height);
+    this.model.project.view.applyChanges();
+  }
+
+  get scaleX() {
+    return paper.project.selection.scaling.x;
+  }
+
+  set scaleX(scaleX) {
+    let scaleY = paper.project.selection.scaling.y;
+    paper.project.selection.setScale(scaleX, scaleY);
+    this.model.project.view.applyChanges();
+  }
+
+  get scaleY() {
+    return paper.project.selection.scaling.y;
+  }
+
+  set scaleY(scaleY) {
+    let scaleX = paper.project.selection.scaling.x;
+    paper.project.selection.setScale(scaleX, scaleY);
+    this.model.project.view.applyChanges();
+  }
+
+  get rotation() {
+    return paper.project.selection.rotation;
+  }
+
+  set rotation(rotation) {
+    paper.project.selection.setRotation(rotation);
+    this.model.project.view.applyChanges();
+  }
+
+  get fillColor() {
+    return paper.project.selection.fillColor;
+  }
+
+  set fillColor(fillColor) {
+    paper.project.selection.setFillColor(fillColor);
+    this.model.project.view.applyChanges();
+  }
+
+  get strokeWidth() {
+    return paper.project.selection.strokeWidth;
+  }
+
+  set strokeWidth(strokeWidth) {
+    paper.project.selection.setStrokeWidth(strokeWidth);
+    this.model.project.view.applyChanges();
+  }
+
+  get strokeColor() {
+    return paper.project.selection.strokeColor;
+  }
+
+  set strokeColor(strokeColor) {
+    paper.project.selection.setStrokeColor(strokeColor);
+    this.model.project.view.applyChanges();
+  }
+
+  get opacity() {
+    return paper.project.selection.opacity;
+  }
+
+  set opacity(opacity) {
+    paper.project.selection.setOpacity(opacity);
+    this.model.project.view.applyChanges();
   }
 
 };

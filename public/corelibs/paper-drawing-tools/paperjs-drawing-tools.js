@@ -4429,7 +4429,10 @@ paper.MultiSelection = class {
 
   get scaling() {
     if (this.items.length === 1) {
-      return this.items[0].scaling;
+      return this.items[0].scaling || {
+        x: 1,
+        y: 1
+      };
     } else {
       return new paper.Point(1, 1);
     }
@@ -4461,7 +4464,8 @@ paper.MultiSelection = class {
 
   get strokeColor() {
     if (this._selectedItemsShareColor('strokeColor')) {
-      return this.items[0].strokeColor;
+      var color = this.items[0].strokeColor;
+      return color && color.toCSS();
     } else {
       return null;
     }
@@ -4469,7 +4473,8 @@ paper.MultiSelection = class {
 
   get fillColor() {
     if (this._selectedItemsShareColor('fillColor')) {
-      return this.items[0].fillColor;
+      var color = this.items[0].fillColor;
+      return color && color.toCSS();
     } else {
       return null;
     }
@@ -5553,7 +5558,6 @@ class BrushCursorGen {
     if (paper.project.selection.bounds.width * resizeX < 1) resizeX = 1;
     if (paper.project.selection.bounds.height * resizeY < 1) resizeY = 1;
     paper.project.selection.scale(resizeX, resizeY, pivot);
-    console.log(paper.project.selection.items[0]);
   };
 
   tool._onMouseUp_scaleHandle = function (e) {

@@ -408,6 +408,10 @@ class EditorCore extends Component {
         this.project.selection.select(clip);
       });
     });
+
+    this.setState({
+      activeTool: 'cursor'
+    });
     this.projectDidChange();
   }
 
