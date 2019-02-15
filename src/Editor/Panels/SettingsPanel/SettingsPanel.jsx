@@ -4,9 +4,15 @@ import SettingsPanelInput from './SettingsPanelInput/SettingsPanelInput';
 
 import './_settingspanel.scss';
 
+var classNames = require('classnames');
+
 class SettingsPanel extends Component {
   constructor(props) {
     super(props);
+
+    this.state = {
+      panelExtended: true,
+    }
 
     this.settingsFunctions = {
       "cursor": this.renderCursorSettings,
@@ -20,6 +26,16 @@ class SettingsPanel extends Component {
     }
   }
 
+  /**
+   * Extends or hides the settings panel, depending on its current state.
+   */
+  toggleExtended = () => {
+    this.setState({
+      panelExtended: !this.state.panelExtended,
+    });
+    console.log("toggling");
+  }
+
   render () {
     if (this.props.hidePanel) {
       return (<div id='settings-panel-container'/>)
@@ -27,7 +43,7 @@ class SettingsPanel extends Component {
       return (
         <div id='settings-panel-container'>
           {this.props.activeTool in this.settingsFunctions && this.renderSettingsHeader()}
-          {this.renderSettings()}
+          {this.state.panelExtended && this.renderSettings()}
         </div>
       );
     }
@@ -35,7 +51,11 @@ class SettingsPanel extends Component {
 
   renderSettingsHeader = () => {
     return (
-      <div className="settings-container-header">
+      <div
+        className={classNames(
+          "settings-container-header",
+          {"extension-hidden": !this.state.panelExtended})}
+        onClick={this.toggleExtended}>
         Options
       </div>
     );

@@ -150,7 +150,7 @@ class Editor extends EditorCore {
     // Init actions
     this.actionMapInterface = new ActionMapInterface(this);
 
-    // Resiable panels
+    // Resizable panels
     this.RESIZE_THROTTLE_AMOUNT_MS = 10;
     this.WINDOW_RESIZE_THROTTLE_AMOUNT_MS = 300;
     this.resizeProps = {

@@ -10,9 +10,10 @@ $setting-height: 90px;
   justify-content: center;
   position: absolute;
   background-color: transparent;
-  left: $editor-outline-padding;
-  top:50%;
-  transform: translateY(-50%);
+  top: 0px;
+  left: $editor-outline-padding + 4px;
+  // top:50%;
+  // transform: translateY(-50%);
 }
 
 .setting-input-container {
@@ -24,26 +25,35 @@ $setting-height: 90px;
   height: $setting-height;
   background-color: $editor-primary;
   box-sizing: content-box;
+  border: $setting-splitter-height solid $editor-primary-outline;
+  border-top: none;
+  box-sizing: border-box;
 }
 
 .settings-container-header {
+  transition: color .3s;
   width: $settings-container-width;
-  height: 20px;
+  height: 24px;
   background-color: $editor-primary-outline;
   color: $editor-secondary-text;
-  border-top-right-radius: 4px;
-  font-size: 12px;
+  font-size: 14px;
   text-align: center;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.setting-container:first-child {
-  border-bottom: $setting-splitter-height solid $editor-primary-outline;
+.settings-container-header:hover {
+  color: $editor-primary-property-text;
+  cursor: pointer;
+}
+
+.settings-container-header.extension-hidden {
+  border-bottom-right-radius: 4px;
+  border-bottom-left-radius: 4px;
 }
 
 .setting-container:last-child {
   border-bottom-right-radius: 4px;
-  border-top: $setting-splitter-height solid $editor-primary-outline;
+  border-bottom-left-radius: 4px;
 }
