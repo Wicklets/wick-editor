@@ -4,8 +4,10 @@ import ActionButton from 'Editor/Util/ActionButton/ActionButton';
 import PlayButton from 'Editor/Util/PlayButton/PlayButton';
 import './_canvastransforms.scss';
 
+var classNames = require('classnames');
+
 class CanvasTransforms extends Component {
-  renderTransformButton(action, name, tooltip) {
+  renderTransformButton(action, name, tooltip, className) {
     return (
       <ActionButton
         color="tool"
@@ -15,7 +17,7 @@ class CanvasTransforms extends Component {
         action={action}
         tooltipPlace={"top"}
         icon={name}
-        className="canvas-transform-button"/>
+        className={classNames("canvas-transform-button", className)}/>
     )
   }
 
@@ -23,7 +25,9 @@ class CanvasTransforms extends Component {
     return (
       <div className='transforms-container'>
         {this.renderTransformButton(() => {this.props.setActiveTool('pan')}, 'pan', 'Pan')}
+        {this.renderTransformButton(() => {this.props.zoomIn()}, 'zoomin', 'Zoom In', 'thin-transform-button')}
         {this.renderTransformButton(() => {this.props.setActiveTool('zoom')}, 'zoom', 'Zoom')}
+        {this.renderTransformButton(() => {this.props.zoomOut()}, 'zoomout', 'Zoom Out', 'thin-transform-button')}
         {this.renderTransformButton(() => {this.props.recenterCanvas()}, 'recenter', 'Recenter')}
       </div>
     );

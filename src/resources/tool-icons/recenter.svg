@@ -1,27 +1,15 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg width="39px" height="38px" viewBox="0 0 39 38" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <!-- Generator: Sketch 51 (57462) - http://www.bohemiancoding.com/sketch -->
-    <title>Group</title>
-    <desc>Created with Sketch.</desc>
-    <defs></defs>
-    <g id="Desktop" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-        <g id="Artboard-Copy-9" transform="translate(-1518.000000, -77.000000)">
-            <g id="Group" transform="translate(1519.000000, 78.000000)">
-                <g id="Group-28" transform="translate(1.896310, 1.364544)">
-                    <g id="Group-24-Copy" stroke="#797979" stroke-width="4">
-                        <g id="Group-23">
-                            <g id="Group-4-Copy-2">
-                                <ellipse id="Oval-4-Copy" cx="16.6238747" cy="16.3745333" rx="16.6238747" ry="16.3745333"></ellipse>
-                            </g>
-                        </g>
-                    </g>
-                    <ellipse id="Oval-10" fill="#DADADA" cx="16.7208069" cy="16.3745333" rx="3.48350143" ry="3.41136111"></ellipse>
-                </g>
-                <rect id="Rectangle-23-Copy-6" fill="#B0B0B0" transform="translate(4.727930, 18.035718) rotate(-90.000000) translate(-4.727930, -18.035718) " x="3.0316159" y="13.8981939" width="3.39262748" height="8.27504793"></rect>
-                <rect id="Rectangle-23-Copy-8" fill="#DADADA" transform="translate(18.920030, 4.137524) rotate(-360.000000) translate(-18.920030, -4.137524) " x="17.223716" y="0" width="3.39262748" height="8.27504793"></rect>
-                <rect id="Rectangle-23-Copy-9" fill="#DADADA" transform="translate(18.920030, 31.428413) rotate(-360.000000) translate(-18.920030, -31.428413) " x="17.223716" y="27.2908889" width="3.39262748" height="8.27504793"></rect>
-                <rect id="Rectangle-23-Copy-7" fill="#DADADA" transform="translate(32.595941, 18.035718) rotate(-90.000000) translate(-32.595941, -18.035718) " x="30.8996274" y="13.8981939" width="3.39262748" height="8.27504793"></rect>
-            </g>
-        </g>
-    </g>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 23.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 39 38" style="enable-background:new 0 0 39 38;" xml:space="preserve">
+<style type="text/css">
+	.st0{fill:none;stroke:#DDDDDD;stroke-width:3;}
+	.st1{fill:none;stroke:#DDDDDD;stroke-width:2;}
+</style>
+<title>Group</title>
+<desc>Created with Sketch.</desc>
+<path class="st0" d="M31.4,34.2H7.6c-2.2,0-4-1.8-4-4V7.8c0-2.2,1.8-4,4-4h23.8c2.2,0,4,1.8,4,4v22.3C35.4,32.4,33.6,34.2,31.4,34.2
+	z"/>
+<path class="st1" d="M26.8,24.4H12.2c-1,0-1.8-0.8-1.8-1.8v-7.3c0-1,0.8-1.8,1.8-1.8h14.7c1,0,1.8,0.8,1.8,1.8v7.3
+	C28.6,23.6,27.8,24.4,26.8,24.4z"/>
 </svg>

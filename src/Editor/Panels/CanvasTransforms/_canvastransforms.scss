@@ -20,6 +20,10 @@ $canvas-transforms-size: 60px;
   padding: 4px;
 }
 
+.thin-transform-button {
+  width: calc(#{$canvas-transforms-size} / 2);
+}
+
 .transforms-container {
   display: flex;
 }

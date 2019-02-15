@@ -137,7 +137,7 @@ class Editor extends EditorCore {
       zoomPercentage: {
         min: 10,
         max: 2000,
-        step: 10,
+        step: 25,
       }
     }
 
@@ -571,6 +571,8 @@ class Editor extends EditorCore {
                                     setToolSettings={this.setToolSettings}
                                     toolRestrictions={this.toolRestrictions}/>
                                   <CanvasTransforms
+                                    zoomIn={this.zoomIn}
+                                    zoomOut={this.zoomOut}
                                     hideTransformations={this.state.previewPlaying}
                                     recenterCanvas={this.recenterCanvas}
                                     setActiveTool={this.setActiveTool}

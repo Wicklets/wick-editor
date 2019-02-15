@@ -62,7 +62,7 @@ class EditorCore extends Component {
   }
 
   /**
-   * Updates the zoom level of the project.
+   * Updates the zoom level of the project. Helper for zoom in and zoom out.
    * @param  {number} zoomPercentage The value to set the zoom percentage to.
    */
   updateZoom = (zoomPercentage) => {
@@ -70,6 +70,28 @@ class EditorCore extends Component {
     let adjustedZoom = Math.min(adjustedMinZoom, this.toolRestrictions.zoomPercentage.max);
     this.project.zoom = adjustedZoom/100;
     this.projectDidChange();
+  }
+
+  /**
+   * Zooms in the canvas.
+   * @param  {number} zoomPercentage Amount to zoom canvas in by. If no
+   * value is provided, the default zoomPercentage step is used.
+   */
+  zoomIn = (zoomPercentage) => {
+    zoomPercentage = zoomPercentage ? zoomPercentage : this.toolRestrictions.zoomPercentage.step;
+    let currentZoom = this.project.zoom*100;
+    this.updateZoom(currentZoom+zoomPercentage);
+  }
+
+  /**
+   * Zooms out the canvas.
+   * @param  {number} zoomPercentage Amount to zoom out the canvas by. If no
+   * value is provided, the default zoomPercentage step is used.
+   */
+  zoomOut = (zoomPercentage) => {
+    zoomPercentage = zoomPercentage ? zoomPercentage : this.toolRestrictions.zoomPercentage.step;
+    let currentZoom = this.project.zoom*100;
+    this.updateZoom(currentZoom-zoomPercentage);
   }
 
   /**

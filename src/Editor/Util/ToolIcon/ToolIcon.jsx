@@ -31,6 +31,8 @@ import iconEyeDropper from 'resources/tool-icons/eyedropper.svg';
 import iconEraser from 'resources/tool-icons/eraser.svg';
 import iconPan from 'resources/tool-icons/pan.svg';
 import iconZoom from 'resources/tool-icons/zoom.svg';
+import iconZoomIn from 'resources/tool-icons/zoomin.svg';
+import iconZoomOut from 'resources/tool-icons/zoomout.svg';
 import iconFillBucket from 'resources/tool-icons/bucket.svg';
 import iconText from 'resources/tool-icons/text.svg';
 
@@ -101,6 +103,8 @@ class ToolIcon extends Component {
       "eraser":iconEraser,
       "pan":iconPan,
       "zoom":iconZoom,
+      "zoomin":iconZoomIn,
+      "zoomout":iconZoomOut,
       "fillbucket": iconFillBucket,
       "text": iconText,
       "image": iconImage,
@@ -140,7 +144,7 @@ class ToolIcon extends Component {
       "bringToFront": iconBringToFront,
       "bringForwards": iconBringForwards,
       "gear": iconGear,
-      "recenter": iconRecenter, 
+      "recenter": iconRecenter,
       "size": iconSize,
       "sound": iconSound,
       "SoundAsset": iconSound,

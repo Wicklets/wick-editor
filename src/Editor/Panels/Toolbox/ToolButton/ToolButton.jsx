@@ -23,8 +23,6 @@ import ActionButton from 'Editor/Util/ActionButton/ActionButton';
 
 import './_toolbutton.scss';
 
-var classNames = require('classnames');
-
 class ToolButton extends Component {
   renderSelectButton = (name, tooltip) => {
     return (
