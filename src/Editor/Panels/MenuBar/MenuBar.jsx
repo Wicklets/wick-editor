@@ -59,6 +59,9 @@ class MenuBar extends Component {
           <MenuBarButton
             text="Open"
             action={() => {this.openFileRef.current.click()}}/>
+          <MenuBarButton
+            text="GIF"
+            action={this.props.exportProjectAsAnimatedGIF}/>
 
           <div className="project-settings-preview" onClick={() => this.props.openModal('ProjectSettings')}>
             <ToolIcon name='gear' />
