@@ -20,6 +20,7 @@
 import { Component } from 'react';
 import localForage from 'localforage';
 import { saveAs } from 'file-saver';
+import GIFExport from './GIFExport';
 
 class EditorCore extends Component {
   /**
@@ -710,9 +711,12 @@ class EditorCore extends Component {
       this.project.activeFrame.addClip(clip);
     });
 
+    // TODO reenable paste frames
+    /*
     this.project.focus.timeline.insertFrames(selection.filter(object => {
       return object instanceof window.Wick.Frame;
     }));
+    */
 
     this.project.selection.clear();
     selection.forEach(object => {
@@ -753,6 +757,16 @@ class EditorCore extends Component {
       saveAs(file, this.project.name + '.wick');
     }
     this.project.exportAsWickFile(safeExport);
+  }
+
+  /**
+   * Export the current project as an animated GIF.
+   */
+  exportProjectAsAnimatedGIF = () => {
+    GIFExport.createAnimatedGIFFromProject(this.project, blob => {
+      this.project = window.Wick.Project.deserialize(this.project.serialize());
+      saveAs(blob, this.project.name + '.gif');
+    });
   }
 
   /**
@@ -814,6 +828,14 @@ class EditorCore extends Component {
     localForage.removeItem(this.autoSaveKey).then(() => {
       // Autosaved cleared
     });
+  }
+
+  /**
+   * Toggle onion skinning on/off.
+   */
+  toggleOnionSkin = () => {
+    this.project.onionSkinEnabled = !this.project.onionSkinEnabled;
+    this.projectDidChange();
   }
 }
 

@@ -105,8 +105,8 @@ class Editor extends EditorCore {
         step: 1,
       },
       brushSize: {
-        min: 0,
-        max: 100,
+        min: 2,
+        max: 30,
         step: 1,
       },
       eraserSize: {
@@ -522,6 +522,7 @@ class Editor extends EditorCore {
                       projectName={this.project.name}
                       exportProjectAsWickFile={this.exportProjectAsWickFile}
                       importProjectAsWickFile={this.importProjectAsWickFile}
+                      exportProjectAsAnimatedGIF={this.exportProjectAsAnimatedGIF}
                     />
                   </DockedPanel>
                 </div>
@@ -570,7 +571,8 @@ class Editor extends EditorCore {
                                     activeTool={this.state.activeTool}
                                     toolSettings={this.state.toolSettings}
                                     setToolSettings={this.setToolSettings}
-                                    toolRestrictions={this.toolRestrictions}/>
+                                    toolRestrictions={this.toolRestrictions}
+                                  />
                                   <CanvasTransforms
                                     zoomIn={this.zoomIn}
                                     zoomOut={this.zoomOut}
@@ -579,7 +581,9 @@ class Editor extends EditorCore {
                                     setActiveTool={this.setActiveTool}
                                     activeTool={this.state.activeTool}
                                     previewPlaying={this.state.previewPlaying}
-                                    togglePreviewPlaying={this.togglePreviewPlaying}/>
+                                    togglePreviewPlaying={this.togglePreviewPlaying}
+                                    toggleOnionSkin={this.toggleOnionSkin}
+                                  />
                                 </DockedPanel>
                               </ReflexElement>
 

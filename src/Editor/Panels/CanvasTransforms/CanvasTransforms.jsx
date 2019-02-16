@@ -29,6 +29,7 @@ class CanvasTransforms extends Component {
         {this.renderTransformButton(() => {this.props.setActiveTool('zoom')}, 'zoom', 'Zoom')}
         {this.renderTransformButton(() => {this.props.zoomOut()}, 'zoomout', 'Zoom Out', 'thin-transform-button')}
         {this.renderTransformButton(() => {this.props.recenterCanvas()}, 'recenter', 'Recenter')}
+        {this.renderTransformButton(() => {this.props.toggleOnionSkin()}, 'onionskinning', 'Onion Skinning')}
       </div>
     );
   }

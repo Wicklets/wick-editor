@@ -44370,8 +44370,8 @@ Wick.Project = class extends Wick.Base {
       x: data.pan.x,
       y: data.pan.y
     } : {
-      x: 0,
-      y: 0
+      x: object.width / 2,
+      y: object.height / 2
     };
     object.zoom = data.zoom || 1.0;
     object.onionSkinEnabled = data.onionSkinEnabled || false;
