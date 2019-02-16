@@ -7,11 +7,11 @@ import './_canvastransforms.scss';
 var classNames = require('classnames');
 
 class CanvasTransforms extends Component {
-  renderTransformButton(action, name, tooltip, className) {
+  renderTransformButton(action, name, tooltip, className, isActiveFn) {
     return (
       <ActionButton
         color="tool"
-        isActive={ () => this.props.activeTool === name }
+        isActive={ isActiveFn ? isActiveFn : () => this.props.activeTool === name }
         id={"canvas-transform-button-" + name}
         tooltip={tooltip}
         action={action}
@@ -24,12 +24,12 @@ class CanvasTransforms extends Component {
   renderTransformations = () => {
     return (
       <div className='transforms-container'>
+        {this.renderTransformButton(() => {this.props.toggleOnionSkin()},'onionskinning','Onion Skinning','transform-onion-skin-button',() => this.props.onionSkinEnabled)}
         {this.renderTransformButton(() => {this.props.setActiveTool('pan')}, 'pan', 'Pan')}
         {this.renderTransformButton(() => {this.props.zoomIn()}, 'zoomin', 'Zoom In', 'thin-transform-button')}
         {this.renderTransformButton(() => {this.props.setActiveTool('zoom')}, 'zoom', 'Zoom')}
         {this.renderTransformButton(() => {this.props.zoomOut()}, 'zoomout', 'Zoom Out', 'thin-transform-button')}
         {this.renderTransformButton(() => {this.props.recenterCanvas()}, 'recenter', 'Recenter')}
-        {this.renderTransformButton(() => {this.props.toggleOnionSkin()}, 'onionskinning', 'Onion Skinning')}
       </div>
     );
   }
