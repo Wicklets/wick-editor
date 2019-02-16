@@ -10,8 +10,8 @@ class GIFExport {
     p.view.resize();
     p.focus = p.root;
     p.focus.timeline.playheadPosition = 1;
-    p.zoom = 1;
-    p.pan = {x:p.width/2, y:p.height/2};
+    p.zoom = 1 / window.devicePixelRatio;
+    p.pan = {x:p.width/2*window.devicePixelRatio, y:p.height/2*window.devicePixelRatio};
 
     // Render GIF from project
     let gif = new window.GIF({
