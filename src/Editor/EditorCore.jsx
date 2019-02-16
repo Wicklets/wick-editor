@@ -800,6 +800,7 @@ class EditorCore extends Component {
 
       let deserialized = window.Wick.Project.deserialize(serializedProject);
       this.project = deserialized;
+      this.projectDidChange();
     }
 
     localForage.getItem(this.autoSaveKey).then(loadProject);
@@ -828,6 +829,14 @@ class EditorCore extends Component {
     localForage.removeItem(this.autoSaveKey).then(() => {
       // Autosaved cleared
     });
+  }
+
+  /**
+   * Autosaves a serialized project.
+   * @param  {string} serializedProject
+   */
+  autosaveProject = (serializedProject) => {
+    localForage.setItem(this.autoSaveKey, serializedProject);
   }
 
   /**

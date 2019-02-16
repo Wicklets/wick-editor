@@ -479,6 +479,7 @@ class Editor extends EditorCore {
 
   projectDidChange = () => {
     let projectSerialized = this.project.serialize();
+    this.autosaveProject(projectSerialized); 
     // Double check to see if the project was really changed
     // (This shouldn't be neccessary, but AnimationTimeline was firing multiple projectDidChange calls.)
     if(JSON.stringify(this.state.project) !== JSON.stringify(projectSerialized)) {
