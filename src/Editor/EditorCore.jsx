@@ -656,7 +656,7 @@ class EditorCore extends Component {
    */
   deserializeSelection = (selection) => {
     return selection.map(data => {
-      return window.Wick.Base.deserialize(data);
+      return window.Wick.Base.deserialize(data).clone(false);
     });
   }
 

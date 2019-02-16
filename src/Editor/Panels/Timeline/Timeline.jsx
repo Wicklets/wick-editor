@@ -113,7 +113,8 @@ class Timeline extends Component {
 
   onSoftChange = (e) => {
     this.props.project.focus.timeline.playheadPosition = e.playhead;
-    this.props.project.view.render();
+    this.props.project.selection.clear();
+    this.props.projectDidChange();
   }
 
   onSelectionChange = (e) => {
