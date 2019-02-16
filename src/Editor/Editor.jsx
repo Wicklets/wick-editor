@@ -105,8 +105,8 @@ class Editor extends EditorCore {
         step: 1,
       },
       brushSize: {
-        min: 0,
-        max: 100,
+        min: 2,
+        max: 30,
         step: 1,
       },
       eraserSize: {
