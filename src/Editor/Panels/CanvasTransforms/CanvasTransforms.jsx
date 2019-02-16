@@ -24,7 +24,11 @@ class CanvasTransforms extends Component {
   renderTransformations = () => {
     return (
       <div className='transforms-container'>
-        {this.renderTransformButton(() => {this.props.toggleOnionSkin()},'onionskinning','Onion Skinning','transform-onion-skin-button',() => this.props.onionSkinEnabled)}
+        {this.renderTransformButton(() => {this.props.toggleOnionSkin()},
+        'onionskinning',
+        'Onion Skinning',
+        'onion-skin-button',
+        () => this.props.onionSkinEnabled)}
         {this.renderTransformButton(() => {this.props.setActiveTool('pan')}, 'pan', 'Pan')}
         {this.renderTransformButton(() => {this.props.zoomIn()}, 'zoomin', 'Zoom In', 'thin-transform-button')}
         {this.renderTransformButton(() => {this.props.setActiveTool('zoom')}, 'zoom', 'Zoom')}
