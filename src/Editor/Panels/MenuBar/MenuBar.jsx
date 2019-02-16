@@ -55,7 +55,8 @@ class MenuBar extends Component {
             onChange={this.handleWickFileLoad} />
           <MenuBarButton
             text="open"
-            action={() => {this.openFileRef.current.click()}}/>
+            action={() => {this.openFileRef.current.click()}}
+          />
           <MenuBarButton
             text="GIF"
             action={this.props.exportProjectAsAnimatedGIF}/>
