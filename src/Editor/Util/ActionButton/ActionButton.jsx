@@ -35,8 +35,10 @@ class ActionButton extends Component {
 
     let tooltipID = this.props.id === undefined ? 'action-button-tooltip-nyi' : ('action-button-tooltip-' + this.props.id);
 
+    let newClassName = classNames("action-button", this.props.className);
+
     return (
-      <div className={classNames("action-button", this.props.className)}>
+      <div className={newClassName}>
         <WickInput
           tooltip={this.props.tooltip}
           tooltipID={tooltipID}
@@ -46,7 +48,7 @@ class ActionButton extends Component {
           onClick={this.props.action}
           onTouch={this.props.action}>
           {this.props.icon && <ToolIcon name={this.props.icon} />}
-          {this.props.text && <div>{this.props.text}</div>}
+          {this.props.text && <div className={newClassName+'-text'}>{this.props.text}</div>}
         </WickInput>
       </div>
     )

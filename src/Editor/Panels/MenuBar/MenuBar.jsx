@@ -46,9 +46,6 @@ class MenuBar extends Component {
           {this.props.projectName}
         </div>
         <div className="menu-bar-actions-container">
-          <MenuBarButton
-            text="Save"
-            action={this.props.exportProjectAsWickFile}/>
           {/* Add hidden file input to retrieve wick files. */}
           <input
             type='file'
@@ -57,9 +54,12 @@ class MenuBar extends Component {
             ref={this.openFileRef}
             onChange={this.handleWickFileLoad} />
           <MenuBarButton
-            text="Open"
+            text="open"
             action={() => {this.openFileRef.current.click()}}/>
-
+          <MenuBarButton
+            text="save"
+            action={this.props.exportProjectAsWickFile}
+            color='save'/>
           <div className="project-settings-preview" onClick={() => this.props.openModal('ProjectSettings')}>
             <ToolIcon name='gear' />
           </div>

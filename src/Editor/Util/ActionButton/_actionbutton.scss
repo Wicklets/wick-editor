@@ -26,6 +26,13 @@ $action-button-transition-duration: .2s;
   height: 100%;
 }
 
+.action-button-text {
+  height: 100%;
+  text-align: center;
+  display: flex;
+  align-items: center;
+}
+
 // Button color schemes
 .action-button-blue {
   -webkit-transition-duration: $action-button-transition-duration; /* Safari */
@@ -185,6 +192,15 @@ $action-button-transition-duration: .2s;
   color: $editor-menubar-project-text;
 }
 
+.action-button-menu.save {
+  -webkit-transition-duration: $action-button-transition-duration; /* Safari */
+  transition-duration: $action-button-transition-duration;
+
+  background-color: $editor-primary;
+  color: $wick-green;
+  border: 2px solid $wick-green;
+}
+
 .action-button-tool-settings {
   -webkit-transition-duration: $action-button-transition-duration; /* Safari */
   transition-duration: $action-button-transition-duration;
@@ -204,4 +220,32 @@ $action-button-transition-duration: .2s;
 
 .action-button-tool-settings.active-button {
   background-color: $editor-tertiary;
+}
+
+.action-button-upload {
+  -webkit-transition-duration: $action-button-transition-duration; /* Safari */
+  transition-duration: $action-button-transition-duration;
+
+  background-color: $editor-primary;
+  color: $editor-primary-property-text;
+  border: 2px solid $editor-primary-property-text;
+  font-size: 16px;
+}
+
+.action-button-upload:hover {
+  background-color: $wick-green-light;
+  color: $wick-green-dark;
+  border: 2px solid $wick-green-light;
+}
+
+.action-button-upload:active {
+  background-color: $wick-green;
+  color: $wick-green-dark;
+  border: 2px solid $wick-green;
+}
+
+.action-button-upload.active-button {
+  background-color: $wick-green-light;
+  color: $wick-green-dark;
+  border: 2px solid $wick-green-light;
 }

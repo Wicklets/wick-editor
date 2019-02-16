@@ -532,9 +532,9 @@ class Editor extends EditorCore {
                       <ReflexElement {...this.resizeProps}>
                         <ReflexContainer windowResizeAware={true} orientation="horizontal">
                           <ReflexElement
-                            minSize={50}
-                            maxSize={50}
-                            size={50}
+                            minSize={40}
+                            maxSize={40}
+                            size={40}
                             onResize={this.resizeProps.onResize}
                             onStopResize={this.resizeProps.onStopResize}>
                             <DockedPanel showOverlay={this.state.previewPlaying}>
@@ -606,12 +606,12 @@ class Editor extends EditorCore {
                         </ReflexContainer>
                       </ReflexElement>
 
-                      {/*<ReflexSplitter {...this.resizeProps}/>*/}
+                      <ReflexSplitter {...this.resizeProps}/>
 
                     {/* Right Sidebar */}
                       <ReflexElement
-                        size={300}
-                        maxSize={300} minSize={300}
+                        size={250}
+                        maxSize={300} minSize={200}
                         onResize={this.resizeProps.onResize}
                         onStopResize={this.resizeProps.onStopInspectorResize}>
                         <ReflexContainer orientation="horizontal">

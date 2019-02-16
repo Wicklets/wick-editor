@@ -83,11 +83,11 @@ class AssetLibrary extends Component {
         </div>
         <div className="btn-asset-upload">
           <ActionButton
-            color="green"
+            color="upload"
             action={this.handleAdd}
             id="button-asset-upload"
             tooltip="Upload Assets"
-            text="upload" />
+            text="+" />
         </div>
       </div>
     )

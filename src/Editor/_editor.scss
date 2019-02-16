@@ -19,8 +19,7 @@
 
 @import './_wickbrand.scss';
 
-$menu-bar-height: 45px;
-$tool-box-width: 50px;
+$menu-bar-height: 34px;
 
 body {
   overflow: hidden;
@@ -43,13 +42,6 @@ body {
   height: calc(100% - #{$menu-bar-height};
   background-color: blue;
   overflow: hidden;
-}
-
-#tool-box-container {
-  height: 100%;
-  width: $tool-box-width;
-  background-color: $interface-primary;
-  display: inline-block;
 }
 
 #flexible-container {

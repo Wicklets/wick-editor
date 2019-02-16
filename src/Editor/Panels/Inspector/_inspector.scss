@@ -35,8 +35,8 @@ $inspector-transition-duration: 0.2s;
   overflow: auto;
   box-sizing: border-box;
   border-right: $editor-outline-padding solid $editor-primary-outline;
-  border-left: $editor-outline-padding solid $editor-primary-outline;
-  font-family: 'Nunito Sans'
+  font-family: 'Nunito Sans';
+  overflow: hidden;
 }
 
 .input-divider {
