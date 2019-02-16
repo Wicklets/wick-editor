@@ -127,7 +127,7 @@ class Canvas extends Component {
     });
 
     // if there is no layer/frame to draw on, activate the 'none' tool.
-    if(project.activeFrame === null ||
+    if(!project.activeFrame ||
        project.activeLayer.locked ||
        project.activeLayer.hidden) {
       paper.drawingTools.none.activate();
