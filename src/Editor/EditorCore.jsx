@@ -687,9 +687,12 @@ class EditorCore extends Component {
       this.project.activeFrame.addClip(clip);
     });
 
+    // TODO reenable paste frames
+    /*
     this.project.focus.timeline.insertFrames(selection.filter(object => {
       return object instanceof window.Wick.Frame;
     }));
+    */
 
     this.project.selection.clear();
     selection.forEach(object => {
