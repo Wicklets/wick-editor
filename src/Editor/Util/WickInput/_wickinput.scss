@@ -42,7 +42,8 @@
   border: none;
   background-color: $editor-primary;
   color: $editor-primary-property-text;
-  border: 4px solid $editor-primary-outline
+  border: $editor-input-border-width solid $editor-primary-outline;
+  font-size: 14px;
 }
 
 .wick-input.read-only {

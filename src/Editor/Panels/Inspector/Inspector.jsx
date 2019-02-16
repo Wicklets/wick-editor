@@ -265,6 +265,7 @@ class Inspector extends Component {
         {this.renderSize()}
         {this.renderScale()}
         {this.renderRotation()}
+        {this.renderSelectionStrokeWidth()}
         {this.renderOpacity()}
       </div>
     )
@@ -362,7 +363,6 @@ class Inspector extends Component {
     return(
       <div className="inspector-content">
         {this.renderTransformProperties()}
-        {this.renderSelectionStrokeWidth()}
         {this.renderSelectionFillColor()}
         {this.renderSelectionStrokeColor()}
       </div>
