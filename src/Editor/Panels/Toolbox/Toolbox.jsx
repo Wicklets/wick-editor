@@ -52,7 +52,7 @@ class Toolbox extends Component {
     this.toolButtonProps.activeTool = this.props.activeTool;
   }
 
-  renderAction = (action) => {
+  renderAction = (action, i) => {
     if (action === 'break') {
       return (
         <ToolboxBreak className="toolbox-item"/>
@@ -65,6 +65,7 @@ class Toolbox extends Component {
         action={action.action}
         className='toolbox-item'
         name={action.icon}
+        key={i}
         tooltip={action.tooltip} />
     );
   }
@@ -84,7 +85,7 @@ class Toolbox extends Component {
         actions.push("break");
       }
     );
-    
+
     return (
       actions.map(this.renderAction)
     );
