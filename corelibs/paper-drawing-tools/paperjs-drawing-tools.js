@@ -3807,22 +3807,38 @@ paper.DrawingTools = class {
   constructor() {
     this._onCanvasModifiedCallback = null;
     this._onSelectionChangedCallback = null;
+    this._onCanvasViewChangedCallback = null;
+  }
+
+  setup() {
+    paper.project.clear();
+    this._onCanvasModifiedCallback = null;
+    this._onSelectionChangedCallback = null;
+    this._onCanvasViewChangedCallback = null;
   }
 
   fireCanvasModified(e) {
     this._onCanvasModifiedCallback && this._onCanvasModifiedCallback(e);
   }
 
-  fireSelectionChanged(e) {
-    this._onSelectionChangedCallback && this._onSelectionChangedCallback(e);
-  }
-
   onCanvasModified(fn) {
     this._onCanvasModifiedCallback = fn;
   }
 
+  fireSelectionChanged(e) {
+    this._onSelectionChangedCallback && this._onSelectionChangedCallback(e);
+  }
+
   onSelectionChanged(fn) {
     this._onSelectionChangedCallback = fn;
+  }
+
+  fireCanvasViewChanged(e) {
+    this._onCanvasViewChangedCallback && this._onCanvasViewChangedCallback(e);
+  }
+
+  onCanvasViewChanged(fn) {
+    this._onCanvasViewChangedCallback = fn;
   }
 
 };
@@ -3909,10 +3925,12 @@ paper.drawingTools = new paper.DrawingTools();
 
     if (res.children) {
       res.insertAbove(path);
+      res.data = {};
       path.remove();
       splitCompoundPath(res);
     } else {
       if (res.segments.length > 0) {
+        res.data = {};
         res.insertAbove(path);
       }
 
@@ -3932,6 +3950,7 @@ paper.drawingTools = new paper.DrawingTools();
       // Since the path is only strokes, it's trivial to split it into individual paths
       var children = [];
       res.children.forEach(function (child) {
+        child.data = {};
         children.push(child);
         child.name = null;
       });
@@ -4410,7 +4429,10 @@ paper.MultiSelection = class {
 
   get scaling() {
     if (this.items.length === 1) {
-      return this.items[0].scaling;
+      return this.items[0].scaling || {
+        x: 1,
+        y: 1
+      };
     } else {
       return new paper.Point(1, 1);
     }
@@ -4442,7 +4464,8 @@ paper.MultiSelection = class {
 
   get strokeColor() {
     if (this._selectedItemsShareColor('strokeColor')) {
-      return this.items[0].strokeColor;
+      var color = this.items[0].strokeColor;
+      return color && color.toCSS();
     } else {
       return null;
     }
@@ -4450,7 +4473,8 @@ paper.MultiSelection = class {
 
   get fillColor() {
     if (this._selectedItemsShareColor('fillColor')) {
-      return this.items[0].fillColor;
+      var color = this.items[0].fillColor;
+      return color && color.toCSS();
     } else {
       return null;
     }
@@ -4725,6 +4749,12 @@ paper.MultiSelection = class {
   _rebuildGUI() {
     this.guiLayer.clear();
     if (this._selectedItems.length === 0) return;
+
+    this._selectedItems.filter(item => {
+      return item instanceof paper.Path || item instanceof paper.CompoundPath;
+    }).forEach(item => {
+      item.applyMatrix = true;
+    });
 
     this._recalculateBounds();
 
@@ -5187,7 +5217,6 @@ class BrushCursorGen {
 
   tool.onActivate = function (e) {
     if (!croquis) {
-      paper.view.enablePressure();
       croquis = new Croquis();
       croquis.setCanvasSize(500, 500);
       croquis.addLayer();
@@ -5204,15 +5233,7 @@ class BrushCursorGen {
       croquisDOMElement.style.height = '100%';
       croquisDOMElement.style.display = 'block';
       croquisDOMElement.style.pointerEvents = 'none';
-
-      paper.view._element.parentElement.appendChild(croquisDOMElement);
     }
-
-    croquis.setCanvasSize(paper.view.bounds.width, paper.view.bounds.height);
-
-    paper.view.onResize = function () {
-      croquis.setCanvasSize(paper.view.bounds.width, paper.view.bounds.height);
-    };
   };
 
   tool.getPressure = function () {
@@ -5222,6 +5243,17 @@ class BrushCursorGen {
   tool.onDeactivate = function (e) {};
 
   tool.onMouseMove = function (e) {
+    // Update croquis element and pressure options
+    if (!paper.view._element.parentElement.contains(croquisDOMElement)) {
+      paper.view.enablePressure();
+
+      paper.view._element.parentElement.appendChild(croquisDOMElement);
+    }
+
+    if (croquis.getCanvasWidth() !== paper.view._element.width || croquis.getCanvasHeight() !== paper.view._element.height) {
+      croquis.setCanvasSize(paper.view._element.width, paper.view._element.height);
+    }
+
     cursor = BrushCursorGen.create(tool.fillColor, tool.brushSize * tool.getPressure());
     paper.view._element.style.cursor = cursor;
   };
@@ -5233,12 +5265,23 @@ class BrushCursorGen {
     croquis.setToolStabilizeLevel(tool.brushStabilizerLevel);
     croquis.setToolStabilizeWeight(tool.brushStabilizerWeight);
     var point = paper.view.projectToView(e.point.x, e.point.y);
-    croquis.down(point.x, point.y, tool.getPressure());
+
+    try {
+      croquis.down(point.x, point.y, tool.getPressure());
+    } catch (e) {
+      console.log(e);
+    }
   };
 
   tool.onMouseDrag = function (e) {
     var point = paper.view.projectToView(e.point.x, e.point.y);
-    croquis.move(point.x, point.y, tool.getPressure());
+
+    try {
+      croquis.move(point.x, point.y, tool.getPressure());
+    } catch (e) {
+      console.log(e);
+    }
+
     lastPressure = tool.getPressure();
     cursor = BrushCursorGen.create(tool.fillColor, tool.brushSize * tool.getPressure());
     paper.view._element.style.cursor = cursor;
@@ -5265,7 +5308,6 @@ class BrushCursorGen {
         potracePath.remove();
         potracePath.closed = true;
         potracePath.children[0].closed = true;
-        potracePath.applyMatrix = true;
         paper.project.activeLayer.addChild(potracePath.children[0]);
         croquis.clearLayer();
         paper.drawingTools.fireCanvasModified({
@@ -5334,6 +5376,8 @@ class BrushCursorGen {
   var hoverPreview;
   var tool = new paper.Tool();
   paper.drawingTools.cursor = tool;
+  tool.selectPoints = true;
+  tool.selectCurves = true;
 
   tool.onActivate = function (e) {
     selectedItems = [];
@@ -5738,9 +5782,9 @@ class BrushCursorGen {
   function determineProjectTarget(e) {
     var projectTarget = paper.project.hitTest(e.point, {
       fill: true,
-      stroke: true,
-      curves: true,
-      segments: true,
+      stroke: tool.selectCurves,
+      curves: tool.selectCurves,
+      segments: tool.selectPoints,
       tolerance: SELECTION_TOLERANCE,
       match: function (result) {
         return result.item.layer !== paper.project.selection.guiLayer && !result.item.layer.locked;
@@ -6240,9 +6284,7 @@ class BrushCursorGen {
   };
 
   tool.onMouseUp = function (e) {
-    paper.drawingTools.fireCanvasModified({
-      layers: []
-    });
+    paper.drawingTools.fireCanvasViewChanged({});
   };
 })();
 /*
@@ -6518,18 +6560,16 @@ class BrushCursorGen {
   };
 
   tool.onMouseUp = function (e) {
-    if (zoomBox) {
-      if (zoomBoxIsValidSize()) {
-        var bounds = zoomBox.bounds;
-        paper.view.center = bounds.center;
-        paper.view.zoom = paper.view.bounds.height / bounds.height;
-      }
-
-      deleteZoomBox();
+    if (zoomBox && zoomBoxIsValidSize()) {
+      var bounds = zoomBox.bounds;
+      paper.view.center = bounds.center;
+      paper.view.zoom = paper.view.bounds.height / bounds.height;
     } else {
       var zoomAmount = e.modifiers.alt ? ZOOM_OUT_AMOUNT : ZOOM_IN_AMOUNT;
       paper.view.scale(zoomAmount, e.point);
     }
+
+    deleteZoomBox();
 
     if (paper.view.zoom <= ZOOM_MIN) {
       paper.view.zoom = ZOOM_MIN;
@@ -6537,9 +6577,7 @@ class BrushCursorGen {
       paper.view.zoom = ZOOM_MAX;
     }
 
-    paper.drawingTools.fireCanvasModified({
-      layers: []
-    });
+    paper.drawingTools.fireCanvasViewChanged({});
   };
 
   function createZoomBox(e) {

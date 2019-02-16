@@ -96,13 +96,15 @@ var AnimationTimeline = new (function ft () {
     var hoverFrame = new HoverFrame();
     var hoverLayer = new HoverLayer();
 
+    var framerate = 12;
+
     var scrollbar;
 
     var onChangeFn;
     var onSoftChangeFn;
     var onSelectionChangeFn;
 
-    var onionButton;
+    var waveforms = {};
 
     self.setup = function (_elem, callback) {
         elem = _elem;
@@ -140,23 +142,6 @@ var AnimationTimeline = new (function ft () {
             self.repaint();
         });
 
-        onionButton = document.createElement('div');
-        onionButton.className = 'onion-skin-button';
-
-        // Update onionButton Style
-        onionButton.style.top = "0px";
-        onionButton.style.left = (LAYERS_WIDTH-20)+"px";
-
-        onionButton.onclick = function () {
-            numberline.onionSkinEnabled = !numberline.onionSkinEnabled;
-            self.rebuild();
-            self.repaint();
-            onChangeFn&&onChangeFn({
-                onionSkinEnabled: numberline.onionSkinEnabled
-            });
-        }
-        elem.appendChild(onionButton);
-
         attachMouseEvents();
 
         ctx = canvas.getContext('2d');
@@ -173,7 +158,6 @@ var AnimationTimeline = new (function ft () {
     self.rebuild = function () {
         let selected = "white";
         let deselected = "gray";
-        onionButton.style.backgroundColor = numberline.onionSkinEnabled ? selected : deselected;
     }
 
     self.repaint = function () {
@@ -249,9 +233,12 @@ var AnimationTimeline = new (function ft () {
         numberline.seekForwards = data.onionSkinSeekForwards;
         numberline.seekBackwards = data.onionSkinSeekBackwards;
 
+        framerate = data.framerate;
+
         layers = data.layers.map(layerData => {
             var layer = new Layer({
                 id: layerData.id,
+                selected: layerData.selected,
                 locked: layerData.locked,
                 hidden: layerData.hidden,
                 label: layerData.label,
@@ -264,7 +251,8 @@ var AnimationTimeline = new (function ft () {
                     layer: layer,
                     selected: frameData.selected,
                     contentful: frameData.contentful,
-                    hasSound: frameData.hasSound,
+                    hasScript: frameData.hasScript,
+                    soundFilename: frameData.soundFilename,
                 });
                 frame.tweens = frameData.tweens.map(tweenData => {
                     var tween = new Tween({
@@ -281,6 +269,10 @@ var AnimationTimeline = new (function ft () {
         });
 
         self.rebuild();
+    }
+
+    self.addSoundData = function (filename, src) {
+      // TODO generate waveform
     }
 
     self.onChange = function (fn) {
@@ -490,6 +482,12 @@ var AnimationTimeline = new (function ft () {
         });
     }
 
+    function selectedLayers () {
+      return allLayers().filter(function (layer) {
+          return layer.selected;
+      });
+    }
+
     function totalLength () {
         return allFrames().map(frame => {
             return frame.end;
@@ -498,12 +496,12 @@ var AnimationTimeline = new (function ft () {
         })[0] || 0;
     }
 
-    function alllayers () {
+    function allLayers () {
         return layers;
     }
 
     function allFrames () {
-        return alllayers().map(function (layer) {
+        return allLayers().map(function (layer) {
             return layer.frames;
         }).reduce(function (a,b) {
             return a.concat(b);
@@ -652,6 +650,7 @@ var AnimationTimeline = new (function ft () {
     function Layer (args) {
         this.id = args.id;
 
+        this.selected = args.selected || false;
         this.locked = args.locked;
         this.hidden = args.hidden;
         this.frames = args.frames || [];
@@ -692,9 +691,15 @@ var AnimationTimeline = new (function ft () {
 
     Layer.prototype.repaint = function () {
         var active = this.getIndex() === activeLayerIndex;
+        var selected = this.selected;
 
-        // Layer
-        ctx.fillStyle = active ? '#46bbf8' : '#4a6588';
+        if(selected) {
+          ctx.fillStyle = '#ffaa11';
+        } else if (active) {
+          ctx.fillStyle = '#46bbf8';
+        } else {
+          ctx.fillStyle = '#4a6588';
+        }
         ctx.lineWidth = 1.5;
         ctx.strokeStyle = 'white';
         var shrink = 2.5;
@@ -785,6 +790,10 @@ var AnimationTimeline = new (function ft () {
         return layers.indexOf(this);
     }
 
+    Layer.prototype.deselect = function () {
+      this.selected = false;
+    }
+
 /* Frame */
 
     function Frame (args) {
@@ -794,7 +803,8 @@ var AnimationTimeline = new (function ft () {
         this.layer = args.layer;
         this.tweens = args.tweens || [];
         this.contentful = args.contentful;
-        this.hasSound = args.hasSound;
+        this.hasScript = args.hasScript;
+        this.soundFilename = args.soundFilename;
 
         this.state = args.selected ? 'selected' : 'inactive';
 
@@ -857,7 +867,7 @@ var AnimationTimeline = new (function ft () {
             this.bounds.height - shrink,
             2,
             true, true);
-        if(this.hasSound) {
+        if(this.hasScript) {
             ctx.save();
             ctx.translate(this.bounds.left + this.draggingOffset.x,
                           this.bounds.top + this.draggingOffset.y);
@@ -869,6 +879,9 @@ var AnimationTimeline = new (function ft () {
                     2,
                     true, true);
             ctx.restore();
+        }
+        if(this.soundFilename) {
+          // TODO: Draw waveform image.
         }
         ctx.stroke();
         ctx.fill();
@@ -1501,6 +1514,10 @@ var AnimationTimeline = new (function ft () {
             activeLayerIndex = e.row;
         }
 
+        allLayers().forEach(function (layer) {
+          layer.deselect();
+        });
+
         if(!e.shiftKey) {
             allFrames().forEach(function (frame) {
                 frame.deselect();
@@ -1514,6 +1531,7 @@ var AnimationTimeline = new (function ft () {
         onSelectionChangeFn({
             frames: selectedFrames(),
             tweens: selectedTweens(),
+            layers: selectedLayers(),
         });
     }
 
@@ -1522,7 +1540,10 @@ var AnimationTimeline = new (function ft () {
     }
 
     self.onBlankFrameMouseUp = function (e) {
-        if(e.x === e.start.x && e.y === e.start.y && e.row < layers.length) {
+        var mouseMoved = Math.abs(e.x - e.start.x) > 3
+                      || Math.abs(e.y - e.start.y) > 3;
+
+        if(!mouseMoved && e.row < layers.length) {
             playhead.position = e.col + 1;
             activeLayerIndex = e.row;
 
@@ -1547,9 +1568,14 @@ var AnimationTimeline = new (function ft () {
 
         selectionBox.deactivate();
 
+        allLayers().forEach(function (layer) {
+          layer.deselect();
+        });
+
         onSelectionChangeFn({
             frames: selectedFrames(),
             tweens: selectedTweens(),
+            layers: selectedLayers(),
         });
     }
 
@@ -1568,6 +1594,9 @@ var AnimationTimeline = new (function ft () {
         playhead.position = e.col + 1;
         activeLayerIndex = Math.min(layers.length-1, Math.max(0,e.row));
 
+        allLayers().forEach(function (layer) {
+          layer.deselect();
+        });
         allTweens().forEach(function (tween) {
             tween.deselect();
         });
@@ -1588,6 +1617,7 @@ var AnimationTimeline = new (function ft () {
         onSelectionChangeFn({
             frames: selectedFrames(),
             tweens: selectedTweens(),
+            layers: selectedLayers(),
         });
     }
 
@@ -1735,6 +1765,10 @@ var AnimationTimeline = new (function ft () {
             }
         }
 
+        allLayers().forEach(function (layer) {
+          layer.deselect();
+        });
+
         allFrames().forEach(frame => {
             if(frame !== e.tween.frame) {
                 frame.deselect();
@@ -1744,6 +1778,7 @@ var AnimationTimeline = new (function ft () {
         onSelectionChangeFn({
             frames: selectedFrames(),
             tweens: selectedTweens(),
+            layers: selectedLayers(),
         });
     }
 
@@ -1785,6 +1820,7 @@ var AnimationTimeline = new (function ft () {
         if(hoverLayer.active) {
             var layer = new Layer({
                 index: layers.length,
+                selected: false,
                 locked: false,
                 hidden: false,
                 frames: [],
@@ -1819,6 +1855,24 @@ var AnimationTimeline = new (function ft () {
         e.layer.drop();
         e.layer.dragging = false;
         activeLayerIndex = layers.indexOf(e.layer);
+
+        allFrames().forEach(frame => {
+          frame.deselect();
+        });
+        allTweens().forEach(tween => {
+          tween.deselect();
+        });
+        allLayers().forEach(layer => {
+          layer.deselect();
+        });
+
+        e.layer.selected = true;
+
+        onSelectionChangeFn({
+            frames: selectedFrames(),
+            tweens: selectedTweens(),
+            layers: selectedLayers(),
+        });
 
         onChangeFn&&onChangeFn({
             layers: layers,
