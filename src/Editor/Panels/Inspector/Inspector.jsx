@@ -105,6 +105,7 @@ class Inspector extends Component {
         val={this.getSelectionAttribute('strokeWidth')}
         onChange={(val) => this.setSelectionAttribute('strokeWidth', val)}
         divider={false}
+        inputProps={this.props.toolRestrictions.strokeWidth}
         id="inspector-selection-stroke-width"/>
     )
   }
@@ -147,6 +148,7 @@ class Inspector extends Component {
       <InspectorNumericInput
         icon="fontsize"
         val={args.val}
+        inputProps={this.props.toolRestrictions.fontSize}
         onChange={args.onChange} />
     )
   }
@@ -253,6 +255,7 @@ class Inspector extends Component {
         icon="opacity"
         val={this.getSelectionAttribute('opacity')}
         onChange={(val) => this.setSelectionAttribute('opacity', val)}
+        inputProps={this.props.toolRestrictions.opacity}
         divider={false}
         id="inspector-opacity"/>
     )

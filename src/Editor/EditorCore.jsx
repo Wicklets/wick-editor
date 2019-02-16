@@ -330,13 +330,37 @@ class EditorCore extends Component {
    * @return {EditorAction[][]} An array of arrays of editor actions as defined by the editor action map.
    */
   getSelectionActions = () => {
-    let actionGroups = this.actionMapInterface.actionGroups;
+    let actionGroups = this.actionMapInterface.inspectorActionGroups;
     let actions = [];
 
     Object.keys(actionGroups).forEach(key => {
       let actionGroup = actionGroups[key];
       if (!actionGroup.on()) return;
 
+      let subActions = actionGroup.actions;
+
+      if ('color' in actionGroup) {
+        subActions.forEach(subAction => {
+          if (subAction === undefined) { console.error("Subaction '" + key + "' is undefined.")}
+          subAction.color = actionGroup.color;
+        });
+      }
+
+      actions.push(subActions);
+    })
+    return actions;
+  }
+
+  /**
+   * Returns all actions to be displayed using the current selection in the Toolbar. Utilizes the ActionMapInterface.
+   * @return {EditorAction[][]} An array of arrays of editor actions as defined by the editor action map.
+   */
+  getToolboxActions = () => {
+    let actionGroups = this.actionMapInterface.toolboxActionGroups;
+    let actions = [];
+
+    Object.keys(actionGroups).forEach(key => {
+      let actionGroup = actionGroups[key];
       let subActions = actionGroup.actions;
 
       if ('color' in actionGroup) {

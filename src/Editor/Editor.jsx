@@ -545,6 +545,7 @@ class Editor extends EditorCore {
                                 setToolSettings={this.setToolSettings}
                                 previewPlaying={this.state.previewPlaying}
                                 togglePreviewPlaying={this.togglePreviewPlaying}
+                                getToolboxActions={this.getToolboxActions}
                                 undoAction={this.undoAction}
                                 redoAction={this.redoAction}
                               />
@@ -619,6 +620,7 @@ class Editor extends EditorCore {
                           <ReflexElement minSize={200}{...this.resizeProps}>
                             <DockedPanel showOverlay={this.state.previewPlaying}>
                               <Inspector
+                                toolRestrictions={this.toolRestrictions}
                                 getToolSettings={this.getToolSettings}
                                 setToolSettings={this.setToolSettings}
                                 getSelectionType={this.getSelectionType}

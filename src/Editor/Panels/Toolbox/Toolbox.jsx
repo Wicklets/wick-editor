@@ -52,6 +52,44 @@ class Toolbox extends Component {
     this.toolButtonProps.activeTool = this.props.activeTool;
   }
 
+  renderAction = (action) => {
+    if (action === 'break') {
+      return (
+        <ToolboxBreak className="toolbox-item"/>
+      );
+    }
+    return(
+      <ToolButton
+        activeTool={this.props.activeTool}
+        toolSettings={this.props.toolSettings}
+        action={action.action}
+        className='toolbox-item'
+        name={action.icon}
+        tooltip={action.tooltip} />
+    );
+  }
+
+  renderToolboxActions = () => {
+    let actionGroups = this.props.getToolboxActions();
+    let actions = [];
+
+    actionGroups.forEach(
+      (actionList) => {
+        if (actionList == []) return;
+        actionList.forEach(
+          (action) => {
+            actions.push(action);
+          }
+        );
+        actions.push("break");
+      }
+    );
+    
+    return (
+      actions.map(this.renderAction)
+    );
+  }
+
 
   render() {
     return(
@@ -97,7 +135,10 @@ class Toolbox extends Component {
 
         <ToolboxBreak className="toolbox-item"/>
 
-        <div className="toolbox-actions-center toolbox-item">
+        {this.renderToolboxActions()}
+
+      <div className="toolbox-actions-right">
+        <div className="toolbox-item">
           <ActionButton
             id='toolbox-undo-button'
             icon='undo'
@@ -107,7 +148,7 @@ class Toolbox extends Component {
             tooltipPlace='bottom'
             className='tool-button'/>
         </div>
-        <div className="toolbox-actions-center toolbox-item">
+        <div className="toolbox-item">
           <ActionButton
             id='toolbox-redo-button'
             icon='redo'
@@ -118,6 +159,7 @@ class Toolbox extends Component {
             className='tool-button'/>
         </div>
       </div>
+    </div>
     )
   }
 }

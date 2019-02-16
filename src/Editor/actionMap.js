@@ -7,8 +7,6 @@ class ActionMapInterface extends Object {
     super();
     this.editor = editor;
 
-    this.createEditorActions = this.createEditorActions.bind(this);
-    this.createActionGroups = this.createActionGroups.bind(this);
     this.createEditorActions();
     this.createActionGroups();
   }
@@ -127,26 +125,14 @@ class ActionMapInterface extends Object {
     }
   }
 
-  /**
-   * Creates action groups for use within the editor. Action groups are collections of actions which should be displayed together.
-   * Action groups must have an {function}on function, which returns true when an action group should be displayed, and an {object<EditorAction>[]}actions array, which describes all associated actions. Optional properties include {string}color, which is used to color code entire Action groups.
-   */
-  createActionGroups () {
-    this.actionGroups = {
+  createInspectorActionGroups = () => {
+    this.inspectorActionGroups = {
       focus: {
         on: ( () => !(this.editor.project.focus === this.editor.project.root )),
         actions: [
           this.editorActions['returnToParentTimeline'],
         ],
         color: 'red',
-      },
-      common: {
-        on: ( () => this.editor.getSelectionType() !== null ),
-        actions: [
-          this.editorActions['deleteSelection'],
-          this.editorActions['duplicateSelection'],
-        ],
-        color: 'blue',
       },
       clip: {
         on: ( () => this.editor.getSelectionType() === 'clip' ),
@@ -174,33 +160,56 @@ class ActionMapInterface extends Object {
         ],
         color: 'red',
       },
-      canvasSelectionMovement: {
-        on: ( () => this.editor.getNumCanvasObjectsSelected() > 0 ),
-        actions: [
-          this.editorActions['moveBackward'],
-          this.editorActions['sendToBack'],
-          this.editorActions['moveForward'],
-          this.editorActions['sendToFront'],
-        ],
-        color: 'sky',
-      },
       canvasSelectionVisuals: {
         on: ( () => this.editor.getNumCanvasObjectsSelected() > 0 ),
         actions: [
-          this.editorActions['flipHorizontal'],
-          this.editorActions['flipVertical'],
           this.editorActions['createSymbolFromSelection'],
         ],
         color: 'sky',
       },
-      canvasSelectionGrouping: {
-        on: ( () => this.editor.getNumCanvasObjectsSelected() > 1),
-        actions: [
-          // this.editorActions['createGroupFromSelection'], // TODO: Re-enable grouping
-        ],
-        color: 'sky',
-      }
     }
+  }
+
+  createToolboxActionGroups = () => {
+    this.toolboxActionGroups = {
+      common: {
+        on: ( () => this.editor.getSelectionType() !== null ),
+        actions: [
+          this.editorActions['deleteSelection'],
+          this.editorActions['duplicateSelection'],
+        ],
+        color: 'blue',
+      },
+      // canvasSelectionMovement: {
+      //   on: ( () => this.editor.getNumCanvasObjectsSelected() > 0 ),
+      //   actions: [
+      //     this.editorActions['moveBackward'],
+      //     this.editorActions['sendToBack'],
+      //     this.editorActions['moveForward'],
+      //     this.editorActions['sendToFront'],
+      //   ],
+      //   color: 'sky',
+      // },
+      // canvasSelectionVisuals: {
+      //   on: ( () => this.editor.getNumCanvasObjectsSelected() > 0 ),
+      //   actions: [
+      //     this.editorActions['flipHorizontal'],
+      //     this.editorActions['flipVertical'],
+      //   ],
+      //   color: 'sky',
+      // },
+    }
+  }
+
+
+
+  /**
+   * Creates action groups for use within the editor. Action groups are collections of actions which should be displayed together.
+   * Action groups must have an {function}on function, which returns true when an action group should be displayed, and an {object<EditorAction>[]}actions array, which describes all associated actions. Optional properties include {string}color, which is used to color code entire Action groups.
+   */
+  createActionGroups = () => {
+    this.createInspectorActionGroups();
+    this.createToolboxActionGroups();
   }
 }
 
