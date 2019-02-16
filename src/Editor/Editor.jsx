@@ -574,6 +574,7 @@ class Editor extends EditorCore {
                                     toolRestrictions={this.toolRestrictions}
                                   />
                                   <CanvasTransforms
+                                    onionSkinEnabled={this.project.onionSkinEnabled}
                                     zoomIn={this.zoomIn}
                                     zoomOut={this.zoomOut}
                                     hideTransformations={this.state.previewPlaying}

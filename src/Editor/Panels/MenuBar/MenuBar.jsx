@@ -60,7 +60,6 @@ class MenuBar extends Component {
           <MenuBarButton
             text="GIF"
             action={this.props.exportProjectAsAnimatedGIF}/>
-          />
           <MenuBarButton
             text="save"
             action={this.props.exportProjectAsWickFile}
