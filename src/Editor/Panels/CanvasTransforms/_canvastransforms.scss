@@ -1,6 +1,6 @@
 @import 'Editor/_wickbrand.scss';
 
-$canvas-transforms-size: 60px;
+$canvas-transforms-size: 40px;
 
 .canvas-transforms-widget {
   position: absolute;
@@ -10,6 +10,7 @@ $canvas-transforms-size: 60px;
   margin-right: 10px;
   margin-bottom: 10px;
   display: flex;
+  align-items: center;
   background-color: $editor-primary-outline;
   border-radius: 4px;
 }
@@ -17,11 +18,24 @@ $canvas-transforms-size: 60px;
 .canvas-transform-button {
   width: $canvas-transforms-size;
   height: $canvas-transforms-size;
-  padding: 4px;
+  padding: 2px;
 }
 
 .thin-transform-button {
   width: calc(#{$canvas-transforms-size} / 2);
+}
+
+.play-button {
+  width: calc(#{$canvas-transforms-size} * .9);
+  height: calc(#{$canvas-transforms-size} * .9);
+}
+
+.play-button-container {
+  width: $canvas-transforms-size;
+  height: $canvas-transforms-size;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .transforms-container {

@@ -28,9 +28,6 @@ class InspectorTitle extends Component {
   renderSelectionType = () => {
     return (
       <div className="inspector-title-selection-type">
-        <div className="inspector-selection-type-icon-container">
-          <ToolIcon name={this.props.type} />
-        </div>
         {this.props.title}
       </div>
     )

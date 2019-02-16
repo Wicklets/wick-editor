@@ -37,10 +37,12 @@ class CanvasTransforms extends Component {
     return (
       <div className="canvas-transforms-widget">
         {!this.props.hideTransformations && this.renderTransformations()}
-        <PlayButton
-          className="play-button canvas-transform-button"
-          playing={this.props.previewPlaying}
-          onClick={this.props.togglePreviewPlaying}/>
+        <div className="play-button-container">
+          <PlayButton
+            className="play-button canvas-transform-button"
+            playing={this.props.previewPlaying}
+            onClick={this.props.togglePreviewPlaying}/>
+        </div>
       </div>
     );
   }

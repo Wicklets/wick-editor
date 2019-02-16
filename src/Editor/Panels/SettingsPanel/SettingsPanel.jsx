@@ -143,7 +143,7 @@ class SettingsPanel extends Component {
   renderEnablePressure = () => {
     return (
       <SettingsPanelInput
-        name='Enable Pressure'
+        name='Pressure'
         type='checkbox'
         value={this.getToolSetting('pressureEnabled')}
         onChange={() => this.setToolSetting('pressureEnabled', !this.getToolSetting('pressureEnabled'))}/>
@@ -153,7 +153,7 @@ class SettingsPanel extends Component {
   renderSelectCurves = () => {
     return (
       <SettingsPanelInput
-        name='Select Curves'
+        name='Curves'
         type='checkbox'
         value={this.getToolSetting('selectCurves')}
         onChange={() => this.setToolSetting('selectCurves', !this.getToolSetting('selectCurves'))}/>
@@ -163,7 +163,7 @@ class SettingsPanel extends Component {
   renderSelectPoints = () => {
     return (
       <SettingsPanelInput
-        name='Select Points'
+        name='Points'
         type='checkbox'
         value={this.getToolSetting('selectPoints')}
         onChange={() => this.setToolSetting('selectPoints', !this.getToolSetting('selectPoints'))}/>
@@ -173,7 +173,7 @@ class SettingsPanel extends Component {
   renderCornerRadius = () => {
     return (
       <SettingsPanelInput
-        name='Corner Radius'
+        name='Roundness'
         type='numeric'
         value={this.getToolSetting('cornerRadius')}
         onChange={(val) => this.setToolSetting('cornerRadius', val)}
@@ -184,7 +184,7 @@ class SettingsPanel extends Component {
   renderBrushSmoothing = () => {
     return (
       <SettingsPanelInput
-        name='Brush Smoothing'
+        name='Smoothing'
         type='numeric'
         value={this.getToolSetting('brushSmoothing')}
         onChange={(val) => this.setToolSetting('brushSmoothing', val)}
@@ -195,7 +195,7 @@ class SettingsPanel extends Component {
   renderFontSize = () => {
     return (
       <SettingsPanelInput
-        name='Font Size'
+        name='Size'
         type='numeric'
         value={this.getToolSetting('fontSize')}
         onChange={(val) => this.setToolSetting('fontSize', val)}
@@ -206,7 +206,7 @@ class SettingsPanel extends Component {
   renderEraserSize = () => {
     return (
       <SettingsPanelInput
-        name='Eraser Size'
+        name='Size'
         type='numeric'
         value={this.getToolSetting('eraserSize')}
         onChange={(val) => this.setToolSetting('eraserSize', val)}
@@ -217,7 +217,7 @@ class SettingsPanel extends Component {
   renderStrokeWidth = () => {
     return (
       <SettingsPanelInput
-        name='Stroke Width'
+        name='Width'
         type='numeric'
         value={this.getToolSetting('strokeWidth')}
         onChange={(val) => this.setToolSetting('strokeWidth', val)}
@@ -228,7 +228,7 @@ class SettingsPanel extends Component {
   renderDropperMode = () => {
     return (
       <SettingsPanelInput
-        name='Pixel Select'
+        name='Pixel'
         type='checkbox'
         value={this.getToolSetting('pixelDropper')}
         onChange={() => this.setToolSetting('pixelDropper', !this.getToolSetting('pixelDropper'))}/>
@@ -238,7 +238,7 @@ class SettingsPanel extends Component {
   renderFontFamily = () => {
     return (
       <SettingsPanelInput
-        name='Font Family'
+        name='Font'
         type='dropdown'
         value={this.getToolSetting('fontFamily')}
         onChange={(val) => this.setToolSetting('fontFamily', val)}/>
@@ -248,7 +248,7 @@ class SettingsPanel extends Component {
   renderBrushSize = () => {
     return (
       <SettingsPanelInput
-        name='Brush Size'
+        name='Size'
         type='numeric'
         value={this.getToolSetting('brushSize')}
         onChange={(val) => this.setToolSetting('brushSize', val)}
