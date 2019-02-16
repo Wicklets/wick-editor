@@ -805,6 +805,14 @@ class EditorCore extends Component {
       // Autosaved cleared
     });
   }
+
+  /**
+   * Toggle onion skinning on/off.
+   */
+  toggleOnionSkin = () => {
+    this.project.onionSkinEnabled = !this.project.onionSkinEnabled;
+    this.projectDidChange();
+  }
 }
 
 export default EditorCore;

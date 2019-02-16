@@ -104,8 +104,6 @@ var AnimationTimeline = new (function ft () {
     var onSoftChangeFn;
     var onSelectionChangeFn;
 
-    var onionButton;
-
     var waveforms = {};
 
     self.setup = function (_elem, callback) {
@@ -144,23 +142,6 @@ var AnimationTimeline = new (function ft () {
             self.repaint();
         });
 
-        onionButton = document.createElement('div');
-        onionButton.className = 'onion-skin-button';
-
-        // Update onionButton Style
-        onionButton.style.top = "0px";
-        onionButton.style.left = (LAYERS_WIDTH-20)+"px";
-
-        onionButton.onclick = function () {
-            numberline.onionSkinEnabled = !numberline.onionSkinEnabled;
-            self.rebuild();
-            self.repaint();
-            onChangeFn&&onChangeFn({
-                onionSkinEnabled: numberline.onionSkinEnabled
-            });
-        }
-        elem.appendChild(onionButton);
-
         attachMouseEvents();
 
         ctx = canvas.getContext('2d');
@@ -177,7 +158,6 @@ var AnimationTimeline = new (function ft () {
     self.rebuild = function () {
         let selected = "white";
         let deselected = "gray";
-        onionButton.style.backgroundColor = numberline.onionSkinEnabled ? selected : deselected;
     }
 
     self.repaint = function () {
