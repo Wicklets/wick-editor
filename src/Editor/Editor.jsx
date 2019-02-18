@@ -547,9 +547,11 @@ class Editor extends EditorCore {
                                 toolRestrictions={this.toolRestrictions}
                                 previewPlaying={this.state.previewPlaying}
                                 togglePreviewPlaying={this.togglePreviewPlaying}
-                                getToolboxActions={this.getToolboxActions}
                                 undoAction={this.undoAction}
                                 redoAction={this.redoAction}
+                                copyAction={this.copySelectionToClipboard}
+                                pasteAction={this.pasteFromClipboard}
+                                deleteAction={this.deleteSelection}
                               />
 
                             </DockedPanel>

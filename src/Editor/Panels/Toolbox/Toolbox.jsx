@@ -71,28 +71,6 @@ class Toolbox extends Component {
     );
   }
 
-  renderToolboxActions = () => {
-    let actionGroups = this.props.getToolboxActions();
-    let actions = [];
-
-    actionGroups.forEach(
-      (actionList) => {
-        if (actionList == []) return;
-        actionList.forEach(
-          (action) => {
-            actions.push(action);
-          }
-        );
-        actions.push("break");
-      }
-    );
-
-    return (
-      actions.map(this.renderAction)
-    );
-  }
-
-
   render() {
     return(
       <div
@@ -146,8 +124,36 @@ class Toolbox extends Component {
             toolRestrictions={this.props.toolRestrictions} />
 
       <div className="toolbox-actions-right">
-        <ToolboxBreak className="toolbox-item"/>
-        {this.renderToolboxActions()}
+        <div className="toolbox-item">
+          <ActionButton
+            id='toolbox-delete-button'
+            icon='delete'
+            color='tool'
+            action={this.props.deleteAction}
+            tooltip='Delete'
+            tooltipPlace='bottom'
+            className='tool-button'/>
+        </div>
+        <div className="toolbox-item">
+          <ActionButton
+            id='toolbox-copy-button'
+            icon='copy'
+            color='tool'
+            action={this.props.copyAction}
+            tooltip='Copy'
+            tooltipPlace='bottom'
+            className='tool-button'/>
+        </div>
+        <div className="toolbox-item">
+          <ActionButton
+            id='toolbox-paste-button'
+            icon='paste'
+            color='tool'
+            action={this.props.pasteAction}
+            tooltip='Paste'
+            tooltipPlace='bottom'
+            className='tool-button'/>
+        </div>
         <div className="toolbox-item">
           <ActionButton
             id='toolbox-undo-button'

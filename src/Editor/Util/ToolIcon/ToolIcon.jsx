@@ -37,6 +37,7 @@ import iconFillBucket from 'resources/tool-icons/bucket.svg';
 import iconText from 'resources/tool-icons/text.svg';
 import iconCurve from 'resources/tool-icons/curve.svg';
 import iconPoint from 'resources/tool-icons/point.svg';
+import iconBrushPressure from 'resources/tool-icons/brushpressure.svg';
 
 // Actions
 import iconAction from 'resources/tool-icons/action.svg';
@@ -58,7 +59,9 @@ import iconClose from 'resources/tool-icons/close.svg';
 import iconUndo from 'resources/tool-icons/undo.svg';
 import iconRedo from 'resources/tool-icons/redo.svg';
 import iconRecenter from 'resources/tool-icons/recenter.svg';
-import iconBrushPressure from 'resources/tool-icons/brushpressure.svg';
+import iconCopy from 'resources/tool-icons/copy.svg';
+import iconPaste from 'resources/tool-icons/paste.svg';
+
 
 // Assets
 import iconImage from 'resources/tool-icons/image.svg';
@@ -112,6 +115,8 @@ class ToolIcon extends Component {
       "zoomin":iconZoomIn,
       "zoomout":iconZoomOut,
       "fillbucket": iconFillBucket,
+      "copy": iconCopy,
+      "paste": iconPaste,
       "text": iconText,
       "image": iconImage,
       "imageAsset": iconImage,

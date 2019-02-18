@@ -38,13 +38,6 @@ class ActionMapInterface extends Object {
         color: 'red',
         id: 'action-delete',
       },
-      duplicateSelection: {
-        icon: 'duplicate',
-        tooltip: 'Duplicate Selection',
-        action: this.editor.duplicateSelection,
-        color: 'red',
-        id: 'action-duplicate',
-      },
       sendToBack: {
         icon: 'sendToBack',
         tooltip: 'Send to Back',
@@ -169,17 +162,6 @@ class ActionMapInterface extends Object {
       },
     }
   }
-
-  createToolboxActionGroups = () => {
-    this.toolboxActionGroups = {
-      common: {
-        on: ( () => this.editor.getSelectionType() !== null ),
-        actions: [
-          this.editorActions['deleteSelection'],
-          this.editorActions['duplicateSelection'],
-        ],
-        color: 'blue',
-      },
       // canvasSelectionMovement: {
       //   on: ( () => this.editor.getNumCanvasObjectsSelected() > 0 ),
       //   actions: [
@@ -198,9 +180,6 @@ class ActionMapInterface extends Object {
       //   ],
       //   color: 'sky',
       // },
-    }
-  }
-
 
 
   /**
@@ -209,7 +188,6 @@ class ActionMapInterface extends Object {
    */
   createActionGroups = () => {
     this.createInspectorActionGroups();
-    this.createToolboxActionGroups();
   }
 }
 
