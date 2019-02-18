@@ -19,7 +19,7 @@
 
 @import 'Editor/_wickbrand.scss';
 
-$settings-input-size: 25px;
+$settings-input-size: 50px;
 
 .settings-text-label {
   color: $editor-primary-property-text;
@@ -28,35 +28,39 @@ $settings-input-size: 25px;
   text-align: center;
 }
 
+.settings-input-icon {
+  width: 20px;
+  height: 20px;
+  margin-right: 4px;
+}
+
 .settings-numeric-input-container {
-  padding-top: 4px;
-  height: 100%;
-  width: 80%;
-}
-
-.settings-numeric-input {
-  height: $settings-input-size;
-}
-
-.settings-slider-wick-input-container {
-  height: $settings-input-size;
-}
-
-.settings-checkbox-wick-input-container {
-  height: $settings-input-size;
-  width: $settings-input-size;
+  display: flex;
+  align-items: center;
+  width: calc(2 * #{$settings-input-size});
 }
 
 .settings-numeric-wick-input-container {
-  width: 100%;
-  height: $settings-input-size;
+  margin-right: 4px;
+}
+.settings-numeric-input {
+  min-width: $settings-input-size;
+}
+
+.settings-numeric-slider {
+  min-width: $settings-input-size;
+  width: 50%;
+}
+
+.settings-checkbox-input {
+  height: 30px;
+  width: 30px;
 }
 
 .setting-input-container {
-  height: 100%;
-  width: 100%;
+  height: 80%;
   display: flex;
-  flex-direction: column;
   justify-content: center;
   align-items: center;
+  margin: 4px;
 }

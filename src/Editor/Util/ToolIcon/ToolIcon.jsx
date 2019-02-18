@@ -56,6 +56,7 @@ import iconClose from 'resources/tool-icons/close.svg';
 import iconUndo from 'resources/tool-icons/undo.svg';
 import iconRedo from 'resources/tool-icons/redo.svg';
 import iconRecenter from 'resources/tool-icons/recenter.svg';
+import iconBrushPressure from 'resources/tool-icons/brushpressure.svg';
 
 // Assets
 import iconImage from 'resources/tool-icons/image.svg';
@@ -66,7 +67,7 @@ import iconSearch from 'resources/tool-icons/search.svg';
 // Rows
 import iconBrushSize from "resources/inspector-icons/property-icons/brushsize.svg";
 import iconBrushSmoothness from "resources/inspector-icons/property-icons/brushsmoothness.svg";
-import iconCornerRoundness from "resources/inspector-icons/property-icons/cornerroundness.svg";
+import iconCornerRadius from "resources/inspector-icons/property-icons/cornerradius.svg";
 import iconEase from "resources/inspector-icons/property-icons/ease.svg";
 import iconFillColor from "resources/inspector-icons/property-icons/fillcolor.svg";
 import iconFontFamily from "resources/inspector-icons/property-icons/fontfamily.svg";
@@ -88,6 +89,8 @@ import iconStrokeColor from "resources/inspector-icons/property-icons/strokecolo
 import iconStrokeWidth from "resources/inspector-icons/property-icons/strokewidth.png";
 import iconVolume from "resources/inspector-icons/property-icons/volume.svg";
 import iconUnknown from 'resources/inspector-icons/selection-icons/unknown.svg';
+
+var classNames = require('classnames');
 
 class ToolIcon extends Component {
   constructor(props) {
@@ -116,7 +119,8 @@ class ToolIcon extends Component {
       "breakApart": iconBreakApart,
       "brushsize": iconBrushSize,
       "brushsmoothness": iconBrushSmoothness,
-      "cornerroundness": iconCornerRoundness,
+      "brushpressure": iconBrushPressure,
+      "cornerradius": iconCornerRadius,
       "close": iconClose,
       "delete": iconDelete,
       "search": iconSearch,
@@ -171,7 +175,7 @@ class ToolIcon extends Component {
     if (this.props.name in this.icons || this.props.default === undefined) {
       return (
         <img
-          className="img-tool-icon"
+          className={classNames("img-tool-icon", this.props.className)}
           alt={this.props.name+" icon"}
           src={this.getSource()} />
       )

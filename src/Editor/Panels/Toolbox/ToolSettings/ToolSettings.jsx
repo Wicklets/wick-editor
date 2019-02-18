@@ -1,18 +1,14 @@
 import React, { Component } from 'react';
 
-import SettingsPanelInput from './SettingsPanelInput/SettingsPanelInput';
+import ToolSettingsInput from './ToolSettingsInput/ToolSettingsInput';
 
-import './_settingspanel.scss';
+import './_toolsettings.scss';
 
 var classNames = require('classnames');
 
-class SettingsPanel extends Component {
+class ToolSettings extends Component {
   constructor(props) {
     super(props);
-
-    this.state = {
-      panelExtended: true,
-    }
 
     this.settingsFunctions = {
       "cursor": this.renderCursorSettings,
@@ -26,37 +22,10 @@ class SettingsPanel extends Component {
     }
   }
 
-  /**
-   * Extends or hides the settings panel, depending on its current state.
-   */
-  toggleExtended = () => {
-    this.setState({
-      panelExtended: !this.state.panelExtended,
-    });
-    console.log("toggling");
-  }
-
   render () {
-    if (this.props.hidePanel) {
-      return (<div id='settings-panel-container'/>)
-    } else {
-      return (
-        <div id='settings-panel-container'>
-          {this.props.activeTool in this.settingsFunctions && this.renderSettingsHeader()}
-          {this.state.panelExtended && this.renderSettings()}
-        </div>
-      );
-    }
-  }
-
-  renderSettingsHeader = () => {
     return (
-      <div
-        className={classNames(
-          "settings-container-header",
-          {"extension-hidden": !this.state.panelExtended})}
-        onClick={this.toggleExtended}>
-        Options
+      <div id='settings-panel-container'>
+        {this.renderSettings()}
       </div>
     );
   }
@@ -142,8 +111,9 @@ class SettingsPanel extends Component {
 
   renderEnablePressure = () => {
     return (
-      <SettingsPanelInput
-        name='Pressure'
+      <ToolSettingsInput
+        name='Enable Pressure'
+        icon='brushpressure'
         type='checkbox'
         value={this.getToolSetting('pressureEnabled')}
         onChange={() => this.setToolSetting('pressureEnabled', !this.getToolSetting('pressureEnabled'))}/>
@@ -152,8 +122,9 @@ class SettingsPanel extends Component {
 
   renderSelectCurves = () => {
     return (
-      <SettingsPanelInput
-        name='Curves'
+      <ToolSettingsInput
+        name='Select Curves'
+        icon='selectcurves'
         type='checkbox'
         value={this.getToolSetting('selectCurves')}
         onChange={() => this.setToolSetting('selectCurves', !this.getToolSetting('selectCurves'))}/>
@@ -162,8 +133,9 @@ class SettingsPanel extends Component {
 
   renderSelectPoints = () => {
     return (
-      <SettingsPanelInput
-        name='Points'
+      <ToolSettingsInput
+        name='Select Points'
+        icon='selectpoints'
         type='checkbox'
         value={this.getToolSetting('selectPoints')}
         onChange={() => this.setToolSetting('selectPoints', !this.getToolSetting('selectPoints'))}/>
@@ -172,8 +144,9 @@ class SettingsPanel extends Component {
 
   renderCornerRadius = () => {
     return (
-      <SettingsPanelInput
-        name='Roundness'
+      <ToolSettingsInput
+        name='Corner Radius'
+        icon='cornerradius'
         type='numeric'
         value={this.getToolSetting('cornerRadius')}
         onChange={(val) => this.setToolSetting('cornerRadius', val)}
@@ -183,8 +156,9 @@ class SettingsPanel extends Component {
 
   renderBrushSmoothing = () => {
     return (
-      <SettingsPanelInput
-        name='Smoothing'
+      <ToolSettingsInput
+        name='Brush Smoothing'
+        icon='brushsmoothness'
         type='numeric'
         value={this.getToolSetting('brushSmoothing')}
         onChange={(val) => this.setToolSetting('brushSmoothing', val)}
@@ -194,8 +168,9 @@ class SettingsPanel extends Component {
 
   renderFontSize = () => {
     return (
-      <SettingsPanelInput
-        name='Size'
+      <ToolSettingsInput
+        name='Font Size'
+        icon='fontsize'
         type='numeric'
         value={this.getToolSetting('fontSize')}
         onChange={(val) => this.setToolSetting('fontSize', val)}
@@ -205,8 +180,9 @@ class SettingsPanel extends Component {
 
   renderEraserSize = () => {
     return (
-      <SettingsPanelInput
-        name='Size'
+      <ToolSettingsInput
+        name='Eraser Size'
+        icon='eraser'
         type='numeric'
         value={this.getToolSetting('eraserSize')}
         onChange={(val) => this.setToolSetting('eraserSize', val)}
@@ -216,8 +192,9 @@ class SettingsPanel extends Component {
 
   renderStrokeWidth = () => {
     return (
-      <SettingsPanelInput
-        name='Width'
+      <ToolSettingsInput
+        name='Stroke Width'
+        icon='strokewidth'
         type='numeric'
         value={this.getToolSetting('strokeWidth')}
         onChange={(val) => this.setToolSetting('strokeWidth', val)}
@@ -227,8 +204,9 @@ class SettingsPanel extends Component {
 
   renderDropperMode = () => {
     return (
-      <SettingsPanelInput
+      <ToolSettingsInput
         name='Pixel'
+        icon='pixel'
         type='checkbox'
         value={this.getToolSetting('pixelDropper')}
         onChange={() => this.setToolSetting('pixelDropper', !this.getToolSetting('pixelDropper'))}/>
@@ -237,8 +215,9 @@ class SettingsPanel extends Component {
 
   renderFontFamily = () => {
     return (
-      <SettingsPanelInput
+      <ToolSettingsInput
         name='Font'
+        icon='fontfamily'
         type='dropdown'
         value={this.getToolSetting('fontFamily')}
         onChange={(val) => this.setToolSetting('fontFamily', val)}/>
@@ -247,8 +226,9 @@ class SettingsPanel extends Component {
 
   renderBrushSize = () => {
     return (
-      <SettingsPanelInput
-        name='Size'
+      <ToolSettingsInput
+        name='Brush Size'
+        icon='brushsize'
         type='numeric'
         value={this.getToolSetting('brushSize')}
         onChange={(val) => this.setToolSetting('brushSize', val)}
@@ -277,4 +257,4 @@ class SettingsPanel extends Component {
   }
 }
 
-export default SettingsPanel
+export default ToolSettings

@@ -26,6 +26,7 @@ import WickInput from 'Editor/Util/WickInput/WickInput';
 import ActionButton from 'Editor/Util/ActionButton/ActionButton';
 import ToolboxBreak from './ToolboxBreak/ToolboxBreak';
 import ToolButton from './ToolButton/ToolButton';
+import ToolSettings from './ToolSettings/ToolSettings';
 
 class Toolbox extends Component {
   constructor(props) {
@@ -106,39 +107,48 @@ class Toolbox extends Component {
         <ToolButton activeTool={this.props.activeTool} toolSettings={this.props.toolSettings} {...this.toolButtonProps} name='text' tooltip="Text" />
         <ToolButton activeTool={this.props.activeTool} toolSettings={this.props.toolSettings} {...this.toolButtonProps} name='fillbucket' tooltip="Fill Bucket" />
 
-      <div className="color-container toolbox-item" id="fill-color-picker-container">
-          <WickInput
-            type="color"
-            color= {this.props.toolSettings.fillColor}
-            onChangeComplete={(color) => {
-              this.props.setToolSettings({fillColor: color.hex})
-            }}
-            id="tool-box-fill-color"
-            tooltipID="tool-box-fill-color"
-            tooltip="Fill Color"
-            placement="bottom"
-            />
-        </div>
-        <div className="color-container toolbox-item" id="stroke-color-picker-container">
-          <WickInput
-            type="color"
-            color= {this.props.toolSettings.strokeColor}
-            onChangeComplete={(color) => {
-              this.props.setToolSettings({strokeColor: color.hex})
-            }}
-            id="tool-box-stroke-color"
-            tooltipID="tool-box-stroke-color"
-            tooltip="Stroke Color"
-            placement="bottom"
-            stroke={true}
-            />
-        </div>
+        <ToolboxBreak className="toolbox-item"/>
+
+        <div className="color-container toolbox-item" id="fill-color-picker-container">
+            <WickInput
+              type="color"
+              color= {this.props.toolSettings.fillColor}
+              onChangeComplete={(color) => {
+                this.props.setToolSettings({fillColor: color.hex})
+              }}
+              id="tool-box-fill-color"
+              tooltipID="tool-box-fill-color"
+              tooltip="Fill Color"
+              placement="bottom"
+              />
+          </div>
+          <div className="color-container toolbox-item" id="stroke-color-picker-container">
+            <WickInput
+              type="color"
+              color= {this.props.toolSettings.strokeColor}
+              onChangeComplete={(color) => {
+                this.props.setToolSettings({strokeColor: color.hex})
+              }}
+              id="tool-box-stroke-color"
+              tooltipID="tool-box-stroke-color"
+              tooltip="Stroke Color"
+              placement="bottom"
+              stroke={true}
+              />
+          </div>
+
+          <ToolboxBreak className="toolbox-item"/>
+
+          <ToolSettings
+            activeTool={this.props.activeTool}
+            toolSettings={this.props.toolSettings}
+            setToolSettings={this.props.setToolSettings}
+            toolRestrictions={this.props.toolRestrictions} />
 
         <ToolboxBreak className="toolbox-item"/>
 
-        {this.renderToolboxActions()}
-
       <div className="toolbox-actions-right">
+        {this.renderToolboxActions()}
         <div className="toolbox-item">
           <ActionButton
             id='toolbox-undo-button'

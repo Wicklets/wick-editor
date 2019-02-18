@@ -39,7 +39,6 @@ import Canvas from './Panels/Canvas/Canvas';
 import Inspector from './Panels/Inspector/Inspector';
 import MenuBar from './Panels/MenuBar/MenuBar';
 import Timeline from './Panels/Timeline/Timeline';
-import SettingsPanel from './Panels/SettingsPanel/SettingsPanel';
 import CanvasTransforms from './Panels/CanvasTransforms/CanvasTransforms';
 import Toolbox from './Panels/Toolbox/Toolbox';
 import AssetLibrary from './Panels/AssetLibrary/AssetLibrary';
@@ -479,7 +478,7 @@ class Editor extends EditorCore {
 
   projectDidChange = () => {
     let projectSerialized = this.project.serialize();
-    this.autosaveProject(projectSerialized); 
+    this.autosaveProject(projectSerialized);
     // Double check to see if the project was really changed
     // (This shouldn't be neccessary, but AnimationTimeline was firing multiple projectDidChange calls.)
     if(JSON.stringify(this.state.project) !== JSON.stringify(projectSerialized)) {
@@ -545,12 +544,14 @@ class Editor extends EditorCore {
                                 setActiveTool={this.setActiveTool}
                                 toolSettings={this.state.toolSettings}
                                 setToolSettings={this.setToolSettings}
+                                toolRestrictions={this.toolRestrictions}
                                 previewPlaying={this.state.previewPlaying}
                                 togglePreviewPlaying={this.togglePreviewPlaying}
                                 getToolboxActions={this.getToolboxActions}
                                 undoAction={this.undoAction}
                                 redoAction={this.redoAction}
                               />
+
                             </DockedPanel>
                           </ReflexElement>
                           <ReflexElement {...this.resizeProps}>
@@ -566,13 +567,6 @@ class Editor extends EditorCore {
                                     toolSettings={this.state.toolSettings}
                                     previewPlaying={this.state.previewPlaying}
                                     createImageFromAsset={this.createImageFromAsset}
-                                  />
-                                  <SettingsPanel
-                                    hidePanel={this.state.previewPlaying}
-                                    activeTool={this.state.activeTool}
-                                    toolSettings={this.state.toolSettings}
-                                    setToolSettings={this.setToolSettings}
-                                    toolRestrictions={this.toolRestrictions}
                                   />
                                   <CanvasTransforms
                                     onionSkinEnabled={this.project.onionSkinEnabled}

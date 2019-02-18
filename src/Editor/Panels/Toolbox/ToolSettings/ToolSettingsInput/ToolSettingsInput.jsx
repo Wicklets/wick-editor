@@ -20,22 +20,24 @@
 import React, { Component } from 'react';
 
 import WickInput from 'Editor/Util/WickInput/WickInput';
+import ToolIcon from 'Editor/Util/ToolIcon/ToolIcon';
 
-import './_settingspanelinput.scss';
+import './_toolsettingsinput.scss';
 
-class SettingsPanelInput extends Component {
-  renderTextLabel = (text) => {
+class ToolSettingsInput extends Component {
+  renderIcon = () => {
     return (
-      <div className="settings-text-label">
-        {this.props.name}
-      </div>
-    );
+      <div className='settings-input-icon'>
+        <ToolIcon name={this.props.icon} />
+      </div>);
   }
 
   renderNumericInput = () => {
     return (
       <div className="settings-numeric-input-container">
         <WickInput
+          tooltip={this.props.name}
+          id={'settings-numeric-wick-input-container-' + this.props.icon}
           type="numeric"
           containerclassname="settings-numeric-wick-input-container"
           className="settings-numeric-input"
@@ -43,6 +45,8 @@ class SettingsPanelInput extends Component {
           value={this.props.value}
           {...this.props.inputRestrictions}/>
         <WickInput
+          tooltip={this.props.name}
+          id={'settings-slider-wick-input-container-' + this.props.icon}
           type="slider"
           containerclassname="settings-slider-wick-input-container"
           className="settings-numeric-slider"
@@ -56,6 +60,8 @@ class SettingsPanelInput extends Component {
   renderCheckboxInput = () => {
     return (
       <WickInput
+        tooltip={this.props.name}
+        id={'settings-checkbox-wick-input-container-' + this.props.icon}
         type="checkbox"
         containerclassname="settings-checkbox-wick-input-container"
         className="settings-checkbox-input"
@@ -68,6 +74,8 @@ class SettingsPanelInput extends Component {
   renderDropdownInput = () => {
     return (
       <WickInput
+        tooltip={this.props.name}
+        id={'settings-dropdown-wick-input-container-' + this.props.icon}
         type="dropdown"
         className="settings-dropdown-input"
         onChange={this.props.onChange}
@@ -76,40 +84,13 @@ class SettingsPanelInput extends Component {
     );
   }
 
-  renderSettingsNumeric = () => {
-    return (
-      <div className="setting-input-container">
-        {this.renderNumericInput()}
-        {this.renderTextLabel()}
-      </div>
-    );
-  }
-
-  renderSettingsCheckbox = () => {
-    return (
-      <div className="setting-input-container">
-        {this.renderCheckboxInput()}
-        {this.renderTextLabel()}
-      </div>
-    );
-  }
-
-  renderSettingsDropdown = () => {
-    return (
-      <div className="setting-input-container">
-        {this.renderDropdownInput()}
-        {this.renderTextLabel()}
-      </div>
-    );
-  }
-
   renderInput = () => {
     if (this.props.type === "numeric") {
-      return(this.renderSettingsNumeric());
+      return this.renderNumericInput();
     } else if (this.props.type === "checkbox") {
-      return(this.renderSettingsCheckbox());
+      return this.renderCheckboxInput();
     } else if (this.props.type === "dropdown") {
-      return (this.renderSettingsDropdown());
+      return this.renderDropdownInput();
     } else {
       console.error("No valid 'type' prop provided.");
       return
@@ -118,11 +99,12 @@ class SettingsPanelInput extends Component {
 
   render () {
     return (
-      <div className="setting-container">
+      <div className="setting-input-container">
+        {this.renderIcon()}
         {this.renderInput()}
       </div>
     );
   }
 }
 
-export default SettingsPanelInput
+export default ToolSettingsInput
