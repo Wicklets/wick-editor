@@ -778,17 +778,20 @@ class EditorCore extends Component {
   }
 
   /**
-   * Sets up a new project in the editor. This operation will remove the history, and all other ability to retrieve your project.
+   * Sets up a new project in the editor. This operation will remove the
+   * history, selection, and all other ability to retrieve your project.
    * @param  {Wick.Project} project project to load.
    */
   setupNewProject = (project) => {
     this.resetEditorForLoad();
+    project.selection.clear();
     this.project = project;
     this.projectDidChange();
   }
 
   /**
-   * Attempts to automatically load an autosaved project if it exists. Does nothing if not autosaved project is stored.
+   * Attempts to automatically load an autosaved project if it exists.
+   * Does nothing if not autosaved project is stored.
    */
   attemptAutoLoad = () => {
     let loadProject = (serializedProject) => {
@@ -799,8 +802,7 @@ class EditorCore extends Component {
       }
 
       let deserialized = window.Wick.Project.deserialize(serializedProject);
-      this.project = deserialized;
-      this.projectDidChange();
+      this.setupNewProject(deserialized);
     }
 
     localForage.getItem(this.autoSaveKey).then(loadProject);
@@ -808,7 +810,8 @@ class EditorCore extends Component {
 
   /**
    * Check if auto saved project exists.
-   * @param  {Function} callback a callback which receives a boolean. True if an autosave exists.
+   * @param  {Function} callback a callback which receives a boolean.
+   * True if an autosave exists.
    */
   doesAutoSavedProjectExist = (callback) => {
     let checkProject = (serializedProject) => {
