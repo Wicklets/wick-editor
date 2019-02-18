@@ -15,6 +15,21 @@ $canvas-transforms-size: 40px;
   border-radius: 4px;
 }
 
+#canvas-zoom-options-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+#zoom-tool-container {
+  width: $canvas-transforms-size;
+  height: $canvas-transforms-size;
+}
+
+.canvas-transform-item {
+  padding: 2px;
+}
+
 .canvas-transform-button {
   width: $canvas-transforms-size;
   height: $canvas-transforms-size;
@@ -40,4 +55,6 @@ $canvas-transforms-size: 40px;
 
 .transforms-container {
   display: flex;
+  flex-direction: row;
+  align-items: center;
 }
