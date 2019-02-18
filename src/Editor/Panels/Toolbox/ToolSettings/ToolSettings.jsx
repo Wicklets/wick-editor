@@ -124,7 +124,7 @@ class ToolSettings extends Component {
     return (
       <ToolSettingsInput
         name='Select Curves'
-        icon='selectcurves'
+        icon='curve'
         type='checkbox'
         value={this.getToolSetting('selectCurves')}
         onChange={() => this.setToolSetting('selectCurves', !this.getToolSetting('selectCurves'))}/>
@@ -135,7 +135,7 @@ class ToolSettings extends Component {
     return (
       <ToolSettingsInput
         name='Select Points'
-        icon='selectpoints'
+        icon='point'
         type='checkbox'
         value={this.getToolSetting('selectPoints')}
         onChange={() => this.setToolSetting('selectPoints', !this.getToolSetting('selectPoints'))}/>

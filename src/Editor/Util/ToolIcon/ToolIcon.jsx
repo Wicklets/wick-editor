@@ -35,6 +35,8 @@ import iconZoomIn from 'resources/tool-icons/zoomin.svg';
 import iconZoomOut from 'resources/tool-icons/zoomout.svg';
 import iconFillBucket from 'resources/tool-icons/bucket.svg';
 import iconText from 'resources/tool-icons/text.svg';
+import iconCurve from 'resources/tool-icons/curve.svg';
+import iconPoint from 'resources/tool-icons/point.svg';
 
 // Actions
 import iconAction from 'resources/tool-icons/action.svg';
@@ -86,7 +88,7 @@ import iconScale from "resources/inspector-icons/property-icons/scale.svg";
 import iconSize from "resources/inspector-icons/property-icons/size.svg";
 import iconSound from "resources/inspector-icons/property-icons/sound.svg";
 import iconStrokeColor from "resources/inspector-icons/property-icons/strokecolor.svg";
-import iconStrokeWidth from "resources/inspector-icons/property-icons/strokewidth.png";
+import iconStrokeWidth from "resources/tool-icons/strokewidth.svg";
 import iconVolume from "resources/inspector-icons/property-icons/volume.svg";
 import iconUnknown from 'resources/inspector-icons/selection-icons/unknown.svg';
 
@@ -126,6 +128,8 @@ class ToolIcon extends Component {
       "search": iconSearch,
       "duplicate": iconDuplicate,
       "ease": iconEase,
+      "curve": iconCurve,
+      "point": iconPoint,
       "fillcolor": iconFillColor,
       "fontfamily": iconFontFamily,
       "fontsize": iconFontSize,
