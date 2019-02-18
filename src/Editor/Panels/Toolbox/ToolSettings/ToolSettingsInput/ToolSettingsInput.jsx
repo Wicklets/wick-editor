@@ -36,8 +36,6 @@ class ToolSettingsInput extends Component {
     return (
       <div className="settings-numeric-input-container">
         <WickInput
-          tooltip={this.props.name}
-          id={'settings-numeric-wick-input-container-' + this.props.icon}
           type="numeric"
           containerclassname="settings-numeric-wick-input-container"
           className="settings-numeric-input"
@@ -45,8 +43,6 @@ class ToolSettingsInput extends Component {
           value={this.props.value}
           {...this.props.inputRestrictions}/>
         <WickInput
-          tooltip={this.props.name}
-          id={'settings-slider-wick-input-container-' + this.props.icon}
           type="slider"
           containerclassname="settings-slider-wick-input-container"
           className="settings-numeric-slider"
@@ -60,8 +56,6 @@ class ToolSettingsInput extends Component {
   renderCheckboxInput = () => {
     return (
       <WickInput
-        tooltip={this.props.name}
-        id={'settings-checkbox-wick-input-container-' + this.props.icon}
         type="checkbox"
         containerclassname="settings-checkbox-wick-input-container"
         className="settings-checkbox-input"
@@ -74,8 +68,6 @@ class ToolSettingsInput extends Component {
   renderDropdownInput = () => {
     return (
       <WickInput
-        tooltip={this.props.name}
-        id={'settings-dropdown-wick-input-container-' + this.props.icon}
         type="dropdown"
         className="settings-dropdown-input"
         onChange={this.props.onChange}

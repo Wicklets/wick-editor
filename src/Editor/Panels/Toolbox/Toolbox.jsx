@@ -145,9 +145,8 @@ class Toolbox extends Component {
             setToolSettings={this.props.setToolSettings}
             toolRestrictions={this.props.toolRestrictions} />
 
-        <ToolboxBreak className="toolbox-item"/>
-
       <div className="toolbox-actions-right">
+        <ToolboxBreak className="toolbox-item"/>
         {this.renderToolboxActions()}
         <div className="toolbox-item">
           <ActionButton

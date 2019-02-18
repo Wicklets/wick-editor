@@ -11,3 +11,4 @@
 'break' by Adrien Coquet from the Noun Project, Edited by Luca Damasco | in tool-icons/breakApart.svg,
 'Close' by Icon Depot from the Noun Project, Edited by Luca Damasco | in tool-icons/close.svg,
 'Undo' by Timothy Miller from the Noun Project, Edited by Luca Damasco | in tool-icons/ ... undo.svg, redo.svg
+'stylus' by MarkieAnn Packer from the Noun Project, Edited by Luca Damasco | in tool-icons/ brushpressure.svg

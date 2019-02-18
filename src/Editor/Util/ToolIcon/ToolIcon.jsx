@@ -181,8 +181,8 @@ class ToolIcon extends Component {
         <img
           className={classNames("img-tool-icon", this.props.className)}
           alt={this.props.name+" icon"}
-          src={this.getSource()} />
-      )
+          src={this.getSource()}/>
+      );
     } else {
       return (
         <div className="img-tool-icon">{this.props.default}</div>

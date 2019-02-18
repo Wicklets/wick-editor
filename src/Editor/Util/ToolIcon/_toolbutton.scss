@@ -21,8 +21,12 @@
 
 .img-tool-icon {
   height: 100%;
-
   display: flex;
   align-items: center;
-  justify-content: center;
+  -webkit-user-drag: none;
+  -khtml-user-drag: none;
+  -moz-user-drag: none;
+  -o-user-drag: none;
+  user-drag: none;
+  pointer-events: none;
 }
