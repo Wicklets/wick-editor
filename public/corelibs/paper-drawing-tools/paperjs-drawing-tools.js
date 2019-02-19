@@ -3815,6 +3815,19 @@ paper.DrawingTools = class {
     this._onCanvasModifiedCallback = null;
     this._onSelectionChangedCallback = null;
     this._onCanvasViewChangedCallback = null;
+    this.brush = TOOL_BRUSH();
+    this.cursor = TOOL_CURSOR();
+    this.ellipse = TOOL_ELLIPSE();
+    this.eraser = TOOL_ERASER();
+    this.eyedropper = TOOL_EYEDROPPER();
+    this.fillbucket = TOOL_FILLBUCKET();
+    this.line = TOOL_LINE();
+    this.none = TOOL_NONE();
+    this.pan = TOOL_PAN();
+    this.pencil = TOOL_PENCIL();
+    this.rectangle = TOOL_RECTANGLE();
+    this.text = TOOL_TEXT();
+    this.zoom = TOOL_ZOOM();
   }
 
   fireCanvasModified(e) {
@@ -4372,558 +4385,152 @@ paper.drawingTools = new paper.DrawingTools();
  * You should have received a copy of the GNU General Public License
  * along with Paper.js-drawing-tools.  If not, see <https://www.gnu.org/licenses/>.
  */
-
-/*
-    paper-multiselection.js
-    Adds functionality for a selection box for transforming multiple objects.
-
-    by zrispo (github.com/zrispo) (zach@wickeditor.com)
- */
-paper.MultiSelection = class {
+paper.SelectionBox = class {
+  /*
+   *
+   */
   constructor() {
-    this.SELECTION_BOX_STROKECOLOR = 'rgba(100,150,255,1.0)';
-    this.SELECTION_BOX_FILLCOLOR = 'rgba(255,255,255,0.3)';
-    this.SELECTION_SUBBOX_STROKECOLOR = 'rgba(100,150,255,0.75)';
-    this.ROTATION_HANDLE_COLOR = 'rgba(255,0,0,0.0001)';
-    this.HANDLE_RADIUS = 5;
-    this.ROTATION_HANDLE_RADIUS = 20;
-    this.HANDLE_NAMES = ['topLeft', 'topCenter', 'topRight', 'rightCenter', 'leftCenter', 'bottomRight', 'bottomCenter', 'bottomLeft'];
-    this._selectedItems = [];
-    this._selectionBounds = null;
-    this._guiLayer = null;
-    this._prerotation = null;
-    this._prerotationAmount = null;
-    this._prerotationPivot = null;
+    this._start = new paper.Point();
+    this._end = new paper.Point();
+    this._items = [];
+    this._active = false;
+    this._box = new paper.Path.Rectangle();
+    this._mode = 'intersects';
   }
+  /*
+   *
+   */
 
-  get guiLayer() {
-    if (!this._guiLayer) {
-      this._guiLayer = new paper.Layer();
-      this._guiLayer.name = 'MultiSelectionGUI';
 
-      this._guiLayer.remove();
-    }
+  start(point) {
+    this._active = true;
+    this._start = point;
+    this._end = point;
 
-    return this._guiLayer;
+    this._rebuildBox();
   }
+  /*
+   *
+   */
+
+
+  drag(point) {
+    this._end = point;
+
+    this._rebuildBox();
+  }
+  /*
+   *
+   */
+
+
+  end(point) {
+    this._end = point;
+    this._active = false;
+
+    this._rebuildBox();
+
+    this._box.remove();
+
+    this._items = this._itemsInBox(this._box);
+  }
+  /*
+   *
+   */
+
 
   get items() {
-    return this._selectedItems;
+    return this._items;
+  }
+  /*
+   *
+   */
+
+
+  get active() {
+    return this._active;
+  }
+  /*
+   *
+   */
+
+
+  get mode() {
+    return this._mode;
   }
 
-  get bounds() {
-    return this._selectionBounds;
-  }
-
-  get position() {
-    return new paper.Point(this.bounds.x, this.bounds.y);
-  }
-
-  get width() {
-    return this.bounds.width;
-  }
-
-  get height() {
-    return this.bounds.height;
-  }
-
-  get scaling() {
-    if (this.items.length === 1) {
-      return this.items[0].scaling || {
-        x: 1,
-        y: 1
-      };
-    } else {
-      return new paper.Point(1, 1);
+  set mode(mode) {
+    if (mode !== 'contains' && mode !== 'intersects') {
+      throw new Error("SelectionBox.mode: invalid mode");
     }
+
+    this._mode = mode;
   }
 
-  get rotation() {
-    if (this.items.length === 1) {
-      return this.items[0].rotation;
-    } else {
-      return 0;
-    }
-  }
+  _rebuildBox() {
+    this._box.remove();
 
-  get opacity() {
-    if (this._selectedItemsShareValue('opacity')) {
-      return this.items[0].opacity;
-    } else {
-      return null;
-    }
-  }
-
-  get strokeWidth() {
-    if (this._selectedItemsShareValue('strokeWidth')) {
-      return this.items[0].strokeWidth;
-    } else {
-      return null;
-    }
-  }
-
-  get strokeColor() {
-    if (this._selectedItemsShareColor('strokeColor')) {
-      var color = this.items[0].strokeColor;
-      return color && color.toCSS();
-    } else {
-      return null;
-    }
-  }
-
-  get fillColor() {
-    if (this._selectedItemsShareColor('fillColor')) {
-      var color = this.items[0].fillColor;
-      return color && color.toCSS();
-    } else {
-      return null;
-    }
-  }
-
-  get rotationPoint() {
-    if (this._selectedItems.length === 1) {
-      return this._selectedItems[0].position;
-    } else {
-      return this.bounds.center;
-    }
-  }
-
-  updateGUI() {
-    this._rebuildGUI();
-  }
-
-  addItem(item) {
-    if (!this.isItemSelected(item)) {
-      this._selectedItems.push(item);
-    }
-  }
-
-  addItemByName(name) {
-    var item = null;
-
-    this._selectableLayers().forEach(layer => {
-      if (layer.children[name]) {
-        item = layer.children[name];
-      }
-    });
-
-    if (item) {
-      this.addItem(item);
-    }
-  }
-
-  removeItem(item) {
-    this._selectedItems = this._selectedItems.filter(seekItem => {
-      return seekItem !== item;
+    this._box = new paper.Path.Rectangle({
+      from: this._start,
+      to: this._end,
+      strokeWidth: 1,
+      strokeColor: 'black'
     });
   }
 
-  isItemSelected(item) {
-    return this._selectedItems.filter(seekItem => {
-      return seekItem.name && seekItem.name === item.name || seekItem === item;
-    }).length > 0;
-  }
+  _itemsInBox(box) {
+    var checkItems = [];
 
-  clear() {
-    this._selectedItems = [];
-  }
-
-  selectAll() {
-    var selectableItems = [];
-
-    this._selectableLayers().forEach(layer => {
+    this._getSelectableLayers().forEach(layer => {
       layer.children.forEach(child => {
-        selectableItems.push(child);
+        checkItems.push(child);
       });
     });
 
-    this.clear();
-    var self = this;
-    selectableItems.forEach(item => {
-      self.addItem(item);
-    });
-  }
-
-  delete() {
-    this._selectedItems.forEach(item => {
-      item.remove();
-    });
-
-    this.clear();
-  }
-
-  translate(x, y) {
-    this._selectedItems.forEach(function (item) {
-      item.position.x += x;
-      item.position.y += y;
-    });
-
-    this.guiLayer.children.forEach(function (child) {
-      child.position.x += x;
-      child.position.y += y;
-    });
-
-    this._recalculateBounds();
-  }
-
-  rotate(r, pivot) {
-    if (!pivot) pivot = this.bounds.center;
-
-    this._selectedItems.forEach(item => {
-      item.rotate(r, pivot);
-    });
-
-    this.guiLayer.children.forEach(child => {
-      child.rotate(r, pivot);
-    });
-
-    this._recalculateBounds();
-  }
-
-  scale(x, y, pivot) {
-    if (!pivot) pivot = this.bounds.topLeft;
-
-    this._selectedItems.forEach(function (item) {
-      item.scale(x, y, pivot);
-    });
-
-    this.guiLayer.children.forEach(function (child) {
-      child.scale(x, y, pivot);
-    });
-    this.guiLayer.children.filter(function (child) {
-      return child.name.startsWith('selectionBoxScaleHandle_') || child.name === 'selectionBoxCenterpoint';
-    }).forEach(function (child) {
-      child.scale(1 / x, 1 / y, child.position);
-    });
-
-    this._recalculateBounds();
-  }
-
-  flip(direction) {
-    var pivot = this._selectionBounds.center;
-
-    this._selectedItems.forEach(function (item) {
-      item.scale(direction === 'horizontal' ? -1 : 1, direction === 'vertical' ? -1 : 1, pivot);
-    });
-
-    this._rebuildGUI();
-  }
-
-  flipHorizontally() {
-    this.flip('horizontal');
-  }
-
-  flipVertically() {
-    this.flip('vertical');
-  }
-
-  sendToBack() {
-    this._selectionSortedByZIndex().reverse().forEach(item => {
-      item.sendToBack();
-    });
-  }
-
-  bringToFront() {
-    this._selectionSortedByZIndex().forEach(item => {
-      item.bringToFront();
-    });
-  }
-
-  sendBackwards() {
-    this._selectionSortedByZIndex().reverse().forEach(item => {
-      if (item.previousSibling && this._selectedItems.indexOf(item.previousSibling) === -1) {
-        item.insertBelow(item.previousSibling);
+    var items = [];
+    checkItems.forEach(item => {
+      if (this.mode === 'contains') {
+        if (this._box.bounds.contains(item.bounds)) {
+          items.push(item);
+        }
+      } else if (this.mode === 'intersects') {
+        if (this._shapesIntersect(item, this._box)) {
+          items.push(item);
+        }
       }
     });
+    return items;
   }
 
-  bringForwards() {
-    this._selectionSortedByZIndex().forEach(item => {
-      if (item.nextSibling && this._selectedItems.indexOf(item.nextSibling) === -1) {
-        item.insertAbove(item.nextSibling);
-      }
-    });
-  }
-
-  setPosition(x, y) {
-    var dx = x - this.bounds.left;
-    var dy = y - this.bounds.top;
-    this.translate(dx, dy);
-  }
-
-  setRotation(r) {
-    var dr = r - this._prerotationAmount;
-    this.rotate(dr);
-  }
-
-  setScale(x, y) {
-    if (this._selectedItems.length === 1) {
-      var item = this._selectedItems[0];
-      var dx = x / item.scaling.x;
-      var dy = y / item.scaling.y;
-      this.scale(dx, dy);
-    } else {
-      this.scale(x, y);
-    }
-  }
-
-  setSize(w, h) {
-    var sx = w / this._selectionBounds.width;
-    var sy = h / this._selectionBounds.height;
-    this.scale(sx, sy);
-  }
-
-  setFillColor(fillColor) {
-    this._selectedItems.filter(item => {
-      return item instanceof paper.Path || item instanceof paper.CompoundPath;
-    }).forEach(item => {
-      item.fillColor = fillColor;
-    });
-  }
-
-  setStrokeColor(strokeColor) {
-    this._selectedItems.filter(item => {
-      return item instanceof paper.Path || item instanceof paper.CompoundPath;
-    }).forEach(item => {
-      item.strokeColor = strokeColor;
-    });
-  }
-
-  setOpacity(opacity) {
-    this._selectedItems.forEach(item => {
-      item.opacity = opacity;
-    });
-  }
-
-  setStrokeWidth(strokeWidth) {
-    this._selectedItems.filter(item => {
-      return item instanceof paper.Path || item instanceof paper.CompoundPath;
-    }).forEach(item => {
-      item.strokeWidth = strokeWidth;
-    });
-  }
-
-  exportSVG() {
-    var exportGroup = new paper.Group();
-    exportGroup.remove();
-
-    this._selectedItems.forEach(item => {
-      if (item.className === 'Group') return;
-      var clone = item.clone();
-      clone.position.x -= this._selectionBounds.center.x;
-      clone.position.y -= this._selectionBounds.center.y;
-      clone.name = Math.random() + '-';
-      exportGroup.addChild(clone);
-    });
-
-    return exportGroup.exportSVG({
-      asString: true
-    });
-  }
-
-  _recalculateBounds() {
-    this._selectionBounds = null;
-
-    if (this._selectedItems.length === 1) {
-      var item = this._selectedItems[0];
-      this.prerotation = true;
-      this.prerotationAmount = item.rotation;
-      this.prerotationPivot = item.position;
-      item.rotation = 0;
-      this._selectionBounds = item.bounds.clone();
-      item.rotation = this.prerotationAmount;
-    } else {
-      this.prerotation = false;
-      var self = this;
-
-      this._selectedItems.forEach(function (item) {
-        if (!self._selectionBounds) {
-          self._selectionBounds = item.bounds.clone();
-        } else {
-          self._selectionBounds = self._selectionBounds.unite(item.bounds);
+  _shapesIntersect(itemA, itemB) {
+    if (itemA instanceof paper.Group) {
+      var intersects = false;
+      var itemBClone = itemB.clone();
+      itemBClone.transform(itemA.matrix.inverted());
+      itemA.children.forEach(child => {
+        if (!intersects && this._shapesIntersect(child, itemBClone)) {
+          intersects = true;
         }
       });
-    }
-  }
+      return intersects;
+    } else {
+      var shapesDoIntersect = itemB.intersects(itemA);
+      var boundsContain = itemB.bounds.contains(itemA.bounds);
 
-  _rebuildGUI() {
-    this.guiLayer.clear();
-    if (this._selectedItems.length === 0) return;
-
-    this._selectedItems.filter(item => {
-      return item instanceof paper.Path || item instanceof paper.CompoundPath;
-    }).forEach(item => {
-      item.applyMatrix = true;
-    });
-
-    this._recalculateBounds();
-
-    this._forceApplyMatrixOnAllItems();
-
-    this._createSelectionBorder();
-
-    this._createSubBorders();
-
-    this._createRotationHotspots();
-
-    this._createHandles();
-
-    this._createCenterpoint();
-
-    if (this.prerotation) {
-      var prerotationAmount = this.prerotationAmount;
-      var prerotationPivot = this.prerotationPivot;
-
-      this._guiLayer.children.forEach(function (child) {
-        child.rotate(prerotationAmount, prerotationPivot);
-      });
-    }
-  }
-
-  _forceApplyMatrixOnAllItems() {
-    // For selectionbox transforms to work correctly, anything that isn't a group
-    // or a raster must have applyMatrix set to true so paths won't have an extra
-    // transformation to deal with, all of their information can be stored in svg
-    this._selectedItems.forEach(item => {
-      if (item instanceof paper.Path || item instanceof paper.CompoundPath) {
-        item.applyMatrix = true;
+      if (shapesDoIntersect || boundsContain) {
+        return true;
       }
-    });
-  }
-
-  _createSelectionBorder() {
-    var item = new paper.Path.RoundRectangle(this.bounds, 0);
-    item.remove();
-    item.strokeColor = this.SELECTION_BOX_STROKECOLOR;
-    item.strokeWidth = 1 / paper.view.zoom;
-    item.name = 'selectionBoxBorder';
-    this.guiLayer.addChild(item);
-  }
-
-  _createSubBorders() {
-    if (this._selectedItems.length < 2) return;
-    var self = this;
-
-    this._selectedItems.forEach(function (selectedItem) {
-      var r = selectedItem.rotation;
-      selectedItem.rotation = 0;
-      var item = new paper.Path.RoundRectangle(selectedItem.bounds, 0);
-      item.strokeColor = self.SELECTION_SUBBOX_STROKECOLOR;
-      item.strokeWidth = 1 / paper.view.zoom;
-      item.remove();
-      item.name = 'selectionBoxSubBorder_' + self._selectedItems.indexOf(selectedItem);
-      item.rotate(r, selectedItem.position);
-
-      self._guiLayer.addChild(item);
-
-      selectedItem.rotation = r;
-    });
-  }
-
-  _createHandles() {
-    var self = this;
-    this.HANDLE_NAMES.forEach(function (dir) {
-      var corner = self.bounds[dir];
-      var item = new paper.Path.Circle(corner, self.HANDLE_RADIUS / paper.view.zoom);
-      item.remove();
-      item.strokeWidth = 1.2 / paper.view.zoom;
-      item.strokeColor = self.SELECTION_BOX_STROKECOLOR;
-      item.fillColor = self.SELECTION_BOX_FILLCOLOR;
-      item.name = 'selectionBoxScaleHandle_' + dir;
-      self.guiLayer.addChild(item);
-    });
-  }
-
-  _createRotationHotspots() {
-    var self = this;
-    this.HANDLE_NAMES.forEach(function (dir) {
-      if (dir.includes('Center')) return;
-      var p = self.bounds[dir].clone();
-      var item = new paper.Path([new paper.Point(0, 0), new paper.Point(0, self.ROTATION_HANDLE_RADIUS), new paper.Point(self.ROTATION_HANDLE_RADIUS, self.ROTATION_HANDLE_RADIUS), new paper.Point(self.ROTATION_HANDLE_RADIUS, -self.ROTATION_HANDLE_RADIUS), new paper.Point(-self.ROTATION_HANDLE_RADIUS, -self.ROTATION_HANDLE_RADIUS), new paper.Point(-self.ROTATION_HANDLE_RADIUS, 0)]);
-      item.fillColor = self.ROTATION_HANDLE_COLOR;
-      item.name = 'selectionBoxRotationHandle_' + dir;
-      item.rotate({
-        'topRight': 0,
-        'bottomRight': 90,
-        'bottomLeft': 180,
-        'topLeft': 270
-      }[dir]);
-      item.position.x = p.x;
-      item.position.y = p.y;
-      item.remove();
-      self.guiLayer.addChild(item);
-    });
-  }
-
-  _createCenterpoint() {
-    if (this._selectedItems.length === 1 && this._selectedItems[0]._class === 'Group') {
-      var item = new paper.Path.Circle(this._selectedItems[0].position, this.HANDLE_RADIUS / paper.view.zoom);
-      item.remove();
-      item.strokeWidth = 1 / paper.view.zoom;
-      item.strokeColor = 'green';
-      item.fillColor = this.SELECTION_BOX_FILLCOLOR;
-      item.name = 'selectionBoxCenterpoint';
-      this.guiLayer.addChild(item);
     }
   }
 
-  _getLayersOfSelectedItems() {
-    var layers = [];
-
-    this._selectedItems.forEach(item => {
-      if (layers.indexOf(item.layer) === -1) {
-        layers.push(item.layer);
-      }
-    });
-
-    return layers;
-  }
-
-  _selectableLayers() {
+  _getSelectableLayers() {
     var self = this;
     return paper.project.layers.filter(layer => {
-      return !layer.locked && layer !== self._guiLayer;
+      return !layer.locked;
     });
-  }
-
-  _selectedItemsShareValue(valueName) {
-    return this._arrayAllEqual(this.items.map(item => {
-      return item[valueName];
-    }));
-  }
-
-  _selectedItemsShareColor(colorName) {
-    return this._arrayAllEqual(this.items.map(item => {
-      if (item[colorName] === null || item[colorName] === undefined) {
-        return null;
-      } else {
-        return item[colorName].toCSS();
-      }
-    }));
-  }
-
-  _selectionSortedByZIndex() {
-    return this._selectedItems.sort(function (a, b) {
-      return a.index - b.index;
-    });
-  }
-
-  _arrayAllEqual(array) {
-    if (array.length === 0) return false;
-    var allEqual = true;
-    var checkValue = array[0];
-    array.forEach(item => {
-      if (item !== checkValue) {
-        allEqual = false;
-      }
-    });
-    return allEqual;
   }
 
 };
-paper.Project.inject({
-  selection: new paper.MultiSelection()
-});
 /*
  * Copyright 2018 WICKLETS LLC
  *
@@ -5199,14 +4806,13 @@ class BrushCursorGen {
  * You should have received a copy of the GNU General Public License
  * along with Paper.js-drawing-tools.  If not, see <https://www.gnu.org/licenses/>.
  */
-(() => {
+var TOOL_BRUSH = () => {
   var croquis;
   var croquisDOMElement;
   var croquisBrush;
   var cursor;
   var lastPressure;
   var tool = new paper.Tool();
-  paper.drawingTools.brush = tool;
   tool.pressureEnabled = true;
   tool.brushSize = 10;
   tool.brushStabilizerLevel = 3;
@@ -5324,7 +4930,9 @@ class BrushCursorGen {
       img.src = resizedCanvas.toDataURL();
     }, 20);
   };
-})();
+
+  return tool;
+};
 /*
  * Copyright 2018 WICKLETS LLC
  *
@@ -5343,13 +4951,8 @@ class BrushCursorGen {
  * You should have received a copy of the GNU General Public License
  * along with Paper.js-drawing-tools.  If not, see <https://www.gnu.org/licenses/>.
  */
-(() => {
-  var SELECTION_BOX_STROKECOLOR = 'rgba(100,150,255,1.0)';
-  var SELECTION_BOX_FILLCOLOR = 'rgba(255,255,255,0.3)';
-  var HOVER_PREVIEW_COLOR = 'rgba(100,150,255,1.0)';
-  var HOVER_PREVIEW_STROKEWIDTH = 1.5;
-  var HOVER_PREVIEW_SEGMENT_RADIUS = 5;
-  var HOVER_PREVIEW_SEGMENT_FILLCOLOR = '#ffffff';
+var TOOL_CURSOR = () => {
+  var SELECTION_TOLERANCE = 3;
   var CURSOR_DEFAULT = 'cursors/default.png';
   var CURSOR_SCALE_TOP_RIGHT_BOTTOM_LEFT = 'cursors/scale-top-right-bottom-left.png';
   var CURSOR_SCALE_TOP_LEFT_BOTTOM_RIGHT = 'cursors/scale-top-left-bottom-right.png';
@@ -5362,20 +4965,9 @@ class BrushCursorGen {
   var CURSOR_MOVE = 'cursors/move.png';
   var CURSOR_SEGMENT = 'cursors/segment.png';
   var CURSOR_CURVE = 'cursors/curve.png';
-  var SELECTION_TOLERANCE = 3;
-  var selectedItems;
-  var guiTarget;
-  var projectTarget;
-  var newSegment;
-  var draggingCurve;
-  var boxStart;
-  var boxEnd;
-  var selectionBox;
-  var draggingScaleHandle;
-  var draggingRotationHotspot;
-  var hoverPreview;
+  var hitResult = new paper.HitResult();
+  var selectionBox = new paper.SelectionBox();
   var tool = new paper.Tool();
-  paper.drawingTools.cursor = tool;
   tool.selectPoints = true;
   tool.selectCurves = true;
 
@@ -5383,452 +4975,149 @@ class BrushCursorGen {
     selectedItems = [];
   };
 
-  tool.onDeactivate = function (e) {
-    paper.project.selection.clear();
-  };
+  tool.onDeactivate = function (e) {};
 
   tool.onMouseMove = function (e) {
-    if (hoverPreview) {
-      hoverPreview.remove();
-      hoverPreview = null;
-    }
+    hitResult = _updateHitResult(e);
 
-    guiTarget = determineGUITarget(e);
-    projectTarget = determineProjectTarget(e);
-    forwardMouseEvent(e, 'Move');
+    _setCursor(_getCursor());
   };
 
   tool.onMouseDown = function (e) {
-    forwardMouseEvent(e, 'Down');
+    hitResult = _updateHitResult(e);
+
+    if (hitResult.item && hitResult.item.data.isSelectionBoxGUI) {// The selection box was clicked
+    } else if (paper.selection.isItemSelected(hitResult.item)) {
+      // We clicked something that was already selected.
+      // Shift click: Deselect that item
+      if (e.modifiers.shift) {
+        var itemsWithoutHitItem = paper.selection.items.filter(item => {
+          return item !== hitResult.item;
+        });
+        paper.drawingTools.fireSelectionChanged({
+          items: itemsWithoutHitItem
+        });
+      }
+    } else if (hitResult.item) {
+      // Clicked an item: select that item
+      var items = [hitResult.item]; // Shift click? Keep everything else selected.
+
+      if (e.modifiers.shift) items = items.concat(paper.selection.items);
+      paper.drawingTools.fireSelectionChanged({
+        items: items
+      });
+    } else {
+      paper.selection.finish();
+      paper.drawingTools.fireCanvasModified();
+      paper.drawingTools.fireSelectionChanged({
+        items: []
+      }); // Nothing was clicked, so start the selection box
+
+      selectionBox.start(e.point);
+    }
   };
 
   tool.onMouseDrag = function (e) {
-    forwardMouseEvent(e, 'Drag');
+    if (hitResult.item && hitResult.item.data.isSelectionBoxGUI) {
+      // Drag a handle of the selection box.
+      // These can scale and rotate the selection.
+      paper.selection.handleDragMode = hitResult.item.data.handleType;
+      paper.selection[hitResult.item.data.handleEdge] = e.point;
+    } else if (selectionBox.active) {
+      // Selection box is being used, update it with a new point
+      selectionBox.drag(e.point);
+    } else if (hitResult.item) {
+      // We're dragging the selection itself, so move it.
+      paper.selection.x += e.delta.x;
+      paper.selection.y += e.delta.y;
+    }
   };
 
   tool.onMouseUp = function (e) {
-    forwardMouseEvent(e, 'Up');
-  };
-  /*  */
-
-
-  tool.deleteSelectedItems = function () {
-    var layers = paper.project.selection._getLayersOfSelectedItems(); // Save layers here because we can't get them once items are deleted!
-
-
-    paper.project.selection.deleteSelectedItems();
-    paper.drawingTools.fireCanvasModified({
-      layers: layers
-    });
-    paper.project.selection.clear();
-    paper.project.selection.updateGUI();
-    paper.drawingTools.fireSelectionChanged();
-  };
-
-  tool.flipSelectedItems = function (dir) {
-    paper.project.selection.flip(dir);
-    paper.drawingTools.fireCanvasModified({
-      layers: paper.project.selection._getLayersOfSelectedItems()
-    });
-  };
-  /* Canvas mouse events */
-
-
-  tool._onMouseMove_canvas = function (e) {
-    paper.view._element.style.cursor = 'url(' + CURSOR_DEFAULT + ') 32 32, auto';
-  };
-
-  tool._onMouseDown_canvas = function (e) {
-    if (!e.modifiers.shift) {
-      paper.project.selection.clear();
-      paper.project.selection.updateGUI();
-      paper.drawingTools.fireSelectionChanged();
-    }
-
-    boxStart = new paper.Point(e.point.x, e.point.y);
-    boxEnd = new paper.Point(e.point.x, e.point.y);
-  };
-
-  tool._onMouseDrag_canvas = function (e) {
-    if (selectionBox) selectionBox.remove();
-    boxEnd = new paper.Point(e.point.x, e.point.y);
-    var bounds = new paper.Rectangle(boxStart, boxEnd);
-    bounds.x += 0.5;
-    bounds.y += 0.5;
-    selectionBox = new paper.Path.RoundRectangle(bounds, 0);
-    selectionBox.remove();
-    selectionBox.fillColor = SELECTION_BOX_FILLCOLOR;
-    selectionBox.strokeColor = SELECTION_BOX_STROKECOLOR;
-    paper.project.selection.guiLayer.addChild(selectionBox);
-  };
-
-  tool._onMouseUp_canvas = function (e) {
-    if (!selectionBox) return;
-    var mode = e.modifiers.alt ? 'contains' : 'intersects';
-    var itemsInBox = [];
-    var itemsToCheck = [];
-    paper.project.layers.filter(layer => {
-      return layer !== paper.project.selection.guiLayer && !layer.locked;
-    }).forEach(function (layer) {
-      itemsToCheck = itemsToCheck.concat(layer.children);
-    });
-    itemsToCheck.forEach(function (item) {
-      if (mode === 'contains') {
-        if (selectionBox.bounds.contains(item.bounds)) {
-          itemsInBox.push(item);
-        }
-      } else if (mode === 'intersects') {
-        if (shapesIntersect(item, selectionBox)) {
-          itemsInBox.push(item);
-        }
-      }
-    });
-    selectionBox.remove();
-    selectionBox = null;
-    itemsInBox.forEach(item => {
-      paper.project.selection.addItem(item);
-    });
-    paper.project.selection.updateGUI();
-    paper.drawingTools.fireSelectionChanged();
-  };
-  /* Scale handle mouse events */
-
-
-  tool._onMouseMove_scaleHandle = function (e) {
-    var handleDir = guiTarget.item.name.split("_")[1];
-    var cursorOptions = {
-      topCenter: CURSOR_SCALE_VERTICAL,
-      topRight: CURSOR_SCALE_TOP_RIGHT_BOTTOM_LEFT,
-      rightCenter: CURSOR_SCALE_HORIZONTAL,
-      bottomRight: CURSOR_SCALE_TOP_LEFT_BOTTOM_RIGHT,
-      bottomCenter: CURSOR_SCALE_VERTICAL,
-      bottomLeft: CURSOR_SCALE_TOP_RIGHT_BOTTOM_LEFT,
-      leftCenter: CURSOR_SCALE_HORIZONTAL,
-      topLeft: CURSOR_SCALE_TOP_LEFT_BOTTOM_RIGHT
-    };
-    paper.view._element.style.cursor = 'url("' + cursorOptions[handleDir] + '") 32 32, auto';
-  };
-
-  tool._onMouseDown_scaleHandle = function (e) {};
-
-  tool._onMouseDrag_scaleHandle = function (e) {
-    var handleDir = draggingScaleHandle.name.split('_')[1];
-    var pivot = paper.project.selection.bounds[{
-      'topLeft': 'bottomRight',
-      'topRight': 'bottomLeft',
-      'bottomRight': 'topLeft',
-      'bottomLeft': 'topRight',
-      'bottomCenter': 'topCenter',
-      'topCenter': 'bottomCenter',
-      'leftCenter': 'rightCenter',
-      'rightCenter': 'leftCenter'
-    }[handleDir]]; // Calculate scale based on mouse event.
-
-    var resizeX;
-    var resizeY;
-
-    if (handleDir.startsWith('left') || handleDir.endsWith('Left')) {
-      resizeX = pivot.x - e.point.x;
-    } else {
-      resizeX = e.point.x - pivot.x;
-    }
-
-    if (handleDir.startsWith('top')) {
-      resizeY = pivot.y - e.point.y;
-    } else {
-      resizeY = e.point.y - pivot.y;
-    }
-
-    resizeX /= paper.project.selection.bounds.width;
-    resizeY /= paper.project.selection.bounds.height; // Lock horizontal/vertical scaling.
-
-    if (handleDir === 'leftCenter' || handleDir === 'rightCenter') {
-      resizeY = 1;
-    } else if (handleDir === 'topCenter' || handleDir === 'bottomCenter') {
-      resizeX = 1;
-    } else {
-      // Holding shift locks aspect ratio.
-      if (e.modifiers.shift) {
-        var max = Math.max(resizeX, resizeY);
-        resizeX = max;
-        resizeY = max;
-      }
-    }
-
-    if (paper.project.selection.bounds.width * resizeX < 1) resizeX = 1;
-    if (paper.project.selection.bounds.height * resizeY < 1) resizeY = 1;
-    paper.project.selection.scale(resizeX, resizeY, pivot);
-  };
-
-  tool._onMouseUp_scaleHandle = function (e) {
-    paper.drawingTools.fireCanvasModified({
-      layers: paper.project.selection._getLayersOfSelectedItems()
-    });
-    paper.project.selection.updateGUI();
-  };
-  /* Rotation hotspot mouse events */
-
-
-  tool._onMouseMove_rotationHotspot = function (e) {
-    var handleDir = guiTarget.item.name.split("_")[1];
-    var cursorOptions = {
-      topLeft: CURSOR_ROTATE_TOP_LEFT,
-      topRight: CURSOR_ROTATE_TOP_RIGHT,
-      bottomLeft: CURSOR_ROTATE_BOTTOM_LEFT,
-      bottomRight: CURSOR_ROTATE_BOTTOM_RIGHT
-    };
-    paper.view._element.style.cursor = 'url("' + cursorOptions[handleDir] + '") 32 32, auto';
-  };
-
-  tool._onMouseDown_rotationHotspot = function (e) {};
-
-  tool._onMouseDrag_rotationHotspot = function (e) {
-    var pivot = paper.project.selection.rotationPoint;
-    var oldAngle = e.lastPoint.subtract(pivot).angle;
-    var newAngle = e.point.subtract(pivot).angle;
-    var rotationAmount = newAngle - oldAngle;
-    paper.project.selection.rotate(rotationAmount, pivot);
-  };
-
-  tool._onMouseUp_rotationHotspot = function (e) {
-    paper.drawingTools.fireCanvasModified({
-      layers: paper.project.selection._getLayersOfSelectedItems()
-    });
-    paper.project.selection.updateGUI();
-  };
-  /* Generic item mouse events */
-
-
-  tool._onMouseMove_item = function (e) {
-    paper.view._element.style.cursor = 'url(' + CURSOR_MOVE + ') 32 32, auto';
-  };
-
-  tool._onMouseDown_item = function (e) {
-    if (!e.modifiers.shift && !paper.project.selection.isItemSelected(projectTarget.item)) {
-      paper.project.selection.clear();
-    }
-
-    paper.project.selection.addItem(projectTarget.item);
-    paper.project.selection.updateGUI();
-    paper.drawingTools.fireSelectionChanged();
-  };
-
-  tool._onMouseDrag_item = function (e) {
-    paper.project.selection.translate(e.delta.x, e.delta.y);
-  };
-
-  tool._onMouseUp_item = function (e) {
-    if (e.delta.x !== 0 || e.delta.y !== 0) {
-      paper.drawingTools.fireCanvasModified({
-        layers: paper.project.selection._getLayersOfSelectedItems()
-      });
-    }
-
-    paper.project.selection.updateGUI();
-  };
-  /* Segment mouse events */
-
-
-  tool._onMouseMove_segment = function (e) {
-    paper.view._element.style.cursor = 'url(' + CURSOR_SEGMENT + ') 32 32, auto';
-    hoverPreview = new paper.Path.Circle(projectTarget.segment.point, HOVER_PREVIEW_SEGMENT_RADIUS / paper.view.zoom);
-    hoverPreview.strokeColor = HOVER_PREVIEW_COLOR;
-    hoverPreview.strokeWidth = HOVER_PREVIEW_STROKEWIDTH;
-    hoverPreview.fillColor = HOVER_PREVIEW_SEGMENT_FILLCOLOR;
-  };
-
-  tool._onMouseDown_segment = function (e) {};
-
-  tool._onMouseDrag_segment = function (e) {
-    projectTarget.segment.point = projectTarget.segment.point.add(e.delta);
-    hoverPreview.position = projectTarget.segment.point;
-  };
-
-  tool._onMouseUp_segment = function (e) {
-    if (e.delta.x === 0 && e.delta.y === 0) {
-      if (!e.modifiers.shift) paper.project.selection.clear();
-      paper.project.selection.addItem(projectTarget.item);
-      paper.project.selection.updateGUI();
-      paper.drawingTools.fireSelectionChanged();
-    } else {
-      hoverPreview.remove();
-      paper.project.selection.updateGUI();
-      paper.drawingTools.fireCanvasModified({
-        layers: [projectTarget.item.layer]
+    if (selectionBox.active) {
+      selectionBox.mode = e.modifiers.alt ? 'contains' : 'intersects';
+      selectionBox.end(e.point);
+      paper.drawingTools.fireSelectionChanged({
+        items: selectionBox.items
       });
     }
   };
-  /* Curve mouse events */
 
-
-  tool._onMouseMove_curve = function (e) {
-    paper.view._element.style.cursor = 'url(' + CURSOR_CURVE + ') 32 32, auto';
-    hoverPreview = new paper.Path();
-    hoverPreview.strokeWidth = 2;
-    hoverPreview.strokeColor = HOVER_PREVIEW_COLOR;
-    hoverPreview.add(new paper.Point(projectTarget.location.curve.point1));
-    hoverPreview.add(new paper.Point(projectTarget.location.curve.point2));
-    hoverPreview.segments[0].handleOut = projectTarget.location.curve.handle1;
-    hoverPreview.segments[1].handleIn = projectTarget.location.curve.handle2;
-  };
-
-  tool._onMouseDown_curve = function (e) {
-    if (e.modifiers.alt) {
-      var location = projectTarget.location;
-      var path = projectTarget.item;
-      newSegment = path.insert(location.index + 1, e.point);
-      if (hoverPreview) hoverPreview.remove();
-      hoverPreview = null;
-    }
-
-    draggingCurve = projectTarget.location.curve;
-  };
-
-  tool._onMouseDrag_curve = function (e) {
-    if (newSegment) {
-      newSegment.point = newSegment.point.add(e.delta);
-    } else {
-      var segment1 = draggingCurve.segment1;
-      var segment2 = draggingCurve.segment2;
-      var handleIn = segment1.handleOut;
-      var handleOut = segment2.handleIn;
-
-      if (handleIn.x === 0 && handleIn.y === 0) {
-        handleIn.x = (segment2.point.x - segment1.point.x) / 4;
-        handleIn.y = (segment2.point.y - segment1.point.y) / 4;
-      }
-
-      if (handleOut.x === 0 && handleOut.y === 0) {
-        handleOut.x = (segment1.point.x - segment2.point.x) / 4;
-        handleOut.y = (segment1.point.y - segment2.point.y) / 4;
-      }
-
-      handleIn.x += e.delta.x;
-      handleIn.y += e.delta.y;
-      handleOut.x += e.delta.x;
-      handleOut.y += e.delta.y;
-      hoverPreview.segments[0].handleOut = draggingCurve.handle1;
-      hoverPreview.segments[1].handleIn = draggingCurve.handle2;
-    }
-  };
-
-  tool._onMouseUp_curve = function (e) {
-    newSegment = null;
-
-    if (e.delta.x === 0 && e.delta.y === 0) {
-      if (!e.modifiers.shift) {
-        paper.project.selection.clear();
-      }
-
-      paper.project.selection.addItem(projectTarget.item);
-      paper.project.selection.updateGUI();
-      paper.drawingTools.fireSelectionChanged();
-    } else {
-      hoverPreview.remove();
-      paper.project.selection.updateGUI();
-      paper.drawingTools.fireCanvasModified({
-        layers: [projectTarget.item.layer]
-      });
-    }
-  };
-  /* Util */
-
-
-  function forwardMouseEvent(e, mouseEventName) {
-    var itemType = determineTargetType();
-
-    if (itemType) {
-      var fnName = '_onMouse' + mouseEventName + '_' + itemType;
-      tool[fnName](e);
-    }
-  }
-
-  function determineTargetType() {
-    var itemType;
-
-    if (guiTarget) {
-      if (guiTarget.item.name.startsWith('selectionBoxScaleHandle_')) {
-        itemType = 'scaleHandle';
-        draggingScaleHandle = guiTarget.item;
-      } else if (guiTarget.item.name.startsWith('selectionBoxRotationHandle_')) {
-        itemType = 'rotationHotspot';
-        draggingRotationHotspot = guiTarget.item;
-      }
-    } else if (projectTarget) {
-      var isSelected = paper.project.selection.isItemSelected(projectTarget.item) || paper.project.selection.isItemSelected(projectTarget.item.parent);
-
-      if (projectTarget.type === 'fill' || isSelected) {
-        itemType = 'item';
-      } else if (projectTarget.type === 'segment') {
-        itemType = 'segment';
-      } else if (projectTarget.type === 'curve' || projectTarget.type === 'stroke') {
-        itemType = 'curve';
-      } else if (projectTarget.type === 'pixel') {
-        itemType = 'item';
-      }
-    } else {
-      itemType = 'canvas';
-    }
-
-    return itemType;
-  }
-
-  function determineGUITarget(e) {
-    return paper.project.selection.guiLayer.hitTest(e.point, {
-      fill: true
-    });
-  }
-
-  function determineProjectTarget(e) {
-    var projectTarget = paper.project.hitTest(e.point, {
+  function _updateHitResult(e) {
+    var newHitResult = paper.project.hitTest(e.point, {
       fill: true,
-      stroke: tool.selectCurves,
-      curves: tool.selectCurves,
-      segments: tool.selectPoints,
-      tolerance: SELECTION_TOLERANCE,
-      match: function (result) {
-        return result.item.layer !== paper.project.selection.guiLayer && !result.item.layer.locked;
-      }
+      stroke: true,
+      curves: true,
+      segments: true,
+      tolerance: SELECTION_TOLERANCE
     });
+    if (!newHitResult) newHitResult = new paper.HitResult();
 
-    if (projectTarget) {
-      if (projectTarget.item.parent.className === 'CompoundPath') {
-        projectTarget.item = projectTarget.item.parent;
-      }
+    if (newHitResult.item && !newHitResult.item.data.isSelectionBoxGUI) {
+      // You can't select children of compound paths, you can only select the whole thing.
+      if (newHitResult.item.parent.className === 'CompoundPath') {
+        newHitResult.item = newHitResult.item.parent;
+      } // You can't select individual children in a group, you can only select the whole thing.
 
-      if (projectTarget.item.parent.parent) {
-        projectTarget.type = 'fill';
 
-        while (projectTarget.item.parent.parent) {
-          projectTarget.item = projectTarget.item.parent;
+      if (newHitResult.item.parent.parent) {
+        newHitResult.type = 'fill';
+
+        while (newHitResult.item.parent.parent) {
+          newHitResult.item = newHitResult.item.parent;
         }
       }
     }
 
-    return projectTarget;
+    return newHitResult;
   }
 
-  function shapesIntersect(itemA, itemB) {
-    if (itemA instanceof paper.Group) {
-      var intersects = false;
-      var itemBClone = itemB.clone();
-      itemBClone.transform(itemA.matrix.inverted());
-      itemA.children.forEach(child => {
-        if (!intersects && shapesIntersect(child, itemBClone)) {
-          intersects = true;
+  function _getCursor() {
+    if (!hitResult.item) {
+      return CURSOR_DEFAULT;
+    } else if (hitResult.item.data.isSelectionBoxGUI) {
+      if (hitResult.item.name === 'border') {
+        return CURSOR_DEFAULT;
+      } else if (hitResult.item.data.handleType === 'scale') {
+        if (hitResult.item.data.handleEdge === 'topLeft') {
+          return CURSOR_SCALE_TOP_LEFT_BOTTOM_RIGHT;
+        } else if (hitResult.item.data.handleEdge === 'topRight') {
+          return CURSOR_SCALE_TOP_RIGHT_BOTTOM_LEFT;
+        } else if (hitResult.item.data.handleEdge === 'bottomRight') {
+          return CURSOR_SCALE_TOP_LEFT_BOTTOM_RIGHT;
+        } else if (hitResult.item.data.handleEdge === 'bottomLeft') {
+          return CURSOR_SCALE_TOP_RIGHT_BOTTOM_LEFT;
+        } else if (hitResult.item.data.handleEdge === 'topCenter') {
+          return CURSOR_SCALE_VERTICAL;
+        } else if (hitResult.item.data.handleEdge === 'rightCenter') {
+          return CURSOR_SCALE_HORIZONTAL;
+        } else if (hitResult.item.data.handleEdge === 'bottomCenter') {
+          return CURSOR_SCALE_VERTICAL;
+        } else if (hitResult.item.data.handleEdge === 'leftCenter') {
+          return CURSOR_SCALE_HORIZONTAL;
         }
-      });
-      return intersects;
+      } else if (hitResult.item.data.handleType === 'rotation') {
+        if (hitResult.item.data.handleEdge === 'topLeft') {
+          return CURSOR_ROTATE_TOP_LEFT;
+        } else if (hitResult.item.data.handleEdge === 'topRight') {
+          return CURSOR_ROTATE_TOP_RIGHT;
+        } else if (hitResult.item.data.handleEdge === 'bottomLeft') {
+          return CURSOR_ROTATE_BOTTOM_LEFT;
+        } else if (hitResult.item.data.handleEdge === 'bottomRight') {
+          return CURSOR_ROTATE_BOTTOM_RIGHT;
+        }
+      }
     } else {
-      var shapesDoIntersect = itemB.intersects(itemA);
-      var boundsContain = itemB.bounds.contains(itemA.bounds);
-
-      if (shapesDoIntersect || boundsContain) {
-        return true;
-      }
+      return CURSOR_MOVE;
     }
   }
-})();
+
+  function _setCursor(cursor) {
+    paper.view._element.style.cursor = 'url("' + cursor + '") 32 32, auto';
+  }
+
+  return tool;
+};
 /*
  * Copyright 2018 WICKLETS LLC
  *
@@ -5847,12 +5136,11 @@ class BrushCursorGen {
  * You should have received a copy of the GNU General Public License
  * along with Paper.js-drawing-tools.  If not, see <https://www.gnu.org/licenses/>.
  */
-(() => {
+var TOOL_ELLIPSE = () => {
   var path;
   var topLeft;
   var bottomRight;
   var tool = new paper.Tool();
-  paper.drawingTools.ellipse = tool;
   tool.fillColor = '#ff0000';
   tool.strokeColor = '#000000';
   tool.strokeWidth = 1;
@@ -5901,7 +5189,9 @@ class BrushCursorGen {
       layers: [paper.project.activeLayer]
     });
   };
-})();
+
+  return tool;
+};
 /*
  * Copyright 2018 WICKLETS LLC
  *
@@ -5920,12 +5210,11 @@ class BrushCursorGen {
  * You should have received a copy of the GNU General Public License
  * along with Paper.js-drawing-tools.  If not, see <https://www.gnu.org/licenses/>.
  */
-(() => {
+var TOOL_ERASER = () => {
   var path;
   var cursorSize;
   var cursor;
   var tool = new paper.Tool();
-  paper.drawingTools.eraser = tool;
   tool.brushSize = 10;
 
   tool.onActivate = function (e) {
@@ -5984,7 +5273,9 @@ class BrushCursorGen {
       resolution: smoothing * paper.view.zoom
     });
   };
-})();
+
+  return tool;
+};
 /*
  * Copyright 2018 WICKLETS LLC
  *
@@ -6003,7 +5294,7 @@ class BrushCursorGen {
  * You should have received a copy of the GNU General Public License
  * along with Paper.js-drawing-tools.  If not, see <https://www.gnu.org/licenses/>.
  */
-(() => {
+var TOOL_EYEDROPPER = () => {
   var CURSOR_EYEDROPPER = 'cursors/eyedropper.png';
   var canvasCtx;
   var hoverColor;
@@ -6013,7 +5304,6 @@ class BrushCursorGen {
   var _colorChosenCallback;
 
   var tool = new paper.Tool();
-  paper.drawingTools.eyedropper = tool;
 
   tool.onActivate = function (e) {
     canvasCtx = paper.view._element.getContext('2d');
@@ -6070,7 +5360,9 @@ class BrushCursorGen {
       colorPreviewBorder = null;
     }
   }
-})();
+
+  return tool;
+};
 /*
  * Copyright 2018 WICKLETS LLC
  *
@@ -6089,10 +5381,9 @@ class BrushCursorGen {
  * You should have received a copy of the GNU General Public License
  * along with Paper.js-drawing-tools.  If not, see <https://www.gnu.org/licenses/>.
  */
-(() => {
+var TOOL_FILLBUCKET = () => {
   var CURSOR_FILL_BUCKET = 'cursors/fillbucket.png';
   var tool = new paper.Tool();
-  paper.drawingTools.fillbucket = tool;
   tool.fillColor = '#ff0000';
 
   tool.onActivate = function (e) {};
@@ -6144,7 +5435,9 @@ class BrushCursorGen {
   tool.onMouseDrag = function (e) {};
 
   tool.onMouseUp = function (e) {};
-})();
+
+  return tool;
+};
 /*
  * Copyright 2018 WICKLETS LLC
  *
@@ -6163,12 +5456,11 @@ class BrushCursorGen {
  * You should have received a copy of the GNU General Public License
  * along with Paper.js-drawing-tools.  If not, see <https://www.gnu.org/licenses/>.
  */
-(() => {
+var TOOL_LINE = () => {
   var path;
   var startPoint;
   var endPoint;
   var tool = new paper.Tool();
-  paper.drawingTools.line = tool;
   tool.strokeColor = '#000000';
   tool.strokeWidth = 1;
 
@@ -6209,7 +5501,9 @@ class BrushCursorGen {
       layers: [paper.project.activeLayer]
     });
   };
-})();
+
+  return tool;
+};
 /*
  * Copyright 2018 WICKLETS LLC
  *
@@ -6228,9 +5522,8 @@ class BrushCursorGen {
  * You should have received a copy of the GNU General Public License
  * along with Paper.js-drawing-tools.  If not, see <https://www.gnu.org/licenses/>.
  */
-(() => {
+var TOOL_NONE = () => {
   var tool = new paper.Tool();
-  paper.drawingTools.none = tool;
 
   tool.onActivate = function (e) {};
 
@@ -6245,7 +5538,9 @@ class BrushCursorGen {
   tool.onMouseDrag = function (e) {};
 
   tool.onMouseUp = function (e) {};
-})();
+
+  return tool;
+};
 /*
  * Copyright 2018 WICKLETS LLC
  *
@@ -6264,9 +5559,8 @@ class BrushCursorGen {
  * You should have received a copy of the GNU General Public License
  * along with Paper.js-drawing-tools.  If not, see <https://www.gnu.org/licenses/>.
  */
-(() => {
+var TOOL_PAN = () => {
   var tool = new paper.Tool();
-  paper.drawingTools.pan = tool;
 
   tool.onActivate = function (e) {};
 
@@ -6286,7 +5580,9 @@ class BrushCursorGen {
   tool.onMouseUp = function (e) {
     paper.drawingTools.fireCanvasViewChanged({});
   };
-})();
+
+  return tool;
+};
 /*
  * Copyright 2018 WICKLETS LLC
  *
@@ -6305,12 +5601,11 @@ class BrushCursorGen {
  * You should have received a copy of the GNU General Public License
  * along with Paper.js-drawing-tools.  If not, see <https://www.gnu.org/licenses/>.
  */
-(() => {
+var TOOL_PENCIL = () => {
   var CURSOR_PENCIL = 'cursors/pencil.png';
   var path;
   var lastAddedPoint;
   var tool = new paper.Tool();
-  paper.drawingTools.pencil = tool;
   tool.strokeWidth = 1;
   tool.strokeColor = '#000000';
   tool.smoothness = 0;
@@ -6356,7 +5651,9 @@ class BrushCursorGen {
       layers: [paper.project.activeLayer]
     });
   };
-})();
+
+  return tool;
+};
 /*
  * Copyright 2018 WICKLETS LLC
  *
@@ -6375,12 +5672,11 @@ class BrushCursorGen {
  * You should have received a copy of the GNU General Public License
  * along with Paper.js-drawing-tools.  If not, see <https://www.gnu.org/licenses/>.
  */
-(() => {
+var TOOL_RECTANGLE = () => {
   var path;
   var topLeft;
   var bottomRight;
   var tool = new paper.Tool();
-  paper.drawingTools.rectangle = tool;
   tool.fillColor = '#ff0000';
   tool.strokeColor = '#000000';
   tool.strokeWidth = 1;
@@ -6436,7 +5732,9 @@ class BrushCursorGen {
       layers: [paper.project.activeLayer]
     });
   };
-})();
+
+  return tool;
+};
 /*
  * Copyright 2018 WICKLETS LLC
  *
@@ -6455,10 +5753,9 @@ class BrushCursorGen {
  * You should have received a copy of the GNU General Public License
  * along with Paper.js-drawing-tools.  If not, see <https://www.gnu.org/licenses/>.
  */
-(() => {
+var TOOL_TEXT = () => {
   var CURSOR_TEXT = 'cursors/text.png';
   var tool = new paper.Tool();
-  paper.drawingTools.text = tool;
   var hoveredOverText;
   var editingText;
 
@@ -6514,7 +5811,9 @@ class BrushCursorGen {
       layers: [paper.project.activeLayer]
     });
   };
-})();
+
+  return tool;
+};
 /*
  * Copyright 2018 WICKLETS LLC
  *
@@ -6533,14 +5832,13 @@ class BrushCursorGen {
  * You should have received a copy of the GNU General Public License
  * along with Paper.js-drawing-tools.  If not, see <https://www.gnu.org/licenses/>.
  */
-(() => {
+var TOOL_ZOOM = () => {
   var ZOOM_MIN = 0.1;
   var ZOOM_MAX = 20;
   var ZOOM_IN_AMOUNT = 1.25;
   var ZOOM_OUT_AMOUNT = 0.8;
   var zoomBox;
   var tool = new paper.Tool();
-  paper.drawingTools.zoom = tool;
 
   tool.onActivate = function (e) {};
 
@@ -6599,4 +5897,6 @@ class BrushCursorGen {
   function zoomBoxIsValidSize() {
     return zoomBox.bounds.width > 5 && zoomBox.bounds.height > 5;
   }
-})();
+
+  return tool;
+};

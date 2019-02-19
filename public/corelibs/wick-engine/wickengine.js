@@ -15993,20 +15993,24 @@ paper.Selection = class {
       scaleY: 1.0,
       rotation: 0
     };
-    this._handleDragMode = 'scale'; // It simplifies everything if we force applyMatrix=false on everything before doing any transforms.
+    this._handleDragMode = 'scale'; // Default pivot point is the center of all items.
+
+    this._pivotPoint = this._boundsOfItems(this._items).center; // It simplifies everything if we force applyMatrix=false on everything before doing any transforms.
     // We need to save the old data that we may lose, though.
 
     this._items.forEach(item => {
       item.data.originalMatrix = item.matrix.clone();
       item.applyMatrix = false;
-    }); // Default pivot point is the center of all items.
-
-
-    this._pivotPoint = this._boundsOfItems(this._items).center;
+    });
 
     if (this._items.length === 1) {
-      // Single item: Use all transforms of the single item as the selection transforms
-      var item = this._items[0];
+      var item = this._items[0]; // Single item: Use the origin as the pivot point if its a group.
+
+      if (item instanceof paper.Group || item instanceof paper.Raster) {
+        this._pivotPoint = item.position;
+      } // Single item: Use all transforms of the single item as the selection transforms
+
+
       this.rotation = item.rotation;
       item.rotation = 0;
       item.data.originalMatrix = item.matrix.clone();
@@ -16288,6 +16292,14 @@ paper.Selection = class {
 
   set rightCenter(rightCenter) {
     this._setHandlePosition('rightCenter', rightCenter);
+  }
+  /**
+   * 
+   */
+
+
+  get center() {
+    return this._box.bounds.center;
   }
   /**
    * 
@@ -44877,10 +44889,8 @@ Wick.Project = class extends Wick.Base {
 
   createSymbolFromSelection(name, type) {
     var transform = new Wick.Transformation();
-    transform.x = 0; // TODO
-
-    transform.y = 0; // TODO
-
+    transform.x = this.selection.center.x;
+    transform.y = this.selection.center.y;
     var clip = new Wick[type](name, this.selection.getSelectedObjects('Canvas'), transform);
     this.activeFrame.addClip(clip); // TODO add to asset library
 
@@ -45175,7 +45185,7 @@ Wick.Selection = class extends Wick.Base {
     return paper.selection.y;
   }
 
-  set y(x) {
+  set y(y) {
     paper.selection.y = y;
   }
 
@@ -45249,6 +45259,10 @@ Wick.Selection = class extends Wick.Base {
 
   set opacity(opacity) {
     paper.selection.opacity = opacity;
+  }
+
+  get center() {
+    return paper.selection.center;
   }
 
   clear() {
@@ -47788,6 +47802,7 @@ Wick.View.Selection = class extends Wick.View {
 
   render() {
     var project = this.model.project;
+    paper.selection.finish();
     var items = [];
     items = items.concat(project.selection.getSelectedObjects('Path').map(path => {
       return path.paperPath;
@@ -47795,7 +47810,6 @@ Wick.View.Selection = class extends Wick.View {
     items = items.concat(project.selection.getSelectedObjects('Clip').map(clip => {
       return clip.view.group;
     }));
-    paper.selection.finish();
     paper.selection = new paper.Selection({
       items: items,
       layer: this._layer

@@ -10,6 +10,7 @@ class UndoRedo {
 
   saveState () {
     this._undoStack.push(this._generateProjectState());
+    this._redoStack = [];
 
     if(this.LOG_STACKS) this._logStacks();
   }
