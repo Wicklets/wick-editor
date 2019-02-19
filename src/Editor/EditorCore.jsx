@@ -164,7 +164,8 @@ class EditorCore extends Component {
 
   /**
    * Determines the type of the object/objects that are in the selection state.
-   * @returns {string} The string representation of the type of object/objects selected
+   * @returns {string} The string representation of the type of object/objects
+   * selected
    */
   getSelectionType = () => {
     let selection = this.project.selection;
@@ -239,7 +240,8 @@ class EditorCore extends Component {
 
   /**
    * Returns all selected objects on the timeline.
-   * @returns {(<Wick.Frame>|<Wick.Tween>)[]} An array containing the selected tweens and frames
+   * @returns {(<Wick.Frame>|<Wick.Tween>)[]} An array containing the selected
+   * tweens and frames
    */
   getSelectedTimelineObjects = () => {
     return this.project.selection.getSelectedObjects('Timeline');
@@ -263,7 +265,8 @@ class EditorCore extends Component {
 
   /**
    * Returns all selected objects on the timeline.
-   * @returns {(<Wick.Path>|<Wick.Clip>|<Wick.Button>)[]} An array containing the selected clips and paths
+   * @returns {(<Wick.Path>|<Wick.Clip>|<Wick.Button>)[]} An array containing
+   * the selected clips and paths
    */
   getSelectedCanvasObjects = () => {
     return this.project.selection.getSelectedObjects('Canvas');
@@ -295,7 +298,8 @@ class EditorCore extends Component {
 
   /**
    * Returns all selected objects in the asset library.
-   * @returns {(<Wick.ImageAsset>|<Wick.SoundAsset>)[]} An array containing the selected assets
+   * @returns {(<Wick.ImageAsset>|<Wick.SoundAsset>)[]} An array containing the
+   * selected assets
    */
   getSelectedAssetLibraryObjects = () => {
     return this.project.selection.getSelectedObjects('AssetLibrary');
@@ -303,7 +307,8 @@ class EditorCore extends Component {
 
   /**
    * Returns all selected sound assets from the asset library.
-   * @returns {(<Wick.SoundAsset>)[]} An array containing the selected sound assets.
+   * @returns {(<Wick.SoundAsset>)[]} An array containing the selected sound
+   * assets.
    */
   getSelectedSoundAssets = () => {
     return this.project.selection.getSelectedObjects('SoundAsset');
@@ -311,14 +316,16 @@ class EditorCore extends Component {
 
   /**
    * Returns all selected image assets from the asset library.
-   * @returns {(<Wick.ImageAsset>)[]} An array containing the selected image assets.
+   * @returns {(<Wick.ImageAsset>)[]} An array containing the selected image
+   * assets.
    */
   getSelectedImageAssets = () => {
     return this.project.selection.getSelectedObjects('ImageAsset');
   }
 
   /**
-   * Returns the selected scriptable object if selection is a single scriptable object.
+   * Returns the selected scriptable object if selection is a single scriptable
+   * object.
    * @return {object|null} selected scriptable object.
    */
   getSelectedScriptableObject = () => {
@@ -327,8 +334,10 @@ class EditorCore extends Component {
   }
 
   /**
-   * Returns all actions to be displayed using the current selection. Utilizes the ActionMapInterface.
-   * @return {EditorAction[][]} An array of arrays of editor actions as defined by the editor action map.
+   * Returns all actions to be displayed using the current selection.
+   * Utilizes the ActionMapInterface.
+   * @return {EditorAction[][]} An array of arrays of editor actions as
+   * defined by the editor action map.
    */
   getSelectionActions = () => {
     let actionGroups = this.actionMapInterface.inspectorActionGroups;
@@ -353,8 +362,10 @@ class EditorCore extends Component {
   }
 
   /**
-   * Returns all actions to be displayed using the current selection in the Toolbar. Utilizes the ActionMapInterface.
-   * @return {EditorAction[][]} An array of arrays of editor actions as defined by the editor action map.
+   * Returns all actions to be displayed using the current selection in the
+   * Toolbar. Utilizes the ActionMapInterface.
+   * @return {EditorAction[][]} An array of arrays of editor actions as
+   * defined by the editor action map.
    */
   getToolboxActions = () => {
     let actionGroups = this.actionMapInterface.toolboxActionGroups;
@@ -386,7 +397,8 @@ class EditorCore extends Component {
 
   /**
    * Updates the state of the selection with new values.
-   * @param {object} newSelectionAttributes - A object containing the new values of the selection to use to update the state.
+   * @param {object} newSelectionAttributes - A object containing the new values
+   * of the selection to use to update the state.
    */
   setSelectionAttributes = (newSelectionAttributes) => {
     // Valid selection setting functions
@@ -424,7 +436,8 @@ class EditorCore extends Component {
   }
 
   /**
-   * Clears the selection, then adds the given objects to the selection. No changes will be made if the selection does not change.
+   * Clears the selection, then adds the given objects to the selection. No
+   * changes will be made if the selection does not change.
    * @param {object[]} objects - The objects to add to the selection.
    */
   selectObjects = (objects) => {
@@ -465,7 +478,8 @@ class EditorCore extends Component {
   /**
    * Returns the value of a requested selection attribute.
    * @param  {string} attribute Selection attribute to retrieve.
-   * @return {string|number|undefined} Value of the selection attribute to retrieve. Returns undefined is attribute does not exist.
+   * @return {string|number|undefined} Value of the selection attribute to
+   * retrieve. Returns undefined is attribute does not exist.
    */
   getSelectionAttribute = (attribute) => {
     return this.project.selection[attribute];
@@ -656,6 +670,7 @@ class EditorCore extends Component {
    */
   deserializeSelection = (selection) => {
     return selection.map(data => {
+      // Deserialize and do not retain the uuids.
       return window.Wick.Base.deserialize(data).clone(false);
     });
   }
@@ -685,9 +700,10 @@ class EditorCore extends Component {
    * @return {[type]} [description]
    */
   pasteFromClipboard = () => {
+    console.log("pasting");
     localForage.getItem('wickClipboard').then((serializedSelection) => {
       let deserialized = this.deserializeSelection(serializedSelection);
-      this.addSelectionToProject(deserialized);
+      this.addSelectionToProject(deserialized, {offset: {x: 10, y:-10}});
     }).catch((err) => {
       console.error("Error when pasting from clipboard.")
       console.error(err);
@@ -698,47 +714,27 @@ class EditorCore extends Component {
    * Adds a deserialized selection to the project.
    * @param {object} selection deserialized selection object to add to project.
    */
-  addSelectionToProject = (selection) => {
+  addSelectionToProject = (selection, options) => {
+    // Only copies clips and paths. TODO: Add Frames
     selection.filter(object => {
-      return object instanceof window.Wick.Path;
-    }).forEach(path => {
-      this.project.activeFrame.addPath(path);
+      return ((object instanceof window.Wick.Path) || (object instanceof window.Wick.Clip));
+    }).forEach(object => {
+      this.project.addObject(object);
     });
-
-    selection.filter(object => {
-      return object instanceof window.Wick.Clip;
-    }).forEach(clip => {
-      this.project.activeFrame.addClip(clip);
-    });
-
-    // TODO reenable paste frames
-    /*
-    this.project.focus.timeline.insertFrames(selection.filter(object => {
-      return object instanceof window.Wick.Frame;
-    }));
-    */
 
     this.project.selection.clear();
+
     selection.forEach(object => {
       this.project.selection.select(object);
     });
 
-    this.projectDidChange();
-  }
-
-  /**
-   * Duplicates the currently selected object.
-   */
-  duplicateSelection = () => {
-    let disallowed = ['frame', 'layer'];
-    if (disallowed.indexOf(this.getSelectionType()) > -1) {
-      alert("Wick Editor can't duplicate '" + this.getSelectionType() + "' objects yet!");
-      return;
+    // Apply any changes to our objects.
+    if (options.offset) {
+      this.project.selection.x += options.offset.x;
+      this.project.selection.y += options.offset.y;
     }
 
-    let serialized = this.serializeSelection();
-    let deserialized = this.deserializeSelection(serialized);
-    this.addSelectionToProject(deserialized);
+    this.projectDidChange();
   }
 
   /**

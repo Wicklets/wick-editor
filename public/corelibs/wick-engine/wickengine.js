@@ -15926,6 +15926,673 @@ var paper = function (self, undefined) {
   return paper;
 }.call(this, typeof self === 'object' ? self : null);
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
+paper.Selection = class {
+  static get BOX_STROKE_WIDTH() {
+    return 1;
+  }
+
+  static get BOX_STROKE_COLOR() {
+    return 'rgba(100,150,255,1.0)';
+  }
+
+  static get HANDLE_RADIUS() {
+    return 5;
+  }
+
+  static get HANDLE_STROKE_WIDTH() {
+    return paper.Selection.BOX_STROKE_WIDTH;
+  }
+
+  static get HANDLE_STROKE_COLOR() {
+    return paper.Selection.BOX_STROKE_COLOR;
+  }
+
+  static get HANDLE_FILL_COLOR() {
+    return 'rgba(255,255,255,0.3)';
+  }
+
+  static get PIVOT_STROKE_WIDTH() {
+    return paper.Selection.BOX_STROKE_WIDTH;
+  }
+
+  static get PIVOT_FILL_COLOR() {
+    return 'rgba(0,0,0,0)';
+  }
+
+  static get PIVOT_STROKE_COLOR() {
+    return 'rgba(0,0,0,1)';
+  }
+
+  static get PIVOT_RADIUS() {
+    return paper.Selection.HANDLE_RADIUS;
+  }
+
+  static get ROTATION_HOTSPOT_RADIUS() {
+    return 20;
+  }
+
+  static get ROTATION_HOTSPOT_FILLCOLOR() {
+    return 'rgba(255,0,0,0.0001)';
+  }
+  /**
+   * 
+   */
+
+
+  constructor(args) {
+    args = args || {};
+    this._layer = args.layer || paper.project.activeLayer;
+    this._items = args.items || [];
+    this._box = new paper.Group();
+    this._matrix = new paper.Matrix();
+    this._pivotPoint = new paper.Point();
+    this._transform = {
+      x: 0,
+      y: 0,
+      scaleX: 1.0,
+      scaleY: 1.0,
+      rotation: 0
+    };
+    this._handleDragMode = 'scale'; // It simplifies everything if we force applyMatrix=false on everything before doing any transforms.
+    // We need to save the old data that we may lose, though.
+
+    this._items.forEach(item => {
+      item.data.originalMatrix = item.matrix.clone();
+      item.applyMatrix = false;
+    }); // Default pivot point is the center of all items.
+
+
+    this._pivotPoint = this._boundsOfItems(this._items).center;
+
+    if (this._items.length === 1) {
+      // Single item: Use all transforms of the single item as the selection transforms
+      var item = this._items[0];
+      this.rotation = item.rotation;
+      item.rotation = 0;
+      item.data.originalMatrix = item.matrix.clone();
+    } else if (this._items.length > 1) {// Multiple objects: Only use the position of the items as the selection transforms
+    } else {// No items: We don't have to do anything
+      }
+
+    this._render();
+  }
+  /**
+   * 
+   */
+
+
+  get handleDragMode() {
+    return this._handleDragMode;
+  }
+
+  set handleDragMode(handleDragMode) {
+    this._handleDragMode = handleDragMode;
+  }
+  /**
+   * 
+   */
+
+
+  get box() {
+    return this._box;
+  }
+  /**
+   * 
+   */
+
+
+  get items() {
+    return this._items;
+  }
+  /**
+   * 
+   */
+
+
+  get x() {
+    return this.topLeft.x;
+  }
+
+  set x(x) {
+    var d = x - this.x;
+    this._transform.x += d;
+
+    this._render();
+  }
+  /**
+   * 
+   */
+
+
+  get y() {
+    return this.topLeft.y;
+  }
+
+  set y(y) {
+    var d = y - this.y;
+    this._transform.y += d;
+
+    this._render();
+  }
+  /**
+   * 
+   */
+
+
+  get rotation() {
+    return this._transform.rotation;
+  }
+
+  set rotation(rotation) {
+    var d = rotation - this._transform.rotation;
+    this._transform.rotation += d;
+
+    this._render();
+  }
+  /**
+   * 
+   */
+
+
+  get scaleX() {
+    return this._transform.scaleX;
+  }
+
+  set scaleX(scaleX) {
+    var d = scaleX / this._transform.scaleX;
+    this._transform.scaleX *= d;
+
+    this._render();
+  }
+  /**
+   * 
+   */
+
+
+  get scaleY() {
+    return this._transform.scaleY;
+  }
+
+  set scaleY(scaleY) {
+    var d = scaleY / this._transform.scaleY;
+    this._transform.scaleY *= d;
+
+    this._render();
+  }
+  /**
+   * 
+   */
+
+
+  get strokeWidth() {
+    return this._getUniqueProperties('strokeWidth');
+  }
+
+  set strokeWidth(strokeWidth) {
+    this._items.forEach(item => {
+      item.strokeWidth = strokeWidth;
+    });
+  }
+  /**
+   * 
+   */
+
+
+  get strokeColor() {
+    return this._getUniqueProperties('strokeColor', color => {
+      return color.toCSS();
+    });
+  }
+
+  set strokeColor(strokeColor) {
+    this._items.forEach(item => {
+      item.strokeColor = strokeColor;
+    });
+  }
+  /**
+   * 
+   */
+
+
+  get fillColor() {
+    return this._getUniqueProperties('fillColor', color => {
+      return color.toCSS();
+    });
+  }
+
+  set fillColor(fillColor) {
+    this._items.forEach(item => {
+      item.fillColor = fillColor;
+    });
+  }
+  /**
+   * 
+   */
+
+
+  get fontSize() {
+    return this._getUniqueProperties('fontSize');
+  }
+
+  set fontSize(fontSize) {
+    this._items.forEach(item => {
+      item.fontSize = fontSize;
+    });
+  }
+  /**
+   * 
+   */
+
+
+  get fontFamily() {
+    return this._getUniqueProperties('fontFamily');
+  }
+
+  set fontFamily(fontFamily) {
+    this._items.forEach(item => {
+      item.fontFamily = fontFamily;
+    });
+  }
+  /**
+   * 
+   */
+
+
+  get topLeft() {
+    return this._getHandlePosition('topLeft');
+  }
+
+  set topLeft(topLeft) {
+    this._setHandlePosition('topLeft', topLeft);
+  }
+  /**
+   * 
+   */
+
+
+  get topRight() {
+    return this._getHandlePosition('topRight');
+  }
+
+  set topRight(topRight) {
+    this._setHandlePosition('topRight', topRight);
+  }
+  /**
+   * 
+   */
+
+
+  get bottomLeft() {
+    return this._getHandlePosition('bottomLeft');
+  }
+
+  set bottomLeft(bottomLeft) {
+    this._setHandlePosition('bottomLeft', bottomLeft);
+  }
+  /**
+   * 
+   */
+
+
+  get bottomRight() {
+    return this._getHandlePosition('bottomRight');
+  }
+
+  set bottomRight(bottomRight) {
+    this._setHandlePosition('bottomRight', bottomRight);
+  }
+  /**
+   * 
+   */
+
+
+  get topCenter() {
+    return this._getHandlePosition('topCenter');
+  }
+
+  set topCenter(topCenter) {
+    this._setHandlePosition('topCenter', topCenter);
+  }
+  /**
+   * 
+   */
+
+
+  get bottomCenter() {
+    return this._getHandlePosition('bottomCenter');
+  }
+
+  set bottomCenter(bottomCenter) {
+    this._setHandlePosition('bottomCenter', bottomCenter);
+  }
+  /**
+   * 
+   */
+
+
+  get leftCenter() {
+    return this._getHandlePosition('leftCenter');
+  }
+
+  set leftCenter(leftCenter) {
+    this._setHandlePosition('leftCenter', leftCenter);
+  }
+  /**
+   * 
+   */
+
+
+  get rightCenter() {
+    return this._getHandlePosition('rightCenter');
+  }
+
+  set rightCenter(rightCenter) {
+    this._setHandlePosition('rightCenter', rightCenter);
+  }
+  /**
+   * 
+   */
+
+
+  set pivotPoint(pivotPoint) {
+    this._pivotPoint = pivotPoint;
+
+    this._render();
+  }
+  /**
+   * 
+   */
+
+
+  flipHorizontally() {
+    this._transform.scaleX *= -1;
+
+    this._render();
+  }
+  /**
+   * 
+   */
+
+
+  flipVertically() {
+    this._transform.scaleY *= -1;
+
+    this._render();
+  }
+  /**
+   * 
+   */
+
+
+  sendToBack() {}
+  /**
+   * 
+   */
+
+
+  bringToFront() {}
+  /**
+   * 
+   */
+
+
+  moveBack() {}
+  /**
+   * 
+   */
+
+
+  moveForward() {}
+
+  finish() {
+    // Do some cleanup.
+    // Reset applyMatrix to what is was before we added it to the selection
+    this._items.filter(item => {
+      return item instanceof paper.Path || item instanceof paper.CompoundPath;
+    }).forEach(item => {
+      item.applyMatrix = true;
+    }); // Delete the matrix we stored in groups/rasters so it doesn't interfere with anything later
+
+
+    this._items.filter(item => {
+      return item instanceof paper.Group || item instanceof paper.Raster;
+    }).forEach(item => {
+      delete item.data.originalMatrix;
+    });
+
+    this._box.remove();
+  }
+  /**
+   * 
+   */
+
+
+  isItemSelected(item) {
+    return this._items.indexOf(item) > -1;
+  }
+
+  _render() {
+    // Reset all transforms of all items.
+    this._items.forEach(item => {
+      item.matrix.set(item.data.originalMatrix);
+    }); // Recalculate bounds, we need this to generate the new box GUI
+
+
+    this._bounds = this._boundsOfItems(this._items); // Build the new matrix based on the new selection transforms, apply it to selection
+
+    this._matrix = new paper.Matrix();
+
+    this._matrix.translate(this._pivotPoint);
+
+    this._matrix.translate(this._transform.x, this._transform.y);
+
+    this._matrix.rotate(this._transform.rotation);
+
+    this._matrix.scale(this._transform.scaleX, this._transform.scaleY);
+
+    this._matrix.translate(new paper.Point(0, 0).subtract(this._pivotPoint));
+
+    this._items.forEach(item => {
+      item.matrix.prepend(this._matrix);
+    }); // Regen box GUI
+
+
+    this._box.remove();
+
+    this._box = this._generateBox();
+
+    this._box.matrix.prepend(this._matrix);
+  }
+
+  _generateBox() {
+    var box = new paper.Group({
+      insert: false
+    }); // No items - don't even put anything in the box, we don't need to
+
+    if (this.items.length === 0) return box;
+
+    this._layer.addChild(box);
+
+    box.addChild(this._generateBorder());
+    box.addChild(this._generateRotationHotspot('topLeft'));
+    box.addChild(this._generateRotationHotspot('topRight'));
+    box.addChild(this._generateRotationHotspot('bottomLeft'));
+    box.addChild(this._generateRotationHotspot('bottomRight'));
+    box.addChild(this._generateScalingHandle('topLeft'));
+    box.addChild(this._generateScalingHandle('topRight'));
+    box.addChild(this._generateScalingHandle('bottomLeft'));
+    box.addChild(this._generateScalingHandle('bottomRight'));
+    box.addChild(this._generateScalingHandle('topCenter'));
+    box.addChild(this._generateScalingHandle('bottomCenter'));
+    box.addChild(this._generateScalingHandle('leftCenter'));
+    box.addChild(this._generateScalingHandle('rightCenter'));
+    box.addChild(this._generatePivotPointHandle()); // Set a flag just so we don't accidentily treat these GUI elements as actual paths...
+
+    box.children.forEach(child => {
+      child.data.isSelectionBoxGUI = true;
+    });
+    box.applyMatrix = true;
+    return box;
+  }
+
+  _generateBorder() {
+    return new paper.Path.Rectangle({
+      name: 'border',
+      from: this._bounds.topLeft,
+      to: this._bounds.bottomRight,
+      strokeWidth: paper.Selection.BOX_STROKE_WIDTH,
+      strokeColor: paper.Selection.BOX_STROKE_COLOR,
+      insert: false
+    });
+  }
+
+  _generateScalingHandle(edge) {
+    return this._generateHandle(edge, 'scale', this._bounds[edge], paper.Selection.HANDLE_FILL_COLOR, paper.Selection.HANDLE_STROKE_COLOR);
+  }
+
+  _generatePivotPointHandle() {
+    return this._generateHandle('pivot', 'pivot', this._pivotPoint, paper.Selection.PIVOT_FILL_COLOR, paper.Selection.PIVOT_STROKE_COLOR);
+  }
+
+  _generateHandle(name, type, center, fillColor, strokeColor) {
+    var circle = new paper.Path.Circle({
+      center: center,
+      radius: paper.Selection.HANDLE_RADIUS / paper.view.zoom,
+      strokeWidth: paper.Selection.HANDLE_STROKE_WIDTH / paper.view.zoom,
+      strokeColor: strokeColor,
+      fillColor: fillColor,
+      insert: false
+    }); // Transform the handle a bit so it doesn't get squished when the selection box is scaled.
+
+    circle.applyMatrix = false;
+    circle.scaling.x = 1 / this._transform.scaleX;
+    circle.scaling.y = 1 / this._transform.scaleY;
+    circle.data.handleType = type;
+    circle.data.handleEdge = name;
+    return circle;
+  }
+
+  _generateRotationHotspot(cornerName) {
+    var r = paper.Selection.ROTATION_HOTSPOT_RADIUS / paper.view.zoom;
+    var hotspot = new paper.Path([new paper.Point(0, 0), new paper.Point(0, r), new paper.Point(r, r), new paper.Point(r, -r), new paper.Point(-r, -r), new paper.Point(-r, 0)]);
+    hotspot.fillColor = paper.Selection.ROTATION_HOTSPOT_FILLCOLOR;
+    hotspot.position.x = this._bounds[cornerName].x;
+    hotspot.position.y = this._bounds[cornerName].y;
+    hotspot.rotate({
+      'topRight': 0,
+      'bottomRight': 90,
+      'bottomLeft': 180,
+      'topLeft': 270
+    }[cornerName]);
+    hotspot.data.handleType = 'rotation';
+    hotspot.data.handleEdge = cornerName; // Transform the hotspots a bit so they doesn't get squished when the selection box is scaled.
+
+    hotspot.scaling.x = 1 / this._transform.scaleX;
+    hotspot.scaling.y = 1 / this._transform.scaleY;
+    return hotspot;
+  }
+
+  _getUniqueProperties(propName, applyFn) {
+    var props = this._items.map(item => {
+      return item[propName];
+    }).filter(prop => {
+      return prop !== undefined && prop !== null;
+    }).map(applyFn || (prop => {
+      return prop;
+    }));
+
+    var uniqueProps = [...new Set(props)];
+    return uniqueProps;
+  }
+
+  _boundsOfItems(items) {
+    if (items.length === 0) return new paper.Rectangle();
+    var bounds = null;
+    items.forEach(item => {
+      bounds = bounds ? bounds.unite(item.bounds) : item.bounds;
+    });
+    return bounds;
+  }
+
+  _getHandlePosition(handleName) {
+    var child = this.box.children.find(c => {
+      return c.data.handleEdge === handleName;
+    });
+    if (!child) return new paper.Point();
+    return child.position; //return child.position.transform(this._matrix);
+  }
+
+  _setHandlePosition(handleName, position) {
+    if (this._handleDragMode === 'scale') {
+      this._setHandlePositionAndScale(handleName, position);
+    } else if (this._handleDragMode === 'rotation') {
+      this._setHandlePositionAndRotate(handleName, position);
+    }
+  }
+
+  _setHandlePositionAndScale(handleName, position) {
+    var lockYScale = handleName === 'leftCenter' || handleName === 'rightCenter';
+    var lockXScale = handleName === 'bottomCenter' || handleName === 'topCenter';
+    if (!lockXScale) this._transform.scaleX = 1;
+    if (!lockYScale) this._transform.scaleY = 1;
+    var rotation = this._transform.rotation;
+    var x = this._transform.x;
+    var y = this._transform.y;
+    this._transform.rotation = 0;
+    this._transform.x = 0;
+    this._transform.y = 0;
+
+    this._render();
+
+    var translatedPosition = position.subtract(new paper.Point(x, y));
+    var rotatedPosition = translatedPosition.rotate(-rotation, this._pivotPoint);
+    var distFromHandle = rotatedPosition.subtract(this[handleName]);
+    var widthHeight = this[handleName].subtract(this._pivotPoint);
+    var newCornerPosition = distFromHandle.add(widthHeight);
+    var scaleAmt = newCornerPosition.divide(widthHeight);
+    if (!lockXScale) this._transform.scaleX = scaleAmt.x;
+    if (!lockYScale) this._transform.scaleY = scaleAmt.y;
+    this._transform.rotation = rotation;
+    this._transform.x = x;
+    this._transform.y = y;
+
+    this._render();
+  }
+
+  _setHandlePositionAndRotate(handleName, position) {
+    var x = this._transform.x;
+    var y = this._transform.y;
+    this._transform.rotation = 0;
+    this._transform.x = 0;
+    this._transform.y = 0;
+
+    this._render();
+
+    var orig_angle = this[handleName].subtract(this._pivotPoint).angle;
+    position = position.subtract(new paper.Point(x, y));
+    var angle = position.subtract(this._pivotPoint).angle;
+    this._transform.x = x;
+    this._transform.y = y;
+    this._transform.rotation = angle - orig_angle;
+
+    this._render();
+  }
+
+  _getOppositeHandleName(handleName) {
+    return {
+      'topLeft': 'bottomRight',
+      'topRight': 'bottomLeft',
+      'bottomRight': 'topLeft',
+      'bottomLeft': 'topRight',
+      'bottomCenter': 'topCenter',
+      'topCenter': 'bottomCenter',
+      'leftCenter': 'rightCenter',
+      'rightCenter': 'leftCenter'
+    }[handleDir];
+  }
+
+};
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /**
 * Tween.js - Licensed under the MIT license
@@ -41884,578 +42551,6 @@ var lerp = function (v0, v1, t) {
 };
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
-/*
-* Copyright 2018 WICKLETS LLC
-*
-* This file is part of Paper.js-drawing-tools.
-*
-* Paper.js-drawing-tools is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Paper.js-drawing-tools is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Paper.js-drawing-tools.  If not, see <https://www.gnu.org/licenses/>.
-*/
-
-/*
-    paper-multiselection.js
-    Adds functionality for a selection box for transforming multiple objects.
-
-    by zrispo (github.com/zrispo) (zach@wickeditor.com)
- */
-paper.MultiSelection = class {
-  constructor() {
-    this.SELECTION_BOX_STROKECOLOR = 'rgba(100,150,255,1.0)';
-    this.SELECTION_BOX_FILLCOLOR = 'rgba(255,255,255,0.3)';
-    this.SELECTION_SUBBOX_STROKECOLOR = 'rgba(100,150,255,0.75)';
-    this.ROTATION_HANDLE_COLOR = 'rgba(255,0,0,0.0001)';
-    this.HANDLE_RADIUS = 5;
-    this.ROTATION_HANDLE_RADIUS = 20;
-    this.HANDLE_NAMES = ['topLeft', 'topCenter', 'topRight', 'rightCenter', 'leftCenter', 'bottomRight', 'bottomCenter', 'bottomLeft'];
-    this._selectedItems = [];
-    this._selectionBounds = null;
-    this._guiLayer = null;
-    this._prerotation = null;
-    this._prerotationAmount = null;
-    this._prerotationPivot = null;
-  }
-
-  get guiLayer() {
-    if (!this._guiLayer) {
-      this._guiLayer = new paper.Layer();
-      this._guiLayer.name = 'MultiSelectionGUI';
-
-      this._guiLayer.remove();
-    }
-
-    return this._guiLayer;
-  }
-
-  get items() {
-    return this._selectedItems;
-  }
-
-  get bounds() {
-    return this._selectionBounds;
-  }
-
-  get position() {
-    return new paper.Point(this.bounds.x, this.bounds.y);
-  }
-
-  get width() {
-    return this.bounds.width;
-  }
-
-  get height() {
-    return this.bounds.height;
-  }
-
-  get scaling() {
-    if (this.items.length === 1) {
-      return this.items[0].scaling || {
-        x: 1,
-        y: 1
-      };
-    } else {
-      return new paper.Point(1, 1);
-    }
-  }
-
-  get rotation() {
-    if (this.items.length === 1) {
-      return this.items[0].rotation;
-    } else {
-      return 0;
-    }
-  }
-
-  get opacity() {
-    if (this._selectedItemsShareValue('opacity')) {
-      return this.items[0].opacity;
-    } else {
-      return null;
-    }
-  }
-
-  get strokeWidth() {
-    if (this._selectedItemsShareValue('strokeWidth')) {
-      return this.items[0].strokeWidth;
-    } else {
-      return null;
-    }
-  }
-
-  get strokeColor() {
-    if (this._selectedItemsShareColor('strokeColor')) {
-      var color = this.items[0].strokeColor;
-      return color && color.toCSS();
-    } else {
-      return null;
-    }
-  }
-
-  get fillColor() {
-    if (this._selectedItemsShareColor('fillColor')) {
-      var color = this.items[0].fillColor;
-      return color && color.toCSS();
-    } else {
-      return null;
-    }
-  }
-
-  get rotationPoint() {
-    if (this._selectedItems.length === 1) {
-      return this._selectedItems[0].position;
-    } else {
-      return this.bounds.center;
-    }
-  }
-
-  updateGUI() {
-    this._rebuildGUI();
-  }
-
-  addItem(item) {
-    if (!this.isItemSelected(item)) {
-      this._selectedItems.push(item);
-    }
-  }
-
-  addItemByName(name) {
-    var item = null;
-
-    this._selectableLayers().forEach(layer => {
-      if (layer.children[name]) {
-        item = layer.children[name];
-      }
-    });
-
-    if (item) {
-      this.addItem(item);
-    }
-  }
-
-  removeItem(item) {
-    this._selectedItems = this._selectedItems.filter(seekItem => {
-      return seekItem !== item;
-    });
-  }
-
-  isItemSelected(item) {
-    return this._selectedItems.filter(seekItem => {
-      return seekItem.name && seekItem.name === item.name || seekItem === item;
-    }).length > 0;
-  }
-
-  clear() {
-    this._selectedItems = [];
-  }
-
-  selectAll() {
-    var selectableItems = [];
-
-    this._selectableLayers().forEach(layer => {
-      layer.children.forEach(child => {
-        selectableItems.push(child);
-      });
-    });
-
-    this.clear();
-    var self = this;
-    selectableItems.forEach(item => {
-      self.addItem(item);
-    });
-  }
-
-  delete() {
-    this._selectedItems.forEach(item => {
-      item.remove();
-    });
-
-    this.clear();
-  }
-
-  translate(x, y) {
-    this._selectedItems.forEach(function (item) {
-      item.position.x += x;
-      item.position.y += y;
-    });
-
-    this.guiLayer.children.forEach(function (child) {
-      child.position.x += x;
-      child.position.y += y;
-    });
-
-    this._recalculateBounds();
-  }
-
-  rotate(r, pivot) {
-    if (!pivot) pivot = this.bounds.center;
-
-    this._selectedItems.forEach(item => {
-      item.rotate(r, pivot);
-    });
-
-    this.guiLayer.children.forEach(child => {
-      child.rotate(r, pivot);
-    });
-
-    this._recalculateBounds();
-  }
-
-  scale(x, y, pivot) {
-    if (!pivot) pivot = this.bounds.topLeft;
-
-    this._selectedItems.forEach(function (item) {
-      item.scale(x, y, pivot);
-    });
-
-    this.guiLayer.children.forEach(function (child) {
-      child.scale(x, y, pivot);
-    });
-    this.guiLayer.children.filter(function (child) {
-      return child.name.startsWith('selectionBoxScaleHandle_') || child.name === 'selectionBoxCenterpoint';
-    }).forEach(function (child) {
-      child.scale(1 / x, 1 / y, child.position);
-    });
-
-    this._recalculateBounds();
-  }
-
-  flip(direction) {
-    var pivot = this._selectionBounds.center;
-
-    this._selectedItems.forEach(function (item) {
-      item.scale(direction === 'horizontal' ? -1 : 1, direction === 'vertical' ? -1 : 1, pivot);
-    });
-
-    this._rebuildGUI();
-  }
-
-  flipHorizontally() {
-    this.flip('horizontal');
-  }
-
-  flipVertically() {
-    this.flip('vertical');
-  }
-
-  sendToBack() {
-    this._selectionSortedByZIndex().reverse().forEach(item => {
-      item.sendToBack();
-    });
-  }
-
-  bringToFront() {
-    this._selectionSortedByZIndex().forEach(item => {
-      item.bringToFront();
-    });
-  }
-
-  sendBackwards() {
-    this._selectionSortedByZIndex().reverse().forEach(item => {
-      if (item.previousSibling && this._selectedItems.indexOf(item.previousSibling) === -1) {
-        item.insertBelow(item.previousSibling);
-      }
-    });
-  }
-
-  bringForwards() {
-    this._selectionSortedByZIndex().forEach(item => {
-      if (item.nextSibling && this._selectedItems.indexOf(item.nextSibling) === -1) {
-        item.insertAbove(item.nextSibling);
-      }
-    });
-  }
-
-  setPosition(x, y) {
-    var dx = x - this.bounds.left;
-    var dy = y - this.bounds.top;
-    this.translate(dx, dy);
-  }
-
-  setRotation(r) {
-    var dr = r - this._prerotationAmount;
-    this.rotate(dr);
-  }
-
-  setScale(x, y) {
-    if (this._selectedItems.length === 1) {
-      var item = this._selectedItems[0];
-      var dx = x / item.scaling.x;
-      var dy = y / item.scaling.y;
-      this.scale(dx, dy);
-    } else {
-      this.scale(x, y);
-    }
-  }
-
-  setSize(w, h) {
-    var sx = w / this._selectionBounds.width;
-    var sy = h / this._selectionBounds.height;
-    this.scale(sx, sy);
-  }
-
-  setFillColor(fillColor) {
-    this._selectedItems.filter(item => {
-      return item instanceof paper.Path || item instanceof paper.CompoundPath;
-    }).forEach(item => {
-      item.fillColor = fillColor;
-    });
-  }
-
-  setStrokeColor(strokeColor) {
-    this._selectedItems.filter(item => {
-      return item instanceof paper.Path || item instanceof paper.CompoundPath;
-    }).forEach(item => {
-      item.strokeColor = strokeColor;
-    });
-  }
-
-  setOpacity(opacity) {
-    this._selectedItems.forEach(item => {
-      item.opacity = opacity;
-    });
-  }
-
-  setStrokeWidth(strokeWidth) {
-    this._selectedItems.filter(item => {
-      return item instanceof paper.Path || item instanceof paper.CompoundPath;
-    }).forEach(item => {
-      item.strokeWidth = strokeWidth;
-    });
-  }
-
-  exportSVG() {
-    var exportGroup = new paper.Group();
-    exportGroup.remove();
-
-    this._selectedItems.forEach(item => {
-      if (item.className === 'Group') return;
-      var clone = item.clone();
-      clone.position.x -= this._selectionBounds.center.x;
-      clone.position.y -= this._selectionBounds.center.y;
-      clone.name = Math.random() + '-';
-      exportGroup.addChild(clone);
-    });
-
-    return exportGroup.exportSVG({
-      asString: true
-    });
-  }
-
-  _recalculateBounds() {
-    this._selectionBounds = null;
-
-    if (this._selectedItems.length === 1) {
-      var item = this._selectedItems[0];
-      this.prerotation = true;
-      this.prerotationAmount = item.rotation;
-      this.prerotationPivot = item.position;
-      item.rotation = 0;
-      this._selectionBounds = item.bounds.clone();
-      item.rotation = this.prerotationAmount;
-    } else {
-      this.prerotation = false;
-      var self = this;
-
-      this._selectedItems.forEach(function (item) {
-        if (!self._selectionBounds) {
-          self._selectionBounds = item.bounds.clone();
-        } else {
-          self._selectionBounds = self._selectionBounds.unite(item.bounds);
-        }
-      });
-    }
-  }
-
-  _rebuildGUI() {
-    this.guiLayer.clear();
-    if (this._selectedItems.length === 0) return;
-
-    this._selectedItems.filter(item => {
-      return item instanceof paper.Path || item instanceof paper.CompoundPath;
-    }).forEach(item => {
-      item.applyMatrix = true;
-    });
-
-    this._recalculateBounds();
-
-    this._forceApplyMatrixOnAllItems();
-
-    this._createSelectionBorder();
-
-    this._createSubBorders();
-
-    this._createRotationHotspots();
-
-    this._createHandles();
-
-    this._createCenterpoint();
-
-    if (this.prerotation) {
-      var prerotationAmount = this.prerotationAmount;
-      var prerotationPivot = this.prerotationPivot;
-
-      this._guiLayer.children.forEach(function (child) {
-        child.rotate(prerotationAmount, prerotationPivot);
-      });
-    }
-  }
-
-  _forceApplyMatrixOnAllItems() {
-    // For selectionbox transforms to work correctly, anything that isn't a group
-    // or a raster must have applyMatrix set to true so paths won't have an extra
-    // transformation to deal with, all of their information can be stored in svg
-    this._selectedItems.forEach(item => {
-      if (item instanceof paper.Path || item instanceof paper.CompoundPath) {
-        item.applyMatrix = true;
-      }
-    });
-  }
-
-  _createSelectionBorder() {
-    var item = new paper.Path.RoundRectangle(this.bounds, 0);
-    item.remove();
-    item.strokeColor = this.SELECTION_BOX_STROKECOLOR;
-    item.strokeWidth = 1 / paper.view.zoom;
-    item.name = 'selectionBoxBorder';
-    this.guiLayer.addChild(item);
-  }
-
-  _createSubBorders() {
-    if (this._selectedItems.length < 2) return;
-    var self = this;
-
-    this._selectedItems.forEach(function (selectedItem) {
-      var r = selectedItem.rotation;
-      selectedItem.rotation = 0;
-      var item = new paper.Path.RoundRectangle(selectedItem.bounds, 0);
-      item.strokeColor = self.SELECTION_SUBBOX_STROKECOLOR;
-      item.strokeWidth = 1 / paper.view.zoom;
-      item.remove();
-      item.name = 'selectionBoxSubBorder_' + self._selectedItems.indexOf(selectedItem);
-      item.rotate(r, selectedItem.position);
-
-      self._guiLayer.addChild(item);
-
-      selectedItem.rotation = r;
-    });
-  }
-
-  _createHandles() {
-    var self = this;
-    this.HANDLE_NAMES.forEach(function (dir) {
-      var corner = self.bounds[dir];
-      var item = new paper.Path.Circle(corner, self.HANDLE_RADIUS / paper.view.zoom);
-      item.remove();
-      item.strokeWidth = 1.2 / paper.view.zoom;
-      item.strokeColor = self.SELECTION_BOX_STROKECOLOR;
-      item.fillColor = self.SELECTION_BOX_FILLCOLOR;
-      item.name = 'selectionBoxScaleHandle_' + dir;
-      self.guiLayer.addChild(item);
-    });
-  }
-
-  _createRotationHotspots() {
-    var self = this;
-    this.HANDLE_NAMES.forEach(function (dir) {
-      if (dir.includes('Center')) return;
-      var p = self.bounds[dir].clone();
-      var item = new paper.Path([new paper.Point(0, 0), new paper.Point(0, self.ROTATION_HANDLE_RADIUS), new paper.Point(self.ROTATION_HANDLE_RADIUS, self.ROTATION_HANDLE_RADIUS), new paper.Point(self.ROTATION_HANDLE_RADIUS, -self.ROTATION_HANDLE_RADIUS), new paper.Point(-self.ROTATION_HANDLE_RADIUS, -self.ROTATION_HANDLE_RADIUS), new paper.Point(-self.ROTATION_HANDLE_RADIUS, 0)]);
-      item.fillColor = self.ROTATION_HANDLE_COLOR;
-      item.name = 'selectionBoxRotationHandle_' + dir;
-      item.rotate({
-        'topRight': 0,
-        'bottomRight': 90,
-        'bottomLeft': 180,
-        'topLeft': 270
-      }[dir]);
-      item.position.x = p.x;
-      item.position.y = p.y;
-      item.remove();
-      self.guiLayer.addChild(item);
-    });
-  }
-
-  _createCenterpoint() {
-    if (this._selectedItems.length === 1 && this._selectedItems[0]._class === 'Group') {
-      var item = new paper.Path.Circle(this._selectedItems[0].position, this.HANDLE_RADIUS / paper.view.zoom);
-      item.remove();
-      item.strokeWidth = 1 / paper.view.zoom;
-      item.strokeColor = 'green';
-      item.fillColor = this.SELECTION_BOX_FILLCOLOR;
-      item.name = 'selectionBoxCenterpoint';
-      this.guiLayer.addChild(item);
-    }
-  }
-
-  _getLayersOfSelectedItems() {
-    var layers = [];
-
-    this._selectedItems.forEach(item => {
-      if (layers.indexOf(item.layer) === -1) {
-        layers.push(item.layer);
-      }
-    });
-
-    return layers;
-  }
-
-  _selectableLayers() {
-    var self = this;
-    return paper.project.layers.filter(layer => {
-      return !layer.locked && layer !== self._guiLayer;
-    });
-  }
-
-  _selectedItemsShareValue(valueName) {
-    return this._arrayAllEqual(this.items.map(item => {
-      return item[valueName];
-    }));
-  }
-
-  _selectedItemsShareColor(colorName) {
-    return this._arrayAllEqual(this.items.map(item => {
-      if (item[colorName] === null || item[colorName] === undefined) {
-        return null;
-      } else {
-        return item[colorName].toCSS();
-      }
-    }));
-  }
-
-  _selectionSortedByZIndex() {
-    return this._selectedItems.sort(function (a, b) {
-      return a.index - b.index;
-    });
-  }
-
-  _arrayAllEqual(array) {
-    if (array.length === 0) return false;
-    var allEqual = true;
-    var checkValue = array[0];
-    array.forEach(item => {
-      if (item !== checkValue) {
-        allEqual = false;
-      }
-    });
-    return allEqual;
-  }
-
-};
-paper.Project.inject({
-  selection: new paper.MultiSelection()
-});
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
 /*!
 * Platform.js
 * Copyright 2014-2018 Benjamin Tan
@@ -44914,6 +45009,32 @@ Wick.Project = class extends Wick.Base {
 
     this.zoom = 1;
   }
+  /**
+   * Adds an object to the project.
+   * @param {Wick.Base} object
+   * @return {boolean} returns true if successful and false otherwise.
+   */
+
+
+  addObject(object) {
+    if (object instanceof Wick.Path) {
+      this.activeFrame.addPath(object);
+    } else if (object instanceof Wick.Clip) {
+      this.activeFrame.addClip(object);
+    } else if (object instanceof Wick.Frame) {
+      this.activeLayer.addFrame(object);
+    } else if (object instanceof Wick.Asset) {
+      this.addAsset(object);
+    } else if (object instanceof Wick.Layer) {
+      this.activeTimeline.addLayer(object);
+    } else if (object instanceof Wick.Tween) {
+      this.activeFrame.addTween(object);
+    } else {
+      return false;
+    }
+
+    return true;
+  }
 
   _refreshAssetUUIDRefs() {
     var assets = this.assets;
@@ -45043,91 +45164,91 @@ Wick.Selection = class extends Wick.Base {
   }
 
   get x() {
-    return this.view.x;
+    return paper.selection.x;
   }
 
   set x(x) {
-    this.view.x = x;
+    paper.selection.x = x;
   }
 
   get y() {
-    return this.view.y;
+    return paper.selection.y;
   }
 
-  set y(y) {
-    this.view.y = y;
+  set y(x) {
+    paper.selection.y = y;
   }
 
   get width() {
-    return this.view.width;
+    return paper.selection.width;
   }
 
   set width(width) {
-    this.view.width = width;
+    paper.selection.width = width;
   }
 
   get height() {
-    return this.view.height;
+    return paper.selection.height;
   }
 
   set height(height) {
-    this.view.height = height;
+    paper.selection.height = height;
   }
 
   get scaleX() {
-    return this.view.scaleX;
+    return paper.selection.scaleX;
   }
 
   set scaleX(scaleX) {
-    this.view.scaleX = scaleX;
+    paper.selection.scaleX = scaleX;
   }
 
   get scaleY() {
-    return this.view.scaleY;
+    return paper.selection.scaleY;
   }
 
   set scaleY(scaleY) {
-    this.view.scaleY = scaleY;
+    paper.selection.scaleY = scaleY;
   }
 
   get rotation() {
-    return this.view.rotation;
+    return paper.selection.rotation;
   }
 
   set rotation(rotation) {
-    this.view.rotation = rotation;
-  }
-
-  get fillColor() {
-    return this.view.fillColor;
-  }
-
-  set fillColor(fillColor) {
-    this.view.fillColor = fillColor;
+    paper.selection.rotation = rotation;
   }
 
   get strokeWidth() {
-    return this.view.strokeWidth;
+    return paper.selection.strokeWidth;
   }
 
   set strokeWidth(strokeWidth) {
-    this.view.strokeWidth = strokeWidth;
+    paper.selection.strokeWidth = strokeWidth;
   }
 
   get strokeColor() {
-    return this.view.strokeColor;
+    return paper.selection.strokeColor;
   }
 
   set strokeColor(strokeColor) {
-    this.view.strokeColor = strokeColor;
+    paper.selection.strokeColor = strokeColor;
+  }
+
+  get fillColor() {
+    return paper.selection.fillColor;
+  }
+
+  set fillColor(fillColor) {
+    paper.selection.fillColor = fillColor;
   }
 
   get opacity() {
-    return this.view.opacity;
+    return paper.selection.opacity;
   }
 
   set opacity(opacity) {
-    this.view.opacity = opacity;
+    paper.selection.opacity = opacity;
   }
 
   clear() {
@@ -47654,127 +47775,31 @@ Wick.View.Project = class extends Wick.View {
 Wick.View.Selection = class extends Wick.View {
   constructor() {
     super();
+    this._layer = new paper.Layer();
+    paper.selection = new paper.Selection({
+      items: [],
+      layer: this._layer
+    });
   }
 
   get layer() {
-    return paper.project.selection.guiLayer;
+    return this._layer;
   }
 
   render() {
     var project = this.model.project;
-    paper.project.selection.clear();
-    project.selection.getSelectedObjects('Path').forEach(path => {
-      paper.project.selection.addItem(path.paperPath);
+    var items = [];
+    items = items.concat(project.selection.getSelectedObjects('Path').map(path => {
+      return path.paperPath;
+    }));
+    items = items.concat(project.selection.getSelectedObjects('Clip').map(clip => {
+      return clip.view.group;
+    }));
+    paper.selection.finish();
+    paper.selection = new paper.Selection({
+      items: items,
+      layer: this._layer
     });
-    project.selection.getSelectedObjects('Clip').forEach(clip => {
-      paper.project.selection.addItem(clip.view.group);
-    });
-    paper.project.selection.updateGUI();
-  }
-
-  get x() {
-    return paper.project.selection.bounds.x;
-  }
-
-  set x(x) {
-    let y = paper.project.selection.bounds.y;
-    paper.project.selection.setPosition(x, y);
-    this.model.project.view.applyChanges();
-  }
-
-  get y() {
-    return paper.project.selection.bounds.y;
-  }
-
-  set y(y) {
-    let x = paper.project.selection.bounds.x;
-    paper.project.selection.setPosition(x, y);
-    this.model.project.view.applyChanges();
-  }
-
-  get width() {
-    return paper.project.selection.bounds.width;
-  }
-
-  set width(width) {
-    let height = paper.project.selection.bounds.height;
-    paper.project.selection.setSize(width, height);
-    this.model.project.view.applyChanges();
-  }
-
-  get height() {
-    return paper.project.selection.bounds.height;
-  }
-
-  set height(height) {
-    let width = paper.project.selection.bounds.width;
-    paper.project.selection.setSize(width, height);
-    this.model.project.view.applyChanges();
-  }
-
-  get scaleX() {
-    return paper.project.selection.scaling.x;
-  }
-
-  set scaleX(scaleX) {
-    let scaleY = paper.project.selection.scaling.y;
-    paper.project.selection.setScale(scaleX, scaleY);
-    this.model.project.view.applyChanges();
-  }
-
-  get scaleY() {
-    return paper.project.selection.scaling.y;
-  }
-
-  set scaleY(scaleY) {
-    let scaleX = paper.project.selection.scaling.x;
-    paper.project.selection.setScale(scaleX, scaleY);
-    this.model.project.view.applyChanges();
-  }
-
-  get rotation() {
-    return paper.project.selection.rotation;
-  }
-
-  set rotation(rotation) {
-    paper.project.selection.setRotation(rotation);
-    this.model.project.view.applyChanges();
-  }
-
-  get fillColor() {
-    return paper.project.selection.fillColor;
-  }
-
-  set fillColor(fillColor) {
-    paper.project.selection.setFillColor(fillColor);
-    this.model.project.view.applyChanges();
-  }
-
-  get strokeWidth() {
-    return paper.project.selection.strokeWidth;
-  }
-
-  set strokeWidth(strokeWidth) {
-    paper.project.selection.setStrokeWidth(strokeWidth);
-    this.model.project.view.applyChanges();
-  }
-
-  get strokeColor() {
-    return paper.project.selection.strokeColor;
-  }
-
-  set strokeColor(strokeColor) {
-    paper.project.selection.setStrokeColor(strokeColor);
-    this.model.project.view.applyChanges();
-  }
-
-  get opacity() {
-    return paper.project.selection.opacity;
-  }
-
-  set opacity(opacity) {
-    paper.project.selection.setOpacity(opacity);
-    this.model.project.view.applyChanges();
   }
 
 };
