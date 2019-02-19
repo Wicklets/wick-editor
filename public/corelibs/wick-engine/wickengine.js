@@ -45185,7 +45185,7 @@ Wick.Selection = class extends Wick.Base {
     return paper.selection.y;
   }
 
-  set y(x) {
+  set y(y) {
     paper.selection.y = y;
   }
 
