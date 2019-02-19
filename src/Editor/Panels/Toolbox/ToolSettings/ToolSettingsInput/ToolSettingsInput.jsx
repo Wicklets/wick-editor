@@ -21,15 +21,38 @@ import React, { Component } from 'react';
 
 import WickInput from 'Editor/Util/WickInput/WickInput';
 import ToolIcon from 'Editor/Util/ToolIcon/ToolIcon';
+import ReactTooltip from 'react-tooltip';
 
 import './_toolsettingsinput.scss';
 
 class ToolSettingsInput extends Component {
   renderIcon = () => {
+    let tooltipID = 'settings-input-id-'+this.props.icon;
     return (
-      <div className='settings-input-icon'>
+      <div
+        data-tip
+        data-for={tooltipID}
+        className='settings-input-icon'>
         <ToolIcon name={this.props.icon} />
+        {this.renderTooltip(tooltipID)}
       </div>);
+  }
+
+  renderTooltip = (tooltipID) => {
+    // Detect if on mobile to disable tooltips.
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+
+    return (
+      <ReactTooltip
+        disable={isMobile}
+        id={tooltipID}
+        type='info'
+        place={this.props.tooltipPlace === undefined ? 'bottom' : this.props.tooltipPlace}
+        effect='solid'
+        aria-haspopup='true'>
+        <span>{this.props.name}</span>
+      </ReactTooltip>
+    )
   }
 
   renderNumericInput = () => {
