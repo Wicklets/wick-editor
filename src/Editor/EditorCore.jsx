@@ -699,7 +699,6 @@ class EditorCore extends Component {
    * @return {[type]} [description]
    */
   pasteFromClipboard = () => {
-    console.log("pasting");
     localForage.getItem('wickClipboard').then((serializedSelection) => {
       let deserialized = this.deserializeSelection(serializedSelection);
       this.addSelectionToProject(deserialized, {offset: {x: 10, y:-10}});
