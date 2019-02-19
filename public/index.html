@@ -31,6 +31,19 @@
     <!-- GIF.js -->
     <script src="%PUBLIC_URL%/corelibs/gif/gif.js"></script>
 
+    <!-- Google Analytics -->
+  <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-88233944-1', 'auto');
+    ga('send', 'pageview');
+  </script>
+
+    <!-- End Google Analytics -->
+
     <!--
       Notice the use of %PUBLIC_URL% in the tags above.
       It will be replaced with the URL of the `public` folder during the build.
@@ -46,18 +59,6 @@
     <noscript>
       You need to enable JavaScript to run this app.
     </noscript>
-    <!-- Google Analytics -->
-    <script>
-      (function (i, s, o, g, r, a, m) {
-        i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () {
-          (i[r].q = i[r].q || []).push(arguments)
-        }, i[r].l = 1 * new Date(); a = s.createElement(o),
-          m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m)
-      })(window, document, 'script', '<%=htmlWebpackPlugin.options.analyticsURL%>', 'ga');
-      ga('create', 'UA-88233944-1', 'auto');
-      ga('send', 'pageview');
-    </script>
-  <!-- End Google Analytics -->
     <div id="root"></div>
     <!--
       This HTML file is a template.
