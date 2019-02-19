@@ -11,6 +11,8 @@ class UndoRedo {
   saveState () {
     this._undoStack.push(this._generateProjectState());
 
+    console.log('hey i think you need to clear the redo stack here');
+
     if(this.LOG_STACKS) this._logStacks();
   }
 
