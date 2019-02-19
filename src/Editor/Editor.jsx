@@ -83,14 +83,6 @@ class Editor extends EditorCore {
       activeModalName: null,
       activeModalQueue: [],
       codeEditorOpen: false,
-      codeEditorWindowProperties: {
-        width: 500,
-        height: 250,
-        x: window.innerWidth/2 - 250,
-        y: window.innerHeight/2 - 125,
-        minWidth: 300,
-        minHeight: 250,
-      },
       codeErrors: [],
       inspectorSize: 250,
       timelineSize: 100,
@@ -195,6 +187,7 @@ class Editor extends EditorCore {
     this.setState({
       ...this.state,
       project: this.project.serialize(),
+      codeEditorWindowProperties: this.getDefaultCodeEditorProperties(), 
     });
 
     // Leave Page warning.
@@ -263,6 +256,24 @@ class Editor extends EditorCore {
   onWindowResize = () => {
     // Ensure that all elements resize on window resize.
     this.resizeProps.onResize();
+
+    // reset the code window if we resize the window.
+    this.setState({
+      codeEditorWindowProperties: this.getDefaultCodeEditorProperties(),
+    })
+  }
+
+  getDefaultCodeEditorProperties = () => {
+    return (
+      {
+        width: 500,
+        height: 250,
+        x: window.innerWidth/2 - 250,
+        y: window.innerHeight/2 - 125,
+        minWidth: 300,
+        minHeight: 250,
+      }
+    );
   }
 
   onResize = (e) => {
@@ -561,7 +572,7 @@ class Editor extends EditorCore {
                                 redoAction={this.redoAction}
                                 copyAction={this.copySelectionToClipboard}
                                 pasteAction={this.pasteFromClipboard}
-                                deleteAction={this.deleteSelection}
+                                deleteAction={this.deleteSelectedObjects}
                               />
 
                             </DockedPanel>
