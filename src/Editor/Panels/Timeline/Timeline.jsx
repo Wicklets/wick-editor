@@ -25,7 +25,6 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 class Timeline extends Component {
   componentDidMount () {
     let AnimationTimeline = window.AnimationTimeline;
-    let self = this;
 
     this.onChange = this.onChange.bind(this);
     this.onSoftChange = this.onSoftChange.bind(this);

@@ -631,7 +631,6 @@ class EditorCore extends Component {
    * @param {File[]} rejectedFiles - Files uploaded by user with unsupported MIME types.
    */
   createAssets = (acceptedFiles, rejectedFiles) => {
-    let self = this;
     if (rejectedFiles.length > 0) {
       alert("The Wick Editor could not accept these files." + JSON.stringify(rejectedFiles.map(f => f.name)));
     }

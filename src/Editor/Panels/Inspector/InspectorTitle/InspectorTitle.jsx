@@ -21,8 +21,6 @@ import React, { Component } from 'react';
 import './_inspectortitle.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-import ToolIcon from 'Editor/Util/ToolIcon/ToolIcon';
-
 class InspectorTitle extends Component {
 
   renderSelectionType = () => {

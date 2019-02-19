@@ -29,7 +29,6 @@ import InspectorNumericInput from './InspectorRow/InspectorRowTypes/InspectorNum
 import InspectorDualNumericInput from './InspectorRow/InspectorRowTypes/InspectorDualNumericInput';
 import InspectorSelector from './InspectorRow/InspectorRowTypes/InspectorSelector';
 import InspectorColorPicker from './InspectorRow/InspectorRowTypes/InspectorColorPicker';
-import InspectorCheckbox from './InspectorRow/InspectorRowTypes/InspectorCheckbox';
 import InspectorActionButton from './InspectorActionButton/InspectorActionButton';
 import InspectorImagePreview from './InspectorPreview/InspectorPreviewTypes/InspectorImagePreview';
 

@@ -4,8 +4,6 @@ import ToolSettingsInput from './ToolSettingsInput/ToolSettingsInput';
 
 import './_toolsettings.scss';
 
-var classNames = require('classnames');
-
 class ToolSettings extends Component {
   constructor(props) {
     super(props);

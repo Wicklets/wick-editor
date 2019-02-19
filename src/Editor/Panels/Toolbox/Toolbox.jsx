@@ -21,7 +21,6 @@ import React, { Component } from 'react';
 import './_toolbox.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-import PlayButton from 'Editor/Util/PlayButton/PlayButton';
 import WickInput from 'Editor/Util/WickInput/WickInput';
 import ActionButton from 'Editor/Util/ActionButton/ActionButton';
 import ToolboxBreak from './ToolboxBreak/ToolboxBreak';
@@ -36,8 +35,6 @@ class Toolbox extends Component {
       openSettings: null,
       popover: null,
     }
-
-    console.log("ACTIVE", this.props.activeTool);
 
     this.toolButtonProps = {
       setActiveTool: this.props.setActiveTool,
