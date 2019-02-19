@@ -16128,6 +16128,30 @@ paper.Selection = class {
    */
 
 
+  get width() {
+    return this._bounds.width * this.scaleX;
+  }
+
+  set width(width) {
+    this.scaleX = width / this._bounds.width;
+  }
+  /**
+   * 
+   */
+
+
+  get height() {
+    return this._bounds.height * this.scaleY;
+  }
+
+  set height(height) {
+    this.scaleY = height / this._bounds.height;
+  }
+  /**
+   * 
+   */
+
+
   get strokeWidth() {
     return this._getUniqueProperties('strokeWidth');
   }

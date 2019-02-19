@@ -77,7 +77,6 @@ class Canvas extends Component {
     window.paper.drawingTools.onSelectionTransformed(this.onSelectionTransformed);
 
     this.updateCanvas();
-    //this.props.project.view.recenter();
   }
 
   componentDidUpdate () {

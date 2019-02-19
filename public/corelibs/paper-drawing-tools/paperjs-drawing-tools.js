@@ -5018,10 +5018,10 @@ var TOOL_CURSOR = () => {
       });
     } else {
       paper.selection.finish();
-      paper.drawingTools.fireCanvasModified();
       paper.drawingTools.fireSelectionChanged({
         items: []
-      }); // Nothing was clicked, so start the selection box
+      });
+      paper.drawingTools.fireCanvasModified(); // Nothing was clicked, so start the selection box
 
       selectionBox.start(e.point);
     }

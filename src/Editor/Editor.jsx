@@ -187,7 +187,7 @@ class Editor extends EditorCore {
     this.setState({
       ...this.state,
       project: this.project.serialize(),
-      codeEditorWindowProperties: this.getDefaultCodeEditorProperties(), 
+      codeEditorWindowProperties: this.getDefaultCodeEditorProperties(),
     });
 
     // Leave Page warning.
@@ -499,7 +499,7 @@ class Editor extends EditorCore {
     // (This shouldn't be neccessary, but AnimationTimeline was firing multiple
     // projectDidChange calls.)
     let projectSerialized = this.project.serialize();
-    //if(JSON.stringify(this.state.project) !== JSON.stringify(projectSerialized)) {
+    if(JSON.stringify(this.state.project) !== JSON.stringify(projectSerialized)) {
       if(!skipHistory) {
         this.history.saveState();
         this.autosaveProject(projectSerialized);
@@ -507,7 +507,7 @@ class Editor extends EditorCore {
       this.setState({
         project: projectSerialized,
       });
-    //}
+    }
   }
 
   render = () => {
