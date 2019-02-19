@@ -20,6 +20,7 @@
 import React, { Component } from 'react';
 import { DropTarget } from 'react-dnd';
 import DragDropTypes from 'Editor/DragDropTypes.js';
+import { throttle } from 'underscore';
 
 import './_canvas.scss';
 import styles from './_canvas.scss';
@@ -74,6 +75,7 @@ class Canvas extends Component {
     window.paper.drawingTools.onCanvasModified(this.onCanvasModified);
     window.paper.drawingTools.onSelectionChanged(this.onSelectionChanged);
     window.paper.drawingTools.onCanvasViewChanged(this.onCanvasViewChanged);
+    window.paper.drawingTools.onSelectionTransformed(this.onSelectionTransformed);
 
     this.updateCanvas();
     //this.props.project.view.recenter();
@@ -84,11 +86,19 @@ class Canvas extends Component {
   }
 
   onCanvasModified = (e) => {
+    console.log('onCanvasModified')
     this.props.project.view.applyChanges();
     this.props.projectDidChange();
   }
 
+  onSelectionTransformed = (e) => {
+    console.log('onSelectionTransformed')
+    this.props.projectDidChange(true);
+  }
+
   onSelectionChanged = (e) => {
+    console.log('onSelectionChanged')
+
     let paper = this.props.paper;
     let project = this.props.project;
 

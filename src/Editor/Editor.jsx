@@ -253,10 +253,11 @@ class Editor extends EditorCore {
 
   /**
    * Autosave the project in the state, if it exists.
+   * @param {object} serializedProject - The data of the project to load into localforage.
    */
-  autoSaveProject = () => {
-    if (this.project === undefined) return
-    localForage.setItem(this.autoSaveKey, this.project.serialize());
+  autoSaveProject = (serializedProject) => {
+    if (!serializedProject) return;
+    localForage.setItem(this.autoSaveKey, serializedProject);
   }
 
   onWindowResize = () => {
@@ -475,17 +476,27 @@ class Editor extends EditorCore {
     this.history.redo();
   }
 
-  projectDidChange = () => {
-    let projectSerialized = this.project.serialize();
-    this.autosaveProject(projectSerialized);
+  /**
+   * Signals to React that the "live" project changed, so that all components
+   * displaying info about the project will render.
+   * @param {boolean} skipHistory If true, the new project state will not be
+   * saved to the undo/redo stacks.
+   */
+  projectDidChange = (skipHistory) => {
+
     // Double check to see if the project was really changed
-    // (This shouldn't be neccessary, but AnimationTimeline was firing multiple projectDidChange calls.)
-    if(JSON.stringify(this.state.project) !== JSON.stringify(projectSerialized)) {
-      this.history.saveState();
+    // (This shouldn't be neccessary, but AnimationTimeline was firing multiple
+    // projectDidChange calls.)
+    let projectSerialized = this.project.serialize();
+    //if(JSON.stringify(this.state.project) !== JSON.stringify(projectSerialized)) {
+      if(!skipHistory) {
+        this.history.saveState();
+        this.autosaveProject(projectSerialized);
+      }
       this.setState({
         project: projectSerialized,
       });
-    }
+    //}
   }
 
   render = () => {

@@ -3808,6 +3808,7 @@ paper.DrawingTools = class {
     this._onCanvasModifiedCallback = null;
     this._onSelectionChangedCallback = null;
     this._onCanvasViewChangedCallback = null;
+    this._onSelectionTransformed = null;
   }
 
   setup() {
@@ -3815,6 +3816,7 @@ paper.DrawingTools = class {
     this._onCanvasModifiedCallback = null;
     this._onSelectionChangedCallback = null;
     this._onCanvasViewChangedCallback = null;
+    this._onSelectionTransformed = null;
     this.brush = TOOL_BRUSH();
     this.cursor = TOOL_CURSOR();
     this.ellipse = TOOL_ELLIPSE();
@@ -3852,6 +3854,14 @@ paper.DrawingTools = class {
 
   onCanvasViewChanged(fn) {
     this._onCanvasViewChangedCallback = fn;
+  }
+
+  fireSelectionTransformed(e) {
+    this._onSelectionTransformedCallback && this._onSelectionTransformedCallback(e);
+  }
+
+  onSelectionTransformed(fn) {
+    this._onSelectionTransformedCallback = fn;
   }
 
 };
@@ -5035,11 +5045,14 @@ var TOOL_CURSOR = () => {
 
   tool.onMouseUp = function (e) {
     if (selectionBox.active) {
+      // Finish selection box and select objects touching box (or inside box, if alt is held)
       selectionBox.mode = e.modifiers.alt ? 'contains' : 'intersects';
       selectionBox.end(e.point);
       paper.drawingTools.fireSelectionChanged({
         items: selectionBox.items
       });
+    } else {
+      paper.drawingTools.fireSelectionTransformed({});
     }
   };
 

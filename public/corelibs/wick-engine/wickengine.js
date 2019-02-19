@@ -47802,7 +47802,22 @@ Wick.View.Selection = class extends Wick.View {
 
   render() {
     var project = this.model.project;
-    paper.selection.finish();
+
+    var newSelectedItems = this._getViewsOfSelectedObjects();
+
+    var oldSelectedItems = paper.selection.items;
+
+    if (!this._arraysEqual(newSelectedItems, oldSelectedItems)) {
+      paper.selection.finish();
+      paper.selection = new paper.Selection({
+        items: newSelectedItems,
+        layer: this._layer
+      });
+    }
+  }
+
+  _getViewsOfSelectedObjects() {
+    var project = this.model.project;
     var items = [];
     items = items.concat(project.selection.getSelectedObjects('Path').map(path => {
       return path.paperPath;
@@ -47810,10 +47825,23 @@ Wick.View.Selection = class extends Wick.View {
     items = items.concat(project.selection.getSelectedObjects('Clip').map(clip => {
       return clip.view.group;
     }));
-    paper.selection = new paper.Selection({
-      items: items,
-      layer: this._layer
-    });
+    return items;
+  } // https://stackoverflow.com/questions/3115982/how-to-check-if-two-arrays-are-equal-with-javascript
+
+
+  _arraysEqual(a, b) {
+    if (a === b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false; // If you don't care about the order of the elements inside
+    // the array, you should sort both arrays here.
+    // Please note that calling sort on an array will modify that array.
+    // you might want to clone your array first.
+
+    for (var i = 0; i < a.length; ++i) {
+      if (a[i] !== b[i]) return false;
+    }
+
+    return true;
   }
 
 };
