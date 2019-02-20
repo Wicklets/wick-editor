@@ -59,7 +59,7 @@ class EditorCore extends Component {
    */
   recenterCanvas = () => {
     this.project.recenter();
-    this.projectDidChange();
+    this.project.view.render();
   }
 
   /**

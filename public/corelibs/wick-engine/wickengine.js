@@ -16360,25 +16360,45 @@ paper.Selection = class {
    */
 
 
-  sendToBack() {}
+  sendToBack() {
+    this._getSelectedItemsSortedByZIndex().reverse().forEach(item => {
+      item.sendToBack();
+    });
+  }
   /**
    * 
    */
 
 
-  bringToFront() {}
+  bringToFront() {
+    this._getSelectedItemsSortedByZIndex().forEach(item => {
+      item.bringToFront();
+    });
+  }
   /**
    * 
    */
 
 
-  moveBack() {}
+  moveBack() {
+    this._getSelectedItemsSortedByZIndex().reverse().forEach(item => {
+      if (item.previousSibling && this._items.indexOf(item.previousSibling) === -1) {
+        item.insertBelow(item.previousSibling);
+      }
+    });
+  }
   /**
    * 
    */
 
 
-  moveForward() {}
+  moveForward() {
+    this._getSelectedItemsSortedByZIndex().forEach(item => {
+      if (item.nextSibling && this._items.indexOf(item.nextSibling) === -1) {
+        item.insertAbove(item.nextSibling);
+      }
+    });
+  }
 
   finish() {
     // Do some cleanup.
@@ -16625,6 +16645,12 @@ paper.Selection = class {
       'leftCenter': 'rightCenter',
       'rightCenter': 'leftCenter'
     }[handleDir];
+  }
+
+  _getSelectedItemsSortedByZIndex() {
+    return this._items.sort(function (a, b) {
+      return a.index - b.index;
+    });
   }
 
 };
@@ -44545,7 +44571,7 @@ Wick.Project = class extends Wick.Base {
   /**
    * Create a project from a wick file.
    * @param {File} wickFile - Wick file containing project data.
-   * @param {function} callback - Function called when the project is created. Contains the new project as a parameter.
+   * @param {function} callback - Function called when the project is created.
    */
 
 
@@ -44586,6 +44612,13 @@ Wick.Project = class extends Wick.Base {
       callback(null);
     });
   }
+  /**
+   * Create a wick project from a .wick file located at a given URL.
+   * This will most likely only work with files fetched from the same domain.
+   * @param {string} url - The URL to fetch the .wick file from
+   * @param {function} callback - The function to call when the project is fetched successfully
+   */
+
 
   static fromWickFileURL(url, callback) {
     atomic(url, {
@@ -44594,10 +44627,11 @@ Wick.Project = class extends Wick.Base {
       var wickFile = response.data;
       Wick.Project.fromWickFile(wickFile, callback);
     }).catch(function (error) {
-      console.log('Error loading project from URL.');
-      console.log(error.status); // xhr.status
+      console.error(error.status); // xhr.status
 
-      console.log(error.statusText); // xhr.statusText
+      console.error(error.statusText); // xhr.statusText
+
+      throw new Error('Error loading project from URL.');
     });
   }
   /**
@@ -44685,8 +44719,6 @@ Wick.Project = class extends Wick.Base {
   addAsset(asset) {
     this.assets.push(asset);
 
-    this._refreshAssetUUIDRefs();
-
     this._addChild(asset);
   }
   /**
@@ -44701,9 +44733,19 @@ Wick.Project = class extends Wick.Base {
       return checkAsset !== asset;
     });
 
-    this._refreshAssetUUIDRefs();
-
     this._removeChild(asset);
+  }
+  /**
+   * Retrieve an asset from the project by its UUID.
+   * @param {string} uuid - The UUID of the asset to get.
+   * @return {Wick.Asset} The asset
+   */
+
+
+  getAsset(uuid) {
+    return this.assets.find(asset => {
+      return asset.uuid === uuid;
+    });
   }
   /**
    * The assets belonging to the project.
@@ -44889,6 +44931,10 @@ Wick.Project = class extends Wick.Base {
 
     reader.readAsDataURL(file);
   }
+  /**
+   * Deletes all objects in the selection.
+   */
+
 
   deleteSelectedObjects() {
     this.selection.getSelectedObjects().forEach(object => {
@@ -44896,6 +44942,14 @@ Wick.Project = class extends Wick.Base {
     });
     this.selection.clear();
   }
+  /**
+   * Adds an image path to the active frame using a given asset as its image src.
+   * @param {Wick.Asset} asset - the asset to use for the image src
+   * @param {number} x - the x position to create the image path at
+   * @param {number} y - the y position to create the image path at
+   * @param {function} callback - the function to call after the path is created.
+   */
+
 
   createImagePathFromAsset(asset, x, y, callback) {
     var path = new window.Wick.Path(["Raster", {
@@ -44910,6 +44964,12 @@ Wick.Project = class extends Wick.Base {
       callback(path);
     };
   }
+  /**
+   * Creates a symbol from the objects currently selected.
+   * @param {string} name - the name to give the new symbol
+   * @param {string} type - "Clip" or "Button"
+   */
+
 
   createSymbolFromSelection(name, type) {
     var transform = new Wick.Transformation();
@@ -44921,6 +44981,10 @@ Wick.Project = class extends Wick.Base {
     this.selection.clear();
     this.selection.select(clip);
   }
+  /**
+   * Breaks selected clips into their children clips and paths.
+   */
+
 
   breakApartSelection() {
     var leftovers = [];
@@ -44932,6 +44996,10 @@ Wick.Project = class extends Wick.Base {
       this.selection.select(object);
     });
   }
+  /**
+   * Sets the project focus to the timeline of the selected clip.
+   */
+
 
   focusTimelineOfSelectedClip() {
     if (this.selection.getSelectedObject() instanceof Wick.Clip) {
@@ -44940,6 +45008,10 @@ Wick.Project = class extends Wick.Base {
       this.recenter();
     }
   }
+  /**
+   * Sets the project focus to the parent timeline of the currently focused clip.
+   */
+
 
   focusTimelineOfParentClip() {
     if (!this.focus.isRoot) {
@@ -44994,6 +45066,14 @@ Wick.Project = class extends Wick.Base {
     this._keysLastDown = [].concat(this._keysDown);
     return error;
   }
+  /**
+   * Start playing the project.
+   * Arguments: onError: Called when a script error occurs during a tick.
+   *            onBeforeTick: Called before every tick
+   *            onAfterTick: Called after every tick
+   * @param {object} args - Optional arguments
+   */
+
 
   play(args) {
     if (!args) args = {};
@@ -45018,6 +45098,10 @@ Wick.Project = class extends Wick.Base {
       args.onAfterTick();
     }, 1000 / this.framerate);
   }
+  /**
+   * Stop playing the project.
+   */
+
 
   stop() {
     clearInterval(this._tickIntervalID);
@@ -45068,13 +45152,6 @@ Wick.Project = class extends Wick.Base {
     }
 
     return true;
-  }
-
-  _refreshAssetUUIDRefs() {
-    var assets = this.assets;
-    assets.forEach(asset => {
-      assets[asset.uuid] = asset;
-    });
   }
 
 };
@@ -46690,7 +46767,7 @@ Wick.Frame = class extends Wick.Tickable {
 
   get sound() {
     var uuid = this._soundAssetUUID;
-    return uuid ? this.project.assets[uuid] : null;
+    return uuid ? this.project.getAsset(uuid) : null;
   }
 
   set sound(soundAsset) {

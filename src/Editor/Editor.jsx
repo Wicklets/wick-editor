@@ -494,7 +494,6 @@ class Editor extends EditorCore {
    * saved to the undo/redo stacks.
    */
   projectDidChange = (skipHistory) => {
-
     // Double check to see if the project was really changed
     // (This shouldn't be neccessary, but AnimationTimeline was firing multiple
     // projectDidChange calls.)
@@ -504,10 +503,10 @@ class Editor extends EditorCore {
         this.history.saveState();
         this.autosaveProject(projectSerialized);
       }
-      this.setState({
-        project: projectSerialized,
-      });
     }
+    this.setState({
+      project: projectSerialized,
+    });
   }
 
   render = () => {
