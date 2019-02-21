@@ -20,11 +20,13 @@
 @import 'Editor/_wickbrand.scss';
 
 $inspector-padding: 10px;
+$inspector-title-height: 36px;
 $inspector-selection-icon-size: 40px;
 $inspector-row-height: 26px;
 $inspector-button-height: 40px;
 $inspector-button-min-width: 40px;
 $inspector-image-preview-size: 100px;
+$inspector-break-size: calc(#{$editor-outline-padding} * .5);
 
 $inspector-transition-duration: 0.2s;
 
@@ -37,6 +39,15 @@ $inspector-transition-duration: 0.2s;
   border-right: $editor-outline-padding solid $editor-primary-outline;
   font-family: 'Nunito Sans';
   overflow: hidden;
+}
+
+.inspector-body {
+  height: calc(100% - #{$inspector-title-height});
+  width: 100%;
+  overflow: hidden;
+}
+
+.inspector-body:hover {
   overflow-y: auto;
 }
 
@@ -50,9 +61,15 @@ $inspector-transition-duration: 0.2s;
   justify-content: center;
 }
 
-.inspector-content {
+.inspector-item {
   padding-left: $inspector-padding;
   padding-right: $inspector-padding;
+  padding-top: calc(#{$inspector-padding} / 2);
+  padding-bottom: calc(#{$inspector-padding} / 2);
+  border-bottom: $inspector-break-size solid $editor-primary-outline;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .select-inspector {
