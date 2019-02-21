@@ -15975,7 +15975,7 @@ paper.Selection = class {
     return 'rgba(255,0,0,0.0001)';
   }
   /**
-   * 
+   *
    */
 
 
@@ -16021,7 +16021,7 @@ paper.Selection = class {
     this._render();
   }
   /**
-   * 
+   *
    */
 
 
@@ -16033,7 +16033,7 @@ paper.Selection = class {
     this._handleDragMode = handleDragMode;
   }
   /**
-   * 
+   *
    */
 
 
@@ -16041,7 +16041,7 @@ paper.Selection = class {
     return this._box;
   }
   /**
-   * 
+   *
    */
 
 
@@ -16049,7 +16049,7 @@ paper.Selection = class {
     return this._items;
   }
   /**
-   * 
+   *
    */
 
 
@@ -16064,7 +16064,7 @@ paper.Selection = class {
     this._render();
   }
   /**
-   * 
+   *
    */
 
 
@@ -16079,7 +16079,7 @@ paper.Selection = class {
     this._render();
   }
   /**
-   * 
+   *
    */
 
 
@@ -16094,7 +16094,7 @@ paper.Selection = class {
     this._render();
   }
   /**
-   * 
+   *
    */
 
 
@@ -16109,7 +16109,7 @@ paper.Selection = class {
     this._render();
   }
   /**
-   * 
+   *
    */
 
 
@@ -16124,7 +16124,7 @@ paper.Selection = class {
     this._render();
   }
   /**
-   * 
+   *
    */
 
 
@@ -16136,7 +16136,7 @@ paper.Selection = class {
     this.scaleX = width / this._bounds.width;
   }
   /**
-   * 
+   *
    */
 
 
@@ -16148,7 +16148,7 @@ paper.Selection = class {
     this.scaleY = height / this._bounds.height;
   }
   /**
-   * 
+   *
    */
 
 
@@ -16162,7 +16162,7 @@ paper.Selection = class {
     });
   }
   /**
-   * 
+   *
    */
 
 
@@ -16178,7 +16178,7 @@ paper.Selection = class {
     });
   }
   /**
-   * 
+   *
    */
 
 
@@ -16194,7 +16194,7 @@ paper.Selection = class {
     });
   }
   /**
-   * 
+   *
    */
 
 
@@ -16208,7 +16208,7 @@ paper.Selection = class {
     });
   }
   /**
-   * 
+   *
    */
 
 
@@ -16222,7 +16222,7 @@ paper.Selection = class {
     });
   }
   /**
-   * 
+   *
    */
 
 
@@ -16236,7 +16236,7 @@ paper.Selection = class {
     });
   }
   /**
-   * 
+   *
    */
 
 
@@ -16248,7 +16248,7 @@ paper.Selection = class {
     this._setHandlePosition('topLeft', topLeft);
   }
   /**
-   * 
+   *
    */
 
 
@@ -16260,7 +16260,7 @@ paper.Selection = class {
     this._setHandlePosition('topRight', topRight);
   }
   /**
-   * 
+   *
    */
 
 
@@ -16272,7 +16272,7 @@ paper.Selection = class {
     this._setHandlePosition('bottomLeft', bottomLeft);
   }
   /**
-   * 
+   *
    */
 
 
@@ -16284,7 +16284,7 @@ paper.Selection = class {
     this._setHandlePosition('bottomRight', bottomRight);
   }
   /**
-   * 
+   *
    */
 
 
@@ -16296,7 +16296,7 @@ paper.Selection = class {
     this._setHandlePosition('topCenter', topCenter);
   }
   /**
-   * 
+   *
    */
 
 
@@ -16308,7 +16308,7 @@ paper.Selection = class {
     this._setHandlePosition('bottomCenter', bottomCenter);
   }
   /**
-   * 
+   *
    */
 
 
@@ -16320,7 +16320,7 @@ paper.Selection = class {
     this._setHandlePosition('leftCenter', leftCenter);
   }
   /**
-   * 
+   *
    */
 
 
@@ -16332,7 +16332,7 @@ paper.Selection = class {
     this._setHandlePosition('rightCenter', rightCenter);
   }
   /**
-   * 
+   *
    */
 
 
@@ -16340,7 +16340,7 @@ paper.Selection = class {
     return this._box.bounds.center;
   }
   /**
-   * 
+   *
    */
 
 
@@ -16350,7 +16350,7 @@ paper.Selection = class {
     this._render();
   }
   /**
-   * 
+   *
    */
 
 
@@ -16360,7 +16360,7 @@ paper.Selection = class {
     this._render();
   }
   /**
-   * 
+   *
    */
 
 
@@ -16370,7 +16370,7 @@ paper.Selection = class {
     this._render();
   }
   /**
-   * 
+   *
    */
 
 
@@ -16380,7 +16380,7 @@ paper.Selection = class {
     });
   }
   /**
-   * 
+   *
    */
 
 
@@ -16390,7 +16390,7 @@ paper.Selection = class {
     });
   }
   /**
-   * 
+   *
    */
 
 
@@ -16402,7 +16402,7 @@ paper.Selection = class {
     });
   }
   /**
-   * 
+   *
    */
 
 
@@ -16433,7 +16433,7 @@ paper.Selection = class {
     this._box.remove();
   }
   /**
-   * 
+   *
    */
 
 
@@ -45099,6 +45099,7 @@ Wick.Project = class extends Wick.Base {
       this.stop();
     }
 
+    this.selection.clear();
     this._tickIntervalID = setInterval(() => {
       args.onBeforeTick();
       var error = this.tick();
@@ -47828,6 +47829,8 @@ Wick.View.Project = class extends Wick.View {
   }
 
   render() {
+    // Only render if we just finished a selection
+    if (!this.model.selection.view.selectionDidChange()) return;
     paper.project.clear(); // Update zoom and pan
 
     paper.view.zoom = this.model.zoom;
@@ -47917,18 +47920,18 @@ Wick.View.Selection = class extends Wick.View {
 
   render() {
     var project = this.model.project;
+    paper.selection.finish();
+    paper.selection = new paper.Selection({
+      items: this._getViewsOfSelectedObjects(),
+      layer: this._layer
+    });
+  }
 
+  selectionDidChange() {
     var newSelectedItems = this._getViewsOfSelectedObjects();
 
     var oldSelectedItems = paper.selection.items;
-
-    if (!this._arraysEqual(newSelectedItems, oldSelectedItems)) {
-      paper.selection.finish();
-      paper.selection = new paper.Selection({
-        items: newSelectedItems,
-        layer: this._layer
-      });
-    }
+    return newSelectedItems.length === 0 && oldSelectedItems.length === 0 || !this._arraysEqual(newSelectedItems, oldSelectedItems);
   }
 
   _getViewsOfSelectedObjects() {

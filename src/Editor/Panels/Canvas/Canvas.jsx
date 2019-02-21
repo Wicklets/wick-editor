@@ -101,6 +101,7 @@ class Canvas extends Component {
       project.selection.select(object);
     });
 
+    this.props.project.view.applyChanges();
     this.props.projectDidChange();
   }
 
@@ -120,9 +121,7 @@ class Canvas extends Component {
 
     // Render wick project
     project.view.canvasBGColor = styles.editorCanvasBorder;
-    if(project.view.setCanvasContainer(canvasContainerElem)) {
-      //project.view.recenter();
-    }
+    project.view.setCanvasContainer(canvasContainerElem);
     project.view.render();
 
     // update the paper.js active tool based on the editor active tool state.
