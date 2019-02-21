@@ -129,7 +129,6 @@ class Inspector extends Component {
   }
 
   renderSelectionFillColor() {
-    console.log(this.getSelectionAttribute('fillColor'));
     return (
       <div className="inspector-item">
         <InspectorColorNumericInput

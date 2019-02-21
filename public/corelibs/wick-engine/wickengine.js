@@ -16413,6 +16413,10 @@ paper.Selection = class {
       }
     });
   }
+  /**
+   *
+   */
+
 
   finish() {
     // Do some cleanup.
@@ -44670,6 +44674,8 @@ Wick.Project = class extends Wick.Base {
 
   set focus(clip) {
     this._focus = clip.uuid;
+    this.selection.clear();
+    this.recenter();
   }
   /**
    * The timeline of the active clip.
@@ -44958,6 +44964,22 @@ Wick.Project = class extends Wick.Base {
     this.selection.clear();
   }
   /**
+   * Selects all objects that are visible on the canvas (excluding locked layers and onion skinned objects)
+   */
+
+
+  selectAll() {
+    this.selection.clear();
+    this.activeFrames.forEach(frame => {
+      frame.paths.forEach(path => {
+        this.selection.select(path);
+      });
+      frame.clips.forEach(clip => {
+        this.selection.select(clip);
+      });
+    });
+  }
+  /**
    * Adds an image path to the active frame using a given asset as its image src.
    * @param {Wick.Asset} asset - the asset to use for the image src
    * @param {number} x - the x position to create the image path at
@@ -45019,8 +45041,6 @@ Wick.Project = class extends Wick.Base {
   focusTimelineOfSelectedClip() {
     if (this.selection.getSelectedObject() instanceof Wick.Clip) {
       this.focus = this.selection.getSelectedObject();
-      this.selection.clear();
-      this.recenter();
     }
   }
   /**
@@ -45031,8 +45051,6 @@ Wick.Project = class extends Wick.Base {
   focusTimelineOfParentClip() {
     if (!this.focus.isRoot) {
       this.focus = this.focus.parentClip;
-      this.selection.clear();
-      this.recenter();
     }
   }
   /**
@@ -45427,7 +45445,7 @@ Wick.Timeline = class extends Wick.Base {
    */
   constructor() {
     super();
-    this.playheadPosition = 1;
+    this._playheadPosition = 1;
     this.activeLayerIndex = 0;
     this._playing = true;
     this._forceNextFrame = null;
@@ -45437,7 +45455,7 @@ Wick.Timeline = class extends Wick.Base {
   static _deserialize(data, object) {
     super._deserialize(data, object);
 
-    object.playheadPosition = data.playheadPosition;
+    object._playheadPosition = data.playheadPosition;
     object.activeLayerIndex = data.activeLayerIndex;
     data.layers.forEach(layerData => {
       object.addLayer(Wick.Layer.deserialize(layerData));
@@ -45447,7 +45465,7 @@ Wick.Timeline = class extends Wick.Base {
 
   serialize() {
     var data = super.serialize();
-    data.playheadPosition = this.playheadPosition;
+    data.playheadPosition = this._playheadPosition;
     data.activeLayerIndex = this.activeLayerIndex;
     data.layers = this.layers.map(layer => {
       return layer.serialize();
@@ -45457,6 +45475,23 @@ Wick.Timeline = class extends Wick.Base {
 
   get classname() {
     return 'Timeline';
+  }
+  /**
+   * The position of the playhead. Determines which frames are visible.
+   */
+
+
+  get playheadPosition() {
+    return this._playheadPosition;
+  }
+
+  set playheadPosition(playheadPosition) {
+    // Automatically clear selection when any playhead moves
+    if (this.project && this._playheadPosition !== playheadPosition) {
+      this.project.selection.clear();
+    }
+
+    this._playheadPosition = playheadPosition;
   }
   /**
    * The total length of the timeline.
@@ -45561,7 +45596,7 @@ Wick.Timeline = class extends Wick.Base {
     this.layers.splice(index, 0, layer);
   }
   /**
-   * Gets the frames at the given playhead position. 
+   * Gets the frames at the given playhead position.
    * @param {number} playheadPosition - the playhead position to search.
    * @returns {Wick.Frame[]} The frames at the playhead position.
    */
