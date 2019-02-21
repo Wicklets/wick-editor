@@ -44549,7 +44549,7 @@ Wick.Project = class extends Wick.Base {
     object.onionSkinSeekForwards = data.onionSkinSeekForwards || 1;
     object.onionSkinSeekBackwards = data.onionSkinSeekBackwards || 1;
     object.root = Wick.Clip.deserialize(data.root);
-    object.focus = object.root;
+    object.focus = object.getChildByUUID(data.focus);
     object.selection = Wick.Selection.deserialize(data.selection || {
       classname: 'Selection'
     });
@@ -44576,6 +44576,7 @@ Wick.Project = class extends Wick.Base {
     data.onionSkinSeekForwards = this.onionSkinSeekForwards;
     data.onionSkinSeekBackwards = this.onionSkinSeekBackwards;
     data.root = this.root.serialize();
+    data.focus = this.focus.uuid;
     data.selection = this.selection.serialize();
     data.assets = this.assets.map(asset => {
       return asset.serialize();
