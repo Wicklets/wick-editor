@@ -55,6 +55,10 @@ $double-input-unit-width: 40%;
   margin-bottom: 4px;
 }
 
+.inspector-row:last-child {
+  margin-bottom: 0px;
+}
+
 .inspector-preview-row {
   height: $inspector-image-preview-size;
 }

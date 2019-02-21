@@ -20,8 +20,6 @@
 @import 'Editor/_wickbrand.scss';
 @import '../_inspector.scss';
 
-$inspector-title-height: 40px;
-
 .inspector-title {
   height: $inspector-title-height;
   padding-left: $inspector-padding;
@@ -29,6 +27,11 @@ $inspector-title-height: 40px;
   white-space: nowrap;
   display: flex;
   align-items: center;
+}
+
+.inspector-title-container {
+  box-shadow: 0px 2px 4px black;
+  position: relative;
 }
 
 .inspector-title-name {

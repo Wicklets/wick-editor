@@ -29,6 +29,7 @@ import InspectorNumericInput from './InspectorRow/InspectorRowTypes/InspectorNum
 import InspectorDualNumericInput from './InspectorRow/InspectorRowTypes/InspectorDualNumericInput';
 import InspectorSelector from './InspectorRow/InspectorRowTypes/InspectorSelector';
 import InspectorColorPicker from './InspectorRow/InspectorRowTypes/InspectorColorPicker';
+import InspectorColorNumericInput from './InspectorRow/InspectorRowTypes/InspectorColorNumericInput';
 import InspectorActionButton from './InspectorActionButton/InspectorActionButton';
 import InspectorImagePreview from './InspectorPreview/InspectorPreviewTypes/InspectorImagePreview';
 
@@ -59,6 +60,25 @@ class Inspector extends Component {
       "multiassetmixed": this.renderAsset.bind(this),
       "multisoundasset": this.renderAsset.bind(this),
       "multiimageasset": this.renderAsset.bind(this),
+    }
+
+    this.inspectorTitles = {
+      "frame": "Frame",
+      "multiframe": "Multi-Frame",
+      "tween": "Tween",
+      "multitween": "Multi-Tween",
+      "clip": "Clip",
+      "button": "Button",
+      "path": "Path",
+      "multipath": "Multi-Path",
+      "multitimelinemixed": "Multi-Timeline",
+      "multicanvasmixed": "Multi-Canvas",
+      "imageasset": "Image Asset",
+      "soundasset": "Sound Asset",
+      "multiassetmixed": "Multi-Asset",
+      "multisoundasset": "Multi-Asset Sound",
+      "multiimageasset": "Multi-Asset Image",
+      "unknown": "Unknown",
     }
 
     this.renderDisplay = this.renderDisplay.bind(this);
@@ -100,7 +120,6 @@ class Inspector extends Component {
     return (
       <InspectorNumericSlider
         tooltip="Stroke Width"
-        icon="strokewidth"
         val={this.getSelectionAttribute('strokeWidth')}
         onChange={(val) => this.setSelectionAttribute('strokeWidth', val)}
         divider={false}
@@ -110,32 +129,44 @@ class Inspector extends Component {
   }
 
   renderSelectionFillColor() {
-    return(
-      <InspectorColorPicker
-        tooltip="Fill Color"
-        icon="fillcolor"
-        val={this.getSelectionAttribute('fillColor')}
-        onChange={(col) => this.setSelectionAttribute('fillColor', this.toRgbaString(col))}
-        id={"inspector-selection-fill-color"} />
-    )
+    console.log(this.getSelectionAttribute('fillColor'));
+    return (
+      <div className="inspector-item">
+        <InspectorColorNumericInput
+          tooltip="Fill Color"
+          val={this.getSelectionAttribute('fillColor')}
+          onChange={(col) => this.setSelectionAttribute('fillColor', this.toRgbaString(col))}
+          id={"inspector-selection-fill-color"}
+          val2={this.getSelectionAttribute('opacity')}
+          onChange2={(val) => this.setSelectionAttribute('opacity', val)}
+          inputProps={this.props.toolRestrictions.opacity}
+          divider={false}/>
+      </div>
+    );
   }
 
   renderSelectionStrokeColor() {
-    return(
-      <InspectorColorPicker
-        tooltip="Stroke Color"
-        icon="strokecolor"
-        val={this.getSelectionAttribute('strokeColor')}
-        onChange={(col) => this.setSelectionAttribute('strokeColor', this.toRgbaString(col))}
-        id={"inspector-selection-stroke-color"}
-        stroke={true}/>
-    )
+    return (
+      <div className="inspector-item">
+        <InspectorColorNumericInput
+          tooltip="Stroke Color"
+
+          val={this.getSelectionAttribute('strokeColor')}
+          onChange={(col) => this.setSelectionAttribute('strokeColor', this.toRgbaString(col))}
+          id={"inspector-selection-stroke-color"}
+          stroke={true}
+
+          val2={this.getSelectionAttribute('strokeWidth')}
+          onChange2={(val) => this.setSelectionAttribute('strokeWidth', val)}
+          inputProps={this.props.toolRestrictions.strokeWidth}
+          divider={false}/>
+      </div>
+    );
   }
 
   renderFonts(args) {
     return (
       <InspectorSelector
-        icon="fontfamily"
         value={args.val}
         options={args.options}
         onChange={args.onChange} />
@@ -145,7 +176,6 @@ class Inspector extends Component {
   renderFontSize(args) {
     return (
       <InspectorNumericInput
-        icon="fontsize"
         val={args.val}
         inputProps={this.props.toolRestrictions.fontSize}
         onChange={args.onChange} />
@@ -156,7 +186,6 @@ class Inspector extends Component {
     return (
       <InspectorTextInput
         tooltip="Name"
-        icon="name"
         val={this.getSelectionAttribute('name')}
         onChange={(val) => {this.setSelectionAttribute('name', val);}}
         id="inspector-name" />
@@ -167,7 +196,6 @@ class Inspector extends Component {
     return (
       <InspectorTextInput
         tooltip="File Name"
-        icon="name"
         val={this.getSelectionAttribute('filename')}
         readOnly={true}
         id="inspector-file-name"/>
@@ -177,7 +205,6 @@ class Inspector extends Component {
   renderImagePreview() {
     return (
       <InspectorImagePreview
-        icon="image"
         src={this.getSelectionAttribute('src')}
         id="inspector-image-preview" />
     )
@@ -187,7 +214,6 @@ class Inspector extends Component {
     return (
       <InspectorNumericInput
         tooltip="Frame Length"
-        icon="framelength"
         val={this.getSelectionAttribute('frameLength')}
         onChange={(val) => this.setSelectionAttribute('frameLength', val)}
         id="inspector-frame-length" />
@@ -198,7 +224,6 @@ class Inspector extends Component {
     return (
       <InspectorDualNumericInput
         tooltip="Position"
-        icon="position"
         val1={this.getSelectionAttribute('x')}
         val2={this.getSelectionAttribute('y')}
         onChange1={(val) => this.setSelectionAttribute('x', val)}
@@ -212,7 +237,6 @@ class Inspector extends Component {
     return (
       <InspectorDualNumericInput
         tooltip="Size"
-        icon="size"
         val1={this.getSelectionAttribute('width')}
         val2={this.getSelectionAttribute('height')}
         onChange1={(val) => this.setSelectionAttribute('width', val)}
@@ -226,7 +250,6 @@ class Inspector extends Component {
     return (
       <InspectorDualNumericInput
         tooltip="Scale"
-        icon="scale"
         val1={this.getSelectionAttribute('scaleX')}
         val2={this.getSelectionAttribute('scaleY')}
         onChange1={(val) => this.setSelectionAttribute('scaleX', val)}
@@ -240,7 +263,6 @@ class Inspector extends Component {
     return (
       <InspectorNumericInput
         tooltip="Rotation"
-        icon="rotation"
         val={this.getSelectionAttribute('rotation')}
         onChange={(val) => this.setSelectionAttribute('rotation', val)}
         id="inspector-rotation" />
@@ -251,7 +273,6 @@ class Inspector extends Component {
     return (
       <InspectorNumericSlider
         tooltip="Opacity"
-        icon="opacity"
         val={this.getSelectionAttribute('opacity')}
         onChange={(val) => this.setSelectionAttribute('opacity', val)}
         inputProps={this.props.toolRestrictions.opacity}
@@ -260,14 +281,13 @@ class Inspector extends Component {
     )
   }
 
-  renderTransformProperties() {
+  renderSelectionTransformProperties() {
     return (
-      <div className="inspector-transform-properties">
+      <div className="inspector-item">
         {this.renderPosition()}
         {this.renderSize()}
         {this.renderScale()}
         {this.renderRotation()}
-        {this.renderSelectionStrokeWidth()}
         {this.renderOpacity()}
       </div>
     )
@@ -276,145 +296,85 @@ class Inspector extends Component {
   // Selection contents and properties
   renderFrame() {
     return (
-      <div>
-        <InspectorTitle type={"frame"} title={"Frame"} />
         <div className="inspector-content">
           {this.renderName()}
           {this.renderFrameLength()}
         </div>
-      </div>
-    )
+    );
   }
 
   renderMultiFrame() {
-    return (
-      <div>
-        <InspectorTitle type={"multiframe"} title={"Multiple Frames"} />
-        <div className="inspector-content">
-        </div>
-      </div>
-    )
+    return ( <div className="inspector-content" /> );
   }
 
   renderTween() {
-    return (
-      <div>
-        <InspectorTitle type={"tween"} title={"Tween"} />
-        <div className="inspector-content">
-        </div>
-      </div>
-    )
+    return ( <div className="inspector-content"/> );
   }
 
   renderMultiTween() {
-    return (
-      <div>
-        <InspectorTitle type={"multitween"} title={"Multiple Tweens"} />
-        <div className="inspector-content">
-        </div>
-      </div>
-    )
+    return ( <div className="inspector-content"/> );
   }
 
   renderGroupContent() {
     return (
       <div className="inspector-content">
         {this.renderName()}
-        {this.renderTransformProperties()}
+        {this.renderSelectionTransformProperties()}
       </div>
-    )
+    );
   }
 
   renderGroup() {
-    return (
-      <div>
-        <InspectorTitle type={"group"} title={"Group"} />
-        {this.renderGroupContent()}
-      </div>
-    )
+    return ( this.renderGroupContent() );
   }
 
   renderMultiGroup() {
-    return (
-      <div>
-        <InspectorTitle type={"multigroup"} title={"Multiple Groups"} />
-        {this.renderGroupContent()}
-      </div>
-    )
+    return ( this.renderGroupContent() );
   }
 
   renderClip() {
-    return (
-      <div>
-        <InspectorTitle type={"clip"} title={"Clip"} />
-        {this.renderGroupContent()}
-      </div>
-    )
+    return ( this.renderGroupContent() );
   }
 
   renderButton() {
-    return (
-      <div>
-        <InspectorTitle type={"button"} title={"Button"} />
-        {this.renderGroupContent()}
-      </div>
-    )
+    return ( this.renderGroupContent() );
   }
 
   renderPathContent() {
     return(
       <div className="inspector-content">
-        {this.renderTransformProperties()}
+        {this.renderSelectionTransformProperties()}
         {this.renderSelectionFillColor()}
         {this.renderSelectionStrokeColor()}
       </div>
-    )
+    );
   }
 
   renderPath() {
-    return (
-      <div>
-        <InspectorTitle type={"path"} title={"Path"} />
-        {this.renderPathContent()}
-      </div>
-    )
+    return ( this.renderPathContent() );
   }
 
   renderMultiPath() {
-    return (
-      <div>
-        <InspectorTitle type={"multipath"} title={"Multiple Paths"} />
-        {this.renderPathContent()}
-      </div>
-    )
+    return ( this.renderPathContent() );
   }
 
   renderMultiCanvasMixed() {
-    return (
-      <div>
-        <InspectorTitle type={"multicanvasmixed"} title={"Mixed Selection"} />
-        {this.renderTransformProperties()}
-      </div>
-    )
+    return ( this.renderSelectionTransformProperties() )
   }
 
   renderMultiTimelineMixed() {
     return (
       <div>
-        <InspectorTitle type={"multitimelinemixed"} title={"Mixed Selection"} />
       </div>
     )
   }
 
   renderAsset() {
     return (
-      <div>
-        <InspectorTitle type={"asset"} title={"Asset"} />
-        <div className="inspector-content">
-          {this.renderName()}
-          {this.renderFilename()}
-          {this.renderImagePreview()}
-        </div>
+      <div className="inspector-content">
+        {this.renderName()}
+        {this.renderFilename()}
+        {this.renderImagePreview()}
       </div>
     )
   }
@@ -422,24 +382,24 @@ class Inspector extends Component {
   renderUnknown() {
     return (
       <div>
-        <InspectorTitle />
         <div className="inspector-content">
         </div>
       </div>
     )
   }
 
-  renderDisplay() {
-    let selectionType = this.props.getSelectionType();
-
+  renderDisplay(selectionType) {
     let renderFunction = null;
+
     if (selectionType in this.inspectorContentRenderFunctions) {
       renderFunction = this.inspectorContentRenderFunctions[selectionType];
     } else {
       renderFunction = this.renderUnknown;
     }
 
-    return (renderFunction());
+    return (
+      renderFunction()
+    );
   }
 
   renderActionButton(btn, i) {
@@ -468,11 +428,27 @@ class Inspector extends Component {
     )
   }
 
+  renderTitle(selectionType) {
+    if (!selectionType in this.inspectorTitles) selectionType = "unknown";
+
+    return (
+      <div className="inspector-title-container">
+        <InspectorTitle
+          type={selectionType}
+          title={this.inspectorTitles[selectionType]} />
+      </div>
+    );
+  }
+
   render() {
+    let selectionType = this.props.getSelectionType();
     return(
       <div className="docked-pane inspector">
-        {this.renderDisplay()}
-        {this.renderActions()}
+        {this.renderTitle(selectionType)}
+        <div className="inspector-body">
+          {this.renderDisplay(selectionType)}
+          {this.renderActions()}
+        </div>
       </div>
     )
   }
