@@ -482,7 +482,20 @@ class EditorCore extends Component {
    * retrieve. Returns undefined is attribute does not exist.
    */
   getSelectionAttribute = (attribute) => {
-    return this.project.selection[attribute];
+    var attribute = this.project.selection[attribute];
+    if(attribute instanceof Array) {
+      if(attribute.length === 0) {
+        return undefined;
+      } else if (attribute.length === 1) {
+        return attribute[0];
+      } else {
+        // Should return info about "mixed" attributes, but just
+        // return the attribute of the first object for now.
+        return attribute[0];
+      }
+    } else {
+      return attribute;
+    }
   }
 
   /**

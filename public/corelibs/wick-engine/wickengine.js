@@ -16198,6 +16198,20 @@ paper.Selection = class {
    */
 
 
+  get opacity() {
+    return this._getUniqueProperties('opacity');
+  }
+
+  set opacity(opacity) {
+    this._items.forEach(item => {
+      item.opacity = opacity;
+    });
+  }
+  /**
+   * 
+   */
+
+
   get fontSize() {
     return this._getUniqueProperties('fontSize');
   }
@@ -16558,7 +16572,7 @@ paper.Selection = class {
     }));
 
     var uniqueProps = [...new Set(props)];
-    return uniqueProps;
+    return uniqueProps || [];
   }
 
   _boundsOfItems(items) {

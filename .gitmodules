@@ -1,0 +1,6 @@
+[submodule "wick-engine"]
+	path = wick-engine
+	url = https://github.com/Wicklets/wick-engine
+[submodule "paper.js-drawing-tools"]
+	path = paper.js-drawing-tools
+	url = https://github.com/Wicklets/paper.js-drawing-tools
