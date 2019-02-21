@@ -120,7 +120,6 @@ class Inspector extends Component {
     return (
       <InspectorNumericSlider
         tooltip="Stroke Width"
-        icon="strokewidth"
         val={this.getSelectionAttribute('strokeWidth')}
         onChange={(val) => this.setSelectionAttribute('strokeWidth', val)}
         divider={false}
@@ -130,12 +129,11 @@ class Inspector extends Component {
   }
 
   renderSelectionFillColor() {
-    console.log(this.getSelectionAttribute('fillColor')); 
+    console.log(this.getSelectionAttribute('fillColor'));
     return (
       <div className="inspector-item">
         <InspectorColorNumericInput
           tooltip="Fill Color"
-          icon="fillcolor"
           val={this.getSelectionAttribute('fillColor')}
           onChange={(col) => this.setSelectionAttribute('fillColor', this.toRgbaString(col))}
           id={"inspector-selection-fill-color"}
@@ -152,11 +150,12 @@ class Inspector extends Component {
       <div className="inspector-item">
         <InspectorColorNumericInput
           tooltip="Stroke Color"
-          icon="strokecolor"
+
           val={this.getSelectionAttribute('strokeColor')}
           onChange={(col) => this.setSelectionAttribute('strokeColor', this.toRgbaString(col))}
           id={"inspector-selection-stroke-color"}
           stroke={true}
+
           val2={this.getSelectionAttribute('strokeWidth')}
           onChange2={(val) => this.setSelectionAttribute('strokeWidth', val)}
           inputProps={this.props.toolRestrictions.strokeWidth}
@@ -168,7 +167,6 @@ class Inspector extends Component {
   renderFonts(args) {
     return (
       <InspectorSelector
-        icon="fontfamily"
         value={args.val}
         options={args.options}
         onChange={args.onChange} />
@@ -178,7 +176,6 @@ class Inspector extends Component {
   renderFontSize(args) {
     return (
       <InspectorNumericInput
-        icon="fontsize"
         val={args.val}
         inputProps={this.props.toolRestrictions.fontSize}
         onChange={args.onChange} />
@@ -189,7 +186,6 @@ class Inspector extends Component {
     return (
       <InspectorTextInput
         tooltip="Name"
-        icon="name"
         val={this.getSelectionAttribute('name')}
         onChange={(val) => {this.setSelectionAttribute('name', val);}}
         id="inspector-name" />
@@ -200,7 +196,6 @@ class Inspector extends Component {
     return (
       <InspectorTextInput
         tooltip="File Name"
-        icon="name"
         val={this.getSelectionAttribute('filename')}
         readOnly={true}
         id="inspector-file-name"/>
@@ -210,7 +205,6 @@ class Inspector extends Component {
   renderImagePreview() {
     return (
       <InspectorImagePreview
-        icon="image"
         src={this.getSelectionAttribute('src')}
         id="inspector-image-preview" />
     )
@@ -220,7 +214,6 @@ class Inspector extends Component {
     return (
       <InspectorNumericInput
         tooltip="Frame Length"
-        icon="framelength"
         val={this.getSelectionAttribute('frameLength')}
         onChange={(val) => this.setSelectionAttribute('frameLength', val)}
         id="inspector-frame-length" />
@@ -231,7 +224,6 @@ class Inspector extends Component {
     return (
       <InspectorDualNumericInput
         tooltip="Position"
-        icon="position"
         val1={this.getSelectionAttribute('x')}
         val2={this.getSelectionAttribute('y')}
         onChange1={(val) => this.setSelectionAttribute('x', val)}
@@ -245,7 +237,6 @@ class Inspector extends Component {
     return (
       <InspectorDualNumericInput
         tooltip="Size"
-        icon="size"
         val1={this.getSelectionAttribute('width')}
         val2={this.getSelectionAttribute('height')}
         onChange1={(val) => this.setSelectionAttribute('width', val)}
@@ -259,7 +250,6 @@ class Inspector extends Component {
     return (
       <InspectorDualNumericInput
         tooltip="Scale"
-        icon="scale"
         val1={this.getSelectionAttribute('scaleX')}
         val2={this.getSelectionAttribute('scaleY')}
         onChange1={(val) => this.setSelectionAttribute('scaleX', val)}
@@ -273,7 +263,6 @@ class Inspector extends Component {
     return (
       <InspectorNumericInput
         tooltip="Rotation"
-        icon="rotation"
         val={this.getSelectionAttribute('rotation')}
         onChange={(val) => this.setSelectionAttribute('rotation', val)}
         id="inspector-rotation" />
@@ -284,7 +273,6 @@ class Inspector extends Component {
     return (
       <InspectorNumericSlider
         tooltip="Opacity"
-        icon="opacity"
         val={this.getSelectionAttribute('opacity')}
         onChange={(val) => this.setSelectionAttribute('opacity', val)}
         inputProps={this.props.toolRestrictions.opacity}
