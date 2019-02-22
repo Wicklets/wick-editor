@@ -16592,8 +16592,12 @@ paper.Selection = class {
     var child = this.box.children.find(c => {
       return c.data.handleEdge === handleName;
     });
-    if (!child) return new paper.Point();
-    return child.position; //return child.position.transform(this._matrix);
+
+    if (!child) {
+      return new paper.Point();
+    } else {
+      return child.position;
+    }
   }
 
   _setHandlePosition(handleName, position) {
