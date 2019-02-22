@@ -44676,27 +44676,6 @@ Wick.Project = class extends Wick.Base {
     });
   }
   /**
-   * Create a wick project from a .wick file located at a given URL.
-   * This will most likely only work with files fetched from the same domain.
-   * @param {string} url - The URL to fetch the .wick file from
-   * @param {function} callback - The function to call when the project is fetched successfully
-   */
-
-
-  static fromWickFileURL(url, callback) {
-    atomic(url, {
-      responseType: 'blob'
-    }).then(function (response) {
-      var wickFile = response.data;
-      Wick.Project.fromWickFile(wickFile, callback);
-    }).catch(function (error) {
-      console.error('Error loading project from URL.');
-      console.error(error.status); // xhr.status
-
-      console.error(error.statusText); // xhr.statusText
-    });
-  }
-  /**
    * String representation of class name: "Project"
    * @return {string}
    */
