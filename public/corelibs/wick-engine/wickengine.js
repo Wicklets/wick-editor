@@ -15972,7 +15972,8 @@ paper.Selection = class {
   }
 
   static get ROTATION_HOTSPOT_FILLCOLOR() {
-    return 'rgba(255,0,0,0.0001)';
+    return 'rgba(100,150,255,0.5)'; // don't show hotspots:
+    //return 'rgba(255,0,0,0.0001)';
   }
   /**
    *
@@ -16014,9 +16015,8 @@ paper.Selection = class {
       this.rotation = item.rotation;
       item.rotation = 0;
       item.data.originalMatrix = item.matrix.clone();
-    } else if (this._items.length > 1) {// Multiple objects: Only use the position of the items as the selection transforms
     } else {// No items: We don't have to do anything
-      }
+    }
 
     this._render();
   }
@@ -16488,6 +16488,12 @@ paper.Selection = class {
     this._layer.addChild(box);
 
     box.addChild(this._generateBorder());
+
+    if (this.items.length > 1) {
+      box.addChildren(this._generatePathOutlines());
+      box.addChildren(this._generateGroupOutlines());
+    }
+
     box.addChild(this._generateRotationHotspot('topLeft'));
     box.addChild(this._generateRotationHotspot('topRight'));
     box.addChild(this._generateRotationHotspot('bottomLeft'));
@@ -16558,12 +16564,46 @@ paper.Selection = class {
       'bottomLeft': 180,
       'topLeft': 270
     }[cornerName]);
+    if (this._transform.scaleX < 0) hotspot.scaling.x = -1;
+    if (this._transform.scaleY < 0) hotspot.scaling.y = -1;
     hotspot.data.handleType = 'rotation';
     hotspot.data.handleEdge = cornerName; // Transform the hotspots a bit so they doesn't get squished when the selection box is scaled.
 
     hotspot.scaling.x = 1 / this._transform.scaleX;
     hotspot.scaling.y = 1 / this._transform.scaleY;
     return hotspot;
+  }
+
+  _generatePathOutlines() {
+    return this._items.filter(item => {
+      return item instanceof paper.Path || item instanceof paper.CompoundPath;
+    }).map(item => {
+      var itemForBounds = item.clone({
+        insert: false
+      });
+      itemForBounds.matrix.set(new paper.Matrix());
+      var outline = new paper.Path.Rectangle(itemForBounds.bounds);
+      outline.fillColor = 'rgba(0,0,0,0)';
+      outline.strokeColor = paper.Selection.BOX_STROKE_COLOR;
+      outline.strokeWidth = paper.Selection.BOX_STROKE_WIDTH;
+      return outline;
+    });
+  }
+
+  _generateGroupOutlines() {
+    return this._items.filter(item => {
+      return item instanceof paper.Group || item instanceof paper.Raster;
+    }).map(item => {
+      var itemForBounds = item.clone({
+        insert: false
+      });
+      itemForBounds.matrix.set(item.data.originalMatrix);
+      var outline = new paper.Path.Rectangle(itemForBounds.bounds);
+      outline.fillColor = 'rgba(0,0,0,0)';
+      outline.strokeColor = paper.Selection.BOX_STROKE_COLOR;
+      outline.strokeWidth = paper.Selection.BOX_STROKE_WIDTH;
+      return outline;
+    });
   }
 
   _getUniqueProperties(propName, applyFn) {
@@ -44650,11 +44690,10 @@ Wick.Project = class extends Wick.Base {
       var wickFile = response.data;
       Wick.Project.fromWickFile(wickFile, callback);
     }).catch(function (error) {
+      console.error('Error loading project from URL.');
       console.error(error.status); // xhr.status
 
       console.error(error.statusText); // xhr.statusText
-
-      throw new Error('Error loading project from URL.');
     });
   }
   /**
@@ -47821,9 +47860,14 @@ Wick.View.Project = class extends Wick.View {
   static get ORIGIN_CROSSHAIR_SIZE() {
     return 100;
   }
+  /*
+   *
+   */
+
 
   constructor() {
     super();
+    this._fitMode = 'center';
     this.canvas = document.createElement('canvas');
     this.canvas.style.width = '100%';
     this.canvas.style.height = '100%';
@@ -47836,6 +47880,31 @@ Wick.View.Project = class extends Wick.View {
     this.interactTool = new Wick.InteractTool().paperTool;
     this.canvasBGColor = null;
   }
+  /*
+   * Determines the way the project will scale itself based on its container.
+   * 'center' will keep the project at its original resolution, and center it inside its container.
+   * 'fill' will stretch the project to fit the container (while maintaining its original aspect ratio).
+   * 
+   * Note: For these changes to be reflected after setting fitMode, you must call Project.View.resize().
+   */
+
+
+  set fitMode(fitMode) {
+    if (fitMode !== 'center' && fitMode !== 'fill') {
+      console.error("Invalid fitMode: " + fitMode);
+      console.error("Supported modes are 'center' and 'fill'.");
+    } else {
+      this._fitMode = fitMode;
+    }
+  }
+
+  get fitMode() {
+    return this._fitMode;
+  }
+  /*
+   * The element to insert the project's canvas into.
+   */
+
 
   setCanvasContainer(canvasContainer) {
     this.canvasContainer = canvasContainer;
@@ -47854,6 +47923,10 @@ Wick.View.Project = class extends Wick.View {
       return false;
     }
   }
+  /*
+   * 
+   */
+
 
   resize() {
     if (!this.canvasContainer) return;
@@ -47867,13 +47940,26 @@ Wick.View.Project = class extends Wick.View {
     paper.view.viewSize.width = newWidth;
     paper.view.viewSize.height = newHeight;
   }
+  /*
+   * 
+   */
+
 
   render() {
     // Only render if we just finished a selection
     if (!this.model.selection.view.selectionDidChange()) return;
     paper.project.clear(); // Update zoom and pan
 
-    paper.view.zoom = this.model.zoom;
+    if (this._fitMode === 'center') {
+      paper.view.zoom = this.model.zoom;
+    } else if (this._fitMode === 'fill') {
+      // Fill mode: Try to fit the wick project's canvas inside the container canvas by 
+      // scaling it as much as possible without changing the project's original aspect ratio
+      var wr = paper.view.viewSize.width / this.model.width;
+      var hr = paper.view.viewSize.height / this.model.height;
+      paper.view.zoom = Math.min(wr, hr);
+    }
+
     paper.view.center = new paper.Point(this.model.pan.x, this.model.pan.y); // Generate background layer
 
     this.bgLayer.removeChildren();
@@ -47881,26 +47967,18 @@ Wick.View.Project = class extends Wick.View {
     paper.project.addLayer(this.bgLayer);
 
     if (this.model.focus === this.model.root) {
+      // We're in the root timeline, render the canvas normally
       this.canvas.style.backgroundColor = this.canvasBGColor || Wick.View.Project.DEFAULT_CANVAS_BG_COLOR;
-      var bgRect = new paper.Path.Rectangle(new paper.Point(0, 0), new paper.Point(this.model.width, this.model.height));
-      bgRect.remove();
-      bgRect.fillColor = this.model.backgroundColor;
-      this.bgLayer.addChild(bgRect);
+
+      var canvasBG = this._generateCanvasBG();
+
+      this.bgLayer.addChild(canvasBG);
     } else {
+      // We're inside a clip, don't render the canvas BG, instead render a crosshair at (0,0)
       this.canvas.style.backgroundColor = this.model.backgroundColor;
-      var originCrosshair = new paper.Group({
-        insert: false
-      });
-      var vertical = new paper.Path.Line(new paper.Point(0, -Wick.View.Project.ORIGIN_CROSSHAIR_SIZE), new paper.Point(0, Wick.View.Project.ORIGIN_CROSSHAIR_SIZE));
-      vertical.strokeColor = Wick.View.Project.ORIGIN_CROSSHAIR_COLOR;
-      vertical.strokeWidth = 1;
-      var horizontal = new paper.Path.Line(new paper.Point(-Wick.View.Project.ORIGIN_CROSSHAIR_SIZE, 0), new paper.Point(Wick.View.Project.ORIGIN_CROSSHAIR_SIZE, 0));
-      horizontal.strokeColor = Wick.View.Project.ORIGIN_CROSSHAIR_COLOR;
-      horizontal.strokeWidth = 1;
-      originCrosshair.addChild(vertical);
-      originCrosshair.addChild(horizontal);
-      originCrosshair.position.x = 0;
-      originCrosshair.position.y = 0;
+
+      var originCrosshair = this._generateOriginCrosshair();
+
       this.bgLayer.addChild(originCrosshair);
     } // Generate frame layers
 
@@ -47916,11 +47994,39 @@ Wick.View.Project = class extends Wick.View {
     this.model.selection.view.render();
     paper.project.addLayer(this.model.selection.view.layer);
   }
+  /*
+   * 
+   */
+
 
   applyChanges() {
     this.model.focus.timeline.activeFrames.forEach(frame => {
       frame.view.applyChanges();
     });
+  }
+
+  _generateCanvasBG() {
+    var canvasBG = new paper.Path.Rectangle(new paper.Point(0, 0), new paper.Point(this.model.width, this.model.height));
+    canvasBG.remove();
+    canvasBG.fillColor = this.model.backgroundColor;
+    return canvasBG;
+  }
+
+  _generateOriginCrosshair() {
+    var originCrosshair = new paper.Group({
+      insert: false
+    });
+    var vertical = new paper.Path.Line(new paper.Point(0, -Wick.View.Project.ORIGIN_CROSSHAIR_SIZE), new paper.Point(0, Wick.View.Project.ORIGIN_CROSSHAIR_SIZE));
+    vertical.strokeColor = Wick.View.Project.ORIGIN_CROSSHAIR_COLOR;
+    vertical.strokeWidth = 1;
+    var horizontal = new paper.Path.Line(new paper.Point(-Wick.View.Project.ORIGIN_CROSSHAIR_SIZE, 0), new paper.Point(Wick.View.Project.ORIGIN_CROSSHAIR_SIZE, 0));
+    horizontal.strokeColor = Wick.View.Project.ORIGIN_CROSSHAIR_COLOR;
+    horizontal.strokeWidth = 1;
+    originCrosshair.addChild(vertical);
+    originCrosshair.addChild(horizontal);
+    originCrosshair.position.x = 0;
+    originCrosshair.position.y = 0;
+    return originCrosshair;
   }
 
 };
