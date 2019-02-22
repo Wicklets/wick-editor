@@ -131,7 +131,7 @@ class Canvas extends Component {
       tool[key] = toolSettings[key];
     });
 
-    // if there is no layer/frame to draw on, activate the 'none' tool.
+    // If the active frame is on a locked/hidden layer, or there is no active frame, disable all tools.
     if(!project.activeFrame ||
        project.activeLayer.locked ||
        project.activeLayer.hidden) {

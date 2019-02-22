@@ -44772,7 +44772,7 @@ Wick.Project = class extends Wick.Base {
 
   removeAsset(asset) {
     asset.removeAllInstances();
-    this.assets = this.assets.filter(checkAsset => {
+    this._assets = this._assets.filter(checkAsset => {
       return checkAsset !== asset;
     });
 
@@ -45011,17 +45011,11 @@ Wick.Project = class extends Wick.Base {
 
 
   createImagePathFromAsset(asset, x, y, callback) {
-    var path = new window.Wick.Path(["Raster", {
-      "applyMatrix": false,
-      "crossOrigin": "",
-      "source": "asset",
-      "asset": asset.uuid
-    }], [asset]);
-
-    path.paperPath.onLoad = () => {
+    asset.createInstance(path => {
+      // TODO set position of path
       this.activeFrame.addPath(path);
       callback(path);
-    };
+    });
   }
   /**
    * Creates a symbol from the objects currently selected.
@@ -46062,6 +46056,12 @@ Wick.Asset = class extends Wick.Base {
     let soundTypes = Wick.SoundAsset.getValidMIMETypes();
     return imageTypes.concat(soundTypes);
   }
+  /**
+   * Creates a new Wick Asset.
+   * @param {string} filename - the filename of the asset
+   * @param {string} src - the data of the asset, in base64 format
+   */
+
 
   constructor(filename, src) {
     super();
@@ -46089,6 +46089,10 @@ Wick.Asset = class extends Wick.Base {
   get classname() {
     return 'Asset';
   }
+  /**
+   * The source of the data of the asset, in base64.
+   */
+
 
   get src() {
     return Wick.FileCache.getFile(this.uuid).src;
@@ -46097,10 +46101,18 @@ Wick.Asset = class extends Wick.Base {
   set src(src) {
     Wick.FileCache.addFile(src, this.uuid);
   }
+  /**
+   * The MIMEType of the asset (format: type/subtype)
+   */
+
 
   get MIMEType() {
     return this.src && this.src.split(':')[1].split(',')[0].split(';')[0];
   }
+  /**
+   * The file extension of the asset.
+   */
+
 
   get fileExtension() {
     return this.MIMEType && this.MIMEType.split('/')[1];
@@ -46154,6 +46166,14 @@ Wick.ImageAsset = class extends Wick.Asset {
     return object;
   }
 
+  get classname() {
+    return 'ImageAsset';
+  }
+  /**
+   * Removes all paths using this asset as their image source from the project.
+   */
+
+
   removeAllInstances() {
     this.project.getAllFrames().forEach(frame => {
       frame.paths.forEach(path => {
@@ -46163,17 +46183,22 @@ Wick.ImageAsset = class extends Wick.Asset {
       });
     });
   }
+  /**
+   * Creates a new Wick Path that uses this asset's image data as it's image source.
+   */
 
-  get classname() {
-    return 'ImageAsset';
-  }
 
-  get src() {
-    return super.src;
-  }
+  createInstance(callback) {
+    var path = new window.Wick.Path(["Raster", {
+      "applyMatrix": false,
+      "crossOrigin": "",
+      "source": "asset",
+      "asset": this.uuid
+    }], [this]);
 
-  set src(src) {
-    super.src = src;
+    path.paperPath.onLoad = () => {
+      callback(path);
+    };
   }
 
 };
@@ -46227,14 +46252,12 @@ Wick.SoundAsset = class extends Wick.Asset {
   get classname() {
     return 'SoundAsset';
   }
+  /**
+   * Plays this asset's sound.
+   * @param {number} seekMS - the amount of time in milliseconds to start the sound at.
+   * @return {number} The id of the sound instance that was played.
+   */
 
-  get src() {
-    return super.src;
-  }
-
-  set src(src) {
-    super.src = src;
-  }
 
   play(seekMS) {
     // Lazily create the howler instance
@@ -46254,14 +46277,29 @@ Wick.SoundAsset = class extends Wick.Asset {
 
     return id;
   }
+  /**
+   * Stops this asset's sound.
+   * @param {number} id - (optional) the ID of the instance to stop. If ID is not given, every instance of this sound will stop.
+   */
+
 
   stop(id) {
     if (!this._howl) return;
 
     this._howl.stop(id);
   }
+  /**
+   * Remove the sound from any frames in the project that use this asset as their sound.
+   */
 
-  removeAllInstances() {}
+
+  removeAllInstances() {
+    this.project.getAllFrames().forEach(frame => {
+      if (frame.sound.uuid === this.uuid) {
+        frame.removeSound();
+      }
+    });
+  }
 
 };
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
@@ -46285,6 +46323,9 @@ Wick.SoundAsset = class extends Wick.Asset {
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
 Wick.ClipAsset = class extends Wick.Asset {
+  /**
+   * Creates a new Clip Asset.
+   */
   constructor() {
     super();
     this.timeline = new Wick.Timeline();
@@ -46311,27 +46352,53 @@ Wick.ClipAsset = class extends Wick.Asset {
   get classname() {
     return 'ClipAsset';
   }
+  /**
+   * Uses the timeline of the given clip as the data for this asset.
+   * @param {Wick.Clip} clip - the clip to use as the source
+   */
+
 
   useClipAsSource(clip) {
     this.timeline = clip.timeline.clone(false);
   }
+  /**
+   * Creates a new Clip using the source of this asset.
+   */
+
 
   createInstance() {
     var clip = new Wick.Clip();
     this.useAsSourceForClip(clip);
-    this.updateClipFromAsset(clip);
     return clip;
   }
+  /**
+   * Sets a given clip to use the source of this asset for its timeline data.
+   * Note: This will replace the timeline of the clip with the asset's timeline.
+   * @param {Wick.Clip} clip - the clip to change the timeline data of
+   */
+
 
   useAsSourceForClip(clip) {
     this.linkedClips.push(clip);
+    this.updateClipFromAsset(clip);
   }
+  /**
+   * Unlink a given clip from this asset. The clip's timeline will no longer be synced with this asset.
+   * @param {Wick.Clip} clip - The clip to unlink from this asset.
+   */
+
 
   removeAsSourceForClip(clip) {
     this.linkedClips = this.linkedClips.filter(checkClip => {
       return checkClip !== clip;
     });
   }
+  /**
+   * Take the timeline data from a clip and use it to update this asset.
+   * This will also update the timelines of all instances of this asset.
+   * @param {Wick.Clip} clip - The clip to use the timeline of to update this asset.
+   */
+
 
   updateAssetFromClip(clip) {
     this.timeline = clip.timeline.clone(false);
@@ -46342,13 +46409,26 @@ Wick.ClipAsset = class extends Wick.Asset {
       this.updateClipFromAsset(linkedClip);
     });
   }
+  /**
+   * Replace the timeline of the clip with the asset's timeline.
+   * @param {Wick.Clip} clip - the clip to change the timeline data of
+   */
+
 
   updateClipFromAsset(clip) {
     var timeline = this.timeline.clone(false);
     clip.timeline = timeline;
   }
+  /**
+   * Removes all instances of this asset from the project.
+   */
 
-  removeAllInstances() {}
+
+  removeAllInstances() {
+    this.linkedClips.forEach(clip => {
+      clip.remove();
+    });
+  }
 
 };
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
@@ -46372,6 +46452,9 @@ Wick.ClipAsset = class extends Wick.Asset {
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
 Wick.ButtonAsset = class extends Wick.ClipAsset {
+  /**
+   * Creates a new Button Asset.
+   */
   constructor() {
     super();
   }
@@ -46394,6 +46477,10 @@ Wick.ButtonAsset = class extends Wick.ClipAsset {
   get classname() {
     return 'ButtonAsset';
   }
+  /**
+   * Creates a button out of this asset's data.
+   */
+
 
   createInstance() {
     var button = new Wick.Button();
@@ -46761,6 +46848,7 @@ Wick.Frame = class extends Wick.Tickable {
     this._clips = [];
     this._paths = [];
     this.tweens = [];
+    this._soundAssetUUID = null;
     this._soundID = null;
   }
 
@@ -46845,6 +46933,14 @@ Wick.Frame = class extends Wick.Tickable {
 
   set sound(soundAsset) {
     this._soundAssetUUID = soundAsset.uuid;
+  }
+  /**
+   * Removes the sound on this frame.
+   */
+
+
+  removeSound() {
+    this._soundAssetUUID = null;
   }
   /**
    * The paths on the frame.
