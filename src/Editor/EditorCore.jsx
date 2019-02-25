@@ -183,10 +183,10 @@ class EditorCore extends Component {
         if (selection.types[0] === 'Path') {
           return 'multipath';
         } else {
-          return 'multicanvasmixed';
+          return 'multiclip';
         }
       } else {
-        return 'multicanvasmixed';
+        return 'multicanvas';
       }
     } else if (selection.location === 'Timeline') {
       if(selection.numObjects === 1) {
@@ -206,16 +206,18 @@ class EditorCore extends Component {
           return 'multitween';
         }
       } else {
-        return 'multitimelinemixed';
+        return 'multitimeline';
       }
     } else if (selection.location === 'AssetLibrary') {
       if(selection.getSelectedObjects()[0] instanceof window.Wick.ImageAsset) {
         return 'imageasset';
       } else if(selection.getSelectedObjects()[0] instanceof window.Wick.SoundAsset) {
         return 'soundasset';
+      } else {
+        return 'multiassetmixed'
       }
     } else {
-      return null;
+      return 'unknown';
     }
   }
 
@@ -334,97 +336,11 @@ class EditorCore extends Component {
   }
 
   /**
-   * Returns all actions to be displayed using the current selection.
-   * Utilizes the ActionMapInterface.
-   * @return {EditorAction[][]} An array of arrays of editor actions as
-   * defined by the editor action map.
-   */
-  getSelectionActions = () => {
-    let actionGroups = this.actionMapInterface.inspectorActionGroups;
-    let actions = [];
-
-    Object.keys(actionGroups).forEach(key => {
-      let actionGroup = actionGroups[key];
-      if (!actionGroup.on()) return;
-
-      let subActions = actionGroup.actions;
-
-      if ('color' in actionGroup) {
-        subActions.forEach(subAction => {
-          if (subAction === undefined) { console.error("Subaction '" + key + "' is undefined.")}
-          subAction.color = actionGroup.color;
-        });
-      }
-
-      actions.push(subActions);
-    })
-    return actions;
-  }
-
-  /**
-   * Returns all actions to be displayed using the current selection in the
-   * Toolbar. Utilizes the ActionMapInterface.
-   * @return {EditorAction[][]} An array of arrays of editor actions as
-   * defined by the editor action map.
-   */
-  getToolboxActions = () => {
-    let actionGroups = this.actionMapInterface.toolboxActionGroups;
-    let actions = [];
-
-    Object.keys(actionGroups).forEach(key => {
-      let actionGroup = actionGroups[key];
-      let subActions = actionGroup.actions;
-
-      if ('color' in actionGroup) {
-        subActions.forEach(subAction => {
-          if (subAction === undefined) { console.error("Subaction '" + key + "' is undefined.")}
-          subAction.color = actionGroup.color;
-        });
-      }
-
-      actions.push(subActions);
-    })
-    return actions;
-  }
-
-  /**
    * Returns the number of objects selected on the canvas.
    * @return {number} Number of canvas objects selected.
    */
   getNumCanvasObjectsSelected = () => {
     return this.project.selection.numObjects;
-  }
-
-  /**
-   * Updates the state of the selection with new values.
-   * @param {object} newSelectionAttributes - A object containing the new values
-   * of the selection to use to update the state.
-   */
-  setSelectionAttributes = (newSelectionAttributes) => {
-    // Valid selection setting functions
-    /*
-    let setSelectionFunctions = {
-      name: this.setSelectionName,
-      x: this.setSelectionPositionX,
-      y: this.setSelectionPositionY,
-      width: this.setSelectionWidth,
-      height: this.setSelectionHeight,
-      scaleX: this.setSelectionScaleX,
-      scaleY: this.setSelectionScaleY,
-      rotation: this.setSelectionRotation,
-      opacity: this.setSelectionOpacity,
-      strokeWidth: this.setSelectionStrokeWidth,
-      strokeColor: this.setSelectionStrokeColor,
-      fillColor: this.setSelectionFillColor,
-    }
-
-    // Only apply setting changes for valid functions.
-    Object.keys(newSelectionAttributes).forEach(key => {
-      if (key in setSelectionFunctions) {
-        setSelectionFunctions[key](newSelectionAttributes[key]);
-      }
-    });
-    */
   }
 
   /**

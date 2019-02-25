@@ -53,8 +53,9 @@ class Inspector extends Component {
       "button": this.renderButton.bind(this),
       "path": this.renderPath.bind(this),
       "multipath": this.renderMultiPath.bind(this),
-      "multitimelinemixed": this.renderMultiTimelineMixed.bind(this),
-      "multicanvasmixed": this.renderMultiCanvasMixed.bind(this),
+      "multiclip": this.renderMultiClip.bind(this),
+      "multitimeline": this.renderMultiTimeline.bind(this),
+      "multicanvas": this.renderMultiCanvas.bind(this),
       "imageasset": this.renderAsset.bind(this),
       "soundasset": this.renderAsset.bind(this),
       "multiassetmixed": this.renderAsset.bind(this),
@@ -71,8 +72,9 @@ class Inspector extends Component {
       "button": "Button",
       "path": "Path",
       "multipath": "Multi-Path",
-      "multitimelinemixed": "Multi-Timeline",
-      "multicanvasmixed": "Multi-Canvas",
+      "multiclip": "Multi-Clip",
+      "multitimeline": "Multi-Timeline",
+      "multicanvas": "Multi-Canvas",
       "imageasset": "Image Asset",
       "soundasset": "Sound Asset",
       "multiassetmixed": "Multi-Asset",
@@ -84,7 +86,6 @@ class Inspector extends Component {
     this.renderDisplay = this.renderDisplay.bind(this);
     this.renderGroupContent = this.renderGroupContent.bind(this);
     this.renderPathContent = this.renderPathContent.bind(this);
-    this.renderActionButtonRow = this.renderActionButtonRow.bind(this);
     this.renderButton = this.renderButton.bind(this);
     this.renderActions = this.renderActions.bind(this);
   }
@@ -129,7 +130,6 @@ class Inspector extends Component {
   }
 
   renderSelectionFillColor() {
-    console.log(this.getSelectionAttribute('fillColor'));
     return (
       <div className="inspector-item">
         <InspectorColorNumericInput
@@ -296,7 +296,7 @@ class Inspector extends Component {
   // Selection contents and properties
   renderFrame() {
     return (
-        <div className="inspector-content">
+        <div className="inspector-item">
           {this.renderName()}
           {this.renderFrameLength()}
         </div>
@@ -306,6 +306,11 @@ class Inspector extends Component {
   renderMultiFrame() {
     return ( <div className="inspector-content" /> );
   }
+
+  renderMultiClip() {
+    return ( <div className="inspector-content" /> );
+  }
+
 
   renderTween() {
     return ( <div className="inspector-content"/> );
@@ -358,11 +363,11 @@ class Inspector extends Component {
     return ( this.renderPathContent() );
   }
 
-  renderMultiCanvasMixed() {
+  renderMultiCanvas() {
     return ( this.renderSelectionTransformProperties() )
   }
 
-  renderMultiTimelineMixed() {
+  renderMultiTimeline() {
     return (
       <div>
       </div>
@@ -402,6 +407,26 @@ class Inspector extends Component {
     );
   }
 
+  getPathActions = () => {
+    return [
+      this.props.editorActions['makeInteractive'],
+    ];
+  }
+
+  getFrameActions = () => {
+    return [
+      this.props.editorActions['editCode'],
+    ];
+  }
+
+  getClipActions = () => {
+    return [
+      this.props.editorActions['editCode'],
+      this.props.editorActions['editClipTimeline'],
+      this.props.editorActions['breakApart'],
+    ];
+  }
+
   renderActionButton(btn, i) {
     return (
       <InspectorActionButton
@@ -410,20 +435,9 @@ class Inspector extends Component {
     )
   }
 
-  renderActionButtonRow(actionList, i) {
-    return (
-      <div
-        key={i}
-        className="inspector-action-row">
-        {actionList.map(this.renderActionButton)}
-      </div>
-    )
-  }
-
   renderActions() {
     return(
       <div className="inspector-content">
-        {this.props.getSelectionActions().map(this.renderActionButtonRow)}
       </div>
     )
   }

@@ -648,7 +648,7 @@ class Editor extends EditorCore {
                                 getSelectionType={this.getSelectionType}
                                 getSelectionAttribute={this.getSelectionAttribute}
                                 setSelectionAttribute={this.setSelectionAttribute}
-                                getSelectionActions={this.getSelectionActions}
+                                editorActions={this.actionMapInterface.editorActions}
                               />
                             </DockedPanel>
                           </ReflexElement>
