@@ -20,7 +20,7 @@
 import { Component } from 'react';
 import localForage from 'localforage';
 import { saveAs } from 'file-saver';
-import GIFExport from './GIFExport';
+import GIFExport from './export/GIFExport';
 
 class EditorCore extends Component {
   /**

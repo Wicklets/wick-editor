@@ -45201,6 +45201,82 @@ Wick.Project = class extends Wick.Base {
 
     return true;
   }
+  /**
+   * Create a sequence of images from every frame in the project.
+   * @param {object} args - Options for generating the image sequence
+   * @param {function} done - Function to call when the images are all loaded.
+   */
+
+
+  generateImageSequence(args, done) {
+    // Create a clone of the project so we don't have to change the state of the actual project to render the frames...
+    let project = this.clone(); // Put the project canvas inside a div that's the same size as the project so the frames render at the correct resolution.
+
+    let container = window.document.createElement('div');
+    container.style.width = project.width + 'px';
+    container.style.height = project.height + 'px';
+    window.document.body.appendChild(container);
+    project.view.setCanvasContainer(container);
+    project.view.resize(); // Set the initial state of the project.
+
+    project.focus = project.root;
+    project.focus.timeline.playheadPosition = 1;
+    project.onionSkinEnabled = false;
+    project.zoom = 1 / window.devicePixelRatio;
+    project.pan = {
+      x: project.width / 2 * window.devicePixelRatio,
+      y: project.height / 2 * window.devicePixelRatio
+    }; // We need full control over when paper.js renders, if we leave autoUpdate on, it's possible to lose frames if paper.js doesnt automatically render as fast as we are generating the images.
+    // (See paper.js docs for info about autoUpdate)
+
+    paper.view.autoUpdate = false;
+    var frameImages = [];
+
+    function renderFrame() {
+      var frameImage = new Image();
+
+      frameImage.onload = function () {
+        frameImages.push(frameImage);
+
+        if (project.focus.timeline.playheadPosition >= project.focus.timeline.length) {
+          paper.view.autoUpdate = true; // reset autoUpdate back to normal
+
+          done(frameImages);
+        } else {
+          project.focus.timeline.playheadPosition++;
+          renderFrame();
+        }
+      };
+
+      project.view.render();
+      paper.view.update();
+      frameImage.src = project.view.canvas.toDataURL();
+    }
+
+    renderFrame();
+  }
+  /**
+   * Create a sequence of images from every frame in the project.
+   * Format: 
+   *   start: The amount of time in milliseconds to cut from the beginning of the sound.
+   *   end: The amount of time that the sound will play before stopping.
+   *   uuid: The UUID of the asset that the sound corresponds to.
+   * @param {object} args - Options for generating the audio sequence
+   * @returns {object[]} - Array of objects containing info about the sounds in the project.
+   */
+
+
+  generateAudioSequence(args) {
+    return this.root.timeline.frames.filter(frame => {
+      return frame.sound !== null;
+    }).map(frame => {
+      return {
+        start: 0,
+        end: frame.soundStartOffsetMS,
+        uuid: frame.sound.uuid
+      };
+    });
+  }
 
 };
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
@@ -46977,6 +47053,16 @@ Wick.Frame = class extends Wick.Tickable {
     return this._originalLayerIndex;
   }
   /**
+   * The amount of time, in millisecods, that the frame's sound should play before stopping.
+   */
+
+
+  get soundStartOffsetMS() {
+    var offsetFrames = this.parent.parent.playheadPosition - this.start;
+    var offsetMS = offsetFrames * 1000 / this.project.framerate;
+    return offsetMS;
+  }
+  /**
    * Removes this frame from its parent layer.
    */
 
@@ -47143,7 +47229,7 @@ Wick.Frame = class extends Wick.Tickable {
     if (error) return error;
 
     if (this.sound) {
-      this._soundID = this.sound.play(this._getSoundStartOffsetMS());
+      this._soundID = this.sound.play(this.soundStartOffsetMS);
     }
 
     return this._tickChildren();
@@ -47175,12 +47261,6 @@ Wick.Frame = class extends Wick.Tickable {
       childError = clip.tick();
     });
     return childError;
-  }
-
-  _getSoundStartOffsetMS() {
-    var offsetFrames = this.parent.parent.playheadPosition - this.start;
-    var offsetMS = offsetFrames * 1000 / this.project.framerate;
-    return offsetMS;
   }
 
   _getRelativePlayheadPosition() {
@@ -47950,7 +48030,7 @@ Wick.View.Project = class extends Wick.View {
     this.bgLayer.name = 'wick_project_bg';
     this.bgLayer.remove();
     paper.project.clear();
-    this.interactTool = new Wick.InteractTool().paperTool;
+    this.interactTool = new Wick.InteractTool();
     this.canvasBGColor = null;
   }
   /*
@@ -48353,110 +48433,124 @@ Wick.View.Frame = class extends Wick.View {
 */
 Wick.InteractTool = class {
   constructor() {
-    var tool = new paper.Tool();
-    this.paperTool = tool;
-    var mouseJustPressed = false;
-    var mouseJustReleased = false;
-    var mouseButtonState = null;
-    var mousePosition = null;
-    var keysDown = [];
+    this.paperTool = new paper.Tool();
+    this.paperTool.onActivate = this.onActivate.bind(this);
+    this.paperTool.onDeactivate = this.onDeactivate.bind(this);
+    this.paperTool.onMouseMove = this.onMouseMove.bind(this);
+    this.paperTool.onMouseDown = this.onMouseDown.bind(this);
+    this.paperTool.onMouseUp = this.onMouseUp.bind(this);
+    this.paperTool.onKeyDown = this.onKeyDown.bind(this);
+    this.paperTool.onKeyUp = this.onKeyUp.bind(this);
+    this.mouseJustPressed = false;
+    this.mouseJustReleased = false;
+    this.mouseButtonState = 'up';
+    this.mousePosition = new paper.Point();
+    this.keysDown = [];
+  }
 
-    tool.onActivate = function (e) {
-      mouseButtonState = 'up';
-      mousePosition = new paper.Point();
-    };
+  onActivate(e) {
+    this.mouseButtonState = 'up';
+    this.mousePosition = new paper.Point();
+  }
 
-    tool.onDeactivate = function (e) {};
+  onDeactivate(e) {}
 
-    tool.onMouseMove = function (e) {
-      mousePosition = e.point;
-    };
+  onMouseMove(e) {
+    this.mousePosition = e.point;
+  }
 
-    tool.onMouseDown = function (e) {
-      mouseJustPressed = true;
-      mouseButtonState = 'down';
-    };
+  onMouseDown(e) {
+    this.mouseJustPressed = true;
+    this.mouseButtonState = 'down';
+  }
 
-    tool.onMouseUp = function (e) {
-      mouseJustReleased = true;
-      mouseButtonState = 'up';
-    };
+  onMouseUp(e) {
+    this.mouseJustReleased = true;
+    this.mouseButtonState = 'up';
+  }
 
-    tool.onKeyDown = function (e) {
-      if (keysDown.indexOf(e.key) === -1) {
-        keysDown.push(e.key);
+  onKeyDown(e) {
+    if (this.keysDown.indexOf(e.key) === -1) {
+      this.keysDown.push(e.key);
+    }
+
+    return false;
+  }
+
+  onKeyUp(e) {
+    this.keysDown = this.keysDown.filter(key => {
+      return key !== e.key;
+    });
+    return false;
+  }
+
+  activate() {
+    this.paperTool.activate();
+  }
+
+  deactivate() {
+    this.paperTool.deactivate();
+  }
+
+  processInputPreTick(project) {
+    this.processKeyInputPreTick(project);
+    this.processMouseInputPreTick(project);
+  }
+
+  processKeyInputPreTick(project) {
+    project.keysDown = this.keysDown;
+  }
+
+  processMouseInputPreTick(project) {
+    var mouseTargets = this.getMouseTargets(this.mousePosition, project);
+
+    if (this.mouseButtonState === 'down') {
+      project.isMouseDown = true;
+
+      if (this.mouseJustPressed) {
+        project.mouseDownTargets = mouseTargets;
       }
+    } else if (this.mouseButtonState === 'up') {
+      project.isMouseDown = false;
+      project.mouseHoverTargets = mouseTargets;
+    }
 
-      return false;
-    };
+    if (mouseTargets.length > 0) {
+      paper.view._element.style.cursor = mouseTargets[0].cursor;
+    } else {
+      paper.view._element.style.cursor = 'default';
+    }
 
-    tool.onKeyUp = function (e) {
-      keysDown = keysDown.filter(key => {
-        return key !== e.key;
-      });
-      return false;
-    };
+    this.mouseJustPressed = false;
+    this.mouseJustReleased = false;
+  }
 
-    tool.processInputPreTick = function (project) {
-      tool.processKeyInputPreTick(project);
-      tool.processMouseInputPreTick(project);
-    };
+  getMouseTargets(point, project) {
+    var hitResult = paper.project.hitTest(point, {
+      fill: true,
+      stroke: true,
+      curves: true,
+      segments: true
+    }); // Check for clips under the mouse.
 
-    tool.processKeyInputPreTick = function (project) {
-      project.keysDown = keysDown;
-    };
+    if (hitResult) {
+      var uuid = hitResult.item.data.wickUUID;
+      var path = project.getChildByUUID(uuid);
 
-    tool.processMouseInputPreTick = function (project) {
-      var mouseTargets = this.getMouseTargets(mousePosition, project);
-
-      if (mouseButtonState === 'down') {
-        project.isMouseDown = true;
-
-        if (mouseJustPressed) {
-          project.mouseDownTargets = mouseTargets;
-        }
-      } else if (mouseButtonState === 'up') {
-        project.isMouseDown = false;
-        project.mouseHoverTargets = mouseTargets;
+      if (!path.parentClip.isRoot) {
+        var clip = path.parentClip;
+        var lineageWithoutRoot = clip.lineage;
+        lineageWithoutRoot.pop();
+        return lineageWithoutRoot;
       }
-
-      if (mouseTargets.length > 0) {
-        paper.view._element.style.cursor = mouseTargets[0].cursor;
-      } else {
-        paper.view._element.style.cursor = 'default';
-      }
-
-      mouseJustPressed = false;
-      mouseJustReleased = false;
-    };
-
-    tool.getMouseTargets = function (point, project) {
-      var hitResult = paper.project.hitTest(point, {
-        fill: true,
-        stroke: true,
-        curves: true,
-        segments: true
-      }); // Check for clips under the mouse.
-
-      if (hitResult) {
-        var uuid = hitResult.item.data.wickUUID;
-        var path = project.getChildByUUID(uuid);
-
-        if (!path.parentClip.isRoot) {
-          var clip = path.parentClip;
-          var lineageWithoutRoot = clip.lineage;
-          lineageWithoutRoot.pop();
-          return lineageWithoutRoot;
-        }
-      } // No clips are under the mouse, so the frame is under the mouse.
+    } // No clips are under the mouse, so the frame is under the mouse.
 
 
-      if (project.activeFrame) {
-        return [project.activeFrame];
-      } else {
-        return [];
-      }
-    };
+    if (project.activeFrame) {
+      return [project.activeFrame];
+    } else {
+      return [];
+    }
   }
 
 };

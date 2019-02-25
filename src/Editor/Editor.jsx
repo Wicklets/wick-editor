@@ -33,7 +33,7 @@ import Dropzone from 'react-dropzone';
 import localForage from 'localforage';
 
 import EditorCore from './EditorCore';
-import UndoRedo from '../core/UndoRedo';
+import UndoRedo from './UndoRedo';
 import DockedPanel from './Panels/DockedPanel/DockedPanel';
 import Canvas from './Panels/Canvas/Canvas';
 import Inspector from './Panels/Inspector/Inspector';
