@@ -4968,6 +4968,10 @@ var TOOL_CURSOR = () => {
   var CURSOR_SCALE_TOP_LEFT_BOTTOM_RIGHT = 'cursors/scale-top-left-bottom-right.png';
   var CURSOR_SCALE_VERTICAL = 'cursors/scale-vertical.png';
   var CURSOR_SCALE_HORIZONTAL = 'cursors/scale-horizontal.png';
+  var CURSOR_ROTATE_TOP = 'cursors/rotate-top.png';
+  var CURSOR_ROTATE_RIGHT = 'cursors/rotate-right.png';
+  var CURSOR_ROTATE_BOTTOM = 'cursors/rotate-bottom.png';
+  var CURSOR_ROTATE_LEFT = 'cursors/rotate-left.png';
   var CURSOR_ROTATE_TOP_RIGHT = 'cursors/rotate-top-right.png';
   var CURSOR_ROTATE_TOP_LEFT = 'cursors/rotate-top-left.png';
   var CURSOR_ROTATE_BOTTOM_RIGHT = 'cursors/rotate-bottom-right.png';
@@ -4975,8 +4979,19 @@ var TOOL_CURSOR = () => {
   var CURSOR_MOVE = 'cursors/move.png';
   var CURSOR_SEGMENT = 'cursors/segment.png';
   var CURSOR_CURVE = 'cursors/curve.png';
+  var HOVER_PREVIEW_SEGMENT_STROKE_COLOR = 'rgba(100,150,255,1.0)';
+  var HOVER_PREVIEW_SEGMENT_STROKE_WIDTH = 1.5;
+  var HOVER_PREVIEW_SEGMENT_FILL_COLOR = '#ffffff';
+  var HOVER_PREVIEW_SEGMENT_RADIUS = 5;
+  var HOVER_PREVIEW_CURVE_STROKE_WIDTH = 2;
+  var HOVER_PREVIEW_CURVE_STROKE_COLOR = HOVER_PREVIEW_SEGMENT_STROKE_COLOR;
   var hitResult = new paper.HitResult();
   var selectionBox = new paper.SelectionBox();
+  var draggingCurve = new paper.Curve();
+  var draggingSegment = new paper.Segment();
+  var hoverPreview = new paper.Item({
+    insert: false
+  });
   var tool = new paper.Tool();
   tool.selectPoints = true;
   tool.selectCurves = true;
@@ -4988,9 +5003,29 @@ var TOOL_CURSOR = () => {
   tool.onDeactivate = function (e) {};
 
   tool.onMouseMove = function (e) {
-    hitResult = _updateHitResult(e);
+    // Remove the hover preview, a new one will be generated if needed
+    hoverPreview.remove(); // Find the thing that is currently under the cursor.
+
+    hitResult = _updateHitResult(e); // Update the image being used for the cursor
 
     _setCursor(_getCursor());
+
+    if (hitResult.type === 'segment' && !hitResult.item.data.isSelectionBoxGUI) {
+      // Hovering over a segment, draw a circle where the segment is
+      hoverPreview = new paper.Path.Circle(hitResult.segment.point, HOVER_PREVIEW_SEGMENT_RADIUS / paper.view.zoom);
+      hoverPreview.strokeColor = HOVER_PREVIEW_SEGMENT_STROKE_COLOR;
+      hoverPreview.strokeWidth = HOVER_PREVIEW_SEGMENT_STROKE_WIDTH;
+      hoverPreview.fillColor = HOVER_PREVIEW_SEGMENT_FILL_COLOR;
+    } else if (hitResult.type === 'curve' && !hitResult.item.data.isSelectionBoxGUI) {
+      // Hovering over a curve, render a copy of the curve that can be bent
+      hoverPreview = new paper.Path();
+      hoverPreview.strokeWidth = HOVER_PREVIEW_CURVE_STROKE_WIDTH;
+      hoverPreview.strokeColor = HOVER_PREVIEW_CURVE_STROKE_COLOR;
+      hoverPreview.add(new paper.Point(hitResult.location.curve.point1));
+      hoverPreview.add(new paper.Point(hitResult.location.curve.point2));
+      hoverPreview.segments[0].handleOut = hitResult.location.curve.handle1;
+      hoverPreview.segments[1].handleIn = hitResult.location.curve.handle2;
+    }
   };
 
   tool.onMouseDown = function (e) {
@@ -5008,7 +5043,7 @@ var TOOL_CURSOR = () => {
           items: itemsWithoutHitItem
         });
       }
-    } else if (hitResult.item) {
+    } else if (hitResult.item && hitResult.type === 'fill') {
       // Clicked an item: select that item
       var items = [hitResult.item]; // Shift click? Keep everything else selected.
 
@@ -5016,13 +5051,16 @@ var TOOL_CURSOR = () => {
       paper.drawingTools.fireSelectionChanged({
         items: items
       });
-    } else {
+    } else if (hitResult.item && hitResult.type === 'curve') {
+      // Clicked a curve, start dragging it
+      draggingCurve = hitResult.location.curve;
+    } else if (hitResult.item && hitResult.type === 'segment') {} else {
+      // Nothing was clicked, so clear the selection and start a new selection box
       paper.selection.finish();
       paper.drawingTools.fireSelectionChanged({
         items: []
       });
-      paper.drawingTools.fireCanvasModified(); // Nothing was clicked, so start the selection box
-
+      paper.drawingTools.fireCanvasModified();
       selectionBox.start(e.point);
     }
   };
@@ -5036,10 +5074,38 @@ var TOOL_CURSOR = () => {
     } else if (selectionBox.active) {
       // Selection box is being used, update it with a new point
       selectionBox.drag(e.point);
-    } else if (hitResult.item) {
-      // We're dragging the selection itself, so move it.
+    } else if (hitResult.item && hitResult.type === 'fill') {
+      // We're dragging the selection itself, so move the whole item.
       paper.selection.x += e.delta.x;
       paper.selection.y += e.delta.y;
+    } else if (hitResult.item && hitResult.type === 'segment') {
+      // We're dragging an individual point, so move the point.
+      hitResult.segment.point = hitResult.segment.point.add(e.delta);
+      hoverPreview.position = hitResult.segment.point;
+    } else if (hitResult.item && hitResult.type === 'curve') {
+      // We're dragging a curve, so bend the curve.
+      var segment1 = draggingCurve.segment1;
+      var segment2 = draggingCurve.segment2;
+      var handleIn = segment1.handleOut;
+      var handleOut = segment2.handleIn;
+
+      if (handleIn.x === 0 && handleIn.y === 0) {
+        handleIn.x = (segment2.point.x - segment1.point.x) / 4;
+        handleIn.y = (segment2.point.y - segment1.point.y) / 4;
+      }
+
+      if (handleOut.x === 0 && handleOut.y === 0) {
+        handleOut.x = (segment1.point.x - segment2.point.x) / 4;
+        handleOut.y = (segment1.point.y - segment2.point.y) / 4;
+      }
+
+      handleIn.x += e.delta.x;
+      handleIn.y += e.delta.y;
+      handleOut.x += e.delta.x;
+      handleOut.y += e.delta.y; // Update the hover preview to match the curve we just changed
+
+      hoverPreview.segments[0].handleOut = draggingCurve.handle1;
+      hoverPreview.segments[1].handleIn = draggingCurve.handle2;
     }
   };
 
@@ -5062,7 +5128,10 @@ var TOOL_CURSOR = () => {
       stroke: true,
       curves: true,
       segments: true,
-      tolerance: SELECTION_TOLERANCE
+      tolerance: SELECTION_TOLERANCE,
+      match: function (result) {
+        return result.item !== hoverPreview;
+      }
     });
     if (!newHitResult) newHitResult = new paper.HitResult();
 
@@ -5079,6 +5148,31 @@ var TOOL_CURSOR = () => {
         while (newHitResult.item.parent.parent) {
           newHitResult.item = newHitResult.item.parent;
         }
+      } // Paper.js has two names for strokes+curves, we don't need that extra info
+
+
+      if (newHitResult.type === 'stroke') {
+        newHitResult.type = 'curve';
+      } // Mousing over rasters acts the same as mousing over fills.
+
+
+      if (newHitResult.type === 'pixel') {
+        newHitResult.type = 'fill';
+      } // Disable curve selection unless selectCurves is true.
+
+
+      if (!tool.selectCurves && newHitResult.type === 'curve') {
+        newHitResult.type = 'fill';
+      } // Disable segment selection unless selectPoints is true.
+
+
+      if (!tool.selectPoints && newHitResult.type === 'segment') {
+        newHitResult.type = 'fill';
+      } // You can't drag segments and curves of a selected object.
+
+
+      if (paper.selection.isItemSelected(newHitResult.item)) {
+        newHitResult.type = 'fill';
       }
     }
 
@@ -5089,39 +5183,88 @@ var TOOL_CURSOR = () => {
     if (!hitResult.item) {
       return CURSOR_DEFAULT;
     } else if (hitResult.item.data.isSelectionBoxGUI) {
+      // Don't show any custom cursor if the mouse is over the border, the border does nothing
       if (hitResult.item.name === 'border') {
         return CURSOR_DEFAULT;
-      } else if (hitResult.item.data.handleType === 'scale') {
-        if (hitResult.item.data.handleEdge === 'topLeft') {
-          return CURSOR_SCALE_TOP_LEFT_BOTTOM_RIGHT;
-        } else if (hitResult.item.data.handleEdge === 'topRight') {
-          return CURSOR_SCALE_TOP_RIGHT_BOTTOM_LEFT;
-        } else if (hitResult.item.data.handleEdge === 'bottomRight') {
-          return CURSOR_SCALE_TOP_LEFT_BOTTOM_RIGHT;
-        } else if (hitResult.item.data.handleEdge === 'bottomLeft') {
-          return CURSOR_SCALE_TOP_RIGHT_BOTTOM_LEFT;
-        } else if (hitResult.item.data.handleEdge === 'topCenter') {
-          return CURSOR_SCALE_VERTICAL;
-        } else if (hitResult.item.data.handleEdge === 'rightCenter') {
-          return CURSOR_SCALE_HORIZONTAL;
-        } else if (hitResult.item.data.handleEdge === 'bottomCenter') {
-          return CURSOR_SCALE_VERTICAL;
-        } else if (hitResult.item.data.handleEdge === 'leftCenter') {
-          return CURSOR_SCALE_HORIZONTAL;
-        }
+      } // Calculate the angle in which the scale handle scales the selection.
+      // Use that angle to determine the cursor graphic to use.
+      // Here is a handy diagram showing the cursors that correspond to the angles:
+      // 315       0       45
+      //     o-----o-----o
+      //     |           | 
+      //     |           | 
+      // 270 o           o 90
+      //     |           |
+      //     |           |
+      //     o-----o-----o
+      // 225      180      135
+
+
+      var baseAngle = {
+        topCenter: 0,
+        topRight: 45,
+        rightCenter: 90,
+        bottomRight: 135,
+        bottomCenter: 180,
+        bottomLeft: 225,
+        leftCenter: 270,
+        topLeft: 315
+      }[hitResult.item.data.handleEdge]; // Flip angles if selection is flipped horizontally/vertically
+
+      if (paper.selection._transform.scaleX < 0) {
+        baseAngle = -baseAngle + 360;
+      }
+
+      if (paper.selection._transform.scaleY < 0) {
+        baseAngle = -baseAngle + 180;
+      }
+
+      var angle = baseAngle + paper.selection.rotation;
+      if (angle < 0) angle += 360;
+      if (angle > 360) angle -= 360; // Makes angle math easier if we dont allow angles >360 or <0 degrees
+      // Round the angle to the nearest 45 degree interval. 
+
+      var angleRoundedToNearest45 = Math.round(angle / 45) * 45;
+      angleRoundedToNearest45 = Math.round(angleRoundedToNearest45); // just incase of float weirdness
+
+      angleRoundedToNearest45 = '' + angleRoundedToNearest45; // convert to string
+      // Now we know which of eight directions the handle is pointing, so we choose the correct cursor
+
+      if (hitResult.item.data.handleType === 'scale') {
+        var cursorGraphicFromAngle = {
+          '0': CURSOR_SCALE_VERTICAL,
+          '45': CURSOR_SCALE_TOP_RIGHT_BOTTOM_LEFT,
+          '90': CURSOR_SCALE_HORIZONTAL,
+          '135': CURSOR_SCALE_TOP_LEFT_BOTTOM_RIGHT,
+          '180': CURSOR_SCALE_VERTICAL,
+          '225': CURSOR_SCALE_TOP_RIGHT_BOTTOM_LEFT,
+          '270': CURSOR_SCALE_HORIZONTAL,
+          '315': CURSOR_SCALE_TOP_LEFT_BOTTOM_RIGHT,
+          '360': CURSOR_SCALE_VERTICAL
+        }[angleRoundedToNearest45];
+        return cursorGraphicFromAngle;
       } else if (hitResult.item.data.handleType === 'rotation') {
-        if (hitResult.item.data.handleEdge === 'topLeft') {
-          return CURSOR_ROTATE_TOP_LEFT;
-        } else if (hitResult.item.data.handleEdge === 'topRight') {
-          return CURSOR_ROTATE_TOP_RIGHT;
-        } else if (hitResult.item.data.handleEdge === 'bottomLeft') {
-          return CURSOR_ROTATE_BOTTOM_LEFT;
-        } else if (hitResult.item.data.handleEdge === 'bottomRight') {
-          return CURSOR_ROTATE_BOTTOM_RIGHT;
-        }
+        var cursorGraphicFromAngle = {
+          '0': CURSOR_ROTATE_TOP,
+          '45': CURSOR_ROTATE_TOP_RIGHT,
+          '90': CURSOR_ROTATE_RIGHT,
+          '135': CURSOR_ROTATE_BOTTOM_RIGHT,
+          '180': CURSOR_ROTATE_BOTTOM,
+          '225': CURSOR_ROTATE_BOTTOM_LEFT,
+          '270': CURSOR_ROTATE_LEFT,
+          '315': CURSOR_ROTATE_TOP_LEFT,
+          '360': CURSOR_ROTATE_TOP
+        }[angleRoundedToNearest45];
+        return cursorGraphicFromAngle;
       }
     } else {
-      return CURSOR_MOVE;
+      if (hitResult.type === 'fill') {
+        return CURSOR_MOVE;
+      } else if (hitResult.type === 'curve') {
+        return CURSOR_CURVE;
+      } else if (hitResult.type === 'segment') {
+        return CURSOR_SEGMENT;
+      }
     }
   }
 

@@ -101,6 +101,7 @@ class Canvas extends Component {
       project.selection.select(object);
     });
 
+    this.props.project.view.applyChanges();
     this.props.projectDidChange();
   }
 
@@ -120,9 +121,7 @@ class Canvas extends Component {
 
     // Render wick project
     project.view.canvasBGColor = styles.editorCanvasBorder;
-    if(project.view.setCanvasContainer(canvasContainerElem)) {
-      //project.view.recenter();
-    }
+    project.view.setCanvasContainer(canvasContainerElem);
     project.view.render();
 
     // update the paper.js active tool based on the editor active tool state.
@@ -132,7 +131,7 @@ class Canvas extends Component {
       tool[key] = toolSettings[key];
     });
 
-    // if there is no layer/frame to draw on, activate the 'none' tool.
+    // If the active frame is on a locked/hidden layer, or there is no active frame, disable all tools.
     if(!project.activeFrame ||
        project.activeLayer.locked ||
        project.activeLayer.hidden) {

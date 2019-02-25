@@ -20,7 +20,8 @@
 import { Component } from 'react';
 import localForage from 'localforage';
 import { saveAs } from 'file-saver';
-import GIFExport from './GIFExport';
+import GIFExport from './export/GIFExport';
+import ZIPExport from './export/ZIPExport';
 
 class EditorCore extends Component {
   /**
@@ -59,7 +60,7 @@ class EditorCore extends Component {
    */
   recenterCanvas = () => {
     this.project.recenter();
-    this.project.view.render();
+    this.projectDidChange(true);
   }
 
   /**
@@ -150,12 +151,18 @@ class EditorCore extends Component {
     });
   }
 
+  /**
+   * Moves the active timeline's playhead forward one frame.
+   */
   movePlayheadForwards = () => {
     let timeline = this.project.focus.timeline;
     timeline.playheadPosition ++;
     this.projectDidChange();
   }
 
+  /**
+   * Moves the active timeline's playhead backwards one frame.
+   */
   movePlayheadBackwards = () => {
     let timeline = this.project.focus.timeline;
     timeline.playheadPosition = Math.max(1, timeline.playheadPosition - 1);
@@ -375,30 +382,21 @@ class EditorCore extends Component {
    * Selects everything on the canvas.
    */
   selectAll = () => {
-    this.project.selection.clear();
-    this.project.activeFrames.forEach(frame => {
-      frame.paths.forEach(path => {
-        this.project.selection.select(path);
-      });
-      frame.clips.forEach(clip => {
-        this.project.selection.select(clip);
-      });
-    });
-
     this.setState({
       activeTool: 'cursor'
     });
+    this.project.selectAll();
     this.projectDidChange();
   }
 
   /**
    * Returns the value of a requested selection attribute.
-   * @param  {string} attribute Selection attribute to retrieve.
+   * @param  {string} attributeName Selection attribute to retrieve.
    * @return {string|number|undefined} Value of the selection attribute to
    * retrieve. Returns undefined is attribute does not exist.
    */
-  getSelectionAttribute = (attribute) => {
-    var attribute = this.project.selection[attribute];
+  getSelectionAttribute = (attributeName) => {
+    let attribute = this.project.selection[attributeName];
     if(attribute instanceof Array) {
       if(attribute.length === 0) {
         return undefined;
@@ -629,7 +627,7 @@ class EditorCore extends Component {
   pasteFromClipboard = () => {
     localForage.getItem('wickClipboard').then((serializedSelection) => {
       let deserialized = this.deserializeSelection(serializedSelection);
-      this.addSelectionToProject(deserialized, {offset: {x: 10, y:-10}});
+      this.addSelectionToProject(deserialized, {offset: {x: 10, y: 10}});
     }).catch((err) => {
       console.error("Error when pasting from clipboard.")
       console.error(err);
@@ -648,8 +646,8 @@ class EditorCore extends Component {
       this.project.addObject(object);
     });
 
+    // Select newly added objects.
     this.project.selection.clear();
-
     selection.forEach(object => {
       this.project.selection.select(object);
     });
@@ -688,6 +686,15 @@ class EditorCore extends Component {
     GIFExport.createAnimatedGIFFromProject(this.project, blob => {
       this.project = window.Wick.Project.deserialize(this.project.serialize());
       saveAs(blob, this.project.name + '.gif');
+    });
+  }
+
+  /**
+   * Export the current project as a bundled standalone ZIP that can be uploaded to itch/newgrounds/etc.
+   */
+  exportProjectAsStandaloneZIP = () => {
+    ZIPExport.bundleStandaloneProject(this.project, blob => {
+      saveAs(blob, this.project.name + '.zip');
     });
   }
 
