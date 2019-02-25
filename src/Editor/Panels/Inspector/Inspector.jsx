@@ -107,8 +107,6 @@ class Inspector extends Component {
    * @param  {string} attribute Selection attribute to retrieve.
    */
   setSelectionFillColorOpacity = (value) => {
-    console.log(value);
-
     if (value === undefined || value === null) value = "0";
 
     let color = this.getSelectionAttribute('fillColor');
