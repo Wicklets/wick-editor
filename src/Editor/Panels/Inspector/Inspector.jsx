@@ -95,7 +95,33 @@ class Inspector extends Component {
    * @return {string|number|undefined} Value of the selection attribute to retrieve. Returns undefined is attribute does not exist.
    */
   getSelectionAttribute = (attribute) => {
+    if (attribute === 'fillColorOpacity') {
+      return this.getSelectionFillColorOpacity();
+    }
+
     return this.props.selectionAttributes[attribute];
+  }
+
+  /**
+   * sets the value of the selection fillColor opacity.
+   * @param  {string} attribute Selection attribute to retrieve.
+   */
+  setSelectionFillColorOpacity = (value) => {
+    console.log(value);
+
+    if (value === undefined || value === null) value = "0";
+
+    let color = this.getSelectionAttribute('fillColor');
+
+    let split = color.split('(');
+
+    split = split[1].split(',');
+
+    let newColorArray = [split[0], split[1], split[2].replace(")", ""), value];
+
+    let newColor = "rgba(" + newColorArray.join(",") + ")";
+
+    this.setSelectionAttribute('fillColor', newColor);
   }
 
   /**
@@ -104,6 +130,9 @@ class Inspector extends Component {
    * @param {string|number} newValue  New value of the attribute to update.
    */
   setSelectionAttribute = (attribute, newValue) => {
+    if (attribute === 'fillColorOpacity') {
+      return this.setSelectionFillColorOpacity(newValue);
+    }
     this.props.setSelectionAttribute(attribute, newValue);
   }
 
@@ -113,6 +142,22 @@ class Inspector extends Component {
     let b = col.rgb.b;
     let a = col.rgb.a;
     return 'rgba(' + r + ',' + g + ',' + b + ',' + a + ')';
+  }
+
+  /**
+   * Returns the selection fill color opacity.
+   * @return {string} fill color opacity from 0 to 1.
+   */
+  getSelectionFillColorOpacity = () => {
+    let fillColor = this.getSelectionAttribute('fillColor');
+
+    if (fillColor.startsWith('rgba')) {
+      let split = fillColor.split(",");
+      let str = split[3];
+      return str.substring(0, str.length - 1);;
+    } else {
+      return "1";
+    }
   }
 
   // Inspector Row Types
@@ -136,8 +181,8 @@ class Inspector extends Component {
           val={this.getSelectionAttribute('fillColor')}
           onChange={(col) => this.setSelectionAttribute('fillColor', this.toRgbaString(col))}
           id={"inspector-selection-fill-color"}
-          val2={this.getSelectionAttribute('opacity')}
-          onChange2={(val) => this.setSelectionAttribute('opacity', val)}
+          val2={this.getSelectionAttribute('fillColorOpacity')}
+          onChange2={(val) => this.setSelectionAttribute('fillColorOpacity', val)}
           inputProps={this.props.toolRestrictions.opacity}
           divider={false}/>
       </div>
