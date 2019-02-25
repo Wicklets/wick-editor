@@ -72,7 +72,7 @@ class CanvasTransforms extends Component {
       <div id="canvas-zoom-options-container" className="canvas-transform-item">
         {/* Zoom In */}
         {this.renderTransformButton({
-          action: this.props.zoomIn,
+          action: () => this.props.zoomIn(),
           name: 'zoomin',
           tooltip: 'Zoom In',
           className: 'thin-transform-button',
@@ -82,7 +82,7 @@ class CanvasTransforms extends Component {
 
         {/* Zoom Out */}
         {this.renderTransformButton({
-          action: this.props.zoomOut,
+          action: () => this.props.zoomOut(),
           name: 'zoomout',
           tooltip: 'Zoom Out',
           className: 'thin-transform-button',
