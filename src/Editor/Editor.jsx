@@ -79,6 +79,7 @@ class Editor extends EditorCore {
         selectPoints: false,
         selectCurves: false,
       },
+      selectionAttributes: {},
       previewPlaying: false,
       activeModalName: null,
       activeModalQueue: [],
@@ -89,7 +90,46 @@ class Editor extends EditorCore {
       assetLibrarySize: 150,
     };
 
-    this.toolRestrictions = {
+    this.toolRestrictions = this.getToolRestrictions();
+
+    // Set up error.
+    this.error = null;
+
+    // Init hotkeys
+    this.hotKeyInterface = new HotKeyInterface(this);
+
+    // Init actions
+    this.actionMapInterface = new ActionMapInterface(this);
+
+    // Resizable panels
+    this.RESIZE_THROTTLE_AMOUNT_MS = 10;
+    this.WINDOW_RESIZE_THROTTLE_AMOUNT_MS = 300;
+    this.resizeProps = {
+      onStopResize: throttle(this.onStopResize, this.resizeThrottleAmount),
+      onStopInspectorResize: throttle(this.onStopInspectorResize, this.resizeThrottleAmount),
+      onStopAssetLibraryResize: throttle(this.onStopAssetLibraryResize, this.resizeThrottleAmount),
+      onStopTimelineResize: throttle(this.onStopTimelineResize, this.resizeThrottleAmount),
+      onStopCodeEditorResize: throttle(this.onStopCodeEditorResize, this.resizeThrottleAmount),
+      onResize: throttle(this.onResize, this.resizeThrottleAmount),
+      onWindowResize: throttle(this.onWindowResize, this.windowResizeThrottleAmount),
+    };
+    window.addEventListener("resize", this.resizeProps.onWindowResize);
+
+    // Save the project state before preview playing so we can retrieve it later
+    this.beforePreviewPlayProjectState = null;
+
+    // Lock state flag
+    this.lockState = false;
+
+    // Auto Save
+    this.autoSaveDelay = 1000; // millisecond delay
+    this.throttledAutoSaveProject = throttle(this.autoSaveProject, this.autoSaveDelay);
+
+    this.timelineComponent = null;
+  }
+
+  getToolRestrictions = () => {
+    return {
       strokeWidth: {
         min: 0,
         max: 100,
@@ -131,41 +171,6 @@ class Editor extends EditorCore {
         step: 25,
       }
     }
-
-    // Set up error.
-    this.error = null;
-
-    // Init hotkeys
-    this.hotKeyInterface = new HotKeyInterface(this);
-
-    // Init actions
-    this.actionMapInterface = new ActionMapInterface(this);
-
-    // Resizable panels
-    this.RESIZE_THROTTLE_AMOUNT_MS = 10;
-    this.WINDOW_RESIZE_THROTTLE_AMOUNT_MS = 300;
-    this.resizeProps = {
-      onStopResize: throttle(this.onStopResize, this.resizeThrottleAmount),
-      onStopInspectorResize: throttle(this.onStopInspectorResize, this.resizeThrottleAmount),
-      onStopAssetLibraryResize: throttle(this.onStopAssetLibraryResize, this.resizeThrottleAmount),
-      onStopTimelineResize: throttle(this.onStopTimelineResize, this.resizeThrottleAmount),
-      onStopCodeEditorResize: throttle(this.onStopCodeEditorResize, this.resizeThrottleAmount),
-      onResize: throttle(this.onResize, this.resizeThrottleAmount),
-      onWindowResize: throttle(this.onWindowResize, this.windowResizeThrottleAmount),
-    };
-    window.addEventListener("resize", this.resizeProps.onWindowResize);
-
-    // Save the project state before preview playing so we can retrieve it later
-    this.beforePreviewPlayProjectState = null;
-
-    // Lock state flag
-    this.lockState = false;
-
-    // Auto Save
-    this.autoSaveDelay = 1000; // millisecond delay
-    this.throttledAutoSaveProject = throttle(this.autoSaveProject, this.autoSaveDelay);
-
-    this.timelineComponent = null;
   }
 
   componentWillMount = () => {
@@ -506,6 +511,7 @@ class Editor extends EditorCore {
     }
     this.setState({
       project: projectSerialized,
+      selectionAttributes: this.getAllSelectionAttributes(),
     });
   }
 
@@ -647,7 +653,7 @@ class Editor extends EditorCore {
                                 getToolSettings={this.getToolSettings}
                                 setToolSettings={this.setToolSettings}
                                 getSelectionType={this.getSelectionType}
-                                getSelectionAttribute={this.getSelectionAttribute}
+                                selectionAttributes={this.state.selectionAttributes}
                                 setSelectionAttribute={this.setSelectionAttribute}
                                 editorActions={this.actionMapInterface.editorActions}
                               />

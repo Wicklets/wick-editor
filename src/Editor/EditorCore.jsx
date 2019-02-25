@@ -397,6 +397,7 @@ class EditorCore extends Component {
    */
   getSelectionAttribute = (attributeName) => {
     let attribute = this.project.selection[attributeName];
+
     if(attribute instanceof Array) {
       if(attribute.length === 0) {
         return undefined;
@@ -413,12 +414,57 @@ class EditorCore extends Component {
   }
 
   /**
+   * Returns the names of all possible selection attribute names.
+   * @return {string[]} Array of selection attribute names.
+   */
+  getAllSelectionAttributeNames = () => {
+    var attributes = [
+      "strokeWidth",
+      "fillColor",
+      "strokeColor",
+      "name",
+      "filename",
+      "fontSize",
+      "fontFamily",
+      "src",
+      "frameLength",
+      "x",
+      "y",
+      "width",
+      "height",
+      "scaleX",
+      "scaleY",
+      "rotation",
+      "opacity",
+    ];
+    return attributes;
+  }
+
+  /**
+   * Returns the new selection Attributes.
+   * @return {object} object with new attributes.
+   */
+  getAllSelectionAttributes = () => {
+    let newAttributes = this.state.selectionAttributes;
+
+    let selectionAttributeNames = this.getAllSelectionAttributeNames();
+
+    selectionAttributeNames.forEach(name => {
+        newAttributes[name] = this.getSelectionAttribute(name);
+      }
+    );
+
+    return newAttributes;
+  }
+
+  /**
    * Updates the value of a selection attribute for the selected item in the editor.
    * @param {string} attribute Name of the attribute to update.
    * @param {string|number} newValue  New value of the attribute to update.
    */
   setSelectionAttribute = (attribute, newValue) => {
     this.project.selection[attribute] = newValue;
+    this.projectDidChange();
   }
 
   /**

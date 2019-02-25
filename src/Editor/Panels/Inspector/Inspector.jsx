@@ -28,7 +28,6 @@ import InspectorTextInput from './InspectorRow/InspectorRowTypes/InspectorTextIn
 import InspectorNumericInput from './InspectorRow/InspectorRowTypes/InspectorNumericInput';
 import InspectorDualNumericInput from './InspectorRow/InspectorRowTypes/InspectorDualNumericInput';
 import InspectorSelector from './InspectorRow/InspectorRowTypes/InspectorSelector';
-import InspectorColorPicker from './InspectorRow/InspectorRowTypes/InspectorColorPicker';
 import InspectorColorNumericInput from './InspectorRow/InspectorRowTypes/InspectorColorNumericInput';
 import InspectorActionButton from './InspectorActionButton/InspectorActionButton';
 import InspectorImagePreview from './InspectorPreview/InspectorPreviewTypes/InspectorImagePreview';
@@ -96,7 +95,7 @@ class Inspector extends Component {
    * @return {string|number|undefined} Value of the selection attribute to retrieve. Returns undefined is attribute does not exist.
    */
   getSelectionAttribute = (attribute) => {
-    return this.props.getSelectionAttribute(attribute);
+    return this.props.selectionAttributes[attribute];
   }
 
   /**
@@ -443,7 +442,7 @@ class Inspector extends Component {
   }
 
   renderTitle(selectionType) {
-    if (!selectionType in this.inspectorTitles) selectionType = "unknown";
+    if (!(selectionType in this.inspectorTitles)) selectionType = "unknown";
 
     return (
       <div className="inspector-title-container">
