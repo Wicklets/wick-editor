@@ -21,6 +21,7 @@ import { Component } from 'react';
 import localForage from 'localforage';
 import { saveAs } from 'file-saver';
 import GIFExport from './export/GIFExport';
+import ZIPExport from './export/ZIPExport';
 
 class EditorCore extends Component {
   /**
@@ -737,6 +738,15 @@ class EditorCore extends Component {
     GIFExport.createAnimatedGIFFromProject(this.project, blob => {
       this.project = window.Wick.Project.deserialize(this.project.serialize());
       saveAs(blob, this.project.name + '.gif');
+    });
+  }
+
+  /**
+   * Export the current project as a bundled standalone ZIP that can be uploaded to itch/newgrounds/etc.
+   */
+  exportProjectAsStandaloneZIP = () => {
+    ZIPExport.bundleStandaloneProject(this.project, blob => {
+      saveAs(blob, this.project.name + '.zip');
     });
   }
 

@@ -61,6 +61,9 @@ class MenuBar extends Component {
             text="GIF"
             action={this.props.exportProjectAsAnimatedGIF}/>
           <MenuBarButton
+              text="ZIP"
+              action={this.props.exportProjectAsStandaloneZIP}/>
+          <MenuBarButton
             text="save"
             action={this.props.exportProjectAsWickFile}
             color='save'

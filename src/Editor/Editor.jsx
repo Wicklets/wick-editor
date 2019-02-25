@@ -543,6 +543,7 @@ class Editor extends EditorCore {
                       exportProjectAsWickFile={this.exportProjectAsWickFile}
                       importProjectAsWickFile={this.importProjectAsWickFile}
                       exportProjectAsAnimatedGIF={this.exportProjectAsAnimatedGIF}
+                      exportProjectAsStandaloneZIP={this.exportProjectAsStandaloneZIP}
                     />
                   </DockedPanel>
                 </div>
