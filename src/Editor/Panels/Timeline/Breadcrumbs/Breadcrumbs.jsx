@@ -27,7 +27,8 @@ class Breadcrumbs extends Component {
     return (
       <div key={i} className="breadcrumb-button-container">
         <ActionButton
-          text={object.name}
+          text={"item-" + i}
+          action={() => this.props.setFocusObject(object)}
           color="breadcrumb" />
       </div> 
     );
@@ -35,23 +36,8 @@ class Breadcrumbs extends Component {
 
   render() {
     let project = this.props.project;
-    let focus = project.focus;
-    let lineage = focus.lineage;
-    if (lineage === undefined) {
-      lineage = ['Project']
-    }
-    
-    lineage = [
-      {
-        name: "first",
-      },
-      {
-        name: "second",
-      },
-      {
-        name: "third",
-      }
-    ]
+    let lineage = project.focus.lineage;
+    lineage = lineage.reverse(); // Set items in order.
 
     return (
       <div id="breadcrumbs-container">

@@ -485,6 +485,15 @@ class EditorCore extends Component {
   }
 
   /**
+   * Updates the focus object of the project.
+   * @param {Wick.Clip} object Object to set as focus. 
+   */
+  setFocusObject = (object) => {
+    this.project.focus = object;
+    this.projectDidChange();
+  }
+
+  /**
    * Break apart the selected clip(s) and select the objects that were contained within those clip(s).
    */
   breakApartSelection = () => {

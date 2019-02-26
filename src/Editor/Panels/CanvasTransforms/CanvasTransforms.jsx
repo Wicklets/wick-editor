@@ -18,7 +18,7 @@ class CanvasTransforms extends Component {
         tooltipPlace={"top"}
         icon={options.name}
         className={classNames("canvas-transform-button", options.className)}/>
-    )
+    );
   }
 
   renderTransformations = () => {

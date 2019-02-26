@@ -149,7 +149,9 @@ class Inspector extends Component {
   getSelectionFillColorOpacity = () => {
     let fillColor = this.getSelectionAttribute('fillColor');
 
-    if (!fillColor) return "1"; 
+    if (!fillColor) {
+      return "1"; 
+    }
 
     if (fillColor.startsWith('rgba')) {
       let split = fillColor.split(",");

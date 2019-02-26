@@ -176,6 +176,7 @@ class Timeline extends Component {
       <div id="animation-timeline-container">
         <Breadcrumbs 
           project={this.props.project}
+          setFocusObject={this.props.setFocusObject}
         />
         <div id="animation-timeline" ref="container" />
       </div>

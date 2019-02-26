@@ -600,7 +600,6 @@ class Editor extends EditorCore {
                                     createImageFromAsset={this.createImageFromAsset}
                                   />
                                   <CanvasTransforms
-                                    hideTransformations={this.state.previewPlaying}
                                     onionSkinEnabled={this.project.onionSkinEnabled}
                                     toggleOnionSkin={this.toggleOnionSkin}
                                     zoomIn={this.zoomIn}
@@ -631,6 +630,7 @@ class Editor extends EditorCore {
                                 selectObjects={this.selectObjects}
                                 setOnionSkinOptions={this.setOnionSkinOptions}
                                 getOnionSkinOptions={this.getOnionSkinOptions}
+                                setFocusObject={this.setFocusObject}
                                 onRef={ref => this.timelineComponent = ref}
                               />
                             </DockedPanel>
