@@ -487,7 +487,6 @@ class Inspector extends Component {
 
     Object.keys(this.actionRules).forEach(action => {
         let actionList = this.actionRules[action];
-        console.log(actionList);
         if (actionList.indexOf(selectionType) > -1) actions.push(action);
     });
 
