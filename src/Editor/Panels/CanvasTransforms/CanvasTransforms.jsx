@@ -21,11 +21,6 @@ class CanvasTransforms extends Component {
     )
   }
 
-  shouldComponentUpdate = (nextProps, nextState) => {
-    return this.props.onionSkinEnabled !== nextProps.onionSkinEnabled ||
-    this.props.activeTool !== nextProps.activeTool;
-  }
-
   renderTransformations = () => {
     return (
       <div className='transforms-container'>
@@ -94,12 +89,12 @@ class CanvasTransforms extends Component {
   render () {
     return (
       <div className="canvas-transforms-widget">
-        {!this.props.hideTransformations && this.renderTransformations()}
+        {!this.props.previewPlaying && this.renderTransformations()}
         <div className="play-button-container">
           <PlayButton
             className="play-button canvas-transform-button"
             playing={this.props.previewPlaying}
-            onClick={this.props.togglePreviewPlaying}/>
+            action={this.props.togglePreviewPlaying}/>
         </div>
       </div>
     );

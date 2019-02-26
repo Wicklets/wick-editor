@@ -30,7 +30,7 @@ class PlayButton extends Component {
         className={"play-icon " + this.props.className}
         alt={"playing icon"}
         src={(this.props.playing ? iconPause : iconPlay)}
-        onClick={this.props.onClick}/>
+        onClick={this.props.action}/>
     )
   }
 }

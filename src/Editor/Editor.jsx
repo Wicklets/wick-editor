@@ -443,10 +443,10 @@ class Editor extends EditorCore {
    */
   togglePreviewPlaying = () => {
     let nextState = !this.state.previewPlaying;
-    this.setState(prevState => ({
+    this.setState({
       previewPlaying: nextState,
       codeErrors: [],
-    }));
+    });
 
     if(nextState) {
       // Focus canvas element here
@@ -517,7 +517,7 @@ class Editor extends EditorCore {
   }
 
   render = () => {
-      return (
+    return (
     <Dropzone
       accept={window.Wick.Asset.getValidMIMETypes()}
       onDrop={(accepted, rejected) => this.createAssets(accepted, rejected)}
@@ -575,7 +575,6 @@ class Editor extends EditorCore {
                                 setToolSettings={this.setToolSettings}
                                 toolRestrictions={this.toolRestrictions}
                                 previewPlaying={this.state.previewPlaying}
-                                togglePreviewPlaying={this.togglePreviewPlaying}
                                 undoAction={this.undoAction}
                                 redoAction={this.redoAction}
                                 copyAction={this.copySelectionToClipboard}
@@ -601,16 +600,16 @@ class Editor extends EditorCore {
                                     createImageFromAsset={this.createImageFromAsset}
                                   />
                                   <CanvasTransforms
+                                    hideTransformations={this.state.previewPlaying}
                                     onionSkinEnabled={this.project.onionSkinEnabled}
+                                    toggleOnionSkin={this.toggleOnionSkin}
                                     zoomIn={this.zoomIn}
                                     zoomOut={this.zoomOut}
-                                    hideTransformations={this.state.previewPlaying}
                                     recenterCanvas={this.recenterCanvas}
-                                    setActiveTool={this.setActiveTool}
                                     activeTool={this.state.activeTool}
+                                    setActiveTool={this.setActiveTool}
                                     previewPlaying={this.state.previewPlaying}
                                     togglePreviewPlaying={this.togglePreviewPlaying}
-                                    toggleOnionSkin={this.toggleOnionSkin}
                                   />
                                 </DockedPanel>
                               </ReflexElement>
