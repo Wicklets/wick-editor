@@ -32,9 +32,13 @@ import { HotKeys } from 'react-hotkeys';
 import Dropzone from 'react-dropzone';
 import localForage from 'localforage';
 
-import EditorCore from './EditorCore';
+import HotKeyInterface from './hotKeyMap';
+import ActionMapInterface from './actionMap';
 import UndoRedo from './UndoRedo';
+import EditorCore from './EditorCore';
+
 import DockedPanel from './Panels/DockedPanel/DockedPanel';
+import ModalHandler from './Modals/ModalHandler/ModalHandler';
 import Canvas from './Panels/Canvas/Canvas';
 import Inspector from './Panels/Inspector/Inspector';
 import MenuBar from './Panels/MenuBar/MenuBar';
@@ -42,9 +46,6 @@ import Timeline from './Panels/Timeline/Timeline';
 import CanvasTransforms from './Panels/CanvasTransforms/CanvasTransforms';
 import Toolbox from './Panels/Toolbox/Toolbox';
 import AssetLibrary from './Panels/AssetLibrary/AssetLibrary';
-import ModalHandler from './Modals/ModalHandler/ModalHandler';
-import HotKeyInterface from './hotKeyMap';
-import ActionMapInterface from './actionMap';
 import PopOutCodeEditor from './PopOuts/PopOutCodeEditor/PopOutCodeEditor';
 
 class Editor extends EditorCore {
@@ -559,6 +560,7 @@ class Editor extends EditorCore {
                       {/* Middle Panel */}
                       <ReflexElement {...this.resizeProps}>
                         <ReflexContainer windowResizeAware={true} orientation="horizontal">
+                          {/*Toolbox*/}
                           <ReflexElement
                             minSize={40}
                             maxSize={40}
@@ -583,6 +585,7 @@ class Editor extends EditorCore {
 
                             </DockedPanel>
                           </ReflexElement>
+                          {/*Canvas*/}
                           <ReflexElement {...this.resizeProps}>
                             <ReflexContainer orientation="vertical">
                               <ReflexElement>

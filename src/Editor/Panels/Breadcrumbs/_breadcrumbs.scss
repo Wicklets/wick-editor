@@ -19,17 +19,12 @@
 
 @import 'Editor/_editor.scss';
 
-.timeline {
-  background-color: $flame-dark;
-}
-
-#animation-timeline-container {
-  height: 100%;
-}
-
-#animation-timeline {
+#breadcrumbs-container {
   width: 100%;
-  height: calc(100% - #{$breadcrumbs-height});
-  border-left: $editor-outline-padding solid $editor-primary-outline;
-  border-bottom: $editor-outline-padding solid $editor-primary-outline;
+  height: $breadcrumbs-height;
+  background-color: black;
+  border: $editor-outline-padding solid $editor-primary-outline;
+  border-top: none;
+  border-right: none;
+  color: white;
 }

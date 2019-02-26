@@ -17,19 +17,17 @@
  * along with Wick Editor.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-@import 'Editor/_editor.scss';
+import React, { Component } from 'react';
 
-.timeline {
-  background-color: $flame-dark;
+import './_breadcrumbs.scss';
+
+class Breadcrumbs extends Component {
+  render() {
+    return (
+      <div id="breadcrumbs-container">
+      </div>
+    );
+  }
 }
 
-#animation-timeline-container {
-  height: 100%;
-}
-
-#animation-timeline {
-  width: 100%;
-  height: calc(100% - #{$breadcrumbs-height});
-  border-left: $editor-outline-padding solid $editor-primary-outline;
-  border-bottom: $editor-outline-padding solid $editor-primary-outline;
-}
+export default Breadcrumbs;

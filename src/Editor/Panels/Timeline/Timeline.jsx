@@ -19,6 +19,8 @@
 
 import React, { Component } from 'react';
 
+import Breadcrumbs from '../Breadcrumbs/Breadcrumbs';
+
 import './_timeline.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -171,7 +173,11 @@ class Timeline extends Component {
 
   render() {
     return(
-      <div id="animationtimeline" ref="container"></div>
+      <div id="animation-timeline-container">
+        <Breadcrumbs />
+        <div id="animation-timeline" ref="container" />
+      </div>
+
     )
   }
 }
