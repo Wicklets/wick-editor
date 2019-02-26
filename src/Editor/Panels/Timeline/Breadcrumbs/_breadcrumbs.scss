@@ -27,4 +27,50 @@
   border-top: none;
   border-right: none;
   color: white;
+  display: flex; 
+  align-items: center;
+}
+
+.breadcrumb-button-container {
+  display: flex;
+  align-items: center;
+  flex-direction: row; 
+  text-align: center; 
+  min-width: 40px; 
+  float: left; 
+  height: 80%;
+  color: white; 
+  background-color: transparent; 
+  margin-left: 2px; 
+}
+
+.breadcrumb-button-container::after{
+  content: '/';
+  padding-left: 2px;
+  padding-right: 2px; 
+  color: gray; 
+  height: 100%; 
+  display: flex;
+  align-items: center;
+}
+
+.breadcrumb-button-container:last-child::after{
+  content: '';
+}
+
+// Action button styling.
+.action-button-breadcrumb {
+  transition: .2s; 
+  background-color: black;
+  color: white;
+}
+
+.action-button-breadcrumb:hover {
+  background-color: $wick-green;
+  color: black;
+}
+
+.action-button-breadcrumb:active {
+  background-color: $wick-green-dark;
+  color: black;
 }

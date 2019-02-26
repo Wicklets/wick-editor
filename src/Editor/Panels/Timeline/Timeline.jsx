@@ -19,7 +19,7 @@
 
 import React, { Component } from 'react';
 
-import Breadcrumbs from '../Breadcrumbs/Breadcrumbs';
+import Breadcrumbs from './Breadcrumbs/Breadcrumbs';
 
 import './_timeline.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -174,7 +174,9 @@ class Timeline extends Component {
   render() {
     return(
       <div id="animation-timeline-container">
-        <Breadcrumbs />
+        <Breadcrumbs 
+          project={this.props.project}
+        />
         <div id="animation-timeline" ref="container" />
       </div>
 

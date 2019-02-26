@@ -18,13 +18,45 @@
  */
 
 import React, { Component } from 'react';
+import ActionButton from 'Editor/Util/ActionButton/ActionButton'; 
 
 import './_breadcrumbs.scss';
 
 class Breadcrumbs extends Component {
+  renderBreadcrumb = (object, i) => {
+    return (
+      <div key={i} className="breadcrumb-button-container">
+        <ActionButton
+          text={object.name}
+          color="breadcrumb" />
+      </div> 
+    );
+  }
+
   render() {
+    let project = this.props.project;
+    let focus = project.focus;
+    let lineage = focus.lineage;
+    if (lineage === undefined) {
+      lineage = ['Project']
+    }
+    console.log(lineage);
+
+    lineage = [
+      {
+        name: "first",
+      },
+      {
+        name: "second",
+      },
+      {
+        name: "third",
+      }
+    ]
+
     return (
       <div id="breadcrumbs-container">
+        {lineage.map((obj,i) => this.renderBreadcrumb(obj,i))}
       </div>
     );
   }
