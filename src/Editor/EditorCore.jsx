@@ -422,7 +422,7 @@ class EditorCore extends Component {
       "strokeWidth",
       "fillColor",
       "strokeColor",
-      "name",
+      "identifier",
       "filename",
       "fontSize",
       "fontFamily",

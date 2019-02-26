@@ -149,6 +149,8 @@ class Inspector extends Component {
   getSelectionFillColorOpacity = () => {
     let fillColor = this.getSelectionAttribute('fillColor');
 
+    if (!fillColor) return "1"; 
+
     if (fillColor.startsWith('rgba')) {
       let split = fillColor.split(",");
       let str = split[3];
@@ -229,8 +231,8 @@ class Inspector extends Component {
       <div className="inspector-item">
         <InspectorTextInput
           tooltip="Name"
-          val={this.getSelectionAttribute('name')}
-          onChange={(val) => {this.setSelectionAttribute('name', val);}}
+          val={this.getSelectionAttribute('identifier')}
+          onChange={(val) => {this.setSelectionAttribute('identifier', val);}}
           placeholder="no_name"
           id="inspector-name" />
       </div>
@@ -239,12 +241,14 @@ class Inspector extends Component {
 
   renderFilename() {
     return (
-      <InspectorTextInput
-        tooltip="File Name"
-        val={this.getSelectionAttribute('filename')}
-        readOnly={true}
-        id="inspector-file-name"/>
-    )
+      <div className="inspector-item">
+        <InspectorTextInput
+          tooltip="File Name"
+          val={this.getSelectionAttribute('filename')}
+          readOnly={true}
+          id="inspector-file-name"/>
+      </div>
+    );
   }
 
   renderImagePreview() {
@@ -257,11 +261,13 @@ class Inspector extends Component {
 
   renderFrameLength() {
     return (
-      <InspectorNumericInput
-        tooltip="Frame Length"
-        val={this.getSelectionAttribute('frameLength')}
-        onChange={(val) => this.setSelectionAttribute('frameLength', val)}
-        id="inspector-frame-length" />
+      <div className="inspector-item">
+        <InspectorNumericInput
+          tooltip="Frame Length"
+          val={this.getSelectionAttribute('frameLength')}
+          onChange={(val) => this.setSelectionAttribute('frameLength', val)}
+          id="inspector-frame-length" />
+      </div>
     )
   }
 
@@ -341,7 +347,7 @@ class Inspector extends Component {
   // Selection contents and properties
   renderFrame() {
     return (
-        <div className="inspector-item">
+        <div className="inspector-content">
           {this.renderName()}
           {this.renderFrameLength()}
         </div>
