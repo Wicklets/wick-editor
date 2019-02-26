@@ -36,13 +36,6 @@ class Inspector extends Component {
   constructor (props) {
     super(props);
 
-    /* this is temporary so the app doesnt crash - zj*/
-    this.state = {
-      selection: {
-        possibleActions: [],
-      }
-    };
-
     this.inspectorContentRenderFunctions = {
       "frame": this.renderFrame.bind(this),
       "multiframe": this.renderMultiFrame.bind(this),
@@ -60,6 +53,13 @@ class Inspector extends Component {
       "multiassetmixed": this.renderAsset.bind(this),
       "multisoundasset": this.renderAsset.bind(this),
       "multiimageasset": this.renderAsset.bind(this),
+    }
+
+    this.actionRules = {
+      'breakApart': ["clip", "button",],
+      'makeInteractive': ["path", "multipath", "multiclip",],
+      'editTimeline': ["clip", "button"],
+      'editCode': ["clip", "button", "frame"],
     }
 
     this.inspectorTitles = {
@@ -103,7 +103,7 @@ class Inspector extends Component {
   }
 
   /**
-   * sets the value of the selection fillColor opacity.
+   * Sets the value of the selection fillColor opacity.
    * @param  {string} attribute Selection attribute to retrieve.
    */
   setSelectionFillColorOpacity = (value) => {
@@ -226,12 +226,15 @@ class Inspector extends Component {
 
   renderName() {
     return (
-      <InspectorTextInput
-        tooltip="Name"
-        val={this.getSelectionAttribute('name')}
-        onChange={(val) => {this.setSelectionAttribute('name', val);}}
-        id="inspector-name" />
-    )
+      <div className="inspector-item">
+        <InspectorTextInput
+          tooltip="Name"
+          val={this.getSelectionAttribute('name')}
+          onChange={(val) => {this.setSelectionAttribute('name', val);}}
+          placeholder="no_name"
+          id="inspector-name" />
+      </div>
+    );
   }
 
   renderFilename() {
@@ -469,17 +472,30 @@ class Inspector extends Component {
     ];
   }
 
-  renderActionButton(btn, i) {
+  renderActionButton = (btn, i) => {
     return (
-      <InspectorActionButton
-        key={i}
-        btn={btn} />
-    )
+      <div key={i} className="inspector-item">
+        <InspectorActionButton
+          btn={btn} />
+      </div>
+    );
   }
 
-  renderActions() {
+  renderActions = () => {
+    let actions = [];
+    let selectionType = this.props.getSelectionType();
+
+    Object.keys(this.actionRules).forEach(action => {
+        let actionList = this.actionRules[action];
+        console.log(actionList);
+        if (actionList.indexOf(selectionType) > -1) actions.push(action);
+    });
+
     return(
       <div className="inspector-content">
+        {actions.map((action, i) => {
+            return this.renderActionButton(this.props.editorActions[action], i);
+          })}
       </div>
     )
   }

@@ -70,9 +70,9 @@ class ActionMapInterface extends Object {
         action: this.editor.toggleCodeEditor,
         id: 'action-toggle-code-editor',
       },
-      editClipTimeline: {
+      editTimeline: {
         icon: 'timeline',
-        tooltip: 'Edit Symbol Timeline',
+        tooltip: 'Edit Timeline',
         action: this.editor.focusTimelineOfSelectedObject,
         id: 'action-edit-timeline',
       },

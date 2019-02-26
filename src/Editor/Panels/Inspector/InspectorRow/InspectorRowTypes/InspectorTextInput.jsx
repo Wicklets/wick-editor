@@ -27,10 +27,13 @@ class InspectorTextInput extends Component {
         <InspectorRow
           {...this.props}
           input1={
-            {type: "text",
-            value: this.props.val,
-            onChange: this.props.onChange,
-            readOnly: this.props.readOnly}
+            {
+              type: "text",
+              value: this.props.val,
+              onChange: this.props.onChange,
+              readOnly: this.props.readOnly,
+              placeholder: this.props.placeholder,
+            }
           }
         />
     )

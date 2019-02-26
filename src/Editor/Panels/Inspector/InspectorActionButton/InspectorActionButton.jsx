@@ -27,18 +27,15 @@ class InspectorActionButton extends Component {
 
     if (btn === undefined) return (<div />)
 
-    let colorClass = btn.color === undefined ? "blue" : btn.color;
     let btnID = btn.id === undefined ? 'tooltip-nyi' : btn.id;
 
     return(
       <div className="inspector-button">
         <ActionButton
-          color={colorClass}
+          color={btn.color}
           id={"inspector-button-" + btnID}
-          tooltip={btn.tooltip}
           action={btn.action}
-          tooltipPlace="top"
-          icon={btn.icon}/>
+          text={btn.tooltip}/>
       </div>
 
     )
