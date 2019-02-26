@@ -40,8 +40,7 @@ class Breadcrumbs extends Component {
     if (lineage === undefined) {
       lineage = ['Project']
     }
-    console.log(lineage);
-
+    
     lineage = [
       {
         name: "first",
