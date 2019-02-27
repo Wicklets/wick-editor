@@ -16616,7 +16616,10 @@ paper.Selection = class {
     }));
 
     var uniqueProps = [...new Set(props)];
-    return uniqueProps || [];
+    if (!uniqueProps) return null;
+    if (uniqueProps.length === 0) return null;
+    if (uniqueProps.length === 1) return uniqueProps[0];
+    return uniqueProps;
   }
 
   _boundsOfItems(items) {
@@ -45302,10 +45305,22 @@ Wick.Project = class extends Wick.Base {
 * You should have received a copy of the GNU General Public License
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
+
+/**
+ * Class representing a Wick Selection.
+ */
 Wick.Selection = class extends Wick.Base {
+  static get SELECTABLE_OBJECT_TYPES() {
+    return ['Path', 'Clip', 'Frame', 'Tween', 'Layer', 'Asset'];
+  }
+
   static get LOCATION_NAMES() {
     return ['Canvas', 'Timeline', 'AssetLibrary'];
   }
+  /**
+   * Create a Wick Selection.
+   */
+
 
   constructor() {
     super();
@@ -45328,36 +45343,71 @@ Wick.Selection = class extends Wick.Base {
   get classname() {
     return 'Selection';
   }
+  /**
+   * Add a wick object to the selection.
+   * @param {Wick.Frame|Wick.Layer|Wick.Tween|Wick.Asset|Wick.Clip|Wick.Path} object - The object to select.
+   */
+
 
   select(object) {
+    // Do not allow selection of objects not defined to be selectable
+    if (!Wick.Selection.SELECTABLE_OBJECT_TYPES.find(type => {
+      return object instanceof Wick[type];
+    })) {
+      return;
+    } // Don't do anything if the object is already selected
+
+
     if (this.isObjectSelected(object)) {
       return;
-    }
+    } // Only allow selection of objects of in the same location
+
 
     if (this._locationOf(object) !== this.location) {
       this.clear();
     }
 
-    this._uuids.push(object.uuid);
+    this._uuids.push(object.uuid); // Update the view so that all the selection transform values are updated 
+
 
     this.project.view.render();
   }
+  /**
+   * Remove a wick object from the selection.
+   * @param {Wick.Frame|Wick.Layer|Wick.Tween|Wick.Asset|Wick.Clip|Wick.Path} object - The object to deselect.
+   */
+
 
   deselect(object) {
     this._uuids = this._uuids.filter(uuid => {
       return uuid !== object.uuid;
     });
   }
+  /**
+   * Remove all objects from the selection with an optional filter. 
+   * @param {string} filter - A location or a type (see SELECTABLE_OBJECT_TYPES and LOCATION_NAMES)
+   */
+
 
   clear(filter) {
     this.project.selection.getSelectedObjects(filter).forEach(object => {
       this.deselect(object);
     });
   }
+  /**
+   * Checks if a given object is selected.
+   * @param {Wick.Frame|Wick.Layer|Wick.Tween|Wick.Asset|Wick.Clip|Wick.Path} object - The object to check selection of.
+   */
+
 
   isObjectSelected(object) {
     return this._uuids.indexOf(object.uuid) !== -1;
   }
+  /**
+   * Get the first object in the selection if there is a single object in the selection.
+   * @return {Wick.Frame|Wick.Layer|Wick.Tween|Wick.Asset|Wick.Clip|Wick.Path} The first object in the selection.
+   */
+
 
   getSelectedObject() {
     if (this.numObjects === 1) {
@@ -45366,6 +45416,12 @@ Wick.Selection = class extends Wick.Base {
       return null;
     }
   }
+  /**
+   * Get the objects in the selection with an optional filter.
+   * @param {string} filter - A location or a type (see SELECTABLE_OBJECT_TYPES and LOCATION_NAMES)
+   * @return {Wick.Frame|Wick.Layer|Wick.Tween|Wick.Asset|Wick.Clip|Wick.Path[]} The selected objects.
+   */
+
 
   getSelectedObjects(filter) {
     var objects = this._uuids.map(uuid => {
@@ -45389,11 +45445,19 @@ Wick.Selection = class extends Wick.Base {
 
     return objects;
   }
+  /**
+   * The location of the objects in the selection. (see LOCATION_NAMES)
+   */
+
 
   get location() {
     if (this.numObjects === 0) return null;
     return this._locationOf(this.getSelectedObjects()[0]);
   }
+  /**
+   * The types of the objects in the selection. (see SELECTABLE_OBJECT_TYPES)
+   */
+
 
   get types() {
     var types = this.getSelectedObjects().map(object => {
@@ -45402,10 +45466,18 @@ Wick.Selection = class extends Wick.Base {
     var uniqueTypes = [...new Set(types)];
     return uniqueTypes;
   }
+  /**
+   * The number of objects in the selection.
+   */
+
 
   get numObjects() {
     return this._uuids.length;
   }
+  /**
+   * The X position of the selection. This always uses the top-left corner of the objects.
+   */
+
 
   get x() {
     return paper.selection.x;
@@ -45414,6 +45486,10 @@ Wick.Selection = class extends Wick.Base {
   set x(x) {
     paper.selection.x = x;
   }
+  /**
+   * The Y position of the selection. This always uses the top-left corner of the objects.
+   */
+
 
   get y() {
     return paper.selection.y;
@@ -45422,6 +45498,10 @@ Wick.Selection = class extends Wick.Base {
   set y(y) {
     paper.selection.y = y;
   }
+  /**
+   * The width of the selected objects.
+   */
+
 
   get width() {
     return paper.selection.width;
@@ -45430,6 +45510,10 @@ Wick.Selection = class extends Wick.Base {
   set width(width) {
     paper.selection.width = width;
   }
+  /**
+   * The height of the selected objects.
+   */
+
 
   get height() {
     return paper.selection.height;
@@ -45438,6 +45522,10 @@ Wick.Selection = class extends Wick.Base {
   set height(height) {
     paper.selection.height = height;
   }
+  /**
+   * The X scale of the selected objects.
+   */
+
 
   get scaleX() {
     return paper.selection.scaleX;
@@ -45446,6 +45534,10 @@ Wick.Selection = class extends Wick.Base {
   set scaleX(scaleX) {
     paper.selection.scaleX = scaleX;
   }
+  /**
+   * The Y scale of the selected objects.
+   */
+
 
   get scaleY() {
     return paper.selection.scaleY;
@@ -45454,6 +45546,10 @@ Wick.Selection = class extends Wick.Base {
   set scaleY(scaleY) {
     paper.selection.scaleY = scaleY;
   }
+  /**
+   * The rotation of the selected objects.
+   */
+
 
   get rotation() {
     return paper.selection.rotation;
@@ -45462,22 +45558,11 @@ Wick.Selection = class extends Wick.Base {
   set rotation(rotation) {
     paper.selection.rotation = rotation;
   }
+  /**
+   * The fill color of the selected objects.
+   * Will return an array of multiple colors if the selected objects have different colors.
+   */
 
-  get strokeWidth() {
-    return paper.selection.strokeWidth;
-  }
-
-  set strokeWidth(strokeWidth) {
-    paper.selection.strokeWidth = strokeWidth;
-  }
-
-  get strokeColor() {
-    return paper.selection.strokeColor;
-  }
-
-  set strokeColor(strokeColor) {
-    paper.selection.strokeColor = strokeColor;
-  }
 
   get fillColor() {
     return paper.selection.fillColor;
@@ -45486,6 +45571,37 @@ Wick.Selection = class extends Wick.Base {
   set fillColor(fillColor) {
     paper.selection.fillColor = fillColor;
   }
+  /**
+   * The stroke width of the selected objects.
+   * Will return an array of multiple values if the selected objects have different stroke widths.
+   */
+
+
+  get strokeWidth() {
+    return paper.selection.strokeWidth;
+  }
+
+  set strokeWidth(strokeWidth) {
+    paper.selection.strokeWidth = strokeWidth;
+  }
+  /**
+   * The stroke color of the selected objects.
+   * Will return an array of multiple colors if the selected objects have different colors.
+   */
+
+
+  get strokeColor() {
+    return paper.selection.strokeColor;
+  }
+
+  set strokeColor(strokeColor) {
+    paper.selection.strokeColor = strokeColor;
+  }
+  /**
+   * The opacity color of the selected objects.
+   * Will return an array of multiple values if the selected objects have different stroke widths.
+   */
+
 
   get opacity() {
     return paper.selection.opacity;
@@ -45494,13 +45610,21 @@ Wick.Selection = class extends Wick.Base {
   set opacity(opacity) {
     paper.selection.opacity = opacity;
   }
+  /**
+   * The centerpoint of the selected objects. 
+   */
+
 
   get center() {
     return paper.selection.center;
   }
+  /**
+   * The name of the selection. 
+   */
+
 
   get name() {
-    if (this.numObjects === 0) {
+    if (this.numObjects !== 1) {
       return null;
     } else {
       return this.getSelectedObject().identifer;
