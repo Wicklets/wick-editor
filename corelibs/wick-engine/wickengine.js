@@ -15926,6 +15926,797 @@ var paper = function (self, undefined) {
   return paper;
 }.call(this, typeof self === 'object' ? self : null);
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
+paper.Selection = class {
+  static get BOX_STROKE_WIDTH() {
+    return 1;
+  }
+
+  static get BOX_STROKE_COLOR() {
+    return 'rgba(100,150,255,1.0)';
+  }
+
+  static get HANDLE_RADIUS() {
+    return 5;
+  }
+
+  static get HANDLE_STROKE_WIDTH() {
+    return paper.Selection.BOX_STROKE_WIDTH;
+  }
+
+  static get HANDLE_STROKE_COLOR() {
+    return paper.Selection.BOX_STROKE_COLOR;
+  }
+
+  static get HANDLE_FILL_COLOR() {
+    return 'rgba(255,255,255,0.3)';
+  }
+
+  static get PIVOT_STROKE_WIDTH() {
+    return paper.Selection.BOX_STROKE_WIDTH;
+  }
+
+  static get PIVOT_FILL_COLOR() {
+    return 'rgba(0,0,0,0)';
+  }
+
+  static get PIVOT_STROKE_COLOR() {
+    return 'rgba(0,0,0,1)';
+  }
+
+  static get PIVOT_RADIUS() {
+    return paper.Selection.HANDLE_RADIUS;
+  }
+
+  static get ROTATION_HOTSPOT_RADIUS() {
+    return 20;
+  }
+
+  static get ROTATION_HOTSPOT_FILLCOLOR() {
+    return 'rgba(100,150,255,0.5)'; // don't show hotspots:
+    //return 'rgba(255,0,0,0.0001)';
+  }
+  /**
+   *
+   */
+
+
+  constructor(args) {
+    args = args || {};
+    this._layer = args.layer || paper.project.activeLayer;
+    this._items = args.items || [];
+    this._box = new paper.Group();
+    this._matrix = new paper.Matrix();
+    this._pivotPoint = new paper.Point();
+    this._transform = {
+      x: 0,
+      y: 0,
+      scaleX: 1.0,
+      scaleY: 1.0,
+      rotation: 0
+    };
+    this._handleDragMode = 'scale'; // Default pivot point is the center of all items.
+
+    this._pivotPoint = this._boundsOfItems(this._items).center; // It simplifies everything if we force applyMatrix=false on everything before doing any transforms.
+    // We need to save the old data that we may lose, though.
+
+    this._items.forEach(item => {
+      item.data.originalMatrix = item.matrix.clone();
+      item.applyMatrix = false;
+    });
+
+    if (this._items.length === 1) {
+      var item = this._items[0]; // Single item: Use the origin as the pivot point if its a group.
+
+      if (item instanceof paper.Group || item instanceof paper.Raster) {
+        this._pivotPoint = item.position;
+      } // Single item: Use all transforms of the single item as the selection transforms
+
+
+      this.rotation = item.rotation;
+      item.rotation = 0;
+      item.data.originalMatrix = item.matrix.clone();
+    } else {// No items: We don't have to do anything
+    }
+
+    this._render();
+  }
+  /**
+   *
+   */
+
+
+  get handleDragMode() {
+    return this._handleDragMode;
+  }
+
+  set handleDragMode(handleDragMode) {
+    this._handleDragMode = handleDragMode;
+  }
+  /**
+   *
+   */
+
+
+  get box() {
+    return this._box;
+  }
+  /**
+   *
+   */
+
+
+  get items() {
+    return this._items;
+  }
+  /**
+   *
+   */
+
+
+  get x() {
+    return this.topLeft.x;
+  }
+
+  set x(x) {
+    var d = x - this.x;
+    this._transform.x += d;
+
+    this._render();
+  }
+  /**
+   *
+   */
+
+
+  get y() {
+    return this.topLeft.y;
+  }
+
+  set y(y) {
+    var d = y - this.y;
+    this._transform.y += d;
+
+    this._render();
+  }
+  /**
+   *
+   */
+
+
+  get rotation() {
+    return this._transform.rotation;
+  }
+
+  set rotation(rotation) {
+    var d = rotation - this._transform.rotation;
+    this._transform.rotation += d;
+
+    this._render();
+  }
+  /**
+   *
+   */
+
+
+  get scaleX() {
+    return this._transform.scaleX;
+  }
+
+  set scaleX(scaleX) {
+    var d = scaleX / this._transform.scaleX;
+    this._transform.scaleX *= d;
+
+    this._render();
+  }
+  /**
+   *
+   */
+
+
+  get scaleY() {
+    return this._transform.scaleY;
+  }
+
+  set scaleY(scaleY) {
+    var d = scaleY / this._transform.scaleY;
+    this._transform.scaleY *= d;
+
+    this._render();
+  }
+  /**
+   *
+   */
+
+
+  get width() {
+    return this._bounds.width * this.scaleX;
+  }
+
+  set width(width) {
+    this.scaleX = width / this._bounds.width;
+  }
+  /**
+   *
+   */
+
+
+  get height() {
+    return this._bounds.height * this.scaleY;
+  }
+
+  set height(height) {
+    this.scaleY = height / this._bounds.height;
+  }
+  /**
+   *
+   */
+
+
+  get strokeWidth() {
+    return this._getUniqueProperties('strokeWidth');
+  }
+
+  set strokeWidth(strokeWidth) {
+    this._items.forEach(item => {
+      item.strokeWidth = strokeWidth;
+    });
+  }
+  /**
+   *
+   */
+
+
+  get strokeColor() {
+    return this._getUniqueProperties('strokeColor', color => {
+      return color.toCSS();
+    });
+  }
+
+  set strokeColor(strokeColor) {
+    this._items.forEach(item => {
+      item.strokeColor = strokeColor;
+    });
+  }
+  /**
+   *
+   */
+
+
+  get fillColor() {
+    return this._getUniqueProperties('fillColor', color => {
+      return color.toCSS();
+    });
+  }
+
+  set fillColor(fillColor) {
+    this._items.forEach(item => {
+      item.fillColor = fillColor;
+    });
+  }
+  /**
+   *
+   */
+
+
+  get opacity() {
+    return this._getUniqueProperties('opacity');
+  }
+
+  set opacity(opacity) {
+    this._items.forEach(item => {
+      item.opacity = opacity;
+    });
+  }
+  /**
+   *
+   */
+
+
+  get fontSize() {
+    return this._getUniqueProperties('fontSize');
+  }
+
+  set fontSize(fontSize) {
+    this._items.forEach(item => {
+      item.fontSize = fontSize;
+    });
+  }
+  /**
+   *
+   */
+
+
+  get fontFamily() {
+    return this._getUniqueProperties('fontFamily');
+  }
+
+  set fontFamily(fontFamily) {
+    this._items.forEach(item => {
+      item.fontFamily = fontFamily;
+    });
+  }
+  /**
+   *
+   */
+
+
+  get topLeft() {
+    return this._getHandlePosition('topLeft');
+  }
+
+  set topLeft(topLeft) {
+    this._setHandlePosition('topLeft', topLeft);
+  }
+  /**
+   *
+   */
+
+
+  get topRight() {
+    return this._getHandlePosition('topRight');
+  }
+
+  set topRight(topRight) {
+    this._setHandlePosition('topRight', topRight);
+  }
+  /**
+   *
+   */
+
+
+  get bottomLeft() {
+    return this._getHandlePosition('bottomLeft');
+  }
+
+  set bottomLeft(bottomLeft) {
+    this._setHandlePosition('bottomLeft', bottomLeft);
+  }
+  /**
+   *
+   */
+
+
+  get bottomRight() {
+    return this._getHandlePosition('bottomRight');
+  }
+
+  set bottomRight(bottomRight) {
+    this._setHandlePosition('bottomRight', bottomRight);
+  }
+  /**
+   *
+   */
+
+
+  get topCenter() {
+    return this._getHandlePosition('topCenter');
+  }
+
+  set topCenter(topCenter) {
+    this._setHandlePosition('topCenter', topCenter);
+  }
+  /**
+   *
+   */
+
+
+  get bottomCenter() {
+    return this._getHandlePosition('bottomCenter');
+  }
+
+  set bottomCenter(bottomCenter) {
+    this._setHandlePosition('bottomCenter', bottomCenter);
+  }
+  /**
+   *
+   */
+
+
+  get leftCenter() {
+    return this._getHandlePosition('leftCenter');
+  }
+
+  set leftCenter(leftCenter) {
+    this._setHandlePosition('leftCenter', leftCenter);
+  }
+  /**
+   *
+   */
+
+
+  get rightCenter() {
+    return this._getHandlePosition('rightCenter');
+  }
+
+  set rightCenter(rightCenter) {
+    this._setHandlePosition('rightCenter', rightCenter);
+  }
+  /**
+   *
+   */
+
+
+  get center() {
+    return this._box.bounds.center;
+  }
+  /**
+   *
+   */
+
+
+  set pivotPoint(pivotPoint) {
+    this._pivotPoint = pivotPoint;
+
+    this._render();
+  }
+  /**
+   *
+   */
+
+
+  flipHorizontally() {
+    this._transform.scaleX *= -1;
+
+    this._render();
+  }
+  /**
+   *
+   */
+
+
+  flipVertically() {
+    this._transform.scaleY *= -1;
+
+    this._render();
+  }
+  /**
+   *
+   */
+
+
+  sendToBack() {
+    this._getSelectedItemsSortedByZIndex().reverse().forEach(item => {
+      item.sendToBack();
+    });
+  }
+  /**
+   *
+   */
+
+
+  bringToFront() {
+    this._getSelectedItemsSortedByZIndex().forEach(item => {
+      item.bringToFront();
+    });
+  }
+  /**
+   *
+   */
+
+
+  moveBack() {
+    this._getSelectedItemsSortedByZIndex().reverse().forEach(item => {
+      if (item.previousSibling && this._items.indexOf(item.previousSibling) === -1) {
+        item.insertBelow(item.previousSibling);
+      }
+    });
+  }
+  /**
+   *
+   */
+
+
+  moveForward() {
+    this._getSelectedItemsSortedByZIndex().forEach(item => {
+      if (item.nextSibling && this._items.indexOf(item.nextSibling) === -1) {
+        item.insertAbove(item.nextSibling);
+      }
+    });
+  }
+  /**
+   *
+   */
+
+
+  finish() {
+    // Do some cleanup.
+    // Reset applyMatrix to what is was before we added it to the selection
+    this._items.filter(item => {
+      return item instanceof paper.Path || item instanceof paper.CompoundPath;
+    }).forEach(item => {
+      item.applyMatrix = true;
+    }); // Delete the matrix we stored in groups/rasters so it doesn't interfere with anything later
+
+
+    this._items.filter(item => {
+      return item instanceof paper.Group || item instanceof paper.Raster;
+    }).forEach(item => {
+      delete item.data.originalMatrix;
+    });
+
+    this._box.remove();
+  }
+  /**
+   *
+   */
+
+
+  isItemSelected(item) {
+    return this._items.indexOf(item) > -1;
+  }
+
+  _render() {
+    // Reset all transforms of all items.
+    this._items.forEach(item => {
+      item.matrix.set(item.data.originalMatrix);
+    }); // Recalculate bounds, we need this to generate the new box GUI
+
+
+    this._bounds = this._boundsOfItems(this._items); // Build the new matrix based on the new selection transforms, apply it to selection
+
+    this._matrix = new paper.Matrix();
+
+    this._matrix.translate(this._pivotPoint);
+
+    this._matrix.translate(this._transform.x, this._transform.y);
+
+    this._matrix.rotate(this._transform.rotation);
+
+    this._matrix.scale(this._transform.scaleX, this._transform.scaleY);
+
+    this._matrix.translate(new paper.Point(0, 0).subtract(this._pivotPoint));
+
+    this._items.forEach(item => {
+      item.matrix.prepend(this._matrix);
+    }); // Regen box GUI
+
+
+    this._box.remove();
+
+    this._box = this._generateBox();
+
+    this._box.matrix.prepend(this._matrix);
+  }
+
+  _generateBox() {
+    var box = new paper.Group({
+      insert: false
+    }); // No items - don't even put anything in the box, we don't need to
+
+    if (this.items.length === 0) return box;
+
+    this._layer.addChild(box);
+
+    box.addChild(this._generateBorder());
+
+    if (this.items.length > 1) {
+      box.addChildren(this._generatePathOutlines());
+      box.addChildren(this._generateGroupOutlines());
+    }
+
+    box.addChild(this._generateRotationHotspot('topLeft'));
+    box.addChild(this._generateRotationHotspot('topRight'));
+    box.addChild(this._generateRotationHotspot('bottomLeft'));
+    box.addChild(this._generateRotationHotspot('bottomRight'));
+    box.addChild(this._generateScalingHandle('topLeft'));
+    box.addChild(this._generateScalingHandle('topRight'));
+    box.addChild(this._generateScalingHandle('bottomLeft'));
+    box.addChild(this._generateScalingHandle('bottomRight'));
+    box.addChild(this._generateScalingHandle('topCenter'));
+    box.addChild(this._generateScalingHandle('bottomCenter'));
+    box.addChild(this._generateScalingHandle('leftCenter'));
+    box.addChild(this._generateScalingHandle('rightCenter'));
+    box.addChild(this._generatePivotPointHandle()); // Set a flag just so we don't accidentily treat these GUI elements as actual paths...
+
+    box.children.forEach(child => {
+      child.data.isSelectionBoxGUI = true;
+    });
+    box.applyMatrix = true;
+    return box;
+  }
+
+  _generateBorder() {
+    return new paper.Path.Rectangle({
+      name: 'border',
+      from: this._bounds.topLeft,
+      to: this._bounds.bottomRight,
+      strokeWidth: paper.Selection.BOX_STROKE_WIDTH,
+      strokeColor: paper.Selection.BOX_STROKE_COLOR,
+      insert: false
+    });
+  }
+
+  _generateScalingHandle(edge) {
+    return this._generateHandle(edge, 'scale', this._bounds[edge], paper.Selection.HANDLE_FILL_COLOR, paper.Selection.HANDLE_STROKE_COLOR);
+  }
+
+  _generatePivotPointHandle() {
+    return this._generateHandle('pivot', 'pivot', this._pivotPoint, paper.Selection.PIVOT_FILL_COLOR, paper.Selection.PIVOT_STROKE_COLOR);
+  }
+
+  _generateHandle(name, type, center, fillColor, strokeColor) {
+    var circle = new paper.Path.Circle({
+      center: center,
+      radius: paper.Selection.HANDLE_RADIUS / paper.view.zoom,
+      strokeWidth: paper.Selection.HANDLE_STROKE_WIDTH / paper.view.zoom,
+      strokeColor: strokeColor,
+      fillColor: fillColor,
+      insert: false
+    }); // Transform the handle a bit so it doesn't get squished when the selection box is scaled.
+
+    circle.applyMatrix = false;
+    circle.scaling.x = 1 / this._transform.scaleX;
+    circle.scaling.y = 1 / this._transform.scaleY;
+    circle.data.handleType = type;
+    circle.data.handleEdge = name;
+    return circle;
+  }
+
+  _generateRotationHotspot(cornerName) {
+    var r = paper.Selection.ROTATION_HOTSPOT_RADIUS / paper.view.zoom;
+    var hotspot = new paper.Path([new paper.Point(0, 0), new paper.Point(0, r), new paper.Point(r, r), new paper.Point(r, -r), new paper.Point(-r, -r), new paper.Point(-r, 0)]);
+    hotspot.fillColor = paper.Selection.ROTATION_HOTSPOT_FILLCOLOR;
+    hotspot.position.x = this._bounds[cornerName].x;
+    hotspot.position.y = this._bounds[cornerName].y;
+    hotspot.rotate({
+      'topRight': 0,
+      'bottomRight': 90,
+      'bottomLeft': 180,
+      'topLeft': 270
+    }[cornerName]);
+    if (this._transform.scaleX < 0) hotspot.scaling.x = -1;
+    if (this._transform.scaleY < 0) hotspot.scaling.y = -1;
+    hotspot.data.handleType = 'rotation';
+    hotspot.data.handleEdge = cornerName; // Transform the hotspots a bit so they doesn't get squished when the selection box is scaled.
+
+    hotspot.scaling.x = 1 / this._transform.scaleX;
+    hotspot.scaling.y = 1 / this._transform.scaleY;
+    return hotspot;
+  }
+
+  _generatePathOutlines() {
+    return this._items.filter(item => {
+      return item instanceof paper.Path || item instanceof paper.CompoundPath;
+    }).map(item => {
+      var itemForBounds = item.clone({
+        insert: false
+      });
+      itemForBounds.matrix.set(new paper.Matrix());
+      var outline = new paper.Path.Rectangle(itemForBounds.bounds);
+      outline.fillColor = 'rgba(0,0,0,0)';
+      outline.strokeColor = paper.Selection.BOX_STROKE_COLOR;
+      outline.strokeWidth = paper.Selection.BOX_STROKE_WIDTH;
+      return outline;
+    });
+  }
+
+  _generateGroupOutlines() {
+    return this._items.filter(item => {
+      return item instanceof paper.Group || item instanceof paper.Raster;
+    }).map(item => {
+      var itemForBounds = item.clone({
+        insert: false
+      });
+      itemForBounds.matrix.set(item.data.originalMatrix);
+      var outline = new paper.Path.Rectangle(itemForBounds.bounds);
+      outline.fillColor = 'rgba(0,0,0,0)';
+      outline.strokeColor = paper.Selection.BOX_STROKE_COLOR;
+      outline.strokeWidth = paper.Selection.BOX_STROKE_WIDTH;
+      return outline;
+    });
+  }
+
+  _getUniqueProperties(propName, applyFn) {
+    var props = this._items.map(item => {
+      return item[propName];
+    }).filter(prop => {
+      return prop !== undefined && prop !== null;
+    }).map(applyFn || (prop => {
+      return prop;
+    }));
+
+    var uniqueProps = [...new Set(props)];
+    return uniqueProps || [];
+  }
+
+  _boundsOfItems(items) {
+    if (items.length === 0) return new paper.Rectangle();
+    var bounds = null;
+    items.forEach(item => {
+      bounds = bounds ? bounds.unite(item.bounds) : item.bounds;
+    });
+    return bounds;
+  }
+
+  _getHandlePosition(handleName) {
+    var child = this.box.children.find(c => {
+      return c.data.handleEdge === handleName;
+    });
+
+    if (!child) {
+      return new paper.Point();
+    } else {
+      return child.position;
+    }
+  }
+
+  _setHandlePosition(handleName, position) {
+    if (this._handleDragMode === 'scale') {
+      this._setHandlePositionAndScale(handleName, position);
+    } else if (this._handleDragMode === 'rotation') {
+      this._setHandlePositionAndRotate(handleName, position);
+    }
+  }
+
+  _setHandlePositionAndScale(handleName, position) {
+    var lockYScale = handleName === 'leftCenter' || handleName === 'rightCenter';
+    var lockXScale = handleName === 'bottomCenter' || handleName === 'topCenter';
+    if (!lockXScale) this._transform.scaleX = 1;
+    if (!lockYScale) this._transform.scaleY = 1;
+    var rotation = this._transform.rotation;
+    var x = this._transform.x;
+    var y = this._transform.y;
+    this._transform.rotation = 0;
+    this._transform.x = 0;
+    this._transform.y = 0;
+
+    this._render();
+
+    var translatedPosition = position.subtract(new paper.Point(x, y));
+    var rotatedPosition = translatedPosition.rotate(-rotation, this._pivotPoint);
+    var distFromHandle = rotatedPosition.subtract(this[handleName]);
+    var widthHeight = this[handleName].subtract(this._pivotPoint);
+    var newCornerPosition = distFromHandle.add(widthHeight);
+    var scaleAmt = newCornerPosition.divide(widthHeight);
+    if (!lockXScale) this._transform.scaleX = scaleAmt.x;
+    if (!lockYScale) this._transform.scaleY = scaleAmt.y;
+    this._transform.rotation = rotation;
+    this._transform.x = x;
+    this._transform.y = y;
+
+    this._render();
+  }
+
+  _setHandlePositionAndRotate(handleName, position) {
+    var x = this._transform.x;
+    var y = this._transform.y;
+    this._transform.rotation = 0;
+    this._transform.x = 0;
+    this._transform.y = 0;
+
+    this._render();
+
+    var orig_angle = this[handleName].subtract(this._pivotPoint).angle;
+    position = position.subtract(new paper.Point(x, y));
+    var angle = position.subtract(this._pivotPoint).angle;
+    this._transform.x = x;
+    this._transform.y = y;
+    this._transform.rotation = angle - orig_angle;
+
+    this._render();
+  }
+
+  _getOppositeHandleName(handleName) {
+    return {
+      'topLeft': 'bottomRight',
+      'topRight': 'bottomLeft',
+      'bottomRight': 'topLeft',
+      'bottomLeft': 'topRight',
+      'bottomCenter': 'topCenter',
+      'topCenter': 'bottomCenter',
+      'leftCenter': 'rightCenter',
+      'rightCenter': 'leftCenter'
+    }[handleDir];
+  }
+
+  _getSelectedItemsSortedByZIndex() {
+    return this._items.sort(function (a, b) {
+      return a.index - b.index;
+    });
+  }
+
+};
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /**
 * Tween.js - Licensed under the MIT license
@@ -41884,578 +42675,6 @@ var lerp = function (v0, v1, t) {
 };
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
-/*
-* Copyright 2018 WICKLETS LLC
-*
-* This file is part of Paper.js-drawing-tools.
-*
-* Paper.js-drawing-tools is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Paper.js-drawing-tools is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Paper.js-drawing-tools.  If not, see <https://www.gnu.org/licenses/>.
-*/
-
-/*
-    paper-multiselection.js
-    Adds functionality for a selection box for transforming multiple objects.
-
-    by zrispo (github.com/zrispo) (zach@wickeditor.com)
- */
-paper.MultiSelection = class {
-  constructor() {
-    this.SELECTION_BOX_STROKECOLOR = 'rgba(100,150,255,1.0)';
-    this.SELECTION_BOX_FILLCOLOR = 'rgba(255,255,255,0.3)';
-    this.SELECTION_SUBBOX_STROKECOLOR = 'rgba(100,150,255,0.75)';
-    this.ROTATION_HANDLE_COLOR = 'rgba(255,0,0,0.0001)';
-    this.HANDLE_RADIUS = 5;
-    this.ROTATION_HANDLE_RADIUS = 20;
-    this.HANDLE_NAMES = ['topLeft', 'topCenter', 'topRight', 'rightCenter', 'leftCenter', 'bottomRight', 'bottomCenter', 'bottomLeft'];
-    this._selectedItems = [];
-    this._selectionBounds = null;
-    this._guiLayer = null;
-    this._prerotation = null;
-    this._prerotationAmount = null;
-    this._prerotationPivot = null;
-  }
-
-  get guiLayer() {
-    if (!this._guiLayer) {
-      this._guiLayer = new paper.Layer();
-      this._guiLayer.name = 'MultiSelectionGUI';
-
-      this._guiLayer.remove();
-    }
-
-    return this._guiLayer;
-  }
-
-  get items() {
-    return this._selectedItems;
-  }
-
-  get bounds() {
-    return this._selectionBounds;
-  }
-
-  get position() {
-    return new paper.Point(this.bounds.x, this.bounds.y);
-  }
-
-  get width() {
-    return this.bounds.width;
-  }
-
-  get height() {
-    return this.bounds.height;
-  }
-
-  get scaling() {
-    if (this.items.length === 1) {
-      return this.items[0].scaling || {
-        x: 1,
-        y: 1
-      };
-    } else {
-      return new paper.Point(1, 1);
-    }
-  }
-
-  get rotation() {
-    if (this.items.length === 1) {
-      return this.items[0].rotation;
-    } else {
-      return 0;
-    }
-  }
-
-  get opacity() {
-    if (this._selectedItemsShareValue('opacity')) {
-      return this.items[0].opacity;
-    } else {
-      return null;
-    }
-  }
-
-  get strokeWidth() {
-    if (this._selectedItemsShareValue('strokeWidth')) {
-      return this.items[0].strokeWidth;
-    } else {
-      return null;
-    }
-  }
-
-  get strokeColor() {
-    if (this._selectedItemsShareColor('strokeColor')) {
-      var color = this.items[0].strokeColor;
-      return color && color.toCSS();
-    } else {
-      return null;
-    }
-  }
-
-  get fillColor() {
-    if (this._selectedItemsShareColor('fillColor')) {
-      var color = this.items[0].fillColor;
-      return color && color.toCSS();
-    } else {
-      return null;
-    }
-  }
-
-  get rotationPoint() {
-    if (this._selectedItems.length === 1) {
-      return this._selectedItems[0].position;
-    } else {
-      return this.bounds.center;
-    }
-  }
-
-  updateGUI() {
-    this._rebuildGUI();
-  }
-
-  addItem(item) {
-    if (!this.isItemSelected(item)) {
-      this._selectedItems.push(item);
-    }
-  }
-
-  addItemByName(name) {
-    var item = null;
-
-    this._selectableLayers().forEach(layer => {
-      if (layer.children[name]) {
-        item = layer.children[name];
-      }
-    });
-
-    if (item) {
-      this.addItem(item);
-    }
-  }
-
-  removeItem(item) {
-    this._selectedItems = this._selectedItems.filter(seekItem => {
-      return seekItem !== item;
-    });
-  }
-
-  isItemSelected(item) {
-    return this._selectedItems.filter(seekItem => {
-      return seekItem.name && seekItem.name === item.name || seekItem === item;
-    }).length > 0;
-  }
-
-  clear() {
-    this._selectedItems = [];
-  }
-
-  selectAll() {
-    var selectableItems = [];
-
-    this._selectableLayers().forEach(layer => {
-      layer.children.forEach(child => {
-        selectableItems.push(child);
-      });
-    });
-
-    this.clear();
-    var self = this;
-    selectableItems.forEach(item => {
-      self.addItem(item);
-    });
-  }
-
-  delete() {
-    this._selectedItems.forEach(item => {
-      item.remove();
-    });
-
-    this.clear();
-  }
-
-  translate(x, y) {
-    this._selectedItems.forEach(function (item) {
-      item.position.x += x;
-      item.position.y += y;
-    });
-
-    this.guiLayer.children.forEach(function (child) {
-      child.position.x += x;
-      child.position.y += y;
-    });
-
-    this._recalculateBounds();
-  }
-
-  rotate(r, pivot) {
-    if (!pivot) pivot = this.bounds.center;
-
-    this._selectedItems.forEach(item => {
-      item.rotate(r, pivot);
-    });
-
-    this.guiLayer.children.forEach(child => {
-      child.rotate(r, pivot);
-    });
-
-    this._recalculateBounds();
-  }
-
-  scale(x, y, pivot) {
-    if (!pivot) pivot = this.bounds.topLeft;
-
-    this._selectedItems.forEach(function (item) {
-      item.scale(x, y, pivot);
-    });
-
-    this.guiLayer.children.forEach(function (child) {
-      child.scale(x, y, pivot);
-    });
-    this.guiLayer.children.filter(function (child) {
-      return child.name.startsWith('selectionBoxScaleHandle_') || child.name === 'selectionBoxCenterpoint';
-    }).forEach(function (child) {
-      child.scale(1 / x, 1 / y, child.position);
-    });
-
-    this._recalculateBounds();
-  }
-
-  flip(direction) {
-    var pivot = this._selectionBounds.center;
-
-    this._selectedItems.forEach(function (item) {
-      item.scale(direction === 'horizontal' ? -1 : 1, direction === 'vertical' ? -1 : 1, pivot);
-    });
-
-    this._rebuildGUI();
-  }
-
-  flipHorizontally() {
-    this.flip('horizontal');
-  }
-
-  flipVertically() {
-    this.flip('vertical');
-  }
-
-  sendToBack() {
-    this._selectionSortedByZIndex().reverse().forEach(item => {
-      item.sendToBack();
-    });
-  }
-
-  bringToFront() {
-    this._selectionSortedByZIndex().forEach(item => {
-      item.bringToFront();
-    });
-  }
-
-  sendBackwards() {
-    this._selectionSortedByZIndex().reverse().forEach(item => {
-      if (item.previousSibling && this._selectedItems.indexOf(item.previousSibling) === -1) {
-        item.insertBelow(item.previousSibling);
-      }
-    });
-  }
-
-  bringForwards() {
-    this._selectionSortedByZIndex().forEach(item => {
-      if (item.nextSibling && this._selectedItems.indexOf(item.nextSibling) === -1) {
-        item.insertAbove(item.nextSibling);
-      }
-    });
-  }
-
-  setPosition(x, y) {
-    var dx = x - this.bounds.left;
-    var dy = y - this.bounds.top;
-    this.translate(dx, dy);
-  }
-
-  setRotation(r) {
-    var dr = r - this._prerotationAmount;
-    this.rotate(dr);
-  }
-
-  setScale(x, y) {
-    if (this._selectedItems.length === 1) {
-      var item = this._selectedItems[0];
-      var dx = x / item.scaling.x;
-      var dy = y / item.scaling.y;
-      this.scale(dx, dy);
-    } else {
-      this.scale(x, y);
-    }
-  }
-
-  setSize(w, h) {
-    var sx = w / this._selectionBounds.width;
-    var sy = h / this._selectionBounds.height;
-    this.scale(sx, sy);
-  }
-
-  setFillColor(fillColor) {
-    this._selectedItems.filter(item => {
-      return item instanceof paper.Path || item instanceof paper.CompoundPath;
-    }).forEach(item => {
-      item.fillColor = fillColor;
-    });
-  }
-
-  setStrokeColor(strokeColor) {
-    this._selectedItems.filter(item => {
-      return item instanceof paper.Path || item instanceof paper.CompoundPath;
-    }).forEach(item => {
-      item.strokeColor = strokeColor;
-    });
-  }
-
-  setOpacity(opacity) {
-    this._selectedItems.forEach(item => {
-      item.opacity = opacity;
-    });
-  }
-
-  setStrokeWidth(strokeWidth) {
-    this._selectedItems.filter(item => {
-      return item instanceof paper.Path || item instanceof paper.CompoundPath;
-    }).forEach(item => {
-      item.strokeWidth = strokeWidth;
-    });
-  }
-
-  exportSVG() {
-    var exportGroup = new paper.Group();
-    exportGroup.remove();
-
-    this._selectedItems.forEach(item => {
-      if (item.className === 'Group') return;
-      var clone = item.clone();
-      clone.position.x -= this._selectionBounds.center.x;
-      clone.position.y -= this._selectionBounds.center.y;
-      clone.name = Math.random() + '-';
-      exportGroup.addChild(clone);
-    });
-
-    return exportGroup.exportSVG({
-      asString: true
-    });
-  }
-
-  _recalculateBounds() {
-    this._selectionBounds = null;
-
-    if (this._selectedItems.length === 1) {
-      var item = this._selectedItems[0];
-      this.prerotation = true;
-      this.prerotationAmount = item.rotation;
-      this.prerotationPivot = item.position;
-      item.rotation = 0;
-      this._selectionBounds = item.bounds.clone();
-      item.rotation = this.prerotationAmount;
-    } else {
-      this.prerotation = false;
-      var self = this;
-
-      this._selectedItems.forEach(function (item) {
-        if (!self._selectionBounds) {
-          self._selectionBounds = item.bounds.clone();
-        } else {
-          self._selectionBounds = self._selectionBounds.unite(item.bounds);
-        }
-      });
-    }
-  }
-
-  _rebuildGUI() {
-    this.guiLayer.clear();
-    if (this._selectedItems.length === 0) return;
-
-    this._selectedItems.filter(item => {
-      return item instanceof paper.Path || item instanceof paper.CompoundPath;
-    }).forEach(item => {
-      item.applyMatrix = true;
-    });
-
-    this._recalculateBounds();
-
-    this._forceApplyMatrixOnAllItems();
-
-    this._createSelectionBorder();
-
-    this._createSubBorders();
-
-    this._createRotationHotspots();
-
-    this._createHandles();
-
-    this._createCenterpoint();
-
-    if (this.prerotation) {
-      var prerotationAmount = this.prerotationAmount;
-      var prerotationPivot = this.prerotationPivot;
-
-      this._guiLayer.children.forEach(function (child) {
-        child.rotate(prerotationAmount, prerotationPivot);
-      });
-    }
-  }
-
-  _forceApplyMatrixOnAllItems() {
-    // For selectionbox transforms to work correctly, anything that isn't a group
-    // or a raster must have applyMatrix set to true so paths won't have an extra
-    // transformation to deal with, all of their information can be stored in svg
-    this._selectedItems.forEach(item => {
-      if (item instanceof paper.Path || item instanceof paper.CompoundPath) {
-        item.applyMatrix = true;
-      }
-    });
-  }
-
-  _createSelectionBorder() {
-    var item = new paper.Path.RoundRectangle(this.bounds, 0);
-    item.remove();
-    item.strokeColor = this.SELECTION_BOX_STROKECOLOR;
-    item.strokeWidth = 1 / paper.view.zoom;
-    item.name = 'selectionBoxBorder';
-    this.guiLayer.addChild(item);
-  }
-
-  _createSubBorders() {
-    if (this._selectedItems.length < 2) return;
-    var self = this;
-
-    this._selectedItems.forEach(function (selectedItem) {
-      var r = selectedItem.rotation;
-      selectedItem.rotation = 0;
-      var item = new paper.Path.RoundRectangle(selectedItem.bounds, 0);
-      item.strokeColor = self.SELECTION_SUBBOX_STROKECOLOR;
-      item.strokeWidth = 1 / paper.view.zoom;
-      item.remove();
-      item.name = 'selectionBoxSubBorder_' + self._selectedItems.indexOf(selectedItem);
-      item.rotate(r, selectedItem.position);
-
-      self._guiLayer.addChild(item);
-
-      selectedItem.rotation = r;
-    });
-  }
-
-  _createHandles() {
-    var self = this;
-    this.HANDLE_NAMES.forEach(function (dir) {
-      var corner = self.bounds[dir];
-      var item = new paper.Path.Circle(corner, self.HANDLE_RADIUS / paper.view.zoom);
-      item.remove();
-      item.strokeWidth = 1.2 / paper.view.zoom;
-      item.strokeColor = self.SELECTION_BOX_STROKECOLOR;
-      item.fillColor = self.SELECTION_BOX_FILLCOLOR;
-      item.name = 'selectionBoxScaleHandle_' + dir;
-      self.guiLayer.addChild(item);
-    });
-  }
-
-  _createRotationHotspots() {
-    var self = this;
-    this.HANDLE_NAMES.forEach(function (dir) {
-      if (dir.includes('Center')) return;
-      var p = self.bounds[dir].clone();
-      var item = new paper.Path([new paper.Point(0, 0), new paper.Point(0, self.ROTATION_HANDLE_RADIUS), new paper.Point(self.ROTATION_HANDLE_RADIUS, self.ROTATION_HANDLE_RADIUS), new paper.Point(self.ROTATION_HANDLE_RADIUS, -self.ROTATION_HANDLE_RADIUS), new paper.Point(-self.ROTATION_HANDLE_RADIUS, -self.ROTATION_HANDLE_RADIUS), new paper.Point(-self.ROTATION_HANDLE_RADIUS, 0)]);
-      item.fillColor = self.ROTATION_HANDLE_COLOR;
-      item.name = 'selectionBoxRotationHandle_' + dir;
-      item.rotate({
-        'topRight': 0,
-        'bottomRight': 90,
-        'bottomLeft': 180,
-        'topLeft': 270
-      }[dir]);
-      item.position.x = p.x;
-      item.position.y = p.y;
-      item.remove();
-      self.guiLayer.addChild(item);
-    });
-  }
-
-  _createCenterpoint() {
-    if (this._selectedItems.length === 1 && this._selectedItems[0]._class === 'Group') {
-      var item = new paper.Path.Circle(this._selectedItems[0].position, this.HANDLE_RADIUS / paper.view.zoom);
-      item.remove();
-      item.strokeWidth = 1 / paper.view.zoom;
-      item.strokeColor = 'green';
-      item.fillColor = this.SELECTION_BOX_FILLCOLOR;
-      item.name = 'selectionBoxCenterpoint';
-      this.guiLayer.addChild(item);
-    }
-  }
-
-  _getLayersOfSelectedItems() {
-    var layers = [];
-
-    this._selectedItems.forEach(item => {
-      if (layers.indexOf(item.layer) === -1) {
-        layers.push(item.layer);
-      }
-    });
-
-    return layers;
-  }
-
-  _selectableLayers() {
-    var self = this;
-    return paper.project.layers.filter(layer => {
-      return !layer.locked && layer !== self._guiLayer;
-    });
-  }
-
-  _selectedItemsShareValue(valueName) {
-    return this._arrayAllEqual(this.items.map(item => {
-      return item[valueName];
-    }));
-  }
-
-  _selectedItemsShareColor(colorName) {
-    return this._arrayAllEqual(this.items.map(item => {
-      if (item[colorName] === null || item[colorName] === undefined) {
-        return null;
-      } else {
-        return item[colorName].toCSS();
-      }
-    }));
-  }
-
-  _selectionSortedByZIndex() {
-    return this._selectedItems.sort(function (a, b) {
-      return a.index - b.index;
-    });
-  }
-
-  _arrayAllEqual(array) {
-    if (array.length === 0) return false;
-    var allEqual = true;
-    var checkValue = array[0];
-    array.forEach(item => {
-      if (item !== checkValue) {
-        allEqual = false;
-      }
-    });
-    return allEqual;
-  }
-
-};
-paper.Project.inject({
-  selection: new paper.MultiSelection()
-});
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
 /*!
 * Platform.js
 * Copyright 2014-2018 Benjamin Tan
@@ -44378,10 +44597,8 @@ Wick.Project = class extends Wick.Base {
     object.onionSkinSeekForwards = data.onionSkinSeekForwards || 1;
     object.onionSkinSeekBackwards = data.onionSkinSeekBackwards || 1;
     object.root = Wick.Clip.deserialize(data.root);
-    object.focus = object.root;
-    object.selection = Wick.Selection.deserialize(data.selection || {
-      classname: 'Selection'
-    });
+    object.focus = data.focus ? object.getChildByUUID(data.focus) : object.root;
+    object.selection = data.selection ? Wick.Selection.deserialize(data.selection) : new Wick.Selection();
     object.project = object;
     data.assets.forEach(assetData => {
       object.addAsset(Wick.Asset.deserialize(assetData));
@@ -44405,6 +44622,7 @@ Wick.Project = class extends Wick.Base {
     data.onionSkinSeekForwards = this.onionSkinSeekForwards;
     data.onionSkinSeekBackwards = this.onionSkinSeekBackwards;
     data.root = this.root.serialize();
+    data.focus = this.focus.uuid;
     data.selection = this.selection.serialize();
     data.assets = this.assets.map(asset => {
       return asset.serialize();
@@ -44414,7 +44632,7 @@ Wick.Project = class extends Wick.Base {
   /**
    * Create a project from a wick file.
    * @param {File} wickFile - Wick file containing project data.
-   * @param {function} callback - Function called when the project is created. Contains the new project as a parameter.
+   * @param {function} callback - Function called when the project is created.
    */
 
 
@@ -44455,20 +44673,6 @@ Wick.Project = class extends Wick.Base {
       callback(null);
     });
   }
-
-  static fromWickFileURL(url, callback) {
-    atomic(url, {
-      responseType: 'blob'
-    }).then(function (response) {
-      var wickFile = response.data;
-      Wick.Project.fromWickFile(wickFile, callback);
-    }).catch(function (error) {
-      console.log('Error loading project from URL.');
-      console.log(error.status); // xhr.status
-
-      console.log(error.statusText); // xhr.statusText
-    });
-  }
   /**
    * String representation of class name: "Project"
    * @return {string}
@@ -44490,6 +44694,8 @@ Wick.Project = class extends Wick.Base {
 
   set focus(clip) {
     this._focus = clip.uuid;
+    this.selection.clear();
+    this.recenter();
   }
   /**
    * The timeline of the active clip.
@@ -44554,8 +44760,6 @@ Wick.Project = class extends Wick.Base {
   addAsset(asset) {
     this.assets.push(asset);
 
-    this._refreshAssetUUIDRefs();
-
     this._addChild(asset);
   }
   /**
@@ -44566,13 +44770,23 @@ Wick.Project = class extends Wick.Base {
 
   removeAsset(asset) {
     asset.removeAllInstances();
-    this.assets = this.assets.filter(checkAsset => {
+    this._assets = this._assets.filter(checkAsset => {
       return checkAsset !== asset;
     });
 
-    this._refreshAssetUUIDRefs();
-
     this._removeChild(asset);
+  }
+  /**
+   * Retrieve an asset from the project by its UUID.
+   * @param {string} uuid - The UUID of the asset to get.
+   * @return {Wick.Asset} The asset
+   */
+
+
+  getAsset(uuid) {
+    return this.assets.find(asset => {
+      return asset.uuid === uuid;
+    });
   }
   /**
    * The assets belonging to the project.
@@ -44758,6 +44972,10 @@ Wick.Project = class extends Wick.Base {
 
     reader.readAsDataURL(file);
   }
+  /**
+   * Deletes all objects in the selection.
+   */
+
 
   deleteSelectedObjects() {
     this.selection.getSelectedObjects().forEach(object => {
@@ -44765,33 +44983,59 @@ Wick.Project = class extends Wick.Base {
     });
     this.selection.clear();
   }
+  /**
+   * Selects all objects that are visible on the canvas (excluding locked layers and onion skinned objects)
+   */
+
+
+  selectAll() {
+    this.selection.clear();
+    this.activeFrames.forEach(frame => {
+      frame.paths.forEach(path => {
+        this.selection.select(path);
+      });
+      frame.clips.forEach(clip => {
+        this.selection.select(clip);
+      });
+    });
+  }
+  /**
+   * Adds an image path to the active frame using a given asset as its image src.
+   * @param {Wick.Asset} asset - the asset to use for the image src
+   * @param {number} x - the x position to create the image path at
+   * @param {number} y - the y position to create the image path at
+   * @param {function} callback - the function to call after the path is created.
+   */
+
 
   createImagePathFromAsset(asset, x, y, callback) {
-    var path = new window.Wick.Path(["Raster", {
-      "applyMatrix": false,
-      "crossOrigin": "",
-      "source": "asset",
-      "asset": asset.uuid
-    }], [asset]);
-
-    path.paperPath.onLoad = () => {
+    asset.createInstance(path => {
+      // TODO set position of path
       this.activeFrame.addPath(path);
       callback(path);
-    };
+    });
   }
+  /**
+   * Creates a symbol from the objects currently selected.
+   * @param {string} name - the name to give the new symbol
+   * @param {string} type - "Clip" or "Button"
+   */
+
 
   createSymbolFromSelection(name, type) {
     var transform = new Wick.Transformation();
-    transform.x = 0; // TODO
-
-    transform.y = 0; // TODO
-
+    transform.x = this.selection.center.x;
+    transform.y = this.selection.center.y;
     var clip = new Wick[type](name, this.selection.getSelectedObjects('Canvas'), transform);
     this.activeFrame.addClip(clip); // TODO add to asset library
 
     this.selection.clear();
     this.selection.select(clip);
   }
+  /**
+   * Breaks selected clips into their children clips and paths.
+   */
+
 
   breakApartSelection() {
     var leftovers = [];
@@ -44803,20 +45047,24 @@ Wick.Project = class extends Wick.Base {
       this.selection.select(object);
     });
   }
+  /**
+   * Sets the project focus to the timeline of the selected clip.
+   */
+
 
   focusTimelineOfSelectedClip() {
     if (this.selection.getSelectedObject() instanceof Wick.Clip) {
       this.focus = this.selection.getSelectedObject();
-      this.selection.clear();
-      this.recenter();
     }
   }
+  /**
+   * Sets the project focus to the parent timeline of the currently focused clip.
+   */
+
 
   focusTimelineOfParentClip() {
     if (!this.focus.isRoot) {
       this.focus = this.focus.parentClip;
-      this.selection.clear();
-      this.recenter();
     }
   }
   /**
@@ -44865,6 +45113,14 @@ Wick.Project = class extends Wick.Base {
     this._keysLastDown = [].concat(this._keysDown);
     return error;
   }
+  /**
+   * Start playing the project.
+   * Arguments: onError: Called when a script error occurs during a tick.
+   *            onBeforeTick: Called before every tick
+   *            onAfterTick: Called after every tick
+   * @param {object} args - Optional arguments
+   */
+
 
   play(args) {
     if (!args) args = {};
@@ -44876,6 +45132,7 @@ Wick.Project = class extends Wick.Base {
       this.stop();
     }
 
+    this.selection.clear();
     this._tickIntervalID = setInterval(() => {
       args.onBeforeTick();
       var error = this.tick();
@@ -44889,6 +45146,10 @@ Wick.Project = class extends Wick.Base {
       args.onAfterTick();
     }, 1000 / this.framerate);
   }
+  /**
+   * Stop playing the project.
+   */
+
 
   stop() {
     clearInterval(this._tickIntervalID);
@@ -44914,11 +45175,106 @@ Wick.Project = class extends Wick.Base {
 
     this.zoom = 1;
   }
+  /**
+   * Adds an object to the project.
+   * @param {Wick.Base} object
+   * @return {boolean} returns true if successful and false otherwise.
+   */
 
-  _refreshAssetUUIDRefs() {
-    var assets = this.assets;
-    assets.forEach(asset => {
-      assets[asset.uuid] = asset;
+
+  addObject(object) {
+    if (object instanceof Wick.Path) {
+      this.activeFrame.addPath(object);
+    } else if (object instanceof Wick.Clip) {
+      this.activeFrame.addClip(object);
+    } else if (object instanceof Wick.Frame) {
+      this.activeLayer.addFrame(object);
+    } else if (object instanceof Wick.Asset) {
+      this.addAsset(object);
+    } else if (object instanceof Wick.Layer) {
+      this.activeTimeline.addLayer(object);
+    } else if (object instanceof Wick.Tween) {
+      this.activeFrame.addTween(object);
+    } else {
+      return false;
+    }
+
+    return true;
+  }
+  /**
+   * Create a sequence of images from every frame in the project.
+   * @param {object} args - Options for generating the image sequence
+   * @param {function} done - Function to call when the images are all loaded.
+   */
+
+
+  generateImageSequence(args, done) {
+    // Create a clone of the project so we don't have to change the state of the actual project to render the frames...
+    let project = this.clone(); // Put the project canvas inside a div that's the same size as the project so the frames render at the correct resolution.
+
+    let container = window.document.createElement('div');
+    container.style.width = project.width + 'px';
+    container.style.height = project.height + 'px';
+    window.document.body.appendChild(container);
+    project.view.setCanvasContainer(container);
+    project.view.resize(); // Set the initial state of the project.
+
+    project.focus = project.root;
+    project.focus.timeline.playheadPosition = 1;
+    project.onionSkinEnabled = false;
+    project.zoom = 1 / window.devicePixelRatio;
+    project.pan = {
+      x: project.width / 2 * window.devicePixelRatio,
+      y: project.height / 2 * window.devicePixelRatio
+    }; // We need full control over when paper.js renders, if we leave autoUpdate on, it's possible to lose frames if paper.js doesnt automatically render as fast as we are generating the images.
+    // (See paper.js docs for info about autoUpdate)
+
+    paper.view.autoUpdate = false;
+    var frameImages = [];
+
+    function renderFrame() {
+      var frameImage = new Image();
+
+      frameImage.onload = function () {
+        frameImages.push(frameImage);
+
+        if (project.focus.timeline.playheadPosition >= project.focus.timeline.length) {
+          paper.view.autoUpdate = true; // reset autoUpdate back to normal
+
+          done(frameImages);
+        } else {
+          project.focus.timeline.playheadPosition++;
+          renderFrame();
+        }
+      };
+
+      project.view.render();
+      paper.view.update();
+      frameImage.src = project.view.canvas.toDataURL();
+    }
+
+    renderFrame();
+  }
+  /**
+   * Create a sequence of images from every frame in the project.
+   * Format: 
+   *   start: The amount of time in milliseconds to cut from the beginning of the sound.
+   *   end: The amount of time that the sound will play before stopping.
+   *   uuid: The UUID of the asset that the sound corresponds to.
+   * @param {object} args - Options for generating the audio sequence
+   * @returns {object[]} - Array of objects containing info about the sounds in the project.
+   */
+
+
+  generateAudioSequence(args) {
+    return this.root.timeline.frames.filter(frame => {
+      return frame.sound !== null;
+    }).map(frame => {
+      return {
+        start: 0,
+        end: frame.soundStartOffsetMS,
+        uuid: frame.sound.uuid
+      };
     });
   }
 
@@ -45043,91 +45399,95 @@ Wick.Selection = class extends Wick.Base {
   }
 
   get x() {
-    return this.view.x;
+    return paper.selection.x;
   }
 
   set x(x) {
-    this.view.x = x;
+    paper.selection.x = x;
   }
 
   get y() {
-    return this.view.y;
+    return paper.selection.y;
   }
 
   set y(y) {
-    this.view.y = y;
+    paper.selection.y = y;
   }
 
   get width() {
-    return this.view.width;
+    return paper.selection.width;
   }
 
   set width(width) {
-    this.view.width = width;
+    paper.selection.width = width;
   }
 
   get height() {
-    return this.view.height;
+    return paper.selection.height;
   }
 
   set height(height) {
-    this.view.height = height;
+    paper.selection.height = height;
   }
 
   get scaleX() {
-    return this.view.scaleX;
+    return paper.selection.scaleX;
   }
 
   set scaleX(scaleX) {
-    this.view.scaleX = scaleX;
+    paper.selection.scaleX = scaleX;
   }
 
   get scaleY() {
-    return this.view.scaleY;
+    return paper.selection.scaleY;
   }
 
   set scaleY(scaleY) {
-    this.view.scaleY = scaleY;
+    paper.selection.scaleY = scaleY;
   }
 
   get rotation() {
-    return this.view.rotation;
+    return paper.selection.rotation;
   }
 
   set rotation(rotation) {
-    this.view.rotation = rotation;
-  }
-
-  get fillColor() {
-    return this.view.fillColor;
-  }
-
-  set fillColor(fillColor) {
-    this.view.fillColor = fillColor;
+    paper.selection.rotation = rotation;
   }
 
   get strokeWidth() {
-    return this.view.strokeWidth;
+    return paper.selection.strokeWidth;
   }
 
   set strokeWidth(strokeWidth) {
-    this.view.strokeWidth = strokeWidth;
+    paper.selection.strokeWidth = strokeWidth;
   }
 
   get strokeColor() {
-    return this.view.strokeColor;
+    return paper.selection.strokeColor;
   }
 
   set strokeColor(strokeColor) {
-    this.view.strokeColor = strokeColor;
+    paper.selection.strokeColor = strokeColor;
+  }
+
+  get fillColor() {
+    return paper.selection.fillColor;
+  }
+
+  set fillColor(fillColor) {
+    paper.selection.fillColor = fillColor;
   }
 
   get opacity() {
-    return this.view.opacity;
+    return paper.selection.opacity;
   }
 
   set opacity(opacity) {
-    this.view.opacity = opacity;
+    paper.selection.opacity = opacity;
+  }
+
+  get center() {
+    return paper.selection.center;
   }
 
   clear() {
@@ -45175,7 +45535,7 @@ Wick.Timeline = class extends Wick.Base {
    */
   constructor() {
     super();
-    this.playheadPosition = 1;
+    this._playheadPosition = 1;
     this.activeLayerIndex = 0;
     this._playing = true;
     this._forceNextFrame = null;
@@ -45185,7 +45545,7 @@ Wick.Timeline = class extends Wick.Base {
   static _deserialize(data, object) {
     super._deserialize(data, object);
 
-    object.playheadPosition = data.playheadPosition;
+    object._playheadPosition = data.playheadPosition;
     object.activeLayerIndex = data.activeLayerIndex;
     data.layers.forEach(layerData => {
       object.addLayer(Wick.Layer.deserialize(layerData));
@@ -45195,7 +45555,7 @@ Wick.Timeline = class extends Wick.Base {
 
   serialize() {
     var data = super.serialize();
-    data.playheadPosition = this.playheadPosition;
+    data.playheadPosition = this._playheadPosition;
     data.activeLayerIndex = this.activeLayerIndex;
     data.layers = this.layers.map(layer => {
       return layer.serialize();
@@ -45205,6 +45565,23 @@ Wick.Timeline = class extends Wick.Base {
 
   get classname() {
     return 'Timeline';
+  }
+  /**
+   * The position of the playhead. Determines which frames are visible.
+   */
+
+
+  get playheadPosition() {
+    return this._playheadPosition;
+  }
+
+  set playheadPosition(playheadPosition) {
+    // Automatically clear selection when any playhead moves
+    if (this.project && this._playheadPosition !== playheadPosition) {
+      this.project.selection.clear();
+    }
+
+    this._playheadPosition = playheadPosition;
   }
   /**
    * The total length of the timeline.
@@ -45309,7 +45686,7 @@ Wick.Timeline = class extends Wick.Base {
     this.layers.splice(index, 0, layer);
   }
   /**
-   * Gets the frames at the given playhead position. 
+   * Gets the frames at the given playhead position.
    * @param {number} playheadPosition - the playhead position to search.
    * @returns {Wick.Frame[]} The frames at the playhead position.
    */
@@ -45753,6 +46130,12 @@ Wick.Asset = class extends Wick.Base {
     let soundTypes = Wick.SoundAsset.getValidMIMETypes();
     return imageTypes.concat(soundTypes);
   }
+  /**
+   * Creates a new Wick Asset.
+   * @param {string} filename - the filename of the asset
+   * @param {string} src - the data of the asset, in base64 format
+   */
+
 
   constructor(filename, src) {
     super();
@@ -45780,6 +46163,10 @@ Wick.Asset = class extends Wick.Base {
   get classname() {
     return 'Asset';
   }
+  /**
+   * The source of the data of the asset, in base64.
+   */
+
 
   get src() {
     return Wick.FileCache.getFile(this.uuid).src;
@@ -45788,10 +46175,18 @@ Wick.Asset = class extends Wick.Base {
   set src(src) {
     Wick.FileCache.addFile(src, this.uuid);
   }
+  /**
+   * The MIMEType of the asset (format: type/subtype)
+   */
+
 
   get MIMEType() {
     return this.src && this.src.split(':')[1].split(',')[0].split(';')[0];
   }
+  /**
+   * The file extension of the asset.
+   */
+
 
   get fileExtension() {
     return this.MIMEType && this.MIMEType.split('/')[1];
@@ -45845,6 +46240,14 @@ Wick.ImageAsset = class extends Wick.Asset {
     return object;
   }
 
+  get classname() {
+    return 'ImageAsset';
+  }
+  /**
+   * Removes all paths using this asset as their image source from the project.
+   */
+
+
   removeAllInstances() {
     this.project.getAllFrames().forEach(frame => {
       frame.paths.forEach(path => {
@@ -45854,17 +46257,22 @@ Wick.ImageAsset = class extends Wick.Asset {
       });
     });
   }
+  /**
+   * Creates a new Wick Path that uses this asset's image data as it's image source.
+   */
 
-  get classname() {
-    return 'ImageAsset';
-  }
 
-  get src() {
-    return super.src;
-  }
+  createInstance(callback) {
+    var path = new window.Wick.Path(["Raster", {
+      "applyMatrix": false,
+      "crossOrigin": "",
+      "source": "asset",
+      "asset": this.uuid
+    }], [this]);
 
-  set src(src) {
-    super.src = src;
+    path.paperPath.onLoad = () => {
+      callback(path);
+    };
   }
 
 };
@@ -45918,14 +46326,12 @@ Wick.SoundAsset = class extends Wick.Asset {
   get classname() {
     return 'SoundAsset';
   }
+  /**
+   * Plays this asset's sound.
+   * @param {number} seekMS - the amount of time in milliseconds to start the sound at.
+   * @return {number} The id of the sound instance that was played.
+   */
 
-  get src() {
-    return super.src;
-  }
-
-  set src(src) {
-    super.src = src;
-  }
 
   play(seekMS) {
     // Lazily create the howler instance
@@ -45945,14 +46351,29 @@ Wick.SoundAsset = class extends Wick.Asset {
 
     return id;
   }
+  /**
+   * Stops this asset's sound.
+   * @param {number} id - (optional) the ID of the instance to stop. If ID is not given, every instance of this sound will stop.
+   */
+
 
   stop(id) {
     if (!this._howl) return;
 
     this._howl.stop(id);
   }
+  /**
+   * Remove the sound from any frames in the project that use this asset as their sound.
+   */
 
-  removeAllInstances() {}
+
+  removeAllInstances() {
+    this.project.getAllFrames().forEach(frame => {
+      if (frame.sound.uuid === this.uuid) {
+        frame.removeSound();
+      }
+    });
+  }
 
 };
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
@@ -45976,6 +46397,9 @@ Wick.SoundAsset = class extends Wick.Asset {
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
 Wick.ClipAsset = class extends Wick.Asset {
+  /**
+   * Creates a new Clip Asset.
+   */
   constructor() {
     super();
     this.timeline = new Wick.Timeline();
@@ -46002,27 +46426,53 @@ Wick.ClipAsset = class extends Wick.Asset {
   get classname() {
     return 'ClipAsset';
   }
+  /**
+   * Uses the timeline of the given clip as the data for this asset.
+   * @param {Wick.Clip} clip - the clip to use as the source
+   */
+
 
   useClipAsSource(clip) {
     this.timeline = clip.timeline.clone(false);
   }
+  /**
+   * Creates a new Clip using the source of this asset.
+   */
+
 
   createInstance() {
     var clip = new Wick.Clip();
     this.useAsSourceForClip(clip);
-    this.updateClipFromAsset(clip);
     return clip;
   }
+  /**
+   * Sets a given clip to use the source of this asset for its timeline data.
+   * Note: This will replace the timeline of the clip with the asset's timeline.
+   * @param {Wick.Clip} clip - the clip to change the timeline data of
+   */
+
 
   useAsSourceForClip(clip) {
     this.linkedClips.push(clip);
+    this.updateClipFromAsset(clip);
   }
+  /**
+   * Unlink a given clip from this asset. The clip's timeline will no longer be synced with this asset.
+   * @param {Wick.Clip} clip - The clip to unlink from this asset.
+   */
+
 
   removeAsSourceForClip(clip) {
     this.linkedClips = this.linkedClips.filter(checkClip => {
       return checkClip !== clip;
     });
   }
+  /**
+   * Take the timeline data from a clip and use it to update this asset.
+   * This will also update the timelines of all instances of this asset.
+   * @param {Wick.Clip} clip - The clip to use the timeline of to update this asset.
+   */
+
 
   updateAssetFromClip(clip) {
     this.timeline = clip.timeline.clone(false);
@@ -46033,13 +46483,26 @@ Wick.ClipAsset = class extends Wick.Asset {
       this.updateClipFromAsset(linkedClip);
     });
   }
+  /**
+   * Replace the timeline of the clip with the asset's timeline.
+   * @param {Wick.Clip} clip - the clip to change the timeline data of
+   */
+
 
   updateClipFromAsset(clip) {
     var timeline = this.timeline.clone(false);
     clip.timeline = timeline;
   }
+  /**
+   * Removes all instances of this asset from the project.
+   */
 
-  removeAllInstances() {}
+
+  removeAllInstances() {
+    this.linkedClips.forEach(clip => {
+      clip.remove();
+    });
+  }
 
 };
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
@@ -46063,6 +46526,9 @@ Wick.ClipAsset = class extends Wick.Asset {
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
 Wick.ButtonAsset = class extends Wick.ClipAsset {
+  /**
+   * Creates a new Button Asset.
+   */
   constructor() {
     super();
   }
@@ -46085,6 +46551,10 @@ Wick.ButtonAsset = class extends Wick.ClipAsset {
   get classname() {
     return 'ButtonAsset';
   }
+  /**
+   * Creates a button out of this asset's data.
+   */
+
 
   createInstance() {
     var button = new Wick.Button();
@@ -46452,6 +46922,7 @@ Wick.Frame = class extends Wick.Tickable {
     this._clips = [];
     this._paths = [];
     this.tweens = [];
+    this._soundAssetUUID = null;
     this._soundID = null;
   }
 
@@ -46531,11 +47002,19 @@ Wick.Frame = class extends Wick.Tickable {
 
   get sound() {
     var uuid = this._soundAssetUUID;
-    return uuid ? this.project.assets[uuid] : null;
+    return uuid ? this.project.getAsset(uuid) : null;
   }
 
   set sound(soundAsset) {
     this._soundAssetUUID = soundAsset.uuid;
+  }
+  /**
+   * Removes the sound on this frame.
+   */
+
+
+  removeSound() {
+    this._soundAssetUUID = null;
   }
   /**
    * The paths on the frame.
@@ -46572,6 +47051,16 @@ Wick.Frame = class extends Wick.Tickable {
 
   get layerIndex() {
     return this._originalLayerIndex;
+  }
+  /**
+   * The amount of time, in millisecods, that the frame's sound should play before stopping.
+   */
+
+
+  get soundStartOffsetMS() {
+    var offsetFrames = this.parent.parent.playheadPosition - this.start;
+    var offsetMS = offsetFrames * 1000 / this.project.framerate;
+    return offsetMS;
   }
   /**
    * Removes this frame from its parent layer.
@@ -46740,7 +47229,7 @@ Wick.Frame = class extends Wick.Tickable {
     if (error) return error;
 
     if (this.sound) {
-      this._soundID = this.sound.play(this._getSoundStartOffsetMS());
+      this._soundID = this.sound.play(this.soundStartOffsetMS);
     }
 
     return this._tickChildren();
@@ -46772,12 +47261,6 @@ Wick.Frame = class extends Wick.Tickable {
       childError = clip.tick();
     });
     return childError;
-  }
-
-  _getSoundStartOffsetMS() {
-    var offsetFrames = this.parent.parent.playheadPosition - this.start;
-    var offsetMS = offsetFrames * 1000 / this.project.framerate;
-    return offsetMS;
   }
 
   _getRelativePlayheadPosition() {
@@ -47530,9 +48013,14 @@ Wick.View.Project = class extends Wick.View {
   static get ORIGIN_CROSSHAIR_SIZE() {
     return 100;
   }
+  /*
+   *
+   */
+
 
   constructor() {
     super();
+    this._fitMode = 'center';
     this.canvas = document.createElement('canvas');
     this.canvas.style.width = '100%';
     this.canvas.style.height = '100%';
@@ -47542,9 +48030,34 @@ Wick.View.Project = class extends Wick.View {
     this.bgLayer.name = 'wick_project_bg';
     this.bgLayer.remove();
     paper.project.clear();
-    this.interactTool = new Wick.InteractTool().paperTool;
+    this.interactTool = new Wick.InteractTool();
     this.canvasBGColor = null;
   }
+  /*
+   * Determines the way the project will scale itself based on its container.
+   * 'center' will keep the project at its original resolution, and center it inside its container.
+   * 'fill' will stretch the project to fit the container (while maintaining its original aspect ratio).
+   * 
+   * Note: For these changes to be reflected after setting fitMode, you must call Project.View.resize().
+   */
+
+
+  set fitMode(fitMode) {
+    if (fitMode !== 'center' && fitMode !== 'fill') {
+      console.error("Invalid fitMode: " + fitMode);
+      console.error("Supported modes are 'center' and 'fill'.");
+    } else {
+      this._fitMode = fitMode;
+    }
+  }
+
+  get fitMode() {
+    return this._fitMode;
+  }
+  /*
+   * The element to insert the project's canvas into.
+   */
+
 
   setCanvasContainer(canvasContainer) {
     this.canvasContainer = canvasContainer;
@@ -47563,6 +48076,10 @@ Wick.View.Project = class extends Wick.View {
       return false;
     }
   }
+  /*
+   * 
+   */
+
 
   resize() {
     if (!this.canvasContainer) return;
@@ -47576,11 +48093,26 @@ Wick.View.Project = class extends Wick.View {
     paper.view.viewSize.width = newWidth;
     paper.view.viewSize.height = newHeight;
   }
+  /*
+   * 
+   */
+
 
   render() {
+    // Only render if we just finished a selection
+    if (!this.model.selection.view.selectionDidChange()) return;
     paper.project.clear(); // Update zoom and pan
 
-    paper.view.zoom = this.model.zoom;
+    if (this._fitMode === 'center') {
+      paper.view.zoom = this.model.zoom;
+    } else if (this._fitMode === 'fill') {
+      // Fill mode: Try to fit the wick project's canvas inside the container canvas by 
+      // scaling it as much as possible without changing the project's original aspect ratio
+      var wr = paper.view.viewSize.width / this.model.width;
+      var hr = paper.view.viewSize.height / this.model.height;
+      paper.view.zoom = Math.min(wr, hr);
+    }
+
     paper.view.center = new paper.Point(this.model.pan.x, this.model.pan.y); // Generate background layer
 
     this.bgLayer.removeChildren();
@@ -47588,26 +48120,18 @@ Wick.View.Project = class extends Wick.View {
     paper.project.addLayer(this.bgLayer);
 
     if (this.model.focus === this.model.root) {
+      // We're in the root timeline, render the canvas normally
       this.canvas.style.backgroundColor = this.canvasBGColor || Wick.View.Project.DEFAULT_CANVAS_BG_COLOR;
-      var bgRect = new paper.Path.Rectangle(new paper.Point(0, 0), new paper.Point(this.model.width, this.model.height));
-      bgRect.remove();
-      bgRect.fillColor = this.model.backgroundColor;
-      this.bgLayer.addChild(bgRect);
+
+      var canvasBG = this._generateCanvasBG();
+
+      this.bgLayer.addChild(canvasBG);
     } else {
+      // We're inside a clip, don't render the canvas BG, instead render a crosshair at (0,0)
       this.canvas.style.backgroundColor = this.model.backgroundColor;
-      var originCrosshair = new paper.Group({
-        insert: false
-      });
-      var vertical = new paper.Path.Line(new paper.Point(0, -Wick.View.Project.ORIGIN_CROSSHAIR_SIZE), new paper.Point(0, Wick.View.Project.ORIGIN_CROSSHAIR_SIZE));
-      vertical.strokeColor = Wick.View.Project.ORIGIN_CROSSHAIR_COLOR;
-      vertical.strokeWidth = 1;
-      var horizontal = new paper.Path.Line(new paper.Point(-Wick.View.Project.ORIGIN_CROSSHAIR_SIZE, 0), new paper.Point(Wick.View.Project.ORIGIN_CROSSHAIR_SIZE, 0));
-      horizontal.strokeColor = Wick.View.Project.ORIGIN_CROSSHAIR_COLOR;
-      horizontal.strokeWidth = 1;
-      originCrosshair.addChild(vertical);
-      originCrosshair.addChild(horizontal);
-      originCrosshair.position.x = 0;
-      originCrosshair.position.y = 0;
+
+      var originCrosshair = this._generateOriginCrosshair();
+
       this.bgLayer.addChild(originCrosshair);
     } // Generate frame layers
 
@@ -47623,11 +48147,39 @@ Wick.View.Project = class extends Wick.View {
     this.model.selection.view.render();
     paper.project.addLayer(this.model.selection.view.layer);
   }
+  /*
+   * 
+   */
+
 
   applyChanges() {
     this.model.focus.timeline.activeFrames.forEach(frame => {
       frame.view.applyChanges();
     });
+  }
+
+  _generateCanvasBG() {
+    var canvasBG = new paper.Path.Rectangle(new paper.Point(0, 0), new paper.Point(this.model.width, this.model.height));
+    canvasBG.remove();
+    canvasBG.fillColor = this.model.backgroundColor;
+    return canvasBG;
+  }
+
+  _generateOriginCrosshair() {
+    var originCrosshair = new paper.Group({
+      insert: false
+    });
+    var vertical = new paper.Path.Line(new paper.Point(0, -Wick.View.Project.ORIGIN_CROSSHAIR_SIZE), new paper.Point(0, Wick.View.Project.ORIGIN_CROSSHAIR_SIZE));
+    vertical.strokeColor = Wick.View.Project.ORIGIN_CROSSHAIR_COLOR;
+    vertical.strokeWidth = 1;
+    var horizontal = new paper.Path.Line(new paper.Point(-Wick.View.Project.ORIGIN_CROSSHAIR_SIZE, 0), new paper.Point(Wick.View.Project.ORIGIN_CROSSHAIR_SIZE, 0));
+    horizontal.strokeColor = Wick.View.Project.ORIGIN_CROSSHAIR_COLOR;
+    horizontal.strokeWidth = 1;
+    originCrosshair.addChild(vertical);
+    originCrosshair.addChild(horizontal);
+    originCrosshair.position.x = 0;
+    originCrosshair.position.y = 0;
+    return originCrosshair;
   }
 
 };
@@ -47654,127 +48206,59 @@ Wick.View.Project = class extends Wick.View {
 Wick.View.Selection = class extends Wick.View {
   constructor() {
     super();
+    this._layer = new paper.Layer();
+    paper.selection = new paper.Selection({
+      items: [],
+      layer: this._layer
+    });
   }
 
   get layer() {
-    return paper.project.selection.guiLayer;
+    return this._layer;
   }
 
   render() {
     var project = this.model.project;
-    paper.project.selection.clear();
-    project.selection.getSelectedObjects('Path').forEach(path => {
-      paper.project.selection.addItem(path.paperPath);
+    paper.selection.finish();
+    paper.selection = new paper.Selection({
+      items: this._getViewsOfSelectedObjects(),
+      layer: this._layer
     });
-    project.selection.getSelectedObjects('Clip').forEach(clip => {
-      paper.project.selection.addItem(clip.view.group);
-    });
-    paper.project.selection.updateGUI();
   }
 
-  get x() {
-    return paper.project.selection.bounds.x;
+  selectionDidChange() {
+    var newSelectedItems = this._getViewsOfSelectedObjects();
+
+    var oldSelectedItems = paper.selection.items;
+    return newSelectedItems.length === 0 && oldSelectedItems.length === 0 || !this._arraysEqual(newSelectedItems, oldSelectedItems);
   }
 
-  set x(x) {
-    let y = paper.project.selection.bounds.y;
-    paper.project.selection.setPosition(x, y);
-    this.model.project.view.applyChanges();
-  }
+  _getViewsOfSelectedObjects() {
+    var project = this.model.project;
+    var items = [];
+    items = items.concat(project.selection.getSelectedObjects('Path').map(path => {
+      return path.paperPath;
+    }));
+    items = items.concat(project.selection.getSelectedObjects('Clip').map(clip => {
+      return clip.view.group;
+    }));
+    return items;
+  } // https://stackoverflow.com/questions/3115982/how-to-check-if-two-arrays-are-equal-with-javascript
 
-  get y() {
-    return paper.project.selection.bounds.y;
-  }
 
-  set y(y) {
-    let x = paper.project.selection.bounds.x;
-    paper.project.selection.setPosition(x, y);
-    this.model.project.view.applyChanges();
-  }
+  _arraysEqual(a, b) {
+    if (a === b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false; // If you don't care about the order of the elements inside
+    // the array, you should sort both arrays here.
+    // Please note that calling sort on an array will modify that array.
+    // you might want to clone your array first.
 
-  get width() {
-    return paper.project.selection.bounds.width;
-  }
+    for (var i = 0; i < a.length; ++i) {
+      if (a[i] !== b[i]) return false;
+    }
 
-  set width(width) {
-    let height = paper.project.selection.bounds.height;
-    paper.project.selection.setSize(width, height);
-    this.model.project.view.applyChanges();
-  }
-
-  get height() {
-    return paper.project.selection.bounds.height;
-  }
-
-  set height(height) {
-    let width = paper.project.selection.bounds.width;
-    paper.project.selection.setSize(width, height);
-    this.model.project.view.applyChanges();
-  }
-
-  get scaleX() {
-    return paper.project.selection.scaling.x;
-  }
-
-  set scaleX(scaleX) {
-    let scaleY = paper.project.selection.scaling.y;
-    paper.project.selection.setScale(scaleX, scaleY);
-    this.model.project.view.applyChanges();
-  }
-
-  get scaleY() {
-    return paper.project.selection.scaling.y;
-  }
-
-  set scaleY(scaleY) {
-    let scaleX = paper.project.selection.scaling.x;
-    paper.project.selection.setScale(scaleX, scaleY);
-    this.model.project.view.applyChanges();
-  }
-
-  get rotation() {
-    return paper.project.selection.rotation;
-  }
-
-  set rotation(rotation) {
-    paper.project.selection.setRotation(rotation);
-    this.model.project.view.applyChanges();
-  }
-
-  get fillColor() {
-    return paper.project.selection.fillColor;
-  }
-
-  set fillColor(fillColor) {
-    paper.project.selection.setFillColor(fillColor);
-    this.model.project.view.applyChanges();
-  }
-
-  get strokeWidth() {
-    return paper.project.selection.strokeWidth;
-  }
-
-  set strokeWidth(strokeWidth) {
-    paper.project.selection.setStrokeWidth(strokeWidth);
-    this.model.project.view.applyChanges();
-  }
-
-  get strokeColor() {
-    return paper.project.selection.strokeColor;
-  }
-
-  set strokeColor(strokeColor) {
-    paper.project.selection.setStrokeColor(strokeColor);
-    this.model.project.view.applyChanges();
-  }
-
-  get opacity() {
-    return paper.project.selection.opacity;
-  }
-
-  set opacity(opacity) {
-    paper.project.selection.setOpacity(opacity);
-    this.model.project.view.applyChanges();
+    return true;
   }
 
 };
@@ -47949,110 +48433,124 @@ Wick.View.Frame = class extends Wick.View {
 */
 Wick.InteractTool = class {
   constructor() {
-    var tool = new paper.Tool();
-    this.paperTool = tool;
-    var mouseJustPressed = false;
-    var mouseJustReleased = false;
-    var mouseButtonState = null;
-    var mousePosition = null;
-    var keysDown = [];
+    this.paperTool = new paper.Tool();
+    this.paperTool.onActivate = this.onActivate.bind(this);
+    this.paperTool.onDeactivate = this.onDeactivate.bind(this);
+    this.paperTool.onMouseMove = this.onMouseMove.bind(this);
+    this.paperTool.onMouseDown = this.onMouseDown.bind(this);
+    this.paperTool.onMouseUp = this.onMouseUp.bind(this);
+    this.paperTool.onKeyDown = this.onKeyDown.bind(this);
+    this.paperTool.onKeyUp = this.onKeyUp.bind(this);
+    this.mouseJustPressed = false;
+    this.mouseJustReleased = false;
+    this.mouseButtonState = 'up';
+    this.mousePosition = new paper.Point();
+    this.keysDown = [];
+  }
 
-    tool.onActivate = function (e) {
-      mouseButtonState = 'up';
-      mousePosition = new paper.Point();
-    };
+  onActivate(e) {
+    this.mouseButtonState = 'up';
+    this.mousePosition = new paper.Point();
+  }
 
-    tool.onDeactivate = function (e) {};
+  onDeactivate(e) {}
 
-    tool.onMouseMove = function (e) {
-      mousePosition = e.point;
-    };
+  onMouseMove(e) {
+    this.mousePosition = e.point;
+  }
 
-    tool.onMouseDown = function (e) {
-      mouseJustPressed = true;
-      mouseButtonState = 'down';
-    };
+  onMouseDown(e) {
+    this.mouseJustPressed = true;
+    this.mouseButtonState = 'down';
+  }
 
-    tool.onMouseUp = function (e) {
-      mouseJustReleased = true;
-      mouseButtonState = 'up';
-    };
+  onMouseUp(e) {
+    this.mouseJustReleased = true;
+    this.mouseButtonState = 'up';
+  }
 
-    tool.onKeyDown = function (e) {
-      if (keysDown.indexOf(e.key) === -1) {
-        keysDown.push(e.key);
+  onKeyDown(e) {
+    if (this.keysDown.indexOf(e.key) === -1) {
+      this.keysDown.push(e.key);
+    }
+
+    return false;
+  }
+
+  onKeyUp(e) {
+    this.keysDown = this.keysDown.filter(key => {
+      return key !== e.key;
+    });
+    return false;
+  }
+
+  activate() {
+    this.paperTool.activate();
+  }
+
+  deactivate() {
+    this.paperTool.deactivate();
+  }
+
+  processInputPreTick(project) {
+    this.processKeyInputPreTick(project);
+    this.processMouseInputPreTick(project);
+  }
+
+  processKeyInputPreTick(project) {
+    project.keysDown = this.keysDown;
+  }
+
+  processMouseInputPreTick(project) {
+    var mouseTargets = this.getMouseTargets(this.mousePosition, project);
+
+    if (this.mouseButtonState === 'down') {
+      project.isMouseDown = true;
+
+      if (this.mouseJustPressed) {
+        project.mouseDownTargets = mouseTargets;
       }
+    } else if (this.mouseButtonState === 'up') {
+      project.isMouseDown = false;
+      project.mouseHoverTargets = mouseTargets;
+    }
 
-      return false;
-    };
+    if (mouseTargets.length > 0) {
+      paper.view._element.style.cursor = mouseTargets[0].cursor;
+    } else {
+      paper.view._element.style.cursor = 'default';
+    }
 
-    tool.onKeyUp = function (e) {
-      keysDown = keysDown.filter(key => {
-        return key !== e.key;
-      });
-      return false;
-    };
+    this.mouseJustPressed = false;
+    this.mouseJustReleased = false;
+  }
 
-    tool.processInputPreTick = function (project) {
-      tool.processKeyInputPreTick(project);
-      tool.processMouseInputPreTick(project);
-    };
+  getMouseTargets(point, project) {
+    var hitResult = paper.project.hitTest(point, {
+      fill: true,
+      stroke: true,
+      curves: true,
+      segments: true
+    }); // Check for clips under the mouse.
 
-    tool.processKeyInputPreTick = function (project) {
-      project.keysDown = keysDown;
-    };
+    if (hitResult) {
+      var uuid = hitResult.item.data.wickUUID;
+      var path = project.getChildByUUID(uuid);
 
-    tool.processMouseInputPreTick = function (project) {
-      var mouseTargets = this.getMouseTargets(mousePosition, project);
-
-      if (mouseButtonState === 'down') {
-        project.isMouseDown = true;
-
-        if (mouseJustPressed) {
-          project.mouseDownTargets = mouseTargets;
-        }
-      } else if (mouseButtonState === 'up') {
-        project.isMouseDown = false;
-        project.mouseHoverTargets = mouseTargets;
+      if (!path.parentClip.isRoot) {
+        var clip = path.parentClip;
+        var lineageWithoutRoot = clip.lineage;
+        lineageWithoutRoot.pop();
+        return lineageWithoutRoot;
       }
-
-      if (mouseTargets.length > 0) {
-        paper.view._element.style.cursor = mouseTargets[0].cursor;
-      } else {
-        paper.view._element.style.cursor = 'default';
-      }
-
-      mouseJustPressed = false;
-      mouseJustReleased = false;
-    };
-
-    tool.getMouseTargets = function (point, project) {
-      var hitResult = paper.project.hitTest(point, {
-        fill: true,
-        stroke: true,
-        curves: true,
-        segments: true
-      }); // Check for clips under the mouse.
-
-      if (hitResult) {
-        var uuid = hitResult.item.data.wickUUID;
-        var path = project.getChildByUUID(uuid);
-
-        if (!path.parentClip.isRoot) {
-          var clip = path.parentClip;
-          var lineageWithoutRoot = clip.lineage;
-          lineageWithoutRoot.pop();
-          return lineageWithoutRoot;
-        }
-      } // No clips are under the mouse, so the frame is under the mouse.
+    } // No clips are under the mouse, so the frame is under the mouse.
 
 
-      if (project.activeFrame) {
-        return [project.activeFrame];
-      } else {
-        return [];
-      }
-    };
+    if (project.activeFrame) {
+      return [project.activeFrame];
+    } else {
+      return [];
+    }
   }
 
 };
