@@ -422,7 +422,7 @@ class EditorCore extends Component {
       "strokeWidth",
       "fillColor",
       "strokeColor",
-      "identifier",
+      "name",
       "filename",
       "fontSize",
       "fontFamily",
@@ -450,9 +450,8 @@ class EditorCore extends Component {
     let selectionAttributeNames = this.getAllSelectionAttributeNames();
 
     selectionAttributeNames.forEach(name => {
-        newAttributes[name] = this.getSelectionAttribute(name);
-      }
-    );
+      newAttributes[name] = this.getSelectionAttribute(name);
+    });
 
     return newAttributes;
   }
@@ -486,7 +485,7 @@ class EditorCore extends Component {
 
   /**
    * Updates the focus object of the project.
-   * @param {Wick.Clip} object Object to set as focus. 
+   * @param {Wick.Clip} object Object to set as focus.
    */
   setFocusObject = (object) => {
     this.project.focus = object;

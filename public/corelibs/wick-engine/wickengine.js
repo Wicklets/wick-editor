@@ -44098,6 +44098,12 @@ Wick.Base = class {
 
     return object;
   }
+
+  static _deserialize(data, object) {
+    object._uuid = data.uuid;
+    object._identifier = data.identifier;
+    return object;
+  }
   /**
    * Converts Wick Base object into a generic object contianing raw data and eliminating parent references.
    * @return {object} Plain JavaScript object representing Wick Base.
@@ -44111,6 +44117,7 @@ Wick.Base = class {
   _serialize() {
     var data = {};
     data.classname = this.classname;
+    data.identifier = this._identifier;
     data.uuid = this._uuid;
     return data;
   }
@@ -44284,11 +44291,6 @@ Wick.Base = class {
     });
 
     return foundChild;
-  }
-
-  static _deserialize(data, object) {
-    object._uuid = data.uuid;
-    return object;
   }
 
   _addChild(child) {
@@ -45491,6 +45493,20 @@ Wick.Selection = class extends Wick.Base {
     return paper.selection.center;
   }
 
+  get name() {
+    if (this.numObjects === 0) {
+      return null;
+    } else {
+      return this.getSelectedObject().identifer;
+    }
+  }
+
+  set name(name) {
+    if (this.numObjects === 1) {
+      this.getSelectedObject().identifer = name;
+    }
+  }
+
   clear() {
     this._uuids = [];
   }
@@ -46614,7 +46630,6 @@ Wick.Tickable = class extends Wick.Base {
   static _deserialize(data, object) {
     super._deserialize(data, object);
 
-    object.identifier = data.identifier;
     object._scripts = [].concat(data.scripts || []);
     object.cursor = data.cursor;
     return object;
@@ -46622,7 +46637,6 @@ Wick.Tickable = class extends Wick.Base {
 
   serialize() {
     var data = super.serialize();
-    data.identifier = this.identifier;
     data.scripts = [].concat(this._scripts);
     data.cursor = this.cursor;
     return data;

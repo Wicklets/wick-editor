@@ -113,7 +113,7 @@ class Inspector extends Component {
     let fillColor = this.getSelectionAttribute('fillColor');
 
     if (!fillColor) {
-      return "1"; 
+      return "1";
     }
 
     if (fillColor.startsWith('rgba')) {
@@ -259,8 +259,8 @@ class Inspector extends Component {
       <div className="inspector-item">
         <InspectorTextInput
           tooltip="Name"
-          val={this.getSelectionAttribute('identifier')}
-          onChange={(val) => {this.setSelectionAttribute('identifier', val);}}
+          val={this.getSelectionAttribute('name')}
+          onChange={(val) => {this.setSelectionAttribute('name', val);}}
           placeholder="no_name"
           id="inspector-name" />
       </div>
