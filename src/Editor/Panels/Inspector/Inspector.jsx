@@ -36,25 +36,31 @@ class Inspector extends Component {
   constructor (props) {
     super(props);
 
+    /**
+     * Which render function should be used for each selection type?
+     */
     this.inspectorContentRenderFunctions = {
-      "frame": this.renderFrame.bind(this),
-      "multiframe": this.renderMultiFrame.bind(this),
-      "tween": this.renderTween.bind(this),
-      "multitween": this.renderMultiTween.bind(this),
-      "clip": this.renderClip.bind(this),
-      "button": this.renderButton.bind(this),
-      "path": this.renderPath.bind(this),
-      "multipath": this.renderMultiPath.bind(this),
-      "multiclip": this.renderMultiClip.bind(this),
-      "multitimeline": this.renderMultiTimeline.bind(this),
-      "multicanvas": this.renderMultiCanvas.bind(this),
-      "imageasset": this.renderAsset.bind(this),
-      "soundasset": this.renderAsset.bind(this),
-      "multiassetmixed": this.renderAsset.bind(this),
-      "multisoundasset": this.renderAsset.bind(this),
-      "multiimageasset": this.renderAsset.bind(this),
+      "frame": this.renderFrame,
+      "multiframe": this.renderMultiFrame,
+      "tween": this.renderTween,
+      "multitween": this.renderMultiTween,
+      "clip": this.renderClip,
+      "button": this.renderButton,
+      "path": this.renderPath,
+      "multipath": this.renderMultiPath,
+      "multiclip": this.renderMultiClip,
+      "multitimeline": this.renderMultiTimeline,
+      "multicanvas": this.renderMultiCanvas,
+      "imageasset": this.renderAsset,
+      "soundasset": this.renderAsset,
+      "multiassetmixed": this.renderAsset,
+      "multisoundasset": this.renderAsset,
+      "multiimageasset": this.renderAsset,
     }
 
+    /**
+     * Which actions should be shown for which selection types.
+     */
     this.actionRules = {
       'breakApart': ["clip", "button",],
       'makeInteractive': ["path", "multipath", "multiclip",],
@@ -62,6 +68,9 @@ class Inspector extends Component {
       'editCode': ["clip", "button", "frame"],
     }
 
+    /**
+     * What titles should be displayed for each selection type?
+     */
     this.inspectorTitles = {
       "frame": "Frame",
       "multiframe": "Multi-Frame",
@@ -81,12 +90,6 @@ class Inspector extends Component {
       "multiimageasset": "Multi-Asset Image",
       "unknown": "Unknown",
     }
-
-    this.renderDisplay = this.renderDisplay.bind(this);
-    this.renderGroupContent = this.renderGroupContent.bind(this);
-    this.renderPathContent = this.renderPathContent.bind(this);
-    this.renderButton = this.renderButton.bind(this);
-    this.renderActions = this.renderActions.bind(this);
   }
 
   /**
@@ -134,6 +137,10 @@ class Inspector extends Component {
     this.props.setSelectionAttribute(attribute, newValue);
   }
 
+  /**
+   * Convert a paper color object to an rgba string;
+   * @param {object} color object with r, g, b, a keys.
+   */
   toRgbaString (col) {
     let r = col.rgb.r;
     let g = col.rgb.g;
@@ -156,14 +163,18 @@ class Inspector extends Component {
     if (fillColor.startsWith('rgba')) {
       let split = fillColor.split(",");
       let str = split[3];
-      return str.substring(0, str.length - 1);;
+      return str.substring(0, str.length - 1);
     } else {
       return "1";
     }
   }
 
   // Inspector Row Types
-  renderSelectionStrokeWidth() {
+
+  /**
+   * Renders an inspector row allowing viewing and editing of the selection stroke width.
+   */
+  renderSelectionStrokeWidth = () => {
     return (
       <InspectorNumericSlider
         tooltip="Stroke Width"
@@ -175,7 +186,10 @@ class Inspector extends Component {
     )
   }
 
-  renderSelectionFillColor() {
+  /**
+   * Renders an inspector row allowing viewing and editing of the selection fill color.
+   */
+  renderSelectionFillColor = () => {
     return (
       <div className="inspector-item">
         <InspectorColorNumericInput
@@ -190,8 +204,10 @@ class Inspector extends Component {
       </div>
     );
   }
-
-  renderSelectionStrokeColor() {
+  /**
+   * Renders an inspector row allowing viewing and editing of the selection stroke color.
+   */
+  renderSelectionStrokeColor = () => {
     return (
       <div className="inspector-item">
         <InspectorColorNumericInput
@@ -210,7 +226,11 @@ class Inspector extends Component {
     );
   }
 
-  renderFonts(args) {
+  /**
+   * Renders an inspector row allowing viewing and editing of the selected object's font.
+   */
+  renderFonts = (args) => {
+    // TODO: Reimplement...
     return (
       <InspectorSelector
         value={args.val}
@@ -219,7 +239,11 @@ class Inspector extends Component {
     )
   }
 
-  renderFontSize(args) {
+  /**
+   * Renders an inspector row allowing viewing and editing of the selection font size.
+   */
+  renderFontSize = (args) =>  {
+    // TODO: Reimplement...
     return (
       <InspectorNumericInput
         val={args.val}
@@ -228,7 +252,10 @@ class Inspector extends Component {
     )
   }
 
-  renderName() {
+  /**
+   * Renders an inspector row allowing viewing and editing of the selection's name.
+   */
+  renderName = () => {
     return (
       <div className="inspector-item">
         <InspectorTextInput
@@ -241,7 +268,10 @@ class Inspector extends Component {
     );
   }
 
-  renderFilename() {
+  /**
+   * Renders an inspector row allowing viewing of the selection's file name.
+   */
+  renderFilename = () => {
     return (
       <div className="inspector-item">
         <InspectorTextInput
@@ -253,7 +283,10 @@ class Inspector extends Component {
     );
   }
 
-  renderImagePreview() {
+  /**
+   * Renders an inspector row allowing viewing of the selection's src image.
+   */
+  renderImagePreview = () => {
     return (
       <InspectorImagePreview
         src={this.getSelectionAttribute('src')}
@@ -261,7 +294,10 @@ class Inspector extends Component {
     )
   }
 
-  renderFrameLength() {
+  /**
+   * Renders an inspector row allowing viewing and editing of the selection's frame length.
+   */
+  renderFrameLength = () => {
     return (
       <div className="inspector-item">
         <InspectorNumericInput
@@ -273,7 +309,10 @@ class Inspector extends Component {
     )
   }
 
-  renderPosition() {
+  /**
+   * Renders an inspector row allowing viewing and editing of the selection's x y position.
+   */
+  renderPosition = () => {
     return (
       <InspectorDualNumericInput
         tooltip="Position"
@@ -286,7 +325,10 @@ class Inspector extends Component {
     )
   }
 
-  renderSize() {
+  /**
+   * Renders an inspector row allowing viewing and editing of the selection's width and height.
+   */
+  renderSize = () => {
     return (
       <InspectorDualNumericInput
         tooltip="Size"
@@ -299,7 +341,10 @@ class Inspector extends Component {
     )
   }
 
-  renderScale() {
+  /**
+   * Renders an inspector row allowing viewing and editing of the selection's scaleX and scaleY.
+   */
+  renderScale = () => {
     return (
       <InspectorDualNumericInput
         tooltip="Scale"
@@ -312,7 +357,10 @@ class Inspector extends Component {
     )
   }
 
-  renderRotation() {
+  /**
+   * Renders an inspector row allowing viewing and editing of the selection's rotation.
+   */
+  renderRotation = () => {
     return (
       <InspectorNumericInput
         tooltip="Rotation"
@@ -322,7 +370,10 @@ class Inspector extends Component {
     )
   }
 
-  renderOpacity() {
+  /**
+   * Renders an inspector row allowing viewing and editing of the selection's opacity.
+   */
+  renderOpacity = () => {
     return (
       <InspectorNumericSlider
         tooltip="Opacity"
@@ -334,7 +385,11 @@ class Inspector extends Component {
     )
   }
 
-  renderSelectionTransformProperties() {
+  /**
+   * Renders an inspector row allowing viewing and editing of all transformation properties
+   * icluding position, scale, size, rotation and opacity.
+   */
+  renderSelectionTransformProperties = () => {
     return (
       <div className="inspector-item">
         {this.renderPosition()}
@@ -347,7 +402,11 @@ class Inspector extends Component {
   }
 
   // Selection contents and properties
-  renderFrame() {
+
+  /**
+   * Renders the inspector view for all properties of a frame.
+   */
+  renderFrame = () => {
     return (
         <div className="inspector-content">
           {this.renderName()}
@@ -356,24 +415,38 @@ class Inspector extends Component {
     );
   }
 
-  renderMultiFrame() {
+  /**
+   * Renders the inspector view for all properties of a multi-frame selection.
+   */
+  renderMultiFrame = () => {
     return ( <div className="inspector-content" /> );
   }
 
-  renderMultiClip() {
+  /**
+   * Renders the inspector view for all properties of a multi-clip selection.
+   */
+  renderMultiClip = () => {
     return ( <div className="inspector-content" /> );
   }
 
-
-  renderTween() {
+  /**
+   * Renders the inspector view for all properties of a tween selection.
+   */
+  renderTween = () =>  {
     return ( <div className="inspector-content"/> );
   }
 
-  renderMultiTween() {
+  /**
+   * Renders the inspector view for all properties of a multi-tween selection.
+   */
+  renderMultiTween = () => {
     return ( <div className="inspector-content"/> );
   }
 
-  renderGroupContent() {
+  /**
+   * Renders the inspector view for all properties of a selection with group properties.
+   */
+  renderGroupContent = () => {
     return (
       <div className="inspector-content">
         {this.renderName()}
@@ -382,23 +455,38 @@ class Inspector extends Component {
     );
   }
 
-  renderGroup() {
+  /**
+   * Renders the inspector view for all properties of a group selection.
+   */
+  renderGroup = () => {
     return ( this.renderGroupContent() );
   }
 
-  renderMultiGroup() {
+  /**
+   * Renders the inspector view for all properties of a multi-group selection.
+   */
+  renderMultiGroup = () => {
     return ( this.renderGroupContent() );
   }
 
-  renderClip() {
+  /**
+   * Renders the inspector view for all properties of a clip selection.
+   */
+  renderClip = () => {
     return ( this.renderGroupContent() );
   }
 
-  renderButton() {
+  /**
+   * Renders the inspector view for all properties of a button selection.
+   */
+  renderButton = () => {
     return ( this.renderGroupContent() );
   }
 
-  renderPathContent() {
+  /**
+   * Renders the inspector view for all properties of a selection with path properties.
+   */
+  renderPathContent = () => {
     return(
       <div className="inspector-content">
         {this.renderSelectionTransformProperties()}
@@ -408,26 +496,41 @@ class Inspector extends Component {
     );
   }
 
-  renderPath() {
+  /**
+   * Renders the inspector view for all properties of a path selection.
+   */
+  renderPath = () => {
     return ( this.renderPathContent() );
   }
 
-  renderMultiPath() {
+  /**
+   * Renders the inspector view for all properties of a multi-path selection.
+   */
+  renderMultiPath = () => {
     return ( this.renderPathContent() );
   }
 
-  renderMultiCanvas() {
+  /**
+   * Renders the inspector view for all properties of a multi-canvas selection.
+   */
+  renderMultiCanvas = () => {
     return ( this.renderSelectionTransformProperties() )
   }
 
-  renderMultiTimeline() {
+  /**
+   * Renders the inspector view for all properties of a multi-timeline selection.
+   */
+  renderMultiTimeline = () => {
     return (
       <div>
       </div>
     )
   }
 
-  renderAsset() {
+  /**
+   * Renders the inspector view for all properties of an asset selection.
+   */
+  renderAsset = () => {
     return (
       <div className="inspector-content">
         {this.renderName()}
@@ -437,7 +540,10 @@ class Inspector extends Component {
     )
   }
 
-  renderUnknown() {
+  /**
+   * Renders a default selection view with no properties.
+   */
+  renderUnknown = () => {
     return (
       <div>
         <div className="inspector-content">
@@ -446,7 +552,12 @@ class Inspector extends Component {
     )
   }
 
-  renderDisplay(selectionType) {
+  /**
+   * Renders the proper view for the given selection type.
+   * @param   {string} selectionType A string representation of the selection to display.
+   * @returns {Component} JSX component to render.
+   */
+  renderDisplay = (selectionType) => {
     let renderFunction = null;
 
     if (selectionType in this.inspectorContentRenderFunctions) {
@@ -460,26 +571,12 @@ class Inspector extends Component {
     );
   }
 
-  getPathActions = () => {
-    return [
-      this.props.editorActions['makeInteractive'],
-    ];
-  }
-
-  getFrameActions = () => {
-    return [
-      this.props.editorActions['editCode'],
-    ];
-  }
-
-  getClipActions = () => {
-    return [
-      this.props.editorActions['editCode'],
-      this.props.editorActions['editClipTimeline'],
-      this.props.editorActions['breakApart'],
-    ];
-  }
-
+  /**
+   * Renders a single action button for a given editor action.
+   * @param {object} btn editor action with action, icon, color, and tooltip text properties.
+   * @param {number} i unique key to be applied to returned object.
+   * @returns {Component} JSX component to render.
+   */
   renderActionButton = (btn, i) => {
     return (
       <div key={i} className="inspector-item">
@@ -489,6 +586,10 @@ class Inspector extends Component {
     );
   }
 
+  /**
+   * Renders all actions for the current selection.
+   * @returns {Component} JSX component containing all the actions for the current selection.
+   */
   renderActions = () => {
     let actions = [];
     let selectionType = this.props.getSelectionType();
@@ -507,8 +608,12 @@ class Inspector extends Component {
     )
   }
 
-  renderTitle(selectionType) {
-    if (!(selectionType in this.inspectorTitles)) selectionType = "unknown";
+  /**
+   * Renders the inspector title for the current selection.
+   * @param {string} selectionType selection type to return.
+   */
+  renderTitle = (selectionType) => {
+    if (!(selectionType in this.inspectorTitles)) selectionType = "";
 
     return (
       <div className="inspector-title-container">
