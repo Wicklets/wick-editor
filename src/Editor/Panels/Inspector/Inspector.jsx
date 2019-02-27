@@ -168,7 +168,6 @@ class Inspector extends Component {
     let a = col.rgb.a;
     return 'rgba(' + r + ',' + g + ',' + b + ',' + a + ')';
   }
-
   // Inspector Row Types
 
   /**

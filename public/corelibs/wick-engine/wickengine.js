@@ -44557,6 +44557,7 @@ Wick.Project = class extends Wick.Base {
     this.onionSkinSeekForwards = 1;
     this._root = null;
     this.root = new Wick.Clip();
+    this.root.identifier = "Project";
     this.root.timeline.addLayer(new Wick.Layer());
     this.root.timeline.layers[0].addFrame(new Wick.Frame());
     this._focus = this.root.uuid;
