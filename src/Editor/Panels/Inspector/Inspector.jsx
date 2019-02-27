@@ -157,7 +157,7 @@ class Inspector extends Component {
     let fillColor = this.getSelectionAttribute('fillColor');
 
     if (!fillColor) {
-      return "1"; 
+      return "1";
     }
 
     if (fillColor.startsWith('rgba')) {
@@ -596,7 +596,6 @@ class Inspector extends Component {
 
     Object.keys(this.actionRules).forEach(action => {
         let actionList = this.actionRules[action];
-        console.log(actionList);
         if (actionList.indexOf(selectionType) > -1) actions.push(action);
     });
 

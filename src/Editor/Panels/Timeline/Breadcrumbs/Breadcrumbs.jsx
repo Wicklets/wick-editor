@@ -18,7 +18,7 @@
  */
 
 import React, { Component } from 'react';
-import ActionButton from 'Editor/Util/ActionButton/ActionButton'; 
+import ActionButton from 'Editor/Util/ActionButton/ActionButton';
 
 import './_breadcrumbs.scss';
 
@@ -27,10 +27,10 @@ class Breadcrumbs extends Component {
     return (
       <div key={i} className="breadcrumb-button-container">
         <ActionButton
-          text={"item-" + i}
+          text={object.identifier}
           action={() => this.props.setFocusObject(object)}
           color="breadcrumb" />
-      </div> 
+      </div>
     );
   }
 

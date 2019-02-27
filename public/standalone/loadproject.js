@@ -24,6 +24,8 @@ window.onload = function () {
         }
         project.view.resize();
 
+        project.focus = project.root;
+        project.focus.timeline.playheadPosition = 1;
         project.play({
             onError: (error => {
                 console.log('Project threw an error!');
