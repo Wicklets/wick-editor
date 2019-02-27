@@ -45349,6 +45349,12 @@ Wick.Selection = class extends Wick.Base {
     });
   }
 
+  clear(filter) {
+    this.project.selection.getSelectedObjects(filter).forEach(object => {
+      this.deselect(object);
+    });
+  }
+
   isObjectSelected(object) {
     return this._uuids.indexOf(object.uuid) !== -1;
   }
@@ -45507,10 +45513,6 @@ Wick.Selection = class extends Wick.Base {
     }
   }
 
-  clear() {
-    this._uuids = [];
-  }
-
   _locationOf(object) {
     if (object instanceof Wick.Frame || object instanceof Wick.Tween || object instanceof Wick.Layer) {
       return 'Timeline';
@@ -45595,7 +45597,7 @@ Wick.Timeline = class extends Wick.Base {
   set playheadPosition(playheadPosition) {
     // Automatically clear selection when any playhead moves
     if (this.project && this._playheadPosition !== playheadPosition) {
-      this.project.selection.clear();
+      this.project.selection.clear('Canvas');
     }
 
     this._playheadPosition = playheadPosition;
