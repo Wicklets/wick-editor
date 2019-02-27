@@ -518,6 +518,7 @@ class Editor extends EditorCore {
   }
 
   render = () => {
+    window.project = this.project;
     return (
     <Dropzone
       accept={window.Wick.Asset.getValidMIMETypes()}

@@ -45627,13 +45627,13 @@ Wick.Selection = class extends Wick.Base {
     if (this.numObjects !== 1) {
       return null;
     } else {
-      return this.getSelectedObject().identifer;
+      return this.getSelectedObject().identifier;
     }
   }
 
   set name(name) {
     if (this.numObjects === 1) {
-      this.getSelectedObject().identifer = name;
+      this.getSelectedObject().identifier = name;
     }
   }
 
