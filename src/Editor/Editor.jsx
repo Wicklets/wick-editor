@@ -266,7 +266,7 @@ class Editor extends EditorCore {
     // reset the code window if we resize the window.
     this.setState({
       codeEditorWindowProperties: this.getDefaultCodeEditorProperties(),
-    })
+    });
   }
 
   getDefaultCodeEditorProperties = () => {
@@ -284,7 +284,7 @@ class Editor extends EditorCore {
 
   onResize = (e) => {
     this.project.view.resize();
-    window.AnimationTimeline.resize();
+    window.AnimationTimeline.resize(); 
   }
 
   onStopResize = ({domElement, component}) => {
@@ -370,6 +370,7 @@ class Editor extends EditorCore {
   onStopTimelineResize = ({domElement, component}) => {
     var size = this.getSizeVertical(domElement);
 
+    console.log(size); 
     this.setState({
       timelineSize: size
     });
@@ -556,17 +557,15 @@ class Editor extends EditorCore {
                 </div>
                 <div id="editor-body">
                   <div id="flexible-container">
+                    {/*App*/}
                     <ReflexContainer windowResizeAware={true} orientation="vertical">
                       {/* Middle Panel */}
                       <ReflexElement {...this.resizeProps}>
                         <ReflexContainer windowResizeAware={true} orientation="horizontal">
                           {/*Toolbox*/}
                           <ReflexElement
-                            minSize={40}
-                            maxSize={40}
                             size={40}
-                            onResize={this.resizeProps.onResize}
-                            onStopResize={this.resizeProps.onStopResize}>
+                            minSize={40}>
                             <DockedPanel showOverlay={this.state.previewPlaying}>
                               <Toolbox
                                 activeTool={this.state.activeTool}
@@ -586,36 +585,32 @@ class Editor extends EditorCore {
                           </ReflexElement>
                           {/*Canvas*/}
                           <ReflexElement {...this.resizeProps}>
-                            <ReflexContainer orientation="vertical">
-                              <ReflexElement>
-                                <DockedPanel>
-                                  <Canvas
-                                    project={this.project}
-                                    projectDidChange={this.projectDidChange}
-                                    projectData={this.state.project}
-                                    paper={this.paper}
-                                    activeTool={this.state.activeTool}
-                                    toolSettings={this.state.toolSettings}
-                                    previewPlaying={this.state.previewPlaying}
-                                    createImageFromAsset={this.createImageFromAsset}
-                                  />
-                                  <CanvasTransforms
-                                    onionSkinEnabled={this.project.onionSkinEnabled}
-                                    toggleOnionSkin={this.toggleOnionSkin}
-                                    zoomIn={this.zoomIn}
-                                    zoomOut={this.zoomOut}
-                                    recenterCanvas={this.recenterCanvas}
-                                    activeTool={this.state.activeTool}
-                                    setActiveTool={this.setActiveTool}
-                                    previewPlaying={this.state.previewPlaying}
-                                    togglePreviewPlaying={this.togglePreviewPlaying}
-                                  />
-                                </DockedPanel>
-                              </ReflexElement>
-
-                            </ReflexContainer>
+                            <DockedPanel>
+                              <Canvas
+                                project={this.project}
+                                projectDidChange={this.projectDidChange}
+                                projectData={this.state.project}
+                                paper={this.paper}
+                                activeTool={this.state.activeTool}
+                                toolSettings={this.state.toolSettings}
+                                previewPlaying={this.state.previewPlaying}
+                                createImageFromAsset={this.createImageFromAsset}
+                              />
+                              <CanvasTransforms
+                                onionSkinEnabled={this.project.onionSkinEnabled}
+                                toggleOnionSkin={this.toggleOnionSkin}
+                                zoomIn={this.zoomIn}
+                                zoomOut={this.zoomOut}
+                                recenterCanvas={this.recenterCanvas}
+                                activeTool={this.state.activeTool}
+                                setActiveTool={this.setActiveTool}
+                                previewPlaying={this.state.previewPlaying}
+                                togglePreviewPlaying={this.togglePreviewPlaying}
+                              />
+                            </DockedPanel>
                           </ReflexElement>
                           <ReflexSplitter {...this.resizeProps}/>
+                          {/*Timeline*/}
                           <ReflexElement
                             minSize={100}
                             size={this.state.timelineSize}
@@ -640,15 +635,15 @@ class Editor extends EditorCore {
 
                       <ReflexSplitter {...this.resizeProps}/>
 
-                    {/* Right Sidebar */}
+                      {/* Right Sidebar */}
                       <ReflexElement
                         size={250}
                         maxSize={300} minSize={200}
                         onResize={this.resizeProps.onResize}
                         onStopResize={this.resizeProps.onStopInspectorResize}>
-                        <ReflexContainer orientation="horizontal">
+                        <ReflexContainer windowResizeAware={true} orientation="horizontal">
                           {/* Inspector */}
-                          <ReflexElement minSize={200}{...this.resizeProps}>
+                          <ReflexElement {...this.resizeProps}>
                             <DockedPanel showOverlay={this.state.previewPlaying}>
                               <Inspector
                                 toolRestrictions={this.toolRestrictions}

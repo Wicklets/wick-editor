@@ -106,6 +106,26 @@ class Inspector extends Component {
   }
 
   /**
+   * Returns the selection fill color opacity.
+   * @return {string} fill color opacity from 0 to 1.
+   */
+  getSelectionFillColorOpacity = () => {
+    let fillColor = this.getSelectionAttribute('fillColor');
+
+    if (!fillColor) {
+      return "1"; 
+    }
+
+    if (fillColor.startsWith('rgba')) {
+      let split = fillColor.split(",");
+      let str = split[3];
+      return str.substring(0, str.length - 1);
+    } else {
+      return "1";
+    }
+  }
+
+  /**
    * Sets the value of the selection fillColor opacity.
    * @param  {string} attribute Selection attribute to retrieve.
    */
@@ -147,26 +167,6 @@ class Inspector extends Component {
     let b = col.rgb.b;
     let a = col.rgb.a;
     return 'rgba(' + r + ',' + g + ',' + b + ',' + a + ')';
-  }
-
-  /**
-   * Returns the selection fill color opacity.
-   * @return {string} fill color opacity from 0 to 1.
-   */
-  getSelectionFillColorOpacity = () => {
-    let fillColor = this.getSelectionAttribute('fillColor');
-
-    if (!fillColor) {
-      return "1"; 
-    }
-
-    if (fillColor.startsWith('rgba')) {
-      let split = fillColor.split(",");
-      let str = split[3];
-      return str.substring(0, str.length - 1);
-    } else {
-      return "1";
-    }
   }
 
   // Inspector Row Types
@@ -399,6 +399,30 @@ class Inspector extends Component {
         {this.renderOpacity()}
       </div>
     )
+  }
+
+  renderSelectionSoundAsset = () => {
+    let sounds = [
+      { value: "sound1", label: "Sound 1", },
+      { value: "sound2", label: "Sound 2", },
+      { value: "sound3", label: "Sound 3", },
+      { value: "sound4", label: "Sound 4", },
+      { value: "sound5", label: "Sound 5", },
+    ];
+
+    let selected = sounds[0];
+
+    let onChange = (val) => {console.log(val)}
+
+    return (
+      <InspectorSelector
+        type="select"
+        options={sounds}
+        defaultValue={selected}
+        isSearchable={true}
+        onChange={onChange}
+        name={selected} />
+    );
   }
 
   // Selection contents and properties
