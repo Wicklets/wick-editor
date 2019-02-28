@@ -39,6 +39,10 @@ class MenuBar extends Component {
     self.props.importProjectAsWickFile(file);
   }
 
+  openProjectFileDialog = () => {
+    this.openFileRef.current.click();
+  }
+
   render() {
     return(
       <div className="docked-pane menu-bar">
@@ -50,12 +54,12 @@ class MenuBar extends Component {
           <input
             type='file'
             accept='.zip, .wick'
-            style={{display:'none'}}
+            style={{display: 'none'}}
             ref={this.openFileRef}
             onChange={this.handleWickFileLoad} />
           <MenuBarButton
             text="open"
-            action={() => {this.openFileRef.current.click()}}
+            action={this.openProjectFileDialog}
           />
           <MenuBarButton
             text="GIF"

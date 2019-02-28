@@ -26,7 +26,7 @@
     "react-reflex": "^3.0.13",
     "react-resize-detector": "^3.4.0",
     "react-rnd": "^9.1.2",
-    "react-scripts": "2.0.5",
+    "react-scripts": "^2.1.5",
     "react-select": "^2.4.1",
     "react-tabs": "^3.0.0",
     "react-toastify": "^4.5.2",
