@@ -370,7 +370,6 @@ class Editor extends EditorCore {
   onStopTimelineResize = ({domElement, component}) => {
     var size = this.getSizeVertical(domElement);
 
-    console.log(size);
     this.setState({
       timelineSize: size
     });

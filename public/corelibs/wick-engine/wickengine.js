@@ -46801,19 +46801,40 @@ Wick.Tickable = class extends Wick.Base {
   get classname() {
     return 'Tickable';
   }
+  /**
+   * The scripts on this object.
+   * @type {Wick.Script[]}
+   */
+
 
   get scripts() {
     return this._scripts;
   }
+  /**
+   * Check if this object is currently visible in the project.
+   * @type {boolean}
+   */
+
 
   get onScreen() {
     if (!this.parent) return false;
     return this.parent.onScreen;
   }
+  /**
+   * Check if an object can have scripts attached to it. Helpful when iterating through a lot of different wick objects that may or may not be tickables. Always returns true.
+   * @type {boolean}
+   */
+
 
   get isScriptable() {
     return true;
   }
+  /**
+   * Add a new script to an object.
+   * @param {string} name - The name of the event that will trigger the script. See Wick.Tickable.possibleScripts
+   * @param {string} src - The source code of the new script.
+   */
+
 
   addScript(name, src) {
     if (this.hasScript(name)) return;
@@ -46827,6 +46848,11 @@ Wick.Tickable = class extends Wick.Base {
       this.updateScript(name, src);
     }
   }
+  /**
+   * Get the script of this object that is triggered when the given event name happens.
+   * @param {string} name - The name of the event. See Wick.Tickable.possibleScripts
+   */
+
 
   getScript(name) {
     return this._scripts.find(script => {
@@ -46842,20 +46868,41 @@ Wick.Tickable = class extends Wick.Base {
   getAvailableScripts() {
     return Wick.Tickable.possibleScripts.filter(script => !this.hasScript(script));
   }
+  /**
+   * Check if the object has a script with the given event name.
+   * @param {string} name - The name of the event. See Wick.Tickable.possibleScripts
+   */
+
 
   hasScript(name) {
     return this.getScript(name) !== undefined;
   }
+  /**
+   * Changes the source of the script with the given event name.
+   * @param {string} name - The name of the event that will trigger the script. See Wick.Tickable.possibleScripts
+   * @param {string} src - The source code of the script.
+   */
+
 
   updateScript(name, src) {
     this.getScript(name).src = src;
   }
+  /**
+   * Remove the script that corresponds to a given event name.
+   * @param {string} name - The name of the event. See Wick.Tickable.possibleScripts
+   */
+
 
   removeScript(name) {
     this._scripts = this._scripts.filter(script => {
       return script.name !== name;
     });
   }
+  /**
+   * Run the script with the corresponding event name.
+   * @param {string} name - The name of the event. See Wick.Tickable.possibleScripts
+   */
+
 
   runScript(name) {
     if (!this.hasScript(name)) return null; // Dont' run scripts if this object is the focus
