@@ -38,8 +38,10 @@ class EditorCore extends Component {
    */
   setActiveTool = (newTool) => {
     if(newTool !== this.state.activeTool) {
-      this.project.selection.clear();
-      this.projectDidChange();
+      if(newTool !== 'pan') {
+        this.project.selection.clear();
+        this.projectDidChange();
+      }
 
       this.lastUsedTool = this.state.activeTool;
       this.setState({
