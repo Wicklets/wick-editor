@@ -16516,13 +16516,49 @@ paper.Selection = class {
   }
 
   _generateBorder() {
-    return new paper.Path.Rectangle({
+    var border = new paper.Path.Rectangle({
       name: 'border',
       from: this._bounds.topLeft,
       to: this._bounds.bottomRight,
       strokeWidth: paper.Selection.BOX_STROKE_WIDTH,
       strokeColor: paper.Selection.BOX_STROKE_COLOR,
       insert: false
+    });
+    border.data.isBorder = true;
+    return border;
+  }
+
+  _generatePathOutlines() {
+    return this._items.filter(item => {
+      return item instanceof paper.Path || item instanceof paper.CompoundPath;
+    }).map(item => {
+      var itemForBounds = item.clone({
+        insert: false
+      });
+      itemForBounds.matrix.set(new paper.Matrix());
+      var outline = new paper.Path.Rectangle(itemForBounds.bounds);
+      outline.fillColor = 'rgba(0,0,0,0)';
+      outline.strokeColor = paper.Selection.BOX_STROKE_COLOR;
+      outline.strokeWidth = paper.Selection.BOX_STROKE_WIDTH;
+      outline.data.isBorder = true;
+      return outline;
+    });
+  }
+
+  _generateGroupOutlines() {
+    return this._items.filter(item => {
+      return item instanceof paper.Group || item instanceof paper.Raster;
+    }).map(item => {
+      var itemForBounds = item.clone({
+        insert: false
+      });
+      itemForBounds.matrix.set(item.data.originalMatrix);
+      var outline = new paper.Path.Rectangle(itemForBounds.bounds);
+      outline.fillColor = 'rgba(0,0,0,0)';
+      outline.strokeColor = paper.Selection.BOX_STROKE_COLOR;
+      outline.strokeWidth = paper.Selection.BOX_STROKE_WIDTH;
+      outline.data.isBorder = true;
+      return outline;
     });
   }
 
@@ -16572,38 +16608,6 @@ paper.Selection = class {
     hotspot.scaling.x = 1 / this._transform.scaleX;
     hotspot.scaling.y = 1 / this._transform.scaleY;
     return hotspot;
-  }
-
-  _generatePathOutlines() {
-    return this._items.filter(item => {
-      return item instanceof paper.Path || item instanceof paper.CompoundPath;
-    }).map(item => {
-      var itemForBounds = item.clone({
-        insert: false
-      });
-      itemForBounds.matrix.set(new paper.Matrix());
-      var outline = new paper.Path.Rectangle(itemForBounds.bounds);
-      outline.fillColor = 'rgba(0,0,0,0)';
-      outline.strokeColor = paper.Selection.BOX_STROKE_COLOR;
-      outline.strokeWidth = paper.Selection.BOX_STROKE_WIDTH;
-      return outline;
-    });
-  }
-
-  _generateGroupOutlines() {
-    return this._items.filter(item => {
-      return item instanceof paper.Group || item instanceof paper.Raster;
-    }).map(item => {
-      var itemForBounds = item.clone({
-        insert: false
-      });
-      itemForBounds.matrix.set(item.data.originalMatrix);
-      var outline = new paper.Path.Rectangle(itemForBounds.bounds);
-      outline.fillColor = 'rgba(0,0,0,0)';
-      outline.strokeColor = paper.Selection.BOX_STROKE_COLOR;
-      outline.strokeWidth = paper.Selection.BOX_STROKE_WIDTH;
-      return outline;
-    });
   }
 
   _getUniqueProperties(propName, applyFn) {
@@ -47995,6 +47999,11 @@ Wick.Clip = class extends Wick.Tickable {
 * You should have received a copy of the GNU General Public License
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
+
+/**
+ * A class representing a Wick Button.
+ * Buttons are just clips with special timelines controlled by mouse interactions.
+ */
 Wick.Button = class extends Wick.Clip {
   constructor(paths, clips) {
     super(paths, clips);

@@ -5130,7 +5130,7 @@ var TOOL_CURSOR = () => {
       segments: true,
       tolerance: SELECTION_TOLERANCE,
       match: function (result) {
-        return result.item !== hoverPreview;
+        return result.item !== hoverPreview && !result.item.data.isBorder;
       }
     });
     if (!newHitResult) newHitResult = new paper.HitResult();
