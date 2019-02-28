@@ -46304,6 +46304,18 @@ Wick.Asset = class extends Wick.Base {
     return imageTypes.concat(soundTypes);
   }
   /**
+   * Returns all valid extensions types for files which can be attempted to be 
+   * converted to Wick Assets.
+   * @return  {string[]} Array of strings representing extensions.
+   */
+
+
+  static getValidExtensions() {
+    let imageExtensions = Wick.ImageAsset.getValidExtensions();
+    let soundExtensions = Wick.SoundAsset.getValidExtensions();
+    return imageExtensions.concat(soundExtensions);
+  }
+  /**
    * Creates a new Wick Asset.
    * @param {string} filename - the filename of the asset
    * @param {string} src - the data of the asset, in base64 format
@@ -46409,7 +46421,18 @@ Wick.ImageAsset = class extends Wick.Asset {
    * @returns {string[]} Array of strings representing MIME types in the form image/filetype.
    */
   static getValidMIMETypes() {
-    return ['image/jpeg', 'image/png', 'image/bmp', 'image/gif'];
+    let jpgTypes = ['image/jpeg'];
+    let pngTypes = ['image/png'];
+    return jpgTypes.concat(pngTypes);
+  }
+  /**
+   * Valid extensions for image assets.
+   * @returns {string[]} Array of strings representing extensions.
+   */
+
+
+  static getValidExtensions() {
+    return ['.jpeg', '.jpg', '.png'];
   }
 
   constructor(filename, src) {
@@ -46492,7 +46515,19 @@ Wick.SoundAsset = class extends Wick.Asset {
    * @returns {string[]} Array of strings representing MIME types in the form audio/Subtype.
    */
   static getValidMIMETypes() {
-    return ['audio/mpeg3', 'audio/x-mpeg-3', 'audio/ogg', 'audio/wav'];
+    let mp3Types = ['audio/mpeg3', 'audio/x-mpeg-3', 'video/mpeg', 'video/x-mpeg'];
+    let oggTypes = ['audio/ogg', 'video/ogg', 'application/ogg'];
+    let wavTypes = ['audio/wave', 'audio/wav', 'audio/x-wav', 'audio/x-pn-wav'];
+    return mp3Types.concat(oggTypes).concat(wavTypes);
+  }
+  /**
+   * Returns valid extensions for a sound asset.
+   * @returns {string[]} Array of strings representing valid 
+   */
+
+
+  static getValidExtensions() {
+    return ['.mp3', '.ogg', '.wav'];
   }
 
   constructor(filename, src) {
