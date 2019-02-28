@@ -46392,7 +46392,7 @@ Wick.ImageAsset = class extends Wick.Asset {
    * @returns {string[]} Array of strings representing MIME types in the form image/filetype.
    */
   static getValidMIMETypes() {
-    return ['image/jpeg', 'image/png', 'image/bmp', 'image/gif'];
+    return ['.jpg', '.jpg', '.png', '.bmp'];
   }
 
   constructor(filename, src) {
@@ -46475,7 +46475,7 @@ Wick.SoundAsset = class extends Wick.Asset {
    * @returns {string[]} Array of strings representing MIME types in the form audio/Subtype.
    */
   static getValidMIMETypes() {
-    return ['audio/mpeg3', 'audio/x-mpeg-3', 'audio/ogg', 'audio/wav'];
+    return ['.mp3', '.ogg', '.wav'];
   }
 
   constructor(filename, src) {

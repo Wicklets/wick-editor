@@ -400,6 +400,10 @@ class Inspector extends Component {
     )
   }
 
+  /**
+   * Renders an inspector row allowing viewing and editing of sound assets attached to the
+   * current object.
+   */
   renderSelectionSoundAsset = () => {
     return (
       <div className="inspector-item">
