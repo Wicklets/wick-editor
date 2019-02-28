@@ -405,15 +405,31 @@ class Inspector extends Component {
    * current object.
    */
   renderSelectionSoundAsset = () => {
+
+    let mapAsset = asset => {
+      if (!asset) {
+        return {
+          value: "novalue",
+          label: "No Sound",
+        }
+      }
+      return {
+        value: asset, 
+        label: asset.name,
+      }
+    }
+
+    let options = this.props.getAllSoundAssets().map(mapAsset); 
+    let value = mapAsset(this.getSelectionAttribute('sound'));
     return (
       <div className="inspector-item">
         <InspectorSelector
           tooltip="Sound"
           type="select"
-          options={this.props.getAllSoundAssets()}
-          value={this.getSelectionAttribute('sound')}
+          options={options}
+          value={value}
           isSearchable={true}
-          onChange={(val) => {this.setSelectionAttribute('sound', val)}} />
+          onChange={(val) => {this.setSelectionAttribute('sound', val.value)}} />
       </div>
     );
   }

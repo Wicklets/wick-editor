@@ -557,7 +557,7 @@ class Editor extends EditorCore {
 
     return (
     <Dropzone
-      accept={window.Wick.Asset.getValidMIMETypes()}
+      accept={window.Wick.Asset.getValidExtensions()}
       onDrop={(accepted, rejected) => this.createAssets(accepted, rejected)}
       onClick={(evt) => {evt.preventDefault()}}
     >
