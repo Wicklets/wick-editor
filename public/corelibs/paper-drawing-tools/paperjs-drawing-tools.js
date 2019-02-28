@@ -5582,6 +5582,7 @@ var TOOL_FILLBUCKET = () => {
           onError: function (message) {
             paper.view._element.style.cursor = 'default';
             console.log("Fill bucket onError: " + message);
+            tool.onError && tool.onError(message);
           }
         });
       }, 50);

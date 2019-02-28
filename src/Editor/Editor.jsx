@@ -488,14 +488,6 @@ class Editor extends EditorCore {
     }
   }
 
-  undoAction = () => {
-    this.history.undo();
-  }
-
-  redoAction = () => {
-    this.history.redo();
-  }
-
   /**
    * Signals to React that the "live" project changed, so that all components
    * displaying info about the project will render.
@@ -653,6 +645,7 @@ class Editor extends EditorCore {
                                 toolSettings={this.state.toolSettings}
                                 previewPlaying={this.state.previewPlaying}
                                 createImageFromAsset={this.createImageFromAsset}
+                                toast={this.toast}
                               />
                               <CanvasTransforms
                                 onionSkinEnabled={this.project.onionSkinEnabled}

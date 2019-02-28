@@ -48,11 +48,32 @@ class EditorCore extends Component {
     }
   }
 
+  /**
+   * Activates the tool that was used before the current tool was activated.
+   */
   activateLastTool = () => {
     if(!this.lastUsedTool) return;
     this.setState({
       activeTool: this.lastUsedTool,
     });
+  }
+
+  /**
+   * Undo the last action that was done.
+   */
+  undoAction = () => {
+    if(!this.history.undo()) {
+      this.toast('Nothing to undo.', 'warning')
+    }
+  }
+
+  /**
+   * Recover the state of the project from before the last action was done.
+   */
+  redoAction = () => {
+    if(!this.history.redo()) {
+      this.toast('Nothing to redo.', 'warning')
+    }
   }
 
   /**
@@ -437,7 +458,7 @@ class EditorCore extends Component {
       "rotation",
       "opacity",
       "sound",
-      "soundStart", 
+      "soundStart",
     ];
     return attributes;
   }
@@ -615,7 +636,8 @@ class EditorCore extends Component {
    */
   createAssets = (acceptedFiles, rejectedFiles) => {
     if (rejectedFiles.length > 0) {
-      alert("The Wick Editor could not accept these files." + JSON.stringify(rejectedFiles.map(f => f.name)));
+      let fileNamesRejected = rejectedFiles.map(file => file.name).join(', ');
+      this.toast('Could not import files: ' + fileNamesRejected, 'error');
     }
 
     if (acceptedFiles.length <= 0) return;
@@ -660,6 +682,11 @@ class EditorCore extends Component {
    * Copies the selection state and selected objects to the clipboard.
    */
   copySelectionToClipboard = () => {
+    if(this.project.selection.numObjects === 0) {
+      this.toast('There is nothing to copy.', 'warning');
+      return;
+    }
+
     let serializedSelection = this.serializeSelection();
     localForage.setItem('wickClipboard', serializedSelection).then(() => {
     }).catch( (err) => {
@@ -681,11 +708,13 @@ class EditorCore extends Component {
    * @return {[type]} [description]
    */
   pasteFromClipboard = () => {
-    localForage.getItem('wickClipboard').then((serializedSelection) => {
+    localForage.getItem('wickClipboard')
+    .then((serializedSelection) => {
       let deserialized = this.deserializeSelection(serializedSelection);
       this.addSelectionToProject(deserialized, {offset: {x: 10, y: 10}});
-    }).catch((err) => {
-      console.error("Error when pasting from clipboard.")
+    })
+    .catch((err) => {
+      this.toast('There was an error while trying to paste.', 'error');
       console.error(err);
     });
   }
@@ -721,24 +750,22 @@ class EditorCore extends Component {
    * Export the current project as a Wick File using the save as dialog.
    */
   exportProjectAsWickFile = () => {
-    /**
-     * Attempts to safely open a saveAs dialog to save a file.
-     * @param  {File} file the file to save. if undefined, an alert is thrown.
-     */
-    let safeExport = (file) => {
+    this.toast('Exporting project as a .wick file...', 'info');
+
+    this.project.exportAsWickFile((file) => {
       if (file === undefined) {
-        alert("Cannot download project. Project is undefined.");
+        this.toast('Could not export project.', 'error');
         return;
       }
       saveAs(file, this.project.name + '.wick');
-    }
-    this.project.exportAsWickFile(safeExport);
+    });
   }
 
   /**
    * Export the current project as an animated GIF.
    */
   exportProjectAsAnimatedGIF = () => {
+    this.toast('Exporting animated GIF...', 'info');
     GIFExport.createAnimatedGIFFromProject(this.project, blob => {
       this.project = window.Wick.Project.deserialize(this.project.serialize());
       saveAs(blob, this.project.name + '.gif');
@@ -749,6 +776,7 @@ class EditorCore extends Component {
    * Export the current project as a bundled standalone ZIP that can be uploaded to itch/newgrounds/etc.
    */
   exportProjectAsStandaloneZIP = () => {
+    this.toast('Exporting project as ZIP...', 'info');
     ZIPExport.bundleStandaloneProject(this.project, blob => {
       saveAs(blob, this.project.name + '.zip');
     });
@@ -841,7 +869,7 @@ class EditorCore extends Component {
   getAllSoundAssets = () => {
     return this.project.getAssets('Sound');
   }
-  
+
 }
 
 export default EditorCore;

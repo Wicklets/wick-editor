@@ -59,8 +59,9 @@ class Canvas extends Component {
 
   componentDidMount() {
     let canvasContainerElem = this.canvasContainer.current;
+    let paper = window.paper;
 
-    window.paper.selection = new window.paper.Selection();
+    paper.selection = new window.paper.Selection();
 
     this.props.project.view.setCanvasContainer(canvasContainerElem);
     this.props.project.view.resize();
@@ -70,11 +71,35 @@ class Canvas extends Component {
       canvasContainerElem.children[0].focus();
     }
 
-    window.paper.drawingTools.setup();
-    window.paper.drawingTools.onCanvasModified(this.onCanvasModified);
-    window.paper.drawingTools.onSelectionChanged(this.onSelectionChanged);
-    window.paper.drawingTools.onCanvasViewChanged(this.onCanvasViewChanged);
-    window.paper.drawingTools.onSelectionTransformed(this.onSelectionTransformed);
+    // Listen to drawing tool events
+    paper.drawingTools.setup();
+    paper.drawingTools.onCanvasModified(this.onCanvasModified);
+    paper.drawingTools.onSelectionChanged(this.onSelectionChanged);
+    paper.drawingTools.onCanvasViewChanged(this.onCanvasViewChanged);
+    paper.drawingTools.onSelectionTransformed(this.onSelectionTransformed);
+
+    // Add some toaster warnings so there's some feedback when you try to draw somewhere that you can't.
+    paper.drawingTools.none.onMouseDown = () => {
+      if(!this.props.project.activeFrame) {
+        this.props.toast('There is no frame to draw onto.', 'warning');
+      } else if (this.props.project.activeLayer.locked) {
+        this.props.toast('The layer you are trying to draw onto is locked.', 'warning');
+      } else if (this.props.project.activeLayer.hidden) {
+        this.props.toast('The layer you are trying to draw onto is hidden.', 'warning');
+      }
+    }
+
+    // Add some toaster warnings for common fill bucket issues
+    paper.drawingTools.fillbucket.onError = (message) => {
+      if(message === 'OUT_OF_BOUNDS' || message === 'LEAKY_HOLE') {
+        this.props.toast('The shape you are trying to fill has a gap.', 'warning');
+      } else if (message === 'NO_PATHS') {
+        this.props.toast('There is no hole to fill.', 'warning');
+      } else {
+        this.props.toast('There was an error while filling a hole.', 'error');
+        console.error(message);
+      }
+    }
 
     this.updateCanvas();
   }
