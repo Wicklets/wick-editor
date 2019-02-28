@@ -47688,7 +47688,17 @@ Wick.Frame = class extends Wick.Tickable {
 * You should have received a copy of the GNU General Public License
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
+
+/**
+ * A class representing a Wick Clip.
+ */
 Wick.Clip = class extends Wick.Tickable {
+  /**
+   * Create a new clip.
+   * @param {string} identifier - The identifier of the new clip.
+   * @param {Wick.Path|Wick.Clip[]} objects - Optional. A list of objects to add to the clip.
+   * @param {Wick.Transformation} transform - Optional. The initial transformation of the clip.
+   */
   constructor(identifier, objects, transform) {
     super();
     this._timeline = null;
@@ -47736,6 +47746,10 @@ Wick.Clip = class extends Wick.Tickable {
   get classname() {
     return 'Clip';
   }
+  /**
+   * Determines whether or not the clip is visible in the project.
+   */
+
 
   get onScreen() {
     if (this.isRoot) {
@@ -47746,10 +47760,18 @@ Wick.Clip = class extends Wick.Tickable {
       return true;
     }
   }
+  /**
+   * Determines whether or not the clip is the root clip in the project.
+   */
+
 
   get isRoot() {
     return this.project && this === this.project.root;
   }
+  /**
+   * The timeline of the clip.
+   */
+
 
   get timeline() {
     return this._timeline;
@@ -47764,14 +47786,26 @@ Wick.Clip = class extends Wick.Tickable {
 
     this._addChild(this._timeline);
   }
+  /**
+   * The active layer of the clip's timeline.
+   */
+
 
   get activeLayer() {
     return this.timeline.activeLayer;
   }
+  /**
+   * The active frame of the clip's timeline.
+   */
+
 
   get activeFrame() {
     return this.activeLayer.activeFrame;
   }
+  /**
+   * An array containing every clip and frame that is a child of this clip and has an identifier.
+   */
+
 
   get namedChildren() {
     var namedChildren = [];
@@ -47788,16 +47822,28 @@ Wick.Clip = class extends Wick.Tickable {
     });
     return namedChildren;
   }
+  /**
+   * An array containing every clip and frame that is a child of this clip and has an identifier, and also is visible on screen.
+   */
+
 
   get activeNamedChildren() {
     return this.namedChildren.filter(child => {
       return child.onScreen;
     });
   }
+  /**
+   * Remove this clip from its parent frame.
+   */
+
 
   remove() {
     this.parent.removeClip(this);
   }
+  /**
+   * Remove this clip and add all of its paths and clips to its parent frame.
+   */
+
 
   breakApart() {
     var leftovers = [];
@@ -47817,13 +47863,6 @@ Wick.Clip = class extends Wick.Tickable {
     });
     this.remove();
     return leftovers;
-  }
-
-  runScripts() {
-    super.runScripts();
-    this.timeline.frames.forEach(frame => {
-      frame.runScripts();
-    });
   }
   /**
    * Stops a clip's timeline on that clip's current playhead position.
@@ -47864,6 +47903,10 @@ Wick.Clip = class extends Wick.Tickable {
     this.timeline._playing = true;
     this.timeline._forceNextFrame = frame;
   }
+  /**
+   * The X position of the clip.
+   */
+
 
   get x() {
     return this.transform.x;
@@ -47872,6 +47915,10 @@ Wick.Clip = class extends Wick.Tickable {
   set x(x) {
     this.transform.x = x;
   }
+  /**
+   * The Y position of the clip.
+   */
+
 
   get y() {
     return this.transform.y;
@@ -47880,6 +47927,10 @@ Wick.Clip = class extends Wick.Tickable {
   set y(y) {
     this.transform.y = y;
   }
+  /**
+   * The X scale of the clip.
+   */
+
 
   get scaleX() {
     return this.transform.scaleX;
@@ -47888,6 +47939,10 @@ Wick.Clip = class extends Wick.Tickable {
   set scaleX(scaleX) {
     this.transform.scaleX = scaleX;
   }
+  /**
+   * The Y scale of the clip.
+   */
+
 
   get scaleY() {
     return this.transform.scaleY;
@@ -47896,6 +47951,10 @@ Wick.Clip = class extends Wick.Tickable {
   set scaleY(scaleY) {
     this.transform.scaleY = scaleY;
   }
+  /**
+   * The rotation of the clip.
+   */
+
 
   get rotation() {
     return this.transform.rotation;
@@ -47904,15 +47963,19 @@ Wick.Clip = class extends Wick.Tickable {
   set rotation(rotation) {
     this.transform.rotation = rotation;
   }
+  /**
+   * The opacity of the clip.
+   */
+
 
   get opacity() {
     return this.transform.opacity;
   }
 
   set opacity(opacity) {
+    opacity = Math.min(1, opacity);
+    opacity = Math.max(0, opacity);
     this.transform.opacity = opacity;
-    this.transform.opacity = Math.min(1, this.transform.opacity);
-    this.transform.opacity = Math.max(0, this.transform.opacity);
   }
   /**
    * The list of parents, grandparents, grand-grandparents...etc of the clip.
@@ -48005,8 +48068,8 @@ Wick.Clip = class extends Wick.Tickable {
  * Buttons are just clips with special timelines controlled by mouse interactions.
  */
 Wick.Button = class extends Wick.Clip {
-  constructor(paths, clips) {
-    super(paths, clips);
+  constructor(identifier, objects, transform) {
+    super(identifier, objects, transform);
     this.cursor = 'pointer';
   }
 
