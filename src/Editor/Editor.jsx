@@ -31,6 +31,9 @@ import { throttle } from 'underscore';
 import { HotKeys } from 'react-hotkeys';
 import Dropzone from 'react-dropzone';
 import localForage from 'localforage';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { Slide } from 'react-toastify';
 
 import HotKeyInterface from './hotKeyMap';
 import ActionMapInterface from './actionMap';
@@ -516,8 +519,50 @@ class Editor extends EditorCore {
     });
   }
 
+  /**
+   * Create a toast notification.
+   * @param {string} message - the message to display inside the toast.
+   * @param {string} type - the type of the toast. ("info", "success", "warning", or "error". See react-toastify docs for more info)
+   * @param {object} options - the options for the toast notification. For all options, see the demo for react-toastify: https://fkhadra.github.io/react-toastify/
+   */
+  toast = (message, type, options) => {
+    if(!message) {
+      console.error("toast() requires a message.");
+      return;
+    }
+
+    // If no type is given, default to "info"
+    if(!type) type = "info";
+
+    if(["info", "success", "warning", "error"].indexOf(type) === -1) {
+      console.error("toast(): Invalid type: " + type);
+      return;
+    }
+
+    // If no options are given, set the options param to an empty object so only the default options are used.
+    if(!options) options = {};
+
+    // Default options for the toast:
+    let defaultOptions = {
+      position: "top-right",
+      autoClose: 5000,
+      hideProgressBar: true,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+    };
+
+    // Mix default options and options param:
+    let mixOptions = Object.assign(defaultOptions, options);
+
+    toast[type](message, mixOptions);
+  }
+
   render = () => {
+    // Create some references to the project and editor to make debugging in the console easier:
     window.project = this.project;
+    window.editor = this;
+
     return (
     <Dropzone
       accept={window.Wick.Asset.getValidMIMETypes()}
@@ -527,6 +572,18 @@ class Editor extends EditorCore {
     {/*TODO: Check the onClick event */}
       {({getRootProps, getInputProps, open}) => (
         <div {...getRootProps()}>
+          <ToastContainer
+           transition={Slide}
+            position="top-right"
+            autoClose={5000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnVisibilityChange
+            draggable
+            pauseOnHover
+          />
           <input {...getInputProps()} />
             <HotKeys
               keyMap={this.state.previewPlaying ? this.hotKeyInterface.getEssentialKeyMap() : this.hotKeyInterface.getKeyMap()}
