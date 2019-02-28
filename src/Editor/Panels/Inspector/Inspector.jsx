@@ -401,26 +401,16 @@ class Inspector extends Component {
   }
 
   renderSelectionSoundAsset = () => {
-    let sounds = [
-      { value: "sound1", label: "Sound 1", },
-      { value: "sound2", label: "Sound 2", },
-      { value: "sound3", label: "Sound 3", },
-      { value: "sound4", label: "Sound 4", },
-      { value: "sound5", label: "Sound 5", },
-    ];
-
-    let selected = sounds[0];
-
-    let onChange = (val) => {console.log(val)}
-
     return (
-      <InspectorSelector
-        type="select"
-        options={sounds}
-        defaultValue={selected}
-        isSearchable={true}
-        onChange={onChange}
-        name={selected} />
+      <div className="inspector-item">
+        <InspectorSelector
+          tooltip="Sound"
+          type="select"
+          options={this.props.getAllSoundAssets()}
+          value={this.getSelectionAttribute('sound')}
+          isSearchable={true}
+          onChange={(val) => {this.setSelectionAttribute('sound', val)}} />
+      </div>
     );
   }
 
@@ -434,6 +424,7 @@ class Inspector extends Component {
         <div className="inspector-content">
           {this.renderName()}
           {this.renderFrameLength()}
+          {this.renderSelectionSoundAsset()}
         </div>
     );
   }

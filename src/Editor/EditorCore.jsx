@@ -436,6 +436,8 @@ class EditorCore extends Component {
       "scaleY",
       "rotation",
       "opacity",
+      "sound",
+      "soundStart", 
     ];
     return attributes;
   }
@@ -833,6 +835,22 @@ class EditorCore extends Component {
     this.project.onionSkinEnabled = !this.project.onionSkinEnabled;
     this.projectDidChange();
   }
+
+  /**
+   * Return all possible sound assets.
+   */
+  getAllSoundAssets = () => {
+    let sounds = [
+      { value: "sound1", label: "Sound 1", },
+      { value: "sound2", label: "Sound 2", },
+      { value: "sound3", label: "Sound 3", },
+      { value: "sound4", label: "Sound 4", },
+      { value: "sound5", label: "Sound 5", },
+    ];
+    return sounds; 
+    //return this.project.getAssets('Sound');
+  }
+
 }
 
 export default EditorCore;

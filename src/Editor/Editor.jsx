@@ -522,8 +522,9 @@ class Editor extends EditorCore {
     <Dropzone
       accept={window.Wick.Asset.getValidMIMETypes()}
       onDrop={(accepted, rejected) => this.createAssets(accepted, rejected)}
-      disableClick
+      onClick={(evt) => {evt.preventDefault()}}
     >
+    {/*TODO: Check the onClick event */}
       {({getRootProps, getInputProps, open}) => (
         <div {...getRootProps()}>
           <input {...getInputProps()} />
@@ -650,6 +651,7 @@ class Editor extends EditorCore {
                                 getToolSettings={this.getToolSettings}
                                 setToolSettings={this.setToolSettings}
                                 getSelectionType={this.getSelectionType}
+                                getAllSoundAssets={this.getAllSoundAssets}
                                 selectionAttributes={this.state.selectionAttributes}
                                 setSelectionAttribute={this.setSelectionAttribute}
                                 editorActions={this.actionMapInterface.editorActions}
