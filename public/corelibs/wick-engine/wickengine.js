@@ -44991,10 +44991,11 @@ Wick.Project = class extends Wick.Base {
 
 
   deleteSelectedObjects() {
-    this.selection.getSelectedObjects().forEach(object => {
+    var objects = this.selection.getSelectedObjects();
+    this.selection.clear();
+    objects.forEach(object => {
       object.remove && object.remove();
     });
-    this.selection.clear();
   }
   /**
    * Selects all objects that are visible on the canvas (excluding locked layers and onion skinned objects)
