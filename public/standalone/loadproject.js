@@ -28,8 +28,8 @@ window.onload = function () {
         project.focus.timeline.playheadPosition = 1;
         project.play({
             onError: (error => {
-                console.log('Project threw an error!');
-                console.log(error);
+                console.error('Project threw an error!');
+                console.error(error);
             }),
         });
     }
