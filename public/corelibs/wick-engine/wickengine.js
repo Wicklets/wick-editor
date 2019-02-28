@@ -46346,6 +46346,13 @@ Wick.Asset = class extends Wick.Base {
   }
 
   set src(src) {
+    var MIMEType = this._MIMETypeOfString(src);
+
+    if (Wick.Asset.getValidMIMETypes().indexOf(MIMEType) === -1) {
+      console.error("Unsupported filetype: " + MIMEType);
+      return;
+    }
+
     Wick.FileCache.addFile(src, this.uuid);
   }
   /**
@@ -46354,7 +46361,7 @@ Wick.Asset = class extends Wick.Base {
 
 
   get MIMEType() {
-    return this.src && this.src.split(':')[1].split(',')[0].split(';')[0];
+    return this._MIMETypeOfString(this.src);
   }
   /**
    * The file extension of the asset.
@@ -46362,7 +46369,17 @@ Wick.Asset = class extends Wick.Base {
 
 
   get fileExtension() {
-    return this.MIMEType && this.MIMEType.split('/')[1];
+    return this._fileExtensionOfString(this.src);
+  }
+
+  _MIMETypeOfString(string) {
+    return string.split(':')[1].split(',')[0].split(';')[0];
+  }
+
+  _fileExtensionOfString(string) {
+    var MIMEType = _MIMETypeOfString(string);
+
+    return MIMEType && MIMEType.split('/')[1];
   }
 
 };
@@ -46392,7 +46409,7 @@ Wick.ImageAsset = class extends Wick.Asset {
    * @returns {string[]} Array of strings representing MIME types in the form image/filetype.
    */
   static getValidMIMETypes() {
-    return ['.jpg', '.jpg', '.png', '.bmp'];
+    return ['image/jpeg', 'image/png', 'image/bmp', 'image/gif'];
   }
 
   constructor(filename, src) {
@@ -46475,7 +46492,7 @@ Wick.SoundAsset = class extends Wick.Asset {
    * @returns {string[]} Array of strings representing MIME types in the form audio/Subtype.
    */
   static getValidMIMETypes() {
-    return ['.mp3', '.ogg', '.wav'];
+    return ['audio/mpeg3', 'audio/x-mpeg-3', 'audio/ogg', 'audio/wav'];
   }
 
   constructor(filename, src) {
