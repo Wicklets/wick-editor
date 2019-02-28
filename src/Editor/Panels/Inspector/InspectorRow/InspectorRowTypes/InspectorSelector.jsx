@@ -29,7 +29,7 @@ class InspectorSelector extends Component {
           input1={
             {
               type: "select",
-              defaultValue: this.props.value,
+              value: this.props.value,
               onChange: this.props.onChange,
               options: this.props.options,
               className: this.props.className,

@@ -21,7 +21,10 @@ import React, { Component } from 'react';
 import './_wickinput.scss';
 
 import NumericInput from 'react-numeric-input';
-import Select from 'react-select';
+
+import Dropdown from 'react-dropdown';
+import 'react-dropdown/style.css';
+
 import ColorPicker from 'Editor/Util/ColorPicker/ColorPicker';
 import ReactTooltip from 'react-tooltip'
 import { Input } from 'reactstrap';
@@ -179,11 +182,16 @@ class WickInput extends Component {
   }
 
   renderSelect = () => {
+    let options = this.props.options;
     return (
-      <Select
-          {...this.props}
-          className={classNames("wick-select", this.props.className)}
-          ></Select>
+      <Dropdown
+        {...this.props}
+        className={classNames("wick-select", this.props.className)}
+        controlClassName="wick-select-control"
+        placeholderClassName="wick-select-placeholder" 
+        arrowClassName="wick-select-arrow"
+        menuClassName="wick-select-menu"
+        /> 
     );
   }
 
