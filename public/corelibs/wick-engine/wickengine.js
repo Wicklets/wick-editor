@@ -44563,8 +44563,6 @@ Wick.Project = class extends Wick.Base {
     this._root = null;
     this.root = new Wick.Clip();
     this.root.identifier = "Project";
-    this.root.timeline.addLayer(new Wick.Layer());
-    this.root.timeline.layers[0].addFrame(new Wick.Frame());
     this._focus = this.root.uuid;
     this.project = this;
     this._assets = [];
@@ -45037,6 +45035,11 @@ Wick.Project = class extends Wick.Base {
 
 
   createSymbolFromSelection(name, type) {
+    if (type !== 'Clip' && type !== 'Button') {
+      console.error('createSymbolFromSelection: invalid type: ' + type);
+      return;
+    }
+
     var transform = new Wick.Transformation();
     transform.x = this.selection.center.x;
     transform.y = this.selection.center.y;
@@ -45820,6 +45823,32 @@ Wick.Timeline = class extends Wick.Base {
     return frames;
   }
   /**
+   * The playhead position of the frame with the given name.
+   * @type {number|null}
+   */
+
+
+  getPlayheadPositionOfFrameWithName(name) {
+    var frame = this.getFrameByName(name);
+
+    if (frame) {
+      return frame.start;
+    } else {
+      return null;
+    }
+  }
+  /**
+   * Finds the frame with a given name.
+   * @type {Wick.Frame|null}
+   */
+
+
+  getFrameByName(name) {
+    return this.frames.find(frame => {
+      return frame.name === name;
+    }) || null;
+  }
+  /**
    * Adds a layer to the timeline.
    * @param {Wick.Layer} layer - The layer to add.
    */
@@ -45959,12 +45988,7 @@ Wick.Timeline = class extends Wick.Base {
 
   advance() {
     if (this._forceNextFrame) {
-      if (typeof this._forceNextFrame === 'string') {
-        console.error("NYI");
-      } else if (typeof this._forceNextFrame === 'number') {
-        this.playheadPosition = this._forceNextFrame;
-      }
-
+      this.playheadPosition = this._forceNextFrame;
       this._forceNextFrame = null;
     } else if (this._playing) {
       this.playheadPosition++;
@@ -45972,6 +45996,60 @@ Wick.Timeline = class extends Wick.Base {
       if (this.playheadPosition > this.length) {
         this.playheadPosition = 1;
       }
+    }
+  }
+  /**
+   * Stops the timeline from advancing during ticks.
+   */
+
+
+  stop() {
+    this._playing = false;
+  }
+  /**
+   * Makes the timeline advance automatically during ticks.
+   */
+
+
+  play() {
+    this._playing = true;
+  }
+  /**
+   * Stops the timeline and moves to a given frame number or name.
+   * @param {string|number} frame - A playhead position or name of a frame to move to.
+   */
+
+
+  gotoAndStop(frame) {
+    this.stop();
+    this.gotoFrame(frame);
+  }
+  /**
+   * Plays the timeline and moves to a given frame number or name.
+   * @param {string|number} frame - A playhead position or name of a frame to move to.
+   */
+
+
+  gotoAndPlay(frame) {
+    this.play();
+    this.gotoFrame(frame);
+  }
+  /**
+   * Moves the playhead to a given frame number or name.
+   * @param {string|number} frame - A playhead position or name of a frame to move to.
+   */
+
+
+  gotoFrame(frame) {
+    if (typeof frame === 'string') {
+      var namedFrame = this.frames.find(seekframe => {
+        return seekframe.identifier === frame;
+      });
+      if (namedFrame) this._forceNextFrame = namedFrame.start;
+    } else if (typeof frame === 'number') {
+      this._forceNextFrame = frame;
+    } else {
+      throw new Error('gotoFrame: Invalid argument: ' + frame);
     }
   }
 
@@ -47611,13 +47689,13 @@ Wick.Clip = class extends Wick.Tickable {
     super();
     this._timeline = null;
     this.timeline = new Wick.Timeline();
+    this.timeline.addLayer(new Wick.Layer());
+    this.timeline.activeLayer.addFrame(new Wick.Frame());
     this.identifier = identifier || 'New Symbol';
     this.transform = transform || new Wick.Transformation();
     this.cursor = 'default';
 
     if (objects) {
-      this.timeline.addLayer(new Wick.Layer());
-      this.timeline.activeLayer.addFrame(new Wick.Frame());
       var clips = objects.filter(object => {
         return object instanceof Wick.Clip;
       });
@@ -47751,7 +47829,7 @@ Wick.Clip = class extends Wick.Tickable {
 
 
   stop() {
-    this.timeline._playing = false;
+    this.timeline.stop();
   }
   /**
    * Plays a clip's timeline from that clip's current playhead position.
@@ -47761,29 +47839,20 @@ Wick.Clip = class extends Wick.Tickable {
 
 
   play() {
-    this.timeline._playing = true;
+    this.timeline.play();
   }
   /**
    * Moves a clip's playhead to a specific position and stops that clip's timeline on that position.
-   * @param  {number|string} frame A number or string representing the frame to move the playhead to. If a string is provided, the clip must have a frame with the same name as the string.
-   * @example
-   * clipName.gotoAndStop(1);
-   * @example
-   * clipName.gotoAndStop("frameName");
+   * @param {number|string} frame - number or string representing the frame to move the playhead to.
    */
 
 
   gotoAndStop(frame) {
-    this.timeline._playing = false;
-    this.timeline._forceNextFrame = frame;
+    this.timeline.gotoAndStop(frame);
   }
   /**
    * Moves a clip's playhead to a specific position and plays that clip's timeline from that position.
-   * @param  {number|string} frame A number or string representing the frame to move the playhead to. If a string is provided, the clip must have a frame with the same name as the string.
-   * @example
-   * clipName.gotoAndPlay(1);
-   * @example
-   * clipName.gotoAndPlay("frameName");
+   * @param {number|string} frame - number or string representing the frame to move the playhead to.
    */
 
 
