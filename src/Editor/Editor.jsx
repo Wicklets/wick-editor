@@ -668,7 +668,8 @@ class Editor extends EditorCore {
                             onStopResize={this.resizeProps.onStopAssetLibraryResize}>
                             <DockedPanel showOverlay={this.state.previewPlaying}>
                               <AssetLibrary
-                                assets={this.project.assets}
+                                projectData={this.state.project}
+                                assets={this.project.getAssets()}
                                 openFileDialog={() => open()}
                                 selectObjects={this.selectObjects}
                                 isObjectSelected={this.isObjectSelected}

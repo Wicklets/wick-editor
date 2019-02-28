@@ -44630,7 +44630,7 @@ Wick.Project = class extends Wick.Base {
     data.root = this.root.serialize();
     data.focus = this.focus.uuid;
     data.selection = this.selection.serialize();
-    data.assets = this.assets.map(asset => {
+    data.assets = this.getAssets().map(asset => {
       return asset.serialize();
     });
     return data;
@@ -44764,7 +44764,7 @@ Wick.Project = class extends Wick.Base {
 
 
   addAsset(asset) {
-    this.assets.push(asset);
+    this._assets.push(asset);
 
     this._addChild(asset);
   }
@@ -44790,18 +44790,25 @@ Wick.Project = class extends Wick.Base {
 
 
   getAsset(uuid) {
-    return this.assets.find(asset => {
+    return this.getAssets().find(asset => {
       return asset.uuid === uuid;
     });
   }
   /**
    * The assets belonging to the project.
-   * @type {Wick.Asset[]}
+   * @param {string} type - Optional, filter assets by type ("Sound"/"Image"/"Clip"/"Button")
+   * @returns {Wick.Asset[]} The assets in the project
    */
 
 
-  get assets() {
-    return this._assets;
+  getAssets(type) {
+    if (!type) {
+      return this._assets;
+    } else {
+      return this._assets.filter(asset => {
+        return asset instanceof Wick[type + 'Asset'];
+      });
+    }
   }
   /**
    * The root clip.
@@ -45085,7 +45092,7 @@ Wick.Project = class extends Wick.Base {
 
     var assetsFolder = zip.folder("assets"); // Populate assets folder with files
 
-    this.assets.filter(asset => {
+    this.getAssets().filter(asset => {
       return asset instanceof Wick.ImageAsset || asset instanceof Wick.SoundAsset;
     }).forEach(asset => {
       // Create file from asset dataurl, add it to assets folder
@@ -45636,6 +45643,24 @@ Wick.Selection = class extends Wick.Base {
       this.getSelectedObject().identifier = name;
     }
   }
+  /**
+   * The sound attached to the selected object.
+   */
+
+
+  get sound() {
+    if (this.numObjects !== 1) {
+      return null;
+    } else {
+      return this.getSelectedObject().sound;
+    }
+  }
+
+  set sound(sound) {
+    if (this.numObjects === 1) {
+      this.getSelectedObject().sound = sound;
+    }
+  }
 
   _locationOf(object) {
     if (object instanceof Wick.Frame || object instanceof Wick.Tween || object instanceof Wick.Layer) {
@@ -45933,7 +45958,12 @@ Wick.Timeline = class extends Wick.Base {
 
   advance() {
     if (this._forceNextFrame) {
-      this.playheadPosition = this._forceNextFrame;
+      if (typeof this._forceNextFrame === 'string') {
+        console.error("NYI");
+      } else if (typeof this._forceNextFrame === 'number') {
+        this.playheadPosition = this._forceNextFrame;
+      }
+
       this._forceNextFrame = null;
     } else if (this._playing) {
       this.playheadPosition++;
@@ -46828,7 +46858,13 @@ Wick.Tickable = class extends Wick.Base {
   }
 
   runScript(name) {
-    if (!this.hasScript(name)) return null;
+    if (!this.hasScript(name)) return null; // Dont' run scripts if this object is the focus
+    // (so that preview play will always play)
+
+    if (this.project && this.project.focus === this) {
+      return;
+    }
+
     var script = this.getScript(name);
     var api = new GlobalAPI(this);
     var otherObjects = this.parentClip ? this.parentClip.activeNamedChildren : [];
@@ -47700,6 +47736,11 @@ Wick.Clip = class extends Wick.Tickable {
     this.transform.opacity = Math.min(1, this.transform.opacity);
     this.transform.opacity = Math.max(0, this.transform.opacity);
   }
+  /**
+   * The list of parents, grandparents, grand-grandparents...etc of the clip.
+   * @returns {Wick.Clip[]} Array of all parents
+   */
+
 
   get lineage() {
     if (this.isRoot) {
