@@ -114,7 +114,6 @@ class Timeline extends Component {
 
   onSoftChange = (e) => {
     this.props.project.focus.timeline.playheadPosition = e.playhead;
-    this.props.project.selection.clear();
     this.props.projectDidChange();
   }
 
@@ -174,7 +173,7 @@ class Timeline extends Component {
   render() {
     return(
       <div id="animation-timeline-container">
-        <Breadcrumbs 
+        <Breadcrumbs
           project={this.props.project}
           setFocusObject={this.props.setFocusObject}
         />

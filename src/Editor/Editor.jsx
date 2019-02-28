@@ -284,7 +284,7 @@ class Editor extends EditorCore {
 
   onResize = (e) => {
     this.project.view.resize();
-    window.AnimationTimeline.resize(); 
+    window.AnimationTimeline.resize();
   }
 
   onStopResize = ({domElement, component}) => {
@@ -370,7 +370,7 @@ class Editor extends EditorCore {
   onStopTimelineResize = ({domElement, component}) => {
     var size = this.getSizeVertical(domElement);
 
-    console.log(size); 
+    console.log(size);
     this.setState({
       timelineSize: size
     });
@@ -518,6 +518,7 @@ class Editor extends EditorCore {
   }
 
   render = () => {
+    window.project = this.project;
     return (
     <Dropzone
       accept={window.Wick.Asset.getValidMIMETypes()}
