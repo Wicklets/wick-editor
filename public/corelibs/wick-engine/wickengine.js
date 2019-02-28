@@ -46358,13 +46358,6 @@ Wick.Asset = class extends Wick.Base {
   }
 
   set src(src) {
-    var MIMEType = this._MIMETypeOfString(src);
-
-    if (Wick.Asset.getValidMIMETypes().indexOf(MIMEType) === -1) {
-      console.error("Unsupported filetype: " + MIMEType);
-      return;
-    }
-
     Wick.FileCache.addFile(src, this.uuid);
   }
   /**
@@ -46389,9 +46382,21 @@ Wick.Asset = class extends Wick.Base {
   }
 
   _fileExtensionOfString(string) {
-    var MIMEType = _MIMETypeOfString(string);
+    var MIMEType = this._MIMETypeOfString(string);
 
     return MIMEType && MIMEType.split('/')[1];
+  }
+
+  _isBase64(str) {
+    if (str === '' || str.trim() === '') {
+      return false;
+    }
+
+    try {
+      return btoa(atob(str)) == str;
+    } catch (err) {
+      return false;
+    }
   }
 
 };
