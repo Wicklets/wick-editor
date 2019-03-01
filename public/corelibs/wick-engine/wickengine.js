@@ -44701,9 +44701,19 @@ Wick.Project = class extends Wick.Base {
   }
 
   set focus(clip) {
-    this._focus = clip.uuid;
-    this.selection.clear();
-    this.recenter();
+    var oldFocus = this._focus;
+    this._focus = clip.uuid; // Reset timelines of subclips
+
+    this.focus.timeline.clips.forEach(subclip => {
+      subclip.timeline.playheadPosition = 1;
+    });
+
+    if (oldFocus !== clip.uuid) {
+      // Always reset pan and zoom on focus change.
+      this.recenter(); // Always clear selection on focus change.
+
+      this.selection.clear();
+    }
   }
   /**
    * The timeline of the active clip.
@@ -45278,7 +45288,7 @@ Wick.Project = class extends Wick.Base {
   }
   /**
    * Create a sequence of images from every frame in the project.
-   * Format: 
+   * Format:
    *   start: The amount of time in milliseconds to cut from the beginning of the sound.
    *   end: The amount of time that the sound will play before stopping.
    *   uuid: The UUID of the asset that the sound corresponds to.
@@ -45825,6 +45835,19 @@ Wick.Timeline = class extends Wick.Base {
       });
     });
     return frames;
+  }
+  /**
+   * All clips inside the timeline.
+   * @type {Wick.Clip[]}
+   */
+
+
+  get clips() {
+    var clips = [];
+    this.frames.forEach(frame => {
+      clips = clips.concat(frame.clips);
+    });
+    return clips;
   }
   /**
    * The playhead position of the frame with the given name.
