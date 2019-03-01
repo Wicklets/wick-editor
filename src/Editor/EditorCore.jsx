@@ -713,7 +713,7 @@ class EditorCore extends Component {
     localForage.getItem('wickClipboard')
     .then((serializedSelection) => {
       let deserialized = this.deserializeSelection(serializedSelection);
-      this.addSelectionToProject(deserialized, {offset: {x: 10, y: 10}});
+      this.addSelectionToProject(deserialized, {offset: {x: 25, y: 25}});
     })
     .catch((err) => {
       this.toast('There was an error while trying to paste.', 'error');

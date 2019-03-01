@@ -114,6 +114,12 @@ class Canvas extends Component {
   }
 
   onSelectionTransformed = (e) => {
+    let project = this.props.project;
+    let paper = window.paper;
+
+    this.props.project.selection.x = paper.selection.x;
+    this.props.project.selection.y = paper.selection.y;
+
     this.props.projectDidChange(true);
   }
 

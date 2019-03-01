@@ -445,6 +445,8 @@ class Editor extends EditorCore {
    * Toggles the preview play between on and off states.
    */
   togglePreviewPlaying = () => {
+    this.project.selection.clear();
+
     let nextState = !this.state.previewPlaying;
     this.setState({
       previewPlaying: nextState,
