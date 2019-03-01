@@ -561,7 +561,7 @@ class Editor extends EditorCore {
     <Dropzone
       accept={window.Wick.Asset.getValidExtensions()}
       onDrop={(accepted, rejected) => this.createAssets(accepted, rejected)}
-      onClick={(evt) => {evt.preventDefault()}}
+      disableClick
     >
     {/*TODO: Check the onClick event */}
       {({getRootProps, getInputProps, open}) => (
