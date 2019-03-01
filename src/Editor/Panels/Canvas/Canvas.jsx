@@ -68,7 +68,6 @@ class Canvas extends Component {
 
     canvasContainerElem.children[0].setAttribute('tabindex', 0);
     canvasContainerElem.onclick = (e) => {
-      console.log('a');
       canvasContainerElem.children[0].focus();
     }
 
