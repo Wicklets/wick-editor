@@ -114,7 +114,6 @@ class Canvas extends Component {
   }
 
   onSelectionTransformed = (e) => {
-    this.props.project.view.applyChanges();
     this.props.projectDidChange(true);
   }
 

@@ -45406,7 +45406,8 @@ Wick.Selection = class extends Wick.Base {
   deselect(object) {
     this._uuids = this._uuids.filter(uuid => {
       return uuid !== object.uuid;
-    });
+    }); // Update the view so that all the selection transform values are updated
+
     this.project.view.render();
   }
   /**
@@ -45418,7 +45419,8 @@ Wick.Selection = class extends Wick.Base {
   clear(filter) {
     this.project.selection.getSelectedObjects(filter).forEach(object => {
       this.deselect(object);
-    });
+    }); // Update the view so that all the selection transform values are updated
+
     this.project.view.render();
   }
   /**
@@ -45767,6 +45769,7 @@ Wick.Timeline = class extends Wick.Base {
     // Automatically clear selection when any playhead moves
     if (this.project && this._playheadPosition !== playheadPosition) {
       this.project.selection.clear('Canvas');
+      this.project.view.applyChanges();
     }
 
     this._playheadPosition = playheadPosition;
@@ -46338,6 +46341,14 @@ Wick.Path = class extends Wick.Base {
 
   get paperPath() {
     return this._paperPath;
+  }
+  /**
+   * The bounding box of this path.
+   */
+
+
+  get bounds() {
+    return this.paperPath.bounds;
   }
   /**
    * Remove this path from its parent frame.

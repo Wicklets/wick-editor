@@ -442,40 +442,6 @@ class Editor extends EditorCore {
   }
 
   /**
-   * Toggles the preview play between on and off states.
-   */
-  togglePreviewPlaying = () => {
-    this.project.selection.clear();
-
-    let nextState = !this.state.previewPlaying;
-    this.setState({
-      previewPlaying: nextState,
-      codeErrors: [],
-    });
-
-    if(nextState) {
-      // Focus canvas element here
-    }
-  }
-
-  /**
-   * Stops the project if it is currently preview playing and displays provided
-   * errors in the code editor.
-   * @param  {object[]} errors Array of error objects.
-   */
-  stopPreviewPlaying = (errors) => {
-    this.stopTickLoop();
-    this.setState({
-      previewPlaying: false,
-      codeErrors: errors === undefined ? [] : errors,
-    });
-
-    if (errors) {
-      this.showCodeErrors(errors);
-    }
-  }
-
-  /**
    * Show code errors in the code editor by pooping it up.
    * @param  {object[]} errors Array of error objects.
    */
