@@ -67,7 +67,8 @@ class Canvas extends Component {
     this.props.project.view.resize();
 
     canvasContainerElem.children[0].setAttribute('tabindex', 0);
-    canvasContainerElem.children[0].onclick = (e) => {
+    canvasContainerElem.onclick = (e) => {
+      console.log('a');
       canvasContainerElem.children[0].focus();
     }
 
@@ -114,25 +115,21 @@ class Canvas extends Component {
   }
 
   onSelectionTransformed = (e) => {
-    let project = this.props.project;
-    let paper = window.paper;
-
-    this.props.project.selection.x = paper.selection.x;
-    this.props.project.selection.y = paper.selection.y;
-
+    this.props.project.view.applyChanges();
     this.props.projectDidChange(true);
   }
 
   onSelectionChanged = (e) => {
     let project = this.props.project;
 
+    project.view.applyChanges();
     project.selection.clear();
     e.items.forEach(item => {
       let object = project.getChildByUUID(item.data.wickUUID);
       project.selection.select(object);
     });
 
-    this.props.project.view.applyChanges();
+    project.view.applyChanges();
     this.props.projectDidChange();
   }
 
