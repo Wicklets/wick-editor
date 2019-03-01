@@ -45392,7 +45392,7 @@ Wick.Selection = class extends Wick.Base {
       this.clear();
     }
 
-    this._uuids.push(object.uuid); // Update the view so that all the selection transform values are updated 
+    this._uuids.push(object.uuid); // Update the view so that all the selection transform values are updated
 
 
     this.project.view.render();
@@ -45407,9 +45407,10 @@ Wick.Selection = class extends Wick.Base {
     this._uuids = this._uuids.filter(uuid => {
       return uuid !== object.uuid;
     });
+    this.project.view.render();
   }
   /**
-   * Remove all objects from the selection with an optional filter. 
+   * Remove all objects from the selection with an optional filter.
    * @param {string} filter - A location or a type (see SELECTABLE_OBJECT_TYPES and LOCATION_NAMES)
    */
 
@@ -45418,6 +45419,7 @@ Wick.Selection = class extends Wick.Base {
     this.project.selection.getSelectedObjects(filter).forEach(object => {
       this.deselect(object);
     });
+    this.project.view.render();
   }
   /**
    * Checks if a given object is selected.
@@ -45636,7 +45638,7 @@ Wick.Selection = class extends Wick.Base {
     paper.selection.opacity = opacity;
   }
   /**
-   * The centerpoint of the selected objects. 
+   * The centerpoint of the selected objects.
    */
 
 
@@ -45644,7 +45646,7 @@ Wick.Selection = class extends Wick.Base {
     return paper.selection.center;
   }
   /**
-   * The name of the selection. 
+   * The name of the selection.
    */
 
 
