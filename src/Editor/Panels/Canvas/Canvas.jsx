@@ -66,9 +66,9 @@ class Canvas extends Component {
     this.props.project.view.setCanvasContainer(canvasContainerElem);
     this.props.project.view.resize();
 
-    canvasContainerElem.children[0].setAttribute('tabindex', 0);
+    canvasContainerElem.setAttribute('tabindex', 0);
     canvasContainerElem.onclick = (e) => {
-      canvasContainerElem.children[0].focus();
+      canvasContainerElem.focus();
     }
 
     // Listen to drawing tool events
