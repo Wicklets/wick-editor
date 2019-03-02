@@ -72,6 +72,7 @@ class ProjectSettings extends Component {
   }
 
   changeProjectBackgroundColor = (color) => {
+    this.props.project.backgroundColor = color.hex;
     this.setState({
       backgroundColor: color.hex
     });
@@ -100,7 +101,7 @@ class ProjectSettings extends Component {
             <WickInput
               id="projectName"
               type="text"
-              value={this.state.name}
+              value={this.props.project.name}
               placeholder={this.defaultName}
               onChange={this.changeProjectName}
             />
@@ -135,7 +136,7 @@ class ProjectSettings extends Component {
               id="project-background-color-picker"
               disableAlpha={true}
               placement={'bottom'}
-              color={this.state.backgroundColor}
+              color={this.props.project.backgroundColor}
               onChangeComplete={this.changeProjectBackgroundColor}
               />
           </div>
