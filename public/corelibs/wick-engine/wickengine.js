@@ -44605,6 +44605,7 @@ Wick.Project = class extends Wick.Base {
     object.onionSkinSeekForwards = data.onionSkinSeekForwards || 1;
     object.onionSkinSeekBackwards = data.onionSkinSeekBackwards || 1;
     object.root = Wick.Clip.deserialize(data.root);
+    object.root.identifier = 'Project';
     object.focus = data.focus ? object.getChildByUUID(data.focus) : object.root;
     object.selection = data.selection ? Wick.Selection.deserialize(data.selection) : new Wick.Selection();
     object.project = object;
