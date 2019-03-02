@@ -262,6 +262,10 @@ class EditorCore extends Component {
             this.project.selection.types[0] === 'Button');
   }
 
+  /**
+   * The selected scriptable object.
+   * @return {Wick.Frame|Wick.Clip} object - the scriptable object that is selected
+   */
   getSelectedObjectScript = () => {
     if(this.selectionIsScriptable()) {
       return this.project.selection.getSelectedObject();
@@ -538,15 +542,15 @@ class EditorCore extends Component {
    * Moves the selected objects on the canvas to the back.
    */
   sendSelectionToBack = () => {
-    this.project.sendSelectionToBack();
+    this.project.selection.sendToBack();
     this.projectDidChange();
   }
 
   /**
    * Moves the selected objects on the canvas to the front.
    */
-  sendSelectionToFront = () => {
-    this.project.bringSelectionToFront();
+  bringSelectionToFront = () => {
+    this.project.selection.bringToFront();
     this.projectDidChange();
   }
 
@@ -554,7 +558,7 @@ class EditorCore extends Component {
    * Moves the selected objects on the canvas backwards.
    */
   moveSelectionBackwards = () => {
-    this.project.sendSelectionBackwards();
+    this.project.selection.moveBackwards();
     this.projectDidChange();
   }
 
@@ -562,7 +566,71 @@ class EditorCore extends Component {
    * Moves the selected objects on the canvas forwards.
    */
   moveSelectionForwards = () => {
-    this.project.bringSelectionForwards();
+    this.project.selection.moveForwards();
+    this.projectDidChange();
+  }
+
+  /**
+   * Moves the selected objects up 1 pixel.
+   */
+  nudgeSelectionUp = () => {
+    this.project.selection.y -= 1;
+    this.projectDidChange();
+  }
+
+  /**
+   * Moves the selected objects down 1 pixel.
+   */
+  nudgeSelectionDown = () => {
+    this.project.selection.y += 1;
+    this.projectDidChange();
+  }
+
+  /**
+   * Moves the selected objects right 1 pixel.
+   */
+  nudgeSelectionRight = () => {
+    this.project.selection.x += 1;
+    this.projectDidChange();
+  }
+
+  /**
+   * Moves the selected objects left 1 pixel.
+   */
+  nudgeSelectionLeft = () => {
+    this.project.selection.x -= 1;
+    this.projectDidChange();
+  }
+
+  /**
+   * Moves the selected objects up 10 pixels.
+   */
+  nudgeSelectionUpMore = () => {
+    this.project.selection.y -= 10;
+    this.projectDidChange();
+  }
+
+  /**
+   * Moves the selected objects down 10 pixels.
+   */
+  nudgeSelectionDownMore = () => {
+    this.project.selection.y += 10;
+    this.projectDidChange();
+  }
+
+  /**
+   * Moves the selected objects right 10 pixels.
+   */
+  nudgeSelectionRightMore = () => {
+    this.project.selection.x += 10;
+    this.projectDidChange();
+  }
+
+  /**
+   * Moves the selected objects left 10 pixels.
+   */
+  nudgeSelectionLeftMore = () => {
+    this.project.selection.x -= 10;
     this.projectDidChange();
   }
 

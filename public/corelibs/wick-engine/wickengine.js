@@ -15976,7 +15976,11 @@ paper.Selection = class {
     //return 'rgba(255,0,0,0.0001)';
   }
   /**
-   *
+   * Create a new selection.
+   * Arguments:
+   *  - layer: the layer to add the selection GUI to
+   *  - items: the items to select
+   * @param {object} args - Arguments for the selection.
    */
 
 
@@ -16021,7 +16025,7 @@ paper.Selection = class {
     this._render();
   }
   /**
-   *
+   * The type of transformation to use while dragging handles. Can be 'scale' or 'rotation'.
    */
 
 
@@ -16030,7 +16034,12 @@ paper.Selection = class {
   }
 
   set handleDragMode(handleDragMode) {
-    this._handleDragMode = handleDragMode;
+    if (handleDragMode === 'scale' || handleDragMode === 'rotation') {
+      this._handleDragMode = handleDragMode;
+    } else {
+      console.error('Paper.Selection: Invalid handleDragMode: ' + handleDragMode);
+      console.error('Valid handleDragModes: "scale", "rotation"');
+    }
   }
   /**
    *
@@ -16340,9 +16349,13 @@ paper.Selection = class {
     return this._box.bounds.center;
   }
   /**
-   *
+   * The point that all transformations will use as their origin.
    */
 
+
+  get pivotPoint() {
+    return this._pivotPoint;
+  }
 
   set pivotPoint(pivotPoint) {
     this._pivotPoint = pivotPoint;
@@ -16350,7 +16363,7 @@ paper.Selection = class {
     this._render();
   }
   /**
-   *
+   * Flip the selected items horizontally.
    */
 
 
@@ -16360,7 +16373,7 @@ paper.Selection = class {
     this._render();
   }
   /**
-   *
+   * Flip the selected items vertically.
    */
 
 
@@ -16370,7 +16383,7 @@ paper.Selection = class {
     this._render();
   }
   /**
-   *
+   * Move all selected items to be behind all other objects.
    */
 
 
@@ -16380,7 +16393,7 @@ paper.Selection = class {
     });
   }
   /**
-   *
+   * Move all selected items to be in front of all other objects.
    */
 
 
@@ -16390,11 +16403,11 @@ paper.Selection = class {
     });
   }
   /**
-   *
+   * Move all selected items backwards one place.
    */
 
 
-  moveBack() {
+  moveBackwards() {
     this._getSelectedItemsSortedByZIndex().reverse().forEach(item => {
       if (item.previousSibling && this._items.indexOf(item.previousSibling) === -1) {
         item.insertBelow(item.previousSibling);
@@ -16402,11 +16415,11 @@ paper.Selection = class {
     });
   }
   /**
-   *
+   * Move all selected items forwards one place.
    */
 
 
-  moveForward() {
+  moveForwards() {
     this._getSelectedItemsSortedByZIndex().forEach(item => {
       if (item.nextSibling && this._items.indexOf(item.nextSibling) === -1) {
         item.insertAbove(item.nextSibling);
@@ -16414,7 +16427,7 @@ paper.Selection = class {
     });
   }
   /**
-   *
+   * Destroy the selection and apply the selection transformations.
    */
 
 
@@ -16437,7 +16450,8 @@ paper.Selection = class {
     this._box.remove();
   }
   /**
-   *
+   * Check if an item is selected.
+   * @param {Item} item - the item to check selection of
    */
 
 
@@ -45654,6 +45668,7 @@ Wick.Selection = class extends Wick.Base {
   }
   /**
    * The name of the selection.
+   * If there are multiple objects selected, null is always returned.
    */
 
 
@@ -45672,6 +45687,7 @@ Wick.Selection = class extends Wick.Base {
   }
   /**
    * The sound attached to the selected object.
+   * If there is no sound, or multiple frames are selected, null is returned.
    */
 
 
@@ -45687,6 +45703,54 @@ Wick.Selection = class extends Wick.Base {
     if (this.numObjects === 1) {
       this.getSelectedObject().sound = sound;
     }
+  }
+  /**
+   * Flip the selected items horizontally.
+   */
+
+
+  flipHorizontally() {
+    paper.selection.flipHorizontally();
+  }
+  /**
+   * Flip the selected items vertically.
+   */
+
+
+  flipVertically() {
+    paper.selection.flipVertically();
+  }
+  /**
+   * Move all selected items to be behind all other objects.
+   */
+
+
+  sendToBack() {
+    paper.selection.sendToBack();
+  }
+  /**
+   * Move all selected items to be in front of all other objects.
+   */
+
+
+  bringToFront() {
+    paper.selection.bringToFront();
+  }
+  /**
+   * Move all selected items backwards one place.
+   */
+
+
+  moveBackwards() {
+    paper.selection.moveBackwards();
+  }
+  /**
+   * Move all selected items forwards one place.
+   */
+
+
+  moveForwards() {
+    paper.selection.moveForwards();
   }
 
   _locationOf(object) {
