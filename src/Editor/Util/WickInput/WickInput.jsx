@@ -27,6 +27,8 @@ import 'react-dropdown/style.css';
 
 import ColorPicker from 'Editor/Util/ColorPicker/ColorPicker';
 import ReactTooltip from 'react-tooltip'
+import TimedChangeInput from './TimedChangeInput/TimedChangeInput';
+
 import { Input } from 'reactstrap';
 
 var classNames = require('classnames');
@@ -142,19 +144,12 @@ class WickInput extends Component {
   }
 
   renderText = () => {
-    // Spit out the value of a text box back to the onChange function.
-    let wrappedOnChange = (val) => {
-      this.props.onChange(val.target.value);
-    };
-
     return (
-      <input
-        className={classNames("wick-input", {"read-only":this.props.readOnly})}
-        {...this.props}
-        value={this.props.value ? this.props.value : ''}
-        type="text"
-        onChange={this.props.onChange ? wrappedOnChange : null}
-      ></input>
+      <TimedChangeInput
+         className={classNames("wick-input", {"read-only":this.props.readOnly})}
+         {...this.props}
+          value={this.props.value ? this.props.value : ''}
+          onChange={this.props.onChange} />
     );
   }
 
