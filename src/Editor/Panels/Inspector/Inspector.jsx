@@ -102,7 +102,7 @@ class Inspector extends Component {
       return this.getSelectionFillColorOpacity();
     }
 
-    return this.props.selectionAttributes[attribute];
+    return this.props.getAllSelectionAttributes()[attribute];
   }
 
   /**
@@ -414,12 +414,12 @@ class Inspector extends Component {
         }
       }
       return {
-        value: asset, 
+        value: asset,
         label: asset.name,
       }
     }
 
-    let options = this.props.getAllSoundAssets().map(mapAsset); 
+    let options = this.props.getAllSoundAssets().map(mapAsset);
     let value = mapAsset(this.getSelectionAttribute('sound'));
     return (
       <div className="inspector-item">

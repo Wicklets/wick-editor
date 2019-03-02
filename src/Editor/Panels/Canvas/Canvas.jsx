@@ -101,11 +101,13 @@ class Canvas extends Component {
       }
     }
 
-    this.updateCanvas();
+    this.updateCanvas(this.props.project);
+
+    this.props.onRef(this);
   }
 
   componentDidUpdate () {
-    this.updateCanvas();
+    this.updateCanvas(this.props.project);
   }
 
   onCanvasModified = (e) => {
@@ -137,8 +139,7 @@ class Canvas extends Component {
     this.props.project.pan.y = window.paper.view.center.y;
   }
 
-  updateCanvas = () => {
-    let project = this.props.project;
+  updateCanvas = (project) => {
     let paper = this.props.paper;
     let activeTool = this.props.activeTool;
     let toolSettings = this.props.toolSettings;

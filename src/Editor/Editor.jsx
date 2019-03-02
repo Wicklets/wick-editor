@@ -83,7 +83,6 @@ class Editor extends EditorCore {
         selectPoints: false,
         selectCurves: false,
       },
-      selectionAttributes: {},
       previewPlaying: false,
       activeModalName: null,
       activeModalQueue: [],
@@ -129,6 +128,7 @@ class Editor extends EditorCore {
     this.autoSaveDelay = 1000; // millisecond delay
     this.throttledAutoSaveProject = throttle(this.autoSaveProject, this.autoSaveDelay);
 
+    this.canvasComponent = null;
     this.timelineComponent = null;
   }
 
@@ -472,10 +472,10 @@ class Editor extends EditorCore {
         this.history.saveState();
         this.autosaveProject(projectSerialized);
       }
+      this.canvasComponent.updateCanvas(this.project);
     }
     this.setState({
       project: projectSerialized,
-      selectionAttributes: this.getAllSelectionAttributes(),
     });
   }
 
@@ -614,6 +614,7 @@ class Editor extends EditorCore {
                                 previewPlaying={this.state.previewPlaying}
                                 createImageFromAsset={this.createImageFromAsset}
                                 toast={this.toast}
+                                onRef={ref => this.canvasComponent = ref}
                               />
                               <CanvasTransforms
                                 onionSkinEnabled={this.project.onionSkinEnabled}
@@ -670,7 +671,7 @@ class Editor extends EditorCore {
                                 setToolSettings={this.setToolSettings}
                                 getSelectionType={this.getSelectionType}
                                 getAllSoundAssets={this.getAllSoundAssets}
-                                selectionAttributes={this.state.selectionAttributes}
+                                getAllSelectionAttributes={this.getAllSelectionAttributes}
                                 setSelectionAttribute={this.setSelectionAttribute}
                                 editorActions={this.actionMapInterface.editorActions}
                               />

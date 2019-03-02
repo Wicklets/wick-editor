@@ -470,7 +470,7 @@ class EditorCore extends Component {
    * @return {object} object with new attributes.
    */
   getAllSelectionAttributes = () => {
-    let newAttributes = this.state.selectionAttributes;
+    let newAttributes = {};
 
     let selectionAttributeNames = this.getAllSelectionAttributeNames();
 

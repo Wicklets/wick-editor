@@ -1,5 +1,3 @@
-import styles from './Panels/Canvas/_canvas.scss';
-
 class UndoRedo {
   constructor (editor) {
     this.editor = editor;
@@ -61,13 +59,7 @@ class UndoRedo {
     this.editor.project = window.Wick.Project.deserialize(state.project);
     this.editor.project.zoom = currentZoom;
     this.editor.project.pan = currentPan;
-    this.editor.project.view.canvasBGColor = styles.editorCanvasBorder;
-    this.editor.project.view.render();
-    this.editor.setState({
-      ...this.editor.state,
-      project: state.project,
-      selectionAttributes: this.editor.getAllSelectionAttributes(),
-    });
+    this.editor.projectDidChange(true);
     this.editor.refocusEditor(); // Why do we need to do this...? Why does the setState call here change the focus?
   }
 
