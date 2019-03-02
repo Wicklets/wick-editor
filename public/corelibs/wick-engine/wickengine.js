@@ -45183,6 +45183,10 @@ Wick.Project = class extends Wick.Base {
 
 
   stop() {
+    // Stop all sounds.
+    this.getAssets('Sound').forEach(soundAsset => {
+      soundAsset.stop();
+    });
     clearInterval(this._tickIntervalID);
     this._tickIntervalID = null;
   }
