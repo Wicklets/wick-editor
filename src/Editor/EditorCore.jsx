@@ -726,6 +726,9 @@ class EditorCore extends Component {
    * @param {object} selection deserialized selection object to add to project.
    */
   addSelectionToProject = (selection, options) => {
+    // Apply the change of the current selection before clearing it.
+    this.project.view.applyChanges();
+
     // Only copies clips and paths. TODO: Add Frames
     selection.filter(object => {
       return ((object instanceof window.Wick.Path) || (object instanceof window.Wick.Clip));
@@ -872,6 +875,41 @@ class EditorCore extends Component {
     return this.project.getAssets('Sound');
   }
 
+  /**
+   * Toggles the preview play between on and off states.
+   */
+  togglePreviewPlaying = () => {
+    // Apply the change of the current selection before clearing it.
+    this.project.view.applyChanges();
+    this.project.selection.clear();
+
+    let nextState = !this.state.previewPlaying;
+    this.setState({
+      previewPlaying: nextState,
+      codeErrors: [],
+    });
+
+    if(nextState) {
+      // Focus canvas element here
+    }
+  }
+
+  /**
+   * Stops the project if it is currently preview playing and displays provided
+   * errors in the code editor.
+   * @param  {object[]} errors Array of error objects.
+   */
+  stopPreviewPlaying = (errors) => {
+    this.stopTickLoop();
+    this.setState({
+      previewPlaying: false,
+      codeErrors: errors === undefined ? [] : errors,
+    });
+
+    if (errors) {
+      this.showCodeErrors(errors);
+    }
+  }
 }
 
 export default EditorCore;
