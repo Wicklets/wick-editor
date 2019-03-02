@@ -46651,7 +46651,7 @@ Wick.SoundAsset = class extends Wick.Asset {
   }
   /**
    * Returns valid extensions for a sound asset.
-   * @returns {string[]} Array of strings representing valid 
+   * @returns {string[]} Array of strings representing valid
    */
 
 
@@ -46661,6 +46661,7 @@ Wick.SoundAsset = class extends Wick.Asset {
 
   constructor(filename, src) {
     super(filename, src);
+    this.src = src;
     this._howl = null;
   }
 
