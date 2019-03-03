@@ -20,14 +20,13 @@
 import React, { Component } from 'react';
 import './_wickinput.scss';
 
-import NumericInput from 'react-numeric-input';
-
 import Dropdown from 'react-dropdown';
 import 'react-dropdown/style.css';
 
 import ColorPicker from 'Editor/Util/ColorPicker/ColorPicker';
 import ReactTooltip from 'react-tooltip'
 import TimedChangeInput from './TimedChangeInput/TimedChangeInput';
+import NumericTimedChangeInput from './NumericTimedChangeInput/NumericTimedChangeInput'; 
 
 import { Input } from 'reactstrap';
 
@@ -107,39 +106,11 @@ class WickInput extends Component {
   }
 
   renderNumeric = () => {
-    // TODO: Replace this custom rolled zero removal with a tested solution.
-    let format = (num) => {
-      let split = num.split('.')
-      let body = split[0];
-      let trail = split[1];
-
-      if(trail.length === 2) {
-        if (trail.charAt(1) === '0') {
-          trail = trail.charAt(0);
-        }
-      }
-
-      if (trail.length === 1) {
-        if (trail.charAt(0) === '0') {
-          trail = '';
-        }
-      }
-
-      let separator = '';
-      if (trail.length > 0) {
-        separator = '.'
-      }
-
-      return body + separator + trail;
-    }
     return (
-      <NumericInput
-        style={false}
-        precision={2}
-        format={format}
+      <NumericTimedChangeInput
         {...this.props}
         className={classNames("wick-numeric-input", this.props.className)}
-        ></NumericInput>
+        ></NumericTimedChangeInput>
     )
   }
 

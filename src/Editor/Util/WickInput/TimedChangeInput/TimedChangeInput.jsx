@@ -22,6 +22,7 @@ class TimedChangeInput extends Component {
             value: cleanValue,
             lastUpdatedValue: cleanValue,
             lastChange: 0,
+            updating: false,
         }
 
         this.delay = this.props.delay ? this.props.delay : 500; // milliseconds
@@ -36,7 +37,9 @@ class TimedChangeInput extends Component {
      * has changed since the last update.
      */
     wrappedOnChange = () => {
-        if (this.props.onChange && (this.state.value !== this.state.lastUpdatedValue)) {
+        if (this.props.onChange && 
+            (this.state.value !== this.state.lastUpdatedValue) &&
+            (this.state.value !== "")) {
             this.props.onChange(this.state.value); 
 
             this.setState({
@@ -78,6 +81,20 @@ class TimedChangeInput extends Component {
         if (e.charCode === 13) {
             this.wrappedOnChange(); 
         }
+    }
+
+    static getDerivedStateFromProps(props, state) {
+        /**
+         * Force update the state if we've been provided a new value prop.
+         */
+        if (state.value !== props.value && state.lastUpdatedValue !== props.value) {
+            return {
+                value: props.value,
+                lastUpdatedValue: props.value, 
+                lastChange: new Date().getTime(), 
+            }
+        } 
+        return {}
     }
 
     render() {

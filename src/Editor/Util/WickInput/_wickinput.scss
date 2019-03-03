@@ -34,6 +34,14 @@
   color: $editor-text-input-text;
 }
 
+.wick-input-invalid {
+   border: $editor-input-border-width solid $wick-red !important;
+}
+
+.wick-input-updating {
+  border: $editor-input-border-width solid $wick-yellow !important;
+}
+
 .wick-numeric-input {
   padding: 2px;
   width: 100%;
