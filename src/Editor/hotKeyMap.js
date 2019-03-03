@@ -60,6 +60,18 @@ class HotKeyInterface extends Object {
       'move-playhead-forwards': '.',
       'move-playhead-backwards': ',',
       'select-all': ['ctrl+a', 'command+a'],
+      'bring-to-front': ['ctrl+shift+up', 'command+shift+up'],
+      'send-to-back': ['ctrl+shift+down', 'command+shift+down'],
+      'move-forwards': ['ctrl+up', 'command+up'],
+      'move-backwards': ['ctrl+down', 'command+down'],
+      'nudge-up': 'up',
+      'nudge-down': 'down',
+      'nudge-left': 'left',
+      'nudge-right': 'right',
+      'nudge-up-more': 'shift+up',
+      'nudge-down-more': 'shift+down',
+      'nudge-left-more': 'shift+left',
+      'nudge-right-more': 'shift+right',
     }
   }
 
@@ -93,6 +105,18 @@ class HotKeyInterface extends Object {
       'move-playhead-forwards': this.editor.movePlayheadForwards,
       'move-playhead-backwards': this.editor.movePlayheadBackwards,
       'select-all': this.editor.selectAll,
+      'bring-to-front': this.editor.bringSelectionToFront,
+      'send-to-back': this.editor.sendSelectionToBack,
+      'move-forwards': this.editor.moveSelectionForwards,
+      'move-backwards': this.editor.moveSelectionBackwards,
+      'nudge-up': this.editor.nudgeSelectionUp,
+      'nudge-down': this.editor.nudgeSelectionDown,
+      'nudge-left': this.editor.nudgeSelectionLeft,
+      'nudge-right': this.editor.nudgeSelectionRight,
+      'nudge-up-more': this.editor.nudgeSelectionUpMore,
+      'nudge-down-more': this.editor.nudgeSelectionDownMore,
+      'nudge-left-more': this.editor.nudgeSelectionLeftMore,
+      'nudge-right-more': this.editor.nudgeSelectionRightMore,
     }
 
     for(let name in this.handlers) {

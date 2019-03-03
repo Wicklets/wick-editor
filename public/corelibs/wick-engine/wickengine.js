@@ -15976,7 +15976,11 @@ paper.Selection = class {
     //return 'rgba(255,0,0,0.0001)';
   }
   /**
-   *
+   * Create a new selection.
+   * Arguments:
+   *  - layer: the layer to add the selection GUI to
+   *  - items: the items to select
+   * @param {object} args - Arguments for the selection.
    */
 
 
@@ -16021,7 +16025,7 @@ paper.Selection = class {
     this._render();
   }
   /**
-   *
+   * The type of transformation to use while dragging handles. Can be 'scale' or 'rotation'.
    */
 
 
@@ -16030,7 +16034,12 @@ paper.Selection = class {
   }
 
   set handleDragMode(handleDragMode) {
-    this._handleDragMode = handleDragMode;
+    if (handleDragMode === 'scale' || handleDragMode === 'rotation') {
+      this._handleDragMode = handleDragMode;
+    } else {
+      console.error('Paper.Selection: Invalid handleDragMode: ' + handleDragMode);
+      console.error('Valid handleDragModes: "scale", "rotation"');
+    }
   }
   /**
    *
@@ -16340,9 +16349,13 @@ paper.Selection = class {
     return this._box.bounds.center;
   }
   /**
-   *
+   * The point that all transformations will use as their origin.
    */
 
+
+  get pivotPoint() {
+    return this._pivotPoint;
+  }
 
   set pivotPoint(pivotPoint) {
     this._pivotPoint = pivotPoint;
@@ -16350,7 +16363,7 @@ paper.Selection = class {
     this._render();
   }
   /**
-   *
+   * Flip the selected items horizontally.
    */
 
 
@@ -16360,7 +16373,7 @@ paper.Selection = class {
     this._render();
   }
   /**
-   *
+   * Flip the selected items vertically.
    */
 
 
@@ -16370,7 +16383,7 @@ paper.Selection = class {
     this._render();
   }
   /**
-   *
+   * Move all selected items to be behind all other objects.
    */
 
 
@@ -16380,7 +16393,7 @@ paper.Selection = class {
     });
   }
   /**
-   *
+   * Move all selected items to be in front of all other objects.
    */
 
 
@@ -16390,11 +16403,11 @@ paper.Selection = class {
     });
   }
   /**
-   *
+   * Move all selected items backwards one place.
    */
 
 
-  moveBack() {
+  moveBackwards() {
     this._getSelectedItemsSortedByZIndex().reverse().forEach(item => {
       if (item.previousSibling && this._items.indexOf(item.previousSibling) === -1) {
         item.insertBelow(item.previousSibling);
@@ -16402,11 +16415,11 @@ paper.Selection = class {
     });
   }
   /**
-   *
+   * Move all selected items forwards one place.
    */
 
 
-  moveForward() {
+  moveForwards() {
     this._getSelectedItemsSortedByZIndex().forEach(item => {
       if (item.nextSibling && this._items.indexOf(item.nextSibling) === -1) {
         item.insertAbove(item.nextSibling);
@@ -16414,7 +16427,7 @@ paper.Selection = class {
     });
   }
   /**
-   *
+   * Destroy the selection and apply the selection transformations.
    */
 
 
@@ -16437,7 +16450,8 @@ paper.Selection = class {
     this._box.remove();
   }
   /**
-   *
+   * Check if an item is selected.
+   * @param {Item} item - the item to check selection of
    */
 
 
@@ -44347,11 +44361,13 @@ Wick.Base = class {
 
   _getUniqueIdentifier(identifier) {
     if (!this.parent) return identifier;
-    var idenfifiers = this.parent.children.map(child => {
+    var otherIdentifiers = this.parent.children.filter(child => {
+      return child !== this;
+    }).map(child => {
       return child.identifier;
     });
 
-    if (idenfifiers.indexOf(identifier) === -1) {
+    if (otherIdentifiers.indexOf(identifier) === -1) {
       return identifier;
     } else {
       return identifier + ' copy';
@@ -45185,8 +45201,8 @@ Wick.Project = class extends Wick.Base {
 
   stop() {
     // Stop all sounds.
-    this.getAssets('Sound').forEach(soundAsset => {
-      soundAsset.stop();
+    this.getAllFrames().forEach(frame => {
+      frame.stopSound();
     });
     clearInterval(this._tickIntervalID);
     this._tickIntervalID = null;
@@ -45654,6 +45670,7 @@ Wick.Selection = class extends Wick.Base {
   }
   /**
    * The name of the selection.
+   * If there are multiple objects selected, null is always returned.
    */
 
 
@@ -45672,6 +45689,7 @@ Wick.Selection = class extends Wick.Base {
   }
   /**
    * The sound attached to the selected object.
+   * If there is no sound, or multiple frames are selected, null is returned.
    */
 
 
@@ -45687,6 +45705,54 @@ Wick.Selection = class extends Wick.Base {
     if (this.numObjects === 1) {
       this.getSelectedObject().sound = sound;
     }
+  }
+  /**
+   * Flip the selected items horizontally.
+   */
+
+
+  flipHorizontally() {
+    paper.selection.flipHorizontally();
+  }
+  /**
+   * Flip the selected items vertically.
+   */
+
+
+  flipVertically() {
+    paper.selection.flipVertically();
+  }
+  /**
+   * Move all selected items to be behind all other objects.
+   */
+
+
+  sendToBack() {
+    paper.selection.sendToBack();
+  }
+  /**
+   * Move all selected items to be in front of all other objects.
+   */
+
+
+  bringToFront() {
+    paper.selection.bringToFront();
+  }
+  /**
+   * Move all selected items backwards one place.
+   */
+
+
+  moveBackwards() {
+    paper.selection.moveBackwards();
+  }
+  /**
+   * Move all selected items forwards one place.
+   */
+
+
+  moveForwards() {
+    paper.selection.moveForwards();
   }
 
   _locationOf(object) {
@@ -46651,7 +46717,7 @@ Wick.SoundAsset = class extends Wick.Asset {
   }
   /**
    * Returns valid extensions for a sound asset.
-   * @returns {string[]} Array of strings representing valid 
+   * @returns {string[]} Array of strings representing valid
    */
 
 
@@ -46661,7 +46727,10 @@ Wick.SoundAsset = class extends Wick.Asset {
 
   constructor(filename, src) {
     super(filename, src);
-    this._howl = null;
+    this.src = src;
+    this._howl = new Howl({
+      src: [this.src]
+    });
   }
 
   static _deserialize(data, object) {
@@ -46688,14 +46757,7 @@ Wick.SoundAsset = class extends Wick.Asset {
 
 
   play(seekMS) {
-    // Lazily create the howler instance
-    if (!this._howl) {
-      this._howl = new Howl({
-        src: [this.src]
-      });
-    } // Play the sound, saving the ID returned by howler
-
-
+    // Play the sound, saving the ID returned by howler
     var id = this._howl.play(); // Skip parts of the sound if we need to
 
 
@@ -46712,9 +46774,11 @@ Wick.SoundAsset = class extends Wick.Asset {
 
 
   stop(id) {
-    if (!this._howl) return;
-
-    this._howl.stop(id);
+    if (id === undefined) {
+      this._howl.stop();
+    } else {
+      this._howl.stop(id);
+    }
   }
   /**
    * Remove the sound from any frames in the project that use this asset as their sound.
@@ -47422,6 +47486,45 @@ Wick.Frame = class extends Wick.Tickable {
     this._soundAssetUUID = null;
   }
   /**
+   * Plays the sound on this frame.
+   */
+
+
+  playSound() {
+    if (this.sound) {
+      this._soundID = this.sound.play(this.soundStartOffsetMS);
+    }
+  }
+  /**
+   * Stops the sound on this frame.
+   */
+
+
+  stopSound() {
+    if (this.sound) {
+      this.sound.stop(this._soundID);
+      this._soundID = null;
+    }
+  }
+  /**
+   * Check if the sound on this frame is playing.
+   */
+
+
+  isSoundPlaying() {
+    return this._soundID !== null;
+  }
+  /**
+   * The amount of time, in millisecods, that the frame's sound should play before stopping.
+   */
+
+
+  get soundStartOffsetMS() {
+    var offsetFrames = this.parent.parent.playheadPosition - this.start;
+    var offsetMS = offsetFrames * 1000 / this.project.framerate;
+    return offsetMS;
+  }
+  /**
    * The paths on the frame.
    * @type {Wick.Path[]}
    */
@@ -47456,16 +47559,6 @@ Wick.Frame = class extends Wick.Tickable {
 
   get layerIndex() {
     return this._originalLayerIndex;
-  }
-  /**
-   * The amount of time, in millisecods, that the frame's sound should play before stopping.
-   */
-
-
-  get soundStartOffsetMS() {
-    var offsetFrames = this.parent.parent.playheadPosition - this.start;
-    var offsetMS = offsetFrames * 1000 / this.project.framerate;
-    return offsetMS;
   }
   /**
    * Removes this frame from its parent layer.
@@ -47632,11 +47725,7 @@ Wick.Frame = class extends Wick.Tickable {
     var error = super._onActivated();
 
     if (error) return error;
-
-    if (this.sound) {
-      this._soundID = this.sound.play(this.soundStartOffsetMS);
-    }
-
+    this.playSound();
     return this._tickChildren();
   }
 
@@ -47651,11 +47740,7 @@ Wick.Frame = class extends Wick.Tickable {
     var error = super._onDeactivated();
 
     if (error) return error;
-
-    if (this.sound) {
-      this.sound.stop(this._soundID);
-    }
-
+    this.stopSound();
     return this._tickChildren();
   }
 
@@ -48493,6 +48578,12 @@ Wick.View.Project = class extends Wick.View {
     this.canvas = document.createElement('canvas');
     this.canvas.style.width = '100%';
     this.canvas.style.height = '100%';
+    this.canvas.tabIndex = 0;
+
+    this.canvas.onclick = () => {
+      this.canvas.focus();
+    };
+
     paper.setup(this.canvas);
     this.canvasContainer = null;
     this.bgLayer = new paper.Layer();
