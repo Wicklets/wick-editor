@@ -44361,11 +44361,13 @@ Wick.Base = class {
 
   _getUniqueIdentifier(identifier) {
     if (!this.parent) return identifier;
-    var idenfifiers = this.parent.children.map(child => {
+    var otherIdentifiers = this.parent.children.filter(child => {
+      return child !== this;
+    }).map(child => {
       return child.identifier;
     });
 
-    if (idenfifiers.indexOf(identifier) === -1) {
+    if (otherIdentifiers.indexOf(identifier) === -1) {
       return identifier;
     } else {
       return identifier + ' copy';
