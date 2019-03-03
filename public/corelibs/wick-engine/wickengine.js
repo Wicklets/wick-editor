@@ -48558,6 +48558,12 @@ Wick.View.Project = class extends Wick.View {
     this.canvas = document.createElement('canvas');
     this.canvas.style.width = '100%';
     this.canvas.style.height = '100%';
+    this.canvas.tabIndex = 0;
+
+    this.canvas.onclick = () => {
+      this.canvas.focus();
+    };
+
     paper.setup(this.canvas);
     this.canvasContainer = null;
     this.bgLayer = new paper.Layer();
