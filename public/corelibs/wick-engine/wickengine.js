@@ -45201,8 +45201,8 @@ Wick.Project = class extends Wick.Base {
 
   stop() {
     // Stop all sounds.
-    this.getAssets('Sound').forEach(soundAsset => {
-      soundAsset.stop();
+    this.getAllFrames().forEach(frame => {
+      frame.stopSound();
     });
     clearInterval(this._tickIntervalID);
     this._tickIntervalID = null;
@@ -46728,7 +46728,9 @@ Wick.SoundAsset = class extends Wick.Asset {
   constructor(filename, src) {
     super(filename, src);
     this.src = src;
-    this._howl = null;
+    this._howl = new Howl({
+      src: [this.src]
+    });
   }
 
   static _deserialize(data, object) {
@@ -46755,14 +46757,7 @@ Wick.SoundAsset = class extends Wick.Asset {
 
 
   play(seekMS) {
-    // Lazily create the howler instance
-    if (!this._howl) {
-      this._howl = new Howl({
-        src: [this.src]
-      });
-    } // Play the sound, saving the ID returned by howler
-
-
+    // Play the sound, saving the ID returned by howler
     var id = this._howl.play(); // Skip parts of the sound if we need to
 
 
@@ -46779,9 +46774,11 @@ Wick.SoundAsset = class extends Wick.Asset {
 
 
   stop(id) {
-    if (!this._howl) return;
-
-    this._howl.stop(id);
+    if (id === undefined) {
+      this._howl.stop();
+    } else {
+      this._howl.stop(id);
+    }
   }
   /**
    * Remove the sound from any frames in the project that use this asset as their sound.
@@ -47489,6 +47486,45 @@ Wick.Frame = class extends Wick.Tickable {
     this._soundAssetUUID = null;
   }
   /**
+   * Plays the sound on this frame.
+   */
+
+
+  playSound() {
+    if (this.sound) {
+      this._soundID = this.sound.play(this.soundStartOffsetMS);
+    }
+  }
+  /**
+   * Stops the sound on this frame.
+   */
+
+
+  stopSound() {
+    if (this.sound) {
+      this.sound.stop(this._soundID);
+      this._soundID = null;
+    }
+  }
+  /**
+   * Check if the sound on this frame is playing.
+   */
+
+
+  isSoundPlaying() {
+    return this._soundID !== null;
+  }
+  /**
+   * The amount of time, in millisecods, that the frame's sound should play before stopping.
+   */
+
+
+  get soundStartOffsetMS() {
+    var offsetFrames = this.parent.parent.playheadPosition - this.start;
+    var offsetMS = offsetFrames * 1000 / this.project.framerate;
+    return offsetMS;
+  }
+  /**
    * The paths on the frame.
    * @type {Wick.Path[]}
    */
@@ -47523,16 +47559,6 @@ Wick.Frame = class extends Wick.Tickable {
 
   get layerIndex() {
     return this._originalLayerIndex;
-  }
-  /**
-   * The amount of time, in millisecods, that the frame's sound should play before stopping.
-   */
-
-
-  get soundStartOffsetMS() {
-    var offsetFrames = this.parent.parent.playheadPosition - this.start;
-    var offsetMS = offsetFrames * 1000 / this.project.framerate;
-    return offsetMS;
   }
   /**
    * Removes this frame from its parent layer.
@@ -47699,11 +47725,7 @@ Wick.Frame = class extends Wick.Tickable {
     var error = super._onActivated();
 
     if (error) return error;
-
-    if (this.sound) {
-      this._soundID = this.sound.play(this.soundStartOffsetMS);
-    }
-
+    this.playSound();
     return this._tickChildren();
   }
 
@@ -47718,11 +47740,7 @@ Wick.Frame = class extends Wick.Tickable {
     var error = super._onDeactivated();
 
     if (error) return error;
-
-    if (this.sound) {
-      this.sound.stop(this._soundID);
-    }
-
+    this.stopSound();
     return this._tickChildren();
   }
 
