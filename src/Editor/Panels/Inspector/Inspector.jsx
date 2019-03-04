@@ -405,7 +405,6 @@ class Inspector extends Component {
    * current object.
    */
   renderSelectionSoundAsset = () => {
-
     let mapAsset = asset => {
       if (!asset) {
         return {
@@ -422,16 +421,34 @@ class Inspector extends Component {
     let options = this.props.getAllSoundAssets().map(mapAsset);
     let value = mapAsset(this.getSelectionAttribute('sound'));
     return (
-      <div className="inspector-item">
-        <InspectorSelector
-          tooltip="Sound"
-          type="select"
-          options={options}
-          value={value}
-          isSearchable={true}
-          onChange={(val) => {this.setSelectionAttribute('sound', val.value)}} />
-      </div>
+      <InspectorSelector
+        tooltip="Sound"
+        type="select"
+        options={options}
+        value={value}
+        isSearchable={true}
+        onChange={(val) => {this.setSelectionAttribute('sound', val.value)}} />
     );
+  }
+
+  renderSelectionSoundVolume = () => {
+    return (
+      <InspectorNumericInput
+        tooltip="Volume"
+        type="numeric"
+        value={this.getSelectionAttribute('soundVolume')}
+        onChange={(val) => {this.setSelectionAttribute('soundVolume', val)}} />
+    )
+  }
+
+  renderSoundContent = () => {
+    let sound = this.getSelectionAttribute('sound');
+    return (
+      <div className="inspector-item">
+        {this.renderSelectionSoundAsset()}
+        {sound !== null && this.renderSelectionSoundVolume()}
+      </div>
+    )
   }
 
   // Selection contents and properties
@@ -444,7 +461,7 @@ class Inspector extends Component {
         <div className="inspector-content">
           {this.renderName()}
           {this.renderFrameLength()}
-          {this.renderSelectionSoundAsset()}
+          {this.renderSoundContent()}
         </div>
     );
   }

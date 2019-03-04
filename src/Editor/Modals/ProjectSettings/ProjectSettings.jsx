@@ -110,7 +110,7 @@ class ProjectSettings extends Component {
               id="projectWidth"
               type="numeric"
               min={this.projectMinWidth}
-              defaultValue={this.props.project.width}
+              value={this.props.project.width}
               onChange = {this.changeProjectWidth}
             />
           <Label className="project-property-label" for="projectHeight">Height</Label>
@@ -118,7 +118,7 @@ class ProjectSettings extends Component {
               id="projectHeight"
               type="numeric"
               min={this.projectMinHeight}
-              defaultValue={this.props.project.height}
+              value={this.props.project.height}
               onChange={this.changeProjectHeight}
             />
           <Label className="project-property-label" for="projectFramerate">Framerate (FPS)</Label>
@@ -126,7 +126,7 @@ class ProjectSettings extends Component {
               id="projectFramerate"
               type="numeric"
               min={this.projectMinFramerate}
-              defaultValue={this.props.project.framerate}
+              value={this.props.project.framerate}
               onChange={this.changeProjectFramerate}
             />
           <Label className="project-property-label" for="projectBackgroundColor">Background Color</Label>
