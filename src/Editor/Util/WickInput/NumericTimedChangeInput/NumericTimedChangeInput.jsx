@@ -22,9 +22,30 @@ class NumericTimedChangeInput extends Component {
      */
     isValidFloat = (val) => {
         let str = val.toString(); 
+
+        if (str.startsWith("-")) {
+            str = str.replace("-", ""); // TODO: Update this to be a bit more robust for negative numbers.
+        }
+
         // Ensure the string does not contain letters or invalid characters.
         let noAlphabeticChars = /^[0-9,.]*$/.test(str); 
         return noAlphabeticChars && !isNaN(parseFloat(str));
+    }
+
+    /**
+     * Constrain a value between a max and min.
+     * @returns {number} constrained value between props.min and props.max
+     */
+    constrain = (val) => {
+        if (this.props.min !== undefined) {
+            val = Math.max(this.props.min, val);
+        }
+
+        if (this.props.max !== undefined) {
+            val = Math.min(this.props.max, val);
+        }
+
+        return val;
     }
 
     /**
@@ -34,6 +55,8 @@ class NumericTimedChangeInput extends Component {
     wrappedOnChange = (val) => {
         if (this.props.onChange && this.isValidFloat(val)) {
             let parsedVal = parseFloat(val); 
+            
+            parsedVal = this.constrain(parsedVal);
             this.props.onChange(parsedVal);
             this.setState({
                 validEntry: true,

@@ -173,6 +173,11 @@ class Editor extends EditorCore {
         min: 10,
         max: 2000,
         step: 25,
+      },
+      volume: {
+        min: 0,
+        max: 5, 
+        step: .01,
       }
     }
   }
