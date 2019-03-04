@@ -55,7 +55,7 @@ class NumericTimedChangeInput extends Component {
     wrappedOnChange = (val) => {
         if (this.props.onChange && this.isValidFloat(val)) {
             let parsedVal = parseFloat(val); 
-            
+
             parsedVal = this.constrain(parsedVal);
             this.props.onChange(parsedVal);
             this.setState({
@@ -81,6 +81,7 @@ class NumericTimedChangeInput extends Component {
             <TimedChangeInput 
                 delay={150}
                 {...this.props}
+                stall={['-']}
                 className={classNames({"wick-input-invalid": (!this.state.validEntry)}, this.props.className)}
                 value={cleanValue.toLocaleString()}
                 onChange={this.wrappedOnChange}

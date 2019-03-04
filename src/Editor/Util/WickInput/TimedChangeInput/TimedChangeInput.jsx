@@ -12,6 +12,8 @@ var classNames = require('classnames');
  * delay {number} milliseconds to wait before attempting update. Default: 500
  * 
  * onChange {function} function to call when delay has passed.
+ * 
+ * stallCharacters {string[]} if the input only contains a character in this array, onChange will not be fired.
  */
 class TimedChangeInput extends Component {
     constructor (props) {
@@ -32,6 +34,14 @@ class TimedChangeInput extends Component {
         this.wrappedOnChange(); 
     }
 
+    valueValid = () => {
+        let stalled = false;
+        if (this.props.stall !== undefined) {
+            stalled = this.props.stall.includes(this.state.value)
+        }
+
+        return (this.state.value !== "") && !stalled;
+    }
     /**
      * Wrapped onChange prop which is passed the clean value. Only fires if the value
      * has changed since the last update.
@@ -39,7 +49,7 @@ class TimedChangeInput extends Component {
     wrappedOnChange = () => {
         if (this.props.onChange && 
             (this.state.value !== this.state.lastUpdatedValue) &&
-            (this.state.value !== "")) {
+            (this.valueValid())) {
             this.props.onChange(this.state.value); 
 
             this.setState({
