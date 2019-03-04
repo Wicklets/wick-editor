@@ -4259,6 +4259,7 @@ paper.drawingTools = new paper.DrawingTools();
     var rasterPosition = layerPathsRaster.bounds.topLeft;
     resultHolePath.position.x += rasterPosition.x;
     resultHolePath.position.y += rasterPosition.y;
+    resultHolePath.applyMatrix = true;
     expandHole(resultHolePath);
   }
   /* Utilities */

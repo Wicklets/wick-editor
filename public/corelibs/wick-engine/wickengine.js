@@ -45087,10 +45087,11 @@ Wick.Project = class extends Wick.Base {
 
   breakApartSelection() {
     var leftovers = [];
-    this.selection.getSelectedObjects('Clip').forEach(clip => {
+    var clips = this.selection.getSelectedObjects('Clip');
+    this.selection.clear();
+    clips.forEach(clip => {
       leftovers = leftovers.concat(clip.breakApart());
     });
-    this.selection.clear();
     leftovers.forEach(object => {
       this.selection.select(object);
     });
@@ -46197,8 +46198,31 @@ Wick.Timeline = class extends Wick.Base {
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-/** Class representing a tween. */
+/** 
+ * Class representing a tween. 
+ */
 Wick.Tween = class extends Wick.Base {
+  /**
+   * Calculate a value 
+   * @param {Wick.Tween} tweenA - 
+   * @param {Wick.Tween} tweenB - 
+   * @param {number} playheadPosition - 
+   */
+  static _calculateTimeValue(tweenA, tweenB, playheadPosition) {
+    var tweenAPlayhead = tweenA.playheadPosition;
+    var tweenBPlayhead = tweenB.playheadPosition;
+    var dist = tweenBPlayhead - tweenAPlayhead;
+    var t = (playheadPosition - tweenAPlayhead) / dist;
+    return t;
+  }
+  /**
+   * Create a tween
+   * @param {number} playheadPosition - the playhead position relative to the frame that the tween belongs to
+   * @param {Wick.Transform} transform - the transformation this tween will apply to child objects
+   * @param {number} fullRotations - the number of rotations to add to the tween's transformation
+   */
+
+
   constructor(playheadPosition, transform, fullRotations) {
     super();
     this.playheadPosition = playheadPosition || 1;
@@ -46216,7 +46240,8 @@ Wick.Tween = class extends Wick.Base {
   static interpolate(tweenA, tweenB, playheadPosition) {
     var interpTween = new Wick.Tween(); // Calculate value (0.0-1.0) to pass to tweening function
 
-    var t = Wick.Tween.calculateTimeValue(tweenA, tweenB, playheadPosition); // Interpolate every transformation attribute using the t value
+    var t = Wick.Tween._calculateTimeValue(tweenA, tweenB, playheadPosition); // Interpolate every transformation attribute using the t value
+
 
     ["x", "y", "scaleX", "scaleY", "rotation", "opacity"].forEach(function (name) {
       var tt = TWEEN.Easing.Linear.None(t);
@@ -46239,6 +46264,7 @@ Wick.Tween = class extends Wick.Base {
 
       interpTween.transform[name] = lerp(valA, valB, tt);
     });
+    interpTween.playheadPosition = playheadPosition;
     return interpTween;
   }
 
@@ -46258,29 +46284,22 @@ Wick.Tween = class extends Wick.Base {
     object.fullRotations = data.fullRotations;
     return object;
   }
-  /**
-   * Calculate a value 
-   * @param {Wick.Tween} tweenA - 
-   * @param {Wick.Tween} tweenB - 
-   * @param {number} playheadPosition - 
-   */
-
-
-  static calculateTimeValue(tweenA, tweenB, playheadPosition) {
-    var tweenAPlayhead = tweenA.playheadPosition;
-    var tweenBPlayhead = tweenB.playheadPosition;
-    var dist = tweenBPlayhead - tweenAPlayhead;
-    var t = (playheadPosition - tweenAPlayhead) / dist;
-    return t;
-  }
 
   get classname() {
     return 'Tween';
   }
+  /**
+   * Remove this tween from its parent frame.
+   */
+
 
   remove() {
     this.parent.removeTween(this);
   }
+  /**
+   * Set the transformation of a clip to this tween's transformation.
+   */
+
 
   applyTransformsToClip(clip) {
     clip.transform = this.transform.clone(true);
@@ -47686,29 +47705,6 @@ Wick.Frame = class extends Wick.Tickable {
     this._removeChild(path);
   }
   /**
-   * The tween being used to transform the objects on the frame.
-   * @returns {Wick.Tween} tween - the active tween.
-   */
-
-
-  get activeTween() {
-    var playheadPosition = this._getRelativePlayheadPosition();
-
-    var seekBackwardsTween = this._seekTweenBehind(playheadPosition);
-
-    var seekForwardsTween = this._seekTweenInFront(playheadPosition);
-
-    if (seekBackwardsTween && seekForwardsTween) {
-      return Wick.Tween.interpolate(seekBackwardsTween, seekForwardsTween, playheadPosition);
-    } else if (seekForwardsTween) {
-      return seekForwardsTween;
-    } else if (seekBackwardsTween) {
-      return seekBackwardsTween;
-    } else {
-      return null;
-    }
-  }
-  /**
    * Add a tween to the frame.
    * @param {Wick.Tween} tween - the tween to add.
    */
@@ -47745,6 +47741,37 @@ Wick.Frame = class extends Wick.Tickable {
     });
   }
   /**
+   * The tween being used to transform the objects on the frame.
+   * @returns {Wick.Tween} tween - the active tween. Null if there is no active tween.
+   */
+
+
+  getActiveTween() {
+    if (!this.parentTimeline) return null;
+
+    var playheadPosition = this._getRelativePlayheadPosition();
+
+    var tween = this.getTweenAtPosition(playheadPosition);
+
+    if (tween) {
+      return tween;
+    }
+
+    var seekBackwardsTween = this._seekTweenBehind(playheadPosition);
+
+    var seekForwardsTween = this._seekTweenInFront(playheadPosition);
+
+    if (seekBackwardsTween && seekForwardsTween) {
+      return Wick.Tween.interpolate(seekBackwardsTween, seekForwardsTween, playheadPosition);
+    } else if (seekForwardsTween) {
+      return seekForwardsTween;
+    } else if (seekBackwardsTween) {
+      return seekBackwardsTween;
+    } else {
+      return null;
+    }
+  }
+  /**
    * Applies the transformation of current tween to the objects on the frame.
    */
 
@@ -47752,9 +47779,11 @@ Wick.Frame = class extends Wick.Tickable {
   applyTweenTransforms() {
     var tween = this.getActiveTween();
 
-    this._clips.forEach(clip => {
-      tween.applyTransformsToClip(clip);
-    });
+    if (tween) {
+      this._clips.forEach(clip => {
+        tween.applyTransformsToClip(clip);
+      });
+    }
   }
 
   _onInactive() {
@@ -47814,7 +47843,7 @@ Wick.Frame = class extends Wick.Tickable {
     var seekForwardsPosition = playheadPosition;
     var seekForwardsTween = null;
 
-    while (seekForwardsPosition > 0) {
+    while (seekForwardsPosition <= this.end) {
       seekForwardsTween = this.getTweenAtPosition(seekForwardsPosition);
       seekForwardsPosition++;
       if (seekForwardsTween) break;
@@ -48956,7 +48985,7 @@ Wick.View.Frame = class extends Wick.View {
       wickClip.transform.scaleY = child.scaling.y;
       wickClip.transform.rotation = child.rotation;
       wickClip.transform.opacity = child.opacity;
-    });
+    }); // TODO Update active tween / create new tween here
   }
 
   applyPathChanges() {
@@ -49003,6 +49032,7 @@ Wick.View.Frame = class extends Wick.View {
   }
 
   _renderClips() {
+    this.model.applyTweenTransforms();
     this.clipsLayer.removeChildren();
     this.model.clips.forEach(clip => {
       clip.view.render();
