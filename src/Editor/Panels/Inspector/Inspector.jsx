@@ -442,12 +442,23 @@ class Inspector extends Component {
     )
   }
 
+  renderSelectionSoundStart = () => {
+    return (
+      <InspectorNumericInput
+        tooltip="Sound Start"
+        type="numeric"
+        value={this.getSelectionAttribute('soundStart')}
+        onChange={(val) => {this.setSelectionAttribute('soundStart', val)}} />
+    )
+  }
+
   renderSoundContent = () => {
     let sound = this.getSelectionAttribute('sound');
     return (
       <div className="inspector-item">
         {this.renderSelectionSoundAsset()}
         {sound !== null && this.renderSelectionSoundVolume()}
+        {sound !== null && this.renderSelectionSoundStart()}
       </div>
     )
   }
