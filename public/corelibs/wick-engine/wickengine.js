@@ -45702,8 +45702,27 @@ Wick.Selection = class extends Wick.Base {
   }
 
   set sound(sound) {
-    if (this.numObjects === 1) {
+    if (this.numObjects === 1 && this.getSelectedObject() instanceof Wick.Frame) {
       this.getSelectedObject().sound = sound;
+    }
+  }
+  /**
+   * The volume of the sound attached to the selected object.
+   * If there is no sound, or multiple frames are selected, null is returned.
+   */
+
+
+  get volume() {
+    if (this.sound) {
+      return this.sound.volume;
+    } else {
+      return null;
+    }
+  }
+
+  set volume(volume) {
+    if (this.sound) {
+      this.sound.volume = volume;
     }
   }
   /**
@@ -46756,13 +46775,18 @@ Wick.SoundAsset = class extends Wick.Asset {
    */
 
 
-  play(seekMS) {
+  play(seekMS, volume) {
     // Play the sound, saving the ID returned by howler
-    var id = this._howl.play(); // Skip parts of the sound if we need to
+    var id = this._howl.play(); // Skip parts of the sound if seekMS was passed in
 
 
-    if (seekMS) {
+    if (seekMS !== undefined) {
       this._howl.seek(seekMS / 1000, id);
+    } // Set sound instance volume if volume was passed in
+
+
+    if (volume !== undefined) {
+      this._howl.volume(volume, id);
     }
 
     return id;
@@ -47393,6 +47417,7 @@ Wick.Frame = class extends Wick.Tickable {
     this.tweens = [];
     this._soundAssetUUID = null;
     this._soundID = null;
+    this._soundVolume = 1.0;
   }
 
   static _deserialize(data, object) {
@@ -47407,6 +47432,7 @@ Wick.Frame = class extends Wick.Tickable {
       object.addPath(Wick.Path.deserialize(pathData));
     });
     object._soundAssetUUID = data.sound;
+    object._soundVolume = data.soundVolume === undefined ? 1.0 : data.soundVolume;
     data.tweens.forEach(tweenData => {
       object.addTween(Wick.Tween.deserialize(tweenData));
     });
@@ -47429,6 +47455,7 @@ Wick.Frame = class extends Wick.Tickable {
       return tween.serialize();
     });
     data.originalLayerIndex = this._originalLayerIndex;
+    data.soundVolume = this._soundVolume;
     return data;
   }
 
@@ -47478,6 +47505,19 @@ Wick.Frame = class extends Wick.Tickable {
     this._soundAssetUUID = soundAsset.uuid;
   }
   /**
+   * The volume of the sound on the frame.
+   * @type {number}
+   */
+
+
+  get soundVolume() {
+    return this._soundVolume;
+  }
+
+  set soundVolume(soundVolume) {
+    this._soundVolume = soundVolume;
+  }
+  /**
    * Removes the sound on this frame.
    */
 
@@ -47492,7 +47532,7 @@ Wick.Frame = class extends Wick.Tickable {
 
   playSound() {
     if (this.sound) {
-      this._soundID = this.sound.play(this.soundStartOffsetMS);
+      this._soundID = this.sound.play(this.soundStartOffsetMS, this.soundVolume);
     }
   }
   /**
