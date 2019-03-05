@@ -19,26 +19,28 @@ function convertProjectFile (projectFile, callback) {
         }
         project.name = name || 'New Project';
 
-        convertProject(project, new Wick.Project(), callback);
+        convertProject(project, callback);
     };
     reader.readAsArrayBuffer(projectFile);
 }
 
-function convertProject (project, converted, callback) {
+function convertProject (project, callback) {
+    console.log(project);
+
     var converted = new Wick.Project();
+    converted.root.timeline.layers[0].remove();
+
+    // Project settings
     converted.backgroundColor = project.backgroundColor;
     converted.framerate = project.framerate;
     converted.width = project.width;
     converted.height = project.height;
 
-    // TODO asset library
+    // Asset library
 
-    convertClip(project.rootObject, project.root);
+
+    // Root clip
+    
 
     callback(converted);
-}
-
-function convertClip (clip, converted) {
-    console.log(clip)
-    return converted;
 }
