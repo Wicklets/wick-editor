@@ -174,9 +174,9 @@ class Editor extends EditorCore {
         max: 2000,
         step: 25,
       },
-      volume: {
+      soundVolume: {
         min: 0,
-        max: 5, 
+        max: 5,
         step: .01,
       }
     }

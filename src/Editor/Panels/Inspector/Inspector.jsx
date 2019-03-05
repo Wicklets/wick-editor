@@ -436,9 +436,8 @@ class Inspector extends Component {
       <InspectorNumericInput
         tooltip="Volume"
         type="numeric"
-        value={this.getSelectionAttribute('volume')}
-        onChange={(val) => {this.setSelectionAttribute('volume', val)}}
-        inputProps={this.props.toolRestrictions.volume} />
+        value={this.getSelectionAttribute('soundVolume')}
+        onChange={(val) => {this.setSelectionAttribute('soundVolume', val)}} />
     )
   }
 

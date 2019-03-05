@@ -464,6 +464,7 @@ class EditorCore extends Component {
       "rotation",
       "opacity",
       "sound",
+      "soundVolume",
       "soundStart",
     ];
     return attributes;
@@ -714,7 +715,11 @@ class EditorCore extends Component {
 
     acceptedFiles.forEach(file => {
       this.project.importFile(file, asset => {
-        this.projectDidChange();
+        if(asset === null) {
+          this.toast('Could not add files to project: ' + file.name, 'error');
+        } else {
+          this.projectDidChange();
+        }
       });
     });
   }

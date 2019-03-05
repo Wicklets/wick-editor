@@ -44997,7 +44997,8 @@ Wick.Project = class extends Wick.Base {
     }
 
     if (asset === undefined) {
-      callback(undefined);
+      console.warning('importFile(): Could not import file ' + file.name + ', ' + file.type + ' is not supported.');
+      callback(null);
       return;
     }
 
@@ -45138,10 +45139,9 @@ Wick.Project = class extends Wick.Base {
       assetsFolder.file(filename + '.' + fileExtension, data, {
         base64: true
       });
-    }); // Add project json and extra info file to root directory of zip file
+    }); // Add project json to root directory of zip file
 
     zip.file("project.json", JSON.stringify(projectData, null, 2));
-    zip.file("README.txt", 'some extra info about the wick filetype can go here.');
     zip.generateAsync({
       type: "blob",
       compression: "DEFLATE",
@@ -45713,17 +45713,17 @@ Wick.Selection = class extends Wick.Base {
    */
 
 
-  get volume() {
+  get soundVolume() {
     if (this.sound) {
-      return this.sound.volume;
+      return this.getSelectedObject().soundVolume;
     } else {
       return null;
     }
   }
 
-  set volume(volume) {
+  set soundVolume(soundVolume) {
     if (this.sound) {
-      this.sound.volume = volume;
+      this.getSelectedObject().soundVolume = soundVolume;
     }
   }
   /**
@@ -46748,7 +46748,7 @@ Wick.SoundAsset = class extends Wick.Asset {
    * @returns {string[]} Array of strings representing MIME types in the form audio/Subtype.
    */
   static getValidMIMETypes() {
-    let mp3Types = ['audio/mpeg3', 'audio/x-mpeg-3', 'video/mpeg', 'video/x-mpeg'];
+    let mp3Types = ['audio/mp3', 'audio/mpeg3', 'audio/x-mpeg-3', 'video/mpeg', 'video/x-mpeg'];
     let oggTypes = ['audio/ogg', 'video/ogg', 'application/ogg'];
     let wavTypes = ['audio/wave', 'audio/wav', 'audio/x-wav', 'audio/x-pn-wav'];
     return mp3Types.concat(oggTypes).concat(wavTypes);
@@ -46766,9 +46766,6 @@ Wick.SoundAsset = class extends Wick.Asset {
   constructor(filename, src) {
     super(filename, src);
     this.src = src;
-    this._howl = new Howl({
-      src: [this.src]
-    });
   }
 
   static _deserialize(data, object) {
@@ -46795,7 +46792,14 @@ Wick.SoundAsset = class extends Wick.Asset {
 
 
   play(seekMS, volume) {
-    // Play the sound, saving the ID returned by howler
+    // Lazyily create howl instance
+    if (!this._howl) {
+      this._howl = new Howl({
+        src: [this.src]
+      });
+    } // Play the sound, saving the ID returned by howler
+
+
     var id = this._howl.play(); // Skip parts of the sound if seekMS was passed in
 
 
@@ -46817,6 +46821,11 @@ Wick.SoundAsset = class extends Wick.Asset {
 
 
   stop(id) {
+    // Howl instance was never created, sound has never played yet, so do nothing
+    if (!this._howl) {
+      return;
+    }
+
     if (id === undefined) {
       this._howl.stop();
     } else {
