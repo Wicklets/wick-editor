@@ -7,6 +7,8 @@
         <meta charset="utf-8"/>
         <title>Wick Project Converter</title>
 
+        <script src="../corelibs/wick-engine/wickengine.js"></script>
+
         <script src="project152/lz-string.min.js"></script>
         <script src="project152/polyfills.js"></script>
 
@@ -25,40 +27,12 @@
         <script src="WickProjectConverter.js"></script>
 
         <script>
-            function handleFileSelect (e) {
-                var reader = new FileReader();
-                var filename = e.target.files[0].name;
-                reader.onload = function(e) {
-                    var arrayBuffer = reader.result;
-                    var byteArray = new Uint8Array(arrayBuffer);
-                    var wickProjectJSON = LZString.decompressFromUint8Array(byteArray);
-                    loadJSON(wickProjectJSON, filename, convertProject);
-                };
-                reader.readAsArrayBuffer(e.target.files[0]);
-            }
-
-            // From WickInputHandler from Wick 15.2
-            var loadJSON = function (json, filename, callback) {
-                var tempJsonObj = JSON.parse(json);
-                if(tempJsonObj.rootObject) {
-                    var project = WickProject.fromJSON(json);
-                    var filenameParts = filename.split('-');
-                    var name = filenameParts[0];
-                    if(name.includes('.json')) {
-                        name = name.split('.json')[0];
-                    }
-                    if(name.includes('.wick')) {
-                        name = name.split('.wick')[0];
-                    }
-                    project.name = name || 'New Project';
-                    callback(project);
-                } else {
-                    callback(WickObject.fromJSON(json));
-                }
-            }
-
             window.onload = function () {
-                document.getElementById('files').addEventListener('change', handleFileSelect, false);
+                document.getElementById('files').addEventListener('change', (e) => {
+                    convertProjectFile(e.target.files[0], project => {
+                        console.log(project)
+                    });
+                }, false);
             }
         </script>
     </head>
