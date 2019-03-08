@@ -46523,6 +46523,52 @@ Wick.Path = class extends Wick.Base {
 */
 Wick.Asset = class extends Wick.Base {
   /**
+   * Creates a new Wick Asset.
+   * @param {string} filename - the filename of the asset
+   */
+  constructor(identifier) {
+    super();
+    this.identifier = identifier;
+  }
+
+  static _deserialize(data, object) {
+    super._deserialize(data, object);
+
+    return object;
+  }
+
+  serialize() {
+    var data = super.serialize();
+    return data;
+  }
+
+  get classname() {
+    return 'Asset';
+  }
+
+};
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* Copyright 2018 WICKLETS LLC
+*
+* This file is part of Wick Engine.
+*
+* Wick Engine is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Wick Engine is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+*/
+Wick.FileAsset = class extends Wick.Asset {
+  /**
    * Returns all valid MIME types for files which can be converted to Wick Assets.
    * @return {string[]} Array of strings of MIME types in the form MediaType/Subtype.
    */
@@ -46543,38 +46589,30 @@ Wick.Asset = class extends Wick.Base {
     let soundExtensions = Wick.SoundAsset.getValidExtensions();
     return imageExtensions.concat(soundExtensions);
   }
-  /**
-   * Creates a new Wick Asset.
-   * @param {string} filename - the filename of the asset
-   * @param {string} src - the data of the asset, in base64 format
-   */
-
 
   constructor(filename, src) {
-    super();
-    this.name = filename;
+    super(filename);
     this.filename = filename;
-    Wick.FileCache.addFile(src, this.uuid);
-    this.onload = null;
+    this.src = src;
+  }
+
+  serialize() {
+    var data = super.serialize();
+    data.filename = this.filename;
+    data.MIMEType = this.MIMEType;
+    data.fileExtension = this.fileExtension;
+    return data;
   }
 
   static _deserialize(data, object) {
     super._deserialize(data, object);
 
-    object.name = data.name;
     object.filename = data.filename;
     return object;
   }
 
-  serialize() {
-    var data = super.serialize();
-    data.name = this.name;
-    data.filename = this.filename;
-    return data;
-  }
-
   get classname() {
-    return 'Asset';
+    return 'FileAsset';
   }
   /**
    * The source of the data of the asset, in base64.
@@ -46615,18 +46653,6 @@ Wick.Asset = class extends Wick.Base {
     return MIMEType && MIMEType.split('/')[1];
   }
 
-  _isBase64(str) {
-    if (str === '' || str.trim() === '') {
-      return false;
-    }
-
-    try {
-      return btoa(atob(str)) == str;
-    } catch (err) {
-      return false;
-    }
-  }
-
 };
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
@@ -46648,7 +46674,7 @@ Wick.Asset = class extends Wick.Base {
 * You should have received a copy of the GNU General Public License
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
-Wick.ImageAsset = class extends Wick.Asset {
+Wick.ImageAsset = class extends Wick.FileAsset {
   /**
    * Valid MIME types for image assets.
    * @returns {string[]} Array of strings representing MIME types in the form image/filetype.
@@ -46670,13 +46696,10 @@ Wick.ImageAsset = class extends Wick.Asset {
 
   constructor(filename, src) {
     super(filename, src);
-    this.src = src;
   }
 
   serialize() {
     var data = super.serialize();
-    data.MIMEType = this.MIMEType;
-    data.fileExtension = this.fileExtension;
     return data;
   }
 
@@ -46742,7 +46765,7 @@ Wick.ImageAsset = class extends Wick.Asset {
 * You should have received a copy of the GNU General Public License
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
-Wick.SoundAsset = class extends Wick.Asset {
+Wick.SoundAsset = class extends Wick.FileAsset {
   /**
    * Returns valid MIME types for a Sound Asset.
    * @returns {string[]} Array of strings representing MIME types in the form audio/Subtype.
@@ -46765,7 +46788,6 @@ Wick.SoundAsset = class extends Wick.Asset {
 
   constructor(filename, src) {
     super(filename, src);
-    this.src = src;
   }
 
   static _deserialize(data, object) {
@@ -46776,8 +46798,6 @@ Wick.SoundAsset = class extends Wick.Asset {
 
   serialize() {
     var data = super.serialize();
-    data.MIMEType = this.MIMEType;
-    data.fileExtension = this.fileExtension;
     return data;
   }
 
@@ -46870,14 +46890,11 @@ Wick.ClipAsset = class extends Wick.Asset {
   /**
    * Creates a new Clip Asset.
    */
-  constructor() {
-    super();
-    this.timeline = new Wick.Timeline();
+  constructor(clip) {
+    super(clip ? clip.identifier : null);
+    this.clipType = null;
     this.linkedClips = [];
-  }
-
-  static getValidMIMETypes() {
-    return [];
+    if (clip) this.useClipAsSource(clip);
   }
 
   static _deserialize(data, object) {
@@ -46903,6 +46920,8 @@ Wick.ClipAsset = class extends Wick.Asset {
 
 
   useClipAsSource(clip) {
+    this.identifier = clip.identifier;
+    this.clipType = clip.classname;
     this.timeline = clip.timeline.clone(false);
   }
   /**
@@ -46911,7 +46930,7 @@ Wick.ClipAsset = class extends Wick.Asset {
 
 
   createInstance() {
-    var clip = new Wick.Clip();
+    var clip = new Wick[this.clipType]();
     this.useAsSourceForClip(clip);
     return clip;
   }
@@ -46972,64 +46991,6 @@ Wick.ClipAsset = class extends Wick.Asset {
     this.linkedClips.forEach(clip => {
       clip.remove();
     });
-  }
-
-};
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2018 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-Wick.ButtonAsset = class extends Wick.ClipAsset {
-  /**
-   * Creates a new Button Asset.
-   */
-  constructor() {
-    super();
-  }
-
-  static getValidMIMETypes() {
-    return [];
-  }
-
-  static _deserialize(data, object) {
-    super._deserialize(data, object);
-
-    return object;
-  }
-
-  serialize() {
-    var data = super.serialize();
-    return data;
-  }
-
-  get classname() {
-    return 'ButtonAsset';
-  }
-  /**
-   * Creates a button out of this asset's data.
-   */
-
-
-  createInstance() {
-    var button = new Wick.Button();
-    this.useAsSourceForClip(button);
-    return button;
   }
 
 };
