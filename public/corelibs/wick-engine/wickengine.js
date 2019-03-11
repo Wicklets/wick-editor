@@ -44037,16 +44037,6 @@ WickFileCache = class {
     this._files = {};
   }
   /**
-   * Get info for a file by its UUID.
-   * @param {string} uuid - The UUID of the file
-   * @returns {object} The file info
-   */
-
-
-  getFile(uuid) {
-    return this._files[uuid];
-  }
-  /**
    * Add a file to the cache.
    * @param {string} src - The file source
    * @param {string} uuid - The UUID of the file
@@ -44057,6 +44047,41 @@ WickFileCache = class {
     this._files[uuid] = {
       src: src
     };
+  }
+  /**
+   * Get info for a file by its UUID.
+   * @param {string} uuid - The UUID of the file
+   * @returns {object} The file info
+   */
+
+
+  getFile(uuid) {
+    var file = this._files[uuid];
+
+    if (!file) {
+      console.warn('Asset with UUID ' + uuid + ' was not found in FileCache!');
+      return null;
+    } else {
+      return file;
+    }
+  }
+  /**
+   * On object containing all files in WickFileCache.
+   * @returns {object} All the files in an object with the format:
+   */
+
+
+  getAllFiles() {
+    var files = [];
+
+    for (var uuid in this._files) {
+      files.push({
+        uuid: uuid,
+        src: this._files[uuid].src
+      });
+    }
+
+    return files;
   }
   /**
    * Clear the cache.
@@ -44997,7 +45022,11 @@ Wick.Project = class extends Wick.Base {
     }
 
     if (asset === undefined) {
-      console.warning('importFile(): Could not import file ' + file.name + ', ' + file.type + ' is not supported.');
+      console.warn('importFile(): Could not import file ' + file.name + ', ' + file.type + ' is not supported.');
+      console.warn('supported image file types:');
+      console.log(imageTypes);
+      console.warn('supported sound file types:');
+      console.log(soundTypes);
       callback(null);
       return;
     }
@@ -46526,19 +46555,21 @@ Wick.Asset = class extends Wick.Base {
    * Creates a new Wick Asset.
    * @param {string} filename - the filename of the asset
    */
-  constructor(identifier) {
+  constructor(name) {
     super();
-    this.identifier = identifier;
+    this.name = name;
   }
 
   static _deserialize(data, object) {
     super._deserialize(data, object);
 
+    object.name = data.name;
     return object;
   }
 
   serialize() {
     var data = super.serialize();
+    data.name = this.name;
     return data;
   }
 
@@ -46771,7 +46802,7 @@ Wick.SoundAsset = class extends Wick.FileAsset {
    * @returns {string[]} Array of strings representing MIME types in the form audio/Subtype.
    */
   static getValidMIMETypes() {
-    let mp3Types = ['audio/mp3', 'audio/mpeg3', 'audio/x-mpeg-3', 'video/mpeg', 'video/x-mpeg'];
+    let mp3Types = ['audio/mp3', 'audio/mpeg3', 'audio/x-mpeg-3', 'audio/mpeg', 'video/mpeg', 'video/x-mpeg'];
     let oggTypes = ['audio/ogg', 'video/ogg', 'application/ogg'];
     let wavTypes = ['audio/wave', 'audio/wav', 'audio/x-wav', 'audio/x-pn-wav'];
     return mp3Types.concat(oggTypes).concat(wavTypes);
@@ -48607,7 +48638,7 @@ Wick.View.Project = class extends Wick.View {
     return 100;
   }
   /*
-   *
+   * Create a new Project View.
    */
 
 
@@ -48636,7 +48667,7 @@ Wick.View.Project = class extends Wick.View {
    * Determines the way the project will scale itself based on its container.
    * 'center' will keep the project at its original resolution, and center it inside its container.
    * 'fill' will stretch the project to fit the container (while maintaining its original aspect ratio).
-   * 
+   *
    * Note: For these changes to be reflected after setting fitMode, you must call Project.View.resize().
    */
 
@@ -48676,7 +48707,7 @@ Wick.View.Project = class extends Wick.View {
     }
   }
   /*
-   * 
+   *
    */
 
 
@@ -48693,7 +48724,7 @@ Wick.View.Project = class extends Wick.View {
     paper.view.viewSize.height = newHeight;
   }
   /*
-   * 
+   *
    */
 
 
@@ -48705,7 +48736,7 @@ Wick.View.Project = class extends Wick.View {
     if (this._fitMode === 'center') {
       paper.view.zoom = this.model.zoom;
     } else if (this._fitMode === 'fill') {
-      // Fill mode: Try to fit the wick project's canvas inside the container canvas by 
+      // Fill mode: Try to fit the wick project's canvas inside the container canvas by
       // scaling it as much as possible without changing the project's original aspect ratio
       var wr = paper.view.viewSize.width / this.model.width;
       var hr = paper.view.viewSize.height / this.model.height;
@@ -48747,7 +48778,7 @@ Wick.View.Project = class extends Wick.View {
     paper.project.addLayer(this.model.selection.view.layer);
   }
   /*
-   * 
+   *
    */
 
 

@@ -24,32 +24,6 @@ import DragDropTypes from 'Editor/DragDropTypes.js';
 import './_canvas.scss';
 import styles from './_canvas.scss';
 
-// Specification for drag and drop
-const canvasTarget = {
-  // canDrop(props, monitor) {
-  //   // Dragged item
-  //   let draggedItem = monitor.getItem();
-  // }
-
-  drop(props, monitor, component) {
-    // Drop location
-    const { x, y } = monitor.getClientOffset();
-
-    // Dragged item
-    let draggedItem = monitor.getItem();
-    //alert("Dropped Asset:" + draggedItem.uuid + " on the canvas at X:" + x + " Y:" + y);
-
-    props.createImageFromAsset(draggedItem.uuid, x, y);
-  }
-}
-
-function collect(connect, monitor) {
-  return {
-    connectDropTarget: connect.dropTarget(),
-    isOver: monitor.isOver(),
-  };
-}
-
 class Canvas extends Component {
   constructor (props) {
     super(props);
@@ -176,6 +150,22 @@ class Canvas extends Component {
       </div>
     )
   }
+}
+
+// react-dnd drag and drop target params
+const canvasTarget = {
+  drop(props, monitor, component) {
+    const dropLocation = monitor.getClientOffset();
+    let draggedItem = monitor.getItem();
+    props.createImageFromAsset(draggedItem.uuid, dropLocation.x, dropLocation.y);
+  }
+}
+
+function collect(connect, monitor) {
+  return {
+    connectDropTarget: connect.dropTarget(),
+    isOver: monitor.isOver(),
+  };
 }
 
 export default DropTarget(DragDropTypes.CANVAS, canvasTarget, collect)(Canvas);

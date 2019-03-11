@@ -706,18 +706,19 @@ class EditorCore extends Component {
    * @param {File[]} rejectedFiles - Files uploaded by user with unsupported MIME types.
    */
   createAssets = (acceptedFiles, rejectedFiles) => {
+    // Error message for failed uploads
     if (rejectedFiles.length > 0) {
       let fileNamesRejected = rejectedFiles.map(file => file.name).join(', ');
       this.toast('Could not import files: ' + fileNamesRejected, 'error');
     }
 
-    if (acceptedFiles.length <= 0) return;
-
+    // Add all successfuly uploaded assets
     acceptedFiles.forEach(file => {
       this.project.importFile(file, asset => {
         if(asset === null) {
           this.toast('Could not add files to project: ' + file.name, 'error');
         } else {
+          localForage.setItem(this.autoSaveAssetsKey, window.Wick.FileCache.getAllFiles());
           this.projectDidChange();
         }
       });
@@ -885,18 +886,15 @@ class EditorCore extends Component {
    * Does nothing if not autosaved project is stored.
    */
   attemptAutoLoad = () => {
-    let loadProject = (serializedProject) => {
-      if (!serializedProject) {
-        //TODO: Remove Dead code
-        console.error("No AutoSave Found");
-        return;
-      }
-
-      let deserialized = window.Wick.Project.deserialize(serializedProject);
-      this.setupNewProject(deserialized);
-    }
-
-    localForage.getItem(this.autoSaveKey).then(loadProject);
+    localForage.getItem(this.autoSaveAssetsKey).then(serializedAssets => {
+      serializedAssets.forEach(asset => {
+        window.Wick.FileCache.addFile(asset.src, asset.uuid);
+      });
+      localForage.getItem(this.autoSaveKey).then(serializedProject => {
+        let deserialized = window.Wick.Project.deserialize(serializedProject);
+        this.setupNewProject(deserialized);
+      });
+    });
   }
 
   /**
@@ -905,15 +903,13 @@ class EditorCore extends Component {
    * True if an autosave exists.
    */
   doesAutoSavedProjectExist = (callback) => {
-    let checkProject = (serializedProject) => {
+    localForage.getItem(this.autoSaveKey).then(serializedProject => {
       if (serializedProject) {
         callback(true);
       } else {
         callback(false);
       }
-    }
-
-    localForage.getItem(this.autoSaveKey).then(checkProject);
+    });
   }
 
   /**

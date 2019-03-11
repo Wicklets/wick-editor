@@ -196,6 +196,7 @@ class Editor extends EditorCore {
       description : 'Live Data storage of the Wick Editor app.'
     });
     this.autoSaveKey = "wickEditorAutosave";
+    this.autoSaveAssetsKey = "wickEditorAutosaveAssets";
 
     // Setup the initial project state
     this.setState({
@@ -530,7 +531,7 @@ class Editor extends EditorCore {
 
     return (
     <Dropzone
-      accept={window.Wick.Asset.getValidExtensions()}
+      accept={window.Wick.FileAsset.getValidExtensions()}
       onDrop={(accepted, rejected) => this.createAssets(accepted, rejected)}
       disableClick
     >
