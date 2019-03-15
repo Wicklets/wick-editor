@@ -30,13 +30,12 @@ class MenuBar extends Component {
   }
 
   handleWickFileLoad = (e) => {
-    var self = this;
     var file = e.target.files[0];
     if (!file) {
+      console.warning('handleWickFileLoad: no files recieved');
       return;
     }
-
-    self.props.importProjectAsWickFile(file);
+    this.props.importProjectAsWickFile(file);
   }
 
   openProjectFileDialog = () => {
@@ -56,17 +55,20 @@ class MenuBar extends Component {
             accept='.zip, .wick'
             style={{display: 'none'}}
             ref={this.openFileRef}
-            onChange={this.handleWickFileLoad} />
+            onChange={this.handleWickFileLoad}
+          />
           <MenuBarButton
             text="open"
             action={this.openProjectFileDialog}
           />
           <MenuBarButton
             text="GIF"
-            action={this.props.exportProjectAsAnimatedGIF}/>
+            action={this.props.exportProjectAsAnimatedGIF}
+          />
           <MenuBarButton
-              text="ZIP"
-              action={this.props.exportProjectAsStandaloneZIP}/>
+            text="ZIP"
+            action={this.props.exportProjectAsStandaloneZIP}
+          />
           <MenuBarButton
             text="save"
             action={this.props.exportProjectAsWickFile}
@@ -76,7 +78,6 @@ class MenuBar extends Component {
             <ToolIcon name='gear' />
           </div>
         </div>
-
       </div>
     )
   }
