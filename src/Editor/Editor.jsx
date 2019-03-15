@@ -214,7 +214,9 @@ class Editor extends EditorCore {
   }
 
   componentDidMount = () => {
+    this.hidePreloader();
     this.refocusEditor();
+    this.onWindowResize();
     this.showAutosavedProjects();
   }
 
@@ -244,6 +246,11 @@ class Editor extends EditorCore {
   }
 
 //
+
+  hidePreloader = () => {
+    window.document.getElementById('preloader').style.display = 'none';
+    window.document.getElementById('root').style.display = 'block';
+  }
 
   showAutosavedProjects = () => {
     this.doesAutoSavedProjectExist(bool => { if (bool) {
