@@ -178,8 +178,8 @@ class WickProjectConverter {
         var convertedFrame = new Wick.Frame();
 
         // Frame attributes
-        convertedFrame.start = frame.playheadPosition;
-        convertedFrame.end = frame.playheadPosition + frame.length - 1;
+        convertedFrame.start = frame.playheadPosition + 1;
+        convertedFrame.end = frame.playheadPosition + frame.length;
         convertedFrame._soundAssetUUID = frame.audioAssetUUID;
 
         // Frame script
@@ -231,7 +231,7 @@ class WickProjectConverter {
         var convertedTween = new Wick.Tween();
 
         // Tween attributes
-        convertedTween.playheadPosition = tween.playheadPosition - 1;
+        convertedTween.playheadPosition = tween.playheadPosition + 1;
         convertedTween.fullRotations = tween.rotations;
 
         // Tween transform
@@ -249,10 +249,11 @@ class WickProjectConverter {
      * Converts a Wick v15.2 WickObject object into a Wick 1.0 Wick.Path object.
      */
     static convertPath (path) {
-        // Path attributes
         var paperPath = paper.project.importSVG(path.pathData);
-        var pathJSON = paperPath.children[0].exportJSON({asString:false});
+        paperPath.position.x = path.x;
+        paperPath.position.y = path.y;
 
+        var pathJSON = paperPath.children[0].exportJSON({asString:false});
         var convertedPath = new Wick.Path(pathJSON);
         return convertedPath;
     }
@@ -266,6 +267,11 @@ class WickProjectConverter {
 
         // Create instance of that asset
         var convertedImage = asset.createInstance();
+        convertedImage.paperPath.position.x = image.x;
+        convertedImage.paperPath.position.y = image.y;
+        convertedImage.paperPath.rotation = image.rotation;
+        convertedImage.paperPath.scaling.x = image.scaleX;
+        convertedImage.paperPath.scaling.y = image.scaleY;
         return convertedImage;
     }
 
@@ -280,6 +286,11 @@ class WickProjectConverter {
         paperText.fontWeight = text.textData.fontWeight;
         paperText.fontSize = text.textData.fontSize;
         paperText.justification = text.textData.textAlign;
+        paperText.position.x = text.x;
+        paperText.position.y = text.y;
+        paperText.rotation = text.rotation;
+        paperText.scaling.x = text.scaleX;
+        paperText.scaling.y = text.scaleY;
 
         var convertedTextData = paperText.exportJSON({asString:false});
         var convertedText = new Wick.Path(convertedTextData);
