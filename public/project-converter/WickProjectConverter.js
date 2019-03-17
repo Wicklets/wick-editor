@@ -23,14 +23,14 @@ class WickProjectConverter {
         var reader = new FileReader();
         reader.onload = function(e) {
             // Decompress and parse project data
-            // (From Wick 15.2 InputHandler class)
+            // (This code is from the Wick 15.2 InputHandler class)
             var wickProjectCompressedJSONRaw = reader.result;
             var wickProjectCompressedJSON = new Uint8Array(wickProjectCompressedJSONRaw);
             var wickProjectJSON = LZString.decompressFromUint8Array(wickProjectCompressedJSON);
             var project = WickProject.fromJSON(wickProjectJSON);
 
             // Retrieve project name from filename
-            // (From Wick 15.2 InputHandler class)
+            // (This code is also from the Wick 15.2 InputHandler class)
             var filenameParts = wickFile.name.split('-');
             var name = filenameParts[0];
             if(name.includes('.json')) {
@@ -51,11 +51,7 @@ class WickProjectConverter {
      * Converts a Wick v15.2 WickProject object into a Wick 1.0 Wick.Project object.
      */
     static convertProject (project) {
-        console.log('Converting project:');
-        console.log(project);
-
         var convertedProject = new Wick.Project();
-        convertedProject.root.timeline.layers[0].remove();
 
         // Project attributes
         convertedProject.backgroundColor = project.backgroundColor;
@@ -96,9 +92,10 @@ class WickProjectConverter {
      * Converts a Wick v15.2 WickAsset object into a Wick 1.0 Wick.ImageAsset object.
      */
     static convertImageAsset (imageAsset) {
-        var convertedImageAsset = new Wick.ImageAsset(imageAsset.filename, imageAsset.src);
+        var src = imageAsset.getData();
+        var convertedImageAsset = new Wick.ImageAsset(imageAsset.filename, src);
         convertedImageAsset._uuid = imageAsset.uuid;
-        convertedImageAsset.src = imageAsset.src; // To force WickFileCache to update with manually changed UUID.
+        convertedImageAsset.src = src; // To force WickFileCache to update with manually changed UUID.
         return convertedImageAsset;
     }
 
@@ -106,9 +103,10 @@ class WickProjectConverter {
      * Converts a Wick v15.2 WickAsset object into a Wick 1.0 Wick.SoundAsset object.
      */
     static convertSoundAsset (soundAsset) {
-        var convertedSoundAsset = new Wick.SoundAsset(soundAsset.filename, soundAsset.src);
+        var src = soundAsset.getData();
+        var convertedSoundAsset = new Wick.SoundAsset(soundAsset.filename, src);
         convertedSoundAsset._uuid = soundAsset.uuid;
-        convertedSoundAsset.src = soundAsset.src; // To force WickFileCache to update with manually changed UUID.
+        convertedSoundAsset.src = src; // To force WickFileCache to update with manually changed UUID.
         return convertedSoundAsset;
     }
 
@@ -117,6 +115,7 @@ class WickProjectConverter {
      */
     static convertClip (clip, convertedProject) {
         var convertedClip = new Wick.Clip();
+        convertedClip.timeline.layers[0].remove();
 
         // Clip attributes
         convertedClip.identifier = clip.name;
@@ -283,7 +282,7 @@ class WickProjectConverter {
         paperText.justification = text.textData.textAlign;
 
         var convertedTextData = paperText.exportJSON({asString:false});
-        var convertedText = new Wick.Path();
+        var convertedText = new Wick.Path(convertedTextData);
         return convertedText;
     }
 

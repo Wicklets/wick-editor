@@ -9,9 +9,10 @@
 
         <script src="../corelibs/wick-engine/wickengine.js"></script>
 
-        <script src="project152/lz-string.min.js"></script>
-        <script src="project152/polyfills.js"></script>
+        <script src="lib/FileSaver.js"></script>
+        <script src="lib/lz-string.min.js"></script>
 
+        <script src="project152/polyfills.js"></script>
         <script src="project152/WickProject.js"></script>
         <script src="project152/WickAsset.js"></script>
         <script src="project152/WickCamera.js"></script>
@@ -31,13 +32,26 @@
                 document.getElementById('files').addEventListener('change', (e) => {
                     WickProjectConverter.convertOldWickFile(e.target.files[0], project => {
                         console.log(project)
+                        window.convertedProject = project;
+                        document.getElementById('downloadButton').style.display = 'block';
                     });
                 }, false);
+            }
+
+            function downloadProject () {
+                window.convertedProject.exportAsWickFile((file) => {
+                    if (file === undefined) {
+                        this.toast('Could not export project.', 'error');
+                        return;
+                    }
+                    saveAs(file, window.convertedProject.name + '.wick');
+                });
             }
         </script>
     </head>
 
     <body>
         <input id="files" type="file"/>
+        <button id="downloadButton" style="display:none;" onclick="downloadProject()">Download</button>
     </body>
 </html>
