@@ -46769,6 +46769,7 @@ Wick.ImageAsset = class extends Wick.FileAsset {
       "source": "asset",
       "asset": this.uuid
     }], [this]);
+    return path;
 
     path.paperPath.onLoad = () => {
       callback(path);

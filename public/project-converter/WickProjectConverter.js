@@ -1,4 +1,4 @@
-/* 
+/*
  * Utility class to convert Wick Alpha 15.2 projects into Wick 1.0 (Bagel) projects.
  */
 class WickProjectConverter {
@@ -64,13 +64,13 @@ class WickProjectConverter {
         convertedProject.height = project.height;
 
         // Asset library
-        for(key in project.assets) {
-            var asset = WickProjectConverter.convertAsset(project.assets[key]);
-            convertProject.addAsset(asset);
+        for(var key in project.library.assets) {
+            var asset = WickProjectConverter.convertAsset(project.library.assets[key]);
+            convertedProject.addAsset(asset);
         }
 
         // Root clip
-        convertedProject.root = WickProjectConverter.convertClip(project.rootObject);
+        convertedProject.root = WickProjectConverter.convertClip(project.rootObject, convertedProject);
         convertedProject.focus = convertedProject.root;
 
         return convertedProject;
@@ -80,12 +80,12 @@ class WickProjectConverter {
      * Converts a Wick v15.2 WickAsset object into a Wick 1.0 Wick.Asset object.
      */
     static convertAsset (asset) {
-        if(asset.type === '???') {
+        if(asset.type === 'image') {
             // Image asset
             return WickProjectConverter.convertImageAsset(asset);
-        } else if (asset.type === '???') {
+        } else if (asset.type === 'audio') {
             // Sound asset
-            return WickProjectConverter.convertImageAsset(asset);
+            return WickProjectConverter.convertSoundAsset(asset);
         } else {
             console.error('Add a convert routine for "' + asset.type + '" assets, please!!');
             return null;
@@ -96,11 +96,9 @@ class WickProjectConverter {
      * Converts a Wick v15.2 WickAsset object into a Wick 1.0 Wick.ImageAsset object.
      */
     static convertImageAsset (imageAsset) {
-        var convertedImageAsset = new Wick.ImageAsset();
-
-        // Image asset properties
-        // TODO
-
+        var convertedImageAsset = new Wick.ImageAsset(imageAsset.filename, imageAsset.src);
+        convertedImageAsset._uuid = imageAsset.uuid;
+        convertedImageAsset.src = imageAsset.src; // To force WickFileCache to update with manually changed UUID.
         return convertedImageAsset;
     }
 
@@ -108,18 +106,16 @@ class WickProjectConverter {
      * Converts a Wick v15.2 WickAsset object into a Wick 1.0 Wick.SoundAsset object.
      */
     static convertSoundAsset (soundAsset) {
-        var convertedSoundAsset = new Wick.SoundAsset();
-
-        // Sound asset properties
-        // TODO
-
+        var convertedSoundAsset = new Wick.SoundAsset(soundAsset.filename, soundAsset.src);
+        convertedSoundAsset._uuid = soundAsset.uuid;
+        convertedSoundAsset.src = soundAsset.src; // To force WickFileCache to update with manually changed UUID.
         return convertedSoundAsset;
     }
 
     /**
      * Converts a Wick v15.2 WickObject object into a Wick 1.0 Wick.Clip object.
      */
-    static convertClip (clip) {
+    static convertClip (clip, convertedProject) {
         var convertedClip = new Wick.Clip();
 
         // Clip attributes
@@ -140,7 +136,7 @@ class WickProjectConverter {
 
         // Layers
         clip.layers.forEach(layer => {
-            var convertedLayer = WickProjectConverter.convertLayer(layer, new Wick.Layer());
+            var convertedLayer = WickProjectConverter.convertLayer(layer, convertedProject);
             convertedClip.timeline.addLayer(convertedLayer);
         });
 
@@ -150,8 +146,8 @@ class WickProjectConverter {
     /**
      * Converts a Wick v15.2 WickObject object into a Wick 1.0 Wick.Button object.
      */
-    static convertButton (button) {
-        var convertedClip = WickProjectConverter.convertClip(button);
+    static convertButton (button, convertedProject) {
+        var convertedClip = WickProjectConverter.convertClip(button, convertedProject);
         var convertedButton = convertedClip.convertedToButton();
         return convertedButton;
     }
@@ -159,7 +155,7 @@ class WickProjectConverter {
     /**
      * Converts a Wick v15.2 WickLayer object into a Wick 1.0 Wick.Layer object.
      */
-    static convertLayer (layer) {
+    static convertLayer (layer, convertedProject) {
         var convertedLayer = new Wick.Layer();
 
         // Layer attributes
@@ -169,7 +165,7 @@ class WickProjectConverter {
 
         // Frames
         layer.frames.forEach(frame => {
-            var convertedFrame = WickProjectConverter.convertFrame(frame);
+            var convertedFrame = WickProjectConverter.convertFrame(frame, convertedProject);
             convertedLayer.addFrame(convertedFrame);
         });
 
@@ -179,7 +175,7 @@ class WickProjectConverter {
     /**
      * Converts a Wick v15.2 WickFrame object into a Wick 1.0 Wick.Frame object.
      */
-    static convertFrame (frame) {
+    static convertFrame (frame, convertedProject) {
         var convertedFrame = new Wick.Frame();
 
         // Frame attributes
@@ -204,15 +200,15 @@ class WickProjectConverter {
                 convertedFrame.addPath(convertedText);
             } else if (wickObject.isImage) {
                 // Image
-                var convertedImage = WickProjectConverter.convertedImage(wickObject);
+                var convertedImage = WickProjectConverter.convertImage(wickObject, convertedProject);
                 convertedFrame.addPath(convertedImage);
             } else if (wickObject.isClip || wickObject.isGroup) {
                 // Clip
-                var convertedClip = WickProjectConverter.convertClip(wickObject);
+                var convertedClip = WickProjectConverter.convertClip(wickObject, convertedProject);
                 convertedFrame.addClip(convertedClip);
             } else if (wickObject.isButton) {
                 // Button
-                var convertedButton = WickProjectConverter.convertButton(wickObject);
+                var convertedButton = WickProjectConverter.convertButton(wickObject, convertedProject);
                 convertedFrame.addClip(convertedButton);
             } else {
                 console.error("Couldn't convert a wick object, did you forget a case?");
@@ -254,23 +250,23 @@ class WickProjectConverter {
      * Converts a Wick v15.2 WickObject object into a Wick 1.0 Wick.Path object.
      */
     static convertPath (path) {
-        var convertedPath = new Wick.Path();
-
         // Path attributes
-        // TODO
+        var paperPath = paper.project.importSVG(path.pathData);
+        var pathJSON = paperPath.children[0].exportJSON({asString:false});
 
+        var convertedPath = new Wick.Path(pathJSON);
         return convertedPath;
     }
 
     /**
      * Converts a Wick v15.2 WickObject object into a Wick 1.0 Wick.Path object.
      */
-    static convertImage (image) {
-        var convertedImage = new Wick.Path();
+    static convertImage (image, convertedProject) {
+        // Find asset in convertedProject asset library
+        var asset = convertedProject.getAsset(image.assetUUID);
 
-        // Create raster
-        // TODO
-
+        // Create instance of that asset
+        var convertedImage = asset.createInstance();
         return convertedImage;
     }
 
@@ -278,19 +274,32 @@ class WickProjectConverter {
      * Converts a Wick v15.2 WickObject object into a Wick 1.0 Wick.Text object.
      */
     static convertText (text) {
+        var paperText = new paper.PointText();
+        paperText.content = text.textData.text;
+        paperText.fillColor = text.textData.fill;
+        paperText.fontFamily = text.textData.fontFamily;
+        paperText.fontWeight = text.textData.fontWeight;
+        paperText.fontSize = text.textData.fontSize;
+        paperText.justification = text.textData.textAlign;
+
+        var convertedTextData = paperText.exportJSON({asString:false});
         var convertedText = new Wick.Path();
-
-        // Create textitem
-        // TODO
-
         return convertedText;
     }
 
     /**
      * Converts a string representing a Wick v15.2 script into a Wick 1.0 list of scripts.
+     * @param string} script - The script of the original Wick 15.2 object
+     * @returns {array} - An array of objects with the format {src: string, name: string}
      */
     static convertScript (script) {
         // First pass (easy): Dump whole script into Load event.
+        return [{
+          name: 'load',
+          src: script,
+        }];
+
         // Second pass (hard): Parse event functions, unindent function bodies, create events for each corresponding event function
+        // TODO
     }
 }
