@@ -878,6 +878,7 @@ class EditorCore extends Component {
     this.resetEditorForLoad();
     project.selection.clear();
     this.project = project;
+    localForage.setItem(this.autoSaveAssetsKey, window.Wick.FileCache.getAllFiles());
     this.projectDidChange();
   }
 
