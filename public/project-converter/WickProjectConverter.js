@@ -201,7 +201,7 @@ class WickProjectConverter {
                 // Image
                 var convertedImage = WickProjectConverter.convertImage(wickObject, convertedProject);
                 convertedFrame.addPath(convertedImage);
-            } else if (wickObject.isClip || wickObject.isGroup) {
+            } else if (wickObject.isClip || wickObject.isGroup || wickObject.isSymbol) {
                 // Clip
                 var convertedClip = WickProjectConverter.convertClip(wickObject, convertedProject);
                 convertedFrame.addClip(convertedClip);
