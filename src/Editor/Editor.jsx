@@ -476,19 +476,18 @@ class Editor extends EditorCore {
    * saved to the undo/redo stacks.
    */
   projectDidChange = (skipHistory) => {
-    // Double check to see if the project was really changed
-    // (This shouldn't be neccessary, but AnimationTimeline was firing multiple
-    // projectDidChange calls.)
-    let projectSerialized = this.project.serialize();
-    if(JSON.stringify(this.state.project) !== JSON.stringify(projectSerialized)) {
-      if(!skipHistory) {
-        this.history.saveState();
-        this.autosaveProject(projectSerialized);
-      }
-      this.canvasComponent.updateCanvas(this.project);
+    //var beforeSerializeTimeMS = +new Date();
+
+    if(!skipHistory) {
+      this.history.saveState();
     }
+
+    //var afterSerializeTimeMS = +new Date();
+    //console.log('took ' + (afterSerializeTimeMS - beforeSerializeTimeMS) + 'ms');
+
+    this.canvasComponent.updateCanvas(this.project);
     this.setState({
-      project: projectSerialized,
+      project: ''+Math.random(),
     });
   }
 

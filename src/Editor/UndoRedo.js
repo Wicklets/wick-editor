@@ -9,8 +9,15 @@ class UndoRedo {
   }
 
   saveState () {
-    this._undoStack.push(this._generateProjectState());
-    this._redoStack = [];
+    let state = this._generateProjectState();
+    let lastState = this._undoStack[this._undoStack.length-1];
+    if(!lastState) lastState = '';
+
+    if(JSON.stringify(state.project) !== JSON.stringify(lastState.project) ||
+       JSON.stringify(state.focus) !== JSON.stringify(lastState.focus)) {
+      this._undoStack.push(state);
+      this._redoStack = [];
+    }
 
     if(this.LOG_STACKS) this._logStacks();
   }
@@ -49,14 +56,17 @@ class UndoRedo {
 
   _generateProjectState () {
     return {
-      project: this.editor.project.serialize(),
+      project: this.editor.project.serialize({shallow:true}),
+      focus: this.editor.project.focus.serialize(),
     };
   }
 
   _recoverProjectState (state) {
     let currentZoom = this.editor.project.zoom;
     let currentPan = {x:this.editor.project.pan.x, y:this.editor.project.pan.y};
-    this.editor.project = window.Wick.Project.deserialize(state.project);
+    //this.editor.project = window.Wick.Project.deserialize(state.project);
+    window.Wick.Project._deserialize(state.project, this.editor.project);
+    window.Wick.Clip._deserialize(state.focus, this.editor.project.getChildByUUID(state.focus.uuid));
     this.editor.project.zoom = currentZoom;
     this.editor.project.pan = currentPan;
     this.editor.projectDidChange(true);
