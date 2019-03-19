@@ -237,8 +237,10 @@ class Editor extends EditorCore {
     }
 
     if(!this.state.previewPlaying && prevState.previewPlaying) {
+      let playheadPosition = this.project.focus.timeline.playheadPosition;
       this.project.stop();
       this.project = window.Wick.Project.deserialize(this.beforePreviewPlayProjectState);
+      this.project.focus.timeline.playheadPosition = playheadPosition;
       this.setState({
         project: this.beforePreviewPlayProjectState,
       });
