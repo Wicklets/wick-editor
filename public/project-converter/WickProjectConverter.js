@@ -54,6 +54,7 @@ class WickProjectConverter {
         var convertedProject = new Wick.Project();
 
         // Project attributes
+        convertedProject.name = project.name;
         convertedProject.backgroundColor = project.backgroundColor;
         convertedProject.framerate = project.framerate;
         convertedProject.width = project.width;
