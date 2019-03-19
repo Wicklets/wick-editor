@@ -54,6 +54,7 @@ class WickProjectConverter {
         var convertedProject = new Wick.Project();
 
         // Project attributes
+        convertedProject.name = project.name;
         convertedProject.backgroundColor = project.backgroundColor;
         convertedProject.framerate = project.framerate;
         convertedProject.width = project.width;
@@ -113,8 +114,10 @@ class WickProjectConverter {
     /**
      * Converts a Wick v15.2 WickObject object into a Wick 1.0 Wick.Clip object.
      */
-    static convertClip (clip, convertedProject) {
-        var convertedClip = new Wick.Clip();
+    static convertClip (clip, convertedProject, type) {
+        if(!type) type = 'Clip';
+
+        var convertedClip = new Wick[type]();
         convertedClip.timeline.layers[0].remove();
 
         // Clip attributes
@@ -146,8 +149,7 @@ class WickProjectConverter {
      * Converts a Wick v15.2 WickObject object into a Wick 1.0 Wick.Button object.
      */
     static convertButton (button, convertedProject) {
-        var convertedClip = WickProjectConverter.convertClip(button, convertedProject);
-        var convertedButton = convertedClip.convertedToButton();
+        var convertedButton = WickProjectConverter.convertClip(button, convertedProject, 'Button');
         return convertedButton;
     }
 
@@ -178,6 +180,7 @@ class WickProjectConverter {
         var convertedFrame = new Wick.Frame();
 
         // Frame attributes
+        convertedFrame.identifier = frame.name;
         convertedFrame.start = frame.playheadPosition + 1;
         convertedFrame.end = frame.playheadPosition + frame.length;
         convertedFrame._soundAssetUUID = frame.audioAssetUUID;
@@ -201,14 +204,14 @@ class WickProjectConverter {
                 // Image
                 var convertedImage = WickProjectConverter.convertImage(wickObject, convertedProject);
                 convertedFrame.addPath(convertedImage);
-            } else if (wickObject.isClip || wickObject.isGroup || wickObject.isSymbol) {
-                // Clip
-                var convertedClip = WickProjectConverter.convertClip(wickObject, convertedProject);
-                convertedFrame.addClip(convertedClip);
             } else if (wickObject.isButton) {
                 // Button
                 var convertedButton = WickProjectConverter.convertButton(wickObject, convertedProject);
                 convertedFrame.addClip(convertedButton);
+            } else if (wickObject.isClip || wickObject.isGroup || wickObject.isSymbol) {
+                // Clip
+                var convertedClip = WickProjectConverter.convertClip(wickObject, convertedProject);
+                convertedFrame.addClip(convertedClip);
             } else {
                 console.error("Couldn't convert a wick object, did you forget a case?");
                 console.log(wickObject);

@@ -970,7 +970,6 @@ class EditorCore extends Component {
    * @param  {object[]} errors Array of error objects.
    */
   stopPreviewPlaying = (errors) => {
-    this.stopTickLoop();
     this.setState({
       previewPlaying: false,
       codeErrors: errors === undefined ? [] : errors,

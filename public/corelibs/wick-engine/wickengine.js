@@ -44634,29 +44634,31 @@ Wick.Project = class extends Wick.Base {
     object.height = data.height;
     object.framerate = data.framerate;
     object.backgroundColor = data.backgroundColor;
-    object.pan = data.pan ? {
+    if (data.pan) object.pan = {
       x: data.pan.x,
       y: data.pan.y
-    } : {
-      x: object.width / 2,
-      y: object.height / 2
     };
-    object.zoom = data.zoom || 1.0;
-    object.onionSkinEnabled = data.onionSkinEnabled || false;
-    object.onionSkinSeekForwards = data.onionSkinSeekForwards || 1;
-    object.onionSkinSeekBackwards = data.onionSkinSeekBackwards || 1;
-    object.root = Wick.Clip.deserialize(data.root);
-    object.root.identifier = 'Project';
-    object.focus = data.focus ? object.getChildByUUID(data.focus) : object.root;
-    object.selection = data.selection ? Wick.Selection.deserialize(data.selection) : new Wick.Selection();
+    if (data.zoom) object.zoom = data.zoom;
+    if (data.onionSkinEnabled) object.onionSkinEnabled = data.onionSkinEnabled;
+    if (data.onionSkinSeekForwards) object.onionSkinSeekForwards = data.onionSkinSeekForwards;
+    if (data.onionSkinSeekBackwards) object.onionSkinSeekBackwards = data.onionSkinSeekBackwards;
+    if (data.root) object.root = Wick.Clip.deserialize(data.root);
+    if (data.focus) object.focus = object.getChildByUUID(data.focus);
+    object.selection = Wick.Selection.deserialize(data.selection);
+
+    if (data.assets) {
+      data.assets.forEach(assetData => {
+        object.addAsset(Wick.Asset.deserialize(assetData));
+      });
+    }
+
     object.project = object;
-    data.assets.forEach(assetData => {
-      object.addAsset(Wick.Asset.deserialize(assetData));
-    });
     return object;
   }
 
-  serialize() {
+  serialize(args) {
+    if (!args) args = {};
+    if (args.shallow === undefined) args.shallow = false;
     var data = super.serialize();
     data.name = this.name;
     data.width = this.width;
@@ -44671,12 +44673,16 @@ Wick.Project = class extends Wick.Base {
     data.onionSkinEnabled = this.onionSkinEnabled;
     data.onionSkinSeekForwards = this.onionSkinSeekForwards;
     data.onionSkinSeekBackwards = this.onionSkinSeekBackwards;
-    data.root = this.root.serialize();
+    if (!args.shallow) data.root = this.root.serialize();
     data.focus = this.focus.uuid;
     data.selection = this.selection.serialize();
-    data.assets = this.getAssets().map(asset => {
-      return asset.serialize();
-    });
+
+    if (!args.shallow) {
+      data.assets = this.getAssets().map(asset => {
+        return asset.serialize();
+      });
+    }
+
     return data;
   }
   /**
@@ -46437,7 +46443,7 @@ Wick.Path = class extends Wick.Base {
    */
   constructor(pathData) {
     super();
-    this._assetUUID = null;
+    this._assetUUID = null; // If no path data is given, create an empty paper path, otherwise import the path data
 
     if (!pathData) {
       this._paperPath = new paper.Path({
@@ -46445,7 +46451,8 @@ Wick.Path = class extends Wick.Base {
       });
     } else {
       this.importJSON(pathData);
-    }
+    } // Check if we need to recover the UUID from the paper path
+
 
     if (this._paperPath.data.wickUUID) {
       this._uuid = this._paperPath.data.wickUUID;
@@ -46453,6 +46460,8 @@ Wick.Path = class extends Wick.Base {
       this._paperPath.data.wickUUID = this.uuid;
       this._paperPath.data.wickType = 'path';
     }
+
+    this._cachedJSONExport = null;
   }
 
   static _deserialize(data, object) {
@@ -46464,7 +46473,7 @@ Wick.Path = class extends Wick.Base {
 
   serialize() {
     var data = super.serialize();
-    data.pathJSON = this.exportJSON();
+    data.pathJSON = this._getCachedJSONExport();
     return data;
   }
 
@@ -46527,6 +46536,31 @@ Wick.Path = class extends Wick.Base {
     }
 
     return json;
+  }
+
+  _getCachedJSONExport() {
+    /*
+    if(this.project && this.project.serializeOnScreenObjectsOnly) {
+        if(this.parentFrame.onScreen) {
+            var json = this.exportJSON();
+            this._cachedJSONExport = json;
+            return json;
+        } else {
+            if(this._cachedJSONExport === null) this._cachedJSONExport = this.exportJSON();
+            return this._cachedJSONExport;
+        }
+    } else {
+        return this.exportJSON();
+    }
+    */
+    if (!this.parentFrame || this.parentFrame.onScreen) {
+      var json = this.exportJSON();
+      this._cachedJSONExport = json;
+      return json;
+    } else {
+      if (this._cachedJSONExport === null) this._cachedJSONExport = this.exportJSON();
+      return this._cachedJSONExport;
+    }
   }
 
 };
@@ -46769,11 +46803,12 @@ Wick.ImageAsset = class extends Wick.FileAsset {
       "source": "asset",
       "asset": this.uuid
     }], [this]);
-    return path;
 
     path.paperPath.onLoad = () => {
       callback(path);
     };
+
+    return path;
   }
 
 };
