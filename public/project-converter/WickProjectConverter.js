@@ -303,13 +303,76 @@ class WickProjectConverter {
      * @returns {array} - An array of objects with the format {src: string, name: string}
      */
     static convertScript (script) {
-        // First pass (easy): Dump whole script into Load event.
-        return [{
-          name: 'load',
-          src: script,
-        }];
+        // Generate syntax tree.
+        let tree = esprima.parseScript(script, {range: true, comment: true, tolerant: true});
 
-        // Second pass (hard): Parse event functions, unindent function bodies, create events for each corresponding event function
-        // TODO
+        let loadElements = [];
+        let eventElements = [];
+
+        let events = [
+            'update',
+            'load',
+            'mouseEnter',
+            'mouseLeave',
+            'mousePressed',
+            'mouseDown',
+            'mouseHover',
+            'keyPressed',
+            'keyReleased',
+            'keyDown',
+        ]; 
+
+        // Find all event elements an separate from the other objects.
+        if (tree.type === "Program") {
+            tree.body.forEach(elem => {
+                if (elem.type === "FunctionDeclaration" && events.indexOf(elem.id.name) > -1) {
+                    eventElements.push(elem); 
+                } else {
+                    loadElements.push(elem); 
+                }
+            });
+        }
+
+        let loadScript = ""; 
+
+        // Pull out all non-event elements and shove them into the load script.
+        loadElements.forEach(elem => {
+            if ("body" in elem) {
+                var range = elem.body.range;
+            } else {
+                var range = elem.range;
+            }
+
+            let s = script.slice(range[0], range[1]);
+            loadScript += s;
+        }); 
+
+        let loadObject = {
+            name: 'load',
+            src: loadScript,
+        }; 
+
+        // Separate all script text from events and build Editor 1.0 objects for them.
+        let eventScripts = []
+
+        eventScripts.push(loadObject); 
+
+        eventElements.forEach(elem => {
+            let range = elem.body.range;
+
+            let id = elem.id.name.toLowerCase();
+
+            // Remove first and last character to remove { } from functions. Trim off excess white space.
+            let eventScript = script.slice(range[0] + 1, range[1] - 1).trim(); 
+
+            let obj = {
+                name: id, 
+                src: eventScript, 
+            }
+
+            eventScripts.push(obj); 
+        }); 
+
+        return eventScripts;
     }
 }
