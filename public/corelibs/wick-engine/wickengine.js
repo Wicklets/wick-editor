@@ -60451,6 +60451,12 @@ GlobalAPI = class {
 */
 Wick.View = class {
   constructor(model) {
+    if (!paper.project) {
+      // Create dummy paper.js instance so we can access paper classes
+      var canvas = window.document.createElement('canvas');
+      paper.setup(canvas);
+    }
+
     this.model = model;
   }
 
@@ -60767,7 +60773,7 @@ Wick.View.Project = class extends Wick.View {
 
   get canvas() {
     if (this.renderMode === 'webgl') {
-      console.error('Hey, please add this');
+      return this._webGLCanvas;
     } else if (this.renderMode === 'svg') {
       return this._svgCanvas;
     } else {
@@ -60839,6 +60845,8 @@ Wick.View.Project = class extends Wick.View {
 
       this._renderSVGCanvas();
     }
+
+    this._updateCanvasContainerBGColor();
   }
   /**
    * Write the SVG data in the view to the project.
@@ -60867,6 +60875,16 @@ Wick.View.Project = class extends Wick.View {
     }
   }
 
+  _updateCanvasContainerBGColor() {
+    if (this.model.focus === this.model.root) {
+      // We're in the root timeline, use the color given to us from the user (or use a default)
+      this.canvas.style.backgroundColor = this.canvasBGColor || Wick.View.Project.DEFAULT_CANVAS_BG_COLOR;
+    } else {
+      // We're inside a clip, so use the project background color as the container background color
+      this.canvas.style.backgroundColor = this.model.backgroundColor;
+    }
+  }
+
   _buildSVGCanvas() {
     if (this._svgCanvas) return;
     this._svgCanvas = document.createElement('canvas');
@@ -60890,7 +60908,8 @@ Wick.View.Project = class extends Wick.View {
   _buildWebGLCanvas() {
     // Create the PIXI.js application
     this._pixiApp = new PIXI.Application({
-      autoStart: false
+      autoStart: false,
+      transparent: true
     });
 
     this._pixiApp.ticker.stop(); // Create the PIXI stage that we'll add things to render // TODO:
@@ -60925,15 +60944,11 @@ Wick.View.Project = class extends Wick.View {
 
     if (this.model.focus === this.model.root) {
       // We're in the root timeline, render the canvas normally
-      this._svgCanvas.style.backgroundColor = this.canvasBGColor || Wick.View.Project.DEFAULT_CANVAS_BG_COLOR;
-
       var canvasBG = this._generateCanvasBG();
 
       this._svgBackgroundLayer.addChild(canvasBG);
     } else {
       // We're inside a clip, don't render the canvas BG, instead render a crosshair at (0,0)
-      this._svgCanvas.style.backgroundColor = this.model.backgroundColor;
-
       var originCrosshair = this._generateOriginCrosshair();
 
       this._svgBackgroundLayer.addChild(originCrosshair);
@@ -60957,7 +60972,11 @@ Wick.View.Project = class extends Wick.View {
   }
 
   _renderWebGLCanvas() {
-    // TODO build _pixiStage here
+    this.model.focus.timeline.view.render();
+    this.model.focus.timeline.view.activeFrameContainers.forEach(container => {
+      this._pixiStage.addChild(container);
+    });
+
     this._pixiApp.ticker.update(1);
 
     this._pixiApp.renderer.render(this._pixiStage);
