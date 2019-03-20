@@ -133,11 +133,6 @@ class Canvas extends Component {
        project.activeLayer.hidden) {
       paper.drawingTools.none.activate();
     }
-
-    // if preview playing, use the Interact tool
-    if(previewPlaying) {
-      project.view.interactTool.activate();
-    }
   }
 
   render() {
