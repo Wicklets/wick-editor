@@ -323,20 +323,20 @@ class WickProjectConverter {
             'keyPressed',
             'keyReleased',
             'keyDown',
-        ]; 
+        ];
 
         // Find all event elements an separate from the other objects.
         if (tree.type === "Program") {
             tree.body.forEach(elem => {
                 if (elem.type === "FunctionDeclaration" && events.indexOf(elem.id.name) > -1) {
-                    eventElements.push(elem); 
+                    eventElements.push(elem);
                 } else {
-                    loadElements.push(elem); 
+                    loadElements.push(elem);
                 }
             });
         }
 
-        let loadScript = ""; 
+        let loadScript = "";
 
         // Pull out all non-event elements and shove them into the load script.
         loadElements.forEach(elem => {
@@ -348,17 +348,17 @@ class WickProjectConverter {
 
             let s = script.slice(range[0], range[1]);
             loadScript += s;
-        }); 
+        });
 
         let loadObject = {
             name: 'load',
             src: loadScript,
-        }; 
+        };
 
         // Separate all script text from events and build Editor 1.0 objects for them.
         let eventScripts = []
 
-        eventScripts.push(loadObject); 
+        eventScripts.push(loadObject);
 
         eventElements.forEach(elem => {
             let range = elem.body.range;
@@ -366,15 +366,15 @@ class WickProjectConverter {
             let id = elem.id.name.toLowerCase();
 
             // Remove first and last character to remove { } from functions. Trim off excess white space.
-            let eventScript = script.slice(range[0] + 1, range[1] - 1).trim(); 
+            let eventScript = script.slice(range[0] + 1, range[1] - 1).trim();
 
             let obj = {
-                name: id, 
-                src: eventScript, 
+                name: id,
+                src: eventScript,
             }
 
-            eventScripts.push(obj); 
-        }); 
+            eventScripts.push(obj);
+        });
 
         return eventScripts;
     }

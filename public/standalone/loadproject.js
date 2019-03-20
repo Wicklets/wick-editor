@@ -16,7 +16,7 @@ window.onload = function () {
         document.title = project.name;
 
         container.innerHTML = '';
-        project.view.setCanvasContainer(container);
+        project.view.canvasContainer = container;
         project.view.fitMode = 'fill';
 
         window.onresize = function () {

@@ -37,7 +37,7 @@ class Canvas extends Component {
 
     paper.selection = new window.paper.Selection();
 
-    this.props.project.view.setCanvasContainer(canvasContainerElem);
+    this.props.project.view.canvasContainer = canvasContainerElem;
     this.props.project.view.resize();
 
     // Listen to drawing tool events
@@ -117,7 +117,7 @@ class Canvas extends Component {
 
     // Render wick project
     project.view.canvasBGColor = styles.editorCanvasBorder;
-    project.view.setCanvasContainer(canvasContainerElem);
+    project.view.canvasContainer = canvasContainerElem;
     project.view.render();
 
     // update the paper.js active tool based on the editor active tool state.
@@ -132,11 +132,6 @@ class Canvas extends Component {
        project.activeLayer.locked ||
        project.activeLayer.hidden) {
       paper.drawingTools.none.activate();
-    }
-
-    // if preview playing, use the Interact tool
-    if(previewPlaying) {
-      project.view.interactTool.activate();
     }
   }
 
