@@ -714,7 +714,7 @@ class EditorCore extends Component {
       this.toast('Could not import files: ' + fileNamesRejected, 'error');
     }
 
-    // Add all successfuly uploaded assets
+    // Add all successfully uploaded assets
     acceptedFiles.forEach(file => {
       this.project.importFile(file, asset => {
         if(asset === null) {
@@ -872,6 +872,7 @@ class EditorCore extends Component {
     window.Wick.Project.fromWickFile(file, project => {
       if(project) {
         this.setupNewProject(project);
+        this.toast('Opened "' + file.name + '" successfully.', 'success');
       } else {
         this.toast('Could not open project.', 'error');
       }

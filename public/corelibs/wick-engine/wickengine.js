@@ -60722,6 +60722,10 @@ Wick.View.Project = class extends Wick.View {
     this.renderMode = 'svg';
     this._canvasContainer = null;
     this._canvasBGColor = null;
+    this._pan = {
+      x: 0,
+      y: 0
+    };
   }
   /**
    * Destroy the renderer. Call this when the view will no longer be used to save memory/webgl contexts.
@@ -60788,6 +60792,48 @@ Wick.View.Project = class extends Wick.View {
       console.error('No canvas for renderMode: ' + this.renderMode);
     }
   }
+  /**
+   *
+   */
+
+
+  get zoom() {
+    return this._zoom;
+  }
+
+  set zoom(zoom) {
+    this._zoom = zoom;
+  }
+  /**
+   *
+   */
+
+
+  get pan() {
+    var pan = {
+      x: -paper.view.center.x,
+      y: -paper.view.center.y
+    };
+
+    if (this.model.focus.isRoot) {
+      pan.x += this.model.width / 2;
+      pan.y += this.model.height / 2;
+    }
+
+    return pan;
+  }
+
+  set pan(pan) {
+    this._pan = {
+      x: pan.x,
+      y: pan.y
+    };
+
+    if (this.model.focus.isRoot) {
+      this._pan.x -= this.model.width / 2;
+      this._pan.y -= this.model.height / 2;
+    }
+  }
   /*
    * The element to insert the project's canvas into.
    */
@@ -60840,6 +60886,9 @@ Wick.View.Project = class extends Wick.View {
 
 
   render() {
+    this.zoom = this.model.zoom;
+    this.pan = this.model.pan;
+
     if (this.renderMode === 'webgl') {
       this._buildWebGLCanvas();
 
@@ -60932,8 +60981,7 @@ Wick.View.Project = class extends Wick.View {
       paper.view.zoom = Math.min(wr, hr);
     }
 
-    var pan = this._getCenteredPan();
-
+    var pan = this._pan;
     paper.view.center = new paper.Point(-pan.x, -pan.y); // Generate background layer
 
     this._svgBackgroundLayer.removeChildren();
@@ -61014,8 +61062,7 @@ Wick.View.Project = class extends Wick.View {
     this._pixiRootContainer.removeChildren(); // Zoom and pan
 
 
-    var pan = this._getCenteredPan(); // Pixi's origin is the top-left of the canvas, so shift it over to match paper.js.
-
+    var pan = this._pan; // Pixi's origin is the top-left of the canvas, so shift it over to match paper.js.
 
     pan.x += this._pixiApp.renderer.width / 2;
     pan.y += this._pixiApp.renderer.height / 2;
@@ -61059,20 +61106,6 @@ Wick.View.Project = class extends Wick.View {
 
     graphics.moveTo(-Wick.View.Project.ORIGIN_CROSSHAIR_SIZE, 0).lineTo(Wick.View.Project.ORIGIN_CROSSHAIR_SIZE, 0);
     return graphics;
-  }
-
-  _getCenteredPan() {
-    if (this.model.focus.isRoot) {
-      return {
-        x: this.model.pan.x - this.model.width / 2,
-        y: this.model.pan.y - this.model.height / 2
-      };
-    } else {
-      return {
-        x: this.model.pan.x,
-        y: this.model.pan.y
-      };
-    }
   }
 
   _convertCSSColorToPixiColor(cssColor) {

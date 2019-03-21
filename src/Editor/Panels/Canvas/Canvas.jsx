@@ -103,9 +103,10 @@ class Canvas extends Component {
   }
 
   onCanvasViewChanged = (e) => {
-    this.props.project.zoom = window.paper.view.zoom;
-    this.props.project.pan.x = window.paper.view.center.x;
-    this.props.project.pan.y = window.paper.view.center.y;
+    let project = this.props.project;
+    project.zoom = project.view.zoom;
+    project.pan.x = project.view.pan.x;
+    project.pan.y = project.view.pan.y;
   }
 
   updateCanvas = (project) => {
