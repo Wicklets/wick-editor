@@ -706,6 +706,8 @@ class EditorCore extends Component {
    * @param {File[]} rejectedFiles - Files uploaded by user with unsupported MIME types.
    */
   createAssets = (acceptedFiles, rejectedFiles) => {
+    this.toast('Importing files...', 'info');
+
     // Error message for failed uploads
     if (rejectedFiles.length > 0) {
       let fileNamesRejected = rejectedFiles.map(file => file.name).join(', ');
@@ -718,6 +720,7 @@ class EditorCore extends Component {
         if(asset === null) {
           this.toast('Could not add files to project: ' + file.name, 'error');
         } else {
+          this.toast('Imported "' + file.name + '" successfully.', 'success');
           localForage.setItem(this.autoSaveAssetsKey, window.Wick.FileCache.getAllFiles());
           this.projectDidChange();
         }
@@ -866,7 +869,13 @@ class EditorCore extends Component {
    * @param {File} file Zipped wick file to import.
    */
   importProjectAsWickFile = (file) => {
-    window.Wick.Project.fromWickFile(file, this.setupNewProject);
+    window.Wick.Project.fromWickFile(file, project => {
+      if(project) {
+        this.setupNewProject(project);
+      } else {
+        this.toast('Could not open project.', 'error');
+      }
+    });
   }
 
   /**

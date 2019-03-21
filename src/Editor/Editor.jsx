@@ -239,6 +239,7 @@ class Editor extends EditorCore {
     if(!this.state.previewPlaying && prevState.previewPlaying) {
       let playheadPosition = this.project.focus.timeline.playheadPosition;
       this.project.stop();
+      this.project.view.destroy();
       this.project = window.Wick.Project.deserialize(this.beforePreviewPlayProjectState);
       this.project.focus.timeline.playheadPosition = playheadPosition;
       this.setState({
@@ -584,6 +585,7 @@ class Editor extends EditorCore {
                       importProjectAsWickFile={this.importProjectAsWickFile}
                       exportProjectAsAnimatedGIF={this.exportProjectAsAnimatedGIF}
                       exportProjectAsStandaloneZIP={this.exportProjectAsStandaloneZIP}
+                      toast={this.toast}
                     />
                   </DockedPanel>
                 </div>

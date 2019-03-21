@@ -56621,6 +56621,7 @@ Wick.Project = class extends Wick.Base {
     if (data.onionSkinSeekForwards) object.onionSkinSeekForwards = data.onionSkinSeekForwards;
     if (data.onionSkinSeekBackwards) object.onionSkinSeekBackwards = data.onionSkinSeekBackwards;
     if (data.root) object.root = Wick.Clip.deserialize(data.root);
+    object.focus = object.root;
     if (data.focus) object.focus = object.getChildByUUID(data.focus);
     object.selection = Wick.Selection.deserialize(data.selection);
 
@@ -59797,6 +59798,8 @@ Wick.Frame = class extends Wick.Tickable {
   }
 
   _onActivated() {
+    this.applyTweenTransforms();
+
     var error = super._onActivated();
 
     if (error) return error;
@@ -59805,6 +59808,8 @@ Wick.Frame = class extends Wick.Tickable {
   }
 
   _onActive() {
+    this.applyTweenTransforms();
+
     var error = super._onActive();
 
     if (error) return error;
@@ -60535,16 +60540,13 @@ Wick.View.Clip = class extends Wick.View {
       this.container.addChild(container);
     }); // Update transformations
 
-    this.container.setTransform(this.model.transform.x, // x
-    this.model.transform.y, // y
-    this.model.transform.scaleX, // scaleX
-    this.model.transform.scaleY, // scaleY
-    this.model.transform.rotation, // rotation
-    0, // skewX
-    0, // skewY
-    0, // pivotX
-    0 // pivotY
-    );
+    this.container.x = this.model.transform.x;
+    this.container.y = this.model.transform.y;
+    this.container.scale.x = this.model.transform.scaleX;
+    this.container.scale.y = this.model.transform.scaleY;
+    this.container.rotation = this.model.transform.rotation * (Math.PI / 180); //Degrees -> Radians conversion
+
+    this.container.alpha = this.model.transform.opacity;
   }
 
 };
@@ -60721,6 +60723,16 @@ Wick.View.Project = class extends Wick.View {
     this._canvasContainer = null;
     this._canvasBGColor = null;
   }
+  /**
+   * Destroy the renderer. Call this when the view will no longer be used to save memory/webgl contexts.
+   */
+
+
+  destroy() {
+    if (!this._pixiApp) return;
+
+    this._pixiApp.destroy();
+  }
   /*
    * Determines the way the project will scale itself based on its container.
    * 'center' will keep the project at its original resolution, and center it inside its container.
@@ -60861,7 +60873,7 @@ Wick.View.Project = class extends Wick.View {
   }
 
   _displayCanvasInContainer(canvas) {
-    if (!this._canvasContainer) return;
+    if (!this.canvasContainer) return;
 
     if (canvas !== this.canvasContainer.children[0]) {
       if (this.canvasContainer.children.length === 0) {
@@ -61300,7 +61312,6 @@ Wick.View.Frame = class extends Wick.View {
   _renderClipsSVG() {
     this.clipsLayer.data.wickUUID = this.model.uuid;
     this.clipsLayer.data.wickType = 'clips';
-    this.model.applyTweenTransforms();
     this.clipsLayer.removeChildren();
     this.model.clips.forEach(clip => {
       clip.view.render();
@@ -61315,24 +61326,28 @@ Wick.View.Frame = class extends Wick.View {
   }
 
   _renderPathsWebGL() {
-    console.warn("Hey - don't forget to clear the raster cache on preview play end!\n\nThanks,\nZach"); // Check if we need to generate a new texture for Pixi
-
+    //console.warn("Hey - don't forget to clear the raster cache on preview play end!\n\nThanks,\nZach");
+    // Check if we need to generate a new texture for Pixi
     if (!this._pixiSprite) {
-      // Render paths using the SVG renderer and get a rasterized version of the resulting SVG
-      this._renderPathsSVG();
+      if (this.model.paths.length > 0) {
+        // Render paths using the SVG renderer and get a rasterized version of the resulting SVG
+        this._renderPathsSVG();
 
-      var raster = this.pathsLayer.rasterize(paper.view.resolution / window.devicePixelRatio);
-      var dataURL = raster.canvas.toDataURL(); // Load image data into Pixi texture
+        var raster = this.pathsLayer.rasterize(paper.view.resolution / window.devicePixelRatio);
+        var dataURL = raster.canvas.toDataURL(); // Load image data into Pixi texture
 
-      var texture = PIXI.Texture.fromImage(dataURL); // Add a Pixi sprite using that texture to the paths container
+        var texture = PIXI.Texture.fromImage(dataURL); // Add a Pixi sprite using that texture to the paths container
 
-      var sprite = new PIXI.Sprite(texture);
-      this.pathsContainer.addChild(sprite); // Position sprite correctly
+        var sprite = new PIXI.Sprite(texture);
+        this.pathsContainer.addChild(sprite); // Position sprite correctly
 
-      sprite.x = this.pathsLayer.bounds.x;
-      sprite.y = this.pathsLayer.bounds.y; // Cache pixi sprite
+        sprite.x = this.pathsLayer.bounds.x;
+        sprite.y = this.pathsLayer.bounds.y; // Cache pixi sprite
 
-      this._pixiSprite = sprite;
+        this._pixiSprite = sprite;
+      } else {
+        this._pixiSprite = new PIXI.Sprite();
+      }
     }
   }
 
