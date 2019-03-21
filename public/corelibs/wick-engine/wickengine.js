@@ -61055,7 +61055,10 @@ Wick.View.Project = class extends Wick.View {
         y: this.model.pan.y - this.model.height / 2
       };
     } else {
-      return this.model.pan;
+      return {
+        x: this.model.pan.x,
+        y: this.model.pan.y
+      };
     }
   }
 
