@@ -61366,7 +61366,9 @@ Wick.View.Frame = class extends Wick.View {
         // Render paths using the SVG renderer and get a rasterized version of the resulting SVG
         this._renderPathsSVG();
 
-        var raster = this.pathsLayer.rasterize(paper.view.resolution / window.devicePixelRatio);
+        var raster = this.pathsLayer.rasterize(paper.view.resolution / window.devicePixelRatio, {
+          insert: false
+        });
         var dataURL = raster.canvas.toDataURL(); // Load image data into Pixi texture
 
         var texture = PIXI.Texture.fromImage(dataURL); // Add a Pixi sprite using that texture to the paths container
