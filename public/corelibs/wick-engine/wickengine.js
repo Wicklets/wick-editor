@@ -56576,8 +56576,8 @@ Wick.Project = class extends Wick.Base {
     this.framerate = framerate || 12;
     this.backgroundColor = backgroundColor || '#ffffff';
     this.pan = {
-      x: this.width / 2,
-      y: this.height / 2
+      x: 0,
+      y: 0
     };
     this.zoom = 1.0;
     this.onionSkinEnabled = false;
@@ -57226,18 +57226,10 @@ Wick.Project = class extends Wick.Base {
 
 
   recenter() {
-    if (this.focus.isRoot) {
-      this.pan = {
-        x: this.width / 2,
-        y: this.height / 2
-      };
-    } else {
-      this.pan = {
-        x: 0,
-        y: 0
-      };
-    }
-
+    this.pan = {
+      x: 0,
+      y: 0
+    };
     this.zoom = 1;
   }
   /**
@@ -57289,8 +57281,8 @@ Wick.Project = class extends Wick.Base {
     project.onionSkinEnabled = false;
     project.zoom = 1 / window.devicePixelRatio;
     project.pan = {
-      x: project.width / 2 * window.devicePixelRatio,
-      y: project.height / 2 * window.devicePixelRatio
+      x: 0,
+      y: 0
     }; // We need full control over when paper.js renders, if we leave autoUpdate on, it's possible to lose frames if paper.js doesnt automatically render as fast as we are generating the images.
     // (See paper.js docs for info about autoUpdate)
 
@@ -60697,11 +60689,15 @@ Wick.View.Project = class extends Wick.View {
   }
 
   static get ORIGIN_CROSSHAIR_COLOR() {
-    return '#ccc';
+    return '#CCCCCC';
   }
 
   static get ORIGIN_CROSSHAIR_SIZE() {
     return 100;
+  }
+
+  static get ORIGIN_CROSSHAIR_THICKNESS() {
+    return 1;
   }
 
   static get VALID_FIT_MODES() {
@@ -60811,19 +60807,19 @@ Wick.View.Project = class extends Wick.View {
 
   resize() {
     if (!this.canvasContainer) return;
+    var newWidth = this.canvasContainer.offsetWidth;
+    var newHeight = this.canvasContainer.offsetHeight;
 
     if (this._renderMode === 'svg') {
-      var newWidth = this.canvasContainer.offsetWidth;
-      var newHeight = this.canvasContainer.offsetHeight;
       var oldWidth = paper.view.viewSize.width;
       var oldHeight = paper.view.viewSize.height;
       var diffWidth = oldWidth - newWidth;
-      var diffHeight = oldHeight - newHeight;
-      paper.view.center = paper.view.center.add(new paper.Point(diffWidth / 2, diffHeight / 2));
+      var diffHeight = oldHeight - newHeight; //paper.view.center = paper.view.center.add(new paper.Point(diffWidth/2, diffHeight/2));
+
       paper.view.viewSize.width = newWidth;
       paper.view.viewSize.height = newHeight;
     } else if (this._renderMode === 'webgl') {
-      console.error('resize(): webgl: implement me please');
+      this._pixiApp.renderer.resize(newWidth, newHeight);
     }
   }
   /**
@@ -60905,21 +60901,6 @@ Wick.View.Project = class extends Wick.View {
     paper.project.clear();
   }
 
-  _buildWebGLCanvas() {
-    // Create the PIXI.js application
-    this._pixiApp = new PIXI.Application({
-      autoStart: false,
-      transparent: true
-    });
-
-    this._pixiApp.ticker.stop(); // Create the PIXI stage that we'll add things to render // TODO:
-
-
-    this._pixiStage = new PIXI.Container(); // Get the canvas from the PIXI app
-
-    this._webGLCanvas = this._pixiApp.view;
-  }
-
   _renderSVGCanvas() {
     // Only render if we just finished a selection
     if (!this.model.selection.view.selectionDidChange()) return;
@@ -60935,21 +60916,23 @@ Wick.View.Project = class extends Wick.View {
       paper.view.zoom = Math.min(wr, hr);
     }
 
-    paper.view.center = new paper.Point(this.model.pan.x, this.model.pan.y); // Generate background layer
+    var pan = this._getCenteredPan();
+
+    paper.view.center = new paper.Point(-pan.x, -pan.y); // Generate background layer
 
     this._svgBackgroundLayer.removeChildren();
 
     this._svgBackgroundLayer.locked = true;
     paper.project.addLayer(this._svgBackgroundLayer);
 
-    if (this.model.focus === this.model.root) {
+    if (this.model.focus.isRoot) {
       // We're in the root timeline, render the canvas normally
-      var canvasBG = this._generateCanvasBG();
+      var stage = this._generateSVGCanvasStage();
 
-      this._svgBackgroundLayer.addChild(canvasBG);
+      this._svgBackgroundLayer.addChild(stage);
     } else {
       // We're inside a clip, don't render the canvas BG, instead render a crosshair at (0,0)
-      var originCrosshair = this._generateOriginCrosshair();
+      var originCrosshair = this._generateSVGOriginCrosshair();
 
       this._svgBackgroundLayer.addChild(originCrosshair);
     } // Generate frame layers
@@ -60971,25 +60954,14 @@ Wick.View.Project = class extends Wick.View {
     paper.project.addLayer(this.model.selection.view.layer);
   }
 
-  _renderWebGLCanvas() {
-    this.model.focus.timeline.view.render();
-    this.model.focus.timeline.view.activeFrameContainers.forEach(container => {
-      this._pixiStage.addChild(container);
-    });
-
-    this._pixiApp.ticker.update(1);
-
-    this._pixiApp.renderer.render(this._pixiStage);
+  _generateSVGCanvasStage() {
+    var stage = new paper.Path.Rectangle(new paper.Point(0, 0), new paper.Point(this.model.width, this.model.height));
+    stage.remove();
+    stage.fillColor = this.model.backgroundColor;
+    return stage;
   }
 
-  _generateCanvasBG() {
-    var canvasBG = new paper.Path.Rectangle(new paper.Point(0, 0), new paper.Point(this.model.width, this.model.height));
-    canvasBG.remove();
-    canvasBG.fillColor = this.model.backgroundColor;
-    return canvasBG;
-  }
-
-  _generateOriginCrosshair() {
+  _generateSVGOriginCrosshair() {
     var originCrosshair = new paper.Group({
       insert: false
     });
@@ -60998,12 +60970,93 @@ Wick.View.Project = class extends Wick.View {
     vertical.strokeWidth = 1;
     var horizontal = new paper.Path.Line(new paper.Point(-Wick.View.Project.ORIGIN_CROSSHAIR_SIZE, 0), new paper.Point(Wick.View.Project.ORIGIN_CROSSHAIR_SIZE, 0));
     horizontal.strokeColor = Wick.View.Project.ORIGIN_CROSSHAIR_COLOR;
-    horizontal.strokeWidth = 1;
+    horizontal.strokeWidth = Wick.View.Project.ORIGIN_CROSSHAIR_THICKNESS;
     originCrosshair.addChild(vertical);
     originCrosshair.addChild(horizontal);
     originCrosshair.position.x = 0;
     originCrosshair.position.y = 0;
     return originCrosshair;
+  }
+
+  _buildWebGLCanvas() {
+    // Create the PIXI.js application
+    this._pixiApp = new PIXI.Application({
+      autoStart: false,
+      transparent: true
+    });
+
+    this._pixiApp.ticker.stop(); // Create the PIXI stage that we'll add things to render // TODO:
+
+
+    this._pixiRootContainer = new PIXI.Container(); // Get the canvas from the PIXI app
+
+    this._webGLCanvas = this._pixiApp.view;
+  }
+
+  _renderWebGLCanvas() {
+    this._pixiRootContainer.removeChildren(); // Zoom and pan
+
+
+    var pan = this._getCenteredPan(); // Pixi's origin is the top-left of the canvas, so shift it over to match paper.js.
+
+
+    pan.x += this._pixiApp.renderer.width / 2;
+    pan.y += this._pixiApp.renderer.height / 2;
+    this._pixiRootContainer.x = pan.x;
+    this._pixiRootContainer.y = pan.y;
+
+    if (this.model.focus.isRoot) {
+      // We're in the root timeline, render the canvas normally
+      this._pixiRootContainer.addChild(this._generateWebGLCanvasStage());
+    } else {
+      // We're inside a clip, don't render the canvas BG, instead render a crosshair at (0,0)
+      this._pixiRootContainer.addChild(this._generateWebGLOriginCrosshair());
+    } // Add active frame containers
+
+
+    this.model.focus.timeline.view.render();
+    this.model.focus.timeline.view.activeFrameContainers.forEach(container => {
+      this._pixiRootContainer.addChild(container);
+    }); // Render PIXI
+
+    this._pixiApp.ticker.update(1);
+
+    this._pixiApp.renderer.render(this._pixiRootContainer);
+  }
+
+  _generateWebGLCanvasStage() {
+    let graphics = new PIXI.Graphics();
+    graphics.beginFill(this._convertCSSColorToPixiColor(this.model.backgroundColor));
+    graphics.drawRect(0, 0, this.model.width, this.model.height);
+    return graphics;
+  }
+
+  _generateWebGLOriginCrosshair() {
+    let graphics = new PIXI.Graphics(); // crosshair style
+
+    var pixiColor = this._convertCSSColorToPixiColor(Wick.View.Project.ORIGIN_CROSSHAIR_COLOR);
+
+    graphics.lineStyle(Wick.View.Project.ORIGIN_CROSSHAIR_THICKNESS, pixiColor); // vertical line
+
+    graphics.moveTo(0, -Wick.View.Project.ORIGIN_CROSSHAIR_SIZE).lineTo(0, Wick.View.Project.ORIGIN_CROSSHAIR_SIZE); // horizontal line
+
+    graphics.moveTo(-Wick.View.Project.ORIGIN_CROSSHAIR_SIZE, 0).lineTo(Wick.View.Project.ORIGIN_CROSSHAIR_SIZE, 0);
+    return graphics;
+  }
+
+  _getCenteredPan() {
+    if (this.model.focus.isRoot) {
+      return {
+        x: this.model.pan.x - this.model.width / 2,
+        y: this.model.pan.y - this.model.height / 2
+      };
+    } else {
+      return this.model.pan;
+    }
+  }
+
+  _convertCSSColorToPixiColor(cssColor) {
+    return parseInt(cssColor.replace("#", "0x"));
   }
 
 };
