@@ -60983,7 +60983,8 @@ Wick.View.Project = class extends Wick.View {
   }
 
   _buildWebGLCanvas() {
-    // Create the PIXI.js application
+    if (this._pixiApp) return; // Create the PIXI.js application
+
     this._pixiApp = new PIXI.Application({
       autoStart: false,
       transparent: true

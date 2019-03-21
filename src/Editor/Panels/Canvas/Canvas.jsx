@@ -118,6 +118,7 @@ class Canvas extends Component {
     // Render wick project
     project.view.canvasBGColor = styles.editorCanvasBorder;
     project.view.canvasContainer = canvasContainerElem;
+    project.view.renderMode = previewPlaying ? 'webgl' : 'svg';
     project.view.render();
 
     // update the paper.js active tool based on the editor active tool state.
