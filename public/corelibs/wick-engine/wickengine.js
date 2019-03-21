@@ -60833,11 +60833,15 @@ Wick.View.Project = class extends Wick.View {
 
       this._displayCanvasInContainer(this._webGLCanvas);
 
+      this.resize();
+
       this._renderWebGLCanvas();
     } else if (this.renderMode === 'svg') {
       this._buildSVGCanvas();
 
       this._displayCanvasInContainer(this._svgCanvas);
+
+      this.resize();
 
       this._renderSVGCanvas();
     }
@@ -61051,7 +61055,10 @@ Wick.View.Project = class extends Wick.View {
         y: this.model.pan.y - this.model.height / 2
       };
     } else {
-      return this.model.pan;
+      return {
+        x: this.model.pan.x,
+        y: this.model.pan.y
+      };
     }
   }
 
@@ -61313,15 +61320,16 @@ Wick.View.Frame = class extends Wick.View {
       // Render paths using the SVG renderer and get a rasterized version of the resulting SVG
       this._renderPathsSVG();
 
-      var raster = this.pathsLayer.rasterize();
+      var raster = this.pathsLayer.rasterize(paper.view.resolution / window.devicePixelRatio);
       var dataURL = raster.canvas.toDataURL(); // Load image data into Pixi texture
 
       var texture = PIXI.Texture.fromImage(dataURL); // Add a Pixi sprite using that texture to the paths container
 
       var sprite = new PIXI.Sprite(texture);
       this.pathsContainer.addChild(sprite); // Position sprite correctly
-      // TODO
-      // Cache pixi sprite
+
+      sprite.x = this.pathsLayer.bounds.x;
+      sprite.y = this.pathsLayer.bounds.y; // Cache pixi sprite
 
       this._pixiSprite = sprite;
     }
