@@ -62541,6 +62541,10 @@ Wick.View.Frame = class extends Wick.View {
   static get RASTERIZE_RESOLUTION_MODIFIER() {
     return 2;
   }
+
+  static get RASTERIZE_RESOLUTION_MODIFIER_FOR_DEVICE() {
+    return Wick.View.Frame.RASTERIZE_RESOLUTION_MODIFIER / window.devicePixelRatio;
+  }
   /**
    * Create a frame view.
    */
@@ -62654,8 +62658,7 @@ Wick.View.Frame = class extends Wick.View {
     this._renderPathsSVG();
 
     var rasterResoltion = paper.view.resolution;
-    rasterResoltion /= window.devicePixelRatio;
-    rasterResoltion *= Wick.View.Frame.RASTERIZE_RESOLUTION_MODIFIER; // get a rasterized version of the resulting SVG
+    rasterResoltion *= Wick.View.Frame.RASTERIZE_RESOLUTION_MODIFIER_FOR_DEVICE; // get a rasterized version of the resulting SVG
 
     var raster = this.pathsLayer.rasterize(rasterResoltion, {
       insert: false
