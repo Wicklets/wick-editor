@@ -61108,6 +61108,20 @@ Wick.View.Project = class extends Wick.View {
     return graphics;
   }
 
+  _getCenteredPan() {
+    if (this.model.focus.isRoot) {
+      return {
+        x: this.model.pan.x - this.model.width / 2,
+        y: this.model.pan.y - this.model.height / 2
+      };
+    } else {
+      return {
+        x: this.model.pan.x,
+        y: this.model.pan.y
+      };
+    }
+  }
+
   _convertCSSColorToPixiColor(cssColor) {
     return parseInt(cssColor.replace("#", "0x"));
   }
@@ -61268,6 +61282,14 @@ Wick.View.Timeline = class extends Wick.View {
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
 Wick.View.Frame = class extends Wick.View {
+  /**
+   * A multiplier for the resolution for the rasterization process.
+   * E.g. a multiplier of 2 will make a path 100 pixels wide rasterize into an image 200 pixels wide.
+   */
+  static get RASTERIZE_RESOLUTION_MODIFIER() {
+    return 2;
+  }
+
   constructor() {
     super();
     this.clipsLayer = new paper.Layer();
@@ -61279,51 +61301,9 @@ Wick.View.Frame = class extends Wick.View {
   }
 
   applyChanges() {
-    this.applyClipChanges();
-    this.applyPathChanges();
-  }
+    this._applyClipChanges();
 
-  applyClipChanges() {
-    // Reorder clips
-    var clips = this.model.clips.concat([]);
-    clips.forEach(clip => {
-      this.model.removeClip(clip);
-    });
-    this.clipsLayer.children.forEach(child => {
-      this.model.addClip(clips.find(g => {
-        return g.uuid === child.data.wickUUID;
-      }));
-    }); // Update clip transforms
-
-    this.clipsLayer.children.forEach(child => {
-      var wickClip = this.model.getChildByUUID(child.data.wickUUID);
-      wickClip.transform.x = child.position.x;
-      wickClip.transform.y = child.position.y;
-      wickClip.transform.scaleX = child.scaling.x;
-      wickClip.transform.scaleY = child.scaling.y;
-      wickClip.transform.rotation = child.rotation;
-      wickClip.transform.opacity = child.opacity;
-    }); // TODO Update active tween / create new tween here
-  }
-
-  applyPathChanges() {
-    this.model.paths.forEach(path => {
-      this.model.removePath(path);
-    });
-    this.pathsLayer.children.forEach(child => {
-      var pathJSON = child.exportJSON({
-        asString: false
-      });
-
-      if (pathJSON[0] === "Raster") {
-        pathJSON[1].asset = child.data.asset;
-        pathJSON[1].source = 'asset';
-      }
-
-      var wickPath = new Wick.Path(pathJSON);
-      this.model.addPath(wickPath);
-      child.name = wickPath.uuid;
-    });
+    this._applyPathChanges();
   }
 
   _renderSVG() {
@@ -61366,7 +61346,10 @@ Wick.View.Frame = class extends Wick.View {
         // Render paths using the SVG renderer and get a rasterized version of the resulting SVG
         this._renderPathsSVG();
 
-        var raster = this.pathsLayer.rasterize(paper.view.resolution / window.devicePixelRatio, {
+        var rasterResoltion = paper.view.resolution;
+        rasterResoltion /= window.devicePixelRatio;
+        rasterResoltion *= Wick.View.Frame.RASTERIZE_RESOLUTION_MODIFIER;
+        var raster = this.pathsLayer.rasterize(rasterResoltion, {
           insert: false
         });
         var dataURL = raster.canvas.toDataURL(); // Load image data into Pixi texture
@@ -61374,6 +61357,8 @@ Wick.View.Frame = class extends Wick.View {
         var texture = PIXI.Texture.fromImage(dataURL); // Add a Pixi sprite using that texture to the paths container
 
         var sprite = new PIXI.Sprite(texture);
+        sprite.scale.x = sprite.scale.x / Wick.View.Frame.RASTERIZE_RESOLUTION_MODIFIER;
+        sprite.scale.y = sprite.scale.y / Wick.View.Frame.RASTERIZE_RESOLUTION_MODIFIER;
         this.pathsContainer.addChild(sprite); // Position sprite correctly
 
         sprite.x = this.pathsLayer.bounds.x;
@@ -61391,6 +61376,49 @@ Wick.View.Frame = class extends Wick.View {
     this.model.clips.forEach(clip => {
       clip.view.render();
       this.clipsContainer.addChild(clip.view.container);
+    });
+  }
+
+  _applyClipChanges() {
+    // Reorder clips
+    var clips = this.model.clips.concat([]);
+    clips.forEach(clip => {
+      this.model.removeClip(clip);
+    });
+    this.clipsLayer.children.forEach(child => {
+      this.model.addClip(clips.find(g => {
+        return g.uuid === child.data.wickUUID;
+      }));
+    }); // Update clip transforms
+
+    this.clipsLayer.children.forEach(child => {
+      var wickClip = this.model.getChildByUUID(child.data.wickUUID);
+      wickClip.transform.x = child.position.x;
+      wickClip.transform.y = child.position.y;
+      wickClip.transform.scaleX = child.scaling.x;
+      wickClip.transform.scaleY = child.scaling.y;
+      wickClip.transform.rotation = child.rotation;
+      wickClip.transform.opacity = child.opacity;
+    }); // TODO Update active tween / create new tween here
+  }
+
+  _applyPathChanges() {
+    this.model.paths.forEach(path => {
+      this.model.removePath(path);
+    });
+    this.pathsLayer.children.forEach(child => {
+      var pathJSON = child.exportJSON({
+        asString: false
+      });
+
+      if (pathJSON[0] === "Raster") {
+        pathJSON[1].asset = child.data.asset;
+        pathJSON[1].source = 'asset';
+      }
+
+      var wickPath = new Wick.Path(pathJSON);
+      this.model.addPath(wickPath);
+      child.name = wickPath.uuid;
     });
   }
 

@@ -223,7 +223,6 @@ class Editor extends EditorCore {
   componentDidUpdate = (prevProps, prevState) => {
     if(this.state.previewPlaying && !prevState.previewPlaying) {
       this.history.saveState();
-      //this.beforePreviewPlayProjectState = this.project.serialize();
       this.project.play({
         onError: (error) => {
           this.stopPreviewPlaying(error)
@@ -240,13 +239,8 @@ class Editor extends EditorCore {
     if(!this.state.previewPlaying && prevState.previewPlaying) {
       let playheadPosition = this.project.focus.timeline.playheadPosition;
       this.project.stop();
-      //this.project.view.destroy();
       this.undoAction();
-      //this.project = window.Wick.Project.deserialize(this.beforePreviewPlayProjectState);
       this.project.focus.timeline.playheadPosition = playheadPosition;
-      this.setState({
-        project: this.beforePreviewPlayProjectState,
-      });
     }
   }
 
