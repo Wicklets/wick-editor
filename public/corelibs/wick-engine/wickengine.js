@@ -62663,6 +62663,10 @@ Wick.View.Frame = class extends Wick.View {
     var raster = this.pathsLayer.rasterize(rasterResoltion, {
       insert: false
     });
+    this._SVGBounds = {
+      x: this.pathsLayer.bounds.x,
+      y: this.pathsLayer.bounds.y
+    };
     var dataURL = raster.canvas.toDataURL();
     this._rasterImageData = dataURL;
   }
@@ -62685,8 +62689,8 @@ Wick.View.Frame = class extends Wick.View {
       this.pathsContainer.removeChildren();
       this.pathsContainer.addChild(sprite); // Position sprite correctly
 
-      sprite.x = this.pathsLayer.bounds.x;
-      sprite.y = this.pathsLayer.bounds.y; // Cache pixi sprite
+      sprite.x = this._SVGBounds.x;
+      sprite.y = this._SVGBounds.y; // Cache pixi sprite
 
       this._pixiSprite = sprite;
 
