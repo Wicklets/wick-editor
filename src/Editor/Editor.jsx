@@ -222,7 +222,7 @@ class Editor extends EditorCore {
 
   componentDidUpdate = (prevProps, prevState) => {
     if(this.state.previewPlaying && !prevState.previewPlaying) {
-      this.history.saveState();
+      //this.history.saveState();
       this.project.play({
         onError: (error) => {
           this.stopPreviewPlaying(error)
@@ -239,7 +239,7 @@ class Editor extends EditorCore {
     if(!this.state.previewPlaying && prevState.previewPlaying) {
       let playheadPosition = this.project.focus.timeline.playheadPosition;
       this.project.stop();
-      this.undoAction();
+      //this.undoAction();
       this.project.focus.timeline.playheadPosition = playheadPosition;
     }
   }
@@ -454,7 +454,7 @@ class Editor extends EditorCore {
   }
 
   /**
-   * Show code errors in the code editor by pooping it up.
+   * Show code errors in the code editor by popping it up.
    * @param  {object[]} errors Array of error objects.
    */
   showCodeErrors = (errors) => {
@@ -475,14 +475,15 @@ class Editor extends EditorCore {
    * saved to the undo/redo stacks.
    */
   projectDidChange = (skipHistory) => {
-    //var beforeSerializeTimeMS = +new Date();
+    // The current frame was probably changed in some way, so make sure the WebGL
+    // canvas eventually renders the new frame and not an old cached version of it.
+    this.project.activeFrames.forEach(frame => {
+        frame.view.clearRasterCache();
+    });
 
     if(!skipHistory) {
       this.history.saveState();
     }
-
-    //var afterSerializeTimeMS = +new Date();
-    //console.log('took ' + (afterSerializeTimeMS - beforeSerializeTimeMS) + 'ms');
 
     this.canvasComponent.updateCanvas(this.project);
     this.setState({

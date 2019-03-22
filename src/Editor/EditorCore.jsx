@@ -886,10 +886,12 @@ class EditorCore extends Component {
    */
   setupNewProject = (project) => {
     this.resetEditorForLoad();
-    project.selection.clear();
     this.project = project;
-    localForage.setItem(this.autoSaveAssetsKey, window.Wick.FileCache.getAllFiles());
-    this.projectDidChange();
+    this.project.selection.clear();
+    this.project.view.prerasterize(() => {
+        localForage.setItem(this.autoSaveAssetsKey, window.Wick.FileCache.getAllFiles());
+        this.projectDidChange();
+    });
   }
 
   /**
@@ -962,16 +964,12 @@ class EditorCore extends Component {
     // Apply the change of the current selection before clearing it.
     this.project.view.applyChanges();
     this.project.selection.clear();
-
-    let nextState = !this.state.previewPlaying;
-    this.setState({
-      previewPlaying: nextState,
-      codeErrors: [],
+    this.project.view.prerasterize(() => {
+      this.setState({
+        previewPlaying: !this.state.previewPlaying,
+        codeErrors: [],
+      });
     });
-
-    if(nextState) {
-      // Focus canvas element here
-    }
   }
 
   /**

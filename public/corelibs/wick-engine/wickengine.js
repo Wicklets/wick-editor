@@ -46205,7 +46205,8 @@ this.dispose();BaseTexture.removeFromCache(this);this.textureCacheIds=null;this.
 	     * @param {PIXI.BaseTexture} baseTexture - The BaseTexture to add to the cache.
 	     * @param {string} id - The id that the BaseTexture will be stored against.
 	     */BaseTexture.addToCache=function addToCache(baseTexture,id){if(id){if(baseTexture.textureCacheIds.indexOf(id)===-1){baseTexture.textureCacheIds.push(id);}if(BaseTextureCache[id]){// eslint-disable-next-line no-console
-console.warn("BaseTexture added to the cache with an id ["+id+"] that already had an entry");}BaseTextureCache[id]=baseTexture;}};/**
+// console.warn(("BaseTexture added to the cache with an id [" + id + "] that already had an entry"));
+}BaseTextureCache[id]=baseTexture;}};/**
 	     * Remove a BaseTexture from the global BaseTextureCache.
 	     *
 	     * @static
@@ -46781,7 +46782,8 @@ if(name!==imageUrl){BaseTexture.addToCache(texture.baseTexture,imageUrl);Texture
 	     * @param {PIXI.Texture} texture - The Texture to add to the cache.
 	     * @param {string} id - The id that the Texture will be stored against.
 	     */Texture.addToCache=function addToCache(texture,id){if(id){if(texture.textureCacheIds.indexOf(id)===-1){texture.textureCacheIds.push(id);}if(TextureCache[id]){// eslint-disable-next-line no-console
-console.warn("Texture added to the cache with an id ["+id+"] that already had an entry");}TextureCache[id]=texture;}};/**
+// console.warn(("Texture added to the cache with an id [" + id + "] that already had an entry"));
+}TextureCache[id]=texture;}};/**
 	     * Remove a Texture from the global TextureCache.
 	     *
 	     * @static
@@ -57972,10 +57974,20 @@ Wick.Project = class extends Wick.Base {
   get activeFrame() {
     return this.activeLayer.activeFrame;
   }
+  /**
+   * The active frames of the active timeline.
+   * @type {Wick.Frame[]}
+   */
+
 
   get activeFrames() {
     return this.focus.timeline.activeFrames;
   }
+  /**
+   * The active frame of the active layer.
+   * @param {boolean} recursive - If set to true, will return all child frames as well.
+   */
+
 
   getAllFrames(recursive) {
     return this.root.timeline.getAllFrames(recursive);
@@ -60915,6 +60927,16 @@ Wick.Frame = class extends Wick.Tickable {
     this._removeChild(path);
   }
   /**
+   * Removes all paths from this frame.
+   */
+
+
+  removeAllPaths() {
+    [].concat(this.paths).forEach(path => {
+      this.removePath(path);
+    });
+  }
+  /**
    * Add a tween to the frame.
    * @param {Wick.Tween} tween - the tween to add.
    */
@@ -61893,6 +61915,14 @@ Wick.View.Project = class extends Wick.View {
     return 'rgb(187, 187, 187)';
   }
 
+  static get VALID_FIT_MODES() {
+    return ['center', 'fill'];
+  }
+
+  static get VALID_RENDER_MODES() {
+    return ['svg', 'webgl'];
+  }
+
   static get ORIGIN_CROSSHAIR_COLOR() {
     return '#CCCCCC';
   }
@@ -61903,14 +61933,6 @@ Wick.View.Project = class extends Wick.View {
 
   static get ORIGIN_CROSSHAIR_THICKNESS() {
     return 1;
-  }
-
-  static get VALID_FIT_MODES() {
-    return ['center', 'fill'];
-  }
-
-  static get VALID_RENDER_MODES() {
-    return ['svg', 'webgl'];
   }
   /*
    * Create a new Project View.
@@ -61925,6 +61947,10 @@ Wick.View.Project = class extends Wick.View {
     this.renderMode = 'svg';
     this._canvasContainer = null;
     this._canvasBGColor = null;
+    this._svgCanvas = null;
+    this._svgBackgroundLayer = null;
+    this._webGLCanvas = null;
+    this._pixiRootContainer = null;
     this._pan = {
       x: 0,
       y: 0
@@ -62088,14 +62114,14 @@ Wick.View.Project = class extends Wick.View {
 
   resize() {
     if (!this.canvasContainer) return;
-    var newWidth = this.canvasContainer.offsetWidth;
-    var newHeight = this.canvasContainer.offsetHeight;
+    var containerWidth = this.canvasContainer.offsetWidth;
+    var containerHeight = this.canvasContainer.offsetHeight;
 
     if (this._renderMode === 'svg') {
-      paper.view.viewSize.width = newWidth;
-      paper.view.viewSize.height = newHeight;
+      paper.view.viewSize.width = containerWidth;
+      paper.view.viewSize.height = containerHeight;
     } else if (this._renderMode === 'webgl') {
-      this._pixiApp.renderer.resize(newWidth, newHeight);
+      this._pixiApp.renderer.resize(containerWidth, containerHeight);
     }
   }
   /**
@@ -62110,7 +62136,8 @@ Wick.View.Project = class extends Wick.View {
     });
   }
   /**
-   *
+   * Rasterizes all the SVGs in the project.
+   * Use this before rendering a project if you want to make sure all SVGs will show up immediately inthe WebGL renderer.
    */
 
 
@@ -62119,6 +62146,7 @@ Wick.View.Project = class extends Wick.View {
     var allFrames = this.model.getAllFrames(true).filter(frame => {
       return frame.paths.length > 0;
     });
+    if (allFrames.length === 0) callback();
     allFrames.forEach(frame => {
       frame.view.onFinishRasterize(() => {
         loadedFrames.push(frame);
@@ -62140,9 +62168,9 @@ Wick.View.Project = class extends Wick.View {
 
 
   destroy() {
-    if (!this._pixiApp) return;
-
-    this._pixiApp.destroy();
+    if (this._pixiApp) {
+      this._pixiApp.destroy();
+    }
   }
 
   _displayCanvasInContainer(canvas) {
@@ -62230,7 +62258,7 @@ Wick.View.Project = class extends Wick.View {
     this.model.focus.timeline.view.activeFrameLayers.forEach(layer => {
       paper.project.addLayer(layer);
 
-      if (this.model.project && layer.data.wickUUID === this.model.project.activeFrame.uuid) {
+      if (this.model.project && this.model.project.activeFrame && layer.data.wickUUID === this.model.project.activeFrame.uuid) {
         layer.activate();
       }
     });
@@ -62513,6 +62541,10 @@ Wick.View.Frame = class extends Wick.View {
   static get RASTERIZE_RESOLUTION_MODIFIER() {
     return 2;
   }
+  /**
+   * Create a frame view.
+   */
+
 
   constructor() {
     super();
@@ -62524,16 +62556,41 @@ Wick.View.Frame = class extends Wick.View {
     this.pathsContainer = new PIXI.Container();
 
     this._onRasterFinishCallback = function () {};
+
+    this._pixiSprite = null;
+    this._rasterImageData = null;
   }
+  /**
+   * Write the changes made to the view to the frame.
+   */
+
 
   applyChanges() {
     this._applyClipChanges();
 
     this._applyPathChanges();
   }
+  /**
+   * Calls a given function when the raster image is done being generated by paper.js + loaded into Pixi.
+   */
+
 
   onFinishRasterize(callback) {
     this._onRasterFinishCallback = callback;
+  }
+  /**
+   * Clears the cached rasterized SVG data.
+   * Call this if the frame SVG has changed, and you need to make sure the WebGL renderer renders the updated SVG.
+   */
+
+
+  clearRasterCache() {
+    if (this._pixiSprite) {
+      this._pixiSprite.destroy(true);
+    }
+
+    this._pixiSprite = null;
+    this._rasterImageData = null;
   }
 
   _renderSVG() {
@@ -62569,15 +62626,18 @@ Wick.View.Frame = class extends Wick.View {
   }
 
   _renderPathsWebGL() {
-    // Check if we need to generate a new texture for Pixi
-    if (!this._pixiSprite) {
-      if (this.model.paths.length > 0) {
-        this._rasterizeSVG();
+    // Don't do anything if we already have a cached raster
+    if (this._pixiSprite) {
+      return;
+    } // Otherwise, generate a new Pixi sprite
 
-        this._loadPixiTexture();
-      } else {
-        this._pixiSprite = new PIXI.Sprite();
-      }
+
+    if (this.model.paths.length > 0) {
+      this._rasterizeSVG();
+
+      this._loadPixiTexture();
+    } else {
+      this._pixiSprite = new PIXI.Sprite();
     }
   }
 
@@ -62586,6 +62646,48 @@ Wick.View.Frame = class extends Wick.View {
     this.model.clips.forEach(clip => {
       clip.view.render();
       this.clipsContainer.addChild(clip.view.container);
+    });
+  }
+
+  _rasterizeSVG() {
+    // Render paths using the SVG renderer
+    this._renderPathsSVG();
+
+    var rasterResoltion = paper.view.resolution;
+    rasterResoltion /= window.devicePixelRatio;
+    rasterResoltion *= Wick.View.Frame.RASTERIZE_RESOLUTION_MODIFIER; // get a rasterized version of the resulting SVG
+
+    var raster = this.pathsLayer.rasterize(rasterResoltion, {
+      insert: false
+    });
+    var dataURL = raster.canvas.toDataURL();
+    this._rasterImageData = dataURL;
+  }
+
+  _loadPixiTexture() {
+    // Generate raster image data if needed
+    if (!this._rasterImageData) {
+      this._rasterizeSVG();
+    }
+
+    var loader = new PIXI.Loader();
+    loader.add(this.model.uuid, this._rasterImageData);
+    loader.load((loader, resources) => {
+      // Get the texture from the loader
+      var texture = resources[this.model.uuid].texture; // Add a Pixi sprite using that texture to the paths container
+
+      var sprite = new PIXI.Sprite(texture);
+      sprite.scale.x = sprite.scale.x / Wick.View.Frame.RASTERIZE_RESOLUTION_MODIFIER;
+      sprite.scale.y = sprite.scale.y / Wick.View.Frame.RASTERIZE_RESOLUTION_MODIFIER;
+      this.pathsContainer.removeChildren();
+      this.pathsContainer.addChild(sprite); // Position sprite correctly
+
+      sprite.x = this.pathsLayer.bounds.x;
+      sprite.y = this.pathsLayer.bounds.y; // Cache pixi sprite
+
+      this._pixiSprite = sprite;
+
+      this._onRasterFinishCallback();
     });
   }
 
@@ -62629,45 +62731,6 @@ Wick.View.Frame = class extends Wick.View {
       var wickPath = new Wick.Path(pathJSON);
       this.model.addPath(wickPath);
       child.name = wickPath.uuid;
-    });
-  }
-
-  _rasterizeSVG() {
-    // Render paths using the SVG renderer and get a rasterized version of the resulting SVG
-    this._renderPathsSVG();
-
-    var rasterResoltion = paper.view.resolution;
-    rasterResoltion /= window.devicePixelRatio;
-    rasterResoltion *= Wick.View.Frame.RASTERIZE_RESOLUTION_MODIFIER;
-    var raster = this.pathsLayer.rasterize(rasterResoltion, {
-      insert: false
-    });
-    var dataURL = raster.canvas.toDataURL();
-    this._rasterImageData = dataURL;
-  }
-
-  _loadPixiTexture() {
-    if (!this._rasterImageData) {
-      this._rasterizeSVG();
-    }
-
-    var loader = new PIXI.Loader();
-    loader.add(this.model.uuid, this._rasterImageData);
-    loader.load((loader, resources) => {
-      // Get the texture from the loader
-      var texture = resources[this.model.uuid].texture; // Add a Pixi sprite using that texture to the paths container
-
-      var sprite = new PIXI.Sprite(texture);
-      sprite.scale.x = sprite.scale.x / Wick.View.Frame.RASTERIZE_RESOLUTION_MODIFIER;
-      sprite.scale.y = sprite.scale.y / Wick.View.Frame.RASTERIZE_RESOLUTION_MODIFIER;
-      this.pathsContainer.addChild(sprite); // Position sprite correctly
-
-      sprite.x = this.pathsLayer.bounds.x;
-      sprite.y = this.pathsLayer.bounds.y; // Cache pixi sprite
-
-      this._pixiSprite = sprite;
-
-      this._onRasterFinishCallback();
     });
   }
 
