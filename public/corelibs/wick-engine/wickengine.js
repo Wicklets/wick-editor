@@ -58385,6 +58385,7 @@ Wick.Project = class extends Wick.Base {
 
 
   tick() {
+    this.view.interactTool.processInputPreTick(this);
     var error = this.focus.tick();
     this.view.render();
     this._keysLastDown = [].concat(this._keysDown);
@@ -61955,6 +61956,9 @@ Wick.View.Project = class extends Wick.View {
       x: 0,
       y: 0
     };
+    this.interactTool = new Wick.InteractTool();
+    console.log("Creating Project View");
+    console.log(this.interactTool);
   }
   /*
    * Determines the way the project will scale itself based on its container.
@@ -62739,6 +62743,146 @@ Wick.View.Frame = class extends Wick.View {
       this.model.addPath(wickPath);
       child.name = wickPath.uuid;
     });
+  }
+
+};
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* Copyright 2018 WICKLETS LLC
+*
+* This file is part of Wick Engine.
+*
+* Wick Engine is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Wick Engine is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+*/
+Wick.InteractTool = class {
+  constructor() {
+    this.mouseJustPressed = false;
+    this.mouseJustReleased = false;
+    this.mouseButtonState = 'up';
+    this.mousePosition = {
+      x: 0,
+      y: 0
+    };
+    this.keysDown = [];
+    this.pointerDownObjects = [];
+    this.pointerOverObjects = [];
+    this.attachKeyListeners();
+  }
+
+  onActivate(e) {
+    this.mouseButtonState = 'up';
+    this.mousePosition = new paper.Point();
+  }
+
+  onDeactivate(e) {
+    this.detachKeyListeners();
+  }
+  /**
+   *  Makes a pixi sprite interactive.
+   */
+
+
+  makeInteractive(sprite) {
+    sprite.interactive = true;
+    sprite.on('pointerdown', onPointerDown.bind(this)).on('pointerup', onPointerUp.bind(this)).on('pointerupoutside', onPointerUpOutside.bind(this)).on('pointerover', onPointerOver.bind(this)).on('pointerout', onPointerOut.bind(this));
+  }
+
+  attachKeyListeners() {
+    console.log("ATTACHING LISTENERS");
+    window.onkeydown = this.onKeyDown;
+    window.onkeyup = this.onKeyUp;
+  }
+
+  detachKeyListeners() {}
+
+  onPointerDown(e) {
+    if (this.pointerDownObjects.indexOf(e.uuid) === -1) {
+      this.pointerDownObjects.push(e.uuid);
+    }
+
+    this.mouseJustPressed = true;
+  }
+
+  onPointerUp(e) {
+    this.pointerDownObjects.filter(item => {
+      return item !== e.uuid;
+    });
+    this.mouseJustReleased = true;
+  }
+
+  onPointerOver(e) {
+    if (this.pointerOverObjects.indexOf(e.uuid) === -1) {
+      this.pointerOverObjects.push(e.uuid);
+    }
+  }
+
+  onPointerUpOutside(e) {
+    this.pointerDownObjects.filter(item => {
+      return item !== e.uuid;
+    });
+    this.pointerOverObjects.filter(item => {
+      return item !== e.uuid;
+    });
+    this.mouseJustReleased = true;
+  }
+
+  onPointerOut(e) {
+    this.pointerOverObjects.filter(item => {
+      return item !== e.uuid;
+    });
+    this.pointerDownObjects.filter(item => {
+      return item !== e.uuid;
+    });
+  }
+
+  static cleanKey(k) {
+    return k.toLowerCase().replace("arrow", "");
+  }
+
+  onKeyDown(e) {
+    let cleanKey = Wick.InteractTool.cleanKey(e.key);
+
+    if (this.keysDown.indexOf(cleanKey) === -1) {
+      this.keysDown.push(cleanKey);
+    }
+
+    return false;
+  }
+
+  onKeyUp(e) {
+    let cleanKey = Wick.InteractTool.cleanKey(e.key);
+    this.keysDown = this.keysDown.filter(key => {
+      return key !== cleanKey;
+    });
+    return false;
+  }
+
+  processInputPreTick(project) {
+    this.processKeyInputPreTick(project); // this.processMouseInputPreTick(project);
+  }
+
+  processKeyInputPreTick(project) {
+    project.keysDown = this.keysDown;
+  }
+
+  processMouseInputPreTick(project) {
+    project.mouseHoverTargets = this.pointerOverObjects;
+    project.mouseDownTargets = this.pointerDownObjects;
+    project.isMouseDown = false;
+    this.mouseJustPressed = false;
+    this.mouseJustReleased = false;
   }
 
 };
