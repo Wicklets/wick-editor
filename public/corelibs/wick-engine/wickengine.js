@@ -57800,8 +57800,6 @@ Wick.Project = class extends Wick.Base {
       x: 0,
       y: 0
     };
-    this._mouseHoverTargets = [];
-    this._mouseDownTargets = [];
     this._isMouseDown = false;
     this._keysDown = [];
     this._keysLastDown = [];
@@ -58097,50 +58095,6 @@ Wick.Project = class extends Wick.Base {
     this._mousePosition = mousePosition;
   }
   /**
-   * The objects currently hovered over by the mouse.
-   * @type {Wick.Tickable[]}
-   */
-
-
-  get mouseHoverTargets() {
-    return this._mouseHoverTargets;
-  }
-
-  set mouseHoverTargets(mouseHoverTargets) {
-    this._mouseHoverTargets = mouseHoverTargets;
-  }
-  /**
-   * The objects currently clicked by the mouse.
-   * @type {Wick.Tickable[]}
-   */
-
-
-  get mouseDownTargets() {
-    return this._mouseDownTargets;
-  }
-
-  set mouseDownTargets(mouseDownTargets) {
-    this._mouseDownTargets = mouseDownTargets;
-  }
-  /**
-   * Determine if an object is being hovered over.
-   * @type {boolean}
-   */
-
-
-  isMouseHoverTarget(tickable) {
-    return this.mouseHoverTargets.indexOf(tickable) !== -1;
-  }
-  /**
-   * Determine if an object is being clicked.
-   * @type {boolean}
-   */
-
-
-  isMouseDownTarget(tickable) {
-    return this.mouseDownTargets.indexOf(tickable) !== -1;
-  }
-  /**
    * Determine if the mouse is down.
    * @type {boolean}
    */
@@ -58385,9 +58339,11 @@ Wick.Project = class extends Wick.Base {
 
 
   tick() {
+    this.view.processInput();
     var error = this.focus.tick();
     this.view.render();
-    this._keysLastDown = [].concat(this._keysDown);
+    this._keysLastDown = [].concat(this._keysDown); //!!!!!!!!!!!!!!!
+
     return error;
   }
   /**
@@ -60467,7 +60423,7 @@ Wick.Tickable = class extends Wick.Base {
     this._onscreen = this.onScreen; // Update mouse states.
 
     this._lastMouseState = this._mouseState;
-    this._mouseState = this._getMouseState(); // Call tick event function that corresponds to state.
+    if (this.view) this._mouseState = this.view._mouseState; // Call tick event function that corresponds to state.
 
     if (!this._onscreen && !this._onscreenLastTick) {
       return this._onInactive();
@@ -60530,13 +60486,13 @@ Wick.Tickable = class extends Wick.Base {
     } // Mouse drag
 
 
-    if (last === 'down' && current === 'down' && this.project.isMouseDownTarget(this)) {
+    if (last === 'down' && current === 'down') {
       var error = this.runScript('mousedrag');
       if (error) return error;
     } // Mouse click
 
 
-    if (last === 'down' && current === 'over' && this.project.isMouseDownTarget(this)) {
+    if (last === 'down' && current === 'over') {
       var error = this.runScript('mouseclick');
       if (error) return error;
     } // Key events require the Tickable object to be inside of a project. Don't run them if there is no project
@@ -60598,20 +60554,6 @@ Wick.Tickable = class extends Wick.Base {
       message: error.message,
       uuid: this.uuid
     };
-  }
-
-  _getMouseState() {
-    var mouseState = 'out';
-
-    if (this.project && this.project.isMouseHoverTarget(this)) {
-      if (this.project.isMouseDown) {
-        mouseState = 'down';
-      } else {
-        mouseState = 'over';
-      }
-    }
-
-    return mouseState;
   }
 
   _attachChildClipReferences() {// Implemented by Wick.Clip and Wick.Frame.
@@ -61139,6 +61081,7 @@ Wick.Clip = class extends Wick.Tickable {
     this.identifier = identifier || 'New Symbol';
     this.transform = transform || new Wick.Transformation();
     this.cursor = 'default';
+    /* If objects are passed in, add them to the clip and reposition them */
 
     if (objects) {
       var clips = objects.filter(object => {
@@ -61730,6 +61673,9 @@ Wick.View.Clip = class extends Wick.View {
     this.group.remove();
     this.group.applyMatrix = false;
     this.container = new PIXI.Container();
+    this.container.interactive = true;
+    this.container.on('pointerover', this._onPointerOver.bind(this)).on('pointerdown', this._onPointerDown.bind(this)).on('pointerup', this._onPointerUp.bind(this)).on('pointerout', this._onPointerOut.bind(this)).on('pointerupoutside', this._onPointerUpOutside.bind(this));
+    this._mouseState = 'out';
   }
 
   _renderSVG() {
@@ -61772,6 +61718,26 @@ Wick.View.Clip = class extends Wick.View {
     this.container.rotation = this.model.transform.rotation * (Math.PI / 180); //Degrees -> Radians conversion
 
     this.container.alpha = this.model.transform.opacity;
+  }
+
+  _onPointerOver(e) {
+    this._mouseState = 'over';
+  }
+
+  _onPointerDown(e) {
+    this._mouseState = 'down';
+  }
+
+  _onPointerUp(e) {
+    this._mouseState = 'over';
+  }
+
+  _onPointerOut(e) {
+    this._mouseState = 'out';
+  }
+
+  _onPointerUpOutside(e) {
+    this._mouseState = 'out';
   }
 
 };
@@ -61955,6 +61921,10 @@ Wick.View.Project = class extends Wick.View {
       x: 0,
       y: 0
     };
+    this._zoom = 1;
+    this._keysDown = [];
+
+    this._attachKeyListeners();
   }
   /*
    * Determines the way the project will scale itself based on its container.
@@ -62105,6 +62075,10 @@ Wick.View.Project = class extends Wick.View {
     }
 
     this._updateCanvasContainerBGColor();
+  }
+
+  processInput() {
+    this.model.keysDown = this._keysDown;
   }
   /*
    * Resize the canvas to fit it's container div.
@@ -62376,6 +62350,33 @@ Wick.View.Project = class extends Wick.View {
 
   _convertCSSColorToPixiColor(cssColor) {
     return parseInt(cssColor.replace("#", "0x"));
+  }
+
+  _attachKeyListeners() {
+    window.onkeydown = this._onKeyDown.bind(this);
+    window.onkeyup = this._onKeyUp.bind(this);
+  }
+
+  _detachKeyListeners() {}
+
+  _cleanKeyName(keyString) {
+    return keyString.toLowerCase().replace("arrow", "");
+  }
+
+  _onKeyDown(e) {
+    let cleanKey = this._cleanKeyName(e.key);
+
+    if (this._keysDown.indexOf(cleanKey) === -1) {
+      this._keysDown.push(cleanKey);
+    }
+  }
+
+  _onKeyUp(e) {
+    let cleanKey = this._cleanKeyName(e.key);
+
+    this._keysDown = this._keysDown.filter(key => {
+      return key !== cleanKey;
+    });
   }
 
 };
