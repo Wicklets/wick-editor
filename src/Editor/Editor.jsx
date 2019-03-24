@@ -225,7 +225,7 @@ class Editor extends EditorCore {
       //this.history.saveState();
       this.project.play({
         onError: (error) => {
-          this.stopPreviewPlaying(error)
+          this.stopPreviewPlaying([error])
         },
         onAfterTick: () => {
           this.timelineComponent.updateTimeline();
