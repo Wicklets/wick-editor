@@ -359,7 +359,10 @@ class WickProjectConverter {
         // Separate all script text from events and build Editor 1.0 objects for them.
         let eventScripts = []
 
-        eventScripts.push(loadObject);
+        // Only add load scripts if we need them.
+        if (loadScript !== '') {
+            eventScripts.push(loadObject);
+        }
 
         eventElements.forEach(elem => {
             let range = elem.body.range;
