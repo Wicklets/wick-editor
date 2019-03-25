@@ -61843,7 +61843,17 @@ Wick.View.Clip = class extends Wick.View {
 * You should have received a copy of the GNU General Public License
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
-Wick.View.Button = class extends Wick.View.Clip {};
+Wick.View.Button = class extends Wick.View.Clip {
+  _renderWebGL(e) {
+    super._renderWebGL(e); // Use pointer cursor on buttons.
+
+
+    if (this._mouseState === 'over' || this._mouseState === 'down') {
+      this.model.project.view._webGLCanvas.style.cursor = 'pointer';
+    }
+  }
+
+};
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
@@ -62367,6 +62377,8 @@ Wick.View.Project = class extends Wick.View {
   }
 
   _renderWebGLCanvas() {
+    this._webGLCanvas.style.cursor = 'default';
+
     this._pixiRootContainer.removeChildren(); // Zoom and pan
 
 
