@@ -464,7 +464,9 @@ class Editor extends EditorCore {
 
     if (errors.length > 0) {
       let uuid = errors[0].uuid;
-      this.selectObject(this.project.getChildByUUID(uuid))
+      let obj = this.project.getChildByUUID(uuid);
+      this.setFocusObject(obj.parentClip); 
+      this.selectObject(obj)
     }
   }
 
