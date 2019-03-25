@@ -61548,25 +61548,25 @@ Wick.Button = class extends Wick.Clip {
   }
 
   _onActive() {
-    var error = super._onActive();
-
-    if (error) return error;
-    this.timeline.playheadPosition = 1;
+    this.timeline._forceNextFrame = 1;
     var frame2Exists = this.timeline.getFramesAtPlayheadPosition(2).length > 0;
     var frame3Exists = this.timeline.getFramesAtPlayheadPosition(3).length > 0;
 
     if (this._mouseState === 'over') {
       if (frame2Exists) {
-        this.timeline.playheadPosition = 2;
+        this.timeline.gotoFrame(2);
       }
     } else if (this._mouseState === 'down') {
       if (frame3Exists) {
-        this.timeline.playheadPosition = 3;
+        this.timeline.gotoFrame(3);
       } else if (frame2Exists) {
-        this.timeline.playheadPosition = 2;
+        this.timeline.gotoFrame(2);
       }
     }
 
+    var error = super._onActive();
+
+    if (error) return error;
     return null;
   }
 
