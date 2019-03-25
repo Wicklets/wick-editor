@@ -61542,6 +61542,7 @@ Wick.Button = class extends Wick.Clip {
   _onActivated() {
     var error = super._onActivated();
 
+    this.timeline.stop();
     this.timeline.playheadPosition = 1;
     return error;
   }
