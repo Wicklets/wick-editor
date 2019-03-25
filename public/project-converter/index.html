@@ -30,7 +30,7 @@
         <script>
             window.onload = function () {
                 document.getElementById('files').addEventListener('change', (e) => {
-                    WickProjectConverter.convertOldWickFile(e.target.files[0], project => {
+                    WickProjectConverter.convertWick152Project(e.target.files[0], project => {
                         console.log(project)
                         window.convertedProject = project;
                         document.getElementById('downloadButton').style.display = 'block';

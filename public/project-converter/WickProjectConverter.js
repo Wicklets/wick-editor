@@ -3,6 +3,19 @@
  */
 class WickProjectConverter {
     /**
+     * Converts a Wick v15.2 project file (html, zip, or wick) into a Wick 1.0 project.
+     */
+    static convertWick152Project (file, callback) {
+        if(file.type === 'text/html') {
+            WickProjectConverter.convertOldWickHTML(file, callback);
+        } else if (file.type === '') {
+            WickProjectConverter.convertOldWickFile(file, callback);
+        } else {
+            console.error('Could not convert project. No conversion routine for ' + file.type);
+        }
+    }
+
+    /**
      * Converts an exported Wick v15.2 project (ZIP) into a Wick 1.0 project.
      */
     static convertOldWickZIP (zipFile, callback) {
@@ -13,7 +26,9 @@ class WickProjectConverter {
      * Converts an exported Wick v15.2 project (HTML) into a Wick 1.0 project.
      */
     static convertOldWickHTML (htmlFile, callback) {
-        // TODO
+        WickProject.fromFile(htmlFile, project => {
+            callback(WickProjectConverter.convertProject(project));
+        });
     }
 
     /**
@@ -195,7 +210,8 @@ class WickProjectConverter {
             if(wickObject.isPath) {
                 // Path
                 var convertedPath = WickProjectConverter.convertPath(wickObject);
-                convertedFrame.addPath(convertedPath);
+                if(convertedPath)
+                    convertedFrame.addPath(convertedPath);
             } else if(wickObject.isText) {
                 // Text
                 var convertedText = WickProjectConverter.convertText(wickObject);
@@ -262,6 +278,11 @@ class WickProjectConverter {
         paperPath.position.x = path.x;
         paperPath.position.y = path.y;
 
+        if(!paperPath.children || !paperPath.children[0]) {
+            console.warn('SVG had no children - possibly an empty SVG, discarding.');
+            return null;
+        }
+
         var pathJSON = paperPath.children[0].exportJSON({asString:false});
         var convertedPath = new Wick.Path(pathJSON);
         return convertedPath;
@@ -325,7 +346,7 @@ class WickProjectConverter {
             'mouseLeave',
             'mousePressed',
             'mouseDown',
-            'mouseReleased', 
+            'mouseReleased',
             'mouseHover',
             'keyPressed',
             'keyReleased',
