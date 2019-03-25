@@ -61637,6 +61637,15 @@ GlobalAPI = class {
 
     return project;
   }
+  /**
+   * @deprecated
+   * Legacy item which returns the project. Use 'project' instead. 
+   */
+
+
+  get root() {
+    return this.project;
+  }
 
   get parent() {
     return this.scriptOwner.parentClip;
