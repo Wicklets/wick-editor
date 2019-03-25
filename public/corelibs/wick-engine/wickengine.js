@@ -57790,7 +57790,6 @@ Wick.Project = class extends Wick.Base {
     this.onionSkinSeekForwards = 1;
     this._root = null;
     this.root = new Wick.Clip();
-    this.root.identifier = "Project";
     this._focus = this.root.uuid;
     this.project = this;
     this._assets = [];
@@ -57824,6 +57823,11 @@ Wick.Project = class extends Wick.Base {
     if (data.onionSkinSeekForwards) object.onionSkinSeekForwards = data.onionSkinSeekForwards;
     if (data.onionSkinSeekBackwards) object.onionSkinSeekBackwards = data.onionSkinSeekBackwards;
     if (data.root) object.root = Wick.Clip.deserialize(data.root);
+
+    if (!object.root.identifier) {
+      object.root.identifier = 'Project';
+    }
+
     object.focus = object.root;
     if (data.focus) object.focus = object.getChildByUUID(data.focus);
     object.selection = Wick.Selection.deserialize(data.selection);
