@@ -59637,6 +59637,12 @@ Wick.Path = class extends Wick.Base {
       this._paperPath.data.wickType = 'path';
     }
 
+    this._loaded = false;
+
+    this._paperPath.onLoad = () => {
+      this._loaded = true;
+    };
+
     this._cachedJSONExport = null;
   }
 
@@ -59695,6 +59701,10 @@ Wick.Path = class extends Wick.Base {
     }
 
     this._paperPath = paper.importJSON(json);
+
+    this._paperPath.onLoad = () => {
+      this._loaded = true;
+    };
   }
   /**
    * Export the Wick Path as paper.js Path json data.
@@ -62249,6 +62259,34 @@ Wick.View.Project = class extends Wick.View {
         callback();
       }
     }
+  }
+  /**
+   * Use this to know when all the images in the project are loaded.
+   */
+
+
+  preloadImages(callback) {
+    var allRasters = [];
+    this.model.getAllFrames(true).forEach(frame => {
+      frame.paths.filter(path => {
+        return path.paperPath instanceof paper.Raster;
+      }).forEach(raster => {
+        allRasters.push(raster);
+      });
+    });
+    var i = setInterval(() => {
+      var allLoaded = true;
+      allRasters.forEach(raster => {
+        if (!raster._loaded) {
+          allLoaded = false;
+        }
+      });
+
+      if (allLoaded) {
+        clearInterval(i);
+        callback();
+      }
+    }, 10);
   }
   /**
    * Destroy the renderer. Call this when the view will no longer be used to save memory/webgl contexts.
