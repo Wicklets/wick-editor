@@ -59374,16 +59374,14 @@ Wick.Timeline = class extends Wick.Base {
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-/** 
- * Class representing a tween. 
+/**
+ * Class representing a tween.
  */
 Wick.Tween = class extends Wick.Base {
-  /**
-   * Calculate a value 
-   * @param {Wick.Tween} tweenA - 
-   * @param {Wick.Tween} tweenB - 
-   * @param {number} playheadPosition - 
-   */
+  static get VALID_EASING_TYPES() {
+    return ['none', 'in', 'out', 'in-out'];
+  }
+
   static _calculateTimeValue(tweenA, tweenB, playheadPosition) {
     var tweenAPlayhead = tweenA.playheadPosition;
     var tweenBPlayhead = tweenB.playheadPosition;
@@ -59404,12 +59402,14 @@ Wick.Tween = class extends Wick.Base {
     this.playheadPosition = playheadPosition || 1;
     this.transform = transform || new Wick.Transformation();
     this.fullRotations = fullRotations === undefined ? 0 : fullRotations;
+    this._easingType = null;
+    this.easingType = 'none';
   }
   /**
    * Create a tween by interpolating two existing tweens.
-   * @param {Wick.Tween} tweenA - 
-   * @param {Wick.Tween} tweenB - 
-   * @param {Number} playheadPosition - 
+   * @param {Wick.Tween} tweenA -
+   * @param {Wick.Tween} tweenB -
+   * @param {Number} playheadPosition -
    */
 
 
@@ -59419,12 +59419,14 @@ Wick.Tween = class extends Wick.Base {
     var t = Wick.Tween._calculateTimeValue(tweenA, tweenB, playheadPosition); // Interpolate every transformation attribute using the t value
 
 
-    ["x", "y", "scaleX", "scaleY", "rotation", "opacity"].forEach(function (name) {
-      var tt = TWEEN.Easing.Linear.None(t);
-      var valA = tweenA.transform[name];
-      var valB = tweenB.transform[name];
+    ["x", "y", "scaleX", "scaleY", "rotation", "opacity"].forEach(propName => {
+      var tweenFn = tweenA._getTweenFunction();
 
-      if (name === 'rotation') {
+      var tt = tweenFn(t);
+      var valA = tweenA.transform[propName];
+      var valB = tweenB.transform[propName];
+
+      if (propName === 'rotation') {
         // Constrain rotation values to range of -180 to 180
         while (valA < -180) valA += 360;
 
@@ -59438,7 +59440,7 @@ Wick.Tween = class extends Wick.Base {
         valB += tweenA.fullRotations * 360;
       }
 
-      interpTween.transform[name] = lerp(valA, valB, tt);
+      interpTween.transform[propName] = lerp(valA, valB, tt);
     });
     interpTween.playheadPosition = playheadPosition;
     return interpTween;
@@ -59449,6 +59451,7 @@ Wick.Tween = class extends Wick.Base {
     data.playheadPosition = this.playheadPosition;
     data.transform = this.transform.serialize();
     data.fullRotations = this.fullRotations;
+    data.easingType = this.easingType;
     return data;
   }
 
@@ -59458,7 +59461,26 @@ Wick.Tween = class extends Wick.Base {
     object.playheadPosition = data.playheadPosition;
     object.transform = Wick.Transformation.deserialize(data.transform);
     object.fullRotations = data.fullRotations;
+    object.easingType = data.easingType;
     return object;
+  }
+  /**
+   * The type of interpolation to use for easing.
+   */
+
+
+  get easingType() {
+    return this._easingType;
+  }
+
+  set easingType(easingType) {
+    if (Wick.Tween.VALID_EASING_TYPES.indexOf(easingType) === -1) {
+      console.warn('Invalid easingType. Valid easingTypes: ');
+      console.warn(Wick.Tween.VALID_EASING_TYPES);
+      return;
+    }
+
+    this._easingType = easingType;
   }
 
   get classname() {
@@ -59479,6 +59501,15 @@ Wick.Tween = class extends Wick.Base {
 
   applyTransformsToClip(clip) {
     clip.transform = this.transform.clone(true);
+  }
+
+  _getTweenFunction() {
+    return {
+      'none': TWEEN.Easing.Linear.None,
+      'in': TWEEN.Easing.Quadratic.In,
+      'out': TWEEN.Easing.Quadratic.Out,
+      'in-out': TWEEN.Easing.Quadratic.InOut
+    }[this.easingType];
   }
 
 };
@@ -60232,7 +60263,7 @@ Wick.Tickable = class extends Wick.Base {
    * @return {string[]} Array of all possible scripts.
    */
   static get possibleScripts() {
-    return ['update', 'load', 'unload', 'mouseenter', 'mouseleave', 'mousepressed', 'mousedown', 'mouseup', 'mousehover', 'mousedrag', 'mouseclick', 'keypressed', 'keyreleased', 'keydown'];
+    return ['update', 'load', 'unload', 'mouseenter', 'mouseleave', 'mousepressed', 'mousedown', 'mousereleased', 'mousehover', 'mousedrag', 'mouseclick', 'keypressed', 'keyreleased', 'keydown'];
   }
   /**
    * Create a new tickable object.
@@ -60469,7 +60500,7 @@ Wick.Tickable = class extends Wick.Base {
 
 
     if (last === 'down' && current === 'over') {
-      var error = this.runScript('mouseup');
+      var error = this.runScript('mousereleased');
       if (error) return error;
     } // Mouse leave
 
@@ -61278,6 +61309,35 @@ Wick.Clip = class extends Wick.Tickable {
     this.timeline._forceNextFrame = frame;
   }
   /**
+   * Returns the name of the frame which is currently active. If multiple frames are active, returns the 
+   * name of the first active frame.
+   * @returns {string} Active Frame name. If the active frame does not have an identifier, returns empty string.
+   */
+
+
+  get currentFrameName() {
+    let frames = this.timeline.activeFrames;
+    let name = '';
+    frames.forEach(frame => {
+      if (name) return;
+
+      if (frame.identifier) {
+        name = frame.identifier;
+      }
+    });
+    return name;
+  }
+  /**
+   * @deprecated
+   * Returns the current playhead position. This is a legacy function, you should use clip.playheadPosition instead.
+   * @returns {number} Playhead Position.
+   */
+
+
+  get currentFrameNumber() {
+    return this.timeline.playheadPosition;
+  }
+  /**
    * The X position of the clip.
    */
 
@@ -61561,7 +61621,7 @@ GlobalAPI = class {
   }
 
   gotoAndPlay(frame) {
-    this.scriptOwner.parentClip.gotoAndStop(frame);
+    this.scriptOwner.parentClip.gotoAndPlay(frame);
   }
 
   get project() {
@@ -61591,6 +61651,28 @@ GlobalAPI = class {
   get keys() {
     if (!this.scriptOwner.project) return null;
     return this.scriptOwner.project.keysDown;
+  }
+
+  get random() {
+    return new GlobalAPI.Random();
+  }
+
+};
+GlobalAPI.Random = class {
+  constructor() {} //https://stackoverflow.com/questions/4959975/generate-random-number-between-two-numbers-in-javascript
+
+
+  integer(min, max) {
+    return Math.floor(Math.random() * (max - min + 1) + min);
+  }
+
+  float(min, max) {
+    return Math.random() * (max - min + 1) + min;
+  } //https://stackoverflow.com/questions/4550505/getting-a-random-value-from-a-javascript-array
+
+
+  choice(array) {
+    return array[Math.floor(Math.random() * myArray.length)];
   }
 
 };

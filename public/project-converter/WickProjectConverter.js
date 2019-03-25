@@ -84,7 +84,7 @@ class WickProjectConverter {
             // Sound asset
             return WickProjectConverter.convertSoundAsset(asset);
         } else {
-            console.error('Add a convert routine for "' + asset.type + '" assets, please!!');
+            console.warn('Add a convert routine for "' + asset.type + '" assets, please!!');
             return null;
         }
     }
@@ -213,8 +213,8 @@ class WickProjectConverter {
                 var convertedClip = WickProjectConverter.convertClip(wickObject, convertedProject);
                 convertedFrame.addClip(convertedClip);
             } else {
-                console.error("Couldn't convert a wick object, did you forget a case?");
-                console.log(wickObject);
+                console.warn("Couldn't convert a wick object, did you forget a case?");
+                console.warn(wickObject);
             }
         });
 
@@ -236,6 +236,12 @@ class WickProjectConverter {
         // Tween attributes
         convertedTween.playheadPosition = tween.playheadPosition + 1;
         convertedTween.fullRotations = tween.rotations;
+        convertedTween.easingType = {
+            'None': 'none',
+            'In': 'in',
+            'Out': 'out',
+            'InOut': 'in-out',
+        }[tween.tweenDir];
 
         // Tween transform
         convertedTween.transform.x = tween.x;
