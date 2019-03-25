@@ -18,6 +18,7 @@ window.onload = function () {
         container.innerHTML = '';
         project.view.canvasContainer = container;
         project.view.fitMode = 'fill';
+        project.view.canvasBGColor = '#000000';
 
         window.onresize = function () {
             project.view.resize();
@@ -26,11 +27,14 @@ window.onload = function () {
 
         project.focus = project.root;
         project.focus.timeline.playheadPosition = 1;
-        project.play({
-            onError: (error => {
-                console.error('Project threw an error!');
-                console.error(error);
-            }),
+        project.view.renderMode = 'webgl';
+        project.view.prerasterize(() => {
+            project.play({
+                onError: (error => {
+                    console.error('Project threw an error!');
+                    console.error(error);
+                }),
+            });
         });
     }
 
