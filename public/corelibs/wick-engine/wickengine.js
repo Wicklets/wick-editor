@@ -61639,7 +61639,7 @@ GlobalAPI = class {
   }
   /**
    * @deprecated
-   * Legacy item which returns the project. Use 'project' instead. 
+   * Legacy item which returns the project. Use 'project' instead.
    */
 
 
@@ -61659,6 +61659,16 @@ GlobalAPI = class {
   get keys() {
     if (!this.scriptOwner.project) return null;
     return this.scriptOwner.project.keysDown;
+  }
+
+  get mouseX() {
+    if (!this.scriptOwner.project) return null;
+    return this.scriptOwner.project.mousePosition.x;
+  }
+
+  get mouseY() {
+    if (!this.scriptOwner.project) return null;
+    return this.scriptOwner.project.mousePosition.y;
   }
 
   get random() {
@@ -62385,6 +62395,13 @@ Wick.View.Project = class extends Wick.View {
   }
 
   _renderWebGLCanvas() {
+    // Update mouse position
+    var pixiMouse = this._pixiApp.renderer.plugins.interaction.mouse.global;
+    this.model.mousePosition = {
+      x: pixiMouse.x,
+      y: pixiMouse.y
+    }; // Reset cursor (button views change cursor if the mouse is over a button)
+
     this._webGLCanvas.style.cursor = 'default';
 
     this._pixiRootContainer.removeChildren(); // Zoom and pan
