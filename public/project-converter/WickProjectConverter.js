@@ -319,6 +319,7 @@ class WickProjectConverter {
             'mouseLeave',
             'mousePressed',
             'mouseDown',
+            'mouseReleased', 
             'mouseHover',
             'keyPressed',
             'keyReleased',
