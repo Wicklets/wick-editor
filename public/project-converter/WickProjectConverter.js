@@ -278,12 +278,13 @@ class WickProjectConverter {
         paperPath.position.x = path.x;
         paperPath.position.y = path.y;
 
-        if(!paperPath.children || !paperPath.children[0]) {
-            console.warn('SVG had no children - possibly an empty SVG, discarding.');
-            return null;
+        var pathJSON = null;
+        if(paperPath.children && paperPath.children[0]) {
+            pathJSON = paperPath.children[0].exportJSON({asString:false});
+        } else {
+            pathJSON = paperPath.exportJSON({asString:false});
         }
 
-        var pathJSON = paperPath.children[0].exportJSON({asString:false});
         var convertedPath = new Wick.Path(pathJSON);
         return convertedPath;
     }
