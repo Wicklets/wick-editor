@@ -61883,8 +61883,8 @@ Wick.View.Layer = class extends Wick.View {
 
     if (frame) {
       frame.view.render();
-      this.activeFrameLayers.push(frame.view.clipsLayer);
       this.activeFrameLayers.push(frame.view.pathsLayer);
+      this.activeFrameLayers.push(frame.view.clipsLayer);
       frame.view.clipsLayer.locked = false;
       frame.view.pathsLayer.locked = false;
       frame.view.clipsLayer.opacity = 1.0;
@@ -61906,8 +61906,8 @@ Wick.View.Layer = class extends Wick.View {
         return !frame.inPosition(playheadPosition) && frame.inRange(playheadPosition - onionSkinSeekBackwards, playheadPosition + onionSkinSeekForwards);
       }).forEach(frame => {
         frame.view.render();
-        this.onionSkinnedFramesLayers.push(frame.view.clipsLayer);
         this.onionSkinnedFramesLayers.push(frame.view.pathsLayer);
+        this.onionSkinnedFramesLayers.push(frame.view.clipsLayer);
         var onionMult = 1;
 
         if (frame.midpoint < playheadPosition) {
@@ -61932,8 +61932,8 @@ Wick.View.Layer = class extends Wick.View {
 
     if (frame) {
       frame.view.render();
-      this.activeFrameContainers.push(frame.view.clipsContainer);
       this.activeFrameContainers.push(frame.view.pathsContainer);
+      this.activeFrameContainers.push(frame.view.clipsContainer);
     }
   }
 
@@ -62314,7 +62314,7 @@ Wick.View.Project = class extends Wick.View {
     this.model.focus.timeline.view.activeFrameLayers.forEach(layer => {
       paper.project.addLayer(layer);
 
-      if (this.model.project && this.model.project.activeFrame && layer.data.wickUUID === this.model.project.activeFrame.uuid) {
+      if (this.model.project && this.model.project.activeFrame && layer.data.wickType === 'paths' && layer.data.wickUUID === this.model.project.activeFrame.uuid) {
         layer.activate();
       }
     });
