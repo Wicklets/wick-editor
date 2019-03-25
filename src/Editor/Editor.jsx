@@ -222,7 +222,7 @@ class Editor extends EditorCore {
 
   componentDidUpdate = (prevProps, prevState) => {
     if(this.state.previewPlaying && !prevState.previewPlaying) {
-      //this.history.saveState();
+      this.initalProjectStateBeforePreviewPlay = this.history.generateProjectState();
       this.project.play({
         onError: (error) => {
           this.stopPreviewPlaying([error])
@@ -239,7 +239,7 @@ class Editor extends EditorCore {
     if(!this.state.previewPlaying && prevState.previewPlaying) {
       let playheadPosition = this.project.focus.timeline.playheadPosition;
       this.project.stop();
-      //this.undoAction();
+      this.history.recoverProjectState(this.initalProjectStateBeforePreviewPlay);
       this.project.focus.timeline.playheadPosition = playheadPosition;
     }
   }

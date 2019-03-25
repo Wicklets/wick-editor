@@ -61305,11 +61305,10 @@ Wick.Clip = class extends Wick.Tickable {
 
 
   gotoAndPlay(frame) {
-    this.timeline._playing = true;
-    this.timeline._forceNextFrame = frame;
+    this.timeline.gotoAndPlay(frame);
   }
   /**
-   * Returns the name of the frame which is currently active. If multiple frames are active, returns the 
+   * Returns the name of the frame which is currently active. If multiple frames are active, returns the
    * name of the first active frame.
    * @returns {string} Active Frame name. If the active frame does not have an identifier, returns empty string.
    */
