@@ -67,6 +67,8 @@ class UndoRedo {
     //this.editor.project = window.Wick.Project.deserialize(state.project);
     window.Wick.Project._deserialize(state.project, this.editor.project);
     window.Wick.Clip._deserialize(state.focus, this.editor.project.getChildByUUID(state.focus.uuid));
+    this.editor.project.root._onscreenLastTick = false;
+    this.editor.project.root._onscreen = false;
     this.editor.project.zoom = currentZoom;
     this.editor.project.pan = currentPan;
     this.editor.projectDidChange(true);
