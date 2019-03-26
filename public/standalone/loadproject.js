@@ -16,6 +16,7 @@ window.onload = function () {
         document.title = project.name;
 
         container.innerHTML = '';
+        project.view.renderMode = 'webgl';
         project.view.canvasContainer = container;
         project.view.fitMode = 'fill';
         project.view.canvasBGColor = '#000000';
@@ -27,7 +28,6 @@ window.onload = function () {
 
         project.focus = project.root;
         project.focus.timeline.playheadPosition = 1;
-        project.view.renderMode = 'webgl';
         project.view.prerasterize(() => {
             project.play({
                 onError: (error => {

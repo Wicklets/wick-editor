@@ -62216,10 +62216,10 @@ Wick.View.Project = class extends Wick.View {
     var containerWidth = this.canvasContainer.offsetWidth;
     var containerHeight = this.canvasContainer.offsetHeight;
 
-    if (this._renderMode === 'svg') {
+    if (this._renderMode === 'svg' && this._svgCanvas) {
       paper.view.viewSize.width = containerWidth;
       paper.view.viewSize.height = containerHeight;
-    } else if (this._renderMode === 'webgl') {
+    } else if (this._renderMode === 'webgl' && this._webGLCanvas) {
       this._pixiApp.renderer.resize(containerWidth, containerHeight);
     }
   }
