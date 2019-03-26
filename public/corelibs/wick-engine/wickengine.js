@@ -62216,10 +62216,10 @@ Wick.View.Project = class extends Wick.View {
     var containerWidth = this.canvasContainer.offsetWidth;
     var containerHeight = this.canvasContainer.offsetHeight;
 
-    if (this._renderMode === 'svg') {
+    if (this._renderMode === 'svg' && this._svgCanvas) {
       paper.view.viewSize.width = containerWidth;
       paper.view.viewSize.height = containerHeight;
-    } else if (this._renderMode === 'webgl') {
+    } else if (this._renderMode === 'webgl' && this._webGLCanvas) {
       this._pixiApp.renderer.resize(containerWidth, containerHeight);
     }
   }
@@ -62355,9 +62355,7 @@ Wick.View.Project = class extends Wick.View {
     } else if (this._fitMode === 'fill') {
       // Fill mode: Try to fit the wick project's canvas inside the container canvas by
       // scaling it as much as possible without changing the project's original aspect ratio
-      var wr = paper.view.viewSize.width / this.model.width;
-      var hr = paper.view.viewSize.height / this.model.height;
-      paper.view.zoom = Math.min(wr, hr);
+      paper.view.zoom = this._calculateFitZoom();
     }
 
     var pan = this._pan;
@@ -62457,6 +62455,23 @@ Wick.View.Project = class extends Wick.View {
     this._pixiRootContainer.x = pan.x;
     this._pixiRootContainer.y = pan.y;
 
+    if (this._fitMode === 'center') {
+      // Center mode: Just center the canvas, keep it at the same resolution
+      //paper.view.zoom = this.model.zoom;
+      this._pixiRootContainer.scale.x = 1;
+      this._pixiRootContainer.scale.y = 1;
+    } else if (this._fitMode === 'fill') {
+      // Fill mode: Try to fit the wick project's canvas inside the container canvas by
+      // scaling it as much as possible without changing the project's original aspect ratio
+      var fitZoom = this._calculateFitZoom();
+
+      this._pixiRootContainer.scale.x = fitZoom;
+      this._pixiRootContainer.scale.y = fitZoom; // The pixi container ends up in the top left corner, center it here...
+
+      this._pixiRootContainer.x = (window.innerWidth - this.model.width * fitZoom) / 2;
+      this._pixiRootContainer.y = (window.innerHeight - this.model.height * fitZoom) / 2;
+    }
+
     if (this.model.focus.isRoot) {
       // We're in the root timeline, render the canvas normally
       this._pixiRootContainer.addChild(this._generateWebGLCanvasStage());
@@ -62512,6 +62527,23 @@ Wick.View.Project = class extends Wick.View {
 
   _convertCSSColorToPixiColor(cssColor) {
     return parseInt(cssColor.replace("#", "0x"));
+  }
+
+  _calculateFitZoom() {
+    var w = 0;
+    var h = 0;
+
+    if (this._renderMode === 'svg') {
+      w = paper.view.viewSize.width;
+      h = paper.view.viewSize.height;
+    } else if (this._renderMode === 'webgl') {
+      w = this._pixiApp.renderer.width;
+      h = this._pixiApp.renderer.height;
+    }
+
+    var wr = w / this.model.width;
+    var hr = h / this.model.height;
+    return Math.min(wr, hr);
   }
 
   _attachKeyListeners() {
@@ -62823,9 +62855,7 @@ Wick.View.Frame = class extends Wick.View {
     var rasterResoltion = paper.view.resolution;
     rasterResoltion *= Wick.View.Frame.RASTERIZE_RESOLUTION_MODIFIER_FOR_DEVICE; // get a rasterized version of the resulting SVG
 
-    var raster = this.pathsLayer.rasterize(rasterResoltion, {
-      insert: false
-    });
+    var raster = this.pathsLayer.rasterize(rasterResoltion, false);
     this._SVGBounds = {
       x: this.pathsLayer.bounds.x,
       y: this.pathsLayer.bounds.y
