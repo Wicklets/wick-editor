@@ -16,19 +16,25 @@ window.onload = function () {
         document.title = project.name;
 
         container.innerHTML = '';
-        project.view.setCanvasContainer(container);
+        project.view.canvasContainer = container;
         project.view.fitMode = 'fill';
+        project.view.canvasBGColor = '#000000';
 
         window.onresize = function () {
             project.view.resize();
         }
         project.view.resize();
 
-        project.play({
-            onError: (error => {
-                console.log('Project threw an error!');
-                console.log(error);
-            }),
+        project.focus = project.root;
+        project.focus.timeline.playheadPosition = 1;
+        project.view.renderMode = 'webgl';
+        project.view.prerasterize(() => {
+            project.play({
+                onError: (error => {
+                    console.error('Project threw an error!');
+                    console.error(error);
+                }),
+            });
         });
     }
 

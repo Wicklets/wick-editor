@@ -3817,6 +3817,7 @@ paper.DrawingTools = class {
     this._onSelectionChangedCallback = null;
     this._onCanvasViewChangedCallback = null;
     this._onSelectionTransformed = null;
+    paper.selection = new paper.Selection();
     this.brush = TOOL_BRUSH();
     this.cursor = TOOL_CURSOR();
     this.ellipse = TOOL_ELLIPSE();
@@ -4258,6 +4259,7 @@ paper.drawingTools = new paper.DrawingTools();
     var rasterPosition = layerPathsRaster.bounds.topLeft;
     resultHolePath.position.x += rasterPosition.x;
     resultHolePath.position.y += rasterPosition.y;
+    resultHolePath.applyMatrix = true;
     expandHole(resultHolePath);
   }
   /* Utilities */
@@ -4404,7 +4406,9 @@ paper.SelectionBox = class {
     this._end = new paper.Point();
     this._items = [];
     this._active = false;
-    this._box = new paper.Path.Rectangle();
+    this._box = new paper.Path.Rectangle({
+      insert: false
+    });
     this._mode = 'intersects';
   }
   /*
@@ -4885,7 +4889,9 @@ var TOOL_BRUSH = () => {
     try {
       croquis.down(point.x, point.y, tool.getPressure());
     } catch (e) {
-      console.log(e);
+      console.error("Brush error");
+      console.error(e);
+      return;
     }
   };
 
@@ -4895,7 +4901,9 @@ var TOOL_BRUSH = () => {
     try {
       croquis.move(point.x, point.y, tool.getPressure());
     } catch (e) {
-      console.log(e);
+      console.error("Brush error");
+      console.error(e);
+      return;
     }
 
     lastPressure = tool.getPressure();
@@ -4909,6 +4917,8 @@ var TOOL_BRUSH = () => {
     try {
       croquis.up(point.x, point.y, lastPressure);
     } catch (e) {
+      console.error("Brush error");
+      console.error(e);
       return;
     }
 
@@ -4995,6 +5005,7 @@ var TOOL_CURSOR = () => {
   var tool = new paper.Tool();
   tool.selectPoints = true;
   tool.selectCurves = true;
+  var selectedItems = [];
 
   tool.onActivate = function (e) {
     selectedItems = [];
@@ -5130,7 +5141,7 @@ var TOOL_CURSOR = () => {
       segments: true,
       tolerance: SELECTION_TOLERANCE,
       match: function (result) {
-        return result.item !== hoverPreview;
+        return result.item !== hoverPreview && !result.item.data.isBorder;
       }
     });
     if (!newHitResult) newHitResult = new paper.HitResult();
@@ -5191,8 +5202,8 @@ var TOOL_CURSOR = () => {
       // Here is a handy diagram showing the cursors that correspond to the angles:
       // 315       0       45
       //     o-----o-----o
-      //     |           | 
-      //     |           | 
+      //     |           |
+      //     |           |
       // 270 o           o 90
       //     |           |
       //     |           |
@@ -5222,7 +5233,7 @@ var TOOL_CURSOR = () => {
       var angle = baseAngle + paper.selection.rotation;
       if (angle < 0) angle += 360;
       if (angle > 360) angle -= 360; // Makes angle math easier if we dont allow angles >360 or <0 degrees
-      // Round the angle to the nearest 45 degree interval. 
+      // Round the angle to the nearest 45 degree interval.
 
       var angleRoundedToNearest45 = Math.round(angle / 45) * 45;
       angleRoundedToNearest45 = Math.round(angleRoundedToNearest45); // just incase of float weirdness
@@ -5581,7 +5592,7 @@ var TOOL_FILLBUCKET = () => {
           },
           onError: function (message) {
             paper.view._element.style.cursor = 'default';
-            console.log("Fill bucket onError: " + message);
+            tool.onError && tool.onError(message);
           }
         });
       }, 50);
@@ -5613,20 +5624,21 @@ var TOOL_FILLBUCKET = () => {
  * along with Paper.js-drawing-tools.  If not, see <https://www.gnu.org/licenses/>.
  */
 var TOOL_LINE = () => {
-  var path;
+  var path = new paper.Path({
+    insert: false
+  });
   var startPoint;
   var endPoint;
   var tool = new paper.Tool();
   tool.strokeColor = '#000000';
   tool.strokeWidth = 1;
 
-  tool.onActivate = function (e) {};
+  tool.onActivate = function (e) {
+    path.remove();
+  };
 
   tool.onDeactivate = function (e) {
-    if (path) {
-      path.remove();
-      path = null;
-    }
+    path.remove();
   };
 
   tool.onMouseMove = function (e) {
@@ -5638,11 +5650,7 @@ var TOOL_LINE = () => {
   };
 
   tool.onMouseDrag = function (e) {
-    if (path) {
-      path.remove();
-      path = null;
-    }
-
+    path.remove();
     endPoint = e.point;
     path = new paper.Path.Line(startPoint, endPoint);
     path.strokeCap = 'round';
@@ -5651,8 +5659,6 @@ var TOOL_LINE = () => {
   };
 
   tool.onMouseUp = function (e) {
-    if (!path) return;
-    path = null;
     paper.drawingTools.fireCanvasModified({
       layers: [paper.project.activeLayer]
     });

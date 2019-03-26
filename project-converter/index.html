@@ -1,0 +1,57 @@
+</body>
+</html>
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8"/>
+        <title>Wick Project Converter</title>
+
+        <script src="../corelibs/wick-engine/wickengine.js"></script>
+
+        <script src="lib/FileSaver.js"></script>
+        <script src="lib/lz-string.min.js"></script>
+
+        <script src="project152/polyfills.js"></script>
+        <script src="project152/WickProject.js"></script>
+        <script src="project152/WickAsset.js"></script>
+        <script src="project152/WickCamera.js"></script>
+        <script src="project152/WickDocs.js"></script>
+        <script src="project152/WickFrame.js"></script>
+        <script src="project152/WickLayer.js"></script>
+        <script src="project152/WickObject.js"></script>
+        <script src="project152/WickProject.AssetLibrary.js"></script>
+        <script src="project152/WickProject.Compressor.js"></script>
+        <script src="project152/WickProject.Exporter.js"></script>
+        <script src="project152/WickTween.js"></script>
+
+        <script src="WickProjectConverter.js"></script>
+
+        <script>
+            window.onload = function () {
+                document.getElementById('files').addEventListener('change', (e) => {
+                    WickProjectConverter.convertWick152Project(e.target.files[0], project => {
+                        console.log(project)
+                        window.convertedProject = project;
+                        document.getElementById('downloadButton').style.display = 'block';
+                    });
+                }, false);
+            }
+
+            function downloadProject () {
+                window.convertedProject.exportAsWickFile((file) => {
+                    if (file === undefined) {
+                        this.toast('Could not export project.', 'error');
+                        return;
+                    }
+                    saveAs(file, window.convertedProject.name + '.wick');
+                });
+            }
+        </script>
+    </head>
+
+    <body>
+        <input id="files" type="file"/>
+        <button id="downloadButton" style="display:none;" onclick="downloadProject()">Download</button>
+    </body>
+</html>
