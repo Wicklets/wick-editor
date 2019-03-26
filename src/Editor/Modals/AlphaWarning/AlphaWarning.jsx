@@ -25,29 +25,28 @@ import './_alphawarning.scss';
 
 class AlphaWarning extends Component {
   getVersion() {
-    return "v4"
+    return "v5"
   }
   render() {
     return (
       <Modal id="alpha-modal" isOpen={this.props.open} toggle={this.props.toggle} className={this.props.className}>
         <ModalHeader toggle={this.props.toggle} className="alpha-warning-header">Wick Editor 1.0 Alpha {this.getVersion()}</ModalHeader>
         <ModalBody>
-          <h4>This is an alpha test of version 1.0 of the Wick Editor.</h4>
           <h5>Wick Editor Alpha {this.getVersion()} Includes:</h5>
           <ul>
-            <li>New Undo/Redo Interactions</li>
-            <li>Autosaving / Autoloading</li>
-            <li>New Event Based Scripting System</li>
-            <li>Mouse, Key and On Load Events</li>
-            <li>Timeline scripts (gotoAndPlay, gotoAndStop)</li>
-            <li>Syntax Error Handling</li>
-            <li>Runtime Error Handling</li>
+            <li>New Interface Design</li>
+            <li>New Toolbar Layout, Actions and Icons</li>
+            <li>Inspector Actions have been simplified and remapped</li>
+            <li>ZIP, GIF, and Improved .wick export</li>
+            <li>Breadcrumbs Bar has been added</li>
+            <li>Added new WebGL renderer.</li>
             <li>Many, many, bugfixes...</li>
           </ul>
-          <a target="_blank" rel="noopener noreferrer" href="https://forum.wickeditor.com">Report all bugs on the forums as an "Alpha Bug!"</a>
+
+          <h5>This is a Test! Please report bugs on our <a target="_blank" rel="noopener noreferrer" href="https://forum.wickeditor.com">forum!</a></h5>
         </ModalBody>
         <ModalFooter>
-          <Button className="alpha-warning-modal-button" color="wick-warning" onClick={() => window.location.href="http://www.wickeditor.com"}>No Thanks...</Button>
+          <Button className="alpha-warning-modal-button" color="wick-warning" onClick={() => window.location.href="http://www.wickeditor.com"}>Go Back.</Button>
           <Button className="alpha-warning-modal-button" color="wick-accept" onClick={this.props.toggle}>Try the Alpha</Button>{' '}
         </ModalFooter>
       </Modal>

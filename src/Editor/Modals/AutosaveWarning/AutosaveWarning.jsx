@@ -46,7 +46,7 @@ class AutosaveWarning extends Component {
           <Button
           className="autosave-warning-modal-button"
           color="wick-warning"
-          onClick={this.props.toggle}>No Thanks...</Button>
+          onClick={this.props.toggle}>Delete Project</Button>
           <Button
           className="autosave-warning-modal-button"
           color="wick-accept"

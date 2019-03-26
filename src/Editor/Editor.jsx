@@ -84,7 +84,7 @@ class Editor extends EditorCore {
         selectCurves: false,
       },
       previewPlaying: false,
-      activeModalName: null,
+      activeModalName: 'AlphaWarning',
       activeModalQueue: [],
       codeEditorOpen: false,
       codeErrors: [],
@@ -125,7 +125,7 @@ class Editor extends EditorCore {
     this.lockState = false;
 
     // Auto Save
-    this.autoSaveDelay = 1000; // millisecond delay
+    this.autoSaveDelay = 5000; // millisecond delay
     this.throttledAutoSaveProject = throttle(this.autoSaveProject, this.autoSaveDelay);
 
     this.canvasComponent = null;
@@ -213,6 +213,10 @@ class Editor extends EditorCore {
     };
   }
 
+  componentWillUnmount = () => {
+    this.throttledAutoSaveProject(); 
+  }
+
   componentDidMount = () => {
     this.hidePreloader();
     this.refocusEditor();
@@ -267,10 +271,10 @@ class Editor extends EditorCore {
 
   /**
    * Autosave the project in the state, if it exists.
-   * @param {object} serializedProject - The data of the project to load into localforage.
    */
-  autoSaveProject = (serializedProject) => {
-    if (!serializedProject) return;
+  autoSaveProject = () => {
+    if (!this.project) return
+    let serializedProject = this.project.serialize(); 
     localForage.setItem(this.autoSaveKey, serializedProject);
   }
 
@@ -485,6 +489,7 @@ class Editor extends EditorCore {
 
     if(!skipHistory) {
       this.history.saveState();
+      this.throttledAutoSaveProject(); 
     }
 
     this.canvasComponent.updateCanvas(this.project);

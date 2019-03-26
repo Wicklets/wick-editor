@@ -21,20 +21,27 @@ import React, { Component } from 'react';
 import './_toolbutton.scss'
 
 // Tools
-import iconBrush from 'resources/tool-icons/brush.svg';
-import iconCursor from 'resources/tool-icons/cursor.svg';
-import iconEllipse from 'resources/tool-icons/ellipse.svg';
-import iconRectangle from 'resources/tool-icons/rect.svg';
-import iconLine from 'resources/tool-icons/line.svg';
-import iconPencil from 'resources/tool-icons/pencil.svg';
-import iconEyeDropper from 'resources/tool-icons/eyedropper.svg';
-import iconEraser from 'resources/tool-icons/eraser.svg';
+import iconBrush from 'resources/toolbar-icons/brush.svg';
+import iconCursor from 'resources/toolbar-icons/cursor.svg';
+import iconEllipse from 'resources/toolbar-icons/ellipse.svg';
+import iconRectangle from 'resources/toolbar-icons/rectangle.svg';
+import iconLine from 'resources/toolbar-icons/line.svg';
+import iconPencil from 'resources/toolbar-icons/pencil.svg';
+import iconEyeDropper from 'resources/toolbar-icons/eyedropper.svg';
+import iconEraser from 'resources/toolbar-icons/eraser.svg';
+import iconText from 'resources/toolbar-icons/text.svg';
+import iconFillBucket from 'resources/toolbar-icons/fillbucket.svg';
+
+import iconDelete from 'resources/toolbar-icons/delete.svg';
+import iconUndo from 'resources/toolbar-icons/undo.svg';
+import iconRedo from 'resources/toolbar-icons/redo.svg';
+import iconCopy from 'resources/toolbar-icons/copy.svg';
+import iconPaste from 'resources/toolbar-icons/paste.svg';
+
 import iconPan from 'resources/tool-icons/pan.svg';
 import iconZoom from 'resources/tool-icons/zoom.svg';
 import iconZoomIn from 'resources/tool-icons/zoomin.svg';
 import iconZoomOut from 'resources/tool-icons/zoomout.svg';
-import iconFillBucket from 'resources/tool-icons/bucket.svg';
-import iconText from 'resources/tool-icons/text.svg';
 import iconCurve from 'resources/tool-icons/curve.svg';
 import iconPoint from 'resources/tool-icons/point.svg';
 import iconBrushPressure from 'resources/tool-icons/brushpressure.svg';
@@ -42,7 +49,6 @@ import iconBrushPressure from 'resources/tool-icons/brushpressure.svg';
 // Actions
 import iconAction from 'resources/tool-icons/action.svg';
 import iconUpload from 'resources/tool-icons/upload.svg';
-import iconDelete from 'resources/tool-icons/delete.svg';
 import iconDuplicate from 'resources/tool-icons/duplicate.svg';
 import iconFlipHorizontal from 'resources/tool-icons/flipHorizontal.svg';
 import iconFlipVertical from 'resources/tool-icons/flipVertical.svg';
@@ -56,11 +62,7 @@ import iconSymbol from 'resources/tool-icons/symbol.svg';
 import iconLeaveUp from 'resources/tool-icons/leaveUp.svg';
 import iconBreakApart from 'resources/tool-icons/breakApart.svg';
 import iconClose from 'resources/tool-icons/close.svg';
-import iconUndo from 'resources/tool-icons/undo.svg';
-import iconRedo from 'resources/tool-icons/redo.svg';
 import iconRecenter from 'resources/tool-icons/recenter.svg';
-import iconCopy from 'resources/tool-icons/copy.svg';
-import iconPaste from 'resources/tool-icons/paste.svg';
 
 
 // Assets
