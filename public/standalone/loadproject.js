@@ -7,7 +7,8 @@ window.onload = function () {
     }
 
     function handleProgress(event) {
-        container.innerHTML = (event.loaded * 100) + '%';
+        let container = document.getElementById("loading-bar");
+        container.innerHTML = "Loading... " + ((event.loaded * 100).toFixed(1)) + '%';
     }
 
     function playProject (project) {
