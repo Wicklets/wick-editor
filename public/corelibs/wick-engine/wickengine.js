@@ -62823,9 +62823,7 @@ Wick.View.Frame = class extends Wick.View {
     var rasterResoltion = paper.view.resolution;
     rasterResoltion *= Wick.View.Frame.RASTERIZE_RESOLUTION_MODIFIER_FOR_DEVICE; // get a rasterized version of the resulting SVG
 
-    var raster = this.pathsLayer.rasterize(rasterResoltion, {
-      insert: false
-    });
+    var raster = this.pathsLayer.rasterize(rasterResoltion, false);
     this._SVGBounds = {
       x: this.pathsLayer.bounds.x,
       y: this.pathsLayer.bounds.y
