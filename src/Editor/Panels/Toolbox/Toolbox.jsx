@@ -121,56 +121,11 @@ class Toolbox extends Component {
             toolRestrictions={this.props.toolRestrictions} />
 
       <div className="toolbox-actions-right">
-        <div className="toolbox-item">
-          <ActionButton
-            id='toolbox-delete-button'
-            icon='delete'
-            color='tool'
-            action={this.props.deleteAction}
-            tooltip='Delete'
-            tooltipPlace='bottom'
-            className='tool-button'/>
-        </div>
-        <div className="toolbox-item">
-          <ActionButton
-            id='toolbox-copy-button'
-            icon='copy'
-            color='tool'
-            action={this.props.copyAction}
-            tooltip='Copy'
-            tooltipPlace='bottom'
-            className='tool-button'/>
-        </div>
-        <div className="toolbox-item">
-          <ActionButton
-            id='toolbox-paste-button'
-            icon='paste'
-            color='tool'
-            action={this.props.pasteAction}
-            tooltip='Paste'
-            tooltipPlace='bottom'
-            className='tool-button'/>
-        </div>
-        <div className="toolbox-item">
-          <ActionButton
-            id='toolbox-undo-button'
-            icon='undo'
-            color='tool'
-            action={this.props.undoAction}
-            tooltip='undo'
-            tooltipPlace='bottom'
-            className='tool-button'/>
-        </div>
-        <div className="toolbox-item">
-          <ActionButton
-            id='toolbox-redo-button'
-            icon='redo'
-            color='tool'
-            action={this.props.redoAction}
-            tooltip='redo'
-            tooltipPlace='bottom'
-            className='tool-button'/>
-        </div>
+          <ToolButton action={this.props.deleteAction} name='delete' tooltip='Delete' />
+          <ToolButton action={this.props.copyAction}   name='copy'   tooltip='Copy' />
+          <ToolButton action={this.props.pasteAction}  name='paste'  tooltip='Paste' />
+          <ToolButton action={this.props.undoAction}   name='undo'   tooltip='Undo' />
+          <ToolButton action={this.props.redoAction}   name='redo'   tooltip='Redo' />
       </div>
     </div>
     )

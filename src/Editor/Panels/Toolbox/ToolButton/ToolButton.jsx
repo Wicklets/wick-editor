@@ -34,7 +34,9 @@ class ToolButton extends Component {
         action={this.props.action ? this.props.action : () => this.props.setActiveTool(this.props.name) }
         tooltipPlace={this.props.tooltipPlace ? this.props.tooltipPlace : "bottom"}
         icon={this.props.name}
-        className="tool-button-select"/>
+        className="tool-button-select"
+        iconClassName="tool-button-icon"
+        />
     )
   }
 
