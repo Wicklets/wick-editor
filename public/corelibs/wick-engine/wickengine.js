@@ -57790,6 +57790,7 @@ Wick.Project = class extends Wick.Base {
     this.onionSkinSeekForwards = 1;
     this._root = null;
     this.root = new Wick.Clip();
+    this.root.identifier = "Project";
     this._focus = this.root.uuid;
     this.project = this;
     this._assets = [];
@@ -57823,11 +57824,6 @@ Wick.Project = class extends Wick.Base {
     if (data.onionSkinSeekForwards) object.onionSkinSeekForwards = data.onionSkinSeekForwards;
     if (data.onionSkinSeekBackwards) object.onionSkinSeekBackwards = data.onionSkinSeekBackwards;
     if (data.root) object.root = Wick.Clip.deserialize(data.root);
-
-    if (!object.root.identifier) {
-      object.root.identifier = 'Project';
-    }
-
     object.focus = object.root;
     if (data.focus) object.focus = object.getChildByUUID(data.focus);
     object.selection = Wick.Selection.deserialize(data.selection);
@@ -59637,12 +59633,6 @@ Wick.Path = class extends Wick.Base {
       this._paperPath.data.wickType = 'path';
     }
 
-    this._loaded = false;
-
-    this._paperPath.onLoad = () => {
-      this._loaded = true;
-    };
-
     this._cachedJSONExport = null;
   }
 
@@ -59701,10 +59691,6 @@ Wick.Path = class extends Wick.Base {
     }
 
     this._paperPath = paper.importJSON(json);
-
-    this._paperPath.onLoad = () => {
-      this._loaded = true;
-    };
   }
   /**
    * Export the Wick Path as paper.js Path json data.
@@ -59991,7 +59977,7 @@ Wick.ImageAsset = class extends Wick.FileAsset {
     }], [this]);
 
     path.paperPath.onLoad = () => {
-      callback && callback(path);
+      callback(path);
     };
 
     return path;
@@ -61319,10 +61305,11 @@ Wick.Clip = class extends Wick.Tickable {
 
 
   gotoAndPlay(frame) {
-    this.timeline.gotoAndPlay(frame);
+    this.timeline._playing = true;
+    this.timeline._forceNextFrame = frame;
   }
   /**
-   * Returns the name of the frame which is currently active. If multiple frames are active, returns the
+   * Returns the name of the frame which is currently active. If multiple frames are active, returns the 
    * name of the first active frame.
    * @returns {string} Active Frame name. If the active frame does not have an identifier, returns empty string.
    */
@@ -61542,31 +61529,30 @@ Wick.Button = class extends Wick.Clip {
   _onActivated() {
     var error = super._onActivated();
 
-    this.timeline.stop();
     this.timeline.playheadPosition = 1;
     return error;
   }
 
   _onActive() {
-    this.timeline._forceNextFrame = 1;
+    var error = super._onActive();
+
+    if (error) return error;
+    this.timeline.playheadPosition = 1;
     var frame2Exists = this.timeline.getFramesAtPlayheadPosition(2).length > 0;
     var frame3Exists = this.timeline.getFramesAtPlayheadPosition(3).length > 0;
 
     if (this._mouseState === 'over') {
       if (frame2Exists) {
-        this.timeline.gotoFrame(2);
+        this.timeline.playheadPosition = 2;
       }
     } else if (this._mouseState === 'down') {
       if (frame3Exists) {
-        this.timeline.gotoFrame(3);
+        this.timeline.playheadPosition = 3;
       } else if (frame2Exists) {
-        this.timeline.gotoFrame(2);
+        this.timeline.playheadPosition = 2;
       }
     }
 
-    var error = super._onActive();
-
-    if (error) return error;
     return null;
   }
 
@@ -61652,15 +61638,6 @@ GlobalAPI = class {
 
     return project;
   }
-  /**
-   * @deprecated
-   * Legacy item which returns the project. Use 'project' instead.
-   */
-
-
-  get root() {
-    return this.project;
-  }
 
   get parent() {
     return this.scriptOwner.parentClip;
@@ -61674,16 +61651,6 @@ GlobalAPI = class {
   get keys() {
     if (!this.scriptOwner.project) return null;
     return this.scriptOwner.project.keysDown;
-  }
-
-  get mouseX() {
-    if (!this.scriptOwner.project) return null;
-    return this.scriptOwner.project.mousePosition.x;
-  }
-
-  get mouseY() {
-    if (!this.scriptOwner.project) return null;
-    return this.scriptOwner.project.mousePosition.y;
   }
 
   get random() {
@@ -62262,34 +62229,6 @@ Wick.View.Project = class extends Wick.View {
     }
   }
   /**
-   * Use this to know when all the images in the project are loaded.
-   */
-
-
-  preloadImages(callback) {
-    var allRasters = [];
-    this.model.getAllFrames(true).forEach(frame => {
-      frame.paths.filter(path => {
-        return path.paperPath instanceof paper.Raster;
-      }).forEach(raster => {
-        allRasters.push(raster);
-      });
-    });
-    var i = setInterval(() => {
-      var allLoaded = true;
-      allRasters.forEach(raster => {
-        if (!raster._loaded) {
-          allLoaded = false;
-        }
-      });
-
-      if (allLoaded) {
-        clearInterval(i);
-        callback();
-      }
-    }, 10);
-  }
-  /**
    * Destroy the renderer. Call this when the view will no longer be used to save memory/webgl contexts.
    */
 
@@ -62438,13 +62377,6 @@ Wick.View.Project = class extends Wick.View {
   }
 
   _renderWebGLCanvas() {
-    // Update mouse position
-    var pixiMouse = this._pixiApp.renderer.plugins.interaction.mouse.global;
-    this.model.mousePosition = {
-      x: pixiMouse.x,
-      y: pixiMouse.y
-    }; // Reset cursor (button views change cursor if the mouse is over a button)
-
     this._webGLCanvas.style.cursor = 'default';
 
     this._pixiRootContainer.removeChildren(); // Zoom and pan

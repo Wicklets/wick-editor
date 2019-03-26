@@ -937,14 +937,6 @@ class EditorCore extends Component {
   }
 
   /**
-   * Autosaves a serialized project.
-   * @param  {string} serializedProject
-   */
-  autosaveProject = (serializedProject) => {
-    localForage.setItem(this.autoSaveKey, serializedProject);
-  }
-
-  /**
    * Toggle onion skinning on/off.
    */
   toggleOnionSkin = () => {
