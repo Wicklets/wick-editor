@@ -901,15 +901,25 @@ class EditorCore extends Component {
    * Does nothing if not autosaved project is stored.
    */
   attemptAutoLoad = () => {
-    localForage.getItem(this.autoSaveAssetsKey).then(serializedAssets => {
-      serializedAssets.forEach(asset => {
-        window.Wick.FileCache.addFile(asset.src, asset.uuid);
+      localForage.getItem(this.autoSaveAssetsKey).then(serializedAssets => {
+        if (serializedAssets) {
+          // Only deserialize assets if necessary.
+          serializedAssets.forEach(asset => {
+            window.Wick.FileCache.addFile(asset.src, asset.uuid);
+          });
+        }
+
+        localForage.getItem(this.autoSaveKey).then(serializedProject => {
+          if (!serializedProject) {
+            this.toast('An error occurred while loading your project.', 'error'); 
+            return;
+          }
+          let deserialized = window.Wick.Project.deserialize(serializedProject);
+          this.setupNewProject(deserialized);
+        });
       });
-      localForage.getItem(this.autoSaveKey).then(serializedProject => {
-        let deserialized = window.Wick.Project.deserialize(serializedProject);
-        this.setupNewProject(deserialized);
-      });
-    });
+    
+
   }
 
   /**
