@@ -58052,6 +58052,18 @@ Wick.Project = class extends Wick.Base {
     });
   }
   /**
+   * Retrieve an asset from the project by its name.
+   * @param {string} name - The name of the asset to get.
+   * @return {Wick.Asset} The asset
+   */
+
+
+  getAssetByName(name) {
+    return this.getAssets().find(asset => {
+      return asset.name === name;
+    });
+  }
+  /**
    * The assets belonging to the project.
    * @param {string} type - Optional, filter assets by type ("Sound"/"Image"/"Clip"/"Button")
    * @returns {Wick.Asset[]} The assets in the project
@@ -58147,6 +58159,24 @@ Wick.Project = class extends Wick.Base {
     return this._keysLastDown.filter(key => {
       return this._keysDown.indexOf(key) === -1;
     });
+  }
+  /**
+   * Check if a key is being pressed.
+   * @param {string} key - The name of the key to check
+   */
+
+
+  isKeyDown(key) {
+    return this.keysDown.indexOf(key) !== -1;
+  }
+  /**
+   * Check if a key was just pressed.
+   * @param {string} key - The name of the key to check
+   */
+
+
+  isKeyJustPressed(key) {
+    return this.keysJustPressed.indexOf(key) !== -1;
   }
   /**
    * The key to be used in the global 'key' variable in the scripting API. Update currentKey before you run any key script.
@@ -58306,6 +58336,34 @@ Wick.Project = class extends Wick.Base {
     }
   }
   /**
+   * Plays the sound in the asset library with the given name.
+   * @param {string} assetName - Name of the sound asset to play
+   */
+
+
+  playSound(assetName) {
+    var asset = this.getAssetByName(assetName);
+
+    if (!asset) {
+      console.warn('playSound(): No asset with name: "' + assetName + '"');
+    } else if (!(asset instanceof Wick.SoundAsset)) {
+      console.warn('playSound(): Asset is not a sound: "' + assetName + '"');
+    } else {
+      asset.play();
+    }
+  }
+  /**
+   * Stops all sounds playing from frames and sounds played using playSound().
+   */
+
+
+  stopAllSounds() {
+    // TODO: Stop all sounds started with Wick.Project.playSound();
+    this.getAllFrames().forEach(frame => {
+      frame.stopSound();
+    });
+  }
+  /**
    * Creates a wick file from the project.
    * @param {function} callback - Function called when the file is created. Contains the file as a parameter.
    */
@@ -58390,10 +58448,7 @@ Wick.Project = class extends Wick.Base {
 
 
   stop() {
-    // Stop all sounds.
-    this.getAllFrames().forEach(frame => {
-      frame.stopSound();
-    });
+    this.stopAllSounds();
     clearInterval(this._tickIntervalID);
     this._tickIntervalID = null;
   }
@@ -60084,7 +60139,7 @@ Wick.SoundAsset = class extends Wick.FileAsset {
 
 
   play(seekMS, volume) {
-    // Lazyily create howl instance
+    // Lazily create howl instance
     if (!this._howl) {
       this._howl = new Howl({
         src: [this.src]
@@ -61631,9 +61686,16 @@ Wick.Button = class extends Wick.Clip {
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
 GlobalAPI = class {
+  /**
+   *
+   */
   constructor(scriptOwner) {
     this.scriptOwner = scriptOwner;
   }
+  /**
+   *
+   */
+
 
   get apiMemberNames() {
     var allNames = Object.getOwnPropertyNames(Object.getPrototypeOf(this));
@@ -61642,6 +61704,10 @@ GlobalAPI = class {
     });
     return names;
   }
+  /**
+   *
+   */
+
 
   get apiMembers() {
     var members = this.apiMemberNames.map(name => {
@@ -61656,30 +61722,58 @@ GlobalAPI = class {
     });
     return boundFunctions;
   }
+  /**
+   *
+   */
+
 
   stop() {
     this.scriptOwner.parentClip.stop();
   }
+  /**
+   *
+   */
+
 
   play() {
     this.scriptOwner.parentClip.play();
   }
+  /**
+   *
+   */
+
 
   gotoAndStop(frame) {
     this.scriptOwner.parentClip.gotoAndStop(frame);
   }
+  /**
+   *
+   */
+
 
   gotoAndPlay(frame) {
     this.scriptOwner.parentClip.gotoAndPlay(frame);
   }
+  /**
+   *
+   */
+
 
   gotoNextFrame() {
     this.scriptOwner.parentClip.gotoNextFrame();
   }
+  /**
+   *
+   */
+
 
   gotoPrevFrame() {
     this.scriptOwner.parentClip.gotoPrevFrame();
   }
+  /**
+   *
+   */
+
 
   get project() {
     var project = this.scriptOwner.project && this.scriptOwner.project.root;
@@ -61704,33 +61798,129 @@ GlobalAPI = class {
   get root() {
     return this.project;
   }
+  /**
+   *
+   */
+
 
   get parent() {
     return this.scriptOwner.parentClip;
   }
+  /**
+   * @deprecated
+   * Legacy item which returns the parent object. Use 'parent' instead.
+   */
+
+
+  get parentObject() {
+    return this.parent;
+  }
+  /**
+   *
+   */
+
+
+  isMouseDown() {
+    if (!this.scriptOwner.project) return null;
+    return this.scriptOwner.project.isMouseDown;
+  }
+  /**
+   *
+   */
+
 
   get key() {
     if (!this.scriptOwner.project) return null;
     return this.scriptOwner.project.currentKey;
   }
+  /**
+   *
+   */
+
 
   get keys() {
     if (!this.scriptOwner.project) return null;
     return this.scriptOwner.project.keysDown;
   }
+  /**
+   *
+   */
+
+
+  isKeyDown(key) {
+    if (!this.scriptOwner.project) return null;
+    return this.scriptOwner.project.isKeyDown(key);
+  }
+  /**
+   * @deprecated
+   * Legacy item, use 'isKeyDown' instead.
+   */
+
+
+  keyIsDown(key) {
+    return this.isKeyDown(key.toLowerCase());
+  }
+  /**
+   *
+   */
+
+
+  isKeyJustPressed(key) {
+    if (!this.scriptOwner.project) return null;
+    return this.scriptOwner.project.isKeyJustPressed(key);
+  }
+  /**
+   * @deprecated
+   * Legacy item, use 'isKeyJustPressed' instead.
+   */
+
+
+  keyIsJustPressed(key) {
+    return this.keyIsJustPressed(key.toLowerCase());
+  }
+  /**
+   *
+   */
+
 
   get mouseX() {
     if (!this.scriptOwner.project) return null;
     return this.scriptOwner.project.mousePosition.x;
   }
+  /**
+   *
+   */
+
 
   get mouseY() {
     if (!this.scriptOwner.project) return null;
     return this.scriptOwner.project.mousePosition.y;
   }
+  /**
+   *
+   */
+
 
   get random() {
     return new GlobalAPI.Random();
+  }
+  /**
+   *
+   */
+
+
+  playSound(assetName) {
+    if (!this.scriptOwner.project) return null;
+    return this.scriptOwner.project.playSound(assetName);
+  }
+  /**
+   *
+   */
+
+
+  stopAllSounds(assetName) {
+    if (!this.scriptOwner.project) return null;
+    return this.scriptOwner.project.stopAllSounds();
   }
 
 };
@@ -62091,8 +62281,7 @@ Wick.View.Project = class extends Wick.View {
     };
     this._zoom = 1;
     this._keysDown = [];
-
-    this._attachKeyListeners();
+    this._isMouseDown = false;
   }
   /*
    * Determines the way the project will scale itself based on its container.
@@ -62247,6 +62436,7 @@ Wick.View.Project = class extends Wick.View {
 
   processInput() {
     this.model.keysDown = this._keysDown;
+    this.model.isMouseDown = this._isMouseDown;
   }
   /*
    * Resize the canvas to fit it's container div.
@@ -62475,7 +62665,11 @@ Wick.View.Project = class extends Wick.View {
 
     this._pixiRootContainer = new PIXI.Container(); // Get the canvas from the PIXI app
 
-    this._webGLCanvas = this._pixiApp.view;
+    this._webGLCanvas = this._pixiApp.view; // Attach input handlers
+
+    this._attachKeyListeners();
+
+    this._attachMouseListeners();
   }
 
   _renderWebGLCanvas() {
@@ -62617,6 +62811,24 @@ Wick.View.Project = class extends Wick.View {
     this._keysDown = this._keysDown.filter(key => {
       return key !== cleanKey;
     });
+  }
+
+  _attachMouseListeners() {
+    window.onmousedown = () => {
+      this._onMouseDown();
+    };
+
+    window.onmouseup = () => {
+      this._onMouseUp();
+    };
+  }
+
+  _onMouseDown() {
+    this._isMouseDown = true;
+  }
+
+  _onMouseUp() {
+    this._isMouseDown = false;
   }
 
 };
