@@ -57790,6 +57790,7 @@ Wick.Project = class extends Wick.Base {
     this.onionSkinSeekForwards = 1;
     this._root = null;
     this.root = new Wick.Clip();
+    this.root.identifier = 'Project';
     this._focus = this.root.uuid;
     this.project = this;
     this._assets = [];
@@ -58441,13 +58442,13 @@ Wick.Project = class extends Wick.Base {
    */
 
 
-  generateImageSequence(args, done) {
+  generateImageSequence(args, callback) {
     // Create a clone of the project so we don't have to change the state of the actual project to render the frames...
     let project = this.clone(); // Put the project canvas inside a div that's the same size as the project so the frames render at the correct resolution.
 
     let container = window.document.createElement('div');
-    container.style.width = project.width + 'px';
-    container.style.height = project.height + 'px';
+    container.style.width = project.width / window.devicePixelRatio + 'px';
+    container.style.height = project.height / window.devicePixelRatio + 'px';
     window.document.body.appendChild(container);
     project.view.canvasContainer = container;
     project.view.resize(); // Set the initial state of the project.
@@ -58474,7 +58475,7 @@ Wick.Project = class extends Wick.Base {
         if (project.focus.timeline.playheadPosition >= project.focus.timeline.length) {
           paper.view.autoUpdate = true; // reset autoUpdate back to normal
 
-          done(frameImages);
+          callback(frameImages);
         } else {
           project.focus.timeline.playheadPosition++;
           renderFrame();
@@ -62436,41 +62437,38 @@ Wick.View.Project = class extends Wick.View {
   }
 
   _renderWebGLCanvas() {
-    // Update mouse position
+    // Calculate pan and zoom
+    var zoom = this._zoom;
+    var pan = {
+      x: this._pan.x,
+      y: this._pan.y
+    };
+    pan.x += this._pixiApp.renderer.width / 2;
+    pan.y += this._pixiApp.renderer.height / 2;
+
+    if (this._fitMode === 'fill') {
+      // Change pan/zoom if needed depending on fit mode
+      zoom *= this._calculateFitZoom();
+      pan.x = (window.innerWidth - this.model.width * zoom) / 2;
+      pan.y = (window.innerHeight - this.model.height * zoom) / 2;
+    } // Update mouse position (and adjust based on fit mode)
+
+
     var pixiMouse = this._pixiApp.renderer.plugins.interaction.mouse.global;
     this.model.mousePosition = {
-      x: pixiMouse.x,
-      y: pixiMouse.y
-    }; // Reset cursor (button views change cursor if the mouse is over a button)
+      x: (pixiMouse.x - pan.x) / zoom,
+      y: (pixiMouse.y - pan.y) / zoom
+    }; // Reset cursor (button views will change the cursor style if the mouse is over a button)
 
     this._webGLCanvas.style.cursor = 'default';
 
-    this._pixiRootContainer.removeChildren(); // Zoom and pan
+    this._pixiRootContainer.removeChildren(); // Set zoom and pan in Pixi
 
 
-    var pan = this._pan; // Pixi's origin is the top-left of the canvas, so shift it over to match paper.js.
-
-    pan.x += this._pixiApp.renderer.width / 2;
-    pan.y += this._pixiApp.renderer.height / 2;
     this._pixiRootContainer.x = pan.x;
     this._pixiRootContainer.y = pan.y;
-
-    if (this._fitMode === 'center') {
-      // Center mode: Just center the canvas, keep it at the same resolution
-      //paper.view.zoom = this.model.zoom;
-      this._pixiRootContainer.scale.x = 1;
-      this._pixiRootContainer.scale.y = 1;
-    } else if (this._fitMode === 'fill') {
-      // Fill mode: Try to fit the wick project's canvas inside the container canvas by
-      // scaling it as much as possible without changing the project's original aspect ratio
-      var fitZoom = this._calculateFitZoom();
-
-      this._pixiRootContainer.scale.x = fitZoom;
-      this._pixiRootContainer.scale.y = fitZoom; // The pixi container ends up in the top left corner, center it here...
-
-      this._pixiRootContainer.x = (window.innerWidth - this.model.width * fitZoom) / 2;
-      this._pixiRootContainer.y = (window.innerHeight - this.model.height * fitZoom) / 2;
-    }
+    this._pixiRootContainer.scale.x = zoom;
+    this._pixiRootContainer.scale.y = zoom;
 
     if (this.model.focus.isRoot) {
       // We're in the root timeline, render the canvas normally
@@ -62484,7 +62482,7 @@ Wick.View.Project = class extends Wick.View {
     this.model.focus.timeline.view.render();
     this.model.focus.timeline.view.activeFrameContainers.forEach(container => {
       this._pixiRootContainer.addChild(container);
-    }); // Render PIXI
+    }); // Render Pixi
 
     this._pixiApp.ticker.update(1);
 
@@ -62493,13 +62491,19 @@ Wick.View.Project = class extends Wick.View {
 
   _generateWebGLCanvasStage() {
     let graphics = new PIXI.Graphics();
+    graphics._wickDebugData = {
+      type: 'canvas_stage'
+    };
     graphics.beginFill(this._convertCSSColorToPixiColor(this.model.backgroundColor));
     graphics.drawRect(0, 0, this.model.width, this.model.height);
     return graphics;
   }
 
   _generateWebGLOriginCrosshair() {
-    let graphics = new PIXI.Graphics(); // crosshair style
+    let graphics = new PIXI.Graphics();
+    graphics._wickDebugData = {
+      type: 'origin_crosshair'
+    }; // crosshair style
 
     var pixiColor = this._convertCSSColorToPixiColor(Wick.View.Project.ORIGIN_CROSSHAIR_COLOR);
 
@@ -62825,7 +62829,11 @@ Wick.View.Frame = class extends Wick.View {
   }
 
   _renderPathsWebGL() {
-    // Don't do anything if we already have a cached raster
+    this.pathsContainer._wickDebugData = {
+      uuid: this.model.uuid,
+      type: 'frame_pathscontainer'
+    }; // Don't do anything if we already have a cached raster
+
     if (this._pixiSprite) {
       return;
     } // Otherwise, generate a new Pixi sprite
@@ -62842,6 +62850,10 @@ Wick.View.Frame = class extends Wick.View {
 
   _renderClipsWebGL() {
     this.clipsContainer.removeChildren();
+    this.clipsContainer._wickDebugData = {
+      uuid: this.model.uuid,
+      type: 'frame_clipscontainer'
+    };
     this.model.clips.forEach(clip => {
       clip.view.render();
       this.clipsContainer.addChild(clip.view.container);
@@ -62855,6 +62867,7 @@ Wick.View.Frame = class extends Wick.View {
     var rasterResoltion = paper.view.resolution;
     rasterResoltion *= Wick.View.Frame.RASTERIZE_RESOLUTION_MODIFIER_FOR_DEVICE; // get a rasterized version of the resulting SVG
 
+    this.pathsLayer.opacity = 1;
     var raster = this.pathsLayer.rasterize(rasterResoltion, false);
     this._SVGBounds = {
       x: this.pathsLayer.bounds.x,
@@ -62886,6 +62899,10 @@ Wick.View.Frame = class extends Wick.View {
       sprite.y = this._SVGBounds.y; // Cache pixi sprite
 
       this._pixiSprite = sprite;
+      this._pixiSprite._wickDebugData = {
+        uuid: this.model.uuid,
+        type: 'frame_svg'
+      };
 
       this._onRasterFinishCallback();
     });
