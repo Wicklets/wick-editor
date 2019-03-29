@@ -214,7 +214,7 @@ class Editor extends EditorCore {
   }
 
   componentWillUnmount = () => {
-    this.throttledAutoSaveProject(); 
+    this.throttledAutoSaveProject();
   }
 
   componentDidMount = () => {
@@ -274,7 +274,7 @@ class Editor extends EditorCore {
    */
   autoSaveProject = () => {
     if (!this.project) return
-    let serializedProject = this.project.serialize(); 
+    let serializedProject = this.project.serialize();
     localForage.setItem(this.autoSaveKey, serializedProject);
   }
 
@@ -469,8 +469,9 @@ class Editor extends EditorCore {
     if (errors.length > 0) {
       let uuid = errors[0].uuid;
       let obj = this.project.getChildByUUID(uuid);
-      this.setFocusObject(obj.parentClip); 
+      this.setFocusObject(obj.parentClip);
       this.selectObject(obj)
+      this.projectDidChange();
     }
   }
 
@@ -489,7 +490,7 @@ class Editor extends EditorCore {
 
     if(!skipHistory) {
       this.history.saveState();
-      this.throttledAutoSaveProject(); 
+      this.throttledAutoSaveProject();
     }
 
     this.canvasComponent.updateCanvas(this.project);
