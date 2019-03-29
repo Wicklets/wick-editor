@@ -59339,6 +59339,24 @@ Wick.Timeline = class extends Wick.Base {
     this.gotoFrame(frame);
   }
   /**
+   * Moves the timeline forward one frame. Does nothing if the timeline is on its last frame.
+   */
+
+
+  gotoNextFrame() {
+    var nextFramePlayheadPosition = Math.min(this.length, this.playheadPosition + 1);
+    this.gotoFrame(nextFramePlayheadPosition);
+  }
+  /**
+   * Moves the timeline backwards one frame. Does nothing if the timeline is on its first frame.
+   */
+
+
+  gotoPrevFrame() {
+    var prevFramePlayheadPosition = Math.max(1, this.playheadPosition - 1);
+    this.gotoFrame(prevFramePlayheadPosition);
+  }
+  /**
    * Moves the playhead to a given frame number or name.
    * @param {string|number} frame - A playhead position or name of a frame to move to.
    */
@@ -61323,6 +61341,22 @@ Wick.Clip = class extends Wick.Tickable {
     this.timeline.gotoAndPlay(frame);
   }
   /**
+   * Move the playhead of the clips timeline forward one frame. Does nothing if the clip is on its last frame.
+   */
+
+
+  gotoNextFrame() {
+    this.timeline.gotoNextFrame();
+  }
+  /**
+   * Move the playhead of the clips timeline backwards one frame. Does nothing if the clip is on its first frame.
+   */
+
+
+  gotoPrevFrame() {
+    this.timeline.gotoPrevFrame();
+  }
+  /**
    * Returns the name of the frame which is currently active. If multiple frames are active, returns the
    * name of the first active frame.
    * @returns {string} Active Frame name. If the active frame does not have an identifier, returns empty string.
@@ -61637,6 +61671,14 @@ GlobalAPI = class {
 
   gotoAndPlay(frame) {
     this.scriptOwner.parentClip.gotoAndPlay(frame);
+  }
+
+  gotoNextFrame() {
+    this.scriptOwner.parentClip.gotoNextFrame();
+  }
+
+  gotoPrevFrame() {
+    this.scriptOwner.parentClip.gotoPrevFrame();
   }
 
   get project() {
