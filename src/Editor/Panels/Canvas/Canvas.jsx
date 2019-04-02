@@ -116,12 +116,15 @@ class Canvas extends Component {
     let previewPlaying = this.props.previewPlaying;
     let canvasContainerElem = this.canvasContainer.current;
 
+    console.warn('Move this to engine please')
+    project.view.renderMode = previewPlaying ? 'webgl' : 'svg';
+
     // Render wick project
     project.view.canvasBGColor = styles.editorCanvasBorder;
     project.view.canvasContainer = canvasContainerElem;
-    project.view.renderMode = previewPlaying ? 'webgl' : 'svg';
     project.view.render();
 
+    console.warn('Move this to engine please')
     // update the paper.js active tool based on the editor active tool state.
     let tool = paper.drawingTools[activeTool];
     tool.activate();
@@ -129,6 +132,7 @@ class Canvas extends Component {
       tool[key] = toolSettings[key];
     });
 
+    console.warn('Move this to engine please')
     // If the active frame is on a locked/hidden layer, or there is no active frame, disable all tools.
     if(!project.activeFrame ||
        project.activeLayer.locked ||
