@@ -84,7 +84,7 @@ class Editor extends EditorCore {
         selectCurves: false,
       },
       previewPlaying: false,
-      activeModalName: 'AlphaWarning',
+      activeModalName: 'WelcomeMessage',
       activeModalQueue: [],
       codeEditorOpen: false,
       codeErrors: [],

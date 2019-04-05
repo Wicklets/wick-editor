@@ -249,3 +249,27 @@ $action-button-transition-duration: .2s;
   color: $wick-green-dark;
   border: 2px solid $wick-green-light;
 }
+
+.action-button-gray {
+  -webkit-transition-duration: $action-button-transition-duration; /* Safari */
+  transition-duration: $action-button-transition-duration;
+
+  background-color: $wick-gray;
+  color: $wick-gray-text;
+  font-size: 16px;
+}
+
+.action-button-gray:hover {
+  background-color: $wick-gray-light;
+  color: $wick-gray-text;
+}
+
+.action-button-gray:active {
+  background-color: $wick-gray-dark;
+  color: $wick-gray-text;
+}
+
+.action-button-gray.active-button {
+  background-color: $wick-gray-dark;
+  color: $wick-gray-text;
+}

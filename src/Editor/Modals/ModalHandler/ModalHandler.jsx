@@ -20,9 +20,9 @@
 import React, { Component } from 'react';
 
 import ProjectSettings from '../ProjectSettings/ProjectSettings';
-import AlphaWarning from '../AlphaWarning/AlphaWarning';
 import CreateSymbol from '../CreateSymbol/CreateSymbol';
 import AutosaveWarning from '../AutosaveWarning/AutosaveWarning';
+import WelcomeMessage from '../WelcomeMessage/WelcomeMessage'; 
 
 class ModalHandler extends Component {
   render() {
@@ -35,12 +35,6 @@ class ModalHandler extends Component {
           open={this.props.activeModalName === 'ProjectSettings'}
           updateProjectSettings={this.props.updateProjectSettings}
         />
-        <AlphaWarning
-          openModal={this.props.openModal}
-          toggle={this.props.closeActiveModal}
-          className="alpha-warning"
-          open={this.props.activeModalName === 'AlphaWarning'}
-        />
       <CreateSymbol
           openModal={this.props.openModal}
           toggle={this.props.closeActiveModal}
@@ -52,6 +46,11 @@ class ModalHandler extends Component {
           toggle={this.props.closeActiveModal}
           open={this.props.activeModalName === 'AutosaveWarning'}
           loadAutosavedProject={this.props.loadAutosavedProject}
+        />
+        <WelcomeMessage
+          openModal={this.props.openModal}
+          toggle={this.props.closeActiveModal}
+          open={this.props.activeModalName === 'WelcomeMessage'}
         />
       </div>
     );

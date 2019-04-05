@@ -22,6 +22,7 @@
     "react-dropzone": "^8.0.3",
     "react-ga": "^2.5.6",
     "react-hotkeys": "^1.1.4",
+    "react-modal": "^3.8.1",
     "react-numeric-input": "^2.2.3",
     "react-reflex": "^3.0.6",
     "react-resize-detector": "^3.1.3",

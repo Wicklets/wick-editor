@@ -31,7 +31,7 @@ $heather-grey-text: black;
 $wick-green: #00D9A7;
 $wick-green-light: #29F1A3;
 $wick-green-dark: #01C094;
-$wick-green-text: black;
+$wick-green-text: white;
 
 $sleepy-sky: #B4ECE6;
 $sleepy-sky-light: #D3F8F4;
@@ -67,6 +67,12 @@ $wick-yellow: #FFC835;
 $wick-yellow-light: #FFE243;
 $wick-yellow-dark: #E9AA02;
 $wick-yellow-text: black;
+
+$wick-gray: #4F4F4F;
+$wick-gray-light: #5D5D5D;
+$wick-gray-dark: #424242;
+$wick-gray-text: #848484;
+
 
 // interface palette
 $interface-primary: #464646; // most background colors
@@ -124,7 +130,15 @@ $editor-secondary-text: #797979;
 
 $editor-tertiary: #4A4A4A;
 
+$editor-modal-dark: #1E1E1E; 
+$editor-modal-gray: #3D3B3B; 
+
+$editor-modal-text-white: #FFFFFF; 
+$editor-modal-text-gray: #E6E6E6; 
+$editor-modal-text-highlight: #1EE29A; 
+
 $editor-green-highlight: #1EE29A;
+$editor-green-highlight-dark: rgb(18, 134, 92);
 
 $editor-canvas-border: #6A6A6A;
 
@@ -132,6 +146,53 @@ $editor-outline-padding: 4px;
 $editor-input-border-width: 3px; 
 $editor-panel-padding: 10px;
 
+// Set editor styles.
+a:link {
+  color: $editor-green-highlight; 
+}
+
+a:hover {
+  color: $editor-green-highlight-dark; 
+}
+
+
+
+// React Modal Smooth Transition In-Out
+.ReactModal__Overlay {
+  opacity: 0;
+  transition: opacity .5s ease-in-out;
+}
+
+.ReactModal__Overlay--after-open{
+  opacity: 1;
+}
+
+.ReactModal__Overlay--before-close{
+  opacity: 0;
+}
+
+// Modal body and overlay information.
+.modal-body {
+  border-radius: 4px; 
+  background-color: $editor-modal-gray;
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  overflow: hidden;
+  font-family: 'Nunito Sans';
+  box-shadow: 2px 2px 5px rgba(0,0,0,0.2); 
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0,0,0,0.6);
+}
 
 // define Bootstrap 4 button Mixins
 /*button-variant($background, $border, $hover-background: darken($background, 7.5%), $hover-border: darken($border, 10%), $active-background: darken($background, 10%), $active-border: darken($border, 12.5%))*/

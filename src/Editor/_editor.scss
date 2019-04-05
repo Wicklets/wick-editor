@@ -40,7 +40,7 @@ body {
 
 #editor-body {
   width: 100%;
-  height: calc(100% - #{$menu-bar-height};
+  height: calc(100% - #{$menu-bar-height});
   background-color: blue;
   overflow: hidden;
 }
@@ -109,7 +109,7 @@ body {
 
 .reflex-container > .reflex-splitter {
   background-color: $splitter-color;
-  z-index: 100; }
+  z-index: 0; }
 
 .reflex-container > .reflex-splitter.active,
 .reflex-container > .reflex-splitter:hover {
@@ -160,7 +160,7 @@ body {
   -webkit-background-clip: padding;
   background-clip: padding-box;
   opacity: 0.2;
-  z-index: 100; }
+  z-index: 0; }
 
 .reflex-container > .reflex-splitter.reflex-thin.active
 .reflex-container > .reflex-splitter.reflex-thin:hover {
