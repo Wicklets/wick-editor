@@ -18,8 +18,8 @@
  */
 
 import React, { Component } from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import { Button, Modal, ModalHeader, ModalBody, ModalFooter, } from 'reactstrap';
+import ActionButton from 'Editor/Util/ActionButton/ActionButton'; 
+import WickModal from 'Editor/Modals/WickModal/WickModal'; 
 
 import './_autosavewarning.scss';
 
@@ -31,28 +31,37 @@ class AutosaveWarning extends Component {
 
   render() {
     return (
-      <Modal
-      id="autosave-warning-modal"
-      isOpen={this.props.open}
-      toggle={this.props.toggle}
-      className={this.props.className}>
-        <ModalHeader
-        toggle={this.props.toggle}
-        className="autosave-warning-header">An autosave was found.</ModalHeader>
-        <ModalBody>
-          The Wick Editor found an autosaved project. Would you like to load it?
-        </ModalBody>
-        <ModalFooter>
-          <Button
-          className="autosave-warning-modal-button"
-          color="wick-warning"
-          onClick={this.props.toggle}>Delete Project</Button>
-          <Button
-          className="autosave-warning-modal-button"
-          color="wick-accept"
-          onClick={this.loadAndToggle}>Load Project</Button>
-        </ModalFooter>
-      </Modal>
+      <WickModal 
+      open={this.props.open} 
+      toggle={this.props.toggle} 
+      icon="autosave"
+      className="autosave-modal-body"
+      overlayClassName="autosave-modal-overlay">
+        <div id="autosave-modal-interior-content">
+          <div id="autosave-modal-title">Autosave Found</div>
+          <div id="autosave-modal-message">
+          Would you like to load the autosaved project?
+          </div>
+          <div id="autosave-modal-footer">
+            <div id="autosave-modal-cancel">
+                <ActionButton 
+                  className="autosave-modal-button"
+                  color='red'
+                  action={this.props.toggle}
+                  text="Delete"
+                  />
+              </div>
+              <div id="autosave-modal-accept">
+                <ActionButton 
+                  className="autosave-modal-button"
+                  color='green'
+                  action={this.loadAndToggle}
+                  text="Load"
+                  />
+              </div>
+          </div>
+        </div>
+      </WickModal>
     );
   }
 }

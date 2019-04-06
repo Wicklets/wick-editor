@@ -19,36 +19,71 @@
 
 @import 'Editor/_wickbrand.scss';
 
-.autosave-warning-modal-button {
+
+.autosave-modal-body {
+  width: 240px;
+  min-width: 240px;  
+  height: 250px;
+  padding: 20px; 
+}
+
+.autosave-message-modal-button {
   font-family: Nunito;
 }
 
-#autosave-warning-modal {
-  width: 300px;
-   position: absolute;
-   top: 50%;
-   left: 50%;
-   margin-top: -150px;
-   margin-left: -150px;
+#autosave-close-icon-container {
+  position: absolute;
+  top: 10px; 
+  right: 10px; 
+  width: 16px;
+  height: 16px;
 }
 
-.modal-backdrop {
-  background-color: #000;
+#autosave-close-icon-container:hover {
+  cursor: pointer; 
 }
 
-.modal-content {
-  background-color: $interface-primary;
-  color: $interface-primary-text;
+#autosave-modal-title {
+  font-size: 18px;
+  color: $editor-modal-text-gray;
+  font-weight: bold; 
+  text-align: center;
+  margin-top: 20px; 
 }
 
-.modal-footer {
-  border-top: 1px solid $interface-secondary;
+#autosave-modal-interior-content {
+  display: flex;
+  flex-direction: column;
+  width: 100%; 
+  height: 100%;
+  justify-content: center;
+  align-items: center;
 }
 
-.modal-header {
-  border-bottom: 1px solid $interface-secondary;
+#autosave-modal-message {
+  width: 100%;
+  color: $editor-modal-text-gray;
+  text-align: center;
+  font-size: 14px; 
 }
 
-.alpha-warning-header .close {
-  display: none;
+#autosave-modal-footer {
+  width: 100%; 
+  height: 28px;
+  margin-top: 25px;
+  display: flex;
+  flex-direction: row; 
+  align-items: center;
+  justify-content: center;
 }
+
+#autosave-modal-cancel {
+  width: 80px; 
+  height: 100%; 
+}
+
+#autosave-modal-accept {
+  width: 80px;
+  height: 100%; 
+  margin-left: 8px;
+} 

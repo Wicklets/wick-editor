@@ -97,6 +97,10 @@ import iconStrokeWidth from "resources/tool-icons/strokewidth.svg";
 import iconVolume from "resources/inspector-icons/property-icons/volume.svg";
 import iconUnknown from 'resources/inspector-icons/selection-icons/unknown.svg';
 
+// Interface
+import iconCloseModal from 'resources/interface-images/close.svg';
+import iconAutosave from 'resources/interface-images/accept.svg';
+
 var classNames = require('classnames');
 
 class ToolIcon extends Component {
@@ -171,6 +175,8 @@ class ToolIcon extends Component {
       "timeline": iconTimeline,
       "script": iconScript,
       "volume": iconVolume,
+      "closemodal": iconCloseModal,
+      "autosave": iconAutosave, 
     }
   }
 
