@@ -100,6 +100,8 @@ import iconUnknown from 'resources/inspector-icons/selection-icons/unknown.svg';
 // Interface
 import iconCloseModal from 'resources/interface-images/close.svg';
 import iconAutosave from 'resources/interface-images/accept.svg';
+import iconCancel from 'resources/interface-images/cancel.svg'; 
+import iconWarning from 'resources/interface-images/warning.svg';
 
 var classNames = require('classnames');
 
@@ -177,6 +179,8 @@ class ToolIcon extends Component {
       "volume": iconVolume,
       "closemodal": iconCloseModal,
       "autosave": iconAutosave, 
+      "warning": iconWarning,
+      "cancel": iconCancel,
     }
   }
 

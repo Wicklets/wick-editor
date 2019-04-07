@@ -18,9 +18,10 @@
  */
 
 import React, { Component } from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import { Button, Modal, ModalHeader, ModalBody, ModalFooter, FormGroup, Label } from 'reactstrap';
+import ActionButton from 'Editor/Util/ActionButton/ActionButton'; 
+import WickModal from 'Editor/Modals/WickModal/WickModal'; 
 import WickInput from 'Editor/Util/WickInput/WickInput';
+
 import './_projectsettings.scss';
 
 class ProjectSettings extends Component {
@@ -93,60 +94,97 @@ class ProjectSettings extends Component {
 
   render() {
     return (
-      <Modal isOpen={this.props.open} toggle={this.props.toggle} className={this.props.className}>
-        <ModalHeader toggle={this.props.toggle}>Project Settings</ModalHeader>
-        <ModalBody>
-          <FormGroup>
-            <Label className="project-property-label" for="projectName">Project name</Label>
+      <WickModal 
+      open={this.props.open} 
+      toggle={this.props.toggle} 
+      className="project-settings-modal-body"
+      overlayClassName="project-settings-modal-overlay">
+        <div id="project-settings-interior-content">
+          <div id="project-settings-modal-title">Project Settings</div>
+          <div className="project-setting-container" id="project-name-setting-container">
+            <div className="project-settings-property-label">
+              Project Name
+            </div>
             <WickInput
-              id="projectName"
-              type="text"
-              value={this.props.project.name}
-              placeholder={this.defaultName}
-              onChange={this.changeProjectName}
-            />
-          <Label className="project-property-label" for="projectWidth">Width</Label>
-            <WickInput
-              id="projectWidth"
-              type="numeric"
-              min={this.projectMinWidth}
-              value={this.state.width}
-              onChange = {this.changeProjectWidth}
-            />
-          <Label className="project-property-label" for="projectHeight">Height</Label>
-            <WickInput
-              id="projectHeight"
-              type="numeric"
-              min={this.projectMinHeight}
-              value={this.state.height}
-              onChange={this.changeProjectHeight}
-            />
-          <Label className="project-property-label" for="projectFramerate">Framerate (FPS)</Label>
-            <WickInput
-              id="projectFramerate"
-              type="numeric"
-              min={this.projectMinFramerate}
-              value={this.state.framerate}
-              onChange={this.changeProjectFramerate}
-            />
-          <Label className="project-property-label" for="projectBackgroundColor">Background Color</Label>
-          <div id="background-color-picker-container" style={{width:"100%", height:"30px", backgroundColor:this.state.backgroundColor, borderRadius:"6px"}}>
-            <WickInput
-              type="color"
-              id="project-background-color-picker"
-              disableAlpha={true}
-              placement={'bottom'}
-              color={this.state.backgroundColor}
-              onChangeComplete={this.changeProjectBackgroundColor}
+                id="projectName"
+                type="text"
+                value={this.props.project.name}
+                placeholder={this.defaultName}
+                onChange={this.changeProjectName}
               />
           </div>
-          </FormGroup>
-        </ModalBody>
-        <ModalFooter>
-          <Button color="wick-warning" onClick={this.props.toggle}>Cancel</Button>
-          <Button color="wick-accept" onClick={this.acceptProjectSettings}>Save Settings</Button>{' '}
-        </ModalFooter>
-      </Modal>
+
+          <div className="project-setting-container" id="project-size-setting-container">
+            <div className="project-settings-property-label">
+              Project Size (W x H)
+            </div>
+            <div className="project-settings-size-input-container">
+              <WickInput
+                id="projectWidth"
+                type="numeric"
+                min={this.projectMinWidth}
+                value={this.state.width}
+                onChange = {this.changeProjectWidth}
+                className="project-settings-size-input" />
+              <div className="project-settings-split">x</div>
+              <WickInput
+                id="projectHeight"
+                type="numeric"
+                min={this.projectMinHeight}
+                value={this.state.height}
+                onChange={this.changeProjectHeight} 
+                className="project-settings-size-input" /> 
+            </div>
+          </div>
+
+          <div className="project-setting-container" id="project-framerate-setting-container">
+            <div className="project-settings-property-label">
+              Framerate (FPS)
+            </div>
+            <WickInput
+            id="projectFramerate"
+            type="numeric"
+            min={this.projectMinFramerate}
+            value={this.state.framerate}
+            onChange={this.changeProjectFramerate} />
+          </div>
+
+          <div className="project-setting-container" id="project-background-color-setting-container">
+            <div className="project-settings-property-label">
+              Background Color
+            </div>
+            <div className="project-setting-property-container">
+              <WickInput
+                type="color"
+                id="project-background-color-picker"
+                disableAlpha={true}
+                placement={'bottom'}
+                color={this.state.backgroundColor}
+                onChangeComplete={this.changeProjectBackgroundColor} />
+            </div>
+          </div>
+
+          {/* Footer */}
+          <div id="project-settings-modal-footer">
+            <div id="project-settings-modal-cancel">
+                <ActionButton 
+                  className="project-settings-modal-button"
+                  color='gray'
+                  action={this.props.toggle}
+                  text="Cancel"
+                  />
+              </div>
+              <div id="autosave-modal-accept">
+                <ActionButton 
+                  className="autosave-modal-button"
+                  color='green'
+                  action={this.acceptProjectSettings}
+                  text="Save"
+                  />
+              </div>
+          </div>
+        </div>
+      </WickModal>
     );
   }
 }
