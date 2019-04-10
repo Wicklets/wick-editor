@@ -19,6 +19,8 @@
 
 @import 'Editor/_wickbrand.scss';
 
+$welcome-modal-padding: 28px; 
+
 .welcome-modal-body {
   width: 670px;
   min-width: 670px;  
@@ -47,8 +49,9 @@
   background-color: $editor-modal-dark;
   width: 350px;
   min-width: 350px; 
-  padding: 28px; 
+  padding: $welcome-modal-padding; 
   padding-top: 30px; 
+  position: relative; 
 }
 
 #welcome-modal-title {
@@ -79,6 +82,9 @@
 #welcome-modal-forum-link {
   color: $editor-modal-text-gray; 
   font-size: 14px; 
+  position: absolute;
+  left: $welcome-modal-padding;
+  bottom: calc(#{$welcome-modal-padding} + 40px); 
 }
 
 .welcome-modal-highlight {
@@ -90,11 +96,12 @@
 }
 
 #welcome-modal-footer {
-  width: 100%; 
+  width: calc(100% - calc(2 * #{$welcome-modal-padding})); 
   height: 28px;
-  margin-top: 25px;
   display: flex;
   flex-direction: row; 
+  position: absolute;
+  bottom: $welcome-modal-padding;
 }
 
 #welcome-modal-cancel {

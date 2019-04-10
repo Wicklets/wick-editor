@@ -28,7 +28,7 @@ import nightImage from 'resources/interface-images/blue_night.svg';
 
 class WelcomeModal extends Component {
   getVersion() {
-    return "v5"
+    return "v6"
   }
 
   render() {
@@ -49,16 +49,13 @@ class WelcomeModal extends Component {
             <div id="welcome-modal-subtitle" className="welcome-modal-item">Alpha {this.getVersion()} includes:</div>
             <div id="welcome-modal-message" className="welcome-modal-item">
               <ul>
-                <li>New Interface Design</li>
-                <li>New Toolbar Layout, Actions and Icons</li>
-                <li>Inspector Actions have been simplified and remapped</li>
-                <li>ZIP, GIF, and Improved .wick export</li>
-                <li>Breadcrumbs Bar has been added</li>
-                <li>Added new WebGL renderer.</li>
+                <li>New Modal Designs</li>
+                <li>New Toolbar Icons</li>
+                <li>Updated Error Messages</li>
                 <li>Many, many, bugfixes...</li>
               </ul>
             </div>
-            <div id="welcome-modal-forum-link" className="welcome-modal-item">Please report bugs on our <a className="welcome-modal-highlight" target="_blank" rel="noopener noreferrer" href="https://forum.wickeditor.com">forum!</a></div>
+            <div id="welcome-modal-forum-link" className="welcome-modal-item">Please report all bugs on our <a className="welcome-modal-highlight" target="_blank" rel="noopener noreferrer" href="https://forum.wickeditor.com">forum!</a></div>
             <div id="welcome-modal-footer">
               <div id="welcome-modal-cancel">
                 <ActionButton 
