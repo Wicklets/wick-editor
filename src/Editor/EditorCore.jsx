@@ -817,6 +817,11 @@ class EditorCore extends Component {
     localForage.getItem('wickClipboard')
     .then((serializedSelection) => {
       let deserialized = this.deserializeSelection(serializedSelection);
+      if (deserialized.length > 0 && deserialized[0].classname === "Frame") {
+        this.toast('Frame pasting is not yet implemented!', 'error');
+        return; 
+      }
+
       this.addSelectionToProject(deserialized, {offset: {x: 25, y: 25}});
     })
     .catch((err) => {
