@@ -26,10 +26,6 @@
   padding: 0px; 
 }
 
-.welcome-message-modal-button {
-  font-family: Nunito;
-}
-
 #welcome-modal-interior-content {
   display: flex;
   flex-direction: row;
@@ -59,6 +55,7 @@
   color: $editor-modal-text-white; 
   font-size: 22px;
   font-weight: bold; 
+  white-space: nowrap;
 }
 
 #welcome-modal-version {

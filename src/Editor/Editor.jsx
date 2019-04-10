@@ -84,7 +84,7 @@ class Editor extends EditorCore {
         selectCurves: false,
       },
       previewPlaying: false,
-      activeModalName: 'MakeInteractive',
+      activeModalName: 'WelcomeMessage',
       activeModalQueue: [],
       codeEditorOpen: false,
       codeErrors: [],
@@ -530,6 +530,9 @@ class Editor extends EditorCore {
       closeOnClick: true,
       pauseOnHover: true,
       draggable: true,
+      className: (type + '-toast-background'),
+      bodyClassName: (type + '-toast-body'),
+      progressClassName: (type + '-toast-progress'),
     };
 
     // Mix default options and options param:
