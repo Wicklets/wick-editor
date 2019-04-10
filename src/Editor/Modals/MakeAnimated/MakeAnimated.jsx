@@ -38,6 +38,7 @@ class MakeAnimated extends Component {
 
   // Creates a clip and toggles the modal.
   createAndToggle = () => {
+    console.log("Creating"); 
     let name = this.state.name !== "" ? this.state.name : this.defaultName; 
     this.props.createClipFromSelection(name)
     this.props.toggle()
@@ -97,7 +98,7 @@ class MakeAnimated extends Component {
             <ActionButton 
               className="make-animated-modal-button"
               color='green'
-              action={this.props.createAndToggle}
+              action={this.createAndToggle}
               text="Convert to Clip"
               />
           </div>
