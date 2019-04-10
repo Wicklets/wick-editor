@@ -80,27 +80,27 @@ class MakeAnimated extends Component {
           <ObjectInfo 
           title="CLIP" 
           rows={["Has its own timeline", "Can control timeline with code", "Can add any code"]} />
-          <div id="make-animated-asset-checkbox-container">
-            <WickInput
-              type="checkbox"
-              containerclassname="make-animated-asset-checkbox-input-container"
-              className="make-animated-asset-checkbox-input"
-              onChange={this.updateAssetCheckbox}
-              defaultChecked={this.state.makeAsset}
-            />
-            <div id="make-animated-asset-checkbox-message">
-              Add to asset library
-            </div>
-          </div>
         </div>
         <div id="make-animated-modal-footer">
           <div id="make-animated-modal-accept">
             <ActionButton 
               className="make-animated-modal-button"
-              color='green'
+              color='gray-green'
               action={this.createAndToggle}
               text="Convert to Clip"
               />
+          </div>
+        </div>
+        <div id="make-animated-asset-checkbox-container">
+          <WickInput
+            type="checkbox"
+            containerclassname="make-animated-asset-checkbox-input-container"
+            className="make-animated-asset-checkbox-input"
+            onChange={this.updateAssetCheckbox}
+            defaultChecked={this.state.makeAsset}
+          />
+          <div id="make-animated-asset-checkbox-message">
+            Add to asset library
           </div>
         </div>
       </WickModal>

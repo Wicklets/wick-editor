@@ -84,7 +84,7 @@ class Editor extends EditorCore {
         selectCurves: false,
       },
       previewPlaying: false,
-      activeModalName: 'MakeAnimated',
+      activeModalName: 'MakeInteractive',
       activeModalQueue: [],
       codeEditorOpen: false,
       codeErrors: [],

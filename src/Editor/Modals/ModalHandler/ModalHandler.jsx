@@ -20,7 +20,7 @@
 import React, { Component } from 'react';
 
 import ProjectSettings from '../ProjectSettings/ProjectSettings';
-import CreateSymbol from '../CreateSymbol/CreateSymbol';
+import MakeInteractive from '../MakeInteractive/MakeInteractive'; 
 import AutosaveWarning from '../AutosaveWarning/AutosaveWarning';
 import WelcomeMessage from '../WelcomeMessage/WelcomeMessage'; 
 import MakeAnimated from '../MakeAnimated/MakeAnimated'; 
@@ -42,11 +42,12 @@ class ModalHandler extends Component {
           open={this.props.activeModalName === 'MakeAnimated'}
           createClipFromSelection={this.props.createClipFromSelection}
         />
-      <CreateSymbol
+      <MakeInteractive
           openModal={this.props.openModal}
           toggle={this.props.closeActiveModal}
           open={this.props.activeModalName === 'MakeInteractive'}
-          createSymbolFromSelection={this.props.createSymbolFromSelection}
+          createClipFromSelection={this.props.createClipFromSelection}
+          createButtonFromSelection={this.props.createButtonFromSelection}
         />
       <AutosaveWarning
           openModal={this.props.openModal}

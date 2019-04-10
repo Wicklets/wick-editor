@@ -273,3 +273,27 @@ $action-button-transition-duration: .2s;
   background-color: $wick-gray-dark;
   color: $wick-gray-text;
 }
+
+.action-button-gray-green {
+  -webkit-transition-duration: $action-button-transition-duration; /* Safari */
+  transition-duration: $action-button-transition-duration;
+
+  background-color: $wick-gray;
+  color: white;
+  font-size: 16px;
+}
+
+.action-button-gray-green:hover {
+  background-color: $wick-green;
+  color: white;
+}
+
+.action-button-gray-green:active {
+  background-color: $wick-green-dark;
+  color: white;
+}
+
+.action-button-gray-green.active-button {
+  background-color: $wick-green-dark;
+  color: white;
+}

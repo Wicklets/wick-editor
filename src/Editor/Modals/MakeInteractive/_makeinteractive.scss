@@ -1,0 +1,106 @@
+/*
+ * Copyright 2018 WICKLETS LLC
+ *
+ * This file is part of Wick Editor.
+ *
+ * Wick Editor is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Wick Editor is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Wick Editor.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+@import 'Editor/_wickbrand.scss';
+
+$info-left-margin: 12px; 
+
+.make-interactive-modal-body {
+  width: 450px;
+  min-width: 240px;  
+  height: 340px;
+  padding: 20px; 
+}
+
+#make-interactive-modal-title {
+  font-size: 18px;
+  color: $editor-modal-text-gray;
+  font-weight: bold; 
+  text-align: left;
+  width: 100%; 
+}
+
+#make-interactive-modal-interior-content {
+  display: flex;
+  flex-direction: column;
+  width: 100%; 
+  height: 100%;
+  justify-content: center;
+  align-items: center;
+}
+
+#make-interactive-modal-message {
+  width: 100%;
+  color: $editor-modal-text-gray;
+  text-align: left;
+  font-size: 14px; 
+}
+
+#make-interactive-modal-footer {
+  width: 100%; 
+  height: 28px;
+  margin-top: 10px;
+  display: flex;
+  flex-direction: row; 
+  align-items: center;
+}
+
+#make-interactive-modal-footer > div:last-child {
+  margin-left: $info-left-margin; 
+}
+
+#make-interactive-asset-checkbox-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center; 
+  justify-content: left; 
+}
+
+.make-interactive-asset-checkbox-input-container {
+  width: 20px; 
+  height: 20px; 
+}
+
+#make-interactive-asset-checkbox-container {
+  margin-top: 10px; 
+  width: 100%; 
+}
+
+#make-interactive-asset-checkbox-message {
+  margin-left: 10px; 
+  color: $editor-modal-text-gray;
+}
+
+#make-interactive-modal-name-input {
+  margin-top: 10px;
+  width: 100%; 
+}
+
+.make-interactive-object-info-container {
+  display: flex;
+  flex-direction: row; 
+}
+
+.make-interactive-object-info-container > div:last-child {
+  margin-left: $info-left-margin;
+}
+
+.make-interactive-modal-button {
+  width: 50%; 
+}
