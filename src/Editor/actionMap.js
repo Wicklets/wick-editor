@@ -88,11 +88,17 @@ class ActionMapInterface extends Object {
         action: () => console.error('NYI'),
         id: 'action-add-tween',
       },
+      makeAnimated: {
+        icon: 'animated', 
+        tooltip: 'Make Animated',
+        action: this.editor.beginMakeAnimatedProcess, 
+        id: 'action-make-animated',
+      },
       makeInteractive: {
         icon: 'symbol',
-        tooltip: 'Make Interactive and Animated',
-        action: this.editor.beginSymbolCreation,
-        id: 'action-convert-to-symbol',
+        tooltip: 'Make Interactive',
+        action: this.editor.beginMakeInteractiveProcess,
+        id: 'action-make-interactive',
       },
       returnToParentTimeline: {
         icon: 'leaveUp',

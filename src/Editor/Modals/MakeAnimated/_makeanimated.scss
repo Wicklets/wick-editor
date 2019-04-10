@@ -1,0 +1,97 @@
+/*
+ * Copyright 2018 WICKLETS LLC
+ *
+ * This file is part of Wick Editor.
+ *
+ * Wick Editor is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Wick Editor is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Wick Editor.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+@import 'Editor/_wickbrand.scss';
+
+
+.make-animated-modal-body {
+  width: 240px;
+  min-width: 240px;  
+  height: 355px;
+  padding: 20px; 
+}
+
+.make-animated-message-modal-button {
+  font-family: Nunito;
+}
+
+#make-animated-modal-title {
+  font-size: 18px;
+  color: $editor-modal-text-gray;
+  font-weight: bold; 
+  text-align: left;
+  width: 100%; 
+}
+
+#make-animated-modal-interior-content {
+  display: flex;
+  flex-direction: column;
+  width: 100%; 
+  height: 100%;
+  justify-content: center;
+  align-items: center;
+}
+
+#make-animated-modal-message {
+  width: 100%;
+  color: $editor-modal-text-gray;
+  text-align: left;
+  font-size: 14px; 
+}
+
+#make-animated-modal-footer {
+  width: 100%; 
+  height: 28px;
+  margin-top: 15px;
+  display: flex;
+  flex-direction: row; 
+  align-items: center;
+  justify-content: center;
+}
+
+#make-animated-modal-accept {
+  width: 100%;
+  height: 100%; 
+} 
+
+#make-animated-asset-checkbox-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center; 
+  justify-content: left; 
+}
+
+.make-animated-asset-checkbox-input-container {
+  width: 20px; 
+  height: 20px; 
+}
+
+#make-animated-asset-checkbox-container {
+  margin-top: 10px; 
+  width: 100%; 
+}
+
+#make-animated-asset-checkbox-message {
+  margin-left: 10px; 
+  color: $editor-modal-text-gray;
+}
+
+#make-animated-modal-name-input {
+  margin-top: 10px;
+}

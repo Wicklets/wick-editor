@@ -23,6 +23,7 @@ import ProjectSettings from '../ProjectSettings/ProjectSettings';
 import CreateSymbol from '../CreateSymbol/CreateSymbol';
 import AutosaveWarning from '../AutosaveWarning/AutosaveWarning';
 import WelcomeMessage from '../WelcomeMessage/WelcomeMessage'; 
+import MakeAnimated from '../MakeAnimated/MakeAnimated'; 
 
 class ModalHandler extends Component {
   render() {
@@ -35,10 +36,16 @@ class ModalHandler extends Component {
           open={this.props.activeModalName === 'ProjectSettings'}
           updateProjectSettings={this.props.updateProjectSettings}
         />
+      <MakeAnimated
+          openModal={this.props.openModal}
+          toggle={this.props.closeActiveModal}
+          open={this.props.activeModalName === 'MakeAnimated'}
+          createClipFromSelection={this.props.createClipFromSelection}
+        />
       <CreateSymbol
           openModal={this.props.openModal}
           toggle={this.props.closeActiveModal}
-          open={this.props.activeModalName === 'CreateSymbol'}
+          open={this.props.activeModalName === 'MakeInteractive'}
           createSymbolFromSelection={this.props.createSymbolFromSelection}
         />
       <AutosaveWarning

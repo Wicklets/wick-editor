@@ -34,6 +34,10 @@ class WickModal extends Component {
     );
   }
 
+  componentDidMount() {
+    Modal.setAppElement('body');
+ }
+
   render() {
     return (
       <Modal 

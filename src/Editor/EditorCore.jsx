@@ -514,6 +514,24 @@ class EditorCore extends Component {
   }
 
   /**
+   * Creates a new clip from the selected paths and clips and adds it to the project.
+   * @param {string} name The name of the clip after creation.
+   */
+  createClipFromSelection = (name) => {
+    this.project.createSymbolFromSelection(name, 'Clip');
+    this.projectDidChange();
+  }
+
+  /**
+   * Creates a new button from the selected paths and clips and adds it to the project.
+   * @param {string} name The name of the button after creation.
+   */
+  createButtonFromSelection = (name) => {
+    this.project.createSymbolFromSelection(name, 'Button');
+    this.projectDidChange();
+  }
+
+  /**
    * Updates the focus object of the project.
    * @param {Wick.Clip} object Object to set as focus.
    */
@@ -729,10 +747,17 @@ class EditorCore extends Component {
   }
 
   /**
-   * Begin the symbol creation process.
+   * Begin interactive object creation process.
    */
-  beginSymbolCreation = () => {
-    this.openModal("CreateSymbol");
+  beginMakeInteractiveProcess = () => {
+    this.openModal("MakeInteractive");
+  }
+
+  /**
+   * Begin animated object creation process.
+   */
+  beginMakeAnimatedProcess = () => {
+    this.openModal("MakeAnimated");
   }
 
   /**

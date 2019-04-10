@@ -84,7 +84,7 @@ class Editor extends EditorCore {
         selectCurves: false,
       },
       previewPlaying: false,
-      activeModalName: 'WelcomeMessage',
+      activeModalName: 'MakeAnimated',
       activeModalQueue: [],
       codeEditorOpen: false,
       codeErrors: [],
@@ -577,6 +577,7 @@ class Editor extends EditorCore {
                     openModal={this.openModal}
                     closeActiveModal={this.closeActiveModal}
                     project={this.project}
+                    createClipFromSelection={this.createClipFromSelection}
                     createSymbolFromSelection={this.createSymbolFromSelection}
                     updateProjectSettings={this.updateProjectSettings}
                     loadAutosavedProject={this.attemptAutoLoad}

@@ -102,6 +102,7 @@ import iconCloseModal from 'resources/interface-images/close.svg';
 import iconAutosave from 'resources/interface-images/accept.svg';
 import iconCancel from 'resources/interface-images/cancel.svg'; 
 import iconWarning from 'resources/interface-images/warning.svg';
+import iconCheck from 'resources/interface-images/check.svg';
 
 var classNames = require('classnames');
 
@@ -181,6 +182,7 @@ class ToolIcon extends Component {
       "autosave": iconAutosave, 
       "warning": iconWarning,
       "cancel": iconCancel,
+      "check": iconCheck,
     }
   }
 

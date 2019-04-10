@@ -64,6 +64,7 @@ class Inspector extends Component {
     this.actionRules = {
       'breakApart': ["clip", "button",],
       'makeInteractive': ["path", "multipath", "multiclip",],
+      'makeAnimated': ["path", "multipath", "multiclip",],
       'editTimeline': ["clip", "button"],
       'editCode': ["clip", "button", "frame"],
     }
