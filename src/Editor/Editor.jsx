@@ -578,7 +578,7 @@ class Editor extends EditorCore {
                     closeActiveModal={this.closeActiveModal}
                     project={this.project}
                     createClipFromSelection={this.createClipFromSelection}
-                    createSymbolFromSelection={this.createSymbolFromSelection}
+                    createButtonFromSelection={this.createButtonFromSelection} 
                     updateProjectSettings={this.updateProjectSettings}
                     loadAutosavedProject={this.attemptAutoLoad}
                   />

@@ -29,7 +29,7 @@ class MakeAnimated extends Component {
   constructor (props) {
     super(props);
     this.placeholderName = "Item Name"
-    this.defaultName = "New Clip"
+    this.defaultName = "Clip"
     this.state = {
       name: "",
       makeAsset: true,
@@ -38,7 +38,6 @@ class MakeAnimated extends Component {
 
   // Creates a clip and toggles the modal.
   createAndToggle = () => {
-    console.log("Creating"); 
     let name = this.state.name !== "" ? this.state.name : this.defaultName; 
     this.props.createClipFromSelection(name)
     this.props.toggle()
@@ -67,9 +66,6 @@ class MakeAnimated extends Component {
       overlayClassName="make-animated-modal-overlay">
         <div id="make-animated-modal-interior-content">
           <div id="make-animated-modal-title">Make Animated</div>
-          <div id="make-animated-modal-message">
-            Convert the selection into a clip.
-          </div>
           <div id="make-animated-modal-name-input">
             <WickInput
               type="text"

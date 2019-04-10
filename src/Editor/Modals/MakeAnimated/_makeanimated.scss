@@ -23,7 +23,7 @@
 .make-animated-modal-body {
   width: 240px;
   min-width: 240px;  
-  height: 355px;
+  height: 330px;
   padding: 20px; 
 }
 
@@ -46,13 +46,6 @@
   height: 100%;
   justify-content: center;
   align-items: center;
-}
-
-#make-animated-modal-message {
-  width: 100%;
-  color: $editor-modal-text-gray;
-  text-align: left;
-  font-size: 14px; 
 }
 
 #make-animated-modal-footer {

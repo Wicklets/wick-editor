@@ -28,7 +28,7 @@ import './_makeinteractive.scss';
 class MakeAnimated extends Component {
   constructor (props) {
     super(props);
-    this.placeholderName = "Item Name"
+    this.placeholderName = "Item_Name"
     this.state = {
       name: "",
       makeAsset: true,
@@ -41,8 +41,9 @@ class MakeAnimated extends Component {
    * @param {string} type Either 'Button' or 'Clip'
    */
   createAndToggle = (type) => {
-    let name = this.state.name !== "" ? this.state.name : ("New " + type); 
+    let name = this.state.name !== "" ? this.state.name : (type); 
 
+    console.log(name); 
     if (type === 'Clip') {
       this.props.createClipFromSelection(name)
     } else if (type === 'Button') {
@@ -75,9 +76,6 @@ class MakeAnimated extends Component {
       overlayClassName="make-interactive-modal-overlay">
         <div id="make-interactive-modal-interior-content">
           <div id="make-interactive-modal-title">Make Interactive</div>
-          <div id="make-interactive-modal-message">
-            Convert the selection into a Clip or Button.
-          </div>
           <div id="make-interactive-modal-name-input">
             <WickInput
               type="text"
