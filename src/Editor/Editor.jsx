@@ -538,7 +538,28 @@ class Editor extends EditorCore {
     // Mix default options and options param:
     let mixOptions = Object.assign(defaultOptions, options);
 
-    toast[type](message, mixOptions);
+    return toast[type](message, mixOptions);
+  }
+
+  /**
+   * Updates an existing toast to a new toast type
+   * @param {string} id ID of the toast to update.
+   * @param {object} options options to apply to the newly updated toast.
+   */
+  updateToast = (id, options) => {
+    if (options.text) {
+      options.render = options.text;
+    }
+
+    if (options.type) {
+      options.className = options.type + '-toast-background'; 
+    }
+
+    if (!options.autoClose) {
+      options.autoClose = 5000;
+    }
+
+    toast.update(id, options);
   }
 
   render = () => {

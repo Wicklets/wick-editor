@@ -724,12 +724,14 @@ class EditorCore extends Component {
    * @param {File[]} rejectedFiles - Files uploaded by user with unsupported MIME types.
    */
   createAssets = (acceptedFiles, rejectedFiles) => {
-    this.toast('Importing files...', 'info');
+    let toastID = this.toast('Importing files...', 'info');
 
     // Error message for failed uploads
     if (rejectedFiles.length > 0) {
       let fileNamesRejected = rejectedFiles.map(file => file.name).join(', ');
-      this.toast('Could not import files: ' + fileNamesRejected, 'error');
+      this.updateToast(toastID, { 
+        type: 'error', 
+        text: 'Could not import files: ' + fileNamesRejected});
     }
 
     // Add all successfully uploaded assets
@@ -857,13 +859,20 @@ class EditorCore extends Component {
    * Export the current project as a Wick File using the save as dialog.
    */
   exportProjectAsWickFile = () => {
-    this.toast('Exporting project as a .wick file...', 'info');
+    let toastID = this.toast('Exporting project as a .wick file...', 'info', {autoClose: false});
 
+    console.log("Original ID", toastID); 
     this.project.exportAsWickFile((file) => {
       if (file === undefined) {
-        this.toast('Could not export project.', 'error');
+        this.updateToast(toastID, { 
+          type: 'error', 
+          text: "Could not export .wick file." });
         return;
       }
+
+      this.updateToast(toastID, { 
+        type: 'success', 
+        text: "Successfully saved .wick file." });
       saveAs(file, this.project.name + '.wick');
     });
   }
@@ -872,9 +881,12 @@ class EditorCore extends Component {
    * Export the current project as an animated GIF.
    */
   exportProjectAsAnimatedGIF = () => {
-    this.toast('Exporting animated GIF...', 'info');
+    let toastID = this.toast('Exporting animated GIF...', 'info');
     GIFExport.createAnimatedGIFFromProject(this.project, blob => {
       this.project = window.Wick.Project.deserialize(this.project.serialize());
+      this.updateToast(toastID, { 
+        type: 'success', 
+        text: "Successfully saved .gif file." });
       saveAs(blob, this.project.name + '.gif');
     });
   }
@@ -883,8 +895,11 @@ class EditorCore extends Component {
    * Export the current project as a bundled standalone ZIP that can be uploaded to itch/newgrounds/etc.
    */
   exportProjectAsStandaloneZIP = () => {
-    this.toast('Exporting project as ZIP...', 'info');
+    let toastID = this.toast('Exporting project as ZIP...', 'info');
     ZIPExport.bundleStandaloneProject(this.project, blob => {
+      this.updateToast(toastID, { 
+        type: 'success', 
+        text: "Successfully saved .zip file." });
       saveAs(blob, this.project.name + '.zip');
     });
   }
