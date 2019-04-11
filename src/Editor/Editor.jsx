@@ -303,7 +303,6 @@ class Editor extends EditorCore {
 
   onResize = (e) => {
     this.project.view.resize();
-    window.AnimationTimeline.resize();
   }
 
   onStopResize = ({domElement, component}) => {
@@ -552,7 +551,7 @@ class Editor extends EditorCore {
     }
 
     if (options.type) {
-      options.className = options.type + '-toast-background'; 
+      options.className = options.type + '-toast-background';
     }
 
     if (!options.autoClose) {
@@ -602,7 +601,7 @@ class Editor extends EditorCore {
                     closeActiveModal={this.closeActiveModal}
                     project={this.project}
                     createClipFromSelection={this.createClipFromSelection}
-                    createButtonFromSelection={this.createButtonFromSelection} 
+                    createButtonFromSelection={this.createButtonFromSelection}
                     updateProjectSettings={this.updateProjectSettings}
                     loadAutosavedProject={this.attemptAutoLoad}
                   />

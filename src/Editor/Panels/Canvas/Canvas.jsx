@@ -33,13 +33,17 @@ class Canvas extends Component {
 
   componentDidMount() {
     let canvasContainerElem = this.canvasContainer.current;
-    let paper = window.paper;
-
-    paper.selection = new window.paper.Selection();
 
     this.props.project.view.canvasContainer = canvasContainerElem;
     this.props.project.view.resize();
 
+    this.tools = {
+      pencil: new window.Wick.Tools.Pencil(),
+      ellipse: new window.Wick.Tools.Ellipse(),
+      none: new window.Wick.Tools.None(),
+    };
+
+    /*
     // Listen to drawing tool events
     paper.drawingTools.setup();
     paper.drawingTools.onCanvasModified(this.onCanvasModified);
@@ -69,6 +73,7 @@ class Canvas extends Component {
         console.error(message);
       }
     }
+    */
 
     this.updateCanvas(this.props.project);
 
@@ -110,34 +115,29 @@ class Canvas extends Component {
   }
 
   updateCanvas = (project) => {
-    let paper = this.props.paper;
-    let activeTool = this.props.activeTool;
-    let toolSettings = this.props.toolSettings;
-    let previewPlaying = this.props.previewPlaying;
-    let canvasContainerElem = this.canvasContainer.current;
-
-    console.warn('Move this to engine please')
-    project.view.renderMode = previewPlaying ? 'webgl' : 'svg';
-
     // Render wick project
+    project.view.renderMode = this.props.previewPlaying ? 'webgl' : 'svg';
     project.view.canvasBGColor = styles.editorCanvasBorder;
-    project.view.canvasContainer = canvasContainerElem;
+    project.view.canvasContainer = this.canvasContainer.current;
     project.view.render();
 
-    console.warn('Move this to engine please')
-    // update the paper.js active tool based on the editor active tool state.
-    let tool = paper.drawingTools[activeTool];
-    tool.activate();
-    Object.keys(toolSettings).forEach(key => {
-      tool[key] = toolSettings[key];
-    });
+    // update the drawing tool based on the editor's active tool state.
+    let toolName = this.props.activeTool;
+    let tool = this.tools[this.props.activeTool];
+    if(!tool) {
+      console.warn('Invalid tool: ' + toolName);
+    } else {
+      tool.activate();
+      Object.keys(this.props.toolSettings).forEach(key => {
+        tool[key] = this.props.toolSettings[key];
+      });
+    }
 
-    console.warn('Move this to engine please')
     // If the active frame is on a locked/hidden layer, or there is no active frame, disable all tools.
     if(!project.activeFrame ||
        project.activeLayer.locked ||
        project.activeLayer.hidden) {
-      paper.drawingTools.none.activate();
+      this.tools.none.activate();
     }
   }
 
