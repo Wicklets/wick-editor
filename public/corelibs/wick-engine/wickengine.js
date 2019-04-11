@@ -65553,11 +65553,11 @@ Wick.Selection = class extends Wick.Base {
 
 
   get x() {
-    return paper.selection.x;
+    return Wick.View.paperScope.selection.x;
   }
 
   set x(x) {
-    paper.selection.x = x;
+    Wick.View.paperScope.selection.x = x;
   }
   /**
    * The Y position of the selection. This always uses the top-left corner of the objects.
@@ -65565,11 +65565,11 @@ Wick.Selection = class extends Wick.Base {
 
 
   get y() {
-    return paper.selection.y;
+    return Wick.View.paperScope.selection.y;
   }
 
   set y(y) {
-    paper.selection.y = y;
+    Wick.View.paperScope.selection.y = y;
   }
   /**
    * The width of the selected objects.
@@ -65577,11 +65577,11 @@ Wick.Selection = class extends Wick.Base {
 
 
   get width() {
-    return paper.selection.width;
+    return Wick.View.paperScope.selection.width;
   }
 
   set width(width) {
-    paper.selection.width = width;
+    Wick.View.paperScope.selection.width = width;
   }
   /**
    * The height of the selected objects.
@@ -65589,11 +65589,11 @@ Wick.Selection = class extends Wick.Base {
 
 
   get height() {
-    return paper.selection.height;
+    return Wick.View.paperScope.selection.height;
   }
 
   set height(height) {
-    paper.selection.height = height;
+    Wick.View.paperScope.selection.height = height;
   }
   /**
    * The X scale of the selected objects.
@@ -65601,11 +65601,11 @@ Wick.Selection = class extends Wick.Base {
 
 
   get scaleX() {
-    return paper.selection.scaleX;
+    return Wick.View.paperScope.selection.scaleX;
   }
 
   set scaleX(scaleX) {
-    paper.selection.scaleX = scaleX;
+    Wick.View.paperScope.selection.scaleX = scaleX;
   }
   /**
    * The Y scale of the selected objects.
@@ -65613,11 +65613,11 @@ Wick.Selection = class extends Wick.Base {
 
 
   get scaleY() {
-    return paper.selection.scaleY;
+    return Wick.View.paperScope.selection.scaleY;
   }
 
   set scaleY(scaleY) {
-    paper.selection.scaleY = scaleY;
+    Wick.View.paperScope.selection.scaleY = scaleY;
   }
   /**
    * The rotation of the selected objects.
@@ -65625,11 +65625,11 @@ Wick.Selection = class extends Wick.Base {
 
 
   get rotation() {
-    return paper.selection.rotation;
+    return Wick.View.paperScope.selection.rotation;
   }
 
   set rotation(rotation) {
-    paper.selection.rotation = rotation;
+    Wick.View.paperScope.selection.rotation = rotation;
   }
   /**
    * The fill color of the selected objects.
@@ -65638,11 +65638,11 @@ Wick.Selection = class extends Wick.Base {
 
 
   get fillColor() {
-    return paper.selection.fillColor;
+    return Wick.View.paperScope.selection.fillColor;
   }
 
   set fillColor(fillColor) {
-    paper.selection.fillColor = fillColor;
+    Wick.View.paperScope.selection.fillColor = fillColor;
   }
   /**
    * The stroke width of the selected objects.
@@ -65651,11 +65651,11 @@ Wick.Selection = class extends Wick.Base {
 
 
   get strokeWidth() {
-    return paper.selection.strokeWidth;
+    return Wick.View.paperScope.selection.strokeWidth;
   }
 
   set strokeWidth(strokeWidth) {
-    paper.selection.strokeWidth = strokeWidth;
+    Wick.View.paperScope.selection.strokeWidth = strokeWidth;
   }
   /**
    * The stroke color of the selected objects.
@@ -65664,11 +65664,11 @@ Wick.Selection = class extends Wick.Base {
 
 
   get strokeColor() {
-    return paper.selection.strokeColor;
+    return Wick.View.paperScope.selection.strokeColor;
   }
 
   set strokeColor(strokeColor) {
-    paper.selection.strokeColor = strokeColor;
+    Wick.View.paperScope.selection.strokeColor = strokeColor;
   }
   /**
    * The opacity color of the selected objects.
@@ -65677,11 +65677,11 @@ Wick.Selection = class extends Wick.Base {
 
 
   get opacity() {
-    return paper.selection.opacity;
+    return Wick.View.paperScope.selection.opacity;
   }
 
   set opacity(opacity) {
-    paper.selection.opacity = opacity;
+    Wick.View.paperScope.selection.opacity = opacity;
   }
   /**
    * The centerpoint of the selected objects.
@@ -65689,7 +65689,7 @@ Wick.Selection = class extends Wick.Base {
 
 
   get center() {
-    return paper.selection.center;
+    return Wick.View.paperScope.selection.center;
   }
   /**
    * The name of the selection.
@@ -65754,7 +65754,7 @@ Wick.Selection = class extends Wick.Base {
 
 
   flipHorizontally() {
-    paper.selection.flipHorizontally();
+    Wick.View.paperScope.selection.flipHorizontally();
   }
   /**
    * Flip the selected items vertically.
@@ -65762,7 +65762,7 @@ Wick.Selection = class extends Wick.Base {
 
 
   flipVertically() {
-    paper.selection.flipVertically();
+    Wick.View.paperScope.selection.flipVertically();
   }
   /**
    * Move all selected items to be behind all other objects.
@@ -65770,7 +65770,7 @@ Wick.Selection = class extends Wick.Base {
 
 
   sendToBack() {
-    paper.selection.sendToBack();
+    Wick.View.paperScope.selection.sendToBack();
   }
   /**
    * Move all selected items to be in front of all other objects.
@@ -65778,7 +65778,7 @@ Wick.Selection = class extends Wick.Base {
 
 
   bringToFront() {
-    paper.selection.bringToFront();
+    Wick.View.paperScope.selection.bringToFront();
   }
   /**
    * Move all selected items backwards one place.
@@ -65786,7 +65786,7 @@ Wick.Selection = class extends Wick.Base {
 
 
   moveBackwards() {
-    paper.selection.moveBackwards();
+    Wick.View.paperScope.selection.moveBackwards();
   }
   /**
    * Move all selected items forwards one place.
@@ -65794,7 +65794,7 @@ Wick.Selection = class extends Wick.Base {
 
 
   moveForwards() {
-    paper.selection.moveForwards();
+    Wick.View.paperScope.selection.moveForwards();
   }
 
   _locationOf(object) {
@@ -70745,329 +70745,352 @@ var TOOL_BRUSH = (() => {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-var TOOL_CURSOR = (() => {
-    var SELECTION_TOLERANCE = 3;
-    var CURSOR_DEFAULT = 'cursors/default.png';
-    var CURSOR_SCALE_TOP_RIGHT_BOTTOM_LEFT = 'cursors/scale-top-right-bottom-left.png';
-    var CURSOR_SCALE_TOP_LEFT_BOTTOM_RIGHT = 'cursors/scale-top-left-bottom-right.png';
-    var CURSOR_SCALE_VERTICAL = 'cursors/scale-vertical.png';
-    var CURSOR_SCALE_HORIZONTAL = 'cursors/scale-horizontal.png';
-    var CURSOR_ROTATE_TOP = 'cursors/rotate-top.png';
-    var CURSOR_ROTATE_RIGHT = 'cursors/rotate-right.png';
-    var CURSOR_ROTATE_BOTTOM = 'cursors/rotate-bottom.png';
-    var CURSOR_ROTATE_LEFT = 'cursors/rotate-left.png';
-    var CURSOR_ROTATE_TOP_RIGHT = 'cursors/rotate-top-right.png';
-    var CURSOR_ROTATE_TOP_LEFT = 'cursors/rotate-top-left.png';
-    var CURSOR_ROTATE_BOTTOM_RIGHT = 'cursors/rotate-bottom-right.png';
-    var CURSOR_ROTATE_BOTTOM_LEFT = 'cursors/rotate-bottom-left.png';
-    var CURSOR_MOVE = 'cursors/move.png';
-    var CURSOR_SEGMENT = 'cursors/segment.png';
-    var CURSOR_CURVE = 'cursors/curve.png';
-    var HOVER_PREVIEW_SEGMENT_STROKE_COLOR = 'rgba(100,150,255,1.0)';
-    var HOVER_PREVIEW_SEGMENT_STROKE_WIDTH = 1.5;
-    var HOVER_PREVIEW_SEGMENT_FILL_COLOR = '#ffffff';
-    var HOVER_PREVIEW_SEGMENT_RADIUS = 5;
-    var HOVER_PREVIEW_CURVE_STROKE_WIDTH = 2;
-    var HOVER_PREVIEW_CURVE_STROKE_COLOR = HOVER_PREVIEW_SEGMENT_STROKE_COLOR;
-
-    var hitResult = new paper.HitResult();
-    var selectionBox = new paper.SelectionBox();
-
-    var draggingCurve = new paper.Curve();
-    var draggingSegment = new paper.Segment();
-    var hoverPreview = new paper.Item({insert:false});
-
-    var tool = new paper.Tool();
-
-    tool.selectPoints = true;
-    tool.selectCurves = true;
-
-    var selectedItems = [];
-
-    tool.onActivate = function (e) {
-        selectedItems = [];
-    }
-
-    tool.onDeactivate = function (e) {
-
-    }
-
-    tool.onMouseMove = function (e) {
-        // Remove the hover preview, a new one will be generated if needed
-        hoverPreview.remove();
-
-        // Find the thing that is currently under the cursor.
-        hitResult = _updateHitResult(e);
-
-        // Update the image being used for the cursor
-        _setCursor(_getCursor());
-
-        if(hitResult.type === 'segment' && !hitResult.item.data.isSelectionBoxGUI) {
-            // Hovering over a segment, draw a circle where the segment is
-            hoverPreview = new paper.Path.Circle(hitResult.segment.point, HOVER_PREVIEW_SEGMENT_RADIUS/paper.view.zoom);
-            hoverPreview.strokeColor = HOVER_PREVIEW_SEGMENT_STROKE_COLOR;
-            hoverPreview.strokeWidth = HOVER_PREVIEW_SEGMENT_STROKE_WIDTH;
-            hoverPreview.fillColor = HOVER_PREVIEW_SEGMENT_FILL_COLOR;
-        } else if (hitResult.type === 'curve' && !hitResult.item.data.isSelectionBoxGUI) {
-            // Hovering over a curve, render a copy of the curve that can be bent
-            hoverPreview = new paper.Path();
-            hoverPreview.strokeWidth = HOVER_PREVIEW_CURVE_STROKE_WIDTH;
-            hoverPreview.strokeColor = HOVER_PREVIEW_CURVE_STROKE_COLOR;
-            hoverPreview.add(new paper.Point(hitResult.location.curve.point1));
-            hoverPreview.add(new paper.Point(hitResult.location.curve.point2));
-            hoverPreview.segments[0].handleOut = hitResult.location.curve.handle1;
-            hoverPreview.segments[1].handleIn = hitResult.location.curve.handle2;
-        }
-    }
-
-    tool.onMouseDown = function (e) {
-        hitResult = _updateHitResult(e);
-
-        if(hitResult.item && hitResult.item.data.isSelectionBoxGUI) {
-            // The selection box was clicked
-        } else if(paper.selection.isItemSelected(hitResult.item)) {
-            // We clicked something that was already selected.
-            // Shift click: Deselect that item
-            if(e.modifiers.shift) {
-                var itemsWithoutHitItem = paper.selection.items.filter(item => {
-                    return item !== hitResult.item;
-                });
-                paper.drawingTools.fireSelectionChanged({items:itemsWithoutHitItem});
-            }
-        } else if (hitResult.item && hitResult.type === 'fill') {
-            // Clicked an item: select that item
-            var items = [hitResult.item];
-            // Shift click? Keep everything else selected.
-            if(e.modifiers.shift) items = items.concat(paper.selection.items);
-            paper.drawingTools.fireSelectionChanged({items:items})
-        } else if (hitResult.item && hitResult.type === 'curve') {
-            // Clicked a curve, start dragging it
-            draggingCurve = hitResult.location.curve;
-        } else if (hitResult.item && hitResult.type === 'segment') {
-
-        } else {
-            // Nothing was clicked, so clear the selection and start a new selection box
-            paper.selection.finish();
-            paper.drawingTools.fireSelectionChanged({items:[]});
-            paper.drawingTools.fireCanvasModified();
-
-            selectionBox.start(e.point);
-        }
-    }
-
-    tool.onMouseDrag = function (e) {
-        if(hitResult.item && hitResult.item.data.isSelectionBoxGUI) {
-            // Drag a handle of the selection box.
-            // These can scale and rotate the selection.
-            paper.selection.handleDragMode = hitResult.item.data.handleType;
-            paper.selection[hitResult.item.data.handleEdge] = e.point;
-        } else if (selectionBox.active) {
-            // Selection box is being used, update it with a new point
-            selectionBox.drag(e.point);
-        } else if(hitResult.item && hitResult.type === 'fill') {
-            // We're dragging the selection itself, so move the whole item.
-            paper.selection.x += e.delta.x;
-            paper.selection.y += e.delta.y;
-        } else if(hitResult.item && hitResult.type === 'segment') {
-            // We're dragging an individual point, so move the point.
-            hitResult.segment.point = hitResult.segment.point.add(e.delta);
-            hoverPreview.position = hitResult.segment.point;
-        } else if(hitResult.item && hitResult.type === 'curve') {
-            // We're dragging a curve, so bend the curve.
-            var segment1 = draggingCurve.segment1;
-            var segment2 = draggingCurve.segment2;
-            var handleIn = segment1.handleOut;
-            var handleOut = segment2.handleIn;
-
-            if(handleIn.x === 0 && handleIn.y === 0) {
-                handleIn.x = (segment2.point.x - segment1.point.x) / 4;
-                handleIn.y = (segment2.point.y - segment1.point.y) / 4;
-            }
-            if(handleOut.x === 0 && handleOut.y === 0) {
-                handleOut.x = (segment1.point.x - segment2.point.x) / 4;
-                handleOut.y = (segment1.point.y - segment2.point.y) / 4;
-            }
-
-            handleIn.x += e.delta.x;
-            handleIn.y += e.delta.y;
-            handleOut.x += e.delta.x;
-            handleOut.y += e.delta.y;
-
-            // Update the hover preview to match the curve we just changed
-            hoverPreview.segments[0].handleOut = draggingCurve.handle1;
-            hoverPreview.segments[1].handleIn = draggingCurve.handle2;
-        }
-    }
-
-    tool.onMouseUp = function (e) {
-        if(selectionBox.active) {
-            // Finish selection box and select objects touching box (or inside box, if alt is held)
-            selectionBox.mode = e.modifiers.alt ? 'contains' : 'intersects';
-            selectionBox.end(e.point);
-            paper.drawingTools.fireSelectionChanged({items:selectionBox.items})
-        } else {
-            paper.drawingTools.fireSelectionTransformed({});
-        }
-    }
-
-    function _updateHitResult (e) {
-        var newHitResult = paper.project.hitTest(e.point, {
-            fill: true,
-            stroke: true,
-            curves: true,
-            segments: true,
-            tolerance: SELECTION_TOLERANCE,
-            match: function (result) {
-                return result.item !== hoverPreview
-                    && !result.item.data.isBorder;
-            }
-        });
-        if(!newHitResult) newHitResult = new paper.HitResult();
-
-        if(newHitResult.item && !newHitResult.item.data.isSelectionBoxGUI) {
-            // You can't select children of compound paths, you can only select the whole thing.
-            if (newHitResult.item.parent.className === 'CompoundPath') {
-                newHitResult.item = newHitResult.item.parent;
-            }
-
-            // You can't select individual children in a group, you can only select the whole thing.
-            if (newHitResult.item.parent.parent) {
-                newHitResult.type = 'fill';
-
-                while (newHitResult.item.parent.parent) {
-                    newHitResult.item = newHitResult.item.parent;
-                }
-            }
-
-            // Paper.js has two names for strokes+curves, we don't need that extra info
-            if(newHitResult.type === 'stroke') {
-                newHitResult.type = 'curve';
-            }
-
-            // Mousing over rasters acts the same as mousing over fills.
-            if(newHitResult.type === 'pixel') {
-                newHitResult.type = 'fill';
-            }
-
-            // Disable curve selection unless selectCurves is true.
-            if(!tool.selectCurves && newHitResult.type === 'curve') {
-                newHitResult.type = 'fill';
-            }
-
-            // Disable segment selection unless selectPoints is true.
-            if(!tool.selectPoints && newHitResult.type === 'segment') {
-                newHitResult.type = 'fill';
-            }
-
-            // You can't drag segments and curves of a selected object.
-            if(paper.selection.isItemSelected(newHitResult.item)) {
-                newHitResult.type = 'fill';
-            }
-        }
-
-        return newHitResult;
-    }
-
-    function _getCursor () {
-        if(!hitResult.item) {
-            return (CURSOR_DEFAULT);
-        } else if (hitResult.item.data.isSelectionBoxGUI) {
-            // Don't show any custom cursor if the mouse is over the border, the border does nothing
-            if(hitResult.item.name === 'border') {
-                return (CURSOR_DEFAULT);
-            }
-
-            // Calculate the angle in which the scale handle scales the selection.
-            // Use that angle to determine the cursor graphic to use.
-
-            // Here is a handy diagram showing the cursors that correspond to the angles:
-
-            // 315       0       45
-            //     o-----o-----o
-            //     |           |
-            //     |           |
-            // 270 o           o 90
-            //     |           |
-            //     |           |
-            //     o-----o-----o
-            // 225      180      135
-
-            var baseAngle = {
-                topCenter: 0,
-                topRight: 45,
-                rightCenter: 90,
-                bottomRight: 135,
-                bottomCenter: 180,
-                bottomLeft: 225,
-                leftCenter: 270,
-                topLeft: 315,
-            }[hitResult.item.data.handleEdge];
-
-            // Flip angles if selection is flipped horizontally/vertically
-            if(paper.selection._transform.scaleX < 0) {
-                baseAngle = -baseAngle + 360;
-            }
-            if(paper.selection._transform.scaleY < 0) {
-                baseAngle = -baseAngle + 180;
-            }
-
-            var angle = baseAngle + paper.selection.rotation;
-            if(angle < 0) angle += 360;
-            if(angle > 360) angle -= 360; // Makes angle math easier if we dont allow angles >360 or <0 degrees
-
-            // Round the angle to the nearest 45 degree interval.
-            var angleRoundedToNearest45 = Math.round(angle / 45) * 45;
-            angleRoundedToNearest45 = Math.round(angleRoundedToNearest45); // just incase of float weirdness
-            angleRoundedToNearest45 = ''+angleRoundedToNearest45; // convert to string
-
-            // Now we know which of eight directions the handle is pointing, so we choose the correct cursor
-            if (hitResult.item.data.handleType === 'scale') {
-                var cursorGraphicFromAngle = {
-                    '0': CURSOR_SCALE_VERTICAL,
-                    '45': CURSOR_SCALE_TOP_RIGHT_BOTTOM_LEFT,
-                    '90': CURSOR_SCALE_HORIZONTAL,
-                    '135': CURSOR_SCALE_TOP_LEFT_BOTTOM_RIGHT,
-                    '180': CURSOR_SCALE_VERTICAL,
-                    '225': CURSOR_SCALE_TOP_RIGHT_BOTTOM_LEFT,
-                    '270': CURSOR_SCALE_HORIZONTAL,
-                    '315': CURSOR_SCALE_TOP_LEFT_BOTTOM_RIGHT,
-                    '360': CURSOR_SCALE_VERTICAL,
-                }[angleRoundedToNearest45];
-
-                return cursorGraphicFromAngle;
-            } else if (hitResult.item.data.handleType === 'rotation') {
-                var cursorGraphicFromAngle = {
-                    '0': CURSOR_ROTATE_TOP,
-                    '45': CURSOR_ROTATE_TOP_RIGHT,
-                    '90': CURSOR_ROTATE_RIGHT,
-                    '135': CURSOR_ROTATE_BOTTOM_RIGHT,
-                    '180': CURSOR_ROTATE_BOTTOM,
-                    '225': CURSOR_ROTATE_BOTTOM_LEFT,
-                    '270': CURSOR_ROTATE_LEFT,
-                    '315': CURSOR_ROTATE_TOP_LEFT,
-                    '360': CURSOR_ROTATE_TOP,
-                }[angleRoundedToNearest45];
-
-                return cursorGraphicFromAngle;
-            }
-        } else {
-            if(hitResult.type === 'fill') {
-                return CURSOR_MOVE;
-            } else if (hitResult.type === 'curve') {
-                return CURSOR_CURVE;
-            } else if (hitResult.type === 'segment') {
-                return CURSOR_SEGMENT;
-            }
-        }
-    }
-
-    function _setCursor (cursor) {
-        paper.view._element.style.cursor = 'url("'+cursor+'") 32 32, auto';
-    }
-
-    return tool;
-});
+* Copyright 2018 WICKLETS LLC
+*
+* This file is part of Wick Engine.
+*
+* Wick Engine is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Wick Engine is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
+Wick.Tools.Cursor = class extends Wick.Tool {
+  /**
+   * Creates a pencil tool.
+   */
+  constructor() {
+    super();
+    this.SELECTION_TOLERANCE = 3;
+    this.CURSOR_DEFAULT = 'cursors/default.png';
+    this.CURSOR_SCALE_TOP_RIGHT_BOTTOM_LEFT = 'cursors/scale-top-right-bottom-left.png';
+    this.CURSOR_SCALE_TOP_LEFT_BOTTOM_RIGHT = 'cursors/scale-top-left-bottom-right.png';
+    this.CURSOR_SCALE_VERTICAL = 'cursors/scale-vertical.png';
+    this.CURSOR_SCALE_HORIZONTAL = 'cursors/scale-horizontal.png';
+    this.CURSOR_ROTATE_TOP = 'cursors/rotate-top.png';
+    this.CURSOR_ROTATE_RIGHT = 'cursors/rotate-right.png';
+    this.CURSOR_ROTATE_BOTTOM = 'cursors/rotate-bottom.png';
+    this.CURSOR_ROTATE_LEFT = 'cursors/rotate-left.png';
+    this.CURSOR_ROTATE_TOP_RIGHT = 'cursors/rotate-top-right.png';
+    this.CURSOR_ROTATE_TOP_LEFT = 'cursors/rotate-top-left.png';
+    this.CURSOR_ROTATE_BOTTOM_RIGHT = 'cursors/rotate-bottom-right.png';
+    this.CURSOR_ROTATE_BOTTOM_LEFT = 'cursors/rotate-bottom-left.png';
+    this.CURSOR_MOVE = 'cursors/move.png';
+    this.CURSOR_SEGMENT = 'cursors/segment.png';
+    this.CURSOR_CURVE = 'cursors/curve.png';
+    this.HOVER_PREVIEW_SEGMENT_STROKE_COLOR = 'rgba(100,150,255,1.0)';
+    this.HOVER_PREVIEW_SEGMENT_STROKE_WIDTH = 1.5;
+    this.HOVER_PREVIEW_SEGMENT_FILL_COLOR = '#ffffff';
+    this.HOVER_PREVIEW_SEGMENT_RADIUS = 5;
+    this.HOVER_PREVIEW_CURVE_STROKE_WIDTH = 2;
+    this.HOVER_PREVIEW_CURVE_STROKE_COLOR = this.HOVER_PREVIEW_SEGMENT_STROKE_COLOR;
+    this.hitResult = new this.paper.HitResult();
+    this.selectionBox = new this.paper.SelectionBox();
+    this.draggingCurve = new this.paper.Curve();
+    this.draggingSegment = new this.paper.Segment();
+    this.hoverPreview = new this.paper.Item({
+      insert: false
+    });
+    this.selectPoints = true;
+    this.selectCurves = true;
+    this.selectedItems = [];
+    this.currentCursorIcon = '';
+  }
+  /**
+   * Generate the current cursor.
+   * @type {string}
+   */
+
+
+  get cursor() {
+    return 'url("' + this.currentCursorIcon + '") 32 32, auto';
+  }
+
+  onActivate(e) {
+    this.selectedItems = [];
+  }
+
+  onDeactivate(e) {}
+
+  onMouseMove(e) {
+    super.onMouseMove(e); // Remove the hover preview, a new one will be generated if needed
+
+    this.hoverPreview.remove(); // Find the thing that is currently under the cursor.
+
+    this.hitResult = this._updateHitResult(e); // Update the image being used for the cursor
+
+    this._setCursor(this._getCursor());
+
+    if (this.hitResult.type === 'segment' && !this.hitResult.item.data.isSelectionBoxGUI) {
+      // Hovering over a segment, draw a circle where the segment is
+      this.hoverPreview = new this.paper.Path.Circle(this.hitResult.segment.point, this.HOVER_PREVIEW_SEGMENT_RADIUS / this.paper.view.zoom);
+      this.hoverPreview.strokeColor = this.HOVER_PREVIEW_SEGMENT_STROKE_COLOR;
+      this.hoverPreview.strokeWidth = this.HOVER_PREVIEW_SEGMENT_STROKE_WIDTH;
+      this.hoverPreview.fillColor = this.HOVER_PREVIEW_SEGMENT_FILL_COLOR;
+    } else if (this.hitResult.type === 'curve' && !this.hitResult.item.data.isSelectionBoxGUI) {
+      // Hovering over a curve, render a copy of the curve that can be bent
+      this.hoverPreview = new this.paper.Path();
+      this.hoverPreview.strokeWidth = this.HOVER_PREVIEW_CURVE_STROKE_WIDTH;
+      this.hoverPreview.strokeColor = this.HOVER_PREVIEW_CURVE_STROKE_COLOR;
+      this.hoverPreview.add(new this.paper.Point(this.hitResult.location.curve.point1));
+      this.hoverPreview.add(new this.paper.Point(this.hitResult.location.curve.point2));
+      this.hoverPreview.segments[0].handleOut = this.hitResult.location.curve.handle1;
+      this.hoverPreview.segments[1].handleIn = this.hitResult.location.curve.handle2;
+    }
+  }
+
+  onMouseDown(e) {
+    this.hitResult = this._updateHitResult(e);
+
+    if (this.hitResult.item && this.hitResult.item.data.isSelectionBoxGUI) {// The selection box was clicked
+    } else if (this.paper.selection.isItemSelected(this.hitResult.item)) {
+      // We clicked something that was already selected.
+      // Shift click: Deselect that item
+      if (e.modifiers.shift) {
+        var itemsWithoutHitItem = this.paper.selection.items.filter(item => {
+          return item !== hitResult.item;
+        }); //this.paper.drawingTools.fireSelectionChanged({items:itemsWithoutHitItem});
+
+        console.warn('todo: fire selection changed.');
+      }
+    } else if (this.hitResult.item && this.hitResult.type === 'fill') {
+      // Clicked an item: select that item
+      var items = [this.hitResult.item]; // Shift click? Keep everything else selected.
+
+      if (e.modifiers.shift) items = items.concat(this.paper.selection.items); //this.paper.drawingTools.fireSelectionChanged({items:items})
+
+      console.warn('todo: fire selection changed.');
+    } else if (this.hitResult.item && this.hitResult.type === 'curve') {
+      // Clicked a curve, start dragging it
+      this.draggingCurve = this.hitResult.location.curve;
+    } else if (this.hitResult.item && this.hitResult.type === 'segment') {} else {
+      // Nothing was clicked, so clear the selection and start a new selection box
+      this.paper.selection.finish();
+      /*
+      this.paper.drawingTools.fireSelectionChanged({items:[]});
+      this.paper.drawingTools.fireCanvasModified();
+      */
+
+      console.warn('todo: fire selection changed + canvas modified');
+      this.selectionBox.start(e.point);
+    }
+  }
+
+  onMouseDrag(e) {
+    if (this.hitResult.item && this.hitResult.item.data.isSelectionBoxGUI) {
+      // Drag a handle of the selection box.
+      // These can scale and rotate the selection.
+      this.paper.selection.handleDragMode = this.hitResult.item.data.handleType;
+      this.paper.selection[this.hitResult.item.data.handleEdge] = e.point;
+    } else if (this.selectionBox.active) {
+      // Selection box is being used, update it with a new point
+      this.selectionBox.drag(e.point);
+    } else if (this.hitResult.item && this.hitResult.type === 'fill') {
+      // We're dragging the selection itself, so move the whole item.
+      this.paper.selection.x += e.delta.x;
+      this.paper.selection.y += e.delta.y;
+    } else if (this.hitResult.item && this.hitResult.type === 'segment') {
+      // We're dragging an individual point, so move the point.
+      this.hitResult.segment.point = this.hitResult.segment.point.add(e.delta);
+      this.hoverPreview.position = this.hitResult.segment.point;
+    } else if (this.hitResult.item && this.hitResult.type === 'curve') {
+      // We're dragging a curve, so bend the curve.
+      var segment1 = this.draggingCurve.segment1;
+      var segment2 = this.draggingCurve.segment2;
+      var handleIn = this.segment1.handleOut;
+      var handleOut = this.segment2.handleIn;
+
+      if (handleIn.x === 0 && handleIn.y === 0) {
+        handleIn.x = (segment2.point.x - segment1.point.x) / 4;
+        handleIn.y = (segment2.point.y - segment1.point.y) / 4;
+      }
+
+      if (handleOut.x === 0 && handleOut.y === 0) {
+        handleOut.x = (segment1.point.x - segment2.point.x) / 4;
+        handleOut.y = (segment1.point.y - segment2.point.y) / 4;
+      }
+
+      handleIn.x += e.delta.x;
+      handleIn.y += e.delta.y;
+      handleOut.x += e.delta.x;
+      handleOut.y += e.delta.y; // Update the hover preview to match the curve we just changed
+
+      this.hoverPreview.segments[0].handleOut = this.draggingCurve.handle1;
+      this.hoverPreview.segments[1].handleIn = this.draggingCurve.handle2;
+    }
+  }
+
+  onMouseUp(e) {
+    if (this.selectionBox.active) {
+      // Finish selection box and select objects touching box (or inside box, if alt is held)
+      this.selectionBox.mode = e.modifiers.alt ? 'contains' : 'intersects';
+      this.selectionBox.end(e.point); //this.paper.drawingTools.fireSelectionChanged({items:selectionBox.items})
+
+      console.warn('todo fire selection changed');
+    } else {
+      //this.paper.drawingTools.fireSelectionTransformed({});
+      console.warn('todo fire selection transformed');
+    }
+  }
+
+  _updateHitResult(e) {
+    var newHitResult = this.paper.project.hitTest(e.point, {
+      fill: true,
+      stroke: true,
+      curves: true,
+      segments: true,
+      tolerance: this.SELECTION_TOLERANCE,
+      match: function (result) {
+        return result.item !== hoverPreview && !result.item.data.isBorder;
+      }
+    });
+    if (!newHitResult) newHitResult = new this.paper.HitResult();
+
+    if (newHitResult.item && !newHitResult.item.data.isSelectionBoxGUI) {
+      // You can't select children of compound paths, you can only select the whole thing.
+      if (newHitResult.item.parent.className === 'CompoundPath') {
+        newHitResult.item = newHitResult.item.parent;
+      } // You can't select individual children in a group, you can only select the whole thing.
+
+
+      if (newHitResult.item.parent.parent) {
+        newHitResult.type = 'fill';
+
+        while (newHitResult.item.parent.parent) {
+          newHitResult.item = newHitResult.item.parent;
+        }
+      } // this.paper.js has two names for strokes+curves, we don't need that extra info
+
+
+      if (newHitResult.type === 'stroke') {
+        newHitResult.type = 'curve';
+      } // Mousing over rasters acts the same as mousing over fills.
+
+
+      if (newHitResult.type === 'pixel') {
+        newHitResult.type = 'fill';
+      } // Disable curve selection unless selectCurves is true.
+
+
+      if (!this.selectCurves && newHitResult.type === 'curve') {
+        newHitResult.type = 'fill';
+      } // Disable segment selection unless selectPoints is true.
+
+
+      if (!this.selectPoints && newHitResult.type === 'segment') {
+        newHitResult.type = 'fill';
+      } // You can't drag segments and curves of a selected object.
+
+
+      if (this.paper.selection.isItemSelected(newHitResult.item)) {
+        newHitResult.type = 'fill';
+      }
+    }
+
+    return newHitResult;
+  }
+
+  _getCursor() {
+    if (!this.hitResult.item) {
+      return this.CURSOR_DEFAULT;
+    } else if (thishitResult.item.data.isSelectionBoxGUI) {
+      // Don't show any custom cursor if the mouse is over the border, the border does nothing
+      if (this.hitResult.item.name === 'border') {
+        return this.CURSOR_DEFAULT;
+      } // Calculate the angle in which the scale handle scales the selection.
+      // Use that angle to determine the cursor graphic to use.
+      // Here is a handy diagram showing the cursors that correspond to the angles:
+      // 315       0       45
+      //     o-----o-----o
+      //     |           |
+      //     |           |
+      // 270 o           o 90
+      //     |           |
+      //     |           |
+      //     o-----o-----o
+      // 225      180      135
+
+
+      var baseAngle = {
+        topCenter: 0,
+        topRight: 45,
+        rightCenter: 90,
+        bottomRight: 135,
+        bottomCenter: 180,
+        bottomLeft: 225,
+        leftCenter: 270,
+        topLeft: 315
+      }[this.hitResult.item.data.handleEdge]; // Flip angles if selection is flipped horizontally/vertically
+
+      if (this.paper.selection._transform.scaleX < 0) {
+        baseAngle = -baseAngle + 360;
+      }
+
+      if (this.paper.selection._transform.scaleY < 0) {
+        baseAngle = -baseAngle + 180;
+      }
+
+      var angle = baseAngle + this.paper.selection.rotation;
+      if (angle < 0) angle += 360;
+      if (angle > 360) angle -= 360; // Makes angle math easier if we dont allow angles >360 or <0 degrees
+      // Round the angle to the nearest 45 degree interval.
+
+      var angleRoundedToNearest45 = Math.round(angle / 45) * 45;
+      angleRoundedToNearest45 = Math.round(angleRoundedToNearest45); // just incase of float weirdness
+
+      angleRoundedToNearest45 = '' + angleRoundedToNearest45; // convert to string
+      // Now we know which of eight directions the handle is pointing, so we choose the correct cursor
+
+      if (this.hitResult.item.data.handleType === 'scale') {
+        var cursorGraphicFromAngle = {
+          '0': this.CURSOR_SCALE_VERTICAL,
+          '45': this.CURSOR_SCALE_TOP_RIGHT_BOTTOM_LEFT,
+          '90': this.CURSOR_SCALE_HORIZONTAL,
+          '135': this.CURSOR_SCALE_TOP_LEFT_BOTTOM_RIGHT,
+          '180': this.CURSOR_SCALE_VERTICAL,
+          '225': this.CURSOR_SCALE_TOP_RIGHT_BOTTOM_LEFT,
+          '270': this.CURSOR_SCALE_HORIZONTAL,
+          '315': this.CURSOR_SCALE_TOP_LEFT_BOTTOM_RIGHT,
+          '360': this.CURSOR_SCALE_VERTICAL
+        }[angleRoundedToNearest45];
+        return cursorGraphicFromAngle;
+      } else if (hitResult.item.data.handleType === 'rotation') {
+        var cursorGraphicFromAngle = {
+          '0': this.CURSOR_ROTATE_TOP,
+          '45': this.CURSOR_ROTATE_TOP_RIGHT,
+          '90': this.CURSOR_ROTATE_RIGHT,
+          '135': this.CURSOR_ROTATE_BOTTOM_RIGHT,
+          '180': this.CURSOR_ROTATE_BOTTOM,
+          '225': this.CURSOR_ROTATE_BOTTOM_LEFT,
+          '270': this.CURSOR_ROTATE_LEFT,
+          '315': this.CURSOR_ROTATE_TOP_LEFT,
+          '360': this.CURSOR_ROTATE_TOP
+        }[angleRoundedToNearest45];
+        return cursorGraphicFromAngle;
+      }
+    } else {
+      if (this.hitResult.type === 'fill') {
+        return this.CURSOR_MOVE;
+      } else if (hitResult.type === 'curve') {
+        return this.CURSOR_CURVE;
+      } else if (hitResult.type === 'segment') {
+        return this.CURSOR_SEGMENT;
+      }
+    }
+  }
+
+  _setCursor(cursor) {
+    this.currentCursorIcon = cursor;
+  }
+
+};
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
@@ -71825,6 +71848,7 @@ Wick.View.Project = class extends Wick.View {
     this._keysDown = [];
     this._isMouseDown = false;
     this.tools = {
+      cursor: new Wick.Tools.Cursor(),
       pencil: new Wick.Tools.Pencil(),
       ellipse: new Wick.Tools.Ellipse(),
       none: new Wick.Tools.None()
