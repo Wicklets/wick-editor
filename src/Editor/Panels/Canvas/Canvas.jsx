@@ -78,6 +78,7 @@ class Canvas extends Component {
     this.updateCanvas(this.props.project);
   }
 
+/*
   onCanvasModified = (e) => {
     this.props.project.view.applyChanges();
     this.props.projectDidChange();
@@ -107,6 +108,7 @@ class Canvas extends Component {
     project.pan.x = project.view.pan.x;
     project.pan.y = project.view.pan.y;
   }
+*/
 
   updateCanvas = (project) => {
     // Render wick project
