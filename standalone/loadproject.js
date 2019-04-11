@@ -7,7 +7,8 @@ window.onload = function () {
     }
 
     function handleProgress(event) {
-        container.innerHTML = (event.loaded * 100) + '%';
+        let container = document.getElementById("loading-bar");
+        container.innerHTML = "Loading... " + ((event.loaded * 100).toFixed(1)) + '%';
     }
 
     function playProject (project) {
@@ -16,6 +17,7 @@ window.onload = function () {
         document.title = project.name;
 
         container.innerHTML = '';
+        project.view.renderMode = 'webgl';
         project.view.canvasContainer = container;
         project.view.fitMode = 'fill';
         project.view.canvasBGColor = '#000000';
@@ -27,7 +29,6 @@ window.onload = function () {
 
         project.focus = project.root;
         project.focus.timeline.playheadPosition = 1;
-        project.view.renderMode = 'webgl';
         project.view.prerasterize(() => {
             project.play({
                 onError: (error => {

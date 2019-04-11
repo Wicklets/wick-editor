@@ -57790,6 +57790,7 @@ Wick.Project = class extends Wick.Base {
     this.onionSkinSeekForwards = 1;
     this._root = null;
     this.root = new Wick.Clip();
+    this.root.identifier = 'Project';
     this._focus = this.root.uuid;
     this.project = this;
     this._assets = [];
@@ -58051,6 +58052,18 @@ Wick.Project = class extends Wick.Base {
     });
   }
   /**
+   * Retrieve an asset from the project by its name.
+   * @param {string} name - The name of the asset to get.
+   * @return {Wick.Asset} The asset
+   */
+
+
+  getAssetByName(name) {
+    return this.getAssets().find(asset => {
+      return asset.name === name;
+    });
+  }
+  /**
    * The assets belonging to the project.
    * @param {string} type - Optional, filter assets by type ("Sound"/"Image"/"Clip"/"Button")
    * @returns {Wick.Asset[]} The assets in the project
@@ -58146,6 +58159,24 @@ Wick.Project = class extends Wick.Base {
     return this._keysLastDown.filter(key => {
       return this._keysDown.indexOf(key) === -1;
     });
+  }
+  /**
+   * Check if a key is being pressed.
+   * @param {string} key - The name of the key to check
+   */
+
+
+  isKeyDown(key) {
+    return this.keysDown.indexOf(key) !== -1;
+  }
+  /**
+   * Check if a key was just pressed.
+   * @param {string} key - The name of the key to check
+   */
+
+
+  isKeyJustPressed(key) {
+    return this.keysJustPressed.indexOf(key) !== -1;
   }
   /**
    * The key to be used in the global 'key' variable in the scripting API. Update currentKey before you run any key script.
@@ -58305,6 +58336,34 @@ Wick.Project = class extends Wick.Base {
     }
   }
   /**
+   * Plays the sound in the asset library with the given name.
+   * @param {string} assetName - Name of the sound asset to play
+   */
+
+
+  playSound(assetName) {
+    var asset = this.getAssetByName(assetName);
+
+    if (!asset) {
+      console.warn('playSound(): No asset with name: "' + assetName + '"');
+    } else if (!(asset instanceof Wick.SoundAsset)) {
+      console.warn('playSound(): Asset is not a sound: "' + assetName + '"');
+    } else {
+      asset.play();
+    }
+  }
+  /**
+   * Stops all sounds playing from frames and sounds played using playSound().
+   */
+
+
+  stopAllSounds() {
+    // TODO: Stop all sounds started with Wick.Project.playSound();
+    this.getAllFrames().forEach(frame => {
+      frame.stopSound();
+    });
+  }
+  /**
    * Creates a wick file from the project.
    * @param {function} callback - Function called when the file is created. Contains the file as a parameter.
    */
@@ -58389,10 +58448,7 @@ Wick.Project = class extends Wick.Base {
 
 
   stop() {
-    // Stop all sounds.
-    this.getAllFrames().forEach(frame => {
-      frame.stopSound();
-    });
+    this.stopAllSounds();
     clearInterval(this._tickIntervalID);
     this._tickIntervalID = null;
   }
@@ -58441,13 +58497,13 @@ Wick.Project = class extends Wick.Base {
    */
 
 
-  generateImageSequence(args, done) {
+  generateImageSequence(args, callback) {
     // Create a clone of the project so we don't have to change the state of the actual project to render the frames...
     let project = this.clone(); // Put the project canvas inside a div that's the same size as the project so the frames render at the correct resolution.
 
     let container = window.document.createElement('div');
-    container.style.width = project.width + 'px';
-    container.style.height = project.height + 'px';
+    container.style.width = project.width / window.devicePixelRatio + 'px';
+    container.style.height = project.height / window.devicePixelRatio + 'px';
     window.document.body.appendChild(container);
     project.view.canvasContainer = container;
     project.view.resize(); // Set the initial state of the project.
@@ -58474,7 +58530,7 @@ Wick.Project = class extends Wick.Base {
         if (project.focus.timeline.playheadPosition >= project.focus.timeline.length) {
           paper.view.autoUpdate = true; // reset autoUpdate back to normal
 
-          done(frameImages);
+          callback(frameImages);
         } else {
           project.focus.timeline.playheadPosition++;
           renderFrame();
@@ -59338,6 +59394,24 @@ Wick.Timeline = class extends Wick.Base {
     this.gotoFrame(frame);
   }
   /**
+   * Moves the timeline forward one frame. Does nothing if the timeline is on its last frame.
+   */
+
+
+  gotoNextFrame() {
+    var nextFramePlayheadPosition = Math.min(this.length, this.playheadPosition + 1);
+    this.gotoFrame(nextFramePlayheadPosition);
+  }
+  /**
+   * Moves the timeline backwards one frame. Does nothing if the timeline is on its first frame.
+   */
+
+
+  gotoPrevFrame() {
+    var prevFramePlayheadPosition = Math.max(1, this.playheadPosition - 1);
+    this.gotoFrame(prevFramePlayheadPosition);
+  }
+  /**
    * Moves the playhead to a given frame number or name.
    * @param {string|number} frame - A playhead position or name of a frame to move to.
    */
@@ -60065,7 +60139,7 @@ Wick.SoundAsset = class extends Wick.FileAsset {
 
 
   play(seekMS, volume) {
-    // Lazyily create howl instance
+    // Lazily create howl instance
     if (!this._howl) {
       this._howl = new Howl({
         src: [this.src]
@@ -61322,6 +61396,22 @@ Wick.Clip = class extends Wick.Tickable {
     this.timeline.gotoAndPlay(frame);
   }
   /**
+   * Move the playhead of the clips timeline forward one frame. Does nothing if the clip is on its last frame.
+   */
+
+
+  gotoNextFrame() {
+    this.timeline.gotoNextFrame();
+  }
+  /**
+   * Move the playhead of the clips timeline backwards one frame. Does nothing if the clip is on its first frame.
+   */
+
+
+  gotoPrevFrame() {
+    this.timeline.gotoPrevFrame();
+  }
+  /**
    * Returns the name of the frame which is currently active. If multiple frames are active, returns the
    * name of the first active frame.
    * @returns {string} Active Frame name. If the active frame does not have an identifier, returns empty string.
@@ -61596,9 +61686,16 @@ Wick.Button = class extends Wick.Clip {
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
 GlobalAPI = class {
+  /**
+   *
+   */
   constructor(scriptOwner) {
     this.scriptOwner = scriptOwner;
   }
+  /**
+   *
+   */
+
 
   get apiMemberNames() {
     var allNames = Object.getOwnPropertyNames(Object.getPrototypeOf(this));
@@ -61607,6 +61704,10 @@ GlobalAPI = class {
     });
     return names;
   }
+  /**
+   *
+   */
+
 
   get apiMembers() {
     var members = this.apiMemberNames.map(name => {
@@ -61621,22 +61722,58 @@ GlobalAPI = class {
     });
     return boundFunctions;
   }
+  /**
+   *
+   */
+
 
   stop() {
     this.scriptOwner.parentClip.stop();
   }
+  /**
+   *
+   */
+
 
   play() {
     this.scriptOwner.parentClip.play();
   }
+  /**
+   *
+   */
+
 
   gotoAndStop(frame) {
     this.scriptOwner.parentClip.gotoAndStop(frame);
   }
+  /**
+   *
+   */
+
 
   gotoAndPlay(frame) {
     this.scriptOwner.parentClip.gotoAndPlay(frame);
   }
+  /**
+   *
+   */
+
+
+  gotoNextFrame() {
+    this.scriptOwner.parentClip.gotoNextFrame();
+  }
+  /**
+   *
+   */
+
+
+  gotoPrevFrame() {
+    this.scriptOwner.parentClip.gotoPrevFrame();
+  }
+  /**
+   *
+   */
+
 
   get project() {
     var project = this.scriptOwner.project && this.scriptOwner.project.root;
@@ -61661,33 +61798,129 @@ GlobalAPI = class {
   get root() {
     return this.project;
   }
+  /**
+   *
+   */
+
 
   get parent() {
     return this.scriptOwner.parentClip;
   }
+  /**
+   * @deprecated
+   * Legacy item which returns the parent object. Use 'parent' instead.
+   */
+
+
+  get parentObject() {
+    return this.parent;
+  }
+  /**
+   *
+   */
+
+
+  isMouseDown() {
+    if (!this.scriptOwner.project) return null;
+    return this.scriptOwner.project.isMouseDown;
+  }
+  /**
+   *
+   */
+
 
   get key() {
     if (!this.scriptOwner.project) return null;
     return this.scriptOwner.project.currentKey;
   }
+  /**
+   *
+   */
+
 
   get keys() {
     if (!this.scriptOwner.project) return null;
     return this.scriptOwner.project.keysDown;
   }
+  /**
+   *
+   */
+
+
+  isKeyDown(key) {
+    if (!this.scriptOwner.project) return null;
+    return this.scriptOwner.project.isKeyDown(key);
+  }
+  /**
+   * @deprecated
+   * Legacy item, use 'isKeyDown' instead.
+   */
+
+
+  keyIsDown(key) {
+    return this.isKeyDown(key.toLowerCase());
+  }
+  /**
+   *
+   */
+
+
+  isKeyJustPressed(key) {
+    if (!this.scriptOwner.project) return null;
+    return this.scriptOwner.project.isKeyJustPressed(key);
+  }
+  /**
+   * @deprecated
+   * Legacy item, use 'isKeyJustPressed' instead.
+   */
+
+
+  keyIsJustPressed(key) {
+    return this.keyIsJustPressed(key.toLowerCase());
+  }
+  /**
+   *
+   */
+
 
   get mouseX() {
     if (!this.scriptOwner.project) return null;
     return this.scriptOwner.project.mousePosition.x;
   }
+  /**
+   *
+   */
+
 
   get mouseY() {
     if (!this.scriptOwner.project) return null;
     return this.scriptOwner.project.mousePosition.y;
   }
+  /**
+   *
+   */
+
 
   get random() {
     return new GlobalAPI.Random();
+  }
+  /**
+   *
+   */
+
+
+  playSound(assetName) {
+    if (!this.scriptOwner.project) return null;
+    return this.scriptOwner.project.playSound(assetName);
+  }
+  /**
+   *
+   */
+
+
+  stopAllSounds(assetName) {
+    if (!this.scriptOwner.project) return null;
+    return this.scriptOwner.project.stopAllSounds();
   }
 
 };
@@ -62048,8 +62281,7 @@ Wick.View.Project = class extends Wick.View {
     };
     this._zoom = 1;
     this._keysDown = [];
-
-    this._attachKeyListeners();
+    this._isMouseDown = false;
   }
   /*
    * Determines the way the project will scale itself based on its container.
@@ -62204,6 +62436,7 @@ Wick.View.Project = class extends Wick.View {
 
   processInput() {
     this.model.keysDown = this._keysDown;
+    this.model.isMouseDown = this._isMouseDown;
   }
   /*
    * Resize the canvas to fit it's container div.
@@ -62216,10 +62449,10 @@ Wick.View.Project = class extends Wick.View {
     var containerWidth = this.canvasContainer.offsetWidth;
     var containerHeight = this.canvasContainer.offsetHeight;
 
-    if (this._renderMode === 'svg') {
+    if (this._renderMode === 'svg' && this._svgCanvas) {
       paper.view.viewSize.width = containerWidth;
       paper.view.viewSize.height = containerHeight;
-    } else if (this._renderMode === 'webgl') {
+    } else if (this._renderMode === 'webgl' && this._webGLCanvas) {
       this._pixiApp.renderer.resize(containerWidth, containerHeight);
     }
   }
@@ -62355,9 +62588,7 @@ Wick.View.Project = class extends Wick.View {
     } else if (this._fitMode === 'fill') {
       // Fill mode: Try to fit the wick project's canvas inside the container canvas by
       // scaling it as much as possible without changing the project's original aspect ratio
-      var wr = paper.view.viewSize.width / this.model.width;
-      var hr = paper.view.viewSize.height / this.model.height;
-      paper.view.zoom = Math.min(wr, hr);
+      paper.view.zoom = this._calculateFitZoom();
     }
 
     var pan = this._pan;
@@ -62434,28 +62665,46 @@ Wick.View.Project = class extends Wick.View {
 
     this._pixiRootContainer = new PIXI.Container(); // Get the canvas from the PIXI app
 
-    this._webGLCanvas = this._pixiApp.view;
+    this._webGLCanvas = this._pixiApp.view; // Attach input handlers
+
+    this._attachKeyListeners();
+
+    this._attachMouseListeners();
   }
 
   _renderWebGLCanvas() {
-    // Update mouse position
+    // Calculate pan and zoom
+    var zoom = this._zoom;
+    var pan = {
+      x: this._pan.x,
+      y: this._pan.y
+    };
+    pan.x += this._pixiApp.renderer.width / 2;
+    pan.y += this._pixiApp.renderer.height / 2;
+
+    if (this._fitMode === 'fill') {
+      // Change pan/zoom if needed depending on fit mode
+      zoom *= this._calculateFitZoom();
+      pan.x = (window.innerWidth - this.model.width * zoom) / 2;
+      pan.y = (window.innerHeight - this.model.height * zoom) / 2;
+    } // Update mouse position (and adjust based on fit mode)
+
+
     var pixiMouse = this._pixiApp.renderer.plugins.interaction.mouse.global;
     this.model.mousePosition = {
-      x: pixiMouse.x,
-      y: pixiMouse.y
-    }; // Reset cursor (button views change cursor if the mouse is over a button)
+      x: (pixiMouse.x - pan.x) / zoom,
+      y: (pixiMouse.y - pan.y) / zoom
+    }; // Reset cursor (button views will change the cursor style if the mouse is over a button)
 
     this._webGLCanvas.style.cursor = 'default';
 
-    this._pixiRootContainer.removeChildren(); // Zoom and pan
+    this._pixiRootContainer.removeChildren(); // Set zoom and pan in Pixi
 
 
-    var pan = this._pan; // Pixi's origin is the top-left of the canvas, so shift it over to match paper.js.
-
-    pan.x += this._pixiApp.renderer.width / 2;
-    pan.y += this._pixiApp.renderer.height / 2;
     this._pixiRootContainer.x = pan.x;
     this._pixiRootContainer.y = pan.y;
+    this._pixiRootContainer.scale.x = zoom;
+    this._pixiRootContainer.scale.y = zoom;
 
     if (this.model.focus.isRoot) {
       // We're in the root timeline, render the canvas normally
@@ -62469,7 +62718,7 @@ Wick.View.Project = class extends Wick.View {
     this.model.focus.timeline.view.render();
     this.model.focus.timeline.view.activeFrameContainers.forEach(container => {
       this._pixiRootContainer.addChild(container);
-    }); // Render PIXI
+    }); // Render Pixi
 
     this._pixiApp.ticker.update(1);
 
@@ -62478,13 +62727,19 @@ Wick.View.Project = class extends Wick.View {
 
   _generateWebGLCanvasStage() {
     let graphics = new PIXI.Graphics();
+    graphics._wickDebugData = {
+      type: 'canvas_stage'
+    };
     graphics.beginFill(this._convertCSSColorToPixiColor(this.model.backgroundColor));
     graphics.drawRect(0, 0, this.model.width, this.model.height);
     return graphics;
   }
 
   _generateWebGLOriginCrosshair() {
-    let graphics = new PIXI.Graphics(); // crosshair style
+    let graphics = new PIXI.Graphics();
+    graphics._wickDebugData = {
+      type: 'origin_crosshair'
+    }; // crosshair style
 
     var pixiColor = this._convertCSSColorToPixiColor(Wick.View.Project.ORIGIN_CROSSHAIR_COLOR);
 
@@ -62514,6 +62769,23 @@ Wick.View.Project = class extends Wick.View {
     return parseInt(cssColor.replace("#", "0x"));
   }
 
+  _calculateFitZoom() {
+    var w = 0;
+    var h = 0;
+
+    if (this._renderMode === 'svg') {
+      w = paper.view.viewSize.width;
+      h = paper.view.viewSize.height;
+    } else if (this._renderMode === 'webgl') {
+      w = this._pixiApp.renderer.width;
+      h = this._pixiApp.renderer.height;
+    }
+
+    var wr = w / this.model.width;
+    var hr = h / this.model.height;
+    return Math.min(wr, hr);
+  }
+
   _attachKeyListeners() {
     window.onkeydown = this._onKeyDown.bind(this);
     window.onkeyup = this._onKeyUp.bind(this);
@@ -62539,6 +62811,24 @@ Wick.View.Project = class extends Wick.View {
     this._keysDown = this._keysDown.filter(key => {
       return key !== cleanKey;
     });
+  }
+
+  _attachMouseListeners() {
+    window.onmousedown = () => {
+      this._onMouseDown();
+    };
+
+    window.onmouseup = () => {
+      this._onMouseUp();
+    };
+  }
+
+  _onMouseDown() {
+    this._isMouseDown = true;
+  }
+
+  _onMouseUp() {
+    this._isMouseDown = false;
   }
 
 };
@@ -62793,7 +63083,11 @@ Wick.View.Frame = class extends Wick.View {
   }
 
   _renderPathsWebGL() {
-    // Don't do anything if we already have a cached raster
+    this.pathsContainer._wickDebugData = {
+      uuid: this.model.uuid,
+      type: 'frame_pathscontainer'
+    }; // Don't do anything if we already have a cached raster
+
     if (this._pixiSprite) {
       return;
     } // Otherwise, generate a new Pixi sprite
@@ -62810,6 +63104,10 @@ Wick.View.Frame = class extends Wick.View {
 
   _renderClipsWebGL() {
     this.clipsContainer.removeChildren();
+    this.clipsContainer._wickDebugData = {
+      uuid: this.model.uuid,
+      type: 'frame_clipscontainer'
+    };
     this.model.clips.forEach(clip => {
       clip.view.render();
       this.clipsContainer.addChild(clip.view.container);
@@ -62823,9 +63121,8 @@ Wick.View.Frame = class extends Wick.View {
     var rasterResoltion = paper.view.resolution;
     rasterResoltion *= Wick.View.Frame.RASTERIZE_RESOLUTION_MODIFIER_FOR_DEVICE; // get a rasterized version of the resulting SVG
 
-    var raster = this.pathsLayer.rasterize(rasterResoltion, {
-      insert: false
-    });
+    this.pathsLayer.opacity = 1;
+    var raster = this.pathsLayer.rasterize(rasterResoltion, false);
     this._SVGBounds = {
       x: this.pathsLayer.bounds.x,
       y: this.pathsLayer.bounds.y
@@ -62856,6 +63153,10 @@ Wick.View.Frame = class extends Wick.View {
       sprite.y = this._SVGBounds.y; // Cache pixi sprite
 
       this._pixiSprite = sprite;
+      this._pixiSprite._wickDebugData = {
+        uuid: this.model.uuid,
+        type: 'frame_svg'
+      };
 
       this._onRasterFinishCallback();
     });
