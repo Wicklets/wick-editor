@@ -64590,7 +64590,6 @@ Wick.Project = class extends Wick.Base {
     this._keysLastDown = [];
     this._currentKey = null;
     this._tickIntervalID = null;
-    this.tool = 'pencil';
   }
 
   static _deserialize(data, object) {
@@ -64710,19 +64709,6 @@ Wick.Project = class extends Wick.Base {
 
   get classname() {
     return 'Project';
-  }
-  /**
-   * The name of the currently active tool.
-   * @type {string}
-   */
-
-
-  get tool() {
-    return this._tool;
-  }
-
-  set tool(tool) {
-    this._tool = tool;
   }
   /**
    * The currently focused clip.
@@ -70543,13 +70529,21 @@ Wick.Tool = class {
 
 
   constructor() {
-    this.paperTool = new paper.Tool();
+    this.paperTool = new this.paper.Tool();
     Wick.Tool.EVENT_NAMES.forEach(paperEventName => {
       this.paperTool[paperEventName] = e => {
         var fn = this[paperEventName];
         fn && fn.bind(this)(e);
       };
     });
+  }
+  /**
+   * The paper.js scope to use.
+   */
+
+
+  get paper() {
+    return Wick.View.paperScope;
   }
   /**
    * The CSS cursor to display for this tool.
@@ -70577,7 +70571,7 @@ Wick.Tool = class {
 
 
   onMouseMove(e) {
-    paper.view._element.style.cursor = this.cursor;
+    this.paper.view._element.style.cursor = this.cursor;
   }
   /**
    * Called when the mouse clicks the paper.js canvas and this is the active tool.
@@ -71142,8 +71136,8 @@ Wick.Tools.Ellipse = class extends Wick.Tool {
       this.bottomRight.y = topLeft.y + max * (d.y < 0 ? -1 : 1);
     }
 
-    var bounds = new paper.Rectangle(new paper.Point(this.topLeft.x, this.topLeft.y), new paper.Point(this.bottomRight.x, this.bottomRight.y));
-    this.path = new paper.Path.Ellipse(bounds);
+    var bounds = new this.paper.Rectangle(new this.paper.Point(this.topLeft.x, this.topLeft.y), new this.paper.Point(this.bottomRight.x, this.bottomRight.y));
+    this.path = new this.paper.Path.Ellipse(bounds);
     this.path.fillColor = this.fillColor;
     this.path.strokeColor = this.strokeColor;
     this.path.strokeWidth = this.strokeWidth;
@@ -71497,7 +71491,7 @@ Wick.Tools.Pencil = class extends Wick.Tool {
 
   onMouseDown(e) {
     if (!this.path) {
-      this.path = new paper.Path({
+      this.path = new this.paper.Path({
         strokeColor: this.strokeColor,
         strokeWidth: this.strokeWidth,
         strokeCap: 'round'
@@ -71830,6 +71824,11 @@ Wick.View.Project = class extends Wick.View {
     this._zoom = 1;
     this._keysDown = [];
     this._isMouseDown = false;
+    this.tools = {
+      pencil: new Wick.Tools.Pencil(),
+      ellipse: new Wick.Tools.Ellipse(),
+      none: new Wick.Tools.None()
+    };
   }
   /*
    * Determines the way the project will scale itself based on its container.
@@ -72127,9 +72126,6 @@ Wick.View.Project = class extends Wick.View {
 
     this._svgBackgroundLayer.remove();
 
-    this.tools = {
-      pencil: new Wick.Tools.Pencil()
-    };
     this.paper.project.clear();
   }
 
@@ -73123,7 +73119,7 @@ Wick.GUIElement = class {
   }
 
   _buildItem() {
-    var item = new paper.Group();
+    var item = new this.paper.Group();
     item.remove();
     item.applyMatrix = false;
     item.pivot = new paper.Point(0, 0);
@@ -75429,7 +75425,7 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
     this.paper.project.activeLayer.addChild(this.item); // Half pixel nudge for sharper 1px strokes
     // https://stackoverflow.com/questions/7530593/html5-canvas-and-line-width/7531540#7531540
 
-    paper.view.translate(0.5, 0.5);
+    this.paper.view.translate(0.5, 0.5);
 
     this._attachMouseEvents();
   }
@@ -75511,7 +75507,7 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
   }
 
   _attachMouseEvents() {
-    paper.view.onMouseMove = e => {
+    this.paper.view.onMouseMove = e => {
       // don't fire mouseMove functions if we're dragging
       if (e.event.buttons) return;
       this.updateMousePosition(e.event);
@@ -75529,7 +75525,7 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
       }
     };
 
-    paper.view.onMouseDown = e => {
+    this.paper.view.onMouseDown = e => {
       var guiElement = this._getGUIElementAtPosition(e.point);
 
       if (guiElement) {
@@ -75537,7 +75533,7 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
       }
     };
 
-    paper.view.onMouseUp = e => {
+    this.paper.view.onMouseUp = e => {
       if (this._hoverTarget) {
         this._hoverTarget.handleMouseUp(e);
       }
@@ -75545,7 +75541,7 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
   }
 
   _getGUIElementAtPosition(point) {
-    var hitResult = paper.project.hitTest(point);
+    var hitResult = this.paper.project.hitTest(point);
     if (!hitResult || !hitResult.item) return;
 
     var guiElement = this._getGUIElementOfItem(hitResult.item);

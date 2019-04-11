@@ -25,8 +25,23 @@ import './_timeline.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 class Timeline extends Component {
+  constructor (props) {
+    super(props);
+
+    this.canvasContainer = React.createRef();
+  }
+
   componentDidMount () {
-    this.props.onRef(this);
+    let canvasContainerElem = this.canvasContainer.current;
+
+    this.props.project.guiElement.canvasContainer = canvasContainerElem;
+    this.props.project.guiElement.resize();
+  }
+
+  componentDidUpdate () {
+    var project = this.props.project;
+    project.guiElement.canvasContainer = this.canvasContainer.current;
+    project.guiElement.build();
   }
 
   render() {
@@ -36,7 +51,7 @@ class Timeline extends Component {
           project={this.props.project}
           setFocusObject={this.props.setFocusObject}
         />
-        <div id="animation-timeline" ref="container" />
+        <div id="animation-timeline" ref={this.canvasContainer} />
       </div>
 
     )

@@ -37,12 +37,6 @@ class Canvas extends Component {
     this.props.project.view.canvasContainer = canvasContainerElem;
     this.props.project.view.resize();
 
-    this.tools = {
-      pencil: new window.Wick.Tools.Pencil(),
-      ellipse: new window.Wick.Tools.Ellipse(),
-      none: new window.Wick.Tools.None(),
-    };
-
     /*
     // Listen to drawing tool events
     paper.drawingTools.setup();
@@ -123,7 +117,7 @@ class Canvas extends Component {
 
     // update the drawing tool based on the editor's active tool state.
     let toolName = this.props.activeTool;
-    let tool = this.tools[this.props.activeTool];
+    let tool = this.props.project.view.tools[this.props.activeTool];
     if(!tool) {
       console.warn('Invalid tool: ' + toolName);
     } else {
@@ -137,7 +131,7 @@ class Canvas extends Component {
     if(!project.activeFrame ||
        project.activeLayer.locked ||
        project.activeLayer.hidden) {
-      this.tools.none.activate();
+      this.props.project.view.tools.none.activate();
     }
   }
 

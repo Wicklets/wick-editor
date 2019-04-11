@@ -232,7 +232,7 @@ class Editor extends EditorCore {
           this.stopPreviewPlaying([error])
         },
         onAfterTick: () => {
-          this.timelineComponent.updateTimeline();
+          
         },
         onBeforeTick: () => {
 
@@ -303,6 +303,7 @@ class Editor extends EditorCore {
 
   onResize = (e) => {
     this.project.view.resize();
+    this.project.guiElement.resize();
   }
 
   onStopResize = ({domElement, component}) => {
