@@ -108,7 +108,7 @@ class ProjectSettings extends Component {
             <WickInput
                 id="projectName"
                 type="text"
-                value={this.props.project.name}
+                value={this.state.name}
                 placeholder={this.defaultName}
                 onChange={this.changeProjectName}
               />

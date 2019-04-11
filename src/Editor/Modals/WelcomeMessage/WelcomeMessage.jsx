@@ -52,6 +52,9 @@ class WelcomeModal extends Component {
                 <li>New Modal Designs</li>
                 <li>New Toolbar Icons</li>
                 <li>Updated Error Messages</li>
+                <li>New Coding API Additions</li>
+                <li>New Inspector Actions</li>
+                <li>A fast project renderer</li>
                 <li>Many, many, bugfixes...</li>
               </ul>
             </div>
