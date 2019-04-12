@@ -40,6 +40,17 @@ class Timeline extends Component {
 
   componentDidUpdate () {
     var project = this.props.project;
+
+    if(project !== this.currentAttachedProject) {
+      project.guiElement.on('projectModified', (e) => {
+        this.props.projectDidChange();
+      });
+      project.guiElement.on('projectSoftModified', (e) => {
+        this.props.projectDidChange(true);
+      });
+      this.currentAttachedProject = project;
+    }
+
     project.guiElement.canvasContainer = this.canvasContainer.current;
     project.guiElement.build();
   }

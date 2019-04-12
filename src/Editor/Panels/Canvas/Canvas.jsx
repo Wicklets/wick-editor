@@ -32,19 +32,40 @@ class Canvas extends Component {
   }
 
   componentDidMount() {
+    this.attachProjectToComponent(this.props.project);
+
+    this.updateCanvas(this.props.project);
+
+    this.props.onRef(this);
+  }
+
+  componentDidUpdate () {
+    this.updateCanvas(this.props.project);
+  }
+
+  attachProjectToComponent = (project) => {
+    if(this.currentAttachedProject === project) return;
+    this.currentAttachedProject = project;
+
     let canvasContainerElem = this.canvasContainer.current;
 
-    this.props.project.view.canvasContainer = canvasContainerElem;
-    this.props.project.view.resize();
+    project.view.canvasContainer = canvasContainerElem;
+    project.view.resize();
+
+    project.view.on('canvasModified', (e) => {
+      this.props.project.view.applyChanges();
+      this.props.projectDidChange();
+    });
+
+    project.view.on('selectionTransformed', (e) => {
+      this.props.projectDidChange(true);
+    });
+
+    project.view.on('selectionChanged', (e) => {
+      this.props.projectDidChange();
+    });
 
     /*
-    // Listen to drawing tool events
-    paper.drawingTools.setup();
-    paper.drawingTools.onCanvasModified(this.onCanvasModified);
-    paper.drawingTools.onSelectionChanged(this.onSelectionChanged);
-    paper.drawingTools.onCanvasViewChanged(this.onCanvasViewChanged);
-    paper.drawingTools.onSelectionTransformed(this.onSelectionTransformed);
-
     // Add some toaster warnings so there's some feedback when you try to draw somewhere that you can't.
     paper.drawingTools.none.onMouseDown = () => {
       if(!this.props.project.activeFrame) {
@@ -68,49 +89,11 @@ class Canvas extends Component {
       }
     }
     */
-
-    this.updateCanvas(this.props.project);
-
-    this.props.onRef(this);
   }
-
-  componentDidUpdate () {
-    this.updateCanvas(this.props.project);
-  }
-
-/*
-  onCanvasModified = (e) => {
-    this.props.project.view.applyChanges();
-    this.props.projectDidChange();
-  }
-
-  onSelectionTransformed = (e) => {
-    this.props.projectDidChange(true);
-  }
-
-  onSelectionChanged = (e) => {
-    let project = this.props.project;
-
-    project.view.applyChanges();
-    project.selection.clear();
-    e.items.forEach(item => {
-      let object = project.getChildByUUID(item.data.wickUUID);
-      project.selection.select(object);
-    });
-
-    project.view.applyChanges();
-    this.props.projectDidChange();
-  }
-
-  onCanvasViewChanged = (e) => {
-    let project = this.props.project;
-    project.zoom = project.view.zoom;
-    project.pan.x = project.view.pan.x;
-    project.pan.y = project.view.pan.y;
-  }
-*/
 
   updateCanvas = (project) => {
+    this.attachProjectToComponent(project);
+
     // Render wick project
     project.view.renderMode = this.props.previewPlaying ? 'webgl' : 'svg';
     project.view.canvasBGColor = styles.editorCanvasBorder;
