@@ -70580,6 +70580,11 @@ Wick.Tool = class {
 
   fireEvent(eventName, e) {
     if (!e) e = {};
+
+    if (!e.layers) {
+      e.layers = [this.paper.project.activeLayer];
+    }
+
     var fn = this._eventCallbacks[eventName];
     fn && fn(e);
   }
@@ -71453,7 +71458,7 @@ Wick.Tools.FillBucket = class extends Wick.Tool {
     });
 
     if (hitResult && hitResult.item) {
-      hitResult.item.fillColor = tool.fillColor;
+      hitResult.item.fillColor = this.fillColor;
       this.fireEvent('canvasModified');
     } else {
       setTimeout(function () {
@@ -71466,7 +71471,7 @@ Wick.Tools.FillBucket = class extends Wick.Tool {
             this.setCursor('default');
 
             if (path) {
-              path.fillColor = tool.fillColor;
+              path.fillColor = this.fillColor;
               path.name = null;
               this.paper.project.activeLayer.addChild(path);
               this.fireEvent('canvasModified');
@@ -72177,7 +72182,7 @@ Wick.View.Project = class extends Wick.View {
       var tool = this.tools[toolName];
       tool.on('canvasModified', e => {
         this.applyChanges();
-        this.fireEvent('canvasModified');
+        this.fireEvent('canvasModified', e);
       });
       tool.on('selectionChanged', e => {
         this.applyChanges();
@@ -72187,10 +72192,10 @@ Wick.View.Project = class extends Wick.View {
           this.model.selection.select(object);
         });
         this.applyChanges();
-        this.fireEvent('selectionChanged');
+        this.fireEvent('selectionChanged', e);
       });
       tool.on('selectionTransformed', e => {
-        this.fireEvent('selectionTransformed');
+        this.fireEvent('selectionTransformed', e);
       });
     }
   }
@@ -73676,6 +73681,7 @@ Wick.GUIElement.CreateLayerLabel = class extends Wick.GUIElement.Clickable {
       this.model.project.selection.clear();
       this.model.project.selection.select(layer);
       this.model.project.guiElement.build();
+      this.model.project.guiElement.fire('projectModified');
     });
     this.on('mouseLeave', () => {
       this.build();
@@ -74016,6 +74022,8 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
         this.model.project.selection.select(this.model);
         this.model.project.guiElement.build();
       }
+
+      this.model.project.guiElement.fire('projectModified');
     });
     this.on('mouseLeave', () => {
       this.build();
@@ -74267,6 +74275,7 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
       frame.guiElement.ghost.active = false;
       frame.guiElement.build();
     });
+    this.model.project.guiElement.fire('projectModified');
   }
 
 };
@@ -74584,6 +74593,7 @@ Wick.GUIElement.FramesContainer = class extends Wick.GUIElement.Draggable {
       });
       this.selectionBox.active = false;
       this.model.project.guiElement.build();
+      this.model.project.guiElement.fire('projectModified');
     });
   }
   /**
@@ -74659,6 +74669,7 @@ Wick.GUIElement.FramesContainerBG = class extends Wick.GUIElement.Draggable {
       }
 
       this.model.project.guiElement.build();
+      this.model.project.guiElement.fire('projectModified');
     });
   }
   /**
@@ -74727,6 +74738,7 @@ Wick.GUIElement.FramesStrip = class extends Wick.GUIElement.Draggable {
       this.model.project.selection.select(newFrame);
       this.model.parentTimeline.playheadPosition = playheadPosition;
       this.model.parentTimeline.guiElement.build();
+      this.model.project.guiElement.fire('projectModified');
     });
     this.on('mouseLeave', () => {
       this._addFrameOverlay.active = false;
@@ -75034,6 +75046,7 @@ Wick.GUIElement.LayerHideButton = class extends Wick.GUIElement.LayerButton {
     this.y = 0;
     this.on('mouseDown', () => {
       this.model.hidden = !this.model.hidden;
+      this.model.project.guiElement.fire('projectModified');
     });
   }
   /**
@@ -75259,6 +75272,7 @@ Wick.GUIElement.LayerLockButton = class extends Wick.GUIElement.LayerButton {
     this.y = 0;
     this.on('mouseDown', () => {
       this.model.locked = !this.model.locked;
+      this.model.project.guiElement.fire('projectModified');
     });
   }
   /**
@@ -75558,6 +75572,7 @@ Wick.GUIElement.OnionSkinRangeEnd = class extends Wick.GUIElement.OnionSkinRange
     this.on('dragEnd', () => {
       this.drop();
       this.build();
+      this.model.project.guiElement.fire('projectModified');
     });
   }
   /**
@@ -75641,6 +75656,7 @@ Wick.GUIElement.OnionSkinRangeStart = class extends Wick.GUIElement.OnionSkinRan
     this.on('dragEnd', () => {
       this.drop();
       this.build();
+      this.model.project.guiElement.fire('projectModified');
     });
   }
   /**
