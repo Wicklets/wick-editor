@@ -70903,21 +70903,27 @@ Wick.Tools.Cursor = class extends Wick.Tool {
         var itemsWithoutHitItem = this.paper.selection.items.filter(item => {
           return item !== hitResult.item;
         });
-        this.fireEvent('selectionChanged');
+        this.fireEvent('selectionChanged', {
+          items: itemsWithoutHitItem
+        });
       }
     } else if (this.hitResult.item && this.hitResult.type === 'fill') {
       // Clicked an item: select that item
       var items = [this.hitResult.item]; // Shift click? Keep everything else selected.
 
       if (e.modifiers.shift) items = items.concat(this.paper.selection.items);
-      this.fireEvent('selectionChanged');
+      this.fireEvent('selectionChanged', {
+        items: items
+      });
     } else if (this.hitResult.item && this.hitResult.type === 'curve') {
       // Clicked a curve, start dragging it
       this.draggingCurve = this.hitResult.location.curve;
     } else if (this.hitResult.item && this.hitResult.type === 'segment') {} else {
       // Nothing was clicked, so clear the selection and start a new selection box
       this.paper.selection.finish();
-      this.fireEvent('selectionChanged');
+      this.fireEvent('selectionChanged', {
+        items: []
+      });
       this.fireEvent('canvasModified');
       this.selectionBox.start(e.point);
     }
@@ -70944,8 +70950,8 @@ Wick.Tools.Cursor = class extends Wick.Tool {
       // We're dragging a curve, so bend the curve.
       var segment1 = this.draggingCurve.segment1;
       var segment2 = this.draggingCurve.segment2;
-      var handleIn = this.segment1.handleOut;
-      var handleOut = this.segment2.handleIn;
+      var handleIn = segment1.handleOut;
+      var handleOut = segment2.handleIn;
 
       if (handleIn.x === 0 && handleIn.y === 0) {
         handleIn.x = (segment2.point.x - segment1.point.x) / 4;
@@ -70972,7 +70978,9 @@ Wick.Tools.Cursor = class extends Wick.Tool {
       // Finish selection box and select objects touching box (or inside box, if alt is held)
       this.selectionBox.mode = e.modifiers.alt ? 'contains' : 'intersects';
       this.selectionBox.end(e.point);
-      this.fireEvent('selectionChanged');
+      this.fireEvent('selectionChanged', {
+        items: this.selectionBox.items
+      });
     } else {
       this.fireEvent('selectionTransformed');
     }
@@ -70985,8 +70993,8 @@ Wick.Tools.Cursor = class extends Wick.Tool {
       curves: true,
       segments: true,
       tolerance: this.SELECTION_TOLERANCE,
-      match: function (result) {
-        return result.item !== hoverPreview && !result.item.data.isBorder;
+      match: result => {
+        return result.item !== this.hoverPreview && !result.item.data.isBorder;
       }
     });
     if (!newHitResult) newHitResult = new this.paper.HitResult();
@@ -71038,7 +71046,7 @@ Wick.Tools.Cursor = class extends Wick.Tool {
   _getCursor() {
     if (!this.hitResult.item) {
       return this.CURSOR_DEFAULT;
-    } else if (thishitResult.item.data.isSelectionBoxGUI) {
+    } else if (this.hitResult.item.data.isSelectionBoxGUI) {
       // Don't show any custom cursor if the mouse is over the border, the border does nothing
       if (this.hitResult.item.name === 'border') {
         return this.CURSOR_DEFAULT;
@@ -71099,7 +71107,7 @@ Wick.Tools.Cursor = class extends Wick.Tool {
           '360': this.CURSOR_SCALE_VERTICAL
         }[angleRoundedToNearest45];
         return cursorGraphicFromAngle;
-      } else if (hitResult.item.data.handleType === 'rotation') {
+      } else if (this.hitResult.item.data.handleType === 'rotation') {
         var cursorGraphicFromAngle = {
           '0': this.CURSOR_ROTATE_TOP,
           '45': this.CURSOR_ROTATE_TOP_RIGHT,
@@ -71116,9 +71124,9 @@ Wick.Tools.Cursor = class extends Wick.Tool {
     } else {
       if (this.hitResult.type === 'fill') {
         return this.CURSOR_MOVE;
-      } else if (hitResult.type === 'curve') {
+      } else if (this.hitResult.type === 'curve') {
         return this.CURSOR_CURVE;
-      } else if (hitResult.type === 'segment') {
+      } else if (this.hitResult.type === 'segment') {
         return this.CURSOR_SEGMENT;
       }
     }
