@@ -131,15 +131,6 @@ class Toolbox extends Component {
 
       <div className="toolbox-actions-right-container"> 
         <div className="toolbox-actions-right">
-          {this.renderToolButtonFromAction(this.props.editorActions.sendToBack)}
-          {this.renderToolButtonFromAction(this.props.editorActions.sendBackward)}
-          {this.renderToolButtonFromAction(this.props.editorActions.sendToFront)}
-          {this.renderToolButtonFromAction(this.props.editorActions.sendForward)}
-        </div>
-
-        <ToolboxBreak className="toolbox-item"/>
-        
-        <div className="toolbox-actions-right">
           {this.renderToolButtonFromAction(this.props.editorActions.delete)}
           {this.renderToolButtonFromAction(this.props.editorActions.copy)}
           {this.renderToolButtonFromAction(this.props.editorActions.paste)}

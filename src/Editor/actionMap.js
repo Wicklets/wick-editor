@@ -36,7 +36,7 @@ class ActionMapInterface extends Object {
       },
       sendToFront: {
         icon: 'bringToFront',
-        tooltip: 'Bring to Front',
+        tooltip: 'Send To Front',
         action: this.editor.sendSelectionToFront,
         id: 'action-send-to-front',
       },

@@ -50,6 +50,7 @@ import CanvasTransforms from './Panels/CanvasTransforms/CanvasTransforms';
 import Toolbox from './Panels/Toolbox/Toolbox';
 import AssetLibrary from './Panels/AssetLibrary/AssetLibrary';
 import PopOutCodeEditor from './PopOuts/PopOutCodeEditor/PopOutCodeEditor';
+import CanvasActions from './Panels/CanvasActions/CanvasActions'; 
 
 class Editor extends EditorCore {
   constructor () {
@@ -668,6 +669,10 @@ class Editor extends EditorCore {
                                 setActiveTool={this.setActiveTool}
                                 previewPlaying={this.state.previewPlaying}
                                 togglePreviewPlaying={this.togglePreviewPlaying}
+                              />
+                              <CanvasActions
+                                previewPlaying={this.state.previewPlaying}
+                                editorActions={this.actionMapInterface.editorActions}
                               />
                             </DockedPanel>
                           </ReflexElement>

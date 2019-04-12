@@ -1,0 +1,28 @@
+@import 'Editor/_wickbrand.scss';
+
+$canvas-action-size: 35px;
+
+.canvas-actions-widget {
+  position: absolute;
+  right: 0px;
+  top: 0px;
+  height: $canvas-action-size;
+  margin-right: 10px;
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  background-color: $editor-primary-outline;
+  border-radius: 4px;
+}
+
+.actions-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.canvas-action-button {
+  width: $canvas-action-size;
+  height: $canvas-action-size;
+  padding: 2px;
+}
