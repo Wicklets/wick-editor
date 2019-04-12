@@ -61,14 +61,6 @@ $toolbox-height: 40px;
   margin-right: $tool-button-margin;
 }
 
-.toolbox-actions-right {
-  float: right;
-  margin-left: auto;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
 .toolbox-actions-center {
   float: left;
   display: flex;
@@ -94,4 +86,25 @@ $toolbox-height: 40px;
 
 #stroke-color-picker-container {
   box-sizing: border-box;
+}
+
+.toolbox-actions-right{
+  display: flex; 
+  flex-direction: row;
+  align-items: center;
+  float: right; 
+}
+
+.toolbox-actions-right {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.toolbox-actions-right-container {
+  display: flex;
+  flex-direction: row;
+  margin-left: auto; 
+  align-items: center;
+  height: 100%;
 }

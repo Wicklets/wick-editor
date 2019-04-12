@@ -28,12 +28,6 @@ class ActionMapInterface extends Object {
         action: this.editor.flipSelectedVertical,
         id: 'action-flip-vertical',
       },
-      deleteSelection: {
-        icon: 'delete',
-        tooltip: 'Delete Selection',
-        action: this.editor.deleteSelectedObjects,
-        id: 'action-delete',
-      },
       sendToBack: {
         icon: 'sendToBack',
         tooltip: 'Send to Back',
@@ -46,13 +40,13 @@ class ActionMapInterface extends Object {
         action: this.editor.sendSelectionToFront,
         id: 'action-send-to-front',
       },
-      moveBackward: {
+      sendBackward: {
         icon: 'sendBackwards',
         tooltip: 'Send Backward',
         action: this.editor.moveSelectionBackwards,
         id: 'action-move-backward',
       },
-      moveForward: {
+      sendForward: {
         icon: 'bringForwards',
         tooltip: 'Send Forward',
         action: this.editor.moveSelectionForwards,
@@ -105,6 +99,36 @@ class ActionMapInterface extends Object {
         tooltip: 'Return to Parent Timeline',
         action: this.editor.focusTimelineOfParentClip,
         id: 'action-return-to-parent-timeline',
+      },
+      undo: {
+        icon: 'undo',
+        tooltip: 'Undo',
+        action: this.editor.undoAction,
+        id: 'action-undo',
+      },
+      redo: {
+        icon: 'redo',
+        tooltip: 'Redo',
+        action: this.editor.redoAction,
+        id: 'action-redo',
+      }, 
+      copy: {
+        icon: 'copy',
+        tooltip: 'Copy',
+        action: this.editor.copySelectionToClipboard,
+        id: 'action-copy-to-clipboard',
+      },
+      paste: {
+        icon: 'paste',
+        tooltip: 'Paste',
+        action: this.editor.pasteFromClipboard,
+        id: 'action-paste-from-clipboard',
+      }, 
+      delete: {
+        icon: 'delete',
+        tooltip: 'Delete',
+        action: this.editor.deleteSelectedObjects,
+        id: 'action-delete-selected-objects',
       }
     }
   }

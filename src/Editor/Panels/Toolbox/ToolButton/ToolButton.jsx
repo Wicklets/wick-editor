@@ -24,6 +24,11 @@ import ActionButton from 'Editor/Util/ActionButton/ActionButton';
 import './_toolbutton.scss';
 
 class ToolButton extends Component {
+  constructor (props) {
+    super(props); 
+
+    this.actionDefault = this.props.setActiveTool ?  () => this.props.setActiveTool(this.props.name) : null; 
+  }
   renderSelectButton = () => {
     return (
       <ActionButton
@@ -31,7 +36,7 @@ class ToolButton extends Component {
         isActive={ () => this.props.activeTool === this.props.name }
         id={"tool-button-" + this.props.name}
         tooltip={this.props.tooltip}
-        action={this.props.action ? this.props.action : () => this.props.setActiveTool(this.props.name) }
+        action={this.props.action ? this.props.action : this.actionDefault}
         tooltipPlace={this.props.tooltipPlace ? this.props.tooltipPlace : "bottom"}
         icon={this.props.name}
         className="tool-button-select"

@@ -60,11 +60,20 @@ class Toolbox extends Component {
       <ToolButton
         activeTool={this.props.activeTool}
         toolSettings={this.props.toolSettings}
-        action={action.action}
+        action={action.action} 
         className='toolbox-item'
         name={action.icon}
         key={i}
         tooltip={action.tooltip} />
+    );
+  }
+
+  renderToolButtonFromAction = (action) => {
+    return (
+      <ToolButton 
+      action={action.action}  
+      name={action.icon} 
+      tooltip={action.toolTip} />
     );
   }
 
@@ -120,12 +129,23 @@ class Toolbox extends Component {
             setToolSettings={this.props.setToolSettings}
             toolRestrictions={this.props.toolRestrictions} />
 
-      <div className="toolbox-actions-right">
-          <ToolButton action={this.props.deleteAction} name='delete' tooltip='Delete' />
-          <ToolButton action={this.props.copyAction}   name='copy'   tooltip='Copy' />
-          <ToolButton action={this.props.pasteAction}  name='paste'  tooltip='Paste' />
-          <ToolButton action={this.props.undoAction}   name='undo'   tooltip='Undo' />
-          <ToolButton action={this.props.redoAction}   name='redo'   tooltip='Redo' />
+      <div className="toolbox-actions-right-container"> 
+        <div className="toolbox-actions-right">
+          {this.renderToolButtonFromAction(this.props.editorActions.sendToBack)}
+          {this.renderToolButtonFromAction(this.props.editorActions.sendBackward)}
+          {this.renderToolButtonFromAction(this.props.editorActions.sendToFront)}
+          {this.renderToolButtonFromAction(this.props.editorActions.sendForward)}
+        </div>
+
+        <ToolboxBreak className="toolbox-item"/>
+        
+        <div className="toolbox-actions-right">
+          {this.renderToolButtonFromAction(this.props.editorActions.delete)}
+          {this.renderToolButtonFromAction(this.props.editorActions.copy)}
+          {this.renderToolButtonFromAction(this.props.editorActions.paste)}
+          {this.renderToolButtonFromAction(this.props.editorActions.undo)}
+          {this.renderToolButtonFromAction(this.props.editorActions.redo)}
+        </div>
       </div>
     </div>
     )
