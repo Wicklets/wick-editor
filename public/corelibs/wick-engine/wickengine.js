@@ -64552,7 +64552,7 @@ Wick.Layer = class extends Wick.Base {
 Wick.Project = class extends Wick.Base {
   /**
    * Create a project.
-   * @param {string} name - Project name. Default "New Project".
+   * @param {string} name - Project name. Default "My Project".
    * @param {number} width - Project width in pixels. Default 720.
    * @param {number} height - Project height in pixels. Default 405.
    * @param {number} framerate - Project framerate in frames-per-second. Default 12.
@@ -64560,7 +64560,7 @@ Wick.Project = class extends Wick.Base {
    */
   constructor(name, width, height, framerate, backgroundColor) {
     super();
-    this.name = name || 'New Project';
+    this.name = name || 'My Project';
     this.width = width || 720;
     this.height = height || 405;
     this.framerate = framerate || 12;
@@ -73457,6 +73457,30 @@ Wick.GUIElement = class {
    */
 
 
+  get globalScrollX() {
+    return this.model.project.activeTimeline.guiElement.scrollX;
+  }
+
+  set globalScrollX(globalScrollX) {
+    this.model.project.activeTimeline.guiElement.scrollX = globalScrollX;
+  }
+  /**
+   *
+   */
+
+
+  get globalScrollY() {
+    return this.model.project.activeTimeline.guiElement.scrollY;
+  }
+
+  set globalScrollY(globalScrollY) {
+    this.model.project.activeTimeline.guiElement.scrollY = globalScrollY;
+  }
+  /**
+   *
+   */
+
+
   on(eventName, fn) {
     if (!this._eventHandlers[eventName]) {
       this._eventHandlers[eventName] = [];
@@ -73497,6 +73521,58 @@ Wick.GUIElement = class {
   }
 
 };
+Wick.GUIElement.GRID_DEFAULT_CELL_WIDTH = 32;
+Wick.GUIElement.GRID_DEFAULT_CELL_HEIGHT = 40;
+Wick.GUIElement.TIMELINE_BACKGROUND_COLOR = '#303030';
+Wick.GUIElement.LAYERS_CONTAINER_WIDTH = 195;
+Wick.GUIElement.NUMBER_LINE_HEIGHT = 47;
+Wick.GUIElement.NUMBER_LINE_NUMBERS_HIGHLIGHT_COLOR = '#ffffff';
+Wick.GUIElement.NUMBER_LINE_NUMBERS_COMMON_COLOR = '#494949';
+Wick.GUIElement.NUMBER_LINE_NUMBERS_FONT_FAMILY = 'PT Mono';
+Wick.GUIElement.NUMBER_LINE_NUMBERS_FONT_SIZE = '18';
+Wick.GUIElement.FRAME_HOVERED_OVER = '#ffff00';
+Wick.GUIElement.FRAME_CONTENTFUL_FILL_COLOR = '#ffffff';
+Wick.GUIElement.FRAME_UNCONTENTFUL_FILL_COLOR = '#ffffff';
+Wick.GUIElement.FRAME_BORDER_RADIUS = 4;
+Wick.GUIElement.FRAME_CONTENT_DOT_RADIUS = 7;
+Wick.GUIElement.FRAME_CONTENT_DOT_STROKE_WIDTH = 3;
+Wick.GUIElement.FRAME_CONTENT_DOT_COLOR = '#1EE29A';
+Wick.GUIElement.FRAME_HANDLE_HOVER_FILL_COLOR = '#ffff00';
+Wick.GUIElement.FRAME_GHOST_CAN_DROP_COLOR = '#00ff00';
+Wick.GUIElement.FRAME_GHOST_CANT_DROP_COLOR = '#ff0000';
+Wick.GUIElement.FRAME_GHOST_STROKE_WIDTH = 5;
+Wick.GUIElement.FRAMES_STRIP_VERTICAL_MARGIN = 4;
+Wick.GUIElement.FRAMES_STRIP_ACTIVE_FILL_COLOR = '#D8D8D8';
+Wick.GUIElement.FRAMES_STRIP_INACTIVE_FILL_COLOR = '#8A8A8A';
+Wick.GUIElement.FRAMES_STRIP_BORDER_RADIUS = 4;
+Wick.GUIElement.ADD_FRAME_OVERLAY_FILL_COLOR = '#9D9D9D';
+Wick.GUIElement.ADD_FRAME_OVERLAY_BORDER_RADIUS = 3;
+Wick.GUIElement.ADD_FRAME_OVERLAY_HEIGHT = 20;
+Wick.GUIElement.ADD_FRAME_OVERLAY_WIDTH = 20;
+Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_STROKE_COLOR = 'rgba(0,0,0,0.2)';
+Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_HIGHLIGHT_STROKE_COLOR = 'rgba(0,0,0,0.2)'; //'rgba(255,255,255,0.2)';
+
+Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_STROKE_WIDTH = 3;
+Wick.GUIElement.PLAYHEAD_FILL_COLOR = '#FF5C5C';
+Wick.GUIElement.PLAYHEAD_STROKE_COLOR = '#AAAAAA';
+Wick.GUIElement.PLAYHEAD_STROKE_WIDTH = 3;
+Wick.GUIElement.PLAYHEAD_MARGIN = 7;
+Wick.GUIElement.LAYER_LABEL_ACTIVE_FILL_COLOR = '#1EE29A';
+Wick.GUIElement.LAYER_LABEL_INACTIVE_FILL_COLOR = '#3F5F4C';
+Wick.GUIElement.LAYER_LABEL_BORDER_RAIDUS = 2;
+Wick.GUIElement.LAYER_LABEL_MARGIN_TOP_BOTTOM = 4;
+Wick.GUIElement.LAYER_LABEL_MARGIN_SIDES = 4;
+Wick.GUIElement.LAYER_LABEL_FONT_FAMILY = 'Nunito Sans';
+Wick.GUIElement.LAYER_LABEL_FONT_SIZE = 18;
+Wick.GUIElement.LAYER_LABEL_ACTIVE_FONT_COLOR = '#40002D';
+Wick.GUIElement.LAYER_LABEL_INACTIVE_FONT_COLOR = '#322E2E';
+Wick.GUIElement.LAYER_LABEL_FONT_WEIGHT = '600';
+Wick.GUIElement.LAYER_LABEL_FONT_FAMILY = 'Nunito Sans';
+Wick.GUIElement.SCROLLBAR_BACKGROUND_COLOR = '#191919';
+Wick.GUIElement.SCROLLBAR_FILL_COLOR = '#ffffff';
+Wick.GUIElement.SCROLLBAR_ACTIVE_FILL_COLOR = '#cccccc';
+Wick.GUIElement.SCROLLBAR_SIZE = 12;
+Wick.GUIElement.SCROLLBAR_BORDER_RADIUS = 6;
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
@@ -73705,7 +73781,7 @@ Wick.GUIElement.CreateLayerLabel = class extends Wick.GUIElement.Clickable {
 
 
   get x() {
-    return 0;
+    return Wick.GUIElement.LAYER_LABEL_MARGIN_SIDES;
   }
   /**
    *
@@ -73713,7 +73789,7 @@ Wick.GUIElement.CreateLayerLabel = class extends Wick.GUIElement.Clickable {
 
 
   get y() {
-    return this.index * this.gridCellHeight;
+    return this.index * this.gridCellHeight + Wick.GUIElement.LAYER_LABEL_MARGIN_TOP_BOTTOM;
   }
   /**
    *
@@ -73721,7 +73797,7 @@ Wick.GUIElement.CreateLayerLabel = class extends Wick.GUIElement.Clickable {
 
 
   get width() {
-    return this._width;
+    return this._width - Wick.GUIElement.LAYER_LABEL_MARGIN_SIDES * 2;
   }
 
   set width(width) {
@@ -73733,7 +73809,7 @@ Wick.GUIElement.CreateLayerLabel = class extends Wick.GUIElement.Clickable {
 
 
   get height() {
-    return this.gridCellHeight;
+    return this.gridCellHeight - Wick.GUIElement.LAYER_LABEL_MARGIN_TOP_BOTTOM * 2;
   }
   /**
    *
@@ -73745,8 +73821,8 @@ Wick.GUIElement.CreateLayerLabel = class extends Wick.GUIElement.Clickable {
     var layerRect = new this.paper.Path.Rectangle({
       from: new this.paper.Point(0, 0),
       to: new this.paper.Point(this.width, this.height),
-      fillColor: this.isHoveredOver ? '#ff0000' : '#cccccc',
-      radius: new paper.Size(5, 5)
+      fillColor: this.isHoveredOver ? '#ff0000' : 'rgba(255,255,255,0.3)',
+      radius: 2
     });
     this.item.addChild(layerRect);
     this.item.position = new paper.Point(this.x, this.y);
@@ -73825,6 +73901,17 @@ Wick.GUIElement.Draggable = class extends Wick.GUIElement.Clickable {
    */
 
 
+  get mouseMovement() {
+    return {
+      x: this.mouseDragEnd.x - this.lastMouseDrag.x,
+      y: this.mouseDragEnd.y - this.lastMouseDrag.y
+    };
+  }
+  /**
+   *
+   */
+
+
   handleMouseDown(e) {
     super.handleMouseDown(e);
     this.isDragging = true;
@@ -73840,6 +73927,7 @@ Wick.GUIElement.Draggable = class extends Wick.GUIElement.Clickable {
 
     var onMouseMove = e => {
       this.model.project.guiElement.updateMousePosition(e);
+      this.lastMouseDrag = this.mouseDragEnd;
       this.mouseDragEnd = {
         x: this.globalMouse.x,
         y: this.globalMouse.y
@@ -74012,7 +74100,7 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
       this.build();
     });
     this.on('mouseDown', e => {
-      this.model.project.activeTimeline.playheadPosition = this.model.start;
+      this.model.project.activeTimeline.playheadPosition = this.model.start + this.localMouseGrid.x;
 
       if (!e.modifiers.shift && !this.model.isSelected) {
         this.model.project.selection.clear();
@@ -74020,9 +74108,9 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
 
       if (!this.model.isSelected) {
         this.model.project.selection.select(this.model);
-        this.model.project.guiElement.build();
       }
 
+      this.model.project.guiElement.build();
       this.model.project.guiElement.fire('projectModified');
     });
     this.on('mouseLeave', () => {
@@ -74180,6 +74268,16 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
 
     if (dropLayerIndex < 0 || dropLayerIndex >= this.model.parentTimeline.layers.length) {
       return false;
+    } // ... or on non-existent frames...
+
+
+    if (dropStart < 1) {
+      return false;
+    } // Can't make an 'inside out' frame
+
+
+    if (dropEnd < dropStart) {
+      return false;
     } // Can't drop on existing frames...
 
 
@@ -74232,11 +74330,20 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
     var frameRect = new this.paper.Path.Rectangle({
       from: new this.paper.Point(0, 0),
       to: new this.paper.Point(this.width, this.height),
-      fillColor: this.isHoveredOver ? '#ffff00' : '#00ff00',
+      fillColor: this.isHoveredOver ? Wick.GUIElement.FRAME_HOVERED_OVER : this.model.contentful ? Wick.GUIElement.FRAME_CONTENTFUL_FILL_COLOR : Wick.GUIElement.FRAME_UNCONTENTFUL_FILL_COLOR,
       strokeColor: this.model.isSelected ? '#ff9933' : '#000000',
-      strokeWidth: this.model.isSelected ? 3 : 1
+      strokeWidth: this.model.isSelected ? 3 : 0,
+      radius: Wick.GUIElement.FRAME_BORDER_RADIUS
     });
     this.item.addChild(frameRect);
+    var contentDot = new this.paper.Path.Ellipse({
+      center: [this.gridCellWidth / 2, this.gridCellHeight / 2 + 5],
+      radius: Wick.GUIElement.FRAME_CONTENT_DOT_RADIUS,
+      fillColor: this.model.contentful ? Wick.GUIElement.FRAME_CONTENT_DOT_COLOR : 'rgba(0,0,0,0)',
+      strokeColor: Wick.GUIElement.FRAME_CONTENT_DOT_COLOR,
+      strokeWidth: Wick.GUIElement.FRAME_CONTENT_DOT_STROKE_WIDTH
+    });
+    this.item.addChild(contentDot);
     this.rightEdge.build();
     this.item.addChild(this.rightEdge.item);
     this.leftEdge.build();
@@ -74305,6 +74412,10 @@ Wick.GUIElement.FrameEdge = class extends Wick.GUIElement.Draggable {
    */
   static get DEFAULT_HANDLE_WIDTH() {
     return 6;
+  }
+
+  get cursor() {
+    return 'ew-resize';
   }
   /**
    *
@@ -74406,9 +74517,9 @@ Wick.GUIElement.FrameGhost = class extends Wick.GUIElement {
     var frameRect = new this.paper.Path.Rectangle({
       from: new this.paper.Point(this.position.x, this.position.y),
       to: new this.paper.Point(this.position.x + this.width, this.position.y + this.height),
-      fillColor: this.model.guiElement.canDrop ? 'rgba(0,255,0,0.2)' : 'rgba(255,0,0,0.2)',
-      strokeColor: this.model.guiElement.canDrop ? '#00ff00' : '#ff0000',
-      strokeWidth: 3
+      strokeColor: this.model.guiElement.canDrop ? Wick.GUIElement.FRAME_GHOST_CAN_DROP_COLOR : Wick.GUIElement.FRAME_GHOST_CANT_DROP_COLOR,
+      strokeWidth: Wick.GUIElement.FRAME_GHOST_STROKE_WIDTH,
+      radius: Wick.GUIElement.FRAME_BORDER_RADIUS
     });
     this.item.position = new paper.Point();
     this.item.addChild(frameRect);
@@ -74468,8 +74579,7 @@ Wick.GUIElement.FrameLeftEdge = class extends Wick.GUIElement.FrameEdge {
     var edgeRect = new this.paper.Path.Rectangle({
       from: new this.paper.Point(0, 0),
       to: new this.paper.Point(Wick.GUIElement.FrameEdge.DEFAULT_HANDLE_WIDTH, this.height),
-      fillColor: this.isHoveredOver ? '#ff0000' : '#0000ff',
-      strokeColor: '#000000'
+      fillColor: this.isHoveredOver ? Wick.GUIElement.FRAME_HANDLE_HOVER_FILL_COLOR : 'rgba(0,0,0,0.001)'
     });
     this.item.addChild(edgeRect);
   }
@@ -74532,8 +74642,7 @@ Wick.GUIElement.FrameRightEdge = class extends Wick.GUIElement.FrameEdge {
     var edgeRect = new this.paper.Path.Rectangle({
       from: new this.paper.Point(this.width - Wick.GUIElement.FrameEdge.DEFAULT_HANDLE_WIDTH, 0),
       to: new this.paper.Point(this.width, this.height),
-      fillColor: this.isHoveredOver ? '#ff0000' : '#0000ff',
-      strokeColor: '#000000'
+      fillColor: this.isHoveredOver ? Wick.GUIElement.FRAME_HANDLE_HOVER_FILL_COLOR : 'rgba(0,0,0,0.001)'
     });
     this.item.addChild(edgeRect);
   }
@@ -74618,7 +74727,22 @@ Wick.GUIElement.FramesContainer = class extends Wick.GUIElement.Draggable {
       this.framesStrips[layer.uuid] = framesStrip;
       framesStrip.build();
       this.item.addChild(framesStrip.item);
-    }); // Build frames
+    }); // Build grid
+
+    for (var i = -1; i < paper.view.element.width / this.gridCellWidth + 1; i++) {
+      var skip = Math.round(this.globalScrollX / this.gridCellWidth);
+      var gridLine = new this.paper.Path.Rectangle({
+        from: new this.paper.Point(-Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_STROKE_WIDTH / 2, 0),
+        to: new this.paper.Point(Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_STROKE_WIDTH / 2, paper.view.element.height),
+        fillColor: i % 5 === 4 ? Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_HIGHLIGHT_STROKE_COLOR : Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_STROKE_COLOR,
+        pivot: new paper.Point(0, 0),
+        locked: true
+      });
+      gridLine.position.x += (i + skip) * this.gridCellWidth;
+      gridLine.position.y += this.globalScrollY;
+      this.item.addChild(gridLine);
+    } // Build frames
+
 
     this.model.getAllFrames().forEach(frame => {
       frame.guiElement.build();
@@ -74681,11 +74805,12 @@ Wick.GUIElement.FramesContainerBG = class extends Wick.GUIElement.Draggable {
     super.build(); // Build BG
 
     var bgRect = new paper.Path.Rectangle({
-      fillColor: '#444444',
-      strokeColor: '#000000',
-      from: new paper.Point(0, 0),
+      fillColor: Wick.GUIElement.TIMELINE_BACKGROUND_COLOR,
+      from: new paper.Point(-5, -5),
       to: new paper.Point(paper.view.element.width, paper.view.element.height)
     });
+    bgRect.position.x += this.globalScrollX;
+    bgRect.position.y += this.globalScrollY;
     this.item.addChild(bgRect);
   }
 
@@ -74760,7 +74885,7 @@ Wick.GUIElement.FramesStrip = class extends Wick.GUIElement.Draggable {
 
 
   get height() {
-    return this.gridCellHeight - Wick.GUIElement.FramesStrip.VERTICAL_MARGIN * 2;
+    return this.gridCellHeight - Wick.GUIElement.FRAMES_STRIP_VERTICAL_MARGIN * 2;
   }
   /**
    *
@@ -74776,7 +74901,7 @@ Wick.GUIElement.FramesStrip = class extends Wick.GUIElement.Draggable {
 
 
   get y() {
-    return this.model.index * this.gridCellHeight + Wick.GUIElement.FramesStrip.VERTICAL_MARGIN;
+    return this.model.index * this.gridCellHeight + Wick.GUIElement.FRAMES_STRIP_VERTICAL_MARGIN;
   }
   /**
    *
@@ -74788,9 +74913,9 @@ Wick.GUIElement.FramesStrip = class extends Wick.GUIElement.Draggable {
     var frameStripRect = new this.paper.Path.Rectangle({
       from: new this.paper.Point(this.x, this.y),
       to: new this.paper.Point(this.x + this.width, this.y + this.height),
-      fillColor: '#00aaff',
-      strokeColor: '#000000'
+      fillColor: this.model.isActive ? Wick.GUIElement.FRAMES_STRIP_ACTIVE_FILL_COLOR : Wick.GUIElement.FRAMES_STRIP_INACTIVE_FILL_COLOR
     });
+    frameStripRect.position.x += this.globalScrollX;
     this.item.addChild(frameStripRect);
 
     this._addFrameOverlay.build();
@@ -74821,7 +74946,7 @@ Wick.GUIElement.FramesStrip = class extends Wick.GUIElement.Draggable {
 */
 Wick.GUIElement.LayerButton = class extends Wick.GUIElement.Clickable {
   static get DEFAULT_BUTTON_RADIUS() {
-    return 10;
+    return 8;
   }
   /**
    *
@@ -75117,12 +75242,11 @@ Wick.GUIElement.LayerLabel = class extends Wick.GUIElement.Draggable {
     this.on('mouseLeave', () => {
       this.build();
     });
+    this.on('dragStart', () => {
+      this._drag();
+    });
     this.on('drag', () => {
-      var moveIndices = Math.round(this.mouseDelta.y / this.gridCellHeight);
-      this.ghostIndex = this.model.index + moveIndices;
-      this.build();
-      this.item.position.y += this.mouseDelta.y;
-      this.item.bringToFront();
+      this._drag();
     });
     this.on('dragEnd', () => {
       this.drop();
@@ -75135,7 +75259,7 @@ Wick.GUIElement.LayerLabel = class extends Wick.GUIElement.Draggable {
 
 
   get x() {
-    return 0;
+    return Wick.GUIElement.LAYER_LABEL_MARGIN_SIDES;
   }
   /**
    *
@@ -75143,7 +75267,7 @@ Wick.GUIElement.LayerLabel = class extends Wick.GUIElement.Draggable {
 
 
   get y() {
-    return this.model.index * this.gridCellHeight;
+    return this.model.index * this.gridCellHeight + Wick.GUIElement.LAYER_LABEL_MARGIN_TOP_BOTTOM;
   }
   /**
    *
@@ -75151,7 +75275,7 @@ Wick.GUIElement.LayerLabel = class extends Wick.GUIElement.Draggable {
 
 
   get width() {
-    return this._width;
+    return this._width - Wick.GUIElement.LAYER_LABEL_MARGIN_SIDES * 2;
   }
 
   set width(width) {
@@ -75163,7 +75287,7 @@ Wick.GUIElement.LayerLabel = class extends Wick.GUIElement.Draggable {
 
 
   get height() {
-    return this.gridCellHeight;
+    return this.gridCellHeight - Wick.GUIElement.LAYER_LABEL_MARGIN_TOP_BOTTOM * 2;
   }
   /**
    *
@@ -75182,6 +75306,7 @@ Wick.GUIElement.LayerLabel = class extends Wick.GUIElement.Draggable {
     var moveIndex = this.ghostIndex;
     if (moveIndex > this.model.index) moveIndex--;
     this.model.move(moveIndex);
+    this.model.activate();
   }
   /**
    *
@@ -75193,10 +75318,10 @@ Wick.GUIElement.LayerLabel = class extends Wick.GUIElement.Draggable {
     var layerRect = new this.paper.Path.Rectangle({
       from: new this.paper.Point(0, 0),
       to: new this.paper.Point(this.width, this.height),
-      fillColor: '#6600ff',
-      strokeColor: this.model.isSelected ? '#ffaa00' : '#000000',
-      strokeWidth: this.model.isSelected ? 3 : 1,
-      radius: new paper.Size(5, 5)
+      fillColor: this.model.isActive ? Wick.GUIElement.LAYER_LABEL_ACTIVE_FILL_COLOR : Wick.GUIElement.LAYER_LABEL_INACTIVE_FILL_COLOR,
+      strokeColor: this.model.isSelected ? '#ffaa00' : 'rgba(0,0,0,0)',
+      strokeWidth: this.model.isSelected ? 3 : 0,
+      radius: 2
     });
     this.item.addChild(layerRect);
     this.lockButton.x = this.width - this.gridCellWidth / 2;
@@ -75208,25 +75333,15 @@ Wick.GUIElement.LayerLabel = class extends Wick.GUIElement.Draggable {
     this.hideButton.build();
     this.item.addChild(this.hideButton.item);
     var layerName = new paper.PointText({
-      point: [0, 20],
+      point: [10, 20],
       content: this.model.name,
-      fillColor: 'black',
+      fillColor: this.model.isActive ? Wick.GUIElement.LAYER_LABEL_ACTIVE_FONT_COLOR : Wick.GUIElement.LAYER_LABEL_INACTIVE_FONT_COLOR,
       fontFamily: 'Courier New',
       fontWeight: 'bold',
       fontSize: 18,
       pivot: new paper.Point(0, 0)
     });
     this.item.addChild(layerName);
-
-    if (this.model.isActive) {
-      var activeLayerDot = new this.paper.Path.Rectangle({
-        from: new this.paper.Point(0, 0),
-        to: new this.paper.Point(10, 10),
-        fillColor: '#red'
-      });
-      this.item.addChild(activeLayerDot);
-    }
-
     this.ghost.active = this.isDragging;
     this.ghost.width = this.width;
     this.ghost.x = 0;
@@ -75234,6 +75349,14 @@ Wick.GUIElement.LayerLabel = class extends Wick.GUIElement.Draggable {
     this.ghost.build();
     this.item.addChild(this.ghost.item);
     this.item.position = new paper.Point(this.x, this.y);
+  }
+
+  _drag() {
+    var moveIndices = Math.round(this.mouseDelta.y / this.gridCellHeight);
+    this.ghostIndex = this.model.index + moveIndices;
+    this.build();
+    this.item.position.y += this.mouseDelta.y;
+    this.item.bringToFront();
   }
 
 };
@@ -75330,6 +75453,7 @@ Wick.GUIElement.LayersContainer = class extends Wick.GUIElement {
     super(model);
     this._layerLabels = {};
     this.createLayerLabel = new Wick.GUIElement.CreateLayerLabel(model);
+    this.bg = new Wick.GUIElement.LayersContainerBG(model);
   }
   /**
    *
@@ -75345,7 +75469,10 @@ Wick.GUIElement.LayersContainer = class extends Wick.GUIElement {
 
 
   build() {
-    super.build(); // Build layer labels
+    super.build(); // Build BG
+
+    this.bg.build();
+    this.item.addChild(this.bg.item); // Build layer labels
 
     this.model.layers.forEach(layer => {
       // Create/cache FramesStrips elements
@@ -75364,6 +75491,59 @@ Wick.GUIElement.LayersContainer = class extends Wick.GUIElement {
     this.createLayerLabel.width = this.width;
     this.createLayerLabel.build();
     this.item.addChild(this.createLayerLabel.item);
+  }
+
+};
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* Copyright 2018 WICKLETS LLC
+*
+* This file is part of Wick Engine.
+*
+* Wick Engine is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Wick Engine is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+*/
+Wick.GUIElement.LayersContainerBG = class extends Wick.GUIElement.Draggable {
+  /**
+   *
+   */
+  constructor(model) {
+    super(model);
+    this.on('mouseDown', e => {
+      if (!e.modifiers.shift) {
+        this.model.project.selection.clear();
+      }
+
+      this.model.project.guiElement.build();
+      this.model.project.guiElement.fire('projectModified');
+    });
+  }
+  /**
+   *
+   */
+
+
+  build() {
+    super.build(); // Build BG
+
+    var bgRect = new paper.Path.Rectangle({
+      fillColor: Wick.GUIElement.TIMELINE_BACKGROUND_COLOR,
+      from: new paper.Point(0, -this.model.guiElement.numberLineHeight),
+      to: new paper.Point(this.model.guiElement.layersContainerWidth, paper.view.element.height + this.model.guiElement.numberLineHeight)
+    });
+    bgRect.position.y += this.globalScrollY;
+    this.item.addChild(bgRect);
   }
 
 };
@@ -75406,6 +75586,10 @@ Wick.GUIElement.NumberLine = class extends Wick.GUIElement.Draggable {
       this.model.project.guiElement.fire('projectModified');
     });
   }
+
+  get width() {
+    return paper.view.element.width - Wick.GUIElement.LAYERS_CONTAINER_WIDTH;
+  }
   /**
    *
    */
@@ -75425,10 +75609,20 @@ Wick.GUIElement.NumberLine = class extends Wick.GUIElement.Draggable {
 
   build() {
     super.build();
-    this.item.removeChildren(); // Build number line cells
+    this.item.removeChildren(); // Build BG
 
-    for (var i = 0; i < paper.view.element.width / this.gridCellWidth; i++) {
-      this.item.addChild(this._buildCell(i));
+    var bgRect = new this.paper.Path.Rectangle({
+      from: new this.paper.Point(0, 0),
+      to: new this.paper.Point(this.width, this.model.guiElement.numberLineHeight),
+      fillColor: Wick.GUIElement.TIMELINE_BACKGROUND_COLOR,
+      pivot: new paper.Point(0, 0)
+    });
+    bgRect.position.x += this.globalScrollX;
+    this.item.addChild(bgRect); // Build number line cells
+
+    for (var i = -1; i < this.width / this.gridCellWidth + 1; i++) {
+      var skip = Math.round(-this.globalScrollX / this.gridCellWidth);
+      this.item.addChild(this._buildCell(i - skip));
     } // Build playhead
 
 
@@ -75446,23 +75640,24 @@ Wick.GUIElement.NumberLine = class extends Wick.GUIElement.Draggable {
   _buildCell(i) {
     var numberLineHeight = this.model.guiElement.numberLineHeight;
     var cellNumber = new paper.PointText({
-      point: [0, 20],
+      point: [this.gridCellWidth / 2, numberLineHeight - 5],
       content: i + 1,
-      fillColor: 'black',
+      fillColor: i % 5 === 4 ? Wick.GUIElement.NUMBER_LINE_NUMBERS_HIGHLIGHT_COLOR : Wick.GUIElement.NUMBER_LINE_NUMBERS_COMMON_COLOR,
       fontFamily: 'Courier New',
       fontWeight: 'bold',
-      fontSize: 18,
+      fontSize: i >= 100 ? 14 : 18,
+      justification: 'center',
       pivot: new paper.Point(0, 0)
     });
-    var cellRect = new this.paper.Path.Rectangle({
-      from: new this.paper.Point(0, 0),
-      to: new this.paper.Point(this.gridCellWidth, numberLineHeight),
-      fillColor: '#ff00aa',
-      strokeColor: '#000000',
-      pivot: new paper.Point(0, 0)
+    var cellWall = new this.paper.Path.Rectangle({
+      from: new this.paper.Point(-Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_STROKE_WIDTH / 2, 0),
+      to: new this.paper.Point(Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_STROKE_WIDTH / 2, numberLineHeight),
+      fillColor: i % 5 === 4 ? Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_HIGHLIGHT_STROKE_COLOR : Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_STROKE_COLOR,
+      pivot: new paper.Point(0, 0),
+      locked: true
     });
     var cell = new paper.Group({
-      children: [cellRect, cellNumber],
+      children: [cellWall, cellNumber],
       pivot: new paper.Point(0, 0),
       applyMatrix: false
     });
@@ -75732,6 +75927,22 @@ Wick.GUIElement.Playhead = class extends Wick.GUIElement {
   constructor(model) {
     super(model);
   }
+
+  get x() {
+    return Wick.GUIElement.PLAYHEAD_MARGIN;
+  }
+
+  get y() {
+    return 0;
+  }
+
+  get width() {
+    return this.gridCellWidth - Wick.GUIElement.PLAYHEAD_MARGIN * 2;
+  }
+
+  get height() {
+    return this.width;
+  }
   /**
    *
    */
@@ -75740,19 +75951,19 @@ Wick.GUIElement.Playhead = class extends Wick.GUIElement {
   build() {
     super.build();
     var numberLineHeight = this.model.guiElement.numberLineHeight;
-    var playheadTop = new this.paper.Path.Rectangle({
-      from: new this.paper.Point(0, 0),
-      to: new this.paper.Point(this.gridCellWidth, numberLineHeight),
-      fillColor: 'rgba(255,0,0,0.5)',
-      strokeColor: '#000000',
-      radius: 10
+    var playheadTop = new this.paper.Path({
+      segments: [[this.x, this.y], [this.x + this.width, this.y], [this.x + this.width, this.y + this.height], [this.x + this.width / 2, this.y + this.height + this.height / 2], [this.x, this.y + this.height], [this.x, this.y]],
+      fillColor: Wick.GUIElement.PLAYHEAD_FILL_COLOR,
+      strokeWidth: 5,
+      strokeColor: Wick.GUIElement.PLAYHEAD_FILL_COLOR,
+      strokeJoin: 'round',
+      radius: 4
     });
     this.item.addChild(playheadTop);
     var playheadBody = new this.paper.Path.Rectangle({
-      from: new this.paper.Point(this.gridCellWidth / 2 - 2, numberLineHeight),
-      to: new this.paper.Point(this.gridCellWidth / 2 + 2, paper.view.element.height),
-      fillColor: '#ff0000',
-      strokeColor: '#000000'
+      from: new this.paper.Point(this.gridCellWidth / 2 - Wick.GUIElement.PLAYHEAD_STROKE_WIDTH / 2, 0),
+      to: new this.paper.Point(this.gridCellWidth / 2 + Wick.GUIElement.PLAYHEAD_STROKE_WIDTH / 2, paper.view.element.height),
+      fillColor: Wick.GUIElement.PLAYHEAD_FILL_COLOR
     });
     this.item.locked = true;
     this.item.addChild(playheadBody);
@@ -75781,23 +75992,14 @@ Wick.GUIElement.Playhead = class extends Wick.GUIElement {
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
 Wick.GUIElement.Project = class extends Wick.GUIElement {
-  static get DEFAULT_GRID_CELL_WIDTH() {
-    return 40;
-  }
-
-  static get DEFAULT_GRID_CELL_HEIGHT() {
-    return 50;
-  }
   /**
    *
    */
-
-
   constructor(model) {
     super(model); // Default grid size
 
-    this._gridCellWidth = Wick.GUIElement.Project.DEFAULT_GRID_CELL_WIDTH;
-    this._gridCellHeight = Wick.GUIElement.Project.DEFAULT_GRID_CELL_HEIGHT; // Build canvas + canvas container
+    this._gridCellWidth = Wick.GUIElement.GRID_DEFAULT_CELL_WIDTH;
+    this._gridCellHeight = Wick.GUIElement.GRID_DEFAULT_CELL_HEIGHT; // Build canvas + canvas container
 
     this._canvas = document.createElement('canvas');
     this._canvas.style.width = '100%';
@@ -75896,9 +76098,14 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
     this.paper.view.onMouseMove = e => {
       // don't fire mouseMove functions if we're dragging
       if (e.event.buttons) return;
+      paper.view.element.style.cursor = 'default';
       this.updateMousePosition(e.event);
 
       var guiElement = this._getGUIElementAtPosition(e.point);
+
+      if (guiElement && guiElement.cursor) {
+        paper.view.element.style.cursor = guiElement.cursor;
+      }
 
       if (this._hoverTarget !== guiElement && this._hoverTarget) {
         this._hoverTarget.handleMouseLeave(e);
@@ -75978,14 +76185,6 @@ Wick.GUIElement.Scrollbar = class extends Wick.GUIElement {
   /**
    *
    */
-  static get DEFAULT_SCROLLBAR_SIZE() {
-    return 20;
-  }
-  /**
-   *
-   */
-
-
   constructor(model) {
     super(model);
   }
@@ -76019,14 +76218,39 @@ Wick.GUIElement.Scrollbar = class extends Wick.GUIElement {
 * You should have received a copy of the GNU General Public License
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
-Wick.GUIElement.ScrollbarButton = class extends Wick.GUIElement.Clickable {
+Wick.GUIElement.ScrollbarGrabberHorizontal = class extends Wick.GUIElement.Draggable {
   /**
    *
    */
   constructor(model) {
     super(model);
-    this.x = 0;
-    this.y = 0;
+    this.on('mouseOver', () => {
+      this.build();
+    });
+    this.on('mouseDown', () => {
+      this.build();
+    });
+    this.on('mouseLeave', () => {
+      this.build();
+    });
+    this.on('drag', () => {
+      this.scrollX = this.scrollX + this.mouseMovement.x;
+      this.scrollX = Math.max(0, this.scrollX);
+      this.scrollX = Math.min(this.containerWidth - this.grabberWidth, this.scrollX);
+      this.globalScrollX = this.scrollX / this.containerWidth * this.contentWidth;
+      this.fire('scroll', {});
+      this.build();
+    });
+    this.scrollX = 0;
+  }
+
+  get contentWidth() {
+    var buffer = 30;
+    return (this.model.length * 2 + buffer) * this.gridCellWidth;
+  }
+
+  get grabberWidth() {
+    return Math.max(this.containerWidth / this.contentWidth * this.containerWidth, 30);
   }
   /**
    *
@@ -76035,19 +76259,87 @@ Wick.GUIElement.ScrollbarButton = class extends Wick.GUIElement.Clickable {
 
   build() {
     super.build();
-    var button = new this.paper.Path.Rectangle({
-      from: new this.paper.Point(0, 0),
-      to: new this.paper.Point(Wick.GUIElement.Scrollbar.DEFAULT_SCROLLBAR_SIZE, Wick.GUIElement.Scrollbar.DEFAULT_SCROLLBAR_SIZE),
-      fillColor: this.isHoveredOver ? '#ffff00' : '#00ff00',
-      strokeColor: this.model.isSelected ? '#ff9933' : '#000000',
-      strokeWidth: this.model.isSelected ? 3 : 1
+    var grabber = new this.paper.Path.Rectangle({
+      from: new this.paper.Point(this.scrollX, 0),
+      to: new this.paper.Point(this.scrollX + this.grabberWidth, Wick.GUIElement.SCROLLBAR_SIZE),
+      fillColor: this.isHoveredOver ? Wick.GUIElement.SCROLLBAR_ACTIVE_FILL_COLOR : Wick.GUIElement.SCROLLBAR_FILL_COLOR,
+      radius: Wick.GUIElement.SCROLLBAR_BORDER_RADIUS
     });
-    this.item.addChild(button);
-    this.item.position = new paper.Point(this.x, this.y);
+    this.item.addChild(grabber);
   }
 
 };
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* Copyright 2018 WICKLETS LLC
+*
+* This file is part of Wick Engine.
+*
+* Wick Engine is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Wick Engine is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+*/
+Wick.GUIElement.ScrollbarGrabberVertical = class extends Wick.GUIElement.Draggable {
+  /**
+   *
+   */
+  constructor(model) {
+    super(model);
+    this.on('mouseOver', () => {
+      this.build();
+    });
+    this.on('mouseDown', () => {
+      this.build();
+    });
+    this.on('mouseLeave', () => {
+      this.build();
+    });
+    this.on('drag', () => {
+      this.scrollY = this.scrollY + this.mouseMovement.y;
+      this.scrollY = Math.max(0, this.scrollY);
+      this.scrollY = Math.min(this.containerHeight - this.grabberHeight, this.scrollY);
+      this.globalScrollY = this.scrollY / this.containerHeight * this.contentHeight;
+      this.fire('scroll', {});
+      this.build();
+    });
+    this.scrollY = 0;
+  }
+
+  get contentHeight() {
+    var buffer = 1;
+    return (this.model.layers.length * 2 + buffer) * this.gridCellHeight;
+  }
+
+  get grabberHeight() {
+    return Math.max(this.containerHeight / this.contentHeight * this.containerHeight, 30);
+  }
+  /**
+   *
+   */
+
+
+  build() {
+    super.build();
+    var grabber = new this.paper.Path.Rectangle({
+      from: new this.paper.Point(0, this.scrollY),
+      to: new this.paper.Point(Wick.GUIElement.SCROLLBAR_SIZE, this.scrollY + this.grabberHeight),
+      fillColor: this.isHoveredOver ? Wick.GUIElement.SCROLLBAR_ACTIVE_FILL_COLOR : Wick.GUIElement.SCROLLBAR_FILL_COLOR,
+      radius: Wick.GUIElement.SCROLLBAR_BORDER_RADIUS
+    });
+    this.item.addChild(grabber);
+  }
+
+};
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
@@ -76075,8 +76367,10 @@ Wick.GUIElement.ScrollbarHorizontal = class extends Wick.GUIElement.Scrollbar {
   constructor(model) {
     super(model);
     this.width = 0;
-    this.scrollBackButton = new Wick.GUIElement.ScrollbarButton(model);
-    this.scrollForwardButton = new Wick.GUIElement.ScrollbarButton(model);
+    this.grabber = new Wick.GUIElement.ScrollbarGrabberHorizontal(model);
+    this.grabber.on('scroll', e => {
+      this.fire('scroll', e);
+    });
   }
   /**
    *
@@ -76087,15 +76381,13 @@ Wick.GUIElement.ScrollbarHorizontal = class extends Wick.GUIElement.Scrollbar {
     super.build();
     var scrollbar = new this.paper.Path.Rectangle({
       from: new this.paper.Point(0, 0),
-      to: new this.paper.Point(this.width - Wick.GUIElement.Scrollbar.DEFAULT_SCROLLBAR_SIZE, Wick.GUIElement.Scrollbar.DEFAULT_SCROLLBAR_SIZE),
-      fillColor: '#cccccc'
+      to: new this.paper.Point(this.width, Wick.GUIElement.SCROLLBAR_SIZE),
+      fillColor: Wick.GUIElement.SCROLLBAR_BACKGROUND_COLOR
     });
     this.item.addChild(scrollbar);
-    this.scrollBackButton.build();
-    this.item.addChild(this.scrollBackButton.item);
-    this.scrollForwardButton.x = this.width - Wick.GUIElement.Scrollbar.DEFAULT_SCROLLBAR_SIZE * 2;
-    this.scrollForwardButton.build();
-    this.item.addChild(this.scrollForwardButton.item);
+    this.grabber.containerWidth = this.width;
+    this.grabber.build();
+    this.item.addChild(this.grabber.item);
   }
 
 };
@@ -76126,8 +76418,10 @@ Wick.GUIElement.ScrollbarVertical = class extends Wick.GUIElement.Scrollbar {
   constructor(model) {
     super(model);
     this.height = 0;
-    this.scrollUpButton = new Wick.GUIElement.ScrollbarButton(model);
-    this.scrollDownButton = new Wick.GUIElement.ScrollbarButton(model);
+    this.grabber = new Wick.GUIElement.ScrollbarGrabberVertical(model);
+    this.grabber.on('scroll', e => {
+      this.fire('scroll', e);
+    });
   }
   /**
    *
@@ -76138,15 +76432,13 @@ Wick.GUIElement.ScrollbarVertical = class extends Wick.GUIElement.Scrollbar {
     super.build();
     var scrollbar = new this.paper.Path.Rectangle({
       from: new this.paper.Point(0, 0),
-      to: new this.paper.Point(Wick.GUIElement.Scrollbar.DEFAULT_SCROLLBAR_SIZE, this.height - Wick.GUIElement.Scrollbar.DEFAULT_SCROLLBAR_SIZE),
-      fillColor: '#cccccc'
+      to: new this.paper.Point(Wick.GUIElement.SCROLLBAR_SIZE, this.height),
+      fillColor: Wick.GUIElement.SCROLLBAR_BACKGROUND_COLOR
     });
     this.item.addChild(scrollbar);
-    this.scrollUpButton.build();
-    this.item.addChild(this.scrollUpButton.item);
-    this.scrollDownButton.y = this.height - Wick.GUIElement.Scrollbar.DEFAULT_SCROLLBAR_SIZE * 2;
-    this.scrollDownButton.build();
-    this.item.addChild(this.scrollDownButton.item);
+    this.grabber.containerHeight = this.height;
+    this.grabber.build();
+    this.item.addChild(this.grabber.item);
   }
 
 };
@@ -76275,18 +76567,9 @@ Wick.GUIElement.SelectionBox = class extends Wick.GUIElement {
  * - The Number Line
  */
 Wick.GUIElement.Timeline = class extends Wick.GUIElement {
-  static get DEFAULT_LAYERS_CONTAINER_WIDTH() {
-    return 150;
-  }
-
-  static get DEFAULT_NUMBER_LINE_HEIGHT() {
-    return 30;
-  }
   /**
    *
    */
-
-
   constructor(model) {
     super(model);
     this.framesContainer = new Wick.GUIElement.FramesContainer(model);
@@ -76294,8 +76577,22 @@ Wick.GUIElement.Timeline = class extends Wick.GUIElement {
     this.numberLine = new Wick.GUIElement.NumberLine(model);
     this.horizontalScrollbar = new Wick.GUIElement.ScrollbarHorizontal(model);
     this.verticalScrollbar = new Wick.GUIElement.ScrollbarVertical(model);
-    this.layersContainerWidth = Wick.GUIElement.Timeline.DEFAULT_LAYERS_CONTAINER_WIDTH;
-    this.numberLineHeight = Wick.GUIElement.Timeline.DEFAULT_NUMBER_LINE_HEIGHT;
+    this.horizontalScrollbar.on('scroll', e => {
+      this.framesContainer.build();
+      this.numberLine.build();
+
+      this._repositionScrollableElements();
+    });
+    this.verticalScrollbar.on('scroll', e => {
+      this.framesContainer.build();
+      this.layersContainer.build();
+
+      this._repositionScrollableElements();
+    });
+    this.layersContainerWidth = Wick.GUIElement.LAYERS_CONTAINER_WIDTH;
+    this.numberLineHeight = Wick.GUIElement.NUMBER_LINE_HEIGHT;
+    this.scrollX = 0;
+    this.scrollY = 0;
   }
   /**
    *
@@ -76305,29 +76602,41 @@ Wick.GUIElement.Timeline = class extends Wick.GUIElement {
   build() {
     super.build(); // Build frames container
 
-    this.framesContainer.item.position.x = this.layersContainerWidth;
-    this.framesContainer.item.position.y = this.numberLineHeight;
     this.framesContainer.build();
-    this.item.addChild(this.framesContainer.item); // Build layers container
-
-    this.layersContainer.item.position.y = this.numberLineHeight;
-    this.layersContainer.build();
-    this.item.addChild(this.layersContainer.item); // Build number line
+    this.item.addChild(this.framesContainer.item); // Build number line
 
     this.numberLine.build();
-    this.numberLine.item.position.x = this.layersContainerWidth;
-    this.item.addChild(this.numberLine.item); // Build scrollbars
+    this.item.addChild(this.numberLine.item); // Build layers container
+
+    this.layersContainer.build();
+    this.item.addChild(this.layersContainer.item); // Build scrollbars
 
     this.horizontalScrollbar.item.position.x = this.layersContainerWidth;
-    this.horizontalScrollbar.item.position.y = paper.view.element.height - Wick.GUIElement.Scrollbar.DEFAULT_SCROLLBAR_SIZE;
+    this.horizontalScrollbar.item.position.y = paper.view.element.height - Wick.GUIElement.SCROLLBAR_SIZE;
     this.horizontalScrollbar.width = paper.view.element.width - this.layersContainerWidth;
     this.horizontalScrollbar.build();
     this.item.addChild(this.horizontalScrollbar.item);
-    this.verticalScrollbar.item.position.x = paper.view.element.width - Wick.GUIElement.Scrollbar.DEFAULT_SCROLLBAR_SIZE;
+    this.verticalScrollbar.item.position.x = paper.view.element.width - Wick.GUIElement.SCROLLBAR_SIZE;
     this.verticalScrollbar.item.position.y = this.numberLineHeight;
     this.verticalScrollbar.height = paper.view.element.height - this.numberLineHeight;
     this.verticalScrollbar.build();
-    this.item.addChild(this.verticalScrollbar.item);
+    this.item.addChild(this.verticalScrollbar.item); // Build cover for top left corner
+
+    var cornerCover = new paper.Path.Rectangle({
+      fillColor: Wick.GUIElement.TIMELINE_BACKGROUND_COLOR,
+      from: new paper.Point(0, 0),
+      to: new paper.Point(this.layersContainerWidth, this.numberLineHeight)
+    });
+    this.item.addChild(cornerCover);
+
+    this._repositionScrollableElements();
+  }
+
+  _repositionScrollableElements() {
+    this.numberLine.item.position.x = this.layersContainerWidth - this.scrollX;
+    this.layersContainer.item.position.y = this.numberLineHeight - this.scrollY;
+    this.framesContainer.item.position.x = this.layersContainerWidth - this.scrollX;
+    this.framesContainer.item.position.y = this.numberLineHeight - this.scrollY;
   }
 
 };
