@@ -568,7 +568,7 @@ class EditorCore extends Component {
   /**
    * Moves the selected objects on the canvas to the front.
    */
-  bringSelectionToFront = () => {
+  sendSelectionToFront = () => {
     this.project.selection.bringToFront();
     this.projectDidChange();
   }

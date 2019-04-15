@@ -58,6 +58,7 @@ class WelcomeModal extends Component {
                 <li>Many, many, bugfixes...</li>
               </ul>
             </div>
+            <div id="welcome-modal-tutorial-link" classNAme="welcom-modal-item"><a className="welcome-modal-highlight" target="_blank" rel="noopener noreferrer" href="https://www.youtube.com/watch?v=pAsrXT8KIrI">Watch the Tutorial</a></div>
             <div id="welcome-modal-forum-link" className="welcome-modal-item">Please report all bugs on our <a className="welcome-modal-highlight" target="_blank" rel="noopener noreferrer" href="https://forum.wickeditor.com">forum!</a></div>
             <div id="welcome-modal-footer">
               <div id="welcome-modal-cancel">
