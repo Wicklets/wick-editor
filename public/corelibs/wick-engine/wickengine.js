@@ -76087,9 +76087,10 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
 
 
   updateMousePosition(e) {
+    var bounds = e.target.getBoundingClientRect();
     this.mousePosition = {
-      x: e.clientX,
-      y: e.clientY
+      x: e.clientX - bounds.left,
+      y: e.clientY - bounds.top
     };
   }
 
