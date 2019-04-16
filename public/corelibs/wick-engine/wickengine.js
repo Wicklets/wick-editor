@@ -65422,7 +65422,7 @@ Wick.Selection = class extends Wick.Base {
     if (!Wick.Selection.SELECTABLE_OBJECT_TYPES.find(type => {
       return object instanceof Wick[type];
     })) {
-      console.warn("Tried to select a " + type + " object. This type is not selectable");
+      console.warn("Tried to select a " + object.classname + " object. This type is not selectable");
       return;
     } // Don't do anything if the object is already selected
 
@@ -66011,6 +66011,14 @@ Wick.Timeline = class extends Wick.Base {
 
 
   removeLayer(layer) {
+    if (this.layers.length <= 1) {
+      return;
+    }
+
+    if (this.activeLayerIndex === this.layers.length - 1) {
+      this.activeLayerIndex--;
+    }
+
     this.layers = this.layers.filter(checkLayer => {
       return checkLayer !== layer;
     });
@@ -70083,12 +70091,13 @@ paper.SelectionBox = class {
   /*
    *
    */
-  constructor() {
-    this._start = new paper.Point();
-    this._end = new paper.Point();
+  constructor(paperContext) {
+    this.paper = paperContext;
+    this._start = new this.paper.Point();
+    this._end = new this.paper.Point();
     this._items = [];
     this._active = false;
-    this._box = new paper.Path.Rectangle({
+    this._box = new this.paper.Path.Rectangle({
       insert: false
     });
     this._mode = 'intersects';
@@ -70166,7 +70175,7 @@ paper.SelectionBox = class {
   _rebuildBox() {
     this._box.remove();
 
-    this._box = new paper.Path.Rectangle({
+    this._box = new this.paper.Path.Rectangle({
       from: this._start,
       to: this._end,
       strokeWidth: 1,
@@ -70199,7 +70208,7 @@ paper.SelectionBox = class {
   }
 
   _shapesIntersect(itemA, itemB) {
-    if (itemA instanceof paper.Group) {
+    if (itemA instanceof this.paper.Group) {
       var intersects = false;
       var itemBClone = itemB.clone();
       itemBClone.transform(itemA.matrix.inverted());
@@ -70221,7 +70230,7 @@ paper.SelectionBox = class {
 
   _getSelectableLayers() {
     var self = this;
-    return paper.project.layers.filter(layer => {
+    return this.paper.project.layers.filter(layer => {
       return !layer.locked;
     });
   }
@@ -70843,7 +70852,7 @@ Wick.Tools.Cursor = class extends Wick.Tool {
     this.HOVER_PREVIEW_CURVE_STROKE_WIDTH = 2;
     this.HOVER_PREVIEW_CURVE_STROKE_COLOR = this.HOVER_PREVIEW_SEGMENT_STROKE_COLOR;
     this.hitResult = new this.paper.HitResult();
-    this.selectionBox = new this.paper.SelectionBox();
+    this.selectionBox = new this.paper.SelectionBox(paper);
     this.draggingCurve = new this.paper.Curve();
     this.draggingSegment = new this.paper.Segment();
     this.hoverPreview = new this.paper.Item({
@@ -71282,8 +71291,9 @@ Wick.Tools.Eraser = class extends Wick.Tool {
     var cursorNeedsRegen = this.brushSize !== this.cursorSize;
 
     if (cursorNeedsRegen) {
-      this.cachedCursor = this.createDynamicCursor.create('#ffffff', tool.brushSize);
+      this.cachedCursor = this.createDynamicCursor('#ffffff', this.brushSize);
       this.cursorSize = this.brushSize;
+      this.setCursor(this.cachedCursor);
     }
   }
 
@@ -71310,7 +71320,7 @@ Wick.Tools.Eraser = class extends Wick.Tool {
     if (!this.path) return;
     var potraceResolution = 0.7;
     this.path.potrace({
-      done: function (tracedPath) {
+      done: tracedPath => {
         this.path.remove();
         this.paper.project.activeLayer.erase(tracedPath, {});
         this.path = null;
@@ -71461,13 +71471,13 @@ Wick.Tools.FillBucket = class extends Wick.Tool {
       hitResult.item.fillColor = this.fillColor;
       this.fireEvent('canvasModified');
     } else {
-      setTimeout(function () {
+      setTimeout(() => {
         this.setCursor('wait');
       }, 0);
-      setTimeout(function () {
+      setTimeout(() => {
         this.paper.project.activeLayer.hole({
           point: e.point,
-          onFinish: function (path) {
+          onFinish: path => {
             this.setCursor('default');
 
             if (path) {
@@ -71477,7 +71487,7 @@ Wick.Tools.FillBucket = class extends Wick.Tool {
               this.fireEvent('canvasModified');
             }
           },
-          onError: function (message) {
+          onError: message => {
             this.setCursor('default');
             this.fireEvent('error', {
               message: message
@@ -73442,7 +73452,7 @@ Wick.GUIElement = class {
 
 
   get gridCellWidth() {
-    return this.model.project.guiElement.gridCellWidth;
+    return Wick.GUIElement.GRID_DEFAULT_CELL_WIDTH;
   }
   /**
    *
@@ -73450,7 +73460,7 @@ Wick.GUIElement = class {
 
 
   get gridCellHeight() {
-    return this.model.project.guiElement.gridCellHeight;
+    return Wick.GUIElement.GRID_DEFAULT_CELL_HEIGHT;
   }
   /**
    *
@@ -73524,8 +73534,9 @@ Wick.GUIElement = class {
 Wick.GUIElement.GRID_DEFAULT_CELL_WIDTH = 32;
 Wick.GUIElement.GRID_DEFAULT_CELL_HEIGHT = 40;
 Wick.GUIElement.TIMELINE_BACKGROUND_COLOR = '#303030';
+Wick.GUIElement.SELECTED_ITEM_BORDER_COLOR = 'cyan';
 Wick.GUIElement.LAYERS_CONTAINER_WIDTH = 195;
-Wick.GUIElement.NUMBER_LINE_HEIGHT = 47;
+Wick.GUIElement.NUMBER_LINE_HEIGHT = 28;
 Wick.GUIElement.NUMBER_LINE_NUMBERS_HIGHLIGHT_COLOR = '#ffffff';
 Wick.GUIElement.NUMBER_LINE_NUMBERS_COMMON_COLOR = '#494949';
 Wick.GUIElement.NUMBER_LINE_NUMBERS_FONT_FAMILY = 'PT Mono';
@@ -73533,10 +73544,11 @@ Wick.GUIElement.NUMBER_LINE_NUMBERS_FONT_SIZE = '18';
 Wick.GUIElement.FRAME_HOVERED_OVER = '#ffff00';
 Wick.GUIElement.FRAME_CONTENTFUL_FILL_COLOR = '#ffffff';
 Wick.GUIElement.FRAME_UNCONTENTFUL_FILL_COLOR = '#ffffff';
-Wick.GUIElement.FRAME_BORDER_RADIUS = 4;
+Wick.GUIElement.FRAME_BORDER_RADIUS = 5;
 Wick.GUIElement.FRAME_CONTENT_DOT_RADIUS = 7;
 Wick.GUIElement.FRAME_CONTENT_DOT_STROKE_WIDTH = 3;
 Wick.GUIElement.FRAME_CONTENT_DOT_COLOR = '#1EE29A';
+Wick.GUIElement.FRAME_MARGIN = 0.5;
 Wick.GUIElement.FRAME_HANDLE_HOVER_FILL_COLOR = '#ffff00';
 Wick.GUIElement.FRAME_GHOST_CAN_DROP_COLOR = '#00ff00';
 Wick.GUIElement.FRAME_GHOST_CANT_DROP_COLOR = '#ff0000';
@@ -73545,14 +73557,13 @@ Wick.GUIElement.FRAMES_STRIP_VERTICAL_MARGIN = 4;
 Wick.GUIElement.FRAMES_STRIP_ACTIVE_FILL_COLOR = '#D8D8D8';
 Wick.GUIElement.FRAMES_STRIP_INACTIVE_FILL_COLOR = '#8A8A8A';
 Wick.GUIElement.FRAMES_STRIP_BORDER_RADIUS = 4;
-Wick.GUIElement.ADD_FRAME_OVERLAY_FILL_COLOR = '#9D9D9D';
+Wick.GUIElement.ADD_FRAME_OVERLAY_FILL_COLOR = '#ffffff';
+Wick.GUIElement.ADD_FRAME_OVERLAY_PLUS_COLOR = '#aaaaaa';
 Wick.GUIElement.ADD_FRAME_OVERLAY_BORDER_RADIUS = 3;
-Wick.GUIElement.ADD_FRAME_OVERLAY_HEIGHT = 20;
-Wick.GUIElement.ADD_FRAME_OVERLAY_WIDTH = 20;
+Wick.GUIElement.ADD_FRAME_OVERLAY_MARGIN = 5;
 Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_STROKE_COLOR = 'rgba(0,0,0,0.2)';
-Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_HIGHLIGHT_STROKE_COLOR = 'rgba(0,0,0,0.2)'; //'rgba(255,255,255,0.2)';
-
-Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_STROKE_WIDTH = 3;
+Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_HIGHLIGHT_STROKE_COLOR = 'rgba(255,255,255,0.3)';
+Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_STROKE_WIDTH = 2.5;
 Wick.GUIElement.PLAYHEAD_FILL_COLOR = '#FF5C5C';
 Wick.GUIElement.PLAYHEAD_STROKE_COLOR = '#AAAAAA';
 Wick.GUIElement.PLAYHEAD_STROKE_WIDTH = 3;
@@ -73568,11 +73579,21 @@ Wick.GUIElement.LAYER_LABEL_ACTIVE_FONT_COLOR = '#40002D';
 Wick.GUIElement.LAYER_LABEL_INACTIVE_FONT_COLOR = '#322E2E';
 Wick.GUIElement.LAYER_LABEL_FONT_WEIGHT = '600';
 Wick.GUIElement.LAYER_LABEL_FONT_FAMILY = 'Nunito Sans';
+Wick.GUIElement.LAYER_LOCK_BUTTON_ICON = '<g id="Desktop" transform="translate(-1,-1)" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" opacity="1.0"><g id="Artboard-Copy-9"><g id="Group-35"><path d="M1.75910951,5.57091586 L8.31261743,5.57091586 C8.86490218,5.57091586 9.31261743,6.01863111 9.31261743,6.57091586 L9.31261743,12.4597691 C9.31261743,13.0120538 8.86490218,13.4597691 8.31261743,13.4597691 L1.75910951,13.4597691 C1.20682476,13.4597691 0.759109514,13.0120538 0.759109514,12.4597691 L0.759109514,6.57091586 C0.759109514,6.01863111 1.20682476,5.57091586 1.75910951,5.57091586 Z M2.42311363,5.56440544 C2.05430677,2.3340535 2.90894733,0.718877529 4.98703532,0.718877529 C7.04194327,0.718877529 7.87681809,2.3340535 7.49165979,5.56440544 L2.42311363,5.56440544 Z" id="Combined-Shape" stroke="#000000" stroke-width="2"></path><path d="M5.01450068,11 C5.8429278,11 6.51450068,10.3284271 6.51450068,9.5 C6.51450068,8.67157288 5.8429278,8 5.01450068,8 C4.18607355,8 3.51450068,8.67157288 3.51450068,9.5 C3.51450068,10.3284271 4.18607355,11 5.01450068,11 Z" id="Oval-5" fill="#000000"></path></g></g></g>';
+Wick.GUIElement.LAYER_HIDE_BUTTON_ICON = '<g id="Group-34"><g id="Group-21" stroke="#000000" stroke-width="2"><path d="M0.326284859,4.42858991 C2.11966435,1.47619664 4.34423606,1.16156172e-16 7,0 C9.6559694,0 11.8791389,1.47642505 13.6695084,4.42927516 L13.6695313,4.42926131 C13.8793286,4.77527928 13.8599227,5.21362782 13.6203692,5.5397528 C11.7107296,8.13951177 9.5039399,9.43939125 7,9.43939125 C4.49627661,9.43939125 2.28812422,8.13973656 0.375542811,5.54042717 L0.375509503,5.54045168 C0.135334247,5.21403953 0.11589474,4.77494961 0.326284859,4.42858991 Z" id="Path-8"></path></g><path d="M7.00541855,7.2075804 C8.38613042,7.2075804 9.50541855,6.08829227 9.50541855,4.7075804 C9.50541855,3.32686852 8.38613042,2.2075804 7.00541855,2.2075804 C5.62470667,2.2075804 4.50541855,3.32686852 4.50541855,4.7075804 C4.50541855,6.08829227 5.62470667,7.2075804 7.00541855,7.2075804 Z" id="Oval-2" fill="#000000"></path></g>';
+Wick.GUIElement.LAYER_GNURL_ICON = '<g id="Desktop" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linecap="square"><g id="Artboard-Copy-9" transform="translate(0, 0)" stroke="#00AA6B" stroke-width="2"><g id="Group-3" transform="translate(163.000000, 1116.000000)"><g id="Group-16"><g id="Group-13" transform="translate(158.000000, 10.000000)"><path d="M0.1875,1.5 L8.8125,1.5" id="Line-4"></path><path d="M0.1875,5.5 L8.8125,5.5" id="Line-4-Copy"></path><path d="M0.1875,9.5 L8.8125,9.5" id="Line-4-Copy-2"></path></g></g></g></g></g>';
+Wick.GUIElement.LAYER_BUTTON_ICON_COLOR = '#000000';
+Wick.GUIElement.LAYER_BUTTON_ICON_OPACITY = 0.3;
+Wick.GUIElement.LAYER_BUTTON_HOVER_COLOR = 'orange';
+Wick.GUIElement.LAYER_BUTTON_MOUSEDOWN_COLOR = 'yellow';
+Wick.GUIElement.LAYER_BUTTON_TOGGLE_ACTIVE_COLOR = 'rgba(255,255,255,0.7)';
+Wick.GUIElement.LAYER_BUTTON_TOGGLE_INACTIVE_COLOR = 'rgba(255,255,255,0.01)';
 Wick.GUIElement.SCROLLBAR_BACKGROUND_COLOR = '#191919';
 Wick.GUIElement.SCROLLBAR_FILL_COLOR = '#ffffff';
 Wick.GUIElement.SCROLLBAR_ACTIVE_FILL_COLOR = '#cccccc';
 Wick.GUIElement.SCROLLBAR_SIZE = 12;
-Wick.GUIElement.SCROLLBAR_BORDER_RADIUS = 6;
+Wick.GUIElement.SCROLLBAR_MARGIN = 2;
+Wick.GUIElement.SCROLLBAR_BORDER_RADIUS = 4;
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
@@ -74020,7 +74041,7 @@ Wick.GUIElement.AddFrameOverlay = class extends Wick.GUIElement {
 
 
   get x() {
-    return this.gridCellWidth * (this.playheadPosition - 1) + Wick.GUIElement.AddFrameOverlay.MARGIN;
+    return this.gridCellWidth * (this.playheadPosition - 1) + Wick.GUIElement.ADD_FRAME_OVERLAY_MARGIN;
   }
   /**
    *
@@ -74028,7 +74049,7 @@ Wick.GUIElement.AddFrameOverlay = class extends Wick.GUIElement {
 
 
   get y() {
-    return this.model.index * this.gridCellHeight + Wick.GUIElement.AddFrameOverlay.MARGIN;
+    return this.model.index * this.gridCellHeight + Wick.GUIElement.ADD_FRAME_OVERLAY_MARGIN;
   }
   /**
    *
@@ -74036,7 +74057,7 @@ Wick.GUIElement.AddFrameOverlay = class extends Wick.GUIElement {
 
 
   get width() {
-    return this.gridCellWidth - Wick.GUIElement.AddFrameOverlay.MARGIN * 2;
+    return this.gridCellWidth - Wick.GUIElement.ADD_FRAME_OVERLAY_MARGIN * 2;
   }
   /**
    *
@@ -74044,7 +74065,7 @@ Wick.GUIElement.AddFrameOverlay = class extends Wick.GUIElement {
 
 
   get height() {
-    return this.gridCellHeight - Wick.GUIElement.AddFrameOverlay.MARGIN * 2;
+    return this.gridCellHeight - Wick.GUIElement.ADD_FRAME_OVERLAY_MARGIN * 2;
   }
   /**
    *
@@ -74057,10 +74078,21 @@ Wick.GUIElement.AddFrameOverlay = class extends Wick.GUIElement {
     var overlayRect = new this.paper.Path.Rectangle({
       from: new this.paper.Point(this.x, this.y),
       to: new this.paper.Point(this.x + this.width, this.y + this.height),
-      fillColor: '#ff00ff',
-      strokeColor: '#000000'
+      fillColor: Wick.GUIElement.ADD_FRAME_OVERLAY_FILL_COLOR,
+      radius: Wick.GUIElement.ADD_FRAME_OVERLAY_BORDER_RADIUS
     });
     this.item.addChild(overlayRect);
+    var overlayText = new this.paper.PointText({
+      point: [this.x + this.width / 2, this.y + this.height / 2 + 5],
+      content: '+',
+      fillColor: Wick.GUIElement.ADD_FRAME_OVERLAY_PLUS_COLOR,
+      fontFamily: 'Courier New',
+      fontWeight: 'bold',
+      fontSize: 18,
+      justification: 'center',
+      pivot: new paper.Point(0, 0)
+    });
+    this.item.addChild(overlayText);
   }
 
 };
@@ -74129,7 +74161,7 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
 
 
   get x() {
-    return this.gridCellWidth * (this.model.start - 1) + this.leftEdgeStretch;
+    return this.gridCellWidth * (this.model.start - 1) + this.leftEdgeStretch + Wick.GUIElement.FRAME_MARGIN;
   }
   /**
    *
@@ -74137,7 +74169,7 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
 
 
   get y() {
-    return this.gridCellHeight * this.model.parentLayer.index;
+    return this.gridCellHeight * this.model.parentLayer.index + Wick.GUIElement.FRAME_MARGIN;
   }
   /**
    *
@@ -74145,7 +74177,7 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
 
 
   get width() {
-    return this.gridCellWidth * this.model.length + this.rightEdgeStretch - this.leftEdgeStretch;
+    return this.gridCellWidth * this.model.length + this.rightEdgeStretch - this.leftEdgeStretch - Wick.GUIElement.FRAME_MARGIN;
   }
   /**
    *
@@ -74153,7 +74185,7 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
 
 
   get height() {
-    return this.gridCellHeight;
+    return this.gridCellHeight - Wick.GUIElement.FRAME_MARGIN;
   }
   /**
    *
@@ -74331,7 +74363,7 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
       from: new this.paper.Point(0, 0),
       to: new this.paper.Point(this.width, this.height),
       fillColor: this.isHoveredOver ? Wick.GUIElement.FRAME_HOVERED_OVER : this.model.contentful ? Wick.GUIElement.FRAME_CONTENTFUL_FILL_COLOR : Wick.GUIElement.FRAME_UNCONTENTFUL_FILL_COLOR,
-      strokeColor: this.model.isSelected ? '#ff9933' : '#000000',
+      strokeColor: this.model.isSelected ? Wick.GUIElement.SELECTED_ITEM_BORDER_COLOR : '#000000',
       strokeWidth: this.model.isSelected ? 3 : 0,
       radius: Wick.GUIElement.FRAME_BORDER_RADIUS
     });
@@ -74734,7 +74766,7 @@ Wick.GUIElement.FramesContainer = class extends Wick.GUIElement.Draggable {
       var gridLine = new this.paper.Path.Rectangle({
         from: new this.paper.Point(-Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_STROKE_WIDTH / 2, 0),
         to: new this.paper.Point(Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_STROKE_WIDTH / 2, paper.view.element.height),
-        fillColor: i % 5 === 4 ? Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_HIGHLIGHT_STROKE_COLOR : Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_STROKE_COLOR,
+        fillColor: Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_STROKE_COLOR,
         pivot: new paper.Point(0, 0),
         locked: true
       });
@@ -74913,6 +74945,8 @@ Wick.GUIElement.FramesStrip = class extends Wick.GUIElement.Draggable {
     var frameStripRect = new this.paper.Path.Rectangle({
       from: new this.paper.Point(this.x, this.y),
       to: new this.paper.Point(this.x + this.width, this.y + this.height),
+      strokeColor: 'rgba(0,0,0,0.5)',
+      strokeWidth: 2,
       fillColor: this.model.isActive ? Wick.GUIElement.FRAMES_STRIP_ACTIVE_FILL_COLOR : Wick.GUIElement.FRAMES_STRIP_INACTIVE_FILL_COLOR
     });
     frameStripRect.position.x += this.globalScrollX;
@@ -74945,14 +74979,9 @@ Wick.GUIElement.FramesStrip = class extends Wick.GUIElement.Draggable {
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
 Wick.GUIElement.LayerButton = class extends Wick.GUIElement.Clickable {
-  static get DEFAULT_BUTTON_RADIUS() {
-    return 8;
-  }
   /**
    *
    */
-
-
   constructor(model) {
     super(model);
     this.x = 0;
@@ -75012,22 +75041,29 @@ Wick.GUIElement.LayerButton = class extends Wick.GUIElement.Clickable {
     var fillColor;
 
     if (this.isBeingClicked) {
-      fillColor = 'yellow';
+      fillColor = Wick.GUIElement.LAYER_BUTTON_MOUSEDOWN_COLOR;
     } else if (this.isHoveredOver) {
-      fillColor = 'orange';
+      fillColor = Wick.GUIElement.LAYER_BUTTON_HOVER_COLOR;
     } else if (this.activated) {
-      fillColor = 'rgba(255,255,255,0.4)';
+      fillColor = Wick.GUIElement.LAYER_BUTTON_TOGGLE_ACTIVE_COLOR;
     } else {
-      fillColor = 'rgba(255,255,255,0.01)';
-    }
+      fillColor = Wick.GUIElement.LAYER_BUTTON_TOGGLE_INACTIVE_COLOR;
+    } // Button circle
+
 
     var buttonCircle = new paper.Path.Circle({
       center: [0, 0],
-      radius: Wick.GUIElement.LayerButton.DEFAULT_BUTTON_RADIUS,
-      fillColor: fillColor,
-      strokeColor: 'black'
+      radius: 10,
+      fillColor: fillColor
     });
-    this.item.addChild(buttonCircle);
+    this.item.addChild(buttonCircle); // Icon
+
+    var icon = this.paper.project.importSVG(this.icon);
+    icon.strokeColor = Wick.GUIElement.LAYER_BUTTON_ICON_COLOR;
+    icon.opacity = Wick.GUIElement.LAYER_BUTTON_ICON_OPACITY;
+    icon.position.x -= icon.bounds.width / 2;
+    icon.position.y -= icon.bounds.height / 2;
+    this.item.addChild(icon);
     this.item.position = new paper.Point(this.x, this.y);
   }
 
@@ -75157,14 +75193,9 @@ Wick.GUIElement.LayerGhost = class extends Wick.GUIElement {
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
 Wick.GUIElement.LayerHideButton = class extends Wick.GUIElement.LayerButton {
-  static get DEFAULT_BUTTON_RADIUS() {
-    return 10;
-  }
   /**
    *
    */
-
-
   constructor(model) {
     super(model);
     this.x = 0;
@@ -75182,6 +75213,10 @@ Wick.GUIElement.LayerHideButton = class extends Wick.GUIElement.LayerButton {
   get activated() {
     return this.model.hidden;
   }
+
+  get icon() {
+    return Wick.GUIElement.LAYER_HIDE_BUTTON_ICON;
+  }
   /**
    *
    */
@@ -75189,15 +75224,6 @@ Wick.GUIElement.LayerHideButton = class extends Wick.GUIElement.LayerButton {
 
   build() {
     super.build();
-    this.item.addChild(new paper.PointText({
-      point: [0, 0],
-      content: 'H',
-      fillColor: 'black',
-      fontFamily: 'Courier New',
-      fontWeight: 'bold',
-      fontSize: 12,
-      pivot: new paper.Point(0, 0)
-    }));
   }
 
 };
@@ -75319,29 +75345,40 @@ Wick.GUIElement.LayerLabel = class extends Wick.GUIElement.Draggable {
       from: new this.paper.Point(0, 0),
       to: new this.paper.Point(this.width, this.height),
       fillColor: this.model.isActive ? Wick.GUIElement.LAYER_LABEL_ACTIVE_FILL_COLOR : Wick.GUIElement.LAYER_LABEL_INACTIVE_FILL_COLOR,
-      strokeColor: this.model.isSelected ? '#ffaa00' : 'rgba(0,0,0,0)',
+      strokeColor: this.model.isSelected ? Wick.GUIElement.SELECTED_ITEM_BORDER_COLOR : 'rgba(0,0,0,0)',
       strokeWidth: this.model.isSelected ? 3 : 0,
       radius: 2
     });
-    this.item.addChild(layerRect);
-    this.lockButton.x = this.width - this.gridCellWidth / 2;
-    this.lockButton.y = this.gridCellHeight / 2;
-    this.lockButton.build();
-    this.item.addChild(this.lockButton.item);
-    this.hideButton.x = this.width - this.gridCellWidth * 1.5;
-    this.hideButton.y = this.gridCellHeight / 2;
+    this.item.addChild(layerRect); // Gnurl
+
+    var gnurl = this.paper.project.importSVG(Wick.GUIElement.LAYER_GNURL_ICON);
+    gnurl.strokeColor = Wick.GUIElement.LAYER_BUTTON_ICON_COLOR;
+    gnurl.opacity = Wick.GUIElement.LAYER_BUTTON_ICON_OPACITY;
+    gnurl.position.x = 15;
+    gnurl.position.y = this.height / 2;
+    this.item.addChild(gnurl); // Buttons
+
+    this.hideButton.x = this.width - 20;
+    this.hideButton.y = this.height / 2;
     this.hideButton.build();
     this.item.addChild(this.hideButton.item);
+    this.lockButton.x = this.width - 45;
+    this.lockButton.y = this.height / 2;
+    this.lockButton.build();
+    this.item.addChild(this.lockButton.item); // Layer name
+
     var layerName = new paper.PointText({
-      point: [10, 20],
+      point: [30, this.height / 2 + Wick.GUIElement.LAYER_LABEL_MARGIN_TOP_BOTTOM],
       content: this.model.name,
       fillColor: this.model.isActive ? Wick.GUIElement.LAYER_LABEL_ACTIVE_FONT_COLOR : Wick.GUIElement.LAYER_LABEL_INACTIVE_FONT_COLOR,
-      fontFamily: 'Courier New',
+      fontFamily: Wick.GUIElement.LAYER_LABEL_FONT_FAMILY,
       fontWeight: 'bold',
       fontSize: 18,
+      opacity: 0.6,
       pivot: new paper.Point(0, 0)
     });
-    this.item.addChild(layerName);
+    this.item.addChild(layerName); // Drop ghost
+
     this.ghost.active = this.isDragging;
     this.ghost.width = this.width;
     this.ghost.x = 0;
@@ -75381,14 +75418,9 @@ Wick.GUIElement.LayerLabel = class extends Wick.GUIElement.Draggable {
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
 Wick.GUIElement.LayerLockButton = class extends Wick.GUIElement.LayerButton {
-  static get DEFAULT_BUTTON_RADIUS() {
-    return 10;
-  }
   /**
    *
    */
-
-
   constructor(model) {
     super(model);
     this.x = 0;
@@ -75406,6 +75438,10 @@ Wick.GUIElement.LayerLockButton = class extends Wick.GUIElement.LayerButton {
   get activated() {
     return this.model.locked;
   }
+
+  get icon() {
+    return Wick.GUIElement.LAYER_LOCK_BUTTON_ICON;
+  }
   /**
    *
    */
@@ -75413,15 +75449,6 @@ Wick.GUIElement.LayerLockButton = class extends Wick.GUIElement.LayerButton {
 
   build() {
     super.build();
-    this.item.addChild(new paper.PointText({
-      point: [0, 0],
-      content: 'L',
-      fillColor: 'black',
-      fontFamily: 'Courier New',
-      fontWeight: 'bold',
-      fontSize: 12,
-      pivot: new paper.Point(0, 0)
-    }));
   }
 
 };
@@ -75643,9 +75670,9 @@ Wick.GUIElement.NumberLine = class extends Wick.GUIElement.Draggable {
       point: [this.gridCellWidth / 2, numberLineHeight - 5],
       content: i + 1,
       fillColor: i % 5 === 4 ? Wick.GUIElement.NUMBER_LINE_NUMBERS_HIGHLIGHT_COLOR : Wick.GUIElement.NUMBER_LINE_NUMBERS_COMMON_COLOR,
-      fontFamily: 'Courier New',
-      fontWeight: 'bold',
-      fontSize: i >= 100 ? 14 : 18,
+      fontFamily: Wick.GUIElement.NUMBER_LINE_NUMBERS_FONT_FAMILY,
+      fontWeight: 'normal',
+      fontSize: i >= 100 ? 13 : 16,
       justification: 'center',
       pivot: new paper.Point(0, 0)
     });
@@ -75996,10 +76023,7 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
    *
    */
   constructor(model) {
-    super(model); // Default grid size
-
-    this._gridCellWidth = Wick.GUIElement.GRID_DEFAULT_CELL_WIDTH;
-    this._gridCellHeight = Wick.GUIElement.GRID_DEFAULT_CELL_HEIGHT; // Build canvas + canvas container
+    super(model); // Build canvas + canvas container
 
     this._canvas = document.createElement('canvas');
     this._canvas.style.width = '100%';
@@ -76012,8 +76036,7 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
 
     this.paper.project.activeLayer.addChild(this.item); // Half pixel nudge for sharper 1px strokes
     // https://stackoverflow.com/questions/7530593/html5-canvas-and-line-width/7531540#7531540
-
-    this.paper.view.translate(0.5, 0.5);
+    //this.paper.view.translate(0.5, 0.5);
 
     this._attachMouseEvents();
   }
@@ -76045,30 +76068,6 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
     var containerHeight = this.canvasContainer.offsetHeight;
     this.paper.view.viewSize.width = containerWidth;
     this.paper.view.viewSize.height = containerHeight;
-  }
-  /**
-   *
-   */
-
-
-  get gridCellWidth() {
-    return this._gridCellWidth;
-  }
-
-  set gridCellWidth(gridCellWidth) {
-    this._gridCellWidth = gridCellWidth;
-  }
-  /**
-   *
-   */
-
-
-  get gridCellHeight() {
-    return this._gridCellHeight;
-  }
-
-  set gridCellHeight(gridCellHeight) {
-    this._gridCellHeight = gridCellHeight;
   }
   /**
    *
@@ -76259,9 +76258,14 @@ Wick.GUIElement.ScrollbarGrabberHorizontal = class extends Wick.GUIElement.Dragg
 
   build() {
     super.build();
+
+    if (this.grabberWidth > this.contentWidth) {
+      return;
+    }
+
     var grabber = new this.paper.Path.Rectangle({
-      from: new this.paper.Point(this.scrollX, 0),
-      to: new this.paper.Point(this.scrollX + this.grabberWidth, Wick.GUIElement.SCROLLBAR_SIZE),
+      from: new this.paper.Point(this.scrollX, Wick.GUIElement.SCROLLBAR_MARGIN),
+      to: new this.paper.Point(this.scrollX + this.grabberWidth, Wick.GUIElement.SCROLLBAR_SIZE - Wick.GUIElement.SCROLLBAR_MARGIN),
       fillColor: this.isHoveredOver ? Wick.GUIElement.SCROLLBAR_ACTIVE_FILL_COLOR : Wick.GUIElement.SCROLLBAR_FILL_COLOR,
       radius: Wick.GUIElement.SCROLLBAR_BORDER_RADIUS
     });
@@ -76330,9 +76334,14 @@ Wick.GUIElement.ScrollbarGrabberVertical = class extends Wick.GUIElement.Draggab
 
   build() {
     super.build();
+
+    if (this.grabberHeight > this.contentHeight) {
+      return;
+    }
+
     var grabber = new this.paper.Path.Rectangle({
-      from: new this.paper.Point(0, this.scrollY),
-      to: new this.paper.Point(Wick.GUIElement.SCROLLBAR_SIZE, this.scrollY + this.grabberHeight),
+      from: new this.paper.Point(Wick.GUIElement.SCROLLBAR_MARGIN, this.scrollY),
+      to: new this.paper.Point(Wick.GUIElement.SCROLLBAR_SIZE - Wick.GUIElement.SCROLLBAR_MARGIN, this.scrollY + this.grabberHeight),
       fillColor: this.isHoveredOver ? Wick.GUIElement.SCROLLBAR_ACTIVE_FILL_COLOR : Wick.GUIElement.SCROLLBAR_FILL_COLOR,
       radius: Wick.GUIElement.SCROLLBAR_BORDER_RADIUS
     });
@@ -76613,12 +76622,12 @@ Wick.GUIElement.Timeline = class extends Wick.GUIElement {
 
     this.horizontalScrollbar.item.position.x = this.layersContainerWidth;
     this.horizontalScrollbar.item.position.y = paper.view.element.height - Wick.GUIElement.SCROLLBAR_SIZE;
-    this.horizontalScrollbar.width = paper.view.element.width - this.layersContainerWidth;
+    this.horizontalScrollbar.width = paper.view.element.width - this.layersContainerWidth - Wick.GUIElement.SCROLLBAR_SIZE;
     this.horizontalScrollbar.build();
     this.item.addChild(this.horizontalScrollbar.item);
     this.verticalScrollbar.item.position.x = paper.view.element.width - Wick.GUIElement.SCROLLBAR_SIZE;
     this.verticalScrollbar.item.position.y = this.numberLineHeight;
-    this.verticalScrollbar.height = paper.view.element.height - this.numberLineHeight;
+    this.verticalScrollbar.height = paper.view.element.height - this.numberLineHeight - Wick.GUIElement.SCROLLBAR_SIZE;
     this.verticalScrollbar.build();
     this.item.addChild(this.verticalScrollbar.item); // Build cover for top left corner
 
@@ -76627,7 +76636,14 @@ Wick.GUIElement.Timeline = class extends Wick.GUIElement {
       from: new paper.Point(0, 0),
       to: new paper.Point(this.layersContainerWidth, this.numberLineHeight)
     });
-    this.item.addChild(cornerCover);
+    this.item.addChild(cornerCover); // Build cover for bottom right corner
+
+    var cornerCover2 = new paper.Path.Rectangle({
+      fillColor: Wick.GUIElement.SCROLLBAR_BACKGROUND_COLOR,
+      from: new paper.Point(this.paper.view.element.width - Wick.GUIElement.SCROLLBAR_SIZE, this.paper.view.element.height - Wick.GUIElement.SCROLLBAR_SIZE),
+      to: new paper.Point(this.paper.view.element.width, this.paper.view.element.height)
+    });
+    this.item.addChild(cornerCover2);
 
     this._repositionScrollableElements();
   }

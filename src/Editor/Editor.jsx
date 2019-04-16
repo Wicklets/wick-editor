@@ -89,7 +89,7 @@ class Editor extends EditorCore {
       codeEditorOpen: false,
       codeErrors: [],
       inspectorSize: 250,
-      timelineSize: 100,
+      timelineSize: 175,
       assetLibrarySize: 150,
     };
 
@@ -232,7 +232,7 @@ class Editor extends EditorCore {
           this.stopPreviewPlaying([error])
         },
         onAfterTick: () => {
-          
+
         },
         onBeforeTick: () => {
 
