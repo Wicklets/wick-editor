@@ -1,0 +1,32 @@
+{
+  "name": "wick-engine",
+  "version": "1.0.0",
+  "description": "This is the official implementation of the Wick Editor Core Engine. <what does it do>. It is built to be easily plugged into used by a GUI for creating and editing Wick projects (e.g. the Wick Editor) or a player for embedding and running Wick projects (e.g. the Wick Player).",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Wicklets/wick-engine.git"
+  },
+  "author": "zrispo",
+  "license": "TODO ADD LICENSE",
+  "bugs": {
+    "url": "https://github.com/Wicklets/wick-engine/issues"
+  },
+  "homepage": "https://github.com/Wicklets/wick-engine#readme",
+  "devDependencies": {
+    "@babel/core": "^7.1.2",
+    "gulp": "^3.9.1",
+    "gulp-babel": "^8.0.0-beta.2",
+    "gulp-concat": "^2.6.1",
+    "gulp-header": "^2.0.5",
+    "gulp-rename": "^1.4.0",
+    "gulp-uglify": "^3.0.1"
+  }
+}
