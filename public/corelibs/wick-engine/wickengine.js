@@ -73691,7 +73691,7 @@ Wick.GUIElement.LAYER_BUTTON_TOGGLE_INACTIVE_COLOR = 'rgba(255,255,255,0.01)';
 Wick.GUIElement.SCROLLBAR_BACKGROUND_COLOR = '#191919';
 Wick.GUIElement.SCROLLBAR_FILL_COLOR = '#ffffff';
 Wick.GUIElement.SCROLLBAR_ACTIVE_FILL_COLOR = '#cccccc';
-Wick.GUIElement.SCROLLBAR_SIZE = 12;
+Wick.GUIElement.SCROLLBAR_SIZE = 14;
 Wick.GUIElement.SCROLLBAR_MARGIN = 2;
 Wick.GUIElement.SCROLLBAR_BORDER_RADIUS = 4;
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
@@ -76413,12 +76413,12 @@ Wick.GUIElement.ScrollbarGrabberVertical = class extends Wick.GUIElement.Draggab
     this.on('mouseLeave', () => {
       this.build();
     });
-    this.on('drag', () => {
+    this.on('drag', e => {
       this.scrollY = this.scrollY + this.mouseMovement.y;
       this.scrollY = Math.max(0, this.scrollY);
       this.scrollY = Math.min(this.containerHeight - this.grabberHeight, this.scrollY);
       this.globalScrollY = this.scrollY / this.containerHeight * this.contentHeight;
-      this.fire('scroll', {});
+      this.fire('scroll', e);
       this.build();
     });
     this.scrollY = 0;
@@ -76439,11 +76439,6 @@ Wick.GUIElement.ScrollbarGrabberVertical = class extends Wick.GUIElement.Draggab
 
   build() {
     super.build();
-
-    if (this.grabberHeight > this.contentHeight) {
-      return;
-    }
-
     var grabber = new this.paper.Path.Rectangle({
       from: new this.paper.Point(Wick.GUIElement.SCROLLBAR_MARGIN, this.scrollY),
       to: new this.paper.Point(Wick.GUIElement.SCROLLBAR_SIZE - Wick.GUIElement.SCROLLBAR_MARGIN, this.scrollY + this.grabberHeight),
@@ -76493,6 +76488,11 @@ Wick.GUIElement.ScrollbarHorizontal = class extends Wick.GUIElement.Scrollbar {
 
   build() {
     super.build();
+
+    if (this.grabber.grabberWidth > this.grabber.contentWidth) {
+      return;
+    }
+
     var scrollbar = new this.paper.Path.Rectangle({
       from: new this.paper.Point(0, 0),
       to: new this.paper.Point(this.width, Wick.GUIElement.SCROLLBAR_SIZE),
@@ -76544,6 +76544,11 @@ Wick.GUIElement.ScrollbarVertical = class extends Wick.GUIElement.Scrollbar {
 
   build() {
     super.build();
+
+    if (this.grabber.grabberHeight > this.grabber.contentHeight) {
+      return;
+    }
+
     var scrollbar = new this.paper.Path.Rectangle({
       from: new this.paper.Point(0, 0),
       to: new this.paper.Point(Wick.GUIElement.SCROLLBAR_SIZE, this.height),
