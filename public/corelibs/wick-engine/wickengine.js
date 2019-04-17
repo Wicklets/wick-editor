@@ -68512,6 +68512,51 @@ Wick.Clip = class extends Wick.Tickable {
     return this.timeline.playheadPosition;
   }
   /**
+   * @deprecated
+   * Returns true if this clip collides with another clip.
+   * @param {Wick.Clip} clip - The other clip to check collision with.
+   * @returns {boolean} True if this clip collides the other clip.
+   */
+
+
+  hitTest(other) {
+    return this.hitInfo(other) !== null;
+  }
+  /**
+   * @deprecated
+   * Returns an object containing information about the collision between this object and another.
+   * @returns {SAT.Response} The SAT.js response object with collision info. See: https://github.com/jriecken/sat-js#satresponse
+   */
+
+
+  hitInfo(other) {
+    var V = SAT.Vector;
+    var P = SAT.Polygon; // Bounds polygon of this clip
+
+    var bounds1 = this.bounds;
+    var polygon1 = new P(new V(this.transform.x, this.transform.y), [new V(bounds1.x, bounds1.y), new V(bounds1.x + bounds1.width * this.transform.scaleX, bounds1.y), new V(bounds1.x + bounds1.width * this.transform.scaleX, bounds1.y + bounds1.height * this.transform.scaleY), new V(0, bounds1.y + bounds1.height * this.transform.scaleY)]); // Bounds polygon of other clip
+
+    var bounds2 = other.bounds;
+    var polygon2 = new P(new V(other.transform.x, other.transform.y), [new V(bounds2.x, bounds2.y), new V(bounds2.x + bounds2.width * this.transform.scaleX, bounds2.y), new V(bounds2.x + bounds2.width * this.transform.scaleX, bounds2.y + bounds2.height * this.transform.scaleY), new V(0, bounds2.y + bounds2.height * this.transform.scaleY)]); // Get collision response from SAT
+
+    var response = new SAT.Response();
+    var collided = SAT.testPolygonPolygon(polygon1, polygon2, response);
+
+    if (collided) {
+      return response;
+    } else {
+      return null;
+    }
+  }
+  /**
+   * The bounding box of the clip.
+   */
+
+
+  get bounds() {
+    return this.view.container.getLocalBounds();
+  }
+  /**
    * The X position of the clip.
    */
 
