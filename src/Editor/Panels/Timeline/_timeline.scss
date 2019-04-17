@@ -24,12 +24,12 @@
 }
 
 #animation-timeline-container {
-  height: 100%;
+  height: floor(100%);
 }
 
 #animation-timeline {
-  width: 100%;
-  height: calc(100% - #{$breadcrumbs-height});
+  width: floor(100%);
+  height: calc(floor(100%) - #{$breadcrumbs-height});
   border-left: $editor-outline-padding solid $editor-primary-outline;
   border-bottom: $editor-outline-padding solid $editor-primary-outline;
 }

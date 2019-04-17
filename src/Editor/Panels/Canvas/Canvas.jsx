@@ -32,21 +32,40 @@ class Canvas extends Component {
   }
 
   componentDidMount() {
+    this.attachProjectToComponent(this.props.project);
+
+    this.updateCanvas(this.props.project);
+
+    this.props.onRef(this);
+  }
+
+  componentDidUpdate () {
+    this.updateCanvas(this.props.project);
+  }
+
+  attachProjectToComponent = (project) => {
+    if(this.currentAttachedProject === project) return;
+    this.currentAttachedProject = project;
+
     let canvasContainerElem = this.canvasContainer.current;
-    let paper = window.paper;
 
-    paper.selection = new window.paper.Selection();
+    project.view.canvasContainer = canvasContainerElem;
+    project.view.resize();
 
-    this.props.project.view.canvasContainer = canvasContainerElem;
-    this.props.project.view.resize();
+    project.view.on('canvasModified', (e) => {
+      this.props.project.view.applyChanges();
+      this.props.projectDidChange();
+    });
 
-    // Listen to drawing tool events
-    paper.drawingTools.setup();
-    paper.drawingTools.onCanvasModified(this.onCanvasModified);
-    paper.drawingTools.onSelectionChanged(this.onSelectionChanged);
-    paper.drawingTools.onCanvasViewChanged(this.onCanvasViewChanged);
-    paper.drawingTools.onSelectionTransformed(this.onSelectionTransformed);
+    project.view.on('selectionTransformed', (e) => {
+      this.props.projectDidChange(true);
+    });
 
+    project.view.on('selectionChanged', (e) => {
+      this.props.projectDidChange();
+    });
+
+    /*
     // Add some toaster warnings so there's some feedback when you try to draw somewhere that you can't.
     paper.drawingTools.none.onMouseDown = () => {
       if(!this.props.project.activeFrame) {
@@ -69,75 +88,35 @@ class Canvas extends Component {
         console.error(message);
       }
     }
-
-    this.updateCanvas(this.props.project);
-
-    this.props.onRef(this);
-  }
-
-  componentDidUpdate () {
-    this.updateCanvas(this.props.project);
-  }
-
-  onCanvasModified = (e) => {
-    this.props.project.view.applyChanges();
-    this.props.projectDidChange();
-  }
-
-  onSelectionTransformed = (e) => {
-    this.props.projectDidChange(true);
-  }
-
-  onSelectionChanged = (e) => {
-    let project = this.props.project;
-
-    project.view.applyChanges();
-    project.selection.clear();
-    e.items.forEach(item => {
-      let object = project.getChildByUUID(item.data.wickUUID);
-      project.selection.select(object);
-    });
-
-    project.view.applyChanges();
-    this.props.projectDidChange();
-  }
-
-  onCanvasViewChanged = (e) => {
-    let project = this.props.project;
-    project.zoom = project.view.zoom;
-    project.pan.x = project.view.pan.x;
-    project.pan.y = project.view.pan.y;
+    */
   }
 
   updateCanvas = (project) => {
-    let paper = this.props.paper;
-    let activeTool = this.props.activeTool;
-    let toolSettings = this.props.toolSettings;
-    let previewPlaying = this.props.previewPlaying;
-    let canvasContainerElem = this.canvasContainer.current;
-
-    console.warn('Move this to engine please')
-    project.view.renderMode = previewPlaying ? 'webgl' : 'svg';
+    this.attachProjectToComponent(project);
 
     // Render wick project
+    project.view.renderMode = this.props.previewPlaying ? 'webgl' : 'svg';
     project.view.canvasBGColor = styles.editorCanvasBorder;
-    project.view.canvasContainer = canvasContainerElem;
+    project.view.canvasContainer = this.canvasContainer.current;
     project.view.render();
 
-    console.warn('Move this to engine please')
-    // update the paper.js active tool based on the editor active tool state.
-    let tool = paper.drawingTools[activeTool];
-    tool.activate();
-    Object.keys(toolSettings).forEach(key => {
-      tool[key] = toolSettings[key];
-    });
+    // update the drawing tool based on the editor's active tool state.
+    let toolName = this.props.activeTool;
+    let tool = this.props.project.view.tools[this.props.activeTool];
+    if(!tool) {
+      console.warn('Invalid tool: ' + toolName);
+    } else {
+      tool.activate();
+      Object.keys(this.props.toolSettings).forEach(key => {
+        tool[key] = this.props.toolSettings[key];
+      });
+    }
 
-    console.warn('Move this to engine please')
     // If the active frame is on a locked/hidden layer, or there is no active frame, disable all tools.
     if(!project.activeFrame ||
        project.activeLayer.locked ||
        project.activeLayer.hidden) {
-      paper.drawingTools.none.activate();
+      this.props.project.view.tools.none.activate();
     }
   }
 
