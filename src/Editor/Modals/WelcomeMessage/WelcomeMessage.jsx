@@ -20,7 +20,7 @@
 import React, { Component } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Modal from 'react-modal';
-import ActionButton from 'Editor/Util/ActionButton/ActionButton'; 
+import ActionButton from 'Editor/Util/ActionButton/ActionButton';
 
 import './_welcomemessage.scss';
 
@@ -33,15 +33,15 @@ class WelcomeModal extends Component {
 
   render() {
     return (
-      <Modal 
-      isOpen={this.props.open} 
-      toggle={this.props.toggle} 
+      <Modal
+      isOpen={this.props.open}
+      toggle={this.props.toggle}
       onRequestClose={this.props.toggle}
       className="modal-body welcome-modal-body"
       overlayClassName="modal-overlay welcome-modal-overlay">
         <div id="welcome-modal-interior-content">
           <div id="welcome-image-container" className="welcome-modal-main-container">
-            <img id="welcome-image" src={nightImage} />
+            <img id="welcome-image" alt="welcome to wick editor" src={nightImage} />
           </div>
           <div id="welcome-message-container" className="modal-main-container">
             <div id="welcome-modal-title" className="welcome-modal-item">Welcome to the Wick Editor!</div>
@@ -58,11 +58,11 @@ class WelcomeModal extends Component {
                 <li>Many, many, bugfixes...</li>
               </ul>
             </div>
-            <div id="welcome-modal-tutorial-link" classNAme="welcom-modal-item"><a className="welcome-modal-highlight" target="_blank" rel="noopener noreferrer" href="https://www.youtube.com/watch?v=pAsrXT8KIrI">Watch the Tutorial</a></div>
+            <div id="welcome-modal-tutorial-link" className="welcom-modal-item"><a className="welcome-modal-highlight" target="_blank" rel="noopener noreferrer" href="https://www.youtube.com/watch?v=pAsrXT8KIrI">Watch the Tutorial</a></div>
             <div id="welcome-modal-forum-link" className="welcome-modal-item">Please report all bugs on our <a className="welcome-modal-highlight" target="_blank" rel="noopener noreferrer" href="https://forum.wickeditor.com">forum!</a></div>
             <div id="welcome-modal-footer">
               <div id="welcome-modal-cancel">
-                <ActionButton 
+                <ActionButton
                   className="welcome-modal-button"
                   color='gray'
                   action={() => window.location.href="http://www.wickeditor.com"}
@@ -70,7 +70,7 @@ class WelcomeModal extends Component {
                   />
               </div>
               <div id="welcome-modal-accept">
-                <ActionButton 
+                <ActionButton
                   className="welcome-modal-button"
                   color='green'
                   action={this.props.toggle}

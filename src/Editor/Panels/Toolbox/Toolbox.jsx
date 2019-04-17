@@ -22,7 +22,6 @@ import './_toolbox.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 import WickInput from 'Editor/Util/WickInput/WickInput';
-import ActionButton from 'Editor/Util/ActionButton/ActionButton';
 import ToolboxBreak from './ToolboxBreak/ToolboxBreak';
 import ToolButton from './ToolButton/ToolButton';
 import ToolSettings from './ToolSettings/ToolSettings';
@@ -60,7 +59,7 @@ class Toolbox extends Component {
       <ToolButton
         activeTool={this.props.activeTool}
         toolSettings={this.props.toolSettings}
-        action={action.action} 
+        action={action.action}
         className='toolbox-item'
         name={action.icon}
         key={i}
@@ -70,9 +69,9 @@ class Toolbox extends Component {
 
   renderToolButtonFromAction = (action) => {
     return (
-      <ToolButton 
-      action={action.action}  
-      name={action.icon} 
+      <ToolButton
+      action={action.action}
+      name={action.icon}
       tooltip={action.toolTip} />
     );
   }
@@ -129,7 +128,7 @@ class Toolbox extends Component {
             setToolSettings={this.props.setToolSettings}
             toolRestrictions={this.props.toolRestrictions} />
 
-      <div className="toolbox-actions-right-container"> 
+      <div className="toolbox-actions-right-container">
         <div className="toolbox-actions-right">
           {this.renderToolButtonFromAction(this.props.editorActions.delete)}
           {this.renderToolButtonFromAction(this.props.editorActions.copy)}
