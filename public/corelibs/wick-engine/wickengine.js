@@ -72506,7 +72506,13 @@ Wick.View.Project = class extends Wick.View {
       tool.on('selectionTransformed', e => {
         this.fireEvent('selectionTransformed', e);
       });
-      tool.on('canvasViewTranslated', e => {});
+      tool.on('canvasViewTranslated', e => {
+        this.model.pan = {
+          x: this.pan.x,
+          y: this.pan.y
+        };
+        this.model.zoom = this.zoom;
+      });
     }
 
     this.tools.none.activate();
@@ -76144,6 +76150,10 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
   }
 
   _attachMouseEvents() {
+    this.paper.view.onDoubleClick = e => {
+      this.fire('doubleClick');
+    };
+
     this.paper.view.onMouseMove = e => {
       // don't fire mouseMove functions if we're dragging
       if (e.event.buttons) return;
