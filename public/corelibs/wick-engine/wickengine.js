@@ -70696,22 +70696,26 @@ Wick.Tools.Brush = class extends Wick.Tool {
       this.paper.view.enablePressure();
 
       this.paper.view._element.parentElement.appendChild(this.croquisDOMElement);
-    }
+    } // Update croquis element canvas size
+
 
     if (this.croquis.getCanvasWidth() !== this.paper.view._element.width || this.croquis.getCanvasHeight() !== this.paper.view._element.height) {
       this.croquis.setCanvasSize(this.paper.view._element.width, this.paper.view._element.height);
-    }
+    } // Generate new cursor
+
 
     this.cachedCursor = this.createDynamicCursor(this.fillColor, this.brushSize * this.pressure);
     this.setCursor(this.cachedCursor);
   }
 
   onMouseDown(e) {
+    // Update croquis params
     this.croquisBrush.setSize(this.brushSize);
     this.croquisBrush.setColor(this.fillColor);
     this.croquisBrush.setSpacing(this.BRUSH_POINT_SPACING);
     this.croquis.setToolStabilizeLevel(this.brushStabilizerLevel);
-    this.croquis.setToolStabilizeWeight(this.brushStabilizerWeight);
+    this.croquis.setToolStabilizeWeight(this.brushStabilizerWeight); // Forward mouse event to croquis canvas
+
     var point = this.paper.view.projectToView(e.point.x, e.point.y);
 
     try {
@@ -70723,6 +70727,7 @@ Wick.Tools.Brush = class extends Wick.Tool {
   }
 
   onMouseDrag(e) {
+    // Forward mouse event to croquis canvas
     var point = this.paper.view.projectToView(e.point.x, e.point.y);
 
     try {
@@ -70732,12 +70737,14 @@ Wick.Tools.Brush = class extends Wick.Tool {
       return;
     }
 
-    this.lastPressure = this.pressure;
+    this.lastPressure = this.pressure; // Regen cursor
+
     this.cachedCursor = this.createDynamicCursor(this.fillColor, this.brushSize * this.pressure);
     this.setCursor(this.cachedCursor);
   }
 
   onMouseUp(e) {
+    // Forward mouse event to croquis canvas
     var point = this.paper.view.projectToView(e.point.x, e.point.y);
 
     try {
@@ -70747,10 +70754,10 @@ Wick.Tools.Brush = class extends Wick.Tool {
       return;
     }
 
-    setTimeout(function () {
+    setTimeout(() => {
       var img = new Image();
 
-      img.onload = function () {
+      img.onload = () => {
         var svg = potrace.fromImage(img).toSVG(1 / this.potraceResolution / this.paper.view.zoom);
         var potracePath = this.paper.project.importSVG(svg);
         potracePath.fillColor = this.fillColor;
@@ -70759,16 +70766,16 @@ Wick.Tools.Brush = class extends Wick.Tool {
         potracePath.remove();
         potracePath.closed = true;
         potracePath.children[0].closed = true;
-        this.paper.project.activeLayer.addChild(this.potracePath.children[0]);
+        this.paper.project.activeLayer.addChild(potracePath.children[0]);
         this.croquis.clearLayer();
-        this.fire('canvasModified');
+        this.fireEvent('canvasModified');
       };
 
-      var canvas = document.getElementsByClassName('croquis-layer-canvas')[1];
+      var canvas = this.paper.view._element.parentElement.getElementsByClassName('croquis-layer-canvas')[1];
 
       if (!canvas) {
-        console.error("Croquis canvas was not found in the document. Something very bad has happened.");
-        this.handleBrushError({});
+        console.warn("Croquis canvas was not found in the canvas container. Something very bad has happened.");
+        this.handleBrushError('misingCroquisCanvas');
         return;
       }
 
@@ -70789,7 +70796,7 @@ Wick.Tools.Brush = class extends Wick.Tool {
     return this.pressureEnabled ? this.paper.view.pressure : 1;
   }
   /**
-   *
+   * Croquis throws a lot of errros. This is a helpful function to handle those errors gracefully.
    */
 
 
@@ -71221,6 +71228,7 @@ Wick.Tools.Ellipse = class extends Wick.Tool {
 
     var bounds = new this.paper.Rectangle(new this.paper.Point(this.topLeft.x, this.topLeft.y), new this.paper.Point(this.bottomRight.x, this.bottomRight.y));
     this.path = new this.paper.Path.Ellipse(bounds);
+    this.paper.project.activeLayer.addChild(this.path);
     this.path.fillColor = this.fillColor;
     this.path.strokeColor = this.strokeColor;
     this.path.strokeWidth = this.strokeWidth;
@@ -71669,7 +71677,9 @@ Wick.Tools.Pan = class extends Wick.Tool {
     this.paper.view.center = this.paper.view.center.add(d);
   }
 
-  onMouseUp(e) {}
+  onMouseUp(e) {
+    this.fireEvent('canvasViewTranslated');
+  }
 
 };
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
@@ -71734,6 +71744,7 @@ Wick.Tools.Pencil = class extends Wick.Tool {
   }
 
   onMouseUp(e) {
+    this.path.add(e.point);
     this.path = null;
     this.fireEvent('canvasModified');
   }
@@ -71994,6 +72005,8 @@ Wick.Tools.Zoom = class extends Wick.Tool {
     } else if (this.paper.view.zoom >= this.ZOOM_MAX) {
       this.paper.view.zoom = this.ZOOM_MAX;
     }
+
+    this.fireEvent('canvasViewTranslated');
   }
 
   createZoomBox(e) {
@@ -72057,11 +72070,19 @@ Wick.View = class {
 
     return this._paperScope;
   }
+  /**
+   *
+   */
+
 
   constructor(model) {
     this.model = model;
     this._eventHandlers = {};
   }
+  /**
+   *
+   */
+
 
   set model(model) {
     this._model = model;
@@ -72070,14 +72091,26 @@ Wick.View = class {
   get model() {
     return this._model;
   }
+  /**
+   *
+   */
+
 
   get renderMode() {
     return this.model.project && this.model.project.view.renderMode;
   }
+  /**
+   *
+   */
+
 
   get paper() {
     return Wick.View.paperScope;
   }
+  /**
+   *
+   */
+
 
   render() {
     if (this.renderMode === 'svg') {
@@ -72086,6 +72119,10 @@ Wick.View = class {
       this._renderWebGL();
     }
   }
+  /**
+   *
+   */
+
 
   on(eventName, fn) {
     if (!this._eventHandlers[eventName]) {
@@ -72094,6 +72131,10 @@ Wick.View = class {
 
     this._eventHandlers[eventName].push(fn);
   }
+  /**
+   *
+   */
+
 
   fireEvent(eventName, e) {
     var eventFns = this._eventHandlers[eventName];
@@ -72172,42 +72213,8 @@ Wick.View.Project = class extends Wick.View {
     this._zoom = 1;
     this._keysDown = [];
     this._isMouseDown = false;
-    this.tools = {
-      brush: new Wick.Tools.Brush(),
-      cursor: new Wick.Tools.Cursor(),
-      ellipse: new Wick.Tools.Ellipse(),
-      eraser: new Wick.Tools.Eraser(),
-      eyedropper: new Wick.Tools.Eyedropper(),
-      fillbucket: new Wick.Tools.FillBucket(),
-      line: new Wick.Tools.Line(),
-      none: new Wick.Tools.None(),
-      pan: new Wick.Tools.Pan(),
-      pencil: new Wick.Tools.Pencil(),
-      rectangle: new Wick.Tools.Rectangle(),
-      text: new Wick.Tools.Text(),
-      zoom: new Wick.Tools.Zoom()
-    };
 
-    for (var toolName in this.tools) {
-      var tool = this.tools[toolName];
-      tool.on('canvasModified', e => {
-        this.applyChanges();
-        this.fireEvent('canvasModified', e);
-      });
-      tool.on('selectionChanged', e => {
-        this.applyChanges();
-        this.model.selection.clear();
-        e.items.forEach(item => {
-          let object = this.model.getChildByUUID(item.data.wickUUID);
-          this.model.selection.select(object);
-        });
-        this.applyChanges();
-        this.fireEvent('selectionChanged', e);
-      });
-      tool.on('selectionTransformed', e => {
-        this.fireEvent('selectionTransformed', e);
-      });
-    }
+    this._setupTools();
   }
   /*
    * Determines the way the project will scale itself based on its container.
@@ -72461,6 +72468,48 @@ Wick.View.Project = class extends Wick.View {
     if (this._pixiApp) {
       this._pixiApp.destroy();
     }
+  }
+
+  _setupTools() {
+    this.tools = {
+      brush: new Wick.Tools.Brush(),
+      cursor: new Wick.Tools.Cursor(),
+      ellipse: new Wick.Tools.Ellipse(),
+      eraser: new Wick.Tools.Eraser(),
+      eyedropper: new Wick.Tools.Eyedropper(),
+      fillbucket: new Wick.Tools.FillBucket(),
+      line: new Wick.Tools.Line(),
+      none: new Wick.Tools.None(),
+      pan: new Wick.Tools.Pan(),
+      pencil: new Wick.Tools.Pencil(),
+      rectangle: new Wick.Tools.Rectangle(),
+      text: new Wick.Tools.Text(),
+      zoom: new Wick.Tools.Zoom()
+    };
+
+    for (var toolName in this.tools) {
+      var tool = this.tools[toolName];
+      tool.on('canvasModified', e => {
+        this.applyChanges();
+        this.fireEvent('canvasModified', e);
+      });
+      tool.on('selectionChanged', e => {
+        this.applyChanges();
+        this.model.selection.clear();
+        e.items.forEach(item => {
+          let object = this.model.getChildByUUID(item.data.wickUUID);
+          this.model.selection.select(object);
+        });
+        this.applyChanges();
+        this.fireEvent('selectionChanged', e);
+      });
+      tool.on('selectionTransformed', e => {
+        this.fireEvent('selectionTransformed', e);
+      });
+      tool.on('canvasViewTranslated', e => {});
+    }
+
+    this.tools.none.activate();
   }
 
   _displayCanvasInContainer(canvas) {
