@@ -4,6 +4,8 @@
 #code-editor-reference {
   width: $code-editor-details-width;
   height: 100%;
-  background-color: red;
+  background-color: $editor-popout-secondary;
   float: none;
+  color: $editor-popout-secondary-text; 
+  cursor: pointer;
 }

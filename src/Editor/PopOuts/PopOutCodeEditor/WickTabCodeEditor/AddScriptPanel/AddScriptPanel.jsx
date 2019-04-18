@@ -19,21 +19,29 @@
 
 import React, { Component } from 'react';
 
-import ActionButton from 'Editor/Util/ActionButton/ActionButton';
+import AddScriptButton from './AddScriptButton/AddScriptButton'; 
 
-import './_addscriptbutton.scss';
+import './_addscriptpanel.scss';
+  
+class AddScriptPanel extends Component {
+  renderAddScriptButton = (scriptObject, i) => {
+      return (
+          <AddScriptButton
+              key={i}
+              name={scriptObject.name}
+              used={scriptObject.used}
+              description={scriptObject.description}
+              action={() => this.props.addScript(scriptObject.name)} />
+          );
+  }
 
-class AddScriptButton extends Component {
   render() {
     return (
-      <div className="add-script-button-wrapper">
-        <ActionButton
-          text={"+" +  this.props.text}
-          action={this.props.action}
-          color={this.props.pickColor ? this.props.pickColor(this.props.text) : 'sky'}/>
-      </div>
+        <div className="add-script-container">
+            {this.props.scripts.map(this.renderAddScriptButton)}
+        </div>
     )
   }
 }
 
-export default AddScriptButton
+export default AddScriptPanel

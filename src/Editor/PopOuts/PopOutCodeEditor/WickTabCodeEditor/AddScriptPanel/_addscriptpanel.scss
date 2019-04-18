@@ -1,0 +1,12 @@
+@import '../wicktabcodeeditor.scss';
+
+.add-script-container {
+    overflow: auto; 
+    height: $add-script-container-height; 
+    width: 100%;
+    display: flex; 
+    padding-left: $tab-editor-left-padding;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    align-content: flex-start;
+  }

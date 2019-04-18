@@ -1,23 +1,40 @@
 @import 'Editor/_wickbrand.scss';
 @import '../_popoutcodeditor.scss';
 
+$sub-tab-list-height: 40px;
+$add-script-container-height: calc(100% - #{$sub-tab-list-height}); 
+$tab-editor-left-padding: 15px;
+
 .code-editor-tab-code-editor {
   height: 100%;
 }
 
-.code-tab-delete {
-  width: 30px;
-  min-width: 30px;
-  height: 30px;
-  float: left;
-}
-
 #add-scripts-panel-container {
   width: 100%;
-  height: calc(100% - #{$editor-tab-list-height};
+  height: 100%; 
   overflow-y: scroll;
-
   display: flex;
   flex-direction: column;
   align-items: center;
+  background-color: $editor-popout-tertiary; 
+}
+
+#code-editor-add-script-tab {
+  width: 15px;
+  height: 15px; 
+  display: flex; 
+  align-items: center;
+  justify-content: center;
+}
+
+#select-sub-tab-list {
+  height: $sub-tab-list-height; 
+  min-height: 40px; 
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  justify-content: left;
+  padding-left: $tab-editor-left-padding;
+  overflow: auto; 
 }

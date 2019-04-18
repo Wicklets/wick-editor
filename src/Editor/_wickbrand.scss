@@ -74,6 +74,15 @@ $wick-gray-dark: #424242;
 $wick-gray-text: #848484;
 $wick-gray-text-light: #b6b6b6;
 
+$wick-cool-blue: #89919C;
+$wick-cool-blue-light: #AFD6FF; 
+$wick-cool-blue-dark:#5C5F65;
+$wick-cool-blue-text: #353434;
+
+$wick-error-red: #E27663; 
+$wick-error-red-light: #FF7867; 
+$wick-error-red-dark: #8D564D;
+$wick-error-red-text: #FF7867; 
 
 // interface palette
 $interface-primary: #464646; // most background colors
@@ -147,6 +156,15 @@ $editor-canvas-border: #6A6A6A;
 $editor-outline-padding: 4px;
 $editor-input-border-width: 3px; 
 $editor-panel-padding: 10px;
+
+$editor-popout-primary: #292927;
+$editor-popout-secondary: #353434;
+$editor-popout-tertiary: #3F3D3D;
+
+$editor-popout-primary-text: #FFFFFF;
+$editor-popout-secondary-text: #B1B1B1; 
+$editor-popout-tertiary-text: #919191; 
+
 
 // Set editor styles.
 a:link {

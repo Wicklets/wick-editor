@@ -20,8 +20,10 @@
 import React, { Component } from 'react';
 import { Rnd } from "react-rnd";
 
-import ActionButton from 'Editor/Util/ActionButton/ActionButton';
 import WickTabCodeEditor from './WickTabCodeEditor/WickTabCodeEditor';
+import WickCodeDetailsPanel from './WickCodeDetailsPanel/WickCodeDetailsPanel';
+import ToolIcon from 'Editor/Util/ToolIcon/ToolIcon'; 
+import missingImage from 'resources/interface/missing.jpg';
 
 // Import Ace Editor themes.
 import 'brace/mode/javascript';
@@ -125,6 +127,9 @@ class PopOutCodeEditor extends Component {
           height: this.props.codeEditorWindowProperties.height,
         }}
       >
+        <img className='code-editor-thumbnail'
+          src={this.props.imgSource ? this.props.imgSource : missingImage} />
+
         <div
           className="code-editor-drag-handle">
           <div className="code-editor-title">
@@ -134,15 +139,12 @@ class PopOutCodeEditor extends Component {
                 {'code-editor-error-information':this.codeHasErrors()})}>
               {this.getCodeEditorInfo()} </span>
           </div>
-          <div className="code-editor-close-button">
-            <ActionButton
-              icon="close"
-              action={this.onCloseHandler}
-              color="red"/>
+          <div className="code-editor-close-button" onClick={this.onCloseHandler}>
+            <ToolIcon name="closemodal" />
           </div>
         </div>
         <div className="code-editor-body">
-          {/*<WickCodeDetailsPanel />*/}
+          <WickCodeDetailsPanel />
           <div className="code-editor-code-panel">
             {this.props.selectionIsScriptable()
               ? this.renderCodeEditor()
@@ -155,3 +157,4 @@ class PopOutCodeEditor extends Component {
 }
 
 export default PopOutCodeEditor;
+

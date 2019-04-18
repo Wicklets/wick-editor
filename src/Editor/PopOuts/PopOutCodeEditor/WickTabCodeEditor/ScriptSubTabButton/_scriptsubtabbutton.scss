@@ -1,0 +1,19 @@
+@import '../wicktabcodeeditor.scss'; 
+
+.select-sub-tab {
+    margin-left: 15px; 
+    border-bottom: 2px solid $editor-popout-secondary; 
+    color: $editor-popout-tertiary-text; 
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.select-sub-tab:first-child {
+    margin-left: 0px; 
+}
+  
+.select-sub-tab.selected {
+    transition: .4s;
+    border-bottom: 2px solid $wick-green; 
+    color: white; 
+}

@@ -63,6 +63,7 @@ import iconLeaveUp from 'resources/tool-icons/leaveUp.svg';
 import iconBreakApart from 'resources/tool-icons/breakApart.svg';
 import iconClose from 'resources/tool-icons/close.svg';
 import iconRecenter from 'resources/tool-icons/recenter.svg';
+import iconAdd from 'resources/asset-library-icons/add.svg';
 
 
 // Assets
@@ -103,6 +104,7 @@ import iconAutosave from 'resources/interface-images/accept.svg';
 import iconCancel from 'resources/interface-images/cancel.svg'; 
 import iconWarning from 'resources/interface-images/warning.svg';
 import iconCheck from 'resources/interface-images/check.svg';
+import iconCircle from 'resources/tool-icons/circle.svg'; 
 
 var classNames = require('classnames');
 
@@ -183,6 +185,8 @@ class ToolIcon extends Component {
       "warning": iconWarning,
       "cancel": iconCancel,
       "check": iconCheck,
+      "add": iconAdd, 
+      "circle": iconCircle, 
     }
   }
 

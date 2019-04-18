@@ -25,13 +25,14 @@
   flex-direction: column;
   -webkit-tap-highlight-color: transparent;
   height: 100%;
+  background-color: $editor-popout-secondary;
 
   &__tab-list {
     width:100%;
     margin: 0 0 0px;
     padding: 0;
     white-space: nowrap;
-    min-height: $editor-tab-list-height;
+    min-height: $code-editor-tab-list-height;
     overflow: hidden;
   }
 
@@ -40,26 +41,28 @@
     margin: 0 0 0px;
     padding: 0;
     white-space: nowrap;
-    min-height: $editor-tab-list-height;
+    min-height: $code-editor-tab-list-height;
     overflow-x: auto;
   }
 
   &__tab {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
     border-bottom: none;
     bottom: -1px;
     position: relative;
-    list-style: none;
     padding: 3px 6px;
     cursor: pointer;
-    background-color: $interface-secondary;
-    color: $interface-secondary-text;
+    background-color: $editor-popout-secondary; 
+    color: $editor-popout-secondary-text;
     border-radius: 5px 5px 0 0;
+    height: 100%;
 
     &--selected {
-      background: $interface-tertiary;
-      border-color: $interface-quaternary;
-      color: $interface-tertiary-text;
+      background: $editor-popout-tertiary;
+      color: $editor-popout-tertiary-text;
     }
 
     &--disabled {
@@ -107,12 +110,13 @@
 }
 
 .react-tab-sky {
-  background-color: $sleepy-sky-dark;
-  color: $sleepy-sky-text;
+  background-color: $wick-cool-blue-dark;
+  color: $wick-cool-blue-text;
 }
 
 .react-tab-sky.react-tabs__tab--selected {
-  background-color: $sleepy-sky-light;
+  background-color: $wick-cool-blue;
+  color: $wick-cool-blue-text;
 }
 
 .react-tab-green {
@@ -122,4 +126,17 @@
 
 .react-tab-green.react-tabs__tab--selected {
   background-color: $wick-green-light;
+}
+
+#select-sub-tab-list {
+  height: 40px;
+  min-height: 40px; 
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  justify-content: left;
+  padding-left: 15px;
+  margin-bottom: 20px;
+  overflow: auto; 
 }

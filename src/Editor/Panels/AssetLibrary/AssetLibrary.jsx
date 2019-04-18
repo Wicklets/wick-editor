@@ -86,8 +86,8 @@ class AssetLibrary extends Component {
             color="upload"
             action={this.handleAdd}
             id="button-asset-upload"
-            tooltip="Upload Assets"
-            text="+" />
+            icon="add"
+            tooltip="Upload Assets" />
         </div>
       </div>
     )

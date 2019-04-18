@@ -6,11 +6,22 @@
   height: 100%;
 }
 
-.code-editor-thumbnail-preview {
+.code-editor-thumbnail-container {
   width: $code-editor-details-width;
-  height: $code-editor-thumbnail-height;
-  background-color: pink;
-  float: none;
-  flex-grow: 0;
-  flex-shrink: 0;
+  height: $code-editor-thumbnail-container-height;
+  background-color: $editor-popout-secondary;
+  display: flex;
+  justify-content: center;
+}
+
+.code-editor-thumbnail-highlight {
+  position: relative;
+  top: calc(#{$code-editor-thumbnail-highlight-size} / 2 * -1);
+  width: $code-editor-thumbnail-highlight-size;
+  height: $code-editor-thumbnail-highlight-size; 
+  background-color: $editor-popout-primary;
+  display: flex;
+  justify-content: center; 
+  align-items: center;
+  border-radius: 40px;
 }

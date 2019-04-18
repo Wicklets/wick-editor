@@ -21,14 +21,20 @@ import React, { Component } from 'react';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 
 import WickAceEditor from './WickAceEditor/WickAceEditor';
-import AddScriptButton from './AddScriptButton/AddScriptButton';
 import ActionButton from 'Editor/Util/ActionButton/ActionButton';
+import ScriptSubTabButton from './ScriptSubTabButton/ScriptSubTabButton';
+import AddScriptPanel from './AddScriptPanel/AddScriptPanel'; 
 
 import './_wicktabcodeeditor.scss';
 import './_wicktabcodeeditortabstyling.scss';
 import '../_popoutcodeditor.scss';
+import ToolIcon from '../../../Util/ToolIcon/ToolIcon';
 
-// Import default tab style
+// https://flaviocopes.com/how-to-uppercase-first-letter-javascript/
+const capitalize = (s) => {
+  if (typeof s !== 'string') return ''
+  return s.charAt(0).toUpperCase() + s.slice(1)
+}
 
 class WickTabCodeEditor extends Component {
   constructor(props) {
@@ -36,6 +42,29 @@ class WickTabCodeEditor extends Component {
 
     this.state = {
       tabIndex: 0,
+      scriptSubTab: 'Timeline',
+    }
+
+    this.scriptsByType = {
+      'Timeline': ['load', 'update', 'unload'], 
+      'Mouse': ['mouseenter', 'mouseleave', 'mousepressed', 'mousedown', 'mousereleased', 'mousedrag', 'mouseclick'],
+      'Keyboard': ['keypressed', 'keyreleased', 'keydown'],
+    }
+
+    this.scriptDescriptions = {
+      'load' : 'Once, when the frame is entered',
+      'unload' : 'Once, when the frame is exited',
+      'update' : 'Every tick, while the project is playing',
+      'mouseenter' : 'Once, when the mouse enters the object',
+      'mouseleave' : 'Once, when the mouse leaves the object',
+      'mousepressed' : 'Once, when the mouse presses down on the object',
+      'mousedown' : 'Every tick, when the mouse is down on the object',
+      'mousereleased' : 'Once, when the mouse is released over the object',
+      'mousedrag' : 'Every tick, when the mouse moves while down',
+      'mouseclick' : 'Once, when the mouse goes down then up over an object',
+      'keypressed' : 'Once, when any key is pushed down', 
+      'keyreleased' : 'Once, when any key is released', 
+      'keydown' : 'Every tick, when any key is down',
     }
 
     this.focusError = null;
@@ -85,24 +114,47 @@ class WickTabCodeEditor extends Component {
     return (
       <Tab
         className={"react-tabs__tab react-tab-" + this.pickColor(s.name)}
-        key={i}>{s.name}</Tab>
+        key={i}>{capitalize(s.name)}</Tab>
     )
   }
 
   renderAddScriptTab = () => {
     return (
-      <Tab>+</Tab>
+      <Tab>
+        <div id="code-editor-add-script-tab">
+          <ToolIcon name="add" /> 
+        </div>
+      </Tab>
     )
   }
 
-  renderAddScriptButton = (scriptName, i) => {
-    return (
-        <AddScriptButton
-          key={i}
-          text={scriptName}
-          pickColor={this.pickColor}
-          action={() => this.addScript(scriptName)} />
-      )
+  setSubTab = (name) => {
+    this.setState({
+      scriptSubTab: name, 
+    }); 
+  }
+
+  /**
+   * Returns the scripts which can be added based on the currently selected sub tab. 
+   * @returns {object[]} Scripts returned in the form of an object with name, used, and description properties.
+   */
+  getAddableScripts = () => {
+    let addable = this.scriptsByType[this.state.scriptSubTab]; 
+    let availableScripts = this.props.script.getAvailableScripts();
+
+    let final = []
+
+    addable.forEach(key => {
+        let scriptObject = {
+          name: key,
+          used: availableScripts.indexOf(key) === -1, 
+          description: this.scriptDescriptions[key], 
+        }
+        final.push(scriptObject)
+      }
+    ); 
+
+    return final;
   }
 
   addScript = (scriptName) => {
@@ -111,11 +163,17 @@ class WickTabCodeEditor extends Component {
   }
 
   renderAddScriptTabPanel = () => {
-    let availableScripts = this.props.script.getAvailableScripts();
     return (
       <TabPanel>
         <div id="add-scripts-panel-container">
-          {availableScripts.map(this.renderAddScriptButton)}
+          <div id="select-sub-tab-list">
+            <ScriptSubTabButton selected={this.state.scriptSubTab} name="Timeline" action={this.setSubTab}/>
+            <ScriptSubTabButton selected={this.state.scriptSubTab} name="Mouse" action={this.setSubTab}/>
+            <ScriptSubTabButton selected={this.state.scriptSubTab} name="Keyboard" action={this.setSubTab}/>
+          </div>
+          <AddScriptPanel 
+            scripts={this.getAddableScripts()}
+            addScript={this.addScript} />
         </div>
       </TabPanel>
     );
@@ -144,6 +202,11 @@ class WickTabCodeEditor extends Component {
     this.props.rerenderCodeEditor();
   }
 
+  removeTabByName = (name) => {
+    this.props.script.removeScript(name);
+    this.props.rerenderCodeEditor(); 
+  }
+
   render () {
     let scripts = this.props.script.scripts;
     return (
@@ -152,8 +215,6 @@ class WickTabCodeEditor extends Component {
           selectedIndex={this.state.tabIndex}
           onSelect={tabIndex => this.setState({ tabIndex })}>
           <TabList>
-            {/* Add In Delete Button */}
-            {this.renderDeleteTabButton()}
             {/* Add In Script Tabs */}
             {scripts.map(this.renderNewCodeTab) }
             {/* Render "Add Script" button */}

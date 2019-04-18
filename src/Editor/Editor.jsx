@@ -296,8 +296,8 @@ class Editor extends EditorCore {
         height: 250,
         x: window.innerWidth/2 - 250,
         y: window.innerHeight/2 - 125,
-        minWidth: 300,
-        minHeight: 250,
+        minWidth: 500,
+        minHeight: 300,
       }
     );
   }
