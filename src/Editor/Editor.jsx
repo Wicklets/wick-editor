@@ -253,11 +253,12 @@ class Editor extends EditorCore {
 
   hidePreloader = () => {
     let preloader = window.document.getElementById('preloader');
+    console.log(preloader.style)
     setTimeout(() => {
       preloader.style.opacity = '0';
       setTimeout(() => {
         preloader.style.display = 'none';
-      }, 1000);
+      }, 500);
     }, 2000);
   }
 
