@@ -74904,8 +74904,10 @@ Wick.GUIElement.FramesContainer = class extends Wick.GUIElement.Draggable {
     this.item.position.x = Wick.GUIElement.LAYERS_CONTAINER_WIDTH + this.scrollX;
     this.item.position.y = Wick.GUIElement.NUMBER_LINE_HEIGHT + this.scrollY;
     this.bg.item.position.x = -this.scrollX;
+    this.bg.item.position.y = -this.scrollY;
     this.grid.position.x = -this.scrollX;
     this.grid.position.x = this.grid.position.x - this.grid.position.x % this.gridCellWidth;
+    this.grid.position.y = -this.scrollY;
     this.model.layers.forEach(layer => {
       this.framesStrips[layer.uuid].frameStripRect.position.x = Wick.GUIElement.LAYERS_CONTAINER_WIDTH * 2 - this.scrollX;
     });
@@ -75645,6 +75647,7 @@ Wick.GUIElement.LayersContainer = class extends Wick.GUIElement {
 
   _positionScrollableElements() {
     this.item.position.y = Wick.GUIElement.NUMBER_LINE_HEIGHT + this.scrollY;
+    this.bg.item.position.y = Wick.GUIElement.NUMBER_LINE_HEIGHT - this.scrollY;
   }
 
 };
