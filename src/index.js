@@ -23,6 +23,26 @@ import './index.css';
 import Editor from './Editor/Editor';
 import * as serviceWorker from './serviceWorker';
 
+// Testing preloading assets... (currently disabled)
+/*
+var queue = new window.createjs.LoadQueue();
+queue.on('complete', (e) => {
+  console.log('complete')
+  ReactDOM.render(<Editor />, document.getElementById('root'));
+}, this);
+queue.on('error', (e) => {
+  console.log('error')
+  console.log(e);
+}, this);
+queue.on('progress', (e) => {
+  console.log('progress')
+  console.log(e)
+}, this);
+queue.loadManifest([
+    {id: 'brush.svg', src: 'resources/toolbar-icons/brush.svg', type: window.createjs.Types.SVG},
+]);
+*/
+
 ReactDOM.render(<Editor />, document.getElementById('root'));
 
 // If you want your app to work offline and load faster, you can change
