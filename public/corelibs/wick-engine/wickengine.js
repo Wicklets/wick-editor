@@ -74909,7 +74909,7 @@ Wick.GUIElement.FramesContainer = class extends Wick.GUIElement.Draggable {
     this.grid.position.x = this.grid.position.x - this.grid.position.x % this.gridCellWidth;
     this.grid.position.y = -this.scrollY;
     this.model.layers.forEach(layer => {
-      this.framesStrips[layer.uuid].frameStripRect.position.x = Wick.GUIElement.LAYERS_CONTAINER_WIDTH * 2 - this.scrollX;
+      this.framesStrips[layer.uuid].frameStripRect.position.x = -this.scrollX;
     });
   }
 
@@ -75035,7 +75035,7 @@ Wick.GUIElement.FramesStrip = class extends Wick.GUIElement.Draggable {
 
 
   get width() {
-    return paper.view.element.width;
+    return paper.view.element.width - Wick.GUIElement.LAYERS_CONTAINER_WIDTH;
   }
   /**
    *
@@ -75073,7 +75073,9 @@ Wick.GUIElement.FramesStrip = class extends Wick.GUIElement.Draggable {
       to: new this.paper.Point(this.x + this.width, this.y + this.height),
       strokeColor: 'rgba(0,0,0,0.5)',
       strokeWidth: 2,
-      fillColor: this.model.isActive ? Wick.GUIElement.FRAMES_STRIP_ACTIVE_FILL_COLOR : Wick.GUIElement.FRAMES_STRIP_INACTIVE_FILL_COLOR
+      fillColor: this.model.isActive ? Wick.GUIElement.FRAMES_STRIP_ACTIVE_FILL_COLOR : Wick.GUIElement.FRAMES_STRIP_INACTIVE_FILL_COLOR,
+      applyMatrix: false,
+      pivot: new paper.Point(0, 0)
     });
     this.item.addChild(this.frameStripRect);
 

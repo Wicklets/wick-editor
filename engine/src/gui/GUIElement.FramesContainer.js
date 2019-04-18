@@ -125,7 +125,7 @@ Wick.GUIElement.FramesContainer = class extends Wick.GUIElement.Draggable {
         this.grid.position.x = this.grid.position.x - (this.grid.position.x%this.gridCellWidth);
         this.grid.position.y = -this.scrollY;
         this.model.layers.forEach(layer => {
-            this.framesStrips[layer.uuid].frameStripRect.position.x = Wick.GUIElement.LAYERS_CONTAINER_WIDTH*2-this.scrollX;
+            this.framesStrips[layer.uuid].frameStripRect.position.x = -this.scrollX;
         });
     }
 }
