@@ -107,7 +107,7 @@ Wick.GUIElement.NumberLine = class extends Wick.GUIElement.Draggable {
         });
         var cellWall = new this.paper.Path.Rectangle({
             from: new this.paper.Point(-Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_STROKE_WIDTH/2, 0),
-            to: new this.paper.Point(Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_STROKE_WIDTH/2, Wick.GUIElement.NUMBER_LINE_HEIGHT),
+            to: new this.paper.Point(Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_STROKE_WIDTH/2, Wick.GUIElement.NUMBER_LINE_HEIGHT + Wick.GUIElement.FRAMES_STRIP_VERTICAL_MARGIN),
             fillColor: (i%5 === 4) ? Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_HIGHLIGHT_STROKE_COLOR : Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_STROKE_COLOR,
             pivot: new paper.Point(0, 0),
             locked: true,
