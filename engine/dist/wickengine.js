@@ -73643,14 +73643,14 @@ Wick.GUIElement = class {
 Wick.GUIElement.GRID_DEFAULT_CELL_WIDTH = 32;
 Wick.GUIElement.GRID_DEFAULT_CELL_HEIGHT = 40;
 Wick.GUIElement.TIMELINE_BACKGROUND_COLOR = '#303030';
-Wick.GUIElement.SELECTED_ITEM_BORDER_COLOR = 'cyan';
+Wick.GUIElement.SELECTED_ITEM_BORDER_COLOR = '#FFC835';
 Wick.GUIElement.LAYERS_CONTAINER_WIDTH = 195;
 Wick.GUIElement.NUMBER_LINE_HEIGHT = 28;
 Wick.GUIElement.NUMBER_LINE_NUMBERS_HIGHLIGHT_COLOR = '#ffffff';
 Wick.GUIElement.NUMBER_LINE_NUMBERS_COMMON_COLOR = '#494949';
 Wick.GUIElement.NUMBER_LINE_NUMBERS_FONT_FAMILY = 'PT Mono';
 Wick.GUIElement.NUMBER_LINE_NUMBERS_FONT_SIZE = '18';
-Wick.GUIElement.FRAME_HOVERED_OVER = '#ffff00';
+Wick.GUIElement.FRAME_HOVERED_OVER = '#D3F8F4';
 Wick.GUIElement.FRAME_CONTENTFUL_FILL_COLOR = '#ffffff';
 Wick.GUIElement.FRAME_UNCONTENTFUL_FILL_COLOR = '#ffffff';
 Wick.GUIElement.FRAME_BORDER_RADIUS = 5;
@@ -73658,7 +73658,7 @@ Wick.GUIElement.FRAME_CONTENT_DOT_RADIUS = 7;
 Wick.GUIElement.FRAME_CONTENT_DOT_STROKE_WIDTH = 3;
 Wick.GUIElement.FRAME_CONTENT_DOT_COLOR = '#1EE29A';
 Wick.GUIElement.FRAME_MARGIN = 0.5;
-Wick.GUIElement.FRAME_HANDLE_HOVER_FILL_COLOR = '#ffff00';
+Wick.GUIElement.FRAME_HANDLE_HOVER_FILL_COLOR = '#29F1A3';
 Wick.GUIElement.FRAME_GHOST_CAN_DROP_COLOR = '#00ff00';
 Wick.GUIElement.FRAME_GHOST_CANT_DROP_COLOR = '#ff0000';
 Wick.GUIElement.FRAME_GHOST_STROKE_WIDTH = 5;
@@ -73669,7 +73669,7 @@ Wick.GUIElement.FRAMES_STRIP_BORDER_RADIUS = 4;
 Wick.GUIElement.ADD_FRAME_OVERLAY_FILL_COLOR = '#ffffff';
 Wick.GUIElement.ADD_FRAME_OVERLAY_PLUS_COLOR = '#aaaaaa';
 Wick.GUIElement.ADD_FRAME_OVERLAY_BORDER_RADIUS = 3;
-Wick.GUIElement.ADD_FRAME_OVERLAY_MARGIN = 5;
+Wick.GUIElement.ADD_FRAME_OVERLAY_MARGIN = 3;
 Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_STROKE_COLOR = 'rgba(0,0,0,0.2)';
 Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_HIGHLIGHT_STROKE_COLOR = 'rgba(255,255,255,0.3)';
 Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_STROKE_WIDTH = 2.5;
@@ -75797,10 +75797,11 @@ Wick.GUIElement.NumberLine = class extends Wick.GUIElement.Draggable {
   }
 
   _buildCell(i) {
+    var highlight = i % 5 === 4;
     var cellNumber = new paper.PointText({
       point: [this.gridCellWidth / 2, Wick.GUIElement.NUMBER_LINE_HEIGHT - 5],
       content: i + 1,
-      fillColor: i % 5 === 4 ? Wick.GUIElement.NUMBER_LINE_NUMBERS_HIGHLIGHT_COLOR : Wick.GUIElement.NUMBER_LINE_NUMBERS_COMMON_COLOR,
+      fillColor: highlight ? Wick.GUIElement.NUMBER_LINE_NUMBERS_HIGHLIGHT_COLOR : Wick.GUIElement.NUMBER_LINE_NUMBERS_COMMON_COLOR,
       fontFamily: Wick.GUIElement.NUMBER_LINE_NUMBERS_FONT_FAMILY,
       fontWeight: 'normal',
       fontSize: i >= 100 ? 13 : 16,
@@ -75809,8 +75810,8 @@ Wick.GUIElement.NumberLine = class extends Wick.GUIElement.Draggable {
     });
     var cellWall = new this.paper.Path.Rectangle({
       from: new this.paper.Point(-Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_STROKE_WIDTH / 2, 0),
-      to: new this.paper.Point(Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_STROKE_WIDTH / 2, Wick.GUIElement.NUMBER_LINE_HEIGHT),
-      fillColor: i % 5 === 4 ? Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_HIGHLIGHT_STROKE_COLOR : Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_STROKE_COLOR,
+      to: new this.paper.Point(Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_STROKE_WIDTH / 2, Wick.GUIElement.NUMBER_LINE_HEIGHT + (highlight ? Wick.GUIElement.FRAMES_STRIP_VERTICAL_MARGIN : 0)),
+      fillColor: highlight ? Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_HIGHLIGHT_STROKE_COLOR : Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_STROKE_COLOR,
       pivot: new paper.Point(0, 0),
       locked: true
     });
