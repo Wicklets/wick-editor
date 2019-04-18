@@ -50,7 +50,7 @@ import CanvasTransforms from './Panels/CanvasTransforms/CanvasTransforms';
 import Toolbox from './Panels/Toolbox/Toolbox';
 import AssetLibrary from './Panels/AssetLibrary/AssetLibrary';
 import PopOutCodeEditor from './PopOuts/PopOutCodeEditor/PopOutCodeEditor';
-import CanvasActions from './Panels/CanvasActions/CanvasActions'; 
+import CanvasActions from './Panels/CanvasActions/CanvasActions';
 
 class Editor extends EditorCore {
   constructor () {
@@ -252,8 +252,13 @@ class Editor extends EditorCore {
 //
 
   hidePreloader = () => {
-    window.document.getElementById('preloader').style.display = 'none';
-    window.document.getElementById('root').style.display = 'block';
+    let preloader = window.document.getElementById('preloader');
+    setTimeout(() => {
+      preloader.style.opacity = '0';
+      setTimeout(() => {
+        preloader.style.display = 'none';
+      }, 1000);
+    }, 2000);
   }
 
   showAutosavedProjects = () => {

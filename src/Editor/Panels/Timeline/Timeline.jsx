@@ -36,6 +36,7 @@ class Timeline extends Component {
 
     this.props.project.guiElement.canvasContainer = canvasContainerElem;
     this.props.project.guiElement.resize();
+    this.props.project.guiElement.build();
   }
 
   componentDidUpdate () {
@@ -46,10 +47,14 @@ class Timeline extends Component {
         this.props.projectDidChange();
       });
       project.guiElement.on('projectSoftModified', (e) => {
-        this.props.projectDidChange(true);
+
       });
       project.guiElement.on('doubleClick', (e) => {
         console.log('doubleClick event fired');
+        console.log(e);
+      });
+      project.guiElement.on('rightClick', (e) => {
+        console.log('rightClick event fired');
         console.log(e);
       });
       this.currentAttachedProject = project;

@@ -14,13 +14,10 @@
     <!-- Wick Editor Dependencies: -->
     <!-- Wick Engine -->
     <script src="%PUBLIC_URL%/corelibs/wick-engine/wickengine.js"></script>
-
     <!-- GIF.js -->
     <script src="%PUBLIC_URL%/corelibs/gif/gif.js"></script>
-
     <!-- preload.js -->
     <script src="%PUBLIC_URL%/corelibs/preload/preloadjs.min.js"></script>
-
     <!-- Preloader animation CSS -->
     <link href="%PUBLIC_URL%/preloader-animation.css" rel="stylesheet" type="text/css">
 
@@ -39,6 +36,7 @@
     <noscript>
       You need to enable JavaScript to run this app.
     </noscript>
+    <div id="root"></div>
     <div id="preloader">
       <div class="flashy">
         <svg viewBox="0 0 399 405" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -55,7 +53,7 @@
             </g>
         </svg>
       </div>
-      <div class="shadow">
+      <div class="flashy-shadow">
         <svg viewBox="0 0 100 50" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
             <ellipse cx="50" cy="25" rx="40" ry="10" style="fill:#09C399;" />
         </svg>
@@ -72,16 +70,5 @@
         </svg>
       </div>
     </div>
-    <div id="root" style="display:none;"></div>
-    <!--
-      This HTML file is a template.
-      If you open it directly in the browser, you will see an empty page.
-
-      You can add webfonts, meta tags, or analytics to this file.
-      The build step will place the bundled scripts into the <body> tag.
-
-      To begin the development, run `npm start` or `yarn start`.
-      To create a production bundle, use `npm run build` or `yarn build`.
-    -->
   </body>
 </html>

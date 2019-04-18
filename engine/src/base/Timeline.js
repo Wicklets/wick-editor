@@ -1,0 +1,403 @@
+/*
+ * Copyright 2018 WICKLETS LLC
+ *
+ * This file is part of Wick Engine.
+ *
+ * Wick Engine is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Wick Engine is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+
+/**
+ * Class representing a Wick Timeline.
+ */
+Wick.Timeline = class extends Wick.Base {
+    /**
+     * Create a timeline.
+     */
+    constructor () {
+        super();
+
+        this._playheadPosition = 1;
+        this.activeLayerIndex = 0;
+
+        this._playing = true;
+        this._forceNextFrame = null;
+
+        this.layers = [];
+    }
+
+    static _deserialize (data, object) {
+        super._deserialize(data, object);
+
+        object._playheadPosition = data.playheadPosition;
+        object.activeLayerIndex = data.activeLayerIndex;
+
+        data.layers.forEach(layerData => {
+            object.addLayer(Wick.Layer.deserialize(layerData));
+        });
+
+        return object;
+    }
+
+    serialize () {
+        var data = super.serialize();
+
+        data.playheadPosition = this._playheadPosition;
+        data.activeLayerIndex = this.activeLayerIndex;
+
+        data.layers = this.layers.map(layer => {
+            return layer.serialize();
+        });
+
+        return data;
+    }
+
+    get classname () {
+        return 'Timeline';
+    }
+
+    /**
+     * The position of the playhead. Determines which frames are visible.
+     */
+    get playheadPosition () {
+      return this._playheadPosition;
+    }
+
+    set playheadPosition (playheadPosition) {
+      // Automatically clear selection when any playhead moves
+      if(this.project && this._playheadPosition !== playheadPosition) {
+        this.project.selection.clear('Canvas');
+        this.project.view.applyChanges();
+      }
+
+      this._playheadPosition = playheadPosition;
+    }
+
+    /**
+     * The total length of the timeline.
+     * @type {number}
+     */
+    get length () {
+        var length = 0;
+        this.layers.forEach(function (layer) {
+            var layerLength = layer.length;
+            if(layerLength > length) {
+                length = layerLength;
+            }
+        });
+        return length;
+    }
+
+    /**
+     * The active layer.
+     * @type {Wick.Layer}
+     */
+    get activeLayer () {
+        return this.layers[this.activeLayerIndex];
+    }
+
+    /**
+     * The active frames, determined by the playhead position.
+     * @type {Wick.Frame[]}
+     */
+    get activeFrames () {
+        var frames = [];
+        this.layers.forEach(layer => {
+            var layerFrame = layer.activeFrame;
+            if(layerFrame) {
+                frames.push(layerFrame);
+            }
+        });
+        return frames;
+    }
+
+    /**
+     * The active frame, determined by the playhead position.
+     * @type {Wick.Frame}
+     */
+    get activeFrame () {
+        return this.activeLayer && this.activeLayer.activeFrame;
+    }
+
+    /**
+     * All frames inside the timeline.
+     * @type {Wick.Frame[]}
+     */
+    get frames () {
+        var frames = [];
+        this.layers.forEach(layer => {
+            layer.frames.forEach(frame => {
+                frames.push(frame);
+            });
+        });
+        return frames;
+    }
+
+    /**
+     * All clips inside the timeline.
+     * @type {Wick.Clip[]}
+     */
+    get clips () {
+        var clips = [];
+        this.frames.forEach(frame => {
+            clips = clips.concat(frame.clips);
+        });
+        return clips;
+    }
+
+    /**
+     * The playhead position of the frame with the given name.
+     * @type {number|null}
+     */
+    getPlayheadPositionOfFrameWithName (name) {
+        var frame = this.getFrameByName(name);
+        if(frame) {
+            return frame.start;
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Finds the frame with a given name.
+     * @type {Wick.Frame|null}
+     */
+    getFrameByName (name) {
+      return this.frames.find(frame => {
+        return frame.name === name;
+      }) || null;
+    }
+
+    /**
+     * Adds a layer to the timeline.
+     * @param {Wick.Layer} layer - The layer to add.
+     */
+    addLayer (layer) {
+        this.layers.push(layer);
+        this._addChild(layer);
+    }
+
+    /**
+     * Remmoves a layer from the timeline.
+     * @param {Wick.Layer} layer - The layer to remove.
+     */
+    removeLayer (layer) {
+        if(this.layers.length <= 1) {
+            return;
+        }
+
+        if(this.activeLayerIndex === this.layers.length - 1) {
+            this.activeLayerIndex--;
+        }
+
+        this.layers = this.layers.filter(checkLayer => {
+            return checkLayer !== layer;
+        });
+        this._removeChild(layer);
+    }
+
+    /**
+     * Moves a layer to a different position, inserting it before/after other layers if needed.
+     * @param {Wick.Layer} layer - The layer to add.
+     * @param {number} index - the new position to move the layer to.
+     */
+    moveLayer (layer, index) {
+        this.layers.splice(this.layers.indexOf(layer), 1);
+        this.layers.splice(index, 0, layer);
+    }
+
+    /**
+     * Gets the frames at the given playhead position.
+     * @param {number} playheadPosition - the playhead position to search.
+     * @returns {Wick.Frame[]} The frames at the playhead position.
+     */
+    getFramesAtPlayheadPosition (playheadPosition) {
+        var frames = [];
+
+        this.layers.forEach(layer => {
+            var frame = layer.getFrameAtPlayheadPosition(playheadPosition);
+            if(frame) frames.push(frame);
+        });
+
+        return frames;
+    }
+
+    getAllFrames (recursive) {
+        var allFrames = [];
+        this.layers.forEach(layer => {
+            allFrames = allFrames.concat(layer.frames);
+
+            if(recursive) {
+                layer.frames.forEach(frame => {
+                    frame.clips.forEach(clip => {
+                        allFrames = allFrames.concat(clip.timeline.getAllFrames(recursive));
+                    });
+                });
+            }
+        });
+        return allFrames;
+    }
+
+    /**
+     * Gets all frames in the layer that are between the two given playhead positions and layer indices.
+     * @param {number} playheadPositionStart - The start of the horizontal range to search
+     * @param {number} playheadPositionEnd - The end of the horizontal range to search
+     * @param {number} layerIndexStart - The start of the vertical range to search
+     * @param {number} layerIndexEnd - The end of the vertical range to search
+     * @return {Wick.Frame[]} The frames in the given range.
+     */
+    getFramesInRange (playheadPositionStart, playheadPositionEnd, layerIndexStart, layerIndexEnd) {
+        var framesInRange = [];
+
+        this.layers.filter(layer => {
+            return layer.index >= layerIndexStart
+                && layer.index <= layerIndexEnd;
+        }).forEach(layer => {
+            framesInRange = framesInRange.concat(layer.getFramesInRange(playheadPositionStart, playheadPositionEnd));
+        })
+
+        return framesInRange;
+    }
+
+    insertFrames (frames, playheadPosition, layerIndex) {
+        if(frames.length === 0) return;
+
+        function calculateRange (frames) {
+            var playheadStart = frames[0].start;
+            var playheadEnd = frames[0].end;
+            var layerStart = frames[0].layerIndex;
+            var layerEnd = frames[0].layerIndex;
+            frames.forEach(frame => {
+                playheadStart = Math.min(playheadStart, frame.start);
+                playheadEnd = Math.max(playheadEnd, frame.end);
+                layerStart = Math.min(layerStart, frame.layerIndex);
+                layerEnd = Math.max(layerEnd, frame.layerIndex);
+            });
+            return {
+                playheadStart: playheadStart,
+                playheadEnd: playheadEnd,
+                layerStart: layerStart,
+                layerEnd: layerEnd,
+            }
+        }
+
+        var range = calculateRange(frames);
+
+        // Use start and end playhead positions to calculate length, add resulting length to all starts/ends of frames
+        var length = range.playheadEnd - range.playheadStart;
+        frames.forEach(frame => {
+            frame.start += length;
+            frame.end += length;
+        });
+
+        var checkCollisionsRange = calculateRange(frames);
+
+        // While there are frames in the range,
+        while (this.getFramesInRange(checkCollisionsRange.playheadStart, checkCollisionsRange.playheadEnd, checkCollisionsRange.layerStart, checkCollisionsRange.layerEnd).length > 0) {
+        //   Add 1 to all frame starts and ends
+            frames.forEach(frame => {
+                frame.start += 1;
+                frame.end += 1;
+            });
+        //   Calculate start and end playhead positions from frameInfo
+        //   Calculate start and end layer indices from frameInfo
+            checkCollisionsRange = calculateRange(frames);
+        }
+
+        // Add the frames in frameInfo into their given layers (their starts and ends should be correct already)
+        frames.forEach(frame => {
+            this.layers[frame.layerIndex].addFrame(frame);
+        });
+    }
+
+    /**
+     * Advances the timeline one frame forwards. Loops back to beginning if the end is reached.
+     */
+    advance () {
+        if(this._forceNextFrame) {
+            this.playheadPosition = this._forceNextFrame;
+            this._forceNextFrame = null;
+        } else if(this._playing) {
+            this.playheadPosition ++;
+            if(this.playheadPosition > this.length) {
+                this.playheadPosition = 1;
+            }
+        }
+    }
+
+    /**
+     * Stops the timeline from advancing during ticks.
+     */
+    stop () {
+        this._playing = false;
+    }
+
+    /**
+     * Makes the timeline advance automatically during ticks.
+     */
+    play () {
+        this._playing = true;
+    }
+
+    /**
+     * Stops the timeline and moves to a given frame number or name.
+     * @param {string|number} frame - A playhead position or name of a frame to move to.
+     */
+    gotoAndStop (frame) {
+        this.stop();
+        this.gotoFrame(frame);
+    }
+
+    /**
+     * Plays the timeline and moves to a given frame number or name.
+     * @param {string|number} frame - A playhead position or name of a frame to move to.
+     */
+    gotoAndPlay (frame) {
+        this.play();
+        this.gotoFrame(frame);
+    }
+
+    /**
+     * Moves the timeline forward one frame. Does nothing if the timeline is on its last frame.
+     */
+    gotoNextFrame () {
+        var nextFramePlayheadPosition = Math.min(this.length, this.playheadPosition+1);
+        this.gotoFrame(nextFramePlayheadPosition);
+    }
+
+    /**
+     * Moves the timeline backwards one frame. Does nothing if the timeline is on its first frame.
+     */
+    gotoPrevFrame () {
+        var prevFramePlayheadPosition = Math.max(1, this.playheadPosition-1);
+        this.gotoFrame(prevFramePlayheadPosition);
+    }
+
+    /**
+     * Moves the playhead to a given frame number or name.
+     * @param {string|number} frame - A playhead position or name of a frame to move to.
+     */
+    gotoFrame (frame) {
+        if(typeof frame === 'string') {
+            var namedFrame = this.frames.find(seekframe => {
+              return seekframe.identifier === frame;
+            });
+            if(namedFrame) this._forceNextFrame = namedFrame.start;
+        } else if (typeof frame === 'number') {
+            this._forceNextFrame = frame;
+        } else {
+            throw new Error('gotoFrame: Invalid argument: ' + frame);
+        }
+    }
+}
