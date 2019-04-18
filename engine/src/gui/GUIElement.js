@@ -165,7 +165,7 @@ Wick.GUIElement = class {
     }
 
     _positionScrollableElements () {
-        
+
     }
 }
 
@@ -206,7 +206,7 @@ Wick.GUIElement.FRAMES_STRIP_BORDER_RADIUS = 4;
 Wick.GUIElement.ADD_FRAME_OVERLAY_FILL_COLOR = '#ffffff';
 Wick.GUIElement.ADD_FRAME_OVERLAY_PLUS_COLOR = '#aaaaaa';
 Wick.GUIElement.ADD_FRAME_OVERLAY_BORDER_RADIUS = 3;
-Wick.GUIElement.ADD_FRAME_OVERLAY_MARGIN = 5;
+Wick.GUIElement.ADD_FRAME_OVERLAY_MARGIN = 3;
 
 Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_STROKE_COLOR = 'rgba(0,0,0,0.2)';
 Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_HIGHLIGHT_STROKE_COLOR = 'rgba(255,255,255,0.3)';
