@@ -41,7 +41,7 @@ Wick.GUIElement.OnionSkinRangeStart = class extends Wick.GUIElement.OnionSkinRan
      */
     get x () {
         var project = this.model.project;
-        var x = (project.activeTimeline.playheadPosition - project.onionSkinSeekBackwards) * this.gridCellWidth;
+        var x = (project.activeTimeline.playheadPosition - project.onionSkinSeekBackwards - 1) * this.gridCellWidth;
         x += this.dragOffset * this.gridCellWidth;
         return x;
     }
@@ -57,7 +57,7 @@ Wick.GUIElement.OnionSkinRangeStart = class extends Wick.GUIElement.OnionSkinRan
      *
      */
     drop () {
-        this.model.project.onionSkinSeekBackwards = project.activeTimeline.playheadPosition - Math.floor(this.x / this.gridCellWidth);
+        this.model.project.onionSkinSeekBackwards = project.activeTimeline.playheadPosition - Math.floor(this.x / this.gridCellWidth) - 1;
         this.dragOffset = 0;
     }
 

@@ -65190,6 +65190,7 @@ Wick.Project = class extends Wick.Base {
     this.view.processInput();
     var error = this.focus.tick();
     this.view.render();
+    this.activeTimeline.guiElement.numberLine.playhead.build();
     this._keysLastDown = [].concat(this._keysDown); //!!!!!!!!!!!!!!!
 
     return error;
@@ -75939,7 +75940,7 @@ Wick.GUIElement.OnionSkinRangeEnd = class extends Wick.GUIElement.OnionSkinRange
 
   get x() {
     var project = this.model.project;
-    var x = (project.activeTimeline.playheadPosition - project.onionSkinSeekForwards) * this.gridCellWidth;
+    var x = (project.activeTimeline.playheadPosition - project.onionSkinSeekForwards + 1) * this.gridCellWidth;
     x += this.gridCellWidth;
     x -= Wick.GUIElement.OnionSkinRange.DEFAULT_HANDLE_WIDTH;
     x += this.dragOffset * this.gridCellWidth;
@@ -75959,7 +75960,7 @@ Wick.GUIElement.OnionSkinRangeEnd = class extends Wick.GUIElement.OnionSkinRange
 
 
   drop() {
-    this.model.project.onionSkinSeekForwards = project.activeTimeline.playheadPosition - Math.floor(this.x / this.gridCellWidth);
+    this.model.project.onionSkinSeekForwards = project.activeTimeline.playheadPosition - Math.floor(this.x / this.gridCellWidth) + 1;
     this.dragOffset = 0;
   }
   /**
@@ -76023,7 +76024,7 @@ Wick.GUIElement.OnionSkinRangeStart = class extends Wick.GUIElement.OnionSkinRan
 
   get x() {
     var project = this.model.project;
-    var x = (project.activeTimeline.playheadPosition - project.onionSkinSeekBackwards) * this.gridCellWidth;
+    var x = (project.activeTimeline.playheadPosition - project.onionSkinSeekBackwards - 1) * this.gridCellWidth;
     x += this.dragOffset * this.gridCellWidth;
     return x;
   }
@@ -76041,7 +76042,7 @@ Wick.GUIElement.OnionSkinRangeStart = class extends Wick.GUIElement.OnionSkinRan
 
 
   drop() {
-    this.model.project.onionSkinSeekBackwards = project.activeTimeline.playheadPosition - Math.floor(this.x / this.gridCellWidth);
+    this.model.project.onionSkinSeekBackwards = project.activeTimeline.playheadPosition - Math.floor(this.x / this.gridCellWidth) - 1;
     this.dragOffset = 0;
   }
   /**

@@ -644,6 +644,7 @@ Wick.Project = class extends Wick.Base {
         var error = this.focus.tick();
 
         this.view.render();
+        this.activeTimeline.guiElement.numberLine.playhead.build();
 
         this._keysLastDown = [].concat(this._keysDown);//!!!!!!!!!!!!!!!
 
