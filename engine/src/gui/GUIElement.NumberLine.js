@@ -67,17 +67,17 @@ Wick.GUIElement.NumberLine = class extends Wick.GUIElement.Draggable {
         // Build BG
         var bgRect = new this.paper.Path.Rectangle({
             from: new this.paper.Point(0, 0),
-            to: new this.paper.Point(this.width, this.model.guiElement.numberLineHeight),
+            to: new this.paper.Point(this.width, Wick.GUIElement.NUMBER_LINE_HEIGHT),
             fillColor: Wick.GUIElement.TIMELINE_BACKGROUND_COLOR,
             pivot: new paper.Point(0, 0),
         });
-        bgRect.position.x += this.globalScrollX;
+        bgRect.position.x -= this.scrollX;
         this.item.addChild(bgRect);
 
         // Build number line cells
         for(var i = -1; i < this.width / this.gridCellWidth + 1; i++) {
-            var skip =  Math.round(-this.globalScrollX / this.gridCellWidth);
-            this.item.addChild(this._buildCell(i - skip));
+            var skip =  Math.round(-this.scrollX / this.gridCellWidth);
+            this.item.addChild(this._buildCell(i + skip));
         }
 
         // Build playhead
@@ -85,20 +85,18 @@ Wick.GUIElement.NumberLine = class extends Wick.GUIElement.Draggable {
         this.item.addChild(this.playhead.item);
 
         // Build onion skin range sliders
-        this.onionSkinRangeStart.height = this.model.guiElement.numberLineHeight;
+        this.onionSkinRangeStart.height = Wick.GUIElement.NUMBER_LINE_HEIGHT;
         this.onionSkinRangeStart.build();
         this.item.addChild(this.onionSkinRangeStart.item);
 
-        this.onionSkinRangeEnd.height = this.model.guiElement.numberLineHeight;
+        this.onionSkinRangeEnd.height = Wick.GUIElement.NUMBER_LINE_HEIGHT;
         this.onionSkinRangeEnd.build();
         this.item.addChild(this.onionSkinRangeEnd.item);
     }
 
     _buildCell (i) {
-        var numberLineHeight = this.model.guiElement.numberLineHeight;
-
         var cellNumber = new paper.PointText({
-            point: [this.gridCellWidth/2, numberLineHeight - 5],
+            point: [this.gridCellWidth/2, Wick.GUIElement.NUMBER_LINE_HEIGHT - 5],
             content: (i + 1),
             fillColor: (i%5===4) ? Wick.GUIElement.NUMBER_LINE_NUMBERS_HIGHLIGHT_COLOR : Wick.GUIElement.NUMBER_LINE_NUMBERS_COMMON_COLOR,
             fontFamily: Wick.GUIElement.NUMBER_LINE_NUMBERS_FONT_FAMILY,
@@ -109,7 +107,7 @@ Wick.GUIElement.NumberLine = class extends Wick.GUIElement.Draggable {
         });
         var cellWall = new this.paper.Path.Rectangle({
             from: new this.paper.Point(-Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_STROKE_WIDTH/2, 0),
-            to: new this.paper.Point(Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_STROKE_WIDTH/2, numberLineHeight),
+            to: new this.paper.Point(Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_STROKE_WIDTH/2, Wick.GUIElement.NUMBER_LINE_HEIGHT),
             fillColor: (i%5 === 4) ? Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_HIGHLIGHT_STROKE_COLOR : Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_STROKE_COLOR,
             pivot: new paper.Point(0, 0),
             locked: true,
@@ -132,5 +130,10 @@ Wick.GUIElement.NumberLine = class extends Wick.GUIElement.Draggable {
             this.onionSkinRangeEnd.build();
             this.model.project.guiElement.fire('projectSoftModified');
         }
+    }
+
+    _positionScrollableElements () {
+        this.item.position.x = Wick.GUIElement.LAYERS_CONTAINER_WIDTH+this.scrollX;
+        this.build();
     }
 }

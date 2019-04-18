@@ -47,6 +47,9 @@ Wick.GUIElement = class {
         this.item = null;
 
         this._eventHandlers = {};
+
+        this._scrollX = 0;
+        this._scrollY = 0;
     }
 
     /**
@@ -101,23 +104,25 @@ Wick.GUIElement = class {
     /**
      *
      */
-    get globalScrollX () {
-        return this.model.project.activeTimeline.guiElement.scrollX;
+    set scrollX (scrollX) {
+        this._scrollX = scrollX;
+        this._positionScrollableElements();
     }
 
-    set globalScrollX (globalScrollX) {
-        this.model.project.activeTimeline.guiElement.scrollX = globalScrollX;
+    get scrollX () {
+        return this._scrollX;
     }
 
     /**
      *
      */
-    get globalScrollY () {
-        return this.model.project.activeTimeline.guiElement.scrollY;
+    set scrollY (scrollY) {
+        this._scrollY = scrollY;
+        this._positionScrollableElements();
     }
 
-    set globalScrollY (globalScrollY) {
-        this.model.project.activeTimeline.guiElement.scrollY = globalScrollY;
+    get scrollY () {
+        return this._scrollY;
     }
 
     /**
@@ -157,6 +162,10 @@ Wick.GUIElement = class {
         item.pivot = new paper.Point(0,0);
         item.data.guiElement = this;
         return item;
+    }
+
+    _positionScrollableElements () {
+        
     }
 }
 

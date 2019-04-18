@@ -47,8 +47,6 @@ Wick.GUIElement.Playhead = class extends Wick.GUIElement {
     build () {
         super.build();
 
-        var numberLineHeight = this.model.guiElement.numberLineHeight;
-
         var playheadTop = new this.paper.Path({
             segments: [
               [this.x, this.y],

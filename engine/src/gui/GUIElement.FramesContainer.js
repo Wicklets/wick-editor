@@ -57,6 +57,11 @@ Wick.GUIElement.FramesContainer = class extends Wick.GUIElement.Draggable {
             this.model.project.guiElement.build();
             this.model.project.guiElement.fire('projectModified');
         });
+
+        this.grid = new paper.Group({
+          applyMatrix: false,
+          pivot: new paper.Point(0,0),
+        });
     }
 
     /**
@@ -83,8 +88,8 @@ Wick.GUIElement.FramesContainer = class extends Wick.GUIElement.Draggable {
         });
 
         // Build grid
+        this.grid.removeChildren();
         for(var i = -1; i < paper.view.element.width / this.gridCellWidth + 1; i++) {
-            var skip =  Math.round(this.globalScrollX / this.gridCellWidth);
             var gridLine = new this.paper.Path.Rectangle({
                 from: new this.paper.Point(-Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_STROKE_WIDTH/2, 0),
                 to: new this.paper.Point(Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_STROKE_WIDTH/2, paper.view.element.height),
@@ -92,10 +97,10 @@ Wick.GUIElement.FramesContainer = class extends Wick.GUIElement.Draggable {
                 pivot: new paper.Point(0, 0),
                 locked: true,
             });
-            gridLine.position.x += (i+skip) * this.gridCellWidth;
-            gridLine.position.y += this.globalScrollY;
-            this.item.addChild(gridLine);
+            gridLine.position.x += (i) * this.gridCellWidth;
+            this.grid.addChild(gridLine);
         }
+        this.item.addChild(this.grid);
 
         // Build frames
         this.model.getAllFrames().forEach(frame => {
@@ -106,5 +111,21 @@ Wick.GUIElement.FramesContainer = class extends Wick.GUIElement.Draggable {
         // Build selection box
         this.selectionBox.build();
         this.item.addChild(this.selectionBox.item);
+
+        this._positionScrollableElements();
+    }
+
+    _positionScrollableElements () {
+        this.item.position.x = Wick.GUIElement.LAYERS_CONTAINER_WIDTH+this.scrollX;
+        this.item.position.y = Wick.GUIElement.NUMBER_LINE_HEIGHT+this.scrollY;
+
+        this.bg.item.position.x = -this.scrollX;
+        this.bg.item.position.y = -this.scrollY;
+        this.grid.position.x = -this.scrollX;
+        this.grid.position.x = this.grid.position.x - (this.grid.position.x%this.gridCellWidth);
+        this.grid.position.y = -this.scrollY;
+        this.model.layers.forEach(layer => {
+            this.framesStrips[layer.uuid].frameStripRect.position.x = Wick.GUIElement.LAYERS_CONTAINER_WIDTH*2-this.scrollX;
+        });
     }
 }

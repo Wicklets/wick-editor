@@ -40,7 +40,7 @@ Wick.GUIElement.ScrollbarGrabberVertical = class extends Wick.GUIElement.Draggab
             this.scrollY = this.scrollY + this.mouseMovement.y;
             this.scrollY = Math.max(0, this.scrollY);
             this.scrollY = Math.min(this.containerHeight - this.grabberHeight, this.scrollY);
-            this.globalScrollY = (this.scrollY / this.containerHeight) * this.contentHeight;
+            this.model.project.activeTimeline.guiElement.scrollY = (this.scrollY / this.containerHeight) * this.contentHeight;
             this.fire('scroll', e);
             this.build();
         });

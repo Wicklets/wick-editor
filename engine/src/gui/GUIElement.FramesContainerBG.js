@@ -51,8 +51,6 @@ Wick.GUIElement.FramesContainerBG = class extends Wick.GUIElement.Draggable {
             from: new paper.Point(-5,-5),
             to: new paper.Point(paper.view.element.width, paper.view.element.height),
         });
-        bgRect.position.x += this.globalScrollX;
-        bgRect.position.y += this.globalScrollY;
         this.item.addChild(bgRect);
     }
 }

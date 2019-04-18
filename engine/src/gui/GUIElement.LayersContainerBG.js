@@ -42,10 +42,9 @@ Wick.GUIElement.LayersContainerBG = class extends Wick.GUIElement.Draggable {
         // Build BG
         var bgRect = new paper.Path.Rectangle({
             fillColor: Wick.GUIElement.TIMELINE_BACKGROUND_COLOR,
-            from: new paper.Point(0, -this.model.guiElement.numberLineHeight),
-            to: new paper.Point(this.model.guiElement.layersContainerWidth, paper.view.element.height + this.model.guiElement.numberLineHeight),
+            from: new paper.Point(0, -Wick.GUIElement.NUMBER_LINE_HEIGHT),
+            to: new paper.Point(Wick.GUIElement.LAYERS_CONTAINER_WIDTH, paper.view.element.height + Wick.GUIElement.NUMBER_LINE_HEIGHT),
         });
-        bgRect.position.y += this.globalScrollY;
         this.item.addChild(bgRect);
     }
 }

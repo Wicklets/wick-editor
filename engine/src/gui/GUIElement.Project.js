@@ -39,8 +39,14 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
         // Half pixel nudge for sharper 1px strokes
         // https://stackoverflow.com/questions/7530593/html5-canvas-and-line-width/7531540#7531540
         //this.paper.view.translate(0.5, 0.5);
+        // (disabled for now, wasn't actually helping blurriness)
 
         this._attachMouseEvents();
+
+        // Re-render canvas on changes that should happen very fast
+        this.on('projectSoftModified', (e) => {
+            this.model.view.render();
+        });
     }
 
     /**
@@ -87,11 +93,13 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
      *
      */
     updateMousePosition (e) {
-        var bounds = e.target.getBoundingClientRect();
-        this.mousePosition = {
-            x: e.clientX - bounds.left,
-            y: e.clientY - bounds.top,
-        };
+        if(e.target && e.target.getBoundingClientRect) {
+            var bounds = e.target.getBoundingClientRect();
+            this.mousePosition = {
+                x: e.clientX - bounds.left,
+                y: e.clientY - bounds.top,
+            };
+        }
     }
 
     _attachMouseEvents () {
@@ -121,7 +129,14 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
             }
         }
 
+        // Disable right click menu
+        $(this.paper.view.element).on('contextmenu', (e) => { return false; });
+
         this.paper.view.onMouseDown = (e) => {
+            if(e.event.button === 2) {
+              this.fire('rightClick', {});
+            }
+
             var guiElement = this._getGUIElementAtPosition(e.point);
 
             if(guiElement) {

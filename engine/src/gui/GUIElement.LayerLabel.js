@@ -156,7 +156,7 @@ Wick.GUIElement.LayerLabel = class extends Wick.GUIElement.Draggable {
         this.item.addChild(layerName);
 
         // Drop ghost
-        this.ghost.active = this.isDragging;
+        this.ghost.active = this.isDragging && (this.mouseDelta.y !== 0);
         this.ghost.width = this.width;
         this.ghost.x = 0;
         this.ghost.y = -this.mouseDelta.y + this.ghostPosition.y;

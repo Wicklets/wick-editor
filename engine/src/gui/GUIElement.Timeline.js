@@ -39,21 +39,18 @@ Wick.GUIElement.Timeline = class extends Wick.GUIElement {
         this.verticalScrollbar = new Wick.GUIElement.ScrollbarVertical(model);
 
         this.horizontalScrollbar.on('scroll', (e) => {
-            this.framesContainer.build();
-            this.numberLine.build();
-            this._repositionScrollableElements();
+            //this.framesContainer.build();
+            //this.numberLine.build();
+            this._positionScrollableElements();
         });
         this.verticalScrollbar.on('scroll', (e) => {
-            this.framesContainer.build();
-            this.layersContainer.build();
-            this._repositionScrollableElements();
+            //this.framesContainer.build();
+            //this.layersContainer.build();
+            this._positionScrollableElements();
         });
 
-        this.layersContainerWidth = Wick.GUIElement.LAYERS_CONTAINER_WIDTH;
-        this.numberLineHeight = Wick.GUIElement.NUMBER_LINE_HEIGHT;
-
-        this.scrollX = 0;
-        this.scrollY = 0;
+        this._scrollX = 0;
+        this._scrollY = 0;
     }
 
     /**
@@ -75,15 +72,15 @@ Wick.GUIElement.Timeline = class extends Wick.GUIElement {
         this.item.addChild(this.layersContainer.item);
 
         // Build scrollbars
-        this.horizontalScrollbar.item.position.x = this.layersContainerWidth;
+        this.horizontalScrollbar.item.position.x = Wick.GUIElement.LAYERS_CONTAINER_WIDTH;
         this.horizontalScrollbar.item.position.y = paper.view.element.height - Wick.GUIElement.SCROLLBAR_SIZE;
-        this.horizontalScrollbar.width = paper.view.element.width - this.layersContainerWidth - Wick.GUIElement.SCROLLBAR_SIZE;
+        this.horizontalScrollbar.width = paper.view.element.width - Wick.GUIElement.LAYERS_CONTAINER_WIDTH - Wick.GUIElement.SCROLLBAR_SIZE;
         this.horizontalScrollbar.build();
         this.item.addChild(this.horizontalScrollbar.item);
 
         this.verticalScrollbar.item.position.x = paper.view.element.width - Wick.GUIElement.SCROLLBAR_SIZE;
-        this.verticalScrollbar.item.position.y = this.numberLineHeight;
-        this.verticalScrollbar.height = paper.view.element.height - this.numberLineHeight - Wick.GUIElement.SCROLLBAR_SIZE;
+        this.verticalScrollbar.item.position.y = Wick.GUIElement.NUMBER_LINE_HEIGHT;
+        this.verticalScrollbar.height = paper.view.element.height - Wick.GUIElement.NUMBER_LINE_HEIGHT - Wick.GUIElement.SCROLLBAR_SIZE;
         this.verticalScrollbar.build();
         this.item.addChild(this.verticalScrollbar.item);
 
@@ -91,7 +88,7 @@ Wick.GUIElement.Timeline = class extends Wick.GUIElement {
         var cornerCover = new paper.Path.Rectangle({
             fillColor: Wick.GUIElement.TIMELINE_BACKGROUND_COLOR,
             from: new paper.Point(0, 0),
-            to: new paper.Point(this.layersContainerWidth, this.numberLineHeight),
+            to: new paper.Point(Wick.GUIElement.LAYERS_CONTAINER_WIDTH, Wick.GUIElement.NUMBER_LINE_HEIGHT),
         });
         this.item.addChild(cornerCover);
 
@@ -103,13 +100,13 @@ Wick.GUIElement.Timeline = class extends Wick.GUIElement {
         });
         this.item.addChild(cornerCover2);
 
-        this._repositionScrollableElements();
+        this._positionScrollableElements();
     }
 
-    _repositionScrollableElements () {
-        this.numberLine.item.position.x = this.layersContainerWidth - this.scrollX;
-        this.layersContainer.item.position.y = this.numberLineHeight - this.scrollY;
-        this.framesContainer.item.position.x = this.layersContainerWidth - this.scrollX;
-        this.framesContainer.item.position.y = this.numberLineHeight - this.scrollY;
+    _positionScrollableElements () {
+        this.numberLine.scrollX = -this.scrollX;
+        this.layersContainer.scrollY = -this.scrollY;
+        this.framesContainer.scrollX = -this.scrollX;
+        this.framesContainer.scrollY = -this.scrollY;
     }
 }

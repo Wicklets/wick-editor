@@ -33,7 +33,7 @@ Wick.GUIElement.LayersContainer = class extends Wick.GUIElement {
      *
      */
     get width () {
-        return this.model.guiElement.layersContainerWidth;
+        return Wick.GUIElement.LAYERS_CONTAINER_WIDTH;
     }
 
     /**
@@ -64,5 +64,10 @@ Wick.GUIElement.LayersContainer = class extends Wick.GUIElement {
         this.createLayerLabel.width = this.width;
         this.createLayerLabel.build();
         this.item.addChild(this.createLayerLabel.item);
+    }
+
+    _positionScrollableElements () {
+        this.item.position.y = Wick.GUIElement.NUMBER_LINE_HEIGHT+this.scrollY;
+        this.bg.item.position.y = Wick.GUIElement.NUMBER_LINE_HEIGHT-this.scrollY;
     }
 }

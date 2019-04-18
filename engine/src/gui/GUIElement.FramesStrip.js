@@ -87,15 +87,14 @@ Wick.GUIElement.FramesStrip = class extends Wick.GUIElement.Draggable {
     build () {
         super.build();
 
-        var frameStripRect = new this.paper.Path.Rectangle({
+        this.frameStripRect = new this.paper.Path.Rectangle({
             from: new this.paper.Point(this.x, this.y),
             to: new this.paper.Point(this.x + this.width, this.y + this.height),
             strokeColor: 'rgba(0,0,0,0.5)',
             strokeWidth: 2,
             fillColor: this.model.isActive ? Wick.GUIElement.FRAMES_STRIP_ACTIVE_FILL_COLOR : Wick.GUIElement.FRAMES_STRIP_INACTIVE_FILL_COLOR,
         });
-        frameStripRect.position.x += this.globalScrollX;
-        this.item.addChild(frameStripRect);
+        this.item.addChild(this.frameStripRect);
 
         this._addFrameOverlay.build();
         this.item.addChild(this._addFrameOverlay.item);

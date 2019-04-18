@@ -36,7 +36,8 @@ Wick.GUIElement.ScrollbarHorizontal = class extends Wick.GUIElement.Scrollbar {
      */
     build () {
         super.build();
-        
+
+        this.grabber.containerWidth = this.width;
         if(this.grabber.grabberWidth > this.grabber.contentWidth) {
             return;
         }
@@ -48,7 +49,6 @@ Wick.GUIElement.ScrollbarHorizontal = class extends Wick.GUIElement.Scrollbar {
         });
         this.item.addChild(scrollbar);
 
-        this.grabber.containerWidth = this.width;
         this.grabber.build();
         this.item.addChild(this.grabber.item);
     }
