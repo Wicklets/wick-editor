@@ -149,6 +149,13 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
                 this._hoverTarget.handleMouseUp(e);
             }
         }
+
+        this.paper.view.onMouseLeave = (e) => {
+            if(this._hoverTarget) {
+                this._hoverTarget.handleMouseLeave(e);
+            }
+            this._hoverTarget = null;
+        };
     }
 
     _getGUIElementAtPosition (point) {

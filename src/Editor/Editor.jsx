@@ -222,7 +222,7 @@ class Editor extends EditorCore {
     this.hidePreloader();
     this.refocusEditor();
     this.onWindowResize();
-    //this.showAutosavedProjects();
+    this.showAutosavedProjects();
   }
 
   componentDidUpdate = (prevProps, prevState) => {
@@ -496,7 +496,7 @@ class Editor extends EditorCore {
 
     if(!skipHistory) {
       this.history.saveState();
-      //this.throttledAutoSaveProject();
+      this.throttledAutoSaveProject();
     }
 
     this.canvasComponent.updateCanvas(this.project);

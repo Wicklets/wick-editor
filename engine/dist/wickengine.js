@@ -75940,7 +75940,7 @@ Wick.GUIElement.OnionSkinRangeEnd = class extends Wick.GUIElement.OnionSkinRange
 
   get x() {
     var project = this.model.project;
-    var x = (project.activeTimeline.playheadPosition - project.onionSkinSeekForwards + 1) * this.gridCellWidth;
+    var x = (project.activeTimeline.playheadPosition + project.onionSkinSeekForwards - 1) * this.gridCellWidth;
     x += this.gridCellWidth;
     x -= Wick.GUIElement.OnionSkinRange.DEFAULT_HANDLE_WIDTH;
     x += this.dragOffset * this.gridCellWidth;
@@ -75960,7 +75960,8 @@ Wick.GUIElement.OnionSkinRangeEnd = class extends Wick.GUIElement.OnionSkinRange
 
 
   drop() {
-    this.model.project.onionSkinSeekForwards = project.activeTimeline.playheadPosition - Math.floor(this.x / this.gridCellWidth) + 1;
+    this.model.project.onionSkinSeekForwards = project.activeTimeline.playheadPosition + Math.floor(-this.x / this.gridCellWidth);
+    this.model.project.onionSkinSeekForwards *= -1;
     this.dragOffset = 0;
   }
   /**
@@ -76286,6 +76287,14 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
       if (this._hoverTarget) {
         this._hoverTarget.handleMouseUp(e);
       }
+    };
+
+    this.paper.view.onMouseLeave = e => {
+      if (this._hoverTarget) {
+        this._hoverTarget.handleMouseLeave(e);
+      }
+
+      this._hoverTarget = null;
     };
   }
 
