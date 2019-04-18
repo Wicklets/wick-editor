@@ -297,3 +297,27 @@ $action-button-transition-duration: .2s;
   background-color: $wick-green-dark;
   color: white;
 }
+
+.action-button-error {
+  -webkit-transition-duration: $action-button-transition-duration; /* Safari */
+  transition-duration: $action-button-transition-duration;
+
+  background-color: transparent;
+  color: white;
+  font-size: 16px;
+}
+
+.action-button-error:hover {
+  background-color: $wick-error-red-light;
+  color: white;
+}
+
+.action-button-error:active {
+  background-color: $wick-error-red-dark;
+  color: white;
+}
+
+.action-button-error.active-button {
+  background-color: $wick-error-red-dark;
+  color: white;
+}

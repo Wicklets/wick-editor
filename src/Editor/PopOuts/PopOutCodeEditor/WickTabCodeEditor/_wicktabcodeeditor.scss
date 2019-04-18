@@ -2,7 +2,8 @@
 @import '../_popoutcodeditor.scss';
 
 $sub-tab-list-height: 40px;
-$add-script-container-height: calc(100% - #{$sub-tab-list-height}); 
+$sub-tab-list-margin: 10px;
+$add-script-container-height: calc(100% - 2 * #{$sub-tab-list-height} - #{$sub-tab-list-margin}); 
 $tab-editor-left-padding: 15px;
 
 .code-editor-tab-code-editor {
@@ -37,4 +38,11 @@ $tab-editor-left-padding: 15px;
   justify-content: left;
   padding-left: $tab-editor-left-padding;
   overflow: auto; 
+  margin-bottom: $sub-tab-list-margin;
+}
+
+.delete-tab-container {
+  height: 17px;
+  width: 17px; 
+  margin-left: 4px; 
 }

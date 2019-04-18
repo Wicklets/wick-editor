@@ -114,7 +114,15 @@ class WickTabCodeEditor extends Component {
     return (
       <Tab
         className={"react-tabs__tab react-tab-" + this.pickColor(s.name)}
-        key={i}>{capitalize(s.name)}</Tab>
+        key={i}>{capitalize(s.name)}
+        <div className="delete-tab-container">
+          <ActionButton 
+            icon="closetab" 
+            color="error"
+            action={() => this.removeTabByName(s.name)}
+            /> 
+        </div>
+      </Tab>
     )
   }
 
@@ -177,17 +185,6 @@ class WickTabCodeEditor extends Component {
         </div>
       </TabPanel>
     );
-  }
-
-  renderDeleteTabButton = () => {
-    return (
-      <div className='code-tab-delete'>
-        <ActionButton
-          icon="delete"
-          color="red"
-          action={this.removeSelectedTab} />
-      </div>
-    )
   }
 
   removeSelectedTab = () => {
