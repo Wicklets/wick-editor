@@ -1,11 +1,45 @@
 @import 'Editor/_wickbrand.scss';
 @import '../_wickcodedetailspanel.scss';
 
+$reference-tab-size: 10px; 
+
 #code-editor-reference {
   width: $code-editor-details-width;
-  height: 100%;
+  height: calc(100% - #{$code-editor-thumbnail-container-height});
   background-color: $editor-popout-secondary;
   float: none;
   color: $editor-popout-secondary-text; 
-  cursor: pointer;
+  padding-left: $reference-tab-size; 
+  overflow: auto;
+}
+
+.reference-tab-title {
+  font-size: 16px; 
+  cursor: pointer; 
+  width: 100%; 
+}
+
+.reference-tab-title:hover {
+  transition: .6s;
+  color: white;
+}
+
+.reference-tab-container {
+  margin-left: $reference-tab-size; 
+}
+
+.reference-tab-elements {
+  max-height: auto;
+  transition: max-height 1s ease-out;
+  margin-left: $reference-tab-size;
+  font-size: 14px; 
+}
+
+.reference-tab-elements.tab-closed {
+  max-height: 0;
+  overflow: hidden;
+}
+
+.code-editor-reference-title-text {
+   font-size: 22px;
 }
