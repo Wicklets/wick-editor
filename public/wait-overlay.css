@@ -8,6 +8,7 @@
   cursor: wait;
   background-image: url('https://media.tenor.com/images/c21ef4a5f5746bc4ea046732abbec467/tenor.gif');
   background-attachment: fixed;
-  background-position: right bottom;
+  background-position: right top;
   background-repeat: no-repeat;
+  z-index: 5;
 }

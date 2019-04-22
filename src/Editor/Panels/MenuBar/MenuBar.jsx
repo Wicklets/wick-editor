@@ -30,8 +30,6 @@ class MenuBar extends Component {
   }
 
   handleWickFileLoad = (e) => {
-    this.props.toast('Opening wick file...', 'info');
-
     var file = e.target.files[0];
     if (!file) {
       console.warn('handleWickFileLoad: no files recieved');

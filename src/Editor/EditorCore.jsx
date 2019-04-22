@@ -1014,17 +1014,28 @@ class EditorCore extends Component {
     this.processingAction = true;
 
     // Apply the change of the current selection before clearing it.
-    this.project.view.applyChanges();
-    this.project.selection.clear();
+    if(this.project.selection.numObjects > 0) {
+      this.project.view.applyChanges();
+      this.project.selection.clear();
+    }
 
-    this.project.view.prerasterize(() => {
+    let proceed = () => {
       this.setState({
         previewPlaying: !this.state.previewPlaying,
         codeErrors: [],
       });
       this.hideWaitOverlay();
       this.processingAction = false;
-    });
+    }
+
+    // Skip prerasterize step if we are stopping preview play.
+    if(this.state.previewPlaying) {
+      proceed();
+    } else {
+      this.project.view.prerasterize(() => {
+        proceed();
+      });
+    }
   }
 
   /**

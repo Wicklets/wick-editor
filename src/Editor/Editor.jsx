@@ -115,12 +115,6 @@ class Editor extends EditorCore {
     };
     window.addEventListener("resize", this.resizeProps.onWindowResize);
 
-    // Save the project state before preview playing so we can retrieve it later
-    this.beforePreviewPlayProjectState = null;
-
-    // Lock state flag
-    this.lockState = false;
-
     this.canvasComponent = null;
     this.timelineComponent = null;
   }
