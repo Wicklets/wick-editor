@@ -729,8 +729,8 @@ class EditorCore extends Component {
     // Error message for failed uploads
     if (rejectedFiles.length > 0) {
       let fileNamesRejected = rejectedFiles.map(file => file.name).join(', ');
-      this.updateToast(toastID, { 
-        type: 'error', 
+      this.updateToast(toastID, {
+        type: 'error',
         text: 'Could not import files: ' + fileNamesRejected});
     }
 
@@ -819,7 +819,7 @@ class EditorCore extends Component {
       let deserialized = this.deserializeSelection(serializedSelection);
       if (deserialized.length > 0 && deserialized[0].classname === "Frame") {
         this.toast('Frame pasting is not yet implemented!', 'error');
-        return; 
+        return;
       }
 
       this.addSelectionToProject(deserialized, {offset: {x: 25, y: 25}});
@@ -866,17 +866,17 @@ class EditorCore extends Component {
   exportProjectAsWickFile = () => {
     let toastID = this.toast('Exporting project as a .wick file...', 'info', {autoClose: false});
 
-    console.log("Original ID", toastID); 
+    console.log("Original ID", toastID);
     this.project.exportAsWickFile((file) => {
       if (file === undefined) {
-        this.updateToast(toastID, { 
-          type: 'error', 
+        this.updateToast(toastID, {
+          type: 'error',
           text: "Could not export .wick file." });
         return;
       }
 
-      this.updateToast(toastID, { 
-        type: 'success', 
+      this.updateToast(toastID, {
+        type: 'success',
         text: "Successfully saved .wick file." });
       saveAs(file, this.project.name + '.wick');
     });
@@ -889,8 +889,8 @@ class EditorCore extends Component {
     let toastID = this.toast('Exporting animated GIF...', 'info');
     GIFExport.createAnimatedGIFFromProject(this.project, blob => {
       this.project = window.Wick.Project.deserialize(this.project.serialize());
-      this.updateToast(toastID, { 
-        type: 'success', 
+      this.updateToast(toastID, {
+        type: 'success',
         text: "Successfully saved .gif file." });
       saveAs(blob, this.project.name + '.gif');
     });
@@ -902,8 +902,8 @@ class EditorCore extends Component {
   exportProjectAsStandaloneZIP = () => {
     let toastID = this.toast('Exporting project as ZIP...', 'info');
     ZIPExport.bundleStandaloneProject(this.project, blob => {
-      this.updateToast(toastID, { 
-        type: 'success', 
+      this.updateToast(toastID, {
+        type: 'success',
         text: "Successfully saved .zip file." });
       saveAs(blob, this.project.name + '.zip');
     });
@@ -934,10 +934,8 @@ class EditorCore extends Component {
     this.project = project;
     this.project.selection.clear();
     this.project.view.preloadImages(() => {
-        this.project.view.prerasterize(() => {
-            localForage.setItem(this.autoSaveAssetsKey, window.Wick.FileCache.getAllFiles());
-            this.projectDidChange();
-        });
+      localForage.setItem(this.autoSaveAssetsKey, window.Wick.FileCache.getAllFiles());
+      this.projectDidChange();
     });
   }
 
@@ -946,25 +944,23 @@ class EditorCore extends Component {
    * Does nothing if not autosaved project is stored.
    */
   attemptAutoLoad = () => {
-      localForage.getItem(this.autoSaveAssetsKey).then(serializedAssets => {
-        if (serializedAssets) {
-          // Only deserialize assets if necessary.
-          serializedAssets.forEach(asset => {
-            window.Wick.FileCache.addFile(asset.src, asset.uuid);
-          });
-        }
-
-        localForage.getItem(this.autoSaveKey).then(serializedProject => {
-          if (!serializedProject) {
-            this.toast('An error occurred while loading your project.', 'error'); 
-            return;
-          }
-          let deserialized = window.Wick.Project.deserialize(serializedProject);
-          this.setupNewProject(deserialized);
+    localForage.getItem(this.autoSaveAssetsKey).then(serializedAssets => {
+      if (serializedAssets) {
+        // Only deserialize assets if necessary.
+        serializedAssets.forEach(asset => {
+          window.Wick.FileCache.addFile(asset.src, asset.uuid);
         });
-      });
-    
+      }
 
+      localForage.getItem(this.autoSaveKey).then(serializedProject => {
+        if (!serializedProject) {
+          this.toast('An error occurred while loading your project.', 'error');
+          return;
+        }
+        let deserialized = window.Wick.Project.deserialize(serializedProject);
+        this.setupNewProject(deserialized);
+      });
+    });
   }
 
   /**
@@ -1010,14 +1006,19 @@ class EditorCore extends Component {
    * Toggles the preview play between on and off states.
    */
   togglePreviewPlaying = () => {
+    if(this.processingAction) return;
+    this.processingAction = true;
+
     // Apply the change of the current selection before clearing it.
     this.project.view.applyChanges();
     this.project.selection.clear();
+
     this.project.view.prerasterize(() => {
       this.setState({
         previewPlaying: !this.state.previewPlaying,
         codeErrors: [],
       });
+      this.processingAction = false;
     });
   }
 

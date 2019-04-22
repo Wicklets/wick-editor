@@ -346,6 +346,9 @@ Wick.View.Project = class extends Wick.View {
                 };
                 this.model.zoom = this.zoom;
             });
+            tool.on('error', (e) => {
+                this.fireEvent('error', e);
+            })
         }
 
         this.tools.none.activate();

@@ -71668,7 +71668,11 @@ Wick.Tools.None = class extends Wick.Tool {
 
   onDeactivate(e) {}
 
-  onMouseDown(e) {}
+  onMouseDown(e) {
+    this.fireEvent('error', {
+      message: 'CLICK_NOT_ALLOWED'
+    });
+  }
 
   onMouseDrag(e) {}
 
@@ -72558,6 +72562,9 @@ Wick.View.Project = class extends Wick.View {
           y: this.pan.y
         };
         this.model.zoom = this.zoom;
+      });
+      tool.on('error', e => {
+        this.fireEvent('error', e);
       });
     }
 

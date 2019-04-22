@@ -65,30 +65,23 @@ class Canvas extends Component {
       this.props.projectDidChange();
     });
 
-    /*
-    // Add some toaster warnings so there's some feedback when you try to draw somewhere that you can't.
-    paper.drawingTools.none.onMouseDown = () => {
-      if(!this.props.project.activeFrame) {
-        this.props.toast('There is no frame to draw onto.', 'warning');
-      } else if (this.props.project.activeLayer.locked) {
-        this.props.toast('The layer you are trying to draw onto is locked.', 'warning');
-      } else if (this.props.project.activeLayer.hidden) {
-        this.props.toast('The layer you are trying to draw onto is hidden.', 'warning');
-      }
-    }
-
-    // Add some toaster warnings for common fill bucket issues
-    paper.drawingTools.fillbucket.onError = (message) => {
-      if(message === 'OUT_OF_BOUNDS' || message === 'LEAKY_HOLE') {
+    project.view.on('error', (e) => {
+      if(e.message === 'OUT_OF_BOUNDS' || e.message === 'LEAKY_HOLE') {
         this.props.toast('The shape you are trying to fill has a gap.', 'warning');
-      } else if (message === 'NO_PATHS') {
+      } else if (e.message === 'NO_PATHS') {
         this.props.toast('There is no hole to fill.', 'warning');
+      } else if (e.message === 'CLICK_NOT_ALLOWED') {
+        if (this.props.project.activeLayer.locked) {
+          this.props.toast('The layer you are trying to draw onto is locked.', 'warning');
+        } else if (this.props.project.activeLayer.hidden) {
+          this.props.toast('The layer you are trying to draw onto is hidden.', 'warning');
+        } else if(!this.props.project.activeFrame) {
+          this.props.toast('There is no frame to draw onto.', 'warning');
+        }
       } else {
-        this.props.toast('There was an error while filling a hole.', 'error');
-        console.error(message);
+        this.props.toast('There was an error while drawing.', 'warning');
       }
-    }
-    */
+    });
   }
 
   updateCanvas = (project) => {

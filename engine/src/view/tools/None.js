@@ -42,7 +42,9 @@ Wick.Tools.None = class extends Wick.Tool {
     }
 
     onMouseDown (e) {
-
+        this.fireEvent('error', {
+            message: 'CLICK_NOT_ALLOWED',
+        });
     }
 
     onMouseDrag (e) {

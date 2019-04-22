@@ -37,7 +37,6 @@ import { Slide } from 'react-toastify';
 
 import HotKeyInterface from './hotKeyMap';
 import ActionMapInterface from './actionMap';
-import UndoRedo from './UndoRedo';
 import EditorCore from './EditorCore';
 
 import DockedPanel from './Panels/DockedPanel/DockedPanel';
@@ -55,9 +54,6 @@ import CanvasActions from './Panels/CanvasActions/CanvasActions';
 class Editor extends EditorCore {
   constructor () {
     super();
-
-    // History (undo/redo stacks)
-    this.history = new UndoRedo(this);
 
     // "Live" editor states
     this.project = null;
@@ -85,7 +81,7 @@ class Editor extends EditorCore {
         selectCurves: false,
       },
       previewPlaying: false,
-      activeModalName: 'WelcomeMessage',
+      activeModalName: null,
       activeModalQueue: [],
       codeEditorOpen: false,
       codeErrors: [],
@@ -124,10 +120,6 @@ class Editor extends EditorCore {
 
     // Lock state flag
     this.lockState = false;
-
-    // Auto Save
-    this.autoSaveDelay = 5000; // millisecond delay
-    this.throttledAutoSaveProject = throttle(this.autoSaveProject, this.autoSaveDelay);
 
     this.canvasComponent = null;
     this.timelineComponent = null;
@@ -189,7 +181,6 @@ class Editor extends EditorCore {
     // Initialize "live" engine state
     this.project = new window.Wick.Project();
     this.paper = window.paper;
-    this.history.saveState();
 
     // Initialize local storage
     localForage.config({
@@ -215,19 +206,18 @@ class Editor extends EditorCore {
   }
 
   componentWillUnmount = () => {
-    this.throttledAutoSaveProject();
+
   }
 
   componentDidMount = () => {
     this.hidePreloader();
     this.refocusEditor();
     this.onWindowResize();
-    this.showAutosavedProjects();
+    //this.showAutosavedProjects();
   }
 
   componentDidUpdate = (prevProps, prevState) => {
     if(this.state.previewPlaying && !prevState.previewPlaying) {
-      this.initalProjectStateBeforePreviewPlay = this.history.generateProjectState();
       this.project.play({
         onError: (error) => {
           this.stopPreviewPlaying([error])
@@ -244,8 +234,6 @@ class Editor extends EditorCore {
     if(!this.state.previewPlaying && prevState.previewPlaying) {
       let playheadPosition = this.project.focus.timeline.playheadPosition;
       this.project.stop();
-      this.history.recoverProjectState(this.initalProjectStateBeforePreviewPlay);
-      this.project.focus.timeline.playheadPosition = playheadPosition;
     }
   }
 
@@ -253,7 +241,6 @@ class Editor extends EditorCore {
 
   hidePreloader = () => {
     let preloader = window.document.getElementById('preloader');
-    console.log(preloader.style)
     setTimeout(() => {
       preloader.style.opacity = '0';
       setTimeout(() => {
@@ -263,17 +250,11 @@ class Editor extends EditorCore {
   }
 
   showAutosavedProjects = () => {
-    this.doesAutoSavedProjectExist(bool => { if (bool) {
-      this.queueModal('AutosaveWarning');
+    this.doesAutoSavedProjectExist(exists => {
+      if (exists) {
+        this.queueModal('AutosaveWarning');
       }
     });
-  }
-
-  /**
-   * Resets the editor in preparation for a project load.
-   */
-  resetEditorForLoad = () => {
-    this.history.clearHistory();
   }
 
   /**
@@ -283,6 +264,13 @@ class Editor extends EditorCore {
     if (!this.project) return
     let serializedProject = this.project.serialize();
     localForage.setItem(this.autoSaveKey, serializedProject);
+  }
+
+  /**
+   * Resets the editor in preparation for a project load.
+   */
+  resetEditorForLoad = () => {
+
   }
 
   onWindowResize = () => {
@@ -489,16 +477,13 @@ class Editor extends EditorCore {
    * saved to the undo/redo stacks.
    */
   projectDidChange = (skipHistory) => {
+    console.log("projectDidChange() called")
+
     // The current frame was probably changed in some way, so make sure the WebGL
-    // canvas eventually renders the new frame and not an old cached version of it.
+    // canvas renders the new frame and not an old cached version of it.
     this.project.activeFrames.forEach(frame => {
         frame.view.clearRasterCache();
     });
-
-    if(!skipHistory) {
-      this.history.saveState();
-      this.throttledAutoSaveProject();
-    }
 
     this.canvasComponent.updateCanvas(this.project);
     this.setState({
@@ -567,6 +552,18 @@ class Editor extends EditorCore {
     }
 
     toast.update(id, options);
+  }
+
+  /**
+   * A flag to prevent "double state changes" where an action tries to happen while another is still processing.
+   * Set this to true before doing something asynchronous that will take a long time, and set it back to false when done.
+   */
+  get processingAction () {
+    return this._processingAction;
+  }
+
+  set processingAction (processingAction) {
+    this._processingAction = processingAction;
   }
 
   render = () => {
