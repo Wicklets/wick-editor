@@ -28,7 +28,7 @@ import nightImage from 'resources/interface-images/blue_night.svg';
 
 class WelcomeModal extends Component {
   getVersion() {
-    return "v6"
+    return "v7"
   }
 
   render() {
@@ -49,12 +49,12 @@ class WelcomeModal extends Component {
             <div id="welcome-modal-subtitle" className="welcome-modal-item">Alpha {this.getVersion()} includes:</div>
             <div id="welcome-modal-message" className="welcome-modal-item">
               <ul>
-                <li>New Modal Designs</li>
-                <li>New Toolbar Icons</li>
-                <li>Updated Error Messages</li>
-                <li>New Coding API Additions</li>
-                <li>New Inspector Actions</li>
-                <li>A fast project renderer</li>
+                <li>New Timeline Design</li>
+                <li>New Timeline Interactions</li>
+                <li>New Code Editor Design</li>
+                <li>Temporary Non-Interactive Reference</li>
+                <li>New Canvas Order Interactions</li>
+                <li>Enhanced Loading Screen</li>
                 <li>Many, many, bugfixes...</li>
               </ul>
             </div>

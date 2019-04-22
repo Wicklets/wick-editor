@@ -42,8 +42,6 @@ class MakeAnimated extends Component {
    */
   createAndToggle = (type) => {
     let name = this.state.name !== "" ? this.state.name : (type); 
-
-    console.log(name); 
     if (type === 'Clip') {
       this.props.createClipFromSelection(name)
     } else if (type === 'Button') {
@@ -107,7 +105,7 @@ class MakeAnimated extends Component {
             />
         </div>
         <div id="make-interactive-asset-checkbox-container">
-            <WickInput
+            {/* <WickInput
               type="checkbox"
               containerclassname="make-interactive-asset-checkbox-input-container"
               className="make-interactive-asset-checkbox-input"
@@ -116,7 +114,7 @@ class MakeAnimated extends Component {
             />
             <div id="make-interactive-asset-checkbox-message">
               Add to asset library
-            </div>
+            </div> */}
           </div>
       </WickModal>
     );
