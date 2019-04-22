@@ -20,6 +20,8 @@
     <script src="%PUBLIC_URL%/corelibs/preload/preloadjs.min.js"></script>
     <!-- Preloader animation CSS -->
     <link href="%PUBLIC_URL%/preloader-animation.css" rel="stylesheet" type="text/css">
+    <!-- Wait overlay CSS -->
+    <link href="%PUBLIC_URL%/wait-overlay.css" rel="stylesheet" type="text/css">
 
     <!--
       Notice the use of %PUBLIC_URL% in the tags above.
@@ -31,6 +33,13 @@
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
     <title>Wick Editor 1.0 Alpha</title>
+    <style>
+      html, body {
+        width: 100%;
+        height: 100%;
+        margin: 0px;
+      }
+    </style>
   </head>
   <body>
     <noscript>
@@ -69,6 +78,9 @@
             <text x="44" y="22" class="small">Loading...</text>
         </svg>
       </div>
+    </div>
+    <div id="wait-overlay">
+
     </div>
   </body>
 </html>

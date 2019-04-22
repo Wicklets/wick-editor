@@ -249,6 +249,16 @@ class Editor extends EditorCore {
     }, 2000);
   }
 
+  showWaitOverlay = () => {
+    let waitOverlay = window.document.getElementById('wait-overlay');
+    waitOverlay.style.display = 'block';
+  }
+
+  hideWaitOverlay = () => {
+    let waitOverlay = window.document.getElementById('wait-overlay');
+    waitOverlay.style.display = 'none';
+  }
+
   showAutosavedProjects = () => {
     this.doesAutoSavedProjectExist(exists => {
       if (exists) {

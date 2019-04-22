@@ -914,12 +914,14 @@ class EditorCore extends Component {
    * @param {File} file Zipped wick file to import.
    */
   importProjectAsWickFile = (file) => {
+    this.showWaitOverlay();
     window.Wick.Project.fromWickFile(file, project => {
       if(project) {
         this.setupNewProject(project);
         this.toast('Opened "' + file.name + '" successfully.', 'success');
       } else {
         this.toast('Could not open project.', 'error');
+        this.hideWaitOverlay();
       }
     });
   }
@@ -936,6 +938,7 @@ class EditorCore extends Component {
     this.project.view.preloadImages(() => {
       localForage.setItem(this.autoSaveAssetsKey, window.Wick.FileCache.getAllFiles());
       this.projectDidChange();
+      this.hideWaitOverlay();
     });
   }
 
@@ -1007,6 +1010,7 @@ class EditorCore extends Component {
    */
   togglePreviewPlaying = () => {
     if(this.processingAction) return;
+    this.showWaitOverlay();
     this.processingAction = true;
 
     // Apply the change of the current selection before clearing it.
@@ -1018,6 +1022,7 @@ class EditorCore extends Component {
         previewPlaying: !this.state.previewPlaying,
         codeErrors: [],
       });
+      this.hideWaitOverlay();
       this.processingAction = false;
     });
   }
