@@ -32,8 +32,6 @@ Wick.Layer = class extends Wick.Base {
         this.hidden = false;
 
         this.name = name || 'New Layer';
-
-        this.frames = [];
     }
 
     static _deserialize (data, object) {
@@ -68,6 +66,14 @@ Wick.Layer = class extends Wick.Base {
 
     get classname () {
         return 'Layer';
+    }
+
+    /**
+     * The frames belonging to this layer.
+     * @type {Wick.Frame[]}
+     */
+    get frames () {
+        
     }
 
     /**

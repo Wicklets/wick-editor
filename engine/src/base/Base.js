@@ -45,32 +45,23 @@ Wick.Base = class {
     /**
      * Parses serialized data representing Base Objects which have been serialized using the serialize function of their class.
      * @param  {object} data Serialized data that was returned by a Base Object's serialize function.
-     * @return {Wick.Base}   A deserialized Base Object. Can be any Wick Base subclass.
      */
-    static deserialize (data) {
-        var object = Wick[data.classname]._deserialize(data, new Wick[data.classname]());
-        return object;
-    }
-
-    static _deserialize (data, object) {
-        object._uuid = data.uuid;
-        object._identifier = data.identifier;
-        return object;
+    deserialize (data) {
+        this._uuid = data.uuid;
+        this._identifier = data.identifier;
+        this._children = data.children.splice(0);//copy
     }
 
     /**
-     * Converts Wick Base object into a generic object contianing raw data and eliminating parent references.
-     * @return {object} Plain JavaScript object representing Wick Base.
+     * Converts this Wick Base object into a generic object contianing raw data (no references).
+     * @return {object} Plain JavaScript object representing this Wick Base object.
      */
     serialize () {
-        return this._serialize();
-    }
-
-    _serialize () {
         var data = {};
         data.classname = this.classname;
         data.identifier = this._identifier;
         data.uuid = this._uuid;
+        data.children = this._children.splice(0);//copy
         return data;
     }
 
@@ -100,7 +91,7 @@ Wick.Base = class {
 
     set identifier (identifier) {
         if(!isVarName(identifier)) return;
-        this._identifier = this._getUniqueIdentifier(identifier);
+        this._identifier = identifier;
     }
 
     /**
@@ -150,7 +141,40 @@ Wick.Base = class {
      * @type {Wick.Base[]}
      */
     get children () {
-        return this._children;
+        return this._children.map(uuid => {
+            return this.project.getObjectByUUID(uuid);
+        });
+    }
+
+    /**
+     * Add a child to this object
+     * @param {Wick.Base} child - the child to add
+     */
+    addChild (child) {
+        this._children.push(child.uuid);
+        child.parent = this;
+        child.identifier = child._getUniqueIdentifier(child.identifier);
+    }
+
+    /**
+     * Remove a child from this object
+     * @param {Wick.Base} child - the child to remove
+     */
+    removeChild (child) {
+        child.parent = null;
+        this._children = this._children.filter(seekChild => {
+            return seekChild.uuid !== child.uuid;
+        });
+    }
+
+    /**
+     * Find a child by uuid.
+     * @param {string} uuid
+     */
+    getChildByUUID (uuid) {
+        return this.children.find(child => {
+            return child.uuid === uuid;
+        });
     }
 
     /**
@@ -206,6 +230,7 @@ Wick.Base = class {
      * @type {boolean}
      */
     get isSelected () {
+        if(!this.project) return false;
         return this.project.selection.isObjectSelected(this);
     }
 
@@ -223,41 +248,10 @@ Wick.Base = class {
     }
 
     /**
-     * Returns a child object within this Wick.Base object which has the associated UUID, if it exists.
-     * @param  {string} uuid UUID to search for.
-     * @return {Wick.Base|null} Returns a Base object if found, otherwise returns null.
+     * Recursively find a parent that is an instance of  a given class.
+     * @param {string} seekClass - the name of the class to search for
      */
-    getChildByUUID (uuid) {
-        if(this.uuid === uuid) {
-            return this;
-        }
-
-        // Recursively search for object with the provided UUID.
-        var foundChild = null;
-        this._children.forEach(child => {
-            var checkChild = child.getChildByUUID(uuid);
-            if(checkChild) {
-                foundChild = checkChild;
-            }
-        });
-        return foundChild;
-    }
-
-    _addChild (child) {
-        this._children.push(child);
-        child.parent = this;
-        child.project = this.project;
-    }
-
-    _removeChild (child) {
-        child.parent = null;
-        child.project = null;
-        this._children = this._children.filter(seekChild => {
-            return seekChild !== child;
-        });
-    }
-
-    _getParentByInstanceOf (seekClass) {
+    getParentByInstanceOf (seekClass) {
         if(!this.parent) return null;
 
         if(this.parent instanceof seekClass) {

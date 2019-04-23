@@ -32,6 +32,8 @@ Wick.Project = class extends Wick.Base {
     constructor (name, width, height, framerate, backgroundColor) {
         super();
 
+        this._allObjects = {};
+
         this.name = name || 'My Project';
         this.width = width || 720;
         this.height = height || 405;
@@ -45,12 +47,10 @@ Wick.Project = class extends Wick.Base {
         this.onionSkinSeekBackwards = 1;
         this.onionSkinSeekForwards = 1;
 
-        this._root = null;
-
         this.root = new Wick.Clip();
         this.root.identifier = 'Project';
 
-        this._focus = this.root.uuid;
+        this.focus = this.root;
 
         this.project = this;
 
@@ -183,38 +183,48 @@ Wick.Project = class extends Wick.Base {
     }
 
     /**
+     * Parses serialized data representing Base Objects which have been serialized using the serialize function of their class.
+     * @param  {object} data Serialized data that was returned by a Base Object's serialize function.
+     * @return {Wick.Base}   A deserialized Base Object. Can be any Wick Base subclass.
+     */
+    deserializeData (data) {
+        var object = new Wick[data.classname];
+        this.addObject(object);
+        object.deserialize(data);
+        return object;
+    }
+
+    /**
+     * Add an object to this project.
+     * @param {Wick.Base} object - the object to add
+     */
+    addObject (object) {
+        object.project = this;
+        this._allObjects[object.uuid] = object;
+    }
+
+    /**
+     * Remove all objects that are in the project, but are no longer linked to the root object.
+     * This is basically a garbage collection function.
+     * Only call this when you're ready to finish editing the project because old objects need to be retained somewhere for undo/redo.
+     */
+    removeUnusedObjects () {
+        // TODO
+    }
+
+    /**
+     *
+     */
+    getObjectByUUID (uuid) {
+        return this._allObjects[uuid];
+    }
+
+    /**
      * String representation of class name: "Project"
      * @return {string}
      */
     get classname () {
         return 'Project';
-    }
-
-    /**
-     * The currently focused clip.
-     * @type {Wick.Clip}
-     */
-    get focus () {
-        return this.getChildByUUID(this._focus);
-    }
-
-    set focus (clip) {
-        var oldFocus = this._focus;
-
-        this._focus = clip.uuid;
-
-        // Reset timelines of subclips
-        this.focus.timeline.clips.forEach(subclip => {
-            subclip.timeline.playheadPosition = 1;
-        });
-
-        if(oldFocus !== clip.uuid) {
-            // Always reset pan and zoom on focus change.
-            this.recenter();
-
-            // Always clear selection on focus change.
-            this.selection.clear();
-        }
     }
 
     /**
@@ -337,15 +347,43 @@ Wick.Project = class extends Wick.Base {
      * @type {Wick.Clip}
      */
     get root () {
-        return this._root;
+        return this.getChildByUUID(this._root);
     }
 
     set root (clip) {
-        if(this._root) {
-            this._removeChild(this._root);
+        if(this.root) {
+            this.removeChild(this.root);
         }
-        this._root = clip;
-        this._addChild(this._root);
+        this._root = clip.uuid;
+        this.addChild(clip);
+    }
+
+    /**
+     * The currently focused clip.
+     * @type {Wick.Clip}
+     */
+    get focus () {
+        return this.getChildByUUID(this._focus);
+    }
+
+    set focus (focus) {
+        var oldFocusUUID = this._focus;
+        var newFocusUUID = focus.uuid;
+
+        this._focus = newFocusUUID;
+
+        // Reset timelines of subclips of the new focused clip
+        focus.timeline.clips.forEach(subclip => {
+            subclip.timeline.playheadPosition = 1;
+        });
+
+        if(oldFocusUUID !== newFocusUUID) {
+            // Always reset pan and zoom on focus change.
+            this.recenter();
+
+            // Always clear selection on focus change.
+            this.selection.clear();
+        }
     }
 
     /**

@@ -27,33 +27,34 @@ Wick.Clip = class extends Wick.Tickable {
      * @param {Wick.Path|Wick.Clip[]} objects - Optional. A list of objects to add to the clip.
      * @param {Wick.Transformation} transform - Optional. The initial transformation of the clip.
      */
-    constructor (identifier, objects, transform) {
+    constructor (args) {
         super();
 
-        this._timeline = null;
+        if(!args) args = {};
+
         this.timeline = new Wick.Timeline();
         this.timeline.addLayer(new Wick.Layer());
         this.timeline.activeLayer.addFrame(new Wick.Frame());
 
-        this.identifier = identifier || 'New Symbol';
+        this.identifier = args.identifier || 'New Symbol';
 
-        this.transform = transform || new Wick.Transformation();
+        this.transform = args.transform || new Wick.Transformation();
 
         this.cursor = 'default';
 
         /* If objects are passed in, add them to the clip and reposition them */
-        if(objects) {
-            var clips = objects.filter(object => {
+        if(args.objects) {
+            var clips = args.objects.filter(object => {
                 return object instanceof Wick.Clip;
             });
+            var paths = args.objects.filter(object => {
+                return object instanceof Wick.Path;
+            });
+
             clips.forEach(clip => {
                 clip.transform.x -= this.transform.x;
                 clip.transform.y -= this.transform.y;
                 this.activeFrame.addClip(clip);
-            });
-
-            var paths = objects.filter(object => {
-                return object instanceof Wick.Path;
             });
             paths.forEach(path => {
                 path.paperPath.position = new paper.Point(
@@ -65,11 +66,11 @@ Wick.Clip = class extends Wick.Tickable {
         }
     }
 
-    static _deserialize (data, object) {
-        super._deserialize(data, object);
+    static deserialize (data) {
+        super.deserialize(data, object);
 
-        object.transform = Wick.Transformation.deserialize(data.transform);
-        object.timeline = Wick.Timeline.deserialize(data.timeline);
+        this.transform = new Wick.Transformation(data.transformation);
+        this._timeline = data.timeline;
 
         return object;
     }
@@ -77,8 +78,8 @@ Wick.Clip = class extends Wick.Tickable {
     serialize () {
         var data = super.serialize();
 
-        data.transform = this.transform.serialize();
-        data.timeline = this.timeline.serialize();
+        data.transform = this.transform.values;
+        data.timeline = this._timeline;
 
         return data;
     }
@@ -111,15 +112,15 @@ Wick.Clip = class extends Wick.Tickable {
      * The timeline of the clip.
      */
     get timeline () {
-        return this._timeline
+        return this.getChildByUUID(this._timeline);
     }
 
     set timeline (timeline) {
-        if(this._timeline) {
-            this._removeChild(this._timeline);
+        if(this.timeline) {
+            this.removeChild(this.timeline);
         }
-        this._timeline = timeline;
-        this._addChild(this._timeline);
+        this._timeline = timeline.uuid;
+        this.addChild(timeline);
     }
 
     /**
