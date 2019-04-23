@@ -19,7 +19,7 @@ describe('Wick.Path', function() {
             done();
         });
     });
-
+/*
     describe('#serialize()', function() {
         it('should serialize correctly', function () {
             var path = new Wick.Path(TEST_PATH_DATA);
@@ -72,7 +72,7 @@ describe('Wick.Path', function() {
             expect(JSON.stringify(path.exportJSON())).to.equal(JSON.stringify(data.pathJSON));
         });
     });
-
+*/
     describe('#get classname()', function() {
         it('should return "Path"', function () {
             expect(new Wick.Path().classname).to.equal('Path');

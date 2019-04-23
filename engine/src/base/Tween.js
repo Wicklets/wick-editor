@@ -36,7 +36,7 @@ Wick.Tween = class extends Wick.Base {
     /**
      * Create a tween
      * @param {number} playheadPosition - the playhead position relative to the frame that the tween belongs to
-     * @param {Wick.Transform} transform - the transformation this tween will apply to child objects
+     * @param {Wick.Transform} transformation - the transformation this tween will apply to child objects
      * @param {number} fullRotations - the number of rotations to add to the tween's transformation
      */
     constructor (args) {
@@ -44,11 +44,9 @@ Wick.Tween = class extends Wick.Base {
         super(args);
 
         this.playheadPosition = args.playheadPosition || 1;
-        this.transform = new Wick.Transformation(args.transform)
+        this.transformation = args.transformation || new Wick.Transformation();
         this.fullRotations = args.fullRotations === undefined ? 0 : args.fullRotations;
-
-        this._easingType = null;
-        this.easingType = 'none';
+        this.easingType = args.easingType || 'none';
     }
 
     /**
@@ -67,8 +65,8 @@ Wick.Tween = class extends Wick.Base {
         ["x", "y", "scaleX", "scaleY", "rotation", "opacity"].forEach(propName => {
             var tweenFn = tweenA._getTweenFunction();
             var tt = tweenFn(t);
-            var valA = tweenA.transform[propName];
-            var valB = tweenB.transform[propName];
+            var valA = tweenA.transformation[propName];
+            var valB = tweenB.transformation[propName];
             if(propName === 'rotation') {
                 // Constrain rotation values to range of -180 to 180
                 while(valA < -180) valA += 360;
@@ -78,7 +76,7 @@ Wick.Tween = class extends Wick.Base {
                 // Convert full rotations to 360 degree amounts
                 valB += tweenA.fullRotations * 360;
             }
-            interpTween.transform[propName] = lerp(valA, valB, tt);
+            interpTween.transformation[propName] = lerp(valA, valB, tt);
         });
 
         interpTween.playheadPosition = playheadPosition;
@@ -89,7 +87,7 @@ Wick.Tween = class extends Wick.Base {
         var data = super.serialize();
 
         data.playheadPosition = this.playheadPosition;
-        data.transform = this.transform.values;
+        data.transformation = this.transformation.values;
         data.fullRotations = this.fullRotations;
         data.easingType = this.easingType;
 
@@ -100,7 +98,7 @@ Wick.Tween = class extends Wick.Base {
         super._deserialize(data, object);
 
         this.playheadPosition = data.playheadPosition;
-        this.transform = new Wick.Transformation(data.transform);
+        this.transformation = new Wick.Transformation(data.transformation);
         this.fullRotations = data.fullRotations;
         this.easingType = data.easingType;
 
@@ -138,7 +136,7 @@ Wick.Tween = class extends Wick.Base {
      * Set the transformation of a clip to this tween's transformation.
      */
     applyTransformsToClip (clip) {
-        clip.transform = this.transform.clone(true);
+        clip.transformation = this.transformation.clone();
     }
 
     _getTweenFunction () {

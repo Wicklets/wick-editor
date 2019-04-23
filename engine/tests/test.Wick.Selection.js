@@ -55,7 +55,7 @@ describe('Wick.Selection', function() {
 
         expect(project.selection.types).to.eql([]);
         expect(project.selection.location).to.equal(null);
-        expect(project.selection.serialize().uuids).to.eql([]);
+        expect(project.selection.getSelectedObjects()).to.eql([]);
 
         project.selection.clear();
         expect(project.selection.getSelectedObjects()).to.eql([]);
@@ -67,7 +67,7 @@ describe('Wick.Selection', function() {
 
         expect(project.selection.types).to.eql(['Frame']);
         expect(project.selection.location).to.equal('Timeline');
-        expect(project.selection.serialize().uuids).to.eql([frame1.uuid]);
+        expect(project.selection.getSelectedObjects()).to.eql([frame1]);
 
         project.selection.select(layer1);
         expect(project.selection.numObjects).to.equal(2);
@@ -103,7 +103,7 @@ describe('Wick.Selection', function() {
         expect(project.selection.numObjects).to.eql(5);
         expect(project.selection.types).to.eql(['Path', 'Clip', 'Button']);
         expect(project.selection.location).to.equal('Canvas');
-        expect(project.selection.serialize().uuids).to.eql([path1.uuid, path2.uuid, path3.uuid, clip1.uuid, button1.uuid]);
+        expect(project.selection.getSelectedObjects()).to.eql([path1, path2, path3, clip1, button1]);
 
         project.selection.clear();
         expect(project.selection.getSelectedObjects()).to.eql([]);

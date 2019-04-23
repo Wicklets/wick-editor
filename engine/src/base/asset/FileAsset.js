@@ -29,21 +29,23 @@ Wick.FileAsset = class extends Wick.Asset {
     }
 
     /**
-     * Returns all valid extensions types for files which can be attempted to be 
+     * Returns all valid extensions types for files which can be attempted to be
      * converted to Wick Assets.
      * @return  {string[]} Array of strings representing extensions.
      */
     static getValidExtensions () {
-        let imageExtensions = Wick.ImageAsset.getValidExtensions(); 
-        let soundExtensions = Wick.SoundAsset.getValidExtensions(); 
-        return imageExtensions.concat(soundExtensions); 
+        let imageExtensions = Wick.ImageAsset.getValidExtensions();
+        let soundExtensions = Wick.SoundAsset.getValidExtensions();
+        return imageExtensions.concat(soundExtensions);
     }
 
-    constructor (filename, src) {
-        super(filename);
+    constructor (args) {
+        if(!args) args = {};
+        args.name = args.filename;
+        super(args);
 
-        this.filename = filename;
-        this.src = src;
+        this.filename = args.filename;
+        this.src = args.src;
     }
 
     serialize () {
@@ -56,10 +58,10 @@ Wick.FileAsset = class extends Wick.Asset {
         return data;
     }
 
-    static _deserialize (data, object) {
-        super._deserialize(data, object);
+    deserialize (data) {
+        super.deserialize(data);
 
-        object.filename = data.filename;
+        this.filename = data.filename;
 
         return object;
     }

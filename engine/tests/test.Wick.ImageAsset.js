@@ -10,7 +10,7 @@ describe('Wick.ImageAsset', function() {
             expect(image.classname).to.equal('ImageAsset');
         });
     });
-
+/*
     describe('#serialize', function () {
         it('should serialize correctly', function() {
             var asset = new Wick.ImageAsset('test.png', TEST_IMG_SRC_PNG);
@@ -31,7 +31,7 @@ describe('Wick.ImageAsset', function() {
             expect(asset instanceof Wick.ImageAsset).to.equal(true);
         });
     });
-
+*/
     describe('#MIMEType', function () {
         it('get MIMEType should return correct MIME type', function() {
             var image = new Wick.ImageAsset('test.png', TEST_IMG_SRC_PNG);

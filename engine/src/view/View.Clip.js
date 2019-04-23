@@ -55,12 +55,12 @@ Wick.View.Clip = class extends Wick.View {
 
         // Update transformations
         this.group.pivot = new this.paper.Point(0,0);
-        this.group.position.x = this.model.transform.x;
-        this.group.position.y = this.model.transform.y;
-        this.group.scaling.x = this.model.transform.scaleX;
-        this.group.scaling.y = this.model.transform.scaleY;
-        this.group.rotation = this.model.transform.rotation;
-        this.group.opacity = this.model.transform.opacity;
+        this.group.position.x = this.model.transformation.x;
+        this.group.position.y = this.model.transformation.y;
+        this.group.scaling.x = this.model.transformation.scaleX;
+        this.group.scaling.y = this.model.transformation.scaleY;
+        this.group.rotation = this.model.transformation.rotation;
+        this.group.opacity = this.model.transformation.opacity;
     }
 
     _renderWebGL () {
@@ -74,12 +74,12 @@ Wick.View.Clip = class extends Wick.View {
         });
 
         // Update transformations
-        this.container.x = this.model.transform.x;
-        this.container.y = this.model.transform.y;
-        this.container.scale.x = this.model.transform.scaleX;
-        this.container.scale.y = this.model.transform.scaleY;
-        this.container.rotation = this.model.transform.rotation * (Math.PI/180);//Degrees -> Radians conversion
-        this.container.alpha = this.model.transform.opacity;
+        this.container.x = this.model.transformation.x;
+        this.container.y = this.model.transformation.y;
+        this.container.scale.x = this.model.transformation.scaleX;
+        this.container.scale.y = this.model.transformation.scaleY;
+        this.container.rotation = this.model.transformation.rotation * (Math.PI/180);//Degrees -> Radians conversion
+        this.container.alpha = this.model.transformation.opacity;
     }
 
     _onPointerOver (e) {

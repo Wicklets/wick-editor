@@ -139,12 +139,12 @@ class WickProjectConverter {
         convertedClip.identifier = clip.name;
 
         // Clip transform
-        convertedClip.transform.x = clip.x;
-        convertedClip.transform.y = clip.y;
-        convertedClip.transform.scaleX = clip.scaleX;
-        convertedClip.transform.scaleY = clip.scaleY;
-        convertedClip.transform.rotation = clip.rotation;
-        convertedClip.transform.opacity = clip.opacity;
+        convertedClip.transformation.x = clip.x;
+        convertedClip.transformation.y = clip.y;
+        convertedClip.transformation.scaleX = clip.scaleX;
+        convertedClip.transformation.scaleY = clip.scaleY;
+        convertedClip.transformation.rotation = clip.rotation;
+        convertedClip.transformation.opacity = clip.opacity;
 
         // Clip script
         WickProjectConverter.convertScript(clip.wickScript).forEach(script => {
@@ -260,12 +260,12 @@ class WickProjectConverter {
         }[tween.tweenDir];
 
         // Tween transform
-        convertedTween.transform.x = tween.x;
-        convertedTween.transform.y = tween.y;
-        convertedTween.transform.scaleX = tween.scaleX;
-        convertedTween.transform.scaleY = tween.scaleY;
-        convertedTween.transform.rotation = tween.rotation;
-        convertedTween.transform.opacity = tween.opacity;
+        convertedTween.transformation.x = tween.x;
+        convertedTween.transformation.y = tween.y;
+        convertedTween.transformation.scaleX = tween.scaleX;
+        convertedTween.transformation.scaleY = tween.scaleY;
+        convertedTween.transformation.rotation = tween.rotation;
+        convertedTween.transformation.opacity = tween.opacity;
 
         return convertedTween;
     }

@@ -11,6 +11,18 @@ describe('Wick.Base', function() {
         });
     });
 
+    describe('#serialize', function () {
+        it('should serialize correctly', function () {
+
+        });
+    });
+
+    describe('#deserialize', function () {
+        it('should deserialize correctly', function () {
+
+        });
+    });
+
     describe('#identifier', function () {
         it('should only accept valid variable names', function() {
             var base = new Wick.Base();
@@ -46,20 +58,27 @@ describe('Wick.Base', function() {
             var child2 = new Wick.Base();
             var child3 = new Wick.Base();
             var child4 = new Wick.Base();
+            var child5 = new Wick.Base();
+
+            var project = new Wick.Project();
+            project.addObject(parent);
 
             child1.identifier = 'foo';
             child2.identifier = 'bar';
             child3.identifier = 'foo';
+            child4.identifier = 'foo';
 
             parent.addChild(child1);
             parent.addChild(child2);
             parent.addChild(child3);
             parent.addChild(child4);
+            parent.addChild(child5);
 
             expect(child1.identifier).to.equal('foo');
             expect(child2.identifier).to.equal('bar');
-            expect(child3.identifier).to.equal('foo copy');
-            expect(child4.identifier).to.equal(null);
+            expect(child3.identifier).to.equal('foo_copy');
+            expect(child4.identifier).to.equal('foo_copy_copy');
+            expect(child5.identifier).to.equal(null);
         });
     });
 
@@ -75,11 +94,11 @@ describe('Wick.Base', function() {
     describe('#parent', function() {
         it('should create parent references', function() {
             var base = new Wick.Base();
-            var dummyChild = {};
+            var dummyChild = new Wick.Base();
             base.addChild(dummyChild);
 
-            expect(base._children.length).to.equal(1);
-            expect(base._children[0]).to.equal(dummyChild);
+            expect(base.children.length).to.equal(1);
+            expect(base.children[0]).to.equal(dummyChild);
             expect(dummyChild.parent).to.equal(base);
         });
 
@@ -166,7 +185,7 @@ describe('Wick.Base', function() {
             var project = new Wick.Project();
 
             var base = new Wick.Base();
-            var child = {};
+            var child = new Wick.Base();
             base.addChild(child);
 
             base.project = project;
@@ -182,18 +201,12 @@ describe('Wick.Base', function() {
             var uuidTestChild1 = new Wick.Base();
             var uuidTestChild2 = new Wick.Base();
             var uuidTestChild3 = new Wick.Base();
-            var uuidTestChild4 = new Wick.Base();
-            var uuidTestChild5 = new Wick.Base();
             uuidTestParent.addChild(uuidTestChild1);
             uuidTestParent.addChild(uuidTestChild2);
             uuidTestParent.addChild(uuidTestChild3);
-            uuidTestChild3.addChild(uuidTestChild4);
-            uuidTestChild3.addChild(uuidTestChild5);
             expect(uuidTestParent.getChildByUUID(uuidTestChild1.uuid)).to.equal(uuidTestChild1);
             expect(uuidTestParent.getChildByUUID(uuidTestChild2.uuid)).to.equal(uuidTestChild2);
             expect(uuidTestParent.getChildByUUID(uuidTestChild3.uuid)).to.equal(uuidTestChild3);
-            expect(uuidTestParent.getChildByUUID(uuidTestChild4.uuid)).to.equal(uuidTestChild4);
-            expect(uuidTestParent.getChildByUUID(uuidTestChild5.uuid)).to.equal(uuidTestChild5);
         });
     });
 });

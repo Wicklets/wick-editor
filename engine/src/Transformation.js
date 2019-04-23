@@ -29,8 +29,6 @@ Wick.Transformation = class {
      * @param {number} opacity -
      */
     constructor (args) {
-        super();
-
         if(!args) args = {};
 
         this.x = args.x === undefined ? 0 : args.x;
@@ -41,6 +39,9 @@ Wick.Transformation = class {
         this.opacity = args.opacity === undefined ? 1 : args.opacity;
     }
 
+    /**
+     * An object containing the values of this transformation.
+     */
     get values () {
         return {
             x: this.x,
@@ -50,5 +51,12 @@ Wick.Transformation = class {
             rotation: this.rotation,
             opacity: this.opacity,
         }
+    }
+
+    /**
+     * Creates a clone of this transformation.
+     */
+    clone () {
+        return new Wick.Transformation(this.values);
     }
 }

@@ -35,8 +35,6 @@ Wick.Project = class extends Wick.Base {
 
         this.project = this;
 
-        this._allObjects = {};
-
         this.name = args.name || 'My Project';
         this.width = args.width || 720;
         this.height = args.height || 405;
@@ -50,12 +48,12 @@ Wick.Project = class extends Wick.Base {
         this.onionSkinSeekBackwards = 1;
         this.onionSkinSeekForwards = 1;
 
+        this.selection = new Wick.Selection();
+
         this.root = new Wick.Clip();
         this.root.identifier = 'Project';
 
         this.focus = this.root;
-
-        this.selection = new Wick.Selection();
 
         this._mousePosition = {x:0, y:0};
         this._isMouseDown = false;
@@ -165,34 +163,9 @@ Wick.Project = class extends Wick.Base {
      */
     deserializeData (data) {
         var object = new Wick[data.classname];
-        this.addObject(object);
+        Wick.ObjectCache.addObject(object);
         object.deserialize(data);
         return object;
-    }
-
-    /**
-     * Add an object to this project.
-     * @param {Wick.Base} object - the object to add
-     */
-    addObject (object) {
-        object.project = this;
-        this._allObjects[object.uuid] = object;
-    }
-
-    /**
-     * Remove all objects that are in the project, but are no longer linked to the root object.
-     * This is basically a garbage collection function.
-     * Only call this when you're ready to finish editing the project because old objects need to be retained somewhere for undo/redo.
-     */
-    removeUnusedObjects () {
-        // TODO
-    }
-
-    /**
-     *
-     */
-    getObjectByUUID (uuid) {
-        return this._allObjects[uuid];
     }
 
     /**
@@ -248,16 +221,16 @@ Wick.Project = class extends Wick.Base {
      * @type {Wick.Selection}
      */
     get selection () {
-        return this._selection;
+        return this.getChildByUUID(this._selection);
     }
 
     set selection (selection) {
         if(this.selection) {
-            this._removeChild(this.selection);
+            this.removeChild(this.selection);
         }
 
-        this._addChild(selection);
-        this._selection = selection;
+        this.addChild(selection);
+        this._selection = selection.uuid;
     }
 
     /**
@@ -345,7 +318,7 @@ Wick.Project = class extends Wick.Base {
      * @type {Wick.Clip}
      */
     get focus () {
-        return this.getChildByUUID(this._focus);
+        return Wick.ObjectCache.getObjectByUUID(this._focus);
     }
 
     set focus (focus) {
@@ -547,10 +520,10 @@ Wick.Project = class extends Wick.Base {
             return;
         }
 
-        var transform = new Wick.Transformation();
-        transform.x = this.selection.center.x;
-        transform.y = this.selection.center.y;
-        var clip = new Wick[type](name, this.selection.getSelectedObjects('Canvas'), transform);
+        var transformation = new Wick.Transformation();
+        transformation.x = this.selection.center.x;
+        transformation.y = this.selection.center.y;
+        var clip = new Wick[type](name, this.selection.getSelectedObjects('Canvas'), transformation);
         this.activeFrame.addClip(clip);
         // TODO add to asset library
         this.selection.clear();

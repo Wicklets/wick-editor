@@ -36,8 +36,8 @@ Wick.ImageAsset = class extends Wick.FileAsset {
         return ['.jpeg', '.jpg', '.png'];
     }
 
-    constructor (filename, src) {
-        super(filename, src);
+    constructor (args) {
+        super(args);
     }
 
     serialize () {
@@ -45,8 +45,8 @@ Wick.ImageAsset = class extends Wick.FileAsset {
         return data;
     }
 
-    static _deserialize (data, object) {
-        super._deserialize(data, object);
+    deserialize (data) {
+        super.deserialize(data);
         return object;
     }
 

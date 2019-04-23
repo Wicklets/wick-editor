@@ -131,10 +131,24 @@ Wick.Base = class {
     set parent (parent) {
         this._parent = parent;
 
-        var self = this;
-        this._children = this._children.map(child => {
-            child.parent = self;
-            return child;
+        this.children.forEach(child => {
+            child.parent = this;
+        });
+    }
+
+    /**
+     * The project which contains the Wick Base object.
+     * @type {Wick.Project}
+     */
+    get project () {
+        return this._project;
+    }
+
+    set project (project) {
+        this._project = project;
+
+        this.children.forEach(child => {
+            child.project = project;
         });
     }
 
@@ -144,7 +158,7 @@ Wick.Base = class {
      */
     get children () {
         return this._children.map(uuid => {
-            return this.project.getObjectByUUID(uuid);
+            return Wick.ObjectCache.getObjectByUUID(uuid);
         });
     }
 
@@ -153,8 +167,12 @@ Wick.Base = class {
      * @param {Wick.Base} child - the child to add
      */
     addChild (child) {
-        this._children.push(child.uuid);
+        Wick.ObjectCache.addObject(child);
+        if(this._children.indexOf(child.uuid) === -1) {
+            this._children.push(child.uuid);
+        }
         child.parent = this;
+        child.project = this.project;
         child.identifier = child._getUniqueIdentifier(child.identifier);
     }
 
@@ -164,8 +182,8 @@ Wick.Base = class {
      */
     removeChild (child) {
         child.parent = null;
-        this._children = this._children.filter(seekChild => {
-            return seekChild.uuid !== child.uuid;
+        this._children = this._children.filter(seekChildUUID => {
+            return seekChildUUID !== child.uuid;
         });
     }
 
@@ -184,7 +202,7 @@ Wick.Base = class {
      * @type {Wick.Clip}
      */
     get parentClip () {
-        return this._getParentByInstanceOf(Wick.Clip);
+        return this.getParentByInstanceOf(Wick.Clip);
     }
 
     /**
@@ -192,7 +210,7 @@ Wick.Base = class {
      * @type {Wick.Timeline}
      */
     get parentTimeline () {
-        return this._getParentByInstanceOf(Wick.Timeline);
+        return this.getParentByInstanceOf(Wick.Timeline);
     }
 
     /**
@@ -200,7 +218,7 @@ Wick.Base = class {
      * @type {Wick.Layer}
      */
     get parentLayer () {
-        return this._getParentByInstanceOf(Wick.Layer);
+        return this.getParentByInstanceOf(Wick.Layer);
     }
 
     /**
@@ -208,23 +226,7 @@ Wick.Base = class {
      * @type {Wick.Frame}
      */
     get parentFrame () {
-        return this._getParentByInstanceOf(Wick.Frame);
-    }
-
-    /**
-     * The project which contains the Wick Base object.
-     * @type {Wick.Project}
-     */
-    get project () {
-        return this._project;
-    }
-
-    set project (project) {
-        this._project = project;
-        this._children = this._children.map(child => {
-            child.project = project;
-            return child;
-        });
+        return this.getParentByInstanceOf(Wick.Frame);
     }
 
     /**
@@ -259,8 +261,8 @@ Wick.Base = class {
         if(this.parent instanceof seekClass) {
             return this.parent;
         } else {
-            if(!this.parent._getParentByInstanceOf) return null;
-            return this.parent._getParentByInstanceOf(seekClass);
+            if(!this.parent.getParentByInstanceOf) return null;
+            return this.parent.getParentByInstanceOf(seekClass);
         }
     }
 
@@ -302,7 +304,7 @@ Wick.Base = class {
         if(otherIdentifiers.indexOf(identifier) === -1) {
             return identifier;
         } else {
-            return identifier + ' copy';
+            return this._getUniqueIdentifier(identifier + '_copy');
         }
     }
 }

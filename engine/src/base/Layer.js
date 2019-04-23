@@ -150,9 +150,7 @@ Wick.Layer = class extends Wick.Base {
      * @param {Wick.Frame} frame The frame to add to the Layer.
      */
     addFrame (frame) {
-        frame._originalLayerIndex = this.index;
-        this.frames.push(frame);
-        this._addChild(frame);
+        this.addChild(frame);
     }
 
     /**
@@ -160,10 +158,7 @@ Wick.Layer = class extends Wick.Base {
      * @param  {Wick.Frame} frame Frame to remove.
      */
     removeFrame (frame) {
-        this.frames = this.frames.filter(checkFrame => {
-            return checkFrame !== frame;
-        });
-        this._removeChild(frame);
+        this.removeChild(frame);
     }
 
     /**

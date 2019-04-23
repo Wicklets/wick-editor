@@ -25,7 +25,7 @@ Wick.Clip = class extends Wick.Tickable {
      * Create a new clip.
      * @param {string} identifier - The identifier of the new clip.
      * @param {Wick.Path|Wick.Clip[]} objects - Optional. A list of objects to add to the clip.
-     * @param {Wick.Transformation} transform - Optional. The initial transformation of the clip.
+     * @param {Wick.Transformation} transformation - Optional. The initial transformation of the clip.
      */
     constructor (args) {
         if(!args) args = {};
@@ -37,7 +37,7 @@ Wick.Clip = class extends Wick.Tickable {
 
         this.identifier = args.identifier || 'New Symbol';
 
-        this.transform = args.transform || new Wick.Transformation();
+        this.transformation = args.transformation || new Wick.Transformation();
 
         this.cursor = 'default';
 
@@ -51,14 +51,14 @@ Wick.Clip = class extends Wick.Tickable {
             });
 
             clips.forEach(clip => {
-                clip.transform.x -= this.transform.x;
-                clip.transform.y -= this.transform.y;
+                clip.transformation.x -= this.transformation.x;
+                clip.transformation.y -= this.transformation.y;
                 this.activeFrame.addClip(clip);
             });
             paths.forEach(path => {
                 path.paperPath.position = new paper.Point(
-                    path.paperPath.position.x - this.transform.x,
-                    path.paperPath.position.y - this.transform.y
+                    path.paperPath.position.x - this.transformation.x,
+                    path.paperPath.position.y - this.transformation.y
                 );
                 this.activeFrame.addPath(path);
             });
@@ -68,7 +68,7 @@ Wick.Clip = class extends Wick.Tickable {
     static deserialize (data) {
         super.deserialize(data, object);
 
-        this.transform = new Wick.Transformation(data.transformation);
+        this.transformation = new Wick.Transformation(data.transformation);
         this._timeline = data.timeline;
 
         return object;
@@ -77,7 +77,7 @@ Wick.Clip = class extends Wick.Tickable {
     serialize () {
         var data = super.serialize();
 
-        data.transform = this.transform.values;
+        data.transformation = this.transformation.values;
         data.timeline = this._timeline;
 
         return data;
@@ -178,14 +178,14 @@ Wick.Clip = class extends Wick.Tickable {
 
         this.timeline.activeFrames.forEach(frame => {
             frame.clips.forEach(clip => {
-                clip.transform.x += this.transform.x;
-                clip.transform.y += this.transform.y;
+                clip.transformation.x += this.transformation.x;
+                clip.transformation.y += this.transformation.y;
                 this.parentTimeline.activeFrame.addClip(clip);
                 leftovers.push(clip);
             });
             frame.paths.forEach(path => {
-                path.paperPath.position.x += this.transform.x;
-                path.paperPath.position.y += this.transform.y;
+                path.paperPath.position.x += this.transformation.x;
+                path.paperPath.position.y += this.transformation.y;
                 this.parentTimeline.activeFrame.addPath(path);
                 leftovers.push(path);
             });
@@ -294,20 +294,20 @@ Wick.Clip = class extends Wick.Tickable {
 
         // Bounds polygon of this clip
         var bounds1 = this.bounds;
-        var polygon1 = new P(new V(this.transform.x, this.transform.y), [
+        var polygon1 = new P(new V(this.transformation.x, this.transformation.y), [
             new V(bounds1.x, bounds1.y),
-            new V(bounds1.x + bounds1.width * this.transform.scaleX, bounds1.y),
-            new V(bounds1.x + bounds1.width * this.transform.scaleX, bounds1.y + bounds1.height * this.transform.scaleY),
-            new V(0, bounds1.y + bounds1.height * this.transform.scaleY)
+            new V(bounds1.x + bounds1.width * this.transformation.scaleX, bounds1.y),
+            new V(bounds1.x + bounds1.width * this.transformation.scaleX, bounds1.y + bounds1.height * this.transformation.scaleY),
+            new V(0, bounds1.y + bounds1.height * this.transformation.scaleY)
         ]);
 
         // Bounds polygon of other clip
         var bounds2 = other.bounds;
-        var polygon2 = new P(new V(other.transform.x, other.transform.y), [
+        var polygon2 = new P(new V(other.transformation.x, other.transformation.y), [
             new V(bounds2.x, bounds2.y),
-            new V(bounds2.x + bounds2.width * this.transform.scaleX, bounds2.y),
-            new V(bounds2.x + bounds2.width * this.transform.scaleX, bounds2.y + bounds2.height * this.transform.scaleY),
-            new V(0, bounds2.y + bounds2.height * this.transform.scaleY)
+            new V(bounds2.x + bounds2.width * this.transformation.scaleX, bounds2.y),
+            new V(bounds2.x + bounds2.width * this.transformation.scaleX, bounds2.y + bounds2.height * this.transformation.scaleY),
+            new V(0, bounds2.y + bounds2.height * this.transformation.scaleY)
         ]);
 
         // Get collision response from SAT
@@ -331,68 +331,68 @@ Wick.Clip = class extends Wick.Tickable {
      * The X position of the clip.
      */
     get x () {
-        return this.transform.x;
+        return this.transformation.x;
     }
 
     set x (x) {
-        this.transform.x = x;
+        this.transformation.x = x;
     }
 
     /**
      * The Y position of the clip.
      */
     get y () {
-        return this.transform.y;
+        return this.transformation.y;
     }
 
     set y (y) {
-        this.transform.y = y;
+        this.transformation.y = y;
     }
 
     /**
      * The X scale of the clip.
      */
     get scaleX () {
-        return this.transform.scaleX;
+        return this.transformation.scaleX;
     }
 
     set scaleX (scaleX) {
-        this.transform.scaleX = scaleX;
+        this.transformation.scaleX = scaleX;
     }
 
     /**
      * The Y scale of the clip.
      */
     get scaleY () {
-        return this.transform.scaleY;
+        return this.transformation.scaleY;
     }
 
     set scaleY (scaleY) {
-        this.transform.scaleY = scaleY;
+        this.transformation.scaleY = scaleY;
     }
 
     /**
      * The rotation of the clip.
      */
     get rotation () {
-        return this.transform.rotation;
+        return this.transformation.rotation;
     }
 
     set rotation (rotation) {
-        this.transform.rotation = rotation;
+        this.transformation.rotation = rotation;
     }
 
     /**
      * The opacity of the clip.
      */
     get opacity () {
-        return this.transform.opacity;
+        return this.transformation.opacity;
     }
 
     set opacity (opacity) {
         opacity = Math.min(1, opacity);
         opacity = Math.max(0, opacity);
-        this.transform.opacity = opacity;
+        this.transformation.opacity = opacity;
     }
 
     /**

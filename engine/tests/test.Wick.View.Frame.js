@@ -84,7 +84,7 @@ describe('Wick.View.Frame', function() {
                 segments: [[0,0], [0,100], [100,100], [100,0]],
                 fillColor: 'black',
             }).exportJSON({asString:false})));
-            clip.transform.x = 100;
+            clip.transformation.x = 100;
             frame.addClip(clip);
 
             var button = new Wick.Button();
@@ -94,7 +94,7 @@ describe('Wick.View.Frame', function() {
                 segments: [[0,0], [0,100], [100,100], [100,0]],
                 fillColor: 'black',
             }).exportJSON({asString:false})));
-            button.transform.x = 200;
+            button.transformation.x = 200;
             frame.addClip(button);
 
             frame.addPath(new Wick.Path(new paper.Path({
@@ -235,19 +235,19 @@ describe('Wick.View.Frame', function() {
             frame.view.clipsLayer.children[0].opacity = 0.5;
             frame.view.applyChanges(frame, frame.view.clipsLayer);
 
-            expect(frame.clips[0].transform.x).to.equal(100);
-            expect(frame.clips[0].transform.y).to.equal(200);
-            expect(frame.clips[0].transform.scaleX).to.equal(1.5);
-            expect(frame.clips[0].transform.scaleY).to.equal(2.5);
-            expect(frame.clips[0].transform.rotation).to.equal(90);
-            expect(frame.clips[0].transform.opacity).to.equal(0.5);
+            expect(frame.clips[0].transformation.x).to.equal(100);
+            expect(frame.clips[0].transformation.y).to.equal(200);
+            expect(frame.clips[0].transformation.scaleX).to.equal(1.5);
+            expect(frame.clips[0].transformation.scaleY).to.equal(2.5);
+            expect(frame.clips[0].transformation.rotation).to.equal(90);
+            expect(frame.clips[0].transformation.opacity).to.equal(0.5);
 
-            expect(frame.clips[1].transform.x).to.equal(0);
-            expect(frame.clips[1].transform.y).to.equal(0);
-            expect(frame.clips[1].transform.scaleX).to.equal(1.0);
-            expect(frame.clips[1].transform.scaleY).to.equal(1.0);
-            expect(frame.clips[1].transform.rotation).to.equal(0);
-            expect(frame.clips[1].transform.opacity).to.equal(1.0);
+            expect(frame.clips[1].transformation.x).to.equal(0);
+            expect(frame.clips[1].transformation.y).to.equal(0);
+            expect(frame.clips[1].transformation.scaleX).to.equal(1.0);
+            expect(frame.clips[1].transformation.scaleY).to.equal(1.0);
+            expect(frame.clips[1].transformation.rotation).to.equal(0);
+            expect(frame.clips[1].transformation.opacity).to.equal(1.0);
         });
 
         it('should update raster data', function() {

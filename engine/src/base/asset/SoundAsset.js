@@ -37,12 +37,12 @@ Wick.SoundAsset = class extends Wick.FileAsset {
         return ['.mp3', '.ogg', '.wav'];
     }
 
-    constructor (filename, src) {
-        super(filename, src);
+    constructor (args) {
+        super(args);
     }
 
-    static _deserialize (data, object) {
-        super._deserialize(data, object);
+    deserialize (data) {
+        super.deserialize(data);
         return object;
     }
 

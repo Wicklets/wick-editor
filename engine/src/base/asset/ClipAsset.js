@@ -20,34 +20,40 @@
 Wick.ClipAsset = class extends Wick.Asset {
     /**
      * Creates a new Clip Asset.
+     * @param {Wick.Clip} clip - the clip to link this asset to
      */
-    constructor (clip) {
-        super(clip ? clip.identifier : null);
+    constructor (args) {
+        if(!args) args = {};
+
+        args.identifier = args.clip ? args.clip.identifier : null;
+        super(args);
 
         this.clipType = null;
         this.linkedClips = [];
 
-        if(clip) this.useClipAsSource(clip);
+        if(args.clip) this.useClipAsSource(args.clip);
     }
 
-    static _deserialize (data, object) {
-        super._deserialize(data, object);
-
-        object.timeline = Wick.Timeline.deserialize(data.timeline);
-
-        return object;
+    deserialize (data) {
+        super.deserialize(data);
+        this._timeline = data.timeline;
     }
 
     serialize () {
         var data = super.serialize();
-
-        data.timeline = this.timeline.serialize();
-
+        data.timeline = this._timeline;
         return data;
     }
 
     get classname () {
         return 'ClipAsset';
+    }
+
+    /**
+     * The timeline that this asset is linked to.
+     */
+    get timeline () {
+        return this.getChildByUUID(this._timeline);
     }
 
     /**

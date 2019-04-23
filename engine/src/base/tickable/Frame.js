@@ -32,7 +32,6 @@ Wick.Frame = class extends Wick.Tickable {
 
         this.start = args.start || 1;
         this.end = args.end || this.start;
-        this._originalLayerIndex = null;
 
         this._soundAssetUUID = null;
         this._soundID = null;
@@ -48,8 +47,6 @@ Wick.Frame = class extends Wick.Tickable {
         this._soundAssetUUID = data.sound;
         this._soundVolume = data.soundVolume === undefined ? 1.0 : data.soundVolume;
 
-        this._originalLayerIndex = data.originalLayerIndex;
-
         return object;
     }
 
@@ -62,38 +59,11 @@ Wick.Frame = class extends Wick.Tickable {
         data.sound = this._soundAssetUUID;
         data.soundVolume = this._soundVolume;
 
-        data.originalLayerIndex = this._originalLayerIndex;
-
         return data;
     }
 
     get classname () {
         return 'Frame';
-    }
-
-    /**
-     *
-     */
-    get paths () {
-
-    }
-
-    /**
-     *
-     */
-    get clips () {
-        return this.children.filter(child => {
-            return child instanceof Wick.Clip;
-        });
-    }
-
-    /**
-     *
-     */
-    get tweens () {
-        return this.children.filter(child => {
-            return child instanceof Wick.Tween;
-        });
     }
 
     /**
@@ -118,7 +88,7 @@ Wick.Frame = class extends Wick.Tickable {
      */
     get onScreen () {
         if(!this.parent) return true;
-        return this.inPosition(this.parent.parent.playheadPosition);
+        return this.inPosition(this.parentTimeline.playheadPosition);
     }
 
     /**
@@ -127,7 +97,7 @@ Wick.Frame = class extends Wick.Tickable {
      */
     get sound () {
         var uuid = this._soundAssetUUID;
-        return uuid ? this.project.getAsset(uuid) : null;
+        return uuid ? this.project.getAssetByUUID(uuid) : null;
     }
 
     set sound (soundAsset) {
@@ -193,7 +163,7 @@ Wick.Frame = class extends Wick.Tickable {
      * @type {Wick.Path[]}
      */
     get paths () {
-        return this._paths;
+        return [];
     }
 
     /**
@@ -201,7 +171,19 @@ Wick.Frame = class extends Wick.Tickable {
      * @type {Wick.Clip[]}
      */
     get clips () {
-        return this._clips;
+        return this.children.filter(child => {
+            return child instanceof Wick.Clip;
+        });
+    }
+
+    /**
+     * The tweens on this frame.
+     * @type {Wick.Tween[]}
+     */
+    get tweens () {
+        return this.children.filter(child => {
+            return child instanceof Wick.Tween;
+        });
     }
 
     /**
@@ -217,7 +199,7 @@ Wick.Frame = class extends Wick.Tickable {
      * @type {number}
      */
     get layerIndex () {
-        return this._originalLayerIndex;
+        return this.parentLayer.index;
     }
 
     /**
@@ -353,7 +335,7 @@ Wick.Frame = class extends Wick.Tickable {
     applyTweenTransforms () {
         var tween = this.getActiveTween();
         if(tween) {
-            this._clips.forEach(clip => {
+            this.clips.forEach(clip => {
                 tween.applyTransformsToClip(clip);
             });
         }

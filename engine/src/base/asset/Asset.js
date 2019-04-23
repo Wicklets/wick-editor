@@ -22,16 +22,16 @@ Wick.Asset = class extends Wick.Base {
      * Creates a new Wick Asset.
      * @param {string} filename - the filename of the asset
      */
-    constructor (name) {
-        super();
+    constructor (args) {
+        if(!args) args = {};
+        super(args);
 
-        this.name = name;
+        this.name = args.name;
     }
 
-    static _deserialize (data, object) {
-        super._deserialize(data, object);
-        object.name = data.name;
-        return object;
+    deserialize (data) {
+        super.deserialize(data);
+        this.name = data.name;
     }
 
     serialize () {

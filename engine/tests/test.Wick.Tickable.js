@@ -9,6 +9,7 @@ describe('Wick.Tickable', function() {
         });
     });
 
+/*
     describe('#serialize', function () {
         it('should serialize correctly', function() {
             var tickable = new Wick.Tickable();
@@ -34,6 +35,7 @@ describe('Wick.Tickable', function() {
             expect(tickable.scripts instanceof Array).to.equal(true);
         });
     });
+*/
 
     describe('#scripts', function () {
 
@@ -79,7 +81,7 @@ describe('Wick.Tickable', function() {
             tickable.addScript('unload', 'this.tickState = "unload";');
 
             var parent = new Wick.Base();
-            parent._addChild(tickable);
+            parent.addChild(tickable);
 
             parent.onScreen = false;
             tickable.tick();
@@ -102,7 +104,7 @@ describe('Wick.Tickable', function() {
             tickable.addScript('load', '');
 
             var parent = new Wick.Base();
-            parent._addChild(tickable);
+            parent.addChild(tickable);
             parent.onScreen = false;
 
             var error = tickable.tick();
@@ -114,7 +116,7 @@ describe('Wick.Tickable', function() {
             tickable.addScript('load', 'this.randomVariable = "loaded";');
 
             var parent = new Wick.Base();
-            parent._addChild(tickable);
+            parent.addChild(tickable);
             parent.onScreen = true;
 
             tickable.tick();
@@ -126,7 +128,7 @@ describe('Wick.Tickable', function() {
             tickable.addScript('load', 'var randomVariable = "a"; this.randomVariable = randomVariable');
 
             var parent = new Wick.Base();
-            parent._addChild(tickable);
+            parent.addChild(tickable);
             parent.onScreen = true;
 
             tickable.tick();
@@ -140,7 +142,7 @@ describe('Wick.Tickable', function() {
             tickable.addScript('unload', 'this.randomVariable = null;');
 
             var parent = new Wick.Base();
-            parent._addChild(tickable);
+            parent.addChild(tickable);
             parent.onScreen = true;
 
             tickable.tick();
@@ -166,7 +168,7 @@ describe('Wick.Tickable', function() {
 
             // Add tickable to a parent so we can tick it!
             var parent = new Wick.Base();
-            parent._addChild(tickable);
+            parent.addChild(tickable);
             parent.onScreen = true;
 
             tickable.addScript('load', 'fn();\nfn(');
@@ -193,7 +195,7 @@ describe('Wick.Tickable', function() {
             tickable.addScript('update', 'var i = 0;\ni++\n\nthisWillCauseAnError();');
 
             var parent = new Wick.Base();
-            parent._addChild(tickable);
+            parent.addChild(tickable);
             parent.onScreen = true;
 
             var error = tickable.tick();

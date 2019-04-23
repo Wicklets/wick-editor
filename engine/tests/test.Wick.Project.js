@@ -55,6 +55,7 @@ describe('Wick.Project', function() {
         });
     });
 
+    /*
     describe('#serialize', function () {
         it('should serialize correctly', function() {
             var project = new Wick.Project();
@@ -143,154 +144,150 @@ describe('Wick.Project', function() {
             expect(projectFromData.focus).to.equal(projectFromData.root.activeFrame.clips[0]);
         });
     });
+    */
 
     describe('#fromWickFileURL', function () {
 
     });
 
     describe('#focus', function () {
-      it('should clear selection when focus is changed', function () {
-        var project = new Wick.Project();
+        it('should clear selection when focus is changed', function () {
+            var project = new Wick.Project();
 
-        var clip1 = new Wick.Clip();
-        project.activeFrame.addClip(clip1);
+            var clip1 = new Wick.Clip();
+            project.activeFrame.addClip(clip1);
 
-        var clip2 = new Wick.Clip();
-        project.activeFrame.addClip(clip2);
+            var clip2 = new Wick.Clip();
+            project.activeFrame.addClip(clip2);
 
-        project.selection.select(clip1);
-        project.selection.select(clip2);
+            project.selection.select(clip1);
+            project.selection.select(clip2);
 
-        project.focus = project.root;
-        expect(project.selection.numObjects).to.equal(2);
+            project.focus = project.root;
+            expect(project.selection.numObjects).to.equal(2);
 
-        project.focus = clip1;
-        expect(project.selection.numObjects).to.equal(0);
+            project.focus = clip1;
+            expect(project.selection.numObjects).to.equal(0);
 
-        project.selection.select(clip1.activeFrame);
-        project.focus = clip1;
-        expect(project.selection.numObjects).to.equal(1);
-        project.focus = project.root;
-        expect(project.selection.numObjects).to.equal(0);
-      });
+            project.selection.select(clip1.activeFrame);
+            project.focus = clip1;
+            expect(project.selection.numObjects).to.equal(1);
+            project.focus = project.root;
+            expect(project.selection.numObjects).to.equal(0);
+        });
 
-      it('should reset plahead positions of subclips on focus change to parent', function () {
-        var project = new Wick.Project();
-        project.focus.activeFrame.end = 10;
-        project.focus.timeline.playheadPosition = 2;
+        it('should reset plahead positions of subclips on focus change to parent', function () {
+            var project = new Wick.Project();
+            project.focus.activeFrame.end = 10;
+            project.focus.timeline.playheadPosition = 2;
 
-        var clip1 = new Wick.Clip();
-        clip1.activeFrame.end = 5;
-        clip1.timeline.playheadPosition = 3;
-        project.activeFrame.addClip(clip1);
+            var clip1 = new Wick.Clip();
+            clip1.activeFrame.end = 5;
+            clip1.timeline.playheadPosition = 3;
+            project.activeFrame.addClip(clip1);
 
-        var clip2 = new Wick.Clip();
-        clip2.activeFrame.end = 5;
-        clip2.timeline.playheadPosition = 4;
-        project.activeFrame.addClip(clip2);
+            var clip2 = new Wick.Clip();
+            clip2.activeFrame.end = 5;
+            clip2.timeline.playheadPosition = 4;
+            project.activeFrame.addClip(clip2);
 
-        // Updating focus should always reset subclip timelines.
-        project.focus = project.root;
-        expect(project.root.timeline.playheadPosition).to.equal(2);
-        expect(clip1.timeline.playheadPosition).to.equal(1);
-        expect(clip2.timeline.playheadPosition).to.equal(1);
+            // Updating focus should always reset subclip timelines.
+            project.focus = project.root;
+            expect(project.root.timeline.playheadPosition).to.equal(2);
+            expect(clip1.timeline.playheadPosition).to.equal(1);
+            expect(clip2.timeline.playheadPosition).to.equal(1);
 
-        // Change focus to subclip, no playhead positions should change
-        project.focus = clip1;
-        expect(project.root.timeline.playheadPosition).to.equal(2);
-        expect(clip1.timeline.playheadPosition).to.equal(1);
-        expect(clip2.timeline.playheadPosition).to.equal(1);
+            // Change focus to subclip, no playhead positions should change
+            project.focus = clip1;
+            expect(project.root.timeline.playheadPosition).to.equal(2);
+            expect(clip1.timeline.playheadPosition).to.equal(1);
+            expect(clip2.timeline.playheadPosition).to.equal(1);
 
-        // Change playhead position of focused clip and set focus again, should not change playhead positions
-        clip1.timeline.playheadPosition = 5;
-        project.focus = clip1;
-        expect(project.root.timeline.playheadPosition).to.equal(2);
-        expect(clip1.timeline.playheadPosition).to.equal(5);
-        expect(clip2.timeline.playheadPosition).to.equal(1);
+            // Change playhead position of focused clip and set focus again, should not change playhead positions
+            clip1.timeline.playheadPosition = 5;
+            project.focus = clip1;
+            expect(project.root.timeline.playheadPosition).to.equal(2);
+            expect(clip1.timeline.playheadPosition).to.equal(5);
+            expect(clip2.timeline.playheadPosition).to.equal(1);
 
-        // Focus root again, playhead positions should reset
-        project.focus = project.root;
-        expect(project.root.timeline.playheadPosition).to.equal(2);
-        expect(clip1.timeline.playheadPosition).to.equal(1);
-        expect(clip2.timeline.playheadPosition).to.equal(1);
-      });
+            // Focus root again, playhead positions should reset
+            project.focus = project.root;
+            expect(project.root.timeline.playheadPosition).to.equal(2);
+            expect(clip1.timeline.playheadPosition).to.equal(1);
+            expect(clip2.timeline.playheadPosition).to.equal(1);
+        });
     })
 
     describe('#addObject', function () {
-      it('should add paths to the project', function() {
-        let project = new Wick.Project();
-        let path = new Wick.Path();
-        expect(project.activeFrame.paths.length).to.equal(0);
-        let returnValue = project.addObject(path);
-        expect(returnValue).to.equal(true);
-        expect(project.activeFrame.paths.length).to.equal(1);
-        expect(project.activeFrame.paths[0].uuid).to.equal(path.uuid);
-        expect(project.getChildByUUID(path.uuid).uuid).to.equal(path.uuid);
-      });
+        it('should add paths to the project', function() {
+            let project = new Wick.Project();
+            let path = new Wick.Path();
+            expect(project.activeFrame.paths.length).to.equal(0);
+            let returnValue = project.addObject(path);
+            expect(returnValue).to.equal(true);
+            expect(project.activeFrame.paths.length).to.equal(1);
+            expect(project.activeFrame.paths[0].uuid).to.equal(path.uuid);
+            expect(project.getChildByUUID(path.uuid).uuid).to.equal(path.uuid);
+        });
 
-      it('should add clips to the project', function() {
-        let project = new Wick.Project();
-        let clip = new Wick.Clip();
-        expect(project.activeFrame.clips.length).to.equal(0);
-        let returnValue = project.addObject(clip);
-        expect(returnValue).to.equal(true);
-        expect(project.activeFrame.clips.length).to.equal(1);
-        expect(project.activeFrame.clips[0].uuid).to.equal(clip.uuid);
-        expect(project.getChildByUUID(clip.uuid).uuid).to.equal(clip.uuid);
-      });
+        it('should add clips to the project', function() {
+            let project = new Wick.Project();
+            let clip = new Wick.Clip();
+            expect(project.activeFrame.clips.length).to.equal(0);
+            let returnValue = project.addObject(clip);
+            expect(returnValue).to.equal(true);
+            expect(project.activeFrame.clips.length).to.equal(1);
+            expect(project.activeFrame.clips[0].uuid).to.equal(clip.uuid);
+        });
 
-      it('should add frames to the project', function() {
-        let project = new Wick.Project();
-        let frame = new Wick.Frame();
-        expect(project.activeLayer.frames.length).to.equal(1);
-        let returnValue = project.addObject(frame);
-        expect(returnValue).to.equal(true);
-        expect(project.activeLayer.frames.length).to.equal(2);
-        expect(project.activeLayer.frames[1].uuid).to.equal(frame.uuid);
-        expect(project.getChildByUUID(frame.uuid).uuid).to.equal(frame.uuid);
-      });
+        it('should add frames to the project', function() {
+            let project = new Wick.Project();
+            let frame = new Wick.Frame();
+            expect(project.activeLayer.frames.length).to.equal(1);
+            let returnValue = project.addObject(frame);
+            expect(returnValue).to.equal(true);
+            expect(project.activeLayer.frames.length).to.equal(2);
+            expect(project.activeLayer.frames[1].uuid).to.equal(frame.uuid);
+        });
 
-      it('should add layers to the project', function() {
-        let project = new Wick.Project();
-        let layer = new Wick.Layer();
-        expect(project.activeTimeline.layers.length).to.equal(1);
-        let returnValue = project.addObject(layer);
-        expect(returnValue).to.equal(true);
-        expect(project.activeTimeline.layers.length).to.equal(2);
-        expect(project.activeTimeline.layers[1].uuid).to.equal(layer.uuid);
-        expect(project.getChildByUUID(layer.uuid).uuid).to.equal(layer.uuid);
-      });
+        it('should add layers to the project', function() {
+            let project = new Wick.Project();
+            let layer = new Wick.Layer();
+            expect(project.activeTimeline.layers.length).to.equal(1);
+            let returnValue = project.addObject(layer);
+            expect(returnValue).to.equal(true);
+            expect(project.activeTimeline.layers.length).to.equal(2);
+            expect(project.activeTimeline.layers[1].uuid).to.equal(layer.uuid);
+        });
 
-      it('should add tweens to the project', function() {
-        let project = new Wick.Project();
-        let tween = new Wick.Tween();
-        expect(project.activeFrame.tweens.length).to.equal(0);
-        let returnValue = project.addObject(tween);
-        expect(returnValue).to.equal(true);
-        expect(project.activeFrame.tweens.length).to.equal(1);
-        expect(project.activeFrame.tweens[0].uuid).to.equal(tween.uuid);
-        expect(project.getChildByUUID(tween.uuid).uuid).to.equal(tween.uuid);
-      });
+        it('should add tweens to the project', function() {
+            let project = new Wick.Project();
+            let tween = new Wick.Tween();
+            expect(project.activeFrame.tweens.length).to.equal(0);
+            let returnValue = project.addObject(tween);
+            expect(returnValue).to.equal(true);
+            expect(project.activeFrame.tweens.length).to.equal(1);
+            expect(project.activeFrame.tweens[0].uuid).to.equal(tween.uuid);
+        });
 
-      it('should add assets to the project', function() {
-        let project = new Wick.Project();
-        let asset = new Wick.Asset();
-        expect(project.getAssets().length).to.equal(0);
-        let returnValue = project.addObject(asset);
-        expect(returnValue).to.equal(true);
-        expect(project.getAssets().length).to.equal(1);
-        expect(project.getAssets()[0].uuid).to.equal(asset.uuid);
-        expect(project.getChildByUUID(asset.uuid).uuid).to.equal(asset.uuid);
-      });
+        it('should add assets to the project', function() {
+            let project = new Wick.Project();
+            let asset = new Wick.Asset();
+            expect(project.getAssets().length).to.equal(0);
+            let returnValue = project.addObject(asset);
+            expect(returnValue).to.equal(true);
+            expect(project.getAssets().length).to.equal(1);
+            expect(project.getAssets()[0].uuid).to.equal(asset.uuid);
+        });
 
-      it('should not add random objects to the project', function() {
-        let project = new Wick.Project();
-        let obj = {};
-        expect(project.activeFrame.children.length).to.equal(0);
-        let returnValue = project.addObject(obj);
-        expect(returnValue).to.equal(false);
-        expect(project.activeFrame.children.length).to.equal(0);
-      });
+        it('should not add random objects to the project', function() {
+            let project = new Wick.Project();
+            let obj = {};
+            expect(project.activeFrame.children.length).to.equal(0);
+            let returnValue = project.addObject(obj);
+            expect(returnValue).to.equal(false);
+            expect(project.activeFrame.children.length).to.equal(0);
+        });
     });
 
     describe('#importFile', function () {
@@ -362,7 +359,7 @@ describe('Wick.Project', function() {
 
         it('should advance timeline on tick', function() {
             var project = new Wick.Project();
-            project.focus.timeline.layers[0].addFrame(new Wick.Frame(2));
+            project.focus.timeline.layers[0].addFrame(new Wick.Frame({start:2}));
             project.tick();
             project.tick(); // (tick twice because first tick calls onActivated not onActive)
             expect(project.focus.timeline.playheadPosition).to.equal(2);
@@ -371,7 +368,7 @@ describe('Wick.Project', function() {
         it('should advance timeline on tick (inside a clip)', function() {
             var project = new Wick.Project();
             var focus = new Wick.Clip();
-            project.addObject(focus);
+            project.activeFrame.addClip(focus);
             project.focus = focus;
 
             focus.timeline.addLayer(new Wick.Layer());
@@ -408,61 +405,94 @@ describe('Wick.Project', function() {
             var clip = new Wick.Clip();
             frame.addClip(clip);
 
-            var tweenA = new Wick.Tween(1, new Wick.Transformation(0, 0, 1, 1, 0, 1), 0);
-            var tweenB = new Wick.Tween(5, new Wick.Transformation(100, 200, 2, 0.5, 180, 0.0), 0);
-            var tweenC = new Wick.Tween(9, new Wick.Transformation(100, 200, 2, 0.5, 180, 1.0), 0);
+            var tweenA = new Wick.Tween({
+                playheadPosition: 1,
+                transformation: new Wick.Transformation({
+                    x: 0,
+                    y: 0,
+                    scaleX: 1,
+                    scaleY: 1,
+                    rotation: 0,
+                    opacity: 1,
+                }),
+                fullRotations: 0,
+            });
+            var tweenB = new Wick.Tween({
+                playheadPosition: 5,
+                transformation: new Wick.Transformation({
+                    x: 100,
+                    y: 200,
+                    scaleX: 2,
+                    scaleY: 0.5,
+                    rotation: 180,
+                    opacity: 0.0,
+                }),
+                fullRotations: 0,
+            });
+            var tweenC = new Wick.Tween({
+                playheadPosition: 9,
+                transformation: new Wick.Transformation({
+                    x: 100,
+                    y: 200,
+                    scaleX: 2,
+                    scaleY: 0.5,
+                    rotation: 180,
+                    opacity: 1.0,
+                }),
+                fullRotations: 0,
+            });
             frame.addTween(tweenA);
             frame.addTween(tweenB);
             frame.addTween(tweenC);
 
             project.tick(); // playhead = 1
 
-            expect(clip.transform.x).to.be.closeTo(0, 0.01);
-            expect(clip.transform.y).to.be.closeTo(0, 0.01);
-            expect(clip.transform.scaleX).to.be.closeTo(1, 0.01);
-            expect(clip.transform.scaleY).to.be.closeTo(1, 0.01);
-            expect(clip.transform.rotation).to.be.closeTo(0, 0.01);
-            expect(clip.transform.opacity).to.be.closeTo(1, 0.01);
+            expect(clip.transformation.x).to.be.closeTo(0, 0.01);
+            expect(clip.transformation.y).to.be.closeTo(0, 0.01);
+            expect(clip.transformation.scaleX).to.be.closeTo(1, 0.01);
+            expect(clip.transformation.scaleY).to.be.closeTo(1, 0.01);
+            expect(clip.transformation.rotation).to.be.closeTo(0, 0.01);
+            expect(clip.transformation.opacity).to.be.closeTo(1, 0.01);
 
             project.tick(); // playhead = 2
             project.tick(); // playhead = 3
 
-            expect(clip.transform.x).to.be.closeTo(50, 0.01);
-            expect(clip.transform.y).to.be.closeTo(100, 0.01);
-            expect(clip.transform.scaleX).to.be.closeTo(1.5, 0.01);
-            expect(clip.transform.scaleY).to.be.closeTo(0.75, 0.01);
-            expect(clip.transform.rotation).to.be.closeTo(90, 0.01);
-            expect(clip.transform.opacity).to.be.closeTo(0.5, 0.01);
+            expect(clip.transformation.x).to.be.closeTo(50, 0.01);
+            expect(clip.transformation.y).to.be.closeTo(100, 0.01);
+            expect(clip.transformation.scaleX).to.be.closeTo(1.5, 0.01);
+            expect(clip.transformation.scaleY).to.be.closeTo(0.75, 0.01);
+            expect(clip.transformation.rotation).to.be.closeTo(90, 0.01);
+            expect(clip.transformation.opacity).to.be.closeTo(0.5, 0.01);
 
             project.tick(); // playhead = 4
             project.tick(); // playhead = 5
 
-            expect(clip.transform.x).to.be.closeTo(100, 0.01);
-            expect(clip.transform.y).to.be.closeTo(200, 0.01);
-            expect(clip.transform.scaleX).to.be.closeTo(2, 0.01);
-            expect(clip.transform.scaleY).to.be.closeTo(0.5, 0.01);
-            expect(clip.transform.rotation).to.be.closeTo(180, 0.01);
-            expect(clip.transform.opacity).to.be.closeTo(0.0, 0.01);
+            expect(clip.transformation.x).to.be.closeTo(100, 0.01);
+            expect(clip.transformation.y).to.be.closeTo(200, 0.01);
+            expect(clip.transformation.scaleX).to.be.closeTo(2, 0.01);
+            expect(clip.transformation.scaleY).to.be.closeTo(0.5, 0.01);
+            expect(clip.transformation.rotation).to.be.closeTo(180, 0.01);
+            expect(clip.transformation.opacity).to.be.closeTo(0.0, 0.01);
 
             project.tick(); // playhead = 6
             project.tick(); // playhead = 7
 
-            expect(clip.transform.x).to.be.closeTo(100, 0.01);
-            expect(clip.transform.y).to.be.closeTo(200, 0.01);
-            expect(clip.transform.scaleX).to.be.closeTo(2, 0.01);
-            expect(clip.transform.scaleY).to.be.closeTo(0.5, 0.01);
-            expect(clip.transform.rotation).to.be.closeTo(180, 0.01);
-            expect(clip.transform.opacity).to.be.closeTo(0.5, 0.01);
+            expect(clip.transformation.x).to.be.closeTo(100, 0.01);
+            expect(clip.transformation.y).to.be.closeTo(200, 0.01);
+            expect(clip.transformation.scaleX).to.be.closeTo(2, 0.01);
+            expect(clip.transformation.scaleY).to.be.closeTo(0.5, 0.01);
+            expect(clip.transformation.rotation).to.be.closeTo(180, 0.01);
+            expect(clip.transformation.opacity).to.be.closeTo(0.5, 0.01);
 
             project.tick(); // playhead = 8
             project.tick(); // playhead = 9
 
-            expect(clip.transform.x).to.be.closeTo(100, 0.01);
-            expect(clip.transform.y).to.be.closeTo(200, 0.01);
-            expect(clip.transform.scaleX).to.be.closeTo(2, 0.01);
-            expect(clip.transform.scaleY).to.be.closeTo(0.5, 0.01);
-            expect(clip.transform.rotation).to.be.closeTo(180, 0.01);
-            expect(clip.transform.opacity).to.be.closeTo(1.0, 0.01);
+            expect(clip.transformation.x).to.be.closeTo(100, 0.01);
+            expect(clip.transformation.y).to.be.closeTo(200, 0.01);
+            expect(clip.transformation.scaleX).to.be.closeTo(2, 0.01);
+            expect(clip.transformation.scaleY).to.be.closeTo(0.5, 0.01);
+            expect(clip.transformation.rotation).to.be.closeTo(180, 0.01);
+            expect(clip.transformation.opacity).to.be.closeTo(1.0, 0.01);
         });
     });
 
@@ -519,7 +549,10 @@ describe('Wick.Project', function() {
 
         it('should stop all sounds', function (done) {
             var project = new Wick.Project();
-            var sound = new Wick.SoundAsset('test.wav', TEST_SOUND_SRC);
+            var sound = new Wick.SoundAsset({
+                filename: 'test.wav',
+                src: TEST_SOUND_SRC,
+            });
             project.addAsset(sound);
             project.activeFrame.sound = sound;
             project.activeFrame.end = 10;
@@ -703,12 +736,14 @@ describe('Wick.Project', function() {
             var project = new Wick.Project();
             Wick.FileCache.clear();
 
-            var imageAsset = new Wick.ImageAsset();
-            imageAsset.src = TEST_IMAGE_SRC;
+            var imageAsset = new Wick.ImageAsset({
+                src: TEST_IMAGE_SRC,
+            });
             project.addAsset(imageAsset);
 
-            var soundAsset = new Wick.SoundAsset();
-            soundAsset.src = TEST_SOUND_SRC;
+            var soundAsset = new Wick.SoundAsset({
+                src: TEST_SOUND_SRC,
+            });
             project.addAsset(soundAsset);
 
             project.exportAsWickFile(function (wickFile) {
@@ -730,12 +765,14 @@ describe('Wick.Project', function() {
         it('should return all assets', function () {
             var project = new Wick.Project();
 
-            var imageAsset = new Wick.ImageAsset();
-            imageAsset.src = TEST_IMAGE_SRC;
+            var imageAsset = new Wick.ImageAsset({
+                src: TEST_IMAGE_SRC
+            });
             project.addAsset(imageAsset);
 
-            var soundAsset = new Wick.SoundAsset();
-            soundAsset.src = TEST_SOUND_SRC;
+            var soundAsset = new Wick.SoundAsset({
+                src: TEST_SOUND_SRC,
+            });
             project.addAsset(soundAsset);
 
             var clipAsset = new Wick.ClipAsset();

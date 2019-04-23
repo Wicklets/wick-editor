@@ -102,7 +102,7 @@ Wick.Selection = class extends Wick.Base {
      */
     clear (filter) {
         this.project.selection.getSelectedObjects(filter).forEach(object => {
-            this.deselect(object)
+            this.deselect(object);
         });
 
         // Update the view so that all the selection transform values are updated
@@ -136,7 +136,7 @@ Wick.Selection = class extends Wick.Base {
      */
     getSelectedObjects (filter) {
         var objects = this._selectedObjectsUUIDs.map(uuid => {
-            return this.project.getChildByUUID(uuid);
+            return Wick.ObjectCache.getObjectByUUID(uuid);
         });
 
         if(Wick.Selection.LOCATION_NAMES.indexOf(filter) !== -1) {

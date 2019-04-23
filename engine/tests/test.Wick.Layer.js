@@ -9,7 +9,7 @@ describe('Wick.Layer', function() {
             expect(layer.hidden).to.equal(false);
         });
     });
-
+/*
     describe('#serialize', function () {
         it('should serialize correctly', function() {
             var layer = new Wick.Layer();
@@ -46,7 +46,7 @@ describe('Wick.Layer', function() {
             expect(layer.frames[0] instanceof Wick.Frame).to.equal(true);
         });
     });
-
+*/
     describe('#addFrame', function () {
         it('should add frames', function() {
             var layer = new Wick.Layer();

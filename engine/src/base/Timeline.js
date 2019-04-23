@@ -281,7 +281,7 @@ Wick.Timeline = class extends Wick.Base {
 
         return framesInRange;
     }
-
+/*
     insertFrames (frames, playheadPosition, layerIndex) {
         if(frames.length === 0) return;
 
@@ -332,7 +332,7 @@ Wick.Timeline = class extends Wick.Base {
             this.layers[frame.layerIndex].addFrame(frame);
         });
     }
-
+*/
     /**
      * Advances the timeline one frame forwards. Loops back to beginning if the end is reached.
      */
