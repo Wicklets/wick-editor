@@ -47,8 +47,9 @@ Wick.Tickable = class extends Wick.Base {
     /**
      * Create a new tickable object.
      */
-    constructor () {
-        super();
+    constructor (args) {
+        if(!args) args = {};
+        super(args);
 
         this._onscreen = false;
         this._onscreenLastTick = false;
@@ -61,11 +62,11 @@ Wick.Tickable = class extends Wick.Base {
         this.cursor = 'default';
     }
 
-    static _deserialize (data, object) {
-        super._deserialize(data, object);
+    deserialize (data) {
+        super.deserialize(data);
 
-        object._scripts = [].concat(data.scripts || []);
-        object.cursor = data.cursor;
+        this._scripts = [].concat(data.scripts || []);
+        this.cursor = data.cursor;
 
         return object;
     }

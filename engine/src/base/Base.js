@@ -24,7 +24,9 @@ Wick.Base = class {
     /**
      * Creates a Base object.
      */
-    constructor () {
+    constructor (args) {
+        if(!args) args = {};
+
         this._uuid = uuidv4();
         this._identifier = null;
 

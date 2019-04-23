@@ -23,28 +23,26 @@
 Wick.Layer = class extends Wick.Base {
     /**
      * Called when creating a Wick Layer.
-     * @param {string} name Name of the layer.
+     * @param {string} name - Name of the layer.
+     * @param {boolean} locked - Is the layer locked?
+     * @param {boolean} hideen - Is the layer hidden?
      */
-    constructor (name) {
-        super();
+    constructor (args) {
+        if(!args) args = {};
+        super(args);
 
-        this.locked = false;
-        this.hidden = false;
+        this.locked = args.locked === undefined ? false : args.locked;
+        this.hidden = args.hidden === undefined ? false : args.hidden;
 
         this.name = name || 'New Layer';
     }
 
-    static _deserialize (data, object) {
-        super._deserialize(data, object);
+    static deserialize (data) {
+        super.deserialize(data);
 
-        object.locked = data.locked;
-        object.hidden = data.hidden;
-
-        object.name = data.name;
-
-        data.frames.forEach(frameData => {
-            object.addFrame(Wick.Frame.deserialize(frameData));
-        });
+        this.locked = data.locked;
+        this.hidden = data.hidden;
+        this.name = data.name;
 
         return object;
     }
@@ -54,12 +52,7 @@ Wick.Layer = class extends Wick.Base {
 
         data.locked = this.locked;
         data.hidden = this.hidden;
-
         data.name = this.name;
-
-        data.frames = this.frames.map(frame => {
-            return frame.serialize();
-        });
 
         return data;
     }
@@ -73,7 +66,9 @@ Wick.Layer = class extends Wick.Base {
      * @type {Wick.Frame[]}
      */
     get frames () {
-        
+        return this.children.filter(child => {
+            return child instanceof Wick.Frame;
+        })
     }
 
     /**

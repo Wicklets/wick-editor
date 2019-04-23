@@ -28,9 +28,8 @@ Wick.Clip = class extends Wick.Tickable {
      * @param {Wick.Transformation} transform - Optional. The initial transformation of the clip.
      */
     constructor (args) {
-        super();
-
         if(!args) args = {};
+        super(args);
 
         this.timeline = new Wick.Timeline();
         this.timeline.addLayer(new Wick.Layer());

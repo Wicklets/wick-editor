@@ -22,15 +22,14 @@
  * Buttons are just clips with special timelines controlled by mouse interactions.
  */
 Wick.Button = class extends Wick.Clip {
-    constructor (identifier, objects, transform) {
-        super(identifier, objects, transform);
+    constructor (args) {
+        super(args);
 
         this.cursor = 'pointer';
     }
 
-    static _deserialize (data, object) {
-        super._deserialize(data, object);
-        return object;
+    deserialize (data) {
+        super.deserialize(data);
     }
 
     serialize () {

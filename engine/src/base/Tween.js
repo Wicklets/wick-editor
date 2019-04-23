@@ -39,12 +39,13 @@ Wick.Tween = class extends Wick.Base {
      * @param {Wick.Transform} transform - the transformation this tween will apply to child objects
      * @param {number} fullRotations - the number of rotations to add to the tween's transformation
      */
-    constructor (playheadPosition, transform, fullRotations) {
-        super();
+    constructor (args) {
+        if(!args) args = {};
+        super(args);
 
-        this.playheadPosition = playheadPosition || 1;
-        this.transform = transform || new Wick.Transformation();
-        this.fullRotations = fullRotations === undefined ? 0 : fullRotations;
+        this.playheadPosition = args.playheadPosition || 1;
+        this.transform = new Wick.Transformation(args.transform)
+        this.fullRotations = args.fullRotations === undefined ? 0 : args.fullRotations;
 
         this._easingType = null;
         this.easingType = 'none';
@@ -88,20 +89,20 @@ Wick.Tween = class extends Wick.Base {
         var data = super.serialize();
 
         data.playheadPosition = this.playheadPosition;
-        data.transform = this.transform.serialize();
+        data.transform = this.transform.values;
         data.fullRotations = this.fullRotations;
         data.easingType = this.easingType;
 
         return data;
     }
 
-    static _deserialize (data, object) {
+    deserialize (data) {
         super._deserialize(data, object);
 
-        object.playheadPosition = data.playheadPosition;
-        object.transform = Wick.Transformation.deserialize(data.transform);
-        object.fullRotations = data.fullRotations;
-        object.easingType = data.easingType;
+        this.playheadPosition = data.playheadPosition;
+        this.transform = new Wick.Transformation(data.transform);
+        this.fullRotations = data.fullRotations;
+        this.easingType = data.easingType;
 
         return object;
     }

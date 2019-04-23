@@ -25,27 +25,21 @@ Wick.Timeline = class extends Wick.Base {
     /**
      * Create a timeline.
      */
-    constructor () {
-        super();
+    constructor (args) {
+        super(args);
 
         this._playheadPosition = 1;
-        this.activeLayerIndex = 0;
+        this._activeLayerIndex = 0;
 
         this._playing = true;
         this._forceNextFrame = null;
-
-        this.layers = [];
     }
 
-    static _deserialize (data, object) {
-        super._deserialize(data, object);
+    static deserialize (data) {
+        super.deserialize(data);
 
-        object._playheadPosition = data.playheadPosition;
-        object.activeLayerIndex = data.activeLayerIndex;
-
-        data.layers.forEach(layerData => {
-            object.addLayer(Wick.Layer.deserialize(layerData));
-        });
+        this._playheadPosition = data.playheadPosition;
+        this.activeLayerIndex = data.activeLayerIndex;
 
         return object;
     }
@@ -56,10 +50,6 @@ Wick.Timeline = class extends Wick.Base {
         data.playheadPosition = this._playheadPosition;
         data.activeLayerIndex = this.activeLayerIndex;
 
-        data.layers = this.layers.map(layer => {
-            return layer.serialize();
-        });
-
         return data;
     }
 
@@ -68,7 +58,18 @@ Wick.Timeline = class extends Wick.Base {
     }
 
     /**
+     * The layers that belong to this timeline.
+     * @type {Wick.Layer}
+     */
+    get layers () {
+        return this.children.filter(child => {
+            return child instanceof Wick.Layer;
+        });
+    }
+
+    /**
      * The position of the playhead. Determines which frames are visible.
+     * @type {number}
      */
     get playheadPosition () {
       return this._playheadPosition;
@@ -82,6 +83,18 @@ Wick.Timeline = class extends Wick.Base {
       }
 
       this._playheadPosition = playheadPosition;
+    }
+
+    /**
+     * The index of the active layer. Determines which frame to draw onto.
+     * @type {number}
+     */
+    get activeLayerIndex () {
+        return this._activeLayerIndex;
+    }
+
+    set activeLayerIndex (activeLayerIndex) {
+        this._activeLayerIndex = activeLayerIndex;
     }
 
     /**
@@ -184,8 +197,7 @@ Wick.Timeline = class extends Wick.Base {
      * @param {Wick.Layer} layer - The layer to add.
      */
     addLayer (layer) {
-        this.layers.push(layer);
-        this._addChild(layer);
+        this.addChild(layer);
     }
 
     /**
@@ -193,18 +205,17 @@ Wick.Timeline = class extends Wick.Base {
      * @param {Wick.Layer} layer - The layer to remove.
      */
     removeLayer (layer) {
+        // You can't remove the last layer.
         if(this.layers.length <= 1) {
             return;
         }
 
+        // Activate the layer below the removed layer if we removed the active layer.
         if(this.activeLayerIndex === this.layers.length - 1) {
             this.activeLayerIndex--;
         }
 
-        this.layers = this.layers.filter(checkLayer => {
-            return checkLayer !== layer;
-        });
-        this._removeChild(layer);
+        this.removeChild(layer);
     }
 
     /**
@@ -213,8 +224,9 @@ Wick.Timeline = class extends Wick.Base {
      * @param {number} index - the new position to move the layer to.
      */
     moveLayer (layer, index) {
-        this.layers.splice(this.layers.indexOf(layer), 1);
-        this.layers.splice(index, 0, layer);
+        // NOTE this is dangerous -- we should not be directly changing the _children array.
+        this._children.splice(this._children.indexOf(layer.uuid), 1);
+        this._children.splice(index, 0, layer.uuid);
     }
 
     /**

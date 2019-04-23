@@ -29,16 +29,19 @@ Wick.Project = class extends Wick.Base {
      * @param {number} framerate - Project framerate in frames-per-second. Default 12.
      * @param {string} backgroundColor - Project background color in hex. Default #ffffff.
      */
-    constructor (name, width, height, framerate, backgroundColor) {
-        super();
+    constructor (args) {
+        if(!args) args = {};
+        super(args);
+
+        this.project = this;
 
         this._allObjects = {};
 
-        this.name = name || 'My Project';
-        this.width = width || 720;
-        this.height = height || 405;
-        this.framerate = framerate || 12;
-        this.backgroundColor = backgroundColor || '#ffffff';
+        this.name = args.name || 'My Project';
+        this.width = args.width || 720;
+        this.height = args.height || 405;
+        this.framerate = args.framerate || 12;
+        this.backgroundColor = args.backgroundColor || '#ffffff';
 
         this.pan = {x: 0, y: 0};
         this.zoom = 1.0;
@@ -52,10 +55,6 @@ Wick.Project = class extends Wick.Base {
 
         this.focus = this.root;
 
-        this.project = this;
-
-        this._assets = [];
-        this._selection = null;
         this.selection = new Wick.Selection();
 
         this._mousePosition = {x:0, y:0};
@@ -68,46 +67,30 @@ Wick.Project = class extends Wick.Base {
         this._tickIntervalID = null;
     }
 
-    static _deserialize (data, object) {
-        super._deserialize(data, object);
+    deserialize (data) {
+        super.deserialize(data);
 
-        object.name = data.name;
-        object.width = data.width;
-        object.height = data.height;
-        object.framerate = data.framerate;
-        object.backgroundColor = data.backgroundColor;
+        this.name = data.name;
+        this.width = data.width;
+        this.height = data.height;
+        this.framerate = data.framerate;
+        this.backgroundColor = data.backgroundColor;
 
-        if(data.pan) object.pan = {x:data.pan.x, y:data.pan.y};
-        if(data.zoom) object.zoom = data.zoom;
+        if(data.pan) this.pan = {x:data.pan.x, y:data.pan.y};
+        if(data.zoom) this.zoom = data.zoom;
 
-        if(data.onionSkinEnabled) object.onionSkinEnabled = data.onionSkinEnabled;
-        if(data.onionSkinSeekForwards) object.onionSkinSeekForwards = data.onionSkinSeekForwards;
-        if(data.onionSkinSeekBackwards) object.onionSkinSeekBackwards = data.onionSkinSeekBackwards;
+        if(data.onionSkinEnabled) this.onionSkinEnabled = data.onionSkinEnabled;
+        if(data.onionSkinSeekForwards) this.onionSkinSeekForwards = data.onionSkinSeekForwards;
+        if(data.onionSkinSeekBackwards) this.onionSkinSeekBackwards = data.onionSkinSeekBackwards;
 
-        if(data.root) object.root = Wick.Clip.deserialize(data.root);
-        if(!object.root.identifier) {
-            object.root.identifier = 'Project';
-        }
-        object.focus = object.root;
-        if(data.focus) object.focus = object.getChildByUUID(data.focus);
-
-        object.selection = Wick.Selection.deserialize(data.selection);
-
-        if(data.assets) {
-            data.assets.forEach(assetData => {
-                object.addAsset(Wick.Asset.deserialize(assetData));
-            });
-        }
-
-        object.project = object;
+        this._root = data.root;
+        this._focus = data.root;
+        this._selection = data.selection;
 
         return object;
     }
 
-    serialize (args) {
-        if(!args) args = {};
-        if(args.shallow === undefined) args.shallow = false;
-
+    serialize () {
         var data = super.serialize();
 
         data.name = this.name;
@@ -123,16 +106,9 @@ Wick.Project = class extends Wick.Base {
         data.onionSkinSeekForwards = this.onionSkinSeekForwards;
         data.onionSkinSeekBackwards = this.onionSkinSeekBackwards;
 
-        if(!args.shallow) data.root = this.root.serialize();
-        data.focus = this.focus.uuid;
-
-        data.selection = this.selection.serialize();
-
-        if(!args.shallow) {
-            data.assets = this.getAssets().map(asset => {
-                return asset.serialize();
-            });
-        }
+        data.root = this._root;
+        data.focus = this._focus;
+        data.selection = this._selection;
 
         return data;
     }
@@ -285,24 +261,30 @@ Wick.Project = class extends Wick.Base {
     }
 
     /**
+     * The assets belonging to the project.
+     * @type {Wick.Asset[]}
+     */
+    get assets () {
+        return this.children.filter(child => {
+            return child instanceof Wick.Asset;
+        });
+    }
+
+    /**
      * Adds an asset to the project.
      * @param {Wick.Asset} asset - The asset to add to the project.
      */
     addAsset (asset) {
-        this._assets.push(asset);
-        this._addChild(asset);
+        this.addChild(asset);
     }
 
     /**
-     * Removes an asset from the project.
+     * Removes an asset from the project. Also removes all instances of that asset from the project.
      * @param {Wick.Asset} asset - The asset to remove from the project.
      */
     removeAsset (asset) {
         asset.removeAllInstances();
-        this._assets = this._assets.filter(checkAsset => {
-            return checkAsset !== asset;
-        });
-        this._removeChild(asset);
+        this.removeChild(asset);
     }
 
     /**
@@ -310,7 +292,7 @@ Wick.Project = class extends Wick.Base {
      * @param {string} uuid - The UUID of the asset to get.
      * @return {Wick.Asset} The asset
      */
-    getAsset (uuid) {
+    getAssetByUUID (uuid) {
         return this.getAssets().find(asset => {
             return asset.uuid === uuid;
         });
@@ -334,9 +316,9 @@ Wick.Project = class extends Wick.Base {
      */
     getAssets (type) {
         if(!type) {
-            return this._assets;
+            return this.assets;
         } else {
-            return this._assets.filter(asset => {
+            return this.assets.filter(asset => {
                 return asset instanceof Wick[type+'Asset'];
             });
         }

@@ -32,21 +32,21 @@ Wick.Selection = class extends Wick.Base {
     /**
      * Create a Wick Selection.
      */
-    constructor () {
-        super();
+    constructor (args) {
+        if(!args) args = {};
+        super(args);
 
-        this._uuids = [];
+        this._selectedObjectsUUIDs = args.selectedObjects || [];
     }
 
-    static _deserialize (data, object) {
-        super._deserialize(data, object);
-        object._uuids = [].concat(data.uuids || []);
-        return object;
+    deserialize (data) {
+        super.deserialize(data);
+        data.selectedObjects = this._selectedObjectsUUIDs;
     }
 
     serialize () {
         var data = super.serialize();
-        data.uuids = [].concat(this._uuids);
+        data.selectedObjects = data.selectedObjects;
         return data;
     }
 
@@ -77,7 +77,7 @@ Wick.Selection = class extends Wick.Base {
             this.clear();
         }
 
-        this._uuids.push(object.uuid);
+        this._selectedObjectsUUIDs.push(object.uuid);
 
         // Update the view so that all the selection transform values are updated
         this.project.view.render();
@@ -88,7 +88,7 @@ Wick.Selection = class extends Wick.Base {
      * @param {Wick.Frame|Wick.Layer|Wick.Tween|Wick.Asset|Wick.Clip|Wick.Path} object - The object to deselect.
      */
     deselect (object) {
-        this._uuids = this._uuids.filter(uuid => {
+        this._selectedObjectsUUIDs = this._selectedObjectsUUIDs.filter(uuid => {
             return uuid !== object.uuid;
         });
 
@@ -114,7 +114,7 @@ Wick.Selection = class extends Wick.Base {
      * @param {Wick.Frame|Wick.Layer|Wick.Tween|Wick.Asset|Wick.Clip|Wick.Path} object - The object to check selection of.
      */
     isObjectSelected (object) {
-        return this._uuids.indexOf(object.uuid) !== -1;
+        return this._selectedObjectsUUIDs.indexOf(object.uuid) !== -1;
     }
 
     /**
@@ -135,7 +135,7 @@ Wick.Selection = class extends Wick.Base {
      * @return {Wick.Frame|Wick.Layer|Wick.Tween|Wick.Asset|Wick.Clip|Wick.Path[]} The selected objects.
      */
     getSelectedObjects (filter) {
-        var objects = this._uuids.map(uuid => {
+        var objects = this._selectedObjectsUUIDs.map(uuid => {
             return this.project.getChildByUUID(uuid);
         });
 
@@ -179,7 +179,7 @@ Wick.Selection = class extends Wick.Base {
      * The number of objects in the selection.
      */
     get numObjects () {
-        return this._uuids.length;
+        return this._selectedObjectsUUIDs.length;
     }
 
     /**

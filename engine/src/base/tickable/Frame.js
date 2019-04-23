@@ -24,46 +24,31 @@ Wick.Frame = class extends Wick.Tickable {
     /**
      * Create a new frame.
      * @param {number} start - The start of the frame. Optional, defaults to 1.
-     * @param {number} end - The end of the frame. Optional, defaults to start.
+     * @param {number} end - The end of the frame. Optional, defaults to be the same as start.
      */
-    constructor (start, end) {
-        super();
+    constructor (args) {
+        if(!args) args = {};
+        super(args);
 
-        this.start = start || 1;
-        this.end = end || this.start;
+        this.start = args.start || 1;
+        this.end = args.end || this.start;
         this._originalLayerIndex = null;
-
-        this._clips = [];
-        this._paths = [];
-
-        this.tweens = [];
 
         this._soundAssetUUID = null;
         this._soundID = null;
         this._soundVolume = 1.0;
     }
 
-    static _deserialize (data, object) {
-        super._deserialize(data, object);
+    deserialize (data) {
+        super.deserialize(data);
 
-        object.start = data.start;
-        object.end = data.end;
+        this.start = data.start;
+        this.end = data.end;
 
-        data.clips.forEach(clipData => {
-            object.addClip(Wick.Clip.deserialize(clipData));
-        });
-        data.paths.forEach(pathData => {
-            object.addPath(Wick.Path.deserialize(pathData));
-        });
+        this._soundAssetUUID = data.sound;
+        this._soundVolume = data.soundVolume === undefined ? 1.0 : data.soundVolume;
 
-        object._soundAssetUUID = data.sound;
-        object._soundVolume = data.soundVolume === undefined ? 1.0 : data.soundVolume;
-
-        data.tweens.forEach(tweenData => {
-            object.addTween(Wick.Tween.deserialize(tweenData));
-        });
-
-        object._originalLayerIndex = data.originalLayerIndex;
+        this._originalLayerIndex = data.originalLayerIndex;
 
         return object;
     }
@@ -74,26 +59,41 @@ Wick.Frame = class extends Wick.Tickable {
         data.start = this.start;
         data.end = this.end;
 
-        data.clips = this._clips.map(clip => {
-            return clip.serialize();
-        });
-        data.paths = this._paths.map(path => {
-            return path.serialize();
-        });
         data.sound = this._soundAssetUUID;
-
-        data.tweens = this.tweens.map(tween => {
-            return tween.serialize();
-        });
+        data.soundVolume = this._soundVolume;
 
         data.originalLayerIndex = this._originalLayerIndex;
-        data.soundVolume = this._soundVolume;
 
         return data;
     }
 
     get classname () {
         return 'Frame';
+    }
+
+    /**
+     *
+     */
+    get paths () {
+
+    }
+
+    /**
+     *
+     */
+    get clips () {
+        return this.children.filter(child => {
+            return child instanceof Wick.Clip;
+        });
+    }
+
+    /**
+     *
+     */
+    get tweens () {
+        return this.children.filter(child => {
+            return child instanceof Wick.Tween;
+        });
     }
 
     /**
@@ -258,8 +258,7 @@ Wick.Frame = class extends Wick.Tickable {
         if(clip.parent) {
             clip.remove();
         }
-        this._clips.push(clip);
-        this._addChild(clip);
+        this.addChild(clip);
     }
 
     /**
@@ -267,10 +266,7 @@ Wick.Frame = class extends Wick.Tickable {
      * @param {Wick.Clip} clip - the clip to remove.
      */
     removeClip (clip) {
-        this._clips = this._clips.filter(checkClip => {
-            return checkClip !== clip;
-        });
-        this._removeChild(clip);
+        this.removeChild(clip);
     }
 
     /**
@@ -278,11 +274,7 @@ Wick.Frame = class extends Wick.Tickable {
      * @param {Wick.Path} path - the path to add.
      */
     addPath (path) {
-        if(path.parent) {
-            path.remove();
-        }
-        this._paths.push(path);
-        this._addChild(path);
+
     }
 
     /**
@@ -290,19 +282,14 @@ Wick.Frame = class extends Wick.Tickable {
      * @param {Wick.Path} path - the path to remove.
      */
     removePath (path) {
-        this._paths = this._paths.filter(checkPath => {
-            return checkPath !== path;
-        });
-        this._removeChild(path);
+
     }
 
     /**
      * Removes all paths from this frame.
      */
     removeAllPaths () {
-        [].concat(this.paths).forEach(path => {
-            this.removePath(path);
-        });
+
     }
 
     /**
@@ -310,8 +297,7 @@ Wick.Frame = class extends Wick.Tickable {
      * @param {Wick.Tween} tween - the tween to add.
      */
     addTween (tween) {
-        this.tweens.push(tween);
-        this._addChild(tween);
+        this.addChild(tween);
     }
 
     /**
@@ -319,10 +305,7 @@ Wick.Frame = class extends Wick.Tickable {
      * @param {Wick.Tween} tween - the tween to remove.
      */
     removeTween (tween) {
-        this.tweens = this.tweens.filter(checkTween => {
-            return checkTween !== tween;
-        });
-        this._removeChild(tween);
+        this.removeChild(tween);
     }
 
     /**
