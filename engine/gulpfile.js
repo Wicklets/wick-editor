@@ -8,6 +8,7 @@ var header = require('gulp-header');
 gulp.task('default', function() {
     return gulp.src([
             'lib/paper.js',
+            'lib/SAT.js',
             'lib/atomic.js',
             'lib/convert-range.js',
             'lib/croquis.js',
