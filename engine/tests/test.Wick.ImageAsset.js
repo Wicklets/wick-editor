@@ -3,7 +3,10 @@ describe('Wick.ImageAsset', function() {
 
     describe('#constructor', function () {
         it('should instantiate correctly', function() {
-            var image = new Wick.ImageAsset('test.png', TEST_IMG_SRC_PNG);
+            var image = new Wick.ImageAsset({
+                filename:'test.png',
+                src: TEST_IMG_SRC_PNG
+            });
 
             expect(image instanceof Wick.Asset).to.equal(true);
             expect(image instanceof Wick.ImageAsset).to.equal(true);
@@ -34,14 +37,20 @@ describe('Wick.ImageAsset', function() {
 */
     describe('#MIMEType', function () {
         it('get MIMEType should return correct MIME type', function() {
-            var image = new Wick.ImageAsset('test.png', TEST_IMG_SRC_PNG);
+            var image = new Wick.ImageAsset({
+                filename: 'test.png',
+                src: TEST_IMG_SRC_PNG
+            });
             expect(image.MIMEType).to.equal('image/png');
         });
     });
 
     describe('#fileExtension', function () {
         it('get fileExtension should return correct file extension', function() {
-            var image = new Wick.ImageAsset('test.png', TEST_IMG_SRC_PNG);
+            var image = new Wick.ImageAsset({
+                filename: 'test.png',
+                src: TEST_IMG_SRC_PNG
+            });
             expect(image.fileExtension).to.equal('png');
         });
     });
@@ -49,7 +58,10 @@ describe('Wick.ImageAsset', function() {
     describe('#removeAllInstances', function (done) {
         it('should delete all instances of the asset in the project', function () {
             var project = new Wick.Project();
-            var asset = new Wick.ImageAsset('test.png', TEST_IMG_SRC_PNG);
+            var asset = new Wick.ImageAsset({
+                filename: 'test.png',
+                src: TEST_IMG_SRC_PNG
+            });
             project.addAsset(asset);
 
             asset.createInstance((path) => {

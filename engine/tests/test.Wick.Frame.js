@@ -242,14 +242,14 @@ describe('Wick.Frame', function() {
             frame.addClip(clip);
             frame.addTween(new Wick.Tween({
                 playheadPosition: 1,
-                transformation: {
+                transformation: new Wick.Transformation({
                     x: 100,
                     y: 200,
                     scaleX: 2,
                     scaleY: 0.5,
                     rotation: 180,
                     opacity: 0.25,
-                },
+                }),
                 fullRotations: 0,
             }));
 

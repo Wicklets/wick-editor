@@ -9,13 +9,16 @@ describe('Wick.Path', function() {
 
         it('should instantiate correctly (paths)', function () {
             var path = new Wick.Path(TEST_PATH_DATA);
-            expect(path.paperPath.fillColor.toCSS(true)).to.equal('#ff0000');
+            expect(path.view.item.fillColor.toCSS(true)).to.equal('#ff0000');
         });
 
         it('should instantiate correctly (rasters)', function (done) {
-            var asset = new Wick.ImageAsset('test.png', TEST_IMG_SRC);
+            var asset = new Wick.ImageAsset({
+                filename: 'test.png',
+                src: TEST_IMG_SRC
+            });
             var path = new Wick.Path(["Raster",{"applyMatrix":false,"crossOrigin":"","source":"asset","asset":asset.uuid}], [asset]);
-            expect(path.paperPath.source).to.equal(TEST_IMG_SRC);
+            expect(path.view.item.source).to.equal(TEST_IMG_SRC);
             done();
         });
     });
@@ -76,13 +79,6 @@ describe('Wick.Path', function() {
     describe('#get classname()', function() {
         it('should return "Path"', function () {
             expect(new Wick.Path().classname).to.equal('Path');
-        });
-    });
-
-    describe('#get paperPath()', function() {
-        it('should return paper.js object', function () {
-            var path = new Wick.Path();
-            expect(path.paperPath instanceof paper.Path).to.equal(true);
         });
     });
 

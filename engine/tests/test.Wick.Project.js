@@ -227,7 +227,6 @@ describe('Wick.Project', function() {
             expect(returnValue).to.equal(true);
             expect(project.activeFrame.paths.length).to.equal(1);
             expect(project.activeFrame.paths[0].uuid).to.equal(path.uuid);
-            expect(project.getChildByUUID(path.uuid).uuid).to.equal(path.uuid);
         });
 
         it('should add clips to the project', function() {

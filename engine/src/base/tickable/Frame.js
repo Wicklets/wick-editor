@@ -163,7 +163,9 @@ Wick.Frame = class extends Wick.Tickable {
      * @type {Wick.Path[]}
      */
     get paths () {
-        return [];
+        return this.children.filter(child => {
+            return child instanceof Wick.Path;
+        });
     }
 
     /**
@@ -256,7 +258,10 @@ Wick.Frame = class extends Wick.Tickable {
      * @param {Wick.Path} path - the path to add.
      */
     addPath (path) {
-
+        if(path.parent) {
+            path.remove();
+        }
+        this.addChild(path);
     }
 
     /**
@@ -264,14 +269,7 @@ Wick.Frame = class extends Wick.Tickable {
      * @param {Wick.Path} path - the path to remove.
      */
     removePath (path) {
-
-    }
-
-    /**
-     * Removes all paths from this frame.
-     */
-    removeAllPaths () {
-
+        this.removeChild(path);
     }
 
     /**

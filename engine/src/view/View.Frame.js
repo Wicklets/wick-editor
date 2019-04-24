@@ -90,8 +90,10 @@ Wick.View.Frame = class extends Wick.View {
 
         this.pathsLayer.removeChildren();
         this.model.paths.forEach(path => {
-            this.pathsLayer.addChild(path.paperPath);
-            path.paperPath.data.asset = path._assetUUID;
+            if(!path.view.item) {
+                path.view.render();
+            }
+            this.pathsLayer.addChild(path.view.item);
         });
     }
 
@@ -224,6 +226,7 @@ Wick.View.Frame = class extends Wick.View {
     }
 
     _applyPathChanges () {
+        /*
         this.model.paths.forEach(path => {
             this.model.removePath(path);
         });
@@ -237,5 +240,6 @@ Wick.View.Frame = class extends Wick.View {
             this.model.addPath(wickPath);
             child.name = wickPath.uuid;
         });
+        */
     }
 }

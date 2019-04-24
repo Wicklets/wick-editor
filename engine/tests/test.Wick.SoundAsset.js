@@ -33,8 +33,14 @@ describe('Wick.SoundAsset', function() {
     describe('#removeAllInstances', function () {
         it('should delete all instances of the asset in the project', function () {
             var project = new Wick.Project();
-            var asset1 = new Wick.SoundAsset('test.wav', TEST_SOUND_SRC_WAV);
-            var asset2 = new Wick.SoundAsset('test.mp3', TEST_SOUND_SRC_MP3);
+            var asset1 = new Wick.SoundAsset({
+                filename: 'test.wav',
+                src: TEST_SOUND_SRC_WAV
+            });
+            var asset2 = new Wick.SoundAsset({
+                filename: 'test.mp3',
+                src: TEST_SOUND_SRC_MP3,
+            });
             project.addAsset(asset1);
             project.addAsset(asset2);
 
