@@ -31,15 +31,20 @@ Wick.View.Path = class extends Wick.View {
      * The paper.js representation of the Wick Path.
      */
     get item () {
-
+        if(!this._item) {
+            this.render();
+        }
+        return this._item;
     }
 
     /**
      *
      */
     render () {
+        if(!this.model.json) {
+            console.warn('Path ' + this.model.uuid + ' is missing path JSON.');
+        }
         this.importJSON(this.model.json);
-        this._item.remove();
     }
 
     /**
@@ -53,9 +58,14 @@ Wick.View.Path = class extends Wick.View {
             json[1].source = src;
         }
 
-        this._item = paper.importJSON(json);
-        this._item.onLoad = () => {
-            this._loaded = true;
+        this._item = this.paper.importJSON(json);
+        this._item.remove();
+
+        // Listen for when the path is fully loaded
+        this._item.onLoad = (e) => {
+            if(this.model._onLoad) {
+                this.model._onLoad(e);
+            }
         }
     }
 

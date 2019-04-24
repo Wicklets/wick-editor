@@ -11,7 +11,6 @@ describe('Wick.Tools.Pan', function() {
         project.view.render();
 
         pan.activate();
-        console.log(project.view.pan)
 
         pan.onMouseDrag({downPoint: new paper.Point(50,50), point: new paper.Point(50,50)});
         pan.onMouseDrag({downPoint: new paper.Point(50,50), point: new paper.Point(100,100)});

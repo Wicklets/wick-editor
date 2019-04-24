@@ -71,9 +71,9 @@ describe('Wick.Layer', function() {
         it('should remove frames', function() {
             var layer = new Wick.Layer();
 
-            var frame1 = new Wick.Frame(1,5);
-            var frame2 = new Wick.Frame(6,10);
-            var frame3 = new Wick.Frame(11,15);
+            var frame1 = new Wick.Frame({start:1,end:5});
+            var frame2 = new Wick.Frame({start:6,end:10});
+            var frame3 = new Wick.Frame({start:11,end:15});
 
             layer.addFrame(frame1);
             expect(layer.frames.length).to.equal(1);
@@ -95,9 +95,9 @@ describe('Wick.Layer', function() {
     describe('#activeFrame', function () {
         it('should calculate active frame properly', function() {
             var layer = new Wick.Layer();
-            var frame1 = new Wick.Frame(1,5);
-            var frame2 = new Wick.Frame(6,10);
-            var frame3 = new Wick.Frame(11,15);
+            var frame1 = new Wick.Frame({start:1,end:5});
+            var frame2 = new Wick.Frame({start:6,end:10});
+            var frame3 = new Wick.Frame({start:11,end:15});
             layer.addFrame(frame1);
             layer.addFrame(frame2);
             layer.addFrame(frame3);

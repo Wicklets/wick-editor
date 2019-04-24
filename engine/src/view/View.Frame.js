@@ -90,9 +90,7 @@ Wick.View.Frame = class extends Wick.View {
 
         this.pathsLayer.removeChildren();
         this.model.paths.forEach(path => {
-            if(!path.view.item) {
-                path.view.render();
-            }
+            path.view.render();
             this.pathsLayer.addChild(path.view.item);
         });
     }

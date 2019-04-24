@@ -32,6 +32,9 @@ Wick.Path = class extends Wick.Base {
         if(args.json) {
             this.json = args.json;
         }
+        if (args.asset) {
+            this.asset = args.asset;
+        }
     }
 
     get classname () {
@@ -48,6 +51,68 @@ Wick.Path = class extends Wick.Base {
     set json (json) {
         this._json = json;
         this.view.render();
+    }
+
+    /**
+     * Asset to use for image data.
+     */
+    get asset () {
+        return this._asset;
+    }
+
+    set asset (asset) {
+        this._asset = asset;
+        this.json = [
+            "Raster",
+            {
+                "applyMatrix": false,
+                "crossOrigin": "",
+                "source": "asset",
+                "asset": asset.uuid
+            }
+        ];
+    }
+
+    /**
+     * Callback to listen for when a raster path is done being loaded
+     */
+    set onLoad (fn) {
+        this._onLoad = fn;
+    }
+
+    /**
+     * The bounding box of the path.
+     * @type {object}
+     */
+    get bounds () {
+        var paperBounds = this.view.item.bounds;
+        return {
+            top: paperBounds.top,
+            bottom: paperBounds.bottom,
+            left: paperBounds.left,
+            right: paperBounds.right,
+        };
+    }
+
+    /**
+     * The fill color, in hex format, of the path
+     * @type {string}
+     */
+    get fillColorHex () {
+        return this.view.item.fillColor.toCSS(true);
+    }
+
+    /**
+     * The fill color, in rgba format, of the path
+     * @type {object}
+     */
+    get fillColorRGBA () {
+        return {
+            r: this.view.item.fillColor.red * 255,
+            g: this.view.item.fillColor.green * 255,
+            b: this.view.item.fillColor.blue * 255,
+            a: this.view.item.fillColor.alpha,
+        };
     }
 
     /**
