@@ -69,10 +69,11 @@ Wick.ImageAsset = class extends Wick.FileAsset {
 
     /**
      * Creates a new Wick Path that uses this asset's image data as it's image source.
+     * @returns {Wick.Path} - the newly created path.
      */
     createInstance (callback) {
-        var path = new window.Wick.Path(["Raster",{"applyMatrix":false,"crossOrigin":"","source":"asset","asset":this.uuid}], [this]);
-        path.paperPath.onLoad = () => {
+        var path = new Wick.Path(this);
+        path.onLoad = () => {
             callback && callback(path);
         }
         return path;

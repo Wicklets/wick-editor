@@ -2,11 +2,11 @@ describe('Wick.Selection', function() {
     it('should select/deselect objects', function () {
         var project = new Wick.Project();
 
-        var path1 = new Wick.Path();
+        var path1 = new Wick.Path({json:TestUtils.TEST_PATH_JSON_RED_SQUARE});
         project.activeFrame.addPath(path1);
-        var path2 = new Wick.Path();
+        var path2 = new Wick.Path({json:TestUtils.TEST_PATH_JSON_RED_SQUARE});
         project.activeFrame.addPath(path2);
-        var path3 = new Wick.Path();
+        var path3 = new Wick.Path({json:TestUtils.TEST_PATH_JSON_RED_SQUARE});
         project.activeFrame.addPath(path3);
 
         var clip1 = new Wick.Clip();
@@ -21,21 +21,26 @@ describe('Wick.Selection', function() {
 
         var frame1 = project.activeFrame;
         frame1.end = 3;
-        var frame2 = new Wick.Frame(4);
+        var frame2 = new Wick.Frame({start:4});
         project.activeLayer.addFrame(frame2);
-        var frame3 = new Wick.Frame(5);
+        var frame3 = new Wick.Frame({start:5});
         project.activeLayer.addFrame(frame3);
 
-        var tween1 = new Wick.Tween(1);
+        var tween1 = new Wick.Tween({start:1});
         project.activeFrame.addTween(tween1);
-        var tween2 = new Wick.Tween(2);
+        var tween2 = new Wick.Tween({start:2});
         project.activeFrame.addTween(tween2);
-        var tween3 = new Wick.Tween(3);
+        var tween3 = new Wick.Tween({start:3});
         project.activeFrame.addTween(tween3);
 
-        var asset1 = new Wick.ImageAsset();
+        var asset1 = new Wick.ImageAsset({
+            filename: 'foo.png',
+            src: TestUtils.TEST_IMG_SRC_PNG,
+        });
         project.addAsset(asset1);
-        var asset2 = new Wick.SoundAsset();
+        var asset2 = new Wick.SoundAsset({
+            
+        });
         project.addAsset(asset2);
         var asset3 = new Wick.ClipAsset();
         project.addAsset(asset3);

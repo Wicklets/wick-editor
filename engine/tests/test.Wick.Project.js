@@ -571,45 +571,41 @@ describe('Wick.Project', function() {
         it('should create a clip out of selected paths', function () {
             var project = new Wick.Project();
 
-            project.activeFrame.addPath(new Wick.Path(new paper.Path.Rectangle({
-                from: [50, 50],
-                to: [100, 100],
-                fillColor: 'red',
-            }).exportJSON({asString:false})));
-            project.activeFrame.addPath(new Wick.Path(new paper.Path.Rectangle({
-                from: [100, 100],
-                to: [150, 150],
-                fillColor: 'red',
-            }).exportJSON({asString:false})));
+            var path1 = new Wick.Path({
+                json: TestUtils.TEST_PATH_JSON_BLUE_SQUARE,
+            });
+            var path2 = new Wick.Path({
+                json: TestUtils.TEST_PATH_JSON_RED_SQUARE
+            });
+
+            project.activeFrame.addPath(path1);
+            project.activeFrame.addPath(path2);
 
             project.selection.select(project.activeFrame.paths[0]);
             project.selection.select(project.activeFrame.paths[1]);
 
-            project.createSymbolFromSelection('foo', 'Clip');
+            project.createSymbolFromSelection({
+                identifier: 'foo',
+                type: 'Clip'
+            });
 
             expect(project.activeFrame.paths.length).to.equal(0);
             expect(project.activeFrame.clips.length).to.equal(1);
             expect(project.activeFrame.clips[0] instanceof Wick.Clip).to.equal(true);
             expect(project.activeFrame.clips[0] instanceof Wick.Button).to.equal(false);
             expect(project.activeFrame.clips[0].activeFrame.paths.length).to.equal(2);
+            expect(project.activeFrame.clips[0].activeFrame.paths[0]).to.equal(path1);
+            expect(project.activeFrame.clips[0].activeFrame.paths[1]).to.equal(path2);
             expect(project.activeFrame.clips[0].activeFrame.clips.length).to.equal(0);
         });
 
         it('should create a clip out of selected clips', function () {
             var project = new Wick.Project();
 
-            var clip1 = new Wick.Clip('foo', [new Wick.Path(new paper.Path.Rectangle({
-                from: [50, 50],
-                to: [100, 100],
-                fillColor: 'red',
-            }).exportJSON({asString:false}))]);
+            var clip1 = new Wick.Clip('foo', [new Wick.Path()]);
             project.activeFrame.addClip(clip1);
 
-            var clip2 = new Wick.Clip('foo', [new Wick.Path(new paper.Path.Rectangle({
-                from: [100, 100],
-                to: [150, 150],
-                fillColor: 'red',
-            }).exportJSON({asString:false}))]);
+            var clip2 = new Wick.Clip('foo', [new Wick.Path()]);
             project.activeFrame.addClip(clip2);
 
             project.selection.select(project.activeFrame.clips[0]);
