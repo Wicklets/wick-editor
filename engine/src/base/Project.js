@@ -514,20 +514,20 @@ Wick.Project = class extends Wick.Base {
      * @param {string} identifier - the identifier to give the new symbol
      * @param {string} type - "Clip" or "Button"
      */
-    createSymbolFromSelection (args) {
+    createClipFromSelection (args) {
         if(!args) {
             args = {};
         };
 
         if(args.type !== 'Clip' && args.type !== 'Button') {
-            console.error('createSymbolFromSelection: invalid type: ' + args.type);
+            console.error('createClipFromSelection: invalid type: ' + args.type);
             return;
         }
 
         var transformation = new Wick.Transformation();
         transformation.x = this.selection.center.x;
         transformation.y = this.selection.center.y;
-        var clip = new Wick[type]({
+        var clip = new Wick[args.type]({
             identifier: args.identifier,
             objects: this.selection.getSelectedObjects('Canvas'),
             transformation: transformation

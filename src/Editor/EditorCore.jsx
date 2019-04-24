@@ -509,7 +509,7 @@ class EditorCore extends Component {
    * Creates a new symbol from the selected paths and clips and adds it to the project.
    */
   createSymbolFromSelection = (name, type) => {
-    this.project.createSymbolFromSelection(name, type);
+    this.project.createClipFromSelection(name, type);
     this.projectDidChange();
   }
 
@@ -518,7 +518,7 @@ class EditorCore extends Component {
    * @param {string} name The name of the clip after creation.
    */
   createClipFromSelection = (name) => {
-    this.project.createSymbolFromSelection(name, 'Clip');
+    this.project.createClipFromSelection(name, 'Clip');
     this.projectDidChange();
   }
 
@@ -527,7 +527,7 @@ class EditorCore extends Component {
    * @param {string} name The name of the button after creation.
    */
   createButtonFromSelection = (name) => {
-    this.project.createSymbolFromSelection(name, 'Button');
+    this.project.createClipFromSelection(name, 'Button');
     this.projectDidChange();
   }
 

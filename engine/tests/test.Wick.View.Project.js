@@ -245,33 +245,37 @@ describe('Wick.View.Project', function() {
     describe('#prerasterize', function () {
         it('should preload all rastered SVG textures', function (done) {
             var project = new Wick.Project();
-            project.activeLayer.addFrame(new Wick.Frame(2));
-            project.activeLayer.addFrame(new Wick.Frame(3));
-            project.activeLayer.addFrame(new Wick.Frame(4));
+            project.activeLayer.addFrame(new Wick.Frame({start:2}));
+            project.activeLayer.addFrame(new Wick.Frame({start:3}));
+            project.activeLayer.addFrame(new Wick.Frame({start:4}));
 
             var frame1 = project.activeLayer.frames[0];
             var frame2 = project.activeLayer.frames[1];
             var frame3 = project.activeLayer.frames[2];
             var frame4 = project.activeLayer.frames[3];
 
-            frame1.addPath(new Wick.Path(new paper.Path.Circle({
+            var pathJson1 = new paper.Path.Circle({
                 center: [0, 0],
                 radius: 30,
                 strokeColor: 'black',
                 fillColor: 'red',
-            }).exportJSON()));
-            frame2.addPath(new Wick.Path(new paper.Path.Circle({
+            }).exportJSON({asString:false});
+            var pathJson2 = new paper.Path.Circle({
                 center: [0, 0],
                 radius: 30,
                 strokeColor: 'black',
                 fillColor: 'blue',
-            }).exportJSON()));
-            frame3.addPath(new Wick.Path(new paper.Path.Circle({
+            }).exportJSON({asString:false});
+            var pathJson3 = new paper.Path.Circle({
                 center: [0, 0],
                 radius: 30,
                 strokeColor: 'black',
                 fillColor: 'green',
-            }).exportJSON()));
+            }).exportJSON({asString:false});
+
+            frame1.addPath(new Wick.Path({json:pathJson1}));
+            frame2.addPath(new Wick.Path({json:pathJson2}));
+            frame3.addPath(new Wick.Path({json:pathJson3}));
 
             project.view.prerasterize(() => {
                 project.view.render();
@@ -326,13 +330,13 @@ describe('Wick.View.Project', function() {
             project.view.canvasContainer = document.createElement('div');
 
             var clip = new Wick.Clip();
-            var path = new paper.Path.Circle({
+            var pathJson = new paper.Path.Circle({
                 center: [0, 0],
                 radius: 30,
                 strokeColor: 'black',
                 fillColor: 'purple',
-            });
-            clip.activeFrame.addPath(new Wick.Path(path.exportJSON()));
+            }).exportJSON({asString:false});
+            clip.activeFrame.addPath(new Wick.Path({json:pathJson}));
             project.activeFrame.addClip(clip);
 
             // Start in svg mode

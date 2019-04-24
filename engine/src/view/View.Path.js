@@ -52,14 +52,24 @@ Wick.View.Path = class extends Wick.View {
      * @param {object} json - Data for the path created with paper.js exportJSON({asString:false})
      */
     importJSON (json) {
+        // Prepare image asset data
         if(json[0] === "Raster") {
             this._assetUUID = json[1].asset;
             var src = Wick.FileCache.getFile(this._assetUUID).src;
             json[1].source = src;
         }
 
+        // Import JSON data into paper.js
         this._item = this.paper.importJSON(json);
         this._item.remove();
+
+        // Check if we need to recover the UUID from the paper path
+        if(this._item.data.wickUUID) {
+            this.model._uuid = this._item.data.wickUUID;
+        } else {
+            this._item.data.wickUUID = this.model.uuid;
+            this._item.data.wickType = 'path';
+        }
 
         // Listen for when the path is fully loaded
         this._item.onLoad = (e) => {

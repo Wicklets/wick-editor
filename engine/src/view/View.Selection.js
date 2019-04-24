@@ -56,7 +56,7 @@ Wick.View.Selection = class extends Wick.View {
 
         var items = [];
         items = items.concat(project.selection.getSelectedObjects('Path').map(path => {
-            return path.paperPath;
+            return path.view.item;
         }));
         items = items.concat(project.selection.getSelectedObjects('Clip').map(clip => {
             return clip.view.group;

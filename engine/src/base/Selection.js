@@ -315,10 +315,10 @@ Wick.Selection = class extends Wick.Base {
     }
 
     /**
-     * The name of the selection.
+     * The identifier of the selection.
      * If there are multiple objects selected, null is always returned.
      */
-    get name () {
+    get identifier () {
         if(this.numObjects !== 1) {
             return null;
         } else {
@@ -326,9 +326,9 @@ Wick.Selection = class extends Wick.Base {
         }
     }
 
-    set name (name) {
+    set identifier (identifier) {
         if(this.numObjects === 1) {
-            this.getSelectedObject().identifier = name;
+            this.getSelectedObject().identifier = identifier;
         }
     }
 

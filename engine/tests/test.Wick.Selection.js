@@ -39,7 +39,7 @@ describe('Wick.Selection', function() {
         });
         project.addAsset(asset1);
         var asset2 = new Wick.SoundAsset({
-            
+
         });
         project.addAsset(asset2);
         var asset3 = new Wick.ClipAsset();
@@ -117,17 +117,18 @@ describe('Wick.Selection', function() {
     it('should update transforms of selection (one path)', function () {
         var project = new Wick.Project();
 
-        var path = new Wick.Path(new paper.Path.Rectangle({
+        var json = new paper.Path.Rectangle({
             fillColor: 'red',
             from: new paper.Point(50,50),
             to: new paper.Point(75,75),
-        }).exportJSON({asString:false}));
+        }).exportJSON({asString:false});
+        var path = new Wick.Path({json: json});
         project.activeFrame.addPath(path);
 
         project.selection.select(path);
 
-        expect(path.bounds.topLeft.x).to.equal(50);
-        expect(path.bounds.topLeft.y).to.equal(50);
+        expect(path.bounds.left).to.equal(50);
+        expect(path.bounds.top).to.equal(50);
 
         expect(project.selection.x).to.equal(50);
         expect(project.selection.y).to.equal(50);
@@ -142,12 +143,12 @@ describe('Wick.Selection', function() {
         expect(project.selection.opacity).to.equal(1);
         expect(project.selection.center.x).to.be.closeTo(50 + 25/2, 0.01);
         expect(project.selection.center.y).to.be.closeTo(50 + 25/2, 0.01);
-        expect(project.selection.name).to.equal(null);
+        expect(project.selection.identifier).to.equal(null);
 
         project.selection.x = 150;
 
-        expect(path.bounds.topLeft.x).to.equal(150);
-        expect(path.bounds.topLeft.y).to.equal(50);
+        expect(path.bounds.left).to.equal(150);
+        expect(path.bounds.top).to.equal(50);
 
         expect(project.selection.x).to.equal(150);
         expect(project.selection.y).to.equal(50);
@@ -162,28 +163,29 @@ describe('Wick.Selection', function() {
         expect(project.selection.opacity).to.equal(1);
         expect(project.selection.center.x).to.be.closeTo(150 + 25/2, 0.01);
         expect(project.selection.center.y).to.be.closeTo(50 + 25/2, 0.01);
-        expect(project.selection.name).to.equal(null);
+        expect(project.selection.identifier).to.equal(null);
     });
 
     it('should update transforms of selection (one clip)', function () {
         var project = new Wick.Project();
 
-        var path = new Wick.Path(new paper.Path.Rectangle({
+        var json = new paper.Path.Rectangle({
             fillColor: 'red',
             from: new paper.Point(-50,-50),
             to: new paper.Point(50,50),
-        }).exportJSON({asString:false}));
+        }).exportJSON({asString:false});
+        var path = new Wick.Path({json: json});
 
-        var clip = new Wick.Clip('foo');
+        var clip = new Wick.Clip({identifier:'foo'});
         clip.activeFrame.addPath(path);
-        clip.transform.x = 50;
-        clip.transform.y = 50;
+        clip.transformation.x = 50;
+        clip.transformation.y = 50;
         project.activeFrame.addClip(clip);
 
         project.selection.select(clip);
 
-        expect(clip.transform.x).to.equal(50);
-        expect(clip.transform.y).to.equal(50);
+        expect(clip.transformation.x).to.equal(50);
+        expect(clip.transformation.y).to.equal(50);
 
         expect(project.selection.x).to.be.closeTo(0, 0.01);
         expect(project.selection.y).to.be.closeTo(0, 0.01);
@@ -198,13 +200,13 @@ describe('Wick.Selection', function() {
         expect(project.selection.opacity).to.equal(1);
         expect(project.selection.center.x).to.be.closeTo(50, 0.01);
         expect(project.selection.center.y).to.be.closeTo(50, 0.01);
-        expect(project.selection.name).to.equal('foo');
+        expect(project.selection.identifier).to.equal('foo');
 
         project.selection.x = 200;
         project.view.applyChanges();
 
-        expect(clip.transform.x).to.equal(250);
-        expect(clip.transform.y).to.equal(50);
+        expect(clip.transformation.x).to.equal(250);
+        expect(clip.transformation.y).to.equal(50);
 
         expect(project.selection.x).to.equal(200);
         expect(project.selection.y).to.equal(0);
@@ -219,7 +221,7 @@ describe('Wick.Selection', function() {
         expect(project.selection.opacity).to.equal(1);
         expect(project.selection.center.x).to.be.closeTo(250, 0.01);
         expect(project.selection.center.y).to.be.closeTo(50, 0.01);
-        expect(project.selection.name).to.equal('foo');
+        expect(project.selection.identifier).to.equal('foo');
     });
 
     it('should update sound of a selected frame', function () {
