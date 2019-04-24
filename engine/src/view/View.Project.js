@@ -330,7 +330,7 @@ Wick.View.Project = class extends Wick.View {
                 this.applyChanges();
                 this.model.selection.clear();
                 e.items.forEach(item => {
-                    let object = this.model.getChildByUUID(item.data.wickUUID);
+                    let object = Wick.ObjectCache.getObjectByUUID(item.data.wickUUID);
                     this.model.selection.select(object);
                 });
                 this.applyChanges();

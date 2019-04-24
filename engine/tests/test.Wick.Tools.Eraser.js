@@ -13,8 +13,9 @@ describe('Wick.Tools.Eraser', function() {
             done();
         });
 
-        var path1 = new Wick.Path(["Path",{"segments":[[0,0],[50,0],[50,50],[0,50]],"closed":true,"fillColor":[1,0,0]}]);
-        project.activeFrame.addPath(path1);
+        var json = ["Path",{"segments":[[0,0],[50,0],[50,50],[0,50]],"closed":true,"fillColor":[1,0,0]}];
+        var path = new Wick.Path({json:json});
+        project.activeFrame.addPath(path);
         project.view.render();
 
         eraser.activate();

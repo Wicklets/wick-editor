@@ -31,7 +31,7 @@ describe('Wick.Tools.Brush', function() {
 
         project.view.on('canvasModified', function (e) {
             expect(project.activeFrame.paths.length).to.equal(1);
-            expect(project.activeFrame.paths[0].bounds.area).to.be.closeTo(1316, 100);
+            expect(project.activeFrame.paths[0].view.item.bounds.area).to.be.closeTo(1316, 100);
             done();
         });
 

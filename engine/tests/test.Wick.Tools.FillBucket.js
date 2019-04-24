@@ -8,15 +8,18 @@ describe('Wick.Tools.FillBucket', function() {
         var project = new Wick.Project();
         var fillbucket = project.view.tools.fillbucket;
 
-        var path1 = new Wick.Path(["Path",{"segments":[[0,0],[50,0],[50,50],[0,50]],"closed":true,"fillColor":[1,1,1]}]);
-        var path2 = new Wick.Path(["Path",{"segments":[[50,50],[100,50],[100,100],[50,100]],"closed":true,"fillColor":[1,1,1]}]);
+        var json1 = ["Path",{"segments":[[0,0],[50,0],[50,50],[0,50]],"closed":true,"fillColor":[1,1,1]}];
+        var json2 = ["Path",{"segments":[[50,50],[100,50],[100,100],[50,100]],"closed":true,"fillColor":[1,1,1]}];
+
+        var path1 = new Wick.Path({json:json1});
+        var path2 = new Wick.Path({json:json2});
         project.activeFrame.addPath(path1);
         project.activeFrame.addPath(path2);
         project.view.render();
 
         project.view.on('canvasModified', function (e) {
             expect(project.activeFrame.paths.length).to.equal(2);
-            expect(project.activeFrame.paths[0].paperPath.fillColor.toCSS(true)).to.equal('#ff0000');
+            expect(project.activeFrame.paths[0].view.item.fillColor.toCSS(true)).to.equal('#ff0000');
         });
 
         fillbucket.activate();
@@ -25,8 +28,8 @@ describe('Wick.Tools.FillBucket', function() {
 
         project.view.on('canvasModified', function (e) {
             expect(project.activeFrame.paths.length).to.equal(2);
-            expect(project.activeFrame.paths[0].paperPath.fillColor.toCSS(true)).to.equal('#ff0000');
-            expect(project.activeFrame.paths[1].paperPath.fillColor.toCSS(true)).to.equal('#0000ff');
+            expect(project.activeFrame.paths[0].view.item.fillColor.toCSS(true)).to.equal('#ff0000');
+            expect(project.activeFrame.paths[1].view.item.fillColor.toCSS(true)).to.equal('#0000ff');
             done();
         });
         fillbucket.fillColor = '#0000ff';
@@ -39,15 +42,20 @@ describe('Wick.Tools.FillBucket', function() {
 
         project.view.on('canvasModified', function (e) {
             expect(project.activeFrame.paths.length).to.equal(5);
-            expect(project.activeFrame.paths[4].paperPath.fillColor.toCSS(true)).to.equal('#ff0000');
-            expect(project.activeFrame.paths[4].paperPath.bounds.area).to.be.closeTo(900, 100);
+            expect(project.activeFrame.paths[4].view.item.fillColor.toCSS(true)).to.equal('#ff0000');
+            expect(project.activeFrame.paths[4].view.item.bounds.area).to.be.closeTo(900, 100);
             done();
         });
 
-        var path1 = new Wick.Path(["Path",{"segments":[[0,0],[50,0],[50,10],[0,10]],"closed":true,"fillColor":[1,1,1]}]);
-        var path2 = new Wick.Path(["Path",{"segments":[[0,0],[10,0],[10,50],[0,50]],"closed":true,"fillColor":[1,1,1]}]);
-        var path3 = new Wick.Path(["Path",{"segments":[[40,0],[50,0],[50,50],[40,50]],"closed":true,"fillColor":[1,1,1]}]);
-        var path4 = new Wick.Path(["Path",{"segments":[[0,40],[50,40],[50,50],[0,50]],"closed":true,"fillColor":[1,1,1]}]);
+        var json1 = ["Path",{"segments":[[0,0],[50,0],[50,10],[0,10]],"closed":true,"fillColor":[1,1,1]}];
+        var json2 = ["Path",{"segments":[[0,0],[10,0],[10,50],[0,50]],"closed":true,"fillColor":[1,1,1]}]
+        var json3 = ["Path",{"segments":[[40,0],[50,0],[50,50],[40,50]],"closed":true,"fillColor":[1,1,1]}]
+        var json4 = ["Path",{"segments":[[0,40],[50,40],[50,50],[0,50]],"closed":true,"fillColor":[1,1,1]}]
+
+        var path1 = new Wick.Path({json: json1});
+        var path2 = new Wick.Path({json: json2});
+        var path3 = new Wick.Path({json: json3});
+        var path4 = new Wick.Path({json: json4});
         project.activeFrame.addPath(path1);
         project.activeFrame.addPath(path2);
         project.activeFrame.addPath(path3);

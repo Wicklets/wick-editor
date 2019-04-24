@@ -135,13 +135,13 @@ describe('Wick.Frame', function() {
             var frameEmpty = new Wick.Frame();
 
             var frameOnePath = new Wick.Frame();
-            frameOnePath.addPath(new Wick.Path());
+            frameOnePath.addPath(new Wick.Path({json: TestUtils.TEST_PATH_JSON_RED_SQUARE}));
 
             var frameOneClip = new Wick.Frame();
             frameOneClip.addClip(new Wick.Clip());
 
             var frameOneClipOnePath = new Wick.Frame();
-            frameOneClipOnePath.addPath(new Wick.Path());
+            frameOneClipOnePath.addPath(new Wick.Path({json: TestUtils.TEST_PATH_JSON_RED_SQUARE}));
             frameOneClipOnePath.addClip(new Wick.Clip());
 
             expect(frameEmpty.contentful).to.equal(false);

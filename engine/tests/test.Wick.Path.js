@@ -113,14 +113,14 @@ describe('Wick.Path', function() {
 
     describe('#get classname()', function() {
         it('should return "Path"', function () {
-            expect(new Wick.Path().classname).to.equal('Path');
+            expect(new Wick.Path({json: TestUtils.TEST_PATH_JSON_RED_SQUARE}).classname).to.equal('Path');
         });
     });
 
     describe('#remove()', function() {
         it('should remove path from parent frame', function () {
             var frame = new Wick.Frame();
-            var path = new Wick.Path();
+            var path = new Wick.Path({json: TestUtils.TEST_PATH_JSON_RED_SQUARE});
             frame.addPath(path);
             path.remove();
             expect(frame.paths.length).to.equal(0);

@@ -193,7 +193,7 @@ describe('Wick.Project', function() {
     describe('#addObject', function () {
         it('should add paths to the project', function() {
             let project = new Wick.Project();
-            let path = new Wick.Path();
+            let path = new Wick.Path({json: TestUtils.TEST_PATH_JSON_RED_SQUARE});
             expect(project.activeFrame.paths.length).to.equal(0);
             let returnValue = project.addObject(path);
             expect(returnValue).to.equal(true);
@@ -574,10 +574,16 @@ describe('Wick.Project', function() {
         it('should create a clip out of selected clips', function () {
             var project = new Wick.Project();
 
-            var clip1 = new Wick.Clip('foo', [new Wick.Path()]);
+            var clip1 = new Wick.Clip({
+                identifier: 'foo',
+                objects: [new Wick.Path({json: TestUtils.TEST_PATH_JSON_RED_SQUARE})]
+            });
             project.activeFrame.addClip(clip1);
 
-            var clip2 = new Wick.Clip('foo', [new Wick.Path()]);
+            var clip2 = new Wick.Clip({
+                identifier: 'foo',
+                objects: [new Wick.Path({json: TestUtils.TEST_PATH_JSON_RED_SQUARE})]
+            });
             project.activeFrame.addClip(clip2);
 
             project.selection.select(project.activeFrame.clips[0]);

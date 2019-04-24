@@ -8,8 +8,11 @@ describe('Wick.Tools.Cursor', function() {
         var project = new Wick.Project();
         var cursor = project.view.tools.cursor;
 
-        var path1 = new Wick.Path(["Path",{"segments":[[0,0],[50,0],[50,50],[0,50]],"closed":true,"fillColor":[1,0,0]}]);
-        var path2 = new Wick.Path(["Path",{"segments":[[50,100],[50,50],[100,50],[100,100]],"closed":true,"fillColor":[1,0,0]}]);
+        var pathJson1 = ["Path",{"segments":[[0,0],[50,0],[50,50],[0,50]],"closed":true,"fillColor":[1,0,0]}];
+        var pathJson2 = ["Path",{"segments":[[50,100],[50,50],[100,50],[100,100]],"closed":true,"fillColor":[1,0,0]}];
+
+        var path1 = new Wick.Path({json: pathJson1});
+        var path2 = new Wick.Path({json: pathJson2});
         project.activeFrame.addPath(path1);
         project.activeFrame.addPath(path2);
         project.view.render();

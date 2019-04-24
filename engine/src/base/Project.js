@@ -63,6 +63,9 @@ Wick.Project = class extends Wick.Base {
         this._currentKey = null;
 
         this._tickIntervalID = null;
+
+        this.clipboard = new Wick.Clipboard();
+        this.history = new Wick.History();
     }
 
     deserialize (data) {
@@ -174,6 +177,30 @@ Wick.Project = class extends Wick.Base {
      */
     get classname () {
         return 'Project';
+    }
+
+    /**
+     * An instance of the Wick.Clipboard utility class used for copy/paste.
+     * @type {Wick.Clipboard}
+     */
+    get clipboard () {
+        return this._clipboard;
+    }
+
+    set clipboard (clipboard) {
+        this._clipboard = clipboard;
+    }
+
+    /**
+     * An instance of the Wick.History utility class used for undo/redo.
+     * @type {Wick.History}
+     */
+    get history () {
+        return this._history;
+    }
+
+    set history (history) {
+        this._history = history;
     }
 
     /**

@@ -12,7 +12,7 @@ describe('Wick.Tools.Rectangle', function() {
 
         project.view.on('canvasModified', function (e) {
             expect(project.activeFrame.paths.length).to.equal(1);
-            expect(project.activeFrame.paths[0].bounds.area).to.be.closeTo(1600, 100);
+            expect(project.activeFrame.paths[0].view.item.bounds.area).to.be.closeTo(1600, 100);
             done();
         });
 
