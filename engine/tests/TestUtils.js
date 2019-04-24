@@ -59,4 +59,10 @@ var TestUtils = {
         var blob = new Blob([ab], {type: mimeString});
       return blob;
     },
+
+    paperToWickPath : (paperPath) => {
+        return new Wick.Path({
+            json: paperPath.exportJSON({asString:false}),
+        });
+    },
 };

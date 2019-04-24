@@ -14,11 +14,11 @@ describe('Wick.View.Timeline', function() {
             timeline.addLayer(new Wick.Layer());
             timeline.addLayer(new Wick.Layer());
             timeline.addLayer(new Wick.Layer());
-            timeline.layers[0].addFrame(new Wick.Frame(1));
-            timeline.layers[0].addFrame(new Wick.Frame(2));
-            timeline.layers[0].addFrame(new Wick.Frame(3));
-            timeline.layers[1].addFrame(new Wick.Frame(1));
-            timeline.layers[2].addFrame(new Wick.Frame(1));
+            timeline.layers[0].addFrame(new Wick.Frame({start:1}));
+            timeline.layers[0].addFrame(new Wick.Frame({start:2}));
+            timeline.layers[0].addFrame(new Wick.Frame({start:3}));
+            timeline.layers[1].addFrame(new Wick.Frame({start:1}));
+            timeline.layers[2].addFrame(new Wick.Frame({start:1}));
             timeline.playheadPosition = 1;
 
             timeline.view.render();

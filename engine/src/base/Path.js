@@ -31,9 +31,10 @@ Wick.Path = class extends Wick.Base {
 
         if(args.json) {
             this.json = args.json;
-        }
-        if (args.asset) {
+        } else if (args.asset) {
             this.asset = args.asset;
+        } else {
+            console.warn('Warning: Paths require either "json" or "asset" to be passed in as args');
         }
     }
 
@@ -68,13 +69,25 @@ Wick.Path = class extends Wick.Base {
                 "applyMatrix": false,
                 "crossOrigin": "",
                 "source": "asset",
-                "asset": asset.uuid
+                "asset": asset.uuid,
+                "data": {
+                    "asset" : asset.uuid
+                }
             }
         ];
     }
 
     /**
+     * Flag that is set to true when the path is fully loaded.
+     * @type {boolean}
+     */
+    get isLoaded () {
+        return this._isLoaded;
+    }
+
+    /**
      * Callback to listen for when a raster path is done being loaded
+     * @param {function} fn - the function to call when a path is loaded
      */
     set onLoad (fn) {
         this._onLoad = fn;

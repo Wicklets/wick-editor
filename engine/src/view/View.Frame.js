@@ -224,7 +224,6 @@ Wick.View.Frame = class extends Wick.View {
     }
 
     _applyPathChanges () {
-        /*
         this.model.paths.forEach(path => {
             this.model.removePath(path);
         });
@@ -234,10 +233,9 @@ Wick.View.Frame = class extends Wick.View {
                 pathJSON[1].asset = child.data.asset;
                 pathJSON[1].source = 'asset';
             }
-            var wickPath = new Wick.Path(pathJSON);
+            var wickPath = new Wick.Path({json:pathJSON});
             this.model.addPath(wickPath);
             child.name = wickPath.uuid;
         });
-        */
     }
 }

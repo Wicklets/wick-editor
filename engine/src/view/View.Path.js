@@ -73,7 +73,8 @@ Wick.View.Path = class extends Wick.View {
 
         // Listen for when the path is fully loaded
         this._item.onLoad = (e) => {
-            if(this.model._onLoad) {
+            if(this.model._onLoad && !this.model._isLoaded) {
+                this.model._isLoaded = true;
                 this.model._onLoad(e);
             }
         }

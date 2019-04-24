@@ -29,13 +29,15 @@ describe('Wick.View.Clip', function() {
             var project = new Wick.Project();
             project.view.renderMode = 'svg';
 
+            var dummyPathJson = new paper.Path().exportJSON({asString:false});
+
             var clip = new Wick.Clip();
             project.activeFrame.addClip(clip);
             clip.timeline.addLayer(new Wick.Layer());
             clip.timeline.layers[0].addFrame(new Wick.Frame());
-            clip.timeline.layers[0].frames[0].addPath(new Wick.Path(new paper.Path()));
-            clip.timeline.layers[0].frames[0].addPath(new Wick.Path(new paper.Path()));
-            clip.timeline.layers[0].frames[0].addPath(new Wick.Path(new paper.Path()));
+            clip.timeline.layers[0].frames[0].addPath(new Wick.Path({json: dummyPathJson}));
+            clip.timeline.layers[0].frames[0].addPath(new Wick.Path({json: dummyPathJson}));
+            clip.timeline.layers[0].frames[0].addPath(new Wick.Path({json: dummyPathJson}));
 
             clip.view.render(clip);
 
@@ -58,19 +60,23 @@ describe('Wick.View.Clip', function() {
             clip.timeline.addLayer(new Wick.Layer());
             clip.timeline.layers[0].addFrame(new Wick.Frame());
 
-            // The bounds for this clip should end up being (-50,0) - (200,300)
-            clip.timeline.layers[0].frames[0].addPath(new Wick.Path(new paper.Path({
+            var pathJson1 = new paper.Path({
                 segments: [[-50,0], [-50,100], [100,100], [100,0]],
                 fillColor: 'black',
-            }).exportJSON({asString:false})));
-            clip.timeline.layers[0].frames[0].addPath(new Wick.Path(new paper.Path({
+            }).exportJSON({asString:false});
+            var pathJson2 = new paper.Path({
                 segments: [[0,0], [0,200], [200,200], [200,0]],
                 fillColor: 'black',
-            }).exportJSON({asString:false})));
-            clip.timeline.layers[0].frames[0].addPath(new Wick.Path(new paper.Path({
+            }).exportJSON({asString:false});
+            var pathJson3 = new paper.Path({
                 segments: [[0,0], [0,300], [100,300], [100,0]],
                 fillColor: 'black',
-            }).exportJSON({asString:false})));
+            }).exportJSON({asString:false});
+
+            // The bounds for this clip should end up being (-50,0) - (200,300)
+            clip.timeline.layers[0].frames[0].addPath(new Wick.Path({json:pathJson1}));
+            clip.timeline.layers[0].frames[0].addPath(new Wick.Path({json:pathJson2}));
+            clip.timeline.layers[0].frames[0].addPath(new Wick.Path({json:pathJson3}));
 
             clip.view.render();
             expect(clip.view.group.children[0].children.length).to.equal(3);

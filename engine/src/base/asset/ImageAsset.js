@@ -60,7 +60,7 @@ Wick.ImageAsset = class extends Wick.FileAsset {
     removeAllInstances () {
         this.project.getAllFrames().forEach(frame => {
             frame.paths.forEach(path => {
-                if(path.paperPath.asset === this.uuid) {
+                if(path.view.item.asset === this.uuid) {
                     path.remove();
                 }
             });
@@ -72,7 +72,7 @@ Wick.ImageAsset = class extends Wick.FileAsset {
      * @returns {Wick.Path} - the newly created path.
      */
     createInstance (callback) {
-        var path = new Wick.Path(this);
+        var path = new Wick.Path({asset:this});
         path.onLoad = () => {
             callback && callback(path);
         }

@@ -29,10 +29,15 @@ describe('Wick.View.Frame', function() {
 
         it('should create paper.js layer with SVG from frame SVG', function() {
             var project = new Wick.Project();
+
+            var pathJson1 = new paper.Path({strokeColor:'#ff0000'}).exportJSON({asString:false});
+            var pathJson2 = new paper.Path({strokeColor:'#0000ff'}).exportJSON({asString:false});
+            var pathJson3 = new paper.Path({strokeColor:'#00ff00'}).exportJSON({asString:false});
+
             var frame = project.activeFrame;
-            frame.addPath(new Wick.Path(new paper.Path({strokeColor:'#ff0000'})));
-            frame.addPath(new Wick.Path(new paper.Path({strokeColor:'#0000ff'})));
-            frame.addPath(new Wick.Path(new paper.Path({strokeColor:'#00ff00'})));
+            frame.addPath(new Wick.Path({json: pathJson1}));
+            frame.addPath(new Wick.Path({json: pathJson2}));
+            frame.addPath(new Wick.Path({json: pathJson3}));
 
             frame.view.render(frame);
 
@@ -46,20 +51,30 @@ describe('Wick.View.Frame', function() {
             var project = new Wick.Project();
             var frame = project.activeFrame;
 
+            var path1 = new Wick.Path({
+                json: new paper.Path({strokeColor:'#ff0000'}).exportJSON({asString:false})
+            })
+            var path2 = new Wick.Path({
+                json: new paper.Path({strokeColor:'#ff0000'}).exportJSON({asString:false})
+            })
+            var path3 = new Wick.Path({
+                json: new paper.Path({strokeColor:'#ff0000'}).exportJSON({asString:false})
+            })
+
             var clip1 = new Wick.Clip();
             clip1.timeline.addLayer(new Wick.Layer());
             clip1.timeline.layers[0].addFrame(new Wick.Frame());
-            clip1.timeline.layers[0].frames[0].addPath(new Wick.Path(new paper.Path({strokeColor:'#ff0000'})));
+            clip1.timeline.layers[0].frames[0].addPath(path1);
 
             var clip2 = new Wick.Clip();
             clip2.timeline.addLayer(new Wick.Layer());
             clip2.timeline.layers[0].addFrame(new Wick.Frame());
-            clip2.timeline.layers[0].frames[0].addPath(new Wick.Path(new paper.Path({strokeColor:'#ff0000'})));
+            clip2.timeline.layers[0].frames[0].addPath(path2);
 
             var clip3 = new Wick.Clip();
             clip3.timeline.addLayer(new Wick.Layer());
             clip3.timeline.layers[0].addFrame(new Wick.Frame());
-            clip3.timeline.layers[0].frames[0].addPath(new Wick.Path(new paper.Path({strokeColor:'#ff0000'})));
+            clip3.timeline.layers[0].frames[0].addPath(path3);
 
             frame.addClip(clip1);
             frame.addClip(clip2);
@@ -75,30 +90,34 @@ describe('Wick.View.Frame', function() {
             var project = new Wick.Project();
             var frame = project.activeFrame;
 
+            var pathJson1 = new paper.Path({
+                segments: [[0,0], [0,100], [100,100], [100,0]],
+                fillColor: 'black',
+            }).exportJSON({asString:false});
+            var pathJson2 = new paper.Path({
+                segments: [[0,0], [0,100], [100,100], [100,0]],
+                fillColor: 'black',
+            }).exportJSON({asString:false});
+            var pathJson3 = new paper.Path({
+                segments: [[0,0], [0,100], [100,100], [100,0]],
+                fillColor: 'black',
+            }).exportJSON({asString:false})
+
             var clip = new Wick.Clip();
             clip.timeline.addLayer(new Wick.Layer());
             clip.timeline.layers[0].addFrame(new Wick.Frame());
-            clip.timeline.layers[0].frames[0].addPath(new Wick.Path(new paper.Path({
-                segments: [[0,0], [0,100], [100,100], [100,0]],
-                fillColor: 'black',
-            }).exportJSON({asString:false})));
+            clip.timeline.layers[0].frames[0].addPath(new Wick.Path({json: pathJson1}));
             clip.transformation.x = 100;
             frame.addClip(clip);
 
             var button = new Wick.Button();
             button.timeline.addLayer(new Wick.Layer());
             button.timeline.layers[0].addFrame(new Wick.Frame());
-            button.timeline.layers[0].frames[0].addPath(new Wick.Path(new paper.Path({
-                segments: [[0,0], [0,100], [100,100], [100,0]],
-                fillColor: 'black',
-            }).exportJSON({asString:false})));
+            button.timeline.layers[0].frames[0].addPath(new Wick.Path({json: pathJson2}));
             button.transformation.x = 200;
             frame.addClip(button);
 
-            frame.addPath(new Wick.Path(new paper.Path({
-                segments: [[0,0], [0,100], [100,100], [100,0]],
-                fillColor: 'black',
-            }).exportJSON({asString:false})));
+            frame.addPath(new Wick.Path({json: pathJson3}));
 
             frame.view.render(frame);
 
@@ -121,19 +140,20 @@ describe('Wick.View.Frame', function() {
         it('should render rasters', function(done) {
             var project = new Wick.Project();
             var frame = project.activeFrame;
-            var asset = new Wick.ImageAsset('test.png', TestUtils.TEST_IMG_SRC);
+            var asset = new Wick.ImageAsset({
+                filename: 'test.png',
+                src: TestUtils.TEST_IMG_SRC_PNG,
+            });
             project.addAsset(asset);
 
-            var path = new Wick.Path(["Raster",{"applyMatrix":false,"crossOrigin":"","source":"asset","asset":asset.uuid}]);
-            path.paperPath.position.x = 50;
-            frame.addPath(path);
+            asset.createInstance(path => {
+                frame.addPath(path);
 
-            project.view.preloadImages(() => {
                 project.view.render();
                 expect(frame.view.pathsLayer.children[0].bounds.width).to.equal(100);
                 expect(frame.view.pathsLayer.children[0].bounds.height).to.equal(100);
-                expect(frame.view.pathsLayer.children[0].source).to.equal(TEST_IMG_SRC);
-                expect(frame.view.pathsLayer.children[0].position.x).to.equal(50);
+                expect(frame.view.pathsLayer.children[0].source).to.equal(TestUtils.TEST_IMG_SRC_PNG);
+                expect(frame.view.pathsLayer.children[0].position.x).to.equal(0);
                 expect(frame.view.pathsLayer.children[0].position.y).to.equal(0);
                 done();
             });
@@ -145,9 +165,13 @@ describe('Wick.View.Frame', function() {
             var project = new Wick.Project();
             var frame = project.activeFrame;
 
-            frame.addPath(new Wick.Path(new paper.Path({fillColor:'#ffffff'}).exportJSON({asString:true})));
-            frame.addPath(new Wick.Path(new paper.Path({fillColor:'#ffffff'}).exportJSON({asString:true})));
-            frame.addPath(new Wick.Path(new paper.Path({fillColor:'#ffffff'}).exportJSON({asString:true})));
+            var path1 = TestUtils.paperToWickPath(new paper.Path({fillColor:'#ffffff'}));
+            var path2 = TestUtils.paperToWickPath(new paper.Path({fillColor:'#ffffff'}));
+            var path3 = TestUtils.paperToWickPath(new paper.Path({fillColor:'#ffffff'}));
+
+            frame.addPath(path1);
+            frame.addPath(path2);
+            frame.addPath(path3);
 
             frame.view.render(frame);
 
@@ -156,10 +180,10 @@ describe('Wick.View.Frame', function() {
             frame.view.pathsLayer.children[2].fillColor = '#112233';
             frame.view.pathsLayer.addChild(new paper.Path({fillColor:'#abcdef'}));
             frame.view.applyChanges();
-            expect(frame.paths[0].paperPath.fillColor.toCSS(true)).to.equal('#aabbcc');
-            expect(frame.paths[1].paperPath.fillColor.toCSS(true)).to.equal('#ddeeff');
-            expect(frame.paths[2].paperPath.fillColor.toCSS(true)).to.equal('#112233');
-            expect(frame.paths[3].paperPath.fillColor.toCSS(true)).to.equal('#abcdef');
+            expect(frame.paths[0].view.item.fillColor.toCSS(true)).to.equal('#aabbcc');
+            expect(frame.paths[1].view.item.fillColor.toCSS(true)).to.equal('#ddeeff');
+            expect(frame.paths[2].view.item.fillColor.toCSS(true)).to.equal('#112233');
+            expect(frame.paths[3].view.item.fillColor.toCSS(true)).to.equal('#abcdef');
         });
 
         it('should reorder clips from clips layer correctly', function() {
@@ -213,12 +237,10 @@ describe('Wick.View.Frame', function() {
             var clipA = new Wick.Clip();
             clipA.timeline.addLayer(new Wick.Layer());
             clipA.timeline.layers[0].addFrame(new Wick.Frame());
-            clipA.timeline.layers[0].frames[0].svg = '<g xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" fill-rule=\"nonzero\" stroke=\"none\" stroke-width=\"1\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke-miterlimit=\"10\" stroke-dasharray=\"\" stroke-dashoffset=\"0\" font-family=\"none\" font-weight=\"none\" font-size=\"none\" text-anchor=\"none\" style=\"mix-blend-mode: normal\"><path d=\"M20,0c0,-16.56854 13.43146,-30 30,-30c16.56854,0 30,13.43146 30,30c0,16.56854 -13.43146,30 -30,30c-16.56854,0 -30,-13.43146 -30,-30z\" stroke=\"#ff0000\"/><path d=\"M20,50c0,-16.56854 13.43146,-30 30,-30c16.56854,0 30,13.43146 30,30c0,16.56854 -13.43146,30 -30,30c-16.56854,0 -30,-13.43146 -30,-30z\" stroke=\"#0000ff\"/><path d=\"M-30,50c0,-16.56854 13.43146,-30 30,-30c16.56854,0 30,13.43146 30,30c0,16.56854 -13.43146,30 -30,30c-16.56854,0 -30,-13.43146 -30,-30z\" stroke=\"#ff0000\"/></g>';
 
             var clipB = new Wick.Clip();
             clipB.timeline.addLayer(new Wick.Layer());
             clipB.timeline.layers[0].addFrame(new Wick.Frame());
-            clipB.timeline.layers[0].frames[0].svg = '<g xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" fill-rule=\"nonzero\" stroke=\"none\" stroke-width=\"1\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke-miterlimit=\"10\" stroke-dasharray=\"\" stroke-dashoffset=\"0\" font-family=\"none\" font-weight=\"none\" font-size=\"none\" text-anchor=\"none\" style=\"mix-blend-mode: normal\"><path d=\"M20,0c0,-16.56854 13.43146,-30 30,-30c16.56854,0 30,13.43146 30,30c0,16.56854 -13.43146,30 -30,30c-16.56854,0 -30,-13.43146 -30,-30z\" stroke=\"#ff0000\"/><path d=\"M20,50c0,-16.56854 13.43146,-30 30,-30c16.56854,0 30,13.43146 30,30c0,16.56854 -13.43146,30 -30,30c-16.56854,0 -30,-13.43146 -30,-30z\" stroke=\"#0000ff\"/><path d=\"M-30,50c0,-16.56854 13.43146,-30 30,-30c16.56854,0 30,13.43146 30,30c0,16.56854 -13.43146,30 -30,30c-16.56854,0 -30,-13.43146 -30,-30z\" stroke=\"#ff0000\"/></g>';
 
             frame.addClip(clipA);
             frame.addClip(clipB);
@@ -248,20 +270,26 @@ describe('Wick.View.Frame', function() {
             expect(frame.clips[1].transformation.opacity).to.equal(1.0);
         });
 
-        it('should update raster data', function() {
+        it('should update raster data', function(done) {
             var project = new Wick.Project();
             var frame = project.activeFrame;
-            var asset = new Wick.ImageAsset('test.png', TestUtils.TEST_IMG_SRC);
+            var asset = new Wick.ImageAsset({
+                filename: 'test.png',
+                src: TestUtils.TEST_IMG_SRC_PNG,
+            });
             project.addAsset(asset);
 
-            frame.addPath(new Wick.Path(["Raster",{"applyMatrix":false,"crossOrigin":"","source":"asset","asset":asset.uuid}]));
-            frame.view.render(frame);
+            asset.createInstance(path => {
+                frame.addPath(path);
+                frame.view.render(frame);
 
-            frame.view.pathsLayer.children[0].position.x += 50;
-            frame.view.applyChanges(frame, frame.view.pathsLayer);
+                frame.view.pathsLayer.children[0].position.x += 50;
+                frame.view.applyChanges(frame, frame.view.pathsLayer);
 
-            expect(frame.paths[0].paperPath.source).to.equal(TEST_IMG_SRC);
-            expect(frame.paths[0].paperPath.position.x).to.equal(50);
+                expect(frame.paths[0].view.item.source).to.equal(TestUtils.TEST_IMG_SRC_PNG);
+                expect(frame.paths[0].view.item.position.x).to.equal(50);
+                done();
+            });
         });
     });
 
@@ -324,9 +352,9 @@ describe('Wick.View.Frame', function() {
             });
 
             var frame = project.activeFrame;
-            frame.addPath(new Wick.Path(circle1.exportJSON()));
-            frame.addPath(new Wick.Path(circle2.exportJSON()));
-            frame.addPath(new Wick.Path(circle3.exportJSON()));
+            frame.addPath(TestUtils.paperToWickPath(circle1));
+            frame.addPath(TestUtils.paperToWickPath(circle2));
+            frame.addPath(TestUtils.paperToWickPath(circle3));
             project.view.prerasterize(() => {
                 project.view.render();
 
@@ -362,16 +390,16 @@ describe('Wick.View.Frame', function() {
                 radius: 30,
                 strokeColor: 'black',
                 fillColor: 'red',
-            }).exportJSON();
+            }).exportJSON({asString:true});
             var svgData2 = new paper.Path.Circle({
                 center: [100, 100],
                 radius: 30,
                 strokeColor: 'black',
                 fillColor: 'red',
-            }).exportJSON();
+            }).exportJSON({asString:true});
 
             var frame = project.activeFrame;
-            frame.addPath(new Wick.Path(svgData1));
+            frame.addPath(new Wick.Path({json:svgData1}));
 
             project.view.prerasterize(() => {
                 project.view.render();
@@ -393,8 +421,10 @@ describe('Wick.View.Frame', function() {
                 expect(sprite.y).to.equal(-30);
 
                 // Second render: change the paths of the frame
-                frame.removeAllPaths();
-                frame.addPath(new Wick.Path(svgData2));
+                frame.paths.forEach(path => {
+                    path.remove();
+                });
+                frame.addPath(new Wick.Path({json:svgData2}));
                 frame.view.clearRasterCache();
                 project.view.prerasterize(() => {
                     project.view.render();
@@ -416,24 +446,24 @@ describe('Wick.View.Frame', function() {
             var project = new Wick.Project();
             project.view.renderMode = 'webgl';
 
-            var svgData1 = new paper.Path.Circle({
+            var path1 = TestUtils.paperToWickPath(new paper.Path.Circle({
                 center: [0, 0],
                 radius: 30,
                 strokeColor: 'black',
                 fillColor: 'red',
-            }).exportJSON();
-            var svgData2 = new paper.Path.Circle({
+            }));
+            var path2 = TestUtils.paperToWickPath(new paper.Path.Circle({
                 center: [100, 100],
                 radius: 30,
                 strokeColor: 'black',
                 fillColor: 'blue',
-            }).exportJSON();
+            }));
 
             var frame1 = project.activeFrame;
-            frame1.addPath(new Wick.Path(svgData1));
+            frame1.addPath(path1);
 
             var frame2 = new Wick.Frame();
-            frame2.addPath(new Wick.Path(svgData2));
+            frame2.addPath(path2);
 
             project.root.timeline.addLayer(new Wick.Layer());
             project.root.timeline.layers[1].addFrame(frame2);
@@ -480,23 +510,24 @@ describe('Wick.View.Frame', function() {
 
             project.view.renderMode = 'webgl';
 
-            var svgData1 = new paper.Path.Circle({
+            var path1 = TestUtils.paperToWickPath(new paper.Path.Circle({
                 center: [0, 0],
                 radius: 30,
                 strokeColor: 'black',
                 fillColor: 'red',
-            }).exportJSON();
-            var frame2 = new Wick.Frame();
-            frame2.addPath(new Wick.Path(svgData2));
+            }));
 
-            var svgData2 = new paper.Path.Circle({
+            var frame2 = new Wick.Frame();
+            frame2.addPath(path1);
+
+            var path2 = TestUtils.paperToWickPath(new paper.Path.Circle({
                 center: [100, 100],
                 radius: 30,
                 strokeColor: 'black',
                 fillColor: 'blue',
-            }).exportJSON();
+            }))
             var frame1 = project.activeFrame;
-            frame1.addPath(new Wick.Path(svgData1));
+            frame1.addPath(path2);
 
             project.root.timeline.activeLayer.addFrame(frame2);
 

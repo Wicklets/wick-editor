@@ -14,9 +14,9 @@ describe('Wick.View.Layer', function() {
             var layer = new Wick.Layer();
             project.root.timeline.addLayer(layer);
 
-            layer.addFrame(new Wick.Frame(1));
-            layer.addFrame(new Wick.Frame(2));
-            layer.addFrame(new Wick.Frame(3));
+            layer.addFrame(new Wick.Frame({start:1}));
+            layer.addFrame(new Wick.Frame({start:2}));
+            layer.addFrame(new Wick.Frame({start:3}));
 
             layer.view.render(layer);
 
@@ -30,8 +30,8 @@ describe('Wick.View.Layer', function() {
 
             var layer = new Wick.Layer();
             project.root.timeline.addLayer(layer);
-            layer.addFrame(new Wick.Frame(2));
-            layer.addFrame(new Wick.Frame(3));
+            layer.addFrame(new Wick.Frame({start:2}));
+            layer.addFrame(new Wick.Frame({start:3}));
 
             layer.view.render();
 
@@ -47,8 +47,8 @@ describe('Wick.View.Layer', function() {
 
             var layer = project.activeLayer;
             project.root.timeline.addLayer(layer);
-            layer.addFrame(new Wick.Frame(2));
-            layer.addFrame(new Wick.Frame(3));
+            layer.addFrame(new Wick.Frame({start:2}));
+            layer.addFrame(new Wick.Frame({start:3}));
 
             // Two frames, two layers each (paths+clips layers)
             layer.view.render();
@@ -72,13 +72,13 @@ describe('Wick.View.Layer', function() {
             project.focus.timeline.playheadPosition = 3;
 
             var layer = project.activeLayer;
-            layer.addFrame(new Wick.Frame(2));
-            layer.addFrame(new Wick.Frame(3));
-            layer.addFrame(new Wick.Frame(4));
-            layer.addFrame(new Wick.Frame(5));
-            layer.addFrame(new Wick.Frame(6));
-            layer.addFrame(new Wick.Frame(7));
-            layer.addFrame(new Wick.Frame(8));
+            layer.addFrame(new Wick.Frame({start:2}));
+            layer.addFrame(new Wick.Frame({start:3}));
+            layer.addFrame(new Wick.Frame({start:4}));
+            layer.addFrame(new Wick.Frame({start:5}));
+            layer.addFrame(new Wick.Frame({start:6}));
+            layer.addFrame(new Wick.Frame({start:7}));
+            layer.addFrame(new Wick.Frame({start:8}));
 
             layer.view.render();
             expect(layer.view.onionSkinnedFramesLayers[0].opacity).to.be.closeTo(0.5 * Wick.View.Layer.BASE_ONION_OPACITY, 0.001);
@@ -98,8 +98,8 @@ describe('Wick.View.Layer', function() {
             project.focus.timeline.playheadPosition = 5;
 
             var layer = project.activeLayer;
-            layer.addFrame(new Wick.Frame(2));
-            layer.addFrame(new Wick.Frame(3));
+            layer.addFrame(new Wick.Frame({start:2}));
+            layer.addFrame(new Wick.Frame({start:3}));
 
             layer.view.render();
 

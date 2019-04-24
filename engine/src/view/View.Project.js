@@ -283,7 +283,7 @@ Wick.View.Project = class extends Wick.View {
         var i = setInterval(() => {
             var allLoaded = true;
             allRasters.forEach(raster => {
-                if(!raster._loaded) {
+                if(!raster.isLoaded) {
                     allLoaded = false;
                 }
             });

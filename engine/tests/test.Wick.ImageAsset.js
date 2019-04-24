@@ -53,8 +53,8 @@ describe('Wick.ImageAsset', function() {
         });
     });
 
-    describe('#removeAllInstances', function (done) {
-        it('should delete all instances of the asset in the project', function () {
+    describe('#removeAllInstances', function () {
+        it('should delete all instances of the asset in the project', function (done) {
             var project = new Wick.Project();
             var asset = new Wick.ImageAsset({
                 filename: 'test.png',
@@ -67,6 +67,7 @@ describe('Wick.ImageAsset', function() {
                 expect(project.activeFrame.paths.length).to.equal(1);
                 project.removeAsset(asset);
                 expect(project.activeFrame.paths.length).to.equal(0);
+                done();
             });
         });
     });

@@ -51,9 +51,16 @@ WickObjectCache = class {
 
     /**
      * Get an object by its UUID.
+     * @returns {Wick.Base}
      */
     getObjectByUUID (uuid) {
-        return this._objects[uuid];
+        var object = this._objects[uuid];
+        if(!object) {
+            console.warn("Warning: object with uuid " + uuid + " was not found in the cache.");
+            return null;
+        } else {
+            return object;
+        }
     }
 
 }
