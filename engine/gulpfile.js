@@ -79,6 +79,7 @@ gulp.task('default', function() {
             'src/view/View.Timeline.js',
             'src/view/View.Layer.js',
             'src/view/View.Frame.js',
+            'src/view/View.Path.js',
             'src/gui/GUIElement.js',
             'src/gui/GUIElement.Clickable.js',
             'src/gui/GUIElement.CreateLayerLabel.js',
