@@ -50,8 +50,8 @@ Wick.Frame = class extends Wick.Tickable {
         return object;
     }
 
-    serialize () {
-        var data = super.serialize();
+    serialize (args) {
+        var data = super.serialize(args);
 
         data.start = this.start;
         data.end = this.end;

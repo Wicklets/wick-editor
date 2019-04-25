@@ -44,8 +44,8 @@ Wick.Selection = class extends Wick.Base {
         data.selectedObjects = this._selectedObjectsUUIDs;
     }
 
-    serialize () {
-        var data = super.serialize();
+    serialize (args) {
+        var data = super.serialize(args);
         data.selectedObjects = data.selectedObjects;
         return data;
     }

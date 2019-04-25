@@ -46,8 +46,8 @@ Wick.SoundAsset = class extends Wick.FileAsset {
         return object;
     }
 
-    serialize () {
-        var data = super.serialize();
+    serialize (args) {
+        var data = super.serialize(args);
         return data;
     }
 

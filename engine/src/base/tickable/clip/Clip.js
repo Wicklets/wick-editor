@@ -74,8 +74,8 @@ Wick.Clip = class extends Wick.Tickable {
         return object;
     }
 
-    serialize () {
-        var data = super.serialize();
+    serialize (args) {
+        var data = super.serialize(args);
 
         data.transformation = this.transformation.values;
         data.timeline = this._timeline;

@@ -83,8 +83,8 @@ Wick.Tween = class extends Wick.Base {
         return interpTween;
     }
 
-    serialize () {
-        var data = super.serialize();
+    serialize (args) {
+        var data = super.serialize(args);
 
         data.playheadPosition = this.playheadPosition;
         data.transformation = this.transformation.values;

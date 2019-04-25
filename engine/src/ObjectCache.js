@@ -41,6 +41,13 @@ WickObjectCache = class {
     }
 
     /**
+     * Remove all objects from the Object Cache.
+     */
+    removeAllObjects () {
+        this._objects = {};
+    }
+
+    /**
      * Remove all objects that are in the project, but are no longer linked to the root object.
      * This is basically a garbage collection function.
      * Only call this when you're ready to finish editing the project because old objects need to be retained somewhere for undo/redo.

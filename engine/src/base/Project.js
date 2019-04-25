@@ -91,8 +91,8 @@ Wick.Project = class extends Wick.Base {
         return object;
     }
 
-    serialize () {
-        var data = super.serialize();
+    serialize (args) {
+        var data = super.serialize(args);
 
         data.name = this.name;
         data.width = this.width;
@@ -165,7 +165,7 @@ Wick.Project = class extends Wick.Base {
      * @return {Wick.Base}   A deserialized Base Object. Can be any Wick Base subclass.
      */
     deserializeData (data) {
-        var object = new Wick[data.classname];
+        var object = new Wick[data.classname]();
         Wick.ObjectCache.addObject(object);
         object.deserialize(data);
         return object;

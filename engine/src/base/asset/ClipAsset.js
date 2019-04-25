@@ -39,8 +39,8 @@ Wick.ClipAsset = class extends Wick.Asset {
         this._timeline = data.timeline;
     }
 
-    serialize () {
-        var data = super.serialize();
+    serialize (args) {
+        var data = super.serialize(args);
         data.timeline = this._timeline;
         return data;
     }

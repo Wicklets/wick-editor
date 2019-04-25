@@ -32,8 +32,8 @@ Wick.Button = class extends Wick.Clip {
         super.deserialize(data);
     }
 
-    serialize () {
-        var data = super.serialize();
+    serialize (args) {
+        var data = super.serialize(args);
         return data;
     }
 

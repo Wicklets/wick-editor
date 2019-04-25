@@ -23,16 +23,22 @@
 Wick.Base = class {
     /**
      * Creates a Base object.
+     * @param {object} data - (Optional) Serialized data to use to create a Base object. If this is supplied, all other args are ignored.
+     * @parm {string} identifier - (Optional) The identifier of the object. Defaults to null.
      */
     constructor (args) {
         if(!args) args = {};
 
         this._uuid = uuidv4();
-        this._identifier = null;
+        this._identifier = args.identifier || null;
 
-        this._parent = null;
         this._children = [];
 
+        if(args.data) {
+            this.deserialize(args.data);
+        }
+
+        this._parent = null;
         this._project = null;
 
         this._view = null;
@@ -51,19 +57,41 @@ Wick.Base = class {
     deserialize (data) {
         this._uuid = data.uuid;
         this._identifier = data.identifier;
-        this._children = data.children.splice(0);//copy
+
+        // Deserialze children differently based on if deep serialize was used.
+        data.children.forEach(child => {
+            if(typeof child === 'string') {
+                // Data was created by shallow serialize
+                this._children.push(child);
+            } else {
+                // Data was created by deep serialize
+                var childDeserialized = new Wick[data.classname]({
+                    data: child,
+                });
+                this.addChild(childDeserialized);
+            }
+        });
     }
 
     /**
      * Converts this Wick Base object into a generic object contianing raw data (no references).
+     * @param {boolean} deep - If set to true, will fully serialze children instead of saving UUID references.
      * @return {object} Plain JavaScript object representing this Wick Base object.
      */
-    serialize () {
+    serialize (args) {
+        if(!args) args = {};
+
         var data = {};
         data.classname = this.classname;
         data.identifier = this._identifier;
         data.uuid = this._uuid;
-        data.children = this._children.splice(0);//copy
+        if(args.deep) {
+            data.children = this.children.map(child => {
+                return child.serialize(args);
+            })
+        } else {
+            data.children = this._children.splice(0);//copy
+        }
         return data;
     }
 

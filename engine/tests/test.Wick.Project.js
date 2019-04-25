@@ -118,10 +118,6 @@ describe('Wick.Project', function() {
     });
     */
 
-    describe('#fromWickFileURL', function () {
-
-    });
-
     describe('#focus', function () {
         it('should clear selection when focus is changed', function () {
             var project = new Wick.Project();

@@ -71,8 +71,8 @@ Wick.Tickable = class extends Wick.Base {
         return object;
     }
 
-    serialize () {
-        var data = super.serialize();
+    serialize (args) {
+        var data = super.serialize(args);
 
         data.scripts = [].concat(this._scripts);
         data.cursor = this.cursor;

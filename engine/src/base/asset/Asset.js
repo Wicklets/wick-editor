@@ -34,8 +34,8 @@ Wick.Asset = class extends Wick.Base {
         this.name = data.name;
     }
 
-    serialize () {
-        var data = super.serialize();
+    serialize (args) {
+        var data = super.serialize(args);
         data.name = this.name;
         return data;
     }

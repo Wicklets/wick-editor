@@ -13,13 +13,122 @@ describe('Wick.Base', function() {
 
     describe('#serialize', function () {
         it('should serialize correctly', function () {
+            var child1 = new Wick.Base();
+            var child2 = new Wick.Base();
+            var child3 = new Wick.Base();
 
+            var base = new Wick.Base({
+                identifier: 'foo',
+            });
+            base.addChild(child1);
+            base.addChild(child2);
+            base.addChild(child3);
+            var data = base.serialize();
+            expect(data.children).to.eql([
+                child1.uuid,
+                child2.uuid,
+                child3.uuid,
+            ]);
+            expect(data.classname).to.equal('Base');
+            expect(data.identifier).to.equal('foo');
+            expect(data.uuid).to.equal(base.uuid);
+        });
+
+        it('should serialize correctly (deep:true)', function () {
+            var child1 = new Wick.Base();
+            var child2 = new Wick.Base();
+            var child3 = new Wick.Base();
+
+            var base = new Wick.Base({
+                identifier: 'foo',
+            });
+            base.addChild(child1);
+            base.addChild(child2);
+            base.addChild(child3);
+            var data = base.serialize({deep: true});
+            expect(data.children).to.eql([
+                child1.serialize(),
+                child2.serialize(),
+                child3.serialize(),
+            ]);
+            expect(data.classname).to.equal('Base');
+            expect(data.identifier).to.equal('foo');
+            expect(data.uuid).to.equal(base.uuid);
         });
     });
 
     describe('#deserialize', function () {
         it('should deserialize correctly', function () {
+            Wick.ObjectCache.removeAllObjects();
+            
+            var child1 = new Wick.Base();
+            var child2 = new Wick.Base();
+            var child3 = new Wick.Base();
 
+            Wick.ObjectCache.addObject(child1);
+            Wick.ObjectCache.addObject(child2);
+            Wick.ObjectCache.addObject(child3);
+
+            var data = {
+                children: [child1.uuid, child2.uuid, child3.uuid],
+                classname: 'Base',
+                identifier: 'foo',
+                uuid: uuidv4(),
+            }
+            var base = new Wick.Base({
+                data: data
+            });
+            expect(base instanceof Wick.Base).to.equal(true);
+            expect(base.children).to.eql([
+                child1,
+                child2,
+                child3,
+            ]);
+            expect(base.identifier).to.equal('foo');
+            expect(base.uuid).to.equal(data.uuid);
+        });
+
+        it('should deserialize correctly (deep:true)', function () {
+            Wick.ObjectCache.removeAllObjects();
+
+            var parentUUID = uuidv4();
+            var childUUID1 = uuidv4();
+            var childUUID2 = uuidv4();
+            var childUUID3 = uuidv4();
+
+            var data = {
+                children: [
+                    {
+                        children: [],
+                        classname: 'Base',
+                        identifier: 'child1',
+                        uuid: childUUID1,
+                    },
+                    {
+                        children: [],
+                        classname: 'Base',
+                        identifier: 'child2',
+                        uuid: childUUID2,
+                    },
+                    {
+                        children: [],
+                        classname: 'Base',
+                        identifier: 'child3',
+                        uuid: childUUID3,
+                    },
+                ],
+                classname: 'Base',
+                identifier: 'foo',
+                uuid: parentUUID,
+            }
+            var base = new Wick.Base({
+                data: data
+            });
+
+            expect(base instanceof Wick.Base).to.equal(true);
+            expect(base.children.length).to.equal(3);
+            expect(base.identifier).to.equal('foo');
+            expect(base.uuid).to.equal(data.uuid);
         });
     });
 
