@@ -5,6 +5,6 @@ describe('Wick.GUIElement.Project', function() {
         project.activeLayer.addFrame(new Wick.Frame(3));
 
         project.guiElement.build();
-        console.log(paper);
+        //console.log(paper);
     });
 });

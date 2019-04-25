@@ -101,8 +101,6 @@ Wick.Tween = class extends Wick.Base {
         this.transformation = new Wick.Transformation(data.transformation);
         this.fullRotations = data.fullRotations;
         this.easingType = data.easingType;
-
-        return object;
     }
 
     /**

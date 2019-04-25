@@ -47,7 +47,6 @@ Wick.ImageAsset = class extends Wick.FileAsset {
 
     deserialize (data) {
         super.deserialize(data);
-        return object;
     }
 
     get classname () {

@@ -23,7 +23,6 @@
 Wick.Base = class {
     /**
      * Creates a Base object.
-     * @param {object} data - (Optional) Serialized data to use to create a Base object. If this is supplied, all other args are ignored.
      * @parm {string} identifier - (Optional) The identifier of the object. Defaults to null.
      */
     constructor (args) {
@@ -32,11 +31,7 @@ Wick.Base = class {
         this._uuid = uuidv4();
         this._identifier = args.identifier || null;
 
-        this._children = [];
-
-        if(args.data) {
-            this.deserialize(args.data);
-        }
+        this._childrenUUIDs = [];
 
         this._parent = null;
         this._project = null;
@@ -51,31 +46,29 @@ Wick.Base = class {
     }
 
     /**
+     * @param {object} data - Serialized data to use to create a new object.
+     */
+    static fromData (data) {
+        var object = new Wick[data.classname]();
+        object.deserialize(data);
+        return object;
+    }
+
+    /**
      * Parses serialized data representing Base Objects which have been serialized using the serialize function of their class.
      * @param  {object} data Serialized data that was returned by a Base Object's serialize function.
      */
     deserialize (data) {
+        this._childrenUUIDs = [];
+
         this._uuid = data.uuid;
         this._identifier = data.identifier;
 
-        // Deserialze children differently based on if deep serialize was used.
-        data.children.forEach(child => {
-            if(typeof child === 'string') {
-                // Data was created by shallow serialize
-                this._children.push(child);
-            } else {
-                // Data was created by deep serialize
-                var childDeserialized = new Wick[data.classname]({
-                    data: child,
-                });
-                this.addChild(childDeserialized);
-            }
-        });
+        this._childrenUUIDs = Array.from(data.children)
     }
 
     /**
      * Converts this Wick Base object into a generic object contianing raw data (no references).
-     * @param {boolean} deep - If set to true, will fully serialze children instead of saving UUID references.
      * @return {object} Plain JavaScript object representing this Wick Base object.
      */
     serialize (args) {
@@ -85,14 +78,16 @@ Wick.Base = class {
         data.classname = this.classname;
         data.identifier = this._identifier;
         data.uuid = this._uuid;
-        if(args.deep) {
-            data.children = this.children.map(child => {
-                return child.serialize(args);
-            })
-        } else {
-            data.children = this._children.splice(0);//copy
-        }
+        data.children = Array.from(this._childrenUUIDs);
         return data;
+    }
+
+    /**
+     * Returns a copy of a Wick Base object.
+     * @return {Wick.Base} The object resulting from the clone
+     */
+    clone () {
+
     }
 
     /**
@@ -185,23 +180,25 @@ Wick.Base = class {
      * @type {Wick.Base[]}
      */
     get children () {
-        return this._children.map(uuid => {
+        return this._childrenUUIDs.map(uuid => {
             return Wick.ObjectCache.getObjectByUUID(uuid);
         });
     }
 
     /**
      * Add a child to this object
-     * @param {Wick.Base} child - the child to add
+     * @param {Wick.Base} object - the child to add
      */
-    addChild (child) {
-        Wick.ObjectCache.addObject(child);
-        if(this._children.indexOf(child.uuid) === -1) {
-            this._children.push(child.uuid);
+    addChild (object) {
+        Wick.ObjectCache.addObject(object);
+        if(!this._childrenUUIDs.find(uuid => {
+            return uuid === object.uuid;
+        })) {
+            this._childrenUUIDs.push(object.uuid);
         }
-        child.parent = this;
-        child.project = this.project;
-        child.identifier = child._getUniqueIdentifier(child.identifier);
+        object.parent = this;
+        object.project = this.project;
+        object.identifier = object._getUniqueIdentifier(object.identifier);
     }
 
     /**
@@ -210,8 +207,8 @@ Wick.Base = class {
      */
     removeChild (child) {
         child.parent = null;
-        this._children = this._children.filter(seekChildUUID => {
-            return seekChildUUID !== child.uuid;
+        this._childrenUUIDs = this._childrenUUIDs.filter(uuid => {
+            return uuid !== child.uuid;
         });
     }
 
@@ -267,19 +264,6 @@ Wick.Base = class {
     }
 
     /**
-     * Returns a copy of a Wick Base object.
-     * @param {bool} retainUUIDs Will give all cloned Wick Base objects new UUIDs if set to true.
-     * @return {Wick.Base} New copied object.
-     */
-    clone (retainUUIDs) {
-        var clone = Wick.Base.deserialize(this.serialize());
-        if(!retainUUIDs) {
-            clone._regenUUIDs();
-        }
-        return clone;
-    }
-
-    /**
      * Recursively find a parent that is an instance of  a given class.
      * @param {string} seekClass - the name of the class to search for
      */
@@ -292,14 +276,6 @@ Wick.Base = class {
             if(!this.parent.getParentByInstanceOf) return null;
             return this.parent.getParentByInstanceOf(seekClass);
         }
-    }
-
-    _regenUUIDs () {
-        this._uuid = uuidv4();
-        if(this.paperPath) this.paperPath.data.wickUUID = this._uuid; // hack to fix path cloning for now
-        this._children.forEach(child => {
-            child._regenUUIDs();
-        });
     }
 
     _generateView () {
@@ -324,7 +300,7 @@ Wick.Base = class {
         if(!this.parent) return identifier;
 
         var otherIdentifiers = this.parent.children.filter(child => {
-            return child !== this;
+            return child !== this && child.identifier;
         }).map(child => {
             return child.identifier;
         });

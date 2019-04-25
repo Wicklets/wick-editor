@@ -24,32 +24,11 @@ describe('Wick.Base', function() {
             base.addChild(child2);
             base.addChild(child3);
             var data = base.serialize();
+
             expect(data.children).to.eql([
                 child1.uuid,
                 child2.uuid,
                 child3.uuid,
-            ]);
-            expect(data.classname).to.equal('Base');
-            expect(data.identifier).to.equal('foo');
-            expect(data.uuid).to.equal(base.uuid);
-        });
-
-        it('should serialize correctly (deep:true)', function () {
-            var child1 = new Wick.Base();
-            var child2 = new Wick.Base();
-            var child3 = new Wick.Base();
-
-            var base = new Wick.Base({
-                identifier: 'foo',
-            });
-            base.addChild(child1);
-            base.addChild(child2);
-            base.addChild(child3);
-            var data = base.serialize({deep: true});
-            expect(data.children).to.eql([
-                child1.serialize(),
-                child2.serialize(),
-                child3.serialize(),
             ]);
             expect(data.classname).to.equal('Base');
             expect(data.identifier).to.equal('foo');
@@ -60,24 +39,20 @@ describe('Wick.Base', function() {
     describe('#deserialize', function () {
         it('should deserialize correctly', function () {
             Wick.ObjectCache.removeAllObjects();
-            
+
             var child1 = new Wick.Base();
             var child2 = new Wick.Base();
             var child3 = new Wick.Base();
 
-            Wick.ObjectCache.addObject(child1);
-            Wick.ObjectCache.addObject(child2);
-            Wick.ObjectCache.addObject(child3);
-
-            var data = {
-                children: [child1.uuid, child2.uuid, child3.uuid],
-                classname: 'Base',
-                identifier: 'foo',
-                uuid: uuidv4(),
-            }
             var base = new Wick.Base({
-                data: data
+                identifier: 'foo',
             });
+            base.addChild(child1);
+            base.addChild(child2);
+            base.addChild(child3);
+            var data = base.serialize();
+            var base = Wick.Base.fromData(data);
+
             expect(base instanceof Wick.Base).to.equal(true);
             expect(base.children).to.eql([
                 child1,
@@ -87,50 +62,13 @@ describe('Wick.Base', function() {
             expect(base.identifier).to.equal('foo');
             expect(base.uuid).to.equal(data.uuid);
         });
-
-        it('should deserialize correctly (deep:true)', function () {
-            Wick.ObjectCache.removeAllObjects();
-
-            var parentUUID = uuidv4();
-            var childUUID1 = uuidv4();
-            var childUUID2 = uuidv4();
-            var childUUID3 = uuidv4();
-
-            var data = {
-                children: [
-                    {
-                        children: [],
-                        classname: 'Base',
-                        identifier: 'child1',
-                        uuid: childUUID1,
-                    },
-                    {
-                        children: [],
-                        classname: 'Base',
-                        identifier: 'child2',
-                        uuid: childUUID2,
-                    },
-                    {
-                        children: [],
-                        classname: 'Base',
-                        identifier: 'child3',
-                        uuid: childUUID3,
-                    },
-                ],
-                classname: 'Base',
-                identifier: 'foo',
-                uuid: parentUUID,
-            }
-            var base = new Wick.Base({
-                data: data
-            });
-
-            expect(base instanceof Wick.Base).to.equal(true);
-            expect(base.children.length).to.equal(3);
-            expect(base.identifier).to.equal('foo');
-            expect(base.uuid).to.equal(data.uuid);
-        });
     });
+
+    describe('#clone', function () {
+        it('should clone correctly', function () {
+
+        });
+    })
 
     describe('#identifier', function () {
         it('should only accept valid variable names', function() {
@@ -161,7 +99,7 @@ describe('Wick.Base', function() {
             expect(base.identifier).to.equal('dummy');
         });
 
-        it('should only accept non-duplicate names', function() {
+        it('should rename duplicate identifiers', function() {
             var parent = new Wick.Base();
             var child1 = new Wick.Base();
             var child2 = new Wick.Base();
@@ -197,6 +135,17 @@ describe('Wick.Base', function() {
             var child1 = new Wick.Base();
             var child2 = new Wick.Base();
             var child3 = new Wick.Base();
+
+            parent.addChild(child1);
+            parent.addChild(child2);
+            parent.addChild(child3);
+            expect(parent.children[0]).to.equal(child1)
+            expect(parent.children[1]).to.equal(child2)
+            expect(parent.children[2]).to.equal(child3)
+
+            parent.removeChild(child2);
+            expect(parent.children[0]).to.equal(child1)
+            expect(parent.children[1]).to.equal(child3)
         });
     });
 

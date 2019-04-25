@@ -63,9 +63,6 @@ Wick.Project = class extends Wick.Base {
         this._currentKey = null;
 
         this._tickIntervalID = null;
-
-        this.clipboard = new Wick.Clipboard();
-        this.history = new Wick.History();
     }
 
     deserialize (data) {
@@ -77,18 +74,15 @@ Wick.Project = class extends Wick.Base {
         this.framerate = data.framerate;
         this.backgroundColor = data.backgroundColor;
 
-        if(data.pan) this.pan = {x:data.pan.x, y:data.pan.y};
+        if(data.pan) this.pan = {
+            x: data.pan.x,
+            y: data.pan.y
+        };
         if(data.zoom) this.zoom = data.zoom;
 
         if(data.onionSkinEnabled) this.onionSkinEnabled = data.onionSkinEnabled;
         if(data.onionSkinSeekForwards) this.onionSkinSeekForwards = data.onionSkinSeekForwards;
         if(data.onionSkinSeekBackwards) this.onionSkinSeekBackwards = data.onionSkinSeekBackwards;
-
-        this._root = data.root;
-        this._focus = data.root;
-        this._selection = data.selection;
-
-        return object;
     }
 
     serialize (args) {
@@ -107,10 +101,6 @@ Wick.Project = class extends Wick.Base {
         data.onionSkinSeekForwards = this.onionSkinSeekForwards;
         data.onionSkinSeekBackwards = this.onionSkinSeekBackwards;
 
-        data.root = this._root;
-        data.focus = this._focus;
-        data.selection = this._selection;
-
         return data;
     }
 
@@ -127,12 +117,18 @@ Wick.Project = class extends Wick.Base {
                 var loadedAssetCount = 0;
                 var projectData = JSON.parse(projectJSON);
 
+                projectData.assets = [];
+
+                Wick.ObjectCache.deserialize(projectData.objects)
+                var project = Wick.Base.fromData(projectData.project);
+
                 // Immediately end if the project has no assets.
-                if (projectData.assets && projectData.assets.length === 0) {
-                    var project = Wick.Project.deserialize(projectData);
+                if (project.getAssets().length === 0) {
+                    //Wick.ObjectCache.deserialize(projectData.objects)
+                    //var project = Wick.Base.fromData(projectData.project);
                     callback(project);
                 } else {
-                    projectData.assets.forEach(assetData => {
+                    project.getAssets().forEach(assetData => {
                         var assetFile = contents.files['assets/' + assetData.uuid + '.' + assetData.fileExtension];
                         assetFile.async('base64')
                         .then(assetFileData => {
@@ -144,8 +140,7 @@ Wick.Project = class extends Wick.Base {
                             callback(null);
                         }).finally(() => {
                             loadedAssetCount++;
-                            if(loadedAssetCount === projectData.assets.length) {
-                                var project = Wick.Project.deserialize(projectData);
+                            if(loadedAssetCount === project.getAssets().length) {
                                 callback(project);
                             }
                         });
@@ -160,47 +155,11 @@ Wick.Project = class extends Wick.Base {
     }
 
     /**
-     * Parses serialized data representing Base Objects which have been serialized using the serialize function of their class.
-     * @param  {object} data Serialized data that was returned by a Base Object's serialize function.
-     * @return {Wick.Base}   A deserialized Base Object. Can be any Wick Base subclass.
-     */
-    deserializeData (data) {
-        var object = new Wick[data.classname]();
-        Wick.ObjectCache.addObject(object);
-        object.deserialize(data);
-        return object;
-    }
-
-    /**
      * String representation of class name: "Project"
      * @return {string}
      */
     get classname () {
         return 'Project';
-    }
-
-    /**
-     * An instance of the Wick.Clipboard utility class used for copy/paste.
-     * @type {Wick.Clipboard}
-     */
-    get clipboard () {
-        return this._clipboard;
-    }
-
-    set clipboard (clipboard) {
-        this._clipboard = clipboard;
-    }
-
-    /**
-     * An instance of the Wick.History utility class used for undo/redo.
-     * @type {Wick.History}
-     */
-    get history () {
-        return this._history;
-    }
-
-    set history (history) {
-        this._history = history;
     }
 
     /**
@@ -248,16 +207,16 @@ Wick.Project = class extends Wick.Base {
      * @type {Wick.Selection}
      */
     get selection () {
-        return this.getChildByUUID(this._selection);
+        return this.children.find(child => {
+            return child instanceof Wick.Selection;
+        });
     }
 
     set selection (selection) {
         if(this.selection) {
             this.removeChild(this.selection);
         }
-
         this.addChild(selection);
-        this._selection = selection.uuid;
     }
 
     /**
@@ -329,15 +288,16 @@ Wick.Project = class extends Wick.Base {
      * @type {Wick.Clip}
      */
     get root () {
-        return this.getChildByUUID(this._root);
+        return this.children.find(child => {
+            return child instanceof Wick.Clip;
+        });
     }
 
-    set root (clip) {
+    set root (root) {
         if(this.root) {
             this.removeChild(this.root);
         }
-        this._root = clip.uuid;
-        this.addChild(clip);
+        this.addChild(root);
     }
 
     /**
@@ -345,25 +305,22 @@ Wick.Project = class extends Wick.Base {
      * @type {Wick.Clip}
      */
     get focus () {
-        return Wick.ObjectCache.getObjectByUUID(this._focus);
+        return this._focus;
     }
 
     set focus (focus) {
-        var oldFocusUUID = this._focus;
-        var newFocusUUID = focus.uuid;
+        var focusChanged = this.focus !== focus;
 
-        this._focus = newFocusUUID;
+        this._focus = focus;
 
-        // Reset timelines of subclips of the new focused clip
+        // Reset timelines of subclips of the newly focused clip
         focus.timeline.clips.forEach(subclip => {
             subclip.timeline.playheadPosition = 1;
         });
 
-        if(oldFocusUUID !== newFocusUUID) {
-            // Always reset pan and zoom on focus change.
+        // Always reset pan and zoom and clear selection on focus change
+        if(focusChanged) {
             this.recenter();
-
-            // Always clear selection on focus change.
             this.selection.clear();
         }
     }
@@ -632,8 +589,6 @@ Wick.Project = class extends Wick.Base {
      * @param {function} callback - Function called when the file is created. Contains the file as a parameter.
      */
     exportAsWickFile (callback) {
-        var projectData = this.serialize();
-
         var zip = new JSZip();
 
         // Create assets folder
@@ -652,6 +607,10 @@ Wick.Project = class extends Wick.Base {
         });
 
         // Add project json to root directory of zip file
+        var projectData = {
+            project: this.serialize(),
+            objects: Wick.ObjectCache.serialize(),
+        };
         zip.file("project.json", JSON.stringify(projectData, null, 2));
 
         zip.generateAsync({

@@ -53,7 +53,7 @@ Wick.ClipAsset = class extends Wick.Asset {
      * The timeline that this asset is linked to.
      */
     get timeline () {
-        return this.getChildByUUID(this._timeline);
+        return Wick.ObjectCache.getObjectByUUID(this._timeline);
     }
 
     /**

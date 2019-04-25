@@ -62,8 +62,8 @@ Wick.FileAsset = class extends Wick.Asset {
         super.deserialize(data);
 
         this.filename = data.filename;
-
-        return object;
+        this.MIMEType = data.MIMEType;
+        this.fileExtension = data.fileExtension;
     }
 
     get classname () {
@@ -79,20 +79,10 @@ Wick.FileAsset = class extends Wick.Asset {
 
     set src (src) {
         Wick.FileCache.addFile(src, this.uuid);
-    }
-
-    /**
-     * The MIMEType of the asset (format: type/subtype)
-     */
-    get MIMEType () {
-        return this._MIMETypeOfString(this.src);
-    }
-
-    /**
-     * The file extension of the asset.
-     */
-    get fileExtension () {
-        return this._fileExtensionOfString(this.src);
+        if(src) {
+            this.fileExtension = this._fileExtensionOfString(src);
+            this.MIMEType = this._MIMETypeOfString(src);
+        }
     }
 
     _MIMETypeOfString (string) {

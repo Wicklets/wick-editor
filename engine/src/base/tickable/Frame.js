@@ -46,8 +46,6 @@ Wick.Frame = class extends Wick.Tickable {
 
         this._soundAssetUUID = data.sound;
         this._soundVolume = data.soundVolume === undefined ? 1.0 : data.soundVolume;
-
-        return object;
     }
 
     serialize (args) {

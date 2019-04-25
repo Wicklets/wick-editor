@@ -40,8 +40,6 @@ Wick.Timeline = class extends Wick.Base {
 
         this._playheadPosition = data.playheadPosition;
         this.activeLayerIndex = data.activeLayerIndex;
-
-        return object;
     }
 
     serialize (args) {
@@ -224,9 +222,9 @@ Wick.Timeline = class extends Wick.Base {
      * @param {number} index - the new position to move the layer to.
      */
     moveLayer (layer, index) {
-        // NOTE this is dangerous -- we should not be directly changing the _children array.
-        this._children.splice(this._children.indexOf(layer.uuid), 1);
-        this._children.splice(index, 0, layer.uuid);
+        // NOTE this is dangerous -- we should not be directly changing the _childrenUUIDs array.
+        this._childrenUUIDs.splice(this._childrenUUIDs.indexOf(layer.uuid), 1);
+        this._childrenUUIDs.splice(index, 0, layer.uuid);
     }
 
     /**

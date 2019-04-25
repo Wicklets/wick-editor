@@ -43,8 +43,6 @@ Wick.Layer = class extends Wick.Base {
         this.locked = data.locked;
         this.hidden = data.hidden;
         this.name = data.name;
-
-        return object;
     }
 
     serialize (args) {

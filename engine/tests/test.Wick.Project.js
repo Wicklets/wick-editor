@@ -27,96 +27,100 @@ describe('Wick.Project', function() {
         });
     });
 
-    /*
     describe('#serialize', function () {
         it('should serialize correctly', function() {
+            Wick.ObjectCache.removeAllObjects();
+
             var project = new Wick.Project();
-            project.addAsset(new Wick.ImageAsset('foo.png', TEST_IMAGE_SRC));
-            project.addAsset(new Wick.SoundAsset('foo.wav', TEST_SOUND_SRC));
-            project.addAsset(new Wick.ClipAsset(new Wick.Clip()));
+
+            var image = new Wick.ImageAsset({
+                filename: 'foo.png',
+                src: TestUtils.TEST_IMG_SRC_PNG
+            });
+            var sound = new Wick.SoundAsset({
+                filename: 'foo.wav',
+                src: TestUtils.TEST_SOUND_SRC_WAV
+            });
+            project.addAsset(image);
+            project.addAsset(sound);
+
             var data = project.serialize();
 
+            expect(data.backgroundColor).to.equal('#ffffff');
+            expect(data.children).to.eql([
+                project.selection.uuid,
+                project.root.uuid,
+                image.uuid,
+                sound.uuid,
+            ]);
             expect(data.classname).to.equal('Project');
-
-            expect(data.name).to.equal(project.name);
-            expect(data.width).to.equal(project.width);
-            expect(data.height).to.equal(project.height);
-            expect(data.zoom).to.equal(project.zoom);
-            expect(data.pan.x).to.equal(project.pan.x);
-            expect(data.pan.y).to.equal(project.pan.y);
-
-            expect(data.backgroundColor).to.equal(project.backgroundColor);
-            expect(data.framerate).to.equal(project.framerate);
-
-            expect(data.root.classname).to.equal('Clip');
-
-            expect(data.assets.length).to.equal(3);
-            expect(data.assets[0].classname).to.equal('ImageAsset');
-            expect(data.assets[1].classname).to.equal('SoundAsset');
-            expect(data.assets[2].classname).to.equal('ClipAsset');
-
-            expect(data.selection.uuids.length).to.equal(0);
-
+            expect(data.framerate).to.equal(12);
+            expect(data.height).to.equal(405);
+            expect(data.identifier).to.equal(null);
+            expect(data.name).to.equal('My Project');
             expect(data.onionSkinEnabled).to.equal(false);
-            expect(data.onionSkinSeekForwards).to.equal(1);
             expect(data.onionSkinSeekBackwards).to.equal(1);
-        });
-
-        it('should serialize focus correctly', function() {
-            var project = new Wick.Project();
-            var focus = new Wick.Clip();
-            project.addObject(focus);
-            project.focus = focus;
-            var data = project.serialize();
-            expect(data.focus).to.equal(project.focus.uuid);
+            expect(data.onionSkinSeekForwards).to.equal(1);
+            expect(data.pan).to.eql({
+                x: 0,
+                y: 0,
+            });
+            expect(data.uuid).to.equal(project.uuid);
+            expect(data.width).to.equal(720);
+            expect(data.zoom).to.equal(1);
         });
     });
 
     describe('#deserialize', function () {
         it('should deserialize correctly', function() {
-            var data = {
-                classname: 'Project',
-                assets: [
-                    new Wick.ImageAsset('foo.png', TEST_IMAGE_SRC).serialize(),
-                    new Wick.SoundAsset('foo.wav', TEST_SOUND_SRC).serialize(),
-                    new Wick.ClipAsset(new Wick.Clip()).serialize(),
-                ],
-                name: 'dummy name',
-                width: 1080,
-                height: 720,
-                backgroundColor: '#000000',
-                pan: {x: 0, y: 0},
-                framerate: 30,
-                selection: new Wick.Selection().serialize(),
-                root: new Wick.Clip().serialize(),
-                onionSkinEnabled: true,
-                onionSkinSeekBackwards: 5,
-                onionSkinSeekForwards: 3,
-            };
+            Wick.ObjectCache.removeAllObjects();
 
-            var project = Wick.Project.deserialize(data);
-            expect(project.getAssets()[0] instanceof Wick.ImageAsset).to.equal(true);
-            expect(project.getAssets()[1] instanceof Wick.SoundAsset).to.equal(true);
-            expect(project.getAssets()[2] instanceof Wick.ClipAsset).to.equal(true);
-            expect(project.onionSkinEnabled).to.equal(true);
-            expect(project.onionSkinSeekBackwards).to.equal(5);
-            expect(project.onionSkinSeekForwards).to.equal(3);
-            expect(project.getAssets()[0].src).to.equal(TEST_IMAGE_SRC);
-            expect(project.getAssets()[1].src).to.equal(TEST_SOUND_SRC);
-        });
-
-        it('should deserialize focus correctly', function() {
             var project = new Wick.Project();
-            var focus = new Wick.Clip();
-            project.addObject(focus);
-            project.focus = focus;
-            var data = project.serialize();
 
-            var projectFromData = Wick.Base.deserialize(data);
-            expect(projectFromData.focus).to.equal(projectFromData.root.activeFrame.clips[0]);
+            var image = new Wick.ImageAsset({
+                filename: 'foo.png',
+                src: TestUtils.TEST_IMG_SRC_PNG
+            });
+            var sound = new Wick.SoundAsset({
+                filename: 'foo.wav',
+                src: TestUtils.TEST_SOUND_SRC_WAV
+            });
+            project.addAsset(image);
+            project.addAsset(sound);
+
+            var data = project.serialize();
+            var projectFromData = Wick.Project.fromData(data);
+
+            expect(projectFromData.backgroundColor).to.equal('#ffffff');
+            expect(projectFromData.children.length).to.equal(4);
+            expect(projectFromData.children[0]).to.equal(project.selection);
+            expect(projectFromData.children[1]).to.equal(project.root);
+            expect(projectFromData.children[2]).to.equal(image);
+            expect(projectFromData.children[3]).to.equal(sound);
+            expect(projectFromData.selection).to.equal(project.selection);
+            expect(projectFromData.root).to.equal(project.root);
+            expect(projectFromData.assets[0]).to.equal(image);
+            expect(projectFromData.assets[1]).to.equal(sound);
+            expect(projectFromData.classname).to.equal('Project');
+            //expect(projectFromData.focus).to.equal(project.focus);
+            expect(projectFromData.framerate).to.equal(12);
+            expect(projectFromData.height).to.equal(405);
+            expect(projectFromData.identifier).to.equal(null);
+            expect(projectFromData.name).to.equal('My Project');
+            expect(projectFromData.onionSkinEnabled).to.equal(false);
+            expect(projectFromData.onionSkinSeekBackwards).to.equal(1);
+            expect(projectFromData.onionSkinSeekForwards).to.equal(1);
+            expect(projectFromData.pan).to.eql({
+                x: 0,
+                y: 0,
+            });
+            expect(projectFromData.root).to.equal(project.root);
+            expect(projectFromData.selection).to.equal(project.selection);
+            expect(projectFromData.uuid).to.equal(project.uuid);
+            expect(projectFromData.width).to.equal(720);
+            expect(projectFromData.zoom).to.equal(1);
         });
     });
-    */
 
     describe('#focus', function () {
         it('should clear selection when focus is changed', function () {
@@ -720,9 +724,12 @@ describe('Wick.Project', function() {
 
     describe('#exportAsWickFile/fromWickFile', function () {
         it('should create and load a project from a wick file correctly with no assets', function (done) {
+            Wick.ObjectCache.removeAllObjects();
+
             var project = new Wick.Project();
 
             project.exportAsWickFile(function (wickFile) {
+                Wick.ObjectCache.removeAllObjects();
                 Wick.Project.fromWickFile(wickFile, function (loadedProject) {
                     expect(loadedProject instanceof Wick.Project).to.equal(true);
                     expect(loadedProject.getAssets().length).to.equal(0);

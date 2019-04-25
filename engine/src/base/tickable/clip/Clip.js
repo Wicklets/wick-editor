@@ -70,8 +70,6 @@ Wick.Clip = class extends Wick.Tickable {
 
         this.transformation = new Wick.Transformation(data.transformation);
         this._timeline = data.timeline;
-
-        return object;
     }
 
     serialize (args) {
@@ -111,14 +109,15 @@ Wick.Clip = class extends Wick.Tickable {
      * The timeline of the clip.
      */
     get timeline () {
-        return this.getChildByUUID(this._timeline);
+        return this.children.find(child => {
+            return child instanceof Wick.Timeline;
+        })
     }
 
     set timeline (timeline) {
         if(this.timeline) {
             this.removeChild(this.timeline);
         }
-        this._timeline = timeline.uuid;
         this.addChild(timeline);
     }
 
