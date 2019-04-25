@@ -235,7 +235,6 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
         this.model.start = start;
         this.model.end = end;
 
-        console.warn('move to engine?')
         var oldLayer = this.model.parentLayer;
         var newLayer = this.model.parentTimeline.layers[layer];
         oldLayer.removeFrame(this.model);

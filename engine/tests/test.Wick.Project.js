@@ -730,6 +730,7 @@ describe('Wick.Project', function() {
 
             project.exportAsWickFile(function (wickFile) {
                 Wick.ObjectCache.removeAllObjects();
+                //saveAs(wickFile, 'wickproject.zip')
                 Wick.Project.fromWickFile(wickFile, function (loadedProject) {
                     expect(loadedProject instanceof Wick.Project).to.equal(true);
                     expect(loadedProject.getAssets().length).to.equal(0);
@@ -739,8 +740,10 @@ describe('Wick.Project', function() {
         });
 
         it('should create and load a project from a wick file correctly with assets', function (done) {
-            var project = new Wick.Project();
+            Wick.ObjectCache.removeAllObjects();
             Wick.FileCache.clear();
+
+            var project = new Wick.Project();
 
             var imageAsset = new Wick.ImageAsset({
                 filename: 'foo.png',
@@ -756,6 +759,8 @@ describe('Wick.Project', function() {
 
             project.exportAsWickFile(function (wickFile) {
                 Wick.FileCache.clear();
+                Wick.ObjectCache.removeAllObjects();
+                //saveAs(wickFile, 'wickproject.zip')
                 Wick.Project.fromWickFile(wickFile, function (loadedProject) {
                     expect(loadedProject instanceof Wick.Project).to.equal(true);
                     expect(loadedProject.getAssets().length).to.equal(project.getAssets().length);

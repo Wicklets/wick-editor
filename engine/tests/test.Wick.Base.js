@@ -66,7 +66,36 @@ describe('Wick.Base', function() {
 
     describe('#clone', function () {
         it('should clone correctly', function () {
+            Wick.ObjectCache.removeAllObjects();
 
+            var child1 = new Wick.Base({ identifier: 'child1' });
+            var child2 = new Wick.Base({ identifier: 'child2' });
+            var child3 = new Wick.Base({ identifier: 'child3' });
+
+            var base = new Wick.Base({ identifier: 'foo' });
+            base.addChild(child1);
+            base.addChild(child2);
+            base.addChild(child3);
+
+            var clone = base.clone();
+
+            expect(clone instanceof Wick.Base).to.equal(true);
+            expect(clone.identifier).to.equal('foo');
+            expect(clone.uuid).to.not.equal(base.uuid);
+            expect(clone.uuid).to.not.equal(null);
+            expect(clone.children.length).to.equal(3);
+            expect(clone.children[0].identifier).to.equal('child1');
+            expect(clone.children[1].identifier).to.equal('child2');
+            expect(clone.children[2].identifier).to.equal('child3');
+            expect(clone.children[0]).to.not.equal(child1);
+            expect(clone.children[1]).to.not.equal(child2);
+            expect(clone.children[2]).to.not.equal(child3);
+            expect(clone.children[0].uuid).to.not.equal(null);
+            expect(clone.children[1].uuid).to.not.equal(null);
+            expect(clone.children[2].uuid).to.not.equal(null);
+            expect(clone.children[0].uuid).to.not.equal(child1.uuid);
+            expect(clone.children[1].uuid).to.not.equal(child2.uuid);
+            expect(clone.children[2].uuid).to.not.equal(child3.uuid);
         });
     })
 
