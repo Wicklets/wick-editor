@@ -65007,7 +65007,7 @@ TWEEN.Interpolation = {
  */
 Wick = {
   /* Major.Minor.Patch[ReleaseType] */
-  version: "1.0.0a"
+  version: "1.0.8a"
 };
 console.log("Wick Engine " + Wick.version + " is available."); // Ensure that the Wick namespace is accessible in environments where globals are finicky (react, webpack, etc)
 
@@ -65123,17 +65123,191 @@ Wick.FileCache = new WickFileCache();
 */
 
 /**
+ * Global utility class for storing and retrieving large file data.
+ */
+WickObjectCache = class {
+  /**
+   * Create a WickObjectCache.
+   */
+  constructor() {
+    this._objects = {};
+  }
+  /**
+   * Add an object to this project.
+   * @param {Wick.Base} object - the object to add
+   */
+
+
+  addObject(object) {
+    this._objects[object.uuid] = object;
+    /*object.children.forEach(child => {
+        this.addObject(child);
+    });*/
+  }
+  /**
+   *
+   */
+
+
+  serialize() {
+    var objectInfos = {};
+
+    for (var uuid in this._objects) {
+      var object = this._objects[uuid];
+      objectInfos[uuid] = object.serialize();
+    }
+
+    return objectInfos;
+  }
+  /**
+   *
+   */
+
+
+  deserialize(data) {
+    for (var uuid in data) {
+      var objectData = data[uuid];
+      var object = Wick.Base.fromData(objectData);
+      this.addObject(object);
+    }
+  }
+  /**
+   * Remove all objects from the Object Cache.
+   */
+
+
+  removeAllObjects() {
+    this._objects = {};
+  }
+  /**
+   * Remove all objects that are in the project, but are no longer linked to the root object.
+   * This is basically a garbage collection function.
+   * Only call this when you're ready to finish editing the project because old objects need to be retained somewhere for undo/redo.
+   */
+
+
+  removeUnusedObjects() {} // TODO
+
+  /**
+   * Get an object by its UUID.
+   * @returns {Wick.Base}
+   */
+
+
+  getObjectByUUID(uuid) {
+    var object = this._objects[uuid];
+
+    if (!object) {
+      console.warn("Warning: object with uuid " + uuid + " was not found in the cache.");
+      return null;
+    } else {
+      return object;
+    }
+  }
+
+};
+Wick.ObjectCache = new WickObjectCache();
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* Copyright 2018 WICKLETS LLC
+*
+* This file is part of Wick Engine.
+*
+* Wick Engine is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Wick Engine is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
+/** Class representing a transformation. */
+Wick.Transformation = class {
+  /**
+   * Creates a Transformation.
+   * @param {number} x -
+   * @param {number} y -
+   * @param {number} scaleX -
+   * @param {number} scaleY -
+   * @param {number} rotation -
+   * @param {number} opacity -
+   */
+  constructor(args) {
+    if (!args) args = {};
+    this.x = args.x === undefined ? 0 : args.x;
+    this.y = args.y === undefined ? 0 : args.y;
+    this.scaleX = args.scaleX === undefined ? 1 : args.scaleX;
+    this.scaleY = args.scaleY === undefined ? 1 : args.scaleY;
+    this.rotation = args.rotation === undefined ? 0 : args.rotation;
+    this.opacity = args.opacity === undefined ? 1 : args.opacity;
+  }
+  /**
+   * An object containing the values of this transformation.
+   */
+
+
+  get values() {
+    return {
+      x: this.x,
+      y: this.y,
+      scaleX: this.scaleX,
+      scaleY: this.scaleY,
+      rotation: this.rotation,
+      opacity: this.opacity
+    };
+  }
+  /**
+   * Creates a clone of this transformation.
+   */
+
+
+  clone() {
+    return new Wick.Transformation(this.values);
+  }
+
+};
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* Copyright 2018 WICKLETS LLC
+*
+* This file is part of Wick Engine.
+*
+* Wick Engine is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Wick Engine is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
+/**
  * The base class for all objects within the Wick Engine.
  */
 Wick.Base = class {
   /**
    * Creates a Base object.
+   * @parm {string} identifier - (Optional) The identifier of the object. Defaults to null.
    */
-  constructor() {
+  constructor(args) {
+    if (!args) args = {};
     this._uuid = uuidv4();
-    this._identifier = null;
+    this._identifier = args.identifier || null;
+    this._childrenUUIDs = [];
     this._parent = null;
-    this._children = [];
     this._project = null;
     this._view = null;
     this.view = this._generateView();
@@ -65142,39 +65316,62 @@ Wick.Base = class {
     this._classname = this.classname;
   }
   /**
-   * Parses serialized data representing Base Objects which have been serialized using the serialize function of their class.
-   * @param  {object} data Serialized data that was returned by a Base Object's serialize function.
-   * @return {Wick.Base}   A deserialized Base Object. Can be any Wick Base subclass.
+   * @param {object} data - Serialized data to use to create a new object.
    */
 
 
-  static deserialize(data) {
-    var object = Wick[data.classname]._deserialize(data, new Wick[data.classname]());
-
-    return object;
-  }
-
-  static _deserialize(data, object) {
-    object._uuid = data.uuid;
-    object._identifier = data.identifier;
+  static fromData(data) {
+    var object = new Wick[data.classname]();
+    object.deserialize(data);
     return object;
   }
   /**
-   * Converts Wick Base object into a generic object contianing raw data and eliminating parent references.
-   * @return {object} Plain JavaScript object representing Wick Base.
+   * Parses serialized data representing Base Objects which have been serialized using the serialize function of their class.
+   * @param  {object} data Serialized data that was returned by a Base Object's serialize function.
    */
 
 
-  serialize() {
-    return this._serialize();
+  deserialize(data) {
+    this._childrenUUIDs = [];
+    this._uuid = data.uuid;
+    this._identifier = data.identifier;
+    this._childrenUUIDs = Array.from(data.children);
   }
+  /**
+   * Converts this Wick Base object into a generic object contianing raw data (no references).
+   * @return {object} Plain JavaScript object representing this Wick Base object.
+   */
 
-  _serialize() {
+
+  serialize(args) {
+    if (!args) args = {};
     var data = {};
     data.classname = this.classname;
     data.identifier = this._identifier;
     data.uuid = this._uuid;
+    data.children = Array.from(this._childrenUUIDs);
     return data;
+  }
+  /**
+   * Returns a copy of a Wick Base object.
+   * @return {Wick.Base} The object resulting from the clone
+   */
+
+
+  clone() {
+    var data = this.serialize();
+    data.uuid = uuidv4();
+    var clone = Wick.Base.fromData(data); // clone children
+
+    var origChildren = clone.children;
+    clone.children.forEach(child => {
+      clone.removeChild(child);
+    });
+    origChildren.forEach(child => {
+      var childClone = child.clone();
+      clone.addChild(childClone);
+    });
+    return clone;
   }
   /**
    * Returns the classname of a Wick Base object.
@@ -65206,7 +65403,7 @@ Wick.Base = class {
 
   set identifier(identifier) {
     if (!isVarName(identifier)) return;
-    this._identifier = this._getUniqueIdentifier(identifier);
+    this._identifier = identifier;
   }
   /**
    *
@@ -65246,56 +65443,9 @@ Wick.Base = class {
 
   set parent(parent) {
     this._parent = parent;
-    var self = this;
-    this._children = this._children.map(child => {
-      child.parent = self;
-      return child;
+    this.children.forEach(child => {
+      child.parent = this;
     });
-  }
-  /**
-   * The child objects of this object.
-   * @type {Wick.Base[]}
-   */
-
-
-  get children() {
-    return this._children;
-  }
-  /**
-   * The parent clip.
-   * @type {Wick.Clip}
-   */
-
-
-  get parentClip() {
-    return this._getParentByInstanceOf(Wick.Clip);
-  }
-  /**
-   * The parent timeline.
-   * @type {Wick.Timeline}
-   */
-
-
-  get parentTimeline() {
-    return this._getParentByInstanceOf(Wick.Timeline);
-  }
-  /**
-   * The parent layer.
-   * @type {Wick.Layer}
-   */
-
-
-  get parentLayer() {
-    return this._getParentByInstanceOf(Wick.Layer);
-  }
-  /**
-   * The parent frame.
-   * @type {Wick.Frame}
-   */
-
-
-  get parentFrame() {
-    return this._getParentByInstanceOf(Wick.Frame);
   }
   /**
    * The project which contains the Wick Base object.
@@ -65309,10 +65459,98 @@ Wick.Base = class {
 
   set project(project) {
     this._project = project;
-    this._children = this._children.map(child => {
+    this.children.forEach(child => {
       child.project = project;
-      return child;
     });
+  }
+  /**
+   * The child objects of this object.
+   * @type {Wick.Base[]}
+   */
+
+
+  get children() {
+    return this._childrenUUIDs.map(uuid => {
+      return Wick.ObjectCache.getObjectByUUID(uuid);
+    });
+  }
+  /**
+   * Add a child to this object
+   * @param {Wick.Base} object - the child to add
+   */
+
+
+  addChild(object) {
+    Wick.ObjectCache.addObject(object);
+
+    if (!this._childrenUUIDs.find(uuid => {
+      return uuid === object.uuid;
+    })) {
+      this._childrenUUIDs.push(object.uuid);
+    }
+
+    object.parent = this;
+    object.project = this.project;
+    object.identifier = object._getUniqueIdentifier(object.identifier);
+  }
+  /**
+   * Remove a child from this object
+   * @param {Wick.Base} child - the child to remove
+   */
+
+
+  removeChild(child) {
+    child.parent = null;
+    this._childrenUUIDs = this._childrenUUIDs.filter(uuid => {
+      return uuid !== child.uuid;
+    });
+  }
+  /**
+   * Find a child by uuid.
+   * @param {string} uuid
+   */
+
+
+  getChildByUUID(uuid) {
+    return this.children.find(child => {
+      return child.uuid === uuid;
+    });
+  }
+  /**
+   * The parent clip.
+   * @type {Wick.Clip}
+   */
+
+
+  get parentClip() {
+    return this.getParentByInstanceOf(Wick.Clip);
+  }
+  /**
+   * The parent timeline.
+   * @type {Wick.Timeline}
+   */
+
+
+  get parentTimeline() {
+    return this.getParentByInstanceOf(Wick.Timeline);
+  }
+  /**
+   * The parent layer.
+   * @type {Wick.Layer}
+   */
+
+
+  get parentLayer() {
+    return this.getParentByInstanceOf(Wick.Layer);
+  }
+  /**
+   * The parent frame.
+   * @type {Wick.Frame}
+   */
+
+
+  get parentFrame() {
+    return this.getParentByInstanceOf(Wick.Frame);
   }
   /**
    * Check if an object is selected or not.
@@ -65321,83 +65559,24 @@ Wick.Base = class {
 
 
   get isSelected() {
+    if (!this.project) return false;
     return this.project.selection.isObjectSelected(this);
   }
   /**
-   * Returns a copy of a Wick Base object.
-   * @param {bool} retainUUIDs Will give all cloned Wick Base objects new UUIDs if set to true.
-   * @return {Wick.Base} New copied object.
+   * Recursively find a parent that is an instance of  a given class.
+   * @param {string} seekClass - the name of the class to search for
    */
 
 
-  clone(retainUUIDs) {
-    var clone = Wick.Base.deserialize(this.serialize());
-
-    if (!retainUUIDs) {
-      clone._regenUUIDs();
-    }
-
-    return clone;
-  }
-  /**
-   * Returns a child object within this Wick.Base object which has the associated UUID, if it exists.
-   * @param  {string} uuid UUID to search for.
-   * @return {Wick.Base|null} Returns a Base object if found, otherwise returns null.
-   */
-
-
-  getChildByUUID(uuid) {
-    if (this.uuid === uuid) {
-      return this;
-    } // Recursively search for object with the provided UUID.
-
-
-    var foundChild = null;
-
-    this._children.forEach(child => {
-      var checkChild = child.getChildByUUID(uuid);
-
-      if (checkChild) {
-        foundChild = checkChild;
-      }
-    });
-
-    return foundChild;
-  }
-
-  _addChild(child) {
-    this._children.push(child);
-
-    child.parent = this;
-    child.project = this.project;
-  }
-
-  _removeChild(child) {
-    child.parent = null;
-    child.project = null;
-    this._children = this._children.filter(seekChild => {
-      return seekChild !== child;
-    });
-  }
-
-  _getParentByInstanceOf(seekClass) {
+  getParentByInstanceOf(seekClass) {
     if (!this.parent) return null;
 
     if (this.parent instanceof seekClass) {
       return this.parent;
     } else {
-      if (!this.parent._getParentByInstanceOf) return null;
-      return this.parent._getParentByInstanceOf(seekClass);
+      if (!this.parent.getParentByInstanceOf) return null;
+      return this.parent.getParentByInstanceOf(seekClass);
     }
-  }
-
-  _regenUUIDs() {
-    this._uuid = uuidv4();
-    if (this.paperPath) this.paperPath.data.wickUUID = this._uuid; // hack to fix path cloning for now
-
-    this._children.forEach(child => {
-      child._regenUUIDs();
-    });
   }
 
   _generateView() {
@@ -65423,7 +65602,7 @@ Wick.Base = class {
   _getUniqueIdentifier(identifier) {
     if (!this.parent) return identifier;
     var otherIdentifiers = this.parent.children.filter(child => {
-      return child !== this;
+      return child !== this && child.identifier;
     }).map(child => {
       return child.identifier;
     });
@@ -65431,7 +65610,7 @@ Wick.Base = class {
     if (otherIdentifiers.indexOf(identifier) === -1) {
       return identifier;
     } else {
-      return identifier + ' copy';
+      return this._getUniqueIdentifier(identifier + '_copy');
     }
   }
 
@@ -65463,41 +65642,46 @@ Wick.Base = class {
 Wick.Layer = class extends Wick.Base {
   /**
    * Called when creating a Wick Layer.
-   * @param {string} name Name of the layer.
+   * @param {string} name - Name of the layer.
+   * @param {boolean} locked - Is the layer locked?
+   * @param {boolean} hideen - Is the layer hidden?
    */
-  constructor(name) {
-    super();
-    this.locked = false;
-    this.hidden = false;
+  constructor(args) {
+    if (!args) args = {};
+    super(args);
+    this.locked = args.locked === undefined ? false : args.locked;
+    this.hidden = args.hidden === undefined ? false : args.hidden;
     this.name = name || 'New Layer';
-    this.frames = [];
   }
 
-  static _deserialize(data, object) {
-    super._deserialize(data, object);
-
-    object.locked = data.locked;
-    object.hidden = data.hidden;
-    object.name = data.name;
-    data.frames.forEach(frameData => {
-      object.addFrame(Wick.Frame.deserialize(frameData));
-    });
-    return object;
+  static deserialize(data) {
+    super.deserialize(data);
+    this.locked = data.locked;
+    this.hidden = data.hidden;
+    this.name = data.name;
   }
 
-  serialize() {
-    var data = super.serialize();
+  serialize(args) {
+    var data = super.serialize(args);
     data.locked = this.locked;
     data.hidden = this.hidden;
     data.name = this.name;
-    data.frames = this.frames.map(frame => {
-      return frame.serialize();
-    });
     return data;
   }
 
   get classname() {
     return 'Layer';
+  }
+  /**
+   * The frames belonging to this layer.
+   * @type {Wick.Frame[]}
+   */
+
+
+  get frames() {
+    return this.children.filter(child => {
+      return child instanceof Wick.Frame;
+    });
   }
   /**
    * The name of the layer.
@@ -65588,10 +65772,7 @@ Wick.Layer = class extends Wick.Base {
 
 
   addFrame(frame) {
-    frame._originalLayerIndex = this.index;
-    this.frames.push(frame);
-
-    this._addChild(frame);
+    this.addChild(frame);
   }
   /**
    * Removes a frame from the Layer.
@@ -65600,11 +65781,7 @@ Wick.Layer = class extends Wick.Base {
 
 
   removeFrame(frame) {
-    this.frames = this.frames.filter(checkFrame => {
-      return checkFrame !== frame;
-    });
-
-    this._removeChild(frame);
+    this.removeChild(frame);
   }
   /**
    * Gets the frame at a specific playhead position.
@@ -65666,13 +65843,15 @@ Wick.Project = class extends Wick.Base {
    * @param {number} framerate - Project framerate in frames-per-second. Default 12.
    * @param {string} backgroundColor - Project background color in hex. Default #ffffff.
    */
-  constructor(name, width, height, framerate, backgroundColor) {
-    super();
-    this.name = name || 'My Project';
-    this.width = width || 720;
-    this.height = height || 405;
-    this.framerate = framerate || 12;
-    this.backgroundColor = backgroundColor || '#ffffff';
+  constructor(args) {
+    if (!args) args = {};
+    super(args);
+    this.project = this;
+    this.name = args.name || 'My Project';
+    this.width = args.width || 720;
+    this.height = args.height || 405;
+    this.framerate = args.framerate || 12;
+    this.backgroundColor = args.backgroundColor || '#ffffff';
     this.pan = {
       x: 0,
       y: 0
@@ -65681,14 +65860,10 @@ Wick.Project = class extends Wick.Base {
     this.onionSkinEnabled = false;
     this.onionSkinSeekBackwards = 1;
     this.onionSkinSeekForwards = 1;
-    this._root = null;
+    this.selection = new Wick.Selection();
     this.root = new Wick.Clip();
     this.root.identifier = 'Project';
-    this._focus = this.root.uuid;
-    this.project = this;
-    this._assets = [];
-    this._selection = null;
-    this.selection = new Wick.Selection();
+    this.focus = this.root;
     this._mousePosition = {
       x: 0,
       y: 0
@@ -65700,46 +65875,25 @@ Wick.Project = class extends Wick.Base {
     this._tickIntervalID = null;
   }
 
-  static _deserialize(data, object) {
-    super._deserialize(data, object);
-
-    object.name = data.name;
-    object.width = data.width;
-    object.height = data.height;
-    object.framerate = data.framerate;
-    object.backgroundColor = data.backgroundColor;
-    if (data.pan) object.pan = {
+  deserialize(data) {
+    super.deserialize(data);
+    this.name = data.name;
+    this.width = data.width;
+    this.height = data.height;
+    this.framerate = data.framerate;
+    this.backgroundColor = data.backgroundColor;
+    if (data.pan) this.pan = {
       x: data.pan.x,
       y: data.pan.y
     };
-    if (data.zoom) object.zoom = data.zoom;
-    if (data.onionSkinEnabled) object.onionSkinEnabled = data.onionSkinEnabled;
-    if (data.onionSkinSeekForwards) object.onionSkinSeekForwards = data.onionSkinSeekForwards;
-    if (data.onionSkinSeekBackwards) object.onionSkinSeekBackwards = data.onionSkinSeekBackwards;
-    if (data.root) object.root = Wick.Clip.deserialize(data.root);
-
-    if (!object.root.identifier) {
-      object.root.identifier = 'Project';
-    }
-
-    object.focus = object.root;
-    if (data.focus) object.focus = object.getChildByUUID(data.focus);
-    object.selection = Wick.Selection.deserialize(data.selection);
-
-    if (data.assets) {
-      data.assets.forEach(assetData => {
-        object.addAsset(Wick.Asset.deserialize(assetData));
-      });
-    }
-
-    object.project = object;
-    return object;
+    if (data.zoom) this.zoom = data.zoom;
+    if (data.onionSkinEnabled) this.onionSkinEnabled = data.onionSkinEnabled;
+    if (data.onionSkinSeekForwards) this.onionSkinSeekForwards = data.onionSkinSeekForwards;
+    if (data.onionSkinSeekBackwards) this.onionSkinSeekBackwards = data.onionSkinSeekBackwards;
   }
 
   serialize(args) {
-    if (!args) args = {};
-    if (args.shallow === undefined) args.shallow = false;
-    var data = super.serialize();
+    var data = super.serialize(args);
     data.name = this.name;
     data.width = this.width;
     data.height = this.height;
@@ -65753,16 +65907,6 @@ Wick.Project = class extends Wick.Base {
     data.onionSkinEnabled = this.onionSkinEnabled;
     data.onionSkinSeekForwards = this.onionSkinSeekForwards;
     data.onionSkinSeekBackwards = this.onionSkinSeekBackwards;
-    if (!args.shallow) data.root = this.root.serialize();
-    data.focus = this.focus.uuid;
-    data.selection = this.selection.serialize();
-
-    if (!args.shallow) {
-      data.assets = this.getAssets().map(asset => {
-        return asset.serialize();
-      });
-    }
-
     return data;
   }
   /**
@@ -65777,13 +65921,17 @@ Wick.Project = class extends Wick.Base {
     zip.loadAsync(wickFile).then(function (contents) {
       contents.files['project.json'].async('text').then(function (projectJSON) {
         var loadedAssetCount = 0;
-        var projectData = JSON.parse(projectJSON); // Immediately end if the project has no assets.
+        var projectData = JSON.parse(projectJSON);
+        projectData.assets = [];
+        Wick.ObjectCache.deserialize(projectData.objects);
+        var project = Wick.Base.fromData(projectData.project); // Immediately end if the project has no assets.
 
-        if (projectData.assets && projectData.assets.length === 0) {
-          var project = Wick.Project.deserialize(projectData);
+        if (project.getAssets().length === 0) {
+          //Wick.ObjectCache.deserialize(projectData.objects)
+          //var project = Wick.Base.fromData(projectData.project);
           callback(project);
         } else {
-          projectData.assets.forEach(assetData => {
+          project.getAssets().forEach(assetData => {
             var assetFile = contents.files['assets/' + assetData.uuid + '.' + assetData.fileExtension];
             assetFile.async('base64').then(assetFileData => {
               var assetSrc = 'data:' + assetData.MIMEType + ';base64,' + assetFileData;
@@ -65795,8 +65943,7 @@ Wick.Project = class extends Wick.Base {
             }).finally(() => {
               loadedAssetCount++;
 
-              if (loadedAssetCount === projectData.assets.length) {
-                var project = Wick.Project.deserialize(projectData);
+              if (loadedAssetCount === project.getAssets().length) {
                 callback(project);
               }
             });
@@ -65817,31 +65964,6 @@ Wick.Project = class extends Wick.Base {
 
   get classname() {
     return 'Project';
-  }
-  /**
-   * The currently focused clip.
-   * @type {Wick.Clip}
-   */
-
-
-  get focus() {
-    return this.getChildByUUID(this._focus);
-  }
-
-  set focus(clip) {
-    var oldFocus = this._focus;
-    this._focus = clip.uuid; // Reset timelines of subclips
-
-    this.focus.timeline.clips.forEach(subclip => {
-      subclip.timeline.playheadPosition = 1;
-    });
-
-    if (oldFocus !== clip.uuid) {
-      // Always reset pan and zoom on focus change.
-      this.recenter(); // Always clear selection on focus change.
-
-      this.selection.clear();
-    }
   }
   /**
    * The timeline of the active clip.
@@ -65895,17 +66017,28 @@ Wick.Project = class extends Wick.Base {
 
 
   get selection() {
-    return this._selection;
+    return this.children.find(child => {
+      return child instanceof Wick.Selection;
+    });
   }
 
   set selection(selection) {
     if (this.selection) {
-      this._removeChild(this.selection);
+      this.removeChild(this.selection);
     }
 
-    this._addChild(selection);
+    this.addChild(selection);
+  }
+  /**
+   * The assets belonging to the project.
+   * @type {Wick.Asset[]}
+   */
 
-    this._selection = selection;
+
+  get assets() {
+    return this.children.filter(child => {
+      return child instanceof Wick.Asset;
+    });
   }
   /**
    * Adds an asset to the project.
@@ -65914,23 +66047,17 @@ Wick.Project = class extends Wick.Base {
 
 
   addAsset(asset) {
-    this._assets.push(asset);
-
-    this._addChild(asset);
+    this.addChild(asset);
   }
   /**
-   * Removes an asset from the project.
+   * Removes an asset from the project. Also removes all instances of that asset from the project.
    * @param {Wick.Asset} asset - The asset to remove from the project.
    */
 
 
   removeAsset(asset) {
     asset.removeAllInstances();
-    this._assets = this._assets.filter(checkAsset => {
-      return checkAsset !== asset;
-    });
-
-    this._removeChild(asset);
+    this.removeChild(asset);
   }
   /**
    * Retrieve an asset from the project by its UUID.
@@ -65939,7 +66066,7 @@ Wick.Project = class extends Wick.Base {
    */
 
 
-  getAsset(uuid) {
+  getAssetByUUID(uuid) {
     return this.getAssets().find(asset => {
       return asset.uuid === uuid;
     });
@@ -65965,9 +66092,9 @@ Wick.Project = class extends Wick.Base {
 
   getAssets(type) {
     if (!type) {
-      return this._assets;
+      return this.assets;
     } else {
-      return this._assets.filter(asset => {
+      return this.assets.filter(asset => {
         return asset instanceof Wick[type + 'Asset'];
       });
     }
@@ -65979,17 +66106,40 @@ Wick.Project = class extends Wick.Base {
 
 
   get root() {
-    return this._root;
+    return this.children.find(child => {
+      return child instanceof Wick.Clip;
+    });
   }
 
-  set root(clip) {
-    if (this._root) {
-      this._removeChild(this._root);
+  set root(root) {
+    if (this.root) {
+      this.removeChild(this.root);
     }
 
-    this._root = clip;
+    this.addChild(root);
+  }
+  /**
+   * The currently focused clip.
+   * @type {Wick.Clip}
+   */
 
-    this._addChild(this._root);
+
+  get focus() {
+    return this._focus;
+  }
+
+  set focus(focus) {
+    var focusChanged = this.focus !== focus;
+    this._focus = focus; // Reset timelines of subclips of the newly focused clip
+
+    focus.timeline.clips.forEach(subclip => {
+      subclip.timeline.playheadPosition = 1;
+    }); // Always reset pan and zoom and clear selection on focus change
+
+    if (focusChanged) {
+      this.recenter();
+      this.selection.clear();
+    }
   }
   /**
    * The position of the mouse
@@ -66172,21 +66322,31 @@ Wick.Project = class extends Wick.Base {
   }
   /**
    * Creates a symbol from the objects currently selected.
-   * @param {string} name - the name to give the new symbol
+   * @param {string} identifier - the identifier to give the new symbol
    * @param {string} type - "Clip" or "Button"
    */
 
 
-  createSymbolFromSelection(name, type) {
-    if (type !== 'Clip' && type !== 'Button') {
-      console.error('createSymbolFromSelection: invalid type: ' + type);
+  createClipFromSelection(args) {
+    if (!args) {
+      args = {};
+    }
+
+    ;
+
+    if (args.type !== 'Clip' && args.type !== 'Button') {
+      console.error('createClipFromSelection: invalid type: ' + args.type);
       return;
     }
 
-    var transform = new Wick.Transformation();
-    transform.x = this.selection.center.x;
-    transform.y = this.selection.center.y;
-    var clip = new Wick[type](name, this.selection.getSelectedObjects('Canvas'), transform);
+    var transformation = new Wick.Transformation();
+    transformation.x = this.selection.center.x;
+    transformation.y = this.selection.center.y;
+    var clip = new Wick[args.type]({
+      identifier: args.identifier,
+      objects: this.selection.getSelectedObjects('Canvas'),
+      transformation: transformation
+    });
     this.activeFrame.addClip(clip); // TODO add to asset library
 
     this.selection.clear();
@@ -66263,7 +66423,6 @@ Wick.Project = class extends Wick.Base {
 
 
   exportAsWickFile(callback) {
-    var projectData = this.serialize();
     var zip = new JSZip(); // Create assets folder
 
     var assetsFolder = zip.folder("assets"); // Populate assets folder with files
@@ -66280,6 +66439,10 @@ Wick.Project = class extends Wick.Base {
       });
     }); // Add project json to root directory of zip file
 
+    var projectData = {
+      project: this.serialize(),
+      objects: Wick.ObjectCache.serialize()
+    };
     zip.file("project.json", JSON.stringify(projectData, null, 2));
     zip.generateAsync({
       type: "blob",
@@ -66499,21 +66662,20 @@ Wick.Selection = class extends Wick.Base {
    */
 
 
-  constructor() {
-    super();
-    this._uuids = [];
+  constructor(args) {
+    if (!args) args = {};
+    super(args);
+    this._selectedObjectsUUIDs = args.selectedObjects || [];
   }
 
-  static _deserialize(data, object) {
-    super._deserialize(data, object);
-
-    object._uuids = [].concat(data.uuids || []);
-    return object;
+  deserialize(data) {
+    super.deserialize(data);
+    data.selectedObjects = this._selectedObjectsUUIDs;
   }
 
-  serialize() {
-    var data = super.serialize();
-    data.uuids = [].concat(this._uuids);
+  serialize(args) {
+    var data = super.serialize(args);
+    data.selectedObjects = data.selectedObjects;
     return data;
   }
 
@@ -66545,7 +66707,7 @@ Wick.Selection = class extends Wick.Base {
       this.clear();
     }
 
-    this._uuids.push(object.uuid); // Update the view so that all the selection transform values are updated
+    this._selectedObjectsUUIDs.push(object.uuid); // Update the view so that all the selection transform values are updated
 
 
     this.project.view.render();
@@ -66557,7 +66719,7 @@ Wick.Selection = class extends Wick.Base {
 
 
   deselect(object) {
-    this._uuids = this._uuids.filter(uuid => {
+    this._selectedObjectsUUIDs = this._selectedObjectsUUIDs.filter(uuid => {
       return uuid !== object.uuid;
     }); // Update the view so that all the selection transform values are updated
 
@@ -66583,7 +66745,7 @@ Wick.Selection = class extends Wick.Base {
 
 
   isObjectSelected(object) {
-    return this._uuids.indexOf(object.uuid) !== -1;
+    return this._selectedObjectsUUIDs.indexOf(object.uuid) !== -1;
   }
   /**
    * Get the first object in the selection if there is a single object in the selection.
@@ -66606,8 +66768,8 @@ Wick.Selection = class extends Wick.Base {
 
 
   getSelectedObjects(filter) {
-    var objects = this._uuids.map(uuid => {
-      return this.project.getChildByUUID(uuid);
+    var objects = this._selectedObjectsUUIDs.map(uuid => {
+      return Wick.ObjectCache.getObjectByUUID(uuid);
     });
 
     if (Wick.Selection.LOCATION_NAMES.indexOf(filter) !== -1) {
@@ -66654,7 +66816,7 @@ Wick.Selection = class extends Wick.Base {
 
 
   get numObjects() {
-    return this._uuids.length;
+    return this._selectedObjectsUUIDs.length;
   }
   /**
    * The X position of the selection. This always uses the top-left corner of the objects.
@@ -66801,12 +66963,12 @@ Wick.Selection = class extends Wick.Base {
     return Wick.View.paperScope.selection.center;
   }
   /**
-   * The name of the selection.
+   * The identifier of the selection.
    * If there are multiple objects selected, null is always returned.
    */
 
 
-  get name() {
+  get identifier() {
     if (this.numObjects !== 1) {
       return null;
     } else {
@@ -66814,9 +66976,9 @@ Wick.Selection = class extends Wick.Base {
     }
   }
 
-  set name(name) {
+  set identifier(identifier) {
     if (this.numObjects === 1) {
-      this.getSelectedObject().identifier = name;
+      this.getSelectedObject().identifier = identifier;
     }
   }
   /**
@@ -66945,33 +67107,24 @@ Wick.Timeline = class extends Wick.Base {
   /**
    * Create a timeline.
    */
-  constructor() {
-    super();
+  constructor(args) {
+    super(args);
     this._playheadPosition = 1;
-    this.activeLayerIndex = 0;
+    this._activeLayerIndex = 0;
     this._playing = true;
     this._forceNextFrame = null;
-    this.layers = [];
   }
 
-  static _deserialize(data, object) {
-    super._deserialize(data, object);
-
-    object._playheadPosition = data.playheadPosition;
-    object.activeLayerIndex = data.activeLayerIndex;
-    data.layers.forEach(layerData => {
-      object.addLayer(Wick.Layer.deserialize(layerData));
-    });
-    return object;
+  static deserialize(data) {
+    super.deserialize(data);
+    this._playheadPosition = data.playheadPosition;
+    this.activeLayerIndex = data.activeLayerIndex;
   }
 
-  serialize() {
-    var data = super.serialize();
+  serialize(args) {
+    var data = super.serialize(args);
     data.playheadPosition = this._playheadPosition;
     data.activeLayerIndex = this.activeLayerIndex;
-    data.layers = this.layers.map(layer => {
-      return layer.serialize();
-    });
     return data;
   }
 
@@ -66979,7 +67132,19 @@ Wick.Timeline = class extends Wick.Base {
     return 'Timeline';
   }
   /**
+   * The layers that belong to this timeline.
+   * @type {Wick.Layer}
+   */
+
+
+  get layers() {
+    return this.children.filter(child => {
+      return child instanceof Wick.Layer;
+    });
+  }
+  /**
    * The position of the playhead. Determines which frames are visible.
+   * @type {number}
    */
 
 
@@ -66995,6 +67160,19 @@ Wick.Timeline = class extends Wick.Base {
     }
 
     this._playheadPosition = playheadPosition;
+  }
+  /**
+   * The index of the active layer. Determines which frame to draw onto.
+   * @type {number}
+   */
+
+
+  get activeLayerIndex() {
+    return this._activeLayerIndex;
+  }
+
+  set activeLayerIndex(activeLayerIndex) {
+    this._activeLayerIndex = activeLayerIndex;
   }
   /**
    * The total length of the timeline.
@@ -67109,9 +67287,7 @@ Wick.Timeline = class extends Wick.Base {
 
 
   addLayer(layer) {
-    this.layers.push(layer);
-
-    this._addChild(layer);
+    this.addChild(layer);
   }
   /**
    * Remmoves a layer from the timeline.
@@ -67120,19 +67296,17 @@ Wick.Timeline = class extends Wick.Base {
 
 
   removeLayer(layer) {
+    // You can't remove the last layer.
     if (this.layers.length <= 1) {
       return;
-    }
+    } // Activate the layer below the removed layer if we removed the active layer.
+
 
     if (this.activeLayerIndex === this.layers.length - 1) {
       this.activeLayerIndex--;
     }
 
-    this.layers = this.layers.filter(checkLayer => {
-      return checkLayer !== layer;
-    });
-
-    this._removeChild(layer);
+    this.removeChild(layer);
   }
   /**
    * Moves a layer to a different position, inserting it before/after other layers if needed.
@@ -67142,8 +67316,10 @@ Wick.Timeline = class extends Wick.Base {
 
 
   moveLayer(layer, index) {
-    this.layers.splice(this.layers.indexOf(layer), 1);
-    this.layers.splice(index, 0, layer);
+    // NOTE this is dangerous -- we should not be directly changing the _childrenUUIDs array.
+    this._childrenUUIDs.splice(this._childrenUUIDs.indexOf(layer.uuid), 1);
+
+    this._childrenUUIDs.splice(index, 0, layer.uuid);
   }
   /**
    * Gets the frames at the given playhead position.
@@ -67195,54 +67371,59 @@ Wick.Timeline = class extends Wick.Base {
     });
     return framesInRange;
   }
+  /*
+      insertFrames (frames, playheadPosition, layerIndex) {
+          if(frames.length === 0) return;
+  
+          function calculateRange (frames) {
+              var playheadStart = frames[0].start;
+              var playheadEnd = frames[0].end;
+              var layerStart = frames[0].layerIndex;
+              var layerEnd = frames[0].layerIndex;
+              frames.forEach(frame => {
+                  playheadStart = Math.min(playheadStart, frame.start);
+                  playheadEnd = Math.max(playheadEnd, frame.end);
+                  layerStart = Math.min(layerStart, frame.layerIndex);
+                  layerEnd = Math.max(layerEnd, frame.layerIndex);
+              });
+              return {
+                  playheadStart: playheadStart,
+                  playheadEnd: playheadEnd,
+                  layerStart: layerStart,
+                  layerEnd: layerEnd,
+              }
+          }
+  
+          var range = calculateRange(frames);
+  
+          // Use start and end playhead positions to calculate length, add resulting length to all starts/ends of frames
+          var length = range.playheadEnd - range.playheadStart;
+          frames.forEach(frame => {
+              frame.start += length;
+              frame.end += length;
+          });
+  
+          var checkCollisionsRange = calculateRange(frames);
+  
+          // While there are frames in the range,
+          while (this.getFramesInRange(checkCollisionsRange.playheadStart, checkCollisionsRange.playheadEnd, checkCollisionsRange.layerStart, checkCollisionsRange.layerEnd).length > 0) {
+          //   Add 1 to all frame starts and ends
+              frames.forEach(frame => {
+                  frame.start += 1;
+                  frame.end += 1;
+              });
+          //   Calculate start and end playhead positions from frameInfo
+          //   Calculate start and end layer indices from frameInfo
+              checkCollisionsRange = calculateRange(frames);
+          }
+  
+          // Add the frames in frameInfo into their given layers (their starts and ends should be correct already)
+          frames.forEach(frame => {
+              this.layers[frame.layerIndex].addFrame(frame);
+          });
+      }
+  */
 
-  insertFrames(frames, playheadPosition, layerIndex) {
-    if (frames.length === 0) return;
-
-    function calculateRange(frames) {
-      var playheadStart = frames[0].start;
-      var playheadEnd = frames[0].end;
-      var layerStart = frames[0].layerIndex;
-      var layerEnd = frames[0].layerIndex;
-      frames.forEach(frame => {
-        playheadStart = Math.min(playheadStart, frame.start);
-        playheadEnd = Math.max(playheadEnd, frame.end);
-        layerStart = Math.min(layerStart, frame.layerIndex);
-        layerEnd = Math.max(layerEnd, frame.layerIndex);
-      });
-      return {
-        playheadStart: playheadStart,
-        playheadEnd: playheadEnd,
-        layerStart: layerStart,
-        layerEnd: layerEnd
-      };
-    }
-
-    var range = calculateRange(frames); // Use start and end playhead positions to calculate length, add resulting length to all starts/ends of frames
-
-    var length = range.playheadEnd - range.playheadStart;
-    frames.forEach(frame => {
-      frame.start += length;
-      frame.end += length;
-    });
-    var checkCollisionsRange = calculateRange(frames); // While there are frames in the range,
-
-    while (this.getFramesInRange(checkCollisionsRange.playheadStart, checkCollisionsRange.playheadEnd, checkCollisionsRange.layerStart, checkCollisionsRange.layerEnd).length > 0) {
-      //   Add 1 to all frame starts and ends
-      frames.forEach(frame => {
-        frame.start += 1;
-        frame.end += 1;
-      }); //   Calculate start and end playhead positions from frameInfo
-      //   Calculate start and end layer indices from frameInfo
-
-      checkCollisionsRange = calculateRange(frames);
-    } // Add the frames in frameInfo into their given layers (their starts and ends should be correct already)
-
-
-    frames.forEach(frame => {
-      this.layers[frame.layerIndex].addFrame(frame);
-    });
-  }
   /**
    * Advances the timeline one frame forwards. Loops back to beginning if the end is reached.
    */
@@ -67373,18 +67554,18 @@ Wick.Tween = class extends Wick.Base {
   /**
    * Create a tween
    * @param {number} playheadPosition - the playhead position relative to the frame that the tween belongs to
-   * @param {Wick.Transform} transform - the transformation this tween will apply to child objects
+   * @param {Wick.Transform} transformation - the transformation this tween will apply to child objects
    * @param {number} fullRotations - the number of rotations to add to the tween's transformation
    */
 
 
-  constructor(playheadPosition, transform, fullRotations) {
-    super();
-    this.playheadPosition = playheadPosition || 1;
-    this.transform = transform || new Wick.Transformation();
-    this.fullRotations = fullRotations === undefined ? 0 : fullRotations;
-    this._easingType = null;
-    this.easingType = 'none';
+  constructor(args) {
+    if (!args) args = {};
+    super(args);
+    this.playheadPosition = args.playheadPosition || 1;
+    this.transformation = args.transformation || new Wick.Transformation();
+    this.fullRotations = args.fullRotations === undefined ? 0 : args.fullRotations;
+    this.easingType = args.easingType || 'none';
   }
   /**
    * Create a tween by interpolating two existing tweens.
@@ -67404,8 +67585,8 @@ Wick.Tween = class extends Wick.Base {
       var tweenFn = tweenA._getTweenFunction();
 
       var tt = tweenFn(t);
-      var valA = tweenA.transform[propName];
-      var valB = tweenB.transform[propName];
+      var valA = tweenA.transformation[propName];
+      var valB = tweenB.transformation[propName];
 
       if (propName === 'rotation') {
         // Constrain rotation values to range of -180 to 180
@@ -67421,29 +67602,28 @@ Wick.Tween = class extends Wick.Base {
         valB += tweenA.fullRotations * 360;
       }
 
-      interpTween.transform[propName] = lerp(valA, valB, tt);
+      interpTween.transformation[propName] = lerp(valA, valB, tt);
     });
     interpTween.playheadPosition = playheadPosition;
     return interpTween;
   }
 
-  serialize() {
-    var data = super.serialize();
+  serialize(args) {
+    var data = super.serialize(args);
     data.playheadPosition = this.playheadPosition;
-    data.transform = this.transform.serialize();
+    data.transformation = this.transformation.values;
     data.fullRotations = this.fullRotations;
     data.easingType = this.easingType;
     return data;
   }
 
-  static _deserialize(data, object) {
+  deserialize(data) {
     super._deserialize(data, object);
 
-    object.playheadPosition = data.playheadPosition;
-    object.transform = Wick.Transformation.deserialize(data.transform);
-    object.fullRotations = data.fullRotations;
-    object.easingType = data.easingType;
-    return object;
+    this.playheadPosition = data.playheadPosition;
+    this.transformation = new Wick.Transformation(data.transformation);
+    this.fullRotations = data.fullRotations;
+    this.easingType = data.easingType;
   }
   /**
    * The type of interpolation to use for easing.
@@ -67481,7 +67661,7 @@ Wick.Tween = class extends Wick.Base {
 
 
   applyTransformsToClip(clip) {
-    clip.transform = this.transform.clone(true);
+    clip.transformation = this.transformation.clone();
   }
 
   _getTweenFunction() {
@@ -67520,210 +67700,122 @@ Wick.Tween = class extends Wick.Base {
  */
 Wick.Path = class extends Wick.Base {
   /**
-   * Create a Wick Layer.
-   * @param {object} pathData - Data for the path, see paper.js exportAsJSON for format info.
-   * @param {Wick.Asset[]} assets - Assets to load image source from (for rasters).
+   * Create a Wick Path.
+   * @param {array} json - Path data exported from paper.js using exportJSON({asString:false}).
    */
-  constructor(pathData) {
-    super();
-    this._assetUUID = null; // If no path data is given, create an empty paper path, otherwise import the path data
+  constructor(args) {
+    if (!args) args = {};
+    super(args);
 
-    if (!pathData) {
-      this._paperPath = new paper.Path({
-        insert: false
-      });
+    if (args.json) {
+      this.json = args.json;
+    } else if (args.asset) {
+      this.asset = args.asset;
     } else {
-      this.importJSON(pathData);
-    } // Check if we need to recover the UUID from the paper path
-
-
-    if (this._paperPath.data.wickUUID) {
-      this._uuid = this._paperPath.data.wickUUID;
-    } else {
-      this._paperPath.data.wickUUID = this.uuid;
-      this._paperPath.data.wickType = 'path';
+      console.warn('Warning: Paths require either "json" or "asset" to be passed in as args');
     }
-
-    this._loaded = false;
-
-    this._paperPath.onLoad = () => {
-      this._loaded = true;
-    };
-
-    this._cachedJSONExport = null;
-  }
-
-  static _deserialize(data, object) {
-    super._deserialize(data, object);
-
-    object.importJSON(data.pathJSON);
-    return object;
-  }
-
-  serialize() {
-    var data = super.serialize();
-    data.pathJSON = this._getCachedJSONExport();
-    return data;
   }
 
   get classname() {
     return 'Path';
   }
   /**
-   * The paper.js representation of this path.
-   * @type {paper.Path}
+   * Path data exported from paper.js using exportJSON({asString:false}).
    */
 
 
-  get paperPath() {
-    return this._paperPath;
+  get json() {
+    return this._json;
+  }
+
+  set json(json) {
+    this._json = json;
+    this.view.render();
   }
   /**
-   * The bounding box of this path.
+   * Asset to use for image data.
+   */
+
+
+  get asset() {
+    return this._asset;
+  }
+
+  set asset(asset) {
+    this._asset = asset;
+    this.json = ["Raster", {
+      "applyMatrix": false,
+      "crossOrigin": "",
+      "source": "asset",
+      "asset": asset.uuid,
+      "data": {
+        "asset": asset.uuid
+      }
+    }];
+  }
+  /**
+   * Flag that is set to true when the path is fully loaded.
+   * @type {boolean}
+   */
+
+
+  get isLoaded() {
+    return this._isLoaded;
+  }
+  /**
+   * Callback to listen for when a raster path is done being loaded
+   * @param {function} fn - the function to call when a path is loaded
+   */
+
+
+  set onLoad(fn) {
+    this._onLoad = fn;
+  }
+  /**
+   * The bounding box of the path.
+   * @type {object}
    */
 
 
   get bounds() {
-    return this.paperPath.bounds;
+    var paperBounds = this.view.item.bounds;
+    return {
+      top: paperBounds.top,
+      bottom: paperBounds.bottom,
+      left: paperBounds.left,
+      right: paperBounds.right
+    };
   }
   /**
-   * Remove this path from its parent frame.
+   * The fill color, in hex format, of the path
+   * @type {string}
+   */
+
+
+  get fillColorHex() {
+    return this.view.item.fillColor.toCSS(true);
+  }
+  /**
+   * The fill color, in rgba format, of the path
+   * @type {object}
+   */
+
+
+  get fillColorRGBA() {
+    return {
+      r: this.view.item.fillColor.red * 255,
+      g: this.view.item.fillColor.green * 255,
+      b: this.view.item.fillColor.blue * 255,
+      a: this.view.item.fillColor.alpha
+    };
+  }
+  /**
+   * Removes this path from its parent frame.
    */
 
 
   remove() {
-    this.parent.removePath(this);
-  }
-  /**
-   * Import paper.js path data into this Wick Path, replacing the current path data.
-   * @param {object} pathData - Data for the path, see paper.js exportAsJSON for format info.
-   */
-
-
-  importJSON(json) {
-    if (json[0] === "Raster") {
-      this._assetUUID = json[1].asset;
-      var src = Wick.FileCache.getFile(this._assetUUID).src;
-      json[1].source = src;
-    }
-
-    this._paperPath = paper.importJSON(json);
-
-    this._paperPath.onLoad = () => {
-      this._loaded = true;
-    };
-  }
-  /**
-   * Export the Wick Path as paper.js Path json data.
-   */
-
-
-  exportJSON() {
-    var json = this._paperPath.exportJSON({
-      asString: false
-    });
-
-    if (json[0] === "Raster") {
-      json[1].asset = this._assetUUID;
-      json[1].source = 'asset';
-    }
-
-    return json;
-  }
-
-  _getCachedJSONExport() {
-    /*
-    if(this.project && this.project.serializeOnScreenObjectsOnly) {
-        if(this.parentFrame.onScreen) {
-            var json = this.exportJSON();
-            this._cachedJSONExport = json;
-            return json;
-        } else {
-            if(this._cachedJSONExport === null) this._cachedJSONExport = this.exportJSON();
-            return this._cachedJSONExport;
-        }
-    } else {
-        return this.exportJSON();
-    }
-    */
-    if (!this.parentFrame || this.parentFrame.onScreen) {
-      var json = this.exportJSON();
-      this._cachedJSONExport = json;
-      return json;
-    } else {
-      if (this._cachedJSONExport === null) this._cachedJSONExport = this.exportJSON();
-      return this._cachedJSONExport;
-    }
-  }
-
-};
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2018 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-
-/** Class representing a transformation. */
-Wick.Transformation = class extends Wick.Base {
-  /**
-   * Creates a Transformation.
-   * @param {number} x - 
-   * @param {number} y - 
-   * @param {number} scaleX - 
-   * @param {number} scaleY - 
-   * @param {number} rotation -
-   * @param {number} opacity -  
-   */
-  constructor(x, y, scaleX, scaleY, rotation, opacity) {
-    super();
-    this.x = x === undefined ? 0 : x;
-    this.y = y === undefined ? 0 : y;
-    this.scaleX = scaleX === undefined ? 1 : scaleX;
-    this.scaleY = scaleY === undefined ? 1 : scaleY;
-    this.rotation = rotation === undefined ? 0 : rotation;
-    this.opacity = opacity === undefined ? 1 : opacity;
-  }
-
-  serialize() {
-    var data = super.serialize();
-    data.x = this.x;
-    data.y = this.y;
-    data.scaleX = this.scaleX;
-    data.scaleY = this.scaleY;
-    data.rotation = this.rotation;
-    data.opacity = this.opacity;
-    return data;
-  }
-
-  static _deserialize(data, object) {
-    super._deserialize(data, object);
-
-    object.x = data.x;
-    object.y = data.y;
-    object.scaleX = data.scaleX;
-    object.scaleY = data.scaleY;
-    object.rotation = data.rotation;
-    object.opacity = data.opacity;
-    return object;
-  }
-
-  get classname() {
-    return 'Transformation';
+    this.parentFrame.removePath(this);
   }
 
 };
@@ -67752,20 +67844,19 @@ Wick.Asset = class extends Wick.Base {
    * Creates a new Wick Asset.
    * @param {string} filename - the filename of the asset
    */
-  constructor(name) {
-    super();
-    this.name = name;
+  constructor(args) {
+    if (!args) args = {};
+    super(args);
+    this.name = args.name;
   }
 
-  static _deserialize(data, object) {
-    super._deserialize(data, object);
-
-    object.name = data.name;
-    return object;
+  deserialize(data) {
+    super.deserialize(data);
+    this.name = data.name;
   }
 
-  serialize() {
-    var data = super.serialize();
+  serialize(args) {
+    var data = super.serialize(args);
     data.name = this.name;
     return data;
   }
@@ -67806,7 +67897,7 @@ Wick.FileAsset = class extends Wick.Asset {
     return imageTypes.concat(soundTypes);
   }
   /**
-   * Returns all valid extensions types for files which can be attempted to be 
+   * Returns all valid extensions types for files which can be attempted to be
    * converted to Wick Assets.
    * @return  {string[]} Array of strings representing extensions.
    */
@@ -67818,25 +67909,27 @@ Wick.FileAsset = class extends Wick.Asset {
     return imageExtensions.concat(soundExtensions);
   }
 
-  constructor(filename, src) {
-    super(filename);
-    this.filename = filename;
-    this.src = src;
+  constructor(args) {
+    if (!args) args = {};
+    args.name = args.filename;
+    super(args);
+    this.filename = args.filename;
+    this.src = args.src;
   }
 
-  serialize() {
-    var data = super.serialize();
+  serialize(args) {
+    var data = super.serialize(args);
     data.filename = this.filename;
     data.MIMEType = this.MIMEType;
     data.fileExtension = this.fileExtension;
     return data;
   }
 
-  static _deserialize(data, object) {
-    super._deserialize(data, object);
-
-    object.filename = data.filename;
-    return object;
+  deserialize(data) {
+    super.deserialize(data);
+    this.filename = data.filename;
+    this.MIMEType = data.MIMEType;
+    this.fileExtension = data.fileExtension;
   }
 
   get classname() {
@@ -67853,22 +67946,21 @@ Wick.FileAsset = class extends Wick.Asset {
 
   set src(src) {
     Wick.FileCache.addFile(src, this.uuid);
+
+    if (src) {
+      this.fileExtension = this._fileExtensionOfString(src);
+      this.MIMEType = this._MIMETypeOfString(src);
+    }
   }
   /**
-   * The MIMEType of the asset (format: type/subtype)
+   * Clones the FileAsset and also clones the src in FileCache.
    */
 
 
-  get MIMEType() {
-    return this._MIMETypeOfString(this.src);
-  }
-  /**
-   * The file extension of the asset.
-   */
-
-
-  get fileExtension() {
-    return this._fileExtensionOfString(this.src);
+  clone() {
+    var clone = super.clone();
+    clone.src = this.src;
+    return clone;
   }
 
   _MIMETypeOfString(string) {
@@ -67922,19 +68014,17 @@ Wick.ImageAsset = class extends Wick.FileAsset {
     return ['.jpeg', '.jpg', '.png'];
   }
 
-  constructor(filename, src) {
-    super(filename, src);
+  constructor(args) {
+    super(args);
   }
 
-  serialize() {
-    var data = super.serialize();
+  serialize(args) {
+    var data = super.serialize(args);
     return data;
   }
 
-  static _deserialize(data, object) {
-    super._deserialize(data, object);
-
-    return object;
+  deserialize(data) {
+    super.deserialize(data);
   }
 
   get classname() {
@@ -67948,7 +68038,7 @@ Wick.ImageAsset = class extends Wick.FileAsset {
   removeAllInstances() {
     this.project.getAllFrames().forEach(frame => {
       frame.paths.forEach(path => {
-        if (path.paperPath.asset === this.uuid) {
+        if (path.view.item.asset === this.uuid) {
           path.remove();
         }
       });
@@ -67956,18 +68046,16 @@ Wick.ImageAsset = class extends Wick.FileAsset {
   }
   /**
    * Creates a new Wick Path that uses this asset's image data as it's image source.
+   * @returns {Wick.Path} - the newly created path.
    */
 
 
   createInstance(callback) {
-    var path = new window.Wick.Path(["Raster", {
-      "applyMatrix": false,
-      "crossOrigin": "",
-      "source": "asset",
-      "asset": this.uuid
-    }], [this]);
+    var path = new Wick.Path({
+      asset: this
+    });
 
-    path.paperPath.onLoad = () => {
+    path.onLoad = () => {
       callback && callback(path);
     };
 
@@ -67998,29 +68086,38 @@ Wick.ImageAsset = class extends Wick.FileAsset {
 Wick.ClipAsset = class extends Wick.Asset {
   /**
    * Creates a new Clip Asset.
+   * @param {Wick.Clip} clip - the clip to link this asset to
    */
-  constructor(clip) {
-    super(clip ? clip.identifier : null);
+  constructor(args) {
+    if (!args) args = {};
+    args.identifier = args.clip ? args.clip.identifier : null;
+    super(args);
     this.clipType = null;
     this.linkedClips = [];
-    if (clip) this.useClipAsSource(clip);
+    if (args.clip) this.useClipAsSource(args.clip);
   }
 
-  static _deserialize(data, object) {
-    super._deserialize(data, object);
-
-    object.timeline = Wick.Timeline.deserialize(data.timeline);
-    return object;
+  deserialize(data) {
+    super.deserialize(data);
+    this._timeline = data.timeline;
   }
 
-  serialize() {
-    var data = super.serialize();
-    data.timeline = this.timeline.serialize();
+  serialize(args) {
+    var data = super.serialize(args);
+    data.timeline = this._timeline;
     return data;
   }
 
   get classname() {
     return 'ClipAsset';
+  }
+  /**
+   * The timeline that this asset is linked to.
+   */
+
+
+  get timeline() {
+    return Wick.ObjectCache.getObjectByUUID(this._timeline);
   }
   /**
    * Uses the timeline of the given clip as the data for this asset.
@@ -68144,18 +68241,16 @@ Wick.SoundAsset = class extends Wick.FileAsset {
     return ['.mp3', '.ogg', '.wav'];
   }
 
-  constructor(filename, src) {
-    super(filename, src);
+  constructor(args) {
+    super(args);
   }
 
-  static _deserialize(data, object) {
-    super._deserialize(data, object);
-
-    return object;
+  deserialize(data) {
+    super.deserialize(data);
   }
 
-  serialize() {
-    var data = super.serialize();
+  serialize(args) {
+    var data = super.serialize(args);
     return data;
   }
 
@@ -68538,8 +68633,9 @@ Wick.Tickable = class extends Wick.Base {
    */
 
 
-  constructor() {
-    super();
+  constructor(args) {
+    if (!args) args = {};
+    super(args);
     this._onscreen = false;
     this._onscreenLastTick = false;
     this._scripts = [];
@@ -68548,16 +68644,14 @@ Wick.Tickable = class extends Wick.Base {
     this.cursor = 'default';
   }
 
-  static _deserialize(data, object) {
-    super._deserialize(data, object);
-
-    object._scripts = [].concat(data.scripts || []);
-    object.cursor = data.cursor;
-    return object;
+  deserialize(data) {
+    super.deserialize(data);
+    this._scripts = [].concat(data.scripts || []);
+    this.cursor = data.cursor;
   }
 
-  serialize() {
-    var data = super.serialize();
+  serialize(args) {
+    var data = super.serialize(args);
     data.scripts = [].concat(this._scripts);
     data.cursor = this.cursor;
     return data;
@@ -68887,56 +68981,31 @@ Wick.Frame = class extends Wick.Tickable {
   /**
    * Create a new frame.
    * @param {number} start - The start of the frame. Optional, defaults to 1.
-   * @param {number} end - The end of the frame. Optional, defaults to start.
+   * @param {number} end - The end of the frame. Optional, defaults to be the same as start.
    */
-  constructor(start, end) {
-    super();
-    this.start = start || 1;
-    this.end = end || this.start;
-    this._originalLayerIndex = null;
-    this._clips = [];
-    this._paths = [];
-    this.tweens = [];
+  constructor(args) {
+    if (!args) args = {};
+    super(args);
+    this.start = args.start || 1;
+    this.end = args.end || this.start;
     this._soundAssetUUID = null;
     this._soundID = null;
     this._soundVolume = 1.0;
   }
 
-  static _deserialize(data, object) {
-    super._deserialize(data, object);
-
-    object.start = data.start;
-    object.end = data.end;
-    data.clips.forEach(clipData => {
-      object.addClip(Wick.Clip.deserialize(clipData));
-    });
-    data.paths.forEach(pathData => {
-      object.addPath(Wick.Path.deserialize(pathData));
-    });
-    object._soundAssetUUID = data.sound;
-    object._soundVolume = data.soundVolume === undefined ? 1.0 : data.soundVolume;
-    data.tweens.forEach(tweenData => {
-      object.addTween(Wick.Tween.deserialize(tweenData));
-    });
-    object._originalLayerIndex = data.originalLayerIndex;
-    return object;
+  deserialize(data) {
+    super.deserialize(data);
+    this.start = data.start;
+    this.end = data.end;
+    this._soundAssetUUID = data.sound;
+    this._soundVolume = data.soundVolume === undefined ? 1.0 : data.soundVolume;
   }
 
-  serialize() {
-    var data = super.serialize();
+  serialize(args) {
+    var data = super.serialize(args);
     data.start = this.start;
     data.end = this.end;
-    data.clips = this._clips.map(clip => {
-      return clip.serialize();
-    });
-    data.paths = this._paths.map(path => {
-      return path.serialize();
-    });
     data.sound = this._soundAssetUUID;
-    data.tweens = this.tweens.map(tween => {
-      return tween.serialize();
-    });
-    data.originalLayerIndex = this._originalLayerIndex;
     data.soundVolume = this._soundVolume;
     return data;
   }
@@ -68970,7 +69039,7 @@ Wick.Frame = class extends Wick.Tickable {
 
   get onScreen() {
     if (!this.parent) return true;
-    return this.inPosition(this.parent.parent.playheadPosition);
+    return this.inPosition(this.parentTimeline.playheadPosition);
   }
   /**
    * The sound on the frame.
@@ -68980,7 +69049,7 @@ Wick.Frame = class extends Wick.Tickable {
 
   get sound() {
     var uuid = this._soundAssetUUID;
-    return uuid ? this.project.getAsset(uuid) : null;
+    return uuid ? this.project.getAssetByUUID(uuid) : null;
   }
 
   set sound(soundAsset) {
@@ -69053,7 +69122,9 @@ Wick.Frame = class extends Wick.Tickable {
 
 
   get paths() {
-    return this._paths;
+    return this.children.filter(child => {
+      return child instanceof Wick.Path;
+    });
   }
   /**
    * The clips on the frame.
@@ -69062,7 +69133,20 @@ Wick.Frame = class extends Wick.Tickable {
 
 
   get clips() {
-    return this._clips;
+    return this.children.filter(child => {
+      return child instanceof Wick.Clip;
+    });
+  }
+  /**
+   * The tweens on this frame.
+   * @type {Wick.Tween[]}
+   */
+
+
+  get tweens() {
+    return this.children.filter(child => {
+      return child instanceof Wick.Tween;
+    });
   }
   /**
    * True if there are clips or paths on the frame.
@@ -69080,7 +69164,7 @@ Wick.Frame = class extends Wick.Tickable {
 
 
   get layerIndex() {
-    return this._originalLayerIndex;
+    return this.parentLayer.index;
   }
   /**
    * Removes this frame from its parent layer.
@@ -69122,9 +69206,7 @@ Wick.Frame = class extends Wick.Tickable {
       clip.remove();
     }
 
-    this._clips.push(clip);
-
-    this._addChild(clip);
+    this.addChild(clip);
   }
   /**
    * Remove a clip from the frame.
@@ -69133,11 +69215,7 @@ Wick.Frame = class extends Wick.Tickable {
 
 
   removeClip(clip) {
-    this._clips = this._clips.filter(checkClip => {
-      return checkClip !== clip;
-    });
-
-    this._removeChild(clip);
+    this.removeChild(clip);
   }
   /**
    * Add a path to the frame.
@@ -69150,9 +69228,7 @@ Wick.Frame = class extends Wick.Tickable {
       path.remove();
     }
 
-    this._paths.push(path);
-
-    this._addChild(path);
+    this.addChild(path);
   }
   /**
    * Remove a path from the frame.
@@ -69161,21 +69237,7 @@ Wick.Frame = class extends Wick.Tickable {
 
 
   removePath(path) {
-    this._paths = this._paths.filter(checkPath => {
-      return checkPath !== path;
-    });
-
-    this._removeChild(path);
-  }
-  /**
-   * Removes all paths from this frame.
-   */
-
-
-  removeAllPaths() {
-    [].concat(this.paths).forEach(path => {
-      this.removePath(path);
-    });
+    this.removeChild(path);
   }
   /**
    * Add a tween to the frame.
@@ -69184,9 +69246,7 @@ Wick.Frame = class extends Wick.Tickable {
 
 
   addTween(tween) {
-    this.tweens.push(tween);
-
-    this._addChild(tween);
+    this.addChild(tween);
   }
   /**
    * Remove a tween from the frame.
@@ -69195,11 +69255,7 @@ Wick.Frame = class extends Wick.Tickable {
 
 
   removeTween(tween) {
-    this.tweens = this.tweens.filter(checkTween => {
-      return checkTween !== tween;
-    });
-
-    this._removeChild(tween);
+    this.removeChild(tween);
   }
   /**
    * Get the tween at the given playhead position. Returns null if there is no tween.
@@ -69253,7 +69309,7 @@ Wick.Frame = class extends Wick.Tickable {
     var tween = this.getActiveTween();
 
     if (tween) {
-      this._clips.forEach(clip => {
+      this.clips.forEach(clip => {
         tween.applyTransformsToClip(clip);
       });
     }
@@ -69369,50 +69425,48 @@ Wick.Clip = class extends Wick.Tickable {
    * Create a new clip.
    * @param {string} identifier - The identifier of the new clip.
    * @param {Wick.Path|Wick.Clip[]} objects - Optional. A list of objects to add to the clip.
-   * @param {Wick.Transformation} transform - Optional. The initial transformation of the clip.
+   * @param {Wick.Transformation} transformation - Optional. The initial transformation of the clip.
    */
-  constructor(identifier, objects, transform) {
-    super();
-    this._timeline = null;
+  constructor(args) {
+    if (!args) args = {};
+    super(args);
     this.timeline = new Wick.Timeline();
     this.timeline.addLayer(new Wick.Layer());
     this.timeline.activeLayer.addFrame(new Wick.Frame());
-    this.identifier = identifier || 'New Symbol';
-    this.transform = transform || new Wick.Transformation();
+    this.identifier = args.identifier || 'New Symbol';
+    this.transformation = args.transformation || new Wick.Transformation();
     this.cursor = 'default';
     /* If objects are passed in, add them to the clip and reposition them */
 
-    if (objects) {
-      var clips = objects.filter(object => {
+    if (args.objects) {
+      var clips = args.objects.filter(object => {
         return object instanceof Wick.Clip;
       });
-      clips.forEach(clip => {
-        clip.transform.x -= this.transform.x;
-        clip.transform.y -= this.transform.y;
-        this.activeFrame.addClip(clip);
-      });
-      var paths = objects.filter(object => {
+      var paths = args.objects.filter(object => {
         return object instanceof Wick.Path;
       });
+      clips.forEach(clip => {
+        clip.transformation.x -= this.transformation.x;
+        clip.transformation.y -= this.transformation.y;
+        this.activeFrame.addClip(clip);
+      });
       paths.forEach(path => {
-        path.paperPath.position = new paper.Point(path.paperPath.position.x - this.transform.x, path.paperPath.position.y - this.transform.y);
+        path.view.item.position = new paper.Point(path.view.item.position.x - this.transformation.x, path.view.item.position.y - this.transformation.y);
         this.activeFrame.addPath(path);
       });
     }
   }
 
-  static _deserialize(data, object) {
-    super._deserialize(data, object);
-
-    object.transform = Wick.Transformation.deserialize(data.transform);
-    object.timeline = Wick.Timeline.deserialize(data.timeline);
-    return object;
+  static deserialize(data) {
+    super.deserialize(data, object);
+    this.transformation = new Wick.Transformation(data.transformation);
+    this._timeline = data.timeline;
   }
 
-  serialize() {
-    var data = super.serialize();
-    data.transform = this.transform.serialize();
-    data.timeline = this.timeline.serialize();
+  serialize(args) {
+    var data = super.serialize(args);
+    data.transformation = this.transformation.values;
+    data.timeline = this._timeline;
     return data;
   }
 
@@ -69447,17 +69501,17 @@ Wick.Clip = class extends Wick.Tickable {
 
 
   get timeline() {
-    return this._timeline;
+    return this.children.find(child => {
+      return child instanceof Wick.Timeline;
+    });
   }
 
   set timeline(timeline) {
-    if (this._timeline) {
-      this._removeChild(this._timeline);
+    if (this.timeline) {
+      this.removeChild(this.timeline);
     }
 
-    this._timeline = timeline;
-
-    this._addChild(this._timeline);
+    this.addChild(timeline);
   }
   /**
    * The active layer of the clip's timeline.
@@ -69522,14 +69576,14 @@ Wick.Clip = class extends Wick.Tickable {
     var leftovers = [];
     this.timeline.activeFrames.forEach(frame => {
       frame.clips.forEach(clip => {
-        clip.transform.x += this.transform.x;
-        clip.transform.y += this.transform.y;
+        clip.transformation.x += this.transformation.x;
+        clip.transformation.y += this.transformation.y;
         this.parentTimeline.activeFrame.addClip(clip);
         leftovers.push(clip);
       });
       frame.paths.forEach(path => {
-        path.paperPath.position.x += this.transform.x;
-        path.paperPath.position.y += this.transform.y;
+        path.paperPath.position.x += this.transformation.x;
+        path.paperPath.position.y += this.transformation.y;
         this.parentTimeline.activeFrame.addPath(path);
         leftovers.push(path);
       });
@@ -69643,10 +69697,10 @@ Wick.Clip = class extends Wick.Tickable {
     var P = SAT.Polygon; // Bounds polygon of this clip
 
     var bounds1 = this.bounds;
-    var polygon1 = new P(new V(this.transform.x, this.transform.y), [new V(bounds1.x, bounds1.y), new V(bounds1.x + bounds1.width * this.transform.scaleX, bounds1.y), new V(bounds1.x + bounds1.width * this.transform.scaleX, bounds1.y + bounds1.height * this.transform.scaleY), new V(0, bounds1.y + bounds1.height * this.transform.scaleY)]); // Bounds polygon of other clip
+    var polygon1 = new P(new V(this.transformation.x, this.transformation.y), [new V(bounds1.x, bounds1.y), new V(bounds1.x + bounds1.width * this.transformation.scaleX, bounds1.y), new V(bounds1.x + bounds1.width * this.transformation.scaleX, bounds1.y + bounds1.height * this.transformation.scaleY), new V(0, bounds1.y + bounds1.height * this.transformation.scaleY)]); // Bounds polygon of other clip
 
     var bounds2 = other.bounds;
-    var polygon2 = new P(new V(other.transform.x, other.transform.y), [new V(bounds2.x, bounds2.y), new V(bounds2.x + bounds2.width * this.transform.scaleX, bounds2.y), new V(bounds2.x + bounds2.width * this.transform.scaleX, bounds2.y + bounds2.height * this.transform.scaleY), new V(0, bounds2.y + bounds2.height * this.transform.scaleY)]); // Get collision response from SAT
+    var polygon2 = new P(new V(other.transformation.x, other.transformation.y), [new V(bounds2.x, bounds2.y), new V(bounds2.x + bounds2.width * this.transformation.scaleX, bounds2.y), new V(bounds2.x + bounds2.width * this.transformation.scaleX, bounds2.y + bounds2.height * this.transformation.scaleY), new V(0, bounds2.y + bounds2.height * this.transformation.scaleY)]); // Get collision response from SAT
 
     var response = new SAT.Response();
     var collided = SAT.testPolygonPolygon(polygon1, polygon2, response);
@@ -69671,11 +69725,11 @@ Wick.Clip = class extends Wick.Tickable {
 
 
   get x() {
-    return this.transform.x;
+    return this.transformation.x;
   }
 
   set x(x) {
-    this.transform.x = x;
+    this.transformation.x = x;
   }
   /**
    * The Y position of the clip.
@@ -69683,11 +69737,11 @@ Wick.Clip = class extends Wick.Tickable {
 
 
   get y() {
-    return this.transform.y;
+    return this.transformation.y;
   }
 
   set y(y) {
-    this.transform.y = y;
+    this.transformation.y = y;
   }
   /**
    * The X scale of the clip.
@@ -69695,11 +69749,11 @@ Wick.Clip = class extends Wick.Tickable {
 
 
   get scaleX() {
-    return this.transform.scaleX;
+    return this.transformation.scaleX;
   }
 
   set scaleX(scaleX) {
-    this.transform.scaleX = scaleX;
+    this.transformation.scaleX = scaleX;
   }
   /**
    * The Y scale of the clip.
@@ -69707,11 +69761,11 @@ Wick.Clip = class extends Wick.Tickable {
 
 
   get scaleY() {
-    return this.transform.scaleY;
+    return this.transformation.scaleY;
   }
 
   set scaleY(scaleY) {
-    this.transform.scaleY = scaleY;
+    this.transformation.scaleY = scaleY;
   }
   /**
    * The rotation of the clip.
@@ -69719,11 +69773,11 @@ Wick.Clip = class extends Wick.Tickable {
 
 
   get rotation() {
-    return this.transform.rotation;
+    return this.transformation.rotation;
   }
 
   set rotation(rotation) {
-    this.transform.rotation = rotation;
+    this.transformation.rotation = rotation;
   }
   /**
    * The opacity of the clip.
@@ -69731,13 +69785,13 @@ Wick.Clip = class extends Wick.Tickable {
 
 
   get opacity() {
-    return this.transform.opacity;
+    return this.transformation.opacity;
   }
 
   set opacity(opacity) {
     opacity = Math.min(1, opacity);
     opacity = Math.max(0, opacity);
-    this.transform.opacity = opacity;
+    this.transformation.opacity = opacity;
   }
   /**
    * The list of parents, grandparents, grand-grandparents...etc of the clip.
@@ -69830,19 +69884,17 @@ Wick.Clip = class extends Wick.Tickable {
  * Buttons are just clips with special timelines controlled by mouse interactions.
  */
 Wick.Button = class extends Wick.Clip {
-  constructor(identifier, objects, transform) {
-    super(identifier, objects, transform);
+  constructor(args) {
+    super(args);
     this.cursor = 'pointer';
   }
 
-  static _deserialize(data, object) {
-    super._deserialize(data, object);
-
-    return object;
+  deserialize(data) {
+    super.deserialize(data);
   }
 
-  serialize() {
-    var data = super.serialize();
+  serialize(args) {
+    var data = super.serialize(args);
     return data;
   }
 
@@ -73606,7 +73658,7 @@ Wick.View.Project = class extends Wick.View {
     var i = setInterval(() => {
       var allLoaded = true;
       allRasters.forEach(raster => {
-        if (!raster._loaded) {
+        if (!raster.isLoaded) {
           allLoaded = false;
         }
       });
@@ -73655,7 +73707,7 @@ Wick.View.Project = class extends Wick.View {
         this.applyChanges();
         this.model.selection.clear();
         e.items.forEach(item => {
-          let object = this.model.getChildByUUID(item.data.wickUUID);
+          let object = Wick.ObjectCache.getObjectByUUID(item.data.wickUUID);
           this.model.selection.select(object);
         });
         this.applyChanges();
@@ -74032,7 +74084,7 @@ Wick.View.Selection = class extends Wick.View {
     var project = this.model.project;
     var items = [];
     items = items.concat(project.selection.getSelectedObjects('Path').map(path => {
-      return path.paperPath;
+      return path.view.item;
     }));
     items = items.concat(project.selection.getSelectedObjects('Clip').map(clip => {
       return clip.view.group;
@@ -74105,12 +74157,12 @@ Wick.View.Clip = class extends Wick.View {
     }); // Update transformations
 
     this.group.pivot = new this.paper.Point(0, 0);
-    this.group.position.x = this.model.transform.x;
-    this.group.position.y = this.model.transform.y;
-    this.group.scaling.x = this.model.transform.scaleX;
-    this.group.scaling.y = this.model.transform.scaleY;
-    this.group.rotation = this.model.transform.rotation;
-    this.group.opacity = this.model.transform.opacity;
+    this.group.position.x = this.model.transformation.x;
+    this.group.position.y = this.model.transformation.y;
+    this.group.scaling.x = this.model.transformation.scaleX;
+    this.group.scaling.y = this.model.transformation.scaleY;
+    this.group.rotation = this.model.transformation.rotation;
+    this.group.opacity = this.model.transformation.opacity;
   }
 
   _renderWebGL() {
@@ -74122,13 +74174,13 @@ Wick.View.Clip = class extends Wick.View {
       this.container.addChild(container);
     }); // Update transformations
 
-    this.container.x = this.model.transform.x;
-    this.container.y = this.model.transform.y;
-    this.container.scale.x = this.model.transform.scaleX;
-    this.container.scale.y = this.model.transform.scaleY;
-    this.container.rotation = this.model.transform.rotation * (Math.PI / 180); //Degrees -> Radians conversion
+    this.container.x = this.model.transformation.x;
+    this.container.y = this.model.transformation.y;
+    this.container.scale.x = this.model.transformation.scaleX;
+    this.container.scale.y = this.model.transformation.scaleY;
+    this.container.rotation = this.model.transformation.rotation * (Math.PI / 180); //Degrees -> Radians conversion
 
-    this.container.alpha = this.model.transform.opacity;
+    this.container.alpha = this.model.transformation.opacity;
   }
 
   _onPointerOver(e) {
@@ -74427,8 +74479,8 @@ Wick.View.Frame = class extends Wick.View {
     this.pathsLayer.data.wickType = 'paths';
     this.pathsLayer.removeChildren();
     this.model.paths.forEach(path => {
-      this.pathsLayer.addChild(path.paperPath);
-      path.paperPath.data.asset = path._assetUUID;
+      path.view.render();
+      this.pathsLayer.addChild(path.view.item);
     });
   }
 
@@ -74542,12 +74594,12 @@ Wick.View.Frame = class extends Wick.View {
 
     this.clipsLayer.children.forEach(child => {
       var wickClip = this.model.getChildByUUID(child.data.wickUUID);
-      wickClip.transform.x = child.position.x;
-      wickClip.transform.y = child.position.y;
-      wickClip.transform.scaleX = child.scaling.x;
-      wickClip.transform.scaleY = child.scaling.y;
-      wickClip.transform.rotation = child.rotation;
-      wickClip.transform.opacity = child.opacity;
+      wickClip.transformation.x = child.position.x;
+      wickClip.transformation.y = child.position.y;
+      wickClip.transformation.scaleX = child.scaling.x;
+      wickClip.transformation.scaleY = child.scaling.y;
+      wickClip.transformation.rotation = child.rotation;
+      wickClip.transformation.opacity = child.opacity;
     }); // TODO Update active tween / create new tween here
   }
 
@@ -74559,13 +74611,16 @@ Wick.View.Frame = class extends Wick.View {
       var pathJSON = child.exportJSON({
         asString: false
       });
+      console.log(pathJSON);
 
       if (pathJSON[0] === "Raster") {
         pathJSON[1].asset = child.data.asset;
         pathJSON[1].source = 'asset';
       }
 
-      var wickPath = new Wick.Path(pathJSON);
+      var wickPath = new Wick.Path({
+        json: pathJSON
+      });
       this.model.addPath(wickPath);
       child.name = wickPath.uuid;
     });
@@ -75563,7 +75618,6 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
     var layer = this.ghostLayer;
     this.model.start = start;
     this.model.end = end;
-    console.warn('move to engine?');
     var oldLayer = this.model.parentLayer;
     var newLayer = this.model.parentTimeline.layers[layer];
     oldLayer.removeFrame(this.model);

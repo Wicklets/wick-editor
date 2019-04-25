@@ -224,6 +224,8 @@ Wick.View.Frame = class extends Wick.View {
     }
 
     _applyPathChanges () {
+        // This could be optimized by updating existing paths instead of completely clearing the project.
+
         this.model.paths.forEach(path => {
             this.model.removePath(path);
         });

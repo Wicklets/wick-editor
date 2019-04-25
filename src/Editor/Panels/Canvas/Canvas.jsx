@@ -53,7 +53,7 @@ class Canvas extends Component {
     project.view.resize();
 
     project.view.on('canvasModified', (e) => {
-      this.props.project.view.applyChanges();
+      //this.props.project.view.applyChanges();
       this.props.projectDidChange();
     });
 

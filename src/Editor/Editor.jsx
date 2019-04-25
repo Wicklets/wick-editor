@@ -481,15 +481,13 @@ class Editor extends EditorCore {
    * saved to the undo/redo stacks.
    */
   projectDidChange = (skipHistory) => {
-    console.log("projectDidChange() called")
-
     // The current frame was probably changed in some way, so make sure the WebGL
     // canvas renders the new frame and not an old cached version of it.
     this.project.activeFrames.forEach(frame => {
         frame.view.clearRasterCache();
     });
 
-    this.canvasComponent.updateCanvas(this.project);
+    //this.canvasComponent.updateCanvas(this.project);
     this.setState({
       project: ''+Math.random(),
     });
