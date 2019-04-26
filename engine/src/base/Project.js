@@ -432,6 +432,28 @@ Wick.Project = class extends Wick.Base {
     }
 
     /**
+     * Copy the contents of the selection to the clipboard.
+     * @returns {boolean} True if there was something to copy, false otherwise
+     */
+    copySelectionToClipboard () {
+        var objects = this.selection.getSelectedObjects();
+        if(objects.length === 0) {
+            return false;
+        } else {
+            this.clipboard.copyObjectsToClipboard(objects);
+            return true;
+        }
+    }
+
+    /**
+     * Paste the contents of the clipboard into the project.
+     * @returns {boolean} True if there was something to paste in the clipboard, false otherwise.
+     */
+    pasteClipboardContents () {
+        return this.clipboard.pasteObjectsFromClipboard(this);
+    }
+
+    /**
      * Selects all objects that are visible on the canvas (excluding locked layers and onion skinned objects)
      */
     selectAll () {

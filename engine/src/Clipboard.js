@@ -29,16 +29,31 @@ Wick.Clipboard = class {
     }
 
     /**
-     *
+     * Replace the current contents of the clipboard with new objects.
+     * @param {Wick.Base[]} objects - the objects to copy to the clipboard
      */
     copyObjectsToClipboard (objects) {
-
+        this._objects = objects.map(object => {
+            return object.clone();
+        });
     }
 
     /**
-     *
+     * Paste the content of the clipboard into the project.
+     * @param {Wick.Project} project - the project to paste objects into.
+     * @returns {boolean} True if there is something to paste in the clipboard, false if the clipboard is empty.
      */
-    pasteObjectsFromClipboard () {
+    pasteObjectsFromClipboard (project) {
+        if(this._objects.length === 0) {
+            return false;
+        }
 
+        this._objects.map(object => {
+            return object.clone();
+        }).forEach(object => {
+            project.addObject(object);
+        });
+
+        return true;
     }
 }

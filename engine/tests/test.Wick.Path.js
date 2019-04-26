@@ -20,7 +20,46 @@ describe('Wick.Path', function() {
         });
     });
 
-    
+    describe('#serialize', function() {
+        it('should serialize correctly', function () {
+            var path = new Wick.Path({json:TestUtils.TEST_PATH_JSON_RED_SQUARE});
+            var data = path.serialize();
+
+            expect(data.children).to.eql([]);
+            expect(data.classname).to.equal('Path');
+            expect(data.identifier).to.equal(null);
+            expect(JSON.stringify(data.json)).to.equal(JSON.stringify(TestUtils.TEST_PATH_JSON_RED_SQUARE));
+            expect(data.uuid).to.equal(path.uuid);
+        });
+    });
+
+    describe('#deserialize', function() {
+        it('should serialize correctly', function () {
+            var pathOriginal = new Wick.Path({json:TestUtils.TEST_PATH_JSON_RED_SQUARE});
+            var data = pathOriginal.serialize();
+            var pathFromData = Wick.Path.fromData(data);
+
+            expect(pathFromData instanceof Wick.Path).to.equal(true);
+            expect(pathFromData.children).to.eql([]);
+            expect(pathFromData.identifier).to.equal(null);
+            expect(JSON.stringify(pathFromData.json)).to.equal(JSON.stringify(TestUtils.TEST_PATH_JSON_RED_SQUARE));
+            expect(pathFromData.uuid).to.equal(pathOriginal.uuid);
+        });
+    });
+
+    describe('#clone', function() {
+        it('should clone correctly', function () {
+            var pathOriginal = new Wick.Path({json:TestUtils.TEST_PATH_JSON_RED_SQUARE});
+            var pathClone = pathOriginal.clone();
+
+            expect(pathClone instanceof Wick.Path).to.equal(true);
+            expect(pathClone.children).to.eql([]);
+            expect(pathClone.identifier).to.equal(null);
+            expect(JSON.stringify(pathClone.json)).to.equal(JSON.stringify(TestUtils.TEST_PATH_JSON_RED_SQUARE));
+            expect(pathClone.uuid).not.to.equal(pathOriginal.uuid);
+            expect(pathClone.uuid).not.to.equal(null);
+        });
+    });
 
     describe('#json', function() {
         it('should update json without errors', function () {
