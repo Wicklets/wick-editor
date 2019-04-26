@@ -65034,6 +65034,70 @@ window.Wick = Wick;
 */
 
 /**
+ * A clipboard utility class for copy/paste functionality.
+ */
+Wick.Clipboard = class {
+  /**
+   * Create a new Clipboard object.
+   */
+  constructor() {
+    this._objects = [];
+  }
+  /**
+   * Replace the current contents of the clipboard with new objects.
+   * @param {Wick.Base[]} objects - the objects to copy to the clipboard
+   */
+
+
+  copyObjectsToClipboard(objects) {
+    this._objects = objects.map(object => {
+      return object.clone();
+    });
+  }
+  /**
+   * Paste the content of the clipboard into the project.
+   * @param {Wick.Project} project - the project to paste objects into.
+   * @returns {boolean} True if there is something to paste in the clipboard, false if the clipboard is empty.
+   */
+
+
+  pasteObjectsFromClipboard(project) {
+    if (this._objects.length === 0) {
+      return false;
+    }
+
+    this._objects.map(object => {
+      return object.clone();
+    }).forEach(object => {
+      project.addObject(object);
+    });
+
+    return true;
+  }
+
+};
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* Copyright 2018 WICKLETS LLC
+*
+* This file is part of Wick Engine.
+*
+* Wick Engine is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Wick Engine is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
+/**
  * Global utility class for storing and retrieving large file data.
  */
 WickFileCache = class {
@@ -65101,6 +65165,97 @@ WickFileCache = class {
 
 };
 Wick.FileCache = new WickFileCache();
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* Copyright 2018 WICKLETS LLC
+*
+* This file is part of Wick Engine.
+*
+* Wick Engine is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Wick Engine is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
+/**
+ * History utility class for undo/redo functionality.
+ */
+Wick.History = class {
+  /**
+   * Creates a new history object
+   */
+  constructor() {
+    this._undoStack = [];
+    this._redoStack = [];
+  }
+  /**
+   *
+   */
+
+
+  pushState() {
+    this._undoStack.push(Wick.ObjectCache.getAllObjects().map(object => {
+      return object.serialize();
+    }));
+  }
+  /**
+   *
+   * @returns {boolean} True if the undo stack is non-empty, false otherwise
+   */
+
+
+  popState() {
+    if (this._undoStack.length <= 1) {
+      return false;
+    }
+
+    var lastState = this._undoStack.pop();
+
+    this._redoStack.push(lastState);
+
+    var currentState = this._undoStack[this._undoStack.length - 1];
+
+    this._applyStateToProject(currentState);
+
+    return true;
+  }
+  /**
+   * Recover a state that was undone.
+   * @returns {boolean} True if the redo stack is non-empty, false otherwise
+   */
+
+
+  recoverState() {
+    if (this._redoStack.length === 0) {
+      return false;
+    }
+
+    var recoveredState = this._redoStack.pop();
+
+    this._undoStack.push(recoveredState);
+
+    this._applyStateToProject(recoveredState);
+
+    return true;
+  }
+
+  _applyStateToProject(state) {
+    state.forEach(objectData => {
+      var object = Wick.ObjectCache.getObjectByUUID(objectData.uuid);
+      object.deserialize(objectData);
+    });
+  }
+
+};
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
@@ -65204,6 +65359,21 @@ WickObjectCache = class {
       return object;
     }
   }
+  /**
+   * All objects in the cache.
+   * @returns {Wick.Base[]}
+   */
+
+
+  getAllObjects() {
+    var allObjects = [];
+
+    for (var uuid in this._objects) {
+      allObjects.push(this._objects[uuid]);
+    }
+
+    return allObjects;
+  }
 
 };
 Wick.ObjectCache = new WickObjectCache();
@@ -65270,6 +65440,115 @@ Wick.Transformation = class {
 
   clone() {
     return new Wick.Transformation(this.values);
+  }
+
+};
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* Copyright 2018 WICKLETS LLC
+*
+* This file is part of Wick Engine.
+*
+* Wick Engine is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Wick Engine is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
+/**
+ * Utility class for creating and parsing wick files.
+ */
+Wick.WickFile = class {
+  /**
+   * Create a project from a wick file.
+   * @param {File} wickFile - Wick file containing project data.
+   * @param {function} callback - Function called when the project is created.
+   */
+  static fromWickFile(wickFile, callback) {
+    var zip = new JSZip();
+    zip.loadAsync(wickFile).then(function (contents) {
+      contents.files['project.json'].async('text').then(function (projectJSON) {
+        var loadedAssetCount = 0;
+        var projectData = JSON.parse(projectJSON);
+        projectData.assets = [];
+        Wick.ObjectCache.deserialize(projectData.objects);
+        var project = Wick.Base.fromData(projectData.project); // Immediately end if the project has no assets.
+
+        if (project.getAssets().length === 0) {
+          //Wick.ObjectCache.deserialize(projectData.objects)
+          //var project = Wick.Base.fromData(projectData.project);
+          callback(project);
+        } else {
+          project.getAssets().forEach(assetData => {
+            var assetFile = contents.files['assets/' + assetData.uuid + '.' + assetData.fileExtension];
+            assetFile.async('base64').then(assetFileData => {
+              var assetSrc = 'data:' + assetData.MIMEType + ';base64,' + assetFileData;
+              Wick.FileCache.addFile(assetSrc, assetData.uuid);
+            }).catch(e => {
+              console.log('Error loading asset file.');
+              console.log(e);
+              callback(null);
+            }).finally(() => {
+              loadedAssetCount++;
+
+              if (loadedAssetCount === project.getAssets().length) {
+                callback(project);
+              }
+            });
+          });
+        }
+      });
+    }).catch(function (e) {
+      console.log('Error loading project zip.');
+      console.log(e);
+      callback(null);
+    });
+  }
+  /**
+   * Create a wick file from the project.
+   * @param {Wick.Project} project - the project to create a wick file from
+   * @param {function} callback - Function called when the file is created. Contains the file as a parameter.
+   */
+
+
+  static toWickFile(project, callback) {
+    var zip = new JSZip(); // Create assets folder
+
+    var assetsFolder = zip.folder("assets"); // Populate assets folder with files
+
+    project.getAssets().filter(asset => {
+      return asset instanceof Wick.ImageAsset || asset instanceof Wick.SoundAsset;
+    }).forEach(asset => {
+      // Create file from asset dataurl, add it to assets folder
+      var fileExtension = asset.MIMEType.split('/')[1];
+      var filename = asset.uuid;
+      var data = asset.src.split(',')[1];
+      assetsFolder.file(filename + '.' + fileExtension, data, {
+        base64: true
+      });
+    }); // Add project json to root directory of zip file
+
+    var projectData = {
+      project: project.serialize(),
+      objects: Wick.ObjectCache.serialize()
+    };
+    zip.file("project.json", JSON.stringify(projectData, null, 2));
+    zip.generateAsync({
+      type: "blob",
+      compression: "DEFLATE",
+      compressionOptions: {
+        level: 9
+      }
+    }).then(callback);
   }
 
 };
@@ -65861,6 +66140,8 @@ Wick.Project = class extends Wick.Base {
     this.onionSkinSeekBackwards = 1;
     this.onionSkinSeekForwards = 1;
     this.selection = new Wick.Selection();
+    this.history = new Wick.History();
+    this.clipboard = new Wick.Clipboard();
     this.root = new Wick.Clip();
     this.root.identifier = 'Project';
     this.focus = this.root;
@@ -65882,14 +66163,15 @@ Wick.Project = class extends Wick.Base {
     this.height = data.height;
     this.framerate = data.framerate;
     this.backgroundColor = data.backgroundColor;
-    if (data.pan) this.pan = {
+    this.pan = {
       x: data.pan.x,
       y: data.pan.y
     };
-    if (data.zoom) this.zoom = data.zoom;
-    if (data.onionSkinEnabled) this.onionSkinEnabled = data.onionSkinEnabled;
-    if (data.onionSkinSeekForwards) this.onionSkinSeekForwards = data.onionSkinSeekForwards;
-    if (data.onionSkinSeekBackwards) this.onionSkinSeekBackwards = data.onionSkinSeekBackwards;
+    this.zoom = data.zoom;
+    this.onionSkinEnabled = data.onionSkinEnabled;
+    this.onionSkinSeekForwards = data.onionSkinSeekForwards;
+    this.onionSkinSeekBackwards = data.onionSkinSeekBackwards;
+    this._focus = data.focus;
   }
 
   serialize(args) {
@@ -65907,54 +66189,8 @@ Wick.Project = class extends Wick.Base {
     data.onionSkinEnabled = this.onionSkinEnabled;
     data.onionSkinSeekForwards = this.onionSkinSeekForwards;
     data.onionSkinSeekBackwards = this.onionSkinSeekBackwards;
+    data.focus = this.focus.uuid;
     return data;
-  }
-  /**
-   * Create a project from a wick file.
-   * @param {File} wickFile - Wick file containing project data.
-   * @param {function} callback - Function called when the project is created.
-   */
-
-
-  static fromWickFile(wickFile, callback) {
-    var zip = new JSZip();
-    zip.loadAsync(wickFile).then(function (contents) {
-      contents.files['project.json'].async('text').then(function (projectJSON) {
-        var loadedAssetCount = 0;
-        var projectData = JSON.parse(projectJSON);
-        projectData.assets = [];
-        Wick.ObjectCache.deserialize(projectData.objects);
-        var project = Wick.Base.fromData(projectData.project); // Immediately end if the project has no assets.
-
-        if (project.getAssets().length === 0) {
-          //Wick.ObjectCache.deserialize(projectData.objects)
-          //var project = Wick.Base.fromData(projectData.project);
-          callback(project);
-        } else {
-          project.getAssets().forEach(assetData => {
-            var assetFile = contents.files['assets/' + assetData.uuid + '.' + assetData.fileExtension];
-            assetFile.async('base64').then(assetFileData => {
-              var assetSrc = 'data:' + assetData.MIMEType + ';base64,' + assetFileData;
-              Wick.FileCache.addFile(assetSrc, assetData.uuid);
-            }).catch(e => {
-              console.log('Error loading asset file.');
-              console.log(e);
-              callback(null);
-            }).finally(() => {
-              loadedAssetCount++;
-
-              if (loadedAssetCount === project.getAssets().length) {
-                callback(project);
-              }
-            });
-          });
-        }
-      });
-    }).catch(function (e) {
-      console.log('Error loading project zip.');
-      console.log(e);
-      callback(null);
-    });
   }
   /**
    * String representation of class name: "Project"
@@ -66028,6 +66264,19 @@ Wick.Project = class extends Wick.Base {
     }
 
     this.addChild(selection);
+  }
+  /**
+   * An instance of the Wick.History utility class for undo/redo functionality.
+   * @type {Wick.History}
+   */
+
+
+  get history() {
+    return this._history;
+  }
+
+  set history(history) {
+    this._history = history;
   }
   /**
    * The assets belonging to the project.
@@ -66125,12 +66374,12 @@ Wick.Project = class extends Wick.Base {
 
 
   get focus() {
-    return this._focus;
+    return this._focus && Wick.ObjectCache.getObjectByUUID(this._focus);
   }
 
   set focus(focus) {
-    var focusChanged = this.focus !== focus;
-    this._focus = focus; // Reset timelines of subclips of the newly focused clip
+    var focusChanged = this.focus !== null && this.focus !== focus;
+    this._focus = focus.uuid; // Reset timelines of subclips of the newly focused clip
 
     focus.timeline.clips.forEach(subclip => {
       subclip.timeline.playheadPosition = 1;
@@ -66289,6 +66538,31 @@ Wick.Project = class extends Wick.Base {
     });
   }
   /**
+   * Copy the contents of the selection to the clipboard.
+   * @returns {boolean} True if there was something to copy, false otherwise
+   */
+
+
+  copySelectionToClipboard() {
+    var objects = this.selection.getSelectedObjects();
+
+    if (objects.length === 0) {
+      return false;
+    } else {
+      this.clipboard.copyObjectsToClipboard(objects);
+      return true;
+    }
+  }
+  /**
+   * Paste the contents of the clipboard into the project.
+   * @returns {boolean} True if there was something to paste in the clipboard, false otherwise.
+   */
+
+
+  pasteClipboardContents() {
+    return this.clipboard.pasteObjectsFromClipboard(this);
+  }
+  /**
    * Selects all objects that are visible on the canvas (excluding locked layers and onion skinned objects)
    */
 
@@ -66415,42 +66689,6 @@ Wick.Project = class extends Wick.Base {
     this.getAllFrames().forEach(frame => {
       frame.stopSound();
     });
-  }
-  /**
-   * Creates a wick file from the project.
-   * @param {function} callback - Function called when the file is created. Contains the file as a parameter.
-   */
-
-
-  exportAsWickFile(callback) {
-    var zip = new JSZip(); // Create assets folder
-
-    var assetsFolder = zip.folder("assets"); // Populate assets folder with files
-
-    this.getAssets().filter(asset => {
-      return asset instanceof Wick.ImageAsset || asset instanceof Wick.SoundAsset;
-    }).forEach(asset => {
-      // Create file from asset dataurl, add it to assets folder
-      var fileExtension = asset.MIMEType.split('/')[1];
-      var filename = asset.uuid;
-      var data = asset.src.split(',')[1];
-      assetsFolder.file(filename + '.' + fileExtension, data, {
-        base64: true
-      });
-    }); // Add project json to root directory of zip file
-
-    var projectData = {
-      project: this.serialize(),
-      objects: Wick.ObjectCache.serialize()
-    };
-    zip.file("project.json", JSON.stringify(projectData, null, 2));
-    zip.generateAsync({
-      type: "blob",
-      compression: "DEFLATE",
-      compressionOptions: {
-        level: 9
-      }
-    }).then(callback);
   }
   /**
    * Ticks the project.
@@ -67718,6 +67956,17 @@ Wick.Path = class extends Wick.Base {
 
   get classname() {
     return 'Path';
+  }
+
+  serialize(args) {
+    var data = super.serialize(args);
+    data.json = this.json;
+    return data;
+  }
+
+  deserialize(data) {
+    super.deserialize(data);
+    this.json = data.json;
   }
   /**
    * Path data exported from paper.js using exportJSON({asString:false}).
