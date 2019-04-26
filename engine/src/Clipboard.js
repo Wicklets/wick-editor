@@ -17,6 +17,28 @@
  * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+/**
+ * A clipboard utility class for copy/paste functionality.
+ */
 Wick.Clipboard = class {
-    
+    /**
+     * Create a new Clipboard object.
+     */
+    constructor () {
+        this._objects = [];
+    }
+
+    /**
+     *
+     */
+    copyObjectsToClipboard (objects) {
+
+    }
+
+    /**
+     *
+     */
+    pasteObjectsFromClipboard () {
+
+    }
 }

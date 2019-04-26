@@ -723,58 +723,6 @@ describe('Wick.Project', function() {
         });
     });
 
-    describe('#exportAsWickFile/fromWickFile', function () {
-        it('should create and load a project from a wick file correctly with no assets', function (done) {
-            Wick.ObjectCache.removeAllObjects();
-
-            var project = new Wick.Project();
-
-            project.exportAsWickFile(function (wickFile) {
-                Wick.ObjectCache.removeAllObjects();
-                //saveAs(wickFile, 'wickproject.zip')
-                Wick.Project.fromWickFile(wickFile, function (loadedProject) {
-                    expect(loadedProject instanceof Wick.Project).to.equal(true);
-                    expect(loadedProject.getAssets().length).to.equal(0);
-                    done();
-                });
-            });
-        });
-
-        it('should create and load a project from a wick file correctly with assets', function (done) {
-            Wick.ObjectCache.removeAllObjects();
-            Wick.FileCache.clear();
-
-            var project = new Wick.Project();
-
-            var imageAsset = new Wick.ImageAsset({
-                filename: 'foo.png',
-                src: TestUtils.TEST_IMG_SRC_PNG,
-            });
-            project.addAsset(imageAsset);
-
-            var soundAsset = new Wick.SoundAsset({
-                filename: 'foo.wav',
-                src: TestUtils.TEST_SOUND_SRC_WAV,
-            });
-            project.addAsset(soundAsset);
-
-            project.exportAsWickFile(function (wickFile) {
-                Wick.FileCache.clear();
-                Wick.ObjectCache.removeAllObjects();
-                //saveAs(wickFile, 'wickproject.zip')
-                Wick.Project.fromWickFile(wickFile, function (loadedProject) {
-                    expect(loadedProject instanceof Wick.Project).to.equal(true);
-                    expect(loadedProject.getAssets().length).to.equal(project.getAssets().length);
-                    expect(loadedProject.getAssets()[0].uuid).to.equal(project.getAssets()[0].uuid);
-                    expect(loadedProject.getAssets()[1].uuid).to.equal(project.getAssets()[1].uuid);
-                    expect(loadedProject.getAssets()[0].src).to.equal(project.getAssets()[0].src);
-                    expect(loadedProject.getAssets()[1].src).to.equal(project.getAssets()[1].src);
-                    done();
-                });
-            });
-        });
-    });
-
     describe('#getAssets', function () {
         it('should return all assets', function () {
             var project = new Wick.Project();
