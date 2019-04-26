@@ -42,6 +42,17 @@ Wick.Path = class extends Wick.Base {
         return 'Path';
     }
 
+    serialize (args) {
+        var data = super.serialize(args);
+        data.json = this.json;
+        return data;
+    }
+
+    deserialize (data) {
+        super.deserialize(data);
+        this.json = data.json;
+    }
+
     /**
      * Path data exported from paper.js using exportJSON({asString:false}).
      */

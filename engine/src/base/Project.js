@@ -49,6 +49,7 @@ Wick.Project = class extends Wick.Base {
         this.onionSkinSeekForwards = 1;
 
         this.selection = new Wick.Selection();
+        this.history = new Wick.History();
 
         this.root = new Wick.Clip();
         this.root.identifier = 'Project';
@@ -74,15 +75,17 @@ Wick.Project = class extends Wick.Base {
         this.framerate = data.framerate;
         this.backgroundColor = data.backgroundColor;
 
-        if(data.pan) this.pan = {
+        this.pan = {
             x: data.pan.x,
             y: data.pan.y
         };
-        if(data.zoom) this.zoom = data.zoom;
+        this.zoom = data.zoom;
 
-        if(data.onionSkinEnabled) this.onionSkinEnabled = data.onionSkinEnabled;
-        if(data.onionSkinSeekForwards) this.onionSkinSeekForwards = data.onionSkinSeekForwards;
-        if(data.onionSkinSeekBackwards) this.onionSkinSeekBackwards = data.onionSkinSeekBackwards;
+        this.onionSkinEnabled = data.onionSkinEnabled;
+        this.onionSkinSeekForwards = data.onionSkinSeekForwards;
+        this.onionSkinSeekBackwards = data.onionSkinSeekBackwards;
+
+        this._focus = data.focus;
     }
 
     serialize (args) {
@@ -100,6 +103,8 @@ Wick.Project = class extends Wick.Base {
         data.onionSkinEnabled = this.onionSkinEnabled
         data.onionSkinSeekForwards = this.onionSkinSeekForwards;
         data.onionSkinSeekBackwards = this.onionSkinSeekBackwards;
+
+        data.focus = this.focus.uuid;
 
         return data;
     }
@@ -220,6 +225,18 @@ Wick.Project = class extends Wick.Base {
     }
 
     /**
+     * An instance of the Wick.History utility class for undo/redo functionality.
+     * @type {Wick.History}
+     */
+    get history () {
+        return this._history;
+    }
+
+    set history (history) {
+        this._history = history;
+    }
+
+    /**
      * The assets belonging to the project.
      * @type {Wick.Asset[]}
      */
@@ -305,13 +322,13 @@ Wick.Project = class extends Wick.Base {
      * @type {Wick.Clip}
      */
     get focus () {
-        return this._focus;
+        return this._focus && Wick.ObjectCache.getObjectByUUID(this._focus);
     }
 
     set focus (focus) {
-        var focusChanged = this.focus !== focus;
+        var focusChanged = this.focus !== null && this.focus !== focus;
 
-        this._focus = focus;
+        this._focus = focus.uuid;
 
         // Reset timelines of subclips of the newly focused clip
         focus.timeline.clips.forEach(subclip => {

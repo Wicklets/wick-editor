@@ -95,6 +95,19 @@ WickObjectCache = class {
         }
     }
 
+    /**
+     * All objects in the cache.
+     * @returns {Wick.Base[]}
+     */
+    getAllObjects () {
+        var allObjects = [];
+
+        for (var uuid in this._objects) {
+            allObjects.push(this._objects[uuid]);
+        }
+
+        return allObjects;
+    }
 }
 
 Wick.ObjectCache = new WickObjectCache();

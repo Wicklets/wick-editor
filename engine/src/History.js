@@ -17,6 +17,66 @@
  * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+/**
+ * History utility class for undo/redo functionality.
+ */
 Wick.History = class {
+    /**
+     * Creates a new history object
+     */
+    constructor () {
+        this._undoStack = [];
+        this._redoStack = [];
+    }
 
+    /**
+     *
+     */
+    pushState () {
+        this._undoStack.push(Wick.ObjectCache.getAllObjects().map(object => {
+            return object.serialize();
+        }));
+    }
+
+    /**
+     *
+     * @returns {boolean} True if the undo stack is non-empty, false otherwise
+     */
+    popState () {
+        if(this._undoStack.length <= 1) {
+            return false;
+        }
+
+        var lastState = this._undoStack.pop();
+        this._redoStack.push(lastState);
+
+        var currentState = this._undoStack[this._undoStack.length - 1];
+        this._applyStateToProject(currentState);
+
+        return true;
+    }
+
+    /**
+     * Recover a state that was undone.
+     * @returns {boolean} True if the redo stack is non-empty, false otherwise
+     */
+    recoverState () {
+        if(this._redoStack.length === 0) {
+            return false;
+        }
+
+        var recoveredState = this._redoStack.pop();
+        this._undoStack.push(recoveredState);
+
+        this._applyStateToProject(recoveredState);
+
+        return true;
+    }
+
+    _applyStateToProject (state) {
+        state.forEach(objectData => {
+            var object = Wick.ObjectCache.getObjectByUUID(objectData.uuid);
+            object.deserialize(objectData);
+        });
+    }
 }

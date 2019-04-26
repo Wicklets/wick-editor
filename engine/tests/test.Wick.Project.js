@@ -54,6 +54,7 @@ describe('Wick.Project', function() {
                 sound.uuid,
             ]);
             expect(data.classname).to.equal('Project');
+            expect(data.focus).to.equal(project.focus.uuid);
             expect(data.framerate).to.equal(12);
             expect(data.height).to.equal(405);
             expect(data.identifier).to.equal(null);
@@ -102,7 +103,7 @@ describe('Wick.Project', function() {
             expect(projectFromData.assets[0]).to.equal(image);
             expect(projectFromData.assets[1]).to.equal(sound);
             expect(projectFromData.classname).to.equal('Project');
-            //expect(projectFromData.focus).to.equal(project.focus);
+            expect(projectFromData.focus).to.equal(project.focus);
             expect(projectFromData.framerate).to.equal(12);
             expect(projectFromData.height).to.equal(405);
             expect(projectFromData.identifier).to.equal(null);

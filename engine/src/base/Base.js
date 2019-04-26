@@ -64,7 +64,7 @@ Wick.Base = class {
         this._uuid = data.uuid;
         this._identifier = data.identifier;
 
-        this._childrenUUIDs = Array.from(data.children)
+        this._childrenUUIDs = Array.from(data.children);
     }
 
     /**

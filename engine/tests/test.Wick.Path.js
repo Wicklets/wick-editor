@@ -20,6 +20,8 @@ describe('Wick.Path', function() {
         });
     });
 
+    
+
     describe('#json', function() {
         it('should update json without errors', function () {
             var path = new Wick.Path({json:TestUtils.TEST_PATH_JSON_RED_SQUARE});

@@ -288,12 +288,14 @@ class Editor extends EditorCore {
   }
 
   getDefaultCodeEditorProperties = () => {
+    var width = window.innerWidth / 2;
+    var height = window.innerHeight / 2;
     return (
       {
-        width: 500,
-        height: 250,
-        x: window.innerWidth/2 - 250,
-        y: window.innerHeight/2 - 125,
+        width: width,
+        height: height,
+        x: window.innerWidth/2 - width/2,
+        y: window.innerHeight/2 - height/2,
         minWidth: 500,
         minHeight: 300,
       }
@@ -477,10 +479,8 @@ class Editor extends EditorCore {
   /**
    * Signals to React that the "live" project changed, so that all components
    * displaying info about the project will render.
-   * @param {boolean} skipHistory If true, the new project state will not be
-   * saved to the undo/redo stacks.
    */
-  projectDidChange = (skipHistory) => {
+  projectDidChange = () => {
     // The current frame was probably changed in some way, so make sure the WebGL
     // canvas renders the new frame and not an old cached version of it.
     this.project.activeFrames.forEach(frame => {
