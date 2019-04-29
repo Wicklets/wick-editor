@@ -65,8 +65,8 @@ Wick.Clip = class extends Wick.Tickable {
         }
     }
 
-    static deserialize (data) {
-        super.deserialize(data, object);
+    deserialize (data) {
+        super.deserialize(data);
 
         this.transformation = new Wick.Transformation(data.transformation);
         this._timeline = data.timeline;

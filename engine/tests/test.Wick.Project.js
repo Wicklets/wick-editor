@@ -802,8 +802,24 @@ describe('Wick.Project', function() {
     });
 
     describe('#generateImageSequence', function () {
-        it('should export correct images', function () {
-            // TODO
+        it('should export correct images', function (done) {
+            var project = new Wick.Project();
+            project.activeLayer.addFrame(new Wick.Frame({start: 2}));
+            project.activeLayer.addFrame(new Wick.Frame({start: 3}));
+
+            let path1 = new Wick.Path({json: TestUtils.TEST_PATH_JSON_RED_SQUARE});
+            let path2 = new Wick.Path({json: TestUtils.TEST_PATH_JSON_BLUE_SQUARE});
+            let path3 = new Wick.Path({json: TestUtils.TEST_PATH_JSON_RED_SQUARE});
+
+            project.activeFrame.addPath(path1);
+            project.activeLayer.frames[1].addPath(path2);
+            project.activeLayer.frames[2].addPath(path3);
+
+            project.generateImageSequence({}, images => {
+                expect(images.length).to.equal(3);
+                // TODO need more tests here
+                done();
+            });
         });
     });
 

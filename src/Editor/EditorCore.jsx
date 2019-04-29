@@ -64,7 +64,7 @@ class EditorCore extends Component {
    * Undo the last action that was done.
    */
   undoAction = () => {
-    if(!this.project.history.popState()) {
+    if(!this.project.undo()) {
       this.toast('Nothing to undo.', 'warning');
     } else {
       this.projectDidChange({skipHistory:true});
@@ -75,7 +75,7 @@ class EditorCore extends Component {
    * Recover the state of the project from before the last action was done.
    */
   redoAction = () => {
-    if(!this.project.history.recoverState()) {
+    if(!this.project.redo()) {
       this.toast('Nothing to redo.', 'warning');
     } else {
       this.projectDidChange({skipHistory:true});
@@ -770,14 +770,15 @@ class EditorCore extends Component {
    * Export the current project as a Wick File using the save as dialog.
    */
   exportProjectAsWickFile = () => {
-    let toastID = this.toast('Exporting project as a .wick file...', 'info', {autoClose: false});
+    this.showWaitOverlay();
 
-    console.log("Original ID", toastID);
-    this.project.exportAsWickFile((file) => {
+    let toastID = this.toast('Exporting project as a .wick file...', 'info', {autoClose: false});
+    window.Wick.WickFile.toWickFile(this.project, file => {
       if (file === undefined) {
         this.updateToast(toastID, {
           type: 'error',
           text: "Could not export .wick file." });
+        this.hideWaitOverlay();
         return;
       }
 
@@ -785,6 +786,7 @@ class EditorCore extends Component {
         type: 'success',
         text: "Successfully saved .wick file." });
       saveAs(file, this.project.name + '.wick');
+      this.hideWaitOverlay();
     });
   }
 
@@ -793,12 +795,13 @@ class EditorCore extends Component {
    */
   exportProjectAsAnimatedGIF = () => {
     let toastID = this.toast('Exporting animated GIF...', 'info');
+    this.showWaitOverlay();
     GIFExport.createAnimatedGIFFromProject(this.project, blob => {
-      this.project = window.Wick.Project.deserialize(this.project.serialize());
       this.updateToast(toastID, {
         type: 'success',
         text: "Successfully saved .gif file." });
       saveAs(blob, this.project.name + '.gif');
+      this.hideWaitOverlay();
     });
   }
 
@@ -821,7 +824,7 @@ class EditorCore extends Component {
    */
   importProjectAsWickFile = (file) => {
     this.showWaitOverlay();
-    window.Wick.Project.fromWickFile(file, project => {
+    window.Wick.WickFile.fromWickFile(file, project => {
       if(project) {
         this.setupNewProject(project);
         this.toast('Opened "' + file.name + '" successfully.', 'success');

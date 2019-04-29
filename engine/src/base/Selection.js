@@ -41,12 +41,12 @@ Wick.Selection = class extends Wick.Base {
 
     deserialize (data) {
         super.deserialize(data);
-        data.selectedObjects = this._selectedObjectsUUIDs;
+        this._selectedObjectsUUIDs = data.selectedObjects || [];
     }
 
     serialize (args) {
         var data = super.serialize(args);
-        data.selectedObjects = data.selectedObjects;
+        data.selectedObjects = Array.from(this._selectedObjectsUUIDs);
         return data;
     }
 
@@ -154,6 +154,17 @@ Wick.Selection = class extends Wick.Base {
         }
 
         return objects;
+    }
+
+    /**
+     * Get the UUIDs of the objects in the selection with an optional filter.
+     * @param {string} filter - A location or a type (see SELECTABLE_OBJECT_TYPES and LOCATION_NAMES)
+     * @return {string[]} The UUIDs of the selected objects.
+     */
+    getSelectedObjectUUIDs (filter) {
+        return this.getSelectedObjects(filter).map(object => {
+            return object.uuid;
+        });
     }
 
     /**

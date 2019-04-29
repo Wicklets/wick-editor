@@ -65484,7 +65484,8 @@ Wick.WickFile = class {
         var projectData = JSON.parse(projectJSON);
         projectData.assets = [];
         Wick.ObjectCache.deserialize(projectData.objects);
-        var project = Wick.Base.fromData(projectData.project); // Immediately end if the project has no assets.
+        var project = Wick.Base.fromData(projectData.project);
+        project.attachParentReferences(); // Immediately end if the project has no assets.
 
         if (project.getAssets().length === 0) {
           //Wick.ObjectCache.deserialize(projectData.objects)
@@ -65603,6 +65604,14 @@ Wick.Base = class {
 
 
   static fromData(data) {
+    if (!data.classname) {
+      console.warn('Wick.Base.fromData(): data was missing, did you mean to deserialize something else?');
+    }
+
+    if (!Wick[data.classname]) {
+      console.warn('Tried to deserialize an object with no Wick class: ' + data.classname);
+    }
+
     var object = new Wick[data.classname]();
     object.deserialize(data);
     return object;
@@ -65618,6 +65627,19 @@ Wick.Base = class {
     this._uuid = data.uuid;
     this._identifier = data.identifier;
     this._childrenUUIDs = Array.from(data.children);
+  }
+  /**
+   * Call this if you deserialized a project from a .wick file before the ObjectCache has anything in it.
+   */
+
+
+  attachParentReferences() {
+    var childrenUUIDs = this._childrenUUIDs;
+    this._childrenUUIDs = [];
+    childrenUUIDs.forEach(uuid => {
+      var child = Wick.ObjectCache.getObjectByUUID(uuid);
+      this.addChild(child);
+    });
   }
   /**
    * Converts this Wick Base object into a generic object contianing raw data (no references).
@@ -66157,6 +66179,7 @@ Wick.Project = class extends Wick.Base {
     this._keysLastDown = [];
     this._currentKey = null;
     this._tickIntervalID = null;
+    this.history.pushState();
   }
 
   deserialize(data) {
@@ -66280,6 +66303,28 @@ Wick.Project = class extends Wick.Base {
 
   set history(history) {
     this._history = history;
+  }
+  /**
+   *
+   */
+
+
+  undo() {
+    this.selection.clear();
+    var success = this.project.history.popState();
+    this.view.render();
+    return success;
+  }
+  /**
+   *
+   */
+
+
+  redo() {
+    this.selection.clear();
+    var success = this.project.history.recoverState();
+    this.view.render();
+    return success;
   }
   /**
    * The assets belonging to the project.
@@ -66796,21 +66841,20 @@ Wick.Project = class extends Wick.Base {
 
 
   generateImageSequence(args, callback) {
-    // Create a clone of the project so we don't have to change the state of the actual project to render the frames...
-    let project = this.clone(); // Put the project canvas inside a div that's the same size as the project so the frames render at the correct resolution.
+    var oldCanvasContainer = this.canvasContainer; // Put the project canvas inside a div that's the same size as the project so the frames render at the correct resolution.
 
     let container = window.document.createElement('div');
-    container.style.width = project.width / window.devicePixelRatio + 'px';
-    container.style.height = project.height / window.devicePixelRatio + 'px';
+    container.style.width = this.width / window.devicePixelRatio + 'px';
+    container.style.height = this.height / window.devicePixelRatio + 'px';
     window.document.body.appendChild(container);
-    project.view.canvasContainer = container;
-    project.view.resize(); // Set the initial state of the project.
+    this.view.canvasContainer = container;
+    this.view.resize(); // Set the initial state of the project.
 
-    project.focus = project.root;
-    project.focus.timeline.playheadPosition = 1;
-    project.onionSkinEnabled = false;
-    project.zoom = 1 / window.devicePixelRatio;
-    project.pan = {
+    this.focus = this.root;
+    this.focus.timeline.playheadPosition = 1;
+    this.onionSkinEnabled = false;
+    this.zoom = 1 / window.devicePixelRatio;
+    this.pan = {
       x: 0,
       y: 0
     }; // We need full control over when paper.js renders, if we leave autoUpdate on, it's possible to lose frames if paper.js doesnt automatically render as fast as we are generating the images.
@@ -66819,26 +66863,29 @@ Wick.Project = class extends Wick.Base {
     paper.view.autoUpdate = false;
     var frameImages = [];
 
-    function renderFrame() {
+    var renderFrame = () => {
       var frameImage = new Image();
 
-      frameImage.onload = function () {
+      frameImage.onload = () => {
         frameImages.push(frameImage);
 
-        if (project.focus.timeline.playheadPosition >= project.focus.timeline.length) {
-          paper.view.autoUpdate = true; // reset autoUpdate back to normal
+        if (this.focus.timeline.playheadPosition >= this.focus.timeline.length) {
+          // reset autoUpdate back to normal
+          paper.view.autoUpdate = true; // reset canvas container back to normal
 
+          this.view.canvasContainer = oldCanvasContainer;
+          this.view.resize();
           callback(frameImages);
         } else {
-          project.focus.timeline.playheadPosition++;
+          this.focus.timeline.playheadPosition++;
           renderFrame();
         }
       };
 
-      project.view.render();
+      this.view.render();
       paper.view.update();
-      frameImage.src = project.view.canvas.toDataURL();
-    }
+      frameImage.src = this.view.canvas.toDataURL();
+    };
 
     renderFrame();
   }
@@ -66911,12 +66958,12 @@ Wick.Selection = class extends Wick.Base {
 
   deserialize(data) {
     super.deserialize(data);
-    data.selectedObjects = this._selectedObjectsUUIDs;
+    this._selectedObjectsUUIDs = data.selectedObjects || [];
   }
 
   serialize(args) {
     var data = super.serialize(args);
-    data.selectedObjects = data.selectedObjects;
+    data.selectedObjects = Array.from(this._selectedObjectsUUIDs);
     return data;
   }
 
@@ -67029,6 +67076,18 @@ Wick.Selection = class extends Wick.Base {
     }
 
     return objects;
+  }
+  /**
+   * Get the UUIDs of the objects in the selection with an optional filter.
+   * @param {string} filter - A location or a type (see SELECTABLE_OBJECT_TYPES and LOCATION_NAMES)
+   * @return {string[]} The UUIDs of the selected objects.
+   */
+
+
+  getSelectedObjectUUIDs(filter) {
+    return this.getSelectedObjects(filter).map(object => {
+      return object.uuid;
+    });
   }
   /**
    * The location of the objects in the selection. (see LOCATION_NAMES)
@@ -67859,8 +67918,7 @@ Wick.Tween = class extends Wick.Base {
   }
 
   deserialize(data) {
-    super._deserialize(data, object);
-
+    super.deserialize(data);
     this.playheadPosition = data.playheadPosition;
     this.transformation = new Wick.Transformation(data.transformation);
     this.fullRotations = data.fullRotations;
@@ -69710,8 +69768,8 @@ Wick.Clip = class extends Wick.Tickable {
     }
   }
 
-  static deserialize(data) {
-    super.deserialize(data, object);
+  deserialize(data) {
+    super.deserialize(data);
     this.transformation = new Wick.Transformation(data.transformation);
     this._timeline = data.timeline;
   }
@@ -72416,12 +72474,15 @@ Wick.Tools.Cursor = class extends Wick.Tool {
       // Clicked a curve, start dragging it
       this.draggingCurve = this.hitResult.location.curve;
     } else if (this.hitResult.item && this.hitResult.type === 'segment') {} else {
-      // Nothing was clicked, so clear the selection and start a new selection box
-      this.paper.selection.finish();
-      this.fireEvent('selectionChanged', {
-        items: []
-      });
-      this.fireEvent('canvasModified');
+      if (this.paper.selection.items.length > 1) {
+        // Nothing was clicked, so clear the selection and start a new selection box
+        this.paper.selection.finish();
+        this.fireEvent('selectionChanged', {
+          items: []
+        });
+        this.fireEvent('canvasModified');
+      }
+
       this.selectionBox.start(e.point);
     }
   }
@@ -73979,7 +74040,19 @@ Wick.View.Project = class extends Wick.View {
         this.fireEvent('canvasModified', e);
       });
       tool.on('selectionChanged', e => {
-        this.applyChanges();
+        // Optimization: Only fire selectionChanged if the selection... actually changed. (duh.)
+        var currentUUIDs = this.model.selection.getSelectedObjectUUIDs();
+        var newUUIDs = e.items.map(item => {
+          return item.data.wickUUID;
+        });
+
+        if (!this._uuidsAreDifferent(currentUUIDs, newUUIDs)) {
+          return;
+        } // We're done with the current selection, so apply the transforms done to the selected objects
+
+
+        this.applyChanges(); // Load new selected objects from paper.js items to wick UUIDs
+
         this.model.selection.clear();
         e.items.forEach(item => {
           let object = Wick.ObjectCache.getObjectByUUID(item.data.wickUUID);
@@ -74302,6 +74375,16 @@ Wick.View.Project = class extends Wick.View {
 
   _onMouseUp() {
     this._isMouseDown = false;
+  }
+
+  _uuidsAreDifferent(uuids1, uuids2) {
+    //https://stackoverflow.com/questions/31128855/comparing-ecma6-sets-for-equality
+    var a = new Set(uuids1);
+    var b = new Set(uuids2);
+
+    var isSetsEqual = (a, b) => a.size === b.size && [...a].every(value => b.has(value));
+
+    return !isSetsEqual(a, b);
   }
 
 };

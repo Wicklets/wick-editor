@@ -25,21 +25,29 @@
         <script src="project152/WickProject.Exporter.js"></script>
         <script src="project152/WickTween.js"></script>
 
-        <script src="WickProjectConverter.js"></script>
+        <script src="Wick152ProjectConverter.js"></script>
+        <script src="Wick100aProjectConverter.js"></script>
 
         <script>
             window.onload = function () {
-                document.getElementById('files').addEventListener('change', (e) => {
-                    WickProjectConverter.convertWick152Project(e.target.files[0], project => {
+                document.getElementById('wick152').addEventListener('change', (e) => {
+                    Wick152ProjectConverter.convertWick152Project(e.target.files[0], project => {
                         console.log(project)
                         window.convertedProject = project;
-                        document.getElementById('downloadButton').style.display = 'block';
+                        document.getElementById('downloadButton152').style.display = 'block';
+                    });
+                }, false);
+                document.getElementById('wick100a').addEventListener('change', (e) => {
+                    Wick100aProjectConverter.convertWick100aProject(e.target.files[0], zip => {
+                        console.log(zip)
+                        window.convertedProjectZIP = zip;
+                        document.getElementById('downloadButton100a').style.display = 'block';
                     });
                 }, false);
             }
 
-            function downloadProject () {
-                window.convertedProject.exportAsWickFile((file) => {
+            function downloadProject152 () {
+                Wick.WickFile.toWickFile(window.convertedProject, file => {
                     if (file === undefined) {
                         this.toast('Could not export project.', 'error');
                         return;
@@ -47,11 +55,19 @@
                     saveAs(file, window.convertedProject.name + '.wick');
                 });
             }
+
+            function downloadProject100a () {
+                saveAs(window.convertedProjectZIP, 'converted.wick');
+            }
         </script>
     </head>
 
     <body>
-        <input id="files" type="file"/>
-        <button id="downloadButton" style="display:none;" onclick="downloadProject()">Download</button>
+        <h1>152</h1>
+        <input id="wick152" type="file"/>
+        <button id="downloadButton152" style="display:none;" onclick="downloadProject152()">Download</button>
+        <h1>100a</h1>
+        <input id="wick100a" type="file"/>
+        <button id="downloadButton100a" style="display:none;" onclick="downloadProject100a()">Download</button>
     </body>
 </html>

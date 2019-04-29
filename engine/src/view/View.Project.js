@@ -327,7 +327,19 @@ Wick.View.Project = class extends Wick.View {
                 this.fireEvent('canvasModified', e);
             });
             tool.on('selectionChanged', (e) => {
+                // Optimization: Only fire selectionChanged if the selection... actually changed. (duh.)
+                var currentUUIDs = this.model.selection.getSelectedObjectUUIDs()
+                var newUUIDs = e.items.map(item => {
+                    return item.data.wickUUID
+                });
+                if(!this._uuidsAreDifferent(currentUUIDs, newUUIDs)) {
+                    return;
+                }
+
+                // We're done with the current selection, so apply the transforms done to the selected objects
                 this.applyChanges();
+
+                // Load new selected objects from paper.js items to wick UUIDs
                 this.model.selection.clear();
                 e.items.forEach(item => {
                     let object = Wick.ObjectCache.getObjectByUUID(item.data.wickUUID);
@@ -661,5 +673,13 @@ Wick.View.Project = class extends Wick.View {
 
     _onMouseUp () {
         this._isMouseDown = false;
+    }
+
+    _uuidsAreDifferent (uuids1, uuids2) {
+        //https://stackoverflow.com/questions/31128855/comparing-ecma6-sets-for-equality
+        var a = new Set(uuids1);
+        var b = new Set(uuids2);
+        var isSetsEqual = (a, b) => a.size === b.size && [...a].every(value => b.has(value));
+        return !isSetsEqual(a,b);
     }
 }

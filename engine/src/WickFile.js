@@ -36,8 +36,9 @@ Wick.WickFile = class {
 
                 projectData.assets = [];
 
-                Wick.ObjectCache.deserialize(projectData.objects)
+                Wick.ObjectCache.deserialize(projectData.objects);
                 var project = Wick.Base.fromData(projectData.project);
+                project.attachParentReferences();
 
                 // Immediately end if the project has no assets.
                 if (project.getAssets().length === 0) {

@@ -95,7 +95,7 @@ Wick.Tween = class extends Wick.Base {
     }
 
     deserialize (data) {
-        super._deserialize(data, object);
+        super.deserialize(data);
 
         this.playheadPosition = data.playheadPosition;
         this.transformation = new Wick.Transformation(data.transformation);

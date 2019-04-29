@@ -49,6 +49,13 @@ Wick.Base = class {
      * @param {object} data - Serialized data to use to create a new object.
      */
     static fromData (data) {
+        if(!data.classname) {
+            console.warn('Wick.Base.fromData(): data was missing, did you mean to deserialize something else?');
+        }
+        if(!Wick[data.classname]) {
+            console.warn('Tried to deserialize an object with no Wick class: ' + data.classname);
+        }
+
         var object = new Wick[data.classname]();
         object.deserialize(data);
         return object;
@@ -65,6 +72,18 @@ Wick.Base = class {
         this._identifier = data.identifier;
 
         this._childrenUUIDs = Array.from(data.children);
+    }
+
+    /**
+     * Call this if you deserialized a project from a .wick file before the ObjectCache has anything in it.
+     */
+    attachParentReferences () {
+        var childrenUUIDs = this._childrenUUIDs;
+        this._childrenUUIDs = [];
+        childrenUUIDs.forEach(uuid => {
+            var child = Wick.ObjectCache.getObjectByUUID(uuid);
+            this.addChild(child);
+        });
     }
 
     /**

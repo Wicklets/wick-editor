@@ -65,6 +65,8 @@ Wick.Project = class extends Wick.Base {
         this._currentKey = null;
 
         this._tickIntervalID = null;
+
+        this.history.pushState();
     }
 
     deserialize (data) {
@@ -185,6 +187,28 @@ Wick.Project = class extends Wick.Base {
 
     set history (history) {
         this._history = history;
+    }
+
+    /**
+     *
+     */
+    undo () {
+        this.selection.clear();
+        var success = this.project.history.popState();
+        this.view.render();
+
+        return success;
+    }
+
+    /**
+     *
+     */
+    redo () {
+        this.selection.clear();
+        var success = this.project.history.recoverState();
+        this.view.render();
+
+        return success;
     }
 
     /**
@@ -671,46 +695,51 @@ Wick.Project = class extends Wick.Base {
      * @param {function} done - Function to call when the images are all loaded.
      */
     generateImageSequence (args, callback) {
-        // Create a clone of the project so we don't have to change the state of the actual project to render the frames...
-        let project = this.clone();
+        var oldCanvasContainer = this.canvasContainer;
 
         // Put the project canvas inside a div that's the same size as the project so the frames render at the correct resolution.
         let container = window.document.createElement('div');
-        container.style.width = (project.width/window.devicePixelRatio)+'px';
-        container.style.height = (project.height/window.devicePixelRatio)+'px';
+        container.style.width = (this.width/window.devicePixelRatio)+'px';
+        container.style.height = (this.height/window.devicePixelRatio)+'px';
         window.document.body.appendChild(container);
-        project.view.canvasContainer = container;
-        project.view.resize();
+        this.view.canvasContainer = container;
+        this.view.resize();
 
         // Set the initial state of the project.
-        project.focus = project.root;
-        project.focus.timeline.playheadPosition = 1;
-        project.onionSkinEnabled = false;
-        project.zoom = 1 / window.devicePixelRatio;
-        project.pan = {x: 0, y: 0};
+        this.focus = this.root;
+        this.focus.timeline.playheadPosition = 1;
+        this.onionSkinEnabled = false;
+        this.zoom = 1 / window.devicePixelRatio;
+        this.pan = {x: 0, y: 0};
 
         // We need full control over when paper.js renders, if we leave autoUpdate on, it's possible to lose frames if paper.js doesnt automatically render as fast as we are generating the images.
         // (See paper.js docs for info about autoUpdate)
         paper.view.autoUpdate = false;
 
         var frameImages = [];
-        function renderFrame () {
+        var renderFrame = () => {
             var frameImage = new Image();
 
-            frameImage.onload = function() {
+            frameImage.onload = () => {
                 frameImages.push(frameImage);
-                if(project.focus.timeline.playheadPosition >= project.focus.timeline.length) {
-                    paper.view.autoUpdate = true; // reset autoUpdate back to normal
+                if(this.focus.timeline.playheadPosition >= this.focus.timeline.length) {
+                    // reset autoUpdate back to normal
+                    paper.view.autoUpdate = true;
+
+                    // reset canvas container back to normal
+                    this.view.canvasContainer = oldCanvasContainer;
+                    this.view.resize();
+
                     callback(frameImages);
                 } else {
-                    project.focus.timeline.playheadPosition++;
+                    this.focus.timeline.playheadPosition++;
                     renderFrame();
                 }
             }
 
-            project.view.render();
+            this.view.render();
             paper.view.update();
-            frameImage.src = project.view.canvas.toDataURL();
+            frameImage.src = this.view.canvas.toDataURL();
         }
 
         renderFrame();
