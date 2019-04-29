@@ -70784,7 +70784,8 @@ paper.Selection = class {
       scaleY: 1.0,
       rotation: 0
     };
-    this._handleDragMode = 'scale'; // Default pivot point is the center of all items.
+    this._handleDragMode = 'scale';
+    this._lockScalingToAspectRatio = false; // Default pivot point is the center of all items.
 
     this._pivotPoint = this._boundsOfItems(this._items).center; // It simplifies everything if we force applyMatrix=false on everything before doing any transforms.
     // We need to save the old data that we may lose, though.
@@ -70826,6 +70827,19 @@ paper.Selection = class {
       console.error('Paper.Selection: Invalid handleDragMode: ' + handleDragMode);
       console.error('Valid handleDragModes: "scale", "rotation"');
     }
+  }
+  /**
+   * Toggles if scaling will preserve aspect ratio.
+   * @type {boolean}
+   */
+
+
+  get lockScalingToAspectRatio() {
+    return this._lockScalingToAspectRatio;
+  }
+
+  set lockScalingToAspectRatio(lockScalingToAspectRatio) {
+    this._lockScalingToAspectRatio = lockScalingToAspectRatio;
   }
   /**
    *
@@ -71476,7 +71490,7 @@ paper.Selection = class {
     var newCornerPosition = distFromHandle.add(widthHeight);
     var scaleAmt = newCornerPosition.divide(widthHeight);
     if (!lockXScale) this._transform.scaleX = scaleAmt.x;
-    if (!lockYScale) this._transform.scaleY = scaleAmt.y;
+    if (!lockYScale) this._transform.scaleY = this.lockScalingToAspectRatio ? scaleAmt.x : scaleAmt.y;
     this._transform.rotation = rotation;
     this._transform.x = x;
     this._transform.y = y;
@@ -72418,6 +72432,7 @@ Wick.Tools.Cursor = class extends Wick.Tool {
     if (this.hitResult.item && this.hitResult.item.data.isSelectionBoxGUI) {
       // Drag a handle of the selection box.
       // These can scale and rotate the selection.
+      this.paper.selection.lockScalingToAspectRatio = e.modifiers.shift;
       this.paper.selection.handleDragMode = this.hitResult.item.data.handleType;
       this.paper.selection[this.hitResult.item.data.handleEdge] = e.point;
     } else if (this.selectionBox.active) {

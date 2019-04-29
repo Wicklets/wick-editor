@@ -160,6 +160,7 @@ Wick.Tools.Cursor = class extends Wick.Tool {
         if(this.hitResult.item && this.hitResult.item.data.isSelectionBoxGUI) {
             // Drag a handle of the selection box.
             // These can scale and rotate the selection.
+            this.paper.selection.lockScalingToAspectRatio = e.modifiers.shift;
             this.paper.selection.handleDragMode = this.hitResult.item.data.handleType;
             this.paper.selection[this.hitResult.item.data.handleEdge] = e.point;
         } else if (this.selectionBox.active) {

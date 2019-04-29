@@ -73,6 +73,7 @@ paper.Selection = class {
             rotation: 0,
         };
         this._handleDragMode = 'scale';
+        this._lockScalingToAspectRatio = false;
 
         // Default pivot point is the center of all items.
         this._pivotPoint = this._boundsOfItems(this._items).center;
@@ -117,6 +118,18 @@ paper.Selection = class {
             console.error('Paper.Selection: Invalid handleDragMode: ' + handleDragMode);
             console.error('Valid handleDragModes: "scale", "rotation"')
         }
+    }
+
+    /**
+     * Toggles if scaling will preserve aspect ratio.
+     * @type {boolean}
+     */
+    get lockScalingToAspectRatio () {
+        return this._lockScalingToAspectRatio;
+    }
+
+    set lockScalingToAspectRatio (lockScalingToAspectRatio) {
+        this._lockScalingToAspectRatio = lockScalingToAspectRatio;
     }
 
     /**
@@ -749,7 +762,7 @@ paper.Selection = class {
         var scaleAmt = newCornerPosition.divide(widthHeight);
 
         if(!lockXScale) this._transform.scaleX = scaleAmt.x;
-        if(!lockYScale) this._transform.scaleY = scaleAmt.y;
+        if(!lockYScale) this._transform.scaleY = this.lockScalingToAspectRatio ? scaleAmt.x : scaleAmt.y;
         this._transform.rotation = rotation;
         this._transform.x = x;
         this._transform.y = y;
