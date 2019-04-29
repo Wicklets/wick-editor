@@ -64,8 +64,8 @@ class EditorCore extends Component {
    * Undo the last action that was done.
    */
   undoAction = () => {
-    if(!this.history.undo()) {
-      this.toast('Nothing to undo.', 'warning')
+    if(!this.project.history.popState()) {
+      this.toast('Nothing to undo.', 'warning');
     }
   }
 
@@ -73,8 +73,8 @@ class EditorCore extends Component {
    * Recover the state of the project from before the last action was done.
    */
   redoAction = () => {
-    if(!this.history.redo()) {
-      this.toast('Nothing to redo.', 'warning')
+    if(!this.project.history.recoverState()) {
+      this.toast('Nothing to redo.', 'warning');
     }
   }
 
@@ -831,7 +831,7 @@ class EditorCore extends Component {
   /**
    * Sets up a new project in the editor. This operation will remove the
    * history, selection, and all other ability to retrieve your project.
-   * @param  {Wick.Project} project project to load.
+   * @param {Wick.Project} project project to load.
    */
   setupNewProject = (project) => {
     this.resetEditorForLoad();

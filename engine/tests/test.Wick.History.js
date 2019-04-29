@@ -8,8 +8,12 @@ describe('Wick.History', function() {
         var path2 = TestUtils.paperToWickPath(new paper.Path());
         var path3 = TestUtils.paperToWickPath(new paper.Path());
 
+        expect(project.history.popState()).to.equal(false);
+
         // initial history push is required (should we do this automatically?)
         project.history.pushState();
+        
+        expect(project.history.popState()).to.equal(false);
 
         project.activeFrame.addPath(path1);
         project.history.pushState();

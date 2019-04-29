@@ -58,7 +58,7 @@ class Canvas extends Component {
     });
 
     project.view.on('selectionTransformed', (e) => {
-      this.props.projectDidChange(true);
+      this.props.projectDidChange({skipHistory:true});
     });
 
     project.view.on('selectionChanged', (e) => {

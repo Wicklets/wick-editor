@@ -172,7 +172,7 @@ describe('Wick.Tools.Cursor', function() {
         expect(project.activeFrame.paths[0].view.item.bounds.height).to.equal(100);
     });
 
-    it('should drag a segment of a path and modify that path', function (done) {
+    it('should drag a segment of a path to modify that path', function (done) {
         var project = new Wick.Project();
         var cursor = project.view.tools.cursor;
 

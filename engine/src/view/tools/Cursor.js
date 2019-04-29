@@ -142,17 +142,15 @@ Wick.Tools.Cursor = class extends Wick.Tool {
         } else if (this.hitResult.item && this.hitResult.type === 'segment') {
 
         } else {
-            if(this.paper.selection.items.length > 0) {
-                // Nothing was clicked, so clear the selection and start a new selection box
-                this.paper.selection.finish();
+            // Nothing was clicked, so clear the selection and start a new selection box
+            this.paper.selection.finish();
 
-                this.fireEvent('selectionChanged', {
-                    items: [],
-                });
-                this.fireEvent('canvasModified');
+            this.fireEvent('selectionChanged', {
+                items: [],
+            });
+            this.fireEvent('canvasModified');
 
-                this.selectionBox.start(e.point);
-            }
+            this.selectionBox.start(e.point);
         }
     }
 

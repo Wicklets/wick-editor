@@ -72416,15 +72416,13 @@ Wick.Tools.Cursor = class extends Wick.Tool {
       // Clicked a curve, start dragging it
       this.draggingCurve = this.hitResult.location.curve;
     } else if (this.hitResult.item && this.hitResult.type === 'segment') {} else {
-      if (this.paper.selection.items.length > 0) {
-        // Nothing was clicked, so clear the selection and start a new selection box
-        this.paper.selection.finish();
-        this.fireEvent('selectionChanged', {
-          items: []
-        });
-        this.fireEvent('canvasModified');
-        this.selectionBox.start(e.point);
-      }
+      // Nothing was clicked, so clear the selection and start a new selection box
+      this.paper.selection.finish();
+      this.fireEvent('selectionChanged', {
+        items: []
+      });
+      this.fireEvent('canvasModified');
+      this.selectionBox.start(e.point);
     }
   }
 
@@ -74881,7 +74879,7 @@ Wick.View.Frame = class extends Wick.View {
   }
 
   _applyPathChanges() {
-    // This could be optimized by updating existing paths instead of completely clearing the project.
+    // This could be optimized by updating existing paths instead of completely clearing the frame.
     // Clear all WickPaths from the frame
     this.model.paths.forEach(path => {
       this.model.removePath(path);
