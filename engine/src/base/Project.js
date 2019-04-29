@@ -53,7 +53,6 @@ Wick.Project = class extends Wick.Base {
         this.clipboard = new Wick.Clipboard();
 
         this.root = new Wick.Clip();
-        this.root.identifier = 'Project';
 
         this.focus = this.root;
 
@@ -280,9 +279,14 @@ Wick.Project = class extends Wick.Base {
      * @type {Wick.Clip}
      */
     get root () {
-        return this.children.find(child => {
+        var root = this.children.find(child => {
             return child instanceof Wick.Clip;
         });
+
+        // Force the root clip to have the identifier "Project".
+        if(root) root.identifier = 'Project';
+
+        return root;
     }
 
     set root (root) {
