@@ -38,7 +38,7 @@ Wick.GUIElement.FramesStrip = class extends Wick.GUIElement.Draggable {
         this.on('mouseDown', () => {
             this._addFrameOverlay.active = false;
             var playheadPosition = this._addFrameOverlay.playheadPosition;
-            var newFrame = new Wick.Frame(playheadPosition);
+            var newFrame = new Wick.Frame({start:playheadPosition});
             this.model.activate();
             this.model.addFrame(newFrame);
             this.model.project.selection.clear();

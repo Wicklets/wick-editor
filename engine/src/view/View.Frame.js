@@ -226,10 +226,15 @@ Wick.View.Frame = class extends Wick.View {
     _applyPathChanges () {
         // This could be optimized by updating existing paths instead of completely clearing the project.
 
+        // Clear all WickPaths from the frame
         this.model.paths.forEach(path => {
             this.model.removePath(path);
         });
-        this.pathsLayer.children.forEach(child => {
+
+        // Create new WickPaths for the frame
+        this.pathsLayer.children.filter(child => {
+            return child.data.wickType !== 'gui';
+        }).forEach(child => {
             var pathJSON = child.exportJSON({asString:false});
             if(pathJSON[0] === "Raster") {
                 pathJSON[1].asset = child.data.asset;

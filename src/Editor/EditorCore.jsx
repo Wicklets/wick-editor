@@ -955,6 +955,41 @@ class EditorCore extends Component {
       this.showCodeErrors(errors);
     }
   }
+
+  /**
+   * Copies the selection state and selected objects to the clipboard.
+   */
+  copySelectionToClipboard = () => {
+    if(this.project.copySelectionToClipboard()) {
+      this.projectDidChange();
+    } else {
+      this.toast('There is nothing to copy.', 'warning');
+    }
+  }
+
+  /**
+   * Copies the selected objects to the clipboard and then deletes them from the project.
+   */
+  cutSelectionToClipboard = () => {
+    if(this.project.copySelectionToClipboard()) {
+      this.deleteSelectedObjects();
+      this.projectDidChange();
+    } else {
+      this.toast('There is nothing to cut.', 'warning');
+    }
+  }
+
+  /**
+   * Attempts to paste in objects on the clipboard if they are available.
+   * @return {[type]} [description]
+   */
+  pasteFromClipboard = () => {
+    if(this.project.pasteClipboardContents()) {
+      this.projectDidChange();
+    } else {
+      this.toast('There is nothing in the clipboard to paste.', 'warning');
+    }
+  }
 }
 
 export default EditorCore;

@@ -56,7 +56,7 @@ Wick.Selection = class extends Wick.Base {
 
     /**
      * Add a wick object to the selection.
-     * @param {Wick.Frame|Wick.Layer|Wick.Tween|Wick.Asset|Wick.Clip|Wick.Path} object - The object to select.
+     * @param {Wick.Base} object - The object to select.
      */
     select (object) {
         // Do not allow selection of objects not defined to be selectable
@@ -85,7 +85,7 @@ Wick.Selection = class extends Wick.Base {
 
     /**
      * Remove a wick object from the selection.
-     * @param {Wick.Frame|Wick.Layer|Wick.Tween|Wick.Asset|Wick.Clip|Wick.Path} object - The object to deselect.
+     * @param {Wick.Base} object - The object to deselect.
      */
     deselect (object) {
         this._selectedObjectsUUIDs = this._selectedObjectsUUIDs.filter(uuid => {
@@ -111,7 +111,7 @@ Wick.Selection = class extends Wick.Base {
 
     /**
      * Checks if a given object is selected.
-     * @param {Wick.Frame|Wick.Layer|Wick.Tween|Wick.Asset|Wick.Clip|Wick.Path} object - The object to check selection of.
+     * @param {Wick.Base} object - The object to check selection of.
      */
     isObjectSelected (object) {
         return this._selectedObjectsUUIDs.indexOf(object.uuid) !== -1;
@@ -119,7 +119,7 @@ Wick.Selection = class extends Wick.Base {
 
     /**
      * Get the first object in the selection if there is a single object in the selection.
-     * @return {Wick.Frame|Wick.Layer|Wick.Tween|Wick.Asset|Wick.Clip|Wick.Path} The first object in the selection.
+     * @return {Wick.Base} The first object in the selection.
      */
     getSelectedObject () {
         if(this.numObjects === 1) {
@@ -132,7 +132,7 @@ Wick.Selection = class extends Wick.Base {
     /**
      * Get the objects in the selection with an optional filter.
      * @param {string} filter - A location or a type (see SELECTABLE_OBJECT_TYPES and LOCATION_NAMES)
-     * @return {Wick.Frame|Wick.Layer|Wick.Tween|Wick.Asset|Wick.Clip|Wick.Path[]} The selected objects.
+     * @return {Wick.Base[]} The selected objects.
      */
     getSelectedObjects (filter) {
         var objects = this._selectedObjectsUUIDs.map(uuid => {

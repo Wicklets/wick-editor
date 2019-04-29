@@ -65066,10 +65066,13 @@ Wick.Clipboard = class {
       return false;
     }
 
+    project.selection.clear();
+
     this._objects.map(object => {
       return object.clone();
     }).forEach(object => {
       project.addObject(object);
+      project.selection.select(object);
     });
 
     return true;
@@ -66922,7 +66925,7 @@ Wick.Selection = class extends Wick.Base {
   }
   /**
    * Add a wick object to the selection.
-   * @param {Wick.Frame|Wick.Layer|Wick.Tween|Wick.Asset|Wick.Clip|Wick.Path} object - The object to select.
+   * @param {Wick.Base} object - The object to select.
    */
 
 
@@ -66952,7 +66955,7 @@ Wick.Selection = class extends Wick.Base {
   }
   /**
    * Remove a wick object from the selection.
-   * @param {Wick.Frame|Wick.Layer|Wick.Tween|Wick.Asset|Wick.Clip|Wick.Path} object - The object to deselect.
+   * @param {Wick.Base} object - The object to deselect.
    */
 
 
@@ -66978,7 +66981,7 @@ Wick.Selection = class extends Wick.Base {
   }
   /**
    * Checks if a given object is selected.
-   * @param {Wick.Frame|Wick.Layer|Wick.Tween|Wick.Asset|Wick.Clip|Wick.Path} object - The object to check selection of.
+   * @param {Wick.Base} object - The object to check selection of.
    */
 
 
@@ -66987,7 +66990,7 @@ Wick.Selection = class extends Wick.Base {
   }
   /**
    * Get the first object in the selection if there is a single object in the selection.
-   * @return {Wick.Frame|Wick.Layer|Wick.Tween|Wick.Asset|Wick.Clip|Wick.Path} The first object in the selection.
+   * @return {Wick.Base} The first object in the selection.
    */
 
 
@@ -67001,7 +67004,7 @@ Wick.Selection = class extends Wick.Base {
   /**
    * Get the objects in the selection with an optional filter.
    * @param {string} filter - A location or a type (see SELECTABLE_OBJECT_TYPES and LOCATION_NAMES)
-   * @return {Wick.Frame|Wick.Layer|Wick.Tween|Wick.Asset|Wick.Clip|Wick.Path[]} The selected objects.
+   * @return {Wick.Base[]} The selected objects.
    */
 
 
@@ -67961,6 +67964,7 @@ Wick.Path = class extends Wick.Base {
   serialize(args) {
     var data = super.serialize(args);
     data.json = this.json;
+    delete data.json[1].data;
     return data;
   }
 
@@ -72324,6 +72328,7 @@ Wick.Tools.Cursor = class extends Wick.Tool {
     this.selectCurves = true;
     this.selectedItems = [];
     this.currentCursorIcon = '';
+    this.guiLayer = new this.paper.Layer();
   }
   /**
    * Generate the current cursor.
@@ -72366,6 +72371,8 @@ Wick.Tools.Cursor = class extends Wick.Tool {
       this.hoverPreview.segments[0].handleOut = this.hitResult.location.curve.handle1;
       this.hoverPreview.segments[1].handleIn = this.hitResult.location.curve.handle2;
     }
+
+    this.hoverPreview.data.wickType = 'gui';
   }
 
   onMouseDown(e) {
@@ -72395,13 +72402,15 @@ Wick.Tools.Cursor = class extends Wick.Tool {
       // Clicked a curve, start dragging it
       this.draggingCurve = this.hitResult.location.curve;
     } else if (this.hitResult.item && this.hitResult.type === 'segment') {} else {
-      // Nothing was clicked, so clear the selection and start a new selection box
-      this.paper.selection.finish();
-      this.fireEvent('selectionChanged', {
-        items: []
-      });
-      this.fireEvent('canvasModified');
-      this.selectionBox.start(e.point);
+      if (this.paper.selection.items.length > 0) {
+        // Nothing was clicked, so clear the selection and start a new selection box
+        this.paper.selection.finish();
+        this.fireEvent('selectionChanged', {
+          items: []
+        });
+        this.fireEvent('canvasModified');
+        this.selectionBox.start(e.point);
+      }
     }
   }
 
@@ -72458,7 +72467,11 @@ Wick.Tools.Cursor = class extends Wick.Tool {
         items: this.selectionBox.items
       });
     } else {
-      this.fireEvent('selectionTransformed');
+      if (this.paper.selection.items.length > 0) {
+        this.fireEvent('selectionTransformed');
+      } else {
+        this.fireEvent('canvasModified');
+      }
     }
   }
 
@@ -74854,10 +74867,14 @@ Wick.View.Frame = class extends Wick.View {
 
   _applyPathChanges() {
     // This could be optimized by updating existing paths instead of completely clearing the project.
+    // Clear all WickPaths from the frame
     this.model.paths.forEach(path => {
       this.model.removePath(path);
-    });
-    this.pathsLayer.children.forEach(child => {
+    }); // Create new WickPaths for the frame
+
+    this.pathsLayer.children.filter(child => {
+      return child.data.wickType !== 'gui';
+    }).forEach(child => {
       var pathJSON = child.exportJSON({
         asString: false
       });
@@ -76540,7 +76557,9 @@ Wick.GUIElement.FramesStrip = class extends Wick.GUIElement.Draggable {
     this.on('mouseDown', () => {
       this._addFrameOverlay.active = false;
       var playheadPosition = this._addFrameOverlay.playheadPosition;
-      var newFrame = new Wick.Frame(playheadPosition);
+      var newFrame = new Wick.Frame({
+        start: playheadPosition
+      });
       this.model.activate();
       this.model.addFrame(newFrame);
       this.model.project.selection.clear();

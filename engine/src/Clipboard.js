@@ -48,10 +48,13 @@ Wick.Clipboard = class {
             return false;
         }
 
+        project.selection.clear();
+
         this._objects.map(object => {
             return object.clone();
         }).forEach(object => {
             project.addObject(object);
+            project.selection.select(object);
         });
 
         return true;

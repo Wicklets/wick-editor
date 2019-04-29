@@ -45,6 +45,7 @@ Wick.Path = class extends Wick.Base {
     serialize (args) {
         var data = super.serialize(args);
         data.json = this.json;
+        delete data.json[1].data;
         return data;
     }
 

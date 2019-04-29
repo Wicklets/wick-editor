@@ -61,6 +61,8 @@ Wick.Tools.Cursor = class extends Wick.Tool {
         this.selectedItems = [];
 
         this.currentCursorIcon = '';
+
+        this.guiLayer = new this.paper.Layer();
     }
 
     /**
@@ -107,6 +109,7 @@ Wick.Tools.Cursor = class extends Wick.Tool {
             this.hoverPreview.segments[0].handleOut = this.hitResult.location.curve.handle1;
             this.hoverPreview.segments[1].handleIn = this.hitResult.location.curve.handle2;
         }
+        this.hoverPreview.data.wickType = 'gui';
     }
 
     onMouseDown (e) {
@@ -139,15 +142,17 @@ Wick.Tools.Cursor = class extends Wick.Tool {
         } else if (this.hitResult.item && this.hitResult.type === 'segment') {
 
         } else {
-            // Nothing was clicked, so clear the selection and start a new selection box
-            this.paper.selection.finish();
+            if(this.paper.selection.items.length > 0) {
+                // Nothing was clicked, so clear the selection and start a new selection box
+                this.paper.selection.finish();
 
-            this.fireEvent('selectionChanged', {
-                items: [],
-            });
-            this.fireEvent('canvasModified');
+                this.fireEvent('selectionChanged', {
+                    items: [],
+                });
+                this.fireEvent('canvasModified');
 
-            this.selectionBox.start(e.point);
+                this.selectionBox.start(e.point);
+            }
         }
     }
 
@@ -205,7 +210,11 @@ Wick.Tools.Cursor = class extends Wick.Tool {
                 items: this.selectionBox.items
             });
         } else {
-            this.fireEvent('selectionTransformed');
+            if(this.paper.selection.items.length > 0) {
+                this.fireEvent('selectionTransformed');
+            } else {
+                this.fireEvent('canvasModified');
+            }
         }
     }
 
