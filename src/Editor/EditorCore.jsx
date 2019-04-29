@@ -66,6 +66,8 @@ class EditorCore extends Component {
   undoAction = () => {
     if(!this.project.history.popState()) {
       this.toast('Nothing to undo.', 'warning');
+    } else {
+      this.projectDidChange({skipHistory:true});
     }
   }
 
@@ -75,6 +77,8 @@ class EditorCore extends Component {
   redoAction = () => {
     if(!this.project.history.recoverState()) {
       this.toast('Nothing to redo.', 'warning');
+    } else {
+      this.projectDidChange({skipHistory:true});
     }
   }
 

@@ -35,7 +35,7 @@ Wick.Timeline = class extends Wick.Base {
         this._forceNextFrame = null;
     }
 
-    static deserialize (data) {
+    deserialize (data) {
         super.deserialize(data);
 
         this._playheadPosition = data.playheadPosition;
