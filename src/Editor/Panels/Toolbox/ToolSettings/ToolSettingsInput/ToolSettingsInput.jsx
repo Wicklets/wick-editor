@@ -61,7 +61,7 @@ class ToolSettingsInput extends Component {
         <ActionButton
           icon={this.props.icon}
           isActive={() => this.props.value}
-          color='tool'
+          color='checkbox'
           id={"settings-input-id-" + this.props.name}
           tooltip={this.props.name}
           action={() => this.props.onChange(!this.props.value)}

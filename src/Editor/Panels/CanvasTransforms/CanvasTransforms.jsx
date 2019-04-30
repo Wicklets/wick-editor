@@ -33,7 +33,9 @@ class CanvasTransforms extends Component {
           className:'canvas-transform-item onion-skin-button',
           isActive:(() => {return this.props.onionSkinEnabled}),
         })}
-        {this.renderZoomOptions()}
+        {this.renderZoomIn()}
+        {this.renderZoomTool()}
+        {this.renderZoomOut()}
         {this.renderTransformButton({
           action: (() => this.props.setActiveTool('pan')),
           name: 'pan',
@@ -64,28 +66,21 @@ class CanvasTransforms extends Component {
     )
   }
 
-  renderZoomOptions = () => {
-    return (
-      <div id="canvas-zoom-options-container" className="canvas-transform-item">
-        {/* Zoom In */}
-        {this.renderTransformButton({
+  renderZoomIn = () => {
+    return this.renderTransformButton({
           action: () => this.props.zoomIn(),
           name: 'zoomin',
           tooltip: 'Zoom In',
-          className: 'thin-transform-button',
-        })}
+          className: 'thin-transform-button'});
+  }
 
-        {this.renderZoomTool()}
-
-        {/* Zoom Out */}
-        {this.renderTransformButton({
-          action: () => this.props.zoomOut(),
-          name: 'zoomout',
-          tooltip: 'Zoom Out',
-          className: 'thin-transform-button',
-        })}
-      </div>
-    )
+  renderZoomOut = () => {
+    return this.renderTransformButton({
+        action: () => this.props.zoomOut(),
+        name: 'zoomout',
+        tooltip: 'Zoom Out',
+        className: 'thin-transform-button',
+      });
   }
 
   render () {

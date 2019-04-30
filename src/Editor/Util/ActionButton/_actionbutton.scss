@@ -321,3 +321,26 @@ $action-button-transition-duration: .2s;
   background-color: $wick-error-red-dark;
   color: white;
 }
+
+.action-button-checkbox {
+  -webkit-transition-duration: $action-button-transition-duration; /* Safari */
+  transition-duration: $action-button-transition-duration;
+
+  background-color: $editor-secondary;
+  color: black;
+}
+
+.action-button-checkbox:hover {
+  background-color: $editor-tertiary;
+  color: black;
+}
+
+.action-button-checkbox:active {
+  background-color: $wick-green-dark;
+  color: black;
+}
+
+.action-button-checkbox.active-button {
+  background-color: $wick-green-dark;
+  color: black;
+}
