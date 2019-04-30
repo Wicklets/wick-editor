@@ -32,10 +32,10 @@ $toolbox-height: 40px;
   border: $editor-outline-padding solid $editor-primary-outline;
   border-top: none;
   border-right: none;
-  overflow: hidden;
   display: flex;
   flex-direction: row;
   align-items: center;
+  overflow: hidden; 
 }
 
 .tool-box:hover {

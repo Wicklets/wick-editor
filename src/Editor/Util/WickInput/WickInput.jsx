@@ -169,6 +169,19 @@ class WickInput extends Component {
     );
   }
 
+  renderCheckboxInput = () => {
+    return (
+      <WickInput
+        type="checkbox"
+        containerclassname="settings-checkbox-wick-input-container"
+        className="settings-checkbox-input"
+        onChange={this.props.onChange}
+        defaultChecked={this.props.value}
+        />
+    );
+  }
+
+
   renderRadio = () => {
     if(!this.props.name) throw new Error("WickInput radio buttons require a name.");
     return (
