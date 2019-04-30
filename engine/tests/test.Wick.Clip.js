@@ -1,45 +1,54 @@
 describe('Wick.Clip', function() {
     describe('#constructor', function () {
         it('should instantiate correctly', function() {
-            var clip = new Wick.Clip();
+            var clip = new Wick.Clip({
+                identifier: 'foo'
+            });
             expect(clip instanceof Wick.Base).to.equal(true);
             expect(clip instanceof Wick.Tickable).to.equal(true);
             expect(clip instanceof Wick.Clip).to.equal(true);
             expect(clip.classname).to.equal('Clip');
+            expect(clip.identifier).to.equal('foo');
             expect(clip.timeline instanceof Wick.Timeline).to.equal(true);
         });
-    });
 
-/*
-    describe('#serialize', function () {
-        it('should serialize correctly', function() {
-            var clip = new Wick.Clip();
-            var data = clip.serialize();
+        it('should instantiate correctly with existing objects', function() {
+            var project = new Wick.Project();
 
-            expect(data.classname).to.equal('Clip');
-            expect(data.timeline.classname).to.equal('Timeline');
-            expect(data.transform.classname).to.equal('Transformation');
-        });
-    });
+            var path1 = new Wick.Path({json: TestUtils.TEST_PATH_JSON_RED_SQUARE});
+            var path2 = new Wick.Path({json: TestUtils.TEST_PATH_JSON_BLUE_SQUARE});
+            var clip1 = new Wick.Clip({ identifier: 'bar' });
+            var clip2 = new Wick.Clip({ identifier: 'baz' });
 
-    describe('#deserialize', function () {
-        it('should deserialize correctly', function() {
-            var data = {
-                classname: 'Clip',
-                timeline: new Wick.Timeline().serialize(),
-                scripts: [],
-                transform: new Wick.Transformation().serialize(),
-            };
+            project.activeFrame.addPath(path1);
+            project.activeFrame.addPath(path2);
+            project.activeFrame.addClip(clip1);
 
-            var clip = Wick.Clip.deserialize(data);
-
+            var clip = new Wick.Clip({
+                identifier: 'foo',
+                objects: [
+                    path1,
+                    path2,
+                    clip1,
+                    clip2,
+                ],
+                transformation: new Wick.Transformation({
+                    x: 200,
+                    y: 100,
+                }),
+            });
+            expect(clip instanceof Wick.Base).to.equal(true);
+            expect(clip instanceof Wick.Tickable).to.equal(true);
             expect(clip instanceof Wick.Clip).to.equal(true);
-            expect(clip.scripts instanceof Array).to.equal(true);
-            expect(clip.timeline instanceof Wick.Timeline).to.equal(true);
-            expect(clip.transform instanceof Wick.Transformation).to.equal(true);
+            expect(clip.classname).to.equal('Clip');
+            expect(clip.identifier).to.equal('foo');
+            expect(clip.transformation.x).to.equal(200);
+            expect(clip.transformation.y).to.equal(100);
+            expect(clip.activeFrame.paths.length).to.equal(2);
+            expect(clip.activeFrame.clips.length).to.equal(2);
+            console.warn('HEY FINISH THIS TESTS LMAOOOOOOOO')
         });
     });
-*/
 
     describe('#lineage', function () {
         it('should determine lineage correctly', function () {
@@ -651,7 +660,7 @@ describe('Wick.Clip', function() {
             expect(error).to.equal(null);
             error = project.tick();
             expect(error).to.equal(null);
-            
+
             expect(clip.__frameNumber).to.equal(1);
             expect(clip2.__frameNumber).to.equal(1);
             error = project.tick();

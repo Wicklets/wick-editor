@@ -668,6 +668,7 @@ Wick.Project = class extends Wick.Base {
         this._tickIntervalID = null;
 
         this.history.loadSnapshot('state-before-play');
+        this.view.render();
     }
 
     /**
