@@ -66824,6 +66824,7 @@ Wick.Project = class extends Wick.Base {
     clearInterval(this._tickIntervalID);
     this._tickIntervalID = null;
     this.history.loadSnapshot('state-before-play');
+    this.view.render();
   }
   /**
    * Resets zoom and pan.
@@ -69792,7 +69793,6 @@ Wick.Clip = class extends Wick.Tickable {
         this.activeFrame.addClip(clip);
       });
       paths.forEach(path => {
-        console.log(this.transformation.x);
         path.view.item.position = new paper.Point(path.view.item.position.x - this.transformation.x, path.view.item.position.y - this.transformation.y);
         this.activeFrame.addPath(path);
       });
@@ -72844,7 +72844,7 @@ Wick.Tools.Eraser = class extends Wick.Tool {
     this.path = null;
     this.cursorSize = null;
     this.cachedCursor = null;
-    this.brushSize = 10;
+    this.eraserSize = 10;
   }
   /**
    *
@@ -72869,11 +72869,11 @@ Wick.Tools.Eraser = class extends Wick.Tool {
 
   onMouseMove(e) {
     // Don't render cursor after every mouse move, cache and only render when size changes
-    var cursorNeedsRegen = this.brushSize !== this.cursorSize;
+    var cursorNeedsRegen = this.eraserSize !== this.cursorSize;
 
     if (cursorNeedsRegen) {
-      this.cachedCursor = this.createDynamicCursor('#ffffff', this.brushSize);
-      this.cursorSize = this.brushSize;
+      this.cachedCursor = this.createDynamicCursor('#ffffff', this.eraserSize);
+      this.cursorSize = this.eraserSize;
       this.setCursor(this.cachedCursor);
     }
   }
@@ -72883,7 +72883,7 @@ Wick.Tools.Eraser = class extends Wick.Tool {
       this.path = new this.paper.Path({
         strokeColor: 'white',
         strokeCap: 'round',
-        strokeWidth: this.brushSize / this.paper.view.zoom
+        strokeWidth: this.eraserSize / this.paper.view.zoom
       });
     } // Add two points so we always at least have a dot.
 
