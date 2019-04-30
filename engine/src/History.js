@@ -27,19 +27,18 @@ Wick.History = class {
     constructor () {
         this._undoStack = [];
         this._redoStack = [];
+        this._snapshots = {};
     }
 
     /**
-     *
+     * Push the current state of the ObjectCache to the undo stack.
      */
-    pushState () {
-        this._undoStack.push(Wick.ObjectCache.getAllObjects().map(object => {
-            return object.serialize();
-        }));
+    pushState (filter) {
+        this._undoStack.push(this._generateState(filter));
     }
 
     /**
-     *
+     * Pop the last state in the undo stack off and apply the new last state to the project.
      * @returns {boolean} True if the undo stack is non-empty, false otherwise
      */
     popState () {
@@ -51,7 +50,7 @@ Wick.History = class {
         this._redoStack.push(lastState);
 
         var currentState = this._undoStack[this._undoStack.length - 1];
-        this._applyStateToProject(currentState);
+        this._recoverState(currentState);
 
         return true;
     }
@@ -68,12 +67,35 @@ Wick.History = class {
         var recoveredState = this._redoStack.pop();
         this._undoStack.push(recoveredState);
 
-        this._applyStateToProject(recoveredState);
+        this._recoverState(recoveredState);
 
         return true;
     }
 
-    _applyStateToProject (state) {
+
+    /**
+     *
+     * @param {string} name - the name of the snapshot
+     */
+    saveSnapshot (name, filter) {
+        this._snapshots[name] = this._generateState(filter);
+    }
+
+    /**
+     *
+     * @param {string} name - the name of the snapshot to recover
+     */
+    loadSnapshot (name) {
+        this._recoverState(this._snapshots[name]);
+    }
+
+    _generateState (filter) {
+        return Wick.ObjectCache.getAllObjects().map(object => {
+            return object.serialize();
+        })
+    }
+
+    _recoverState (state) {
         state.forEach(objectData => {
             var object = Wick.ObjectCache.getObjectByUUID(objectData.uuid);
             object.deserialize(objectData);

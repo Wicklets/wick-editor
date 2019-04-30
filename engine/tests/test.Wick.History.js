@@ -136,4 +136,49 @@ describe('Wick.History', function() {
         expect(project.selection.getSelectedObject().uuid).to.equal(path1.uuid);
         expect(project.selection.width).to.equal(50);
     });
+
+    it('should save and load snapshots', function () {
+        Wick.ObjectCache.removeAllObjects();
+
+        var project = new Wick.Project();
+
+        var pathJson1 = ["Path",{"segments":[[0,0],[50,0],[50,50],[0,50]],"closed":true,"fillColor":[1,0,0]}];
+        var pathJson2 = ["Path",{"segments":[[0,0],[50,0],[50,50],[0,50]],"closed":true,"fillColor":[0,1,0]}];
+        var pathJson3 = ["Path",{"segments":[[0,0],[50,0],[50,50],[0,50]],"closed":true,"fillColor":[0,0,1]}];
+
+        var path1 = new Wick.Path({json: pathJson1});
+        var path2 = new Wick.Path({json: pathJson2});
+        var path3 = new Wick.Path({json: pathJson3});
+
+        project.activeFrame.addPath(path1);
+        project.view.render();
+        project.history.saveSnapshot('red-path');
+
+        project.activeFrame.paths[0].remove();
+        project.activeFrame.addPath(path2);
+        project.view.render();
+        project.history.saveSnapshot('green-path');
+
+        project.activeFrame.paths[0].remove();
+        project.activeFrame.addPath(path3);
+        project.view.render();
+        project.history.saveSnapshot('blue-path');
+
+        project.activeFrame.paths[0].remove();
+
+        project.history.loadSnapshot('red-path');
+        expect(project.activeFrame.paths.length).to.equal(1);
+        expect(project.activeFrame.paths[0].uuid).to.equal(path1.uuid);
+        expect(project.activeFrame.paths[0].view.item.fillColor.toCSS(true)).to.equal('#ff0000');
+
+        project.history.loadSnapshot('green-path');
+        expect(project.activeFrame.paths.length).to.equal(1);
+        expect(project.activeFrame.paths[0].uuid).to.equal(path2.uuid);
+        expect(project.activeFrame.paths[0].view.item.fillColor.toCSS(true)).to.equal('#00ff00');
+
+        project.history.loadSnapshot('blue-path');
+        expect(project.activeFrame.paths.length).to.equal(1);
+        expect(project.activeFrame.paths[0].uuid).to.equal(path3.uuid);
+        expect(project.activeFrame.paths[0].view.item.fillColor.toCSS(true)).to.equal('#0000ff');
+    });
 });

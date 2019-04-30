@@ -89,12 +89,12 @@ class Canvas extends Component {
     this.attachProjectToComponent(project);
 
     // Render wick project
-    project.view.renderMode = this.props.previewPlaying ? 'webgl' : 'svg';
     project.view.canvasBGColor = styles.editorCanvasBorder;
     project.view.canvasContainer = this.canvasContainer.current;
     project.view.render();
 
     // update the drawing tool based on the editor's active tool state.
+    // TODO Move this to engine.
     let toolName = this.props.activeTool;
     let tool = this.props.project.view.tools[this.props.activeTool];
     if(!tool) {
@@ -107,6 +107,7 @@ class Canvas extends Component {
     }
 
     // If the active frame is on a locked/hidden layer, or there is no active frame, disable all tools.
+    // TODO Move this to engine.
     if(!project.activeFrame ||
        project.activeLayer.locked ||
        project.activeLayer.hidden) {

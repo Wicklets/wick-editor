@@ -635,8 +635,13 @@ Wick.Project = class extends Wick.Base {
             this.stop();
         }
 
+        this.history.saveSnapshot('state-before-play');
+
         this.selection.clear();
 
+        this.view.renderMode = 'webgl';
+
+        // Start tick loop
         this._tickIntervalID = setInterval(() => {
             args.onBeforeTick();
 
@@ -657,8 +662,12 @@ Wick.Project = class extends Wick.Base {
     stop () {
         this.stopAllSounds();
 
+        this.view.renderMode = 'svg';
+
         clearInterval(this._tickIntervalID);
         this._tickIntervalID = null;
+
+        this.history.loadSnapshot('state-before-play');
     }
 
     /**

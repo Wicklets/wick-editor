@@ -18,22 +18,29 @@
  */
 
 import React, { Component } from 'react';
-import ActionButton from 'Editor/Util/ActionButton/ActionButton'; 
-import WickModal from 'Editor/Modals/WickModal/WickModal'; 
+import ActionButton from 'Editor/Util/ActionButton/ActionButton';
+import WickModal from 'Editor/Modals/WickModal/WickModal';
 
 import './_autosavewarning.scss';
 
 class AutosaveWarning extends Component {
   loadAndToggle = () => {
-    this.props.loadAutosavedProject()
-    this.props.toggle()
+    this.props.loadAutosavedProject(() => {
+      this.props.toggle();
+    });
+  }
+
+  deleteAndToggle = () => {
+    this.editor.clearAutoSavedProject(() => {
+      this.props.toggle();
+    });
   }
 
   render() {
     return (
-      <WickModal 
-      open={this.props.open} 
-      toggle={this.props.toggle} 
+      <WickModal
+      open={this.props.open}
+      toggle={this.props.toggle}
       icon="autosave"
       className="autosave-modal-body"
       overlayClassName="autosave-modal-overlay">
@@ -44,15 +51,15 @@ class AutosaveWarning extends Component {
           </div>
           <div id="autosave-modal-footer">
             <div id="autosave-modal-cancel">
-                <ActionButton 
+                <ActionButton
                   className="autosave-modal-button"
                   color='red'
-                  action={this.props.toggle}
+                  action={this.deleteAndToggle}
                   text="Delete"
                   />
               </div>
               <div id="autosave-modal-accept">
-                <ActionButton 
+                <ActionButton
                   className="autosave-modal-button"
                   color='green'
                   action={this.loadAndToggle}

@@ -125,7 +125,7 @@ Wick.View.Project = class extends Wick.View {
     }
 
     /**
-     * The zoom amount. zoom = 1 = 100% zoom
+     * The zoom amount. 1 = 100% zoom
      */
     get zoom () {
         return this._zoom;

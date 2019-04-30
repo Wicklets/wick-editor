@@ -513,7 +513,10 @@ class EditorCore extends Component {
    * Creates a new symbol from the selected paths and clips and adds it to the project.
    */
   createSymbolFromSelection = (name, type) => {
-    this.project.createClipFromSelection(name, type);
+    this.project.createClipFromSelection({
+      identifier: name,
+      type: type
+    });
     this.projectDidChange();
   }
 
@@ -522,7 +525,10 @@ class EditorCore extends Component {
    * @param {string} name The name of the clip after creation.
    */
   createClipFromSelection = (name) => {
-    this.project.createClipFromSelection(name, 'Clip');
+    this.project.createClipFromSelection({
+      identifier: name,
+      type: 'Clip'
+    });
     this.projectDidChange();
   }
 
@@ -531,7 +537,10 @@ class EditorCore extends Component {
    * @param {string} name The name of the button after creation.
    */
   createButtonFromSelection = (name) => {
-    this.project.createClipFromSelection(name, 'Button');
+    this.project.createClipFromSelection({
+      identifier: name,
+      type: 'Button'
+    });
     this.projectDidChange();
   }
 
@@ -745,7 +754,8 @@ class EditorCore extends Component {
           this.toast('Could not add files to project: ' + file.name, 'error');
         } else {
           this.toast('Imported "' + file.name + '" successfully.', 'success');
-          localForage.setItem(this.autoSaveAssetsKey, window.Wick.FileCache.getAllFiles());
+          //localForage.setItem(this.autoSaveAssetsKey, window.Wick.FileCache.getAllFiles());
+          this.autosaveAssets();
           this.projectDidChange();
         }
       });
@@ -845,17 +855,54 @@ class EditorCore extends Component {
     this.project = project;
     this.project.selection.clear();
     this.project.view.preloadImages(() => {
-      localForage.setItem(this.autoSaveAssetsKey, window.Wick.FileCache.getAllFiles());
+      //localForage.setItem(this.autoSaveAssetsKey, window.Wick.FileCache.getAllFiles());
+      this.autosaveAssets();
       this.projectDidChange();
       this.hideWaitOverlay();
     });
+  }
+
+  showAutosavedProjects = () => {
+    this.doesAutoSavedProjectExist(exists => {
+      if (exists) {
+        this.queueModal('AutosaveWarning');
+      }
+    });
+  }
+
+  /**
+   * Start a timer to run an autosave sometime in the future.
+   */
+  requestAutosave = () => {
+      if(this._autosaveTimeoutID) {
+          window.clearTimeout(this._autosaveTimeoutID);
+      }
+
+      this._autosaveTimeoutID = window.setTimeout(() => {
+          this.autoSaveProject();
+      }, 5000);
+  }
+
+  /**
+   * Save the current project in localstorage
+   */
+  autoSaveProject = () => {
+    if (!this.project) return;
+
+    //console.log('autosaving...');
+    //console.log('autosaved.');
+
+    //let serializedProject = this.project.serialize();
+    //localForage.setItem(this.autoSaveKey, serializedProject);
+
+    //localForage.setItem(this.autoSaveAssetsKey, window.Wick.FileCache.getAllFiles());
   }
 
   /**
    * Attempts to automatically load an autosaved project if it exists.
    * Does nothing if not autosaved project is stored.
    */
-  attemptAutoLoad = () => {
+  loadAutosavedProject = (callback) => {
     localForage.getItem(this.autoSaveAssetsKey).then(serializedAssets => {
       if (serializedAssets) {
         // Only deserialize assets if necessary.
@@ -867,10 +914,11 @@ class EditorCore extends Component {
       localForage.getItem(this.autoSaveKey).then(serializedProject => {
         if (!serializedProject) {
           this.toast('An error occurred while loading your project.', 'error');
-          return;
+        } else {
+          let deserialized = window.Wick.Project.deserialize(serializedProject);
+          this.setupNewProject(deserialized);
         }
-        let deserialized = window.Wick.Project.deserialize(serializedProject);
-        this.setupNewProject(deserialized);
+        callback();
       });
     });
   }
@@ -893,9 +941,9 @@ class EditorCore extends Component {
   /**
    * Clears any autosaved project from local storage.
    */
-  clearAutoSavedProject = () => {
+  clearAutoSavedProject = (callback) => {
     localForage.removeItem(this.autoSaveKey).then(() => {
-      // Autosaved cleared
+      callback();
     });
   }
 

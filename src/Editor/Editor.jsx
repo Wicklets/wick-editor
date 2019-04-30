@@ -181,8 +181,8 @@ class Editor extends EditorCore {
       name        : 'WickEditor',
       description : 'Live Data storage of the Wick Editor app.'
     });
-    this.autoSaveKey = "wickEditorAutosave";
-    this.autoSaveAssetsKey = "wickEditorAutosaveAssets";
+    this.autoSaveKey = "wickProjectAutosave";
+    this.autoSaveAssetsKey = "wickProjectAutosaveAssets";
 
     // Setup the initial project state
     this.setState({
@@ -207,7 +207,7 @@ class Editor extends EditorCore {
     this.hidePreloader();
     this.refocusEditor();
     this.onWindowResize();
-    //this.showAutosavedProjects();
+    this.showAutosavedProjects();
   }
 
   componentDidUpdate = (prevProps, prevState) => {
@@ -251,23 +251,6 @@ class Editor extends EditorCore {
   hideWaitOverlay = () => {
     let waitOverlay = window.document.getElementById('wait-overlay');
     waitOverlay.style.display = 'none';
-  }
-
-  showAutosavedProjects = () => {
-    this.doesAutoSavedProjectExist(exists => {
-      if (exists) {
-        this.queueModal('AutosaveWarning');
-      }
-    });
-  }
-
-  /**
-   * Autosave the project in the state, if it exists.
-   */
-  autoSaveProject = () => {
-    if (!this.project) return
-    let serializedProject = this.project.serialize();
-    localForage.setItem(this.autoSaveKey, serializedProject);
   }
 
   /**
@@ -484,6 +467,10 @@ class Editor extends EditorCore {
   projectDidChange = (options) => {
     if(!options) options = {};
 
+    // Request an autosave, so a save will happen sometime later.
+    this.requestAutosave();
+
+    // Save state to history if needed
     if(!options.skipHistory) {
       this.project.history.pushState();
     }
@@ -616,7 +603,7 @@ class Editor extends EditorCore {
                     createClipFromSelection={this.createClipFromSelection}
                     createButtonFromSelection={this.createButtonFromSelection}
                     updateProjectSettings={this.updateProjectSettings}
-                    loadAutosavedProject={this.attemptAutoLoad}
+                    loadAutosavedProject={this.loadAutosavedProject}
                   />
                   {/* Header */}
                   <DockedPanel showOverlay={this.state.previewPlaying}>

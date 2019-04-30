@@ -65199,19 +65199,18 @@ Wick.History = class {
   constructor() {
     this._undoStack = [];
     this._redoStack = [];
+    this._snapshots = {};
   }
   /**
-   *
+   * Push the current state of the ObjectCache to the undo stack.
    */
 
 
-  pushState() {
-    this._undoStack.push(Wick.ObjectCache.getAllObjects().map(object => {
-      return object.serialize();
-    }));
+  pushState(filter) {
+    this._undoStack.push(this._generateState(filter));
   }
   /**
-   *
+   * Pop the last state in the undo stack off and apply the new last state to the project.
    * @returns {boolean} True if the undo stack is non-empty, false otherwise
    */
 
@@ -65227,7 +65226,7 @@ Wick.History = class {
 
     var currentState = this._undoStack[this._undoStack.length - 1];
 
-    this._applyStateToProject(currentState);
+    this._recoverState(currentState);
 
     return true;
   }
@@ -65246,12 +65245,36 @@ Wick.History = class {
 
     this._undoStack.push(recoveredState);
 
-    this._applyStateToProject(recoveredState);
+    this._recoverState(recoveredState);
 
     return true;
   }
+  /**
+   *
+   * @param {string} name - the name of the snapshot
+   */
 
-  _applyStateToProject(state) {
+
+  saveSnapshot(name, filter) {
+    this._snapshots[name] = this._generateState(filter);
+  }
+  /**
+   *
+   * @param {string} name - the name of the snapshot to recover
+   */
+
+
+  loadSnapshot(name) {
+    this._recoverState(this._snapshots[name]);
+  }
+
+  _generateState(filter) {
+    return Wick.ObjectCache.getAllObjects().map(object => {
+      return object.serialize();
+    });
+  }
+
+  _recoverState(state) {
     state.forEach(objectData => {
       var object = Wick.ObjectCache.getObjectByUUID(objectData.uuid);
       object.deserialize(objectData);
@@ -66773,7 +66796,10 @@ Wick.Project = class extends Wick.Base {
       this.stop();
     }
 
+    this.history.saveSnapshot('state-before-play');
     this.selection.clear();
+    this.view.renderMode = 'webgl'; // Start tick loop
+
     this._tickIntervalID = setInterval(() => {
       args.onBeforeTick();
       var error = this.tick();
@@ -66794,8 +66820,10 @@ Wick.Project = class extends Wick.Base {
 
   stop() {
     this.stopAllSounds();
+    this.view.renderMode = 'svg';
     clearInterval(this._tickIntervalID);
     this._tickIntervalID = null;
+    this.history.loadSnapshot('state-before-play');
   }
   /**
    * Resets zoom and pan.
@@ -69764,6 +69792,7 @@ Wick.Clip = class extends Wick.Tickable {
         this.activeFrame.addClip(clip);
       });
       paths.forEach(path => {
+        console.log(this.transformation.x);
         path.view.item.position = new paper.Point(path.view.item.position.x - this.transformation.x, path.view.item.position.y - this.transformation.y);
         this.activeFrame.addPath(path);
       });
@@ -73251,14 +73280,20 @@ Wick.Tools.Pan = class extends Wick.Tool {
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
 Wick.Tools.Pencil = class extends Wick.Tool {
+  static get MIN_ADD_POINT_MOVEMENT() {
+    return 10;
+  }
   /**
    * Creates a pencil tool.
    */
+
+
   constructor() {
     super();
     this.path = null;
     this.strokeWidth = 1;
     this.strokeColor = '#000000';
+    this._movement = new paper.Point();
   }
   /**
    * The pencil cursor.
@@ -73275,6 +73310,8 @@ Wick.Tools.Pencil = class extends Wick.Tool {
   onDeactivate(e) {}
 
   onMouseDown(e) {
+    this._movement = new paper.Point();
+
     if (!this.path) {
       this.path = new this.paper.Path({
         strokeColor: this.strokeColor,
@@ -73287,8 +73324,13 @@ Wick.Tools.Pencil = class extends Wick.Tool {
   }
 
   onMouseDrag(e) {
-    this.path.add(e.point);
-    this.path.smooth();
+    this._movement = this._movement.add(e.delta);
+
+    if (this._movement.length > Wick.Tools.Pencil.MIN_ADD_POINT_MOVEMENT / this.paper.view.zoom) {
+      this._movement = new paper.Point();
+      this.path.add(e.point);
+      this.path.smooth();
+    }
   }
 
   onMouseUp(e) {
@@ -73820,7 +73862,7 @@ Wick.View.Project = class extends Wick.View {
     }
   }
   /**
-   * The zoom amount. zoom = 1 = 100% zoom
+   * The zoom amount. 1 = 100% zoom
    */
 
 

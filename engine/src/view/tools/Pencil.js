@@ -18,6 +18,10 @@
  */
 
 Wick.Tools.Pencil = class extends Wick.Tool {
+    static get MIN_ADD_POINT_MOVEMENT () {
+        return 10;
+    }
+
     /**
      * Creates a pencil tool.
      */
@@ -28,6 +32,8 @@ Wick.Tools.Pencil = class extends Wick.Tool {
 
         this.strokeWidth = 1;
         this.strokeColor = '#000000';
+
+        this._movement = new paper.Point();
     }
 
     /**
@@ -47,6 +53,8 @@ Wick.Tools.Pencil = class extends Wick.Tool {
     }
 
     onMouseDown (e) {
+        this._movement = new paper.Point();
+
         if (!this.path) {
             this.path = new this.paper.Path({
                 strokeColor: this.strokeColor,
@@ -59,8 +67,13 @@ Wick.Tools.Pencil = class extends Wick.Tool {
     }
 
     onMouseDrag (e) {
-        this.path.add(e.point);
-        this.path.smooth();
+        this._movement = this._movement.add(e.delta);
+
+        if(this._movement.length > Wick.Tools.Pencil.MIN_ADD_POINT_MOVEMENT / this.paper.view.zoom) {
+            this._movement = new paper.Point();
+            this.path.add(e.point);
+            this.path.smooth();
+        }
     }
 
     onMouseUp (e) {

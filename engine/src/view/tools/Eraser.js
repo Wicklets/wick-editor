@@ -29,7 +29,7 @@ Wick.Tools.Eraser = class extends Wick.Tool {
         this.cursorSize = null;
         this.cachedCursor = null;
 
-        this.brushSize = 10;
+        this.eraserSize = 10;
     }
 
     /**
@@ -53,11 +53,11 @@ Wick.Tools.Eraser = class extends Wick.Tool {
 
     onMouseMove (e) {
         // Don't render cursor after every mouse move, cache and only render when size changes
-        var cursorNeedsRegen = this.brushSize !== this.cursorSize;
+        var cursorNeedsRegen = this.eraserSize !== this.cursorSize;
 
         if(cursorNeedsRegen) {
-            this.cachedCursor = this.createDynamicCursor('#ffffff', this.brushSize);
-            this.cursorSize = this.brushSize;
+            this.cachedCursor = this.createDynamicCursor('#ffffff', this.eraserSize);
+            this.cursorSize = this.eraserSize;
             this.setCursor(this.cachedCursor);
         }
     }
@@ -67,7 +67,7 @@ Wick.Tools.Eraser = class extends Wick.Tool {
             this.path = new this.paper.Path({
                 strokeColor: 'white',
                 strokeCap: 'round',
-                strokeWidth: this.brushSize / this.paper.view.zoom,
+                strokeWidth: this.eraserSize / this.paper.view.zoom,
             });
         }
 
