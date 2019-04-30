@@ -37,7 +37,11 @@ $canvas-transforms-size: 40px;
 }
 
 .thin-transform-button {
-  width: calc(#{$canvas-transforms-size} / 2);
+  width: calc(#{$canvas-transforms-size} * .7);
+}
+
+.canvas-transform-icon {
+  width: 90%; 
 }
 
 .play-button {

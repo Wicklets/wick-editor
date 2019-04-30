@@ -17,7 +17,9 @@ class CanvasTransforms extends Component {
         action={options.action}
         tooltipPlace={"top"}
         icon={options.name}
-        className={classNames("canvas-transform-button", options.className)}/>
+        className={classNames("canvas-transform-button", options.className)}
+        iconClassName="canvas-transform-icon"
+        />
     );
   }
 
@@ -51,7 +53,7 @@ class CanvasTransforms extends Component {
   renderZoomTool = () => {
     return (
       <div id='zoom-tool-container'>
-        {/* Zooom Tool / NumericInput*/}
+        {/* Zoom Tool / NumericInput*/}
         {this.renderTransformButton({
           action: (() => this.props.setActiveTool('zoom')),
           name: 'zoom',
