@@ -117,40 +117,24 @@ Wick.Tools.Cursor = class extends Wick.Tool {
 
         if(this.hitResult.item && this.hitResult.item.data.isSelectionBoxGUI) {
             // The selection box was clicked
-        } else if(this.paper.selection.isItemSelected(this.hitResult.item)) {
+        } else /*if(this.paper.selection.isItemSelected(this.hitResult.item)) {
             // We clicked something that was already selected.
             // Shift click: Deselect that item
-            if(e.modifiers.shift) {
-                var itemsWithoutHitItem = this.paper.selection.items.filter(item => {
-                    return item !== hitResult.item;
-                });
-                this.fireEvent('selectionChanged', {
-                    items: itemsWithoutHitItem,
-                });
-            }
-        } else if (this.hitResult.item && this.hitResult.type === 'fill') {
+            // TODO Replace
+        } else */if (this.hitResult.item && this.hitResult.type === 'fill') {
             // Clicked an item: select that item
-            var items = [this.hitResult.item];
             // Shift click? Keep everything else selected.
-            if(e.modifiers.shift) items = items.concat(this.paper.selection.items);
-            this.fireEvent('selectionChanged', {
-                items: items,
-            });
+            // TODO Replace
         } else if (this.hitResult.item && this.hitResult.type === 'curve') {
             // Clicked a curve, start dragging it
             this.draggingCurve = this.hitResult.location.curve;
         } else if (this.hitResult.item && this.hitResult.type === 'segment') {
 
         } else {
-            if(this.paper.selection.items.length > 1) {
+            //if(this.paper.selection.items.length > 1) {
                 // Nothing was clicked, so clear the selection and start a new selection box
-                this.paper.selection.finish();
-
-                this.fireEvent('selectionChanged', {
-                    items: [],
-                });
-                this.fireEvent('canvasModified');
-            }
+                // TODO Replace
+            //}
 
             this.selectionBox.start(e.point);
         }
@@ -160,16 +144,13 @@ Wick.Tools.Cursor = class extends Wick.Tool {
         if(this.hitResult.item && this.hitResult.item.data.isSelectionBoxGUI) {
             // Drag a handle of the selection box.
             // These can scale and rotate the selection.
-            this.paper.selection.lockScalingToAspectRatio = e.modifiers.shift;
-            this.paper.selection.handleDragMode = this.hitResult.item.data.handleType;
-            this.paper.selection[this.hitResult.item.data.handleEdge] = e.point;
+            // TODO replace.
         } else if (this.selectionBox.active) {
             // Selection box is being used, update it with a new point
             this.selectionBox.drag(e.point);
         } else if(this.hitResult.item && this.hitResult.type === 'fill') {
             // We're dragging the selection itself, so move the whole item.
-            this.paper.selection.x += e.delta.x;
-            this.paper.selection.y += e.delta.y;
+            // TODO Replace
         } else if(this.hitResult.item && this.hitResult.type === 'segment') {
             // We're dragging an individual point, so move the point.
             this.hitResult.segment.point = this.hitResult.segment.point.add(e.delta);
@@ -206,16 +187,9 @@ Wick.Tools.Cursor = class extends Wick.Tool {
             // Finish selection box and select objects touching box (or inside box, if alt is held)
             this.selectionBox.mode = e.modifiers.alt ? 'contains' : 'intersects';
             this.selectionBox.end(e.point);
-
-            this.fireEvent('selectionChanged', {
-                items: this.selectionBox.items
-            });
+            // TODO Replace
         } else {
-            if(this.paper.selection.items.length > 0) {
-                this.fireEvent('selectionTransformed');
-            } else {
-                this.fireEvent('canvasModified');
-            }
+            this.fireEvent('canvasModified');
         }
     }
 
@@ -269,9 +243,12 @@ Wick.Tools.Cursor = class extends Wick.Tool {
             }
 
             // You can't drag segments and curves of a selected object.
+            // TODO Replace.
+            /*
             if(this.paper.selection.isItemSelected(newHitResult.item)) {
                 newHitResult.type = 'fill';
             }
+            */
         }
 
         return newHitResult;
@@ -313,6 +290,7 @@ Wick.Tools.Cursor = class extends Wick.Tool {
             }[this.hitResult.item.data.handleEdge];
 
             // Flip angles if selection is flipped horizontally/vertically
+            /*
             if(this.paper.selection._transform.scaleX < 0) {
                 baseAngle = -baseAngle + 360;
             }
@@ -323,6 +301,10 @@ Wick.Tools.Cursor = class extends Wick.Tool {
             var angle = baseAngle + this.paper.selection.rotation;
             if(angle < 0) angle += 360;
             if(angle > 360) angle -= 360; // Makes angle math easier if we dont allow angles >360 or <0 degrees
+            */
+            // TODO Replace.
+
+            var angle = 0;
 
             // Round the angle to the nearest 45 degree interval.
             var angleRoundedToNearest45 = Math.round(angle / 45) * 45;
