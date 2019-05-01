@@ -194,6 +194,7 @@
 <script>
   window.onload = () => {
     window.onmousedown = () => {
+      window.onmousedown = () => {};
       document.getElementById('interact-message').style.display = 'none';
       window.expect = chai.expect;
       mocha.checkLeaks();
