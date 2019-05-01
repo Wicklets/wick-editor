@@ -112,8 +112,11 @@ paper.Selection = class {
      * Finish and destroy the selection.
      * @param {boolean} discardTransformation - If set to true, will reset all items to their original transforms before the selection was made.
      */
-    finish (discardTransformation) {
-        this._destroy(discardTransformation);
+    finish (args) {
+        if(!args) args = {};
+        if(args.discardTransformation === undefined) args.discardTransformation = false;
+
+        this._destroy(args.discardTransformation);
     }
 
     _create () {

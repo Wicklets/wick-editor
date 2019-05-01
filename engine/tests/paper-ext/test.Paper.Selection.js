@@ -92,7 +92,7 @@ describe('Paper.Selection', function() {
         expect(selection.bounds.center.y).to.equal(50);
         expect(selection.bounds.area).to.equal(100 * 100);
 
-        selection.finish(true);
+        selection.finish({discardTransformation:true});
 
         expect(path1.bounds.top).to.equal(0);
         expect(path1.bounds.bottom).to.equal(50);
@@ -138,7 +138,7 @@ describe('Paper.Selection', function() {
         expect(selection.bounds.center.y).to.equal(50);
         expect(selection.bounds.area).to.equal(100 * 100);
 
-        selection.finish(true);
+        selection.finish({discardTransformation:true});
 
         expect(path1.bounds.top).to.equal(0);
         expect(path1.bounds.bottom).to.equal(50);
@@ -184,7 +184,7 @@ describe('Paper.Selection', function() {
         expect(selection.bounds.center.y).to.equal(50);
         expect(selection.bounds.area).to.equal(100 * 100);
 
-        selection.finish(false);
+        selection.finish({discardTransformation:false});
 
         expect(path1.bounds.top).to.equal(0);
         expect(path1.bounds.bottom).to.equal(50);
@@ -198,5 +198,91 @@ describe('Paper.Selection', function() {
         expect(path3.bounds.bottom).to.equal(100);
         expect(path3.bounds.left).to.equal(50 + 100);
         expect(path3.bounds.right).to.equal(100 + 100);
+    });
+
+    it('some initial transformations, no transformations given, apply transformations', function () {
+        var dummy = createDummyPaperInstance();
+
+        var paperScope = dummy.paperScope;
+        var path1 = dummy.path1;
+        var path2 = dummy.path2;
+        var path3 = dummy.path3;
+
+        var selection = new paperScope.Selection({
+            layer: paperScope.project.activeLayer,
+            items: [path1, path2, path3],
+            x: 100,
+        });
+
+        expect(path1.bounds.top).to.equal(0);
+        expect(path1.bounds.bottom).to.equal(50);
+        expect(path1.bounds.left).to.equal(0 + 100);
+        expect(path1.bounds.right).to.equal(50 + 100);
+        expect(path2.bounds.top).to.equal(0);
+        expect(path2.bounds.bottom).to.equal(50);
+        expect(path2.bounds.left).to.equal(50 + 100);
+        expect(path2.bounds.right).to.equal(100 + 100);
+        expect(path3.bounds.top).to.equal(50);
+        expect(path3.bounds.bottom).to.equal(100);
+        expect(path3.bounds.left).to.equal(50 + 100);
+        expect(path3.bounds.right).to.equal(100 + 100);
+
+        selection.finish({discardTransformation:false});
+
+        expect(path1.bounds.top).to.equal(0);
+        expect(path1.bounds.bottom).to.equal(50);
+        expect(path1.bounds.left).to.equal(0 + 100);
+        expect(path1.bounds.right).to.equal(50 + 100);
+        expect(path2.bounds.top).to.equal(0);
+        expect(path2.bounds.bottom).to.equal(50);
+        expect(path2.bounds.left).to.equal(50 + 100);
+        expect(path2.bounds.right).to.equal(100 + 100);
+        expect(path3.bounds.top).to.equal(50);
+        expect(path3.bounds.bottom).to.equal(100);
+        expect(path3.bounds.left).to.equal(50 + 100);
+        expect(path3.bounds.right).to.equal(100 + 100);
+    });
+
+    it('some initial transformations, no transformations given, discard transformations', function () {
+        var dummy = createDummyPaperInstance();
+
+        var paperScope = dummy.paperScope;
+        var path1 = dummy.path1;
+        var path2 = dummy.path2;
+        var path3 = dummy.path3;
+
+        var selection = new paperScope.Selection({
+            layer: paperScope.project.activeLayer,
+            items: [path1, path2, path3],
+            x: 100,
+        });
+
+        expect(path1.bounds.top).to.equal(0);
+        expect(path1.bounds.bottom).to.equal(50);
+        expect(path1.bounds.left).to.equal(0 + 100);
+        expect(path1.bounds.right).to.equal(50 + 100);
+        expect(path2.bounds.top).to.equal(0);
+        expect(path2.bounds.bottom).to.equal(50);
+        expect(path2.bounds.left).to.equal(50 + 100);
+        expect(path2.bounds.right).to.equal(100 + 100);
+        expect(path3.bounds.top).to.equal(50);
+        expect(path3.bounds.bottom).to.equal(100);
+        expect(path3.bounds.left).to.equal(50 + 100);
+        expect(path3.bounds.right).to.equal(100 + 100);
+
+        selection.finish({discardTransformation:true});
+
+        expect(path1.bounds.top).to.equal(0);
+        expect(path1.bounds.bottom).to.equal(50);
+        expect(path1.bounds.left).to.equal(0);
+        expect(path1.bounds.right).to.equal(50);
+        expect(path2.bounds.top).to.equal(0);
+        expect(path2.bounds.bottom).to.equal(50);
+        expect(path2.bounds.left).to.equal(50);
+        expect(path2.bounds.right).to.equal(100);
+        expect(path3.bounds.top).to.equal(50);
+        expect(path3.bounds.bottom).to.equal(100);
+        expect(path3.bounds.left).to.equal(50);
+        expect(path3.bounds.right).to.equal(100);
     });
 });
