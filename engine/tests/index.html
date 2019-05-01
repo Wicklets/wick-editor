@@ -5,8 +5,11 @@
     <link href="mocha/mocha.css" rel="stylesheet" />
 </head>
 <body>
+  <div id='interact-message'>Please click anywhere on the page <br/><em>(sounds won't test properly unless the page is interacted with)</em></div>
   <div id="mocha"></div>
 </body>
+
+<!-- Libs -->
 
 <script src="../lib/convert-range.js"></script>
 <script src="../lib/platform.js"></script>
@@ -26,6 +29,8 @@
 <script src="../lib/invert.min.js"></script>
 <script src="../lib/jquery.pressure.min.js"></script>
 <script src="../lib/potrace.js"></script>
+
+<!-- Wick Engine -->
 
 <script src="../src/Wick.js"></script>
 <script src="../src/FileCache.js"></script>
@@ -54,6 +59,7 @@
 <script src="../src/view/paper-ext/Layer.erase.js"></script>
 <script src="../src/view/paper-ext/Layer.hole.js"></script>
 <script src="../src/view/paper-ext/Paper.Selection.js"></script>
+<script src="../src/view/paper-ext/Paper.SelectionGUI.js"></script>
 <script src="../src/view/paper-ext/Paper.SelectionBox.js"></script>
 <script src="../src/view/paper-ext/Path.potrace.js"></script>
 <script src="../src/view/paper-ext/TextItem.edit.js"></script>
@@ -119,12 +125,19 @@
 <script src="../src/gui/GUIElement.Timeline.js"></script>
 <script src="../src/gui/GUIElement.Tween.js"></script>
 
+<!-- Testing Utils -->
+
+<script src="util/FileSaver.js"></script>
+<script src="util/TestUtils.js"></script>
+
+<!-- Chai + Mocha testing framework -->
+
 <script src="chai/chai.js"></script>
 <script src="mocha/mocha.js"></script>
 
+<!-- Load all tests -->
+
 <script>mocha.setup('bdd')</script>
-<script src="FileSaver.js"></script>
-<script src="TestUtils.js"></script>
 <script src="test.Wick.FileCache.js"></script>
 <script src="test.Wick.ObjectCache.js"></script>
 <script src="test.Wick.Base.js"></script>
@@ -167,11 +180,26 @@
 <script src="test.Wick.Tools.Text.js"></script>
 <script src="test.Wick.Tools.Zoom.js"></script>
 <script src="test.Wick.GUIElement.Project.js"></script>
+<script src="paper-ext/test.Layer.erase.js"></script>
+<script src="paper-ext/test.Layer.hole.js"></script>
+<script src="paper-ext/test.Paper.Selection.js"></script>
+<script src="paper-ext/test.Path.potrace.js"></script>
+<script src="paper-ext/test.TextItem.edit.js"></script>
+<script src="paper-ext/test.View.pressure.js"></script>
+<script src="paper-ext/test.View.gestures.js"></script>
+<script src="paper-ext/test.View.scrollToZoom.js"></script>
+
+<!-- Run tests -->
 
 <script>
-  window.expect = chai.expect;
-  mocha.checkLeaks();
-  mocha.run();
+  window.onload = () => {
+    window.onmousedown = () => {
+      document.getElementById('interact-message').style.display = 'none';
+      window.expect = chai.expect;
+      mocha.checkLeaks();
+      mocha.run();
+    }
+  }
 </script>
 
 </html>

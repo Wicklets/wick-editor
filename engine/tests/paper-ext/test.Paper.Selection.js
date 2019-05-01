@@ -1,118 +1,60 @@
 describe('Paper.Selection', function() {
-    it('paper.selection should be instantiated automatically', function () {
-        paper.project.clear();
-        paper.selection = new paper.Selection();
-        expect(paper.selection).to.not.equal(undefined);
-        expect(paper.selection).to.not.equal(null);
-        expect(paper.selection.items.length).to.equal(0);
+    it('should instantiate correctly', function () {
+        var paperScope = TestUtils.createPaperScope();
+
+        var selection = new paperScope.Selection({
+            layer: paperScope.project.activeLayer
+        });
+
+        expect(selection.layer).to.equal(paperScope.project.activeLayer);
+        expect(selection.items).to.eql([]);
+        expect(selection.transformation.x).to.equal(0);
+        expect(selection.transformation.y).to.equal(0);
+        expect(selection.transformation.scaleX).to.equal(1.0);
+        expect(selection.transformation.scaleY).to.equal(1.0);
+        expect(selection.transformation.rotation).to.equal(0);
+        expect(selection.transformation.originX).to.equal(0);
+        expect(selection.transformation.originY).to.equal(0);
+        expect(selection.bounds.center.x).to.equal(0);
+        expect(selection.bounds.center.y).to.equal(0);
+        expect(selection.bounds.area).to.equal(0);
+
+        selection.finish();
     });
 
-    it('items should be added and removed correctly', function () {
-        paper.project.clear();
-
-        var itemA = new paper.Path();
-        var itemB = new paper.Path();
-        var itemC = new paper.Path();
-        var selection = new paper.Selection({
-          items: [itemA, itemB]
-        });
-
-        expect(selection.isItemSelected(itemA)).to.equal(true);
-        expect(selection.isItemSelected(itemB)).to.equal(true);
-        expect(selection.isItemSelected(itemC)).to.equal(false);
-        expect(selection.items.length).to.equal(2);
-    });
-
-    describe('properties', function () {
-        it('properties should be calculated and updated correctly (single path)', function () {
-
-        });
-
-        it('properties should be calculated and updated correctly (multiple paths)', function () {
-            paper.project.clear();
-
-            var itemA = new paper.Path.Rectangle({
-                from: new paper.Point(0,0),
-                to: new paper.Point(50,50),
-                fillColor: 'red',
-            })
-            var itemB = new paper.Path.Rectangle({
-                from: new paper.Point(50,0),
-                to: new paper.Point(100,50),
-                fillColor: 'green',
-            })
-            var itemC = new paper.Path.Rectangle({
-                from: new paper.Point(50,50),
-                to: new paper.Point(100,100),
-                fillColor: 'blue',
-            });
-
-            paper.selection.finish();
-            paper.selection = new paper.Selection({
-              items: [itemA, itemB, itemC],
-            });
-            expect(paper.selection.x).to.be.closeTo(0, 0.01);
-            expect(paper.selection.y).to.be.closeTo(0, 0.01);
-            expect(paper.selection.width).to.be.closeTo(100, 0.01);
-            expect(paper.selection.height).to.be.closeTo(100, 0.01);
-        });
-
-        it('properties should be calculated and updated correctly (single group)', function () {
-
-        });
-
-        it('properties should be calculated and updated correctly (multiple groups)', function () {
-
-        });
-    });
-
-    it('gui items for single object should be created correctly', function () {
+    it('should select and transform paths correctly', function () {
 
     });
 
-    it('gui items for multiple objects should be created correctly', function () {
+    it('should select and transform groups correctly', function () {
+        var paperScope = TestUtils.createPaperScope();
 
-    });
+        //  ---   ---
+        // | 1 | | 2 |
+        //  ---   ---
+        //        ---
+        //       | 3 |
+        //        ---
 
-    it('flip should work correctly', function () {
-
-    });
-
-    describe('ordering', function () {
-        it('sendBackwards should work correctly with one object', function () {
-
+        var path1 = new paperScope.Path.Ellipse({
+            center: new paper.Point(25,25),
+            radius: 25,
+            fillColor: '#ff0000'
+        });
+        var path2 = new paperScope.Path.Ellipse({
+            center: new paper.Point(75,25),
+            radius: 25,
+            fillColor: '#00ff00'
+        });
+        var path3 = new paperScope.Path.Ellipse({
+            center: new paper.Point(75,75),
+            radius: 25,
+            fillColor: '#0000ff'
         });
 
-        it('sendBackwards should work correctly with multiple objects', function () {
-
+        var selection = new paperScope.Selection({
+            layer: paperScope.project.activeLayer,
+            items: [path1, path2, path3],
         });
-
-        it('sendToBack should work correctly with one object', function () {
-
-        });
-
-        it('sendToBack should work correctly with multiple objects', function () {
-
-        });
-
-        it('bringForwards should work correctly with one object', function () {
-
-        });
-
-        it('bringForwards should work correctly with multiple objects', function () {
-
-        });
-
-        it('bringToFront should work correctly with one object', function () {
-
-        });
-
-        it('bringToFront should work correctly with multiple objects', function () {
-
-        });
-    });
-
-    it('finish() should apply transformations to selected items correctly', function () {
-
     });
 });

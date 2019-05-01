@@ -65,4 +65,11 @@ var TestUtils = {
             json: paperPath.exportJSON({asString:false}),
         });
     },
+
+    createPaperScope : () => {
+        var scope = new paper.PaperScope();
+        var dummyCanvas = document.createElement('canvas');
+        scope.setup(dummyCanvas);
+        return scope;
+    },
 };

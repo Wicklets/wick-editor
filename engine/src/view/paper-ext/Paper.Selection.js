@@ -39,16 +39,7 @@ paper.Selection = class {
             this._transformation.originY = this._bounds.center.y;
         }
 
-        paper.Selection._prepareItemsForSelection(this._items);
-
-        this._gui = new paper.SelectionGUI({
-            items: this._items,
-            transformation: this._transformation,
-            bounds: this._bounds,
-        });
-        this._layer.addChild(this._gui.item);
-
-        paper.Selection._transformItems(this._items.concat(this._gui.item), this._transformation);
+        this._create();
     }
 
     /**
@@ -72,7 +63,22 @@ paper.Selection = class {
      * @type {object}
      */
     get transformation () {
-        return this._transformation;
+        // deep copy to protect transformation.
+        return JSON.parse(JSON.stringify(this._transformation));
+    }
+
+    set transformation (transformation) {
+        this._destroy(true);
+        this._transformation = transformation;
+        this._create();
+    }
+
+    /**
+     * Update the transformation with new values.
+     * @param {object} newTransformation - an object containing new values for the transformation.
+     */
+    updateTransformation (newTransformation) {
+        this.transformation = Object.assign(this.transformation, newTransformation);
     }
 
     /**
@@ -88,6 +94,23 @@ paper.Selection = class {
      * @param {boolean} discardTransformation - If set to true, will reset all items to their original transforms before the selection was made.
      */
     finish (discardTransformation) {
+        this._destroy(discardTransformation);
+    }
+
+    _create () {
+        paper.Selection._prepareItemsForSelection(this._items);
+
+        this._gui = new paper.SelectionGUI({
+            items: this._items,
+            transformation: this._transformation,
+            bounds: this._bounds,
+        });
+        this._layer.addChild(this._gui.item);
+
+        paper.Selection._transformItems(this._items.concat(this._gui.item), this._transformation);
+    }
+
+    _destroy (discardTransformation) {
         paper.Selection._freeItemsFromSelection(this.items, discardTransformation);
         this._gui.destroy();
     }
