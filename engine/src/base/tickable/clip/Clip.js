@@ -56,6 +56,7 @@ Wick.Clip = class extends Wick.Tickable {
                 this.activeFrame.addClip(clip);
             });
             paths.forEach(path => {
+                console.warn('do not access path.view here.')
                 path.view.item.position = new paper.Point(
                     path.view.item.position.x - this.transformation.x,
                     path.view.item.position.y - this.transformation.y

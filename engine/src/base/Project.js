@@ -194,8 +194,6 @@ Wick.Project = class extends Wick.Base {
     undo () {
         this.selection.clear();
         var success = this.project.history.popState();
-        this.view.render();
-
         return success;
     }
 
@@ -205,8 +203,6 @@ Wick.Project = class extends Wick.Base {
     redo () {
         this.selection.clear();
         var success = this.project.history.recoverState();
-        this.view.render();
-
         return success;
     }
 
@@ -668,7 +664,6 @@ Wick.Project = class extends Wick.Base {
         this._tickIntervalID = null;
 
         this.history.loadSnapshot('state-before-play');
-        this.view.render();
     }
 
     /**

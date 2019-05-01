@@ -162,7 +162,7 @@ describe('Wick.Project', function() {
             var clip2 = new Wick.Clip();
             clip2.activeFrame.end = 5;
             clip2.timeline.playheadPosition = 4;
-            project.activeFrame.addClip(clip2);
+            project.activeFrame.addClip(clip2); 
 
             // Updating focus should always reset subclip timelines.
             project.focus = project.root;

@@ -141,6 +141,13 @@ Wick.Path = class extends Wick.Base {
     }
 
     /**
+     *
+     */
+    get asset () {
+        return this.view.item.asset;
+    }
+
+    /**
      * Removes this path from its parent frame.
      */
     remove () {

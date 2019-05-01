@@ -77,7 +77,6 @@ Wick.Timeline = class extends Wick.Base {
       // Automatically clear selection when any playhead moves
       if(this.project && this._playheadPosition !== playheadPosition) {
         this.project.selection.clear('Canvas');
-        this.project.view.applyChanges();
       }
 
       this._playheadPosition = playheadPosition;
