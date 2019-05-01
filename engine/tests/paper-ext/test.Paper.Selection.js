@@ -44,7 +44,8 @@ describe('Paper.Selection', function() {
     }
 
     it('should instantiate correctly', function () {
-        var paperScope = TestUtils.createPaperScope();
+        var dummy = createDummyPaperInstance();
+        var paperScope = dummy.paperScope;
 
         var selection = new paperScope.Selection({
             layer: paperScope.project.activeLayer

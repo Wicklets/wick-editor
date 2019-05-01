@@ -70,6 +70,7 @@ var TestUtils = {
         var scope = new paper.PaperScope();
         var dummyCanvas = document.createElement('canvas');
         scope.setup(dummyCanvas);
+        window.paper = scope;
         return scope;
     },
 };
