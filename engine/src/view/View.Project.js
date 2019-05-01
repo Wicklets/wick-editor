@@ -431,6 +431,7 @@ Wick.View.Project = class extends Wick.View {
 
         // Render selection
         this.model.selection.view.render();
+        this.paper.project.addLayer(this.model.selection.view.layer);
     }
 
     _generateSVGCanvasStage () {

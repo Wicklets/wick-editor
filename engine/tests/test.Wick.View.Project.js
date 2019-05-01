@@ -121,6 +121,7 @@ describe('Wick.View.Project', function() {
             expect(paper.project.layers[0].name).to.equal('wick_project_bg');
             expect(paper.project.layers[1].data.wickUUID).to.equal(project.activeFrame.uuid);
             expect(paper.project.layers[2].data.wickUUID).to.equal(project.activeFrame.uuid);
+            expect(paper.project.layers[3]).to.equal(project.selection.view.layer);
         });
 
         it('should create layers correctly for focused clip', function() {
@@ -133,8 +134,10 @@ describe('Wick.View.Project', function() {
             clip.timeline.layers[0].addFrame(new Wick.Frame());
 
             project.view.render(project);
+            expect(paper.project.layers[0].name).to.equal('wick_project_bg');
             expect(paper.project.layers[1].data.wickUUID).to.equal(clip.activeFrame.uuid);
             expect(paper.project.layers[2].data.wickUUID).to.equal(clip.activeFrame.uuid);
+            expect(paper.project.layers[3]).to.equal(project.selection.view.layer);
         });
 
         it('should focus correct layer', function() {
