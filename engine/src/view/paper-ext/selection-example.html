@@ -4,7 +4,7 @@
     <title>paper.js Selection Example</title>
     <style>
       html, body {
-        background-color: gray;
+        background-color: #555;
       }
       #paper-canvas {
         width: 500px;
@@ -24,14 +24,14 @@
 <script>
 window.onload = () => {
     paper.setup(document.getElementById('paper-canvas'));
-    for(var i = 0; i < 20; i++) {
+    for(var i = 1; i <= 3; i++) {
         var rect = new paper.Path.Ellipse({
             center: new paper.Point(
                 Math.random()*400+50,
                 Math.random()*400+50,
             ),
             radius: Math.random() * 25 + 30,
-            fillColor: ['red','#00ff00','cyan','yellow','orange','blue'][Math.floor(Math.random()*6)],
+            fillColor: ['red','#00ff00','cyan','yellow','orange','blue','green'][Math.floor(Math.random()*7)],
             strokeColor: 'black',
         });
         window['rect' + i] = rect;

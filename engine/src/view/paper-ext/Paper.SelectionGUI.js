@@ -63,13 +63,20 @@ paper.SelectionGUI = class {
 
         this.items = args.items;
         this.transformation = args.transformation;
-        this.bounds = args.bounds
+        this.bounds = args.bounds;
 
         this.item = new paper.Group({
             insert: false,
             applyMatrix: false,
         });
         this.item.addChild(this._createBorder());
+    }
+
+    /**
+     * Destroy the GUI.
+     */
+    destroy () {
+        this.item.remove();
     }
 
     _createBorder () {
