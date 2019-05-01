@@ -56,6 +56,7 @@ gulp.task('default', function() {
             'src/view/paper-ext/Layer.erase.js',
             'src/view/paper-ext/Layer.hole.js',
             'src/view/paper-ext/Paper.Selection.js',
+            'src/view/paper-ext/Paper.SelectionGUI.js',
             'src/view/paper-ext/Paper.SelectionBox.js',
             'src/view/paper-ext/Path.potrace.js',
             'src/view/paper-ext/TextItem.edit.js',

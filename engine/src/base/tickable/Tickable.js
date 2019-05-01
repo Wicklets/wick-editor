@@ -231,7 +231,6 @@ Wick.Tickable = class extends Wick.Base {
 
         // Update mouse states.
         this._lastMouseState = this._mouseState;
-        console.warn('do not access view here.')
         if(this.view) this._mouseState = this.view._mouseState;
 
         // Call tick event function that corresponds to state.

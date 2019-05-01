@@ -106,25 +106,7 @@ describe('Wick.History', function() {
         var path2 = new Wick.Path({json: pathJson2});
         project.activeFrame.addPath(path1);
         project.activeFrame.addPath(path2);
-        project.view.render();
-
-        project.history.pushState();
-
-        cursor.activate();
-
-        cursor.onMouseMove({
-            modifiers: {},
-            point: new paper.Point(25,25),
-        });
-        cursor.onMouseDown({
-            modifiers: {},
-            point: new paper.Point(25,25),
-        });
-        cursor.onMouseUp({
-            modifiers: {},
-            point: new paper.Point(25,25),
-            delta: new paper.Point(0,0),
-        });
+        project.selection.select(path1);
 
         project.history.pushState();
         expect(project.selection.getSelectedObject().uuid).to.equal(path1.uuid);
@@ -134,7 +116,6 @@ describe('Wick.History', function() {
 
         expect(project.redo()).to.equal(true);
         expect(project.selection.getSelectedObject().uuid).to.equal(path1.uuid);
-        expect(project.selection.width).to.equal(50);
     });
 
     it('should save and load snapshots', function () {

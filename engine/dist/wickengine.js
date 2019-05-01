@@ -64984,7 +64984,7 @@ TWEEN.Interpolation = {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -65007,7 +65007,7 @@ TWEEN.Interpolation = {
  */
 Wick = {
   /* Major.Minor.Patch[ReleaseType] */
-  version: "1.0.8a"
+  version: "1.0.9a"
 };
 console.log("Wick Engine " + Wick.version + " is available."); // Ensure that the Wick namespace is accessible in environments where globals are finicky (react, webpack, etc)
 
@@ -65015,7 +65015,7 @@ window.Wick = Wick;
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -65082,7 +65082,7 @@ Wick.Clipboard = class {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -65171,7 +65171,7 @@ Wick.FileCache = new WickFileCache();
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -65285,7 +65285,7 @@ Wick.History = class {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -65406,7 +65406,7 @@ Wick.ObjectCache = new WickObjectCache();
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -65472,7 +65472,7 @@ Wick.Transformation = class {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -65582,7 +65582,7 @@ Wick.WickFile = class {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -65945,7 +65945,7 @@ Wick.Base = class {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -66140,7 +66140,7 @@ Wick.Layer = class extends Wick.Base {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -66238,6 +66238,22 @@ Wick.Project = class extends Wick.Base {
     data.onionSkinSeekForwards = this.onionSkinSeekForwards;
     data.onionSkinSeekBackwards = this.onionSkinSeekBackwards;
     data.focus = this.focus.uuid;
+    data.metadata = {
+      wickengine: Wick.version,
+      platform: {
+        name: platform.name,
+        version: platform.version,
+        product: platform.product,
+        manufacturer: platform.manufacturer,
+        layout: platform.layout,
+        os: {
+          architecture: platform.os.architecture,
+          family: platform.os.family,
+          version: platform.os.version
+        },
+        description: platform.description
+      }
+    };
     return data;
   }
   /**
@@ -66334,7 +66350,6 @@ Wick.Project = class extends Wick.Base {
   undo() {
     this.selection.clear();
     var success = this.project.history.popState();
-    this.view.render();
     return success;
   }
   /**
@@ -66345,7 +66360,6 @@ Wick.Project = class extends Wick.Base {
   redo() {
     this.selection.clear();
     var success = this.project.history.recoverState();
-    this.view.render();
     return success;
   }
   /**
@@ -66687,8 +66701,8 @@ Wick.Project = class extends Wick.Base {
     }
 
     var transformation = new Wick.Transformation();
-    transformation.x = this.selection.center.x;
-    transformation.y = this.selection.center.y;
+    transformation.x = this.selection.view.paper.project.selection.bounds.center.x;
+    transformation.y = this.selection.view.paper.project.selection.bounds.center.y;
     var clip = new Wick[args.type]({
       identifier: args.identifier,
       objects: this.selection.getSelectedObjects('Canvas'),
@@ -66769,10 +66783,10 @@ Wick.Project = class extends Wick.Base {
 
 
   tick() {
-    this.view.processInput();
-    var error = this.focus.tick();
-    this.view.render();
-    this.activeTimeline.guiElement.numberLine.playhead.build();
+    //this.view.processInput();
+    var error = this.focus.tick(); //this.view.render();
+    //this.activeTimeline.guiElement.numberLine.playhead.build();
+
     this._keysLastDown = [].concat(this._keysDown); //!!!!!!!!!!!!!!!
 
     return error;
@@ -66797,8 +66811,8 @@ Wick.Project = class extends Wick.Base {
     }
 
     this.history.saveSnapshot('state-before-play');
-    this.selection.clear();
-    this.view.renderMode = 'webgl'; // Start tick loop
+    this.selection.clear(); //this.view.renderMode = 'webgl';
+    // Start tick loop
 
     this._tickIntervalID = setInterval(() => {
       args.onBeforeTick();
@@ -66819,12 +66833,11 @@ Wick.Project = class extends Wick.Base {
 
 
   stop() {
-    this.stopAllSounds();
-    this.view.renderMode = 'svg';
+    this.stopAllSounds(); //this.view.renderMode = 'svg';
+
     clearInterval(this._tickIntervalID);
     this._tickIntervalID = null;
     this.history.loadSnapshot('state-before-play');
-    this.view.render();
   }
   /**
    * Resets zoom and pan.
@@ -66947,7 +66960,7 @@ Wick.Project = class extends Wick.Base {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -67026,10 +67039,7 @@ Wick.Selection = class extends Wick.Base {
       this.clear();
     }
 
-    this._selectedObjectsUUIDs.push(object.uuid); // Update the view so that all the selection transform values are updated
-
-
-    this.project.view.render();
+    this._selectedObjectsUUIDs.push(object.uuid);
   }
   /**
    * Remove a wick object from the selection.
@@ -67040,9 +67050,7 @@ Wick.Selection = class extends Wick.Base {
   deselect(object) {
     this._selectedObjectsUUIDs = this._selectedObjectsUUIDs.filter(uuid => {
       return uuid !== object.uuid;
-    }); // Update the view so that all the selection transform values are updated
-
-    this.project.view.render();
+    });
   }
   /**
    * Remove all objects from the selection with an optional filter.
@@ -67053,9 +67061,7 @@ Wick.Selection = class extends Wick.Base {
   clear(filter) {
     this.project.selection.getSelectedObjects(filter).forEach(object => {
       this.deselect(object);
-    }); // Update the view so that all the selection transform values are updated
-
-    this.project.view.render();
+    });
   }
   /**
    * Checks if a given object is selected.
@@ -67149,255 +67155,6 @@ Wick.Selection = class extends Wick.Base {
   get numObjects() {
     return this._selectedObjectsUUIDs.length;
   }
-  /**
-   * The X position of the selection. This always uses the top-left corner of the objects.
-   */
-
-
-  get x() {
-    return Wick.View.paperScope.selection.x;
-  }
-
-  set x(x) {
-    Wick.View.paperScope.selection.x = x;
-  }
-  /**
-   * The Y position of the selection. This always uses the top-left corner of the objects.
-   */
-
-
-  get y() {
-    return Wick.View.paperScope.selection.y;
-  }
-
-  set y(y) {
-    Wick.View.paperScope.selection.y = y;
-  }
-  /**
-   * The width of the selected objects.
-   */
-
-
-  get width() {
-    return Wick.View.paperScope.selection.width;
-  }
-
-  set width(width) {
-    Wick.View.paperScope.selection.width = width;
-  }
-  /**
-   * The height of the selected objects.
-   */
-
-
-  get height() {
-    return Wick.View.paperScope.selection.height;
-  }
-
-  set height(height) {
-    Wick.View.paperScope.selection.height = height;
-  }
-  /**
-   * The X scale of the selected objects.
-   */
-
-
-  get scaleX() {
-    return Wick.View.paperScope.selection.scaleX;
-  }
-
-  set scaleX(scaleX) {
-    Wick.View.paperScope.selection.scaleX = scaleX;
-  }
-  /**
-   * The Y scale of the selected objects.
-   */
-
-
-  get scaleY() {
-    return Wick.View.paperScope.selection.scaleY;
-  }
-
-  set scaleY(scaleY) {
-    Wick.View.paperScope.selection.scaleY = scaleY;
-  }
-  /**
-   * The rotation of the selected objects.
-   */
-
-
-  get rotation() {
-    return Wick.View.paperScope.selection.rotation;
-  }
-
-  set rotation(rotation) {
-    Wick.View.paperScope.selection.rotation = rotation;
-  }
-  /**
-   * The fill color of the selected objects.
-   * Will return an array of multiple colors if the selected objects have different colors.
-   */
-
-
-  get fillColor() {
-    return Wick.View.paperScope.selection.fillColor;
-  }
-
-  set fillColor(fillColor) {
-    Wick.View.paperScope.selection.fillColor = fillColor;
-  }
-  /**
-   * The stroke width of the selected objects.
-   * Will return an array of multiple values if the selected objects have different stroke widths.
-   */
-
-
-  get strokeWidth() {
-    return Wick.View.paperScope.selection.strokeWidth;
-  }
-
-  set strokeWidth(strokeWidth) {
-    Wick.View.paperScope.selection.strokeWidth = strokeWidth;
-  }
-  /**
-   * The stroke color of the selected objects.
-   * Will return an array of multiple colors if the selected objects have different colors.
-   */
-
-
-  get strokeColor() {
-    return Wick.View.paperScope.selection.strokeColor;
-  }
-
-  set strokeColor(strokeColor) {
-    Wick.View.paperScope.selection.strokeColor = strokeColor;
-  }
-  /**
-   * The opacity color of the selected objects.
-   * Will return an array of multiple values if the selected objects have different stroke widths.
-   */
-
-
-  get opacity() {
-    return Wick.View.paperScope.selection.opacity;
-  }
-
-  set opacity(opacity) {
-    Wick.View.paperScope.selection.opacity = opacity;
-  }
-  /**
-   * The centerpoint of the selected objects.
-   */
-
-
-  get center() {
-    return Wick.View.paperScope.selection.center;
-  }
-  /**
-   * The identifier of the selection.
-   * If there are multiple objects selected, null is always returned.
-   */
-
-
-  get identifier() {
-    if (this.numObjects !== 1) {
-      return null;
-    } else {
-      return this.getSelectedObject().identifier;
-    }
-  }
-
-  set identifier(identifier) {
-    if (this.numObjects === 1) {
-      this.getSelectedObject().identifier = identifier;
-    }
-  }
-  /**
-   * The sound attached to the selected object.
-   * If there is no sound, or multiple frames are selected, null is returned.
-   */
-
-
-  get sound() {
-    if (this.numObjects !== 1) {
-      return null;
-    } else {
-      return this.getSelectedObject().sound;
-    }
-  }
-
-  set sound(sound) {
-    if (this.numObjects === 1 && this.getSelectedObject() instanceof Wick.Frame) {
-      this.getSelectedObject().sound = sound;
-    }
-  }
-  /**
-   * The volume of the sound attached to the selected object.
-   * If there is no sound, or multiple frames are selected, null is returned.
-   */
-
-
-  get soundVolume() {
-    if (this.sound) {
-      return this.getSelectedObject().soundVolume;
-    } else {
-      return null;
-    }
-  }
-
-  set soundVolume(soundVolume) {
-    if (this.sound) {
-      this.getSelectedObject().soundVolume = soundVolume;
-    }
-  }
-  /**
-   * Flip the selected items horizontally.
-   */
-
-
-  flipHorizontally() {
-    Wick.View.paperScope.selection.flipHorizontally();
-  }
-  /**
-   * Flip the selected items vertically.
-   */
-
-
-  flipVertically() {
-    Wick.View.paperScope.selection.flipVertically();
-  }
-  /**
-   * Move all selected items to be behind all other objects.
-   */
-
-
-  sendToBack() {
-    Wick.View.paperScope.selection.sendToBack();
-  }
-  /**
-   * Move all selected items to be in front of all other objects.
-   */
-
-
-  bringToFront() {
-    Wick.View.paperScope.selection.bringToFront();
-  }
-  /**
-   * Move all selected items backwards one place.
-   */
-
-
-  moveBackwards() {
-    Wick.View.paperScope.selection.moveBackwards();
-  }
-  /**
-   * Move all selected items forwards one place.
-   */
-
-
-  moveForwards() {
-    Wick.View.paperScope.selection.moveForwards();
-  }
 
   _locationOf(object) {
     if (object instanceof Wick.Frame || object instanceof Wick.Tween || object instanceof Wick.Layer) {
@@ -67413,7 +67170,7 @@ Wick.Selection = class extends Wick.Base {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -67487,7 +67244,6 @@ Wick.Timeline = class extends Wick.Base {
     // Automatically clear selection when any playhead moves
     if (this.project && this._playheadPosition !== playheadPosition) {
       this.project.selection.clear('Canvas');
-      this.project.view.applyChanges();
     }
 
     this._playheadPosition = playheadPosition;
@@ -67849,7 +67605,7 @@ Wick.Timeline = class extends Wick.Base {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -68007,7 +67763,7 @@ Wick.Tween = class extends Wick.Base {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -68152,6 +67908,14 @@ Wick.Path = class extends Wick.Base {
     };
   }
   /**
+   *
+   */
+
+
+  get asset() {
+    return this.view.item.asset;
+  }
+  /**
    * Removes this path from its parent frame.
    */
 
@@ -68164,7 +67928,7 @@ Wick.Path = class extends Wick.Base {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -68211,7 +67975,7 @@ Wick.Asset = class extends Wick.Base {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -68319,7 +68083,7 @@ Wick.FileAsset = class extends Wick.Asset {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -68380,7 +68144,7 @@ Wick.ImageAsset = class extends Wick.FileAsset {
   removeAllInstances() {
     this.project.getAllFrames().forEach(frame => {
       frame.paths.forEach(path => {
-        if (path.view.item.asset === this.uuid) {
+        if (path.asset === this.uuid) {
           path.remove();
         }
       });
@@ -68408,7 +68172,7 @@ Wick.ImageAsset = class extends Wick.FileAsset {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -68545,7 +68309,7 @@ Wick.ClipAsset = class extends Wick.Asset {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -68664,7 +68428,7 @@ Wick.SoundAsset = class extends Wick.FileAsset {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -68941,7 +68705,7 @@ GlobalAPI.Random = class {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -69298,7 +69062,7 @@ Wick.Tickable = class extends Wick.Base {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -69741,7 +69505,7 @@ Wick.Frame = class extends Wick.Tickable {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -69781,21 +69545,7 @@ Wick.Clip = class extends Wick.Tickable {
     /* If objects are passed in, add them to the clip and reposition them */
 
     if (args.objects) {
-      var clips = args.objects.filter(object => {
-        return object instanceof Wick.Clip;
-      });
-      var paths = args.objects.filter(object => {
-        return object instanceof Wick.Path;
-      });
-      clips.forEach(clip => {
-        clip.transformation.x -= this.transformation.x;
-        clip.transformation.y -= this.transformation.y;
-        this.activeFrame.addClip(clip);
-      });
-      paths.forEach(path => {
-        path.view.item.position = new paper.Point(path.view.item.position.x - this.transformation.x, path.view.item.position.y - this.transformation.y);
-        this.activeFrame.addPath(path);
-      });
+      this.addObjects(args.objects);
     }
   }
 
@@ -69911,6 +69661,7 @@ Wick.Clip = class extends Wick.Tickable {
   }
   /**
    * Remove this clip and add all of its paths and clips to its parent frame.
+   * @returns {Wick.Base[]} the objects that were inside the clip.
    */
 
 
@@ -69932,6 +69683,29 @@ Wick.Clip = class extends Wick.Tickable {
     });
     this.remove();
     return leftovers;
+  }
+  /**
+   * Add paths and clips to this clip.
+   * @param {Wick.Base[]} objects - the paths and clips to add to the clip
+   */
+
+
+  addObjects(objects) {
+    var clips = objects.filter(object => {
+      return object instanceof Wick.Clip;
+    });
+    var paths = objects.filter(object => {
+      return object instanceof Wick.Path;
+    });
+    clips.forEach(clip => {
+      clip.transformation.x -= this.transformation.x;
+      clip.transformation.y -= this.transformation.y;
+      this.activeFrame.addClip(clip);
+    });
+    paths.forEach(path => {
+      path.view.item.position = new paper.Point(path.view.item.position.x - this.transformation.x, path.view.item.position.y - this.transformation.y);
+      this.activeFrame.addPath(path);
+    });
   }
   /**
    * Stops a clip's timeline on that clip's current playhead position.
@@ -70203,7 +69977,7 @@ Wick.Clip = class extends Wick.Tickable {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -70287,7 +70061,7 @@ Wick.Button = class extends Wick.Clip {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Paper.js-drawing-tools.
 *
@@ -70459,7 +70233,7 @@ Wick.Button = class extends Wick.Clip {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Paper.js-drawing-tools.
 *
@@ -70801,7 +70575,247 @@ Wick.Button = class extends Wick.Clip {
   });
 })();
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* Copyright 2019 WICKLETS LLC
+*
+* This file is part of Wick Engine.
+*
+* Wick Engine is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Wick Engine is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+*/
 paper.Selection = class {
+  /**
+   * Create a new paper.js selection.
+   * @param {paper.Layer} layer - the layer to add the selection GUI to. Defaults to the active layer.
+   * @param {paper.Item[]} items - the items to select.
+   * @param {number} x - the amount the selection is translated on the x-axis
+   * @param {number} y - the amount the selection is translated on the y-axis
+   * @param {number} scaleX - the amount the selection is scaled on the x-axis
+   * @param {number} scaleY - the amount the selection is scaled on the y-axis
+   * @param {number} rotation - the amount the selection is rotated
+   * @param {number} originX - the origin point of all transforms. Defaults to the center of selected items.
+   * @param {number} originY - the origin point of all transforms. Defaults to the center of selected items.
+   */
+  constructor(args) {
+    if (!args) args = {};
+    this._layer = args.layer || paper.project.activeLayer;
+    this._items = args.items || [];
+    this._transformation = {
+      x: args.x || 0,
+      y: args.y || 0,
+      scaleX: args.scaleX || 1.0,
+      scaleY: args.scaleY || 1.0,
+      rotation: args.rotation || 0,
+      originX: 0,
+      originY: 0
+    };
+    this._bounds = paper.Selection._getBoundsOfItems(this._items);
+
+    if (args.originX !== undefined) {
+      this._transformation.originX = args.originX;
+    } else {
+      this._transformation.originX = this._bounds.center.x;
+    }
+
+    if (args.originY !== undefined) {
+      this._transformation.originY = args.originY;
+    } else {
+      this._transformation.originY = this._bounds.center.y;
+    }
+
+    this._create();
+  }
+  /**
+   * The layer where the selection GUI was created.
+   * @type {paper.Layer}
+   */
+
+
+  get layer() {
+    return this._layer;
+  }
+  /**
+   * The items in this selection.
+   * @type {paper.Item[]}
+   */
+
+
+  get items() {
+    return this._items;
+  }
+  /**
+   * The transformation applied to the selected items.
+   * @type {object}
+   */
+
+
+  get transformation() {
+    // deep copy to protect transformation.
+    return JSON.parse(JSON.stringify(this._transformation));
+  }
+
+  set transformation(transformation) {
+    this._destroy(true);
+
+    this._transformation = transformation;
+
+    this._create();
+  }
+  /**
+   * Update the transformation with new values.
+   * @param {object} newTransformation - an object containing new values for the transformation.
+   */
+
+
+  updateTransformation(newTransformation) {
+    this.transformation = Object.assign(this.transformation, newTransformation);
+  }
+  /**
+   * The bounds of selected items, i.e., the smallest rectangle that contains all items in the selection.
+   * @type {paper.Rectangle}
+   */
+
+
+  get bounds() {
+    return this._bounds;
+  }
+  /**
+   * Finish and destroy the selection.
+   * @param {boolean} discardTransformation - If set to true, will reset all items to their original transforms before the selection was made.
+   */
+
+
+  finish(args) {
+    if (!args) args = {};
+    if (args.discardTransformation === undefined) args.discardTransformation = false;
+
+    this._destroy(args.discardTransformation);
+  }
+
+  _create() {
+    paper.Selection._prepareItemsForSelection(this._items);
+
+    this._gui = new paper.SelectionGUI({
+      items: this._items,
+      transformation: this._transformation,
+      bounds: this._bounds
+    });
+
+    this._layer.addChild(this._gui.item);
+
+    paper.Selection._transformItems(this._items.concat(this._gui.item), this._transformation);
+  }
+
+  _destroy(discardTransformation) {
+    paper.Selection._freeItemsFromSelection(this.items, discardTransformation);
+
+    this._gui.destroy();
+  }
+
+  static _prepareItemsForSelection(items) {
+    items.forEach(item => {
+      item.data.originalMatrix = item.matrix.clone();
+      item.applyMatrix = false;
+    });
+  }
+
+  static _freeItemsFromSelection(items, discardTransforms) {
+    // Reset matrix and applyMatrix to what is was before we added it to the selection
+    items.forEach(item => {
+      if (item.data.originalMatrix && discardTransforms) {
+        item.matrix.set(item.data.originalMatrix);
+      }
+    });
+    items.filter(item => {
+      return item instanceof paper.Path || item instanceof paper.CompoundPath;
+    }).forEach(item => {
+      item.applyMatrix = true;
+    }); // Delete the matrix we stored so it doesn't interfere with anything later
+
+    items.forEach(item => {
+      delete item.data.originalMatrix;
+    });
+  }
+
+  static _transformItems(items, transformation) {
+    var matrix = paper.Selection._buildTransformationMatrix(transformation);
+
+    items.forEach(item => {
+      if (item.data.originalMatrix) {
+        item.matrix.set(item.data.originalMatrix);
+      } else {
+        item.matrix.set(new paper.Matrix());
+      }
+
+      item.matrix.prepend(matrix);
+    });
+  }
+
+  static _buildTransformationMatrix(transformation) {
+    var matrix = new paper.Matrix();
+    matrix.translate(transformation.originX, transformation.originY);
+    matrix.translate(transformation.x, transformation.y);
+    matrix.rotate(transformation.rotation);
+    matrix.scale(transformation.scaleX, transformation.scaleY);
+    matrix.translate(new paper.Point(0, 0).subtract(new paper.Point(transformation.originX, transformation.originY)));
+    return matrix;
+  }
+  /* helper function: calculate the bounds of the smallest rectangle that contains all given items. */
+
+
+  static _getBoundsOfItems(items) {
+    if (items.length === 0) return new paper.Rectangle();
+    var bounds = null;
+    items.forEach(item => {
+      bounds = bounds ? bounds.unite(item.bounds) : item.bounds;
+    });
+    return bounds;
+  }
+
+};
+paper.PaperScope.inject({
+  Selection: paper.Selection
+});
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* Copyright 2019 WICKLETS LLC
+*
+* This file is part of Wick Engine.
+*
+* Wick Engine is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Wick Engine is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
+/**
+ * This is a utility class for creating a selection box GUI. this will give you:
+ *  - a bounding box
+ *  - handles for scaling
+ *  - hotspots for rotating
+ *  - ...and much more!
+ */
+paper.SelectionGUI = class {
   static get BOX_STROKE_WIDTH() {
     return 1;
   }
@@ -70815,11 +70829,11 @@ paper.Selection = class {
   }
 
   static get HANDLE_STROKE_WIDTH() {
-    return paper.Selection.BOX_STROKE_WIDTH;
+    return paper.SelectionGUI.BOX_STROKE_WIDTH;
   }
 
   static get HANDLE_STROKE_COLOR() {
-    return paper.Selection.BOX_STROKE_COLOR;
+    return paper.SelectionGUI.BOX_STROKE_COLOR;
   }
 
   static get HANDLE_FILL_COLOR() {
@@ -70827,7 +70841,7 @@ paper.Selection = class {
   }
 
   static get PIVOT_STROKE_WIDTH() {
-    return paper.Selection.BOX_STROKE_WIDTH;
+    return paper.SelectionGUI.BOX_STROKE_WIDTH;
   }
 
   static get PIVOT_FILL_COLOR() {
@@ -70839,7 +70853,7 @@ paper.Selection = class {
   }
 
   static get PIVOT_RADIUS() {
-    return paper.Selection.HANDLE_RADIUS;
+    return paper.SelectionGUI.HANDLE_RADIUS;
   }
 
   static get ROTATION_HOTSPOT_RADIUS() {
@@ -70847,792 +70861,173 @@ paper.Selection = class {
   }
 
   static get ROTATION_HOTSPOT_FILLCOLOR() {
-    return 'rgba(100,150,255,0.5)'; // don't show hotspots:
+    return 'rgba(100,150,255,0.5)'; // don't show rotation hotspots:
     //return 'rgba(255,0,0,0.0001)';
   }
   /**
-   * Create a new selection.
-   * Arguments:
-   *  - layer: the layer to add the selection GUI to
-   *  - items: the items to select
-   * @param {object} args - Arguments for the selection.
+   * Create a selection GUI.
+   * @param {paper.Item[]} items - (required) the items to create a GUI around.
+   * @param {object} transformation - (required) the transformation to apply to the selected items and to the GUI.
    */
 
 
   constructor(args) {
-    args = args || {};
-    this._layer = args.layer || paper.project.activeLayer;
-    this._items = args.items || [];
-    this._box = new paper.Group();
-    this._matrix = new paper.Matrix();
-    this._pivotPoint = new paper.Point();
-    this._transform = {
-      x: 0,
-      y: 0,
-      scaleX: 1.0,
-      scaleY: 1.0,
-      rotation: 0
-    };
-    this._handleDragMode = 'scale';
-    this._lockScalingToAspectRatio = false; // Default pivot point is the center of all items.
-
-    this._pivotPoint = this._boundsOfItems(this._items).center; // It simplifies everything if we force applyMatrix=false on everything before doing any transforms.
-    // We need to save the old data that we may lose, though.
-
-    this._items.forEach(item => {
-      item.data.originalMatrix = item.matrix.clone();
-      item.applyMatrix = false;
+    if (!args) console.error('paper.SelectionGUI: args is required');
+    if (!args.items) console.error('paper.SelectionGUI: args.items is required');
+    if (!args.transformation) console.error('paper.SelectionGUI: args.transformation is required');
+    if (!args.bounds) console.error('paper.SelectionGUI: args.bounds is required');
+    this.items = args.items;
+    this.transformation = args.transformation;
+    this.bounds = args.bounds;
+    this.item = new paper.Group({
+      insert: false,
+      applyMatrix: false
     });
-
-    if (this._items.length === 1) {
-      var item = this._items[0]; // Single item: Use the origin as the pivot point if its a group.
-
-      if (item instanceof paper.Group || item instanceof paper.Raster) {
-        this._pivotPoint = item.position;
-      } // Single item: Use all transforms of the single item as the selection transforms
-
-
-      this.rotation = item.rotation;
-      item.rotation = 0;
-      item.data.originalMatrix = item.matrix.clone();
-    } else {// No items: We don't have to do anything
-    }
-
-    this._render();
-  }
-  /**
-   * The type of transformation to use while dragging handles. Can be 'scale' or 'rotation'.
-   */
-
-
-  get handleDragMode() {
-    return this._handleDragMode;
-  }
-
-  set handleDragMode(handleDragMode) {
-    if (handleDragMode === 'scale' || handleDragMode === 'rotation') {
-      this._handleDragMode = handleDragMode;
-    } else {
-      console.error('Paper.Selection: Invalid handleDragMode: ' + handleDragMode);
-      console.error('Valid handleDragModes: "scale", "rotation"');
-    }
-  }
-  /**
-   * Toggles if scaling will preserve aspect ratio.
-   * @type {boolean}
-   */
-
-
-  get lockScalingToAspectRatio() {
-    return this._lockScalingToAspectRatio;
-  }
-
-  set lockScalingToAspectRatio(lockScalingToAspectRatio) {
-    this._lockScalingToAspectRatio = lockScalingToAspectRatio;
-  }
-  /**
-   *
-   */
-
-
-  get box() {
-    return this._box;
-  }
-  /**
-   *
-   */
-
-
-  get items() {
-    return this._items;
-  }
-  /**
-   *
-   */
-
-
-  get x() {
-    return this.topLeft.x;
-  }
-
-  set x(x) {
-    var d = x - this.x;
-    this._transform.x += d;
-
-    this._render();
-  }
-  /**
-   *
-   */
-
-
-  get y() {
-    return this.topLeft.y;
-  }
-
-  set y(y) {
-    var d = y - this.y;
-    this._transform.y += d;
-
-    this._render();
-  }
-  /**
-   *
-   */
-
-
-  get rotation() {
-    return this._transform.rotation;
-  }
-
-  set rotation(rotation) {
-    var d = rotation - this._transform.rotation;
-    this._transform.rotation += d;
-
-    this._render();
-  }
-  /**
-   *
-   */
-
-
-  get scaleX() {
-    return this._transform.scaleX;
-  }
-
-  set scaleX(scaleX) {
-    var d = scaleX / this._transform.scaleX;
-    this._transform.scaleX *= d;
-
-    this._render();
-  }
-  /**
-   *
-   */
-
-
-  get scaleY() {
-    return this._transform.scaleY;
-  }
-
-  set scaleY(scaleY) {
-    var d = scaleY / this._transform.scaleY;
-    this._transform.scaleY *= d;
-
-    this._render();
-  }
-  /**
-   *
-   */
-
-
-  get width() {
-    return this._bounds.width * this.scaleX;
-  }
-
-  set width(width) {
-    this.scaleX = width / this._bounds.width;
-  }
-  /**
-   *
-   */
-
-
-  get height() {
-    return this._bounds.height * this.scaleY;
-  }
-
-  set height(height) {
-    this.scaleY = height / this._bounds.height;
-  }
-  /**
-   *
-   */
-
-
-  get strokeWidth() {
-    return this._getUniqueProperties('strokeWidth');
-  }
-
-  set strokeWidth(strokeWidth) {
-    this._items.forEach(item => {
-      item.strokeWidth = strokeWidth;
-    });
-  }
-  /**
-   *
-   */
-
-
-  get strokeColor() {
-    return this._getUniqueProperties('strokeColor', color => {
-      return color.toCSS();
-    });
-  }
-
-  set strokeColor(strokeColor) {
-    this._items.forEach(item => {
-      item.strokeColor = strokeColor;
-    });
-  }
-  /**
-   *
-   */
-
-
-  get fillColor() {
-    return this._getUniqueProperties('fillColor', color => {
-      return color.toCSS();
-    });
-  }
-
-  set fillColor(fillColor) {
-    this._items.forEach(item => {
-      item.fillColor = fillColor;
-    });
-  }
-  /**
-   *
-   */
-
-
-  get opacity() {
-    return this._getUniqueProperties('opacity');
-  }
-
-  set opacity(opacity) {
-    this._items.forEach(item => {
-      item.opacity = opacity;
-    });
-  }
-  /**
-   *
-   */
-
-
-  get fontSize() {
-    return this._getUniqueProperties('fontSize');
-  }
-
-  set fontSize(fontSize) {
-    this._items.forEach(item => {
-      item.fontSize = fontSize;
-    });
-  }
-  /**
-   *
-   */
-
-
-  get fontFamily() {
-    return this._getUniqueProperties('fontFamily');
-  }
-
-  set fontFamily(fontFamily) {
-    this._items.forEach(item => {
-      item.fontFamily = fontFamily;
-    });
-  }
-  /**
-   *
-   */
-
-
-  get topLeft() {
-    return this._getHandlePosition('topLeft');
-  }
-
-  set topLeft(topLeft) {
-    this._setHandlePosition('topLeft', topLeft);
-  }
-  /**
-   *
-   */
-
-
-  get topRight() {
-    return this._getHandlePosition('topRight');
-  }
-
-  set topRight(topRight) {
-    this._setHandlePosition('topRight', topRight);
-  }
-  /**
-   *
-   */
-
-
-  get bottomLeft() {
-    return this._getHandlePosition('bottomLeft');
-  }
-
-  set bottomLeft(bottomLeft) {
-    this._setHandlePosition('bottomLeft', bottomLeft);
-  }
-  /**
-   *
-   */
-
-
-  get bottomRight() {
-    return this._getHandlePosition('bottomRight');
-  }
-
-  set bottomRight(bottomRight) {
-    this._setHandlePosition('bottomRight', bottomRight);
-  }
-  /**
-   *
-   */
-
-
-  get topCenter() {
-    return this._getHandlePosition('topCenter');
-  }
-
-  set topCenter(topCenter) {
-    this._setHandlePosition('topCenter', topCenter);
-  }
-  /**
-   *
-   */
-
-
-  get bottomCenter() {
-    return this._getHandlePosition('bottomCenter');
-  }
-
-  set bottomCenter(bottomCenter) {
-    this._setHandlePosition('bottomCenter', bottomCenter);
-  }
-  /**
-   *
-   */
-
-
-  get leftCenter() {
-    return this._getHandlePosition('leftCenter');
-  }
-
-  set leftCenter(leftCenter) {
-    this._setHandlePosition('leftCenter', leftCenter);
-  }
-  /**
-   *
-   */
-
-
-  get rightCenter() {
-    return this._getHandlePosition('rightCenter');
-  }
-
-  set rightCenter(rightCenter) {
-    this._setHandlePosition('rightCenter', rightCenter);
-  }
-  /**
-   *
-   */
-
-
-  get center() {
-    return this._box.bounds.center;
-  }
-  /**
-   * The point that all transformations will use as their origin.
-   */
-
-
-  get pivotPoint() {
-    return this._pivotPoint;
-  }
-
-  set pivotPoint(pivotPoint) {
-    this._pivotPoint = pivotPoint;
-
-    this._render();
-  }
-  /**
-   * Flip the selected items horizontally.
-   */
-
-
-  flipHorizontally() {
-    this._transform.scaleX *= -1;
-
-    this._render();
-  }
-  /**
-   * Flip the selected items vertically.
-   */
-
-
-  flipVertically() {
-    this._transform.scaleY *= -1;
-
-    this._render();
-  }
-  /**
-   * Move all selected items to be behind all other objects.
-   */
-
-
-  sendToBack() {
-    this._getSelectedItemsSortedByZIndex().reverse().forEach(item => {
-      item.sendToBack();
-    });
-  }
-  /**
-   * Move all selected items to be in front of all other objects.
-   */
-
-
-  bringToFront() {
-    this._getSelectedItemsSortedByZIndex().forEach(item => {
-      item.bringToFront();
-    });
-  }
-  /**
-   * Move all selected items backwards one place.
-   */
-
-
-  moveBackwards() {
-    this._getSelectedItemsSortedByZIndex().reverse().forEach(item => {
-      if (item.previousSibling && this._items.indexOf(item.previousSibling) === -1) {
-        item.insertBelow(item.previousSibling);
-      }
-    });
-  }
-  /**
-   * Move all selected items forwards one place.
-   */
-
-
-  moveForwards() {
-    this._getSelectedItemsSortedByZIndex().forEach(item => {
-      if (item.nextSibling && this._items.indexOf(item.nextSibling) === -1) {
-        item.insertAbove(item.nextSibling);
-      }
-    });
-  }
-  /**
-   * Destroy the selection and apply the selection transformations.
-   */
-
-
-  finish() {
-    // Do some cleanup.
-    // Reset applyMatrix to what is was before we added it to the selection
-    this._items.filter(item => {
-      return item instanceof paper.Path || item instanceof paper.CompoundPath;
-    }).forEach(item => {
-      item.applyMatrix = true;
-    }); // Delete the matrix we stored in groups/rasters so it doesn't interfere with anything later
-
-
-    this._items.filter(item => {
-      return item instanceof paper.Group || item instanceof paper.Raster;
-    }).forEach(item => {
-      delete item.data.originalMatrix;
-    });
-
-    this._box.remove();
-  }
-  /**
-   * Check if an item is selected.
-   * @param {Item} item - the item to check selection of
-   */
-
-
-  isItemSelected(item) {
-    return this._items.indexOf(item) > -1;
-  }
-
-  _render() {
-    // Reset all transforms of all items.
-    this._items.forEach(item => {
-      item.matrix.set(item.data.originalMatrix);
-    }); // Recalculate bounds, we need this to generate the new box GUI
-
-
-    this._bounds = this._boundsOfItems(this._items); // Build the new matrix based on the new selection transforms, apply it to selection
-
-    this._matrix = new paper.Matrix();
-
-    this._matrix.translate(this._pivotPoint);
-
-    this._matrix.translate(this._transform.x, this._transform.y);
-
-    this._matrix.rotate(this._transform.rotation);
-
-    this._matrix.scale(this._transform.scaleX, this._transform.scaleY);
-
-    this._matrix.translate(new paper.Point(0, 0).subtract(this._pivotPoint));
-
-    this._items.forEach(item => {
-      item.matrix.prepend(this._matrix);
-    }); // Regen box GUI
-
-
-    this._box.remove();
-
-    this._box = this._generateBox();
-
-    this._box.matrix.prepend(this._matrix);
-  }
-
-  _generateBox() {
-    var box = new paper.Group({
-      insert: false
-    }); // No items - don't even put anything in the box, we don't need to
-
-    if (this.items.length === 0) return box;
-
-    this._layer.addChild(box);
-
-    box.addChild(this._generateBorder());
+    this.item.addChild(this._createBorder());
 
     if (this.items.length > 1) {
-      box.addChildren(this._generatePathOutlines());
-      box.addChildren(this._generateGroupOutlines());
+      this.item.addChildren(this._createItemOutlines());
     }
 
-    box.addChild(this._generateRotationHotspot('topLeft'));
-    box.addChild(this._generateRotationHotspot('topRight'));
-    box.addChild(this._generateRotationHotspot('bottomLeft'));
-    box.addChild(this._generateRotationHotspot('bottomRight'));
-    box.addChild(this._generateScalingHandle('topLeft'));
-    box.addChild(this._generateScalingHandle('topRight'));
-    box.addChild(this._generateScalingHandle('bottomLeft'));
-    box.addChild(this._generateScalingHandle('bottomRight'));
-    box.addChild(this._generateScalingHandle('topCenter'));
-    box.addChild(this._generateScalingHandle('bottomCenter'));
-    box.addChild(this._generateScalingHandle('leftCenter'));
-    box.addChild(this._generateScalingHandle('rightCenter'));
-    box.addChild(this._generatePivotPointHandle()); // Set a flag just so we don't accidentily treat these GUI elements as actual paths...
+    this.item.addChild(this._createRotationHotspot('topLeft'));
+    this.item.addChild(this._createRotationHotspot('topRight'));
+    this.item.addChild(this._createRotationHotspot('bottomLeft'));
+    this.item.addChild(this._createRotationHotspot('bottomRight'));
+    this.item.addChild(this._createScalingHandle('topLeft'));
+    this.item.addChild(this._createScalingHandle('topRight'));
+    this.item.addChild(this._createScalingHandle('bottomLeft'));
+    this.item.addChild(this._createScalingHandle('bottomRight'));
+    this.item.addChild(this._createScalingHandle('topCenter'));
+    this.item.addChild(this._createScalingHandle('bottomCenter'));
+    this.item.addChild(this._createScalingHandle('leftCenter'));
+    this.item.addChild(this._createScalingHandle('rightCenter'));
+    this.item.addChild(this._createOriginPointHandle()); // Set a flag just so we don't accidentily treat these GUI elements as actual paths...
 
-    box.children.forEach(child => {
+    this.item.children.forEach(child => {
       child.data.isSelectionBoxGUI = true;
     });
-    box.applyMatrix = true;
-    return box;
+  }
+  /**
+   * Destroy the GUI.
+   */
+
+
+  destroy() {
+    this.item.remove();
   }
 
-  _generateBorder() {
+  _createBorder() {
     var border = new paper.Path.Rectangle({
       name: 'border',
-      from: this._bounds.topLeft,
-      to: this._bounds.bottomRight,
-      strokeWidth: paper.Selection.BOX_STROKE_WIDTH,
-      strokeColor: paper.Selection.BOX_STROKE_COLOR,
+      from: this.bounds.topLeft,
+      to: this.bounds.bottomRight,
+      strokeWidth: paper.SelectionGUI.BOX_STROKE_WIDTH,
+      strokeColor: paper.SelectionGUI.BOX_STROKE_COLOR,
       insert: false
     });
     border.data.isBorder = true;
     return border;
   }
 
-  _generatePathOutlines() {
-    return this._items.filter(item => {
-      return item instanceof paper.Path || item instanceof paper.CompoundPath;
-    }).map(item => {
+  _createItemOutlines() {
+    return this.items.map(item => {
       var itemForBounds = item.clone({
         insert: false
-      });
-      itemForBounds.matrix.set(new paper.Matrix());
+      }); //itemForBounds.matrix.set(new paper.Matrix());
+
       var outline = new paper.Path.Rectangle(itemForBounds.bounds);
       outline.fillColor = 'rgba(0,0,0,0)';
-      outline.strokeColor = paper.Selection.BOX_STROKE_COLOR;
-      outline.strokeWidth = paper.Selection.BOX_STROKE_WIDTH;
+      outline.strokeColor = paper.SelectionGUI.BOX_STROKE_COLOR;
+      outline.strokeWidth = paper.SelectionGUI.BOX_STROKE_WIDTH;
       outline.data.isBorder = true;
       return outline;
     });
   }
 
-  _generateGroupOutlines() {
-    return this._items.filter(item => {
-      return item instanceof paper.Group || item instanceof paper.Raster;
-    }).map(item => {
-      var itemForBounds = item.clone({
-        insert: false
-      });
-      itemForBounds.matrix.set(item.data.originalMatrix);
-      var outline = new paper.Path.Rectangle(itemForBounds.bounds);
-      outline.fillColor = 'rgba(0,0,0,0)';
-      outline.strokeColor = paper.Selection.BOX_STROKE_COLOR;
-      outline.strokeWidth = paper.Selection.BOX_STROKE_WIDTH;
-      outline.data.isBorder = true;
-      return outline;
+  _createScalingHandle(edge) {
+    return this._createHandle({
+      name: edge,
+      type: 'scale',
+      center: this.bounds[edge],
+      fillColor: paper.SelectionGUI.HANDLE_FILL_COLOR,
+      strokeColor: paper.SelectionGUI.HANDLE_STROKE_COLOR
     });
   }
 
-  _generateScalingHandle(edge) {
-    return this._generateHandle(edge, 'scale', this._bounds[edge], paper.Selection.HANDLE_FILL_COLOR, paper.Selection.HANDLE_STROKE_COLOR);
+  _createOriginPointHandle() {
+    return this._createHandle({
+      name: 'pivot',
+      type: 'pivot',
+      center: new paper.Point(this.transformation.originX, this.transformation.originY),
+      fillColor: paper.SelectionGUI.PIVOT_FILL_COLOR,
+      strokeColor: paper.SelectionGUI.PIVOT_STROKE_COLOR
+    });
   }
 
-  _generatePivotPointHandle() {
-    return this._generateHandle('pivot', 'pivot', this._pivotPoint, paper.Selection.PIVOT_FILL_COLOR, paper.Selection.PIVOT_STROKE_COLOR);
-  }
-
-  _generateHandle(name, type, center, fillColor, strokeColor) {
+  _createHandle(args) {
+    if (!args) console.error('_createHandle: args is required');
+    if (!args.name) console.error('_createHandle: args.name is required');
+    if (!args.type) console.error('_createHandle: args.type is required');
+    if (!args.center) console.error('_createHandle: args.center is required');
+    if (!args.fillColor) console.error('_createHandle: args.fillColor is required');
+    if (!args.strokeColor) console.error('_createHandle: args.strokeColor is required');
     var circle = new paper.Path.Circle({
-      center: center,
-      radius: paper.Selection.HANDLE_RADIUS / paper.view.zoom,
-      strokeWidth: paper.Selection.HANDLE_STROKE_WIDTH / paper.view.zoom,
-      strokeColor: strokeColor,
-      fillColor: fillColor,
+      center: args.center,
+      radius: paper.SelectionGUI.HANDLE_RADIUS / paper.view.zoom,
+      strokeWidth: paper.SelectionGUI.HANDLE_STROKE_WIDTH / paper.view.zoom,
+      strokeColor: args.strokeColor,
+      fillColor: args.fillColor,
       insert: false
     }); // Transform the handle a bit so it doesn't get squished when the selection box is scaled.
 
     circle.applyMatrix = false;
-    circle.scaling.x = 1 / this._transform.scaleX;
-    circle.scaling.y = 1 / this._transform.scaleY;
-    circle.data.handleType = type;
-    circle.data.handleEdge = name;
+    circle.scaling.x = 1 / this.transformation.scaleX;
+    circle.scaling.y = 1 / this.transformation.scaleY;
+    circle.data.handleType = args.type;
+    circle.data.handleEdge = args.name;
     return circle;
   }
 
-  _generateRotationHotspot(cornerName) {
-    var r = paper.Selection.ROTATION_HOTSPOT_RADIUS / paper.view.zoom;
+  _createRotationHotspot(cornerName) {
+    // Build the not-yet-rotated hotspot, which starts out like this:
+    //       |
+    //       +---+
+    //       |   |
+    // ---+--+   |---
+    //    |      |
+    //    +------+
+    //       |
+    var r = paper.SelectionGUI.ROTATION_HOTSPOT_RADIUS / paper.view.zoom;
     var hotspot = new paper.Path([new paper.Point(0, 0), new paper.Point(0, r), new paper.Point(r, r), new paper.Point(r, -r), new paper.Point(-r, -r), new paper.Point(-r, 0)]);
-    hotspot.fillColor = paper.Selection.ROTATION_HOTSPOT_FILLCOLOR;
-    hotspot.position.x = this._bounds[cornerName].x;
-    hotspot.position.y = this._bounds[cornerName].y;
+    hotspot.fillColor = paper.SelectionGUI.ROTATION_HOTSPOT_FILLCOLOR;
+    hotspot.position.x = this.bounds[cornerName].x;
+    hotspot.position.y = this.bounds[cornerName].y; // Orient the rotation handles in the correct direction, even if the selection is flipped
+
     hotspot.rotate({
       'topRight': 0,
       'bottomRight': 90,
       'bottomLeft': 180,
       'topLeft': 270
     }[cornerName]);
-    if (this._transform.scaleX < 0) hotspot.scaling.x = -1;
-    if (this._transform.scaleY < 0) hotspot.scaling.y = -1;
+    if (this.transformation.scaleX < 0) hotspot.scaling.x = -1;
+    if (this.transformation.scaleY < 0) hotspot.scaling.y = -1; // Transform the hotspots a bit so they doesn't get squished when the selection box is scaled.
+
+    hotspot.scaling.x = 1 / this.transformation.scaleX;
+    hotspot.scaling.y = 1 / this.transformation.scaleY; // Some metadata.
+
     hotspot.data.handleType = 'rotation';
-    hotspot.data.handleEdge = cornerName; // Transform the hotspots a bit so they doesn't get squished when the selection box is scaled.
-
-    hotspot.scaling.x = 1 / this._transform.scaleX;
-    hotspot.scaling.y = 1 / this._transform.scaleY;
+    hotspot.data.handleEdge = cornerName;
     return hotspot;
-  }
-
-  _getUniqueProperties(propName, applyFn) {
-    var props = this._items.map(item => {
-      return item[propName];
-    }).filter(prop => {
-      return prop !== undefined && prop !== null;
-    }).map(applyFn || (prop => {
-      return prop;
-    }));
-
-    var uniqueProps = [...new Set(props)];
-    if (!uniqueProps) return null;
-    if (uniqueProps.length === 0) return null;
-    if (uniqueProps.length === 1) return uniqueProps[0];
-    return uniqueProps;
-  }
-
-  _boundsOfItems(items) {
-    if (items.length === 0) return new paper.Rectangle();
-    var bounds = null;
-    items.forEach(item => {
-      bounds = bounds ? bounds.unite(item.bounds) : item.bounds;
-    });
-    return bounds;
-  }
-
-  _getHandlePosition(handleName) {
-    var child = this.box.children.find(c => {
-      return c.data.handleEdge === handleName;
-    });
-
-    if (!child) {
-      return new paper.Point();
-    } else {
-      return child.position;
-    }
-  }
-
-  _setHandlePosition(handleName, position) {
-    if (this._handleDragMode === 'scale') {
-      this._setHandlePositionAndScale(handleName, position);
-    } else if (this._handleDragMode === 'rotation') {
-      this._setHandlePositionAndRotate(handleName, position);
-    }
-  }
-
-  _setHandlePositionAndScale(handleName, position) {
-    var lockYScale = handleName === 'leftCenter' || handleName === 'rightCenter';
-    var lockXScale = handleName === 'bottomCenter' || handleName === 'topCenter';
-    if (!lockXScale) this._transform.scaleX = 1;
-    if (!lockYScale) this._transform.scaleY = 1;
-    var rotation = this._transform.rotation;
-    var x = this._transform.x;
-    var y = this._transform.y;
-    this._transform.rotation = 0;
-    this._transform.x = 0;
-    this._transform.y = 0;
-
-    this._render();
-
-    var translatedPosition = position.subtract(new paper.Point(x, y));
-    var rotatedPosition = translatedPosition.rotate(-rotation, this._pivotPoint);
-    var distFromHandle = rotatedPosition.subtract(this[handleName]);
-    var widthHeight = this[handleName].subtract(this._pivotPoint);
-    var newCornerPosition = distFromHandle.add(widthHeight);
-    var scaleAmt = newCornerPosition.divide(widthHeight);
-    if (!lockXScale) this._transform.scaleX = scaleAmt.x;
-    if (!lockYScale) this._transform.scaleY = this.lockScalingToAspectRatio ? scaleAmt.x : scaleAmt.y;
-    this._transform.rotation = rotation;
-    this._transform.x = x;
-    this._transform.y = y;
-
-    this._render();
-  }
-
-  _setHandlePositionAndRotate(handleName, position) {
-    var x = this._transform.x;
-    var y = this._transform.y;
-    this._transform.rotation = 0;
-    this._transform.x = 0;
-    this._transform.y = 0;
-
-    this._render();
-
-    var orig_angle = this[handleName].subtract(this._pivotPoint).angle;
-    position = position.subtract(new paper.Point(x, y));
-    var angle = position.subtract(this._pivotPoint).angle;
-    this._transform.x = x;
-    this._transform.y = y;
-    this._transform.rotation = angle - orig_angle;
-
-    this._render();
-  }
-
-  _getOppositeHandleName(handleName) {
-    return {
-      'topLeft': 'bottomRight',
-      'topRight': 'bottomLeft',
-      'bottomRight': 'topLeft',
-      'bottomLeft': 'topRight',
-      'bottomCenter': 'topCenter',
-      'topCenter': 'bottomCenter',
-      'leftCenter': 'rightCenter',
-      'rightCenter': 'leftCenter'
-    }[handleDir];
-  }
-
-  _getSelectedItemsSortedByZIndex() {
-    return this._items.sort(function (a, b) {
-      return a.index - b.index;
-    });
   }
 
 };
 paper.PaperScope.inject({
-  Selection: paper.Selection
+  SelectionGUI: paper.SelectionGUI
 });
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Paper.js-drawing-tools.
 *
@@ -71804,7 +71199,7 @@ paper.PaperScope.inject({
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Paper.js-drawing-tools.
 *
@@ -71864,7 +71259,7 @@ paper.Path.inject({
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Paper.js-drawing-tools.
 *
@@ -71940,7 +71335,7 @@ paper.Path.inject({
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Paper.js-drawing-tools.
 *
@@ -71977,7 +71372,7 @@ paper.View.inject({
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Paper.js-drawing-tools.
 *
@@ -72001,7 +71396,7 @@ paper.View.inject({
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Paper.js-drawing-tools.
 *
@@ -72025,7 +71420,7 @@ paper.View.inject({
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -72184,7 +71579,7 @@ Wick.Tools = {};
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -72374,7 +71769,7 @@ Wick.Tools.Brush = class extends Wick.Tool {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -72482,56 +71877,36 @@ Wick.Tools.Cursor = class extends Wick.Tool {
     this.hitResult = this._updateHitResult(e);
 
     if (this.hitResult.item && this.hitResult.item.data.isSelectionBoxGUI) {// The selection box was clicked
-    } else if (this.paper.selection.isItemSelected(this.hitResult.item)) {
+    } else
+      /*if(this.paper.selection.isItemSelected(this.hitResult.item)) {
       // We clicked something that was already selected.
       // Shift click: Deselect that item
-      if (e.modifiers.shift) {
-        var itemsWithoutHitItem = this.paper.selection.items.filter(item => {
-          return item !== hitResult.item;
-        });
-        this.fireEvent('selectionChanged', {
-          items: itemsWithoutHitItem
-        });
-      }
-    } else if (this.hitResult.item && this.hitResult.type === 'fill') {
-      // Clicked an item: select that item
-      var items = [this.hitResult.item]; // Shift click? Keep everything else selected.
-
-      if (e.modifiers.shift) items = items.concat(this.paper.selection.items);
-      this.fireEvent('selectionChanged', {
-        items: items
-      });
-    } else if (this.hitResult.item && this.hitResult.type === 'curve') {
-      // Clicked a curve, start dragging it
-      this.draggingCurve = this.hitResult.location.curve;
-    } else if (this.hitResult.item && this.hitResult.type === 'segment') {} else {
-      if (this.paper.selection.items.length > 1) {
+      // TODO Replace
+      } else */
+      if (this.hitResult.item && this.hitResult.type === 'fill') {// Clicked an item: select that item
+        // Shift click? Keep everything else selected.
+        // TODO Replace
+      } else if (this.hitResult.item && this.hitResult.type === 'curve') {
+        // Clicked a curve, start dragging it
+        this.draggingCurve = this.hitResult.location.curve;
+      } else if (this.hitResult.item && this.hitResult.type === 'segment') {} else {
+        //if(this.paper.selection.items.length > 1) {
         // Nothing was clicked, so clear the selection and start a new selection box
-        this.paper.selection.finish();
-        this.fireEvent('selectionChanged', {
-          items: []
-        });
-        this.fireEvent('canvasModified');
+        // TODO Replace
+        //}
+        this.selectionBox.start(e.point);
       }
-
-      this.selectionBox.start(e.point);
-    }
   }
 
   onMouseDrag(e) {
-    if (this.hitResult.item && this.hitResult.item.data.isSelectionBoxGUI) {
-      // Drag a handle of the selection box.
+    if (this.hitResult.item && this.hitResult.item.data.isSelectionBoxGUI) {// Drag a handle of the selection box.
       // These can scale and rotate the selection.
-      this.paper.selection.lockScalingToAspectRatio = e.modifiers.shift;
-      this.paper.selection.handleDragMode = this.hitResult.item.data.handleType;
-      this.paper.selection[this.hitResult.item.data.handleEdge] = e.point;
+      // TODO replace.
     } else if (this.selectionBox.active) {
       // Selection box is being used, update it with a new point
       this.selectionBox.drag(e.point);
-    } else if (this.hitResult.item && this.hitResult.type === 'fill') {
-      // We're dragging the selection itself, so move the whole item.
-      this.paper.selection.x += e.delta.x;
-      this.paper.selection.y += e.delta.y;
+    } else if (this.hitResult.item && this.hitResult.type === 'fill') {// We're dragging the selection itself, so move the whole item.
+      // TODO Replace
     } else if (this.hitResult.item && this.hitResult.type === 'segment') {
       // We're dragging an individual point, so move the point.
       this.hitResult.segment.point = this.hitResult.segment.point.add(e.delta);
@@ -72567,16 +71942,9 @@ Wick.Tools.Cursor = class extends Wick.Tool {
     if (this.selectionBox.active) {
       // Finish selection box and select objects touching box (or inside box, if alt is held)
       this.selectionBox.mode = e.modifiers.alt ? 'contains' : 'intersects';
-      this.selectionBox.end(e.point);
-      this.fireEvent('selectionChanged', {
-        items: this.selectionBox.items
-      });
+      this.selectionBox.end(e.point); // TODO Replace
     } else {
-      if (this.paper.selection.items.length > 0) {
-        this.fireEvent('selectionTransformed');
-      } else {
-        this.fireEvent('canvasModified');
-      }
+      this.fireEvent('canvasModified');
     }
   }
 
@@ -72627,11 +71995,14 @@ Wick.Tools.Cursor = class extends Wick.Tool {
       if (!this.selectPoints && newHitResult.type === 'segment') {
         newHitResult.type = 'fill';
       } // You can't drag segments and curves of a selected object.
+      // TODO Replace.
 
-
-      if (this.paper.selection.isItemSelected(newHitResult.item)) {
-        newHitResult.type = 'fill';
+      /*
+      if(this.paper.selection.isItemSelected(newHitResult.item)) {
+          newHitResult.type = 'fill';
       }
+      */
+
     }
 
     return newHitResult;
@@ -72669,18 +72040,20 @@ Wick.Tools.Cursor = class extends Wick.Tool {
         topLeft: 315
       }[this.hitResult.item.data.handleEdge]; // Flip angles if selection is flipped horizontally/vertically
 
-      if (this.paper.selection._transform.scaleX < 0) {
-        baseAngle = -baseAngle + 360;
+      /*
+      if(this.paper.selection._transform.scaleX < 0) {
+          baseAngle = -baseAngle + 360;
       }
-
-      if (this.paper.selection._transform.scaleY < 0) {
-        baseAngle = -baseAngle + 180;
+      if(this.paper.selection._transform.scaleY < 0) {
+          baseAngle = -baseAngle + 180;
       }
+       var angle = baseAngle + this.paper.selection.rotation;
+      if(angle < 0) angle += 360;
+      if(angle > 360) angle -= 360; // Makes angle math easier if we dont allow angles >360 or <0 degrees
+      */
+      // TODO Replace.
 
-      var angle = baseAngle + this.paper.selection.rotation;
-      if (angle < 0) angle += 360;
-      if (angle > 360) angle -= 360; // Makes angle math easier if we dont allow angles >360 or <0 degrees
-      // Round the angle to the nearest 45 degree interval.
+      var angle = 0; // Round the angle to the nearest 45 degree interval.
 
       var angleRoundedToNearest45 = Math.round(angle / 45) * 45;
       angleRoundedToNearest45 = Math.round(angleRoundedToNearest45); // just incase of float weirdness
@@ -72734,7 +72107,7 @@ Wick.Tools.Cursor = class extends Wick.Tool {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -72818,7 +72191,7 @@ Wick.Tools.Ellipse = class extends Wick.Tool {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -72915,7 +72288,7 @@ Wick.Tools.Eraser = class extends Wick.Tool {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -73004,7 +72377,7 @@ Wick.Tools.Eyedropper = class extends Wick.Tool {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -73087,7 +72460,7 @@ Wick.Tools.FillBucket = class extends Wick.Tool {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -73157,7 +72530,7 @@ Wick.Tools.Line = class extends Wick.Tool {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -73209,7 +72582,7 @@ Wick.Tools.None = class extends Wick.Tool {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -73262,7 +72635,7 @@ Wick.Tools.Pan = class extends Wick.Tool {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -73343,7 +72716,7 @@ Wick.Tools.Pencil = class extends Wick.Tool {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -73433,7 +72806,7 @@ Wick.Tools.Rectangle = class extends Wick.Tool {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -73526,7 +72899,7 @@ Wick.Tools.Text = class extends Wick.Tool {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -73623,7 +72996,7 @@ Wick.Tools.Zoom = class extends Wick.Tool {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -73738,7 +73111,7 @@ Wick.View = class {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -74083,31 +73456,6 @@ Wick.View.Project = class extends Wick.View {
         this.applyChanges();
         this.fireEvent('canvasModified', e);
       });
-      tool.on('selectionChanged', e => {
-        // Optimization: Only fire selectionChanged if the selection... actually changed. (duh.)
-        var currentUUIDs = this.model.selection.getSelectedObjectUUIDs();
-        var newUUIDs = e.items.map(item => {
-          return item.data.wickUUID;
-        });
-
-        if (!this._uuidsAreDifferent(currentUUIDs, newUUIDs)) {
-          return;
-        } // We're done with the current selection, so apply the transforms done to the selected objects
-
-
-        this.applyChanges(); // Load new selected objects from paper.js items to wick UUIDs
-
-        this.model.selection.clear();
-        e.items.forEach(item => {
-          let object = Wick.ObjectCache.getObjectByUUID(item.data.wickUUID);
-          this.model.selection.select(object);
-        });
-        this.applyChanges();
-        this.fireEvent('selectionChanged', e);
-      });
-      tool.on('selectionTransformed', e => {
-        this.fireEvent('selectionTransformed', e);
-      });
       tool.on('canvasViewTranslated', e => {
         this.model.pan = {
           x: this.pan.x,
@@ -74169,8 +73517,6 @@ Wick.View.Project = class extends Wick.View {
   }
 
   _renderSVGCanvas() {
-    // Only render if we just finished a selection
-    if (!this.model.selection.view.selectionDidChange()) return;
     this.paper.project.clear(); // Update zoom and pan
 
     if (this._fitMode === 'center') {
@@ -74212,10 +73558,9 @@ Wick.View.Project = class extends Wick.View {
     });
     this.model.focus.timeline.view.onionSkinnedFramesLayers.forEach(layer => {
       this.paper.project.addLayer(layer);
-    }); // Render selection view
+    }); // Render selection
 
     this.model.selection.view.render();
-    this.paper.project.addLayer(this.model.selection.view.layer);
   }
 
   _generateSVGCanvasStage() {
@@ -74435,7 +73780,7 @@ Wick.View.Project = class extends Wick.View {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -74455,66 +73800,38 @@ Wick.View.Project = class extends Wick.View {
 Wick.View.Selection = class extends Wick.View {
   constructor() {
     super();
-    this._layer = new this.paper.Layer();
-    this.paper.selection = new this.paper.Selection({
-      items: [],
-      layer: this._layer
-    });
+    this.layer = new this.paper.Layer();
+    this.paper.project.selection = null;
   }
 
-  get layer() {
-    return this._layer;
-  }
-
-  render() {
-    var project = this.model.project;
-    this.paper.selection.finish();
-    this.paper.selection = new this.paper.Selection({
-      items: this._getViewsOfSelectedObjects(),
-      layer: this._layer
-    });
-  }
-
-  selectionDidChange() {
-    var newSelectedItems = this._getViewsOfSelectedObjects();
-
-    var oldSelectedItems = this.paper.selection.items;
-    return newSelectedItems.length === 0 && oldSelectedItems.length === 0 || !this._arraysEqual(newSelectedItems, oldSelectedItems);
-  }
-
-  _getViewsOfSelectedObjects() {
-    var project = this.model.project;
-    var items = [];
-    items = items.concat(project.selection.getSelectedObjects('Path').map(path => {
-      return path.view.item;
-    }));
-    items = items.concat(project.selection.getSelectedObjects('Clip').map(clip => {
-      return clip.view.group;
-    }));
-    return items;
-  } // https://stackoverflow.com/questions/3115982/how-to-check-if-two-arrays-are-equal-with-javascript
-
-
-  _arraysEqual(a, b) {
-    if (a === b) return true;
-    if (a == null || b == null) return false;
-    if (a.length != b.length) return false; // If you don't care about the order of the elements inside
-    // the array, you should sort both arrays here.
-    // Please note that calling sort on an array will modify that array.
-    // you might want to clone your array first.
-
-    for (var i = 0; i < a.length; ++i) {
-      if (a[i] !== b[i]) return false;
+  _renderSVG() {
+    if (this.paper.project.selection) {
+      this.paper.project.selection.finish({
+        discardTransformation: true
+      });
     }
 
-    return true;
+    this.paper.project.selection = new this.paper.Selection({
+      layer: this.layer,
+      items: this._selectedPaperItems()
+    });
+  }
+
+  _selectedPaperItems() {
+    var paths = this.model.getSelectedObjects('Path').map(object => {
+      return object.view.item;
+    });
+    var clips = this.model.getSelectedObjects('Clip').map(object => {
+      return object.view.group;
+    });
+    return paths.concat(clips);
   }
 
 };
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -74609,7 +73926,7 @@ Wick.View.Clip = class extends Wick.View {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -74640,7 +73957,7 @@ Wick.View.Button = class extends Wick.View.Clip {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -74695,7 +74012,7 @@ Wick.View.Timeline = class extends Wick.View {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -74789,7 +74106,7 @@ Wick.View.Layer = class extends Wick.View {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -75036,7 +74353,7 @@ Wick.View.Frame = class extends Wick.View {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -75143,7 +74460,7 @@ Wick.View.Path = class extends Wick.View {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -75389,7 +74706,7 @@ Wick.GUIElement.SCROLLBAR_BORDER_RADIUS = 4;
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -75537,7 +74854,7 @@ Wick.GUIElement.Clickable = class extends Wick.GUIElement {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -75645,7 +74962,7 @@ Wick.GUIElement.CreateLayerLabel = class extends Wick.GUIElement.Clickable {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -75771,7 +75088,7 @@ Wick.GUIElement.Draggable = class extends Wick.GUIElement.Clickable {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -75891,7 +75208,7 @@ Wick.GUIElement.AddFrameOverlay = class extends Wick.GUIElement {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -76212,7 +75529,7 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -76270,7 +75587,7 @@ Wick.GUIElement.FrameEdge = class extends Wick.GUIElement.Draggable {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -76352,7 +75669,7 @@ Wick.GUIElement.FrameGhost = class extends Wick.GUIElement {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -76411,7 +75728,7 @@ Wick.GUIElement.FrameLeftEdge = class extends Wick.GUIElement.FrameEdge {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -76474,7 +75791,7 @@ Wick.GUIElement.FrameRightEdge = class extends Wick.GUIElement.FrameEdge {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -76600,7 +75917,7 @@ Wick.GUIElement.FramesContainer = class extends Wick.GUIElement.Draggable {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -76659,7 +75976,7 @@ Wick.GUIElement.FramesContainerBG = class extends Wick.GUIElement.Draggable {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -76773,7 +76090,7 @@ Wick.GUIElement.FramesStrip = class extends Wick.GUIElement.Draggable {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -76883,7 +76200,7 @@ Wick.GUIElement.LayerButton = class extends Wick.GUIElement.Clickable {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -76987,7 +76304,7 @@ Wick.GUIElement.LayerGhost = class extends Wick.GUIElement {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -77042,7 +76359,7 @@ Wick.GUIElement.LayerHideButton = class extends Wick.GUIElement.LayerButton {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -77212,7 +76529,7 @@ Wick.GUIElement.LayerLabel = class extends Wick.GUIElement.Draggable {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -77267,7 +76584,7 @@ Wick.GUIElement.LayerLockButton = class extends Wick.GUIElement.LayerButton {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -77341,7 +76658,7 @@ Wick.GUIElement.LayersContainer = class extends Wick.GUIElement {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -77393,7 +76710,7 @@ Wick.GUIElement.LayersContainerBG = class extends Wick.GUIElement.Draggable {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -77529,7 +76846,7 @@ Wick.GUIElement.NumberLine = class extends Wick.GUIElement.Draggable {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -77585,7 +76902,7 @@ Wick.GUIElement.OnionSkinRange = class extends Wick.GUIElement.Draggable {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -77670,7 +76987,7 @@ Wick.GUIElement.OnionSkinRangeEnd = class extends Wick.GUIElement.OnionSkinRange
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -77752,7 +77069,7 @@ Wick.GUIElement.OnionSkinRangeStart = class extends Wick.GUIElement.OnionSkinRan
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -77822,7 +77139,7 @@ Wick.GUIElement.Playhead = class extends Wick.GUIElement {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -78014,7 +77331,7 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -78051,7 +77368,7 @@ Wick.GUIElement.Scrollbar = class extends Wick.GUIElement {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -78127,7 +77444,7 @@ Wick.GUIElement.ScrollbarGrabberHorizontal = class extends Wick.GUIElement.Dragg
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -78198,7 +77515,7 @@ Wick.GUIElement.ScrollbarGrabberVertical = class extends Wick.GUIElement.Draggab
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -78254,7 +77571,7 @@ Wick.GUIElement.ScrollbarHorizontal = class extends Wick.GUIElement.Scrollbar {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -78310,7 +77627,7 @@ Wick.GUIElement.ScrollbarVertical = class extends Wick.GUIElement.Scrollbar {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -78405,7 +77722,7 @@ Wick.GUIElement.SelectionBox = class extends Wick.GUIElement {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *
@@ -78511,7 +77828,7 @@ Wick.GUIElement.Timeline = class extends Wick.GUIElement {
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
-* Copyright 2018 WICKLETS LLC
+* Copyright 2019 WICKLETS LLC
 *
 * This file is part of Wick Engine.
 *

@@ -43,26 +43,7 @@ Wick.Clip = class extends Wick.Tickable {
 
         /* If objects are passed in, add them to the clip and reposition them */
         if(args.objects) {
-            var clips = args.objects.filter(object => {
-                return object instanceof Wick.Clip;
-            });
-            var paths = args.objects.filter(object => {
-                return object instanceof Wick.Path;
-            });
-
-            clips.forEach(clip => {
-                clip.transformation.x -= this.transformation.x;
-                clip.transformation.y -= this.transformation.y;
-                this.activeFrame.addClip(clip);
-            });
-            paths.forEach(path => {
-                console.warn('do not access path.view here.')
-                path.view.item.position = new paper.Point(
-                    path.view.item.position.x - this.transformation.x,
-                    path.view.item.position.y - this.transformation.y
-                );
-                this.activeFrame.addPath(path);
-            });
+            this.addObjects(args.objects);
         }
     }
 
@@ -172,6 +153,7 @@ Wick.Clip = class extends Wick.Tickable {
 
     /**
      * Remove this clip and add all of its paths and clips to its parent frame.
+     * @returns {Wick.Base[]} the objects that were inside the clip.
      */
     breakApart () {
         var leftovers = [];
@@ -194,6 +176,32 @@ Wick.Clip = class extends Wick.Tickable {
         this.remove();
 
         return leftovers;
+    }
+
+    /**
+     * Add paths and clips to this clip.
+     * @param {Wick.Base[]} objects - the paths and clips to add to the clip
+     */
+    addObjects (objects) {
+        var clips = objects.filter(object => {
+            return object instanceof Wick.Clip;
+        });
+        var paths = objects.filter(object => {
+            return object instanceof Wick.Path;
+        });
+
+        clips.forEach(clip => {
+            clip.transformation.x -= this.transformation.x;
+            clip.transformation.y -= this.transformation.y;
+            this.activeFrame.addClip(clip);
+        });
+        paths.forEach(path => {
+            path.view.item.position = new paper.Point(
+                path.view.item.position.x - this.transformation.x,
+                path.view.item.position.y - this.transformation.y
+            );
+            this.activeFrame.addPath(path);
+        });
     }
 
     /**

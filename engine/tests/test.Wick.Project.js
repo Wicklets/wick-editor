@@ -162,7 +162,7 @@ describe('Wick.Project', function() {
             var clip2 = new Wick.Clip();
             clip2.activeFrame.end = 5;
             clip2.timeline.playheadPosition = 4;
-            project.activeFrame.addClip(clip2); 
+            project.activeFrame.addClip(clip2);
 
             // Updating focus should always reset subclip timelines.
             project.focus = project.root;
@@ -557,6 +557,8 @@ describe('Wick.Project', function() {
             project.selection.select(project.activeFrame.paths[0]);
             project.selection.select(project.activeFrame.paths[1]);
 
+            project.view.render();
+
             project.createClipFromSelection({
                 identifier: 'foo',
                 type: 'Clip'
@@ -589,6 +591,8 @@ describe('Wick.Project', function() {
 
             project.selection.select(project.activeFrame.clips[0]);
             project.selection.select(project.activeFrame.clips[1]);
+
+            project.view.render();
 
             project.createClipFromSelection({
                 identifier: 'bar',
@@ -631,6 +635,8 @@ describe('Wick.Project', function() {
             project.selection.select(project.activeFrame.paths[0]);
             project.selection.select(project.activeFrame.clips[0]);
 
+            project.view.render();
+
             project.createClipFromSelection({
                 identifier: 'bar',
                 type: 'Clip'
@@ -665,6 +671,8 @@ describe('Wick.Project', function() {
 
             project.selection.select(project.activeFrame.paths[0]);
             project.selection.select(project.activeFrame.paths[1]);
+
+            project.view.render();
 
             project.createClipFromSelection({
                 identifier: 'foo',
