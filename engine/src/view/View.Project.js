@@ -335,6 +335,7 @@ Wick.View.Project = class extends Wick.View {
             });
             tool.on('selectionChanged', e => {
                 this.model.selection.view.updateModelSelection(e.items);
+                this.fireEvent('canvasModified', e);
             });
             tool.on('error', (e) => {
                 this.fireEvent('error', e);

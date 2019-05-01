@@ -122,7 +122,7 @@ Wick.Tools.Cursor = class extends Wick.Tool {
             // Shift click: Deselect that item
             if(e.modifiers.shift) {
                 var itemsWithoutHitItem = this._selection.items.filter(item => {
-                    return item !== hitResult.item;
+                    return item !== this.hitResult.item;
                 });
                 this.fireEvent('selectionChanged', {
                     items: itemsWithoutHitItem,
