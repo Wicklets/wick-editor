@@ -75,7 +75,7 @@ Wick.Tools.Zoom = class extends Wick.Tool {
             this.paper.view.zoom = this.ZOOM_MAX;
         }
 
-        this.fireEvent('canvasViewTranslated');
+        this.fireEvent('canvasViewTransformed');
     }
 
     createZoomBox (e) {

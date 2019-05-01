@@ -326,7 +326,7 @@ Wick.View.Project = class extends Wick.View {
                 this.applyChanges();
                 this.fireEvent('canvasModified', e);
             });
-            tool.on('canvasViewTranslated', (e) => {
+            tool.on('canvasViewTransformed', (e) => {
                 this.model.pan = {
                     x: this.pan.x,
                     y: this.pan.y,
