@@ -199,6 +199,10 @@
       mocha.checkLeaks();
       mocha.run();
     }
+    // in case you get tired of clicking...
+    if(localStorage.skipInitialInteractCheck === 'true') {
+        window.onmousedown();
+    }
   }
 </script>
 

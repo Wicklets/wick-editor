@@ -142,7 +142,7 @@ paper.Selection = class {
     }
 
     static _freeItemsFromSelection (items, discardTransforms) {
-        // Reset applyMatrix to what is was before we added it to the selection
+        // Reset matrix and applyMatrix to what is was before we added it to the selection
         items.filter(item => {
             return item instanceof paper.Path ||
                    item instanceof paper.CompoundPath;
@@ -151,6 +151,15 @@ paper.Selection = class {
                 item.matrix.set(item.data.originalMatrix);
             }
             item.applyMatrix = true;
+        });
+
+        items.filter(item => {
+            return item instanceof paper.Group ||
+                   item instanceof paper.Raster;
+        }).forEach(item => {
+            if(item.data.originalMatrix && discardTransforms) {
+                item.matrix.set(item.data.originalMatrix);
+            }
         });
 
         // Delete the matrix we stored in groups/rasters so it doesn't interfere with anything later

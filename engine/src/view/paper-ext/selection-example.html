@@ -24,7 +24,7 @@
 <script>
 window.onload = () => {
     paper.setup(document.getElementById('paper-canvas'));
-    for(var i = 1; i <= 3; i++) {
+    /*for(var i = 1; i <= 3; i++) {
         var rect = new paper.Path.Ellipse({
             center: new paper.Point(
                 Math.random()*400+50,
@@ -35,7 +35,35 @@ window.onload = () => {
             strokeColor: 'black',
         });
         window['rect' + i] = rect;
-    }
+    }*/
+    
+    window.path1 = new paper.Path.Ellipse({
+        center: new paper.Point(25,25),
+        radius: 25,
+        fillColor: '#ff0000',
+        applyMatrix: true,
+    });
+
+    window.path2 = new paper.Path.Ellipse({
+        center: new paper.Point(75,25),
+        radius: 25,
+        fillColor: '#00ff00',
+        applyMatrix: true,
+    });
+
+    window.path3 = new paper.Group({
+        children: [
+            new paper.Path.Ellipse({
+                center: new paper.Point(0,0),
+                radius: 25,
+                fillColor: '#0000ff',
+                applyMatrix: true,
+            })
+        ],
+        applyMatrix: false,
+    })
+    path3.position.x = 75;
+    path3.position.y = 75;
 }
 </script>
 
