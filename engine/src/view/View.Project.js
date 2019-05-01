@@ -294,6 +294,57 @@ Wick.View.Project = class extends Wick.View {
         }, 10);
     }
 
+    renderToImage (args, callback) {
+        var oldCanvasContainer = this.canvasContainer;
+
+        // Put the project canvas inside a div that's the same size as the project so the frames render at the correct resolution.
+        let container = window.document.createElement('div');
+        container.style.width = (this.width/window.devicePixelRatio)+'px';
+        container.style.height = (this.height/window.devicePixelRatio)+'px';
+        window.document.body.appendChild(container);
+        this.view.canvasContainer = container;
+        this.view.resize();
+
+        // Set the initial state of the project.
+        this.focus = this.root;
+        this.focus.timeline.playheadPosition = 1;
+        this.onionSkinEnabled = false;
+        this.zoom = 1 / window.devicePixelRatio;
+        this.pan = {x: 0, y: 0};
+
+        // We need full control over when paper.js renders, if we leave autoUpdate on, it's possible to lose frames if paper.js doesnt automatically render as fast as we are generating the images.
+        // (See paper.js docs for info about autoUpdate)
+        paper.view.autoUpdate = false;
+
+        var frameImages = [];
+        var renderFrame = () => {
+            var frameImage = new Image();
+
+            frameImage.onload = () => {
+                frameImages.push(frameImage);
+                if(this.focus.timeline.playheadPosition >= this.focus.timeline.length) {
+                    // reset autoUpdate back to normal
+                    paper.view.autoUpdate = true;
+
+                    // reset canvas container back to normal
+                    this.view.canvasContainer = oldCanvasContainer;
+                    this.view.resize();
+
+                    callback(frameImages);
+                } else {
+                    this.focus.timeline.playheadPosition++;
+                    renderFrame();
+                }
+            }
+
+            this.view.render();
+            paper.view.update();
+            frameImage.src = this.view.canvas.toDataURL();
+        }
+
+        renderFrame();
+    }
+
     /**
      * Destroy the renderer. Call this when the view will no longer be used to save memory/webgl contexts.
      */

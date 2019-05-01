@@ -602,12 +602,12 @@ Wick.Project = class extends Wick.Base {
      * Ticks the project.
      */
     tick () {
-        this.view.processInput();
+        //this.view.processInput();
 
         var error = this.focus.tick();
 
-        this.view.render();
-        this.activeTimeline.guiElement.numberLine.playhead.build();
+        //this.view.render();
+        //this.activeTimeline.guiElement.numberLine.playhead.build();
 
         this._keysLastDown = [].concat(this._keysDown);//!!!!!!!!!!!!!!!
 
@@ -635,7 +635,7 @@ Wick.Project = class extends Wick.Base {
 
         this.selection.clear();
 
-        this.view.renderMode = 'webgl';
+        //this.view.renderMode = 'webgl';
 
         // Start tick loop
         this._tickIntervalID = setInterval(() => {
@@ -658,7 +658,7 @@ Wick.Project = class extends Wick.Base {
     stop () {
         this.stopAllSounds();
 
-        this.view.renderMode = 'svg';
+        //this.view.renderMode = 'svg';
 
         clearInterval(this._tickIntervalID);
         this._tickIntervalID = null;
@@ -704,54 +704,8 @@ Wick.Project = class extends Wick.Base {
      * @param {function} done - Function to call when the images are all loaded.
      */
     generateImageSequence (args, callback) {
-        var oldCanvasContainer = this.canvasContainer;
-
-        // Put the project canvas inside a div that's the same size as the project so the frames render at the correct resolution.
-        let container = window.document.createElement('div');
-        container.style.width = (this.width/window.devicePixelRatio)+'px';
-        container.style.height = (this.height/window.devicePixelRatio)+'px';
-        window.document.body.appendChild(container);
-        this.view.canvasContainer = container;
-        this.view.resize();
-
-        // Set the initial state of the project.
-        this.focus = this.root;
-        this.focus.timeline.playheadPosition = 1;
-        this.onionSkinEnabled = false;
-        this.zoom = 1 / window.devicePixelRatio;
-        this.pan = {x: 0, y: 0};
-
-        // We need full control over when paper.js renders, if we leave autoUpdate on, it's possible to lose frames if paper.js doesnt automatically render as fast as we are generating the images.
-        // (See paper.js docs for info about autoUpdate)
-        paper.view.autoUpdate = false;
-
-        var frameImages = [];
-        var renderFrame = () => {
-            var frameImage = new Image();
-
-            frameImage.onload = () => {
-                frameImages.push(frameImage);
-                if(this.focus.timeline.playheadPosition >= this.focus.timeline.length) {
-                    // reset autoUpdate back to normal
-                    paper.view.autoUpdate = true;
-
-                    // reset canvas container back to normal
-                    this.view.canvasContainer = oldCanvasContainer;
-                    this.view.resize();
-
-                    callback(frameImages);
-                } else {
-                    this.focus.timeline.playheadPosition++;
-                    renderFrame();
-                }
-            }
-
-            this.view.render();
-            paper.view.update();
-            frameImage.src = this.view.canvas.toDataURL();
-        }
-
-        renderFrame();
+        // TODO have model move the timeline, rendering each frame
+        this.view.renderToImage(args, callback);
     }
 
     /**
