@@ -117,24 +117,39 @@ Wick.Tools.Cursor = class extends Wick.Tool {
 
         if(this.hitResult.item && this.hitResult.item.data.isSelectionBoxGUI) {
             // The selection box was clicked
-        } else /*if(this.paper.selection.isItemSelected(this.hitResult.item)) {
+        } else if(this._isItemSelected(this.hitResult.item)) {
             // We clicked something that was already selected.
             // Shift click: Deselect that item
-            // TODO Replace
-        } else */if (this.hitResult.item && this.hitResult.type === 'fill') {
+            if(e.modifiers.shift) {
+                var itemsWithoutHitItem = this._selection.items.filter(item => {
+                    return item !== hitResult.item;
+                });
+                this.fireEvent('selectionChanged', {
+                    items: itemsWithoutHitItem,
+                });
+            }
+        } else if (this.hitResult.item && this.hitResult.type === 'fill') {
             // Clicked an item: select that item
+            var items = [this.hitResult.item];
             // Shift click? Keep everything else selected.
-            // TODO Replace
+            if(e.modifiers.shift) {
+                items = items.concat(this._selection.items);
+            }
+            this.fireEvent('selectionChanged', {
+                items: items,
+            });
         } else if (this.hitResult.item && this.hitResult.type === 'curve') {
             // Clicked a curve, start dragging it
             this.draggingCurve = this.hitResult.location.curve;
         } else if (this.hitResult.item && this.hitResult.type === 'segment') {
 
         } else {
-            //if(this.paper.selection.items.length > 1) {
+            if(this._selection.items.length > 1) {
                 // Nothing was clicked, so clear the selection and start a new selection box
-                // TODO Replace
-            //}
+                this.fireEvent('selectionChanged', {
+                    items: [],
+                });
+            }
 
             this.selectionBox.start(e.point);
         }
@@ -187,7 +202,10 @@ Wick.Tools.Cursor = class extends Wick.Tool {
             // Finish selection box and select objects touching box (or inside box, if alt is held)
             this.selectionBox.mode = e.modifiers.alt ? 'contains' : 'intersects';
             this.selectionBox.end(e.point);
-            // TODO Replace
+
+            this.fireEvent('selectionChanged', {
+                items: this.selectionBox.items
+            });
         } else {
             this.fireEvent('canvasModified');
         }
@@ -243,12 +261,9 @@ Wick.Tools.Cursor = class extends Wick.Tool {
             }
 
             // You can't drag segments and curves of a selected object.
-            // TODO Replace.
-            /*
-            if(this.paper.selection.isItemSelected(newHitResult.item)) {
+            if(this._isItemSelected(newHitResult.item)) {
                 newHitResult.type = 'fill';
             }
-            */
         }
 
         return newHitResult;
@@ -290,19 +305,16 @@ Wick.Tools.Cursor = class extends Wick.Tool {
             }[this.hitResult.item.data.handleEdge];
 
             // Flip angles if selection is flipped horizontally/vertically
-            /*
-            if(this.paper.selection._transform.scaleX < 0) {
+            if(this._selection.transformation.scaleX < 0) {
                 baseAngle = -baseAngle + 360;
             }
-            if(this.paper.selection._transform.scaleY < 0) {
+            if(this._selection.transformation.scaleY < 0) {
                 baseAngle = -baseAngle + 180;
             }
 
-            var angle = baseAngle + this.paper.selection.rotation;
+            var angle = baseAngle + this._selection.transformation.rotation;
             if(angle < 0) angle += 360;
             if(angle > 360) angle -= 360; // Makes angle math easier if we dont allow angles >360 or <0 degrees
-            */
-            // TODO Replace.
 
             var angle = 0;
 
@@ -354,5 +366,13 @@ Wick.Tools.Cursor = class extends Wick.Tool {
 
     _setCursor (cursor) {
         this.currentCursorIcon = cursor;
+    }
+
+    get _selection () {
+        return this.paper.project.selection;
+    }
+
+    _isItemSelected (item) {
+        return this._selection.items.indexOf(item) !== -1;
     }
 }

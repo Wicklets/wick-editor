@@ -333,6 +333,9 @@ Wick.View.Project = class extends Wick.View {
                 };
                 this.model.zoom = this.zoom;
             });
+            tool.on('selectionChanged', e => {
+                this.model.selection.view.updateModelSelection(e.items);
+            });
             tool.on('error', (e) => {
                 this.fireEvent('error', e);
             })

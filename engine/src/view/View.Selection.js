@@ -26,6 +26,18 @@ Wick.View.Selection = class extends Wick.View {
         this.paper.project.selection = null;
     }
 
+    updateModelSelection (items) {
+        this.model.clear();
+        items.forEach(item => {
+            var uuid = item.data.wickUUID;
+            if(!uuid) {
+                console.error('path is missing a wickUUID. the selection selected something it shouldnt have, or the view was not up-to-date.');
+            }
+            var wickObject = Wick.ObjectCache.getObjectByUUID(uuid);
+            this.model.select(wickObject);
+        })
+    }
+
     _renderSVG () {
         if(this.paper.project.selection) {
             this.paper.project.selection.finish({discardTransformation: true});
