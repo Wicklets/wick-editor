@@ -108,6 +108,23 @@ Wick.Project = class extends Wick.Base {
 
         data.focus = this.focus.uuid;
 
+        data.metadata = {
+            wickengine: Wick.version,
+            platform: {
+                name: platform.name,
+                version: platform.version,
+                product: platform.product,
+                manufacturer: platform.manufacturer,
+                layout: platform.layout,
+                os: {
+                    architecture: platform.os.architecture,
+                    family: platform.os.family,
+                    version: platform.os.version,
+                },
+                description: platform.description,
+            }
+        }
+
         return data;
     }
 
