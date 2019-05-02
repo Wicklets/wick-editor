@@ -32,6 +32,7 @@ Wick.View.Selection = class extends Wick.View {
             var uuid = item.data.wickUUID;
             if(!uuid) {
                 console.error('path is missing a wickUUID. the selection selected something it shouldnt have, or the view was not up-to-date.');
+                console.error(item);
             }
             var wickObject = Wick.ObjectCache.getObjectByUUID(uuid);
             this.model.select(wickObject);
@@ -39,6 +40,8 @@ Wick.View.Selection = class extends Wick.View {
     }
 
     _renderSVG () {
+        this.layer.clear();
+
         if(this.paper.project.selection) {
             this.paper.project.selection.finish({discardTransformation: true});
         }

@@ -70609,6 +70609,7 @@ paper.Selection = class {
    */
   constructor(args) {
     if (!args) args = {};
+    this.handleDragMode = 'scale';
     this._layer = args.layer || paper.project.activeLayer;
     this._items = args.items || [];
     this._transformation = {
@@ -70691,6 +70692,41 @@ paper.Selection = class {
     return this._bounds;
   }
   /**
+   * The type of transformation to use while dragging handles. Can be 'scale' or 'rotation'.
+   */
+
+
+  get handleDragMode() {
+    return this._handleDragMode;
+  }
+
+  set handleDragMode(handleDragMode) {
+    if (handleDragMode === 'scale' || handleDragMode === 'rotation') {
+      this._handleDragMode = handleDragMode;
+    } else {
+      console.error('Paper.Selection: Invalid handleDragMode: ' + handleDragMode);
+      console.error('Valid handleDragModes: "scale", "rotation"');
+    }
+  }
+  /**
+   * Drag a handle to scale or rotate the selection. Will scale if handleDragMode is set to 'scale', and will rotate if handleDragMode is set to 'rotate'.
+   * @param {paper.Point} point - the point to drag the handle to.
+   * @param {string} handleName - the name of the handle to drag. Can be 'topLeft', 'topCenter', 'topRight', 'rightCenter', 'bottomRight', 'bottomCenter', 'bottomLeft', or 'leftCenter'.
+   */
+
+
+  setHandlePosition(args) {
+    if (!args) console.error('setHandlePosition(): args is required');
+    if (!args.point) console.error('setHandlePosition(): args.point is required');
+    if (!args.handleName) console.error('setHandlePosition(): args.handleName is required');
+
+    if (this._handleDragMode === 'scale') {
+      this._setHandlePositionAndScale(args.handleName, args.point);
+    } else if (this._handleDragMode === 'rotation') {
+      this._setHandlePositionAndRotate(args.handleName, args.point);
+    }
+  }
+  /**
    * Finish and destroy the selection.
    * @param {boolean} discardTransformation - If set to true, will reset all items to their original transforms before the selection was made.
    */
@@ -70710,9 +70746,11 @@ paper.Selection = class {
       items: this._items,
       transformation: this._transformation,
       bounds: this._bounds
-    });
+    }); // Don't add GUI to paper if nothing is selected...
 
-    this._layer.addChild(this._gui.item);
+    if (this._items.length > 0) {
+      this._layer.addChild(this._gui.item);
+    }
 
     paper.Selection._transformItems(this._items.concat(this._gui.item), this._transformation);
   }
@@ -70721,6 +70759,55 @@ paper.Selection = class {
     paper.Selection._freeItemsFromSelection(this.items, discardTransformation);
 
     this._gui.destroy();
+  }
+
+  _setHandlePositionAndScale(handleName, point) {
+    /*
+    var lockYScale = handleName === 'leftCenter'
+                  || handleName === 'rightCenter';
+    var lockXScale = handleName === 'bottomCenter'
+                  || handleName === 'topCenter';
+     if(!lockXScale) this._transform.scaleX = 1;
+    if(!lockYScale) this._transform.scaleY = 1;
+     var rotation = this._transform.rotation;
+    var x = this._transform.x;
+    var y = this._transform.y;
+     this._transform.rotation = 0;
+    this._transform.x = 0;
+    this._transform.y = 0;
+    this._render();
+     var translatedPosition = position.subtract(new paper.Point(x,y));
+    var rotatedPosition = translatedPosition.rotate(-rotation, this._pivotPoint);
+     var distFromHandle = rotatedPosition.subtract(this[handleName]);
+    var widthHeight = this[handleName].subtract(this._pivotPoint);
+    var newCornerPosition = distFromHandle.add(widthHeight);
+    var scaleAmt = newCornerPosition.divide(widthHeight);
+     if(!lockXScale) this._transform.scaleX = scaleAmt.x;
+    if(!lockYScale) this._transform.scaleY = this.lockScalingToAspectRatio ? scaleAmt.x : scaleAmt.y;
+    this._transform.rotation = rotation;
+    this._transform.x = x;
+    this._transform.y = y;
+    */
+  }
+
+  _setHandlePositionAndRotate(handleName, point) {
+    this.updateTransformation({
+      rotation: angle
+    });
+    /*
+    var x = this._transform.x;
+    var y = this._transform.y;
+     this._transform.rotation = 0;
+    this._transform.x = 0;
+    this._transform.y = 0;
+    this._render();
+     var orig_angle = this[handleName].subtract(this._pivotPoint).angle;
+    position = position.subtract(new paper.Point(x,y));
+    var angle = position.subtract(this._pivotPoint).angle;
+     this._transform.x = x;
+    this._transform.y = y;
+    this._transform.rotation = angle - orig_angle;
+    */
   }
 
   static _prepareItemsForSelection(items) {
@@ -71882,7 +71969,7 @@ Wick.Tools.Cursor = class extends Wick.Tool {
       // Shift click: Deselect that item
       if (e.modifiers.shift) {
         var itemsWithoutHitItem = this._selection.items.filter(item => {
-          return item !== hitResult.item;
+          return item !== this.hitResult.item;
         });
 
         this.fireEvent('selectionChanged', {
@@ -71894,7 +71981,7 @@ Wick.Tools.Cursor = class extends Wick.Tool {
       var items = [this.hitResult.item]; // Shift click? Keep everything else selected.
 
       if (e.modifiers.shift) {
-        items = items.concat(this._selection.items);
+        items = this._selection.items.concat(items);
       }
 
       this.fireEvent('selectionChanged', {
@@ -71916,14 +72003,24 @@ Wick.Tools.Cursor = class extends Wick.Tool {
   }
 
   onMouseDrag(e) {
-    if (this.hitResult.item && this.hitResult.item.data.isSelectionBoxGUI) {// Drag a handle of the selection box.
+    if (this.hitResult.item && this.hitResult.item.data.isSelectionBoxGUI) {
+      // Drag a handle of the selection box.
       // These can scale and rotate the selection.
-      // TODO replace.
+      this._selection.handleDragMode = this.hitResult.item.data.handleType;
+
+      this._selection.setHandlePosition({
+        handleName: this.hitResult.item.data.handleEdge,
+        point: e.point
+      });
     } else if (this.selectionBox.active) {
       // Selection box is being used, update it with a new point
       this.selectionBox.drag(e.point);
-    } else if (this.hitResult.item && this.hitResult.type === 'fill') {// We're dragging the selection itself, so move the whole item.
-      // TODO Replace
+    } else if (this.hitResult.item && this.hitResult.type === 'fill') {
+      // We're dragging the selection itself, so move the whole item.
+      this._selection.updateTransformation({
+        x: this._selection.transformation.x + e.delta.x,
+        y: this._selection.transformation.y + e.delta.y
+      });
     } else if (this.hitResult.item && this.hitResult.type === 'segment') {
       // We're dragging an individual point, so move the point.
       this.hitResult.segment.point = this.hitResult.segment.point.add(e.delta);
@@ -72065,11 +72162,10 @@ Wick.Tools.Cursor = class extends Wick.Tool {
         baseAngle = -baseAngle + 180;
       }
 
-      var angle = baseAngle + this._selection.transformation.rotation;
-      if (angle < 0) angle += 360;
-      if (angle > 360) angle -= 360; // Makes angle math easier if we dont allow angles >360 or <0 degrees
+      var angle = baseAngle + this._selection.transformation.rotation; // It makes angle math easier if we dont allow angles >360 or <0 degrees:
 
-      var angle = 0; // Round the angle to the nearest 45 degree interval.
+      if (angle < 0) angle += 360;
+      if (angle > 360) angle -= 360; // Round the angle to the nearest 45 degree interval.
 
       var angleRoundedToNearest45 = Math.round(angle / 45) * 45;
       angleRoundedToNearest45 = Math.round(angleRoundedToNearest45); // just incase of float weirdness
@@ -73489,6 +73585,7 @@ Wick.View.Project = class extends Wick.View {
       });
       tool.on('selectionChanged', e => {
         this.model.selection.view.updateModelSelection(e.items);
+        this.fireEvent('canvasModified', e);
       });
       tool.on('error', e => {
         this.fireEvent('error', e);
@@ -73839,6 +73936,7 @@ Wick.View.Selection = class extends Wick.View {
 
       if (!uuid) {
         console.error('path is missing a wickUUID. the selection selected something it shouldnt have, or the view was not up-to-date.');
+        console.error(item);
       }
 
       var wickObject = Wick.ObjectCache.getObjectByUUID(uuid);
@@ -73847,6 +73945,8 @@ Wick.View.Selection = class extends Wick.View {
   }
 
   _renderSVG() {
+    this.layer.clear();
+
     if (this.paper.project.selection) {
       this.paper.project.selection.finish({
         discardTransformation: true
@@ -74240,7 +74340,7 @@ Wick.View.Frame = class extends Wick.View {
     this.pathsLayer.data.wickType = 'paths';
     this.pathsLayer.removeChildren();
     this.model.paths.forEach(path => {
-      path.view.render();
+      // path.view.render(); // Disabled for now because path views are rendered lazily when json changes
       this.pathsLayer.addChild(path.view.item);
     });
   }

@@ -33,6 +33,8 @@ paper.Selection = class {
     constructor (args) {
         if(!args) args = {};
 
+        this.handleDragMode = 'scale';
+
         this._layer = args.layer || paper.project.activeLayer;
         this._items = args.items || [];
         this._transformation = {
@@ -109,6 +111,39 @@ paper.Selection = class {
     }
 
     /**
+     * The type of transformation to use while dragging handles. Can be 'scale' or 'rotation'.
+     */
+    get handleDragMode () {
+        return this._handleDragMode;
+    }
+
+    set handleDragMode (handleDragMode) {
+        if(handleDragMode === 'scale' || handleDragMode === 'rotation') {
+            this._handleDragMode = handleDragMode;
+        } else {
+            console.error('Paper.Selection: Invalid handleDragMode: ' + handleDragMode);
+            console.error('Valid handleDragModes: "scale", "rotation"')
+        }
+    }
+
+    /**
+     * Drag a handle to scale or rotate the selection. Will scale if handleDragMode is set to 'scale', and will rotate if handleDragMode is set to 'rotate'.
+     * @param {paper.Point} point - the point to drag the handle to.
+     * @param {string} handleName - the name of the handle to drag. Can be 'topLeft', 'topCenter', 'topRight', 'rightCenter', 'bottomRight', 'bottomCenter', 'bottomLeft', or 'leftCenter'.
+     */
+    setHandlePosition (args) {
+        if(!args) console.error('setHandlePosition(): args is required');
+        if(!args.point) console.error('setHandlePosition(): args.point is required');
+        if(!args.handleName) console.error('setHandlePosition(): args.handleName is required');
+
+        if(this._handleDragMode === 'scale') {
+            this._setHandlePositionAndScale(args.handleName, args.point);
+        } else if(this._handleDragMode === 'rotation') {
+            this._setHandlePositionAndRotate(args.handleName, args.point);
+        }
+    }
+
+    /**
      * Finish and destroy the selection.
      * @param {boolean} discardTransformation - If set to true, will reset all items to their original transforms before the selection was made.
      */
@@ -127,7 +162,11 @@ paper.Selection = class {
             transformation: this._transformation,
             bounds: this._bounds,
         });
-        this._layer.addChild(this._gui.item);
+
+        // Don't add GUI to paper if nothing is selected...
+        if(this._items.length > 0) {
+            this._layer.addChild(this._gui.item);
+        }
 
         paper.Selection._transformItems(this._items.concat(this._gui.item), this._transformation);
     }
@@ -135,6 +174,67 @@ paper.Selection = class {
     _destroy (discardTransformation) {
         paper.Selection._freeItemsFromSelection(this.items, discardTransformation);
         this._gui.destroy();
+    }
+
+    _setHandlePositionAndScale (handleName, point) {
+        /*
+        var lockYScale = handleName === 'leftCenter'
+                      || handleName === 'rightCenter';
+        var lockXScale = handleName === 'bottomCenter'
+                      || handleName === 'topCenter';
+
+        if(!lockXScale) this._transform.scaleX = 1;
+        if(!lockYScale) this._transform.scaleY = 1;
+
+        var rotation = this._transform.rotation;
+        var x = this._transform.x;
+        var y = this._transform.y;
+
+        this._transform.rotation = 0;
+        this._transform.x = 0;
+        this._transform.y = 0;
+        this._render();
+
+        var translatedPosition = position.subtract(new paper.Point(x,y));
+        var rotatedPosition = translatedPosition.rotate(-rotation, this._pivotPoint);
+
+        var distFromHandle = rotatedPosition.subtract(this[handleName]);
+        var widthHeight = this[handleName].subtract(this._pivotPoint);
+        var newCornerPosition = distFromHandle.add(widthHeight);
+        var scaleAmt = newCornerPosition.divide(widthHeight);
+
+        if(!lockXScale) this._transform.scaleX = scaleAmt.x;
+        if(!lockYScale) this._transform.scaleY = this.lockScalingToAspectRatio ? scaleAmt.x : scaleAmt.y;
+        this._transform.rotation = rotation;
+        this._transform.x = x;
+        this._transform.y = y;
+        */
+    }
+
+    _setHandlePositionAndRotate (handleName, point) {
+
+
+        this.updateTransformation({
+            rotation: angle,
+        });
+
+        /*
+        var x = this._transform.x;
+        var y = this._transform.y;
+
+        this._transform.rotation = 0;
+        this._transform.x = 0;
+        this._transform.y = 0;
+        this._render();
+
+        var orig_angle = this[handleName].subtract(this._pivotPoint).angle;
+        position = position.subtract(new paper.Point(x,y));
+        var angle = position.subtract(this._pivotPoint).angle;
+
+        this._transform.x = x;
+        this._transform.y = y;
+        this._transform.rotation = angle - orig_angle;
+        */
     }
 
     static _prepareItemsForSelection (items) {

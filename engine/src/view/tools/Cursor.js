@@ -133,7 +133,7 @@ Wick.Tools.Cursor = class extends Wick.Tool {
             var items = [this.hitResult.item];
             // Shift click? Keep everything else selected.
             if(e.modifiers.shift) {
-                items = items.concat(this._selection.items);
+                items = this._selection.items.concat(items);
             }
             this.fireEvent('selectionChanged', {
                 items: items,
@@ -159,13 +159,20 @@ Wick.Tools.Cursor = class extends Wick.Tool {
         if(this.hitResult.item && this.hitResult.item.data.isSelectionBoxGUI) {
             // Drag a handle of the selection box.
             // These can scale and rotate the selection.
-            // TODO replace.
+            this._selection.handleDragMode = this.hitResult.item.data.handleType;
+            this._selection.setHandlePosition({
+                handleName: this.hitResult.item.data.handleEdge,
+                point: e.point,
+            });
         } else if (this.selectionBox.active) {
             // Selection box is being used, update it with a new point
             this.selectionBox.drag(e.point);
         } else if(this.hitResult.item && this.hitResult.type === 'fill') {
             // We're dragging the selection itself, so move the whole item.
-            // TODO Replace
+            this._selection.updateTransformation({
+                x: this._selection.transformation.x + e.delta.x,
+                y: this._selection.transformation.y + e.delta.y,
+            });
         } else if(this.hitResult.item && this.hitResult.type === 'segment') {
             // We're dragging an individual point, so move the point.
             this.hitResult.segment.point = this.hitResult.segment.point.add(e.delta);
@@ -313,10 +320,9 @@ Wick.Tools.Cursor = class extends Wick.Tool {
             }
 
             var angle = baseAngle + this._selection.transformation.rotation;
+            // It makes angle math easier if we dont allow angles >360 or <0 degrees:
             if(angle < 0) angle += 360;
-            if(angle > 360) angle -= 360; // Makes angle math easier if we dont allow angles >360 or <0 degrees
-
-            var angle = 0;
+            if(angle > 360) angle -= 360;
 
             // Round the angle to the nearest 45 degree interval.
             var angleRoundedToNearest45 = Math.round(angle / 45) * 45;

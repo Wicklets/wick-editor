@@ -9,9 +9,6 @@ describe('Wick.Tools.Cursor', function() {
         var cursor = project.view.tools.cursor;
         cursor.activate();
 
-        var pathJson1 = ["Path",{"segments":[[0,0],[50,0],[50,50],[0,50]],"closed":true,"fillColor":[1,0,0]}];
-        var pathJson2 = ["Path",{"segments":[[50,100],[50,50],[100,50],[100,100]],"closed":true,"fillColor":[1,0,0]}];
-
         var path1 = TestUtils.paperToWickPath(new paper.Path.Ellipse({
             center: new paper.Point(25, 25),
             radius: 25,
@@ -42,6 +39,7 @@ describe('Wick.Tools.Cursor', function() {
             delta: new paper.Point(0,0),
         });
 
+        expect(project.selection.numObjects).to.equal(1);
         expect(project.selection.getSelectedObject().uuid).to.equal(path1.uuid);
 
         /* Click nothing, should deselect path1 */
@@ -64,16 +62,97 @@ describe('Wick.Tools.Cursor', function() {
 
         /* Click path1, then click path2, should select path2 and deselect path1. */
 
-        // todo
+        // click path1
+        cursor.onMouseMove({
+            modifiers: {},
+            point: new paper.Point(25,25),
+        });
+        cursor.onMouseDown({
+            modifiers: {},
+            point: new paper.Point(25,25),
+        });
+        cursor.onMouseUp({
+            modifiers: {},
+            point: new paper.Point(25,25),
+            delta: new paper.Point(0,0),
+        });
+
+        // click path2
+        cursor.onMouseMove({
+            modifiers: {},
+            point: new paper.Point(75,75),
+        });
+        cursor.onMouseDown({
+            modifiers: {},
+            point: new paper.Point(75,75),
+        });
+        cursor.onMouseUp({
+            modifiers: {},
+            point: new paper.Point(75,75),
+            delta: new paper.Point(0,0),
+        });
+
+        expect(project.selection.numObjects).to.equal(1);
+        expect(project.selection.getSelectedObject().uuid).to.equal(path2.uuid);
     });
 
     it('should select multiple items correctly with shift held', function () {
 
         /* Click path1, then click path2 with shift held. should deselect both paths. */
 
-        // todo
+        var project = new Wick.Project();
+        var cursor = project.view.tools.cursor;
+        cursor.activate();
 
-        throw new Error('nyi');
+        var path1 = TestUtils.paperToWickPath(new paper.Path.Ellipse({
+            center: new paper.Point(25, 25),
+            radius: 25,
+            fillColor: '#ff0000',
+        }));
+        var path2 = TestUtils.paperToWickPath(new paper.Path.Ellipse({
+            center: new paper.Point(75, 75),
+            radius: 25,
+            fillColor: '#ff0000',
+        }));
+        project.activeFrame.addPath(path1);
+        project.activeFrame.addPath(path2);
+        project.view.render();
+
+        /* Click path1, should select path1 */
+        cursor.onMouseMove({
+            modifiers: {},
+            point: new paper.Point(25,25),
+        });
+        cursor.onMouseDown({
+            modifiers: {},
+            point: new paper.Point(25,25),
+        });
+        cursor.onMouseUp({
+            modifiers: {},
+            point: new paper.Point(25,25),
+            delta: new paper.Point(0,0),
+        });
+
+        project.view.render();
+
+        /* Click path2 with shift held, should select path2 */
+        cursor.onMouseMove({
+            modifiers: {},
+            point: new paper.Point(75,75),
+        });
+        cursor.onMouseDown({
+            modifiers: {shift: true},
+            point: new paper.Point(75,75),
+        });
+        cursor.onMouseUp({
+            modifiers: {},
+            point: new paper.Point(75,75),
+            delta: new paper.Point(0,0),
+        });
+
+        expect(project.selection.numObjects).to.equal(2);
+        expect(project.selection.getSelectedObjects()[0].uuid).to.equal(path1.uuid);
+        expect(project.selection.getSelectedObjects()[1].uuid).to.equal(path2.uuid);
     })
 
     it('should select items correctly with selection box', function () {
@@ -89,190 +168,31 @@ describe('Wick.Tools.Cursor', function() {
     });
 
     it('should select multiple items correctly with selection box (shift held)', function() {
-
-    });
-
-    it('should translate selection by dragging correctly', function (done) {
         throw new Error('nyi')
     });
 
-    it('should scale object by dragging handles correctly', function() {
-        var project = new Wick.Project();
-        var cursor = project.view.tools.cursor;
-
-        var pathJson1 = ["Path",{"segments":[[0,0],[50,0],[50,50],[0,50]],"closed":true,"fillColor":[1,0,0]}];
-        var path1 = new Wick.Path({json: pathJson1});
-        project.activeFrame.addPath(path1);
-
-        project.view.render();
-
-        cursor.activate();
-
-        // Select the path
-        cursor.onMouseMove({
-            modifiers: {},
-            point: new paper.Point(25,25),
-        });
-        cursor.onMouseDown({
-            modifiers: {},
-            point: new paper.Point(25,25),
-        });
-        cursor.onMouseUp({
-            modifiers: {},
-            point: new paper.Point(25,25),
-            delta: new paper.Point(0,0),
-        });
-
-        // Scale the path horizontally by 50px, verically by 20px
-        cursor.onMouseMove({
-            modifiers: {},
-            point: new paper.Point(50,50),
-        });
-        cursor.onMouseDown({
-            modifiers: {},
-            point: new paper.Point(50,50),
-        });
-        cursor.onMouseDrag({
-            modifiers: {},
-            point: new paper.Point(75,60),
-            delta: new paper.Point(25,10),
-        });
-        cursor.onMouseUp({
-            modifiers: {},
-            point: new paper.Point(75,60),
-            delta: new paper.Point(25,10),
-        });
-
-        // Deselect the path
-        cursor.onMouseMove({
-            modifiers: {},
-            point: new paper.Point(200,200),
-        });
-        cursor.onMouseDown({
-            modifiers: {},
-            point: new paper.Point(200,200),
-        });
-        cursor.onMouseUp({
-            modifiers: {},
-            point: new paper.Point(200,200),
-            delta: new paper.Point(0,0),
-        });
-
-        expect(project.activeFrame.paths[0].uuid).to.equal(path1.uuid);
-        expect(project.activeFrame.paths.length).to.equal(1);
-        expect(project.activeFrame.paths[0].view.item.bounds.width).to.equal(100);
-        expect(project.activeFrame.paths[0].view.item.bounds.height).to.equal(70);
-    });
-
-    it('should scale object by dragging handles correctly (shift held = preserve aspect ratio)', function() {
-        var project = new Wick.Project();
-        var cursor = project.view.tools.cursor;
-
-        var pathJson1 = ["Path",{"segments":[[0,0],[50,0],[50,50],[0,50]],"closed":true,"fillColor":[1,0,0]}];
-        var path1 = new Wick.Path({json: pathJson1});
-        project.activeFrame.addPath(path1);
-
-        project.view.render();
-
-        cursor.activate();
-
-        // Select the path
-        cursor.onMouseMove({
-            modifiers: {},
-            point: new paper.Point(25,25),
-        });
-        cursor.onMouseDown({
-            modifiers: {},
-            point: new paper.Point(25,25),
-        });
-        cursor.onMouseUp({
-            modifiers: {},
-            point: new paper.Point(25,25),
-            delta: new paper.Point(0,0),
-        });
-
-        // Scale the path horizontally by 50px, verically by 20px
-        cursor.onMouseMove({
-            modifiers: {},
-            point: new paper.Point(50,50),
-        });
-        cursor.onMouseDown({
-            modifiers: {},
-            point: new paper.Point(50,50),
-        });
-        cursor.onMouseDrag({
-            modifiers: {shift: true},
-            point: new paper.Point(75,60),
-            delta: new paper.Point(25,10),
-        });
-        cursor.onMouseUp({
-            modifiers: {shift: true},
-            point: new paper.Point(75,60),
-            delta: new paper.Point(25,10),
-        });
-
-        // Deselect the path
-        cursor.onMouseMove({
-            modifiers: {},
-            point: new paper.Point(200,200),
-        });
-        cursor.onMouseDown({
-            modifiers: {},
-            point: new paper.Point(200,200),
-        });
-        cursor.onMouseUp({
-            modifiers: {},
-            point: new paper.Point(200,200),
-            delta: new paper.Point(0,0),
-        });
-
-        expect(project.activeFrame.paths[0].uuid).to.equal(path1.uuid);
-        expect(project.activeFrame.paths.length).to.equal(1);
-        expect(project.activeFrame.paths[0].view.item.bounds.width).to.equal(100);
-        expect(project.activeFrame.paths[0].view.item.bounds.height).to.equal(100);
-    });
-
-    it('should rotate selection by dragging handles correctly', function (done) {
+    it('should translate selection by dragging correctly', function () {
         throw new Error('nyi')
     });
 
-    it('should drag a segment of a path to modify that path', function (done) {
-        var project = new Wick.Project();
-        var cursor = project.view.tools.cursor;
+    it('should scale object by dragging handles correctly', function () {
+        throw new Error('nyi')
+    });
 
-        var pathJson1 = ["Path",{"segments":[[0,0],[50,0],[50,50],[0,50]],"closed":true,"fillColor":[1,0,0]}];
-        var path1 = new Wick.Path({json: pathJson1});
-        project.activeFrame.addPath(path1);
-        project.view.render();
+    it('should scale object by dragging handles correctly (shift held = preserve aspect ratio)', function () {
+        throw new Error('nyi')
+    });
 
-        cursor.activate();
+    it('should rotate selection by dragging handles correctly', function () {
+        throw new Error('nyi')
+    });
 
-        project.view.on('canvasModified', (e) => {
-            expect(project.activeFrame.paths.length).to.equal(1);
-            expect(project.activeFrame.paths[0].uuid).to.equal(path1.uuid);
-            expect(project.activeFrame.paths[0].view.item.bounds.width).to.equal(55);
-            expect(project.activeFrame.paths[0].view.item.bounds.height).to.equal(55);
-            done();
-        });
+    it('should drag a segment of a path to modify that path', function () {
+        throw new Error('nyi')
+    });
 
-        cursor.onMouseMove({
-            modifiers: {},
-            point: new paper.Point(50,50),
-        });
-        cursor.onMouseDown({
-            modifiers: {},
-            point: new paper.Point(50,50),
-        });
-        cursor.onMouseDrag({
-            modifiers: {},
-            point: new paper.Point(55,55),
-            delta: new paper.Point(5,5),
-        });
-        cursor.onMouseUp({
-            modifiers: {},
-            point: new paper.Point(50,50),
-            delta: new paper.Point(5,5),
-        });
+    it('should drag a curve of a path to modify that path', function () {
+        throw new Error('nyi')
     });
 });
 
@@ -294,8 +214,5 @@ describe('Wick.Tools.Cursor', function() {
 
     });
 
-    it('Should drag curve and update item', function() {
-
-    });
 });
 */
