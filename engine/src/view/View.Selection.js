@@ -39,16 +39,29 @@ Wick.View.Selection = class extends Wick.View {
         })
     }
 
+    applyChanges () {
+        this.model.transformation.x = this.paper.project.selection.transformation.x;
+        this.model.transformation.y = this.paper.project.selection.transformation.y;
+        this.model.transformation.scaleX = this.paper.project.selection.transformation.scaleX;
+        this.model.transformation.scaleY = this.paper.project.selection.transformation.scaleY;
+        this.model.transformation.rotation = this.paper.project.selection.transformation.rotation;
+    }
+
     _renderSVG () {
         this.layer.clear();
 
-        if(this.paper.project.selection) {
+        /*if(this.paper.project.selection) {
             this.paper.project.selection.finish({discardTransformation: true});
-        }
+        }*/
 
         this.paper.project.selection = new this.paper.Selection({
             layer: this.layer,
             items: this._selectedPaperItems(),
+            x: this.model.transformation.x,
+            y: this.model.transformation.y,
+            scaleX: this.model.transformation.scaleX,
+            scaleY: this.model.transformation.scaleY,
+            rotation: this.model.transformation.rotation,
         });
     }
 

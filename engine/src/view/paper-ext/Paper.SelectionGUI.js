@@ -94,7 +94,7 @@
 
         this.item = new paper.Group({
             insert: false,
-            applyMatrix: false,
+            applyMatrix: true,
         });
 
         this.item.addChild(this._createBorder());
@@ -148,7 +148,6 @@
     _createItemOutlines () {
         return this.items.map(item => {
             var itemForBounds = item.clone({insert:false});
-            //itemForBounds.matrix.set(new paper.Matrix());
 
             var outline = new paper.Path.Rectangle(itemForBounds.bounds);
             outline.fillColor = 'rgba(0,0,0,0)';

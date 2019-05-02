@@ -235,6 +235,12 @@ Wick.View.Project = class extends Wick.View {
      */
     applyChanges () {
         if(this.renderMode !== 'svg') return;
+
+        if(this.paper.project.selection) {
+            this.model.selection.view.applyChanges();
+            this.paper.project.selection.finish({discardTransformation: true});
+        }
+
         this.model.focus.timeline.activeFrames.forEach(frame => {
             frame.view.applyChanges();
         });
@@ -387,6 +393,10 @@ Wick.View.Project = class extends Wick.View {
     }
 
     _renderSVGCanvas () {
+        if(this.paper.project.selection) {
+            this.paper.project.selection.finish({discardTransformation: true});
+        }
+
         this.paper.project.clear();
 
         // Update zoom and pan

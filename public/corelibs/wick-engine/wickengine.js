@@ -66998,16 +66998,19 @@ Wick.Selection = class extends Wick.Base {
     if (!args) args = {};
     super(args);
     this._selectedObjectsUUIDs = args.selectedObjects || [];
+    this._transformation = new Wick.Transformation();
   }
 
   deserialize(data) {
     super.deserialize(data);
     this._selectedObjectsUUIDs = data.selectedObjects || [];
+    this._transformation = new Wick.Transformation(data.transformation);
   }
 
   serialize(args) {
     var data = super.serialize(args);
     data.selectedObjects = Array.from(this._selectedObjectsUUIDs);
+    data.transformation = this._transformation.values;
     return data;
   }
 
@@ -67154,6 +67157,14 @@ Wick.Selection = class extends Wick.Base {
 
   get numObjects() {
     return this._selectedObjectsUUIDs.length;
+  }
+  /**
+   * The current transformation of the selection.
+   */
+
+
+  get transformation() {
+    return this._transformation;
   }
 
   _locationOf(object) {
@@ -70763,31 +70774,63 @@ paper.Selection = class {
 
   _setHandlePositionAndScale(handleName, point) {
     /*
-    var lockYScale = handleName === 'leftCenter'
+    var point_origin = new paper.Point(this.transformation.originX, this.transformation.originY);
+    var point_drag = point//point.rotate(-this.transformation.rotation, point_origin);
+    var point_handle = this._getHandlePosition(handleName);
+     var distance_current = point_handle.subtract(point_origin);
+    var distance_new = point_drag.subtract(point_origin);
+     var sx = distance_new.x / distance_current.x;
+    var sy = distance_new.y / distance_current.y;
+     var lockYScale = handleName === 'leftCenter'
                   || handleName === 'rightCenter';
     var lockXScale = handleName === 'bottomCenter'
                   || handleName === 'topCenter';
-     if(!lockXScale) this._transform.scaleX = 1;
-    if(!lockYScale) this._transform.scaleY = 1;
-     var rotation = this._transform.rotation;
-    var x = this._transform.x;
-    var y = this._transform.y;
-     this._transform.rotation = 0;
-    this._transform.x = 0;
-    this._transform.y = 0;
-    this._render();
-     var translatedPosition = position.subtract(new paper.Point(x,y));
-    var rotatedPosition = translatedPosition.rotate(-rotation, this._pivotPoint);
-     var distFromHandle = rotatedPosition.subtract(this[handleName]);
-    var widthHeight = this[handleName].subtract(this._pivotPoint);
+     if(lockXScale) sx = 1;
+    if(lockYScale) sy = 1;
+     this.updateTransformation({
+        scaleX: this.transformation.scaleX * sx,
+        scaleY: this.transformation.scaleY * sy,
+    });
+    */
+    var lockYScale = handleName === 'leftCenter' || handleName === 'rightCenter';
+    var lockXScale = handleName === 'bottomCenter' || handleName === 'topCenter';
+    var rotation = this.transformation.rotation;
+    var x = this.transformation.x;
+    var y = this.transformation.y;
+    var resetTransform = {
+      x: 0,
+      y: 0,
+      rotation: 0
+    };
+    if (!lockXScale) resetTransform.scaleX = 1;
+    if (!lockYScale) resetTransform.scaleY = 1;
+    this.updateTransformation(resetTransform);
+    var origin = new paper.Point(this.transformation.originX, this.transformation.originY);
+    var translatedPosition = point.subtract(new paper.Point(x, y));
+    var rotatedPosition = translatedPosition.rotate(-rotation, origin);
+    var distFromHandle = rotatedPosition.subtract(this._getHandlePosition(handleName));
+
+    var widthHeight = this._getHandlePosition(handleName).subtract(origin);
+
     var newCornerPosition = distFromHandle.add(widthHeight);
     var scaleAmt = newCornerPosition.divide(widthHeight);
-     if(!lockXScale) this._transform.scaleX = scaleAmt.x;
+    /*
+    if(!lockXScale) this._transform.scaleX = scaleAmt.x;
     if(!lockYScale) this._transform.scaleY = this.lockScalingToAspectRatio ? scaleAmt.x : scaleAmt.y;
     this._transform.rotation = rotation;
     this._transform.x = x;
     this._transform.y = y;
     */
+
+    var newTransform = {
+      x: x,
+      y: y,
+      rotation: rotation
+    };
+    this.lockScalingToAspectRatio = false;
+    if (!lockXScale) newTransform.scaleX = scaleAmt.x;
+    if (!lockYScale) newTransform.scaleY = this.lockScalingToAspectRatio ? scaleAmt.x : scaleAmt.y;
+    this.updateTransformation(newTransform);
   }
 
   _setHandlePositionAndRotate(handleName, point) {
@@ -70815,9 +70858,9 @@ paper.Selection = class {
       return new paper.Point();
     } else {
       // Apply the current transform to get the absolute position of the handle
-      var matrix = paper.Selection._buildTransformationMatrix(this.transformation);
-
-      return child.position.transform(matrix);
+      //var matrix = paper.Selection._buildTransformationMatrix(this.transformation)
+      //return child.position.transform(matrix);
+      return child.position;
     }
   }
 
@@ -70979,7 +71022,7 @@ paper.SelectionGUI = class {
     this.bounds = args.bounds;
     this.item = new paper.Group({
       insert: false,
-      applyMatrix: false
+      applyMatrix: true
     });
     this.item.addChild(this._createBorder());
 
@@ -71031,8 +71074,7 @@ paper.SelectionGUI = class {
     return this.items.map(item => {
       var itemForBounds = item.clone({
         insert: false
-      }); //itemForBounds.matrix.set(new paper.Matrix());
-
+      });
       var outline = new paper.Path.Rectangle(itemForBounds.bounds);
       outline.fillColor = 'rgba(0,0,0,0)';
       outline.strokeColor = paper.SelectionGUI.BOX_STROKE_COLOR;
@@ -73494,6 +73536,14 @@ Wick.View.Project = class extends Wick.View {
 
   applyChanges() {
     if (this.renderMode !== 'svg') return;
+
+    if (this.paper.project.selection) {
+      this.model.selection.view.applyChanges();
+      this.paper.project.selection.finish({
+        discardTransformation: true
+      });
+    }
+
     this.model.focus.timeline.activeFrames.forEach(frame => {
       frame.view.applyChanges();
     });
@@ -73652,6 +73702,12 @@ Wick.View.Project = class extends Wick.View {
   }
 
   _renderSVGCanvas() {
+    if (this.paper.project.selection) {
+      this.paper.project.selection.finish({
+        discardTransformation: true
+      });
+    }
+
     this.paper.project.clear(); // Update zoom and pan
 
     if (this._fitMode === 'center') {
@@ -73955,18 +74011,28 @@ Wick.View.Selection = class extends Wick.View {
     });
   }
 
+  applyChanges() {
+    this.model.transformation.x = this.paper.project.selection.transformation.x;
+    this.model.transformation.y = this.paper.project.selection.transformation.y;
+    this.model.transformation.scaleX = this.paper.project.selection.transformation.scaleX;
+    this.model.transformation.scaleY = this.paper.project.selection.transformation.scaleY;
+    this.model.transformation.rotation = this.paper.project.selection.transformation.rotation;
+  }
+
   _renderSVG() {
     this.layer.clear();
-
-    if (this.paper.project.selection) {
-      this.paper.project.selection.finish({
-        discardTransformation: true
-      });
-    }
+    /*if(this.paper.project.selection) {
+        this.paper.project.selection.finish({discardTransformation: true});
+    }*/
 
     this.paper.project.selection = new this.paper.Selection({
       layer: this.layer,
-      items: this._selectedPaperItems()
+      items: this._selectedPaperItems(),
+      x: this.model.transformation.x,
+      y: this.model.transformation.y,
+      scaleX: this.model.transformation.scaleX,
+      scaleY: this.model.transformation.scaleY,
+      rotation: this.model.transformation.rotation
     });
   }
 

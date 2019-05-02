@@ -177,38 +177,47 @@ paper.Selection = class {
     }
 
     _setHandlePositionAndScale (handleName, point) {
-        /*
         var lockYScale = handleName === 'leftCenter'
                       || handleName === 'rightCenter';
         var lockXScale = handleName === 'bottomCenter'
                       || handleName === 'topCenter';
 
-        if(!lockXScale) this._transform.scaleX = 1;
-        if(!lockYScale) this._transform.scaleY = 1;
+        var rotation = this.transformation.rotation;
+        var x = this.transformation.x;
+        var y = this.transformation.y;
 
-        var rotation = this._transform.rotation;
-        var x = this._transform.x;
-        var y = this._transform.y;
+        var resetTransform = {
+            x: 0,
+            y: 0,
+            rotation: 0
+        };
 
-        this._transform.rotation = 0;
-        this._transform.x = 0;
-        this._transform.y = 0;
-        this._render();
+        if(!lockXScale) resetTransform.scaleX = 1;
+        if(!lockYScale) resetTransform.scaleY = 1;
 
-        var translatedPosition = position.subtract(new paper.Point(x,y));
-        var rotatedPosition = translatedPosition.rotate(-rotation, this._pivotPoint);
+        this.updateTransformation(resetTransform)
 
-        var distFromHandle = rotatedPosition.subtract(this[handleName]);
-        var widthHeight = this[handleName].subtract(this._pivotPoint);
+        var origin = new paper.Point(this.transformation.originX, this.transformation.originY);
+        var translatedPosition = point.subtract(new paper.Point(x,y));
+        var rotatedPosition = translatedPosition.rotate(-rotation, origin);
+
+        var distFromHandle = rotatedPosition.subtract(this._getHandlePosition(handleName));
+        var widthHeight = this._getHandlePosition(handleName).subtract(origin);
         var newCornerPosition = distFromHandle.add(widthHeight);
         var scaleAmt = newCornerPosition.divide(widthHeight);
 
-        if(!lockXScale) this._transform.scaleX = scaleAmt.x;
-        if(!lockYScale) this._transform.scaleY = this.lockScalingToAspectRatio ? scaleAmt.x : scaleAmt.y;
-        this._transform.rotation = rotation;
-        this._transform.x = x;
-        this._transform.y = y;
-        */
+        var newTransform = {
+            x: x,
+            y: y,
+            rotation: rotation,
+        };
+
+        this.lockScalingToAspectRatio = false;
+
+        if(!lockXScale) newTransform.scaleX = scaleAmt.x;
+        if(!lockYScale) newTransform.scaleY = this.lockScalingToAspectRatio ? scaleAmt.x : scaleAmt.y;
+
+        this.updateTransformation(newTransform);
     }
 
     _setHandlePositionAndRotate (handleName, point) {
@@ -236,8 +245,10 @@ paper.Selection = class {
             return new paper.Point();
         } else {
             // Apply the current transform to get the absolute position of the handle
-            var matrix = paper.Selection._buildTransformationMatrix(this.transformation)
-            return child.position.transform(matrix);
+            //var matrix = paper.Selection._buildTransformationMatrix(this.transformation)
+            //return child.position.transform(matrix);
+
+            return child.position;
         }
     }
 
