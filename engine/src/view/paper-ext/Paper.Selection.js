@@ -212,29 +212,33 @@ paper.Selection = class {
     }
 
     _setHandlePositionAndRotate (handleName, point) {
+        var point_origin = new paper.Point(this.transformation.originX, this.transformation.originY);
+        var point_drag = point;
+        var point_handle = this._getHandlePosition(handleName);
 
+        var angle_current = point_handle.subtract(point_origin).angle;
+        var angle_new = point_drag.subtract(point_origin).angle;
+        var angle_diff = angle_new - angle_current;
 
         this.updateTransformation({
-            rotation: angle,
+            rotation: this.transformation.rotation + angle_diff,
+        });
+    }
+
+    _getHandlePosition (handleName) {
+        // Find child with name in selection GUI
+        var child = this._gui.item.children.find(c => {
+            return c.data.handleEdge === handleName;
         });
 
-        /*
-        var x = this._transform.x;
-        var y = this._transform.y;
-
-        this._transform.rotation = 0;
-        this._transform.x = 0;
-        this._transform.y = 0;
-        this._render();
-
-        var orig_angle = this[handleName].subtract(this._pivotPoint).angle;
-        position = position.subtract(new paper.Point(x,y));
-        var angle = position.subtract(this._pivotPoint).angle;
-
-        this._transform.x = x;
-        this._transform.y = y;
-        this._transform.rotation = angle - orig_angle;
-        */
+        if(!child) {
+            console.error('Could not find handle with name: ' + handleName);
+            return new paper.Point();
+        } else {
+            // Apply the current transform to get the absolute position of the handle
+            var matrix = paper.Selection._buildTransformationMatrix(this.transformation)
+            return child.position.transform(matrix);
+        }
     }
 
     static _prepareItemsForSelection (items) {
