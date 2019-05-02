@@ -65881,12 +65881,11 @@ Wick.Project = class extends Wick.Base {
   }
   /**
    * The active frame of the active layer.
-   * @param {boolean} recursive - If set to true, will return all child frames as well.
    */
 
 
-  getAllFrames(recursive) {
-    return this.root.timeline.getAllFrames(recursive);
+  getAllFrames() {
+    return this.root.timeline.getAllFrames(true);
   }
   /**
    * The project selection.
@@ -66342,6 +66341,12 @@ Wick.Project = class extends Wick.Base {
 
 
   stop() {
+    // Run unload scripts on all objects
+    this.getAllFrames().forEach(frame => {
+      frame.clips.forEach(clip => {
+        clip.runScript('unload');
+      });
+    });
     this.stopAllSounds();
     clearInterval(this._tickIntervalID);
     this._tickIntervalID = null;
@@ -68246,13 +68251,14 @@ Wick.SoundAsset = class extends Wick.FileAsset {
 */
 GlobalAPI = class {
   /**
-   *
+   * @param {object} scriptOwner The tickable object which owns the script being evaluated.
    */
   constructor(scriptOwner) {
     this.scriptOwner = scriptOwner;
   }
   /**
-   *
+   * Defines all api members such as functions and properties. 
+   * @returns {string[]} All global API member names
    */
 
 
@@ -68264,7 +68270,8 @@ GlobalAPI = class {
     return names;
   }
   /**
-   *
+   * Returns a list of api members bound to the script owner.
+   * @returns {object[]} Array of functions, properties, and api members.
    */
 
 
@@ -68282,7 +68289,7 @@ GlobalAPI = class {
     return boundFunctions;
   }
   /**
-   *
+   * Stops the timeline of the object's parent clip.
    */
 
 
@@ -68290,7 +68297,7 @@ GlobalAPI = class {
     this.scriptOwner.parentClip.stop();
   }
   /**
-   *
+   * Plays the timeline of the object's parent clip.
    */
 
 
@@ -68298,7 +68305,8 @@ GlobalAPI = class {
     this.scriptOwner.parentClip.play();
   }
   /**
-   *
+   * Moves the plahead of the parent clip to a frame and stops the timeline of that parent clip.
+   * @param {string | number} frame Frame name or number to move playhead to.
    */
 
 
@@ -68306,7 +68314,8 @@ GlobalAPI = class {
     this.scriptOwner.parentClip.gotoAndStop(frame);
   }
   /**
-   *
+   * Moves the plahead of the parent clip to a frame and plays the timeline of that parent clip.
+   * @param {string | number} frame Frame name or number to move playhead to.
    */
 
 
@@ -68314,7 +68323,7 @@ GlobalAPI = class {
     this.scriptOwner.parentClip.gotoAndPlay(frame);
   }
   /**
-   *
+   * Moves the playhead of the parent clip of the object to the next frame. 
    */
 
 
@@ -68322,7 +68331,7 @@ GlobalAPI = class {
     this.scriptOwner.parentClip.gotoNextFrame();
   }
   /**
-   *
+   * Moves the playhead of the parent clip of this object to the previous frame.
    */
 
 
@@ -68330,7 +68339,8 @@ GlobalAPI = class {
     this.scriptOwner.parentClip.gotoPrevFrame();
   }
   /**
-   *
+   * Returns an object representing the project with properties such as width, height, framerate, background color, and name.
+   * @returns {object} Project object. 
    */
 
 
@@ -68358,7 +68368,8 @@ GlobalAPI = class {
     return this.project;
   }
   /**
-   *
+   * Returns a reference to the current object's parent.
+   * @returns Current object's parent.
    */
 
 
@@ -68375,7 +68386,8 @@ GlobalAPI = class {
     return this.parent;
   }
   /**
-   *
+   * Returns true if the mouse is currently held down.
+   * @returns {bool | null} Returns null if the object does not have a project.
    */
 
 
@@ -68384,7 +68396,8 @@ GlobalAPI = class {
     return this.scriptOwner.project.isMouseDown;
   }
   /**
-   *
+   * Returns the last key pressed down.
+   * @returns {string | null} Returns null if no key has been pressed yet. 
    */
 
 
@@ -68393,7 +68406,8 @@ GlobalAPI = class {
     return this.scriptOwner.project.currentKey;
   }
   /**
-   *
+   * Returns a list of all keys currently pressed down.
+   * @returns {string[]} All keys represented as strings. If no keys are pressed, an empty array is returned.
    */
 
 
@@ -68402,7 +68416,9 @@ GlobalAPI = class {
     return this.scriptOwner.project.keysDown;
   }
   /**
-   *
+   * Returns true if the given key is currently down.
+   * @param {string} key
+   * @returns {bool}
    */
 
 
@@ -68420,7 +68436,9 @@ GlobalAPI = class {
     return this.isKeyDown(key.toLowerCase());
   }
   /**
-   *
+   * Returns true if the given key was just pressed within the last tick.
+   * @param {string} key
+   * @returns {bool}
    */
 
 
@@ -68438,7 +68456,8 @@ GlobalAPI = class {
     return this.keyIsJustPressed(key.toLowerCase());
   }
   /**
-   *
+   * Returns the current x position of the mouse in relation to the canvas.
+   * @returns {number}
    */
 
 
@@ -68447,7 +68466,8 @@ GlobalAPI = class {
     return this.scriptOwner.project.mousePosition.x;
   }
   /**
-   *
+   * Returns the current y position of the mouse in relation to the canvas.
+   * @returns {number}
    */
 
 
@@ -68456,7 +68476,8 @@ GlobalAPI = class {
     return this.scriptOwner.project.mousePosition.y;
   }
   /**
-   *
+   * Returns a new random object.
+   * @returns {GlobalAPI.Random}
    */
 
 
@@ -68464,7 +68485,9 @@ GlobalAPI = class {
     return new GlobalAPI.Random();
   }
   /**
-   *
+   * Plays a sound which is currently in the asset library.
+   * @param {string} name of the sound asset in the library.
+   * @returns {object} object representing the sound which was played.
    */
 
 
@@ -68473,30 +68496,52 @@ GlobalAPI = class {
     return this.scriptOwner.project.playSound(assetName);
   }
   /**
-   *
+   * Stops all currently playing sounds.
    */
 
 
-  stopAllSounds(assetName) {
+  stopAllSounds() {
     if (!this.scriptOwner.project) return null;
-    return this.scriptOwner.project.stopAllSounds();
+    this.scriptOwner.project.stopAllSounds();
   }
 
 };
 GlobalAPI.Random = class {
-  constructor() {} //https://stackoverflow.com/questions/4959975/generate-random-number-between-two-numbers-in-javascript
+  constructor() {}
+  /**
+   * Returns a random integer (whole number) between two given integers.
+   * @param {number} min The minimum of the returned integer.
+   * @param {number} max The maximum of the returned integer.
+   * @returns {number} A random number between min and max. 
+   * https://stackoverflow.com/questions/4959975/generate-random-number-between-two-numbers-in-javascript
+   */
 
 
   integer(min, max) {
     return Math.floor(Math.random() * (max - min + 1) + min);
   }
+  /**
+   * Returns a random floating point (decimal) number between two given integers.
+   * @param {number} min The minimum of the returned number.
+   * @param {number} max The maximum of the returned number.
+   * @returns {number} A random number between min and max. 
+   * https://stackoverflow.com/questions/4959975/generate-random-number-between-two-numbers-in-javascript
+   */
+
 
   float(min, max) {
     return Math.random() * (max - min + 1) + min;
-  } //https://stackoverflow.com/questions/4550505/getting-a-random-value-from-a-javascript-array
+  }
+  /**
+   * Returns a random item from an array of items.
+   * @param {array} An array of objects.
+   * @returns {object | null} A random item contained in the array. Returns null if the given array has no items.
+   * https://stackoverflow.com/questions/4550505/getting-a-random-value-from-a-javascript-array
+   */
 
 
   choice(array) {
+    if (array.length <= 0) return null;
     return array[Math.floor(Math.random() * myArray.length)];
   }
 
@@ -73566,7 +73611,7 @@ Wick.View.Project = class extends Wick.View {
 
   prerasterize(callback) {
     var loadedFrames = [];
-    var allFrames = this.model.getAllFrames(true).filter(frame => {
+    var allFrames = this.model.getAllFrames().filter(frame => {
       return frame.paths.length > 0;
     });
     if (allFrames.length === 0) callback();
@@ -73592,7 +73637,7 @@ Wick.View.Project = class extends Wick.View {
 
   preloadImages(callback) {
     var allRasters = [];
-    this.model.getAllFrames(true).forEach(frame => {
+    this.model.getAllFrames().forEach(frame => {
       frame.paths.filter(path => {
         return path.paperPath instanceof this.paper.Raster;
       }).forEach(raster => {

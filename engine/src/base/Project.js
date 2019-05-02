@@ -251,10 +251,9 @@ Wick.Project = class extends Wick.Base {
 
     /**
      * The active frame of the active layer.
-     * @param {boolean} recursive - If set to true, will return all child frames as well.
      */
-    getAllFrames (recursive) {
-        return this.root.timeline.getAllFrames(recursive);
+    getAllFrames () {
+        return this.root.timeline.getAllFrames(true);
     }
 
     /**
@@ -688,6 +687,13 @@ Wick.Project = class extends Wick.Base {
      * Stop playing the project.
      */
     stop () {
+        // Run unload scripts on all objects
+        this.getAllFrames().forEach(frame => {
+            frame.clips.forEach(clip => {
+                clip.runScript('unload');
+            });
+        });
+
         this.stopAllSounds();
 
         clearInterval(this._tickIntervalID);
