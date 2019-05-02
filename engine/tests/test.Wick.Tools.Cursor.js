@@ -46,7 +46,21 @@ describe('Wick.Tools.Cursor', function() {
 
         /* Click nothing, should deselect path1 */
 
-        // todo
+        cursor.onMouseMove({
+            modifiers: {},
+            point: new paper.Point(200,200),
+        });
+        cursor.onMouseDown({
+            modifiers: {},
+            point: new paper.Point(200,200),
+        });
+        cursor.onMouseUp({
+            modifiers: {},
+            point: new paper.Point(200,200),
+            delta: new paper.Point(0,0),
+        });
+
+        expect(project.selection.numObjects).to.equal(0);
 
         /* Click path1, then click path2, should select path2 and deselect path1. */
 
