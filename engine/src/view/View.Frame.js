@@ -90,7 +90,7 @@ Wick.View.Frame = class extends Wick.View {
 
         this.pathsLayer.removeChildren();
         this.model.paths.forEach(path => {
-            path.view.render();
+            // path.view.render(); // Disabled. Path views are rendered lazily when json changes
             this.pathsLayer.addChild(path.view.item);
         });
     }
