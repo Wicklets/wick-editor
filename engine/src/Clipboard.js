@@ -21,6 +21,10 @@
  * A clipboard utility class for copy/paste functionality.
  */
 Wick.Clipboard = class {
+    static get PASTE_OFFSET () {
+        return 10;
+    }
+
     /**
      * Create a new Clipboard object.
      */
@@ -32,7 +36,10 @@ Wick.Clipboard = class {
      * Replace the current contents of the clipboard with new objects.
      * @param {Wick.Base[]} objects - the objects to copy to the clipboard
      */
-    copyObjectsToClipboard (objects) {
+    copyObjectsToClipboard (project, objects) {
+        if(!project || (!project instanceof Wick.Project)) console.error('copyObjectsToClipboard(): project is required');
+
+        this._copyLocation = project.activeFrame.uuid;
         this._objects = objects.map(object => {
             return object.clone();
         });
@@ -44,9 +51,14 @@ Wick.Clipboard = class {
      * @returns {boolean} True if there is something to paste in the clipboard, false if the clipboard is empty.
      */
     pasteObjectsFromClipboard (project) {
+        if(!project || (!project instanceof Wick.Project)) console.error('pasteObjectsFromClipboard(): project is required');
+
         if(this._objects.length === 0) {
             return false;
         }
+
+        // Always paste in-place if we're pasting to a different frame than where we copied from.
+        var pasteInPlace = this._copyLocation !== project.activeFrame.uuid;
 
         project.selection.clear();
 
@@ -54,6 +66,13 @@ Wick.Clipboard = class {
             return object.clone();
         }).forEach(object => {
             project.addObject(object);
+
+            // Add offset to Paths and Clips if pasteInPlace is NOT enabled.
+            if(!pasteInPlace && (object instanceof Wick.Path || object instanceof Wick.Clip)) {
+                object.x += Wick.Clipboard.PASTE_OFFSET;
+                object.y += Wick.Clipboard.PASTE_OFFSET;
+            }
+
             project.selection.select(object);
         });
 

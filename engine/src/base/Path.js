@@ -141,16 +141,33 @@ Wick.Path = class extends Wick.Base {
     }
 
     /**
-     *
-     */
-    get asset () {
-        return this.view.item.asset;
-    }
-
-    /**
      * Removes this path from its parent frame.
      */
     remove () {
         this.parentFrame.removePath(this);
+    }
+
+    /**
+     *
+     */
+    get x () {
+        return this.view.item.position.x;
+    }
+
+    set x (x) {
+        this.view.item.position.x = x;
+        this.json = this.view.exportJSON();
+    }
+
+    /**
+     *
+     */
+    get y () {
+        return this.view.item.position.y;
+    }
+
+    set y (y) {
+        this.view.item.position.y = y;
+        this.json = this.view.exportJSON();
     }
 }

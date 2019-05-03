@@ -59,7 +59,7 @@ Wick.ImageAsset = class extends Wick.FileAsset {
     removeAllInstances () {
         this.project.getAllFrames().forEach(frame => {
             frame.paths.forEach(path => {
-                if(path.asset === this.uuid) {
+                if(path.asset === this) {
                     path.remove();
                 }
             });

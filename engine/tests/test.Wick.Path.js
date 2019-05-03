@@ -80,6 +80,22 @@ describe('Wick.Path', function() {
         });
     });
 
+    describe('#x,y', function() {
+        it('should update x without errors', function () {
+            var path = new Wick.Path({json:TestUtils.TEST_PATH_JSON_RED_SQUARE});
+            expect(path.x).to.equal(25);
+            path.x = 50;
+            expect(path.x).to.equal(50);
+        });
+
+        it('should update y without errors', function () {
+            var path = new Wick.Path({json:TestUtils.TEST_PATH_JSON_RED_SQUARE});
+            expect(path.y).to.equal(25);
+            path.y = 50;
+            expect(path.y).to.equal(50);
+        });
+    })
+
     describe('#fillColorHex', function() {
         it('should return correct hex color', function () {
             var path = new Wick.Path({json:TestUtils.TEST_PATH_JSON_RED_SQUARE});

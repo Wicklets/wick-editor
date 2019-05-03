@@ -481,7 +481,7 @@ Wick.Project = class extends Wick.Base {
         if(objects.length === 0) {
             return false;
         } else {
-            this.clipboard.copyObjectsToClipboard(objects);
+            this.clipboard.copyObjectsToClipboard(this, objects);
             return true;
         }
     }
@@ -540,8 +540,8 @@ Wick.Project = class extends Wick.Base {
         }
 
         var transformation = new Wick.Transformation();
-        transformation.x = this.selection.view.paper.project.selection.bounds.center.x;
-        transformation.y = this.selection.view.paper.project.selection.bounds.center.y;
+        transformation.x = this.selection.view.paper.project.selection.origin.x;
+        transformation.y = this.selection.view.paper.project.selection.origin.y;
         var clip = new Wick[args.type]({
             identifier: args.identifier,
             objects: this.selection.getSelectedObjects('Canvas'),

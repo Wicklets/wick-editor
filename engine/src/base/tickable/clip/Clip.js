@@ -183,23 +183,23 @@ Wick.Clip = class extends Wick.Tickable {
      * @param {Wick.Base[]} objects - the paths and clips to add to the clip
      */
     addObjects (objects) {
-        var clips = objects.filter(object => {
-            return object instanceof Wick.Clip;
-        });
-        var paths = objects.filter(object => {
-            return object instanceof Wick.Path;
+        // Reposition objects such that their origin point is equal to this Clip's position
+        objects.forEach(object => {
+            object.x -= this.transformation.x;
+            object.y -= this.transformation.y;
         });
 
-        clips.forEach(clip => {
-            clip.transformation.x -= this.transformation.x;
-            clip.transformation.y -= this.transformation.y;
+        // Add clips
+        objects.filter(object => {
+            return object instanceof Wick.Clip;
+        }).forEach(clip => {
             this.activeFrame.addClip(clip);
         });
-        paths.forEach(path => {
-            path.view.item.position = new paper.Point(
-                path.view.item.position.x - this.transformation.x,
-                path.view.item.position.y - this.transformation.y
-            );
+
+        // Add paths
+        objects.filter(object => {
+            return object instanceof Wick.Path;
+        }).forEach(path => {
             this.activeFrame.addPath(path);
         });
     }
