@@ -38,13 +38,19 @@ Wick.View.Selection = class extends Wick.View {
                 var wickObject = Wick.ObjectCache.getObjectByUUID(uuid);
                 this.model.select(wickObject);
             });
-        }
 
-        this.model.transformation.x = this.paper.project.selection.transformation.x;
-        this.model.transformation.y = this.paper.project.selection.transformation.y;
-        this.model.transformation.scaleX = this.paper.project.selection.transformation.scaleX;
-        this.model.transformation.scaleY = this.paper.project.selection.transformation.scaleY;
-        this.model.transformation.rotation = this.paper.project.selection.transformation.rotation;
+            this.model.transformation.x = 0;
+            this.model.transformation.y = 0;
+            this.model.transformation.scaleX = 1;
+            this.model.transformation.scaleY = 1;
+            this.model.transformation.rotation = 0;
+        } else {
+            this.model.transformation.x = this.paper.project.selection.transformation.x;
+            this.model.transformation.y = this.paper.project.selection.transformation.y;
+            this.model.transformation.scaleX = this.paper.project.selection.transformation.scaleX;
+            this.model.transformation.scaleY = this.paper.project.selection.transformation.scaleY;
+            this.model.transformation.rotation = this.paper.project.selection.transformation.rotation;
+        }
     }
 
     _renderSVG () {

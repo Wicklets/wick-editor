@@ -176,7 +176,79 @@ describe('Wick.Tools.Cursor', function() {
     });
 
     it('should scale object by dragging handles correctly', function () {
-        throw new Error('nyi')
+        var project = new Wick.Project();
+        var cursor = project.view.tools.cursor;
+        cursor.activate();
+
+        var path1 = TestUtils.paperToWickPath(new paper.Path.Ellipse({
+            center: new paper.Point(25, 25),
+            radius: 25,
+            fillColor: '#ff0000',
+        }));
+
+        project.activeFrame.addPath(path1);
+        project.view.render();
+
+        /* Click path1, should select path1 */
+        cursor.onMouseMove({
+            point: new paper.Point(25,25),
+        });
+        cursor.onMouseDown({
+            point: new paper.Point(25,25),
+        });
+        cursor.onMouseUp({
+            point: new paper.Point(25,25),
+            delta: new paper.Point(0,0),
+        });
+
+        project.view.render();
+
+        /* Click and drag bottom right handle, should scale path1 */
+        cursor.onMouseMove({
+            point: new paper.Point(50,50),
+        });
+        cursor.onMouseDown({
+            point: new paper.Point(50,50),
+        });
+        cursor.onMouseDrag({
+            point: new paper.Point(75,50),
+        });
+        cursor.onMouseUp({
+            point: new paper.Point(25,25),
+            delta: new paper.Point(0,0),
+        });
+
+        expect(project.selection.transformation.x).to.equal(0);
+        expect(project.selection.transformation.y).to.equal(0);
+        expect(project.selection.transformation.scaleX).to.equal(2);
+        expect(project.selection.transformation.scaleY).to.equal(1);
+        expect(project.selection.transformation.rotation).to.equal(0);
+
+        /* Click outside of path1, will deselect path1 and apply the scale transform */
+        cursor.onMouseMove({
+            point: new paper.Point(200,200),
+        });
+        cursor.onMouseDown({
+            point: new paper.Point(200,200),
+        });
+        cursor.onMouseUp({
+            point: new paper.Point(200,200),
+            delta: new paper.Point(0,0),
+        });
+
+        project.view.render();
+
+        expect(project.selection.numObjects).to.equal(0);
+        expect(project.selection.transformation.x).to.equal(0);
+        expect(project.selection.transformation.y).to.equal(0);
+        expect(project.selection.transformation.scaleX).to.equal(1);
+        expect(project.selection.transformation.scaleY).to.equal(1);
+        expect(project.selection.transformation.rotation).to.equal(0);
+        expect(project.activeFrame.paths.length).to.equal(1);
+        expect(project.activeFrame.paths[0].bounds.top).to.equal(0);
+        expect(project.activeFrame.paths[0].bounds.bottom).to.equal(50);
+        expect(project.activeFrame.paths[0].bounds.left).to.equal(-25);
+        expect(project.activeFrame.paths[0].bounds.right).to.equal(75);
     });
 
     it('should scale object by dragging handles correctly (shift held = preserve aspect ratio)', function () {

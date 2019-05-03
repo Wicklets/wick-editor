@@ -33,6 +33,8 @@ paper.Selection = class {
     constructor (args) {
         if(!args) args = {};
 
+        this._lockScalingToAspectRatio = false;
+
         this._layer = args.layer || paper.project.activeLayer;
         this._items = args.items || [];
         this._transformation = {
@@ -98,6 +100,18 @@ paper.Selection = class {
      */
     updateTransformation (newTransformation) {
         this.transformation = Object.assign(this.transformation, newTransformation);
+    }
+
+    /**
+     * Toggles if scaling will preserve aspect ratio.
+     * @type {boolean}
+     */
+    get lockScalingToAspectRatio () {
+        return this._lockScalingToAspectRatio;
+    }
+
+    set lockScalingToAspectRatio (lockScalingToAspectRatio) {
+        this._lockScalingToAspectRatio = lockScalingToAspectRatio;
     }
 
     /**
@@ -351,9 +365,17 @@ paper.Selection = class {
 
         var newScale = newHandlePosition.divide(currentHandlePosition);
 
+        var lockYScale = handleName === 'leftCenter'
+                      || handleName === 'rightCenter';
+        var lockXScale = handleName === 'bottomCenter'
+                      || handleName === 'topCenter';
+
+        if(!lockXScale) newScale.x = this.transformation.x;
+        if(!lockYScale) newScale.y = this.transformation.y;
+
         this.updateTransformation({
             scaleX: newScale.x,
-            scaleY: newScale.y,
+            scaleY: this.lockScalingToAspectRatio ? newScale.x : newScale.y,
         });
     }
 

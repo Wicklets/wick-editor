@@ -113,6 +113,8 @@ Wick.Tools.Cursor = class extends Wick.Tool {
     }
 
     onMouseDown (e) {
+        if(!e.modifiers) e.modifiers = {};
+
         this.hitResult = this._updateHitResult(e);
 
         if(this.hitResult.item && this.hitResult.item.data.isSelectionBoxGUI) {
@@ -207,6 +209,8 @@ Wick.Tools.Cursor = class extends Wick.Tool {
     }
 
     onMouseUp (e) {
+        if(!e.modifiers) e.modifiers = {};
+
         if(this.selectionBox.active) {
             // Finish selection box and select objects touching box (or inside box, if alt is held)
             this.selectionBox.mode = e.modifiers.alt ? 'contains' : 'intersects';
