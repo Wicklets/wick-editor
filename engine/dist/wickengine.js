@@ -70774,77 +70774,52 @@ paper.Selection = class {
 
   _setHandlePositionAndScale(handleName, point) {
     /*
-    var point_origin = new paper.Point(this.transformation.originX, this.transformation.originY);
-    var point_drag = point//point.rotate(-this.transformation.rotation, point_origin);
-    var point_handle = this._getHandlePosition(handleName);
-     var distance_current = point_handle.subtract(point_origin);
-    var distance_new = point_drag.subtract(point_origin);
-     var sx = distance_new.x / distance_current.x;
-    var sy = distance_new.y / distance_current.y;
-     var lockYScale = handleName === 'leftCenter'
+    var lockYScale = handleName === 'leftCenter'
                   || handleName === 'rightCenter';
     var lockXScale = handleName === 'bottomCenter'
                   || handleName === 'topCenter';
-     if(lockXScale) sx = 1;
-    if(lockYScale) sy = 1;
-     this.updateTransformation({
-        scaleX: this.transformation.scaleX * sx,
-        scaleY: this.transformation.scaleY * sy,
-    });
-    */
-    var lockYScale = handleName === 'leftCenter' || handleName === 'rightCenter';
-    var lockXScale = handleName === 'bottomCenter' || handleName === 'topCenter';
-    var rotation = this.transformation.rotation;
+     var rotation = this.transformation.rotation;
     var x = this.transformation.x;
     var y = this.transformation.y;
-    var resetTransform = {
-      x: 0,
-      y: 0,
-      rotation: 0
+     var resetTransform = {
+        x: 0,
+        y: 0,
+        rotation: 0
     };
-    if (!lockXScale) resetTransform.scaleX = 1;
-    if (!lockYScale) resetTransform.scaleY = 1;
-    this.updateTransformation(resetTransform);
-    var origin = new paper.Point(this.transformation.originX, this.transformation.originY);
-    var translatedPosition = point.subtract(new paper.Point(x, y));
+     if(!lockXScale) resetTransform.scaleX = 1;
+    if(!lockYScale) resetTransform.scaleY = 1;
+     this.updateTransformation(resetTransform)
+     var origin = new paper.Point(this.transformation.originX, this.transformation.originY);
+    var translatedPosition = point.subtract(new paper.Point(x,y));
     var rotatedPosition = translatedPosition.rotate(-rotation, origin);
-    var distFromHandle = rotatedPosition.subtract(this._getHandlePosition(handleName));
-
+     var distFromHandle = rotatedPosition.subtract(this._getHandlePosition(handleName));
     var widthHeight = this._getHandlePosition(handleName).subtract(origin);
-
     var newCornerPosition = distFromHandle.add(widthHeight);
     var scaleAmt = newCornerPosition.divide(widthHeight);
-    /*
-    if(!lockXScale) this._transform.scaleX = scaleAmt.x;
-    if(!lockYScale) this._transform.scaleY = this.lockScalingToAspectRatio ? scaleAmt.x : scaleAmt.y;
-    this._transform.rotation = rotation;
-    this._transform.x = x;
-    this._transform.y = y;
-    */
-
-    var newTransform = {
-      x: x,
-      y: y,
-      rotation: rotation
+     var newTransform = {
+        x: x,
+        y: y,
+        rotation: rotation,
     };
-    this.lockScalingToAspectRatio = false;
-    if (!lockXScale) newTransform.scaleX = scaleAmt.x;
-    if (!lockYScale) newTransform.scaleY = this.lockScalingToAspectRatio ? scaleAmt.x : scaleAmt.y;
-    this.updateTransformation(newTransform);
+     this.lockScalingToAspectRatio = false;
+     if(!lockXScale) newTransform.scaleX = scaleAmt.x;
+    if(!lockYScale) newTransform.scaleY = this.lockScalingToAspectRatio ? scaleAmt.x : scaleAmt.y;
+     this.updateTransformation(newTransform);
+    */
   }
 
   _setHandlePositionAndRotate(handleName, point) {
+    /*
     var point_origin = new paper.Point(this.transformation.originX, this.transformation.originY);
     var point_drag = point;
-
     var point_handle = this._getHandlePosition(handleName);
-
-    var angle_current = point_handle.subtract(point_origin).angle;
+     var angle_current = point_handle.subtract(point_origin).angle;
     var angle_new = point_drag.subtract(point_origin).angle;
     var angle_diff = angle_new - angle_current;
-    this.updateTransformation({
-      rotation: this.transformation.rotation + angle_diff
+     this.updateTransformation({
+        rotation: this.transformation.rotation + angle_diff,
     });
+    */
   }
 
   _getHandlePosition(handleName) {
@@ -72267,14 +72242,15 @@ Wick.Tools.Cursor = class extends Wick.Tool {
   _setCursor(cursor) {
     this.currentCursorIcon = cursor;
   }
-
-  get _selection() {
-    return this.paper.project.selection;
+  /*
+  get _selection () {
+      return this.paper.project.selection;
   }
-
-  _isItemSelected(item) {
-    return this._selection.items.indexOf(item) !== -1;
+   _isItemSelected (item) {
+      return this._selection.items.indexOf(item) !== -1;
   }
+  */
+
 
 };
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
@@ -73536,14 +73512,7 @@ Wick.View.Project = class extends Wick.View {
 
   applyChanges() {
     if (this.renderMode !== 'svg') return;
-
-    if (this.paper.project.selection) {
-      this.model.selection.view.applyChanges();
-      this.paper.project.selection.finish({
-        discardTransformation: true
-      });
-    }
-
+    this.model.selection.view.applyChanges();
     this.model.focus.timeline.activeFrames.forEach(frame => {
       frame.view.applyChanges();
     });
@@ -73645,7 +73614,7 @@ Wick.View.Project = class extends Wick.View {
         this.model.zoom = this.zoom;
       });
       tool.on('selectionChanged', e => {
-        this.model.selection.view.updateModelSelection(e.items);
+        this.model.selection.view.applyChanges(e.items);
         this.fireEvent('canvasModified', e);
       });
       tool.on('error', e => {
@@ -73702,12 +73671,6 @@ Wick.View.Project = class extends Wick.View {
   }
 
   _renderSVGCanvas() {
-    if (this.paper.project.selection) {
-      this.paper.project.selection.finish({
-        discardTransformation: true
-      });
-    }
-
     this.paper.project.clear(); // Update zoom and pan
 
     if (this._fitMode === 'center') {
@@ -73996,22 +73959,22 @@ Wick.View.Selection = class extends Wick.View {
     this.paper.project.selection = null;
   }
 
-  updateModelSelection(items) {
-    this.model.clear();
-    items.forEach(item => {
-      var uuid = item.data.wickUUID;
+  applyChanges(items) {
+    if (items) {
+      this.model.clear();
+      items.forEach(item => {
+        var uuid = item.data.wickUUID;
 
-      if (!uuid) {
-        console.error('path is missing a wickUUID. the selection selected something it shouldnt have, or the view was not up-to-date.');
-        console.error(item);
-      }
+        if (!uuid) {
+          console.error('path is missing a wickUUID. the selection selected something it shouldnt have, or the view was not up-to-date.');
+          console.error(item);
+        }
 
-      var wickObject = Wick.ObjectCache.getObjectByUUID(uuid);
-      this.model.select(wickObject);
-    });
-  }
+        var wickObject = Wick.ObjectCache.getObjectByUUID(uuid);
+        this.model.select(wickObject);
+      });
+    }
 
-  applyChanges() {
     this.model.transformation.x = this.paper.project.selection.transformation.x;
     this.model.transformation.y = this.paper.project.selection.transformation.y;
     this.model.transformation.scaleX = this.paper.project.selection.transformation.scaleX;
@@ -74021,9 +73984,12 @@ Wick.View.Selection = class extends Wick.View {
 
   _renderSVG() {
     this.layer.clear();
-    /*if(this.paper.project.selection) {
-        this.paper.project.selection.finish({discardTransformation: true});
-    }*/
+
+    if (this.paper.project.selection) {
+      this.paper.project.selection.finish({
+        discardTransformation: true
+      });
+    }
 
     this.paper.project.selection = new this.paper.Selection({
       layer: this.layer,

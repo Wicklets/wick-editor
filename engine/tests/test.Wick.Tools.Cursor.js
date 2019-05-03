@@ -133,9 +133,6 @@ describe('Wick.Tools.Cursor', function() {
             delta: new paper.Point(0,0),
         });
 
-        // render view to update selected paper paths inside paper.project.selection:
-        this.model.selection.view.render();
-
         /* Click path2 with shift held, should select path2 */
         cursor.onMouseMove({
             modifiers: {},

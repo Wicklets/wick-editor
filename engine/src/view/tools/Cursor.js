@@ -374,6 +374,7 @@ Wick.Tools.Cursor = class extends Wick.Tool {
         this.currentCursorIcon = cursor;
     }
 
+    /*
     get _selection () {
         return this.paper.project.selection;
     }
@@ -381,4 +382,5 @@ Wick.Tools.Cursor = class extends Wick.Tool {
     _isItemSelected (item) {
         return this._selection.items.indexOf(item) !== -1;
     }
+    */
 }

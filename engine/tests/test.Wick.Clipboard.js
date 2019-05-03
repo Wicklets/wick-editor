@@ -31,4 +31,8 @@ describe('Wick.Clipboard', function() {
         expect(project.selection.getSelectedObject().uuid).to.not.equal(path2.uuid);
         expect(project.selection.getSelectedObject().uuid).to.equal(project.activeFrame.paths[2].uuid);
     });
+
+    it('should copy and paste objects (in-place) correctly', function () {
+        throw new Error('nyi');
+    });
 });
