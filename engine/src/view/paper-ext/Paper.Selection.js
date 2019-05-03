@@ -208,14 +208,18 @@ paper.Selection = class {
     }
 
     /**
-     * TODO docs
+     * Return a paper.js path attribute of the selection.
+     * @param {string} attributeName - the name of the attribute
      */
     getPathAttribute (attributeName) {
+        if(this.items.length === 0) {
+            console.error('getPathAttribute(): Nothing in the selection!');
+        }
         return this.items[0][attributeName];
     }
 
     /**
-     * Get a paper.js path attribute of the selection.
+     * Update a paper.js path attribute of the selection.
      * @param {string} attributeName - the name of the attribute
      * @param {object} attributeValue - the value of the attribute to change
      */
