@@ -1006,4 +1006,10 @@ describe('Paper.Selection', function() {
             expect(path1.strokeWidth).to.equal(3);
         });
     });
+
+    describe('scale/rotation handles', function () {
+        it('should scale selection', function () {
+            
+        });
+    });
 });

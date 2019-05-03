@@ -65037,9 +65037,14 @@ window.Wick = Wick;
  * A clipboard utility class for copy/paste functionality.
  */
 Wick.Clipboard = class {
+  static get PASTE_OFFSET() {
+    return 10;
+  }
   /**
    * Create a new Clipboard object.
    */
+
+
   constructor() {
     this._objects = [];
   }
@@ -65049,7 +65054,9 @@ Wick.Clipboard = class {
    */
 
 
-  copyObjectsToClipboard(objects) {
+  copyObjectsToClipboard(project, objects) {
+    if (!project || !project instanceof Wick.Project) console.error('copyObjectsToClipboard(): project is required');
+    this._copyLocation = project.activeFrame.uuid;
     this._objects = objects.map(object => {
       return object.clone();
     });
@@ -65062,16 +65069,26 @@ Wick.Clipboard = class {
 
 
   pasteObjectsFromClipboard(project) {
+    if (!project || !project instanceof Wick.Project) console.error('pasteObjectsFromClipboard(): project is required');
+
     if (this._objects.length === 0) {
       return false;
-    }
+    } // Always paste in-place if we're pasting to a different frame than where we copied from.
 
+
+    var pasteInPlace = this._copyLocation !== project.activeFrame.uuid;
     project.selection.clear();
 
     this._objects.map(object => {
       return object.clone();
     }).forEach(object => {
-      project.addObject(object);
+      project.addObject(object); // Add offset to Paths and Clips if pasteInPlace is NOT enabled.
+
+      if (!pasteInPlace && (object instanceof Wick.Path || object instanceof Wick.Clip)) {
+        object.x += Wick.Clipboard.PASTE_OFFSET;
+        object.y += Wick.Clipboard.PASTE_OFFSET;
+      }
+
       project.selection.select(object);
     });
 
@@ -66636,7 +66653,7 @@ Wick.Project = class extends Wick.Base {
     if (objects.length === 0) {
       return false;
     } else {
-      this.clipboard.copyObjectsToClipboard(objects);
+      this.clipboard.copyObjectsToClipboard(this, objects);
       return true;
     }
   }
@@ -66701,8 +66718,8 @@ Wick.Project = class extends Wick.Base {
     }
 
     var transformation = new Wick.Transformation();
-    transformation.x = this.selection.view.paper.project.selection.bounds.center.x;
-    transformation.y = this.selection.view.paper.project.selection.bounds.center.y;
+    transformation.x = this.selection.view.paper.project.selection.origin.x;
+    transformation.y = this.selection.view.paper.project.selection.origin.y;
     var clip = new Wick[args.type]({
       identifier: args.identifier,
       objects: this.selection.getSelectedObjects('Canvas'),
@@ -67919,20 +67936,38 @@ Wick.Path = class extends Wick.Base {
     };
   }
   /**
-   *
-   */
-
-
-  get asset() {
-    return this.view.item.asset;
-  }
-  /**
    * Removes this path from its parent frame.
    */
 
 
   remove() {
     this.parentFrame.removePath(this);
+  }
+  /**
+   *
+   */
+
+
+  get x() {
+    return this.view.item.position.x;
+  }
+
+  set x(x) {
+    this.view.item.position.x = x;
+    this.json = this.view.exportJSON();
+  }
+  /**
+   *
+   */
+
+
+  get y() {
+    return this.view.item.position.y;
+  }
+
+  set y(y) {
+    this.view.item.position.y = y;
+    this.json = this.view.exportJSON();
   }
 
 };
@@ -68155,7 +68190,7 @@ Wick.ImageAsset = class extends Wick.FileAsset {
   removeAllInstances() {
     this.project.getAllFrames().forEach(frame => {
       frame.paths.forEach(path => {
-        if (path.asset === this.uuid) {
+        if (path.asset === this) {
           path.remove();
         }
       });
@@ -69702,19 +69737,21 @@ Wick.Clip = class extends Wick.Tickable {
 
 
   addObjects(objects) {
-    var clips = objects.filter(object => {
+    // Reposition objects such that their origin point is equal to this Clip's position
+    objects.forEach(object => {
+      object.x -= this.transformation.x;
+      object.y -= this.transformation.y;
+    }); // Add clips
+
+    objects.filter(object => {
       return object instanceof Wick.Clip;
-    });
-    var paths = objects.filter(object => {
-      return object instanceof Wick.Path;
-    });
-    clips.forEach(clip => {
-      clip.transformation.x -= this.transformation.x;
-      clip.transformation.y -= this.transformation.y;
+    }).forEach(clip => {
       this.activeFrame.addClip(clip);
-    });
-    paths.forEach(path => {
-      path.view.item.position = new paper.Point(path.view.item.position.x - this.transformation.x, path.view.item.position.y - this.transformation.y);
+    }); // Add paths
+
+    objects.filter(object => {
+      return object instanceof Wick.Path;
+    }).forEach(path => {
       this.activeFrame.addPath(path);
     });
   }
@@ -70620,7 +70657,6 @@ paper.Selection = class {
    */
   constructor(args) {
     if (!args) args = {};
-    this.handleDragMode = 'scale';
     this._layer = args.layer || paper.project.activeLayer;
     this._items = args.items || [];
     this._transformation = {
@@ -70632,18 +70668,18 @@ paper.Selection = class {
       originX: 0,
       originY: 0
     };
-    this._bounds = paper.Selection._getBoundsOfItems(this._items);
+    this._untransformedBounds = paper.Selection._getBoundsOfItems(this._items);
 
     if (args.originX !== undefined) {
       this._transformation.originX = args.originX;
     } else {
-      this._transformation.originX = this._bounds.center.x;
+      this._transformation.originX = this._untransformedBounds.center.x;
     }
 
     if (args.originY !== undefined) {
       this._transformation.originY = args.originY;
     } else {
-      this._transformation.originY = this._bounds.center.y;
+      this._transformation.originY = this._untransformedBounds.center.y;
     }
 
     this._create();
@@ -70694,48 +70730,290 @@ paper.Selection = class {
     this.transformation = Object.assign(this.transformation, newTransformation);
   }
   /**
-   * The bounds of selected items, i.e., the smallest rectangle that contains all items in the selection.
-   * @type {paper.Rectangle}
+   * The absolute position of the top-left handle of the selection.
+   * @type {paper.Point}
    */
 
 
-  get bounds() {
-    return this._bounds;
+  get position() {
+    return this._untransformedBounds.topLeft.transform(this._matrix);
+  }
+
+  set position(position) {
+    var d = position.subtract(this.position);
+    this.updateTransformation({
+      x: this.transformation.x + d.x,
+      y: this.transformation.y + d.y
+    });
   }
   /**
-   * The type of transformation to use while dragging handles. Can be 'scale' or 'rotation'.
+   * The absolute position of the origin of the selection.
+   * @type {paper.Point}
    */
 
 
-  get handleDragMode() {
-    return this._handleDragMode;
+  get origin() {
+    return new paper.Point(this._transformation.originX, this._transformation.originY).transform(this._matrix);
   }
 
-  set handleDragMode(handleDragMode) {
-    if (handleDragMode === 'scale' || handleDragMode === 'rotation') {
-      this._handleDragMode = handleDragMode;
-    } else {
-      console.error('Paper.Selection: Invalid handleDragMode: ' + handleDragMode);
-      console.error('Valid handleDragModes: "scale", "rotation"');
-    }
+  set origin(origin) {
+    var d = origin.subtract(this.origin);
+    this.updateTransformation({
+      x: this.transformation.x + d.x,
+      y: this.transformation.y + d.y
+    });
   }
   /**
-   * Drag a handle to scale or rotate the selection. Will scale if handleDragMode is set to 'scale', and will rotate if handleDragMode is set to 'rotate'.
-   * @param {paper.Point} point - the point to drag the handle to.
-   * @param {string} handleName - the name of the handle to drag. Can be 'topLeft', 'topCenter', 'topRight', 'rightCenter', 'bottomRight', 'bottomCenter', 'bottomLeft', or 'leftCenter'.
+   * The width of the selection.
+   * @type {number}
    */
 
 
-  setHandlePosition(args) {
-    if (!args) console.error('setHandlePosition(): args is required');
-    if (!args.point) console.error('setHandlePosition(): args.point is required');
-    if (!args.handleName) console.error('setHandlePosition(): args.handleName is required');
+  get width() {
+    return this._untransformedBounds.width * this.transformation.scaleX;
+  }
 
-    if (this._handleDragMode === 'scale') {
-      this._setHandlePositionAndScale(args.handleName, args.point);
-    } else if (this._handleDragMode === 'rotation') {
-      this._setHandlePositionAndRotate(args.handleName, args.point);
+  set width(width) {
+    var d = this.width / width;
+    this.updateTransformation({
+      scaleX: this.transformation.scaleX / d
+    });
+  }
+  /**
+   * The height of the selection.
+   * @type {number}
+   */
+
+
+  get height() {
+    return this._untransformedBounds.height * this.transformation.scaleY;
+  }
+
+  set height(height) {
+    var d = this.height / height;
+    this.updateTransformation({
+      scaleY: this.transformation.scaleY / d
+    });
+  }
+  /**
+   * The x-scale of the selection.
+   * @type {number}
+   */
+
+
+  get scaleX() {
+    return this.transformation.scaleX;
+  }
+
+  set scaleX(scaleX) {
+    this.updateTransformation({
+      scaleX: scaleX
+    });
+  }
+  /**
+   * The y-scale of the selection.
+   * @type {number}
+   */
+
+
+  get scaleY() {
+    return this.transformation.scaleY;
+  }
+
+  set scaleY(scaleY) {
+    this.updateTransformation({
+      scaleY: scaleY
+    });
+  }
+  /**
+   * The rotation of the selection.
+   * @type {number}
+   */
+
+
+  get rotation() {
+    return this.transformation.rotation;
+  }
+
+  set rotation(rotation) {
+    this.updateTransformation({
+      rotation: rotation
+    });
+  }
+  /**
+   * Return a paper.js path attribute of the selection.
+   * @param {string} attributeName - the name of the attribute
+   */
+
+
+  getPathAttribute(attributeName) {
+    if (this.items.length === 0) {
+      console.error('getPathAttribute(): Nothing in the selection!');
     }
+
+    return this.items[0][attributeName];
+  }
+  /**
+   * Update a paper.js path attribute of the selection.
+   * @param {string} attributeName - the name of the attribute
+   * @param {object} attributeValue - the value of the attribute to change
+   */
+
+
+  setPathAttrribute(attributeName, attributeValue) {
+    this.items.forEach(item => {
+      item[attributeName] = attributeValue;
+    });
+  }
+  /**
+   * The fill color of the selection.
+   */
+
+
+  get fillColor() {
+    return this.getPathAttribute('fillColor');
+  }
+
+  set fillColor(fillColor) {
+    this.setPathAttrribute('fillColor', fillColor);
+  }
+  /**
+   * The stroke color of the selection.
+   */
+
+
+  get strokeColor() {
+    return this.getPathAttribute('strokeColor');
+  }
+
+  set strokeColor(strokeColor) {
+    this.setPathAttrribute('strokeColor', strokeColor);
+  }
+  /**
+   * The stroke color of the selection.
+   */
+
+
+  get strokeWidth() {
+    return this.getPathAttribute('strokeWidth');
+  }
+
+  set strokeWidth(strokeWidth) {
+    this.setPathAttrribute('strokeWidth', strokeWidth);
+  }
+  /**
+   * Flip the selection horizontally.
+   */
+
+
+  flipHorizontally() {
+    this.updateTransformation({
+      scaleX: -this.transformation.scaleX
+    });
+  }
+  /**
+   * Flip the selection vertically.
+   */
+
+
+  flipVertically() {
+    this.updateTransformation({
+      scaleY: -this.transformation.scaleY
+    });
+  }
+  /**
+   * Moves the selected items forwards.
+   */
+
+
+  moveForwards() {
+    paper.Selection._sortItemsByLayer(this._items).forEach(items => {
+      paper.Selection._sortItemsByZIndex(items).reverse().forEach(item => {
+        if (item.nextSibling && this._items.indexOf(item.nextSibling) === -1) {
+          item.insertAbove(item.nextSibling);
+        }
+      });
+    });
+  }
+  /**
+   * Moves the selected items backwards.
+   */
+
+
+  moveBackwards() {
+    paper.Selection._sortItemsByLayer(this._items).forEach(items => {
+      paper.Selection._sortItemsByZIndex(items).forEach(item => {
+        if (item.previousSibling && this._items.indexOf(item.previousSibling) === -1) {
+          item.insertBelow(item.previousSibling);
+        }
+      });
+    });
+  }
+  /**
+   * Brings the selected objects to the front.
+   */
+
+
+  bringToFront() {
+    paper.Selection._sortItemsByLayer(this._items).forEach(items => {
+      paper.Selection._sortItemsByZIndex(items).forEach(item => {
+        item.bringToFront();
+      });
+    });
+  }
+  /**
+   * Sends the selected objects to the back.
+   */
+
+
+  sendToBack() {
+    paper.Selection._sortItemsByLayer(this._items).forEach(items => {
+      paper.Selection._sortItemsByZIndex(items).reverse().forEach(item => {
+        item.sendToBack();
+      });
+    });
+  }
+  /**
+   * Nudge the selection by a specified amount.
+   */
+
+
+  nudge(x, y) {
+    this.position = this.position.add(new paper.Point(x, y));
+  }
+  /**
+   * wip
+   */
+
+
+  moveHandleAndScale(handleName, position) {
+    var newHandlePosition = position;
+    var currentHandlePosition = this._untransformedBounds[handleName];
+    currentHandlePosition = currentHandlePosition.add(new paper.Point(this.transformation.x, this.transformation.y));
+    newHandlePosition = newHandlePosition.subtract(this.origin);
+    currentHandlePosition = currentHandlePosition.subtract(this.origin);
+    newHandlePosition = newHandlePosition.rotate(-this.rotation, new paper.Point(0, 0));
+    var newScale = newHandlePosition.divide(currentHandlePosition);
+    this.updateTransformation({
+      scaleX: newScale.x,
+      scaleY: newScale.y
+    });
+  }
+  /**
+   * wip
+   */
+
+
+  moveHandleAndRotate(handleName, position) {
+    var newHandlePosition = position;
+    var currentHandlePosition = this._untransformedBounds[handleName];
+    currentHandlePosition = currentHandlePosition.transform(this._matrix);
+    newHandlePosition = newHandlePosition.subtract(this.origin);
+    currentHandlePosition = currentHandlePosition.subtract(this.origin);
+    var angleDiff = newHandlePosition.angle - currentHandlePosition.angle;
+    this.updateTransformation({
+      rotation: this.transformation.rotation + angleDiff
+    });
   }
   /**
    * Finish and destroy the selection.
@@ -70756,87 +71034,23 @@ paper.Selection = class {
     this._gui = new paper.SelectionGUI({
       items: this._items,
       transformation: this._transformation,
-      bounds: this._bounds
+      bounds: this._untransformedBounds
     }); // Don't add GUI to paper if nothing is selected...
 
     if (this._items.length > 0) {
       this._layer.addChild(this._gui.item);
-    }
+    } // Build transform matrix
 
-    paper.Selection._transformItems(this._items.concat(this._gui.item), this._transformation);
+
+    this._matrix = paper.Selection._buildTransformationMatrix(this._transformation);
+
+    paper.Selection._transformItems(this._items.concat(this._gui.item), this._matrix);
   }
 
   _destroy(discardTransformation) {
     paper.Selection._freeItemsFromSelection(this.items, discardTransformation);
 
     this._gui.destroy();
-  }
-
-  _setHandlePositionAndScale(handleName, point) {
-    /*
-    var lockYScale = handleName === 'leftCenter'
-                  || handleName === 'rightCenter';
-    var lockXScale = handleName === 'bottomCenter'
-                  || handleName === 'topCenter';
-     var rotation = this.transformation.rotation;
-    var x = this.transformation.x;
-    var y = this.transformation.y;
-     var resetTransform = {
-        x: 0,
-        y: 0,
-        rotation: 0
-    };
-     if(!lockXScale) resetTransform.scaleX = 1;
-    if(!lockYScale) resetTransform.scaleY = 1;
-     this.updateTransformation(resetTransform)
-     var origin = new paper.Point(this.transformation.originX, this.transformation.originY);
-    var translatedPosition = point.subtract(new paper.Point(x,y));
-    var rotatedPosition = translatedPosition.rotate(-rotation, origin);
-     var distFromHandle = rotatedPosition.subtract(this._getHandlePosition(handleName));
-    var widthHeight = this._getHandlePosition(handleName).subtract(origin);
-    var newCornerPosition = distFromHandle.add(widthHeight);
-    var scaleAmt = newCornerPosition.divide(widthHeight);
-     var newTransform = {
-        x: x,
-        y: y,
-        rotation: rotation,
-    };
-     this.lockScalingToAspectRatio = false;
-     if(!lockXScale) newTransform.scaleX = scaleAmt.x;
-    if(!lockYScale) newTransform.scaleY = this.lockScalingToAspectRatio ? scaleAmt.x : scaleAmt.y;
-     this.updateTransformation(newTransform);
-    */
-  }
-
-  _setHandlePositionAndRotate(handleName, point) {
-    /*
-    var point_origin = new paper.Point(this.transformation.originX, this.transformation.originY);
-    var point_drag = point;
-    var point_handle = this._getHandlePosition(handleName);
-     var angle_current = point_handle.subtract(point_origin).angle;
-    var angle_new = point_drag.subtract(point_origin).angle;
-    var angle_diff = angle_new - angle_current;
-     this.updateTransformation({
-        rotation: this.transformation.rotation + angle_diff,
-    });
-    */
-  }
-
-  _getHandlePosition(handleName) {
-    // Find child with name in selection GUI
-    var child = this._gui.item.children.find(c => {
-      return c.data.handleEdge === handleName;
-    });
-
-    if (!child) {
-      console.error('Could not find handle with name: ' + handleName);
-      return new paper.Point();
-    } else {
-      // Apply the current transform to get the absolute position of the handle
-      //var matrix = paper.Selection._buildTransformationMatrix(this.transformation)
-      //return child.position.transform(matrix);
-      return child.position;
-    }
   }
 
   static _prepareItemsForSelection(items) {
@@ -70864,9 +71078,7 @@ paper.Selection = class {
     });
   }
 
-  static _transformItems(items, transformation) {
-    var matrix = paper.Selection._buildTransformationMatrix(transformation);
-
+  static _transformItems(items, matrix) {
     items.forEach(item => {
       if (item.data.originalMatrix) {
         item.matrix.set(item.data.originalMatrix);
@@ -70897,6 +71109,35 @@ paper.Selection = class {
       bounds = bounds ? bounds.unite(item.bounds) : item.bounds;
     });
     return bounds;
+  }
+
+  static _sortItemsByLayer(items) {
+    var layerLists = {};
+    items.forEach(item => {
+      // Create new list for the item's layer if it doesn't exist
+      var layerID = item.layer.id;
+
+      if (!layerLists[layerID]) {
+        layerLists[layerID] = [];
+      } // Add this item to its corresponding layer list
+
+
+      layerLists[layerID].push(item);
+    }); // Convert id->array object to array of arrays
+
+    var layerItemsArrays = [];
+
+    for (var layerID in layerLists) {
+      layerItemsArrays.push(layerLists[layerID]);
+    }
+
+    return layerItemsArrays;
+  }
+
+  static _sortItemsByZIndex(items) {
+    return items.sort(function (a, b) {
+      return a.index - b.index;
+    });
   }
 
 };
@@ -72034,12 +72275,15 @@ Wick.Tools.Cursor = class extends Wick.Tool {
     if (this.hitResult.item && this.hitResult.item.data.isSelectionBoxGUI) {
       // Drag a handle of the selection box.
       // These can scale and rotate the selection.
-      this._selection.handleDragMode = this.hitResult.item.data.handleType;
+      //this._selection.handleDragMode = this.hitResult.item.data.handleType;
+      var hitItem = this.hitResult.item;
+      console.log(hitItem.data);
 
-      this._selection.setHandlePosition({
-        handleName: this.hitResult.item.data.handleEdge,
-        point: e.point
-      });
+      if (hitItem.data.handleType === 'scale') {
+        this._selection.moveHandleAndScale(hitItem.data.handleEdge, e.point);
+      } else if (hitItem.data.handleType === 'rotation') {
+        this._selection.moveHandleAndRotate(hitItem.data.handleEdge, e.point);
+      }
     } else if (this.selectionBox.active) {
       // Selection box is being used, update it with a new point
       this.selectionBox.drag(e.point);
@@ -72242,15 +72486,14 @@ Wick.Tools.Cursor = class extends Wick.Tool {
   _setCursor(cursor) {
     this.currentCursorIcon = cursor;
   }
-  /*
-  get _selection () {
-      return this.paper.project.selection;
-  }
-   _isItemSelected (item) {
-      return this._selection.items.indexOf(item) !== -1;
-  }
-  */
 
+  get _selection() {
+    return this.paper.project.selection;
+  }
+
+  _isItemSelected(item) {
+    return this._selection.items.indexOf(item) !== -1;
+  }
 
 };
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
@@ -74517,15 +74760,7 @@ Wick.View.Frame = class extends Wick.View {
     this.pathsLayer.children.filter(child => {
       return child.data.wickType !== 'gui';
     }).forEach(child => {
-      var pathJSON = child.exportJSON({
-        asString: false
-      });
-
-      if (pathJSON[0] === "Raster") {
-        pathJSON[1].asset = child.data.asset;
-        pathJSON[1].source = 'asset';
-      }
-
+      var pathJSON = Wick.View.Path.exportJSON(child);
       var wickPath = new Wick.Path({
         json: pathJSON
       });
@@ -74596,8 +74831,10 @@ Wick.View.Path = class extends Wick.View {
   importJSON(json) {
     // Prepare image asset data
     if (json[0] === "Raster") {
-      this._assetUUID = json[1].asset;
-      var src = Wick.FileCache.getFile(this._assetUUID).src;
+      var assetUUID = json[1].asset;
+      var asset = Wick.FileCache.getFile(assetUUID);
+      this._asset = asset;
+      var src = asset.src;
       json[1].source = src;
     } // Import JSON data into paper.js
 
@@ -74624,17 +74861,25 @@ Wick.View.Path = class extends Wick.View {
     };
   }
   /**
-   * Export the path as paper.js Path json data.
+   * Export this path as paper.js Path json data.
    */
 
 
   exportJSON() {
-    var json = this._paperPath.exportJSON({
+    return Wick.View.Path.exportJSON(this.item);
+  }
+  /**
+   * Export a path as paper.js Path json data.
+   */
+
+
+  static exportJSON(item) {
+    var json = item.exportJSON({
       asString: false
     });
 
     if (json[0] === "Raster") {
-      json[1].asset = this._assetUUID;
+      json[1].asset = item.data.asset;
       json[1].source = 'asset';
     }
 

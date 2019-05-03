@@ -336,6 +336,47 @@ paper.Selection = class {
     }
 
     /**
+     * wip
+     */
+    moveHandleAndScale (handleName, position) {
+        var newHandlePosition = position;
+        var currentHandlePosition = this._untransformedBounds[handleName];
+
+        currentHandlePosition = currentHandlePosition.add(new paper.Point(this.transformation.x, this.transformation.y));
+
+        newHandlePosition = newHandlePosition.subtract(this.origin);
+        currentHandlePosition = currentHandlePosition.subtract(this.origin);
+
+        newHandlePosition = newHandlePosition.rotate(-this.rotation, new paper.Point(0,0));
+
+        var newScale = newHandlePosition.divide(currentHandlePosition);
+
+        this.updateTransformation({
+            scaleX: newScale.x,
+            scaleY: newScale.y,
+        });
+    }
+
+    /**
+     * wip
+     */
+    moveHandleAndRotate (handleName, position) {
+        var newHandlePosition = position;
+        var currentHandlePosition = this._untransformedBounds[handleName];
+
+        currentHandlePosition = currentHandlePosition.transform(this._matrix);
+
+        newHandlePosition = newHandlePosition.subtract(this.origin);
+        currentHandlePosition = currentHandlePosition.subtract(this.origin);
+
+        var angleDiff = newHandlePosition.angle - currentHandlePosition.angle;
+
+        this.updateTransformation({
+            rotation: this.transformation.rotation + angleDiff,
+        });
+    }
+
+    /**
      * Finish and destroy the selection.
      * @param {boolean} discardTransformation - If set to true, will reset all items to their original transforms before the selection was made.
      */
@@ -369,32 +410,6 @@ paper.Selection = class {
     _destroy (discardTransformation) {
         paper.Selection._freeItemsFromSelection(this.items, discardTransformation);
         this._gui.destroy();
-    }
-
-    _setHandlePositionAndScale (handleName, point) {
-        throw new Error('nyi');
-    }
-
-    _setHandlePositionAndRotate (handleName, point) {
-        throw new Error('nyi');
-    }
-
-    _getHandlePosition (handleName) {
-        // Find child with name in selection GUI
-        var child = this._gui.item.children.find(c => {
-            return c.data.handleEdge === handleName;
-        });
-
-        if(!child) {
-            console.error('Could not find handle with name: ' + handleName);
-            return new paper.Point();
-        } else {
-            // Apply the current transform to get the absolute position of the handle
-            //var matrix = paper.Selection._buildTransformationMatrix(this.transformation)
-            //return child.position.transform(matrix);
-
-            return child.position;
-        }
     }
 
     static _prepareItemsForSelection (items) {

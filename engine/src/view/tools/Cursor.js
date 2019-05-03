@@ -159,11 +159,13 @@ Wick.Tools.Cursor = class extends Wick.Tool {
         if(this.hitResult.item && this.hitResult.item.data.isSelectionBoxGUI) {
             // Drag a handle of the selection box.
             // These can scale and rotate the selection.
-            this._selection.handleDragMode = this.hitResult.item.data.handleType;
-            this._selection.setHandlePosition({
-                handleName: this.hitResult.item.data.handleEdge,
-                point: e.point,
-            });
+            //this._selection.handleDragMode = this.hitResult.item.data.handleType;
+            var hitItem = this.hitResult.item;
+            if(hitItem.data.handleType === 'scale') {
+                this._selection.moveHandleAndScale(hitItem.data.handleEdge, e.point);
+            } else if (hitItem.data.handleType === 'rotation') {
+                this._selection.moveHandleAndRotate(hitItem.data.handleEdge, e.point);
+            }
         } else if (this.selectionBox.active) {
             // Selection box is being used, update it with a new point
             this.selectionBox.drag(e.point);
@@ -374,7 +376,6 @@ Wick.Tools.Cursor = class extends Wick.Tool {
         this.currentCursorIcon = cursor;
     }
 
-    /*
     get _selection () {
         return this.paper.project.selection;
     }
@@ -382,5 +383,4 @@ Wick.Tools.Cursor = class extends Wick.Tool {
     _isItemSelected (item) {
         return this._selection.items.indexOf(item) !== -1;
     }
-    */
 }
