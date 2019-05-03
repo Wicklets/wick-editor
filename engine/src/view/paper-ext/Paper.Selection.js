@@ -208,6 +208,57 @@ paper.Selection = class {
     }
 
     /**
+     * TODO docs
+     */
+    getPathAttribute (attributeName) {
+        return this.items[0][attributeName];
+    }
+
+    /**
+     * Get a paper.js path attribute of the selection.
+     * @param {string} attributeName - the name of the attribute
+     * @param {object} attributeValue - the value of the attribute to change
+     */
+    setPathAttrribute (attributeName, attributeValue) {
+        this.items.forEach(item => {
+            item[attributeName] = attributeValue;
+        });
+    }
+
+    /**
+     * The fill color of the selection.
+     */
+    get fillColor () {
+        return this.getPathAttribute('fillColor');
+    }
+
+    set fillColor (fillColor) {
+        this.setPathAttrribute('fillColor', fillColor);
+    }
+
+    /**
+     * The stroke color of the selection.
+     */
+    get strokeColor () {
+        return this.getPathAttribute('strokeColor');
+    }
+
+    set strokeColor (strokeColor) {
+        this.setPathAttrribute('strokeColor', strokeColor);
+    }
+
+    /**
+     * The stroke color of the selection.
+     */
+    get strokeWidth () {
+        return this.getPathAttribute('strokeWidth');
+    }
+
+    set strokeWidth (strokeWidth) {
+        this.setPathAttrribute('strokeWidth', strokeWidth);
+    }
+
+    /**
      * Flip the selection horizontally.
      */
     flipHorizontally () {

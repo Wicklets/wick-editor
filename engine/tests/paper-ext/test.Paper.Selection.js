@@ -107,6 +107,80 @@ describe('Paper.Selection', function() {
         };
     }
 
+    let createDummyPaperInstanceForPathAttributes = () => {
+        var paperScope = TestUtils.createPaperScope();
+
+        //  ---   ---
+        // |p1 | |p2 |
+        //  ---   ---
+        //        ---
+        //       |p3 |
+        //        ---
+
+        var path1 = new paperScope.Path.Ellipse({
+            center: new paper.Point(0,0),
+            radius: 25,
+            fillColor: '#ff0000',
+            strokeColor: '#000000',
+            strokeWidth: 1,
+            applyMatrix: true,
+        });
+        var path2 = new paperScope.Path.Ellipse({
+            center: new paper.Point(20,20),
+            radius: 25,
+            fillColor: '#00ff00',
+            strokeColor: '#000000',
+            strokeWidth: 2,
+            applyMatrix: true,
+        });
+        var path3 = new paperScope.Path.Ellipse({
+            center: new paper.Point(40,40),
+            radius: 25,
+            fillColor: '#0000ff',
+            strokeColor: '#000000',
+            strokeWidth: 3,
+            applyMatrix: true,
+        });
+        var path4 = new paperScope.Path.Ellipse({
+            center: new paper.Point(60,60),
+            radius: 25,
+            fillColor: '#ff00ff',
+            strokeColor: '#ffffff',
+            strokeWidth: 4,
+            applyMatrix: true,
+        });
+        var path5 = new paperScope.Path.Ellipse({
+            center: new paper.Point(80,80),
+            radius: 25,
+            fillColor: '#ffff00',
+            strokeColor: '#ffffff',
+            strokeWidth: 5,
+            applyMatrix: true,
+        });
+
+        var guiLayer = new paperScope.Layer();
+        paperScope.project.addLayer(guiLayer);
+
+        var contentLayer = new paperScope.Layer();
+        paperScope.project.addLayer(contentLayer);
+        contentLayer.addChild(path1);
+        contentLayer.addChild(path2);
+        contentLayer.addChild(path3);
+        contentLayer.addChild(path4);
+        contentLayer.addChild(path5);
+
+        return {
+            paperScope: paperScope,
+            guiLayer: guiLayer,
+            contentLayer: contentLayer,
+            path1: path1,
+            path2: path2,
+            path3: path3,
+            path4: path4,
+            path5: path5,
+        };
+    }
+
     describe('constructor', function () {
         it('should instantiate correctly', function () {
             var dummy = createDummyPaperInstance();
@@ -859,6 +933,77 @@ describe('Paper.Selection', function() {
 
             expect(selection.position.x).to.equal(20);
             expect(selection.position.y).to.equal(20);
+        });
+    });
+
+    describe('path attributes', function () {
+        it('should update fillColor (one path)', function () {
+            var dummy = createDummyPaperInstanceForPathAttributes();
+
+            var paperScope = dummy.paperScope;
+            var guiLayer = dummy.guiLayer;
+            var contentLayer = dummy.contentLayer;
+            var path1 = dummy.path1;
+            var path2 = dummy.path2;
+            var path3 = dummy.path3;
+            var path4 = dummy.path4;
+            var path5 = dummy.path5;
+
+            var selection = new paperScope.Selection({
+                layer: guiLayer,
+                items: [path1],
+            });
+
+            expect(selection.fillColor.toCSS(true)).to.equal('#ff0000');
+            selection.fillColor = '#0000ff';
+            expect(selection.fillColor.toCSS(true)).to.equal('#0000ff');
+            expect(path1.fillColor.toCSS(true)).to.equal('#0000ff');
+        });
+
+        it('should update strokeColor (one path)', function () {
+            var dummy = createDummyPaperInstanceForPathAttributes();
+
+            var paperScope = dummy.paperScope;
+            var guiLayer = dummy.guiLayer;
+            var contentLayer = dummy.contentLayer;
+            var path1 = dummy.path1;
+            var path2 = dummy.path2;
+            var path3 = dummy.path3;
+            var path4 = dummy.path4;
+            var path5 = dummy.path5;
+
+            var selection = new paperScope.Selection({
+                layer: guiLayer,
+                items: [path1],
+            });
+
+            expect(selection.strokeColor.toCSS(true)).to.equal('#000000');
+            selection.strokeColor = '#ffffff';
+            expect(selection.strokeColor.toCSS(true)).to.equal('#ffffff');
+            expect(path1.strokeColor.toCSS(true)).to.equal('#ffffff');
+        });
+
+        it('should update strokeWidth (one path)', function () {
+            var dummy = createDummyPaperInstanceForPathAttributes();
+
+            var paperScope = dummy.paperScope;
+            var guiLayer = dummy.guiLayer;
+            var contentLayer = dummy.contentLayer;
+            var path1 = dummy.path1;
+            var path2 = dummy.path2;
+            var path3 = dummy.path3;
+            var path4 = dummy.path4;
+            var path5 = dummy.path5;
+
+            var selection = new paperScope.Selection({
+                layer: guiLayer,
+                items: [path1],
+            });
+
+            expect(selection.strokeWidth).to.equal(1);
+            selection.strokeWidth = 3;
+            expect(selection.strokeWidth).to.equal(3);
+            expect(path1.strokeWidth).to.equal(3);
         });
     });
 });
