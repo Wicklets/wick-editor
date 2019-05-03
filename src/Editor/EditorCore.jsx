@@ -22,6 +22,7 @@ import localForage from 'localforage';
 import { saveAs } from 'file-saver';
 import GIFExport from './export/GIFExport';
 import ZIPExport from './export/ZIPExport';
+import VideoExport from './export/VideoExport/VideoExport';
 
 class EditorCore extends Component {
   /**
@@ -894,6 +895,18 @@ class EditorCore extends Component {
         text: "Successfully saved .gif file." });
       saveAs(blob, this.project.name + '.gif');
     });
+  }
+
+  /**
+   * Export the current project as a video.
+   */
+  exportProjectAsVideo = () => {
+    let args = {
+      project: this.project,
+      onDone: (blob) => {saveAs(blob, 'out.webm')},
+    }
+
+    VideoExport.renderProjectAsVideo(args);
   }
 
   /**

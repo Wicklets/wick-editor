@@ -64,6 +64,10 @@ class MenuBar extends Component {
             action={this.openProjectFileDialog}
           />
           <MenuBarButton
+            text="Video"
+            action={this.props.exportProjectAsVideo}
+          />
+          <MenuBarButton
             text="GIF"
             action={this.props.exportProjectAsAnimatedGIF}
           />

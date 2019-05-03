@@ -16,7 +16,7 @@ class GIFExport {
     gif.on('finished', done);
 
     // Get frame images from project, add to GIF.js
-    project.generateImageSequence(project, images => {
+    project.generateImageSequence({}, images => {
       images.forEach(image => {
         gif.addFrame(image, {delay: 1000/project.framerate});
       });
