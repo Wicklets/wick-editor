@@ -1028,6 +1028,16 @@ describe('Paper.Selection', function() {
             selection.moveHandleAndScale('bottomRight', new paper.Point(150,100));
             expect(selection.scaleX).to.equal(2);
             expect(selection.scaleY).to.equal(1);
+
+            selection.moveHandleAndScale('bottomRight', new paper.Point(75,100));
+            expect(selection.scaleX).to.equal(0.5);
+            expect(selection.scaleY).to.equal(1);
+
+            selection.moveHandleAndScale('bottomRight', new paper.Point(100,100));
+            expect(selection.scaleX).to.equal(1);
+            expect(selection.scaleY).to.equal(1);
         });
+
+        // TODO: NEED MORE TESTS HERE ...
     });
 });

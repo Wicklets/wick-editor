@@ -133,6 +133,8 @@ describe('Wick.Tools.Cursor', function() {
             delta: new paper.Point(0,0),
         });
 
+        project.view.render();
+
         /* Click path2 with shift held, should select path2 */
         cursor.onMouseMove({
             modifiers: {},
