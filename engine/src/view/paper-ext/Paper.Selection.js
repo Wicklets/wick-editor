@@ -177,6 +177,7 @@ paper.Selection = class {
     }
 
     _setHandlePositionAndScale (handleName, point) {
+        /*
         var lockYScale = handleName === 'leftCenter'
                       || handleName === 'rightCenter';
         var lockXScale = handleName === 'bottomCenter'
@@ -218,9 +219,11 @@ paper.Selection = class {
         if(!lockYScale) newTransform.scaleY = this.lockScalingToAspectRatio ? scaleAmt.x : scaleAmt.y;
 
         this.updateTransformation(newTransform);
+        */
     }
 
     _setHandlePositionAndRotate (handleName, point) {
+        /*
         var point_origin = new paper.Point(this.transformation.originX, this.transformation.originY);
         var point_drag = point;
         var point_handle = this._getHandlePosition(handleName);
@@ -232,6 +235,7 @@ paper.Selection = class {
         this.updateTransformation({
             rotation: this.transformation.rotation + angle_diff,
         });
+        */
     }
 
     _getHandlePosition (handleName) {

@@ -133,7 +133,8 @@ describe('Wick.Tools.Cursor', function() {
             delta: new paper.Point(0,0),
         });
 
-        project.view.render();
+        // render view to update selected paper paths inside paper.project.selection:
+        this.model.selection.view.render();
 
         /* Click path2 with shift held, should select path2 */
         cursor.onMouseMove({
@@ -194,25 +195,20 @@ describe('Wick.Tools.Cursor', function() {
     it('should drag a curve of a path to modify that path', function () {
         throw new Error('nyi')
     });
-});
 
-// Old tests:
-/*
     it('Should clear selection and select item if segment is clicked', function() {
-
+        throw new Error('nyi')
     });
 
     it('Should clear selection and select item if curve is clicked', function() {
-
+        throw new Error('nyi')
     });
 
     it('Should add item to selection if segment is clicked and shift is held', function() {
-
+        throw new Error('nyi')
     });
 
     it('Should add item to selection if curve is clicked and shift is held', function() {
-
+        throw new Error('nyi')
     });
-
 });
-*/

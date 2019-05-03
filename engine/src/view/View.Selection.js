@@ -26,20 +26,20 @@ Wick.View.Selection = class extends Wick.View {
         this.paper.project.selection = null;
     }
 
-    updateModelSelection (items) {
-        this.model.clear();
-        items.forEach(item => {
-            var uuid = item.data.wickUUID;
-            if(!uuid) {
-                console.error('path is missing a wickUUID. the selection selected something it shouldnt have, or the view was not up-to-date.');
-                console.error(item);
-            }
-            var wickObject = Wick.ObjectCache.getObjectByUUID(uuid);
-            this.model.select(wickObject);
-        })
-    }
+    applyChanges (items) {
+        if(items) {
+            this.model.clear();
+            items.forEach(item => {
+                var uuid = item.data.wickUUID;
+                if(!uuid) {
+                    console.error('path is missing a wickUUID. the selection selected something it shouldnt have, or the view was not up-to-date.');
+                    console.error(item);
+                }
+                var wickObject = Wick.ObjectCache.getObjectByUUID(uuid);
+                this.model.select(wickObject);
+            });
+        }
 
-    applyChanges () {
         this.model.transformation.x = this.paper.project.selection.transformation.x;
         this.model.transformation.y = this.paper.project.selection.transformation.y;
         this.model.transformation.scaleX = this.paper.project.selection.transformation.scaleX;
@@ -50,9 +50,9 @@ Wick.View.Selection = class extends Wick.View {
     _renderSVG () {
         this.layer.clear();
 
-        /*if(this.paper.project.selection) {
+        if(this.paper.project.selection) {
             this.paper.project.selection.finish({discardTransformation: true});
-        }*/
+        }
 
         this.paper.project.selection = new this.paper.Selection({
             layer: this.layer,
