@@ -1009,7 +1009,25 @@ describe('Paper.Selection', function() {
 
     describe('scale/rotation handles', function () {
         it('should scale selection', function () {
-            
+            var dummy = createDummyPaperInstance();
+
+            var paperScope = dummy.paperScope;
+            var path1 = dummy.path1;
+            var path2 = dummy.path2;
+            var path3 = dummy.path3;
+
+            var selection = new paperScope.Selection({
+                layer: paperScope.project.activeLayer,
+                items: [path1, path2, path3],
+            });
+
+            selection.moveHandleAndScale('bottomRight', new paper.Point(100,100));
+            expect(selection.scaleX).to.equal(1);
+            expect(selection.scaleY).to.equal(1);
+
+            selection.moveHandleAndScale('bottomRight', new paper.Point(150,100));
+            expect(selection.scaleX).to.equal(2);
+            expect(selection.scaleY).to.equal(1);
         });
     });
 });
