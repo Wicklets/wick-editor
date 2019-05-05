@@ -70657,6 +70657,7 @@ paper.Selection = class {
    */
   constructor(args) {
     if (!args) args = {};
+    this._lockScalingToAspectRatio = false;
     this._layer = args.layer || paper.project.activeLayer;
     this._items = args.items || [];
     this._transformation = {
@@ -70728,6 +70729,19 @@ paper.Selection = class {
 
   updateTransformation(newTransformation) {
     this.transformation = Object.assign(this.transformation, newTransformation);
+  }
+  /**
+   * Toggles if scaling will preserve aspect ratio.
+   * @type {boolean}
+   */
+
+
+  get lockScalingToAspectRatio() {
+    return this._lockScalingToAspectRatio;
+  }
+
+  set lockScalingToAspectRatio(lockScalingToAspectRatio) {
+    this._lockScalingToAspectRatio = lockScalingToAspectRatio;
   }
   /**
    * The absolute position of the top-left handle of the selection.
@@ -70994,9 +71008,13 @@ paper.Selection = class {
     currentHandlePosition = currentHandlePosition.subtract(this.origin);
     newHandlePosition = newHandlePosition.rotate(-this.rotation, new paper.Point(0, 0));
     var newScale = newHandlePosition.divide(currentHandlePosition);
+    var lockYScale = handleName === 'leftCenter' || handleName === 'rightCenter';
+    var lockXScale = handleName === 'bottomCenter' || handleName === 'topCenter';
+    if (lockXScale) newScale.x = this.transformation.x;
+    if (lockYScale) newScale.y = this.transformation.y;
     this.updateTransformation({
       scaleX: newScale.x,
-      scaleY: newScale.y
+      scaleY: this.lockScalingToAspectRatio ? newScale.x : newScale.y
     });
   }
   /**
@@ -72230,6 +72248,7 @@ Wick.Tools.Cursor = class extends Wick.Tool {
   }
 
   onMouseDown(e) {
+    if (!e.modifiers) e.modifiers = {};
     this.hitResult = this._updateHitResult(e);
 
     if (this.hitResult.item && this.hitResult.item.data.isSelectionBoxGUI) {// The selection box was clicked
@@ -72272,12 +72291,14 @@ Wick.Tools.Cursor = class extends Wick.Tool {
   }
 
   onMouseDrag(e) {
+    if (!e.modifiers) e.modifiers = {};
+
     if (this.hitResult.item && this.hitResult.item.data.isSelectionBoxGUI) {
-      // Drag a handle of the selection box.
+      // Lock aspect ratio if shift is help
+      this._selection.lockScalingToAspectRatio = e.modifiers.shift; // Drag a handle of the selection box.
       // These can scale and rotate the selection.
-      //this._selection.handleDragMode = this.hitResult.item.data.handleType;
+
       var hitItem = this.hitResult.item;
-      console.log(hitItem.data);
 
       if (hitItem.data.handleType === 'scale') {
         this._selection.moveHandleAndScale(hitItem.data.handleEdge, e.point);
@@ -72325,6 +72346,8 @@ Wick.Tools.Cursor = class extends Wick.Tool {
   }
 
   onMouseUp(e) {
+    if (!e.modifiers) e.modifiers = {};
+
     if (this.selectionBox.active) {
       // Finish selection box and select objects touching box (or inside box, if alt is held)
       this.selectionBox.mode = e.modifiers.alt ? 'contains' : 'intersects';
@@ -74216,13 +74239,18 @@ Wick.View.Selection = class extends Wick.View {
         var wickObject = Wick.ObjectCache.getObjectByUUID(uuid);
         this.model.select(wickObject);
       });
+      this.model.transformation.x = 0;
+      this.model.transformation.y = 0;
+      this.model.transformation.scaleX = 1;
+      this.model.transformation.scaleY = 1;
+      this.model.transformation.rotation = 0;
+    } else {
+      this.model.transformation.x = this.paper.project.selection.transformation.x;
+      this.model.transformation.y = this.paper.project.selection.transformation.y;
+      this.model.transformation.scaleX = this.paper.project.selection.transformation.scaleX;
+      this.model.transformation.scaleY = this.paper.project.selection.transformation.scaleY;
+      this.model.transformation.rotation = this.paper.project.selection.transformation.rotation;
     }
-
-    this.model.transformation.x = this.paper.project.selection.transformation.x;
-    this.model.transformation.y = this.paper.project.selection.transformation.y;
-    this.model.transformation.scaleX = this.paper.project.selection.transformation.scaleX;
-    this.model.transformation.scaleY = this.paper.project.selection.transformation.scaleY;
-    this.model.transformation.rotation = this.paper.project.selection.transformation.rotation;
   }
 
   _renderSVG() {

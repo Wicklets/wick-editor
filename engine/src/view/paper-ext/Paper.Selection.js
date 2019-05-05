@@ -370,8 +370,8 @@ paper.Selection = class {
         var lockXScale = handleName === 'bottomCenter'
                       || handleName === 'topCenter';
 
-        if(!lockXScale) newScale.x = this.transformation.x;
-        if(!lockYScale) newScale.y = this.transformation.y;
+        if(lockXScale) newScale.x = this.transformation.x;
+        if(lockYScale) newScale.y = this.transformation.y;
 
         this.updateTransformation({
             scaleX: newScale.x,
