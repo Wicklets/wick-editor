@@ -109,7 +109,7 @@ class EditorCore extends Component {
   zoomIn = (zoomPercentage) => {
     zoomPercentage = zoomPercentage ? zoomPercentage : this.toolRestrictions.zoomPercentage.step;
     let currentZoom = this.project.zoom*100;
-    this.updateZoom(currentZoom+zoomPercentage);
+    this.updateZoom(currentZoom*zoomPercentage);
   }
 
   /**
@@ -120,7 +120,7 @@ class EditorCore extends Component {
   zoomOut = (zoomPercentage) => {
     zoomPercentage = zoomPercentage ? zoomPercentage : this.toolRestrictions.zoomPercentage.step;
     let currentZoom = this.project.zoom*100;
-    this.updateZoom(currentZoom-zoomPercentage);
+    this.updateZoom(currentZoom/zoomPercentage);
   }
 
   /**

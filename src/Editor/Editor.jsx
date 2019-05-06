@@ -159,7 +159,7 @@ class Editor extends EditorCore {
       zoomPercentage: {
         min: 10,
         max: 2000,
-        step: 25,
+        step: 1.25,
       },
       soundVolume: {
         min: 0,
