@@ -160,7 +160,19 @@ describe('Wick.Tools.Cursor', function() {
 
         // todo
 
-        /* Click and drag box around path1 (but with alt held), should NOT select path1 */
+        /* Click and drag box around path2, should select path2 */
+
+        // todo
+
+        /* Click and drag box around path1 and path2, should select path1 and path2 */
+
+        // todo
+
+        throw new Error('nyi');
+    });
+
+    it('should select items correctly with selection box (alt held)', function () {
+        /* Click and drag box around path1 and only touching path2 (with alt held), should select path1, should NOT select path2 */
 
         // todo
 
@@ -168,11 +180,27 @@ describe('Wick.Tools.Cursor', function() {
     });
 
     it('should select multiple items correctly with selection box (shift held)', function() {
-        throw new Error('nyi')
+        /* Click and drag box around path1, should select path1 */
+
+        // todo
+
+        /* Click and drag box around path2 (with shift held), should select path1 and path2 */
+
+        // todo
     });
 
     it('should translate selection by dragging correctly', function () {
-        throw new Error('nyi')
+        /* select path1 */
+
+        // todo
+
+        /* Drag selection, should change selection transform */
+
+        // todo
+
+        /* Click anywhere, should apply transforms and move path1 */
+
+        // todo
     });
 
     it('should scale object by dragging handles correctly', function () {

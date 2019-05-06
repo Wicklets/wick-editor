@@ -190,4 +190,8 @@ describe('Wick.View.Selection', function() {
         expect(path3.view.item.bounds.width).to.equal(100);
         expect(path3.view.item.bounds.height).to.equal(50);
     });
+
+    it('should update wick paths when playhead is moved (selection is automatically cleared)', function () {
+        throw new Error('nyi');
+    });
 });
