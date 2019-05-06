@@ -80,6 +80,7 @@ paper.Selection = class {
     }
 
     set items (items) {
+        this._destroy(false);
         this._items = items;
     }
 
@@ -354,7 +355,7 @@ paper.Selection = class {
     }
 
     /**
-     * wip
+     * TODO
      */
     moveHandleAndScale (handleName, position) {
         var newHandlePosition = position;
@@ -384,7 +385,7 @@ paper.Selection = class {
     }
 
     /**
-     * wip
+     * TODO
      */
     moveHandleAndRotate (handleName, position) {
         var newHandlePosition = position;
@@ -446,23 +447,26 @@ paper.Selection = class {
     }
 
     static _freeItemsFromSelection (items, discardTransforms) {
-        // Reset matrix and applyMatrix to what is was before we added it to the selection
+        if(discardTransforms) {
+            // Reset matrix and applyMatrix to what is was before we added it to the selection
+            items.forEach(item => {
+                if(item.data.originalMatrix) {
+                    item.matrix.set(item.data.originalMatrix);
+                }
+            });
+        }
+
+        // Delete the matrix we stored so it doesn't interfere with anything later
         items.forEach(item => {
-            if(item.data.originalMatrix && discardTransforms) {
-                item.matrix.set(item.data.originalMatrix);
-            }
+            delete item.data.originalMatrix;
         });
 
+        // Set applyMatrix back to what it was originally
         items.filter(item => {
             return item instanceof paper.Path ||
                    item instanceof paper.CompoundPath;
         }).forEach(item => {
             item.applyMatrix = true;
-        });
-
-        // Delete the matrix we stored so it doesn't interfere with anything later
-        items.forEach(item => {
-            delete item.data.originalMatrix;
         });
     }
 

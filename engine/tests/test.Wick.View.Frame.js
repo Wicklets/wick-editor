@@ -390,12 +390,14 @@ describe('Wick.View.Frame', function() {
                 radius: 30,
                 strokeColor: 'black',
                 fillColor: 'red',
+                applyMatrix: true,
             }).exportJSON({asString:true});
             var svgData2 = new paper.Path.Circle({
                 center: [100, 100],
                 radius: 30,
                 strokeColor: 'black',
                 fillColor: 'red',
+                applyMatrix: true,
             }).exportJSON({asString:true});
 
             var frame = project.activeFrame;

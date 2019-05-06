@@ -53,16 +53,6 @@ class Canvas extends Component {
     project.view.resize();
 
     project.view.on('canvasModified', (e) => {
-      console.log('canvasModified');
-      this.props.projectDidChange();
-    });
-
-    project.view.on('selectionTransformed', (e) => {
-      this.props.projectDidChange({skipHistory:true});
-    });
-
-    project.view.on('selectionChanged', (e) => {
-      console.log('selectionChanged')
       this.props.projectDidChange();
     });
 

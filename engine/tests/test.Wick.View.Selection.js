@@ -47,17 +47,17 @@ describe('Wick.View.Selection', function() {
         var project = new Wick.Project();
 
         var path1 = TestUtils.paperToWickPath(new paper.Path.Ellipse({
-            center: new paper.Point(0,0),
+            center: new paper.Point(25,25),
             radius: 25,
             fillColor: '#ff0000',
         }));
         var path2 = TestUtils.paperToWickPath(new paper.Path.Ellipse({
-            center: new paper.Point(50,0),
+            center: new paper.Point(75,25),
             radius: 25,
             fillColor: '#00ff00',
         }));
         var path3 = TestUtils.paperToWickPath(new paper.Path.Ellipse({
-            center: new paper.Point(100,0),
+            center: new paper.Point(75,75),
             radius: 25,
             fillColor: '#0000ff',
         }));
@@ -71,13 +71,25 @@ describe('Wick.View.Selection', function() {
         project.selection.select(path3);
 
         project.view.render();
-
         project.selection.view.selection.items = [path1.view.item, path2.view.item];
         project.view.applyChanges();
+        project.view.render();
 
+        // Check that the model was updated correctly
         expect(project.selection.numObjects).to.equal(2);
         expect(project.selection.getSelectedObjects()[0].uuid).to.equal(path1.uuid);
         expect(project.selection.getSelectedObjects()[1].uuid).to.equal(path2.uuid);
+        expect(project.activeFrame.paths[0].json[1].applyMatrix).to.equal(true);
+        expect(project.activeFrame.paths[1].json[1].applyMatrix).to.equal(true);
+        expect(project.activeFrame.paths[2].json[1].applyMatrix).to.equal(true);
+
+        // Check that the view was updated correctly
+        expect(project.selection.view.selection.items.length).to.equal(2);
+        expect(project.selection.view.selection.width).to.equal(100);
+        expect(project.selection.view.selection.height).to.equal(50);
+        expect(project.activeFrame.paths[0].view.item.applyMatrix).to.equal(false);
+        expect(project.activeFrame.paths[1].view.item.applyMatrix).to.equal(false);
+        expect(project.activeFrame.paths[2].view.item.applyMatrix).to.equal(true);
     });
 
     it('should update wick selection transforms when paper selection transform changes', function () {

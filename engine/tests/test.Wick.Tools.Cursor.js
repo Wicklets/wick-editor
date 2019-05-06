@@ -219,15 +219,13 @@ describe('Wick.Tools.Cursor', function() {
             delta: new paper.Point(0,0),
         });
 
-        project.view.render();
+        project.view.render(); // BUG: THIS RENDER CAUSED THE DOUBLE TRANSFORM.
 
         expect(project.selection.transformation.x).to.equal(0);
         expect(project.selection.transformation.y).to.equal(0);
         expect(project.selection.transformation.scaleX).to.equal(2);
         expect(project.selection.transformation.scaleY).to.equal(1);
         expect(project.selection.transformation.rotation).to.equal(0);
-
-        console.log(project.selection.view.paper.project.selection.width);
 
         /* Click outside of path1, will deselect path1 and apply the scale transform */
         cursor.onMouseMove({
@@ -250,6 +248,8 @@ describe('Wick.Tools.Cursor', function() {
         expect(project.selection.transformation.scaleY).to.equal(1);
         expect(project.selection.transformation.rotation).to.equal(0);
         expect(project.activeFrame.paths.length).to.equal(1);
+        expect(project.activeFrame.paths[0].bounds.width).to.equal(100);
+        expect(project.activeFrame.paths[0].bounds.height).to.equal(50);
         expect(project.activeFrame.paths[0].bounds.top).to.equal(0);
         expect(project.activeFrame.paths[0].bounds.bottom).to.equal(50);
         expect(project.activeFrame.paths[0].bounds.left).to.equal(-25);
@@ -300,6 +300,8 @@ describe('Wick.Tools.Cursor', function() {
             point: new paper.Point(75,50),
             delta: new paper.Point(0,0),
         });
+
+        project.view.render();
 
         expect(project.selection.transformation.x).to.equal(0);
         expect(project.selection.transformation.y).to.equal(0);

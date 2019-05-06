@@ -250,6 +250,11 @@ describe('Paper.Selection', function() {
             expect(path3.bounds.bottom).to.equal(100);
             expect(path3.bounds.left).to.equal(50);
             expect(path3.bounds.right).to.equal(100);
+
+            // Make sure applyMatrix was reset correctly...
+            expect(path1.applyMatrix).to.equal(true);
+            expect(path2.applyMatrix).to.equal(true);
+            expect(path3.applyMatrix).to.equal(false);//group
         });
 
         it('no initial transformations, some transformations given, discard transformations', function () {
@@ -297,6 +302,11 @@ describe('Paper.Selection', function() {
             expect(path3.bounds.bottom).to.equal(100);
             expect(path3.bounds.left).to.equal(50);
             expect(path3.bounds.right).to.equal(100);
+
+            // Make sure applyMatrix was reset correctly...
+            expect(path1.applyMatrix).to.equal(true);
+            expect(path2.applyMatrix).to.equal(true);
+            expect(path3.applyMatrix).to.equal(false);//group
         });
 
         it('no initial transformations, some transformations given, apply transformations', function () {
@@ -344,6 +354,11 @@ describe('Paper.Selection', function() {
             expect(path3.bounds.bottom).to.equal(100);
             expect(path3.bounds.left).to.equal(50 + 100);
             expect(path3.bounds.right).to.equal(100 + 100);
+
+            // Make sure applyMatrix was reset correctly...
+            expect(path1.applyMatrix).to.equal(true);
+            expect(path2.applyMatrix).to.equal(true);
+            expect(path3.applyMatrix).to.equal(false);//group
         });
 
         it('some initial transformations, no transformations given, apply transformations', function () {
@@ -387,6 +402,11 @@ describe('Paper.Selection', function() {
             expect(path3.bounds.bottom).to.equal(100);
             expect(path3.bounds.left).to.equal(50 + 100);
             expect(path3.bounds.right).to.equal(100 + 100);
+
+            // Make sure applyMatrix was reset correctly...
+            expect(path1.applyMatrix).to.equal(true);
+            expect(path2.applyMatrix).to.equal(true);
+            expect(path3.applyMatrix).to.equal(false);//group
         });
 
         it('some initial transformations, no transformations given, discard transformations', function () {
@@ -430,6 +450,11 @@ describe('Paper.Selection', function() {
             expect(path3.bounds.bottom).to.equal(100);
             expect(path3.bounds.left).to.equal(50);
             expect(path3.bounds.right).to.equal(100);
+
+            // Make sure applyMatrix was reset correctly...
+            expect(path1.applyMatrix).to.equal(true);
+            expect(path2.applyMatrix).to.equal(true);
+            expect(path3.applyMatrix).to.equal(false);//group
         });
     });
 

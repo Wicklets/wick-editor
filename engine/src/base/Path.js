@@ -62,6 +62,9 @@ Wick.Path = class extends Wick.Base {
     }
 
     set json (json) {
+        if(json[1].applyMatrix === false) {
+            console.error('Path JSON had applyMatrix set to false. This should never happen - check paper.Selection')
+        }
         this._json = json;
         this.view.render();
     }
@@ -116,6 +119,8 @@ Wick.Path = class extends Wick.Base {
             bottom: paperBounds.bottom,
             left: paperBounds.left,
             right: paperBounds.right,
+            width: paperBounds.width,
+            height: paperBounds.height,
         };
     }
 

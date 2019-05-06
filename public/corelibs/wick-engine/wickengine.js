@@ -67855,6 +67855,10 @@ Wick.Path = class extends Wick.Base {
   }
 
   set json(json) {
+    if (json[1].applyMatrix === false) {
+      console.error('Path JSON had applyMatrix set to false. This should never happen - check paper.Selection');
+    }
+
     this._json = json;
     this.view.render();
   }
@@ -67909,7 +67913,9 @@ Wick.Path = class extends Wick.Base {
       top: paperBounds.top,
       bottom: paperBounds.bottom,
       left: paperBounds.left,
-      right: paperBounds.right
+      right: paperBounds.right,
+      width: paperBounds.width,
+      height: paperBounds.height
     };
   }
   /**
@@ -70703,6 +70709,12 @@ paper.Selection = class {
   get items() {
     return this._items;
   }
+
+  set items(items) {
+    this._destroy(false);
+
+    this._items = items;
+  }
   /**
    * The transformation applied to the selected items.
    * @type {object}
@@ -70996,7 +71008,7 @@ paper.Selection = class {
     this.position = this.position.add(new paper.Point(x, y));
   }
   /**
-   * wip
+   * TODO
    */
 
 
@@ -71018,7 +71030,7 @@ paper.Selection = class {
     });
   }
   /**
-   * wip
+   * TODO
    */
 
 
@@ -71079,20 +71091,24 @@ paper.Selection = class {
   }
 
   static _freeItemsFromSelection(items, discardTransforms) {
-    // Reset matrix and applyMatrix to what is was before we added it to the selection
+    if (discardTransforms) {
+      // Reset matrix and applyMatrix to what is was before we added it to the selection
+      items.forEach(item => {
+        if (item.data.originalMatrix) {
+          item.matrix.set(item.data.originalMatrix);
+        }
+      });
+    } // Delete the matrix we stored so it doesn't interfere with anything later
+
+
     items.forEach(item => {
-      if (item.data.originalMatrix && discardTransforms) {
-        item.matrix.set(item.data.originalMatrix);
-      }
-    });
+      delete item.data.originalMatrix;
+    }); // Set applyMatrix back to what it was originally
+
     items.filter(item => {
       return item instanceof paper.Path || item instanceof paper.CompoundPath;
     }).forEach(item => {
       item.applyMatrix = true;
-    }); // Delete the matrix we stored so it doesn't interfere with anything later
-
-    items.forEach(item => {
-      delete item.data.originalMatrix;
     });
   }
 
@@ -72260,9 +72276,8 @@ Wick.Tools.Cursor = class extends Wick.Tool {
           return item !== this.hitResult.item;
         });
 
-        this.fireEvent('selectionChanged', {
-          items: itemsWithoutHitItem
-        });
+        this._selection.items = itemsWithoutHitItem;
+        this.fireEvent('canvasModified');
       }
     } else if (this.hitResult.item && this.hitResult.type === 'fill') {
       // Clicked an item: select that item
@@ -72272,18 +72287,16 @@ Wick.Tools.Cursor = class extends Wick.Tool {
         items = this._selection.items.concat(items);
       }
 
-      this.fireEvent('selectionChanged', {
-        items: items
-      });
+      this._selection.items = items;
+      this.fireEvent('canvasModified');
     } else if (this.hitResult.item && this.hitResult.type === 'curve') {
       // Clicked a curve, start dragging it
       this.draggingCurve = this.hitResult.location.curve;
     } else if (this.hitResult.item && this.hitResult.type === 'segment') {} else {
       if (this._selection.items.length > 1) {
         // Nothing was clicked, so clear the selection and start a new selection box
-        this.fireEvent('selectionChanged', {
-          items: []
-        });
+        this._selection.items = [];
+        this.fireEvent('canvasModified');
       }
 
       this.selectionBox.start(e.point);
@@ -72352,9 +72365,8 @@ Wick.Tools.Cursor = class extends Wick.Tool {
       // Finish selection box and select objects touching box (or inside box, if alt is held)
       this.selectionBox.mode = e.modifiers.alt ? 'contains' : 'intersects';
       this.selectionBox.end(e.point);
-      this.fireEvent('selectionChanged', {
-        items: this.selectionBox.items
-      });
+      this._selection.items = this.selectionBox.items;
+      this.fireEvent('canvasModified');
     } else {
       this.fireEvent('canvasModified');
     }
@@ -73779,6 +73791,7 @@ Wick.View.Project = class extends Wick.View {
   applyChanges() {
     if (this.renderMode !== 'svg') return;
     this.model.selection.view.applyChanges();
+    this.model.selection.view.destroy();
     this.model.focus.timeline.activeFrames.forEach(frame => {
       frame.view.applyChanges();
     });
@@ -73879,10 +73892,6 @@ Wick.View.Project = class extends Wick.View {
         };
         this.model.zoom = this.zoom;
       });
-      tool.on('selectionChanged', e => {
-        this.model.selection.view.applyChanges(e.items);
-        this.fireEvent('canvasModified', e);
-      });
       tool.on('error', e => {
         this.fireEvent('error', e);
       });
@@ -73937,10 +73946,7 @@ Wick.View.Project = class extends Wick.View {
   }
 
   _renderSVGCanvas() {
-    this.paper.project.clear();
-    if (this.paper.project.selection) this.paper.project.selection.finish({
-      discardTransformation: true
-    }); // Update zoom and pan
+    this.paper.project.clear(); // Update zoom and pan
 
     if (this._fitMode === 'center') {
       this.paper.view.zoom = this.model.zoom;
@@ -74222,22 +74228,43 @@ Wick.View.Project = class extends Wick.View {
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
 Wick.View.Selection = class extends Wick.View {
+  /**
+   * Create a new Selection view.
+   */
   constructor() {
     super();
     this.layer = new this.paper.Layer();
-    this.paper.project.selection = null;
+    this.selection = null;
+  }
+  /**
+   * The current paper.js Selection instance.
+   * @type {paper.Selection}
+   */
+
+
+  get selection() {
+    return this.paper.project.selection;
   }
 
-  applyChanges(items) {
-    if (this.paper.project.selection) {
-      this.paper.project.selection.finish({
-        discardTransformation: true
-      });
-    }
+  set selection(selection) {
+    this.paper.project.selection = selection;
+  }
+  /**
+   * Update the model based on the view.
+   */
 
-    if (items) {
+
+  applyChanges() {
+    if (this._modelAndViewHaveSameItems()) {
+      this.model.transformation.x = this.selection.transformation.x;
+      this.model.transformation.y = this.selection.transformation.y;
+      this.model.transformation.scaleX = this.selection.transformation.scaleX;
+      this.model.transformation.scaleY = this.selection.transformation.scaleY;
+      this.model.transformation.rotation = this.selection.transformation.rotation;
+    } else {
       this.model.clear();
-      items.forEach(item => {
+
+      this._selectedItemsInView().forEach(item => {
         var uuid = item.data.wickUUID;
 
         if (!uuid) {
@@ -74248,34 +74275,56 @@ Wick.View.Selection = class extends Wick.View {
         var wickObject = Wick.ObjectCache.getObjectByUUID(uuid);
         this.model.select(wickObject);
       });
+
       this.model.transformation.x = 0;
       this.model.transformation.y = 0;
       this.model.transformation.scaleX = 1;
       this.model.transformation.scaleY = 1;
       this.model.transformation.rotation = 0;
-    } else {
-      this.model.transformation.x = this.paper.project.selection.transformation.x;
-      this.model.transformation.y = this.paper.project.selection.transformation.y;
-      this.model.transformation.scaleX = this.paper.project.selection.transformation.scaleX;
-      this.model.transformation.scaleY = this.paper.project.selection.transformation.scaleY;
-      this.model.transformation.rotation = this.paper.project.selection.transformation.rotation;
+      this.render();
     }
-
-    this._renderSVG();
   }
+  /**
+   *
+   */
 
-  _renderSVG() {
-    this.layer.clear();
 
-    if (this.paper.project.selection) {
-      this.paper.project.selection.finish({
+  destroy() {
+    if (this.selection) {
+      this.selection.finish({
         discardTransformation: true
       });
     }
+  }
+  /**
+   * The width of the selection.
+   */
 
-    this.paper.project.selection = new this.paper.Selection({
+
+  get width() {
+    return this.selection.width;
+  }
+  /**
+   * The height of the selection.
+   */
+
+
+  get height() {
+    return this.selection.height;
+  }
+
+  _renderSVG() {
+    this.layer.clear(); // We need to create a new paper selection. Destroy the current one.
+
+    if (this.selection) {
+      this.selection.finish({
+        discardTransformation: this._modelAndViewHaveSameItems()
+      });
+    }
+
+    this.selection = new this.paper.Selection({
       layer: this.layer,
-      items: this._selectedPaperItems(),
+      items: this._selectedItemsInModel(),
       x: this.model.transformation.x,
       y: this.model.transformation.y,
       scaleX: this.model.transformation.scaleX,
@@ -74284,7 +74333,11 @@ Wick.View.Selection = class extends Wick.View {
     });
   }
 
-  _selectedPaperItems() {
+  _selectedItemsInView() {
+    return this.selection ? this.selection.items : [];
+  }
+
+  _selectedItemsInModel() {
     var paths = this.model.getSelectedObjects('Path').map(object => {
       return object.view.item;
     });
@@ -74292,6 +74345,27 @@ Wick.View.Selection = class extends Wick.View {
       return object.view.group;
     });
     return paths.concat(clips);
+  }
+
+  _modelAndViewHaveSameItems() {
+    var modelIDs = this._selectedItemsInModel().map(item => {
+      return item.id;
+    });
+
+    var viewIDs = this._selectedItemsInView().map(item => {
+      return item.id;
+    }); //https://stackoverflow.com/questions/47666515/comparing-arrays-in-javascript-where-order-doesnt-matter
+
+
+    if (modelIDs.length !== viewIDs.length) return false;
+    modelIDs.sort();
+    viewIDs.sort();
+
+    for (let i = 0; i < modelIDs.length; i++) {
+      if (modelIDs[i] !== viewIDs[i]) return false;
+    }
+
+    return true;
   }
 
 };
@@ -74799,6 +74873,10 @@ Wick.View.Frame = class extends Wick.View {
     this.pathsLayer.children.filter(child => {
       return child.data.wickType !== 'gui';
     }).forEach(child => {
+      if (!child.applyMatrix) {
+        console.error('Path had applyMatrix set to false on Frame applyChanges(). This should never happen - check that selection was properly destroyed.');
+      }
+
       var pathJSON = Wick.View.Path.exportJSON(child);
       var wickPath = new Wick.Path({
         json: pathJSON

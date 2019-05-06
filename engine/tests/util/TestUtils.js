@@ -61,9 +61,11 @@ var TestUtils = {
     },
 
     paperToWickPath : (paperPath) => {
-        return new Wick.Path({
+        var path = new Wick.Path({
             json: paperPath.exportJSON({asString:false}),
         });
+        path.applyMatrix = true;
+        return path;
     },
 
     createPaperScope : () => {

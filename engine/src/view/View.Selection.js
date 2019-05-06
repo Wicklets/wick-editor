@@ -68,7 +68,32 @@ Wick.View.Selection = class extends Wick.View {
             this.model.transformation.scaleX = 1;
             this.model.transformation.scaleY = 1;
             this.model.transformation.rotation = 0;
+
+            this.render();
         }
+    }
+
+    /**
+     *
+     */
+    destroy () {
+        if(this.selection) {
+            this.selection.finish({discardTransformation: true});
+        }
+    }
+
+    /**
+     * The width of the selection.
+     */
+    get width () {
+        return this.selection.width;
+    }
+
+    /**
+     * The height of the selection.
+     */
+    get height () {
+        return this.selection.height;
     }
 
     _renderSVG () {

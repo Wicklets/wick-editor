@@ -237,6 +237,7 @@ Wick.View.Project = class extends Wick.View {
         if(this.renderMode !== 'svg') return;
 
         this.model.selection.view.applyChanges();
+        this.model.selection.view.destroy();
 
         this.model.focus.timeline.activeFrames.forEach(frame => {
             frame.view.applyChanges();
@@ -335,10 +336,6 @@ Wick.View.Project = class extends Wick.View {
                     y: this.pan.y,
                 };
                 this.model.zoom = this.zoom;
-            });
-            tool.on('selectionChanged', e => {
-                this.model.selection.view.applyChanges(e.items);
-                this.fireEvent('canvasModified', e);
             });
             tool.on('error', (e) => {
                 this.fireEvent('error', e);

@@ -126,9 +126,8 @@ Wick.Tools.Cursor = class extends Wick.Tool {
                 var itemsWithoutHitItem = this._selection.items.filter(item => {
                     return item !== this.hitResult.item;
                 });
-                this.fireEvent('selectionChanged', {
-                    items: itemsWithoutHitItem,
-                });
+                this._selection.items = itemsWithoutHitItem;
+                this.fireEvent('canvasModified');
             }
         } else if (this.hitResult.item && this.hitResult.type === 'fill') {
             // Clicked an item: select that item
@@ -137,9 +136,8 @@ Wick.Tools.Cursor = class extends Wick.Tool {
             if(e.modifiers.shift) {
                 items = this._selection.items.concat(items);
             }
-            this.fireEvent('selectionChanged', {
-                items: items,
-            });
+            this._selection.items = items;
+            this.fireEvent('canvasModified');
         } else if (this.hitResult.item && this.hitResult.type === 'curve') {
             // Clicked a curve, start dragging it
             this.draggingCurve = this.hitResult.location.curve;
@@ -148,9 +146,8 @@ Wick.Tools.Cursor = class extends Wick.Tool {
         } else {
             if(this._selection.items.length > 1) {
                 // Nothing was clicked, so clear the selection and start a new selection box
-                this.fireEvent('selectionChanged', {
-                    items: [],
-                });
+                this._selection.items = [];
+                this.fireEvent('canvasModified');
             }
 
             this.selectionBox.start(e.point);
@@ -220,9 +217,8 @@ Wick.Tools.Cursor = class extends Wick.Tool {
             this.selectionBox.mode = e.modifiers.alt ? 'contains' : 'intersects';
             this.selectionBox.end(e.point);
 
-            this.fireEvent('selectionChanged', {
-                items: this.selectionBox.items
-            });
+            this._selection.items = this.selectionBox.items;
+            this.fireEvent('canvasModified');
         } else {
             this.fireEvent('canvasModified');
         }
