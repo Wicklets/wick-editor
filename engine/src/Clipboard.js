@@ -22,7 +22,7 @@
  */
 Wick.Clipboard = class {
     static get PASTE_OFFSET () {
-        return 10;
+        return 20;
     }
 
     /**
