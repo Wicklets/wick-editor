@@ -73937,7 +73937,10 @@ Wick.View.Project = class extends Wick.View {
   }
 
   _renderSVGCanvas() {
-    this.paper.project.clear(); // Update zoom and pan
+    this.paper.project.clear();
+    if (this.paper.project.selection) this.paper.project.selection.finish({
+      discardTransformation: true
+    }); // Update zoom and pan
 
     if (this._fitMode === 'center') {
       this.paper.view.zoom = this.model.zoom;
@@ -74226,6 +74229,12 @@ Wick.View.Selection = class extends Wick.View {
   }
 
   applyChanges(items) {
+    if (this.paper.project.selection) {
+      this.paper.project.selection.finish({
+        discardTransformation: true
+      });
+    }
+
     if (items) {
       this.model.clear();
       items.forEach(item => {
@@ -74251,6 +74260,8 @@ Wick.View.Selection = class extends Wick.View {
       this.model.transformation.scaleY = this.paper.project.selection.transformation.scaleY;
       this.model.transformation.rotation = this.paper.project.selection.transformation.rotation;
     }
+
+    this._renderSVG();
   }
 
   _renderSVG() {

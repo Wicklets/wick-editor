@@ -18,18 +18,42 @@
  */
 
 Wick.View.Selection = class extends Wick.View {
+    /**
+     * Create a new Selection view.
+     */
     constructor () {
         super();
 
         this.layer = new this.paper.Layer();
 
-        this.paper.project.selection = null;
+        this.selection = null;
     }
 
-    applyChanges (items) {
-        if(items) {
+    /**
+     * The current paper.js Selection instance.
+     * @type {paper.Selection}
+     */
+    get selection () {
+        return this.paper.project.selection;
+    }
+
+    set selection (selection) {
+        this.paper.project.selection = selection;
+    }
+
+    /**
+     * Update the model based on the view.
+     */
+    applyChanges () {
+        if(this._modelAndViewHaveSameItems()) {
+            this.model.transformation.x = this.selection.transformation.x;
+            this.model.transformation.y = this.selection.transformation.y;
+            this.model.transformation.scaleX = this.selection.transformation.scaleX;
+            this.model.transformation.scaleY = this.selection.transformation.scaleY;
+            this.model.transformation.rotation = this.selection.transformation.rotation;
+        } else {
             this.model.clear();
-            items.forEach(item => {
+            this._selectedItemsInView().forEach(item => {
                 var uuid = item.data.wickUUID;
                 if(!uuid) {
                     console.error('path is missing a wickUUID. the selection selected something it shouldnt have, or the view was not up-to-date.');
@@ -44,25 +68,20 @@ Wick.View.Selection = class extends Wick.View {
             this.model.transformation.scaleX = 1;
             this.model.transformation.scaleY = 1;
             this.model.transformation.rotation = 0;
-        } else {
-            this.model.transformation.x = this.paper.project.selection.transformation.x;
-            this.model.transformation.y = this.paper.project.selection.transformation.y;
-            this.model.transformation.scaleX = this.paper.project.selection.transformation.scaleX;
-            this.model.transformation.scaleY = this.paper.project.selection.transformation.scaleY;
-            this.model.transformation.rotation = this.paper.project.selection.transformation.rotation;
         }
     }
 
     _renderSVG () {
         this.layer.clear();
 
-        if(this.paper.project.selection) {
-            this.paper.project.selection.finish({discardTransformation: true});
+        // We need to create a new paper selection. Destroy the current one.
+        if(this.selection) {
+            this.selection.finish({discardTransformation: this._modelAndViewHaveSameItems()});
         }
 
-        this.paper.project.selection = new this.paper.Selection({
+        this.selection = new this.paper.Selection({
             layer: this.layer,
-            items: this._selectedPaperItems(),
+            items: this._selectedItemsInModel(),
             x: this.model.transformation.x,
             y: this.model.transformation.y,
             scaleX: this.model.transformation.scaleX,
@@ -71,7 +90,11 @@ Wick.View.Selection = class extends Wick.View {
         });
     }
 
-    _selectedPaperItems () {
+    _selectedItemsInView () {
+        return this.selection ? this.selection.items : [];
+    }
+
+    _selectedItemsInModel () {
         var paths = this.model.getSelectedObjects('Path').map(object => {
             return object.view.item;
         });
@@ -81,5 +104,26 @@ Wick.View.Selection = class extends Wick.View {
         });
 
         return paths.concat(clips);
+    }
+
+    _modelAndViewHaveSameItems () {
+        var modelIDs = this._selectedItemsInModel().map(item => {
+            return item.id;
+        });
+        var viewIDs = this._selectedItemsInView().map(item => {
+            return item.id;
+        });
+
+        //https://stackoverflow.com/questions/47666515/comparing-arrays-in-javascript-where-order-doesnt-matter
+
+        if(modelIDs.length !== viewIDs.length) return false;
+
+        modelIDs.sort();
+        viewIDs.sort();
+
+        for(let i=0; i<modelIDs.length; i++){
+            if(modelIDs[i] !== viewIDs[i]) return false;
+        }
+        return true;
     }
 }

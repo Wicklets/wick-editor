@@ -79,6 +79,10 @@ paper.Selection = class {
         return this._items;
     }
 
+    set items (items) {
+        this._items = items;
+    }
+
     /**
      * The transformation applied to the selected items.
      * @type {object}

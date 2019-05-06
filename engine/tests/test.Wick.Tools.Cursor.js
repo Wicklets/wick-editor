@@ -219,11 +219,15 @@ describe('Wick.Tools.Cursor', function() {
             delta: new paper.Point(0,0),
         });
 
+        project.view.render();
+
         expect(project.selection.transformation.x).to.equal(0);
         expect(project.selection.transformation.y).to.equal(0);
         expect(project.selection.transformation.scaleX).to.equal(2);
         expect(project.selection.transformation.scaleY).to.equal(1);
         expect(project.selection.transformation.rotation).to.equal(0);
+
+        console.log(project.selection.view.paper.project.selection.width);
 
         /* Click outside of path1, will deselect path1 and apply the scale transform */
         cursor.onMouseMove({
