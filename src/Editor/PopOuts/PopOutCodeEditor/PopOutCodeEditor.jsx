@@ -22,7 +22,7 @@ import { Rnd } from "react-rnd";
 
 import WickTabCodeEditor from './WickTabCodeEditor/WickTabCodeEditor';
 import WickCodeDetailsPanel from './WickCodeDetailsPanel/WickCodeDetailsPanel';
-import ToolIcon from 'Editor/Util/ToolIcon/ToolIcon'; 
+import ToolIcon from 'Editor/Util/ToolIcon/ToolIcon';
 import missingImage from 'resources/interface/missing.jpg';
 
 // Import Ace Editor themes.
@@ -128,8 +128,9 @@ class PopOutCodeEditor extends Component {
         }}
       >
         <img className='code-editor-thumbnail'
-          src={this.props.imgSource ? this.props.imgSource : missingImage} />
-
+             alt='Object Thumbnail'
+             src={this.props.imgSource ? this.props.imgSource : missingImage}
+        />
         <div
           className="code-editor-drag-handle">
           <div className="code-editor-title">
@@ -157,4 +158,3 @@ class PopOutCodeEditor extends Component {
 }
 
 export default PopOutCodeEditor;
-

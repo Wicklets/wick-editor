@@ -226,7 +226,6 @@ class Editor extends EditorCore {
     }
 
     if(!this.state.previewPlaying && prevState.previewPlaying) {
-      let playheadPosition = this.project.focus.timeline.playheadPosition;
       this.project.stop();
     }
   }
