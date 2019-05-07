@@ -66448,22 +66448,28 @@ Wick.Project = class extends Wick.Base {
    * Format:
    *   start: The amount of time in milliseconds to cut from the beginning of the sound.
    *   end: The amount of time that the sound will play before stopping.
-   *   uuid: The UUID of the asset that the sound corresponds to.
+   *   offset: The amount of time to offset the start of the sound.
+   *   src: The source of the sound as a dataURL.
+   *   filetype: The file type of the sound asset.
    * @param {object} args - Options for generating the audio sequence
-   * @returns {object[]} - Array of objects containing info about the sounds in the project.
+   * @param {function} callback- The function which will be passed the generated sound array.
    */
 
 
-  generateAudioSequence(args) {
-    return this.root.timeline.frames.filter(frame => {
+  generateAudioSequence(args, callback) {
+    if (!callback) return;
+    let sounds = this.root.timeline.frames.filter(frame => {
       return frame.sound !== null;
     }).map(frame => {
       return {
-        start: 0,
-        end: frame.soundStartOffsetMS,
-        uuid: frame.sound.uuid
+        start: frame.soundStartMS,
+        end: frame.soundEndMS,
+        offset: frame.cropSoundOffsetMS,
+        src: frame.sound.src,
+        filetype: frame.sound.fileExtension
       };
     });
+    callback(sounds);
   }
 
 };
@@ -68945,6 +68951,7 @@ Wick.Frame = class extends Wick.Tickable {
     this._soundAssetUUID = null;
     this._soundID = null;
     this._soundVolume = 1.0;
+    this._cropSoundOffsetMS = 0; // milliseconds.
   }
 
   static _deserialize(data, object) {
@@ -69059,7 +69066,7 @@ Wick.Frame = class extends Wick.Tickable {
 
   playSound() {
     if (this.sound) {
-      this._soundID = this.sound.play(this.soundStartOffsetMS, this.soundVolume);
+      this._soundID = this.sound.play(this.playheadSoundOffsetMS + this.cropSoundOffsetMS, this.soundVolume);
     }
   }
   /**
@@ -69082,14 +69089,46 @@ Wick.Frame = class extends Wick.Tickable {
     return this._soundID !== null;
   }
   /**
-   * The amount of time, in millisecods, that the frame's sound should play before stopping.
+   * The amount of time, in milliseconds, that the frame's sound should play before stopping.
+   * @returns {number} Amount of time to offset the sound based on the playhead position.
    */
 
 
-  get soundStartOffsetMS() {
-    var offsetFrames = this.parent.parent.playheadPosition - this.start;
-    var offsetMS = offsetFrames * 1000 / this.project.framerate;
+  get playheadSoundOffsetMS() {
+    var offsetFrames = this.parentTimeline.playheadPosition - this.start;
+    var offsetMS = 1000 / this.project.framerate * offsetFrames;
     return offsetMS;
+  }
+  /**
+   * The amount of time the sound playing should be offset, in milliseconds. If this is 0,
+   * the sound plays normally. A negative value means the sound should start at a later point 
+   * in the track. THIS DOES NOT DETERMINE WHEN A SOUND PLAYS.
+   * @returns {number} amount of time to offset in milliseconds.
+   */
+
+
+  get cropSoundOffsetMS() {
+    return this._cropSoundOffsetMS;
+  }
+
+  set cropSoundOffsetMS(val) {
+    this._cropSoundOffsetMS = val;
+  }
+  /**
+   * When should the sound start, in milliseconds.
+   */
+
+
+  get soundStartMS() {
+    return 1000 / this.project.framerate * (this.start - 1);
+  }
+  /**
+   * When should the sound end, in milliseconds.
+   */
+
+
+  get soundEndMS() {
+    return 1000 / this.project.framerate * (this.end - 1);
   }
   /**
    * The paths on the frame.

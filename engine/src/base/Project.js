@@ -788,19 +788,27 @@ Wick.Project = class extends Wick.Base {
      * Format:
      *   start: The amount of time in milliseconds to cut from the beginning of the sound.
      *   end: The amount of time that the sound will play before stopping.
-     *   uuid: The UUID of the asset that the sound corresponds to.
+     *   offset: The amount of time to offset the start of the sound.
+     *   src: The source of the sound as a dataURL.
+     *   filetype: The file type of the sound asset.
      * @param {object} args - Options for generating the audio sequence
-     * @returns {object[]} - Array of objects containing info about the sounds in the project.
+     * @param {function} callback- The function which will be passed the generated sound array.
      */
-    generateAudioSequence (args) {
-        return this.root.timeline.frames.filter(frame => {
+    generateAudioSequence (args, callback) {
+        if (!callback) return;
+
+        let sounds = this.root.timeline.frames.filter(frame => {
             return frame.sound !== null;
         }).map(frame => {
             return {
-                start: 0,
-                end: frame.soundStartOffsetMS,
-                uuid: frame.sound.uuid,
+                start: frame.soundStartMS,
+                end: frame.soundEndMS,
+                offset: frame.cropSoundOffsetMS,
+                src: frame.sound.src,
+                filetype: frame.sound.fileExtension,
             }
         });
+
+        callback(sounds);
     }
 }
