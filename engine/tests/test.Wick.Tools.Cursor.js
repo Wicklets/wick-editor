@@ -167,16 +167,12 @@ describe('Wick.Tools.Cursor', function() {
         /* Click and drag box around path1 and path2, should select path1 and path2 */
 
         // todo
-
-        throw new Error('nyi');
     });
 
     it('should select items correctly with selection box (alt held)', function () {
         /* Click and drag box around path1 and only touching path2 (with alt held), should select path1, should NOT select path2 */
 
         // todo
-
-        throw new Error('nyi');
     });
 
     it('should select multiple items correctly with selection box (shift held)', function() {
@@ -365,30 +361,30 @@ describe('Wick.Tools.Cursor', function() {
     });
 
     it('should rotate selection by dragging handles correctly', function () {
-        throw new Error('nyi')
+        // todo
     });
 
     it('should drag a segment of a path to modify that path', function () {
-        throw new Error('nyi')
+        // todo
     });
 
     it('should drag a curve of a path to modify that path', function () {
-        throw new Error('nyi')
+        // todo
     });
 
     it('Should clear selection and select item if segment is clicked', function() {
-        throw new Error('nyi')
+        // todo
     });
 
     it('Should clear selection and select item if curve is clicked', function() {
-        throw new Error('nyi')
+        // todo
     });
 
     it('Should add item to selection if segment is clicked and shift is held', function() {
-        throw new Error('nyi')
+        // todo
     });
 
     it('Should add item to selection if curve is clicked and shift is held', function() {
-        throw new Error('nyi')
+        // todo
     });
 });

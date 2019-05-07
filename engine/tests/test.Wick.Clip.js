@@ -23,6 +23,7 @@ describe('Wick.Clip', function() {
             project.activeFrame.addPath(path1);
             project.activeFrame.addPath(path2);
             project.activeFrame.addClip(clip1);
+            project.activeFrame.addClip(clip2);
 
             var clip = new Wick.Clip({
                 identifier: 'foo',
@@ -47,7 +48,7 @@ describe('Wick.Clip', function() {
             expect(clip.activeFrame.paths.length).to.equal(2);
             expect(clip.activeFrame.clips.length).to.equal(2);
 
-            throw new Error("finish this test, please (check bounds/position of clips and such)");
+            throw new Error('test positions of paths pls')
         });
     });
 
@@ -86,8 +87,46 @@ describe('Wick.Clip', function() {
 
     describe('#breakApart', function () {
         it('should break apart correctly', function () {
-            throw new Error('nyi');
-        })
+            var project = new Wick.Project();
+
+            var path1 = new Wick.Path({json: TestUtils.TEST_PATH_JSON_RED_SQUARE});
+            var path2 = new Wick.Path({json: TestUtils.TEST_PATH_JSON_BLUE_SQUARE});
+            var clip1 = new Wick.Clip({ identifier: 'bar' });
+            var clip2 = new Wick.Clip({ identifier: 'baz' });
+
+            project.activeFrame.addPath(path1);
+            project.activeFrame.addPath(path2);
+            project.activeFrame.addClip(clip1);
+            project.activeFrame.addClip(clip2);
+
+            var clip = new Wick.Clip({
+                identifier: 'foo',
+                objects: [
+                    path1,
+                    path2,
+                    clip1,
+                    clip2,
+                ],
+                transformation: new Wick.Transformation({
+                    x: 200,
+                    y: 100,
+                }),
+            });
+            project.activeFrame.addClip(clip);
+
+            expect(project.activeFrame.clips.length).to.equal(1);
+            expect(project.activeFrame.clips[0]).to.equal(clip);
+            expect(project.activeFrame.paths.length).to.equal(0);
+
+            project.activeFrame.clips[0].breakApart();
+
+            expect(project.activeFrame.clips.length).to.equal(2);
+            expect(project.activeFrame.clips[0]).to.equal(clip1);
+            expect(project.activeFrame.clips[1]).to.equal(clip2);
+            expect(project.activeFrame.paths.length).to.equal(2);
+            expect(project.activeFrame.paths[0]).to.equal(path1);
+            expect(project.activeFrame.paths[1]).to.equal(path2);
+        });
     });
 
     describe('#tick', function () {

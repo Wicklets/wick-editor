@@ -164,7 +164,6 @@ Wick.Path = class extends Wick.Base {
 
     set x (x) {
         this.view.item.position.x = x;
-        this.json = this.view.exportJSON();
     }
 
     /**
@@ -176,6 +175,5 @@ Wick.Path = class extends Wick.Base {
 
     set y (y) {
         this.view.item.position.y = y;
-        this.json = this.view.exportJSON();
     }
 }

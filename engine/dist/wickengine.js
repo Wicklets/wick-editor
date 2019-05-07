@@ -67966,7 +67966,6 @@ Wick.Path = class extends Wick.Base {
 
   set x(x) {
     this.view.item.position.x = x;
-    this.json = this.view.exportJSON();
   }
   /**
    * The position of the path.
@@ -67979,7 +67978,6 @@ Wick.Path = class extends Wick.Base {
 
   set y(y) {
     this.view.item.position.y = y;
-    this.json = this.view.exportJSON();
   }
 
 };
@@ -69733,8 +69731,8 @@ Wick.Clip = class extends Wick.Tickable {
         leftovers.push(clip);
       });
       frame.paths.forEach(path => {
-        path.paperPath.position.x += this.transformation.x;
-        path.paperPath.position.y += this.transformation.y;
+        path.x += this.transformation.x;
+        path.y += this.transformation.y;
         this.parentTimeline.activeFrame.addPath(path);
         leftovers.push(path);
       });
