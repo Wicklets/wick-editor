@@ -235,7 +235,8 @@ Wick.View.Frame = class extends Wick.View {
         this.pathsLayer.children.filter(child => {
             return child.data.wickType !== 'gui';
         }).forEach(child => {
-            if(!child.applyMatrix) {
+            if(!child.applyMatrix && !(child instanceof paper.Raster)) {
+                console.log(child)
                 console.error('Path had applyMatrix set to false on Frame applyChanges(). This should never happen - check that selection was properly destroyed.')
             }
             var pathJSON = Wick.View.Path.exportJSON(child);

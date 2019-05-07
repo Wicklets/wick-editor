@@ -66360,7 +66360,8 @@ Wick.Project = class extends Wick.Base {
     this._history = history;
   }
   /**
-   *
+   * Undo the last action.
+   * @returns {boolean} true if there was something to undo, false otherwise.
    */
 
 
@@ -66370,7 +66371,8 @@ Wick.Project = class extends Wick.Base {
     return success;
   }
   /**
-   *
+   * Redo the last action that was undone.
+   * @returns {boolean} true if there was something to redo, false otherwise.
    */
 
 
@@ -66822,14 +66824,14 @@ Wick.Project = class extends Wick.Base {
     if (!args.onError) args.onError = () => {};
     if (!args.onBeforeTick) args.onBeforeTick = () => {};
     if (!args.onAfterTick) args.onAfterTick = () => {};
+    this.view.renderMode = 'webgl';
 
     if (this._tickIntervalID) {
       this.stop();
     }
 
     this.history.saveSnapshot('state-before-play');
-    this.selection.clear(); //this.view.renderMode = 'webgl';
-    // Start tick loop
+    this.selection.clear(); // Start tick loop
 
     this._tickIntervalID = setInterval(() => {
       args.onBeforeTick();
@@ -66850,8 +66852,8 @@ Wick.Project = class extends Wick.Base {
 
 
   stop() {
-    this.stopAllSounds(); //this.view.renderMode = 'svg';
-
+    this.stopAllSounds();
+    this.view.renderMode = 'svg';
     clearInterval(this._tickIntervalID);
     this._tickIntervalID = null;
     this.history.loadSnapshot('state-before-play');
@@ -72121,6 +72123,7 @@ Wick.Tools.Brush = class extends Wick.Tool {
         potracePath.remove();
         potracePath.closed = true;
         potracePath.children[0].closed = true;
+        potracePath.children[0].applyMatrix = true;
         this.paper.project.activeLayer.addChild(potracePath.children[0]);
         this.croquis.clearLayer();
         this.fireEvent('canvasModified');
@@ -74881,7 +74884,8 @@ Wick.View.Frame = class extends Wick.View {
     this.pathsLayer.children.filter(child => {
       return child.data.wickType !== 'gui';
     }).forEach(child => {
-      if (!child.applyMatrix) {
+      if (!child.applyMatrix && !(child instanceof paper.Raster)) {
+        console.log(child);
         console.error('Path had applyMatrix set to false on Frame applyChanges(). This should never happen - check that selection was properly destroyed.');
       }
 

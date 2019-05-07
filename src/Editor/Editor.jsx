@@ -217,7 +217,8 @@ class Editor extends EditorCore {
           this.stopPreviewPlaying([error])
         },
         onAfterTick: () => {
-
+          this.project.view.render();
+          this.project.activeTimeline.guiElement.numberLine.playhead.build();
         },
         onBeforeTick: () => {
 

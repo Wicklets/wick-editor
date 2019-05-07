@@ -153,6 +153,7 @@ Wick.Tools.Brush = class extends Wick.Tool {
                 potracePath.remove();
                 potracePath.closed = true;
                 potracePath.children[0].closed = true;
+                potracePath.children[0].applyMatrix = true;
                 this.paper.project.activeLayer.addChild(potracePath.children[0]);
                 this.croquis.clearLayer();
                 this.fireEvent('canvasModified');

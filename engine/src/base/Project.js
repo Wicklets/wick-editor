@@ -206,7 +206,8 @@ Wick.Project = class extends Wick.Base {
     }
 
     /**
-     *
+     * Undo the last action.
+     * @returns {boolean} true if there was something to undo, false otherwise.
      */
     undo () {
         this.selection.clear();
@@ -215,7 +216,8 @@ Wick.Project = class extends Wick.Base {
     }
 
     /**
-     *
+     * Redo the last action that was undone.
+     * @returns {boolean} true if there was something to redo, false otherwise.
      */
     redo () {
         this.selection.clear();
@@ -644,6 +646,8 @@ Wick.Project = class extends Wick.Base {
         if(!args.onBeforeTick) args.onBeforeTick = () => {};
         if(!args.onAfterTick) args.onAfterTick = () => {};
 
+        this.view.renderMode = 'webgl';
+
         if(this._tickIntervalID) {
             this.stop();
         }
@@ -651,8 +655,6 @@ Wick.Project = class extends Wick.Base {
         this.history.saveSnapshot('state-before-play');
 
         this.selection.clear();
-
-        //this.view.renderMode = 'webgl';
 
         // Start tick loop
         this._tickIntervalID = setInterval(() => {
@@ -675,7 +677,7 @@ Wick.Project = class extends Wick.Base {
     stop () {
         this.stopAllSounds();
 
-        //this.view.renderMode = 'svg';
+        this.view.renderMode = 'svg';
 
         clearInterval(this._tickIntervalID);
         this._tickIntervalID = null;

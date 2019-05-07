@@ -469,8 +469,15 @@ describe('Wick.Project', function() {
     });
 
     describe('#play', function () {
-        it('should play without error', function() {
+        it('should play without error', function(done) {
             var project = new Wick.Project();
+
+            project.play({
+                onAfterTick: () => {
+                    project.stop();
+                    done();
+                }
+            })
         });
 
         it('should send error through callback if there is an error', function(done) {
@@ -559,7 +566,6 @@ describe('Wick.Project', function() {
 
             project.view.render();
 
-            throw new Error('selection must be destroyed before this happens.')
             project.createClipFromSelection({
                 identifier: 'foo',
                 type: 'Clip'
@@ -595,7 +601,6 @@ describe('Wick.Project', function() {
 
             project.view.render();
 
-            throw new Error('selection must be destroyed before this happens.')
             project.createClipFromSelection({
                 identifier: 'bar',
                 type: 'Clip',
@@ -639,7 +644,6 @@ describe('Wick.Project', function() {
 
             project.view.render();
 
-            throw new Error('selection must be destroyed before this happens.')
             project.createClipFromSelection({
                 identifier: 'bar',
                 type: 'Clip'
@@ -677,7 +681,6 @@ describe('Wick.Project', function() {
 
             project.view.render();
 
-            throw new Error('selection must be destroyed before this happens.')
             project.createClipFromSelection({
                 identifier: 'foo',
                 type: 'Button'
