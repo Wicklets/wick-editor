@@ -1063,6 +1063,24 @@ describe('Paper.Selection', function() {
             expect(selection.scaleY).to.equal(1);
         });
 
-        // TODO: NEED MORE TESTS HERE ...
+        it('should scale selection (center handles)', function () {
+            throw new Error('nyi');
+        });
+
+        it('should rotate selection', function () {
+            throw new Error('nyi');
+        });
+    });
+
+    describe('rasters', function () {
+        it('should correctly select rasters', function () {
+            throw new Error('nyi');
+        });
+    });
+
+    describe('rotation/pivot point', function () {
+        it('should rotate around the origin of a group if the group is the only item selected', function () {
+            throw new Error('nyi');
+        });
     });
 });

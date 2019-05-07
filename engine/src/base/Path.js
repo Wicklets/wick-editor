@@ -62,8 +62,11 @@ Wick.Path = class extends Wick.Base {
     }
 
     set json (json) {
-        if(json[1].applyMatrix === false) {
+        if(json[1].applyMatrix === false && json[0] !== 'Raster') {
+            console.log(json)
             console.error('Path JSON had applyMatrix set to false. This should never happen - check paper.Selection')
+            console.error('Forcing path JSON to applyMatrix=true.')
+            json[1].applyMatrix = true;
         }
         this._json = json;
         this.view.render();
@@ -153,7 +156,7 @@ Wick.Path = class extends Wick.Base {
     }
 
     /**
-     *
+     * The position of the path.
      */
     get x () {
         return this.view.item.position.x;
@@ -165,7 +168,7 @@ Wick.Path = class extends Wick.Base {
     }
 
     /**
-     *
+     * The position of the path.
      */
     get y () {
         return this.view.item.position.y;

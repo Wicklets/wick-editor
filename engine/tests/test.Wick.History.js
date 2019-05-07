@@ -116,6 +116,8 @@ describe('Wick.History', function() {
 
         expect(project.redo()).to.equal(true);
         expect(project.selection.getSelectedObject().uuid).to.equal(path1.uuid);
+
+        throw new Error('check selection position + bounds in this test too, please');
     });
 
     it('should save and load snapshots', function () {

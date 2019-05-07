@@ -46,7 +46,8 @@ describe('Wick.Clip', function() {
             expect(clip.transformation.y).to.equal(100);
             expect(clip.activeFrame.paths.length).to.equal(2);
             expect(clip.activeFrame.clips.length).to.equal(2);
-            console.warn('HEY FINISH THIS TESTS LMAOOOOOOOO')
+
+            throw new Error("finish this test, please (check bounds/position of clips and such)");
         });
     });
 
@@ -81,6 +82,12 @@ describe('Wick.Clip', function() {
             expect(lineage[3]).to.equal(greatGrandParent);
             expect(lineage[4]).to.equal(project.root);
         });
+    });
+
+    describe('#breakApart', function () {
+        it('should break apart correctly', function () {
+            throw new Error('nyi');
+        })
     });
 
     describe('#tick', function () {

@@ -65038,7 +65038,7 @@ window.Wick = Wick;
  */
 Wick.Clipboard = class {
   static get PASTE_OFFSET() {
-    return 10;
+    return 20;
   }
   /**
    * Create a new Clipboard object.
@@ -67855,8 +67855,11 @@ Wick.Path = class extends Wick.Base {
   }
 
   set json(json) {
-    if (json[1].applyMatrix === false) {
+    if (json[1].applyMatrix === false && json[0] !== 'Raster') {
+      console.log(json);
       console.error('Path JSON had applyMatrix set to false. This should never happen - check paper.Selection');
+      console.error('Forcing path JSON to applyMatrix=true.');
+      json[1].applyMatrix = true;
     }
 
     this._json = json;
@@ -67950,29 +67953,18 @@ Wick.Path = class extends Wick.Base {
     this.parentFrame.removePath(this);
   }
   /**
-   *
+   * The position of the path.
+   * @type {paper.Path}
    */
 
 
-  get x() {
-    return this.view.item.position.x;
+  get position() {
+    return this.view.item.position;
   }
 
-  set x(x) {
-    this.view.item.position.x = x;
-    this.json = this.view.exportJSON();
-  }
-  /**
-   *
-   */
-
-
-  get y() {
-    return this.view.item.position.y;
-  }
-
-  set y(y) {
-    this.view.item.position.y = y;
+  set position(position) {
+    this.view.item.position.x = position.x;
+    this.view.item.position.y = position.y;
     this.json = this.view.exportJSON();
   }
 
@@ -69745,8 +69737,7 @@ Wick.Clip = class extends Wick.Tickable {
   addObjects(objects) {
     // Reposition objects such that their origin point is equal to this Clip's position
     objects.forEach(object => {
-      object.x -= this.transformation.x;
-      object.y -= this.transformation.y;
+      object.position = object.position.add(new paper.Point(this.transformation.x, this.transformation.y));
     }); // Add clips
 
     objects.filter(object => {

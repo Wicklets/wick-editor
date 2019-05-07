@@ -899,6 +899,13 @@ class EditorCore extends Component {
   }
 
   /**
+   *
+   */
+  autosaveAssets = () => {
+    
+  }
+
+  /**
    * Attempts to automatically load an autosaved project if it exists.
    * Does nothing if not autosaved project is stored.
    */

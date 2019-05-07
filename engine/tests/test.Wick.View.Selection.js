@@ -194,4 +194,8 @@ describe('Wick.View.Selection', function() {
     it('should update wick paths when playhead is moved (selection is automatically cleared)', function () {
         throw new Error('nyi');
     });
+
+    it('should clear selection transformation when selection is changed', function () {
+        throw new Error('nyi');
+    });
 });
