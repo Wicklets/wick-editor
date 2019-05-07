@@ -48,7 +48,7 @@ paper.Selection = class {
         };
 
         this._untransformedBounds = paper.Selection._getBoundsOfItems(this._items);
-        
+
         if(args.originX !== undefined) {
             this._transformation.originX = args.originX;
         } else {
@@ -356,7 +356,9 @@ paper.Selection = class {
     }
 
     /**
-     * TODO
+     * Move a handle and use the new handle position to scale the selection.
+     * @param {string} handleName - the name of the handle to move
+     * @param {paper.Point} position - the position to move the handle to
      */
     moveHandleAndScale (handleName, position) {
         var newHandlePosition = position;
@@ -386,7 +388,9 @@ paper.Selection = class {
     }
 
     /**
-     * TODO
+     * Move a handle and use the new position of the handle to rotate the selection.
+     * @param {string} handleName - the name of the handle to move
+     * @param {paper.Point} position - the position to move the handle to
      */
     moveHandleAndRotate (handleName, position) {
         var newHandlePosition = position;

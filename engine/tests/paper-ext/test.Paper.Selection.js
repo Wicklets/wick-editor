@@ -1109,14 +1109,54 @@ describe('Paper.Selection', function() {
     });
 
     describe('rasters', function () {
-        it('should correctly select rasters', function () {
-            throw new Error('nyi');
+        it('should correctly select/transform rasters', function (done) {
+            var dummy = createDummyPaperInstance();
+
+            var paperScope = dummy.paperScope;
+
+            var raster = new paper.Raster(TestUtils.TEST_IMG_SRC_PNG);
+            raster.onLoad = () => {
+                var selection = new paperScope.Selection({
+                    layer: paperScope.project.activeLayer,
+                    items: [raster],
+                });
+
+                expect(selection.width).to.equal(100);
+                expect(selection.height).to.equal(100);
+                selection.position = selection.position.add(new paper.Point(100,0));
+                selection.finish({discardTransformation: false});
+
+                expect(raster.position.x).to.equal(100);
+                expect(raster.position.y).to.equal(0);
+
+                done();
+            }
         });
     });
 
     describe('rotation/pivot point', function () {
-        it('should rotate around the origin of a group if the group is the only item selected', function () {
-            throw new Error('nyi');
+        it('should scale + rotate around a custom origin', function () {
+            var dummy = createDummyPaperInstance();
+
+            var paperScope = dummy.paperScope;
+            var path1 = dummy.path1;
+            var path2 = dummy.path2;
+            var path3 = dummy.path3;
+
+            var selection = new paperScope.Selection({
+                layer: paperScope.project.activeLayer,
+                items: [path1, path2, path3],
+                originX: 0,
+                originY: 0,
+            });
+
+            selection.scaleX = 2;
+
+            // check that the selection is anchored at (0,0), but still scaled 200%
+            expect(selection.position.x).to.equal(0);
+            expect(selection.position.y).to.equal(0);
+            expect(selection.width).to.equal(200);
+            expect(selection.height).to.equal(100);
         });
     });
 });

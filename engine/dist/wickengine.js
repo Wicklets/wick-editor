@@ -67060,6 +67060,8 @@ Wick.Selection = class extends Wick.Base {
     }
 
     this._selectedObjectsUUIDs.push(object.uuid);
+
+    this._transformation = new Wick.Transformation();
   }
   /**
    * Remove a wick object from the selection.
@@ -67071,6 +67073,7 @@ Wick.Selection = class extends Wick.Base {
     this._selectedObjectsUUIDs = this._selectedObjectsUUIDs.filter(uuid => {
       return uuid !== object.uuid;
     });
+    this._transformation = new Wick.Transformation();
   }
   /**
    * Remove all objects from the selection with an optional filter.
@@ -67954,17 +67957,28 @@ Wick.Path = class extends Wick.Base {
   }
   /**
    * The position of the path.
-   * @type {paper.Path}
    */
 
 
-  get position() {
-    return this.view.item.position;
+  get x() {
+    return this.view.item.position.x;
   }
 
-  set position(position) {
-    this.view.item.position.x = position.x;
-    this.view.item.position.y = position.y;
+  set x(x) {
+    this.view.item.position.x = x;
+    this.json = this.view.exportJSON();
+  }
+  /**
+   * The position of the path.
+   */
+
+
+  get y() {
+    return this.view.item.position.y;
+  }
+
+  set y(y) {
+    this.view.item.position.y = y;
     this.json = this.view.exportJSON();
   }
 
@@ -69737,7 +69751,8 @@ Wick.Clip = class extends Wick.Tickable {
   addObjects(objects) {
     // Reposition objects such that their origin point is equal to this Clip's position
     objects.forEach(object => {
-      object.position = object.position.add(new paper.Point(this.transformation.x, this.transformation.y));
+      object.x -= this.transformation.x;
+      object.y -= this.transformation.y;
     }); // Add clips
 
     objects.filter(object => {
@@ -70999,7 +71014,9 @@ paper.Selection = class {
     this.position = this.position.add(new paper.Point(x, y));
   }
   /**
-   * TODO
+   * Move a handle and use the new handle position to scale the selection.
+   * @param {string} handleName - the name of the handle to move
+   * @param {paper.Point} position - the position to move the handle to
    */
 
 
@@ -71013,15 +71030,17 @@ paper.Selection = class {
     var newScale = newHandlePosition.divide(currentHandlePosition);
     var lockYScale = handleName === 'leftCenter' || handleName === 'rightCenter';
     var lockXScale = handleName === 'bottomCenter' || handleName === 'topCenter';
-    if (lockXScale) newScale.x = this.transformation.x;
-    if (lockYScale) newScale.y = this.transformation.y;
+    if (lockXScale) newScale.x = this.transformation.scaleX;
+    if (lockYScale) newScale.y = this.transformation.scaleY;
     this.updateTransformation({
       scaleX: newScale.x,
       scaleY: this.lockScalingToAspectRatio ? newScale.x : newScale.y
     });
   }
   /**
-   * TODO
+   * Move a handle and use the new position of the handle to rotate the selection.
+   * @param {string} handleName - the name of the handle to move
+   * @param {paper.Point} position - the position to move the handle to
    */
 
 
