@@ -81,6 +81,8 @@ Wick.Selection = class extends Wick.Base {
         }
 
         this._selectedObjectsUUIDs.push(object.uuid);
+
+        this._transformation = new Wick.Transformation();
     }
 
     /**
@@ -91,6 +93,8 @@ Wick.Selection = class extends Wick.Base {
         this._selectedObjectsUUIDs = this._selectedObjectsUUIDs.filter(uuid => {
             return uuid !== object.uuid;
         });
+
+        this._transformation = new Wick.Transformation();
     }
 
     /**

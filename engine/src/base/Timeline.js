@@ -70,16 +70,16 @@ Wick.Timeline = class extends Wick.Base {
      * @type {number}
      */
     get playheadPosition () {
-      return this._playheadPosition;
+        return this._playheadPosition;
     }
 
     set playheadPosition (playheadPosition) {
-      // Automatically clear selection when any playhead moves
-      if(this.project && this._playheadPosition !== playheadPosition) {
-        this.project.selection.clear('Canvas');
-      }
+        // Automatically clear selection when any playhead moves
+        if(this.project && this._playheadPosition !== playheadPosition) {
+            this.project.selection.clear('Canvas');
+        }
 
-      this._playheadPosition = playheadPosition;
+        this._playheadPosition = playheadPosition;
     }
 
     /**

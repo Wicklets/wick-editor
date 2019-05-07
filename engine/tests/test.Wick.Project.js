@@ -559,6 +559,7 @@ describe('Wick.Project', function() {
 
             project.view.render();
 
+            throw new Error('selection must be destroyed before this happens.')
             project.createClipFromSelection({
                 identifier: 'foo',
                 type: 'Clip'
@@ -594,6 +595,7 @@ describe('Wick.Project', function() {
 
             project.view.render();
 
+            throw new Error('selection must be destroyed before this happens.')
             project.createClipFromSelection({
                 identifier: 'bar',
                 type: 'Clip',
@@ -637,6 +639,7 @@ describe('Wick.Project', function() {
 
             project.view.render();
 
+            throw new Error('selection must be destroyed before this happens.')
             project.createClipFromSelection({
                 identifier: 'bar',
                 type: 'Clip'
@@ -674,6 +677,7 @@ describe('Wick.Project', function() {
 
             project.view.render();
 
+            throw new Error('selection must be destroyed before this happens.')
             project.createClipFromSelection({
                 identifier: 'foo',
                 type: 'Button'
