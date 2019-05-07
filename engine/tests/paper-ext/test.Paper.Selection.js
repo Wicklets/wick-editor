@@ -2,12 +2,14 @@ describe('Paper.Selection', function() {
     let createDummyPaperInstance = () => {
         var paperScope = TestUtils.createPaperScope();
 
-        //  ---   ---
-        // |p1 | |p2 |
-        //  ---   ---
-        //        ---
-        //       |p3 |
-        //        ---
+        //      100
+        // ___________
+        //  ---   ---   |
+        // |p1 | |p2 |  |
+        //  ---   ---   | 100
+        //        ---   |
+        //       |p3 |  |
+        //        ---   |
 
         var path1 = new paperScope.Path.Ellipse({
             center: new paper.Point(25,25),
@@ -45,13 +47,6 @@ describe('Paper.Selection', function() {
 
     let createDummyPaperInstanceForOrdering = () => {
         var paperScope = TestUtils.createPaperScope();
-
-        //  ---   ---
-        // |p1 | |p2 |
-        //  ---   ---
-        //        ---
-        //       |p3 |
-        //        ---
 
         var path1 = new paperScope.Path.Ellipse({
             center: new paper.Point(0,0),
@@ -109,13 +104,6 @@ describe('Paper.Selection', function() {
 
     let createDummyPaperInstanceForPathAttributes = () => {
         var paperScope = TestUtils.createPaperScope();
-
-        //  ---   ---
-        // |p1 | |p2 |
-        //  ---   ---
-        //        ---
-        //       |p3 |
-        //        ---
 
         var path1 = new paperScope.Path.Ellipse({
             center: new paper.Point(0,0),
@@ -1064,11 +1052,59 @@ describe('Paper.Selection', function() {
         });
 
         it('should scale selection (center handles)', function () {
-            throw new Error('nyi');
+            var dummy = createDummyPaperInstance();
+
+            var paperScope = dummy.paperScope;
+            var path1 = dummy.path1;
+            var path2 = dummy.path2;
+            var path3 = dummy.path3;
+
+            var selection = new paperScope.Selection({
+                layer: paperScope.project.activeLayer,
+                items: [path1, path2, path3],
+            });
+
+            selection.moveHandleAndScale('rightCenter', new paper.Point(100,100));
+            expect(selection.scaleX).to.equal(1);
+            expect(selection.scaleY).to.equal(1);
+
+            selection.moveHandleAndScale('rightCenter', new paper.Point(150,150));
+            expect(selection.scaleX).to.equal(2);
+            expect(selection.scaleY).to.equal(1);
+
+            selection.moveHandleAndScale('rightCenter', new paper.Point(75,75));
+            expect(selection.scaleX).to.equal(0.5);
+            expect(selection.scaleY).to.equal(1);
+
+            selection.moveHandleAndScale('rightCenter', new paper.Point(100,100));
+            expect(selection.scaleX).to.equal(1);
+            expect(selection.scaleY).to.equal(1);
         });
 
         it('should rotate selection', function () {
-            throw new Error('nyi');
+            var dummy = createDummyPaperInstance();
+
+            var paperScope = dummy.paperScope;
+            var path1 = dummy.path1;
+            var path2 = dummy.path2;
+            var path3 = dummy.path3;
+
+            var selection = new paperScope.Selection({
+                layer: paperScope.project.activeLayer,
+                items: [path1, path2, path3],
+            });
+
+            selection.moveHandleAndRotate('bottomRight', new paper.Point(100,100));
+            expect(selection.rotation).to.equal(0);
+
+            selection.moveHandleAndRotate('bottomRight', new paper.Point(50,150));
+            expect(selection.rotation).to.equal(45);
+
+            selection.moveHandleAndRotate('bottomRight', new paper.Point(0,100));
+            expect(selection.rotation).to.equal(90);
+
+            selection.moveHandleAndRotate('bottomRight', new paper.Point(100,0));
+            expect(selection.rotation).to.equal(-90);
         });
     });
 

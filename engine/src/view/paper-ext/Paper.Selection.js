@@ -48,6 +48,7 @@ paper.Selection = class {
         };
 
         this._untransformedBounds = paper.Selection._getBoundsOfItems(this._items);
+        
         if(args.originX !== undefined) {
             this._transformation.originX = args.originX;
         } else {
@@ -375,8 +376,8 @@ paper.Selection = class {
         var lockXScale = handleName === 'bottomCenter'
                       || handleName === 'topCenter';
 
-        if(lockXScale) newScale.x = this.transformation.x;
-        if(lockYScale) newScale.y = this.transformation.y;
+        if(lockXScale) newScale.x = this.transformation.scaleX;
+        if(lockYScale) newScale.y = this.transformation.scaleY;
 
         this.updateTransformation({
             scaleX: newScale.x,
