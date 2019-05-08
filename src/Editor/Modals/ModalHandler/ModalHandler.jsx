@@ -24,6 +24,7 @@ import MakeInteractive from '../MakeInteractive/MakeInteractive';
 import AutosaveWarning from '../AutosaveWarning/AutosaveWarning';
 import WelcomeMessage from '../WelcomeMessage/WelcomeMessage'; 
 import MakeAnimated from '../MakeAnimated/MakeAnimated'; 
+import ExportOptions from '../ExportOptions/ExportOptions';
 
 class ModalHandler extends Component {
   render() {
@@ -60,6 +61,15 @@ class ModalHandler extends Component {
           toggle={this.props.closeActiveModal}
           open={this.props.activeModalName === 'WelcomeMessage'}
         />
+        <ExportOptions
+          openModal={this.props.openModal}
+          toggle={this.props.closeActiveModal}
+          exportProjectAsGif={this.props.exportProjectAsGif}
+          exportProjectAsStandaloneZIP={this.props.exportProjectAsStandaloneZIP}
+          exportProjectAsVideo={this.props.exportProjectAsVideo} 
+          open={this.props.activeModalName === 'ExportOptions'}
+          projectName={this.props.project.name}
+          />
       </div>
     );
   }

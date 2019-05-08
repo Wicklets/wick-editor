@@ -27,6 +27,11 @@ import './_actionbutton.scss';
 var classNames = require('classnames');
 
 class ActionButton extends Component {
+
+  runAction = () => {
+    if (!this.props.disabled) this.props.action();
+  }
+
   render() {
     let isActive = this.props.isActive === undefined ? () => false : this.props.isActive;
 
@@ -45,8 +50,8 @@ class ActionButton extends Component {
           tooltipPlace={this.props.tooltipPlace}
           className={finalColorClassName}
           type="button"
-          onClick={this.props.action}
-          onTouch={this.props.action}>
+          onClick={this.runAction}
+          onTouch={this.runAction}>
           {this.props.icon && <ToolIcon className={classNames(this.props.iconClassName)} name={this.props.icon} />}
           {this.props.text && <div className={newClassName+'-text'}>{this.props.text}</div>}
         </WickInput>

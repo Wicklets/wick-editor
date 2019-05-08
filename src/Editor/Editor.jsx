@@ -612,6 +612,9 @@ class Editor extends EditorCore {
                     createButtonFromSelection={this.createButtonFromSelection}
                     updateProjectSettings={this.updateProjectSettings}
                     loadAutosavedProject={this.attemptAutoLoad}
+                    exportProjectAsGif={this.exportProjectAsAnimatedGIF}
+                    exportProjectAsVideo={this.exportProjectAsVideo}
+                    exportProjectAsStandaloneZIP={this.exportProjectAsStandaloneZIP}
                   />
                   {/* Header */}
                   <DockedPanel showOverlay={this.state.previewPlaying}>
@@ -620,10 +623,8 @@ class Editor extends EditorCore {
                       projectName={this.project.name}
                       exportProjectAsWickFile={this.exportProjectAsWickFile}
                       importProjectAsWickFile={this.importProjectAsWickFile}
-                      exportProjectAsAnimatedGIF={this.exportProjectAsAnimatedGIF}
-                      exportProjectAsStandaloneZIP={this.exportProjectAsStandaloneZIP}
-                      exportProjectAsVideo={this.exportProjectAsVideo}
                       toast={this.toast}
+                      openExportOptions={() => {this.openModal('ExportOptions')}} 
                     />
                   </DockedPanel>
                 </div>

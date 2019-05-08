@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 
-import './_scriptsubtabbutton.scss'; 
+import './_selectsubtabbutton.scss'; 
 
 var classNames = require('classnames');
 
-class ScriptSubTabButton extends Component {
+class SelectSubTabButton extends Component {
 
     render () {
         return (
@@ -17,4 +17,4 @@ class ScriptSubTabButton extends Component {
     }
 }
 
-export default ScriptSubTabButton; 
+export default SelectSubTabButton; 

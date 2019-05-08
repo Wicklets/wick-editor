@@ -886,24 +886,27 @@ class EditorCore extends Component {
   /**
    * Export the current project as an animated GIF.
    */
-  exportProjectAsAnimatedGIF = () => {
+  exportProjectAsAnimatedGIF = (name) => {
+    let outputName = name || this.project.name;
     let toastID = this.toast('Exporting animated GIF...', 'info');
     GIFExport.createAnimatedGIFFromProject(this.project, blob => {
       this.project = window.Wick.Project.deserialize(this.project.serialize());
       this.updateToast(toastID, { 
         type: 'success', 
         text: "Successfully saved .gif file." });
-      saveAs(blob, this.project.name + '.gif');
+      saveAs(blob, outputName + '.gif');
     });
   }
 
   /**
    * Export the current project as a video.
    */
-  exportProjectAsVideo = () => {
+  exportProjectAsVideo = (name) => {
+    let outputName = name || this.project.name;
+
     let args = {
       project: this.project,
-      onDone: (buffer) => {saveAs(new Blob([new Uint8Array(buffer)]), "out.webm")},
+      onDone: (buffer) => {saveAs(new Blob([new Uint8Array(buffer)]), outputName + ".webm")},
     }
 
     VideoExport.renderProjectAsVideo(args);
@@ -912,13 +915,14 @@ class EditorCore extends Component {
   /**
    * Export the current project as a bundled standalone ZIP that can be uploaded to itch/newgrounds/etc.
    */
-  exportProjectAsStandaloneZIP = () => {
+  exportProjectAsStandaloneZIP = (name) => {
     let toastID = this.toast('Exporting project as ZIP...', 'info');
+    let outputName = name || this.project.name;
     ZIPExport.bundleStandaloneProject(this.project, blob => {
       this.updateToast(toastID, { 
         type: 'success', 
         text: "Successfully saved .zip file." });
-      saveAs(blob, this.project.name + '.zip');
+      saveAs(blob, outputName + '.zip');
     });
   }
 

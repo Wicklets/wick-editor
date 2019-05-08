@@ -75,7 +75,20 @@ class MakeAnimated extends Component {
           </div>
           <ObjectInfo 
           title="CLIP" 
-          rows={["Has its own timeline", "Can control timeline with code", "Can add any code"]} />
+          rows={[
+              {
+                text: "Has its own timeline",
+                icon: "check"
+              },
+              {
+                text: "Can control timeline with code",
+                icon: "check"
+              }, 
+              {
+                text: "Can add any code",
+                icon: "check", 
+              }
+            ]}/>
         </div>
         <div id="make-animated-modal-footer">
           <div id="make-animated-modal-accept">
@@ -88,7 +101,7 @@ class MakeAnimated extends Component {
           </div>
         </div>
         <div id="make-animated-asset-checkbox-container">
-          <WickInput
+          {/* <WickInput
             type="checkbox"
             containerclassname="make-animated-asset-checkbox-input-container"
             className="make-animated-asset-checkbox-input"
@@ -97,7 +110,7 @@ class MakeAnimated extends Component {
           />
           <div id="make-animated-asset-checkbox-message">
             Add to asset library
-          </div>
+          </div> */}
         </div>
       </WickModal>
     );
