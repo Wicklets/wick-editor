@@ -114,6 +114,7 @@ Wick.Base = class {
         var origChildren = clone.children;
         clone.children.forEach(child => {
             clone.removeChild(child);
+            child.parent = this;
         });
         origChildren.forEach(child => {
             var childClone = child.clone();

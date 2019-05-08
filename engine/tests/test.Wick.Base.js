@@ -79,6 +79,19 @@ describe('Wick.Base', function() {
 
             var clone = base.clone();
 
+            expect(base instanceof Wick.Base).to.equal(true);
+            expect(base.identifier).to.equal('foo');
+            expect(base.children.length).to.equal(3);
+            expect(base.children[0].identifier).to.equal('child1');
+            expect(base.children[1].identifier).to.equal('child2');
+            expect(base.children[2].identifier).to.equal('child3');
+            expect(base.children[0]).to.equal(child1);
+            expect(base.children[1]).to.equal(child2);
+            expect(base.children[2]).to.equal(child3);
+            expect(base.children[0].parent).to.equal(base);
+            expect(base.children[1].parent).to.equal(base);
+            expect(base.children[2].parent).to.equal(base);
+
             expect(clone instanceof Wick.Base).to.equal(true);
             expect(clone.identifier).to.equal('foo');
             expect(clone.uuid).to.not.equal(base.uuid);
@@ -96,6 +109,48 @@ describe('Wick.Base', function() {
             expect(clone.children[0].uuid).to.not.equal(child1.uuid);
             expect(clone.children[1].uuid).to.not.equal(child2.uuid);
             expect(clone.children[2].uuid).to.not.equal(child3.uuid);
+            expect(clone.children[0].parent).to.equal(clone);
+            expect(clone.children[1].parent).to.equal(clone);
+            expect(clone.children[2].parent).to.equal(clone);
+        });
+
+        it('should clone correctly (grandchildren)', function () {
+            Wick.ObjectCache.removeAllObjects();
+
+            var grandchild = new Wick.Base({ identifier: 'grandchild' })
+            var child = new Wick.Base({ identifier: 'child' });
+            var parent = new Wick.Base({ identifier: 'parent' });
+
+            child.addChild(grandchild);
+            parent.addChild(child);
+
+            var clone = parent.clone();
+
+            expect(parent instanceof Wick.Base).to.equal(true);
+            expect(parent.identifier).to.equal('parent');
+            expect(parent.children.length).to.equal(1);
+            expect(parent.children[0]).to.equal(child);
+            expect(parent.children[0].identifier).to.equal('child');
+            expect(parent.children[0].children.length).to.equal(1);
+            expect(parent.children[0].children[0]).to.equal(grandchild);
+            expect(parent.children[0].children[0].identifier).to.equal('grandchild');
+
+            expect(clone instanceof Wick.Base).to.equal(true);
+            expect(clone.identifier).to.equal('parent');
+            expect(clone.uuid).to.not.equal(parent.uuid);
+            expect(clone.uuid).to.not.equal(null);
+            expect(clone.children.length).to.equal(1);
+            expect(clone.children[0].identifier).to.equal('child');
+            expect(clone.children[0]).to.not.equal(child);
+            expect(clone.children[0].uuid).to.not.equal(null);
+            expect(clone.children[0].uuid).to.not.equal(child.uuid);
+            expect(clone.children[0].children.length).to.equal(1);
+            expect(clone.children[0].children[0].identifier).to.equal('grandchild');
+            expect(clone.children[0].children[0]).to.not.equal(child);
+            expect(clone.children[0].children[0]).to.not.equal(grandchild);
+            expect(clone.children[0].children[0].uuid).to.not.equal(null);
+            expect(clone.children[0].children[0].uuid).to.not.equal(child.uuid);
+            expect(clone.children[0].children[0].uuid).to.not.equal(grandchild.uuid);
         });
     })
 

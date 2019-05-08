@@ -33,65 +33,51 @@ describe('Wick.Frame', function() {
             expect(frame.midpoint).to.equal(7.5);
         });
     });
-/*
-    describe('#serialize', function () {
-        it('should serialize correctly', function() {
-            var project = new Wick.Project();
-            var frame = project.activeFrame;
-            frame.addTween(new Wick.Tween());
-            frame.addClip(new Wick.Clip());
-            frame.addClip(new Wick.Button());
-            frame.addPath(new Wick.Path());
-            frame.identifier = 'foo';
 
-            var data = frame.serialize();
+    describe('#clone', function () {
+        it('should clone correctly (empty frame)', function() {
+            var frame = new Wick.Frame();
 
-            expect(data.classname).to.equal('Frame');
-            expect(data.identifier).to.equal('foo');
-            expect(data.start).to.equal(frame.start);
-            expect(data.end).to.equal(frame.end);
-            expect(data.clips.length).to.equal(2);
-            expect(data.clips[0].classname).to.equal('Clip');
-            expect(data.clips[1].classname).to.equal('Button');
-            expect(data.paths[0].classname).to.equal('Path');
-            expect(data.tweens.length).to.equal(1);
-            expect(data.tweens[0].classname).to.equal('Tween');
-        });
-    });
+            var clone = frame.clone();
 
-    describe('#deserialize', function () {
-        it('should deserialize correctly', function() {
-            var data = {
-                classname: 'Frame',
-                identifier: 'foo',
-                tweens: [new Wick.Tween().serialize()],
-                clips: [
-                    new Wick.Clip().serialize(),
-                    new Wick.Button().serialize(),
-                ],
-                scripts: [],
-                start: 4,
-                end: 8,
-                paths: [
-                    new Wick.Path().serialize(),
-                ],
-            };
-            var frame = Wick.Frame.deserialize(data);
-
+            expect(frame.start).to.equal(1);
+            expect(frame.end).to.equal(1);
+            expect(frame instanceof Wick.Base).to.equal(true);
+            expect(frame instanceof Wick.Tickable).to.equal(true);
             expect(frame instanceof Wick.Frame).to.equal(true);
-            expect(frame.identifier).to.equal('foo');
-            expect(frame.tweens.length).to.equal(1);
-            expect(frame.tweens[0] instanceof Wick.Tween).to.equal(true);
-            expect(frame.clips.length).to.equal(2);
-            expect(frame.clips[0] instanceof Wick.Clip).to.equal(true);
-            expect(frame.clips[1] instanceof Wick.Button).to.equal(true);
-            expect(frame.paths[0] instanceof Wick.Path).to.equal(true);
+            expect(frame.classname).to.equal('Frame');
+            expect(frame.scripts instanceof Array).to.equal(true);
             expect(frame.scripts.length).to.equal(0);
-            expect(frame.start).to.equal(data.start);
-            expect(frame.end).to.equal(data.end);
+            expect(frame.clips instanceof Array).to.equal(true);
+            expect(frame.clips.length).to.equal(0);
+            expect(frame.tweens instanceof Array).to.equal(true);
+            expect(frame.tweens.length).to.equal(0);
+
+            expect(frame.start).to.equal(1);
+            expect(frame.end).to.equal(1);
+            expect(frame.length).to.equal(1);
+            expect(frame.midpoint).to.equal(1);
+
+            expect(clone.start).to.equal(1);
+            expect(clone.end).to.equal(1);
+            expect(clone instanceof Wick.Base).to.equal(true);
+            expect(clone instanceof Wick.Tickable).to.equal(true);
+            expect(clone instanceof Wick.Frame).to.equal(true);
+            expect(clone.classname).to.equal('Frame');
+            expect(clone.scripts instanceof Array).to.equal(true);
+            expect(clone.scripts.length).to.equal(0);
+            expect(clone.clips instanceof Array).to.equal(true);
+            expect(clone.clips.length).to.equal(0);
+            expect(clone.tweens instanceof Array).to.equal(true);
+            expect(clone.tweens.length).to.equal(0);
+
+            expect(clone.start).to.equal(1);
+            expect(clone.end).to.equal(1);
+            expect(clone.length).to.equal(1);
+            expect(clone.midpoint).to.equal(1);
         });
     });
-*/
+
     describe('#inPosition', function () {
         it('inPosition should be calculated correctly', function() {
             var frame = new Wick.Frame();

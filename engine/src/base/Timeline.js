@@ -39,14 +39,14 @@ Wick.Timeline = class extends Wick.Base {
         super.deserialize(data);
 
         this._playheadPosition = data.playheadPosition;
-        this.activeLayerIndex = data.activeLayerIndex;
+        this._activeLayerIndex = data.activeLayerIndex;
     }
 
     serialize (args) {
         var data = super.serialize(args);
 
         data.playheadPosition = this._playheadPosition;
-        data.activeLayerIndex = this.activeLayerIndex;
+        data.activeLayerIndex = this._activeLayerIndex;
 
         return data;
     }
