@@ -83,6 +83,9 @@ Wick.Selection = class extends Wick.Base {
         // Add the object to the selection!
         this._selectedObjectsUUIDs.push(object.uuid);
 
+        this._transformation = new Wick.Transformation();
+        // disabled for now >:(
+        /*
         if(this.numObjects === 1 && object instanceof Wick.Clip) {
             var clip = object;
             // Use clip transforms as selection transforms if we selected a single clip
@@ -92,6 +95,7 @@ Wick.Selection = class extends Wick.Base {
             // Otherwise, just reset the transformations
             this._transformation = new Wick.Transformation();
         }
+        */
     }
 
     /**

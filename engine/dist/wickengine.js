@@ -65710,6 +65710,7 @@ Wick.Base = class {
     var origChildren = clone.children;
     clone.children.forEach(child => {
       clone.removeChild(child);
+      child.parent = this;
     });
     origChildren.forEach(child => {
       var childClone = child.clone();
@@ -67064,15 +67065,19 @@ Wick.Selection = class extends Wick.Base {
 
     this._selectedObjectsUUIDs.push(object.uuid);
 
-    if (this.numObjects === 1 && object instanceof Wick.Clip) {
-      var clip = object; // Use clip transforms as selection transforms if we selected a single clip
+    this._transformation = new Wick.Transformation(); // disabled for now >:(
 
-      this._transformation = new Wick.Transformation(clip.transformation.values);
-      clip.transformation = new Wick.Transformation();
+    /*
+    if(this.numObjects === 1 && object instanceof Wick.Clip) {
+        var clip = object;
+        // Use clip transforms as selection transforms if we selected a single clip
+        this._transformation = new Wick.Transformation(clip.transformation.values);
+        clip.transformation = new Wick.Transformation();
     } else {
-      // Otherwise, just reset the transformations
-      this._transformation = new Wick.Transformation();
+        // Otherwise, just reset the transformations
+        this._transformation = new Wick.Transformation();
     }
+    */
   }
   /**
    * Remove a wick object from the selection.
@@ -67248,13 +67253,13 @@ Wick.Timeline = class extends Wick.Base {
   deserialize(data) {
     super.deserialize(data);
     this._playheadPosition = data.playheadPosition;
-    this.activeLayerIndex = data.activeLayerIndex;
+    this._activeLayerIndex = data.activeLayerIndex;
   }
 
   serialize(args) {
     var data = super.serialize(args);
     data.playheadPosition = this._playheadPosition;
-    data.activeLayerIndex = this.activeLayerIndex;
+    data.activeLayerIndex = this._activeLayerIndex;
     return data;
   }
 
