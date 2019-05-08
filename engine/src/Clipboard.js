@@ -58,7 +58,7 @@ Wick.Clipboard = class {
         }
 
         // Always paste in-place if we're pasting to a different frame than where we copied from.
-        var pasteInPlace = this._copyLocation !== project.activeFrame.uuid;
+        var pasteInPlace = project.activeFrame && this._copyLocation !== project.activeFrame.uuid;
 
         project.selection.clear();
 
