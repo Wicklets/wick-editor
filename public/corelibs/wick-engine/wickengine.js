@@ -67059,11 +67059,20 @@ Wick.Selection = class extends Wick.Base {
 
     if (this._locationOf(object) !== this.location) {
       this.clear();
-    }
+    } // Add the object to the selection!
+
 
     this._selectedObjectsUUIDs.push(object.uuid);
 
-    this._transformation = new Wick.Transformation();
+    if (this.numObjects === 1 && object instanceof Wick.Clip) {
+      var clip = object; // Use clip transforms as selection transforms if we selected a single clip
+
+      this._transformation = new Wick.Transformation(clip.transformation.values);
+      clip.transformation = new Wick.Transformation();
+    } else {
+      // Otherwise, just reset the transformations
+      this._transformation = new Wick.Transformation();
+    }
   }
   /**
    * Remove a wick object from the selection.
@@ -70681,7 +70690,7 @@ paper.Selection = class {
       originX: 0,
       originY: 0
     };
-    this._untransformedBounds = paper.Selection._getBoundsOfItems(this._items);
+    this._untransformedBounds = paper.Selection._getBoundsOfItems(this._items); // Origin/pivot point is set to the center of the bounds, unless one is given in args
 
     if (args.originX !== undefined) {
       this._transformation.originX = args.originX;
@@ -71246,7 +71255,7 @@ paper.SelectionGUI = class {
   }
 
   static get PIVOT_FILL_COLOR() {
-    return 'rgba(0,0,0,0)';
+    return 'rgba(255,255,255,0.5)';
   }
 
   static get PIVOT_STROKE_COLOR() {
@@ -74333,15 +74342,24 @@ Wick.View.Selection = class extends Wick.View {
       });
     }
 
-    this.selection = new this.paper.Selection({
+    var selectionOptions = {
       layer: this.layer,
       items: this._selectedItemsInModel(),
       x: this.model.transformation.x,
       y: this.model.transformation.y,
       scaleX: this.model.transformation.scaleX,
       scaleY: this.model.transformation.scaleY,
-      rotation: this.model.transformation.rotation
-    });
+      rotation: this.model.transformation.rotation // Use Clip origins as the pivot point if that Clip is the only object selected
+
+    };
+    var singleObject = this.model.getSelectedObject();
+
+    if (singleObject instanceof Wick.Clip) {
+      selectionOptions.originX = singleObject.transformation.x;
+      selectionOptions.originY = singleObject.transformation.y;
+    }
+
+    this.selection = new this.paper.Selection(selectionOptions);
   }
 
   _selectedItemsInView() {

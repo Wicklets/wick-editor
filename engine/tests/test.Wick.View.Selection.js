@@ -287,4 +287,82 @@ describe('Wick.View.Selection', function() {
         expect(project.selection.transformation.scaleY).to.equal(1);
         expect(project.selection.transformation.rotation).to.equal(0);
     });
+
+    it('should use clip origin as pivot point if a clip is the only object selected', function () {
+        var project = new Wick.Project();
+
+        var path1 = TestUtils.paperToWickPath(new paper.Path.Ellipse({
+            center: new paper.Point(25,25),
+            radius: 25,
+            fillColor: '#ff0000',
+        }));
+        var path2 = TestUtils.paperToWickPath(new paper.Path.Ellipse({
+            center: new paper.Point(75,25),
+            radius: 25,
+            fillColor: '#00ff00',
+        }));
+        var path3 = TestUtils.paperToWickPath(new paper.Path.Ellipse({
+            center: new paper.Point(75,75),
+            radius: 25,
+            fillColor: '#0000ff',
+        }));
+
+        var clip = new Wick.Clip();
+        clip.activeFrame.addPath(path1);
+        clip.activeFrame.addPath(path2);
+        clip.activeFrame.addPath(path3);
+        project.activeFrame.addPath(clip);
+
+        project.selection.select(clip);
+
+        project.view.render();
+
+        expect(project.selection.view.selection.position.x).to.equal(0);
+        expect(project.selection.view.selection.position.y).to.equal(0);
+        expect(project.selection.view.selection.origin.x).to.equal(0);
+        expect(project.selection.view.selection.origin.y).to.equal(0);
+    });
+
+    it('should use clip transforms as selection transforms if a clip is the only object selected', function () {
+        var project = new Wick.Project();
+
+        var path1 = TestUtils.paperToWickPath(new paper.Path.Ellipse({
+            center: new paper.Point(25,25),
+            radius: 25,
+            fillColor: '#ff0000',
+        }));
+        var path2 = TestUtils.paperToWickPath(new paper.Path.Ellipse({
+            center: new paper.Point(75,25),
+            radius: 25,
+            fillColor: '#00ff00',
+        }));
+        var path3 = TestUtils.paperToWickPath(new paper.Path.Ellipse({
+            center: new paper.Point(75,75),
+            radius: 25,
+            fillColor: '#0000ff',
+        }));
+
+        var clip = new Wick.Clip();
+        clip.activeFrame.addPath(path1);
+        clip.activeFrame.addPath(path2);
+        clip.activeFrame.addPath(path3);
+        clip.transformation.x = 100;
+        clip.transformation.y = 200;
+        clip.transformation.rotation = 45;
+        project.activeFrame.addPath(clip);
+
+        project.selection.select(clip);
+        // Selecting that clip should reset that clip's transforms
+        expect(clip.transformation.x).to.equal(0);
+        expect(clip.transformation.y).to.equal(0);
+        expect(clip.transformation.rotation).to.equal(0);
+
+        project.view.render();
+
+        expect(project.selection.view.selection.rotation).to.equal(45);
+        expect(project.selection.view.selection.position.x).to.equal(100);
+        expect(project.selection.view.selection.position.y).to.equal(200);
+        expect(project.selection.view.selection.origin.x).to.equal(100);
+        expect(project.selection.view.selection.origin.y).to.equal(200);
+    });
 });

@@ -49,6 +49,7 @@ paper.Selection = class {
 
         this._untransformedBounds = paper.Selection._getBoundsOfItems(this._items);
 
+        // Origin/pivot point is set to the center of the bounds, unless one is given in args
         if(args.originX !== undefined) {
             this._transformation.originX = args.originX;
         } else {

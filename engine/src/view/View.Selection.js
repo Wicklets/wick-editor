@@ -104,7 +104,7 @@ Wick.View.Selection = class extends Wick.View {
             this.selection.finish({discardTransformation: this._modelAndViewHaveSameItems()});
         }
 
-        this.selection = new this.paper.Selection({
+        var selectionOptions = {
             layer: this.layer,
             items: this._selectedItemsInModel(),
             x: this.model.transformation.x,
@@ -112,7 +112,16 @@ Wick.View.Selection = class extends Wick.View {
             scaleX: this.model.transformation.scaleX,
             scaleY: this.model.transformation.scaleY,
             rotation: this.model.transformation.rotation,
-        });
+        }
+
+        // Use Clip origins as the pivot point if that Clip is the only object selected
+        var singleObject = this.model.getSelectedObject();
+        if(singleObject instanceof Wick.Clip) {
+            selectionOptions.originX = singleObject.transformation.x;
+            selectionOptions.originY = singleObject.transformation.y;
+        }
+
+        this.selection = new this.paper.Selection(selectionOptions);
     }
 
     _selectedItemsInView () {

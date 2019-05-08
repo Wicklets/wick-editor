@@ -55,7 +55,7 @@
     }
 
     static get PIVOT_FILL_COLOR () {
-        return 'rgba(0,0,0,0)';
+        return 'rgba(255,255,255,0.5)';
     }
 
     static get PIVOT_STROKE_COLOR () {
