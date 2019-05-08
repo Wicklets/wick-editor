@@ -62,7 +62,7 @@ paper.Selection = class {
             this._transformation.originY = this._untransformedBounds.center.y;
         }
 
-        this._create();
+        this._rebuild();
     }
 
     /**
@@ -91,7 +91,6 @@ paper.Selection = class {
      * @type {object}
      */
     get transformation () {
-        // deep copy to protect transformation.
         return JSON.parse(JSON.stringify(this._transformation));
     }
 
@@ -287,18 +286,24 @@ paper.Selection = class {
      * Flip the selection horizontally.
      */
     flipHorizontally () {
+        // TODO replace
+        /*
         this.updateTransformation({
             scaleX: -this.transformation.scaleX,
         });
+        */
     }
 
     /**
      * Flip the selection vertically.
      */
     flipVertically () {
+        // TODO replace
+        /*
         this.updateTransformation({
             scaleY: -this.transformation.scaleY,
         });
+        */
     }
 
     /**
@@ -353,7 +358,8 @@ paper.Selection = class {
      * Nudge the selection by a specified amount.
      */
     nudge (x, y) {
-        this.position = this.position.add(new paper.Point(x, y));
+        // TODO replace
+        //this.position = this.position.add(new paper.Point(x, y));
     }
 
     /**
@@ -362,6 +368,7 @@ paper.Selection = class {
      * @param {paper.Point} position - the position to move the handle to
      */
     moveHandleAndScale (handleName, position) {
+        /*
         var newHandlePosition = position;
         var currentHandlePosition = this._untransformedBounds[handleName];
 
@@ -386,6 +393,7 @@ paper.Selection = class {
             scaleX: newScale.x,
             scaleY: this.lockScalingToAspectRatio ? newScale.x : newScale.y,
         });
+        */
     }
 
     /**
@@ -394,6 +402,7 @@ paper.Selection = class {
      * @param {paper.Point} position - the position to move the handle to
      */
     moveHandleAndRotate (handleName, position) {
+        /*
         var newHandlePosition = position;
         var currentHandlePosition = this._untransformedBounds[handleName];
 
@@ -407,21 +416,13 @@ paper.Selection = class {
         this.updateTransformation({
             rotation: this.transformation.rotation + angleDiff,
         });
+        */
     }
 
-    /**
-     * Finish and destroy the selection.
-     * @param {boolean} discardTransformation - If set to true, will reset all items to their original transforms before the selection was made.
-     */
-    finish (args) {
-        if(!args) args = {};
-        if(args.discardTransformation === undefined) args.discardTransformation = false;
-
-        this._destroy(args.discardTransformation);
-    }
-
-    _create () {
-        paper.Selection._prepareItemsForSelection(this._items);
+    _rebuild () {
+        if(this._gui) {
+            this._gui.destroy();
+        }
 
         this._gui = new paper.SelectionGUI({
             items: this._items,
@@ -433,70 +434,10 @@ paper.Selection = class {
         if(this._items.length > 0) {
             this._layer.addChild(this._gui.item);
         }
-
-        // Build transform matrix
-        this._matrix = paper.Selection._buildTransformationMatrix(this._transformation)
-
-        paper.Selection._transformItems(this._items.concat(this._gui.item), this._matrix);
     }
 
-    _destroy (discardTransformation) {
-        paper.Selection._freeItemsFromSelection(this.items, discardTransformation);
+    _destroy () {
         this._gui.destroy();
-    }
-
-    static _prepareItemsForSelection (items) {
-        items.forEach(item => {
-            item.data.originalMatrix = item.matrix.clone();
-            item.applyMatrix = false;
-        });
-    }
-
-    static _freeItemsFromSelection (items, discardTransforms) {
-        if(discardTransforms) {
-            // Reset matrix and applyMatrix to what is was before we added it to the selection
-            items.forEach(item => {
-                if(item.data.originalMatrix) {
-                    item.matrix.set(item.data.originalMatrix);
-                }
-            });
-        }
-
-        // Delete the matrix we stored so it doesn't interfere with anything later
-        items.forEach(item => {
-            delete item.data.originalMatrix;
-        });
-
-        // Set applyMatrix back to what it was originally
-        items.filter(item => {
-            return item instanceof paper.Path ||
-                   item instanceof paper.CompoundPath;
-        }).forEach(item => {
-            item.applyMatrix = true;
-        });
-    }
-
-    static _transformItems (items, matrix) {
-        items.forEach(item => {
-            if(item.data.originalMatrix) {
-                item.matrix.set(item.data.originalMatrix);
-            } else {
-                item.matrix.set(new paper.Matrix());
-            }
-            item.matrix.prepend(matrix);
-        });
-    }
-
-    static _buildTransformationMatrix (transformation) {
-        var matrix = new paper.Matrix();
-
-        matrix.translate(transformation.originX, transformation.originY);
-        matrix.translate(transformation.x, transformation.y);
-        matrix.rotate(transformation.rotation);
-        matrix.scale(transformation.scaleX, transformation.scaleY);
-        matrix.translate(new paper.Point(0,0).subtract(new paper.Point(transformation.originX, transformation.originY)));
-
-        return matrix;
     }
 
     /* helper function: calculate the bounds of the smallest rectangle that contains all given items. */
@@ -512,6 +453,7 @@ paper.Selection = class {
         return bounds;
     }
 
+    /* helper function for ordering */
     static _sortItemsByLayer (items) {
         var layerLists = {};
 
@@ -534,6 +476,7 @@ paper.Selection = class {
         return layerItemsArrays;
     }
 
+    /* helper function for ordering */
     static _sortItemsByZIndex (items) {
         return items.sort(function (a,b) {
             return a.index - b.index;

@@ -128,6 +128,28 @@ Wick.Path = class extends Wick.Base {
     }
 
     /**
+     * The position of the path.
+     */
+    get x () {
+        return this.view.item.position.x;
+    }
+
+    set x (x) {
+        this.view.item.position.x = x;
+    }
+
+    /**
+     * The position of the path.
+     */
+    get y () {
+        return this.view.item.position.y;
+    }
+
+    set y (y) {
+        this.view.item.position.y = y;
+    }
+
+    /**
      * The fill color, in hex format, of the path
      * @type {string}
      */
@@ -153,27 +175,5 @@ Wick.Path = class extends Wick.Base {
      */
     remove () {
         this.parentFrame.removePath(this);
-    }
-
-    /**
-     * The position of the path.
-     */
-    get x () {
-        return this.view.item.position.x;
-    }
-
-    set x (x) {
-        this.view.item.position.x = x;
-    }
-
-    /**
-     * The position of the path.
-     */
-    get y () {
-        return this.view.item.position.y;
-    }
-
-    set y (y) {
-        this.view.item.position.y = y;
     }
 }

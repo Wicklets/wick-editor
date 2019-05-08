@@ -542,8 +542,7 @@ Wick.Project = class extends Wick.Base {
         }
 
         var transformation = new Wick.Transformation();
-        transformation.x = this.selection.view.paper.project.selection.origin.x;
-        transformation.y = this.selection.view.paper.project.selection.origin.y;
+        // TODO: Reposition children.
         var clip = new Wick[args.type]({
             identifier: args.identifier,
             objects: this.selection.getSelectedObjects('Canvas'),

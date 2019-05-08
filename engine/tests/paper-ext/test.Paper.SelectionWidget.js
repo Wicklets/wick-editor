@@ -1,0 +1,3 @@
+describe('Paper.SelectionWidget', function() {
+    
+});

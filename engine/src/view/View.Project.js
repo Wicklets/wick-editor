@@ -237,7 +237,6 @@ Wick.View.Project = class extends Wick.View {
         if(this.renderMode !== 'svg') return;
 
         this.model.selection.view.applyChanges();
-        this.model.selection.view.destroy();
 
         this.model.focus.timeline.activeFrames.forEach(frame => {
             frame.view.applyChanges();
@@ -430,6 +429,7 @@ Wick.View.Project = class extends Wick.View {
             this.paper.project.addLayer(layer);
         });
 
+        // TODO replace
         // Render selection
         this.model.selection.view.render();
         this.paper.project.addLayer(this.model.selection.view.layer);

@@ -80,22 +80,31 @@
     /**
      * Create a selection GUI.
      * @param {paper.Item[]} items - (required) the items to create a GUI around.
-     * @param {object} transformation - (required) the transformation to apply to the selected items and to the GUI.
      */
     constructor (args) {
-        if(!args) console.error('paper.SelectionGUI: args is required');
-        if(!args.items) console.error('paper.SelectionGUI: args.items is required');
-        if(!args.transformation) console.error('paper.SelectionGUI: args.transformation is required');
-        if(!args.bounds) console.error('paper.SelectionGUI: args.bounds is required');
+        if(!args) args = {};
+        if(!args.items) args.items = [];
+        if(!args.rotation) args.rotation = 0;
+        if(!args.originX) args.originX = 0;
+        if(!args.originY) args.originY = 0;
+        if(!args.layer) args.layer = paper.project.activeLayer;
 
         this.items = args.items;
-        this.transformation = args.transformation;
-        this.bounds = args.bounds;
+        this.rotation = args.rotation;
+        this.originX = args.originX;
+        this.originY = args.originY;
+
+        this.matrix = new paper.Matrix();
+        this.bounds = this._getBoundsOfItems(this.items);
+        this.matrix.translate(this.bounds.center.x, this.bounds.center.y);
+        this.matrix.rotate(this.rotation);
+        this.matrix.translate(new paper.Point(0,0).subtract(new paper.Point(this.bounds.center.x, this.bounds.center.y)));
+        this.bounds = this._getBoundsOfItems(this.items);
 
         this.item = new paper.Group({
-            insert: false,
             applyMatrix: true,
         });
+        args.layer.addChild(this.item);
 
         this.item.addChild(this._createBorder());
 
@@ -123,6 +132,8 @@
         this.item.children.forEach(child => {
             child.data.isSelectionBoxGUI = true;
         });
+
+        this.item.transform(this.matrix);
     }
 
     /**
@@ -130,6 +141,24 @@
      */
     destroy () {
         this.item.remove();
+    }
+
+    /**
+     * Move a handle and use the new handle position to scale the selection.
+     * @param {string} handleName - the name of the handle to move
+     * @param {paper.Point} position - the position to move the handle to
+     */
+    moveHandleAndScale (handleName, position) {
+        
+    }
+
+    /**
+     * Move a handle and use the new position of the handle to rotate the selection.
+     * @param {string} handleName - the name of the handle to move
+     * @param {paper.Point} position - the position to move the handle to
+     */
+    moveHandleAndRotate (handleName, position) {
+
     }
 
     _createBorder () {
@@ -146,10 +175,9 @@
     }
 
     _createItemOutlines () {
+        return [];//TODO replace
         return this.items.map(item => {
-            var itemForBounds = item.clone({insert:false});
-
-            var outline = new paper.Path.Rectangle(itemForBounds.bounds);
+            var outline = new paper.Path.Rectangle(item.bounds);
             outline.fillColor = 'rgba(0,0,0,0)';
             outline.strokeColor = paper.SelectionGUI.BOX_STROKE_COLOR;
             outline.strokeWidth = paper.SelectionGUI.BOX_STROKE_WIDTH;
@@ -172,7 +200,7 @@
         return this._createHandle({
             name: 'pivot',
             type: 'pivot',
-            center: new paper.Point(this.transformation.originX, this.transformation.originY),
+            center: new paper.Point(this.originX, this.originY),
             fillColor: paper.SelectionGUI.PIVOT_FILL_COLOR,
             strokeColor: paper.SelectionGUI.PIVOT_STROKE_COLOR,
         });
@@ -196,8 +224,8 @@
         });
         // Transform the handle a bit so it doesn't get squished when the selection box is scaled.
         circle.applyMatrix = false;
-        circle.scaling.x = 1 / this.transformation.scaleX;
-        circle.scaling.y = 1 / this.transformation.scaleY;
+        //circle.scaling.x = 1 / this.scaleX;
+        //circle.scaling.y = 1 / this.scaleY;
         circle.data.handleType = args.type;
         circle.data.handleEdge = args.name;
         return circle;
@@ -234,18 +262,38 @@
             'bottomLeft': 180,
             'topLeft': 270,
         }[cornerName]);
-        if(this.transformation.scaleX < 0) hotspot.scaling.x = -1;
-        if(this.transformation.scaleY < 0) hotspot.scaling.y = -1;
+        //if(this.scaleX < 0) hotspot.scaling.x = -1;
+        //if(this.scaleY < 0) hotspot.scaling.y = -1;
 
         // Transform the hotspots a bit so they doesn't get squished when the selection box is scaled.
-        hotspot.scaling.x = 1 / this.transformation.scaleX;
-        hotspot.scaling.y = 1 / this.transformation.scaleY;
+        //hotspot.scaling.x = 1 / this.scaleX;
+        //hotspot.scaling.y = 1 / this.scaleY;
 
         // Some metadata.
         hotspot.data.handleType = 'rotation';
         hotspot.data.handleEdge = cornerName;
 
         return hotspot;
+    }
+
+    /* helper function: calculate the bounds of the smallest rectangle that contains all given items. */
+    _getBoundsOfItems () {
+        if(this.items.length === 0)
+            return new paper.Rectangle();
+
+        var itemsForBoundsCalc = this.items.map(item => {
+            var clone = item.clone();
+            clone.transform(this.matrix);
+            clone.remove();
+            return clone;
+        });
+
+        var bounds = null;
+        itemsForBoundsCalc.forEach(item => {
+            bounds = bounds ? bounds.unite(item.bounds) : item.bounds;
+        });
+
+        return bounds;
     }
 }
 
