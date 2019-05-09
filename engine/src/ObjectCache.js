@@ -86,6 +86,10 @@ WickObjectCache = class {
      * @returns {Wick.Base}
      */
     getObjectByUUID (uuid) {
+        if(!uuid) {
+            console.error('ObjectCache: getObjectByUUID: uuid is required.');
+        }
+
         var object = this._objects[uuid];
         if(!object) {
             console.warn("Warning: object with uuid " + uuid + " was not found in the cache.");

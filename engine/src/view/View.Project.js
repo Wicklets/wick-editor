@@ -45,8 +45,8 @@ Wick.View.Project = class extends Wick.View {
     /*
      * Create a new Project View.
      */
-    constructor () {
-        super();
+    constructor (model) {
+        super(model);
 
         this._fitMode = null;
         this._renderMode = null;
@@ -325,6 +325,7 @@ Wick.View.Project = class extends Wick.View {
 
         for (var toolName in this.tools) {
             var tool = this.tools[toolName];
+            tool.project = this.model;
             tool.on('canvasModified', (e) => {
                 this.applyChanges();
                 this.fireEvent('canvasModified', e);

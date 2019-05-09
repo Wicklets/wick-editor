@@ -315,9 +315,9 @@ Wick.Base = class {
     _generateView () {
         var viewClass = Wick.View[this.classname];
         if(viewClass) {
-            return new viewClass();
+            return new viewClass(this);
         } else {
-            return null
+            return null;
         }
     }
 

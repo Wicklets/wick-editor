@@ -17,7 +17,7 @@ describe('Wick.Tools.Cursor', function() {
         var path2 = TestUtils.paperToWickPath(new paper.Path.Ellipse({
             center: new paper.Point(75, 75),
             radius: 25,
-            fillColor: '#ff0000',
+            fillColor: '#0000ff',
         }));
         project.activeFrame.addPath(path1);
         project.activeFrame.addPath(path2);

@@ -61,6 +61,7 @@ var TestUtils = {
     },
 
     paperToWickPath : (paperPath) => {
+        paperPath.remove();
         var path = new Wick.Path({
             json: paperPath.exportJSON({asString:false}),
         });
@@ -68,9 +69,9 @@ var TestUtils = {
         return path;
     },
 
-    createPaperScope : () => {
+    createPaperScope : (canvas) => {
         var scope = new paper.PaperScope();
-        var dummyCanvas = document.createElement('canvas');
+        var dummyCanvas = canvas || document.createElement('canvas');
         scope.setup(dummyCanvas);
         window.paper = scope;
         return scope;

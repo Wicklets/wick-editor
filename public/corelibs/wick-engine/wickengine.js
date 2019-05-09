@@ -65393,6 +65393,10 @@ WickObjectCache = class {
 
 
   getObjectByUUID(uuid) {
+    if (!uuid) {
+      console.error('ObjectCache: getObjectByUUID: uuid is required.');
+    }
+
     var object = this._objects[uuid];
 
     if (!object) {
@@ -65928,7 +65932,7 @@ Wick.Base = class {
     var viewClass = Wick.View[this.classname];
 
     if (viewClass) {
-      return new viewClass();
+      return new viewClass(this);
     } else {
       return null;
     }
@@ -66720,9 +66724,8 @@ Wick.Project = class extends Wick.Base {
       return;
     }
 
-    var transformation = new Wick.Transformation();
-    transformation.x = this.selection.view.paper.project.selection.origin.x;
-    transformation.y = this.selection.view.paper.project.selection.origin.y;
+    var transformation = new Wick.Transformation(); // TODO: Reposition children.
+
     var clip = new Wick[args.type]({
       identifier: args.identifier,
       objects: this.selection.getSelectedObjects('Canvas'),
@@ -67018,19 +67021,19 @@ Wick.Selection = class extends Wick.Base {
     if (!args) args = {};
     super(args);
     this._selectedObjectsUUIDs = args.selectedObjects || [];
-    this._transformation = new Wick.Transformation();
+    this._rotation = args.rotation || 0;
   }
 
   deserialize(data) {
     super.deserialize(data);
     this._selectedObjectsUUIDs = data.selectedObjects || [];
-    this._transformation = new Wick.Transformation(data.transformation);
+    this._rotation = data.rotation;
   }
 
   serialize(args) {
     var data = super.serialize(args);
     data.selectedObjects = Array.from(this._selectedObjectsUUIDs);
-    data.transformation = this._transformation.values;
+    data.rotation = this.rotation;
     return data;
   }
 
@@ -67063,21 +67066,10 @@ Wick.Selection = class extends Wick.Base {
     } // Add the object to the selection!
 
 
-    this._selectedObjectsUUIDs.push(object.uuid);
+    this._selectedObjectsUUIDs.push(object.uuid); // Make sure the view gets updated the next time its needed...
 
-    this._transformation = new Wick.Transformation(); // disabled for now >:(
 
-    /*
-    if(this.numObjects === 1 && object instanceof Wick.Clip) {
-        var clip = object;
-        // Use clip transforms as selection transforms if we selected a single clip
-        this._transformation = new Wick.Transformation(clip.transformation.values);
-        clip.transformation = new Wick.Transformation();
-    } else {
-        // Otherwise, just reset the transformations
-        this._transformation = new Wick.Transformation();
-    }
-    */
+    this.view.dirty = true;
   }
   /**
    * Remove a wick object from the selection.
@@ -67088,8 +67080,9 @@ Wick.Selection = class extends Wick.Base {
   deselect(object) {
     this._selectedObjectsUUIDs = this._selectedObjectsUUIDs.filter(uuid => {
       return uuid !== object.uuid;
-    });
-    this._transformation = new Wick.Transformation();
+    }); // Make sure the view gets updated the next time its needed...
+
+    this.view.dirty = true;
   }
   /**
    * Remove all objects from the selection with an optional filter.
@@ -67176,6 +67169,7 @@ Wick.Selection = class extends Wick.Base {
   }
   /**
    * The types of the objects in the selection. (see SELECTABLE_OBJECT_TYPES)
+   * @type {string[]}
    */
 
 
@@ -67188,6 +67182,7 @@ Wick.Selection = class extends Wick.Base {
   }
   /**
    * The number of objects in the selection.
+   * @type {number}
    */
 
 
@@ -67195,12 +67190,17 @@ Wick.Selection = class extends Wick.Base {
     return this._selectedObjectsUUIDs.length;
   }
   /**
-   * The current transformation of the selection.
+   * The rotation of the selection (used for canvas selections)
+   * @type {number}
    */
 
 
-  get transformation() {
-    return this._transformation;
+  get rotation() {
+    return this._rotation;
+  }
+
+  set rotation(rotation) {
+    this._rotation = rotation;
   }
 
   _locationOf(object) {
@@ -67941,6 +67941,30 @@ Wick.Path = class extends Wick.Base {
     };
   }
   /**
+   * The position of the path.
+   */
+
+
+  get x() {
+    return this.view.item.position.x;
+  }
+
+  set x(x) {
+    this.view.item.position.x = x;
+  }
+  /**
+   * The position of the path.
+   */
+
+
+  get y() {
+    return this.view.item.position.y;
+  }
+
+  set y(y) {
+    this.view.item.position.y = y;
+  }
+  /**
    * The fill color, in hex format, of the path
    * @type {string}
    */
@@ -67970,30 +67994,6 @@ Wick.Path = class extends Wick.Base {
 
   remove() {
     this.parentFrame.removePath(this);
-  }
-  /**
-   * The position of the path.
-   */
-
-
-  get x() {
-    return this.view.item.position.x;
-  }
-
-  set x(x) {
-    this.view.item.position.x = x;
-  }
-  /**
-   * The position of the path.
-   */
-
-
-  get y() {
-    return this.view.item.position.y;
-  }
-
-  set y(y) {
-    this.view.item.position.y = y;
   }
 
 };
@@ -70668,500 +70668,182 @@ Wick.Button = class extends Wick.Clip {
 * You should have received a copy of the GNU General Public License
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
-paper.Selection = class {
+SelectionWidget = class {
   /**
-   * Create a new paper.js selection.
-   * @param {paper.Layer} layer - the layer to add the selection GUI to. Defaults to the active layer.
-   * @param {paper.Item[]} items - the items to select.
-   * @param {number} x - the amount the selection is translated on the x-axis
-   * @param {number} y - the amount the selection is translated on the y-axis
-   * @param {number} scaleX - the amount the selection is scaled on the x-axis
-   * @param {number} scaleY - the amount the selection is scaled on the y-axis
-   * @param {number} rotation - the amount the selection is rotated
-   * @param {number} originX - the origin point of all transforms. Defaults to the center of selected items.
-   * @param {number} originY - the origin point of all transforms. Defaults to the center of selected items.
+   * Creates a SelectionWidget
    */
   constructor(args) {
     if (!args) args = {};
-    this._lockScalingToAspectRatio = false;
-    this._layer = args.layer || paper.project.activeLayer;
-    this._items = args.items || [];
-    this._transformation = {
-      x: args.x || 0,
-      y: args.y || 0,
-      scaleX: args.scaleX || 1.0,
-      scaleY: args.scaleY || 1.0,
-      rotation: args.rotation || 0,
-      originX: 0,
-      originY: 0
-    };
-    this._untransformedBounds = paper.Selection._getBoundsOfItems(this._items); // Origin/pivot point is set to the center of the bounds, unless one is given in args
-
-    if (args.originX !== undefined) {
-      this._transformation.originX = args.originX;
-    } else {
-      this._transformation.originX = this._untransformedBounds.center.x;
-    }
-
-    if (args.originY !== undefined) {
-      this._transformation.originY = args.originY;
-    } else {
-      this._transformation.originY = this._untransformedBounds.center.y;
-    }
-
-    this._create();
+    if (!args.layer) args.layer = paper.project.activeLayer;
+    this._layer = args.layer;
+    this._item = new paper.Group({
+      insert: false
+    });
   }
   /**
-   * The layer where the selection GUI was created.
-   * @type {paper.Layer}
+   * The item containing the widget GUI
+   */
+
+
+  get item() {
+    return this._item;
+  }
+  /**
+   * The layer to add the widget GUI item to.
    */
 
 
   get layer() {
     return this._layer;
   }
-  /**
-   * The items in this selection.
-   * @type {paper.Item[]}
-   */
 
-
-  get items() {
-    return this._items;
-  }
-
-  set items(items) {
-    this._destroy(false);
-
-    this._items = items;
+  set layer(layer) {
+    this._layer = layer;
   }
   /**
-   * The transformation applied to the selected items.
-   * @type {object}
-   */
-
-
-  get transformation() {
-    // deep copy to protect transformation.
-    return JSON.parse(JSON.stringify(this._transformation));
-  }
-
-  set transformation(transformation) {
-    this._destroy(true);
-
-    this._transformation = transformation;
-
-    this._create();
-  }
-  /**
-   * Update the transformation with new values.
-   * @param {object} newTransformation - an object containing new values for the transformation.
-   */
-
-
-  updateTransformation(newTransformation) {
-    this.transformation = Object.assign(this.transformation, newTransformation);
-  }
-  /**
-   * Toggles if scaling will preserve aspect ratio.
-   * @type {boolean}
-   */
-
-
-  get lockScalingToAspectRatio() {
-    return this._lockScalingToAspectRatio;
-  }
-
-  set lockScalingToAspectRatio(lockScalingToAspectRatio) {
-    this._lockScalingToAspectRatio = lockScalingToAspectRatio;
-  }
-  /**
-   * The absolute position of the top-left handle of the selection.
-   * @type {paper.Point}
-   */
-
-
-  get position() {
-    return this._untransformedBounds.topLeft.transform(this._matrix);
-  }
-
-  set position(position) {
-    var d = position.subtract(this.position);
-    this.updateTransformation({
-      x: this.transformation.x + d.x,
-      y: this.transformation.y + d.y
-    });
-  }
-  /**
-   * The absolute position of the origin of the selection.
-   * @type {paper.Point}
-   */
-
-
-  get origin() {
-    return new paper.Point(this._transformation.originX, this._transformation.originY).transform(this._matrix);
-  }
-
-  set origin(origin) {
-    var d = origin.subtract(this.origin);
-    this.updateTransformation({
-      x: this.transformation.x + d.x,
-      y: this.transformation.y + d.y
-    });
-  }
-  /**
-   * The width of the selection.
-   * @type {number}
-   */
-
-
-  get width() {
-    return this._untransformedBounds.width * this.transformation.scaleX;
-  }
-
-  set width(width) {
-    var d = this.width / width;
-    this.updateTransformation({
-      scaleX: this.transformation.scaleX / d
-    });
-  }
-  /**
-   * The height of the selection.
-   * @type {number}
-   */
-
-
-  get height() {
-    return this._untransformedBounds.height * this.transformation.scaleY;
-  }
-
-  set height(height) {
-    var d = this.height / height;
-    this.updateTransformation({
-      scaleY: this.transformation.scaleY / d
-    });
-  }
-  /**
-   * The x-scale of the selection.
-   * @type {number}
-   */
-
-
-  get scaleX() {
-    return this.transformation.scaleX;
-  }
-
-  set scaleX(scaleX) {
-    this.updateTransformation({
-      scaleX: scaleX
-    });
-  }
-  /**
-   * The y-scale of the selection.
-   * @type {number}
-   */
-
-
-  get scaleY() {
-    return this.transformation.scaleY;
-  }
-
-  set scaleY(scaleY) {
-    this.updateTransformation({
-      scaleY: scaleY
-    });
-  }
-  /**
-   * The rotation of the selection.
-   * @type {number}
+   *
    */
 
 
   get rotation() {
-    return this.transformation.rotation;
+    return this._rotation;
   }
 
   set rotation(rotation) {
-    this.updateTransformation({
-      rotation: rotation
-    });
+    this._rotation = rotation;
   }
   /**
-   * Return a paper.js path attribute of the selection.
-   * @param {string} attributeName - the name of the attribute
+   * The items currently inside the selection widget
    */
 
 
-  getPathAttribute(attributeName) {
-    if (this.items.length === 0) {
-      console.error('getPathAttribute(): Nothing in the selection!');
+  get itemsInSelection() {
+    return this._itemsInSelection;
+  }
+  /**
+   * The point to rotate/scale the widget around.
+   */
+
+
+  get pivot() {
+    return this._pivot;
+  }
+
+  set pivot(pivot) {
+    this._pivot = pivot;
+  }
+  /**
+   * The bounding box of the widget.
+   */
+
+
+  get boundingBox() {
+    return this._boundingBox;
+  }
+  /**
+   * The current transformation being done to the selection widget.
+   * @type {string}
+   */
+
+
+  get currentTransformation() {
+    return this._currentTransformation;
+  }
+
+  set currentTransformation(currentTransformation) {
+    if (['translate', 'scale', 'rotate'].indexOf(currentTransformation)) {
+      console.error('Paper.SelectionWidget: Invalid transformation type: ' + currentTransformation);
+      currentTransformation = null;
+    } else {
+      this._currentTransformation = currentTransformation;
+    }
+  }
+  /**
+   * Build a new SelectionWidget GUI around some items.
+   * @param {number} rotation - the rotation of the selection. Optional, defaults to 0
+   * @param {paper.Item[]} items - the items to build the GUI around
+   * @param {paper.Point|string} pivot
+   */
+
+
+  build(args) {
+    if (!args) args = {};
+    if (!args.rotation) args.rotation = 0;
+    if (!args.items) args.items = [];
+    if (!args.pivot) args.pivot = 'center';
+    this._itemsInSelection = args.items;
+    this._rotation = args.rotation;
+    this._boundingBox = this._calculateBoundingBox(); // Calculate pivot/rotation point
+
+    if (args.pivot === 'center') {// TODO Use center of bounds.
+    } else if (args.pivot instanceof paper.Point) {
+      this.pivot = args.pivot;
+    } else {
+      console.error('Paper.SelectionWidget.build(): Invalid pivot: ' + args.pivot);
+      this.pivot = new paper.Point(0, 0);
+    } // Rebuild GUI
+
+
+    this.item.remove();
+    this.item.removeChildren();
+
+    if (this._itemsInSelection.length > 0) {
+      this.item.addChild(this._buildBorder());
     }
 
-    return this.items[0][attributeName];
+    this.item.rotate(this.rotation, this._boundingBox.center);
+    this.layer.addChild(this.item);
   }
   /**
-   * Update a paper.js path attribute of the selection.
-   * @param {string} attributeName - the name of the attribute
-   * @param {object} attributeValue - the value of the attribute to change
+   *
    */
 
 
-  setPathAttrribute(attributeName, attributeValue) {
-    this.items.forEach(item => {
-      item[attributeName] = attributeValue;
+  moveSelection(delta) {}
+  /**
+   *
+   */
+
+
+  moveHandleAndScale(handleName, point) {}
+  /**
+   *
+   */
+
+
+  moveHandleAndRotate(handleName, point) {}
+
+  _buildBorder() {
+    var border = new paper.Path.Rectangle({
+      name: 'border',
+      from: this.boundingBox.topLeft,
+      to: this.boundingBox.bottomRight,
+      strokeWidth: paper.SelectionWidget.BOX_STROKE_WIDTH,
+      strokeColor: paper.SelectionWidget.BOX_STROKE_COLOR,
+      insert: false
     });
-  }
-  /**
-   * The fill color of the selection.
-   */
-
-
-  get fillColor() {
-    return this.getPathAttribute('fillColor');
+    border.data.isBorder = true;
+    return border;
   }
 
-  set fillColor(fillColor) {
-    this.setPathAttrribute('fillColor', fillColor);
-  }
-  /**
-   * The stroke color of the selection.
-   */
+  _calculateBoundingBox() {
+    if (this._itemsInSelection.length === 0) {
+      return new paper.Rectangle();
+    }
 
+    var center = this._calculateBoundingBoxOfItems(this._itemsInSelection).center;
 
-  get strokeColor() {
-    return this.getPathAttribute('strokeColor');
-  }
-
-  set strokeColor(strokeColor) {
-    this.setPathAttrribute('strokeColor', strokeColor);
-  }
-  /**
-   * The stroke color of the selection.
-   */
-
-
-  get strokeWidth() {
-    return this.getPathAttribute('strokeWidth');
-  }
-
-  set strokeWidth(strokeWidth) {
-    this.setPathAttrribute('strokeWidth', strokeWidth);
-  }
-  /**
-   * Flip the selection horizontally.
-   */
-
-
-  flipHorizontally() {
-    this.updateTransformation({
-      scaleX: -this.transformation.scaleX
+    var itemsForBoundsCalc = this._itemsInSelection.map(item => {
+      var clone = item.clone();
+      clone.rotate(this.rotation, center);
+      clone.remove();
+      return clone;
     });
-  }
-  /**
-   * Flip the selection vertically.
-   */
 
-
-  flipVertically() {
-    this.updateTransformation({
-      scaleY: -this.transformation.scaleY
-    });
-  }
-  /**
-   * Moves the selected items forwards.
-   */
-
-
-  moveForwards() {
-    paper.Selection._sortItemsByLayer(this._items).forEach(items => {
-      paper.Selection._sortItemsByZIndex(items).reverse().forEach(item => {
-        if (item.nextSibling && this._items.indexOf(item.nextSibling) === -1) {
-          item.insertAbove(item.nextSibling);
-        }
-      });
-    });
-  }
-  /**
-   * Moves the selected items backwards.
-   */
-
-
-  moveBackwards() {
-    paper.Selection._sortItemsByLayer(this._items).forEach(items => {
-      paper.Selection._sortItemsByZIndex(items).forEach(item => {
-        if (item.previousSibling && this._items.indexOf(item.previousSibling) === -1) {
-          item.insertBelow(item.previousSibling);
-        }
-      });
-    });
-  }
-  /**
-   * Brings the selected objects to the front.
-   */
-
-
-  bringToFront() {
-    paper.Selection._sortItemsByLayer(this._items).forEach(items => {
-      paper.Selection._sortItemsByZIndex(items).forEach(item => {
-        item.bringToFront();
-      });
-    });
-  }
-  /**
-   * Sends the selected objects to the back.
-   */
-
-
-  sendToBack() {
-    paper.Selection._sortItemsByLayer(this._items).forEach(items => {
-      paper.Selection._sortItemsByZIndex(items).reverse().forEach(item => {
-        item.sendToBack();
-      });
-    });
-  }
-  /**
-   * Nudge the selection by a specified amount.
-   */
-
-
-  nudge(x, y) {
-    this.position = this.position.add(new paper.Point(x, y));
-  }
-  /**
-   * Move a handle and use the new handle position to scale the selection.
-   * @param {string} handleName - the name of the handle to move
-   * @param {paper.Point} position - the position to move the handle to
-   */
-
-
-  moveHandleAndScale(handleName, position) {
-    var newHandlePosition = position;
-    var currentHandlePosition = this._untransformedBounds[handleName];
-    currentHandlePosition = currentHandlePosition.add(new paper.Point(this.transformation.x, this.transformation.y));
-    newHandlePosition = newHandlePosition.subtract(this.origin);
-    currentHandlePosition = currentHandlePosition.subtract(this.origin);
-    newHandlePosition = newHandlePosition.rotate(-this.rotation, new paper.Point(0, 0));
-    var newScale = newHandlePosition.divide(currentHandlePosition);
-    var lockYScale = handleName === 'leftCenter' || handleName === 'rightCenter';
-    var lockXScale = handleName === 'bottomCenter' || handleName === 'topCenter';
-    if (lockXScale) newScale.x = this.transformation.scaleX;
-    if (lockYScale) newScale.y = this.transformation.scaleY;
-    this.updateTransformation({
-      scaleX: newScale.x,
-      scaleY: this.lockScalingToAspectRatio ? newScale.x : newScale.y
-    });
-  }
-  /**
-   * Move a handle and use the new position of the handle to rotate the selection.
-   * @param {string} handleName - the name of the handle to move
-   * @param {paper.Point} position - the position to move the handle to
-   */
-
-
-  moveHandleAndRotate(handleName, position) {
-    var newHandlePosition = position;
-    var currentHandlePosition = this._untransformedBounds[handleName];
-    currentHandlePosition = currentHandlePosition.transform(this._matrix);
-    newHandlePosition = newHandlePosition.subtract(this.origin);
-    currentHandlePosition = currentHandlePosition.subtract(this.origin);
-    var angleDiff = newHandlePosition.angle - currentHandlePosition.angle;
-    this.updateTransformation({
-      rotation: this.transformation.rotation + angleDiff
-    });
-  }
-  /**
-   * Finish and destroy the selection.
-   * @param {boolean} discardTransformation - If set to true, will reset all items to their original transforms before the selection was made.
-   */
-
-
-  finish(args) {
-    if (!args) args = {};
-    if (args.discardTransformation === undefined) args.discardTransformation = false;
-
-    this._destroy(args.discardTransformation);
+    return this._calculateBoundingBoxOfItems(itemsForBoundsCalc);
   }
 
-  _create() {
-    paper.Selection._prepareItemsForSelection(this._items);
-
-    this._gui = new paper.SelectionGUI({
-      items: this._items,
-      transformation: this._transformation,
-      bounds: this._untransformedBounds
-    }); // Don't add GUI to paper if nothing is selected...
-
-    if (this._items.length > 0) {
-      this._layer.addChild(this._gui.item);
-    } // Build transform matrix
-
-
-    this._matrix = paper.Selection._buildTransformationMatrix(this._transformation);
-
-    paper.Selection._transformItems(this._items.concat(this._gui.item), this._matrix);
-  }
-
-  _destroy(discardTransformation) {
-    paper.Selection._freeItemsFromSelection(this.items, discardTransformation);
-
-    this._gui.destroy();
-  }
-
-  static _prepareItemsForSelection(items) {
-    items.forEach(item => {
-      item.data.originalMatrix = item.matrix.clone();
-      item.applyMatrix = false;
-    });
-  }
-
-  static _freeItemsFromSelection(items, discardTransforms) {
-    if (discardTransforms) {
-      // Reset matrix and applyMatrix to what is was before we added it to the selection
-      items.forEach(item => {
-        if (item.data.originalMatrix) {
-          item.matrix.set(item.data.originalMatrix);
-        }
-      });
-    } // Delete the matrix we stored so it doesn't interfere with anything later
-
-
-    items.forEach(item => {
-      delete item.data.originalMatrix;
-    }); // Set applyMatrix back to what it was originally
-
-    items.filter(item => {
-      return item instanceof paper.Path || item instanceof paper.CompoundPath;
-    }).forEach(item => {
-      item.applyMatrix = true;
-    });
-  }
-
-  static _transformItems(items, matrix) {
-    items.forEach(item => {
-      if (item.data.originalMatrix) {
-        item.matrix.set(item.data.originalMatrix);
-      } else {
-        item.matrix.set(new paper.Matrix());
-      }
-
-      item.matrix.prepend(matrix);
-    });
-  }
-
-  static _buildTransformationMatrix(transformation) {
-    var matrix = new paper.Matrix();
-    matrix.translate(transformation.originX, transformation.originY);
-    matrix.translate(transformation.x, transformation.y);
-    matrix.rotate(transformation.rotation);
-    matrix.scale(transformation.scaleX, transformation.scaleY);
-    matrix.translate(new paper.Point(0, 0).subtract(new paper.Point(transformation.originX, transformation.originY)));
-    return matrix;
-  }
-  /* helper function: calculate the bounds of the smallest rectangle that contains all given items. */
-
-
-  static _getBoundsOfItems(items) {
-    if (items.length === 0) return new paper.Rectangle();
+  _calculateBoundingBoxOfItems(items) {
     var bounds = null;
     items.forEach(item => {
       bounds = bounds ? bounds.unite(item.bounds) : item.bounds;
@@ -71169,274 +70851,11 @@ paper.Selection = class {
     return bounds;
   }
 
-  static _sortItemsByLayer(items) {
-    var layerLists = {};
-    items.forEach(item => {
-      // Create new list for the item's layer if it doesn't exist
-      var layerID = item.layer.id;
-
-      if (!layerLists[layerID]) {
-        layerLists[layerID] = [];
-      } // Add this item to its corresponding layer list
-
-
-      layerLists[layerID].push(item);
-    }); // Convert id->array object to array of arrays
-
-    var layerItemsArrays = [];
-
-    for (var layerID in layerLists) {
-      layerItemsArrays.push(layerLists[layerID]);
-    }
-
-    return layerItemsArrays;
-  }
-
-  static _sortItemsByZIndex(items) {
-    return items.sort(function (a, b) {
-      return a.index - b.index;
-    });
-  }
-
 };
+SelectionWidget.BOX_STROKE_WIDTH = 1;
+SelectionWidget.BOX_STROKE_COLOR = 'rgba(100,150,255,1.0)';
 paper.PaperScope.inject({
-  Selection: paper.Selection
-});
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-
-/**
- * This is a utility class for creating a selection box GUI. this will give you:
- *  - a bounding box
- *  - handles for scaling
- *  - hotspots for rotating
- *  - ...and much more!
- */
-paper.SelectionGUI = class {
-  static get BOX_STROKE_WIDTH() {
-    return 1;
-  }
-
-  static get BOX_STROKE_COLOR() {
-    return 'rgba(100,150,255,1.0)';
-  }
-
-  static get HANDLE_RADIUS() {
-    return 5;
-  }
-
-  static get HANDLE_STROKE_WIDTH() {
-    return paper.SelectionGUI.BOX_STROKE_WIDTH;
-  }
-
-  static get HANDLE_STROKE_COLOR() {
-    return paper.SelectionGUI.BOX_STROKE_COLOR;
-  }
-
-  static get HANDLE_FILL_COLOR() {
-    return 'rgba(255,255,255,0.3)';
-  }
-
-  static get PIVOT_STROKE_WIDTH() {
-    return paper.SelectionGUI.BOX_STROKE_WIDTH;
-  }
-
-  static get PIVOT_FILL_COLOR() {
-    return 'rgba(255,255,255,0.5)';
-  }
-
-  static get PIVOT_STROKE_COLOR() {
-    return 'rgba(0,0,0,1)';
-  }
-
-  static get PIVOT_RADIUS() {
-    return paper.SelectionGUI.HANDLE_RADIUS;
-  }
-
-  static get ROTATION_HOTSPOT_RADIUS() {
-    return 20;
-  }
-
-  static get ROTATION_HOTSPOT_FILLCOLOR() {
-    return 'rgba(100,150,255,0.5)'; // don't show rotation hotspots:
-    //return 'rgba(255,0,0,0.0001)';
-  }
-  /**
-   * Create a selection GUI.
-   * @param {paper.Item[]} items - (required) the items to create a GUI around.
-   * @param {object} transformation - (required) the transformation to apply to the selected items and to the GUI.
-   */
-
-
-  constructor(args) {
-    if (!args) console.error('paper.SelectionGUI: args is required');
-    if (!args.items) console.error('paper.SelectionGUI: args.items is required');
-    if (!args.transformation) console.error('paper.SelectionGUI: args.transformation is required');
-    if (!args.bounds) console.error('paper.SelectionGUI: args.bounds is required');
-    this.items = args.items;
-    this.transformation = args.transformation;
-    this.bounds = args.bounds;
-    this.item = new paper.Group({
-      insert: false,
-      applyMatrix: true
-    });
-    this.item.addChild(this._createBorder());
-
-    if (this.items.length > 1) {
-      this.item.addChildren(this._createItemOutlines());
-    }
-
-    this.item.addChild(this._createRotationHotspot('topLeft'));
-    this.item.addChild(this._createRotationHotspot('topRight'));
-    this.item.addChild(this._createRotationHotspot('bottomLeft'));
-    this.item.addChild(this._createRotationHotspot('bottomRight'));
-    this.item.addChild(this._createScalingHandle('topLeft'));
-    this.item.addChild(this._createScalingHandle('topRight'));
-    this.item.addChild(this._createScalingHandle('bottomLeft'));
-    this.item.addChild(this._createScalingHandle('bottomRight'));
-    this.item.addChild(this._createScalingHandle('topCenter'));
-    this.item.addChild(this._createScalingHandle('bottomCenter'));
-    this.item.addChild(this._createScalingHandle('leftCenter'));
-    this.item.addChild(this._createScalingHandle('rightCenter'));
-    this.item.addChild(this._createOriginPointHandle()); // Set a flag just so we don't accidentily treat these GUI elements as actual paths...
-
-    this.item.children.forEach(child => {
-      child.data.isSelectionBoxGUI = true;
-    });
-  }
-  /**
-   * Destroy the GUI.
-   */
-
-
-  destroy() {
-    this.item.remove();
-  }
-
-  _createBorder() {
-    var border = new paper.Path.Rectangle({
-      name: 'border',
-      from: this.bounds.topLeft,
-      to: this.bounds.bottomRight,
-      strokeWidth: paper.SelectionGUI.BOX_STROKE_WIDTH,
-      strokeColor: paper.SelectionGUI.BOX_STROKE_COLOR,
-      insert: false
-    });
-    border.data.isBorder = true;
-    return border;
-  }
-
-  _createItemOutlines() {
-    return this.items.map(item => {
-      var itemForBounds = item.clone({
-        insert: false
-      });
-      var outline = new paper.Path.Rectangle(itemForBounds.bounds);
-      outline.fillColor = 'rgba(0,0,0,0)';
-      outline.strokeColor = paper.SelectionGUI.BOX_STROKE_COLOR;
-      outline.strokeWidth = paper.SelectionGUI.BOX_STROKE_WIDTH;
-      outline.data.isBorder = true;
-      return outline;
-    });
-  }
-
-  _createScalingHandle(edge) {
-    return this._createHandle({
-      name: edge,
-      type: 'scale',
-      center: this.bounds[edge],
-      fillColor: paper.SelectionGUI.HANDLE_FILL_COLOR,
-      strokeColor: paper.SelectionGUI.HANDLE_STROKE_COLOR
-    });
-  }
-
-  _createOriginPointHandle() {
-    return this._createHandle({
-      name: 'pivot',
-      type: 'pivot',
-      center: new paper.Point(this.transformation.originX, this.transformation.originY),
-      fillColor: paper.SelectionGUI.PIVOT_FILL_COLOR,
-      strokeColor: paper.SelectionGUI.PIVOT_STROKE_COLOR
-    });
-  }
-
-  _createHandle(args) {
-    if (!args) console.error('_createHandle: args is required');
-    if (!args.name) console.error('_createHandle: args.name is required');
-    if (!args.type) console.error('_createHandle: args.type is required');
-    if (!args.center) console.error('_createHandle: args.center is required');
-    if (!args.fillColor) console.error('_createHandle: args.fillColor is required');
-    if (!args.strokeColor) console.error('_createHandle: args.strokeColor is required');
-    var circle = new paper.Path.Circle({
-      center: args.center,
-      radius: paper.SelectionGUI.HANDLE_RADIUS / paper.view.zoom,
-      strokeWidth: paper.SelectionGUI.HANDLE_STROKE_WIDTH / paper.view.zoom,
-      strokeColor: args.strokeColor,
-      fillColor: args.fillColor,
-      insert: false
-    }); // Transform the handle a bit so it doesn't get squished when the selection box is scaled.
-
-    circle.applyMatrix = false;
-    circle.scaling.x = 1 / this.transformation.scaleX;
-    circle.scaling.y = 1 / this.transformation.scaleY;
-    circle.data.handleType = args.type;
-    circle.data.handleEdge = args.name;
-    return circle;
-  }
-
-  _createRotationHotspot(cornerName) {
-    // Build the not-yet-rotated hotspot, which starts out like this:
-    //       |
-    //       +---+
-    //       |   |
-    // ---+--+   |---
-    //    |      |
-    //    +------+
-    //       |
-    var r = paper.SelectionGUI.ROTATION_HOTSPOT_RADIUS / paper.view.zoom;
-    var hotspot = new paper.Path([new paper.Point(0, 0), new paper.Point(0, r), new paper.Point(r, r), new paper.Point(r, -r), new paper.Point(-r, -r), new paper.Point(-r, 0)]);
-    hotspot.fillColor = paper.SelectionGUI.ROTATION_HOTSPOT_FILLCOLOR;
-    hotspot.position.x = this.bounds[cornerName].x;
-    hotspot.position.y = this.bounds[cornerName].y; // Orient the rotation handles in the correct direction, even if the selection is flipped
-
-    hotspot.rotate({
-      'topRight': 0,
-      'bottomRight': 90,
-      'bottomLeft': 180,
-      'topLeft': 270
-    }[cornerName]);
-    if (this.transformation.scaleX < 0) hotspot.scaling.x = -1;
-    if (this.transformation.scaleY < 0) hotspot.scaling.y = -1; // Transform the hotspots a bit so they doesn't get squished when the selection box is scaled.
-
-    hotspot.scaling.x = 1 / this.transformation.scaleX;
-    hotspot.scaling.y = 1 / this.transformation.scaleY; // Some metadata.
-
-    hotspot.data.handleType = 'rotation';
-    hotspot.data.handleEdge = cornerName;
-    return hotspot;
-  }
-
-};
-paper.PaperScope.inject({
-  SelectionGUI: paper.SelectionGUI
+  SelectionWidget: SelectionWidget
 });
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
@@ -72292,35 +71711,36 @@ Wick.Tools.Cursor = class extends Wick.Tool {
     if (!e.modifiers) e.modifiers = {};
     this.hitResult = this._updateHitResult(e);
 
-    if (this.hitResult.item && this.hitResult.item.data.isSelectionBoxGUI) {// The selection box was clicked
-    } else if (this._isItemSelected(this.hitResult.item)) {
+    if (this.hitResult.item && this.hitResult.item.data.isSelectionBoxGUI) {// The selection widget was clicked
+    } else if (this.hitResult.item && this._isItemSelected(this.hitResult.item)) {
       // We clicked something that was already selected.
       // Shift click: Deselect that item
-      if (e.modifiers.shift) {
-        var itemsWithoutHitItem = this._selection.items.filter(item => {
-          return item !== this.hitResult.item;
-        });
-
-        this._selection.items = itemsWithoutHitItem;
-        this.fireEvent('canvasModified');
+      if (!e.modifiers.shift) {
+        this._clearSelection();
+      } else {
+        this._selectItem(this.hitResult.item);
       }
+
+      this.fireEvent('canvasModified');
     } else if (this.hitResult.item && this.hitResult.type === 'fill') {
-      // Clicked an item: select that item
-      var items = [this.hitResult.item]; // Shift click? Keep everything else selected.
+      if (!e.modifiers.shift) {
+        // Shift click? Keep everything else selected.
+        this._clearSelection();
+      } // Clicked an item: select that item
 
-      if (e.modifiers.shift) {
-        items = this._selection.items.concat(items);
-      }
 
-      this._selection.items = items;
+      this._selectItem(this.hitResult.item);
+
       this.fireEvent('canvasModified');
     } else if (this.hitResult.item && this.hitResult.type === 'curve') {
       // Clicked a curve, start dragging it
       this.draggingCurve = this.hitResult.location.curve;
     } else if (this.hitResult.item && this.hitResult.type === 'segment') {} else {
-      if (this._selection.items.length > 1) {
-        // Nothing was clicked, so clear the selection and start a new selection box
-        this._selection.items = [];
+      // Nothing was clicked, so clear the selection and start a new selection box
+      // (don't clear the selection if shift is held, though)
+      if (this._selection.numObjects > 1 && !e.modifiers.shift) {
+        this._clearSelection();
+
         this.fireEvent('canvasModified');
       }
 
@@ -72332,26 +71752,23 @@ Wick.Tools.Cursor = class extends Wick.Tool {
     if (!e.modifiers) e.modifiers = {};
 
     if (this.hitResult.item && this.hitResult.item.data.isSelectionBoxGUI) {
-      // Lock aspect ratio if shift is help
+      // Lock aspect ratio if shift is held
       this._selection.lockScalingToAspectRatio = e.modifiers.shift; // Drag a handle of the selection box.
       // These can scale and rotate the selection.
 
-      var hitItem = this.hitResult.item;
+      var item = this.hitResult.item;
 
-      if (hitItem.data.handleType === 'scale') {
-        this._selection.moveHandleAndScale(hitItem.data.handleEdge, e.point);
-      } else if (hitItem.data.handleType === 'rotation') {
-        this._selection.moveHandleAndRotate(hitItem.data.handleEdge, e.point);
+      if (item.data.handleType === 'scale') {
+        this._widget.moveHandleAndScale(item.data.handleEdge.e.point);
+      } else if (item.data.handleType === 'rotation') {
+        this._widget.moveHandleAndRotate(item.data.handleEdge.e.point);
       }
     } else if (this.selectionBox.active) {
       // Selection box is being used, update it with a new point
       this.selectionBox.drag(e.point);
     } else if (this.hitResult.item && this.hitResult.type === 'fill') {
       // We're dragging the selection itself, so move the whole item.
-      this._selection.updateTransformation({
-        x: this._selection.transformation.x + e.delta.x,
-        y: this._selection.transformation.y + e.delta.y
-      });
+      this._selection.moveSelection(e.delta);
     } else if (this.hitResult.item && this.hitResult.type === 'segment') {
       // We're dragging an individual point, so move the point.
       this.hitResult.segment.point = this.hitResult.segment.point.add(e.delta);
@@ -72390,9 +71807,16 @@ Wick.Tools.Cursor = class extends Wick.Tool {
       // Finish selection box and select objects touching box (or inside box, if alt is held)
       this.selectionBox.mode = e.modifiers.alt ? 'contains' : 'intersects';
       this.selectionBox.end(e.point);
-      this._selection.items = this.selectionBox.items;
+
+      this._selection.clear();
+
+      this.selectionBox.items.filter(item => {
+        return item.data.wickUUID;
+      }).forEach(item => {
+        this._selectItem(item);
+      });
       this.fireEvent('canvasModified');
-    } else {
+    } else if (this._selection.numObjects > 0) {
       this.fireEvent('canvasModified');
     }
   }
@@ -72486,15 +71910,14 @@ Wick.Tools.Cursor = class extends Wick.Tool {
         topLeft: 315
       }[this.hitResult.item.data.handleEdge]; // Flip angles if selection is flipped horizontally/vertically
 
-      if (this._selection.transformation.scaleX < 0) {
-        baseAngle = -baseAngle + 360;
+      /*if(this._selection.transformation.scaleX < 0) {
+          baseAngle = -baseAngle + 360;
       }
+      if(this._selection.transformation.scaleY < 0) {
+          baseAngle = -baseAngle + 180;
+      }*/
 
-      if (this._selection.transformation.scaleY < 0) {
-        baseAngle = -baseAngle + 180;
-      }
-
-      var angle = baseAngle + this._selection.transformation.rotation; // It makes angle math easier if we dont allow angles >360 or <0 degrees:
+      var angle = baseAngle + this.widget.rotation; // It makes angle math easier if we dont allow angles >360 or <0 degrees:
 
       if (angle < 0) angle += 360;
       if (angle > 360) angle -= 360; // Round the angle to the nearest 45 degree interval.
@@ -72548,11 +71971,38 @@ Wick.Tools.Cursor = class extends Wick.Tool {
   }
 
   get _selection() {
-    return this.paper.project.selection;
+    return this.project.selection;
+  }
+
+  get _widget() {
+    return this._selection.view.widget;
+  }
+
+  _clearSelection() {
+    this._selection.clear();
+  }
+
+  _selectItem(item) {
+    var object = this._wickObjectFromPaperItem(item);
+
+    this._selection.select(object);
   }
 
   _isItemSelected(item) {
-    return this._selection.items.indexOf(item) !== -1;
+    var object = this._wickObjectFromPaperItem(item);
+
+    return object.isSelected;
+  }
+
+  _wickObjectFromPaperItem(item) {
+    var uuid = item.data.wickUUID;
+
+    if (!uuid) {
+      console.error('WARNING: _wickObjectFromPaperItem: item had no wick UUID. did you try to select something that wasnt created by a wick view? is the view up-to-date?');
+      console.log(item);
+    }
+
+    return Wick.ObjectCache.getObjectByUUID(uuid);
   }
 
 };
@@ -73609,8 +73059,8 @@ Wick.View.Project = class extends Wick.View {
    */
 
 
-  constructor() {
-    super();
+  constructor(model) {
+    super(model);
     this._fitMode = null;
     this._renderMode = null;
     this.fitMode = 'center';
@@ -73816,7 +73266,6 @@ Wick.View.Project = class extends Wick.View {
   applyChanges() {
     if (this.renderMode !== 'svg') return;
     this.model.selection.view.applyChanges();
-    this.model.selection.view.destroy();
     this.model.focus.timeline.activeFrames.forEach(frame => {
       frame.view.applyChanges();
     });
@@ -73906,6 +73355,7 @@ Wick.View.Project = class extends Wick.View {
 
     for (var toolName in this.tools) {
       var tool = this.tools[toolName];
+      tool.project = this.model;
       tool.on('canvasModified', e => {
         this.applyChanges();
         this.fireEvent('canvasModified', e);
@@ -74012,7 +73462,8 @@ Wick.View.Project = class extends Wick.View {
     });
     this.model.focus.timeline.view.onionSkinnedFramesLayers.forEach(layer => {
       this.paper.project.addLayer(layer);
-    }); // Render selection
+    }); // TODO replace
+    // Render selection
 
     this.model.selection.view.render();
     this.paper.project.addLayer(this.model.selection.view.layer);
@@ -74259,147 +73710,55 @@ Wick.View.Selection = class extends Wick.View {
   constructor() {
     super();
     this.layer = new this.paper.Layer();
-    this.selection = null;
+    this._widget = new paper.SelectionWidget({
+      layer: this.layer
+    });
+    this.paper.project.selectionWidget = this._widget;
   }
   /**
-   * The current paper.js Selection instance.
-   * @type {paper.Selection}
+   * The selection widget
    */
 
 
-  get selection() {
-    return this.paper.project.selection;
-  }
-
-  set selection(selection) {
-    this.paper.project.selection = selection;
-  }
-  /**
-   * Update the model based on the view.
-   */
-
-
-  applyChanges() {
-    if (this._modelAndViewHaveSameItems()) {
-      this.model.transformation.x = this.selection.transformation.x;
-      this.model.transformation.y = this.selection.transformation.y;
-      this.model.transformation.scaleX = this.selection.transformation.scaleX;
-      this.model.transformation.scaleY = this.selection.transformation.scaleY;
-      this.model.transformation.rotation = this.selection.transformation.rotation;
-    } else {
-      this.model.clear();
-
-      this._selectedItemsInView().forEach(item => {
-        var uuid = item.data.wickUUID;
-
-        if (!uuid) {
-          console.error('path is missing a wickUUID. the selection selected something it shouldnt have, or the view was not up-to-date.');
-          console.error(item);
-        }
-
-        var wickObject = Wick.ObjectCache.getObjectByUUID(uuid);
-        this.model.select(wickObject);
-      });
-
-      this.model.transformation.x = 0;
-      this.model.transformation.y = 0;
-      this.model.transformation.scaleX = 1;
-      this.model.transformation.scaleY = 1;
-      this.model.transformation.rotation = 0;
+  get widget() {
+    if (this.dirty) {
+      this.dirty = false;
       this.render();
     }
+
+    return this._widget;
   }
   /**
    *
    */
 
 
-  destroy() {
-    if (this.selection) {
-      this.selection.finish({
-        discardTransformation: true
-      });
-    }
-  }
-  /**
-   * The width of the selection.
-   */
-
-
-  get width() {
-    return this.selection.width;
-  }
-  /**
-   * The height of the selection.
-   */
-
-
-  get height() {
-    return this.selection.height;
+  applyChanges() {
+    this.model.rotation = this.widget.rotation;
   }
 
   _renderSVG() {
-    this.layer.clear(); // We need to create a new paper selection. Destroy the current one.
-
-    if (this.selection) {
-      this.selection.finish({
-        discardTransformation: this._modelAndViewHaveSameItems()
-      });
-    }
-
-    var selectionOptions = {
-      layer: this.layer,
-      items: this._selectedItemsInModel(),
-      x: this.model.transformation.x,
-      y: this.model.transformation.y,
-      scaleX: this.model.transformation.scaleX,
-      scaleY: this.model.transformation.scaleY,
-      rotation: this.model.transformation.rotation // Use Clip origins as the pivot point if that Clip is the only object selected
-
-    };
-    var singleObject = this.model.getSelectedObject();
-
-    if (singleObject instanceof Wick.Clip) {
-      selectionOptions.originX = singleObject.transformation.x;
-      selectionOptions.originY = singleObject.transformation.y;
-    }
-
-    this.selection = new this.paper.Selection(selectionOptions);
+    this._widget.build({
+      rotation: this.model.rotation,
+      items: this._getSelectedObjectViews(),
+      pivot: this._getSelectionPivot()
+    });
   }
 
-  _selectedItemsInView() {
-    return this.selection ? this.selection.items : [];
+  _getSelectedObjectViews() {
+    return this.model.getSelectedObjects('Canvas').map(object => {
+      return object.view.item || object.view.group;
+    });
   }
 
-  _selectedItemsInModel() {
-    var paths = this.model.getSelectedObjects('Path').map(object => {
-      return object.view.item;
-    });
-    var clips = this.model.getSelectedObjects('Clip').map(object => {
-      return object.view.group;
-    });
-    return paths.concat(clips);
-  }
+  _getSelectionPivot() {
+    var selectedObject = this.model.getSelectedObject();
 
-  _modelAndViewHaveSameItems() {
-    var modelIDs = this._selectedItemsInModel().map(item => {
-      return item.id;
-    });
-
-    var viewIDs = this._selectedItemsInView().map(item => {
-      return item.id;
-    }); //https://stackoverflow.com/questions/47666515/comparing-arrays-in-javascript-where-order-doesnt-matter
-
-
-    if (modelIDs.length !== viewIDs.length) return false;
-    modelIDs.sort();
-    viewIDs.sort();
-
-    for (let i = 0; i < modelIDs.length; i++) {
-      if (modelIDs[i] !== viewIDs[i]) return false;
+    if (selectedObject instanceof Wick.Clip) {
+      return new paper.Point(selectedObject.transformation.x, selectedObject.transformation.y);
+    } else {
+      return 'center';
     }
-
-    return true;
   }
 
 };
