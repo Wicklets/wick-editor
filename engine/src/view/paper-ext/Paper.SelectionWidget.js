@@ -188,7 +188,6 @@ SelectionWidget = class {
 
         var center = this._calculateBoundingBoxOfItems(this._itemsInSelection).center;
 
-        console.log(center)
         var itemsForBoundsCalc = this._itemsInSelection.map(item => {
             var clone = item.clone();
             clone.rotate(-this.rotation, center);
