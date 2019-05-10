@@ -112,12 +112,12 @@ describe('Paper.SelectionWidget', function() {
         });
         printCanvas(paper, canvas, 'ellipse and rect selected');
 
-        widget.rotateSelection(45);
+        widget.rotateSelection(30);
         printCanvas(paper, canvas, 'ellipse and rect rotated');
 
         widget.build({
             items: [ellipse, rect],
-            rotation: 45,
+            rotation: 30,
             pivot: 'center',
         });
         printCanvas(paper, canvas, 'new selection created with rotation: 45');
@@ -127,7 +127,7 @@ describe('Paper.SelectionWidget', function() {
 
         widget.build({
             items: [ellipse, rect],
-            rotation: 45,
+            rotation: 30,
             pivot: 'center',
         });
         printCanvas(paper, canvas, 'new selection created with rotation: 45');
@@ -137,12 +137,12 @@ describe('Paper.SelectionWidget', function() {
 
         widget.build({
             items: [ellipse, rect],
-            rotation: 45,
+            rotation: 30,
             pivot: 'center',
         });
         printCanvas(paper, canvas, 'new selection created with rotation: 45');
 
-        widget.rotateSelection(-45);
+        widget.rotateSelection(-30);
         printCanvas(paper, canvas, 'selection rotated -45');
 
         widget.build({

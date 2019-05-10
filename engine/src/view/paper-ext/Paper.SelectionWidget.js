@@ -92,7 +92,7 @@ SelectionWidget = class {
     }
 
     set currentTransformation (currentTransformation) {
-        if(['translate', 'scale', 'rotate'].indexOf(currentTransformation)) {
+        if(['translate', 'scale', 'rotate'].indexOf(currentTransformation) === -1) {
             console.error('Paper.SelectionWidget: Invalid transformation type: ' + currentTransformation);
             currentTransformation = null;
         } else {
@@ -141,6 +141,51 @@ SelectionWidget = class {
     /**
      *
      */
+    startTransformation (item) {
+        this._ghost = this._buildGhost();
+        this._layer.addChild(this._ghost);
+
+        if(item.data.handleType === 'rotation') {
+            this.currentTransformation = 'rotate';
+        } else if (item.data.handleType === 'scale') {
+            this.currentTransformation = 'scale';
+        } else {
+            this.currentTransformation = 'translate';
+        }
+
+        this._ghost.data.initialPosition = this._ghost.position;
+    }
+
+    /**
+     *
+     */
+    updateTransformation (item, e) {
+        if(this.currentTransformation === 'translate') {
+            this._ghost.position = this._ghost.position.add(e.delta);
+        } else if (this.currentTransformation === 'scale') {
+            this._ghost.scale(1.01, this.pivot);
+        } else if (this.currentTransformation === 'rotate') {
+            this._ghost.rotate(1, this.pivot);
+        }
+    }
+
+    /**
+     *
+     */
+    finishTransformation (item) {
+        this._ghost.remove();
+
+        if(this.currentTransformation === 'translate') {
+            var d = this._ghost.position.subtract(this._ghost.data.initialPosition);
+            this.translateSelection(d);
+        }
+
+        this._currentTransformation = null;
+    }
+
+    /**
+     *
+     */
     translateSelection (delta) {
         this._itemsInSelection.forEach(item => {
             item.position = item.position.add(delta);
@@ -171,7 +216,7 @@ SelectionWidget = class {
         this.item.addChild(this._buildBorder());
 
         if(this._itemsInSelection.length > 1) {
-            //this.item.addChildren(this._buildItemOutlines());
+            this.item.addChildren(this._buildItemOutlines());
         }
 
         this.item.addChild(this._buildRotationHotspot('topLeft'));
@@ -192,6 +237,10 @@ SelectionWidget = class {
 
         var center = this._calculateBoundingBoxOfItems(this._itemsInSelection).center;
         this.item.rotate(this.rotation, center);
+
+        this.item.children.forEach(child => {
+            child.data.isSelectionBoxGUI = true;
+        });
     }
 
     _buildBorder () {
@@ -212,23 +261,25 @@ SelectionWidget = class {
     }
 
     _buildScalingHandle (edge) {
-        return this._buildHandle({
+        var handle = this._buildHandle({
             name: edge,
             type: 'scale',
             center: this.boundingBox[edge],
             fillColor: SelectionWidget.HANDLE_FILL_COLOR,
             strokeColor: SelectionWidget.HANDLE_STROKE_COLOR,
         });
+        return handle;
     }
 
     _buildOriginPointHandle () {
-        return this._buildHandle({
+        var handle = this._buildHandle({
             name: 'pivot',
             type: 'pivot',
             center: this.pivot,
             fillColor: SelectionWidget.PIVOT_FILL_COLOR,
             strokeColor: SelectionWidget.PIVOT_STROKE_COLOR,
         });
+        return handle;
     }
 
     _buildHandle (args) {
@@ -299,6 +350,21 @@ SelectionWidget = class {
         hotspot.data.handleEdge = cornerName;
 
         return hotspot;
+    }
+
+    _buildGhost () {
+        var ghost = new paper.Group();
+
+        this._itemsInSelection.forEach(item => {
+            var outline = item.clone();
+            outline.remove();
+            outline.fillColor = 'rgba(0,0,0,0)';
+            outline.strokeColor = 'rgba(0,0,0,0.5)';
+            outline.strokeWidth = 1;
+            ghost.addChild(outline);
+        })
+
+        return ghost;
     }
 
     _calculateBoundingBox () {

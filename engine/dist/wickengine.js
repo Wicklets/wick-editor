@@ -70751,7 +70751,7 @@ SelectionWidget = class {
   }
 
   set currentTransformation(currentTransformation) {
-    if (['translate', 'scale', 'rotate'].indexOf(currentTransformation)) {
+    if (['translate', 'scale', 'rotate'].indexOf(currentTransformation) === -1) {
       console.error('Paper.SelectionWidget: Invalid transformation type: ' + currentTransformation);
       currentTransformation = null;
     } else {
@@ -70775,57 +70775,248 @@ SelectionWidget = class {
     this._rotation = args.rotation;
     this._boundingBox = this._calculateBoundingBox(); // Calculate pivot/rotation point
 
-    if (args.pivot === 'center') {// TODO Use center of bounds.
+    this._pivotSetting = args.pivot;
+
+    if (args.pivot === 'center') {
+      this.pivot = this._boundingBox.center;
     } else if (args.pivot instanceof paper.Point) {
       this.pivot = args.pivot;
     } else {
       console.error('Paper.SelectionWidget.build(): Invalid pivot: ' + args.pivot);
       this.pivot = new paper.Point(0, 0);
-    } // Rebuild GUI
-
+    }
 
     this.item.remove();
     this.item.removeChildren();
 
     if (this._itemsInSelection.length > 0) {
-      this.item.addChild(this._buildBorder());
+      this._buildGUI();
+
+      this.layer.addChild(this.item);
     }
-
-    var center = this._calculateBoundingBoxOfItems(this._itemsInSelection).center;
-
-    this.item.rotate(this.rotation, center);
-    this.layer.addChild(this.item);
   }
   /**
    *
    */
 
 
-  moveSelection(delta) {}
+  startTransformation(item) {
+    this._ghost = this._buildGhost();
+
+    this._layer.addChild(this._ghost);
+
+    if (item.data.handleType === 'rotation') {
+      this.currentTransformation = 'rotate';
+    } else if (item.data.handleType === 'scale') {
+      this.currentTransformation = 'scale';
+    } else {
+      this.currentTransformation = 'translate';
+    }
+
+    this._ghost.data.initialPosition = this._ghost.position;
+  }
   /**
    *
    */
 
 
-  moveHandleAndScale(handleName, point) {}
+  updateTransformation(item, e) {
+    if (this.currentTransformation === 'translate') {
+      this._ghost.position = this._ghost.position.add(e.delta);
+    } else if (this.currentTransformation === 'scale') {
+      this._ghost.scale(1.01, this.pivot);
+    } else if (this.currentTransformation === 'rotate') {
+      this._ghost.rotate(1, this.pivot);
+    }
+  }
   /**
    *
    */
 
 
-  moveHandleAndRotate(handleName, point) {}
+  finishTransformation(item) {
+    this._ghost.remove();
+
+    if (this.currentTransformation === 'translate') {
+      var d = this._ghost.position.subtract(this._ghost.data.initialPosition);
+
+      this.translateSelection(d);
+    }
+
+    this._currentTransformation = null;
+  }
+  /**
+   *
+   */
+
+
+  translateSelection(delta) {
+    this._itemsInSelection.forEach(item => {
+      item.position = item.position.add(delta);
+    });
+  }
+  /**
+   *
+   */
+
+
+  scaleSelection(scale) {
+    this._itemsInSelection.forEach(item => {
+      item.rotate(-this.rotation, this.pivot);
+      item.scale(scale, this.pivot);
+      item.rotate(this.rotation, this.pivot);
+    });
+  }
+  /**
+   *
+   */
+
+
+  rotateSelection(angle) {
+    this._itemsInSelection.forEach(item => {
+      item.rotate(angle, this.pivot);
+    });
+  }
+
+  _buildGUI() {
+    this.item.addChild(this._buildBorder());
+
+    if (this._itemsInSelection.length > 1) {
+      this.item.addChildren(this._buildItemOutlines());
+    }
+
+    this.item.addChild(this._buildRotationHotspot('topLeft'));
+    this.item.addChild(this._buildRotationHotspot('topRight'));
+    this.item.addChild(this._buildRotationHotspot('bottomLeft'));
+    this.item.addChild(this._buildRotationHotspot('bottomRight'));
+    this.item.addChild(this._buildScalingHandle('topLeft'));
+    this.item.addChild(this._buildScalingHandle('topRight'));
+    this.item.addChild(this._buildScalingHandle('bottomLeft'));
+    this.item.addChild(this._buildScalingHandle('bottomRight'));
+    this.item.addChild(this._buildScalingHandle('topCenter'));
+    this.item.addChild(this._buildScalingHandle('bottomCenter'));
+    this.item.addChild(this._buildScalingHandle('leftCenter'));
+    this.item.addChild(this._buildScalingHandle('rightCenter'));
+    this.item.addChild(this._buildOriginPointHandle());
+
+    var center = this._calculateBoundingBoxOfItems(this._itemsInSelection).center;
+
+    this.item.rotate(this.rotation, center);
+    this.item.children.forEach(child => {
+      child.data.isSelectionBoxGUI = true;
+    });
+  }
 
   _buildBorder() {
     var border = new paper.Path.Rectangle({
       name: 'border',
       from: this.boundingBox.topLeft,
       to: this.boundingBox.bottomRight,
-      strokeWidth: paper.SelectionWidget.BOX_STROKE_WIDTH,
-      strokeColor: paper.SelectionWidget.BOX_STROKE_COLOR,
+      strokeWidth: SelectionWidget.BOX_STROKE_WIDTH,
+      strokeColor: SelectionWidget.BOX_STROKE_COLOR,
       insert: false
     });
     border.data.isBorder = true;
     return border;
+  }
+
+  _buildItemOutlines() {
+    return []; //TODO replace
+  }
+
+  _buildScalingHandle(edge) {
+    var handle = this._buildHandle({
+      name: edge,
+      type: 'scale',
+      center: this.boundingBox[edge],
+      fillColor: SelectionWidget.HANDLE_FILL_COLOR,
+      strokeColor: SelectionWidget.HANDLE_STROKE_COLOR
+    });
+
+    return handle;
+  }
+
+  _buildOriginPointHandle() {
+    var handle = this._buildHandle({
+      name: 'pivot',
+      type: 'pivot',
+      center: this.pivot,
+      fillColor: SelectionWidget.PIVOT_FILL_COLOR,
+      strokeColor: SelectionWidget.PIVOT_STROKE_COLOR
+    });
+
+    return handle;
+  }
+
+  _buildHandle(args) {
+    if (!args) console.error('_createHandle: args is required');
+    if (!args.name) console.error('_createHandle: args.name is required');
+    if (!args.type) console.error('_createHandle: args.type is required');
+    if (!args.center) console.error('_createHandle: args.center is required');
+    if (!args.fillColor) console.error('_createHandle: args.fillColor is required');
+    if (!args.strokeColor) console.error('_createHandle: args.strokeColor is required');
+    var circle = new paper.Path.Circle({
+      center: args.center,
+      radius: SelectionWidget.HANDLE_RADIUS / paper.view.zoom,
+      strokeWidth: SelectionWidget.HANDLE_STROKE_WIDTH / paper.view.zoom,
+      strokeColor: args.strokeColor,
+      fillColor: args.fillColor,
+      insert: false
+    }); // Transform the handle a bit so it doesn't get squished when the selection box is scaled.
+
+    circle.applyMatrix = false; //circle.scaling.x = 1 / this.scaleX;
+    //circle.scaling.y = 1 / this.scaleY;
+
+    circle.data.handleType = args.type;
+    circle.data.handleEdge = args.name;
+    return circle;
+  }
+
+  _buildRotationHotspot(cornerName) {
+    // Build the not-yet-rotated hotspot, which starts out like this:
+    //       |
+    //       +---+
+    //       |   |
+    // ---+--+   |---
+    //    |      |
+    //    +------+
+    //       |
+    var r = SelectionWidget.ROTATION_HOTSPOT_RADIUS / paper.view.zoom;
+    var hotspot = new paper.Path([new paper.Point(0, 0), new paper.Point(0, r), new paper.Point(r, r), new paper.Point(r, -r), new paper.Point(-r, -r), new paper.Point(-r, 0)]);
+    hotspot.fillColor = SelectionWidget.ROTATION_HOTSPOT_FILLCOLOR;
+    hotspot.position.x = this.boundingBox[cornerName].x;
+    hotspot.position.y = this.boundingBox[cornerName].y; // Orient the rotation handles in the correct direction, even if the selection is flipped
+
+    hotspot.rotate({
+      'topRight': 0,
+      'bottomRight': 90,
+      'bottomLeft': 180,
+      'topLeft': 270
+    }[cornerName]); //if(this.scaleX < 0) hotspot.scaling.x = -1;
+    //if(this.scaleY < 0) hotspot.scaling.y = -1;
+    // Transform the hotspots a bit so they doesn't get squished when the selection box is scaled.
+    //hotspot.scaling.x = 1 / this.scaleX;
+    //hotspot.scaling.y = 1 / this.scaleY;
+    // Some metadata.
+
+    hotspot.data.handleType = 'rotation';
+    hotspot.data.handleEdge = cornerName;
+    return hotspot;
+  }
+
+  _buildGhost() {
+    var ghost = new paper.Group();
+
+    this._itemsInSelection.forEach(item => {
+      var outline = item.clone();
+      outline.remove();
+      outline.fillColor = 'rgba(0,0,0,0)';
+      outline.strokeColor = 'rgba(0,0,0,0.5)';
+      outline.strokeWidth = 1;
+      ghost.addChild(outline);
+    });
+
+    return ghost;
   }
 
   _calculateBoundingBox() {
@@ -70856,6 +71047,16 @@ SelectionWidget = class {
 };
 SelectionWidget.BOX_STROKE_WIDTH = 1;
 SelectionWidget.BOX_STROKE_COLOR = 'rgba(100,150,255,1.0)';
+SelectionWidget.HANDLE_RADIUS = 5;
+SelectionWidget.HANDLE_STROKE_WIDTH = SelectionWidget.BOX_STROKE_WIDTH;
+SelectionWidget.HANDLE_STROKE_COLOR = SelectionWidget.BOX_STROKE_COLOR;
+SelectionWidget.HANDLE_FILL_COLOR = 'rgba(255,255,255,0.3)';
+SelectionWidget.PIVOT_STROKE_WIDTH = SelectionWidget.BOX_STROKE_WIDTH;
+SelectionWidget.PIVOT_FILL_COLOR = 'rgba(255,255,255,0.5)';
+SelectionWidget.PIVOT_STROKE_COLOR = 'rgba(0,0,0,1)';
+SelectionWidget.PIVOT_RADIUS = SelectionWidget.HANDLE_RADIUS;
+SelectionWidget.ROTATION_HOTSPOT_RADIUS = 20;
+SelectionWidget.ROTATION_HOTSPOT_FILLCOLOR = 'rgba(100,150,255,0.5)';
 paper.PaperScope.inject({
   SelectionWidget: SelectionWidget
 });
@@ -71662,7 +71863,6 @@ Wick.Tools.Cursor = class extends Wick.Tool {
     this.selectCurves = true;
     this.selectedItems = [];
     this.currentCursorIcon = '';
-    this.guiLayer = new this.paper.Layer();
   }
   /**
    * Generate the current cursor.
@@ -71713,17 +71913,14 @@ Wick.Tools.Cursor = class extends Wick.Tool {
     if (!e.modifiers) e.modifiers = {};
     this.hitResult = this._updateHitResult(e);
 
-    if (this.hitResult.item && this.hitResult.item.data.isSelectionBoxGUI) {// The selection widget was clicked
-    } else if (this.hitResult.item && this._isItemSelected(this.hitResult.item)) {
+    if (this.hitResult.item && this.hitResult.item.data.isSelectionBoxGUI) {} else if (this.hitResult.item && this._isItemSelected(this.hitResult.item)) {
       // We clicked something that was already selected.
       // Shift click: Deselect that item
-      if (!e.modifiers.shift) {
-        this._clearSelection();
-      } else {
-        this._selectItem(this.hitResult.item);
-      }
+      if (e.modifiers.shift) {
+        this._deselectItem(this.hitResult.item);
 
-      this.fireEvent('canvasModified');
+        this.fireEvent('canvasModified');
+      }
     } else if (this.hitResult.item && this.hitResult.type === 'fill') {
       if (!e.modifiers.shift) {
         // Shift click? Keep everything else selected.
@@ -71754,23 +71951,22 @@ Wick.Tools.Cursor = class extends Wick.Tool {
     if (!e.modifiers) e.modifiers = {};
 
     if (this.hitResult.item && this.hitResult.item.data.isSelectionBoxGUI) {
-      // Lock aspect ratio if shift is held
-      this._selection.lockScalingToAspectRatio = e.modifiers.shift; // Drag a handle of the selection box.
-      // These can scale and rotate the selection.
-
-      var item = this.hitResult.item;
-
-      if (item.data.handleType === 'scale') {
-        this._widget.moveHandleAndScale(item.data.handleEdge.e.point);
-      } else if (item.data.handleType === 'rotation') {
-        this._widget.moveHandleAndRotate(item.data.handleEdge.e.point);
+      // TODO update selection drag
+      if (!this._widget.currentTransformation) {
+        this._widget.startTransformation(this.hitResult.item);
       }
+
+      this._widget.updateTransformation(this.hitResult.item, e);
     } else if (this.selectionBox.active) {
       // Selection box is being used, update it with a new point
       this.selectionBox.drag(e.point);
     } else if (this.hitResult.item && this.hitResult.type === 'fill') {
       // We're dragging the selection itself, so move the whole item.
-      this._selection.moveSelection(e.delta);
+      if (!this._widget.currentTransformation) {
+        this._widget.startTransformation(this.hitResult.item);
+      }
+
+      this._widget.updateTransformation(this.hitResult.item, e);
     } else if (this.hitResult.item && this.hitResult.type === 'segment') {
       // We're dragging an individual point, so move the point.
       this.hitResult.segment.point = this.hitResult.segment.point.add(e.delta);
@@ -71819,6 +72015,8 @@ Wick.Tools.Cursor = class extends Wick.Tool {
       });
       this.fireEvent('canvasModified');
     } else if (this._selection.numObjects > 0) {
+      this._widget.finishTransformation();
+
       this.fireEvent('canvasModified');
     }
   }
@@ -71919,7 +72117,7 @@ Wick.Tools.Cursor = class extends Wick.Tool {
           baseAngle = -baseAngle + 180;
       }*/
 
-      var angle = baseAngle + this.widget.rotation; // It makes angle math easier if we dont allow angles >360 or <0 degrees:
+      var angle = baseAngle + this._widget.rotation; // It makes angle math easier if we dont allow angles >360 or <0 degrees:
 
       if (angle < 0) angle += 360;
       if (angle > 360) angle -= 360; // Round the angle to the nearest 45 degree interval.
@@ -71988,6 +72186,12 @@ Wick.Tools.Cursor = class extends Wick.Tool {
     var object = this._wickObjectFromPaperItem(item);
 
     this._selection.select(object);
+  }
+
+  _deselectItem(item) {
+    var object = this._wickObjectFromPaperItem(item);
+
+    this._selection.deselect(object);
   }
 
   _isItemSelected(item) {

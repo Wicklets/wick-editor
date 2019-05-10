@@ -61,8 +61,6 @@ Wick.Tools.Cursor = class extends Wick.Tool {
         this.selectedItems = [];
 
         this.currentCursorIcon = '';
-
-        this.guiLayer = new this.paper.Layer();
     }
 
     /**
@@ -118,16 +116,14 @@ Wick.Tools.Cursor = class extends Wick.Tool {
         this.hitResult = this._updateHitResult(e);
 
         if(this.hitResult.item && this.hitResult.item.data.isSelectionBoxGUI) {
-            // The selection widget was clicked
+
         } else if(this.hitResult.item && this._isItemSelected(this.hitResult.item)) {
             // We clicked something that was already selected.
             // Shift click: Deselect that item
-            if(!e.modifiers.shift) {
-                this._clearSelection();
-            } else {
-                this._selectItem(this.hitResult.item);
+            if(e.modifiers.shift) {
+                this._deselectItem(this.hitResult.item);
+                this.fireEvent('canvasModified');
             }
-            this.fireEvent('canvasModified');
         } else if (this.hitResult.item && this.hitResult.type === 'fill') {
             if(!e.modifiers.shift) {
                 // Shift click? Keep everything else selected.
@@ -157,23 +153,20 @@ Wick.Tools.Cursor = class extends Wick.Tool {
         if(!e.modifiers) e.modifiers = {};
 
         if(this.hitResult.item && this.hitResult.item.data.isSelectionBoxGUI) {
-            // Lock aspect ratio if shift is held
-            this._selection.lockScalingToAspectRatio = e.modifiers.shift;
-
-            // Drag a handle of the selection box.
-            // These can scale and rotate the selection.
-            var item = this.hitResult.item;
-            if(item.data.handleType === 'scale') {
-                this._widget.moveHandleAndScale(item.data.handleEdge. e.point);
-            } else if (item.data.handleType === 'rotation') {
-                this._widget.moveHandleAndRotate(item.data.handleEdge. e.point);
+            // TODO update selection drag
+            if(!this._widget.currentTransformation) {
+                this._widget.startTransformation(this.hitResult.item);
             }
+            this._widget.updateTransformation(this.hitResult.item, e);
         } else if (this.selectionBox.active) {
             // Selection box is being used, update it with a new point
             this.selectionBox.drag(e.point);
         } else if(this.hitResult.item && this.hitResult.type === 'fill') {
             // We're dragging the selection itself, so move the whole item.
-            this._selection.moveSelection(e.delta);
+            if(!this._widget.currentTransformation) {
+                this._widget.startTransformation(this.hitResult.item);
+            }
+            this._widget.updateTransformation(this.hitResult.item, e);
         } else if(this.hitResult.item && this.hitResult.type === 'segment') {
             // We're dragging an individual point, so move the point.
             this.hitResult.segment.point = this.hitResult.segment.point.add(e.delta);
@@ -221,6 +214,7 @@ Wick.Tools.Cursor = class extends Wick.Tool {
             });
             this.fireEvent('canvasModified');
         } else if (this._selection.numObjects > 0) {
+            this._widget.finishTransformation();
             this.fireEvent('canvasModified');
         }
     }
@@ -326,7 +320,7 @@ Wick.Tools.Cursor = class extends Wick.Tool {
                 baseAngle = -baseAngle + 180;
             }*/
 
-            var angle = baseAngle + this.widget.rotation;
+            var angle = baseAngle + this._widget.rotation;
             // It makes angle math easier if we dont allow angles >360 or <0 degrees:
             if(angle < 0) angle += 360;
             if(angle > 360) angle -= 360;
@@ -396,6 +390,11 @@ Wick.Tools.Cursor = class extends Wick.Tool {
     _selectItem (item) {
         var object = this._wickObjectFromPaperItem(item);
         this._selection.select(object);
+    }
+
+    _deselectItem (item) {
+        var object = this._wickObjectFromPaperItem(item);
+        this._selection.deselect(object);
     }
 
     _isItemSelected (item) {
