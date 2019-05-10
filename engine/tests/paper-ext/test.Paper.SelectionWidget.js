@@ -57,15 +57,32 @@ describe('Paper.SelectionWidget', function() {
 
         widget.build({
             items: [ellipse, rect],
-            rotation: 30,
+            rotation: 15,
         });
 
-        /*
-        expect(widget.item.children.length).to.not.equal(0);
+        expect(widget.boundingBox.left).to.be.closeTo(1.69, 0.01);
+        expect(widget.boundingBox.top).to.be.closeTo(-24.17, 0.01);
+        expect(widget.boundingBox.right).to.be.closeTo(209.53, 0.01);
+        expect(widget.boundingBox.bottom).to.be.closeTo(112.95, 0.01);
+
+        widget.build({
+            items: [ellipse, rect],
+            rotation: 90,
+        });
+
+        expect(widget.boundingBox.left).to.be.closeTo(50, 0.01);
+        expect(widget.boundingBox.top).to.be.closeTo(-50, 0.01);
+        expect(widget.boundingBox.right).to.be.closeTo(150, 0.01);
+        expect(widget.boundingBox.bottom).to.be.closeTo(150, 0.01);
+
+        widget.build({
+            items: [ellipse, rect],
+            rotation: 180,
+        });
+
         expect(widget.boundingBox.left).to.be.closeTo(0, 0.01);
         expect(widget.boundingBox.top).to.be.closeTo(0, 0.01);
-        expect(widget.boundingBox.right).to.be.closeTo(100, 0.01);
+        expect(widget.boundingBox.right).to.be.closeTo(200, 0.01);
         expect(widget.boundingBox.bottom).to.be.closeTo(100, 0.01);
-        */
     });
 });

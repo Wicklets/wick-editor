@@ -70791,7 +70791,9 @@ SelectionWidget = class {
       this.item.addChild(this._buildBorder());
     }
 
-    this.item.rotate(this.rotation, this._boundingBox.center);
+    var center = this._calculateBoundingBoxOfItems(this._itemsInSelection).center;
+
+    this.item.rotate(this.rotation, center);
     this.layer.addChild(this.item);
   }
   /**
@@ -70835,7 +70837,7 @@ SelectionWidget = class {
 
     var itemsForBoundsCalc = this._itemsInSelection.map(item => {
       var clone = item.clone();
-      clone.rotate(this.rotation, center);
+      clone.rotate(-this.rotation, center);
       clone.remove();
       return clone;
     });
@@ -70848,7 +70850,7 @@ SelectionWidget = class {
     items.forEach(item => {
       bounds = bounds ? bounds.unite(item.bounds) : item.bounds;
     });
-    return bounds;
+    return bounds || new paper.Rectangle();
   }
 
 };
@@ -71738,7 +71740,9 @@ Wick.Tools.Cursor = class extends Wick.Tool {
     } else if (this.hitResult.item && this.hitResult.type === 'segment') {} else {
       // Nothing was clicked, so clear the selection and start a new selection box
       // (don't clear the selection if shift is held, though)
-      if (this._selection.numObjects > 1 && !e.modifiers.shift) {
+      if (this._selection.numObjects > 0 && !e.modifiers.shift) {
+        console.log('asb');
+
         this._clearSelection();
 
         this.fireEvent('canvasModified');

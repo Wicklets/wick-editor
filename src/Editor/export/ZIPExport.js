@@ -1,7 +1,7 @@
 class ZIPExport {
   static bundleStandaloneProject (project, done) {
     this._downloadDependenciesFiles(items => {
-      project.exportAsWickFile(wickFile => {
+      window.Wick.WickFile.toWickFile(project, wickFile => {
         this._bundleFilesIntoZip(wickFile, items, done);
       });
     });

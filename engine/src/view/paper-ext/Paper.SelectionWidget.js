@@ -138,10 +138,6 @@ SelectionWidget = class {
         }
 
         var center = this._calculateBoundingBoxOfItems(this._itemsInSelection).center;
-        //var clone = this.item.clone();
-        //clone.opacity = 0.5;
-        //clone.rotate(-this.rotation, center);
-        //this.layer.addChild(clone)
         this.item.rotate(this.rotation, center);
 
         this.layer.addChild(this.item);
@@ -192,7 +188,6 @@ SelectionWidget = class {
             var clone = item.clone();
             clone.rotate(-this.rotation, center);
             clone.remove();
-            //clone.opacity = 0.5;
             return clone;
         });
 

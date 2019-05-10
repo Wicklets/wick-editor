@@ -1,7 +1,7 @@
 window.onload = function () {
     function handleComplete () {
         var projectData = queue.getResult("project");
-        Wick.Project.fromWickFile(new Blob([new Uint8Array(projectData)]), project => {
+        Wick.WickFile.fromWickFile(new Blob([new Uint8Array(projectData)]), project => {
             playProject(project);
         });
     }

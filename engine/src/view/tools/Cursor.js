@@ -144,7 +144,8 @@ Wick.Tools.Cursor = class extends Wick.Tool {
         } else {
             // Nothing was clicked, so clear the selection and start a new selection box
             // (don't clear the selection if shift is held, though)
-            if(this._selection.numObjects > 1 && !e.modifiers.shift) {
+            if(this._selection.numObjects > 0 && !e.modifiers.shift) {
+                console.log('asb')
                 this._clearSelection();
                 this.fireEvent('canvasModified');
             }
