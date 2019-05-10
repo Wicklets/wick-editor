@@ -1,9 +1,32 @@
 describe('Paper.SelectionWidget', function() {
+    var printCanvas = (paper, canvas) => {
+        paper.view.update();
+        var i = new Image();
+        i.src = canvas.toDataURL();
+        document.body.appendChild(i);
+    }
+
+    var testSelectItems = (widget, canvas, items) => {
+        var title = document.createElement('div');
+        title.innerHTML = items.length + ' items';
+        document.body.appendChild(title);
+
+        for(var angle = -180; angle <= 180; angle += 15) {
+            widget.build({
+                items: items,
+                rotation: angle,
+            });
+            printCanvas(paper,canvas);
+            widget.moveSelection(new paper.Point(10,0));
+            printCanvas(paper,canvas);
+            widget.moveSelection(new paper.Point(-10,0));
+        }
+    }
+
     it('should build correctly', function () {
         var canvas = document.createElement('canvas');
-        canvas.width = 720;
-        canvas.height = 480;
-        document.body.appendChild(canvas);
+        canvas.width = 400;
+        canvas.height = 200;
 
         var paper = TestUtils.createPaperScope(canvas);
         var activeLayer = paper.project.activeLayer;
@@ -15,6 +38,31 @@ describe('Paper.SelectionWidget', function() {
 
         var widget = new paper.SelectionWidget({
             layer: guiLayer,
+        });
+
+        var gridCellSize = 50;
+        var gridColor = 'rgba(100,100,255,0.5)'
+        var grid = new paper.Group({
+            children: (() => {
+                var children = [];
+                for (var x = 0; x < paper.view.bounds.width; x += gridCellSize) {
+                    children.push(new paper.Path.Line({
+                        from: new paper.Point(x, 0),
+                        to: new paper.Point(x, paper.view.bounds.height),
+                        strokeColor: gridColor,
+                        strokeWidth: 1,
+                    }));
+                }
+                for (var y = 0; y < paper.view.bounds.height; y += gridCellSize) {
+                    children.push(new paper.Path.Line({
+                        from: new paper.Point(0, y),
+                        to: new paper.Point(paper.view.bounds.width, y),
+                        strokeColor: gridColor,
+                        strokeWidth: 1,
+                    }));
+                }
+                return children;
+            })(),
         });
 
         var ellipse = new paper.Path.Ellipse({
@@ -29,60 +77,39 @@ describe('Paper.SelectionWidget', function() {
             fillColor: 'blue',
             strokeColor: 'black',
         });
-
-        widget.build();
-
-        expect(widget.item.children.length).to.equal(0);
-
-        widget.build({
-            items: [ellipse],
+        var group = new paper.Group({
+            children: [
+                new paper.Path.Rectangle({
+                    from: new paper.Point(0,0),
+                    to: new paper.Point(50,50),
+                    fillColor: 'cyan',
+                    strokeColor: 'black',
+                }),
+                new paper.Path.Rectangle({
+                    from: new paper.Point(50,0),
+                    to: new paper.Point(100,50),
+                    fillColor: 'yellow',
+                    strokeColor: 'black',
+                }),
+                new paper.Path.Rectangle({
+                    from: new paper.Point(0,50),
+                    to: new paper.Point(50,100),
+                    fillColor: 'magenta',
+                    strokeColor: 'black',
+                }),
+                new paper.Path.Rectangle({
+                    from: new paper.Point(50,50),
+                    to: new paper.Point(100,100),
+                    fillColor: 'orange',
+                    strokeColor: 'black',
+                }),
+            ],
+            pivot: new paper.Point(0,0),
         });
+        group.position.x = 200;
 
-        expect(widget.item.children.length).to.not.equal(0);
-        expect(widget.boundingBox.left).to.equal(0);
-        expect(widget.boundingBox.top).to.equal(0);
-        expect(widget.boundingBox.right).to.equal(100);
-        expect(widget.boundingBox.bottom).to.equal(100);
-
-        widget.build({
-            items: [ellipse],
-            rotation: 45,
-        });
-
-        expect(widget.item.children.length).to.not.equal(0);
-        expect(widget.boundingBox.left).to.be.closeTo(0, 0.01);
-        expect(widget.boundingBox.top).to.be.closeTo(0, 0.01);
-        expect(widget.boundingBox.right).to.be.closeTo(100, 0.01);
-        expect(widget.boundingBox.bottom).to.be.closeTo(100, 0.01);
-
-        widget.build({
-            items: [ellipse, rect],
-            rotation: 15,
-        });
-
-        expect(widget.boundingBox.left).to.be.closeTo(1.69, 0.01);
-        expect(widget.boundingBox.top).to.be.closeTo(-24.17, 0.01);
-        expect(widget.boundingBox.right).to.be.closeTo(209.53, 0.01);
-        expect(widget.boundingBox.bottom).to.be.closeTo(112.95, 0.01);
-
-        widget.build({
-            items: [ellipse, rect],
-            rotation: 90,
-        });
-
-        expect(widget.boundingBox.left).to.be.closeTo(50, 0.01);
-        expect(widget.boundingBox.top).to.be.closeTo(-50, 0.01);
-        expect(widget.boundingBox.right).to.be.closeTo(150, 0.01);
-        expect(widget.boundingBox.bottom).to.be.closeTo(150, 0.01);
-
-        widget.build({
-            items: [ellipse, rect],
-            rotation: 180,
-        });
-
-        expect(widget.boundingBox.left).to.be.closeTo(0, 0.01);
-        expect(widget.boundingBox.top).to.be.closeTo(0, 0.01);
-        expect(widget.boundingBox.right).to.be.closeTo(200, 0.01);
-        expect(widget.boundingBox.bottom).to.be.closeTo(100, 0.01);
+        testSelectItems(widget, canvas, [ellipse]);
+        testSelectItems(widget, canvas, [ellipse, rect]);
+        testSelectItems(widget, canvas, [ellipse, rect, group]);
     });
 });

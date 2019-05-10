@@ -149,7 +149,7 @@
      * @param {paper.Point} position - the position to move the handle to
      */
     moveHandleAndScale (handleName, position) {
-        
+
     }
 
     /**
