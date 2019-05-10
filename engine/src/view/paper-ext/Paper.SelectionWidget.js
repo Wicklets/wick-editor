@@ -141,50 +141,30 @@ SelectionWidget = class {
     /**
      *
      */
-    rebuild () {
-        this.build({
-            items: this._itemsInSelection,
-            rotation: this._rotation,
-            pivot: this._pivotSetting,
-        });
-    }
-
-    /**
-     *
-     */
-    moveSelection (delta) {
+    translateSelection (delta) {
         this._itemsInSelection.forEach(item => {
             item.position = item.position.add(delta);
         });
-        this.rebuild();
     }
 
     /**
      *
      */
-    moveHandleAndScale (handleName, point) {
-
+    scaleSelection (scale) {
+        this._itemsInSelection.forEach(item => {
+            item.rotate(-this.rotation, this.pivot);
+            item.scale(scale, this.pivot);
+            item.rotate(this.rotation, this.pivot);
+        });
     }
 
     /**
      *
      */
-    moveHandleAndRotate (handleName, point) {
-
-    }
-
-    /**
-     *
-     */
-    flipHorizontally () {
-
-    }
-
-    /**
-     *
-     */
-    flipVertically () {
-
+    rotateSelection (angle) {
+        this._itemsInSelection.forEach(item => {
+            item.rotate(angle, this.pivot);
+        });
     }
 
     _buildGUI () {

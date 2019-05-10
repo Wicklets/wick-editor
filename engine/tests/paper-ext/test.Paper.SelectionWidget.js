@@ -1,47 +1,41 @@
 describe('Paper.SelectionWidget', function() {
-    var printCanvas = (paper, canvas) => {
+    var printCanvas = (paper, canvas, msg) => {
         paper.view.update();
         var i = new Image();
         i.src = canvas.toDataURL();
+
         document.body.appendChild(i);
-    }
 
-    var testSelectItems = (widget, canvas, items) => {
-        var title = document.createElement('div');
-        title.innerHTML = items.length + ' items';
+        var title = document.createElement('h3');
+        title.style.fontFamily = 'monospace';
+        title.innerHTML = msg;
         document.body.appendChild(title);
-
-        for(var angle = -180; angle <= 180; angle += 15) {
-            widget.build({
-                items: items,
-                rotation: angle,
-            });
-            printCanvas(paper,canvas);
-            widget.moveSelection(new paper.Point(10,0));
-            printCanvas(paper,canvas);
-            widget.moveSelection(new paper.Point(-10,0));
-        }
     }
 
     it('should build correctly', function () {
+        this.timeout(10000);
+
         var canvas = document.createElement('canvas');
         canvas.width = 400;
         canvas.height = 200;
+        //document.body.appendChild(canvas);
 
         var paper = TestUtils.createPaperScope(canvas);
         var activeLayer = paper.project.activeLayer;
         var guiLayer = new paper.Layer();
+        var gridLayer = new paper.Layer();
         paper.project.addLayer(new paper.Layer(guiLayer));
+        paper.project.addLayer(new paper.Layer(gridLayer));
         activeLayer.activate();
 
-        paper.view.center = paper.view.center.subtract(new paper.Point(30,30))
+        paper.view.center = paper.view.center.subtract(new paper.Point(30.5,30.5));
 
         var widget = new paper.SelectionWidget({
             layer: guiLayer,
         });
 
         var gridCellSize = 50;
-        var gridColor = 'rgba(100,100,255,0.5)'
+        var gridColor = '#666666'
         var grid = new paper.Group({
             children: (() => {
                 var children = [];
@@ -64,6 +58,7 @@ describe('Paper.SelectionWidget', function() {
                 return children;
             })(),
         });
+        gridLayer.addChild(grid);
 
         var ellipse = new paper.Path.Ellipse({
             center: new paper.Point(50,50),
@@ -77,6 +72,7 @@ describe('Paper.SelectionWidget', function() {
             fillColor: 'blue',
             strokeColor: 'black',
         });
+        /*
         var group = new paper.Group({
             children: [
                 new paper.Path.Rectangle({
@@ -107,9 +103,73 @@ describe('Paper.SelectionWidget', function() {
             pivot: new paper.Point(0,0),
         });
         group.position.x = 200;
+        */
 
-        testSelectItems(widget, canvas, [ellipse]);
-        testSelectItems(widget, canvas, [ellipse, rect]);
-        testSelectItems(widget, canvas, [ellipse, rect, group]);
+        widget.build({
+            items: [ellipse, rect],
+            rotation: 0,
+            pivot: 'center',
+        });
+        printCanvas(paper, canvas, 'ellipse and rect selected');
+
+        widget.rotateSelection(45);
+        printCanvas(paper, canvas, 'ellipse and rect rotated');
+
+        widget.build({
+            items: [ellipse, rect],
+            rotation: 45,
+            pivot: 'center',
+        });
+        printCanvas(paper, canvas, 'new selection created with rotation: 45');
+
+        widget.scaleSelection(new paper.Point(0.5, 1.0));
+        printCanvas(paper, canvas, 'selection scaled {x: 0.5, y: 1.0}');
+
+        widget.build({
+            items: [ellipse, rect],
+            rotation: 45,
+            pivot: 'center',
+        });
+        printCanvas(paper, canvas, 'new selection created with rotation: 45');
+
+        widget.translateSelection(new paper.Point(100, 0));
+        printCanvas(paper, canvas, 'selection translated {x: 100, y: 0}');
+
+        widget.build({
+            items: [ellipse, rect],
+            rotation: 45,
+            pivot: 'center',
+        });
+        printCanvas(paper, canvas, 'new selection created with rotation: 45');
+
+        widget.rotateSelection(-45);
+        printCanvas(paper, canvas, 'selection rotated -45');
+
+        widget.build({
+            items: [ellipse, rect],
+            rotation: 0,
+            pivot: 'center',
+        });
+        printCanvas(paper, canvas, 'new selection created with rotation: 0');
+
+        widget.scaleSelection(new paper.Point(2.0, 1.0));
+        printCanvas(paper, canvas, 'selection scaled {x: 2.0, y: 1.0}');
+
+        widget.build({
+            items: [ellipse, rect],
+            rotation: 0,
+            pivot: 'center',
+        });
+        printCanvas(paper, canvas, 'new selection created with rotation: 0');
+
+        widget.translateSelection(new paper.Point(-100, 0));
+        printCanvas(paper, canvas, 'selection translated {x: -100, y: 0}');
+
+        widget.build({
+            items: [ellipse, rect],
+            rotation: 0,
+            pivot: 'center',
+        });
+        printCanvas(paper, canvas, 'new selection created with rotation: 0');
     });
 });
