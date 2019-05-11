@@ -54,7 +54,7 @@ Wick.View.Selection = class extends Wick.View {
         this._widget.build({
             rotation: this.model.rotation,
             items: this._getSelectedObjectViews(),
-            pivot: this._getSelectionPivot(),
+            pivot: null,
         });
     }
 
@@ -62,17 +62,5 @@ Wick.View.Selection = class extends Wick.View {
         return this.model.getSelectedObjects('Canvas').map(object => {
             return object.view.item || object.view.group;
         });
-    }
-
-    _getSelectionPivot () {
-        var selectedObject = this.model.getSelectedObject();
-        if(selectedObject instanceof Wick.Clip) {
-            return new paper.Point(
-                selectedObject.transformation.x,
-                selectedObject.transformation.y
-            );
-        } else {
-            return 'center';
-        }
     }
 }

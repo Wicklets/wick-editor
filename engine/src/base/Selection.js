@@ -83,6 +83,8 @@ Wick.Selection = class extends Wick.Base {
         // Add the object to the selection!
         this._selectedObjectsUUIDs.push(object.uuid);
 
+        this.rotation = 0;
+
         // Make sure the view gets updated the next time its needed...
         this.view.dirty = true;
     }
@@ -95,6 +97,8 @@ Wick.Selection = class extends Wick.Base {
         this._selectedObjectsUUIDs = this._selectedObjectsUUIDs.filter(uuid => {
             return uuid !== object.uuid;
         });
+
+        this.rotation = 0;
 
         // Make sure the view gets updated the next time its needed...
         this.view.dirty = true;

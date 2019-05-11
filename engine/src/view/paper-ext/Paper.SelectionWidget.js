@@ -17,7 +17,7 @@
  * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-SelectionWidget = class {
+class SelectionWidget {
     /**
      * Creates a SelectionWidget
      */
@@ -104,33 +104,29 @@ SelectionWidget = class {
      * Build a new SelectionWidget GUI around some items.
      * @param {number} rotation - the rotation of the selection. Optional, defaults to 0
      * @param {paper.Item[]} items - the items to build the GUI around
-     * @param {paper.Point|string} pivot
+     * @param {paper.Point} pivot - the pivot point that the selection rotates around. Defaults to (0,0)
      */
     build (args) {
         if(!args) args = {};
         if(!args.rotation) args.rotation = 0;
         if(!args.items) args.items = [];
-        if(!args.pivot) args.pivot = 'center';
+        if(!args.pivot) args.pivot = new paper.Point();
 
         this._itemsInSelection = args.items;
         this._rotation = args.rotation;
+        this._pivot = args.pivot;
 
         this._boundingBox = this._calculateBoundingBox();
 
-        // Calculate pivot/rotation point
-
-        this._pivotSetting = args.pivot;
-        if(args.pivot === 'center') {
-            this.pivot = this._boundingBox.center;
-        } else if (args.pivot instanceof paper.Point) {
-            this.pivot = args.pivot;
-        } else {
-            console.error('Paper.SelectionWidget.build(): Invalid pivot: ' + args.pivot);
-            this.pivot = new paper.Point(0,0);
-        }
-
         this.item.remove();
         this.item.removeChildren();
+
+        if(this._ghost) {
+            this._ghost.remove();
+        }
+        if(this._pivotPointHandle) {
+            this._pivotPointHandle.remove();
+        }
 
         if(this._itemsInSelection.length > 0) {
             this._buildGUI();
@@ -154,7 +150,6 @@ SelectionWidget = class {
         }
 
         this._ghost.data.initialPosition = this._ghost.position;
-        this._ghost.data.rotation = 0;
     }
 
     /**
@@ -163,8 +158,15 @@ SelectionWidget = class {
     updateTransformation (item, e) {
         if(this.currentTransformation === 'translate') {
             this._ghost.position = this._ghost.position.add(e.delta);
-        } else if (this.currentTransformation === 'scale') {
-            this._ghost.scale(1.01, this.pivot);
+        } else if(this.currentTransformation === 'scale') {
+            var lastPoint = e.point.subtract(e.delta);
+            var currentPoint = e.point;
+            var pivotToLastPointVector = lastPoint.subtract(this.pivot);
+            var pivotToCurrentPointVector = currentPoint.subtract(this.pivot);
+            pivotToLastPointVector.rotate(-this.rotation);
+            pivotToCurrentPointVector.rotate(-this.rotation);
+            var scaleAmt = pivotToCurrentPointVector.divide(pivotToLastPointVector);
+            this._ghost.scale(scaleAmt, this.pivot);
         } else if (this.currentTransformation === 'rotate') {
             var lastPoint = e.point.subtract(e.delta);
             var currentPoint = e.point;
@@ -174,7 +176,6 @@ SelectionWidget = class {
             var pivotToCurrentPointAngle = pivotToCurrentPointVector.angle;
             var rotation = pivotToCurrentPointAngle - pivotToLastPointAngle;
             this._ghost.rotate(rotation, this.pivot);
-            this._ghost.data.rotation += rotation;
             this.rotation += rotation;
         }
     }
@@ -188,8 +189,10 @@ SelectionWidget = class {
         if(this.currentTransformation === 'translate') {
             var d = this._ghost.position.subtract(this._ghost.data.initialPosition);
             this.translateSelection(d);
+        } else if(this.currentTransformation === 'scale') {
+            this.scaleSelection(this._ghost.scaling);
         } else if(this.currentTransformation === 'rotate') {
-            this.rotateSelection(this._ghost.data.rotation);
+            this.rotateSelection(this._ghost.rotation);
         }
 
         this._currentTransformation = null;
@@ -245,7 +248,8 @@ SelectionWidget = class {
         this.item.addChild(this._buildScalingHandle('leftCenter'));
         this.item.addChild(this._buildScalingHandle('rightCenter'));
 
-        this.item.addChild(this._buildOriginPointHandle());
+        this._pivotPointHandle = this._buildPivotPointHandle();
+        this.layer.addChild(this._pivotPointHandle);
 
         var center = this._calculateBoundingBoxOfItems(this._itemsInSelection).center;
         this.item.rotate(this.rotation, center);
@@ -283,7 +287,7 @@ SelectionWidget = class {
         return handle;
     }
 
-    _buildOriginPointHandle () {
+    _buildPivotPointHandle () {
         var handle = this._buildHandle({
             name: 'pivot',
             type: 'pivot',
@@ -365,10 +369,15 @@ SelectionWidget = class {
     }
 
     _buildGhost () {
-        var ghost = new paper.Group();
+        var ghost = new paper.Group({
+            insert: false,
+            applyMatrix: false,
+        });
 
         this._itemsInSelection.forEach(item => {
-            var outline = item.clone();
+            var outline = (item instanceof paper.Raster || item instanceof paper.Group)
+                ? new paper.Path.Rectangle(item.bounds)
+                : item.clone();
             outline.remove();
             outline.fillColor = 'rgba(0,0,0,0)';
             outline.strokeColor = 'rgba(0,0,0,0.5)';

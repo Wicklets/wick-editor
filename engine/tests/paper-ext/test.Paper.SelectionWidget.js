@@ -108,7 +108,6 @@ describe('Paper.SelectionWidget', function() {
         widget.build({
             items: [ellipse, rect],
             rotation: 0,
-            pivot: 'center',
         });
         printCanvas(paper, canvas, 'ellipse and rect selected');
 
@@ -118,7 +117,6 @@ describe('Paper.SelectionWidget', function() {
         widget.build({
             items: [ellipse, rect],
             rotation: 30,
-            pivot: 'center',
         });
         printCanvas(paper, canvas, 'new selection created with rotation: 45');
 
@@ -128,7 +126,6 @@ describe('Paper.SelectionWidget', function() {
         widget.build({
             items: [ellipse, rect],
             rotation: 30,
-            pivot: 'center',
         });
         printCanvas(paper, canvas, 'new selection created with rotation: 45');
 
@@ -138,7 +135,6 @@ describe('Paper.SelectionWidget', function() {
         widget.build({
             items: [ellipse, rect],
             rotation: 30,
-            pivot: 'center',
         });
         printCanvas(paper, canvas, 'new selection created with rotation: 45');
 
@@ -148,7 +144,6 @@ describe('Paper.SelectionWidget', function() {
         widget.build({
             items: [ellipse, rect],
             rotation: 0,
-            pivot: 'center',
         });
         printCanvas(paper, canvas, 'new selection created with rotation: 0');
 
@@ -158,7 +153,6 @@ describe('Paper.SelectionWidget', function() {
         widget.build({
             items: [ellipse, rect],
             rotation: 0,
-            pivot: 'center',
         });
         printCanvas(paper, canvas, 'new selection created with rotation: 0');
 
@@ -168,7 +162,6 @@ describe('Paper.SelectionWidget', function() {
         widget.build({
             items: [ellipse, rect],
             rotation: 0,
-            pivot: 'center',
         });
         printCanvas(paper, canvas, 'new selection created with rotation: 0');
     });

@@ -67066,8 +67066,9 @@ Wick.Selection = class extends Wick.Base {
     } // Add the object to the selection!
 
 
-    this._selectedObjectsUUIDs.push(object.uuid); // Make sure the view gets updated the next time its needed...
+    this._selectedObjectsUUIDs.push(object.uuid);
 
+    this.rotation = 0; // Make sure the view gets updated the next time its needed...
 
     this.view.dirty = true;
   }
@@ -67080,7 +67081,8 @@ Wick.Selection = class extends Wick.Base {
   deselect(object) {
     this._selectedObjectsUUIDs = this._selectedObjectsUUIDs.filter(uuid => {
       return uuid !== object.uuid;
-    }); // Make sure the view gets updated the next time its needed...
+    });
+    this.rotation = 0; // Make sure the view gets updated the next time its needed...
 
     this.view.dirty = true;
   }
@@ -70668,7 +70670,7 @@ Wick.Button = class extends Wick.Clip {
 * You should have received a copy of the GNU General Public License
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
-SelectionWidget = class {
+class SelectionWidget {
   /**
    * Creates a SelectionWidget
    */
@@ -70762,7 +70764,7 @@ SelectionWidget = class {
    * Build a new SelectionWidget GUI around some items.
    * @param {number} rotation - the rotation of the selection. Optional, defaults to 0
    * @param {paper.Item[]} items - the items to build the GUI around
-   * @param {paper.Point|string} pivot
+   * @param {paper.Point} pivot - the pivot point that the selection rotates around. Defaults to (0,0)
    */
 
 
@@ -70770,24 +70772,21 @@ SelectionWidget = class {
     if (!args) args = {};
     if (!args.rotation) args.rotation = 0;
     if (!args.items) args.items = [];
-    if (!args.pivot) args.pivot = 'center';
+    if (!args.pivot) args.pivot = new paper.Point();
     this._itemsInSelection = args.items;
     this._rotation = args.rotation;
-    this._boundingBox = this._calculateBoundingBox(); // Calculate pivot/rotation point
-
-    this._pivotSetting = args.pivot;
-
-    if (args.pivot === 'center') {
-      this.pivot = this._boundingBox.center;
-    } else if (args.pivot instanceof paper.Point) {
-      this.pivot = args.pivot;
-    } else {
-      console.error('Paper.SelectionWidget.build(): Invalid pivot: ' + args.pivot);
-      this.pivot = new paper.Point(0, 0);
-    }
-
+    this._pivot = args.pivot;
+    this._boundingBox = this._calculateBoundingBox();
     this.item.remove();
     this.item.removeChildren();
+
+    if (this._ghost) {
+      this._ghost.remove();
+    }
+
+    if (this._pivotPointHandle) {
+      this._pivotPointHandle.remove();
+    }
 
     if (this._itemsInSelection.length > 0) {
       this._buildGUI();
@@ -70814,7 +70813,6 @@ SelectionWidget = class {
     }
 
     this._ghost.data.initialPosition = this._ghost.position;
-    this._ghost.data.rotation = 0;
   }
   /**
    *
@@ -70825,7 +70823,15 @@ SelectionWidget = class {
     if (this.currentTransformation === 'translate') {
       this._ghost.position = this._ghost.position.add(e.delta);
     } else if (this.currentTransformation === 'scale') {
-      this._ghost.scale(1.01, this.pivot);
+      var lastPoint = e.point.subtract(e.delta);
+      var currentPoint = e.point;
+      var pivotToLastPointVector = lastPoint.subtract(this.pivot);
+      var pivotToCurrentPointVector = currentPoint.subtract(this.pivot);
+      pivotToLastPointVector.rotate(-this.rotation);
+      pivotToCurrentPointVector.rotate(-this.rotation);
+      var scaleAmt = pivotToCurrentPointVector.divide(pivotToLastPointVector);
+
+      this._ghost.scale(scaleAmt, this.pivot);
     } else if (this.currentTransformation === 'rotate') {
       var lastPoint = e.point.subtract(e.delta);
       var currentPoint = e.point;
@@ -70837,7 +70843,6 @@ SelectionWidget = class {
 
       this._ghost.rotate(rotation, this.pivot);
 
-      this._ghost.data.rotation += rotation;
       this.rotation += rotation;
     }
   }
@@ -70853,8 +70858,10 @@ SelectionWidget = class {
       var d = this._ghost.position.subtract(this._ghost.data.initialPosition);
 
       this.translateSelection(d);
+    } else if (this.currentTransformation === 'scale') {
+      this.scaleSelection(this._ghost.scaling);
     } else if (this.currentTransformation === 'rotate') {
-      this.rotateSelection(this._ghost.data.rotation);
+      this.rotateSelection(this._ghost.rotation);
     }
 
     this._currentTransformation = null;
@@ -70911,7 +70918,8 @@ SelectionWidget = class {
     this.item.addChild(this._buildScalingHandle('bottomCenter'));
     this.item.addChild(this._buildScalingHandle('leftCenter'));
     this.item.addChild(this._buildScalingHandle('rightCenter'));
-    this.item.addChild(this._buildOriginPointHandle());
+    this._pivotPointHandle = this._buildPivotPointHandle();
+    this.layer.addChild(this._pivotPointHandle);
 
     var center = this._calculateBoundingBoxOfItems(this._itemsInSelection).center;
 
@@ -70950,7 +70958,7 @@ SelectionWidget = class {
     return handle;
   }
 
-  _buildOriginPointHandle() {
+  _buildPivotPointHandle() {
     var handle = this._buildHandle({
       name: 'pivot',
       type: 'pivot',
@@ -71019,10 +71027,13 @@ SelectionWidget = class {
   }
 
   _buildGhost() {
-    var ghost = new paper.Group();
+    var ghost = new paper.Group({
+      insert: false,
+      applyMatrix: false
+    });
 
     this._itemsInSelection.forEach(item => {
-      var outline = item.clone();
+      var outline = item instanceof paper.Raster || item instanceof paper.Group ? new paper.Path.Rectangle(item.bounds) : item.clone();
       outline.remove();
       outline.fillColor = 'rgba(0,0,0,0)';
       outline.strokeColor = 'rgba(0,0,0,0.5)';
@@ -71058,7 +71069,9 @@ SelectionWidget = class {
     return bounds || new paper.Rectangle();
   }
 
-};
+}
+
+;
 SelectionWidget.BOX_STROKE_WIDTH = 1;
 SelectionWidget.BOX_STROKE_COLOR = 'rgba(100,150,255,1.0)';
 SelectionWidget.HANDLE_RADIUS = 5;
@@ -71849,10 +71862,10 @@ Wick.Tools.Cursor = class extends Wick.Tool {
     this.CURSOR_SCALE_TOP_LEFT_BOTTOM_RIGHT = 'cursors/scale-top-left-bottom-right.png';
     this.CURSOR_SCALE_VERTICAL = 'cursors/scale-vertical.png';
     this.CURSOR_SCALE_HORIZONTAL = 'cursors/scale-horizontal.png';
-    this.CURSOR_ROTATE_TOP = 'cursors/rotate-top.png';
-    this.CURSOR_ROTATE_RIGHT = 'cursors/rotate-right.png';
-    this.CURSOR_ROTATE_BOTTOM = 'cursors/rotate-bottom.png';
-    this.CURSOR_ROTATE_LEFT = 'cursors/rotate-left.png';
+    this.CURSOR_ROTATE_TOP = 'cursors/rotate-top-right.png';
+    this.CURSOR_ROTATE_RIGHT = 'cursors/rotate-bottom-right.png';
+    this.CURSOR_ROTATE_BOTTOM = 'cursors/rotate-bottom-left.png';
+    this.CURSOR_ROTATE_LEFT = 'cursors/rotate-top-left.png';
     this.CURSOR_ROTATE_TOP_RIGHT = 'cursors/rotate-top-right.png';
     this.CURSOR_ROTATE_TOP_LEFT = 'cursors/rotate-top-left.png';
     this.CURSOR_ROTATE_BOTTOM_RIGHT = 'cursors/rotate-bottom-right.png';
@@ -73963,7 +73976,7 @@ Wick.View.Selection = class extends Wick.View {
     this._widget.build({
       rotation: this.model.rotation,
       items: this._getSelectedObjectViews(),
-      pivot: this._getSelectionPivot()
+      pivot: null
     });
   }
 
@@ -73971,16 +73984,6 @@ Wick.View.Selection = class extends Wick.View {
     return this.model.getSelectedObjects('Canvas').map(object => {
       return object.view.item || object.view.group;
     });
-  }
-
-  _getSelectionPivot() {
-    var selectedObject = this.model.getSelectedObject();
-
-    if (selectedObject instanceof Wick.Clip) {
-      return new paper.Point(selectedObject.transformation.x, selectedObject.transformation.y);
-    } else {
-      return 'center';
-    }
   }
 
 };
