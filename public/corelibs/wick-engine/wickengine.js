@@ -70814,6 +70814,7 @@ SelectionWidget = class {
     }
 
     this._ghost.data.initialPosition = this._ghost.position;
+    this._ghost.data.rotation = 0;
   }
   /**
    *
@@ -70826,7 +70827,18 @@ SelectionWidget = class {
     } else if (this.currentTransformation === 'scale') {
       this._ghost.scale(1.01, this.pivot);
     } else if (this.currentTransformation === 'rotate') {
-      this._ghost.rotate(1, this.pivot);
+      var lastPoint = e.point.subtract(e.delta);
+      var currentPoint = e.point;
+      var pivotToLastPointVector = lastPoint.subtract(this.pivot);
+      var pivotToCurrentPointVector = currentPoint.subtract(this.pivot);
+      var pivotToLastPointAngle = pivotToLastPointVector.angle;
+      var pivotToCurrentPointAngle = pivotToCurrentPointVector.angle;
+      var rotation = pivotToCurrentPointAngle - pivotToLastPointAngle;
+
+      this._ghost.rotate(rotation, this.pivot);
+
+      this._ghost.data.rotation += rotation;
+      this.rotation += rotation;
     }
   }
   /**
@@ -70841,6 +70853,8 @@ SelectionWidget = class {
       var d = this._ghost.position.subtract(this._ghost.data.initialPosition);
 
       this.translateSelection(d);
+    } else if (this.currentTransformation === 'rotate') {
+      this.rotateSelection(this._ghost.data.rotation);
     }
 
     this._currentTransformation = null;
@@ -72015,6 +72029,8 @@ Wick.Tools.Cursor = class extends Wick.Tool {
       });
       this.fireEvent('canvasModified');
     } else if (this._selection.numObjects > 0) {
+      this.project.selection.rotation = this._widget.rotation;
+
       this._widget.finishTransformation();
 
       this.fireEvent('canvasModified');

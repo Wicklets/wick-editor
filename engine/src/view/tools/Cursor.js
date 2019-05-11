@@ -30,10 +30,10 @@ Wick.Tools.Cursor = class extends Wick.Tool {
         this.CURSOR_SCALE_TOP_LEFT_BOTTOM_RIGHT = 'cursors/scale-top-left-bottom-right.png';
         this.CURSOR_SCALE_VERTICAL = 'cursors/scale-vertical.png';
         this.CURSOR_SCALE_HORIZONTAL = 'cursors/scale-horizontal.png';
-        this.CURSOR_ROTATE_TOP = 'cursors/rotate-top.png';
-        this.CURSOR_ROTATE_RIGHT = 'cursors/rotate-right.png';
-        this.CURSOR_ROTATE_BOTTOM = 'cursors/rotate-bottom.png';
-        this.CURSOR_ROTATE_LEFT = 'cursors/rotate-left.png';
+        this.CURSOR_ROTATE_TOP = 'cursors/rotate-top-right.png';
+        this.CURSOR_ROTATE_RIGHT = 'cursors/rotate-bottom-right.png';
+        this.CURSOR_ROTATE_BOTTOM = 'cursors/rotate-bottom-left.png';
+        this.CURSOR_ROTATE_LEFT = 'cursors/rotate-top-left.png';
         this.CURSOR_ROTATE_TOP_RIGHT = 'cursors/rotate-top-right.png';
         this.CURSOR_ROTATE_TOP_LEFT = 'cursors/rotate-top-left.png';
         this.CURSOR_ROTATE_BOTTOM_RIGHT = 'cursors/rotate-bottom-right.png';
@@ -214,6 +214,7 @@ Wick.Tools.Cursor = class extends Wick.Tool {
             });
             this.fireEvent('canvasModified');
         } else if (this._selection.numObjects > 0) {
+            this.project.selection.rotation = this._widget.rotation;
             this._widget.finishTransformation();
             this.fireEvent('canvasModified');
         }
