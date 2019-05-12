@@ -65007,7 +65007,7 @@ TWEEN.Interpolation = {
  */
 Wick = {
   /* Major.Minor.Patch[ReleaseType] */
-  version: "1.0.9a"
+  version: "1.0.10a"
 };
 console.log("Wick Engine " + Wick.version + " is available."); // Ensure that the Wick namespace is accessible in environments where globals are finicky (react, webpack, etc)
 
@@ -67022,18 +67022,30 @@ Wick.Selection = class extends Wick.Base {
     super(args);
     this._selectedObjectsUUIDs = args.selectedObjects || [];
     this._rotation = args.rotation || 0;
+    this._pivotPoint = {
+      x: 0,
+      y: 0
+    };
   }
 
   deserialize(data) {
     super.deserialize(data);
     this._selectedObjectsUUIDs = data.selectedObjects || [];
     this._rotation = data.rotation;
+    this._pivotPoint = {
+      x: data.pivotPoint.x,
+      y: data.pivotPoint.y
+    };
   }
 
   serialize(args) {
     var data = super.serialize(args);
     data.selectedObjects = Array.from(this._selectedObjectsUUIDs);
-    data.rotation = this.rotation;
+    data.rotation = this._rotation;
+    data.pivotPoint = {
+      x: this._pivotPoint.x,
+      y: this._pivotPoint.y
+    };
     return data;
   }
 
@@ -67068,7 +67080,8 @@ Wick.Selection = class extends Wick.Base {
 
     this._selectedObjectsUUIDs.push(object.uuid);
 
-    this.rotation = 0; // Make sure the view gets updated the next time its needed...
+    this.rotation = 0;
+    this.pivotPoint = this._calculatePivotPoint(); // Make sure the view gets updated the next time its needed...
 
     this.view.dirty = true;
   }
@@ -67082,7 +67095,8 @@ Wick.Selection = class extends Wick.Base {
     this._selectedObjectsUUIDs = this._selectedObjectsUUIDs.filter(uuid => {
       return uuid !== object.uuid;
     });
-    this.rotation = 0; // Make sure the view gets updated the next time its needed...
+    this.rotation = 0;
+    this.pivotPoint = this._calculatePivotPoint(); // Make sure the view gets updated the next time its needed...
 
     this.view.dirty = true;
   }
@@ -67204,6 +67218,19 @@ Wick.Selection = class extends Wick.Base {
   set rotation(rotation) {
     this._rotation = rotation;
   }
+  /**
+   * The point that transformations to the selection will be based around.
+   * @type {object}
+   */
+
+
+  get pivotPoint() {
+    return this._pivotPoint;
+  }
+
+  set pivotPoint(pivotPoint) {
+    this._pivotPoint = pivotPoint;
+  }
 
   _locationOf(object) {
     if (object instanceof Wick.Frame || object instanceof Wick.Tween || object instanceof Wick.Layer) {
@@ -67213,6 +67240,15 @@ Wick.Selection = class extends Wick.Base {
     } else if (object instanceof Wick.Path || object instanceof Wick.Clip) {
       return 'Canvas';
     }
+  }
+
+  _calculatePivotPoint() {
+    var boundsCenter = this.view._getSelectedObjectsBounds().center;
+
+    return {
+      x: boundsCenter.x,
+      y: boundsCenter.y
+    };
   }
 
 };
@@ -70789,6 +70825,8 @@ class SelectionWidget {
     }
 
     if (this._itemsInSelection.length > 0) {
+      this._center = this._calculateBoundingBoxOfItems(this._itemsInSelection).center;
+
       this._buildGUI();
 
       this.layer.addChild(this.item);
@@ -70813,6 +70851,7 @@ class SelectionWidget {
     }
 
     this._ghost.data.initialPosition = this._ghost.position;
+    this._ghost.data.scale = new paper.Point(1, 1);
   }
   /**
    *
@@ -70822,16 +70861,23 @@ class SelectionWidget {
   updateTransformation(item, e) {
     if (this.currentTransformation === 'translate') {
       this._ghost.position = this._ghost.position.add(e.delta);
+      this.pivot = this.pivot.add(e.delta);
     } else if (this.currentTransformation === 'scale') {
       var lastPoint = e.point.subtract(e.delta);
       var currentPoint = e.point;
+      lastPoint = lastPoint.rotate(-this.rotation, this.pivot);
+      currentPoint = currentPoint.rotate(-this.rotation, this.pivot);
       var pivotToLastPointVector = lastPoint.subtract(this.pivot);
       var pivotToCurrentPointVector = currentPoint.subtract(this.pivot);
-      pivotToLastPointVector.rotate(-this.rotation);
-      pivotToCurrentPointVector.rotate(-this.rotation);
       var scaleAmt = pivotToCurrentPointVector.divide(pivotToLastPointVector);
+      this._ghost.data.scale = this._ghost.data.scale.multiply(scaleAmt);
+      this._ghost.matrix = new paper.Matrix();
 
-      this._ghost.scale(scaleAmt, this.pivot);
+      this._ghost.rotate(-this.rotation);
+
+      this._ghost.scale(this._ghost.data.scale.x, this._ghost.data.scale.y, this.pivot);
+
+      this._ghost.rotate(this.rotation);
     } else if (this.currentTransformation === 'rotate') {
       var lastPoint = e.point.subtract(e.delta);
       var currentPoint = e.point;
@@ -70852,6 +70898,8 @@ class SelectionWidget {
 
 
   finishTransformation(item) {
+    if (!this._currentTransformation) return;
+
     this._ghost.remove();
 
     if (this.currentTransformation === 'translate') {
@@ -70859,7 +70907,7 @@ class SelectionWidget {
 
       this.translateSelection(d);
     } else if (this.currentTransformation === 'scale') {
-      this.scaleSelection(this._ghost.scaling);
+      this.scaleSelection(this._ghost.data.scale);
     } else if (this.currentTransformation === 'rotate') {
       this.rotateSelection(this._ghost.rotation);
     }
@@ -70920,10 +70968,7 @@ class SelectionWidget {
     this.item.addChild(this._buildScalingHandle('rightCenter'));
     this._pivotPointHandle = this._buildPivotPointHandle();
     this.layer.addChild(this._pivotPointHandle);
-
-    var center = this._calculateBoundingBoxOfItems(this._itemsInSelection).center;
-
-    this.item.rotate(this.rotation, center);
+    this.item.rotate(this.rotation, this._center);
     this.item.children.forEach(child => {
       child.data.isSelectionBoxGUI = true;
     });
@@ -70984,11 +71029,9 @@ class SelectionWidget {
       strokeColor: args.strokeColor,
       fillColor: args.fillColor,
       insert: false
-    }); // Transform the handle a bit so it doesn't get squished when the selection box is scaled.
-
-    circle.applyMatrix = false; //circle.scaling.x = 1 / this.scaleX;
-    //circle.scaling.y = 1 / this.scaleY;
-
+    });
+    circle.applyMatrix = false;
+    circle.data.isSelectionBoxGUI = true;
     circle.data.handleType = args.type;
     circle.data.handleEdge = args.name;
     return circle;
@@ -71014,12 +71057,7 @@ class SelectionWidget {
       'bottomRight': 90,
       'bottomLeft': 180,
       'topLeft': 270
-    }[cornerName]); //if(this.scaleX < 0) hotspot.scaling.x = -1;
-    //if(this.scaleY < 0) hotspot.scaling.y = -1;
-    // Transform the hotspots a bit so they doesn't get squished when the selection box is scaled.
-    //hotspot.scaling.x = 1 / this.scaleX;
-    //hotspot.scaling.y = 1 / this.scaleY;
-    // Some metadata.
+    }[cornerName]); // Some metadata.
 
     hotspot.data.handleType = 'rotation';
     hotspot.data.handleEdge = cornerName;
@@ -71036,11 +71074,21 @@ class SelectionWidget {
       var outline = item instanceof paper.Raster || item instanceof paper.Group ? new paper.Path.Rectangle(item.bounds) : item.clone();
       outline.remove();
       outline.fillColor = 'rgba(0,0,0,0)';
-      outline.strokeColor = 'rgba(0,0,0,0.5)';
-      outline.strokeWidth = 1;
+      outline.strokeColor = SelectionWidget.GHOST_STROKE_COLOR;
+      outline.strokeWidth = SelectionWidget.GHOST_STROKE_WIDTH;
       ghost.addChild(outline);
     });
 
+    var boundsOutline = new paper.Path.Rectangle({
+      from: this.boundingBox.topLeft,
+      to: this.boundingBox.bottomRight,
+      fillColor: 'rgba(0,0,0,0)',
+      strokeColor: SelectionWidget.GHOST_STROKE_COLOR,
+      strokeWidth: SelectionWidget.GHOST_STROKE_WIDTH,
+      applyMatrix: false
+    });
+    boundsOutline.rotate(this.rotation, this._center);
+    ghost.addChild(boundsOutline);
     return ghost;
   }
 
@@ -71084,6 +71132,8 @@ SelectionWidget.PIVOT_STROKE_COLOR = 'rgba(0,0,0,1)';
 SelectionWidget.PIVOT_RADIUS = SelectionWidget.HANDLE_RADIUS;
 SelectionWidget.ROTATION_HOTSPOT_RADIUS = 20;
 SelectionWidget.ROTATION_HOTSPOT_FILLCOLOR = 'rgba(100,150,255,0.5)';
+SelectionWidget.GHOST_STROKE_COLOR = 'rgba(0, 0, 0, 0.5)';
+SelectionWidget.GHOST_STROKE_WIDTH = 1;
 paper.PaperScope.inject({
   SelectionWidget: SelectionWidget
 });
@@ -73970,13 +74020,17 @@ Wick.View.Selection = class extends Wick.View {
 
   applyChanges() {
     this.model.rotation = this.widget.rotation;
+    this.model.pivotPoint = {
+      x: this.widget.pivot.x,
+      y: this.widget.pivot.y
+    };
   }
 
   _renderSVG() {
     this._widget.build({
       rotation: this.model.rotation,
       items: this._getSelectedObjectViews(),
-      pivot: null
+      pivot: new paper.Point(this.model.pivotPoint.x, this.model.pivotPoint.y)
     });
   }
 
@@ -73984,6 +74038,10 @@ Wick.View.Selection = class extends Wick.View {
     return this.model.getSelectedObjects('Canvas').map(object => {
       return object.view.item || object.view.group;
     });
+  }
+
+  _getSelectedObjectsBounds() {
+    return this.widget._calculateBoundingBoxOfItems(this._getSelectedObjectViews());
   }
 
 };

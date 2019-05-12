@@ -48,13 +48,17 @@ Wick.View.Selection = class extends Wick.View {
      */
     applyChanges () {
         this.model.rotation = this.widget.rotation;
+        this.model.pivotPoint = {
+            x: this.widget.pivot.x,
+            y: this.widget.pivot.y,
+        };
     }
 
     _renderSVG () {
         this._widget.build({
             rotation: this.model.rotation,
             items: this._getSelectedObjectViews(),
-            pivot: null,
+            pivot: new paper.Point(this.model.pivotPoint.x, this.model.pivotPoint.y),
         });
     }
 
@@ -62,5 +66,9 @@ Wick.View.Selection = class extends Wick.View {
         return this.model.getSelectedObjects('Canvas').map(object => {
             return object.view.item || object.view.group;
         });
+    }
+
+    _getSelectedObjectsBounds () {
+        return this.widget._calculateBoundingBoxOfItems(this._getSelectedObjectViews());
     }
 }

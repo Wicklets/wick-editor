@@ -129,6 +129,7 @@ class SelectionWidget {
         }
 
         if(this._itemsInSelection.length > 0) {
+            this._center = this._calculateBoundingBoxOfItems(this._itemsInSelection).center;
             this._buildGUI();
             this.layer.addChild(this.item);
         }
@@ -150,6 +151,7 @@ class SelectionWidget {
         }
 
         this._ghost.data.initialPosition = this._ghost.position;
+        this._ghost.data.scale = new paper.Point(1,1);
     }
 
     /**
@@ -158,15 +160,21 @@ class SelectionWidget {
     updateTransformation (item, e) {
         if(this.currentTransformation === 'translate') {
             this._ghost.position = this._ghost.position.add(e.delta);
+            this.pivot = this.pivot.add(e.delta);
         } else if(this.currentTransformation === 'scale') {
             var lastPoint = e.point.subtract(e.delta);
             var currentPoint = e.point;
+            lastPoint = lastPoint.rotate(-this.rotation, this.pivot);
+            currentPoint = currentPoint.rotate(-this.rotation, this.pivot);
             var pivotToLastPointVector = lastPoint.subtract(this.pivot);
             var pivotToCurrentPointVector = currentPoint.subtract(this.pivot);
-            pivotToLastPointVector.rotate(-this.rotation);
-            pivotToCurrentPointVector.rotate(-this.rotation);
             var scaleAmt = pivotToCurrentPointVector.divide(pivotToLastPointVector);
-            this._ghost.scale(scaleAmt, this.pivot);
+            this._ghost.data.scale = this._ghost.data.scale.multiply(scaleAmt);
+
+            this._ghost.matrix = new paper.Matrix();
+            this._ghost.rotate(-this.rotation);
+            this._ghost.scale(this._ghost.data.scale.x, this._ghost.data.scale.y, this.pivot);
+            this._ghost.rotate(this.rotation);
         } else if (this.currentTransformation === 'rotate') {
             var lastPoint = e.point.subtract(e.delta);
             var currentPoint = e.point;
@@ -184,13 +192,15 @@ class SelectionWidget {
      *
      */
     finishTransformation (item) {
+        if(!this._currentTransformation) return;
+
         this._ghost.remove();
 
         if(this.currentTransformation === 'translate') {
             var d = this._ghost.position.subtract(this._ghost.data.initialPosition);
             this.translateSelection(d);
         } else if(this.currentTransformation === 'scale') {
-            this.scaleSelection(this._ghost.scaling);
+            this.scaleSelection(this._ghost.data.scale);
         } else if(this.currentTransformation === 'rotate') {
             this.rotateSelection(this._ghost.rotation);
         }
@@ -251,8 +261,7 @@ class SelectionWidget {
         this._pivotPointHandle = this._buildPivotPointHandle();
         this.layer.addChild(this._pivotPointHandle);
 
-        var center = this._calculateBoundingBoxOfItems(this._itemsInSelection).center;
-        this.item.rotate(this.rotation, center);
+        this.item.rotate(this.rotation, this._center);
 
         this.item.children.forEach(child => {
             child.data.isSelectionBoxGUI = true;
@@ -314,10 +323,8 @@ class SelectionWidget {
             fillColor: args.fillColor,
             insert: false,
         });
-        // Transform the handle a bit so it doesn't get squished when the selection box is scaled.
         circle.applyMatrix = false;
-        //circle.scaling.x = 1 / this.scaleX;
-        //circle.scaling.y = 1 / this.scaleY;
+        circle.data.isSelectionBoxGUI = true;
         circle.data.handleType = args.type;
         circle.data.handleEdge = args.name;
         return circle;
@@ -354,12 +361,6 @@ class SelectionWidget {
             'bottomLeft': 180,
             'topLeft': 270,
         }[cornerName]);
-        //if(this.scaleX < 0) hotspot.scaling.x = -1;
-        //if(this.scaleY < 0) hotspot.scaling.y = -1;
-
-        // Transform the hotspots a bit so they doesn't get squished when the selection box is scaled.
-        //hotspot.scaling.x = 1 / this.scaleX;
-        //hotspot.scaling.y = 1 / this.scaleY;
 
         // Some metadata.
         hotspot.data.handleType = 'rotation';
@@ -380,10 +381,21 @@ class SelectionWidget {
                 : item.clone();
             outline.remove();
             outline.fillColor = 'rgba(0,0,0,0)';
-            outline.strokeColor = 'rgba(0,0,0,0.5)';
-            outline.strokeWidth = 1;
+            outline.strokeColor = SelectionWidget.GHOST_STROKE_COLOR;
+            outline.strokeWidth = SelectionWidget.GHOST_STROKE_WIDTH;
             ghost.addChild(outline);
-        })
+        });
+
+        var boundsOutline = new paper.Path.Rectangle({
+            from: this.boundingBox.topLeft,
+            to: this.boundingBox.bottomRight,
+            fillColor: 'rgba(0,0,0,0)',
+            strokeColor: SelectionWidget.GHOST_STROKE_COLOR,
+            strokeWidth: SelectionWidget.GHOST_STROKE_WIDTH,
+            applyMatrix: false,
+        });
+        boundsOutline.rotate(this.rotation, this._center);
+        ghost.addChild(boundsOutline);
 
         return ghost;
     }
@@ -426,6 +438,8 @@ SelectionWidget.PIVOT_STROKE_COLOR = 'rgba(0,0,0,1)';
 SelectionWidget.PIVOT_RADIUS = SelectionWidget.HANDLE_RADIUS
 SelectionWidget.ROTATION_HOTSPOT_RADIUS = 20;
 SelectionWidget.ROTATION_HOTSPOT_FILLCOLOR = 'rgba(100,150,255,0.5)';
+SelectionWidget.GHOST_STROKE_COLOR = 'rgba(0, 0, 0, 0.5)';
+SelectionWidget.GHOST_STROKE_WIDTH = 1;
 
 paper.PaperScope.inject({
     SelectionWidget: SelectionWidget,

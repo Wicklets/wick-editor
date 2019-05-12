@@ -38,18 +38,27 @@ Wick.Selection = class extends Wick.Base {
 
         this._selectedObjectsUUIDs = args.selectedObjects || [];
         this._rotation = args.rotation || 0;
+        this._pivotPoint = {x: 0, y: 0};
     }
 
     deserialize (data) {
         super.deserialize(data);
         this._selectedObjectsUUIDs = data.selectedObjects || [];
         this._rotation = data.rotation;
+        this._pivotPoint = {
+            x: data.pivotPoint.x,
+            y: data.pivotPoint.y
+        };
     }
 
     serialize (args) {
         var data = super.serialize(args);
         data.selectedObjects = Array.from(this._selectedObjectsUUIDs);
-        data.rotation = this.rotation;
+        data.rotation = this._rotation;
+        data.pivotPoint = {
+            x: this._pivotPoint.x,
+            y: this._pivotPoint.y
+        };
         return data;
     }
 
@@ -84,6 +93,7 @@ Wick.Selection = class extends Wick.Base {
         this._selectedObjectsUUIDs.push(object.uuid);
 
         this.rotation = 0;
+        this.pivotPoint = this._calculatePivotPoint();
 
         // Make sure the view gets updated the next time its needed...
         this.view.dirty = true;
@@ -99,6 +109,7 @@ Wick.Selection = class extends Wick.Base {
         });
 
         this.rotation = 0;
+        this.pivotPoint = this._calculatePivotPoint();
 
         // Make sure the view gets updated the next time its needed...
         this.view.dirty = true;
@@ -212,6 +223,18 @@ Wick.Selection = class extends Wick.Base {
         this._rotation = rotation;
     }
 
+    /**
+     * The point that transformations to the selection will be based around.
+     * @type {object}
+     */
+    get pivotPoint () {
+        return this._pivotPoint;
+    }
+
+    set pivotPoint (pivotPoint) {
+        this._pivotPoint = pivotPoint;
+    }
+
     _locationOf (object) {
         if(object instanceof Wick.Frame
         || object instanceof Wick.Tween
@@ -223,5 +246,13 @@ Wick.Selection = class extends Wick.Base {
                 || object instanceof Wick.Clip) {
             return 'Canvas';
         }
+    }
+
+    _calculatePivotPoint () {
+        var boundsCenter = this.view._getSelectedObjectsBounds().center;
+        return {
+            x: boundsCenter.x,
+            y: boundsCenter.y,
+        };
     }
 }
