@@ -33,8 +33,6 @@ Wick.Path = class extends Wick.Base {
             this.json = args.json;
         } else if (args.asset) {
             this.asset = args.asset;
-        } else {
-            console.warn('Warning: Paths require either "json" or "asset" to be passed in as args');
         }
     }
 
@@ -62,12 +60,6 @@ Wick.Path = class extends Wick.Base {
     }
 
     set json (json) {
-        if(json[1].applyMatrix === false && json[0] !== 'Raster') {
-            console.log(json)
-            console.error('Path JSON had applyMatrix set to false. This should never happen - check paper.Selection')
-            console.error('Forcing path JSON to applyMatrix=true.')
-            json[1].applyMatrix = true;
-        }
         this._json = json;
         this.view.render();
     }
@@ -136,6 +128,7 @@ Wick.Path = class extends Wick.Base {
 
     set x (x) {
         this.view.item.position.x = x;
+        this.json = this.view.exportJSON();
     }
 
     /**
@@ -147,6 +140,7 @@ Wick.Path = class extends Wick.Base {
 
     set y (y) {
         this.view.item.position.y = y;
+        this.json = this.view.exportJSON();
     }
 
     /**

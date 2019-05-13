@@ -228,6 +228,7 @@ class Editor extends EditorCore {
 
     if(!this.state.previewPlaying && prevState.previewPlaying) {
       this.project.stop();
+      this.projectDidChange();
     }
   }
 
@@ -452,7 +453,7 @@ class Editor extends EditorCore {
 
     if (errors.length > 0) {
       let uuid = errors[0].uuid;
-      let obj = this.project.getChildByUUID(uuid);
+      let obj = window.Wick.ObjectCache.getObjectByUUID(uuid);
       this.setFocusObject(obj.parentClip);
       this.selectObject(obj)
       this.projectDidChange();

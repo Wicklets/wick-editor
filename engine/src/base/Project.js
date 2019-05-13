@@ -774,7 +774,7 @@ Wick.Project = class extends Wick.Base {
 
             this.view.render();
             paper.view.update();
-            frameImage.src = project.view.canvas.toDataURL(args.imageType || 'image/png');
+            frameImage.src = this.view.canvas.toDataURL(args.imageType || 'image/png');
         }
 
         renderFrame();

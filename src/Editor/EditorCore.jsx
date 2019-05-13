@@ -1030,6 +1030,8 @@ class EditorCore extends Component {
       codeErrors: errors === undefined ? [] : errors,
     });
 
+    this.projectDidChange();
+
     if (errors) {
       this.showCodeErrors(errors);
     }
