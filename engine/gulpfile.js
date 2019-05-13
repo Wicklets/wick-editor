@@ -55,6 +55,7 @@ gulp.task('default', function() {
             'src/base/tickable/clip/Button.js',
             'src/view/paper-ext/Layer.erase.js',
             'src/view/paper-ext/Layer.hole.js',
+            'src/view/paper-ext/Paper.OrderingUtils.js',
             'src/view/paper-ext/Paper.SelectionWidget.js',
             'src/view/paper-ext/Paper.SelectionBox.js',
             'src/view/paper-ext/Path.potrace.js',

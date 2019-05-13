@@ -12,7 +12,7 @@ describe('Wick.Tools.Pencil', function() {
 
         project.view.on('canvasModified', function (e) {
             expect(project.activeFrame.paths.length).to.equal(1);
-            expect(project.activeFrame.paths[0].view.item.bounds.area).to.be.closeTo(50*50, 100);
+            expect(project.activeFrame.paths[0].view.item.bounds.area).to.be.closeTo(50*50, 150);
             done();
         });
 

@@ -17,13 +17,13 @@
  * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-class Ordering {
+class PaperJSOrderingUtils {
     /**
      * Moves the selected items forwards.
      */
-    moveForwards () {
-        paper.Selection._sortItemsByLayer(this._items).forEach(items => {
-            paper.Selection._sortItemsByZIndex(items).reverse().forEach(item => {
+    moveForwards (items) {
+        PaperJSOrderingUtils._sortItemsByLayer(items).forEach(layerItems => {
+            PaperJSOrderingUtils._sortItemsByZIndex(layerItems).reverse().forEach(item => {
                 if(item.nextSibling && this._items.indexOf(item.nextSibling) === -1) {
                     item.insertAbove(item.nextSibling);
                 }
@@ -34,9 +34,9 @@ class Ordering {
     /**
      * Moves the selected items backwards.
      */
-    moveBackwards () {
-        paper.Selection._sortItemsByLayer(this._items).forEach(items => {
-            paper.Selection._sortItemsByZIndex(items).forEach(item => {
+    moveBackwards (items) {
+        PaperJSOrderingUtils._sortItemsByLayer(items).forEach(layerItems => {
+            PaperJSOrderingUtils._sortItemsByZIndex(layerItems).forEach(item => {
                 if(item.previousSibling && this._items.indexOf(item.previousSibling) === -1) {
                     item.insertBelow(item.previousSibling);
                 }
@@ -47,9 +47,9 @@ class Ordering {
     /**
      * Brings the selected objects to the front.
      */
-    bringToFront () {
-        paper.Selection._sortItemsByLayer(this._items).forEach(items => {
-            paper.Selection._sortItemsByZIndex(items).forEach(item => {
+    bringToFront (items) {
+        PaperJSOrderingUtils._sortItemsByLayer(items).forEach(layerItems => {
+            PaperJSOrderingUtils._sortItemsByZIndex(layerItems).forEach(item => {
                 item.bringToFront();
             });
         });
@@ -58,15 +58,14 @@ class Ordering {
     /**
      * Sends the selected objects to the back.
      */
-    sendToBack () {
-        paper.Selection._sortItemsByLayer(this._items).forEach(items => {
-            paper.Selection._sortItemsByZIndex(items).reverse().forEach(item => {
+    sendToBack (items) {
+        PaperJSOrderingUtils._sortItemsByLayer(items).forEach(layerItems => {
+            PaperJSOrderingUtils._sortItemsByZIndex(layerItems).reverse().forEach(item => {
                 item.sendToBack();
             });
         });
     }
 
-    /* helper function for ordering */
     static _sortItemsByLayer (items) {
         var layerLists = {};
 
@@ -89,7 +88,6 @@ class Ordering {
         return layerItemsArrays;
     }
 
-    /* helper function for ordering */
     static _sortItemsByZIndex (items) {
         return items.sort(function (a,b) {
             return a.index - b.index;
@@ -98,5 +96,5 @@ class Ordering {
 };
 
 paper.PaperScope.inject({
-    Ordering: Ordering,
+    OrderingUtils: PaperJSOrderingUtils,
 });

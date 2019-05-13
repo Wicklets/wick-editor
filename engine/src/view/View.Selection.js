@@ -129,7 +129,7 @@ Wick.View.Selection = class extends Wick.View {
      *
      */
     sendToBack () {
-        paper.Ordering.sendToBack(this._getSelectedObjectViews());
+        paper.OrderingUtils.sendToBack(this._getSelectedObjectViews());
         console.warn('somehow apply changes here')
     }
 
@@ -137,7 +137,7 @@ Wick.View.Selection = class extends Wick.View {
      *
      */
     bringToFront () {
-        paper.Ordering.bringToFront(this._getSelectedObjectViews());
+        paper.OrderingUtils.bringToFront(this._getSelectedObjectViews());
         console.warn('somehow apply changes here')
     }
 
@@ -145,7 +145,7 @@ Wick.View.Selection = class extends Wick.View {
      *
      */
     moveForwards () {
-        paper.Ordering.moveForwards(this._getSelectedObjectViews());
+        paper.OrderingUtils.moveForwards(this._getSelectedObjectViews());
         console.warn('somehow apply changes here')
     }
 
@@ -153,7 +153,7 @@ Wick.View.Selection = class extends Wick.View {
      *
      */
     moveBackwards () {
-        paper.Ordering.moveBackwards(this._getSelectedObjectViews());
+        paper.OrderingUtils.moveBackwards(this._getSelectedObjectViews());
         console.warn('somehow apply changes here')
     }
 
