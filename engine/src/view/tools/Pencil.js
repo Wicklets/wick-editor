@@ -19,7 +19,7 @@
 
 Wick.Tools.Pencil = class extends Wick.Tool {
     static get MIN_ADD_POINT_MOVEMENT () {
-        return 10;
+        return 5;
     }
 
     /**
@@ -78,6 +78,7 @@ Wick.Tools.Pencil = class extends Wick.Tool {
 
     onMouseUp (e) {
         this.path.add(e.point);
+        this.path.simplify();
         this.path = null;
         this.fireEvent('canvasModified');
     }
