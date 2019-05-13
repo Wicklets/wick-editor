@@ -48,14 +48,14 @@ class SelectionWidget {
     }
 
     /**
-     *
+     * The rotation of the selection box GUI.
      */
-    get rotation () {
-        return this._rotation;
+    get boxRotation () {
+        return this._boxRotation;
     }
 
-    set rotation (rotation) {
-        this._rotation = rotation;
+    set boxRotation (boxRotation) {
+        this._boxRotation = boxRotation;
     }
 
     /**
@@ -74,6 +74,68 @@ class SelectionWidget {
 
     set pivot (pivot) {
         this._pivot = pivot;
+    }
+
+    /**
+     * The position of the top left corner of the selection box.
+     */
+    get position () {
+        return this._boundingBox.topLeft.rotate(this.rotation, this.pivot);
+    }
+
+    set position (position) {
+        var d = position.subtract(this.position);
+        this.translateSelection(d);
+    }
+
+    /**
+     * The width of the selection.
+     */
+    get width () {
+        return this._boundingBox.width;
+    }
+
+    set width (width) {
+        var d = width / this.width;
+        this.scaleSelection(new paper.Point(d, 1.0));
+    }
+
+    /**
+     * The height of the selection.
+     */
+    get height () {
+        return this._boundingBox.height;
+    }
+
+    set height (height) {
+        var d = height / this.height;
+        this.scaleSelection(new paper.Point(1.0, d));
+    }
+
+    /**
+     * The rotation of the selection.
+     */
+    get rotation () {
+        return this._boxRotation;
+    }
+
+    set rotation (rotation) {
+        var d = rotation - this.rotation;
+        this.rotateSelection(d);
+    }
+
+    /**
+     * Flip the selected items horizontally.
+     */
+    flipHorizontally () {
+        this.scaleSelection(new paper.Point(-1.0, 1.0));
+    }
+
+    /**
+     * Flip the selected items vertically.
+     */
+    flipVertically () {
+        this.scaleSelection(new paper.Point(1.0, -1.0));
     }
 
     /**
@@ -102,18 +164,18 @@ class SelectionWidget {
 
     /**
      * Build a new SelectionWidget GUI around some items.
-     * @param {number} rotation - the rotation of the selection. Optional, defaults to 0
+     * @param {number} boxRotation - the rotation of the selection GUI. Optional, defaults to 0
      * @param {paper.Item[]} items - the items to build the GUI around
      * @param {paper.Point} pivot - the pivot point that the selection rotates around. Defaults to (0,0)
      */
     build (args) {
         if(!args) args = {};
-        if(!args.rotation) args.rotation = 0;
+        if(!args.boxRotation) args.boxRotation = 0;
         if(!args.items) args.items = [];
         if(!args.pivot) args.pivot = new paper.Point();
 
         this._itemsInSelection = args.items;
-        this._rotation = args.rotation;
+        this._boxRotation = args.boxRotation;
         this._pivot = args.pivot;
 
         this._boundingBox = this._calculateBoundingBox();
@@ -164,17 +226,17 @@ class SelectionWidget {
         } else if(this.currentTransformation === 'scale') {
             var lastPoint = e.point.subtract(e.delta);
             var currentPoint = e.point;
-            lastPoint = lastPoint.rotate(-this.rotation, this.pivot);
-            currentPoint = currentPoint.rotate(-this.rotation, this.pivot);
+            lastPoint = lastPoint.rotate(-this.boxRotation, this.pivot);
+            currentPoint = currentPoint.rotate(-this.boxRotation, this.pivot);
             var pivotToLastPointVector = lastPoint.subtract(this.pivot);
             var pivotToCurrentPointVector = currentPoint.subtract(this.pivot);
             var scaleAmt = pivotToCurrentPointVector.divide(pivotToLastPointVector);
             this._ghost.data.scale = this._ghost.data.scale.multiply(scaleAmt);
 
             this._ghost.matrix = new paper.Matrix();
-            this._ghost.rotate(-this.rotation);
+            this._ghost.rotate(-this.boxRotation);
             this._ghost.scale(this._ghost.data.scale.x, this._ghost.data.scale.y, this.pivot);
-            this._ghost.rotate(this.rotation);
+            this._ghost.rotate(this.boxRotation);
         } else if (this.currentTransformation === 'rotate') {
             var lastPoint = e.point.subtract(e.delta);
             var currentPoint = e.point;
@@ -184,7 +246,7 @@ class SelectionWidget {
             var pivotToCurrentPointAngle = pivotToCurrentPointVector.angle;
             var rotation = pivotToCurrentPointAngle - pivotToLastPointAngle;
             this._ghost.rotate(rotation, this.pivot);
-            this.rotation += rotation;
+            this.boxRotation += rotation;
         }
     }
 
@@ -222,9 +284,9 @@ class SelectionWidget {
      */
     scaleSelection (scale) {
         this._itemsInSelection.forEach(item => {
-            item.rotate(-this.rotation, this.pivot);
+            item.rotate(-this.boxRotation, this.pivot);
             item.scale(scale, this.pivot);
-            item.rotate(this.rotation, this.pivot);
+            item.rotate(this.boxRotation, this.pivot);
         });
     }
 
@@ -261,7 +323,7 @@ class SelectionWidget {
         this._pivotPointHandle = this._buildPivotPointHandle();
         this.layer.addChild(this._pivotPointHandle);
 
-        this.item.rotate(this.rotation, this._center);
+        this.item.rotate(this.boxRotation, this._center);
 
         this.item.children.forEach(child => {
             child.data.isSelectionBoxGUI = true;
@@ -394,7 +456,7 @@ class SelectionWidget {
             strokeWidth: SelectionWidget.GHOST_STROKE_WIDTH,
             applyMatrix: false,
         });
-        boundsOutline.rotate(this.rotation, this._center);
+        boundsOutline.rotate(this.boxRotation, this._center);
         ghost.addChild(boundsOutline);
 
         return ghost;
@@ -409,7 +471,7 @@ class SelectionWidget {
 
         var itemsForBoundsCalc = this._itemsInSelection.map(item => {
             var clone = item.clone();
-            clone.rotate(-this.rotation, center);
+            clone.rotate(-this.boxRotation, center);
             clone.remove();
             return clone;
         });

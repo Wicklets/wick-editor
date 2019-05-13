@@ -58,69 +58,71 @@ Wick.View.Selection = class extends Wick.View {
      *
      */
     get x () {
-        // from widget
+        return this.widget.position.x;
     }
 
     set x (x) {
-        // from widget
+        this.widget.position = new paper.Point(x, this.widget.position.y);
     }
 
     /**
      *
      */
     get y () {
-        // from widget
+        return this.widget.position.y;
     }
 
     set y (y) {
-        // from widget
+        this.widget.position = new paper.Point(this.widget.position.x, y);
     }
 
     /**
      *
      */
     get width () {
-        // from widget
+        return this.widget.width;
     }
 
     set width (width) {
-        // from widget
+        this.widget.width = width;
     }
 
     /**
      *
      */
     get height () {
-        // from widget
+        return this.widget.height;
     }
 
     set height (height) {
-        // from widget
+        this.widget.height = height;
     }
 
     /**
      *
      */
     get rotation () {
-        // from widget
+        return this.widget.rotation;
     }
 
     set rotation (rotation) {
-        // from widget
+        this.widget.rotation = rotation;
     }
 
     /**
      *
      */
     flipHorizontally () {
-        // from widget
+        this.widget.flipHorizontally();
+        console.warn('somehow apply changes here')
     }
 
     /**
      *
      */
     flipVertically () {
-        // from widget
+        this.widget.flipVertically();
+        console.warn('somehow apply changes here')
     }
 
     /**
@@ -128,6 +130,7 @@ Wick.View.Selection = class extends Wick.View {
      */
     sendToBack () {
         paper.Ordering.sendToBack(this._getSelectedObjectViews());
+        console.warn('somehow apply changes here')
     }
 
     /**
@@ -135,6 +138,7 @@ Wick.View.Selection = class extends Wick.View {
      */
     bringToFront () {
         paper.Ordering.bringToFront(this._getSelectedObjectViews());
+        console.warn('somehow apply changes here')
     }
 
     /**
@@ -142,6 +146,7 @@ Wick.View.Selection = class extends Wick.View {
      */
     moveForwards () {
         paper.Ordering.moveForwards(this._getSelectedObjectViews());
+        console.warn('somehow apply changes here')
     }
 
     /**
@@ -149,6 +154,7 @@ Wick.View.Selection = class extends Wick.View {
      */
     moveBackwards () {
         paper.Ordering.moveBackwards(this._getSelectedObjectViews());
+        console.warn('somehow apply changes here')
     }
 
     _renderSVG () {
