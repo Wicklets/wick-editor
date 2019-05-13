@@ -47,16 +47,113 @@ Wick.View.Selection = class extends Wick.View {
      *
      */
     applyChanges () {
-        this.model.rotation = this.widget.rotation;
+        this.model.widgetRotation = this.widget.rotation;
         this.model.pivotPoint = {
             x: this.widget.pivot.x,
             y: this.widget.pivot.y,
         };
     }
 
+    /**
+     *
+     */
+    get x () {
+        // from widget
+    }
+
+    set x (x) {
+        // from widget
+    }
+
+    /**
+     *
+     */
+    get y () {
+        // from widget
+    }
+
+    set y (y) {
+        // from widget
+    }
+
+    /**
+     *
+     */
+    get width () {
+        // from widget
+    }
+
+    set width (width) {
+        // from widget
+    }
+
+    /**
+     *
+     */
+    get height () {
+        // from widget
+    }
+
+    set height (height) {
+        // from widget
+    }
+
+    /**
+     *
+     */
+    get rotation () {
+        // from widget
+    }
+
+    set rotation (rotation) {
+        // from widget
+    }
+
+    /**
+     *
+     */
+    flipHorizontally () {
+        // from widget
+    }
+
+    /**
+     *
+     */
+    flipVertically () {
+        // from widget
+    }
+
+    /**
+     *
+     */
+    sendToBack () {
+        paper.Ordering.sendToBack(this._getSelectedObjectViews());
+    }
+
+    /**
+     *
+     */
+    bringToFront () {
+        paper.Ordering.bringToFront(this._getSelectedObjectViews());
+    }
+
+    /**
+     *
+     */
+    moveForwards () {
+        paper.Ordering.moveForwards(this._getSelectedObjectViews());
+    }
+
+    /**
+     *
+     */
+    moveBackwards () {
+        paper.Ordering.moveBackwards(this._getSelectedObjectViews());
+    }
+
     _renderSVG () {
         this._widget.build({
-            rotation: this.model.rotation,
+            rotation: this.model.widgetRotation,
             items: this._getSelectedObjectViews(),
             pivot: new paper.Point(this.model.pivotPoint.x, this.model.pivotPoint.y),
         });

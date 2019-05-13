@@ -37,14 +37,14 @@ Wick.Selection = class extends Wick.Base {
         super(args);
 
         this._selectedObjectsUUIDs = args.selectedObjects || [];
-        this._rotation = args.rotation || 0;
+        this._widgetRotation = args.widgetRotation || 0;
         this._pivotPoint = {x: 0, y: 0};
     }
 
     deserialize (data) {
         super.deserialize(data);
         this._selectedObjectsUUIDs = data.selectedObjects || [];
-        this._rotation = data.rotation;
+        this._widgetRotation = data.widgetRotation;
         this._pivotPoint = {
             x: data.pivotPoint.x,
             y: data.pivotPoint.y
@@ -54,7 +54,7 @@ Wick.Selection = class extends Wick.Base {
     serialize (args) {
         var data = super.serialize(args);
         data.selectedObjects = Array.from(this._selectedObjectsUUIDs);
-        data.rotation = this._rotation;
+        data.widgetRotation = this._widgetRotation;
         data.pivotPoint = {
             x: this._pivotPoint.x,
             y: this._pivotPoint.y
@@ -92,8 +92,7 @@ Wick.Selection = class extends Wick.Base {
         // Add the object to the selection!
         this._selectedObjectsUUIDs.push(object.uuid);
 
-        this.rotation = 0;
-        this.pivotPoint = this._calculatePivotPoint();
+        this._resetPositioningValues();
 
         // Make sure the view gets updated the next time its needed...
         this.view.dirty = true;
@@ -108,8 +107,7 @@ Wick.Selection = class extends Wick.Base {
             return uuid !== object.uuid;
         });
 
-        this.rotation = 0;
-        this.pivotPoint = this._calculatePivotPoint();
+        this._resetPositioningValues();
 
         // Make sure the view gets updated the next time its needed...
         this.view.dirty = true;
@@ -215,12 +213,12 @@ Wick.Selection = class extends Wick.Base {
      * The rotation of the selection (used for canvas selections)
      * @type {number}
      */
-    get rotation () {
-        return this._rotation;
+    get widgetRotation () {
+        return this._widgetRotation;
     }
 
-    set rotation (rotation) {
-        this._rotation = rotation;
+    set widgetRotation (widgetRotation) {
+        this._widgetRotation = widgetRotation;
     }
 
     /**
@@ -233,6 +231,111 @@ Wick.Selection = class extends Wick.Base {
 
     set pivotPoint (pivotPoint) {
         this._pivotPoint = pivotPoint;
+    }
+
+    /**
+     *
+     */
+    get x () {
+        return this.view.x;
+    }
+
+    set x (x) {
+        this.view.x = x;
+    }
+
+    /**
+     *
+     */
+    get y () {
+        return this.view.y;
+    }
+
+    set y (y) {
+        this.view.y = y;
+    }
+
+    /**
+     *
+     */
+    get width () {
+        return this.view.width;
+    }
+
+    set width (width) {
+        this.view.width = width;
+    }
+
+    /**
+     *
+     */
+    get height () {
+        return this.view.height;
+    }
+
+    set height (height) {
+        this.view.height = height;
+    }
+
+    /**
+     *
+     */
+    get rotation () {
+        return this.view.height;
+    }
+
+    set rotation (rotation) {
+        this.view.rotation = rotation;
+    }
+
+    /**
+     *
+     */
+    flipHorizontally () {
+        this.view.flipHorizontally();
+    }
+
+    /**
+     *
+     */
+    flipVertically () {
+        this.view.flipVertically();
+    }
+
+    /**
+     *
+     */
+    sendToBack () {
+        this.view.sendToBack();
+    }
+
+    /**
+     *
+     */
+    bringToFront () {
+        this.view.bringToFront();
+    }
+
+    /**
+     *
+     */
+    moveForwards () {
+        this.view.moveForwards();
+    }
+
+    /**
+     *
+     */
+    moveBackwards () {
+        this.view.moveBackwards();
+    }
+
+    /**
+     *
+     */
+    nudge (x, y) {
+        this.x += x;
+        this.y += y;
     }
 
     _locationOf (object) {
@@ -248,11 +351,24 @@ Wick.Selection = class extends Wick.Base {
         }
     }
 
-    _calculatePivotPoint () {
-        var boundsCenter = this.view._getSelectedObjectsBounds().center;
-        return {
-            x: boundsCenter.x,
-            y: boundsCenter.y,
-        };
+    _resetPositioningValues () {
+        var selectedObject = this.getSelectedObject();
+        if(selectedObject instanceof Wick.Clip) {
+            // Single clip selected: Use that Clip's transformation for the pivot point and rotation
+            this._widgetRotation = selectedObject.transformation.rotation;
+            this._pivotPoint = {
+                x: selectedObject.transformation.x,
+                y: selectedObject.transformation.y,
+            }
+        } else {
+            // Path selected or multiple objects selected: Reset rotation and use center for pivot point
+            this._widgetRotation = 0;
+
+            var boundsCenter = this.view._getSelectedObjectsBounds().center;
+            this._pivotPoint = {
+                x: boundsCenter.x,
+                y: boundsCenter.y,
+            };
+        }
     }
 }
