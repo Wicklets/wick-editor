@@ -150,7 +150,7 @@ Wick.Path = class extends Wick.Base {
     }
 
     /**
-     * The fill color, in hex format, of the path
+     * The fill color, in hex format (example "#FFFFFF"), of the path
      * @type {string}
      */
     get fillColorHex () {
@@ -158,7 +158,7 @@ Wick.Path = class extends Wick.Base {
     }
 
     /**
-     * The fill color, in rgba format, of the path
+     * The fill color, in rgba format (example "rgba(255,255,255,1.0)"), of the path
      * @type {object}
      */
     get fillColorRGBA () {

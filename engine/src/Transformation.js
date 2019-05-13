@@ -21,12 +21,12 @@
 Wick.Transformation = class {
     /**
      * Creates a Transformation.
-     * @param {number} x -
-     * @param {number} y -
-     * @param {number} scaleX -
-     * @param {number} scaleY -
-     * @param {number} rotation -
-     * @param {number} opacity -
+     * @param {number} x - The translation on the x-axis
+     * @param {number} y - The translation on the y-axis
+     * @param {number} scaleX - The amount of scaling on the x-axis
+     * @param {number} scaleY - The amount of scaling on the y-axis
+     * @param {number} rotation - Rotation, in degrees
+     * @param {number} opacity - Opacity, ranging from 0.0 - 1.0
      */
     constructor (args) {
         if(!args) args = {};

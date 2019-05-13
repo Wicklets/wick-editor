@@ -65449,12 +65449,12 @@ Wick.ObjectCache = new WickObjectCache();
 Wick.Transformation = class {
   /**
    * Creates a Transformation.
-   * @param {number} x -
-   * @param {number} y -
-   * @param {number} scaleX -
-   * @param {number} scaleY -
-   * @param {number} rotation -
-   * @param {number} opacity -
+   * @param {number} x - The translation on the x-axis
+   * @param {number} y - The translation on the y-axis
+   * @param {number} scaleX - The amount of scaling on the x-axis
+   * @param {number} scaleY - The amount of scaling on the y-axis
+   * @param {number} rotation - Rotation, in degrees
+   * @param {number} opacity - Opacity, ranging from 0.0 - 1.0
    */
   constructor(args) {
     if (!args) args = {};
@@ -65641,6 +65641,7 @@ Wick.Base = class {
     this._guiElement = null;
     this.guiElement = this._generateGUIElement();
     this._classname = this.classname;
+    Wick.ObjectCache.addObject(this);
   }
   /**
    * @param {object} data - Serialized data to use to create a new object.
@@ -66700,8 +66701,9 @@ Wick.Project = class extends Wick.Base {
 
   createImagePathFromAsset(asset, x, y, callback) {
     asset.createInstance(path => {
-      // TODO set position of path
       this.activeFrame.addPath(path);
+      path.x = x;
+      path.y = y;
       callback(path);
     });
   }
@@ -66724,12 +66726,13 @@ Wick.Project = class extends Wick.Base {
       return;
     }
 
-    var transformation = new Wick.Transformation(); // TODO: Reposition children.
-
     var clip = new Wick[args.type]({
       identifier: args.identifier,
       objects: this.selection.getSelectedObjects('Canvas'),
-      transformation: transformation
+      transformation: new Wick.Transformation({
+        x: this.selection.x + this.selection.width / 2,
+        y: this.selection.y + this.selection.height / 2
+      })
     });
     this.activeFrame.addClip(clip); // TODO add to asset library
 
@@ -67021,7 +67024,7 @@ Wick.Selection = class extends Wick.Base {
     if (!args) args = {};
     super(args);
     this._selectedObjectsUUIDs = args.selectedObjects || [];
-    this._rotation = args.rotation || 0;
+    this._widgetRotation = args.widgetRotation || 0;
     this._pivotPoint = {
       x: 0,
       y: 0
@@ -67031,7 +67034,7 @@ Wick.Selection = class extends Wick.Base {
   deserialize(data) {
     super.deserialize(data);
     this._selectedObjectsUUIDs = data.selectedObjects || [];
-    this._rotation = data.rotation;
+    this._widgetRotation = data.widgetRotation;
     this._pivotPoint = {
       x: data.pivotPoint.x,
       y: data.pivotPoint.y
@@ -67041,7 +67044,7 @@ Wick.Selection = class extends Wick.Base {
   serialize(args) {
     var data = super.serialize(args);
     data.selectedObjects = Array.from(this._selectedObjectsUUIDs);
-    data.rotation = this._rotation;
+    data.widgetRotation = this._widgetRotation;
     data.pivotPoint = {
       x: this._pivotPoint.x,
       y: this._pivotPoint.y
@@ -67080,8 +67083,8 @@ Wick.Selection = class extends Wick.Base {
 
     this._selectedObjectsUUIDs.push(object.uuid);
 
-    this.rotation = 0;
-    this.pivotPoint = this._calculatePivotPoint(); // Make sure the view gets updated the next time its needed...
+    this._resetPositioningValues(); // Make sure the view gets updated the next time its needed...
+
 
     this.view.dirty = true;
   }
@@ -67095,8 +67098,9 @@ Wick.Selection = class extends Wick.Base {
     this._selectedObjectsUUIDs = this._selectedObjectsUUIDs.filter(uuid => {
       return uuid !== object.uuid;
     });
-    this.rotation = 0;
-    this.pivotPoint = this._calculatePivotPoint(); // Make sure the view gets updated the next time its needed...
+
+    this._resetPositioningValues(); // Make sure the view gets updated the next time its needed...
+
 
     this.view.dirty = true;
   }
@@ -67211,12 +67215,12 @@ Wick.Selection = class extends Wick.Base {
    */
 
 
-  get rotation() {
-    return this._rotation;
+  get widgetRotation() {
+    return this._widgetRotation;
   }
 
-  set rotation(rotation) {
-    this._rotation = rotation;
+  set widgetRotation(widgetRotation) {
+    this._widgetRotation = widgetRotation;
   }
   /**
    * The point that transformations to the selection will be based around.
@@ -67231,6 +67235,123 @@ Wick.Selection = class extends Wick.Base {
   set pivotPoint(pivotPoint) {
     this._pivotPoint = pivotPoint;
   }
+  /**
+   *
+   */
+
+
+  get x() {
+    return this.view.x;
+  }
+
+  set x(x) {
+    this.view.x = x;
+  }
+  /**
+   *
+   */
+
+
+  get y() {
+    return this.view.y;
+  }
+
+  set y(y) {
+    this.view.y = y;
+  }
+  /**
+   *
+   */
+
+
+  get width() {
+    return this.view.width;
+  }
+
+  set width(width) {
+    this.view.width = width;
+  }
+  /**
+   *
+   */
+
+
+  get height() {
+    return this.view.height;
+  }
+
+  set height(height) {
+    this.view.height = height;
+  }
+  /**
+   *
+   */
+
+
+  get rotation() {
+    return this.view.height;
+  }
+
+  set rotation(rotation) {
+    this.view.rotation = rotation;
+  }
+  /**
+   *
+   */
+
+
+  flipHorizontally() {
+    this.view.flipHorizontally();
+  }
+  /**
+   *
+   */
+
+
+  flipVertically() {
+    this.view.flipVertically();
+  }
+  /**
+   *
+   */
+
+
+  sendToBack() {
+    this.view.sendToBack();
+  }
+  /**
+   *
+   */
+
+
+  bringToFront() {
+    this.view.bringToFront();
+  }
+  /**
+   *
+   */
+
+
+  moveForwards() {
+    this.view.moveForwards();
+  }
+  /**
+   *
+   */
+
+
+  moveBackwards() {
+    this.view.moveBackwards();
+  }
+  /**
+   *
+   */
+
+
+  nudge(x, y) {
+    this.x += x;
+    this.y += y;
+  }
 
   _locationOf(object) {
     if (object instanceof Wick.Frame || object instanceof Wick.Tween || object instanceof Wick.Layer) {
@@ -67242,13 +67363,27 @@ Wick.Selection = class extends Wick.Base {
     }
   }
 
-  _calculatePivotPoint() {
-    var boundsCenter = this.view._getSelectedObjectsBounds().center;
+  _resetPositioningValues() {
+    var selectedObject = this.getSelectedObject();
 
-    return {
-      x: boundsCenter.x,
-      y: boundsCenter.y
-    };
+    if (selectedObject instanceof Wick.Clip) {
+      // Single clip selected: Use that Clip's transformation for the pivot point and rotation
+      this._widgetRotation = selectedObject.transformation.rotation;
+      this._pivotPoint = {
+        x: selectedObject.transformation.x,
+        y: selectedObject.transformation.y
+      };
+    } else {
+      // Path selected or multiple objects selected: Reset rotation and use center for pivot point
+      this._widgetRotation = 0;
+
+      var boundsCenter = this.view._getSelectedObjectsBounds().center;
+
+      this._pivotPoint = {
+        x: boundsCenter.x,
+        y: boundsCenter.y
+      };
+    }
   }
 
 };
@@ -68003,7 +68138,7 @@ Wick.Path = class extends Wick.Base {
     this.view.item.position.y = y;
   }
   /**
-   * The fill color, in hex format, of the path
+   * The fill color, in hex format (example "#FFFFFF"), of the path
    * @type {string}
    */
 
@@ -68012,7 +68147,7 @@ Wick.Path = class extends Wick.Base {
     return this.view.item.fillColor.toCSS(true);
   }
   /**
-   * The fill color, in rgba format, of the path
+   * The fill color, in rgba format (example "rgba(255,255,255,1.0)"), of the path
    * @type {object}
    */
 
@@ -70706,6 +70841,113 @@ Wick.Button = class extends Wick.Clip {
 * You should have received a copy of the GNU General Public License
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
+class PaperJSOrderingUtils {
+  /**
+   * Moves the selected items forwards.
+   */
+  moveForwards(items) {
+    PaperJSOrderingUtils._sortItemsByLayer(items).forEach(layerItems => {
+      PaperJSOrderingUtils._sortItemsByZIndex(layerItems).reverse().forEach(item => {
+        if (item.nextSibling && this._items.indexOf(item.nextSibling) === -1) {
+          item.insertAbove(item.nextSibling);
+        }
+      });
+    });
+  }
+  /**
+   * Moves the selected items backwards.
+   */
+
+
+  moveBackwards(items) {
+    PaperJSOrderingUtils._sortItemsByLayer(items).forEach(layerItems => {
+      PaperJSOrderingUtils._sortItemsByZIndex(layerItems).forEach(item => {
+        if (item.previousSibling && this._items.indexOf(item.previousSibling) === -1) {
+          item.insertBelow(item.previousSibling);
+        }
+      });
+    });
+  }
+  /**
+   * Brings the selected objects to the front.
+   */
+
+
+  bringToFront(items) {
+    PaperJSOrderingUtils._sortItemsByLayer(items).forEach(layerItems => {
+      PaperJSOrderingUtils._sortItemsByZIndex(layerItems).forEach(item => {
+        item.bringToFront();
+      });
+    });
+  }
+  /**
+   * Sends the selected objects to the back.
+   */
+
+
+  sendToBack(items) {
+    PaperJSOrderingUtils._sortItemsByLayer(items).forEach(layerItems => {
+      PaperJSOrderingUtils._sortItemsByZIndex(layerItems).reverse().forEach(item => {
+        item.sendToBack();
+      });
+    });
+  }
+
+  static _sortItemsByLayer(items) {
+    var layerLists = {};
+    items.forEach(item => {
+      // Create new list for the item's layer if it doesn't exist
+      var layerID = item.layer.id;
+
+      if (!layerLists[layerID]) {
+        layerLists[layerID] = [];
+      } // Add this item to its corresponding layer list
+
+
+      layerLists[layerID].push(item);
+    }); // Convert id->array object to array of arrays
+
+    var layerItemsArrays = [];
+
+    for (var layerID in layerLists) {
+      layerItemsArrays.push(layerLists[layerID]);
+    }
+
+    return layerItemsArrays;
+  }
+
+  static _sortItemsByZIndex(items) {
+    return items.sort(function (a, b) {
+      return a.index - b.index;
+    });
+  }
+
+}
+
+;
+paper.PaperScope.inject({
+  OrderingUtils: PaperJSOrderingUtils
+});
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* Copyright 2019 WICKLETS LLC
+*
+* This file is part of Wick Engine.
+*
+* Wick Engine is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Wick Engine is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+*/
 class SelectionWidget {
   /**
    * Creates a SelectionWidget
@@ -70739,16 +70981,16 @@ class SelectionWidget {
     this._layer = layer;
   }
   /**
-   *
+   * The rotation of the selection box GUI.
    */
 
 
-  get rotation() {
-    return this._rotation;
+  get boxRotation() {
+    return this._boxRotation;
   }
 
-  set rotation(rotation) {
-    this._rotation = rotation;
+  set boxRotation(boxRotation) {
+    this._boxRotation = boxRotation;
   }
   /**
    * The items currently inside the selection widget
@@ -70769,6 +71011,74 @@ class SelectionWidget {
 
   set pivot(pivot) {
     this._pivot = pivot;
+  }
+  /**
+   * The position of the top left corner of the selection box.
+   */
+
+
+  get position() {
+    return this._boundingBox.topLeft.rotate(this.rotation, this.pivot);
+  }
+
+  set position(position) {
+    var d = position.subtract(this.position);
+    this.translateSelection(d);
+  }
+  /**
+   * The width of the selection.
+   */
+
+
+  get width() {
+    return this._boundingBox.width;
+  }
+
+  set width(width) {
+    var d = width / this.width;
+    this.scaleSelection(new paper.Point(d, 1.0));
+  }
+  /**
+   * The height of the selection.
+   */
+
+
+  get height() {
+    return this._boundingBox.height;
+  }
+
+  set height(height) {
+    var d = height / this.height;
+    this.scaleSelection(new paper.Point(1.0, d));
+  }
+  /**
+   * The rotation of the selection.
+   */
+
+
+  get rotation() {
+    return this._boxRotation;
+  }
+
+  set rotation(rotation) {
+    var d = rotation - this.rotation;
+    this.rotateSelection(d);
+  }
+  /**
+   * Flip the selected items horizontally.
+   */
+
+
+  flipHorizontally() {
+    this.scaleSelection(new paper.Point(-1.0, 1.0));
+  }
+  /**
+   * Flip the selected items vertically.
+   */
+
+
+  flipVertically() {
+    this.scaleSelection(new paper.Point(1.0, -1.0));
   }
   /**
    * The bounding box of the widget.
@@ -70798,7 +71108,7 @@ class SelectionWidget {
   }
   /**
    * Build a new SelectionWidget GUI around some items.
-   * @param {number} rotation - the rotation of the selection. Optional, defaults to 0
+   * @param {number} boxRotation - the rotation of the selection GUI. Optional, defaults to 0
    * @param {paper.Item[]} items - the items to build the GUI around
    * @param {paper.Point} pivot - the pivot point that the selection rotates around. Defaults to (0,0)
    */
@@ -70806,11 +71116,11 @@ class SelectionWidget {
 
   build(args) {
     if (!args) args = {};
-    if (!args.rotation) args.rotation = 0;
+    if (!args.boxRotation) args.boxRotation = 0;
     if (!args.items) args.items = [];
     if (!args.pivot) args.pivot = new paper.Point();
     this._itemsInSelection = args.items;
-    this._rotation = args.rotation;
+    this._boxRotation = args.boxRotation;
     this._pivot = args.pivot;
     this._boundingBox = this._calculateBoundingBox();
     this.item.remove();
@@ -70865,19 +71175,19 @@ class SelectionWidget {
     } else if (this.currentTransformation === 'scale') {
       var lastPoint = e.point.subtract(e.delta);
       var currentPoint = e.point;
-      lastPoint = lastPoint.rotate(-this.rotation, this.pivot);
-      currentPoint = currentPoint.rotate(-this.rotation, this.pivot);
+      lastPoint = lastPoint.rotate(-this.boxRotation, this.pivot);
+      currentPoint = currentPoint.rotate(-this.boxRotation, this.pivot);
       var pivotToLastPointVector = lastPoint.subtract(this.pivot);
       var pivotToCurrentPointVector = currentPoint.subtract(this.pivot);
       var scaleAmt = pivotToCurrentPointVector.divide(pivotToLastPointVector);
       this._ghost.data.scale = this._ghost.data.scale.multiply(scaleAmt);
       this._ghost.matrix = new paper.Matrix();
 
-      this._ghost.rotate(-this.rotation);
+      this._ghost.rotate(-this.boxRotation);
 
       this._ghost.scale(this._ghost.data.scale.x, this._ghost.data.scale.y, this.pivot);
 
-      this._ghost.rotate(this.rotation);
+      this._ghost.rotate(this.boxRotation);
     } else if (this.currentTransformation === 'rotate') {
       var lastPoint = e.point.subtract(e.delta);
       var currentPoint = e.point;
@@ -70889,7 +71199,7 @@ class SelectionWidget {
 
       this._ghost.rotate(rotation, this.pivot);
 
-      this.rotation += rotation;
+      this.boxRotation += rotation;
     }
   }
   /**
@@ -70931,9 +71241,9 @@ class SelectionWidget {
 
   scaleSelection(scale) {
     this._itemsInSelection.forEach(item => {
-      item.rotate(-this.rotation, this.pivot);
+      item.rotate(-this.boxRotation, this.pivot);
       item.scale(scale, this.pivot);
-      item.rotate(this.rotation, this.pivot);
+      item.rotate(this.boxRotation, this.pivot);
     });
   }
   /**
@@ -70968,7 +71278,7 @@ class SelectionWidget {
     this.item.addChild(this._buildScalingHandle('rightCenter'));
     this._pivotPointHandle = this._buildPivotPointHandle();
     this.layer.addChild(this._pivotPointHandle);
-    this.item.rotate(this.rotation, this._center);
+    this.item.rotate(this.boxRotation, this._center);
     this.item.children.forEach(child => {
       child.data.isSelectionBoxGUI = true;
     });
@@ -71087,7 +71397,7 @@ class SelectionWidget {
       strokeWidth: SelectionWidget.GHOST_STROKE_WIDTH,
       applyMatrix: false
     });
-    boundsOutline.rotate(this.rotation, this._center);
+    boundsOutline.rotate(this.boxRotation, this._center);
     ghost.addChild(boundsOutline);
     return ghost;
   }
@@ -71101,7 +71411,7 @@ class SelectionWidget {
 
     var itemsForBoundsCalc = this._itemsInSelection.map(item => {
       var clone = item.clone();
-      clone.rotate(-this.rotation, center);
+      clone.rotate(-this.boxRotation, center);
       clone.remove();
       return clone;
     });
@@ -74020,16 +74330,135 @@ Wick.View.Selection = class extends Wick.View {
 
 
   applyChanges() {
-    this.model.rotation = this.widget.rotation;
+    this.model.widgetRotation = this.widget.rotation;
     this.model.pivotPoint = {
       x: this.widget.pivot.x,
       y: this.widget.pivot.y
     };
   }
+  /**
+   *
+   */
+
+
+  get x() {
+    return this.widget.position.x;
+  }
+
+  set x(x) {
+    this.widget.position = new paper.Point(x, this.widget.position.y);
+    this.model.view.fireEvent('canvasModified');
+  }
+  /**
+   *
+   */
+
+
+  get y() {
+    return this.widget.position.y;
+  }
+
+  set y(y) {
+    this.widget.position = new paper.Point(this.widget.position.x, y);
+    this.model.view.fireEvent('canvasModified');
+  }
+  /**
+   *
+   */
+
+
+  get width() {
+    return this.widget.width;
+  }
+
+  set width(width) {
+    this.widget.width = width;
+    this.model.view.fireEvent('canvasModified');
+  }
+  /**
+   *
+   */
+
+
+  get height() {
+    return this.widget.height;
+  }
+
+  set height(height) {
+    this.widget.height = height;
+    this.model.view.fireEvent('canvasModified');
+  }
+  /**
+   *
+   */
+
+
+  get rotation() {
+    return this.widget.rotation;
+  }
+
+  set rotation(rotation) {
+    this.widget.rotation = rotation;
+    this.model.view.fireEvent('canvasModified');
+  }
+  /**
+   *
+   */
+
+
+  flipHorizontally() {
+    this.widget.flipHorizontally();
+    this.model.view.fireEvent('canvasModified');
+  }
+  /**
+   *
+   */
+
+
+  flipVertically() {
+    this.widget.flipVertically();
+    this.model.view.fireEvent('canvasModified');
+  }
+  /**
+   *
+   */
+
+
+  sendToBack() {
+    paper.OrderingUtils.sendToBack(this._getSelectedObjectViews());
+    this.model.view.fireEvent('canvasModified');
+  }
+  /**
+   *
+   */
+
+
+  bringToFront() {
+    paper.OrderingUtils.bringToFront(this._getSelectedObjectViews());
+    this.model.view.fireEvent('canvasModified');
+  }
+  /**
+   *
+   */
+
+
+  moveForwards() {
+    paper.OrderingUtils.moveForwards(this._getSelectedObjectViews());
+    this.model.view.fireEvent('canvasModified');
+  }
+  /**
+   *
+   */
+
+
+  moveBackwards() {
+    paper.OrderingUtils.moveBackwards(this._getSelectedObjectViews());
+    this.model.view.fireEvent('canvasModified');
+  }
 
   _renderSVG() {
     this._widget.build({
-      rotation: this.model.rotation,
+      boxRotation: this.model.widgetRotation,
       items: this._getSelectedObjectViews(),
       pivot: new paper.Point(this.model.pivotPoint.x, this.model.pivotPoint.y)
     });

@@ -63,6 +63,7 @@ Wick.View.Selection = class extends Wick.View {
 
     set x (x) {
         this.widget.position = new paper.Point(x, this.widget.position.y);
+        this.model.view.fireEvent('canvasModified');
     }
 
     /**
@@ -74,6 +75,7 @@ Wick.View.Selection = class extends Wick.View {
 
     set y (y) {
         this.widget.position = new paper.Point(this.widget.position.x, y);
+        this.model.view.fireEvent('canvasModified');
     }
 
     /**
@@ -85,6 +87,7 @@ Wick.View.Selection = class extends Wick.View {
 
     set width (width) {
         this.widget.width = width;
+        this.model.view.fireEvent('canvasModified');
     }
 
     /**
@@ -96,6 +99,7 @@ Wick.View.Selection = class extends Wick.View {
 
     set height (height) {
         this.widget.height = height;
+        this.model.view.fireEvent('canvasModified');
     }
 
     /**
@@ -107,6 +111,7 @@ Wick.View.Selection = class extends Wick.View {
 
     set rotation (rotation) {
         this.widget.rotation = rotation;
+        this.model.view.fireEvent('canvasModified');
     }
 
     /**
@@ -114,7 +119,7 @@ Wick.View.Selection = class extends Wick.View {
      */
     flipHorizontally () {
         this.widget.flipHorizontally();
-        console.warn('somehow apply changes here')
+        this.model.view.fireEvent('canvasModified');
     }
 
     /**
@@ -122,7 +127,7 @@ Wick.View.Selection = class extends Wick.View {
      */
     flipVertically () {
         this.widget.flipVertically();
-        console.warn('somehow apply changes here')
+        this.model.view.fireEvent('canvasModified');
     }
 
     /**
@@ -130,7 +135,7 @@ Wick.View.Selection = class extends Wick.View {
      */
     sendToBack () {
         paper.OrderingUtils.sendToBack(this._getSelectedObjectViews());
-        console.warn('somehow apply changes here')
+        this.model.view.fireEvent('canvasModified');
     }
 
     /**
@@ -138,7 +143,7 @@ Wick.View.Selection = class extends Wick.View {
      */
     bringToFront () {
         paper.OrderingUtils.bringToFront(this._getSelectedObjectViews());
-        console.warn('somehow apply changes here')
+        this.model.view.fireEvent('canvasModified');
     }
 
     /**
@@ -146,7 +151,7 @@ Wick.View.Selection = class extends Wick.View {
      */
     moveForwards () {
         paper.OrderingUtils.moveForwards(this._getSelectedObjectViews());
-        console.warn('somehow apply changes here')
+        this.model.view.fireEvent('canvasModified');
     }
 
     /**
@@ -154,12 +159,12 @@ Wick.View.Selection = class extends Wick.View {
      */
     moveBackwards () {
         paper.OrderingUtils.moveBackwards(this._getSelectedObjectViews());
-        console.warn('somehow apply changes here')
+        this.model.view.fireEvent('canvasModified');
     }
 
     _renderSVG () {
         this._widget.build({
-            rotation: this.model.widgetRotation,
+            boxRotation: this.model.widgetRotation,
             items: this._getSelectedObjectViews(),
             pivot: new paper.Point(this.model.pivotPoint.x, this.model.pivotPoint.y),
         });

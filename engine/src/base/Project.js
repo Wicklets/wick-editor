@@ -520,8 +520,9 @@ Wick.Project = class extends Wick.Base {
      */
     createImagePathFromAsset (asset, x, y, callback) {
         asset.createInstance(path => {
-            // TODO set position of path
             this.activeFrame.addPath(path);
+            path.x = x;
+            path.y = y;
             callback(path);
         });
     }
@@ -541,12 +542,13 @@ Wick.Project = class extends Wick.Base {
             return;
         }
 
-        var transformation = new Wick.Transformation();
-        // TODO: Reposition children.
         var clip = new Wick[args.type]({
             identifier: args.identifier,
             objects: this.selection.getSelectedObjects('Canvas'),
-            transformation: transformation
+            transformation: new Wick.Transformation({
+                x: this.selection.x + this.selection.width/2,
+                y: this.selection.y + this.selection.height/2,
+            }),
         });
         this.activeFrame.addClip(clip);
         // TODO add to asset library

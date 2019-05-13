@@ -12,7 +12,7 @@ describe('Wick.Clip', function() {
             expect(clip.timeline instanceof Wick.Timeline).to.equal(true);
         });
 
-        it('should instantiate correctly with existing objects', function() {
+        it('should instantiate correctly with existing objects (no transform)', function() {
             var project = new Wick.Project();
 
             var path1 = TestUtils.paperToWickPath(new paper.Path.Ellipse({
@@ -52,10 +52,60 @@ describe('Wick.Clip', function() {
             expect(clip.activeFrame.paths.length).to.equal(2);
             expect(clip.activeFrame.clips.length).to.equal(2);
 
-            expect(clip.activeFrame.paths[0].view.item.bounds.topLeft.x).to.equal(0);
-            expect(clip.activeFrame.paths[0].view.item.bounds.topLeft.y).to.equal(0);
-            expect(clip.activeFrame.paths[1].view.item.bounds.topLeft.x).to.equal(50);
-            expect(clip.activeFrame.paths[1].view.item.bounds.topLeft.y).to.equal(50);
+            expect(clip.activeFrame.paths[0].x).to.equal(25);
+            expect(clip.activeFrame.paths[0].y).to.equal(25);
+            expect(clip.activeFrame.paths[1].x).to.equal(75);
+            expect(clip.activeFrame.paths[1].y).to.equal(75);
+        });
+
+        it('should instantiate correctly with existing objects (with transform)', function() {
+            var project = new Wick.Project();
+
+            var path1 = TestUtils.paperToWickPath(new paper.Path.Ellipse({
+                center: new paper.Point(25,25),
+                radius: 25,
+                fillColor: 'red',
+            }))
+            var path2 = TestUtils.paperToWickPath(new paper.Path.Ellipse({
+                center: new paper.Point(75,75),
+                radius: 25,
+                fillColor: 'red',
+            }))
+            var clip1 = new Wick.Clip({ identifier: 'bar' });
+            var clip2 = new Wick.Clip({ identifier: 'baz' });
+
+            project.activeFrame.addPath(path1);
+            project.activeFrame.addPath(path2);
+            project.activeFrame.addClip(clip1);
+            project.activeFrame.addClip(clip2);
+
+            var clip = new Wick.Clip({
+                identifier: 'foo',
+                transformation: new Wick.Transformation({
+                    x: 100,
+                    y: 50,
+                }),
+                objects: [
+                    path1,
+                    path2,
+                    clip1,
+                    clip2,
+                ],
+            });
+            expect(clip instanceof Wick.Base).to.equal(true);
+            expect(clip instanceof Wick.Tickable).to.equal(true);
+            expect(clip instanceof Wick.Clip).to.equal(true);
+            expect(clip.classname).to.equal('Clip');
+            expect(clip.identifier).to.equal('foo');
+            expect(clip.transformation.x).to.equal(100);
+            expect(clip.transformation.y).to.equal(50);
+            expect(clip.activeFrame.paths.length).to.equal(2);
+            expect(clip.activeFrame.clips.length).to.equal(2);
+
+            expect(clip.activeFrame.paths[0].x).to.equal(25 - clip.transformation.x);
+            expect(clip.activeFrame.paths[0].y).to.equal(25 - clip.transformation.y);
+            expect(clip.activeFrame.paths[1].x).to.equal(75 - clip.transformation.x);
+            expect(clip.activeFrame.paths[1].y).to.equal(75 - clip.transformation.y);
         });
     });
 

@@ -43,6 +43,8 @@ Wick.Base = class {
         this.guiElement = this._generateGUIElement();
 
         this._classname = this.classname;
+
+        Wick.ObjectCache.addObject(this);
     }
 
     /**

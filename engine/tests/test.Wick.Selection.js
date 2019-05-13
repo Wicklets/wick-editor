@@ -113,4 +113,6 @@ describe('Wick.Selection', function() {
         project.selection.clear();
         expect(project.selection.getSelectedObjects()).to.eql([]);
     });
+
+    
 });
