@@ -54,7 +54,6 @@ class WickCodeDetailsPanel extends Component {
   }
 
   renderReferenceTab = (tabName) => {
-    console.log(this.state.openElements); 
 
     let tabOpen = this.state.openElements.indexOf(tabName) > -1;
 

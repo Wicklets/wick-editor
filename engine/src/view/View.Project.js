@@ -249,7 +249,7 @@ Wick.View.Project = class extends Wick.View {
      */
     prerasterize (callback) {
         var loadedFrames = [];
-        var allFrames = this.model.getAllFrames(true).filter(frame => {
+        var allFrames = this.model.getAllFrames().filter(frame => {
             return frame.paths.length > 0;
         });
 
@@ -275,7 +275,7 @@ Wick.View.Project = class extends Wick.View {
      */
     preloadImages (callback) {
         var allRasters = [];
-        this.model.getAllFrames(true).forEach(frame => {
+        this.model.getAllFrames().forEach(frame => {
             frame.paths.filter(path => {
                 return path.paperPath instanceof this.paper.Raster;
             }).forEach(raster => {

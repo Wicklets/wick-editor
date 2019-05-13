@@ -22,7 +22,7 @@ import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 
 import WickAceEditor from './WickAceEditor/WickAceEditor';
 import ActionButton from 'Editor/Util/ActionButton/ActionButton';
-import ScriptSubTabButton from './ScriptSubTabButton/ScriptSubTabButton';
+import SelectSubTabButton from 'Editor/Util/SelectSubTabButton/SelectSubTabButton';
 import AddScriptPanel from './AddScriptPanel/AddScriptPanel'; 
 
 import './_wicktabcodeeditor.scss';
@@ -175,9 +175,9 @@ class WickTabCodeEditor extends Component {
       <TabPanel>
         <div id="add-scripts-panel-container">
           <div id="select-sub-tab-list">
-            <ScriptSubTabButton selected={this.state.scriptSubTab} name="Timeline" action={this.setSubTab}/>
-            <ScriptSubTabButton selected={this.state.scriptSubTab} name="Mouse" action={this.setSubTab}/>
-            <ScriptSubTabButton selected={this.state.scriptSubTab} name="Keyboard" action={this.setSubTab}/>
+            <SelectSubTabButton selected={this.state.scriptSubTab} name="Timeline" action={this.setSubTab}/>
+            <SelectSubTabButton selected={this.state.scriptSubTab} name="Mouse" action={this.setSubTab}/>
+            <SelectSubTabButton selected={this.state.scriptSubTab} name="Keyboard" action={this.setSubTab}/>
           </div>
           <AddScriptPanel 
             scripts={this.getAddableScripts()}

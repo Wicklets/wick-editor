@@ -19,14 +19,15 @@
 
 GlobalAPI = class {
     /**
-     *
+     * @param {object} scriptOwner The tickable object which owns the script being evaluated.
      */
     constructor (scriptOwner) {
         this.scriptOwner = scriptOwner;
     }
 
     /**
-     *
+     * Defines all api members such as functions and properties. 
+     * @returns {string[]} All global API member names
      */
     get apiMemberNames () {
         var allNames = Object.getOwnPropertyNames(Object.getPrototypeOf(this));
@@ -37,7 +38,8 @@ GlobalAPI = class {
     }
 
     /**
-     *
+     * Returns a list of api members bound to the script owner.
+     * @returns {object[]} Array of functions, properties, and api members.
      */
     get apiMembers () {
         var members = this.apiMemberNames.map(name => {
@@ -56,47 +58,50 @@ GlobalAPI = class {
     }
 
     /**
-     *
+     * Stops the timeline of the object's parent clip.
      */
     stop () {
         this.scriptOwner.parentClip.stop();
     }
 
     /**
-     *
+     * Plays the timeline of the object's parent clip.
      */
     play () {
         this.scriptOwner.parentClip.play();
     }
     /**
-     *
+     * Moves the plahead of the parent clip to a frame and stops the timeline of that parent clip.
+     * @param {string | number} frame Frame name or number to move playhead to.
      */
     gotoAndStop (frame) {
         this.scriptOwner.parentClip.gotoAndStop(frame);
     }
     /**
-     *
+     * Moves the plahead of the parent clip to a frame and plays the timeline of that parent clip.
+     * @param {string | number} frame Frame name or number to move playhead to.
      */
     gotoAndPlay (frame) {
         this.scriptOwner.parentClip.gotoAndPlay(frame);
     }
 
     /**
-     *
+     * Moves the playhead of the parent clip of the object to the next frame. 
      */
     gotoNextFrame () {
         this.scriptOwner.parentClip.gotoNextFrame();
     }
 
     /**
-     *
+     * Moves the playhead of the parent clip of this object to the previous frame.
      */
     gotoPrevFrame () {
         this.scriptOwner.parentClip.gotoPrevFrame();
     }
 
     /**
-     *
+     * Returns an object representing the project with properties such as width, height, framerate, background color, and name.
+     * @returns {object} Project object. 
      */
     get project () {
         var project = this.scriptOwner.project && this.scriptOwner.project.root;
@@ -120,7 +125,8 @@ GlobalAPI = class {
     }
 
     /**
-     *
+     * Returns a reference to the current object's parent.
+     * @returns Current object's parent.
      */
     get parent () {
         return this.scriptOwner.parentClip;
@@ -135,7 +141,8 @@ GlobalAPI = class {
     }
 
     /**
-     *
+     * Returns true if the mouse is currently held down.
+     * @returns {bool | null} Returns null if the object does not have a project.
      */
     isMouseDown () {
         if(!this.scriptOwner.project) return null;
@@ -143,7 +150,8 @@ GlobalAPI = class {
     }
 
     /**
-     *
+     * Returns the last key pressed down.
+     * @returns {string | null} Returns null if no key has been pressed yet. 
      */
     get key () {
         if(!this.scriptOwner.project) return null;
@@ -151,7 +159,8 @@ GlobalAPI = class {
     }
 
     /**
-     *
+     * Returns a list of all keys currently pressed down.
+     * @returns {string[]} All keys represented as strings. If no keys are pressed, an empty array is returned.
      */
     get keys () {
         if(!this.scriptOwner.project) return null;
@@ -159,7 +168,9 @@ GlobalAPI = class {
     }
 
     /**
-     *
+     * Returns true if the given key is currently down.
+     * @param {string} key
+     * @returns {bool}
      */
     isKeyDown (key) {
         if(!this.scriptOwner.project) return null;
@@ -175,7 +186,9 @@ GlobalAPI = class {
     }
 
     /**
-     *
+     * Returns true if the given key was just pressed within the last tick.
+     * @param {string} key
+     * @returns {bool}
      */
     isKeyJustPressed (key) {
         if(!this.scriptOwner.project) return null;
@@ -191,7 +204,8 @@ GlobalAPI = class {
     }
 
     /**
-     *
+     * Returns the current x position of the mouse in relation to the canvas.
+     * @returns {number}
      */
     get mouseX () {
         if(!this.scriptOwner.project) return null;
@@ -199,7 +213,8 @@ GlobalAPI = class {
     }
 
     /**
-     *
+     * Returns the current y position of the mouse in relation to the canvas.
+     * @returns {number}
      */
     get mouseY () {
         if(!this.scriptOwner.project) return null;
@@ -207,14 +222,17 @@ GlobalAPI = class {
     }
 
     /**
-     *
+     * Returns a new random object.
+     * @returns {GlobalAPI.Random}
      */
     get random () {
         return new GlobalAPI.Random();
     }
 
     /**
-     *
+     * Plays a sound which is currently in the asset library.
+     * @param {string} name of the sound asset in the library.
+     * @returns {object} object representing the sound which was played.
      */
     playSound (assetName) {
         if(!this.scriptOwner.project) return null;
@@ -222,11 +240,11 @@ GlobalAPI = class {
     }
 
     /**
-     *
+     * Stops all currently playing sounds.
      */
-    stopAllSounds (assetName) {
+    stopAllSounds () {
         if(!this.scriptOwner.project) return null;
-        return this.scriptOwner.project.stopAllSounds();
+        this.scriptOwner.project.stopAllSounds();
     }
 }
 
@@ -235,17 +253,36 @@ GlobalAPI.Random = class {
 
     }
 
-    //https://stackoverflow.com/questions/4959975/generate-random-number-between-two-numbers-in-javascript
+    /**
+     * Returns a random integer (whole number) between two given integers.
+     * @param {number} min The minimum of the returned integer.
+     * @param {number} max The maximum of the returned integer.
+     * @returns {number} A random number between min and max. 
+     * https://stackoverflow.com/questions/4959975/generate-random-number-between-two-numbers-in-javascript
+     */
     integer(min,max) {
         return Math.floor(Math.random()*(max-min+1)+min);
     }
-
+    
+    /**
+     * Returns a random floating point (decimal) number between two given integers.
+     * @param {number} min The minimum of the returned number.
+     * @param {number} max The maximum of the returned number.
+     * @returns {number} A random number between min and max. 
+     * https://stackoverflow.com/questions/4959975/generate-random-number-between-two-numbers-in-javascript
+     */
     float(min, max) {
         return (Math.random()*(max-min+1)+min);
     }
 
-    //https://stackoverflow.com/questions/4550505/getting-a-random-value-from-a-javascript-array
+    /**
+     * Returns a random item from an array of items.
+     * @param {array} An array of objects.
+     * @returns {object | null} A random item contained in the array. Returns null if the given array has no items.
+     * https://stackoverflow.com/questions/4550505/getting-a-random-value-from-a-javascript-array
+     */
     choice(array) {
+        if (array.length <= 0) return null;
         return array[Math.floor(Math.random() * myArray.length)]
     }
 }

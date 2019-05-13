@@ -545,6 +545,46 @@ describe('Wick.Project', function() {
                 }
             });
         });
+
+        it('should run unload scripts on all clips when the project is stopped', function (done) {
+            var project = new Wick.Project();
+
+            var rootLevelClip = new Wick.Clip();
+            rootLevelClip.addScript('unload', 'this.__unloadScriptRan = true;');
+            project.activeFrame.addClip(rootLevelClip);
+
+            var childClip = new Wick.Clip();
+            childClip.addScript('unload', 'this.__unloadScriptRan = true;');
+            rootLevelClip.activeFrame.addClip(childClip);
+
+            project.play({
+                onAfterTick: () => {
+                    project.stop();
+                    expect(rootLevelClip.__unloadScriptRan).to.equal(true);
+                    expect(childClip.__unloadScriptRan).to.equal(true);
+                    done();
+                }
+            });
+        });
+    });
+
+    describe('#getAllFrames', function () {
+        it('should return all frames in the project', function () {
+            var project = new Wick.Project();
+
+            var rootLevelClip = new Wick.Clip();
+            rootLevelClip.addScript('unload', 'this.__unloadScriptRan = true;');
+            project.activeFrame.addClip(rootLevelClip);
+
+            var childClip = new Wick.Clip();
+            childClip.addScript('unload', 'this.__unloadScriptRan = true;');
+            rootLevelClip.activeFrame.addClip(childClip);
+
+            expect(project.getAllFrames().length).to.equal(3);
+            expect(project.getAllFrames()[0]).to.equal(project.root.activeFrame);
+            expect(project.getAllFrames()[1]).to.equal(rootLevelClip.activeFrame);
+            expect(project.getAllFrames()[2]).to.equal(childClip.activeFrame);
+        });
     });
 
     describe('#createClipFromSelection', function () {

@@ -22,16 +22,20 @@ import ToolIcon from 'Editor/Util/ToolIcon/ToolIcon';
 
 import './_objectinfo.scss';
 
+var classNames = require('classnames'); 
+
 class MakeAnimated extends Component {
 
-  renderRow(rowText, i) {
+  renderRow(rowInfo, i) {
+      let text = rowInfo.text;
+      let icon = rowInfo.icon;
       return (
         <div key={i} className="object-info-row">
             <div className="object-info-row-icon">
-                <ToolIcon name="check"/>
+                <ToolIcon name={icon}/>
             </div>
             <div className="object-info-row-text">
-                {rowText}
+                {text}
             </div>
         </div>
       );
@@ -39,7 +43,7 @@ class MakeAnimated extends Component {
 
   render() {
     return (
-        <div className="object-info-container">
+        <div className={classNames("object-info-container", this.props.className)}>
             <div className="object-info-title">
                 {this.props.title}
             </div>

@@ -22,6 +22,7 @@ import localForage from 'localforage';
 import { saveAs } from 'file-saver';
 import GIFExport from './export/GIFExport';
 import ZIPExport from './export/ZIPExport';
+import VideoExport from './export/VideoExport/VideoExport';
 
 class EditorCore extends Component {
   /**
@@ -803,7 +804,8 @@ class EditorCore extends Component {
   /**
    * Export the current project as an animated GIF.
    */
-  exportProjectAsAnimatedGIF = () => {
+  exportProjectAsAnimatedGIF = (name) => {
+    let outputName = name || this.project.name;
     let toastID = this.toast('Exporting animated GIF...', 'info');
     this.showWaitOverlay();
     GIFExport.createAnimatedGIFFromProject(this.project, blob => {
@@ -816,15 +818,30 @@ class EditorCore extends Component {
   }
 
   /**
+   * Export the current project as a video.
+   */
+  exportProjectAsVideo = (name) => {
+    let outputName = name || this.project.name;
+
+    let args = {
+      project: this.project,
+      onDone: (buffer) => {saveAs(new Blob([new Uint8Array(buffer)]), outputName + ".webm")},
+    }
+
+    VideoExport.renderProjectAsVideo(args);
+  }
+
+  /**
    * Export the current project as a bundled standalone ZIP that can be uploaded to itch/newgrounds/etc.
    */
-  exportProjectAsStandaloneZIP = () => {
+  exportProjectAsStandaloneZIP = (name) => {
     let toastID = this.toast('Exporting project as ZIP...', 'info');
+    let outputName = name || this.project.name;
     ZIPExport.bundleStandaloneProject(this.project, blob => {
       this.updateToast(toastID, {
         type: 'success',
         text: "Successfully saved .zip file." });
-      saveAs(blob, this.project.name + '.zip');
+      saveAs(blob, outputName + '.zip');
     });
   }
 
@@ -902,7 +919,7 @@ class EditorCore extends Component {
    *
    */
   autosaveAssets = () => {
-    
+
   }
 
   /**

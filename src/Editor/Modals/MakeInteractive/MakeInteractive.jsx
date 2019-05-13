@@ -25,7 +25,7 @@ import ObjectInfo from '../Util/ObjectInfo/ObjectInfo';
 
 import './_makeinteractive.scss';
 
-class MakeAnimated extends Component {
+class MakeInteractive extends Component {
   constructor (props) {
     super(props);
     this.placeholderName = "Item_Name"
@@ -84,10 +84,36 @@ class MakeAnimated extends Component {
           <div className="make-interactive-object-info-container">
             <ObjectInfo 
               title="CLIP" 
-              rows={["Can add any code", "Has its own timeline", "Can control timeline with code"]} />
+              rows={[
+              {
+                text: "Can add any code",
+                icon: "check"
+              },
+              {
+                text: "Has its own timeline",
+                icon: "check"
+              }, 
+              {
+                text: "Can control timeline with code",
+                icon: "check", 
+              }
+            ]}/>
             <ObjectInfo 
               title="BUTTON" 
-              rows={["Can add any code", "Only has 3 frames", "Frames controlled by mouse interactions"]} />
+              rows={[
+              {
+                text: "Can add any code",
+                icon: "check"
+              },
+              {
+                text: "Only has 3 frames",
+                icon: "check"
+              }, 
+              {
+                text: "Frames controlled by mouse interactions",
+                icon: "check", 
+              }
+            ]}/>
           </div>
         </div>
         <div id="make-interactive-modal-footer">
@@ -121,4 +147,4 @@ class MakeAnimated extends Component {
   }
 }
 
-export default MakeAnimated
+export default MakeInteractive

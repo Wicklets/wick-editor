@@ -20,24 +20,14 @@
 import React, { Component } from 'react';
 
 import WickInput from 'Editor/Util/WickInput/WickInput';
+import SettingsNumericSlider from './SettingsNumericSlider/SettingsNumericSlider';
 import ToolIcon from 'Editor/Util/ToolIcon/ToolIcon';
 import ReactTooltip from 'react-tooltip';
+import ActionButton from 'Editor/Util/ActionButton/ActionButton'; 
 
 import './_toolsettingsinput.scss';
 
 class ToolSettingsInput extends Component {
-  renderIcon = () => {
-    let tooltipID = 'settings-input-id-'+this.props.icon;
-    return (
-      <div
-        data-tip
-        data-for={tooltipID}
-        className='settings-input-icon'>
-        <ToolIcon name={this.props.icon} />
-        {this.renderTooltip(tooltipID)}
-      </div>);
-  }
-
   renderTooltip = (tooltipID) => {
     // Detect if on mobile to disable tooltips.
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
@@ -57,34 +47,26 @@ class ToolSettingsInput extends Component {
 
   renderNumericInput = () => {
     return (
-      <div className="settings-numeric-input-container">
-        <WickInput
-          type="numeric"
-          containerclassname="settings-numeric-wick-input-container"
-          className="settings-numeric-input"
-          onChange={this.props.onChange}
-          value={this.props.value}
-          {...this.props.inputRestrictions}/>
-        <WickInput
-          type="slider"
-          containerclassname="settings-slider-wick-input-container"
-          className="settings-numeric-slider"
-          onChange={this.props.onChange}
-          value={this.props.value}
-          {...this.props.inputRestrictions} />
-      </div>
-    )
+      <SettingsNumericSlider
+        onChange={this.props.onChange}
+        value={this.props.value}
+        inputRestrictions={this.props.inputRestrictions}
+        icon={this.props.icon} />
+    );
   }
 
   renderCheckboxInput = () => {
     return (
-      <WickInput
-        type="checkbox"
-        containerclassname="settings-checkbox-wick-input-container"
-        className="settings-checkbox-input"
-        onChange={this.props.onChange}
-        defaultChecked={this.props.value}
-        />
+      <div className="settings-checkbox-input">
+        <ActionButton
+          icon={this.props.icon}
+          isActive={() => this.props.value}
+          color='checkbox'
+          id={"settings-input-id-" + this.props.name}
+          tooltip={this.props.name}
+          action={() => this.props.onChange(!this.props.value)}
+          />
+      </div>
     );
   }
 
@@ -115,7 +97,6 @@ class ToolSettingsInput extends Component {
   render () {
     return (
       <div className="setting-input-container">
-        {this.renderIcon()}
         {this.renderInput()}
       </div>
     );

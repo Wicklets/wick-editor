@@ -1,15 +1,12 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg width="61px" height="61px" viewBox="0 0 61 61" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <!-- Generator: Sketch 53.2 (72643) - https://sketchapp.com -->
-    <title>Group 4</title>
-    <desc>Created with Sketch.</desc>
-    <g id="Modals" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-        <g id="Group-4" transform="translate(1.000000, 1.000000)">
-            <g id="Group-46-Copy" transform="translate(29.306097, 25.506097) rotate(-45.000000) translate(-29.306097, -25.506097) translate(14.806097, 11.006097)" fill="#F15E5E">
-                <rect id="Rectangle-40-Copy" transform="translate(14.646447, 14.637825) rotate(-495.000000) translate(-14.646447, -14.637825) " x="13.6464466" y="-3.86217536" width="2" height="37" rx="1"></rect>
-            </g>
-            <path d="M29.5,49 C30.3284271,49 31,48.3284271 31,47.5 C31,46.6715729 30.3284271,46 29.5,46 C28.6715729,46 28,46.6715729 28,47.5 C28,48.3284271 28.6715729,49 29.5,49 Z" id="Oval-22" fill="#F15E5E"></path>
-            <circle id="Oval-21-Copy" stroke="#F15E5E" stroke-width="2" cx="29.5" cy="29.5" r="29.5"></circle>
-        </g>
-    </g>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 23.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 61 61" style="enable-background:new 0 0 61 61;" xml:space="preserve">
+<style type="text/css">
+	.st0{fill-rule:evenodd;clip-rule:evenodd;fill:#F15E5E;}
+</style>
+<path class="st0" d="M25.4,39l0-31.1c0-3.1,2.5-5.7,5.7-5.7h0c3.1,0,5.7,2.5,5.7,5.7l0,31.1c0,3.1-2.5,5.7-5.7,5.7h0
+	C27.9,44.7,25.4,42.1,25.4,39z"/>
+<path class="st0" d="M25.4,53.5L25.4,53.5c0-3.1,2.5-5.7,5.7-5.7h0.1c3.1,0,5.7,2.5,5.7,5.7v0c0,3.1-2.5,5.7-5.7,5.7H31
+	C27.9,59.1,25.4,56.6,25.4,53.5z"/>
 </svg>
