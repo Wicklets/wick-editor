@@ -128,28 +128,36 @@ Wick.View.Selection = class extends Wick.View {
      *
      */
     sendToBack () {
+        // we need to do a view applyChanges() call here because i (zj) decided to do ordering straight through paper.js (bad idea)
         paper.OrderingUtils.sendToBack(this._getSelectedObjectViews());
+        this.model.project.view.applyChanges();
     }
 
     /**
      *
      */
     bringToFront () {
+        // we need to do a view applyChanges() call here because i (zj) decided to do ordering straight through paper.js (bad idea)
         paper.OrderingUtils.bringToFront(this._getSelectedObjectViews());
+        this.model.project.view.applyChanges();
     }
 
     /**
      *
      */
     moveForwards () {
+        // we need to do a view applyChanges() call here because i (zj) decided to do ordering straight through paper.js (bad idea)
         paper.OrderingUtils.moveForwards(this._getSelectedObjectViews());
+        this.model.project.view.applyChanges();
     }
 
     /**
      *
      */
     moveBackwards () {
+        // we need to do a view applyChanges() call here because i (zj) decided to do ordering straight through paper.js (bad idea)
         paper.OrderingUtils.moveBackwards(this._getSelectedObjectViews());
+        this.model.project.view.applyChanges();
     }
 
     _renderSVG () {

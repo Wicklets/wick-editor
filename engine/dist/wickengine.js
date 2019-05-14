@@ -74643,6 +74643,7 @@ Wick.View.Selection = class extends Wick.View {
 
   sendToBack() {
     paper.OrderingUtils.sendToBack(this._getSelectedObjectViews());
+    this.model.project.view.applyChanges();
   }
   /**
    *
@@ -74651,6 +74652,7 @@ Wick.View.Selection = class extends Wick.View {
 
   bringToFront() {
     paper.OrderingUtils.bringToFront(this._getSelectedObjectViews());
+    this.model.project.view.applyChanges();
   }
   /**
    *
@@ -74659,6 +74661,7 @@ Wick.View.Selection = class extends Wick.View {
 
   moveForwards() {
     paper.OrderingUtils.moveForwards(this._getSelectedObjectViews());
+    this.model.project.view.applyChanges();
   }
   /**
    *
@@ -74667,6 +74670,7 @@ Wick.View.Selection = class extends Wick.View {
 
   moveBackwards() {
     paper.OrderingUtils.moveBackwards(this._getSelectedObjectViews());
+    this.model.project.view.applyChanges();
   }
 
   _renderSVG() {
