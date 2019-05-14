@@ -407,4 +407,10 @@ describe('Wick.Frame', function() {
             expect(frame2.isSoundPlaying()).to.equal(false);
         });
     });
+
+    describe('#createTween', function () {
+        it('should create a tween and convert everything on the frame into one clip', function () {
+            // TODO
+        });
+    })
 });

@@ -69630,7 +69630,7 @@ Wick.Frame = class extends Wick.Tickable {
   }
   /**
    * The amount of time the sound playing should be offset, in milliseconds. If this is 0,
-   * the sound plays normally. A negative value means the sound should start at a later point 
+   * the sound plays normally. A negative value means the sound should start at a later point
    * in the track. THIS DOES NOT DETERMINE WHEN A SOUND PLAYS.
    * @returns {number} amount of time to offset in milliseconds.
    */
@@ -69791,6 +69791,22 @@ Wick.Frame = class extends Wick.Tickable {
 
   addTween(tween) {
     this.addChild(tween);
+  }
+  /**
+   * Automatically creates a tween at the current playhead position. Converts all objects into one clip if needed.
+   */
+
+
+  createTween() {
+    if (this.paths.length + this.clips.length > 1) {} // TODO convert to clip
+    // Create the tween (if there's not already a tween at the current playhead position)
+
+
+    if (!this.getActiveTween()) {
+      this.addTween(new Wick.Tween({
+        playheadPosition: this._getRelativePlayheadPosition()
+      }));
+    }
   }
   /**
    * Remove a tween from the frame.
@@ -74602,6 +74618,7 @@ Wick.View.Selection = class extends Wick.View {
 
   set rotation(rotation) {
     this.widget.rotation = rotation;
+    this.model.widgetRotation = rotation;
   }
   /**
    *
@@ -75178,6 +75195,7 @@ Wick.View.Frame = class extends Wick.View {
       if (!child.applyMatrix && !(child instanceof paper.Raster)) {
         console.log(child);
         console.error('Path had applyMatrix set to false on Frame applyChanges(). This should never happen - check that selection was properly destroyed.');
+        child.applyMatrix = true;
       }
 
       var pathJSON = Wick.View.Path.exportJSON(child);

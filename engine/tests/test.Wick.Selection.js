@@ -114,5 +114,21 @@ describe('Wick.Selection', function() {
         expect(project.selection.getSelectedObjects()).to.eql([]);
     });
 
-    
+    it('should change selection transforms correctly', function () {
+        // TODO
+        // x, y, width, height, rotation
+    });
+
+    it('should flip selection correctly', function () {
+        // todo vertical, horizontal
+    });
+
+    it('should reorder selection correctly', function () {
+        // todo sendtoback, bringtofront, etc
+    });
+
+    it('should change selection attributes correctly', function () {
+        // TODO
+        // opacity, fillColor, strokeColor, strokeWidth
+    });
 });

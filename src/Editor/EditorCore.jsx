@@ -814,7 +814,7 @@ class EditorCore extends Component {
       this.updateToast(toastID, {
         type: 'success',
         text: "Successfully saved .gif file." });
-      saveAs(blob, this.project.name + '.gif');
+      saveAs(blob, outputName + '.gif');
       this.hideWaitOverlay();
     });
   }

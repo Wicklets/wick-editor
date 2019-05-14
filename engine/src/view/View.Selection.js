@@ -107,6 +107,7 @@ Wick.View.Selection = class extends Wick.View {
 
     set rotation (rotation) {
         this.widget.rotation = rotation;
+        this.model.widgetRotation = rotation;
     }
 
     /**
