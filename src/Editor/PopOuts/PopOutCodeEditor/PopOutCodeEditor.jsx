@@ -89,7 +89,9 @@ class PopOutCodeEditor extends Component {
         rerenderCodeEditor={this.rerenderCodeEditor}
         errors={this.props.errors}
         onMinorScriptUpdate={this.props.onMinorScriptUpdate}
-        onMajorScriptUpdate={this.props.onMajorScriptUpdate}/>
+        onMajorScriptUpdate={this.props.onMajorScriptUpdate}
+        scriptInfoInterface={this.props.scriptInfoInterface}
+        />
     )
   }
 

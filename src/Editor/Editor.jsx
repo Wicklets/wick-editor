@@ -37,6 +37,7 @@ import { Slide } from 'react-toastify';
 
 import HotKeyInterface from './hotKeyMap';
 import ActionMapInterface from './actionMap';
+import ScriptInfoInterface from './scriptInfo';
 import EditorCore from './EditorCore';
 
 import DockedPanel from './Panels/DockedPanel/DockedPanel';
@@ -100,6 +101,9 @@ class Editor extends EditorCore {
 
     // Init actions
     this.actionMapInterface = new ActionMapInterface(this);
+
+    // Init Script Info
+    this.scriptInfoInterface = new ScriptInfoInterface();
 
     // Resizable panels
     this.RESIZE_THROTTLE_AMOUNT_MS = 10;
@@ -729,6 +733,7 @@ class Editor extends EditorCore {
                                 editorActions={this.actionMapInterface.editorActions}
                                 selectionIsScriptable={this.selectionIsScriptable}
                                 script={this.getSelectedObjectScript()}
+                                scriptInfoInterface={this.scriptInfoInterface}
                               />
                             </DockedPanel>
                           </ReflexElement>
@@ -762,6 +767,7 @@ class Editor extends EditorCore {
             <PopOutCodeEditor
               codeEditorWindowProperties={this.state.codeEditorWindowProperties}
               updateCodeEditorWindowProperties={this.updateCodeEditorWindowProperties}
+              scriptInfoInterface={this.scriptInfoInterface}
               selectionIsScriptable={this.selectionIsScriptable}
               getSelectionType={this.getSelectionType}
               script={this.getSelectedObjectScript()}
