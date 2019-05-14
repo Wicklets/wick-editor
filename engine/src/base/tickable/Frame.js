@@ -317,9 +317,10 @@ Wick.Frame = class extends Wick.Tickable {
         }
 
         // Create the tween (if there's not already a tween at the current playhead position)
-        if(!this.getActiveTween()) {
+        var playheadPosition = this._getRelativePlayheadPosition();
+        if(!this.getTweenAtPosition(playheadPosition)) {
             this.addTween(new Wick.Tween({
-                playheadPosition: this._getRelativePlayheadPosition(),
+                playheadPosition: playheadPosition,
             }));
         }
     }

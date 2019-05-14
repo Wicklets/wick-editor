@@ -69802,9 +69802,11 @@ Wick.Frame = class extends Wick.Tickable {
     // Create the tween (if there's not already a tween at the current playhead position)
 
 
-    if (!this.getActiveTween()) {
+    var playheadPosition = this._getRelativePlayheadPosition();
+
+    if (!this.getTweenAtPosition(playheadPosition)) {
       this.addTween(new Wick.Tween({
-        playheadPosition: this._getRelativePlayheadPosition()
+        playheadPosition: playheadPosition
       }));
     }
   }
@@ -74642,6 +74644,7 @@ Wick.View.Selection = class extends Wick.View {
 
 
   sendToBack() {
+    // we need to do a view applyChanges() call here because i (zj) decided to do ordering straight through paper.js (bad idea)
     paper.OrderingUtils.sendToBack(this._getSelectedObjectViews());
     this.model.project.view.applyChanges();
   }
@@ -74651,6 +74654,7 @@ Wick.View.Selection = class extends Wick.View {
 
 
   bringToFront() {
+    // we need to do a view applyChanges() call here because i (zj) decided to do ordering straight through paper.js (bad idea)
     paper.OrderingUtils.bringToFront(this._getSelectedObjectViews());
     this.model.project.view.applyChanges();
   }
@@ -74660,6 +74664,7 @@ Wick.View.Selection = class extends Wick.View {
 
 
   moveForwards() {
+    // we need to do a view applyChanges() call here because i (zj) decided to do ordering straight through paper.js (bad idea)
     paper.OrderingUtils.moveForwards(this._getSelectedObjectViews());
     this.model.project.view.applyChanges();
   }
@@ -74669,6 +74674,7 @@ Wick.View.Selection = class extends Wick.View {
 
 
   moveBackwards() {
+    // we need to do a view applyChanges() call here because i (zj) decided to do ordering straight through paper.js (bad idea)
     paper.OrderingUtils.moveBackwards(this._getSelectedObjectViews());
     this.model.project.view.applyChanges();
   }
