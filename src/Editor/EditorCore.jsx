@@ -836,7 +836,7 @@ class EditorCore extends Component {
   /**
    * Export the current project as a bundled standalone ZIP that can be uploaded to itch/newgrounds/etc.
    */
-  exportProjectAsStandaloneZIP = (name) => {
+  exportProjectAsStandaloneZip = (name) => {
     let toastID = this.toast('Exporting project as ZIP...', 'info');
     let outputName = name || this.project.name;
     ZIPExport.bundleStandaloneProject(this.project, blob => {

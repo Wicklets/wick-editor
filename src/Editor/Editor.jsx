@@ -612,7 +612,7 @@ class Editor extends EditorCore {
                     loadAutosavedProject={this.loadAutosavedProject}
                     exportProjectAsGif={this.exportProjectAsAnimatedGIF}
                     exportProjectAsVideo={this.exportProjectAsVideo}
-                    exportProjectAsStandaloneZIP={this.exportProjectAsStandaloneZIP}
+                    exportProjectAsStandaloneZip={this.exportProjectAsStandaloneZip}
                   />
                   {/* Header */}
                   <DockedPanel showOverlay={this.state.previewPlaying}>

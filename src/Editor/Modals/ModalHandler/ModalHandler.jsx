@@ -20,10 +20,10 @@
 import React, { Component } from 'react';
 
 import ProjectSettings from '../ProjectSettings/ProjectSettings';
-import MakeInteractive from '../MakeInteractive/MakeInteractive'; 
+import MakeInteractive from '../MakeInteractive/MakeInteractive';
 import AutosaveWarning from '../AutosaveWarning/AutosaveWarning';
-import WelcomeMessage from '../WelcomeMessage/WelcomeMessage'; 
-import MakeAnimated from '../MakeAnimated/MakeAnimated'; 
+import WelcomeMessage from '../WelcomeMessage/WelcomeMessage';
+import MakeAnimated from '../MakeAnimated/MakeAnimated';
 import ExportOptions from '../ExportOptions/ExportOptions';
 
 class ModalHandler extends Component {
@@ -65,8 +65,8 @@ class ModalHandler extends Component {
           openModal={this.props.openModal}
           toggle={this.props.closeActiveModal}
           exportProjectAsGif={this.props.exportProjectAsGif}
-          exportProjectAsStandaloneZIP={this.props.exportProjectAsStandaloneZIP}
-          exportProjectAsVideo={this.props.exportProjectAsVideo} 
+          exportProjectAsStandaloneZip={this.props.exportProjectAsStandaloneZip}
+          exportProjectAsVideo={this.props.exportProjectAsVideo}
           open={this.props.activeModalName === 'ExportOptions'}
           projectName={this.props.project.name}
           />

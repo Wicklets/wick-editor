@@ -31,6 +31,9 @@ window.onload = function () {
         project.focus.timeline.playheadPosition = 1;
         project.view.prerasterize(() => {
             project.play({
+                onAfterTick: (() => {
+                    project.view.render();
+                }),
                 onError: (error => {
                     console.error('Project threw an error!');
                     console.error(error);

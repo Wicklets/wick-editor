@@ -18,11 +18,11 @@
  */
 
 import React, { Component } from 'react';
-import ActionButton from 'Editor/Util/ActionButton/ActionButton'; 
-import WickModal from 'Editor/Modals/WickModal/WickModal'; 
+import ActionButton from 'Editor/Util/ActionButton/ActionButton';
+import WickModal from 'Editor/Modals/WickModal/WickModal';
 import WickInput from 'Editor/Util/WickInput/WickInput';
-import ObjectInfo from '../Util/ObjectInfo/ObjectInfo'; 
-import SelectSubTabButton from 'Editor/Util/SelectSubTabButton/SelectSubTabButton'; 
+import ObjectInfo from '../Util/ObjectInfo/ObjectInfo';
+import SelectSubTabButton from 'Editor/Util/SelectSubTabButton/SelectSubTabButton';
 
 import './_exportoptions.scss';
 
@@ -38,10 +38,13 @@ class ExportOptions extends Component {
 
   /**
    * Creates an item of type and toggles the modal.
-   * @param {string} type Either 'GIF', 'VIDEO', 'ZIP', or 'HTML'. 
+   * @param {string} type Either 'GIF', 'VIDEO', 'ZIP', or 'HTML'.
    */
   createAndToggle = (type) => {
-    let name = this.state.name !== "" ? this.state.name : (type); 
+    let name = this.state.name !== "" ? this.state.name : (type);
+
+    console.log(this.props)
+    console.log(this.props.exportProjectAsStandaloneZip)
 
     if (type === 'GIF') {
       this.props.exportProjectAsGif(name)
@@ -50,8 +53,8 @@ class ExportOptions extends Component {
     } else if (type === 'ZIP') {
       this.props.exportProjectAsStandaloneZip(name);
     } else if (type === 'HTML') {
-      // this.props.exportProjectAsHTML(name); 
-      console.warn("HTML Export NYI"); 
+      // this.props.exportProjectAsHTML(name);
+      console.warn("HTML Export NYI");
     }
 
     this.props.toggle()
@@ -61,22 +64,22 @@ class ExportOptions extends Component {
   updateExportName = (newName) => {
     this.setState({
       name: newName,
-    }); 
+    });
   }
 
   setSubTab = (name) => {
     this.setState({
-      subTab: name, 
-    }); 
+      subTab: name,
+    });
   }
 
   renderObjectInfo = () => {
     if (this.state.subTab === 'Animation') {
       return (
         <div className="export-info-container">
-          <ObjectInfo 
+          <ObjectInfo
             className="export-object-info"
-            title="Animated GIF" 
+            title="Animated GIF"
             rows={[
               {
                 text: "Creates a .gif file",
@@ -85,15 +88,15 @@ class ExportOptions extends Component {
               {
                 text: "No Code is Run",
                 icon: "cancel"
-              }, 
+              },
               {
                 text: "No Sound",
-                icon: "cancel", 
+                icon: "cancel",
               }
             ]} />
-          <ObjectInfo 
+          <ObjectInfo
             className="export-object-info export-object-info-off"
-            title="Video (Coming Soon)" 
+            title="Video (Coming Soon)"
             rows={[
               {
                 text: "Creates a .webm file",
@@ -102,10 +105,10 @@ class ExportOptions extends Component {
               {
                 text: "No code is run",
                 icon: "cancel"
-              }, 
+              },
               {
                 text: "Has Sound",
-                icon: "check", 
+                icon: "check",
               }
             ]}/>
         </div>
@@ -113,9 +116,9 @@ class ExportOptions extends Component {
     } else if (this.state.subTab === 'Interactive') {
       return (
         <div className="export-info-container">
-          <ObjectInfo 
+          <ObjectInfo
             className="export-object-info"
-            title="ZIP Archive" 
+            title="ZIP Archive"
             rows={[
               {
                 text: "Fully Interactive",
@@ -124,15 +127,15 @@ class ExportOptions extends Component {
               {
                 text: "Works on other sites",
                 icon: "check"
-              }, 
+              },
               {
                 text: "Exports a .zip file",
-                icon: "check", 
+                icon: "check",
               }
             ]}/>
-          <ObjectInfo 
+          <ObjectInfo
             className="export-object-info export-object-info-off"
-            title="HTML (Coming Soon)" 
+            title="HTML (Coming Soon)"
             rows={[
               {
                 text: "1-Click open",
@@ -141,10 +144,10 @@ class ExportOptions extends Component {
               {
                 text: "Easily share projects",
                 icon: "check"
-              }, 
+              },
               {
                 text: "Exports a .html file",
-                icon: "check", 
+                icon: "check",
               }
             ]}/>
         </div>
@@ -158,13 +161,13 @@ class ExportOptions extends Component {
     if (this.state.subTab === 'Animation') {
       return (
         <div id="export-modal-footer">
-        <ActionButton 
+        <ActionButton
           className="export-modal-button"
           color='gray-green'
           action={() => { this.createAndToggle("GIF") }}
           text="Export GIF"
           />
-        <ActionButton 
+        <ActionButton
           id="export-gif-action-button"
           className="export-modal-button"
           color='gray'
@@ -172,20 +175,20 @@ class ExportOptions extends Component {
           tooltip={"Coming soon!"}
           tooltipPlace="top"
           text="Export Video"
-          disabled={true} 
+          disabled={true}
           />
       </div>
       );
     } else if (this.state.subTab === 'Interactive') {
       return (
         <div id="export-modal-footer">
-        <ActionButton 
+        <ActionButton
           className="export-modal-button"
           color='gray-green'
           action={() => { this.createAndToggle("ZIP") }}
           text="Export ZIP"
           />
-        <ActionButton 
+        <ActionButton
           id="export-gif-action-button"
           className="export-modal-button"
           color='gray'
@@ -193,7 +196,7 @@ class ExportOptions extends Component {
           tooltipPlace="top"
           tooltip={"Coming soon!"}
           text="Export HTML"
-          disabled={true} 
+          disabled={true}
           />
       </div>
       );
@@ -202,9 +205,9 @@ class ExportOptions extends Component {
 
   render() {
     return (
-      <WickModal 
-      open={this.props.open} 
-      toggle={this.props.toggle} 
+      <WickModal
+      open={this.props.open}
+      toggle={this.props.toggle}
       className="export-modal-body"
       overlayClassName="export-modal-overlay">
         <div id="export-modal-interior-content">
