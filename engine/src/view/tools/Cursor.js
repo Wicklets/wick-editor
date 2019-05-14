@@ -214,7 +214,6 @@ Wick.Tools.Cursor = class extends Wick.Tool {
             });
             this.fireEvent('canvasModified');
         } else if (this._selection.numObjects > 0) {
-            this.project.selection.rotation = this._widget.rotation;
             this._widget.finishTransformation();
             this.fireEvent('canvasModified');
         }

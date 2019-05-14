@@ -67300,7 +67300,7 @@ Wick.Selection = class extends Wick.Base {
 
 
   get rotation() {
-    return this.view.height;
+    return this.view.rotation;
   }
 
   set rotation(rotation) {
@@ -67353,15 +67353,6 @@ Wick.Selection = class extends Wick.Base {
 
   moveBackwards() {
     this.view.moveBackwards();
-  }
-  /**
-   *
-   */
-
-
-  nudge(x, y) {
-    this.x += x;
-    this.y += y;
   }
 
   _locationOf(object) {
@@ -68215,6 +68206,12 @@ Wick.Asset = class extends Wick.Base {
     data.name = this.name;
     return data;
   }
+
+  remove() {
+    this.project.removeAsset(this);
+  }
+
+  removeAllInstances() {}
 
   get classname() {
     return 'Asset';
@@ -70922,10 +70919,10 @@ class PaperJSOrderingUtils {
   /**
    * Moves the selected items forwards.
    */
-  moveForwards(items) {
+  static moveForwards(items) {
     PaperJSOrderingUtils._sortItemsByLayer(items).forEach(layerItems => {
       PaperJSOrderingUtils._sortItemsByZIndex(layerItems).reverse().forEach(item => {
-        if (item.nextSibling && this._items.indexOf(item.nextSibling) === -1) {
+        if (item.nextSibling && items.indexOf(item.nextSibling) === -1) {
           item.insertAbove(item.nextSibling);
         }
       });
@@ -70936,10 +70933,10 @@ class PaperJSOrderingUtils {
    */
 
 
-  moveBackwards(items) {
+  static moveBackwards(items) {
     PaperJSOrderingUtils._sortItemsByLayer(items).forEach(layerItems => {
       PaperJSOrderingUtils._sortItemsByZIndex(layerItems).forEach(item => {
-        if (item.previousSibling && this._items.indexOf(item.previousSibling) === -1) {
+        if (item.previousSibling && items.indexOf(item.previousSibling) === -1) {
           item.insertBelow(item.previousSibling);
         }
       });
@@ -70950,7 +70947,7 @@ class PaperJSOrderingUtils {
    */
 
 
-  bringToFront(items) {
+  static bringToFront(items) {
     PaperJSOrderingUtils._sortItemsByLayer(items).forEach(layerItems => {
       PaperJSOrderingUtils._sortItemsByZIndex(layerItems).forEach(item => {
         item.bringToFront();
@@ -70962,7 +70959,7 @@ class PaperJSOrderingUtils {
    */
 
 
-  sendToBack(items) {
+  static sendToBack(items) {
     PaperJSOrderingUtils._sortItemsByLayer(items).forEach(layerItems => {
       PaperJSOrderingUtils._sortItemsByZIndex(layerItems).reverse().forEach(item => {
         item.sendToBack();
@@ -71248,7 +71245,6 @@ class SelectionWidget {
   updateTransformation(item, e) {
     if (this.currentTransformation === 'translate') {
       this._ghost.position = this._ghost.position.add(e.delta);
-      this.pivot = this.pivot.add(e.delta);
     } else if (this.currentTransformation === 'scale') {
       var lastPoint = e.point.subtract(e.delta);
       var currentPoint = e.point;
@@ -71310,6 +71306,8 @@ class SelectionWidget {
     this._itemsInSelection.forEach(item => {
       item.position = item.position.add(delta);
     });
+
+    this.pivot = this.pivot.add(delta);
   }
   /**
    *
@@ -71375,7 +71373,22 @@ class SelectionWidget {
   }
 
   _buildItemOutlines() {
-    return []; //TODO replace
+    return this._itemsInSelection.map(item => {
+      var clone = item.clone({
+        insert: false
+      });
+      clone.rotate(-this.boxRotation, this._center);
+      var bounds = clone.bounds;
+      var border = new paper.Path.Rectangle({
+        from: bounds.topLeft,
+        to: bounds.bottomRight,
+        strokeWidth: SelectionWidget.BOX_STROKE_WIDTH,
+        strokeColor: SelectionWidget.BOX_STROKE_COLOR
+      }); //border.rotate(-this.boxRotation, this._center);
+
+      border.remove();
+      return border;
+    });
   }
 
   _buildScalingHandle(edge) {
@@ -72479,8 +72492,6 @@ Wick.Tools.Cursor = class extends Wick.Tool {
       });
       this.fireEvent('canvasModified');
     } else if (this._selection.numObjects > 0) {
-      this.project.selection.rotation = this._widget.rotation;
-
       this._widget.finishTransformation();
 
       this.fireEvent('canvasModified');
@@ -74424,7 +74435,6 @@ Wick.View.Selection = class extends Wick.View {
 
   set x(x) {
     this.widget.position = new paper.Point(x, this.widget.position.y);
-    this.model.view.fireEvent('canvasModified');
   }
   /**
    *
@@ -74437,7 +74447,6 @@ Wick.View.Selection = class extends Wick.View {
 
   set y(y) {
     this.widget.position = new paper.Point(this.widget.position.x, y);
-    this.model.view.fireEvent('canvasModified');
   }
   /**
    *
@@ -74450,7 +74459,6 @@ Wick.View.Selection = class extends Wick.View {
 
   set width(width) {
     this.widget.width = width;
-    this.model.view.fireEvent('canvasModified');
   }
   /**
    *
@@ -74463,7 +74471,6 @@ Wick.View.Selection = class extends Wick.View {
 
   set height(height) {
     this.widget.height = height;
-    this.model.view.fireEvent('canvasModified');
   }
   /**
    *
@@ -74476,7 +74483,6 @@ Wick.View.Selection = class extends Wick.View {
 
   set rotation(rotation) {
     this.widget.rotation = rotation;
-    this.model.view.fireEvent('canvasModified');
   }
   /**
    *
@@ -74485,7 +74491,6 @@ Wick.View.Selection = class extends Wick.View {
 
   flipHorizontally() {
     this.widget.flipHorizontally();
-    this.model.view.fireEvent('canvasModified');
   }
   /**
    *
@@ -74494,7 +74499,6 @@ Wick.View.Selection = class extends Wick.View {
 
   flipVertically() {
     this.widget.flipVertically();
-    this.model.view.fireEvent('canvasModified');
   }
   /**
    *
@@ -74503,7 +74507,6 @@ Wick.View.Selection = class extends Wick.View {
 
   sendToBack() {
     paper.OrderingUtils.sendToBack(this._getSelectedObjectViews());
-    this.model.view.fireEvent('canvasModified');
   }
   /**
    *
@@ -74512,7 +74515,6 @@ Wick.View.Selection = class extends Wick.View {
 
   bringToFront() {
     paper.OrderingUtils.bringToFront(this._getSelectedObjectViews());
-    this.model.view.fireEvent('canvasModified');
   }
   /**
    *
@@ -74521,7 +74523,6 @@ Wick.View.Selection = class extends Wick.View {
 
   moveForwards() {
     paper.OrderingUtils.moveForwards(this._getSelectedObjectViews());
-    this.model.view.fireEvent('canvasModified');
   }
   /**
    *
@@ -74530,7 +74531,6 @@ Wick.View.Selection = class extends Wick.View {
 
   moveBackwards() {
     paper.OrderingUtils.moveBackwards(this._getSelectedObjectViews());
-    this.model.view.fireEvent('canvasModified');
   }
 
   _renderSVG() {

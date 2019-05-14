@@ -281,7 +281,7 @@ Wick.Selection = class extends Wick.Base {
      *
      */
     get rotation () {
-        return this.view.height;
+        return this.view.rotation;
     }
 
     set rotation (rotation) {
@@ -328,14 +328,6 @@ Wick.Selection = class extends Wick.Base {
      */
     moveBackwards () {
         this.view.moveBackwards();
-    }
-
-    /**
-     *
-     */
-    nudge (x, y) {
-        this.x += x;
-        this.y += y;
     }
 
     _locationOf (object) {

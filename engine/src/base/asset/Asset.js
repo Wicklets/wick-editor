@@ -40,6 +40,14 @@ Wick.Asset = class extends Wick.Base {
         return data;
     }
 
+    remove () {
+        this.project.removeAsset(this);
+    }
+
+    removeAllInstances () {
+        
+    }
+
     get classname () {
         return 'Asset';
     }

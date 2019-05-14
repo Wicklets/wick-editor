@@ -222,7 +222,6 @@ class SelectionWidget {
     updateTransformation (item, e) {
         if(this.currentTransformation === 'translate') {
             this._ghost.position = this._ghost.position.add(e.delta);
-            this.pivot = this.pivot.add(e.delta);
         } else if(this.currentTransformation === 'scale') {
             var lastPoint = e.point.subtract(e.delta);
             var currentPoint = e.point;
@@ -277,6 +276,7 @@ class SelectionWidget {
         this._itemsInSelection.forEach(item => {
             item.position = item.position.add(delta);
         });
+        this.pivot = this.pivot.add(delta);
     }
 
     /**
@@ -344,7 +344,20 @@ class SelectionWidget {
     }
 
     _buildItemOutlines () {
-        return [];//TODO replace
+        return this._itemsInSelection.map(item => {
+            var clone = item.clone({insert:false});
+            clone.rotate(-this.boxRotation, this._center);
+            var bounds = clone.bounds;
+            var border = new paper.Path.Rectangle({
+                from: bounds.topLeft,
+                to: bounds.bottomRight,
+                strokeWidth: SelectionWidget.BOX_STROKE_WIDTH,
+                strokeColor: SelectionWidget.BOX_STROKE_COLOR,
+            });
+            //border.rotate(-this.boxRotation, this._center);
+            border.remove();
+            return border;
+        });
     }
 
     _buildScalingHandle (edge) {

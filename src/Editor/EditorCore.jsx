@@ -604,6 +604,22 @@ class EditorCore extends Component {
   }
 
   /**
+   * Horizontally flips the canvas selection.
+   */
+  flipSelectedHorizontal = () => {
+    this.project.flipSelectionHorizontally();
+    this.projectDidChange();
+  }
+
+  /**
+   * Vertically flips the canvas selection.
+   */
+  flipSelectedVertical = () => {
+    this.project.flipSelectionVertically();
+    this.projectDidChange();
+  }
+
+  /**
    * Moves the selected objects up 1 pixel.
    */
   nudgeSelectionUp = () => {
@@ -704,20 +720,6 @@ class EditorCore extends Component {
   focusTimelineOfParentClip = () => {
     this.project.focusTimelineOfParentClip();
     this.projectDidChange();
-  }
-
-  /**
-   * Horizontally flips the canvas selection.
-   */
-  flipSelectedHorizontal = () => {
-    this.project.flipSelectionHorizontally();
-  }
-
-  /**
-   * Vertically flips the canvas selection.
-   */
-  flipSelectedVertical = () => {
-    this.project.flipSelectionVertically();
   }
 
   /**

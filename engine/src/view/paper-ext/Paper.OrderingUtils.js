@@ -21,10 +21,10 @@ class PaperJSOrderingUtils {
     /**
      * Moves the selected items forwards.
      */
-    moveForwards (items) {
+    static moveForwards (items) {
         PaperJSOrderingUtils._sortItemsByLayer(items).forEach(layerItems => {
             PaperJSOrderingUtils._sortItemsByZIndex(layerItems).reverse().forEach(item => {
-                if(item.nextSibling && this._items.indexOf(item.nextSibling) === -1) {
+                if(item.nextSibling && items.indexOf(item.nextSibling) === -1) {
                     item.insertAbove(item.nextSibling);
                 }
             });
@@ -34,10 +34,10 @@ class PaperJSOrderingUtils {
     /**
      * Moves the selected items backwards.
      */
-    moveBackwards (items) {
+    static moveBackwards (items) {
         PaperJSOrderingUtils._sortItemsByLayer(items).forEach(layerItems => {
             PaperJSOrderingUtils._sortItemsByZIndex(layerItems).forEach(item => {
-                if(item.previousSibling && this._items.indexOf(item.previousSibling) === -1) {
+                if(item.previousSibling && items.indexOf(item.previousSibling) === -1) {
                     item.insertBelow(item.previousSibling);
                 }
             });
@@ -47,7 +47,7 @@ class PaperJSOrderingUtils {
     /**
      * Brings the selected objects to the front.
      */
-    bringToFront (items) {
+    static bringToFront (items) {
         PaperJSOrderingUtils._sortItemsByLayer(items).forEach(layerItems => {
             PaperJSOrderingUtils._sortItemsByZIndex(layerItems).forEach(item => {
                 item.bringToFront();
@@ -58,7 +58,7 @@ class PaperJSOrderingUtils {
     /**
      * Sends the selected objects to the back.
      */
-    sendToBack (items) {
+    static sendToBack (items) {
         PaperJSOrderingUtils._sortItemsByLayer(items).forEach(layerItems => {
             PaperJSOrderingUtils._sortItemsByZIndex(layerItems).reverse().forEach(item => {
                 item.sendToBack();

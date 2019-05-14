@@ -241,6 +241,7 @@ class Editor extends EditorCore {
       setTimeout(() => {
         preloader.style.display = 'none';
       }, 500);
+      this.project.view.render()
     }, 2000);
   }
 
@@ -482,6 +483,10 @@ class Editor extends EditorCore {
       frame.view.clearRasterCache();
     });
 
+    // Render engine
+    this.project.view.render();
+
+    // Force react to render
     this.setState({
       project: ''+Math.random(),
     });

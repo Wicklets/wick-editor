@@ -47,9 +47,8 @@ class Canvas extends Component {
     if(this.currentAttachedProject === project) return;
     this.currentAttachedProject = project;
 
-    let canvasContainerElem = this.canvasContainer.current;
-
-    project.view.canvasContainer = canvasContainerElem;
+    project.view.canvasBGColor = styles.editorCanvasBorder;
+    project.view.canvasContainer = this.canvasContainer.current;
     project.view.resize();
 
     project.view.on('canvasModified', (e) => {
@@ -77,11 +76,6 @@ class Canvas extends Component {
 
   updateCanvas = (project) => {
     this.attachProjectToComponent(project);
-
-    // Render wick project
-    project.view.canvasBGColor = styles.editorCanvasBorder;
-    project.view.canvasContainer = this.canvasContainer.current;
-    project.view.render();
 
     // update the drawing tool based on the editor's active tool state.
     // TODO Move this to engine.
