@@ -344,3 +344,27 @@ $action-button-transition-duration: .2s;
   background-color: $wick-green-dark;
   color: black;
 }
+
+.action-button-inspector {
+  -webkit-transition-duration: $action-button-transition-duration; /* Safari */
+  transition-duration: $action-button-transition-duration;
+
+  background-color: $wick-active-blue;
+  color: white;
+  font-size: 16px;
+}
+
+.action-button-inspector:hover {
+  background-color: $wick-active-blue-light;
+  color: white;
+}
+
+.action-button-inspector:active {
+  background-color: $wick-active-blue-dark;
+  color: white;
+}
+
+.action-button-inspector.active-button {
+  background-color: $wick-active-blue-dark;
+  color: white;
+}

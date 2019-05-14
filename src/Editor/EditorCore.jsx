@@ -436,7 +436,7 @@ class EditorCore extends Component {
       } else if (attribute.length === 1) {
         return attribute[0];
       } else {
-        // Should return info about "mixed" attributes, but just
+        // TODO: Should return info about "mixed" attributes, but just
         // return the attribute of the first object for now.
         return attribute[0];
       }

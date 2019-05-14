@@ -103,6 +103,7 @@ class Inspector extends Component {
       return this.getSelectionFillColorOpacity();
     }
 
+    console.log(this.props.getAllSelectionAttributes());
     return this.props.getAllSelectionAttributes()[attribute];
   }
 
