@@ -5,6 +5,23 @@ describe('Wick.Path', function() {
         });
     });
 
+    describe('#createImagePath()', function() {
+        it('should create image path without errors', function (done) {
+            var project = new Wick.Project();
+
+            var imageAsset = new Wick.ImageAsset({
+                filename: 'foo.png',
+                src: TestUtils.TEST_IMG_SRC_PNG,
+            });
+            project.addAsset(imageAsset);
+
+            Wick.Path.createImagePath(imageAsset, path => {
+                expect(path.view.item.bounds.width).to.equal(100);
+                done();
+            });
+        });
+    });
+
     describe('#serialize', function() {
         it('should serialize correctly', function () {
             var path = new Wick.Path({json:TestUtils.TEST_PATH_JSON_RED_SQUARE});
@@ -19,7 +36,7 @@ describe('Wick.Path', function() {
     });
 
     describe('#deserialize', function() {
-        it('should serialize correctly', function () {
+        it('should deserialize correctly', function () {
             var pathOriginal = new Wick.Path({json:TestUtils.TEST_PATH_JSON_RED_SQUARE});
             var data = pathOriginal.serialize();
             var pathFromData = Wick.Path.fromData(data);

@@ -65,10 +65,8 @@ Wick.ImageAsset = class extends Wick.FileAsset {
      * @returns {Wick.Path} - the newly created path.
      */
     createInstance (callback) {
-        var path = new Wick.Path({asset:this});
-        path.onLoad = () => {
-            callback && callback(path);
-        }
-        return path;
+        Wick.Path.createImagePath(this, path => {
+            callback(path);
+        });
     }
 }

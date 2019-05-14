@@ -65554,6 +65554,7 @@ Wick.WickFile = class {
         projectData.assets = [];
         Wick.ObjectCache.deserialize(projectData.objects);
         var project = Wick.Base.fromData(projectData.project);
+        Wick.ObjectCache.addObject(project);
         project.attachParentReferences();
         var loadedAssetCount = 0; // Immediately end if the project has no assets.
 
@@ -68176,9 +68177,31 @@ Wick.Path = class extends Wick.Base {
 
     if (args.json) {
       this.json = args.json;
-    } else if (args.asset) {
-      this.asset = args.asset;
+    } else {
+      this.json = new paper.Path({
+        insert: false
+      }).exportJSON({
+        asString: false
+      });
     }
+  }
+  /**
+   *
+   */
+
+
+  static createImagePath(asset, callback) {
+    var img = new Image();
+    img.src = asset.src;
+
+    img.onload = () => {
+      var raster = new paper.Raster(img);
+      raster.remove();
+      var path = new Wick.Path({
+        json: Wick.View.Path.exportJSON(raster)
+      });
+      callback(path);
+    };
   }
 
   get classname() {
@@ -68208,45 +68231,6 @@ Wick.Path = class extends Wick.Base {
   set json(json) {
     this._json = json;
     this.view.render();
-  }
-  /**
-   * Asset to use for image data.
-   */
-
-
-  get asset() {
-    return this._asset;
-  }
-
-  set asset(asset) {
-    this._asset = asset;
-    this.json = ["Raster", {
-      "applyMatrix": false,
-      "crossOrigin": "",
-      "source": "asset",
-      "asset": asset.uuid,
-      "data": {
-        "asset": asset.uuid
-      }
-    }];
-  }
-  /**
-   * Flag that is set to true when the path is fully loaded.
-   * @type {boolean}
-   */
-
-
-  get isLoaded() {
-    return this._isLoaded;
-  }
-  /**
-   * Callback to listen for when a raster path is done being loaded
-   * @param {function} fn - the function to call when a path is loaded
-   */
-
-
-  set onLoad(fn) {
-    this._onLoad = fn;
   }
   /**
    * The bounding box of the path.
@@ -68546,15 +68530,8 @@ Wick.ImageAsset = class extends Wick.FileAsset {
    */
 
 
-  removeAllInstances() {
-    this.project.getAllFrames().forEach(frame => {
-      frame.paths.forEach(path => {
-        if (path.asset === this) {
-          path.remove();
-        }
-      });
-    });
-  }
+  removeAllInstances() {} // TODO
+
   /**
    * Creates a new Wick Path that uses this asset's image data as it's image source.
    * @returns {Wick.Path} - the newly created path.
@@ -68562,15 +68539,9 @@ Wick.ImageAsset = class extends Wick.FileAsset {
 
 
   createInstance(callback) {
-    var path = new Wick.Path({
-      asset: this
+    Wick.Path.createImagePath(this, path => {
+      callback(path);
     });
-
-    path.onLoad = () => {
-      callback && callback(path);
-    };
-
-    return path;
   }
 
 };
@@ -74159,34 +74130,6 @@ Wick.View.Project = class extends Wick.View {
     }
   }
   /**
-   * Use this to know when all the images in the project are loaded.
-   */
-
-
-  preloadImages(callback) {
-    var allRasters = [];
-    this.model.getAllFrames().forEach(frame => {
-      frame.paths.filter(path => {
-        return path.paperPath instanceof this.paper.Raster;
-      }).forEach(raster => {
-        allRasters.push(raster);
-      });
-    });
-    var i = setInterval(() => {
-      var allLoaded = true;
-      allRasters.forEach(raster => {
-        if (!raster.isLoaded) {
-          allLoaded = false;
-        }
-      });
-
-      if (allLoaded) {
-        clearInterval(i);
-        callback();
-      }
-    }, 10);
-  }
-  /**
    * Destroy the renderer. Call this when the view will no longer be used to save memory/webgl contexts.
    */
 
@@ -75317,19 +75260,7 @@ Wick.View.Path = class extends Wick.View {
 
 
   importJSON(json) {
-    // Prepare image asset data
-    if (json[0] === "Raster") {
-      var assetUUID = json[1].asset;
-      var asset = Wick.FileCache.getFile(assetUUID);
-      this._asset = asset;
-
-      if (asset) {
-        var src = asset.src;
-        json[1].source = src;
-      }
-    } // Import JSON data into paper.js
-
-
+    // Import JSON data into paper.js
     this._item = this.paper.importJSON(json);
 
     this._item.remove(); // Check if we need to recover the UUID from the paper path
@@ -75340,16 +75271,7 @@ Wick.View.Path = class extends Wick.View {
     } else {
       this._item.data.wickUUID = this.model.uuid;
       this._item.data.wickType = 'path';
-    } // Listen for when the path is fully loaded
-
-
-    this._item.onLoad = e => {
-      if (this.model._onLoad && !this.model._isLoaded) {
-        this.model._isLoaded = true;
-
-        this.model._onLoad(e);
-      }
-    };
+    }
   }
   /**
    * Export this path as paper.js Path json data.
@@ -75365,16 +75287,9 @@ Wick.View.Path = class extends Wick.View {
 
 
   static exportJSON(item) {
-    var json = item.exportJSON({
+    return item.exportJSON({
       asString: false
     });
-
-    if (json[0] === "Raster") {
-      json[1].asset = item.data.asset;
-      json[1].source = 'asset';
-    }
-
-    return json;
   }
 
 };

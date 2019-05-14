@@ -42,6 +42,7 @@ Wick.WickFile = class {
 
                 Wick.ObjectCache.deserialize(projectData.objects);
                 var project = Wick.Base.fromData(projectData.project);
+                Wick.ObjectCache.addObject(project);
                 project.attachParentReferences();
 
                 var loadedAssetCount = 0;

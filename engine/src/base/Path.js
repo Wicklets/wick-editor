@@ -36,6 +36,22 @@ Wick.Path = class extends Wick.Base {
         }
     }
 
+    /**
+     *
+     */
+    static createImagePath (asset, callback) {
+        var img = new Image();
+        img.src = asset.src;
+        img.onload = () => {
+            var raster = new paper.Raster(img);
+            raster.remove();
+            var path = new Wick.Path({
+                json: Wick.View.Path.exportJSON(raster),
+            });
+            callback(path);
+        }
+    }
+
     get classname () {
         return 'Path';
     }
