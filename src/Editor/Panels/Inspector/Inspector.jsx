@@ -31,6 +31,7 @@ import InspectorSelector from './InspectorRow/InspectorRowTypes/InspectorSelecto
 import InspectorColorNumericInput from './InspectorRow/InspectorRowTypes/InspectorColorNumericInput';
 import InspectorActionButton from './InspectorActionButton/InspectorActionButton';
 import InspectorImagePreview from './InspectorPreview/InspectorPreviewTypes/InspectorImagePreview';
+import InspectorScriptWindow from './InspectorScriptWindow/InspectorScriptWindow'; 
 
 class Inspector extends Component {
   constructor (props) {
@@ -103,7 +104,6 @@ class Inspector extends Component {
       return this.getSelectionFillColorOpacity();
     }
 
-    console.log(this.props.getAllSelectionAttributes());
     return this.props.getAllSelectionAttributes()[attribute];
   }
 
@@ -673,6 +673,20 @@ class Inspector extends Component {
   }
 
   /**
+   * Renders an edit script window if a script exists for the selected object.
+   * @returns {Component} JSX component containing script window.
+   */
+  renderScripts = () => {
+    return (
+      <div className="inspector-item">
+        <InspectorScriptWindow 
+          script={this.props.script}
+        />
+      </div>
+    );
+  }
+
+  /**
    * Renders the inspector title for the current selection.
    * @param {string} selectionType selection type to return.
    */
@@ -696,6 +710,7 @@ class Inspector extends Component {
         <div className="inspector-body">
           {this.renderDisplay(selectionType)}
           {this.renderActions()}
+          {this.props.selectionIsScriptable() && this.renderScripts()}
         </div>
       </div>
     )

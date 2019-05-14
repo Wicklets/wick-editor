@@ -1,0 +1,40 @@
+@import 'Editor/_wickbrand.scss';
+@import '../_inspectorscriptwindow.scss';
+
+$script-window-margin: 5px; 
+
+.inspector-script-window-row-container {
+    height: 25px; 
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between; 
+    border-radius: 3px;
+    margin-top: $script-window-margin; 
+    margin-left: $script-window-margin;
+    margin-right: $script-window-margin;
+}
+
+.inspector-script-window-row-name {
+    width: 70%; 
+    height: 100%; 
+    background-color: $editor-primary;
+    color: $editor-primary-text;
+    border-radius: 3px;
+    padding-left: $script-window-margin; 
+}
+
+.inspector-script-window-row-edit {
+    width: 12%;
+    height: 100%; 
+    background-color: $editor-primary;
+    color: $editor-primary-text;
+    border-radius: 3px;
+}
+
+.inspector-script-window-row-delete {
+    width: 12%;
+    height: 100%; 
+    background-color: $editor-primary;
+    color: $editor-primary-text;
+    border-radius: 3px;
+}

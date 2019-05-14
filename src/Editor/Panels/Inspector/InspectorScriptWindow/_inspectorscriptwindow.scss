@@ -17,9 +17,26 @@
  * along with Wick Editor.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+@import 'Editor/_wickbrand.scss';
 @import '../_inspector.scss';
 
-.inspector-button {
-  height: $inspector-button-height;
+.inspector-script-window-container {
   width: 100%;
+  height: 100px;
+  background-color: $editor-tertiary;
+  border-radius: 3px;
+}
+
+.inspector-script-window-container {
+  height: 100%; 
+  padding-bottom: 5px; 
+}
+
+.inspector-script-window-header {
+  width: 100%; 
+  height: 25px;
+  background-color: $editor-secondary;
+  color: $editor-secondary-text;
+  text-align: center;
+  vertical-align: center;
 }

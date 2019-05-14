@@ -17,9 +17,31 @@
  * along with Wick Editor.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-@import '../_inspector.scss';
+import React, { Component } from 'react';
+import ScriptWindowRow from './ScriptWindowRow/ScriptWindowRow'; 
+import './_inspectorscriptwindow.scss';
 
-.inspector-button {
-  height: $inspector-button-height;
-  width: 100%;
+class InspectorScriptWindow extends Component {
+  renderScriptRow = (scriptobj, i) => {
+    return (
+      <ScriptWindowRow 
+      key={i} 
+      name={scriptobj.name} />
+    ); 
+  }
+
+  render() {
+    return(
+      <div className="inspector-script-window-container">
+         <div className="inspector-script-window-header">
+          Scripts
+         </div>
+         <div className="inspector-script-window-body">
+           {this.props.script.scripts.map(this.renderScriptRow)}
+         </div>
+      </div>
+    )
+  }
 }
+
+export default InspectorScriptWindow

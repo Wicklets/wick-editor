@@ -130,7 +130,8 @@ $interface-menu-bar-background: black;
 
 // Spring 2019 color scheme
 $editor-primary: #303030;
-$editor-primary-property-text: #AFAFAF;
+$editor-primary-text: #AFAFAF;
+$editor-primary-property-text: $editor-primary-text;
 $editor-primary-outline: #191919;
 
 $editor-text-input-background: #D8D8D8;

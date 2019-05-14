@@ -17,9 +17,25 @@
  * along with Wick Editor.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-@import '../_inspector.scss';
+import React, { Component } from 'react';
+import './_scriptwindowrow.scss';
 
-.inspector-button {
-  height: $inspector-button-height;
-  width: 100%;
+// https://flaviocopes.com/how-to-uppercase-first-letter-javascript/
+const capitalize = (s) => {
+  if (typeof s !== 'string') return ''
+  return s.charAt(0).toUpperCase() + s.slice(1)
 }
+
+class ScriptWindowRow extends Component {
+  render() {
+    return(
+      <div className="inspector-script-window-row-container">
+        <div className="script-row-item inspector-script-window-row-name">{capitalize(this.props.name)}</div>
+        <div className="script-row-item inspector-script-window-row-edit">Edit</div>
+        <div className="script-row-item inspector-script-window-row-delete">Del</div>
+      </div>
+    );
+  }
+}
+
+export default ScriptWindowRow

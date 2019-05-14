@@ -727,6 +727,8 @@ class Editor extends EditorCore {
                                 getAllSelectionAttributes={this.getAllSelectionAttributes}
                                 setSelectionAttribute={this.setSelectionAttribute}
                                 editorActions={this.actionMapInterface.editorActions}
+                                selectionIsScriptable={this.selectionIsScriptable}
+                                script={this.getSelectedObjectScript()}
                               />
                             </DockedPanel>
                           </ReflexElement>
