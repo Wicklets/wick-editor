@@ -18,6 +18,7 @@
  */
 
 import React, { Component } from 'react';
+import ActionButton from 'Editor/Util/ActionButton/ActionButton';
 import './_scriptwindowrow.scss';
 
 // https://flaviocopes.com/how-to-uppercase-first-letter-javascript/
@@ -31,8 +32,24 @@ class ScriptWindowRow extends Component {
     return(
       <div className="inspector-script-window-row-container">
         <div className="script-row-item inspector-script-window-row-name">{capitalize(this.props.name)}</div>
-        <div className="script-row-item inspector-script-window-row-edit">Edit</div>
-        <div className="script-row-item inspector-script-window-row-delete">Del</div>
+        <div className="script-row-item inspector-script-window-row-edit">
+            <ActionButton 
+                id={"inspector-script-window-row-edit" + this.props.name}
+                icon="pencil"
+                tooltip="Edit"
+                tooltipPlace="left"
+                color="inspector"
+                />
+        </div>
+        <div className="script-row-item inspector-script-window-row-delete">
+            <ActionButton 
+                id={"inspector-script-window-row-delete" + this.props.name}
+                icon="delete"
+                tooltip="Delete"
+                tooltipPlace="left"
+                color="red"
+                />
+        </div>
       </div>
     );
   }
