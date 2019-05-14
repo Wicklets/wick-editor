@@ -3,21 +3,6 @@ describe('Wick.Path', function() {
         it('should instantiate without errors', function () {
             var path = new Wick.Path({json:TestUtils.TEST_PATH_JSON_RED_SQUARE});
         });
-
-        it('should instantiate without errors (rasters)', function (done) {
-            var asset = new Wick.ImageAsset({
-                filename: 'test.png',
-                src: TestUtils.TEST_IMG_SRC_PNG
-            });
-            var path = new Wick.Path({asset: asset});
-            path.onLoad = (e) => {
-                expect(path.bounds.top).to.equal(-50);
-                expect(path.bounds.bottom).to.equal(50);
-                expect(path.bounds.left).to.equal(-50);
-                expect(path.bounds.right).to.equal(50);
-                done();
-            }
-        });
     });
 
     describe('#serialize', function() {
@@ -112,61 +97,6 @@ describe('Wick.Path', function() {
             expect(path.fillColorRGBA.a).to.equal(1);
         });
     });
-
-/*
-    describe('#serialize()', function() {
-        it('should serialize correctly', function () {
-            var path = new Wick.Path(TEST_PATH_DATA);
-            var data = path.serialize();
-            expect(data.classname).to.equal(path.classname);
-            expect(JSON.stringify(data.pathJSON)).to.equal(JSON.stringify(TEST_PATH_DATA));
-        });
-    });
-
-    describe('#clone()', function() {
-        it('should clone correctly', function () {
-            var path = new Wick.Path(TEST_PATH_DATA);
-            var clone = path.clone();
-
-            // successful clone?
-            expect(path).to.not.equal(clone);
-
-            // uuids regenerated?
-            expect(path.uuid).not.to.equal(clone.uuid);
-            expect(path.paperPath.data.wickUUID).not.to.equal(clone.paperPath.data.wickUUID);
-
-            // uuid updated for both paper path and wick path?
-            expect(clone.paperPath.data.wickUUID).to.equal(clone.uuid);
-        });
-
-        it('should clone correctly (retainUUIDs=true)', function () {
-            var path = new Wick.Path(TEST_PATH_DATA);
-            var clone = path.clone(true);
-
-            // successful clone?
-            expect(path).to.not.equal(clone);
-
-            // uuids unchanged?
-            expect(path.uuid).to.equal(clone.uuid);
-            expect(path.paperPath.data.wickUUID).to.equal(clone.paperPath.data.wickUUID);
-
-            // uuid updated for both paper path and wick path?
-            expect(clone.paperPath.data.wickUUID).to.equal(clone.uuid);
-        });
-    });
-
-    describe('#deserialize()', function() {
-        it('should load serialized data', function () {
-            var data = {
-                classname: 'Path',
-                pathJSON: TEST_PATH_DATA,
-            };
-            var path = Wick.Path.deserialize(data);
-            expect(path instanceof Wick.Path).to.equal(true);
-            expect(JSON.stringify(path.exportJSON())).to.equal(JSON.stringify(data.pathJSON));
-        });
-    });
-*/
 
     describe('#get classname()', function() {
         it('should return "Path"', function () {

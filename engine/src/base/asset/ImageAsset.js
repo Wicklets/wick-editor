@@ -57,13 +57,7 @@ Wick.ImageAsset = class extends Wick.FileAsset {
      * Removes all paths using this asset as their image source from the project.
      */
     removeAllInstances () {
-        this.project.getAllFrames().forEach(frame => {
-            frame.paths.forEach(path => {
-                if(path.asset === this) {
-                    path.remove();
-                }
-            });
-        });
+        // TODO
     }
 
     /**

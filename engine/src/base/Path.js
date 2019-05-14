@@ -31,8 +31,8 @@ Wick.Path = class extends Wick.Base {
 
         if(args.json) {
             this.json = args.json;
-        } else if (args.asset) {
-            this.asset = args.asset;
+        } else {
+            this.json = new paper.Path({insert:false}).exportJSON({asString:false});
         }
     }
 
@@ -62,45 +62,6 @@ Wick.Path = class extends Wick.Base {
     set json (json) {
         this._json = json;
         this.view.render();
-    }
-
-    /**
-     * Asset to use for image data.
-     */
-    get asset () {
-        return this._asset;
-    }
-
-    set asset (asset) {
-        this._asset = asset;
-        this.json = [
-            "Raster",
-            {
-                "applyMatrix": false,
-                "crossOrigin": "",
-                "source": "asset",
-                "asset": asset.uuid,
-                "data": {
-                    "asset" : asset.uuid
-                }
-            }
-        ];
-    }
-
-    /**
-     * Flag that is set to true when the path is fully loaded.
-     * @type {boolean}
-     */
-    get isLoaded () {
-        return this._isLoaded;
-    }
-
-    /**
-     * Callback to listen for when a raster path is done being loaded
-     * @param {function} fn - the function to call when a path is loaded
-     */
-    set onLoad (fn) {
-        this._onLoad = fn;
     }
 
     /**
