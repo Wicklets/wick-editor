@@ -57,8 +57,10 @@ Wick.View.Path = class extends Wick.View {
             var assetUUID = json[1].asset;
             var asset = Wick.FileCache.getFile(assetUUID);
             this._asset = asset;
-            var src = asset.src;
-            json[1].source = src;
+            if(asset) {
+                var src = asset.src;
+                json[1].source = src;
+            }
         }
 
         // Import JSON data into paper.js

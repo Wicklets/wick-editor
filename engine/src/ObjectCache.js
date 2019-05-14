@@ -29,7 +29,7 @@ WickObjectCache = class {
     }
 
     /**
-     * Add an object to this project.
+     * Add an object to the cache.
      * @param {Wick.Base} object - the object to add
      */
     addObject (object) {
@@ -41,28 +41,11 @@ WickObjectCache = class {
     }
 
     /**
-     *
+     * Remove an object from the cache.
+     * @param {Wick.Base} object - the object to remove from the cache
      */
-    serialize () {
-        var objectInfos = {};
-
-        for (var uuid in this._objects) {
-            var object = this._objects[uuid];
-            objectInfos[uuid] = object.serialize();
-        }
-
-        return objectInfos;
-    }
-
-    /**
-     *
-     */
-    deserialize (data) {
-        for (var uuid in data) {
-            var objectData = data[uuid];
-            var object = Wick.Base.fromData(objectData);
-            this.addObject(object);
-        }
+    removeObject (object) {
+        delete this._objects[object.uuid];
     }
 
     /**
@@ -70,15 +53,6 @@ WickObjectCache = class {
      */
     removeAllObjects () {
         this._objects = {};
-    }
-
-    /**
-     * Remove all objects that are in the project, but are no longer linked to the root object.
-     * This is basically a garbage collection function.
-     * Only call this when you're ready to finish editing the project because old objects need to be retained somewhere for undo/redo.
-     */
-    removeUnusedObjects () {
-        // TODO
     }
 
     /**
@@ -112,6 +86,51 @@ WickObjectCache = class {
 
         return allObjects;
     }
+
+    /**
+     * Remove all objects that are in the project, but are no longer linked to the root object.
+     * This is basically a garbage collection function.
+     * Only call this when you're ready to finish editing the project because old objects need to be retained somewhere for undo/redo.
+     * @param {Wick.Project} project - the project to use to determine which objects have no references
+     */
+    removeUnusedObjects () {
+        var children = project.getChildrenRecursive();
+        var uuids = children.map(child => {
+            return child.uuid;
+        });
+
+        this.getAllObjects().forEach(object => {
+            if(uuids.indexOf(object) === -1) {
+                this.removeObject(object);
+            }
+        });
+    }
+
+    /**
+     *
+     */
+    serialize () {
+        var objectInfos = {};
+
+        for (var uuid in this._objects) {
+            var object = this._objects[uuid];
+            objectInfos[uuid] = object.serialize();
+        }
+
+        return objectInfos;
+    }
+
+    /**
+     *
+     */
+    deserialize (data) {
+        for (var uuid in data) {
+            var objectData = data[uuid];
+            var object = Wick.Base.fromData(objectData);
+            this.addObject(object);
+        }
+    }
+
 }
 
 Wick.ObjectCache = new WickObjectCache();

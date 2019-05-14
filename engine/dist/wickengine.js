@@ -65331,7 +65331,7 @@ WickObjectCache = class {
     this._objects = {};
   }
   /**
-   * Add an object to this project.
+   * Add an object to the cache.
    * @param {Wick.Base} object - the object to add
    */
 
@@ -65343,31 +65343,13 @@ WickObjectCache = class {
     });*/
   }
   /**
-   *
+   * Remove an object from the cache.
+   * @param {Wick.Base} object - the object to remove from the cache
    */
 
 
-  serialize() {
-    var objectInfos = {};
-
-    for (var uuid in this._objects) {
-      var object = this._objects[uuid];
-      objectInfos[uuid] = object.serialize();
-    }
-
-    return objectInfos;
-  }
-  /**
-   *
-   */
-
-
-  deserialize(data) {
-    for (var uuid in data) {
-      var objectData = data[uuid];
-      var object = Wick.Base.fromData(objectData);
-      this.addObject(object);
-    }
+  removeObject(object) {
+    delete this._objects[object.uuid];
   }
   /**
    * Remove all objects from the Object Cache.
@@ -65377,15 +65359,6 @@ WickObjectCache = class {
   removeAllObjects() {
     this._objects = {};
   }
-  /**
-   * Remove all objects that are in the project, but are no longer linked to the root object.
-   * This is basically a garbage collection function.
-   * Only call this when you're ready to finish editing the project because old objects need to be retained somewhere for undo/redo.
-   */
-
-
-  removeUnusedObjects() {} // TODO
-
   /**
    * Get an object by its UUID.
    * @returns {Wick.Base}
@@ -65420,6 +65393,52 @@ WickObjectCache = class {
     }
 
     return allObjects;
+  }
+  /**
+   * Remove all objects that are in the project, but are no longer linked to the root object.
+   * This is basically a garbage collection function.
+   * Only call this when you're ready to finish editing the project because old objects need to be retained somewhere for undo/redo.
+   * @param {Wick.Project} project - the project to use to determine which objects have no references
+   */
+
+
+  removeUnusedObjects() {
+    var children = project.getChildrenRecursive();
+    var uuids = children.map(child => {
+      return child.uuid;
+    });
+    this.getAllObjects().forEach(object => {
+      if (uuids.indexOf(object) === -1) {
+        this.removeObject(object);
+      }
+    });
+  }
+  /**
+   *
+   */
+
+
+  serialize() {
+    var objectInfos = {};
+
+    for (var uuid in this._objects) {
+      var object = this._objects[uuid];
+      objectInfos[uuid] = object.serialize();
+    }
+
+    return objectInfos;
+  }
+  /**
+   *
+   */
+
+
+  deserialize(data) {
+    for (var uuid in data) {
+      var objectData = data[uuid];
+      var object = Wick.Base.fromData(objectData);
+      this.addObject(object);
+    }
   }
 
 };
@@ -65533,7 +65552,6 @@ Wick.WickFile = class {
         }
 
         projectData.assets = [];
-        console.log(projectData);
         Wick.ObjectCache.deserialize(projectData.objects);
         var project = Wick.Base.fromData(projectData.project);
         project.attachParentReferences();
@@ -65591,11 +65609,20 @@ Wick.WickFile = class {
       assetsFolder.file(filename + '.' + fileExtension, data, {
         base64: true
       });
-    }); // Add project json to root directory of zip file
+    });
+    var objectCacheSerialized = Wick.ObjectCache.serialize();
+    var projectSerialized = project.serialize();
+
+    for (var uuid in objectCacheSerialized) {
+      if (objectCacheSerialized[uuid].classname === 'Project') {
+        delete objectCacheSerialized[uuid];
+      }
+    } // Add project json to root directory of zip file
+
 
     var projectData = {
-      project: project.serialize(),
-      objects: Wick.ObjectCache.serialize()
+      project: projectSerialized,
+      objects: objectCacheSerialized
     };
     zip.file("project.json", JSON.stringify(projectData, null, 2));
     zip.generateAsync({
@@ -65942,6 +65969,19 @@ Wick.Base = class {
     return this._childrenUUIDs.map(uuid => {
       return Wick.ObjectCache.getObjectByUUID(uuid);
     });
+  }
+  /**
+   * The child objects of this object, and the children of those children
+   * @returns {Wick.Base[]}
+   */
+
+
+  getChildrenRecursive() {
+    var children = this.children;
+    children.forEach(child => {
+      children = children.concat(child.getChildrenRecursive());
+    });
+    return children;
   }
   /**
    * Add a child to this object
@@ -75068,7 +75108,7 @@ Wick.View.Frame = class extends Wick.View {
     this.pathsLayer.data.wickType = 'paths';
     this.pathsLayer.removeChildren();
     this.model.paths.forEach(path => {
-      // path.view.render(); // Disabled for now because path views are rendered lazily when json changes
+      path.view.render();
       this.pathsLayer.addChild(path.view.item);
     });
   }
@@ -75282,8 +75322,11 @@ Wick.View.Path = class extends Wick.View {
       var assetUUID = json[1].asset;
       var asset = Wick.FileCache.getFile(assetUUID);
       this._asset = asset;
-      var src = asset.src;
-      json[1].source = src;
+
+      if (asset) {
+        var src = asset.src;
+        json[1].source = src;
+      }
     } // Import JSON data into paper.js
 
 
