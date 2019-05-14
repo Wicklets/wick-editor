@@ -34,6 +34,7 @@ gulp.task('default', function() {
             'src/ObjectCache.js',
             'src/Transformation.js',
             'src/WickFile.js',
+            'src/WickFile.Alpha.js',
             'src/ObjectCache.js',
             'src/Transformation.js',
             'src/base/Base.js',

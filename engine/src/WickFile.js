@@ -31,15 +31,21 @@ Wick.WickFile = class {
         zip.loadAsync(wickFile).then(function(contents) {
             contents.files['project.json'].async('text')
             .then(function (projectJSON) {
-                var loadedAssetCount = 0;
                 var projectData = JSON.parse(projectJSON);
+                if(!projectData.objects) {
+                    // No metadata! This is a pre 1.0.9a project. Convert it.
+                    console.log('Wick.WickFile: Converting old project format.');
+                    projectData = Wick.WickFile.Alpha.convertJsonProject(projectData);
+                }
 
                 projectData.assets = [];
+                console.log(projectData)
 
                 Wick.ObjectCache.deserialize(projectData.objects);
                 var project = Wick.Base.fromData(projectData.project);
                 project.attachParentReferences();
 
+                var loadedAssetCount = 0;
                 // Immediately end if the project has no assets.
                 if (project.getAssets().length === 0) {
                     //Wick.ObjectCache.deserialize(projectData.objects)
