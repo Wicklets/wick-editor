@@ -89,6 +89,14 @@ class Editor extends EditorCore {
       inspectorSize: 250,
       timelineSize: 175,
       assetLibrarySize: 150,
+      warningModalInfo: {
+        description: "No Description Given", 
+        title: "Title", 
+        acceptText: "Accept",
+        cancelText: "Cancel",
+        acceptAction: (() => {console.warn("No Accept Action")}),
+        cancelAction: (() => {console.warn("No Cancel Action")}),
+      }
     };
 
     this.toolRestrictions = this.getToolRestrictions();
@@ -559,6 +567,29 @@ class Editor extends EditorCore {
     toast.update(id, options);
   }
 
+
+  /**
+   * Opens a warning modal with a description. If the modal is accepted, the accept action is called.
+   * @param {Object} args can contain description {string}, acceptAction {function}, cancelAction {function}, 
+   * acceptText {string}, cancelText {string}, title {string}.
+   */
+  openWarningModal = (args) => {
+    let modalInfo = {
+      description: args.description || "No Description",
+      title: args.title || "Title",
+      acceptAction: args.acceptAction || (() => {console.warn("No accept action implemented.")}),
+      cancelAction: args.cancelAction || (() => {console.warn("No cancel action implemented.")}),
+      acceptText: args.acceptText || "Accept",
+      cancelText: args.cancelText || "Cancel",
+    }
+
+    this.setState({
+      warningModalInfo: modalInfo,
+      activeModalName: "GeneralWarning",
+
+    }); 
+  }
+
   /**
    * A flag to prevent "double state changes" where an action tries to happen while another is still processing.
    * Set this to true before doing something asynchronous that will take a long time, and set it back to false when done.
@@ -617,6 +648,7 @@ class Editor extends EditorCore {
                     exportProjectAsGif={this.exportProjectAsAnimatedGIF}
                     exportProjectAsVideo={this.exportProjectAsVideo}
                     exportProjectAsStandaloneZip={this.exportProjectAsStandaloneZip}
+                    warningModalInfo={this.state.warningModalInfo}
                   />
                   {/* Header */}
                   <DockedPanel showOverlay={this.state.previewPlaying}>
@@ -734,6 +766,7 @@ class Editor extends EditorCore {
                                 selectionIsScriptable={this.selectionIsScriptable}
                                 script={this.getSelectedObjectScript()}
                                 scriptInfoInterface={this.scriptInfoInterface}
+                                deleteScript={this.deleteScript}
                               />
                             </DockedPanel>
                           </ReflexElement>

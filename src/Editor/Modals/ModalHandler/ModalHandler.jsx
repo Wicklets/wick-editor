@@ -25,6 +25,7 @@ import AutosaveWarning from '../AutosaveWarning/AutosaveWarning';
 import WelcomeMessage from '../WelcomeMessage/WelcomeMessage';
 import MakeAnimated from '../MakeAnimated/MakeAnimated';
 import ExportOptions from '../ExportOptions/ExportOptions';
+import GeneralWarning from '../GeneralWarning/GeneralWarning'; 
 
 class ModalHandler extends Component {
   render() {
@@ -70,6 +71,12 @@ class ModalHandler extends Component {
           open={this.props.activeModalName === 'ExportOptions'}
           projectName={this.props.project.name}
           />
+        <GeneralWarning
+          openModal={this.props.openModal}
+          toggle={this.props.closeActiveModal}
+          open={this.props.activeModalName === 'GeneralWarning'}
+          info={this.props.warningModalInfo}
+        />
       </div>
     );
   }

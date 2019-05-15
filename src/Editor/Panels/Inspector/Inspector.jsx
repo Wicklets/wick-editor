@@ -681,6 +681,7 @@ class Inspector extends Component {
       <div className="inspector-item">
         <InspectorScriptWindow 
           script={this.props.script}
+          deleteScript={this.props.deleteScript}
         />
       </div>
     );

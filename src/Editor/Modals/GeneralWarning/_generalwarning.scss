@@ -20,14 +20,14 @@
 @import 'Editor/_wickbrand.scss';
 
 
-.autosave-modal-body {
+.general-warning-modal-body {
   width: 240px;
   min-width: 240px;  
   height: 250px;
   padding: 20px; 
 }
 
-#autosave-modal-title {
+#general-warning-modal-title {
   font-size: 18px;
   color: $editor-modal-text-gray;
   font-weight: bold; 
@@ -35,7 +35,7 @@
   margin-top: 20px; 
 }
 
-#autosave-modal-interior-content {
+#general-warning-modal-interior-content {
   display: flex;
   flex-direction: column;
   width: 100%; 
@@ -44,14 +44,14 @@
   align-items: center;
 }
 
-#autosave-modal-message {
+#general-warning-modal-message {
   width: 100%;
   color: $editor-modal-text-gray;
   text-align: center;
   font-size: 14px; 
 }
 
-#autosave-modal-footer {
+#general-warning-modal-footer {
   width: 100%; 
   height: 28px;
   margin-top: 25px;
@@ -61,12 +61,12 @@
   justify-content: center;
 }
 
-#autosave-modal-cancel {
+#general-warning-modal-cancel {
   width: 80px; 
   height: 100%; 
 }
 
-#autosave-modal-accept {
+#general-warning-modal-accept {
   width: 80px;
   height: 100%; 
   margin-left: 8px;

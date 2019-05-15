@@ -106,6 +106,7 @@ import iconWarning from 'resources/interface-images/warning.svg';
 import iconCheck from 'resources/interface-images/check.svg';
 import iconCircle from 'resources/tool-icons/circle.svg'; 
 import iconCloseTab from 'resources/tool-icons/closetab.svg'; 
+import iconWarningDelete from 'resources/interface-images/warning_delete.svg'; 
 
 var classNames = require('classnames');
 
@@ -189,6 +190,7 @@ class ToolIcon extends Component {
       "add": iconAdd, 
       "circle": iconCircle, 
       "closetab": iconCloseTab,
+      "warningdelete": iconWarningDelete, 
     }
   }
 

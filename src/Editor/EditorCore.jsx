@@ -572,6 +572,21 @@ class EditorCore extends Component {
   }
 
   /**
+   * Deletes a sub script from a script object.
+   * @param {Object} scriptOwner Script owner to remove sub script from
+   * @param {string} scriptName Name of the script to remove
+   */
+  deleteScript = (scriptOwner, scriptName) => {
+    this.openWarningModal({
+      description: 'Delete Script: "' + scriptName + '" from the selected object?',
+      title: "Delete Script",
+      acceptText: "Delete", 
+      cancelText: "Cancel",
+      acceptAction: (() => scriptOwner.removeScript(scriptName)),
+    }); 
+  }
+
+  /**
    * Moves the selected objects on the canvas to the back.
    */
   sendSelectionToBack = () => {

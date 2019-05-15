@@ -27,7 +27,8 @@ class InspectorScriptWindow extends Component {
     return (
       <ScriptWindowRow 
       key={i} 
-      name={scriptobj.name} />
+      name={scriptobj.name}
+      deleteScript={() => {this.props.deleteScript(this.props.script, scriptobj.name)}} />
     ); 
   }
 

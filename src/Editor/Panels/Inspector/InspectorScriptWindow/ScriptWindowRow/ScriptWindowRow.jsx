@@ -48,6 +48,7 @@ class ScriptWindowRow extends Component {
                 tooltip="Delete"
                 tooltipPlace="left"
                 color="red"
+                action={this.props.deleteScript}
                 />
         </div>
       </div>

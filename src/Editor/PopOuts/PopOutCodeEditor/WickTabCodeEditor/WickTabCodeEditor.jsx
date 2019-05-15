@@ -169,18 +169,6 @@ class WickTabCodeEditor extends Component {
     );
   }
 
-  removeSelectedTab = () => {
-    let scripts = this.props.script.scripts;
-
-    if (this.state.tabIndex < 0 || this.state.tabIndex >= scripts.length) {
-      return
-    }
-    let script = scripts[this.state.tabIndex];
-
-    this.props.script.removeScript(script.name);
-    this.props.rerenderCodeEditor();
-  }
-
   removeTabByName = (name) => {
     this.props.script.removeScript(name);
     this.props.rerenderCodeEditor(); 
