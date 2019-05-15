@@ -17,6 +17,12 @@
  * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+ // NOTE:
+ // Why can't we only export JSON on serialize, and remove the idea of a View for a path?
+ // In this way there will never be issues with "is the JSON synced with the paper.Path instance?" questions
+ // This gets annoying sometimes (see what we have to do in the getters for path attributes?)
+ // Please try this later -zj
+
 /**
  * Represents a Wick Path.
  */
@@ -130,6 +136,7 @@ Wick.Path = class extends Wick.Base {
 
     set fillColorHex (fillColorHex) {
         this.view.item.fillColor = fillColorHex;
+        this.json = this.view.exportJSON();
     }
 
     /**
@@ -150,6 +157,7 @@ Wick.Path = class extends Wick.Base {
 
     set strokeColorHex (strokeColorHex) {
         this.view.item.strokeColor = strokeColorHex;
+        this.json = this.view.exportJSON();
     }
 
     /**
@@ -182,6 +190,22 @@ Wick.Path = class extends Wick.Base {
 
     set strokeWidth (strokeWidth) {
         this.view.item.strokeWidth = strokeWidth;
+        this.json = this.view.exportJSON();
+    }
+
+    /**
+     * The opacity of the clip.
+     */
+    get opacity () {
+        if(this.view.item.opacity === undefined || this.view.item.opacity === null) {
+            return 1.0;
+        }
+        return this.view.item.opacity;
+    }
+
+    set opacity (opacity) {
+        this.view.item.opacity = opacity;
+        this.json = this.view.exportJSON();
     }
 
     /**

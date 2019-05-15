@@ -403,7 +403,7 @@ Wick.Selection = class extends Wick.Base {
         return this._getSingleAttribute('soundVolume');
     }
 
-    set opacity (soundVolume) {
+    set soundVolume (soundVolume) {
         this._setSingleAttribute('soundVolume', soundVolume);
     }
 
@@ -456,7 +456,7 @@ Wick.Selection = class extends Wick.Base {
 
     /* helper function for updating the same attribute on all items in the selection  */
     _setSingleAttribute (attributeName, value) {
-        selectedObjects.forEach(selectedObject => {
+        this.getSelectedObjects().forEach(selectedObject => {
             selectedObject[attributeName] = value;
         });
     }

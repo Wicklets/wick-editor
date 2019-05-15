@@ -67514,6 +67514,98 @@ Wick.Selection = class extends Wick.Base {
   moveBackwards() {
     this.view.moveBackwards();
   }
+  /**
+   *
+   */
+
+
+  get name() {
+    return this._getSingleAttribute('identifier');
+  }
+
+  set name(name) {
+    this._setSingleAttribute('identifier', name);
+  }
+  /**
+   *
+   */
+
+
+  get fillColor() {
+    return this._getSingleAttribute('fillColorHex');
+  }
+
+  set fillColor(fillColor) {
+    this._setSingleAttribute('fillColorHex', fillColor);
+  }
+  /**
+   *
+   */
+
+
+  get strokeColor() {
+    return this._getSingleAttribute('strokeColor');
+  }
+
+  set strokeColor(strokeColor) {
+    this._setSingleAttribute('strokeColorHex', strokeColor);
+  }
+  /**
+   *
+   */
+
+
+  get strokeWidth() {
+    return this._getSingleAttribute('strokeWidth');
+  }
+
+  set strokeWidth(strokeWidth) {
+    this._setSingleAttribute('strokeWidth', strokeWidth);
+  }
+  /**
+   *
+   */
+
+
+  get opacity() {
+    return this._getSingleAttribute('opacity');
+  }
+
+  set opacity(opacity) {
+    this._setSingleAttribute('opacity', opacity);
+  }
+  /**
+   *
+   */
+
+
+  get sound() {
+    return this._getSingleAttribute('sound');
+  }
+
+  set sound(sound) {
+    this._setSingleAttribute('sound', sound);
+  }
+  /**
+   *
+   */
+
+
+  get soundVolume() {
+    return this._getSingleAttribute('soundVolume');
+  }
+
+  set soundVolume(soundVolume) {
+    this._setSingleAttribute('soundVolume', soundVolume);
+  }
+  /**
+   *
+   */
+
+
+  get filename() {
+    return this._getSingleAttribute('filename');
+  }
 
   _locationOf(object) {
     if (object instanceof Wick.Frame || object instanceof Wick.Tween || object instanceof Wick.Layer) {
@@ -67546,6 +67638,21 @@ Wick.Selection = class extends Wick.Base {
         y: boundsCenter.y
       };
     }
+  }
+  /* helper function for getting a single value from multiple selected objects */
+
+
+  _getSingleAttribute(attributeName) {
+    if (this.numObjects === 0) return null;
+    return this.getSelectedObjects()[0][attributeName];
+  }
+  /* helper function for updating the same attribute on all items in the selection  */
+
+
+  _setSingleAttribute(attributeName, value) {
+    this.getSelectedObjects().forEach(selectedObject => {
+      selectedObject[attributeName] = value;
+    });
   }
 
 };
@@ -68162,6 +68269,11 @@ Wick.Tween = class extends Wick.Base {
 * You should have received a copy of the GNU General Public License
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
+// NOTE:
+// Why can't we only export JSON on serialize, and remove the idea of a View for a path?
+// In this way there will never be issues with "is the JSON synced with the paper.Path instance?" questions
+// This gets annoying sometimes (see what we have to do in the getters for path attributes?)
+// Please try this later -zj
 
 /**
  * Represents a Wick Path.
@@ -68282,7 +68394,12 @@ Wick.Path = class extends Wick.Base {
 
 
   get fillColorHex() {
-    return this.view.item.fillColor.toCSS(true);
+    return this._getColorAsHex(this.view.item.fillColor);
+  }
+
+  set fillColorHex(fillColorHex) {
+    this.view.item.fillColor = fillColorHex;
+    this.json = this.view.exportJSON();
   }
   /**
    * The fill color, in rgba format (example "rgba(255,255,255,1.0)"), of the path
@@ -68291,12 +68408,73 @@ Wick.Path = class extends Wick.Base {
 
 
   get fillColorRGBA() {
+    return this._getColorAsRGBA(this.view.item.fillColor);
+  }
+  /**
+   * The stroke color, in hex format (example "#FFFFFF"), of the path
+   * @type {string}
+   */
+
+
+  get strokeColorHex() {
+    return this._getColorAsHex(this.view.item.strokeColor);
+  }
+
+  set strokeColorHex(strokeColorHex) {
+    this.view.item.strokeColor = strokeColorHex;
+    this.json = this.view.exportJSON();
+  }
+  /**
+   * The stroke color, in rgba format (example "rgba(255,255,255,1.0)"), of the path
+   * @type {object}
+   */
+
+
+  get strokeColorRGBA() {
+    this._getColorAsRGBA(this.view.item.strokeColor);
+  }
+
+  _getColorAsHex(color) {
+    return color.toCSS(true);
+  }
+
+  _getColorAsRGBA(color) {
     return {
-      r: this.view.item.fillColor.red * 255,
-      g: this.view.item.fillColor.green * 255,
-      b: this.view.item.fillColor.blue * 255,
-      a: this.view.item.fillColor.alpha
+      r: color.red * 255,
+      g: color.green * 255,
+      b: color.blue * 255,
+      a: color.alpha
     };
+  }
+  /**
+   * The stroke width of the shape.
+   */
+
+
+  get strokeWidth() {
+    return this.view.item.strokeWidth;
+  }
+
+  set strokeWidth(strokeWidth) {
+    this.view.item.strokeWidth = strokeWidth;
+    this.json = this.view.exportJSON();
+  }
+  /**
+   * The opacity of the clip.
+   */
+
+
+  get opacity() {
+    if (this.view.item.opacity === undefined || this.view.item.opacity === null) {
+      return 1.0;
+    }
+
+    return this.view.item.opacity;
+  }
+
+  set opacity(opacity) {
+    this.view.item.opacity = opacity;
+    this.json = this.view.exportJSON();
   }
   /**
    * Removes this path from its parent frame.
@@ -78097,10 +78275,6 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
   }
 
   _attachMouseEvents() {
-    this.paper.view.onDoubleClick = e => {
-      this.fire('doubleClick');
-    };
-
     this.paper.view.onMouseMove = e => {
       // don't fire mouseMove functions if we're dragging
       if (e.event.buttons) return;
