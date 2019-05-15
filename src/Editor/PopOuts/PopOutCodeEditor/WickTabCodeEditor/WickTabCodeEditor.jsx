@@ -41,8 +41,8 @@ class WickTabCodeEditor extends Component {
     super(props);
 
     this.state = {
-      tabIndex: 0,
       scriptSubTab: 'Timeline',
+
     }
 
     this.scriptsByType = this.props.scriptInfoInterface.scriptsByType;
@@ -52,7 +52,8 @@ class WickTabCodeEditor extends Component {
     this.focusError = null;
   }
 
-  componentDidUpdate = () => {
+  componentDidUpdate = (prevProps, prevState) => {
+    console.log("UPDATE TAB EDITOR: "); 
     if (this.props.errors && this.props.errors instanceof Array && this.props.errors.length > 0) {
       this.focusError = this.props.errors[0];
     }
@@ -66,6 +67,39 @@ class WickTabCodeEditor extends Component {
     } else {
       return 'sky';
     }
+  }
+
+  /**
+   * Returns the tab index of the desired script. if the tab does not exist, returns index of add tab.
+   * @param {string} name Name of the script.
+   * @returns {number} Tab index of script by name. If script does not exist for this script owner, returns -1.
+   */
+  getTabIndexByName = (name) => {
+    let scripts = this.props.script.scripts;
+    let index = -1;
+
+    for (let i=0; i<scripts.length; i++) {
+      if (scripts[i].name === name) index = i;
+    }
+
+    // If we don't have a tab by that name, set it to the add tab index.
+    if (index === -1) {
+      return scripts.length;
+    } else {
+      return index;
+    }
+  }
+
+  setTabNameByIndex = (i) => {
+    let scripts = this.props.script.scripts;
+
+    if (i < (scripts.length)) { // Select a code tab.
+      this.props.editScript(scripts[i]); 
+    } else if (i === scripts.length) { // select add tab
+      this.props.editScript("add");
+    } 
+    // Otherwise, ignore.
+
   }
 
   renderNewAceEditor = (script) => {
@@ -179,15 +213,15 @@ class WickTabCodeEditor extends Component {
     return (
       <div className='code-editor-tab-code-editor'>
         <Tabs
-          selectedIndex={this.state.tabIndex}
-          onSelect={tabIndex => this.setState({ tabIndex })}>
+          selectedIndex={this.getTabIndexByName(this.props.scriptToEdit)}
+          onSelect={tabIndex => {this.setTabNameByIndex(tabIndex)}}>
           <TabList>
             {/* Add In Script Tabs */}
             {scripts.map(this.renderNewCodeTab) }
             {/* Render "Add Script" button */}
             {this.renderAddScriptTab()}
           </TabList>
-          {scripts.map(this.renderNewCodePanel) }
+          {scripts.map(this.renderNewCodePanel)}
           {this.renderAddScriptTabPanel()}
         </Tabs>
       </div>

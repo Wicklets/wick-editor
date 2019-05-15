@@ -85,6 +85,7 @@ class Editor extends EditorCore {
       activeModalName: null,
       activeModalQueue: [],
       codeEditorOpen: false,
+      scriptToEdit: "add", 
       codeErrors: [],
       inspectorSize: 250,
       timelineSize: 175,
@@ -211,10 +212,6 @@ class Editor extends EditorCore {
     };
   }
 
-  componentWillUnmount = () => {
-
-  }
-
   componentDidMount = () => {
     this.hidePreloader();
     this.refocusEditor();
@@ -272,7 +269,7 @@ class Editor extends EditorCore {
    */
   resetEditorForLoad = () => {
 
-  }
+  } 
 
   onWindowResize = () => {
     // Ensure that all elements resize on window resize.
@@ -608,6 +605,7 @@ class Editor extends EditorCore {
   }
 
   render = () => {
+    console.log("ReRender", this.state.codeEditorOpen, this.state.scriptToEdit); 
     // Create some references to the project and editor to make debugging in the console easier:
     window.project = this.project;
     window.editor = this;
@@ -772,6 +770,7 @@ class Editor extends EditorCore {
                                 script={this.getSelectedObjectScript()}
                                 scriptInfoInterface={this.scriptInfoInterface}
                                 deleteScript={this.deleteScript}
+                                editScript={this.editScript} 
                               />
                             </DockedPanel>
                           </ReflexElement>
@@ -814,6 +813,8 @@ class Editor extends EditorCore {
               onMinorScriptUpdate={this.onMinorScriptUpdate}
               onMajorScriptUpdate={this.onMajorScriptUpdate}
               deleteScript={this.deleteScript}
+              scriptToEdit={this.state.scriptToEdit}
+              editScript={this.state.editScript}
               />}
         </div>
       )}

@@ -28,7 +28,8 @@ class InspectorScriptWindow extends Component {
       <ScriptWindowRow 
       key={i} 
       name={scriptobj.name}
-      deleteScript={() => {this.props.deleteScript(this.props.script, scriptobj.name)}} />
+      deleteScript={() => {this.props.deleteScript(this.props.script, scriptobj.name)}}
+      editScript={() => {this.props.editScript(scriptobj.name)}} />
     ); 
   }
 
@@ -44,6 +45,7 @@ class InspectorScriptWindow extends Component {
              <ActionButton
               color="inspector"
               text="add script"
+              action={() => this.props.editScript("add")}
               />
            </div>
          </div>

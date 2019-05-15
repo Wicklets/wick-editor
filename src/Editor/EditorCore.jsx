@@ -591,6 +591,18 @@ class EditorCore extends Component {
   }
 
   /**
+   * Opens the code editor to the script name tab if that tab exists.
+   * @param {string} scriptName Name of the script to open the tab of. Must be all lowercase.
+   */
+  editScript = (scriptName) => {
+    console.log("EDIT:", scriptName); 
+    this.setState({
+      scriptToEdit: scriptName,
+      codeEditorOpen: true,
+    });
+  }
+
+  /**
    * Moves the selected objects on the canvas to the back.
    */
   sendSelectionToBack = () => {

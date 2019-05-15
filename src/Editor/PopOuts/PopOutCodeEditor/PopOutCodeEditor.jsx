@@ -81,21 +81,6 @@ class PopOutCodeEditor extends Component {
     this.props.toggleCodeEditor();
   }
 
-  renderCodeEditor = () => {
-    return (
-      <WickTabCodeEditor
-        addNewEditor={this.addNewEditor}
-        script={this.props.script}
-        rerenderCodeEditor={this.rerenderCodeEditor}
-        errors={this.props.errors}
-        onMinorScriptUpdate={this.props.onMinorScriptUpdate}
-        onMajorScriptUpdate={this.props.onMajorScriptUpdate}
-        scriptInfoInterface={this.props.scriptInfoInterface}
-        deleteScript={this.props.deleteScript} 
-        />
-    )
-  }
-
   rerenderCodeEditor = () => {
     this.forceUpdate();
   }
@@ -150,9 +135,20 @@ class PopOutCodeEditor extends Component {
         <div className="code-editor-body">
           <WickCodeDetailsPanel />
           <div className="code-editor-code-panel">
-            {this.props.selectionIsScriptable()
-              ? this.renderCodeEditor()
-              : this.renderNotScriptableInfo()}
+            {this.props.selectionIsScriptable() && 
+            <WickTabCodeEditor
+                addNewEditor={this.addNewEditor}
+                script={this.props.script}
+                rerenderCodeEditor={this.rerenderCodeEditor}
+                errors={this.props.errors}
+                onMinorScriptUpdate={this.props.onMinorScriptUpdate}
+                onMajorScriptUpdate={this.props.onMajorScriptUpdate}
+                scriptInfoInterface={this.props.scriptInfoInterface}
+                deleteScript={this.props.deleteScript} 
+                scriptToEdit={this.props.scriptToEdit}
+                editScript={this.props.editScript}
+              /> }
+              {!this.props.selectionIsScriptable() && this.renderNotScriptableInfo()}
           </div>
         </div>
       </Rnd>
