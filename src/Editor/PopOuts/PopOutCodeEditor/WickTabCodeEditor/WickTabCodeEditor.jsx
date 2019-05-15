@@ -53,7 +53,6 @@ class WickTabCodeEditor extends Component {
   }
 
   componentDidUpdate = (prevProps, prevState) => {
-    console.log("UPDATE TAB EDITOR: "); 
     if (this.props.errors && this.props.errors instanceof Array && this.props.errors.length > 0) {
       this.focusError = this.props.errors[0];
     }
@@ -94,7 +93,7 @@ class WickTabCodeEditor extends Component {
     let scripts = this.props.script.scripts;
 
     if (i < (scripts.length)) { // Select a code tab.
-      this.props.editScript(scripts[i]); 
+      this.props.editScript(scripts[i].name); 
     } else if (i === scripts.length) { // select add tab
       this.props.editScript("add");
     } 

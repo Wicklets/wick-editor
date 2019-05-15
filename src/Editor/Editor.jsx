@@ -605,7 +605,6 @@ class Editor extends EditorCore {
   }
 
   render = () => {
-    console.log("ReRender", this.state.codeEditorOpen, this.state.scriptToEdit); 
     // Create some references to the project and editor to make debugging in the console easier:
     window.project = this.project;
     window.editor = this;
@@ -814,7 +813,7 @@ class Editor extends EditorCore {
               onMajorScriptUpdate={this.onMajorScriptUpdate}
               deleteScript={this.deleteScript}
               scriptToEdit={this.state.scriptToEdit}
-              editScript={this.state.editScript}
+              editScript={this.editScript}
               />}
         </div>
       )}

@@ -595,7 +595,6 @@ class EditorCore extends Component {
    * @param {string} scriptName Name of the script to open the tab of. Must be all lowercase.
    */
   editScript = (scriptName) => {
-    console.log("EDIT:", scriptName); 
     this.setState({
       scriptToEdit: scriptName,
       codeEditorOpen: true,

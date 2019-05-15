@@ -67,7 +67,6 @@ class Inspector extends Component {
       'makeInteractive': ["path", "multipath", "multiclip",],
       'makeAnimated': ["path", "multipath", "multiclip",],
       'editTimeline': ["clip", "button"],
-      'editCode': ["clip", "button", "frame"],
     }
 
     /**
