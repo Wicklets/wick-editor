@@ -21,7 +21,6 @@ import React, { Component } from 'react';
 
 import WickInput from 'Editor/Util/WickInput/WickInput';
 import SettingsNumericSlider from './SettingsNumericSlider/SettingsNumericSlider';
-import ToolIcon from 'Editor/Util/ToolIcon/ToolIcon';
 import ReactTooltip from 'react-tooltip';
 import ActionButton from 'Editor/Util/ActionButton/ActionButton'; 
 
