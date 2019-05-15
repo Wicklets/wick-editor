@@ -37,6 +37,7 @@ import { Slide } from 'react-toastify';
 
 import HotKeyInterface from './hotKeyMap';
 import ActionMapInterface from './actionMap';
+import ScriptInfoInterface from './scriptInfo';
 import EditorCore from './EditorCore';
 
 import DockedPanel from './Panels/DockedPanel/DockedPanel';
@@ -84,10 +85,19 @@ class Editor extends EditorCore {
       activeModalName: null,
       activeModalQueue: [],
       codeEditorOpen: false,
+      scriptToEdit: "add", 
       codeErrors: [],
       inspectorSize: 250,
       timelineSize: 175,
       assetLibrarySize: 150,
+      warningModalInfo: {
+        description: "No Description Given", 
+        title: "Title", 
+        acceptText: "Accept",
+        cancelText: "Cancel",
+        acceptAction: (() => {console.warn("No Accept Action")}),
+        cancelAction: (() => {console.warn("No Cancel Action")}),
+      }
     };
 
     this.toolRestrictions = this.getToolRestrictions();
@@ -100,6 +110,9 @@ class Editor extends EditorCore {
 
     // Init actions
     this.actionMapInterface = new ActionMapInterface(this);
+
+    // Init Script Info
+    this.scriptInfoInterface = new ScriptInfoInterface();
 
     // Resizable panels
     this.RESIZE_THROTTLE_AMOUNT_MS = 10;
@@ -199,10 +212,6 @@ class Editor extends EditorCore {
     };
   }
 
-  componentWillUnmount = () => {
-
-  }
-
   componentDidMount = () => {
     this.hidePreloader();
     this.refocusEditor();
@@ -260,7 +269,7 @@ class Editor extends EditorCore {
    */
   resetEditorForLoad = () => {
 
-  }
+  } 
 
   onWindowResize = () => {
     // Ensure that all elements resize on window resize.
@@ -430,10 +439,14 @@ class Editor extends EditorCore {
   /**
    * Opens and closes the code editor depending on the state of the codeEditor.
    */
-  toggleCodeEditor = () => {
+  toggleCodeEditor = (state) => {
+    if (state === undefined) {
+      state = !this.state.codeEditorOpen;
+    }
+
     this.setState( {
-      codeEditorOpen: !this.state.codeEditorOpen,
-    })
+      codeEditorOpen: state,
+    });
   }
 
   /**
@@ -555,6 +568,30 @@ class Editor extends EditorCore {
     toast.update(id, options);
   }
 
+
+  /**
+   * Opens a warning modal with a description. If the modal is accepted, the accept action is called.
+   * @param {Object} args can contain description {string}, acceptAction {function}, cancelAction {function}, 
+   * acceptText {string}, cancelText {string}, title {string}.
+   */
+  openWarningModal = (args) => {
+    let modalInfo = {
+      description: args.description || "No Description",
+      title: args.title || "Title",
+      acceptAction: args.acceptAction || (() => {console.warn("No accept action implemented.")}),
+      cancelAction: args.cancelAction || (() => {console.warn("No cancel action implemented.")}),
+      finalAction: args.finalAction || (() => {console.warn("No final action implemented.")}),
+      acceptText: args.acceptText || "Accept",
+      cancelText: args.cancelText || "Cancel",
+    }
+
+    this.setState({
+      warningModalInfo: modalInfo,
+      activeModalName: "GeneralWarning",
+
+    }); 
+  }
+
   /**
    * A flag to prevent "double state changes" where an action tries to happen while another is still processing.
    * Set this to true before doing something asynchronous that will take a long time, and set it back to false when done.
@@ -613,6 +650,7 @@ class Editor extends EditorCore {
                     exportProjectAsGif={this.exportProjectAsAnimatedGIF}
                     exportProjectAsVideo={this.exportProjectAsVideo}
                     exportProjectAsStandaloneZip={this.exportProjectAsStandaloneZip}
+                    warningModalInfo={this.state.warningModalInfo}
                   />
                   {/* Header */}
                   <DockedPanel showOverlay={this.state.previewPlaying}>
@@ -727,6 +765,11 @@ class Editor extends EditorCore {
                                 getAllSelectionAttributes={this.getAllSelectionAttributes}
                                 setSelectionAttribute={this.setSelectionAttribute}
                                 editorActions={this.actionMapInterface.editorActions}
+                                selectionIsScriptable={this.selectionIsScriptable}
+                                script={this.getSelectedObjectScript()}
+                                scriptInfoInterface={this.scriptInfoInterface}
+                                deleteScript={this.deleteScript}
+                                editScript={this.editScript} 
                               />
                             </DockedPanel>
                           </ReflexElement>
@@ -760,13 +803,18 @@ class Editor extends EditorCore {
             <PopOutCodeEditor
               codeEditorWindowProperties={this.state.codeEditorWindowProperties}
               updateCodeEditorWindowProperties={this.updateCodeEditorWindowProperties}
+              scriptInfoInterface={this.scriptInfoInterface}
               selectionIsScriptable={this.selectionIsScriptable}
               getSelectionType={this.getSelectionType}
               script={this.getSelectedObjectScript()}
               toggleCodeEditor={this.toggleCodeEditor}
               errors={this.state.codeErrors}
               onMinorScriptUpdate={this.onMinorScriptUpdate}
-              onMajorScriptUpdate={this.onMajorScriptUpdate}/>}
+              onMajorScriptUpdate={this.onMajorScriptUpdate}
+              deleteScript={this.deleteScript}
+              scriptToEdit={this.state.scriptToEdit}
+              editScript={this.editScript}
+              />}
         </div>
       )}
       </Dropzone>

@@ -436,7 +436,7 @@ class EditorCore extends Component {
       } else if (attribute.length === 1) {
         return attribute[0];
       } else {
-        // Should return info about "mixed" attributes, but just
+        // TODO: Should return info about "mixed" attributes, but just
         // return the attribute of the first object for now.
         return attribute[0];
       }
@@ -567,6 +567,36 @@ class EditorCore extends Component {
   deleteSelectedObjects = () => {
     this.project.deleteSelectedObjects();
     this.projectDidChange();
+  }
+
+  /**
+   * Deletes a sub script from a script object.
+   * @param {Object} scriptOwner Script owner to remove sub script from
+   * @param {string} scriptName Name of the script to remove
+   */
+  deleteScript = (scriptOwner, scriptName) => {
+    let oldEditorState = this.state.codeEditorOpen;
+    this.toggleCodeEditor(false); // Close code editor if open. 
+
+    this.openWarningModal({
+      description: 'Delete Script: "' + scriptName + '" from the selected object?',
+      title: "Delete Script",
+      acceptText: "Delete", 
+      cancelText: "Cancel",
+      acceptAction: (() => scriptOwner.removeScript(scriptName)),
+      finalAction: (() => this.toggleCodeEditor(oldEditorState)), // Reopen code editor if necessary.
+    }); 
+  }
+
+  /**
+   * Opens the code editor to the script name tab if that tab exists.
+   * @param {string} scriptName Name of the script to open the tab of. Must be all lowercase.
+   */
+  editScript = (scriptName) => {
+    this.setState({
+      scriptToEdit: scriptName,
+      codeEditorOpen: true,
+    });
   }
 
   /**

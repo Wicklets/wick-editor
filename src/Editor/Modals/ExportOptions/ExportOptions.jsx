@@ -43,9 +43,6 @@ class ExportOptions extends Component {
   createAndToggle = (type) => {
     let name = this.state.name !== "" ? this.state.name : (type);
 
-    console.log(this.props)
-    console.log(this.props.exportProjectAsStandaloneZip)
-
     if (type === 'GIF') {
       this.props.exportProjectAsGif(name)
     } else if (type === 'VIDEO') {

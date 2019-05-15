@@ -31,6 +31,7 @@ import InspectorSelector from './InspectorRow/InspectorRowTypes/InspectorSelecto
 import InspectorColorNumericInput from './InspectorRow/InspectorRowTypes/InspectorColorNumericInput';
 import InspectorActionButton from './InspectorActionButton/InspectorActionButton';
 import InspectorImagePreview from './InspectorPreview/InspectorPreviewTypes/InspectorImagePreview';
+import InspectorScriptWindow from './InspectorScriptWindow/InspectorScriptWindow'; 
 
 class Inspector extends Component {
   constructor (props) {
@@ -66,7 +67,6 @@ class Inspector extends Component {
       'makeInteractive': ["path", "multipath", "multiclip",],
       'makeAnimated': ["path", "multipath", "multiclip",],
       'editTimeline': ["clip", "button"],
-      'editCode': ["clip", "button", "frame"],
     }
 
     /**
@@ -672,6 +672,22 @@ class Inspector extends Component {
   }
 
   /**
+   * Renders an edit script window if a script exists for the selected object.
+   * @returns {Component} JSX component containing script window.
+   */
+  renderScripts = () => {
+    return (
+      <div className="inspector-item">
+        <InspectorScriptWindow 
+          script={this.props.script}
+          deleteScript={this.props.deleteScript}
+          editScript={this.props.editScript}
+        />
+      </div>
+    );
+  }
+
+  /**
    * Renders the inspector title for the current selection.
    * @param {string} selectionType selection type to return.
    */
@@ -695,6 +711,7 @@ class Inspector extends Component {
         <div className="inspector-body">
           {this.renderDisplay(selectionType)}
           {this.renderActions()}
+          {this.props.selectionIsScriptable() && this.renderScripts()}
         </div>
       </div>
     )

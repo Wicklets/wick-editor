@@ -102,6 +102,8 @@ class VideoExport {
           args.onError(msg.data)
         }
         break; 
+      default: 
+        break; 
       }
     };
 

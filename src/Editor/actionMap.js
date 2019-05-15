@@ -60,7 +60,7 @@ class ActionMapInterface extends Object {
       },
       editCode: {
         icon: 'script',
-        tooltip: 'Add or Edit Code',
+        tooltip: 'Edit Code',
         action: this.editor.toggleCodeEditor,
         id: 'action-toggle-code-editor',
       },

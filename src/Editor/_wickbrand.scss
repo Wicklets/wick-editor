@@ -38,6 +38,10 @@ $sleepy-sky-light: #D3F8F4;
 $sleepy-sky-dark: #8DDED6;
 $sleepy-sky-text: black;
 
+$wick-active-blue: #00ADEF;
+$wick-active-blue-dark: #009BD6;
+$wick-active-blue-light: #00B9FF;
+
 $deep-cereulian: #101DA5;
 $deep-cereulian-light: #2636E1;
 $deep-cereulian-dark: #010A6F;
@@ -126,7 +130,8 @@ $interface-menu-bar-background: black;
 
 // Spring 2019 color scheme
 $editor-primary: #303030;
-$editor-primary-property-text: #AFAFAF;
+$editor-primary-text: #AFAFAF;
+$editor-primary-property-text: $editor-primary-text;
 $editor-primary-outline: #191919;
 
 $editor-text-input-background: #D8D8D8;

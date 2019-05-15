@@ -32,7 +32,7 @@ class InspectorActionButton extends Component {
     return(
       <div className="inspector-button">
         <ActionButton
-          color={btn.color}
+          color="inspector"
           id={"inspector-button-" + btnID}
           action={btn.action}
           text={btn.tooltip}/>

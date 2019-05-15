@@ -41,36 +41,18 @@ class WickTabCodeEditor extends Component {
     super(props);
 
     this.state = {
-      tabIndex: 0,
       scriptSubTab: 'Timeline',
+
     }
 
-    this.scriptsByType = {
-      'Timeline': ['load', 'update', 'unload'], 
-      'Mouse': ['mouseenter', 'mouseleave', 'mousepressed', 'mousedown', 'mousereleased', 'mousedrag', 'mouseclick'],
-      'Keyboard': ['keypressed', 'keyreleased', 'keydown'],
-    }
+    this.scriptsByType = this.props.scriptInfoInterface.scriptsByType;
 
-    this.scriptDescriptions = {
-      'load' : 'Once, when the frame is entered',
-      'unload' : 'Once, when the frame is exited',
-      'update' : 'Every tick, while the project is playing',
-      'mouseenter' : 'Once, when the mouse enters the object',
-      'mouseleave' : 'Once, when the mouse leaves the object',
-      'mousepressed' : 'Once, when the mouse presses down on the object',
-      'mousedown' : 'Every tick, when the mouse is down on the object',
-      'mousereleased' : 'Once, when the mouse is released over the object',
-      'mousedrag' : 'Every tick, when the mouse moves while down',
-      'mouseclick' : 'Once, when the mouse goes down then up over an object',
-      'keypressed' : 'Once, when any key is pushed down', 
-      'keyreleased' : 'Once, when any key is released', 
-      'keydown' : 'Every tick, when any key is down',
-    }
+    this.scriptDescriptions = this.props.scriptInfoInterface.scriptDescriptions;
 
     this.focusError = null;
   }
 
-  componentDidUpdate = () => {
+  componentDidUpdate = (prevProps, prevState) => {
     if (this.props.errors && this.props.errors instanceof Array && this.props.errors.length > 0) {
       this.focusError = this.props.errors[0];
     }
@@ -84,6 +66,39 @@ class WickTabCodeEditor extends Component {
     } else {
       return 'sky';
     }
+  }
+
+  /**
+   * Returns the tab index of the desired script. if the tab does not exist, returns index of add tab.
+   * @param {string} name Name of the script.
+   * @returns {number} Tab index of script by name. If script does not exist for this script owner, returns -1.
+   */
+  getTabIndexByName = (name) => {
+    let scripts = this.props.script.scripts;
+    let index = -1;
+
+    for (let i=0; i<scripts.length; i++) {
+      if (scripts[i].name === name) index = i;
+    }
+
+    // If we don't have a tab by that name, set it to the add tab index.
+    if (index === -1) {
+      return scripts.length;
+    } else {
+      return index;
+    }
+  }
+
+  setTabNameByIndex = (i) => {
+    let scripts = this.props.script.scripts;
+
+    if (i < (scripts.length)) { // Select a code tab.
+      this.props.editScript(scripts[i].name); 
+    } else if (i === scripts.length) { // select add tab
+      this.props.editScript("add");
+    } 
+    // Otherwise, ignore.
+
   }
 
   renderNewAceEditor = (script) => {
@@ -187,20 +202,8 @@ class WickTabCodeEditor extends Component {
     );
   }
 
-  removeSelectedTab = () => {
-    let scripts = this.props.script.scripts;
-
-    if (this.state.tabIndex < 0 || this.state.tabIndex >= scripts.length) {
-      return
-    }
-    let script = scripts[this.state.tabIndex];
-
-    this.props.script.removeScript(script.name);
-    this.props.rerenderCodeEditor();
-  }
-
   removeTabByName = (name) => {
-    this.props.script.removeScript(name);
+    this.props.deleteScript(this.props.script, name);
     this.props.rerenderCodeEditor(); 
   }
 
@@ -209,15 +212,15 @@ class WickTabCodeEditor extends Component {
     return (
       <div className='code-editor-tab-code-editor'>
         <Tabs
-          selectedIndex={this.state.tabIndex}
-          onSelect={tabIndex => this.setState({ tabIndex })}>
+          selectedIndex={this.getTabIndexByName(this.props.scriptToEdit)}
+          onSelect={tabIndex => {this.setTabNameByIndex(tabIndex)}}>
           <TabList>
             {/* Add In Script Tabs */}
             {scripts.map(this.renderNewCodeTab) }
             {/* Render "Add Script" button */}
             {this.renderAddScriptTab()}
           </TabList>
-          {scripts.map(this.renderNewCodePanel) }
+          {scripts.map(this.renderNewCodePanel)}
           {this.renderAddScriptTabPanel()}
         </Tabs>
       </div>
