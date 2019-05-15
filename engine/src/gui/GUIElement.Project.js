@@ -83,6 +83,7 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
         super.build();
 
         this.resize();
+        this._hoverTarget = null;
 
         var timeline = this.model.focus.timeline;
         timeline.guiElement.build();

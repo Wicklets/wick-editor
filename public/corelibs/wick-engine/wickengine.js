@@ -65286,7 +65286,7 @@ Wick.History = class {
   }
 
   _generateState(filter) {
-    return Wick.ObjectCache.getAllObjects().map(object => {
+    return Wick.ObjectCache.getActiveObjects(this.project).map(object => {
       return object.serialize();
     });
   }
@@ -65402,15 +65402,25 @@ WickObjectCache = class {
    */
 
 
-  removeUnusedObjects() {
+  removeUnusedObjects(project) {
+    this.getActiveObjects(project).forEach(object => {
+      this.removeObject(object);
+    });
+  }
+  /**
+   * Get all objects that are referenced in the given project.
+   * @param {Wick.Project} project - the project to check if children are active in.
+   * @returns {Wick.Base[]} the active objects.
+   */
+
+
+  getActiveObjects(project) {
     var children = project.getChildrenRecursive();
     var uuids = children.map(child => {
       return child.uuid;
     });
-    this.getAllObjects().forEach(object => {
-      if (uuids.indexOf(object) === -1) {
-        this.removeObject(object);
-      }
+    return this.getAllObjects().filter(object => {
+      return uuids.indexOf(object.uuid) !== -1;
     });
   }
   /**
@@ -66384,6 +66394,7 @@ Wick.Project = class extends Wick.Base {
     this._keysLastDown = [];
     this._currentKey = null;
     this._tickIntervalID = null;
+    this.history.project = this;
     this.history.pushState();
   }
 
@@ -78255,6 +78266,7 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
   build() {
     super.build();
     this.resize();
+    this._hoverTarget = null;
     var timeline = this.model.focus.timeline;
     timeline.guiElement.build();
     this.item.addChild(timeline.guiElement.item);

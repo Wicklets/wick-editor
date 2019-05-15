@@ -885,4 +885,20 @@ describe('Wick.Project', function() {
     describe('#isKeyJustPressed', function () {
         // TODO
     });
+
+    describe('#clipboard + history bug', function () {
+        it('should not throw an error when history is undone after clipboard content changes', function () {
+            var project = new Wick.Project();
+            project.history.pushState();
+            project.selection.select(project.activeFrame);
+            project.copySelectionToClipboard();
+            project.history.popState();
+
+            var project2 = new Wick.Project();
+            project2.history.pushState();
+            project2.selection.select(project2.activeFrame);
+            project2.copySelectionToClipboard();
+            project2.history.popState();
+        });
+    });
 });
