@@ -385,6 +385,35 @@ Wick.Selection = class extends Wick.Base {
         this._setSingleAttribute('opacity', opacity);
     }
 
+    /**
+     *
+     */
+    get sound () {
+        return this._getSingleAttribute('sound');
+    }
+
+    set sound (sound) {
+        this._setSingleAttribute('sound', sound);
+    }
+
+    /**
+     *
+     */
+    get soundVolume () {
+        return this._getSingleAttribute('soundVolume');
+    }
+
+    set opacity (soundVolume) {
+        this._setSingleAttribute('soundVolume', soundVolume);
+    }
+
+    /**
+     *
+     */
+    get filename () {
+        return this._getSingleAttribute('filename');
+    }
+
     _locationOf (object) {
         if(object instanceof Wick.Frame
         || object instanceof Wick.Tween
