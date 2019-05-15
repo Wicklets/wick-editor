@@ -464,8 +464,6 @@ class EditorCore extends Component {
       "y",
       "width",
       "height",
-      "scaleX",
-      "scaleY",
       "rotation",
       "opacity",
       "sound",
