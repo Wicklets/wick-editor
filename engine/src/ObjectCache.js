@@ -114,32 +114,6 @@ WickObjectCache = class {
             return uuids.indexOf(object.uuid) !== -1;
         });
     }
-
-    /**
-     *
-     */
-    serialize () {
-        var objectInfos = {};
-
-        for (var uuid in this._objects) {
-            var object = this._objects[uuid];
-            objectInfos[uuid] = object.serialize();
-        }
-
-        return objectInfos;
-    }
-
-    /**
-     *
-     */
-    deserialize (data) {
-        for (var uuid in data) {
-            var objectData = data[uuid];
-            var object = Wick.Base.fromData(objectData);
-            this.addObject(object);
-        }
-    }
-
 }
 
 Wick.ObjectCache = new WickObjectCache();

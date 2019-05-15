@@ -26,7 +26,7 @@ GlobalAPI = class {
     }
 
     /**
-     * Defines all api members such as functions and properties. 
+     * Defines all api members such as functions and properties.
      * @returns {string[]} All global API member names
      */
     get apiMemberNames () {
@@ -70,6 +70,7 @@ GlobalAPI = class {
     play () {
         this.scriptOwner.parentClip.play();
     }
+    
     /**
      * Moves the plahead of the parent clip to a frame and stops the timeline of that parent clip.
      * @param {string | number} frame Frame name or number to move playhead to.
@@ -77,6 +78,7 @@ GlobalAPI = class {
     gotoAndStop (frame) {
         this.scriptOwner.parentClip.gotoAndStop(frame);
     }
+
     /**
      * Moves the plahead of the parent clip to a frame and plays the timeline of that parent clip.
      * @param {string | number} frame Frame name or number to move playhead to.
@@ -86,7 +88,7 @@ GlobalAPI = class {
     }
 
     /**
-     * Moves the playhead of the parent clip of the object to the next frame. 
+     * Moves the playhead of the parent clip of the object to the next frame.
      */
     gotoNextFrame () {
         this.scriptOwner.parentClip.gotoNextFrame();
@@ -101,7 +103,7 @@ GlobalAPI = class {
 
     /**
      * Returns an object representing the project with properties such as width, height, framerate, background color, and name.
-     * @returns {object} Project object. 
+     * @returns {object} Project object.
      */
     get project () {
         var project = this.scriptOwner.project && this.scriptOwner.project.root;
@@ -151,7 +153,7 @@ GlobalAPI = class {
 
     /**
      * Returns the last key pressed down.
-     * @returns {string | null} Returns null if no key has been pressed yet. 
+     * @returns {string | null} Returns null if no key has been pressed yet.
      */
     get key () {
         if(!this.scriptOwner.project) return null;
@@ -257,18 +259,18 @@ GlobalAPI.Random = class {
      * Returns a random integer (whole number) between two given integers.
      * @param {number} min The minimum of the returned integer.
      * @param {number} max The maximum of the returned integer.
-     * @returns {number} A random number between min and max. 
+     * @returns {number} A random number between min and max.
      * https://stackoverflow.com/questions/4959975/generate-random-number-between-two-numbers-in-javascript
      */
     integer(min,max) {
         return Math.floor(Math.random()*(max-min+1)+min);
     }
-    
+
     /**
      * Returns a random floating point (decimal) number between two given integers.
      * @param {number} min The minimum of the returned number.
      * @param {number} max The maximum of the returned number.
-     * @returns {number} A random number between min and max. 
+     * @returns {number} A random number between min and max.
      * https://stackoverflow.com/questions/4959975/generate-random-number-between-two-numbers-in-javascript
      */
     float(min, max) {

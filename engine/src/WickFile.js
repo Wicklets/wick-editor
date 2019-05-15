@@ -40,7 +40,11 @@ Wick.WickFile = class {
 
                 projectData.assets = [];
 
-                Wick.ObjectCache.deserialize(projectData.objects);
+                for(var uuid in projectData.objects) {
+                    var data = projectData.objects[uuid];
+                    var object = Wick.Base.fromData(data);
+                    Wick.ObjectCache.addObject(object);
+                }
                 var project = Wick.Base.fromData(projectData.project);
                 Wick.ObjectCache.addObject(project);
                 project.attachParentReferences();
@@ -101,7 +105,11 @@ Wick.WickFile = class {
             assetsFolder.file(filename + '.' + fileExtension, data, {base64: true});
         });
 
-        var objectCacheSerialized = Wick.ObjectCache.serialize();
+        var objectCacheSerialized = {};
+        Wick.ObjectCache.getActiveObjects(project).forEach(object => {
+            objectCacheSerialized[object.uuid] = object.serialize();
+        });
+
         var projectSerialized = project.serialize();
 
         for(var uuid in objectCacheSerialized) {

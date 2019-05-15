@@ -65427,29 +65427,31 @@ WickObjectCache = class {
    *
    */
 
-
-  serialize() {
-    var objectInfos = {};
-
-    for (var uuid in this._objects) {
-      var object = this._objects[uuid];
-      objectInfos[uuid] = object.serialize();
-    }
-
-    return objectInfos;
+  /*
+  serialize () {
+     var objectInfos = {};
+      for (var uuid in this._objects) {
+         var object = this._objects[uuid];
+         objectInfos[uuid] = object.serialize();
+     }
+      return objectInfos;
   }
+  */
+
   /**
    *
    */
 
-
-  deserialize(data) {
-    for (var uuid in data) {
-      var objectData = data[uuid];
-      var object = Wick.Base.fromData(objectData);
-      this.addObject(object);
-    }
+  /*
+  deserialize (data) {
+     for (var uuid in data) {
+         var objectData = data[uuid];
+         var object = Wick.Base.fromData(objectData);
+         this.addObject(object);
+     }
   }
+  */
+
 
 };
 Wick.ObjectCache = new WickObjectCache();
@@ -65562,7 +65564,13 @@ Wick.WickFile = class {
         }
 
         projectData.assets = [];
-        Wick.ObjectCache.deserialize(projectData.objects);
+
+        for (var uuid in projectData.objects) {
+          var data = projectData.objects[uuid];
+          var object = Wick.Base.fromData(data);
+          Wick.ObjectCache.addObject(object);
+        }
+
         var project = Wick.Base.fromData(projectData.project);
         Wick.ObjectCache.addObject(project);
         project.attachParentReferences();
@@ -65621,7 +65629,10 @@ Wick.WickFile = class {
         base64: true
       });
     });
-    var objectCacheSerialized = Wick.ObjectCache.serialize();
+    var objectCacheSerialized = {};
+    Wick.ObjectCache.getActiveObjects(project).forEach(object => {
+      objectCacheSerialized[object.uuid] = object.serialize();
+    });
     var projectSerialized = project.serialize();
 
     for (var uuid in objectCacheSerialized) {
@@ -69018,7 +69029,7 @@ GlobalAPI = class {
     this.scriptOwner = scriptOwner;
   }
   /**
-   * Defines all api members such as functions and properties. 
+   * Defines all api members such as functions and properties.
    * @returns {string[]} All global API member names
    */
 
@@ -69084,7 +69095,7 @@ GlobalAPI = class {
     this.scriptOwner.parentClip.gotoAndPlay(frame);
   }
   /**
-   * Moves the playhead of the parent clip of the object to the next frame. 
+   * Moves the playhead of the parent clip of the object to the next frame.
    */
 
 
@@ -69101,7 +69112,7 @@ GlobalAPI = class {
   }
   /**
    * Returns an object representing the project with properties such as width, height, framerate, background color, and name.
-   * @returns {object} Project object. 
+   * @returns {object} Project object.
    */
 
 
@@ -69158,7 +69169,7 @@ GlobalAPI = class {
   }
   /**
    * Returns the last key pressed down.
-   * @returns {string | null} Returns null if no key has been pressed yet. 
+   * @returns {string | null} Returns null if no key has been pressed yet.
    */
 
 
@@ -69273,7 +69284,7 @@ GlobalAPI.Random = class {
    * Returns a random integer (whole number) between two given integers.
    * @param {number} min The minimum of the returned integer.
    * @param {number} max The maximum of the returned integer.
-   * @returns {number} A random number between min and max. 
+   * @returns {number} A random number between min and max.
    * https://stackoverflow.com/questions/4959975/generate-random-number-between-two-numbers-in-javascript
    */
 
@@ -69285,7 +69296,7 @@ GlobalAPI.Random = class {
    * Returns a random floating point (decimal) number between two given integers.
    * @param {number} min The minimum of the returned number.
    * @param {number} max The maximum of the returned number.
-   * @returns {number} A random number between min and max. 
+   * @returns {number} A random number between min and max.
    * https://stackoverflow.com/questions/4959975/generate-random-number-between-two-numbers-in-javascript
    */
 
