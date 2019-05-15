@@ -26,22 +26,22 @@ Wick.Tickable = class extends Wick.Base {
      * @return {string[]} Array of all possible scripts.
      */
     static get possibleScripts () {
-      return [
-            'update',
+        return [
             'load',
+            'update',
             'unload',
             'mouseenter',
-            'mouseleave',
-            'mousepressed',
             'mousedown',
+            'mousepressed',
             'mousereleased',
+            'mouseleave',
             'mousehover',
             'mousedrag',
             'mouseclick',
             'keypressed',
             'keyreleased',
             'keydown',
-        ]
+        ];
     }
 
     /**
@@ -176,6 +176,7 @@ Wick.Tickable = class extends Wick.Base {
      * @param {string} name - The name of the event. See Wick.Tickable.possibleScripts
      */
     runScript (name) {
+        if(!Wick.Tickable.possibleScripts.indexOf(name) === -1) console.error(name + ' is not a valid script!');
         if(!this.hasScript(name)) return null;
 
         // Dont' run scripts if this object is the focus
