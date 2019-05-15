@@ -576,7 +576,9 @@ class EditorCore extends Component {
    */
   deleteScript = (scriptOwner, scriptName) => {
     let oldEditorState = this.state.codeEditorOpen;
-    this.toggleCodeEditor(false); // Close code editor if open. 
+
+    // Turn off code editor if necessary, then open warning modal.
+    this.toggleCodeEditor(false);
 
     this.openWarningModal({
       description: 'Delete Script: "' + scriptName + '" from the selected object?',
@@ -585,7 +587,8 @@ class EditorCore extends Component {
       cancelText: "Cancel",
       acceptAction: (() => scriptOwner.removeScript(scriptName)),
       finalAction: (() => this.toggleCodeEditor(oldEditorState)), // Reopen code editor if necessary.
-    }); 
+    });
+    
   }
 
   /**

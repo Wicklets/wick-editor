@@ -220,6 +220,8 @@ class Editor extends EditorCore {
   }
 
   componentDidUpdate = (prevProps, prevState) => {
+    console.log("Update| Code Editor Open: ", this.state.codeEditorOpen);
+
     if(this.state.previewPlaying && !prevState.previewPlaying) {
       this.project.play({
         onError: (error) => {
@@ -444,7 +446,7 @@ class Editor extends EditorCore {
       state = !this.state.codeEditorOpen;
     }
 
-    this.setState( {
+    this.setState({
       codeEditorOpen: state,
     });
   }
@@ -589,7 +591,6 @@ class Editor extends EditorCore {
     this.setState({
       warningModalInfo: modalInfo,
       activeModalName: "GeneralWarning",
-
     });
   }
 
