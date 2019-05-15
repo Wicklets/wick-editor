@@ -222,6 +222,18 @@ Wick.Base = class {
     }
 
     /**
+     * The child objects of this object, and the children of those children
+     * @returns {Wick.Base[]}
+     */
+    getChildrenRecursive () {
+        var children = this.children;
+        children.forEach(child => {
+            children = children.concat(child.getChildrenRecursive());
+        });
+        return children;
+    }
+
+    /**
      * Add a child to this object
      * @param {Wick.Base} object - the child to add
      */

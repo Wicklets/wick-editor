@@ -65331,7 +65331,7 @@ WickObjectCache = class {
     this._objects = {};
   }
   /**
-   * Add an object to this project.
+   * Add an object to the cache.
    * @param {Wick.Base} object - the object to add
    */
 
@@ -65343,31 +65343,13 @@ WickObjectCache = class {
     });*/
   }
   /**
-   *
+   * Remove an object from the cache.
+   * @param {Wick.Base} object - the object to remove from the cache
    */
 
 
-  serialize() {
-    var objectInfos = {};
-
-    for (var uuid in this._objects) {
-      var object = this._objects[uuid];
-      objectInfos[uuid] = object.serialize();
-    }
-
-    return objectInfos;
-  }
-  /**
-   *
-   */
-
-
-  deserialize(data) {
-    for (var uuid in data) {
-      var objectData = data[uuid];
-      var object = Wick.Base.fromData(objectData);
-      this.addObject(object);
-    }
+  removeObject(object) {
+    delete this._objects[object.uuid];
   }
   /**
    * Remove all objects from the Object Cache.
@@ -65377,15 +65359,6 @@ WickObjectCache = class {
   removeAllObjects() {
     this._objects = {};
   }
-  /**
-   * Remove all objects that are in the project, but are no longer linked to the root object.
-   * This is basically a garbage collection function.
-   * Only call this when you're ready to finish editing the project because old objects need to be retained somewhere for undo/redo.
-   */
-
-
-  removeUnusedObjects() {} // TODO
-
   /**
    * Get an object by its UUID.
    * @returns {Wick.Base}
@@ -65420,6 +65393,52 @@ WickObjectCache = class {
     }
 
     return allObjects;
+  }
+  /**
+   * Remove all objects that are in the project, but are no longer linked to the root object.
+   * This is basically a garbage collection function.
+   * Only call this when you're ready to finish editing the project because old objects need to be retained somewhere for undo/redo.
+   * @param {Wick.Project} project - the project to use to determine which objects have no references
+   */
+
+
+  removeUnusedObjects() {
+    var children = project.getChildrenRecursive();
+    var uuids = children.map(child => {
+      return child.uuid;
+    });
+    this.getAllObjects().forEach(object => {
+      if (uuids.indexOf(object) === -1) {
+        this.removeObject(object);
+      }
+    });
+  }
+  /**
+   *
+   */
+
+
+  serialize() {
+    var objectInfos = {};
+
+    for (var uuid in this._objects) {
+      var object = this._objects[uuid];
+      objectInfos[uuid] = object.serialize();
+    }
+
+    return objectInfos;
+  }
+  /**
+   *
+   */
+
+
+  deserialize(data) {
+    for (var uuid in data) {
+      var objectData = data[uuid];
+      var object = Wick.Base.fromData(objectData);
+      this.addObject(object);
+    }
   }
 
 };
@@ -65533,9 +65552,9 @@ Wick.WickFile = class {
         }
 
         projectData.assets = [];
-        console.log(projectData);
         Wick.ObjectCache.deserialize(projectData.objects);
         var project = Wick.Base.fromData(projectData.project);
+        Wick.ObjectCache.addObject(project);
         project.attachParentReferences();
         var loadedAssetCount = 0; // Immediately end if the project has no assets.
 
@@ -65591,11 +65610,20 @@ Wick.WickFile = class {
       assetsFolder.file(filename + '.' + fileExtension, data, {
         base64: true
       });
-    }); // Add project json to root directory of zip file
+    });
+    var objectCacheSerialized = Wick.ObjectCache.serialize();
+    var projectSerialized = project.serialize();
+
+    for (var uuid in objectCacheSerialized) {
+      if (objectCacheSerialized[uuid].classname === 'Project') {
+        delete objectCacheSerialized[uuid];
+      }
+    } // Add project json to root directory of zip file
+
 
     var projectData = {
-      project: project.serialize(),
-      objects: Wick.ObjectCache.serialize()
+      project: projectSerialized,
+      objects: objectCacheSerialized
     };
     zip.file("project.json", JSON.stringify(projectData, null, 2));
     zip.generateAsync({
@@ -65942,6 +65970,19 @@ Wick.Base = class {
     return this._childrenUUIDs.map(uuid => {
       return Wick.ObjectCache.getObjectByUUID(uuid);
     });
+  }
+  /**
+   * The child objects of this object, and the children of those children
+   * @returns {Wick.Base[]}
+   */
+
+
+  getChildrenRecursive() {
+    var children = this.children;
+    children.forEach(child => {
+      children = children.concat(child.getChildrenRecursive());
+    });
+    return children;
   }
   /**
    * Add a child to this object
@@ -68136,9 +68177,31 @@ Wick.Path = class extends Wick.Base {
 
     if (args.json) {
       this.json = args.json;
-    } else if (args.asset) {
-      this.asset = args.asset;
+    } else {
+      this.json = new paper.Path({
+        insert: false
+      }).exportJSON({
+        asString: false
+      });
     }
+  }
+  /**
+   *
+   */
+
+
+  static createImagePath(asset, callback) {
+    var img = new Image();
+    img.src = asset.src;
+
+    img.onload = () => {
+      var raster = new paper.Raster(img);
+      raster.remove();
+      var path = new Wick.Path({
+        json: Wick.View.Path.exportJSON(raster)
+      });
+      callback(path);
+    };
   }
 
   get classname() {
@@ -68168,45 +68231,6 @@ Wick.Path = class extends Wick.Base {
   set json(json) {
     this._json = json;
     this.view.render();
-  }
-  /**
-   * Asset to use for image data.
-   */
-
-
-  get asset() {
-    return this._asset;
-  }
-
-  set asset(asset) {
-    this._asset = asset;
-    this.json = ["Raster", {
-      "applyMatrix": false,
-      "crossOrigin": "",
-      "source": "asset",
-      "asset": asset.uuid,
-      "data": {
-        "asset": asset.uuid
-      }
-    }];
-  }
-  /**
-   * Flag that is set to true when the path is fully loaded.
-   * @type {boolean}
-   */
-
-
-  get isLoaded() {
-    return this._isLoaded;
-  }
-  /**
-   * Callback to listen for when a raster path is done being loaded
-   * @param {function} fn - the function to call when a path is loaded
-   */
-
-
-  set onLoad(fn) {
-    this._onLoad = fn;
   }
   /**
    * The bounding box of the path.
@@ -68506,15 +68530,8 @@ Wick.ImageAsset = class extends Wick.FileAsset {
    */
 
 
-  removeAllInstances() {
-    this.project.getAllFrames().forEach(frame => {
-      frame.paths.forEach(path => {
-        if (path.asset === this) {
-          path.remove();
-        }
-      });
-    });
-  }
+  removeAllInstances() {} // TODO
+
   /**
    * Creates a new Wick Path that uses this asset's image data as it's image source.
    * @returns {Wick.Path} - the newly created path.
@@ -68522,15 +68539,9 @@ Wick.ImageAsset = class extends Wick.FileAsset {
 
 
   createInstance(callback) {
-    var path = new Wick.Path({
-      asset: this
+    Wick.Path.createImagePath(this, path => {
+      callback(path);
     });
-
-    path.onLoad = () => {
-      callback && callback(path);
-    };
-
-    return path;
   }
 
 };
@@ -74119,34 +74130,6 @@ Wick.View.Project = class extends Wick.View {
     }
   }
   /**
-   * Use this to know when all the images in the project are loaded.
-   */
-
-
-  preloadImages(callback) {
-    var allRasters = [];
-    this.model.getAllFrames().forEach(frame => {
-      frame.paths.filter(path => {
-        return path.paperPath instanceof this.paper.Raster;
-      }).forEach(raster => {
-        allRasters.push(raster);
-      });
-    });
-    var i = setInterval(() => {
-      var allLoaded = true;
-      allRasters.forEach(raster => {
-        if (!raster.isLoaded) {
-          allLoaded = false;
-        }
-      });
-
-      if (allLoaded) {
-        clearInterval(i);
-        callback();
-      }
-    }, 10);
-  }
-  /**
    * Destroy the renderer. Call this when the view will no longer be used to save memory/webgl contexts.
    */
 
@@ -75068,7 +75051,7 @@ Wick.View.Frame = class extends Wick.View {
     this.pathsLayer.data.wickType = 'paths';
     this.pathsLayer.removeChildren();
     this.model.paths.forEach(path => {
-      // path.view.render(); // Disabled for now because path views are rendered lazily when json changes
+      path.view.render();
       this.pathsLayer.addChild(path.view.item);
     });
   }
@@ -75277,16 +75260,7 @@ Wick.View.Path = class extends Wick.View {
 
 
   importJSON(json) {
-    // Prepare image asset data
-    if (json[0] === "Raster") {
-      var assetUUID = json[1].asset;
-      var asset = Wick.FileCache.getFile(assetUUID);
-      this._asset = asset;
-      var src = asset.src;
-      json[1].source = src;
-    } // Import JSON data into paper.js
-
-
+    // Import JSON data into paper.js
     this._item = this.paper.importJSON(json);
 
     this._item.remove(); // Check if we need to recover the UUID from the paper path
@@ -75297,16 +75271,7 @@ Wick.View.Path = class extends Wick.View {
     } else {
       this._item.data.wickUUID = this.model.uuid;
       this._item.data.wickType = 'path';
-    } // Listen for when the path is fully loaded
-
-
-    this._item.onLoad = e => {
-      if (this.model._onLoad && !this.model._isLoaded) {
-        this.model._isLoaded = true;
-
-        this.model._onLoad(e);
-      }
-    };
+    }
   }
   /**
    * Export this path as paper.js Path json data.
@@ -75322,16 +75287,9 @@ Wick.View.Path = class extends Wick.View {
 
 
   static exportJSON(item) {
-    var json = item.exportJSON({
+    return item.exportJSON({
       asString: false
     });
-
-    if (json[0] === "Raster") {
-      json[1].asset = item.data.asset;
-      json[1].source = 'asset';
-    }
-
-    return json;
   }
 
 };
@@ -75531,6 +75489,7 @@ Wick.GUIElement.NUMBER_LINE_NUMBERS_FONT_SIZE = '18';
 Wick.GUIElement.FRAME_HOVERED_OVER = '#D3F8F4';
 Wick.GUIElement.FRAME_CONTENTFUL_FILL_COLOR = '#ffffff';
 Wick.GUIElement.FRAME_UNCONTENTFUL_FILL_COLOR = '#ffffff';
+Wick.GUIElement.FRAME_TWEENED_FILL_COLOR = '#ccccff';
 Wick.GUIElement.FRAME_BORDER_RADIUS = 5;
 Wick.GUIElement.FRAME_CONTENT_DOT_RADIUS = 7;
 Wick.GUIElement.FRAME_CONTENT_DOT_STROKE_WIDTH = 3;
@@ -75548,6 +75507,9 @@ Wick.GUIElement.ADD_FRAME_OVERLAY_FILL_COLOR = '#ffffff';
 Wick.GUIElement.ADD_FRAME_OVERLAY_PLUS_COLOR = '#aaaaaa';
 Wick.GUIElement.ADD_FRAME_OVERLAY_BORDER_RADIUS = 3;
 Wick.GUIElement.ADD_FRAME_OVERLAY_MARGIN = 3;
+Wick.GUIElement.TWEEN_HOVER_COLOR = '#ffff00';
+Wick.GUIElement.TWEEN_FILL_COLOR = '#ff9933';
+Wick.GUIElement.TWEEN_STROKE_COLOR = '#ffff00';
 Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_STROKE_COLOR = 'rgba(0,0,0,0.2)';
 Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_HIGHLIGHT_STROKE_COLOR = 'rgba(255,255,255,0.3)';
 Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_STROKE_WIDTH = 2.5;
@@ -76345,23 +76307,39 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
     this.ghost.width = this.ghostWidth;
     this.ghost.build();
     this.item.addChild(this.ghost.item);
+    var fillColor = 'rgba(0,0,0,0)';
+
+    if (this.isHoveredOver) {
+      fillColor = Wick.GUIElement.FRAME_HOVERED_OVER;
+    } else if (this.model.tweens.length > 0) {
+      fillColor = Wick.GUIElement.FRAME_TWEENED_FILL_COLOR;
+    } else if (this.model.contentful) {
+      fillColor = Wick.GUIElement.FRAME_CONTENTFUL_FILL_COLOR;
+    } else {
+      fillColor = Wick.GUIElement.FRAME_UNCONTENTFUL_FILL_COLOR;
+    }
+
     var frameRect = new this.paper.Path.Rectangle({
       from: new this.paper.Point(0, 0),
       to: new this.paper.Point(this.width, this.height),
-      fillColor: this.isHoveredOver ? Wick.GUIElement.FRAME_HOVERED_OVER : this.model.contentful ? Wick.GUIElement.FRAME_CONTENTFUL_FILL_COLOR : Wick.GUIElement.FRAME_UNCONTENTFUL_FILL_COLOR,
+      fillColor: fillColor,
       strokeColor: this.model.isSelected ? Wick.GUIElement.SELECTED_ITEM_BORDER_COLOR : '#000000',
       strokeWidth: this.model.isSelected ? 3 : 0,
       radius: Wick.GUIElement.FRAME_BORDER_RADIUS
     });
     this.item.addChild(frameRect);
-    var contentDot = new this.paper.Path.Ellipse({
-      center: [this.gridCellWidth / 2, this.gridCellHeight / 2 + 5],
-      radius: Wick.GUIElement.FRAME_CONTENT_DOT_RADIUS,
-      fillColor: this.model.contentful ? Wick.GUIElement.FRAME_CONTENT_DOT_COLOR : 'rgba(0,0,0,0)',
-      strokeColor: Wick.GUIElement.FRAME_CONTENT_DOT_COLOR,
-      strokeWidth: Wick.GUIElement.FRAME_CONTENT_DOT_STROKE_WIDTH
-    });
-    this.item.addChild(contentDot);
+
+    if (this.model.tweens.length === 0) {
+      var contentDot = new this.paper.Path.Ellipse({
+        center: [this.gridCellWidth / 2, this.gridCellHeight / 2 + 5],
+        radius: Wick.GUIElement.FRAME_CONTENT_DOT_RADIUS,
+        fillColor: this.model.contentful ? Wick.GUIElement.FRAME_CONTENT_DOT_COLOR : 'rgba(0,0,0,0)',
+        strokeColor: Wick.GUIElement.FRAME_CONTENT_DOT_COLOR,
+        strokeWidth: Wick.GUIElement.FRAME_CONTENT_DOT_STROKE_WIDTH
+      });
+      this.item.addChild(contentDot);
+    }
+
     this.rightEdge.build();
     this.item.addChild(this.rightEdge.item);
     this.leftEdge.build();
@@ -78790,13 +78768,16 @@ Wick.GUIElement.Tween = class extends Wick.GUIElement.Draggable {
 
   build() {
     super.build();
+    var r = Wick.GUIElement.FRAME_CONTENT_DOT_RADIUS;
     var tweenRect = new this.paper.Path.Rectangle({
-      from: new this.paper.Point(0, 0),
-      to: new this.paper.Point(this.width, this.height),
-      fillColor: this.isHoveredOver ? '#0000ff' : '#aaaaff',
-      strokeColor: this.model.isSelected ? '#ff9933' : '#000000',
-      strokeWidth: this.model.isSelected ? 3 : 1
+      from: new this.paper.Point(-r, -r),
+      to: new this.paper.Point(r, r),
+      fillColor: this.isHoveredOver ? Wick.GUIElement.TWEEN_HOVER_COLOR : Wick.GUIElement.TWEEN_FILL_COLOR,
+      strokeColor: this.model.isSelected ? Wick.GUIElement.SELECTED_ITEM_BORDER_COLOR : Wick.GUIElement.TWEEN_STROKE_COLOR,
+      strokeWidth: this.model.isSelected ? 3 : 3
     });
+    tweenRect.rotate(45, tweenRect.bounds.center);
+    tweenRect.position = tweenRect.position.add(new paper.Point(this.gridCellWidth / 2, this.gridCellHeight / 2 + 5));
     this.item.addChild(tweenRect);
     this.item.position = new paper.Point(this.x, this.y);
   }

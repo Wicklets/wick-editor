@@ -136,28 +136,6 @@ describe('Wick.View.Frame', function() {
             expect(frame.view.clipsLayer.children[1].bounds.width).to.equal(100);
             expect(frame.view.clipsLayer.children[1].bounds.height).to.equal(100);
         });
-
-        it('should render rasters', function(done) {
-            var project = new Wick.Project();
-            var frame = project.activeFrame;
-            var asset = new Wick.ImageAsset({
-                filename: 'test.png',
-                src: TestUtils.TEST_IMG_SRC_PNG,
-            });
-            project.addAsset(asset);
-
-            asset.createInstance(path => {
-                frame.addPath(path);
-
-                project.view.render();
-                expect(frame.view.pathsLayer.children[0].bounds.width).to.equal(100);
-                expect(frame.view.pathsLayer.children[0].bounds.height).to.equal(100);
-                expect(frame.view.pathsLayer.children[0].source).to.equal(TestUtils.TEST_IMG_SRC_PNG);
-                expect(frame.view.pathsLayer.children[0].position.x).to.equal(0);
-                expect(frame.view.pathsLayer.children[0].position.y).to.equal(0);
-                done();
-            });
-        });
     });
 
     describe('#applyChanges()', function() {
@@ -268,28 +246,6 @@ describe('Wick.View.Frame', function() {
             expect(frame.clips[1].transformation.scaleY).to.equal(1.0);
             expect(frame.clips[1].transformation.rotation).to.equal(0);
             expect(frame.clips[1].transformation.opacity).to.equal(1.0);
-        });
-
-        it('should update raster data', function(done) {
-            var project = new Wick.Project();
-            var frame = project.activeFrame;
-            var asset = new Wick.ImageAsset({
-                filename: 'test.png',
-                src: TestUtils.TEST_IMG_SRC_PNG,
-            });
-            project.addAsset(asset);
-
-            asset.createInstance(path => {
-                frame.addPath(path);
-                frame.view.render(frame);
-
-                frame.view.pathsLayer.children[0].position.x += 50;
-                frame.view.applyChanges(frame, frame.view.pathsLayer);
-
-                expect(frame.paths[0].view.item.source).to.equal(TestUtils.TEST_IMG_SRC_PNG);
-                expect(frame.paths[0].view.item.position.x).to.equal(50);
-                done();
-            });
         });
     });
 

@@ -52,40 +52,4 @@ describe('Wick.ImageAsset', function() {
             expect(image.fileExtension).to.equal('png');
         });
     });
-
-    describe('#removeAllInstances', function () {
-        it('should delete all instances of the asset in the project', function (done) {
-            var project = new Wick.Project();
-            var asset = new Wick.ImageAsset({
-                filename: 'test.png',
-                src: TestUtils.TEST_IMG_SRC_PNG
-            });
-            project.addAsset(asset);
-
-            asset.createInstance((path) => {
-                project.activeFrame.addPath(path);
-                expect(project.activeFrame.paths.length).to.equal(1);
-                project.removeAsset(asset);
-                expect(project.activeFrame.paths.length).to.equal(0);
-                done();
-            });
-        });
-
-        it('should delete all instances of the asset in the project when the asset is removed', function (done) {
-            var project = new Wick.Project();
-            var asset = new Wick.ImageAsset({
-                filename: 'test.png',
-                src: TestUtils.TEST_IMG_SRC_PNG
-            });
-            project.addAsset(asset);
-
-            asset.createInstance((path) => {
-                project.activeFrame.addPath(path);
-                expect(project.activeFrame.paths.length).to.equal(1);
-                asset.remove();
-                expect(project.activeFrame.paths.length).to.equal(0);
-                done();
-            });
-        });
-    });
 });

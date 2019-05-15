@@ -904,12 +904,12 @@ class EditorCore extends Component {
     this.resetEditorForLoad();
     this.project = project;
     this.project.selection.clear();
-    this.project.view.preloadImages(() => {
+    //this.project.view.preloadImages(() => {
       //localForage.setItem(this.autoSaveAssetsKey, window.Wick.FileCache.getAllFiles());
       this.autosaveAssets();
       this.projectDidChange();
       this.hideWaitOverlay();
-    });
+    //});
   }
 
   showAutosavedProjects = () => {

@@ -255,24 +255,37 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
         this.ghost.build();
         this.item.addChild(this.ghost.item);
 
+        var fillColor = 'rgba(0,0,0,0)';
+        if(this.isHoveredOver) {
+            fillColor = Wick.GUIElement.FRAME_HOVERED_OVER;
+        } else if(this.model.tweens.length > 0) {
+            fillColor = Wick.GUIElement.FRAME_TWEENED_FILL_COLOR;
+        } else if(this.model.contentful) {
+            fillColor = Wick.GUIElement.FRAME_CONTENTFUL_FILL_COLOR;
+        } else {
+            fillColor = Wick.GUIElement.FRAME_UNCONTENTFUL_FILL_COLOR;
+        }
+
         var frameRect = new this.paper.Path.Rectangle({
             from: new this.paper.Point(0, 0),
             to: new this.paper.Point(this.width, this.height),
-            fillColor: this.isHoveredOver ? Wick.GUIElement.FRAME_HOVERED_OVER : (this.model.contentful ? Wick.GUIElement.FRAME_CONTENTFUL_FILL_COLOR : Wick.GUIElement.FRAME_UNCONTENTFUL_FILL_COLOR),
+            fillColor: fillColor,
             strokeColor: this.model.isSelected ? Wick.GUIElement.SELECTED_ITEM_BORDER_COLOR : '#000000',
             strokeWidth: this.model.isSelected ? 3 : 0,
             radius: Wick.GUIElement.FRAME_BORDER_RADIUS,
         });
         this.item.addChild(frameRect);
 
-        var contentDot = new this.paper.Path.Ellipse({
-            center: [this.gridCellWidth/2, this.gridCellHeight/2 + 5],
-            radius: Wick.GUIElement.FRAME_CONTENT_DOT_RADIUS,
-            fillColor: this.model.contentful ? Wick.GUIElement.FRAME_CONTENT_DOT_COLOR: 'rgba(0,0,0,0)',
-            strokeColor: Wick.GUIElement.FRAME_CONTENT_DOT_COLOR,
-            strokeWidth: Wick.GUIElement.FRAME_CONTENT_DOT_STROKE_WIDTH,
-        });
-        this.item.addChild(contentDot);
+        if(this.model.tweens.length === 0) {
+            var contentDot = new this.paper.Path.Ellipse({
+                center: [this.gridCellWidth/2, this.gridCellHeight/2 + 5],
+                radius: Wick.GUIElement.FRAME_CONTENT_DOT_RADIUS,
+                fillColor: this.model.contentful ? Wick.GUIElement.FRAME_CONTENT_DOT_COLOR: 'rgba(0,0,0,0)',
+                strokeColor: Wick.GUIElement.FRAME_CONTENT_DOT_COLOR,
+                strokeWidth: Wick.GUIElement.FRAME_CONTENT_DOT_STROKE_WIDTH,
+            });
+            this.item.addChild(contentDot);
+        }
 
         this.rightEdge.build();
         this.item.addChild(this.rightEdge.item);

@@ -39,10 +39,10 @@ Wick.WickFile = class {
                 }
 
                 projectData.assets = [];
-                console.log(projectData)
 
                 Wick.ObjectCache.deserialize(projectData.objects);
                 var project = Wick.Base.fromData(projectData.project);
+                Wick.ObjectCache.addObject(project);
                 project.attachParentReferences();
 
                 var loadedAssetCount = 0;
@@ -101,10 +101,19 @@ Wick.WickFile = class {
             assetsFolder.file(filename + '.' + fileExtension, data, {base64: true});
         });
 
+        var objectCacheSerialized = Wick.ObjectCache.serialize();
+        var projectSerialized = project.serialize();
+
+        for(var uuid in objectCacheSerialized) {
+            if(objectCacheSerialized[uuid].classname === 'Project') {
+                delete objectCacheSerialized[uuid];
+            }
+        }
+
         // Add project json to root directory of zip file
         var projectData = {
-            project: project.serialize(),
-            objects: Wick.ObjectCache.serialize(),
+            project: projectSerialized,
+            objects: objectCacheSerialized,
         };
         zip.file("project.json", JSON.stringify(projectData, null, 2));
 

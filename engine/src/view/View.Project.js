@@ -271,33 +271,6 @@ Wick.View.Project = class extends Wick.View {
     }
 
     /**
-     * Use this to know when all the images in the project are loaded.
-     */
-    preloadImages (callback) {
-        var allRasters = [];
-        this.model.getAllFrames().forEach(frame => {
-            frame.paths.filter(path => {
-                return path.paperPath instanceof this.paper.Raster;
-            }).forEach(raster => {
-                allRasters.push(raster);
-            });
-        });
-
-        var i = setInterval(() => {
-            var allLoaded = true;
-            allRasters.forEach(raster => {
-                if(!raster.isLoaded) {
-                    allLoaded = false;
-                }
-            });
-            if(allLoaded) {
-                clearInterval(i);
-                callback();
-            }
-        }, 10);
-    }
-
-    /**
      * Destroy the renderer. Call this when the view will no longer be used to save memory/webgl contexts.
      */
     destroy () {

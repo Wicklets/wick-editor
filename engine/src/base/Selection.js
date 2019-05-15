@@ -330,6 +330,90 @@ Wick.Selection = class extends Wick.Base {
         this.view.moveBackwards();
     }
 
+    /**
+     *
+     */
+    get name () {
+        return this._getSingleAttribute('identifier');
+    }
+
+    set name (name) {
+        this._setSingleAttribute('identifier', name);
+    }
+
+    /**
+     *
+     */
+    get fillColor () {
+        return this._getSingleAttribute('fillColorHex');
+    }
+
+    set fillColor (fillColor) {
+        this._setSingleAttribute('fillColorHex', fillColor);
+    }
+
+    /**
+     *
+     */
+    get strokeColor () {
+        return this._getSingleAttribute('strokeColor');
+    }
+
+    set strokeColor (strokeColor) {
+        this._setSingleAttribute('strokeColorHex', strokeColor);
+    }
+
+    /**
+     *
+     */
+    get strokeWidth () {
+        return this._getSingleAttribute('strokeWidth');
+    }
+
+    set strokeWidth (strokeWidth) {
+        this._setSingleAttribute('strokeWidth', strokeWidth);
+    }
+
+    /**
+     *
+     */
+    get opacity () {
+        return this._getSingleAttribute('opacity');
+    }
+
+    set opacity (opacity) {
+        this._setSingleAttribute('opacity', opacity);
+    }
+
+    /**
+     *
+     */
+    get sound () {
+        return this._getSingleAttribute('sound');
+    }
+
+    set sound (sound) {
+        this._setSingleAttribute('sound', sound);
+    }
+
+    /**
+     *
+     */
+    get soundVolume () {
+        return this._getSingleAttribute('soundVolume');
+    }
+
+    set opacity (soundVolume) {
+        this._setSingleAttribute('soundVolume', soundVolume);
+    }
+
+    /**
+     *
+     */
+    get filename () {
+        return this._getSingleAttribute('filename');
+    }
+
     _locationOf (object) {
         if(object instanceof Wick.Frame
         || object instanceof Wick.Tween
@@ -362,5 +446,18 @@ Wick.Selection = class extends Wick.Base {
                 y: boundsCenter.y,
             };
         }
+    }
+
+    /* helper function for getting a single value from multiple selected objects */
+    _getSingleAttribute (attributeName) {
+        if(this.numObjects === 0) return null;
+        return this.getSelectedObjects()[0][attributeName];
+    }
+
+    /* helper function for updating the same attribute on all items in the selection  */
+    _setSingleAttribute (attributeName, value) {
+        selectedObjects.forEach(selectedObject => {
+            selectedObject[attributeName] = value;
+        });
     }
 }
