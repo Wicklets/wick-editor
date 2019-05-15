@@ -75489,6 +75489,7 @@ Wick.GUIElement.NUMBER_LINE_NUMBERS_FONT_SIZE = '18';
 Wick.GUIElement.FRAME_HOVERED_OVER = '#D3F8F4';
 Wick.GUIElement.FRAME_CONTENTFUL_FILL_COLOR = '#ffffff';
 Wick.GUIElement.FRAME_UNCONTENTFUL_FILL_COLOR = '#ffffff';
+Wick.GUIElement.FRAME_TWEENED_FILL_COLOR = '#ccccff';
 Wick.GUIElement.FRAME_BORDER_RADIUS = 5;
 Wick.GUIElement.FRAME_CONTENT_DOT_RADIUS = 7;
 Wick.GUIElement.FRAME_CONTENT_DOT_STROKE_WIDTH = 3;
@@ -75506,6 +75507,9 @@ Wick.GUIElement.ADD_FRAME_OVERLAY_FILL_COLOR = '#ffffff';
 Wick.GUIElement.ADD_FRAME_OVERLAY_PLUS_COLOR = '#aaaaaa';
 Wick.GUIElement.ADD_FRAME_OVERLAY_BORDER_RADIUS = 3;
 Wick.GUIElement.ADD_FRAME_OVERLAY_MARGIN = 3;
+Wick.GUIElement.TWEEN_HOVER_COLOR = '#ffff00';
+Wick.GUIElement.TWEEN_FILL_COLOR = '#ff9933';
+Wick.GUIElement.TWEEN_STROKE_COLOR = '#ffff00';
 Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_STROKE_COLOR = 'rgba(0,0,0,0.2)';
 Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_HIGHLIGHT_STROKE_COLOR = 'rgba(255,255,255,0.3)';
 Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_STROKE_WIDTH = 2.5;
@@ -76303,23 +76307,39 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
     this.ghost.width = this.ghostWidth;
     this.ghost.build();
     this.item.addChild(this.ghost.item);
+    var fillColor = 'rgba(0,0,0,0)';
+
+    if (this.isHoveredOver) {
+      fillColor = Wick.GUIElement.FRAME_HOVERED_OVER;
+    } else if (this.model.tweens.length > 0) {
+      fillColor = Wick.GUIElement.FRAME_TWEENED_FILL_COLOR;
+    } else if (this.model.contentful) {
+      fillColor = Wick.GUIElement.FRAME_CONTENTFUL_FILL_COLOR;
+    } else {
+      fillColor = Wick.GUIElement.FRAME_UNCONTENTFUL_FILL_COLOR;
+    }
+
     var frameRect = new this.paper.Path.Rectangle({
       from: new this.paper.Point(0, 0),
       to: new this.paper.Point(this.width, this.height),
-      fillColor: this.isHoveredOver ? Wick.GUIElement.FRAME_HOVERED_OVER : this.model.contentful ? Wick.GUIElement.FRAME_CONTENTFUL_FILL_COLOR : Wick.GUIElement.FRAME_UNCONTENTFUL_FILL_COLOR,
+      fillColor: fillColor,
       strokeColor: this.model.isSelected ? Wick.GUIElement.SELECTED_ITEM_BORDER_COLOR : '#000000',
       strokeWidth: this.model.isSelected ? 3 : 0,
       radius: Wick.GUIElement.FRAME_BORDER_RADIUS
     });
     this.item.addChild(frameRect);
-    var contentDot = new this.paper.Path.Ellipse({
-      center: [this.gridCellWidth / 2, this.gridCellHeight / 2 + 5],
-      radius: Wick.GUIElement.FRAME_CONTENT_DOT_RADIUS,
-      fillColor: this.model.contentful ? Wick.GUIElement.FRAME_CONTENT_DOT_COLOR : 'rgba(0,0,0,0)',
-      strokeColor: Wick.GUIElement.FRAME_CONTENT_DOT_COLOR,
-      strokeWidth: Wick.GUIElement.FRAME_CONTENT_DOT_STROKE_WIDTH
-    });
-    this.item.addChild(contentDot);
+
+    if (this.model.tweens.length === 0) {
+      var contentDot = new this.paper.Path.Ellipse({
+        center: [this.gridCellWidth / 2, this.gridCellHeight / 2 + 5],
+        radius: Wick.GUIElement.FRAME_CONTENT_DOT_RADIUS,
+        fillColor: this.model.contentful ? Wick.GUIElement.FRAME_CONTENT_DOT_COLOR : 'rgba(0,0,0,0)',
+        strokeColor: Wick.GUIElement.FRAME_CONTENT_DOT_COLOR,
+        strokeWidth: Wick.GUIElement.FRAME_CONTENT_DOT_STROKE_WIDTH
+      });
+      this.item.addChild(contentDot);
+    }
+
     this.rightEdge.build();
     this.item.addChild(this.rightEdge.item);
     this.leftEdge.build();
@@ -78748,13 +78768,16 @@ Wick.GUIElement.Tween = class extends Wick.GUIElement.Draggable {
 
   build() {
     super.build();
+    var r = Wick.GUIElement.FRAME_CONTENT_DOT_RADIUS;
     var tweenRect = new this.paper.Path.Rectangle({
-      from: new this.paper.Point(0, 0),
-      to: new this.paper.Point(this.width, this.height),
-      fillColor: this.isHoveredOver ? '#0000ff' : '#aaaaff',
-      strokeColor: this.model.isSelected ? '#ff9933' : '#000000',
-      strokeWidth: this.model.isSelected ? 3 : 1
+      from: new this.paper.Point(-r, -r),
+      to: new this.paper.Point(r, r),
+      fillColor: this.isHoveredOver ? Wick.GUIElement.TWEEN_HOVER_COLOR : Wick.GUIElement.TWEEN_FILL_COLOR,
+      strokeColor: this.model.isSelected ? Wick.GUIElement.SELECTED_ITEM_BORDER_COLOR : Wick.GUIElement.TWEEN_STROKE_COLOR,
+      strokeWidth: this.model.isSelected ? 3 : 3
     });
+    tweenRect.rotate(45, tweenRect.bounds.center);
+    tweenRect.position = tweenRect.position.add(new paper.Point(this.gridCellWidth / 2, this.gridCellHeight / 2 + 5));
     this.item.addChild(tweenRect);
     this.item.position = new paper.Point(this.x, this.y);
   }
