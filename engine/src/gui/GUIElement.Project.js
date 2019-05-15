@@ -103,10 +103,6 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
     }
 
     _attachMouseEvents () {
-        this.paper.view.onDoubleClick = (e) => {
-            this.fire('doubleClick');
-        }
-
         this.paper.view.onMouseMove = (e) => {
             // don't fire mouseMove functions if we're dragging
             if(e.event.buttons) return;

@@ -125,7 +125,11 @@ Wick.Path = class extends Wick.Base {
      * @type {string}
      */
     get fillColorHex () {
-        return this.view.item.fillColor.toCSS(true);
+        return this._getColorAsHex(this.view.item.fillColor);
+    }
+
+    set fillColorHex (fillColorHex) {
+        this.view.item.fillColor = fillColorHex;
     }
 
     /**
@@ -133,12 +137,51 @@ Wick.Path = class extends Wick.Base {
      * @type {object}
      */
     get fillColorRGBA () {
+        return this._getColorAsRGBA(this.view.item.fillColor);
+    }
+
+    /**
+     * The stroke color, in hex format (example "#FFFFFF"), of the path
+     * @type {string}
+     */
+    get strokeColorHex () {
+        return this._getColorAsHex(this.view.item.strokeColor);
+    }
+
+    set strokeColorHex (strokeColorHex) {
+        this.view.item.strokeColor = strokeColorHex;
+    }
+
+    /**
+     * The stroke color, in rgba format (example "rgba(255,255,255,1.0)"), of the path
+     * @type {object}
+     */
+    get strokeColorRGBA () {
+        this._getColorAsRGBA(this.view.item.strokeColor);
+    }
+
+    _getColorAsHex (color) {
+        return color.toCSS(true);
+    }
+
+    _getColorAsRGBA (color) {
         return {
-            r: this.view.item.fillColor.red * 255,
-            g: this.view.item.fillColor.green * 255,
-            b: this.view.item.fillColor.blue * 255,
-            a: this.view.item.fillColor.alpha,
+            r: color.red * 255,
+            g: color.green * 255,
+            b: color.blue * 255,
+            a: color.alpha,
         };
+    }
+
+    /**
+     * The stroke width of the shape.
+     */
+    get strokeWidth () {
+        return this.view.item.strokeWidth;
+    }
+
+    set strokeWidth (strokeWidth) {
+        this.view.item.strokeWidth = strokeWidth;
     }
 
     /**
