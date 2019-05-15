@@ -577,12 +577,16 @@ class EditorCore extends Component {
    * @param {string} scriptName Name of the script to remove
    */
   deleteScript = (scriptOwner, scriptName) => {
+    let oldEditorState = this.state.codeEditorOpen;
+    this.toggleCodeEditor(false); // Close code editor if open. 
+
     this.openWarningModal({
       description: 'Delete Script: "' + scriptName + '" from the selected object?',
       title: "Delete Script",
       acceptText: "Delete", 
       cancelText: "Cancel",
       acceptAction: (() => scriptOwner.removeScript(scriptName)),
+      finalAction: (() => this.toggleCodeEditor(oldEditorState)), // Reopen code editor if necessary.
     }); 
   }
 

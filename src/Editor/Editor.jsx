@@ -442,10 +442,14 @@ class Editor extends EditorCore {
   /**
    * Opens and closes the code editor depending on the state of the codeEditor.
    */
-  toggleCodeEditor = () => {
+  toggleCodeEditor = (state) => {
+    if (state === undefined) {
+      state = !this.state.codeEditorOpen;
+    }
+
     this.setState( {
-      codeEditorOpen: !this.state.codeEditorOpen,
-    })
+      codeEditorOpen: state,
+    });
   }
 
   /**
@@ -579,6 +583,7 @@ class Editor extends EditorCore {
       title: args.title || "Title",
       acceptAction: args.acceptAction || (() => {console.warn("No accept action implemented.")}),
       cancelAction: args.cancelAction || (() => {console.warn("No cancel action implemented.")}),
+      finalAction: args.finalAction || (() => {console.warn("No final action implemented.")}),
       acceptText: args.acceptText || "Accept",
       cancelText: args.cancelText || "Cancel",
     }
@@ -807,7 +812,9 @@ class Editor extends EditorCore {
               toggleCodeEditor={this.toggleCodeEditor}
               errors={this.state.codeErrors}
               onMinorScriptUpdate={this.onMinorScriptUpdate}
-              onMajorScriptUpdate={this.onMajorScriptUpdate}/>}
+              onMajorScriptUpdate={this.onMajorScriptUpdate}
+              deleteScript={this.deleteScript}
+              />}
         </div>
       )}
       </Dropzone>

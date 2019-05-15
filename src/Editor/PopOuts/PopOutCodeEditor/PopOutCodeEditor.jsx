@@ -91,6 +91,7 @@ class PopOutCodeEditor extends Component {
         onMinorScriptUpdate={this.props.onMinorScriptUpdate}
         onMajorScriptUpdate={this.props.onMajorScriptUpdate}
         scriptInfoInterface={this.props.scriptInfoInterface}
+        deleteScript={this.props.deleteScript} 
         />
     )
   }

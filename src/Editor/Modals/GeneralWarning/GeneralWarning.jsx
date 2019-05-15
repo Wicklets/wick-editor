@@ -26,11 +26,13 @@ import './_generalwarning.scss';
 class GeneralWarning extends Component {
   acceptAndToggle = () => {
     this.props.info.acceptAction();
+    this.props.info.finalAction(); 
     this.props.toggle();
   }
 
   cancelAndToggle = () => {
     this.props.info.cancelAction();
+    this.props.info.finalAction(); 
     this.props.toggle();
   }
 
