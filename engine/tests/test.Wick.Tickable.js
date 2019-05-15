@@ -9,34 +9,6 @@ describe('Wick.Tickable', function() {
         });
     });
 
-/*
-    describe('#serialize', function () {
-        it('should serialize correctly', function() {
-            var tickable = new Wick.Tickable();
-            var data = tickable.serialize();
-            expect(data.classname).to.equal('Tickable');
-            expect(data.identifier).to.equal(tickable.identifier);
-            expect(data.scripts.length).to.equal(0);
-        });
-    });
-
-    describe('#deserialize', function () {
-        it('should deserialize correctly', function() {
-            var data = {
-                uuid: 'dummyuuid',
-                identifier:'dummyidentifier',
-                classname:'Tickable',
-                scripts: [],
-            };
-            var tickable = Wick.Tickable.deserialize(data);
-            expect(tickable instanceof Wick.Tickable).to.equal(true);
-            expect(tickable.uuid).to.equal('dummyuuid');
-            expect(tickable.identifier).to.equal('dummyidentifier');
-            expect(tickable.scripts instanceof Array).to.equal(true);
-        });
-    });
-*/
-
     describe('#scripts', function () {
 
     });
@@ -46,7 +18,40 @@ describe('Wick.Tickable', function() {
     });
 
     describe('#addScript', function () {
+        it('should add scripts', function () {
+            var tickable = new Wick.Tickable();
 
+            tickable.addScript('load', 'foo()');
+            expect(tickable.scripts.length).to.equal(1);
+            expect(tickable.scripts[0].name).to.equal('load');
+            expect(tickable.scripts[0].src).to.equal('foo()');
+
+            tickable.addScript('update', 'bar()');
+            expect(tickable.scripts.length).to.equal(2);
+            expect(tickable.scripts[0].name).to.equal('load');
+            expect(tickable.scripts[0].src).to.equal('foo()');
+            expect(tickable.scripts[1].name).to.equal('update');
+            expect(tickable.scripts[1].src).to.equal('bar()');
+        });
+
+        it('should add scripts, and they should be in order', function () {
+            var tickable = new Wick.Tickable();
+
+            tickable.addScript('unload', 'unload_foo()');
+            tickable.addScript('update', 'update_foo()');
+            tickable.addScript('mouseenter', 'mouseenter_foo()');
+            tickable.addScript('load', 'load_foo()');
+
+            expect(tickable.scripts.length).to.equal(4);
+            expect(tickable.scripts[0].name).to.equal('load');
+            expect(tickable.scripts[0].src).to.equal('load_foo()');
+            expect(tickable.scripts[1].name).to.equal('update');
+            expect(tickable.scripts[1].src).to.equal('update_foo()');
+            expect(tickable.scripts[2].name).to.equal('unload');
+            expect(tickable.scripts[2].src).to.equal('unload_foo()');
+            expect(tickable.scripts[3].name).to.equal('mouseenter');
+            expect(tickable.scripts[3].src).to.equal('mouseenter_foo()');
+        });
     });
 
     describe('#getScript', function () {
