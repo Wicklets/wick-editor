@@ -183,6 +183,7 @@ class WickTabCodeEditor extends Component {
 
   addScript = (scriptName) => {
     this.props.script.addScript(scriptName);
+    this.props.editScript(scriptName);
     this.props.rerenderCodeEditor();
   }
 
