@@ -65082,6 +65082,8 @@ Wick.Clipboard = class {
     this._objects.map(object => {
       return object.clone();
     }).forEach(object => {
+      if (object instanceof Wick.Frame) return; // ignoring frame paste until we pasted fix frame placement.
+
       project.addObject(object); // Add offset to Paths and Clips if pasteInPlace is NOT enabled.
 
       if (!pasteInPlace && (object instanceof Wick.Path || object instanceof Wick.Clip)) {
@@ -68430,10 +68432,17 @@ Wick.Path = class extends Wick.Base {
   }
 
   _getColorAsHex(color) {
+    if (!color) return '#000000';
     return color.toCSS(true);
   }
 
   _getColorAsRGBA(color) {
+    if (!color) return {
+      r: 0,
+      g: 0,
+      b: 0,
+      a: 1
+    };
     return {
       r: color.red * 255,
       g: color.green * 255,
@@ -71803,7 +71812,7 @@ class SelectionWidget {
     });
 
     this._itemsInSelection.forEach(item => {
-      var outline = item instanceof paper.Raster || item instanceof paper.Group ? new paper.Path.Rectangle(item.bounds) : item.clone();
+      var outline = item.clone();
       outline.remove();
       outline.fillColor = 'rgba(0,0,0,0)';
       outline.strokeColor = SelectionWidget.GHOST_STROKE_COLOR;
@@ -71821,6 +71830,7 @@ class SelectionWidget {
     });
     boundsOutline.rotate(this.boxRotation, this._center);
     ghost.addChild(boundsOutline);
+    ghost.opacity = 0.5;
     return ghost;
   }
 
@@ -71864,7 +71874,7 @@ SelectionWidget.PIVOT_STROKE_COLOR = 'rgba(0,0,0,1)';
 SelectionWidget.PIVOT_RADIUS = SelectionWidget.HANDLE_RADIUS;
 SelectionWidget.ROTATION_HOTSPOT_RADIUS = 20;
 SelectionWidget.ROTATION_HOTSPOT_FILLCOLOR = 'rgba(100,150,255,0.5)';
-SelectionWidget.GHOST_STROKE_COLOR = 'rgba(0, 0, 0, 0.5)';
+SelectionWidget.GHOST_STROKE_COLOR = 'rgba(0, 0, 0, 1.0)';
 SelectionWidget.GHOST_STROKE_WIDTH = 1;
 paper.PaperScope.inject({
   SelectionWidget: SelectionWidget

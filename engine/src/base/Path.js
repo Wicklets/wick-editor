@@ -172,10 +172,12 @@ Wick.Path = class extends Wick.Base {
     }
 
     _getColorAsHex (color) {
+        if(!color) return '#000000';
         return color.toCSS(true);
     }
 
     _getColorAsRGBA (color) {
+        if(!color) return {r:0, g:0, b:0, a:1};
         return {
             r: color.red * 255,
             g: color.green * 255,

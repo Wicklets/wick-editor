@@ -921,13 +921,10 @@ class EditorCore extends Component {
    * Start a timer to run an autosave sometime in the future.
    */
   requestAutosave = () => {
-      if(this._autosaveTimeoutID) {
-          window.clearTimeout(this._autosaveTimeoutID);
-      }
-
+      window.clearTimeout(this._autosaveTimeoutID);
       this._autosaveTimeoutID = window.setTimeout(() => {
           this.autoSaveProject();
-      }, 5000);
+      }, 1000 * 60);
   }
 
   /**
