@@ -65962,7 +65962,9 @@ Wick.Base = class {
 
   get children() {
     return this._childrenUUIDs.map(uuid => {
-      return Wick.ObjectCache.getObjectByUUID(uuid);
+      var object = Wick.ObjectCache.getObjectByUUID(uuid);
+      if (!object.parent) object.parent = this;
+      return object;
     });
   }
   /**

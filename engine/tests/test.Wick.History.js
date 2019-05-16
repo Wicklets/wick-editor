@@ -171,4 +171,13 @@ describe('Wick.History', function() {
         expect(project.activeFrame.paths[0].uuid).to.equal(path3.uuid);
         expect(project.activeFrame.paths[0].view.item.fillColor.toCSS(true)).to.equal('#0000ff');
     });
+
+    //attachParentReferences
+    it('bug: parent references should remain after delete undo', function () {
+        var project = new Wick.Project();
+        project.history.pushState();
+        project.activeFrame.remove();
+        project.undo();
+        expect(project.activeFrame.parent).to.equal(project.activeLayer);
+    })
 });
