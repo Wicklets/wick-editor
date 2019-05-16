@@ -230,6 +230,14 @@ class SelectionWidget {
             var pivotToLastPointVector = lastPoint.subtract(this.pivot);
             var pivotToCurrentPointVector = currentPoint.subtract(this.pivot);
             var scaleAmt = pivotToCurrentPointVector.divide(pivotToLastPointVector);
+
+            // Lock scaling in a direction if the side handles are being dragged.
+            if(item.data.handleEdge === 'topCenter' || item.data.handleEdge === 'bottomCenter') {
+                scaleAmt.x = 1.0;
+            }
+            if(item.data.handleEdge === 'leftCenter' || item.data.handleEdge === 'rightCenter') {
+                scaleAmt.y = 1.0;
+            }
             this._ghost.data.scale = this._ghost.data.scale.multiply(scaleAmt);
 
             this._ghost.matrix = new paper.Matrix();
