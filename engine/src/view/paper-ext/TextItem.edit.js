@@ -33,7 +33,7 @@
     editElem.css('border', 'none');
 
     paper.TextItem.inject({
-        attachTextArea: function () {
+        attachTextArea: function (paper) {
             $(paper.view.element.offsetParent).append(editElem);
             editElem.focus();
 
@@ -52,7 +52,7 @@
             var position = paper.view.projectToView(clone.bounds.topLeft.x, clone.bounds.topLeft.y);
             var scale = this.scaling;
             var rotation = this.rotation;
-            
+
             var fontSize = this.fontSize * paper.view.zoom;
             var fontFamily = this.fontFamily;
             var content = this.content;
@@ -66,12 +66,12 @@
             transformString += 'scale('+scale.x+','+scale.y+') ';
             editElem.css('transform', transformString);
         },
-        edit: function() {
-            this.attachTextArea();
+        edit: function(paper) {
+            this.attachTextArea(paper);
             var self = this;
             editElem[0].oninput = function () {
                 self.content = editElem[0].value;
-                self.attachTextArea();
+                self.attachTextArea(paper);
             }
         },
         finishEditing: function() {

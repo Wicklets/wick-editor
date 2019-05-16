@@ -72136,7 +72136,7 @@ paper.Path.inject({
   editElem.css('-webkit-box-sizing', 'content-box');
   editElem.css('border', 'none');
   paper.TextItem.inject({
-    attachTextArea: function () {
+    attachTextArea: function (paper) {
       $(paper.view.element.offsetParent).append(editElem);
       editElem.focus();
       var clone = this.clone();
@@ -72163,13 +72163,13 @@ paper.Path.inject({
       transformString += 'scale(' + scale.x + ',' + scale.y + ') ';
       editElem.css('transform', transformString);
     },
-    edit: function () {
-      this.attachTextArea();
+    edit: function (paper) {
+      this.attachTextArea(paper);
       var self = this;
 
       editElem[0].oninput = function () {
         self.content = editElem[0].value;
-        self.attachTextArea();
+        self.attachTextArea(paper);
       };
     },
     finishEditing: function () {
@@ -73787,7 +73787,7 @@ Wick.Tools.Text = class extends Wick.Tool {
       this.finishEditingText();
     } else if (this.hoveredOverText) {
       this.editingText = this.hoveredOverText;
-      e.item.edit();
+      e.item.edit(this.project.view.paper);
     } else {
       var text = new this.paper.PointText(e.point);
       text.justification = 'left';
