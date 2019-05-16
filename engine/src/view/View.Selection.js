@@ -63,6 +63,7 @@ Wick.View.Selection = class extends Wick.View {
 
     set x (x) {
         this.widget.position = new paper.Point(x, this.widget.position.y);
+        this.model.project.view.applyChanges();
     }
 
     /**
@@ -74,6 +75,7 @@ Wick.View.Selection = class extends Wick.View {
 
     set y (y) {
         this.widget.position = new paper.Point(this.widget.position.x, y);
+        this.model.project.view.applyChanges();
     }
 
     /**
@@ -85,6 +87,7 @@ Wick.View.Selection = class extends Wick.View {
 
     set width (width) {
         this.widget.width = width;
+        this.model.project.view.applyChanges();
     }
 
     /**
@@ -96,6 +99,7 @@ Wick.View.Selection = class extends Wick.View {
 
     set height (height) {
         this.widget.height = height;
+        this.model.project.view.applyChanges();
     }
 
     /**
@@ -107,6 +111,7 @@ Wick.View.Selection = class extends Wick.View {
 
     set rotation (rotation) {
         this.widget.rotation = rotation;
+        this.model.project.view.applyChanges();
         this.model.widgetRotation = rotation;
     }
 
@@ -115,6 +120,7 @@ Wick.View.Selection = class extends Wick.View {
      */
     flipHorizontally () {
         this.widget.flipHorizontally();
+        this.model.project.view.applyChanges();
     }
 
     /**
@@ -122,13 +128,13 @@ Wick.View.Selection = class extends Wick.View {
      */
     flipVertically () {
         this.widget.flipVertically();
+        this.model.project.view.applyChanges();
     }
 
     /**
      *
      */
     sendToBack () {
-        // we need to do a view applyChanges() call here because i (zj) decided to do ordering straight through paper.js (bad idea)
         paper.OrderingUtils.sendToBack(this._getSelectedObjectViews());
         this.model.project.view.applyChanges();
     }
@@ -137,7 +143,6 @@ Wick.View.Selection = class extends Wick.View {
      *
      */
     bringToFront () {
-        // we need to do a view applyChanges() call here because i (zj) decided to do ordering straight through paper.js (bad idea)
         paper.OrderingUtils.bringToFront(this._getSelectedObjectViews());
         this.model.project.view.applyChanges();
     }
@@ -146,7 +151,6 @@ Wick.View.Selection = class extends Wick.View {
      *
      */
     moveForwards () {
-        // we need to do a view applyChanges() call here because i (zj) decided to do ordering straight through paper.js (bad idea)
         paper.OrderingUtils.moveForwards(this._getSelectedObjectViews());
         this.model.project.view.applyChanges();
     }
@@ -155,7 +159,6 @@ Wick.View.Selection = class extends Wick.View {
      *
      */
     moveBackwards () {
-        // we need to do a view applyChanges() call here because i (zj) decided to do ordering straight through paper.js (bad idea)
         paper.OrderingUtils.moveBackwards(this._getSelectedObjectViews());
         this.model.project.view.applyChanges();
     }
