@@ -937,10 +937,12 @@ class EditorCore extends Component {
     if (!this.project) return;
 
     console.log('autosaving...');
+    this.showWaitOverlay();
 
     window.Wick.WickFile.toWickFile(this.project, wickFile => {
       localForage.setItem(this.autoSaveKey, wickFile).then(() => {
         console.log('done autosaving.');
+        this.hideWaitOverlay();
       });
     });
   }
@@ -950,9 +952,11 @@ class EditorCore extends Component {
    * Does nothing if not autosaved project is stored.
    */
   loadAutosavedProject = (callback) => {
+    this.showWaitOverlay();
     localForage.getItem(this.autoSaveKey).then(wickFile => {
       window.Wick.WickFile.fromWickFile(wickFile, project => {
         this.setupNewProject(project);
+        this.hideWaitOverlay();
         callback();
       });
     });
