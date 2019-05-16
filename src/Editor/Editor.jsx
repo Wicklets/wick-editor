@@ -220,7 +220,6 @@ class Editor extends EditorCore {
   }
 
   componentDidUpdate = (prevProps, prevState) => {
-    console.log("Update| Code Editor Open: ", this.state.codeEditorOpen);
 
     if(this.state.previewPlaying && !prevState.previewPlaying) {
       this.project.play({

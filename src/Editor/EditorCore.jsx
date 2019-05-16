@@ -588,7 +588,7 @@ class EditorCore extends Component {
       acceptAction: (() => scriptOwner.removeScript(scriptName)),
       finalAction: (() => this.toggleCodeEditor(oldEditorState)), // Reopen code editor if necessary.
     });
-    
+
   }
 
   /**
