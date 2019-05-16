@@ -31,7 +31,7 @@ class AutosaveWarning extends Component {
   }
 
   deleteAndToggle = () => {
-    this.editor.clearAutoSavedProject(() => {
+    this.props.clearAutoSavedProject(() => {
       this.props.toggle();
     });
   }

@@ -194,8 +194,7 @@ class Editor extends EditorCore {
       name        : 'WickEditor',
       description : 'Live Data storage of the Wick Editor app.'
     });
-    this.autoSaveKey = "wickProjectAutosave";
-    this.autoSaveAssetsKey = "wickProjectAutosaveAssets";
+    this.autoSaveKey = "wickProjectAutosave1-0-11";
 
     // Setup the initial project state
     this.setState({
@@ -653,6 +652,8 @@ class Editor extends EditorCore {
                     exportProjectAsVideo={this.exportProjectAsVideo}
                     exportProjectAsStandaloneZip={this.exportProjectAsStandaloneZip}
                     warningModalInfo={this.state.warningModalInfo}
+                    loadAutosavedProject={this.loadAutosavedProject}
+                    clearAutoSavedProject={this.clearAutoSavedProject}
                   />
                   {/* Header */}
                   <DockedPanel showOverlay={this.state.previewPlaying}>

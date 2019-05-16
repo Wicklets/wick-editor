@@ -583,12 +583,12 @@ class EditorCore extends Component {
     this.openWarningModal({
       description: 'Delete Script: "' + scriptName + '" from the selected object?',
       title: "Delete Script",
-      acceptText: "Delete", 
+      acceptText: "Delete",
       cancelText: "Cancel",
       acceptAction: (() => scriptOwner.removeScript(scriptName)),
       finalAction: (() => this.toggleCodeEditor(oldEditorState)), // Reopen code editor if necessary.
     });
-    
+
   }
 
   /**
@@ -788,8 +788,6 @@ class EditorCore extends Component {
           this.toast('Could not add files to project: ' + file.name, 'error');
         } else {
           this.toast('Imported "' + file.name + '" successfully.', 'success');
-          //localForage.setItem(this.autoSaveAssetsKey, window.Wick.FileCache.getAllFiles());
-          this.autosaveAssets();
           this.projectDidChange();
         }
       });
@@ -905,10 +903,9 @@ class EditorCore extends Component {
     this.project = project;
     this.project.selection.clear();
     //this.project.view.preloadImages(() => {
-      //localForage.setItem(this.autoSaveAssetsKey, window.Wick.FileCache.getAllFiles());
-      this.autosaveAssets();
       this.projectDidChange();
       this.hideWaitOverlay();
+      this.project.view.render();
     //});
   }
 
@@ -939,20 +936,13 @@ class EditorCore extends Component {
   autoSaveProject = () => {
     if (!this.project) return;
 
-    //console.log('autosaving...');
-    //console.log('autosaved.');
+    console.log('autosaving...');
 
-    //let serializedProject = this.project.serialize();
-    //localForage.setItem(this.autoSaveKey, serializedProject);
-
-    //localForage.setItem(this.autoSaveAssetsKey, window.Wick.FileCache.getAllFiles());
-  }
-
-  /**
-   *
-   */
-  autosaveAssets = () => {
-
+    window.Wick.WickFile.toWickFile(this.project, wickFile => {
+      localForage.setItem(this.autoSaveKey, wickFile).then(() => {
+        console.log('done autosaving.');
+      });
+    });
   }
 
   /**
@@ -960,21 +950,9 @@ class EditorCore extends Component {
    * Does nothing if not autosaved project is stored.
    */
   loadAutosavedProject = (callback) => {
-    localForage.getItem(this.autoSaveAssetsKey).then(serializedAssets => {
-      if (serializedAssets) {
-        // Only deserialize assets if necessary.
-        serializedAssets.forEach(asset => {
-          window.Wick.FileCache.addFile(asset.src, asset.uuid);
-        });
-      }
-
-      localForage.getItem(this.autoSaveKey).then(serializedProject => {
-        if (!serializedProject) {
-          this.toast('An error occurred while loading your project.', 'error');
-        } else {
-          let deserialized = window.Wick.Project.deserialize(serializedProject);
-          this.setupNewProject(deserialized);
-        }
+    localForage.getItem(this.autoSaveKey).then(wickFile => {
+      window.Wick.WickFile.fromWickFile(wickFile, project => {
+        this.setupNewProject(project);
         callback();
       });
     });

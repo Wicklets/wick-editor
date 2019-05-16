@@ -25,7 +25,7 @@ import AutosaveWarning from '../AutosaveWarning/AutosaveWarning';
 import WelcomeMessage from '../WelcomeMessage/WelcomeMessage';
 import MakeAnimated from '../MakeAnimated/MakeAnimated';
 import ExportOptions from '../ExportOptions/ExportOptions';
-import GeneralWarning from '../GeneralWarning/GeneralWarning'; 
+import GeneralWarning from '../GeneralWarning/GeneralWarning';
 
 class ModalHandler extends Component {
   render() {
@@ -56,6 +56,7 @@ class ModalHandler extends Component {
           toggle={this.props.closeActiveModal}
           open={this.props.activeModalName === 'AutosaveWarning'}
           loadAutosavedProject={this.props.loadAutosavedProject}
+          clearAutoSavedProject={this.props.clearAutoSavedProject}
         />
         <WelcomeMessage
           openModal={this.props.openModal}
