@@ -1,7 +1,7 @@
 window.onload = function () {
     function handleComplete () {
         var projectData = queue.getResult("project");
-        Wick.Project.fromWickFile(new Blob([new Uint8Array(projectData)]), project => {
+        Wick.WickFile.fromWickFile(new Blob([new Uint8Array(projectData)]), project => {
             playProject(project);
         });
     }
@@ -31,6 +31,9 @@ window.onload = function () {
         project.focus.timeline.playheadPosition = 1;
         project.view.prerasterize(() => {
             project.play({
+                onAfterTick: (() => {
+                    project.view.render();
+                }),
                 onError: (error => {
                     console.error('Project threw an error!');
                     console.error(error);
