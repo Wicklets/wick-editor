@@ -65,7 +65,7 @@ Wick.Tools.Text = class extends Wick.Tool {
             this.finishEditingText();
         } else if(this.hoveredOverText) {
             this.editingText = this.hoveredOverText;
-            e.item.edit();
+            e.item.edit(this.project.view.paper);
         } else {
             var text = new this.paper.PointText(e.point);
             text.justification = 'left';
