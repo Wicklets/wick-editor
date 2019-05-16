@@ -650,7 +650,6 @@ class Editor extends EditorCore {
                     createClipFromSelection={this.createClipFromSelection}
                     createButtonFromSelection={this.createButtonFromSelection}
                     updateProjectSettings={this.updateProjectSettings}
-                    loadAutosavedProject={this.loadAutosavedProject}
                     exportProjectAsGif={this.exportProjectAsAnimatedGIF}
                     exportProjectAsVideo={this.exportProjectAsVideo}
                     exportProjectAsStandaloneZip={this.exportProjectAsStandaloneZip}

@@ -7,8 +7,8 @@
     background-color: $editor-primary;
     color: $editor-primary-text;
     border-radius: 3px;
-    padding-left: $script-window-margin; 
     overflow: hidden; 
+    display: flex;
 }
 
 .inspector-script-window-row-edit {
@@ -26,3 +26,22 @@
     color: $editor-primary-text;
     border-radius: 3px;
 }
+
+.inspector-script-window-row-color-bar {
+    height: 100%;
+    width: $script-window-margin;
+    margin-right: $script-window-margin; 
+}
+
+.inspector-script-window-row-color-bar.blue-bar {
+    background-color: $wick-active-blue;
+}
+
+.inspector-script-window-row-color-bar.green-bar {
+    background-color: $wick-green;
+}
+
+.inspector-script-window-row-color-bar.yellow-bar {
+    background-color: $wick-yellow;
+}
+
