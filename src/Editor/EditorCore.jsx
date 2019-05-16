@@ -936,12 +936,10 @@ class EditorCore extends Component {
   autoSaveProject = () => {
     if (!this.project) return;
 
-    console.log('autosaving...');
     this.showWaitOverlay();
 
     window.Wick.WickFile.toWickFile(this.project, wickFile => {
       localForage.setItem(this.autoSaveKey, wickFile).then(() => {
-        console.log('done autosaving.');
         this.hideWaitOverlay();
       });
     });
