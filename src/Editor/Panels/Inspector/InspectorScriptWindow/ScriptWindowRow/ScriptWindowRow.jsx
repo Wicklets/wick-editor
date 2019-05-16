@@ -27,11 +27,30 @@ const capitalize = (s) => {
   return s.charAt(0).toUpperCase() + s.slice(1)
 }
 
+
 class ScriptWindowRow extends Component {
+  getColorBar = () => {
+    let scriptsByType = this.props.scriptInfoInterface.scriptsByType;
+
+    let color = 'blue-bar'; 
+
+    Object.keys(scriptsByType).forEach(type => {
+        if (scriptsByType[type].indexOf(this.props.name) > -1) {
+            color = this.props.scriptInfoInterface.scriptTypeColors[type] + "-bar";
+        }
+    }); 
+
+    return color;
+  }
+
   render() {
+    
     return(
       <div className="inspector-script-window-row-container">
-        <div className="script-row-item inspector-script-window-row-name">{capitalize(this.props.name)}</div>
+        <div className="script-row-item inspector-script-window-row-name">
+            <div className={"inspector-script-window-row-color-bar" + " " + this.getColorBar()}/>
+            {capitalize(this.props.name)}
+        </div>
         <div className="script-row-item inspector-script-window-row-edit">
             <ActionButton 
                 id={"inspector-script-window-row-edit" + this.props.name}

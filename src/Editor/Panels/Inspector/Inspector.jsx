@@ -682,6 +682,7 @@ class Inspector extends Component {
           script={this.props.script}
           deleteScript={this.props.deleteScript}
           editScript={this.props.editScript}
+          scriptInfoInterface={this.props.scriptInfoInterface}
         />
       </div>
     );

@@ -8,6 +8,14 @@ class ScriptInfoInterface extends Object {
         }
     }
 
+    get scriptTypeColors () {
+        return {
+            'Timeline': 'blue',
+            'Mouse': 'green',
+            'Keyboard': 'yellow',
+        }
+    }
+
     get scriptDescriptions () {
         return {
             'load' : 'Once, when the frame is entered',
