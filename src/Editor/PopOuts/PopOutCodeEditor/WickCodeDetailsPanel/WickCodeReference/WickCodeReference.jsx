@@ -12,11 +12,7 @@ class WickCodeDetailsPanel extends Component {
       openElements : [],
     }
 
-    this.referenceItems = {
-      'Timeline' : ['play', 'stop', 'gotoAndPlay', 'gotoAndStop', 'gotoNextFrame', 'gotoPrevFrame'],
-      'Object' : ['x', 'y', 'width', 'height', 'scaleX', 'scaleY', 'rotation', 'opacity', 'hitTest'],
-      'Input' : ['mouseX', 'mouseY', ],
-    }
+    this.referenceItems = this.props.scriptInfoInterface.referenceItems;
   }
 
   toggleTab = (tabName) => {
@@ -49,7 +45,7 @@ class WickCodeDetailsPanel extends Component {
     let functions = this.referenceItems[tabName];
 
     return functions.map((f, i) => {
-      return <div className="tab-element" key={i}>{f}</div>
+      return <div className="tab-element" key={i}>{f.name}</div>
     });
   }
 

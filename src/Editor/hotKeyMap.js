@@ -41,7 +41,6 @@ class HotKeyInterface extends Object {
       'activate-rectangle': 'r',
       'activate-ellipse': 'o',
       'activate-line': 'l',
-      'activate-eyedropper': 'v',
       'activate-pan': 'space',
       'deactivate-pan': { sequence: "space", action: "keyup" },
       'activate-zoom': 'z',

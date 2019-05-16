@@ -133,7 +133,9 @@ class PopOutCodeEditor extends Component {
           </div>
         </div>
         <div className="code-editor-body">
-          <WickCodeDetailsPanel />
+          <WickCodeDetailsPanel 
+            scriptInfoInterface={this.props.scriptInfoInterface}
+          />
           <div className="code-editor-code-panel">
             {this.props.selectionIsScriptable() && 
             <WickTabCodeEditor
