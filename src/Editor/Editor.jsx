@@ -82,7 +82,7 @@ class Editor extends EditorCore {
         selectCurves: false,
       },
       previewPlaying: false,
-      activeModalName: null,
+      activeModalName: "WelcomeMessage",
       activeModalQueue: [],
       codeEditorOpen: false,
       scriptToEdit: "add",
