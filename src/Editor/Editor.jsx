@@ -255,11 +255,15 @@ class Editor extends EditorCore {
   }
 
   showWaitOverlay = () => {
-    let waitOverlay = window.document.getElementById('wait-overlay');
-    waitOverlay.style.display = 'block';
+    window.clearTimeout(this._showWaitOverlayTimeoutID);
+    this._showWaitOverlayTimeoutID = window.setTimeout(() => {
+      let waitOverlay = window.document.getElementById('wait-overlay');
+      waitOverlay.style.display = 'block';
+    }, 250);
   }
 
   hideWaitOverlay = () => {
+    window.clearTimeout(this._showWaitOverlayTimeoutID);
     let waitOverlay = window.document.getElementById('wait-overlay');
     waitOverlay.style.display = 'none';
   }

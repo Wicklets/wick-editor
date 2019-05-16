@@ -65,6 +65,8 @@ Wick.Clipboard = class {
         this._objects.map(object => {
             return object.clone();
         }).forEach(object => {
+            if(object instanceof Wick.Frame) return; // ignoring frame paste until we pasted fix frame placement.
+
             project.addObject(object);
 
             // Add offset to Paths and Clips if pasteInPlace is NOT enabled.
