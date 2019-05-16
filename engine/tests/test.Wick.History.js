@@ -39,6 +39,8 @@ describe('Wick.History', function() {
         expect(project.redo()).to.equal(true);
         expect(project.activeFrame.paths.length).to.equal(1);
         expect(project.activeFrame.paths[0]).to.equal(path1);
+        expect(project.activeFrame.paths[0].project).to.equal(project);
+        expect(project.activeFrame.paths[0].parent).to.equal(project.activeFrame);
 
         expect(project.redo()).to.equal(true);
         expect(project.activeFrame.paths.length).to.equal(2);

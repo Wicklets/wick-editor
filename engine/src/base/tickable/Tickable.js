@@ -26,22 +26,22 @@ Wick.Tickable = class extends Wick.Base {
      * @return {string[]} Array of all possible scripts.
      */
     static get possibleScripts () {
-      return [
-            'update',
+        return [
             'load',
+            'update',
             'unload',
             'mouseenter',
-            'mouseleave',
-            'mousepressed',
             'mousedown',
+            'mousepressed',
             'mousereleased',
+            'mouseleave',
             'mousehover',
             'mousedrag',
             'mouseclick',
             'keypressed',
             'keyreleased',
             'keydown',
-        ]
+        ];
     }
 
     /**
@@ -114,11 +114,18 @@ Wick.Tickable = class extends Wick.Base {
      * @param {string} src - The source code of the new script.
      */
     addScript (name, src) {
+        if(Wick.Tickable.possibleScripts.indexOf(name) === -1) console.error(name + ' is not a valid script!');
         if(this.hasScript(name)) return;
 
         this._scripts.push({
             name: name,
             src: '',
+        });
+
+        // Sort scripts by where they appear in the possibleScripts list
+        var possibleScripts = Wick.Tickable.possibleScripts;
+        this._scripts.sort((a,b) => {
+            return possibleScripts.indexOf(a.name) - possibleScripts.indexOf(b.name);
         });
 
         if(src) {
@@ -129,8 +136,10 @@ Wick.Tickable = class extends Wick.Base {
     /**
      * Get the script of this object that is triggered when the given event name happens.
      * @param {string} name - The name of the event. See Wick.Tickable.possibleScripts
+     * @returns {object} the script with the given name. Can be null if the object doesn't have that script.
      */
     getScript (name) {
+        if(Wick.Tickable.possibleScripts.indexOf(name) === -1) console.error(name + ' is not a valid script!');
         return this._scripts.find(script => {
             return script.name === name;
         });
@@ -176,6 +185,7 @@ Wick.Tickable = class extends Wick.Base {
      * @param {string} name - The name of the event. See Wick.Tickable.possibleScripts
      */
     runScript (name) {
+        if(!Wick.Tickable.possibleScripts.indexOf(name) === -1) console.error(name + ' is not a valid script!');
         if(!this.hasScript(name)) return null;
 
         // Dont' run scripts if this object is the focus

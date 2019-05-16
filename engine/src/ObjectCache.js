@@ -93,44 +93,27 @@ WickObjectCache = class {
      * Only call this when you're ready to finish editing the project because old objects need to be retained somewhere for undo/redo.
      * @param {Wick.Project} project - the project to use to determine which objects have no references
      */
-    removeUnusedObjects () {
+    removeUnusedObjects (project) {
+        this.getActiveObjects(project).forEach(object => {
+            this.removeObject(object);
+        });
+    }
+
+    /**
+     * Get all objects that are referenced in the given project.
+     * @param {Wick.Project} project - the project to check if children are active in.
+     * @returns {Wick.Base[]} the active objects.
+     */
+    getActiveObjects (project) {
         var children = project.getChildrenRecursive();
         var uuids = children.map(child => {
             return child.uuid;
         });
 
-        this.getAllObjects().forEach(object => {
-            if(uuids.indexOf(object) === -1) {
-                this.removeObject(object);
-            }
+        return this.getAllObjects().filter(object => {
+            return uuids.indexOf(object.uuid) !== -1;
         });
     }
-
-    /**
-     *
-     */
-    serialize () {
-        var objectInfos = {};
-
-        for (var uuid in this._objects) {
-            var object = this._objects[uuid];
-            objectInfos[uuid] = object.serialize();
-        }
-
-        return objectInfos;
-    }
-
-    /**
-     *
-     */
-    deserialize (data) {
-        for (var uuid in data) {
-            var objectData = data[uuid];
-            var object = Wick.Base.fromData(objectData);
-            this.addObject(object);
-        }
-    }
-
 }
 
 Wick.ObjectCache = new WickObjectCache();

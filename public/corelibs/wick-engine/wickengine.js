@@ -65286,7 +65286,7 @@ Wick.History = class {
   }
 
   _generateState(filter) {
-    return Wick.ObjectCache.getAllObjects().map(object => {
+    return Wick.ObjectCache.getActiveObjects(this.project).map(object => {
       return object.serialize();
     });
   }
@@ -65402,44 +65402,56 @@ WickObjectCache = class {
    */
 
 
-  removeUnusedObjects() {
+  removeUnusedObjects(project) {
+    this.getActiveObjects(project).forEach(object => {
+      this.removeObject(object);
+    });
+  }
+  /**
+   * Get all objects that are referenced in the given project.
+   * @param {Wick.Project} project - the project to check if children are active in.
+   * @returns {Wick.Base[]} the active objects.
+   */
+
+
+  getActiveObjects(project) {
     var children = project.getChildrenRecursive();
     var uuids = children.map(child => {
       return child.uuid;
     });
-    this.getAllObjects().forEach(object => {
-      if (uuids.indexOf(object) === -1) {
-        this.removeObject(object);
-      }
+    return this.getAllObjects().filter(object => {
+      return uuids.indexOf(object.uuid) !== -1;
     });
   }
   /**
    *
    */
 
-
-  serialize() {
-    var objectInfos = {};
-
-    for (var uuid in this._objects) {
-      var object = this._objects[uuid];
-      objectInfos[uuid] = object.serialize();
-    }
-
-    return objectInfos;
+  /*
+  serialize () {
+     var objectInfos = {};
+      for (var uuid in this._objects) {
+         var object = this._objects[uuid];
+         objectInfos[uuid] = object.serialize();
+     }
+      return objectInfos;
   }
+  */
+
   /**
    *
    */
 
-
-  deserialize(data) {
-    for (var uuid in data) {
-      var objectData = data[uuid];
-      var object = Wick.Base.fromData(objectData);
-      this.addObject(object);
-    }
+  /*
+  deserialize (data) {
+     for (var uuid in data) {
+         var objectData = data[uuid];
+         var object = Wick.Base.fromData(objectData);
+         this.addObject(object);
+     }
   }
+  */
+
 
 };
 Wick.ObjectCache = new WickObjectCache();
@@ -65552,7 +65564,13 @@ Wick.WickFile = class {
         }
 
         projectData.assets = [];
-        Wick.ObjectCache.deserialize(projectData.objects);
+
+        for (var uuid in projectData.objects) {
+          var data = projectData.objects[uuid];
+          var object = Wick.Base.fromData(data);
+          Wick.ObjectCache.addObject(object);
+        }
+
         var project = Wick.Base.fromData(projectData.project);
         Wick.ObjectCache.addObject(project);
         project.attachParentReferences();
@@ -65611,7 +65629,10 @@ Wick.WickFile = class {
         base64: true
       });
     });
-    var objectCacheSerialized = Wick.ObjectCache.serialize();
+    var objectCacheSerialized = {};
+    Wick.ObjectCache.getActiveObjects(project).forEach(object => {
+      objectCacheSerialized[object.uuid] = object.serialize();
+    });
     var projectSerialized = project.serialize();
 
     for (var uuid in objectCacheSerialized) {
@@ -66384,6 +66405,7 @@ Wick.Project = class extends Wick.Base {
     this._keysLastDown = [];
     this._currentKey = null;
     this._tickIntervalID = null;
+    this.history.project = this;
     this.history.pushState();
   }
 
@@ -69007,7 +69029,7 @@ GlobalAPI = class {
     this.scriptOwner = scriptOwner;
   }
   /**
-   * Defines all api members such as functions and properties. 
+   * Defines all api members such as functions and properties.
    * @returns {string[]} All global API member names
    */
 
@@ -69073,7 +69095,7 @@ GlobalAPI = class {
     this.scriptOwner.parentClip.gotoAndPlay(frame);
   }
   /**
-   * Moves the playhead of the parent clip of the object to the next frame. 
+   * Moves the playhead of the parent clip of the object to the next frame.
    */
 
 
@@ -69090,7 +69112,7 @@ GlobalAPI = class {
   }
   /**
    * Returns an object representing the project with properties such as width, height, framerate, background color, and name.
-   * @returns {object} Project object. 
+   * @returns {object} Project object.
    */
 
 
@@ -69147,7 +69169,7 @@ GlobalAPI = class {
   }
   /**
    * Returns the last key pressed down.
-   * @returns {string | null} Returns null if no key has been pressed yet. 
+   * @returns {string | null} Returns null if no key has been pressed yet.
    */
 
 
@@ -69262,7 +69284,7 @@ GlobalAPI.Random = class {
    * Returns a random integer (whole number) between two given integers.
    * @param {number} min The minimum of the returned integer.
    * @param {number} max The maximum of the returned integer.
-   * @returns {number} A random number between min and max. 
+   * @returns {number} A random number between min and max.
    * https://stackoverflow.com/questions/4959975/generate-random-number-between-two-numbers-in-javascript
    */
 
@@ -69274,7 +69296,7 @@ GlobalAPI.Random = class {
    * Returns a random floating point (decimal) number between two given integers.
    * @param {number} min The minimum of the returned number.
    * @param {number} max The maximum of the returned number.
-   * @returns {number} A random number between min and max. 
+   * @returns {number} A random number between min and max.
    * https://stackoverflow.com/questions/4959975/generate-random-number-between-two-numbers-in-javascript
    */
 
@@ -69326,7 +69348,7 @@ Wick.Tickable = class extends Wick.Base {
    * @return {string[]} Array of all possible scripts.
    */
   static get possibleScripts() {
-    return ['update', 'load', 'unload', 'mouseenter', 'mouseleave', 'mousepressed', 'mousedown', 'mousereleased', 'mousehover', 'mousedrag', 'mouseclick', 'keypressed', 'keyreleased', 'keydown'];
+    return ['load', 'update', 'unload', 'mouseenter', 'mousedown', 'mousepressed', 'mousereleased', 'mouseleave', 'mousehover', 'mousedrag', 'mouseclick', 'keypressed', 'keyreleased', 'keydown'];
   }
   /**
    * Create a new tickable object.
@@ -69396,11 +69418,19 @@ Wick.Tickable = class extends Wick.Base {
 
 
   addScript(name, src) {
+    if (Wick.Tickable.possibleScripts.indexOf(name) === -1) console.error(name + ' is not a valid script!');
     if (this.hasScript(name)) return;
 
     this._scripts.push({
       name: name,
       src: ''
+    }); // Sort scripts by where they appear in the possibleScripts list
+
+
+    var possibleScripts = Wick.Tickable.possibleScripts;
+
+    this._scripts.sort((a, b) => {
+      return possibleScripts.indexOf(a.name) - possibleScripts.indexOf(b.name);
     });
 
     if (src) {
@@ -69410,10 +69440,12 @@ Wick.Tickable = class extends Wick.Base {
   /**
    * Get the script of this object that is triggered when the given event name happens.
    * @param {string} name - The name of the event. See Wick.Tickable.possibleScripts
+   * @returns {object} the script with the given name. Can be null if the object doesn't have that script.
    */
 
 
   getScript(name) {
+    if (Wick.Tickable.possibleScripts.indexOf(name) === -1) console.error(name + ' is not a valid script!');
     return this._scripts.find(script => {
       return script.name === name;
     });
@@ -69464,6 +69496,7 @@ Wick.Tickable = class extends Wick.Base {
 
 
   runScript(name) {
+    if (!Wick.Tickable.possibleScripts.indexOf(name) === -1) console.error(name + ' is not a valid script!');
     if (!this.hasScript(name)) return null; // Dont' run scripts if this object is the focus
     // (so that preview play will always play)
 
@@ -78255,6 +78288,7 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
   build() {
     super.build();
     this.resize();
+    this._hoverTarget = null;
     var timeline = this.model.focus.timeline;
     timeline.guiElement.build();
     this.item.addChild(timeline.guiElement.item);

@@ -85,14 +85,14 @@ class Editor extends EditorCore {
       activeModalName: null,
       activeModalQueue: [],
       codeEditorOpen: false,
-      scriptToEdit: "add", 
+      scriptToEdit: "add",
       codeErrors: [],
       inspectorSize: 250,
       timelineSize: 175,
       assetLibrarySize: 150,
       warningModalInfo: {
-        description: "No Description Given", 
-        title: "Title", 
+        description: "No Description Given",
+        title: "Title",
         acceptText: "Accept",
         cancelText: "Cancel",
         acceptAction: (() => {console.warn("No Accept Action")}),
@@ -194,8 +194,7 @@ class Editor extends EditorCore {
       name        : 'WickEditor',
       description : 'Live Data storage of the Wick Editor app.'
     });
-    this.autoSaveKey = "wickProjectAutosave";
-    this.autoSaveAssetsKey = "wickProjectAutosaveAssets";
+    this.autoSaveKey = "wickProjectAutosave1-0-11";
 
     // Setup the initial project state
     this.setState({
@@ -270,7 +269,7 @@ class Editor extends EditorCore {
    */
   resetEditorForLoad = () => {
 
-  } 
+  }
 
   onWindowResize = () => {
     // Ensure that all elements resize on window resize.
@@ -499,6 +498,7 @@ class Editor extends EditorCore {
 
     // Render engine
     this.project.view.render();
+    this.project.guiElement.build();
 
     // Force react to render
     this.setState({
@@ -572,7 +572,7 @@ class Editor extends EditorCore {
 
   /**
    * Opens a warning modal with a description. If the modal is accepted, the accept action is called.
-   * @param {Object} args can contain description {string}, acceptAction {function}, cancelAction {function}, 
+   * @param {Object} args can contain description {string}, acceptAction {function}, cancelAction {function},
    * acceptText {string}, cancelText {string}, title {string}.
    */
   openWarningModal = (args) => {
@@ -589,7 +589,7 @@ class Editor extends EditorCore {
     this.setState({
       warningModalInfo: modalInfo,
       activeModalName: "GeneralWarning",
-    }); 
+    });
   }
 
   /**
@@ -651,6 +651,8 @@ class Editor extends EditorCore {
                     exportProjectAsVideo={this.exportProjectAsVideo}
                     exportProjectAsStandaloneZip={this.exportProjectAsStandaloneZip}
                     warningModalInfo={this.state.warningModalInfo}
+                    loadAutosavedProject={this.loadAutosavedProject}
+                    clearAutoSavedProject={this.clearAutoSavedProject}
                   />
                   {/* Header */}
                   <DockedPanel showOverlay={this.state.previewPlaying}>
@@ -769,7 +771,7 @@ class Editor extends EditorCore {
                                 script={this.getSelectedObjectScript()}
                                 scriptInfoInterface={this.scriptInfoInterface}
                                 deleteScript={this.deleteScript}
-                                editScript={this.editScript} 
+                                editScript={this.editScript}
                               />
                             </DockedPanel>
                           </ReflexElement>

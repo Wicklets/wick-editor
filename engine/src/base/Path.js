@@ -23,6 +23,9 @@
  // This gets annoying sometimes (see what we have to do in the getters for path attributes?)
  // Please try this later -zj
 
+ // NOTE 2:
+ // I think originally the idea was that exportJSON would be called less if we cached the json.
+
 /**
  * Represents a Wick Path.
  */
