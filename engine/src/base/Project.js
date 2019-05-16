@@ -731,7 +731,7 @@ Wick.Project = class extends Wick.Base {
      * @param {function} done - Function to call when the images are all loaded.
      */
     generateImageSequence (args, callback) {
-        var oldCanvasContainer = this.canvasContainer;
+        var oldCanvasContainer = this.view.canvasContainer;
 
         // Put the project canvas inside a div that's the same size as the project so the frames render at the correct resolution.
         let container = window.document.createElement('div');

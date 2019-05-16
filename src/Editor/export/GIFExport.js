@@ -13,7 +13,10 @@ class GIFExport {
       height: project.height,
       workerScript: process.env.PUBLIC_URL + "/corelibs/gif/gif.worker.js",
     });
-    gif.on('finished', done);
+    gif.on('finished', (gif) => {
+      project.view.render();
+      done(gif);
+    });
 
     // Get frame images from project, add to GIF.js
     project.generateImageSequence({}, images => {

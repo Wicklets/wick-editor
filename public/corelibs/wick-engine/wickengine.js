@@ -65007,7 +65007,7 @@ TWEEN.Interpolation = {
  */
 Wick = {
   /* Major.Minor.Patch[ReleaseType] */
-  version: "1.0.10a"
+  version: "1.0.11a"
 };
 console.log("Wick Engine " + Wick.version + " is available."); // Ensure that the Wick namespace is accessible in environments where globals are finicky (react, webpack, etc)
 
@@ -65423,35 +65423,6 @@ WickObjectCache = class {
       return uuids.indexOf(object.uuid) !== -1;
     });
   }
-  /**
-   *
-   */
-
-  /*
-  serialize () {
-     var objectInfos = {};
-      for (var uuid in this._objects) {
-         var object = this._objects[uuid];
-         objectInfos[uuid] = object.serialize();
-     }
-      return objectInfos;
-  }
-  */
-
-  /**
-   *
-   */
-
-  /*
-  deserialize (data) {
-     for (var uuid in data) {
-         var objectData = data[uuid];
-         var object = Wick.Base.fromData(objectData);
-         this.addObject(object);
-     }
-  }
-  */
-
 
 };
 Wick.ObjectCache = new WickObjectCache();
@@ -67098,7 +67069,7 @@ Wick.Project = class extends Wick.Base {
 
 
   generateImageSequence(args, callback) {
-    var oldCanvasContainer = this.canvasContainer; // Put the project canvas inside a div that's the same size as the project so the frames render at the correct resolution.
+    var oldCanvasContainer = this.view.canvasContainer; // Put the project canvas inside a div that's the same size as the project so the frames render at the correct resolution.
 
     let container = window.document.createElement('div');
     container.style.width = this.width / window.devicePixelRatio + 'px';
@@ -68296,6 +68267,8 @@ Wick.Tween = class extends Wick.Base {
 // In this way there will never be issues with "is the JSON synced with the paper.Path instance?" questions
 // This gets annoying sometimes (see what we have to do in the getters for path attributes?)
 // Please try this later -zj
+// NOTE 2:
+// I think originally the idea was that exportJSON would be called less if we cached the json.
 
 /**
  * Represents a Wick Path.
