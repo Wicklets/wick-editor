@@ -69476,30 +69476,31 @@ Wick.Tickable = class extends Wick.Base {
   /**
    * Run the script with the corresponding event name.
    * @param {string} name - The name of the event. See Wick.Tickable.possibleScripts
+   * @returns {object} object containing error info if an error happened. Returns null if there was no error (script ran successfully)
    */
 
 
   runScript(name) {
     if (!Wick.Tickable.possibleScripts.indexOf(name) === -1) console.error(name + ' is not a valid script!');
-    if (!this.hasScript(name)) return null; // Dont' run scripts if this object is the focus
-    // (so that preview play will always play)
+    if (!this.hasScript(name)) return null; // Don't run scripts if this object is the focus
+    // (thia makes it so preview play will always play, even if the parent Clip of the timeline has a stop script)
 
     if (this.project && this.project.focus === this) {
       return;
     }
 
-    var script = this.getScript(name);
-    var api = new GlobalAPI(this);
-    var otherObjects = this.parentClip ? this.parentClip.activeNamedChildren : [];
-    var otherObjectNames = otherObjects.map(obj => obj.identifier); // Catch syntax/parsing errors.
+    var script = this.getScript(name); // Check for syntax/parsing errors
 
     try {
       esprima.parseScript(script.src);
     } catch (e) {
-      console.log(e);
       return this._generateEsprimaErrorInfo(e, name);
-    } // Attempt to create valid function...
+    } // Load API
 
+
+    var api = new GlobalAPI(this);
+    var otherObjects = this.parentClip ? this.parentClip.activeNamedChildren : [];
+    var otherObjectNames = otherObjects.map(obj => obj.identifier); // Attempt to create valid function...
 
     try {
       var fn = new Function(api.apiMemberNames.concat(otherObjectNames), script.src);
@@ -69507,15 +69508,14 @@ Wick.Tickable = class extends Wick.Base {
     } catch (e) {
       // This should almost never be thrown unless there is an attempt to use syntax
       // that the syntax checker (esprima) does not understand.
-      console.log(e);
       return this._generateErrorInfo(e, name);
-    } // Catch runtime errors
+    } // Run the function
 
 
     try {
       fn(...api.apiMembers, ...otherObjects);
     } catch (e) {
-      console.log(e);
+      // Catch runtime errors
       return this._generateErrorInfo(e, name);
     }
 
@@ -72434,7 +72434,7 @@ Wick.Tool = class {
     var radius = size / 2;
     context.beginPath();
     context.arc(centerX, centerY, radius + 1, 0, 2 * Math.PI, false);
-    context.fillStyle = invert(color);
+    context.fillStyle = color.startsWith('#') ? invert(color) : '#000000';
     context.fill();
     context.beginPath();
     context.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
@@ -72537,7 +72537,7 @@ Wick.Tools.Brush = class extends Wick.Tool {
   onMouseDown(e) {
     // Update croquis params
     this.croquisBrush.setSize(this.brushSize);
-    this.croquisBrush.setColor(this.fillColor);
+    this.croquisBrush.setColor(this.fillColor.startsWith('#') ? this.fillColor : '#000000');
     this.croquisBrush.setSpacing(this.BRUSH_POINT_SPACING);
     this.croquis.setToolStabilizeLevel(this.brushStabilizerLevel);
     this.croquis.setToolStabilizeWeight(this.brushStabilizerWeight); // Forward mouse event to croquis canvas

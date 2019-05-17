@@ -29,7 +29,7 @@ Wick.Tools.Line = class extends Wick.Tool {
         this.startPoint;
         this.endPoint;
 
-        this.strokeColor = '#000000';
+        this.strokeColor = new paper.Color('#000000');
         this.strokeWidth = 1;
     }
 

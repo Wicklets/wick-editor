@@ -1,12 +1,12 @@
 describe('Wick.Tools.Pencil', function() {
     it('should activate without errors', function() {
         var project = new Wick.Project();
-        project.view.tools.pencil.activate();
+        project.tools.pencil.activate();
     });
 
     it('Should draw a line', function(done) {
         var project = new Wick.Project();
-        var pencil = project.view.tools.pencil;
+        var pencil = project.tools.pencil;
 
         project.view.render();
 

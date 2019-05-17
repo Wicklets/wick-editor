@@ -1,12 +1,12 @@
 describe('Wick.Tools.Cursor', function() {
     it('should activate without errors', function() {
         var project = new Wick.Project();
-        project.view.tools.cursor.activate();
+        project.tools.cursor.activate();
     });
 
     it('should select/deselect items by clicking', function() {
         var project = new Wick.Project();
-        var cursor = project.view.tools.cursor;
+        var cursor = project.tools.cursor;
         cursor.activate();
 
         var path1 = TestUtils.paperToWickPath(new paper.Path.Ellipse({
@@ -104,7 +104,7 @@ describe('Wick.Tools.Cursor', function() {
         /* Click path1, then click path2 with shift held. should deselect both paths. */
 
         var project = new Wick.Project();
-        var cursor = project.view.tools.cursor;
+        var cursor = project.tools.cursor;
         cursor.activate();
 
         var path1 = TestUtils.paperToWickPath(new paper.Path.Ellipse({

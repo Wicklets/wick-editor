@@ -1,12 +1,12 @@
 describe('Wick.Tools.Ellipse', function() {
     it('should activate without errors', function() {
         var project = new Wick.Project();
-        project.view.tools.ellipse.activate();
+        project.tools.ellipse.activate();
     });
 
     it('should draw an ellipse', function(done) {
         var project = new Wick.Project();
-        var ellipse = project.view.tools.ellipse;
+        var ellipse = project.tools.ellipse;
 
         project.view.render();
 
@@ -31,7 +31,7 @@ describe('Wick.Tools.Ellipse', function() {
 describe('Tools.Ellipse', function() {
     it('Should activate without errors', function() {
         var project = new Wick.Project();
-        project.view.tools.ellipse.activate();
+        project.tools.ellipse.activate();
     });
 
     it('Should draw ellipse', function() {
@@ -44,7 +44,7 @@ describe('Tools.Ellipse', function() {
 
     it('Should fire onCanvasModified event with correct layers', function(done) {
         var project = new Wick.Project();
-        var paper = project.view.tools.ellipse.paper;
+        var paper = project.tools.ellipse.paper;
 
         project.view.on('canvasModified', function (e) {
             expect(e.layers.length).to.equal(1);
@@ -52,10 +52,10 @@ describe('Tools.Ellipse', function() {
             paper.project.clear();
             done();
         });
-        project.view.tools.ellipse.activate();
-        project.view.tools.ellipse.onMouseDown({point:new paper.Point(0,0)});
-        project.view.tools.ellipse.onMouseDrag({modifiers:{},point:new paper.Point(30,30)});
-        project.view.tools.ellipse.onMouseUp();
+        project.tools.ellipse.activate();
+        project.tools.ellipse.onMouseDown({point:new paper.Point(0,0)});
+        project.tools.ellipse.onMouseDrag({modifiers:{},point:new paper.Point(30,30)});
+        project.tools.ellipse.onMouseUp();
     });
 });
 */

@@ -39,7 +39,7 @@ Wick.Tools.Brush = class extends Wick.Tool {
         this.brushStabilizerLevel = 3;
         this.brushStabilizerWeight = 0.5;
         this.potraceResolution = 1.0;
-        this.fillColor = '#000000';
+        this.fillColor = new paper.Color('#000000');
     }
 
     /**
@@ -100,7 +100,7 @@ Wick.Tools.Brush = class extends Wick.Tool {
     onMouseDown (e) {
         // Update croquis params
         this.croquisBrush.setSize(this.brushSize);
-        this.croquisBrush.setColor(this.fillColor);
+        this.croquisBrush.setColor(this.fillColor.toCSS(true));
         this.croquisBrush.setSpacing(this.BRUSH_POINT_SPACING);
         this.croquis.setToolStabilizeLevel(this.brushStabilizerLevel);
         this.croquis.setToolStabilizeWeight(this.brushStabilizerWeight);

@@ -1,12 +1,12 @@
 describe('Wick.Tools.Pan', function() {
     it('should activate without errors', function() {
         var project = new Wick.Project();
-        project.view.tools.pan.activate();
+        project.tools.pan.activate();
     });
 
     it('should pan the view without errors', function() {
         var project = new Wick.Project();
-        var pan = project.view.tools.pan;
+        var pan = project.tools.pan;
 
         project.view.render();
 

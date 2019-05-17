@@ -1,12 +1,12 @@
 describe('Wick.Tools.Eraser', function() {
     it('should activate without errors', function() {
         var project = new Wick.Project();
-        project.view.tools.eraser.activate();
+        project.tools.eraser.activate();
     });
 
     it('should erase a path', function(done) {
         var project = new Wick.Project();
-        var eraser = project.view.tools.eraser;
+        var eraser = project.tools.eraser;
 
         project.view.on('canvasModified', function (e) {
             expect(project.activeFrame.paths.length).to.equal(2);

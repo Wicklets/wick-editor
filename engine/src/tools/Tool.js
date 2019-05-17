@@ -144,7 +144,7 @@ Wick.Tool = class {
 
         context.beginPath();
         context.arc(centerX, centerY, radius+1, 0, 2 * Math.PI, false);
-        context.fillStyle = invert(color);
+        context.fillStyle = invert(color.toCSS(true));
         context.fill();
 
         context.beginPath();

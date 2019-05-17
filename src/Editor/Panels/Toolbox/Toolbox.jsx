@@ -97,7 +97,8 @@ class Toolbox extends Component {
               type="color"
               color= {this.props.toolSettings.fillColor}
               onChangeComplete={(color) => {
-                this.props.setToolSettings({fillColor: color.hex})
+                var rgbaColor = 'rgba(' + color.rgb.r + ',' + color.rgb.g + ',' + color.rgb.b + ',' + color.rgb.a + ')'
+                this.props.setToolSettings({fillColor: rgbaColor});
               }}
               id="tool-box-fill-color"
               tooltipID="tool-box-fill-color"

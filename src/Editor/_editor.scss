@@ -70,20 +70,25 @@ body {
 
 // Toasts
 
+.Toastify__toast-container--top-right {
+  top: 40px;
+  right: 1em;
+}
+
 .info-toast-background {
-  background-color: $editor-modal-gray; 
+  background-color: $editor-modal-gray;
 }
 
 .error-toast-background {
-  background-color: $wick-red-dark; 
+  background-color: $wick-red-dark;
 }
 
 .warning-toast-background {
-  background-color: $wick-yellow-dark; 
+  background-color: $wick-yellow-dark;
 }
 
 .success-toast-background {
-  background-color: $wick-green-dark; 
+  background-color: $wick-green-dark;
 }
 
 

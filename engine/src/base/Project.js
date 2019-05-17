@@ -65,6 +65,35 @@ Wick.Project = class extends Wick.Base {
 
         this._tickIntervalID = null;
 
+        this.tools = {
+            brush: new Wick.Tools.Brush(),
+            cursor: new Wick.Tools.Cursor(),
+            ellipse: new Wick.Tools.Ellipse(),
+            eraser: new Wick.Tools.Eraser(),
+            eyedropper: new Wick.Tools.Eyedropper(),
+            fillbucket: new Wick.Tools.FillBucket(),
+            line: new Wick.Tools.Line(),
+            none: new Wick.Tools.None(),
+            pan: new Wick.Tools.Pan(),
+            pencil: new Wick.Tools.Pencil(),
+            rectangle: new Wick.Tools.Rectangle(),
+            text: new Wick.Tools.Text(),
+            zoom: new Wick.Tools.Zoom(),
+        };
+        this.toolSettings = new Wick.ToolSettings();
+        this.toolSettings.setSetting('fillColor', new paper.Color('#000000'));
+        this.toolSettings.setSetting('strokeColor', new paper.Color('#000000'));
+        this.toolSettings.setSetting('strokeWidth', 1);
+        this.toolSettings.setSetting('brushSize', 10);
+        this.toolSettings.setSetting('eraserSize', 10);
+        this.toolSettings.setSetting('brushSmoothing', 0.9);
+        this.toolSettings.setSetting('brushSmoothness', 10);
+        this.toolSettings.setSetting('cornerRadius', 0);
+        this.toolSettings.setSetting('pressureEnabled', false);
+        this.toolSettings.setSetting('sizeJump', 5);
+        this.toolSettings.setSetting('selectPoints', false);
+        this.toolSettings.setSetting('selectCurves', false);
+
         this.history.project = this;
         this.history.pushState();
     }

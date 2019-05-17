@@ -1,12 +1,12 @@
 describe('Wick.Tools.FillBucket', function() {
     it('should activate without errors', function() {
         var project = new Wick.Project();
-        project.view.tools.fillbucket.activate();
+        project.tools.fillbucket.activate();
     });
 
     it('Should change fill color of path', function(done) {
         var project = new Wick.Project();
-        var fillbucket = project.view.tools.fillbucket;
+        var fillbucket = project.tools.fillbucket;
 
         var json1 = ["Path",{"segments":[[0,0],[50,0],[50,50],[0,50]],"closed":true,"fillColor":[1,1,1]}];
         var json2 = ["Path",{"segments":[[50,50],[100,50],[100,100],[50,100]],"closed":true,"fillColor":[1,1,1]}];
@@ -38,7 +38,7 @@ describe('Wick.Tools.FillBucket', function() {
 
     it('Should fill a hole made by a few paths', function(done) {
         var project = new Wick.Project();
-        var fillbucket = project.view.tools.fillbucket;
+        var fillbucket = project.tools.fillbucket;
 
         project.view.on('canvasModified', function (e) {
             expect(project.activeFrame.paths.length).to.equal(5);

@@ -24,7 +24,7 @@ Wick.Tools.FillBucket = class extends Wick.Tool {
     constructor () {
         super();
 
-        this.fillColor = '#ff0000';
+        this.fillColor = new paper.Color('#000000');
     }
 
     /**

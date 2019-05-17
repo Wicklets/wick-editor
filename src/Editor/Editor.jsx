@@ -64,23 +64,6 @@ class Editor extends EditorCore {
     this.state = {
       project: null,
       activeTool: 'cursor',
-      toolSettings: {
-        fillColor: '#000',
-        strokeColor: '#000',
-        strokeWidth: 1,
-        brushSize: 10,
-        eraserSize: 10,
-        brushSmoothing: 0.9,
-        brushSmoothness: 10,
-        cornerRadius: 0,
-        pressureEnabled: false,
-        sizeJump: 5,
-        pixelDropper: true,
-        fontSize: 20,
-        fontFamily: 'Nunito',
-        selectPoints: false,
-        selectCurves: false,
-      },
       previewPlaying: false,
       activeModalName: "WelcomeMessage",
       activeModalQueue: [],
@@ -536,7 +519,7 @@ class Editor extends EditorCore {
     // Default options for the toast:
     let defaultOptions = {
       position: "top-right",
-      autoClose: 1000 * 60,
+      autoClose: 3000,
       hideProgressBar: true,
       closeOnClick: true,
       pauseOnHover: true,

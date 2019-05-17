@@ -367,19 +367,19 @@ describe('Wick.View.Project', function() {
     describe('#tools', function () {
         it('should instantiate all tools', function () {
             var project = new Wick.Project();
-            expect(project.view.tools.brush instanceof Wick.Tools.Brush).to.equal(true);
-            expect(project.view.tools.cursor instanceof Wick.Tools.Cursor).to.equal(true);
-            expect(project.view.tools.ellipse instanceof Wick.Tools.Ellipse).to.equal(true);
-            expect(project.view.tools.eraser instanceof Wick.Tools.Eraser).to.equal(true);
-            expect(project.view.tools.eyedropper instanceof Wick.Tools.Eyedropper).to.equal(true);
-            expect(project.view.tools.fillbucket instanceof Wick.Tools.FillBucket).to.equal(true);
-            expect(project.view.tools.line instanceof Wick.Tools.Line).to.equal(true);
-            expect(project.view.tools.none instanceof Wick.Tools.None).to.equal(true);
-            expect(project.view.tools.pan instanceof Wick.Tools.Pan).to.equal(true);
-            expect(project.view.tools.pencil instanceof Wick.Tools.Pencil).to.equal(true);
-            expect(project.view.tools.rectangle instanceof Wick.Tools.Rectangle).to.equal(true);
-            expect(project.view.tools.text instanceof Wick.Tools.Text).to.equal(true);
-            expect(project.view.tools.zoom instanceof Wick.Tools.Zoom).to.equal(true);
+            expect(project.tools.brush instanceof Wick.Tools.Brush).to.equal(true);
+            expect(project.tools.cursor instanceof Wick.Tools.Cursor).to.equal(true);
+            expect(project.tools.ellipse instanceof Wick.Tools.Ellipse).to.equal(true);
+            expect(project.tools.eraser instanceof Wick.Tools.Eraser).to.equal(true);
+            expect(project.tools.eyedropper instanceof Wick.Tools.Eyedropper).to.equal(true);
+            expect(project.tools.fillbucket instanceof Wick.Tools.FillBucket).to.equal(true);
+            expect(project.tools.line instanceof Wick.Tools.Line).to.equal(true);
+            expect(project.tools.none instanceof Wick.Tools.None).to.equal(true);
+            expect(project.tools.pan instanceof Wick.Tools.Pan).to.equal(true);
+            expect(project.tools.pencil instanceof Wick.Tools.Pencil).to.equal(true);
+            expect(project.tools.rectangle instanceof Wick.Tools.Rectangle).to.equal(true);
+            expect(project.tools.text instanceof Wick.Tools.Text).to.equal(true);
+            expect(project.tools.zoom instanceof Wick.Tools.Zoom).to.equal(true);
         });
     });
 });

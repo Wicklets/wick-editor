@@ -29,8 +29,8 @@ Wick.Tools.Ellipse = class extends Wick.Tool {
         this.topLeft = null;
         this.bottomRight = null;
 
-        this.fillColor = '#ff0000';
-        this.strokeColor = '#000000';
+        this.fillColor = new paper.Color('#000000');
+        this.strokeColor = new paper.Color('#000000');
         this.strokeWidth = 1;
     }
 
