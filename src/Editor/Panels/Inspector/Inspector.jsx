@@ -113,6 +113,7 @@ class Inspector extends Component {
   getSelectionFillColorOpacity = () => {
     let fillColor = this.getSelectionAttribute('fillColor');
 
+    console.log("Fill", fillColor)
     if (!fillColor) {
       return "1";
     }
@@ -158,17 +159,6 @@ class Inspector extends Component {
     this.props.setSelectionAttribute(attribute, newValue);
   }
 
-  /**
-   * Convert a paper color object to an rgba string;
-   * @param {object} color object with r, g, b, a keys.
-   */
-  toRgbaString (col) {
-    let r = col.rgb.r;
-    let g = col.rgb.g;
-    let b = col.rgb.b;
-    let a = col.rgb.a;
-    return 'rgba(' + r + ',' + g + ',' + b + ',' + a + ')';
-  }
   // Inspector Row Types
 
   /**
@@ -195,7 +185,7 @@ class Inspector extends Component {
         <InspectorColorNumericInput
           tooltip="Fill Color"
           val={this.getSelectionAttribute('fillColor')}
-          onChange={(col) => this.setSelectionAttribute('fillColor', this.toRgbaString(col))}
+          onChange={(col) => this.setSelectionAttribute('fillColor', col)}
           id={"inspector-selection-fill-color"}
           val2={this.getSelectionAttribute('fillColorOpacity')}
           onChange2={(val) => this.setSelectionAttribute('fillColorOpacity', val)}
@@ -214,7 +204,7 @@ class Inspector extends Component {
           tooltip="Stroke Color"
 
           val={this.getSelectionAttribute('strokeColor')}
-          onChange={(col) => this.setSelectionAttribute('strokeColor', this.toRgbaString(col))}
+          onChange={(col) => this.setSelectionAttribute('strokeColor', col)}
           id={"inspector-selection-stroke-color"}
           stroke={true}
 

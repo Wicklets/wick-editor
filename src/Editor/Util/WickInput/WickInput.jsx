@@ -140,10 +140,19 @@ class WickInput extends Component {
   }
 
   renderColor = () => {
+    let wrappedOnChange = (color) => {
+      let rgb = color.rgb;
+      let str = "rgba(" + rgb.r + "," + rgb.g + "," + rgb.b + "," + rgb.a + ")"; 
+      console.log(str);
+      this.props.onChange(str);
+    };
+
     return (
       <ColorPicker
         className={classNames("wick-color-picker", this.props.className)}
-        {...this.props}/>
+        {...this.props}
+        onChangeComplete={this.props.onChange ? wrappedOnChange : null}
+        />
     );
   }
 

@@ -96,8 +96,8 @@ class Toolbox extends Component {
             <WickInput
               type="color"
               color= {this.props.toolSettings.fillColor}
-              onChangeComplete={(color) => {
-                this.props.setToolSettings({fillColor: color.hex})
+              onChange={(color) => {
+                this.props.setToolSettings({fillColor: color})
               }}
               id="tool-box-fill-color"
               tooltipID="tool-box-fill-color"
@@ -109,8 +109,8 @@ class Toolbox extends Component {
             <WickInput
               type="color"
               color= {this.props.toolSettings.strokeColor}
-              onChangeComplete={(color) => {
-                this.props.setToolSettings({strokeColor: color.hex})
+              onChange={(color) => {
+                this.props.setToolSettings({strokeColor: color});
               }}
               id="tool-box-stroke-color"
               tooltipID="tool-box-stroke-color"
