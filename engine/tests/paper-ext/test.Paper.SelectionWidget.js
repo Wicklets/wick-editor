@@ -1,15 +1,17 @@
 describe('Paper.SelectionWidget', function() {
+    var PRINT_CANVASES = false;
+
     var printCanvas = (paper, canvas, msg) => {
         paper.view.update();
         var i = new Image();
         i.src = canvas.toDataURL();
 
-        document.body.appendChild(i);
+        if(PRINT_CANVASES) document.body.appendChild(i);
 
         var title = document.createElement('h3');
         title.style.fontFamily = 'monospace';
         title.innerHTML = msg;
-        document.body.appendChild(title);
+        if(PRINT_CANVASES) document.body.appendChild(title);
     }
 
     it('should build correctly', function () {

@@ -183,30 +183,31 @@ Wick.Tickable = class extends Wick.Base {
     /**
      * Run the script with the corresponding event name.
      * @param {string} name - The name of the event. See Wick.Tickable.possibleScripts
+     * @returns {object} object containing error info if an error happened. Returns null if there was no error (script ran successfully)
      */
     runScript (name) {
         if(!Wick.Tickable.possibleScripts.indexOf(name) === -1) console.error(name + ' is not a valid script!');
         if(!this.hasScript(name)) return null;
 
-        // Dont' run scripts if this object is the focus
-        // (so that preview play will always play)
+        // Don't run scripts if this object is the focus
+        // (thia makes it so preview play will always play, even if the parent Clip of the timeline has a stop script)
         if(this.project && this.project.focus === this) {
             return;
         }
 
         var script = this.getScript(name);
 
-        var api = new GlobalAPI(this);
-        var otherObjects = this.parentClip ? this.parentClip.activeNamedChildren : [];
-        var otherObjectNames = otherObjects.map(obj => obj.identifier);
-
-        // Catch syntax/parsing errors.
+        // Check for syntax/parsing errors
         try {
             esprima.parseScript(script.src)
         } catch (e) {
-            console.log(e);
             return this._generateEsprimaErrorInfo(e, name);
         }
+
+        // Load API
+        var api = new GlobalAPI(this);
+        var otherObjects = this.parentClip ? this.parentClip.activeNamedChildren : [];
+        var otherObjectNames = otherObjects.map(obj => obj.identifier);
 
         // Attempt to create valid function...
         try {
@@ -215,15 +216,14 @@ Wick.Tickable = class extends Wick.Base {
         } catch (e) {
             // This should almost never be thrown unless there is an attempt to use syntax
             // that the syntax checker (esprima) does not understand.
-            console.log(e);
             return this._generateErrorInfo(e, name);
         }
 
-        // Catch runtime errors
+        // Run the function
         try {
             fn(...api.apiMembers, ...otherObjects);
         } catch (e) {
-            console.log(e);
+            // Catch runtime errors
             return this._generateErrorInfo(e, name);
         }
 
