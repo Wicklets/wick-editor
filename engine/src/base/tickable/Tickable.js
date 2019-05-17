@@ -204,6 +204,7 @@ Wick.Tickable = class extends Wick.Base {
         try {
             esprima.parseScript(script.src)
         } catch (e) {
+            console.log(e);
             return this._generateEsprimaErrorInfo(e, name);
         }
 
@@ -214,6 +215,7 @@ Wick.Tickable = class extends Wick.Base {
         } catch (e) {
             // This should almost never be thrown unless there is an attempt to use syntax
             // that the syntax checker (esprima) does not understand.
+            console.log(e);
             return this._generateErrorInfo(e, name);
         }
 
@@ -221,6 +223,7 @@ Wick.Tickable = class extends Wick.Base {
         try {
             fn(...api.apiMembers, ...otherObjects);
         } catch (e) {
+            console.log(e);
             return this._generateErrorInfo(e, name);
         }
 
