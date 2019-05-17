@@ -72,7 +72,7 @@ class Toolbox extends Component {
       <ToolButton
       action={action.action}
       name={action.icon}
-      tooltip={action.toolTip} />
+      tooltip={action.tooltip} />
     );
   }
 
