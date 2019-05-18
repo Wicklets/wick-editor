@@ -71,7 +71,7 @@ class ToolSettings extends Component {
     return (
       <div className='settings-input-container'>
         {this.renderBrushSize()}
-        {this.renderBrushSmoothing()}
+        {/* {this.renderBrushSmoothing()} */}
         {this.renderEnablePressure()}
       </div>
     );
@@ -259,7 +259,7 @@ class ToolSettings extends Component {
    * @return {string|number} Value of requested setting. Returns undefined if setting does no exist.
    */
   getToolSetting = (setting) => {
-    return this.props.toolSettings[setting];
+    return this.props.getToolSetting(setting);
   }
 
   /**
@@ -268,9 +268,7 @@ class ToolSettings extends Component {
    * @param {string|number} newValue Value to update selected tool setting to.
    */
   setToolSetting = (setting, newValue) => {
-    let newToolSetting = {}
-    newToolSetting[setting] = newValue;
-    this.props.setToolSettings(newToolSetting);
+    this.props.setToolSetting(setting, newValue);
   }
 }
 

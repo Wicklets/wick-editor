@@ -29,11 +29,12 @@ class ToolButton extends Component {
 
     this.actionDefault = this.props.setActiveTool ?  () => this.props.setActiveTool(this.props.name) : null;
   }
+  
   renderSelectButton = () => {
     return (
       <ActionButton
         color="tool"
-        isActive={ () => this.props.getActiveTool().name === this.props.name }
+        isActive={ () => this.props.getActiveToolName() === this.props.name }
         id={"tool-button-" + this.props.name}
         tooltip={this.props.tooltip}
         action={this.props.action ? this.props.action : this.actionDefault}
