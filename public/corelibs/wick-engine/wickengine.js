@@ -65038,6 +65038,7 @@ window.Wick = Wick;
  */
 Wick.Clipboard = class {
   static get PASTE_OFFSET() {
+    // how many pixels should we shift objects over when we paste (canvas only)
     return 20;
   }
   /**
@@ -65055,10 +65056,26 @@ Wick.Clipboard = class {
 
 
   copyObjectsToClipboard(project, objects) {
-    if (!project || !project instanceof Wick.Project) console.error('copyObjectsToClipboard(): project is required');
+    if (!project || !project instanceof Wick.Project) console.error('copyObjectsToClipboard(): project is required'); // Get the playhead position of the "first" frame in the list of objects
+
+    var playheadCopyOffset = null;
+    objects.filter(object => {
+      return object instanceof Wick.Frame;
+    }).forEach(frame => {
+      if (playheadCopyOffset === null || frame.start < playheadCopyOffset) {
+        playheadCopyOffset = frame.start;
+      }
+    });
     this._copyLocation = project.activeFrame.uuid;
     this._objects = objects.map(object => {
-      return object.clone();
+      var clone = object.clone(); // Copy frame positions relative to the current playhead position
+
+      if (clone instanceof Wick.Frame) {
+        clone.start -= playheadCopyOffset - 1;
+        clone.end -= playheadCopyOffset - 1;
+      }
+
+      return clone;
     });
   }
   /**
@@ -65082,7 +65099,11 @@ Wick.Clipboard = class {
     this._objects.map(object => {
       return object.clone();
     }).forEach(object => {
-      if (object instanceof Wick.Frame) return; // ignoring frame paste until we pasted fix frame placement.
+      // Paste frames at the position of the playhead
+      if (object instanceof Wick.Frame) {
+        object.start += project.focus.timeline.playheadPosition - 1;
+        object.end += project.focus.timeline.playheadPosition - 1;
+      }
 
       project.addObject(object); // Add offset to Paths and Clips if pasteInPlace is NOT enabled.
 
@@ -66429,12 +66450,15 @@ Wick.Layer = class extends Wick.Base {
     this.parent.removeLayer(this);
   }
   /**
-   * Adds a frame to the layer.
+   * Adds a frame to the layer. If a frame exists when the new frame wants to go, the existing frame will be replaced with the new frame.
    * @param {Wick.Frame} frame The frame to add to the Layer.
    */
 
 
   addFrame(frame) {
+    this.getFramesInRange(frame.start, frame.end).forEach(existingFrame => {
+      existingFrame.remove();
+    });
     this.addChild(frame);
   }
   /**
@@ -66510,11 +66534,11 @@ Wick.Project = class extends Wick.Base {
     if (!args) args = {};
     super(args);
     this.project = this;
-    this.name = args.name || 'My Project';
-    this.width = args.width || 720;
-    this.height = args.height || 405;
-    this.framerate = args.framerate || 12;
-    this.backgroundColor = args.backgroundColor || '#ffffff';
+    this._name = args.name || 'My Project';
+    this._width = args.width || 720;
+    this._height = args.height || 405;
+    this._framerate = args.framerate || 12;
+    this._backgroundColor = args.backgroundColor || '#ffffff';
     this.pan = {
       x: 0,
       y: 0
@@ -66618,6 +66642,82 @@ Wick.Project = class extends Wick.Base {
 
   get classname() {
     return 'Project';
+  }
+  /**
+   * The name of the project.
+   * @type {string}
+   */
+
+
+  get name() {
+    return this._name;
+  }
+
+  set name(name) {
+    if (typeof name !== 'string') return;
+    this._name = name;
+  }
+  /**
+   * The width of the project.
+   * @type {number}
+   */
+
+
+  get width() {
+    return this._width;
+  }
+
+  set width(width) {
+    if (typeof width !== 'number') return;
+    if (width < 1) width = 1;
+    if (width > 200000) width = 200000;
+    this._width = width;
+  }
+  /**
+   * The height of the project.
+   * @type {number}
+   */
+
+
+  get height() {
+    return this._height;
+  }
+
+  set height(height) {
+    if (typeof height !== 'number') return;
+    if (height < 1) height = 1;
+    if (height > 200000) height = 200000;
+    this._height = height;
+  }
+  /**
+   * The framerate of the project.
+   * @type {number}
+   */
+
+
+  get framerate() {
+    return this._framerate;
+  }
+
+  set framerate(framerate) {
+    if (typeof framerate !== 'number') return;
+    if (framerate < 1) framerate = 1;
+    if (framerate > 9999) framerate = 9999;
+    this._framerate = framerate;
+  }
+  /**
+   * The background color of the project.
+   * @type {string}
+   */
+
+
+  get backgroundColor() {
+    return this._backgroundColor;
+  }
+
+  set backgroundColor(backgroundColor) {
+    if (typeof backgroundColor !== 'string') return;
+    this._backgroundColor = backgroundColor;
   }
   /**
    * The timeline of the active clip.
@@ -67280,7 +67380,7 @@ Wick.Project = class extends Wick.Base {
     } else if (object instanceof Wick.Clip) {
       this.activeFrame.addClip(object);
     } else if (object instanceof Wick.Frame) {
-      this.activeLayer.addFrame(object);
+      this.activeTimeline.addFrame(object);
     } else if (object instanceof Wick.Asset) {
       this.addAsset(object);
     } else if (object instanceof Wick.Layer) {
@@ -68082,6 +68182,21 @@ Wick.Timeline = class extends Wick.Base {
     }) || null;
   }
   /**
+   * Add a frame to one of the layers on this timeline. If there is no layer where the frame wants to go, the frame will not be added.
+   * @param {Wick.Frame} frame - the frame to add
+   */
+
+
+  addFrame(frame) {
+    if (frame.originalLayerIndex >= this.layers.length) return;
+
+    if (frame.originalLayerIndex === -1) {
+      this.activeLayer.addFrame(frame);
+    } else {
+      this.layers[frame.originalLayerIndex].addFrame(frame);
+    }
+  }
+  /**
    * Adds a layer to the timeline.
    * @param {Wick.Layer} layer - The layer to add.
    */
@@ -68137,6 +68252,10 @@ Wick.Timeline = class extends Wick.Base {
     });
     return frames;
   }
+  /**
+   *
+   */
+
 
   getAllFrames(recursive) {
     var allFrames = [];
@@ -68172,59 +68291,6 @@ Wick.Timeline = class extends Wick.Base {
     });
     return framesInRange;
   }
-  /*
-      insertFrames (frames, playheadPosition, layerIndex) {
-          if(frames.length === 0) return;
-  
-          function calculateRange (frames) {
-              var playheadStart = frames[0].start;
-              var playheadEnd = frames[0].end;
-              var layerStart = frames[0].layerIndex;
-              var layerEnd = frames[0].layerIndex;
-              frames.forEach(frame => {
-                  playheadStart = Math.min(playheadStart, frame.start);
-                  playheadEnd = Math.max(playheadEnd, frame.end);
-                  layerStart = Math.min(layerStart, frame.layerIndex);
-                  layerEnd = Math.max(layerEnd, frame.layerIndex);
-              });
-              return {
-                  playheadStart: playheadStart,
-                  playheadEnd: playheadEnd,
-                  layerStart: layerStart,
-                  layerEnd: layerEnd,
-              }
-          }
-  
-          var range = calculateRange(frames);
-  
-          // Use start and end playhead positions to calculate length, add resulting length to all starts/ends of frames
-          var length = range.playheadEnd - range.playheadStart;
-          frames.forEach(frame => {
-              frame.start += length;
-              frame.end += length;
-          });
-  
-          var checkCollisionsRange = calculateRange(frames);
-  
-          // While there are frames in the range,
-          while (this.getFramesInRange(checkCollisionsRange.playheadStart, checkCollisionsRange.playheadEnd, checkCollisionsRange.layerStart, checkCollisionsRange.layerEnd).length > 0) {
-          //   Add 1 to all frame starts and ends
-              frames.forEach(frame => {
-                  frame.start += 1;
-                  frame.end += 1;
-              });
-          //   Calculate start and end playhead positions from frameInfo
-          //   Calculate start and end layer indices from frameInfo
-              checkCollisionsRange = calculateRange(frames);
-          }
-  
-          // Add the frames in frameInfo into their given layers (their starts and ends should be correct already)
-          frames.forEach(frame => {
-              this.layers[frame.layerIndex].addFrame(frame);
-          });
-      }
-  */
-
   /**
    * Advances the timeline one frame forwards. Loops back to beginning if the end is reached.
    */
@@ -69906,6 +69972,8 @@ Wick.Frame = class extends Wick.Tickable {
     this._soundID = null;
     this._soundVolume = 1.0;
     this._cropSoundOffsetMS = 0; // milliseconds.
+
+    this._originalLayerIndex = -1;
   }
 
   deserialize(data) {
@@ -69914,6 +69982,7 @@ Wick.Frame = class extends Wick.Tickable {
     this.end = data.end;
     this._soundAssetUUID = data.sound;
     this._soundVolume = data.soundVolume === undefined ? 1.0 : data.soundVolume;
+    this._originalLayerIndex = data.originalLayerIndex;
   }
 
   serialize(args) {
@@ -69922,6 +69991,7 @@ Wick.Frame = class extends Wick.Tickable {
     data.end = this.end;
     data.sound = this._soundAssetUUID;
     data.soundVolume = this._soundVolume;
+    data.originalLayerIndex = this.layerIndex;
     return data;
   }
 
@@ -70111,7 +70181,16 @@ Wick.Frame = class extends Wick.Tickable {
 
 
   get layerIndex() {
-    return this.parentLayer.index;
+    return this.parentLayer ? this.parentLayer.index : -1;
+  }
+  /**
+   * The index of the layer that this frame last belonged to. Useful when copying and pasting frames!
+   * @type {number}
+   */
+
+
+  get originalLayerIndex() {
+    return this._originalLayerIndex;
   }
   /**
    * Removes this frame from its parent layer.

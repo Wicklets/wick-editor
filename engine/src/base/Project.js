@@ -35,11 +35,11 @@ Wick.Project = class extends Wick.Base {
 
         this.project = this;
 
-        this.name = args.name || 'My Project';
-        this.width = args.width || 720;
-        this.height = args.height || 405;
-        this.framerate = args.framerate || 12;
-        this.backgroundColor = args.backgroundColor || '#ffffff';
+        this._name = args.name || 'My Project';
+        this._width = args.width || 720;
+        this._height = args.height || 405;
+        this._framerate = args.framerate || 12;
+        this._backgroundColor = args.backgroundColor || '#ffffff';
 
         this.pan = {x: 0, y: 0};
         this.zoom = 1.0;
@@ -153,6 +153,77 @@ Wick.Project = class extends Wick.Base {
      */
     get classname () {
         return 'Project';
+    }
+
+    /**
+     * The name of the project.
+     * @type {string}
+     */
+    get name () {
+        return this._name;
+    }
+
+    set name (name) {
+        if(typeof name !== 'string') return;
+        this._name = name;
+    }
+
+    /**
+     * The width of the project.
+     * @type {number}
+     */
+    get width () {
+        return this._width;
+    }
+
+    set width (width) {
+        if(typeof width !== 'number') return;
+        if(width < 1) width = 1;
+        if(width > 200000) width = 200000;
+        this._width = width;
+    }
+
+    /**
+     * The height of the project.
+     * @type {number}
+     */
+    get height () {
+        return this._height;
+    }
+
+    set height (height) {
+        if(typeof height !== 'number') return;
+        if(height < 1) height = 1;
+        if(height > 200000) height = 200000;
+        this._height = height;
+    }
+
+    /**
+     * The framerate of the project.
+     * @type {number}
+     */
+    get framerate () {
+        return this._framerate;
+    }
+
+    set framerate (framerate) {
+        if(typeof framerate !== 'number') return;
+        if(framerate < 1) framerate = 1;
+        if(framerate > 9999) framerate = 9999;
+        this._framerate = framerate;
+    }
+
+    /**
+     * The background color of the project.
+     * @type {string}
+     */
+    get backgroundColor () {
+        return this._backgroundColor;
+    }
+
+    set backgroundColor (backgroundColor) {
+        if(typeof backgroundColor !== 'string') return;
+        this._backgroundColor = backgroundColor;
     }
 
     /**
@@ -777,7 +848,7 @@ Wick.Project = class extends Wick.Base {
         } else if (object instanceof Wick.Clip) {
             this.activeFrame.addClip(object);
         } else if (object instanceof Wick.Frame) {
-            this.activeLayer.addFrame(object);
+            this.activeTimeline.addFrame(object);
         } else if (object instanceof Wick.Asset) {
             this.addAsset(object);
         } else if (object instanceof Wick.Layer) {

@@ -144,10 +144,13 @@ Wick.Layer = class extends Wick.Base {
     }
 
     /**
-     * Adds a frame to the layer.
+     * Adds a frame to the layer. If a frame exists when the new frame wants to go, the existing frame will be replaced with the new frame.
      * @param {Wick.Frame} frame The frame to add to the Layer.
      */
     addFrame (frame) {
+        this.getFramesInRange(frame.start, frame.end).forEach(existingFrame => {
+            existingFrame.remove();
+        });
         this.addChild(frame);
     }
 

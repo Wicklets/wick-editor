@@ -214,7 +214,7 @@ describe('Wick.Project', function() {
 
         it('should add frames to the project', function() {
             let project = new Wick.Project();
-            let frame = new Wick.Frame();
+            let frame = new Wick.Frame({start:2});
             expect(project.activeLayer.frames.length).to.equal(1);
             let returnValue = project.addObject(frame);
             expect(returnValue).to.equal(true);

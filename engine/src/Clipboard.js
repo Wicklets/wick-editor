@@ -22,6 +22,7 @@
  */
 Wick.Clipboard = class {
     static get PASTE_OFFSET () {
+        // how many pixels should we shift objects over when we paste (canvas only)
         return 20;
     }
 
@@ -39,9 +40,27 @@ Wick.Clipboard = class {
     copyObjectsToClipboard (project, objects) {
         if(!project || (!project instanceof Wick.Project)) console.error('copyObjectsToClipboard(): project is required');
 
+        // Get the playhead position of the "first" frame in the list of objects
+        var playheadCopyOffset = null;
+        objects.filter(object => {
+            return object instanceof Wick.Frame;
+        }).forEach(frame => {
+            if(playheadCopyOffset === null || frame.start < playheadCopyOffset) {
+                playheadCopyOffset = frame.start;
+            }
+        });
+
         this._copyLocation = project.activeFrame.uuid;
         this._objects = objects.map(object => {
-            return object.clone();
+            var clone = object.clone();
+
+            // Copy frame positions relative to the current playhead position
+            if(clone instanceof Wick.Frame) {
+                clone.start -= playheadCopyOffset - 1;
+                clone.end -= playheadCopyOffset - 1;
+            }
+
+            return clone;
         });
     }
 
@@ -65,7 +84,11 @@ Wick.Clipboard = class {
         this._objects.map(object => {
             return object.clone();
         }).forEach(object => {
-            if(object instanceof Wick.Frame) return; // ignoring frame paste until we pasted fix frame placement.
+            // Paste frames at the position of the playhead
+            if(object instanceof Wick.Frame) {
+                object.start += project.focus.timeline.playheadPosition - 1;
+                object.end += project.focus.timeline.playheadPosition - 1;
+            }
 
             project.addObject(object);
 

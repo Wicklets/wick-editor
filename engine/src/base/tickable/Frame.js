@@ -37,6 +37,8 @@ Wick.Frame = class extends Wick.Tickable {
         this._soundID = null;
         this._soundVolume = 1.0;
         this._cropSoundOffsetMS = 0; // milliseconds.
+
+        this._originalLayerIndex = -1;
     }
 
     deserialize (data) {
@@ -47,6 +49,8 @@ Wick.Frame = class extends Wick.Tickable {
 
         this._soundAssetUUID = data.sound;
         this._soundVolume = data.soundVolume === undefined ? 1.0 : data.soundVolume;
+
+        this._originalLayerIndex = data.originalLayerIndex;
     }
 
     serialize (args) {
@@ -57,6 +61,8 @@ Wick.Frame = class extends Wick.Tickable {
 
         data.sound = this._soundAssetUUID;
         data.soundVolume = this._soundVolume;
+
+        data.originalLayerIndex = this.layerIndex;
 
         return data;
     }
@@ -229,7 +235,15 @@ Wick.Frame = class extends Wick.Tickable {
      * @type {number}
      */
     get layerIndex () {
-        return this.parentLayer.index;
+        return this.parentLayer ? this.parentLayer.index : -1;
+    }
+
+    /**
+     * The index of the layer that this frame last belonged to. Useful when copying and pasting frames!
+     * @type {number}
+     */
+    get originalLayerIndex () {
+        return this._originalLayerIndex;
     }
 
     /**

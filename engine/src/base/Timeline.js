@@ -190,6 +190,20 @@ Wick.Timeline = class extends Wick.Base {
     }
 
     /**
+     * Add a frame to one of the layers on this timeline. If there is no layer where the frame wants to go, the frame will not be added.
+     * @param {Wick.Frame} frame - the frame to add
+     */
+    addFrame (frame) {
+        if(frame.originalLayerIndex >= this.layers.length) return;
+
+        if(frame.originalLayerIndex === -1) {
+            this.activeLayer.addFrame(frame);
+        } else {
+            this.layers[frame.originalLayerIndex].addFrame(frame);
+        }
+    }
+
+    /**
      * Adds a layer to the timeline.
      * @param {Wick.Layer} layer - The layer to add.
      */
@@ -242,6 +256,9 @@ Wick.Timeline = class extends Wick.Base {
         return frames;
     }
 
+    /**
+     *
+     */
     getAllFrames (recursive) {
         var allFrames = [];
         this.layers.forEach(layer => {
@@ -278,58 +295,7 @@ Wick.Timeline = class extends Wick.Base {
 
         return framesInRange;
     }
-/*
-    insertFrames (frames, playheadPosition, layerIndex) {
-        if(frames.length === 0) return;
 
-        function calculateRange (frames) {
-            var playheadStart = frames[0].start;
-            var playheadEnd = frames[0].end;
-            var layerStart = frames[0].layerIndex;
-            var layerEnd = frames[0].layerIndex;
-            frames.forEach(frame => {
-                playheadStart = Math.min(playheadStart, frame.start);
-                playheadEnd = Math.max(playheadEnd, frame.end);
-                layerStart = Math.min(layerStart, frame.layerIndex);
-                layerEnd = Math.max(layerEnd, frame.layerIndex);
-            });
-            return {
-                playheadStart: playheadStart,
-                playheadEnd: playheadEnd,
-                layerStart: layerStart,
-                layerEnd: layerEnd,
-            }
-        }
-
-        var range = calculateRange(frames);
-
-        // Use start and end playhead positions to calculate length, add resulting length to all starts/ends of frames
-        var length = range.playheadEnd - range.playheadStart;
-        frames.forEach(frame => {
-            frame.start += length;
-            frame.end += length;
-        });
-
-        var checkCollisionsRange = calculateRange(frames);
-
-        // While there are frames in the range,
-        while (this.getFramesInRange(checkCollisionsRange.playheadStart, checkCollisionsRange.playheadEnd, checkCollisionsRange.layerStart, checkCollisionsRange.layerEnd).length > 0) {
-        //   Add 1 to all frame starts and ends
-            frames.forEach(frame => {
-                frame.start += 1;
-                frame.end += 1;
-            });
-        //   Calculate start and end playhead positions from frameInfo
-        //   Calculate start and end layer indices from frameInfo
-            checkCollisionsRange = calculateRange(frames);
-        }
-
-        // Add the frames in frameInfo into their given layers (their starts and ends should be correct already)
-        frames.forEach(frame => {
-            this.layers[frame.layerIndex].addFrame(frame);
-        });
-    }
-*/
     /**
      * Advances the timeline one frame forwards. Loops back to beginning if the end is reached.
      */

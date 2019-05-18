@@ -475,7 +475,7 @@ describe('Wick.View.Frame', function() {
                 fillColor: 'red',
             }));
 
-            var frame2 = new Wick.Frame();
+            var frame2 = new Wick.Frame({start:2});
             frame2.addPath(path1);
 
             var path2 = TestUtils.paperToWickPath(new paper.Path.Circle({

@@ -107,4 +107,42 @@ describe('Wick.Clipboard', function() {
         expect(project.activeFrame.paths[2].x).to.equal(50 + Wick.Clipboard.PASTE_OFFSET);
         expect(project.activeFrame.paths[2].y).to.equal(50 + Wick.Clipboard.PASTE_OFFSET);
     });
+
+    it('should copy and paste frames to correct playhead positions', function () {
+        var project = new Wick.Project();
+
+        var frame1 = project.activeFrame;
+        var frame2 = new Wick.Frame({start:2});
+        var frame3 = new Wick.Frame({start:3});
+
+        project.activeLayer.addFrame(frame2);
+        project.activeLayer.addFrame(frame3);
+
+        project.selection.select(frame1);
+        project.selection.select(frame2);
+        project.selection.select(frame3);
+
+        project.focus.timeline.playheadPosition = 3;//copy should not be affected by the playhead
+        project.copySelectionToClipboard();
+        project.focus.timeline.playheadPosition = 1;
+        project.pasteClipboardContents();
+
+        expect(project.activeLayer.frames.length).to.equal(3);
+        expect(project.activeLayer.getFrameAtPlayheadPosition(1)).to.not.equal(undefined);
+        expect(project.activeLayer.getFrameAtPlayheadPosition(2)).to.not.equal(undefined);
+        expect(project.activeLayer.getFrameAtPlayheadPosition(3)).to.not.equal(undefined);
+        expect(project.activeLayer.getFrameAtPlayheadPosition(4)).to.equal(undefined);
+
+        project.activeTimeline.playheadPosition = 4;
+        project.pasteClipboardContents();
+
+        expect(project.activeLayer.frames.length).to.equal(6);
+        expect(project.activeLayer.getFrameAtPlayheadPosition(1)).to.not.equal(undefined);
+        expect(project.activeLayer.getFrameAtPlayheadPosition(2)).to.not.equal(undefined);
+        expect(project.activeLayer.getFrameAtPlayheadPosition(3)).to.not.equal(undefined);
+        expect(project.activeLayer.getFrameAtPlayheadPosition(4)).to.not.equal(undefined);
+        expect(project.activeLayer.getFrameAtPlayheadPosition(5)).to.not.equal(undefined);
+        expect(project.activeLayer.getFrameAtPlayheadPosition(6)).to.not.equal(undefined);
+        expect(project.activeLayer.getFrameAtPlayheadPosition(7)).equal(undefined);
+    });
 });
