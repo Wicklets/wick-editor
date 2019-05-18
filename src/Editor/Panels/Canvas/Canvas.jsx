@@ -76,14 +76,6 @@ class Canvas extends Component {
 
   updateCanvas = (project) => {
     this.attachProjectToComponent(project);
-
-    // If the active frame is on a locked/hidden layer, or there is no active frame, disable all tools.
-    // TODO Move this to engine.
-    if(!project.activeFrame ||
-       project.activeLayer.locked ||
-       project.activeLayer.hidden) {
-      this.props.project.tools.none.activate();
-    }
   }
 
   render() {

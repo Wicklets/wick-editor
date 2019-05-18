@@ -348,7 +348,11 @@ Wick.View.Project = class extends Wick.View {
             this._toolsSetup = true;
             this._setupTools();
         }
-        this.model.activeTool.activate();
+        if(!this.model.activeFrame || this.model.activeLayer.locked || this.model.activeLayer.hidden) {
+            this.model.tools.none.activate();
+        } else {
+            this.model.activeTool.activate();
+        }
 
         // Update zoom and pan
         if(this._fitMode === 'center') {
