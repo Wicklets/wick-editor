@@ -90,7 +90,9 @@ Wick.History = class {
     }
 
     _generateState (filter) {
-        return Wick.ObjectCache.getActiveObjects(this.project).map(object => {
+        var objects = Wick.ObjectCache.getActiveObjects(this.project);
+        objects.push(this.project);
+        return objects.map(object => {
             return object.serialize();
         })
     }

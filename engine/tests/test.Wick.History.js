@@ -125,16 +125,31 @@ describe('Wick.History', function() {
 
     it('should save and recover focus', function () {
         var project = new Wick.Project();
-        var main = new Wick.Clip();
+        var main = new Wick.Clip({identifier: 'main'});
+        var other = new Wick.Clip({identifier: 'other'});
+
         project.activeFrame.addClip(main);
+        project.activeFrame.addClip(other);
+
         project.history.pushState();
         project.focus = main;
+
+        expect(project.focus.identifier).to.equal('main');
+        project.undo();
+        expect(project.focus.identifier).to.equal('Project');
+
+        project.focus = main;
+        project.history.pushState();
+        project.focus = other;
         project.history.pushState();
         project.focus = project.root;
+        project.history.pushState();
+
+        expect(project.focus.identifier).to.equal('Project');
         project.undo();
-        expect(project.focus).to.equal(main);
+        expect(project.focus.identifier).to.equal('other');
         project.undo();
-        expect(project.focus).to.equal(project.root);
+        expect(project.focus.identifier).to.equal('main');
     });
 
     it('should save and load snapshots', function () {

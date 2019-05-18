@@ -66,9 +66,9 @@ describe('Wick.Path', function() {
     describe('#json', function() {
         it('should update json without errors', function () {
             var path = new Wick.Path({json:TestUtils.TEST_PATH_JSON_RED_SQUARE});
-            expect(path.fillColorHex).to.equal('#ff0000');
+            expect(path.fillColor.toCSS(true)).to.equal('#ff0000');
             path.json = TestUtils.TEST_PATH_JSON_BLUE_SQUARE;
-            expect(path.fillColorHex).to.equal('#0000ff');
+            expect(path.fillColor.toCSS(true)).to.equal('#0000ff');
         });
     });
 
@@ -98,20 +98,21 @@ describe('Wick.Path', function() {
         });
     })
 
-    describe('#fillColorHex', function() {
-        it('should return correct hex color', function () {
+    describe('#fillColor', function() {
+        it('should return correct fill color', function () {
             var path = new Wick.Path({json:TestUtils.TEST_PATH_JSON_RED_SQUARE});
-            expect(path.fillColorHex).to.equal('#ff0000');
+            expect(path.fillColor.toCSS(true)).to.equal('#ff0000');
         });
     });
 
-    describe('#fillColorRGBA', function() {
-        it('should return correct rgba color', function () {
-            var path = new Wick.Path({json:TestUtils.TEST_PATH_JSON_RED_SQUARE});
-            expect(path.fillColorRGBA.r).to.equal(255);
-            expect(path.fillColorRGBA.g).to.equal(0);
-            expect(path.fillColorRGBA.b).to.equal(0);
-            expect(path.fillColorRGBA.a).to.equal(1);
+    describe('#strokeColor', function() {
+        it('should return correct stroke color', function () {
+            var path = TestUtils.paperToWickPath(new paper.Path.Rectangle({
+                strokeColor: '#00ff00',
+                from: new paper.Point(0,0),
+                to: new paper.Point(50,50),
+            }));
+            expect(path.strokeColor.toCSS(true)).to.equal('#00ff00');
         });
     });
 

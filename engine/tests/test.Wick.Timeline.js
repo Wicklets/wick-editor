@@ -5,39 +5,7 @@ describe('Wick.Timeline', function() {
             expect(timeline.classname).to.equal('Timeline');
         });
     });
-/*
-    describe('#serialize', function () {
-        it('should serialize correctly', function() {
-            var timeline = new Wick.Timeline();
-            timeline.addLayer(new Wick.Layer());
-            var data = timeline.serialize();
 
-            expect(data.classname).to.equal('Timeline');
-            expect(data.playheadPosition).to.equal(timeline.playheadPosition);
-            expect(data.activeLayerIndex).to.equal(timeline.activeLayerIndex);
-            expect(data.layers.length).to.equal(1);
-            expect(data.layers[0].classname).to.equal('Layer');
-        });
-    });
-
-    describe('#_deserialize', function () {
-        it('should deserialize correctly', function() {
-            var data = {
-                classname: 'Timeline',
-                playheadPosition: 1,
-                activeLayerIndex: 0,
-                layers: [new Wick.Layer().serialize()],
-            };
-            var timeline = Wick.Timeline.deserialize(data);
-
-            expect(timeline instanceof Wick.Timeline).to.equal(true);
-            expect(timeline.playheadPosition).to.equal(data.playheadPosition);
-            expect(timeline.activeLayerIndex).to.equal(data.activeLayerIndex);
-            expect(timeline.layers.length).to.equal(1);
-            expect(timeline.layers[0] instanceof Wick.Layer).to.equal(true);
-        });
-    });
-*/
     describe('#playheadPosition', function () {
         it('should clear canvas selection when playhead moves', function () {
             var project = new Wick.Project();
@@ -236,6 +204,40 @@ describe('Wick.Timeline', function() {
             expect(timeline.getFramesAtPlayheadPosition(3).length).to.equal(0);
         });
     });
+
+    it('bug: timeline Timeline deserialize() not resetting _playing flag', function (done) {
+        var project = new Wick.Project();
+        project.activeLayer.addFrame(new Wick.Frame({start: 2}));
+        project.activeLayer.addFrame(new Wick.Frame({start: 3}));
+
+        function firstPlay () {
+            project.play({
+                onAfterTick: () => {
+                    // Play until the third frame, then stop.
+                    if(project.activeTimeline.playheadPosition === 3) {
+                        project.stop();
+
+                        // Add a stop() script to the first frame, then play again.
+                        project.activeLayer.frames[0].addScript('load', 'stop()');
+                        secondPlay();
+                    }
+                }
+            })
+        }
+
+        function secondPlay () {
+            project.play({
+                onAfterTick: () => {
+                    expect(project.activeTimeline.playheadPosition).to.equal(1);
+                    project.stop();
+                    done();
+                }
+            });
+        }
+
+        firstPlay();
+    });
+
 /*
     describe('#insertFrames', function () {
         it('should insert frames in correct places (no frames)', function() {

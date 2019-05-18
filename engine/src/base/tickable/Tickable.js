@@ -54,16 +54,22 @@ Wick.Tickable = class extends Wick.Base {
         this._onscreen = false;
         this._onscreenLastTick = false;
 
-        this._scripts = [];
-
         this._mouseState = 'out';
         this._lastMouseState = 'out';
+
+        this._scripts = [];
 
         this.cursor = 'default';
     }
 
     deserialize (data) {
         super.deserialize(data);
+
+        this._onscreen = false;
+        this._onscreenLastTick = false;
+        
+        this._mouseState = 'out';
+        this._lastMouseState = 'out';
 
         this._scripts = [].concat(data.scripts || []);
         this.cursor = data.cursor;

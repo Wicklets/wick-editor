@@ -65288,7 +65288,9 @@ Wick.History = class {
   }
 
   _generateState(filter) {
-    return Wick.ObjectCache.getActiveObjects(this.project).map(object => {
+    var objects = Wick.ObjectCache.getActiveObjects(this.project);
+    objects.push(this.project);
+    return objects.map(object => {
       return object.serialize();
     });
   }
@@ -69532,14 +69534,18 @@ Wick.Tickable = class extends Wick.Base {
     super(args);
     this._onscreen = false;
     this._onscreenLastTick = false;
-    this._scripts = [];
     this._mouseState = 'out';
     this._lastMouseState = 'out';
+    this._scripts = [];
     this.cursor = 'default';
   }
 
   deserialize(data) {
     super.deserialize(data);
+    this._onscreen = false;
+    this._onscreenLastTick = false;
+    this._mouseState = 'out';
+    this._lastMouseState = 'out';
     this._scripts = [].concat(data.scripts || []);
     this.cursor = data.cursor;
   }
