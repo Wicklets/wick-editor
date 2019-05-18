@@ -65321,6 +65321,9 @@ Wick.History = class {
 * You should have received a copy of the GNU General Public License
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
+// NOTE:
+// This should probably not be global, and instead, each Wick.Project should own an ObjectCache.
+// It's too hard to test if there's a shared ObjectCache between many projects.
 
 /**
  * Global utility class for storing and retrieving large file data.
@@ -65761,6 +65764,158 @@ Wick.WickFile.Alpha = class {
 * You should have received a copy of the GNU General Public License
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
+Wick.ToolSettings = class {
+  static get DEFAULT_SETTINGS() {
+    return [{
+      name: 'fillColor',
+      default: new paper.Color('#000000')
+    }, {
+      name: 'strokeColor',
+      default: new paper.Color('#000000')
+    }, {
+      name: 'strokeWidth',
+      default: 1,
+      min: 0,
+      max: 50
+    }, {
+      name: 'brushSize',
+      default: 10,
+      min: 2,
+      max: 30
+    }, {
+      name: 'eraserSize',
+      default: 10,
+      min: 2,
+      max: 100
+    }, {
+      name: 'cornerRadius',
+      default: 0,
+      min: 0,
+      max: 100
+    }, {
+      name: 'pressureEnabled',
+      default: false
+    }, {
+      name: 'selectPoints',
+      default: false
+    }, {
+      name: 'selectCurves',
+      default: false
+    }];
+  }
+  /**
+   *
+   */
+
+
+  constructor() {
+    this._settings = {};
+    Wick.ToolSettings.DEFAULT_SETTINGS.forEach(setting => {
+      this.createSetting(setting);
+    });
+  }
+  /**
+   *
+   */
+
+
+  createSetting(args) {
+    if (!args) console.error('createSetting: args is required');
+    if (!args.name) console.error('createSetting: args.name is required');
+    if (args.default === undefined) console.error('createSetting: args.default is required');
+    this._settings[args.name] = {
+      name: args.name,
+      value: args.default,
+      default: args.default,
+      min: args.min,
+      max: args.max
+    };
+  }
+  /**
+   *
+   */
+
+
+  setSetting(name, value) {
+    var setting = this._settings[name];
+    var min = setting.min;
+
+    if (min !== undefined) {
+      value = Math.max(min, value);
+    }
+
+    var max = setting.max;
+
+    if (max !== undefined) {
+      value = Math.min(max, value);
+    } // Auto convert paper.js colors
+
+
+    if (setting.default instanceof paper.Color && typeof value === 'string') {
+      value = new paper.Color(value);
+    }
+
+    setting.value = value;
+  }
+  /**
+   *
+   */
+
+
+  getSetting(name) {
+    var setting = this._settings[name];
+    if (!setting) console.error("ToolSettings.getSetting: invalid setting: " + name);
+    return setting.value;
+  }
+  /**
+   *
+   */
+
+
+  getSettingRestrictions(name) {
+    var setting = this._settings[name];
+    if (!setting) console.error("ToolSettings.getSettingRestrictions: invalid setting: " + name);
+    return {
+      min: setting.min,
+      max: setting.max
+    };
+  }
+  /**
+   *
+   */
+
+
+  getAllSettings() {
+    var allSettings = [];
+
+    for (var name in this._settings) {
+      allSettings.push(this._settings[name]);
+    }
+
+    return allSettings;
+  }
+
+};
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* Copyright 2019 WICKLETS LLC
+*
+* This file is part of Wick Engine.
+*
+* Wick Engine is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Wick Engine is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+*/
 
 /**
  * The base class for all objects within the Wick Engine.
@@ -65962,7 +66117,9 @@ Wick.Base = class {
 
   get children() {
     return this._childrenUUIDs.map(uuid => {
-      return Wick.ObjectCache.getObjectByUUID(uuid);
+      var object = Wick.ObjectCache.getObjectByUUID(uuid);
+      if (!object.parent) object.parent = this;
+      return object;
     });
   }
   /**
@@ -66378,6 +66535,23 @@ Wick.Project = class extends Wick.Base {
     this._keysLastDown = [];
     this._currentKey = null;
     this._tickIntervalID = null;
+    this._tools = {
+      brush: new Wick.Tools.Brush(),
+      cursor: new Wick.Tools.Cursor(),
+      ellipse: new Wick.Tools.Ellipse(),
+      eraser: new Wick.Tools.Eraser(),
+      eyedropper: new Wick.Tools.Eyedropper(),
+      fillbucket: new Wick.Tools.FillBucket(),
+      line: new Wick.Tools.Line(),
+      none: new Wick.Tools.None(),
+      pan: new Wick.Tools.Pan(),
+      pencil: new Wick.Tools.Pencil(),
+      rectangle: new Wick.Tools.Rectangle(),
+      text: new Wick.Tools.Text(),
+      zoom: new Wick.Tools.Zoom()
+    };
+    this._toolSettings = new Wick.ToolSettings();
+    this.activeTool = 'cursor';
     this.history.project = this;
     this.history.pushState();
   }
@@ -67038,6 +67212,60 @@ Wick.Project = class extends Wick.Base {
     this.zoom = 1;
   }
   /**
+   *
+   */
+
+
+  zoomIn() {
+    this.zoom *= 1.25;
+  }
+  /**
+   *
+   */
+
+
+  zoomOut() {
+    this.zoom *= 0.8;
+  }
+  /**
+   *
+   */
+
+
+  get tools() {
+    return this._tools;
+  }
+  /**
+   *
+   */
+
+
+  get toolSettings() {
+    return this._toolSettings;
+  }
+  /**
+   *
+   */
+
+
+  get activeTool() {
+    return this._activeTool;
+  }
+
+  set activeTool(activeTool) {
+    if (typeof activeTool === 'string') {
+      var tool = this.tools[activeTool];
+
+      if (!tool) {
+        console.error('set activeTool: invalid tool: ' + activeTool);
+      }
+
+      this._activeTool = tool;
+    } else {
+      this._activeTool = activeTool;
+    }
+  }
+  /**
    * Adds an object to the project.
    * @param {Wick.Base} object
    * @return {boolean} returns true if successful and false otherwise.
@@ -67527,11 +67755,11 @@ Wick.Selection = class extends Wick.Base {
 
 
   get fillColor() {
-    return this._getSingleAttribute('fillColorHex');
+    return this._getSingleAttribute('fillColor');
   }
 
   set fillColor(fillColor) {
-    this._setSingleAttribute('fillColorHex', fillColor);
+    this._setSingleAttribute('fillColor', fillColor);
   }
   /**
    *
@@ -67543,7 +67771,7 @@ Wick.Selection = class extends Wick.Base {
   }
 
   set strokeColor(strokeColor) {
-    this._setSingleAttribute('strokeColorHex', strokeColor);
+    this._setSingleAttribute('strokeColor', strokeColor);
   }
   /**
    *
@@ -68385,40 +68613,17 @@ Wick.Path = class extends Wick.Base {
     this.json = this.view.exportJSON();
   }
   /**
-   * The fill color, in hex format (example "#FFFFFF"), of the path
-   * @type {string}
-   */
-
-
-  get fillColorHex() {
-    return this._getColorAsHex(this.view.item.fillColor);
-  }
-
-  set fillColorHex(fillColorHex) {
-    this.view.item.fillColor = fillColorHex;
-    this.json = this.view.exportJSON();
-  }
-  /**
    * The fill color, in rgba format (example "rgba(255,255,255,1.0)"), of the path
    * @type {object}
    */
 
 
-  get fillColorRGBA() {
-    return this._getColorAsRGBA(this.view.item.fillColor);
-  }
-  /**
-   * The stroke color, in hex format (example "#FFFFFF"), of the path
-   * @type {string}
-   */
-
-
-  get strokeColorHex() {
-    return this._getColorAsHex(this.view.item.strokeColor);
+  get fillColor() {
+    return this.view.item.fillColor || new paper.Color();
   }
 
-  set strokeColorHex(strokeColorHex) {
-    this.view.item.strokeColor = strokeColorHex;
+  set fillColor(fillColor) {
+    this.view.item.fillColor = fillColor;
     this.json = this.view.exportJSON();
   }
   /**
@@ -68427,28 +68632,13 @@ Wick.Path = class extends Wick.Base {
    */
 
 
-  get strokeColorRGBA() {
-    this._getColorAsRGBA(this.view.item.strokeColor);
+  get strokeColor() {
+    return this.view.item.strokeColor || new paper.Color();
   }
 
-  _getColorAsHex(color) {
-    if (!color) return '#000000';
-    return color.toCSS(true);
-  }
-
-  _getColorAsRGBA(color) {
-    if (!color) return {
-      r: 0,
-      g: 0,
-      b: 0,
-      a: 1
-    };
-    return {
-      r: color.red * 255,
-      g: color.green * 255,
-      b: color.blue * 255,
-      a: color.alpha
-    };
+  set strokeColor(strokeColor) {
+    this.view.item.strokeColor = strokeColor;
+    this.json = this.view.exportJSON();
   }
   /**
    * The stroke width of the shape.
@@ -69474,29 +69664,31 @@ Wick.Tickable = class extends Wick.Base {
   /**
    * Run the script with the corresponding event name.
    * @param {string} name - The name of the event. See Wick.Tickable.possibleScripts
+   * @returns {object} object containing error info if an error happened. Returns null if there was no error (script ran successfully)
    */
 
 
   runScript(name) {
     if (!Wick.Tickable.possibleScripts.indexOf(name) === -1) console.error(name + ' is not a valid script!');
-    if (!this.hasScript(name)) return null; // Dont' run scripts if this object is the focus
-    // (so that preview play will always play)
+    if (!this.hasScript(name)) return null; // Don't run scripts if this object is the focus
+    // (thia makes it so preview play will always play, even if the parent Clip of the timeline has a stop script)
 
     if (this.project && this.project.focus === this) {
       return;
     }
 
-    var script = this.getScript(name);
-    var api = new GlobalAPI(this);
-    var otherObjects = this.parentClip ? this.parentClip.activeNamedChildren : [];
-    var otherObjectNames = otherObjects.map(obj => obj.identifier); // Catch syntax/parsing errors.
+    var script = this.getScript(name); // Check for syntax/parsing errors
 
     try {
       esprima.parseScript(script.src);
     } catch (e) {
       return this._generateEsprimaErrorInfo(e, name);
-    } // Attempt to create valid function...
+    } // Load API
 
+
+    var api = new GlobalAPI(this);
+    var otherObjects = this.parentClip ? this.parentClip.activeNamedChildren : [];
+    var otherObjectNames = otherObjects.map(obj => obj.identifier); // Attempt to create valid function...
 
     try {
       var fn = new Function(api.apiMemberNames.concat(otherObjectNames), script.src);
@@ -69505,12 +69697,13 @@ Wick.Tickable = class extends Wick.Base {
       // This should almost never be thrown unless there is an attempt to use syntax
       // that the syntax checker (esprima) does not understand.
       return this._generateErrorInfo(e, name);
-    } // Catch runtime errors
+    } // Run the function
 
 
     try {
       fn(...api.apiMembers, ...otherObjects);
     } catch (e) {
+      // Catch runtime errors
       return this._generateErrorInfo(e, name);
     }
 
@@ -70717,6 +70910,1668 @@ Wick.Button = class extends Wick.Clip {
 
   _onDeactivated() {
     super._onDeactivated();
+  }
+
+};
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* Copyright 2019 WICKLETS LLC
+*
+* This file is part of Wick Engine.
+*
+* Wick Engine is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Wick Engine is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+*/
+Wick.Tool = class {
+  static get EVENT_NAMES() {
+    return ['onActivate', 'onDeactivate', 'onMouseMove', 'onMouseDown', 'onMouseDrag', 'onMouseUp'];
+  }
+  /**
+   * Creates a new Wick Tool.
+   */
+
+
+  constructor() {
+    this.paperTool = new this.paper.Tool();
+    Wick.Tool.EVENT_NAMES.forEach(paperEventName => {
+      this.paperTool[paperEventName] = e => {
+        var fn = this[paperEventName];
+        fn && fn.bind(this)(e);
+      };
+    });
+    this._eventCallbacks = {};
+  }
+  /**
+   * The paper.js scope to use.
+   */
+
+
+  get paper() {
+    return Wick.View.paperScope;
+  }
+  /**
+   * The CSS cursor to display for this tool.
+   */
+
+
+  get cursor() {
+    console.warn("Warning: Tool is missing a cursor!");
+  }
+  /**
+   * Called when the tool is activated
+   */
+
+
+  onActivate(e) {}
+  /**
+   * Called when the tool is deactivated (another tool is activated)
+   */
+
+
+  onDeactivate(e) {}
+  /**
+   * Called when the mouse moves and the tool is active.
+   */
+
+
+  onMouseMove(e) {
+    this.setCursor(this.cursor);
+  }
+  /**
+   * Called when the mouse clicks the paper.js canvas and this is the active tool.
+   */
+
+
+  onMouseDown(e) {}
+  /**
+   * Called when the mouse is dragged on the paper.js canvas and this is the active tool.
+   */
+
+
+  onMouseDrag(e) {}
+  /**
+   * Called when the mouse is clicked on the paper.js canvas and this is the active tool.
+   */
+
+
+  onMouseUp(e) {}
+  /**
+   * Activates this tool in paper.js.
+   */
+
+
+  activate() {
+    this.paperTool.activate();
+  }
+  /**
+   * Sets the cursor of the paper.js canvas that the tool belongs to.
+   * @param {string} cursor - a CSS cursor style
+   */
+
+
+  setCursor(cursor) {
+    this.paper.view._element.style.cursor = cursor;
+  }
+  /**
+   * Attach a function to get called when an event happens.
+   * @param {string} eventName - the name of the event
+   * @param {function} fn - the function to call when the event is fired
+   */
+
+
+  on(eventName, fn) {
+    this._eventCallbacks[eventName] = fn;
+  }
+  /**
+   * Call the functions attached to a given event.
+   * @param {string} eventName - the name of the event to fire
+   * @param {object} e - (optional) an object to attach some data to, if needed
+   */
+
+
+  fireEvent(eventName, e) {
+    if (!e) e = {};
+
+    if (!e.layers) {
+      e.layers = [this.paper.project.activeLayer];
+    }
+
+    var fn = this._eventCallbacks[eventName];
+    fn && fn(e);
+  }
+  /**
+   *
+   * @param {paper.Color} color - the color of the cursor
+   * @param {number} size - the width of the cursor image to generate
+   */
+
+
+  createDynamicCursor(color, size) {
+    var canvas = document.createElement("canvas");
+    canvas.width = 128;
+    canvas.height = 128;
+    var context = canvas.getContext('2d');
+    var centerX = canvas.width / 2;
+    var centerY = canvas.height / 2;
+    var radius = size / 2;
+    context.beginPath();
+    context.arc(centerX, centerY, radius + 1, 0, 2 * Math.PI, false);
+    context.fillStyle = invert(color);
+    context.fill();
+    context.beginPath();
+    context.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
+    context.fillStyle = color;
+    context.fill();
+    return 'url(' + canvas.toDataURL() + ') 64 64,default';
+  }
+
+  getSetting(name) {
+    return this.project.toolSettings.getSetting(name);
+  }
+
+};
+Wick.Tools = {};
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* Copyright 2019 WICKLETS LLC
+*
+* This file is part of Wick Engine.
+*
+* Wick Engine is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Wick Engine is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+*/
+Wick.Tools.Brush = class extends Wick.Tool {
+  /**
+   *
+   */
+  constructor() {
+    super();
+    this.name = 'brush';
+    this.BRUSH_POINT_SPACING = 0.2;
+    this.croquis;
+    this.croquisDOMElement;
+    this.croquisBrush;
+    this.cachedCursor;
+    this.lastPressure;
+    this.brushStabilizerLevel = 3;
+    this.brushStabilizerWeight = 0.5;
+    this.potraceResolution = 1.0;
+  }
+  /**
+   *
+   * @type {string}
+   */
+
+
+  get cursor() {}
+
+  onActivate(e) {
+    if (!this.croquis) {
+      this.croquis = new Croquis();
+      this.croquis.setCanvasSize(500, 500);
+      this.croquis.addLayer();
+      this.croquis.fillLayer('rgba(0,0,0,0)');
+      this.croquis.addLayer();
+      this.croquis.selectLayer(1);
+      this.croquisBrush = new Croquis.Brush();
+      this.croquis.setTool(this.croquisBrush);
+      this.croquisDOMElement = this.croquis.getDOMElement();
+      this.croquisDOMElement.style.position = 'absolute';
+      this.croquisDOMElement.style.left = '0px';
+      this.croquisDOMElement.style.top = '0px';
+      this.croquisDOMElement.style.width = '100%';
+      this.croquisDOMElement.style.height = '100%';
+      this.croquisDOMElement.style.display = 'block';
+      this.croquisDOMElement.style.pointerEvents = 'none';
+    }
+  }
+
+  onDeactivate(e) {}
+
+  onMouseMove(e) {
+    super.onMouseMove(e); // Update croquis element and pressure options
+
+    if (!this.paper.view._element.parentElement.contains(this.croquisDOMElement)) {
+      this.paper.view.enablePressure();
+
+      this.paper.view._element.parentElement.appendChild(this.croquisDOMElement);
+    } // Update croquis element canvas size
+
+
+    if (this.croquis.getCanvasWidth() !== this.paper.view._element.width || this.croquis.getCanvasHeight() !== this.paper.view._element.height) {
+      this.croquis.setCanvasSize(this.paper.view._element.width, this.paper.view._element.height);
+    } // Generate new cursor
+
+
+    this._regenCursor(); // Fake brush opacity in croquis by changing the opacity of the croquis canvas
+
+
+    this.croquisDOMElement.style.opacity = this.getSetting('fillColor').alpha;
+  }
+
+  onMouseDown(e) {
+    // Update croquis params
+    this.croquisBrush.setSize(this.getSetting('brushSize'));
+    this.croquisBrush.setColor(this.getSetting('fillColor').toCSS(true));
+    this.croquisBrush.setSpacing(this.BRUSH_POINT_SPACING);
+    this.croquis.setToolStabilizeLevel(this.brushStabilizerLevel);
+    this.croquis.setToolStabilizeWeight(this.brushStabilizerWeight); // Forward mouse event to croquis canvas
+
+    var point = this.paper.view.projectToView(e.point.x, e.point.y);
+
+    try {
+      this.croquis.down(point.x, point.y, this.pressure);
+    } catch (e) {
+      this.handleBrushError(e);
+      return;
+    }
+  }
+
+  onMouseDrag(e) {
+    // Forward mouse event to croquis canvas
+    var point = this.paper.view.projectToView(e.point.x, e.point.y);
+
+    try {
+      this.croquis.move(point.x, point.y, this.pressure);
+    } catch (e) {
+      this.handleBrushError(e);
+      return;
+    }
+
+    this.lastPressure = this.pressure; // Regen cursor
+
+    this._regenCursor();
+  }
+
+  onMouseUp(e) {
+    // Forward mouse event to croquis canvas
+    var point = this.paper.view.projectToView(e.point.x, e.point.y);
+
+    try {
+      this.croquis.up(point.x, point.y, this.lastPressure);
+    } catch (e) {
+      this.handleBrushError(e);
+      return;
+    }
+
+    setTimeout(() => {
+      var img = new Image();
+
+      img.onload = () => {
+        var svg = potrace.fromImage(img).toSVG(1 / this.potraceResolution / this.paper.view.zoom);
+        var potracePath = this.paper.project.importSVG(svg);
+        potracePath.fillColor = this.getSetting('fillColor');
+        potracePath.position.x += this.paper.view.bounds.x;
+        potracePath.position.y += this.paper.view.bounds.y;
+        potracePath.remove();
+        potracePath.closed = true;
+        potracePath.children[0].closed = true;
+        potracePath.children[0].applyMatrix = true;
+        this.paper.project.activeLayer.addChild(potracePath.children[0]);
+        this.croquis.clearLayer();
+        this.fireEvent('canvasModified');
+      };
+
+      var canvas = this.paper.view._element.parentElement.getElementsByClassName('croquis-layer-canvas')[1];
+
+      if (!canvas) {
+        console.warn("Croquis canvas was not found in the canvas container. Something very bad has happened.");
+        this.handleBrushError('misingCroquisCanvas');
+        return;
+      }
+
+      var resizedCanvas = document.createElement("canvas");
+      var resizedContext = resizedCanvas.getContext("2d");
+      resizedCanvas.width = canvas.width * this.potraceResolution;
+      resizedCanvas.height = canvas.height * this.potraceResolution;
+      resizedContext.drawImage(canvas, 0, 0, resizedCanvas.width, resizedCanvas.height);
+      img.src = resizedCanvas.toDataURL();
+    }, 20);
+  }
+  /**
+   * The current amount of pressure applied to the paper js canvas this tool belongs to.
+   */
+
+
+  get pressure() {
+    return this.getSetting('pressureEnabled') ? this.paper.view.pressure : 1;
+  }
+  /**
+   * Croquis throws a lot of errrors. This is a helpful function to handle those errors gracefully.
+   */
+
+
+  handleBrushError(e) {
+    console.error("Brush error");
+    console.error(e);
+    this.fireEvent('error', {
+      croquisError: e
+    });
+  }
+
+  _regenCursor() {
+    var size = this.getSetting('brushSize') * this.pressure;
+    var color = this.getSetting('fillColor').toCSS(true);
+    this.cachedCursor = this.createDynamicCursor(color, size);
+    this.setCursor(this.cachedCursor);
+  }
+
+};
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* Copyright 2019 WICKLETS LLC
+*
+* This file is part of Wick Engine.
+*
+* Wick Engine is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Wick Engine is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+*/
+Wick.Tools.Cursor = class extends Wick.Tool {
+  /**
+   * Creates a pencil tool.
+   */
+  constructor() {
+    super();
+    this.name = 'cursor';
+    this.SELECTION_TOLERANCE = 3;
+    this.CURSOR_DEFAULT = 'cursors/default.png';
+    this.CURSOR_SCALE_TOP_RIGHT_BOTTOM_LEFT = 'cursors/scale-top-right-bottom-left.png';
+    this.CURSOR_SCALE_TOP_LEFT_BOTTOM_RIGHT = 'cursors/scale-top-left-bottom-right.png';
+    this.CURSOR_SCALE_VERTICAL = 'cursors/scale-vertical.png';
+    this.CURSOR_SCALE_HORIZONTAL = 'cursors/scale-horizontal.png';
+    this.CURSOR_ROTATE_TOP = 'cursors/rotate-top-right.png';
+    this.CURSOR_ROTATE_RIGHT = 'cursors/rotate-bottom-right.png';
+    this.CURSOR_ROTATE_BOTTOM = 'cursors/rotate-bottom-left.png';
+    this.CURSOR_ROTATE_LEFT = 'cursors/rotate-top-left.png';
+    this.CURSOR_ROTATE_TOP_RIGHT = 'cursors/rotate-top-right.png';
+    this.CURSOR_ROTATE_TOP_LEFT = 'cursors/rotate-top-left.png';
+    this.CURSOR_ROTATE_BOTTOM_RIGHT = 'cursors/rotate-bottom-right.png';
+    this.CURSOR_ROTATE_BOTTOM_LEFT = 'cursors/rotate-bottom-left.png';
+    this.CURSOR_MOVE = 'cursors/move.png';
+    this.CURSOR_SEGMENT = 'cursors/segment.png';
+    this.CURSOR_CURVE = 'cursors/curve.png';
+    this.HOVER_PREVIEW_SEGMENT_STROKE_COLOR = 'rgba(100,150,255,1.0)';
+    this.HOVER_PREVIEW_SEGMENT_STROKE_WIDTH = 1.5;
+    this.HOVER_PREVIEW_SEGMENT_FILL_COLOR = '#ffffff';
+    this.HOVER_PREVIEW_SEGMENT_RADIUS = 5;
+    this.HOVER_PREVIEW_CURVE_STROKE_WIDTH = 2;
+    this.HOVER_PREVIEW_CURVE_STROKE_COLOR = this.HOVER_PREVIEW_SEGMENT_STROKE_COLOR;
+    this.hitResult = new this.paper.HitResult();
+    this.selectionBox = new this.paper.SelectionBox(paper);
+    this.draggingCurve = new this.paper.Curve();
+    this.draggingSegment = new this.paper.Segment();
+    this.hoverPreview = new this.paper.Item({
+      insert: false
+    });
+    this.selectedItems = [];
+    this.currentCursorIcon = '';
+  }
+  /**
+   * Generate the current cursor.
+   * @type {string}
+   */
+
+
+  get cursor() {
+    return 'url("' + this.currentCursorIcon + '") 32 32, auto';
+  }
+
+  onActivate(e) {
+    this.selectedItems = [];
+  }
+
+  onDeactivate(e) {}
+
+  onMouseMove(e) {
+    super.onMouseMove(e); // Remove the hover preview, a new one will be generated if needed
+
+    this.hoverPreview.remove(); // Find the thing that is currently under the cursor.
+
+    this.hitResult = this._updateHitResult(e); // Update the image being used for the cursor
+
+    this._setCursor(this._getCursor());
+
+    if (this.hitResult.type === 'segment' && !this.hitResult.item.data.isSelectionBoxGUI) {
+      // Hovering over a segment, draw a circle where the segment is
+      this.hoverPreview = new this.paper.Path.Circle(this.hitResult.segment.point, this.HOVER_PREVIEW_SEGMENT_RADIUS / this.paper.view.zoom);
+      this.hoverPreview.strokeColor = this.HOVER_PREVIEW_SEGMENT_STROKE_COLOR;
+      this.hoverPreview.strokeWidth = this.HOVER_PREVIEW_SEGMENT_STROKE_WIDTH;
+      this.hoverPreview.fillColor = this.HOVER_PREVIEW_SEGMENT_FILL_COLOR;
+    } else if (this.hitResult.type === 'curve' && !this.hitResult.item.data.isSelectionBoxGUI) {
+      // Hovering over a curve, render a copy of the curve that can be bent
+      this.hoverPreview = new this.paper.Path();
+      this.hoverPreview.strokeWidth = this.HOVER_PREVIEW_CURVE_STROKE_WIDTH;
+      this.hoverPreview.strokeColor = this.HOVER_PREVIEW_CURVE_STROKE_COLOR;
+      this.hoverPreview.add(new this.paper.Point(this.hitResult.location.curve.point1));
+      this.hoverPreview.add(new this.paper.Point(this.hitResult.location.curve.point2));
+      this.hoverPreview.segments[0].handleOut = this.hitResult.location.curve.handle1;
+      this.hoverPreview.segments[1].handleIn = this.hitResult.location.curve.handle2;
+    }
+
+    this.hoverPreview.data.wickType = 'gui';
+  }
+
+  onMouseDown(e) {
+    if (!e.modifiers) e.modifiers = {};
+    this.hitResult = this._updateHitResult(e);
+
+    if (this.hitResult.item && this.hitResult.item.data.isSelectionBoxGUI) {} else if (this.hitResult.item && this._isItemSelected(this.hitResult.item)) {
+      // We clicked something that was already selected.
+      // Shift click: Deselect that item
+      if (e.modifiers.shift) {
+        this._deselectItem(this.hitResult.item);
+
+        this.fireEvent('canvasModified');
+      }
+    } else if (this.hitResult.item && this.hitResult.type === 'fill') {
+      if (!e.modifiers.shift) {
+        // Shift click? Keep everything else selected.
+        this._clearSelection();
+      } // Clicked an item: select that item
+
+
+      this._selectItem(this.hitResult.item);
+
+      this.fireEvent('canvasModified');
+    } else if (this.hitResult.item && this.hitResult.type === 'curve') {
+      // Clicked a curve, start dragging it
+      this.draggingCurve = this.hitResult.location.curve;
+    } else if (this.hitResult.item && this.hitResult.type === 'segment') {} else {
+      // Nothing was clicked, so clear the selection and start a new selection box
+      // (don't clear the selection if shift is held, though)
+      if (this._selection.numObjects > 0 && !e.modifiers.shift) {
+        this._clearSelection();
+
+        this.fireEvent('canvasModified');
+      }
+
+      this.selectionBox.start(e.point);
+    }
+  }
+
+  onMouseDrag(e) {
+    if (!e.modifiers) e.modifiers = {};
+
+    if (this.hitResult.item && this.hitResult.item.data.isSelectionBoxGUI) {
+      // TODO update selection drag
+      if (!this._widget.currentTransformation) {
+        this._widget.startTransformation(this.hitResult.item);
+      }
+
+      this._widget.updateTransformation(this.hitResult.item, e);
+    } else if (this.selectionBox.active) {
+      // Selection box is being used, update it with a new point
+      this.selectionBox.drag(e.point);
+    } else if (this.hitResult.item && this.hitResult.type === 'fill') {
+      // We're dragging the selection itself, so move the whole item.
+      if (!this._widget.currentTransformation) {
+        this._widget.startTransformation(this.hitResult.item);
+      }
+
+      this._widget.updateTransformation(this.hitResult.item, e);
+    } else if (this.hitResult.item && this.hitResult.type === 'segment') {
+      // We're dragging an individual point, so move the point.
+      this.hitResult.segment.point = this.hitResult.segment.point.add(e.delta);
+      this.hoverPreview.position = this.hitResult.segment.point;
+    } else if (this.hitResult.item && this.hitResult.type === 'curve') {
+      // We're dragging a curve, so bend the curve.
+      var segment1 = this.draggingCurve.segment1;
+      var segment2 = this.draggingCurve.segment2;
+      var handleIn = segment1.handleOut;
+      var handleOut = segment2.handleIn;
+
+      if (handleIn.x === 0 && handleIn.y === 0) {
+        handleIn.x = (segment2.point.x - segment1.point.x) / 4;
+        handleIn.y = (segment2.point.y - segment1.point.y) / 4;
+      }
+
+      if (handleOut.x === 0 && handleOut.y === 0) {
+        handleOut.x = (segment1.point.x - segment2.point.x) / 4;
+        handleOut.y = (segment1.point.y - segment2.point.y) / 4;
+      }
+
+      handleIn.x += e.delta.x;
+      handleIn.y += e.delta.y;
+      handleOut.x += e.delta.x;
+      handleOut.y += e.delta.y; // Update the hover preview to match the curve we just changed
+
+      this.hoverPreview.segments[0].handleOut = this.draggingCurve.handle1;
+      this.hoverPreview.segments[1].handleIn = this.draggingCurve.handle2;
+    }
+  }
+
+  onMouseUp(e) {
+    if (!e.modifiers) e.modifiers = {};
+
+    if (this.selectionBox.active) {
+      // Finish selection box and select objects touching box (or inside box, if alt is held)
+      this.selectionBox.mode = e.modifiers.alt ? 'contains' : 'intersects';
+      this.selectionBox.end(e.point);
+
+      this._selection.clear();
+
+      this.selectionBox.items.filter(item => {
+        return item.data.wickUUID;
+      }).forEach(item => {
+        this._selectItem(item);
+      });
+      this.fireEvent('canvasModified');
+    } else if (this._selection.numObjects > 0) {
+      this._widget.finishTransformation();
+
+      this.fireEvent('canvasModified');
+    }
+  }
+
+  _updateHitResult(e) {
+    var newHitResult = this.paper.project.hitTest(e.point, {
+      fill: true,
+      stroke: true,
+      curves: true,
+      segments: true,
+      tolerance: this.SELECTION_TOLERANCE,
+      match: result => {
+        return result.item !== this.hoverPreview && !result.item.data.isBorder;
+      }
+    });
+    if (!newHitResult) newHitResult = new this.paper.HitResult();
+
+    if (newHitResult.item && !newHitResult.item.data.isSelectionBoxGUI) {
+      // You can't select children of compound paths, you can only select the whole thing.
+      if (newHitResult.item.parent.className === 'CompoundPath') {
+        newHitResult.item = newHitResult.item.parent;
+      } // You can't select individual children in a group, you can only select the whole thing.
+
+
+      if (newHitResult.item.parent.parent) {
+        newHitResult.type = 'fill';
+
+        while (newHitResult.item.parent.parent) {
+          newHitResult.item = newHitResult.item.parent;
+        }
+      } // this.paper.js has two names for strokes+curves, we don't need that extra info
+
+
+      if (newHitResult.type === 'stroke') {
+        newHitResult.type = 'curve';
+      } // Mousing over rasters acts the same as mousing over fills.
+
+
+      if (newHitResult.type === 'pixel') {
+        newHitResult.type = 'fill';
+      } // Disable curve selection unless selectCurves is true.
+
+
+      if (!this.getSetting('selectCurves') && newHitResult.type === 'curve') {
+        newHitResult.type = 'fill';
+      } // Disable segment selection unless selectPoints is true.
+
+
+      if (!this.getSetting('selectPoints') && newHitResult.type === 'segment') {
+        newHitResult.type = 'fill';
+      } // You can't drag segments and curves of a selected object.
+
+
+      if (this._isItemSelected(newHitResult.item)) {
+        newHitResult.type = 'fill';
+      }
+    }
+
+    return newHitResult;
+  }
+
+  _getCursor() {
+    if (!this.hitResult.item) {
+      return this.CURSOR_DEFAULT;
+    } else if (this.hitResult.item.data.isSelectionBoxGUI) {
+      // Don't show any custom cursor if the mouse is over the border, the border does nothing
+      if (this.hitResult.item.name === 'border') {
+        return this.CURSOR_DEFAULT;
+      } // Calculate the angle in which the scale handle scales the selection.
+      // Use that angle to determine the cursor graphic to use.
+      // Here is a handy diagram showing the cursors that correspond to the angles:
+      // 315       0       45
+      //     o-----o-----o
+      //     |           |
+      //     |           |
+      // 270 o           o 90
+      //     |           |
+      //     |           |
+      //     o-----o-----o
+      // 225      180      135
+
+
+      var baseAngle = {
+        topCenter: 0,
+        topRight: 45,
+        rightCenter: 90,
+        bottomRight: 135,
+        bottomCenter: 180,
+        bottomLeft: 225,
+        leftCenter: 270,
+        topLeft: 315
+      }[this.hitResult.item.data.handleEdge]; // Flip angles if selection is flipped horizontally/vertically
+
+      /*if(this._selection.transformation.scaleX < 0) {
+          baseAngle = -baseAngle + 360;
+      }
+      if(this._selection.transformation.scaleY < 0) {
+          baseAngle = -baseAngle + 180;
+      }*/
+
+      var angle = baseAngle + this._widget.rotation; // It makes angle math easier if we dont allow angles >360 or <0 degrees:
+
+      if (angle < 0) angle += 360;
+      if (angle > 360) angle -= 360; // Round the angle to the nearest 45 degree interval.
+
+      var angleRoundedToNearest45 = Math.round(angle / 45) * 45;
+      angleRoundedToNearest45 = Math.round(angleRoundedToNearest45); // just incase of float weirdness
+
+      angleRoundedToNearest45 = '' + angleRoundedToNearest45; // convert to string
+      // Now we know which of eight directions the handle is pointing, so we choose the correct cursor
+
+      if (this.hitResult.item.data.handleType === 'scale') {
+        var cursorGraphicFromAngle = {
+          '0': this.CURSOR_SCALE_VERTICAL,
+          '45': this.CURSOR_SCALE_TOP_RIGHT_BOTTOM_LEFT,
+          '90': this.CURSOR_SCALE_HORIZONTAL,
+          '135': this.CURSOR_SCALE_TOP_LEFT_BOTTOM_RIGHT,
+          '180': this.CURSOR_SCALE_VERTICAL,
+          '225': this.CURSOR_SCALE_TOP_RIGHT_BOTTOM_LEFT,
+          '270': this.CURSOR_SCALE_HORIZONTAL,
+          '315': this.CURSOR_SCALE_TOP_LEFT_BOTTOM_RIGHT,
+          '360': this.CURSOR_SCALE_VERTICAL
+        }[angleRoundedToNearest45];
+        return cursorGraphicFromAngle;
+      } else if (this.hitResult.item.data.handleType === 'rotation') {
+        var cursorGraphicFromAngle = {
+          '0': this.CURSOR_ROTATE_TOP,
+          '45': this.CURSOR_ROTATE_TOP_RIGHT,
+          '90': this.CURSOR_ROTATE_RIGHT,
+          '135': this.CURSOR_ROTATE_BOTTOM_RIGHT,
+          '180': this.CURSOR_ROTATE_BOTTOM,
+          '225': this.CURSOR_ROTATE_BOTTOM_LEFT,
+          '270': this.CURSOR_ROTATE_LEFT,
+          '315': this.CURSOR_ROTATE_TOP_LEFT,
+          '360': this.CURSOR_ROTATE_TOP
+        }[angleRoundedToNearest45];
+        return cursorGraphicFromAngle;
+      }
+    } else {
+      if (this.hitResult.type === 'fill') {
+        return this.CURSOR_MOVE;
+      } else if (this.hitResult.type === 'curve') {
+        return this.CURSOR_CURVE;
+      } else if (this.hitResult.type === 'segment') {
+        return this.CURSOR_SEGMENT;
+      }
+    }
+  }
+
+  _setCursor(cursor) {
+    this.currentCursorIcon = cursor;
+  }
+
+  get _selection() {
+    return this.project.selection;
+  }
+
+  get _widget() {
+    return this._selection.view.widget;
+  }
+
+  _clearSelection() {
+    this._selection.clear();
+  }
+
+  _selectItem(item) {
+    var object = this._wickObjectFromPaperItem(item);
+
+    this._selection.select(object);
+  }
+
+  _deselectItem(item) {
+    var object = this._wickObjectFromPaperItem(item);
+
+    this._selection.deselect(object);
+  }
+
+  _isItemSelected(item) {
+    var object = this._wickObjectFromPaperItem(item);
+
+    return object.isSelected;
+  }
+
+  _wickObjectFromPaperItem(item) {
+    var uuid = item.data.wickUUID;
+
+    if (!uuid) {
+      console.error('WARNING: _wickObjectFromPaperItem: item had no wick UUID. did you try to select something that wasnt created by a wick view? is the view up-to-date?');
+      console.log(item);
+    }
+
+    return Wick.ObjectCache.getObjectByUUID(uuid);
+  }
+
+};
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* Copyright 2019 WICKLETS LLC
+*
+* This file is part of Wick Engine.
+*
+* Wick Engine is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Wick Engine is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+*/
+Wick.Tools.Ellipse = class extends Wick.Tool {
+  /**
+   * Creates an instance of the ellipse tool.
+   */
+  constructor() {
+    super();
+    this.name = 'ellipse';
+    this.path = null;
+    this.topLeft = null;
+    this.bottomRight = null;
+  }
+  /**
+   * A crosshair cursor.
+   * @type {string}
+   */
+
+
+  get cursor() {
+    return 'crosshair';
+  }
+
+  onActivate(e) {}
+
+  onDeactivate(e) {
+    if (this.path) {
+      this.path.remove();
+      this.path = null;
+    }
+  }
+
+  onMouseDown(e) {
+    this.topLeft = e.point;
+    this.bottomRight = e.point;
+  }
+
+  onMouseDrag(e) {
+    if (this.path) this.path.remove();
+    this.bottomRight = e.point; // Lock width and height if shift is held down
+
+    if (e.modifiers.shift) {
+      var d = bottomRight.subtract(topLeft);
+      var max = Math.max(Math.abs(d.x), Math.abs(d.y));
+      this.bottomRight.x = topLeft.x + max * (d.x < 0 ? -1 : 1);
+      this.bottomRight.y = topLeft.y + max * (d.y < 0 ? -1 : 1);
+    }
+
+    var bounds = new this.paper.Rectangle(new this.paper.Point(this.topLeft.x, this.topLeft.y), new this.paper.Point(this.bottomRight.x, this.bottomRight.y));
+    this.path = new this.paper.Path.Ellipse(bounds);
+    this.paper.project.activeLayer.addChild(this.path);
+    this.path.fillColor = this.getSetting('fillColor');
+    this.path.strokeColor = this.getSetting('strokeColor');
+    this.path.strokeWidth = this.getSetting('strokeWidth');
+    this.path.strokeCap = 'round';
+  }
+
+  onMouseUp(e) {
+    if (!this.path) return;
+    this.path = null;
+    this.fireEvent('canvasModified');
+  }
+
+};
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* Copyright 2019 WICKLETS LLC
+*
+* This file is part of Wick Engine.
+*
+* Wick Engine is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Wick Engine is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+*/
+Wick.Tools.Eraser = class extends Wick.Tool {
+  /**
+   *
+   */
+  constructor() {
+    super();
+    this.name = 'eraser';
+    this.path = null;
+    this.cursorSize = null;
+    this.cachedCursor = null;
+  }
+  /**
+   *
+   * @type {string}
+   */
+
+
+  get cursor() {
+    return this.cachedCursor || 'crosshair';
+  }
+
+  onActivate(e) {
+    this.cursorSize = null;
+  }
+
+  onDeactivate(e) {
+    if (this.path) {
+      this.path.remove();
+      this.path = null;
+    }
+  }
+
+  onMouseMove(e) {
+    // Don't render cursor after every mouse move, cache and only render when size changes
+    var cursorNeedsRegen = this.getSetting('eraserSize') !== this.cursorSize;
+
+    if (cursorNeedsRegen) {
+      this.cachedCursor = this.createDynamicCursor(new paper.Color('#ffffff'), this.getSetting('eraserSize'));
+      this.cursorSize = this.getSetting('eraserSize');
+      this.setCursor(this.cachedCursor);
+    }
+  }
+
+  onMouseDown(e) {
+    if (!this.path) {
+      this.path = new this.paper.Path({
+        strokeColor: 'white',
+        strokeCap: 'round',
+        strokeWidth: this.getSetting('eraserSize') / this.paper.view.zoom
+      });
+    } // Add two points so we always at least have a dot.
+
+
+    this.path.add(e.point);
+    this.path.add(e.point);
+  }
+
+  onMouseDrag(e) {
+    this.path.add(e.point);
+    this.path.smooth();
+  }
+
+  onMouseUp(e) {
+    if (!this.path) return;
+    var potraceResolution = 0.7;
+    this.path.potrace({
+      done: tracedPath => {
+        this.path.remove();
+        this.paper.project.activeLayer.erase(tracedPath, {});
+        this.path = null;
+        this.fireEvent('canvasModified');
+      },
+      resolution: potraceResolution * this.paper.view.zoom
+    });
+  }
+
+};
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* Copyright 2019 WICKLETS LLC
+*
+* This file is part of Wick Engine.
+*
+* Wick Engine is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Wick Engine is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+*/
+Wick.Tools.Eyedropper = class extends Wick.Tool {
+  /**
+   *
+   */
+  constructor() {
+    super();
+    this.name = 'eyedropper';
+    this.canvasCtx = null;
+    this.hoverColor = null;
+    this.colorPreviewBorder = null;
+    this.colorPreview = null;
+  }
+  /**
+   *
+   * @type {string}
+   */
+
+
+  get cursor() {
+    return 'url(cursors/eyedropper.png) 32 32, auto';
+  }
+
+  onActivate(e) {
+    this.canvasCtx = this.paper.view._element.getContext('2d');
+  }
+
+  onDeactivate(e) {
+    this._destroyColorPreview();
+  }
+
+  onMouseDown(e) {
+    this._destroyColorPreview();
+
+    var pointPx = this.paper.view.projectToView(e.point);
+    pointPx.x = Math.round(pointPx.x);
+    pointPx.y = Math.round(pointPx.y);
+    var colorData = this.canvasCtx.getImageData(pointPx.x, pointPx.y, 1, 1).data;
+    this.hoverColor = 'rgb(' + colorData[0] + ',' + colorData[1] + ',' + colorData[2] + ')';
+
+    this._createColorPreview(e.point);
+  }
+
+  onMouseDrag(e) {}
+
+  onMouseUp(e) {}
+
+  _createColorPreview(point) {
+    var offset = 10 / this.paper.view.zoom;
+    var center = point.add(new paper.Point(offset + 0.5, offset + 0.5));
+    var radius = 10 / paper.view.zoom;
+    var size = new paper.Size(radius, radius);
+    this.colorPreviewBorder = new this.paper.Path.Rectangle(center, size);
+    this.colorPreviewBorder.strokeColor = 'white';
+    this.colorPreviewBorder.strokeWidth = 3.0 / this.paper.view.zoom;
+    this.colorPreview = new this.paper.Path.Rectangle(center, size);
+    this.colorPreview.fillColor = hoverColor;
+    this.colorPreview.strokeColor = 'black';
+    this.colorPreview.strokeWidth = 1.0 / this.paper.view.zoom;
+  }
+
+  _destroyColorPreview() {
+    if (this.colorPreview) {
+      this.colorPreview.remove();
+      this.colorPreview = null;
+      this.colorPreviewBorder.remove();
+      this.colorPreviewBorder = null;
+    }
+  }
+
+};
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* Copyright 2019 WICKLETS LLC
+*
+* This file is part of Wick Engine.
+*
+* Wick Engine is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Wick Engine is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+*/
+Wick.Tools.FillBucket = class extends Wick.Tool {
+  /**
+   *
+   */
+  constructor() {
+    super();
+    this.name = 'fillbucket';
+  }
+  /**
+   *
+   * @type {string}
+   */
+
+
+  get cursor() {
+    return 'url(cursors/fillbucket.png) 32 32, auto';
+  }
+
+  onActivate(e) {}
+
+  onDeactivate(e) {}
+
+  onMouseDown(e) {
+    var hitResult = paper.project.activeLayer.hitTest(e.point, {
+      fill: true
+    });
+
+    if (hitResult && hitResult.item) {
+      hitResult.item.fillColor = this.getSetting('fillColor');
+      this.fireEvent('canvasModified');
+    } else {
+      setTimeout(() => {
+        this.setCursor('wait');
+      }, 0);
+      setTimeout(() => {
+        this.paper.project.activeLayer.hole({
+          point: e.point,
+          onFinish: path => {
+            this.setCursor('default');
+
+            if (path) {
+              path.fillColor = this.getSetting('fillColor');
+              path.name = null;
+              this.paper.project.activeLayer.addChild(path);
+              this.fireEvent('canvasModified');
+            }
+          },
+          onError: message => {
+            this.setCursor('default');
+            this.fireEvent('error', {
+              message: message
+            });
+          }
+        });
+      }, 50);
+    }
+  }
+
+  onMouseDrag(e) {}
+
+  onMouseUp(e) {}
+
+};
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* Copyright 2019 WICKLETS LLC
+*
+* This file is part of Wick Engine.
+*
+* Wick Engine is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Wick Engine is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+*/
+Wick.Tools.Line = class extends Wick.Tool {
+  /**
+   *
+   */
+  constructor() {
+    super();
+    this.name = 'line';
+    this.path = new this.paper.Path({
+      insert: false
+    });
+    this.startPoint;
+    this.endPoint;
+  }
+  /**
+   *
+   * @type {string}
+   */
+
+
+  get cursor() {
+    return 'crosshair';
+  }
+
+  onActivate(e) {
+    this.path.remove();
+  }
+
+  onDeactivate(e) {
+    this.path.remove();
+  }
+
+  onMouseDown(e) {
+    this.startPoint = e.point;
+  }
+
+  onMouseDrag(e) {
+    this.path.remove();
+    this.endPoint = e.point;
+    this.path = new paper.Path.Line(this.startPoint, this.endPoint);
+    this.path.strokeCap = 'round';
+    this.path.strokeColor = this.getSetting('strokeColor');
+    this.path.strokeWidth = this.getSetting('strokeWidth');
+  }
+
+  onMouseUp(e) {
+    this.fireEvent('canvasModified');
+  }
+
+};
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* Copyright 2019 WICKLETS LLC
+*
+* This file is part of Wick Engine.
+*
+* Wick Engine is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Wick Engine is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+*/
+Wick.Tools.None = class extends Wick.Tool {
+  /**
+   * Creates a none tool.
+   */
+  constructor() {
+    super();
+    this.name = 'none';
+  }
+  /**
+   * The "no-sign" cursor.
+   * @type {string}
+   */
+
+
+  get cursor() {
+    return 'not-allowed';
+  }
+
+  onActivate(e) {}
+
+  onDeactivate(e) {}
+
+  onMouseDown(e) {
+    this.fireEvent('error', {
+      message: 'CLICK_NOT_ALLOWED'
+    });
+  }
+
+  onMouseDrag(e) {}
+
+  onMouseUp(e) {}
+
+};
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* Copyright 2019 WICKLETS LLC
+*
+* This file is part of Wick Engine.
+*
+* Wick Engine is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Wick Engine is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+*/
+Wick.Tools.Pan = class extends Wick.Tool {
+  /**
+   *
+   */
+  constructor() {
+    super();
+    this.name = 'pan';
+  }
+  /**
+   *
+   * @type {string}
+   */
+
+
+  get cursor() {
+    return 'move';
+  }
+
+  onActivate(e) {}
+
+  onDeactivate(e) {}
+
+  onMouseDown(e) {}
+
+  onMouseDrag(e) {
+    var d = e.downPoint.subtract(e.point);
+    this.paper.view.center = this.paper.view.center.add(d);
+  }
+
+  onMouseUp(e) {
+    this.fireEvent('canvasViewTransformed');
+  }
+
+};
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* Copyright 2019 WICKLETS LLC
+*
+* This file is part of Wick Engine.
+*
+* Wick Engine is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Wick Engine is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+*/
+Wick.Tools.Pencil = class extends Wick.Tool {
+  static get MIN_ADD_POINT_MOVEMENT() {
+    return 5;
+  }
+  /**
+   * Creates a pencil tool.
+   */
+
+
+  constructor() {
+    super();
+    this.name = 'pencil';
+    this.path = null;
+    this._movement = new paper.Point();
+  }
+  /**
+   * The pencil cursor.
+   * @type {string}
+   */
+
+
+  get cursor() {
+    return 'url(cursors/pencil.png) 32 32, auto';
+  }
+
+  onActivate(e) {}
+
+  onDeactivate(e) {}
+
+  onMouseDown(e) {
+    this._movement = new paper.Point();
+
+    if (!this.path) {
+      this.path = new this.paper.Path({
+        strokeColor: this.getSetting('strokeColor'),
+        strokeWidth: this.getSetting('strokeWidth'),
+        strokeCap: 'round'
+      });
+    }
+
+    this.path.add(e.point);
+  }
+
+  onMouseDrag(e) {
+    this._movement = this._movement.add(e.delta);
+
+    if (this._movement.length > Wick.Tools.Pencil.MIN_ADD_POINT_MOVEMENT / this.paper.view.zoom) {
+      this._movement = new paper.Point();
+      this.path.add(e.point);
+      this.path.smooth();
+    }
+  }
+
+  onMouseUp(e) {
+    this.path.add(e.point);
+    this.path.simplify();
+    this.path = null;
+    this.fireEvent('canvasModified');
+  }
+
+};
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* Copyright 2019 WICKLETS LLC
+*
+* This file is part of Wick Engine.
+*
+* Wick Engine is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Wick Engine is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+*/
+Wick.Tools.Rectangle = class extends Wick.Tool {
+  /**
+   *
+   */
+  constructor() {
+    super();
+    this.name = 'rectangle';
+    this.path = null;
+    this.topLeft = null;
+    this.bottomRight = null;
+  }
+  /**
+   *
+   * @type {string}
+   */
+
+
+  get cursor() {
+    return 'crosshair';
+  }
+
+  onActivate(e) {}
+
+  onDeactivate(e) {
+    if (this.path) {
+      this.path.remove();
+      this.path = null;
+    }
+  }
+
+  onMouseDown(e) {
+    this.topLeft = e.point;
+    this.bottomRight = e.point;
+  }
+
+  onMouseDrag(e) {
+    if (this.path) this.path.remove();
+    this.bottomRight = e.point; // Lock width and height if shift is held down
+
+    if (e.modifiers.shift) {
+      var d = this.bottomRight.subtract(this.topLeft);
+      var max = Math.max(Math.abs(d.x), Math.abs(d.y));
+      this.bottomRight.x = topLeft.x + max * (d.x < 0 ? -1 : 1);
+      this.bottomRight.y = topLeft.y + max * (d.y < 0 ? -1 : 1);
+    }
+
+    var bounds = new this.paper.Rectangle(new paper.Point(this.topLeft.x, this.topLeft.y), new paper.Point(this.bottomRight.x, this.bottomRight.y));
+
+    if (this.getSetting('cornerRadius') !== 0) {
+      this.path = new this.paper.Path.Rectangle(bounds, this.getSetting('cornerRadius'));
+    } else {
+      this.path = new this.paper.Path.Rectangle(bounds);
+    }
+
+    this.path.fillColor = this.getSetting('fillColor');
+    this.path.strokeColor = this.getSetting('strokeColor');
+    this.path.strokeWidth = this.getSetting('strokeWidth');
+    this.path.strokeCap = 'round';
+  }
+
+  onMouseUp(e) {
+    if (!this.path) return;
+    this.path = null;
+    this.fireEvent('canvasModified');
+  }
+
+};
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* Copyright 2019 WICKLETS LLC
+*
+* This file is part of Wick Engine.
+*
+* Wick Engine is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Wick Engine is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+*/
+Wick.Tools.Text = class extends Wick.Tool {
+  /**
+   *
+   */
+  constructor() {
+    super();
+    this.name = 'text';
+    this.hoveredOverText = null;
+    this.editingText = null;
+  }
+  /**
+   *
+   * @type {string}
+   */
+
+
+  get cursor() {
+    return 'url(cursors/text.png) 32 32, auto';
+  }
+
+  onActivate(e) {}
+
+  onDeactivate(e) {
+    if (this.editingText) {
+      this.finishEditingText();
+    }
+
+    this.hoveredOverText = null;
+  }
+
+  onMouseMove(e) {
+    super.onMouseMove(e);
+    this.setCursor('default');
+
+    if (e.item && e.item.className === 'PointText' && !e.item.parent.parent) {
+      this.hoveredOverText = e.item;
+      this.setCursor('text');
+    } else {
+      this.hoveredOverText = null;
+    }
+  }
+
+  onMouseDown(e) {
+    if (this.editingText) {
+      this.finishEditingText();
+    } else if (this.hoveredOverText) {
+      this.editingText = this.hoveredOverText;
+      e.item.edit(this.project.view.paper);
+    } else {
+      var text = new this.paper.PointText(e.point);
+      text.justification = 'left';
+      text.fillColor = 'black';
+      text.content = 'This is some text';
+      text.fontSize = 14;
+      this.fireEvent('canvasModified');
+    }
+  }
+
+  onMouseDrag(e) {}
+
+  onMouseUp(e) {}
+  /**
+   * Stop editing the current text and apply changes.
+   */
+
+
+  finishEditingText() {
+    if (!this.editingText) return;
+    this.editingText.finishEditing();
+    this.editingText = null;
+    this.fireEvent('canvasModified');
+  }
+
+};
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* Copyright 2019 WICKLETS LLC
+*
+* This file is part of Wick Engine.
+*
+* Wick Engine is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Wick Engine is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+*/
+Wick.Tools.Zoom = class extends Wick.Tool {
+  /**
+   *
+   */
+  constructor() {
+    super();
+    this.name = 'zoom';
+    this.ZOOM_MIN = 0.1;
+    this.ZOOM_MAX = 20;
+    this.ZOOM_IN_AMOUNT = 1.25;
+    this.ZOOM_OUT_AMOUNT = 0.8;
+    this.zoomBox = null;
+  }
+  /**
+   *
+   * @type {string}
+   */
+
+
+  get cursor() {
+    return 'zoom-in';
+  }
+
+  onActivate(e) {}
+
+  onDeactivate(e) {
+    this.deleteZoomBox();
+  }
+
+  onMouseDown(e) {}
+
+  onMouseDrag(e) {
+    this.deleteZoomBox();
+    this.createZoomBox(e);
+  }
+
+  onMouseUp(e) {
+    if (this.zoomBox && this.zoomBoxIsValidSize()) {
+      var bounds = this.zoomBox.bounds;
+      this.paper.view.center = bounds.center;
+      this.paper.view.zoom = this.paper.view.bounds.height / bounds.height;
+    } else {
+      var zoomAmount = e.modifiers.alt ? this.ZOOM_OUT_AMOUNT : this.ZOOM_IN_AMOUNT;
+      this.paper.view.scale(zoomAmount, e.point);
+    }
+
+    this.deleteZoomBox();
+
+    if (this.paper.view.zoom <= this.ZOOM_MIN) {
+      this.paper.view.zoom = this.ZOOM_MIN;
+    } else if (this.paper.view.zoom >= this.ZOOM_MAX) {
+      this.paper.view.zoom = this.ZOOM_MAX;
+    }
+
+    this.fireEvent('canvasViewTransformed');
+  }
+
+  createZoomBox(e) {
+    var bounds = new this.paper.Rectangle(e.downPoint, e.point);
+    bounds.x += 0.5;
+    bounds.y += 0.5;
+    this.zoomBox = new this.paper.Path.Rectangle(bounds);
+    this.zoomBox.strokeColor = 'black';
+    this.zoomBox.strokeWidth = 1.0 / this.paper.view.zoom;
+  }
+
+  deleteZoomBox() {
+    if (this.zoomBox) {
+      this.zoomBox.remove();
+      this.zoomBox = null;
+    }
+  }
+
+  zoomBoxIsValidSize() {
+    return this.zoomBox.bounds.width > 5 && this.zoomBox.bounds.height > 5;
   }
 
 };
@@ -72301,1655 +74156,6 @@ paper.View.inject({
 * You should have received a copy of the GNU General Public License
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
-Wick.Tool = class {
-  static get EVENT_NAMES() {
-    return ['onActivate', 'onDeactivate', 'onMouseMove', 'onMouseDown', 'onMouseDrag', 'onMouseUp'];
-  }
-  /**
-   * Creates a new Wick Tool.
-   */
-
-
-  constructor() {
-    this.paperTool = new this.paper.Tool();
-    Wick.Tool.EVENT_NAMES.forEach(paperEventName => {
-      this.paperTool[paperEventName] = e => {
-        var fn = this[paperEventName];
-        fn && fn.bind(this)(e);
-      };
-    });
-    this._eventCallbacks = {};
-  }
-  /**
-   * The paper.js scope to use.
-   */
-
-
-  get paper() {
-    return Wick.View.paperScope;
-  }
-  /**
-   * The CSS cursor to display for this tool.
-   */
-
-
-  get cursor() {
-    console.warn("Warning: Tool is missing a cursor!");
-  }
-  /**
-   * Called when the tool is activated
-   */
-
-
-  onActivate(e) {}
-  /**
-   * Called when the tool is deactivated (another tool is activated)
-   */
-
-
-  onDeactivate(e) {}
-  /**
-   * Called when the mouse moves and the tool is active.
-   */
-
-
-  onMouseMove(e) {
-    this.setCursor(this.cursor);
-  }
-  /**
-   * Called when the mouse clicks the paper.js canvas and this is the active tool.
-   */
-
-
-  onMouseDown(e) {}
-  /**
-   * Called when the mouse is dragged on the paper.js canvas and this is the active tool.
-   */
-
-
-  onMouseDrag(e) {}
-  /**
-   * Called when the mouse is clicked on the paper.js canvas and this is the active tool.
-   */
-
-
-  onMouseUp(e) {}
-  /**
-   * Activates this tool in paper.js.
-   */
-
-
-  activate() {
-    this.paperTool.activate();
-  }
-  /**
-   * Sets the cursor of the paper.js canvas that the tool belongs to.
-   * @param {string} cursor - a CSS cursor style
-   */
-
-
-  setCursor(cursor) {
-    this.paper.view._element.style.cursor = cursor;
-  }
-  /**
-   * Attach a function to get called when an event happens.
-   * @param {string} eventName - the name of the event
-   * @param {function} fn - the function to call when the event is fired
-   */
-
-
-  on(eventName, fn) {
-    this._eventCallbacks[eventName] = fn;
-  }
-  /**
-   * Call the functions attached to a given event.
-   * @param {string} eventName - the name of the event to fire
-   * @param {object} e - (optional) an object to attach some data to, if needed
-   */
-
-
-  fireEvent(eventName, e) {
-    if (!e) e = {};
-
-    if (!e.layers) {
-      e.layers = [this.paper.project.activeLayer];
-    }
-
-    var fn = this._eventCallbacks[eventName];
-    fn && fn(e);
-  }
-
-  createDynamicCursor(color, size) {
-    var canvas = document.createElement("canvas");
-    canvas.width = 128;
-    canvas.height = 128;
-    var context = canvas.getContext('2d');
-    var centerX = canvas.width / 2;
-    var centerY = canvas.height / 2;
-    var radius = size / 2;
-    context.beginPath();
-    context.arc(centerX, centerY, radius + 1, 0, 2 * Math.PI, false);
-    context.fillStyle = invert(color);
-    context.fill();
-    context.beginPath();
-    context.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
-    context.fillStyle = color;
-    context.fill();
-    return 'url(' + canvas.toDataURL() + ') 64 64,default';
-  }
-
-};
-Wick.Tools = {};
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-Wick.Tools.Brush = class extends Wick.Tool {
-  /**
-   *
-   */
-  constructor() {
-    super();
-    this.BRUSH_POINT_SPACING = 0.2;
-    this.croquis;
-    this.croquisDOMElement;
-    this.croquisBrush;
-    this.cachedCursor;
-    this.lastPressure;
-    this.pressureEnabled = true;
-    this.brushSize = 10;
-    this.brushStabilizerLevel = 3;
-    this.brushStabilizerWeight = 0.5;
-    this.potraceResolution = 1.0;
-    this.fillColor = '#000000';
-  }
-  /**
-   *
-   * @type {string}
-   */
-
-
-  get cursor() {}
-
-  onActivate(e) {
-    if (!this.croquis) {
-      this.croquis = new Croquis();
-      this.croquis.setCanvasSize(500, 500);
-      this.croquis.addLayer();
-      this.croquis.fillLayer('rgba(0,0,0,0)');
-      this.croquis.addLayer();
-      this.croquis.selectLayer(1);
-      this.croquisBrush = new Croquis.Brush();
-      this.croquis.setTool(this.croquisBrush);
-      this.croquisDOMElement = this.croquis.getDOMElement();
-      this.croquisDOMElement.style.position = 'absolute';
-      this.croquisDOMElement.style.left = '0px';
-      this.croquisDOMElement.style.top = '0px';
-      this.croquisDOMElement.style.width = '100%';
-      this.croquisDOMElement.style.height = '100%';
-      this.croquisDOMElement.style.display = 'block';
-      this.croquisDOMElement.style.pointerEvents = 'none';
-    }
-  }
-
-  onDeactivate(e) {}
-
-  onMouseMove(e) {
-    super.onMouseMove(e); // Update croquis element and pressure options
-
-    if (!this.paper.view._element.parentElement.contains(this.croquisDOMElement)) {
-      this.paper.view.enablePressure();
-
-      this.paper.view._element.parentElement.appendChild(this.croquisDOMElement);
-    } // Update croquis element canvas size
-
-
-    if (this.croquis.getCanvasWidth() !== this.paper.view._element.width || this.croquis.getCanvasHeight() !== this.paper.view._element.height) {
-      this.croquis.setCanvasSize(this.paper.view._element.width, this.paper.view._element.height);
-    } // Generate new cursor
-
-
-    this.cachedCursor = this.createDynamicCursor(this.fillColor, this.brushSize * this.pressure);
-    this.setCursor(this.cachedCursor);
-  }
-
-  onMouseDown(e) {
-    // Update croquis params
-    this.croquisBrush.setSize(this.brushSize);
-    this.croquisBrush.setColor(this.fillColor);
-    this.croquisBrush.setSpacing(this.BRUSH_POINT_SPACING);
-    this.croquis.setToolStabilizeLevel(this.brushStabilizerLevel);
-    this.croquis.setToolStabilizeWeight(this.brushStabilizerWeight); // Forward mouse event to croquis canvas
-
-    var point = this.paper.view.projectToView(e.point.x, e.point.y);
-
-    try {
-      this.croquis.down(point.x, point.y, this.pressure);
-    } catch (e) {
-      this.handleBrushError(e);
-      return;
-    }
-  }
-
-  onMouseDrag(e) {
-    // Forward mouse event to croquis canvas
-    var point = this.paper.view.projectToView(e.point.x, e.point.y);
-
-    try {
-      this.croquis.move(point.x, point.y, this.pressure);
-    } catch (e) {
-      this.handleBrushError(e);
-      return;
-    }
-
-    this.lastPressure = this.pressure; // Regen cursor
-
-    this.cachedCursor = this.createDynamicCursor(this.fillColor, this.brushSize * this.pressure);
-    this.setCursor(this.cachedCursor);
-  }
-
-  onMouseUp(e) {
-    // Forward mouse event to croquis canvas
-    var point = this.paper.view.projectToView(e.point.x, e.point.y);
-
-    try {
-      this.croquis.up(point.x, point.y, this.lastPressure);
-    } catch (e) {
-      this.handleBrushError(e);
-      return;
-    }
-
-    setTimeout(() => {
-      var img = new Image();
-
-      img.onload = () => {
-        var svg = potrace.fromImage(img).toSVG(1 / this.potraceResolution / this.paper.view.zoom);
-        var potracePath = this.paper.project.importSVG(svg);
-        potracePath.fillColor = this.fillColor;
-        potracePath.position.x += this.paper.view.bounds.x;
-        potracePath.position.y += this.paper.view.bounds.y;
-        potracePath.remove();
-        potracePath.closed = true;
-        potracePath.children[0].closed = true;
-        potracePath.children[0].applyMatrix = true;
-        this.paper.project.activeLayer.addChild(potracePath.children[0]);
-        this.croquis.clearLayer();
-        this.fireEvent('canvasModified');
-      };
-
-      var canvas = this.paper.view._element.parentElement.getElementsByClassName('croquis-layer-canvas')[1];
-
-      if (!canvas) {
-        console.warn("Croquis canvas was not found in the canvas container. Something very bad has happened.");
-        this.handleBrushError('misingCroquisCanvas');
-        return;
-      }
-
-      var resizedCanvas = document.createElement("canvas");
-      var resizedContext = resizedCanvas.getContext("2d");
-      resizedCanvas.width = canvas.width * this.potraceResolution;
-      resizedCanvas.height = canvas.height * this.potraceResolution;
-      resizedContext.drawImage(canvas, 0, 0, resizedCanvas.width, resizedCanvas.height);
-      img.src = resizedCanvas.toDataURL();
-    }, 20);
-  }
-  /**
-   * The current amount of pressure applied to the paper js canvas this tool belongs to.
-   */
-
-
-  get pressure() {
-    return this.pressureEnabled ? this.paper.view.pressure : 1;
-  }
-  /**
-   * Croquis throws a lot of errros. This is a helpful function to handle those errors gracefully.
-   */
-
-
-  handleBrushError(e) {
-    console.error("Brush error");
-    console.error(e);
-    this.fireEvent('error', {
-      croquisError: e
-    });
-  }
-
-};
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-Wick.Tools.Cursor = class extends Wick.Tool {
-  /**
-   * Creates a pencil tool.
-   */
-  constructor() {
-    super();
-    this.SELECTION_TOLERANCE = 3;
-    this.CURSOR_DEFAULT = 'cursors/default.png';
-    this.CURSOR_SCALE_TOP_RIGHT_BOTTOM_LEFT = 'cursors/scale-top-right-bottom-left.png';
-    this.CURSOR_SCALE_TOP_LEFT_BOTTOM_RIGHT = 'cursors/scale-top-left-bottom-right.png';
-    this.CURSOR_SCALE_VERTICAL = 'cursors/scale-vertical.png';
-    this.CURSOR_SCALE_HORIZONTAL = 'cursors/scale-horizontal.png';
-    this.CURSOR_ROTATE_TOP = 'cursors/rotate-top-right.png';
-    this.CURSOR_ROTATE_RIGHT = 'cursors/rotate-bottom-right.png';
-    this.CURSOR_ROTATE_BOTTOM = 'cursors/rotate-bottom-left.png';
-    this.CURSOR_ROTATE_LEFT = 'cursors/rotate-top-left.png';
-    this.CURSOR_ROTATE_TOP_RIGHT = 'cursors/rotate-top-right.png';
-    this.CURSOR_ROTATE_TOP_LEFT = 'cursors/rotate-top-left.png';
-    this.CURSOR_ROTATE_BOTTOM_RIGHT = 'cursors/rotate-bottom-right.png';
-    this.CURSOR_ROTATE_BOTTOM_LEFT = 'cursors/rotate-bottom-left.png';
-    this.CURSOR_MOVE = 'cursors/move.png';
-    this.CURSOR_SEGMENT = 'cursors/segment.png';
-    this.CURSOR_CURVE = 'cursors/curve.png';
-    this.HOVER_PREVIEW_SEGMENT_STROKE_COLOR = 'rgba(100,150,255,1.0)';
-    this.HOVER_PREVIEW_SEGMENT_STROKE_WIDTH = 1.5;
-    this.HOVER_PREVIEW_SEGMENT_FILL_COLOR = '#ffffff';
-    this.HOVER_PREVIEW_SEGMENT_RADIUS = 5;
-    this.HOVER_PREVIEW_CURVE_STROKE_WIDTH = 2;
-    this.HOVER_PREVIEW_CURVE_STROKE_COLOR = this.HOVER_PREVIEW_SEGMENT_STROKE_COLOR;
-    this.hitResult = new this.paper.HitResult();
-    this.selectionBox = new this.paper.SelectionBox(paper);
-    this.draggingCurve = new this.paper.Curve();
-    this.draggingSegment = new this.paper.Segment();
-    this.hoverPreview = new this.paper.Item({
-      insert: false
-    });
-    this.selectPoints = true;
-    this.selectCurves = true;
-    this.selectedItems = [];
-    this.currentCursorIcon = '';
-  }
-  /**
-   * Generate the current cursor.
-   * @type {string}
-   */
-
-
-  get cursor() {
-    return 'url("' + this.currentCursorIcon + '") 32 32, auto';
-  }
-
-  onActivate(e) {
-    this.selectedItems = [];
-  }
-
-  onDeactivate(e) {}
-
-  onMouseMove(e) {
-    super.onMouseMove(e); // Remove the hover preview, a new one will be generated if needed
-
-    this.hoverPreview.remove(); // Find the thing that is currently under the cursor.
-
-    this.hitResult = this._updateHitResult(e); // Update the image being used for the cursor
-
-    this._setCursor(this._getCursor());
-
-    if (this.hitResult.type === 'segment' && !this.hitResult.item.data.isSelectionBoxGUI) {
-      // Hovering over a segment, draw a circle where the segment is
-      this.hoverPreview = new this.paper.Path.Circle(this.hitResult.segment.point, this.HOVER_PREVIEW_SEGMENT_RADIUS / this.paper.view.zoom);
-      this.hoverPreview.strokeColor = this.HOVER_PREVIEW_SEGMENT_STROKE_COLOR;
-      this.hoverPreview.strokeWidth = this.HOVER_PREVIEW_SEGMENT_STROKE_WIDTH;
-      this.hoverPreview.fillColor = this.HOVER_PREVIEW_SEGMENT_FILL_COLOR;
-    } else if (this.hitResult.type === 'curve' && !this.hitResult.item.data.isSelectionBoxGUI) {
-      // Hovering over a curve, render a copy of the curve that can be bent
-      this.hoverPreview = new this.paper.Path();
-      this.hoverPreview.strokeWidth = this.HOVER_PREVIEW_CURVE_STROKE_WIDTH;
-      this.hoverPreview.strokeColor = this.HOVER_PREVIEW_CURVE_STROKE_COLOR;
-      this.hoverPreview.add(new this.paper.Point(this.hitResult.location.curve.point1));
-      this.hoverPreview.add(new this.paper.Point(this.hitResult.location.curve.point2));
-      this.hoverPreview.segments[0].handleOut = this.hitResult.location.curve.handle1;
-      this.hoverPreview.segments[1].handleIn = this.hitResult.location.curve.handle2;
-    }
-
-    this.hoverPreview.data.wickType = 'gui';
-  }
-
-  onMouseDown(e) {
-    if (!e.modifiers) e.modifiers = {};
-    this.hitResult = this._updateHitResult(e);
-
-    if (this.hitResult.item && this.hitResult.item.data.isSelectionBoxGUI) {} else if (this.hitResult.item && this._isItemSelected(this.hitResult.item)) {
-      // We clicked something that was already selected.
-      // Shift click: Deselect that item
-      if (e.modifiers.shift) {
-        this._deselectItem(this.hitResult.item);
-
-        this.fireEvent('canvasModified');
-      }
-    } else if (this.hitResult.item && this.hitResult.type === 'fill') {
-      if (!e.modifiers.shift) {
-        // Shift click? Keep everything else selected.
-        this._clearSelection();
-      } // Clicked an item: select that item
-
-
-      this._selectItem(this.hitResult.item);
-
-      this.fireEvent('canvasModified');
-    } else if (this.hitResult.item && this.hitResult.type === 'curve') {
-      // Clicked a curve, start dragging it
-      this.draggingCurve = this.hitResult.location.curve;
-    } else if (this.hitResult.item && this.hitResult.type === 'segment') {} else {
-      // Nothing was clicked, so clear the selection and start a new selection box
-      // (don't clear the selection if shift is held, though)
-      if (this._selection.numObjects > 0 && !e.modifiers.shift) {
-        this._clearSelection();
-
-        this.fireEvent('canvasModified');
-      }
-
-      this.selectionBox.start(e.point);
-    }
-  }
-
-  onMouseDrag(e) {
-    if (!e.modifiers) e.modifiers = {};
-
-    if (this.hitResult.item && this.hitResult.item.data.isSelectionBoxGUI) {
-      // TODO update selection drag
-      if (!this._widget.currentTransformation) {
-        this._widget.startTransformation(this.hitResult.item);
-      }
-
-      this._widget.updateTransformation(this.hitResult.item, e);
-    } else if (this.selectionBox.active) {
-      // Selection box is being used, update it with a new point
-      this.selectionBox.drag(e.point);
-    } else if (this.hitResult.item && this.hitResult.type === 'fill') {
-      // We're dragging the selection itself, so move the whole item.
-      if (!this._widget.currentTransformation) {
-        this._widget.startTransformation(this.hitResult.item);
-      }
-
-      this._widget.updateTransformation(this.hitResult.item, e);
-    } else if (this.hitResult.item && this.hitResult.type === 'segment') {
-      // We're dragging an individual point, so move the point.
-      this.hitResult.segment.point = this.hitResult.segment.point.add(e.delta);
-      this.hoverPreview.position = this.hitResult.segment.point;
-    } else if (this.hitResult.item && this.hitResult.type === 'curve') {
-      // We're dragging a curve, so bend the curve.
-      var segment1 = this.draggingCurve.segment1;
-      var segment2 = this.draggingCurve.segment2;
-      var handleIn = segment1.handleOut;
-      var handleOut = segment2.handleIn;
-
-      if (handleIn.x === 0 && handleIn.y === 0) {
-        handleIn.x = (segment2.point.x - segment1.point.x) / 4;
-        handleIn.y = (segment2.point.y - segment1.point.y) / 4;
-      }
-
-      if (handleOut.x === 0 && handleOut.y === 0) {
-        handleOut.x = (segment1.point.x - segment2.point.x) / 4;
-        handleOut.y = (segment1.point.y - segment2.point.y) / 4;
-      }
-
-      handleIn.x += e.delta.x;
-      handleIn.y += e.delta.y;
-      handleOut.x += e.delta.x;
-      handleOut.y += e.delta.y; // Update the hover preview to match the curve we just changed
-
-      this.hoverPreview.segments[0].handleOut = this.draggingCurve.handle1;
-      this.hoverPreview.segments[1].handleIn = this.draggingCurve.handle2;
-    }
-  }
-
-  onMouseUp(e) {
-    if (!e.modifiers) e.modifiers = {};
-
-    if (this.selectionBox.active) {
-      // Finish selection box and select objects touching box (or inside box, if alt is held)
-      this.selectionBox.mode = e.modifiers.alt ? 'contains' : 'intersects';
-      this.selectionBox.end(e.point);
-
-      this._selection.clear();
-
-      this.selectionBox.items.filter(item => {
-        return item.data.wickUUID;
-      }).forEach(item => {
-        this._selectItem(item);
-      });
-      this.fireEvent('canvasModified');
-    } else if (this._selection.numObjects > 0) {
-      this._widget.finishTransformation();
-
-      this.fireEvent('canvasModified');
-    }
-  }
-
-  _updateHitResult(e) {
-    var newHitResult = this.paper.project.hitTest(e.point, {
-      fill: true,
-      stroke: true,
-      curves: true,
-      segments: true,
-      tolerance: this.SELECTION_TOLERANCE,
-      match: result => {
-        return result.item !== this.hoverPreview && !result.item.data.isBorder;
-      }
-    });
-    if (!newHitResult) newHitResult = new this.paper.HitResult();
-
-    if (newHitResult.item && !newHitResult.item.data.isSelectionBoxGUI) {
-      // You can't select children of compound paths, you can only select the whole thing.
-      if (newHitResult.item.parent.className === 'CompoundPath') {
-        newHitResult.item = newHitResult.item.parent;
-      } // You can't select individual children in a group, you can only select the whole thing.
-
-
-      if (newHitResult.item.parent.parent) {
-        newHitResult.type = 'fill';
-
-        while (newHitResult.item.parent.parent) {
-          newHitResult.item = newHitResult.item.parent;
-        }
-      } // this.paper.js has two names for strokes+curves, we don't need that extra info
-
-
-      if (newHitResult.type === 'stroke') {
-        newHitResult.type = 'curve';
-      } // Mousing over rasters acts the same as mousing over fills.
-
-
-      if (newHitResult.type === 'pixel') {
-        newHitResult.type = 'fill';
-      } // Disable curve selection unless selectCurves is true.
-
-
-      if (!this.selectCurves && newHitResult.type === 'curve') {
-        newHitResult.type = 'fill';
-      } // Disable segment selection unless selectPoints is true.
-
-
-      if (!this.selectPoints && newHitResult.type === 'segment') {
-        newHitResult.type = 'fill';
-      } // You can't drag segments and curves of a selected object.
-
-
-      if (this._isItemSelected(newHitResult.item)) {
-        newHitResult.type = 'fill';
-      }
-    }
-
-    return newHitResult;
-  }
-
-  _getCursor() {
-    if (!this.hitResult.item) {
-      return this.CURSOR_DEFAULT;
-    } else if (this.hitResult.item.data.isSelectionBoxGUI) {
-      // Don't show any custom cursor if the mouse is over the border, the border does nothing
-      if (this.hitResult.item.name === 'border') {
-        return this.CURSOR_DEFAULT;
-      } // Calculate the angle in which the scale handle scales the selection.
-      // Use that angle to determine the cursor graphic to use.
-      // Here is a handy diagram showing the cursors that correspond to the angles:
-      // 315       0       45
-      //     o-----o-----o
-      //     |           |
-      //     |           |
-      // 270 o           o 90
-      //     |           |
-      //     |           |
-      //     o-----o-----o
-      // 225      180      135
-
-
-      var baseAngle = {
-        topCenter: 0,
-        topRight: 45,
-        rightCenter: 90,
-        bottomRight: 135,
-        bottomCenter: 180,
-        bottomLeft: 225,
-        leftCenter: 270,
-        topLeft: 315
-      }[this.hitResult.item.data.handleEdge]; // Flip angles if selection is flipped horizontally/vertically
-
-      /*if(this._selection.transformation.scaleX < 0) {
-          baseAngle = -baseAngle + 360;
-      }
-      if(this._selection.transformation.scaleY < 0) {
-          baseAngle = -baseAngle + 180;
-      }*/
-
-      var angle = baseAngle + this._widget.rotation; // It makes angle math easier if we dont allow angles >360 or <0 degrees:
-
-      if (angle < 0) angle += 360;
-      if (angle > 360) angle -= 360; // Round the angle to the nearest 45 degree interval.
-
-      var angleRoundedToNearest45 = Math.round(angle / 45) * 45;
-      angleRoundedToNearest45 = Math.round(angleRoundedToNearest45); // just incase of float weirdness
-
-      angleRoundedToNearest45 = '' + angleRoundedToNearest45; // convert to string
-      // Now we know which of eight directions the handle is pointing, so we choose the correct cursor
-
-      if (this.hitResult.item.data.handleType === 'scale') {
-        var cursorGraphicFromAngle = {
-          '0': this.CURSOR_SCALE_VERTICAL,
-          '45': this.CURSOR_SCALE_TOP_RIGHT_BOTTOM_LEFT,
-          '90': this.CURSOR_SCALE_HORIZONTAL,
-          '135': this.CURSOR_SCALE_TOP_LEFT_BOTTOM_RIGHT,
-          '180': this.CURSOR_SCALE_VERTICAL,
-          '225': this.CURSOR_SCALE_TOP_RIGHT_BOTTOM_LEFT,
-          '270': this.CURSOR_SCALE_HORIZONTAL,
-          '315': this.CURSOR_SCALE_TOP_LEFT_BOTTOM_RIGHT,
-          '360': this.CURSOR_SCALE_VERTICAL
-        }[angleRoundedToNearest45];
-        return cursorGraphicFromAngle;
-      } else if (this.hitResult.item.data.handleType === 'rotation') {
-        var cursorGraphicFromAngle = {
-          '0': this.CURSOR_ROTATE_TOP,
-          '45': this.CURSOR_ROTATE_TOP_RIGHT,
-          '90': this.CURSOR_ROTATE_RIGHT,
-          '135': this.CURSOR_ROTATE_BOTTOM_RIGHT,
-          '180': this.CURSOR_ROTATE_BOTTOM,
-          '225': this.CURSOR_ROTATE_BOTTOM_LEFT,
-          '270': this.CURSOR_ROTATE_LEFT,
-          '315': this.CURSOR_ROTATE_TOP_LEFT,
-          '360': this.CURSOR_ROTATE_TOP
-        }[angleRoundedToNearest45];
-        return cursorGraphicFromAngle;
-      }
-    } else {
-      if (this.hitResult.type === 'fill') {
-        return this.CURSOR_MOVE;
-      } else if (this.hitResult.type === 'curve') {
-        return this.CURSOR_CURVE;
-      } else if (this.hitResult.type === 'segment') {
-        return this.CURSOR_SEGMENT;
-      }
-    }
-  }
-
-  _setCursor(cursor) {
-    this.currentCursorIcon = cursor;
-  }
-
-  get _selection() {
-    return this.project.selection;
-  }
-
-  get _widget() {
-    return this._selection.view.widget;
-  }
-
-  _clearSelection() {
-    this._selection.clear();
-  }
-
-  _selectItem(item) {
-    var object = this._wickObjectFromPaperItem(item);
-
-    this._selection.select(object);
-  }
-
-  _deselectItem(item) {
-    var object = this._wickObjectFromPaperItem(item);
-
-    this._selection.deselect(object);
-  }
-
-  _isItemSelected(item) {
-    var object = this._wickObjectFromPaperItem(item);
-
-    return object.isSelected;
-  }
-
-  _wickObjectFromPaperItem(item) {
-    var uuid = item.data.wickUUID;
-
-    if (!uuid) {
-      console.error('WARNING: _wickObjectFromPaperItem: item had no wick UUID. did you try to select something that wasnt created by a wick view? is the view up-to-date?');
-      console.log(item);
-    }
-
-    return Wick.ObjectCache.getObjectByUUID(uuid);
-  }
-
-};
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-Wick.Tools.Ellipse = class extends Wick.Tool {
-  /**
-   * Creates an instance of the ellipse tool.
-   */
-  constructor() {
-    super();
-    this.path = null;
-    this.topLeft = null;
-    this.bottomRight = null;
-    this.fillColor = '#ff0000';
-    this.strokeColor = '#000000';
-    this.strokeWidth = 1;
-  }
-  /**
-   * A crosshair cursor.
-   * @type {string}
-   */
-
-
-  get cursor() {
-    return 'crosshair';
-  }
-
-  onActivate(e) {}
-
-  onDeactivate(e) {
-    if (this.path) {
-      this.path.remove();
-      this.path = null;
-    }
-  }
-
-  onMouseDown(e) {
-    this.topLeft = e.point;
-    this.bottomRight = e.point;
-  }
-
-  onMouseDrag(e) {
-    if (this.path) this.path.remove();
-    this.bottomRight = e.point; // Lock width and height if shift is held down
-
-    if (e.modifiers.shift) {
-      var d = bottomRight.subtract(topLeft);
-      var max = Math.max(Math.abs(d.x), Math.abs(d.y));
-      this.bottomRight.x = topLeft.x + max * (d.x < 0 ? -1 : 1);
-      this.bottomRight.y = topLeft.y + max * (d.y < 0 ? -1 : 1);
-    }
-
-    var bounds = new this.paper.Rectangle(new this.paper.Point(this.topLeft.x, this.topLeft.y), new this.paper.Point(this.bottomRight.x, this.bottomRight.y));
-    this.path = new this.paper.Path.Ellipse(bounds);
-    this.paper.project.activeLayer.addChild(this.path);
-    this.path.fillColor = this.fillColor;
-    this.path.strokeColor = this.strokeColor;
-    this.path.strokeWidth = this.strokeWidth;
-    this.path.strokeCap = 'round';
-  }
-
-  onMouseUp(e) {
-    if (!this.path) return;
-    this.path = null;
-    this.fireEvent('canvasModified');
-  }
-
-};
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-Wick.Tools.Eraser = class extends Wick.Tool {
-  /**
-   *
-   */
-  constructor() {
-    super();
-    this.path = null;
-    this.cursorSize = null;
-    this.cachedCursor = null;
-    this.eraserSize = 10;
-  }
-  /**
-   *
-   * @type {string}
-   */
-
-
-  get cursor() {
-    return this.cachedCursor || 'crosshair';
-  }
-
-  onActivate(e) {
-    this.cursorSize = null;
-  }
-
-  onDeactivate(e) {
-    if (this.path) {
-      this.path.remove();
-      this.path = null;
-    }
-  }
-
-  onMouseMove(e) {
-    // Don't render cursor after every mouse move, cache and only render when size changes
-    var cursorNeedsRegen = this.eraserSize !== this.cursorSize;
-
-    if (cursorNeedsRegen) {
-      this.cachedCursor = this.createDynamicCursor('#ffffff', this.eraserSize);
-      this.cursorSize = this.eraserSize;
-      this.setCursor(this.cachedCursor);
-    }
-  }
-
-  onMouseDown(e) {
-    if (!this.path) {
-      this.path = new this.paper.Path({
-        strokeColor: 'white',
-        strokeCap: 'round',
-        strokeWidth: this.eraserSize / this.paper.view.zoom
-      });
-    } // Add two points so we always at least have a dot.
-
-
-    this.path.add(e.point);
-    this.path.add(e.point);
-  }
-
-  onMouseDrag(e) {
-    this.path.add(e.point);
-    this.path.smooth();
-  }
-
-  onMouseUp(e) {
-    if (!this.path) return;
-    var potraceResolution = 0.7;
-    this.path.potrace({
-      done: tracedPath => {
-        this.path.remove();
-        this.paper.project.activeLayer.erase(tracedPath, {});
-        this.path = null;
-        this.fireEvent('canvasModified');
-      },
-      resolution: potraceResolution * this.paper.view.zoom
-    });
-  }
-
-};
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-Wick.Tools.Eyedropper = class extends Wick.Tool {
-  /**
-   *
-   */
-  constructor() {
-    super();
-    this.canvasCtx = null;
-    this.hoverColor = null;
-    this.colorPreviewBorder = null;
-    this.colorPreview = null;
-  }
-  /**
-   *
-   * @type {string}
-   */
-
-
-  get cursor() {
-    return 'url(cursors/eyedropper.png) 32 32, auto';
-  }
-
-  onActivate(e) {
-    this.canvasCtx = this.paper.view._element.getContext('2d');
-  }
-
-  onDeactivate(e) {
-    this._destroyColorPreview();
-  }
-
-  onMouseDown(e) {
-    this._destroyColorPreview();
-
-    var pointPx = this.paper.view.projectToView(e.point);
-    pointPx.x = Math.round(pointPx.x);
-    pointPx.y = Math.round(pointPx.y);
-    var colorData = this.canvasCtx.getImageData(pointPx.x, pointPx.y, 1, 1).data;
-    this.hoverColor = 'rgb(' + colorData[0] + ',' + colorData[1] + ',' + colorData[2] + ')';
-
-    this._createColorPreview(e.point);
-  }
-
-  onMouseDrag(e) {}
-
-  onMouseUp(e) {}
-
-  _createColorPreview(point) {
-    var offset = 10 / this.paper.view.zoom;
-    var center = point.add(new paper.Point(offset + 0.5, offset + 0.5));
-    var radius = 10 / paper.view.zoom;
-    var size = new paper.Size(radius, radius);
-    this.colorPreviewBorder = new this.paper.Path.Rectangle(center, size);
-    this.colorPreviewBorder.strokeColor = 'white';
-    this.colorPreviewBorder.strokeWidth = 3.0 / this.paper.view.zoom;
-    this.colorPreview = new this.paper.Path.Rectangle(center, size);
-    this.colorPreview.fillColor = hoverColor;
-    this.colorPreview.strokeColor = 'black';
-    this.colorPreview.strokeWidth = 1.0 / this.paper.view.zoom;
-  }
-
-  _destroyColorPreview() {
-    if (this.colorPreview) {
-      this.colorPreview.remove();
-      this.colorPreview = null;
-      this.colorPreviewBorder.remove();
-      this.colorPreviewBorder = null;
-    }
-  }
-
-};
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-Wick.Tools.FillBucket = class extends Wick.Tool {
-  /**
-   *
-   */
-  constructor() {
-    super();
-    this.fillColor = '#ff0000';
-  }
-  /**
-   *
-   * @type {string}
-   */
-
-
-  get cursor() {
-    return 'url(cursors/fillbucket.png) 32 32, auto';
-  }
-
-  onActivate(e) {}
-
-  onDeactivate(e) {}
-
-  onMouseDown(e) {
-    var hitResult = paper.project.activeLayer.hitTest(e.point, {
-      fill: true
-    });
-
-    if (hitResult && hitResult.item) {
-      hitResult.item.fillColor = this.fillColor;
-      this.fireEvent('canvasModified');
-    } else {
-      setTimeout(() => {
-        this.setCursor('wait');
-      }, 0);
-      setTimeout(() => {
-        this.paper.project.activeLayer.hole({
-          point: e.point,
-          onFinish: path => {
-            this.setCursor('default');
-
-            if (path) {
-              path.fillColor = this.fillColor;
-              path.name = null;
-              this.paper.project.activeLayer.addChild(path);
-              this.fireEvent('canvasModified');
-            }
-          },
-          onError: message => {
-            this.setCursor('default');
-            this.fireEvent('error', {
-              message: message
-            });
-          }
-        });
-      }, 50);
-    }
-  }
-
-  onMouseDrag(e) {}
-
-  onMouseUp(e) {}
-
-};
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-Wick.Tools.Line = class extends Wick.Tool {
-  /**
-   *
-   */
-  constructor() {
-    super();
-    this.path = new this.paper.Path({
-      insert: false
-    });
-    this.startPoint;
-    this.endPoint;
-    this.strokeColor = '#000000';
-    this.strokeWidth = 1;
-  }
-  /**
-   *
-   * @type {string}
-   */
-
-
-  get cursor() {
-    return 'crosshair';
-  }
-
-  onActivate(e) {
-    this.path.remove();
-  }
-
-  onDeactivate(e) {
-    this.path.remove();
-  }
-
-  onMouseDown(e) {
-    this.startPoint = e.point;
-  }
-
-  onMouseDrag(e) {
-    this.path.remove();
-    this.endPoint = e.point;
-    this.path = new paper.Path.Line(this.startPoint, this.endPoint);
-    this.path.strokeCap = 'round';
-    this.path.strokeColor = this.strokeColor;
-    this.path.strokeWidth = this.strokeWidth;
-  }
-
-  onMouseUp(e) {
-    this.fireEvent('canvasModified');
-  }
-
-};
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-Wick.Tools.None = class extends Wick.Tool {
-  /**
-   * Creates a none tool.
-   */
-  constructor() {
-    super();
-  }
-  /**
-   * The "no-sign" cursor.
-   * @type {string}
-   */
-
-
-  get cursor() {
-    return 'not-allowed';
-  }
-
-  onActivate(e) {}
-
-  onDeactivate(e) {}
-
-  onMouseDown(e) {
-    this.fireEvent('error', {
-      message: 'CLICK_NOT_ALLOWED'
-    });
-  }
-
-  onMouseDrag(e) {}
-
-  onMouseUp(e) {}
-
-};
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-Wick.Tools.Pan = class extends Wick.Tool {
-  /**
-   *
-   */
-  constructor() {
-    super();
-  }
-  /**
-   *
-   * @type {string}
-   */
-
-
-  get cursor() {
-    return 'move';
-  }
-
-  onActivate(e) {}
-
-  onDeactivate(e) {}
-
-  onMouseDown(e) {}
-
-  onMouseDrag(e) {
-    var d = e.downPoint.subtract(e.point);
-    this.paper.view.center = this.paper.view.center.add(d);
-  }
-
-  onMouseUp(e) {
-    this.fireEvent('canvasViewTransformed');
-  }
-
-};
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-Wick.Tools.Pencil = class extends Wick.Tool {
-  static get MIN_ADD_POINT_MOVEMENT() {
-    return 5;
-  }
-  /**
-   * Creates a pencil tool.
-   */
-
-
-  constructor() {
-    super();
-    this.path = null;
-    this.strokeWidth = 1;
-    this.strokeColor = '#000000';
-    this._movement = new paper.Point();
-  }
-  /**
-   * The pencil cursor.
-   * @type {string}
-   */
-
-
-  get cursor() {
-    return 'url(cursors/pencil.png) 32 32, auto';
-  }
-
-  onActivate(e) {}
-
-  onDeactivate(e) {}
-
-  onMouseDown(e) {
-    this._movement = new paper.Point();
-
-    if (!this.path) {
-      this.path = new this.paper.Path({
-        strokeColor: this.strokeColor,
-        strokeWidth: this.strokeWidth,
-        strokeCap: 'round'
-      });
-    }
-
-    this.path.add(e.point);
-  }
-
-  onMouseDrag(e) {
-    this._movement = this._movement.add(e.delta);
-
-    if (this._movement.length > Wick.Tools.Pencil.MIN_ADD_POINT_MOVEMENT / this.paper.view.zoom) {
-      this._movement = new paper.Point();
-      this.path.add(e.point);
-      this.path.smooth();
-    }
-  }
-
-  onMouseUp(e) {
-    this.path.add(e.point);
-    this.path.simplify();
-    this.path = null;
-    this.fireEvent('canvasModified');
-  }
-
-};
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-Wick.Tools.Rectangle = class extends Wick.Tool {
-  /**
-   *
-   */
-  constructor() {
-    super();
-    this.path = null;
-    this.topLeft = null;
-    this.bottomRight = null;
-    this.fillColor = '#ff0000';
-    this.strokeColor = '#000000';
-    this.strokeWidth = 1;
-    this.cornerRadius = 0;
-  }
-  /**
-   *
-   * @type {string}
-   */
-
-
-  get cursor() {
-    return 'crosshair';
-  }
-
-  onActivate(e) {}
-
-  onDeactivate(e) {
-    if (this.path) {
-      this.path.remove();
-      this.path = null;
-    }
-  }
-
-  onMouseDown(e) {
-    this.topLeft = e.point;
-    this.bottomRight = e.point;
-  }
-
-  onMouseDrag(e) {
-    if (this.path) this.path.remove();
-    this.bottomRight = e.point; // Lock width and height if shift is held down
-
-    if (e.modifiers.shift) {
-      var d = this.bottomRight.subtract(this.topLeft);
-      var max = Math.max(Math.abs(d.x), Math.abs(d.y));
-      this.bottomRight.x = topLeft.x + max * (d.x < 0 ? -1 : 1);
-      this.bottomRight.y = topLeft.y + max * (d.y < 0 ? -1 : 1);
-    }
-
-    var bounds = new this.paper.Rectangle(new paper.Point(this.topLeft.x, this.topLeft.y), new paper.Point(this.bottomRight.x, this.bottomRight.y));
-
-    if (this.cornerRadius !== 0) {
-      this.path = new this.paper.Path.Rectangle(bounds, this.cornerRadius);
-    } else {
-      this.path = new this.paper.Path.Rectangle(bounds);
-    }
-
-    this.path.fillColor = this.fillColor;
-    this.path.strokeColor = this.strokeColor;
-    this.path.strokeWidth = this.strokeWidth;
-    this.path.strokeCap = 'round';
-  }
-
-  onMouseUp(e) {
-    if (!this.path) return;
-    this.path = null;
-    this.fireEvent('canvasModified');
-  }
-
-};
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-Wick.Tools.Text = class extends Wick.Tool {
-  /**
-   *
-   */
-  constructor() {
-    super();
-    this.hoveredOverText = null;
-    this.editingText = null;
-  }
-  /**
-   *
-   * @type {string}
-   */
-
-
-  get cursor() {
-    return 'url(cursors/text.png) 32 32, auto';
-  }
-
-  onActivate(e) {}
-
-  onDeactivate(e) {
-    if (this.editingText) {
-      this.finishEditingText();
-    }
-
-    this.hoveredOverText = null;
-  }
-
-  onMouseMove(e) {
-    super.onMouseMove(e);
-    this.setCursor('default');
-
-    if (e.item && e.item.className === 'PointText' && !e.item.parent.parent) {
-      this.hoveredOverText = e.item;
-      this.setCursor('text');
-    } else {
-      this.hoveredOverText = null;
-    }
-  }
-
-  onMouseDown(e) {
-    if (this.editingText) {
-      this.finishEditingText();
-    } else if (this.hoveredOverText) {
-      this.editingText = this.hoveredOverText;
-      e.item.edit(this.project.view.paper);
-    } else {
-      var text = new this.paper.PointText(e.point);
-      text.justification = 'left';
-      text.fillColor = 'black';
-      text.content = 'This is some text';
-      text.fontSize = 14;
-      this.fireEvent('canvasModified');
-    }
-  }
-
-  onMouseDrag(e) {}
-
-  onMouseUp(e) {}
-  /**
-   * Stop editing the current text and apply changes.
-   */
-
-
-  finishEditingText() {
-    if (!this.editingText) return;
-    this.editingText.finishEditing();
-    this.editingText = null;
-    this.fireEvent('canvasModified');
-  }
-
-};
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-Wick.Tools.Zoom = class extends Wick.Tool {
-  /**
-   *
-   */
-  constructor() {
-    super();
-    this.ZOOM_MIN = 0.1;
-    this.ZOOM_MAX = 20;
-    this.ZOOM_IN_AMOUNT = 1.25;
-    this.ZOOM_OUT_AMOUNT = 0.8;
-    this.zoomBox = null;
-  }
-  /**
-   *
-   * @type {string}
-   */
-
-
-  get cursor() {
-    return 'zoom-in';
-  }
-
-  onActivate(e) {}
-
-  onDeactivate(e) {
-    this.deleteZoomBox();
-  }
-
-  onMouseDown(e) {}
-
-  onMouseDrag(e) {
-    this.deleteZoomBox();
-    this.createZoomBox(e);
-  }
-
-  onMouseUp(e) {
-    if (this.zoomBox && this.zoomBoxIsValidSize()) {
-      var bounds = this.zoomBox.bounds;
-      this.paper.view.center = bounds.center;
-      this.paper.view.zoom = this.paper.view.bounds.height / bounds.height;
-    } else {
-      var zoomAmount = e.modifiers.alt ? this.ZOOM_OUT_AMOUNT : this.ZOOM_IN_AMOUNT;
-      this.paper.view.scale(zoomAmount, e.point);
-    }
-
-    this.deleteZoomBox();
-
-    if (this.paper.view.zoom <= this.ZOOM_MIN) {
-      this.paper.view.zoom = this.ZOOM_MIN;
-    } else if (this.paper.view.zoom >= this.ZOOM_MAX) {
-      this.paper.view.zoom = this.ZOOM_MAX;
-    }
-
-    this.fireEvent('canvasViewTransformed');
-  }
-
-  createZoomBox(e) {
-    var bounds = new this.paper.Rectangle(e.downPoint, e.point);
-    bounds.x += 0.5;
-    bounds.y += 0.5;
-    this.zoomBox = new this.paper.Path.Rectangle(bounds);
-    this.zoomBox.strokeColor = 'black';
-    this.zoomBox.strokeWidth = 1.0 / this.paper.view.zoom;
-  }
-
-  deleteZoomBox() {
-    if (this.zoomBox) {
-      this.zoomBox.remove();
-      this.zoomBox = null;
-    }
-  }
-
-  zoomBoxIsValidSize() {
-    return this.zoomBox.bounds.width > 5 && this.zoomBox.bounds.height > 5;
-  }
-
-};
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
 Wick.View = class {
   /**
    * The paper.js scope that all Wick.View subclasses will use to render to.
@@ -74113,8 +74319,6 @@ Wick.View.Project = class extends Wick.View {
     this._zoom = 1;
     this._keysDown = [];
     this._isMouseDown = false;
-
-    this._setupTools();
   }
   /*
    * Determines the way the project will scale itself based on its container.
@@ -74344,24 +74548,8 @@ Wick.View.Project = class extends Wick.View {
   }
 
   _setupTools() {
-    this.tools = {
-      brush: new Wick.Tools.Brush(),
-      cursor: new Wick.Tools.Cursor(),
-      ellipse: new Wick.Tools.Ellipse(),
-      eraser: new Wick.Tools.Eraser(),
-      eyedropper: new Wick.Tools.Eyedropper(),
-      fillbucket: new Wick.Tools.FillBucket(),
-      line: new Wick.Tools.Line(),
-      none: new Wick.Tools.None(),
-      pan: new Wick.Tools.Pan(),
-      pencil: new Wick.Tools.Pencil(),
-      rectangle: new Wick.Tools.Rectangle(),
-      text: new Wick.Tools.Text(),
-      zoom: new Wick.Tools.Zoom()
-    };
-
-    for (var toolName in this.tools) {
-      var tool = this.tools[toolName];
+    for (var toolName in this.model.tools) {
+      var tool = this.model.tools[toolName];
       tool.project = this.model;
       tool.on('canvasModified', e => {
         this.applyChanges();
@@ -74379,7 +74567,7 @@ Wick.View.Project = class extends Wick.View {
       });
     }
 
-    this.tools.none.activate();
+    this.model.tools.none.activate();
   }
 
   _displayCanvasInContainer(canvas) {
@@ -74428,7 +74616,15 @@ Wick.View.Project = class extends Wick.View {
   }
 
   _renderSVGCanvas() {
-    this.paper.project.clear(); // Update zoom and pan
+    this.paper.project.clear();
+
+    if (!this._toolsSetup) {
+      this._toolsSetup = true;
+
+      this._setupTools();
+    }
+
+    this.model.activeTool.activate(); // Update zoom and pan
 
     if (this._fitMode === 'center') {
       this.paper.view.zoom = this.model.zoom;
