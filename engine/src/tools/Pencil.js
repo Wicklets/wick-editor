@@ -30,9 +30,6 @@ Wick.Tools.Pencil = class extends Wick.Tool {
 
         this.path = null;
 
-        this.strokeWidth = 1;
-        this.strokeColor = new paper.Color('#000000');
-
         this._movement = new paper.Point();
     }
 
@@ -57,8 +54,8 @@ Wick.Tools.Pencil = class extends Wick.Tool {
 
         if (!this.path) {
             this.path = new this.paper.Path({
-                strokeColor: this.strokeColor,
-                strokeWidth: this.strokeWidth,
+                strokeColor: this.getSetting('strokeColor'),
+                strokeWidth: this.getSetting('strokeWidth'),
                 strokeCap: 'round',
             });
         }

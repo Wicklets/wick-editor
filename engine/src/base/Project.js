@@ -65,7 +65,7 @@ Wick.Project = class extends Wick.Base {
 
         this._tickIntervalID = null;
 
-        this.tools = {
+        this._tools = {
             brush: new Wick.Tools.Brush(),
             cursor: new Wick.Tools.Cursor(),
             ellipse: new Wick.Tools.Ellipse(),
@@ -80,19 +80,8 @@ Wick.Project = class extends Wick.Base {
             text: new Wick.Tools.Text(),
             zoom: new Wick.Tools.Zoom(),
         };
-        this.toolSettings = new Wick.ToolSettings();
-        this.toolSettings.setSetting('fillColor', new paper.Color('#000000'));
-        this.toolSettings.setSetting('strokeColor', new paper.Color('#000000'));
-        this.toolSettings.setSetting('strokeWidth', 1);
-        this.toolSettings.setSetting('brushSize', 10);
-        this.toolSettings.setSetting('eraserSize', 10);
-        this.toolSettings.setSetting('brushSmoothing', 0.9);
-        this.toolSettings.setSetting('brushSmoothness', 10);
-        this.toolSettings.setSetting('cornerRadius', 0);
-        this.toolSettings.setSetting('pressureEnabled', false);
-        this.toolSettings.setSetting('sizeJump', 5);
-        this.toolSettings.setSetting('selectPoints', false);
-        this.toolSettings.setSetting('selectCurves', false);
+        this._toolSettings = new Wick.ToolSettings();
+        this.activeTool = 'none';
 
         this.history.project = this;
         this.history.pushState();
@@ -728,6 +717,39 @@ Wick.Project = class extends Wick.Base {
     recenter () {
         this.pan = {x: 0, y: 0};
         this.zoom = 1;
+    }
+
+    /**
+     *
+     */
+    get tools () {
+        return this._tools;
+    }
+
+    /**
+     *
+     */
+    get toolSettings () {
+        return this._toolSettings;
+    }
+
+    /**
+     *
+     */
+    get activeTool () {
+        return this._activeTool;
+    }
+
+    set activeTool (activeTool) {
+        if(typeof activeTool === 'string') {
+            var tool = this.tools[activeTool];
+            if(!tool) {
+                console.error('set activeTool: invalid tool: ' + activeTool);
+            }
+            this._activeTool = tool;
+        } else {
+            this._activeTool = activeTool;
+        }
     }
 
     /**

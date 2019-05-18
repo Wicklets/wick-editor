@@ -34,12 +34,9 @@ Wick.Tools.Brush = class extends Wick.Tool {
 
         this.lastPressure;
 
-        this.pressureEnabled = true;
-        this.brushSize = 10;
         this.brushStabilizerLevel = 3;
         this.brushStabilizerWeight = 0.5;
         this.potraceResolution = 1.0;
-        this.fillColor = new paper.Color('#000000');
     }
 
     /**
@@ -93,14 +90,13 @@ Wick.Tools.Brush = class extends Wick.Tool {
         }
 
         // Generate new cursor
-        this.cachedCursor = this.createDynamicCursor(this.fillColor, this.brushSize * this.pressure);
-        this.setCursor(this.cachedCursor);
+        this._regenCursor();
     }
 
     onMouseDown (e) {
         // Update croquis params
-        this.croquisBrush.setSize(this.brushSize);
-        this.croquisBrush.setColor(this.fillColor.toCSS(true));
+        this.croquisBrush.setSize(this.getSetting('brushSize'));
+        this.croquisBrush.setColor(this.getSetting('fillColor').toCSS(true));
         this.croquisBrush.setSpacing(this.BRUSH_POINT_SPACING);
         this.croquis.setToolStabilizeLevel(this.brushStabilizerLevel);
         this.croquis.setToolStabilizeWeight(this.brushStabilizerWeight);
@@ -128,8 +124,7 @@ Wick.Tools.Brush = class extends Wick.Tool {
         this.lastPressure = this.pressure;
 
         // Regen cursor
-        this.cachedCursor = this.createDynamicCursor(this.fillColor, this.brushSize * this.pressure);
-        this.setCursor(this.cachedCursor);
+        this._regenCursor();
     }
 
     onMouseUp (e) {
@@ -147,7 +142,7 @@ Wick.Tools.Brush = class extends Wick.Tool {
             img.onload = () => {
                 var svg = potrace.fromImage(img).toSVG(1/this.potraceResolution/this.paper.view.zoom);
                 var potracePath = this.paper.project.importSVG(svg);
-                potracePath.fillColor = this.fillColor;
+                potracePath.fillColor = this.getSetting('fillColor');
                 potracePath.position.x += this.paper.view.bounds.x;
                 potracePath.position.y += this.paper.view.bounds.y;
                 potracePath.remove();
@@ -177,11 +172,11 @@ Wick.Tools.Brush = class extends Wick.Tool {
      * The current amount of pressure applied to the paper js canvas this tool belongs to.
      */
     get pressure () {
-        return this.pressureEnabled ? this.paper.view.pressure : 1;
+        return this.getSetting('pressureEnabled') ? this.paper.view.pressure : 1;
     }
 
     /**
-     * Croquis throws a lot of errros. This is a helpful function to handle those errors gracefully.
+     * Croquis throws a lot of errrors. This is a helpful function to handle those errors gracefully.
      */
     handleBrushError (e) {
         console.error("Brush error");
@@ -189,5 +184,12 @@ Wick.Tools.Brush = class extends Wick.Tool {
         this.fireEvent('error', {
             croquisError: e,
         });
+    }
+
+    _regenCursor () {
+        var size = this.getSetting('brushSize') * this.pressure;
+        var color = this.getSetting('fillColor').toCSS(true);
+        this.cachedCursor = this.createDynamicCursor(color, size);
+        this.setCursor(this.cachedCursor);
     }
 }

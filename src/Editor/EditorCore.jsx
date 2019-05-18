@@ -30,7 +30,7 @@ class EditorCore extends Component {
    * @returns {string} The string representation active tool name.
    */
   getActiveTool = () => {
-    return this.state.activeTool;
+    return this.project.activeTool;
   }
 
   /**
@@ -41,13 +41,12 @@ class EditorCore extends Component {
     if(newTool !== this.state.activeTool) {
       if(newTool !== 'pan') {
         this.project.selection.clear();
-        this.projectDidChange();
       }
 
-      this.lastUsedTool = this.state.activeTool;
-      this.setState({
-        activeTool: newTool
-      });
+      this.lastUsedTool = this.getActiveTool();
+      this.project.activeTool = newTool;
+
+      this.projectDidChange();
     }
   }
 

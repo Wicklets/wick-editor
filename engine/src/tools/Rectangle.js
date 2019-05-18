@@ -28,11 +28,6 @@ Wick.Tools.Rectangle = class extends Wick.Tool {
 
         this.topLeft = null;
         this.bottomRight = null;
-
-        this.fillColor = new paper.Color('#000000');
-        this.strokeColor = new paper.Color('#000000');
-        this.strokeWidth = 1;
-        this.cornerRadius = 0;
     }
 
     /**
@@ -76,15 +71,15 @@ Wick.Tools.Rectangle = class extends Wick.Tool {
             new paper.Point(this.topLeft.x, this.topLeft.y),
             new paper.Point(this.bottomRight.x, this.bottomRight.y)
         );
-        if(this.cornerRadius !== 0) {
-            this.path = new this.paper.Path.Rectangle(bounds, this.cornerRadius);
+        if(this.getSetting('cornerRadius') !== 0) {
+            this.path = new this.paper.Path.Rectangle(bounds, this.getSetting('cornerRadius'));
         } else {
             this.path = new this.paper.Path.Rectangle(bounds);
         }
 
-        this.path.fillColor = this.fillColor;
-        this.path.strokeColor = this.strokeColor;
-        this.path.strokeWidth = this.strokeWidth;
+        this.path.fillColor = this.getSetting('fillColor');
+        this.path.strokeColor = this.getSetting('strokeColor');
+        this.path.strokeWidth = this.getSetting('strokeWidth');
         this.path.strokeCap = 'round';
     }
 

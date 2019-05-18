@@ -132,6 +132,11 @@ Wick.Tool = class {
         fn && fn(e);
     }
 
+    /**
+     *
+     * @param {paper.Color} color - the color of the cursor
+     * @param {number} size - the width of the cursor image to generate
+     */
     createDynamicCursor (color, size) {
         var canvas = document.createElement("canvas");
         canvas.width = 128;
@@ -144,7 +149,7 @@ Wick.Tool = class {
 
         context.beginPath();
         context.arc(centerX, centerY, radius+1, 0, 2 * Math.PI, false);
-        context.fillStyle = invert(color.toCSS(true));
+        context.fillStyle = invert(color);
         context.fill();
 
         context.beginPath();
@@ -153,6 +158,10 @@ Wick.Tool = class {
         context.fill();
 
         return 'url(' + canvas.toDataURL() + ') 64 64,default';
+    }
+
+    getSetting (name) {
+        return this.project.toolSettings.getSetting(name);
     }
 }
 

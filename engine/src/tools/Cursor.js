@@ -55,9 +55,6 @@ Wick.Tools.Cursor = class extends Wick.Tool {
         this.draggingSegment = new this.paper.Segment();
         this.hoverPreview = new this.paper.Item({insert:false});
 
-        this.selectPoints = true;
-        this.selectCurves = true;
-
         this.selectedItems = [];
 
         this.currentCursorIcon = '';
@@ -259,12 +256,12 @@ Wick.Tools.Cursor = class extends Wick.Tool {
             }
 
             // Disable curve selection unless selectCurves is true.
-            if(!this.selectCurves && newHitResult.type === 'curve') {
+            if(!this.getSetting('selectCurves') && newHitResult.type === 'curve') {
                 newHitResult.type = 'fill';
             }
 
             // Disable segment selection unless selectPoints is true.
-            if(!this.selectPoints && newHitResult.type === 'segment') {
+            if(!this.getSetting('selectPoints') && newHitResult.type === 'segment') {
                 newHitResult.type = 'fill';
             }
 

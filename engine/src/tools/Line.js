@@ -28,9 +28,6 @@ Wick.Tools.Line = class extends Wick.Tool {
 
         this.startPoint;
         this.endPoint;
-
-        this.strokeColor = new paper.Color('#000000');
-        this.strokeWidth = 1;
     }
 
     /**
@@ -58,8 +55,8 @@ Wick.Tools.Line = class extends Wick.Tool {
         this.endPoint = e.point;
         this.path = new paper.Path.Line(this.startPoint, this.endPoint);
         this.path.strokeCap = 'round';
-        this.path.strokeColor = this.strokeColor;
-        this.path.strokeWidth = this.strokeWidth;
+        this.path.strokeColor = this.getSetting('strokeColor');
+        this.path.strokeWidth = this.getSetting('strokeWidth');
     }
 
     onMouseUp (e) {

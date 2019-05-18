@@ -23,7 +23,7 @@ describe('Wick.Tools.FillBucket', function() {
         });
 
         fillbucket.activate();
-        fillbucket.fillColor = '#ff0000';
+        project.toolSettings.setSetting('fillColor', '#ff0000');
         fillbucket.onMouseDown({point: new paper.Point(25,25), modifiers: {}});
 
         project.view.on('canvasModified', function (e) {
@@ -32,7 +32,7 @@ describe('Wick.Tools.FillBucket', function() {
             expect(project.activeFrame.paths[1].view.item.fillColor.toCSS(true)).to.equal('#0000ff');
             done();
         });
-        fillbucket.fillColor = '#0000ff';
+        project.toolSettings.setSetting('fillColor', '#0000ff');
         fillbucket.onMouseDown({point: new paper.Point(75,75), modifiers: {}});
     });
 
@@ -63,7 +63,7 @@ describe('Wick.Tools.FillBucket', function() {
         project.view.render();
 
         fillbucket.activate();
-        fillbucket.fillColor = '#ff0000';
+        project.toolSettings.setSetting('fillColor', '#ff0000');
         fillbucket.onMouseDown({point: new paper.Point(25,25), modifiers: {}});
     });
 });
