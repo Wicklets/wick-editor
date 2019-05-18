@@ -29,7 +29,8 @@ class WickCodeDetailsPanel extends Component {
     return (
       <div>
         <SelectionPreview />
-        <WickCodeReference 
+        <WickCodeReference
+        addCodeToTab={this.props.addCodeToTab} 
         scriptInfoInterface={this.props.scriptInfoInterface}/>
       </div>
     );

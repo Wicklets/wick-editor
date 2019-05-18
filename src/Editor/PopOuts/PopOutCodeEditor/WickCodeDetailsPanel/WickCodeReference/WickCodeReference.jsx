@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-
+import ActionButton from 'Editor/Util/ActionButton/ActionButton';
 import './_wickcodereference.scss';
 
 var classNames = require('classnames');
@@ -36,8 +36,6 @@ class WickCodeDetailsPanel extends Component {
       {openElements: oldElements }
     )});  
 
-    console.log("splics", oldElements)
-
     return; 
   }
 
@@ -45,7 +43,15 @@ class WickCodeDetailsPanel extends Component {
     let functions = this.referenceItems[tabName];
 
     return functions.map((f, i) => {
-      return <div className="tab-element" key={i}>{f.name}</div>
+      return <div className="tab-element" key={i}>
+        <ActionButton
+          id={"reference-tab-element-" + tabName + "-" + f.name}
+          tooltip={f.description}
+          tooltipPlace="left"
+          color="reference" 
+          text={f.name}
+          action={() => {this.props.addCodeToTab(f.snippet)}} />
+        </div>
     });
   }
 

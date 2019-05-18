@@ -77,7 +77,8 @@ class WickInput extends Component {
         type='info'
         place={this.props.tooltipPlace === undefined ? 'bottom' : this.props.tooltipPlace}
         effect='solid'
-        aria-haspopup='true'>
+        aria-haspopup='true'
+        className="wick-tooltip">
         <span>{this.props.tooltip}</span>
       </ReactTooltip>
     )

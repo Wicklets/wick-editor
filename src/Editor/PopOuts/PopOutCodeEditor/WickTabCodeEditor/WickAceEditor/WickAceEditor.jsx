@@ -54,6 +54,8 @@ class WickAceEditor extends Component {
   renderAceEditor = () => {
     return (
       <AceEditor
+        onCursorChange={this.props.onCursorChange} 
+        focus={this.props.focus}
         onLoad={this.onLoad}
         mode="javascript"
         theme="monokai"

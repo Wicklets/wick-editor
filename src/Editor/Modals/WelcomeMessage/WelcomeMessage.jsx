@@ -28,7 +28,7 @@ import nightImage from 'resources/interface-images/blue_night.svg';
 
 class WelcomeModal extends Component {
   getVersion() {
-    return "v8"
+    return "v8.1"
   }
 
   render() {
@@ -51,8 +51,8 @@ class WelcomeModal extends Component {
               <ul>
                 <li>Advanced Code API</li>
                 <li>New Inspector Script Window</li>
-                <li>Faster Selection and Undo/Redo</li>
-                <li>Updgraded Auto Save</li>
+                <li>Faster Selection, Undo/Redo, Autosave</li>
+                <li>Fixed Color Picker Opacity</li>
                 <li>New Export Menu</li>
                 <li>New Tool Settings</li>
                 <li>Many, many, bugfixes...</li>

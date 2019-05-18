@@ -109,11 +109,13 @@ class WickTabCodeEditor extends Component {
 
     return (
       <WickAceEditor
+        focus={true} 
         addNewEditor={this.props.addNewEditor}
         onUpdate={wrappedUpdate}
         script={script.src}
         name={script.name}
-        errors={this.props.errors.filter(error => {return error.name === script.name})}/>
+        errors={this.props.errors.filter(error => {return error.name === script.name})}
+        onCursorChange={this.props.onCursorChange}/>
     )
   }
 
@@ -130,14 +132,6 @@ class WickTabCodeEditor extends Component {
       <Tab
         className={"react-tabs__tab react-tab-" + this.pickColor(s.name)}
         key={i}>{capitalize(s.name)}
-        {/* <div className="delete-tab-container">
-          <ActionButton 
-            icon="closetab" 
-            color="error"
-            action={() => this.removeTabByName(s.name)}
-            /> 
-        </div> */}
-        {/* TODO: Replace delete buttons. */}
       </Tab>
     )
   }
