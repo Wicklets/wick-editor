@@ -30,21 +30,25 @@ Wick.ToolSettings = class {
             default: 1,
             min: 0,
             max: 50,
+            step: 1,
         }, {
             name: 'brushSize',
             default: 10,
-            min: 2,
-            max: 30,
+            min: 1,
+            max: 100,
+            step: 1,
         }, {
             name: 'eraserSize',
             default: 10,
             min: 2,
             max: 100,
+            step: 1,
         }, {
             name: 'cornerRadius',
             default: 0,
             min: 0,
             max: 100,
+            step: 1,
         }, {
             name: 'pressureEnabled',
             default: false,
@@ -126,7 +130,8 @@ Wick.ToolSettings = class {
         if(!setting) console.error("ToolSettings.getSettingRestrictions: invalid setting: " + name);
         return {
             min: setting.min,
-            max: setting.max
+            max: setting.max,
+            step: setting.step,
         };
     }
 

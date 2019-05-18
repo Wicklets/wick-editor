@@ -25,6 +25,7 @@ Wick.GUIElement.Tween = class extends Wick.GUIElement.Draggable {
         super(model);
 
         this.dragOffset = new paper.Point(0,0);
+        this.ghost = new Wick.GUIElement.TweenGhost(model);
 
         this.on('mouseOver', () => {
             this.build();
@@ -106,6 +107,7 @@ Wick.GUIElement.Tween = class extends Wick.GUIElement.Draggable {
         this.item.addChild(tweenRect);
 
         this.item.position = new paper.Point(this.x, this.y);
+        this.item.position.x += Math.round(this.dragOffset.x / this.gridCellWidth) * this.gridCellWidth;
     }
 
     /**
@@ -119,7 +121,8 @@ Wick.GUIElement.Tween = class extends Wick.GUIElement.Draggable {
      *
      */
     drop () {
-        this.model.playheadPosition = 1;console.error('todo')
+        var newPlayheadPosition = Math.floor(this.x / this.gridCellWidth) + Math.round(this.dragOffset.x / this.gridCellWidth);
+        this.model.playheadPosition = newPlayheadPosition + 1;
     }
 
     /**
@@ -141,18 +144,18 @@ Wick.GUIElement.Tween = class extends Wick.GUIElement.Draggable {
         this.selectedTweens.forEach(tween => {
             tween.guiElement.item.bringToFront();
             tween.guiElement.dragOffset = this.mouseDelta;
+            tween.guiElement.dragOffset.y = 0;
             tween.guiElement.ghost.active = true;
             tween.guiElement.build();
         });
     }
 
     _tryToDropTweens () {
-        this.draggingFrames.forEach(frame => {
-            frame.guiElement.drop();
-            frame.guiElement.leftEdgeStretch = 0;
-            frame.guiElement.dragOffset = new paper.Point(0,0);
-            frame.guiElement.ghost.active = false;
-            frame.guiElement.build();
+        this.draggingTweens.forEach(tween => {
+            tween.guiElement.drop();
+            tween.guiElement.dragOffset = new paper.Point(0,0);
+            tween.guiElement.ghost.active = false;
+            tween.guiElement.build();
         });
 
         this.model.project.guiElement.fire('projectModified');

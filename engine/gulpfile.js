@@ -122,6 +122,7 @@ gulp.task('default', function() {
             'src/gui/GUIElement.SelectionBox.js',
             'src/gui/GUIElement.Timeline.js',
             'src/gui/GUIElement.Tween.js',
+            'src/gui/GUIElement.TweenGhost.js',
         ])
         .pipe(header('/*Wick Engine https://github.com/Wicklets/wick-engine*/'))
         .pipe(babel())
