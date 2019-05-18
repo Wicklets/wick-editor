@@ -346,6 +346,7 @@ class Inspector extends Component {
         val={this.getSelectionAttribute('opacity')}
         onChange={(val) => this.setSelectionAttribute('opacity', val)}
         divider={false}
+        inputProps={{min: 0, max: 1, step: 0.01}}
         id="inspector-opacity"/>
     )
   }

@@ -50,11 +50,11 @@ Wick.GUIElement.Tween = class extends Wick.GUIElement.Draggable {
         });
 
         this.on('drag', () => {
-
+            this._dragSelectedTweens();
         });
 
         this.on('dragEnd', () => {
-
+            this._tryToDropTweens();
         });
     }
 
@@ -106,5 +106,55 @@ Wick.GUIElement.Tween = class extends Wick.GUIElement.Draggable {
         this.item.addChild(tweenRect);
 
         this.item.position = new paper.Point(this.x, this.y);
+    }
+
+    /**
+     *
+     */
+    get selectedTweens () {
+        return this.model.project.selection.getSelectedObjects(Wick.Tween);
+    }
+
+    /**
+     *
+     */
+    drop () {
+        this.model.playheadPosition = 1;console.error('todo')
+    }
+
+    /**
+     *
+     */
+    get draggingTweens () {
+        var draggingTweens = [];
+        this.model.parentTimeline.frames.forEach(frame => {
+            frame.tweens.forEach(tween => {
+                if(tween.guiElement.ghost.active) {
+                    draggingTweens.push(tween);
+                }
+            })
+        });
+        return draggingTweens;
+    }
+
+    _dragSelectedTweens () {
+        this.selectedTweens.forEach(tween => {
+            tween.guiElement.item.bringToFront();
+            tween.guiElement.dragOffset = this.mouseDelta;
+            tween.guiElement.ghost.active = true;
+            tween.guiElement.build();
+        });
+    }
+
+    _tryToDropTweens () {
+        this.draggingFrames.forEach(frame => {
+            frame.guiElement.drop();
+            frame.guiElement.leftEdgeStretch = 0;
+            frame.guiElement.dragOffset = new paper.Point(0,0);
+            frame.guiElement.ghost.active = false;
+            frame.guiElement.build();
+        });
+
+        this.model.project.guiElement.fire('projectModified');
     }
 }
