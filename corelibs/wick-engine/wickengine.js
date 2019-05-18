@@ -65038,6 +65038,7 @@ window.Wick = Wick;
  */
 Wick.Clipboard = class {
   static get PASTE_OFFSET() {
+    // how many pixels should we shift objects over when we paste (canvas only)
     return 20;
   }
   /**
@@ -65055,10 +65056,26 @@ Wick.Clipboard = class {
 
 
   copyObjectsToClipboard(project, objects) {
-    if (!project || !project instanceof Wick.Project) console.error('copyObjectsToClipboard(): project is required');
+    if (!project || !project instanceof Wick.Project) console.error('copyObjectsToClipboard(): project is required'); // Get the playhead position of the "first" frame in the list of objects
+
+    var playheadCopyOffset = null;
+    objects.filter(object => {
+      return object instanceof Wick.Frame;
+    }).forEach(frame => {
+      if (playheadCopyOffset === null || frame.start < playheadCopyOffset) {
+        playheadCopyOffset = frame.start;
+      }
+    });
     this._copyLocation = project.activeFrame.uuid;
     this._objects = objects.map(object => {
-      return object.clone();
+      var clone = object.clone(); // Copy frame positions relative to the current playhead position
+
+      if (clone instanceof Wick.Frame) {
+        clone.start -= playheadCopyOffset - 1;
+        clone.end -= playheadCopyOffset - 1;
+      }
+
+      return clone;
     });
   }
   /**
@@ -65082,7 +65099,11 @@ Wick.Clipboard = class {
     this._objects.map(object => {
       return object.clone();
     }).forEach(object => {
-      if (object instanceof Wick.Frame) return; // ignoring frame paste until we pasted fix frame placement.
+      // Paste frames at the position of the playhead
+      if (object instanceof Wick.Frame) {
+        object.start += project.focus.timeline.playheadPosition - 1;
+        object.end += project.focus.timeline.playheadPosition - 1;
+      }
 
       project.addObject(object); // Add offset to Paths and Clips if pasteInPlace is NOT enabled.
 
@@ -66429,12 +66450,15 @@ Wick.Layer = class extends Wick.Base {
     this.parent.removeLayer(this);
   }
   /**
-   * Adds a frame to the layer.
+   * Adds a frame to the layer. If a frame exists when the new frame wants to go, the existing frame will be replaced with the new frame.
    * @param {Wick.Frame} frame The frame to add to the Layer.
    */
 
 
   addFrame(frame) {
+    this.getFramesInRange(frame.start, frame.end).forEach(existingFrame => {
+      existingFrame.remove();
+    });
     this.addChild(frame);
   }
   /**
@@ -66510,11 +66534,11 @@ Wick.Project = class extends Wick.Base {
     if (!args) args = {};
     super(args);
     this.project = this;
-    this.name = args.name || 'My Project';
-    this.width = args.width || 720;
-    this.height = args.height || 405;
-    this.framerate = args.framerate || 12;
-    this.backgroundColor = args.backgroundColor || '#ffffff';
+    this._name = args.name || 'My Project';
+    this._width = args.width || 720;
+    this._height = args.height || 405;
+    this._framerate = args.framerate || 12;
+    this._backgroundColor = args.backgroundColor || '#ffffff';
     this.pan = {
       x: 0,
       y: 0
@@ -66618,6 +66642,82 @@ Wick.Project = class extends Wick.Base {
 
   get classname() {
     return 'Project';
+  }
+  /**
+   * The name of the project.
+   * @type {string}
+   */
+
+
+  get name() {
+    return this._name;
+  }
+
+  set name(name) {
+    if (typeof name !== 'string') return;
+    this._name = name;
+  }
+  /**
+   * The width of the project.
+   * @type {number}
+   */
+
+
+  get width() {
+    return this._width;
+  }
+
+  set width(width) {
+    if (typeof width !== 'number') return;
+    if (width < 1) width = 1;
+    if (width > 200000) width = 200000;
+    this._width = width;
+  }
+  /**
+   * The height of the project.
+   * @type {number}
+   */
+
+
+  get height() {
+    return this._height;
+  }
+
+  set height(height) {
+    if (typeof height !== 'number') return;
+    if (height < 1) height = 1;
+    if (height > 200000) height = 200000;
+    this._height = height;
+  }
+  /**
+   * The framerate of the project.
+   * @type {number}
+   */
+
+
+  get framerate() {
+    return this._framerate;
+  }
+
+  set framerate(framerate) {
+    if (typeof framerate !== 'number') return;
+    if (framerate < 1) framerate = 1;
+    if (framerate > 9999) framerate = 9999;
+    this._framerate = framerate;
+  }
+  /**
+   * The background color of the project.
+   * @type {string}
+   */
+
+
+  get backgroundColor() {
+    return this._backgroundColor;
+  }
+
+  set backgroundColor(backgroundColor) {
+    if (typeof backgroundColor !== 'string') return;
+    this._backgroundColor = backgroundColor;
   }
   /**
    * The timeline of the active clip.
@@ -67280,7 +67380,7 @@ Wick.Project = class extends Wick.Base {
     } else if (object instanceof Wick.Clip) {
       this.activeFrame.addClip(object);
     } else if (object instanceof Wick.Frame) {
-      this.activeLayer.addFrame(object);
+      this.activeTimeline.addFrame(object);
     } else if (object instanceof Wick.Asset) {
       this.addAsset(object);
     } else if (object instanceof Wick.Layer) {
@@ -68082,6 +68182,21 @@ Wick.Timeline = class extends Wick.Base {
     }) || null;
   }
   /**
+   * Add a frame to one of the layers on this timeline. If there is no layer where the frame wants to go, the frame will not be added.
+   * @param {Wick.Frame} frame - the frame to add
+   */
+
+
+  addFrame(frame) {
+    if (frame.originalLayerIndex >= this.layers.length) return;
+
+    if (frame.originalLayerIndex === -1) {
+      this.activeLayer.addFrame(frame);
+    } else {
+      this.layers[frame.originalLayerIndex].addFrame(frame);
+    }
+  }
+  /**
    * Adds a layer to the timeline.
    * @param {Wick.Layer} layer - The layer to add.
    */
@@ -68137,6 +68252,10 @@ Wick.Timeline = class extends Wick.Base {
     });
     return frames;
   }
+  /**
+   *
+   */
+
 
   getAllFrames(recursive) {
     var allFrames = [];
@@ -68172,59 +68291,6 @@ Wick.Timeline = class extends Wick.Base {
     });
     return framesInRange;
   }
-  /*
-      insertFrames (frames, playheadPosition, layerIndex) {
-          if(frames.length === 0) return;
-  
-          function calculateRange (frames) {
-              var playheadStart = frames[0].start;
-              var playheadEnd = frames[0].end;
-              var layerStart = frames[0].layerIndex;
-              var layerEnd = frames[0].layerIndex;
-              frames.forEach(frame => {
-                  playheadStart = Math.min(playheadStart, frame.start);
-                  playheadEnd = Math.max(playheadEnd, frame.end);
-                  layerStart = Math.min(layerStart, frame.layerIndex);
-                  layerEnd = Math.max(layerEnd, frame.layerIndex);
-              });
-              return {
-                  playheadStart: playheadStart,
-                  playheadEnd: playheadEnd,
-                  layerStart: layerStart,
-                  layerEnd: layerEnd,
-              }
-          }
-  
-          var range = calculateRange(frames);
-  
-          // Use start and end playhead positions to calculate length, add resulting length to all starts/ends of frames
-          var length = range.playheadEnd - range.playheadStart;
-          frames.forEach(frame => {
-              frame.start += length;
-              frame.end += length;
-          });
-  
-          var checkCollisionsRange = calculateRange(frames);
-  
-          // While there are frames in the range,
-          while (this.getFramesInRange(checkCollisionsRange.playheadStart, checkCollisionsRange.playheadEnd, checkCollisionsRange.layerStart, checkCollisionsRange.layerEnd).length > 0) {
-          //   Add 1 to all frame starts and ends
-              frames.forEach(frame => {
-                  frame.start += 1;
-                  frame.end += 1;
-              });
-          //   Calculate start and end playhead positions from frameInfo
-          //   Calculate start and end layer indices from frameInfo
-              checkCollisionsRange = calculateRange(frames);
-          }
-  
-          // Add the frames in frameInfo into their given layers (their starts and ends should be correct already)
-          frames.forEach(frame => {
-              this.layers[frame.layerIndex].addFrame(frame);
-          });
-      }
-  */
-
   /**
    * Advances the timeline one frame forwards. Loops back to beginning if the end is reached.
    */
@@ -68363,7 +68429,7 @@ Wick.Tween = class extends Wick.Base {
   constructor(args) {
     if (!args) args = {};
     super(args);
-    this.playheadPosition = args.playheadPosition || 1;
+    this._playheadPosition = args.playheadPosition || 1;
     this.transformation = args.transformation || new Wick.Transformation();
     this.fullRotations = args.fullRotations === undefined ? 0 : args.fullRotations;
     this.easingType = args.easingType || 'none';
@@ -68424,6 +68490,27 @@ Wick.Tween = class extends Wick.Base {
     this.transformation = new Wick.Transformation(data.transformation);
     this.fullRotations = data.fullRotations;
     this.easingType = data.easingType;
+  }
+  /**
+   *
+   */
+
+
+  get playheadPosition() {
+    return this._playheadPosition;
+  }
+
+  set playheadPosition(playheadPosition) {
+    // Eat other tweens to prevent having two tweens in the same position.
+    if (this.parentFrame) {
+      var tween = this.parentFrame.getTweenAtPosition(playheadPosition);
+
+      if (tween) {
+        tween.remove();
+      }
+    }
+
+    this._playheadPosition = playheadPosition;
   }
   /**
    * The type of interpolation to use for easing.
@@ -69906,6 +69993,8 @@ Wick.Frame = class extends Wick.Tickable {
     this._soundID = null;
     this._soundVolume = 1.0;
     this._cropSoundOffsetMS = 0; // milliseconds.
+
+    this._originalLayerIndex = -1;
   }
 
   deserialize(data) {
@@ -69914,6 +70003,7 @@ Wick.Frame = class extends Wick.Tickable {
     this.end = data.end;
     this._soundAssetUUID = data.sound;
     this._soundVolume = data.soundVolume === undefined ? 1.0 : data.soundVolume;
+    this._originalLayerIndex = data.originalLayerIndex;
   }
 
   serialize(args) {
@@ -69922,6 +70012,7 @@ Wick.Frame = class extends Wick.Tickable {
     data.end = this.end;
     data.sound = this._soundAssetUUID;
     data.soundVolume = this._soundVolume;
+    data.originalLayerIndex = this.layerIndex;
     return data;
   }
 
@@ -70111,7 +70202,16 @@ Wick.Frame = class extends Wick.Tickable {
 
 
   get layerIndex() {
-    return this.parentLayer.index;
+    return this.parentLayer ? this.parentLayer.index : -1;
+  }
+  /**
+   * The index of the layer that this frame last belonged to. Useful when copying and pasting frames!
+   * @type {number}
+   */
+
+
+  get originalLayerIndex() {
+    return this._originalLayerIndex;
   }
   /**
    * Removes this frame from its parent layer.
@@ -75900,6 +76000,7 @@ Wick.GUIElement.NUMBER_LINE_NUMBERS_COMMON_COLOR = '#494949';
 Wick.GUIElement.NUMBER_LINE_NUMBERS_FONT_FAMILY = 'PT Mono';
 Wick.GUIElement.NUMBER_LINE_NUMBERS_FONT_SIZE = '18';
 Wick.GUIElement.FRAME_HOVERED_OVER = '#D3F8F4';
+Wick.GUIElement.FRAME_TWEENED_HOVERED_OVER = '#bbbbee';
 Wick.GUIElement.FRAME_CONTENTFUL_FILL_COLOR = '#ffffff';
 Wick.GUIElement.FRAME_UNCONTENTFUL_FILL_COLOR = '#ffffff';
 Wick.GUIElement.FRAME_TWEENED_FILL_COLOR = '#ccccff';
@@ -75909,6 +76010,11 @@ Wick.GUIElement.FRAME_CONTENT_DOT_STROKE_WIDTH = 3;
 Wick.GUIElement.FRAME_CONTENT_DOT_COLOR = '#1EE29A';
 Wick.GUIElement.FRAME_MARGIN = 0.5;
 Wick.GUIElement.FRAME_HANDLE_HOVER_FILL_COLOR = '#29F1A3';
+Wick.GUIElement.TWEEN_DIAMOND_RADIUS = 5.5;
+Wick.GUIElement.TWEEN_STROKE_WIDTH = 3;
+Wick.GUIElement.TWEEN_FILL_COLOR = '#222244';
+Wick.GUIElement.TWEEN_HOVER_COLOR = '#ff9933';
+Wick.GUIElement.TWEEN_STROKE_COLOR = '#222244';
 Wick.GUIElement.FRAME_GHOST_CAN_DROP_COLOR = '#00ff00';
 Wick.GUIElement.FRAME_GHOST_CANT_DROP_COLOR = '#ff0000';
 Wick.GUIElement.FRAME_GHOST_STROKE_WIDTH = 5;
@@ -75920,9 +76026,6 @@ Wick.GUIElement.ADD_FRAME_OVERLAY_FILL_COLOR = '#ffffff';
 Wick.GUIElement.ADD_FRAME_OVERLAY_PLUS_COLOR = '#aaaaaa';
 Wick.GUIElement.ADD_FRAME_OVERLAY_BORDER_RADIUS = 3;
 Wick.GUIElement.ADD_FRAME_OVERLAY_MARGIN = 3;
-Wick.GUIElement.TWEEN_HOVER_COLOR = '#ffff00';
-Wick.GUIElement.TWEEN_FILL_COLOR = '#ff9933';
-Wick.GUIElement.TWEEN_STROKE_COLOR = '#ffff00';
 Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_STROKE_COLOR = 'rgba(0,0,0,0.2)';
 Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_HIGHLIGHT_STROKE_COLOR = 'rgba(255,255,255,0.3)';
 Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_STROKE_WIDTH = 2.5;
@@ -76502,6 +76605,7 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
 
       if (!this.model.isSelected) {
         this.model.project.selection.select(this.model);
+        this.model.parentLayer.activate();
       }
 
       this.model.project.guiElement.build();
@@ -76723,7 +76827,11 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
     var fillColor = 'rgba(0,0,0,0)';
 
     if (this.isHoveredOver) {
-      fillColor = Wick.GUIElement.FRAME_HOVERED_OVER;
+      if (this.model.tweens.length > 0) {
+        fillColor = Wick.GUIElement.FRAME_TWEENED_HOVERED_OVER;
+      } else {
+        fillColor = Wick.GUIElement.FRAME_HOVERED_OVER;
+      }
     } else if (this.model.tweens.length > 0) {
       fillColor = Wick.GUIElement.FRAME_TWEENED_FILL_COLOR;
     } else if (this.model.contentful) {
@@ -79117,6 +79225,7 @@ Wick.GUIElement.Tween = class extends Wick.GUIElement.Draggable {
    */
   constructor(model) {
     super(model);
+    this.dragOffset = new paper.Point(0, 0);
     this.on('mouseOver', () => {
       this.build();
     });
@@ -79178,13 +79287,14 @@ Wick.GUIElement.Tween = class extends Wick.GUIElement.Draggable {
 
   build() {
     super.build();
-    var r = Wick.GUIElement.FRAME_CONTENT_DOT_RADIUS;
+    var r = Wick.GUIElement.TWEEN_DIAMOND_RADIUS;
     var tweenRect = new this.paper.Path.Rectangle({
       from: new this.paper.Point(-r, -r),
       to: new this.paper.Point(r, r),
+      radius: 1,
       fillColor: this.isHoveredOver ? Wick.GUIElement.TWEEN_HOVER_COLOR : Wick.GUIElement.TWEEN_FILL_COLOR,
       strokeColor: this.model.isSelected ? Wick.GUIElement.SELECTED_ITEM_BORDER_COLOR : Wick.GUIElement.TWEEN_STROKE_COLOR,
-      strokeWidth: this.model.isSelected ? 3 : 3
+      strokeWidth: Wick.GUIElement.TWEEN_STROKE_WIDTH
     });
     tweenRect.rotate(45, tweenRect.bounds.center);
     tweenRect.position = tweenRect.position.add(new paper.Point(this.gridCellWidth / 2, this.gridCellHeight / 2 + 5));
