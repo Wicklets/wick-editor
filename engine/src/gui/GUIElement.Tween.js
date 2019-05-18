@@ -24,6 +24,8 @@ Wick.GUIElement.Tween = class extends Wick.GUIElement.Draggable {
     constructor (model) {
         super(model);
 
+        this.dragOffset = new paper.Point(0,0);
+
         this.on('mouseOver', () => {
             this.build();
         });
@@ -90,13 +92,14 @@ Wick.GUIElement.Tween = class extends Wick.GUIElement.Draggable {
     build () {
         super.build();
 
-        var r = Wick.GUIElement.FRAME_CONTENT_DOT_RADIUS;
+        var r = Wick.GUIElement.TWEEN_DIAMOND_RADIUS;
         var tweenRect = new this.paper.Path.Rectangle({
             from: new this.paper.Point(-r, -r),
             to: new this.paper.Point(r, r),
+            radius: 1,
             fillColor: this.isHoveredOver ? Wick.GUIElement.TWEEN_HOVER_COLOR : Wick.GUIElement.TWEEN_FILL_COLOR,
             strokeColor: this.model.isSelected ? Wick.GUIElement.SELECTED_ITEM_BORDER_COLOR : Wick.GUIElement.TWEEN_STROKE_COLOR,
-            strokeWidth: this.model.isSelected ? 3 : 3,
+            strokeWidth: Wick.GUIElement.TWEEN_STROKE_WIDTH,
         });
         tweenRect.rotate(45, tweenRect.bounds.center);
         tweenRect.position = tweenRect.position.add(new paper.Point(this.gridCellWidth/2, this.gridCellHeight/2 + 5));

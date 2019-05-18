@@ -29,6 +29,8 @@
   </div>
 </body>
 
+<!-- Libs -->
+
 <script src="../lib/convert-range.js"></script>
 <script src="../lib/platform.js"></script>
 <script src="../lib/uuid.js"></script>
@@ -48,6 +50,8 @@
 <script src="../lib/jquery.pressure.min.js"></script>
 <script src="../lib/potrace.js"></script>
 
+<!-- Wick Engine -->
+
 <script src="../src/Wick.js"></script>
 <script src="../src/FileCache.js"></script>
 <script src="../src/ObjectCache.js"></script>
@@ -55,6 +59,8 @@
 <script src="../src/Clipboard.js"></script>
 <script src="../src/History.js"></script>
 <script src="../src/WickFile.js"></script>
+<script src="../src/WickFile.Alpha.js"></script>
+<script src="../src/ToolSettings.js"></script>
 <script src="../src/base/Base.js"></script>
 <script src="../src/base/Layer.js"></script>
 <script src="../src/base/Project.js"></script>
@@ -72,8 +78,23 @@
 <script src="../src/base/tickable/Frame.js"></script>
 <script src="../src/base/tickable/clip/Clip.js"></script>
 <script src="../src/base/tickable/clip/Button.js"></script>
+<script src="../src/tools/Tool.js"></script>
+<script src="../src/tools/Brush.js"></script>
+<script src="../src/tools/Cursor.js"></script>
+<script src="../src/tools/Ellipse.js"></script>
+<script src="../src/tools/Eraser.js"></script>
+<script src="../src/tools/Eyedropper.js"></script>
+<script src="../src/tools/FillBucket.js"></script>
+<script src="../src/tools/Line.js"></script>
+<script src="../src/tools/None.js"></script>
+<script src="../src/tools/Pan.js"></script>
+<script src="../src/tools/Pencil.js"></script>
+<script src="../src/tools/Rectangle.js"></script>
+<script src="../src/tools/Text.js"></script>
+<script src="../src/tools/Zoom.js"></script>
 <script src="../src/view/paper-ext/Layer.erase.js"></script>
 <script src="../src/view/paper-ext/Layer.hole.js"></script>
+<script src="../src/view/paper-ext/Paper.OrderingUtils.js"></script>
 <script src="../src/view/paper-ext/Paper.SelectionWidget.js"></script>
 <script src="../src/view/paper-ext/Paper.SelectionBox.js"></script>
 <script src="../src/view/paper-ext/Path.potrace.js"></script>
@@ -81,20 +102,6 @@
 <script src="../src/view/paper-ext/View.pressure.js"></script>
 <script src="../src/view/paper-ext/View.gestures.js"></script>
 <script src="../src/view/paper-ext/View.scrollToZoom.js"></script>
-<script src="../src/view/tools/Tool.js"></script>
-<script src="../src/view/tools/Brush.js"></script>
-<script src="../src/view/tools/Cursor.js"></script>
-<script src="../src/view/tools/Ellipse.js"></script>
-<script src="../src/view/tools/Eraser.js"></script>
-<script src="../src/view/tools/Eyedropper.js"></script>
-<script src="../src/view/tools/FillBucket.js"></script>
-<script src="../src/view/tools/Line.js"></script>
-<script src="../src/view/tools/None.js"></script>
-<script src="../src/view/tools/Pan.js"></script>
-<script src="../src/view/tools/Pencil.js"></script>
-<script src="../src/view/tools/Rectangle.js"></script>
-<script src="../src/view/tools/Text.js"></script>
-<script src="../src/view/tools/Zoom.js"></script>
 <script src="../src/view/View.js"></script>
 <script src="../src/view/View.Project.js"></script>
 <script src="../src/view/View.Selection.js"></script>
@@ -155,7 +162,7 @@
         project.view.resize();
     }
 
-    project.view.tools.cursor.activate();
+    project.tools.cursor.activate();
 
     project.view.render();
     project.guiElement.build();

@@ -45,6 +45,7 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
             }
             if(!this.model.isSelected) {
                 this.model.project.selection.select(this.model);
+                this.model.parentLayer.activate();
             }
             this.model.project.guiElement.build();
             this.model.project.guiElement.fire('projectModified');
@@ -257,7 +258,11 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
 
         var fillColor = 'rgba(0,0,0,0)';
         if(this.isHoveredOver) {
-            fillColor = Wick.GUIElement.FRAME_HOVERED_OVER;
+            if(this.model.tweens.length > 0) {
+                fillColor = Wick.GUIElement.FRAME_TWEENED_HOVERED_OVER;
+            } else {
+                fillColor = Wick.GUIElement.FRAME_HOVERED_OVER;
+            }
         } else if(this.model.tweens.length > 0) {
             fillColor = Wick.GUIElement.FRAME_TWEENED_FILL_COLOR;
         } else if(this.model.contentful) {

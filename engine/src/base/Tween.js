@@ -43,7 +43,7 @@ Wick.Tween = class extends Wick.Base {
         if(!args) args = {};
         super(args);
 
-        this.playheadPosition = args.playheadPosition || 1;
+        this._playheadPosition = args.playheadPosition || 1;
         this.transformation = args.transformation || new Wick.Transformation();
         this.fullRotations = args.fullRotations === undefined ? 0 : args.fullRotations;
         this.easingType = args.easingType || 'none';
@@ -101,6 +101,25 @@ Wick.Tween = class extends Wick.Base {
         this.transformation = new Wick.Transformation(data.transformation);
         this.fullRotations = data.fullRotations;
         this.easingType = data.easingType;
+    }
+
+    /**
+     *
+     */
+    get playheadPosition () {
+        return this._playheadPosition;
+    }
+
+    set playheadPosition (playheadPosition) {
+        // Eat other tweens to prevent having two tweens in the same position.
+        if(this.parentFrame) {
+            var tween = this.parentFrame.getTweenAtPosition(playheadPosition);
+            if(tween) {
+                tween.remove();
+            }
+        }
+
+        this._playheadPosition = playheadPosition;
     }
 
     /**

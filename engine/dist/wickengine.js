@@ -68429,7 +68429,7 @@ Wick.Tween = class extends Wick.Base {
   constructor(args) {
     if (!args) args = {};
     super(args);
-    this.playheadPosition = args.playheadPosition || 1;
+    this._playheadPosition = args.playheadPosition || 1;
     this.transformation = args.transformation || new Wick.Transformation();
     this.fullRotations = args.fullRotations === undefined ? 0 : args.fullRotations;
     this.easingType = args.easingType || 'none';
@@ -68490,6 +68490,27 @@ Wick.Tween = class extends Wick.Base {
     this.transformation = new Wick.Transformation(data.transformation);
     this.fullRotations = data.fullRotations;
     this.easingType = data.easingType;
+  }
+  /**
+   *
+   */
+
+
+  get playheadPosition() {
+    return this._playheadPosition;
+  }
+
+  set playheadPosition(playheadPosition) {
+    // Eat other tweens to prevent having two tweens in the same position.
+    if (this.parentFrame) {
+      var tween = this.parentFrame.getTweenAtPosition(playheadPosition);
+
+      if (tween) {
+        tween.remove();
+      }
+    }
+
+    this._playheadPosition = playheadPosition;
   }
   /**
    * The type of interpolation to use for easing.
@@ -75979,6 +76000,7 @@ Wick.GUIElement.NUMBER_LINE_NUMBERS_COMMON_COLOR = '#494949';
 Wick.GUIElement.NUMBER_LINE_NUMBERS_FONT_FAMILY = 'PT Mono';
 Wick.GUIElement.NUMBER_LINE_NUMBERS_FONT_SIZE = '18';
 Wick.GUIElement.FRAME_HOVERED_OVER = '#D3F8F4';
+Wick.GUIElement.FRAME_TWEENED_HOVERED_OVER = '#bbbbee';
 Wick.GUIElement.FRAME_CONTENTFUL_FILL_COLOR = '#ffffff';
 Wick.GUIElement.FRAME_UNCONTENTFUL_FILL_COLOR = '#ffffff';
 Wick.GUIElement.FRAME_TWEENED_FILL_COLOR = '#ccccff';
@@ -75988,6 +76010,11 @@ Wick.GUIElement.FRAME_CONTENT_DOT_STROKE_WIDTH = 3;
 Wick.GUIElement.FRAME_CONTENT_DOT_COLOR = '#1EE29A';
 Wick.GUIElement.FRAME_MARGIN = 0.5;
 Wick.GUIElement.FRAME_HANDLE_HOVER_FILL_COLOR = '#29F1A3';
+Wick.GUIElement.TWEEN_DIAMOND_RADIUS = 5.5;
+Wick.GUIElement.TWEEN_STROKE_WIDTH = 3;
+Wick.GUIElement.TWEEN_FILL_COLOR = '#222244';
+Wick.GUIElement.TWEEN_HOVER_COLOR = '#ff9933';
+Wick.GUIElement.TWEEN_STROKE_COLOR = '#222244';
 Wick.GUIElement.FRAME_GHOST_CAN_DROP_COLOR = '#00ff00';
 Wick.GUIElement.FRAME_GHOST_CANT_DROP_COLOR = '#ff0000';
 Wick.GUIElement.FRAME_GHOST_STROKE_WIDTH = 5;
@@ -75999,9 +76026,6 @@ Wick.GUIElement.ADD_FRAME_OVERLAY_FILL_COLOR = '#ffffff';
 Wick.GUIElement.ADD_FRAME_OVERLAY_PLUS_COLOR = '#aaaaaa';
 Wick.GUIElement.ADD_FRAME_OVERLAY_BORDER_RADIUS = 3;
 Wick.GUIElement.ADD_FRAME_OVERLAY_MARGIN = 3;
-Wick.GUIElement.TWEEN_HOVER_COLOR = '#ffff00';
-Wick.GUIElement.TWEEN_FILL_COLOR = '#ff9933';
-Wick.GUIElement.TWEEN_STROKE_COLOR = '#ffff00';
 Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_STROKE_COLOR = 'rgba(0,0,0,0.2)';
 Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_HIGHLIGHT_STROKE_COLOR = 'rgba(255,255,255,0.3)';
 Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_STROKE_WIDTH = 2.5;
@@ -76581,6 +76605,7 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
 
       if (!this.model.isSelected) {
         this.model.project.selection.select(this.model);
+        this.model.parentLayer.activate();
       }
 
       this.model.project.guiElement.build();
@@ -76802,7 +76827,11 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
     var fillColor = 'rgba(0,0,0,0)';
 
     if (this.isHoveredOver) {
-      fillColor = Wick.GUIElement.FRAME_HOVERED_OVER;
+      if (this.model.tweens.length > 0) {
+        fillColor = Wick.GUIElement.FRAME_TWEENED_HOVERED_OVER;
+      } else {
+        fillColor = Wick.GUIElement.FRAME_HOVERED_OVER;
+      }
     } else if (this.model.tweens.length > 0) {
       fillColor = Wick.GUIElement.FRAME_TWEENED_FILL_COLOR;
     } else if (this.model.contentful) {
@@ -79196,6 +79225,7 @@ Wick.GUIElement.Tween = class extends Wick.GUIElement.Draggable {
    */
   constructor(model) {
     super(model);
+    this.dragOffset = new paper.Point(0, 0);
     this.on('mouseOver', () => {
       this.build();
     });
@@ -79257,13 +79287,14 @@ Wick.GUIElement.Tween = class extends Wick.GUIElement.Draggable {
 
   build() {
     super.build();
-    var r = Wick.GUIElement.FRAME_CONTENT_DOT_RADIUS;
+    var r = Wick.GUIElement.TWEEN_DIAMOND_RADIUS;
     var tweenRect = new this.paper.Path.Rectangle({
       from: new this.paper.Point(-r, -r),
       to: new this.paper.Point(r, r),
+      radius: 1,
       fillColor: this.isHoveredOver ? Wick.GUIElement.TWEEN_HOVER_COLOR : Wick.GUIElement.TWEEN_FILL_COLOR,
       strokeColor: this.model.isSelected ? Wick.GUIElement.SELECTED_ITEM_BORDER_COLOR : Wick.GUIElement.TWEEN_STROKE_COLOR,
-      strokeWidth: this.model.isSelected ? 3 : 3
+      strokeWidth: Wick.GUIElement.TWEEN_STROKE_WIDTH
     });
     tweenRect.rotate(45, tweenRect.bounds.center);
     tweenRect.position = tweenRect.position.add(new paper.Point(this.gridCellWidth / 2, this.gridCellHeight / 2 + 5));
