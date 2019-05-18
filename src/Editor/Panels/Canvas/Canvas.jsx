@@ -82,7 +82,7 @@ class Canvas extends Component {
     if(!project.activeFrame ||
        project.activeLayer.locked ||
        project.activeLayer.hidden) {
-      this.props.project.view.tools.none.activate();
+      this.props.project.tools.none.activate();
     }
   }
 
