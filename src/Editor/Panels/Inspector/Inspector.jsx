@@ -31,7 +31,7 @@ import InspectorSelector from './InspectorRow/InspectorRowTypes/InspectorSelecto
 import InspectorColorNumericInput from './InspectorRow/InspectorRowTypes/InspectorColorNumericInput';
 import InspectorActionButton from './InspectorActionButton/InspectorActionButton';
 import InspectorImagePreview from './InspectorPreview/InspectorPreviewTypes/InspectorImagePreview';
-import InspectorScriptWindow from './InspectorScriptWindow/InspectorScriptWindow'; 
+import InspectorScriptWindow from './InspectorScriptWindow/InspectorScriptWindow';
 
 class Inspector extends Component {
   constructor (props) {
@@ -111,20 +111,7 @@ class Inspector extends Component {
    * @return {string} fill color opacity from 0 to 1.
    */
   getSelectionFillColorOpacity = () => {
-    let fillColor = this.getSelectionAttribute('fillColor');
-
-    console.log("Fill", fillColor)
-    if (!fillColor) {
-      return "1";
-    }
-
-    if (fillColor.startsWith('rgba')) {
-      let split = fillColor.split(",");
-      let str = split[3];
-      return str.substring(0, str.length - 1);
-    } else {
-      return "1";
-    }
+    return this.getSelectionAttribute('fillColor').alpha;
   }
 
   /**
@@ -171,7 +158,7 @@ class Inspector extends Component {
         val={this.getSelectionAttribute('strokeWidth')}
         onChange={(val) => this.setSelectionAttribute('strokeWidth', val)}
         divider={false}
-        inputProps={this.props.toolRestrictions.strokeWidth}
+        inputProps={this.getSelectionInputProps('strokeWidth')}
         id="inspector-selection-stroke-width"/>
     )
   }
@@ -184,13 +171,13 @@ class Inspector extends Component {
       <div className="inspector-item">
         <InspectorColorNumericInput
           tooltip="Fill Color"
-          val={this.getSelectionAttribute('fillColor')}
+          val={this.getSelectionAttribute('fillColor').toCSS()}
           onChange={(col) => this.setSelectionAttribute('fillColor', col)}
           id={"inspector-selection-fill-color"}
           val2={this.getSelectionAttribute('fillColorOpacity')}
           onChange2={(val) => this.setSelectionAttribute('fillColorOpacity', val)}
-          inputProps={this.props.toolRestrictions.opacity}
-          divider={false}/>
+          divider={false}
+        />
       </div>
     );
   }
@@ -203,15 +190,15 @@ class Inspector extends Component {
         <InspectorColorNumericInput
           tooltip="Stroke Color"
 
-          val={this.getSelectionAttribute('strokeColor')}
+          val={this.getSelectionAttribute('strokeColor').toCSS()}
           onChange={(col) => this.setSelectionAttribute('strokeColor', col)}
           id={"inspector-selection-stroke-color"}
           stroke={true}
 
           val2={this.getSelectionAttribute('strokeWidth')}
           onChange2={(val) => this.setSelectionAttribute('strokeWidth', val)}
-          inputProps={this.props.toolRestrictions.strokeWidth}
-          divider={false}/>
+          divider={false}
+        />
       </div>
     );
   }
@@ -237,7 +224,6 @@ class Inspector extends Component {
     return (
       <InspectorNumericInput
         val={args.val}
-        inputProps={this.props.toolRestrictions.fontSize}
         onChange={args.onChange} />
     )
   }
@@ -369,7 +355,6 @@ class Inspector extends Component {
         tooltip="Opacity"
         val={this.getSelectionAttribute('opacity')}
         onChange={(val) => this.setSelectionAttribute('opacity', val)}
-        inputProps={this.props.toolRestrictions.opacity}
         divider={false}
         id="inspector-opacity"/>
     )
@@ -668,7 +653,7 @@ class Inspector extends Component {
   renderScripts = () => {
     return (
       <div className="inspector-item">
-        <InspectorScriptWindow 
+        <InspectorScriptWindow
           script={this.props.script}
           deleteScript={this.props.deleteScript}
           editScript={this.props.editScript}

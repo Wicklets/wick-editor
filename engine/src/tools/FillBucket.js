@@ -23,6 +23,8 @@ Wick.Tools.FillBucket = class extends Wick.Tool {
      */
     constructor () {
         super();
+
+        this.name = 'fillbucket';
     }
 
     /**

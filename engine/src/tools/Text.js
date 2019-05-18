@@ -24,6 +24,8 @@ Wick.Tools.Text = class extends Wick.Tool {
     constructor () {
         super();
 
+        this.name = 'text';
+
         this.hoveredOverText = null;
         this.editingText = null;
     }

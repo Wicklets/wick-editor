@@ -345,11 +345,11 @@ Wick.Selection = class extends Wick.Base {
      *
      */
     get fillColor () {
-        return this._getSingleAttribute('fillColorHex');
+        return this._getSingleAttribute('fillColor');
     }
 
     set fillColor (fillColor) {
-        this._setSingleAttribute('fillColorHex', fillColor);
+        this._setSingleAttribute('fillColor', fillColor);
     }
 
     /**
@@ -360,7 +360,7 @@ Wick.Selection = class extends Wick.Base {
     }
 
     set strokeColor (strokeColor) {
-        this._setSingleAttribute('strokeColorHex', strokeColor);
+        this._setSingleAttribute('strokeColor', strokeColor);
     }
 
     /**

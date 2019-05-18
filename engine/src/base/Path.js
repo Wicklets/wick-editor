@@ -130,36 +130,15 @@ Wick.Path = class extends Wick.Base {
     }
 
     /**
-     * The fill color, in hex format (example "#FFFFFF"), of the path
-     * @type {string}
-     */
-    get fillColorHex () {
-        return this._getColorAsHex(this.view.item.fillColor);
-    }
-
-    set fillColorHex (fillColorHex) {
-        this.view.item.fillColor = fillColorHex;
-        this.json = this.view.exportJSON();
-    }
-
-    /**
      * The fill color, in rgba format (example "rgba(255,255,255,1.0)"), of the path
      * @type {object}
      */
-    get fillColorRGBA () {
-        return this._getColorAsRGBA(this.view.item.fillColor);
+    get fillColor () {
+        return this.view.item.fillColor || new paper.Color();
     }
 
-    /**
-     * The stroke color, in hex format (example "#FFFFFF"), of the path
-     * @type {string}
-     */
-    get strokeColorHex () {
-        return this._getColorAsHex(this.view.item.strokeColor);
-    }
-
-    set strokeColorHex (strokeColorHex) {
-        this.view.item.strokeColor = strokeColorHex;
+    set fillColor (fillColor) {
+        this.view.item.fillColor = fillColor;
         this.json = this.view.exportJSON();
     }
 
@@ -167,23 +146,13 @@ Wick.Path = class extends Wick.Base {
      * The stroke color, in rgba format (example "rgba(255,255,255,1.0)"), of the path
      * @type {object}
      */
-    get strokeColorRGBA () {
-        this._getColorAsRGBA(this.view.item.strokeColor);
+    get strokeColor () {
+        return this.view.item.strokeColor || new paper.Color();
     }
 
-    _getColorAsHex (color) {
-        if(!color) return '#000000';
-        return color.toCSS(true);
-    }
-
-    _getColorAsRGBA (color) {
-        if(!color) return {r:0, g:0, b:0, a:1};
-        return {
-            r: color.red * 255,
-            g: color.green * 255,
-            b: color.blue * 255,
-            a: color.alpha,
-        };
+    set strokeColor (strokeColor) {
+        this.view.item.strokeColor = strokeColor;
+        this.json = this.view.exportJSON();
     }
 
     /**

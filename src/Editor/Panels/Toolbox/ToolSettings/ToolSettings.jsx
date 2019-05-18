@@ -167,7 +167,7 @@ class ToolSettings extends Component {
         type='numeric'
         value={this.getToolSetting('cornerRadius')}
         onChange={(val) => this.setToolSetting('cornerRadius', val)}
-        inputRestrictions={this.props.toolRestrictions.cornerRadius}/>
+        inputRestrictions={this.props.getToolSettingRestrictions('cornerRadius')}/>
     )
   }
 
@@ -179,7 +179,7 @@ class ToolSettings extends Component {
         type='numeric'
         value={this.getToolSetting('brushSmoothing')}
         onChange={(val) => this.setToolSetting('brushSmoothing', val)}
-        inputRestrictions={this.props.toolRestrictions.brushSmoothing}/>
+        inputRestrictions={this.props.getToolSettingRestrictions('brushSmoothing')}/>
     )
   }
 
@@ -191,7 +191,7 @@ class ToolSettings extends Component {
         type='numeric'
         value={this.getToolSetting('fontSize')}
         onChange={(val) => this.setToolSetting('fontSize', val)}
-        inputRestrictions={this.props.toolRestrictions.fontSize}/>
+        inputRestrictions={this.props.getToolSettingRestrictions('fontSize')}/>
     )
   }
 
@@ -203,7 +203,7 @@ class ToolSettings extends Component {
         type='numeric'
         value={this.getToolSetting('eraserSize')}
         onChange={(val) => this.setToolSetting('eraserSize', val)}
-        inputRestrictions={this.props.toolRestrictions.eraserSize}/>
+        inputRestrictions={this.props.getToolSettingRestrictions('eraserSize')}/>
     )
   }
 
@@ -215,7 +215,7 @@ class ToolSettings extends Component {
         type='numeric'
         value={this.getToolSetting('strokeWidth')}
         onChange={(val) => this.setToolSetting('strokeWidth', val)}
-        inputRestrictions={this.props.toolRestrictions.strokeWidth}/>
+        inputRestrictions={this.props.getToolSettingRestrictions('strokeWidth')}/>
     )
   }
 
@@ -249,7 +249,7 @@ class ToolSettings extends Component {
         type='numeric'
         value={this.getToolSetting('brushSize')}
         onChange={(val) => this.setToolSetting('brushSize', val)}
-        inputRestrictions={this.props.toolRestrictions.brushSize}/>
+        inputRestrictions={this.props.getToolSettingRestrictions('brushSize')}/>
     )
   }
 

@@ -24,6 +24,8 @@ Wick.Tools.Eyedropper = class extends Wick.Tool {
     constructor () {
         super();
 
+        this.name = 'eyedropper';
+
         this.canvasCtx = null;
         this.hoverColor = null;
 

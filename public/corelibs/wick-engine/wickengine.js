@@ -65826,6 +65826,7 @@ Wick.ToolSettings = class {
     this._settings[args.name] = {
       name: args.name,
       value: args.default,
+      default: args.default,
       min: args.min,
       max: args.max
     };
@@ -65836,29 +65837,48 @@ Wick.ToolSettings = class {
 
 
   setSetting(name, value) {
-    var min = this._settings[name].min;
+    var setting = this._settings[name];
+    var min = setting.min;
 
     if (min !== undefined) {
       value = Math.max(min, value);
     }
 
-    var max = this._settings[name].max;
+    var max = setting.max;
 
     if (max !== undefined) {
       value = Math.min(max, value);
+    } // Auto convert paper.js colors
+
+
+    if (setting.default instanceof paper.Color && typeof value === 'string') {
+      value = new paper.Color(value);
     }
 
-    this._settings[name].value = value;
+    setting.value = value;
   }
   /**
    *
    */
 
 
-  getSetting(name, value) {
+  getSetting(name) {
     var setting = this._settings[name];
     if (!setting) console.error("ToolSettings.getSetting: invalid setting: " + name);
     return setting.value;
+  }
+  /**
+   *
+   */
+
+
+  getSettingRestrictions(name) {
+    var setting = this._settings[name];
+    if (!setting) console.error("ToolSettings.getSettingRestrictions: invalid setting: " + name);
+    return {
+      min: setting.min,
+      max: setting.max
+    };
   }
   /**
    *
@@ -66531,7 +66551,7 @@ Wick.Project = class extends Wick.Base {
       zoom: new Wick.Tools.Zoom()
     };
     this._toolSettings = new Wick.ToolSettings();
-    this.activeTool = 'none';
+    this.activeTool = 'cursor';
     this.history.project = this;
     this.history.pushState();
   }
@@ -67196,6 +67216,22 @@ Wick.Project = class extends Wick.Base {
    */
 
 
+  zoomIn() {
+    this.zoom *= 1.25;
+  }
+  /**
+   *
+   */
+
+
+  zoomOut() {
+    this.zoom *= 0.8;
+  }
+  /**
+   *
+   */
+
+
   get tools() {
     return this._tools;
   }
@@ -67719,11 +67755,11 @@ Wick.Selection = class extends Wick.Base {
 
 
   get fillColor() {
-    return this._getSingleAttribute('fillColorHex');
+    return this._getSingleAttribute('fillColor');
   }
 
   set fillColor(fillColor) {
-    this._setSingleAttribute('fillColorHex', fillColor);
+    this._setSingleAttribute('fillColor', fillColor);
   }
   /**
    *
@@ -67735,7 +67771,7 @@ Wick.Selection = class extends Wick.Base {
   }
 
   set strokeColor(strokeColor) {
-    this._setSingleAttribute('strokeColorHex', strokeColor);
+    this._setSingleAttribute('strokeColor', strokeColor);
   }
   /**
    *
@@ -68577,40 +68613,17 @@ Wick.Path = class extends Wick.Base {
     this.json = this.view.exportJSON();
   }
   /**
-   * The fill color, in hex format (example "#FFFFFF"), of the path
-   * @type {string}
-   */
-
-
-  get fillColorHex() {
-    return this._getColorAsHex(this.view.item.fillColor);
-  }
-
-  set fillColorHex(fillColorHex) {
-    this.view.item.fillColor = fillColorHex;
-    this.json = this.view.exportJSON();
-  }
-  /**
    * The fill color, in rgba format (example "rgba(255,255,255,1.0)"), of the path
    * @type {object}
    */
 
 
-  get fillColorRGBA() {
-    return this._getColorAsRGBA(this.view.item.fillColor);
-  }
-  /**
-   * The stroke color, in hex format (example "#FFFFFF"), of the path
-   * @type {string}
-   */
-
-
-  get strokeColorHex() {
-    return this._getColorAsHex(this.view.item.strokeColor);
+  get fillColor() {
+    return this.view.item.fillColor || new paper.Color();
   }
 
-  set strokeColorHex(strokeColorHex) {
-    this.view.item.strokeColor = strokeColorHex;
+  set fillColor(fillColor) {
+    this.view.item.fillColor = fillColor;
     this.json = this.view.exportJSON();
   }
   /**
@@ -68619,28 +68632,13 @@ Wick.Path = class extends Wick.Base {
    */
 
 
-  get strokeColorRGBA() {
-    this._getColorAsRGBA(this.view.item.strokeColor);
+  get strokeColor() {
+    return this.view.item.strokeColor || new paper.Color();
   }
 
-  _getColorAsHex(color) {
-    if (!color) return '#000000';
-    return color.toCSS(true);
-  }
-
-  _getColorAsRGBA(color) {
-    if (!color) return {
-      r: 0,
-      g: 0,
-      b: 0,
-      a: 1
-    };
-    return {
-      r: color.red * 255,
-      g: color.green * 255,
-      b: color.blue * 255,
-      a: color.alpha
-    };
+  set strokeColor(strokeColor) {
+    this.view.item.strokeColor = strokeColor;
+    this.json = this.view.exportJSON();
   }
   /**
    * The stroke width of the shape.
@@ -71110,6 +71108,7 @@ Wick.Tools.Brush = class extends Wick.Tool {
    */
   constructor() {
     super();
+    this.name = 'brush';
     this.BRUSH_POINT_SPACING = 0.2;
     this.croquis;
     this.croquisDOMElement;
@@ -71303,6 +71302,7 @@ Wick.Tools.Cursor = class extends Wick.Tool {
    */
   constructor() {
     super();
+    this.name = 'cursor';
     this.SELECTION_TOLERANCE = 3;
     this.CURSOR_DEFAULT = 'cursors/default.png';
     this.CURSOR_SCALE_TOP_RIGHT_BOTTOM_LEFT = 'cursors/scale-top-right-bottom-left.png';
@@ -71710,6 +71710,7 @@ Wick.Tools.Ellipse = class extends Wick.Tool {
    */
   constructor() {
     super();
+    this.name = 'ellipse';
     this.path = null;
     this.topLeft = null;
     this.bottomRight = null;
@@ -71791,6 +71792,7 @@ Wick.Tools.Eraser = class extends Wick.Tool {
    */
   constructor() {
     super();
+    this.name = 'eraser';
     this.path = null;
     this.cursorSize = null;
     this.cachedCursor = null;
@@ -71887,6 +71889,7 @@ Wick.Tools.Eyedropper = class extends Wick.Tool {
    */
   constructor() {
     super();
+    this.name = 'eyedropper';
     this.canvasCtx = null;
     this.hoverColor = null;
     this.colorPreviewBorder = null;
@@ -71976,6 +71979,7 @@ Wick.Tools.FillBucket = class extends Wick.Tool {
    */
   constructor() {
     super();
+    this.name = 'fillbucket';
   }
   /**
    *
@@ -72058,6 +72062,7 @@ Wick.Tools.Line = class extends Wick.Tool {
    */
   constructor() {
     super();
+    this.name = 'line';
     this.path = new this.paper.Path({
       insert: false
     });
@@ -72126,6 +72131,7 @@ Wick.Tools.None = class extends Wick.Tool {
    */
   constructor() {
     super();
+    this.name = 'none';
   }
   /**
    * The "no-sign" cursor.
@@ -72178,6 +72184,7 @@ Wick.Tools.Pan = class extends Wick.Tool {
    */
   constructor() {
     super();
+    this.name = 'pan';
   }
   /**
    *
@@ -72236,6 +72243,7 @@ Wick.Tools.Pencil = class extends Wick.Tool {
 
   constructor() {
     super();
+    this.name = 'pencil';
     this.path = null;
     this._movement = new paper.Point();
   }
@@ -72311,6 +72319,7 @@ Wick.Tools.Rectangle = class extends Wick.Tool {
    */
   constructor() {
     super();
+    this.name = 'rectangle';
     this.path = null;
     this.topLeft = null;
     this.bottomRight = null;
@@ -72397,6 +72406,7 @@ Wick.Tools.Text = class extends Wick.Tool {
    */
   constructor() {
     super();
+    this.name = 'text';
     this.hoveredOverText = null;
     this.editingText = null;
   }
@@ -72490,6 +72500,7 @@ Wick.Tools.Zoom = class extends Wick.Tool {
    */
   constructor() {
     super();
+    this.name = 'zoom';
     this.ZOOM_MIN = 0.1;
     this.ZOOM_MAX = 20;
     this.ZOOM_IN_AMOUNT = 1.25;
@@ -74608,8 +74619,9 @@ Wick.View.Project = class extends Wick.View {
       this._toolsSetup = true;
 
       this._setupTools();
-    } // Update zoom and pan
+    }
 
+    this.model.activeTool.activate(); // Update zoom and pan
 
     if (this._fitMode === 'center') {
       this.paper.view.zoom = this.model.zoom;

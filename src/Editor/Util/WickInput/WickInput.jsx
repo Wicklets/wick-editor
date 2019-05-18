@@ -143,7 +143,6 @@ class WickInput extends Component {
     let wrappedOnChange = (color) => {
       let rgb = color.rgb;
       let str = "rgba(" + rgb.r + "," + rgb.g + "," + rgb.b + "," + rgb.a + ")"; 
-      console.log(str);
       this.props.onChange(str);
     };
 

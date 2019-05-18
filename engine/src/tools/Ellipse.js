@@ -24,6 +24,8 @@ Wick.Tools.Ellipse = class extends Wick.Tool {
     constructor () {
         super();
 
+        this.name = 'ellipse';
+
         this.path = null;
 
         this.topLeft = null;

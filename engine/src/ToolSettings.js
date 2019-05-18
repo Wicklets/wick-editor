@@ -79,6 +79,7 @@ Wick.ToolSettings = class {
         this._settings[args.name] = {
             name: args.name,
             value: args.default,
+            default: args.default,
             min: args.min,
             max: args.max,
         };
@@ -88,26 +89,45 @@ Wick.ToolSettings = class {
      *
      */
     setSetting (name, value) {
-        var min = this._settings[name].min;
+        var setting = this._settings[name];
+
+        var min = setting.min;
         if(min !== undefined) {
             value = Math.max(min, value);
         }
 
-        var max = this._settings[name].max;
+        var max = setting.max;
         if(max !== undefined) {
             value = Math.min(max, value);
         }
 
-        this._settings[name].value = value;
+        // Auto convert paper.js colors
+        if(setting.default instanceof paper.Color && typeof value === 'string') {
+            value = new paper.Color(value);
+        }
+
+        setting.value = value;
     }
 
     /**
      *
      */
-    getSetting (name, value) {
+    getSetting (name) {
         var setting = this._settings[name];
         if(!setting) console.error("ToolSettings.getSetting: invalid setting: " + name);
         return setting.value;
+    }
+
+    /**
+     *
+     */
+    getSettingRestrictions (name) {
+        var setting = this._settings[name];
+        if(!setting) console.error("ToolSettings.getSettingRestrictions: invalid setting: " + name);
+        return {
+            min: setting.min,
+            max: setting.max
+        };
     }
 
     /**

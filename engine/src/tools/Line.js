@@ -24,6 +24,8 @@ Wick.Tools.Line = class extends Wick.Tool {
     constructor () {
         super();
 
+        this.name = 'line';
+
         this.path = new this.paper.Path({insert:false});
 
         this.startPoint;

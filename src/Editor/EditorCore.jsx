@@ -38,7 +38,7 @@ class EditorCore extends Component {
    * @param {string} newTool - The string representation of the tool to switch to.
    */
   setActiveTool = (newTool) => {
-    if(newTool !== this.state.activeTool) {
+    if(newTool !== this.getActiveTool().name) {
       if(newTool !== 'pan') {
         this.project.selection.clear();
       }
@@ -91,57 +91,43 @@ class EditorCore extends Component {
   }
 
   /**
-   * Updates the zoom level of the project. Helper for zoom in and zoom out.
-   * @param  {number} zoomPercentage The value to set the zoom percentage to.
+   * Zooms in the canvas.
    */
-  updateZoom = (zoomPercentage) => {
-    let adjustedMinZoom = Math.max(zoomPercentage, this.toolRestrictions.zoomPercentage.min);
-    let adjustedZoom = Math.min(adjustedMinZoom, this.toolRestrictions.zoomPercentage.max);
-    this.project.zoom = adjustedZoom/100;
+  zoomIn = () => {
+    this.project.zoomIn();
     this.projectDidChange();
   }
 
   /**
-   * Zooms in the canvas.
-   * @param  {number} zoomPercentage Amount to zoom canvas in by. If no
-   * value is provided, the default zoomPercentage step is used.
-   */
-  zoomIn = (zoomPercentage) => {
-    zoomPercentage = zoomPercentage ? zoomPercentage : this.toolRestrictions.zoomPercentage.step;
-    let currentZoom = this.project.zoom*100;
-    this.updateZoom(currentZoom*zoomPercentage);
-  }
-
-  /**
    * Zooms out the canvas.
-   * @param  {number} zoomPercentage Amount to zoom out the canvas by. If no
-   * value is provided, the default zoomPercentage step is used.
    */
-  zoomOut = (zoomPercentage) => {
-    zoomPercentage = zoomPercentage ? zoomPercentage : this.toolRestrictions.zoomPercentage.step;
-    let currentZoom = this.project.zoom*100;
-    this.updateZoom(currentZoom/zoomPercentage);
+  zoomOut = () => {
+    this.project.zoomOut();
+    this.projectDidChange();
   }
 
   /**
    * Returns an object containing the tool settings.
    * @returns {object} The object containing the tool settings.
    */
-  getToolSettings = () => {
-    return this.state.toolSettings;
+  getToolSetting = (name) => {
+    return this.project.toolSettings.getSetting(name);
   }
 
   /**
    * Updates the tool settings state.
    * @param {object} newToolSettings - An object of key-value pairs where the keys represent tool settings and the values represent the values to change those settings to.
    */
-  setToolSettings = (newToolSettings) => {
-    this.setState({
-      toolSettings: {
-        ...this.state.toolSettings,
-        ...newToolSettings,
-      }
-    });
+  setToolSetting = (name, value) => {
+    this.project.toolSettings.setSetting(name, value);
+    this.projectDidChange();
+  }
+
+  /**
+   *
+   */
+  getToolSettingRestrictions = (name) => {
+      return this.project.toolSettings.getSettingRestrictions(name);
   }
 
   /**

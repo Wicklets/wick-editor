@@ -23,6 +23,8 @@ Wick.Tools.Pan = class extends Wick.Tool {
      */
     constructor () {
         super();
+
+        this.name = 'pan';
     }
 
     /**

@@ -23,6 +23,8 @@ Wick.Tools.None = class extends Wick.Tool {
      */
     constructor () {
         super();
+
+        this.name = 'none';
     }
 
     /**

@@ -28,6 +28,8 @@ Wick.Tools.Pencil = class extends Wick.Tool {
     constructor () {
         super();
 
+        this.name = 'pencil'
+
         this.path = null;
 
         this._movement = new paper.Point();

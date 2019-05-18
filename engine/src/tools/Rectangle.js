@@ -24,6 +24,8 @@ Wick.Tools.Rectangle = class extends Wick.Tool {
     constructor () {
         super();
 
+        this.name = 'rectangle';
+
         this.path = null;
 
         this.topLeft = null;

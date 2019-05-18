@@ -39,14 +39,12 @@ class Toolbox extends Component {
       setActiveTool: this.props.setActiveTool,
       setToolSettings: this.props.setToolSettings,
       className: 'toolbox-item',
+      getActiveTool: this.props.getActiveTool,
+      toolSettings: this.props.toolSettings,
     }
 
     // List of callbacks to call on Scroll.
     this.scrollFns = [];
-  }
-
-  onComponentUpdate = () => {
-    this.toolButtonProps.activeTool = this.props.getActiveTool();
   }
 
   renderAction = (action, i) => {
@@ -57,6 +55,7 @@ class Toolbox extends Component {
     }
     return(
       <ToolButton
+        {...this.toolButtonProps}
         activeTool={this.props.activeTool}
         toolSettings={this.props.toolSettings}
         action={action.action}
@@ -70,6 +69,7 @@ class Toolbox extends Component {
   renderToolButtonFromAction = (action) => {
     return (
       <ToolButton
+      {...this.toolButtonProps}
       action={action.action}
       name={action.icon}
       tooltip={action.tooltip} />
@@ -80,24 +80,24 @@ class Toolbox extends Component {
     return(
       <div
         className="tool-box">
-        <ToolButton activeTool={this.props.activeTool} toolSettings={this.props.toolSettings} {...this.toolButtonProps} name='cursor' tooltip="Cursor" />
-        <ToolButton activeTool={this.props.activeTool} toolSettings={this.props.toolSettings} {...this.toolButtonProps} name='brush' tooltip="Brush" />
-        <ToolButton activeTool={this.props.activeTool} toolSettings={this.props.toolSettings} {...this.toolButtonProps} name='pencil' tooltip="Pencil" />
-        <ToolButton activeTool={this.props.activeTool} toolSettings={this.props.toolSettings} {...this.toolButtonProps} name='eraser' tooltip="Eraser" />
-        <ToolButton activeTool={this.props.activeTool} toolSettings={this.props.toolSettings} {...this.toolButtonProps} name='rectangle' tooltip="Rectangle" />
-        <ToolButton activeTool={this.props.activeTool} toolSettings={this.props.toolSettings} {...this.toolButtonProps} name='ellipse' tooltip="Ellipse" />
-        <ToolButton activeTool={this.props.activeTool} toolSettings={this.props.toolSettings} {...this.toolButtonProps} name='line' tooltip="Line" />
-        <ToolButton activeTool={this.props.activeTool} toolSettings={this.props.toolSettings} {...this.toolButtonProps} name='text' tooltip="Text" />
-        <ToolButton activeTool={this.props.activeTool} toolSettings={this.props.toolSettings} {...this.toolButtonProps} name='fillbucket' tooltip="Fill Bucket" />
+        <ToolButton {...this.toolButtonProps} name='cursor' tooltip="Cursor" />
+        <ToolButton {...this.toolButtonProps} name='brush' tooltip="Brush" />
+        <ToolButton {...this.toolButtonProps} name='pencil' tooltip="Pencil" />
+        <ToolButton {...this.toolButtonProps} name='eraser' tooltip="Eraser" />
+        <ToolButton {...this.toolButtonProps} name='rectangle' tooltip="Rectangle" />
+        <ToolButton {...this.toolButtonProps} name='ellipse' tooltip="Ellipse" />
+        <ToolButton {...this.toolButtonProps} name='line' tooltip="Line" />
+        <ToolButton {...this.toolButtonProps} name='text' tooltip="Text" />
+        <ToolButton {...this.toolButtonProps} name='fillbucket' tooltip="Fill Bucket" />
 
         <ToolboxBreak className="toolbox-item"/>
 
         <div className="color-container toolbox-item" id="fill-color-picker-container">
             <WickInput
               type="color"
-              color= {this.props.toolSettings.fillColor}
+              color= {this.props.getToolSetting('fillColor').toCSS(true)}
               onChange={(color) => {
-                this.props.setToolSettings({fillColor: color})
+                this.props.setToolSetting('fillColor', color);
               }}
               id="tool-box-fill-color"
               tooltipID="tool-box-fill-color"
@@ -108,9 +108,9 @@ class Toolbox extends Component {
           <div className="color-container toolbox-item" id="stroke-color-picker-container">
             <WickInput
               type="color"
-              color= {this.props.toolSettings.strokeColor}
+              color= {this.props.getToolSetting('strokeColor').toCSS(true)}
               onChange={(color) => {
-                this.props.setToolSettings({strokeColor: color});
+                this.props.setToolSetting('strokeColor', color);
               }}
               id="tool-box-stroke-color"
               tooltipID="tool-box-stroke-color"
@@ -126,7 +126,7 @@ class Toolbox extends Component {
             activeTool={this.props.activeTool}
             toolSettings={this.props.toolSettings}
             setToolSettings={this.props.setToolSettings}
-            toolRestrictions={this.props.toolRestrictions} />
+            getToolSettingRestrictions={this.props.getToolSettingRestrictions} />
 
       <div className="toolbox-actions-right-container">
         <div className="toolbox-actions-right">

@@ -24,6 +24,8 @@ Wick.Tools.Eraser = class extends Wick.Tool {
     constructor () {
         super();
 
+        this.name = 'eraser';
+
         this.path = null;
 
         this.cursorSize = null;

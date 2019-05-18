@@ -81,7 +81,7 @@ Wick.Project = class extends Wick.Base {
             zoom: new Wick.Tools.Zoom(),
         };
         this._toolSettings = new Wick.ToolSettings();
-        this.activeTool = 'none';
+        this.activeTool = 'cursor';
 
         this.history.project = this;
         this.history.pushState();
@@ -717,6 +717,20 @@ Wick.Project = class extends Wick.Base {
     recenter () {
         this.pan = {x: 0, y: 0};
         this.zoom = 1;
+    }
+
+    /**
+     *
+     */
+    zoomIn () {
+        this.zoom *= 1.25;
+    }
+
+    /**
+     *
+     */
+    zoomOut () {
+        this.zoom *= 0.8;
     }
 
     /**

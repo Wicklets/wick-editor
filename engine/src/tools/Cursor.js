@@ -24,6 +24,8 @@ Wick.Tools.Cursor = class extends Wick.Tool {
     constructor () {
         super();
 
+        this.name = 'cursor';
+
         this.SELECTION_TOLERANCE = 3;
         this.CURSOR_DEFAULT = 'cursors/default.png';
         this.CURSOR_SCALE_TOP_RIGHT_BOTTOM_LEFT = 'cursors/scale-top-right-bottom-left.png';

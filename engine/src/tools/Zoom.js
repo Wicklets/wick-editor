@@ -24,6 +24,8 @@ Wick.Tools.Zoom = class extends Wick.Tool {
     constructor () {
         super();
 
+        this.name = 'zoom';
+
         this.ZOOM_MIN = 0.1;
         this.ZOOM_MAX = 20;
         this.ZOOM_IN_AMOUNT = 1.25;

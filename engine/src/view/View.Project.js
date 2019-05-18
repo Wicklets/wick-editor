@@ -348,6 +348,7 @@ Wick.View.Project = class extends Wick.View {
             this._toolsSetup = true;
             this._setupTools();
         }
+        this.model.activeTool.activate();
 
         // Update zoom and pan
         if(this._fitMode === 'center') {

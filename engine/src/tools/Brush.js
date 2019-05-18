@@ -24,6 +24,8 @@ Wick.Tools.Brush = class extends Wick.Tool {
     constructor () {
         super();
 
+        this.name = 'brush';
+
         this.BRUSH_POINT_SPACING = 0.2;
 
         this.croquis;

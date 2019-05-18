@@ -64,7 +64,7 @@ class Editor extends EditorCore {
     this.state = {
       project: null,
       previewPlaying: false,
-      activeModalName: "WelcomeMessage",
+      activeModalName: window.localStorage.skipWelcomeMessage ? null : "WelcomeMessage",
       activeModalQueue: [],
       codeEditorOpen: false,
       scriptToEdit: "add",
@@ -612,10 +612,11 @@ class Editor extends EditorCore {
                             minSize={40}>
                             <DockedPanel showOverlay={this.state.previewPlaying}>
                               <Toolbox
+                                project={this.state.project}
                                 getActiveTool={this.getActiveTool}
                                 setActiveTool={this.setActiveTool}
-                                toolSettings={this.state.toolSettings}
-                                setToolSettings={this.setToolSettings}
+                                getToolSetting={this.getToolSetting}
+                                setToolSetting={this.setToolSetting}
                                 previewPlaying={this.state.previewPlaying}
                                 editorActions={this.actionMapInterface.editorActions}
                               />
@@ -690,8 +691,8 @@ class Editor extends EditorCore {
                           <ReflexElement {...this.resizeProps}>
                             <DockedPanel showOverlay={this.state.previewPlaying}>
                               <Inspector
-                                getToolSettings={this.getToolSettings}
-                                setToolSettings={this.setToolSettings}
+                                getToolSetting={this.getToolSetting}
+                                setToolSetting={this.setToolSetting}
                                 getSelectionType={this.getSelectionType}
                                 getAllSoundAssets={this.getAllSoundAssets}
                                 getAllSelectionAttributes={this.getAllSelectionAttributes}
