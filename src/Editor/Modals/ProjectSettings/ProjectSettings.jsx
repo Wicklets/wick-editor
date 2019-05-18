@@ -73,9 +73,8 @@ class ProjectSettings extends Component {
   }
 
   changeProjectBackgroundColor = (color) => {
-    this.props.project.backgroundColor = color.hex;
     this.setState({
-      backgroundColor: color.hex
+      backgroundColor: color,
     });
   }
 
@@ -92,11 +91,22 @@ class ProjectSettings extends Component {
     this.props.toggle();
   }
 
+  resetAndToggle = () => {
+    this.setState({
+      name: this.props.project.name,
+      width: this.props.project.width,
+      height: this.props.project.height,
+      framerate: this.props.project.framerate,
+      backgroundColor: this.props.project.backgroundColor,
+    });
+    this.props.toggle(); 
+  }
+
   render() {
     return (
       <WickModal 
       open={this.props.open} 
-      toggle={this.props.toggle} 
+      toggle={this.resetAndToggle} 
       className="project-settings-modal-body"
       overlayClassName="project-settings-modal-overlay">
         <div id="project-settings-interior-content">
@@ -160,7 +170,7 @@ class ProjectSettings extends Component {
                 disableAlpha={true}
                 placement={'bottom'}
                 color={this.state.backgroundColor}
-                onChangeComplete={this.changeProjectBackgroundColor} />
+                onChange={this.changeProjectBackgroundColor} />
             </div>
           </div>
 
@@ -170,7 +180,7 @@ class ProjectSettings extends Component {
                 <ActionButton 
                   className="project-settings-modal-button"
                   color='gray'
-                  action={this.props.toggle}
+                  action={this.resetAndToggle}
                   text="Cancel"
                   />
               </div>
