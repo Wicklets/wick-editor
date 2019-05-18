@@ -65288,7 +65288,9 @@ Wick.History = class {
   }
 
   _generateState(filter) {
-    return Wick.ObjectCache.getActiveObjects(this.project).map(object => {
+    var objects = Wick.ObjectCache.getActiveObjects(this.project);
+    objects.push(this.project);
+    return objects.map(object => {
       return object.serialize();
     });
   }
@@ -69532,14 +69534,18 @@ Wick.Tickable = class extends Wick.Base {
     super(args);
     this._onscreen = false;
     this._onscreenLastTick = false;
-    this._scripts = [];
     this._mouseState = 'out';
     this._lastMouseState = 'out';
+    this._scripts = [];
     this.cursor = 'default';
   }
 
   deserialize(data) {
     super.deserialize(data);
+    this._onscreen = false;
+    this._onscreenLastTick = false;
+    this._mouseState = 'out';
+    this._lastMouseState = 'out';
     this._scripts = [].concat(data.scripts || []);
     this.cursor = data.cursor;
   }
@@ -74624,7 +74630,12 @@ Wick.View.Project = class extends Wick.View {
       this._setupTools();
     }
 
-    this.model.activeTool.activate(); // Update zoom and pan
+    if (!this.model.activeFrame || this.model.activeLayer.locked || this.model.activeLayer.hidden) {
+      this.model.tools.none.activate();
+    } else {
+      this.model.activeTool.activate();
+    } // Update zoom and pan
+
 
     if (this._fitMode === 'center') {
       this.paper.view.zoom = this.model.zoom;
