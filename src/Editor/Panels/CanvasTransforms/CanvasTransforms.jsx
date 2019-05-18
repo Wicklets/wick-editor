@@ -11,7 +11,7 @@ class CanvasTransforms extends Component {
     return (
       <ActionButton
         color="tool"
-        isActive={ options.isActive ? options.isActive : () => this.props.activeTool === options.name }
+        isActive={ options.isActive ? options.isActive : () => this.props.activeToolName === options.name }
         id={"canvas-transform-button-" + options.name}
         tooltip={options.tooltip}
         action={options.action}

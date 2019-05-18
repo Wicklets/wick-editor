@@ -613,12 +613,14 @@ class Editor extends EditorCore {
                             <DockedPanel showOverlay={this.state.previewPlaying}>
                               <Toolbox
                                 project={this.state.project}
-                                getActiveTool={this.getActiveTool}
+                                getActiveToolName={() => this.getActiveTool().name}
+                                activeToolName={this.getActiveTool().name}
                                 setActiveTool={this.setActiveTool}
                                 getToolSetting={this.getToolSetting}
                                 setToolSetting={this.setToolSetting}
                                 previewPlaying={this.state.previewPlaying}
                                 editorActions={this.actionMapInterface.editorActions}
+                                getToolSettingRestrictions={this.getToolSettingRestrictions}
                               />
 
                             </DockedPanel>
@@ -631,7 +633,6 @@ class Editor extends EditorCore {
                                 projectDidChange={this.projectDidChange}
                                 projectData={this.state.project}
                                 paper={this.paper}
-                                getActiveTool={this.getActiveTool}
                                 previewPlaying={this.state.previewPlaying}
                                 createImageFromAsset={this.createImageFromAsset}
                                 toast={this.toast}
@@ -643,7 +644,7 @@ class Editor extends EditorCore {
                                 zoomIn={this.zoomIn}
                                 zoomOut={this.zoomOut}
                                 recenterCanvas={this.recenterCanvas}
-                                getActiveTool={this.getActiveTool}
+                                activeToolName={this.getActiveTool().name}
                                 setActiveTool={this.setActiveTool}
                                 previewPlaying={this.state.previewPlaying}
                                 togglePreviewPlaying={this.togglePreviewPlaying}

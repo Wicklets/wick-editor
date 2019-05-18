@@ -37,10 +37,8 @@ class Toolbox extends Component {
 
     this.toolButtonProps = {
       setActiveTool: this.props.setActiveTool,
-      setToolSettings: this.props.setToolSettings,
       className: 'toolbox-item',
-      getActiveTool: this.props.getActiveTool,
-      toolSettings: this.props.toolSettings,
+      getActiveToolName: this.props.getActiveToolName,
     }
 
     // List of callbacks to call on Scroll.
@@ -56,8 +54,7 @@ class Toolbox extends Component {
     return(
       <ToolButton
         {...this.toolButtonProps}
-        activeTool={this.props.activeTool}
-        toolSettings={this.props.toolSettings}
+        activeTool={this.props.activeToolName}
         action={action.action}
         className='toolbox-item'
         name={action.icon}
@@ -123,9 +120,9 @@ class Toolbox extends Component {
           <ToolboxBreak className="toolbox-item"/>
 
           <ToolSettings
-            activeTool={this.props.activeTool}
-            toolSettings={this.props.toolSettings}
-            setToolSettings={this.props.setToolSettings}
+            activeTool={this.props.activeToolName}
+            getToolSetting={this.props.getToolSetting}
+            setToolSetting={this.props.setToolSetting}
             getToolSettingRestrictions={this.props.getToolSettingRestrictions} />
 
       <div className="toolbox-actions-right-container">
