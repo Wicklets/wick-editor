@@ -28,10 +28,6 @@ Wick.Tools.Ellipse = class extends Wick.Tool {
 
         this.topLeft = null;
         this.bottomRight = null;
-
-        this.fillColor = '#ff0000';
-        this.strokeColor = '#000000';
-        this.strokeWidth = 1;
     }
 
     /**
@@ -78,9 +74,9 @@ Wick.Tools.Ellipse = class extends Wick.Tool {
         this.path = new this.paper.Path.Ellipse(bounds);
         this.paper.project.activeLayer.addChild(this.path);
 
-        this.path.fillColor = this.fillColor;
-        this.path.strokeColor = this.strokeColor;
-        this.path.strokeWidth = this.strokeWidth;
+        this.path.fillColor = this.getSetting('fillColor');
+        this.path.strokeColor = this.getSetting('strokeColor');
+        this.path.strokeWidth = this.getSetting('strokeWidth');
         this.path.strokeCap = 'round';
     }
 

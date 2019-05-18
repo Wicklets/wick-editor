@@ -99,7 +99,7 @@ describe('Wick.History', function() {
         Wick.ObjectCache.removeAllObjects();
 
         var project = new Wick.Project();
-        var cursor = project.view.tools.cursor;
+        var cursor = project.tools.cursor;
 
         var pathJson1 = ["Path",{"segments":[[0,0],[50,0],[50,50],[0,50]],"closed":true,"fillColor":[1,0,0]}];
         var pathJson2 = ["Path",{"segments":[[50,100],[50,50],[100,50],[100,100]],"closed":true,"fillColor":[1,0,0]}];
@@ -124,7 +124,17 @@ describe('Wick.History', function() {
     });
 
     it('should save and recover focus', function () {
-        // TODO
+        var project = new Wick.Project();
+        var main = new Wick.Clip();
+        project.activeFrame.addClip(main);
+        project.history.pushState();
+        project.focus = main;
+        project.history.pushState();
+        project.focus = project.root;
+        project.undo();
+        expect(project.focus).to.equal(main);
+        project.undo();
+        expect(project.focus).to.equal(project.root);
     });
 
     it('should save and load snapshots', function () {
@@ -171,4 +181,13 @@ describe('Wick.History', function() {
         expect(project.activeFrame.paths[0].uuid).to.equal(path3.uuid);
         expect(project.activeFrame.paths[0].view.item.fillColor.toCSS(true)).to.equal('#0000ff');
     });
+
+    // this is a test for the fix for the crash on frame delete undo.
+    it('(bug) parent references should remain after delete undo', function () {
+        var project = new Wick.Project();
+        project.history.pushState();
+        project.activeFrame.remove();
+        project.undo();
+        expect(project.activeFrame.parent).to.equal(project.activeLayer);
+    })
 });

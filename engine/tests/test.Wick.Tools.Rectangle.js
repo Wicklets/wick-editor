@@ -1,12 +1,12 @@
 describe('Wick.Tools.Rectangle', function() {
     it('should activate without errors', function() {
         var project = new Wick.Project();
-        project.view.tools.rectangle.activate();
+        project.tools.rectangle.activate();
     });
 
     it('should draw a rectangle', function(done) {
         var project = new Wick.Project();
-        var rectangle = project.view.tools.rectangle;
+        var rectangle = project.tools.rectangle;
 
         project.view.render();
 
@@ -32,9 +32,9 @@ describe('Wick.Tools.Rectangle', function() {
 describe('Tools.Rectangle', function() {
     it('Should activate without errors', function() {
         var project = new Wick.Project();
-        var paper = project.view.tools.rectangle.paper;
+        var paper = project.tools.rectangle.paper;
         paper.project.clear();
-        project.view.tools.rectangle.activate();
+        project.tools.rectangle.activate();
     });
 
     it('Should draw rectangle', function() {
@@ -47,9 +47,9 @@ describe('Tools.Rectangle', function() {
 
     it('Should fire onCanvasModified event with correct layers', function(done) {
         var project = new Wick.Project();
-        var paper = project.view.tools.rectangle.paper;
+        var paper = project.tools.rectangle.paper;
         paper.project.clear();
-        project.view.tools.rectangle.activate();
+        project.tools.rectangle.activate();
 
         project.view.on('canvasModified', function (e) {
             expect(e.layers.length).to.equal(1);
@@ -57,10 +57,10 @@ describe('Tools.Rectangle', function() {
             paper.project.clear();
             done();
         });
-        project.view.tools.rectangle.activate();
-        project.view.tools.rectangle.onMouseDown({point:new paper.Point(0,0)});
-        project.view.tools.rectangle.onMouseDrag({modifiers:{},point:new paper.Point(30,30)});
-        project.view.tools.rectangle.onMouseUp();
+        project.tools.rectangle.activate();
+        project.tools.rectangle.onMouseDown({point:new paper.Point(0,0)});
+        project.tools.rectangle.onMouseDrag({modifiers:{},point:new paper.Point(30,30)});
+        project.tools.rectangle.onMouseUp();
     });
 });
 */

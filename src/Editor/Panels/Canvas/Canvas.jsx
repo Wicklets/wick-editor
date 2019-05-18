@@ -77,19 +77,6 @@ class Canvas extends Component {
   updateCanvas = (project) => {
     this.attachProjectToComponent(project);
 
-    // update the drawing tool based on the editor's active tool state.
-    // TODO Move this to engine.
-    let toolName = this.props.activeTool;
-    let tool = this.props.project.view.tools[this.props.activeTool];
-    if(!tool) {
-      console.warn('Invalid tool: ' + toolName);
-    } else {
-      tool.activate();
-      Object.keys(this.props.toolSettings).forEach(key => {
-        tool[key] = this.props.toolSettings[key];
-      });
-    }
-
     // If the active frame is on a locked/hidden layer, or there is no active frame, disable all tools.
     // TODO Move this to engine.
     if(!project.activeFrame ||

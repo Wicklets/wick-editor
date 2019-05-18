@@ -46,7 +46,7 @@ class Toolbox extends Component {
   }
 
   onComponentUpdate = () => {
-    this.toolButtonProps.activeTool = this.props.activeTool;
+    this.toolButtonProps.activeTool = this.props.getActiveTool();
   }
 
   renderAction = (action, i) => {

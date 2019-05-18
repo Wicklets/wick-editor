@@ -63,24 +63,6 @@ class Editor extends EditorCore {
     // GUI state
     this.state = {
       project: null,
-      activeTool: 'cursor',
-      toolSettings: {
-        fillColor: '#000',
-        strokeColor: '#000',
-        strokeWidth: 1,
-        brushSize: 10,
-        eraserSize: 10,
-        brushSmoothing: 0.9,
-        brushSmoothness: 10,
-        cornerRadius: 0,
-        pressureEnabled: false,
-        sizeJump: 5,
-        pixelDropper: true,
-        fontSize: 20,
-        fontFamily: 'Nunito',
-        selectPoints: false,
-        selectCurves: false,
-      },
       previewPlaying: false,
       activeModalName: "WelcomeMessage",
       activeModalQueue: [],
@@ -99,8 +81,6 @@ class Editor extends EditorCore {
         cancelAction: (() => {console.warn("No Cancel Action")}),
       }
     };
-
-    this.toolRestrictions = this.getToolRestrictions();
 
     // Set up error.
     this.error = null;
@@ -130,56 +110,6 @@ class Editor extends EditorCore {
 
     this.canvasComponent = null;
     this.timelineComponent = null;
-  }
-
-  getToolRestrictions = () => {
-    return {
-      strokeWidth: {
-        min: 0,
-        max: 100,
-        step: 1,
-      },
-      brushSize: {
-        min: 2,
-        max: 30,
-        step: 1,
-      },
-      eraserSize: {
-        min: 0,
-        max: 100,
-        step: 1,
-      },
-      brushSmoothing: {
-        min: 0,
-        max: 100,
-        step: 1,
-      },
-      opacity: {
-        min: 0,
-        max: 1,
-        step: .01,
-      },
-      cornerRadius: {
-        min: 0,
-        max: 100,
-        step: 1,
-      },
-      fontSize: {
-        min: 0,
-        max: 1000,
-        step: 1,
-      },
-      zoomPercentage: {
-        min: 10,
-        max: 2000,
-        step: 1.25,
-      },
-      soundVolume: {
-        min: 0,
-        max: 5,
-        step: .01,
-      }
-    }
   }
 
   componentWillMount = () => {
@@ -536,7 +466,7 @@ class Editor extends EditorCore {
     // Default options for the toast:
     let defaultOptions = {
       position: "top-right",
-      autoClose: 1000 * 60,
+      autoClose: 3000,
       hideProgressBar: true,
       closeOnClick: true,
       pauseOnHover: true,
@@ -682,11 +612,10 @@ class Editor extends EditorCore {
                             minSize={40}>
                             <DockedPanel showOverlay={this.state.previewPlaying}>
                               <Toolbox
-                                activeTool={this.state.activeTool}
+                                getActiveTool={this.getActiveTool}
                                 setActiveTool={this.setActiveTool}
                                 toolSettings={this.state.toolSettings}
                                 setToolSettings={this.setToolSettings}
-                                toolRestrictions={this.toolRestrictions}
                                 previewPlaying={this.state.previewPlaying}
                                 editorActions={this.actionMapInterface.editorActions}
                               />
@@ -701,8 +630,7 @@ class Editor extends EditorCore {
                                 projectDidChange={this.projectDidChange}
                                 projectData={this.state.project}
                                 paper={this.paper}
-                                activeTool={this.state.activeTool}
-                                toolSettings={this.state.toolSettings}
+                                getActiveTool={this.getActiveTool}
                                 previewPlaying={this.state.previewPlaying}
                                 createImageFromAsset={this.createImageFromAsset}
                                 toast={this.toast}
@@ -714,7 +642,7 @@ class Editor extends EditorCore {
                                 zoomIn={this.zoomIn}
                                 zoomOut={this.zoomOut}
                                 recenterCanvas={this.recenterCanvas}
-                                activeTool={this.state.activeTool}
+                                getActiveTool={this.getActiveTool}
                                 setActiveTool={this.setActiveTool}
                                 previewPlaying={this.state.previewPlaying}
                                 togglePreviewPlaying={this.togglePreviewPlaying}
@@ -762,7 +690,6 @@ class Editor extends EditorCore {
                           <ReflexElement {...this.resizeProps}>
                             <DockedPanel showOverlay={this.state.previewPlaying}>
                               <Inspector
-                                toolRestrictions={this.toolRestrictions}
                                 getToolSettings={this.getToolSettings}
                                 setToolSettings={this.setToolSettings}
                                 getSelectionType={this.getSelectionType}

@@ -1,12 +1,12 @@
 describe('Wick.Tools.Line', function() {
     it('should activate without errors', function() {
         var project = new Wick.Project();
-        project.view.tools.line.activate();
+        project.tools.line.activate();
     });
 
     it('Should draw a line', function(done) {
         var project = new Wick.Project();
-        var line = project.view.tools.line;
+        var line = project.tools.line;
 
         project.view.render();
 
@@ -26,22 +26,22 @@ describe('Wick.Tools.Line', function() {
 describe('Tools.Line', function() {
     it('Should activate without errors', function() {
         var project = new Wick.Project();
-        var paper = project.view.tools.line.paper;
+        var paper = project.tools.line.paper;
         paper.project.clear();
-        project.view.tools.line.activate();
+        project.tools.line.activate();
     });
 
     it('Should draw line', function() {
         var project = new Wick.Project();
-        var paper = project.view.tools.line.paper;
+        var paper = project.tools.line.paper;
         paper.project.clear();
-        project.view.tools.line.activate();
+        project.tools.line.activate();
 
-        project.view.tools.line.onMouseDown({point:new paper.Point(0,0)});
-        project.view.tools.line.onMouseDrag({point:new paper.Point(50,50)});
-        project.view.tools.line.onMouseDrag({point:new paper.Point(75,75)});
-        project.view.tools.line.onMouseDrag({point:new paper.Point(100,100)});
-        project.view.tools.line.onMouseUp();
+        project.tools.line.onMouseDown({point:new paper.Point(0,0)});
+        project.tools.line.onMouseDrag({point:new paper.Point(50,50)});
+        project.tools.line.onMouseDrag({point:new paper.Point(75,75)});
+        project.tools.line.onMouseDrag({point:new paper.Point(100,100)});
+        project.tools.line.onMouseUp();
         expect(paper.project.activeLayer.children.length).to.equal(1);
         expect(paper.project.activeLayer.children[0].className).to.equal('Path');
         expect(paper.project.activeLayer.children[0].segments.length).to.equal(2);
@@ -51,19 +51,19 @@ describe('Tools.Line', function() {
 
     it('Should fire onCanvasModified event with correct layers', function(done) {
         var project = new Wick.Project();
-        var paper = project.view.tools.line.paper;
+        var paper = project.tools.line.paper;
         paper.project.clear();
-        project.view.tools.line.activate();
+        project.tools.line.activate();
 
         project.view.on('canvasModified', function (e) {
             expect(e.layers.length).to.equal(1);
             expect(e.layers[0]).to.equal(paper.project.activeLayer);
             done();
         });
-        project.view.tools.line.activate();
-        project.view.tools.line.onMouseDown({point:new paper.Point(0,0)});
-        project.view.tools.line.onMouseDrag({point:new paper.Point(200,100)});
-        project.view.tools.line.onMouseUp();
+        project.tools.line.activate();
+        project.tools.line.onMouseDown({point:new paper.Point(0,0)});
+        project.tools.line.onMouseDrag({point:new paper.Point(200,100)});
+        project.tools.line.onMouseUp();
     });
 });
 */

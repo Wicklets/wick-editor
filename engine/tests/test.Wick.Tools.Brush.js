@@ -19,14 +19,14 @@ describe('Wick.Tools.Brush', function() {
         var project = new Wick.Project();
         buildDummyCanvasContainer(project);
 
-        project.view.tools.brush.activate();
+        project.tools.brush.activate();
 
         destroyDummyCanvasContainer(project);
     });
 
     it('should draw a brush stroke', function(done) {
         var project = new Wick.Project();
-        var brush = project.view.tools.brush;
+        var brush = project.tools.brush;
         buildDummyCanvasContainer(project);
 
         project.view.on('canvasModified', function (e) {

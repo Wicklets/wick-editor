@@ -23,8 +23,6 @@ Wick.Tools.FillBucket = class extends Wick.Tool {
      */
     constructor () {
         super();
-
-        this.fillColor = '#ff0000';
     }
 
     /**
@@ -48,7 +46,7 @@ Wick.Tools.FillBucket = class extends Wick.Tool {
             fill: true
         });
         if(hitResult && hitResult.item) {
-            hitResult.item.fillColor = this.fillColor;
+            hitResult.item.fillColor = this.getSetting('fillColor');
             this.fireEvent('canvasModified');
         } else {
             setTimeout(() => {
@@ -61,7 +59,7 @@ Wick.Tools.FillBucket = class extends Wick.Tool {
                     onFinish: (path) => {
                         this.setCursor('default');
                         if(path) {
-                            path.fillColor = this.fillColor;
+                            path.fillColor = this.getSetting('fillColor');
                             path.name = null;
                             this.paper.project.activeLayer.addChild(path);
                             this.fireEvent('canvasModified');

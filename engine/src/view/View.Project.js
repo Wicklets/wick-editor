@@ -68,8 +68,6 @@ Wick.View.Project = class extends Wick.View {
 
         this._keysDown = [];
         this._isMouseDown = false;
-
-        this._setupTools();
     }
 
     /*
@@ -280,24 +278,8 @@ Wick.View.Project = class extends Wick.View {
     }
 
     _setupTools () {
-        this.tools = {
-            brush: new Wick.Tools.Brush(),
-            cursor: new Wick.Tools.Cursor(),
-            ellipse: new Wick.Tools.Ellipse(),
-            eraser: new Wick.Tools.Eraser(),
-            eyedropper: new Wick.Tools.Eyedropper(),
-            fillbucket: new Wick.Tools.FillBucket(),
-            line: new Wick.Tools.Line(),
-            none: new Wick.Tools.None(),
-            pan: new Wick.Tools.Pan(),
-            pencil: new Wick.Tools.Pencil(),
-            rectangle: new Wick.Tools.Rectangle(),
-            text: new Wick.Tools.Text(),
-            zoom: new Wick.Tools.Zoom(),
-        };
-
-        for (var toolName in this.tools) {
-            var tool = this.tools[toolName];
+        for (var toolName in this.model.tools) {
+            var tool = this.model.tools[toolName];
             tool.project = this.model;
             tool.on('canvasModified', (e) => {
                 this.applyChanges();
@@ -315,7 +297,7 @@ Wick.View.Project = class extends Wick.View {
             })
         }
 
-        this.tools.none.activate();
+        this.model.tools.none.activate();
     }
 
     _displayCanvasInContainer (canvas) {
@@ -361,6 +343,11 @@ Wick.View.Project = class extends Wick.View {
 
     _renderSVGCanvas () {
         this.paper.project.clear();
+
+        if(!this._toolsSetup) {
+            this._toolsSetup = true;
+            this._setupTools();
+        }
 
         // Update zoom and pan
         if(this._fitMode === 'center') {
