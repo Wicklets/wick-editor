@@ -67244,12 +67244,10 @@ Wick.Project = class extends Wick.Base {
 
 
   tick() {
-    //this.view.processInput();
-    var error = this.focus.tick(); //this.view.render();
-    //this.activeTimeline.guiElement.numberLine.playhead.build();
+    this.view.processInput();
+    var error = this.focus.tick(); // Save the current keysDown
 
-    this._keysLastDown = [].concat(this._keysDown); //!!!!!!!!!!!!!!!
-
+    this._keysLastDown = [].concat(this._keysDown);
     return error;
   }
   /**
