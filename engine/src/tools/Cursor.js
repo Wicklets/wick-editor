@@ -215,6 +215,8 @@ Wick.Tools.Cursor = class extends Wick.Tool {
         } else if (this._selection.numObjects > 0) {
             this._widget.finishTransformation();
             this.fireEvent('canvasModified');
+        } else if (this.hitResult.type === 'segment' || this.hitResult.type === 'curve') {
+            this.fireEvent('canvasModified');
         }
     }
 
