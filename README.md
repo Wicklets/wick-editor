@@ -33,3 +33,12 @@ You'll need to download the following:
 `localhost:3000`
 
 Have fun hacking on Wick!
+
+### Deploying
+
+1) Test the production build by using `npm predeploy`
+
+2) Run `npm run deploy`
+
+3) Change the "Custom domain" in the repo settings to `alpha.wickeditor.com`
+
