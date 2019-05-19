@@ -65799,22 +65799,26 @@ Wick.ToolSettings = class {
       name: 'strokeWidth',
       default: 1,
       min: 0,
-      max: 50
+      max: 50,
+      step: 1
     }, {
       name: 'brushSize',
       default: 10,
-      min: 2,
-      max: 30
+      min: 1,
+      max: 100,
+      step: 1
     }, {
       name: 'eraserSize',
       default: 10,
       min: 2,
-      max: 100
+      max: 100,
+      step: 1
     }, {
       name: 'cornerRadius',
       default: 0,
       min: 0,
-      max: 100
+      max: 100,
+      step: 1
     }, {
       name: 'pressureEnabled',
       default: false
@@ -65900,7 +65904,8 @@ Wick.ToolSettings = class {
     if (!setting) console.error("ToolSettings.getSettingRestrictions: invalid setting: " + name);
     return {
       min: setting.min,
-      max: setting.max
+      max: setting.max,
+      step: setting.step
     };
   }
   /**
@@ -68055,12 +68060,16 @@ Wick.Timeline = class extends Wick.Base {
   }
 
   set playheadPosition(playheadPosition) {
-    // Automatically clear selection when any playhead moves
+    // Automatically clear selection when any playhead in the project moves
     if (this.project && this._playheadPosition !== playheadPosition) {
       this.project.selection.clear('Canvas');
     }
 
-    this._playheadPosition = playheadPosition;
+    this._playheadPosition = playheadPosition; // Automatically apply tween transforms on child frames when playhead moves
+
+    this.activeFrames.forEach(frame => {
+      frame.applyTweenTransforms();
+    });
   }
   /**
    * The index of the active layer. Determines which frame to draw onto.
@@ -68501,12 +68510,17 @@ Wick.Tween = class extends Wick.Base {
   }
 
   set playheadPosition(playheadPosition) {
-    // Eat other tweens to prevent having two tweens in the same position.
     if (this.parentFrame) {
+      // Eat other tweens to prevent having two tweens in the same position.
       var tween = this.parentFrame.getTweenAtPosition(playheadPosition);
 
-      if (tween) {
+      if (tween && this !== tween) {
         tween.remove();
+      } // Remove tween if playheadPosition is out of bounds
+
+
+      if (playheadPosition < 1 || playheadPosition > this.parentFrame.length) {
+        this.remove();
       }
     }
 
@@ -70385,8 +70399,6 @@ Wick.Frame = class extends Wick.Tickable {
   }
 
   _onActivated() {
-    this.applyTweenTransforms();
-
     var error = super._onActivated();
 
     if (error) return error;
@@ -70395,8 +70407,6 @@ Wick.Frame = class extends Wick.Tickable {
   }
 
   _onActive() {
-    this.applyTweenTransforms();
-
     var error = super._onActive();
 
     if (error) return error;
@@ -70499,7 +70509,7 @@ Wick.Clip = class extends Wick.Tickable {
     this.timeline.addLayer(new Wick.Layer());
     this.timeline.activeLayer.addFrame(new Wick.Frame());
     this.identifier = args.identifier || 'New Symbol';
-    this.transformation = args.transformation || new Wick.Transformation();
+    this._transformation = args.transformation || new Wick.Transformation();
     this.cursor = 'default';
     /* If objects are passed in, add them to the clip and reposition them */
 
@@ -70750,6 +70760,27 @@ Wick.Clip = class extends Wick.Tickable {
 
   get currentFrameNumber() {
     return this.timeline.playheadPosition;
+  }
+  /**
+   * The current transformation of the clip.
+   * @type {Wick.Transformation}
+   */
+
+
+  get transformation() {
+    return this._transformation;
+  }
+
+  set transformation(transformation) {
+    this._transformation = transformation; // When the transformation changes, update the current tween, if one exists
+
+    if (this.parentFrame) {
+      var tween = this.parentFrame.getActiveTween();
+
+      if (tween) {
+        tween.transformation = this._transformation.clone();
+      }
+    }
   }
   /**
    * @deprecated
@@ -71279,7 +71310,7 @@ Wick.Tools.Brush = class extends Wick.Tool {
 
   onMouseDown(e) {
     // Update croquis params
-    this.croquisBrush.setSize(this.getSetting('brushSize'));
+    this.croquisBrush.setSize(this.getSetting('brushSize') + 1);
     this.croquisBrush.setColor(this.getSetting('fillColor').toCSS(true));
     this.croquisBrush.setSpacing(this.BRUSH_POINT_SPACING);
     this.croquis.setToolStabilizeLevel(this.brushStabilizerLevel);
@@ -71378,7 +71409,7 @@ Wick.Tools.Brush = class extends Wick.Tool {
   }
 
   _regenCursor() {
-    var size = this.getSetting('brushSize') * this.pressure;
+    var size = (this.getSetting('brushSize') + 1) * this.pressure;
     var color = this.getSetting('fillColor').toCSS(true);
     this.cachedCursor = this.createDynamicCursor(color, size);
     this.setCursor(this.cachedCursor);
@@ -71598,6 +71629,8 @@ Wick.Tools.Cursor = class extends Wick.Tool {
     } else if (this._selection.numObjects > 0) {
       this._widget.finishTransformation();
 
+      this.fireEvent('canvasModified');
+    } else if (this.hitResult.type === 'segment' || this.hitResult.type === 'curve') {
       this.fireEvent('canvasModified');
     }
   }
@@ -71932,7 +71965,7 @@ Wick.Tools.Eraser = class extends Wick.Tool {
     var cursorNeedsRegen = this.getSetting('eraserSize') !== this.cursorSize;
 
     if (cursorNeedsRegen) {
-      this.cachedCursor = this.createDynamicCursor(new paper.Color('#ffffff'), this.getSetting('eraserSize'));
+      this.cachedCursor = this.createDynamicCursor('#ffffff', this.getSetting('eraserSize'));
       this.cursorSize = this.getSetting('eraserSize');
       this.setCursor(this.cachedCursor);
     }
@@ -75679,13 +75712,15 @@ Wick.View.Frame = class extends Wick.View {
 
     this.clipsLayer.children.forEach(child => {
       var wickClip = this.model.getChildByUUID(child.data.wickUUID);
-      wickClip.transformation.x = child.position.x;
-      wickClip.transformation.y = child.position.y;
-      wickClip.transformation.scaleX = child.scaling.x;
-      wickClip.transformation.scaleY = child.scaling.y;
-      wickClip.transformation.rotation = child.rotation;
-      wickClip.transformation.opacity = child.opacity;
-    }); // TODO Update active tween / create new tween here
+      wickClip.transformation = new Wick.Transformation({
+        x: child.position.x,
+        y: child.position.y,
+        scaleX: child.scaling.x,
+        scaleY: child.scaling.y,
+        rotation: child.rotation,
+        opacity: child.opacity
+      });
+    });
   }
 
   _applyPathChanges() {
@@ -75698,12 +75733,6 @@ Wick.View.Frame = class extends Wick.View {
     this.pathsLayer.children.filter(child => {
       return child.data.wickType !== 'gui';
     }).forEach(child => {
-      if (!child.applyMatrix && !(child instanceof paper.Raster)) {
-        console.log(child);
-        console.error('Path had applyMatrix set to false on Frame applyChanges(). This should never happen - check that selection was properly destroyed.');
-        child.applyMatrix = true;
-      }
-
       var pathJSON = Wick.View.Path.exportJSON(child);
       var wickPath = new Wick.Path({
         json: pathJSON
@@ -76187,6 +76216,7 @@ Wick.GUIElement.Clickable = class extends Wick.GUIElement {
 
   handleMouseUp(e) {
     this.isBeingClicked = false;
+    this.isHoveredOver = false;
     this.fire('mouseUp', e);
   }
 
@@ -79226,6 +79256,7 @@ Wick.GUIElement.Tween = class extends Wick.GUIElement.Draggable {
   constructor(model) {
     super(model);
     this.dragOffset = new paper.Point(0, 0);
+    this.ghost = new Wick.GUIElement.TweenGhost(model);
     this.on('mouseOver', () => {
       this.build();
     });
@@ -79245,8 +79276,12 @@ Wick.GUIElement.Tween = class extends Wick.GUIElement.Draggable {
       this.build();
     });
     this.on('dragStart', () => {});
-    this.on('drag', () => {});
-    this.on('dragEnd', () => {});
+    this.on('drag', () => {
+      this._dragSelectedTweens();
+    });
+    this.on('dragEnd', () => {
+      this._tryToDropTweens();
+    });
   }
   /**
    *
@@ -79300,6 +79335,123 @@ Wick.GUIElement.Tween = class extends Wick.GUIElement.Draggable {
     tweenRect.position = tweenRect.position.add(new paper.Point(this.gridCellWidth / 2, this.gridCellHeight / 2 + 5));
     this.item.addChild(tweenRect);
     this.item.position = new paper.Point(this.x, this.y);
+    this.item.position.x += Math.round(this.dragOffset.x / this.gridCellWidth) * this.gridCellWidth;
+  }
+  /**
+   *
+   */
+
+
+  get selectedTweens() {
+    return this.model.project.selection.getSelectedObjects(Wick.Tween);
+  }
+  /**
+   *
+   */
+
+
+  drop() {
+    var newPlayheadPosition = Math.floor(this.x / this.gridCellWidth) + Math.round(this.dragOffset.x / this.gridCellWidth);
+    this.model.playheadPosition = newPlayheadPosition + 1;
+  }
+  /**
+   *
+   */
+
+
+  get draggingTweens() {
+    var draggingTweens = [];
+    this.model.parentTimeline.frames.forEach(frame => {
+      frame.tweens.forEach(tween => {
+        if (tween.guiElement.ghost.active) {
+          draggingTweens.push(tween);
+        }
+      });
+    });
+    return draggingTweens;
+  }
+
+  _dragSelectedTweens() {
+    this.selectedTweens.forEach(tween => {
+      tween.guiElement.item.bringToFront();
+      tween.guiElement.dragOffset = this.mouseDelta;
+      tween.guiElement.dragOffset.y = 0;
+      tween.guiElement.ghost.active = true;
+      tween.guiElement.build();
+    });
+  }
+
+  _tryToDropTweens() {
+    this.draggingTweens.forEach(tween => {
+      tween.guiElement.drop();
+      tween.guiElement.dragOffset = new paper.Point(0, 0);
+      tween.guiElement.ghost.active = false;
+      tween.guiElement.build();
+    });
+    this.model.project.guiElement.fire('projectModified');
+  }
+
+};
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* Copyright 2019 WICKLETS LLC
+*
+* This file is part of Wick Engine.
+*
+* Wick Engine is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Wick Engine is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+*/
+Wick.GUIElement.TweenGhost = class extends Wick.GUIElement {
+  /**
+   *
+   */
+  constructor(model) {
+    super(model);
+    this.active = false;
+    this.position = new paper.Point(0, 0);
+  }
+  /**
+   *
+   */
+
+
+  get active() {
+    return this._active;
+  }
+
+  set active(active) {
+    this._active = active;
+  }
+  /**
+   *
+   */
+
+
+  get position() {
+    return this._position;
+  }
+
+  set position(position) {
+    this._position = position;
+  }
+  /**
+   *
+   */
+
+
+  build() {
+    super.build();
   }
 
 };
