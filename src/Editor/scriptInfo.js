@@ -2,9 +2,9 @@
 class ScriptInfoInterface extends Object {
     get scriptsByType () {
         return {
-            'Timeline': ['load', 'update', 'unload'], 
             'Mouse': ['mouseenter', 'mouseleave', 'mousehover', 'mousepressed', 'mousedown', 'mousereleased', 'mousedrag', 'mouseclick'],
             'Keyboard': ['keypressed', 'keyreleased', 'keydown'],
+            'Timeline': ['load', 'update', 'unload', 'default'],
         }
     }
 
@@ -18,20 +18,21 @@ class ScriptInfoInterface extends Object {
 
     get scriptDescriptions () {
         return {
-            'load' : 'Once, when the frame is entered',
-            'unload' : 'Once, when the frame is exited',
-            'update' : 'Every tick, while the project is playing',
+            'default' : 'Once, before all other scripts',
             'mouseenter' : 'Once, when the mouse enters the object',
             'mouseleave' : 'Once, when the mouse leaves the object',
-            'mousehover' : 'Every tick, when the mouse is over the object', 
+            'mousehover' : 'Every tick, when the mouse is over the object',
             'mousepressed' : 'Once, when the mouse presses down on the object',
             'mousedown' : 'Every tick, when the mouse is down on the object',
             'mousereleased' : 'Once, when the mouse is released over the object',
             'mousedrag' : 'Every tick, when the mouse moves while down',
             'mouseclick' : 'Once, when the mouse goes down then up over an object',
-            'keypressed' : 'Once, when any key is pushed down', 
-            'keyreleased' : 'Once, when any key is released', 
+            'keypressed' : 'Once, when any key is pushed down',
+            'keyreleased' : 'Once, when any key is released',
             'keydown' : 'Every tick, when any key is down',
+            'load' : 'Once, when the frame is entered',
+            'unload' : 'Once, when the frame is exited',
+            'update' : 'Every tick, while the project is playing',
         }
     }
 
@@ -63,13 +64,13 @@ class ScriptInfoInterface extends Object {
                     name: 'gotoAndPlay',
                     snippet: 'gotoAndPlay(1)',
                     description: 'Moves the playhead to a frame on the timeline that this object belongs to, and plays that timeline.',
-                    params: [{name: 'frame', type: '{string|Number}'}], 
+                    params: [{name: 'frame', type: '{string|Number}'}],
                 },
                 {
                     name: 'gotoAndStop',
                     snippet: 'gotoAndStop(1)',
                     description: 'Moves the playhead to a frame on the timeline that this object belongs to, and stops that timeline.',
-                    params: [{name: 'frame', type: '{string|Number}'}], 
+                    params: [{name: 'frame', type: '{string|Number}'}],
                 },
                 {
                     name: 'gotoNextFrame',
@@ -137,12 +138,12 @@ class ScriptInfoInterface extends Object {
                     name: 'hitTest',
                     snippet: 'this.hitTest(that)',
                     description: 'Determines if the hitboxes of two objects overlap.',
-                    param: [{name: 'that', type: '{string}'}], 
-                    returns: [{type: 'bool', description: 'Returns true if the given object intersects this object.'}], 
+                    param: [{name: 'that', type: '{string}'}],
+                    returns: [{type: 'bool', description: 'Returns true if the given object intersects this object.'}],
                     deprecated: true,
                 },
             ]
-        ); 
+        );
     }
 
     get soundReference () {
@@ -239,18 +240,18 @@ class ScriptInfoInterface extends Object {
                     name: 'isKeyDown',
                     snippet: 'isKeyDown("a")',
                     description: 'Returns true if the given key is currently down.',
-                    param: [{name: 'key', type: '{string}'}], 
-                    returns: [{type: 'bool', description: 'True if passed key is down.'}], 
+                    param: [{name: 'key', type: '{string}'}],
+                    returns: [{type: 'bool', description: 'True if passed key is down.'}],
                 },
                 {
                     name: 'isKeyJustPressed',
                     snippet: 'isKeyJustPressed("a")',
                     description: 'Returns true if the given key was pressed within the last tick.',
-                    param: [{name: 'key', type: '{string}'}], 
-                    returns: [{type: 'bool', description: 'True if passed key was pressed in the last frame.'}], 
+                    param: [{name: 'key', type: '{string}'}],
+                    returns: [{type: 'bool', description: 'True if passed key was pressed in the last frame.'}],
                 },
             ]
-        ); 
+        );
     }
 }
 

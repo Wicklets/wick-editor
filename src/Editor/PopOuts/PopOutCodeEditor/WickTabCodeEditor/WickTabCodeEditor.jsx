@@ -23,7 +23,7 @@ import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import WickAceEditor from './WickAceEditor/WickAceEditor';
 import ActionButton from 'Editor/Util/ActionButton/ActionButton';
 import SelectSubTabButton from 'Editor/Util/SelectSubTabButton/SelectSubTabButton';
-import AddScriptPanel from './AddScriptPanel/AddScriptPanel'; 
+import AddScriptPanel from './AddScriptPanel/AddScriptPanel';
 
 import './_wicktabcodeeditor.scss';
 import './_wicktabcodeeditortabstyling.scss';
@@ -41,8 +41,7 @@ class WickTabCodeEditor extends Component {
     super(props);
 
     this.state = {
-      scriptSubTab: 'Timeline',
-
+      scriptSubTab: 'Mouse',
     }
 
     this.scriptsByType = this.props.scriptInfoInterface.scriptsByType;
@@ -93,10 +92,10 @@ class WickTabCodeEditor extends Component {
     let scripts = this.props.script.scripts;
 
     if (i < (scripts.length)) { // Select a code tab.
-      this.props.editScript(scripts[i].name); 
+      this.props.editScript(scripts[i].name);
     } else if (i === scripts.length) { // select add tab
       this.props.editScript("add");
-    } 
+    }
     // Otherwise, ignore.
 
   }
@@ -109,7 +108,7 @@ class WickTabCodeEditor extends Component {
 
     return (
       <WickAceEditor
-        focus={true} 
+        focus={true}
         addNewEditor={this.props.addNewEditor}
         onUpdate={wrappedUpdate}
         script={script.src}
@@ -140,7 +139,7 @@ class WickTabCodeEditor extends Component {
     return (
       <Tab>
         <div id="code-editor-add-script-tab">
-          <ToolIcon name="add" /> 
+          <ToolIcon name="add" />
         </div>
       </Tab>
     )
@@ -148,16 +147,16 @@ class WickTabCodeEditor extends Component {
 
   setSubTab = (name) => {
     this.setState({
-      scriptSubTab: name, 
-    }); 
+      scriptSubTab: name,
+    });
   }
 
   /**
-   * Returns the scripts which can be added based on the currently selected sub tab. 
+   * Returns the scripts which can be added based on the currently selected sub tab.
    * @returns {object[]} Scripts returned in the form of an object with name, used, and description properties.
    */
   getAddableScripts = () => {
-    let addable = this.scriptsByType[this.state.scriptSubTab]; 
+    let addable = this.scriptsByType[this.state.scriptSubTab];
     let availableScripts = this.props.script.getAvailableScripts();
 
     let final = []
@@ -165,12 +164,12 @@ class WickTabCodeEditor extends Component {
     addable.forEach(key => {
         let scriptObject = {
           name: key,
-          used: availableScripts.indexOf(key) === -1, 
-          description: this.scriptDescriptions[key], 
+          used: availableScripts.indexOf(key) === -1,
+          description: this.scriptDescriptions[key],
         }
         final.push(scriptObject)
       }
-    ); 
+    );
 
     return final;
   }
@@ -186,11 +185,11 @@ class WickTabCodeEditor extends Component {
       <TabPanel>
         <div id="add-scripts-panel-container">
           <div id="select-sub-tab-list">
-            <SelectSubTabButton selected={this.state.scriptSubTab} name="Timeline" action={this.setSubTab}/>
             <SelectSubTabButton selected={this.state.scriptSubTab} name="Mouse" action={this.setSubTab}/>
             <SelectSubTabButton selected={this.state.scriptSubTab} name="Keyboard" action={this.setSubTab}/>
+            <SelectSubTabButton selected={this.state.scriptSubTab} name="Timeline" action={this.setSubTab}/>
           </div>
-          <AddScriptPanel 
+          <AddScriptPanel
             scripts={this.getAddableScripts()}
             addScript={this.addScript} />
         </div>
@@ -200,7 +199,7 @@ class WickTabCodeEditor extends Component {
 
   removeTabByName = (name) => {
     this.props.deleteScript(this.props.script, name);
-    this.props.rerenderCodeEditor(); 
+    this.props.rerenderCodeEditor();
   }
 
   render () {
