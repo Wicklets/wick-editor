@@ -76199,6 +76199,7 @@ Wick.GUIElement.Clickable = class extends Wick.GUIElement {
 
   handleMouseUp(e) {
     this.isBeingClicked = false;
+    this.isHoveredOver = false;
     this.fire('mouseUp', e);
   }
 
