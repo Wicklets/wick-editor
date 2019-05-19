@@ -9,7 +9,7 @@ describe('Wick.Frame', function() {
             expect(frame instanceof Wick.Frame).to.equal(true);
             expect(frame.classname).to.equal('Frame');
             expect(frame.scripts instanceof Array).to.equal(true);
-            expect(frame.scripts.length).to.equal(0);
+            expect(frame.scripts.length).to.equal(1);
             expect(frame.clips instanceof Array).to.equal(true);
             expect(frame.clips.length).to.equal(0);
             expect(frame.tweens instanceof Array).to.equal(true);
@@ -47,7 +47,7 @@ describe('Wick.Frame', function() {
             expect(frame instanceof Wick.Frame).to.equal(true);
             expect(frame.classname).to.equal('Frame');
             expect(frame.scripts instanceof Array).to.equal(true);
-            expect(frame.scripts.length).to.equal(0);
+            expect(frame.scripts.length).to.equal(1);
             expect(frame.clips instanceof Array).to.equal(true);
             expect(frame.clips.length).to.equal(0);
             expect(frame.tweens instanceof Array).to.equal(true);
@@ -65,7 +65,7 @@ describe('Wick.Frame', function() {
             expect(clone instanceof Wick.Frame).to.equal(true);
             expect(clone.classname).to.equal('Frame');
             expect(clone.scripts instanceof Array).to.equal(true);
-            expect(clone.scripts.length).to.equal(0);
+            expect(clone.scripts.length).to.equal(1);
             expect(clone.clips instanceof Array).to.equal(true);
             expect(clone.clips.length).to.equal(0);
             expect(clone.tweens instanceof Array).to.equal(true);

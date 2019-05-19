@@ -69621,7 +69621,7 @@ Wick.Tickable = class extends Wick.Base {
    * @return {string[]} Array of all possible scripts.
    */
   static get possibleScripts() {
-    return ['load', 'update', 'unload', 'mouseenter', 'mousedown', 'mousepressed', 'mousereleased', 'mouseleave', 'mousehover', 'mousedrag', 'mouseclick', 'keypressed', 'keyreleased', 'keydown'];
+    return ['default', 'mouseenter', 'mousedown', 'mousepressed', 'mousereleased', 'mouseleave', 'mousehover', 'mousedrag', 'mouseclick', 'keypressed', 'keyreleased', 'keydown', 'load', 'update', 'unload'];
   }
   /**
    * Create a new tickable object.
@@ -69637,6 +69637,7 @@ Wick.Tickable = class extends Wick.Base {
     this._lastMouseState = 'out';
     this._scripts = [];
     this.cursor = 'default';
+    this.addScript('default', '');
   }
 
   deserialize(data) {
@@ -69696,7 +69697,10 @@ Wick.Tickable = class extends Wick.Base {
 
   addScript(name, src) {
     if (Wick.Tickable.possibleScripts.indexOf(name) === -1) console.error(name + ' is not a valid script!');
-    if (this.hasScript(name)) return;
+
+    if (this.hasScript(name)) {
+      this.updateScript(name, src);
+    }
 
     this._scripts.push({
       name: name,
@@ -69847,7 +69851,10 @@ Wick.Tickable = class extends Wick.Base {
   }
 
   _onActivated() {
-    return this.runScript('load');
+    var error = this.runScript('default');
+    if (error) return error;
+    error = this.runScript('load');
+    return error;
   }
 
   _onActive() {

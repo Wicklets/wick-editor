@@ -22,16 +22,20 @@ describe('Wick.Tickable', function() {
             var tickable = new Wick.Tickable();
 
             tickable.addScript('load', 'foo()');
-            expect(tickable.scripts.length).to.equal(1);
-            expect(tickable.scripts[0].name).to.equal('load');
-            expect(tickable.scripts[0].src).to.equal('foo()');
+            expect(tickable.scripts.length).to.equal(2);
+            expect(tickable.scripts[0].name).to.equal('default');
+            expect(tickable.scripts[0].src).to.equal('');
+            expect(tickable.scripts[1].name).to.equal('load');
+            expect(tickable.scripts[1].src).to.equal('foo()');
 
             tickable.addScript('update', 'bar()');
-            expect(tickable.scripts.length).to.equal(2);
-            expect(tickable.scripts[0].name).to.equal('load');
-            expect(tickable.scripts[0].src).to.equal('foo()');
-            expect(tickable.scripts[1].name).to.equal('update');
-            expect(tickable.scripts[1].src).to.equal('bar()');
+            expect(tickable.scripts.length).to.equal(3);
+            expect(tickable.scripts[0].name).to.equal('default');
+            expect(tickable.scripts[0].src).to.equal('');
+            expect(tickable.scripts[1].name).to.equal('load');
+            expect(tickable.scripts[1].src).to.equal('foo()');
+            expect(tickable.scripts[2].name).to.equal('update');
+            expect(tickable.scripts[2].src).to.equal('bar()');
         });
 
         it('should add scripts, and they should be in order', function () {
@@ -42,15 +46,17 @@ describe('Wick.Tickable', function() {
             tickable.addScript('mouseenter', 'mouseenter_foo()');
             tickable.addScript('load', 'load_foo()');
 
-            expect(tickable.scripts.length).to.equal(4);
-            expect(tickable.scripts[0].name).to.equal('load');
-            expect(tickable.scripts[0].src).to.equal('load_foo()');
-            expect(tickable.scripts[1].name).to.equal('update');
-            expect(tickable.scripts[1].src).to.equal('update_foo()');
-            expect(tickable.scripts[2].name).to.equal('unload');
-            expect(tickable.scripts[2].src).to.equal('unload_foo()');
-            expect(tickable.scripts[3].name).to.equal('mouseenter');
-            expect(tickable.scripts[3].src).to.equal('mouseenter_foo()');
+            expect(tickable.scripts.length).to.equal(5);
+            expect(tickable.scripts[0].name).to.equal('default');
+            expect(tickable.scripts[0].src).to.equal('');
+            expect(tickable.scripts[1].name).to.equal('mouseenter');
+            expect(tickable.scripts[1].src).to.equal('mouseenter_foo()');
+            expect(tickable.scripts[2].name).to.equal('load');
+            expect(tickable.scripts[2].src).to.equal('load_foo()');
+            expect(tickable.scripts[3].name).to.equal('update');
+            expect(tickable.scripts[3].src).to.equal('update_foo()');
+            expect(tickable.scripts[4].name).to.equal('unload');
+            expect(tickable.scripts[4].src).to.equal('unload_foo()');
         });
     });
 
@@ -81,6 +87,7 @@ describe('Wick.Tickable', function() {
     describe('#tick', function () {
         it('should tick based on onScreen correctly', function() {
             var tickable = new Wick.Tickable();
+            tickable.addScript('default', 'this.defaultDidRun = true;');
             tickable.addScript('load', 'this.tickState = "load";');
             tickable.addScript('update', 'this.tickState = "update";');
             tickable.addScript('unload', 'this.tickState = "unload";');
@@ -94,6 +101,7 @@ describe('Wick.Tickable', function() {
             parent.onScreen = true;
             tickable.tick();
             expect(tickable.tickState).to.equal('load');
+            expect(tickable.defaultDidRun).to.equal(true);
             tickable.tick();
             expect(tickable.tickState).to.equal('update');
             tickable.tick();
