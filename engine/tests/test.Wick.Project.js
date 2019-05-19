@@ -368,7 +368,7 @@ describe('Wick.Project', function() {
             expect(project.focus.timeline.playheadPosition).to.equal(2);
         });
 
-        it('should tween an object correctly', function () {
+        it('should tween an object correctly (preview play)', function () {
             var project = new Wick.Project();
 
             var frame = project.activeFrame;

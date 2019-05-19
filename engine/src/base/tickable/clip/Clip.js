@@ -37,7 +37,7 @@ Wick.Clip = class extends Wick.Tickable {
 
         this.identifier = args.identifier || 'New Symbol';
 
-        this.transformation = args.transformation || new Wick.Transformation();
+        this._transformation = args.transformation || new Wick.Transformation();
 
         this.cursor = 'default';
 
@@ -279,6 +279,26 @@ Wick.Clip = class extends Wick.Tickable {
      */
     get currentFrameNumber () {
         return this.timeline.playheadPosition;
+    }
+
+    /**
+     * The current transformation of the clip.
+     * @type {Wick.Transformation}
+     */
+    get transformation () {
+        return this._transformation;
+    }
+
+    set transformation (transformation) {
+        this._transformation = transformation;
+
+        // When the transformation changes, update the current tween, if one exists
+        if(this.parentFrame) {
+            var tween = this.parentFrame.getActiveTween();
+            if(tween) {
+                tween.transformation = this._transformation.clone();
+            }
+        }
     }
 
     /**

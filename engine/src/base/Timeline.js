@@ -17,7 +17,6 @@
  * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-
 /**
  * Class representing a Wick Timeline.
  */
@@ -74,12 +73,17 @@ Wick.Timeline = class extends Wick.Base {
     }
 
     set playheadPosition (playheadPosition) {
-        // Automatically clear selection when any playhead moves
+        // Automatically clear selection when any playhead in the project moves
         if(this.project && this._playheadPosition !== playheadPosition) {
             this.project.selection.clear('Canvas');
         }
 
         this._playheadPosition = playheadPosition;
+
+        // Automatically apply tween transforms on child frames when playhead moves
+        this.activeFrames.forEach(frame => {
+            frame.applyTweenTransforms();
+        });
     }
 
     /**

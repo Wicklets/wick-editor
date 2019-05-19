@@ -403,8 +403,6 @@ Wick.Frame = class extends Wick.Tickable {
     }
 
     _onActivated () {
-        this.applyTweenTransforms();
-
         var error = super._onActivated();
         if(error) return error;
 
@@ -414,8 +412,6 @@ Wick.Frame = class extends Wick.Tickable {
     }
 
     _onActive () {
-        this.applyTweenTransforms();
-
         var error = super._onActive();
         if(error) return error;
 

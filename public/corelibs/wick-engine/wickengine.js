@@ -68060,12 +68060,16 @@ Wick.Timeline = class extends Wick.Base {
   }
 
   set playheadPosition(playheadPosition) {
-    // Automatically clear selection when any playhead moves
+    // Automatically clear selection when any playhead in the project moves
     if (this.project && this._playheadPosition !== playheadPosition) {
       this.project.selection.clear('Canvas');
     }
 
-    this._playheadPosition = playheadPosition;
+    this._playheadPosition = playheadPosition; // Automatically apply tween transforms on child frames when playhead moves
+
+    this.activeFrames.forEach(frame => {
+      frame.applyTweenTransforms();
+    });
   }
   /**
    * The index of the active layer. Determines which frame to draw onto.
@@ -70395,8 +70399,6 @@ Wick.Frame = class extends Wick.Tickable {
   }
 
   _onActivated() {
-    this.applyTweenTransforms();
-
     var error = super._onActivated();
 
     if (error) return error;
@@ -70405,8 +70407,6 @@ Wick.Frame = class extends Wick.Tickable {
   }
 
   _onActive() {
-    this.applyTweenTransforms();
-
     var error = super._onActive();
 
     if (error) return error;
@@ -70509,7 +70509,7 @@ Wick.Clip = class extends Wick.Tickable {
     this.timeline.addLayer(new Wick.Layer());
     this.timeline.activeLayer.addFrame(new Wick.Frame());
     this.identifier = args.identifier || 'New Symbol';
-    this.transformation = args.transformation || new Wick.Transformation();
+    this._transformation = args.transformation || new Wick.Transformation();
     this.cursor = 'default';
     /* If objects are passed in, add them to the clip and reposition them */
 
@@ -70760,6 +70760,27 @@ Wick.Clip = class extends Wick.Tickable {
 
   get currentFrameNumber() {
     return this.timeline.playheadPosition;
+  }
+  /**
+   * The current transformation of the clip.
+   * @type {Wick.Transformation}
+   */
+
+
+  get transformation() {
+    return this._transformation;
+  }
+
+  set transformation(transformation) {
+    this._transformation = transformation; // When the transformation changes, update the current tween, if one exists
+
+    if (this.parentFrame) {
+      var tween = this.parentFrame.getActiveTween();
+
+      if (tween) {
+        tween.transformation = this._transformation.clone();
+      }
+    }
   }
   /**
    * @deprecated
@@ -75691,13 +75712,15 @@ Wick.View.Frame = class extends Wick.View {
 
     this.clipsLayer.children.forEach(child => {
       var wickClip = this.model.getChildByUUID(child.data.wickUUID);
-      wickClip.transformation.x = child.position.x;
-      wickClip.transformation.y = child.position.y;
-      wickClip.transformation.scaleX = child.scaling.x;
-      wickClip.transformation.scaleY = child.scaling.y;
-      wickClip.transformation.rotation = child.rotation;
-      wickClip.transformation.opacity = child.opacity;
-    }); // TODO Update active tween / create new tween here
+      wickClip.transformation = new Wick.Transformation({
+        x: child.position.x,
+        y: child.position.y,
+        scaleX: child.scaling.x,
+        scaleY: child.scaling.y,
+        rotation: child.rotation,
+        opacity: child.opacity
+      });
+    });
   }
 
   _applyPathChanges() {

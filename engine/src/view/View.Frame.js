@@ -212,15 +212,15 @@ Wick.View.Frame = class extends Wick.View {
         // Update clip transforms
         this.clipsLayer.children.forEach(child => {
             var wickClip = this.model.getChildByUUID(child.data.wickUUID);
-            wickClip.transformation.x = child.position.x;
-            wickClip.transformation.y = child.position.y;
-            wickClip.transformation.scaleX = child.scaling.x;
-            wickClip.transformation.scaleY = child.scaling.y;
-            wickClip.transformation.rotation = child.rotation;
-            wickClip.transformation.opacity = child.opacity;
+            wickClip.transformation = new Wick.Transformation({
+                x: child.position.x,
+                y: child.position.y,
+                scaleX: child.scaling.x,
+                scaleY: child.scaling.y,
+                rotation: child.rotation,
+                opacity: child.opacity,
+            });
         });
-
-        // TODO Update active tween / create new tween here
     }
 
     _applyPathChanges () {
