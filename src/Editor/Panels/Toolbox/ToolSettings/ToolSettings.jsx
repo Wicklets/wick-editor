@@ -121,7 +121,7 @@ class ToolSettings extends Component {
   renderTextSettings = () => {
     return (
       <div className='settings-input-container'>
-        {this.renderFontSize()}
+        {/*this.renderFontSize()*/}
       </div>
     );
   }
