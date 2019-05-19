@@ -31,7 +31,8 @@ describe('Wick.Tools.Brush', function() {
 
         project.view.on('canvasModified', function (e) {
             expect(project.activeFrame.paths.length).to.equal(1);
-            expect(project.activeFrame.paths[0].view.item.bounds.area).to.be.closeTo(1316, 100);
+            expect(project.activeFrame.paths[0].view.item.bounds.width).to.be.closeTo(50, 10);
+            expect(project.activeFrame.paths[0].view.item.bounds.height).to.be.closeTo(50, 10);
             done();
         });
 
@@ -41,8 +42,8 @@ describe('Wick.Tools.Brush', function() {
         brush.onMouseDrag({point: new paper.Point(120,100)});
         brush.onMouseDrag({point: new paper.Point(120,120)});
         brush.onMouseDrag({point: new paper.Point(140,120)});
-        brush.onMouseDrag({point: new paper.Point(140,140)});
-        brush.onMouseUp({point: new paper.Point(140,140)});
+        brush.onMouseDrag({point: new paper.Point(150,150)});
+        brush.onMouseUp({point: new paper.Point(150,150)});
 
         destroyDummyCanvasContainer(project);
     });
