@@ -223,6 +223,16 @@ class ScriptInfoInterface extends Object {
                     description: 'The y position of the mouse on the screen.',
                 },
                 {
+                    name: 'mouseMoveX',
+                    snippet: 'mouseMoveX',
+                    description: 'The amount the mouse moved on the x-axis in the last tick.',
+                },
+                {
+                    name: 'mouseMoveY',
+                    snippet: 'mouseMoveY',
+                    description: 'The amount the mouse moved on the y-axis in the last tick.',
+                },
+                {
                     name: 'key',
                     snippet: 'key',
                     description: 'The last key pressed.',

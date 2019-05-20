@@ -57,6 +57,7 @@ Wick.Project = class extends Wick.Base {
         this.focus = this.root;
 
         this._mousePosition = {x:0, y:0};
+        this._lastMousePosition = {x:0, y:0};
         this._isMouseDown = false;
 
         this._keysDown = [];
@@ -434,7 +435,18 @@ Wick.Project = class extends Wick.Base {
     }
 
     set mousePosition (mousePosition) {
+        this._lastMousePosition = {x:this.mousePosition.x, y:this.mousePosition.y};
         this._mousePosition = mousePosition;
+    }
+
+    /**
+     * The amount the mouse has moved in the last tick
+     * @type {object}
+     */
+    get mouseMove () {
+        let moveX = this.mousePosition.x - this._lastMousePosition.x; 
+        let moveY = this.mousePosition.y -  this._lastMousePosition.y;
+        return {x: moveX, y: moveY}; 
     }
 
     /**
