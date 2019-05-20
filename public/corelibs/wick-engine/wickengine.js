@@ -74812,7 +74812,9 @@ Wick.View.Project = class extends Wick.View {
           x: this.pan.x,
           y: this.pan.y
         };
+        this.zoom = this.paper.view.zoom;
         this.model.zoom = this.zoom;
+        this.fireEvent('canvasModified', e);
       });
       tool.on('error', e => {
         this.fireEvent('error', e);
