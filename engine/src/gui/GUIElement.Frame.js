@@ -303,7 +303,7 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
             this.item.addChild(tween.guiElement.item);
         });
 
-        if(this.model.name) {
+        if(this.model.identifier) {
             var nameTextGroup = new paper.Group({
                 children: [
                     new paper.Path.Rectangle({
@@ -313,7 +313,7 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
                     }),
                     new paper.PointText({
                         point: [0, 12],
-                        content: this.model.name,
+                        content: this.model.identifier,
                         fillColor: 'black',
                         fontFamily: 'Courier New',
                         fontSize: 12

@@ -77009,6 +77009,25 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
       tween.guiElement.build();
       this.item.addChild(tween.guiElement.item);
     });
+
+    if (this.model.identifier) {
+      var nameTextGroup = new paper.Group({
+        children: [new paper.Path.Rectangle({
+          from: new paper.Point(0, 0),
+          to: new paper.Point(this.width, this.height),
+          fillColor: 'black'
+        }), new paper.PointText({
+          point: [0, 12],
+          content: this.model.identifier,
+          fillColor: 'black',
+          fontFamily: 'Courier New',
+          fontSize: 12
+        })]
+      });
+      nameTextGroup.clipped = true;
+      this.item.addChild(nameTextGroup);
+    }
+
     this.item.position = new paper.Point(this.x, this.y);
     this.item.position = this.item.position.add(this.dragOffset);
   }
