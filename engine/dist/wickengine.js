@@ -69638,6 +69638,7 @@ Wick.Tickable = class extends Wick.Base {
     this._scripts = [];
     this.cursor = 'default';
     this.addScript('default', '');
+    this._onEventFns = {};
   }
 
   deserialize(data) {
@@ -69648,6 +69649,7 @@ Wick.Tickable = class extends Wick.Base {
     this._lastMouseState = 'out';
     this._scripts = [].concat(data.scripts || []);
     this.cursor = data.cursor;
+    this._onEventFns = {};
   }
 
   serialize(args) {
@@ -69678,6 +69680,42 @@ Wick.Tickable = class extends Wick.Base {
   get onScreen() {
     if (!this.parent) return false;
     return this.parent.onScreen;
+  }
+  /**
+   * Add a function to be called when an event happens.
+   * @param {string} name - The name of the event to attach the function to.
+   * @param {function} fn - The function to call when the given event happens.
+   */
+
+
+  onEvent(name, fn) {
+    if (Wick.Tickable.possibleScripts.indexOf(name) === -1) {
+      console.warn("onEvent: " + name + " is not a valid event name.");
+      return;
+    }
+
+    this.addEventFn(name, fn);
+  }
+  /**
+   * Gets all functions attached to an event with a given name.
+   * @param {string} - The name of the event
+   */
+
+
+  getEventFns(name) {
+    if (!this._onEventFns[name]) {
+      this._onEventFns[name] = [];
+    }
+
+    return this._onEventFns[name];
+  }
+  /**
+   *
+   */
+
+
+  addEventFn(name, fn) {
+    this.getEventFns(name).push(fn);
   }
   /**
    * Check if an object can have scripts attached to it. Helpful when iterating through a lot of different wick objects that may or may not be tickables. Always returns true.
@@ -69778,12 +69816,39 @@ Wick.Tickable = class extends Wick.Base {
 
 
   runScript(name) {
-    if (!Wick.Tickable.possibleScripts.indexOf(name) === -1) console.error(name + ' is not a valid script!');
-    if (!this.hasScript(name)) return null; // Don't run scripts if this object is the focus
-    // (thia makes it so preview play will always play, even if the parent Clip of the timeline has a stop script)
+    if (!Wick.Tickable.possibleScripts.indexOf(name) === -1) {
+      console.error(name + ' is not a valid script!');
+    } // Load API
+
+
+    var api = new GlobalAPI(this);
+    var otherObjects = this.parentClip ? this.parentClip.activeNamedChildren : [];
+    var otherObjectNames = otherObjects.map(obj => obj.identifier); // Run the functions attached using onEvent
+
+    var onEventFnError = null;
+    this.getEventFns(name).forEach(eventFn => {
+      if (onEventFnError) return;
+
+      try {
+        var eventFnSrc = '(' + eventFn.toString() + ').bind(this)();';
+        var fn = new Function(api.apiMemberNames.concat(otherObjectNames), eventFnSrc);
+        fn = fn.bind(this);
+        fn(...api.apiMembers, ...otherObjects);
+      } catch (e) {
+        // Catch runtime errors
+        onEventFnError = this._generateErrorInfo(e, name);
+      }
+    });
+    if (onEventFnError) return onEventFnError; // No scripts for this event? Skip everything
+
+    if (!this.hasScript(name)) {
+      return null;
+    } // Don't run scripts if this object is the focus
+    // (this makes it so preview play will always play, even if the parent Clip of the timeline has a stop script)
+
 
     if (this.project && this.project.focus === this) {
-      return;
+      return null;
     }
 
     var script = this.getScript(name); // Check for syntax/parsing errors
@@ -69792,12 +69857,8 @@ Wick.Tickable = class extends Wick.Base {
       esprima.parseScript(script.src);
     } catch (e) {
       return this._generateEsprimaErrorInfo(e, name);
-    } // Load API
+    } // Attempt to create valid function...
 
-
-    var api = new GlobalAPI(this);
-    var otherObjects = this.parentClip ? this.parentClip.activeNamedChildren : [];
-    var otherObjectNames = otherObjects.map(obj => obj.identifier); // Attempt to create valid function...
 
     try {
       var fn = new Function(api.apiMemberNames.concat(otherObjectNames), script.src);
