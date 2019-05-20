@@ -1,0 +1,40 @@
+#page-header {
+    width: 100%;
+    height: 100px;
+    text-align: center; 
+}
+
+body {
+    font-family: 'Nunito'; 
+    background-color: #F5F5F5;
+}
+
+#downloadButton152 {
+    margin: 10px auto; 
+    height: 30px; 
+}
+
+
+#wick152 {
+    -webkit-transition-duration: .3s; /* Safari */
+    transition-duration: .3s;
+
+    height: 30px; 
+    border-radius: 4px;
+
+    cursor: pointer;
+
+
+    background-color: #1EE29A;
+    color: white;
+}
+  
+#wick152:hover {
+background-color: #29F1A3;
+color: white;
+}
+
+#wick152:active {
+background-color: #01C094;
+color: white;
+}

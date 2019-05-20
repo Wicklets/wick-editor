@@ -66561,6 +66561,10 @@ Wick.Project = class extends Wick.Base {
       x: 0,
       y: 0
     };
+    this._lastMousePosition = {
+      x: 0,
+      y: 0
+    };
     this._isMouseDown = false;
     this._keysDown = [];
     this._keysLastDown = [];
@@ -66948,7 +66952,25 @@ Wick.Project = class extends Wick.Base {
   }
 
   set mousePosition(mousePosition) {
+    this._lastMousePosition = {
+      x: this.mousePosition.x,
+      y: this.mousePosition.y
+    };
     this._mousePosition = mousePosition;
+  }
+  /**
+   * The amount the mouse has moved in the last tick
+   * @type {object}
+   */
+
+
+  get mouseMove() {
+    let moveX = this.mousePosition.x - this._lastMousePosition.x;
+    let moveY = this.mousePosition.y - this._lastMousePosition.y;
+    return {
+      x: moveX,
+      y: moveY
+    };
   }
   /**
    * Determine if the mouse is down.
@@ -67245,6 +67267,9 @@ Wick.Project = class extends Wick.Base {
 
   tick() {
     this.view.processInput();
+
+    this.focus._attachChildClipReferences();
+
     var error = this.focus.tick(); // Save the current keysDown
 
     this._keysLastDown = [].concat(this._keysDown);
@@ -67572,6 +67597,12 @@ Wick.Selection = class extends Wick.Base {
 
     if (this.isObjectSelected(object)) {
       return;
+    } // Activate the cursor tool when selection changes
+
+
+    if (this._locationOf(object) === 'Canvas') {
+      this.project.activeTool = this.project.tools.cursor;
+      object.parentLayer && object.parentLayer.activate();
     } // Only allow selection of objects of in the same location
 
 
@@ -67847,12 +67878,24 @@ Wick.Selection = class extends Wick.Base {
    */
 
 
-  get name() {
+  get identifier() {
     return this._getSingleAttribute('identifier');
   }
 
+  set identifier(identifier) {
+    this._setSingleAttribute('identifier', identifier);
+  }
+  /**
+   *
+   */
+
+
+  get name() {
+    return this._getSingleAttribute('name');
+  }
+
   set name(name) {
-    this._setSingleAttribute('identifier', name);
+    this._setSingleAttribute('name', name);
   }
   /**
    *
@@ -68352,21 +68395,32 @@ Wick.Timeline = class extends Wick.Base {
     this.gotoFrame(frame);
   }
   /**
-   * Moves the timeline forward one frame. Does nothing if the timeline is on its last frame.
+   * Moves the timeline forward one frame. Loops back to 1 if gotoNextFrame moves the playhead past the past frame.
    */
 
 
   gotoNextFrame() {
-    var nextFramePlayheadPosition = Math.min(this.length, this.playheadPosition + 1);
+    // Loop back to beginning if gotoNextFrame goes past the last frame
+    var nextFramePlayheadPosition = this.playheadPosition + 1;
+
+    if (nextFramePlayheadPosition > this.length) {
+      nextFramePlayheadPosition = 1;
+    }
+
     this.gotoFrame(nextFramePlayheadPosition);
   }
   /**
-   * Moves the timeline backwards one frame. Does nothing if the timeline is on its first frame.
+   * Moves the timeline backwards one frame. Loops to the last frame if gotoPrevFrame moves the playhead before the first frame.
    */
 
 
   gotoPrevFrame() {
-    var prevFramePlayheadPosition = Math.max(1, this.playheadPosition - 1);
+    var prevFramePlayheadPosition = this.playheadPosition - 1;
+
+    if (prevFramePlayheadPosition <= 0) {
+      prevFramePlayheadPosition = this.length;
+    }
+
     this.gotoFrame(prevFramePlayheadPosition);
   }
   /**
@@ -69521,6 +69575,26 @@ GlobalAPI = class {
     return this.scriptOwner.project.mousePosition.y;
   }
   /**
+   * Returns the amount the mouse moved in the last tick on the x axis.
+   * @returns {number}
+   */
+
+
+  get mouseMoveX() {
+    if (!this.scriptOwner.project) return null;
+    return this.scriptOwner.project.mouseMove.x;
+  }
+  /**
+   * Returns the amount the mouse moved in the last tick on the y axis.
+   * @returns {number}
+   */
+
+
+  get mouseMoveY() {
+    if (!this.scriptOwner.project) return null;
+    return this.scriptOwner.project.mouseMove.y;
+  }
+  /**
    * Returns a new random object.
    * @returns {GlobalAPI.Random}
    */
@@ -69548,6 +69622,16 @@ GlobalAPI = class {
   stopAllSounds() {
     if (!this.scriptOwner.project) return null;
     this.scriptOwner.project.stopAllSounds();
+  }
+  /**
+   * Attach a function to an event with a given name.
+   * @param {string} name - the name of the event to attach the function to
+   * @param {function} fn - the function to attach to the event
+   */
+
+
+  onEvent(name, fn) {
+    this.scriptOwner.onEvent(name, fn);
   }
 
 };
@@ -69621,7 +69705,7 @@ Wick.Tickable = class extends Wick.Base {
    * @return {string[]} Array of all possible scripts.
    */
   static get possibleScripts() {
-    return ['load', 'update', 'unload', 'mouseenter', 'mousedown', 'mousepressed', 'mousereleased', 'mouseleave', 'mousehover', 'mousedrag', 'mouseclick', 'keypressed', 'keyreleased', 'keydown'];
+    return ['default', 'mouseenter', 'mousedown', 'mousepressed', 'mousereleased', 'mouseleave', 'mousehover', 'mousedrag', 'mouseclick', 'keypressed', 'keyreleased', 'keydown', 'load', 'update', 'unload'];
   }
   /**
    * Create a new tickable object.
@@ -69637,6 +69721,8 @@ Wick.Tickable = class extends Wick.Base {
     this._lastMouseState = 'out';
     this._scripts = [];
     this.cursor = 'default';
+    this.addScript('default', '');
+    this._onEventFns = {};
   }
 
   deserialize(data) {
@@ -69645,13 +69731,14 @@ Wick.Tickable = class extends Wick.Base {
     this._onscreenLastTick = false;
     this._mouseState = 'out';
     this._lastMouseState = 'out';
-    this._scripts = [].concat(data.scripts || []);
+    this._scripts = JSON.parse(JSON.stringify(data.scripts));
     this.cursor = data.cursor;
+    this._onEventFns = {};
   }
 
   serialize(args) {
     var data = super.serialize(args);
-    data.scripts = [].concat(this._scripts);
+    data.scripts = JSON.parse(JSON.stringify(this._scripts));
     data.cursor = this.cursor;
     return data;
   }
@@ -69669,6 +69756,25 @@ Wick.Tickable = class extends Wick.Base {
     return this._scripts;
   }
   /**
+   * Checks if this object has a non-empty script.
+   * @type {boolean}
+   */
+
+
+  get hasContentfulScripts() {
+    var hasContentfulScripts = false;
+
+    this._scripts.forEach(script => {
+      if (hasContentfulScripts) return;
+
+      if (script.src !== '') {
+        hasContentfulScripts = true;
+      }
+    });
+
+    return hasContentfulScripts;
+  }
+  /**
    * Check if this object is currently visible in the project.
    * @type {boolean}
    */
@@ -69677,6 +69783,42 @@ Wick.Tickable = class extends Wick.Base {
   get onScreen() {
     if (!this.parent) return false;
     return this.parent.onScreen;
+  }
+  /**
+   * Add a function to be called when an event happens.
+   * @param {string} name - The name of the event to attach the function to.
+   * @param {function} fn - The function to call when the given event happens.
+   */
+
+
+  onEvent(name, fn) {
+    if (Wick.Tickable.possibleScripts.indexOf(name) === -1) {
+      console.warn("onEvent: " + name + " is not a valid event name.");
+      return;
+    }
+
+    this.addEventFn(name, fn);
+  }
+  /**
+   * Gets all functions attached to an event with a given name.
+   * @param {string} - The name of the event
+   */
+
+
+  getEventFns(name) {
+    if (!this._onEventFns[name]) {
+      this._onEventFns[name] = [];
+    }
+
+    return this._onEventFns[name];
+  }
+  /**
+   *
+   */
+
+
+  addEventFn(name, fn) {
+    this.getEventFns(name).push(fn);
   }
   /**
    * Check if an object can have scripts attached to it. Helpful when iterating through a lot of different wick objects that may or may not be tickables. Always returns true.
@@ -69696,7 +69838,11 @@ Wick.Tickable = class extends Wick.Base {
 
   addScript(name, src) {
     if (Wick.Tickable.possibleScripts.indexOf(name) === -1) console.error(name + ' is not a valid script!');
-    if (this.hasScript(name)) return;
+
+    if (this.hasScript(name)) {
+      this.updateScript(name, src);
+      return;
+    }
 
     this._scripts.push({
       name: name,
@@ -69774,12 +69920,39 @@ Wick.Tickable = class extends Wick.Base {
 
 
   runScript(name) {
-    if (!Wick.Tickable.possibleScripts.indexOf(name) === -1) console.error(name + ' is not a valid script!');
-    if (!this.hasScript(name)) return null; // Don't run scripts if this object is the focus
-    // (thia makes it so preview play will always play, even if the parent Clip of the timeline has a stop script)
+    if (!Wick.Tickable.possibleScripts.indexOf(name) === -1) {
+      console.error(name + ' is not a valid script!');
+    } // Load API
+
+
+    var api = new GlobalAPI(this);
+    var otherObjects = this.parentClip ? this.parentClip.activeNamedChildren : [];
+    var otherObjectNames = otherObjects.map(obj => obj.identifier); // Run the functions attached using onEvent
+
+    var onEventFnError = null;
+    this.getEventFns(name).forEach(eventFn => {
+      if (onEventFnError) return;
+
+      try {
+        var eventFnSrc = '(' + eventFn.toString() + ').bind(this)();';
+        var fn = new Function(api.apiMemberNames.concat(otherObjectNames), eventFnSrc);
+        fn = fn.bind(this);
+        fn(...api.apiMembers, ...otherObjects);
+      } catch (e) {
+        // Catch runtime errors
+        onEventFnError = this._generateErrorInfo(e, name);
+      }
+    });
+    if (onEventFnError) return onEventFnError; // No scripts for this event? Skip everything
+
+    if (!this.hasScript(name)) {
+      return null;
+    } // Don't run scripts if this object is the focus
+    // (this makes it so preview play will always play, even if the parent Clip of the timeline has a stop script)
+
 
     if (this.project && this.project.focus === this) {
-      return;
+      return null;
     }
 
     var script = this.getScript(name); // Check for syntax/parsing errors
@@ -69788,12 +69961,8 @@ Wick.Tickable = class extends Wick.Base {
       esprima.parseScript(script.src);
     } catch (e) {
       return this._generateEsprimaErrorInfo(e, name);
-    } // Load API
+    } // Attempt to create valid function...
 
-
-    var api = new GlobalAPI(this);
-    var otherObjects = this.parentClip ? this.parentClip.activeNamedChildren : [];
-    var otherObjectNames = otherObjects.map(obj => obj.identifier); // Attempt to create valid function...
 
     try {
       var fn = new Function(api.apiMemberNames.concat(otherObjectNames), script.src);
@@ -69847,7 +70016,10 @@ Wick.Tickable = class extends Wick.Base {
   }
 
   _onActivated() {
-    return this.runScript('load');
+    var error = this.runScript('default');
+    if (error) return error;
+    error = this.runScript('load');
+    return error;
   }
 
   _onActive() {
@@ -70313,15 +70485,30 @@ Wick.Frame = class extends Wick.Tickable {
 
 
   createTween() {
-    if (this.paths.length + this.clips.length > 1) {} // TODO convert to clip
-    // Create the tween (if there's not already a tween at the current playhead position)
+    // If more than one object exists on the frame, create a clip from those objects
+    var allObjects = this.paths.concat(this.clips);
+
+    if (allObjects.length > 1) {
+      var center = this.project.selection.view._getObjectsBounds(allObjects).center;
+
+      var clip = new Wick.Clip({
+        objects: this.paths.concat(this.clips),
+        transformation: new Wick.Transformation({
+          x: center.x,
+          y: center.y
+        })
+      });
+      this.addClip(clip);
+    } // Create the tween (if there's not already a tween at the current playhead position)
 
 
     var playheadPosition = this._getRelativePlayheadPosition();
 
     if (!this.getTweenAtPosition(playheadPosition)) {
+      var clip = this.clips[0];
       this.addTween(new Wick.Tween({
-        playheadPosition: playheadPosition
+        playheadPosition: playheadPosition,
+        transformation: clip ? clip.transformation.clone() : new Wick.Transformation()
       }));
     }
   }
@@ -70506,7 +70693,6 @@ Wick.Clip = class extends Wick.Tickable {
     this.timeline = new Wick.Timeline();
     this.timeline.addLayer(new Wick.Layer());
     this.timeline.activeLayer.addFrame(new Wick.Frame());
-    this.identifier = args.identifier || 'New Symbol';
     this._transformation = args.transformation || new Wick.Transformation();
     this.cursor = 'default';
     /* If objects are passed in, add them to the clip and reposition them */
@@ -70949,17 +71135,14 @@ Wick.Clip = class extends Wick.Tickable {
   }
 
   _attachChildClipReferences() {
-    // There are no frames, or the playhead is over an empty space
-    if (!this.timeline.activeFrame) {
-      return [];
-    }
+    this.timeline.activeFrames.forEach(frame => {
+      frame.clips.forEach(clip => {
+        if (clip.identifier) {
+          this[clip.identifier] = clip;
 
-    this.timeline.activeFrame.clips.forEach(clip => {
-      if (clip.identifier) {
-        this[clip.identifier] = clip;
-
-        clip._attachChildClipReferences();
-      }
+          clip._attachChildClipReferences();
+        }
+      });
     });
   }
 
@@ -71561,7 +71744,7 @@ Wick.Tools.Cursor = class extends Wick.Tool {
     if (!e.modifiers) e.modifiers = {};
 
     if (this.hitResult.item && this.hitResult.item.data.isSelectionBoxGUI) {
-      // TODO update selection drag
+      // Update selection drag
       if (!this._widget.currentTransformation) {
         this._widget.startTransformation(this.hitResult.item);
       }
@@ -73593,6 +73776,11 @@ class SelectionWidget {
 
       if (item.data.handleEdge === 'leftCenter' || item.data.handleEdge === 'rightCenter') {
         scaleAmt.y = 1.0;
+      } // Holding shift locks aspect ratio
+
+
+      if (e.modifiers.shift) {
+        scaleAmt.y = scaleAmt.x;
       }
 
       this._ghost.data.scale = this._ghost.data.scale.multiply(scaleAmt);
@@ -74697,7 +74885,9 @@ Wick.View.Project = class extends Wick.View {
           x: this.pan.x,
           y: this.pan.y
         };
+        this.zoom = this.paper.view.zoom;
         this.model.zoom = this.zoom;
+        this.fireEvent('canvasModified', e);
       });
       tool.on('error', e => {
         this.fireEvent('error', e);
@@ -74862,35 +75052,35 @@ Wick.View.Project = class extends Wick.View {
     // Calculate pan and zoom
     var zoom = this._zoom;
     var pan = {
-      x: this._pan.x,
-      y: this._pan.y
+      x: this.pan.x,
+      y: this.pan.y
     };
-    pan.x += this._pixiApp.renderer.width / 2;
-    pan.y += this._pixiApp.renderer.height / 2;
 
     if (this._fitMode === 'fill') {
       // Change pan/zoom if needed depending on fit mode
-      zoom *= this._calculateFitZoom();
-      pan.x = (window.innerWidth - this.model.width * zoom) / 2;
-      pan.y = (window.innerHeight - this.model.height * zoom) / 2;
-    } // Update mouse position (and adjust based on fit mode)
+      zoom = this._calculateFitZoom();
+      pan.x = 0;
+      pan.y = 0;
+    } // Reset cursor (button views will change the cursor style if the mouse is over a button)
 
-
-    var pixiMouse = this._pixiApp.renderer.plugins.interaction.mouse.global;
-    this.model.mousePosition = {
-      x: (pixiMouse.x - pan.x) / zoom,
-      y: (pixiMouse.y - pan.y) / zoom
-    }; // Reset cursor (button views will change the cursor style if the mouse is over a button)
 
     this._webGLCanvas.style.cursor = 'default';
 
     this._pixiRootContainer.removeChildren(); // Set zoom and pan in Pixi
 
 
-    this._pixiRootContainer.x = pan.x;
-    this._pixiRootContainer.y = pan.y;
+    this._pixiRootContainer.pivot = new PIXI.Point(this.model.width / 2, this.model.height / 2);
     this._pixiRootContainer.scale.x = zoom;
     this._pixiRootContainer.scale.y = zoom;
+    this._pixiRootContainer.x = pan.x * zoom + this._pixiApp.renderer.width / 2;
+    this._pixiRootContainer.y = pan.y * zoom + this._pixiApp.renderer.height / 2; // Update mouse position (and adjust based on fit mode)
+
+    var pixiMouse = this._pixiApp.renderer.plugins.interaction.mouse.getLocalPosition(this._pixiRootContainer);
+
+    this.model.mousePosition = {
+      x: pixiMouse.x,
+      y: pixiMouse.y
+    };
 
     if (this.model.focus.isRoot) {
       // We're in the root timeline, render the canvas normally
@@ -75214,14 +75404,26 @@ Wick.View.Selection = class extends Wick.View {
     });
   }
 
-  _getSelectedObjectViews() {
-    return this.model.getSelectedObjects('Canvas').map(object => {
+  _getSelectedObjects() {
+    return this.model.getSelectedObjects('Canvas');
+  }
+
+  _getObjectViews(objects) {
+    return objects.map(object => {
       return object.view.item || object.view.group;
     });
   }
 
+  _getObjectsBounds(objects) {
+    return this.widget._calculateBoundingBoxOfItems(this._getObjectViews(objects));
+  }
+
+  _getSelectedObjectViews() {
+    return this._getObjectViews(this._getSelectedObjects());
+  }
+
   _getSelectedObjectsBounds() {
-    return this.widget._calculateBoundingBoxOfItems(this._getSelectedObjectViews());
+    return this._getObjectsBounds(this._getSelectedObjects());
   }
 
 };
@@ -75290,8 +75492,8 @@ Wick.View.Clip = class extends Wick.View {
       this.container.addChild(container);
     }); // Update transformations
 
-    this.container.x = this.model.transformation.x;
-    this.container.y = this.model.transformation.y;
+    this.container.x = this.model.transformation.x - 1;
+    this.container.y = this.model.transformation.y - 1;
     this.container.scale.x = this.model.transformation.scaleX;
     this.container.scale.y = this.model.transformation.scaleY;
     this.container.rotation = this.model.transformation.rotation * (Math.PI / 180); //Degrees -> Radians conversion
@@ -76897,6 +77099,38 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
       tween.guiElement.build();
       this.item.addChild(tween.guiElement.item);
     });
+
+    if (this.model.identifier) {
+      var nameTextGroup = new paper.Group({
+        children: [new paper.Path.Rectangle({
+          from: new paper.Point(0, 0),
+          to: new paper.Point(this.width, this.height),
+          fillColor: 'black'
+        }), new paper.PointText({
+          point: [0, 12],
+          content: this.model.identifier,
+          fillColor: 'black',
+          fontFamily: 'Courier New',
+          fontSize: 12
+        })]
+      });
+      nameTextGroup.clipped = true;
+      this.item.addChild(nameTextGroup);
+    }
+
+    if (this.model.hasContentfulScripts) {
+      var scriptText = new paper.PointText({
+        point: [this.gridCellWidth / 2 - 5, this.gridCellHeight / 2 + 8],
+        content: 's',
+        fillColor: '#008466',
+        fontFamily: 'Courier New',
+        fontWeight: 'bold',
+        fontSize: 16
+      });
+      scriptText.locked = true;
+      this.item.addChild(scriptText);
+    }
+
     this.item.position = new paper.Point(this.x, this.y);
     this.item.position = this.item.position.add(this.dragOffset);
   }
@@ -77279,6 +77513,7 @@ Wick.GUIElement.FramesContainer = class extends Wick.GUIElement.Draggable {
     }); // Build grid
 
     this.grid.removeChildren();
+    this.grid.locked = true;
 
     for (var i = -1; i < paper.view.element.width / this.gridCellWidth + 1; i++) {
       var gridLine = new this.paper.Path.Rectangle({
@@ -77286,9 +77521,11 @@ Wick.GUIElement.FramesContainer = class extends Wick.GUIElement.Draggable {
         to: new this.paper.Point(Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_STROKE_WIDTH / 2, paper.view.element.height),
         fillColor: Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_STROKE_COLOR,
         pivot: new paper.Point(0, 0),
-        locked: true
+        locked: true,
+        insert: false
       });
       gridLine.position.x += i * this.gridCellWidth;
+      gridLine.locked = true;
       this.grid.addChild(gridLine);
     }
 
@@ -77798,6 +78035,7 @@ Wick.GUIElement.LayerLabel = class extends Wick.GUIElement.Draggable {
       this.model.project.selection.select(this.model);
       this.model.activate();
       this.model.project.guiElement.build();
+      this.model.project.guiElement.fire('projectModified');
     });
     this.on('mouseLeave', () => {
       this.build();
@@ -77811,6 +78049,7 @@ Wick.GUIElement.LayerLabel = class extends Wick.GUIElement.Draggable {
     this.on('dragEnd', () => {
       this.drop();
       this.model.project.guiElement.build();
+      this.model.project.guiElement.fire('projectModified');
     });
   }
   /**
@@ -78227,6 +78466,7 @@ Wick.GUIElement.NumberLine = class extends Wick.GUIElement.Draggable {
       applyMatrix: false
     });
     cell.position = new paper.Point(i * this.gridCellWidth, 0);
+    cell.locked = true;
     return cell;
   }
 
@@ -78953,11 +79193,11 @@ Wick.GUIElement.ScrollbarHorizontal = class extends Wick.GUIElement.Scrollbar {
 
   build() {
     super.build();
-    this.grabber.containerWidth = this.width;
+    this.grabber.containerWidth = this.width; // Always show scrollbar for now.
 
-    if (this.grabber.grabberWidth > this.grabber.contentWidth) {
-      return;
-    }
+    /*if(this.grabber.grabberWidth > this.grabber.contentWidth) {
+        return;
+    }*/
 
     var scrollbar = new this.paper.Path.Rectangle({
       from: new this.paper.Point(0, 0),
@@ -79009,11 +79249,13 @@ Wick.GUIElement.ScrollbarVertical = class extends Wick.GUIElement.Scrollbar {
 
   build() {
     super.build();
-    this.grabber.containerHeight = this.height;
+    this.grabber.containerHeight = this.height; // Always show scrollbar for now.
 
-    if (this.grabber.grabberHeight > this.grabber.contentHeight) {
-      return;
+    /*
+    if(this.grabber.grabberHeight > this.grabber.contentHeight) {
+        return;
     }
+    */
 
     var scrollbar = new this.paper.Path.Rectangle({
       from: new this.paper.Point(0, 0),

@@ -291,7 +291,7 @@ class Wick152ProjectConverter {
             pathJSON = paperPath.exportJSON({asString:false});
         }
 
-        var convertedPath = new Wick.Path(pathJSON);
+        var convertedPath = new Wick.Path({json:pathJSON});
         return convertedPath;
     }
 
@@ -330,7 +330,7 @@ class Wick152ProjectConverter {
         paperText.scaling.y = text.scaleY;
 
         var convertedTextData = paperText.exportJSON({asString:false});
-        var convertedText = new Wick.Path(convertedTextData);
+        var convertedText = new Wick.Path({json:convertedTextData});
         return convertedText;
     }
 
@@ -360,7 +360,7 @@ class Wick152ProjectConverter {
             'keyDown',
         ];
 
-        // Find all event elements an separate from the other objects.
+        // Find all event elements and separate from the other objects.
         if (tree.type === "Program") {
             tree.body.forEach(elem => {
                 if (elem.type === "FunctionDeclaration" && events.indexOf(elem.id.name) > -1) {
@@ -371,7 +371,7 @@ class Wick152ProjectConverter {
             });
         }
 
-        let loadScript = "";
+        let defaultScript = "";
 
         // Pull out all non-event elements and shove them into the load script.
         loadElements.forEach(elem => {
@@ -382,21 +382,8 @@ class Wick152ProjectConverter {
             }
 
             let s = script.slice(range[0], range[1]);
-            loadScript += s;
+            defaultScript += s + "\n";
         });
-
-        let loadObject = {
-            name: 'load',
-            src: loadScript,
-        };
-
-        // Separate all script text from events and build Editor 1.0 objects for them.
-        let eventScripts = []
-
-        // Only add load scripts if we need them.
-        if (loadScript !== '') {
-            eventScripts.push(loadObject);
-        }
 
         eventElements.forEach(elem => {
             let range = elem.body.range;
@@ -406,14 +393,13 @@ class Wick152ProjectConverter {
             // Remove first and last character to remove { } from functions. Trim off excess white space.
             let eventScript = script.slice(range[0] + 1, range[1] - 1).trim();
 
-            let obj = {
-                name: id,
-                src: eventScript,
-            }
+            let placeholder = '\n' + "onEvent('<EVENT_NAME>', function () {\n\t<EVENT_SCRIPT>\n});\n";
+            let withName = placeholder.replace('<EVENT_NAME>', id);
+            let finalScript = withName.replace('<EVENT_SCRIPT>', eventScript)
 
-            eventScripts.push(obj);
+            defaultScript += finalScript;
         });
 
-        return eventScripts;
+        return [{name:"default", src: defaultScript}];
     }
 }
