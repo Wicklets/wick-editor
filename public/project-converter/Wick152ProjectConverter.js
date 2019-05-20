@@ -330,7 +330,7 @@ class Wick152ProjectConverter {
         paperText.scaling.y = text.scaleY;
 
         var convertedTextData = paperText.exportJSON({asString:false});
-        var convertedText = new Wick.Path(convertedTextData);
+        var convertedText = new Wick.Path({json:convertedTextData});
         return convertedText;
     }
 
