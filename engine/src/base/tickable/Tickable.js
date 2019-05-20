@@ -76,7 +76,7 @@ Wick.Tickable = class extends Wick.Base {
         this._mouseState = 'out';
         this._lastMouseState = 'out';
 
-        this._scripts = [].concat(data.scripts || []);
+        this._scripts = JSON.parse(JSON.stringify(data.scripts));
         this.cursor = data.cursor;
 
         this._onEventFns = {};
@@ -86,7 +86,7 @@ Wick.Tickable = class extends Wick.Base {
     serialize (args) {
         var data = super.serialize(args);
 
-        data.scripts = [].concat(this._scripts);
+        data.scripts = JSON.parse(JSON.stringify(this._scripts));
         data.cursor = this.cursor;
 
         return data;
