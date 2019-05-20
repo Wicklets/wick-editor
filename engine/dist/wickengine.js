@@ -69766,6 +69766,7 @@ Wick.Tickable = class extends Wick.Base {
 
     if (this.hasScript(name)) {
       this.updateScript(name, src);
+      return;
     }
 
     this._scripts.push({

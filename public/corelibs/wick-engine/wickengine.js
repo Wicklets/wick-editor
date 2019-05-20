@@ -28124,8 +28124,8 @@ var floodfill = function () {
         return null;
       } else if (typeof sprite === 'undefined') {
         // Use the default sound sprite (plays the full audio length).
-        sprite = '__default'; // Check if there is a single paused sound that isn't ended.
-        // If there is, play that sound. If not, continue as usual.
+        sprite = '__default'; // Check if there is a single paused sound that isn't ended. 
+        // If there is, play that sound. If not, continue as usual.  
 
         if (!self._playLock) {
           var num = 0;
@@ -29906,7 +29906,7 @@ var floodfill = function () {
 })();
 /*!
  *  Spatial Plugin - Adds support for stereo and 3D audio where Web Audio is supported.
- *
+ *  
  *  howler.js v2.1.1
  *  howlerjs.com
  *
@@ -39597,7 +39597,7 @@ https://github.com/nodeca/pako/blob/master/LICENSE
 
       $export.U = 64; // safe
 
-      $export.R = 128; // real proto method for `library`
+      $export.R = 128; // real proto method for `library` 
 
       module.exports = $export;
     }, {
@@ -43834,29 +43834,29 @@ https://github.com/nodeca/pako/blob/master/LICENSE
          When large enough input and output buffers are supplied to inflate(), for
          example, a 16K input buffer and a 64K output buffer, more than 95% of the
          inflate execution time is spent in this routine.
-
+      
          Entry assumptions:
-
+      
               state.mode === LEN
               strm.avail_in >= 6
               strm.avail_out >= 258
               start >= strm.avail_out
               state.bits < 8
-
+      
          On return, state.mode is one of:
-
+      
               LEN -- ran out of enough output space or enough available input
               TYPE -- reached end of block code, inflate() to interpret next block
               BAD -- error in block data
-
+      
          Notes:
-
+      
           - The maximum input bits used by a length/distance pair is 15 bits for the
             length code, 5 bits for the length extra, 15 bits for the distance code,
             and 13 bits for the distance extra.  This totals 48 bits, or six bytes.
             Therefore if strm.avail_in >= 6, then there is enough input to avoid
             checking for available input while decoding.
-
+      
           - The maximum bytes that a single length/distance pair can output is 258
             bytes, which is the maximum length that can be coded.  inflate_fast()
             requires strm.avail_out >= 258 for each loop to avoid checking for
@@ -44751,7 +44751,7 @@ https://github.com/nodeca/pako/blob/master/LICENSE
        inflate call, but the end of the deflate stream has not been reached yet.
        It is also called to create a window for dictionary data when a dictionary
        is loaded.
-
+      
        Providing output buffers larger than 32K to inflate() should provide a speed
        advantage, since only the last 32K of output is copied to the sliding window
        upon return from inflate(), and since all distances after the first 32K of
@@ -69766,6 +69766,7 @@ Wick.Tickable = class extends Wick.Base {
 
     if (this.hasScript(name)) {
       this.updateScript(name, src);
+      return;
     }
 
     this._scripts.push({
@@ -74976,15 +74977,14 @@ Wick.View.Project = class extends Wick.View {
   }
 
   _renderWebGLCanvas() {
-    var pixiWidth = this._pixiApp.renderer.width;
-    var pixiHeight = this._pixiApp.renderer.height;
-
     // Calculate pan and zoom
     var zoom = this._zoom;
     var pan = {
-      x: (pixiWidth/2 + this.pan.x) - (this.model.width/zoom/2),
-      y: (pixiHeight/2 + this.pan.y) - (this.model.height/zoom/2)
+      x: this._pan.x,
+      y: this._pan.y
     };
+    pan.x += this._pixiApp.renderer.width / 2;
+    pan.y += this._pixiApp.renderer.height / 2;
 
     if (this._fitMode === 'fill') {
       // Change pan/zoom if needed depending on fit mode
@@ -75003,6 +75003,7 @@ Wick.View.Project = class extends Wick.View {
     this._webGLCanvas.style.cursor = 'default';
 
     this._pixiRootContainer.removeChildren(); // Set zoom and pan in Pixi
+
 
     this._pixiRootContainer.x = pan.x;
     this._pixiRootContainer.y = pan.y;
