@@ -42,6 +42,7 @@ class Inspector extends Component {
      */
     this.inspectorContentRenderFunctions = {
       "frame": this.renderFrame,
+      "layer": this.renderLayer,
       "multiframe": this.renderMultiFrame,
       "tween": this.renderTween,
       "multitween": this.renderMultiTween,
@@ -228,6 +229,22 @@ class Inspector extends Component {
           tooltip="Name"
           val={this.getSelectionAttribute('name')}
           onChange={(val) => {this.setSelectionAttribute('name', val);}}
+          placeholder="no_name"
+          id="inspector-name" />
+      </div>
+    );
+  }
+
+  /**
+   * Renders an inspector row allowing viewing and editing of a selection's identifier
+   */
+  renderIdentifier = () => {
+    return (
+      <div className="inspector-item">
+        <InspectorTextInput
+          tooltip="Name"
+          val={this.getSelectionAttribute('identifier')}
+          onChange={(val) => {this.setSelectionAttribute('identifier', val);}}
           placeholder="no_name"
           id="inspector-name" />
       </div>
@@ -429,8 +446,8 @@ class Inspector extends Component {
     return (
       <div className="inspector-item">
         {this.renderSelectionSoundAsset()}
-        {sound !== null && this.renderSelectionSoundVolume()}
-        {sound !== null && this.renderSelectionSoundStart()}
+        {/* {sound !== null && this.renderSelectionSoundVolume()} */}
+        {/* {sound !== null && this.renderSelectionSoundStart()} */}
       </div>
     )
   }
@@ -443,11 +460,22 @@ class Inspector extends Component {
   renderFrame = () => {
     return (
         <div className="inspector-content">
-          {this.renderName()}
+          {this.renderIdentifier()}
           {/*this.renderFrameLength()*/}
           {this.renderSoundContent()}
         </div>
     );
+  }
+
+  /**
+   * Renders the inspector view for all properties of a layer.
+   */
+  renderLayer = () => {
+    return  (
+      <div className="inspector-content">
+        {this.renderName()}
+      </div>
+    )
   }
 
   /**
@@ -484,7 +512,7 @@ class Inspector extends Component {
   renderGroupContent = () => {
     return (
       <div className="inspector-content">
-        {this.renderName()}
+        {this.renderIdentifier()}
         {this.renderSelectionTransformProperties()}
       </div>
     );
