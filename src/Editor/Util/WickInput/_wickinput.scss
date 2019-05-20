@@ -117,6 +117,17 @@
 
 .Dropdown-option {
   padding: 2px !important; 
+  white-space: nowrap; 
+}
+
+.Dropdown-option.is-selected {
+  background-color: #777777 !important;
+  color: black !important; 
+}
+
+.Dropdown-placeholder {
+  white-space: nowrap;
+  max-width: 110px; 
 }
 
 .wick-tooltip {

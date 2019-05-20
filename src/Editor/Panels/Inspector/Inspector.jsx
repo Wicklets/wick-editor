@@ -386,6 +386,12 @@ class Inspector extends Component {
     }
 
     let options = this.props.getAllSoundAssets().map(mapAsset);
+
+    options.unshift({
+      value: "", 
+      label: "No Sound", 
+    }); 
+
     let value = mapAsset(this.getSelectionAttribute('sound'));
     return (
       <InspectorSelector
