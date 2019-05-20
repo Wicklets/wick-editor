@@ -28,7 +28,7 @@ import nightImage from 'resources/interface-images/blue_night.svg';
 
 class WelcomeModal extends Component {
   getVersion() {
-    return "v8.2"
+    return "v8.3"
   }
 
   render() {
@@ -52,10 +52,10 @@ class WelcomeModal extends Component {
                 <li>Advanced Code API</li>
                 <li>New Inspector Script Window</li>
                 <li>Faster Selection, Undo/Redo, Autosave</li>
-                <li>Fixed Color Picker Opacity</li>
                 <li>New Export Menu</li>
                 <li>New Tool Settings</li>
                 <li>Interactive Code Reference</li>
+                <li>Tweens</li>
               </ul>
             </div>
             <div id="welcome-modal-tutorial-link" className="welcom-modal-item"><a className="welcome-modal-highlight" target="_blank" rel="noopener noreferrer" href="https://www.youtube.com/watch?v=pAsrXT8KIrI">Watch the Tutorial</a></div>
