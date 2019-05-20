@@ -38,6 +38,7 @@ Wick.GUIElement.LayerLabel = class extends Wick.GUIElement.Draggable {
             this.model.project.selection.select(this.model);
             this.model.activate();
             this.model.project.guiElement.build();
+            this.model.project.guiElement.fire('projectModified');
         });
 
         this.on('mouseLeave', () => {
@@ -55,6 +56,7 @@ Wick.GUIElement.LayerLabel = class extends Wick.GUIElement.Draggable {
         this.on('dragEnd', () => {
             this.drop();
             this.model.project.guiElement.build();
+            this.model.project.guiElement.fire('projectModified');
         });
     }
 
