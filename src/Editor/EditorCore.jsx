@@ -54,10 +54,8 @@ class EditorCore extends Component {
    * Activates the tool that was used before the current tool was activated.
    */
   activateLastTool = () => {
-    if(!this.lastUsedTool) return;
-    this.setState({
-      activeTool: this.lastUsedTool,
-    });
+    this.project.activeTool = this.lastUsedTool;
+    this.projectDidChange();
   }
 
   /**
