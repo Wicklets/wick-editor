@@ -119,6 +119,7 @@ Wick.GUIElement.NumberLine = class extends Wick.GUIElement.Draggable {
             applyMatrix: false,
         });
         cell.position = new paper.Point(i * this.gridCellWidth, 0);
+        cell.locked = true;
         return cell;
     }
 

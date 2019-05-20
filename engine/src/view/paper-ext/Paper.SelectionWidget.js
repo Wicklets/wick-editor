@@ -240,6 +240,11 @@ class SelectionWidget {
             }
             this._ghost.data.scale = this._ghost.data.scale.multiply(scaleAmt);
 
+            // Holding shift locks aspect ratio
+            if(e.modifiers.shift) {
+                scaleAmt.y = scaleAmt.x;
+            }
+
             this._ghost.matrix = new paper.Matrix();
             this._ghost.rotate(-this.boxRotation);
             this._ghost.scale(this._ghost.data.scale.x, this._ghost.data.scale.y, this.pivot);

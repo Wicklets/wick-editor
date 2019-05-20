@@ -71661,7 +71661,7 @@ Wick.Tools.Cursor = class extends Wick.Tool {
     if (!e.modifiers) e.modifiers = {};
 
     if (this.hitResult.item && this.hitResult.item.data.isSelectionBoxGUI) {
-      // TODO update selection drag
+      // Update selection drag
       if (!this._widget.currentTransformation) {
         this._widget.startTransformation(this.hitResult.item);
       }
@@ -73695,7 +73695,12 @@ class SelectionWidget {
         scaleAmt.y = 1.0;
       }
 
-      this._ghost.data.scale = this._ghost.data.scale.multiply(scaleAmt);
+      this._ghost.data.scale = this._ghost.data.scale.multiply(scaleAmt); // Holding shift locks aspect ratio
+
+      if (e.modifiers.shift) {
+        scaleAmt.y = scaleAmt.x;
+      }
+
       this._ghost.matrix = new paper.Matrix();
 
       this._ghost.rotate(-this.boxRotation);
@@ -77410,6 +77415,7 @@ Wick.GUIElement.FramesContainer = class extends Wick.GUIElement.Draggable {
     }); // Build grid
 
     this.grid.removeChildren();
+    this.grid.locked = true;
 
     for (var i = -1; i < paper.view.element.width / this.gridCellWidth + 1; i++) {
       var gridLine = new this.paper.Path.Rectangle({
@@ -77417,9 +77423,11 @@ Wick.GUIElement.FramesContainer = class extends Wick.GUIElement.Draggable {
         to: new this.paper.Point(Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_STROKE_WIDTH / 2, paper.view.element.height),
         fillColor: Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_STROKE_COLOR,
         pivot: new paper.Point(0, 0),
-        locked: true
+        locked: true,
+        insert: false
       });
       gridLine.position.x += i * this.gridCellWidth;
+      gridLine.locked = true;
       this.grid.addChild(gridLine);
     }
 
@@ -78360,6 +78368,7 @@ Wick.GUIElement.NumberLine = class extends Wick.GUIElement.Draggable {
       applyMatrix: false
     });
     cell.position = new paper.Point(i * this.gridCellWidth, 0);
+    cell.locked = true;
     return cell;
   }
 
@@ -79086,11 +79095,11 @@ Wick.GUIElement.ScrollbarHorizontal = class extends Wick.GUIElement.Scrollbar {
 
   build() {
     super.build();
-    this.grabber.containerWidth = this.width;
+    this.grabber.containerWidth = this.width; // Always show scrollbar for now.
 
-    if (this.grabber.grabberWidth > this.grabber.contentWidth) {
-      return;
-    }
+    /*if(this.grabber.grabberWidth > this.grabber.contentWidth) {
+        return;
+    }*/
 
     var scrollbar = new this.paper.Path.Rectangle({
       from: new this.paper.Point(0, 0),
@@ -79142,11 +79151,13 @@ Wick.GUIElement.ScrollbarVertical = class extends Wick.GUIElement.Scrollbar {
 
   build() {
     super.build();
-    this.grabber.containerHeight = this.height;
+    this.grabber.containerHeight = this.height; // Always show scrollbar for now.
 
-    if (this.grabber.grabberHeight > this.grabber.contentHeight) {
-      return;
+    /*
+    if(this.grabber.grabberHeight > this.grabber.contentHeight) {
+        return;
     }
+    */
 
     var scrollbar = new this.paper.Path.Rectangle({
       from: new this.paper.Point(0, 0),

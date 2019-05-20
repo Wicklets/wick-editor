@@ -152,7 +152,7 @@ Wick.Tools.Cursor = class extends Wick.Tool {
         if(!e.modifiers) e.modifiers = {};
 
         if(this.hitResult.item && this.hitResult.item.data.isSelectionBoxGUI) {
-            // TODO update selection drag
+            // Update selection drag
             if(!this._widget.currentTransformation) {
                 this._widget.startTransformation(this.hitResult.item);
             }

@@ -38,9 +38,10 @@ Wick.GUIElement.ScrollbarHorizontal = class extends Wick.GUIElement.Scrollbar {
         super.build();
 
         this.grabber.containerWidth = this.width;
-        if(this.grabber.grabberWidth > this.grabber.contentWidth) {
+        // Always show scrollbar for now.
+        /*if(this.grabber.grabberWidth > this.grabber.contentWidth) {
             return;
-        }
+        }*/
 
         var scrollbar = new this.paper.Path.Rectangle({
             from: new this.paper.Point(0, 0),

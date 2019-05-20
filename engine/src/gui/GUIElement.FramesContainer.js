@@ -89,6 +89,7 @@ Wick.GUIElement.FramesContainer = class extends Wick.GUIElement.Draggable {
 
         // Build grid
         this.grid.removeChildren();
+        this.grid.locked = true;
         for(var i = -1; i < paper.view.element.width / this.gridCellWidth + 1; i++) {
             var gridLine = new this.paper.Path.Rectangle({
                 from: new this.paper.Point(-Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_STROKE_WIDTH/2, 0),
@@ -96,8 +97,10 @@ Wick.GUIElement.FramesContainer = class extends Wick.GUIElement.Draggable {
                 fillColor: Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_STROKE_COLOR,
                 pivot: new paper.Point(0, 0),
                 locked: true,
+                insert: false,
             });
             gridLine.position.x += (i) * this.gridCellWidth;
+            gridLine.locked = true;
             this.grid.addChild(gridLine);
         }
         this.item.addChild(this.grid);
