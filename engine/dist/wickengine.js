@@ -69567,6 +69567,16 @@ GlobalAPI = class {
     if (!this.scriptOwner.project) return null;
     this.scriptOwner.project.stopAllSounds();
   }
+  /**
+   * Attach a function to an event with a given name.
+   * @param {string} name - the name of the event to attach the function to
+   * @param {function} fn - the function to attach to the event
+   */
+
+
+  onEvent(name, fn) {
+    this.scriptOwner.onEvent(name, fn);
+  }
 
 };
 GlobalAPI.Random = class {

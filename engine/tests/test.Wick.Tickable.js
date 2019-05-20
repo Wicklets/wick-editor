@@ -434,7 +434,7 @@ describe('Wick.Tickable', function() {
 
         it('should run scripts attached using onEvent', function() {
             var clip = new Wick.Clip();
-            clip.addScript('default', 'this.onEvent("load", () => { this.__project = project });');
+            clip.addScript('default', 'onEvent("load", () => { this.__project = project });');
 
             var project = new Wick.Project();
             project.activeFrame.addClip(clip);
@@ -448,9 +448,9 @@ describe('Wick.Tickable', function() {
             var clip = new Wick.Clip();
             clip.__eventRanCount = 0;
             var src = '';
-            src += 'this.onEvent("load", () => { this.__eventRanCount++; });';
-            src += 'this.onEvent("load", function () { this.__eventRanCount++; });';
-            src += 'this.onEvent("load", () => { this.__eventRanCount++; });';
+            src += 'onEvent("load", () => { this.__eventRanCount++; });';
+            src += 'onEvent("load", function () { this.__eventRanCount++; });';
+            src += 'onEvent("load", () => { this.__eventRanCount++; });';
             clip.addScript('default', src);
 
             var project = new Wick.Project();
@@ -462,7 +462,7 @@ describe('Wick.Tickable', function() {
 
         it('should catch errors from scripts attached using onEvent', function() {
             var clip = new Wick.Clip();
-            clip.addScript('default', 'this.onEvent("load", () => { foo });');
+            clip.addScript('default', 'onEvent("load", () => { foo });');
 
             var project = new Wick.Project();
             project.activeFrame.addClip(clip);
