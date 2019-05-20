@@ -472,16 +472,9 @@ Wick.View.Project = class extends Wick.View {
         if (this._fitMode === 'fill') {
             // Change pan/zoom if needed depending on fit mode
             zoom = this._calculateFitZoom();
-            pan.x = 0//(window.innerWidth - this.model.width * zoom) / 2;
-            pan.y = 0//(window.innerHeight - this.model.height * zoom) / 2;
+            pan.x = 0;
+            pan.y = 0;
         }
-
-        // Update mouse position (and adjust based on fit mode)
-        var pixiMouse = this._pixiApp.renderer.plugins.interaction.mouse.global;
-        this.model.mousePosition = {
-            x: (pixiMouse.x - pan.x) / zoom,
-            y: (pixiMouse.y - pan.y) / zoom
-        };
 
         // Reset cursor (button views will change the cursor style if the mouse is over a button)
         this._webGLCanvas.style.cursor = 'default';
@@ -493,6 +486,13 @@ Wick.View.Project = class extends Wick.View {
         this._pixiRootContainer.scale.y = zoom;
         this._pixiRootContainer.x = pan.x*zoom + this._pixiApp.renderer.width/2;
         this._pixiRootContainer.y = pan.y*zoom + this._pixiApp.renderer.height/2;
+
+        // Update mouse position (and adjust based on fit mode)
+        var pixiMouse = this._pixiApp.renderer.plugins.interaction.mouse.getLocalPosition(this._pixiRootContainer);
+        this.model.mousePosition = {
+            x: pixiMouse.x,
+            y: pixiMouse.y,
+        };
 
         if(this.model.focus.isRoot) {
             // We're in the root timeline, render the canvas normally
