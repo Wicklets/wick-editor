@@ -238,12 +238,13 @@ class SelectionWidget {
             if(item.data.handleEdge === 'leftCenter' || item.data.handleEdge === 'rightCenter') {
                 scaleAmt.y = 1.0;
             }
-            this._ghost.data.scale = this._ghost.data.scale.multiply(scaleAmt);
 
             // Holding shift locks aspect ratio
             if(e.modifiers.shift) {
                 scaleAmt.y = scaleAmt.x;
             }
+
+            this._ghost.data.scale = this._ghost.data.scale.multiply(scaleAmt);
 
             this._ghost.matrix = new paper.Matrix();
             this._ghost.rotate(-this.boxRotation);
