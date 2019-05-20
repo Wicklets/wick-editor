@@ -55,7 +55,7 @@ class PopOutCodeEditor extends Component {
    */
   addCodeToTab = (code) => {
     if (this.editors && this.editors.length > 0) {
-      let editor = this.editors[0]; 
+      let editor = this.editors[0];
       editor.session.insert(editor.getCursorPosition(), code);
     }
   }
@@ -144,12 +144,12 @@ class PopOutCodeEditor extends Component {
           </div>
         </div>
         <div className="code-editor-body">
-          <WickCodeDetailsPanel 
+          <WickCodeDetailsPanel
             addCodeToTab={this.addCodeToTab}
             scriptInfoInterface={this.props.scriptInfoInterface}
           />
           <div className="code-editor-code-panel">
-            {this.props.selectionIsScriptable() && 
+            {this.props.selectionIsScriptable() &&
             <WickTabCodeEditor
                 addNewEditor={this.addNewEditor}
                 script={this.props.script}
@@ -158,10 +158,11 @@ class PopOutCodeEditor extends Component {
                 onMinorScriptUpdate={this.props.onMinorScriptUpdate}
                 onMajorScriptUpdate={this.props.onMajorScriptUpdate}
                 scriptInfoInterface={this.props.scriptInfoInterface}
-                deleteScript={this.props.deleteScript} 
+                deleteScript={this.props.deleteScript}
                 scriptToEdit={this.props.scriptToEdit}
                 editScript={this.props.editScript}
                 onCursorChange={this.onCursorChange}
+                toggleCodeEditor={this.props.toggleCodeEditor}
               /> }
               {!this.props.selectionIsScriptable() && this.renderNotScriptableInfo()}
           </div>

@@ -69,6 +69,7 @@ class HotKeyInterface extends Object {
       'nudge-down-more': 'shift+down',
       'nudge-left-more': 'shift+left',
       'nudge-right-more': 'shift+right',
+      'toggle-script-editor': '`',
     }
   }
 
@@ -112,6 +113,7 @@ class HotKeyInterface extends Object {
       'nudge-down-more': this.editor.nudgeSelectionDownMore,
       'nudge-left-more': this.editor.nudgeSelectionLeftMore,
       'nudge-right-more': this.editor.nudgeSelectionRightMore,
+      'toggle-script-editor': this.editor.toggleCodeEditor,
     }
 
     for(let name in this.handlers) {
