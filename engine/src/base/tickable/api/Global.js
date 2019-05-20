@@ -224,6 +224,24 @@ GlobalAPI = class {
     }
 
     /**
+     * Returns the amount the mouse moved in the last tick on the x axis.
+     * @returns {number}
+     */
+    get mouseMoveX () {
+        if(!this.scriptOwner.project) return null;
+        return this.scriptOwner.project.mouseMove.x;
+    }
+
+    /**
+     * Returns the amount the mouse moved in the last tick on the y axis.
+     * @returns {number}
+     */
+    get mouseMoveY () {
+        if(!this.scriptOwner.project) return null;
+        return this.scriptOwner.project.mouseMove.y;
+    }
+
+    /**
      * Returns a new random object.
      * @returns {GlobalAPI.Random}
      */

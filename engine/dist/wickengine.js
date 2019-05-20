@@ -66561,6 +66561,10 @@ Wick.Project = class extends Wick.Base {
       x: 0,
       y: 0
     };
+    this._lastMousePosition = {
+      x: 0,
+      y: 0
+    };
     this._isMouseDown = false;
     this._keysDown = [];
     this._keysLastDown = [];
@@ -66948,7 +66952,25 @@ Wick.Project = class extends Wick.Base {
   }
 
   set mousePosition(mousePosition) {
+    this._lastMousePosition = {
+      x: this.mousePosition.x,
+      y: this.mousePosition.y
+    };
     this._mousePosition = mousePosition;
+  }
+  /**
+   * The amount the mouse has moved in the last tick
+   * @type {object}
+   */
+
+
+  get mouseMove() {
+    let moveX = this.mousePosition.x - this._lastMousePosition.x;
+    let moveY = this.mousePosition.y - this._lastMousePosition.y;
+    return {
+      x: moveX,
+      y: moveY
+    };
   }
   /**
    * Determine if the mouse is down.
@@ -69539,6 +69561,26 @@ GlobalAPI = class {
     return this.scriptOwner.project.mousePosition.y;
   }
   /**
+   * Returns the amount the mouse moved in the last tick on the x axis.
+   * @returns {number}
+   */
+
+
+  get mouseMoveX() {
+    if (!this.scriptOwner.project) return null;
+    return this.scriptOwner.project.mouseMove.x;
+  }
+  /**
+   * Returns the amount the mouse moved in the last tick on the y axis.
+   * @returns {number}
+   */
+
+
+  get mouseMoveY() {
+    if (!this.scriptOwner.project) return null;
+    return this.scriptOwner.project.mouseMove.y;
+  }
+  /**
    * Returns a new random object.
    * @returns {GlobalAPI.Random}
    */
@@ -69766,6 +69808,7 @@ Wick.Tickable = class extends Wick.Base {
 
     if (this.hasScript(name)) {
       this.updateScript(name, src);
+      return;
     }
 
     this._scripts.push({
