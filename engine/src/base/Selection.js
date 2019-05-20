@@ -84,6 +84,9 @@ Wick.Selection = class extends Wick.Base {
             return;
         }
 
+        // Activate the cursor tool when selection changes
+        this.project.activeTool = this.project.tools.cursor;
+
         // Only allow selection of objects of in the same location
         if(this._locationOf(object) !== this.location) {
             this.clear();

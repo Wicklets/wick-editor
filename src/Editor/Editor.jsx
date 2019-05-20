@@ -67,7 +67,7 @@ class Editor extends EditorCore {
       activeModalName: window.localStorage.skipWelcomeMessage ? null : "WelcomeMessage",
       activeModalQueue: [],
       codeEditorOpen: false,
-      scriptToEdit: "add",
+      scriptToEdit: "default",
       codeErrors: [],
       inspectorSize: 250,
       timelineSize: 175,

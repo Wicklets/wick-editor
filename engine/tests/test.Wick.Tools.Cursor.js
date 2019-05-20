@@ -237,4 +237,20 @@ describe('Wick.Tools.Cursor', function() {
     it('Should add item to selection if curve is clicked and shift is held', function() {
         // todo
     });
+
+    it('Should change focus to selected clip if a clip is double clicked', function() {
+        // todo
+    });
+
+    it('Should change focus to parent clip if the canvas is double clicked inside clip', function() {
+        // todo
+    });
+
+    it('Should not change focus if a non-clip is double clicked', function() {
+        // todo
+    });
+
+    it('Should not change focus if the canvas is double clicked, and the focused clip is the root', function() {
+        // todo
+    });
 });

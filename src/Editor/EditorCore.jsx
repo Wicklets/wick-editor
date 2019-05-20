@@ -397,9 +397,6 @@ class EditorCore extends Component {
    * Selects everything on the canvas.
    */
   selectAll = () => {
-    this.setState({
-      activeTool: 'cursor'
-    });
     this.project.selectAll();
     this.projectDidChange();
   }

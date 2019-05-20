@@ -131,4 +131,8 @@ describe('Wick.Selection', function() {
         // TODO
         // opacity, fillColor, strokeColor, strokeWidth
     });
+
+    it('should change to cursor tool when selection changes', function () {
+        // TODO
+    });
 });
