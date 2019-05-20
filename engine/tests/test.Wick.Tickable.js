@@ -63,13 +63,16 @@ describe('Wick.Tickable', function() {
             var tickable = new Wick.Tickable();
 
             tickable.addScript('load', 'foo()');
-            tickable.addScript('load', 'foo()');
-            tickable.addScript('load', 'foo()');
+            tickable.addScript('load', 'bar()');
+            tickable.addScript('load', 'baz()');
+            tickable.addScript('default', 'foo()');
+            tickable.addScript('default', 'foo()');
+            tickable.addScript('default', 'bar()');
             expect(tickable.scripts.length).to.equal(2);
             expect(tickable.scripts[0].name).to.equal('default');
-            expect(tickable.scripts[0].src).to.equal('');
+            expect(tickable.scripts[0].src).to.equal('bar()');
             expect(tickable.scripts[1].name).to.equal('load');
-            expect(tickable.scripts[1].src).to.equal('foo()');
+            expect(tickable.scripts[1].src).to.equal('baz()');
         });
     });
 
