@@ -75022,17 +75022,16 @@ Wick.View.Project = class extends Wick.View {
     // Calculate pan and zoom
     var zoom = this._zoom;
     var pan = {
-      x: this._pan.x,
-      y: this._pan.y
+      x: this.pan.x,
+      y: this.pan.y
     };
-    pan.x += this._pixiApp.renderer.width / 2;
-    pan.y += this._pixiApp.renderer.height / 2;
 
     if (this._fitMode === 'fill') {
       // Change pan/zoom if needed depending on fit mode
-      zoom *= this._calculateFitZoom();
-      pan.x = (window.innerWidth - this.model.width * zoom) / 2;
-      pan.y = (window.innerHeight - this.model.height * zoom) / 2;
+      zoom = this._calculateFitZoom();
+      pan.x = 0; //(window.innerWidth - this.model.width * zoom) / 2;
+
+      pan.y = 0; //(window.innerHeight - this.model.height * zoom) / 2;
     } // Update mouse position (and adjust based on fit mode)
 
 
@@ -75047,10 +75046,11 @@ Wick.View.Project = class extends Wick.View {
     this._pixiRootContainer.removeChildren(); // Set zoom and pan in Pixi
 
 
-    this._pixiRootContainer.x = pan.x;
-    this._pixiRootContainer.y = pan.y;
+    this._pixiRootContainer.pivot = new PIXI.Point(this.model.width / 2, this.model.height / 2);
     this._pixiRootContainer.scale.x = zoom;
     this._pixiRootContainer.scale.y = zoom;
+    this._pixiRootContainer.x = pan.x * zoom + this._pixiApp.renderer.width / 2;
+    this._pixiRootContainer.y = pan.y * zoom + this._pixiApp.renderer.height / 2;
 
     if (this.model.focus.isRoot) {
       // We're in the root timeline, render the canvas normally
