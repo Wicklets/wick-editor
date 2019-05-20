@@ -35,8 +35,6 @@ Wick.Clip = class extends Wick.Tickable {
         this.timeline.addLayer(new Wick.Layer());
         this.timeline.activeLayer.addFrame(new Wick.Frame());
 
-        this.identifier = args.identifier || 'Clip';
-
         this._transformation = args.transformation || new Wick.Transformation();
 
         this.cursor = 'default';
