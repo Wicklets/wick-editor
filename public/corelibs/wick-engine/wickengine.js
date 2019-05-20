@@ -79195,9 +79195,9 @@ Wick.GUIElement.ScrollbarHorizontal = class extends Wick.GUIElement.Scrollbar {
     super.build();
     this.grabber.containerWidth = this.width; // Always show scrollbar for now.
 
-    /*if(this.grabber.grabberWidth > this.grabber.contentWidth) {
-        return;
-    }*/
+    if (this.grabber.grabberWidth > this.grabber.contentWidth) {
+      return;
+    }
 
     var scrollbar = new this.paper.Path.Rectangle({
       from: new this.paper.Point(0, 0),
@@ -79251,11 +79251,9 @@ Wick.GUIElement.ScrollbarVertical = class extends Wick.GUIElement.Scrollbar {
     super.build();
     this.grabber.containerHeight = this.height; // Always show scrollbar for now.
 
-    /*
-    if(this.grabber.grabberHeight > this.grabber.contentHeight) {
-        return;
+    if (this.grabber.grabberHeight > this.grabber.contentHeight) {
+      return;
     }
-    */
 
     var scrollbar = new this.paper.Path.Rectangle({
       from: new this.paper.Point(0, 0),
@@ -79434,13 +79432,13 @@ Wick.GUIElement.Timeline = class extends Wick.GUIElement {
     this.item.addChild(this.layersContainer.item); // Build scrollbars
 
     this.horizontalScrollbar.item.position.x = Wick.GUIElement.LAYERS_CONTAINER_WIDTH;
-    this.horizontalScrollbar.item.position.y = paper.view.element.height - Wick.GUIElement.SCROLLBAR_SIZE;
-    this.horizontalScrollbar.width = paper.view.element.width - Wick.GUIElement.LAYERS_CONTAINER_WIDTH - Wick.GUIElement.SCROLLBAR_SIZE;
+    this.horizontalScrollbar.item.position.y = paper.view.element.height / window.devicePixelRatio - Wick.GUIElement.SCROLLBAR_SIZE;
+    this.horizontalScrollbar.width = paper.view.element.width / window.devicePixelRatio - Wick.GUIElement.LAYERS_CONTAINER_WIDTH - Wick.GUIElement.SCROLLBAR_SIZE;
     this.horizontalScrollbar.build();
     this.item.addChild(this.horizontalScrollbar.item);
-    this.verticalScrollbar.item.position.x = paper.view.element.width - Wick.GUIElement.SCROLLBAR_SIZE;
+    this.verticalScrollbar.item.position.x = paper.view.element.width / window.devicePixelRatio - Wick.GUIElement.SCROLLBAR_SIZE;
     this.verticalScrollbar.item.position.y = Wick.GUIElement.NUMBER_LINE_HEIGHT;
-    this.verticalScrollbar.height = paper.view.element.height - Wick.GUIElement.NUMBER_LINE_HEIGHT - Wick.GUIElement.SCROLLBAR_SIZE;
+    this.verticalScrollbar.height = paper.view.element.height / window.devicePixelRatio - Wick.GUIElement.NUMBER_LINE_HEIGHT - Wick.GUIElement.SCROLLBAR_SIZE;
     this.verticalScrollbar.build();
     this.item.addChild(this.verticalScrollbar.item); // Build cover for top left corner
 
