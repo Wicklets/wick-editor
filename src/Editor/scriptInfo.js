@@ -44,6 +44,7 @@ class ScriptInfoInterface extends Object {
             'Project' : this.projectReference,
             'Random' : this.randomReference,
             'Sound' : this.soundReference,
+            'Event' : this.eventReference,
         }
     }
 
@@ -252,6 +253,23 @@ class ScriptInfoInterface extends Object {
                 },
             ]
         );
+    }
+
+    get eventReference () {
+        let events = []
+        let descriptions = this.scriptDescriptions;
+
+        Object.keys(descriptions).forEach( (key) => {
+            if (key !== 'default') {
+                events.push({
+                    name: key,
+                    snippet: "this.onEvent('<EVENT_FN>', function () {\n  //Add code here!\n});".replace('<EVENT_FN>', key),
+                    descriptions: descriptions[key],
+                });
+            }
+        }); 
+
+        return events;
     }
 }
 
