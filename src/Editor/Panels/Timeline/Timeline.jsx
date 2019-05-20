@@ -20,6 +20,7 @@
 import React, { Component } from 'react';
 
 import Breadcrumbs from './Breadcrumbs/Breadcrumbs';
+import ActionButton from 'Editor/Util/ActionButton/ActionButton';
 
 import './_timeline.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -72,6 +73,16 @@ class Timeline extends Component {
           setFocusObject={this.props.setFocusObject}
         />
         <div id="animation-timeline" ref={this.canvasContainer} />
+        <div className="animation-timeline-add-keyframe-button">
+          <ActionButton
+            color="tool"
+            id={"add-keyframe-button"}
+            tooltip={"Add Keyframe"}
+            action={this.props.addTweenKeyframe}
+            tooltipPlace={"top"}
+            icon={'tween'}
+          />
+        </div>
       </div>
 
     )

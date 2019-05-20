@@ -1062,6 +1062,15 @@ class EditorCore extends Component {
       this.toast('There is nothing in the clipboard to paste.', 'warning');
     }
   }
+
+  /**
+   * Creates a new keyframe at the current playhead position.
+   */
+  addTweenKeyframe = () => {
+    if(!this.project.activeFrame) return;
+    this.project.activeFrame.createTween();
+    this.projectDidChange();
+  }
 }
 
 export default EditorCore;

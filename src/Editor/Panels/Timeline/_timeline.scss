@@ -33,3 +33,11 @@
   border-left: $editor-outline-padding solid $editor-primary-outline;
   border-bottom: $editor-outline-padding solid $editor-primary-outline;
 }
+
+.animation-timeline-add-keyframe-button {
+  position: absolute;
+  width: 25px;
+  height: 25px;
+  top: 27px;
+  left: 7px;
+}

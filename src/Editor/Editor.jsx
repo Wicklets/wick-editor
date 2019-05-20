@@ -673,6 +673,7 @@ class Editor extends EditorCore {
                                 setOnionSkinOptions={this.setOnionSkinOptions}
                                 getOnionSkinOptions={this.getOnionSkinOptions}
                                 setFocusObject={this.setFocusObject}
+                                addTweenKeyframe={this.addTweenKeyframe}
                                 onRef={ref => this.timelineComponent = ref}
                               />
                             </DockedPanel>

@@ -74,8 +74,8 @@ Wick.View.Clip = class extends Wick.View {
         });
 
         // Update transformations
-        this.container.x = this.model.transformation.x;
-        this.container.y = this.model.transformation.y;
+        this.container.x = this.model.transformation.x - 1;
+        this.container.y = this.model.transformation.y - 1;
         this.container.scale.x = this.model.transformation.scaleX;
         this.container.scale.y = this.model.transformation.scaleY;
         this.container.rotation = this.model.transformation.rotation * (Math.PI/180);//Degrees -> Radians conversion
