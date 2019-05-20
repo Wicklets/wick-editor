@@ -372,6 +372,7 @@ class Editor extends EditorCore {
 
   /**
    * Opens and closes the code editor depending on the state of the codeEditor.
+   * @param {boolean} state - Optional. If set to true or false, with set codeEditorOpen to that value.
    */
   toggleCodeEditor = (state) => {
     if (state === undefined) {
@@ -748,6 +749,7 @@ class Editor extends EditorCore {
               deleteScript={this.deleteScript}
               scriptToEdit={this.state.scriptToEdit}
               editScript={this.editScript}
+              toggleCodeEditor={this.toggleCodeEditor}
               />}
         </div>
       )}

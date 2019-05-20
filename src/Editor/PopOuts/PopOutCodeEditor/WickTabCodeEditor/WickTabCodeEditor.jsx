@@ -114,7 +114,9 @@ class WickTabCodeEditor extends Component {
         script={script.src}
         name={script.name}
         errors={this.props.errors.filter(error => {return error.name === script.name})}
-        onCursorChange={this.props.onCursorChange}/>
+        onCursorChange={this.props.onCursorChange}
+        toggleCodeEditor={this.props.toggleCodeEditor}
+      />
     )
   }
 

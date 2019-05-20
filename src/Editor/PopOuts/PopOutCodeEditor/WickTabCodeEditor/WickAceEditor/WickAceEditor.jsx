@@ -29,8 +29,16 @@ import './_wickaceeditor.scss';
 // Import default tab style
 class WickAceEditor extends Component {
 
-  onLoad = (e) => {
-    this.props.addNewEditor(e);
+  onLoad = (editor) => {
+    editor.commands.addCommand({
+        name: "toggleCodeEditorWindow",
+        bindKey: {win: "`", mac: "`"},
+        exec: (editor) => {
+            this.props.toggleCodeEditor();
+        }
+    })
+
+    this.props.addNewEditor(editor);
   }
 
   mapErrorsToMarkers = (errors) => {
@@ -54,7 +62,7 @@ class WickAceEditor extends Component {
   renderAceEditor = () => {
     return (
       <AceEditor
-        onCursorChange={this.props.onCursorChange} 
+        onCursorChange={this.props.onCursorChange}
         focus={this.props.focus}
         onLoad={this.onLoad}
         mode="javascript"
