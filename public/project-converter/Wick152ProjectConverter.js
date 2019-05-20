@@ -393,7 +393,7 @@ class Wick152ProjectConverter {
             // Remove first and last character to remove { } from functions. Trim off excess white space.
             let eventScript = script.slice(range[0] + 1, range[1] - 1).trim();
 
-            let placeholder = '\n' + "onEvent('<EVENT_NAME>', function () {\n<EVENT_SCRIPT>\n});\n";
+            let placeholder = '\n' + "onEvent('<EVENT_NAME>', function () {\n\t<EVENT_SCRIPT>\n});\n";
             let withName = placeholder.replace('<EVENT_NAME>', id);
             let finalScript = withName.replace('<EVENT_SCRIPT>', eventScript)
 
