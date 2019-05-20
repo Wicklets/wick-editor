@@ -69756,6 +69756,25 @@ Wick.Tickable = class extends Wick.Base {
     return this._scripts;
   }
   /**
+   * Checks if this object has a non-empty script.
+   * @type {boolean}
+   */
+
+
+  get hasContentfulScripts() {
+    var hasContentfulScripts = false;
+
+    this._scripts.forEach(script => {
+      if (hasContentfulScripts) return;
+
+      if (script.src !== '') {
+        hasContentfulScripts = true;
+      }
+    });
+
+    return hasContentfulScripts;
+  }
+  /**
    * Check if this object is currently visible in the project.
    * @type {boolean}
    */
@@ -70480,16 +70499,16 @@ Wick.Frame = class extends Wick.Tickable {
         })
       });
       this.addClip(clip);
-    }
+    } // Create the tween (if there's not already a tween at the current playhead position)
 
-    var clip = this.clips[0]; // Create the tween (if there's not already a tween at the current playhead position)
 
     var playheadPosition = this._getRelativePlayheadPosition();
 
     if (!this.getTweenAtPosition(playheadPosition)) {
+      var clip = this.clips[0];
       this.addTween(new Wick.Tween({
         playheadPosition: playheadPosition,
-        transformation: clip.transformation.clone()
+        transformation: clip ? clip.transformation.clone() : new Wick.Transformation()
       }));
     }
   }
@@ -77097,6 +77116,19 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
       });
       nameTextGroup.clipped = true;
       this.item.addChild(nameTextGroup);
+    }
+
+    if (this.model.hasContentfulScripts) {
+      var scriptText = new paper.PointText({
+        point: [this.gridCellWidth / 2 - 5, this.gridCellHeight / 2 + 8],
+        content: 's',
+        fillColor: '#008466',
+        fontFamily: 'Courier New',
+        fontWeight: 'bold',
+        fontSize: 16
+      });
+      scriptText.locked = true;
+      this.item.addChild(scriptText);
     }
 
     this.item.position = new paper.Point(this.x, this.y);

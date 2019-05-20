@@ -105,6 +105,21 @@ Wick.Tickable = class extends Wick.Base {
     }
 
     /**
+     * Checks if this object has a non-empty script.
+     * @type {boolean}
+     */
+    get hasContentfulScripts () {
+        var hasContentfulScripts = false;
+        this._scripts.forEach(script => {
+            if(hasContentfulScripts) return;
+            if(script.src !== '') {
+                hasContentfulScripts = true;
+            }
+        })
+        return hasContentfulScripts;
+    }
+
+    /**
      * Check if this object is currently visible in the project.
      * @type {boolean}
      */

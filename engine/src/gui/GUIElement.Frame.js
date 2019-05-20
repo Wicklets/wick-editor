@@ -324,6 +324,20 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
             this.item.addChild(nameTextGroup);
         }
 
+        if(this.model.hasContentfulScripts) {
+            var scriptText = new paper.PointText({
+                point: [this.gridCellWidth/2 - 5, this.gridCellHeight/2 + 8],
+                content: 's',
+                fillColor: '#008466',
+                fontFamily: 'Courier New',
+                fontWeight: 'bold',
+                fontSize: 16,
+            });
+            scriptText.locked = true;
+
+            this.item.addChild(scriptText);
+        }
+
         this.item.position = new paper.Point(this.x, this.y);
         this.item.position = this.item.position.add(this.dragOffset);
     }

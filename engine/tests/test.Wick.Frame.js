@@ -409,6 +409,25 @@ describe('Wick.Frame', function() {
     });
 
     describe('#createTween', function () {
+        it('should create a blank tween if the frame is empty', function () {
+            var project = new Wick.Project();
+
+            project.activeFrame.createTween();
+
+            expect(project.activeFrame.paths.length).to.equal(0);
+            expect(project.activeFrame.clips.length).to.equal(0);
+
+            expect(project.activeFrame.tweens.length).to.equal(1);
+
+            expect(project.activeFrame.tweens[0].playheadPosition).to.equal(1);
+            expect(project.activeFrame.tweens[0].transformation.x).to.equal(0);
+            expect(project.activeFrame.tweens[0].transformation.y).to.equal(0);
+            expect(project.activeFrame.tweens[0].transformation.scaleX).to.equal(1);
+            expect(project.activeFrame.tweens[0].transformation.scaleY).to.equal(1);
+            expect(project.activeFrame.tweens[0].transformation.rotation).to.equal(0);
+            expect(project.activeFrame.tweens[0].transformation.opacity).to.equal(1);
+        });
+
         it('should create a tween and convert everything on the frame into one clip', function () {
             var project = new Wick.Project();
 

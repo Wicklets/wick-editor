@@ -340,14 +340,13 @@ Wick.Frame = class extends Wick.Tickable {
             this.addClip(clip);
         }
 
-        var clip = this.clips[0];
-
         // Create the tween (if there's not already a tween at the current playhead position)
         var playheadPosition = this._getRelativePlayheadPosition();
         if(!this.getTweenAtPosition(playheadPosition)) {
+            var clip = this.clips[0];
             this.addTween(new Wick.Tween({
                 playheadPosition: playheadPosition,
-                transformation: clip.transformation.clone(),
+                transformation: clip ? clip.transformation.clone() : new Wick.Transformation(),
             }));
         }
     }
