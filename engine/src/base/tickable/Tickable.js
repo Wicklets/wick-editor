@@ -163,6 +163,7 @@ Wick.Tickable = class extends Wick.Base {
         if(Wick.Tickable.possibleScripts.indexOf(name) === -1) console.error(name + ' is not a valid script!');
         if(this.hasScript(name)) {
             this.updateScript(name, src);
+            return;
         }
 
         this._scripts.push({

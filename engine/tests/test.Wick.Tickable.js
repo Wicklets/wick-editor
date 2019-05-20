@@ -58,6 +58,19 @@ describe('Wick.Tickable', function() {
             expect(tickable.scripts[4].name).to.equal('unload');
             expect(tickable.scripts[4].src).to.equal('unload_foo()');
         });
+
+        it('should not add duplicate scripts', function () {
+            var tickable = new Wick.Tickable();
+
+            tickable.addScript('load', 'foo()');
+            tickable.addScript('load', 'foo()');
+            tickable.addScript('load', 'foo()');
+            expect(tickable.scripts.length).to.equal(2);
+            expect(tickable.scripts[0].name).to.equal('default');
+            expect(tickable.scripts[0].src).to.equal('');
+            expect(tickable.scripts[1].name).to.equal('load');
+            expect(tickable.scripts[1].src).to.equal('foo()');
+        });
     });
 
     describe('#getScript', function () {
