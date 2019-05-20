@@ -171,13 +171,25 @@ Wick.View.Selection = class extends Wick.View {
         });
     }
 
-    _getSelectedObjectViews () {
-        return this.model.getSelectedObjects('Canvas').map(object => {
+    _getSelectedObjects () {
+        return this.model.getSelectedObjects('Canvas');
+    }
+
+    _getObjectViews (objects) {
+        return objects.map(object => {
             return object.view.item || object.view.group;
         });
     }
 
+    _getObjectsBounds (objects) {
+        return this.widget._calculateBoundingBoxOfItems(this._getObjectViews(objects));
+    }
+
+    _getSelectedObjectViews () {
+        return this._getObjectViews(this._getSelectedObjects());
+    }
+
     _getSelectedObjectsBounds () {
-        return this.widget._calculateBoundingBoxOfItems(this._getSelectedObjectViews());
+        return this._getObjectsBounds(this._getSelectedObjects());
     }
 }

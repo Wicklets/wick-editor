@@ -410,7 +410,42 @@ describe('Wick.Frame', function() {
 
     describe('#createTween', function () {
         it('should create a tween and convert everything on the frame into one clip', function () {
-            // TODO
+            var project = new Wick.Project();
+
+            var path1 = TestUtils.paperToWickPath(new paper.Path.Rectangle({
+                from: new paper.Point(50,50),
+                to: new paper.Point(100,100),
+                fillColor: 'red',
+            }));
+            var path2 = TestUtils.paperToWickPath(new paper.Path.Rectangle({
+                from: new paper.Point(100,50),
+                to: new paper.Point(150,100),
+                fillColor: 'green',
+            }));
+            var path3 = TestUtils.paperToWickPath(new paper.Path.Rectangle({
+                from: new paper.Point(100,100),
+                to: new paper.Point(150,150),
+                fillColor: 'blue',
+            }));
+
+            project.activeFrame.addPath(path1);
+            project.activeFrame.addPath(path2);
+            project.activeFrame.addPath(path3);
+
+            project.activeFrame.createTween();
+
+            expect(project.activeFrame.paths.length).to.equal(0);
+            expect(project.activeFrame.clips.length).to.equal(1);
+
+            expect(project.activeFrame.tweens.length).to.equal(1);
+
+            expect(project.activeFrame.tweens[0].playheadPosition).to.equal(1);
+            expect(project.activeFrame.tweens[0].transformation.x).to.equal(100);
+            expect(project.activeFrame.tweens[0].transformation.y).to.equal(100);
+            expect(project.activeFrame.tweens[0].transformation.scaleX).to.equal(1);
+            expect(project.activeFrame.tweens[0].transformation.scaleY).to.equal(1);
+            expect(project.activeFrame.tweens[0].transformation.rotation).to.equal(0);
+            expect(project.activeFrame.tweens[0].transformation.opacity).to.equal(1);
         });
     })
 });

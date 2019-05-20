@@ -326,15 +326,28 @@ Wick.Frame = class extends Wick.Tickable {
      * Automatically creates a tween at the current playhead position. Converts all objects into one clip if needed.
      */
     createTween () {
-        if(this.paths.length + this.clips.length > 1) {
-            // TODO convert to clip
+        // If more than one object exists on the frame, create a clip from those objects
+        var allObjects = this.paths.concat(this.clips);
+        if(allObjects.length > 1) {
+            var center = this.project.selection.view._getObjectsBounds(allObjects).center;
+            var clip = new Wick.Clip({
+                objects: this.paths.concat(this.clips),
+                transformation: new Wick.Transformation({
+                    x: center.x,
+                    y: center.y,
+                }),
+            });
+            this.addClip(clip);
         }
+
+        var clip = this.clips[0];
 
         // Create the tween (if there's not already a tween at the current playhead position)
         var playheadPosition = this._getRelativePlayheadPosition();
         if(!this.getTweenAtPosition(playheadPosition)) {
             this.addTween(new Wick.Tween({
                 playheadPosition: playheadPosition,
+                transformation: clip.transformation.clone(),
             }));
         }
     }
