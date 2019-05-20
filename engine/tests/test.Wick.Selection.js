@@ -132,7 +132,11 @@ describe('Wick.Selection', function() {
         // opacity, fillColor, strokeColor, strokeWidth
     });
 
-    it('should change to cursor tool when selection changes', function () {
+    it('should change to cursor tool when selection changes (canvas object)', function () {
+        // TODO
+    });
+
+    it('should not change to cursor tool when selection changes (timeline/assets)', function () {
         // TODO
     });
 });

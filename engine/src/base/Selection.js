@@ -85,7 +85,9 @@ Wick.Selection = class extends Wick.Base {
         }
 
         // Activate the cursor tool when selection changes
-        this.project.activeTool = this.project.tools.cursor;
+        if(this._locationOf(object) === 'Canvas') {
+            this.project.activeTool = this.project.tools.cursor;
+        }
 
         // Only allow selection of objects of in the same location
         if(this._locationOf(object) !== this.location) {
@@ -336,12 +338,23 @@ Wick.Selection = class extends Wick.Base {
     /**
      *
      */
-    get name () {
+    get identifier () {
         return this._getSingleAttribute('identifier');
     }
 
+    set identifier (identifier) {
+        this._setSingleAttribute('identifier', identifier);
+    }
+
+    /**
+     *
+     */
+    get name () {
+        return this._getSingleAttribute('name');
+    }
+
     set name (name) {
-        this._setSingleAttribute('identifier', name);
+        this._setSingleAttribute('name', name);
     }
 
     /**
