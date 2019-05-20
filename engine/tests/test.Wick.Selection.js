@@ -139,4 +139,8 @@ describe('Wick.Selection', function() {
     it('should not change to cursor tool when selection changes (timeline/assets)', function () {
         // TODO
     });
+
+    it('should activate the layer that a newly selected canvas object belongs to', function () {
+        // TODO
+    });
 });

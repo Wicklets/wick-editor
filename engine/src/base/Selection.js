@@ -87,6 +87,7 @@ Wick.Selection = class extends Wick.Base {
         // Activate the cursor tool when selection changes
         if(this._locationOf(object) === 'Canvas') {
             this.project.activeTool = this.project.tools.cursor;
+            object.parentLayer && object.parentLayer.activate();
         }
 
         // Only allow selection of objects of in the same location
