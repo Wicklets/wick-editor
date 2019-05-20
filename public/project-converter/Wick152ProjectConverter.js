@@ -291,7 +291,7 @@ class Wick152ProjectConverter {
             pathJSON = paperPath.exportJSON({asString:false});
         }
 
-        var convertedPath = new Wick.Path(pathJSON);
+        var convertedPath = new Wick.Path({json:pathJSON});
         return convertedPath;
     }
 
