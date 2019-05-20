@@ -444,9 +444,9 @@ Wick.Project = class extends Wick.Base {
      * @type {object}
      */
     get mouseMove () {
-        let moveX = this.mousePosition.x - this._lastMousePosition.x; 
+        let moveX = this.mousePosition.x - this._lastMousePosition.x;
         let moveY = this.mousePosition.y -  this._lastMousePosition.y;
-        return {x: moveX, y: moveY}; 
+        return {x: moveX, y: moveY};
     }
 
     /**
@@ -725,6 +725,7 @@ Wick.Project = class extends Wick.Base {
     tick () {
         this.view.processInput();
 
+        this.focus._attachChildClipReferences();
         var error = this.focus.tick();
 
         // Save the current keysDown

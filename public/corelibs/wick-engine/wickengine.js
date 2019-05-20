@@ -67267,6 +67267,9 @@ Wick.Project = class extends Wick.Base {
 
   tick() {
     this.view.processInput();
+
+    this.focus._attachChildClipReferences();
+
     var error = this.focus.tick(); // Save the current keysDown
 
     this._keysLastDown = [].concat(this._keysDown);
@@ -68392,21 +68395,32 @@ Wick.Timeline = class extends Wick.Base {
     this.gotoFrame(frame);
   }
   /**
-   * Moves the timeline forward one frame. Does nothing if the timeline is on its last frame.
+   * Moves the timeline forward one frame. Loops back to 1 if gotoNextFrame moves the playhead past the past frame.
    */
 
 
   gotoNextFrame() {
-    var nextFramePlayheadPosition = Math.min(this.length, this.playheadPosition + 1);
+    // Loop back to beginning if gotoNextFrame goes past the last frame
+    var nextFramePlayheadPosition = this.playheadPosition + 1;
+
+    if (nextFramePlayheadPosition > this.length) {
+      nextFramePlayheadPosition = 1;
+    }
+
     this.gotoFrame(nextFramePlayheadPosition);
   }
   /**
-   * Moves the timeline backwards one frame. Does nothing if the timeline is on its first frame.
+   * Moves the timeline backwards one frame. Loops to the last frame if gotoPrevFrame moves the playhead before the first frame.
    */
 
 
   gotoPrevFrame() {
-    var prevFramePlayheadPosition = Math.max(1, this.playheadPosition - 1);
+    var prevFramePlayheadPosition = this.playheadPosition - 1;
+
+    if (prevFramePlayheadPosition <= 0) {
+      prevFramePlayheadPosition = this.length;
+    }
+
     this.gotoFrame(prevFramePlayheadPosition);
   }
   /**
@@ -71102,17 +71116,14 @@ Wick.Clip = class extends Wick.Tickable {
   }
 
   _attachChildClipReferences() {
-    // There are no frames, or the playhead is over an empty space
-    if (!this.timeline.activeFrame) {
-      return [];
-    }
+    this.timeline.activeFrames.forEach(frame => {
+      frame.clips.forEach(clip => {
+        if (clip.identifier) {
+          this[clip.identifier] = clip;
 
-    this.timeline.activeFrame.clips.forEach(clip => {
-      if (clip.identifier) {
-        this[clip.identifier] = clip;
-
-        clip._attachChildClipReferences();
-      }
+          clip._attachChildClipReferences();
+        }
+      });
     });
   }
 

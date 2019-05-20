@@ -205,6 +205,48 @@ describe('Wick.Timeline', function() {
         });
     });
 
+    describe('gotoNextFrame', function () {
+        it('gotoNextFrame should work correctly', function () {
+            var timeline = new Wick.Timeline();
+            timeline.addLayer(new Wick.Layer());
+            timeline.activeLayer.addFrame(new Wick.Frame({start: 1}));
+            timeline.activeLayer.addFrame(new Wick.Frame({start: 2}));
+            timeline.activeLayer.addFrame(new Wick.Frame({start: 3}));
+
+            expect(timeline.playheadPosition).to.equal(1);
+            timeline.gotoNextFrame();
+            timeline.advance();
+            expect(timeline.playheadPosition).to.equal(2);
+            timeline.gotoNextFrame();
+            timeline.advance();
+            expect(timeline.playheadPosition).to.equal(3);
+            timeline.gotoNextFrame();
+            timeline.advance();
+            expect(timeline.playheadPosition).to.equal(1);
+        });
+    });
+
+    describe('gotoPrevFrame', function () {
+        it('gotoPrevFrame should work correctly', function () {
+            var timeline = new Wick.Timeline();
+            timeline.addLayer(new Wick.Layer());
+            timeline.activeLayer.addFrame(new Wick.Frame({start: 1}));
+            timeline.activeLayer.addFrame(new Wick.Frame({start: 2}));
+            timeline.activeLayer.addFrame(new Wick.Frame({start: 3}));
+
+            expect(timeline.playheadPosition).to.equal(1);
+            timeline.gotoPrevFrame();
+            timeline.advance();
+            expect(timeline.playheadPosition).to.equal(3);
+            timeline.gotoPrevFrame();
+            timeline.advance();
+            expect(timeline.playheadPosition).to.equal(2);
+            timeline.gotoPrevFrame();
+            timeline.advance();
+            expect(timeline.playheadPosition).to.equal(1);
+        });
+    });
+
     it('bug: timeline Timeline deserialize() not resetting _playing flag', function (done) {
         var project = new Wick.Project();
         project.activeLayer.addFrame(new Wick.Frame({start: 2}));
@@ -237,115 +279,4 @@ describe('Wick.Timeline', function() {
 
         firstPlay();
     });
-
-/*
-    describe('#insertFrames', function () {
-        it('should insert frames in correct places (no frames)', function() {
-            var project = new Wick.Project();
-            project.root.timeline.insertFrames([]);
-            expect(project.root.timeline.activeLayer.frames.length).to.equal(1);
-        });
-
-        it('should insert frames in correct places (single frame)', function() {
-            var project = new Wick.Project();
-            var origFrame = project.activeFrame;
-            var newFrame = origFrame.clone();
-            project.root.timeline.insertFrames([newFrame]);
-
-            expect(project.root.timeline.activeLayer.frames.length).to.equal(2);
-            expect(project.root.timeline.activeLayer.getFrameAtPlayheadPosition(1)).to.equal(origFrame);
-            expect(project.root.timeline.activeLayer.getFrameAtPlayheadPosition(2)).to.equal(newFrame);
-        });
-
-        it('should insert frames in correct places (many frames)', function() {
-            var project = new Wick.Project();
-            var frame1 = project.activeFrame;
-            var frame2 = new Wick.Frame(2,5);
-            project.activeLayer.addFrame(frame2);
-            var frame3 = new Wick.Frame(6,10);
-            project.activeLayer.addFrame(frame3);
-
-            frame1.identifier = 'frame1';
-            frame2.identifier = 'frame2';
-            frame3.identifier = 'frame3';
-
-            var newFrame1 = frame1.clone();
-            var newFrame2 = frame2.clone();
-            var newFrame3 = frame3.clone();
-            newFrame1.identifier = 'newFrame1';
-            newFrame2.identifier = 'newFrame2';
-            newFrame3.identifier = 'newFrame3';
-
-            project.root.timeline.insertFrames([newFrame1, newFrame2, newFrame3]);
-
-            var resultFrame1 = project.activeLayer.getFrameAtPlayheadPosition(1);
-            var resultFrame2 = project.activeLayer.getFrameAtPlayheadPosition(2);
-            var resultFrame3 = project.activeLayer.getFrameAtPlayheadPosition(6);
-            var resultFrame4 = project.activeLayer.getFrameAtPlayheadPosition(11);
-            var resultFrame5 = project.activeLayer.getFrameAtPlayheadPosition(12);
-            var resultFrame6 = project.activeLayer.getFrameAtPlayheadPosition(16);
-
-            expect(resultFrame1.identifier).to.equal('frame1');
-            expect(resultFrame2.identifier).to.equal('frame2');
-            expect(resultFrame3.identifier).to.equal('frame3');
-            expect(resultFrame4.identifier).to.equal('newFrame1');
-            expect(resultFrame5.identifier).to.equal('newFrame2');
-            expect(resultFrame6.identifier).to.equal('newFrame3');
-        });
-
-        it('should insert frames in correct places (many frames, many layers)', function() {
-            var project = new Wick.Project();
-            var layer1 = project.activeLayer;
-
-            var frame1 = project.activeFrame;
-            var frame2 = new Wick.Frame(2,5);
-            layer1.addFrame(frame2);
-            var frame3 = new Wick.Frame(6,10);
-            layer1.addFrame(frame3);
-
-            var layer2 = new Wick.Layer();
-            project.root.timeline.addLayer(layer2);
-            var frame4 = new Wick.Frame(1,3);
-            layer2.addFrame(frame4);
-
-            frame1.identifier = 'frame1';
-            frame2.identifier = 'frame2';
-            frame3.identifier = 'frame3';
-            frame4.identifier = 'frame4';
-
-            var newFrame1 = frame1.clone();
-            var newFrame2 = frame2.clone();
-            var newFrame3 = frame3.clone();
-            var newFrame4 = frame4.clone();
-            newFrame1.identifier = 'newFrame1';
-            newFrame2.identifier = 'newFrame2';
-            newFrame3.identifier = 'newFrame3';
-            newFrame4.identifier = 'newFrame4';
-
-            project.root.timeline.insertFrames([newFrame1, newFrame2, newFrame3, newFrame4]);
-
-            var resultFrame1 = layer1.getFrameAtPlayheadPosition(1);
-            var resultFrame2 = layer1.getFrameAtPlayheadPosition(2);
-            var resultFrame3 = layer1.getFrameAtPlayheadPosition(6);
-            var resultFrame4 = layer2.getFrameAtPlayheadPosition(1);
-            var resultFrame5 = layer1.getFrameAtPlayheadPosition(11);
-            var resultFrame6 = layer1.getFrameAtPlayheadPosition(12);
-            var resultFrame7 = layer1.getFrameAtPlayheadPosition(16);
-            var resultFrame8 = layer2.getFrameAtPlayheadPosition(11);
-
-            expect(resultFrame1).to.equal(frame1);
-            expect(resultFrame2).to.equal(frame2);
-            expect(resultFrame3).to.equal(frame3);
-            expect(resultFrame4).to.equal(frame4);
-            expect(resultFrame1.identifier).to.equal('frame1');
-            expect(resultFrame2.identifier).to.equal('frame2');
-            expect(resultFrame3.identifier).to.equal('frame3');
-            expect(resultFrame4.identifier).to.equal('frame4');
-            expect(resultFrame5.identifier).to.equal('newFrame1');
-            expect(resultFrame6.identifier).to.equal('newFrame2');
-            expect(resultFrame7.identifier).to.equal('newFrame3');
-            expect(resultFrame8.identifier).to.equal('newFrame4');
-        });
-    });
-*/
 });

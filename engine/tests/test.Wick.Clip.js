@@ -925,34 +925,35 @@ describe('Wick.Clip', function() {
         it('clips should have access to other named objects', function() {
             var project = new Wick.Project();
 
-            var clipA = new Wick.Clip();
-            clipA.identifier = 'foo';
+            var clipA = new Wick.Clip({identifier: 'clipA'});
             project.activeFrame.addClip(clipA);
 
-            var clipB = new Wick.Clip();
-            clipB.identifier = 'bar';
+            var clipB = new Wick.Clip({identifier: 'clipB'});
             project.activeFrame.addClip(clipB);
 
             var clipC = new Wick.Clip();
             project.activeFrame.addClip(clipC);
 
-            clipA.addScript('load', 'this.__foo = foo; this.__bar = bar;');
-            var errorA = clipA.tick();
-            expect(errorA).to.equal(null);
-            expect(clipA.__foo).to.equal(clipA);
-            expect(clipA.__bar).to.equal(clipB);
+            var clipD = new Wick.Clip({identifier: 'clipD'});
+            clipB.activeFrame.addClip(clipD);
 
-            clipB.addScript('load', 'this.__foo = foo; this.__bar = bar;');
-            var errorB = clipB.tick();
-            expect(errorB).to.equal(null);
-            expect(clipB.__foo).to.equal(clipA);
-            expect(clipB.__bar).to.equal(clipB);
+            clipA.addScript('default', 'this.__clipA = clipA; this.__clipB = clipB; this.__clipD = clipB.clipD;');
+            clipB.addScript('default', 'this.__clipA = clipA; this.__clipB = clipB; this.__clipD = clipB.clipD;');
+            clipC.addScript('default', 'this.__clipA = clipA; this.__clipB = clipB; this.__clipD = clipB.clipD;');
 
-            clipC.addScript('load', 'this.__foo = foo; this.__bar = bar;');
-            var errorC = clipC.tick();
-            expect(errorC).to.equal(null);
-            expect(clipC.__foo).to.equal(clipA);
-            expect(clipC.__bar).to.equal(clipB);
+            project.tick();
+
+            expect(clipA.__clipA).to.equal(clipA);
+            expect(clipA.__clipB).to.equal(clipB);
+            expect(clipA.__clipD).to.equal(clipD);
+
+            expect(clipB.__clipA).to.equal(clipA);
+            expect(clipB.__clipB).to.equal(clipB);
+            expect(clipC.__clipD).to.equal(clipD);
+
+            expect(clipC.__clipA).to.equal(clipA);
+            expect(clipC.__clipB).to.equal(clipB);
+            expect(clipC.__clipD).to.equal(clipD);
         });
 
         it('clips should not have access to other named objects on other frames', function() {

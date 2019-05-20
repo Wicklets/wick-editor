@@ -469,16 +469,13 @@ Wick.Clip = class extends Wick.Tickable {
     }
 
     _attachChildClipReferences () {
-        // There are no frames, or the playhead is over an empty space
-        if(!this.timeline.activeFrame) {
-            return [];
-        }
-
-        this.timeline.activeFrame.clips.forEach(clip => {
-            if(clip.identifier) {
-                this[clip.identifier] = clip;
-                clip._attachChildClipReferences();
-            }
-        });
+        this.timeline.activeFrames.forEach(frame => {
+            frame.clips.forEach(clip => {
+                if(clip.identifier) {
+                    this[clip.identifier] = clip;
+                    clip._attachChildClipReferences();
+                }
+            });
+        })
     }
 }
