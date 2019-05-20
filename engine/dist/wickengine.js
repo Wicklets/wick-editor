@@ -70591,7 +70591,6 @@ Wick.Clip = class extends Wick.Tickable {
     this.timeline = new Wick.Timeline();
     this.timeline.addLayer(new Wick.Layer());
     this.timeline.activeLayer.addFrame(new Wick.Frame());
-    this.identifier = args.identifier || 'New Symbol';
     this._transformation = args.transformation || new Wick.Transformation();
     this.cursor = 'default';
     /* If objects are passed in, add them to the clip and reposition them */
