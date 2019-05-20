@@ -264,7 +264,7 @@ class ScriptInfoInterface extends Object {
                 events.push({
                     name: key,
                     snippet: "this.onEvent('<EVENT_FN>', function () {\n  //Add code here!\n});".replace('<EVENT_FN>', key),
-                    descriptions: descriptions[key],
+                    description: descriptions[key],
                 });
             }
         }); 
