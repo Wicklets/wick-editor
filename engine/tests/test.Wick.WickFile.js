@@ -53,5 +53,34 @@ describe('Wick.WickFile', function () {
                 });
             });
         });
+
+        it('should ignore selection, zoom, and pan when saving wick files', function (done) {
+            Wick.ObjectCache.removeAllObjects();
+
+            var project = new Wick.Project();
+            project.selection.select(project.activeFrame);
+            project.zoom = 2;
+            project.pan.x = 100;
+            project.pan.y = 200;
+
+            Wick.WickFile.toWickFile(project, wickFile => {
+                // Original project definitely should not have changed.
+                expect(project.zoom).to.equal(2);
+                expect(project.pan.x).to.equal(100);
+                expect(project.pan.y).to.equal(200);
+                expect(project.selection.numObjects).to.equal(1);
+                
+                Wick.ObjectCache.removeAllObjects();
+                //saveAs(wickFile, 'wickproject.zip')
+                Wick.WickFile.fromWickFile(wickFile, loadedProject => {
+                    expect(loadedProject.zoom).to.equal(1);
+                    expect(loadedProject.pan.x).to.equal(0);
+                    expect(loadedProject.pan.y).to.equal(0);
+                    expect(loadedProject.selection.numObjects).to.equal(0);
+
+                    done();
+                });
+            });
+        });
     });
 });

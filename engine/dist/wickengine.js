@@ -65638,6 +65638,19 @@ Wick.WickFile = class {
       if (objectCacheSerialized[uuid].classname === 'Project') {
         delete objectCacheSerialized[uuid];
       }
+    } // Remove some extra data that we don't actually want to save (zoom, pan, selection, etc)
+
+
+    projectSerialized.zoom = 1;
+    projectSerialized.pan.x = 0;
+    projectSerialized.pan.y = 0;
+
+    for (var uuid in objectCacheSerialized) {
+      var object = objectCacheSerialized[uuid];
+
+      if (object.classname === 'Selection') {
+        object.selectedObjects = [];
+      }
     } // Add project json to root directory of zip file
 
 
