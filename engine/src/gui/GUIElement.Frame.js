@@ -239,7 +239,7 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
         var oldLayer = this.model.parentLayer;
         var newLayer = this.model.parentTimeline.layers[layer];
         oldLayer.removeFrame(this.model);
-        newLayer.addFrame(this.model);
+        newLayer.addFrame(this.model, {removeOverlappingFrames: false});
     }
 
     /**
@@ -358,7 +358,7 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
                 canDrop = false;
             }
         });
-
+        
         this.draggingFrames.forEach(frame => {
             if(canDrop) {
                 frame.guiElement.drop();

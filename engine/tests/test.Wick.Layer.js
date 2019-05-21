@@ -17,6 +17,7 @@ describe('Wick.Layer', function() {
             var frame1 = new Wick.Frame({start: 1, end: 5});
             var frame2 = new Wick.Frame({start: 6, end: 10});
             var frame3 = new Wick.Frame({start: 11, end: 15});
+            var frame4 = new Wick.Frame({start: 11, end: 15});
 
             layer.addFrame(frame1);
             expect(layer.frames.length).to.equal(1);
@@ -26,7 +27,28 @@ describe('Wick.Layer', function() {
             layer.addFrame(frame1);
             layer.addFrame(frame2);
             layer.addFrame(frame3);
+            layer.addFrame(frame4);
             expect(layer.frames.length).to.equal(3);
+        });
+
+        it('should add frames (removeOverlappingFrames=false)', function() {
+            var layer = new Wick.Layer();
+
+            var frame1 = new Wick.Frame({start: 1, end: 5});
+            var frame2 = new Wick.Frame({start: 6, end: 10});
+            var frame3 = new Wick.Frame({start: 11, end: 15});
+            var frame4 = new Wick.Frame({start: 11, end: 15});
+
+            layer.addFrame(frame1);
+            expect(layer.frames.length).to.equal(1);
+            layer.removeFrame(frame1);
+            expect(layer.frames.length).to.equal(0);
+
+            layer.addFrame(frame1, {removeOverlappingFrames: false});
+            layer.addFrame(frame2, {removeOverlappingFrames: false});
+            layer.addFrame(frame3, {removeOverlappingFrames: false});
+            layer.addFrame(frame4, {removeOverlappingFrames: false});
+            expect(layer.frames.length).to.equal(4);
         });
     });
 

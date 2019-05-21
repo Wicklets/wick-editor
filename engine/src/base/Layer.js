@@ -145,12 +145,18 @@ Wick.Layer = class extends Wick.Base {
 
     /**
      * Adds a frame to the layer. If a frame exists when the new frame wants to go, the existing frame will be replaced with the new frame.
-     * @param {Wick.Frame} frame The frame to add to the Layer.
+     * @param {Wick.Frame} frame - The frame to add to the Layer.
+     * @param {boolean} options.removeOverlappingFrames - Should adding this frame delete the frames that are in the new frames place? Defaults to true.
      */
-    addFrame (frame) {
-        this.getFramesInRange(frame.start, frame.end).forEach(existingFrame => {
-            existingFrame.remove();
-        });
+    addFrame (frame, options) {
+        if(!options) options = {};
+        if(options.removeOverlappingFrames === undefined) options.removeOverlappingFrames = true;
+
+        if(options.removeOverlappingFrames) {
+            this.getFramesInRange(frame.start, frame.end).forEach(existingFrame => {
+                existingFrame.remove();
+            });
+        }
         this.addChild(frame);
     }
 
