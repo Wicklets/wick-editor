@@ -50,17 +50,17 @@ Wick.Clipboard = class {
             }
         });
 
-        this._copyLocation = project.activeFrame.uuid;
+        this._copyLocation = project.activeFrame && project.activeFrame.uuid;
         this._objects = objects.map(object => {
-            var clone = object.clone();
+            var copy = object.copy();
 
             // Copy frame positions relative to the current playhead position
-            if(clone instanceof Wick.Frame) {
-                clone.start -= playheadCopyOffset - 1;
-                clone.end -= playheadCopyOffset - 1;
+            if(copy instanceof Wick.Frame) {
+                copy.start -= playheadCopyOffset - 1;
+                copy.end -= playheadCopyOffset - 1;
             }
 
-            return clone;
+            return copy;
         });
     }
 
@@ -82,7 +82,7 @@ Wick.Clipboard = class {
         project.selection.clear();
 
         this._objects.map(object => {
-            return object.clone();
+            return object.copy();
         }).forEach(object => {
             // Paste frames at the position of the playhead
             if(object instanceof Wick.Frame) {

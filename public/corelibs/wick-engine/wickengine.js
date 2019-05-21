@@ -65066,16 +65066,16 @@ Wick.Clipboard = class {
         playheadCopyOffset = frame.start;
       }
     });
-    this._copyLocation = project.activeFrame.uuid;
+    this._copyLocation = project.activeFrame && project.activeFrame.uuid;
     this._objects = objects.map(object => {
-      var clone = object.clone(); // Copy frame positions relative to the current playhead position
+      var copy = object.copy(); // Copy frame positions relative to the current playhead position
 
-      if (clone instanceof Wick.Frame) {
-        clone.start -= playheadCopyOffset - 1;
-        clone.end -= playheadCopyOffset - 1;
+      if (copy instanceof Wick.Frame) {
+        copy.start -= playheadCopyOffset - 1;
+        copy.end -= playheadCopyOffset - 1;
       }
 
-      return clone;
+      return copy;
     });
   }
   /**
@@ -65097,7 +65097,7 @@ Wick.Clipboard = class {
     project.selection.clear();
 
     this._objects.map(object => {
-      return object.clone();
+      return object.copy();
     }).forEach(object => {
       // Paste frames at the position of the playhead
       if (object instanceof Wick.Frame) {
@@ -65511,11 +65511,12 @@ Wick.Transformation = class {
     };
   }
   /**
-   * Creates a clone of this transformation.
+   * Creates a copy of this transformation.
+   * @returns {Wick.Transformation} the copied transformation.
    */
 
 
-  clone() {
+  copy() {
     return new Wick.Transformation(this.values);
   }
 
@@ -66040,25 +66041,25 @@ Wick.Base = class {
   }
   /**
    * Returns a copy of a Wick Base object.
-   * @return {Wick.Base} The object resulting from the clone
+   * @return {Wick.Base} The object resulting from the copy
    */
 
 
-  clone() {
+  copy() {
     var data = this.serialize();
     data.uuid = uuidv4();
-    var clone = Wick.Base.fromData(data); // clone children
+    var copy = Wick.Base.fromData(data); // copy children
 
-    var origChildren = clone.children;
-    clone.children.forEach(child => {
-      clone.removeChild(child);
+    var origChildren = copy.children;
+    copy.children.forEach(child => {
+      copy.removeChild(child);
       child.parent = this;
     });
     origChildren.forEach(child => {
-      var childClone = child.clone();
-      clone.addChild(childClone);
+      var childCopy = child.copy();
+      copy.addChild(childCopy);
     });
-    return clone;
+    return copy;
   }
   /**
    * Returns the classname of a Wick Base object.
@@ -68634,7 +68635,7 @@ Wick.Tween = class extends Wick.Base {
 
 
   applyTransformsToClip(clip) {
-    clip.transformation = this.transformation.clone();
+    clip.transformation = this.transformation.copy();
   }
 
   _getTweenFunction() {
@@ -68995,14 +68996,14 @@ Wick.FileAsset = class extends Wick.Asset {
     }
   }
   /**
-   * Clones the FileAsset and also clones the src in FileCache.
+   * Copies the FileAsset and also copies the src in FileCache.
    */
 
 
-  clone() {
-    var clone = super.clone();
-    clone.src = this.src;
-    return clone;
+  copy() {
+    var copy = super.copy();
+    copy.src = this.src;
+    return copy;
   }
 
   _MIMETypeOfString(string) {
@@ -69157,7 +69158,7 @@ Wick.ClipAsset = class extends Wick.Asset {
   useClipAsSource(clip) {
     this.identifier = clip.identifier;
     this.clipType = clip.classname;
-    this.timeline = clip.timeline.clone(false);
+    this.timeline = clip.timeline.copy();
   }
   /**
    * Creates a new Clip using the source of this asset.
@@ -69199,7 +69200,7 @@ Wick.ClipAsset = class extends Wick.Asset {
 
 
   updateAssetFromClip(clip) {
-    this.timeline = clip.timeline.clone(false);
+    this.timeline = clip.timeline.copy();
     var self = this;
     this.linkedClips.forEach(linkedClip => {
       if (linkedClip === clip) return; // This one should already be synced, of course
@@ -69214,7 +69215,7 @@ Wick.ClipAsset = class extends Wick.Asset {
 
 
   updateClipFromAsset(clip) {
-    var timeline = this.timeline.clone(false);
+    var timeline = this.timeline.copy();
     clip.timeline = timeline;
   }
   /**
@@ -70528,7 +70529,7 @@ Wick.Frame = class extends Wick.Tickable {
       var clip = this.clips[0];
       this.addTween(new Wick.Tween({
         playheadPosition: playheadPosition,
-        transformation: clip ? clip.transformation.clone() : new Wick.Transformation()
+        transformation: clip ? clip.transformation.copy() : new Wick.Transformation()
       }));
     }
   }
@@ -70982,7 +70983,7 @@ Wick.Clip = class extends Wick.Tickable {
       var tween = this.parentFrame.getActiveTween();
 
       if (tween) {
-        tween.transformation = this._transformation.clone();
+        tween.transformation = this._transformation.copy();
       }
     }
   }

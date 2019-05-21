@@ -54,9 +54,10 @@ Wick.Transformation = class {
     }
 
     /**
-     * Creates a clone of this transformation.
+     * Creates a copy of this transformation.
+     * @returns {Wick.Transformation} the copied transformation.
      */
-    clone () {
+    copy () {
         return new Wick.Transformation(this.values);
     }
 }

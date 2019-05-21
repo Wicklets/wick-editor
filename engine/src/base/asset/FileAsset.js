@@ -86,12 +86,12 @@ Wick.FileAsset = class extends Wick.Asset {
     }
 
     /**
-     * Clones the FileAsset and also clones the src in FileCache.
+     * Copies the FileAsset and also copies the src in FileCache.
      */
-    clone () {
-        var clone = super.clone();
-        clone.src = this.src;
-        return clone;
+    copy () {
+        var copy = super.copy();
+        copy.src = this.src;
+        return copy;
     }
 
     _MIMETypeOfString (string) {

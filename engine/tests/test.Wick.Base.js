@@ -64,8 +64,8 @@ describe('Wick.Base', function() {
         });
     });
 
-    describe('#clone', function () {
-        it('should clone correctly', function () {
+    describe('#copy', function () {
+        it('should copy correctly', function () {
             Wick.ObjectCache.removeAllObjects();
 
             var child1 = new Wick.Base({ identifier: 'child1' });
@@ -77,7 +77,7 @@ describe('Wick.Base', function() {
             base.addChild(child2);
             base.addChild(child3);
 
-            var clone = base.clone();
+            var copy = base.copy();
 
             expect(base instanceof Wick.Base).to.equal(true);
             expect(base.identifier).to.equal('foo');
@@ -92,29 +92,29 @@ describe('Wick.Base', function() {
             expect(base.children[1].parent).to.equal(base);
             expect(base.children[2].parent).to.equal(base);
 
-            expect(clone instanceof Wick.Base).to.equal(true);
-            expect(clone.identifier).to.equal('foo');
-            expect(clone.uuid).to.not.equal(base.uuid);
-            expect(clone.uuid).to.not.equal(null);
-            expect(clone.children.length).to.equal(3);
-            expect(clone.children[0].identifier).to.equal('child1');
-            expect(clone.children[1].identifier).to.equal('child2');
-            expect(clone.children[2].identifier).to.equal('child3');
-            expect(clone.children[0]).to.not.equal(child1);
-            expect(clone.children[1]).to.not.equal(child2);
-            expect(clone.children[2]).to.not.equal(child3);
-            expect(clone.children[0].uuid).to.not.equal(null);
-            expect(clone.children[1].uuid).to.not.equal(null);
-            expect(clone.children[2].uuid).to.not.equal(null);
-            expect(clone.children[0].uuid).to.not.equal(child1.uuid);
-            expect(clone.children[1].uuid).to.not.equal(child2.uuid);
-            expect(clone.children[2].uuid).to.not.equal(child3.uuid);
-            expect(clone.children[0].parent).to.equal(clone);
-            expect(clone.children[1].parent).to.equal(clone);
-            expect(clone.children[2].parent).to.equal(clone);
+            expect(copy instanceof Wick.Base).to.equal(true);
+            expect(copy.identifier).to.equal('foo');
+            expect(copy.uuid).to.not.equal(base.uuid);
+            expect(copy.uuid).to.not.equal(null);
+            expect(copy.children.length).to.equal(3);
+            expect(copy.children[0].identifier).to.equal('child1');
+            expect(copy.children[1].identifier).to.equal('child2');
+            expect(copy.children[2].identifier).to.equal('child3');
+            expect(copy.children[0]).to.not.equal(child1);
+            expect(copy.children[1]).to.not.equal(child2);
+            expect(copy.children[2]).to.not.equal(child3);
+            expect(copy.children[0].uuid).to.not.equal(null);
+            expect(copy.children[1].uuid).to.not.equal(null);
+            expect(copy.children[2].uuid).to.not.equal(null);
+            expect(copy.children[0].uuid).to.not.equal(child1.uuid);
+            expect(copy.children[1].uuid).to.not.equal(child2.uuid);
+            expect(copy.children[2].uuid).to.not.equal(child3.uuid);
+            expect(copy.children[0].parent).to.equal(copy);
+            expect(copy.children[1].parent).to.equal(copy);
+            expect(copy.children[2].parent).to.equal(copy);
         });
 
-        it('should clone correctly (grandchildren)', function () {
+        it('should copy correctly (grandchildren)', function () {
             Wick.ObjectCache.removeAllObjects();
 
             var grandchild = new Wick.Base({ identifier: 'grandchild' })
@@ -124,7 +124,7 @@ describe('Wick.Base', function() {
             child.addChild(grandchild);
             parent.addChild(child);
 
-            var clone = parent.clone();
+            var copy = parent.copy();
 
             expect(parent instanceof Wick.Base).to.equal(true);
             expect(parent.identifier).to.equal('parent');
@@ -135,22 +135,22 @@ describe('Wick.Base', function() {
             expect(parent.children[0].children[0]).to.equal(grandchild);
             expect(parent.children[0].children[0].identifier).to.equal('grandchild');
 
-            expect(clone instanceof Wick.Base).to.equal(true);
-            expect(clone.identifier).to.equal('parent');
-            expect(clone.uuid).to.not.equal(parent.uuid);
-            expect(clone.uuid).to.not.equal(null);
-            expect(clone.children.length).to.equal(1);
-            expect(clone.children[0].identifier).to.equal('child');
-            expect(clone.children[0]).to.not.equal(child);
-            expect(clone.children[0].uuid).to.not.equal(null);
-            expect(clone.children[0].uuid).to.not.equal(child.uuid);
-            expect(clone.children[0].children.length).to.equal(1);
-            expect(clone.children[0].children[0].identifier).to.equal('grandchild');
-            expect(clone.children[0].children[0]).to.not.equal(child);
-            expect(clone.children[0].children[0]).to.not.equal(grandchild);
-            expect(clone.children[0].children[0].uuid).to.not.equal(null);
-            expect(clone.children[0].children[0].uuid).to.not.equal(child.uuid);
-            expect(clone.children[0].children[0].uuid).to.not.equal(grandchild.uuid);
+            expect(copy instanceof Wick.Base).to.equal(true);
+            expect(copy.identifier).to.equal('parent');
+            expect(copy.uuid).to.not.equal(parent.uuid);
+            expect(copy.uuid).to.not.equal(null);
+            expect(copy.children.length).to.equal(1);
+            expect(copy.children[0].identifier).to.equal('child');
+            expect(copy.children[0]).to.not.equal(child);
+            expect(copy.children[0].uuid).to.not.equal(null);
+            expect(copy.children[0].uuid).to.not.equal(child.uuid);
+            expect(copy.children[0].children.length).to.equal(1);
+            expect(copy.children[0].children[0].identifier).to.equal('grandchild');
+            expect(copy.children[0].children[0]).to.not.equal(child);
+            expect(copy.children[0].children[0]).to.not.equal(grandchild);
+            expect(copy.children[0].children[0].uuid).to.not.equal(null);
+            expect(copy.children[0].children[0].uuid).to.not.equal(child.uuid);
+            expect(copy.children[0].children[0].uuid).to.not.equal(grandchild.uuid);
         });
     })
 

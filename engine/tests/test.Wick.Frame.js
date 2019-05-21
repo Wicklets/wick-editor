@@ -34,11 +34,11 @@ describe('Wick.Frame', function() {
         });
     });
 
-    describe('#clone', function () {
-        it('should clone correctly (empty frame)', function() {
+    describe('#copy', function () {
+        it('should copy correctly (empty frame)', function() {
             var frame = new Wick.Frame();
 
-            var clone = frame.clone();
+            var copy = frame.copy();
 
             expect(frame.start).to.equal(1);
             expect(frame.end).to.equal(1);
@@ -58,23 +58,23 @@ describe('Wick.Frame', function() {
             expect(frame.length).to.equal(1);
             expect(frame.midpoint).to.equal(1);
 
-            expect(clone.start).to.equal(1);
-            expect(clone.end).to.equal(1);
-            expect(clone instanceof Wick.Base).to.equal(true);
-            expect(clone instanceof Wick.Tickable).to.equal(true);
-            expect(clone instanceof Wick.Frame).to.equal(true);
-            expect(clone.classname).to.equal('Frame');
-            expect(clone.scripts instanceof Array).to.equal(true);
-            expect(clone.scripts.length).to.equal(1);
-            expect(clone.clips instanceof Array).to.equal(true);
-            expect(clone.clips.length).to.equal(0);
-            expect(clone.tweens instanceof Array).to.equal(true);
-            expect(clone.tweens.length).to.equal(0);
+            expect(copy.start).to.equal(1);
+            expect(copy.end).to.equal(1);
+            expect(copy instanceof Wick.Base).to.equal(true);
+            expect(copy instanceof Wick.Tickable).to.equal(true);
+            expect(copy instanceof Wick.Frame).to.equal(true);
+            expect(copy.classname).to.equal('Frame');
+            expect(copy.scripts instanceof Array).to.equal(true);
+            expect(copy.scripts.length).to.equal(1);
+            expect(copy.clips instanceof Array).to.equal(true);
+            expect(copy.clips.length).to.equal(0);
+            expect(copy.tweens instanceof Array).to.equal(true);
+            expect(copy.tweens.length).to.equal(0);
 
-            expect(clone.start).to.equal(1);
-            expect(clone.end).to.equal(1);
-            expect(clone.length).to.equal(1);
-            expect(clone.midpoint).to.equal(1);
+            expect(copy.start).to.equal(1);
+            expect(copy.end).to.equal(1);
+            expect(copy.length).to.equal(1);
+            expect(copy.midpoint).to.equal(1);
         });
     });
 

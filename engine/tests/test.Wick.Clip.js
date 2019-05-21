@@ -109,23 +109,23 @@ describe('Wick.Clip', function() {
         });
     });
 
-    describe('#clone', function () {
-        it('should clone correctly (empty clip)', function() {
+    describe('#copy', function () {
+        it('should copy correctly (empty clip)', function() {
             var clip = new Wick.Clip({
                 identifier: 'foo'
             });
 
-            var clone = clip.clone();
+            var copy = clip.copy();
 
-            expect(clone instanceof Wick.Base).to.equal(true);
-            expect(clone instanceof Wick.Tickable).to.equal(true);
-            expect(clone instanceof Wick.Clip).to.equal(true);
-            expect(clone.classname).to.equal('Clip');
-            expect(clone.identifier).to.equal('foo');
-            expect(clone.timeline instanceof Wick.Timeline).to.equal(true);
+            expect(copy instanceof Wick.Base).to.equal(true);
+            expect(copy instanceof Wick.Tickable).to.equal(true);
+            expect(copy instanceof Wick.Clip).to.equal(true);
+            expect(copy.classname).to.equal('Clip');
+            expect(copy.identifier).to.equal('foo');
+            expect(copy.timeline instanceof Wick.Timeline).to.equal(true);
         });
 
-        it('should clone correctly (with child paths)', function() {
+        it('should copy correctly (with child paths)', function() {
             var project = new Wick.Project();
 
             var path1 = TestUtils.paperToWickPath(new paper.Path.Ellipse({
@@ -150,7 +150,7 @@ describe('Wick.Clip', function() {
                 ],
             });
 
-            var clone = clip.clone();
+            var copy = clip.copy();
 
             expect(clip instanceof Wick.Base).to.equal(true);
             expect(clip instanceof Wick.Tickable).to.equal(true);
@@ -167,23 +167,23 @@ describe('Wick.Clip', function() {
             expect(clip.activeFrame.paths[1].view.item.bounds.topLeft.x).to.equal(50);
             expect(clip.activeFrame.paths[1].view.item.bounds.topLeft.y).to.equal(50);
 
-            expect(clone instanceof Wick.Base).to.equal(true);
-            expect(clone instanceof Wick.Tickable).to.equal(true);
-            expect(clone instanceof Wick.Clip).to.equal(true);
-            expect(clone.classname).to.equal('Clip');
-            expect(clone.identifier).to.equal('foo');
-            expect(clone.transformation.x).to.equal(0);
-            expect(clone.transformation.y).to.equal(0);
-            expect(clone.activeFrame.paths.length).to.equal(2);
-            expect(clone.activeFrame.clips.length).to.equal(0);
+            expect(copy instanceof Wick.Base).to.equal(true);
+            expect(copy instanceof Wick.Tickable).to.equal(true);
+            expect(copy instanceof Wick.Clip).to.equal(true);
+            expect(copy.classname).to.equal('Clip');
+            expect(copy.identifier).to.equal('foo');
+            expect(copy.transformation.x).to.equal(0);
+            expect(copy.transformation.y).to.equal(0);
+            expect(copy.activeFrame.paths.length).to.equal(2);
+            expect(copy.activeFrame.clips.length).to.equal(0);
 
-            expect(clone.activeFrame.paths[0].view.item.bounds.topLeft.x).to.equal(0);
-            expect(clone.activeFrame.paths[0].view.item.bounds.topLeft.y).to.equal(0);
-            expect(clone.activeFrame.paths[1].view.item.bounds.topLeft.x).to.equal(50);
-            expect(clone.activeFrame.paths[1].view.item.bounds.topLeft.y).to.equal(50);
+            expect(copy.activeFrame.paths[0].view.item.bounds.topLeft.x).to.equal(0);
+            expect(copy.activeFrame.paths[0].view.item.bounds.topLeft.y).to.equal(0);
+            expect(copy.activeFrame.paths[1].view.item.bounds.topLeft.x).to.equal(50);
+            expect(copy.activeFrame.paths[1].view.item.bounds.topLeft.y).to.equal(50);
         });
 
-        it('should clone correctly (with child clips)', function() {
+        it('should copy correctly (with child clips)', function() {
             var project = new Wick.Project();
 
             var path1 = TestUtils.paperToWickPath(new paper.Path.Ellipse({
@@ -214,7 +214,7 @@ describe('Wick.Clip', function() {
                 ],
             });
 
-            var clone = clip.clone();
+            var copy = clip.copy();
 
             expect(clip instanceof Wick.Base).to.equal(true);
             expect(clip instanceof Wick.Tickable).to.equal(true);
@@ -231,20 +231,20 @@ describe('Wick.Clip', function() {
             expect(clip.activeFrame.paths[1].view.item.bounds.topLeft.x).to.equal(50);
             expect(clip.activeFrame.paths[1].view.item.bounds.topLeft.y).to.equal(50);
 
-            expect(clone instanceof Wick.Base).to.equal(true);
-            expect(clone instanceof Wick.Tickable).to.equal(true);
-            expect(clone instanceof Wick.Clip).to.equal(true);
-            expect(clone.classname).to.equal('Clip');
-            expect(clone.identifier).to.equal('foo');
-            expect(clone.transformation.x).to.equal(0);
-            expect(clone.transformation.y).to.equal(0);
-            expect(clone.activeFrame.paths.length).to.equal(2);
-            expect(clone.activeFrame.clips.length).to.equal(2);
+            expect(copy instanceof Wick.Base).to.equal(true);
+            expect(copy instanceof Wick.Tickable).to.equal(true);
+            expect(copy instanceof Wick.Clip).to.equal(true);
+            expect(copy.classname).to.equal('Clip');
+            expect(copy.identifier).to.equal('foo');
+            expect(copy.transformation.x).to.equal(0);
+            expect(copy.transformation.y).to.equal(0);
+            expect(copy.activeFrame.paths.length).to.equal(2);
+            expect(copy.activeFrame.clips.length).to.equal(2);
 
-            expect(clone.activeFrame.paths[0].view.item.bounds.topLeft.x).to.equal(0);
-            expect(clone.activeFrame.paths[0].view.item.bounds.topLeft.y).to.equal(0);
-            expect(clone.activeFrame.paths[1].view.item.bounds.topLeft.x).to.equal(50);
-            expect(clone.activeFrame.paths[1].view.item.bounds.topLeft.y).to.equal(50);
+            expect(copy.activeFrame.paths[0].view.item.bounds.topLeft.x).to.equal(0);
+            expect(copy.activeFrame.paths[0].view.item.bounds.topLeft.y).to.equal(0);
+            expect(copy.activeFrame.paths[1].view.item.bounds.topLeft.x).to.equal(50);
+            expect(copy.activeFrame.paths[1].view.item.bounds.topLeft.y).to.equal(50);
         });
     });
 

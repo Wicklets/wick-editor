@@ -1,6 +1,6 @@
 describe('Wick.FileAsset', function () {
-    describe('#clone', function () {
-        it('should clone correctly', function () {
+    describe('#copy', function () {
+        it('should copy correctly', function () {
             var image = new Wick.ImageAsset({
                 filename: 'foo.png',
                 src: TestUtils.TEST_IMG_SRC_PNG
@@ -10,11 +10,11 @@ describe('Wick.FileAsset', function () {
                 src: TestUtils.TEST_SOUND_SRC_WAV
             });
 
-            var imageClone = image.clone();
-            var soundClone = sound.clone();
+            var imagecopy = image.copy();
+            var soundcopy = sound.copy();
 
-            expect(imageClone.src).to.equal(image.src);
-            expect(soundClone.src).to.equal(sound.src);
+            expect(imagecopy.src).to.equal(image.src);
+            expect(soundcopy.src).to.equal(sound.src);
         });
     });
 });

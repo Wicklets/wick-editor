@@ -346,7 +346,7 @@ Wick.Frame = class extends Wick.Tickable {
             var clip = this.clips[0];
             this.addTween(new Wick.Tween({
                 playheadPosition: playheadPosition,
-                transformation: clip ? clip.transformation.clone() : new Wick.Transformation(),
+                transformation: clip ? clip.transformation.copy() : new Wick.Transformation(),
             }));
         }
     }

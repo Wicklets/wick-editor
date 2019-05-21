@@ -158,7 +158,7 @@ Wick.Tween = class extends Wick.Base {
      * Set the transformation of a clip to this tween's transformation.
      */
     applyTransformsToClip (clip) {
-        clip.transformation = this.transformation.clone();
+        clip.transformation = this.transformation.copy();
     }
 
     _getTweenFunction () {

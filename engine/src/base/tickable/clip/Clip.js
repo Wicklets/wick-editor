@@ -294,7 +294,7 @@ Wick.Clip = class extends Wick.Tickable {
         if(this.parentFrame) {
             var tween = this.parentFrame.getActiveTween();
             if(tween) {
-                tween.transformation = this._transformation.clone();
+                tween.transformation = this._transformation.copy();
             }
         }
     }

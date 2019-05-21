@@ -49,17 +49,17 @@ describe('Wick.Path', function() {
         });
     });
 
-    describe('#clone', function() {
-        it('should clone correctly', function () {
+    describe('#copy', function() {
+        it('should copy correctly', function () {
             var pathOriginal = new Wick.Path({json:TestUtils.TEST_PATH_JSON_RED_SQUARE});
-            var pathClone = pathOriginal.clone();
+            var pathcopy = pathOriginal.copy();
 
-            expect(pathClone instanceof Wick.Path).to.equal(true);
-            expect(pathClone.children).to.eql([]);
-            expect(pathClone.identifier).to.equal(null);
-            expect(JSON.stringify(pathClone.json)).to.equal(JSON.stringify(TestUtils.TEST_PATH_JSON_RED_SQUARE));
-            expect(pathClone.uuid).not.to.equal(pathOriginal.uuid);
-            expect(pathClone.uuid).not.to.equal(null);
+            expect(pathcopy instanceof Wick.Path).to.equal(true);
+            expect(pathcopy.children).to.eql([]);
+            expect(pathcopy.identifier).to.equal(null);
+            expect(JSON.stringify(pathcopy.json)).to.equal(JSON.stringify(TestUtils.TEST_PATH_JSON_RED_SQUARE));
+            expect(pathcopy.uuid).not.to.equal(pathOriginal.uuid);
+            expect(pathcopy.uuid).not.to.equal(null);
         });
     });
 

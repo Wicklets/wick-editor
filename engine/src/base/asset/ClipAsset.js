@@ -63,7 +63,7 @@ Wick.ClipAsset = class extends Wick.Asset {
     useClipAsSource (clip) {
         this.identifier = clip.identifier;
         this.clipType = clip.classname;
-        this.timeline = clip.timeline.clone(false);
+        this.timeline = clip.timeline.copy();
     }
 
     /**
@@ -101,7 +101,7 @@ Wick.ClipAsset = class extends Wick.Asset {
      * @param {Wick.Clip} clip - The clip to use the timeline of to update this asset.
      */
     updateAssetFromClip (clip) {
-        this.timeline = clip.timeline.clone(false);
+        this.timeline = clip.timeline.copy();
 
         var self = this;
         this.linkedClips.forEach(linkedClip => {
@@ -115,7 +115,7 @@ Wick.ClipAsset = class extends Wick.Asset {
      * @param {Wick.Clip} clip - the clip to change the timeline data of
      */
     updateClipFromAsset (clip) {
-        var timeline = this.timeline.clone(false);
+        var timeline = this.timeline.copy();
         clip.timeline = timeline;
     }
 

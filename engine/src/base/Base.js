@@ -105,25 +105,25 @@ Wick.Base = class {
 
     /**
      * Returns a copy of a Wick Base object.
-     * @return {Wick.Base} The object resulting from the clone
+     * @return {Wick.Base} The object resulting from the copy
      */
-    clone () {
+    copy () {
         var data = this.serialize();
         data.uuid = uuidv4();
-        var clone = Wick.Base.fromData(data);
+        var copy = Wick.Base.fromData(data);
 
-        // clone children
-        var origChildren = clone.children;
-        clone.children.forEach(child => {
-            clone.removeChild(child);
+        // copy children
+        var origChildren = copy.children;
+        copy.children.forEach(child => {
+            copy.removeChild(child);
             child.parent = this;
         });
         origChildren.forEach(child => {
-            var childClone = child.clone();
-            clone.addChild(childClone);
+            var childCopy = child.copy();
+            copy.addChild(childCopy);
         })
 
-        return clone;
+        return copy;
     }
 
     /**

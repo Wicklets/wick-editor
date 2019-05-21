@@ -145,4 +145,18 @@ describe('Wick.Clipboard', function() {
         expect(project.activeLayer.getFrameAtPlayheadPosition(6)).to.not.equal(undefined);
         expect(project.activeLayer.getFrameAtPlayheadPosition(7)).equal(undefined);
     });
+
+    it('should copy and paste even when there is no activeFrame', function () {
+        var project = new Wick.Project();
+
+        project.selection.select(project.activeFrame);
+
+        project.focus.timeline.playheadPosition = 2;
+        project.copySelectionToClipboard();
+        project.pasteClipboardContents();
+
+        expect(project.activeLayer.frames.length).to.equal(2);
+        expect(project.activeLayer.getFrameAtPlayheadPosition(1)).to.not.equal(project.activeFrame);
+        expect(project.activeLayer.getFrameAtPlayheadPosition(2)).to.not.equal(undefined);
+    });
 });
