@@ -70721,12 +70721,15 @@ Wick.Clip = class extends Wick.Tickable {
     if (args.objects) {
       this.addObjects(args.objects);
     }
+
+    this._clones = [];
   }
 
   deserialize(data) {
     super.deserialize(data);
     this.transformation = new Wick.Transformation(data.transformation);
     this._timeline = data.timeline;
+    this._clones = [];
   }
 
   serialize(args) {
@@ -71105,6 +71108,28 @@ Wick.Clip = class extends Wick.Tickable {
     opacity = Math.min(1, opacity);
     opacity = Math.max(0, opacity);
     this.transformation.opacity = opacity;
+  }
+  /**
+   * Copy this clip, and add the copy to the same frame as the original clip.
+   * @returns {Wick.Clip} the result of the clone.
+   */
+
+
+  clone() {
+    var clone = this.copy();
+    this.parentFrame.addClip(clone);
+
+    this._clones.push(clone);
+
+    return clone;
+  }
+  /**
+   *
+   */
+
+
+  get clones() {
+    return this._clones;
   }
   /**
    * The list of parents, grandparents, grand-grandparents...etc of the clip.

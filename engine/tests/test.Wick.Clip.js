@@ -864,52 +864,123 @@ describe('Wick.Clip', function() {
             });
         });
 
-        it ('clips should return current frame name', function () {
-            var project = new Wick.Project();
+        describe('#currentFrameName', function () {
+            it ('clips should return current frame name', function () {
+                var project = new Wick.Project();
 
-            var clip = new Wick.Clip();
-            project.activeFrame.addClip(clip);
+                var clip = new Wick.Clip();
+                project.activeFrame.addClip(clip);
 
-            clip.addScript('load', 'this.__frameName = this.currentFrameName;');
-            clip.addScript('update', 'this.__frameName = this.currentFrameName;');
-            var error = clip.tick();
-            expect(error).to.equal(null);
-            expect(clip.__frameName).to.equal('');
-            clip.timeline.activeFrame.identifier = "Tester";
+                clip.addScript('load', 'this.__frameName = this.currentFrameName;');
+                clip.addScript('update', 'this.__frameName = this.currentFrameName;');
+                var error = clip.tick();
+                expect(error).to.equal(null);
+                expect(clip.__frameName).to.equal('');
+                clip.timeline.activeFrame.identifier = "Tester";
 
-            error = clip.tick();
-            expect(clip.__frameName).to.equal("Tester");
+                error = clip.tick();
+                expect(clip.__frameName).to.equal("Tester");
+            });
+        })
+
+        describe('#currentFrameName', function () {
+            it ('clips should return current frame number', function () {
+                var project = new Wick.Project();
+
+                var clip = new Wick.Clip();
+                var clip2 = new Wick.Clip();
+                clip2.timeline.activeLayer.addFrame(new Wick.Frame({start:2}));
+
+                project.activeFrame.addClip(clip);
+                project.activeFrame.addClip(clip2);
+
+                clip.addScript('load', 'this.__frameNumber = this.currentFrameNumber;');
+                clip.addScript('update', 'this.__frameNumber = this.currentFrameNumber;');
+
+                clip2.addScript('load', 'this.__frameNumber = this.currentFrameNumber;');
+                clip2.addScript('update', 'this.__frameNumber = this.currentFrameNumber;');
+
+                var error = project.tick();
+                expect(error).to.equal(null);
+                error = project.tick();
+                expect(error).to.equal(null);
+
+                expect(clip.__frameNumber).to.equal(1);
+                expect(clip2.__frameNumber).to.equal(1);
+                error = project.tick();
+                expect(error).to.equal(null);
+                expect(clip.__frameNumber).to.equal(1);
+                expect(clip2.__frameNumber).to.equal(2);
+            });
         });
 
+        describe('#clone/clones', function () {
+            it ('clone() and clones list should work correctly', function () {
+                var project = new Wick.Project();
 
-        it ('clips should return current frame number', function () {
-            var project = new Wick.Project();
+                var original = new Wick.Clip({identifier: 'original'});
+                project.activeFrame.addClip(original);
 
-            var clip = new Wick.Clip();
-            var clip2 = new Wick.Clip();
-            clip2.timeline.activeLayer.addFrame(new Wick.Frame({start:2}));
+                original.addScript('default', 'this.__cloneOfMyself = this.clone(); this.__cloneFromCloneArray = this.clones[0];');
 
-            project.activeFrame.addClip(clip);
-            project.activeFrame.addClip(clip2);
+                var error = project.tick();
+                expect(error).to.equal(null);
 
-            clip.addScript('load', 'this.__frameNumber = this.currentFrameNumber;');
-            clip.addScript('update', 'this.__frameNumber = this.currentFrameNumber;');
+                // Was the clone successful?
+                expect(original.__cloneOfMyself instanceof Wick.Clip).to.equal(true);
+                expect(original.__cloneOfMyself.identifier).to.equal('original_copy');
+                expect(original.__cloneOfMyself.uuid).to.not.equal(undefined);
+                expect(original.__cloneOfMyself.uuid).to.not.equal(original.uuid);
 
-            clip2.addScript('load', 'this.__frameNumber = this.currentFrameNumber;');
-            clip2.addScript('update', 'this.__frameNumber = this.currentFrameNumber;');
+                // Is the clone accessible through the 'clones' API?
+                expect(original.__cloneFromCloneArray).to.equal(original.__cloneOfMyself);
 
-            var error = project.tick();
-            expect(error).to.equal(null);
-            error = project.tick();
-            expect(error).to.equal(null);
+                // Was the clone added to the same frame as the original clip?
+                expect(project.activeFrame.clips.length).to.equal(2);
+                expect(project.activeFrame.clips[0]).to.equal(original);
+                expect(project.activeFrame.clips[1]).to.equal(original.__cloneOfMyself);
+            });
 
-            expect(clip.__frameNumber).to.equal(1);
-            expect(clip2.__frameNumber).to.equal(1);
-            error = project.tick();
-            expect(error).to.equal(null);
-            expect(clip.__frameNumber).to.equal(1);
-            expect(clip2.__frameNumber).to.equal(2);
-        });
+            it ('clone() and clones list should work with multiple clones correctly', function () {
+                var project = new Wick.Project();
+
+                var original = new Wick.Clip({identifier: 'original'});
+                project.activeFrame.addClip(original);
+
+                original.addScript('default', 'this.__clone1 = this.clone(); this.__clone2 = this.clone(); this.__clone3 = this.clone();');
+
+                var error = project.tick();
+                expect(error).to.equal(null);
+
+                // Were the clones successful?
+                expect(original.__clone1 instanceof Wick.Clip).to.equal(true);
+                expect(original.__clone1.identifier).to.equal('original_copy');
+                expect(original.__clone1.uuid).to.not.equal(undefined);
+                expect(original.__clone1.uuid).to.not.equal(original.uuid);
+
+                expect(original.__clone2 instanceof Wick.Clip).to.equal(true);
+                expect(original.__clone2.identifier).to.equal('original_copy_copy');
+                expect(original.__clone2.uuid).to.not.equal(undefined);
+                expect(original.__clone2.uuid).to.not.equal(original.uuid);
+
+                expect(original.__clone3 instanceof Wick.Clip).to.equal(true);
+                expect(original.__clone3.identifier).to.equal('original_copy_copy_copy');
+                expect(original.__clone3.uuid).to.not.equal(undefined);
+                expect(original.__clone3.uuid).to.not.equal(original.uuid);
+
+                // Are the clones accessible through the 'clones' API?
+                expect(original.clones[0]).to.equal(original.__clone1);
+                expect(original.clones[1]).to.equal(original.__clone2);
+                expect(original.clones[2]).to.equal(original.__clone3);
+
+                // Were the clones added to the same frame as the original clip?
+                expect(project.activeFrame.clips.length).to.equal(4);
+                expect(project.activeFrame.clips[0]).to.equal(original);
+                expect(project.activeFrame.clips[1]).to.equal(original.__clone1);
+                expect(project.activeFrame.clips[2]).to.equal(original.__clone2);
+                expect(project.activeFrame.clips[3]).to.equal(original.__clone3);
+            });
+        })
 
         it('clips should have access to global API', function() {
             var project = new Wick.Project();
