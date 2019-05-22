@@ -69755,6 +69755,7 @@ Wick.Tickable = class extends Wick.Base {
     this.cursor = 'default';
     this.addScript('default', '');
     this._onEventFns = {};
+    this._cachedScripts = {};
   }
 
   deserialize(data) {
@@ -69766,6 +69767,7 @@ Wick.Tickable = class extends Wick.Base {
     this._scripts = JSON.parse(JSON.stringify(data.scripts));
     this.cursor = data.cursor;
     this._onEventFns = {};
+    this._cachedScripts = {};
   }
 
   serialize(args) {
@@ -69917,11 +69919,27 @@ Wick.Tickable = class extends Wick.Base {
   /**
    * Check if the object has a script with the given event name.
    * @param {string} name - The name of the event. See Wick.Tickable.possibleScripts
+   * @returns {boolean} True if the script with the given name exists
    */
 
 
   hasScript(name) {
     return this.getScript(name) !== undefined;
+  }
+  /**
+   * Check if the object has a non-empty script with a given name.
+   * @param {string} name - The name of the event. See Wick.Tickable.possibleScripts
+   * @returns {boolean} True if the script with the given name has code
+   */
+
+
+  scriptIsContentful(name) {
+    if (!this.hasScript(name)) {
+      return false;
+    }
+
+    var script = this.getScript(name);
+    return script.src.trim() !== '';
   }
   /**
    * Changes the source of the script with the given event name.
@@ -69932,6 +69950,7 @@ Wick.Tickable = class extends Wick.Base {
 
   updateScript(name, src) {
     this.getScript(name).src = src;
+    delete this._cachedScripts[name];
   }
   /**
    * Remove the script that corresponds to a given event name.
@@ -69970,14 +69989,16 @@ Wick.Tickable = class extends Wick.Base {
     });
     if (eventFnError) return eventFnError; // Run function inside tab
 
-    if (this.hasScript(name)) {
+    if (this.scriptIsContentful(name)) {
       var script = this.getScript(name);
 
-      var fn = this._evalScript(name, script.src);
+      var fn = this._cachedScripts[name] || this._evalScript(name, script.src);
 
       if (!(fn instanceof Function)) {
         return fn; // error
       }
+
+      this._cachedScripts[name] = fn;
 
       var error = this._runFunction(fn);
 

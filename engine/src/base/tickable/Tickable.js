@@ -256,6 +256,7 @@ Wick.Tickable = class extends Wick.Base {
      */
     updateScript (name, src) {
         this.getScript(name).src = src;
+        delete this._cachedScripts[name];
     }
 
     /**
