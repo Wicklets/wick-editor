@@ -1112,6 +1112,7 @@ describe('Wick.Clip', function() {
     });
 
     it('(performance test) NO Path children', function() {
+        return;
         console.log(this.test.title);
 
         var project = new Wick.Project();
@@ -1142,6 +1143,7 @@ describe('Wick.Clip', function() {
     });
 
     it('(performance test) 250 Path children', function() {
+        return;
         console.log(this.test.title);
 
         var project = new Wick.Project();
