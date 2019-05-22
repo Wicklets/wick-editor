@@ -66090,6 +66090,11 @@ Wick.Base = class {
   }
 
   set identifier(identifier) {
+    if (identifier === '') {
+      this._identifier = null;
+      return;
+    }
+
     if (!isVarName(identifier)) return;
     this._identifier = identifier;
   }
