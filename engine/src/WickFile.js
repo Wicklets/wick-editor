@@ -47,7 +47,6 @@ Wick.WickFile = class {
                 }
                 var project = Wick.Base.fromData(projectData.project);
                 Wick.ObjectCache.addObject(project);
-                project.attachParentReferences();
 
                 var loadedAssetCount = 0;
                 // Immediately end if the project has no assets.

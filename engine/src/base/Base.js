@@ -70,7 +70,10 @@ Wick.Base = class {
     deserialize (data) {
         this._uuid = data.uuid;
         this._identifier = data.identifier;
+        this._children = {};
         this._childrenData = data.children;
+
+        Wick.ObjectCache.addObject(this);
     }
 
     /**
@@ -137,6 +140,7 @@ Wick.Base = class {
             this._identifier = null;
         }
         if(!isVarName(identifier)) return;
+
         this._identifier = identifier;
     }
 
@@ -183,7 +187,13 @@ Wick.Base = class {
             this._childrenData = null;
         }
 
-        if(classname === undefined) {
+        if (classname instanceof Array) {
+            var children = [];
+            classname.forEach(classnameSeek => {
+                children = children.concat(this.getChildren(classnameSeek));
+            });
+            return children;
+        } else if(classname === undefined) {
             // Retrieve all children if no classname was given
             var allChildren = [];
             for(var classnameSeek in this._children) {
@@ -317,5 +327,21 @@ Wick.Base = class {
         this.getChildren().forEach(child => {
             child._setProject(project);
         });
+    }
+
+    _getUniqueIdentifier (identifier) {
+        if(!this.parent) return identifier;
+
+        var otherIdentifiers = this.parent.getChildren('Clip','Frame','Button').filter(child => {
+            return child !== this && child.identifier;
+        }).map(child => {
+            return child.identifier;
+        });
+
+        if(otherIdentifiers.indexOf(identifier) === -1) {
+            return identifier;
+        } else {
+            return this._getUniqueIdentifier(identifier + '_copy');
+        }
     }
 }

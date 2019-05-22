@@ -205,7 +205,7 @@ Wick.Frame = class extends Wick.Tickable {
      * @type {Wick.Clip[]}
      */
     get clips () {
-        return this.getChildren('Clip');
+        return this.getChildren(['Clip','Button']);
     }
 
     /**

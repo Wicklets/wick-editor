@@ -316,9 +316,7 @@ Wick.Project = class extends Wick.Base {
      * @type {Wick.Asset[]}
      */
     get assets () {
-        return this.children.filter(child => {
-            return child instanceof Wick.Asset;
-        });
+        return this.getChildren(['ImageAsset','SoundAsset','ClipAsset']);
     }
 
     /**
