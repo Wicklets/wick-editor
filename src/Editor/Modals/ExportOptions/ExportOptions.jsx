@@ -36,6 +36,14 @@ class ExportOptions extends Component {
     }
   }
 
+  componentDidUpdate = (prevProps) => {
+    if (prevProps.projectName !== this.props.projectName) {
+      this.setState({
+          name: this.props.projectName,
+        });
+    }
+  }
+
   /**
    * Creates an item of type and toggles the modal.
    * @param {string} type Either 'GIF', 'VIDEO', 'ZIP', or 'HTML'.
