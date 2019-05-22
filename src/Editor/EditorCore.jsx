@@ -450,6 +450,7 @@ class EditorCore extends Component {
       "soundVolume",
       "soundStart",
       "identifier",
+      "easingType",
     ];
     return attributes;
   }

@@ -67991,6 +67991,18 @@ Wick.Selection = class extends Wick.Base {
     this._setSingleAttribute('soundVolume', soundVolume);
   }
   /**
+   * Gets and sets the easing type of a selected tween.
+   */
+
+
+  get easingType() {
+    return this._getSingleAttribute('easingType');
+  }
+
+  set easingType(easingType) {
+    return this._setSingleAttribute('easingType', easingType);
+  }
+  /**
    *
    */
 

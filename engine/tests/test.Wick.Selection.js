@@ -143,4 +143,9 @@ describe('Wick.Selection', function() {
     it('should activate the layer that a newly selected canvas object belongs to', function () {
         // TODO
     });
+
+    it('should change the tween easing type correctly', function () {
+        // TODO
+        // easingType
+    });
 });
