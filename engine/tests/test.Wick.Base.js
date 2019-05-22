@@ -140,12 +140,12 @@ describe('Wick.Base', function() {
         expect(base.getChildren('Base')[2]).to.equal(child3);
 
         expect(copy.getChildren('Base').length).to.equal(3);
+        expect(copy.getChildren('Base')[0] instanceof Wick.Base).to.equal(true);
+        expect(copy.getChildren('Base')[1] instanceof Wick.Base).to.equal(true);
+        expect(copy.getChildren('Base')[2] instanceof Wick.Base).to.equal(true);
         expect(copy.getChildren('Base')[0]).not.to.equal(child1);
         expect(copy.getChildren('Base')[1]).not.to.equal(child2);
         expect(copy.getChildren('Base')[2]).not.to.equal(child3);
-        expect(copy.getChildren('Base')[0].identifier).to.equal('child1');
-        expect(copy.getChildren('Base')[1].identifier).to.equal('child2');
-        expect(copy.getChildren('Base')[2].identifier).to.equal('child3');
     });
 
     it('should only accept valid variable names', function() {

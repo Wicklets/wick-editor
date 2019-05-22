@@ -237,11 +237,9 @@ Wick.Timeline = class extends Wick.Base {
      * @param {number} index - the new position to move the layer to.
      */
     moveLayer (layer, index) {
-        // NOTE this is dangerous -- we should not be directly changing the _childrenUUIDs array.
-        //this._childrenUUIDs.splice(this._childrenUUIDs.indexOf(layer.uuid), 1);
-        //this._childrenUUIDs.splice(index, 0, layer.uuid);
-        console.warn('moveLayer was disabled, needs to be rewritten ;_;');
-        throw new Error("please rewrite moveLayer ;_;");
+        var layers = this.getChildren('Layer');
+        layers.splice(layers.indexOf(layer), 1);
+        layers.splice(index, 0, layer);
     }
 
     /**
