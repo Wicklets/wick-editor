@@ -19,22 +19,26 @@
 
 GlobalAPI = class {
     /**
+     * Defines all api members such as functions and properties.
+     * @type {string[]}
+     */
+    static get apiMemberNames () {
+        return [
+            'stop','play','gotoAndStop','gotoAndPlay','gotoNextFrame','gotoPrevFrame',
+            'project','root','parent','parentObject',
+            'isMouseDown','mouseX','mouseY','mouseMoveX','mouseMoveY',
+            'key','keys','isKeyDown','keyIsDown','isKeyJustPressed','keyIsJustPressed',
+            'random',
+            'playSound','stopAllSounds',
+            'onEvent',
+        ];
+    }
+
+    /**
      * @param {object} scriptOwner The tickable object which owns the script being evaluated.
      */
     constructor (scriptOwner) {
         this.scriptOwner = scriptOwner;
-    }
-
-    /**
-     * Defines all api members such as functions and properties.
-     * @returns {string[]} All global API member names
-     */
-    get apiMemberNames () {
-        var allNames = Object.getOwnPropertyNames(Object.getPrototypeOf(this));
-        var names = allNames.filter(name => {
-            return ['constructor', 'apiMemberNames', 'apiMembers'].indexOf(name) === -1;
-        });
-        return names;
     }
 
     /**
@@ -44,7 +48,7 @@ GlobalAPI = class {
     get apiMembers () {
         var members = [];
 
-        this.apiMemberNames.forEach(name => {
+        GlobalAPI.apiMemberNames.forEach(name => {
             var fn = this[name];
             if(fn instanceof Function) {
                 fn = fn.bind(this);
@@ -144,15 +148,6 @@ GlobalAPI = class {
     }
 
     /**
-     * Returns true if the mouse is currently held down.
-     * @returns {bool | null} Returns null if the object does not have a project.
-     */
-    isMouseDown () {
-        if(!this.scriptOwner.project) return null;
-        return this.scriptOwner.project.isMouseDown;
-    }
-
-    /**
      * Returns the last key pressed down.
      * @returns {string | null} Returns null if no key has been pressed yet.
      */
@@ -204,6 +199,15 @@ GlobalAPI = class {
      */
     keyIsJustPressed (key) {
         return this.keyIsJustPressed(key.toLowerCase());
+    }
+
+    /**
+     * Returns true if the mouse is currently held down.
+     * @returns {bool | null} Returns null if the object does not have a project.
+     */
+    isMouseDown () {
+        if(!this.scriptOwner.project) return null;
+        return this.scriptOwner.project.isMouseDown;
     }
 
     /**
