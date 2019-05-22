@@ -847,7 +847,7 @@ describe('Wick.Clip', function() {
 
         describe('#random', function () {
             it('random API should work correctly', function() {
-                var numTries = 100;
+                var numTries = 10;
                 for (let i=0; i<numTries; i++) {
                     var project = new Wick.Project();
 
@@ -1111,17 +1111,59 @@ describe('Wick.Clip', function() {
         });
     });
 
-    it('(performance test)', function() {
+    it('(performance test) NO Path children', function() {
+        console.log(this.test.title);
+
         var project = new Wick.Project();
+        var clip = new Wick.Clip();
+        for(var i = 0; i < 0; i++) {
+            clip.activeFrame.addPath(TestUtils.paperToWickPath(new paper.Path.Rectangle({
+                from: new paper.Point(0,0),
+                to: new paper.Point(50,50),
+                fillColor: 'red',
+            })))
+        }
+        project.activeFrame.addClip(clip);
+
         for(var i = 0; i < 100; i++) {
-            var clip = new Wick.Clip();
-            /*clip.addScript('load', 'this.updateCount = 0;');
-            clip.addScript('update', 'this.updateCount ++;');*/
-            clip.addScript('default', 'onEvent("load", () => {this.updateCount = 0;}); onEvent("update", () => {this.updateCount ++;});')
-            project.activeFrame.addClip(clip);
+            var clone = clip.clone();
+            /*clone.addScript('load', 'this.updateCount = 0;');
+            clone.addScript('update', 'this.updateCount ++;');*/
+            clone.addScript('default', 'onEvent("load", () => {this.updateCount = 0;}); onEvent("update", () => {this.updateCount ++;});')
+            project.activeFrame.addClip(clone);
         }
 
-        for(var i = 0; i < 10; i++) {
+        for(var i = 0; i < 7; i++) {
+            var s = +new Date();
+            project.tick();
+            console.log((+new Date())-s);
+            console.log('')
+        }
+    });
+
+    it('(performance test) 250 Path children', function() {
+        console.log(this.test.title);
+
+        var project = new Wick.Project();
+        var clip = new Wick.Clip();
+        for(var i = 0; i < 250; i++) {
+            clip.activeFrame.addPath(TestUtils.paperToWickPath(new paper.Path.Rectangle({
+                from: new paper.Point(0,0),
+                to: new paper.Point(50,50),
+                fillColor: 'red',
+            })))
+        }
+        project.activeFrame.addClip(clip);
+
+        for(var i = 0; i < 100; i++) {
+            var clone = clip.clone();
+            /*clone.addScript('load', 'this.updateCount = 0;');
+            clone.addScript('update', 'this.updateCount ++;');*/
+            clone.addScript('default', 'onEvent("load", () => {this.updateCount = 0;}); onEvent("update", () => {this.updateCount ++;});')
+            project.activeFrame.addClip(clone);
+        }
+
+        for(var i = 0; i < 7; i++) {
             var s = +new Date();
             project.tick();
             console.log((+new Date())-s);
