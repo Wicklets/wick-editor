@@ -72163,10 +72163,10 @@ Wick.Tools.Ellipse = class extends Wick.Tool {
     this.bottomRight = e.point; // Lock width and height if shift is held down
 
     if (e.modifiers.shift) {
-      var d = bottomRight.subtract(topLeft);
+      var d = this.bottomRight.subtract(this.topLeft);
       var max = Math.max(Math.abs(d.x), Math.abs(d.y));
-      this.bottomRight.x = topLeft.x + max * (d.x < 0 ? -1 : 1);
-      this.bottomRight.y = topLeft.y + max * (d.y < 0 ? -1 : 1);
+      this.bottomRight.x = this.topLeft.x + max * (d.x < 0 ? -1 : 1);
+      this.bottomRight.y = this.topLeft.y + max * (d.y < 0 ? -1 : 1);
     }
 
     var bounds = new this.paper.Rectangle(new this.paper.Point(this.topLeft.x, this.topLeft.y), new this.paper.Point(this.bottomRight.x, this.bottomRight.y));
@@ -72774,8 +72774,8 @@ Wick.Tools.Rectangle = class extends Wick.Tool {
     if (e.modifiers.shift) {
       var d = this.bottomRight.subtract(this.topLeft);
       var max = Math.max(Math.abs(d.x), Math.abs(d.y));
-      this.bottomRight.x = topLeft.x + max * (d.x < 0 ? -1 : 1);
-      this.bottomRight.y = topLeft.y + max * (d.y < 0 ? -1 : 1);
+      this.bottomRight.x = this.topLeft.x + max * (d.x < 0 ? -1 : 1);
+      this.bottomRight.y = this.topLeft.y + max * (d.y < 0 ? -1 : 1);
     }
 
     var bounds = new this.paper.Rectangle(new paper.Point(this.topLeft.x, this.topLeft.y), new paper.Point(this.bottomRight.x, this.bottomRight.y));
