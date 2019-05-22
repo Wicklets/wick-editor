@@ -45,6 +45,26 @@ class ProjectSettings extends Component {
     this.projectMinFramerate = 1;
   }
 
+  componentDidUpdate = (prevProps) => {
+    let values = ['name', 'width', 'height', 'framerate', 'backgroundColor'];
+    let different = false;
+    values.forEach((value) => {
+      if (prevProps.project[value] !== this.props.project[value]) {
+        different = true;
+      }
+    });
+
+    if (different) {
+      this.setState({
+          name: this.props.project.name,
+          width: this.props.project.width,
+          height: this.props.project.height,
+          framerate: this.props.project.framerate,
+          backgroundColor: this.props.project.backgroundColor,
+        });
+    }
+  }
+
   changeProjectName = (proposedName) => {
     this.setState({
       name: proposedName,
