@@ -51,6 +51,7 @@ Wick.Project = class extends Wick.Base {
         this.clipboard = new Wick.Clipboard();
 
         this.root = new Wick.Clip();
+        this.root._identifier = 'Project';
 
         this.focus = this.root;
 
@@ -378,12 +379,7 @@ Wick.Project = class extends Wick.Base {
      * @type {Wick.Clip}
      */
     get root () {
-        var root = this.getChild('Clip');
-
-        // Force the root clip to have the identifier "Project".
-        if(root) root.identifier = 'Project';
-
-        return root;
+        return this.getChild('Clip');
     }
 
     set root (root) {
@@ -715,6 +711,8 @@ Wick.Project = class extends Wick.Base {
      * Ticks the project.
      */
     tick () {
+        this.root._identifier = 'Project';
+
         this.view.processInput();
 
         this.focus._attachChildClipReferences();

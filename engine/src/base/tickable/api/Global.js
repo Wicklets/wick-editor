@@ -25,7 +25,9 @@ GlobalAPI = class {
     static get apiMemberNames () {
         return [
             'stop','play','gotoAndStop','gotoAndPlay','gotoNextFrame','gotoPrevFrame',
-            'project','root','parent','parentObject',
+            // These are currently disabled, they are very slow for some reason.
+            // They are currently hacked in inside Tickable._runFunction
+            //'project','root','parent','parentObject',
             'isMouseDown','mouseX','mouseY','mouseMoveX','mouseMoveY',
             'key','keys','isKeyDown','keyIsDown','isKeyJustPressed','keyIsJustPressed',
             'random',

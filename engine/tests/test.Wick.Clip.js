@@ -1140,6 +1140,8 @@ describe('Wick.Clip', function() {
             console.log((+new Date())-s);
             console.log('')
         }
+
+        Wick.ObjectCache.removeAllObjects();
     });
 
     it('(performance test) 250 Path children', function() {
@@ -1171,5 +1173,7 @@ describe('Wick.Clip', function() {
             console.log((+new Date())-s);
             console.log('')
         }
+
+        Wick.ObjectCache.removeAllObjects();
     });
 });
