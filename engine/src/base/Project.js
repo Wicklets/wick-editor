@@ -33,8 +33,6 @@ Wick.Project = class extends Wick.Base {
         if(!args) args = {};
         super(args);
 
-        this.project = this;
-
         this._name = args.name || 'My Project';
         this._width = args.width || 720;
         this._height = args.height || 405;

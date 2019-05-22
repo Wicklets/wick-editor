@@ -38,6 +38,13 @@ Wick.Base = class {
         this.guiElement = this._generateGUIElement();
 
         this._classname = this.classname;
+
+        this._children = {};
+        this._childrenData = null;
+        this._parent = null;
+        this._project = this.classname === 'Project' ? this : null;
+
+        Wick.ObjectCache.addObject(this);
     }
 
     /**
@@ -63,6 +70,7 @@ Wick.Base = class {
     deserialize (data) {
         this._uuid = data.uuid;
         this._identifier = data.identifier;
+        this._childrenData = data.children;
     }
 
     /**
@@ -73,9 +81,12 @@ Wick.Base = class {
         if(!args) args = {};
 
         var data = {};
+
         data.classname = this.classname;
         data.identifier = this._identifier;
         data.uuid = this._uuid;
+        data.children = this.getChildren().map(child => { return child.uuid });
+
         return data;
     }
 
@@ -87,6 +98,12 @@ Wick.Base = class {
         var data = this.serialize();
         data.uuid = uuidv4();
         var copy = Wick.Base.fromData(data);
+        copy._childrenData = null;
+
+        // Copy children
+        this.getChildren().forEach(child => {
+            copy.addChild(child.copy());
+        });
 
         return copy;
     }
@@ -116,6 +133,9 @@ Wick.Base = class {
     }
 
     set identifier (identifier) {
+        if(identifier === '') {
+            this._identifier = null;
+        }
         if(!isVarName(identifier)) return;
         this._identifier = identifier;
     }
@@ -144,6 +164,107 @@ Wick.Base = class {
         this._guiElement = guiElement;
     }
 
+    /**
+     *
+     */
+    getChildren (classname) {
+        // Lazily generate children list from serialized data
+        if(this._childrenData) {
+            this._childrenData.forEach(uuid => {
+                this.addChild(Wick.ObjectCache.getObjectByUUID(uuid));
+            });
+            this._childrenData = null;
+        }
+
+        if(classname === undefined) {
+            // Retrieve all children if no classname was given
+            var allChildren = [];
+            for(var classnameSeek in this._children) {
+                allChildren = allChildren.concat(this._children[classnameSeek]);
+            }
+            return allChildren;
+        } else {
+            // Retrieve children by classname
+            return this._children[classname] || [];
+        }
+    }
+
+    /**
+     *
+     */
+    get parent () {
+        return this._parent;
+    }
+
+    /**
+     *
+     */
+    get parentClip () {
+        return this._getParentByClassName('Clip');
+    }
+
+    /**
+     *
+     */
+    get parentLayer () {
+        return this._getParentByClassName('Layer');
+    }
+
+    /**
+     *
+     */
+    get parentFrame () {
+        return this._getParentByClassName('Frame');
+    }
+
+    /**
+     *
+     */
+    get parentTimeline () {
+        return this._getParentByClassName('Timeline');
+    }
+
+    /**
+     *
+     */
+    get project () {
+        return this._project;
+    }
+
+    /**
+     *
+     */
+    addChild (child) {
+        var classname = child.classname;
+
+        if(!this._children[classname]) {
+            this._children[classname] = [];
+        }
+
+        child._parent = this;
+        child._project = this.project;
+
+        this._children[classname].push(child);
+    }
+
+    /**
+     *
+     */
+    removeChild (child) {
+        var classname = child.classname;
+
+        if(!this._children[classname]) {
+            return;
+        }
+
+        child._parent = null;
+        child._project = null;
+
+        this._children[classname] = this._children[classname].filter(seekChild => {
+            return seekChild !== child;
+        });
+    }
+
     _generateView () {
         var viewClass = Wick.View[this.classname];
         if(viewClass) {
@@ -159,6 +280,17 @@ Wick.Base = class {
             return new guiElementClass(this);
         } else {
             return null;
+        }
+    }
+
+    _getParentByClassName (classname) {
+        if(!this.parent) return null;
+
+        if(this.parent instanceof Wick[classname]) {
+            return this.parent;
+        } else {
+            if(!this.parent._getParentByClassName) return null;
+            return this.parent._getParentByClassName(classname);
         }
     }
 }
