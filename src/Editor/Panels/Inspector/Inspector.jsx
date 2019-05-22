@@ -452,6 +452,22 @@ class Inspector extends Component {
     )
   }
 
+  renderTweenEasingType = () => {
+    let options = window.Wick.Tween.VALID_EASING_TYPES;
+
+    return (
+      <div className="inspector-item">
+        <InspectorSelector
+          tooltip="Easing Type"
+          type="select"
+          options={options}
+          value={this.getSelectionAttribute('easingType')}
+          isSearchable={true}
+          onChange={(val) => {this.setSelectionAttribute('easingType', val.value)}} />
+      </div>
+    );
+  }
+
   // Selection contents and properties
 
   /**
@@ -496,7 +512,11 @@ class Inspector extends Component {
    * Renders the inspector view for all properties of a tween selection.
    */
   renderTween = () =>  {
-    return ( <div className="inspector-content"/> );
+    return ( 
+      <div className="inspector-content">
+        {this.renderTweenEasingType()}
+      </div>
+     );
   }
 
   /**
