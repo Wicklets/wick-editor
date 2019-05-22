@@ -42,19 +42,20 @@ GlobalAPI = class {
      * @returns {object[]} Array of functions, properties, and api members.
      */
     get apiMembers () {
-        var members = this.apiMemberNames.map(name => {
-            return this[name];
-        });
+        var members = [];
 
-        var boundFunctions = members.map(fn => {
+        this.apiMemberNames.forEach(name => {
+            var fn = this[name];
             if(fn instanceof Function) {
-                return fn.bind(this);
-            } else {
-                return fn;
+                fn = fn.bind(this);
             }
+            members.push({
+                name: name,
+                fn: fn,
+            })
         });
 
-        return boundFunctions;
+        return members;
     }
 
     /**

@@ -1110,4 +1110,22 @@ describe('Wick.Clip', function() {
             expect(clip.__barRef).to.equal(subclipB);
         });
     });
+
+    it('(performance test)', function() {
+        var project = new Wick.Project();
+        for(var i = 0; i < 100; i++) {
+            var clip = new Wick.Clip();
+            /*clip.addScript('load', 'this.updateCount = 0;');
+            clip.addScript('update', 'this.updateCount ++;');*/
+            clip.addScript('default', 'onEvent("load", () => {this.updateCount = 0;}); onEvent("update", () => {this.updateCount ++;});')
+            project.activeFrame.addClip(clip);
+        }
+
+        for(var i = 0; i < 10; i++) {
+            var s = +new Date();
+            project.tick();
+            console.log((+new Date())-s);
+            console.log('')
+        }
+    });
 });

@@ -22,6 +22,13 @@
  */
 Wick.Tickable = class extends Wick.Base {
     /**
+     * Debugging feature. Logs errors as they happen
+     */
+    static get LOG_ERRORS () {
+        return false;
+    }
+
+    /**
      * Returns a list of all possible events for this object.
      * @return {string[]} Array of all possible scripts.
      */
@@ -65,6 +72,7 @@ Wick.Tickable = class extends Wick.Base {
         this.addScript('default', '');
 
         this._onEventFns = {};
+        this._cachedScripts = {};
     }
 
     deserialize (data) {
@@ -80,6 +88,7 @@ Wick.Tickable = class extends Wick.Base {
         this.cursor = data.cursor;
 
         this._onEventFns = {};
+        this._cachedScripts = {};
 
     }
 
@@ -220,9 +229,24 @@ Wick.Tickable = class extends Wick.Base {
     /**
      * Check if the object has a script with the given event name.
      * @param {string} name - The name of the event. See Wick.Tickable.possibleScripts
+     * @returns {boolean} True if the script with the given name exists
      */
     hasScript (name) {
         return this.getScript(name) !== undefined;
+    }
+
+    /**
+     * Check if the object has a non-empty script with a given name.
+     * @param {string} name - The name of the event. See Wick.Tickable.possibleScripts
+     * @returns {boolean} True if the script with the given name has code
+     */
+    scriptIsContentful (name) {
+        if(!this.hasScript(name)) {
+            return false;
+        }
+
+        var script = this.getScript(name);
+        return script.src.trim() !== '';
     }
 
     /**
@@ -254,63 +278,30 @@ Wick.Tickable = class extends Wick.Base {
             console.error(name + ' is not a valid script!');
         }
 
-        // Load API
-        var api = new GlobalAPI(this);
-        var otherObjects = this.parentClip ? this.parentClip.activeNamedChildren : [];
-        var otherObjectNames = otherObjects.map(obj => obj.identifier);
-
-        // Run the functions attached using onEvent
-        var onEventFnError = null;
-        this.getEventFns(name).forEach(eventFn => {
-            if(onEventFnError) return;
-            try {
-                var eventFnSrc = '(' + eventFn.toString() + ').bind(this)();';
-                var fn = new Function(api.apiMemberNames.concat(otherObjectNames), eventFnSrc);
-                fn = fn.bind(this);
-                fn(...api.apiMembers, ...otherObjects);
-            } catch (e) {
-                // Catch runtime errors
-                onEventFnError = this._generateErrorInfo(e, name);
-            }
-        });
-        if(onEventFnError) return onEventFnError;
-
-        // No scripts for this event? Skip everything
-        if(!this.hasScript(name)) {
-            return null;
-        }
-
         // Don't run scripts if this object is the focus
         // (this makes it so preview play will always play, even if the parent Clip of the timeline has a stop script)
         if(this.project && this.project.focus === this) {
             return null;
         }
 
-        var script = this.getScript(name);
+        // Run functions attached using onEvent
+        var eventFnError = null;
+        this.getEventFns(name).forEach(eventFn => {
+            if(eventFnError) return;
+            eventFnError = this._runFunction(eventFn);
+        });
+        if(eventFnError) return eventFnError;
 
-        // Check for syntax/parsing errors
-        try {
-            esprima.parseScript(script.src)
-        } catch (e) {
-            return this._generateEsprimaErrorInfo(e, name);
-        }
-
-        // Attempt to create valid function...
-        try {
-            var fn = new Function(api.apiMemberNames.concat(otherObjectNames), script.src);
-            fn = fn.bind(this);
-        } catch (e) {
-            // This should almost never be thrown unless there is an attempt to use syntax
-            // that the syntax checker (esprima) does not understand.
-            return this._generateErrorInfo(e, name);
-        }
-
-        // Run the function
-        try {
-            fn(...api.apiMembers, ...otherObjects);
-        } catch (e) {
-            // Catch runtime errors
-            return this._generateErrorInfo(e, name);
+        // Run function inside tab
+        if(this.scriptIsContentful(name)) {
+            var script = this.getScript(name);
+            var fn = this._cachedScripts[name] || this._evalScript(name, script.src);
+            if(!(fn instanceof Function)) {
+                return fn; // error
+            }
+            this._cachedScripts[name] = fn;
+            var error = this._runFunction(fn);
+            if(error) return error;
         }
 
         return null;
@@ -440,6 +431,81 @@ Wick.Tickable = class extends Wick.Base {
         return this.runScript('unload');
     }
 
+    _evalScript (name, src) {
+        var fn = null;
+
+        // Check for syntax/parsing errors
+        try {
+            esprima.parseScript(src);
+        } catch (e) {
+            return this._generateEsprimaErrorInfo(e, name);
+        }
+
+        // Attempt to create valid function...
+        try {
+            fn = new Function([], src);
+            fn = fn.bind(this);
+        } catch (e) {
+            // This should almost never be thrown unless there is an attempt to use syntax
+            // that the syntax checker (esprima) does not understand.
+            return this._generateErrorInfo(e, name);
+        }
+
+        return fn;
+    }
+
+    _runFunction (fn) {
+          var error = null;
+
+          // Attach API methods
+          var globalAPI = new GlobalAPI(this);
+          var otherObjects = this.parentClip ? this.parentClip.activeNamedChildren : [];
+          var apiMembers = globalAPI.apiMembers.concat(otherObjects.map(otherObject => {
+              return {
+                  name: otherObject.identifier,
+                  fn: otherObject,
+              }
+          }));
+          apiMembers.forEach(apiMember => {
+              window[apiMember.name] = apiMember.fn;
+          });
+
+          // Run the function
+          try {
+              fn.bind(this)();
+          } catch (e) {
+              // Catch runtime errors
+              error = this._generateErrorInfo(e, name);
+          }
+
+          // Detatch API methods
+          apiMembers.forEach(apiMember => {
+              delete window[apiMember.name];
+          });
+
+          return error;
+    }
+
+    _generateErrorInfo (error, name) {
+        if(Wick.Tickable.LOG_ERRORS) console.log(error);
+        return {
+            name: name !== undefined ? name : '',
+            lineNumber: this._generateLineNumberFromStackTrace(error.stack),
+            message: error.message,
+            uuid: this.uuid,
+        }
+    }
+
+    _generateEsprimaErrorInfo (error, name) {
+        if(Wick.Tickable.LOG_ERRORS) console.log(error);
+        return {
+            name: name !== undefined ? name : '',
+            lineNumber: error.lineNumber,
+            message: error.description,
+            uuid: this.uuid,
+        }
+    }
+
     _generateLineNumberFromStackTrace (trace) {
         var lineNumber = null;
 
@@ -455,24 +521,6 @@ Wick.Tickable = class extends Wick.Base {
         });
 
         return lineNumber;
-    }
-
-    _generateEsprimaErrorInfo (error, name) {
-        return {
-            name: name !== undefined ? name : '',
-            lineNumber: error.lineNumber,
-            message: error.description,
-            uuid: this.uuid,
-        }
-    }
-
-    _generateErrorInfo (error, name) {
-        return {
-            name: name !== undefined ? name : '',
-            lineNumber: this._generateLineNumberFromStackTrace(error.stack),
-            message: error.message,
-            uuid: this.uuid,
-        }
     }
 
     _attachChildClipReferences () {
