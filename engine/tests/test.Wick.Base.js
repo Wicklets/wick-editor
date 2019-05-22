@@ -238,12 +238,10 @@ describe('Wick.Base', function() {
 
     it('should create project references', function() {
         var project = new Wick.Project();
-
         var base = new Wick.Base();
         var child = new Wick.Base();
         base.addChild(child);
-
-        base.project = project;
+        project.addChild(base);
 
         expect(base.project).to.equal(project);
         expect(child.project).to.equal(project);

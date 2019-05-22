@@ -269,9 +269,7 @@ Wick.Project = class extends Wick.Base {
      * @type {Wick.Selection}
      */
     get selection () {
-        return this.children.find(child => {
-            return child instanceof Wick.Selection;
-        });
+        return this.getChild('Selection');
     }
 
     set selection (selection) {
@@ -382,9 +380,7 @@ Wick.Project = class extends Wick.Base {
      * @type {Wick.Clip}
      */
     get root () {
-        var root = this.children.find(child => {
-            return child instanceof Wick.Clip;
-        });
+        var root = this.getChild('Clip');
 
         // Force the root clip to have the identifier "Project".
         if(root) root.identifier = 'Project';

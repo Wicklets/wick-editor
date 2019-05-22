@@ -64,9 +64,7 @@ Wick.Layer = class extends Wick.Base {
      * @type {Wick.Frame[]}
      */
     get frames () {
-        return this.children.filter(child => {
-            return child instanceof Wick.Frame;
-        })
+        return this.getChildren('Frame');
     }
 
     /**

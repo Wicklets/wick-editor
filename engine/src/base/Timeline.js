@@ -59,9 +59,7 @@ Wick.Timeline = class extends Wick.Base {
      * @type {Wick.Layer}
      */
     get layers () {
-        return this.children.filter(child => {
-            return child instanceof Wick.Layer;
-        });
+        return this.getChildren('Layer');
     }
 
     /**

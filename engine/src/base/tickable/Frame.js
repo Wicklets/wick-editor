@@ -197,9 +197,7 @@ Wick.Frame = class extends Wick.Tickable {
      * @type {Wick.Path[]}
      */
     get paths () {
-        return this.children.filter(child => {
-            return child instanceof Wick.Path;
-        });
+        return this.getChildren('Path');
     }
 
     /**
@@ -207,9 +205,7 @@ Wick.Frame = class extends Wick.Tickable {
      * @type {Wick.Clip[]}
      */
     get clips () {
-        return this.children.filter(child => {
-            return child instanceof Wick.Clip;
-        });
+        return this.getChildren('Clip');
     }
 
     /**
@@ -217,9 +213,7 @@ Wick.Frame = class extends Wick.Tickable {
      * @type {Wick.Tween[]}
      */
     get tweens () {
-        return this.children.filter(child => {
-            return child instanceof Wick.Tween;
-        });
+        return this.getChildren('Tween');
     }
 
     /**

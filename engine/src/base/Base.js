@@ -167,6 +167,13 @@ Wick.Base = class {
     /**
      *
      */
+    getChild (classname) {
+        return this.getChildren(classname)[0];
+    }
+
+    /**
+     *
+     */
     getChildren (classname) {
         // Lazily generate children list from serialized data
         if(this._childrenData) {
@@ -187,6 +194,17 @@ Wick.Base = class {
             // Retrieve children by classname
             return this._children[classname] || [];
         }
+    }
+
+    /**
+     *
+     */
+    getChildrenRecursive () {
+        var children = this.getChildren();
+        this.getChildren().forEach(child => {
+            children = children.concat(child.getChildrenRecursive());
+        });
+        return children;
     }
 
     /**
@@ -242,7 +260,7 @@ Wick.Base = class {
         }
 
         child._parent = this;
-        child._project = this.project;
+        child._setProject(this.project);
 
         this._children[classname].push(child);
     }
@@ -292,5 +310,12 @@ Wick.Base = class {
             if(!this.parent._getParentByClassName) return null;
             return this.parent._getParentByClassName(classname);
         }
+    }
+
+    _setProject (project) {
+        this._project = project;
+        this.getChildren().forEach(child => {
+            child._setProject(project);
+        });
     }
 }
