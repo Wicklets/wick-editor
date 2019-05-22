@@ -33,8 +33,6 @@ Wick.Project = class extends Wick.Base {
         if(!args) args = {};
         super(args);
 
-        this.project = this;
-
         this._name = args.name || 'My Project';
         this._width = args.width || 720;
         this._height = args.height || 405;
@@ -53,6 +51,7 @@ Wick.Project = class extends Wick.Base {
         this.clipboard = new Wick.Clipboard();
 
         this.root = new Wick.Clip();
+        this.root._identifier = 'Project';
 
         this.focus = this.root;
 
@@ -271,9 +270,7 @@ Wick.Project = class extends Wick.Base {
      * @type {Wick.Selection}
      */
     get selection () {
-        return this.children.find(child => {
-            return child instanceof Wick.Selection;
-        });
+        return this.getChild('Selection');
     }
 
     set selection (selection) {
@@ -320,9 +317,7 @@ Wick.Project = class extends Wick.Base {
      * @type {Wick.Asset[]}
      */
     get assets () {
-        return this.children.filter(child => {
-            return child instanceof Wick.Asset;
-        });
+        return this.getChildren(['ImageAsset','SoundAsset','ClipAsset']);
     }
 
     /**
@@ -384,14 +379,7 @@ Wick.Project = class extends Wick.Base {
      * @type {Wick.Clip}
      */
     get root () {
-        var root = this.children.find(child => {
-            return child instanceof Wick.Clip;
-        });
-
-        // Force the root clip to have the identifier "Project".
-        if(root) root.identifier = 'Project';
-
-        return root;
+        return this.getChild('Clip');
     }
 
     set root (root) {
@@ -723,6 +711,8 @@ Wick.Project = class extends Wick.Base {
      * Ticks the project.
      */
     tick () {
+        this.root._identifier = 'Project';
+
         this.view.processInput();
 
         this.focus._attachChildClipReferences();

@@ -42,7 +42,7 @@ describe('Wick.Path', function() {
             var pathFromData = Wick.Path.fromData(data);
 
             expect(pathFromData instanceof Wick.Path).to.equal(true);
-            expect(pathFromData.children).to.eql([]);
+            expect(pathFromData.getChildren()).to.eql([]);
             expect(pathFromData.identifier).to.equal(null);
             expect(JSON.stringify(pathFromData.json)).to.equal(JSON.stringify(TestUtils.TEST_PATH_JSON_RED_SQUARE));
             expect(pathFromData.uuid).to.equal(pathOriginal.uuid);
@@ -55,7 +55,7 @@ describe('Wick.Path', function() {
             var pathcopy = pathOriginal.copy();
 
             expect(pathcopy instanceof Wick.Path).to.equal(true);
-            expect(pathcopy.children).to.eql([]);
+            expect(pathcopy.getChildren()).to.eql([]);
             expect(pathcopy.identifier).to.equal(null);
             expect(JSON.stringify(pathcopy.json)).to.equal(JSON.stringify(TestUtils.TEST_PATH_JSON_RED_SQUARE));
             expect(pathcopy.uuid).not.to.equal(pathOriginal.uuid);

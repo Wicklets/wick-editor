@@ -121,7 +121,7 @@ describe('Wick.Clip', function() {
             expect(copy instanceof Wick.Tickable).to.equal(true);
             expect(copy instanceof Wick.Clip).to.equal(true);
             expect(copy.classname).to.equal('Clip');
-            expect(copy.identifier).to.equal('foo');
+            expect(copy.identifier).to.equal(null);
             expect(copy.timeline instanceof Wick.Timeline).to.equal(true);
         });
 
@@ -171,7 +171,7 @@ describe('Wick.Clip', function() {
             expect(copy instanceof Wick.Tickable).to.equal(true);
             expect(copy instanceof Wick.Clip).to.equal(true);
             expect(copy.classname).to.equal('Clip');
-            expect(copy.identifier).to.equal('foo');
+            expect(copy.identifier).to.equal(null);
             expect(copy.transformation.x).to.equal(0);
             expect(copy.transformation.y).to.equal(0);
             expect(copy.activeFrame.paths.length).to.equal(2);
@@ -235,7 +235,7 @@ describe('Wick.Clip', function() {
             expect(copy instanceof Wick.Tickable).to.equal(true);
             expect(copy instanceof Wick.Clip).to.equal(true);
             expect(copy.classname).to.equal('Clip');
-            expect(copy.identifier).to.equal('foo');
+            expect(copy.identifier).to.equal(null);
             expect(copy.transformation.x).to.equal(0);
             expect(copy.transformation.y).to.equal(0);
             expect(copy.activeFrame.paths.length).to.equal(2);
@@ -928,7 +928,7 @@ describe('Wick.Clip', function() {
 
                 // Was the clone successful?
                 expect(original.__cloneOfMyself instanceof Wick.Clip).to.equal(true);
-                expect(original.__cloneOfMyself.identifier).to.equal('original_copy');
+                expect(original.__cloneOfMyself.identifier).to.equal(null);
                 expect(original.__cloneOfMyself.uuid).to.not.equal(undefined);
                 expect(original.__cloneOfMyself.uuid).to.not.equal(original.uuid);
 
@@ -954,17 +954,17 @@ describe('Wick.Clip', function() {
 
                 // Were the clones successful?
                 expect(original.__clone1 instanceof Wick.Clip).to.equal(true);
-                expect(original.__clone1.identifier).to.equal('original_copy');
+                expect(original.__clone1.identifier).to.equal(null);
                 expect(original.__clone1.uuid).to.not.equal(undefined);
                 expect(original.__clone1.uuid).to.not.equal(original.uuid);
 
                 expect(original.__clone2 instanceof Wick.Clip).to.equal(true);
-                expect(original.__clone2.identifier).to.equal('original_copy_copy');
+                expect(original.__clone2.identifier).to.equal(null);
                 expect(original.__clone2.uuid).to.not.equal(undefined);
                 expect(original.__clone2.uuid).to.not.equal(original.uuid);
 
                 expect(original.__clone3 instanceof Wick.Clip).to.equal(true);
-                expect(original.__clone3.identifier).to.equal('original_copy_copy_copy');
+                expect(original.__clone3.identifier).to.equal(null);
                 expect(original.__clone3.uuid).to.not.equal(undefined);
                 expect(original.__clone3.uuid).to.not.equal(original.uuid);
 
@@ -1140,6 +1140,8 @@ describe('Wick.Clip', function() {
             console.log((+new Date())-s);
             console.log('')
         }
+
+        Wick.ObjectCache.removeAllObjects();
     });
 
     it('(performance test) 250 Path children', function() {
@@ -1171,5 +1173,7 @@ describe('Wick.Clip', function() {
             console.log((+new Date())-s);
             console.log('')
         }
+
+        Wick.ObjectCache.removeAllObjects();
     });
 });

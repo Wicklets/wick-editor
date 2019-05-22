@@ -211,7 +211,7 @@ Wick.View.Frame = class extends Wick.View {
 
         // Update clip transforms
         this.clipsLayer.children.forEach(child => {
-            var wickClip = this.model.getChildByUUID(child.data.wickUUID);
+            var wickClip = Wick.ObjectCache.getObjectByUUID(child.data.wickUUID);
             wickClip.transformation = new Wick.Transformation({
                 x: child.position.x,
                 y: child.position.y,

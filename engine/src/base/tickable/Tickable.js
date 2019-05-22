@@ -471,6 +471,18 @@ Wick.Tickable = class extends Wick.Base {
               window[apiMember.name] = apiMember.fn;
           });
 
+          // These are currently hacked in here for performance reasons...
+          var project = this.project;
+          var root = project && project.root;
+          if(root) {
+              root.width = project.width;
+              root.height = project.height;
+          }
+          window.project = root;
+          window.root = root;
+          window.parent = this.parentClip;
+          window.parentObject = this.parentObject;
+
           // Run the function
           try {
               fn.bind(this)();
@@ -478,6 +490,12 @@ Wick.Tickable = class extends Wick.Base {
               // Catch runtime errors
               error = this._generateErrorInfo(e, name);
           }
+
+          // These are currently hacked in here for performance reasons...
+          delete window.project;
+          delete window.root;
+          delete window.parent;
+          delete window.parentObject;
 
           // Detatch API methods
           apiMembers.forEach(apiMember => {

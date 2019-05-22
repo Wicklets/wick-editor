@@ -93,11 +93,11 @@ describe('Wick.Project', function() {
             var projectFromData = Wick.Project.fromData(data);
 
             expect(projectFromData.backgroundColor).to.equal('#ffffff');
-            expect(projectFromData.children.length).to.equal(4);
-            expect(projectFromData.children[0]).to.equal(project.selection);
-            expect(projectFromData.children[1]).to.equal(project.root);
-            expect(projectFromData.children[2]).to.equal(image);
-            expect(projectFromData.children[3]).to.equal(sound);
+            expect(projectFromData.getChildren().length).to.equal(4);
+            expect(projectFromData.getChildren()[0]).to.equal(project.selection);
+            expect(projectFromData.getChildren()[1]).to.equal(project.root);
+            expect(projectFromData.getChildren()[2]).to.equal(image);
+            expect(projectFromData.getChildren()[3]).to.equal(sound);
             expect(projectFromData.selection).to.equal(project.selection);
             expect(projectFromData.root).to.equal(project.root);
             expect(projectFromData.assets[0]).to.equal(image);
@@ -244,7 +244,7 @@ describe('Wick.Project', function() {
 
         it('should add assets to the project', function() {
             let project = new Wick.Project();
-            let asset = new Wick.Asset();
+            let asset = new Wick.ImageAsset();
             expect(project.getAssets().length).to.equal(0);
             let returnValue = project.addObject(asset);
             expect(returnValue).to.equal(true);
@@ -252,13 +252,13 @@ describe('Wick.Project', function() {
             expect(project.getAssets()[0].uuid).to.equal(asset.uuid);
         });
 
-        it('should not add random objects to the project', function() {
+        it('should not add non wick objects to the project', function() {
             let project = new Wick.Project();
             let obj = {};
-            expect(project.activeFrame.children.length).to.equal(0);
+            expect(project.activeFrame.getChildren().length).to.equal(0);
             let returnValue = project.addObject(obj);
             expect(returnValue).to.equal(false);
-            expect(project.activeFrame.children.length).to.equal(0);
+            expect(project.activeFrame.getChildren().length).to.equal(0);
         });
     });
 

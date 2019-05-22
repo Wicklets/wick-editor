@@ -1,354 +1,249 @@
 describe('Wick.Base', function() {
-    describe('#constructor', function() {
-        it('should instantiate correctly', function() {
-            var base = new Wick.Base();
-            expect(base instanceof Wick.Base).to.equal(true);
-            expect(base.classname).to.equal('Base');
-
-            expect(typeof base.uuid).to.equal('string');
-            expect(base.parent).to.equal(null);
-            expect(base.project).to.equal(null);
+    it('should instantiate', function () {
+        var base = new Wick.Base({
+            identifier: 'foo',
         });
+        expect(base instanceof Wick.Base).to.equal(true);
+        expect(base.classname).to.equal('Base');
+        expect(typeof base.uuid).to.equal('string');
+        expect(base.identifier).to.equal('foo');
+        expect(base.parent).to.equal(null);
+        expect(base.project).to.equal(null);
     });
 
-    describe('#serialize', function () {
-        it('should serialize correctly', function () {
-            var child1 = new Wick.Base();
-            var child2 = new Wick.Base();
-            var child3 = new Wick.Base();
-
-            var base = new Wick.Base({
-                identifier: 'foo',
-            });
-            base.addChild(child1);
-            base.addChild(child2);
-            base.addChild(child3);
-            var data = base.serialize();
-
-            expect(data.children).to.eql([
-                child1.uuid,
-                child2.uuid,
-                child3.uuid,
-            ]);
-            expect(data.classname).to.equal('Base');
-            expect(data.identifier).to.equal('foo');
-            expect(data.uuid).to.equal(base.uuid);
+    it('should add/remove children', function() {
+        var base = new Wick.Base({
+            identifier: 'foo',
         });
+
+        var child1 = new Wick.Base();
+        var child2 = new Wick.Base();
+        var child3 = new Wick.Base();
+
+        var grandchild1 = new Wick.Base();
+        var grandchild2 = new Wick.Base();
+        var grandchild3 = new Wick.Base();
+
+        base.addChild(child1);
+        base.addChild(child2);
+        base.addChild(child3);
+
+        child1.addChild(grandchild1);
+        child1.addChild(grandchild2);
+        child1.addChild(grandchild3);
+
+        var children = base.getChildren('Base');
+        expect(children[0]).to.equal(child1);
+        expect(children[1]).to.equal(child2);
+        expect(children[2]).to.equal(child3);
+        expect(children[0].parent).to.equal(base);
+        expect(children[1].parent).to.equal(base);
+        expect(children[2].parent).to.equal(base);
+
+        var grandchildren = child1.getChildren('Base');
+        expect(grandchildren[0]).to.equal(grandchild1);
+        expect(grandchildren[1]).to.equal(grandchild2);
+        expect(grandchildren[2]).to.equal(grandchild3);
+        expect(grandchildren[0].parent).to.equal(child1);
+        expect(grandchildren[1].parent).to.equal(child1);
+        expect(grandchildren[2].parent).to.equal(child1);
+
+        base.removeChild(child1);
+        base.removeChild(child2);
+        base.removeChild(child3);
+        expect(base.getChildren('Base').length).to.equal(0);
+        expect(child1.parent).to.equal(null);
+        expect(child2.parent).to.equal(null);
+        expect(child3.parent).to.equal(null);
     });
 
-    describe('#deserialize', function () {
-        it('should deserialize correctly', function () {
-            Wick.ObjectCache.removeAllObjects();
-
-            var child1 = new Wick.Base();
-            var child2 = new Wick.Base();
-            var child3 = new Wick.Base();
-
-            var base = new Wick.Base({
-                identifier: 'foo',
-            });
-            base.addChild(child1);
-            base.addChild(child2);
-            base.addChild(child3);
-            var data = base.serialize();
-            var base = Wick.Base.fromData(data);
-
-            expect(base instanceof Wick.Base).to.equal(true);
-            expect(base.children).to.eql([
-                child1,
-                child2,
-                child3,
-            ]);
-            expect(base.identifier).to.equal('foo');
-            expect(base.uuid).to.equal(data.uuid);
-        });
+    it('should create parent references', function() {
+        var parent = new Wick.Base();
+        var child = new Wick.Base();
+        parent.addChild(child);
+        expect(child.parent).to.equal(parent);
     });
 
-    describe('#copy', function () {
-        it('should copy correctly', function () {
-            Wick.ObjectCache.removeAllObjects();
-
-            var child1 = new Wick.Base({ identifier: 'child1' });
-            var child2 = new Wick.Base({ identifier: 'child2' });
-            var child3 = new Wick.Base({ identifier: 'child3' });
-
-            var base = new Wick.Base({ identifier: 'foo' });
-            base.addChild(child1);
-            base.addChild(child2);
-            base.addChild(child3);
-
-            var copy = base.copy();
-
-            expect(base instanceof Wick.Base).to.equal(true);
-            expect(base.identifier).to.equal('foo');
-            expect(base.children.length).to.equal(3);
-            expect(base.children[0].identifier).to.equal('child1');
-            expect(base.children[1].identifier).to.equal('child2');
-            expect(base.children[2].identifier).to.equal('child3');
-            expect(base.children[0]).to.equal(child1);
-            expect(base.children[1]).to.equal(child2);
-            expect(base.children[2]).to.equal(child3);
-            expect(base.children[0].parent).to.equal(base);
-            expect(base.children[1].parent).to.equal(base);
-            expect(base.children[2].parent).to.equal(base);
-
-            expect(copy instanceof Wick.Base).to.equal(true);
-            expect(copy.identifier).to.equal('foo');
-            expect(copy.uuid).to.not.equal(base.uuid);
-            expect(copy.uuid).to.not.equal(null);
-            expect(copy.children.length).to.equal(3);
-            expect(copy.children[0].identifier).to.equal('child1');
-            expect(copy.children[1].identifier).to.equal('child2');
-            expect(copy.children[2].identifier).to.equal('child3');
-            expect(copy.children[0]).to.not.equal(child1);
-            expect(copy.children[1]).to.not.equal(child2);
-            expect(copy.children[2]).to.not.equal(child3);
-            expect(copy.children[0].uuid).to.not.equal(null);
-            expect(copy.children[1].uuid).to.not.equal(null);
-            expect(copy.children[2].uuid).to.not.equal(null);
-            expect(copy.children[0].uuid).to.not.equal(child1.uuid);
-            expect(copy.children[1].uuid).to.not.equal(child2.uuid);
-            expect(copy.children[2].uuid).to.not.equal(child3.uuid);
-            expect(copy.children[0].parent).to.equal(copy);
-            expect(copy.children[1].parent).to.equal(copy);
-            expect(copy.children[2].parent).to.equal(copy);
-        });
-
-        it('should copy correctly (grandchildren)', function () {
-            Wick.ObjectCache.removeAllObjects();
-
-            var grandchild = new Wick.Base({ identifier: 'grandchild' })
-            var child = new Wick.Base({ identifier: 'child' });
-            var parent = new Wick.Base({ identifier: 'parent' });
-
-            child.addChild(grandchild);
-            parent.addChild(child);
-
-            var copy = parent.copy();
-
-            expect(parent instanceof Wick.Base).to.equal(true);
-            expect(parent.identifier).to.equal('parent');
-            expect(parent.children.length).to.equal(1);
-            expect(parent.children[0]).to.equal(child);
-            expect(parent.children[0].identifier).to.equal('child');
-            expect(parent.children[0].children.length).to.equal(1);
-            expect(parent.children[0].children[0]).to.equal(grandchild);
-            expect(parent.children[0].children[0].identifier).to.equal('grandchild');
-
-            expect(copy instanceof Wick.Base).to.equal(true);
-            expect(copy.identifier).to.equal('parent');
-            expect(copy.uuid).to.not.equal(parent.uuid);
-            expect(copy.uuid).to.not.equal(null);
-            expect(copy.children.length).to.equal(1);
-            expect(copy.children[0].identifier).to.equal('child');
-            expect(copy.children[0]).to.not.equal(child);
-            expect(copy.children[0].uuid).to.not.equal(null);
-            expect(copy.children[0].uuid).to.not.equal(child.uuid);
-            expect(copy.children[0].children.length).to.equal(1);
-            expect(copy.children[0].children[0].identifier).to.equal('grandchild');
-            expect(copy.children[0].children[0]).to.not.equal(child);
-            expect(copy.children[0].children[0]).to.not.equal(grandchild);
-            expect(copy.children[0].children[0].uuid).to.not.equal(null);
-            expect(copy.children[0].children[0].uuid).to.not.equal(child.uuid);
-            expect(copy.children[0].children[0].uuid).to.not.equal(grandchild.uuid);
-        });
-    })
-
-    describe('#identifier', function () {
-        it('should only accept valid variable names', function() {
-            var base = new Wick.Base();
-
-            // Valid names
-            base.identifier = 'dummy';
-            expect(base.identifier).to.equal('dummy');
-            base.identifier = 'foo';
-            expect(base.identifier).to.equal('foo');
-            base.identifier = 'bar';
-            expect(base.identifier).to.equal('bar');
-            base.identifier = 'bar123';
-            expect(base.identifier).to.equal('bar123');
-            base.identifier = 'foo_bar';
-            expect(base.identifier).to.equal('foo_bar');
-
-            base.identifier = 'dummy';
-
-            // Invalid names
-            base.identifier = 'f o o';
-            expect(base.identifier).to.equal('dummy');
-            base.identifier = ' foo';
-            expect(base.identifier).to.equal('dummy');
-            base.identifier = 'foo-bar';
-            expect(base.identifier).to.equal('dummy');
-            base.identifier = '123foo';
-            expect(base.identifier).to.equal('dummy');
-        });
-
-        it('should rename duplicate identifiers', function() {
-            var parent = new Wick.Base();
-            var child1 = new Wick.Base();
-            var child2 = new Wick.Base();
-            var child3 = new Wick.Base();
-            var child4 = new Wick.Base();
-            var child5 = new Wick.Base();
-
-            var project = new Wick.Project();
-            project.addObject(parent);
-
-            child1.identifier = 'foo';
-            child2.identifier = 'bar';
-            child3.identifier = 'foo';
-            child4.identifier = 'foo';
-
-            parent.addChild(child1);
-            parent.addChild(child2);
-            parent.addChild(child3);
-            parent.addChild(child4);
-            parent.addChild(child5);
-
-            expect(child1.identifier).to.equal('foo');
-            expect(child2.identifier).to.equal('bar');
-            expect(child3.identifier).to.equal('foo_copy');
-            expect(child4.identifier).to.equal('foo_copy_copy');
-            expect(child5.identifier).to.equal(null);
-        });
+    it('should create recursive parent references', function() {
+        var child = new Wick.Base();
+        var parent = new Wick.Base();
+        var grandparent = new Wick.Base();
+        parent.addChild(child);
+        grandparent.addChild(parent);
+        expect(child.parent).to.equal(parent);
+        expect(parent.parent).to.equal(grandparent);
+        expect(child.parent.parent).to.equal(grandparent);
     });
 
-    describe('#children', function() {
-        it('should add and remove children', function () {
-            var parent = new Wick.Base();
-            var child1 = new Wick.Base();
-            var child2 = new Wick.Base();
-            var child3 = new Wick.Base();
-
-            parent.addChild(child1);
-            parent.addChild(child2);
-            parent.addChild(child3);
-            expect(parent.children[0]).to.equal(child1)
-            expect(parent.children[1]).to.equal(child2)
-            expect(parent.children[2]).to.equal(child3)
-
-            parent.removeChild(child2);
-            expect(parent.children[0]).to.equal(child1)
-            expect(parent.children[1]).to.equal(child3)
+    it('should serialize/deserialize', function () {
+        var base = new Wick.Base({
+            identifier: 'foo',
         });
+
+        var child1 = new Wick.Base();
+        var child2 = new Wick.Base();
+        var child3 = new Wick.Base();
+
+        var grandchild1 = new Wick.Base();
+        var grandchild2 = new Wick.Base();
+        var grandchild3 = new Wick.Base();
+
+        base.addChild(child1);
+        base.addChild(child2);
+        base.addChild(child3);
+
+        child1.addChild(grandchild1);
+        child1.addChild(grandchild2);
+        child1.addChild(grandchild3);
+
+        var copy = new Wick.Base();
+        var data = base.serialize();
+        copy.deserialize(data);
+
+        expect(base.getChildren('Base').length).to.equal(3);
+        expect(base.getChildren('Base')[0]).to.equal(child1);
+        expect(base.getChildren('Base')[1]).to.equal(child2);
+        expect(base.getChildren('Base')[2]).to.equal(child3);
+
+        expect(copy.getChildren('Base').length).to.equal(3);
+        expect(copy.getChildren('Base')[0]).to.equal(child1);
+        expect(copy.getChildren('Base')[1]).to.equal(child2);
+        expect(copy.getChildren('Base')[2]).to.equal(child3);
     });
 
-    describe('#parent', function() {
-        it('should create parent references', function() {
-            var base = new Wick.Base();
-            var dummyChild = new Wick.Base();
-            base.addChild(dummyChild);
-
-            expect(base.children.length).to.equal(1);
-            expect(base.children[0]).to.equal(dummyChild);
-            expect(dummyChild.parent).to.equal(base);
+    it('should copy', function () {
+        var base = new Wick.Base({
+            identifier: 'foo',
         });
 
-        it('should create recursive parent references', function() {
-            var child = new Wick.Base();
-            var parent = new Wick.Base();
-            var grandparent = new Wick.Base();
-            parent.addChild(child);
-            grandparent.addChild(parent);
-            expect(child.parent).to.equal(parent);
-            expect(parent.parent).to.equal(grandparent);
-            expect(child.parent.parent).to.equal(grandparent);
-        });
+        var child1 = new Wick.Base({identifier: 'child1'});
+        var child2 = new Wick.Base({identifier: 'child2'});
+        var child3 = new Wick.Base({identifier: 'child3'});
+
+        var grandchild1 = new Wick.Base({identifier: 'grandchild1'});
+        var grandchild2 = new Wick.Base({identifier: 'grandchild1'});
+        var grandchild3 = new Wick.Base({identifier: 'grandchild1'});
+
+        base.addChild(child1);
+        base.addChild(child2);
+        base.addChild(child3);
+
+        child1.addChild(grandchild1);
+        child1.addChild(grandchild2);
+        child1.addChild(grandchild3);
+
+        var copy = base.copy();
+
+        expect(base.getChildren('Base').length).to.equal(3);
+        expect(base.getChildren('Base')[0]).to.equal(child1);
+        expect(base.getChildren('Base')[1]).to.equal(child2);
+        expect(base.getChildren('Base')[2]).to.equal(child3);
+
+        expect(copy.getChildren('Base').length).to.equal(3);
+        expect(copy.getChildren('Base')[0] instanceof Wick.Base).to.equal(true);
+        expect(copy.getChildren('Base')[1] instanceof Wick.Base).to.equal(true);
+        expect(copy.getChildren('Base')[2] instanceof Wick.Base).to.equal(true);
+        expect(copy.getChildren('Base')[0]).not.to.equal(child1);
+        expect(copy.getChildren('Base')[1]).not.to.equal(child2);
+        expect(copy.getChildren('Base')[2]).not.to.equal(child3);
     });
 
-    describe('#parentClip', function() {
-        it('should get parent clip correctly', function() {
-            var subclip = new Wick.Clip();
-            var frame = new Wick.Frame();
-            var layer = new Wick.Layer();
-            var timeline = new Wick.Timeline();
-            var clip = new Wick.Clip();
+    it('should only accept valid variable names', function() {
+        var base = new Wick.Base();
 
-            expect(subclip.parentClip).to.equal(null);
+        // Valid names
+        base.identifier = 'dummy';
+        expect(base.identifier).to.equal('dummy');
+        base.identifier = 'foo';
+        expect(base.identifier).to.equal('foo');
+        base.identifier = 'bar';
+        expect(base.identifier).to.equal('bar');
+        base.identifier = 'bar123';
+        expect(base.identifier).to.equal('bar123');
+        base.identifier = 'foo_bar';
+        expect(base.identifier).to.equal('foo_bar');
+        base.identifier = '';
+        expect(base.identifier).to.equal(null);
 
-            frame.addClip(subclip);
-            layer.addFrame(frame);
-            timeline.addLayer(layer);
-            clip.timeline = timeline;
+        base.identifier = 'dummy';
 
-            expect(subclip.parentClip).to.equal(clip);
-        });
+        // Invalid names
+        base.identifier = 'f o o';
+        expect(base.identifier).to.equal('dummy');
+        base.identifier = ' foo';
+        expect(base.identifier).to.equal('dummy');
+        base.identifier = 'foo-bar';
+        expect(base.identifier).to.equal('dummy');
+        base.identifier = '123foo';
+        expect(base.identifier).to.equal('dummy');
     });
 
-    describe('#parentTimeline', function() {
-        it('should get parent timeline correctly', function() {
-            var base = new Wick.Base();
-            expect(base.parentTimeline).to.equal(null);
+    it('should get parent clip correctly', function() {
+        var subclip = new Wick.Clip();
+        var frame = new Wick.Frame();
+        var layer = new Wick.Layer();
+        var timeline = new Wick.Timeline();
+        var clip = new Wick.Clip();
 
-            var parentBase = new Wick.Base();
-            parentBase.addChild(base);
-            expect(base.parentTimeline).to.equal(null);
+        expect(subclip.parentClip).to.equal(null);
 
-            var parentTimeline = new Wick.Timeline();
-            parentTimeline.addChild(parentBase);
-            expect(parentBase.parentTimeline).to.equal(parentTimeline);
-            expect(base.parentTimeline).to.equal(parentTimeline);
-        });
+        frame.addClip(subclip);
+        layer.addFrame(frame);
+        timeline.addLayer(layer);
+        clip.timeline = timeline;
+
+        expect(subclip.parentClip).to.equal(clip);
     });
 
-    describe('#parentLayer', function() {
-        it('should get parent layer correctly', function() {
-            var clip = new Wick.Clip();
-            var frame = new Wick.Frame();
-            var layer = new Wick.Layer();
+    it('should get parent timeline correctly', function() {
+        var base = new Wick.Base();
+        expect(base.parentTimeline).to.equal(null);
 
-            expect(clip.parentLayer).to.equal(null);
+        var parentBase = new Wick.Base();
+        parentBase.addChild(base);
+        expect(base.parentTimeline).to.equal(null);
 
-            frame.addClip(clip);
-            layer.addFrame(frame);
-
-            expect(clip.parentLayer).to.equal(layer);
-        });
+        var parentTimeline = new Wick.Timeline();
+        parentTimeline.addChild(parentBase);
+        expect(parentBase.parentTimeline).to.equal(parentTimeline);
+        expect(base.parentTimeline).to.equal(parentTimeline);
     });
 
-    describe('#parentFrame', function() {
-        it('should get parent frame correctly', function() {
-            var base = new Wick.Base();
-            expect(base.parentFrame).to.equal(null);
+    it('should get parent layer correctly', function() {
+        var clip = new Wick.Clip();
+        var frame = new Wick.Frame();
+        var layer = new Wick.Layer();
 
-            var parentBase = new Wick.Base();
-            parentBase.addChild(base);
-            expect(base.parentFrame).to.equal(null);
+        expect(clip.parentLayer).to.equal(null);
 
-            var parentFrame = new Wick.Frame();
-            parentFrame.addChild(parentBase);
-            expect(parentBase.parentFrame).to.equal(parentFrame);
-            expect(base.parentFrame).to.equal(parentFrame);
-        });
+        frame.addClip(clip);
+        layer.addFrame(frame);
+
+        expect(clip.parentLayer).to.equal(layer);
     });
 
-    describe('#project', function() {
-        it('should create project references', function() {
-            var project = new Wick.Project();
+    it('should get parent frame correctly', function() {
+        var base = new Wick.Base();
+        expect(base.parentFrame).to.equal(null);
 
-            var base = new Wick.Base();
-            var child = new Wick.Base();
-            base.addChild(child);
+        var parentBase = new Wick.Base();
+        parentBase.addChild(base);
+        expect(base.parentFrame).to.equal(null);
 
-            base.project = project;
-
-            expect(base.project).to.equal(project);
-            expect(child.project).to.equal(project);
-        });
+        var parentFrame = new Wick.Frame();
+        parentFrame.addChild(parentBase);
+        expect(parentBase.parentFrame).to.equal(parentFrame);
+        expect(base.parentFrame).to.equal(parentFrame);
     });
 
-    describe('#getChildByUUID', function() {
-        it('should handle getChildByUUID', function() {
-            var uuidTestParent = new Wick.Base();
-            var uuidTestChild1 = new Wick.Base();
-            var uuidTestChild2 = new Wick.Base();
-            var uuidTestChild3 = new Wick.Base();
-            uuidTestParent.addChild(uuidTestChild1);
-            uuidTestParent.addChild(uuidTestChild2);
-            uuidTestParent.addChild(uuidTestChild3);
-            expect(uuidTestParent.getChildByUUID(uuidTestChild1.uuid)).to.equal(uuidTestChild1);
-            expect(uuidTestParent.getChildByUUID(uuidTestChild2.uuid)).to.equal(uuidTestChild2);
-            expect(uuidTestParent.getChildByUUID(uuidTestChild3.uuid)).to.equal(uuidTestChild3);
-        });
+    it('should create project references', function() {
+        var project = new Wick.Project();
+        var base = new Wick.Base();
+        var child = new Wick.Base();
+        base.addChild(child);
+        project.addChild(base);
+
+        expect(base.project).to.equal(project);
+        expect(child.project).to.equal(project);
     });
 });

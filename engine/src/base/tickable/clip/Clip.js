@@ -93,9 +93,7 @@ Wick.Clip = class extends Wick.Tickable {
      * The timeline of the clip.
      */
     get timeline () {
-        return this.children.find(child => {
-            return child instanceof Wick.Timeline;
-        })
+        return this.getChild('Timeline');
     }
 
     set timeline (timeline) {

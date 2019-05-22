@@ -31,11 +31,6 @@ Wick.Base = class {
         this._uuid = uuidv4();
         this._identifier = args.identifier || null;
 
-        this._childrenUUIDs = [];
-
-        this._parent = null;
-        this._project = null;
-
         this._view = null;
         this.view = this._generateView();
 
@@ -43,6 +38,11 @@ Wick.Base = class {
         this.guiElement = this._generateGUIElement();
 
         this._classname = this.classname;
+
+        this._children = {};
+        this._childrenData = null;
+        this._parent = null;
+        this._project = this.classname === 'Project' ? this : null;
 
         Wick.ObjectCache.addObject(this);
     }
@@ -68,24 +68,12 @@ Wick.Base = class {
      * @param  {object} data Serialized data that was returned by a Base Object's serialize function.
      */
     deserialize (data) {
-        this._childrenUUIDs = [];
-
         this._uuid = data.uuid;
         this._identifier = data.identifier;
+        this._children = {};
+        this._childrenData = data.children;
 
-        this._childrenUUIDs = Array.from(data.children);
-    }
-
-    /**
-     * Call this if you deserialized a project from a .wick file before the ObjectCache has anything in it.
-     */
-    attachParentReferences () {
-        var childrenUUIDs = this._childrenUUIDs;
-        this._childrenUUIDs = [];
-        childrenUUIDs.forEach(uuid => {
-            var child = Wick.ObjectCache.getObjectByUUID(uuid);
-            this.addChild(child);
-        });
+        Wick.ObjectCache.addObject(this);
     }
 
     /**
@@ -96,10 +84,12 @@ Wick.Base = class {
         if(!args) args = {};
 
         var data = {};
+
         data.classname = this.classname;
         data.identifier = this._identifier;
         data.uuid = this._uuid;
-        data.children = Array.from(this._childrenUUIDs);
+        data.children = this.getChildren().map(child => { return child.uuid });
+
         return data;
     }
 
@@ -111,17 +101,13 @@ Wick.Base = class {
         var data = this.serialize();
         data.uuid = uuidv4();
         var copy = Wick.Base.fromData(data);
+        copy._childrenData = null;
+        copy._identifier = null;
 
-        // copy children
-        var origChildren = copy.children;
-        copy.children.forEach(child => {
-            copy.removeChild(child);
-            child.parent = this;
+        // Copy children
+        this.getChildren().forEach(child => {
+            copy.addChild(child.copy());
         });
-        origChildren.forEach(child => {
-            var childCopy = child.copy();
-            copy.addChild(childCopy);
-        })
 
         return copy;
     }
@@ -157,6 +143,7 @@ Wick.Base = class {
         }
 
         if(!isVarName(identifier)) return;
+
         this._identifier = identifier;
     }
 
@@ -185,152 +172,128 @@ Wick.Base = class {
     }
 
     /**
-     * The object representing the parent of the Wick Base object.
-     * @type {Wick.Base}
+     *
      */
-    get parent () {
-        return this._parent;
-    }
-
-    set parent (parent) {
-        this._parent = parent;
-
-        this.children.forEach(child => {
-            child.parent = this;
-        });
+    getChild (classname) {
+        return this.getChildren(classname)[0];
     }
 
     /**
-     * The project which contains the Wick Base object.
-     * @type {Wick.Project}
+     *
      */
-    get project () {
-        return this._project;
-    }
+    getChildren (classname) {
+        // Lazily generate children list from serialized data
+        if(this._childrenData) {
+            this._childrenData.forEach(uuid => {
+                this.addChild(Wick.ObjectCache.getObjectByUUID(uuid));
+            });
+            this._childrenData = null;
+        }
 
-    set project (project) {
-        this._project = project;
-
-        this.children.forEach(child => {
-            child.project = project;
-        });
+        if (classname instanceof Array) {
+            var children = [];
+            classname.forEach(classnameSeek => {
+                children = children.concat(this.getChildren(classnameSeek));
+            });
+            return children;
+        } else if(classname === undefined) {
+            // Retrieve all children if no classname was given
+            var allChildren = [];
+            for(var classnameSeek in this._children) {
+                allChildren = allChildren.concat(this._children[classnameSeek]);
+            }
+            return allChildren;
+        } else {
+            // Retrieve children by classname
+            return this._children[classname] || [];
+        }
     }
 
     /**
-     * The child objects of this object.
-     * @type {Wick.Base[]}
-     */
-    get children () {
-        return this._childrenUUIDs.map(uuid => {
-            var object = Wick.ObjectCache.getObjectByUUID(uuid);
-            if(!object.parent) object.parent = this;
-            return object;
-        });
-    }
-
-    /**
-     * The child objects of this object, and the children of those children
-     * @returns {Wick.Base[]}
+     *
      */
     getChildrenRecursive () {
-        var children = this.children;
-        children.forEach(child => {
+        var children = this.getChildren();
+        this.getChildren().forEach(child => {
             children = children.concat(child.getChildrenRecursive());
         });
         return children;
     }
 
     /**
-     * Add a child to this object
-     * @param {Wick.Base} object - the child to add
+     *
      */
-    addChild (object) {
-        Wick.ObjectCache.addObject(object);
-        if(!this._childrenUUIDs.find(uuid => {
-            return uuid === object.uuid;
-        })) {
-            this._childrenUUIDs.push(object.uuid);
-        }
-        object.parent = this;
-        object.project = this.project;
-        object.identifier = object._getUniqueIdentifier(object.identifier);
+    get parent () {
+        return this._parent;
     }
 
     /**
-     * Remove a child from this object
-     * @param {Wick.Base} child - the child to remove
-     */
-    removeChild (child) {
-        child.parent = null;
-        this._childrenUUIDs = this._childrenUUIDs.filter(uuid => {
-            return uuid !== child.uuid;
-        });
-    }
-
-    /**
-     * Find a child by uuid.
-     * @param {string} uuid
-     */
-    getChildByUUID (uuid) {
-        return this.children.find(child => {
-            return child.uuid === uuid;
-        });
-    }
-
-    /**
-     * The parent clip.
-     * @type {Wick.Clip}
+     *
      */
     get parentClip () {
-        return this.getParentByInstanceOf(Wick.Clip);
+        return this._getParentByClassName('Clip');
     }
 
     /**
-     * The parent timeline.
-     * @type {Wick.Timeline}
-     */
-    get parentTimeline () {
-        return this.getParentByInstanceOf(Wick.Timeline);
-    }
-
-    /**
-     * The parent layer.
-     * @type {Wick.Layer}
+     *
      */
     get parentLayer () {
-        return this.getParentByInstanceOf(Wick.Layer);
+        return this._getParentByClassName('Layer');
     }
 
     /**
-     * The parent frame.
-     * @type {Wick.Frame}
+     *
      */
     get parentFrame () {
-        return this.getParentByInstanceOf(Wick.Frame);
+        return this._getParentByClassName('Frame');
     }
 
     /**
-     * Check if an object is selected or not.
-     * @type {boolean}
+     *
      */
-    get isSelected () {
-        if(!this.project) return false;
-        return this.project.selection.isObjectSelected(this);
+    get parentTimeline () {
+        return this._getParentByClassName('Timeline');
     }
 
     /**
-     * Recursively find a parent that is an instance of  a given class.
-     * @param {string} seekClass - the name of the class to search for
+     *
      */
-    getParentByInstanceOf (seekClass) {
-        if(!this.parent) return null;
+    get project () {
+        return this._project;
+    }
 
-        if(this.parent instanceof seekClass) {
-            return this.parent;
-        } else {
-            if(!this.parent.getParentByInstanceOf) return null;
-            return this.parent.getParentByInstanceOf(seekClass);
+    /**
+     *
+     */
+    addChild (child) {
+        var classname = child.classname;
+
+        if(!this._children[classname]) {
+            this._children[classname] = [];
         }
+
+        child._parent = this;
+        child._setProject(this.project);
+
+        this._children[classname].push(child);
+    }
+
+    /**
+     *
+     */
+    removeChild (child) {
+        var classname = child.classname;
+
+        if(!this._children[classname]) {
+            return;
+        }
+
+        child._parent = null;
+        child._project = null;
+
+        this._children[classname] = this._children[classname].filter(seekChild => {
+            return seekChild !== child;
+        });
     }
 
     _generateView () {
@@ -351,10 +314,28 @@ Wick.Base = class {
         }
     }
 
+    _getParentByClassName (classname) {
+        if(!this.parent) return null;
+
+        if(this.parent instanceof Wick[classname]) {
+            return this.parent;
+        } else {
+            if(!this.parent._getParentByClassName) return null;
+            return this.parent._getParentByClassName(classname);
+        }
+    }
+
+    _setProject (project) {
+        this._project = project;
+        this.getChildren().forEach(child => {
+            child._setProject(project);
+        });
+    }
+
     _getUniqueIdentifier (identifier) {
         if(!this.parent) return identifier;
 
-        var otherIdentifiers = this.parent.children.filter(child => {
+        var otherIdentifiers = this.parent.getChildren('Clip','Frame','Button').filter(child => {
             return child !== this && child.identifier;
         }).map(child => {
             return child.identifier;

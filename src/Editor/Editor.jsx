@@ -158,10 +158,9 @@ class Editor extends EditorCore {
         onAfterTick: () => {
           this.project.view.render();
           this.project.activeTimeline.guiElement.numberLine.playhead.build();
-          console.log((+new Date())-window.starttime)
         },
         onBeforeTick: () => {
-            window.starttime = +new Date();
+            
         },
       });
     }
