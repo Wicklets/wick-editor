@@ -557,6 +557,7 @@ Wick.View.Project = class extends Wick.View {
     }
 
     _convertCSSColorToPixiColor (cssColor) {
+        cssColor = new paper.Color(cssColor).toCSS(true);
         return parseInt(cssColor.replace("#", "0x"))
     }
 

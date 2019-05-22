@@ -70150,37 +70150,29 @@ Wick.Tickable = class extends Wick.Base {
   _runFunction(fn) {
     var error = null; // Attach API methods
 
-    /*var globalAPI = new GlobalAPI(this);
+    var globalAPI = new GlobalAPI(this);
     var otherObjects = this.parentClip ? this.parentClip.activeNamedChildren : [];
     var apiMembers = globalAPI.apiMembers.concat(otherObjects.map(otherObject => {
-        return {
-            name: otherObject.identifier,
-            fn: otherObject,
-        }
+      return {
+        name: otherObject.identifier,
+        fn: otherObject
+      };
     }));
     apiMembers.forEach(apiMember => {
-        window[apiMember.name] = apiMember.fn;
-    });*/
-
-    var otherObjects = this.parentClip ? this.parentClip.activeNamedChildren : [];
-    otherObjects.forEach(otherObject => {
-      window[otherObject.identifier] = otherObject;
+      window[apiMember.name] = apiMember.fn;
     }); // Run the function
 
     try {
-      window['onEvent'] = this.onEvent.bind(this);
       fn.bind(this)();
-      delete window['onEvent'];
     } catch (e) {
       // Catch runtime errors
       error = this._generateErrorInfo(e, name);
     } // Detatch API methods
 
-    /*apiMembers.forEach(apiMember => {
-        delete window[apiMember.name];
-    });*/
 
-
+    apiMembers.forEach(apiMember => {
+      delete window[apiMember.name];
+    });
     return error;
   }
 
@@ -75252,6 +75244,7 @@ Wick.View.Project = class extends Wick.View {
   }
 
   _convertCSSColorToPixiColor(cssColor) {
+    cssColor = new paper.Color(cssColor).toCSS(true);
     return parseInt(cssColor.replace("#", "0x"));
   }
 
