@@ -115,3 +115,15 @@ $welcome-modal-padding: 28px;
   height: 100%; 
   margin-left: 8px;
 } 
+
+#welcome-modal-tutorial-links {
+  display: flex;
+}
+
+.welcome-link {
+  margin-left: 12px;
+}
+
+.welcome-link:first-child {
+  margin-left: 0px;
+}

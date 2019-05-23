@@ -49,7 +49,7 @@ class WelcomeModal extends Component {
             <div id="welcome-modal-subtitle" className="welcome-modal-item">Alpha {this.getVersion()} includes:</div>
             <div id="welcome-modal-message" className="welcome-modal-item">
               <ul>
-                <li>Advanced Code API</li>
+                <li>Advanced Code API, Including Clone</li>
                 <li>New Inspector Script Window</li>
                 <li>Faster Selection, Undo/Redo, Autosave</li>
                 <li>New Export Menu</li>
@@ -58,7 +58,10 @@ class WelcomeModal extends Component {
                 <li>Tweens</li>
               </ul>
             </div>
-            <div id="welcome-modal-tutorial-link" className="welcom-modal-item"><a className="welcome-modal-highlight" target="_blank" rel="noopener noreferrer" href="https://www.youtube.com/watch?v=pAsrXT8KIrI">Watch the Tutorial</a></div>
+            <div id="welcome-modal-tutorial-links" className="welcom-modal-item">
+              <a className="welcome-modal-highlight welcome-link" target="_blank" rel="noopener noreferrer" href="https://www.youtube.com/watch?v=pAsrXT8KIrI">Animation Tutorial</a>
+              <a className="welcome-modal-highlight welcome-link" target="_blank" rel="noopener noreferrer" href="https://www.youtube.com/watch?v=cvANBF43KsY">Interactive Tutorial</a>
+            </div>
             <div id="welcome-modal-forum-link" className="welcome-modal-item">Please report all bugs on our <a className="welcome-modal-highlight" target="_blank" rel="noopener noreferrer" href="https://forum.wickeditor.com">forum!</a></div>
             <div id="welcome-modal-footer">
               <div id="welcome-modal-cancel">
