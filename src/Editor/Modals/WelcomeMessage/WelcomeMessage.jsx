@@ -28,7 +28,7 @@ import nightImage from 'resources/interface-images/blue_night.svg';
 
 class WelcomeModal extends Component {
   getVersion() {
-    return "v8.3"
+    return "v8.4"
   }
 
   render() {

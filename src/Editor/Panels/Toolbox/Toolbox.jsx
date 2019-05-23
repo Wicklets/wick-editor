@@ -77,15 +77,15 @@ class Toolbox extends Component {
     return(
       <div
         className="tool-box">
-        <ToolButton {...this.toolButtonProps} name='cursor' tooltip="Cursor" />
-        <ToolButton {...this.toolButtonProps} name='brush' tooltip="Brush" />
-        <ToolButton {...this.toolButtonProps} name='pencil' tooltip="Pencil" />
-        <ToolButton {...this.toolButtonProps} name='eraser' tooltip="Eraser" />
-        <ToolButton {...this.toolButtonProps} name='rectangle' tooltip="Rectangle" />
-        <ToolButton {...this.toolButtonProps} name='ellipse' tooltip="Ellipse" />
-        <ToolButton {...this.toolButtonProps} name='line' tooltip="Line" />
-        <ToolButton {...this.toolButtonProps} name='text' tooltip="Text" />
-        <ToolButton {...this.toolButtonProps} name='fillbucket' tooltip="Fill Bucket" />
+        <ToolButton {...this.toolButtonProps} name='cursor' tooltip="Cursor (C)" />
+        <ToolButton {...this.toolButtonProps} name='brush' tooltip="Brush (B)" />
+        <ToolButton {...this.toolButtonProps} name='pencil' tooltip="Pencil (P)" />
+        <ToolButton {...this.toolButtonProps} name='eraser' tooltip="Eraser (E)" />
+        <ToolButton {...this.toolButtonProps} name='rectangle' tooltip="Rectangle (R)" />
+        <ToolButton {...this.toolButtonProps} name='ellipse' tooltip="Ellipse (O)" />
+        <ToolButton {...this.toolButtonProps} name='line' tooltip="Line (L)" />
+        <ToolButton {...this.toolButtonProps} name='text' tooltip="Text (T)" />
+        <ToolButton {...this.toolButtonProps} name='fillbucket' tooltip="Fill Bucket (F)" />
 
         <ToolboxBreak className="toolbox-item"/>
 
