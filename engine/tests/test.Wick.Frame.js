@@ -300,9 +300,6 @@ describe('Wick.Frame', function() {
                 expect(frame.__project).to.equal(project.root);
                 expect(frame.__project.width).to.equal(project.width);
                 expect(frame.__project.height).to.equal(project.height);
-                expect(frame.__project.framerate).to.equal(project.framerate);
-                expect(frame.__project.backgroundColor).to.equal(project.backgroundColor);
-                expect(frame.__project.name).to.equal(project.name);
             });
         });
 

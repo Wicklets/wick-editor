@@ -66065,6 +66065,12 @@ Wick.Base = class {
   get uuid() {
     return this._uuid;
   }
+
+  set uuid(uuid) {
+    // Please try to avoid using this unless you absolutely have to ;_;
+    this._uuid = uuid;
+    Wick.ObjectCache.addObject(this);
+  }
   /**
    * The name of the object that is used to access the object through scripts. Must be a valid JS variable name.
    * @type {string}
@@ -76106,7 +76112,7 @@ Wick.View.Path = class extends Wick.View {
 
 
     if (this._item.data.wickUUID) {
-      this.model._uuid = this._item.data.wickUUID;
+      this.model.uuid = this._item.data.wickUUID;
     } else {
       this._item.data.wickUUID = this.model.uuid;
       this._item.data.wickType = 'path';

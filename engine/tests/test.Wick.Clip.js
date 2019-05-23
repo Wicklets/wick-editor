@@ -825,9 +825,6 @@ describe('Wick.Clip', function() {
                 expect(clip.__project).to.equal(project.root);
                 expect(clip.__project.width).to.equal(project.width);
                 expect(clip.__project.height).to.equal(project.height);
-                expect(clip.__project.framerate).to.equal(project.framerate);
-                expect(clip.__project.backgroundColor).to.equal(project.backgroundColor);
-                expect(clip.__project.name).to.equal(project.name);
             });
         });
 

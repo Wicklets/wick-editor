@@ -58,7 +58,7 @@ Wick.View.Path = class extends Wick.View {
 
         // Check if we need to recover the UUID from the paper path
         if(this._item.data.wickUUID) {
-            this.model._uuid = this._item.data.wickUUID;
+            this.model.uuid = this._item.data.wickUUID;
         } else {
             this._item.data.wickUUID = this.model.uuid;
             this._item.data.wickType = 'path';

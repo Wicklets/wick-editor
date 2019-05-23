@@ -128,6 +128,12 @@ Wick.Base = class {
         return this._uuid;
     }
 
+    set uuid (uuid) {
+        // Please try to avoid using this unless you absolutely have to ;_;
+        this._uuid = uuid;
+        Wick.ObjectCache.addObject(this);
+    }
+
     /**
      * The name of the object that is used to access the object through scripts. Must be a valid JS variable name.
      * @type {string}
