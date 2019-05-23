@@ -65037,6 +65037,10 @@ window.Wick = Wick;
  * A clipboard utility class for copy/paste functionality.
  */
 Wick.Clipboard = class {
+  static get LOCALSTORAGE_KEY() {
+    return 'wick_engine_clipboard';
+  }
+
   static get PASTE_OFFSET() {
     // how many pixels should we shift objects over when we paste (canvas only)
     return 20;
@@ -65046,8 +65050,20 @@ Wick.Clipboard = class {
    */
 
 
-  constructor() {
-    this._objects = [];
+  constructor() {}
+  /**
+   *
+   */
+
+
+  get clipboardData() {
+    var json = localStorage[Wick.Clipboard.LOCALSTORAGE_KEY];
+    if (!json) return null;
+    return JSON.parse(json);
+  }
+
+  set clipboardData(clipboardData) {
+    localStorage[Wick.Clipboard.LOCALSTORAGE_KEY] = JSON.stringify(clipboardData);
   }
   /**
    * Replace the current contents of the clipboard with new objects.
@@ -65065,9 +65081,11 @@ Wick.Clipboard = class {
       if (playheadCopyOffset === null || frame.start < playheadCopyOffset) {
         playheadCopyOffset = frame.start;
       }
-    });
-    this._copyLocation = project.activeFrame && project.activeFrame.uuid;
-    this._objects = objects.map(object => {
+    }); // Keep track of where objects were originally copied from
+
+    this._copyLocation = project.activeFrame && project.activeFrame.uuid; // Prepare objects for
+
+    var objects = objects.map(object => {
       var copy = object.copy(); // Copy frame positions relative to the current playhead position
 
       if (copy instanceof Wick.Frame) {
@@ -65076,6 +65094,9 @@ Wick.Clipboard = class {
       }
 
       return copy;
+    });
+    this.clipboardData = objects.map(object => {
+      return object.export();
     });
   }
   /**
@@ -65088,16 +65109,15 @@ Wick.Clipboard = class {
   pasteObjectsFromClipboard(project) {
     if (!project || !project instanceof Wick.Project) console.error('pasteObjectsFromClipboard(): project is required');
 
-    if (this._objects.length === 0) {
+    if (!this.clipboardData) {
       return false;
     } // Always paste in-place if we're pasting to a different frame than where we copied from.
 
 
     var pasteInPlace = project.activeFrame && this._copyLocation !== project.activeFrame.uuid;
     project.selection.clear();
-
-    this._objects.map(object => {
-      return object.copy();
+    this.clipboardData.map(data => {
+      return Wick.Base.import(data);
     }).forEach(object => {
       // Paste frames at the position of the playhead
       if (object instanceof Wick.Frame) {
@@ -65114,7 +65134,6 @@ Wick.Clipboard = class {
 
       project.selection.select(object);
     });
-
     return true;
   }
 
@@ -65384,7 +65403,7 @@ WickObjectCache = class {
    */
 
 
-  removeAllObjects() {
+  clear() {
     this._objects = {};
   }
   /**
@@ -66018,8 +66037,7 @@ Wick.Base = class {
    */
 
 
-  serialize(args) {
-    if (!args) args = {};
+  serialize() {
     var data = {};
     data.classname = this.classname;
     data.identifier = this._identifier;
@@ -66031,21 +66049,58 @@ Wick.Base = class {
   }
   /**
    * Returns a copy of a Wick Base object.
+   * @param {boolean} retainIdentifiers - if set to true, will not remove the identifier of the copy.
    * @return {Wick.Base} The object resulting from the copy
    */
 
 
-  copy() {
+  copy(args) {
+    if (!args) args = {};
     var data = this.serialize();
     data.uuid = uuidv4();
     var copy = Wick.Base.fromData(data);
     copy._childrenData = null;
-    copy._identifier = null; // Copy children
+    if (!args.retainIdentifiers) copy._identifier = null; // Copy children
 
     this.getChildren().forEach(child => {
-      copy.addChild(child.copy());
+      copy.addChild(child.copy(args));
     });
     return copy;
+  }
+  /**
+   * Returns an object containing serialied data of this object, as well as all of its children.
+   * Use this to copy entire Wick.Base objects between projects, and to export individual Clips as files.
+   * @returns {object} The exported data.
+   */
+
+
+  export() {
+    var copy = this.copy({
+      retainIdentifiers: true
+    });
+    return {
+      object: copy.serialize(),
+      children: copy.getChildrenRecursive().map(child => {
+        return child.serialize();
+      })
+    };
+  }
+  /**
+   * Import data created using Wick.Base.export().
+   * @param {object} exportData - an object created from Wick.Base.export().
+   */
+
+
+  static import(exportData) {
+    if (!exportData) console.error('Wick.Base.import(): exportData is required');
+    if (!exportData.object) console.error('Wick.Base.import(): exportData is missing data');
+    if (!exportData.children) console.error('Wick.Base.import(): exportData is missing data');
+    var object = Wick.Base.fromData(exportData.object);
+    exportData.children.forEach(childData => {
+      // Only need to call deserialize here, we just want the object to get added to ObjectCache
+      var child = Wick.Base.fromData(childData);
+    });
+    return object;
   }
   /**
    * Returns the classname of a Wick Base object.
@@ -66218,6 +66273,16 @@ Wick.Base = class {
 
   get project() {
     return this._project;
+  }
+  /**
+   * Check if an object is selected or not.
+   * @type {boolean}
+   */
+
+
+  get isSelected() {
+    if (!this.project) return false;
+    return this.project.selection.isObjectSelected(this);
   }
   /**
    *
@@ -70154,12 +70219,6 @@ Wick.Tickable = class extends Wick.Base {
 
     var project = this.project;
     var root = project && project.root;
-
-    if (root) {
-      root.width = project.width;
-      root.height = project.height;
-    }
-
     window.project = root;
     window.root = root;
     window.parent = this.parentClip;
@@ -70266,6 +70325,16 @@ Wick.Frame = class extends Wick.Tickable {
     this._originalLayerIndex = -1;
   }
 
+  serialize(args) {
+    var data = super.serialize(args);
+    data.start = this.start;
+    data.end = this.end;
+    data.sound = this._soundAssetUUID;
+    data.soundVolume = this._soundVolume;
+    data.originalLayerIndex = this.layerIndex !== -1 ? this.layerIndex : this._originalLayerIndex;
+    return data;
+  }
+
   deserialize(data) {
     super.deserialize(data);
     this.start = data.start;
@@ -70273,16 +70342,6 @@ Wick.Frame = class extends Wick.Tickable {
     this._soundAssetUUID = data.sound;
     this._soundVolume = data.soundVolume === undefined ? 1.0 : data.soundVolume;
     this._originalLayerIndex = data.originalLayerIndex;
-  }
-
-  serialize(args) {
-    var data = super.serialize(args);
-    data.start = this.start;
-    data.end = this.end;
-    data.sound = this._soundAssetUUID;
-    data.soundVolume = this._soundVolume;
-    data.originalLayerIndex = this.layerIndex;
-    return data;
   }
 
   get classname() {
@@ -71138,6 +71197,30 @@ Wick.Clip = class extends Wick.Tickable {
 
   set scaleY(scaleY) {
     this.transformation.scaleY = scaleY;
+  }
+  /**
+   * The width of the clip.
+   */
+
+
+  get width() {
+    return this.isRoot ? this.project.width : this.bounds.width * this.scaleX;
+  }
+
+  set width(width) {
+    this.scaleX = width / this.width * this.scaleX;
+  }
+  /**
+   * The height of the clip.
+   */
+
+
+  get height() {
+    return this.isRoot ? this.project.height : this.bounds.height * this.scaleY;
+  }
+
+  set height(height) {
+    this.scaleY = height / this.height * this.scaleY;
   }
   /**
    * The rotation of the clip.
