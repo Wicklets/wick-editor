@@ -246,4 +246,8 @@ describe('Wick.Base', function() {
         expect(base.project).to.equal(project);
         expect(child.project).to.equal(project);
     });
+
+    it('isSelected should work correctly', function() {
+        throw new Error('write me');
+    });
 });

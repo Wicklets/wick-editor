@@ -269,6 +269,15 @@ Wick.Base = class {
     }
 
     /**
+     * Check if an object is selected or not.
+     * @type {boolean}
+     */
+    get isSelected () {
+        if(!this.project) return false;
+        return this.project.selection.isObjectSelected(this);
+    }
+
+    /**
      *
      */
     addChild (child) {
