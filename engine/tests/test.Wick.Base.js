@@ -148,7 +148,7 @@ describe('Wick.Base', function() {
         expect(copy.getChildren('Base')[2]).not.to.equal(child3);
     });
 
-    it('should only accept valid variable names', function() {
+    it('identifier should only accept valid variable names', function() {
         var base = new Wick.Base();
 
         // Valid names

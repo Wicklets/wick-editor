@@ -23,7 +23,6 @@
 Wick.Layer = class extends Wick.Base {
     /**
      * Called when creating a Wick Layer.
-     * @param {string} name - Name of the layer.
      * @param {boolean} locked - Is the layer locked?
      * @param {boolean} hideen - Is the layer hidden?
      */
@@ -33,16 +32,6 @@ Wick.Layer = class extends Wick.Base {
 
         this.locked = args.locked === undefined ? false : args.locked;
         this.hidden = args.hidden === undefined ? false : args.hidden;
-
-        this.name = args.name || 'New Layer';
-    }
-
-    deserialize (data) {
-        super.deserialize(data);
-
-        this.locked = data.locked;
-        this.hidden = data.hidden;
-        this.name = data.name;
     }
 
     serialize (args) {
@@ -50,9 +39,15 @@ Wick.Layer = class extends Wick.Base {
 
         data.locked = this.locked;
         data.hidden = this.hidden;
-        data.name = this.name;
 
         return data;
+    }
+
+    deserialize (data) {
+        super.deserialize(data);
+
+        this.locked = data.locked;
+        this.hidden = data.hidden;
     }
 
     get classname () {
@@ -65,18 +60,6 @@ Wick.Layer = class extends Wick.Base {
      */
     get frames () {
         return this.getChildren('Frame');
-    }
-
-    /**
-     * The name of the layer.
-     * @type {string}
-     */
-    get name () {
-        return this._name;
-    }
-
-    set name (name) {
-        this._name = name;
     }
 
     /**
@@ -127,7 +110,6 @@ Wick.Layer = class extends Wick.Base {
 
     /**
      * Moves this layer to a different position, inserting it before/after other layers if needed.
-     * @param {Wick.Layer} layer - The layer to add.
      * @param {number} index - the new position to move the layer to.
      */
     move (index) {

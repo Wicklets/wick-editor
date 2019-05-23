@@ -27,7 +27,7 @@ class Breadcrumbs extends Component {
     return (
       <div key={i} className="breadcrumb-button-container">
         <ActionButton
-          text={object.identifier}
+          text={object.identifier || object.classname}
           action={() => this.props.setFocusObject(object)}
           color="breadcrumb" />
       </div>

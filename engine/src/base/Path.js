@@ -46,7 +46,9 @@ Wick.Path = class extends Wick.Base {
     }
 
     /**
-     *
+     * Create a path containing an image from an ImageAsset.
+     * @param {Wick.ImageAsset} asset - The asset from which the image src will be loaded from
+     * @param {Function} callback - A function that will be called when the image is done loading.
      */
     static createImagePath (asset, callback) {
         var img = new Image();
@@ -79,6 +81,7 @@ Wick.Path = class extends Wick.Base {
 
     /**
      * Path data exported from paper.js using exportJSON({asString:false}).
+     * @type {object}
      */
     get json () {
         return this._json;
@@ -107,6 +110,7 @@ Wick.Path = class extends Wick.Base {
 
     /**
      * The position of the path.
+     * @type {number}
      */
     get x () {
         return this.view.item.position.x;
@@ -119,6 +123,7 @@ Wick.Path = class extends Wick.Base {
 
     /**
      * The position of the path.
+     * @type {number}
      */
     get y () {
         return this.view.item.position.y;
@@ -130,8 +135,8 @@ Wick.Path = class extends Wick.Base {
     }
 
     /**
-     * The fill color, in rgba format (example "rgba(255,255,255,1.0)"), of the path
-     * @type {object}
+     * The fill color of the path.
+     * @type {paper.Color}
      */
     get fillColor () {
         return this.view.item.fillColor || new paper.Color();
@@ -143,8 +148,8 @@ Wick.Path = class extends Wick.Base {
     }
 
     /**
-     * The stroke color, in rgba format (example "rgba(255,255,255,1.0)"), of the path
-     * @type {object}
+     * The stroke color of the path.
+     * @type {paper.Color}
      */
     get strokeColor () {
         return this.view.item.strokeColor || new paper.Color();
@@ -157,6 +162,7 @@ Wick.Path = class extends Wick.Base {
 
     /**
      * The stroke width of the shape.
+     * @type {number}
      */
     get strokeWidth () {
         return this.view.item.strokeWidth;
@@ -169,6 +175,7 @@ Wick.Path = class extends Wick.Base {
 
     /**
      * The opacity of the clip.
+     * @type {number}
      */
     get opacity () {
         if(this.view.item.opacity === undefined || this.view.item.opacity === null) {

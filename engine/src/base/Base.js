@@ -24,12 +24,14 @@ Wick.Base = class {
     /**
      * Creates a Base object.
      * @parm {string} identifier - (Optional) The identifier of the object. Defaults to null.
+     * @parm {string} name - (Optional) The name of the object. Defaults to null.
      */
     constructor (args) {
         if(!args) args = {};
 
         this._uuid = uuidv4();
         this._identifier = args.identifier || null;
+        this._name = args.naeme || null;
 
         this._view = null;
         this.view = this._generateView();
@@ -70,6 +72,7 @@ Wick.Base = class {
     deserialize (data) {
         this._uuid = data.uuid;
         this._identifier = data.identifier;
+        this._name = data.name;
         this._children = {};
         this._childrenData = data.children;
 
@@ -77,7 +80,7 @@ Wick.Base = class {
     }
 
     /**
-     * Converts this Wick Base object into a generic object contianing raw data (no references).
+     * Converts this Wick Base object into a plain javascript object contianing raw data (no references).
      * @return {object} Plain JavaScript object representing this Wick Base object.
      */
     serialize () {
@@ -85,6 +88,7 @@ Wick.Base = class {
 
         data.classname = this.classname;
         data.identifier = this._identifier;
+        data.name = this._name;
         data.uuid = this._uuid;
         data.children = this.getChildren().map(child => { return child.uuid });
 
@@ -189,7 +193,21 @@ Wick.Base = class {
     }
 
     /**
-     *
+     * The name of the object.
+     * @type {string}
+     */
+    get name () {
+        return this._name;
+    }
+
+    set name (name) {
+        if(typeof name !== 'string') return;
+        if(name === '') this._name = null;
+        this._name = name;
+    }
+
+    /**
+     * The Wick.View object that is used for rendering this object on the canvas.
      */
     get view () {
         return this._view;
@@ -201,7 +219,7 @@ Wick.Base = class {
     }
 
     /**
-     *
+     * The object that is used for rendering this object in the timeline GUI.
      */
     get guiElement () {
         return this._guiElement;
@@ -220,7 +238,8 @@ Wick.Base = class {
     }
 
     /**
-     *
+     * Gets all children with a given classname(s).
+     * @param {Array|string} classname - (optional) A string, or list of strings, of classnames.
      */
     getChildren (classname) {
         // Lazily generate children list from serialized data
@@ -251,7 +270,8 @@ Wick.Base = class {
     }
 
     /**
-     *
+     * Get an array of all children of this object, and the children of those children, recursively.
+     * @type {Wick.Base[]}
      */
     getChildrenRecursive () {
         var children = this.getChildren();
@@ -262,42 +282,48 @@ Wick.Base = class {
     }
 
     /**
-     *
+     * The parent of this object.
+     * @type {Wick.Base}
      */
     get parent () {
         return this._parent;
     }
 
     /**
-     *
+     * The parent Clip of this object.
+     * @type {Wick.Clip}
      */
     get parentClip () {
         return this._getParentByClassName('Clip');
     }
 
     /**
-     *
+     * The parent Layer of this object.
+     * @type {Wick.Layer}
      */
     get parentLayer () {
         return this._getParentByClassName('Layer');
     }
 
     /**
-     *
+     * The parent Frame of this object.
+     * @type {Wick.Frame}
      */
     get parentFrame () {
         return this._getParentByClassName('Frame');
     }
 
     /**
-     *
+     * The parent Timeline of this object.
+     * @type {Wick.Timeline}
      */
     get parentTimeline () {
         return this._getParentByClassName('Timeline');
     }
 
     /**
-     *
+     * The project that this object belongs to. Can be null if the object is not in a project.
+     * @type {Wick.Project}
      */
     get project () {
         return this._project;
@@ -313,7 +339,8 @@ Wick.Base = class {
     }
 
     /**
-     *
+     * Add a child to this object.
+     * @param {Wick.Base} child - the child to add.
      */
     addChild (child) {
         var classname = child.classname;
@@ -329,7 +356,8 @@ Wick.Base = class {
     }
 
     /**
-     *
+     * Remove a child from this object.
+     * @param {Wick.Base} child - the child to remove.
      */
     removeChild (child) {
         var classname = child.classname;

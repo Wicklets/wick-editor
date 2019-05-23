@@ -147,25 +147,8 @@ Wick.Project = class extends Wick.Base {
         return data;
     }
 
-    /**
-     * String representation of class name: "Project"
-     * @return {string}
-     */
     get classname () {
         return 'Project';
-    }
-
-    /**
-     * The name of the project.
-     * @type {string}
-     */
-    get name () {
-        return this._name;
-    }
-
-    set name (name) {
-        if(typeof name !== 'string') return;
-        this._name = name;
     }
 
     /**
@@ -709,6 +692,7 @@ Wick.Project = class extends Wick.Base {
 
     /**
      * Ticks the project.
+     * @returns {object} An object containing information about an error, if one occured while running scripts. Null otherwise.
      */
     tick () {
         this.root._identifier = 'Project';
@@ -792,35 +776,38 @@ Wick.Project = class extends Wick.Base {
     }
 
     /**
-     *
+     * Zooms the canvas in.
      */
     zoomIn () {
         this.zoom *= 1.25;
     }
 
     /**
-     *
+     * Zooms the canvas out.
      */
     zoomOut () {
         this.zoom *= 0.8;
     }
 
     /**
-     *
+     * All tools belonging to the project.
+     * @type {Array<Wick.Tool>}
      */
     get tools () {
         return this._tools;
     }
 
     /**
-     *
+     * The tool settings for the project's tools.
+     * @type {Wick.ToolSettings}
      */
     get toolSettings () {
         return this._toolSettings;
     }
 
     /**
-     *
+     * The currently activated tool.
+     * @type {Wick.Tool}
      */
     get activeTool () {
         return this._activeTool;
@@ -841,7 +828,7 @@ Wick.Project = class extends Wick.Base {
     /**
      * Adds an object to the project.
      * @param {Wick.Base} object
-     * @return {boolean} returns true if successful and false otherwise.
+     * @return {boolean} returns true if the obejct was added successfully, false otherwise.
      */
     addObject (object) {
         if (object instanceof Wick.Path) {
