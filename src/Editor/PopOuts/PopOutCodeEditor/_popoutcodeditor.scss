@@ -34,7 +34,7 @@ $code-editor-thumbnail-size: 50px;
   background-color: $interface-primary;
   border: none;
   box-shadow: 2px 2px 5px;
-  border-radius: 3px; 
+  border-radius: 3px;
 }
 
 .ace-editor {
@@ -48,8 +48,8 @@ $code-editor-thumbnail-size: 50px;
   cursor: grab;
   display: flex;
   align-items: center;
-  border-radius: 4px 4px 0px 0px;  
-  overflow: hidden; 
+  border-radius: 4px 4px 0px 0px;
+  overflow: hidden;
 }
 
 .code-editor-title {
@@ -59,8 +59,8 @@ $code-editor-thumbnail-size: 50px;
   color: $interface-primary-text;
   float: left;
   height: 100%;
-  left: $code-editor-details-width; 
-  position: relative; 
+  left: $code-editor-details-width;
+  position: relative;
   left: $code-editor-details-width;
 }
 
@@ -93,7 +93,12 @@ $code-editor-thumbnail-size: 50px;
   margin-right: 10px;
   position: absolute;
   right: 0;
-  background-color: $editor-popout-primary; 
+  background-color: $editor-popout-primary;
+  cursor: pointer;
+}
+
+.code-editor-close-button:hover {
+  background-color: #{$wick-green-light};
 }
 
 .code-editor-unscriptable-warning {
@@ -105,12 +110,12 @@ $code-editor-thumbnail-size: 50px;
 }
 
 .code-editor-thumbnail {
-  position: absolute; 
+  position: absolute;
   z-index: 1;
   left: 50px;
-  top: 15px; 
+  top: 15px;
   border-radius: 30px;
-  width: $code-editor-thumbnail-size; 
+  width: $code-editor-thumbnail-size;
   height: $code-editor-thumbnail-size;
 
   pointer-events: none;

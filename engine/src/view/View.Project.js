@@ -422,14 +422,14 @@ Wick.View.Project = class extends Wick.View {
             new this.paper.Point(0,Wick.View.Project.ORIGIN_CROSSHAIR_SIZE)
         );
         vertical.strokeColor = Wick.View.Project.ORIGIN_CROSSHAIR_COLOR;
-        vertical.strokeWidth = 1;
+        vertical.strokeWidth = Wick.View.Project.ORIGIN_CROSSHAIR_THICKNESS / this.paper.view.zoom;
 
         var horizontal = new paper.Path.Line(
             new this.paper.Point(-Wick.View.Project.ORIGIN_CROSSHAIR_SIZE,0),
             new this.paper.Point(Wick.View.Project.ORIGIN_CROSSHAIR_SIZE,0)
         );
         horizontal.strokeColor = Wick.View.Project.ORIGIN_CROSSHAIR_COLOR;
-        horizontal.strokeWidth = Wick.View.Project.ORIGIN_CROSSHAIR_THICKNESS;
+        horizontal.strokeWidth = Wick.View.Project.ORIGIN_CROSSHAIR_THICKNESS / this.paper.view.zoom;
 
         originCrosshair.addChild(vertical);
         originCrosshair.addChild(horizontal);
@@ -468,6 +468,10 @@ Wick.View.Project = class extends Wick.View {
             x: this.pan.x,
             y: this.pan.y
         };
+        if(!this.model.focus.isRoot) {
+            pan.x += this.model.width / 2;
+            pan.y += this.model.height / 2;
+        }
 
         if (this._fitMode === 'fill') {
             // Change pan/zoom if needed depending on fit mode
