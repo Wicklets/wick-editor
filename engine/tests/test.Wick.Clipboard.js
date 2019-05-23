@@ -176,7 +176,26 @@ describe('Wick.Clipboard', function() {
         project.activeTimeline.addLayer(layer2);
         project.activeTimeline.addLayer(layer3);
 
-        throw new Error('write me')
+        // Select the three frames on the three layers
+        project.selection.select(frame1);
+        project.selection.select(frame3);
+        project.selection.select(frame2);
+        expect(project.copySelectionToClipboard()).to.equal(true);
+        // nothing should have changed:
+        expect(project.activeTimeline.frames.length).to.equal(3);
+        expect(project.activeTimeline.frames[0].uuid).to.equal(frame1.uuid);
+        expect(project.activeTimeline.frames[1].uuid).to.equal(frame2.uuid);
+        expect(project.activeTimeline.frames[2].uuid).to.equal(frame3.uuid);
+        // move playhead over to the right and paste
+        project.focus.timeline.playheadPosition = 2;
+        expect(project.pasteClipboardContents()).to.equal(true);
+        expect(project.activeTimeline.frames.length).to.equal(6);
+        expect(layer1.frames.length).to.equal(2);
+        expect(layer2.frames.length).to.equal(2);
+        expect(layer3.frames.length).to.equal(2);
+        expect(layer1.getFrameAtPlayheadPosition(2)).to.not.equal(null);
+        expect(layer2.getFrameAtPlayheadPosition(2)).to.not.equal(null);
+        expect(layer3.getFrameAtPlayheadPosition(2)).to.not.equal(null);
     });
 
     it('should copy and paste frames to correct playhead positions', function () {

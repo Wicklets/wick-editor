@@ -41,6 +41,20 @@ Wick.Frame = class extends Wick.Tickable {
         this._originalLayerIndex = -1;
     }
 
+    serialize (args) {
+        var data = super.serialize(args);
+
+        data.start = this.start;
+        data.end = this.end;
+
+        data.sound = this._soundAssetUUID;
+        data.soundVolume = this._soundVolume;
+
+        data.originalLayerIndex = this.layerIndex !== -1 ? this.layerIndex : this._originalLayerIndex;
+
+        return data;
+    }
+
     deserialize (data) {
         super.deserialize(data);
 
@@ -51,20 +65,6 @@ Wick.Frame = class extends Wick.Tickable {
         this._soundVolume = data.soundVolume === undefined ? 1.0 : data.soundVolume;
 
         this._originalLayerIndex = data.originalLayerIndex;
-    }
-
-    serialize (args) {
-        var data = super.serialize(args);
-
-        data.start = this.start;
-        data.end = this.end;
-
-        data.sound = this._soundAssetUUID;
-        data.soundVolume = this._soundVolume;
-
-        data.originalLayerIndex = this.layerIndex;
-
-        return data;
     }
 
     get classname () {
