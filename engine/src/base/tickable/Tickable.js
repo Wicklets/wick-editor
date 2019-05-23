@@ -474,10 +474,6 @@ Wick.Tickable = class extends Wick.Base {
           // These are currently hacked in here for performance reasons...
           var project = this.project;
           var root = project && project.root;
-          if(root) {
-              root.width = project.width;
-              root.height = project.height;
-          }
           window.project = root;
           window.root = root;
           window.parent = this.parentClip;

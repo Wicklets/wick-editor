@@ -65384,7 +65384,7 @@ WickObjectCache = class {
    */
 
 
-  removeAllObjects() {
+  clear() {
     this._objects = {};
   }
   /**
@@ -66046,6 +66046,38 @@ Wick.Base = class {
       copy.addChild(child.copy());
     });
     return copy;
+  }
+  /**
+   * Returns an object containing serialied data of this object, as well as all of its children.
+   * Use this to copy entire Wick.Base objects between projects, and to export individual Clips as files.
+   * @returns {object} The exported data.
+   */
+
+
+  export() {
+    return {
+      object: this.serialize(),
+      children: this.getChildrenRecursive().map(child => {
+        return child.serialize();
+      })
+    };
+  }
+  /**
+   * Import data created using Wick.Base.export().
+   * @param {object} exportData - an object created from Wick.Base.export().
+   */
+
+
+  import(exportData) {
+    if (!exportData) console.error('Wick.Base.import(): exportData is required');
+    if (!exportData.object) console.error('Wick.Base.import(): exportData is missing data');
+    if (!exportData.children) console.error('Wick.Base.import(): exportData is missing data');
+    this.deserialize(exportData.object);
+    exportData.children.forEach(childData => {
+      // Only need to call deserialize here, we just want the object to get added to ObjectCache
+      var base = new Wick.Base();
+      base.deserialize(childData);
+    });
   }
   /**
    * Returns the classname of a Wick Base object.
@@ -70164,12 +70196,6 @@ Wick.Tickable = class extends Wick.Base {
 
     var project = this.project;
     var root = project && project.root;
-
-    if (root) {
-      root.width = project.width;
-      root.height = project.height;
-    }
-
     window.project = root;
     window.root = root;
     window.parent = this.parentClip;
@@ -71148,6 +71174,30 @@ Wick.Clip = class extends Wick.Tickable {
 
   set scaleY(scaleY) {
     this.transformation.scaleY = scaleY;
+  }
+  /**
+   * The width of the clip.
+   */
+
+
+  get width() {
+    return this.isRoot ? this.project.width : this.bounds.width * this.scaleX;
+  }
+
+  set width(width) {
+    this.scaleX = width / this.width;
+  }
+  /**
+   * The height of the clip.
+   */
+
+
+  get height() {
+    return this.isRoot ? this.project.height : this.bounds.height * this.scaleY;
+  }
+
+  set height(height) {
+    this.scaleY = height / this.height;
   }
   /**
    * The rotation of the clip.

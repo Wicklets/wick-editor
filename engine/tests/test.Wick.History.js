@@ -1,6 +1,6 @@
 describe('Wick.History', function() {
     it('should save and recover frame contents', function () {
-        Wick.ObjectCache.removeAllObjects();
+        Wick.ObjectCache.clear();
 
         var project = new Wick.Project();
 
@@ -57,7 +57,7 @@ describe('Wick.History', function() {
     });
 
     it('should save and recover playhead position', function () {
-        Wick.ObjectCache.removeAllObjects();
+        Wick.ObjectCache.clear();
 
         var project = new Wick.Project();
 
@@ -96,7 +96,7 @@ describe('Wick.History', function() {
     });
 
     it('should save and recover selection', function () {
-        Wick.ObjectCache.removeAllObjects();
+        Wick.ObjectCache.clear();
 
         var project = new Wick.Project();
         var cursor = project.tools.cursor;
@@ -153,7 +153,7 @@ describe('Wick.History', function() {
     });
 
     it('should save and load snapshots', function () {
-        Wick.ObjectCache.removeAllObjects();
+        Wick.ObjectCache.clear();
 
         var project = new Wick.Project();
 

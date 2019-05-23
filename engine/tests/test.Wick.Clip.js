@@ -742,6 +742,62 @@ describe('Wick.Clip', function() {
             });
         });
 
+        describe('#width', function () {
+            it('should update width correctly', function(done) {
+                var project = new Wick.Project();
+
+                var clip = new Wick.Clip();
+                clip.activeFrame.addPath(TestUtils.paperToWickPath(new paper.Path.Rectangle({
+                    from: new paper.Point(0,0),
+                    to: new paper.Point(50,50),
+                    fillColor: 'red',
+                })));
+                clip.addScript('load', 'this.width = 25;');
+                project.activeFrame.addClip(clip);
+
+                project.view.prerasterize(() => {
+                    project.play({
+                        onBeforeTick: () => {
+                            project.view.render();
+                        },
+                        onAfterTick: () => {
+                            expect(clip.scaleX).to.equal(0.5);
+                            project.stop();
+                            done();
+                        }
+                    })
+                });
+            });
+        });
+
+        describe('#height', function () {
+          it('should update height correctly', function(done) {
+              var project = new Wick.Project();
+
+              var clip = new Wick.Clip();
+              clip.activeFrame.addPath(TestUtils.paperToWickPath(new paper.Path.Rectangle({
+                  from: new paper.Point(0,0),
+                  to: new paper.Point(50,50),
+                  fillColor: 'red',
+              })));
+              clip.addScript('load', 'this.height = 25;');
+              project.activeFrame.addClip(clip);
+
+              project.view.prerasterize(() => {
+                  project.play({
+                      onBeforeTick: () => {
+                          project.view.render();
+                      },
+                      onAfterTick: () => {
+                          expect(clip.scaleY).to.equal(0.5);
+                          project.stop();
+                          done();
+                      }
+                  })
+              });
+          });
+        });
+
         describe('#rotation', function () {
             it('should update rotation correctly', function() {
                 var clip = new Wick.Clip();
@@ -1138,7 +1194,7 @@ describe('Wick.Clip', function() {
             console.log('')
         }
 
-        Wick.ObjectCache.removeAllObjects();
+        Wick.ObjectCache.clear();
     });
 
     it('(performance test) 250 Path children', function() {
@@ -1171,6 +1227,6 @@ describe('Wick.Clip', function() {
             console.log('')
         }
 
-        Wick.ObjectCache.removeAllObjects();
+        Wick.ObjectCache.clear();
     });
 });

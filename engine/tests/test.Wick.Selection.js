@@ -68,7 +68,9 @@ describe('Wick.Selection', function() {
         project.selection.select(frame1);
         expect(project.selection.getSelectedObjects()).to.eql([frame1]);
         expect(project.selection.isObjectSelected(frame1)).to.equal(true);
+        expect(frame1.isSelected).to.equal(true);
         expect(project.selection.isObjectSelected(frame2)).to.equal(false);
+        expect(frame2.isSelected).to.equal(false);
 
         expect(project.selection.types).to.eql(['Frame']);
         expect(project.selection.location).to.equal('Timeline');

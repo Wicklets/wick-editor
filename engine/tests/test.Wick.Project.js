@@ -29,7 +29,7 @@ describe('Wick.Project', function() {
 
     describe('#serialize', function () {
         it('should serialize correctly', function() {
-            Wick.ObjectCache.removeAllObjects();
+            Wick.ObjectCache.clear();
 
             var project = new Wick.Project();
 
@@ -74,7 +74,7 @@ describe('Wick.Project', function() {
 
     describe('#deserialize', function () {
         it('should deserialize correctly', function() {
-            Wick.ObjectCache.removeAllObjects();
+            Wick.ObjectCache.clear();
 
             var project = new Wick.Project();
 

@@ -55,7 +55,7 @@ WickObjectCache = class {
     /**
      * Remove all objects from the Object Cache.
      */
-    removeAllObjects () {
+    clear () {
         this._objects = {};
     }
 

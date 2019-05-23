@@ -247,7 +247,40 @@ describe('Wick.Base', function() {
         expect(child.project).to.equal(project);
     });
 
-    it('isSelected should work correctly', function() {
-        throw new Error('write me');
-    });
+    it('should export/import correctly between projects', function () {
+        var base = new Wick.Base({
+            identifier: 'parent',
+        });
+
+        var child1 = new Wick.Base({identifier:'child1'});
+        var child2 = new Wick.Base({identifier:'child2'});
+        var child3 = new Wick.Base({identifier:'child3'});
+
+        var grandchild1 = new Wick.Base({identifier:'grandchild1'});
+        var grandchild2 = new Wick.Base({identifier:'grandchild2'});
+        var grandchild3 = new Wick.Base({identifier:'grandchild3'});
+
+        base.addChild(child1);
+        base.addChild(child2);
+        base.addChild(child3);
+
+        child1.addChild(grandchild1);
+        child1.addChild(grandchild2);
+        child1.addChild(grandchild3);
+
+        var exportData = base.export();
+
+        Wick.ObjectCache.clear();
+
+        var newBase = new Wick.Base();
+        newBase.import(exportData);
+
+        expect(newBase.identifier).to.equal('parent');
+        expect(newBase.getChildren()[0].identifier).to.equal('child1');
+        expect(newBase.getChildren()[1].identifier).to.equal('child2');
+        expect(newBase.getChildren()[2].identifier).to.equal('child3');
+        expect(newBase.getChildren()[0].getChildren()[0].identifier).to.equal('grandchild1');
+        expect(newBase.getChildren()[0].getChildren()[1].identifier).to.equal('grandchild2');
+        expect(newBase.getChildren()[0].getChildren()[2].identifier).to.equal('grandchild3');
+    })
 });

@@ -400,6 +400,28 @@ Wick.Clip = class extends Wick.Tickable {
     }
 
     /**
+     * The width of the clip.
+     */
+    get width () {
+        return this.isRoot ? this.project.width : this.bounds.width * this.scaleX;
+    }
+
+    set width (width) {
+        this.scaleX = width / this.width;
+    }
+
+    /**
+     * The height of the clip.
+     */
+    get height () {
+        return this.isRoot ? this.project.height : this.bounds.height * this.scaleY;
+    }
+
+    set height (height) {
+        this.scaleY = height / this.height;
+    }
+
+    /**
      * The rotation of the clip.
      */
     get rotation () {

@@ -1,12 +1,12 @@
 describe('Wick.WickFile', function () {
     describe('#exportAsWickFile/fromWickFile', function () {
         it('should create and load a project from a wick file correctly with no assets', function (done) {
-            Wick.ObjectCache.removeAllObjects();
+            Wick.ObjectCache.clear();
 
             var project = new Wick.Project();
 
             Wick.WickFile.toWickFile(project, wickFile => {
-                Wick.ObjectCache.removeAllObjects();
+                Wick.ObjectCache.clear();
                 //saveAs(wickFile, 'wickproject.zip')
                 Wick.WickFile.fromWickFile(wickFile, loadedProject => {
                     expect(loadedProject instanceof Wick.Project).to.equal(true);
@@ -21,7 +21,7 @@ describe('Wick.WickFile', function () {
         });
 
         it('should create and load a project from a wick file correctly with assets', function (done) {
-            Wick.ObjectCache.removeAllObjects();
+            Wick.ObjectCache.clear();
             Wick.FileCache.clear();
 
             var project = new Wick.Project();
@@ -40,7 +40,7 @@ describe('Wick.WickFile', function () {
 
             Wick.WickFile.toWickFile(project, function (wickFile) {
                 Wick.FileCache.clear();
-                Wick.ObjectCache.removeAllObjects();
+                Wick.ObjectCache.clear();
                 //saveAs(wickFile, 'wickproject.zip')
                 Wick.WickFile.fromWickFile(wickFile, function (loadedProject) {
                     expect(loadedProject instanceof Wick.Project).to.equal(true);
@@ -55,7 +55,7 @@ describe('Wick.WickFile', function () {
         });
 
         it('should ignore selection, zoom, and pan when saving wick files', function (done) {
-            Wick.ObjectCache.removeAllObjects();
+            Wick.ObjectCache.clear();
 
             var project = new Wick.Project();
             project.selection.select(project.activeFrame);
@@ -70,7 +70,7 @@ describe('Wick.WickFile', function () {
                 expect(project.pan.y).to.equal(200);
                 expect(project.selection.numObjects).to.equal(1);
                 
-                Wick.ObjectCache.removeAllObjects();
+                Wick.ObjectCache.clear();
                 //saveAs(wickFile, 'wickproject.zip')
                 Wick.WickFile.fromWickFile(wickFile, loadedProject => {
                     expect(loadedProject.zoom).to.equal(1);
