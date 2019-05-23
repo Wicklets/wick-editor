@@ -136,6 +136,21 @@ class ScriptInfoInterface extends Object {
                     description: 'Returns the object that owns the calling object.',
                 },
                 {
+                    name: 'clone',
+                    snippet: 'this.clone()',
+                    description: 'Creates a clone of this object, places it on the same frame, and returns a reference to it.',
+                },
+                {
+                    name: 'clones',
+                    snippet: 'this.clones',
+                    description: 'An array of every clone of an object.',
+                },
+                {
+                    name: 'remove',
+                    snippet: 'this.remove()',
+                    description: 'Removes this object from the project.',
+                },
+                {
                     name: 'hitTest',
                     snippet: 'this.hitTest(that)',
                     description: 'Determines if the hitboxes of two objects overlap.',
