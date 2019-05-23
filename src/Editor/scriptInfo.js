@@ -259,7 +259,7 @@ class ScriptInfoInterface extends Object {
                 },
                 {
                     name: 'isMouseDown',
-                    snippet: 'isMouseDown',
+                    snippet: 'isMouseDown()',
                     description: 'True if the mouse is currently pressed down.',
                 },
                 {
