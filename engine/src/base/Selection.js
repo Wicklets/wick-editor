@@ -41,16 +41,6 @@ Wick.Selection = class extends Wick.Base {
         this._pivotPoint = {x: 0, y: 0};
     }
 
-    deserialize (data) {
-        super.deserialize(data);
-        this._selectedObjectsUUIDs = data.selectedObjects || [];
-        this._widgetRotation = data.widgetRotation;
-        this._pivotPoint = {
-            x: data.pivotPoint.x,
-            y: data.pivotPoint.y
-        };
-    }
-
     serialize (args) {
         var data = super.serialize(args);
         data.selectedObjects = Array.from(this._selectedObjectsUUIDs);
@@ -60,6 +50,16 @@ Wick.Selection = class extends Wick.Base {
             y: this._pivotPoint.y
         };
         return data;
+    }
+
+    deserialize (data) {
+        super.deserialize(data);
+        this._selectedObjectsUUIDs = data.selectedObjects || [];
+        this._widgetRotation = data.widgetRotation;
+        this._pivotPoint = {
+            x: data.pivotPoint.x,
+            y: data.pivotPoint.y
+        };
     }
 
     get classname () {
@@ -189,6 +189,7 @@ Wick.Selection = class extends Wick.Base {
 
     /**
      * The location of the objects in the selection. (see LOCATION_NAMES)
+     * @type {string}
      */
     get location () {
         if(this.numObjects === 0) return null;
@@ -240,7 +241,8 @@ Wick.Selection = class extends Wick.Base {
     }
 
     /**
-     *
+     * The position of the selection.
+     * @type {number}
      */
     get x () {
         return this.view.x;
@@ -251,7 +253,8 @@ Wick.Selection = class extends Wick.Base {
     }
 
     /**
-     *
+     * The position of the selection.
+     * @type {number}
      */
     get y () {
         return this.view.y;
@@ -262,7 +265,8 @@ Wick.Selection = class extends Wick.Base {
     }
 
     /**
-     *
+     * The width of the selection.
+     * @type {number}
      */
     get width () {
         return this.view.width;
@@ -273,7 +277,8 @@ Wick.Selection = class extends Wick.Base {
     }
 
     /**
-     *
+     * The height of the selection.
+     * @type {number}
      */
     get height () {
         return this.view.height;
@@ -284,7 +289,8 @@ Wick.Selection = class extends Wick.Base {
     }
 
     /**
-     *
+     * The rotation of the selection.
+     * @type {number}
      */
     get rotation () {
         return this.view.rotation;
@@ -295,49 +301,50 @@ Wick.Selection = class extends Wick.Base {
     }
 
     /**
-     *
+     * Flips the selected obejcts horizontally.
      */
     flipHorizontally () {
         this.view.flipHorizontally();
     }
 
     /**
-     *
+     * Flips the selected obejcts vertically.
      */
     flipVertically () {
         this.view.flipVertically();
     }
 
     /**
-     *
+     * Sends the selected objects to the back.
      */
     sendToBack () {
         this.view.sendToBack();
     }
 
     /**
-     *
+     * Brings the selected objects to the front.
      */
     bringToFront () {
         this.view.bringToFront();
     }
 
     /**
-     *
+     * Moves the selected objects forwards.
      */
     moveForwards () {
         this.view.moveForwards();
     }
 
     /**
-     *
+     * Moves the selected objects backwards.
      */
     moveBackwards () {
         this.view.moveBackwards();
     }
 
     /**
-     *
+     * The identifier of the selected object.
+     * @type {string}
      */
     get identifier () {
         return this._getSingleAttribute('identifier');
@@ -348,7 +355,8 @@ Wick.Selection = class extends Wick.Base {
     }
 
     /**
-     *
+     * The name of the selected object.
+     * @type {string}
      */
     get name () {
         return this._getSingleAttribute('name');
@@ -359,7 +367,8 @@ Wick.Selection = class extends Wick.Base {
     }
 
     /**
-     *
+     * The fill color of the selected object.
+     * @type {paper.Color}
      */
     get fillColor () {
         return this._getSingleAttribute('fillColor');
@@ -370,7 +379,8 @@ Wick.Selection = class extends Wick.Base {
     }
 
     /**
-     *
+     * The stroke color of the selected object.
+     * @type {paper.Color}
      */
     get strokeColor () {
         return this._getSingleAttribute('strokeColor');
@@ -381,7 +391,8 @@ Wick.Selection = class extends Wick.Base {
     }
 
     /**
-     *
+     * The stroke width of the selected object.
+     * @type {number}
      */
     get strokeWidth () {
         return this._getSingleAttribute('strokeWidth');
@@ -392,7 +403,8 @@ Wick.Selection = class extends Wick.Base {
     }
 
     /**
-     *
+     * The opacity of the selected object.
+     * @type {number}
      */
     get opacity () {
         return this._getSingleAttribute('opacity');
@@ -403,7 +415,8 @@ Wick.Selection = class extends Wick.Base {
     }
 
     /**
-     *
+     * The sound attached to the selected frame.
+     * @type {Wick.SoundAsset}
      */
     get sound () {
         return this._getSingleAttribute('sound');
@@ -414,7 +427,8 @@ Wick.Selection = class extends Wick.Base {
     }
 
     /**
-     *
+     * The volume of the sound attached to the selected frame.
+     * @type {number}
      */
     get soundVolume () {
         return this._getSingleAttribute('soundVolume');
@@ -425,7 +439,8 @@ Wick.Selection = class extends Wick.Base {
     }
 
     /**
-     * Gets and sets the easing type of a selected tween.
+     * The easing type of a selected tween. See Wick.Tween.VALID_EASING_TYPES.
+     * @type {string}
      */
     get easingType () {
         return this._getSingleAttribute('easingType');
@@ -436,7 +451,8 @@ Wick.Selection = class extends Wick.Base {
     }
 
     /**
-     *
+     * The filename of the selected asset.
+     * @type {string}
      */
     get filename () {
         return this._getSingleAttribute('filename');

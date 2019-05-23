@@ -18,6 +18,9 @@
  */
 
 Wick.View.Clip = class extends Wick.View {
+    /**
+     * Creates a new Button view.
+     */
     constructor () {
         super();
 

@@ -129,7 +129,7 @@ Wick.Tickable = class extends Wick.Base {
     }
 
     /**
-     * Check if this object is currently visible in the project.
+     * Check if this object is currently visible in the project, based on its parent.
      * @type {boolean}
      */
     get onScreen () {
@@ -152,6 +152,15 @@ Wick.Tickable = class extends Wick.Base {
     }
 
     /**
+     * Attach a function to a given event.
+     * @param {string} name - the name of the event to attach a function to.
+     * @param {function} fn - the function to attach
+     */
+    addEventFn (name, fn) {
+        this.getEventFns(name).push(fn);
+    }
+
+    /**
      * Gets all functions attached to an event with a given name.
      * @param {string} - The name of the event
      */
@@ -161,13 +170,6 @@ Wick.Tickable = class extends Wick.Base {
         }
 
         return this._onEventFns[name];
-    }
-
-    /**
-     *
-     */
-    addEventFn (name, fn) {
-        this.getEventFns(name).push(fn);
     }
 
     /**
@@ -310,7 +312,7 @@ Wick.Tickable = class extends Wick.Base {
 
     /**
      * The tick routine to be called when the object ticks.
-     * @returns {object} - An object with information about the result from ticking.
+     * @returns {object} - An object with information about the result from ticking. Null if no errors occured, and the script ran successfully.
      */
     tick () {
         // Update named child references
@@ -503,6 +505,7 @@ Wick.Tickable = class extends Wick.Base {
 
     _generateErrorInfo (error, name) {
         if(Wick.Tickable.LOG_ERRORS) console.log(error);
+
         return {
             name: name !== undefined ? name : '',
             lineNumber: this._generateLineNumberFromStackTrace(error.stack),
@@ -513,6 +516,7 @@ Wick.Tickable = class extends Wick.Base {
 
     _generateEsprimaErrorInfo (error, name) {
         if(Wick.Tickable.LOG_ERRORS) console.log(error);
+
         return {
             name: name !== undefined ? name : '',
             lineNumber: error.lineNumber,

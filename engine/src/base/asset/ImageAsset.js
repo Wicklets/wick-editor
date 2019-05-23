@@ -36,6 +36,10 @@ Wick.ImageAsset = class extends Wick.FileAsset {
         return ['.jpeg', '.jpg', '.png'];
     }
 
+    /**
+     * Create a new ImageAsset.
+     * @param {object} args
+     */
     constructor (args) {
         super(args);
     }

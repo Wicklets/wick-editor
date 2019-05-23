@@ -47,15 +47,6 @@ Wick.Clip = class extends Wick.Tickable {
         this._clones = [];
     }
 
-    deserialize (data) {
-        super.deserialize(data);
-
-        this.transformation = new Wick.Transformation(data.transformation);
-        this._timeline = data.timeline;
-
-        this._clones = [];
-    }
-
     serialize (args) {
         var data = super.serialize(args);
 
@@ -65,12 +56,22 @@ Wick.Clip = class extends Wick.Tickable {
         return data;
     }
 
+    deserialize (data) {
+        super.deserialize(data);
+
+        this.transformation = new Wick.Transformation(data.transformation);
+        this._timeline = data.timeline;
+
+        this._clones = [];
+    }
+
     get classname () {
         return 'Clip';
     }
 
     /**
      * Determines whether or not the clip is visible in the project.
+     * @type {boolean}
      */
     get onScreen () {
         if(this.isRoot) {
@@ -84,6 +85,7 @@ Wick.Clip = class extends Wick.Tickable {
 
     /**
      * Determines whether or not the clip is the root clip in the project.
+     * @type {boolean}
      */
     get isRoot () {
         return this.project && this === this.project.root;
@@ -91,6 +93,7 @@ Wick.Clip = class extends Wick.Tickable {
 
     /**
      * The timeline of the clip.
+     * @type {Wick.Timeline}
      */
     get timeline () {
         return this.getChild('Timeline');
@@ -105,6 +108,7 @@ Wick.Clip = class extends Wick.Tickable {
 
     /**
      * The active layer of the clip's timeline.
+     * @type {Wick.Layer}
      */
     get activeLayer () {
         return this.timeline.activeLayer;
@@ -112,6 +116,7 @@ Wick.Clip = class extends Wick.Tickable {
 
     /**
      * The active frame of the clip's timeline.
+     * @type {Wick.Frame}
      */
     get activeFrame () {
         return this.activeLayer.activeFrame;
@@ -119,6 +124,7 @@ Wick.Clip = class extends Wick.Tickable {
 
     /**
      * An array containing every clip and frame that is a child of this clip and has an identifier.
+     * @type {Wick.Base[]}
      */
     get namedChildren () {
         var namedChildren = [];
@@ -137,6 +143,7 @@ Wick.Clip = class extends Wick.Tickable {
 
     /**
      * An array containing every clip and frame that is a child of this clip and has an identifier, and also is visible on screen.
+     * @type {Wick.Base[]}
      */
     get activeNamedChildren () {
         return this.namedChildren.filter(child => {
@@ -206,8 +213,6 @@ Wick.Clip = class extends Wick.Tickable {
 
     /**
      * Stops a clip's timeline on that clip's current playhead position.
-     * @example
-     * clipName.stop();
      */
     stop () {
         this.timeline.stop();
@@ -215,8 +220,6 @@ Wick.Clip = class extends Wick.Tickable {
 
     /**
      * Plays a clip's timeline from that clip's current playhead position.
-     * @example
-     * clipName.play();
      */
     play () {
         this.timeline.play();
@@ -304,7 +307,7 @@ Wick.Clip = class extends Wick.Tickable {
     /**
      * @deprecated
      * Returns true if this clip collides with another clip.
-     * @param {Wick.Clip} clip - The other clip to check collision with.
+     * @param {Wick.Clip} other - The other clip to check collision with.
      * @returns {boolean} True if this clip collides the other clip.
      */
     hitTest (other) {
@@ -314,6 +317,7 @@ Wick.Clip = class extends Wick.Tickable {
     /**
      * @deprecated
      * Returns an object containing information about the collision between this object and another.
+     * @param {Wick.Clip} other - The other clip to check collision with.
      * @returns {SAT.Response} The SAT.js response object with collision info. See: https://github.com/jriecken/sat-js#satresponse
      */
     hitInfo (other) {
@@ -350,6 +354,7 @@ Wick.Clip = class extends Wick.Tickable {
 
     /**
      * The bounding box of the clip.
+     * @type {object}
      */
     get bounds () {
         return this.view.container.getLocalBounds();
@@ -357,6 +362,7 @@ Wick.Clip = class extends Wick.Tickable {
 
     /**
      * The X position of the clip.
+     * @type {number}
      */
     get x () {
         return this.transformation.x;
@@ -368,6 +374,7 @@ Wick.Clip = class extends Wick.Tickable {
 
     /**
      * The Y position of the clip.
+     * @type {number}
      */
     get y () {
         return this.transformation.y;
@@ -379,6 +386,7 @@ Wick.Clip = class extends Wick.Tickable {
 
     /**
      * The X scale of the clip.
+     * @type {number}
      */
     get scaleX () {
         return this.transformation.scaleX;
@@ -390,6 +398,7 @@ Wick.Clip = class extends Wick.Tickable {
 
     /**
      * The Y scale of the clip.
+     * @type {number}
      */
     get scaleY () {
         return this.transformation.scaleY;
@@ -401,6 +410,7 @@ Wick.Clip = class extends Wick.Tickable {
 
     /**
      * The width of the clip.
+     * @type {number}
      */
     get width () {
         return this.isRoot ? this.project.width : this.bounds.width * this.scaleX;
@@ -412,6 +422,7 @@ Wick.Clip = class extends Wick.Tickable {
 
     /**
      * The height of the clip.
+     * @type {number}
      */
     get height () {
         return this.isRoot ? this.project.height : this.bounds.height * this.scaleY;
@@ -423,6 +434,7 @@ Wick.Clip = class extends Wick.Tickable {
 
     /**
      * The rotation of the clip.
+     * @type {number}
      */
     get rotation () {
         return this.transformation.rotation;
@@ -434,6 +446,7 @@ Wick.Clip = class extends Wick.Tickable {
 
     /**
      * The opacity of the clip.
+     * @type {number}
      */
     get opacity () {
         return this.transformation.opacity;
@@ -457,7 +470,8 @@ Wick.Clip = class extends Wick.Tickable {
     }
 
     /**
-     *
+     * An array containing all objects that were created by calling clone() on this Clip.
+     * @type {Wick.Clip[]}
      */
     get clones () {
         return this._clones;

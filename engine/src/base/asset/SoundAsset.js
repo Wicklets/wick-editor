@@ -37,17 +37,20 @@ Wick.SoundAsset = class extends Wick.FileAsset {
         return ['.mp3', '.ogg', '.wav'];
     }
 
+    /**
+     * Creates a new SoundAsset.
+     */
     constructor (args) {
         super(args);
-    }
-
-    deserialize (data) {
-        super.deserialize(data);
     }
 
     serialize (args) {
         var data = super.serialize(args);
         return data;
+    }
+
+    deserialize (data) {
+        super.deserialize(data);
     }
 
     get classname () {

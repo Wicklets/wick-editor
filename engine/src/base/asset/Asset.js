@@ -20,7 +20,7 @@
 Wick.Asset = class extends Wick.Base {
     /**
      * Creates a new Wick Asset.
-     * @param {string} filename - the filename of the asset
+     * @param {string} name - the name of the asset
      */
     constructor (args) {
         if(!args) args = {};
@@ -29,23 +29,29 @@ Wick.Asset = class extends Wick.Base {
         this.name = args.name;
     }
 
-    deserialize (data) {
-        super.deserialize(data);
-        this.name = data.name;
-    }
-
     serialize (args) {
         var data = super.serialize(args);
         data.name = this.name;
         return data;
     }
 
+    deserialize (data) {
+        super.deserialize(data);
+        this.name = data.name;
+    }
+
+    /**
+     * Removes this asset from the project.
+     */
     remove () {
         this.project.removeAsset(this);
     }
 
+    /**
+     * Remove all instances of this asset from the project. (Implemented by ClipAsset, ImageAsset, and SoundAsset)
+     */
     removeAllInstances () {
-        
+
     }
 
     get classname () {

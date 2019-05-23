@@ -97,7 +97,7 @@ Wick.Frame = class extends Wick.Tickable {
     }
 
     /**
-     * The sound on the frame.
+     * The sound attached to the frame.
      * @type {Wick.SoundAsset}
      */
     get sound () {
@@ -110,7 +110,7 @@ Wick.Frame = class extends Wick.Tickable {
     }
 
     /**
-     * The volume of the sound on the frame.
+     * The volume of the sound attached to the frame.
      * @type {number}
      */
     get soundVolume () {
@@ -122,14 +122,14 @@ Wick.Frame = class extends Wick.Tickable {
     }
 
     /**
-     * Removes the sound on this frame.
+     * Removes the sound attached to this frame.
      */
     removeSound () {
         this._soundAssetUUID = null;
     }
 
     /**
-     * Plays the sound on this frame.
+     * Plays the sound attached to this frame.
      */
     playSound () {
         if(this.sound) {
@@ -138,7 +138,7 @@ Wick.Frame = class extends Wick.Tickable {
     }
 
     /**
-     * Stops the sound on this frame.
+     * Stops the sound attached to this frame.
      */
     stopSound () {
         if(this.sound) {
@@ -149,6 +149,7 @@ Wick.Frame = class extends Wick.Tickable {
 
     /**
      * Check if the sound on this frame is playing.
+     * @returns {boolean} true if the sound is playing
      */
     isSoundPlaying () {
         return this._soundID !== null;
@@ -156,7 +157,7 @@ Wick.Frame = class extends Wick.Tickable {
 
     /**
      * The amount of time, in milliseconds, that the frame's sound should play before stopping.
-     * @returns {number} Amount of time to offset the sound based on the playhead position.
+     * @type {number}
      */
     get playheadSoundOffsetMS () {
         var offsetFrames = this.parentTimeline.playheadPosition - this.start;
@@ -168,7 +169,7 @@ Wick.Frame = class extends Wick.Tickable {
      * The amount of time the sound playing should be offset, in milliseconds. If this is 0,
      * the sound plays normally. A negative value means the sound should start at a later point
      * in the track. THIS DOES NOT DETERMINE WHEN A SOUND PLAYS.
-     * @returns {number} amount of time to offset in milliseconds.
+     * @type {number}
      */
     get cropSoundOffsetMS () {
         return this._cropSoundOffsetMS;
@@ -180,6 +181,7 @@ Wick.Frame = class extends Wick.Tickable {
 
     /**
      * When should the sound start, in milliseconds.
+     * @type {number}
      */
     get soundStartMS () {
         return (1000/this.project.framerate) * (this.start - 1);
@@ -187,6 +189,7 @@ Wick.Frame = class extends Wick.Tickable {
 
     /**
      * When should the sound end, in milliseconds.
+     * @type {number}
      */
     get soundEndMS () {
         return (1000/this.project.framerate) * (this.end - 1);
@@ -320,9 +323,11 @@ Wick.Frame = class extends Wick.Tickable {
      * Automatically creates a tween at the current playhead position. Converts all objects into one clip if needed.
      */
     createTween () {
-        // If more than one object exists on the frame, create a clip from those objects
-        var allObjects = this.paths.concat(this.clips);
-        if(allObjects.length > 1) {
+        // If more than one object exists on the frame, or if there is only one path, create a clip from those objects
+        var numClips = this.clips.length;
+        var numPaths = this.paths.length;
+        if((numClips === 0 && numPaths === 1) || numClips + numPaths > 1) {
+            var allObjects = this.paths.concat(this.clips);
             var center = this.project.selection.view._getObjectsBounds(allObjects).center;
             var clip = new Wick.Clip({
                 objects: this.paths.concat(this.clips),

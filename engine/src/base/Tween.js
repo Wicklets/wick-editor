@@ -51,9 +51,9 @@ Wick.Tween = class extends Wick.Base {
 
     /**
      * Create a tween by interpolating two existing tweens.
-     * @param {Wick.Tween} tweenA -
-     * @param {Wick.Tween} tweenB -
-     * @param {Number} playheadPosition -
+     * @param {Wick.Tween} tweenA - The first tween
+     * @param {Wick.Tween} tweenB - The second tween
+     * @param {Number} playheadPosition - The point between the two tweens to use to interpolate
      */
     static interpolate (tweenA, tweenB, playheadPosition) {
         var interpTween = new Wick.Tween();
@@ -83,6 +83,10 @@ Wick.Tween = class extends Wick.Base {
         return interpTween;
     }
 
+    get classname () {
+        return 'Tween';
+    }
+
     serialize (args) {
         var data = super.serialize(args);
 
@@ -104,7 +108,8 @@ Wick.Tween = class extends Wick.Base {
     }
 
     /**
-     *
+     * The playhead position of the tween.
+     * @type {number}
      */
     get playheadPosition () {
         return this._playheadPosition;
@@ -129,6 +134,7 @@ Wick.Tween = class extends Wick.Base {
 
     /**
      * The type of interpolation to use for easing.
+     * @type {string}
      */
     get easingType () {
         return this._easingType;
@@ -143,10 +149,6 @@ Wick.Tween = class extends Wick.Base {
         this._easingType = easingType;
     }
 
-    get classname () {
-        return 'Tween';
-    }
-
     /**
      * Remove this tween from its parent frame.
      */
@@ -156,6 +158,7 @@ Wick.Tween = class extends Wick.Base {
 
     /**
      * Set the transformation of a clip to this tween's transformation.
+     * @param {Wick.Clip} clip - the clip to apply the tween transforms to.
      */
     applyTransformsToClip (clip) {
         clip.transformation = this.transformation.copy();

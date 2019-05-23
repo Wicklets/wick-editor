@@ -34,13 +34,6 @@ Wick.Timeline = class extends Wick.Base {
         this._forceNextFrame = null;
     }
 
-    deserialize (data) {
-        super.deserialize(data);
-
-        this._playheadPosition = data.playheadPosition;
-        this._activeLayerIndex = data.activeLayerIndex;
-    }
-
     serialize (args) {
         var data = super.serialize(args);
 
@@ -48,6 +41,13 @@ Wick.Timeline = class extends Wick.Base {
         data.activeLayerIndex = this._activeLayerIndex;
 
         return data;
+    }
+
+    deserialize (data) {
+        super.deserialize(data);
+
+        this._playheadPosition = data.playheadPosition;
+        this._activeLayerIndex = data.activeLayerIndex;
     }
 
     get classname () {
@@ -186,9 +186,9 @@ Wick.Timeline = class extends Wick.Base {
      * @type {Wick.Frame|null}
      */
     getFrameByName (name) {
-      return this.frames.find(frame => {
-        return frame.name === name;
-      }) || null;
+        return this.frames.find(frame => {
+            return frame.name === name;
+        }) || null;
     }
 
     /**
@@ -259,7 +259,8 @@ Wick.Timeline = class extends Wick.Base {
     }
 
     /**
-     *
+     * Get all frames in this timeline.
+     * @param {boolean} recursive - If set to true, will also include the children of all child timelines.
      */
     getAllFrames (recursive) {
         var allFrames = [];
@@ -314,17 +315,17 @@ Wick.Timeline = class extends Wick.Base {
     }
 
     /**
-     * Stops the timeline from advancing during ticks.
-     */
-    stop () {
-        this._playing = false;
-    }
-
-    /**
      * Makes the timeline advance automatically during ticks.
      */
     play () {
         this._playing = true;
+    }
+
+    /**
+     * Stops the timeline from advancing during ticks.
+     */
+    stop () {
+        this._playing = false;
     }
 
     /**

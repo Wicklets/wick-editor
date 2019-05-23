@@ -39,6 +39,11 @@ Wick.FileAsset = class extends Wick.Asset {
         return imageExtensions.concat(soundExtensions);
     }
 
+    /**
+     * Create a new FileAsset.
+     * @param {string} filename - the filename of the file being used as this asset's source.
+     * @param {string} src - a base64 string containing the source for this asset.
+     */
     constructor (args) {
         if(!args) args = {};
         args.name = args.filename;
@@ -72,6 +77,7 @@ Wick.FileAsset = class extends Wick.Asset {
 
     /**
      * The source of the data of the asset, in base64.
+     * @type {string}
      */
     get src () {
         return Wick.FileCache.getFile(this.uuid).src;
@@ -87,6 +93,7 @@ Wick.FileAsset = class extends Wick.Asset {
 
     /**
      * Copies the FileAsset and also copies the src in FileCache.
+     * @return {Wick.FileAsset}
      */
     copy () {
         var copy = super.copy();
