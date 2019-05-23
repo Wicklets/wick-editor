@@ -752,16 +752,25 @@ describe('Wick.Clip', function() {
                     to: new paper.Point(50,50),
                     fillColor: 'red',
                 })));
-                clip.addScript('load', 'this.width = 25;');
                 project.activeFrame.addClip(clip);
 
+                // force bounds to be generated from pixi container...
                 project.view.prerasterize(() => {
                     project.play({
                         onBeforeTick: () => {
                             project.view.render();
                         },
                         onAfterTick: () => {
+                            expect(clip.width).to.equal(50);
+                            clip.width = 25;
+                            expect(clip.width).to.equal(25);
                             expect(clip.scaleX).to.equal(0.5);
+                            clip.width = 25;
+                            expect(clip.width).to.equal(25);
+                            expect(clip.scaleX).to.equal(0.5);
+                            clip.width = 100;
+                            expect(clip.width).to.equal(100);
+                            expect(clip.scaleX).to.equal(2);
                             project.stop();
                             done();
                         }
@@ -771,31 +780,40 @@ describe('Wick.Clip', function() {
         });
 
         describe('#height', function () {
-          it('should update height correctly', function(done) {
-              var project = new Wick.Project();
+            it('should update width correctly', function(done) {
+                var project = new Wick.Project();
 
-              var clip = new Wick.Clip();
-              clip.activeFrame.addPath(TestUtils.paperToWickPath(new paper.Path.Rectangle({
-                  from: new paper.Point(0,0),
-                  to: new paper.Point(50,50),
-                  fillColor: 'red',
-              })));
-              clip.addScript('load', 'this.height = 25;');
-              project.activeFrame.addClip(clip);
+                var clip = new Wick.Clip();
+                clip.activeFrame.addPath(TestUtils.paperToWickPath(new paper.Path.Rectangle({
+                    from: new paper.Point(0,0),
+                    to: new paper.Point(50,50),
+                    fillColor: 'red',
+                })));
+                project.activeFrame.addClip(clip);
 
-              project.view.prerasterize(() => {
-                  project.play({
-                      onBeforeTick: () => {
-                          project.view.render();
-                      },
-                      onAfterTick: () => {
-                          expect(clip.scaleY).to.equal(0.5);
-                          project.stop();
-                          done();
-                      }
-                  })
-              });
-          });
+                // force bounds to be generated from pixi container...
+                project.view.prerasterize(() => {
+                    project.play({
+                        onBeforeTick: () => {
+                            project.view.render();
+                        },
+                        onAfterTick: () => {
+                            expect(clip.height).to.equal(50);
+                            clip.height = 25;
+                            expect(clip.height).to.equal(25);
+                            expect(clip.scaleY).to.equal(0.5);
+                            clip.height = 25;
+                            expect(clip.height).to.equal(25);
+                            expect(clip.scaleY).to.equal(0.5);
+                            clip.height = 100;
+                            expect(clip.height).to.equal(100);
+                            expect(clip.scaleY).to.equal(2);
+                            project.stop();
+                            done();
+                        }
+                    })
+                });
+            });
         });
 
         describe('#rotation', function () {

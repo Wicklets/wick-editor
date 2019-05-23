@@ -1,5 +1,7 @@
 describe('Wick.Clipboard', function() {
     it('should copy and paste objects (to other frame) correctly', function () {
+        localStorage.clear();
+
         var project = new Wick.Project();
 
         var path1 = TestUtils.paperToWickPath(new paper.Path.Ellipse({
@@ -58,6 +60,8 @@ describe('Wick.Clipboard', function() {
     });
 
     it('should copy and paste objects to same frame (offset) correctly', function () {
+        localStorage.clear();
+
         var project = new Wick.Project();
 
         var path1 = TestUtils.paperToWickPath(new paper.Path.Ellipse({
@@ -108,7 +112,76 @@ describe('Wick.Clipboard', function() {
         expect(project.activeFrame.paths[2].y).to.equal(50 + Wick.Clipboard.PASTE_OFFSET);
     });
 
+    it('should copy and paste objects to differnt project correctly', function () {
+        localStorage.clear();
+
+        var project = new Wick.Project();
+
+        var path1 = TestUtils.paperToWickPath(new paper.Path.Ellipse({
+            center: new paper.Point(50,50),
+            radius: 25,
+            fillColor: 'red',
+        }));
+        var path2 = TestUtils.paperToWickPath(new paper.Path.Ellipse({
+            center: new paper.Point(50,50),
+            radius: 25,
+            fillColor: 'blue',
+        }));
+
+        project.activeFrame.addPath(path1);
+        project.activeFrame.addPath(path2);
+
+        // Make sure we're testing for path json with wick data
+        project.view.render();
+        project.view.applyChanges();
+
+        // Nothing should happen yet:
+        expect(project.copySelectionToClipboard()).to.equal(false);
+        expect(project.pasteClipboardContents()).to.equal(false);
+
+        // Select path1 and copy it to clipboard
+        project.selection.select(path1);
+        expect(project.copySelectionToClipboard()).to.equal(true);
+        expect(project.activeFrame.paths.length).to.equal(2);
+        expect(project.activeFrame.paths[0].uuid).to.equal(path1.uuid);
+        expect(project.activeFrame.paths[1].uuid).to.equal(path2.uuid);
+
+        var otherProject = new Wick.Project();
+
+        // paste path1 into a different project!
+        expect(otherProject.pasteClipboardContents()).to.equal(true);
+        expect(otherProject.activeFrame.paths.length).to.equal(1);
+        expect(otherProject.selection.getSelectedObject().uuid).to.equal(otherProject.activeFrame.paths[0].uuid);
+
+        expect(otherProject.activeFrame.paths[0].x).to.equal(50);
+        expect(otherProject.activeFrame.paths[0].y).to.equal(50);
+    });
+
+    it('should copy and paste frames on multiple layers correctly', function () {
+        localStorage.clear();
+
+        var project = new Wick.Project();
+
+        var frame1 = project.activeFrame;
+        var frame2 = new Wick.Frame();
+        var frame3 = new Wick.Frame();
+
+        var layer1 = project.activeLayer;
+        var layer2 = new Wick.Layer();
+        var layer3 = new Wick.Layer();
+
+        layer2.addFrame(frame2);
+        layer3.addFrame(frame3);
+
+        project.activeTimeline.addLayer(layer2);
+        project.activeTimeline.addLayer(layer3);
+
+        throw new Error('write me')
+    });
+
     it('should copy and paste frames to correct playhead positions', function () {
+        localStorage.clear();
+
         var project = new Wick.Project();
 
         var frame1 = project.activeFrame;
@@ -147,6 +220,8 @@ describe('Wick.Clipboard', function() {
     });
 
     it('should copy and paste even when there is no activeFrame', function () {
+        localStorage.clear();
+
         var project = new Wick.Project();
 
         project.selection.select(project.activeFrame);

@@ -272,8 +272,7 @@ describe('Wick.Base', function() {
 
         Wick.ObjectCache.clear();
 
-        var newBase = new Wick.Base();
-        newBase.import(exportData);
+        var newBase = Wick.Base.import(exportData);
 
         expect(newBase.identifier).to.equal('parent');
         expect(newBase.getChildren()[0].identifier).to.equal('child1');

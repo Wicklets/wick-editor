@@ -65037,6 +65037,10 @@ window.Wick = Wick;
  * A clipboard utility class for copy/paste functionality.
  */
 Wick.Clipboard = class {
+  static get LOCALSTORAGE_KEY() {
+    return 'wick_engine_clipboard';
+  }
+
   static get PASTE_OFFSET() {
     // how many pixels should we shift objects over when we paste (canvas only)
     return 20;
@@ -65046,8 +65050,20 @@ Wick.Clipboard = class {
    */
 
 
-  constructor() {
-    this._objects = [];
+  constructor() {}
+  /**
+   *
+   */
+
+
+  get clipboardData() {
+    var json = localStorage[Wick.Clipboard.LOCALSTORAGE_KEY];
+    if (!json) return null;
+    return JSON.parse(json);
+  }
+
+  set clipboardData(clipboardData) {
+    localStorage[Wick.Clipboard.LOCALSTORAGE_KEY] = JSON.stringify(clipboardData);
   }
   /**
    * Replace the current contents of the clipboard with new objects.
@@ -65065,9 +65081,11 @@ Wick.Clipboard = class {
       if (playheadCopyOffset === null || frame.start < playheadCopyOffset) {
         playheadCopyOffset = frame.start;
       }
-    });
-    this._copyLocation = project.activeFrame && project.activeFrame.uuid;
-    this._objects = objects.map(object => {
+    }); // Keep track of where objects were originally copied from
+
+    this._copyLocation = project.activeFrame && project.activeFrame.uuid; // Prepare objects for
+
+    var objects = objects.map(object => {
       var copy = object.copy(); // Copy frame positions relative to the current playhead position
 
       if (copy instanceof Wick.Frame) {
@@ -65076,6 +65094,9 @@ Wick.Clipboard = class {
       }
 
       return copy;
+    });
+    this.clipboardData = objects.map(object => {
+      return object.export();
     });
   }
   /**
@@ -65088,16 +65109,15 @@ Wick.Clipboard = class {
   pasteObjectsFromClipboard(project) {
     if (!project || !project instanceof Wick.Project) console.error('pasteObjectsFromClipboard(): project is required');
 
-    if (this._objects.length === 0) {
+    if (!this.clipboardData) {
       return false;
     } // Always paste in-place if we're pasting to a different frame than where we copied from.
 
 
     var pasteInPlace = project.activeFrame && this._copyLocation !== project.activeFrame.uuid;
     project.selection.clear();
-
-    this._objects.map(object => {
-      return object.copy();
+    this.clipboardData.map(data => {
+      return Wick.Base.import(data);
     }).forEach(object => {
       // Paste frames at the position of the playhead
       if (object instanceof Wick.Frame) {
@@ -65114,7 +65134,6 @@ Wick.Clipboard = class {
 
       project.selection.select(object);
     });
-
     return true;
   }
 
@@ -66068,16 +66087,16 @@ Wick.Base = class {
    */
 
 
-  import(exportData) {
+  static import(exportData) {
     if (!exportData) console.error('Wick.Base.import(): exportData is required');
     if (!exportData.object) console.error('Wick.Base.import(): exportData is missing data');
     if (!exportData.children) console.error('Wick.Base.import(): exportData is missing data');
-    this.deserialize(exportData.object);
+    var object = Wick.Base.fromData(exportData.object);
     exportData.children.forEach(childData => {
       // Only need to call deserialize here, we just want the object to get added to ObjectCache
-      var base = new Wick.Base();
-      base.deserialize(childData);
+      var child = Wick.Base.fromData(childData);
     });
+    return object;
   }
   /**
    * Returns the classname of a Wick Base object.
@@ -71185,7 +71204,7 @@ Wick.Clip = class extends Wick.Tickable {
   }
 
   set width(width) {
-    this.scaleX = width / this.width;
+    this.scaleX = width / this.width * this.scaleX;
   }
   /**
    * The height of the clip.
@@ -71197,7 +71216,7 @@ Wick.Clip = class extends Wick.Tickable {
   }
 
   set height(height) {
-    this.scaleY = height / this.height;
+    this.scaleY = height / this.height * this.scaleY;
   }
   /**
    * The rotation of the clip.

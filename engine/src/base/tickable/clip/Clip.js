@@ -407,7 +407,7 @@ Wick.Clip = class extends Wick.Tickable {
     }
 
     set width (width) {
-        this.scaleX = width / this.width;
+        this.scaleX = width / this.width * this.scaleX;
     }
 
     /**
@@ -418,7 +418,7 @@ Wick.Clip = class extends Wick.Tickable {
     }
 
     set height (height) {
-        this.scaleY = height / this.height;
+        this.scaleY = height / this.height * this.scaleY;
     }
 
     /**

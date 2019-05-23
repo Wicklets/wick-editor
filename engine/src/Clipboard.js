@@ -21,6 +21,10 @@
  * A clipboard utility class for copy/paste functionality.
  */
 Wick.Clipboard = class {
+    static get LOCALSTORAGE_KEY () {
+        return 'wick_engine_clipboard';
+    }
+
     static get PASTE_OFFSET () {
         // how many pixels should we shift objects over when we paste (canvas only)
         return 20;
@@ -30,7 +34,20 @@ Wick.Clipboard = class {
      * Create a new Clipboard object.
      */
     constructor () {
-        this._objects = [];
+
+    }
+
+    /**
+     *
+     */
+    get clipboardData () {
+        var json = localStorage[Wick.Clipboard.LOCALSTORAGE_KEY];
+        if(!json) return null;
+        return JSON.parse(json);
+    }
+
+    set clipboardData (clipboardData) {
+        localStorage[Wick.Clipboard.LOCALSTORAGE_KEY] = JSON.stringify(clipboardData);
     }
 
     /**
@@ -50,8 +67,11 @@ Wick.Clipboard = class {
             }
         });
 
+        // Keep track of where objects were originally copied from
         this._copyLocation = project.activeFrame && project.activeFrame.uuid;
-        this._objects = objects.map(object => {
+
+        // Prepare objects for
+        var objects = objects.map(object => {
             var copy = object.copy();
 
             // Copy frame positions relative to the current playhead position
@@ -61,6 +81,10 @@ Wick.Clipboard = class {
             }
 
             return copy;
+        });
+
+        this.clipboardData = objects.map(object => {
+            return object.export();
         });
     }
 
@@ -72,7 +96,7 @@ Wick.Clipboard = class {
     pasteObjectsFromClipboard (project) {
         if(!project || (!project instanceof Wick.Project)) console.error('pasteObjectsFromClipboard(): project is required');
 
-        if(this._objects.length === 0) {
+        if(!this.clipboardData) {
             return false;
         }
 
@@ -81,8 +105,8 @@ Wick.Clipboard = class {
 
         project.selection.clear();
 
-        this._objects.map(object => {
-            return object.copy();
+        this.clipboardData.map(data => {
+            return Wick.Base.import(data);
         }).forEach(object => {
             // Paste frames at the position of the playhead
             if(object instanceof Wick.Frame) {

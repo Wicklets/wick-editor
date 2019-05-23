@@ -130,18 +130,19 @@ Wick.Base = class {
      * Import data created using Wick.Base.export().
      * @param {object} exportData - an object created from Wick.Base.export().
      */
-    import (exportData) {
+    static import (exportData) {
         if(!exportData) console.error('Wick.Base.import(): exportData is required');
         if(!exportData.object) console.error('Wick.Base.import(): exportData is missing data');
         if(!exportData.children) console.error('Wick.Base.import(): exportData is missing data');
 
-        this.deserialize(exportData.object);
+        var object = Wick.Base.fromData(exportData.object);
 
         exportData.children.forEach(childData => {
             // Only need to call deserialize here, we just want the object to get added to ObjectCache
-            var base = new Wick.Base();
-            base.deserialize(childData);
-        })
+            var child = Wick.Base.fromData(childData);
+        });
+
+        return object;
     }
 
     /**
