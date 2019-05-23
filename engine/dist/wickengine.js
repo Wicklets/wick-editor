@@ -66037,8 +66037,7 @@ Wick.Base = class {
    */
 
 
-  serialize(args) {
-    if (!args) args = {};
+  serialize() {
     var data = {};
     data.classname = this.classname;
     data.identifier = this._identifier;
@@ -66050,19 +66049,21 @@ Wick.Base = class {
   }
   /**
    * Returns a copy of a Wick Base object.
+   * @param {boolean} retainIdentifiers - if set to true, will not remove the identifier of the copy.
    * @return {Wick.Base} The object resulting from the copy
    */
 
 
-  copy() {
+  copy(args) {
+    if (!args) args = {};
     var data = this.serialize();
     data.uuid = uuidv4();
     var copy = Wick.Base.fromData(data);
     copy._childrenData = null;
-    copy._identifier = null; // Copy children
+    if (!args.retainIdentifiers) copy._identifier = null; // Copy children
 
     this.getChildren().forEach(child => {
-      copy.addChild(child.copy());
+      copy.addChild(child.copy(args));
     });
     return copy;
   }
@@ -66074,9 +66075,12 @@ Wick.Base = class {
 
 
   export() {
+    var copy = this.copy({
+      retainIdentifiers: true
+    });
     return {
-      object: this.serialize(),
-      children: this.getChildrenRecursive().map(child => {
+      object: copy.serialize(),
+      children: copy.getChildrenRecursive().map(child => {
         return child.serialize();
       })
     };

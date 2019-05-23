@@ -278,8 +278,14 @@ describe('Wick.Base', function() {
         expect(newBase.getChildren()[0].identifier).to.equal('child1');
         expect(newBase.getChildren()[1].identifier).to.equal('child2');
         expect(newBase.getChildren()[2].identifier).to.equal('child3');
+        expect(newBase.getChildren()[0].uuid).to.not.equal(child1.uuid);
+        expect(newBase.getChildren()[1].uuid).to.not.equal(child2.uuid);
+        expect(newBase.getChildren()[2].uuid).to.not.equal(child3.uuid);
         expect(newBase.getChildren()[0].getChildren()[0].identifier).to.equal('grandchild1');
         expect(newBase.getChildren()[0].getChildren()[1].identifier).to.equal('grandchild2');
         expect(newBase.getChildren()[0].getChildren()[2].identifier).to.equal('grandchild3');
+        expect(newBase.getChildren()[0].getChildren()[0].uuid).to.not.equal(grandchild1.uuid);
+        expect(newBase.getChildren()[0].getChildren()[1].uuid).to.not.equal(grandchild2.uuid);
+        expect(newBase.getChildren()[0].getChildren()[2].uuid).to.not.equal(grandchild3.uuid);
     })
 });
