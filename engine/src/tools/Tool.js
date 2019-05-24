@@ -24,10 +24,13 @@ Wick.Tool = class {
             'onDeactivate',
             'onMouseMove',
             'onMouseDown',
-            'onMouseDoubleClick',
             'onMouseDrag',
             'onMouseUp'
         ];
+    }
+
+    static get DOUBLE_CLICK_TIME () {
+        return 100;
     }
 
     /**
@@ -44,6 +47,8 @@ Wick.Tool = class {
         });
 
         this._eventCallbacks = {};
+
+        this._lastMousedownTimestamp = null;
     }
 
     /**
@@ -85,7 +90,14 @@ Wick.Tool = class {
      * Called when the mouse clicks the paper.js canvas and this is the active tool.
      */
     onMouseDown (e) {
+        if(this._lastMousedownTimestamp !== null) {
+            var d = e.timeStamp - this._lastMousedownTimestamp;
+            if(d < Wick.Tool.DOUBLE_CLICK_TIME) {
+                this.onDoubleClick(e);
+            }
+        }
 
+        this._lastMousedownTimestamp = e.timeStamp;
     }
 
     /**
@@ -99,6 +111,13 @@ Wick.Tool = class {
      * Called when the mouse is clicked on the paper.js canvas and this is the active tool.
      */
     onMouseUp (e) {
+
+    }
+
+    /**
+     * Called when the mouse double clicks on the paper.js canvas and this is the active tool.
+     */
+    onDoubleClick (e) {
 
     }
 

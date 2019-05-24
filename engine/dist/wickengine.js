@@ -71713,7 +71713,7 @@ Wick.Button = class extends Wick.Clip {
 */
 Wick.Tool = class {
   static get EVENT_NAMES() {
-    return ['onActivate', 'onDeactivate', 'onMouseMove', 'onMouseDown', 'onMouseDoubleClick', 'onMouseDrag', 'onMouseUp'];
+    return ['onActivate', 'onDeactivate', 'onMouseMove', 'onMouseDown', 'onMouseDrag', 'onMouseUp'];
   }
   /**
    * Creates a new Wick Tool.
@@ -71729,6 +71729,7 @@ Wick.Tool = class {
       };
     });
     this._eventCallbacks = {};
+    this._lastMousedownTimestamp = null;
   }
   /**
    * The paper.js scope to use.
@@ -71771,7 +71772,15 @@ Wick.Tool = class {
    */
 
 
-  onMouseDown(e) {}
+  onMouseDown(e) {
+    if (this._lastMousedownTimestamp !== null) {
+      if (e.timeStamp - this._lastMousedownTimestamp < 100) {
+        this.onDoubleClick(e);
+      }
+    }
+
+    this._lastMousedownTimestamp = e.timeStamp;
+  }
   /**
    * Called when the mouse is dragged on the paper.js canvas and this is the active tool.
    */
@@ -71784,6 +71793,12 @@ Wick.Tool = class {
 
 
   onMouseUp(e) {}
+  /**
+   * Called when the mouse double clicks on the paper.js canvas and this is the active tool.
+   */
+
+
+  onDoubleClick(e) {}
   /**
    * Activates this tool in paper.js.
    */
@@ -72200,7 +72215,9 @@ Wick.Tools.Cursor = class extends Wick.Tool {
     }
   }
 
-  onMouseDoubleClick(e) {
+  onDoubleClick(e) {
+    console.log('!');
+
     var selectedObject = this._selection.getSelectedObject();
 
     if (selectedObject instanceof Wick.Clip) {

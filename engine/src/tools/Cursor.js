@@ -110,6 +110,8 @@ Wick.Tools.Cursor = class extends Wick.Tool {
     }
 
     onMouseDown (e) {
+        super.onMouseDown(e);
+
         if(!e.modifiers) e.modifiers = {};
 
         this.hitResult = this._updateHitResult(e);
@@ -148,12 +150,12 @@ Wick.Tools.Cursor = class extends Wick.Tool {
         }
     }
 
-    onMouseDoubleClick (e) {
-        var selectedObject = this._selection.getSelectedObject()
-        if(selectedObject instanceof Wick.Clip) {
+    onDoubleClick (e) {
+        var selectedObject = this._selection.getSelectedObject();
+        if(selectedObject && selectedObject instanceof Wick.Clip) {
             // Double clicked a Clip, set the focus to that Clip.
             this.project.focusTimelineOfSelectedClip();
-        } else if (selectedObject instanceof Wick.Path && selectedObject.view.item instanceof paper.Text) {
+        } else if (selectedObject && (selectedObject instanceof Wick.Path) && (selectedObject.view.item instanceof paper.PointText)) {
             // Double clicked text, switch to text tool and edit the text item.
             // TODO
         } else {

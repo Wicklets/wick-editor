@@ -239,6 +239,45 @@ describe('Wick.Tools.Cursor', function() {
     });
 
     it('Should change focus to selected clip if a clip is double clicked', function() {
+        var project = new Wick.Project();
+        var cursor = project.tools.cursor;
+        cursor.activate();
+
+        var path1 = TestUtils.paperToWickPath(new paper.Path.Ellipse({
+            center: new paper.Point(25, 25),
+            radius: 25,
+            fillColor: '#ff0000',
+        }));
+        var path2 = TestUtils.paperToWickPath(new paper.Path.Ellipse({
+            center: new paper.Point(75, 75),
+            radius: 25,
+            fillColor: '#ff0000',
+        }));
+        project.activeFrame.addPath(path1);
+        project.activeFrame.addPath(path2);
+        project.view.render();
+
+        cursor.onMouseMove({
+            modifiers: {shift: true},
+            timeStamp: 0,
+            point: new paper.Point(75,75),
+        });
+        cursor.onMouseDown({
+            modifiers: {shift: true},
+            timeStamp: 0,
+            point: new paper.Point(75,75),
+        });
+        cursor.onMouseDown({
+            modifiers: {shift: true},
+            timeStamp: 200,
+            point: new paper.Point(75,75),
+        });
+        cursor.onMouseDown({
+            modifiers: {shift: true},
+            timeStamp: 250,
+            point: new paper.Point(75,75),
+        });
+
         throw new Error('write me');
     });
 
