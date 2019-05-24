@@ -1247,4 +1247,12 @@ describe('Wick.Clip', function() {
 
         Wick.ObjectCache.clear();
     });
+
+    it('isRoot should work', function () {
+        throw new Error('write me');
+    });
+
+    it('isFocus should work', function () {
+        throw new Error('write me');
+    });
 });

@@ -463,5 +463,9 @@ describe('Wick.Frame', function() {
             expect(project.activeFrame.tweens[0].transformation.rotation).to.equal(0);
             expect(project.activeFrame.tweens[0].transformation.opacity).to.equal(1);
         });
+
+        it('should create a tween and convert everything on the frame into one clip (single path)', function () {
+            throw new Error('write me')
+        });
     })
 });

@@ -92,6 +92,13 @@ Wick.Clip = class extends Wick.Tickable {
     }
 
     /**
+     * Determines whether or not the clip is the currently focused clip in the project.
+     */
+    get isFocus () {
+        return this.project && this === this.project.focus;
+    }
+
+    /**
      * The timeline of the clip.
      * @type {Wick.Timeline}
      */

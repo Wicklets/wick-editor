@@ -901,4 +901,14 @@ describe('Wick.Project', function() {
             project2.history.popState();
         });
     });
+
+    describe('selectAll', function () {
+        it('should select all items on the canvas', function () {
+            throw new Error('write me');
+        })
+
+        it('should not select items on locked layers', function () {
+            throw new Error('write me');
+        })
+    })
 });

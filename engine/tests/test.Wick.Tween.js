@@ -5,38 +5,7 @@ describe('Wick.Tween', function() {
             expect(tween.classname).to.equal('Tween');
         });
     });
-/*
-    describe('#serialize', function () {
-        it('should serialize correctly', function() {
-            var tween = new Wick.Tween(1, new Wick.Transformation(25,75, 1.5,2.5, 180, 0.5), 3);
-            tween.easingType = 'in-out';
-            var data = tween.serialize();
-            expect(data.classname).to.equal('Tween');
-            expect(data.transformation.classname).to.equal('Transformation');
-            expect(tween.fullRotations).to.equal(data.fullRotations);
-            expect(tween.easingType).to.equal(data.easingType);
-        });
-    });
-
-    describe('#_deserialize', function () {
-        it('should _deserialize correctly', function() {
-            var data = {
-                uuid: 'dummyuuid',
-                classname:'Tween',
-                transform: new Wick.Transformation().serialize(),
-                fullRotations: 5,
-                playheadPosition: 3,
-                easingType: 'in-out',
-            };
-            var tween = Wick.Tween.deserialize(data);
-            expect(tween instanceof Wick.Tween).to.equal(true);
-            expect(tween.transform instanceof Wick.Transformation).to.equal(true);
-            expect(tween.fullRotations).to.equal(data.fullRotations);
-            expect(tween.playheadPosition).to.equal(data.playheadPosition);
-            expect(tween.easingType).to.equal(data.easingType);
-        });
-    });
-*/
+    
     describe('#interpolate', function () {
         it('should tween position correctly', function() {
             var tweenA = new Wick.Tween({

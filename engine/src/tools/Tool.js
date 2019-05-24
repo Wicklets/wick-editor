@@ -19,7 +19,15 @@
 
 Wick.Tool = class {
     static get EVENT_NAMES () {
-        return ['onActivate', 'onDeactivate', 'onMouseMove', 'onMouseDown', 'onMouseDrag', 'onMouseUp'];
+        return [
+            'onActivate',
+            'onDeactivate',
+            'onMouseMove',
+            'onMouseDown',
+            'onMouseDoubleClick',
+            'onMouseDrag',
+            'onMouseUp'
+        ];
     }
 
     /**

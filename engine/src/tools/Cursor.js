@@ -148,6 +148,20 @@ Wick.Tools.Cursor = class extends Wick.Tool {
         }
     }
 
+    onMouseDoubleClick (e) {
+        var selectedObject = this._selection.getSelectedObject()
+        if(selectedObject instanceof Wick.Clip) {
+            // Double clicked a Clip, set the focus to that Clip.
+            this.project.focusTimelineOfSelectedClip();
+        } else if (selectedObject instanceof Wick.Path && selectedObject.view.item instanceof paper.Text) {
+            // Double clicked text, switch to text tool and edit the text item.
+            // TODO
+        } else {
+            // Double clicked the canvas, leave the current focus.
+            this.project.focusTimelineOfParentClip();
+        }
+    }
+
     onMouseDrag (e) {
         if(!e.modifiers) e.modifiers = {};
 

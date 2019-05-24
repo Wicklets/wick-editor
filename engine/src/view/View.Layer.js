@@ -52,7 +52,7 @@ Wick.View.Layer = class extends Wick.View {
 
         // Add onion skinned frame layers
         this.onionSkinnedFramesLayers = [];
-        if(this.model.project && this.model.project.onionSkinEnabled) {
+        if(this.model.project && this.model.parentClip.isFocus && this.model.project.onionSkinEnabled) {
             var playheadPosition = this.model.project.focus.timeline.playheadPosition;
             var onionSkinEnabled = this.model.project.onionSkinEnabled;
             var onionSkinSeekBackwards = this.model.project.onionSkinSeekBackwards;

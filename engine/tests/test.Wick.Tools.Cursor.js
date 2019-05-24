@@ -239,18 +239,22 @@ describe('Wick.Tools.Cursor', function() {
     });
 
     it('Should change focus to selected clip if a clip is double clicked', function() {
-        // todo
+        throw new Error('write me');
     });
 
     it('Should change focus to parent clip if the canvas is double clicked inside clip', function() {
-        // todo
+        throw new Error('write me');
     });
 
     it('Should not change focus if a non-clip is double clicked', function() {
-        // todo
+        throw new Error('write me');
     });
 
     it('Should not change focus if the canvas is double clicked, and the focused clip is the root', function() {
-        // todo
+        throw new Error('write me');
+    });
+
+    it('Should change tools and edit text when text is double clicked', function() {
+        throw new Error('write me');
     });
 });
