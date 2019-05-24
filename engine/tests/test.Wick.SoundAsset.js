@@ -9,6 +9,18 @@ describe('Wick.SoundAsset', function() {
         });
     });
 
+    describe('#MIMEType', function () {
+        it('get MIMEType should return correct MIME type', function() {
+            throw new Error('write me')
+        });
+    });
+
+    describe('#fileExtension', function () {
+        it('get fileExtension should return correct file extension', function() {
+            throw new Error('write me')
+        });
+    });
+
     describe('#removeAllInstances', function () {
         it('should delete all instances of the asset in the project', function () {
             var project = new Wick.Project();

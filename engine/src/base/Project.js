@@ -300,7 +300,7 @@ Wick.Project = class extends Wick.Base {
      * @type {Wick.Asset[]}
      */
     get assets () {
-        return this.getChildren(['ImageAsset','SoundAsset','ClipAsset']);
+        return this.getChildren(['ImageAsset','SoundAsset','ClipAsset','FontAsset']);
     }
 
     /**

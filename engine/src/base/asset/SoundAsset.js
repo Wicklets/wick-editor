@@ -104,6 +104,14 @@ Wick.SoundAsset = class extends Wick.FileAsset {
     }
 
     /**
+     * Check if there are any objects in the project that use this asset.
+     * @returns {boolean}
+     */
+    hasInstances () {
+        // TODO
+    }
+
+    /**
      * Remove the sound from any frames in the project that use this asset as their sound.
      */
     removeAllInstances () {

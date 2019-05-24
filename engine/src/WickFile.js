@@ -95,7 +95,8 @@ Wick.WickFile = class {
         // Populate assets folder with files
         project.getAssets().filter(asset => {
             return asset instanceof Wick.ImageAsset
-                || asset instanceof Wick.SoundAsset;
+                || asset instanceof Wick.SoundAsset
+                || asset instanceof Wick.FontAsset;
         }).forEach(asset => {
             // Create file from asset dataurl, add it to assets folder
             var fileExtension = asset.MIMEType.split('/')[1];

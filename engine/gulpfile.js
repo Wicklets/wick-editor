@@ -50,6 +50,7 @@ gulp.task('default', function() {
             'src/base/asset/ImageAsset.js',
             'src/base/asset/ClipAsset.js',
             'src/base/asset/SoundAsset.js',
+            'src/base/asset/FontAsset.js',
             'src/base/tickable/api/Global.js',
             'src/base/tickable/Tickable.js',
             'src/base/tickable/Frame.js',

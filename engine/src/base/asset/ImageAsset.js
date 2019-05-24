@@ -58,7 +58,15 @@ Wick.ImageAsset = class extends Wick.FileAsset {
     }
 
     /**
+     * Check if there are any objects in the project that use this asset.
+     */
+    hasInstances () {
+        // TODO
+    }
+
+    /**
      * Removes all paths using this asset as their image source from the project.
+     * @returns {boolean}
      */
     removeAllInstances () {
         // TODO
