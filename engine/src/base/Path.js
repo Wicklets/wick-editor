@@ -161,7 +161,7 @@ Wick.Path = class extends Wick.Base {
     }
 
     /**
-     * The stroke width of the shape.
+     * The stroke width of the path.
      * @type {number}
      */
     get strokeWidth () {
@@ -174,7 +174,7 @@ Wick.Path = class extends Wick.Base {
     }
 
     /**
-     * The opacity of the clip.
+     * The opacity of the path.
      * @type {number}
      */
     get opacity () {
@@ -187,6 +187,30 @@ Wick.Path = class extends Wick.Base {
     set opacity (opacity) {
         this.view.item.opacity = opacity;
         this.json = this.view.exportJSON();
+    }
+
+    /**
+     * The font family of the path.
+     * @type {string}
+     */
+    get fontFamily () {
+        return this.view.item.fontFamily
+    }
+
+    set fontFamily (fontFamily) {
+        this.view.item.fontFamily = fontFamily;
+    }
+
+    /**
+     * The font size of the path.
+     * @type {number}
+     */
+    get fontSize () {
+        return this.view.item.fontSize
+    }
+
+    set fontSize (fontSize) {
+        this.view.item.fontSize = fontSize;
     }
 
     /**

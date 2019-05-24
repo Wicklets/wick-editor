@@ -116,9 +116,15 @@ describe('Wick.Path', function() {
         });
     });
 
-    describe('#get classname()', function() {
-        it('should return "Path"', function () {
-            expect(new Wick.Path({json: TestUtils.TEST_PATH_JSON_RED_SQUARE}).classname).to.equal('Path');
+    describe('#fontFamily,fontSize', function() {
+        it('should return correct fontFamily/fontSize', function () {
+            var path = TestUtils.paperToWickPath(new paper.PointText({
+                fillColor: '#000000',
+                fontFamily: 'Helvetica',
+                fontSize: 16,
+            }));
+            expect(path.fontFamily).to.equal('Helvetica');
+            expect(path.fontSize).to.equal(16);
         });
     });
 

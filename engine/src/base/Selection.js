@@ -403,6 +403,30 @@ Wick.Selection = class extends Wick.Base {
     }
 
     /**
+     * The font family of the selected object.
+     * @type {string}
+     */
+    get fontFamily () {
+        return this._getSingleAttribute('fontFamily');
+    }
+
+    set fontFamily (fontFamily) {
+        this._setSingleAttribute('fontFamily', fontFamily);
+    }
+
+    /**
+     * The font size of the selected object.
+     * @type {number}
+     */
+    get fontSize () {
+        return this._getSingleAttribute('fontSize');
+    }
+
+    set fontSize (fontSize) {
+        this._setSingleAttribute('fontSize', fontSize);
+    }
+
+    /**
      * The opacity of the selected object.
      * @type {number}
      */
