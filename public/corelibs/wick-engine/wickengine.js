@@ -71715,6 +71715,10 @@ Wick.Tool = class {
   static get EVENT_NAMES() {
     return ['onActivate', 'onDeactivate', 'onMouseMove', 'onMouseDown', 'onMouseDrag', 'onMouseUp'];
   }
+
+  static get DOUBLE_CLICK_TIME() {
+    return 100;
+  }
   /**
    * Creates a new Wick Tool.
    */
@@ -71774,7 +71778,9 @@ Wick.Tool = class {
 
   onMouseDown(e) {
     if (this._lastMousedownTimestamp !== null) {
-      if (e.timeStamp - this._lastMousedownTimestamp < 100) {
+      var d = e.timeStamp - this._lastMousedownTimestamp;
+
+      if (d < Wick.Tool.DOUBLE_CLICK_TIME) {
         this.onDoubleClick(e);
       }
     }
@@ -72178,6 +72184,7 @@ Wick.Tools.Cursor = class extends Wick.Tool {
   }
 
   onMouseDown(e) {
+    super.onMouseDown(e);
     if (!e.modifiers) e.modifiers = {};
     this.hitResult = this._updateHitResult(e);
 
@@ -72216,14 +72223,12 @@ Wick.Tools.Cursor = class extends Wick.Tool {
   }
 
   onDoubleClick(e) {
-    console.log('!');
-
     var selectedObject = this._selection.getSelectedObject();
 
-    if (selectedObject instanceof Wick.Clip) {
+    if (selectedObject && selectedObject instanceof Wick.Clip) {
       // Double clicked a Clip, set the focus to that Clip.
       this.project.focusTimelineOfSelectedClip();
-    } else if (selectedObject instanceof Wick.Path && selectedObject.view.item instanceof paper.Text) {// Double clicked text, switch to text tool and edit the text item.
+    } else if (selectedObject && selectedObject instanceof Wick.Path && selectedObject.view.item instanceof paper.PointText) {// Double clicked text, switch to text tool and edit the text item.
       // TODO
     } else {
       // Double clicked the canvas, leave the current focus.
