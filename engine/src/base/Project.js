@@ -575,7 +575,7 @@ Wick.Project = class extends Wick.Base {
         this.selection.clear();
         this.activeFrames.filter(frame => {
             return !frame.parentLayer.locked
-                && frame.parentLayer.hidden;
+                && !frame.parentLayer.hidden;
         }).forEach(frame => {
             frame.paths.forEach(path => {
                 this.selection.select(path);

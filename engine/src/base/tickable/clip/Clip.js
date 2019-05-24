@@ -471,6 +471,7 @@ Wick.Clip = class extends Wick.Tickable {
      */
     clone () {
         var clone = this.copy();
+        clone.identifier = null;
         this.parentFrame.addClip(clone);
         this._clones.push(clone);
         return clone;

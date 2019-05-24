@@ -107,7 +107,7 @@ Wick.Base = class {
         data.uuid = uuidv4();
         var copy = Wick.Base.fromData(data);
         copy._childrenData = null;
-        if(!args.retainIdentifiers) copy._identifier = null;
+        //if(!args.retainIdentifiers) copy._identifier = null;
 
         // Copy children
         this.getChildren().forEach(child => {
@@ -182,7 +182,7 @@ Wick.Base = class {
     }
 
     set identifier (identifier) {
-        if(identifier === '') {
+        if(identifier === '' || identifier === null) {
             this._identifier = null;
             return;
         }

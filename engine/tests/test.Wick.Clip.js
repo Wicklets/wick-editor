@@ -121,7 +121,7 @@ describe('Wick.Clip', function() {
             expect(copy instanceof Wick.Tickable).to.equal(true);
             expect(copy instanceof Wick.Clip).to.equal(true);
             expect(copy.classname).to.equal('Clip');
-            expect(copy.identifier).to.equal(null);
+            expect(copy.identifier).to.equal('foo');
             expect(copy.timeline instanceof Wick.Timeline).to.equal(true);
         });
 
@@ -171,7 +171,7 @@ describe('Wick.Clip', function() {
             expect(copy instanceof Wick.Tickable).to.equal(true);
             expect(copy instanceof Wick.Clip).to.equal(true);
             expect(copy.classname).to.equal('Clip');
-            expect(copy.identifier).to.equal(null);
+            expect(copy.identifier).to.equal('foo');
             expect(copy.transformation.x).to.equal(0);
             expect(copy.transformation.y).to.equal(0);
             expect(copy.activeFrame.paths.length).to.equal(2);
@@ -235,7 +235,7 @@ describe('Wick.Clip', function() {
             expect(copy instanceof Wick.Tickable).to.equal(true);
             expect(copy instanceof Wick.Clip).to.equal(true);
             expect(copy.classname).to.equal('Clip');
-            expect(copy.identifier).to.equal(null);
+            expect(copy.identifier).to.equal('foo');
             expect(copy.transformation.x).to.equal(0);
             expect(copy.transformation.y).to.equal(0);
             expect(copy.activeFrame.paths.length).to.equal(2);

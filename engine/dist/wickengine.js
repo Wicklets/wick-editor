@@ -65637,7 +65637,7 @@ Wick.WickFile = class {
     var assetsFolder = zip.folder("assets"); // Populate assets folder with files
 
     project.getAssets().filter(asset => {
-      return asset instanceof Wick.ImageAsset || asset instanceof Wick.SoundAsset;
+      return asset instanceof Wick.ImageAsset || asset instanceof Wick.SoundAsset || asset instanceof Wick.FontAsset;
     }).forEach(asset => {
       // Create file from asset dataurl, add it to assets folder
       var fileExtension = asset.MIMEType.split('/')[1];
@@ -66063,8 +66063,8 @@ Wick.Base = class {
     var data = this.serialize();
     data.uuid = uuidv4();
     var copy = Wick.Base.fromData(data);
-    copy._childrenData = null;
-    if (!args.retainIdentifiers) copy._identifier = null; // Copy children
+    copy._childrenData = null; //if(!args.retainIdentifiers) copy._identifier = null;
+    // Copy children
 
     this.getChildren().forEach(child => {
       copy.addChild(child.copy(args));
@@ -66141,7 +66141,7 @@ Wick.Base = class {
   }
 
   set identifier(identifier) {
-    if (identifier === '') {
+    if (identifier === '' || identifier === null) {
       this._identifier = null;
       return;
     }
@@ -66439,6 +66439,7 @@ Wick.Layer = class extends Wick.Base {
     super(args);
     this.locked = args.locked === undefined ? false : args.locked;
     this.hidden = args.hidden === undefined ? false : args.hidden;
+    this.name = args.name || 'New Layer';
   }
 
   serialize(args) {
@@ -66899,7 +66900,7 @@ Wick.Project = class extends Wick.Base {
 
 
   get assets() {
-    return this.getChildren(['ImageAsset', 'SoundAsset', 'ClipAsset']);
+    return this.getChildren(['ImageAsset', 'SoundAsset', 'ClipAsset', 'FontAsset']);
   }
   /**
    * Adds an asset to the project.
@@ -67197,7 +67198,9 @@ Wick.Project = class extends Wick.Base {
 
   selectAll() {
     this.selection.clear();
-    this.activeFrames.forEach(frame => {
+    this.activeFrames.filter(frame => {
+      return !frame.parentLayer.locked && !frame.parentLayer.hidden;
+    }).forEach(frame => {
       frame.paths.forEach(path => {
         this.selection.select(path);
       });
@@ -68007,6 +68010,32 @@ Wick.Selection = class extends Wick.Base {
 
   set strokeWidth(strokeWidth) {
     this._setSingleAttribute('strokeWidth', strokeWidth);
+  }
+  /**
+   * The font family of the selected object.
+   * @type {string}
+   */
+
+
+  get fontFamily() {
+    return this._getSingleAttribute('fontFamily');
+  }
+
+  set fontFamily(fontFamily) {
+    this._setSingleAttribute('fontFamily', fontFamily);
+  }
+  /**
+   * The font size of the selected object.
+   * @type {number}
+   */
+
+
+  get fontSize() {
+    return this._getSingleAttribute('fontSize');
+  }
+
+  set fontSize(fontSize) {
+    this._setSingleAttribute('fontSize', fontSize);
   }
   /**
    * The opacity of the selected object.
@@ -68894,7 +68923,7 @@ Wick.Path = class extends Wick.Base {
     this.json = this.view.exportJSON();
   }
   /**
-   * The stroke width of the shape.
+   * The stroke width of the path.
    * @type {number}
    */
 
@@ -68908,7 +68937,7 @@ Wick.Path = class extends Wick.Base {
     this.json = this.view.exportJSON();
   }
   /**
-   * The opacity of the clip.
+   * The opacity of the path.
    * @type {number}
    */
 
@@ -68924,6 +68953,32 @@ Wick.Path = class extends Wick.Base {
   set opacity(opacity) {
     this.view.item.opacity = opacity;
     this.json = this.view.exportJSON();
+  }
+  /**
+   * The font family of the path.
+   * @type {string}
+   */
+
+
+  get fontFamily() {
+    return this.view.item.fontFamily;
+  }
+
+  set fontFamily(fontFamily) {
+    this.view.item.fontFamily = fontFamily;
+  }
+  /**
+   * The font size of the path.
+   * @type {number}
+   */
+
+
+  get fontSize() {
+    return this.view.item.fontSize;
+  }
+
+  set fontSize(fontSize) {
+    this.view.item.fontSize = fontSize;
   }
   /**
    * Removes this path from its parent frame.
@@ -69049,6 +69104,8 @@ Wick.FileAsset = class extends Wick.Asset {
     if (!args) args = {};
     args.name = args.filename;
     super(args);
+    this.fileExtension = null;
+    this.MIMEType = null;
     this.filename = args.filename;
     this.src = args.src;
   }
@@ -69085,9 +69142,17 @@ Wick.FileAsset = class extends Wick.Asset {
     Wick.FileCache.addFile(src, this.uuid);
 
     if (src) {
-      this.fileExtension = this._fileExtensionOfString(src);
-      this.MIMEType = this._MIMETypeOfString(src);
+      this.load(src);
     }
+  }
+  /**
+   * Loads data about the file into the asset.
+   */
+
+
+  load(src) {
+    this.fileExtension = this._fileExtensionOfString(src);
+    this.MIMEType = this._MIMETypeOfString(src);
   }
   /**
    * Copies the FileAsset and also copies the src in FileCache.
@@ -69099,6 +69164,15 @@ Wick.FileAsset = class extends Wick.Asset {
     var copy = super.copy();
     copy.src = this.src;
     return copy;
+  }
+  /**
+   * Attach a function to be called when an asset is done loading.
+   * @param {function} callback - the function to call
+   */
+
+
+  onLoad(callback) {
+    this._onLoadCallback = callback;
   }
 
   _MIMETypeOfString(string) {
@@ -69174,7 +69248,15 @@ Wick.ImageAsset = class extends Wick.FileAsset {
     return 'ImageAsset';
   }
   /**
+   * Check if there are any objects in the project that use this asset.
+   */
+
+
+  hasInstances() {} // TODO
+
+  /**
    * Removes all paths using this asset as their image source from the project.
+   * @returns {boolean}
    */
 
 
@@ -69440,6 +69522,14 @@ Wick.SoundAsset = class extends Wick.FileAsset {
     }
   }
   /**
+   * Check if there are any objects in the project that use this asset.
+   * @returns {boolean}
+   */
+
+
+  hasInstances() {} // TODO
+
+  /**
    * Remove the sound from any frames in the project that use this asset as their sound.
    */
 
@@ -69450,6 +69540,108 @@ Wick.SoundAsset = class extends Wick.FileAsset {
         frame.removeSound();
       }
     });
+  }
+
+};
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* Copyright 2019 WICKLETS LLC
+*
+* This file is part of Wick Engine.
+*
+* Wick Engine is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Wick Engine is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+*/
+Wick.FontAsset = class extends Wick.FileAsset {
+  /**
+   * The default font to use if a font couldn't load, or if a FontAsset was deleted
+   */
+  static get MISSING_FONT_DEFAULT() {
+    return 'Helvetica, Arial, sans-serif';
+  }
+  /**
+   * Create a new FontAsset.
+   * @param {string} fontFamily - the name of the font
+   */
+
+
+  constructor(args) {
+    super(args);
+    this.fontFamily = args.fontFamily;
+  }
+
+  serialize(args) {
+    var data = super.serialize(args);
+    data.fontFamily = this.fontFamily;
+    return data;
+  }
+
+  deserialize(data) {
+    super.deserialize(data);
+    this.fontFamily = data.fontFamily;
+  }
+
+  get classname() {
+    return 'FontAsset';
+  }
+  /**
+   * Loads the font into the window.
+   */
+
+
+  load(src) {
+    super.load(src);
+
+    var fontDataArraybuffer = this._base64ToArrayBuffer(this.src.split(';')[1]);
+
+    var font = new FontFace('ABeeZee', fontDataArraybuffer);
+    font.load().then(loaded_face => {
+      document.fonts.add(loaded_face); //document.body.style.fontFamily = '"ABeeZee", Arial';
+
+      this._onLoadCallback && this._onLoadCallback();
+    }).catch(error => {
+      console.error('FontAsset.load(): An error occured while loading a font.');
+      console.error(error);
+    });
+  }
+  /**
+   * Check if there are any objects in the project that use this asset.
+   * @returns {boolean}
+   */
+
+
+  hasInstances() {} // TODO
+
+  /**
+   * Finds all PointText paths using this font as their fontFamily and replaces that font with a default font.
+   */
+
+
+  removeAllInstances() {} // TODO
+  // https://stackoverflow.com/questions/21797299/convert-base64-string-to-arraybuffer/21797381
+
+
+  _base64ToArrayBuffer(base64) {
+    var binary_string = window.atob(base64);
+    var len = binary_string.length;
+    var bytes = new Uint8Array(len);
+
+    for (var i = 0; i < len; i++) {
+      bytes[i] = binary_string.charCodeAt(i);
+    }
+
+    return bytes.buffer;
   }
 
 };
@@ -71333,6 +71525,7 @@ Wick.Clip = class extends Wick.Tickable {
 
   clone() {
     var clone = this.copy();
+    clone.identifier = null;
     this.parentFrame.addClip(clone);
 
     this._clones.push(clone);
@@ -71520,7 +71713,7 @@ Wick.Button = class extends Wick.Clip {
 */
 Wick.Tool = class {
   static get EVENT_NAMES() {
-    return ['onActivate', 'onDeactivate', 'onMouseMove', 'onMouseDown', 'onMouseDrag', 'onMouseUp'];
+    return ['onActivate', 'onDeactivate', 'onMouseMove', 'onMouseDown', 'onMouseDoubleClick', 'onMouseDrag', 'onMouseUp'];
   }
   /**
    * Creates a new Wick Tool.
@@ -72004,6 +72197,20 @@ Wick.Tools.Cursor = class extends Wick.Tool {
       }
 
       this.selectionBox.start(e.point);
+    }
+  }
+
+  onMouseDoubleClick(e) {
+    var selectedObject = this._selection.getSelectedObject();
+
+    if (selectedObject instanceof Wick.Clip) {
+      // Double clicked a Clip, set the focus to that Clip.
+      this.project.focusTimelineOfSelectedClip();
+    } else if (selectedObject instanceof Wick.Path && selectedObject.view.item instanceof paper.Text) {// Double clicked text, switch to text tool and edit the text item.
+      // TODO
+    } else {
+      // Double clicked the canvas, leave the current focus.
+      this.project.focusTimelineOfParentClip();
     }
   }
 

@@ -121,8 +121,8 @@ describe('Wick.Base', function() {
         var child3 = new Wick.Base({identifier: 'child3'});
 
         var grandchild1 = new Wick.Base({identifier: 'grandchild1'});
-        var grandchild2 = new Wick.Base({identifier: 'grandchild1'});
-        var grandchild3 = new Wick.Base({identifier: 'grandchild1'});
+        var grandchild2 = new Wick.Base({identifier: 'grandchild2'});
+        var grandchild3 = new Wick.Base({identifier: 'grandchild3'});
 
         base.addChild(child1);
         base.addChild(child2);
@@ -138,14 +138,25 @@ describe('Wick.Base', function() {
         expect(base.getChildren('Base')[0]).to.equal(child1);
         expect(base.getChildren('Base')[1]).to.equal(child2);
         expect(base.getChildren('Base')[2]).to.equal(child3);
+        expect(base.getChildren('Base')[0].identifier).to.equal('child1');
+        expect(base.getChildren('Base')[1].identifier).to.equal('child2');
+        expect(base.getChildren('Base')[2].identifier).to.equal('child3');
 
         expect(copy.getChildren('Base').length).to.equal(3);
-        expect(copy.getChildren('Base')[0] instanceof Wick.Base).to.equal(true);
-        expect(copy.getChildren('Base')[1] instanceof Wick.Base).to.equal(true);
-        expect(copy.getChildren('Base')[2] instanceof Wick.Base).to.equal(true);
         expect(copy.getChildren('Base')[0]).not.to.equal(child1);
         expect(copy.getChildren('Base')[1]).not.to.equal(child2);
         expect(copy.getChildren('Base')[2]).not.to.equal(child3);
+        expect(copy.getChildren('Base')[0].identifier).to.equal('child1');
+        expect(copy.getChildren('Base')[1].identifier).to.equal('child2');
+        expect(copy.getChildren('Base')[2].identifier).to.equal('child3');
+
+        expect(copy.getChildren('Base')[0].getChildren('Base').length).to.equal(3);
+        expect(copy.getChildren('Base')[0].getChildren('Base')[0]).not.to.equal(grandchild1);
+        expect(copy.getChildren('Base')[0].getChildren('Base')[1]).not.to.equal(grandchild2);
+        expect(copy.getChildren('Base')[0].getChildren('Base')[2]).not.to.equal(grandchild3);
+        expect(copy.getChildren('Base')[0].getChildren('Base')[0].identifier).to.equal('grandchild1');
+        expect(copy.getChildren('Base')[0].getChildren('Base')[1].identifier).to.equal('grandchild2');
+        expect(copy.getChildren('Base')[0].getChildren('Base')[2].identifier).to.equal('grandchild3');
     });
 
     it('identifier should only accept valid variable names', function() {
