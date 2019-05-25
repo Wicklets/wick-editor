@@ -504,12 +504,15 @@ Wick.Project = class extends Wick.Base {
 
         let imageTypes = Wick.ImageAsset.getValidMIMETypes();
         let soundTypes = Wick.SoundAsset.getValidMIMETypes();
+        let fontTypes = Wick.FontAsset.getValidMIMETypes();
 
         let asset = undefined;
         if (imageTypes.indexOf(file.type) !== -1) {
             asset = new Wick.ImageAsset();
         } else if (soundTypes.indexOf(file.type) !== -1) {
             asset = new Wick.SoundAsset();
+        } else if (fontTypes.indexOf(file.type) !== -1) {
+            asset = new Wick.FontAsset();
         }
 
         if (asset === undefined) {
@@ -518,6 +521,8 @@ Wick.Project = class extends Wick.Base {
             console.log(imageTypes)
             console.warn('supported sound file types:');
             console.log(soundTypes)
+            console.warn('supported font file types:');
+            console.log(fontTypes)
             callback(null);
             return;
         }

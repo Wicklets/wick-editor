@@ -19,6 +19,22 @@
 
 Wick.FontAsset = class extends Wick.FileAsset {
     /**
+     * Valid MIME types for font assets.
+     * @returns {string[]} Array of strings representing MIME types in the form font/filetype.
+     */
+    static getValidMIMETypes () {
+        return ['font/ttf'];
+    }
+
+    /**
+     * Valid extensions for font assets.
+     * @returns {string[]} Array of strings representing extensions.
+     */
+    static getValidExtensions () {
+        return ['.ttf'];
+    }
+
+    /**
      * The default font to use if a font couldn't load, or if a FontAsset was deleted
      */
     static get MISSING_FONT_DEFAULT () {

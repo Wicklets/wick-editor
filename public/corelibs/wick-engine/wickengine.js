@@ -67124,12 +67124,15 @@ Wick.Project = class extends Wick.Base {
     var self = this;
     let imageTypes = Wick.ImageAsset.getValidMIMETypes();
     let soundTypes = Wick.SoundAsset.getValidMIMETypes();
+    let fontTypes = Wick.FontAsset.getValidMIMETypes();
     let asset = undefined;
 
     if (imageTypes.indexOf(file.type) !== -1) {
       asset = new Wick.ImageAsset();
     } else if (soundTypes.indexOf(file.type) !== -1) {
       asset = new Wick.SoundAsset();
+    } else if (fontTypes.indexOf(file.type) !== -1) {
+      asset = new Wick.FontAsset();
     }
 
     if (asset === undefined) {
@@ -67138,6 +67141,8 @@ Wick.Project = class extends Wick.Base {
       console.log(imageTypes);
       console.warn('supported sound file types:');
       console.log(soundTypes);
+      console.warn('supported font file types:');
+      console.log(fontTypes);
       callback(null);
       return;
     }
@@ -69618,8 +69623,26 @@ Wick.SoundAsset = class extends Wick.FileAsset {
 */
 Wick.FontAsset = class extends Wick.FileAsset {
   /**
+   * Valid MIME types for font assets.
+   * @returns {string[]} Array of strings representing MIME types in the form font/filetype.
+   */
+  static getValidMIMETypes() {
+    return ['font/ttf'];
+  }
+  /**
+   * Valid extensions for font assets.
+   * @returns {string[]} Array of strings representing extensions.
+   */
+
+
+  static getValidExtensions() {
+    return ['.ttf'];
+  }
+  /**
    * The default font to use if a font couldn't load, or if a FontAsset was deleted
    */
+
+
   static get MISSING_FONT_DEFAULT() {
     return 'Helvetica, Arial, sans-serif';
   }
