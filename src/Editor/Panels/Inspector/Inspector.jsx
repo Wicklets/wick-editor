@@ -206,18 +206,19 @@ class Inspector extends Component {
         isSearchable={true}
         options={this.props.fontInfoInterface.allFontNames}
         onChange={(val) => {
+          let font = val.value; 
           let args = {
-            font: val, 
+            font: font, 
             variant: 'regular',
             callback: (blob) => {
-              console.log(blob); 
               this.props.project.importFile(blob, 
-                () => {this.setSelectionAttribute('font', val)}
+                () => {this.setSelectionAttribute('font', font)}
               );
               
             },
             error: (error) => {console.error(error)}
           }
+
           this.props.fontInfoInterface.getFontFile(args);
         }} />
     )
@@ -232,8 +233,7 @@ class Inspector extends Component {
         value={this.getSelectionAttribute('fontStyle')}
         options={['regular', 'italic']}
         onChange={(val) => {
-          console.log(val);
-          this.setSelectionAttribute('fontVariant', val);
+          this.setSelectionAttribute('fontVariant', val.value);
         }} />
     )
   }
@@ -249,7 +249,7 @@ class Inspector extends Component {
         value={this.getSelectionAttribute('fontWeight')}
         options={fontWeightOptions}
         onChange={(val) => {
-          this.setSelectionAttribute('fontWeight', (fontWeightOptions.indexOf(val) * 100));
+          this.setSelectionAttribute('fontWeight', (fontWeightOptions.indexOf(val.value) * 100));
         }} />
     )
   }
