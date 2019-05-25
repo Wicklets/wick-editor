@@ -155,12 +155,14 @@ Wick.Tools.Cursor = class extends Wick.Tool {
         if(selectedObject && selectedObject instanceof Wick.Clip) {
             // Double clicked a Clip, set the focus to that Clip.
             this.project.focusTimelineOfSelectedClip();
+            this.fireEvent('canvasModified');
         } else if (selectedObject && (selectedObject instanceof Wick.Path) && (selectedObject.view.item instanceof paper.PointText)) {
             // Double clicked text, switch to text tool and edit the text item.
             // TODO
         } else {
             // Double clicked the canvas, leave the current focus.
             this.project.focusTimelineOfParentClip();
+            this.fireEvent('canvasModified');
         }
     }
 

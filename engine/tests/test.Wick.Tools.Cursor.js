@@ -243,42 +243,48 @@ describe('Wick.Tools.Cursor', function() {
         var cursor = project.tools.cursor;
         cursor.activate();
 
-        var path1 = TestUtils.paperToWickPath(new paper.Path.Ellipse({
+        var path = TestUtils.paperToWickPath(new paper.Path.Ellipse({
             center: new paper.Point(25, 25),
             radius: 25,
             fillColor: '#ff0000',
         }));
-        var path2 = TestUtils.paperToWickPath(new paper.Path.Ellipse({
-            center: new paper.Point(75, 75),
-            radius: 25,
-            fillColor: '#ff0000',
-        }));
-        project.activeFrame.addPath(path1);
-        project.activeFrame.addPath(path2);
+        var clip = new Wick.Clip({
+            objects: [path],
+        });
+        project.activeFrame.addClip(clip);
         project.view.render();
 
-        cursor.onMouseMove({
-            modifiers: {shift: true},
+        // click the clip to select it
+        cursor.paperTool.onMouseMove({
+            modifiers: {shift: false},
             timeStamp: 0,
-            point: new paper.Point(75,75),
+            point: new paper.Point(25,25),
         });
-        cursor.onMouseDown({
-            modifiers: {shift: true},
+        cursor.paperTool.onMouseDown({
+            modifiers: {shift: false},
             timeStamp: 0,
-            point: new paper.Point(75,75),
+            point: new paper.Point(25,25),
         });
-        cursor.onMouseDown({
-            modifiers: {shift: true},
-            timeStamp: 200,
-            point: new paper.Point(75,75),
-        });
-        cursor.onMouseDown({
-            modifiers: {shift: true},
-            timeStamp: 250,
-            point: new paper.Point(75,75),
+        cursor.paperTool.onMouseUp({
+            modifiers: {shift: false},
+            timeStamp: 0,
+            point: new paper.Point(25,25),
         });
 
-        throw new Error('write me');
+        // double click the clip to set the focus
+        cursor.paperTool.onMouseDown({
+            modifiers: {shift: false},
+            timeStamp: 200,
+            point: new paper.Point(25,25),
+        });
+        cursor.paperTool.onMouseDown({
+            modifiers: {shift: false},
+            timeStamp: 250,
+            point: new paper.Point(25,25),
+        });
+
+        expect(project.focus).to.equal(clip);
+        expect(project.selection.numObjects).to.equal(0);
     });
 
     it('Should change focus to parent clip if the canvas is double clicked inside clip', function() {

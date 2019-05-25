@@ -66990,15 +66990,16 @@ Wick.Project = class extends Wick.Base {
 
   set focus(focus) {
     var focusChanged = this.focus !== null && this.focus !== focus;
-    this._focus = focus.uuid; // Reset timelines of subclips of the newly focused clip
-
-    focus.timeline.clips.forEach(subclip => {
-      subclip.timeline.playheadPosition = 1;
-    }); // Always reset pan and zoom and clear selection on focus change
+    this._focus = focus.uuid;
 
     if (focusChanged) {
+      this.selection.clear(); // Reset timelines of subclips of the newly focused clip
+
+      focus.timeline.clips.forEach(subclip => {
+        subclip.timeline.playheadPosition = 1;
+      }); // Reset pan and zoom and clear selection on focus change
+
       this.recenter();
-      this.selection.clear();
     }
   }
   /**
@@ -71712,12 +71713,8 @@ Wick.Button = class extends Wick.Clip {
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
 Wick.Tool = class {
-  static get EVENT_NAMES() {
-    return ['onActivate', 'onDeactivate', 'onMouseMove', 'onMouseDown', 'onMouseDrag', 'onMouseUp'];
-  }
-
   static get DOUBLE_CLICK_TIME() {
-    return 100;
+    return 300;
   }
   /**
    * Creates a new Wick Tool.
@@ -71725,13 +71722,43 @@ Wick.Tool = class {
 
 
   constructor() {
-    this.paperTool = new this.paper.Tool();
-    Wick.Tool.EVENT_NAMES.forEach(paperEventName => {
-      this.paperTool[paperEventName] = e => {
-        var fn = this[paperEventName];
-        fn && fn.bind(this)(e);
-      };
-    });
+    this.paperTool = new this.paper.Tool(); // Attach onActivate event
+
+    this.paperTool.onActivate = e => {
+      this.onActivate(e);
+    }; // Attach onDeactivate event
+
+
+    this.paperTool.onDeactivate = e => {
+      this.onDeactivate(e);
+    }; // Attach mouse move event
+
+
+    this.paperTool.onMouseMove = e => {
+      this.onMouseMove(e);
+    }; // Attach mouse down + double click event
+
+
+    this.paperTool.onMouseDown = e => {
+      if (this._lastMousedownTimestamp !== null && e.timeStamp - this._lastMousedownTimestamp < Wick.Tool.DOUBLE_CLICK_TIME) {
+        this.onDoubleClick(e);
+      } else {
+        this.onMouseDown(e);
+      }
+
+      this._lastMousedownTimestamp = e.timeStamp;
+    }; // Attach mouse move event
+
+
+    this.paperTool.onMouseDrag = e => {
+      this.onMouseDrag(e);
+    }; // Attach mouse up event
+
+
+    this.paperTool.onMouseUp = e => {
+      this.onMouseUp(e);
+    };
+
     this._eventCallbacks = {};
     this._lastMousedownTimestamp = null;
   }
@@ -71776,17 +71803,7 @@ Wick.Tool = class {
    */
 
 
-  onMouseDown(e) {
-    if (this._lastMousedownTimestamp !== null) {
-      var d = e.timeStamp - this._lastMousedownTimestamp;
-
-      if (d < Wick.Tool.DOUBLE_CLICK_TIME) {
-        this.onDoubleClick(e);
-      }
-    }
-
-    this._lastMousedownTimestamp = e.timeStamp;
-  }
+  onMouseDown(e) {}
   /**
    * Called when the mouse is dragged on the paper.js canvas and this is the active tool.
    */
@@ -72228,11 +72245,13 @@ Wick.Tools.Cursor = class extends Wick.Tool {
     if (selectedObject && selectedObject instanceof Wick.Clip) {
       // Double clicked a Clip, set the focus to that Clip.
       this.project.focusTimelineOfSelectedClip();
+      this.fireEvent('canvasModified');
     } else if (selectedObject && selectedObject instanceof Wick.Path && selectedObject.view.item instanceof paper.PointText) {// Double clicked text, switch to text tool and edit the text item.
       // TODO
     } else {
       // Double clicked the canvas, leave the current focus.
       this.project.focusTimelineOfParentClip();
+      this.fireEvent('canvasModified');
     }
   }
 

@@ -385,15 +385,16 @@ Wick.Project = class extends Wick.Base {
 
         this._focus = focus.uuid;
 
-        // Reset timelines of subclips of the newly focused clip
-        focus.timeline.clips.forEach(subclip => {
-            subclip.timeline.playheadPosition = 1;
-        });
-
-        // Always reset pan and zoom and clear selection on focus change
         if(focusChanged) {
-            this.recenter();
             this.selection.clear();
+
+            // Reset timelines of subclips of the newly focused clip
+            focus.timeline.clips.forEach(subclip => {
+                subclip.timeline.playheadPosition = 1;
+            });
+
+            // Reset pan and zoom and clear selection on focus change
+            this.recenter();
         }
     }
 

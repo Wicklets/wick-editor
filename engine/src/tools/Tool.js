@@ -18,19 +18,8 @@
  */
 
 Wick.Tool = class {
-    static get EVENT_NAMES () {
-        return [
-            'onActivate',
-            'onDeactivate',
-            'onMouseMove',
-            'onMouseDown',
-            'onMouseDrag',
-            'onMouseUp'
-        ];
-    }
-
     static get DOUBLE_CLICK_TIME () {
-        return 100;
+        return 300;
     }
 
     /**
@@ -39,12 +28,40 @@ Wick.Tool = class {
     constructor () {
         this.paperTool = new this.paper.Tool();
 
-        Wick.Tool.EVENT_NAMES.forEach(paperEventName => {
-            this.paperTool[paperEventName] = (e) => {
-                var fn = this[paperEventName];
-                fn && fn.bind(this)(e);
+        // Attach onActivate event
+        this.paperTool.onActivate = (e) => {
+            this.onActivate(e);
+        }
+
+        // Attach onDeactivate event
+        this.paperTool.onDeactivate = (e) => {
+            this.onDeactivate(e);
+        }
+
+        // Attach mouse move event
+        this.paperTool.onMouseMove = (e) => {
+            this.onMouseMove(e);
+        }
+
+        // Attach mouse down + double click event
+        this.paperTool.onMouseDown = (e) => {
+            if(this._lastMousedownTimestamp !== null && e.timeStamp - this._lastMousedownTimestamp < Wick.Tool.DOUBLE_CLICK_TIME) {
+                this.onDoubleClick(e);
+            } else {
+                this.onMouseDown(e);
             }
-        });
+            this._lastMousedownTimestamp = e.timeStamp;
+        }
+
+        // Attach mouse move event
+        this.paperTool.onMouseDrag = (e) => {
+            this.onMouseDrag(e);
+        }
+
+        // Attach mouse up event
+        this.paperTool.onMouseUp = (e) => {
+            this.onMouseUp(e);
+        }
 
         this._eventCallbacks = {};
 
@@ -90,14 +107,7 @@ Wick.Tool = class {
      * Called when the mouse clicks the paper.js canvas and this is the active tool.
      */
     onMouseDown (e) {
-        if(this._lastMousedownTimestamp !== null) {
-            var d = e.timeStamp - this._lastMousedownTimestamp;
-            if(d < Wick.Tool.DOUBLE_CLICK_TIME) {
-                this.onDoubleClick(e);
-            }
-        }
 
-        this._lastMousedownTimestamp = e.timeStamp;
     }
 
     /**
