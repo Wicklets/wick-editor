@@ -274,12 +274,12 @@ describe('Wick.Tools.Cursor', function() {
         // double click the clip to set the focus
         cursor.paperTool.onMouseDown({
             modifiers: {shift: false},
-            timeStamp: 200,
+            timeStamp: 10000,
             point: new paper.Point(25,25),
         });
         cursor.paperTool.onMouseDown({
             modifiers: {shift: false},
-            timeStamp: 250,
+            timeStamp: 10100,
             point: new paper.Point(25,25),
         });
 

@@ -164,14 +164,9 @@ describe('Wick.Project', function() {
             clip2.timeline.playheadPosition = 4;
             project.activeFrame.addClip(clip2);
 
-            // Updating focus should always reset subclip timelines.
-            project.focus = project.root;
-            expect(project.root.timeline.playheadPosition).to.equal(2);
-            expect(clip1.timeline.playheadPosition).to.equal(1);
-            expect(clip2.timeline.playheadPosition).to.equal(1);
-
-            // Change focus to subclip, no playhead positions should change
+            // Change focus to subclip, then back to root. playhead positions should reset
             project.focus = clip1;
+            project.focus = project.root;
             expect(project.root.timeline.playheadPosition).to.equal(2);
             expect(clip1.timeline.playheadPosition).to.equal(1);
             expect(clip2.timeline.playheadPosition).to.equal(1);

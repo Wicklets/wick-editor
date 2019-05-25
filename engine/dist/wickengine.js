@@ -65117,7 +65117,7 @@ Wick.Clipboard = class {
     var pasteInPlace = project.activeFrame && this._copyLocation !== project.activeFrame.uuid;
     project.selection.clear();
     this.clipboardData.map(data => {
-      return Wick.Base.import(data);
+      return Wick.Base.import(data).copy();
     }).forEach(object => {
       // Paste frames at the position of the playhead
       if (object instanceof Wick.Frame) {

@@ -238,6 +238,30 @@ describe('Wick.Clipboard', function() {
         expect(project.activeLayer.getFrameAtPlayheadPosition(7)).equal(undefined);
     });
 
+    it('(bug) copied objects should have new uuids', function () {
+        localStorage.clear();
+
+        var project = new Wick.Project();
+        project.selection.select(project.activeFrame);
+
+        project.copySelectionToClipboard();
+        project.focus.timeline.playheadPosition = 2;
+        project.pasteClipboardContents();
+        project.focus.timeline.playheadPosition = 3;
+        project.pasteClipboardContents();
+
+        var frame1 = project.activeLayer.getFrameAtPlayheadPosition(1);
+        var frame2 = project.activeLayer.getFrameAtPlayheadPosition(2);
+        var frame3 = project.activeLayer.getFrameAtPlayheadPosition(3);
+        expect(project.activeLayer.frames.length).to.equal(3);
+        expect(frame1).to.not.equal(undefined);
+        expect(frame2).to.not.equal(undefined);
+        expect(frame3).to.not.equal(undefined);
+        expect(frame1.uuid).to.not.equal(frame2.uuid);
+        expect(frame2.uuid).to.not.equal(frame3.uuid);
+        expect(frame1.uuid).to.not.equal(frame3.uuid);
+    });
+
     it('should copy and paste even when there is no activeFrame', function () {
         localStorage.clear();
 
