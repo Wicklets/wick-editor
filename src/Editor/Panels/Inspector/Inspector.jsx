@@ -197,25 +197,72 @@ class Inspector extends Component {
   /**
    * Renders an inspector row allowing viewing and editing of the selected object's font.
    */
-  renderFonts = (args) => {
-    // TODO: Reimplement...
+  renderFontFamily = () => {
     return (
       <InspectorSelector
-        value={args.val}
-        options={args.options}
-        onChange={args.onChange} />
+        value={this.getSelectionAttribute('fontFamily')}
+        tooltip="Font Family"
+        type="select"
+        isSearchable={true}
+        options={this.props.fontInfoInterface.allFontNames}
+        onChange={(val) => {
+          let args = {
+            font: val, 
+            variant: 'regular',
+            callback: (blob) => {
+              console.log(blob); 
+              this.props.project.importFile(blob, 
+                () => {this.setSelectionAttribute('font', val)}
+              );
+              
+            },
+            error: (error) => {console.error(error)}
+          }
+          this.props.fontInfoInterface.getFontFile(args);
+        }} />
+    )
+  }
+
+  renderFontStyle = () => {
+    return (
+      <InspectorSelector
+        tooltip="Style"
+        type="select"
+        isSearchable={true}
+        value={this.getSelectionAttribute('fontStyle')}
+        options={['regular', 'italic']}
+        onChange={(val) => {
+          console.log(val);
+          this.setSelectionAttribute('fontVariant', val);
+        }} />
+    )
+  }
+
+  renderFontWeight = () => {
+    let fontWeightOptions =['Thin', 'Extra Light', 'Light', 'Normal', 'Medium', 'Semi Bold', 'Bold', 'Extra Bold', 'Black'];
+
+    return (
+      <InspectorSelector
+        tooltip="Weight"
+        type="select"
+        isSearchable={true}
+        value={this.getSelectionAttribute('fontWeight')}
+        options={fontWeightOptions}
+        onChange={(val) => {
+          this.setSelectionAttribute('fontWeight', (fontWeightOptions.indexOf(val) * 100));
+        }} />
     )
   }
 
   /**
    * Renders an inspector row allowing viewing and editing of the selection font size.
    */
-  renderFontSize = (args) =>  {
-    // TODO: Reimplement...
+  renderFontSize = () =>  {
     return (
       <InspectorNumericInput
-        val={args.val}
-        onChange={args.onChange} />
+        tooltip="Size"
+        val={this.getSelectionAttribute('fontSize')}
+        onChange={(val) => this.setSelectionAttribute('fontSize', val)} />
     )
   }
 
@@ -442,7 +489,6 @@ class Inspector extends Component {
   }
 
   renderSoundContent = () => {
-    let sound = this.getSelectionAttribute('sound');
     return (
       <div className="inspector-item">
         {this.renderSelectionSoundAsset()}
@@ -566,6 +612,17 @@ class Inspector extends Component {
     return ( this.renderGroupContent() );
   }
 
+  renderFontContent = () => {
+    return (
+      <div className="inspector-item">
+        {this.renderFontFamily()}
+        {this.renderFontStyle()}
+        {this.renderFontWeight()}
+        {this.renderFontSize()}
+      </div>
+    )
+  }
+
   /**
    * Renders the inspector view for all properties of a selection with path properties.
    */
@@ -575,6 +632,7 @@ class Inspector extends Component {
         {this.renderSelectionTransformProperties()}
         {this.renderSelectionFillColor()}
         {this.renderSelectionStrokeColor()}
+        {this.getSelectionAttribute("fontFamily") && this.renderFontContent()}
       </div>
     );
   }

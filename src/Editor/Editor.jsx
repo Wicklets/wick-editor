@@ -38,6 +38,7 @@ import { Slide } from 'react-toastify';
 import HotKeyInterface from './hotKeyMap';
 import ActionMapInterface from './actionMap';
 import ScriptInfoInterface from './scriptInfo';
+import FontInfoInterface from './fontInfo';
 import EditorCore from './EditorCore';
 
 import DockedPanel from './Panels/DockedPanel/DockedPanel';
@@ -93,6 +94,9 @@ class Editor extends EditorCore {
 
     // Init Script Info
     this.scriptInfoInterface = new ScriptInfoInterface();
+
+    this.fontInfoInterface = new FontInfoInterface();
+    window.myFontInfo = this.fontInfoInterface;
 
     // Resizable panels
     this.RESIZE_THROTTLE_AMOUNT_MS = 10;
@@ -160,7 +164,7 @@ class Editor extends EditorCore {
           this.project.activeTimeline.guiElement.numberLine.playhead.build();
         },
         onBeforeTick: () => {
-            
+
         },
       });
     }
@@ -706,6 +710,8 @@ class Editor extends EditorCore {
                                 scriptInfoInterface={this.scriptInfoInterface}
                                 deleteScript={this.deleteScript}
                                 editScript={this.editScript}
+                                fontInfoInterface={this.fontInfoInterface}
+                                project={this.project}
                               />
                             </DockedPanel>
                           </ReflexElement>

@@ -438,6 +438,8 @@ class EditorCore extends Component {
       "filename",
       "fontSize",
       "fontFamily",
+      "fontWeight",
+      "fontStyle",
       "src",
       "frameLength",
       "x",
