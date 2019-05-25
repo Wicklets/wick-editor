@@ -68039,6 +68039,32 @@ Wick.Selection = class extends Wick.Base {
     this._setSingleAttribute('fontSize', fontSize);
   }
   /**
+   * The font weight of the selected object.
+   * @type {number}
+   */
+
+
+  get fontWeight() {
+    return this._getSingleAttribute('fontWeight');
+  }
+
+  set fontWeight(fontWeight) {
+    this._setSingleAttribute('fontWeight', fontWeight);
+  }
+  /**
+   * The font style of the selected object. ('italic' or 'oblique')
+   * @type {string}
+   */
+
+
+  get fontStyle() {
+    return this._getSingleAttribute('fontStyle');
+  }
+
+  set fontStyle(fontWeight) {
+    this._setSingleAttribute('fontStyle', fontStyle);
+  }
+  /**
    * The opacity of the selected object.
    * @type {number}
    */
@@ -68980,6 +69006,32 @@ Wick.Path = class extends Wick.Base {
 
   set fontSize(fontSize) {
     this.view.item.fontSize = fontSize;
+  }
+  /**
+   * The font weight of the path.
+   * @type {number}
+   */
+
+
+  get fontWeight() {
+    return this.view.item.fontWeight;
+  }
+
+  set fontWeight(fontWeight) {
+    this.view.item.fontWeight = fontWeight;
+  }
+  /**
+   * The font style of the path ('italic' or 'oblique').
+   * @type {string}
+   */
+
+
+  get fontStyle() {
+    return this.view.item.fontStyle;
+  }
+
+  set fontStyle(fontStyle) {
+    this.view.item.fontStyle = fontStyle;
   }
   /**
    * Removes this path from its parent frame.

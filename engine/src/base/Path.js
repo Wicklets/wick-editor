@@ -214,6 +214,30 @@ Wick.Path = class extends Wick.Base {
     }
 
     /**
+     * The font weight of the path.
+     * @type {number}
+     */
+    get fontWeight () {
+        return this.view.item.fontWeight
+    }
+
+    set fontWeight (fontWeight) {
+        this.view.item.fontWeight = fontWeight;
+    }
+
+    /**
+     * The font style of the path ('italic' or 'oblique').
+     * @type {string}
+     */
+    get fontStyle () {
+        return this.view.item.fontStyle
+    }
+
+    set fontStyle (fontStyle) {
+        this.view.item.fontStyle = fontStyle;
+    }
+
+    /**
      * Removes this path from its parent frame.
      */
     remove () {

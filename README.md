@@ -40,5 +40,3 @@ Have fun hacking on Wick!
 
 2) Run `npm run deploy`
 
-3) Change the "Custom domain" in the repo settings to `alpha.wickeditor.com`
-

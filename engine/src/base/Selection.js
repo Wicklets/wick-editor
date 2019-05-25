@@ -427,6 +427,30 @@ Wick.Selection = class extends Wick.Base {
     }
 
     /**
+     * The font weight of the selected object.
+     * @type {number}
+     */
+    get fontWeight () {
+        return this._getSingleAttribute('fontWeight');
+    }
+
+    set fontWeight (fontWeight) {
+        this._setSingleAttribute('fontWeight', fontWeight);
+    }
+
+    /**
+     * The font style of the selected object. ('italic' or 'oblique')
+     * @type {string}
+     */
+    get fontStyle () {
+        return this._getSingleAttribute('fontStyle');
+    }
+
+    set fontStyle (fontWeight) {
+        this._setSingleAttribute('fontStyle', fontStyle);
+    }
+
+    /**
      * The opacity of the selected object.
      * @type {number}
      */
