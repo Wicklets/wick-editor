@@ -244,7 +244,7 @@ class Inspector extends Component {
   }
 
   renderFontWeight = () => {
-    let fontWeightOptions =['Thin', 'Extra Light', 'Light', 'Normal', 'Medium', 'Semi Bold', 'Bold', 'Extra Bold', 'Black'];
+    let fontWeightOptions =['thin', 'extra light', 'light', 'normal', 'medium', 'semi bold', 'bold', 'extra bold', 'black'];
 
     return (
       <InspectorSelector
