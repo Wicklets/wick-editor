@@ -211,8 +211,14 @@ class Inspector extends Component {
             font: font, 
             variant: 'regular',
             callback: (blob) => {
-              this.props.importFileAsAsset(blob, 
-                () => {this.setSelectionAttribute('fontFamily', font)}
+              this.props.importFileAsAsset(
+                {
+                  file: blob, 
+                  name: "Font: " + font
+                }, 
+                () => {
+                  this.setSelectionAttribute('fontFamily', font)
+                }
               );
             },
             error: (error) => {console.error(error)}

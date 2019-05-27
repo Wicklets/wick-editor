@@ -752,7 +752,7 @@ class EditorCore extends Component {
   /**
    * Attempts to import an arbitrary asset to the project. Displays an error or success message
    * depending on if the action was successful.
-   * @param {File|Blob} file File to load as asset.
+   * @param {Object} file Object representing file information with 'file' and 'name' keys. File can be a File object or Blob.
    * @param {Function} callback Optional: Callback to return asset to. If the import was unsuccessful, null is sent to the callback.
    */
   importFileAsAsset = (file, callback) => {
@@ -771,7 +771,7 @@ class EditorCore extends Component {
         }
       }
 
-    this.project.importFile(file, assetCallback);
+    this.project.importFile(file.file, assetCallback);
   }
 
   /**
@@ -792,7 +792,7 @@ class EditorCore extends Component {
 
     // Add all successfully uploaded assets
     acceptedFiles.forEach(file => {
-      this.importFileAsAsset(file);
+      this.importFileAsAsset({file:file, name:file.name});
     });
   }
 
