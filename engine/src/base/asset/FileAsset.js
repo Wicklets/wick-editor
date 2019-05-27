@@ -87,18 +87,18 @@ Wick.FileAsset = class extends Wick.Asset {
     }
 
     set src (src) {
-        Wick.FileCache.addFile(src, this.uuid);
         if(src) {
-            this.load(src);
+            Wick.FileCache.addFile(src, this.uuid);
+            this.fileExtension = this._fileExtensionOfString(src);
+            this.MIMEType = this._MIMETypeOfString(src);
         }
     }
 
     /**
      * Loads data about the file into the asset.
      */
-    load (src) {
-        this.fileExtension = this._fileExtensionOfString(src);
-        this.MIMEType = this._MIMETypeOfString(src);
+    load (callback) {
+        callback();
     }
 
     /**
@@ -109,14 +109,6 @@ Wick.FileAsset = class extends Wick.Asset {
         var copy = super.copy();
         copy.src = this.src;
         return copy;
-    }
-
-    /**
-     * Attach a function to be called when an asset is done loading.
-     * @param {function} callback - the function to call
-     */
-    onLoad (callback) {
-        this._onLoadCallback = callback;
     }
 
     _MIMETypeOfString (string) {

@@ -43,23 +43,18 @@ Wick.FontAsset = class extends Wick.FileAsset {
 
     /**
      * Create a new FontAsset.
-     * @param {string} fontFamily - the name of the font
      */
     constructor (args) {
         super(args);
-
-        this.fontFamily = args.fontFamily;
     }
 
     serialize (args) {
         var data = super.serialize(args);
-        data.fontFamily = this.fontFamily;
         return data;
     }
 
     deserialize (data) {
         super.deserialize(data);
-        this.fontFamily = data.fontFamily;
     }
 
     get classname () {
@@ -69,16 +64,19 @@ Wick.FontAsset = class extends Wick.FileAsset {
     /**
      * Loads the font into the window.
      */
-    load (src) {
-        super.load(src);
+    load (callback) {
+        var fontDataArraybuffer = this._base64ToArrayBuffer(this.src.split(',')[1]);
 
-        var fontDataArraybuffer = this._base64ToArrayBuffer(this.src.split(';')[1]);
+        var fontFamily = this.fontFamily;
+        if(!fontFamily) {
+            console.error('FontAsset: Could not get fontFamily from filename.');
+        }
 
-    		var font = new FontFace('ABeeZee', fontDataArraybuffer);
+    		var font = new FontFace(fontFamily, fontDataArraybuffer);
     		font.load().then(loaded_face => {
     		    document.fonts.add(loaded_face);
     		    //document.body.style.fontFamily = '"ABeeZee", Arial';
-            this._onLoadCallback && this._onLoadCallback();
+            callback();
     		}).catch(error => {
             console.error('FontAsset.load(): An error occured while loading a font:');
             console.error(error);
@@ -98,6 +96,14 @@ Wick.FontAsset = class extends Wick.FileAsset {
      */
     removeAllInstances () {
         // TODO
+    }
+
+    /**
+     *
+     * @type {string}
+     */
+    get fontFamily () {
+        return this.filename.split('.')[0];
     }
 
     // https://stackoverflow.com/questions/21797299/convert-base64-string-to-arraybuffer/21797381

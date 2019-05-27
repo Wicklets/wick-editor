@@ -544,7 +544,9 @@ Wick.Project = class extends Wick.Base {
             asset.filename = file.name;
             asset.name = file.name;
             this.addAsset(asset);
-            callback(asset);
+            asset.load(() => {
+                callback(asset);
+            });
         }
 
         reader.readAsDataURL(file);

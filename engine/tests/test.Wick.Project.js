@@ -291,6 +291,24 @@ describe('Wick.Project', function() {
                 done();
             });
         });
+
+        it('should import fonts correctly', function(done) {
+            var parts = [ TestUtils.dataURItoBlob(TestUtils.TEST_FONT_SRC_TTF) ];
+            var file = new File(parts, 'ABeeZee.ttf', {
+                lastModified: new Date(0),
+                type: "font/ttf",
+            });
+
+            var project = new Wick.Project();
+            project.importFile(file, function (asset) {
+                expect(asset instanceof Wick.FontAsset).to.equal(true);
+                expect(project.getAssets().length).to.equal(1);
+                expect(project.getAssets()[0]).to.equal(asset);
+                expect(asset.src).to.equal(TestUtils.TEST_FONT_SRC_TTF);
+                expect(asset.fontFamily).to.equal('ABeeZee');
+                done();
+            });
+        });
     });
 
     describe('#tick', function () {
@@ -924,7 +942,7 @@ describe('Wick.Project', function() {
                 src: TestUtils.TEST_FONT_SRC_TTF,
             });
 
-            font.onLoad(() => {
+            font.load(() => {
                 expect(project.hasFont('ABeeZee')).to.equal(false);
                 project.addAsset(font);
                 expect(project.hasFont('ABeeZee')).to.equal(true);

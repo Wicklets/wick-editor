@@ -67166,7 +67166,9 @@ Wick.Project = class extends Wick.Base {
       asset.filename = file.name;
       asset.name = file.name;
       this.addAsset(asset);
-      callback(asset);
+      asset.load(() => {
+        callback(asset);
+      });
     };
 
     reader.readAsDataURL(file);
@@ -69212,10 +69214,10 @@ Wick.FileAsset = class extends Wick.Asset {
   }
 
   set src(src) {
-    Wick.FileCache.addFile(src, this.uuid);
-
     if (src) {
-      this.load(src);
+      Wick.FileCache.addFile(src, this.uuid);
+      this.fileExtension = this._fileExtensionOfString(src);
+      this.MIMEType = this._MIMETypeOfString(src);
     }
   }
   /**
@@ -69223,9 +69225,8 @@ Wick.FileAsset = class extends Wick.Asset {
    */
 
 
-  load(src) {
-    this.fileExtension = this._fileExtensionOfString(src);
-    this.MIMEType = this._MIMETypeOfString(src);
+  load(callback) {
+    callback();
   }
   /**
    * Copies the FileAsset and also copies the src in FileCache.
@@ -69237,15 +69238,6 @@ Wick.FileAsset = class extends Wick.Asset {
     var copy = super.copy();
     copy.src = this.src;
     return copy;
-  }
-  /**
-   * Attach a function to be called when an asset is done loading.
-   * @param {function} callback - the function to call
-   */
-
-
-  onLoad(callback) {
-    this._onLoadCallback = callback;
   }
 
   _MIMETypeOfString(string) {
@@ -69663,24 +69655,20 @@ Wick.FontAsset = class extends Wick.FileAsset {
   }
   /**
    * Create a new FontAsset.
-   * @param {string} fontFamily - the name of the font
    */
 
 
   constructor(args) {
     super(args);
-    this.fontFamily = args.fontFamily;
   }
 
   serialize(args) {
     var data = super.serialize(args);
-    data.fontFamily = this.fontFamily;
     return data;
   }
 
   deserialize(data) {
     super.deserialize(data);
-    this.fontFamily = data.fontFamily;
   }
 
   get classname() {
@@ -69691,16 +69679,20 @@ Wick.FontAsset = class extends Wick.FileAsset {
    */
 
 
-  load(src) {
-    super.load(src);
+  load(callback) {
+    var fontDataArraybuffer = this._base64ToArrayBuffer(this.src.split(',')[1]);
 
-    var fontDataArraybuffer = this._base64ToArrayBuffer(this.src.split(';')[1]);
+    var fontFamily = this.fontFamily;
 
-    var font = new FontFace('ABeeZee', fontDataArraybuffer);
+    if (!fontFamily) {
+      console.error('FontAsset: Could not get fontFamily from filename.');
+    }
+
+    var font = new FontFace(fontFamily, fontDataArraybuffer);
     font.load().then(loaded_face => {
       document.fonts.add(loaded_face); //document.body.style.fontFamily = '"ABeeZee", Arial';
 
-      this._onLoadCallback && this._onLoadCallback();
+      callback();
     }).catch(error => {
       console.error('FontAsset.load(): An error occured while loading a font:');
       console.error(error);
@@ -69720,7 +69712,16 @@ Wick.FontAsset = class extends Wick.FileAsset {
 
 
   removeAllInstances() {} // TODO
-  // https://stackoverflow.com/questions/21797299/convert-base64-string-to-arraybuffer/21797381
+
+  /**
+   *
+   * @type {string}
+   */
+
+
+  get fontFamily() {
+    return this.filename.split('.')[0];
+  } // https://stackoverflow.com/questions/21797299/convert-base64-string-to-arraybuffer/21797381
 
 
   _base64ToArrayBuffer(base64) {

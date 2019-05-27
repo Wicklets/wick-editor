@@ -2,7 +2,7 @@ describe('Wick.SoundAsset', function() {
     describe('#constructor', function () {
         it('should instantiate correctly', function () {
             var sound = new Wick.SoundAsset({
-                filename:'test.wav',
+                filename: 'test.wav',
                 src: TestUtils.TEST_SOUND_SRC_WAV
             });
             expect(sound.classname).to.equal('SoundAsset');
