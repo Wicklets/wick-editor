@@ -467,5 +467,9 @@ describe('Wick.Frame', function() {
         it('should create a tween and convert everything on the frame into one clip (single path)', function () {
             throw new Error('write me')
         });
-    })
+    });
+
+    it('should automatically create tweens when objects are moved on a tweened frame', function () {
+        throw new Error('write me')
+    });
 });

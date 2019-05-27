@@ -358,6 +358,17 @@ Wick.Project = class extends Wick.Base {
     }
 
     /**
+     * Check if a FontAsset with a given fontFamily exists in the project.
+     * @param {string} fontFamily - The font to check for
+     * @returns {boolean}
+     */
+    hasFont (fontFamily) {
+        return this.getAssets('Font').find(asset => {
+            return asset.fontFamily === fontFamily;
+        }) !== undefined;
+    }
+
+    /**
      * The root clip.
      * @type {Wick.Clip}
      */
@@ -496,12 +507,10 @@ Wick.Project = class extends Wick.Base {
 
     /**
      * Creates an asset from a File object and adds that asset to the project.
-     * @param {File} file File object to be read and converted into an asset.
+     * @param {File} file - File object to be read and converted into an asset.
      * @param {function} callback Function with the created Wick Asset. Can be passed undefined on improper file input.
      */
     importFile (file, callback) {
-        var self = this;
-
         let imageTypes = Wick.ImageAsset.getValidMIMETypes();
         let soundTypes = Wick.SoundAsset.getValidMIMETypes();
         let fontTypes = Wick.FontAsset.getValidMIMETypes();
@@ -529,12 +538,12 @@ Wick.Project = class extends Wick.Base {
 
         let reader = new FileReader();
 
-        reader.onload = function () {
+        reader.onload = () => {
             let dataURL = reader.result;
             asset.src = dataURL;
             asset.filename = file.name;
             asset.name = file.name;
-            self.addAsset(asset);
+            this.addAsset(asset);
             callback(asset);
         }
 

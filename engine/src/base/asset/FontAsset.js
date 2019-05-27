@@ -23,7 +23,7 @@ Wick.FontAsset = class extends Wick.FileAsset {
      * @returns {string[]} Array of strings representing MIME types in the form font/filetype.
      */
     static getValidMIMETypes () {
-        return ['font/ttf'];
+        return ['font/ttf', 'application/x-font-ttf', 'application/x-font-truetype'];
     }
 
     /**
@@ -80,7 +80,7 @@ Wick.FontAsset = class extends Wick.FileAsset {
     		    //document.body.style.fontFamily = '"ABeeZee", Arial';
             this._onLoadCallback && this._onLoadCallback();
     		}).catch(error => {
-            console.error('FontAsset.load(): An error occured while loading a font.');
+            console.error('FontAsset.load(): An error occured while loading a font:');
             console.error(error);
     		});
     }

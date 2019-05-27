@@ -906,4 +906,29 @@ describe('Wick.Project', function() {
             throw new Error('write me');
         })
     })
+
+    describe('createImagePathFromAsset', function () {
+        it('should create an image path', function (done) {
+            throw new Error('write me');
+        })
+    });
+
+    describe('hasFont', function () {
+        it('should check for existing fonts', function (done) {
+            var project = new Wick.Project();
+
+            var font = new Wick.FontAsset({
+                filename:'ABeeZee.ttf',
+                fontFamily: 'ABeeZee',
+                src: TestUtils.TEST_FONT_SRC_TTF,
+            });
+
+            font.onLoad(() => {
+                expect(project.hasFont('ABeeZee')).to.equal(false);
+                project.addAsset(font);
+                expect(project.hasFont('ABeeZee')).to.equal(true);
+                done();
+            });
+        })
+    })
 });
