@@ -744,7 +744,7 @@ class EditorCore extends Component {
    * @param {number} y    The y location of the image after creation in relation to the window.
    */
   createImageFromAsset = (uuid, x, y) => {
-    this.project.createImagePathFromAsset(this.project.getChildByUUID(uuid), x, y, path => {
+    this.project.createImagePathFromAsset(window.Wick.ObjectCache.getObjectByUUID(uuid), x, y, path => {
       this.projectDidChange();
     });
   }

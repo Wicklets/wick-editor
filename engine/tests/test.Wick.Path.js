@@ -116,15 +116,27 @@ describe('Wick.Path', function() {
         });
     });
 
-    describe('#fontFamily,fontSize', function() {
+    describe('#fontFamily,fontSize,fontWeight,fontStyle', function() {
         it('should return correct fontFamily/fontSize', function () {
             var path = TestUtils.paperToWickPath(new paper.PointText({
                 fillColor: '#000000',
                 fontFamily: 'Helvetica',
                 fontSize: 16,
+                fontWeight: 'bold',
+                fontStyle: 'italic',
             }));
             expect(path.fontFamily).to.equal('Helvetica');
             expect(path.fontSize).to.equal(16);
+            expect(path.fontWeight).to.equal('bold');
+            expect(path.fontStyle).to.equal('italic');
+            path.fontFamily = 'Arial';
+            path.fontSize = 12;
+            path.fontWeight = 'bold';
+            path.fontStyle = 'italic';
+            expect(path.view.item.fontFamily).to.equal('Arial');
+            expect(path.view.item.fontSize).to.equal(12);
+            expect(path.view.item.fontWeight).to.equal('bold');
+            expect(path.view.item.fontStyle).to.equal('italic');
         });
     });
 

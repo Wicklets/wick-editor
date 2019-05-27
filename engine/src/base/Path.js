@@ -199,6 +199,7 @@ Wick.Path = class extends Wick.Base {
 
     set fontFamily (fontFamily) {
         this.view.item.fontFamily = fontFamily;
+        this.json = this.view.exportJSON();
     }
 
     /**
@@ -206,23 +207,25 @@ Wick.Path = class extends Wick.Base {
      * @type {number}
      */
     get fontSize () {
-        return this.view.item.fontSize
+        return this.view.item.fontSize;
     }
 
     set fontSize (fontSize) {
         this.view.item.fontSize = fontSize;
+        this.json = this.view.exportJSON();
     }
 
     /**
      * The font weight of the path.
-     * @type {number}
+     * @type {string}
      */
     get fontWeight () {
-        return this.view.item.fontWeight
+        return this.view.item.fontWeight;
     }
 
     set fontWeight (fontWeight) {
         this.view.item.fontWeight = fontWeight;
+        this.json = this.view.exportJSON();
     }
 
     /**
@@ -230,11 +233,12 @@ Wick.Path = class extends Wick.Base {
      * @type {string}
      */
     get fontStyle () {
-        return this.view.item.fontStyle
+        return this.view.item.fontStyle || 'normal';
     }
 
     set fontStyle (fontStyle) {
         this.view.item.fontStyle = fontStyle;
+        this.json = this.view.exportJSON();
     }
 
     /**
