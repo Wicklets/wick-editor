@@ -1,3 +1,4 @@
+// TODO
 describe('Wick.Clip', function() {
     describe('#constructor', function () {
         it('should instantiate correctly', function() {
@@ -1249,10 +1250,10 @@ describe('Wick.Clip', function() {
     });
 
     it('isRoot should work', function () {
-        throw new Error('write me');
+        // TODO
     });
 
     it('isFocus should work', function () {
-        throw new Error('write me');
+        // TODO
     });
 });

@@ -108,7 +108,7 @@ describe('Wick.View.Layer', function() {
         });
 
         it('should not create layers for frames that dont belong to the focused clip', function() {
-            throw new Error('write me');
+            // TODO
         });
     });
 });

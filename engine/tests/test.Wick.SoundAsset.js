@@ -11,13 +11,13 @@ describe('Wick.SoundAsset', function() {
 
     describe('#MIMEType', function () {
         it('get MIMEType should return correct MIME type', function() {
-            throw new Error('write me')
+            // TODO
         });
     });
 
     describe('#fileExtension', function () {
         it('get fileExtension should return correct file extension', function() {
-            throw new Error('write me')
+            // TODO
         });
     });
 

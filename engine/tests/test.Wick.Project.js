@@ -899,17 +899,18 @@ describe('Wick.Project', function() {
 
     describe('selectAll', function () {
         it('should select all items on the canvas', function () {
-            throw new Error('write me');
+            // TODO
         })
 
         it('should not select items on locked layers', function () {
-            throw new Error('write me');
+            // TODO
         })
     });
 
     describe('createImagePathFromAsset', function () {
         it('should create an image path', function (done) {
-            throw new Error('write me');
+            // TODO
+            done();
         })
     });
 

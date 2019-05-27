@@ -5,29 +5,7 @@ describe('Wick.Button', function() {
             expect(button.classname).to.equal('Button');
         });
     });
-/*
-    describe('#serialize', function () {
-        it('should serialize correctly', function() {
-            var button = new Wick.Button();
-            var data = button.serialize();
-            expect(data.classname).to.equal('Button');
-        });
-    });
-
-    describe('#_deserialize', function () {
-        it('should deserialize correctly', function() {
-            var data = {
-                classname: 'Button',
-                timeline: new Wick.Timeline().serialize(),
-                scripts: [],
-                transform: new Wick.Transformation().serialize(),
-            };
-
-            var button = Wick.Button.deserialize(data);
-            expect(button instanceof Wick.Button).to.equal(true);
-        });
-    });
-*/
+    
     describe('#tick', function () {
         it('should move playhead based on mouse state (single frame)', function() {
             var project = new Wick.Project();
