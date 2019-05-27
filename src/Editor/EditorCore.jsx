@@ -744,9 +744,34 @@ class EditorCore extends Component {
    * @param {number} y    The y location of the image after creation in relation to the window.
    */
   createImageFromAsset = (uuid, x, y) => {
-    this.project.createImagePathFromAsset(this.project.getChildByUUID(uuid), x, y, path => {
+    this.project.createImagePathFromAsset(this.project.getChildByUUID(uuid), x, y, (path) => {
       this.projectDidChange();
     });
+  }
+
+  /**
+   * Attempts to import an arbitrary asset to the project. Displays an error or success message
+   * depending on if the action was successful.
+   * @param {File|Blob} file File to load as asset.
+   * @param {Function} callback Optional: Callback to return asset to. If the import was unsuccessful, null is sent to the callback.
+   */
+  importFileAsAsset = (file, callback) => {
+      /**
+       * Handles the asset callback when the project has completed loading an asset.
+       * @param {Wick.Asset|null} asset Wick asset created by file load. Returns null if an error occurs.
+       */
+      let assetCallback = (asset) => {
+        if (callback) callback(asset);
+
+        if(asset === null) {
+          this.toast('Could not add files to project: ' + file.name, 'error');
+        } else {
+          this.toast('Imported "' + file.name + '" successfully.', 'success');
+          this.projectDidChange();
+        }
+      }
+
+    this.project.importFile(file, assetCallback);
   }
 
   /**
@@ -767,14 +792,7 @@ class EditorCore extends Component {
 
     // Add all successfully uploaded assets
     acceptedFiles.forEach(file => {
-      this.project.importFile(file, asset => {
-        if(asset === null) {
-          this.toast('Could not add files to project: ' + file.name, 'error');
-        } else {
-          this.toast('Imported "' + file.name + '" successfully.', 'success');
-          this.projectDidChange();
-        }
-      });
+      this.importFileAsAsset(file);
     });
   }
 

@@ -59,13 +59,15 @@ class FontInfoInterface extends Object {
         console.error("No font supplied to getFontFile"); 
         return;
       }
+
       let font = args.font;
       let variant = args.variant || 'regular';
       let weight = args.weight || '';
 
+      let folderName = font + '/'
       let fontFileName = font + "_" + weight + variant + '.ttf';
        
-      fetch (process.env.PUBLIC_URL + '/fonts/' + fontFileName)
+      fetch (process.env.PUBLIC_URL + '/fonts/' + folderName + fontFileName)
       .then((response) => response.blob())
       .then((data) => {
           if (args.callback) args.callback(data);

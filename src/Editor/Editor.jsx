@@ -712,6 +712,7 @@ class Editor extends EditorCore {
                                 editScript={this.editScript}
                                 fontInfoInterface={this.fontInfoInterface}
                                 project={this.project}
+                                importFileAsAsset={this.importFileAsAsset}
                               />
                             </DockedPanel>
                           </ReflexElement>
