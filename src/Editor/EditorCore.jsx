@@ -752,26 +752,21 @@ class EditorCore extends Component {
   /**
    * Attempts to import an arbitrary asset to the project. Displays an error or success message
    * depending on if the action was successful.
-   * @param {Object} file Object representing file information with 'file' and 'name' keys. File can be a File object or Blob.
-   * @param {Function} callback Optional: Callback to return asset to. If the import was unsuccessful, null is sent to the callback.
+   * @param {File} file - File object to create an asset of.
+   * @param {Function} callback - (optional) Callback to return asset to. If the import was unsuccessful, null is sent to the callback.
    */
   importFileAsAsset = (file, callback) => {
-      /**
-       * Handles the asset callback when the project has completed loading an asset.
-       * @param {Wick.Asset|null} asset Wick asset created by file load. Returns null if an error occurs.
-       */
-      let assetCallback = (asset) => {
-        if (callback) callback(asset);
+    console.log(file)
+    this.project.importFile(file, (asset) => {
+      if (callback) callback(asset);
 
-        if(asset === null) {
-          this.toast('Could not add files to project: ' + file.name, 'error');
-        } else {
-          this.toast('Imported "' + file.name + '" successfully.', 'success');
-          this.projectDidChange();
-        }
+      if(asset === null) {
+        this.toast('Could not add files to project: ' + file.name, 'error');
+      } else {
+        this.toast('Imported "' + file.name + '" successfully.', 'success');
+        this.projectDidChange();
       }
-
-    this.project.importFile(file.file, assetCallback);
+    });
   }
 
   /**
@@ -792,7 +787,7 @@ class EditorCore extends Component {
 
     // Add all successfully uploaded assets
     acceptedFiles.forEach(file => {
-      this.importFileAsAsset({file:file, name:file.name});
+      this.importFileAsAsset(file);
     });
   }
 

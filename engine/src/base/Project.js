@@ -358,6 +358,14 @@ Wick.Project = class extends Wick.Base {
     }
 
     /**
+     * A list of all "fontFamily" in the asset library.
+     * @returns {[string]}
+     */
+    getFonts () {
+        
+    }
+
+    /**
      * Check if a FontAsset with a given fontFamily exists in the project.
      * @param {string} fontFamily - The font to check for
      * @returns {boolean}
@@ -525,7 +533,7 @@ Wick.Project = class extends Wick.Base {
         }
 
         if (asset === undefined) {
-            console.warn('importFile(): Could not import file ' + file.name + ', ' + file.type + ' is not supported.');
+            console.warn('importFile(): Could not import file ' + file.name + ', filetype: "' + file.type + '" is not supported.');
             console.warn('supported image file types:');
             console.log(imageTypes)
             console.warn('supported sound file types:');

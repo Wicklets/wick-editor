@@ -206,25 +206,20 @@ class Inspector extends Component {
         isSearchable={true}
         options={this.props.fontInfoInterface.allFontNames}
         onChange={(val) => {
-          let font = val.value; 
-          let args = {
-            font: font, 
+          let font = val.value;
+          this.props.fontInfoInterface.getFontFile({
+            font: font,
             variant: 'regular',
-            callback: (blob) => {
-              this.props.importFileAsAsset(
-                {
-                  file: blob, 
-                  name: "Font: " + font
-                }, 
-                () => {
-                  this.setSelectionAttribute('fontFamily', font)
-                }
-              );
+            callback: blob => {
+              var file = new File([blob], font+'.ttf', {type:'font/ttf'});
+              this.props.importFileAsAsset(file, () => {
+                this.setSelectionAttribute('fontFamily', font)
+              });
             },
-            error: (error) => {console.error(error)}
-          }
-
-          this.props.fontInfoInterface.getFontFile(args);
+            error: error => {
+              console.error(error)
+            }
+          });
         }} />
     )
   }
@@ -457,9 +452,9 @@ class Inspector extends Component {
     let options = this.props.getAllSoundAssets().map(mapAsset);
 
     options.unshift({
-      value: "", 
-      label: "No Sound", 
-    }); 
+      value: "",
+      label: "No Sound",
+    });
 
     let value = mapAsset(this.getSelectionAttribute('sound'));
     return (
@@ -563,7 +558,7 @@ class Inspector extends Component {
    * Renders the inspector view for all properties of a tween selection.
    */
   renderTween = () =>  {
-    return ( 
+    return (
       <div className="inspector-content">
         {this.renderTweenEasingType()}
       </div>

@@ -67147,7 +67147,7 @@ Wick.Project = class extends Wick.Base {
     }
 
     if (asset === undefined) {
-      console.warn('importFile(): Could not import file ' + file.name + ', ' + file.type + ' is not supported.');
+      console.warn('importFile(): Could not import file ' + file.name + ', filetype: "' + file.type + '" is not supported.');
       console.warn('supported image file types:');
       console.log(imageTypes);
       console.warn('supported sound file types:');

@@ -950,4 +950,8 @@ describe('Wick.Project', function() {
             });
         })
     })
+
+    describe('getFonts', function () {
+        it('should return ')
+    })
 });
