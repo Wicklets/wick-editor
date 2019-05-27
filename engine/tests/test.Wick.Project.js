@@ -905,7 +905,7 @@ describe('Wick.Project', function() {
         it('should not select items on locked layers', function () {
             throw new Error('write me');
         })
-    })
+    });
 
     describe('createImagePathFromAsset', function () {
         it('should create an image path', function (done) {

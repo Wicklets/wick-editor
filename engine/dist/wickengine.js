@@ -66962,6 +66962,18 @@ Wick.Project = class extends Wick.Base {
     }
   }
   /**
+   * Check if a FontAsset with a given fontFamily exists in the project.
+   * @param {string} fontFamily - The font to check for
+   * @returns {boolean}
+   */
+
+
+  hasFont(fontFamily) {
+    return this.getAssets('Font').find(asset => {
+      return asset.fontFamily === fontFamily;
+    }) !== undefined;
+  }
+  /**
    * The root clip.
    * @type {Wick.Clip}
    */
@@ -67115,13 +67127,12 @@ Wick.Project = class extends Wick.Base {
   }
   /**
    * Creates an asset from a File object and adds that asset to the project.
-   * @param {File} file File object to be read and converted into an asset.
+   * @param {File} file - File object to be read and converted into an asset.
    * @param {function} callback Function with the created Wick Asset. Can be passed undefined on improper file input.
    */
 
 
   importFile(file, callback) {
-    var self = this;
     let imageTypes = Wick.ImageAsset.getValidMIMETypes();
     let soundTypes = Wick.SoundAsset.getValidMIMETypes();
     let fontTypes = Wick.FontAsset.getValidMIMETypes();
@@ -67149,12 +67160,12 @@ Wick.Project = class extends Wick.Base {
 
     let reader = new FileReader();
 
-    reader.onload = function () {
+    reader.onload = () => {
       let dataURL = reader.result;
       asset.src = dataURL;
       asset.filename = file.name;
       asset.name = file.name;
-      self.addAsset(asset);
+      this.addAsset(asset);
       callback(asset);
     };
 
@@ -68998,6 +69009,7 @@ Wick.Path = class extends Wick.Base {
 
   set fontFamily(fontFamily) {
     this.view.item.fontFamily = fontFamily;
+    this.json = this.view.exportJSON();
   }
   /**
    * The font size of the path.
@@ -69011,10 +69023,11 @@ Wick.Path = class extends Wick.Base {
 
   set fontSize(fontSize) {
     this.view.item.fontSize = fontSize;
+    this.json = this.view.exportJSON();
   }
   /**
    * The font weight of the path.
-   * @type {number}
+   * @type {string}
    */
 
 
@@ -69024,6 +69037,7 @@ Wick.Path = class extends Wick.Base {
 
   set fontWeight(fontWeight) {
     this.view.item.fontWeight = fontWeight;
+    this.json = this.view.exportJSON();
   }
   /**
    * The font style of the path ('italic' or 'oblique').
@@ -69032,11 +69046,12 @@ Wick.Path = class extends Wick.Base {
 
 
   get fontStyle() {
-    return this.view.item.fontStyle;
+    return this.view.item.fontStyle || 'normal';
   }
 
   set fontStyle(fontStyle) {
     this.view.item.fontStyle = fontStyle;
+    this.json = this.view.exportJSON();
   }
   /**
    * Removes this path from its parent frame.
@@ -69627,7 +69642,7 @@ Wick.FontAsset = class extends Wick.FileAsset {
    * @returns {string[]} Array of strings representing MIME types in the form font/filetype.
    */
   static getValidMIMETypes() {
-    return ['font/ttf'];
+    return ['font/ttf', 'application/x-font-ttf', 'application/x-font-truetype'];
   }
   /**
    * Valid extensions for font assets.
@@ -69687,7 +69702,7 @@ Wick.FontAsset = class extends Wick.FileAsset {
 
       this._onLoadCallback && this._onLoadCallback();
     }).catch(error => {
-      console.error('FontAsset.load(): An error occured while loading a font.');
+      console.error('FontAsset.load(): An error occured while loading a font:');
       console.error(error);
     });
   }
