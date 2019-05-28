@@ -65609,11 +65609,13 @@ Wick.WickFile = class {
               console.log(e);
               callback(null);
             }).finally(() => {
-              loadedAssetCount++;
+              assetData.load(() => {
+                loadedAssetCount++;
 
-              if (loadedAssetCount === project.getAssets().length) {
-                callback(project);
-              }
+                if (loadedAssetCount === project.getAssets().length) {
+                  callback(project);
+                }
+              });
             });
           });
         }
@@ -66962,6 +66964,29 @@ Wick.Project = class extends Wick.Base {
     }
   }
   /**
+   * A list of all "fontFamily" in the asset library.
+   * @returns {[string]}
+   */
+
+
+  getFonts() {
+    return this.getAssets('Font').map(asset => {
+      return asset.fontFamily;
+    });
+  }
+  /**
+   * Check if a FontAsset with a given fontFamily exists in the project.
+   * @param {string} fontFamily - The font to check for
+   * @returns {boolean}
+   */
+
+
+  hasFont(fontFamily) {
+    return this.getFonts().find(seekFontFamily => {
+      return seekFontFamily === fontFamily;
+    }) !== undefined;
+  }
+  /**
    * The root clip.
    * @type {Wick.Clip}
    */
@@ -67115,42 +67140,48 @@ Wick.Project = class extends Wick.Base {
   }
   /**
    * Creates an asset from a File object and adds that asset to the project.
-   * @param {File} file File object to be read and converted into an asset.
+   * @param {File} file - File object to be read and converted into an asset.
    * @param {function} callback Function with the created Wick Asset. Can be passed undefined on improper file input.
    */
 
 
   importFile(file, callback) {
-    var self = this;
     let imageTypes = Wick.ImageAsset.getValidMIMETypes();
     let soundTypes = Wick.SoundAsset.getValidMIMETypes();
+    let fontTypes = Wick.FontAsset.getValidMIMETypes();
     let asset = undefined;
 
     if (imageTypes.indexOf(file.type) !== -1) {
       asset = new Wick.ImageAsset();
     } else if (soundTypes.indexOf(file.type) !== -1) {
       asset = new Wick.SoundAsset();
+    } else if (fontTypes.indexOf(file.type) !== -1) {
+      asset = new Wick.FontAsset();
     }
 
     if (asset === undefined) {
-      console.warn('importFile(): Could not import file ' + file.name + ', ' + file.type + ' is not supported.');
+      console.warn('importFile(): Could not import file ' + file.name + ', filetype: "' + file.type + '" is not supported.');
       console.warn('supported image file types:');
       console.log(imageTypes);
       console.warn('supported sound file types:');
       console.log(soundTypes);
+      console.warn('supported font file types:');
+      console.log(fontTypes);
       callback(null);
       return;
     }
 
     let reader = new FileReader();
 
-    reader.onload = function () {
+    reader.onload = () => {
       let dataURL = reader.result;
       asset.src = dataURL;
       asset.filename = file.name;
       asset.name = file.name;
-      self.addAsset(asset);
-      callback(asset);
+      this.addAsset(asset);
+      asset.load(() => {
+        callback(asset);
+      });
     };
 
     reader.readAsDataURL(file);
@@ -68039,6 +68070,32 @@ Wick.Selection = class extends Wick.Base {
     this._setSingleAttribute('fontSize', fontSize);
   }
   /**
+   * The font weight of the selected object.
+   * @type {number}
+   */
+
+
+  get fontWeight() {
+    return this._getSingleAttribute('fontWeight');
+  }
+
+  set fontWeight(fontWeight) {
+    this._setSingleAttribute('fontWeight', fontWeight);
+  }
+  /**
+   * The font style of the selected object. ('italic' or 'oblique')
+   * @type {string}
+   */
+
+
+  get fontStyle() {
+    return this._getSingleAttribute('fontStyle');
+  }
+
+  set fontStyle(fontStyle) {
+    this._setSingleAttribute('fontStyle', fontStyle);
+  }
+  /**
    * The opacity of the selected object.
    * @type {number}
    */
@@ -68789,6 +68846,8 @@ Wick.Path = class extends Wick.Base {
   constructor(args) {
     if (!args) args = {};
     super(args);
+    this._fontStyle = 'normal';
+    this._fontWeight = 400;
 
     if (args.json) {
       this.json = args.json;
@@ -68829,12 +68888,31 @@ Wick.Path = class extends Wick.Base {
     var data = super.serialize(args);
     data.json = this.json;
     delete data.json[1].data;
+    data.fontStyle = this._fontStyle;
+    data.fontWeight = this._fontWeight;
     return data;
   }
 
   deserialize(data) {
     super.deserialize(data);
     this.json = data.json;
+    this._fontStyle = data.fontStyle;
+    this._fontWeight = data.fontWeight;
+  }
+  /**
+   * The type of path that this path is. Can be 'path', 'text', or 'image'
+   * @returns {string}
+   */
+
+
+  get pathType() {
+    if (this.view.item instanceof paper.TextItem) {
+      return 'text';
+    } else if (this.view.item instanceof paper.Raster) {
+      return 'image';
+    } else {
+      return 'path';
+    }
   }
   /**
    * Path data exported from paper.js using exportJSON({asString:false}).
@@ -68967,6 +69045,9 @@ Wick.Path = class extends Wick.Base {
 
   set fontFamily(fontFamily) {
     this.view.item.fontFamily = fontFamily;
+    this.fontWeight = 400;
+    this.fontStyle = 'normal';
+    this.json = this.view.exportJSON();
   }
   /**
    * The font size of the path.
@@ -68980,6 +69061,39 @@ Wick.Path = class extends Wick.Base {
 
   set fontSize(fontSize) {
     this.view.item.fontSize = fontSize;
+    this.view.item.leading = fontSize * 1.2;
+    this.json = this.view.exportJSON();
+  }
+  /**
+   * The font weight of the path.
+   * @type {number}
+   */
+
+
+  get fontWeight() {
+    return this._fontWeight;
+  }
+
+  set fontWeight(fontWeight) {
+    if (typeof fontWeight === 'string') {
+      console.error('fontWeight must be a number.');
+      return;
+    }
+
+    this._fontWeight = fontWeight;
+  }
+  /**
+   * The font style of the path ('italic' or 'oblique').
+   * @type {string}
+   */
+
+
+  get fontStyle() {
+    return this._fontStyle;
+  }
+
+  set fontStyle(fontStyle) {
+    this._fontStyle = fontStyle;
   }
   /**
    * Removes this path from its parent frame.
@@ -69041,11 +69155,27 @@ Wick.Asset = class extends Wick.Base {
     this.project.removeAsset(this);
   }
   /**
+   * A list of all objects using this asset.
+   */
+
+
+  getInstances() {} // Implemented by subclasses
+
+  /**
+   * Check if there are any objects in the project that use this asset.
+   * @returns {boolean}
+   */
+
+
+  hasInstances() {} // Implemented by sublasses
+
+  /**
    * Remove all instances of this asset from the project. (Implemented by ClipAsset, ImageAsset, and SoundAsset)
    */
 
 
-  removeAllInstances() {}
+  removeAllInstances() {// Implemented by sublasses
+  }
 
   get classname() {
     return 'Asset';
@@ -69140,10 +69270,10 @@ Wick.FileAsset = class extends Wick.Asset {
   }
 
   set src(src) {
-    Wick.FileCache.addFile(src, this.uuid);
-
     if (src) {
-      this.load(src);
+      Wick.FileCache.addFile(src, this.uuid);
+      this.fileExtension = this._fileExtensionOfString(src);
+      this.MIMEType = this._MIMETypeOfString(src);
     }
   }
   /**
@@ -69151,9 +69281,8 @@ Wick.FileAsset = class extends Wick.Asset {
    */
 
 
-  load(src) {
-    this.fileExtension = this._fileExtensionOfString(src);
-    this.MIMEType = this._MIMETypeOfString(src);
+  load(callback) {
+    callback();
   }
   /**
    * Copies the FileAsset and also copies the src in FileCache.
@@ -69165,15 +69294,6 @@ Wick.FileAsset = class extends Wick.Asset {
     var copy = super.copy();
     copy.src = this.src;
     return copy;
-  }
-  /**
-   * Attach a function to be called when an asset is done loading.
-   * @param {function} callback - the function to call
-   */
-
-
-  onLoad(callback) {
-    this._onLoadCallback = callback;
   }
 
   _MIMETypeOfString(string) {
@@ -69249,12 +69369,23 @@ Wick.ImageAsset = class extends Wick.FileAsset {
     return 'ImageAsset';
   }
   /**
-   * Check if there are any objects in the project that use this asset.
+   * A list of Wick Paths that use this image as their image source.
+   * @returns {Wick.Path[]}
    */
 
 
-  hasInstances() {} // TODO
+  getInstances() {
+    return []; // TODO
+  }
+  /**
+   * Check if there are any objects in the project that use this asset.
+   * @returns {boolean}
+   */
 
+
+  hasInstances() {
+    return false; // TODO
+  }
   /**
    * Removes all paths using this asset as their image source from the project.
    * @returns {boolean}
@@ -69523,23 +69654,37 @@ Wick.SoundAsset = class extends Wick.FileAsset {
     }
   }
   /**
+   * A list of Wick Paths that use this font as their fontFamily.
+   * @returns {Wick.Path[]}
+   */
+
+
+  getInstances() {
+    var frames = [];
+    this.project.getAllFrames().forEach(frame => {
+      if (frame._soundAssetUUID === this.uuid) {
+        frames.push(frame);
+      }
+    });
+    return frames;
+  }
+  /**
    * Check if there are any objects in the project that use this asset.
    * @returns {boolean}
    */
 
 
-  hasInstances() {} // TODO
-
+  hasInstances() {
+    return this.getInstances().length > 0;
+  }
   /**
    * Remove the sound from any frames in the project that use this asset as their sound.
    */
 
 
   removeAllInstances() {
-    this.project.getAllFrames().forEach(frame => {
-      if (frame.sound.uuid === this.uuid) {
-        frame.removeSound();
-      }
+    this.getInstances().forEach(frame => {
+      frame.removeSound();
     });
   }
 
@@ -69566,31 +69711,45 @@ Wick.SoundAsset = class extends Wick.FileAsset {
 */
 Wick.FontAsset = class extends Wick.FileAsset {
   /**
+   * Valid MIME types for font assets.
+   * @returns {string[]} Array of strings representing MIME types in the form font/filetype.
+   */
+  static getValidMIMETypes() {
+    return ['font/ttf', 'application/x-font-ttf', 'application/x-font-truetype'];
+  }
+  /**
+   * Valid extensions for font assets.
+   * @returns {string[]} Array of strings representing extensions.
+   */
+
+
+  static getValidExtensions() {
+    return ['.ttf'];
+  }
+  /**
    * The default font to use if a font couldn't load, or if a FontAsset was deleted
    */
+
+
   static get MISSING_FONT_DEFAULT() {
     return 'Helvetica, Arial, sans-serif';
   }
   /**
    * Create a new FontAsset.
-   * @param {string} fontFamily - the name of the font
    */
 
 
   constructor(args) {
     super(args);
-    this.fontFamily = args.fontFamily;
   }
 
   serialize(args) {
     var data = super.serialize(args);
-    data.fontFamily = this.fontFamily;
     return data;
   }
 
   deserialize(data) {
     super.deserialize(data);
-    this.fontFamily = data.fontFamily;
   }
 
   get classname() {
@@ -69601,20 +69760,41 @@ Wick.FontAsset = class extends Wick.FileAsset {
    */
 
 
-  load(src) {
-    super.load(src);
+  load(callback) {
+    var fontDataArraybuffer = this._base64ToArrayBuffer(this.src.split(',')[1]);
 
-    var fontDataArraybuffer = this._base64ToArrayBuffer(this.src.split(';')[1]);
+    var fontFamily = this.fontFamily;
 
-    var font = new FontFace('ABeeZee', fontDataArraybuffer);
+    if (!fontFamily) {
+      console.error('FontAsset: Could not get fontFamily from filename.');
+    }
+
+    var font = new FontFace(fontFamily, fontDataArraybuffer);
     font.load().then(loaded_face => {
       document.fonts.add(loaded_face); //document.body.style.fontFamily = '"ABeeZee", Arial';
 
-      this._onLoadCallback && this._onLoadCallback();
+      callback();
     }).catch(error => {
-      console.error('FontAsset.load(): An error occured while loading a font.');
+      console.error('FontAsset.load(): An error occured while loading a font:');
       console.error(error);
     });
+  }
+  /**
+   * A list of Wick Paths that use this font as their fontFamily.
+   * @returns {Wick.Path[]}
+   */
+
+
+  getInstances() {
+    var paths = [];
+    this.project.getAllFrames().forEach(frame => {
+      frame.paths.forEach(path => {
+        if (path.fontFamily === this.fontFamily) {
+          paths.push(path);
+        }
+      });
+    });
+    return paths;
   }
   /**
    * Check if there are any objects in the project that use this asset.
@@ -69622,15 +69802,28 @@ Wick.FontAsset = class extends Wick.FileAsset {
    */
 
 
-  hasInstances() {} // TODO
-
+  hasInstances() {
+    return this.getInstances().length > 0;
+  }
   /**
    * Finds all PointText paths using this font as their fontFamily and replaces that font with a default font.
    */
 
 
-  removeAllInstances() {} // TODO
-  // https://stackoverflow.com/questions/21797299/convert-base64-string-to-arraybuffer/21797381
+  removeAllInstances() {
+    this.getInstances().forEach(path => {
+      path.fontFamily = Wick.FontAsset.MISSING_FONT_DEFAULT;
+    });
+  }
+  /**
+   *
+   * @type {string}
+   */
+
+
+  get fontFamily() {
+    return this.filename.split('.')[0];
+  } // https://stackoverflow.com/questions/21797299/convert-base64-string-to-arraybuffer/21797381
 
 
   _base64ToArrayBuffer(base64) {
@@ -73255,7 +73448,7 @@ Wick.Tools.Text = class extends Wick.Tool {
 
 
   get cursor() {
-    return 'url(cursors/text.png) 32 32, auto';
+    return 'text';
   }
 
   onActivate(e) {}
@@ -73270,7 +73463,6 @@ Wick.Tools.Text = class extends Wick.Tool {
 
   onMouseMove(e) {
     super.onMouseMove(e);
-    this.setCursor('default');
 
     if (e.item && e.item.className === 'PointText' && !e.item.parent.parent) {
       this.hoveredOverText = e.item;
@@ -73290,8 +73482,8 @@ Wick.Tools.Text = class extends Wick.Tool {
       var text = new this.paper.PointText(e.point);
       text.justification = 'left';
       text.fillColor = 'black';
-      text.content = 'This is some text';
-      text.fontSize = 14;
+      text.content = 'Text';
+      text.fontSize = 24;
       this.fireEvent('canvasModified');
     }
   }
@@ -73307,6 +73499,11 @@ Wick.Tools.Text = class extends Wick.Tool {
   finishEditingText() {
     if (!this.editingText) return;
     this.editingText.finishEditing();
+
+    if (this.editingText.content === '') {
+      this.editingText.remove();
+    }
+
     this.editingText = null;
     this.fireEvent('canvasModified');
   }
@@ -74838,6 +75035,7 @@ paper.Path.inject({
 (function () {
   var editElem = $('<textarea style="resize: none;">');
   editElem.css('position', 'absolute');
+  editElem.css('overflow', 'hidden');
   editElem.css('width', '100px');
   editElem.css('height', '100px');
   editElem.css('left', '0px');
@@ -74857,8 +75055,10 @@ paper.Path.inject({
       clone.rotation = 0;
       clone.scaling = new paper.Point(1, 1);
       clone.remove();
-      var width = clone.bounds.width * paper.view.zoom;
-      var height = clone.bounds.height * paper.view.zoom;
+      var extraPadding = 3; // Extra padding so edit item doesn't get cut off.
+
+      var width = clone.bounds.width * paper.view.zoom + extraPadding;
+      var height = clone.bounds.height * paper.view.zoom + extraPadding;
       editElem.css('width', width + 'px');
       editElem.css('height', height + 'px');
       editElem.css('outline', 1 * paper.view.zoom + 'px dashed black');
@@ -76457,11 +76657,14 @@ Wick.View.Frame = class extends Wick.View {
     this.pathsLayer.children.filter(child => {
       return child.data.wickType !== 'gui';
     }).forEach(child => {
+      var originalWickPath = child.data.wickUUID ? Wick.ObjectCache.getObjectByUUID(child.data.wickUUID) : null;
       var pathJSON = Wick.View.Path.exportJSON(child);
       var wickPath = new Wick.Path({
         json: pathJSON
       });
       this.model.addPath(wickPath);
+      wickPath.fontWeight = originalWickPath ? originalWickPath.fontWeight : 400;
+      wickPath.fontStyle = originalWickPath ? originalWickPath.fontStyle : 'normal';
       child.name = wickPath.uuid;
     });
   }
@@ -76537,6 +76740,12 @@ Wick.View.Path = class extends Wick.View {
     } else {
       this._item.data.wickUUID = this.model.uuid;
       this._item.data.wickType = 'path';
+    } // Extra text options
+
+
+    if (this._item instanceof paper.TextItem) {
+      // https://github.com/paperjs/paper.js/issues/937
+      this._item.fontWeight = this.model.fontWeight + ' ' + this.model.fontStyle;
     }
   }
   /**
