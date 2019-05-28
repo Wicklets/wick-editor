@@ -744,6 +744,13 @@ class EditorCore extends Component {
    * @param {number} y    The y location of the image after creation in relation to the window.
    */
   createImageFromAsset = (uuid, x, y) => {
+    let obj = window.Wick.ObjectCache.getObjectByUUID(uuid);
+
+    if (!(obj instanceof window.Wick.ImageAsset)) {
+      console.error("Object not an instance of Wick Image Asset");
+      return;
+    }
+
     this.project.createImagePathFromAsset(window.Wick.ObjectCache.getObjectByUUID(uuid), x, y, path => {
       this.projectDidChange();
     });

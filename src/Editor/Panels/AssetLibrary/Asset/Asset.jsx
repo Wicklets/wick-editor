@@ -46,7 +46,6 @@ function collect(connect, monitor) {
 }
 
 class Asset extends Component {
-
   getIcon(classname) {
     if (classname === "ImageAsset") {
       return "image";
@@ -56,6 +55,8 @@ class Asset extends Component {
       return "clip";
     } else if (classname === "ButtonAsset") {
       return "button";
+    } else if (classname === "FontAsset") {
+      return "font"
     } else {
       return "asset";
     }
@@ -66,6 +67,7 @@ class Asset extends Component {
     const { connectDragSource } = this.props;
 
     let icon = this.getIcon(this.props.asset.classname);
+
     return connectDragSource (
       <div className={classNames("asset-item", {"asset-selected": this.props.isSelected})} onClick={this.props.onClick}>
         <div className="asset-icon">
@@ -77,4 +79,4 @@ class Asset extends Component {
   }
 }
 
-export default DragSource(DragDropTypes.ASSET, assetSource, collect)(Asset)
+export default DragSource(DragDropTypes.GET_ASSET_TYPE, assetSource, collect)(Asset)

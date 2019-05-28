@@ -73368,7 +73368,7 @@ Wick.Tools.Text = class extends Wick.Tool {
 
 
   get cursor() {
-    return 'url(cursors/text.png) 32 32, auto';
+    return 'text';
   }
 
   onActivate(e) {}
@@ -73383,7 +73383,6 @@ Wick.Tools.Text = class extends Wick.Tool {
 
   onMouseMove(e) {
     super.onMouseMove(e);
-    this.setCursor('default');
 
     if (e.item && e.item.className === 'PointText' && !e.item.parent.parent) {
       this.hoveredOverText = e.item;

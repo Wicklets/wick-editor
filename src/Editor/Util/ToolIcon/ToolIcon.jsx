@@ -98,6 +98,7 @@ import iconStrokeWidth from "resources/tool-icons/strokewidth.svg";
 import iconVolume from "resources/inspector-icons/property-icons/volume.svg";
 import iconUnknown from 'resources/inspector-icons/selection-icons/unknown.svg';
 import iconTween from 'resources/tool-icons/tween.svg'; 
+import iconFont from 'resources/tool-icons/font.svg'; 
 
 // Interface
 import iconCloseModal from 'resources/interface-images/close.svg';
@@ -193,6 +194,7 @@ class ToolIcon extends Component {
       "closetab": iconCloseTab,
       "warningdelete": iconWarningDelete, 
       "tween": iconTween, 
+      "font": iconFont,
     }
   }
 

@@ -19,6 +19,7 @@
 
 import React, { Component } from 'react';
 import './_inspector.scss';
+import './_inspectorselector.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 import InspectorTitle from './InspectorTitle/InspectorTitle';
@@ -198,13 +199,25 @@ class Inspector extends Component {
    * Renders an inspector row allowing viewing and editing of the selected object's font.
    */
   renderFontFamily = () => {
+    let opts = this.props.fontInfoInterface.allFontNames;
+
+    let getFontName = (font) => 'font-selector-' + font.split(" ").join("-");
+
+    opts = opts.map(opt => {
+      return {
+        value: opt, 
+        label: opt,
+        className: getFontName(opt),
+      }
+    });
+
     return (
       <InspectorSelector
         value={this.getSelectionAttribute('fontFamily')}
         tooltip="Font Family"
         type="select"
         isSearchable={true}
-        options={this.props.fontInfoInterface.allFontNames}
+        options={opts}
         onChange={(val) => {
           let font = val.value;
           this.props.fontInfoInterface.getFontFile({
@@ -220,7 +233,8 @@ class Inspector extends Component {
               console.error(error)
             }
           });
-        }} />
+        }}>   
+        </InspectorSelector>
     )
   }
 
@@ -260,7 +274,7 @@ class Inspector extends Component {
   renderFontSize = () =>  {
     return (
       <InspectorNumericInput
-        tooltip="Size"
+        tooltip="Font Size"
         val={this.getSelectionAttribute('fontSize')}
         onChange={(val) => this.setSelectionAttribute('fontSize', val)} />
     )
@@ -616,8 +630,8 @@ class Inspector extends Component {
     return (
       <div className="inspector-item">
         {this.renderFontFamily()}
-        {this.renderFontStyle()}
-        {this.renderFontWeight()}
+        {/* {this.renderFontStyle()}
+        {this.renderFontWeight()} */}
         {this.renderFontSize()}
       </div>
     )

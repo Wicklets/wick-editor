@@ -48,7 +48,7 @@ class ScriptWindowRow extends Component {
     return(
       <div className="inspector-script-window-row-container">
         <div className="script-row-item inspector-script-window-row-name">
-            <div className={"inspector-script-window-row-color-bar" + " " + this.getColorBar()}/>
+            <div className={"inspector-script-window-row-color-bar " + this.getColorBar()}/>
             {capitalize(this.props.name)}
         </div>
         <div className="script-row-item inspector-script-window-row-edit">

@@ -673,7 +673,6 @@ class Editor extends EditorCore {
                                 projectDidChange={this.projectDidChange}
                                 projectData={this.state.project}
                                 getSelectedTimelineObjects={this.getSelectedTimelineObjects}
-                                selectObjects={this.selectObjects}
                                 setOnionSkinOptions={this.setOnionSkinOptions}
                                 getOnionSkinOptions={this.getOnionSkinOptions}
                                 setFocusObject={this.setFocusObject}
@@ -731,6 +730,7 @@ class Editor extends EditorCore {
                                 assets={this.project.getAssets()}
                                 openFileDialog={() => open()}
                                 selectObjects={this.selectObjects}
+                                clearSelection={this.clearSelection}
                                 isObjectSelected={this.isObjectSelected}
                               />
                             </DockedPanel>
@@ -750,7 +750,6 @@ class Editor extends EditorCore {
               selectionIsScriptable={this.selectionIsScriptable}
               getSelectionType={this.getSelectionType}
               script={this.getSelectedObjectScript()}
-              toggleCodeEditor={this.toggleCodeEditor}
               errors={this.state.codeErrors}
               onMinorScriptUpdate={this.onMinorScriptUpdate}
               onMajorScriptUpdate={this.onMajorScriptUpdate}
