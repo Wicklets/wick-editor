@@ -21,7 +21,6 @@ import React, { Component } from 'react';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 
 import WickAceEditor from './WickAceEditor/WickAceEditor';
-import ActionButton from 'Editor/Util/ActionButton/ActionButton';
 import SelectSubTabButton from 'Editor/Util/SelectSubTabButton/SelectSubTabButton';
 import AddScriptPanel from './AddScriptPanel/AddScriptPanel';
 

@@ -750,7 +750,6 @@ class Editor extends EditorCore {
               selectionIsScriptable={this.selectionIsScriptable}
               getSelectionType={this.getSelectionType}
               script={this.getSelectedObjectScript()}
-              toggleCodeEditor={this.toggleCodeEditor}
               errors={this.state.codeErrors}
               onMinorScriptUpdate={this.onMinorScriptUpdate}
               onMajorScriptUpdate={this.onMajorScriptUpdate}
