@@ -33,7 +33,7 @@ class FontInfoInterface extends Object {
       let existingFonts = this.editor.getExistingFonts();
 
       existingFonts = existingFonts.sort(function (a, b) {
-          return ('' + a.attr).localeCompare(b.attr);
+          return a.localeCompare(b);
       });
 
       let loadableFonts = Object.keys(this.allFontInfo);
