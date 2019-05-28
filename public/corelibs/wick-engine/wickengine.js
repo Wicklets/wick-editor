@@ -68092,7 +68092,7 @@ Wick.Selection = class extends Wick.Base {
     return this._getSingleAttribute('fontStyle');
   }
 
-  set fontStyle(fontWeight) {
+  set fontStyle(fontStyle) {
     this._setSingleAttribute('fontStyle', fontStyle);
   }
   /**
@@ -68846,6 +68846,8 @@ Wick.Path = class extends Wick.Base {
   constructor(args) {
     if (!args) args = {};
     super(args);
+    this._fontStyle = 'normal';
+    this._fontWeight = 400;
 
     if (args.json) {
       this.json = args.json;
@@ -68886,12 +68888,16 @@ Wick.Path = class extends Wick.Base {
     var data = super.serialize(args);
     data.json = this.json;
     delete data.json[1].data;
+    data.fontStyle = this._fontStyle;
+    data.fontWeight = this._fontWeight;
     return data;
   }
 
   deserialize(data) {
     super.deserialize(data);
     this.json = data.json;
+    this._fontStyle = data.fontStyle;
+    this._fontWeight = data.fontWeight;
   }
   /**
    * Path data exported from paper.js using exportJSON({asString:false}).
@@ -69038,22 +69044,25 @@ Wick.Path = class extends Wick.Base {
 
   set fontSize(fontSize) {
     this.view.item.fontSize = fontSize;
-    console.log(this.view.exportJSON());
     this.json = this.view.exportJSON();
   }
   /**
    * The font weight of the path.
-   * @type {string}
+   * @type {number}
    */
 
 
   get fontWeight() {
-    return this.view.item.fontWeight;
+    return this._fontWeight;
   }
 
   set fontWeight(fontWeight) {
-    this.view.item.fontWeight = fontWeight;
-    this.json = this.view.exportJSON();
+    if (typeof fontWeight === 'string') {
+      console.error('fontWeight must be a number.');
+      return;
+    }
+
+    this._fontWeight = fontWeight;
   }
   /**
    * The font style of the path ('italic' or 'oblique').
@@ -69062,12 +69071,11 @@ Wick.Path = class extends Wick.Base {
 
 
   get fontStyle() {
-    return this.view.item.fontStyle || 'normal';
+    return this._fontStyle;
   }
 
   set fontStyle(fontStyle) {
-    this.view.item.fontStyle = fontStyle;
-    this.json = this.view.exportJSON();
+    this._fontStyle = fontStyle;
   }
   /**
    * Removes this path from its parent frame.
@@ -76567,11 +76575,14 @@ Wick.View.Frame = class extends Wick.View {
     this.pathsLayer.children.filter(child => {
       return child.data.wickType !== 'gui';
     }).forEach(child => {
+      var originalWickPath = Wick.ObjectCache.getObjectByUUID(child.data.wickUUID);
       var pathJSON = Wick.View.Path.exportJSON(child);
       var wickPath = new Wick.Path({
         json: pathJSON
       });
       this.model.addPath(wickPath);
+      wickPath.fontWeight = originalWickPath ? originalWickPath.fontWeight : 400;
+      wickPath.fontStyle = originalWickPath ? originalWickPath.fontStyle : 'normal';
       child.name = wickPath.uuid;
     });
   }
@@ -76647,6 +76658,12 @@ Wick.View.Path = class extends Wick.View {
     } else {
       this._item.data.wickUUID = this.model.uuid;
       this._item.data.wickType = 'path';
+    } // Extra text options
+
+
+    if (this._item instanceof paper.TextItem) {
+      // https://github.com/paperjs/paper.js/issues/937
+      this._item.fontWeight = this.model.fontWeight + ' ' + this.model.fontStyle;
     }
   }
   /**

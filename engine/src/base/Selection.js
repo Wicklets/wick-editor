@@ -446,7 +446,7 @@ Wick.Selection = class extends Wick.Base {
         return this._getSingleAttribute('fontStyle');
     }
 
-    set fontStyle (fontWeight) {
+    set fontStyle (fontStyle) {
         this._setSingleAttribute('fontStyle', fontStyle);
     }
 

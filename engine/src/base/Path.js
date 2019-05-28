@@ -39,7 +39,7 @@ Wick.Path = class extends Wick.Base {
         super(args);
 
         this._fontStyle = 'normal';
-        this._fontWeight = 'normal';
+        this._fontWeight = 400;
 
         if(args.json) {
             this.json = args.json;
@@ -227,13 +227,17 @@ Wick.Path = class extends Wick.Base {
 
     /**
      * The font weight of the path.
-     * @type {string}
+     * @type {number}
      */
     get fontWeight () {
         return this._fontWeight;
     }
 
     set fontWeight (fontWeight) {
+        if(typeof fontWeight === 'string') {
+            console.error('fontWeight must be a number.');
+            return;
+        }
         this._fontWeight = fontWeight
     }
 

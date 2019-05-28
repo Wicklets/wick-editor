@@ -235,9 +235,12 @@ Wick.View.Frame = class extends Wick.View {
         this.pathsLayer.children.filter(child => {
             return child.data.wickType !== 'gui';
         }).forEach(child => {
+            var originalWickPath = Wick.ObjectCache.getObjectByUUID(child.data.wickUUID);
             var pathJSON = Wick.View.Path.exportJSON(child);
             var wickPath = new Wick.Path({json:pathJSON});
             this.model.addPath(wickPath);
+            wickPath.fontWeight = originalWickPath ? originalWickPath.fontWeight : 400;
+            wickPath.fontStyle = originalWickPath ? originalWickPath.fontStyle : 'normal';
             child.name = wickPath.uuid;
         });
     }

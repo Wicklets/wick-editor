@@ -756,7 +756,6 @@ class EditorCore extends Component {
    * @param {Function} callback - (optional) Callback to return asset to. If the import was unsuccessful, null is sent to the callback.
    */
   importFileAsAsset = (file, callback) => {
-    console.log(file)
     this.project.importFile(file, (asset) => {
       if (callback) callback(asset);
 

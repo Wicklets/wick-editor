@@ -233,7 +233,7 @@ class Inspector extends Component {
         value={this.getSelectionAttribute('fontStyle')}
         options={['regular', 'italic']}
         onChange={(val) => {
-          this.setSelectionAttribute('fontVariant', val.value);
+          this.setSelectionAttribute('fontStyle', val.value);
         }} />
     )
   }
@@ -246,10 +246,10 @@ class Inspector extends Component {
         tooltip="Weight"
         type="select"
         isSearchable={true}
-        value={this.getSelectionAttribute('fontWeight')}
+        value={fontWeightOptions[(this.getSelectionAttribute('fontWeight')/100)-1]}
         options={fontWeightOptions}
         onChange={(val) => {
-          this.setSelectionAttribute('fontWeight', (fontWeightOptions.indexOf(val.value) * 100));
+          this.setSelectionAttribute('fontWeight', ((fontWeightOptions.indexOf(val.value)+1) * 100));
         }} />
     )
   }
