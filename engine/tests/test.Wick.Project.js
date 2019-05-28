@@ -937,8 +937,7 @@ describe('Wick.Project', function() {
             var project = new Wick.Project();
 
             var font = new Wick.FontAsset({
-                filename:'ABeeZee.ttf',
-                fontFamily: 'ABeeZee',
+                filename: 'ABeeZee.ttf',
                 src: TestUtils.TEST_FONT_SRC_TTF,
             });
 
@@ -952,6 +951,30 @@ describe('Wick.Project', function() {
     })
 
     describe('getFonts', function () {
-        it('should return ')
+        it('should return the correct list of fontFamilies', function () {
+            var project = new Wick.Project();
+
+            var font1 = new Wick.FontAsset({
+                filename: 'foo.ttf',
+                src: TestUtils.TEST_FONT_SRC_TTF,
+            });
+            var font2 = new Wick.FontAsset({
+                filename: 'bar.ttf',
+                src: TestUtils.TEST_FONT_SRC_TTF,
+            });
+            var font3 = new Wick.FontAsset({
+                filename: 'baz.ttf',
+                src: TestUtils.TEST_FONT_SRC_TTF,
+            });
+
+            project.addAsset(font1);
+            project.addAsset(font2);
+            project.addAsset(font3);
+
+            expect(project.getFonts().length).to.equal(3);
+            expect(project.getFonts()[0]).to.equal('foo');
+            expect(project.getFonts()[1]).to.equal('bar');
+            expect(project.getFonts()[2]).to.equal('baz');
+        });
     })
 });

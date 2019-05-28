@@ -66,10 +66,12 @@ Wick.WickFile = class {
                             console.log(e);
                             callback(null);
                         }).finally(() => {
-                            loadedAssetCount++;
-                            if(loadedAssetCount === project.getAssets().length) {
-                                callback(project);
-                            }
+                            assetData.load(() => {
+                                loadedAssetCount++;
+                                if(loadedAssetCount === project.getAssets().length) {
+                                    callback(project);
+                                }
+                            });
                         });
                     });
                 }

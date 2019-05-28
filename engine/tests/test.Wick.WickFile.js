@@ -69,7 +69,7 @@ describe('Wick.WickFile', function () {
                 expect(project.pan.x).to.equal(100);
                 expect(project.pan.y).to.equal(200);
                 expect(project.selection.numObjects).to.equal(1);
-                
+
                 Wick.ObjectCache.clear();
                 //saveAs(wickFile, 'wickproject.zip')
                 Wick.WickFile.fromWickFile(wickFile, loadedProject => {
@@ -78,6 +78,32 @@ describe('Wick.WickFile', function () {
                     expect(loadedProject.pan.y).to.equal(0);
                     expect(loadedProject.selection.numObjects).to.equal(0);
 
+                    done();
+                });
+            });
+        });
+
+        it('should load fonts into the page on project load', function (done) {
+            Wick.ObjectCache.clear();
+            Wick.FileCache.clear();
+
+            var project = new Wick.Project();
+
+            var fontAsset = new Wick.FontAsset({
+                filename: 'ABeeZee.ttf',
+                src: TestUtils.TEST_FONT_SRC_TTF,
+            });
+            project.addAsset(fontAsset);
+
+            Wick.WickFile.toWickFile(project, function (wickFile) {
+                Wick.FileCache.clear();
+                Wick.ObjectCache.clear();
+                //saveAs(wickFile, 'wickproject.zip')
+                Wick.WickFile.fromWickFile(wickFile, function (loadedProject) {
+                    expect(loadedProject instanceof Wick.Project).to.equal(true);
+                    expect(loadedProject.getAssets().length).to.equal(1);
+                    expect(loadedProject.getAssets()[0] instanceof Wick.FontAsset).to.equal(true);
+                    expect(document.fonts.check("12px ABeeZee")).to.equal(true);
                     done();
                 });
             });

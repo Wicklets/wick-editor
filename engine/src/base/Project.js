@@ -362,7 +362,9 @@ Wick.Project = class extends Wick.Base {
      * @returns {[string]}
      */
     getFonts () {
-        
+        return this.getAssets('Font').map(asset => {
+            return asset.fontFamily;
+        });
     }
 
     /**
@@ -371,8 +373,8 @@ Wick.Project = class extends Wick.Base {
      * @returns {boolean}
      */
     hasFont (fontFamily) {
-        return this.getAssets('Font').find(asset => {
-            return asset.fontFamily === fontFamily;
+        return this.getFonts().find(seekFontFamily => {
+            return seekFontFamily === fontFamily;
         }) !== undefined;
     }
 
