@@ -50,6 +50,8 @@ class Inspector extends Component {
       "clip": this.renderClip,
       "button": this.renderButton,
       "path": this.renderPath,
+      "text": this.renderText,
+      "image": this.renderImage,
       "multipath": this.renderMultiPath,
       "multiclip": this.renderMultiClip,
       "multitimeline": this.renderMultiTimeline,
@@ -66,8 +68,8 @@ class Inspector extends Component {
      */
     this.actionRules = {
       'breakApart': ["clip", "button",],
-      'makeInteractive': ["path", "multipath", "multiclip", "multicanvas"],
-      'makeAnimated': ["path", "multipath", "multiclip", "multicanvas"],
+      'makeInteractive': ["path", "text", "image", "multipath", "multiclip", "multicanvas"],
+      'makeAnimated': ["path", "text", "image", "multipath", "multiclip", "multicanvas"],
       'editTimeline': ["clip", "button"],
     }
 
@@ -82,6 +84,8 @@ class Inspector extends Component {
       "clip": "Clip",
       "button": "Button",
       "path": "Path",
+      "text": "Text",
+      "image": "Image",
       "multipath": "Multi-Path",
       "multiclip": "Multi-Clip",
       "multitimeline": "Multi-Timeline",
@@ -681,7 +685,6 @@ class Inspector extends Component {
         {this.renderSelectionTransformProperties()}
         {this.renderSelectionFillColor()}
         {this.renderSelectionStrokeColor()}
-        {this.getSelectionAttribute("fontFamily") && this.renderFontContent()}
       </div>
     );
   }
@@ -691,6 +694,31 @@ class Inspector extends Component {
    */
   renderPath = () => {
     return ( this.renderPathContent() );
+  }
+
+  /**
+   * Renders the inspector view for all text properties.
+   */
+  renderText = () => {
+    return (
+      <div className="inspector-content">
+        {this.renderSelectionTransformProperties()}
+        {this.renderSelectionFillColor()}
+        {this.renderSelectionStrokeColor()}
+        {this.renderFontContent()}
+      </div>
+    )
+  }
+
+  /**
+   * Renders the inspector view for all image properties.
+   */
+  renderImage = () => {
+    return (
+      <div className="inspector-content">
+        {this.renderSelectionTransformProperties()}
+      </div>
+    )
   }
 
   /**
