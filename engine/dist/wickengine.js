@@ -68900,6 +68900,21 @@ Wick.Path = class extends Wick.Base {
     this._fontWeight = data.fontWeight;
   }
   /**
+   * The type of path that this path is. Can be 'path', 'text', or 'image'
+   * @returns {string}
+   */
+
+
+  get pathType() {
+    if (this.view.item instanceof paper.TextItem) {
+      return 'text';
+    } else if (this.view.item instanceof paper.Raster) {
+      return 'image';
+    } else {
+      return 'path';
+    }
+  }
+  /**
    * Path data exported from paper.js using exportJSON({asString:false}).
    * @type {object}
    */

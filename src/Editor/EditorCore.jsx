@@ -190,11 +190,12 @@ class EditorCore extends Component {
 
     if(selection.location === 'Canvas') {
       if(selection.numObjects === 1) {
-        if(selection.getSelectedObject() instanceof window.Wick.Path) {
-          return 'path';
-        } else if(selection.getSelectedObject() instanceof window.Wick.Button) {
+        var selectedObject = selection.getSelectedObject();
+        if(selectedObject instanceof window.Wick.Path) {
+          return selectedObject.pathType;
+        } else if(selectedObject instanceof window.Wick.Button) {
           return 'button';
-        } else if(selection.getSelectedObject() instanceof window.Wick.Clip) {
+        } else if(selectedObject instanceof window.Wick.Clip) {
           return 'clip';
         }
       } else if (selection.types.length === 1) {
