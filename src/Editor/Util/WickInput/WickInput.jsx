@@ -162,7 +162,7 @@ class WickInput extends Component {
         {...this.props}
         className={classNames("wick-select", this.props.className)}
         controlClassName="wick-select-control"
-        placeholderClassName="wick-select-placeholder"
+        placeholderClassName={classNames("wick-select-placeholder", this.props.placeholderClassName)}
         arrowClassName="wick-select-arrow"
         menuClassName="wick-select-menu"
       />
