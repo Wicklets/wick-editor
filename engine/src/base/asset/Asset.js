@@ -48,10 +48,25 @@ Wick.Asset = class extends Wick.Base {
     }
 
     /**
+     * A list of all objects using this asset.
+     */
+    getInstances () {
+        // Implemented by subclasses
+    }
+
+    /**
+     * Check if there are any objects in the project that use this asset.
+     * @returns {boolean}
+     */
+    hasInstances () {
+        // Implemented by sublasses
+    }
+
+    /**
      * Remove all instances of this asset from the project. (Implemented by ClipAsset, ImageAsset, and SoundAsset)
      */
     removeAllInstances () {
-
+        // Implemented by sublasses
     }
 
     get classname () {

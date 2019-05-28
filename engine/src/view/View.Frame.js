@@ -235,7 +235,7 @@ Wick.View.Frame = class extends Wick.View {
         this.pathsLayer.children.filter(child => {
             return child.data.wickType !== 'gui';
         }).forEach(child => {
-            var originalWickPath = Wick.ObjectCache.getObjectByUUID(child.data.wickUUID);
+            var originalWickPath = child.data.wickUUID ? Wick.ObjectCache.getObjectByUUID(child.data.wickUUID) : null;
             var pathJSON = Wick.View.Path.exportJSON(child);
             var wickPath = new Wick.Path({json:pathJSON});
             this.model.addPath(wickPath);

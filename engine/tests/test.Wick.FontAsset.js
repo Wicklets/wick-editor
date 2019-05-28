@@ -30,7 +30,26 @@ describe('Wick.FontAsset', function() {
 
     describe('#copy', function () {
         it('should copy correctly', function () {
-            
+
+        });
+    });
+
+    describe('#removeAllInstances', function () {
+        it('should delete all instances of the asset in the project', function () {
+            var project = new Wick.Project();
+            var fontAsset = new Wick.FontAsset({
+                filename: 'ABeeZee.ttf',
+                src: TestUtils.TEST_FONT_SRC_TTF
+            });
+            project.addAsset(fontAsset);
+
+            expect(fontAsset.hasInstances()).to.equal(false);
+            project.activeFrame.addPath(TestUtils.paperToWickPath(new paper.PointText()))
+            project.activeFrame.paths[0].fontFamily = 'ABeeZee';
+            expect(fontAsset.hasInstances()).to.equal(true);
+
+            project.removeAsset(fontAsset);
+            expect(project.activeFrame.paths[0].fontFamily).to.equal(Wick.FontAsset.MISSING_FONT_DEFAULT);
         });
     });
 });

@@ -58,10 +58,19 @@ Wick.ImageAsset = class extends Wick.FileAsset {
     }
 
     /**
+     * A list of Wick Paths that use this image as their image source.
+     * @returns {Wick.Path[]}
+     */
+    getInstances () {
+        return []; // TODO
+    }
+
+    /**
      * Check if there are any objects in the project that use this asset.
+     * @returns {boolean}
      */
     hasInstances () {
-        // TODO
+        return false; // TODO
     }
 
     /**

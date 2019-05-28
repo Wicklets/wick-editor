@@ -123,18 +123,18 @@ describe('Wick.Path', function() {
                 fontFamily: 'Helvetica',
                 fontSize: 16,
             }));
-            path.fontWeight = 'bold';
+            path.fontWeight = 400;
             expect(path.fontFamily).to.equal('Helvetica');
             expect(path.fontSize).to.equal(16);
-            expect(path.fontWeight).to.equal('bold');
+            expect(path.fontWeight).to.equal(400);
             path.fontFamily = 'Arial';
             path.fontSize = 12;
-            path.fontWeight = 'bold';
+            path.fontWeight = 900;
             path.fontStyle = 'italic';
             path.view.render();
             expect(path.view.item.fontFamily).to.equal('Arial');
             expect(path.view.item.fontSize).to.equal(12);
-            expect(path.view.item.fontWeight).to.equal('bold italic');
+            expect(path.view.item.fontWeight).to.equal('900 italic');
         });
     });
 

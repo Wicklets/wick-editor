@@ -20,6 +20,7 @@
 (function () {
     var editElem = $('<textarea style="resize: none;">');
     editElem.css('position', 'absolute');
+    editElem.css('overflow', 'hidden');
     editElem.css('width', '100px');
     editElem.css('height', '100px');
     editElem.css('left', '0px');

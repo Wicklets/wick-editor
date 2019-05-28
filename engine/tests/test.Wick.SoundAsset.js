@@ -34,13 +34,15 @@ describe('Wick.SoundAsset', function() {
             });
             project.addAsset(asset1);
             project.addAsset(asset2);
-
+            
             project.activeLayer.addFrame(new Wick.Frame({start:2}));
             project.activeLayer.addFrame(new Wick.Frame({start:3}));
 
+            expect(asset1.hasInstances()).to.equal(false);
             project.activeLayer.frames[0].sound = asset1;
             project.activeLayer.frames[1].sound = asset1;
             project.activeLayer.frames[2].sound = asset2;
+            expect(asset1.hasInstances()).to.equal(true);
 
             project.removeAsset(asset1);
             expect(project.activeLayer.frames[0].sound).to.equal(null);

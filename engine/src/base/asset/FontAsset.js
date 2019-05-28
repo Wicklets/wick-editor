@@ -84,18 +84,36 @@ Wick.FontAsset = class extends Wick.FileAsset {
     }
 
     /**
+     * A list of Wick Paths that use this font as their fontFamily.
+     * @returns {Wick.Path[]}
+     */
+    getInstances () {
+        var paths = [];
+        this.project.getAllFrames().forEach(frame => {
+            frame.paths.forEach(path => {
+                if(path.fontFamily === this.fontFamily) {
+                    paths.push(path);
+                }
+            })
+        });
+        return paths;
+    }
+
+    /**
      * Check if there are any objects in the project that use this asset.
      * @returns {boolean}
      */
     hasInstances () {
-        // TODO
+        return this.getInstances().length > 0;
     }
 
     /**
      * Finds all PointText paths using this font as their fontFamily and replaces that font with a default font.
      */
     removeAllInstances () {
-        // TODO
+        this.getInstances().forEach(path => {
+            path.fontFamily = Wick.FontAsset.MISSING_FONT_DEFAULT;
+        })
     }
 
     /**

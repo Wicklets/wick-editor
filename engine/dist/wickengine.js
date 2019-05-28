@@ -69140,11 +69140,27 @@ Wick.Asset = class extends Wick.Base {
     this.project.removeAsset(this);
   }
   /**
+   * A list of all objects using this asset.
+   */
+
+
+  getInstances() {} // Implemented by subclasses
+
+  /**
+   * Check if there are any objects in the project that use this asset.
+   * @returns {boolean}
+   */
+
+
+  hasInstances() {} // Implemented by sublasses
+
+  /**
    * Remove all instances of this asset from the project. (Implemented by ClipAsset, ImageAsset, and SoundAsset)
    */
 
 
-  removeAllInstances() {}
+  removeAllInstances() {// Implemented by sublasses
+  }
 
   get classname() {
     return 'Asset';
@@ -69338,12 +69354,23 @@ Wick.ImageAsset = class extends Wick.FileAsset {
     return 'ImageAsset';
   }
   /**
-   * Check if there are any objects in the project that use this asset.
+   * A list of Wick Paths that use this image as their image source.
+   * @returns {Wick.Path[]}
    */
 
 
-  hasInstances() {} // TODO
+  getInstances() {
+    return []; // TODO
+  }
+  /**
+   * Check if there are any objects in the project that use this asset.
+   * @returns {boolean}
+   */
 
+
+  hasInstances() {
+    return false; // TODO
+  }
   /**
    * Removes all paths using this asset as their image source from the project.
    * @returns {boolean}
@@ -69612,23 +69639,37 @@ Wick.SoundAsset = class extends Wick.FileAsset {
     }
   }
   /**
+   * A list of Wick Paths that use this font as their fontFamily.
+   * @returns {Wick.Path[]}
+   */
+
+
+  getInstances() {
+    var frames = [];
+    this.project.getAllFrames().forEach(frame => {
+      if (frame._soundAssetUUID === this.uuid) {
+        frames.push(frame);
+      }
+    });
+    return frames;
+  }
+  /**
    * Check if there are any objects in the project that use this asset.
    * @returns {boolean}
    */
 
 
-  hasInstances() {} // TODO
-
+  hasInstances() {
+    return this.getInstances().length > 0;
+  }
   /**
    * Remove the sound from any frames in the project that use this asset as their sound.
    */
 
 
   removeAllInstances() {
-    this.project.getAllFrames().forEach(frame => {
-      if (frame.sound.uuid === this.uuid) {
-        frame.removeSound();
-      }
+    this.getInstances().forEach(frame => {
+      frame.removeSound();
     });
   }
 
@@ -69724,20 +69765,41 @@ Wick.FontAsset = class extends Wick.FileAsset {
     });
   }
   /**
+   * A list of Wick Paths that use this font as their fontFamily.
+   * @returns {Wick.Path[]}
+   */
+
+
+  getInstances() {
+    var paths = [];
+    this.project.getAllFrames().forEach(frame => {
+      frame.paths.forEach(path => {
+        if (path.fontFamily === this.fontFamily) {
+          paths.push(path);
+        }
+      });
+    });
+    return paths;
+  }
+  /**
    * Check if there are any objects in the project that use this asset.
    * @returns {boolean}
    */
 
 
-  hasInstances() {} // TODO
-
+  hasInstances() {
+    return this.getInstances().length > 0;
+  }
   /**
    * Finds all PointText paths using this font as their fontFamily and replaces that font with a default font.
    */
 
 
-  removeAllInstances() {} // TODO
-
+  removeAllInstances() {
+    this.getInstances().forEach(path => {
+      path.fontFamily = Wick.FontAsset.MISSING_FONT_DEFAULT;
+    });
+  }
   /**
    *
    * @type {string}
@@ -74958,6 +75020,7 @@ paper.Path.inject({
 (function () {
   var editElem = $('<textarea style="resize: none;">');
   editElem.css('position', 'absolute');
+  editElem.css('overflow', 'hidden');
   editElem.css('width', '100px');
   editElem.css('height', '100px');
   editElem.css('left', '0px');
@@ -76577,7 +76640,7 @@ Wick.View.Frame = class extends Wick.View {
     this.pathsLayer.children.filter(child => {
       return child.data.wickType !== 'gui';
     }).forEach(child => {
-      var originalWickPath = Wick.ObjectCache.getObjectByUUID(child.data.wickUUID);
+      var originalWickPath = child.data.wickUUID ? Wick.ObjectCache.getObjectByUUID(child.data.wickUUID) : null;
       var pathJSON = Wick.View.Path.exportJSON(child);
       var wickPath = new Wick.Path({
         json: pathJSON

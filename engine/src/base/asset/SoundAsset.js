@@ -104,21 +104,33 @@ Wick.SoundAsset = class extends Wick.FileAsset {
     }
 
     /**
+     * A list of Wick Paths that use this font as their fontFamily.
+     * @returns {Wick.Path[]}
+     */
+    getInstances () {
+        var frames = [];
+        this.project.getAllFrames().forEach(frame => {
+            if(frame._soundAssetUUID === this.uuid) {
+                frames.push(frame);
+            }
+        });
+        return frames;
+    }
+
+    /**
      * Check if there are any objects in the project that use this asset.
      * @returns {boolean}
      */
     hasInstances () {
-        // TODO
+        return this.getInstances().length > 0;
     }
 
     /**
      * Remove the sound from any frames in the project that use this asset as their sound.
      */
     removeAllInstances () {
-        this.project.getAllFrames().forEach(frame => {
-            if(frame.sound.uuid === this.uuid) {
-                frame.removeSound();
-            }
+        this.getInstances().forEach(frame => {
+            frame.removeSound();
         });
     }
 }
