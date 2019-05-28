@@ -58,7 +58,10 @@ class AssetLibrary extends Component {
        key={i}
        asset={assetObject}
        isSelected={this.props.isObjectSelected(assetObject)}
-       onClick={() => {this.props.selectObjects([assetObject])}}/>
+       onClick={() => {
+         this.props.clearSelection();
+         this.props.selectObjects([assetObject]);
+      }}/>
     )
   }
 

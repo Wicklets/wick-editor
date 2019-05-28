@@ -24,7 +24,7 @@ $asset-margin: 4px;
 
 .asset-item {
   transition: .2s;
-  width: calc(100% - 2 * #{$asset-margin};
+  width: calc(100% - 2 * #{$asset-margin});
   height: $asset-height;
   line-height: $asset-height;
   background-color: $editor-secondary;
