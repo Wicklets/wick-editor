@@ -72,7 +72,7 @@ Wick.Tools.Text = class extends Wick.Tool {
             var text = new this.paper.PointText(e.point);
             text.justification = 'left';
             text.fillColor = 'black';
-            text.content = 'This is some text';
+            text.content = 'Text';
             text.fontSize = 14;
             this.fireEvent('canvasModified');
         }
@@ -92,6 +92,9 @@ Wick.Tools.Text = class extends Wick.Tool {
     finishEditingText () {
         if(!this.editingText) return;
         this.editingText.finishEditing();
+        if(this.editingText.content === '') {
+            this.editingText.remove();
+        }
         this.editingText = null;
         this.fireEvent('canvasModified');
     }

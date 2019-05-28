@@ -65609,11 +65609,13 @@ Wick.WickFile = class {
               console.log(e);
               callback(null);
             }).finally(() => {
-              loadedAssetCount++;
+              assetData.load(() => {
+                loadedAssetCount++;
 
-              if (loadedAssetCount === project.getAssets().length) {
-                callback(project);
-              }
+                if (loadedAssetCount === project.getAssets().length) {
+                  callback(project);
+                }
+              });
             });
           });
         }
@@ -66962,6 +66964,17 @@ Wick.Project = class extends Wick.Base {
     }
   }
   /**
+   * A list of all "fontFamily" in the asset library.
+   * @returns {[string]}
+   */
+
+
+  getFonts() {
+    return this.getAssets('Font').map(asset => {
+      return asset.fontFamily;
+    });
+  }
+  /**
    * Check if a FontAsset with a given fontFamily exists in the project.
    * @param {string} fontFamily - The font to check for
    * @returns {boolean}
@@ -66969,8 +66982,8 @@ Wick.Project = class extends Wick.Base {
 
 
   hasFont(fontFamily) {
-    return this.getAssets('Font').find(asset => {
-      return asset.fontFamily === fontFamily;
+    return this.getFonts().find(seekFontFamily => {
+      return seekFontFamily === fontFamily;
     }) !== undefined;
   }
   /**
@@ -69025,6 +69038,7 @@ Wick.Path = class extends Wick.Base {
 
   set fontSize(fontSize) {
     this.view.item.fontSize = fontSize;
+    console.log(this.view.exportJSON());
     this.json = this.view.exportJSON();
   }
   /**
@@ -73381,7 +73395,7 @@ Wick.Tools.Text = class extends Wick.Tool {
       var text = new this.paper.PointText(e.point);
       text.justification = 'left';
       text.fillColor = 'black';
-      text.content = 'This is some text';
+      text.content = 'Text';
       text.fontSize = 14;
       this.fireEvent('canvasModified');
     }
@@ -73398,6 +73412,11 @@ Wick.Tools.Text = class extends Wick.Tool {
   finishEditingText() {
     if (!this.editingText) return;
     this.editingText.finishEditing();
+
+    if (this.editingText.content === '') {
+      this.editingText.remove();
+    }
+
     this.editingText = null;
     this.fireEvent('canvasModified');
   }

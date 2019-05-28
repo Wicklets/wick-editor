@@ -220,7 +220,26 @@ Wick.Path = class extends Wick.Base {
      * @type {string}
      */
     get fontWeight () {
-        return this.view.item.fontWeight;
+        var fontWeight = this.view.item.fontWeight;
+        if(typeof fontWeight === 'number') {
+            // https://github.com/jonathantneal/css-font-weight-names/blob/master/css-font-weight-names.json
+            fontWeight = '' + fontWeight;
+            return {
+                '100': 'thin',
+                '200': 'extralight',
+                '300': 'light',
+                '400': 'normal',
+                '500': 'medium',
+                '600': 'semibold',
+                '700': 'bold',
+                '800': 'extrabold',
+                '900': 'black',
+            }[fontWeight] || 'normal';
+        } else if (typeof fontWeight === 'string') {
+            return fontWeight;
+        } else {
+            return 'normal';
+        }
     }
 
     set fontWeight (fontWeight) {
