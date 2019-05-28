@@ -75055,8 +75055,10 @@ paper.Path.inject({
       clone.rotation = 0;
       clone.scaling = new paper.Point(1, 1);
       clone.remove();
-      var width = clone.bounds.width * paper.view.zoom;
-      var height = clone.bounds.height * paper.view.zoom;
+      var extraPadding = 3; // Extra padding so edit item doesn't get cut off.
+
+      var width = clone.bounds.width * paper.view.zoom + extraPadding;
+      var height = clone.bounds.height * paper.view.zoom + extraPadding;
       editElem.css('width', width + 'px');
       editElem.css('height', height + 'px');
       editElem.css('outline', 1 * paper.view.zoom + 'px dashed black');
