@@ -47,8 +47,6 @@ $asset-margin: 4px;
   background-color: $editor-primary;
   color: $editor-primary-property-text;
   cursor: grab;
-
-  overflow: auto;
 }
 
 .asset-icon {
@@ -60,6 +58,8 @@ $asset-margin: 4px;
   margin-left: 4px;
   white-space: nowrap;
   overflow: scroll;
+  height: 100%;
+  overflow: hidden;
 }
 
 .asset-item.asset-selected {
