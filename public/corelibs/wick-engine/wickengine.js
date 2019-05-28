@@ -69030,6 +69030,8 @@ Wick.Path = class extends Wick.Base {
 
   set fontFamily(fontFamily) {
     this.view.item.fontFamily = fontFamily;
+    this.fontWeight = 400;
+    this.fontStyle = 'normal';
     this.json = this.view.exportJSON();
   }
   /**
