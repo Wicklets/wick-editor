@@ -1,9 +1,12 @@
 class FontInfoInterface extends Object {
-    constructor () {
-        super();
+    constructor (editor) {
+        super(editor);
         this._allFontInfo = {};
 
         this._getAllFontInfo();
+
+        this.editor = editor; 
+        
     }
 
     _getAllFontInfo = () => {
@@ -22,8 +25,28 @@ class FontInfoInterface extends Object {
         this._allFontInfo = info;
     }
 
+    /**
+     * Returns all font names with existing fonts at the front of the array.
+     * @returns {string[]} fonts that currently exist in the project.
+     */
     get allFontNames () {
-      return Object.keys(this.allFontInfo);
+      let existingFonts = this.editor.getExistingFonts();
+
+      existingFonts = existingFonts.sort(function (a, b) {
+          return a.localeCompare(b);
+      });
+
+      let loadableFonts = Object.keys(this.allFontInfo);
+
+      // Remove existing fonts from the list.
+      existingFonts.forEach((font) => {
+        var index = loadableFonts.indexOf(font);
+        if (index > -1) {
+          loadableFonts.splice(index, 1);
+        }
+      });
+
+      return existingFonts.concat(loadableFonts);
     }
 
     /**
@@ -54,6 +77,36 @@ class FontInfoInterface extends Object {
       return this.fontInfo(font)[variant];
     }
 
+    /**
+     * Returns true if the given font is already loaded by the project.
+     */
+    hasFont (font) {
+      if (this.editor.hasFont) {
+        return this.editor.hasFont(font);
+      }
+      return false; 
+    }
+
+    /**
+     * Returns a list of all existing fonts.
+     */
+    getExistingFonts () {
+      if (this.editor.getExistingFonts) {
+        return this.editor.getExistingFonts();
+      }
+      return [];
+    }
+
+    /**
+     * Returns true if the given font exists in the project.
+     */
+    isExistingFont (font) {
+      return this.getExistingFonts().indexOf(font) > -1;
+    }
+
+    /**
+     * Returns the font file as a blob.
+     */
     getFontFile (args) {
       if (!args.font) {
         console.error("No font supplied to getFontFile"); 
@@ -66,10 +119,11 @@ class FontInfoInterface extends Object {
 
       let folderName = font + '/'
       let fontFileName = font + "_" + weight + variant + '.ttf';
-       
+
       fetch (process.env.PUBLIC_URL + '/fonts/' + folderName + fontFileName)
       .then((response) => response.blob())
       .then((data) => {
+          data.hasFont = false;
           if (args.callback) args.callback(data);
       })
       .catch((error) => {
