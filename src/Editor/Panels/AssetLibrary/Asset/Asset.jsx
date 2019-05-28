@@ -56,6 +56,8 @@ class Asset extends Component {
       return "clip";
     } else if (classname === "ButtonAsset") {
       return "button";
+    } else if (classname === "FontAsset") {
+      return "font"
     } else {
       return "asset";
     }
@@ -66,6 +68,7 @@ class Asset extends Component {
     const { connectDragSource } = this.props;
 
     let icon = this.getIcon(this.props.asset.classname);
+    console.log(icon);
     return connectDragSource (
       <div className={classNames("asset-item", {"asset-selected": this.props.isSelected})} onClick={this.props.onClick}>
         <div className="asset-icon">
