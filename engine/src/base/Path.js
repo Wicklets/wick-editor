@@ -271,6 +271,18 @@ Wick.Path = class extends Wick.Base {
     }
 
     /**
+     * The content of the text.
+     * @type {string}
+     */
+    get textContent () {
+        return this.view.item.content;
+    }
+
+    set textContent (textContent) {
+        this.view.item.content = textContent;
+    }
+
+    /**
      * Removes this path from its parent frame.
      */
     remove () {

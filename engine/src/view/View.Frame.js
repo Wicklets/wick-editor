@@ -44,6 +44,7 @@ Wick.View.Frame = class extends Wick.View {
 
         this.clipsContainer = new PIXI.Container();
         this.pathsContainer = new PIXI.Container();
+        this.dynamicTextContainer = new PIXI.Container();
 
         this._onRasterFinishCallback = function () {};
 
@@ -110,6 +111,7 @@ Wick.View.Frame = class extends Wick.View {
     _renderWebGL () {
         this._renderPathsWebGL();
         this._renderClipsWebGL();
+        this._renderDynamicTextWebGL();
     }
 
     _renderPathsWebGL () {
@@ -141,6 +143,17 @@ Wick.View.Frame = class extends Wick.View {
         this.model.clips.forEach(clip => {
             clip.view.render();
             this.clipsContainer.addChild(clip.view.container);
+        });
+    }
+
+    _renderDynamicTextWebGL () {
+        this.dynamicTextContainer.removeChildren();
+        this.dynamicTextContainer._wickDebugData = {
+            uuid: this.model.uuid,
+            type: 'frame_dynamictextcontainer',
+        };
+        this.model.dynamicTextPaths.forEach(path => {
+            console.log(path)
         });
     }
 
@@ -241,6 +254,7 @@ Wick.View.Frame = class extends Wick.View {
             this.model.addPath(wickPath);
             wickPath.fontWeight = originalWickPath ? originalWickPath.fontWeight : 400;
             wickPath.fontStyle = originalWickPath ? originalWickPath.fontStyle : 'normal';
+            wickPath.identifier = originalWickPath ? originalWickPath.identifier : null;
             child.name = wickPath.uuid;
         });
     }

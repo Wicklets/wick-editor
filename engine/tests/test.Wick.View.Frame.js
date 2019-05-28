@@ -504,5 +504,25 @@ describe('Wick.View.Frame', function() {
                 done();
             });
         });
+
+        it('should render+update dynamic text', function (done) {
+            var project = new Wick.Project();
+
+            var dynamicText = TestUtils.paperToWickPath(new paper.PointText({
+                content: 'foo',
+                fontFamily: 'Helvetica',
+                fontSize: 24,
+            }));
+            dynamicText.identifier = 'dynamicText';
+
+            project.activeFrame.addPath(dynamicText);
+
+            project.view.renderMode = 'webgl';
+            project.view.render();
+            // wow
+            project.view.destroy();
+
+            done();
+        });
     });
 });

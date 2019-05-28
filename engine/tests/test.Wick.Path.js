@@ -147,4 +147,36 @@ describe('Wick.Path', function() {
             expect(frame.paths.length).to.equal(0);
         });
     });
+
+    describe('#pathType', function() {
+        it('should return corrent pathType', function (done) {
+            var project = new Wick.Project();
+
+            var project = new Wick.Project();
+
+            var imageAsset = new Wick.ImageAsset({
+                filename: 'foo.png',
+                src: TestUtils.TEST_IMG_SRC_PNG,
+            });
+            project.addAsset(imageAsset);
+
+            Wick.Path.createImagePath(imageAsset, imageReult => {
+                var path = TestUtils.paperToWickPath(new paper.Path.Rectangle({
+                    fillColor: 'red',
+                    to: new paper.Point(0,0),
+                    from: new paper.Point(100,100),
+                }));
+                var text = TestUtils.paperToWickPath(new paper.PointText({
+                    content: 'foo'
+                }));
+                var image = imageReult;
+
+                expect(path.pathType).to.equal('path');
+                expect(text.pathType).to.equal('text');
+                expect(image.pathType).to.equal('image');
+
+                done();
+            });
+        });
+    });
 });
