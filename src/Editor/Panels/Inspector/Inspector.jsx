@@ -245,7 +245,7 @@ class Inspector extends Component {
         type="select"
         isSearchable={true}
         value={this.getSelectionAttribute('fontStyle')}
-        options={['regular', 'italic']}
+        options={['normal', 'italic']}
         onChange={(val) => {
           this.setSelectionAttribute('fontStyle', val.value);
         }} />
@@ -253,17 +253,40 @@ class Inspector extends Component {
   }
 
   renderFontWeight = () => {
-    let fontWeightOptions =['thin', 'extra light', 'light', 'normal', 'medium', 'semi bold', 'bold', 'extra bold', 'black'];
+    let fontWeights = {
+      'thin': 100, 
+      'extra light': 200, 
+      'light': 300, 
+      'normal': 400, 
+      'medium': 500, 
+      'semi bold': 600, 
+      'bold': 700, 
+      'extra bold': 800, 
+      'black': 900
+    }
+
+    let weight = Math.min(Math.max(this.getSelectionAttribute('fontWeight'), 100), Object.keys(fontWeights).length*100)
+
+    let findFontNameByWeight = (weight) => { 
+      let finalName = 'normal';
+      Object.keys(fontWeights).forEach((name) =>{
+        if (fontWeights[name] === weight) {
+          finalName = name;
+        }
+      });
+      return finalName;
+    }
 
     return (
       <InspectorSelector
         tooltip="Weight"
         type="select"
         isSearchable={true}
-        value={fontWeightOptions[(this.getSelectionAttribute('fontWeight')/100)-1]}
-        options={fontWeightOptions}
+        value={findFontNameByWeight(weight)}
+        options={Object.keys(fontWeights)}
         onChange={(val) => {
-          this.setSelectionAttribute('fontWeight', ((fontWeightOptions.indexOf(val.value)+1) * 100));
+          let newWeight = fontWeights[val.value] || 400;
+          this.setSelectionAttribute('fontWeight', newWeight);
         }} />
     )
   }
@@ -630,8 +653,8 @@ class Inspector extends Component {
     return (
       <div className="inspector-item">
         {this.renderFontFamily()}
-        {/* {this.renderFontStyle()}
-        {this.renderFontWeight()} */}
+        {this.renderFontStyle()}
+        {this.renderFontWeight()}
         {this.renderFontSize()}
       </div>
     )
