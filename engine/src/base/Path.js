@@ -222,6 +222,7 @@ Wick.Path = class extends Wick.Base {
 
     set fontSize (fontSize) {
         this.view.item.fontSize = fontSize;
+        this.view.item.leading = fontSize * 1.2;
         this.json = this.view.exportJSON();
     }
 

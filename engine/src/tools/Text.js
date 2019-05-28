@@ -71,7 +71,7 @@ Wick.Tools.Text = class extends Wick.Tool {
             text.justification = 'left';
             text.fillColor = 'black';
             text.content = 'Text';
-            text.fontSize = 14;
+            text.fontSize = 24;
             this.fireEvent('canvasModified');
         }
     }

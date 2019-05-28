@@ -69044,6 +69044,7 @@ Wick.Path = class extends Wick.Base {
 
   set fontSize(fontSize) {
     this.view.item.fontSize = fontSize;
+    this.view.item.leading = fontSize * 1.2;
     this.json = this.view.exportJSON();
   }
   /**
@@ -73403,7 +73404,7 @@ Wick.Tools.Text = class extends Wick.Tool {
       text.justification = 'left';
       text.fillColor = 'black';
       text.content = 'Text';
-      text.fontSize = 14;
+      text.fontSize = 24;
       this.fireEvent('canvasModified');
     }
   }
