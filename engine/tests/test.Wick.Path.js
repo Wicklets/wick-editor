@@ -122,37 +122,19 @@ describe('Wick.Path', function() {
                 fillColor: '#000000',
                 fontFamily: 'Helvetica',
                 fontSize: 16,
-                fontWeight: 'bold',
             }));
+            path.fontWeight = 'bold';
             expect(path.fontFamily).to.equal('Helvetica');
             expect(path.fontSize).to.equal(16);
             expect(path.fontWeight).to.equal('bold');
             path.fontFamily = 'Arial';
             path.fontSize = 12;
             path.fontWeight = 'bold';
+            path.fontStyle = 'italic';
+            path.view.render();
             expect(path.view.item.fontFamily).to.equal('Arial');
             expect(path.view.item.fontSize).to.equal(12);
-            expect(path.view.item.fontWeight).to.equal('bold');
-        });
-
-        it('fontWeight should always return a string', function () {
-            var path = TestUtils.paperToWickPath(new paper.PointText({
-                fillColor: '#000000',
-                fontFamily: 'Helvetica',
-                fontSize: 16,
-            }));
-            path.fontWeight = 'normal';
-            expect(path.fontWeight).to.equal('normal');
-            path.fontWeight = 'bold';
-            expect(path.fontWeight).to.equal('bold');
-            path.fontWeight = 'black';
-            expect(path.fontWeight).to.equal('black');
-            path.fontWeight = 400;
-            expect(path.fontWeight).to.equal('normal');
-            path.fontWeight = 100;
-            expect(path.fontWeight).to.equal('thin');
-            path.fontWeight = 900;
-            expect(path.fontWeight).to.equal('black');
+            expect(path.view.item.fontWeight).to.equal('bold italic');
         });
     });
 

@@ -38,6 +38,9 @@ Wick.Path = class extends Wick.Base {
         if(!args) args = {};
         super(args);
 
+        this._fontStyle = 'normal';
+        this._fontWeight = 'normal';
+
         if(args.json) {
             this.json = args.json;
         } else {
@@ -69,14 +72,21 @@ Wick.Path = class extends Wick.Base {
 
     serialize (args) {
         var data = super.serialize(args);
+
         data.json = this.json;
         delete data.json[1].data;
+
+        data.fontStyle = this._fontStyle;
+        data.fontWeight = this._fontWeight;
+
         return data;
     }
 
     deserialize (data) {
         super.deserialize(data);
         this.json = data.json;
+        this._fontStyle = data.fontStyle;
+        this._fontWeight = data.fontWeight;
     }
 
     /**
@@ -220,31 +230,11 @@ Wick.Path = class extends Wick.Base {
      * @type {string}
      */
     get fontWeight () {
-        var fontWeight = this.view.item.fontWeight;
-        if(typeof fontWeight === 'number') {
-            // https://github.com/jonathantneal/css-font-weight-names/blob/master/css-font-weight-names.json
-            fontWeight = '' + fontWeight;
-            return {
-                '100': 'thin',
-                '200': 'extralight',
-                '300': 'light',
-                '400': 'normal',
-                '500': 'medium',
-                '600': 'semibold',
-                '700': 'bold',
-                '800': 'extrabold',
-                '900': 'black',
-            }[fontWeight] || 'normal';
-        } else if (typeof fontWeight === 'string') {
-            return fontWeight;
-        } else {
-            return 'normal';
-        }
+        return this._fontWeight;
     }
 
     set fontWeight (fontWeight) {
-        this.view.item.fontWeight = fontWeight;
-        this.json = this.view.exportJSON();
+        this._fontWeight = fontWeight
     }
 
     /**
@@ -252,12 +242,11 @@ Wick.Path = class extends Wick.Base {
      * @type {string}
      */
     get fontStyle () {
-        return this.view.item.fontStyle || 'normal';
+        return this._fontStyle;
     }
 
     set fontStyle (fontStyle) {
-        this.view.item.fontStyle = fontStyle;
-        this.json = this.view.exportJSON();
+        this._fontStyle = fontStyle;
     }
 
     /**

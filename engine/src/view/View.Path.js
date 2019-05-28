@@ -63,6 +63,12 @@ Wick.View.Path = class extends Wick.View {
             this._item.data.wickUUID = this.model.uuid;
             this._item.data.wickType = 'path';
         }
+
+        // Extra text options
+        if(this._item instanceof paper.TextItem) {
+            // https://github.com/paperjs/paper.js/issues/937
+            this._item.fontWeight = this.model.fontWeight + ' ' + this.model.fontStyle;
+        }
     }
 
     /**
