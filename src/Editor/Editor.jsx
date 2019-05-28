@@ -86,6 +86,9 @@ class Editor extends EditorCore {
     // Set up error.
     this.error = null;
 
+    // Create interfaces.
+    this.fontInfoInterface = new FontInfoInterface(this);
+  
     // Init hotkeys
     this.hotKeyInterface = new HotKeyInterface(this);
 
@@ -94,9 +97,6 @@ class Editor extends EditorCore {
 
     // Init Script Info
     this.scriptInfoInterface = new ScriptInfoInterface();
-
-    this.fontInfoInterface = new FontInfoInterface();
-    window.myFontInfo = this.fontInfoInterface;
 
     // Resizable panels
     this.RESIZE_THROTTLE_AMOUNT_MS = 10;
@@ -122,7 +122,7 @@ class Editor extends EditorCore {
     // Initialize "live" engine state
     this.project = new window.Wick.Project();
     this.paper = window.paper;
-
+    
     // Initialize local storage
     localForage.config({
       name        : 'WickEditor',

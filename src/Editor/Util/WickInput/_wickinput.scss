@@ -119,11 +119,12 @@
 .Dropdown-option {
   padding: 2px !important; 
   white-space: nowrap; 
+  color: #1D1921;
 }
 
 .Dropdown-option.is-selected {
-  background-color: #777777 !important;
-  color: black !important; 
+  background-color: #29F1A3!important;
+  color: #1D1921 !important; 
 }
 
 .Dropdown-placeholder {

@@ -1093,6 +1093,23 @@ class EditorCore extends Component {
     this.project.activeFrame.createTween();
     this.projectDidChange();
   }
+
+  /**
+   * Returns all existing fonts in the project.
+   */
+  getExistingFonts = () => {
+    return this.project.getFonts();
+  }
+
+  /**
+   * returns true if the project has the passed in font.
+   * @param {string} font Font to check
+   * @return {boolean} true if the project has this font.
+   */
+  hasFont = (font) => {
+    return this.project.hasFont(font);
+  }
+
 }
 
 export default EditorCore;

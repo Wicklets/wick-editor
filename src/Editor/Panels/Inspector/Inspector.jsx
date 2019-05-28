@@ -201,13 +201,17 @@ class Inspector extends Component {
   renderFontFamily = () => {
     let opts = this.props.fontInfoInterface.allFontNames;
 
-    let getFontName = (font) => 'font-selector-' + font.split(" ").join("-");
+    let getFontClass = (font) => {
+      let fontClass = 'font-selector-' + font.split(" ").join("-");
+      let existingClass = this.props.fontInfoInterface.isExistingFont(font) ? ' existing-font' : '';
+      return fontClass + existingClass;
+    };
 
     opts = opts.map(opt => {
       return {
         value: opt, 
         label: opt,
-        className: getFontName(opt),
+        className: getFontClass(opt),
       }
     });
 
@@ -220,19 +224,27 @@ class Inspector extends Component {
         options={opts}
         onChange={(val) => {
           let font = val.value;
+
+          // Don't fetch the file if we already have it.
+          if (this.props.fontInfoInterface.hasFont(val.value)) {
+            this.setSelectionAttribute('fontFamily', font);
+            return; 
+          } 
+
+          // Fetch the file if it's missing.
           this.props.fontInfoInterface.getFontFile({
             font: font,
-            variant: 'regular',
             callback: blob => {
-              var file = new File([blob], font+'.ttf', {type:'font/ttf'});
-              this.props.importFileAsAsset(file, () => {
-                this.setSelectionAttribute('fontFamily', font)
-              });
+                var file = new File([blob], font+'.ttf', {type:'font/ttf'});
+                this.props.importFileAsAsset(file, () => {
+                  this.setSelectionAttribute('fontFamily', font)
+                });
             },
             error: error => {
               console.error(error)
             }
           });
+
         }}>   
         </InspectorSelector>
     )
