@@ -92,8 +92,8 @@ Wick.View.Layer = class extends Wick.View {
             frame.view.render();
 
             this.activeFrameContainers.push(frame.view.pathsContainer);
-            this.activeFrameContainers.push(frame.view.clipsContainer);
             this.activeFrameContainers.push(frame.view.dynamicTextContainer);
+            this.activeFrameContainers.push(frame.view.clipsContainer);
         }
     }
 }

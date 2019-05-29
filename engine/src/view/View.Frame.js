@@ -192,9 +192,18 @@ Wick.View.Frame = class extends Wick.View {
                 });
 
                 // text positioning
-                dynamicTextPixi.x = path.view.item.bounds.topLeft.x;
-                dynamicTextPixi.y = path.view.item.bounds.topLeft.y;
+                var cloneForBounds = path.view.item.clone();
+                cloneForBounds.rotation = 0;
+                var unrotatedBounds = cloneForBounds.bounds;
 
+                dynamicTextPixi.pivot.x = unrotatedBounds.width/2;
+                dynamicTextPixi.pivot.y = unrotatedBounds.height/2;
+                dynamicTextPixi.x = path.view.item.position.x;
+                dynamicTextPixi.y = path.view.item.position.y;
+                dynamicTextPixi.scale.x = path.view.item.scaling.x;
+                dynamicTextPixi.scale.y = path.view.item.scaling.y;
+                dynamicTextPixi.rotation = path.view.item.rotation * (Math.PI / 180); //Degrees -> Radians conversion
+                
                 this._dynamicTextCache[path.uuid] = dynamicTextPixi;
             }
 
@@ -285,7 +294,16 @@ Wick.View.Frame = class extends Wick.View {
     }
 
     _applyPathChanges () {
-        // This could be optimized by updating existing paths instead of completely clearing the frame.
+        // NOTE:
+        // This could be optimized by updating existing paths instead of completely clearing the frame children.
+
+        // Quickfix for now:
+        // Force all dynamic text paths to render in front of all other paths.
+        this.model.paths.filter(path => {
+            return path.isDynamicText;
+        }).forEach(path => {
+            path.view.item.bringToFront();
+        });
 
         // Clear all WickPaths from the frame
         this.model.paths.forEach(path => {
