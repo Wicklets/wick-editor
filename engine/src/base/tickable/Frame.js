@@ -209,9 +209,8 @@ Wick.Frame = class extends Wick.Tickable {
      */
     get dynamicTextPaths () {
         return this.paths.filter(path => {
-            return path.pathType === 'text'
-                && path.identifier !== null;
-        })
+            return path.isDynamicText;
+        });
     }
 
     /**

@@ -283,6 +283,15 @@ Wick.Path = class extends Wick.Base {
     }
 
     /**
+     * Check if this path is a dynamic text object.
+     * @type {boolean}
+     */
+    get isDynamicText () {
+        return this.pathType === 'text'
+            && this.identifier !== null;
+    }
+
+    /**
      * Removes this path from its parent frame.
      */
     remove () {

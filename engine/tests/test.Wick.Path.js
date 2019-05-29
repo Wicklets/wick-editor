@@ -149,9 +149,7 @@ describe('Wick.Path', function() {
     });
 
     describe('#pathType', function() {
-        it('should return corrent pathType', function (done) {
-            var project = new Wick.Project();
-
+        it('should return correct pathType', function (done) {
             var project = new Wick.Project();
 
             var imageAsset = new Wick.ImageAsset({
@@ -177,6 +175,22 @@ describe('Wick.Path', function() {
 
                 done();
             });
+        });
+    });
+
+    describe('#isDynamicText', function() {
+        it('should be true if path is dynamic text', function () {
+            var text = TestUtils.paperToWickPath(new paper.PointText({
+                content: 'foo'
+            }));
+
+            var dynamicText = TestUtils.paperToWickPath(new paper.PointText({
+                content: 'foo'
+            }));
+            dynamicText.identifier = 'dynamictext';
+
+            expect(text.isDynamicText).to.equal(false);
+            expect(dynamicText.isDynamicText).to.equal(true);
         });
     });
 });

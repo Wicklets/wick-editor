@@ -508,18 +508,27 @@ describe('Wick.View.Frame', function() {
         it('should render+update dynamic text', function (done) {
             var project = new Wick.Project();
 
-            var dynamicText = TestUtils.paperToWickPath(new paper.PointText({
-                content: 'foo',
+            var staticText = TestUtils.paperToWickPath(new paper.PointText({
+                content: 'This is some static text!',
                 fontFamily: 'Helvetica',
                 fontSize: 24,
             }));
+            staticText.position = new paper.Point(200,100);
+
+            var dynamicText = TestUtils.paperToWickPath(new paper.PointText({
+                content: 'This is some dynamic text!',
+                fontFamily: 'Helvetica',
+                fontSize: 24,
+            }));
+            dynamicText.position = new paper.Point(200,200);
             dynamicText.identifier = 'dynamicText';
 
+            project.activeFrame.addPath(staticText);
             project.activeFrame.addPath(dynamicText);
 
             project.view.renderMode = 'webgl';
             project.view.render();
-            // wow
+            expect(project.activeFrame.view.dynamicTextContainer.children.length).to.equal(1);
             project.view.destroy();
 
             done();

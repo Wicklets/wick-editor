@@ -69096,6 +69096,28 @@ Wick.Path = class extends Wick.Base {
     this._fontStyle = fontStyle;
   }
   /**
+   * The content of the text.
+   * @type {string}
+   */
+
+
+  get textContent() {
+    return this.view.item.content;
+  }
+
+  set textContent(textContent) {
+    this.view.item.content = textContent;
+  }
+  /**
+   * Check if this path is a dynamic text object.
+   * @type {boolean}
+   */
+
+
+  get isDynamicText() {
+    return this.pathType === 'text' && this.identifier !== null;
+  }
+  /**
    * Removes this path from its parent frame.
    */
 
@@ -70928,6 +70950,17 @@ Wick.Frame = class extends Wick.Tickable {
 
   get paths() {
     return this.getChildren('Path');
+  }
+  /**
+   * The paths that are text and have identifiers, for dynamic text.
+   * @type {Wick.Path[]}
+   */
+
+
+  get dynamicTextPaths() {
+    return this.paths.filter(path => {
+      return path.isDynamicText;
+    });
   }
   /**
    * The clips on the frame.
@@ -76422,6 +76455,7 @@ Wick.View.Layer = class extends Wick.View {
       frame.view.render();
       this.activeFrameContainers.push(frame.view.pathsContainer);
       this.activeFrameContainers.push(frame.view.clipsContainer);
+      this.activeFrameContainers.push(frame.view.dynamicTextContainer);
     }
   }
 
@@ -76471,11 +76505,13 @@ Wick.View.Frame = class extends Wick.View {
     this.pathsLayer.remove();
     this.clipsContainer = new PIXI.Container();
     this.pathsContainer = new PIXI.Container();
+    this.dynamicTextContainer = new PIXI.Container();
 
     this._onRasterFinishCallback = function () {};
 
     this._pixiSprite = null;
     this._rasterImageData = null;
+    this._dynamicTextCache = {};
   }
   /**
    * Write the changes made to the view to the frame.
@@ -76540,6 +76576,8 @@ Wick.View.Frame = class extends Wick.View {
     this._renderPathsWebGL();
 
     this._renderClipsWebGL();
+
+    this._renderDynamicTextWebGL();
   }
 
   _renderPathsWebGL() {
@@ -76571,6 +76609,34 @@ Wick.View.Frame = class extends Wick.View {
     this.model.clips.forEach(clip => {
       clip.view.render();
       this.clipsContainer.addChild(clip.view.container);
+    });
+  }
+
+  _renderDynamicTextWebGL() {
+    this.dynamicTextContainer.removeChildren();
+    this.dynamicTextContainer._wickDebugData = {
+      uuid: this.model.uuid,
+      type: 'frame_dynamictextcontainer'
+    };
+    this.model.dynamicTextPaths.forEach(path => {
+      var dynamicTextPixi = this._dynamicTextCache[path.uuid];
+
+      if (!dynamicTextPixi) {
+        // No pixi text exists in the cache, create a new one
+        dynamicTextPixi = new PIXI.Text('', {
+          fontFamily: 'Arial',
+          fontSize: 24,
+          fill: 0xff1010,
+          align: 'center'
+        });
+        dynamicTextPixi.x = path.view.item.bounds.topLeft.x;
+        dynamicTextPixi.y = path.view.item.bounds.topLeft.y;
+        this._dynamicTextCache[path.uuid] = dynamicTextPixi;
+      } // Update text content of pixi text
+
+
+      dynamicTextPixi.text = path.textContent;
+      this.dynamicTextContainer.addChild(dynamicTextPixi);
     });
   }
 
@@ -76665,6 +76731,7 @@ Wick.View.Frame = class extends Wick.View {
       this.model.addPath(wickPath);
       wickPath.fontWeight = originalWickPath ? originalWickPath.fontWeight : 400;
       wickPath.fontStyle = originalWickPath ? originalWickPath.fontStyle : 'normal';
+      wickPath.identifier = originalWickPath ? originalWickPath.identifier : null;
       child.name = wickPath.uuid;
     });
   }

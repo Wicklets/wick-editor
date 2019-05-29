@@ -50,6 +50,7 @@ Wick.View.Frame = class extends Wick.View {
 
         this._pixiSprite = null;
         this._rasterImageData = null;
+        this._dynamicTextCache = {};
     }
 
     /**
@@ -153,7 +154,25 @@ Wick.View.Frame = class extends Wick.View {
             type: 'frame_dynamictextcontainer',
         };
         this.model.dynamicTextPaths.forEach(path => {
-            console.log(path)
+            var dynamicTextPixi = this._dynamicTextCache[path.uuid];
+
+            if(!dynamicTextPixi) {
+                // No pixi text exists in the cache, create a new one
+                dynamicTextPixi = new PIXI.Text('', {
+                    fontFamily: 'Arial',
+                    fontSize: 24,
+                    fill: 0xff1010,
+                    align: 'center'
+                });
+                dynamicTextPixi.x = path.view.item.bounds.topLeft.x;
+                dynamicTextPixi.y = path.view.item.bounds.topLeft.y;
+                this._dynamicTextCache[path.uuid] = dynamicTextPixi;
+            }
+
+            // Update text content of pixi text
+            dynamicTextPixi.text = path.textContent;
+            
+            this.dynamicTextContainer.addChild(dynamicTextPixi);
         });
     }
 
