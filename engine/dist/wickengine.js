@@ -76571,12 +76571,18 @@ Wick.View.Frame = class extends Wick.View {
     this._renderClipsSVG();
   }
 
-  _renderPathsSVG() {
+  _renderPathsSVG(args) {
+    if (!args) args = {};
     this.pathsLayer.data.wickUUID = this.model.uuid;
     this.pathsLayer.data.wickType = 'paths';
     this.pathsLayer.removeChildren();
     this.model.paths.forEach(path => {
       path.view.render();
+
+      if (args.hideDynamicText && path.isDynamicText) {
+        path.view.item.opacity = 0;
+      }
+
       this.pathsLayer.addChild(path.view.item);
     });
   }
@@ -76661,7 +76667,9 @@ Wick.View.Frame = class extends Wick.View {
 
   _rasterizeSVG() {
     // Render paths using the SVG renderer
-    this._renderPathsSVG();
+    this._renderPathsSVG({
+      hideDynamicText: true
+    });
 
     var rasterResoltion = this.paper.view.resolution;
     rasterResoltion *= Wick.View.Frame.RASTERIZE_RESOLUTION_MODIFIER_FOR_DEVICE; // get a rasterized version of the resulting SVG
