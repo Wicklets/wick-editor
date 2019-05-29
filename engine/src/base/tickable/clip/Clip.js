@@ -136,14 +136,24 @@ Wick.Clip = class extends Wick.Tickable {
     get namedChildren () {
         var namedChildren = [];
         this.timeline.frames.forEach(frame => {
+            // Objects that can be accessed by their identifiers:
+
+            // Frames
             if(frame.identifier) {
                 namedChildren.push(frame);
             }
+
+            // Clips
             frame.clips.forEach(clip => {
                 if(clip.identifier) {
                     namedChildren.push(clip);
                 }
             });
+
+            // Dynamic text paths
+            frame.dynamicTextPaths.forEach(path => {
+                namedChildren.push(path);
+            })
         });
         return namedChildren;
     }
@@ -540,6 +550,11 @@ Wick.Clip = class extends Wick.Tickable {
                     clip._attachChildClipReferences();
                 }
             });
+
+            // Dynamic text paths can be accessed by their identifiers.
+            frame.dynamicTextPaths.forEach(path => {
+                this[path.identifier] = path;
+            })
         })
     }
 }

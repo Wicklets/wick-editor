@@ -204,6 +204,16 @@ Wick.Frame = class extends Wick.Tickable {
     }
 
     /**
+     * The paths that are text and have identifiers, for dynamic text.
+     * @type {Wick.Path[]}
+     */
+    get dynamicTextPaths () {
+        return this.paths.filter(path => {
+            return path.isDynamicText;
+        });
+    }
+
+    /**
      * The clips on the frame.
      * @type {Wick.Clip[]}
      */

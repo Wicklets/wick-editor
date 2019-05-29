@@ -472,4 +472,42 @@ describe('Wick.Frame', function() {
     it('should automatically create tweens when objects are moved on a tweened frame', function () {
         // TODO
     });
+
+    describe('#dynamicTextPaths', function () {
+        it('should return all dynamic text paths', function () {
+            var frame = new Wick.Frame();
+
+            var path = TestUtils.paperToWickPath(new paper.Path.Rectangle({
+                fillColor: 'red',
+                to: new paper.Point(0,0),
+                from: new paper.Point(100,100),
+            }));
+            var text = TestUtils.paperToWickPath(new paper.PointText({
+                content: 'foo'
+            }));
+            var dynamicText1 = TestUtils.paperToWickPath(new paper.PointText({
+                content: 'foo'
+            }));
+            dynamicText1.identifier = 'dynamicText1';
+            var dynamicText2 = TestUtils.paperToWickPath(new paper.PointText({
+                content: 'bar'
+            }));
+            dynamicText2.identifier = 'dynamicText2';
+            var dynamicText3 = TestUtils.paperToWickPath(new paper.PointText({
+                content: 'baz'
+            }));
+            dynamicText3.identifier = 'dynamicText3';
+
+            frame.addPath(path);
+            frame.addPath(text);
+            frame.addPath(dynamicText1);
+            frame.addPath(dynamicText2);
+            frame.addPath(dynamicText3);
+
+            expect(frame.dynamicTextPaths.length).to.equal(3);
+            expect(frame.dynamicTextPaths[0]).to.equal(dynamicText1);
+            expect(frame.dynamicTextPaths[1]).to.equal(dynamicText2);
+            expect(frame.dynamicTextPaths[2]).to.equal(dynamicText3);
+        })
+    });
 });

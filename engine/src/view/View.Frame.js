@@ -44,11 +44,13 @@ Wick.View.Frame = class extends Wick.View {
 
         this.clipsContainer = new PIXI.Container();
         this.pathsContainer = new PIXI.Container();
+        this.dynamicTextContainer = new PIXI.Container();
 
         this._onRasterFinishCallback = function () {};
 
         this._pixiSprite = null;
         this._rasterImageData = null;
+        this._dynamicTextCache = {};
     }
 
     /**
@@ -71,12 +73,21 @@ Wick.View.Frame = class extends Wick.View {
      * Call this if the frame SVG has changed, and you need to make sure the WebGL renderer renders the updated SVG.
      */
     clearRasterCache () {
+        // Destroy the PIXI sprite holding the raster texture data.
         if(this._pixiSprite) {
-          this._pixiSprite.destroy(true);
+            this._pixiSprite.destroy(true);
         }
         this._pixiSprite = null;
 
+        // Destroy the raster texture data.
         this._rasterImageData = null;
+
+        // While we're at it, clear the dynamic text cache.
+        for(var uuid in this._dynamicTextCache) {
+            var dynamicText = this._dynamicTextCache[uuid];
+            dynamicText.destroy(true);
+        }
+        this._dynamicTextCache = {};
     }
 
     _renderSVG () {
@@ -84,13 +95,22 @@ Wick.View.Frame = class extends Wick.View {
         this._renderClipsSVG();
     }
 
-    _renderPathsSVG () {
+    _renderPathsSVG (args) {
+        if(!args) args = {};
+
         this.pathsLayer.data.wickUUID = this.model.uuid;
         this.pathsLayer.data.wickType = 'paths';
 
         this.pathsLayer.removeChildren();
         this.model.paths.forEach(path => {
             path.view.render();
+
+            // Don't actually display dynamic text while rasterizing.
+            // Only rasterize static text, we render dynamic text directly in PIXI because it's faster.
+            if(args.hideDynamicText && path.isDynamicText) {
+                path.view.item.opacity = 0;
+            }
+
             this.pathsLayer.addChild(path.view.item);
         });
     }
@@ -110,6 +130,7 @@ Wick.View.Frame = class extends Wick.View {
     _renderWebGL () {
         this._renderPathsWebGL();
         this._renderClipsWebGL();
+        this._renderDynamicTextWebGL();
     }
 
     _renderPathsWebGL () {
@@ -144,9 +165,58 @@ Wick.View.Frame = class extends Wick.View {
         });
     }
 
+    _renderDynamicTextWebGL () {
+        // Reset dynamic text container
+        this.dynamicTextContainer.removeChildren();
+        this.dynamicTextContainer._wickDebugData = {
+            uuid: this.model.uuid,
+            type: 'frame_dynamictextcontainer',
+        };
+
+        // Repopulate dynamic text container
+        this.model.dynamicTextPaths.forEach(path => {
+            var dynamicTextPixi = this._dynamicTextCache[path.uuid];
+
+            if(!dynamicTextPixi) {
+                // No pixi text exists in the cache, create a new one
+
+                // text styling
+                var fontColor = path.fillColor.toCSS(true);
+                fontColor = parseInt(fontColor.replace("#", "0x"))
+
+                dynamicTextPixi = new PIXI.Text('', {
+                    fontFamily: path.fontFamily,
+                    fontSize: path.fontSize,
+                    fill: fontColor,
+                    align: 'center'
+                });
+
+                // text positioning
+                var cloneForBounds = path.view.item.clone();
+                cloneForBounds.rotation = 0;
+                var unrotatedBounds = cloneForBounds.bounds;
+
+                dynamicTextPixi.pivot.x = unrotatedBounds.width/2;
+                dynamicTextPixi.pivot.y = unrotatedBounds.height/2;
+                dynamicTextPixi.x = path.view.item.position.x;
+                dynamicTextPixi.y = path.view.item.position.y;
+                dynamicTextPixi.scale.x = path.view.item.scaling.x;
+                dynamicTextPixi.scale.y = path.view.item.scaling.y;
+                dynamicTextPixi.rotation = path.view.item.rotation * (Math.PI / 180); //Degrees -> Radians conversion
+                
+                this._dynamicTextCache[path.uuid] = dynamicTextPixi;
+            }
+
+            // Update text content of pixi text
+            dynamicTextPixi.text = path.textContent;
+
+            this.dynamicTextContainer.addChild(dynamicTextPixi);
+        });
+    }
+
     _rasterizeSVG () {
         // Render paths using the SVG renderer
-        this._renderPathsSVG();
+        this._renderPathsSVG({hideDynamicText:true});
 
         var rasterResoltion = this.paper.view.resolution;
         rasterResoltion *= Wick.View.Frame.RASTERIZE_RESOLUTION_MODIFIER_FOR_DEVICE;
@@ -224,7 +294,16 @@ Wick.View.Frame = class extends Wick.View {
     }
 
     _applyPathChanges () {
-        // This could be optimized by updating existing paths instead of completely clearing the frame.
+        // NOTE:
+        // This could be optimized by updating existing paths instead of completely clearing the frame children.
+
+        // Quickfix for now:
+        // Force all dynamic text paths to render in front of all other paths.
+        this.model.paths.filter(path => {
+            return path.isDynamicText;
+        }).forEach(path => {
+            path.view.item.bringToFront();
+        });
 
         // Clear all WickPaths from the frame
         this.model.paths.forEach(path => {
@@ -241,6 +320,7 @@ Wick.View.Frame = class extends Wick.View {
             this.model.addPath(wickPath);
             wickPath.fontWeight = originalWickPath ? originalWickPath.fontWeight : 400;
             wickPath.fontStyle = originalWickPath ? originalWickPath.fontStyle : 'normal';
+            wickPath.identifier = originalWickPath ? originalWickPath.identifier : null;
             child.name = wickPath.uuid;
         });
     }

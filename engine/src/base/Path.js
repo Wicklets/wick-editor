@@ -90,6 +90,13 @@ Wick.Path = class extends Wick.Base {
     }
 
     /**
+     *
+     */
+    get onScreen () {
+        return this.parent.onScreen;
+    }
+
+    /**
      * The type of path that this path is. Can be 'path', 'text', or 'image'
      * @returns {string}
      */
@@ -268,6 +275,27 @@ Wick.Path = class extends Wick.Base {
 
     set fontStyle (fontStyle) {
         this._fontStyle = fontStyle;
+    }
+
+    /**
+     * The content of the text.
+     * @type {string}
+     */
+    get textContent () {
+        return this.view.item.content;
+    }
+
+    set textContent (textContent) {
+        this.view.item.content = textContent;
+    }
+
+    /**
+     * Check if this path is a dynamic text object.
+     * @type {boolean}
+     */
+    get isDynamicText () {
+        return this.pathType === 'text'
+            && this.identifier !== null;
     }
 
     /**

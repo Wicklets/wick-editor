@@ -269,12 +269,14 @@ describe('Wick.View.Frame', function() {
                 project.view.render();
 
                 // Project should contain correct items
-                expect(project.view._pixiRootContainer.children.length).to.equal(3);
+                expect(project.view._pixiRootContainer.children.length).to.equal(4);
                 expect(project.view._pixiRootContainer.children[0]._wickDebugData.type).to.equal('canvas_stage');
                 expect(project.view._pixiRootContainer.children[1]._wickDebugData.type).to.equal('frame_pathscontainer');
                 expect(project.view._pixiRootContainer.children[1]._wickDebugData.uuid).to.equal(frame.uuid);
                 expect(project.view._pixiRootContainer.children[2]._wickDebugData.type).to.equal('frame_clipscontainer');
                 expect(project.view._pixiRootContainer.children[2]._wickDebugData.uuid).to.equal(frame.uuid);
+                expect(project.view._pixiRootContainer.children[3]._wickDebugData.type).to.equal('frame_dynamictextcontainer');
+                expect(project.view._pixiRootContainer.children[3]._wickDebugData.uuid).to.equal(frame.uuid);
 
                 expect(frame.view.pathsContainer.children.length).to.equal(0);
 
@@ -315,12 +317,14 @@ describe('Wick.View.Frame', function() {
                 project.view.render();
 
                 // Project should contain correct items
-                expect(project.view._pixiRootContainer.children.length).to.equal(3);
+                expect(project.view._pixiRootContainer.children.length).to.equal(4);
                 expect(project.view._pixiRootContainer.children[0]._wickDebugData.type).to.equal('canvas_stage');
                 expect(project.view._pixiRootContainer.children[1]._wickDebugData.type).to.equal('frame_pathscontainer');
                 expect(project.view._pixiRootContainer.children[1]._wickDebugData.uuid).to.equal(frame.uuid);
                 expect(project.view._pixiRootContainer.children[2]._wickDebugData.type).to.equal('frame_clipscontainer');
                 expect(project.view._pixiRootContainer.children[2]._wickDebugData.uuid).to.equal(frame.uuid);
+                expect(project.view._pixiRootContainer.children[3]._wickDebugData.type).to.equal('frame_dynamictextcontainer');
+                expect(project.view._pixiRootContainer.children[3]._wickDebugData.uuid).to.equal(frame.uuid);
 
                 // Frame SVG paths get flattened into a single rasterized image, so we expect only one item
                 expect(frame.view.pathsContainer.children.length).to.equal(1);
@@ -363,12 +367,14 @@ describe('Wick.View.Frame', function() {
                 project.view.render();
 
                 // Project should contain correct items
-                expect(project.view._pixiRootContainer.children.length).to.equal(3);
+                expect(project.view._pixiRootContainer.children.length).to.equal(4);
                 expect(project.view._pixiRootContainer.children[0]._wickDebugData.type).to.equal('canvas_stage');
                 expect(project.view._pixiRootContainer.children[1]._wickDebugData.type).to.equal('frame_pathscontainer');
                 expect(project.view._pixiRootContainer.children[1]._wickDebugData.uuid).to.equal(frame.uuid);
                 expect(project.view._pixiRootContainer.children[2]._wickDebugData.type).to.equal('frame_clipscontainer');
                 expect(project.view._pixiRootContainer.children[2]._wickDebugData.uuid).to.equal(frame.uuid);
+                expect(project.view._pixiRootContainer.children[3]._wickDebugData.type).to.equal('frame_dynamictextcontainer');
+                expect(project.view._pixiRootContainer.children[3]._wickDebugData.uuid).to.equal(frame.uuid);
 
                 expect(frame.view.pathsContainer.children.length).to.equal(1);
 
@@ -430,16 +436,20 @@ describe('Wick.View.Frame', function() {
                 project.view.render();
 
                 // Project should contain correct items
-                expect(project.view._pixiRootContainer.children.length).to.equal(5);
+                expect(project.view._pixiRootContainer.children.length).to.equal(7);
                 expect(project.view._pixiRootContainer.children[0]._wickDebugData.type).to.equal('canvas_stage');
                 expect(project.view._pixiRootContainer.children[1]._wickDebugData.type).to.equal('frame_pathscontainer');
                 expect(project.view._pixiRootContainer.children[1]._wickDebugData.uuid).to.equal(frame2.uuid);
                 expect(project.view._pixiRootContainer.children[2]._wickDebugData.type).to.equal('frame_clipscontainer');
                 expect(project.view._pixiRootContainer.children[2]._wickDebugData.uuid).to.equal(frame2.uuid);
-                expect(project.view._pixiRootContainer.children[3]._wickDebugData.type).to.equal('frame_pathscontainer');
-                expect(project.view._pixiRootContainer.children[3]._wickDebugData.uuid).to.equal(frame1.uuid);
-                expect(project.view._pixiRootContainer.children[4]._wickDebugData.type).to.equal('frame_clipscontainer');
+                expect(project.view._pixiRootContainer.children[3]._wickDebugData.type).to.equal('frame_dynamictextcontainer');
+                expect(project.view._pixiRootContainer.children[3]._wickDebugData.uuid).to.equal(frame2.uuid);
+                expect(project.view._pixiRootContainer.children[4]._wickDebugData.type).to.equal('frame_pathscontainer');
                 expect(project.view._pixiRootContainer.children[4]._wickDebugData.uuid).to.equal(frame1.uuid);
+                expect(project.view._pixiRootContainer.children[5]._wickDebugData.type).to.equal('frame_clipscontainer');
+                expect(project.view._pixiRootContainer.children[5]._wickDebugData.uuid).to.equal(frame1.uuid);
+                expect(project.view._pixiRootContainer.children[6]._wickDebugData.type).to.equal('frame_dynamictextcontainer');
+                expect(project.view._pixiRootContainer.children[6]._wickDebugData.uuid).to.equal(frame1.uuid);
 
                 var sprite1 = frame1.view.pathsContainer.children[0];
                 expect(sprite1.texture.width).to.equal(62 * Wick.View.Frame.RASTERIZE_RESOLUTION_MODIFIER);
@@ -493,16 +503,47 @@ describe('Wick.View.Frame', function() {
                 project.view.render();
 
                 // Project should contain correct items
-                expect(project.view._pixiRootContainer.children.length).to.equal(3);
+                expect(project.view._pixiRootContainer.children.length).to.equal(4);
                 expect(project.view._pixiRootContainer.children[0]._wickDebugData.type).to.equal('canvas_stage');
                 expect(project.view._pixiRootContainer.children[1]._wickDebugData.type).to.equal('frame_pathscontainer');
                 expect(project.view._pixiRootContainer.children[1]._wickDebugData.uuid).to.equal(frame1.uuid);
                 expect(project.view._pixiRootContainer.children[2]._wickDebugData.type).to.equal('frame_clipscontainer');
                 expect(project.view._pixiRootContainer.children[2]._wickDebugData.uuid).to.equal(frame1.uuid);
+                expect(project.view._pixiRootContainer.children[3]._wickDebugData.type).to.equal('frame_dynamictextcontainer');
+                expect(project.view._pixiRootContainer.children[3]._wickDebugData.uuid).to.equal(frame1.uuid);
 
                 project.view.destroy();
                 done();
             });
+        });
+
+        it('should render+update dynamic text', function (done) {
+            var project = new Wick.Project();
+
+            var staticText = TestUtils.paperToWickPath(new paper.PointText({
+                content: 'This is some static text!',
+                fontFamily: 'Helvetica',
+                fontSize: 24,
+            }));
+            staticText.position = new paper.Point(200,100);
+
+            var dynamicText = TestUtils.paperToWickPath(new paper.PointText({
+                content: 'This is some dynamic text!',
+                fontFamily: 'Helvetica',
+                fontSize: 24,
+            }));
+            dynamicText.position = new paper.Point(200,200);
+            dynamicText.identifier = 'dynamicText';
+
+            project.activeFrame.addPath(staticText);
+            project.activeFrame.addPath(dynamicText);
+
+            project.view.renderMode = 'webgl';
+            project.view.render();
+            expect(project.activeFrame.view.dynamicTextContainer.children.length).to.equal(1);
+            project.view.destroy();
+
+            done();
         });
     });
 });
