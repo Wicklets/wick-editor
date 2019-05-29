@@ -1080,23 +1080,34 @@ describe('Wick.Clip', function() {
             var clipD = new Wick.Clip({identifier: 'clipD'});
             clipB.activeFrame.addClip(clipD);
 
-            clipA.addScript('default', 'this.__clipA = clipA; this.__clipB = clipB; this.__clipD = clipB.clipD;');
-            clipB.addScript('default', 'this.__clipA = clipA; this.__clipB = clipB; this.__clipD = clipB.clipD;');
-            clipC.addScript('default', 'this.__clipA = clipA; this.__clipB = clipB; this.__clipD = clipB.clipD;');
+            var dynamicText = TestUtils.paperToWickPath(new paper.PointText({
+                fontFamily: 'Helvetica',
+                fontSize: 24,
+                content: 'This is dynamic text',
+            }));
+            dynamicText.identifier = 'dynamicText';
+            project.activeFrame.addPath(dynamicText);
+
+            clipA.addScript('default', 'this.__clipA = clipA; this.__clipB = clipB; this.__clipD = clipB.clipD; this.__dynamicText = dynamicText');
+            clipB.addScript('default', 'this.__clipA = clipA; this.__clipB = clipB; this.__clipD = clipB.clipD; this.__dynamicText = dynamicText');
+            clipC.addScript('default', 'this.__clipA = clipA; this.__clipB = clipB; this.__clipD = clipB.clipD; this.__dynamicText = dynamicText');
 
             project.tick();
 
             expect(clipA.__clipA).to.equal(clipA);
             expect(clipA.__clipB).to.equal(clipB);
             expect(clipA.__clipD).to.equal(clipD);
+            expect(clipA.__dynamicText).to.equal(dynamicText);
 
             expect(clipB.__clipA).to.equal(clipA);
             expect(clipB.__clipB).to.equal(clipB);
-            expect(clipC.__clipD).to.equal(clipD);
+            expect(clipB.__clipD).to.equal(clipD);
+            expect(clipB.__dynamicText).to.equal(dynamicText);
 
             expect(clipC.__clipA).to.equal(clipA);
             expect(clipC.__clipB).to.equal(clipB);
             expect(clipC.__clipD).to.equal(clipD);
+            expect(clipC.__dynamicText).to.equal(dynamicText);
         });
 
         it('clips should not have access to other named objects on other frames', function() {

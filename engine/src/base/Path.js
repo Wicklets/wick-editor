@@ -90,6 +90,13 @@ Wick.Path = class extends Wick.Base {
     }
 
     /**
+     *
+     */
+    get onScreen () {
+        return this.parent.onScreen;
+    }
+
+    /**
      * The type of path that this path is. Can be 'path', 'text', or 'image'
      * @returns {string}
      */
