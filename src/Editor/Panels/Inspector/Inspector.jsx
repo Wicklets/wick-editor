@@ -702,6 +702,7 @@ class Inspector extends Component {
   renderText = () => {
     return (
       <div className="inspector-content">
+        {this.renderIdentifier()}
         {this.renderSelectionTransformProperties()}
         {this.renderSelectionFillColor()}
         {this.renderSelectionStrokeColor()}
@@ -725,7 +726,14 @@ class Inspector extends Component {
    * Renders the inspector view for all properties of a multi-path selection.
    */
   renderMultiPath = () => {
-    return ( this.renderPathContent() );
+    return ( 
+      <div className="inspector-content">
+        {this.renderSelectionTransformProperties()}
+        {this.renderSelectionFillColor()}
+        {this.renderSelectionStrokeColor()}
+        {this.getSelectionAttribute('fontFamily') && this.renderFontContent()}
+      </div>
+    );
   }
 
   /**
