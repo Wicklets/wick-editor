@@ -76577,7 +76577,8 @@ Wick.View.Frame = class extends Wick.View {
     this.pathsLayer.data.wickType = 'paths';
     this.pathsLayer.removeChildren();
     this.model.paths.forEach(path => {
-      path.view.render();
+      path.view.render(); // Don't actually display dynamic text while rasterizing.
+      // Only rasterize static text, we render dynamic text directly in PIXI because it's faster.
 
       if (args.hideDynamicText && path.isDynamicText) {
         path.view.item.opacity = 0;
@@ -76638,22 +76639,28 @@ Wick.View.Frame = class extends Wick.View {
   }
 
   _renderDynamicTextWebGL() {
+    // Reset dynamic text container
     this.dynamicTextContainer.removeChildren();
     this.dynamicTextContainer._wickDebugData = {
       uuid: this.model.uuid,
       type: 'frame_dynamictextcontainer'
-    };
+    }; // Repopulate dynamic text container
+
     this.model.dynamicTextPaths.forEach(path => {
       var dynamicTextPixi = this._dynamicTextCache[path.uuid];
 
       if (!dynamicTextPixi) {
         // No pixi text exists in the cache, create a new one
+        // text styling
+        var fontColor = path.fillColor.toCSS(true);
+        fontColor = parseInt(fontColor.replace("#", "0x"));
         dynamicTextPixi = new PIXI.Text('', {
-          fontFamily: 'Arial',
-          fontSize: 24,
-          fill: 0xff1010,
+          fontFamily: path.fontFamily,
+          fontSize: path.fontSize,
+          fill: fontColor,
           align: 'center'
-        });
+        }); // text positioning
+
         dynamicTextPixi.x = path.view.item.bounds.topLeft.x;
         dynamicTextPixi.y = path.view.item.bounds.topLeft.y;
         this._dynamicTextCache[path.uuid] = dynamicTextPixi;
