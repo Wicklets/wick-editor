@@ -85,8 +85,8 @@ Wick.Path = class extends Wick.Base {
     deserialize (data) {
         super.deserialize(data);
         this.json = data.json;
-        this._fontStyle = data.fontStyle;
-        this._fontWeight = data.fontWeight;
+        this._fontStyle = data.fontStyle || 'normal';
+        this._fontWeight = data.fontWeight || 400;
     }
 
     /**
