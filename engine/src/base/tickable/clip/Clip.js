@@ -496,6 +496,13 @@ Wick.Clip = class extends Wick.Tickable {
     }
 
     /**
+     * This is a stopgap to prevent users from using setText with a Clip.
+     */
+    setText (newTextContent) {
+        throw new Error('setText() can only be used with text objects.');
+    }
+
+    /**
      * The list of parents, grandparents, grand-grandparents...etc of the clip.
      * @returns {Wick.Clip[]} Array of all parents
      */

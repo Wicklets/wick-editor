@@ -1192,6 +1192,36 @@ describe('Wick.Clip', function() {
             expect(clip.__fooRef).to.equal(subclipA);
             expect(clip.__barRef).to.equal(subclipB);
         });
+
+        describe('#setText', function() {
+            it('should update the textContent of a dynamic text path', function () {
+                var project = new Wick.Project();
+
+                var dynamicText = TestUtils.paperToWickPath(new paper.PointText({
+                    content: 'foo'
+                }));
+                dynamicText.identifier = 'dynamicText';
+                project.activeFrame.addPath(dynamicText);
+
+                project.activeFrame.addScript('default', 'dynamicText.setText("Foo")');
+
+                expect(project.tick()).to.equal(null);
+
+                expect(dynamicText.textContent).to.equal('Foo');
+            });
+
+            it('should throw an error if used on a Clip', function () {
+                var project = new Wick.Project();
+
+                var clip = new Wick.Clip();
+                clip.identifier = 'testclip';
+                project.activeFrame.addClip(clip);
+
+                project.activeFrame.addScript('default', 'testclip.setText("Foo")');
+
+                expect(project.tick().message).to.equal("setText() can only be used with text objects.");
+            });
+        });
     });
 
     it('(performance test) NO Path children', function() {

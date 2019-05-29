@@ -290,6 +290,13 @@ Wick.Path = class extends Wick.Base {
     }
 
     /**
+     * API function to change the textContent of dynamic text paths.
+     */
+    setText (newTextContent) {
+        this.textContent = newTextContent;
+    }
+
+    /**
      * Check if this path is a dynamic text object.
      * @type {boolean}
      */
