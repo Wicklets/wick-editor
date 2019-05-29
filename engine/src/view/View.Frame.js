@@ -73,12 +73,21 @@ Wick.View.Frame = class extends Wick.View {
      * Call this if the frame SVG has changed, and you need to make sure the WebGL renderer renders the updated SVG.
      */
     clearRasterCache () {
+        // Destroy the PIXI sprite holding the raster texture data.
         if(this._pixiSprite) {
-          this._pixiSprite.destroy(true);
+            this._pixiSprite.destroy(true);
         }
         this._pixiSprite = null;
 
+        // Destroy the raster texture data.
         this._rasterImageData = null;
+
+        // While we're at it, clear the dynamic text cache.
+        for(var uuid in this._dynamicTextCache) {
+            var dynamicText = this._dynamicTextCache[uuid];
+            dynamicText.destroy(true);
+        }
+        this._dynamicTextCache = {};
     }
 
     _renderSVG () {

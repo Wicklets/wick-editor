@@ -76557,12 +76557,21 @@ Wick.View.Frame = class extends Wick.View {
 
 
   clearRasterCache() {
+    // Destroy the PIXI sprite holding the raster texture data.
     if (this._pixiSprite) {
       this._pixiSprite.destroy(true);
     }
 
-    this._pixiSprite = null;
-    this._rasterImageData = null;
+    this._pixiSprite = null; // Destroy the raster texture data.
+
+    this._rasterImageData = null; // While we're at it, clear the dynamic text cache.
+
+    for (var uuid in this._dynamicTextCache) {
+      var dynamicText = this._dynamicTextCache[uuid];
+      dynamicText.destroy(true);
+    }
+
+    this._dynamicTextCache = {};
   }
 
   _renderSVG() {
