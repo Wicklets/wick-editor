@@ -178,7 +178,7 @@ Wick.View.Frame = class extends Wick.View {
             var dynamicTextPixi = this._dynamicTextCache[path.uuid];
 
             if(!dynamicTextPixi) {
-                // No pixi text exists in the cache, create a new one
+                // No pixi text exists in the cache, create a new one:
 
                 // text styling
                 var fontColor = path.fillColor.toCSS(true);
@@ -194,6 +194,7 @@ Wick.View.Frame = class extends Wick.View {
                 // text positioning
                 var cloneForBounds = path.view.item.clone();
                 cloneForBounds.rotation = 0;
+                cloneForBounds.scaling = new paper.Point(1,1);
                 var unrotatedBounds = cloneForBounds.bounds;
 
                 dynamicTextPixi.pivot.x = unrotatedBounds.width/2;
@@ -203,7 +204,7 @@ Wick.View.Frame = class extends Wick.View {
                 dynamicTextPixi.scale.x = path.view.item.scaling.x;
                 dynamicTextPixi.scale.y = path.view.item.scaling.y;
                 dynamicTextPixi.rotation = path.view.item.rotation * (Math.PI / 180); //Degrees -> Radians conversion
-                
+
                 this._dynamicTextCache[path.uuid] = dynamicTextPixi;
             }
 

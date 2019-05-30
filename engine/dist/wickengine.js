@@ -69117,6 +69117,14 @@ Wick.Path = class extends Wick.Base {
     this.view.item.content = textContent;
   }
   /**
+   * API function to change the textContent of dynamic text paths.
+   */
+
+
+  setText(newTextContent) {
+    this.textContent = newTextContent;
+  }
+  /**
    * Check if this path is a dynamic text object.
    * @type {boolean}
    */
@@ -71782,6 +71790,14 @@ Wick.Clip = class extends Wick.Tickable {
 
   get clones() {
     return this._clones;
+  }
+  /**
+   * This is a stopgap to prevent users from using setText with a Clip.
+   */
+
+
+  setText(newTextContent) {
+    throw new Error('setText() can only be used with text objects.');
   }
   /**
    * The list of parents, grandparents, grand-grandparents...etc of the clip.
@@ -76659,7 +76675,7 @@ Wick.View.Frame = class extends Wick.View {
       var dynamicTextPixi = this._dynamicTextCache[path.uuid];
 
       if (!dynamicTextPixi) {
-        // No pixi text exists in the cache, create a new one
+        // No pixi text exists in the cache, create a new one:
         // text styling
         var fontColor = path.fillColor.toCSS(true);
         fontColor = parseInt(fontColor.replace("#", "0x"));
@@ -76672,6 +76688,7 @@ Wick.View.Frame = class extends Wick.View {
 
         var cloneForBounds = path.view.item.clone();
         cloneForBounds.rotation = 0;
+        cloneForBounds.scaling = new paper.Point(1, 1);
         var unrotatedBounds = cloneForBounds.bounds;
         dynamicTextPixi.pivot.x = unrotatedBounds.width / 2;
         dynamicTextPixi.pivot.y = unrotatedBounds.height / 2;
