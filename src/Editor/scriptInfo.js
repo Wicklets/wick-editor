@@ -151,6 +151,11 @@ class ScriptInfoInterface extends Object {
                     description: 'Removes this object from the project.',
                 },
                 {
+                    name: 'setText',
+                    snippet: 'textName.setText("Text")',
+                    description: 'Changes the content of a text object.',
+                },
+                {
                     name: 'hitTest',
                     snippet: 'this.hitTest(that)',
                     description: 'Determines if the hitboxes of two objects overlap.',
