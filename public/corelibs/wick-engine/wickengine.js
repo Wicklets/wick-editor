@@ -71088,6 +71088,25 @@ Wick.Frame = class extends Wick.Tickable {
     return this.inPosition(start) || this.inPosition(end) || this.start >= start && this.start <= end || this.end >= start && this.end <= end;
   }
   /**
+   * The number of frames that this frame is from a given playhead position.
+   * @param {number} playheadPosition
+   */
+
+
+  distanceFrom(playheadPosition) {
+    // playhead position is inside frame, distance is zero.
+    if (this.start <= playheadPosition && this.end >= playheadPosition) {
+      return 0;
+    } // otherwise, find the distance from the nearest end
+
+
+    if (this.start >= playheadPosition) {
+      return this.start - playheadPosition;
+    } else if (this.end <= playheadPosition) {
+      return playheadPosition - this.end;
+    }
+  }
+  /**
    * Add a clip to the frame.
    * @param {Wick.Clip} clip - the clip to add.
    */
@@ -76499,15 +76518,17 @@ Wick.View.Layer = class extends Wick.View {
         frame.view.render();
         this.onionSkinnedFramesLayers.push(frame.view.pathsLayer);
         this.onionSkinnedFramesLayers.push(frame.view.clipsLayer);
-        var onionMult = 1;
+        var seek = 0;
 
         if (frame.midpoint < playheadPosition) {
-          var onionMult = 1 - (playheadPosition - frame.midpoint - 1) / onionSkinSeekBackwards;
+          seek = onionSkinSeekBackwards;
         } else if (frame.midpoint > playheadPosition) {
-          var onionMult = 1 - (frame.midpoint - playheadPosition - 1) / onionSkinSeekForwards;
+          seek = onionSkinSeekForwards;
         }
 
-        onionMult = Math.min(1, onionMult);
+        var dist = frame.distanceFrom(playheadPosition);
+        var onionMult = (seek - dist + 1) / seek;
+        onionMult = Math.min(1, Math.max(0, onionMult));
         var opacity = onionMult * Wick.View.Layer.BASE_ONION_OPACITY;
         frame.view.clipsLayer.locked = true;
         frame.view.pathsLayer.locked = true;

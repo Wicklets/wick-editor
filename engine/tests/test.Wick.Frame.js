@@ -510,4 +510,37 @@ describe('Wick.Frame', function() {
             expect(frame.dynamicTextPaths[2]).to.equal(dynamicText3);
         })
     });
+
+    describe('#distanceFrom', function () {
+        it('should calculate distance correctly', function () {
+            var frame = new Wick.Frame({start:5, end:5});
+            expect(frame.distanceFrom(1)).to.equal(4);
+            expect(frame.distanceFrom(2)).to.equal(3);
+            expect(frame.distanceFrom(3)).to.equal(2);
+            expect(frame.distanceFrom(4)).to.equal(1);
+            expect(frame.distanceFrom(5)).to.equal(0);
+            expect(frame.distanceFrom(6)).to.equal(1);
+            expect(frame.distanceFrom(7)).to.equal(2);
+            expect(frame.distanceFrom(8)).to.equal(3);
+            expect(frame.distanceFrom(9)).to.equal(4);
+        });
+
+        it('should calculate distance correctly (extended frame)', function () {
+            var frame = new Wick.Frame({start:5, end:10});
+            expect(frame.distanceFrom(1)).to.equal(4);
+            expect(frame.distanceFrom(2)).to.equal(3);
+            expect(frame.distanceFrom(3)).to.equal(2);
+            expect(frame.distanceFrom(4)).to.equal(1);
+            expect(frame.distanceFrom(5)).to.equal(0);
+            expect(frame.distanceFrom(6)).to.equal(0);
+            expect(frame.distanceFrom(7)).to.equal(0);
+            expect(frame.distanceFrom(8)).to.equal(0);
+            expect(frame.distanceFrom(9)).to.equal(0);
+            expect(frame.distanceFrom(10)).to.equal(0);
+            expect(frame.distanceFrom(11)).to.equal(1);
+            expect(frame.distanceFrom(12)).to.equal(2);
+            expect(frame.distanceFrom(13)).to.equal(3);
+            expect(frame.distanceFrom(14)).to.equal(4);
+        });
+    })
 });

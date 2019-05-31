@@ -284,6 +284,24 @@ Wick.Frame = class extends Wick.Tickable {
     }
 
     /**
+     * The number of frames that this frame is from a given playhead position.
+     * @param {number} playheadPosition
+     */
+    distanceFrom (playheadPosition) {
+        // playhead position is inside frame, distance is zero.
+        if(this.start <= playheadPosition && this.end >= playheadPosition) {
+            return 0;
+        }
+
+        // otherwise, find the distance from the nearest end
+        if (this.start >= playheadPosition) {
+            return this.start - playheadPosition;
+        } else if(this.end <= playheadPosition) {
+            return playheadPosition - this.end;
+        }
+    }
+
+    /**
      * Add a clip to the frame.
      * @param {Wick.Clip} clip - the clip to add.
      */

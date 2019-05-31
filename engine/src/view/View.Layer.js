@@ -68,13 +68,15 @@ Wick.View.Layer = class extends Wick.View {
                 this.onionSkinnedFramesLayers.push(frame.view.pathsLayer);
                 this.onionSkinnedFramesLayers.push(frame.view.clipsLayer);
 
-                var onionMult = 1;
+                var seek = 0;
                 if(frame.midpoint < playheadPosition) {
-                    var onionMult = 1 - ((playheadPosition - frame.midpoint - 1) / onionSkinSeekBackwards);
+                    seek = onionSkinSeekBackwards;
                 } else if(frame.midpoint > playheadPosition) {
-                    var onionMult = 1 - ((frame.midpoint - playheadPosition - 1) / onionSkinSeekForwards);
+                    seek = onionSkinSeekForwards;
                 }
-                onionMult = Math.min(1, onionMult);
+                var dist = frame.distanceFrom(playheadPosition);
+                var onionMult = ((seek - dist) + 1) / seek;
+                onionMult = Math.min(1, Math.max(0, onionMult));
                 var opacity = onionMult * Wick.View.Layer.BASE_ONION_OPACITY;
 
                 frame.view.clipsLayer.locked = true;
