@@ -83,6 +83,36 @@ describe('Wick.WickFile', function () {
             });
         });
 
+        it('should reset focus and playhead positions when saving wick files', function (done) {
+            Wick.ObjectCache.clear();
+            Wick.FileCache.clear();
+
+            var project = new Wick.Project();
+            project.activeLayer.addFrame(new Wick.Frame({start:2}));
+            project.root.timeline.playheadPosition = 2;
+            var clip = new Wick.Clip();
+            clip.activeLayer.addFrame(new Wick.Frame({start:2}));
+            clip.timeline.playheadPosition = 2;
+            project.activeFrame.addClip(clip);
+            project.focus = clip;
+
+            Wick.WickFile.toWickFile(project, wickFile => {
+                // Original project definitely should not have changed.
+                expect(project.focus).to.equal(clip);
+                expect(clip.timeline.playheadPosition).to.equal(2);
+
+                Wick.ObjectCache.clear();
+                //saveAs(wickFile, 'wickproject.zip')
+                Wick.WickFile.fromWickFile(wickFile, loadedProject => {
+                    expect(loadedProject.focus).to.equal(loadedProject.root);
+                    expect(loadedProject.focus.timeline.playheadPosition).to.equal(1);
+                    expect(loadedProject.activeLayer.frames[1].clips[0].timeline.playheadPosition).to.equal(1);
+
+                    done();
+                });
+            });
+        });
+
         it('should load fonts into the page on project load', function (done) {
             Wick.ObjectCache.clear();
             Wick.FileCache.clear();

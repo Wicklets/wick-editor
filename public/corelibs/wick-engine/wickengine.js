@@ -65659,18 +65659,37 @@ Wick.WickFile = class {
       if (objectCacheSerialized[uuid].classname === 'Project') {
         delete objectCacheSerialized[uuid];
       }
-    } // Remove some extra data that we don't actually want to save (zoom, pan, selection, etc)
+    } // Remove some extra data that we don't actually want to save
+    // Reset zoom/pan
 
 
     projectSerialized.zoom = 1;
     projectSerialized.pan.x = 0;
-    projectSerialized.pan.y = 0;
+    projectSerialized.pan.y = 0; // Clear selection
 
     for (var uuid in objectCacheSerialized) {
       var object = objectCacheSerialized[uuid];
 
       if (object.classname === 'Selection') {
         object.selectedObjects = [];
+      }
+    } // Set focus to root
+
+
+    for (var uuid in objectCacheSerialized) {
+      var object = objectCacheSerialized[uuid];
+
+      if (projectSerialized.children.indexOf(uuid) !== -1 && object.classname === 'Clip') {
+        projectSerialized.focus = uuid;
+      }
+    } // Reset all playhead positions
+
+
+    for (var uuid in objectCacheSerialized) {
+      var object = objectCacheSerialized[uuid];
+
+      if (object.classname === 'Timeline') {
+        object.playheadPosition = 1;
       }
     } // Add project json to root directory of zip file
 
