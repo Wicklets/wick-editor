@@ -193,4 +193,92 @@ describe('Wick.Path', function() {
             expect(dynamicText.isDynamicText).to.equal(true);
         });
     });
+
+    describe('backwards compatability', function() {
+        it('should support old raster path formats', function (done) {
+            var project = new Wick.Project();
+            var imageAsset = new Wick.ImageAsset({
+                filename: 'foo.png',
+                src: TestUtils.TEST_IMG_SRC_PNG,
+            });
+            project.addAsset(imageAsset);
+
+            // try to get paper.js to cache the image...
+            imageAsset.createInstance(() => {
+                // The current format stores the asset UUID as such:
+                var currentImageFormat = new Wick.Path();
+                currentImageFormat._json = [
+                  "Raster",
+                  {
+                    "applyMatrix": false,
+                    "matrix": [
+                      1,
+                      0,
+                      0,
+                      1,
+                      100,
+                      200
+                    ],
+                    "crossOrigin": "",
+                    "source": 'asset:' + imageAsset.uuid,
+                  }
+                ];
+                project.activeFrame.addPath(currentImageFormat);
+
+                // The old format stores the asset UUID slightly differently.
+                var oldImageFormat = new Wick.Path();
+                oldImageFormat._json = [
+                  "Raster",
+                  {
+                    "applyMatrix": false,
+                    "data": {
+                      "asset": imageAsset.uuid
+                    },
+                    "matrix": [
+                      1,
+                      0,
+                      0,
+                      1,
+                      300,
+                      200
+                    ],
+                    "crossOrigin": "",
+                    "source": "asset"
+                  }
+                ];
+                project.activeFrame.addPath(oldImageFormat);
+
+                // Bug: Image paths sometimes store the actual image source. This is very bad for the filesize.
+                var buggedImageFormat = new Wick.Path();
+                buggedImageFormat._json = [
+                  "Raster",
+                  {
+                    "applyMatrix": false,
+                    "matrix": [
+                      1,
+                      0,
+                      0,
+                      1,
+                      500,
+                      200
+                    ],
+                    "crossOrigin": "",
+                    "source": imageAsset.src,
+                  }
+                ];
+                project.activeFrame.addPath(buggedImageFormat);
+
+                project.view.render();
+
+                expect(currentImageFormat.view.item.bounds.width).to.equal(100);
+                expect(currentImageFormat.view.item.bounds.height).to.equal(100);
+                expect(oldImageFormat.view.item.bounds.width).to.equal(100);
+                expect(oldImageFormat.view.item.bounds.height).to.equal(100);
+                expect(buggedImageFormat.view.item.bounds.width).to.equal(100);
+                expect(buggedImageFormat.view.item.bounds.height).to.equal(100);
+
+                done();
+            });
+        });
+    });
 });

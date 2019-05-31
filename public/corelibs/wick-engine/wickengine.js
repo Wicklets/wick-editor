@@ -65613,6 +65613,7 @@ Wick.WickFile = class {
                 loadedAssetCount++;
 
                 if (loadedAssetCount === project.getAssets().length) {
+                  console.log(project);
                   callback(project);
                 }
               });
@@ -68886,8 +68887,8 @@ Wick.Path = class extends Wick.Base {
 
   serialize(args) {
     var data = super.serialize(args);
-    data.json = this.json;
-    delete data.json[1].data;
+    data.json = JSON.parse(JSON.stringify(this.json)); //delete data.json[1].data;
+
     data.fontStyle = this._fontStyle;
     data.fontWeight = this._fontWeight;
     return data;
@@ -76862,6 +76863,7 @@ Wick.View.Path = class extends Wick.View {
   render() {
     if (!this.model.json) {
       console.warn('Path ' + this.model.uuid + ' is missing path JSON.');
+      return;
     }
 
     this.importJSON(this.model.json);
@@ -76873,8 +76875,44 @@ Wick.View.Path = class extends Wick.View {
 
 
   importJSON(json) {
-    // Import JSON data into paper.js
+    // Backwards compatibility check for old raster formats:
+    if (json[0] === 'Raster' && this.model.project) {
+      if (json[1].source.startsWith('data')) {
+        // Bug: Raw dataURL was saved, need find asset with that data
+        this.model.project.getAssets('Image').forEach(imageAsset => {
+          if (imageAsset.src === json[1].source) {
+            json[1].source = 'asset:' + imageAsset.uuid;
+          }
+        });
+      } else if (json[1].source.startsWith('asset:')) {// Current format, no fix needed
+      } else if (json[1].source === 'asset') {
+        // Old format: Asset UUID is stored in 'data'
+        if (!json[1].data || !json[1].data.asset) {
+          console.error("could not salvage old raster source format:");
+          console.log(json);
+          return;
+        }
+
+        json[1].source = 'asset:' + json[1].data.asset;
+      } else {
+        console.error('WARNING: raster source format not recognized:');
+        console.log(json);
+        return;
+      }
+    } // Set raster asset source
+
+
+    var assetUUID = null;
+
+    if (json[0] === 'Raster' && this.model.project) {
+      assetUUID = json[1].source.split(':')[1];
+      json[1].source = this.model.project.getAssetByUUID(assetUUID).src;
+      this._item.data.wickAssetUUID = assetUUID;
+    } // Import JSON data into paper.js
+
+
     this._item = this.paper.importJSON(json);
+    if (assetUUID) this._item.data.assetUUID = assetUUID;
 
     this._item.remove(); // Check if we need to recover the UUID from the paper path
 
@@ -76898,7 +76936,13 @@ Wick.View.Path = class extends Wick.View {
 
 
   exportJSON() {
-    return Wick.View.Path.exportJSON(this.item);
+    var json = Wick.View.Path.exportJSON(this.item);
+
+    if (json[0] === 'Raster') {
+      json[1].source = 'asset:' + this.item.data.wickAssetUUID;
+    }
+
+    return json;
   }
   /**
    * Export a path as paper.js Path json data.
