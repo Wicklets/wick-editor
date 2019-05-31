@@ -906,11 +906,11 @@ class EditorCore extends Component {
     this.resetEditorForLoad();
     this.project = project;
     this.project.selection.clear();
-    //this.project.view.preloadImages(() => {
+    this.project.view.prerasterize(() => {
       this.projectDidChange();
       this.hideWaitOverlay();
       this.project.view.render();
-    //});
+    });
   }
 
   showAutosavedProjects = () => {

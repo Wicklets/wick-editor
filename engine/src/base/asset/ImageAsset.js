@@ -82,6 +82,20 @@ Wick.ImageAsset = class extends Wick.FileAsset {
     }
 
     /**
+     * Load data in the asset
+     */
+    load (callback) {
+        // Try to get paper.js to cache the image src.
+        var img = new Image();
+        img.src = this.src;
+        img.onload = () => {
+            var raster = new paper.Raster(img);
+            raster.remove();
+            callback();
+        }
+    }
+
+    /**
      * Creates a new Wick Path that uses this asset's image data as it's image source.
      * @returns {Wick.Path} - the newly created path.
      */

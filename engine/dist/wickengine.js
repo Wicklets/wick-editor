@@ -65613,7 +65613,6 @@ Wick.WickFile = class {
                 loadedAssetCount++;
 
                 if (loadedAssetCount === project.getAssets().length) {
-                  console.log(project);
                   callback(project);
                 }
               });
@@ -69433,6 +69432,22 @@ Wick.ImageAsset = class extends Wick.FileAsset {
 
   removeAllInstances() {} // TODO
 
+  /**
+   * Load data in the asset
+   */
+
+
+  load(callback) {
+    // Try to get paper.js to cache the image src.
+    var img = new Image();
+    img.src = this.src;
+
+    img.onload = () => {
+      var raster = new paper.Raster(img);
+      raster.remove();
+      callback();
+    };
+  }
   /**
    * Creates a new Wick Path that uses this asset's image data as it's image source.
    * @returns {Wick.Path} - the newly created path.
@@ -76714,11 +76729,11 @@ Wick.View.Frame = class extends Wick.View {
       hideDynamicText: true
     });
 
-    var rasterResoltion = this.paper.view.resolution;
-    rasterResoltion *= Wick.View.Frame.RASTERIZE_RESOLUTION_MODIFIER_FOR_DEVICE; // get a rasterized version of the resulting SVG
+    var rasterResolution = this.paper.view.resolution;
+    rasterResolution *= Wick.View.Frame.RASTERIZE_RESOLUTION_MODIFIER_FOR_DEVICE; // get a rasterized version of the resulting SVG
 
     this.pathsLayer.opacity = 1;
-    var raster = this.pathsLayer.rasterize(rasterResoltion, false);
+    var raster = this.pathsLayer.rasterize(rasterResolution, false);
     this._SVGBounds = {
       x: this.pathsLayer.bounds.x,
       y: this.pathsLayer.bounds.y
@@ -76893,12 +76908,6 @@ Wick.View.Path = class extends Wick.View {
       } else if (json[1].source.startsWith('asset:')) {// Current format, no fix needed
       } else if (json[1].source === 'asset') {
         // Old format: Asset UUID is stored in 'data'
-
-        /*if(!json[1].data || !json[1].data.asset) {
-            console.error("could not salvage old raster source format:")
-            console.log(json);
-            return;
-        }*/
         json[1].source = 'asset:' + (json[1].asset || json[1].data.asset);
       } else {
         console.error('WARNING: raster source format not recognized:');

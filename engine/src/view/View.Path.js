@@ -72,11 +72,6 @@ Wick.View.Path = class extends Wick.View {
                 // Current format, no fix needed
             } else if (json[1].source === 'asset') {
                 // Old format: Asset UUID is stored in 'data'
-                /*if(!json[1].data || !json[1].data.asset) {
-                    console.error("could not salvage old raster source format:")
-                    console.log(json);
-                    return;
-                }*/
                 json[1].source = 'asset:' + (json[1].asset || json[1].data.asset);
             } else {
                 console.error('WARNING: raster source format not recognized:');

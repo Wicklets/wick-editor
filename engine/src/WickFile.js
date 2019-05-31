@@ -69,7 +69,6 @@ Wick.WickFile = class {
                             assetData.load(() => {
                                 loadedAssetCount++;
                                 if(loadedAssetCount === project.getAssets().length) {
-                                    console.log(project)
                                     callback(project);
                                 }
                             });
