@@ -248,6 +248,27 @@ describe('Wick.Path', function() {
                 ];
                 project.activeFrame.addPath(oldImageFormat);
 
+                // The old format, in a slightly different way (some projects have this for some reason)
+                var oldImageFormat2 = new Wick.Path();
+                oldImageFormat2._json = [
+                  "Raster",
+                  {
+                    "applyMatrix": false,
+                    "matrix": [
+                      1,
+                      0,
+                      0,
+                      1,
+                      300,
+                      200
+                    ],
+                    "crossOrigin": "",
+                    "asset": imageAsset.uuid,
+                    "source": "asset"
+                  }
+                ];
+                project.activeFrame.addPath(oldImageFormat2);
+
                 // Bug: Image paths sometimes store the actual image source. This is very bad for the filesize.
                 var buggedImageFormat = new Wick.Path();
                 buggedImageFormat._json = [
@@ -274,6 +295,8 @@ describe('Wick.Path', function() {
                 expect(currentImageFormat.view.item.bounds.height).to.equal(100);
                 expect(oldImageFormat.view.item.bounds.width).to.equal(100);
                 expect(oldImageFormat.view.item.bounds.height).to.equal(100);
+                expect(oldImageFormat2.view.item.bounds.width).to.equal(100);
+                expect(oldImageFormat2.view.item.bounds.height).to.equal(100);
                 expect(buggedImageFormat.view.item.bounds.width).to.equal(100);
                 expect(buggedImageFormat.view.item.bounds.height).to.equal(100);
 

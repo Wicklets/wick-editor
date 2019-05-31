@@ -53,6 +53,44 @@ Wick.View.Path = class extends Wick.View {
      * @param {object} json - Data for the path created with paper.js exportJSON({asString:false})
      */
     importJSON (json) {
+        // Don't try to render rasters if there's no project attached - too dangerous!
+        // (asset image sources may not be able to be retrieved)
+        if(json[0] === 'Raster' && !json[1].source.startsWith('data') && !this.model.project) {
+            return;
+        }
+
+        // Backwards compatibility check for old raster formats:
+        if(json[0] === 'Raster' && this.model.project) {
+            if(json[1].source.startsWith('data')) {
+                // Bug: Raw dataURL was saved, need find asset with that data
+                this.model.project.getAssets('Image').forEach(imageAsset => {
+                    if(imageAsset.src === json[1].source) {
+                        json[1].source = 'asset:' + imageAsset.uuid;
+                    }
+                })
+            } else if (json[1].source.startsWith('asset:')) {
+                // Current format, no fix needed
+            } else if (json[1].source === 'asset') {
+                // Old format: Asset UUID is stored in 'data'
+                /*if(!json[1].data || !json[1].data.asset) {
+                    console.error("could not salvage old raster source format:")
+                    console.log(json);
+                    return;
+                }*/
+                json[1].source = 'asset:' + (json[1].asset || json[1].data.asset);
+            } else {
+                console.error('WARNING: raster source format not recognized:');
+                console.log(json);
+                return;
+            }
+        }
+
+        // Get image source from assets
+        if(json[0] === 'Raster' && json[1].source.startsWith('asset:')) {
+            var assetUUID = json[1].source.split(':')[1];
+            json[1].source = this.model.project.getAssetByUUID(assetUUID).src;
+        }
+
         // Import JSON data into paper.js
         this._item = this.paper.importJSON(json);
         this._item.remove();
