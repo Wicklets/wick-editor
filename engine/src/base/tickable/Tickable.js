@@ -477,6 +477,11 @@ Wick.Tickable = class extends Wick.Base {
           var project = this.project;
           var root = project && project.root;
           window.project = root;
+          if(project) {
+              window.project.resolution = {x: project.width, y: project.height};
+              window.project.framerate = project.framerate;
+              window.project.backgroundColor = project.backgroundColor;
+          }
           window.root = root;
           window.parent = this.parentClip;
           window.parentObject = this.parentObject;

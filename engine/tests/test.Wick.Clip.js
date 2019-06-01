@@ -898,8 +898,10 @@ describe('Wick.Clip', function() {
                 var error = clip.tick();
                 expect(error).to.equal(null);
                 expect(clip.__project).to.equal(project.root);
-                expect(clip.__project.width).to.equal(project.width);
-                expect(clip.__project.height).to.equal(project.height);
+                expect(clip.__project.resolution.x).to.equal(project.width);
+                expect(clip.__project.resolution.y).to.equal(project.height);
+                expect(clip.__project.framerate).to.equal(project.framerate);
+                expect(clip.__project.backgroundColor).to.equal('#ffffff');
             });
         });
 
