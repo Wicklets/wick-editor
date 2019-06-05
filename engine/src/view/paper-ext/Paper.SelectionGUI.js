@@ -222,12 +222,12 @@
             fillColor: args.fillColor,
             insert: false,
         });
+
         // Transform the handle a bit so it doesn't get squished when the selection box is scaled.
         circle.applyMatrix = false;
-        //circle.scaling.x = 1 / this.scaleX;
-        //circle.scaling.y = 1 / this.scaleY;
         circle.data.handleType = args.type;
         circle.data.handleEdge = args.name;
+
         return circle;
     }
 
@@ -262,12 +262,6 @@
             'bottomLeft': 180,
             'topLeft': 270,
         }[cornerName]);
-        //if(this.scaleX < 0) hotspot.scaling.x = -1;
-        //if(this.scaleY < 0) hotspot.scaling.y = -1;
-
-        // Transform the hotspots a bit so they doesn't get squished when the selection box is scaled.
-        //hotspot.scaling.x = 1 / this.scaleX;
-        //hotspot.scaling.y = 1 / this.scaleY;
 
         // Some metadata.
         hotspot.data.handleType = 'rotation';

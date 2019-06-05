@@ -331,14 +331,6 @@ Wick.Tools.Cursor = class extends Wick.Tool {
                 topLeft: 315,
             }[this.hitResult.item.data.handleEdge];
 
-            // Flip angles if selection is flipped horizontally/vertically
-            /*if(this._selection.transformation.scaleX < 0) {
-                baseAngle = -baseAngle + 360;
-            }
-            if(this._selection.transformation.scaleY < 0) {
-                baseAngle = -baseAngle + 180;
-            }*/
-
             var angle = baseAngle + this._widget.rotation;
             // It makes angle math easier if we dont allow angles >360 or <0 degrees:
             if(angle < 0) angle += 360;

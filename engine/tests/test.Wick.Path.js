@@ -22,6 +22,21 @@ describe('Wick.Path', function() {
         });
     });
 
+    describe('#createImagePathSync', function () {
+        it('should create image path without errors', function () {
+            var project = new Wick.Project();
+
+            var imageAsset = new Wick.ImageAsset({
+                filename: 'foo.png',
+                src: TestUtils.TEST_IMG_SRC_PNG,
+            });
+            project.addAsset(imageAsset);
+
+            var path = Wick.Path.createImagePathSync(imageAsset);
+            expect(path.serialize().json[1].source).to.equal(imageAsset.src);
+        });
+    })
+
     describe('#serialize', function() {
         it('should serialize correctly', function () {
             var path = new Wick.Path({json:TestUtils.TEST_PATH_JSON_RED_SQUARE});

@@ -300,15 +300,16 @@ class Wick152ProjectConverter {
      */
     static convertImage (image, convertedProject) {
         // Find asset in convertedProject asset library
-        var asset = convertedProject.getAsset(image.assetUUID);
+        var asset = convertedProject.getAssetByUUID(image.assetUUID);
 
         // Create instance of that asset
-        var convertedImage = asset.createInstance();
-        convertedImage.paperPath.position.x = image.x;
-        convertedImage.paperPath.position.y = image.y;
-        convertedImage.paperPath.rotation = image.rotation;
-        convertedImage.paperPath.scaling.x = image.scaleX;
-        convertedImage.paperPath.scaling.y = image.scaleY;
+        var convertedImage = Wick.Path.createImagePathSync(asset);
+        convertedImage.view.item.position.x = image.x;
+        convertedImage.view.item.position.y = image.y;
+        convertedImage.view.item.rotation = image.rotation;
+        convertedImage.view.item.scaling.x = image.scaleX;
+        convertedImage.view.item.scaling.y = image.scaleY;
+        convertedImage.json = convertedImage.view.exportJSON();
         return convertedImage;
     }
 

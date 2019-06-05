@@ -66,6 +66,19 @@ Wick.Path = class extends Wick.Base {
         }
     }
 
+    /**
+     * Create a path (synchronously) containing an image from an ImageAsset.
+     * @param {Wick.ImageAsset} asset - The asset from which the image src will be loaded from
+     */
+    static createImagePathSync (asset) {
+        var raster = new paper.Raster(asset.src);
+        raster.remove();
+        var path = new Wick.Path({
+            json: Wick.View.Path.exportJSON(raster),
+        });
+        return path;
+    }
+
     get classname () {
         return 'Path';
     }

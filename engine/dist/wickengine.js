@@ -68898,6 +68898,20 @@ Wick.Path = class extends Wick.Base {
       callback(path);
     };
   }
+  /**
+   * Create a path (synchronously) containing an image from an ImageAsset.
+   * @param {Wick.ImageAsset} asset - The asset from which the image src will be loaded from
+   */
+
+
+  static createImagePathSync(asset) {
+    var raster = new paper.Raster(asset.src);
+    raster.remove();
+    var path = new Wick.Path({
+      json: Wick.View.Path.exportJSON(raster)
+    });
+    return path;
+  }
 
   get classname() {
     return 'Path';
@@ -69469,7 +69483,7 @@ Wick.ImageAsset = class extends Wick.FileAsset {
   }
   /**
    * Creates a new Wick Path that uses this asset's image data as it's image source.
-   * @returns {Wick.Path} - the newly created path.
+   * @param {function} callback - called when the path is done loading.
    */
 
 
@@ -72743,15 +72757,7 @@ Wick.Tools.Cursor = class extends Wick.Tool {
         bottomLeft: 225,
         leftCenter: 270,
         topLeft: 315
-      }[this.hitResult.item.data.handleEdge]; // Flip angles if selection is flipped horizontally/vertically
-
-      /*if(this._selection.transformation.scaleX < 0) {
-          baseAngle = -baseAngle + 360;
-      }
-      if(this._selection.transformation.scaleY < 0) {
-          baseAngle = -baseAngle + 180;
-      }*/
-
+      }[this.hitResult.item.data.handleEdge];
       var angle = baseAngle + this._widget.rotation; // It makes angle math easier if we dont allow angles >360 or <0 degrees:
 
       if (angle < 0) angle += 360;
