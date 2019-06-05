@@ -68272,6 +68272,8 @@ Wick.Timeline = class extends Wick.Base {
     super.deserialize(data);
     this._playheadPosition = data.playheadPosition;
     this._activeLayerIndex = data.activeLayerIndex;
+    this._playing = true;
+    this._forceNextFrame = null;
   }
 
   get classname() {

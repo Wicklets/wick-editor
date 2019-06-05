@@ -251,16 +251,15 @@ describe('Wick.Timeline', function() {
         var project = new Wick.Project();
         project.activeLayer.addFrame(new Wick.Frame({start: 2}));
         project.activeLayer.addFrame(new Wick.Frame({start: 3}));
+        project.activeLayer.frames[2].addScript('default', 'stop()');
 
         function firstPlay () {
             project.play({
                 onAfterTick: () => {
                     // Play until the third frame, then stop.
                     if(project.activeTimeline.playheadPosition === 3) {
+                        expect(project.activeTimeline._playing).to.equal(false);
                         project.stop();
-
-                        // Add a stop() script to the first frame, then play again.
-                        project.activeLayer.frames[0].addScript('load', 'stop()');
                         secondPlay();
                     }
                 }
@@ -271,6 +270,7 @@ describe('Wick.Timeline', function() {
             project.play({
                 onAfterTick: () => {
                     expect(project.activeTimeline.playheadPosition).to.equal(1);
+                    expect(project.activeTimeline._playing).to.equal(true);
                     project.stop();
                     done();
                 }
