@@ -267,6 +267,7 @@ describe('Wick.Timeline', function() {
         }
 
         function secondPlay () {
+            project.activeTimeline.playheadPosition = 1;
             project.play({
                 onAfterTick: () => {
                     expect(project.activeTimeline.playheadPosition).to.equal(1);

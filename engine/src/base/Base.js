@@ -188,6 +188,7 @@ Wick.Base = class {
         }
 
         if(!isVarName(identifier)) return;
+        if(reserved.check(identifier)) return;
 
         this._identifier = identifier;
     }

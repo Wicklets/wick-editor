@@ -189,6 +189,20 @@ describe('Wick.Base', function() {
         expect(base.identifier).to.equal('dummy');
     });
 
+    it('identifier should not accept javascript keywords', function() {
+        var base = new Wick.Base({identifier: 'dummy'});
+
+        // Invalid names
+        base.identifier = 'function';
+        expect(base.identifier).to.equal('dummy');
+        base.identifier = 'var';
+        expect(base.identifier).to.equal('dummy');
+        base.identifier = 'null';
+        expect(base.identifier).to.equal('dummy');
+        base.identifier = 'window';
+        expect(base.identifier).to.equal('dummy');
+    });
+
     it('should get parent clip correctly', function() {
         var subclip = new Wick.Clip();
         var frame = new Wick.Frame();

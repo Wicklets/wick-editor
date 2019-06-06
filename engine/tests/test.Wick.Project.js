@@ -579,6 +579,22 @@ describe('Wick.Project', function() {
                 }
             });
         });
+
+        it('should save playheadPosition after preview play', function (done) {
+            var project = new Wick.Project();
+            project.activeLayer.addFrame(new Wick.Frame({start:2}));
+            project.activeLayer.addFrame(new Wick.Frame({start:3}));
+
+            project.play({
+                onAfterTick: () => {
+                    if(project.activeTimeline.playheadPosition === 3) {
+                        project.stop();
+                        expect(project.activeTimeline.playheadPosition).to.equal(3);
+                        done();
+                    }
+                }
+            });
+        });
     });
 
     describe('#getAllFrames', function () {

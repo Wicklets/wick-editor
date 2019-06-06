@@ -794,7 +794,11 @@ Wick.Project = class extends Wick.Base {
         clearInterval(this._tickIntervalID);
         this._tickIntervalID = null;
 
+        // Loading the snapshot to restore project state also moves the playhead back to where it was originally.
+        // We actually don't want this, preview play should actually move the playhead after it's stopped.
+        var currentPlayhead = this.focus.timeline.playheadPosition;
         this.history.loadSnapshot('state-before-play');
+        this.focus.timeline.playheadPosition = currentPlayhead;
     }
 
     /**

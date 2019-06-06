@@ -24,6 +24,7 @@ gulp.task('default', function() {
             'lib/pixi.js',
             'lib/platform.js',
             'lib/potrace.js',
+            'lib/reserved-words.js',
             'lib/timestamp.js',
             'lib/Tween.js',
             'lib/uuid.js',
