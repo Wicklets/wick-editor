@@ -70,7 +70,8 @@ Wick.Clipboard = class {
         // Keep track of where objects were originally copied from
         this._copyLocation = project.activeFrame && project.activeFrame.uuid;
 
-        // Prepare objects for
+        // Prepare objects for export
+        /*
         var objects = objects.map(object => {
             var copy = object.copy();
 
@@ -82,6 +83,7 @@ Wick.Clipboard = class {
 
             return copy;
         });
+        */
 
         this.clipboardData = objects.map(object => {
             return object.export();
@@ -106,7 +108,7 @@ Wick.Clipboard = class {
         project.selection.clear();
 
         this.clipboardData.map(data => {
-            return Wick.Base.import(data).copy();
+            return Wick.Base.import(data, project).copy();
         }).forEach(object => {
             // Paste frames at the position of the playhead
             if(object instanceof Wick.Frame) {

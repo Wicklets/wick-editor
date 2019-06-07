@@ -308,7 +308,9 @@ Wick.Project = class extends Wick.Base {
      * @param {Wick.Asset} asset - The asset to add to the project.
      */
     addAsset (asset) {
-        this.addChild(asset);
+        if(this.assets.indexOf(asset) === -1) {
+            this.addChild(asset);
+        }
     }
 
     /**
@@ -326,9 +328,15 @@ Wick.Project = class extends Wick.Base {
      * @return {Wick.Asset} The asset
      */
     getAssetByUUID (uuid) {
-        return this.getAssets().find(asset => {
+        var asset = this.getAssets().find(asset => {
             return asset.uuid === uuid;
         });
+
+        if(asset) {
+            return asset;
+        } else {
+            console.warn('Wick.Project.getAssetByUUID: No asset found with uuid ' + uuid);
+        }
     }
 
     /**

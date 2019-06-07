@@ -97,21 +97,17 @@ Wick.Base = class {
 
     /**
      * Returns a copy of a Wick Base object.
-     * @param {boolean} retainIdentifiers - if set to true, will not remove the identifier of the copy.
      * @return {Wick.Base} The object resulting from the copy
      */
-    copy (args) {
-        if(!args) args = {};
-
+    copy () {
         var data = this.serialize();
         data.uuid = uuidv4();
         var copy = Wick.Base.fromData(data);
         copy._childrenData = null;
-        //if(!args.retainIdentifiers) copy._identifier = null;
 
         // Copy children
         this.getChildren().forEach(child => {
-            copy.addChild(child.copy(args));
+            copy.addChild(child.copy());
         });
 
         return copy;
@@ -123,12 +119,30 @@ Wick.Base = class {
      * @returns {object} The exported data.
      */
     export () {
-        var copy = this.copy({retainIdentifiers:true});
+        var copy = this.copy();
+        copy._project = this.project;
+
+        // the main object
+        var object = copy.serialize();
+
+        // children
+        var children = copy.getChildrenRecursive().map(child => {
+            return child.serialize();
+        });
+
+        // assets
+        var assets = [];
+        copy.getChildrenRecursive().concat(copy).forEach(child => {
+            child._project = copy._project;
+            child.getLinkedAssets().forEach(asset => {
+                assets.push(asset.serialize({includeOriginalSource: true}));
+            });
+        });
+
         return {
-            object: copy.serialize(),
-            children: copy.getChildrenRecursive().map(child => {
-                return child.serialize();
-            }),
+            object: object,
+            children: children,
+            assets: assets,
         };
     }
 
@@ -136,16 +150,23 @@ Wick.Base = class {
      * Import data created using Wick.Base.export().
      * @param {object} exportData - an object created from Wick.Base.export().
      */
-    static import (exportData) {
+    static import (exportData, project) {
         if(!exportData) console.error('Wick.Base.import(): exportData is required');
         if(!exportData.object) console.error('Wick.Base.import(): exportData is missing data');
         if(!exportData.children) console.error('Wick.Base.import(): exportData is missing data');
 
         var object = Wick.Base.fromData(exportData.object);
 
+        // Import children as well
         exportData.children.forEach(childData => {
             // Only need to call deserialize here, we just want the object to get added to ObjectCache
             var child = Wick.Base.fromData(childData);
+        });
+
+        // Also import linked assets
+        exportData.assets.forEach(assetData => {
+            var asset = Wick.Base.fromData(assetData);
+            project.addAsset(asset);
         });
 
         return object;
@@ -373,6 +394,11 @@ Wick.Base = class {
         this._children[classname] = this._children[classname].filter(seekChild => {
             return seekChild !== child;
         });
+    }
+
+    getLinkedAssets () {
+        // Implemented by Wick.Frame and Wick.Clip
+        return [];
     }
 
     _generateView () {

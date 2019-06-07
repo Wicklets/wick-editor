@@ -65237,18 +65237,20 @@ Wick.Clipboard = class {
       }
     }); // Keep track of where objects were originally copied from
 
-    this._copyLocation = project.activeFrame && project.activeFrame.uuid; // Prepare objects for
+    this._copyLocation = project.activeFrame && project.activeFrame.uuid; // Prepare objects for export
 
+    /*
     var objects = objects.map(object => {
-      var copy = object.copy(); // Copy frame positions relative to the current playhead position
-
-      if (copy instanceof Wick.Frame) {
-        copy.start -= playheadCopyOffset - 1;
-        copy.end -= playheadCopyOffset - 1;
-      }
-
-      return copy;
+        var copy = object.copy();
+         // Copy frame positions relative to the current playhead position
+        if(copy instanceof Wick.Frame) {
+            copy.start -= playheadCopyOffset - 1;
+            copy.end -= playheadCopyOffset - 1;
+        }
+         return copy;
     });
+    */
+
     this.clipboardData = objects.map(object => {
       return object.export();
     });
@@ -65271,7 +65273,7 @@ Wick.Clipboard = class {
     var pasteInPlace = project.activeFrame && this._copyLocation !== project.activeFrame.uuid;
     project.selection.clear();
     this.clipboardData.map(data => {
-      return Wick.Base.import(data).copy();
+      return Wick.Base.import(data, project).copy();
     }).forEach(object => {
       // Paste frames at the position of the playhead
       if (object instanceof Wick.Frame) {
@@ -65375,7 +65377,7 @@ WickFileCache = class {
    */
 
 
-  clear(file, uuid) {
+  clear() {
     this._files = {};
   }
 
@@ -66228,21 +66230,18 @@ Wick.Base = class {
   }
   /**
    * Returns a copy of a Wick Base object.
-   * @param {boolean} retainIdentifiers - if set to true, will not remove the identifier of the copy.
    * @return {Wick.Base} The object resulting from the copy
    */
 
 
-  copy(args) {
-    if (!args) args = {};
+  copy() {
     var data = this.serialize();
     data.uuid = uuidv4();
     var copy = Wick.Base.fromData(data);
-    copy._childrenData = null; //if(!args.retainIdentifiers) copy._identifier = null;
-    // Copy children
+    copy._childrenData = null; // Copy children
 
     this.getChildren().forEach(child => {
-      copy.addChild(child.copy(args));
+      copy.addChild(child.copy());
     });
     return copy;
   }
@@ -66254,13 +66253,17 @@ Wick.Base = class {
 
 
   export() {
-    var copy = this.copy({
-      retainIdentifiers: true
-    });
+    var copy = this.copy();
+    copy._project = this.project;
     return {
       object: copy.serialize(),
       children: copy.getChildrenRecursive().map(child => {
         return child.serialize();
+      }),
+      assets: copy.linkedAssets.map(asset => {
+        return asset.serialize({
+          includeOriginalSource: true
+        });
       })
     };
   }
@@ -66270,14 +66273,20 @@ Wick.Base = class {
    */
 
 
-  static import(exportData) {
+  static import(exportData, project) {
     if (!exportData) console.error('Wick.Base.import(): exportData is required');
     if (!exportData.object) console.error('Wick.Base.import(): exportData is missing data');
     if (!exportData.children) console.error('Wick.Base.import(): exportData is missing data');
-    var object = Wick.Base.fromData(exportData.object);
+    var object = Wick.Base.fromData(exportData.object); // Import children as well
+
     exportData.children.forEach(childData => {
       // Only need to call deserialize here, we just want the object to get added to ObjectCache
       var child = Wick.Base.fromData(childData);
+    }); // Also import linked assets
+
+    exportData.assets.forEach(assetData => {
+      var asset = Wick.Base.fromData(assetData);
+      project.addAsset(asset);
     });
     return object;
   }
@@ -66524,6 +66533,11 @@ Wick.Base = class {
     this._children[classname] = this._children[classname].filter(seekChild => {
       return seekChild !== child;
     });
+  }
+
+  get linkedAssets() {
+    // Implemented by Wick.Frame and Wick.Path.
+    return [];
   }
 
   _generateView() {
@@ -67085,7 +67099,9 @@ Wick.Project = class extends Wick.Base {
 
 
   addAsset(asset) {
-    this.addChild(asset);
+    if (this.assets.indexOf(asset) === -1) {
+      this.addChild(asset);
+    }
   }
   /**
    * Removes an asset from the project. Also removes all instances of that asset from the project.
@@ -67105,9 +67121,15 @@ Wick.Project = class extends Wick.Base {
 
 
   getAssetByUUID(uuid) {
-    return this.getAssets().find(asset => {
+    var asset = this.getAssets().find(asset => {
       return asset.uuid === uuid;
     });
+
+    if (asset) {
+      return asset;
+    } else {
+      console.warn('Wick.Project.getAssetByUUID: No asset found with uuid ' + uuid);
+    }
   }
   /**
    * Retrieve an asset from the project by its name.
@@ -69081,7 +69103,20 @@ Wick.Path = class extends Wick.Base {
   serialize(args) {
     var data = super.serialize(args);
     data.json = this.json;
-    delete data.json[1].data;
+    delete data.json[1].data; // optimization: replace dataurls with asset uuids
+
+    if (data.json[0] === 'Raster' && data.json[1].source.startsWith('data:')) {
+      if (!this.project) {
+        console.warn('Could not replace raster image source with asset UUID, path does not belong to a project.');
+      } else {
+        this.project.getAssets('Image').forEach(imageAsset => {
+          if (imageAsset.src === data.json[1].source) {
+            data.json[1].source = 'asset:' + imageAsset.uuid;
+          }
+        });
+      }
+    }
+
     data.fontStyle = this._fontStyle;
     data.fontWeight = this._fontWeight;
     return data;
@@ -69328,6 +69363,22 @@ Wick.Path = class extends Wick.Base {
     return this.pathType === 'text' && this.identifier !== null;
   }
   /**
+   * The image asset that this path uses, if this path is a Raster path.
+   * @type {Wick.Asset[]}
+   */
+
+
+  get linkedAssets() {
+    var data = this.serialize(); // just need the asset uuid...
+
+    if (data.json[0] === 'Raster') {
+      var uuid = data.json[1].source.split(':')[1];
+      return [this.project.getAssetByUUID(uuid)];
+    } else {
+      return [];
+    }
+  }
+  /**
    * Removes this path from its parent frame.
    */
 
@@ -69478,6 +69529,11 @@ Wick.FileAsset = class extends Wick.Asset {
     data.filename = this.filename;
     data.MIMEType = this.MIMEType;
     data.fileExtension = this.fileExtension;
+
+    if (args && args.includeOriginalSource) {
+      data.originalSource = this.src;
+    }
+
     return data;
   }
 
@@ -69486,6 +69542,10 @@ Wick.FileAsset = class extends Wick.Asset {
     this.filename = data.filename;
     this.MIMEType = data.MIMEType;
     this.fileExtension = data.fileExtension;
+
+    if (data.originalSource) {
+      this.src = data.originalSource;
+    }
   }
 
   get classname() {
@@ -71444,6 +71504,19 @@ Wick.Frame = class extends Wick.Tickable {
       this.clips.forEach(clip => {
         tween.applyTransformsToClip(clip);
       });
+    }
+  }
+  /**
+   * The asset of the sound attached to this frame, if one exists
+   * @type {Wick.Asset[]}
+   */
+
+
+  get linkedAssets() {
+    if (this.sound) {
+      return [this.sound];
+    } else {
+      return [];
     }
   }
 

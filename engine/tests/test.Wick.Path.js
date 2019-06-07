@@ -22,6 +22,25 @@ describe('Wick.Path', function() {
         });
     });
 
+    describe('#serialize()', function() {
+        it('should serialize image path and save asset UUID', function (done) {
+            var project = new Wick.Project();
+
+            var imageAsset = new Wick.ImageAsset({
+                filename: 'foo.png',
+                src: TestUtils.TEST_IMG_SRC_PNG,
+            });
+            project.addAsset(imageAsset);
+
+            Wick.Path.createImagePath(imageAsset, path => {
+                project.activeFrame.addPath(path);
+                var data = path.serialize();
+                expect(data.json[1].source).to.equal('asset:'+imageAsset.uuid);
+                done();
+            });
+        });
+    });
+
     describe('#createImagePathSync', function () {
         it('should create image path without errors', function () {
             var project = new Wick.Project();
@@ -33,7 +52,14 @@ describe('Wick.Path', function() {
             project.addAsset(imageAsset);
 
             var path = Wick.Path.createImagePathSync(imageAsset);
-            expect(path.serialize().json[1].source).to.equal(imageAsset.src);
+
+            // dataURL, if path does not belong to a project
+            // (this test should work, but it logs an error, so it's disabled)
+            // expect(path.serialize().json[1].source).to.equal(imageAsset.src);
+
+            // asset:uuid, if path belongs to a project, and an asset with that source exists.
+            project.activeFrame.addPath(path);
+            expect(path.serialize().json[1].source).to.equal('asset:' + imageAsset.uuid);
         });
     })
 
