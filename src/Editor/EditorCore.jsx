@@ -1034,6 +1034,16 @@ class EditorCore extends Component {
   }
 
   /**
+   * Start playing the project from the beginning of the timeline.
+   */
+  startPreviewPlayFromBeginning = () => {
+      if(this.state.previewPlaying) return;
+
+      this.project.focus.timeline.playheadPosition = 1;
+      this.togglePreviewPlaying();
+  }
+
+  /**
    * Stops the project if it is currently preview playing and displays provided
    * errors in the code editor.
    * @param  {object[]} errors Array of error objects.
