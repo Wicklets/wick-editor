@@ -745,6 +745,13 @@ class EditorCore extends Component {
    * @param {number} y    The y location of the image after creation in relation to the window.
    */
   createImageFromAsset = (uuid, x, y) => {
+    // convert screen position to wick project position
+    let paper = this.project.view.paper;
+    let canvasPosition = paper.project.view.element.getBoundingClientRect();
+    x -= canvasPosition.x;
+    y -= canvasPosition.y;
+    let dropPoint = paper.view.viewToProject(new window.paper.Point(x,y));
+
     let obj = window.Wick.ObjectCache.getObjectByUUID(uuid);
 
     if (!(obj instanceof window.Wick.ImageAsset)) {
@@ -752,7 +759,7 @@ class EditorCore extends Component {
       return;
     }
 
-    this.project.createImagePathFromAsset(window.Wick.ObjectCache.getObjectByUUID(uuid), x, y, path => {
+    this.project.createImagePathFromAsset(window.Wick.ObjectCache.getObjectByUUID(uuid), dropPoint.x, dropPoint.y, path => {
       this.projectDidChange();
     });
   }
@@ -1031,6 +1038,16 @@ class EditorCore extends Component {
         proceed();
       });
     }
+  }
+
+  /**
+   * Start playing the project from the beginning of the timeline.
+   */
+  startPreviewPlayFromBeginning = () => {
+      if(this.state.previewPlaying) return;
+
+      this.project.focus.timeline.playheadPosition = 1;
+      this.togglePreviewPlaying();
   }
 
   /**

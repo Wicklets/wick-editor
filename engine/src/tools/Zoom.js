@@ -26,8 +26,6 @@ Wick.Tools.Zoom = class extends Wick.Tool {
 
         this.name = 'zoom';
 
-        this.ZOOM_MIN = 0.1;
-        this.ZOOM_MAX = 20;
         this.ZOOM_IN_AMOUNT = 1.25;
         this.ZOOM_OUT_AMOUNT = 0.8;
 
@@ -70,12 +68,6 @@ Wick.Tools.Zoom = class extends Wick.Tool {
         }
 
         this.deleteZoomBox();
-
-        if(this.paper.view.zoom <= this.ZOOM_MIN) {
-            this.paper.view.zoom = this.ZOOM_MIN;
-        } else if(this.paper.view.zoom >= this.ZOOM_MAX) {
-            this.paper.view.zoom = this.ZOOM_MAX;
-        }
 
         this.fireEvent('canvasViewTransformed');
     }

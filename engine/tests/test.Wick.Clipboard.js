@@ -112,7 +112,7 @@ describe('Wick.Clipboard', function() {
         expect(project.activeFrame.paths[2].y).to.equal(50 + Wick.Clipboard.PASTE_OFFSET);
     });
 
-    it('should copy and paste objects to differnt project correctly', function () {
+    it('should copy and paste objects to different project correctly', function () {
         localStorage.clear();
 
         var project = new Wick.Project();
@@ -155,6 +155,103 @@ describe('Wick.Clipboard', function() {
 
         expect(otherProject.activeFrame.paths[0].x).to.equal(50);
         expect(otherProject.activeFrame.paths[0].y).to.equal(50);
+    });
+
+    it('should copy and paste image paths to a different project correctly', function (done) {
+        var project = new Wick.Project();
+
+        var imageAsset = new Wick.ImageAsset({
+            filename: 'foo.png',
+            src: TestUtils.TEST_IMG_SRC_PNG,
+        });
+        project.addAsset(imageAsset);
+
+        Wick.Path.createImagePath(imageAsset, path => {
+            // Select the path and copy it
+            project.activeFrame.addPath(path);
+            project.selection.select(path);
+            expect(project.copySelectionToClipboard()).to.equal(true);
+
+            // paste the frame into a different project!
+            // it should import the sound into the other project automagically.
+            Wick.ObjectCache.clear();
+            Wick.FileCache.clear();
+            var otherProject = new Wick.Project();
+
+            expect(otherProject.pasteClipboardContents()).to.equal(true);
+            expect(otherProject.activeFrame.paths.length).to.equal(1);
+            expect(otherProject.getAssets().length).to.equal(1);
+            expect(otherProject.getAssets()[0].uuid).to.equal(project.getAssets()[0].uuid);
+            expect(otherProject.getAssets()[0].src).to.equal(TestUtils.TEST_IMG_SRC_PNG);
+            expect(otherProject.activeFrame.paths[0].json[1].source).to.equal('asset:' + otherProject.getAssets()[0].uuid);
+
+            done();
+        });
+    });
+
+    it('should copy and paste frames with sounds to a different project correctly', function () {
+        localStorage.clear();
+
+        var project = new Wick.Project();
+        var frame = new Wick.Frame({start: 2});
+        project.activeLayer.addFrame(frame);
+
+        // Add a sound to the frame:
+        var soundAsset = new Wick.SoundAsset({
+            filename: 'test.wav',
+            src: TestUtils.TEST_SOUND_SRC_WAV,
+        });
+        project.addAsset(soundAsset);
+        frame.sound = soundAsset;
+
+        // Select the frame and copy it to the clipboard
+        project.selection.select(frame);
+        expect(project.copySelectionToClipboard()).to.equal(true);
+
+        // paste the frame into a different project!
+        // it should import the sound into the other project automagically.
+        Wick.ObjectCache.clear();
+        Wick.FileCache.clear();
+        var otherProject = new Wick.Project();
+
+        otherProject.focus.timeline.playheadPosition = 2;
+        expect(otherProject.pasteClipboardContents()).to.equal(true);
+        expect(otherProject.activeLayer.frames.length).to.equal(2);
+        expect(otherProject.getAssets().length).to.equal(1);
+        expect(otherProject.getAssets()[0].uuid).to.equal(project.getAssets()[0].uuid);
+        expect(otherProject.getAssets()[0].src).to.equal(TestUtils.TEST_SOUND_SRC_WAV);
+        expect(otherProject.activeLayer.frames[1].sound).to.equal(otherProject.getAssets()[0]);
+    });
+
+    it('should copy and paste clips with children with asset links to a different project correctly', function () {
+        localStorage.clear();
+
+        var project = new Wick.Project();
+        var clip = new Wick.Clip();
+        project.activeFrame.addClip(clip);
+
+        var soundAsset = new Wick.SoundAsset({
+            filename: 'test.wav',
+            src: TestUtils.TEST_SOUND_SRC_WAV,
+        });
+        project.addAsset(soundAsset);
+        clip.activeFrame.sound = soundAsset;
+
+        // Select the clip and copy it to the clipboard
+        project.selection.select(clip);
+        expect(project.copySelectionToClipboard()).to.equal(true);
+
+        // paste the frame into a different project!
+        // it should import the sound into the other project automagically.
+        Wick.ObjectCache.clear();
+        Wick.FileCache.clear();
+        var otherProject = new Wick.Project();
+
+        expect(otherProject.pasteClipboardContents()).to.equal(true);
+        expect(otherProject.getAssets().length).to.equal(1);
+        expect(otherProject.getAssets()[0].uuid).to.equal(project.getAssets()[0].uuid);
+        expect(otherProject.getAssets()[0].src).to.equal(TestUtils.TEST_SOUND_SRC_WAV);
+        expect(otherProject.activeFrame.clips[0].activeFrame.sound.src).to.equal(TestUtils.TEST_SOUND_SRC_WAV);
     });
 
     it('should copy and paste frames on multiple layers correctly', function () {

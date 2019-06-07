@@ -65237,18 +65237,20 @@ Wick.Clipboard = class {
       }
     }); // Keep track of where objects were originally copied from
 
-    this._copyLocation = project.activeFrame && project.activeFrame.uuid; // Prepare objects for
+    this._copyLocation = project.activeFrame && project.activeFrame.uuid; // Prepare objects for export
 
+    /*
     var objects = objects.map(object => {
-      var copy = object.copy(); // Copy frame positions relative to the current playhead position
-
-      if (copy instanceof Wick.Frame) {
-        copy.start -= playheadCopyOffset - 1;
-        copy.end -= playheadCopyOffset - 1;
-      }
-
-      return copy;
+        var copy = object.copy();
+         // Copy frame positions relative to the current playhead position
+        if(copy instanceof Wick.Frame) {
+            copy.start -= playheadCopyOffset - 1;
+            copy.end -= playheadCopyOffset - 1;
+        }
+         return copy;
     });
+    */
+
     this.clipboardData = objects.map(object => {
       return object.export();
     });
@@ -65271,7 +65273,7 @@ Wick.Clipboard = class {
     var pasteInPlace = project.activeFrame && this._copyLocation !== project.activeFrame.uuid;
     project.selection.clear();
     this.clipboardData.map(data => {
-      return Wick.Base.import(data).copy();
+      return Wick.Base.import(data, project).copy();
     }).forEach(object => {
       // Paste frames at the position of the playhead
       if (object instanceof Wick.Frame) {
@@ -65375,7 +65377,7 @@ WickFileCache = class {
    */
 
 
-  clear(file, uuid) {
+  clear() {
     this._files = {};
   }
 
@@ -66228,21 +66230,18 @@ Wick.Base = class {
   }
   /**
    * Returns a copy of a Wick Base object.
-   * @param {boolean} retainIdentifiers - if set to true, will not remove the identifier of the copy.
    * @return {Wick.Base} The object resulting from the copy
    */
 
 
-  copy(args) {
-    if (!args) args = {};
+  copy() {
     var data = this.serialize();
     data.uuid = uuidv4();
     var copy = Wick.Base.fromData(data);
-    copy._childrenData = null; //if(!args.retainIdentifiers) copy._identifier = null;
-    // Copy children
+    copy._childrenData = null; // Copy children
 
     this.getChildren().forEach(child => {
-      copy.addChild(child.copy(args));
+      copy.addChild(child.copy());
     });
     return copy;
   }
@@ -66254,14 +66253,28 @@ Wick.Base = class {
 
 
   export() {
-    var copy = this.copy({
-      retainIdentifiers: true
+    var copy = this.copy();
+    copy._project = this.project; // the main object
+
+    var object = copy.serialize(); // children
+
+    var children = copy.getChildrenRecursive().map(child => {
+      return child.serialize();
+    }); // assets
+
+    var assets = [];
+    copy.getChildrenRecursive().concat(copy).forEach(child => {
+      child._project = copy._project;
+      child.getLinkedAssets().forEach(asset => {
+        assets.push(asset.serialize({
+          includeOriginalSource: true
+        }));
+      });
     });
     return {
-      object: copy.serialize(),
-      children: copy.getChildrenRecursive().map(child => {
-        return child.serialize();
-      })
+      object: object,
+      children: children,
+      assets: assets
     };
   }
   /**
@@ -66270,14 +66283,20 @@ Wick.Base = class {
    */
 
 
-  static import(exportData) {
+  static import(exportData, project) {
     if (!exportData) console.error('Wick.Base.import(): exportData is required');
     if (!exportData.object) console.error('Wick.Base.import(): exportData is missing data');
     if (!exportData.children) console.error('Wick.Base.import(): exportData is missing data');
-    var object = Wick.Base.fromData(exportData.object);
+    var object = Wick.Base.fromData(exportData.object); // Import children as well
+
     exportData.children.forEach(childData => {
       // Only need to call deserialize here, we just want the object to get added to ObjectCache
       var child = Wick.Base.fromData(childData);
+    }); // Also import linked assets
+
+    exportData.assets.forEach(assetData => {
+      var asset = Wick.Base.fromData(assetData);
+      project.addAsset(asset);
     });
     return object;
   }
@@ -66524,6 +66543,11 @@ Wick.Base = class {
     this._children[classname] = this._children[classname].filter(seekChild => {
       return seekChild !== child;
     });
+  }
+
+  getLinkedAssets() {
+    // Implemented by Wick.Frame and Wick.Clip
+    return [];
   }
 
   _generateView() {
@@ -67085,7 +67109,9 @@ Wick.Project = class extends Wick.Base {
 
 
   addAsset(asset) {
-    this.addChild(asset);
+    if (this.assets.indexOf(asset) === -1) {
+      this.addChild(asset);
+    }
   }
   /**
    * Removes an asset from the project. Also removes all instances of that asset from the project.
@@ -67105,9 +67131,15 @@ Wick.Project = class extends Wick.Base {
 
 
   getAssetByUUID(uuid) {
-    return this.getAssets().find(asset => {
+    var asset = this.getAssets().find(asset => {
       return asset.uuid === uuid;
     });
+
+    if (asset) {
+      return asset;
+    } else {
+      console.warn('Wick.Project.getAssetByUUID: No asset found with uuid ' + uuid);
+    }
   }
   /**
    * Retrieve an asset from the project by its name.
@@ -69081,7 +69113,20 @@ Wick.Path = class extends Wick.Base {
   serialize(args) {
     var data = super.serialize(args);
     data.json = this.json;
-    delete data.json[1].data;
+    delete data.json[1].data; // optimization: replace dataurls with asset uuids
+
+    if (data.json[0] === 'Raster' && data.json[1].source.startsWith('data:')) {
+      if (!this.project) {
+        console.warn('Could not replace raster image source with asset UUID, path does not belong to a project.');
+      } else {
+        this.project.getAssets('Image').forEach(imageAsset => {
+          if (imageAsset.src === data.json[1].source) {
+            data.json[1].source = 'asset:' + imageAsset.uuid;
+          }
+        });
+      }
+    }
+
     data.fontStyle = this._fontStyle;
     data.fontWeight = this._fontWeight;
     return data;
@@ -69328,6 +69373,23 @@ Wick.Path = class extends Wick.Base {
     return this.pathType === 'text' && this.identifier !== null;
   }
   /**
+   * The image asset that this path uses, if this path is a Raster path.
+   * @returns {Wick.Asset[]}
+   */
+
+
+  getLinkedAssets() {
+    var linkedAssets = [];
+    var data = this.serialize(); // just need the asset uuid...
+
+    if (data.json[0] === 'Raster') {
+      var uuid = data.json[1].source.split(':')[1];
+      linkedAssets.push(this.project.getAssetByUUID(uuid));
+    }
+
+    return linkedAssets;
+  }
+  /**
    * Removes this path from its parent frame.
    */
 
@@ -69478,6 +69540,11 @@ Wick.FileAsset = class extends Wick.Asset {
     data.filename = this.filename;
     data.MIMEType = this.MIMEType;
     data.fileExtension = this.fileExtension;
+
+    if (args && args.includeOriginalSource) {
+      data.originalSource = this.src;
+    }
+
     return data;
   }
 
@@ -69486,6 +69553,10 @@ Wick.FileAsset = class extends Wick.Asset {
     this.filename = data.filename;
     this.MIMEType = data.MIMEType;
     this.fileExtension = data.fileExtension;
+
+    if (data.originalSource) {
+      this.src = data.originalSource;
+    }
   }
 
   get classname() {
@@ -71445,6 +71516,21 @@ Wick.Frame = class extends Wick.Tickable {
         tween.applyTransformsToClip(clip);
       });
     }
+  }
+  /**
+   * The asset of the sound attached to this frame, if one exists
+   * @returns {Wick.Asset[]}
+   */
+
+
+  getLinkedAssets() {
+    var linkedAssets = [];
+
+    if (this.sound) {
+      linkedAssets.push(this.sound);
+    }
+
+    return linkedAssets;
   }
 
   _onInactive() {
@@ -73835,8 +73921,6 @@ Wick.Tools.Zoom = class extends Wick.Tool {
   constructor() {
     super();
     this.name = 'zoom';
-    this.ZOOM_MIN = 0.1;
-    this.ZOOM_MAX = 20;
     this.ZOOM_IN_AMOUNT = 1.25;
     this.ZOOM_OUT_AMOUNT = 0.8;
     this.zoomBox = null;
@@ -73875,13 +73959,6 @@ Wick.Tools.Zoom = class extends Wick.Tool {
     }
 
     this.deleteZoomBox();
-
-    if (this.paper.view.zoom <= this.ZOOM_MIN) {
-      this.paper.view.zoom = this.ZOOM_MIN;
-    } else if (this.paper.view.zoom >= this.ZOOM_MAX) {
-      this.paper.view.zoom = this.ZOOM_MAX;
-    }
-
     this.fireEvent('canvasViewTransformed');
   }
 
@@ -75634,6 +75711,18 @@ Wick.View.Project = class extends Wick.View {
   static get ORIGIN_CROSSHAIR_THICKNESS() {
     return 1;
   }
+
+  static get ZOOM_MIN() {
+    return 0.1;
+  }
+
+  static get ZOOM_MAX() {
+    return 10.0;
+  }
+
+  static get PAN_LIMIT() {
+    return 10000;
+  }
   /*
    * Create a new Project View.
    */
@@ -75887,6 +75976,17 @@ Wick.View.Project = class extends Wick.View {
   }
 
   _setupTools() {
+    // hacky way to create scroll-to-zoom
+    var _scrollTimeout = null;
+
+    this._svgCanvas.onmousewheel = e => {
+      e.preventDefault();
+      var d = e.deltaY * 0.001;
+      this.paper.view.zoom = Math.max(0.1, this.paper.view.zoom + d);
+
+      this._applyZoomAndPanChangesFromPaper();
+    };
+
     for (var toolName in this.model.tools) {
       var tool = this.model.tools[toolName];
       tool.project = this.model;
@@ -75895,12 +75995,8 @@ Wick.View.Project = class extends Wick.View {
         this.fireEvent('canvasModified', e);
       });
       tool.on('canvasViewTransformed', e => {
-        this.model.pan = {
-          x: this.pan.x,
-          y: this.pan.y
-        };
-        this.zoom = this.paper.view.zoom;
-        this.model.zoom = this.zoom;
+        this._applyZoomAndPanChangesFromPaper();
+
         this.fireEvent('canvasModified', e);
       });
       tool.on('error', e => {
@@ -76225,6 +76321,23 @@ Wick.View.Project = class extends Wick.View {
 
   _onMouseUp() {
     this._isMouseDown = false;
+  }
+
+  _applyZoomAndPanChangesFromPaper() {
+    // limit zoom to min and max
+    this.paper.view.zoom = Math.min(Wick.View.Project.ZOOM_MAX, this.paper.view.zoom);
+    this.paper.view.zoom = Math.max(Wick.View.Project.ZOOM_MIN, this.paper.view.zoom); // limit pan
+
+    this.pan.x = Math.min(Wick.View.Project.PAN_LIMIT, this.pan.x);
+    this.pan.x = Math.max(-Wick.View.Project.PAN_LIMIT, this.pan.x);
+    this.pan.y = Math.min(Wick.View.Project.PAN_LIMIT, this.pan.y);
+    this.pan.y = Math.max(-Wick.View.Project.PAN_LIMIT, this.pan.y);
+    this.model.pan = {
+      x: this.pan.x,
+      y: this.pan.y
+    };
+    this.zoom = this.paper.view.zoom;
+    this.model.zoom = this.zoom;
   }
 
   _uuidsAreDifferent(uuids1, uuids2) {

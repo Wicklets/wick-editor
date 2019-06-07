@@ -89,6 +89,19 @@ Wick.Path = class extends Wick.Base {
         data.json = this.json;
         delete data.json[1].data;
 
+        // optimization: replace dataurls with asset uuids
+        if(data.json[0] === 'Raster' && data.json[1].source.startsWith('data:')) {
+            if(!this.project) {
+                console.warn('Could not replace raster image source with asset UUID, path does not belong to a project.');
+            } else {
+                this.project.getAssets('Image').forEach(imageAsset => {
+                    if(imageAsset.src === data.json[1].source) {
+                        data.json[1].source = 'asset:' + imageAsset.uuid;
+                    }
+                })
+            }
+        }
+
         data.fontStyle = this._fontStyle;
         data.fontWeight = this._fontWeight;
 
@@ -316,6 +329,22 @@ Wick.Path = class extends Wick.Base {
     get isDynamicText () {
         return this.pathType === 'text'
             && this.identifier !== null;
+    }
+
+    /**
+     * The image asset that this path uses, if this path is a Raster path.
+     * @returns {Wick.Asset[]}
+     */
+    getLinkedAssets () {
+        var linkedAssets = [];
+
+        var data = this.serialize(); // just need the asset uuid...
+        if(data.json[0] === 'Raster') {
+            var uuid = data.json[1].source.split(':')[1];
+            linkedAssets.push(this.project.getAssetByUUID(uuid));
+        }
+
+        return linkedAssets;
     }
 
     /**

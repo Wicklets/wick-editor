@@ -72,7 +72,7 @@ WickFileCache = class {
     /**
      * Clear the cache.
      */
-    clear (file, uuid) {
+    clear () {
         this._files = {};
     }
 }

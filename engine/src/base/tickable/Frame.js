@@ -437,6 +437,20 @@ Wick.Frame = class extends Wick.Tickable {
         }
     }
 
+    /**
+     * The asset of the sound attached to this frame, if one exists
+     * @returns {Wick.Asset[]}
+     */
+    getLinkedAssets () {
+        var linkedAssets = [];
+
+        if(this.sound) {
+            linkedAssets.push(this.sound);
+        }
+
+        return linkedAssets;
+    }
+
     _onInactive () {
         return super._onInactive();
     }

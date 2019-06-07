@@ -288,6 +288,18 @@ describe('Wick.Frame', function() {
             expect(error).to.equal(null);
         });
 
+        it('frame "this" keyword should refer to the parent clip', function() {
+            throw new Error('this doesnt work')
+
+            var project = new Wick.Project();
+
+            var frame = project.activeFrame;
+
+            /*frame.addScript('load', 'stop(); play();');
+            var error = frame.tick();
+            expect(error).to.equal(null);*/
+        });
+
         describe('#project', function () {
             it('project should work as expected', function() {
                 var project = new Wick.Project();
@@ -543,4 +555,23 @@ describe('Wick.Frame', function() {
             expect(frame.distanceFrom(14)).to.equal(4);
         });
     })
+
+    describe('#getLinkedAssets', function () {
+        it('should return the sound', function () {
+            var project = new Wick.Project();
+            var frame = new Wick.Frame({start: 2});
+            project.activeLayer.addFrame(frame);
+
+            // Add a sound to the frame:
+            var soundAsset = new Wick.SoundAsset({
+                filename: 'test.wav',
+                src: TestUtils.TEST_SOUND_SRC_WAV
+            });
+            project.addAsset(soundAsset);
+            frame.sound = soundAsset;
+
+            expect(frame.getLinkedAssets().length).to.equal(1);
+            expect(frame.getLinkedAssets()[0]).to.equal(soundAsset);
+        });
+    });
 });

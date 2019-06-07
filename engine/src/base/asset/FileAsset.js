@@ -63,6 +63,10 @@ Wick.FileAsset = class extends Wick.Asset {
         data.MIMEType = this.MIMEType;
         data.fileExtension = this.fileExtension;
 
+        if(args && args.includeOriginalSource) {
+            data.originalSource = this.src;
+        }
+
         return data;
     }
 
@@ -72,6 +76,10 @@ Wick.FileAsset = class extends Wick.Asset {
         this.filename = data.filename;
         this.MIMEType = data.MIMEType;
         this.fileExtension = data.fileExtension;
+
+        if(data.originalSource) {
+            this.src = data.originalSource;
+        }
     }
 
     get classname () {
