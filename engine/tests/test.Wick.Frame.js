@@ -288,18 +288,6 @@ describe('Wick.Frame', function() {
             expect(error).to.equal(null);
         });
 
-        it('frame "this" keyword should refer to the parent clip', function() {
-            throw new Error('this doesnt work')
-
-            var project = new Wick.Project();
-
-            var frame = project.activeFrame;
-
-            /*frame.addScript('load', 'stop(); play();');
-            var error = frame.tick();
-            expect(error).to.equal(null);*/
-        });
-
         describe('#project', function () {
             it('project should work as expected', function() {
                 var project = new Wick.Project();

@@ -117,6 +117,7 @@ Wick.Clipboard = class {
             }
 
             project.addObject(object);
+            object.identifier = object._getUniqueIdentifier(object.identifier);
 
             // Add offset to Paths and Clips if pasteInPlace is NOT enabled.
             if(!pasteInPlace && (object instanceof Wick.Path || object instanceof Wick.Clip)) {

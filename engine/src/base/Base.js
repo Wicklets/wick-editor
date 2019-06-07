@@ -211,7 +211,7 @@ Wick.Base = class {
         if(!isVarName(identifier)) return;
         if(reserved.check(identifier)) return;
 
-        this._identifier = identifier;
+        this._identifier = this._getUniqueIdentifier(identifier);
     }
 
     /**
@@ -440,7 +440,7 @@ Wick.Base = class {
     _getUniqueIdentifier (identifier) {
         if(!this.parent) return identifier;
 
-        var otherIdentifiers = this.parent.getChildren('Clip','Frame','Button').filter(child => {
+        var otherIdentifiers = this.parent.getChildren(['Clip','Frame','Button']).filter(child => {
             return child !== this && child.identifier;
         }).map(child => {
             return child.identifier;

@@ -203,6 +203,25 @@ describe('Wick.Base', function() {
         expect(base.identifier).to.equal('dummy');
     });
 
+    it('identifier should handle duplicate identifiers', function() {
+        var parent = new Wick.Base();
+        var child1 = new Wick.Clip({identifier: 'foo'});
+        var child2 = new Wick.Frame({identifier: 'bar'});
+        var child3 = new Wick.Button({identifier: 'baz'});
+        parent.addChild(child1);
+        parent.addChild(child2);
+        parent.addChild(child3);
+
+        child1.identifier = 'boo';
+        expect(child1.identifier).to.equal('boo');
+        child1.identifier = 'bar';
+        expect(child1.identifier).to.equal('bar_copy');
+        child1.identifier = 'baz';
+        expect(child1.identifier).to.equal('baz_copy');
+        child1.identifier = 'foo';
+        expect(child1.identifier).to.equal('foo');
+    });
+
     it('should get parent clip correctly', function() {
         var subclip = new Wick.Clip();
         var frame = new Wick.Frame();

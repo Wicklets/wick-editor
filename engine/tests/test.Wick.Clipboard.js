@@ -374,4 +374,26 @@ describe('Wick.Clipboard', function() {
         expect(project.activeLayer.getFrameAtPlayheadPosition(1)).to.not.equal(project.activeFrame);
         expect(project.activeLayer.getFrameAtPlayheadPosition(2)).to.not.equal(undefined);
     });
+
+    it('should avoid duplicate identifiers while pasting', function () {
+        localStorage.clear();
+
+        var project = new Wick.Project();
+
+        var clip = new Wick.Clip({identifier: 'foo'});
+        project.activeFrame.addClip(clip);
+
+        project.selection.select(clip);
+        expect(project.copySelectionToClipboard()).to.equal(true);
+        expect(project.activeFrame.clips.length).to.equal(1);
+        expect(project.activeFrame.clips[0].uuid).to.equal(clip.uuid);
+
+        expect(project.pasteClipboardContents()).to.equal(true);
+        expect(project.pasteClipboardContents()).to.equal(true);
+        expect(project.activeFrame.clips.length).to.equal(3);
+        expect(project.activeFrame.clips[0].uuid).to.equal(clip.uuid);
+        expect(project.activeFrame.clips[0].identifier).to.equal('foo');
+        expect(project.activeFrame.clips[1].identifier).to.equal('foo_copy');
+        expect(project.activeFrame.clips[2].identifier).to.equal('foo_copy_copy');
+    });
 });
