@@ -181,7 +181,9 @@ class Wick152ProjectConverter {
         var convertedLayer = new Wick.Layer();
 
         // Layer attributes
-        convertedLayer.name = layer.name;
+        convertedLayer.name = layer.identifier;
+        convertedLayer.identifier = layer.identifier;
+
         convertedLayer.locked = layer.locked;
         convertedLayer.hidden = layer.hidden;
 
