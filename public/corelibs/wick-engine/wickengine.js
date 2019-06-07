@@ -70238,12 +70238,12 @@ GlobalAPI = class {
   }
   /**
    * @deprecated
-   * Legacy item which returns the parent object. Use 'parent' instead.
+   * Legacy item which returns the parent clip. Use 'parent' instead.
    */
 
 
   get parentObject() {
-    return this.parent;
+    return this.scriptOwner.parentClip;
   }
   /**
    * Returns the last key pressed down.

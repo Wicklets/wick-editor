@@ -203,7 +203,36 @@ class Wick152ProjectConverter {
         var convertedFrame = new Wick.Frame();
 
         // Frame attributes
-        convertedFrame.identifier = frame.name;
+
+        // Attempt to convert frame names to valid variable names.
+
+        console.log("Frame Name", frame.name);
+
+        if (frame.name !== "New Frame") {
+            let splitFrameName = frame.name.split(/[ ,]+/);
+            let pieces = [];
+            splitFrameName.forEach ( str => {
+                let cleanString = str.replace(/\W/g, ''); // Remove non alpha-numeric characters
+                let upperString = cleanString.charAt(0).toUpperCase() + cleanString.slice(1); // Capitalize first letter.
+                pieces.push( upperString ); 
+             }); 
+    
+            var finalFrameName = pieces.join("");
+            // Determine if first character is legal
+            let re = RegExp("[a-zA-Z_]"); 
+
+            console.log("Final Frame Name: ", finalFrameName);
+            if (!re.test(finalFrameName.charAt(0))) {
+                console.log("TestedPositive");
+                finalFrameName = "_" + finalFrameName; 
+            }
+        } else {
+            var finalFrameName = '';
+        }
+
+        console.log("Converted to:", finalFrameName); 
+
+        convertedFrame.identifier = finalFrameName;
         convertedFrame.start = frame.playheadPosition + 1;
         convertedFrame.end = frame.playheadPosition + frame.length;
         convertedFrame._soundAssetUUID = frame.audioAssetUUID;
