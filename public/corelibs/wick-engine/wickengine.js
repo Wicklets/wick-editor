@@ -66254,17 +66254,27 @@ Wick.Base = class {
 
   export() {
     var copy = this.copy();
-    copy._project = this.project;
-    return {
-      object: copy.serialize(),
-      children: copy.getChildrenRecursive().map(child => {
-        return child.serialize();
-      }),
-      assets: copy.linkedAssets.map(asset => {
-        return asset.serialize({
+    copy._project = this.project; // the main object
+
+    var object = copy.serialize(); // children
+
+    var children = copy.getChildrenRecursive().map(child => {
+      return child.serialize();
+    }); // assets
+
+    var assets = [];
+    copy.getChildrenRecursive().concat(copy).forEach(child => {
+      child._project = copy._project;
+      child.getLinkedAssets().forEach(asset => {
+        assets.push(asset.serialize({
           includeOriginalSource: true
-        });
-      })
+        }));
+      });
+    });
+    return {
+      object: object,
+      children: children,
+      assets: assets
     };
   }
   /**
@@ -66535,8 +66545,8 @@ Wick.Base = class {
     });
   }
 
-  get linkedAssets() {
-    // Implemented by Wick.Frame and Wick.Path.
+  getLinkedAssets() {
+    // Implemented by Wick.Frame and Wick.Clip
     return [];
   }
 
@@ -69364,19 +69374,20 @@ Wick.Path = class extends Wick.Base {
   }
   /**
    * The image asset that this path uses, if this path is a Raster path.
-   * @type {Wick.Asset[]}
+   * @returns {Wick.Asset[]}
    */
 
 
-  get linkedAssets() {
+  getLinkedAssets() {
+    var linkedAssets = [];
     var data = this.serialize(); // just need the asset uuid...
 
     if (data.json[0] === 'Raster') {
       var uuid = data.json[1].source.split(':')[1];
-      return [this.project.getAssetByUUID(uuid)];
-    } else {
-      return [];
+      linkedAssets.push(this.project.getAssetByUUID(uuid));
     }
+
+    return linkedAssets;
   }
   /**
    * Removes this path from its parent frame.
@@ -71508,16 +71519,18 @@ Wick.Frame = class extends Wick.Tickable {
   }
   /**
    * The asset of the sound attached to this frame, if one exists
-   * @type {Wick.Asset[]}
+   * @returns {Wick.Asset[]}
    */
 
 
-  get linkedAssets() {
+  getLinkedAssets() {
+    var linkedAssets = [];
+
     if (this.sound) {
-      return [this.sound];
-    } else {
-      return [];
+      linkedAssets.push(this.sound);
     }
+
+    return linkedAssets;
   }
 
   _onInactive() {
@@ -73908,8 +73921,6 @@ Wick.Tools.Zoom = class extends Wick.Tool {
   constructor() {
     super();
     this.name = 'zoom';
-    this.ZOOM_MIN = 0.1;
-    this.ZOOM_MAX = 20;
     this.ZOOM_IN_AMOUNT = 1.25;
     this.ZOOM_OUT_AMOUNT = 0.8;
     this.zoomBox = null;
@@ -73948,13 +73959,6 @@ Wick.Tools.Zoom = class extends Wick.Tool {
     }
 
     this.deleteZoomBox();
-
-    if (this.paper.view.zoom <= this.ZOOM_MIN) {
-      this.paper.view.zoom = this.ZOOM_MIN;
-    } else if (this.paper.view.zoom >= this.ZOOM_MAX) {
-      this.paper.view.zoom = this.ZOOM_MAX;
-    }
-
     this.fireEvent('canvasViewTransformed');
   }
 
@@ -75707,6 +75711,18 @@ Wick.View.Project = class extends Wick.View {
   static get ORIGIN_CROSSHAIR_THICKNESS() {
     return 1;
   }
+
+  static get ZOOM_MIN() {
+    return 0.1;
+  }
+
+  static get ZOOM_MAX() {
+    return 10.0;
+  }
+
+  static get PAN_LIMIT() {
+    return 10000;
+  }
   /*
    * Create a new Project View.
    */
@@ -75960,6 +75976,17 @@ Wick.View.Project = class extends Wick.View {
   }
 
   _setupTools() {
+    // hacky way to create scroll-to-zoom
+    var _scrollTimeout = null;
+
+    this._svgCanvas.onmousewheel = e => {
+      e.preventDefault();
+      var d = e.deltaY * 0.001;
+      this.paper.view.zoom = Math.max(0.1, this.paper.view.zoom + d);
+
+      this._applyZoomAndPanChangesFromPaper();
+    };
+
     for (var toolName in this.model.tools) {
       var tool = this.model.tools[toolName];
       tool.project = this.model;
@@ -75968,12 +75995,8 @@ Wick.View.Project = class extends Wick.View {
         this.fireEvent('canvasModified', e);
       });
       tool.on('canvasViewTransformed', e => {
-        this.model.pan = {
-          x: this.pan.x,
-          y: this.pan.y
-        };
-        this.zoom = this.paper.view.zoom;
-        this.model.zoom = this.zoom;
+        this._applyZoomAndPanChangesFromPaper();
+
         this.fireEvent('canvasModified', e);
       });
       tool.on('error', e => {
@@ -76298,6 +76321,23 @@ Wick.View.Project = class extends Wick.View {
 
   _onMouseUp() {
     this._isMouseDown = false;
+  }
+
+  _applyZoomAndPanChangesFromPaper() {
+    // limit zoom to min and max
+    this.paper.view.zoom = Math.min(Wick.View.Project.ZOOM_MAX, this.paper.view.zoom);
+    this.paper.view.zoom = Math.max(Wick.View.Project.ZOOM_MIN, this.paper.view.zoom); // limit pan
+
+    this.pan.x = Math.min(Wick.View.Project.PAN_LIMIT, this.pan.x);
+    this.pan.x = Math.max(-Wick.View.Project.PAN_LIMIT, this.pan.x);
+    this.pan.y = Math.min(Wick.View.Project.PAN_LIMIT, this.pan.y);
+    this.pan.y = Math.max(-Wick.View.Project.PAN_LIMIT, this.pan.y);
+    this.model.pan = {
+      x: this.pan.x,
+      y: this.pan.y
+    };
+    this.zoom = this.paper.view.zoom;
+    this.model.zoom = this.zoom;
   }
 
   _uuidsAreDifferent(uuids1, uuids2) {

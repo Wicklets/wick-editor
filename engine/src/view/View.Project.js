@@ -42,6 +42,18 @@ Wick.View.Project = class extends Wick.View {
         return 1;
     }
 
+    static get ZOOM_MIN () {
+        return 0.1;
+    }
+
+    static get ZOOM_MAX () {
+        return 10.0;
+    }
+
+    static get PAN_LIMIT () {
+        return 10000;
+    }
+
     /*
      * Create a new Project View.
      */
@@ -278,6 +290,15 @@ Wick.View.Project = class extends Wick.View {
     }
 
     _setupTools () {
+        // hacky way to create scroll-to-zoom
+        var _scrollTimeout = null;
+        this._svgCanvas.onmousewheel = e => {
+            e.preventDefault();
+            var d = e.deltaY * 0.001;
+            this.paper.view.zoom = Math.max(0.1, this.paper.view.zoom + d);
+            this._applyZoomAndPanChangesFromPaper();
+        };
+
         for (var toolName in this.model.tools) {
             var tool = this.model.tools[toolName];
             tool.project = this.model;
@@ -286,12 +307,7 @@ Wick.View.Project = class extends Wick.View {
                 this.fireEvent('canvasModified', e);
             });
             tool.on('canvasViewTransformed', (e) => {
-                this.model.pan = {
-                    x: this.pan.x,
-                    y: this.pan.y,
-                };
-                this.zoom = this.paper.view.zoom;
-                this.model.zoom = this.zoom;
+                this._applyZoomAndPanChangesFromPaper();
                 this.fireEvent('canvasModified', e);
             });
             tool.on('error', (e) => {
@@ -625,6 +641,26 @@ Wick.View.Project = class extends Wick.View {
 
     _onMouseUp () {
         this._isMouseDown = false;
+    }
+
+    _applyZoomAndPanChangesFromPaper () {
+        // limit zoom to min and max
+        this.paper.view.zoom = Math.min(Wick.View.Project.ZOOM_MAX, this.paper.view.zoom);
+        this.paper.view.zoom = Math.max(Wick.View.Project.ZOOM_MIN, this.paper.view.zoom);
+
+        // limit pan
+        this.pan.x = Math.min( Wick.View.Project.PAN_LIMIT, this.pan.x);
+        this.pan.x = Math.max(-Wick.View.Project.PAN_LIMIT, this.pan.x);
+        this.pan.y = Math.min( Wick.View.Project.PAN_LIMIT, this.pan.y);
+        this.pan.y = Math.max(-Wick.View.Project.PAN_LIMIT, this.pan.y);
+
+        this.model.pan = {
+            x: this.pan.x,
+            y: this.pan.y,
+        };
+
+        this.zoom = this.paper.view.zoom;
+        this.model.zoom = this.zoom;
     }
 
     _uuidsAreDifferent (uuids1, uuids2) {
