@@ -146,12 +146,12 @@ Wick.GUIElement.LayerLabel = class extends Wick.GUIElement.Draggable {
 
         // Layer name
         var layerName = new paper.PointText({
-            point: [30, this.height/2 + Wick.GUIElement.LAYER_LABEL_MARGIN_TOP_BOTTOM],
+            point: [30, this.height/2 + 6], // TODO: Create global variable for layer name position.
             content: this.model.name,
             fillColor: this.model.isActive ? Wick.GUIElement.LAYER_LABEL_ACTIVE_FONT_COLOR : Wick.GUIElement.LAYER_LABEL_INACTIVE_FONT_COLOR,
             fontFamily: Wick.GUIElement.LAYER_LABEL_FONT_FAMILY,
             fontWeight: 'bold',
-            fontSize: 18,
+            fontSize: 16,
             opacity: 0.6,
             pivot: new paper.Point(0, 0),
         });
