@@ -469,8 +469,15 @@ class SelectionWidget {
             outline.remove();
             outline.fillColor = 'rgba(0,0,0,0)';
             outline.strokeColor = SelectionWidget.GHOST_STROKE_COLOR;
-            outline.strokeWidth = SelectionWidget.GHOST_STROKE_WIDTH;
+            outline.strokeWidth = SelectionWidget.GHOST_STROKE_WIDTH * 2;
             ghost.addChild(outline);
+
+            var outline2 = outline.clone();
+            outline2.remove();
+            outline2.fillColor = 'rgba(0,0,0,0)';
+            outline2.strokeColor = '#ffffff';
+            outline2.strokeWidth = SelectionWidget.GHOST_STROKE_WIDTH;
+            ghost.addChild(outline2);
         });
 
         var boundsOutline = new paper.Path.Rectangle({
