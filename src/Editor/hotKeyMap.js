@@ -44,6 +44,7 @@ class HotKeyInterface extends Object {
       'activate-text': 't',
       'activate-pan': 'space',
       'activate-fill': 'f',
+      'activate-eyedropper': 'd',
       'deactivate-pan': { sequence: "space", action: "keyup" },
       'activate-zoom': 'z',
       'delete': ['backspace', 'del'],

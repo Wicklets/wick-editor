@@ -73845,9 +73845,6 @@ Wick.Tools.Eyedropper = class extends Wick.Tool {
     super();
     this.name = 'eyedropper';
     this.canvasCtx = null;
-    this.hoverColor = null;
-    this.colorPreviewBorder = null;
-    this.colorPreview = null;
   }
   /**
    *
@@ -73863,48 +73860,28 @@ Wick.Tools.Eyedropper = class extends Wick.Tool {
     this.canvasCtx = this.paper.view._element.getContext('2d');
   }
 
-  onDeactivate(e) {
-    this._destroyColorPreview();
-  }
+  onDeactivate(e) {}
 
   onMouseDown(e) {
-    this._destroyColorPreview();
-
     var pointPx = this.paper.view.projectToView(e.point);
     pointPx.x = Math.round(pointPx.x);
     pointPx.y = Math.round(pointPx.y);
     var colorData = this.canvasCtx.getImageData(pointPx.x, pointPx.y, 1, 1).data;
-    this.hoverColor = 'rgb(' + colorData[0] + ',' + colorData[1] + ',' + colorData[2] + ')';
+    var colorCSS = 'rgb(' + colorData[0] + ',' + colorData[1] + ',' + colorData[2] + ')';
+    var color = new paper.Color(colorCSS);
 
-    this._createColorPreview(e.point);
+    if (!e.modifiers.shift) {
+      this.project.toolSettings.setSetting('fillColor', colorCSS);
+    } else {
+      this.project.toolSettings.setSetting('strokeColor', colorCSS);
+    }
+
+    this.fireEvent('canvasModified');
   }
 
   onMouseDrag(e) {}
 
   onMouseUp(e) {}
-
-  _createColorPreview(point) {
-    var offset = 10 / this.paper.view.zoom;
-    var center = point.add(new paper.Point(offset + 0.5, offset + 0.5));
-    var radius = 10 / paper.view.zoom;
-    var size = new paper.Size(radius, radius);
-    this.colorPreviewBorder = new this.paper.Path.Rectangle(center, size);
-    this.colorPreviewBorder.strokeColor = 'white';
-    this.colorPreviewBorder.strokeWidth = 3.0 / this.paper.view.zoom;
-    this.colorPreview = new this.paper.Path.Rectangle(center, size);
-    this.colorPreview.fillColor = hoverColor;
-    this.colorPreview.strokeColor = 'black';
-    this.colorPreview.strokeWidth = 1.0 / this.paper.view.zoom;
-  }
-
-  _destroyColorPreview() {
-    if (this.colorPreview) {
-      this.colorPreview.remove();
-      this.colorPreview = null;
-      this.colorPreviewBorder.remove();
-      this.colorPreviewBorder = null;
-    }
-  }
 
 };
 /*Wick Engine https://github.com/Wicklets/wick-engine*/

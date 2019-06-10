@@ -86,6 +86,7 @@ class Toolbox extends Component {
         <ToolButton {...this.toolButtonProps} name='line' tooltip="Line (L)" />
         <ToolButton {...this.toolButtonProps} name='text' tooltip="Text (T)" />
         <ToolButton {...this.toolButtonProps} name='fillbucket' tooltip="Fill Bucket (F)" />
+        <ToolButton {...this.toolButtonProps} name='eyedropper' tooltip="Eyedropper (D)" />
 
         <ToolboxBreak className="toolbox-item"/>
 
