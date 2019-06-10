@@ -65281,7 +65281,8 @@ Wick.Clipboard = class {
         object.end += project.focus.timeline.playheadPosition - 1;
       }
 
-      project.addObject(object); // Add offset to Paths and Clips if pasteInPlace is NOT enabled.
+      project.addObject(object);
+      object.identifier = object._getUniqueIdentifier(object.identifier); // Add offset to Paths and Clips if pasteInPlace is NOT enabled.
 
       if (!pasteInPlace && (object instanceof Wick.Path || object instanceof Wick.Clip)) {
         object.x += Wick.Clipboard.PASTE_OFFSET;
@@ -66342,7 +66343,7 @@ Wick.Base = class {
 
     if (!isVarName(identifier)) return;
     if (reserved.check(identifier)) return;
-    this._identifier = identifier;
+    this._identifier = this._getUniqueIdentifier(identifier);
   }
   /**
    * The name of the object.
@@ -66590,7 +66591,7 @@ Wick.Base = class {
 
   _getUniqueIdentifier(identifier) {
     if (!this.parent) return identifier;
-    var otherIdentifiers = this.parent.getChildren('Clip', 'Frame', 'Button').filter(child => {
+    var otherIdentifiers = this.parent.getChildren(['Clip', 'Frame', 'Button']).filter(child => {
       return child !== this && child.identifier;
     }).map(child => {
       return child.identifier;
@@ -72553,28 +72554,15 @@ Wick.Tools.Brush = class extends Wick.Tool {
   onDeactivate(e) {}
 
   onMouseMove(e) {
-    super.onMouseMove(e); // Update croquis element and pressure options
+    super.onMouseMove(e);
 
-    if (!this.paper.view._element.parentElement.contains(this.croquisDOMElement)) {
-      this.paper.view.enablePressure();
-
-      this.paper.view._element.parentElement.appendChild(this.croquisDOMElement);
-    } // Update croquis element canvas size
-
-
-    if (this.croquis.getCanvasWidth() !== this.paper.view._element.width || this.croquis.getCanvasHeight() !== this.paper.view._element.height) {
-      this.croquis.setCanvasSize(this.paper.view._element.width, this.paper.view._element.height);
-    } // Generate new cursor
-
-
-    this._regenCursor(); // Fake brush opacity in croquis by changing the opacity of the croquis canvas
-
-
-    this.croquisDOMElement.style.opacity = this.getSetting('fillColor').alpha;
+    this._updateCanvasAttributes();
   }
 
   onMouseDown(e) {
-    // Update croquis params
+    this._updateCanvasAttributes(); // Update croquis params
+
+
     this.croquisBrush.setSize(this.getSetting('brushSize') + 1);
     this.croquisBrush.setColor(this.getSetting('fillColor').toCSS(true));
     this.croquisBrush.setSpacing(this.BRUSH_POINT_SPACING);
@@ -72678,6 +72666,26 @@ Wick.Tools.Brush = class extends Wick.Tool {
     var color = this.getSetting('fillColor').toCSS(true);
     this.cachedCursor = this.createDynamicCursor(color, size);
     this.setCursor(this.cachedCursor);
+  }
+
+  _updateCanvasAttributes() {
+    // Update croquis element and pressure options
+    if (!this.paper.view._element.parentElement.contains(this.croquisDOMElement)) {
+      this.paper.view.enablePressure();
+
+      this.paper.view._element.parentElement.appendChild(this.croquisDOMElement);
+    } // Update croquis element canvas size
+
+
+    if (this.croquis.getCanvasWidth() !== this.paper.view._element.width || this.croquis.getCanvasHeight() !== this.paper.view._element.height) {
+      this.croquis.setCanvasSize(this.paper.view._element.width, this.paper.view._element.height);
+    } // Generate new cursor
+
+
+    this._regenCursor(); // Fake brush opacity in croquis by changing the opacity of the croquis canvas
+
+
+    this.croquisDOMElement.style.opacity = this.getSetting('fillColor').alpha;
   }
 
 };

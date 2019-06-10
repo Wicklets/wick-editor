@@ -79,26 +79,12 @@ Wick.Tools.Brush = class extends Wick.Tool {
     onMouseMove (e) {
         super.onMouseMove(e);
 
-        // Update croquis element and pressure options
-        if(!this.paper.view._element.parentElement.contains(this.croquisDOMElement)) {
-            this.paper.view.enablePressure();
-            this.paper.view._element.parentElement.appendChild(this.croquisDOMElement);
-        }
-
-        // Update croquis element canvas size
-        if(this.croquis.getCanvasWidth() !== this.paper.view._element.width ||
-           this.croquis.getCanvasHeight() !== this.paper.view._element.height) {
-            this.croquis.setCanvasSize(this.paper.view._element.width, this.paper.view._element.height);
-        }
-
-        // Generate new cursor
-        this._regenCursor();
-
-        // Fake brush opacity in croquis by changing the opacity of the croquis canvas
-        this.croquisDOMElement.style.opacity = this.getSetting('fillColor').alpha;
+        this._updateCanvasAttributes();
     }
 
     onMouseDown (e) {
+        this._updateCanvasAttributes();
+
         // Update croquis params
         this.croquisBrush.setSize(this.getSetting('brushSize') + 1);
         this.croquisBrush.setColor(this.getSetting('fillColor').toCSS(true));
@@ -196,5 +182,25 @@ Wick.Tools.Brush = class extends Wick.Tool {
         var color = this.getSetting('fillColor').toCSS(true);
         this.cachedCursor = this.createDynamicCursor(color, size);
         this.setCursor(this.cachedCursor);
+    }
+
+    _updateCanvasAttributes () {
+        // Update croquis element and pressure options
+        if(!this.paper.view._element.parentElement.contains(this.croquisDOMElement)) {
+            this.paper.view.enablePressure();
+            this.paper.view._element.parentElement.appendChild(this.croquisDOMElement);
+        }
+
+        // Update croquis element canvas size
+        if(this.croquis.getCanvasWidth() !== this.paper.view._element.width ||
+           this.croquis.getCanvasHeight() !== this.paper.view._element.height) {
+            this.croquis.setCanvasSize(this.paper.view._element.width, this.paper.view._element.height);
+        }
+
+        // Generate new cursor
+        this._regenCursor();
+
+        // Fake brush opacity in croquis by changing the opacity of the croquis canvas
+        this.croquisDOMElement.style.opacity = this.getSetting('fillColor').alpha;
     }
 }
