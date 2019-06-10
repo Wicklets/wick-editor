@@ -30,7 +30,7 @@ describe('Wick.Tools.Eyedropper', function() {
         buildDummyCanvasContainer(project);
 
         project.activeFrame.addPath(TestUtils.paperToWickPath(new paper.Path.Rectangle({
-            from: [0, 0],
+            from: [90, 90],
             to: [100, 100],
             fillColor: '#ff00ff',
         })));
@@ -44,9 +44,9 @@ describe('Wick.Tools.Eyedropper', function() {
 
         setTimeout(() => {
             eyedropper.activate();
-            eyedropper.onMouseMove({point: new paper.Point(99,99)});
-            eyedropper.onMouseDown({point: new paper.Point(99,99), modifiers: {}});
-            eyedropper.onMouseUp({point: new paper.Point(99,99)});
+            eyedropper.onMouseMove({point: new paper.Point(95,95)});
+            eyedropper.onMouseDown({point: new paper.Point(95,95), modifiers: {}});
+            eyedropper.onMouseUp({point: new paper.Point(95,95)});
         }, 50);
     });
 });

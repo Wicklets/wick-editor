@@ -73856,17 +73856,17 @@ Wick.Tools.Eyedropper = class extends Wick.Tool {
     return 'url(cursors/eyedropper.png) 32 32, auto';
   }
 
-  onActivate(e) {
-    this.canvasCtx = this.paper.view._element.getContext('2d');
-  }
+  onActivate(e) {}
 
   onDeactivate(e) {}
 
   onMouseDown(e) {
+    var canvas = this.paper.view._element;
+    var ctx = canvas.getContext('2d');
     var pointPx = this.paper.view.projectToView(e.point);
-    pointPx.x = Math.round(pointPx.x);
-    pointPx.y = Math.round(pointPx.y);
-    var colorData = this.canvasCtx.getImageData(pointPx.x, pointPx.y, 1, 1).data;
+    pointPx.x = Math.round(pointPx.x) * window.devicePixelRatio;
+    pointPx.y = Math.round(pointPx.y) * window.devicePixelRatio;
+    var colorData = ctx.getImageData(pointPx.x, pointPx.y, 1, 1).data;
     var colorCSS = 'rgb(' + colorData[0] + ',' + colorData[1] + ',' + colorData[2] + ')';
     var color = new paper.Color(colorCSS);
 

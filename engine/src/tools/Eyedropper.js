@@ -50,8 +50,8 @@ Wick.Tools.Eyedropper = class extends Wick.Tool {
         var ctx = canvas.getContext('2d');
 
         var pointPx = this.paper.view.projectToView(e.point);
-        pointPx.x = Math.round(pointPx.x);
-        pointPx.y = Math.round(pointPx.y);
+        pointPx.x = Math.round(pointPx.x) * window.devicePixelRatio;
+        pointPx.y = Math.round(pointPx.y) * window.devicePixelRatio;
         var colorData = ctx.getImageData(pointPx.x, pointPx.y, 1, 1).data;
         var colorCSS = 'rgb(' + colorData[0] + ',' + colorData[1] + ',' + colorData[2] + ')';
         var color = new paper.Color(colorCSS);
