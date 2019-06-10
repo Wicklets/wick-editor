@@ -290,14 +290,15 @@ Wick.View.Project = class extends Wick.View {
     }
 
     _setupTools () {
-        // hacky way to create scroll-to-zoom
+        // This is a hacky way to create scroll-to-zoom functionality.
+        // (Using https://github.com/jquery/jquery-mousewheel for cross-browser mousewheel event)
         var _scrollTimeout = null;
-        this._svgCanvas.onmousewheel = e => {
+        $(this._svgCanvas).on('mousewheel', e => {
             e.preventDefault();
-            var d = e.deltaY * 0.001;
+            var d = e.deltaY * e.deltaFactor * 0.001;
             this.paper.view.zoom = Math.max(0.1, this.paper.view.zoom + d);
             this._applyZoomAndPanChangesFromPaper();
-        };
+        });
 
         for (var toolName in this.model.tools) {
             var tool = this.model.tools[toolName];
