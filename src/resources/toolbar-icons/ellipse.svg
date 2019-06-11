@@ -1,6 +1,12 @@
-<?xml version="1.0" encoding="utf-8"?>
-<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-	 viewBox="0 0 28 28" style="enable-background:new 0 0 28 28;" xml:space="preserve">
+<?xml version='1.0' encoding='utf-8'?>
+<svg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px'
+	 viewBox='0 0 28 28' style='enable-background:new 0 0 28 28;' xml:space='preserve'>
 <title>Ellipse</title>
-<path d="M13.9,0C6.2,0.1-0.1,6.4,0,14.1c0.1,7.7,6.4,14,14.1,13.9C21.8,27.9,28,21.7,28,14c0-7.7-6.2-14-14-14C14,0,13.9,0,13.9,0zM3.4,14c0-5.8,4.8-10.5,10.6-10.5c5.8,0,10.5,4.8,10.5,10.6c0,5.8-4.7,10.5-10.5,10.5C8.1,24.6,3.4,19.9,3.4,14L3.4,14zM13.9,25.6L13.9,25.6z"/>
+<defs>
+  <linearGradient id='g' x1='0' x2='1' y1='0' y2='1'>
+    <stop offset='0' stop-color='#fff'/>
+    <stop offset='1' stop-color='#ccc'/>
+  </linearGradient>
+</defs>
+<path d='M13.9,0C6.2,0.1-0.1,6.4,0,14.1c0.1,7.7,6.4,14,14.1,13.9C21.8,27.9,28,21.7,28,14c0-7.7-6.2-14-14-14C14,0,13.9,0,13.9,0zM3.4,14c0-5.8,4.8-10.5,10.6-10.5c5.8,0,10.5,4.8,10.5,10.6c0,5.8-4.7,10.5-10.5,10.5C8.1,24.6,3.4,19.9,3.4,14L3.4,14zM13.9,25.6L13.9,25.6z' fill='url(#g)'/>
 </svg>
