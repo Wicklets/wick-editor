@@ -166,6 +166,10 @@ $action-button-transition-duration: .2s;
   background-color: $wick-green-dark;
   color: black;
 }
+.action-button-tool:hover{
+  * {
+  filter:brightness(0.25);}
+}
 
 .action-button-tool.active-button {
   background-color: $wick-green-dark;
