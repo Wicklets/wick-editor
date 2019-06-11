@@ -34453,305 +34453,835 @@ function isVarName(str) {
 });
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 // Pressure v2.1.2 | Created By Stuart Yamartino | MIT License | 2015 - 2017
-!function (e, t) {
-  "function" == typeof define && define.amd ? define(["jquery"], t) : "object" == typeof exports ? module.exports = t(require("jquery")) : e.jQuery__pressure = t(e.jQuery);
-}(this, function (e) {
-  "use strict";
+;
 
-  function t(e, t) {
-    if (!e) throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-    return !t || "object" != typeof t && "function" != typeof t ? e : t;
+(function (root, factory) {
+  if (typeof define === 'function' && define.amd) {
+    define(['jquery'], factory);
+  } else if (typeof exports === 'object') {
+    module.exports = factory(require('jquery'));
+  } else {
+    root.jQuery__pressure = factory(root.jQuery);
   }
+})(this, function ($) {
+  'use strict';
 
-  function s(e, t) {
-    if ("function" != typeof t && null !== t) throw new TypeError("Super expression must either be null or a function, not " + typeof t);
-    e.prototype = Object.create(t && t.prototype, {
-      constructor: {
-        value: e,
-        enumerable: !1,
-        writable: !0,
-        configurable: !0
-      }
-    }), t && (Object.setPrototypeOf ? Object.setPrototypeOf(e, t) : e.__proto__ = t);
-  }
+  var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
+    return typeof obj;
+  } : function (obj) {
+    return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
+  };
 
-  function n(e, t) {
-    if (!(e instanceof t)) throw new TypeError("Cannot call a class as a function");
-  }
-
-  var i = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (e) {
-    return typeof e;
-  } : function (e) {
-    return e && "function" == typeof Symbol && e.constructor === Symbol && e !== Symbol.prototype ? "symbol" : typeof e;
-  },
-      r = function () {
-    function e(e, t) {
-      for (var s = 0; s < t.length; s++) {
-        var n = t[s];
-        n.enumerable = n.enumerable || !1, n.configurable = !0, "value" in n && (n.writable = !0), Object.defineProperty(e, n.key, n);
+  var _createClass = function () {
+    function defineProperties(target, props) {
+      for (var i = 0; i < props.length; i++) {
+        var descriptor = props[i];
+        descriptor.enumerable = descriptor.enumerable || false;
+        descriptor.configurable = true;
+        if ("value" in descriptor) descriptor.writable = true;
+        Object.defineProperty(target, descriptor.key, descriptor);
       }
     }
 
-    return function (t, s, n) {
-      return s && e(t.prototype, s), n && e(t, n), t;
+    return function (Constructor, protoProps, staticProps) {
+      if (protoProps) defineProperties(Constructor.prototype, protoProps);
+      if (staticProps) defineProperties(Constructor, staticProps);
+      return Constructor;
     };
   }();
 
-  if (!e) throw new Error("Pressure jQuery requires jQuery to be loaded.");
-  e.fn.pressure = function (e, t) {
-    return p(this, e, t), this;
-  }, e.pressureConfig = function (e) {
-    d.set(e);
-  }, e.pressureMap = function (e, t, s, n, i) {
-    return f.apply(null, arguments);
-  };
-
-  var o = function () {
-    function e(t, s, i) {
-      n(this, e), this.routeEvents(t, s, i), this.preventSelect(t, i);
+  function _possibleConstructorReturn(self, call) {
+    if (!self) {
+      throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
     }
 
-    return r(e, [{
-      key: "routeEvents",
-      value: function (e, t, s) {
-        var n = d.get("only", s);
-        this.adapter = !v || "pointer" !== n && null !== n ? !P || "touch" !== n && null !== n ? !y || "mouse" !== n && null !== n ? new u(e, t).bindUnsupportedEvent() : new h(e, t, s).bindEvents() : new l(e, t, s).bindEvents() : new c(e, t, s).bindEvents();
-      }
-    }, {
-      key: "preventSelect",
-      value: function (e, t) {
-        d.get("preventSelect", t) && (e.style.webkitTouchCallout = "none", e.style.webkitUserSelect = "none", e.style.khtmlUserSelect = "none", e.style.MozUserSelect = "none", e.style.msUserSelect = "none", e.style.userSelect = "none");
-      }
-    }]), e;
-  }(),
-      u = function () {
-    function e(t, s, i) {
-      n(this, e), this.el = t, this.block = s, this.options = i, this.pressed = !1, this.deepPressed = !1, this.nativeSupport = !1, this.runningPolyfill = !1, this.runKey = Math.random();
+    return call && (typeof call === "object" || typeof call === "function") ? call : self;
+  }
+
+  function _inherits(subClass, superClass) {
+    if (typeof superClass !== "function" && superClass !== null) {
+      throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
     }
 
-    return r(e, [{
-      key: "setPressed",
-      value: function (e) {
-        this.pressed = e;
+    subClass.prototype = Object.create(superClass && superClass.prototype, {
+      constructor: {
+        value: subClass,
+        enumerable: false,
+        writable: true,
+        configurable: true
+      }
+    });
+    if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+  }
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  } //--------------------- Public jQuery API Section ---------------------//
+
+
+  if ($) {
+    $.fn.pressure = function (closure, options) {
+      loopPressureElements(this, closure, options);
+      return this;
+    };
+
+    $.pressureConfig = function (options) {
+      Config.set(options);
+    };
+
+    $.pressureMap = function (x, in_min, in_max, out_min, out_max) {
+      return map.apply(null, arguments);
+    };
+  } else {
+    throw new Error("Pressure jQuery requires jQuery to be loaded.");
+  }
+
+  var Element = function () {
+    function Element(el, block, options) {
+      _classCallCheck(this, Element);
+
+      this.routeEvents(el, block, options);
+      this.preventSelect(el, options);
+    }
+
+    _createClass(Element, [{
+      key: 'routeEvents',
+      value: function routeEvents(el, block, options) {
+        var type = Config.get('only', options); // for devices that support pointer events
+
+        if (supportsPointer && (type === 'pointer' || type === null)) {
+          this.adapter = new AdapterPointer(el, block, options).bindEvents();
+        } // for devices that support 3D Touch
+        else if (supportsTouch && (type === 'touch' || type === null)) {
+            this.adapter = new Adapter3DTouch(el, block, options).bindEvents();
+          } // for devices that support Force Touch
+          else if (supportsMouse && (type === 'mouse' || type === null)) {
+              this.adapter = new AdapterForceTouch(el, block, options).bindEvents();
+            } // unsupported if it is requesting a type and your browser is of other type
+            else {
+                this.adapter = new Adapter(el, block).bindUnsupportedEvent();
+              }
+      } // prevent the default action of text selection, "peak & pop", and force touch special feature
+
+    }, {
+      key: 'preventSelect',
+      value: function preventSelect(el, options) {
+        if (Config.get('preventSelect', options)) {
+          el.style.webkitTouchCallout = "none";
+          el.style.webkitUserSelect = "none";
+          el.style.khtmlUserSelect = "none";
+          el.style.MozUserSelect = "none";
+          el.style.msUserSelect = "none";
+          el.style.userSelect = "none";
+        }
+      }
+    }]);
+
+    return Element;
+  }();
+  /*
+  This is the base adapter from which all the other adapters extend.
+  */
+
+
+  var Adapter = function () {
+    function Adapter(el, block, options) {
+      _classCallCheck(this, Adapter);
+
+      this.el = el;
+      this.block = block;
+      this.options = options;
+      this.pressed = false;
+      this.deepPressed = false;
+      this.nativeSupport = false;
+      this.runningPolyfill = false;
+      this.runKey = Math.random();
+    }
+
+    _createClass(Adapter, [{
+      key: 'setPressed',
+      value: function setPressed(boolean) {
+        this.pressed = boolean;
       }
     }, {
-      key: "setDeepPressed",
-      value: function (e) {
-        this.deepPressed = e;
+      key: 'setDeepPressed',
+      value: function setDeepPressed(boolean) {
+        this.deepPressed = boolean;
       }
     }, {
-      key: "isPressed",
-      value: function () {
+      key: 'isPressed',
+      value: function isPressed() {
         return this.pressed;
       }
     }, {
-      key: "isDeepPressed",
-      value: function () {
+      key: 'isDeepPressed',
+      value: function isDeepPressed() {
         return this.deepPressed;
       }
     }, {
-      key: "add",
-      value: function (e, t) {
-        this.el.addEventListener(e, t, !1);
+      key: 'add',
+      value: function add(event, set) {
+        this.el.addEventListener(event, set, false);
       }
     }, {
-      key: "runClosure",
-      value: function (e) {
-        e in this.block && this.block[e].apply(this.el, Array.prototype.slice.call(arguments, 1));
+      key: 'runClosure',
+      value: function runClosure(method) {
+        if (method in this.block) {
+          // call the closure method and apply nth arguments if they exist
+          this.block[method].apply(this.el, Array.prototype.slice.call(arguments, 1));
+        }
       }
     }, {
-      key: "fail",
-      value: function (e, t) {
-        d.get("polyfill", this.options) ? this.runKey === t && this.runPolyfill(e) : this.runClosure("unsupported", e);
+      key: 'fail',
+      value: function fail(event, runKey) {
+        if (Config.get('polyfill', this.options)) {
+          if (this.runKey === runKey) {
+            this.runPolyfill(event);
+          }
+        } else {
+          this.runClosure('unsupported', event);
+        }
       }
     }, {
-      key: "bindUnsupportedEvent",
-      value: function () {
-        var e = this;
-        this.add(P ? "touchstart" : "mousedown", function (t) {
-          return e.runClosure("unsupported", t);
+      key: 'bindUnsupportedEvent',
+      value: function bindUnsupportedEvent() {
+        var _this = this;
+
+        this.add(supportsTouch ? 'touchstart' : 'mousedown', function (event) {
+          return _this.runClosure('unsupported', event);
         });
       }
     }, {
-      key: "_startPress",
-      value: function (e) {
-        this.isPressed() === !1 && (this.runningPolyfill = !1, this.setPressed(!0), this.runClosure("start", e));
+      key: '_startPress',
+      value: function _startPress(event) {
+        if (this.isPressed() === false) {
+          this.runningPolyfill = false;
+          this.setPressed(true);
+          this.runClosure('start', event);
+        }
       }
     }, {
-      key: "_startDeepPress",
-      value: function (e) {
-        this.isPressed() && this.isDeepPressed() === !1 && (this.setDeepPressed(!0), this.runClosure("startDeepPress", e));
+      key: '_startDeepPress',
+      value: function _startDeepPress(event) {
+        if (this.isPressed() && this.isDeepPressed() === false) {
+          this.setDeepPressed(true);
+          this.runClosure('startDeepPress', event);
+        }
       }
     }, {
-      key: "_changePress",
-      value: function (e, t) {
-        this.nativeSupport = !0, this.runClosure("change", e, t);
+      key: '_changePress',
+      value: function _changePress(force, event) {
+        this.nativeSupport = true;
+        this.runClosure('change', force, event);
       }
     }, {
-      key: "_endDeepPress",
-      value: function () {
-        this.isPressed() && this.isDeepPressed() && (this.setDeepPressed(!1), this.runClosure("endDeepPress"));
+      key: '_endDeepPress',
+      value: function _endDeepPress() {
+        if (this.isPressed() && this.isDeepPressed()) {
+          this.setDeepPressed(false);
+          this.runClosure('endDeepPress');
+        }
       }
     }, {
-      key: "_endPress",
-      value: function () {
-        this.runningPolyfill === !1 ? (this.isPressed() && (this._endDeepPress(), this.setPressed(!1), this.runClosure("end")), this.runKey = Math.random(), this.nativeSupport = !1) : this.setPressed(!1);
+      key: '_endPress',
+      value: function _endPress() {
+        if (this.runningPolyfill === false) {
+          if (this.isPressed()) {
+            this._endDeepPress();
+
+            this.setPressed(false);
+            this.runClosure('end');
+          }
+
+          this.runKey = Math.random();
+          this.nativeSupport = false;
+        } else {
+          this.setPressed(false);
+        }
       }
     }, {
-      key: "deepPress",
-      value: function (e, t) {
-        e >= .5 ? this._startDeepPress(t) : this._endDeepPress();
+      key: 'deepPress',
+      value: function deepPress(force, event) {
+        force >= 0.5 ? this._startDeepPress(event) : this._endDeepPress();
       }
     }, {
-      key: "runPolyfill",
-      value: function (e) {
-        this.increment = 0 === d.get("polyfillSpeedUp", this.options) ? 1 : 10 / d.get("polyfillSpeedUp", this.options), this.decrement = 0 === d.get("polyfillSpeedDown", this.options) ? 1 : 10 / d.get("polyfillSpeedDown", this.options), this.setPressed(!0), this.runClosure("start", e), this.runningPolyfill === !1 && this.loopPolyfillForce(0, e);
+      key: 'runPolyfill',
+      value: function runPolyfill(event) {
+        this.increment = Config.get('polyfillSpeedUp', this.options) === 0 ? 1 : 10 / Config.get('polyfillSpeedUp', this.options);
+        this.decrement = Config.get('polyfillSpeedDown', this.options) === 0 ? 1 : 10 / Config.get('polyfillSpeedDown', this.options);
+        this.setPressed(true);
+        this.runClosure('start', event);
+
+        if (this.runningPolyfill === false) {
+          this.loopPolyfillForce(0, event);
+        }
       }
     }, {
-      key: "loopPolyfillForce",
-      value: function (e, t) {
-        this.nativeSupport === !1 && (this.isPressed() ? (this.runningPolyfill = !0, e = e + this.increment > 1 ? 1 : e + this.increment, this.runClosure("change", e, t), this.deepPress(e, t), setTimeout(this.loopPolyfillForce.bind(this, e, t), 10)) : (e = e - this.decrement < 0 ? 0 : e - this.decrement, e < .5 && this.isDeepPressed() && (this.setDeepPressed(!1), this.runClosure("endDeepPress")), 0 === e ? (this.runningPolyfill = !1, this.setPressed(!0), this._endPress()) : (this.runClosure("change", e, t), this.deepPress(e, t), setTimeout(this.loopPolyfillForce.bind(this, e, t), 10))));
+      key: 'loopPolyfillForce',
+      value: function loopPolyfillForce(force, event) {
+        if (this.nativeSupport === false) {
+          if (this.isPressed()) {
+            this.runningPolyfill = true;
+            force = force + this.increment > 1 ? 1 : force + this.increment;
+            this.runClosure('change', force, event);
+            this.deepPress(force, event);
+            setTimeout(this.loopPolyfillForce.bind(this, force, event), 10);
+          } else {
+            force = force - this.decrement < 0 ? 0 : force - this.decrement;
+
+            if (force < 0.5 && this.isDeepPressed()) {
+              this.setDeepPressed(false);
+              this.runClosure('endDeepPress');
+            }
+
+            if (force === 0) {
+              this.runningPolyfill = false;
+              this.setPressed(true);
+
+              this._endPress();
+            } else {
+              this.runClosure('change', force, event);
+              this.deepPress(force, event);
+              setTimeout(this.loopPolyfillForce.bind(this, force, event), 10);
+            }
+          }
+        }
       }
-    }]), e;
-  }(),
-      h = function (e) {
-    function i(e, s, r) {
-      return n(this, i), t(this, (i.__proto__ || Object.getPrototypeOf(i)).call(this, e, s, r));
+    }]);
+
+    return Adapter;
+  }();
+  /*
+  This adapter is for Macs with Force Touch trackpads.
+  */
+
+
+  var AdapterForceTouch = function (_Adapter) {
+    _inherits(AdapterForceTouch, _Adapter);
+
+    function AdapterForceTouch(el, block, options) {
+      _classCallCheck(this, AdapterForceTouch);
+
+      return _possibleConstructorReturn(this, (AdapterForceTouch.__proto__ || Object.getPrototypeOf(AdapterForceTouch)).call(this, el, block, options));
     }
 
-    return s(i, e), r(i, [{
-      key: "bindEvents",
-      value: function () {
-        this.add("webkitmouseforcewillbegin", this._startPress.bind(this)), this.add("mousedown", this.support.bind(this)), this.add("webkitmouseforcechanged", this.change.bind(this)), this.add("webkitmouseforcedown", this._startDeepPress.bind(this)), this.add("webkitmouseforceup", this._endDeepPress.bind(this)), this.add("mouseleave", this._endPress.bind(this)), this.add("mouseup", this._endPress.bind(this));
+    _createClass(AdapterForceTouch, [{
+      key: 'bindEvents',
+      value: function bindEvents() {
+        this.add('webkitmouseforcewillbegin', this._startPress.bind(this));
+        this.add('mousedown', this.support.bind(this));
+        this.add('webkitmouseforcechanged', this.change.bind(this));
+        this.add('webkitmouseforcedown', this._startDeepPress.bind(this));
+        this.add('webkitmouseforceup', this._endDeepPress.bind(this));
+        this.add('mouseleave', this._endPress.bind(this));
+        this.add('mouseup', this._endPress.bind(this));
       }
     }, {
-      key: "support",
-      value: function (e) {
-        this.isPressed() === !1 && this.fail(e, this.runKey);
+      key: 'support',
+      value: function support(event) {
+        if (this.isPressed() === false) {
+          this.fail(event, this.runKey);
+        }
       }
     }, {
-      key: "change",
-      value: function (e) {
-        this.isPressed() && e.webkitForce > 0 && this._changePress(this.normalizeForce(e.webkitForce), e);
-      }
+      key: 'change',
+      value: function change(event) {
+        if (this.isPressed() && event.webkitForce > 0) {
+          this._changePress(this.normalizeForce(event.webkitForce), event);
+        }
+      } // make the force the standard 0 to 1 scale and not the 1 to 3 scale
+
     }, {
-      key: "normalizeForce",
-      value: function (e) {
-        return this.reachOne(f(e, 1, 3, 0, 1));
-      }
+      key: 'normalizeForce',
+      value: function normalizeForce(force) {
+        return this.reachOne(map(force, 1, 3, 0, 1));
+      } // if the force value is above 0.995 set the force to 1
+
     }, {
-      key: "reachOne",
-      value: function (e) {
-        return e > .995 ? 1 : e;
+      key: 'reachOne',
+      value: function reachOne(force) {
+        return force > 0.995 ? 1 : force;
       }
-    }]), i;
-  }(u),
-      l = function (e) {
-    function i(e, s, r) {
-      return n(this, i), t(this, (i.__proto__ || Object.getPrototypeOf(i)).call(this, e, s, r));
+    }]);
+
+    return AdapterForceTouch;
+  }(Adapter);
+  /*
+  This adapter is more mobile devices that support 3D Touch.
+  */
+
+
+  var Adapter3DTouch = function (_Adapter2) {
+    _inherits(Adapter3DTouch, _Adapter2);
+
+    function Adapter3DTouch(el, block, options) {
+      _classCallCheck(this, Adapter3DTouch);
+
+      return _possibleConstructorReturn(this, (Adapter3DTouch.__proto__ || Object.getPrototypeOf(Adapter3DTouch)).call(this, el, block, options));
     }
 
-    return s(i, e), r(i, [{
-      key: "bindEvents",
-      value: function () {
-        g ? (this.add("touchforcechange", this.start.bind(this)), this.add("touchstart", this.support.bind(this, 0)), this.add("touchend", this._endPress.bind(this))) : (this.add("touchstart", this.startLegacy.bind(this)), this.add("touchend", this._endPress.bind(this)));
+    _createClass(Adapter3DTouch, [{
+      key: 'bindEvents',
+      value: function bindEvents() {
+        if (supportsTouchForceChange) {
+          this.add('touchforcechange', this.start.bind(this));
+          this.add('touchstart', this.support.bind(this, 0));
+          this.add('touchend', this._endPress.bind(this));
+        } else {
+          this.add('touchstart', this.startLegacy.bind(this));
+          this.add('touchend', this._endPress.bind(this));
+        }
       }
     }, {
-      key: "start",
-      value: function (e) {
-        e.touches.length > 0 && (this._startPress(e), this.touch = this.selectTouch(e), this.touch && this._changePress(this.touch.force, e));
-      }
-    }, {
-      key: "support",
-      value: function (e, t) {
-        var s = arguments.length > 2 && void 0 !== arguments[2] ? arguments[2] : this.runKey;
-        this.isPressed() === !1 && (e <= 6 ? (e++, setTimeout(this.support.bind(this, e, t, s), 10)) : this.fail(t, s));
-      }
-    }, {
-      key: "startLegacy",
-      value: function (e) {
-        this.initialForce = e.touches[0].force, this.supportLegacy(0, e, this.runKey, this.initialForce);
-      }
-    }, {
-      key: "supportLegacy",
-      value: function (e, t, s, n) {
-        n !== this.initialForce ? (this._startPress(t), this.loopForce(t)) : e <= 6 ? (e++, setTimeout(this.supportLegacy.bind(this, e, t, s, n), 10)) : this.fail(t, s);
-      }
-    }, {
-      key: "loopForce",
-      value: function (e) {
-        this.isPressed() && (this.touch = this.selectTouch(e), setTimeout(this.loopForce.bind(this, e), 10), this._changePress(this.touch.force, e));
-      }
-    }, {
-      key: "selectTouch",
-      value: function (e) {
-        if (1 === e.touches.length) return this.returnTouch(e.touches[0], e);
+      key: 'start',
+      value: function start(event) {
+        if (event.touches.length > 0) {
+          this._startPress(event);
 
-        for (var t = 0; t < e.touches.length; t++) if (e.touches[t].target === this.el || this.el.contains(e.touches[t].target)) return this.returnTouch(e.touches[t], e);
+          this.touch = this.selectTouch(event);
+
+          if (this.touch) {
+            this._changePress(this.touch.force, event);
+          }
+        }
       }
     }, {
-      key: "returnTouch",
-      value: function (e, t) {
-        return this.deepPress(e.force, t), e;
+      key: 'support',
+      value: function support(iter, event) {
+        var runKey = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : this.runKey;
+
+        if (this.isPressed() === false) {
+          if (iter <= 6) {
+            iter++;
+            setTimeout(this.support.bind(this, iter, event, runKey), 10);
+          } else {
+            this.fail(event, runKey);
+          }
+        }
       }
-    }]), i;
-  }(u),
-      c = function (e) {
-    function i(e, s, r) {
-      return n(this, i), t(this, (i.__proto__ || Object.getPrototypeOf(i)).call(this, e, s, r));
+    }, {
+      key: 'startLegacy',
+      value: function startLegacy(event) {
+        this.initialForce = event.touches[0].force;
+        this.supportLegacy(0, event, this.runKey, this.initialForce);
+      } // this checks up to 6 times on a touch to see if the touch can read a force value
+      // if the force value has changed it means the device supports pressure
+      // more info from this issue https://github.com/yamartino/pressure/issues/15
+
+    }, {
+      key: 'supportLegacy',
+      value: function supportLegacy(iter, event, runKey, force) {
+        if (force !== this.initialForce) {
+          this._startPress(event);
+
+          this.loopForce(event);
+        } else if (iter <= 6) {
+          iter++;
+          setTimeout(this.supportLegacy.bind(this, iter, event, runKey, force), 10);
+        } else {
+          this.fail(event, runKey);
+        }
+      }
+    }, {
+      key: 'loopForce',
+      value: function loopForce(event) {
+        if (this.isPressed()) {
+          this.touch = this.selectTouch(event);
+          setTimeout(this.loopForce.bind(this, event), 10);
+
+          this._changePress(this.touch.force, event);
+        }
+      } // link up the touch point to the correct element, this is to support multitouch
+
+    }, {
+      key: 'selectTouch',
+      value: function selectTouch(event) {
+        if (event.touches.length === 1) {
+          return this.returnTouch(event.touches[0], event);
+        } else {
+          for (var i = 0; i < event.touches.length; i++) {
+            // if the target press is on this element
+            if (event.touches[i].target === this.el || this.el.contains(event.touches[i].target)) {
+              return this.returnTouch(event.touches[i], event);
+            }
+          }
+        }
+      } // return the touch and run a start or end for deep press
+
+    }, {
+      key: 'returnTouch',
+      value: function returnTouch(touch, event) {
+        this.deepPress(touch.force, event);
+        return touch;
+      }
+    }]);
+
+    return Adapter3DTouch;
+  }(Adapter);
+  /*
+  This adapter is for devices that support pointer events.
+  */
+
+
+  var AdapterPointer = function (_Adapter3) {
+    _inherits(AdapterPointer, _Adapter3);
+
+    function AdapterPointer(el, block, options) {
+      _classCallCheck(this, AdapterPointer);
+
+      return _possibleConstructorReturn(this, (AdapterPointer.__proto__ || Object.getPrototypeOf(AdapterPointer)).call(this, el, block, options));
     }
 
-    return s(i, e), r(i, [{
-      key: "bindEvents",
-      value: function () {
-        this.add("pointerdown", this.support.bind(this)), this.add("pointermove", this.change.bind(this)), this.add("pointerup", this._endPress.bind(this)), this.add("pointerleave", this._endPress.bind(this));
+    _createClass(AdapterPointer, [{
+      key: 'bindEvents',
+      value: function bindEvents() {
+        this.add('pointerdown', this.support.bind(this));
+        this.add('pointermove', this.change.bind(this));
+        this.add('pointerup', this._endPress.bind(this));
+        this.add('pointerleave', this._endPress.bind(this));
       }
     }, {
-      key: "support",
-      value: function (e) {
-        this.isPressed() === !1 && (0 === e.pressure || .5 === e.pressure || e.pressure > 1 ? this.fail(e, this.runKey) : (this._startPress(e), this._changePress(e.pressure, e)));
+      key: 'support',
+      value: function support(event) {
+        if (this.isPressed() === false) {
+          if (event.pressure === 0 || event.pressure === 0.5 || event.pressure > 1) {
+            this.fail(event, this.runKey);
+          } else {
+            this._startPress(event);
+
+            this._changePress(event.pressure, event);
+          }
+        }
       }
     }, {
-      key: "change",
-      value: function (e) {
-        this.isPressed() && e.pressure > 0 && .5 !== e.pressure && (this._changePress(e.pressure, e), this.deepPress(e.pressure, e));
+      key: 'change',
+      value: function change(event) {
+        if (this.isPressed() && event.pressure > 0 && event.pressure !== 0.5) {
+          this._changePress(event.pressure, event);
+
+          this.deepPress(event.pressure, event);
+        }
       }
-    }]), i;
-  }(u),
-      d = {
-    polyfill: !0,
-    polyfillSpeedUp: 1e3,
+    }]);
+
+    return AdapterPointer;
+  }(Adapter); // This class holds the states of the the Pressure config
+
+
+  var Config = {
+    // 'false' will make polyfill not run when pressure is not supported and the 'unsupported' method will be called
+    polyfill: true,
+    // milliseconds it takes to go from 0 to 1 for the polyfill
+    polyfillSpeedUp: 1000,
+    // milliseconds it takes to go from 1 to 0 for the polyfill
     polyfillSpeedDown: 0,
-    preventSelect: !0,
+    // 'true' prevents the selecting of text and images via css properties
+    preventSelect: true,
+    // 'touch', 'mouse', or 'pointer' will make it run only on that type of device
     only: null,
-    get: function (e, t) {
-      return t.hasOwnProperty(e) ? t[e] : this[e];
+    // this will get the correct config / option settings for the current pressure check
+    get: function get(option, options) {
+      return options.hasOwnProperty(option) ? options[option] : this[option];
     },
-    set: function (e) {
-      for (var t in e) e.hasOwnProperty(t) && this.hasOwnProperty(t) && "get" != t && "set" != t && (this[t] = e[t]);
+    // this will set the global configs
+    set: function set(options) {
+      for (var k in options) {
+        if (options.hasOwnProperty(k) && this.hasOwnProperty(k) && k != 'get' && k != 'set') {
+          this[k] = options[k];
+        }
+      }
     }
-  },
-      p = function (e, t) {
-    var s = arguments.length > 2 && void 0 !== arguments[2] ? arguments[2] : {};
-    if ("string" == typeof e || e instanceof String) for (var n = document.querySelectorAll(e), i = 0; i < n.length; i++) new o(n[i], t, s);else if (a(e)) new o(e, t, s);else for (var i = 0; i < e.length; i++) new o(e[i], t, s);
-  },
-      a = function (e) {
-    return "object" === ("undefined" == typeof HTMLElement ? "undefined" : i(HTMLElement)) ? e instanceof HTMLElement : e && "object" === (void 0 === e ? "undefined" : i(e)) && null !== e && 1 === e.nodeType && "string" == typeof e.nodeName;
-  },
-      f = function (e, t, s, n, i) {
-    return (e - t) * (i - n) / (s - t) + n;
-  },
-      y = !1,
-      P = !1,
-      v = !1,
-      b = !1,
-      g = !1;
+  }; //------------------- Helpers -------------------//
+  // accepts jQuery object, node list, string selector, then called a setup for each element
 
-  if ("undefined" != typeof window) {
-    if ("undefined" != typeof Touch) try {
-      (Touch.prototype.hasOwnProperty("force") || "force" in new Touch()) && (b = !0);
-    } catch (e) {}
-    P = "ontouchstart" in window.document && b, y = "onmousemove" in window.document && !P, v = "onpointermove" in window.document, g = "ontouchforcechange" in window.document;
+  var loopPressureElements = function loopPressureElements(selector, closure) {
+    var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {}; // if a string is passed in as an element
+
+    if (typeof selector === 'string' || selector instanceof String) {
+      var elements = document.querySelectorAll(selector);
+
+      for (var i = 0; i < elements.length; i++) {
+        new Element(elements[i], closure, options);
+      } // if a single element object is passed in
+
+    } else if (isElement(selector)) {
+      new Element(selector, closure, options); // if a node list is passed in ex. jQuery $() object
+    } else {
+      for (var i = 0; i < selector.length; i++) {
+        new Element(selector[i], closure, options);
+      }
+    }
+  }; //Returns true if it is a DOM element
+
+
+  var isElement = function isElement(o) {
+    return (typeof HTMLElement === 'undefined' ? 'undefined' : _typeof(HTMLElement)) === "object" ? o instanceof HTMLElement : //DOM2
+    o && (typeof o === 'undefined' ? 'undefined' : _typeof(o)) === "object" && o !== null && o.nodeType === 1 && typeof o.nodeName === "string";
+  }; // the map method allows for interpolating a value from one range of values to another
+  // example from the Arduino documentation: https://www.arduino.cc/en/Reference/Map
+
+
+  var map = function map(x, in_min, in_max, out_min, out_max) {
+    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+  };
+
+  var supportsMouse = false;
+  var supportsTouch = false;
+  var supportsPointer = false;
+  var supportsTouchForce = false;
+  var supportsTouchForceChange = false;
+
+  if (typeof window !== 'undefined') {
+    // only attempt to assign these in a browser environment.
+    // on the server, this is a no-op, like the rest of the library
+    if (typeof Touch !== 'undefined') {
+      // In Android, new Touch requires arguments.
+      try {
+        if (Touch.prototype.hasOwnProperty('force') || 'force' in new Touch()) {
+          supportsTouchForce = true;
+        }
+      } catch (e) {}
+    }
+
+    supportsTouch = 'ontouchstart' in window.document && supportsTouchForce;
+    supportsMouse = 'onmousemove' in window.document && !supportsTouch;
+    supportsPointer = 'onpointermove' in window.document;
+    supportsTouchForceChange = 'ontouchforcechange' in window.document;
+  }
+
+  return void 0;
+});
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*!
+* jQuery Mousewheel 3.1.13
+*
+* Copyright jQuery Foundation and other contributors
+* Released under the MIT license
+* http://jquery.org/license
+*/
+(function (factory) {
+  if (typeof define === 'function' && define.amd) {
+    // AMD. Register as an anonymous module.
+    define(['jquery'], factory);
+  } else if (typeof exports === 'object') {
+    // Node/CommonJS style for Browserify
+    module.exports = factory;
+  } else {
+    // Browser globals
+    factory(jQuery);
+  }
+})(function ($) {
+  var toFix = ['wheel', 'mousewheel', 'DOMMouseScroll', 'MozMousePixelScroll'],
+      toBind = 'onwheel' in document || document.documentMode >= 9 ? ['wheel'] : ['mousewheel', 'DomMouseScroll', 'MozMousePixelScroll'],
+      slice = Array.prototype.slice,
+      nullLowestDeltaTimeout,
+      lowestDelta;
+
+  if ($.event.fixHooks) {
+    for (var i = toFix.length; i;) {
+      $.event.fixHooks[toFix[--i]] = $.event.mouseHooks;
+    }
+  }
+
+  var special = $.event.special.mousewheel = {
+    version: '3.1.12',
+    setup: function () {
+      if (this.addEventListener) {
+        for (var i = toBind.length; i;) {
+          this.addEventListener(toBind[--i], handler, false);
+        }
+      } else {
+        this.onmousewheel = handler;
+      } // Store the line height and page height for this particular element
+
+
+      $.data(this, 'mousewheel-line-height', special.getLineHeight(this));
+      $.data(this, 'mousewheel-page-height', special.getPageHeight(this));
+    },
+    teardown: function () {
+      if (this.removeEventListener) {
+        for (var i = toBind.length; i;) {
+          this.removeEventListener(toBind[--i], handler, false);
+        }
+      } else {
+        this.onmousewheel = null;
+      } // Clean up the data we added to the element
+
+
+      $.removeData(this, 'mousewheel-line-height');
+      $.removeData(this, 'mousewheel-page-height');
+    },
+    getLineHeight: function (elem) {
+      var $elem = $(elem),
+          $parent = $elem['offsetParent' in $.fn ? 'offsetParent' : 'parent']();
+
+      if (!$parent.length) {
+        $parent = $('body');
+      }
+
+      return parseInt($parent.css('fontSize'), 10) || parseInt($elem.css('fontSize'), 10) || 16;
+    },
+    getPageHeight: function (elem) {
+      return $(elem).height();
+    },
+    settings: {
+      adjustOldDeltas: true,
+      // see shouldAdjustOldDeltas() below
+      normalizeOffset: true // calls getBoundingClientRect for each event
+
+    }
+  };
+  $.fn.extend({
+    mousewheel: function (fn) {
+      return fn ? this.bind('mousewheel', fn) : this.trigger('mousewheel');
+    },
+    unmousewheel: function (fn) {
+      return this.unbind('mousewheel', fn);
+    }
+  });
+
+  function handler(event) {
+    var orgEvent = event || window.event,
+        args = slice.call(arguments, 1),
+        delta = 0,
+        deltaX = 0,
+        deltaY = 0,
+        absDelta = 0,
+        offsetX = 0,
+        offsetY = 0;
+    event = $.event.fix(orgEvent);
+    event.type = 'mousewheel'; // Old school scrollwheel delta
+
+    if ('detail' in orgEvent) {
+      deltaY = orgEvent.detail * -1;
+    }
+
+    if ('wheelDelta' in orgEvent) {
+      deltaY = orgEvent.wheelDelta;
+    }
+
+    if ('wheelDeltaY' in orgEvent) {
+      deltaY = orgEvent.wheelDeltaY;
+    }
+
+    if ('wheelDeltaX' in orgEvent) {
+      deltaX = orgEvent.wheelDeltaX * -1;
+    } // Firefox < 17 horizontal scrolling related to DOMMouseScroll event
+
+
+    if ('axis' in orgEvent && orgEvent.axis === orgEvent.HORIZONTAL_AXIS) {
+      deltaX = deltaY * -1;
+      deltaY = 0;
+    } // Set delta to be deltaY or deltaX if deltaY is 0 for backwards compatabilitiy
+
+
+    delta = deltaY === 0 ? deltaX : deltaY; // New school wheel delta (wheel event)
+
+    if ('deltaY' in orgEvent) {
+      deltaY = orgEvent.deltaY * -1;
+      delta = deltaY;
+    }
+
+    if ('deltaX' in orgEvent) {
+      deltaX = orgEvent.deltaX;
+
+      if (deltaY === 0) {
+        delta = deltaX * -1;
+      }
+    } // No change actually happened, no reason to go any further
+
+
+    if (deltaY === 0 && deltaX === 0) {
+      return;
+    } // Need to convert lines and pages to pixels if we aren't already in pixels
+    // There are three delta modes:
+    //   * deltaMode 0 is by pixels, nothing to do
+    //   * deltaMode 1 is by lines
+    //   * deltaMode 2 is by pages
+
+
+    if (orgEvent.deltaMode === 1) {
+      var lineHeight = $.data(this, 'mousewheel-line-height');
+      delta *= lineHeight;
+      deltaY *= lineHeight;
+      deltaX *= lineHeight;
+    } else if (orgEvent.deltaMode === 2) {
+      var pageHeight = $.data(this, 'mousewheel-page-height');
+      delta *= pageHeight;
+      deltaY *= pageHeight;
+      deltaX *= pageHeight;
+    } // Store lowest absolute delta to normalize the delta values
+
+
+    absDelta = Math.max(Math.abs(deltaY), Math.abs(deltaX));
+
+    if (!lowestDelta || absDelta < lowestDelta) {
+      lowestDelta = absDelta; // Adjust older deltas if necessary
+
+      if (shouldAdjustOldDeltas(orgEvent, absDelta)) {
+        lowestDelta /= 40;
+      }
+    } // Adjust older deltas if necessary
+
+
+    if (shouldAdjustOldDeltas(orgEvent, absDelta)) {
+      // Divide all the things by 40!
+      delta /= 40;
+      deltaX /= 40;
+      deltaY /= 40;
+    } // Get a whole, normalized value for the deltas
+
+
+    delta = Math[delta >= 1 ? 'floor' : 'ceil'](delta / lowestDelta);
+    deltaX = Math[deltaX >= 1 ? 'floor' : 'ceil'](deltaX / lowestDelta);
+    deltaY = Math[deltaY >= 1 ? 'floor' : 'ceil'](deltaY / lowestDelta); // Normalise offsetX and offsetY properties
+
+    if (special.settings.normalizeOffset && this.getBoundingClientRect) {
+      var boundingRect = this.getBoundingClientRect();
+      offsetX = event.clientX - boundingRect.left;
+      offsetY = event.clientY - boundingRect.top;
+    } // Add information to the event object
+
+
+    event.deltaX = deltaX;
+    event.deltaY = deltaY;
+    event.deltaFactor = lowestDelta;
+    event.offsetX = offsetX;
+    event.offsetY = offsetY; // Go ahead and set deltaMode to 0 since we converted to pixels
+    // Although this is a little odd since we overwrite the deltaX/Y
+    // properties with normalized deltas.
+
+    event.deltaMode = 0; // Add event and delta to the front of the arguments
+
+    args.unshift(event, delta, deltaX, deltaY); // Clearout lowestDelta after sometime to better
+    // handle multiple device types that give different
+    // a different lowestDelta
+    // Ex: trackpad = 3 and mouse wheel = 120
+
+    if (nullLowestDeltaTimeout) {
+      clearTimeout(nullLowestDeltaTimeout);
+    }
+
+    nullLowestDeltaTimeout = setTimeout(nullLowestDelta, 200);
+    return ($.event.dispatch || $.event.handle).apply(this, args);
+  }
+
+  function nullLowestDelta() {
+    lowestDelta = null;
+  }
+
+  function shouldAdjustOldDeltas(orgEvent, absDelta) {
+    // If this is an older event and the delta is divisable by 120,
+    // then we are assuming that the browser is treating this as an
+    // older mouse wheel event and that we should divide the deltas
+    // by 40 to try and get a more usable deltaFactor.
+    // Side note, this actually impacts the reported scroll distance
+    // in older browsers and can cause scrolling to be slower than native.
+    // Turn this off by setting $.event.special.mousewheel.settings.adjustOldDeltas to false.
+    return special.settings.adjustOldDeltas && orgEvent.type === 'mousewheel' && absDelta % 120 === 0;
   }
 });
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
@@ -64236,6 +64766,160 @@ var potrace;
   potrace.fromFunction = fromFunction;
 })(potrace || (potrace = {}));
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+The MIT License (MIT)
+Copyright 2015 Alexej Yaroshevich and other contributors
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+// Code originally from https://github.com/zxqfox/reserved-words
+// zrispo made this code work without webpack or whatever
+var reserved = (() => {
+  var exports = {};
+  /**
+  * Structure for storing keywords.
+  *
+  * @typedef {Object.<String,Boolean>} KeywordsHash
+  */
+
+  /**
+  * ECMAScript dialects.
+  *
+  * @const
+  * @type {Object.<String,Number|String>} - keys as readable names and values as versions
+  */
+
+  var DIALECTS = {
+    es3: 3,
+    es5: 5,
+    es2015: 6,
+    es7: 7,
+    // aliases
+    es6: 6,
+    'default': 5,
+    next: 6
+  };
+  /**
+  * ECMAScript reserved words.
+  *
+  * @type {Object.<String,KeywordsHash>}
+  */
+
+  var KEYWORDS = exports.KEYWORDS = {};
+  /**
+  * Check word for being an reserved word.
+  *
+  * @param {String} word - word to check
+  * @param {String|Number} [dialect] - dialect or version
+  * @param {Boolean} [strict] - strict mode
+  * @returns {?Boolean}
+  */
+
+  exports.check = function check(word, dialect, strict) {
+    dialect = dialect || DIALECTS.default;
+    var version = DIALECTS[dialect] || dialect;
+
+    if (strict && version >= 5) {
+      version += '-strict';
+    }
+
+    if (!KEYWORDS[version]) console.error('reserved-words: Unknown dialect');
+    return KEYWORDS[version].hasOwnProperty(word);
+  };
+  /**
+  * Reserved Words for ES3
+  *
+  * ECMA-262 3rd: 7.5.1
+  * http://www.ecma-international.org/publications/files/ECMA-ST-ARCH/ECMA-262,%203rd%20edition,%20December%201999.pdf
+  *
+  * @type {KeywordsHash}
+  */
+
+
+  KEYWORDS['3'] = _hash( // Keyword, ECMA-262 3rd: 7.5.2
+  'break    else       new     var', 'case     finally    return  void', 'catch    for        switch  while', 'continue function   this    with', 'default  if         throw', 'delete   in         try', 'do       instanceof typeof', // FutureReservedWord, ECMA-262 3rd 7.5.3
+  'abstract enum       int        short', 'boolean  export     interface  static', 'byte     extends    long       super', 'char     final      native     synchronized', 'class    float      package    throws', 'const    goto       private    transient', 'debugger implements protected  volatile', 'double   import     public', // NullLiteral & BooleanLiteral
+  'null true false');
+  /**
+  * Reserved Words for ES5.
+  *
+  * http://es5.github.io/#x7.6.1
+  *
+  * @type {KeywordsHash}
+  */
+
+  KEYWORDS['5'] = _hash( // Keyword
+  'break    do       instanceof typeof', 'case     else     new        var', 'catch    finally  return     void', 'continue for      switch     while', 'debugger function this       with', 'default  if       throw', 'delete   in       try', // FutureReservedWord
+  'class enum extends super', 'const export import', // NullLiteral & BooleanLiteral
+  'null true false', // added by zrispo
+  'window');
+  /**
+  * Reserved Words for ES5 in strict mode.
+  *
+  * @type {KeywordsHash}
+  */
+
+  KEYWORDS['5-strict'] = _hash(KEYWORDS['5'], // FutureReservedWord, strict mode. http://es5.github.io/#x7.6.1.2
+  'implements let     private   public yield', 'interface  package protected static');
+  /**
+  * Reserved Words for ES6.
+  *
+  * 11.6.2
+  * http://www.ecma-international.org/ecma-262/6.0/index.html#sec-reserved-words
+  *
+  * @type {KeywordsHash}
+  */
+
+  KEYWORDS['6'] = _hash( // Keywords, ES6 11.6.2.1, http://www.ecma-international.org/ecma-262/6.0/index.html#sec-keywords
+  'break    do       in         typeof', 'case     else     instanceof var', 'catch    export   new        void', 'class    extends  return     while', 'const    finally  super      with', 'continue for      switch     yield', 'debugger function this', 'default  if       throw', 'delete   import   try', // Future Reserved Words, ES6 11.6.2.2
+  // http://www.ecma-international.org/ecma-262/6.0/index.html#sec-future-reserved-words
+  'enum await', // NullLiteral & BooleanLiteral
+  'null true false');
+  /**
+  * Reserved Words for ES6 in strict mode.
+  *
+  * @type {KeywordsHash}
+  */
+
+  KEYWORDS['6-strict'] = _hash(KEYWORDS['6'], // Keywords, ES6 11.6.2.1
+  'let static', // Future Reserved Words, ES6 11.6.2.2
+  'implements package protected', 'interface private public');
+  /**
+  * Generates hash from strings
+  *
+  * @private
+  * @param {...String|KeywordsHash} keywords - Space-delimited string or previous result of _hash
+  * @return {KeywordsHash} - Object with keywords in keys and true in values
+  */
+
+  function _hash() {
+    var set = Array.prototype.map.call(arguments, function (v) {
+      return typeof v === 'string' ? v : Object.keys(v).join(' ');
+    }).join(' ');
+    return set.split(/\s+/).reduce(function (res, keyword) {
+      res[keyword] = true;
+      return res;
+    }, {});
+  }
+
+  return exports;
+})();
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
 // https://gist.github.com/hurjas/2660489
 
 /**
@@ -65083,18 +65767,20 @@ Wick.Clipboard = class {
       }
     }); // Keep track of where objects were originally copied from
 
-    this._copyLocation = project.activeFrame && project.activeFrame.uuid; // Prepare objects for
+    this._copyLocation = project.activeFrame && project.activeFrame.uuid; // Prepare objects for export
 
+    /*
     var objects = objects.map(object => {
-      var copy = object.copy(); // Copy frame positions relative to the current playhead position
-
-      if (copy instanceof Wick.Frame) {
-        copy.start -= playheadCopyOffset - 1;
-        copy.end -= playheadCopyOffset - 1;
-      }
-
-      return copy;
+        var copy = object.copy();
+         // Copy frame positions relative to the current playhead position
+        if(copy instanceof Wick.Frame) {
+            copy.start -= playheadCopyOffset - 1;
+            copy.end -= playheadCopyOffset - 1;
+        }
+         return copy;
     });
+    */
+
     this.clipboardData = objects.map(object => {
       return object.export();
     });
@@ -65117,7 +65803,7 @@ Wick.Clipboard = class {
     var pasteInPlace = project.activeFrame && this._copyLocation !== project.activeFrame.uuid;
     project.selection.clear();
     this.clipboardData.map(data => {
-      return Wick.Base.import(data).copy();
+      return Wick.Base.import(data, project).copy();
     }).forEach(object => {
       // Paste frames at the position of the playhead
       if (object instanceof Wick.Frame) {
@@ -65125,7 +65811,8 @@ Wick.Clipboard = class {
         object.end += project.focus.timeline.playheadPosition - 1;
       }
 
-      project.addObject(object); // Add offset to Paths and Clips if pasteInPlace is NOT enabled.
+      project.addObject(object);
+      object.identifier = object._getUniqueIdentifier(object.identifier); // Add offset to Paths and Clips if pasteInPlace is NOT enabled.
 
       if (!pasteInPlace && (object instanceof Wick.Path || object instanceof Wick.Clip)) {
         object.x += Wick.Clipboard.PASTE_OFFSET;
@@ -65221,7 +65908,7 @@ WickFileCache = class {
    */
 
 
-  clear(file, uuid) {
+  clear() {
     this._files = {};
   }
 
@@ -65659,18 +66346,37 @@ Wick.WickFile = class {
       if (objectCacheSerialized[uuid].classname === 'Project') {
         delete objectCacheSerialized[uuid];
       }
-    } // Remove some extra data that we don't actually want to save (zoom, pan, selection, etc)
+    } // Remove some extra data that we don't actually want to save
+    // Reset zoom/pan
 
 
     projectSerialized.zoom = 1;
     projectSerialized.pan.x = 0;
-    projectSerialized.pan.y = 0;
+    projectSerialized.pan.y = 0; // Clear selection
 
     for (var uuid in objectCacheSerialized) {
       var object = objectCacheSerialized[uuid];
 
       if (object.classname === 'Selection') {
         object.selectedObjects = [];
+      }
+    } // Set focus to root
+
+
+    for (var uuid in objectCacheSerialized) {
+      var object = objectCacheSerialized[uuid];
+
+      if (projectSerialized.children.indexOf(uuid) !== -1 && object.classname === 'Clip') {
+        projectSerialized.focus = uuid;
+      }
+    } // Reset all playhead positions
+
+
+    for (var uuid in objectCacheSerialized) {
+      var object = objectCacheSerialized[uuid];
+
+      if (object.classname === 'Timeline') {
+        object.playheadPosition = 1;
       }
     } // Add project json to root directory of zip file
 
@@ -66055,21 +66761,18 @@ Wick.Base = class {
   }
   /**
    * Returns a copy of a Wick Base object.
-   * @param {boolean} retainIdentifiers - if set to true, will not remove the identifier of the copy.
    * @return {Wick.Base} The object resulting from the copy
    */
 
 
-  copy(args) {
-    if (!args) args = {};
+  copy() {
     var data = this.serialize();
     data.uuid = uuidv4();
     var copy = Wick.Base.fromData(data);
-    copy._childrenData = null; //if(!args.retainIdentifiers) copy._identifier = null;
-    // Copy children
+    copy._childrenData = null; // Copy children
 
     this.getChildren().forEach(child => {
-      copy.addChild(child.copy(args));
+      copy.addChild(child.copy());
     });
     return copy;
   }
@@ -66081,14 +66784,28 @@ Wick.Base = class {
 
 
   export() {
-    var copy = this.copy({
-      retainIdentifiers: true
+    var copy = this.copy();
+    copy._project = this.project; // the main object
+
+    var object = copy.serialize(); // children
+
+    var children = copy.getChildrenRecursive().map(child => {
+      return child.serialize();
+    }); // assets
+
+    var assets = [];
+    copy.getChildrenRecursive().concat(copy).forEach(child => {
+      child._project = copy._project;
+      child.getLinkedAssets().forEach(asset => {
+        assets.push(asset.serialize({
+          includeOriginalSource: true
+        }));
+      });
     });
     return {
-      object: copy.serialize(),
-      children: copy.getChildrenRecursive().map(child => {
-        return child.serialize();
-      })
+      object: object,
+      children: children,
+      assets: assets
     };
   }
   /**
@@ -66097,14 +66814,20 @@ Wick.Base = class {
    */
 
 
-  static import(exportData) {
+  static import(exportData, project) {
     if (!exportData) console.error('Wick.Base.import(): exportData is required');
     if (!exportData.object) console.error('Wick.Base.import(): exportData is missing data');
     if (!exportData.children) console.error('Wick.Base.import(): exportData is missing data');
-    var object = Wick.Base.fromData(exportData.object);
+    var object = Wick.Base.fromData(exportData.object); // Import children as well
+
     exportData.children.forEach(childData => {
       // Only need to call deserialize here, we just want the object to get added to ObjectCache
       var child = Wick.Base.fromData(childData);
+    }); // Also import linked assets
+
+    exportData.assets.forEach(assetData => {
+      var asset = Wick.Base.fromData(assetData);
+      project.addAsset(asset);
     });
     return object;
   }
@@ -66149,7 +66872,8 @@ Wick.Base = class {
     }
 
     if (!isVarName(identifier)) return;
-    this._identifier = identifier;
+    if (reserved.check(identifier)) return;
+    this._identifier = this._getUniqueIdentifier(identifier);
   }
   /**
    * The name of the object.
@@ -66352,6 +67076,11 @@ Wick.Base = class {
     });
   }
 
+  getLinkedAssets() {
+    // Implemented by Wick.Frame and Wick.Clip
+    return [];
+  }
+
   _generateView() {
     var viewClass = Wick.View[this.classname];
 
@@ -66392,7 +67121,7 @@ Wick.Base = class {
 
   _getUniqueIdentifier(identifier) {
     if (!this.parent) return identifier;
-    var otherIdentifiers = this.parent.getChildren('Clip', 'Frame', 'Button').filter(child => {
+    var otherIdentifiers = this.parent.getChildren(['Clip', 'Frame', 'Button']).filter(child => {
       return child !== this && child.identifier;
     }).map(child => {
       return child.identifier;
@@ -66911,7 +67640,9 @@ Wick.Project = class extends Wick.Base {
 
 
   addAsset(asset) {
-    this.addChild(asset);
+    if (this.assets.indexOf(asset) === -1) {
+      this.addChild(asset);
+    }
   }
   /**
    * Removes an asset from the project. Also removes all instances of that asset from the project.
@@ -66931,9 +67662,15 @@ Wick.Project = class extends Wick.Base {
 
 
   getAssetByUUID(uuid) {
-    return this.getAssets().find(asset => {
+    var asset = this.getAssets().find(asset => {
       return asset.uuid === uuid;
     });
+
+    if (asset) {
+      return asset;
+    } else {
+      console.warn('Wick.Project.getAssetByUUID: No asset found with uuid ' + uuid);
+    }
   }
   /**
    * Retrieve an asset from the project by its name.
@@ -67422,8 +68159,12 @@ Wick.Project = class extends Wick.Base {
     this.stopAllSounds();
     this.view.renderMode = 'svg';
     clearInterval(this._tickIntervalID);
-    this._tickIntervalID = null;
+    this._tickIntervalID = null; // Loading the snapshot to restore project state also moves the playhead back to where it was originally.
+    // We actually don't want this, preview play should actually move the playhead after it's stopped.
+
+    var currentPlayhead = this.focus.timeline.playheadPosition;
     this.history.loadSnapshot('state-before-play');
+    this.focus.timeline.playheadPosition = currentPlayhead;
   }
   /**
    * Resets zoom and pan.
@@ -68253,6 +68994,8 @@ Wick.Timeline = class extends Wick.Base {
     super.deserialize(data);
     this._playheadPosition = data.playheadPosition;
     this._activeLayerIndex = data.activeLayerIndex;
+    this._playing = true;
+    this._forceNextFrame = null;
   }
 
   get classname() {
@@ -68879,6 +69622,20 @@ Wick.Path = class extends Wick.Base {
       callback(path);
     };
   }
+  /**
+   * Create a path (synchronously) containing an image from an ImageAsset.
+   * @param {Wick.ImageAsset} asset - The asset from which the image src will be loaded from
+   */
+
+
+  static createImagePathSync(asset) {
+    var raster = new paper.Raster(asset.src);
+    raster.remove();
+    var path = new Wick.Path({
+      json: Wick.View.Path.exportJSON(raster)
+    });
+    return path;
+  }
 
   get classname() {
     return 'Path';
@@ -68887,7 +69644,20 @@ Wick.Path = class extends Wick.Base {
   serialize(args) {
     var data = super.serialize(args);
     data.json = this.json;
-    delete data.json[1].data;
+    delete data.json[1].data; // optimization: replace dataurls with asset uuids
+
+    if (data.json[0] === 'Raster' && data.json[1].source.startsWith('data:')) {
+      if (!this.project) {
+        console.warn('Could not replace raster image source with asset UUID, path does not belong to a project.');
+      } else {
+        this.project.getAssets('Image').forEach(imageAsset => {
+          if (imageAsset.src === data.json[1].source) {
+            data.json[1].source = 'asset:' + imageAsset.uuid;
+          }
+        });
+      }
+    }
+
     data.fontStyle = this._fontStyle;
     data.fontWeight = this._fontWeight;
     return data;
@@ -69134,6 +69904,23 @@ Wick.Path = class extends Wick.Base {
     return this.pathType === 'text' && this.identifier !== null;
   }
   /**
+   * The image asset that this path uses, if this path is a Raster path.
+   * @returns {Wick.Asset[]}
+   */
+
+
+  getLinkedAssets() {
+    var linkedAssets = [];
+    var data = this.serialize(); // just need the asset uuid...
+
+    if (data.json[0] === 'Raster') {
+      var uuid = data.json[1].source.split(':')[1];
+      linkedAssets.push(this.project.getAssetByUUID(uuid));
+    }
+
+    return linkedAssets;
+  }
+  /**
    * Removes this path from its parent frame.
    */
 
@@ -69284,6 +70071,11 @@ Wick.FileAsset = class extends Wick.Asset {
     data.filename = this.filename;
     data.MIMEType = this.MIMEType;
     data.fileExtension = this.fileExtension;
+
+    if (args && args.includeOriginalSource) {
+      data.originalSource = this.src;
+    }
+
     return data;
   }
 
@@ -69292,6 +70084,10 @@ Wick.FileAsset = class extends Wick.Asset {
     this.filename = data.filename;
     this.MIMEType = data.MIMEType;
     this.fileExtension = data.fileExtension;
+
+    if (data.originalSource) {
+      this.src = data.originalSource;
+    }
   }
 
   get classname() {
@@ -69433,8 +70229,24 @@ Wick.ImageAsset = class extends Wick.FileAsset {
   removeAllInstances() {} // TODO
 
   /**
+   * Load data in the asset
+   */
+
+
+  load(callback) {
+    // Try to get paper.js to cache the image src.
+    var img = new Image();
+    img.src = this.src;
+
+    img.onload = () => {
+      var raster = new paper.Raster(img);
+      raster.remove();
+      callback();
+    };
+  }
+  /**
    * Creates a new Wick Path that uses this asset's image data as it's image source.
-   * @returns {Wick.Path} - the newly created path.
+   * @param {function} callback - called when the path is done loading.
    */
 
 
@@ -70028,12 +70840,12 @@ GlobalAPI = class {
   }
   /**
    * @deprecated
-   * Legacy item which returns the parent object. Use 'parent' instead.
+   * Legacy item which returns the parent clip. Use 'parent' instead.
    */
 
 
   get parentObject() {
-    return this.parent;
+    return this.scriptOwner.parentClip;
   }
   /**
    * Returns the last key pressed down.
@@ -70694,6 +71506,16 @@ Wick.Tickable = class extends Wick.Base {
     var project = this.project;
     var root = project && project.root;
     window.project = root;
+
+    if (project) {
+      window.project.resolution = {
+        x: project.width,
+        y: project.height
+      };
+      window.project.framerate = project.framerate;
+      window.project.backgroundColor = project.backgroundColor;
+    }
+
     window.root = root;
     window.parent = this.parentClip;
     window.parentObject = this.parentObject; // Run the function
@@ -71053,6 +71875,25 @@ Wick.Frame = class extends Wick.Tickable {
     return this.inPosition(start) || this.inPosition(end) || this.start >= start && this.start <= end || this.end >= start && this.end <= end;
   }
   /**
+   * The number of frames that this frame is from a given playhead position.
+   * @param {number} playheadPosition
+   */
+
+
+  distanceFrom(playheadPosition) {
+    // playhead position is inside frame, distance is zero.
+    if (this.start <= playheadPosition && this.end >= playheadPosition) {
+      return 0;
+    } // otherwise, find the distance from the nearest end
+
+
+    if (this.start >= playheadPosition) {
+      return this.start - playheadPosition;
+    } else if (this.end <= playheadPosition) {
+      return playheadPosition - this.end;
+    }
+  }
+  /**
    * Add a clip to the frame.
    * @param {Wick.Clip} clip - the clip to add.
    */
@@ -71206,6 +72047,21 @@ Wick.Frame = class extends Wick.Tickable {
         tween.applyTransformsToClip(clip);
       });
     }
+  }
+  /**
+   * The asset of the sound attached to this frame, if one exists
+   * @returns {Wick.Asset[]}
+   */
+
+
+  getLinkedAssets() {
+    var linkedAssets = [];
+
+    if (this.sound) {
+      linkedAssets.push(this.sound);
+    }
+
+    return linkedAssets;
   }
 
   _onInactive() {
@@ -72228,28 +73084,15 @@ Wick.Tools.Brush = class extends Wick.Tool {
   onDeactivate(e) {}
 
   onMouseMove(e) {
-    super.onMouseMove(e); // Update croquis element and pressure options
+    super.onMouseMove(e);
 
-    if (!this.paper.view._element.parentElement.contains(this.croquisDOMElement)) {
-      this.paper.view.enablePressure();
-
-      this.paper.view._element.parentElement.appendChild(this.croquisDOMElement);
-    } // Update croquis element canvas size
-
-
-    if (this.croquis.getCanvasWidth() !== this.paper.view._element.width || this.croquis.getCanvasHeight() !== this.paper.view._element.height) {
-      this.croquis.setCanvasSize(this.paper.view._element.width, this.paper.view._element.height);
-    } // Generate new cursor
-
-
-    this._regenCursor(); // Fake brush opacity in croquis by changing the opacity of the croquis canvas
-
-
-    this.croquisDOMElement.style.opacity = this.getSetting('fillColor').alpha;
+    this._updateCanvasAttributes();
   }
 
   onMouseDown(e) {
-    // Update croquis params
+    this._updateCanvasAttributes(); // Update croquis params
+
+
     this.croquisBrush.setSize(this.getSetting('brushSize') + 1);
     this.croquisBrush.setColor(this.getSetting('fillColor').toCSS(true));
     this.croquisBrush.setSpacing(this.BRUSH_POINT_SPACING);
@@ -72353,6 +73196,26 @@ Wick.Tools.Brush = class extends Wick.Tool {
     var color = this.getSetting('fillColor').toCSS(true);
     this.cachedCursor = this.createDynamicCursor(color, size);
     this.setCursor(this.cachedCursor);
+  }
+
+  _updateCanvasAttributes() {
+    // Update croquis element and pressure options
+    if (!this.paper.view._element.parentElement.contains(this.croquisDOMElement)) {
+      this.paper.view.enablePressure();
+
+      this.paper.view._element.parentElement.appendChild(this.croquisDOMElement);
+    } // Update croquis element canvas size
+
+
+    if (this.croquis.getCanvasWidth() !== this.paper.view._element.width || this.croquis.getCanvasHeight() !== this.paper.view._element.height) {
+      this.croquis.setCanvasSize(this.paper.view._element.width, this.paper.view._element.height);
+    } // Generate new cursor
+
+
+    this._regenCursor(); // Fake brush opacity in croquis by changing the opacity of the croquis canvas
+
+
+    this.croquisDOMElement.style.opacity = this.getSetting('fillColor').alpha;
   }
 
 };
@@ -72679,15 +73542,7 @@ Wick.Tools.Cursor = class extends Wick.Tool {
         bottomLeft: 225,
         leftCenter: 270,
         topLeft: 315
-      }[this.hitResult.item.data.handleEdge]; // Flip angles if selection is flipped horizontally/vertically
-
-      /*if(this._selection.transformation.scaleX < 0) {
-          baseAngle = -baseAngle + 360;
-      }
-      if(this._selection.transformation.scaleY < 0) {
-          baseAngle = -baseAngle + 180;
-      }*/
-
+      }[this.hitResult.item.data.handleEdge];
       var angle = baseAngle + this._widget.rotation; // It makes angle math easier if we dont allow angles >360 or <0 degrees:
 
       if (angle < 0) angle += 360;
@@ -72990,9 +73845,6 @@ Wick.Tools.Eyedropper = class extends Wick.Tool {
     super();
     this.name = 'eyedropper';
     this.canvasCtx = null;
-    this.hoverColor = null;
-    this.colorPreviewBorder = null;
-    this.colorPreview = null;
   }
   /**
    *
@@ -73004,52 +73856,32 @@ Wick.Tools.Eyedropper = class extends Wick.Tool {
     return 'url(cursors/eyedropper.png) 32 32, auto';
   }
 
-  onActivate(e) {
-    this.canvasCtx = this.paper.view._element.getContext('2d');
-  }
+  onActivate(e) {}
 
-  onDeactivate(e) {
-    this._destroyColorPreview();
-  }
+  onDeactivate(e) {}
 
   onMouseDown(e) {
-    this._destroyColorPreview();
-
+    var canvas = this.paper.view._element;
+    var ctx = canvas.getContext('2d');
     var pointPx = this.paper.view.projectToView(e.point);
-    pointPx.x = Math.round(pointPx.x);
-    pointPx.y = Math.round(pointPx.y);
-    var colorData = this.canvasCtx.getImageData(pointPx.x, pointPx.y, 1, 1).data;
-    this.hoverColor = 'rgb(' + colorData[0] + ',' + colorData[1] + ',' + colorData[2] + ')';
+    pointPx.x = Math.round(pointPx.x) * window.devicePixelRatio;
+    pointPx.y = Math.round(pointPx.y) * window.devicePixelRatio;
+    var colorData = ctx.getImageData(pointPx.x, pointPx.y, 1, 1).data;
+    var colorCSS = 'rgb(' + colorData[0] + ',' + colorData[1] + ',' + colorData[2] + ')';
+    var color = new paper.Color(colorCSS);
 
-    this._createColorPreview(e.point);
+    if (!e.modifiers.shift) {
+      this.project.toolSettings.setSetting('fillColor', colorCSS);
+    } else {
+      this.project.toolSettings.setSetting('strokeColor', colorCSS);
+    }
+
+    this.fireEvent('canvasModified');
   }
 
   onMouseDrag(e) {}
 
   onMouseUp(e) {}
-
-  _createColorPreview(point) {
-    var offset = 10 / this.paper.view.zoom;
-    var center = point.add(new paper.Point(offset + 0.5, offset + 0.5));
-    var radius = 10 / paper.view.zoom;
-    var size = new paper.Size(radius, radius);
-    this.colorPreviewBorder = new this.paper.Path.Rectangle(center, size);
-    this.colorPreviewBorder.strokeColor = 'white';
-    this.colorPreviewBorder.strokeWidth = 3.0 / this.paper.view.zoom;
-    this.colorPreview = new this.paper.Path.Rectangle(center, size);
-    this.colorPreview.fillColor = hoverColor;
-    this.colorPreview.strokeColor = 'black';
-    this.colorPreview.strokeWidth = 1.0 / this.paper.view.zoom;
-  }
-
-  _destroyColorPreview() {
-    if (this.colorPreview) {
-      this.colorPreview.remove();
-      this.colorPreview = null;
-      this.colorPreviewBorder.remove();
-      this.colorPreviewBorder = null;
-    }
-  }
 
 };
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
@@ -73604,8 +74436,6 @@ Wick.Tools.Zoom = class extends Wick.Tool {
   constructor() {
     super();
     this.name = 'zoom';
-    this.ZOOM_MIN = 0.1;
-    this.ZOOM_MAX = 20;
     this.ZOOM_IN_AMOUNT = 1.25;
     this.ZOOM_OUT_AMOUNT = 0.8;
     this.zoomBox = null;
@@ -73644,13 +74474,6 @@ Wick.Tools.Zoom = class extends Wick.Tool {
     }
 
     this.deleteZoomBox();
-
-    if (this.paper.view.zoom <= this.ZOOM_MIN) {
-      this.paper.view.zoom = this.ZOOM_MIN;
-    } else if (this.paper.view.zoom >= this.ZOOM_MAX) {
-      this.paper.view.zoom = this.ZOOM_MAX;
-    }
-
     this.fireEvent('canvasViewTransformed');
   }
 
@@ -74785,8 +75608,14 @@ class SelectionWidget {
       outline.remove();
       outline.fillColor = 'rgba(0,0,0,0)';
       outline.strokeColor = SelectionWidget.GHOST_STROKE_COLOR;
-      outline.strokeWidth = SelectionWidget.GHOST_STROKE_WIDTH;
+      outline.strokeWidth = SelectionWidget.GHOST_STROKE_WIDTH * 2;
       ghost.addChild(outline);
+      var outline2 = outline.clone();
+      outline2.remove();
+      outline2.fillColor = 'rgba(0,0,0,0)';
+      outline2.strokeColor = '#ffffff';
+      outline2.strokeWidth = SelectionWidget.GHOST_STROKE_WIDTH;
+      ghost.addChild(outline2);
     });
 
     var boundsOutline = new paper.Path.Rectangle({
@@ -75403,6 +76232,18 @@ Wick.View.Project = class extends Wick.View {
   static get ORIGIN_CROSSHAIR_THICKNESS() {
     return 1;
   }
+
+  static get ZOOM_MIN() {
+    return 0.1;
+  }
+
+  static get ZOOM_MAX() {
+    return 10.0;
+  }
+
+  static get PAN_LIMIT() {
+    return 10000;
+  }
   /*
    * Create a new Project View.
    */
@@ -75656,6 +76497,17 @@ Wick.View.Project = class extends Wick.View {
   }
 
   _setupTools() {
+    // This is a hacky way to create scroll-to-zoom functionality.
+    // (Using https://github.com/jquery/jquery-mousewheel for cross-browser mousewheel event)
+    var _scrollTimeout = null;
+    $(this._svgCanvas).on('mousewheel', e => {
+      e.preventDefault();
+      var d = e.deltaY * e.deltaFactor * 0.001;
+      this.paper.view.zoom = Math.max(0.1, this.paper.view.zoom + d);
+
+      this._applyZoomAndPanChangesFromPaper();
+    });
+
     for (var toolName in this.model.tools) {
       var tool = this.model.tools[toolName];
       tool.project = this.model;
@@ -75664,12 +76516,8 @@ Wick.View.Project = class extends Wick.View {
         this.fireEvent('canvasModified', e);
       });
       tool.on('canvasViewTransformed', e => {
-        this.model.pan = {
-          x: this.pan.x,
-          y: this.pan.y
-        };
-        this.zoom = this.paper.view.zoom;
-        this.model.zoom = this.zoom;
+        this._applyZoomAndPanChangesFromPaper();
+
         this.fireEvent('canvasModified', e);
       });
       tool.on('error', e => {
@@ -75994,6 +76842,23 @@ Wick.View.Project = class extends Wick.View {
 
   _onMouseUp() {
     this._isMouseDown = false;
+  }
+
+  _applyZoomAndPanChangesFromPaper() {
+    // limit zoom to min and max
+    this.paper.view.zoom = Math.min(Wick.View.Project.ZOOM_MAX, this.paper.view.zoom);
+    this.paper.view.zoom = Math.max(Wick.View.Project.ZOOM_MIN, this.paper.view.zoom); // limit pan
+
+    this.pan.x = Math.min(Wick.View.Project.PAN_LIMIT, this.pan.x);
+    this.pan.x = Math.max(-Wick.View.Project.PAN_LIMIT, this.pan.x);
+    this.pan.y = Math.min(Wick.View.Project.PAN_LIMIT, this.pan.y);
+    this.pan.y = Math.max(-Wick.View.Project.PAN_LIMIT, this.pan.y);
+    this.model.pan = {
+      x: this.pan.x,
+      y: this.pan.y
+    };
+    this.zoom = this.paper.view.zoom;
+    this.model.zoom = this.zoom;
   }
 
   _uuidsAreDifferent(uuids1, uuids2) {
@@ -76464,15 +77329,17 @@ Wick.View.Layer = class extends Wick.View {
         frame.view.render();
         this.onionSkinnedFramesLayers.push(frame.view.pathsLayer);
         this.onionSkinnedFramesLayers.push(frame.view.clipsLayer);
-        var onionMult = 1;
+        var seek = 0;
 
         if (frame.midpoint < playheadPosition) {
-          var onionMult = 1 - (playheadPosition - frame.midpoint - 1) / onionSkinSeekBackwards;
+          seek = onionSkinSeekBackwards;
         } else if (frame.midpoint > playheadPosition) {
-          var onionMult = 1 - (frame.midpoint - playheadPosition - 1) / onionSkinSeekForwards;
+          seek = onionSkinSeekForwards;
         }
 
-        onionMult = Math.min(1, onionMult);
+        var dist = frame.distanceFrom(playheadPosition);
+        var onionMult = (seek - dist + 1) / seek;
+        onionMult = Math.min(1, Math.max(0, onionMult));
         var opacity = onionMult * Wick.View.Layer.BASE_ONION_OPACITY;
         frame.view.clipsLayer.locked = true;
         frame.view.pathsLayer.locked = true;
@@ -76713,11 +77580,11 @@ Wick.View.Frame = class extends Wick.View {
       hideDynamicText: true
     });
 
-    var rasterResoltion = this.paper.view.resolution;
-    rasterResoltion *= Wick.View.Frame.RASTERIZE_RESOLUTION_MODIFIER_FOR_DEVICE; // get a rasterized version of the resulting SVG
+    var rasterResolution = this.paper.view.resolution;
+    rasterResolution *= Wick.View.Frame.RASTERIZE_RESOLUTION_MODIFIER_FOR_DEVICE; // get a rasterized version of the resulting SVG
 
     this.pathsLayer.opacity = 1;
-    var raster = this.pathsLayer.rasterize(rasterResoltion, false);
+    var raster = this.pathsLayer.rasterize(rasterResolution, false);
     this._SVGBounds = {
       x: this.pathsLayer.bounds.x,
       y: this.pathsLayer.bounds.y
@@ -76862,6 +77729,7 @@ Wick.View.Path = class extends Wick.View {
   render() {
     if (!this.model.json) {
       console.warn('Path ' + this.model.uuid + ' is missing path JSON.');
+      return;
     }
 
     this.importJSON(this.model.json);
@@ -76873,7 +77741,39 @@ Wick.View.Path = class extends Wick.View {
 
 
   importJSON(json) {
-    // Import JSON data into paper.js
+    // Don't try to render rasters if there's no project attached - too dangerous!
+    // (asset image sources may not be able to be retrieved)
+    if (json[0] === 'Raster' && !json[1].source.startsWith('data') && !this.model.project) {
+      return;
+    } // Backwards compatibility check for old raster formats:
+
+
+    if (json[0] === 'Raster' && this.model.project) {
+      if (json[1].source.startsWith('data')) {
+        // Bug: Raw dataURL was saved, need find asset with that data
+        this.model.project.getAssets('Image').forEach(imageAsset => {
+          if (imageAsset.src === json[1].source) {
+            json[1].source = 'asset:' + imageAsset.uuid;
+          }
+        });
+      } else if (json[1].source.startsWith('asset:')) {// Current format, no fix needed
+      } else if (json[1].source === 'asset') {
+        // Old format: Asset UUID is stored in 'data'
+        json[1].source = 'asset:' + (json[1].asset || json[1].data.asset);
+      } else {
+        console.error('WARNING: raster source format not recognized:');
+        console.log(json);
+        return;
+      }
+    } // Get image source from assets
+
+
+    if (json[0] === 'Raster' && json[1].source.startsWith('asset:')) {
+      var assetUUID = json[1].source.split(':')[1];
+      json[1].source = this.model.project.getAssetByUUID(assetUUID).src;
+    } // Import JSON data into paper.js
+
+
     this._item = this.paper.importJSON(json);
 
     this._item.remove(); // Check if we need to recover the UUID from the paper path
@@ -76906,9 +77806,11 @@ Wick.View.Path = class extends Wick.View {
 
 
   static exportJSON(item) {
-    return item.exportJSON({
+    var json = item.exportJSON({
       asString: false
-    });
+    }); // TODO replace src dataURL with asset:uuid here.
+
+    return json;
   }
 
 };
@@ -79020,12 +79922,13 @@ Wick.GUIElement.LayerLabel = class extends Wick.GUIElement.Draggable {
     this.item.addChild(this.lockButton.item); // Layer name
 
     var layerName = new paper.PointText({
-      point: [30, this.height / 2 + Wick.GUIElement.LAYER_LABEL_MARGIN_TOP_BOTTOM],
+      point: [30, this.height / 2 + 6],
+      // TODO: Create global variable for layer name position.
       content: this.model.name,
       fillColor: this.model.isActive ? Wick.GUIElement.LAYER_LABEL_ACTIVE_FONT_COLOR : Wick.GUIElement.LAYER_LABEL_INACTIVE_FONT_COLOR,
       fontFamily: Wick.GUIElement.LAYER_LABEL_FONT_FAMILY,
       fontWeight: 'bold',
-      fontSize: 18,
+      fontSize: 16,
       opacity: 0.6,
       pivot: new paper.Point(0, 0)
     });

@@ -181,7 +181,9 @@ class Wick152ProjectConverter {
         var convertedLayer = new Wick.Layer();
 
         // Layer attributes
-        convertedLayer.name = layer.name;
+        convertedLayer.name = layer.identifier;
+        convertedLayer.identifier = layer.identifier;
+
         convertedLayer.locked = layer.locked;
         convertedLayer.hidden = layer.hidden;
 
@@ -201,7 +203,36 @@ class Wick152ProjectConverter {
         var convertedFrame = new Wick.Frame();
 
         // Frame attributes
-        convertedFrame.identifier = frame.name;
+
+        // Attempt to convert frame names to valid variable names.
+
+        console.log("Frame Name", frame.name);
+
+        if (frame.name !== "New Frame") {
+            let splitFrameName = frame.name.split(/[ ,]+/);
+            let pieces = [];
+            splitFrameName.forEach ( str => {
+                let cleanString = str.replace(/\W/g, ''); // Remove non alpha-numeric characters
+                let upperString = cleanString.charAt(0).toUpperCase() + cleanString.slice(1); // Capitalize first letter.
+                pieces.push( upperString ); 
+             }); 
+    
+            var finalFrameName = pieces.join("");
+            // Determine if first character is legal
+            let re = RegExp("[a-zA-Z_]"); 
+
+            console.log("Final Frame Name: ", finalFrameName);
+            if (!re.test(finalFrameName.charAt(0))) {
+                console.log("TestedPositive");
+                finalFrameName = "_" + finalFrameName; 
+            }
+        } else {
+            var finalFrameName = '';
+        }
+
+        console.log("Converted to:", finalFrameName); 
+
+        convertedFrame.identifier = finalFrameName;
         convertedFrame.start = frame.playheadPosition + 1;
         convertedFrame.end = frame.playheadPosition + frame.length;
         convertedFrame._soundAssetUUID = frame.audioAssetUUID;
@@ -300,15 +331,16 @@ class Wick152ProjectConverter {
      */
     static convertImage (image, convertedProject) {
         // Find asset in convertedProject asset library
-        var asset = convertedProject.getAsset(image.assetUUID);
+        var asset = convertedProject.getAssetByUUID(image.assetUUID);
 
         // Create instance of that asset
-        var convertedImage = asset.createInstance();
-        convertedImage.paperPath.position.x = image.x;
-        convertedImage.paperPath.position.y = image.y;
-        convertedImage.paperPath.rotation = image.rotation;
-        convertedImage.paperPath.scaling.x = image.scaleX;
-        convertedImage.paperPath.scaling.y = image.scaleY;
+        var convertedImage = Wick.Path.createImagePathSync(asset);
+        convertedImage.view.item.position.x = image.x;
+        convertedImage.view.item.position.y = image.y;
+        convertedImage.view.item.rotation = image.rotation;
+        convertedImage.view.item.scaling.x = image.scaleX;
+        convertedImage.view.item.scaling.y = image.scaleY;
+        convertedImage.json = convertedImage.view.exportJSON();
         return convertedImage;
     }
 
