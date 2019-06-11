@@ -1,0 +1,396 @@
+/*
+ * Copyright 2018 WICKLETS LLC
+ *
+ * This file is part of Wick Editor.
+ *
+ * Wick Editor is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Wick Editor is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Wick Editor.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+@import 'Editor/_wickbrand.scss';
+
+$action-button-transition-duration: .2s;
+
+.action-button {
+  width: 100%;
+  height: 100%;
+}
+
+.action-button-text {
+  height: 100%;
+  text-align: center;
+  display: flex;
+  align-items: center;
+}
+
+// Button color schemes
+.action-button-blue {
+  -webkit-transition-duration: $action-button-transition-duration; /* Safari */
+  transition-duration: $action-button-transition-duration;
+
+  background-color: $deep-cereulian;
+  color: $deep-cereulian-text;
+}
+
+.action-button-blue:hover {
+  background-color: $deep-cereulian-light;
+  color: $deep-cereulian-text;
+}
+
+.action-button-blue:active {
+  background-color: $deep-cereulian-dark;
+  color: $deep-cereulian-text;
+}
+
+.action-button-blue.active-button {
+  background-color: $deep-cereulian-dark;
+  color: $deep-cereulian-text;
+}
+
+.action-button-sky {
+  -webkit-transition-duration: $action-button-transition-duration; /* Safari */
+  transition-duration: $action-button-transition-duration;
+
+  background-color: $sleepy-sky-dark;
+  color: $sleepy-sky-text;
+}
+
+.action-button-sky:hover {
+  background-color: $sleepy-sky;
+  color: $sleepy-sky-text;
+}
+
+.action-button-sky:active {
+  background-color: $sleepy-sky-light;
+  color: $sleepy-sky-text;
+}
+
+.action-button-sky.active-button {
+  background-color: $sleepy-sky-light;
+  color: $sleepy-sky-text;
+}
+
+.action-button-red {
+  -webkit-transition-duration: $action-button-transition-duration; /* Safari */
+  transition-duration: $action-button-transition-duration;
+
+  background-color: $wick-red;
+  color: $wick-red-text;
+}
+
+.action-button-red:hover {
+  background-color: $wick-red-light;
+  color: $wick-red-text;
+}
+
+.action-button-red:active {
+  background-color: $wick-red-dark;
+  color: $wick-red-text;
+}
+
+.action-button-red.active-button {
+  background-color: $wick-red-dark;
+  color: $wick-red-text;
+}
+
+.action-button-green {
+  -webkit-transition-duration: $action-button-transition-duration; /* Safari */
+  transition-duration: $action-button-transition-duration;
+
+  background-color: $wick-green;
+  color: $wick-green-text;
+}
+
+.action-button-green:hover {
+  background-color: $wick-green-light;
+  color: $wick-green-text;
+}
+
+.action-button-green:active {
+  background-color: $wick-green-dark;
+  color: $wick-green-text;
+}
+
+.action-button-green.active-button {
+  background-color: $wick-green-dark;
+  color: $wick-green-text;
+}
+
+.action-button-yellow {
+  -webkit-transition-duration: $action-button-transition-duration; /* Safari */
+  transition-duration: $action-button-transition-duration;
+
+  background-color: $wick-yellow;
+  color: $wick-yellow-text;
+}
+
+.action-button-yellow:hover {
+  background-color: $wick-yellow-light;
+  color: $wick-yellow-text;
+}
+
+.action-button-yellow:active {
+  background-color: $wick-yellow-dark;
+  color: $wick-yellow-text;
+}
+
+.action-button-yellow.active-button {
+  background-color: $wick-yellow-dark;
+  color: $wick-yellow-text;
+}
+
+.action-button-tool {
+  -webkit-transition-duration: $action-button-transition-duration; /* Safari */
+  transition-duration: $action-button-transition-duration;
+
+  background-color: $editor-primary;
+  color: black;
+}
+
+.action-button-tool:hover {
+  background-color: $wick-green-light;
+  color: black;
+  * {
+  filter:brightness(0.25);}}
+
+.action-button-tool:active {
+  background-color: $wick-green-dark;
+  color: black;
+  * {
+  filter:brightness(0.25);}}
+
+.action-button-tool.active-button {
+  background-color: $wick-green-dark;
+  color: black;
+}
+
+.action-button-menu {
+  -webkit-transition-duration: $action-button-transition-duration; /* Safari */
+  transition-duration: $action-button-transition-duration;
+
+  background-color: $editor-primary;
+  color: $editor-menubar-option-text;
+}
+
+.action-button-menu:hover {
+  color: $editor-menubar-project-text;
+}
+
+.action-button-menu:active {
+  color: $editor-menubar-project-text;
+}
+
+.action-button-menu.active-button {
+  color: $editor-menubar-project-text;
+}
+
+.action-button-menu.save {
+  -webkit-transition-duration: $action-button-transition-duration; /* Safari */
+  transition-duration: $action-button-transition-duration;
+
+  background-color: $editor-primary;
+  color: $wick-green;
+  border: 2px solid $wick-green;
+}
+
+.action-button-tool-settings {
+  -webkit-transition-duration: $action-button-transition-duration; /* Safari */
+  transition-duration: $action-button-transition-duration;
+
+  background-color: $editor-secondary;
+  color: $editor-secondary-text;
+}
+
+.action-button-tool-settings:hover {
+  background-color: $editor-tertiary;
+  color: $editor-primary-property-text;
+}
+
+.action-button-tool-settings:active {
+  background-color: $editor-tertiary;
+}
+
+.action-button-tool-settings.active-button {
+  background-color: $editor-tertiary;
+}
+
+.action-button-upload {
+  -webkit-transition-duration: $action-button-transition-duration; /* Safari */
+  transition-duration: $action-button-transition-duration;
+
+  background-color: $editor-primary;
+  color: $editor-primary-property-text;
+  border: 2px solid $editor-primary-property-text;
+  font-size: 16px;
+}
+
+.action-button-upload:hover {
+  background-color: $wick-green-light;
+  color: $wick-green-dark;
+  border: 2px solid $wick-green-light;
+}
+
+.action-button-upload:active {
+  background-color: $wick-green;
+  color: $wick-green-dark;
+  border: 2px solid $wick-green;
+}
+
+.action-button-upload.active-button {
+  background-color: $wick-green-light;
+  color: $wick-green-dark;
+  border: 2px solid $wick-green-light;
+}
+
+.action-button-gray {
+  -webkit-transition-duration: $action-button-transition-duration; /* Safari */
+  transition-duration: $action-button-transition-duration;
+
+  background-color: $wick-gray;
+  color: $wick-gray-text;
+  font-size: 16px;
+}
+
+.action-button-gray:hover {
+  background-color: $wick-gray-light;
+  color: $wick-gray-text;
+}
+
+.action-button-gray:active {
+  background-color: $wick-gray-dark;
+  color: $wick-gray-text;
+}
+
+.action-button-gray.active-button {
+  background-color: $wick-gray-dark;
+  color: $wick-gray-text;
+}
+
+.action-button-gray-green {
+  -webkit-transition-duration: $action-button-transition-duration; /* Safari */
+  transition-duration: $action-button-transition-duration;
+
+  background-color: $wick-gray;
+  color: white;
+  font-size: 16px;
+}
+
+.action-button-gray-green:hover {
+  background-color: $wick-green;
+  color: white;
+}
+
+.action-button-gray-green:active {
+  background-color: $wick-green-dark;
+  color: white;
+}
+
+.action-button-gray-green.active-button {
+  background-color: $wick-green-dark;
+  color: white;
+}
+
+.action-button-error {
+  -webkit-transition-duration: $action-button-transition-duration; /* Safari */
+  transition-duration: $action-button-transition-duration;
+
+  background-color: transparent;
+  color: white;
+  font-size: 16px;
+}
+
+.action-button-error:hover {
+  background-color: $wick-error-red-light;
+  color: white;
+}
+
+.action-button-error:active {
+  background-color: $wick-error-red-dark;
+  color: white;
+}
+
+.action-button-error.active-button {
+  background-color: $wick-error-red-dark;
+  color: white;
+}
+
+.action-button-checkbox {
+  -webkit-transition-duration: $action-button-transition-duration; /* Safari */
+  transition-duration: $action-button-transition-duration;
+
+  background-color: $editor-secondary;
+  color: black;
+}
+
+.action-button-checkbox:hover {
+  background-color: $editor-tertiary;
+  color: black;
+}
+
+.action-button-checkbox:active {
+  background-color: $wick-green-dark;
+  color: black;
+}
+
+.action-button-checkbox.active-button {
+  background-color: $wick-green-dark;
+  color: black;
+}
+
+.action-button-inspector {
+  -webkit-transition-duration: $action-button-transition-duration; /* Safari */
+  transition-duration: $action-button-transition-duration;
+
+  background-color: $wick-active-blue;
+  color: white;
+  font-size: 16px;
+}
+
+.action-button-inspector:hover {
+  background-color: $wick-active-blue-light;
+  color: white;
+}
+
+.action-button-inspector:active {
+  background-color: $wick-active-blue-dark;
+  color: white;
+}
+
+.action-button-inspector.active-button {
+  background-color: $wick-active-blue-dark;
+  color: white;
+}
+
+.action-button-reference {
+  -webkit-transition-duration: $action-button-transition-duration; /* Safari */
+  transition-duration: $action-button-transition-duration;
+
+  background-color: $editor-popout-secondary;
+  color: $editor-popout-secondary-text;
+  font-size: 16px;
+}
+
+.action-button-reference:hover {
+  background-color: $wick-active-blue;
+  color: white;
+}
+
+.action-button-reference:active {
+  background-color: $wick-active-blue-dark;
+  color: white;
+}
+
+.action-button-reference.active-button {
+  background-color: $wick-active-blue-dark;
+  color: white;
+}
