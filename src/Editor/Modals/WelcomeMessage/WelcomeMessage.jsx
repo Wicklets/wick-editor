@@ -28,7 +28,7 @@ import nightImage from 'resources/interface-images/blue_night.svg';
 
 class WelcomeModal extends Component {
   getVersion() {
-    return "v8.6"
+    return "v9.0"
   }
 
   render() {
@@ -49,13 +49,13 @@ class WelcomeModal extends Component {
             <div id="welcome-modal-subtitle" className="welcome-modal-item">Alpha {this.getVersion()} includes:</div>
             <div id="welcome-modal-message" className="welcome-modal-item">
               <ul>
-                <li>Dynamic Text and 160 New Fonts</li>
-                <li>Advanced Code API, Including Clone</li>
-                <li>New Inspector Script Window</li>
-                <li>Faster Selection, Undo/Redo, Autosave</li>
-                <li>New Export Menu, Tool Settings</li>
-                <li>Interactive Code Reference</li>
-                <li>Tweens</li>
+                <li>New Eyedropper Tool!</li>
+                <li>Scroll to Zoom</li>
+                <li>Brush works on touch screens</li>
+                <li>Images now drop on correct location</li>
+                <li>Fixed loading screen on export</li>
+                <li>Legacy project converter fixes</li>
+                <li>Onion Skinning Bug Fixes</li>
               </ul>
             </div>
             <div id="welcome-modal-tutorial-links" className="welcom-modal-item">
