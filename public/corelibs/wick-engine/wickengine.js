@@ -73335,7 +73335,7 @@ Wick.Tools.Cursor = class extends Wick.Tool {
       if (e.modifiers.shift) {
         this._deselectItem(this.hitResult.item);
 
-        this.fireEvent('canvasModified');
+        this._checkIfSelectionChanged();
       }
     } else if (this.hitResult.item && this.hitResult.type === 'fill') {
       if (!e.modifiers.shift) {
@@ -73346,7 +73346,7 @@ Wick.Tools.Cursor = class extends Wick.Tool {
 
       this._selectItem(this.hitResult.item);
 
-      this.fireEvent('canvasModified');
+      this._checkIfSelectionChanged();
     } else if (this.hitResult.item && this.hitResult.type === 'curve') {
       // Clicked a curve, start dragging it
       this.draggingCurve = this.hitResult.location.curve;
@@ -73356,7 +73356,7 @@ Wick.Tools.Cursor = class extends Wick.Tool {
       if (this._selection.numObjects > 0 && !e.modifiers.shift) {
         this._clearSelection();
 
-        this.fireEvent('canvasModified');
+        this._checkIfSelectionChanged();
       }
 
       this.selectionBox.start(e.point);
@@ -73445,11 +73445,14 @@ Wick.Tools.Cursor = class extends Wick.Tool {
       }).forEach(item => {
         this._selectItem(item);
       });
-      this.fireEvent('canvasModified');
-    } else if (this._selection.numObjects > 0) {
-      this._widget.finishTransformation();
 
-      this.fireEvent('canvasModified');
+      this._checkIfSelectionChanged();
+    } else if (this._selection.numObjects > 0) {
+      if (this.hitResult.item.data.isSelectionBoxGUI) {
+        this._widget.finishTransformation();
+
+        this.fireEvent('canvasModified');
+      }
     } else if (this.hitResult.type === 'segment' || this.hitResult.type === 'curve') {
       this.fireEvent('canvasModified');
     }
@@ -73635,6 +73638,20 @@ Wick.Tools.Cursor = class extends Wick.Tool {
     }
 
     return Wick.ObjectCache.getObjectByUUID(uuid);
+  }
+
+  _checkIfSelectionChanged() {
+    var newSelectionData = this._createSelectionData();
+
+    if (newSelectionData !== this._lastSelection) {
+      this.fireEvent('canvasModified');
+    }
+
+    this._lastSelection = newSelectionData;
+  }
+
+  _createSelectionData() {
+    return this._selection.getSelectedObjectUUIDs().join('');
   }
 
 };
@@ -75582,6 +75599,7 @@ class SelectionWidget {
       strokeColor: SelectionWidget.PIVOT_STROKE_COLOR
     });
 
+    handle.locked = true;
     return handle;
   }
 

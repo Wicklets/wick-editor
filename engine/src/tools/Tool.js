@@ -163,7 +163,7 @@ Wick.Tool = class {
     fireEvent (eventName, e) {
         if(!e) e = {};
         if(!e.layers) {
-          e.layers = [this.paper.project.activeLayer];
+            e.layers = [this.paper.project.activeLayer];
         }
         var fn = this._eventCallbacks[eventName];
         fn && fn(e);
