@@ -73381,6 +73381,7 @@ Wick.Tools.Cursor = class extends Wick.Tool {
 
   onMouseDrag(e) {
     if (!e.modifiers) e.modifiers = {};
+    this.__isDragging = true;
 
     if (this.hitResult.item && this.hitResult.item.data.isSelectionBoxGUI) {
       // Update selection drag
@@ -73427,6 +73428,8 @@ Wick.Tools.Cursor = class extends Wick.Tool {
 
       this.hoverPreview.segments[0].handleOut = this.draggingCurve.handle1;
       this.hoverPreview.segments[1].handleIn = this.draggingCurve.handle2;
+    } else {
+      this.__isDragging = false;
     }
   }
 
@@ -73448,7 +73451,9 @@ Wick.Tools.Cursor = class extends Wick.Tool {
 
       this._checkIfSelectionChanged();
     } else if (this._selection.numObjects > 0) {
-      if (this.hitResult.item.data.isSelectionBoxGUI) {
+      if (this.__isDragging) {
+        this.__isDragging = false;
+
         this._widget.finishTransformation();
 
         this.fireEvent('canvasModified');
@@ -74002,6 +74007,7 @@ Wick.Tools.FillBucket = class extends Wick.Tool {
               path.fillColor = this.getSetting('fillColor');
               path.name = null;
               this.paper.project.activeLayer.addChild(path);
+              this.paper.OrderingUtils.sendToBack([path]);
               this.fireEvent('canvasModified');
             }
           },
@@ -74777,10 +74783,10 @@ Wick.Tools.Zoom = class extends Wick.Tool {
   var floodFillProcessedImage;
   var resultHolePath;
   var N_RASTER_CLONE = 1;
-  var RASTER_BASE_RESOLUTION = 1.75;
+  var RASTER_BASE_RESOLUTION = 1.9;
   var FILL_TOLERANCE = 35;
   var CLONE_WIDTH_SHRINK = 1.0;
-  var SHRINK_AMT = 2.5;
+  var SHRINK_AMT = 0.85;
 
   function tryToChangeColorOfExistingShape() {}
 

@@ -169,6 +169,8 @@ Wick.Tools.Cursor = class extends Wick.Tool {
     onMouseDrag (e) {
         if(!e.modifiers) e.modifiers = {};
 
+        this.__isDragging = true;
+
         if(this.hitResult.item && this.hitResult.item.data.isSelectionBoxGUI) {
             // Update selection drag
             if(!this._widget.currentTransformation) {
@@ -212,6 +214,8 @@ Wick.Tools.Cursor = class extends Wick.Tool {
             // Update the hover preview to match the curve we just changed
             this.hoverPreview.segments[0].handleOut = this.draggingCurve.handle1;
             this.hoverPreview.segments[1].handleIn = this.draggingCurve.handle2;
+        } else {
+            this.__isDragging = false;
         }
     }
 
@@ -231,7 +235,8 @@ Wick.Tools.Cursor = class extends Wick.Tool {
             });
             this._checkIfSelectionChanged();
         } else if (this._selection.numObjects > 0) {
-            if(this.hitResult.item.data.isSelectionBoxGUI) {
+            if(this.__isDragging) {
+                this.__isDragging = false;
                 this._widget.finishTransformation();
                 this.fireEvent('canvasModified');
             }
