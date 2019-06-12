@@ -73879,6 +73879,8 @@ Wick.Tools.Eyedropper = class extends Wick.Tool {
   }
 
   onMouseDown(e) {
+    this._destroyColorPreview();
+
     if (!e.modifiers.shift) {
       this.project.toolSettings.setSetting('fillColor', this.hoverColor);
     } else {
@@ -73890,7 +73892,9 @@ Wick.Tools.Eyedropper = class extends Wick.Tool {
 
   onMouseDrag(e) {}
 
-  onMouseUp(e) {}
+  onMouseUp(e) {
+    this._createColorPreview(e.point);
+  }
 
   _createColorPreview(point) {
     this._destroyColorPreview();
