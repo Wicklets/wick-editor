@@ -1,12 +1,11 @@
 <?xml version='1.0' encoding='utf-8'?>
-<svg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px'
-	 viewBox='0 0 22 27.1' style='enable-background:new 0 0 22 27.1;' xml:space='preserve'>
-<title>Text</title>
-<defs>
-  <linearGradient id='g' x1='0' x2='1' y1='0' y2='1'>
-    <stop offset='0' stop-color='#fff'/>
-    <stop offset='1' stop-color='#ccc'/>
-  </linearGradient>
-</defs>
-<path d='M21.9,24.3L12.9,1.3c-0.4-1.1-1.6-1.6-2.7-1.2c-0.5,0.2-1,0.6-1.2,1.2l-8.9,23C0,24.6,0,24.8,0,25.1c0,0.5,0.2,1.1,0.6,1.5c0.7,0.7,1.8,0.8,2.6,0.2c0.4-0.2,0.6-0.6,0.8-1l2.5-6.3h9.1l2.5,6.3c0.4,1.1,1.6,1.6,2.7,1.2c0.3-0.1,0.5-0.3,0.7-0.5c0.4-0.4,0.6-0.9,0.6-1.5C22,24.8,21.9,24.5,21.9,24.3zM13.9,15.3H8.1L11,7.7L13.9,15.3z' fill='url(#g)'/>
+<svg version='1.1' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'>
+  <title>Text</title>
+  <defs>
+    <linearGradient id='g' x1='0' x2='1' y1='0' y2='1'>
+      <stop offset='0' stop-color='#fff'/>
+      <stop offset='1' stop-color='#ccc'/>
+    </linearGradient>
+  </defs>
+  <path d='M4 29L16 3L28 29M9 22h14z' stroke='url(#g)' fill='none' stroke-width='6' stroke-linecap='round' stroke-linejoin='round'/>
 </svg>
