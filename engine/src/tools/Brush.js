@@ -36,9 +36,8 @@ Wick.Tools.Brush = class extends Wick.Tool {
 
         this.lastPressure;
 
-        this.brushStabilizerLevel = 3;
-        this.brushStabilizerWeight = 0.5;
-        this.potraceResolution = 1.0;
+        this.BRUSH_STABILIZER_LEVEL = 3;
+        this.POTRACE_RESOLUTION = 1.0;
     }
 
     /**
@@ -89,8 +88,8 @@ Wick.Tools.Brush = class extends Wick.Tool {
         this.croquisBrush.setSize(this.getSetting('brushSize') + 1);
         this.croquisBrush.setColor(this.getSetting('fillColor').toCSS(true));
         this.croquisBrush.setSpacing(this.BRUSH_POINT_SPACING);
-        this.croquis.setToolStabilizeLevel(this.brushStabilizerLevel);
-        this.croquis.setToolStabilizeWeight(this.brushStabilizerWeight);
+        this.croquis.setToolStabilizeLevel(this.BRUSH_STABILIZER_LEVEL);
+        this.croquis.setToolStabilizeWeight((this.getSetting('brushStabilizerWeight')/10.0)+0.3);
 
         // Forward mouse event to croquis canvas
         var point = this.paper.view.projectToView(e.point.x, e.point.y);
@@ -131,7 +130,7 @@ Wick.Tools.Brush = class extends Wick.Tool {
         setTimeout(() => {
             var img = new Image();
             img.onload = () => {
-                var svg = potrace.fromImage(img).toSVG(1/this.potraceResolution/this.paper.view.zoom);
+                var svg = potrace.fromImage(img).toSVG(1/this.POTRACE_RESOLUTION/this.paper.view.zoom);
                 var potracePath = this.paper.project.importSVG(svg);
                 potracePath.fillColor = this.getSetting('fillColor');
                 potracePath.position.x += this.paper.view.bounds.x;
@@ -152,8 +151,8 @@ Wick.Tools.Brush = class extends Wick.Tool {
             }
             var resizedCanvas = document.createElement("canvas");
             var resizedContext = resizedCanvas.getContext("2d");
-            resizedCanvas.width = canvas.width * this.potraceResolution;
-            resizedCanvas.height = canvas.height * this.potraceResolution;
+            resizedCanvas.width = canvas.width * this.POTRACE_RESOLUTION;
+            resizedCanvas.height = canvas.height * this.POTRACE_RESOLUTION;
             resizedContext.drawImage(canvas, 0, 0, resizedCanvas.width, resizedCanvas.height);
             img.src = resizedCanvas.toDataURL();
         }, 20);

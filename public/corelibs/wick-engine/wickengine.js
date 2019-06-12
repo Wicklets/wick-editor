@@ -66560,6 +66560,12 @@ Wick.ToolSettings = class {
       max: 100,
       step: 1
     }, {
+      name: 'brushStabilizerWeight',
+      default: 0,
+      min: 0,
+      max: 10,
+      step: 1
+    }, {
       name: 'pressureEnabled',
       default: false
     }, {
@@ -69928,6 +69934,20 @@ Wick.Path = class extends Wick.Base {
   remove() {
     this.parentFrame.removePath(this);
   }
+  /**
+   * Creates a new path using boolean unite on multiple paths. Flattens paths if needed. United path will use the fillColor, strokeWidth, and strokeColor of the first path in the array.
+   * @param {Wick.Path[]} paths - an array containing the paths to unite.
+   * @returns {Wick.Path} The path resulting from the boolean unite.
+   */
+
+
+  static unite(paths) {}
+  /**
+   * Converts a stroke into fill. Only works with paths that have a strokeWidth nad strokeColor, and have no fillColor. Does nothing otherwise.
+   */
+
+
+  flatten() {}
 
 };
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
@@ -73048,9 +73068,8 @@ Wick.Tools.Brush = class extends Wick.Tool {
     this.croquisBrush;
     this.cachedCursor;
     this.lastPressure;
-    this.brushStabilizerLevel = 3;
-    this.brushStabilizerWeight = 0.5;
-    this.potraceResolution = 1.0;
+    this.BRUSH_STABILIZER_LEVEL = 3;
+    this.POTRACE_RESOLUTION = 1.0;
   }
   /**
    *
@@ -73096,8 +73115,8 @@ Wick.Tools.Brush = class extends Wick.Tool {
     this.croquisBrush.setSize(this.getSetting('brushSize') + 1);
     this.croquisBrush.setColor(this.getSetting('fillColor').toCSS(true));
     this.croquisBrush.setSpacing(this.BRUSH_POINT_SPACING);
-    this.croquis.setToolStabilizeLevel(this.brushStabilizerLevel);
-    this.croquis.setToolStabilizeWeight(this.brushStabilizerWeight); // Forward mouse event to croquis canvas
+    this.croquis.setToolStabilizeLevel(this.BRUSH_STABILIZER_LEVEL);
+    this.croquis.setToolStabilizeWeight(this.getSetting('brushStabilizerWeight') / 10.0 + 0.3); // Forward mouse event to croquis canvas
 
     var point = this.paper.view.projectToView(e.point.x, e.point.y);
 
@@ -73140,7 +73159,7 @@ Wick.Tools.Brush = class extends Wick.Tool {
       var img = new Image();
 
       img.onload = () => {
-        var svg = potrace.fromImage(img).toSVG(1 / this.potraceResolution / this.paper.view.zoom);
+        var svg = potrace.fromImage(img).toSVG(1 / this.POTRACE_RESOLUTION / this.paper.view.zoom);
         var potracePath = this.paper.project.importSVG(svg);
         potracePath.fillColor = this.getSetting('fillColor');
         potracePath.position.x += this.paper.view.bounds.x;
@@ -73164,8 +73183,8 @@ Wick.Tools.Brush = class extends Wick.Tool {
 
       var resizedCanvas = document.createElement("canvas");
       var resizedContext = resizedCanvas.getContext("2d");
-      resizedCanvas.width = canvas.width * this.potraceResolution;
-      resizedCanvas.height = canvas.height * this.potraceResolution;
+      resizedCanvas.width = canvas.width * this.POTRACE_RESOLUTION;
+      resizedCanvas.height = canvas.height * this.POTRACE_RESOLUTION;
       resizedContext.drawImage(canvas, 0, 0, resizedCanvas.width, resizedCanvas.height);
       img.src = resizedCanvas.toDataURL();
     }, 20);
