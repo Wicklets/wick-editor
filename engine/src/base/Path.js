@@ -353,4 +353,20 @@ Wick.Path = class extends Wick.Base {
     remove () {
         this.parentFrame.removePath(this);
     }
+
+    /**
+     * Creates a new path using boolean unite on multiple paths. Flattens paths if needed. United path will use the fillColor, strokeWidth, and strokeColor of the first path in the array.
+     * @param {Wick.Path[]} paths - an array containing the paths to unite.
+     * @returns {Wick.Path} The path resulting from the boolean unite.
+     */
+    static unite (paths) {
+
+    }
+
+    /**
+     * Converts a stroke into fill. Only works with paths that have a strokeWidth nad strokeColor, and have no fillColor. Does nothing otherwise.
+     */
+    flatten () {
+
+    }
 }
