@@ -346,7 +346,7 @@ describe('Wick.Path', function() {
         });
     });
 
-    describe('#flatted', function() {
+    describe('#flatten', function() {
         it('should convert a stroke into a fill', function () {
             var stroke = TestUtils.paperToWickPath(new paper.Path.Line({
                 from: [0, 0],
@@ -355,12 +355,12 @@ describe('Wick.Path', function() {
                 strokeWidth: 5,
             }));
 
-            stroke.flatten();
+            var flattened = stroke.flatten();
 
-            expect(stroke.fillColor.toCSS(true)).to.equal('#ff0000');
-            expect(stroke.strokeColor).to.equal(undefined);
-            expect(stroke.bounds.width).to.equal(105);
-            expect(stroke.bounds.height).to.equal(105);
+            expect(flattened.fillColor.toCSS(true)).to.equal('#ff0000');
+            expect(flattened.strokeColor).to.equal(undefined);
+            expect(flattened.bounds.width).to.equal(105);
+            expect(flattened.bounds.height).to.equal(105);
         });
     });
 

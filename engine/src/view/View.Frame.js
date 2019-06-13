@@ -90,6 +90,16 @@ Wick.View.Frame = class extends Wick.View {
         this._dynamicTextCache = {};
     }
 
+    /**
+     * Import SVG data into the paper.js layer, and updates the Frame's json data.
+     * @param {string} svg - the SVG data to parse and import.
+     */
+    importSVG (svg) {
+        var importedItem = this.pathsLayer.importSVG(svg);
+        this._recursiveBreakApart(importedItem);
+        this._applyPathChanges();
+    }
+
     _renderSVG () {
         this._renderPathsSVG();
         this._renderClipsSVG();
@@ -324,5 +334,26 @@ Wick.View.Frame = class extends Wick.View {
             wickPath.identifier = originalWickPath ? originalWickPath.identifier : null;
             child.name = wickPath.uuid;
         });
+    }
+
+    // Helper function for SVG import (paper.js imports SVGs as one big group.)
+    _recursiveBreakApart (item) {
+        item.applyMatrix = true;
+
+        if(item instanceof paper.Shape) {
+            var path = item.toPath();
+            item.parent.addChild(path);
+            item.remove();
+        }
+
+        if(item instanceof paper.Group) {
+            var children = item.removeChildren();
+            item.parent.addChildren(children);
+            item.remove();
+
+            children.forEach(child => {
+                this._recursiveBreakApart(child);
+            });
+        }
     }
 }

@@ -37,6 +37,11 @@ var TestUtils = {
         }
     ],
 
+    TEST_SVG_CIRCLE : '<svg xmlns="http://www.w3.org/2000/svg" height="100" width="100"><circle cx="50" cy="50" r="50" stroke="black" stroke-width="3" fill="red" /></svg>',
+
+    // https://dev.w3.org/SVG/tools/svgweb/samples/svg-files/caution.svg
+    TEST_SVG_CAUTION : '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" stroke="#000"><path d="M8,80s-5,8,5,9l78,0s9,0,5-9l-40-71s-4-6-8,0z" stroke-width="2" fill="#fff" fill-rule="evenodd"/><path d="M52,10 L10,85 L93,85z" stroke-width="2" stroke-linejoin="round" fill="#fc0" fill-rule="evenodd"/><path d="M52,32l0,26" stroke-width="9" stroke-linecap="round" fill-rule="evenodd"/><circle r="6" cx="52" cy="73"/></svg>',
+
     /* https://stackoverflow.com/questions/12168909/blob-from-dataurl */
     dataURItoBlob : (dataURI) => {
         // convert base64 to raw binary data held in a string

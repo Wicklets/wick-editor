@@ -364,9 +364,24 @@ Wick.Path = class extends Wick.Base {
     }
 
     /**
-     * Converts a stroke into fill. Only works with paths that have a strokeWidth nad strokeColor, and have no fillColor. Does nothing otherwise.
+     * Converts a stroke into fill. Only works with paths that have a strokeWidth and strokeColor, and have no fillColor. Does nothing otherwise.
+     * @returns {Wick.Path} A flattened version of this path. Can be null if the path cannot be flattened.
      */
     flatten () {
+        if(this.fillColor || !this.strokeColor || !this.strokeWidth) {
+            return null;
+        }
 
+        if(!(this instanceof paper.Path)) {
+            return null;
+        }
+
+        var flatPath = new Wick.Path({
+            json: this.view.item.flatten().exportJSON({asString:false}),
+        });
+
+        flatPath.fillColor = this.strokeColor;
+
+        return flatPath;
     }
 }

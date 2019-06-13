@@ -72083,6 +72083,15 @@ Wick.Frame = class extends Wick.Tickable {
 
     return linkedAssets;
   }
+  /**
+   * Import SVG data into this frame. SVGs containing mulitple paths will be split into multiple Wick Paths.
+   * @param {string} svg - the SVG data to parse and import.
+   */
+
+
+  importSVG(svg) {
+    this.view.importSVG(svg);
+  }
 
   _onInactive() {
     return super._onInactive();
@@ -77536,6 +77545,21 @@ Wick.View.Frame = class extends Wick.View {
 
     this._dynamicTextCache = {};
   }
+  /**
+   * Import SVG data into the paper.js layer, and updates the Frame's json data.
+   * @param {string} svg - the SVG data to parse and import.
+   */
+
+
+  importSVG(svg) {
+    var importedItem = this.pathsLayer.importSVG(svg);
+
+    this._recursiveBreakApart(importedItem);
+
+    this._cleanupInvalidPaths();
+
+    this._applyPathChanges();
+  }
 
   _renderSVG() {
     this._renderPathsSVG();
@@ -77758,7 +77782,30 @@ Wick.View.Frame = class extends Wick.View {
       wickPath.identifier = originalWickPath ? originalWickPath.identifier : null;
       child.name = wickPath.uuid;
     });
-  }
+  } // Helper function for SVG import (paper.js imports SVGs as one big group.)
+
+
+  _recursiveBreakApart(item) {
+    item.applyMatrix = true;
+
+    if (item instanceof paper.Shape) {
+      var path = item.toPath();
+      item.parent.addChild(path);
+      item.remove();
+    }
+
+    if (item instanceof paper.Group) {
+      var children = item.removeChildren();
+      item.parent.addChildren(children);
+      item.remove();
+      children.forEach(child => {
+        this._recursiveBreakApart(child);
+      });
+    }
+  } // Helper function for SVG import (some SVGs have stuff Wick doesn't support yet...)
+
+
+  _cleanupInvalidPaths() {}
 
 };
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
