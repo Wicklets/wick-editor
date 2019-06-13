@@ -80398,17 +80398,26 @@ Wick.GUIElement.OnionSkinRangeEnd = class extends Wick.GUIElement.OnionSkinRange
    */
 
 
-  build() {
+  build () {
     super.build();
-    if (!this.model.project.onionSkinEnabled) return;
-    var rangeSlider = new this.paper.Path.Rectangle({
-      from: new this.paper.Point(this.x, this.y),
-      to: new this.paper.Point(this.x + Wick.GUIElement.OnionSkinRange.DEFAULT_HANDLE_WIDTH, this.y + this.height),
-      fillColor: this.isHoveredOver ? '#ff0000' : '#0000ff',
-      strokeColor: '#000000'
+
+    if(!this.model.project.onionSkinEnabled) return;
+
+    var rangeSlider = new this.paper.Path({
+        segments: [
+          [this.x, this.y],
+          [this.x + this.width, this.y],
+          [this.x + this.width, this.y + this.height],
+          [this.x + this.width/2, this.y + this.height + this.height/2],
+          [this.x, this.y + this.height],
+          [this.x, this.y],
+        ],
+        fillColor: Wick.GUIElement.PLAYHEAD_FILL_COLOR,
+        opacity: this.isHoveredOver ? '0.6' : '0.8',
+        strokeColor: '#000000',
     });
     this.item.addChild(rangeSlider);
-  }
+}
 
 };
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
@@ -80480,17 +80489,28 @@ Wick.GUIElement.OnionSkinRangeStart = class extends Wick.GUIElement.OnionSkinRan
    */
 
 
-  build() {
-    super.build();
-    if (!this.model.project.onionSkinEnabled) return;
-    var rangeSlider = new this.paper.Path.Rectangle({
-      from: new this.paper.Point(this.x, this.y),
-      to: new this.paper.Point(this.x + Wick.GUIElement.OnionSkinRange.DEFAULT_HANDLE_WIDTH, this.y + this.height),
-      fillColor: this.isHoveredOver ? '#ff0000' : '#0000ff',
-      strokeColor: '#000000'
-    });
-    this.item.addChild(rangeSlider);
+  build () {
+      super.build();
+
+      if(!this.model.project.onionSkinEnabled) return;
+
+      var rangeSlider = new this.paper.Path({
+          segments: [
+            [this.x, this.y],
+            [this.x + this.width, this.y],
+            [this.x + this.width, this.y + this.height],
+            [this.x + this.width/2, this.y + this.height + this.height/2],
+            [this.x, this.y + this.height],
+            [this.x, this.y],
+          ],
+          // to: new this.paper.Point(this.x + Wick.GUIElement.OnionSkinRange.DEFAULT_HANDLE_WIDTH, this.y + this.height),
+          fillColor: Wick.GUIElement.PLAYHEAD_FILL_COLOR;
+          opacity: this.isHoveredOver ? '0.6' : '0.8',
+          strokeColor: '#000000',
+      });
+      this.item.addChild(rangeSlider);
   }
+
 
 };
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
