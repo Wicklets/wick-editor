@@ -35,7 +35,7 @@ class HotKeyInterface extends Object {
   createKeyMap = () => {
     this.keyMap = {
       'activate-brush': 'b',
-      'activate-cursor': 'c',
+      'activate-cursor': ['c','v'],
       'activate-pencil': 'p',
       'activate-eraser': 'e',
       'activate-rectangle': 'r',
@@ -43,7 +43,7 @@ class HotKeyInterface extends Object {
       'activate-line': 'l',
       'activate-text': 't',
       'activate-pan': 'space',
-      'activate-fill': 'f',
+      'activate-fill': ['f','g'],
       'activate-eyedropper': 'd',
       'deactivate-pan': { sequence: "space", action: "keyup" },
       'activate-zoom': 'z',
