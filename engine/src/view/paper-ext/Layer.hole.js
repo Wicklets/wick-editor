@@ -56,10 +56,10 @@
     var resultHolePath;
 
     var N_RASTER_CLONE = 1;
-    var RASTER_BASE_RESOLUTION = 1.75;
+    var RASTER_BASE_RESOLUTION = 1.9;
     var FILL_TOLERANCE = 35;
     var CLONE_WIDTH_SHRINK = 1.0;
-    var SHRINK_AMT = 2.5;
+    var SHRINK_AMT = 0.85;
 
     function tryToChangeColorOfExistingShape () {
 
@@ -71,6 +71,9 @@
             if(child._class !== 'Path' && child._class !== 'CompoundPath') return;
             for(var i = 0; i < N_RASTER_CLONE; i++) {
                 var clone = child.clone({insert:false});
+                if(clone.strokeWidth !== 0 && clone.strokeWidth <= 1) {
+                    clone.strokeWidth = 1.5
+                }
                 clone.strokeWidth *= CLONE_WIDTH_SHRINK;
                 layerGroup.addChild(clone);
             }

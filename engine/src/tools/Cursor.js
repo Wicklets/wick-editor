@@ -123,7 +123,7 @@ Wick.Tools.Cursor = class extends Wick.Tool {
             // Shift click: Deselect that item
             if(e.modifiers.shift) {
                 this._deselectItem(this.hitResult.item);
-                this.fireEvent('canvasModified');
+                this._checkIfSelectionChanged();
             }
         } else if (this.hitResult.item && this.hitResult.type === 'fill') {
             if(!e.modifiers.shift) {
@@ -132,7 +132,7 @@ Wick.Tools.Cursor = class extends Wick.Tool {
             }
             // Clicked an item: select that item
             this._selectItem(this.hitResult.item);
-            this.fireEvent('canvasModified');
+            this._checkIfSelectionChanged();
         } else if (this.hitResult.item && this.hitResult.type === 'curve') {
             // Clicked a curve, start dragging it
             this.draggingCurve = this.hitResult.location.curve;
@@ -143,7 +143,7 @@ Wick.Tools.Cursor = class extends Wick.Tool {
             // (don't clear the selection if shift is held, though)
             if(this._selection.numObjects > 0 && !e.modifiers.shift) {
                 this._clearSelection();
-                this.fireEvent('canvasModified');
+                this._checkIfSelectionChanged();
             }
 
             this.selectionBox.start(e.point);
@@ -168,6 +168,8 @@ Wick.Tools.Cursor = class extends Wick.Tool {
 
     onMouseDrag (e) {
         if(!e.modifiers) e.modifiers = {};
+
+        this.__isDragging = true;
 
         if(this.hitResult.item && this.hitResult.item.data.isSelectionBoxGUI) {
             // Update selection drag
@@ -212,6 +214,8 @@ Wick.Tools.Cursor = class extends Wick.Tool {
             // Update the hover preview to match the curve we just changed
             this.hoverPreview.segments[0].handleOut = this.draggingCurve.handle1;
             this.hoverPreview.segments[1].handleIn = this.draggingCurve.handle2;
+        } else {
+            this.__isDragging = false;
         }
     }
 
@@ -229,10 +233,13 @@ Wick.Tools.Cursor = class extends Wick.Tool {
             }).forEach(item => {
                 this._selectItem(item);
             });
-            this.fireEvent('canvasModified');
+            this._checkIfSelectionChanged();
         } else if (this._selection.numObjects > 0) {
-            this._widget.finishTransformation();
-            this.fireEvent('canvasModified');
+            if(this.__isDragging) {
+                this.__isDragging = false;
+                this._widget.finishTransformation();
+                this.fireEvent('canvasModified');
+            }
         } else if (this.hitResult.type === 'segment' || this.hitResult.type === 'curve') {
             this.fireEvent('canvasModified');
         }
@@ -420,5 +427,17 @@ Wick.Tools.Cursor = class extends Wick.Tool {
             console.log(item);
         }
         return Wick.ObjectCache.getObjectByUUID(uuid);
+    }
+
+    _checkIfSelectionChanged () {
+        var newSelectionData = this._createSelectionData();
+        if(newSelectionData !== this._lastSelection) {
+            this.fireEvent('canvasModified');
+        }
+        this._lastSelection = newSelectionData;
+    }
+
+    _createSelectionData () {
+        return this._selection.getSelectedObjectUUIDs().join('');
     }
 }

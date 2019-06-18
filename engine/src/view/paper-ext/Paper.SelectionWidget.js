@@ -393,6 +393,7 @@ class SelectionWidget {
             fillColor: SelectionWidget.PIVOT_FILL_COLOR,
             strokeColor: SelectionWidget.PIVOT_STROKE_COLOR,
         });
+        handle.locked = true;
         return handle;
     }
 

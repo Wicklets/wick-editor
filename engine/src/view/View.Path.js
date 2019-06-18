@@ -116,10 +116,6 @@ Wick.View.Path = class extends Wick.View {
      * Export a path as paper.js Path json data.
      */
     static exportJSON (item) {
-        var json = item.exportJSON({asString:false});
-
-        // TODO replace src dataURL with asset:uuid here.
-
-        return json;
+        return item.exportJSON({asString:false});
     }
 }

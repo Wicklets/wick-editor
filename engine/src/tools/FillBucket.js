@@ -64,6 +64,7 @@ Wick.Tools.FillBucket = class extends Wick.Tool {
                             path.fillColor = this.getSetting('fillColor');
                             path.name = null;
                             this.paper.project.activeLayer.addChild(path);
+                            this.paper.OrderingUtils.sendToBack([path]);
                             this.fireEvent('canvasModified');
                         }
                     },

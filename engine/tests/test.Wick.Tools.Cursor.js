@@ -302,4 +302,116 @@ describe('Wick.Tools.Cursor', function() {
     it('Should change tools and edit text when text is double clicked', function() {
         // TODO
     });
+
+    it('Should only call canvasModified if selection is altered in some way', function(done) {
+        var project = new Wick.Project();
+        var cursor = project.tools.cursor;
+        cursor.activate();
+
+        // The process is:
+        // 1) Click path1
+        // 2) Click path1
+        // 3) Click nothing
+        // 4) Click nothing
+        // The selection is only changed twice.
+        // So __canvasModifiedCount should end up being 2.
+        var __canvasModifiedCount = 0;
+        project.view.on('canvasModified', (e) => {
+            __canvasModifiedCount++;
+            if(__canvasModifiedCount === 2) {
+                done();
+            }
+            if(__canvasModifiedCount > 2) {
+                console.error("canvasModified was called too many times!");
+            }
+        });
+
+        var path1 = TestUtils.paperToWickPath(new paper.Path.Ellipse({
+            center: new paper.Point(25, 25),
+            radius: 25,
+            fillColor: '#ff0000',
+        }));
+        var path2 = TestUtils.paperToWickPath(new paper.Path.Ellipse({
+            center: new paper.Point(75, 75),
+            radius: 25,
+            fillColor: '#0000ff',
+        }));
+        project.activeFrame.addPath(path1);
+        project.activeFrame.addPath(path2);
+        project.view.render();
+
+        /* Click path1, should select path1 */
+
+        cursor.onMouseMove({
+            modifiers: {},
+            point: new paper.Point(25,25),
+        });
+        cursor.onMouseDown({
+            modifiers: {},
+            point: new paper.Point(25,25),
+        });
+        cursor.onMouseUp({
+            modifiers: {},
+            point: new paper.Point(25,25),
+            delta: new paper.Point(0,0),
+        });
+
+        expect(project.selection.numObjects).to.equal(1);
+        expect(project.selection.getSelectedObject().uuid).to.equal(path1.uuid);
+
+        /* Click path1 again, this should not trigger a canvasModified */
+
+        cursor.onMouseMove({
+            modifiers: {},
+            point: new paper.Point(25,25),
+        });
+        cursor.onMouseDown({
+            modifiers: {},
+            point: new paper.Point(25,25),
+        });
+        cursor.onMouseUp({
+            modifiers: {},
+            point: new paper.Point(25,25),
+            delta: new paper.Point(0,0),
+        });
+
+        expect(project.selection.numObjects).to.equal(1);
+        expect(project.selection.getSelectedObject().uuid).to.equal(path1.uuid);
+
+        /* Click nothing, this should trigger a canvasModified */
+
+        cursor.onMouseMove({
+            modifiers: {},
+            point: new paper.Point(300,300),
+        });
+        cursor.onMouseDown({
+            modifiers: {},
+            point: new paper.Point(300,300),
+        });
+        cursor.onMouseUp({
+            modifiers: {},
+            point: new paper.Point(300,300),
+            delta: new paper.Point(0,0),
+        });
+
+        expect(project.selection.numObjects).to.equal(0);
+
+        /* Click nothing again, this should not trigger a canvasModified */
+
+        cursor.onMouseMove({
+            modifiers: {},
+            point: new paper.Point(300,300),
+        });
+        cursor.onMouseDown({
+            modifiers: {},
+            point: new paper.Point(300,300),
+        });
+        cursor.onMouseUp({
+            modifiers: {},
+            point: new paper.Point(300,300),
+            delta: new paper.Point(0,0),
+        });
+
+        expect(project.selection.numObjects).to.equal(0);
+    });
 });

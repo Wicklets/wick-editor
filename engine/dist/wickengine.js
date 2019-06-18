@@ -66560,6 +66560,12 @@ Wick.ToolSettings = class {
       max: 100,
       step: 1
     }, {
+      name: 'brushStabilizerWeight',
+      default: 0,
+      min: 0,
+      max: 10,
+      step: 1
+    }, {
       name: 'pressureEnabled',
       default: false
     }, {
@@ -69928,6 +69934,37 @@ Wick.Path = class extends Wick.Base {
   remove() {
     this.parentFrame.removePath(this);
   }
+  /**
+   * Creates a new path using boolean unite on multiple paths. Flattens paths if needed. United path will use the fillColor, strokeWidth, and strokeColor of the first path in the array.
+   * @param {Wick.Path[]} paths - an array containing the paths to unite.
+   * @returns {Wick.Path} The path resulting from the boolean unite.
+   */
+
+
+  static unite(paths) {}
+  /**
+   * Converts a stroke into fill. Only works with paths that have a strokeWidth and strokeColor, and have no fillColor. Does nothing otherwise.
+   * @returns {Wick.Path} A flattened version of this path. Can be null if the path cannot be flattened.
+   */
+
+
+  flatten() {
+    if (this.fillColor || !this.strokeColor || !this.strokeWidth) {
+      return null;
+    }
+
+    if (!(this instanceof paper.Path)) {
+      return null;
+    }
+
+    var flatPath = new Wick.Path({
+      json: this.view.item.flatten().exportJSON({
+        asString: false
+      })
+    });
+    flatPath.fillColor = this.strokeColor;
+    return flatPath;
+  }
 
 };
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
@@ -72063,6 +72100,15 @@ Wick.Frame = class extends Wick.Tickable {
 
     return linkedAssets;
   }
+  /**
+   * Import SVG data into this frame. SVGs containing mulitple paths will be split into multiple Wick Paths.
+   * @param {string} svg - the SVG data to parse and import.
+   */
+
+
+  importSVG(svg) {
+    this.view.importSVG(svg);
+  }
 
   _onInactive() {
     return super._onInactive();
@@ -73048,9 +73094,9 @@ Wick.Tools.Brush = class extends Wick.Tool {
     this.croquisBrush;
     this.cachedCursor;
     this.lastPressure;
-    this.brushStabilizerLevel = 3;
-    this.brushStabilizerWeight = 0.5;
-    this.potraceResolution = 1.0;
+    this.BRUSH_STABILIZER_LEVEL = 3;
+    this.POTRACE_RESOLUTION = 1.0;
+    this.errorOccured = false;
   }
   /**
    *
@@ -73096,8 +73142,8 @@ Wick.Tools.Brush = class extends Wick.Tool {
     this.croquisBrush.setSize(this.getSetting('brushSize') + 1);
     this.croquisBrush.setColor(this.getSetting('fillColor').toCSS(true));
     this.croquisBrush.setSpacing(this.BRUSH_POINT_SPACING);
-    this.croquis.setToolStabilizeLevel(this.brushStabilizerLevel);
-    this.croquis.setToolStabilizeWeight(this.brushStabilizerWeight); // Forward mouse event to croquis canvas
+    this.croquis.setToolStabilizeLevel(this.BRUSH_STABILIZER_LEVEL);
+    this.croquis.setToolStabilizeWeight(this.getSetting('brushStabilizerWeight') / 10.0 + 0.3); // Forward mouse event to croquis canvas
 
     var point = this.paper.view.projectToView(e.point.x, e.point.y);
 
@@ -73136,11 +73182,12 @@ Wick.Tools.Brush = class extends Wick.Tool {
       return;
     }
 
+    this.errorOccured = false;
     setTimeout(() => {
       var img = new Image();
 
       img.onload = () => {
-        var svg = potrace.fromImage(img).toSVG(1 / this.potraceResolution / this.paper.view.zoom);
+        var svg = potrace.fromImage(img).toSVG(1 / this.POTRACE_RESOLUTION / this.paper.view.zoom);
         var potracePath = this.paper.project.importSVG(svg);
         potracePath.fillColor = this.getSetting('fillColor');
         potracePath.position.x += this.paper.view.bounds.x;
@@ -73164,8 +73211,8 @@ Wick.Tools.Brush = class extends Wick.Tool {
 
       var resizedCanvas = document.createElement("canvas");
       var resizedContext = resizedCanvas.getContext("2d");
-      resizedCanvas.width = canvas.width * this.potraceResolution;
-      resizedCanvas.height = canvas.height * this.potraceResolution;
+      resizedCanvas.width = canvas.width * this.POTRACE_RESOLUTION;
+      resizedCanvas.height = canvas.height * this.POTRACE_RESOLUTION;
       resizedContext.drawImage(canvas, 0, 0, resizedCanvas.width, resizedCanvas.height);
       img.src = resizedCanvas.toDataURL();
     }, 20);
@@ -73184,11 +73231,15 @@ Wick.Tools.Brush = class extends Wick.Tool {
 
 
   handleBrushError(e) {
-    console.error("Brush error");
-    console.error(e);
-    this.fireEvent('error', {
-      croquisError: e
-    });
+    if (!this.errorOccured) {
+      console.error("Brush error");
+      console.error(e);
+      this.fireEvent('error', {
+        croquisError: e
+      });
+    }
+
+    this.errorOccured = true;
   }
 
   _regenCursor() {
@@ -73335,7 +73386,7 @@ Wick.Tools.Cursor = class extends Wick.Tool {
       if (e.modifiers.shift) {
         this._deselectItem(this.hitResult.item);
 
-        this.fireEvent('canvasModified');
+        this._checkIfSelectionChanged();
       }
     } else if (this.hitResult.item && this.hitResult.type === 'fill') {
       if (!e.modifiers.shift) {
@@ -73346,7 +73397,7 @@ Wick.Tools.Cursor = class extends Wick.Tool {
 
       this._selectItem(this.hitResult.item);
 
-      this.fireEvent('canvasModified');
+      this._checkIfSelectionChanged();
     } else if (this.hitResult.item && this.hitResult.type === 'curve') {
       // Clicked a curve, start dragging it
       this.draggingCurve = this.hitResult.location.curve;
@@ -73356,7 +73407,7 @@ Wick.Tools.Cursor = class extends Wick.Tool {
       if (this._selection.numObjects > 0 && !e.modifiers.shift) {
         this._clearSelection();
 
-        this.fireEvent('canvasModified');
+        this._checkIfSelectionChanged();
       }
 
       this.selectionBox.start(e.point);
@@ -73381,6 +73432,7 @@ Wick.Tools.Cursor = class extends Wick.Tool {
 
   onMouseDrag(e) {
     if (!e.modifiers) e.modifiers = {};
+    this.__isDragging = true;
 
     if (this.hitResult.item && this.hitResult.item.data.isSelectionBoxGUI) {
       // Update selection drag
@@ -73427,6 +73479,8 @@ Wick.Tools.Cursor = class extends Wick.Tool {
 
       this.hoverPreview.segments[0].handleOut = this.draggingCurve.handle1;
       this.hoverPreview.segments[1].handleIn = this.draggingCurve.handle2;
+    } else {
+      this.__isDragging = false;
     }
   }
 
@@ -73445,11 +73499,16 @@ Wick.Tools.Cursor = class extends Wick.Tool {
       }).forEach(item => {
         this._selectItem(item);
       });
-      this.fireEvent('canvasModified');
-    } else if (this._selection.numObjects > 0) {
-      this._widget.finishTransformation();
 
-      this.fireEvent('canvasModified');
+      this._checkIfSelectionChanged();
+    } else if (this._selection.numObjects > 0) {
+      if (this.__isDragging) {
+        this.__isDragging = false;
+
+        this._widget.finishTransformation();
+
+        this.fireEvent('canvasModified');
+      }
     } else if (this.hitResult.type === 'segment' || this.hitResult.type === 'curve') {
       this.fireEvent('canvasModified');
     }
@@ -73635,6 +73694,20 @@ Wick.Tools.Cursor = class extends Wick.Tool {
     }
 
     return Wick.ObjectCache.getObjectByUUID(uuid);
+  }
+
+  _checkIfSelectionChanged() {
+    var newSelectionData = this._createSelectionData();
+
+    if (newSelectionData !== this._lastSelection) {
+      this.fireEvent('canvasModified');
+    }
+
+    this._lastSelection = newSelectionData;
+  }
+
+  _createSelectionData() {
+    return this._selection.getSelectedObjectUUIDs().join('');
   }
 
 };
@@ -73845,6 +73918,8 @@ Wick.Tools.Eyedropper = class extends Wick.Tool {
     super();
     this.name = 'eyedropper';
     this.canvasCtx = null;
+    this.hoverColor = '#ffffff';
+    this.colorPreview = null;
   }
   /**
    *
@@ -73858,9 +73933,12 @@ Wick.Tools.Eyedropper = class extends Wick.Tool {
 
   onActivate(e) {}
 
-  onDeactivate(e) {}
+  onDeactivate(e) {
+    this._destroyColorPreview();
+  }
 
-  onMouseDown(e) {
+  onMouseMove(e) {
+    super.onMouseMove(e);
     var canvas = this.paper.view._element;
     var ctx = canvas.getContext('2d');
     var pointPx = this.paper.view.projectToView(e.point);
@@ -73868,12 +73946,18 @@ Wick.Tools.Eyedropper = class extends Wick.Tool {
     pointPx.y = Math.round(pointPx.y) * window.devicePixelRatio;
     var colorData = ctx.getImageData(pointPx.x, pointPx.y, 1, 1).data;
     var colorCSS = 'rgb(' + colorData[0] + ',' + colorData[1] + ',' + colorData[2] + ')';
-    var color = new paper.Color(colorCSS);
+    this.hoverColor = colorCSS;
+
+    this._createColorPreview(e.point);
+  }
+
+  onMouseDown(e) {
+    this._destroyColorPreview();
 
     if (!e.modifiers.shift) {
-      this.project.toolSettings.setSetting('fillColor', colorCSS);
+      this.project.toolSettings.setSetting('fillColor', this.hoverColor);
     } else {
-      this.project.toolSettings.setSetting('strokeColor', colorCSS);
+      this.project.toolSettings.setSetting('strokeColor', this.hoverColor);
     }
 
     this.fireEvent('canvasModified');
@@ -73881,7 +73965,33 @@ Wick.Tools.Eyedropper = class extends Wick.Tool {
 
   onMouseDrag(e) {}
 
-  onMouseUp(e) {}
+  onMouseUp(e) {
+    this._createColorPreview(e.point);
+  }
+
+  _createColorPreview(point) {
+    this._destroyColorPreview();
+
+    var offset = 10 / this.paper.view.zoom;
+    var center = point.add(new paper.Point(offset + 0.5, offset + 0.5));
+    var radius = 10 / paper.view.zoom;
+    var size = new paper.Size(radius, radius);
+    this.colorPreview = new this.paper.Group();
+    this.colorPreview.addChild(new this.paper.Path.Rectangle({
+      center: center,
+      size: size,
+      strokeColor: '#000000',
+      fillColor: this.hoverColor,
+      strokeWidth: 1.0 / this.paper.view.zoom
+    }));
+  }
+
+  _destroyColorPreview() {
+    if (this.colorPreview) {
+      this.colorPreview.remove();
+      this.colorPreview = null;
+    }
+  }
 
 };
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
@@ -73948,6 +74058,7 @@ Wick.Tools.FillBucket = class extends Wick.Tool {
               path.fillColor = this.getSetting('fillColor');
               path.name = null;
               this.paper.project.activeLayer.addChild(path);
+              this.paper.OrderingUtils.sendToBack([path]);
               this.fireEvent('canvasModified');
             }
           },
@@ -74723,10 +74834,10 @@ Wick.Tools.Zoom = class extends Wick.Tool {
   var floodFillProcessedImage;
   var resultHolePath;
   var N_RASTER_CLONE = 1;
-  var RASTER_BASE_RESOLUTION = 1.75;
+  var RASTER_BASE_RESOLUTION = 1.9;
   var FILL_TOLERANCE = 35;
   var CLONE_WIDTH_SHRINK = 1.0;
-  var SHRINK_AMT = 2.5;
+  var SHRINK_AMT = 0.85;
 
   function tryToChangeColorOfExistingShape() {}
 
@@ -74741,6 +74852,11 @@ Wick.Tools.Zoom = class extends Wick.Tool {
         var clone = child.clone({
           insert: false
         });
+
+        if (clone.strokeWidth !== 0 && clone.strokeWidth <= 1) {
+          clone.strokeWidth = 1.5;
+        }
+
         clone.strokeWidth *= CLONE_WIDTH_SHRINK;
         layerGroup.addChild(clone);
       }
@@ -75545,6 +75661,7 @@ class SelectionWidget {
       strokeColor: SelectionWidget.PIVOT_STROKE_COLOR
     });
 
+    handle.locked = true;
     return handle;
   }
 
@@ -77456,6 +77573,19 @@ Wick.View.Frame = class extends Wick.View {
 
     this._dynamicTextCache = {};
   }
+  /**
+   * Import SVG data into the paper.js layer, and updates the Frame's json data.
+   * @param {string} svg - the SVG data to parse and import.
+   */
+
+
+  importSVG(svg) {
+    var importedItem = this.pathsLayer.importSVG(svg);
+
+    this._recursiveBreakApart(importedItem);
+
+    this._applyPathChanges();
+  }
 
   _renderSVG() {
     this._renderPathsSVG();
@@ -77678,6 +77808,26 @@ Wick.View.Frame = class extends Wick.View {
       wickPath.identifier = originalWickPath ? originalWickPath.identifier : null;
       child.name = wickPath.uuid;
     });
+  } // Helper function for SVG import (paper.js imports SVGs as one big group.)
+
+
+  _recursiveBreakApart(item) {
+    item.applyMatrix = true;
+
+    if (item instanceof paper.Shape) {
+      var path = item.toPath();
+      item.parent.addChild(path);
+      item.remove();
+    }
+
+    if (item instanceof paper.Group) {
+      var children = item.removeChildren();
+      item.parent.addChildren(children);
+      item.remove();
+      children.forEach(child => {
+        this._recursiveBreakApart(child);
+      });
+    }
   }
 
 };
@@ -77806,11 +77956,9 @@ Wick.View.Path = class extends Wick.View {
 
 
   static exportJSON(item) {
-    var json = item.exportJSON({
+    return item.exportJSON({
       asString: false
-    }); // TODO replace src dataURL with asset:uuid here.
-
-    return json;
+    });
   }
 
 };
@@ -78316,7 +78464,7 @@ Wick.GUIElement.CreateLayerLabel = class extends Wick.GUIElement.Clickable {
     var layerRect = new this.paper.Path.Rectangle({
       from: new this.paper.Point(0, 0),
       to: new this.paper.Point(this.width, this.height),
-      fillColor: this.isHoveredOver ? '#ff0000' : 'rgba(255,255,255,0.3)',
+      fillColor: this.isHoveredOver ? Wick.GUIElement.LAYER_LABEL_ACTIVE_FILL_COLOR : 'rgba(255,255,255,0.3)',
       radius: 2
     });
     this.item.addChild(layerRect);
