@@ -346,6 +346,7 @@ describe('Wick.Path', function() {
         });
     });
 
+    /*
     describe('#flatten', function() {
         it('should convert a stroke into a fill', function () {
             var stroke = TestUtils.paperToWickPath(new paper.Path.Line({
@@ -437,4 +438,5 @@ describe('Wick.Path', function() {
             expect(united.bounds.height).to.equal(75);
         });
     });
+    */
 });
