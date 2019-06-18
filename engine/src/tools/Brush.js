@@ -91,7 +91,7 @@ Wick.Tools.Brush = class extends Wick.Tool {
         this.croquisBrush.setColor(this.getSetting('fillColor').toCSS(true));
         this.croquisBrush.setSpacing(this.BRUSH_POINT_SPACING);
         this.croquis.setToolStabilizeLevel(this.BRUSH_STABILIZER_LEVEL);
-        this.croquis.setToolStabilizeWeight((this.getSetting('brushStabilizerWeight')/10.0)+0.3);
+        this.croquis.setToolStabilizeWeight((this.getSetting('brushStabilizerWeight') / 100.0) + 0.3);
 
         // Forward mouse event to croquis canvas
         var point = this.paper.view.projectToView(e.point.x, e.point.y);
@@ -184,7 +184,7 @@ Wick.Tools.Brush = class extends Wick.Tool {
     }
 
     _regenCursor () {
-        var size = (this.getSetting('brushSize')+1) * this.pressure;
+        var size = (this.getSetting('brushSize') + 1) * this.pressure;
         var color = this.getSetting('fillColor').toCSS(true);
         this.cachedCursor = this.createDynamicCursor(color, size);
         this.setCursor(this.cachedCursor);

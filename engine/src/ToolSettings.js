@@ -29,7 +29,7 @@ Wick.ToolSettings = class {
             name: 'strokeWidth',
             default: 1,
             min: 0,
-            max: 50,
+            max: 100,
             step: 1,
         }, {
             name: 'brushSize',
@@ -40,7 +40,7 @@ Wick.ToolSettings = class {
         }, {
             name: 'eraserSize',
             default: 10,
-            min: 2,
+            min: 1,
             max: 100,
             step: 1,
         }, {
@@ -53,7 +53,7 @@ Wick.ToolSettings = class {
             name: 'brushStabilizerWeight',
             default: 0,
             min: 0,
-            max: 10,
+            max: 100,
             step: 1,
         }, {
             name: 'pressureEnabled',
