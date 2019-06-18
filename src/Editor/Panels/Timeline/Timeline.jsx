@@ -21,6 +21,8 @@ import React, { Component } from 'react';
 
 import Breadcrumbs from './Breadcrumbs/Breadcrumbs';
 import ActionButton from 'Editor/Util/ActionButton/ActionButton';
+import { DropTarget } from 'react-dnd';
+import DragDropTypes from 'Editor/DragDropTypes.js';
 
 import './_timeline.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -66,12 +68,15 @@ class Timeline extends Component {
   }
 
   render() {
-    return(
+    const { connectDropTarget, isOver } = this.props;
+
+    return connectDropTarget (
       <div id="animation-timeline-container">
         <Breadcrumbs
           project={this.props.project}
           setFocusObject={this.props.setFocusObject}
         />
+        { isOver && <div className="drag-drop-overlay" /> }
         <div id="animation-timeline" ref={this.canvasContainer} />
         <div className="animation-timeline-add-keyframe-button">
           <ActionButton
@@ -89,4 +94,20 @@ class Timeline extends Component {
   }
 }
 
-export default Timeline
+// react-dnd drag and drop target params
+const timelineTarget = {
+  drop(props, monitor) {
+    const dropLocation = monitor.getClientOffset();
+    let draggedItem = monitor.getItem();
+    props.dropSoundOntoTimeline(draggedItem.uuid, dropLocation.x, dropLocation.y);
+  }
+}
+
+function collect(connect, monitor) {
+  return {
+    connectDropTarget: connect.dropTarget(),
+    isOver: monitor.isOver(),
+  };
+}
+
+export default DropTarget(DragDropTypes.TIMELINE, timelineTarget, collect)(Timeline)

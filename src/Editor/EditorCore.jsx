@@ -764,6 +764,18 @@ class EditorCore extends Component {
     });
   }
 
+ /**
+   * Is called when a sound asset is dropped on the timeline element.
+   * @param {string} uuid The UUID of the desired asset.
+   * @param {number} x    The x location of the image after creation in relation to the window.
+   * @param {number} y    The y location of the image after creation in relation to the window.
+   */
+  dropSoundOntoTimeline = (uuid, x, y) => {
+    // TODO
+    console.log("Dropping " + uuid + " at: " + x + "," + y); 
+  }
+
+
   /**
    * Attempts to import an arbitrary asset to the project. Displays an error or success message
    * depending on if the action was successful.
