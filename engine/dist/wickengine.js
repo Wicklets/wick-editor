@@ -69943,11 +69943,28 @@ Wick.Path = class extends Wick.Base {
 
   static unite(paths) {}
   /**
-   * Converts a stroke into fill. Only works with paths that have a strokeWidth nad strokeColor, and have no fillColor. Does nothing otherwise.
+   * Converts a stroke into fill. Only works with paths that have a strokeWidth and strokeColor, and have no fillColor. Does nothing otherwise.
+   * @returns {Wick.Path} A flattened version of this path. Can be null if the path cannot be flattened.
    */
 
 
-  flatten() {}
+  flatten() {
+    if (this.fillColor || !this.strokeColor || !this.strokeWidth) {
+      return null;
+    }
+
+    if (!(this instanceof paper.Path)) {
+      return null;
+    }
+
+    var flatPath = new Wick.Path({
+      json: this.view.item.flatten().exportJSON({
+        asString: false
+      })
+    });
+    flatPath.fillColor = this.strokeColor;
+    return flatPath;
+  }
 
 };
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
@@ -74829,6 +74846,11 @@ Wick.Tools.Zoom = class extends Wick.Tool {
         var clone = child.clone({
           insert: false
         });
+
+        if (clone.strokeWidth !== 0 && clone.strokeWidth <= 1) {
+          clone.strokeWidth = 1.5;
+        }
+
         clone.strokeWidth *= CLONE_WIDTH_SHRINK;
         layerGroup.addChild(clone);
       }
@@ -77556,8 +77578,6 @@ Wick.View.Frame = class extends Wick.View {
 
     this._recursiveBreakApart(importedItem);
 
-    this._cleanupInvalidPaths();
-
     this._applyPathChanges();
   }
 
@@ -77802,10 +77822,7 @@ Wick.View.Frame = class extends Wick.View {
         this._recursiveBreakApart(child);
       });
     }
-  } // Helper function for SVG import (some SVGs have stuff Wick doesn't support yet...)
-
-
-  _cleanupInvalidPaths() {}
+  }
 
 };
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
@@ -77933,11 +77950,9 @@ Wick.View.Path = class extends Wick.View {
 
 
   static exportJSON(item) {
-    var json = item.exportJSON({
+    return item.exportJSON({
       asString: false
-    }); // TODO replace src dataURL with asset:uuid here.
-
-    return json;
+    });
   }
 
 };

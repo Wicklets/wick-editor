@@ -71,6 +71,9 @@
             if(child._class !== 'Path' && child._class !== 'CompoundPath') return;
             for(var i = 0; i < N_RASTER_CLONE; i++) {
                 var clone = child.clone({insert:false});
+                if(clone.strokeWidth !== 0 && clone.strokeWidth <= 1) {
+                    clone.strokeWidth = 1.5
+                }
                 clone.strokeWidth *= CLONE_WIDTH_SHRINK;
                 layerGroup.addChild(clone);
             }
