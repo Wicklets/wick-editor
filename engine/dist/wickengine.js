@@ -74276,7 +74276,7 @@ Wick.Tools.Pan = class extends Wick.Tool {
 */
 Wick.Tools.Pencil = class extends Wick.Tool {
   static get MIN_ADD_POINT_MOVEMENT() {
-    return 5;
+    return 2;
   }
   /**
    * Creates a pencil tool.
@@ -74320,7 +74320,7 @@ Wick.Tools.Pencil = class extends Wick.Tool {
   onMouseDrag(e) {
     this._movement = this._movement.add(e.delta);
 
-    if (this._movement.length > Wick.Tools.Pencil.MIN_ADD_POINT_MOVEMENT / this.paper.view.zoom) {
+    if (this.path && this._movement.length > Wick.Tools.Pencil.MIN_ADD_POINT_MOVEMENT / this.paper.view.zoom) {
       this._movement = new paper.Point();
       this.path.add(e.point);
       this.path.smooth();
@@ -74328,6 +74328,7 @@ Wick.Tools.Pencil = class extends Wick.Tool {
   }
 
   onMouseUp(e) {
+    if (!this.path) return;
     this.path.add(e.point);
     this.path.simplify();
     this.path = null;
