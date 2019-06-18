@@ -906,7 +906,7 @@ describe('Wick.Clip', function() {
         });
 
         describe('#parent', function () {
-            it('project should work as expected', function() {
+            it('parent should work as expected', function() {
                 var project = new Wick.Project();
 
                 var clip = new Wick.Clip();

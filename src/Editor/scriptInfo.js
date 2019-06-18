@@ -132,7 +132,7 @@ class ScriptInfoInterface extends Object {
                 },
                 {
                     name: 'parent',
-                    snippet: 'this.parent',
+                    snippet: 'parent',
                     description: 'Returns the object that owns the calling object.',
                 },
                 {
