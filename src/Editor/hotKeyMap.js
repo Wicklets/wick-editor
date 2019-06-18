@@ -74,6 +74,9 @@ class HotKeyInterface extends Object {
       'nudge-left-more': 'shift+left',
       'nudge-right-more': 'shift+right',
       'toggle-script-editor': '`',
+      'export-project-as-wick-file': ['ctrl+s', 'command+s'],
+      'import-project-as-wick-file': ['ctrl+o', 'command+o'],
+      'create-clip-from-selection': ['ctrl+g', 'command-g'],
     }
   }
 
@@ -121,6 +124,9 @@ class HotKeyInterface extends Object {
       'nudge-left-more': this.editor.nudgeSelectionLeftMore,
       'nudge-right-more': this.editor.nudgeSelectionRightMore,
       'toggle-script-editor': this.editor.toggleCodeEditor,
+      'export-project-as-wick-file': this.editor.exportProjectAsWickFile,
+      'import-project-as-wick-file': this.editor.importProjectAsWickFile,
+      'create-clip-from-selection': (() => this.editor.createClipFromSelection("")),
     }
 
     for(let name in this.handlers) {

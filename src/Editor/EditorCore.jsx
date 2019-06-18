@@ -509,6 +509,11 @@ class EditorCore extends Component {
    * @param {string} name The name of the clip after creation.
    */
   createClipFromSelection = (name) => {
+    console.log(this.project.selection.numObjects);
+    if (this.project.selection.numObjects === 0) {
+      console.log("no selection");
+      return;
+    }
     this.project.createClipFromSelection({
       identifier: name,
       type: 'Clip'
