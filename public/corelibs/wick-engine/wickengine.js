@@ -66539,7 +66539,7 @@ Wick.ToolSettings = class {
       name: 'strokeWidth',
       default: 1,
       min: 0,
-      max: 50,
+      max: 100,
       step: 1
     }, {
       name: 'brushSize',
@@ -66550,7 +66550,7 @@ Wick.ToolSettings = class {
     }, {
       name: 'eraserSize',
       default: 10,
-      min: 2,
+      min: 1,
       max: 100,
       step: 1
     }, {
@@ -66563,7 +66563,7 @@ Wick.ToolSettings = class {
       name: 'brushStabilizerWeight',
       default: 0,
       min: 0,
-      max: 10,
+      max: 100,
       step: 1
     }, {
       name: 'pressureEnabled',
@@ -73143,7 +73143,7 @@ Wick.Tools.Brush = class extends Wick.Tool {
     this.croquisBrush.setColor(this.getSetting('fillColor').toCSS(true));
     this.croquisBrush.setSpacing(this.BRUSH_POINT_SPACING);
     this.croquis.setToolStabilizeLevel(this.BRUSH_STABILIZER_LEVEL);
-    this.croquis.setToolStabilizeWeight(this.getSetting('brushStabilizerWeight') / 10.0 + 0.3); // Forward mouse event to croquis canvas
+    this.croquis.setToolStabilizeWeight(this.getSetting('brushStabilizerWeight') / 100.0 + 0.3); // Forward mouse event to croquis canvas
 
     var point = this.paper.view.projectToView(e.point.x, e.point.y);
 
@@ -73850,7 +73850,7 @@ Wick.Tools.Eraser = class extends Wick.Tool {
     var cursorNeedsRegen = this.getSetting('eraserSize') !== this.cursorSize;
 
     if (cursorNeedsRegen) {
-      this.cachedCursor = this.createDynamicCursor('#ffffff', this.getSetting('eraserSize'));
+      this.cachedCursor = this.createDynamicCursor('#ffffff', this.getSetting('eraserSize') + 1);
       this.cursorSize = this.getSetting('eraserSize');
       this.setCursor(this.cachedCursor);
     }
@@ -73861,7 +73861,7 @@ Wick.Tools.Eraser = class extends Wick.Tool {
       this.path = new this.paper.Path({
         strokeColor: 'white',
         strokeCap: 'round',
-        strokeWidth: this.getSetting('eraserSize') / this.paper.view.zoom
+        strokeWidth: (this.getSetting('eraserSize') + 1) / this.paper.view.zoom
       });
     } // Add two points so we always at least have a dot.
 
