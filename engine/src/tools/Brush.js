@@ -38,6 +38,8 @@ Wick.Tools.Brush = class extends Wick.Tool {
 
         this.BRUSH_STABILIZER_LEVEL = 3;
         this.POTRACE_RESOLUTION = 1.0;
+
+        this.errorOccured = false;
     }
 
     /**
@@ -127,6 +129,8 @@ Wick.Tools.Brush = class extends Wick.Tool {
             return;
         }
 
+        this.errorOccured = false;
+
         setTimeout(() => {
             var img = new Image();
             img.onload = () => {
@@ -169,11 +173,14 @@ Wick.Tools.Brush = class extends Wick.Tool {
      * Croquis throws a lot of errrors. This is a helpful function to handle those errors gracefully.
      */
     handleBrushError (e) {
-        console.error("Brush error");
-        console.error(e);
-        this.fireEvent('error', {
-            croquisError: e,
-        });
+        if(!this.errorOccured) {
+            console.error("Brush error");
+            console.error(e);
+            this.fireEvent('error', {
+                croquisError: e,
+            });
+        }
+        this.errorOccured = true;
     }
 
     _regenCursor () {
