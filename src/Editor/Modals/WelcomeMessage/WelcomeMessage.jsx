@@ -49,7 +49,6 @@ class WelcomeModal extends Component {
             <div id="welcome-modal-subtitle" className="welcome-modal-item">Wick Editor {this.getVersion()} includes:</div>
             <div id="welcome-modal-message" className="welcome-modal-item">
               <ul>
-                <li>Many bugfixes</li>
                 <li>New Eyedropper Tool!</li>
                 <li>Scroll to Zoom</li>
                 <li>Brush works on touch screens</li>
