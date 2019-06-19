@@ -292,7 +292,7 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
             this._generateWaveform();
             var waveform = Wick.GUIElement.Frame.cachedWaveforms[this.model.uuid];
             if(waveform) {
-                console.log(waveform)
+                
             }
         }
 
