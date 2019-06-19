@@ -17254,6 +17254,85 @@ var paper = function (self, undefined) {
   return Atomic;
 });
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* base64-arraybuffer
+* https://github.com/niklasvh/base64-arraybuffer
+*
+* Copyright (c) 2012 Niklas von Hertzen
+* Licensed under the MIT license.
+*/
+var Base64ArrayBuffer = function () {
+  "use strict";
+
+  var base64ArrayBuffer = {};
+  var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"; // Use a lookup table to find the index.
+
+  var lookup = new Uint8Array(256);
+
+  for (var i = 0; i < chars.length; i++) {
+    lookup[chars.charCodeAt(i)] = i;
+  }
+
+  base64ArrayBuffer.encode = function (arraybuffer) {
+    var bytes = new Uint8Array(arraybuffer),
+        i,
+        len = bytes.length,
+        base64 = "";
+
+    for (i = 0; i < len; i += 3) {
+      base64 += chars[bytes[i] >> 2];
+      base64 += chars[(bytes[i] & 3) << 4 | bytes[i + 1] >> 4];
+      base64 += chars[(bytes[i + 1] & 15) << 2 | bytes[i + 2] >> 6];
+      base64 += chars[bytes[i + 2] & 63];
+    }
+
+    if (len % 3 === 2) {
+      base64 = base64.substring(0, base64.length - 1) + "=";
+    } else if (len % 3 === 1) {
+      base64 = base64.substring(0, base64.length - 2) + "==";
+    }
+
+    return base64;
+  };
+
+  base64ArrayBuffer.decode = function (base64) {
+    var bufferLength = base64.length * 0.75,
+        len = base64.length,
+        i,
+        p = 0,
+        encoded1,
+        encoded2,
+        encoded3,
+        encoded4;
+
+    if (base64[base64.length - 1] === "=") {
+      bufferLength--;
+
+      if (base64[base64.length - 2] === "=") {
+        bufferLength--;
+      }
+    }
+
+    var arraybuffer = new ArrayBuffer(bufferLength),
+        bytes = new Uint8Array(arraybuffer);
+
+    for (i = 0; i < len; i += 4) {
+      encoded1 = lookup[base64.charCodeAt(i)];
+      encoded2 = lookup[base64.charCodeAt(i + 1)];
+      encoded3 = lookup[base64.charCodeAt(i + 2)];
+      encoded4 = lookup[base64.charCodeAt(i + 3)];
+      bytes[p++] = encoded1 << 2 | encoded2 >> 4;
+      bytes[p++] = (encoded2 & 15) << 4 | encoded3 >> 2;
+      bytes[p++] = (encoded3 & 3) << 6 | encoded4 & 63;
+    }
+
+    return arraybuffer;
+  };
+
+  return base64ArrayBuffer;
+}();
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
 // https://stackoverflow.com/questions/14224535/scaling-between-two-number-ranges
 function convertRange(value, r1, r2) {
   return (value - r1[0]) * (r2[1] - r2[0]) / (r1[1] - r1[0]) + r2[0];
@@ -66707,6 +66786,9 @@ Wick.ToolSettings = class {
 
   constructor() {
     this._settings = {};
+
+    this._onSettingsChangedCallback = () => {};
+
     Wick.ToolSettings.DEFAULT_SETTINGS.forEach(setting => {
       this.createSetting(setting);
     });
@@ -66753,6 +66835,8 @@ Wick.ToolSettings = class {
     }
 
     setting.value = value;
+
+    this._fireOnSettingsChanged(name, value);
   }
   /**
    *
@@ -66791,6 +66875,18 @@ Wick.ToolSettings = class {
     }
 
     return allSettings;
+  }
+  /**
+   *
+   */
+
+
+  onSettingsChanged(callback) {
+    this._onSettingsChangedCallback = callback;
+  }
+
+  _fireOnSettingsChanged(name, value) {
+    this._onSettingsChangedCallback(name, value);
   }
 
 };
@@ -67534,8 +67630,17 @@ Wick.Project = class extends Wick.Base {
       text: new Wick.Tools.Text(),
       zoom: new Wick.Tools.Zoom()
     };
-    this._toolSettings = new Wick.ToolSettings();
     this.activeTool = 'cursor';
+    this._toolSettings = new Wick.ToolSettings();
+
+    this._toolSettings.onSettingsChanged((name, value) => {
+      if (name === 'fillColor') {
+        this.selection.fillColor = value;
+      } else if (name === 'strokeColor') {
+        this.selection.strokeColor = value;
+      }
+    });
+
     this.history.project = this;
     this.history.pushState();
   }
@@ -77845,39 +77950,59 @@ Wick.View.Frame = class extends Wick.View {
       x: this.pathsLayer.bounds.x,
       y: this.pathsLayer.bounds.y
     };
-    var dataURL = raster.canvas.toDataURL();
-    this._rasterImageData = dataURL;
+    this._rasterImageData = raster.canvas;
   }
 
   _loadPixiTexture() {
     // Generate raster image data if needed
     if (!this._rasterImageData) {
       this._rasterizeSVG();
-    }
+    } // Create a PIXI texture from the rastered paths image
 
+
+    var texture = PIXI.Texture.from(this._rasterImageData); // Add a Pixi sprite using that texture to the paths container
+
+    var sprite = new PIXI.Sprite(texture);
+    sprite.scale.x = sprite.scale.x / Wick.View.Frame.RASTERIZE_RESOLUTION_MODIFIER;
+    sprite.scale.y = sprite.scale.y / Wick.View.Frame.RASTERIZE_RESOLUTION_MODIFIER;
+    this.pathsContainer.removeChildren();
+    this.pathsContainer.addChild(sprite); // Position sprite correctly
+
+    sprite.x = this._SVGBounds.x;
+    sprite.y = this._SVGBounds.y; // Cache pixi sprite
+
+    this._pixiSprite = sprite;
+    this._pixiSprite._wickDebugData = {
+      uuid: this.model.uuid,
+      type: 'frame_svg'
+    };
+
+    this._onRasterFinishCallback();
+    /*
     var loader = new PIXI.Loader();
     loader.add(this.model.uuid, this._rasterImageData);
     loader.load((loader, resources) => {
-      // Get the texture from the loader
-      var texture = resources[this.model.uuid].texture; // Add a Pixi sprite using that texture to the paths container
-
-      var sprite = new PIXI.Sprite(texture);
-      sprite.scale.x = sprite.scale.x / Wick.View.Frame.RASTERIZE_RESOLUTION_MODIFIER;
-      sprite.scale.y = sprite.scale.y / Wick.View.Frame.RASTERIZE_RESOLUTION_MODIFIER;
-      this.pathsContainer.removeChildren();
-      this.pathsContainer.addChild(sprite); // Position sprite correctly
-
-      sprite.x = this._SVGBounds.x;
-      sprite.y = this._SVGBounds.y; // Cache pixi sprite
-
-      this._pixiSprite = sprite;
-      this._pixiSprite._wickDebugData = {
-        uuid: this.model.uuid,
-        type: 'frame_svg'
-      };
-
-      this._onRasterFinishCallback();
+        // Get the texture from the loader
+        var texture = resources[this.model.uuid].texture;
+         // Add a Pixi sprite using that texture to the paths container
+        var sprite = new PIXI.Sprite(texture);
+        sprite.scale.x = sprite.scale.x / Wick.View.Frame.RASTERIZE_RESOLUTION_MODIFIER;
+        sprite.scale.y = sprite.scale.y / Wick.View.Frame.RASTERIZE_RESOLUTION_MODIFIER;
+        this.pathsContainer.removeChildren();
+        this.pathsContainer.addChild(sprite);
+         // Position sprite correctly
+        sprite.x = this._SVGBounds.x;
+        sprite.y = this._SVGBounds.y;
+         // Cache pixi sprite
+        this._pixiSprite = sprite;
+        this._pixiSprite._wickDebugData = {
+            uuid: this.model.uuid,
+            type: 'frame_svg',
+        };
+         this._onRasterFinishCallback();
     });
+    */
+
   }
 
   _applyClipChanges() {
@@ -79149,9 +79274,7 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
 
       var waveform = Wick.GUIElement.Frame.cachedWaveforms[this.model.uuid];
 
-      if (waveform) {
-        console.log(waveform);
-      }
+      if (waveform) {}
     }
 
     if (this.model.tweens.length === 0) {
