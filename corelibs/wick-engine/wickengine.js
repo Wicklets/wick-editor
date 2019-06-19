@@ -64951,6 +64951,130 @@ function Timestamp() {
   return date.join("") + "-" + time.join(".") + "" + suffix;
 }
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
+window.AudioContext = window.AudioContext || window.webkitAudioContext;
+
+Array.prototype.max = function () {
+  return Math.max.apply(null, this);
+};
+
+var audioContext = new AudioContext();
+
+var SCWF = function () {
+  var SoundCloudWaveform = {
+    settings: {
+      canvas_width: 1200,
+      canvas_height: 40,
+      bar_width: 2,
+      bar_gap: 0,
+      wave_color: "#AAAAFF",
+      download: false,
+      onComplete: function (png, pixels) {}
+    },
+    generate: function (src, options) {
+      // preparing canvas
+      this.settings.canvas = document.createElement('canvas');
+      this.settings.context = this.settings.canvas.getContext('2d');
+      this.settings.canvas.width = options.canvas_width !== undefined ? parseInt(options.canvas_width) : this.settings.canvas_width;
+      this.settings.canvas.height = options.canvas_height !== undefined ? parseInt(options.canvas_height) : this.settings.canvas_height; // setting fill color
+
+      this.settings.wave_color = options.wave_color !== undefined ? options.wave_color : this.settings.wave_color; // setting bars width and gap
+
+      this.settings.bar_width = options.bar_width !== undefined ? parseInt(options.bar_width) : this.settings.bar_width;
+      this.settings.bar_gap = options.bar_gap !== undefined ? parseFloat(options.bar_gap) : this.settings.bar_gap;
+      this.settings.download = options.download !== undefined ? options.download : this.settings.download;
+      this.settings.onComplete = options.onComplete !== undefined ? options.onComplete : this.settings.onComplete; // read file buffer
+
+      /*var reader = new FileReader();
+            reader.onload = function(event) {
+                SoundCloudWaveform.audioContext.decodeAudioData(event.target.result, function(buffer) {
+                    SoundCloudWaveform.extractBuffer(buffer);
+                });
+            };
+            reader.readAsArrayBuffer(file);*/
+
+      var rawData = src.split(",")[1]; // cut off extra filetype/etc data
+
+      var rawBuffer = Base64ArrayBuffer.decode(rawData);
+      audioContext.decodeAudioData(rawBuffer, function (buffer) {
+        if (!buffer) {
+          console.error("failed to decode:", "buffer null");
+          return;
+        }
+
+        SoundCloudWaveform.extractBuffer(buffer);
+      }, function (error) {
+        console.error("failed to decode:", error);
+      });
+    },
+    extractBuffer: function (buffer) {
+      buffer = buffer.getChannelData(0);
+      var sections = this.settings.canvas.width;
+      var len = Math.floor(buffer.length / sections);
+      var maxHeight = this.settings.canvas.height;
+      var vals = [];
+      var lastval = 0;
+
+      for (var i = 0; i < sections; i += this.settings.bar_width) {
+        var val = this.bufferMeasure(i * len, len, buffer) * 10000;
+
+        if (!isNaN(val)) {
+          vals.push(val);
+          lastval = val;
+        } else {
+          vals.push(lastval);
+        }
+      }
+
+      for (var j = 0; j < sections; j += this.settings.bar_width) {
+        var scale = maxHeight / vals.max();
+        var val = this.bufferMeasure(j * len, len, buffer) * 10000;
+        val *= scale;
+        val += 1;
+        this.drawBar(j, val);
+      }
+
+      if (this.settings.download) {
+        this.generateImage();
+      }
+
+      this.settings.onComplete(this.settings.canvas.toDataURL('image/png'), this.settings.context.getImageData(0, 0, this.settings.canvas.width, this.settings.canvas.height)); // clear canvas for redrawing
+
+      this.settings.context.clearRect(0, 0, this.settings.canvas.width, this.settings.canvas.height);
+    },
+    bufferMeasure: function (position, length, data) {
+      var sum = 0.0;
+
+      for (var i = position; i <= position + length - 1; i++) {
+        sum += Math.pow(data[i], 2);
+      }
+
+      return Math.sqrt(sum / data.length);
+    },
+    drawBar: function (i, h) {
+      //if(isNaN(h)) h = Math.random()*50
+      //h = h * 5000;
+      this.settings.context.fillStyle = this.settings.wave_color;
+      var w = this.settings.bar_width;
+
+      if (this.settings.bar_gap !== 0) {
+        w *= Math.abs(1 - this.settings.bar_gap);
+      }
+
+      var x = i + w / 2,
+          y = this.settings.canvas.height / 2 - h / 2 / 1.5;
+      this.settings.context.fillRect(x, y, w, h / 1.5);
+    },
+    generateImage: function () {
+      var image = this.settings.canvas.toDataURL('image/png');
+      var link = document.createElement('a');
+      link.href = image;
+      link.setAttribute('download', '');
+      link.click();
+    }
+  };
+  return SoundCloudWaveform;
+};
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /**
 * Tween.js - Licensed under the MIT license
@@ -66539,7 +66663,7 @@ Wick.ToolSettings = class {
       name: 'strokeWidth',
       default: 1,
       min: 0,
-      max: 50,
+      max: 100,
       step: 1
     }, {
       name: 'brushSize',
@@ -66550,7 +66674,7 @@ Wick.ToolSettings = class {
     }, {
       name: 'eraserSize',
       default: 10,
-      min: 2,
+      min: 1,
       max: 100,
       step: 1
     }, {
@@ -66563,7 +66687,7 @@ Wick.ToolSettings = class {
       name: 'brushStabilizerWeight',
       default: 0,
       min: 0,
-      max: 10,
+      max: 100,
       step: 1
     }, {
       name: 'pressureEnabled',
@@ -73143,7 +73267,7 @@ Wick.Tools.Brush = class extends Wick.Tool {
     this.croquisBrush.setColor(this.getSetting('fillColor').toCSS(true));
     this.croquisBrush.setSpacing(this.BRUSH_POINT_SPACING);
     this.croquis.setToolStabilizeLevel(this.BRUSH_STABILIZER_LEVEL);
-    this.croquis.setToolStabilizeWeight(this.getSetting('brushStabilizerWeight') / 10.0 + 0.3); // Forward mouse event to croquis canvas
+    this.croquis.setToolStabilizeWeight(this.getSetting('brushStabilizerWeight') / 100.0 + 0.3); // Forward mouse event to croquis canvas
 
     var point = this.paper.view.projectToView(e.point.x, e.point.y);
 
@@ -73850,7 +73974,7 @@ Wick.Tools.Eraser = class extends Wick.Tool {
     var cursorNeedsRegen = this.getSetting('eraserSize') !== this.cursorSize;
 
     if (cursorNeedsRegen) {
-      this.cachedCursor = this.createDynamicCursor('#ffffff', this.getSetting('eraserSize'));
+      this.cachedCursor = this.createDynamicCursor('#ffffff', this.getSetting('eraserSize') + 1);
       this.cursorSize = this.getSetting('eraserSize');
       this.setCursor(this.cachedCursor);
     }
@@ -73861,7 +73985,7 @@ Wick.Tools.Eraser = class extends Wick.Tool {
       this.path = new this.paper.Path({
         strokeColor: 'white',
         strokeCap: 'round',
-        strokeWidth: this.getSetting('eraserSize') / this.paper.view.zoom
+        strokeWidth: (this.getSetting('eraserSize') + 1) / this.paper.view.zoom
       });
     } // Add two points so we always at least have a dot.
 
@@ -74276,7 +74400,7 @@ Wick.Tools.Pan = class extends Wick.Tool {
 */
 Wick.Tools.Pencil = class extends Wick.Tool {
   static get MIN_ADD_POINT_MOVEMENT() {
-    return 5;
+    return 2;
   }
   /**
    * Creates a pencil tool.
@@ -74318,6 +74442,7 @@ Wick.Tools.Pencil = class extends Wick.Tool {
   }
 
   onMouseDrag(e) {
+    if (!this.path) return;
     this._movement = this._movement.add(e.delta);
 
     if (this._movement.length > Wick.Tools.Pencil.MIN_ADD_POINT_MOVEMENT / this.paper.view.zoom) {
@@ -74328,6 +74453,7 @@ Wick.Tools.Pencil = class extends Wick.Tool {
   }
 
   onMouseUp(e) {
+    if (!this.path) return;
     this.path.add(e.point);
     this.path.simplify();
     this.path = null;
@@ -78739,9 +78865,18 @@ Wick.GUIElement.AddFrameOverlay = class extends Wick.GUIElement {
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
 Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
+  static get cachedWaveforms() {
+    if (!Wick.GUIElement.Frame.__cachedWaveforms) {
+      Wick.GUIElement.Frame.__cachedWaveforms = {};
+    }
+
+    return Wick.GUIElement.Frame.__cachedWaveforms;
+  }
   /**
    *
    */
+
+
   constructor(model) {
     super(model);
     this.dragOffset = new paper.Point(0, 0);
@@ -79009,6 +79144,16 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
     });
     this.item.addChild(frameRect);
 
+    if (this.model.sound) {
+      this._generateWaveform();
+
+      var waveform = Wick.GUIElement.Frame.cachedWaveforms[this.model.uuid];
+
+      if (waveform) {
+        console.log(waveform);
+      }
+    }
+
     if (this.model.tweens.length === 0) {
       var contentDot = new this.paper.Path.Ellipse({
         center: [this.gridCellWidth / 2, this.gridCellHeight / 2 + 5],
@@ -79091,6 +79236,16 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
       frame.guiElement.build();
     });
     this.model.project.guiElement.fire('projectModified');
+  }
+
+  _generateWaveform() {
+    var soundSrc = this.model.sound.src;
+    var scwf = new SCWF();
+    scwf.generate(soundSrc, {
+      onComplete: (png, pixels) => {
+        Wick.GUIElement.Frame.cachedWaveforms[this.model.uuid] = png;
+      }
+    });
   }
 
 };
