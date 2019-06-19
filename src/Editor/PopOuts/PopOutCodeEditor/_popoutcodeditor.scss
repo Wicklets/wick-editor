@@ -88,12 +88,13 @@ $code-editor-thumbnail-size: 50px;
 }
 
 .code-editor-close-button {
-  height: 16px;
-  width: 16px;
+  height: 20px;
+  width: 20px;
   margin-right: 10px;
   position: absolute;
   right: 0;
   background-color: $editor-popout-primary;
+  border-radius: 3px;
   cursor: pointer;
 }
 
