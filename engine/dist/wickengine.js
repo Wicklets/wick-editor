@@ -66707,6 +66707,9 @@ Wick.ToolSettings = class {
 
   constructor() {
     this._settings = {};
+
+    this._onSettingsChangedCallback = () => {};
+
     Wick.ToolSettings.DEFAULT_SETTINGS.forEach(setting => {
       this.createSetting(setting);
     });
@@ -66753,6 +66756,8 @@ Wick.ToolSettings = class {
     }
 
     setting.value = value;
+
+    this._fireOnSettingsChanged(name, value);
   }
   /**
    *
@@ -66791,6 +66796,18 @@ Wick.ToolSettings = class {
     }
 
     return allSettings;
+  }
+  /**
+   *
+   */
+
+
+  onSettingsChanged(callback) {
+    this._onSettingsChangedCallback = callback;
+  }
+
+  _fireOnSettingsChanged(name, value) {
+    this._onSettingsChangedCallback(name, value);
   }
 
 };
@@ -67534,8 +67551,17 @@ Wick.Project = class extends Wick.Base {
       text: new Wick.Tools.Text(),
       zoom: new Wick.Tools.Zoom()
     };
-    this._toolSettings = new Wick.ToolSettings();
     this.activeTool = 'cursor';
+    this._toolSettings = new Wick.ToolSettings();
+
+    this._toolSettings.onSettingsChanged((name, value) => {
+      if (name === 'fillColor') {
+        this.selection.fillColor = value;
+      } else if (name === 'strokeColor') {
+        this.selection.strokeColor = value;
+      }
+    });
+
     this.history.project = this;
     this.history.pushState();
   }

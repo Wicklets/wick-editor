@@ -993,4 +993,50 @@ describe('Wick.Project', function() {
             expect(project.getFonts()[2]).to.equal('baz');
         });
     })
+
+    it('should change path fillColor when the fillColor tool setting is changed', function () {
+        var project = new Wick.Project();
+        var path = TestUtils.paperToWickPath(new paper.Path.Rectangle({
+            fillColor: '#000000',
+            strokeColor: '#000000',
+            from: [0, 0],
+            to: [100, 100],
+        }));
+        project.activeFrame.addPath(path);
+
+        // path isn't selected. fillcolor should not change
+        project.toolSettings.setSetting('fillColor', '#ff0000');
+        expect(path.fillColor.toCSS(true)).to.equal('#000000');
+
+        project.selection.select(path);
+        expect(path.fillColor.toCSS(true)).to.equal('#000000');
+
+        // path is selected, fillcolor should be changed
+        project.toolSettings.setSetting('fillColor', '#00ff00');
+        expect(path.fillColor.toCSS(true)).to.equal('#00ff00');
+        expect(path.strokeColor.toCSS(true)).to.equal('#000000');
+    });
+
+    it('should change path strokeColor when the strokeColor tool setting is changed', function () {
+        var project = new Wick.Project();
+        var path = TestUtils.paperToWickPath(new paper.Path.Rectangle({
+            fillColor: '#000000',
+            strokeColor: '#000000',
+            from: [0, 0],
+            to: [100, 100],
+        }));
+        project.activeFrame.addPath(path);
+
+        // path isn't selected. fillcolor should not change
+        project.toolSettings.setSetting('strokeColor', '#ff0000');
+        expect(path.strokeColor.toCSS(true)).to.equal('#000000');
+
+        project.selection.select(path);
+        expect(path.strokeColor.toCSS(true)).to.equal('#000000');
+
+        // path is selected, fillcolor should be changed
+        project.toolSettings.setSetting('strokeColor', '#00ff00');
+        expect(path.strokeColor.toCSS(true)).to.equal('#00ff00');
+        expect(path.fillColor.toCSS(true)).to.equal('#000000');
+    });
 });

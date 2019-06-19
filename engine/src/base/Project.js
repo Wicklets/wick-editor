@@ -80,8 +80,16 @@ Wick.Project = class extends Wick.Base {
             text: new Wick.Tools.Text(),
             zoom: new Wick.Tools.Zoom(),
         };
-        this._toolSettings = new Wick.ToolSettings();
         this.activeTool = 'cursor';
+
+        this._toolSettings = new Wick.ToolSettings();
+        this._toolSettings.onSettingsChanged((name, value) => {
+            if(name === 'fillColor') {
+                this.selection.fillColor = value;
+            } else if (name === 'strokeColor') {
+                this.selection.strokeColor = value;
+            }
+        });
 
         this.history.project = this;
         this.history.pushState();
