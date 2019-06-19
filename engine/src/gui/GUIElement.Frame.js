@@ -253,7 +253,7 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
             this.ghost.position = this.ghost.position.subtract(new paper.Point(this.dragOffset.x, this.dragOffset.y));
             this.ghost.position = this.ghost.position.add(this.ghostPosition);
         }else{
-            this.ghost.position = new paper.Point(this.x, this.y);
+            this.ghost.position = new paper.Point(0, 0);
             this.ghost.position = this.ghost.position.subtract(new paper.Point(this.dragOffset.x, this.dragOffset.y));
         }
         this.ghost.width = this.ghostWidth;

@@ -78029,8 +78029,7 @@ Wick.GUIElement.TWEEN_STROKE_WIDTH = 3;
 Wick.GUIElement.TWEEN_FILL_COLOR = '#222244';
 Wick.GUIElement.TWEEN_HOVER_COLOR = '#ff9933';
 Wick.GUIElement.TWEEN_STROKE_COLOR = '#222244';
-Wick.GUIElement.FRAME_GHOST_CAN_DROP_COLOR = Wick.GUIElement.WICK_GREEN;
-Wick.GUIElement.FRAME_GHOST_CANT_DROP_COLOR = Wick.GUIElement.WICK_RED;
+Wick.GUIElement.FRAME_GHOST_COLOR = Wick.GUIElement.WICK_GREEN;
 Wick.GUIElement.FRAME_GHOST_STROKE_WIDTH = 5;
 Wick.GUIElement.FRAMES_STRIP_VERTICAL_MARGIN = 4;
 Wick.GUIElement.FRAMES_STRIP_ACTIVE_FILL_COLOR = '#D8D8D8';
@@ -78839,7 +78838,7 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
       this.ghost.position = this.ghost.position.subtract(new paper.Point(this.dragOffset.x, this.dragOffset.y));
       this.ghost.position = this.ghost.position.add(this.ghostPosition);
     }else{
-      this.ghost.position = new paper.Point(this.x, this.y);
+      this.ghost.position = new paper.Point(0, 0);
       this.ghost.position = this.ghost.position.subtract(new paper.Point(this.dragOffset.x, this.dragOffset.y));
     }
     this.ghost.width = this.ghostWidth;
@@ -79087,8 +79086,8 @@ Wick.GUIElement.FrameGhost = class extends Wick.GUIElement {
     var frameRect = new this.paper.Path.Rectangle({
       from: new this.paper.Point(this.position.x, this.position.y),
       to: new this.paper.Point(this.position.x + this.width, this.position.y + this.height),
-      strokeColor: Wick.GUIElement.FRAME_GHOST_CAN_DROP_COLOR,
-      fillColor: Wick.GUIElement.FRAME_GHOST_CAN_DROP_COLOR,
+      strokeColor: Wick.GUIElement.FRAME_GHOST_COLOR,
+      fillColor: Wick.GUIElement.FRAME_GHOST_COLOR,
       strokeWidth: Wick.GUIElement.FRAME_GHOST_STROKE_WIDTH,
       opacity:0.8,
       radius: Wick.GUIElement.FRAME_BORDER_RADIUS
