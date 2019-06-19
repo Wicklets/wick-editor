@@ -27,6 +27,7 @@ gulp.task('default', function() {
             'lib/potrace.js',
             'lib/reserved-words.js',
             'lib/timestamp.js',
+            'lib/soundcloud-waveform.js',
             'lib/Tween.js',
             'lib/uuid.js',
             'src/Wick.js',

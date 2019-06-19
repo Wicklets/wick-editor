@@ -18,6 +18,13 @@
  */
 
 Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
+    static get cachedWaveforms () {
+        if(!Wick.GUIElement.Frame.__cachedWaveforms) {
+            Wick.GUIElement.Frame.__cachedWaveforms = {};
+        }
+        return Wick.GUIElement.Frame.__cachedWaveforms;
+    }
+
     /**
      *
      */
@@ -281,6 +288,14 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
         });
         this.item.addChild(frameRect);
 
+        if(this.model.sound) {
+            this._generateWaveform();
+            var waveform = Wick.GUIElement.Frame.cachedWaveforms[this.model.uuid];
+            if(waveform) {
+                console.log(waveform)
+            }
+        }
+
         if(this.model.tweens.length === 0) {
             var contentDot = new this.paper.Path.Ellipse({
                 center: [this.gridCellWidth/2, this.gridCellHeight/2 + 5],
@@ -358,7 +373,7 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
                 canDrop = false;
             }
         });
-        
+
         this.draggingFrames.forEach(frame => {
             if(canDrop) {
                 frame.guiElement.drop();
@@ -370,5 +385,16 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
         });
 
         this.model.project.guiElement.fire('projectModified');
+    }
+
+    _generateWaveform () {
+        var soundSrc = this.model.sound.src;
+
+        var scwf = new SCWF();
+        scwf.generate(soundSrc, {
+            onComplete: (png, pixels) => {
+                Wick.GUIElement.Frame.cachedWaveforms[this.model.uuid] = png;
+            }
+        });
     }
 }
