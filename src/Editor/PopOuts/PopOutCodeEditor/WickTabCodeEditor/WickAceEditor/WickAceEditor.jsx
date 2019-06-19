@@ -45,14 +45,14 @@ class WickAceEditor extends Component {
     let markers = [];
 
     errors.forEach(error => {
-      let a = {};
-      a.startRow = error.lineNumber-1;
-      a.endRow = error.lineNumber-1;
-      a.startCol = 0;
-      a.endCol = 1000; // Set length to an arbitrary amount that should encompass the whole line.
-      a.className = 'error-marker';
-      a.type = 'background';
-      markers.push(a);
+      let marker = {};
+      marker.startRow = error.lineNumber-1;
+      marker.endRow = error.lineNumber-1;
+      marker.startCol = 0;
+      marker.endCol = 1000; // Set length to an arbitrary amount that should encompass the whole line.
+      marker.className = 'error-marker';
+      marker.type = 'background';
+      markers.push(marker);
     });
     return markers;
   }
