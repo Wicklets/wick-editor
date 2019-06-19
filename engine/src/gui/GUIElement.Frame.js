@@ -245,27 +245,31 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
     /**
      *
      */
-    build () {
+    build() {
         super.build();
-
-        this.ghost.position = new paper.Point(0,0);
-        this.ghost.position = this.ghost.position.subtract(new paper.Point(this.x, this.y));
-        this.ghost.position = this.ghost.position.subtract(new paper.Point(this.dragOffset.x, this.dragOffset.y));
-        this.ghost.position = this.ghost.position.add(this.ghostPosition);
+        if(this.canDrop){
+            this.ghost.position = new paper.Point(0, 0);
+            this.ghost.position = this.ghost.position.subtract(new paper.Point(this.x, this.y));
+            this.ghost.position = this.ghost.position.subtract(new paper.Point(this.dragOffset.x, this.dragOffset.y));
+            this.ghost.position = this.ghost.position.add(this.ghostPosition);
+        }else{
+            this.ghost.position = new paper.Point(this.x, this.y);
+            this.ghost.position = this.ghost.position.subtract(new paper.Point(this.dragOffset.x, this.dragOffset.y));
+        }
         this.ghost.width = this.ghostWidth;
         this.ghost.build();
         this.item.addChild(this.ghost.item);
-
         var fillColor = 'rgba(0,0,0,0)';
-        if(this.isHoveredOver) {
-            if(this.model.tweens.length > 0) {
-                fillColor = Wick.GUIElement.FRAME_TWEENED_HOVERED_OVER;
+
+        if (this.isHoveredOver) {
+            if (this.model.tweens.length > 0) {
+            fillColor = Wick.GUIElement.FRAME_TWEENED_HOVERED_OVER;
             } else {
-                fillColor = Wick.GUIElement.FRAME_HOVERED_OVER;
+            fillColor = Wick.GUIElement.FRAME_HOVERED_OVER;
             }
-        } else if(this.model.tweens.length > 0) {
+        } else if (this.model.tweens.length > 0) {
             fillColor = Wick.GUIElement.FRAME_TWEENED_FILL_COLOR;
-        } else if(this.model.contentful) {
+        } else if (this.model.contentful) {
             fillColor = Wick.GUIElement.FRAME_CONTENTFUL_FILL_COLOR;
         } else {
             fillColor = Wick.GUIElement.FRAME_UNCONTENTFUL_FILL_COLOR;
@@ -277,17 +281,17 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
             fillColor: fillColor,
             strokeColor: this.model.isSelected ? Wick.GUIElement.SELECTED_ITEM_BORDER_COLOR : '#000000',
             strokeWidth: this.model.isSelected ? 3 : 0,
-            radius: Wick.GUIElement.FRAME_BORDER_RADIUS,
+            radius: Wick.GUIElement.FRAME_BORDER_RADIUS
         });
         this.item.addChild(frameRect);
 
-        if(this.model.tweens.length === 0) {
+        if (this.model.tweens.length === 0) {
             var contentDot = new this.paper.Path.Ellipse({
-                center: [this.gridCellWidth/2, this.gridCellHeight/2 + 5],
-                radius: Wick.GUIElement.FRAME_CONTENT_DOT_RADIUS,
-                fillColor: this.model.contentful ? Wick.GUIElement.FRAME_CONTENT_DOT_COLOR: 'rgba(0,0,0,0)',
-                strokeColor: Wick.GUIElement.FRAME_CONTENT_DOT_COLOR,
-                strokeWidth: Wick.GUIElement.FRAME_CONTENT_DOT_STROKE_WIDTH,
+            center: [this.gridCellWidth / 2, this.gridCellHeight / 2 + 5],
+            radius: Wick.GUIElement.FRAME_CONTENT_DOT_RADIUS,
+            fillColor: this.model.contentful ? Wick.GUIElement.FRAME_CONTENT_DOT_FILL : 'rgba(0,0,0,0)',
+            strokeColor: Wick.GUIElement.FRAME_CONTENT_DOT_STROKE,
+            strokeWidth: Wick.GUIElement.FRAME_CONTENT_DOT_STROKE_WIDTH
             });
             this.item.addChild(contentDot);
         }

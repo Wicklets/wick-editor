@@ -121,7 +121,7 @@ Wick.GUIElement.LayerLabel = class extends Wick.GUIElement.Draggable {
             fillColor: this.model.isActive ? Wick.GUIElement.LAYER_LABEL_ACTIVE_FILL_COLOR : Wick.GUIElement.LAYER_LABEL_INACTIVE_FILL_COLOR,
             strokeColor: this.model.isSelected ? Wick.GUIElement.SELECTED_ITEM_BORDER_COLOR : 'rgba(0,0,0,0)',
             strokeWidth: this.model.isSelected ? 3 : 0,
-            radius: 2,
+            radius: Wick.GUIElement.LAYER_LABEL_BORDER_RADIUS
         });
         this.item.addChild(layerRect);
 
