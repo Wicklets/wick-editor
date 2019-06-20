@@ -22,7 +22,7 @@
  */
 Wick = {
     /* Major.Minor.Patch[ReleaseType] */
-    version: "1.0.11a",
+    version: "1.0.12a",
 }
 
 console.log("Wick Engine " + Wick.version + " is available.");

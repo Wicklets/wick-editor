@@ -65894,7 +65894,7 @@ TWEEN.Interpolation = {
  */
 Wick = {
   /* Major.Minor.Patch[ReleaseType] */
-  version: "1.0.11a"
+  version: "1.0.12a"
 };
 console.log("Wick Engine " + Wick.version + " is available."); // Ensure that the Wick namespace is accessible in environments where globals are finicky (react, webpack, etc)
 
@@ -81707,6 +81707,8 @@ Wick.GUIElement.Tween = class extends Wick.GUIElement.Draggable {
       this.build();
     });
     this.on('mouseDown', e => {
+      this.model.project.activeTimeline.playheadPosition = this.model.playheadPosition;
+
       if (!e.modifiers.shift && !this.model.isSelected) {
         this.model.project.selection.clear();
       }
