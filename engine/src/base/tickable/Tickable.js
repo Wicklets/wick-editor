@@ -487,8 +487,9 @@ Wick.Tickable = class extends Wick.Base {
           window.parentObject = this.parentObject;
 
           // Run the function
+          var thisScope = this instanceof Wick.Clip ? this : this.parentClip;
           try {
-              fn.bind(this)();
+              fn.bind(thisScope)();
           } catch (e) {
               // Catch runtime errors
               error = this._generateErrorInfo(e, name);
