@@ -729,8 +729,12 @@ Wick.Project = class extends Wick.Base {
      * Stops all sounds playing from frames and sounds played using playSound().
      */
     stopAllSounds () {
-        // TODO: Stop all sounds started with Wick.Project.playSound();
+        // Stop all sounds started with Wick.Project.playSound();
+        this.getAssets('Sound').forEach(soundAsset => {
+            soundAsset.stop();
+        });
 
+        // Stop all sounds on frames
         this.getAllFrames().forEach(frame => {
             frame.stopSound();
         });
