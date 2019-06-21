@@ -68321,7 +68321,11 @@ Wick.Project = class extends Wick.Base {
 
 
   stopAllSounds() {
-    // TODO: Stop all sounds started with Wick.Project.playSound();
+    // Stop all sounds started with Wick.Project.playSound();
+    this.getAssets('Sound').forEach(soundAsset => {
+      soundAsset.stop();
+    }); // Stop all sounds on frames
+
     this.getAllFrames().forEach(frame => {
       frame.stopSound();
     });
@@ -71786,8 +71790,10 @@ Wick.Tickable = class extends Wick.Base {
     window.parent = this.parentClip;
     window.parentObject = this.parentObject; // Run the function
 
+    var thisScope = this instanceof Wick.Clip ? this : this.parentClip;
+
     try {
-      fn.bind(this)();
+      fn.bind(thisScope)();
     } catch (e) {
       // Catch runtime errors
       error = this._generateErrorInfo(e, name);
@@ -81707,6 +81713,8 @@ Wick.GUIElement.Tween = class extends Wick.GUIElement.Draggable {
       this.build();
     });
     this.on('mouseDown', e => {
+      this.model.project.activeTimeline.playheadPosition = this.model.playheadPosition;
+
       if (!e.modifiers.shift && !this.model.isSelected) {
         this.model.project.selection.clear();
       }
