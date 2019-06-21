@@ -52,6 +52,7 @@ class WelcomeModal extends Component {
                 <li>Fixed the playSound() function</li>
                 <li>Fixed a scoping issue with frame scripts</li>
                 <li>Small GUI fixes for tween keyframes</li>
+                <li>Exported GIFs now play Clip timelines</li>
                 <li>Other minor bugfixes</li>
               </ul>
             </div>
