@@ -68508,7 +68508,9 @@ Wick.Project = class extends Wick.Base {
 
 
   generateImageSequence(args, callback) {
-    var oldCanvasContainer = this.view.canvasContainer; // Put the project canvas inside a div that's the same size as the project so the frames render at the correct resolution.
+    var oldCanvasContainer = this.view.canvasContainer;
+    this.history.saveSnapshot('before-gif-render');
+    this.tick(); // Put the project canvas inside a div that's the same size as the project so the frames render at the correct resolution.
 
     let container = window.document.createElement('div');
     container.style.width = this.width / window.devicePixelRatio + 'px';
@@ -68542,9 +68544,10 @@ Wick.Project = class extends Wick.Base {
 
           this.view.canvasContainer = oldCanvasContainer;
           this.view.resize();
+          this.history.loadSnapshot('before-gif-render');
           callback(frameImages);
         } else {
-          this.focus.timeline.playheadPosition++;
+          this.tick();
           renderFrame();
         }
       };
@@ -71748,7 +71751,6 @@ Wick.Tickable = class extends Wick.Base {
 
     try {
       fn = new Function([], src);
-      fn = fn.bind(this);
     } catch (e) {
       // This should almost never be thrown unless there is an attempt to use syntax
       // that the syntax checker (esprima) does not understand.
@@ -71790,7 +71792,7 @@ Wick.Tickable = class extends Wick.Base {
     window.parent = this.parentClip;
     window.parentObject = this.parentObject; // Run the function
 
-    var thisScope = this instanceof Wick.Clip ? this : this.parentClip;
+    var thisScope = this instanceof Wick.Frame ? this.parentClip : this;
 
     try {
       fn.bind(thisScope)();

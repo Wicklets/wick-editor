@@ -339,7 +339,7 @@ describe('Wick.Project', function() {
 
             var error = project.tick();
             expect(error).to.equal(null);
-            expect(project.activeFrame.__dummy).to.equal('foo');
+            expect(project.activeFrame.parentClip.__dummy).to.equal('foo');
         });
 
         it('should advance timeline on tick', function() {

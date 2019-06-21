@@ -911,6 +911,9 @@ Wick.Project = class extends Wick.Base {
     generateImageSequence (args, callback) {
         var oldCanvasContainer = this.view.canvasContainer;
 
+        this.history.saveSnapshot('before-gif-render');
+        this.tick();
+
         // Put the project canvas inside a div that's the same size as the project so the frames render at the correct resolution.
         let container = window.document.createElement('div');
         container.style.width = (this.width/window.devicePixelRatio)+'px';
@@ -944,9 +947,11 @@ Wick.Project = class extends Wick.Base {
                     this.view.canvasContainer = oldCanvasContainer;
                     this.view.resize();
 
+                    this.history.loadSnapshot('before-gif-render');
+
                     callback(frameImages);
                 } else {
-                    this.focus.timeline.playheadPosition++;
+                    this.tick();
                     renderFrame();
                 }
             }
