@@ -240,7 +240,7 @@ Wick.View.Frame = class extends Wick.View {
             y: this.pathsLayer.bounds.y
         };
 
-        this._rasterImageData = raster.canvas;
+        this._rasterImageData = raster.canvas.toDataURL();
     }
 
     _loadPixiTexture () {
@@ -249,6 +249,8 @@ Wick.View.Frame = class extends Wick.View {
             this._rasterizeSVG();
         }
 
+        // Fast but unstable method:
+        /*
         // Create a PIXI texture from the rastered paths image
         var texture = PIXI.Texture.from(this._rasterImageData);
 
@@ -271,8 +273,8 @@ Wick.View.Frame = class extends Wick.View {
         };
 
         this._onRasterFinishCallback();
+        */
 
-        /*
         var loader = new PIXI.Loader();
         loader.add(this.model.uuid, this._rasterImageData);
         loader.load((loader, resources) => {
@@ -299,7 +301,6 @@ Wick.View.Frame = class extends Wick.View {
 
             this._onRasterFinishCallback();
         });
-        */
     }
 
     _applyClipChanges () {
