@@ -77958,59 +77958,60 @@ Wick.View.Frame = class extends Wick.View {
       x: this.pathsLayer.bounds.x,
       y: this.pathsLayer.bounds.y
     };
-    this._rasterImageData = raster.canvas;
+    this._rasterImageData = raster.canvas.toDataURL();
   }
 
   _loadPixiTexture() {
     // Generate raster image data if needed
     if (!this._rasterImageData) {
       this._rasterizeSVG();
-    } // Create a PIXI texture from the rastered paths image
+    } // Fast but unstable method:
 
-
-    var texture = PIXI.Texture.from(this._rasterImageData); // Add a Pixi sprite using that texture to the paths container
-
+    /*
+    // Create a PIXI texture from the rastered paths image
+    var texture = PIXI.Texture.from(this._rasterImageData);
+     // Add a Pixi sprite using that texture to the paths container
     var sprite = new PIXI.Sprite(texture);
     sprite.scale.x = sprite.scale.x / Wick.View.Frame.RASTERIZE_RESOLUTION_MODIFIER;
     sprite.scale.y = sprite.scale.y / Wick.View.Frame.RASTERIZE_RESOLUTION_MODIFIER;
     this.pathsContainer.removeChildren();
-    this.pathsContainer.addChild(sprite); // Position sprite correctly
-
+    this.pathsContainer.addChild(sprite);
+     // Position sprite correctly
     sprite.x = this._SVGBounds.x;
-    sprite.y = this._SVGBounds.y; // Cache pixi sprite
-
+    sprite.y = this._SVGBounds.y;
+     // Cache pixi sprite
     this._pixiSprite = sprite;
     this._pixiSprite._wickDebugData = {
-      uuid: this.model.uuid,
-      type: 'frame_svg'
+        uuid: this.model.uuid,
+        type: 'frame_svg',
     };
+     this._onRasterFinishCallback();
+    */
 
-    this._onRasterFinishCallback();
-    /*
+
     var loader = new PIXI.Loader();
     loader.add(this.model.uuid, this._rasterImageData);
     loader.load((loader, resources) => {
-        // Get the texture from the loader
-        var texture = resources[this.model.uuid].texture;
-         // Add a Pixi sprite using that texture to the paths container
-        var sprite = new PIXI.Sprite(texture);
-        sprite.scale.x = sprite.scale.x / Wick.View.Frame.RASTERIZE_RESOLUTION_MODIFIER;
-        sprite.scale.y = sprite.scale.y / Wick.View.Frame.RASTERIZE_RESOLUTION_MODIFIER;
-        this.pathsContainer.removeChildren();
-        this.pathsContainer.addChild(sprite);
-         // Position sprite correctly
-        sprite.x = this._SVGBounds.x;
-        sprite.y = this._SVGBounds.y;
-         // Cache pixi sprite
-        this._pixiSprite = sprite;
-        this._pixiSprite._wickDebugData = {
-            uuid: this.model.uuid,
-            type: 'frame_svg',
-        };
-         this._onRasterFinishCallback();
-    });
-    */
+      // Get the texture from the loader
+      var texture = resources[this.model.uuid].texture; // Add a Pixi sprite using that texture to the paths container
 
+      var sprite = new PIXI.Sprite(texture);
+      sprite.scale.x = sprite.scale.x / Wick.View.Frame.RASTERIZE_RESOLUTION_MODIFIER;
+      sprite.scale.y = sprite.scale.y / Wick.View.Frame.RASTERIZE_RESOLUTION_MODIFIER;
+      this.pathsContainer.removeChildren();
+      this.pathsContainer.addChild(sprite); // Position sprite correctly
+
+      sprite.x = this._SVGBounds.x;
+      sprite.y = this._SVGBounds.y; // Cache pixi sprite
+
+      this._pixiSprite = sprite;
+      this._pixiSprite._wickDebugData = {
+        uuid: this.model.uuid,
+        type: 'frame_svg'
+      };
+
+      this._onRasterFinishCallback();
+    });
   }
 
   _applyClipChanges() {
@@ -78828,6 +78829,7 @@ Wick.GUIElement.Draggable = class extends Wick.GUIElement.Clickable {
     };
 
     var onMouseMove = e => {
+      console.log(e);
       this.model.project.guiElement.updateMousePosition(e);
       this.lastMouseDrag = this.mouseDragEnd;
       this.mouseDragEnd = {
@@ -78854,6 +78856,8 @@ Wick.GUIElement.Draggable = class extends Wick.GUIElement.Clickable {
 
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseup', onMouseUp);
+    document.addEventListener('touchmove', onMouseMove);
+    document.addEventListener('touchend', onMouseUp);
   }
 
 };
@@ -81093,11 +81097,24 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
 
 
   updateMousePosition(e) {
-    if (e.target && e.target.getBoundingClientRect) {
+    // This fixes the NaN errors on touch devices:
+    var x = 0;
+    var y = 0;
+
+    if (e.touches) {
+      var touch = e.touches[0];
+      x = touch ? touch.clientX : null;
+      y = touch ? touch.clientY : null;
+    } else {
+      x = e.clientX;
+      y = e.clientY;
+    }
+
+    if (x !== null && y !== null && e.target && e.target.getBoundingClientRect) {
       var bounds = e.target.getBoundingClientRect();
       this.mousePosition = {
-        x: e.clientX - bounds.left,
-        y: e.clientY - bounds.top
+        x: x - bounds.left,
+        y: y - bounds.top
       };
     }
   }
@@ -81132,6 +81149,10 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
     });
 
     this.paper.view.onMouseDown = e => {
+      if (e.touches) {
+        this.paper.view.onMouseMove(e);
+      }
+
       if (e.event.button === 2) {
         this.fire('rightClick', {});
       }
