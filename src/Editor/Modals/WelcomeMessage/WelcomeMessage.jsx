@@ -28,7 +28,7 @@ import nightImage from 'resources/interface-images/blue_night.svg';
 
 class WelcomeModal extends Component {
   getVersion() {
-    return "1.0.10"
+    return "1.0.11"
   }
 
   render() {
@@ -49,6 +49,7 @@ class WelcomeModal extends Component {
             <div id="welcome-modal-subtitle" className="welcome-modal-item">Wick Editor {this.getVersion()} includes:</div>
             <div id="welcome-modal-message" className="welcome-modal-item">
               <ul>
+                <li>Fixed the timeline to work with touch events</li>
                 <li>Fixed the playSound() function</li>
                 <li>Fixed a scoping issue with frame scripts</li>
                 <li>Small GUI fixes for tween keyframes</li>
