@@ -94,11 +94,23 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
      *
      */
     updateMousePosition (e) {
-        if(e.target && e.target.getBoundingClientRect) {
+        // This fixes the NaN errors on touch devices:
+        var x = 0;
+        var y = 0;
+        if(e.touches) {
+            var touch = e.touches[0];
+            x = touch ? touch.clientX : null;
+            y = touch ? touch.clientY : null;
+        } else {
+            x = e.clientX;
+            y = e.clientY;
+        }
+
+        if(x !== null && y !== null && e.target && e.target.getBoundingClientRect) {
             var bounds = e.target.getBoundingClientRect();
             this.mousePosition = {
-                x: e.clientX - bounds.left,
-                y: e.clientY - bounds.top,
+                x: x - bounds.left,
+                y: y - bounds.top,
             };
         }
     }
@@ -130,6 +142,10 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
         $(this.paper.view.element).on('contextmenu', (e) => { return false; });
 
         this.paper.view.onMouseDown = (e) => {
+            if(e.touches) {
+                this.paper.view.onMouseMove(e);
+            }
+
             if(e.event.button === 2) {
               this.fire('rightClick', {});
             }
