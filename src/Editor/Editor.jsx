@@ -51,7 +51,6 @@ import CanvasTransforms from './Panels/CanvasTransforms/CanvasTransforms';
 import Toolbox from './Panels/Toolbox/Toolbox';
 import AssetLibrary from './Panels/AssetLibrary/AssetLibrary';
 import PopOutCodeEditor from './PopOuts/PopOutCodeEditor/PopOutCodeEditor';
-import CanvasActions from './Panels/CanvasActions/CanvasActions';
 
 class Editor extends EditorCore {
   constructor () {
@@ -88,7 +87,7 @@ class Editor extends EditorCore {
 
     // Create interfaces.
     this.fontInfoInterface = new FontInfoInterface(this);
-  
+
     // Init hotkeys
     this.hotKeyInterface = new HotKeyInterface(this);
 
@@ -122,7 +121,7 @@ class Editor extends EditorCore {
     // Initialize "live" engine state
     this.project = new window.Wick.Project();
     this.paper = window.paper;
-    
+
     // Initialize local storage
     localForage.config({
       name        : 'WickEditor',
@@ -653,10 +652,6 @@ class Editor extends EditorCore {
                                 setActiveTool={this.setActiveTool}
                                 previewPlaying={this.state.previewPlaying}
                                 togglePreviewPlaying={this.togglePreviewPlaying}
-                              />
-                              <CanvasActions
-                                previewPlaying={this.state.previewPlaying}
-                                editorActions={this.actionMapInterface.editorActions}
                               />
                             </DockedPanel>
                           </ReflexElement>

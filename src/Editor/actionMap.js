@@ -83,9 +83,9 @@ class ActionMapInterface extends Object {
         id: 'action-add-tween',
       },
       makeAnimated: {
-        icon: 'animated', 
+        icon: 'animated',
         tooltip: 'Make Animated',
-        action: this.editor.beginMakeAnimatedProcess, 
+        action: this.editor.beginMakeAnimatedProcess,
         id: 'action-make-animated',
       },
       makeInteractive: {
@@ -111,7 +111,7 @@ class ActionMapInterface extends Object {
         tooltip: 'Redo',
         action: this.editor.redoAction,
         id: 'action-redo',
-      }, 
+      },
       copy: {
         icon: 'copy',
         tooltip: 'Copy',
@@ -123,12 +123,18 @@ class ActionMapInterface extends Object {
         tooltip: 'Paste',
         action: this.editor.pasteFromClipboard,
         id: 'action-paste-from-clipboard',
-      }, 
+      },
       delete: {
         icon: 'delete',
         tooltip: 'Delete',
         action: this.editor.deleteSelectedObjects,
         id: 'action-delete-selected-objects',
+      },
+      showMoreCanvasActions: {
+        icon: 'showMoreCanvasActions',
+        tooltip: 'More Actions...',
+        action: () => {/* This is done in ColorPicker.jsx */},
+        id: 'action-show-more-canvas-options',
       }
     }
   }
