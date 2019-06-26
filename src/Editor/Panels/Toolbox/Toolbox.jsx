@@ -147,6 +147,7 @@ class Toolbox extends Component {
               target="more-canvas-actions-popover-button"
               toggle={this.toggleMoreCanvasActionsPopoverOpen}
               boundariesElement={'viewport'}
+              className={"more-canvas-actions-popover"}
             >
               <CanvasActions {...this.props} />
             </Popover>
