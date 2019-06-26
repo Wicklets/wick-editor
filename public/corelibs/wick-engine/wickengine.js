@@ -78829,7 +78829,6 @@ Wick.GUIElement.Draggable = class extends Wick.GUIElement.Clickable {
     };
 
     var onMouseMove = e => {
-      console.log(e);
       this.model.project.guiElement.updateMousePosition(e);
       this.lastMouseDrag = this.mouseDragEnd;
       this.mouseDragEnd = {
@@ -78852,6 +78851,8 @@ Wick.GUIElement.Draggable = class extends Wick.GUIElement.Clickable {
       this.fire('dragEnd');
       document.removeEventListener('mousemove', onMouseMove);
       document.removeEventListener('mouseup', onMouseUp);
+      document.removeEventListener('touchmove', onMouseMove);
+      document.removeEventListener('touchend', onMouseUp);
     };
 
     document.addEventListener('mousemove', onMouseMove);
