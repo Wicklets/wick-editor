@@ -49,7 +49,7 @@ Wick.View.Frame = class extends Wick.View {
         this._onRasterFinishCallback = function () {};
 
         this._pixiSprite = null;
-        this._rasterImageData = null;
+        this._rasterImageCanvas = null;
         this._dynamicTextCache = {};
     }
 
@@ -59,6 +59,17 @@ Wick.View.Frame = class extends Wick.View {
     applyChanges () {
         this._applyClipChanges();
         this._applyPathChanges();
+    }
+
+    /**
+     *
+     */
+    rasterize () {
+        if(this._pixiSprite) {
+            this._onRasterFinishCallback();
+        } else {
+            this._loadPixiTexture();
+        }
     }
 
     /**
@@ -80,7 +91,7 @@ Wick.View.Frame = class extends Wick.View {
         this._pixiSprite = null;
 
         // Destroy the raster texture data.
-        this._rasterImageData = null;
+        delete this._rasterImageCanvas;
 
         // While we're at it, clear the dynamic text cache.
         for(var uuid in this._dynamicTextCache) {
@@ -240,19 +251,18 @@ Wick.View.Frame = class extends Wick.View {
             y: this.pathsLayer.bounds.y
         };
 
-        this._rasterImageData = raster.canvas.toDataURL();
+        this._rasterImageCanvas = raster.canvas;
     }
 
     _loadPixiTexture () {
         // Generate raster image data if needed
-        if(!this._rasterImageData) {
+        if(!this._rasterImageCanvas) {
             this._rasterizeSVG();
         }
 
         // Fast but unstable method:
-        /*
         // Create a PIXI texture from the rastered paths image
-        var texture = PIXI.Texture.from(this._rasterImageData);
+        var texture = PIXI.Texture.from(this._rasterImageCanvas);
 
         // Add a Pixi sprite using that texture to the paths container
         var sprite = new PIXI.Sprite(texture);
@@ -272,35 +282,8 @@ Wick.View.Frame = class extends Wick.View {
             type: 'frame_svg',
         };
 
+        delete this._rasterImageCanvas;
         this._onRasterFinishCallback();
-        */
-
-        var loader = new PIXI.Loader();
-        loader.add(this.model.uuid, this._rasterImageData);
-        loader.load((loader, resources) => {
-            // Get the texture from the loader
-            var texture = resources[this.model.uuid].texture;
-
-            // Add a Pixi sprite using that texture to the paths container
-            var sprite = new PIXI.Sprite(texture);
-            sprite.scale.x = sprite.scale.x / Wick.View.Frame.RASTERIZE_RESOLUTION_MODIFIER;
-            sprite.scale.y = sprite.scale.y / Wick.View.Frame.RASTERIZE_RESOLUTION_MODIFIER;
-            this.pathsContainer.removeChildren();
-            this.pathsContainer.addChild(sprite);
-
-            // Position sprite correctly
-            sprite.x = this._SVGBounds.x;
-            sprite.y = this._SVGBounds.y;
-
-            // Cache pixi sprite
-            this._pixiSprite = sprite;
-            this._pixiSprite._wickDebugData = {
-                uuid: this.model.uuid,
-                type: 'frame_svg',
-            };
-
-            this._onRasterFinishCallback();
-        });
     }
 
     _applyClipChanges () {

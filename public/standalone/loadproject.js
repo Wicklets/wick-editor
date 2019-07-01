@@ -29,6 +29,7 @@ window.onload = function () {
 
         project.focus = project.root;
         project.focus.timeline.playheadPosition = 1;
+        project.view.render();
         project.view.prerasterize(() => {
             project.play({
                 onAfterTick: (() => {

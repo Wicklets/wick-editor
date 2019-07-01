@@ -772,7 +772,7 @@ class EditorCore extends Component {
    */
   dropSoundOntoTimeline = (uuid, x, y) => {
     // TODO
-    console.log("Dropping " + uuid + " at: " + x + "," + y); 
+    console.log("Dropping " + uuid + " at: " + x + "," + y);
   }
 
 
@@ -925,11 +925,11 @@ class EditorCore extends Component {
     this.resetEditorForLoad();
     this.project = project;
     this.project.selection.clear();
-    this.project.view.prerasterize(() => {
+    //this.project.view.prerasterize(() => {
       this.projectDidChange();
       this.hideWaitOverlay();
       this.project.view.render();
-    });
+    //});
   }
 
   showAutosavedProjects = () => {

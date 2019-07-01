@@ -255,29 +255,28 @@ Wick.View.Project = class extends Wick.View {
 
     /**
      * Rasterizes all the SVGs in the project.
-     * Use this before rendering a project if you want to make sure all SVGs will show up immediately inthe WebGL renderer.
+     * Use this before rendering a project if you want to make sure all SVGs will show up immediately in the WebGL renderer.
      */
-    prerasterize (callback) {
+    prerasterize (done) {
         var loadedFrames = [];
         var allFrames = this.model.getAllFrames().filter(frame => {
             return frame.paths.length > 0;
         });
 
-        if(allFrames.length === 0) callback();
-
-        allFrames.forEach(frame => {
-            frame.view.onFinishRasterize(() => {
-                loadedFrames.push(frame);
-                checkAllFramesLoaded();
-            });
-            frame.view._loadPixiTexture();
-        })
-
-        function checkAllFramesLoaded () {
-            if(loadedFrames.length === allFrames.length) {
-                callback();
+        function rasterizeNextFrame () {
+            if(allFrames.length === 0) {
+                done();
+                return;
             }
+
+            var frame = allFrames.pop();
+            frame.view.onFinishRasterize(() => {
+                rasterizeNextFrame();
+            });
+            frame.view.rasterize();
         }
+
+        rasterizeNextFrame();
     }
 
     /**
