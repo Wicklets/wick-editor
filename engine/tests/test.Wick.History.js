@@ -197,12 +197,59 @@ describe('Wick.History', function() {
         expect(project.activeFrame.paths[0].view.item.fillColor.toCSS(true)).to.equal('#0000ff');
     });
 
-    // this is a test for the fix for the crash on frame delete undo.
+    // fix for crash on frame delete undo
     it('(bug) parent references should remain after delete undo', function () {
         var project = new Wick.Project();
         project.history.pushState();
         project.activeFrame.remove();
         project.undo();
         expect(project.activeFrame.parent).to.equal(project.activeLayer);
-    })
+    });
+
+    // fix for redo reverting project to old state
+    it('(bug) redo should not revert to old project state', function () {
+        var project = new Wick.Project();
+        project.history.pushState();
+
+        project.activeFrame.addPath(TestUtils.paperToWickPath(new paper.Path.Ellipse({
+            fillColor: 'red',
+            point: [50,50],
+            radius: [50,50],
+        })));
+        project.history.pushState();
+
+        project.activeFrame.addPath(TestUtils.paperToWickPath(new paper.Path.Ellipse({
+            fillColor: 'green',
+            point: [50,50],
+            radius: [50,50],
+        })));
+        project.history.pushState();
+
+        project.activeFrame.addPath(TestUtils.paperToWickPath(new paper.Path.Ellipse({
+            fillColor: 'blue',
+            point: [50,50],
+            radius: [50,50],
+        })));
+        project.history.pushState();
+
+        expect(project.activeFrame.paths.length).to.equal(3);
+
+        project.undo();
+        expect(project.activeFrame.paths.length).to.equal(2);
+
+        project.undo();
+        expect(project.activeFrame.paths.length).to.equal(1);
+
+        project.undo();
+        expect(project.activeFrame.paths.length).to.equal(0);
+
+        project.activeFrame.addPath(TestUtils.paperToWickPath(new paper.Path.Ellipse({
+            fillColor: 'yellow',
+            point: [50,50],
+            radius: [50,50],
+        })));
+        project.history.pushState();
+
+        expect(project.redo()).to.equal(false);
+    });
 });

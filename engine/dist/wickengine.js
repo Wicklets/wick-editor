@@ -66156,6 +66156,8 @@ Wick.History = class {
 
 
   pushState(filter) {
+    this._redoStack = [];
+
     this._undoStack.push(this._generateState(filter));
   }
   /**
@@ -66218,7 +66220,9 @@ Wick.History = class {
   }
 
   _generateState(filter) {
-    var objects = Wick.ObjectCache.getActiveObjects(this.project);
+    var objects = this._getStateObjects(); //Wick.ObjectCache.getActiveObjects(this.project);
+
+
     objects.push(this.project);
     return objects.map(object => {
       return object.serialize();
@@ -66230,6 +66234,40 @@ Wick.History = class {
       var object = Wick.ObjectCache.getObjectByUUID(objectData.uuid);
       object.deserialize(objectData);
     });
+  } // NOTE: This can be greatly optimized by only saving the state of the things that were actually changed.
+
+
+  _getStateObjects() {
+    var stateObjects = []; // the project itself (for focus, options, etc)
+
+    stateObjects.push(this.project); // the focused clip
+
+    stateObjects.push(this.project.focus); // the focused timeline
+
+    stateObjects.push(this.project.focus.timeline); // the selection
+
+    stateObjects.push(this.project.selection); // layers on focused timeline
+
+    this.project.activeTimeline.layers.forEach(layer => {
+      stateObjects.push(layer);
+    }); // frames on focused timeline
+
+    this.project.activeTimeline.frames.forEach(frame => {
+      stateObjects.push(frame);
+    }); // objects+tweens on active frames
+
+    this.project.activeFrames.forEach(frame => {
+      frame.paths.forEach(path => {
+        stateObjects.push(path);
+      });
+      frame.clips.forEach(clip => {
+        stateObjects.push(clip);
+      });
+      frame.tweens.forEach(tween => {
+        stateObjects.push(tween);
+      });
+    });
+    return stateObjects;
   }
 
 };
@@ -77744,7 +77782,7 @@ Wick.View.Frame = class extends Wick.View {
    * E.g. a multiplier of 2 will make a path 100 pixels wide rasterize into an image 200 pixels wide.
    */
   static get RASTERIZE_RESOLUTION_MODIFIER() {
-    return 2;
+    return 0.5;
   }
 
   static get RASTERIZE_RESOLUTION_MODIFIER_FOR_DEVICE() {

@@ -23,7 +23,7 @@ Wick.View.Frame = class extends Wick.View {
      * E.g. a multiplier of 2 will make a path 100 pixels wide rasterize into an image 200 pixels wide.
      */
     static get RASTERIZE_RESOLUTION_MODIFIER () {
-        return 2;
+        return 0.5;
     }
 
     static get RASTERIZE_RESOLUTION_MODIFIER_FOR_DEVICE () {
