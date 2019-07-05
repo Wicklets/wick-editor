@@ -22,6 +22,16 @@
  */
 Wick.History = class {
     /**
+     *
+     */
+    static get StateType () {
+        return {
+            ALL_OBJECTS: 0,
+            ONLY_VISIBLE_OBJECTS: 1,
+        };
+    }
+
+    /**
      * Creates a new history object
      */
     constructor () {
@@ -35,7 +45,7 @@ Wick.History = class {
      */
     pushState (filter) {
         this._redoStack = [];
-        this._undoStack.push(this._generateState(filter));
+        this._undoStack.push(this._generateState(Wick.History.StateType.ONLY_VISIBLE_OBJECTS));
     }
 
     /**
@@ -78,8 +88,8 @@ Wick.History = class {
      *
      * @param {string} name - the name of the snapshot
      */
-    saveSnapshot (name, filter) {
-        this._snapshots[name] = this._generateState(filter);
+    saveSnapshot (name) {
+        this._snapshots[name] = this._generateState(Wick.History.StateType.ALL_OBJECTS);
     }
 
     /**
@@ -90,12 +100,18 @@ Wick.History = class {
         this._recoverState(this._snapshots[name]);
     }
 
-    _generateState (filter) {
-        var objects = this._getStateObjects();//Wick.ObjectCache.getActiveObjects(this.project);
-        objects.push(this.project);
+    _generateState (stateType) {
+        var objects = [];
+
+        if(stateType === Wick.History.StateType.ALL_OBJECTS) {
+            objects = this._getAllObjects();
+        } else if(stateType === Wick.History.StateType.ONLY_VISIBLE_OBJECTS) {
+            objects = this._getVisibleObjects();
+        }
+
         return objects.map(object => {
             return object.serialize();
-        })
+        });
     }
 
     _recoverState (state) {
@@ -105,8 +121,14 @@ Wick.History = class {
         });
     }
 
+    _getAllObjects () {
+        var objects = Wick.ObjectCache.getActiveObjects(this.project);
+        objects.push(this.project);
+        return objects;
+    }
+
     // NOTE: This can be greatly optimized by only saving the state of the things that were actually changed.
-    _getStateObjects () {
+    _getVisibleObjects () {
         var stateObjects = [];
 
         // the project itself (for focus, options, etc)

@@ -197,6 +197,21 @@ describe('Wick.History', function() {
         expect(project.activeFrame.paths[0].view.item.fillColor.toCSS(true)).to.equal('#0000ff');
     });
 
+    it('(bug) snapshots should save all objects, not just active objects', function () {
+        Wick.ObjectCache.clear();
+
+        var project = new Wick.Project();
+        var inactiveFrame = new Wick.Frame({start:2});
+        var inactiveClip = new Wick.Clip();
+        inactiveFrame.addClip(inactiveClip);
+        project.activeLayer.addFrame(inactiveFrame);
+        inactiveClip.identifier = 'foo';
+        project.history.saveSnapshot('foo');
+        inactiveClip.identifier = 'bar';
+        project.history.loadSnapshot('foo');
+        expect(inactiveClip.identifier).to.equal('foo');
+    });
+
     // fix for crash on frame delete undo
     it('(bug) parent references should remain after delete undo', function () {
         var project = new Wick.Project();

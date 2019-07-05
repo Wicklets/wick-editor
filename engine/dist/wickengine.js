@@ -66143,8 +66143,19 @@ Wick.FileCache = new WickFileCache();
  */
 Wick.History = class {
   /**
+   *
+   */
+  static get StateType() {
+    return {
+      ALL_OBJECTS: 0,
+      ONLY_VISIBLE_OBJECTS: 1
+    };
+  }
+  /**
    * Creates a new history object
    */
+
+
   constructor() {
     this._undoStack = [];
     this._redoStack = [];
@@ -66158,7 +66169,7 @@ Wick.History = class {
   pushState(filter) {
     this._redoStack = [];
 
-    this._undoStack.push(this._generateState(filter));
+    this._undoStack.push(this._generateState(Wick.History.StateType.ONLY_VISIBLE_OBJECTS));
   }
   /**
    * Pop the last state in the undo stack off and apply the new last state to the project.
@@ -66206,8 +66217,8 @@ Wick.History = class {
    */
 
 
-  saveSnapshot(name, filter) {
-    this._snapshots[name] = this._generateState(filter);
+  saveSnapshot(name) {
+    this._snapshots[name] = this._generateState(Wick.History.StateType.ALL_OBJECTS);
   }
   /**
    *
@@ -66219,11 +66230,15 @@ Wick.History = class {
     this._recoverState(this._snapshots[name]);
   }
 
-  _generateState(filter) {
-    var objects = this._getStateObjects(); //Wick.ObjectCache.getActiveObjects(this.project);
+  _generateState(stateType) {
+    var objects = [];
 
+    if (stateType === Wick.History.StateType.ALL_OBJECTS) {
+      objects = this._getAllObjects();
+    } else if (stateType === Wick.History.StateType.ONLY_VISIBLE_OBJECTS) {
+      objects = this._getVisibleObjects();
+    }
 
-    objects.push(this.project);
     return objects.map(object => {
       return object.serialize();
     });
@@ -66234,10 +66249,16 @@ Wick.History = class {
       var object = Wick.ObjectCache.getObjectByUUID(objectData.uuid);
       object.deserialize(objectData);
     });
+  }
+
+  _getAllObjects() {
+    var objects = Wick.ObjectCache.getActiveObjects(this.project);
+    objects.push(this.project);
+    return objects;
   } // NOTE: This can be greatly optimized by only saving the state of the things that were actually changed.
 
 
-  _getStateObjects() {
+  _getVisibleObjects() {
     var stateObjects = []; // the project itself (for focus, options, etc)
 
     stateObjects.push(this.project); // the focused clip
