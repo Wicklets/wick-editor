@@ -92,7 +92,7 @@ Wick.Project = class extends Wick.Base {
         });
 
         this.history.project = this;
-        this.history.pushState();
+        this.history.pushState(Wick.History.StateType.ONLY_VISIBLE_OBJECTS);
     }
 
     deserialize (data) {

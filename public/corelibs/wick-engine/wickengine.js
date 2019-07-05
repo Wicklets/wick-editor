@@ -66148,7 +66148,8 @@ Wick.History = class {
   static get StateType() {
     return {
       ALL_OBJECTS: 0,
-      ONLY_VISIBLE_OBJECTS: 1
+      ALL_OBJECTS_WITHOUT_PATHS: 1,
+      ONLY_VISIBLE_OBJECTS: 2
     };
   }
   /**
@@ -66163,13 +66164,14 @@ Wick.History = class {
   }
   /**
    * Push the current state of the ObjectCache to the undo stack.
+   * @param {number} filter - the filter to choose which objects to serialize. See Wick.History.StateType
    */
 
 
   pushState(filter) {
     this._redoStack = [];
 
-    this._undoStack.push(this._generateState(Wick.History.StateType.ONLY_VISIBLE_OBJECTS));
+    this._undoStack.push(this._generateState(filter));
   }
   /**
    * Pop the last state in the undo stack off and apply the new last state to the project.
@@ -66214,29 +66216,40 @@ Wick.History = class {
   /**
    *
    * @param {string} name - the name of the snapshot
+   * @param {number} filter - the filter to choose which objects to serialize. See Wick.History.StateType
    */
 
 
-  saveSnapshot(name) {
-    this._snapshots[name] = this._generateState(Wick.History.StateType.ALL_OBJECTS);
+  saveSnapshot(name, filter) {
+    this._snapshots[name] = this._generateState(filter || Wick.History.StateType.ALL_OBJECTS_WITHOUT_PATHS);
   }
   /**
-   *
+   * Save a state to the list of snapshots to be recovered at any time.
    * @param {string} name - the name of the snapshot to recover
    */
 
 
   loadSnapshot(name) {
     this._recoverState(this._snapshots[name]);
-  }
+  } // NOTE: State saving/recovery can be greatly optimized by only saving the state of the things that were actually changed.
+
 
   _generateState(stateType) {
     var objects = [];
 
+    if (stateType === undefined) {
+      stateType = Wick.History.StateType.ALL_OBJECTS;
+    }
+
     if (stateType === Wick.History.StateType.ALL_OBJECTS) {
       objects = this._getAllObjects();
+    } else if (stateType === Wick.History.StateType.ALL_OBJECTS_WITHOUT_PATHS) {
+      objects = this._getAllObjectsWithoutPaths();
     } else if (stateType === Wick.History.StateType.ONLY_VISIBLE_OBJECTS) {
       objects = this._getVisibleObjects();
+    } else {
+      console.error('Wick.History._generateState: A valid stateType is required.');
+      return;
     }
 
     return objects.map(object => {
@@ -66255,8 +66268,14 @@ Wick.History = class {
     var objects = Wick.ObjectCache.getActiveObjects(this.project);
     objects.push(this.project);
     return objects;
-  } // NOTE: This can be greatly optimized by only saving the state of the things that were actually changed.
+  } // this is used for an optimization when snapshots are saved for preview playing.
 
+
+  _getAllObjectsWithoutPaths() {
+    return this._getAllObjects().filter(object => {
+      return !(object instanceof Wick.Path);
+    });
+  }
 
   _getVisibleObjects() {
     var stateObjects = []; // the project itself (for focus, options, etc)
@@ -67701,7 +67720,7 @@ Wick.Project = class extends Wick.Base {
     });
 
     this.history.project = this;
-    this.history.pushState();
+    this.history.pushState(Wick.History.StateType.ONLY_VISIBLE_OBJECTS);
   }
 
   deserialize(data) {
