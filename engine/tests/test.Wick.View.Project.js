@@ -332,8 +332,8 @@ describe('Wick.View.Project', function() {
                 for(var i = 0; i < allFrames.length; i++) {
                     var frame = allFrames[i];
                     var sprite = frame.view.pathsContainer.children[0];
-                    expect(sprite.texture.width).to.equal(RASTER_SIZE * Wick.View.Frame.RASTERIZE_RESOLUTION_MODIFIER + 4);
-                    expect(sprite.texture.height).to.equal(RASTER_SIZE * Wick.View.Frame.RASTERIZE_RESOLUTION_MODIFIER + 4);
+                    expect(sprite.texture.width).to.equal(RASTER_SIZE * Wick.View.Frame.RASTERIZE_RESOLUTION_MODIFIER + 2);
+                    expect(sprite.texture.height).to.equal(RASTER_SIZE * Wick.View.Frame.RASTERIZE_RESOLUTION_MODIFIER + 2);
                 };
 
                 project.view.destroy();
