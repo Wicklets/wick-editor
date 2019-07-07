@@ -319,6 +319,6 @@ GlobalAPI.Random = class {
      */
     choice(array) {
         if (array.length <= 0) return null;
-        return array[Math.floor(Math.random() * myArray.length)]
+        return array[Math.floor(Math.random() * array.length)]
     }
 }
