@@ -8,7 +8,7 @@ describe('Wick.GUIElement.Project', function() {
         //console.log(paper);
     });
 
-    it('should render frame sound waveforms', function () {
+    it('should render frame sound waveforms', function (done) {
         var project = new Wick.Project();
 
         var frame = project.activeFrame;
@@ -19,6 +19,11 @@ describe('Wick.GUIElement.Project', function() {
 
         frame.sound = sound;
 
+        // wait a little bit to load the waveform image...
         project.guiElement.build();
+        setTimeout(() => {
+            project.guiElement.build();
+            done();
+        }, 100);
     });
 });

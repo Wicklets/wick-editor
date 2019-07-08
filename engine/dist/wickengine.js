@@ -79351,9 +79351,12 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
     if (this.model.sound) {
       this._generateWaveform();
 
-      var waveform = Wick.GUIElement.Frame.cachedWaveforms[this.model.uuid];
+      var waveform = this._getCachedWaveform();
 
-      if (waveform) {}
+      if (waveform) {
+        console.log(waveform);
+        this.item.addChild(waveform);
+      }
     }
 
     if (this.model.tweens.length === 0) {
@@ -79440,12 +79443,26 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
     this.model.project.guiElement.fire('projectModified');
   }
 
+  _getCachedWaveform() {
+    return Wick.GUIElement.Frame.cachedWaveforms[this.model.uuid];
+  }
+
+  _setCachedWaveform(waveform) {
+    Wick.GUIElement.Frame.cachedWaveforms[this.model.uuid] = waveform;
+  }
+
   _generateWaveform() {
+    if (this._getCachedWaveform()) return;
     var soundSrc = this.model.sound.src;
     var scwf = new SCWF();
     scwf.generate(soundSrc, {
       onComplete: (png, pixels) => {
-        Wick.GUIElement.Frame.cachedWaveforms[this.model.uuid] = png;
+        var raster = new paper.Raster(png);
+        raster.remove();
+
+        raster.onLoad = () => {
+          this._setCachedWaveform(raster);
+        };
       }
     });
   }
