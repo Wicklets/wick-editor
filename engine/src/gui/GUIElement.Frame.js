@@ -390,15 +390,16 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
         }
 
         var mask = new paper.Path.Rectangle({
-            from: new paper.Point(0,0),
-            to: new paper.Point(this.width,this.height),
-            fillColor: 'black',
-        })
+            from: new paper.Point(0, 0),
+            to: new paper.Point(this.width, this.height),
+            fillColor: 'black'
+        });
 
         waveform.remove();
-        waveform.position = new paper.Point(waveform.length/2, waveform.height/2);
+        waveform.position = new paper.Point(waveform.width / 2, waveform.height / 2);
+
         var clippedWaveform = new paper.Group({
-            children: [mask, waveform],
+            children: [mask, waveform]
         });
         clippedWaveform.clipped = true;
         clippedWaveform.remove();
