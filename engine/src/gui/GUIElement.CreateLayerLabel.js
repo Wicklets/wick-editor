@@ -95,10 +95,18 @@ Wick.GUIElement.CreateLayerLabel = class extends Wick.GUIElement.Clickable {
         var layerRect = new this.paper.Path.Rectangle({
             from: new this.paper.Point(0, 0),
             to: new this.paper.Point(this.width, this.height),
-            fillColor: this.isHoveredOver ? Wick.GUIElement.LAYER_LABEL_ACTIVE_FILL_COLOR : 'rgba(255,255,255,0.3)',
+            fillColor: this.isHoveredOver ? 'rgba(255,255,255,0.6)' : 'rgba(255,255,255,0.3)',
             radius: 2,
         });
         this.item.addChild(layerRect);
+
+        this.item.addChild(new paper.PointText({
+            point: [this.width/2, this.height/2 + 6],
+            content: '+',
+            fillColor: 'black',
+            fontFamily: 'Courier New',
+            fontSize: 22,
+        }))
 
         this.item.position = new paper.Point(this.x, this.y);
     }
