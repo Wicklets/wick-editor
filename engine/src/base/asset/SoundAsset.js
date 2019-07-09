@@ -70,13 +70,6 @@ Wick.SoundAsset = class extends Wick.FileAsset {
         if(options.volume === undefined) options.volume = 1.0;
         if(options.loop === undefined) options.loop = false;
 
-        // Lazily create howl instance
-        if(!this._howl) {
-            this._howl = new Howl({
-                src: [this.src]
-            });
-        }
-
         var id = this._howl.play();
 
         this._howl.seek(options.seekMS / 1000, id);
@@ -101,6 +94,14 @@ Wick.SoundAsset = class extends Wick.FileAsset {
         } else {
             this._howl.stop(id);
         }
+    }
+
+    /**
+     * The length of the sound in seconds
+     * @type {number}
+     */
+    get duration () {
+        return this._howl.duration();
     }
 
     /**
@@ -132,5 +133,24 @@ Wick.SoundAsset = class extends Wick.FileAsset {
         this.getInstances().forEach(frame => {
             frame.removeSound();
         });
+    }
+
+    /**
+     * Loads data about the sound into the asset.
+     */
+    load (callback) {
+        this._howl.on('load', () => {
+            callback();
+        });
+    }
+
+    get _howl () {
+        // Lazily create howler instance
+        if(!this._howlInstance) {
+            this._howlInstance = new Howl({
+                src: [this.src]
+            });
+        }
+        return this._howlInstance;
     }
 }

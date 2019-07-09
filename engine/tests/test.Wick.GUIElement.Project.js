@@ -20,10 +20,12 @@ describe('Wick.GUIElement.Project', function() {
         frame.sound = sound;
 
         // wait a little bit to load the waveform image...
-        project.guiElement.build();
-        setTimeout(() => {
+        sound.load(() => {
             project.guiElement.build();
-            done();
-        }, 100);
+            setTimeout(() => {
+                project.guiElement.build();
+                done();
+            }, 100);
+        });
     });
 });

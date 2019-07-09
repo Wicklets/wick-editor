@@ -396,7 +396,9 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
         });
 
         waveform.remove();
-        waveform.position = new paper.Point(waveform.width / 2, waveform.height / 2);
+        waveform.scaling.x = this.gridCellWidth / 1200 * this.model.project.framerate * this.model.sound.duration;
+        waveform.scaling.y = 2;
+        waveform.position = new paper.Point((waveform.width/2) * waveform.scaling.x, this.gridCellHeight);
 
         var clippedWaveform = new paper.Group({
             children: [mask, waveform]

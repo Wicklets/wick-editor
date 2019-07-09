@@ -65045,7 +65045,7 @@ var SCWF = function () {
       canvas_height: 40,
       bar_width: 2,
       bar_gap: 0,
-      wave_color: "#AAAAFF",
+      wave_color: "#1594FF",
       download: false,
       onComplete: function (png, pixels) {}
     },
@@ -70820,13 +70820,7 @@ Wick.SoundAsset = class extends Wick.FileAsset {
     if (!options) options = {};
     if (options.seekMS === undefined) options.seekMS = 0;
     if (options.volume === undefined) options.volume = 1.0;
-    if (options.loop === undefined) options.loop = false; // Lazily create howl instance
-
-    if (!this._howl) {
-      this._howl = new Howl({
-        src: [this.src]
-      });
-    }
+    if (options.loop === undefined) options.loop = false;
 
     var id = this._howl.play();
 
@@ -70855,6 +70849,15 @@ Wick.SoundAsset = class extends Wick.FileAsset {
     } else {
       this._howl.stop(id);
     }
+  }
+  /**
+   * The length of the sound in seconds
+   * @type {number}
+   */
+
+
+  get duration() {
+    return this._howl.duration();
   }
   /**
    * A list of Wick Paths that use this font as their fontFamily.
@@ -70889,6 +70892,27 @@ Wick.SoundAsset = class extends Wick.FileAsset {
     this.getInstances().forEach(frame => {
       frame.removeSound();
     });
+  }
+  /**
+   * Loads data about the sound into the asset.
+   */
+
+
+  load(callback) {
+    this._howl.on('load', () => {
+      callback();
+    });
+  }
+
+  get _howl() {
+    // Lazily create howler instance
+    if (!this._howlInstance) {
+      this._howlInstance = new Howl({
+        src: [this.src]
+      });
+    }
+
+    return this._howlInstance;
   }
 
 };
@@ -79487,7 +79511,9 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
       fillColor: 'black'
     });
     waveform.remove();
-    waveform.position = new paper.Point(waveform.width / 2, waveform.height / 2);
+    waveform.scaling.x = this.gridCellWidth / 1200 * this.model.project.framerate * this.model.sound.duration;
+    waveform.scaling.y = 2;
+    waveform.position = new paper.Point(waveform.width / 2 * waveform.scaling.x, this.gridCellHeight);
     var clippedWaveform = new paper.Group({
       children: [mask, waveform]
     });

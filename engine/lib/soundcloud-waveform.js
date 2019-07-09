@@ -15,7 +15,7 @@ var SCWF = function () {
 			canvas_height: 40,
 			bar_width: 2,
 			bar_gap : 0,
-			wave_color: "#AAAAFF",
+			wave_color: "#1594FF",
 			download: false,
 			onComplete: function(png, pixels) {}
 		},
