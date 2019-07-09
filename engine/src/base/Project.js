@@ -713,15 +713,16 @@ Wick.Project = class extends Wick.Base {
     /**
      * Plays the sound in the asset library with the given name.
      * @param {string} assetName - Name of the sound asset to play
+     * @param {Object} options - options for the sound. See Wick.SoundAsset.play
      */
-    playSound (assetName) {
+    playSound (assetName, options) {
         var asset = this.getAssetByName(assetName);
         if(!asset) {
             console.warn('playSound(): No asset with name: "' + assetName + '"');
         } else if (!(asset instanceof Wick.SoundAsset)) {
             console.warn('playSound(): Asset is not a sound: "' + assetName + '"');
         } else {
-            asset.play();
+            asset.play(options);
         }
     }
 

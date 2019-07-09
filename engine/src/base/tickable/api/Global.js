@@ -258,12 +258,13 @@ GlobalAPI = class {
 
     /**
      * Plays a sound which is currently in the asset library.
-     * @param {string} name of the sound asset in the library.
+     * @param {string} name - name of the sound asset in the library.
+     * @param {Object} options - options for the sound. See Wick.SoundAsset.play
      * @returns {object} object representing the sound which was played.
      */
-    playSound (assetName) {
+    playSound (assetName, options) {
         if(!this.scriptOwner.project) return null;
-        return this.scriptOwner.project.playSound(assetName);
+        return this.scriptOwner.project.playSound(assetName, options);
     }
 
     /**

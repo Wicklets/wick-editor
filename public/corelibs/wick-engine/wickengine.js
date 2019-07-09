@@ -68379,10 +68379,11 @@ Wick.Project = class extends Wick.Base {
   /**
    * Plays the sound in the asset library with the given name.
    * @param {string} assetName - Name of the sound asset to play
+   * @param {Object} options - options for the sound. See Wick.SoundAsset.play
    */
 
 
-  playSound(assetName) {
+  playSound(assetName, options) {
     var asset = this.getAssetByName(assetName);
 
     if (!asset) {
@@ -68390,7 +68391,7 @@ Wick.Project = class extends Wick.Base {
     } else if (!(asset instanceof Wick.SoundAsset)) {
       console.warn('playSound(): Asset is not a sound: "' + assetName + '"');
     } else {
-      asset.play();
+      asset.play(options);
     }
   }
   /**
@@ -70809,30 +70810,31 @@ Wick.SoundAsset = class extends Wick.FileAsset {
   /**
    * Plays this asset's sound.
    * @param {number} seekMS - the amount of time in milliseconds to start the sound at.
+   * @param {number} volume - the volume of the sound, from 0.0 - 1.0
+   * @param {boolean} loop - if set to true, the sound will loop
    * @return {number} The id of the sound instance that was played.
    */
 
 
-  play(seekMS, volume) {
-    // Lazily create howl instance
+  play(options) {
+    if (!options) options = {};
+    if (options.seekMS === undefined) options.seekMS = 0;
+    if (options.volume === undefined) options.volume = 1.0;
+    if (options.loop === undefined) options.loop = false; // Lazily create howl instance
+
     if (!this._howl) {
       this._howl = new Howl({
         src: [this.src]
       });
-    } // Play the sound, saving the ID returned by howler
-
-
-    var id = this._howl.play(); // Skip parts of the sound if seekMS was passed in
-
-
-    if (seekMS !== undefined) {
-      this._howl.seek(seekMS / 1000, id);
-    } // Set sound instance volume if volume was passed in
-
-
-    if (volume !== undefined) {
-      this._howl.volume(volume, id);
     }
+
+    var id = this._howl.play();
+
+    this._howl.seek(options.seekMS / 1000, id);
+
+    this._howl.volume(options.volume, id);
+
+    this._howl.loop(options.loop, id);
 
     return id;
   }
@@ -71319,14 +71321,15 @@ GlobalAPI = class {
   }
   /**
    * Plays a sound which is currently in the asset library.
-   * @param {string} name of the sound asset in the library.
+   * @param {string} name - name of the sound asset in the library.
+   * @param {Object} options - options for the sound. See Wick.SoundAsset.play
    * @returns {object} object representing the sound which was played.
    */
 
 
-  playSound(assetName) {
+  playSound(assetName, options) {
     if (!this.scriptOwner.project) return null;
-    return this.scriptOwner.project.playSound(assetName);
+    return this.scriptOwner.project.playSound(assetName, options);
   }
   /**
    * Stops all currently playing sounds.
@@ -71968,6 +71971,7 @@ Wick.Frame = class extends Wick.Tickable {
     this._soundAssetUUID = null;
     this._soundID = null;
     this._soundVolume = 1.0;
+    this._soundLoop = false;
     this._cropSoundOffsetMS = 0; // milliseconds.
 
     this._originalLayerIndex = -1;
@@ -71979,6 +71983,7 @@ Wick.Frame = class extends Wick.Tickable {
     data.end = this.end;
     data.sound = this._soundAssetUUID;
     data.soundVolume = this._soundVolume;
+    data.soundLoop = this._soundLoop;
     data.originalLayerIndex = this.layerIndex !== -1 ? this.layerIndex : this._originalLayerIndex;
     return data;
   }
@@ -71989,6 +71994,7 @@ Wick.Frame = class extends Wick.Tickable {
     this.end = data.end;
     this._soundAssetUUID = data.sound;
     this._soundVolume = data.soundVolume === undefined ? 1.0 : data.soundVolume;
+    this._soundLoop = data.soundLoop === undefined ? false : data.soundLoop;
     this._originalLayerIndex = data.originalLayerIndex;
   }
 
@@ -72051,6 +72057,19 @@ Wick.Frame = class extends Wick.Tickable {
     this._soundVolume = soundVolume;
   }
   /**
+   * Whether or not the sound loops.
+   * @type {boolean}
+   */
+
+
+  get soundLoop() {
+    return this._soundLoop;
+  }
+
+  set soundLoop(soundLoop) {
+    this._soundLoop = soundLoop;
+  }
+  /**
    * Removes the sound attached to this frame.
    */
 
@@ -72064,9 +72083,16 @@ Wick.Frame = class extends Wick.Tickable {
 
 
   playSound() {
-    if (this.sound) {
-      this._soundID = this.sound.play(this.playheadSoundOffsetMS + this.cropSoundOffsetMS, this.soundVolume);
+    if (!this.sound) {
+      return;
     }
+
+    var options = {
+      seekMS: this.playheadSoundOffsetMS + this.cropSoundOffsetMS,
+      volume: this.soundVolume,
+      loop: this.soundLoop
+    };
+    this._soundID = this.sound.play(options);
   }
   /**
    * Stops the sound attached to this frame.

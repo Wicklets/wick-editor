@@ -36,6 +36,7 @@ Wick.Frame = class extends Wick.Tickable {
         this._soundAssetUUID = null;
         this._soundID = null;
         this._soundVolume = 1.0;
+        this._soundLoop = false;
         this._cropSoundOffsetMS = 0; // milliseconds.
 
         this._originalLayerIndex = -1;
@@ -49,6 +50,7 @@ Wick.Frame = class extends Wick.Tickable {
 
         data.sound = this._soundAssetUUID;
         data.soundVolume = this._soundVolume;
+        data.soundLoop = this._soundLoop;
 
         data.originalLayerIndex = this.layerIndex !== -1 ? this.layerIndex : this._originalLayerIndex;
 
@@ -63,6 +65,7 @@ Wick.Frame = class extends Wick.Tickable {
 
         this._soundAssetUUID = data.sound;
         this._soundVolume = data.soundVolume === undefined ? 1.0 : data.soundVolume;
+        this._soundLoop = data.soundLoop === undefined ? false : data.soundLoop;
 
         this._originalLayerIndex = data.originalLayerIndex;
     }
@@ -122,6 +125,18 @@ Wick.Frame = class extends Wick.Tickable {
     }
 
     /**
+     * Whether or not the sound loops.
+     * @type {boolean}
+     */
+    get soundLoop () {
+        return this._soundLoop;
+    }
+
+    set soundLoop (soundLoop) {
+        this._soundLoop = soundLoop;
+    }
+
+    /**
      * Removes the sound attached to this frame.
      */
     removeSound () {
@@ -132,9 +147,16 @@ Wick.Frame = class extends Wick.Tickable {
      * Plays the sound attached to this frame.
      */
     playSound () {
-        if(this.sound) {
-            this._soundID = this.sound.play(this.playheadSoundOffsetMS + this.cropSoundOffsetMS, this.soundVolume);
+        if(!this.sound) {
+            return;
         }
+
+        var options = {
+            seekMS: this.playheadSoundOffsetMS + this.cropSoundOffsetMS,
+            volume: this.soundVolume,
+            loop: this.soundLoop,
+        };
+        this._soundID = this.sound.play(options);
     }
 
     /**
