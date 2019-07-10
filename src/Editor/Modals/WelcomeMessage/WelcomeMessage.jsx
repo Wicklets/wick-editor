@@ -50,10 +50,9 @@ class WelcomeModal extends Component {
             <div id="welcome-modal-message" className="welcome-modal-item">
               <ul>
                 <li>Sounds are now visualized on frames</li>
-                <li>Sounds played with playSound() can now be looped <em>(Thanks <a href="https://github.com/kryptot7/">kryptot7</a>!)</em></li>
-                <li>Code editor now displays line numbers of errors <em>(Thanks <a href="https://github.com/FlyOrBoom/">FlyOrBoom</a>!)</em></li>
-                <li>Improved onion skin range handles</li>
-                <li>Improved add layer button</li>
+                <li>Sounds played with playSound() can now be looped</li>
+                <li>Code editor now displays line numbers of errors<em>(Thanks <a href="https://github.com/kryptot7/">kryptot7</a>!)</em></li>
+                <li>Improved onion skin range handles<em>(Thanks <a href="https://github.com/FlyOrBoom/">FlyOrBoom</a>!)</em></li>
               </ul>
             </div>
             <div id="welcome-modal-tutorial-links" className="welcom-modal-item">
