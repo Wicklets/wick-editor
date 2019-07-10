@@ -72,6 +72,7 @@ Wick.Project = class extends Wick.Base {
             eraser: new Wick.Tools.Eraser(),
             eyedropper: new Wick.Tools.Eyedropper(),
             fillbucket: new Wick.Tools.FillBucket(),
+            interact: new Wick.Tools.Interact(),
             line: new Wick.Tools.Line(),
             none: new Wick.Tools.None(),
             pan: new Wick.Tools.Pan(),

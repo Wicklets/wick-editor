@@ -31,7 +31,8 @@ gulp.task("default", function() {
       'lib/timestamp.js',
       'lib/soundcloud-waveform.js',
       'lib/Tween.js',
-      'lib/uuid.js']);
+      'lib/uuid.js'
+    ]);
 
   var src = gulp
     .src([
@@ -71,6 +72,7 @@ gulp.task("default", function() {
       'src/tools/Eraser.js',
       'src/tools/Eyedropper.js',
       'src/tools/FillBucket.js',
+      'src/tools/Interact.js',
       'src/tools/Line.js',
       'src/tools/None.js',
       'src/tools/Pan.js',
