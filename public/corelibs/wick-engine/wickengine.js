@@ -70899,9 +70899,13 @@ Wick.SoundAsset = class extends Wick.FileAsset {
 
 
   load(callback) {
-    this._howl.on('load', () => {
+    if (this._howl.state() === 'loaded') {
       callback();
-    });
+    } else {
+      this._howl.on('load', () => {
+        callback();
+      });
+    }
   }
 
   get _howl() {

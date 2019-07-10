@@ -34,7 +34,7 @@ describe('Wick.SoundAsset', function() {
             });
             project.addAsset(asset1);
             project.addAsset(asset2);
-            
+
             project.activeLayer.addFrame(new Wick.Frame({start:2}));
             project.activeLayer.addFrame(new Wick.Frame({start:3}));
 
