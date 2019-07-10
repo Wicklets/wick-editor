@@ -82,7 +82,7 @@ class Timeline extends Component {
           <ActionButton
             color="tool"
             id={"add-keyframe-button"}
-            tooltip={"Add Keyframe"}
+            tooltip={"Add Tween"}
             action={this.props.addTweenKeyframe}
             tooltipPlace={"top"}
             icon={'tween'}
