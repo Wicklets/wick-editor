@@ -31,7 +31,7 @@ Wick.View.Layer = class extends Wick.View {
         this.activeFrameContainers = [];
     }
 
-    _renderSVG () {
+    render () {
         // Add active frame layers
         this.activeFrameLayers = [];
         var frame = this.model.activeFrame;

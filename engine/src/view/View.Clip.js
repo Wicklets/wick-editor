@@ -29,7 +29,7 @@ Wick.View.Clip = class extends Wick.View {
         this.group.applyMatrix = false;
     }
 
-    _renderSVG () {
+    render () {
         // Render timeline view
         this.model.timeline.view.render();
 

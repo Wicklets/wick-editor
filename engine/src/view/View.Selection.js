@@ -163,7 +163,7 @@ Wick.View.Selection = class extends Wick.View {
         this.model.project.view.applyChanges();
     }
 
-    _renderSVG () {
+    render () {
         this._widget.build({
             boxRotation: this.model.widgetRotation,
             items: this._getSelectedObjectViews(),

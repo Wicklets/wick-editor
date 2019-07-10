@@ -27,7 +27,7 @@ Wick.View.Timeline = class extends Wick.View {
         this.activeFrameContainers = [];
     }
 
-    _renderSVG () {
+    render () {
         this.activeFrameLayers = [];
         this.onionSkinnedFramesLayers = [];
 

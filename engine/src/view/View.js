@@ -69,7 +69,7 @@ Wick.View = class {
      *
      */
     render () {
-        this._renderSVG();
+        
     }
 
     /**

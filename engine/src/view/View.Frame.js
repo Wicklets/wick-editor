@@ -61,26 +61,26 @@ Wick.View.Frame = class extends Wick.View {
         this._applyPathChanges();
     }
 
-    _renderSVG () {
-        this._renderPathsSVG();
-        this._renderClipsSVG();
+    render () {
+        this._renderPaths();
+        this._renderClips();
     }
 
-    _renderPathsSVG (args) {
+    _renderPaths (args) {
         if(!args) args = {};
 
         this.pathsLayer.data.wickUUID = this.model.uuid;
         this.pathsLayer.data.wickType = 'paths';
 
         this.pathsLayer.removeChildren();
-        
+
         this.model.paths.forEach(path => {
             path.view.render();
             this.pathsLayer.addChild(path.view.item);
         });
     }
 
-    _renderClipsSVG () {
+    _renderClips () {
         this.clipsLayer.data.wickUUID = this.model.uuid;
         this.clipsLayer.data.wickType = 'clips';
 

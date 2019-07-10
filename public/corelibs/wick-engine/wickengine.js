@@ -21971,6 +21971,79 @@ Wick.Tween = class extends Wick.Base {
 	return Atomic;
 
 }));
+/*
+ * base64-arraybuffer
+ * https://github.com/niklasvh/base64-arraybuffer
+ *
+ * Copyright (c) 2012 Niklas von Hertzen
+ * Licensed under the MIT license.
+ */
+var Base64ArrayBuffer = (function () {
+  "use strict";
+
+  var base64ArrayBuffer = { };
+
+  var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
+  // Use a lookup table to find the index.
+  var lookup = new Uint8Array(256);
+  for (var i = 0; i < chars.length; i++) {
+    lookup[chars.charCodeAt(i)] = i;
+  }
+
+  base64ArrayBuffer.encode = function(arraybuffer) {
+    var bytes = new Uint8Array(arraybuffer),
+    i, len = bytes.length, base64 = "";
+
+    for (i = 0; i < len; i+=3) {
+      base64 += chars[bytes[i] >> 2];
+      base64 += chars[((bytes[i] & 3) << 4) | (bytes[i + 1] >> 4)];
+      base64 += chars[((bytes[i + 1] & 15) << 2) | (bytes[i + 2] >> 6)];
+      base64 += chars[bytes[i + 2] & 63];
+    }
+
+    if ((len % 3) === 2) {
+      base64 = base64.substring(0, base64.length - 1) + "=";
+    } else if (len % 3 === 1) {
+      base64 = base64.substring(0, base64.length - 2) + "==";
+    }
+
+    return base64;
+  };
+
+  base64ArrayBuffer.decode =  function(base64) {
+    var bufferLength = base64.length * 0.75,
+    len = base64.length, i, p = 0,
+    encoded1, encoded2, encoded3, encoded4;
+
+    if (base64[base64.length - 1] === "=") {
+      bufferLength--;
+      if (base64[base64.length - 2] === "=") {
+        bufferLength--;
+      }
+    }
+
+    var arraybuffer = new ArrayBuffer(bufferLength),
+    bytes = new Uint8Array(arraybuffer);
+
+    for (i = 0; i < len; i+=4) {
+      encoded1 = lookup[base64.charCodeAt(i)];
+      encoded2 = lookup[base64.charCodeAt(i+1)];
+      encoded3 = lookup[base64.charCodeAt(i+2)];
+      encoded4 = lookup[base64.charCodeAt(i+3)];
+
+      bytes[p++] = (encoded1 << 2) | (encoded2 >> 4);
+      bytes[p++] = ((encoded2 & 15) << 4) | (encoded3 >> 2);
+      bytes[p++] = ((encoded3 & 3) << 6) | (encoded4 & 63);
+    }
+
+    return arraybuffer;
+  };
+
+  return base64ArrayBuffer;
+
+})();
+
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
@@ -22382,79 +22455,6 @@ Wick.Path = class extends Wick.Base {
   }
 
 };
-/*
- * base64-arraybuffer
- * https://github.com/niklasvh/base64-arraybuffer
- *
- * Copyright (c) 2012 Niklas von Hertzen
- * Licensed under the MIT license.
- */
-var Base64ArrayBuffer = (function () {
-  "use strict";
-
-  var base64ArrayBuffer = { };
-
-  var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-
-  // Use a lookup table to find the index.
-  var lookup = new Uint8Array(256);
-  for (var i = 0; i < chars.length; i++) {
-    lookup[chars.charCodeAt(i)] = i;
-  }
-
-  base64ArrayBuffer.encode = function(arraybuffer) {
-    var bytes = new Uint8Array(arraybuffer),
-    i, len = bytes.length, base64 = "";
-
-    for (i = 0; i < len; i+=3) {
-      base64 += chars[bytes[i] >> 2];
-      base64 += chars[((bytes[i] & 3) << 4) | (bytes[i + 1] >> 4)];
-      base64 += chars[((bytes[i + 1] & 15) << 2) | (bytes[i + 2] >> 6)];
-      base64 += chars[bytes[i + 2] & 63];
-    }
-
-    if ((len % 3) === 2) {
-      base64 = base64.substring(0, base64.length - 1) + "=";
-    } else if (len % 3 === 1) {
-      base64 = base64.substring(0, base64.length - 2) + "==";
-    }
-
-    return base64;
-  };
-
-  base64ArrayBuffer.decode =  function(base64) {
-    var bufferLength = base64.length * 0.75,
-    len = base64.length, i, p = 0,
-    encoded1, encoded2, encoded3, encoded4;
-
-    if (base64[base64.length - 1] === "=") {
-      bufferLength--;
-      if (base64[base64.length - 2] === "=") {
-        bufferLength--;
-      }
-    }
-
-    var arraybuffer = new ArrayBuffer(bufferLength),
-    bytes = new Uint8Array(arraybuffer);
-
-    for (i = 0; i < len; i+=4) {
-      encoded1 = lookup[base64.charCodeAt(i)];
-      encoded2 = lookup[base64.charCodeAt(i+1)];
-      encoded3 = lookup[base64.charCodeAt(i+2)];
-      encoded4 = lookup[base64.charCodeAt(i+3)];
-
-      bytes[p++] = (encoded1 << 2) | (encoded2 >> 4);
-      bytes[p++] = ((encoded2 & 15) << 4) | (encoded3 >> 2);
-      bytes[p++] = ((encoded3 & 3) << 6) | (encoded4 & 63);
-    }
-
-    return arraybuffer;
-  };
-
-  return base64ArrayBuffer;
-
-})();
-
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
@@ -41029,9 +41029,7 @@ Wick.View = class {
    */
 
 
-  render() {
-    this._renderSVG();
-  }
+  render() {}
   /**
    *
    */
@@ -53280,7 +53278,7 @@ Wick.View.Selection = class extends Wick.View {
     this.model.project.view.applyChanges();
   }
 
-  _renderSVG() {
+  render() {
     this._widget.build({
       boxRotation: this.model.widgetRotation,
       items: this._getSelectedObjectViews(),
@@ -53342,7 +53340,7 @@ Wick.View.Clip = class extends Wick.View {
     this.group.applyMatrix = false;
   }
 
-  _renderSVG() {
+  render() {
     // Render timeline view
     this.model.timeline.view.render(); // Add some debug info to the paper group
 
@@ -54605,17 +54603,7 @@ Wick.View.Clip = class extends Wick.View {
 * You should have received a copy of the GNU General Public License
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
-Wick.View.Button = class extends Wick.View.Clip {
-  _renderWebGL(e) {
-    super._renderWebGL(e); // Use pointer cursor on buttons.
-
-
-    if (this._mouseState === 'over' || this._mouseState === 'down') {
-      this.model.project.view._webGLCanvas.style.cursor = 'pointer';
-    }
-  }
-
-};
+Wick.View.Button = class extends Wick.View.Clip {};
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
@@ -54644,7 +54632,7 @@ Wick.View.Timeline = class extends Wick.View {
     this.activeFrameContainers = [];
   }
 
-  _renderSVG() {
+  render() {
     this.activeFrameLayers = [];
     this.onionSkinnedFramesLayers = [];
 
@@ -55860,7 +55848,7 @@ Wick.View.Layer = class extends Wick.View {
     this.activeFrameContainers = [];
   }
 
-  _renderSVG() {
+  render() {
     // Add active frame layers
     this.activeFrameLayers = [];
     var frame = this.model.activeFrame;
@@ -56193,13 +56181,13 @@ Wick.View.Frame = class extends Wick.View {
     this._applyPathChanges();
   }
 
-  _renderSVG() {
-    this._renderPathsSVG();
+  render() {
+    this._renderPaths();
 
-    this._renderClipsSVG();
+    this._renderClips();
   }
 
-  _renderPathsSVG(args) {
+  _renderPaths(args) {
     if (!args) args = {};
     this.pathsLayer.data.wickUUID = this.model.uuid;
     this.pathsLayer.data.wickType = 'paths';
@@ -56210,7 +56198,7 @@ Wick.View.Frame = class extends Wick.View {
     });
   }
 
-  _renderClipsSVG() {
+  _renderClips() {
     this.clipsLayer.data.wickUUID = this.model.uuid;
     this.clipsLayer.data.wickType = 'clips';
     this.clipsLayer.removeChildren();
