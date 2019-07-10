@@ -86,16 +86,4 @@ Wick.View.Layer = class extends Wick.View {
             });
         }
     }
-
-    _renderWebGL () {
-        this.activeFrameContainers = [];
-        var frame = this.model.activeFrame;
-        if(frame) {
-            frame.view.render();
-
-            this.activeFrameContainers.push(frame.view.pathsContainer);
-            this.activeFrameContainers.push(frame.view.dynamicTextContainer);
-            this.activeFrameContainers.push(frame.view.clipsContainer);
-        }
-    }
 }

@@ -38,15 +38,6 @@ Wick.View.Timeline = class extends Wick.View {
         });
     }
 
-    _renderWebGL () {
-        this.activeFrameContainers = [];
-
-        this._getLayersInOrder().forEach(layer => {
-            layer.view.render();
-            this.activeFrameContainers = this.activeFrameContainers.concat(layer.view.activeFrameContainers);
-        });
-    }
-
     _getLayersInOrder () {
         return this.model.layers.filter(layer => {
             return !layer.hidden;

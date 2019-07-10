@@ -30,15 +30,15 @@ Wick.View.Clip = class extends Wick.View {
     }
 
     _renderSVG () {
+        // Render timeline view
+        this.model.timeline.view.render();
+
         // Add some debug info to the paper group
         this.group.data.wickType = 'clip';
         this.group.data.wickUUID = this.model.uuid;
 
-        // Render timeline view
-        this.group.removeChildren();
-        this.model.timeline.view.render();
-
         // Add frame views from timeline
+        this.group.removeChildren();
         this.model.timeline.view.activeFrameLayers.forEach(layer => {
             this.group.addChild(layer);
         });

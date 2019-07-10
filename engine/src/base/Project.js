@@ -770,6 +770,8 @@ Wick.Project = class extends Wick.Base {
         if(!args.onBeforeTick) args.onBeforeTick = () => {};
         if(!args.onAfterTick) args.onAfterTick = () => {};
 
+        this.view.paper.view.autoUpdate = false;
+
         if(this._tickIntervalID) {
             this.stop();
         }
@@ -783,6 +785,7 @@ Wick.Project = class extends Wick.Base {
             args.onBeforeTick();
 
             var error = this.tick();
+            this.view.paper.view.update();
             if(error) {
                 args.onError(error);
                 this.stop();
@@ -797,6 +800,8 @@ Wick.Project = class extends Wick.Base {
      * Stop playing the project.
      */
     stop () {
+        this.view.paper.view.autoUpdate = true;
+
         // Run unload scripts on all objects
         this.getAllFrames().forEach(frame => {
             frame.clips.forEach(clip => {
