@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 
-import ActionButton from 'Editor/Util/ActionButton/ActionButton'; 
+import ActionButton from 'Editor/Util/ActionButton/ActionButton';
+import { Popover } from 'reactstrap';
 import './_canvasactions.scss';
 
 class CanvasActions extends Component {
@@ -30,9 +31,18 @@ class CanvasActions extends Component {
 
   render () {
     return (
-      <div className="canvas-actions-widget">
-        {!this.props.previewPlaying && this.renderActions()}
-      </div>
+      <Popover
+        placement="bottom"
+        isOpen={this.props.showCanvasActions}
+        toggle={this.props.toggleCanvasActions}
+        target="more-canvas-actions-popover-button"
+        boundariesElement={'viewport'}
+        className={"more-canvas-actions-popover"}
+      >    
+        <div className="canvas-actions-widget">
+          {!this.props.previewPlaying && this.renderActions()}
+        </div>
+      </Popover>
     );
   }
 }

@@ -131,9 +131,9 @@ class ActionMapInterface extends Object {
         id: 'action-delete-selected-objects',
       },
       showMoreCanvasActions: {
-        icon: 'showMoreCanvasActions',
-        tooltip: 'More Actions...',
-        action: () => {/* This is done in ColorPicker.jsx */},
+        icon: 'moreactions',
+        tooltip: 'Canvas Actions',
+        action: this.editor.toggleCanvasActions,
         id: 'action-show-more-canvas-options',
       }
     }

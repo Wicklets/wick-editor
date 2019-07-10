@@ -18,7 +18,6 @@
  */
 
 import React, { Component } from 'react';
-import { Popover } from 'reactstrap';
 import './_toolbox.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -26,7 +25,7 @@ import WickInput from 'Editor/Util/WickInput/WickInput';
 import ToolboxBreak from './ToolboxBreak/ToolboxBreak';
 import ToolButton from './ToolButton/ToolButton';
 import ToolSettings from './ToolSettings/ToolSettings';
-import CanvasActions from 'Editor/Panels/CanvasActions/CanvasActions';
+import CanvasActions from './CanvasActions/CanvasActions';
 
 class Toolbox extends Component {
   constructor(props) {
@@ -45,12 +44,6 @@ class Toolbox extends Component {
 
     // List of callbacks to call on Scroll.
     this.scrollFns = [];
-  }
-
-  toggleMoreCanvasActionsPopoverOpen = () => {
-    this.setState({
-      moreCanvasActionsPopoverOpen: !this.state.moreCanvasActionsPopoverOpen
-    });
   }
 
   renderAction = (action, i) => {
@@ -136,23 +129,11 @@ class Toolbox extends Component {
 
       <div className="toolbox-actions-right-container">
         <div className="toolbox-actions-right">
-          <div
-            onClick={this.toggleMoreCanvasActionsPopoverOpen}
-            id="more-canvas-actions-popover-button"
-          >
+          <div id="more-canvas-actions-popover-button">
             {this.renderToolButtonFromAction(this.props.editorActions.showMoreCanvasActions)}
-            <Popover
-              placement="bottom"
-              isOpen={this.state.moreCanvasActionsPopoverOpen}
-              target="more-canvas-actions-popover-button"
-              toggle={this.toggleMoreCanvasActionsPopoverOpen}
-              boundariesElement={'viewport'}
-              className={"more-canvas-actions-popover"}
-              onClick={this.toggleMoreCanvasActionsPopoverOpen}
-            >
-              <CanvasActions {...this.props} />
-            </Popover>
+            <CanvasActions {...this.props} />
           </div>
+
           {this.renderToolButtonFromAction(this.props.editorActions.delete)}
           {this.renderToolButtonFromAction(this.props.editorActions.copy)}
           {this.renderToolButtonFromAction(this.props.editorActions.paste)}
