@@ -428,12 +428,6 @@ class Editor extends EditorCore {
       this.project.history.pushState();
     }
 
-    // The current frame was probably changed in some way, so make sure the WebGL
-    // canvas renders the new frame and not an old cached version of it.
-    this.project.activeFrames.forEach(frame => {
-      frame.view.clearRasterCache();
-    });
-
     // Render engine
     this.project.view.render();
     this.project.guiElement.build();

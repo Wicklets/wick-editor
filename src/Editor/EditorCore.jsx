@@ -925,11 +925,10 @@ class EditorCore extends Component {
     this.resetEditorForLoad();
     this.project = project;
     this.project.selection.clear();
-    //this.project.view.prerasterize(() => {
-      this.projectDidChange();
-      this.hideWaitOverlay();
-      this.project.view.render();
-    //});
+
+    this.projectDidChange();
+    this.hideWaitOverlay();
+    this.project.view.render();
   }
 
   showAutosavedProjects = () => {
@@ -1034,23 +1033,12 @@ class EditorCore extends Component {
       this.project.selection.clear();
     }
 
-    let proceed = () => {
-      this.setState({
-        previewPlaying: !this.state.previewPlaying,
-        codeErrors: [],
-      });
-      this.hideWaitOverlay();
-      this.processingAction = false;
-    }
-
-    // Skip prerasterize step if we are stopping preview play.
-    if(this.state.previewPlaying) {
-      proceed();
-    } else {
-      this.project.view.prerasterize(() => {
-        proceed();
-      });
-    }
+    this.setState({
+      previewPlaying: !this.state.previewPlaying,
+      codeErrors: [],
+    });
+    this.hideWaitOverlay();
+    this.processingAction = false;
   }
 
   /**

@@ -23,7 +23,6 @@ gulp.task('default', function() {
             'lib/jquery.mousewheel.js',
             'lib/jszip.js',
             'lib/lerp.js',
-            'lib/pixi.js',
             'lib/platform.js',
             'lib/potrace.js',
             'lib/reserved-words.js',

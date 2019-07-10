@@ -29,17 +29,14 @@ window.onload = function () {
 
         project.focus = project.root;
         project.focus.timeline.playheadPosition = 1;
-        project.view.render();
-        project.view.prerasterize(() => {
-            project.play({
-                onAfterTick: (() => {
-                    project.view.render();
-                }),
-                onError: (error => {
-                    console.error('Project threw an error!');
-                    console.error(error);
-                }),
-            });
+        project.play({
+            onAfterTick: (() => {
+                project.view.render();
+            }),
+            onError: (error => {
+                console.error('Project threw an error!');
+                console.error(error);
+            }),
         });
     }
 

@@ -748,8 +748,6 @@ Wick.Project = class extends Wick.Base {
     tick () {
         this.root._identifier = 'Project';
 
-        this.view.processInput();
-
         this.focus._attachChildClipReferences();
         var error = this.focus.tick();
 
@@ -771,8 +769,6 @@ Wick.Project = class extends Wick.Base {
         if(!args.onError) args.onError = () => {};
         if(!args.onBeforeTick) args.onBeforeTick = () => {};
         if(!args.onAfterTick) args.onAfterTick = () => {};
-
-        this.view.renderMode = 'webgl';
 
         if(this._tickIntervalID) {
             this.stop();
@@ -809,8 +805,6 @@ Wick.Project = class extends Wick.Base {
         });
 
         this.stopAllSounds();
-
-        this.view.renderMode = 'svg';
 
         clearInterval(this._tickIntervalID);
         this._tickIntervalID = null;
