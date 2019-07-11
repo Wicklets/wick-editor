@@ -755,13 +755,13 @@ Wick.Project = class extends Wick.Base {
         this.root._identifier = 'Project';
 
         // Process input
-        /*this._mousePosition = this.tools.interact.mousePosition;
-        this._isMouseDown = this.tools.interact.isMouseDown;
+        this._mousePosition = this.tools.interact.mousePosition;
+        this._isMouseDown = this.tools.interact.mouseIsDown;
 
         this._keysDown = this.tools.interact.keysDown;
         this._currentKey = this.tools.interact.lastKeyDown;
 
-        this._mouseTargets = this.tools.interact.mouseTargets;*/
+        this._mouseTargets = this.tools.interact.mouseTargets;
 
         // Tick the focus
         this.focus._attachChildClipReferences();
@@ -770,6 +770,8 @@ Wick.Project = class extends Wick.Base {
         // Save the current keysDown
         this._lastMousePosition = {x: this._mousePosition.x, y: this._mousePosition.y};
         this._keysLastDown = [].concat(this._keysDown);
+
+        this.view.render();
 
         return error;
     }
