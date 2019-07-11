@@ -324,7 +324,15 @@ Wick.Tickable = class extends Wick.Base {
 
         // Update mouse states.
         this._lastMouseState = this._mouseState;
-        if(this.view) this._mouseState = this.view._mouseState;
+        if(this.project && this.project.objectIsMouseTarget(this)) {
+            if(this.project.isMouseDown) {
+                this._mouseState = 'down';
+            } else {
+                this._mouseState = 'over';
+            }
+        } else {
+            this._mouseState = 'out';
+        }
 
         // Call tick event function that corresponds to state.
         if(!this._onscreen && !this._onscreenLastTick) {

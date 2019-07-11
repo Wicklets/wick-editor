@@ -59,6 +59,8 @@ Wick.Project = class extends Wick.Base {
         this._lastMousePosition = {x:0, y:0};
         this._isMouseDown = false;
 
+        this._mouseTargets = [];
+
         this._keysDown = [];
         this._keysLastDown = [];
         this._currentKey = null;
@@ -81,6 +83,9 @@ Wick.Project = class extends Wick.Base {
             text: new Wick.Tools.Text(),
             zoom: new Wick.Tools.Zoom(),
         };
+        for(var toolName in this._tools) {
+            this._tools[toolName].project = this;
+        }
         this.activeTool = 'cursor';
 
         this._toolSettings = new Wick.ToolSettings();
@@ -749,10 +754,21 @@ Wick.Project = class extends Wick.Base {
     tick () {
         this.root._identifier = 'Project';
 
+        // Process input
+        /*this._mousePosition = this.tools.interact.mousePosition;
+        this._isMouseDown = this.tools.interact.isMouseDown;
+
+        this._keysDown = this.tools.interact.keysDown;
+        this._currentKey = this.tools.interact.lastKeyDown;
+
+        this._mouseTargets = this.tools.interact.mouseTargets;*/
+
+        // Tick the focus
         this.focus._attachChildClipReferences();
         var error = this.focus.tick();
 
         // Save the current keysDown
+        this._lastMousePosition = {x: this._mousePosition.x, y: this._mousePosition.y};
         this._keysLastDown = [].concat(this._keysDown);
 
         return error;
@@ -780,6 +796,7 @@ Wick.Project = class extends Wick.Base {
         this.history.saveSnapshot('state-before-play');
 
         this.selection.clear();
+        this.activeTool = 'interact';
 
         // Start tick loop
         this._tickIntervalID = setInterval(() => {
@@ -992,5 +1009,9 @@ Wick.Project = class extends Wick.Base {
         });
 
         callback(sounds);
+    }
+
+    objectIsMouseTarget (object) {
+        return this._mouseTargets.indexOf(object) !== -1;
     }
 }

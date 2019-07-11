@@ -65,32 +65,38 @@ describe('Wick.Button', function() {
 
             // Hover the mouse over the button. The button should be on frame 2.
             // (We change the mouseState of the view to simulate mouse events.)
-            button.view._mouseState = 'over';
+            project._mouseTargets = [button];
+            project._isMouseDown = false;
             project.tick();
             expect(button.timeline.playheadPosition).to.equal(2);
             project.tick();
             expect(button.timeline.playheadPosition).to.equal(2);
 
             // The mouse left the button. Tht button goes back to frame 1.
-            button.view._mouseState = 'out';
+            project._mouseTargets = [];
+            project._isMouseDown = false;
             project.tick();
             expect(button.timeline.playheadPosition).to.equal(1);
 
             // The mouse hovers back over the button and clicks it. The button should go to frame 2.
-            button.view._mouseState = 'over';
+            project._mouseTargets = [button];
+            project._isMouseDown = false;
             project.tick();
             expect(button.timeline.playheadPosition).to.equal(2);
-            button.view._mouseState = 'down';
+            project._mouseTargets = [button];
+            project._isMouseDown = true;
             project.tick();
             expect(button.timeline.playheadPosition).to.equal(2);
 
             // The mouse is no longer down. The button should go back to frame 2.
-            button.view._mouseState = 'over';
+            project._mouseTargets = [button];
+            project._isMouseDown = false;
             project.tick();
             expect(button.timeline.playheadPosition).to.equal(2);
 
             // The mouse left the button. The button should go back to frame 1.
-            button.view._mouseState = 'out';
+            project._mouseTargets = [];
+            project._isMouseDown = false;
             project.tick();
             expect(button.timeline.playheadPosition).to.equal(1);
         });
@@ -110,32 +116,38 @@ describe('Wick.Button', function() {
             expect(button.timeline.playheadPosition).to.equal(1);
 
             // Hover the mouse over the button. The button should be on frame 2.
-            button.view._mouseState = 'over';
+            project._mouseTargets = [button];
+            project._isMouseDown = false;
             project.tick();
             expect(button.timeline.playheadPosition).to.equal(2);
             project.tick();
             expect(button.timeline.playheadPosition).to.equal(2);
 
             // The mouse left the button. Tht button goes back to frame 1.
-            button.view._mouseState = 'out';
+            project._mouseTargets = [];
+            project._isMouseDown = false;
             project.tick();
             expect(button.timeline.playheadPosition).to.equal(1);
 
             // The mouse hovers back over the button and clicks it. The button should go to frame 2, and then frame 3.
-            button.view._mouseState = 'over';
+            project._mouseTargets = [button];
+            project._isMouseDown = false;
             project.tick();
             expect(button.timeline.playheadPosition).to.equal(2);
-            button.view._mouseState = 'down';
+            project._mouseTargets = [button];
+            project._isMouseDown = true;
             project.tick();
             expect(button.timeline.playheadPosition).to.equal(3);
 
             // The mouse is no longer down. The button should go back to frame 2.
-            button.view._mouseState = 'over';
+            project._mouseTargets = [button];
+            project._isMouseDown = false;
             project.tick();
             expect(button.timeline.playheadPosition).to.equal(2);
 
             // The mouse left the button. The button should go back to frame 1.
-            button.view._mouseState = 'out';
+            project._mouseTargets = [];
+            project._isMouseDown = false;
             project.tick();
             expect(button.timeline.playheadPosition).to.equal(1);
         });
@@ -155,21 +167,24 @@ describe('Wick.Button', function() {
             frame2.addScript('load', 'this.__frame2ScriptRan = true;');
             frame3.addScript('load', 'this.__frame3ScriptRan = true;');
 
-            button.view._mouseState = 'out';
+            project._mouseTargets = [];
+            project._isMouseDown = false;
             project.tick();
             expect(button.timeline.playheadPosition).to.equal(1);
             expect(frame1.parentClip.__frame1ScriptRan).to.equal(true);
             expect(frame2.parentClip.__frame2ScriptRan).to.equal(undefined);
             expect(frame3.parentClip.__frame3ScriptRan).to.equal(undefined);
 
-            button.view._mouseState = 'over';
+            project._mouseTargets = [button];
+            project._isMouseDown = false;
             project.tick();
             //project.tick();
             expect(button.timeline.playheadPosition).to.equal(2);
             expect(frame2.parentClip.__frame2ScriptRan).to.equal(true);
             expect(frame3.parentClip.__frame3ScriptRan).to.equal(undefined);
 
-            button.view._mouseState = 'down';
+            project._mouseTargets = [button];
+            project._isMouseDown = true;
             project.tick();
             //project.tick();
             expect(button.timeline.playheadPosition).to.equal(3);

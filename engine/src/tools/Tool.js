@@ -53,6 +53,14 @@ Wick.Tool = class {
             this._lastMousedownTimestamp = e.timeStamp;
         }
 
+        // Attach key events
+        this.paperTool.onKeyDown = (e) => {
+            this.onKeyDown(e);
+        }
+        this.paperTool.onKeyUp = (e) => {
+            this.onKeyUp(e);
+        }
+
         // Attach mouse move event
         this.paperTool.onMouseDrag = (e) => {
             this.onMouseDrag(e);

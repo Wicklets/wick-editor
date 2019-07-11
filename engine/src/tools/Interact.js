@@ -25,6 +25,11 @@ Wick.Tools.Interact = class extends Wick.Tool {
         super();
 
         this.name = 'interact';
+
+        this._keysDown = [];
+        this._lastKeyDown = null;
+        this._mouseIsDown = false;
+        this._mousePosition = new paper.Point(0,0);
     }
 
     /**
@@ -43,15 +48,76 @@ Wick.Tools.Interact = class extends Wick.Tool {
 
     }
 
-    onMouseDown (e) {
-        
+    onMouseMove (e) {
+        this._mousePosition = e.point;
     }
 
-    onMouseDrag (e) {
-
+    onMouseDown (e) {
+        this._mouseIsDown = true;
     }
 
     onMouseUp (e) {
+        this._mouseIsDown = false;
+    }
 
+    onKeyDown (e) {
+        this._lastKeyDown = e.key;
+
+        if(this._keysDown.indexOf(e.key) === -1) {
+            this._keysDown.push(e.key);
+        }
+    }
+
+    onKeyUp (e) {
+        this._keysDown = this._keysDown.filter(key => {
+            return key !== e.key;
+        });
+    }
+
+    get mousePosition () {
+        return this._mousePosition;
+    }
+
+    get mouseIsDown () {
+        return this._mouseIsDown;
+    }
+
+    get keysDown () {
+        return this._keysDown;
+    }
+
+    get lastKeyDown () {
+        return this._lastKeyDown;
+    }
+
+    get mouseTargets () {
+        var hitResult = this.paper.project.hitTest(this.mousePosition, {
+            fill: true,
+            stroke: true,
+            curves: true,
+            segments: true,
+        });
+
+        // Check for clips under the mouse.
+        if(hitResult) {
+            var uuid = hitResult.item.data.wickUUID;
+            if(uuid) {
+                var path = Wick.ObjectCache.getObjectByUUID(uuid);
+
+                if(!path.parentClip.isRoot) {
+                    var clip = path.parentClip;
+                    var lineageWithoutRoot = clip.lineage;
+                    lineageWithoutRoot.pop();
+                    return lineageWithoutRoot;
+                }
+            }
+        }
+
+        // No clips are under the mouse, so the frame is under the mouse.
+        if(this.project.activeFrame) {
+            return [this.project.activeFrame];
+        } else {
+            return [];
+        }
     }
 }
