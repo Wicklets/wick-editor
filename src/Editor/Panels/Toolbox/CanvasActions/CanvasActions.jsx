@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 
 import ActionButton from 'Editor/Util/ActionButton/ActionButton';
+import ToolboxBreak from '../ToolboxBreak/ToolboxBreak';
 import { Popover } from 'reactstrap';
 import './_canvasactions.scss';
 
@@ -25,6 +26,9 @@ class CanvasActions extends Component {
         {this.renderActionButton(this.props.editorActions.sendToBack)}
         {this.renderActionButton(this.props.editorActions.sendToFront)}
         {this.renderActionButton(this.props.editorActions.sendForward)}
+        <ToolboxBreak className="toolbox-item"/>
+        {this.renderActionButton(this.props.editorActions.flipHorizontal)}
+        {this.renderActionButton(this.props.editorActions.flipVertical)}
       </div>
     );
   }
@@ -38,7 +42,7 @@ class CanvasActions extends Component {
         target="more-canvas-actions-popover-button"
         boundariesElement={'viewport'}
         className={"more-canvas-actions-popover"}
-      >    
+      >
         <div className="canvas-actions-widget">
           {!this.props.previewPlaying && this.renderActions()}
         </div>

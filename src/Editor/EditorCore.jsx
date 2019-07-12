@@ -623,7 +623,7 @@ class EditorCore extends Component {
    * Horizontally flips the canvas selection.
    */
   flipSelectedHorizontal = () => {
-    this.project.flipSelectionHorizontally();
+    this.project.selection.flipHorizontally();
     this.projectDidChange();
   }
 
@@ -631,7 +631,7 @@ class EditorCore extends Component {
    * Vertically flips the canvas selection.
    */
   flipSelectedVertical = () => {
-    this.project.flipSelectionVertically();
+    this.project.selection.flipVertically();
     this.projectDidChange();
   }
 
