@@ -76,7 +76,8 @@ class HotKeyInterface extends Object {
       'toggle-script-editor': '`',
       'export-project-as-wick-file': ['ctrl+s', 'command+s'],
       'import-project-as-wick-file': ['ctrl+o', 'command+o'],
-      'create-clip-from-selection': ['ctrl+g', 'command-g'],
+      'create-clip-from-selection': ['ctrl+g', 'command+g'],
+      'break-apart-selection': ['ctrl+shift+g', 'command+shift+g']
     }
   }
 
@@ -126,7 +127,8 @@ class HotKeyInterface extends Object {
       'toggle-script-editor': this.editor.toggleCodeEditor,
       'export-project-as-wick-file': this.editor.exportProjectAsWickFile,
       'import-project-as-wick-file': (() => console.log("Ctrl-O as a shortcut doesn't work yet.")),
-      'create-clip-from-selection': (() => this.editor.createClipFromSelection("")),
+      'create-clip-from-selection': (() => this.editor.createClipFromSelection("", false)),
+      'break-apart-selection': (() => this.editor.breakApartSelection())
     }
 
     for(let name in this.handlers) {
