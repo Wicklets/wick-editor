@@ -32,14 +32,6 @@ Wick.Tools.Interact = class extends Wick.Tool {
         this._mousePosition = new paper.Point(0,0);
     }
 
-    /**
-     *
-     * @type {string}
-     */
-    get cursor () {
-        return 'default';
-    }
-
     onActivate (e) {
 
     }
@@ -91,6 +83,8 @@ Wick.Tools.Interact = class extends Wick.Tool {
     }
 
     get mouseTargets () {
+        var targets = [];
+
         var hitResult = this.paper.project.hitTest(this.mousePosition, {
             fill: true,
             stroke: true,
@@ -108,16 +102,28 @@ Wick.Tools.Interact = class extends Wick.Tool {
                     var clip = path.parentClip;
                     var lineageWithoutRoot = clip.lineage;
                     lineageWithoutRoot.pop();
-                    return lineageWithoutRoot;
+                    targets = lineageWithoutRoot;
                 }
             }
+        } else if(this.project.activeFrame) {
+            // No clips are under the mouse, so the frame is under the mouse.
+            targets = [this.project.activeFrame];
+        } else {
+            targets = [];
         }
 
-        // No clips are under the mouse, so the frame is under the mouse.
-        if(this.project.activeFrame) {
-            return [this.project.activeFrame];
-        } else {
-            return [];
-        }
+        // Are we hovered over a button? If we are, use the "pointer" cursor
+        this.setCursor(targets.find(target => {
+            return target instanceof Wick.Button;
+        }) ? 'pointer' : 'default');
+
+        return targets;
+    }
+
+    /**
+     *
+     */
+    get doubleClickEnabled () {
+        return false;
     }
 }

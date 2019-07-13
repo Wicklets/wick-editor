@@ -45,7 +45,7 @@ Wick.Tool = class {
 
         // Attach mouse down + double click event
         this.paperTool.onMouseDown = (e) => {
-            if(this._lastMousedownTimestamp !== null && e.timeStamp - this._lastMousedownTimestamp < Wick.Tool.DOUBLE_CLICK_TIME) {
+            if(this.doubleClickEnabled && this._lastMousedownTimestamp !== null && e.timeStamp - this._lastMousedownTimestamp < Wick.Tool.DOUBLE_CLICK_TIME) {
                 this.onDoubleClick(e);
             } else {
                 this.onMouseDown(e);
@@ -205,8 +205,18 @@ Wick.Tool = class {
         return 'url(' + canvas.toDataURL() + ') 64 64,default';
     }
 
+    /**
+     *
+     */
     getSetting (name) {
         return this.project.toolSettings.getSetting(name);
+    }
+
+    /**
+     *
+     */
+    get doubleClickEnabled () {
+        return true;
     }
 }
 
