@@ -125,7 +125,7 @@ class HotKeyInterface extends Object {
       'nudge-right-more': this.editor.nudgeSelectionRightMore,
       'toggle-script-editor': this.editor.toggleCodeEditor,
       'export-project-as-wick-file': this.editor.exportProjectAsWickFile,
-      'import-project-as-wick-file': this.editor.importProjectAsWickFile,
+      'import-project-as-wick-file': (() => console.log("Ctrl-O as a shortcut doesn't work yet.")),
       'create-clip-from-selection': (() => this.editor.createClipFromSelection("")),
     }
 
