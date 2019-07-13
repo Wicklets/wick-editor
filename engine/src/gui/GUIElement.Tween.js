@@ -32,6 +32,7 @@ Wick.GUIElement.Tween = class extends Wick.GUIElement.Draggable {
         });
 
         this.on('mouseDown', (e) => {
+            this.model.project.activeTimeline.playheadPosition = this.model.playheadPosition;
             if(!e.modifiers.shift && !this.model.isSelected) {
                 this.model.project.selection.clear();
             }

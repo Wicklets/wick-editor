@@ -246,7 +246,7 @@ describe('Wick.View.Project', function() {
     });
 
     describe('#prerasterize', function () {
-        it('should preload all rastered SVG textures', function (done) {
+        it('should preload all rasterized SVG textures', function (done) {
             var project = new Wick.Project();
             project.activeLayer.addFrame(new Wick.Frame({start:2}));
             project.activeLayer.addFrame(new Wick.Frame({start:3}));
@@ -298,6 +298,51 @@ describe('Wick.View.Project', function() {
                 project.view.destroy();
 
                 done();
+            });
+        });
+
+        it('should preload all rasterized SVG textures (heavy performance test)', function (done) {
+            var FRAME_COUNT = 100;
+            var RASTER_SIZE = 10000;
+
+            var project = new Wick.Project();
+            project.activeFrame.remove();
+            for(var i = 1; i < FRAME_COUNT; i++) {
+                var frame = new Wick.Frame({start:i});
+                project.activeLayer.addFrame(frame);
+
+                var path = TestUtils.paperToWickPath(new paper.Path.Circle({
+                    center: [0, 0],
+                    radius: RASTER_SIZE / 2,
+                    strokeColor: 'green',
+                    fillColor: 'red',
+                }));
+
+                frame.addPath(path);
+            }
+
+            project.view.prerasterize(() => {
+            project.view.prerasterize(() => {
+            project.view.prerasterize(() => {
+            project.view.prerasterize(() => {
+            project.view.prerasterize(() => {
+                project.view.render();
+
+                var allFrames = project.root.activeLayer.frames;
+                for(var i = 0; i < allFrames.length; i++) {
+                    var frame = allFrames[i];
+                    var sprite = frame.view.pathsContainer.children[0];
+                    expect(sprite.texture.width).to.equal(RASTER_SIZE * Wick.View.Frame.RASTERIZE_RESOLUTION_MODIFIER + 2);
+                    expect(sprite.texture.height).to.equal(RASTER_SIZE * Wick.View.Frame.RASTERIZE_RESOLUTION_MODIFIER + 2);
+                };
+
+                project.view.destroy();
+
+                done();
+            });
+            });
+            });
+            });
             });
         });
     });

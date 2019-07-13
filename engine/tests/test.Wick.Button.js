@@ -5,7 +5,7 @@ describe('Wick.Button', function() {
             expect(button.classname).to.equal('Button');
         });
     });
-    
+
     describe('#tick', function () {
         it('should move playhead based on mouse state (single frame)', function() {
             var project = new Wick.Project();
@@ -158,22 +158,22 @@ describe('Wick.Button', function() {
             button.view._mouseState = 'out';
             project.tick();
             expect(button.timeline.playheadPosition).to.equal(1);
-            expect(frame1.__frame1ScriptRan).to.equal(true);
-            expect(frame2.__frame2ScriptRan).to.equal(undefined);
-            expect(frame3.__frame3ScriptRan).to.equal(undefined);
+            expect(frame1.parentClip.__frame1ScriptRan).to.equal(true);
+            expect(frame2.parentClip.__frame2ScriptRan).to.equal(undefined);
+            expect(frame3.parentClip.__frame3ScriptRan).to.equal(undefined);
 
             button.view._mouseState = 'over';
             project.tick();
             //project.tick();
             expect(button.timeline.playheadPosition).to.equal(2);
-            expect(frame2.__frame2ScriptRan).to.equal(true);
-            expect(frame3.__frame3ScriptRan).to.equal(undefined);
+            expect(frame2.parentClip.__frame2ScriptRan).to.equal(true);
+            expect(frame3.parentClip.__frame3ScriptRan).to.equal(undefined);
 
             button.view._mouseState = 'down';
             project.tick();
             //project.tick();
             expect(button.timeline.playheadPosition).to.equal(3);
-            expect(frame3.__frame3ScriptRan).to.equal(true);
+            expect(frame3.parentClip.__frame3ScriptRan).to.equal(true);
         });
     });
 });

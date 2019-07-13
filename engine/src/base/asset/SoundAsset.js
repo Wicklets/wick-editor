@@ -60,28 +60,21 @@ Wick.SoundAsset = class extends Wick.FileAsset {
     /**
      * Plays this asset's sound.
      * @param {number} seekMS - the amount of time in milliseconds to start the sound at.
+     * @param {number} volume - the volume of the sound, from 0.0 - 1.0
+     * @param {boolean} loop - if set to true, the sound will loop
      * @return {number} The id of the sound instance that was played.
      */
-    play (seekMS, volume) {
-        // Lazily create howl instance
-        if(!this._howl) {
-            this._howl = new Howl({
-                src: [this.src]
-            });
-        }
+    play (options) {
+        if(!options) options = {};
+        if(options.seekMS === undefined) options.seekMS = 0;
+        if(options.volume === undefined) options.volume = 1.0;
+        if(options.loop === undefined) options.loop = false;
 
-        // Play the sound, saving the ID returned by howler
         var id = this._howl.play();
 
-        // Skip parts of the sound if seekMS was passed in
-        if(seekMS !== undefined) {
-            this._howl.seek(seekMS / 1000, id);
-        }
-
-        // Set sound instance volume if volume was passed in
-        if(volume !== undefined) {
-            this._howl.volume(volume, id);
-        }
+        this._howl.seek(options.seekMS / 1000, id);
+        this._howl.volume(options.volume, id);
+        this._howl.loop(options.loop, id);
 
         return id;
     }
@@ -101,6 +94,14 @@ Wick.SoundAsset = class extends Wick.FileAsset {
         } else {
             this._howl.stop(id);
         }
+    }
+
+    /**
+     * The length of the sound in seconds
+     * @type {number}
+     */
+    get duration () {
+        return this._howl.duration();
     }
 
     /**
@@ -132,5 +133,28 @@ Wick.SoundAsset = class extends Wick.FileAsset {
         this.getInstances().forEach(frame => {
             frame.removeSound();
         });
+    }
+
+    /**
+     * Loads data about the sound into the asset.
+     */
+    load (callback) {
+        if(this._howl.state() === 'loaded') {
+            callback();
+        } else {
+            this._howl.on('load', () => {
+                callback();
+            });
+        }
+    }
+
+    get _howl () {
+        // Lazily create howler instance
+        if(!this._howlInstance) {
+            this._howlInstance = new Howl({
+                src: [this.src]
+            });
+        }
+        return this._howlInstance;
     }
 }

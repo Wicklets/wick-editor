@@ -32,7 +32,7 @@ Wick.Layer = class extends Wick.Base {
 
         this.locked = args.locked === undefined ? false : args.locked;
         this.hidden = args.hidden === undefined ? false : args.hidden;
-        this.name = args.name || 'New Layer';
+        this.name = args.name || 'Layer';
     }
 
     serialize (args) {

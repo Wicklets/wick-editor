@@ -464,16 +464,18 @@ describe('Wick.Tickable', function() {
             var clip = new Wick.Clip();
             clip.__eventRanCount = 0;
             var src = '';
-            src += 'onEvent("load", () => { this.__eventRanCount++; });';
-            src += 'onEvent("load", function () { this.__eventRanCount++; });';
-            src += 'onEvent("load", () => { this.__eventRanCount++; });';
+            src += 'onEvent("load", () => { this.__loadEvent1Ran = true; });';
+            src += 'onEvent("load", function () { this.__loadEvent2Ran = true; });';
+            src += 'onEvent("load", () => { this.__loadEvent3Ran = true; });';
             clip.addScript('default', src);
 
             var project = new Wick.Project();
             project.activeFrame.addClip(clip);
 
             expect(project.tick()).to.equal(null);
-            expect(clip.__eventRanCount).to.equal(3);
+            expect(clip.__loadEvent1Ran).to.equal(true);
+            expect(clip.__loadEvent2Ran).to.equal(true);
+            expect(clip.__loadEvent3Ran).to.equal(true);
         });
 
         it('should catch errors from scripts attached using onEvent', function() {

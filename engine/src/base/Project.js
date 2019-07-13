@@ -80,11 +80,19 @@ Wick.Project = class extends Wick.Base {
             text: new Wick.Tools.Text(),
             zoom: new Wick.Tools.Zoom(),
         };
-        this._toolSettings = new Wick.ToolSettings();
         this.activeTool = 'cursor';
 
+        this._toolSettings = new Wick.ToolSettings();
+        this._toolSettings.onSettingsChanged((name, value) => {
+            if(name === 'fillColor') {
+                this.selection.fillColor = value;
+            } else if (name === 'strokeColor') {
+                this.selection.strokeColor = value;
+            }
+        });
+
         this.history.project = this;
-        this.history.pushState();
+        this.history.pushState(Wick.History.StateType.ONLY_VISIBLE_OBJECTS);
     }
 
     deserialize (data) {
@@ -705,15 +713,16 @@ Wick.Project = class extends Wick.Base {
     /**
      * Plays the sound in the asset library with the given name.
      * @param {string} assetName - Name of the sound asset to play
+     * @param {Object} options - options for the sound. See Wick.SoundAsset.play
      */
-    playSound (assetName) {
+    playSound (assetName, options) {
         var asset = this.getAssetByName(assetName);
         if(!asset) {
             console.warn('playSound(): No asset with name: "' + assetName + '"');
         } else if (!(asset instanceof Wick.SoundAsset)) {
             console.warn('playSound(): Asset is not a sound: "' + assetName + '"');
         } else {
-            asset.play();
+            asset.play(options);
         }
     }
 
@@ -721,8 +730,12 @@ Wick.Project = class extends Wick.Base {
      * Stops all sounds playing from frames and sounds played using playSound().
      */
     stopAllSounds () {
-        // TODO: Stop all sounds started with Wick.Project.playSound();
+        // Stop all sounds started with Wick.Project.playSound();
+        this.getAssets('Sound').forEach(soundAsset => {
+            soundAsset.stop();
+        });
 
+        // Stop all sounds on frames
         this.getAllFrames().forEach(frame => {
             frame.stopSound();
         });
@@ -899,6 +912,9 @@ Wick.Project = class extends Wick.Base {
     generateImageSequence (args, callback) {
         var oldCanvasContainer = this.view.canvasContainer;
 
+        this.history.saveSnapshot('before-gif-render');
+        this.tick();
+
         // Put the project canvas inside a div that's the same size as the project so the frames render at the correct resolution.
         let container = window.document.createElement('div');
         container.style.width = (this.width/window.devicePixelRatio)+'px';
@@ -932,9 +948,11 @@ Wick.Project = class extends Wick.Base {
                     this.view.canvasContainer = oldCanvasContainer;
                     this.view.resize();
 
+                    this.history.loadSnapshot('before-gif-render');
+
                     callback(frameImages);
                 } else {
-                    this.focus.timeline.playheadPosition++;
+                    this.tick();
                     renderFrame();
                 }
             }

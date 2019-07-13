@@ -447,7 +447,6 @@ Wick.Tickable = class extends Wick.Base {
         // Attempt to create valid function...
         try {
             fn = new Function([], src);
-            fn = fn.bind(this);
         } catch (e) {
             // This should almost never be thrown unless there is an attempt to use syntax
             // that the syntax checker (esprima) does not understand.
@@ -487,8 +486,9 @@ Wick.Tickable = class extends Wick.Base {
           window.parentObject = this.parentObject;
 
           // Run the function
+          var thisScope = this instanceof Wick.Frame ? this.parentClip : this;
           try {
-              fn.bind(this)();
+              fn.bind(thisScope)();
           } catch (e) {
               // Catch runtime errors
               error = this._generateErrorInfo(e, name);

@@ -22,6 +22,17 @@
  */
 Wick.History = class {
     /**
+     *
+     */
+    static get StateType () {
+        return {
+            ALL_OBJECTS: 0,
+            ALL_OBJECTS_WITHOUT_PATHS: 1,
+            ONLY_VISIBLE_OBJECTS: 2,
+        };
+    }
+
+    /**
      * Creates a new history object
      */
     constructor () {
@@ -32,8 +43,10 @@ Wick.History = class {
 
     /**
      * Push the current state of the ObjectCache to the undo stack.
+     * @param {number} filter - the filter to choose which objects to serialize. See Wick.History.StateType
      */
     pushState (filter) {
+        this._redoStack = [];
         this._undoStack.push(this._generateState(filter));
     }
 
@@ -76,25 +89,42 @@ Wick.History = class {
     /**
      *
      * @param {string} name - the name of the snapshot
+     * @param {number} filter - the filter to choose which objects to serialize. See Wick.History.StateType
      */
     saveSnapshot (name, filter) {
-        this._snapshots[name] = this._generateState(filter);
+        this._snapshots[name] = this._generateState(filter || Wick.History.StateType.ALL_OBJECTS_WITHOUT_PATHS);
     }
 
     /**
-     *
+     * Save a state to the list of snapshots to be recovered at any time.
      * @param {string} name - the name of the snapshot to recover
      */
     loadSnapshot (name) {
         this._recoverState(this._snapshots[name]);
     }
 
-    _generateState (filter) {
-        var objects = Wick.ObjectCache.getActiveObjects(this.project);
-        objects.push(this.project);
+    // NOTE: State saving/recovery can be greatly optimized by only saving the state of the things that were actually changed.
+    _generateState (stateType) {
+        var objects = [];
+
+        if(stateType === undefined) {
+            stateType = Wick.History.StateType.ALL_OBJECTS;
+        }
+
+        if(stateType === Wick.History.StateType.ALL_OBJECTS) {
+            objects = this._getAllObjects();
+        } else if (stateType === Wick.History.StateType.ALL_OBJECTS_WITHOUT_PATHS) {
+            objects = this._getAllObjectsWithoutPaths();
+        } else if(stateType === Wick.History.StateType.ONLY_VISIBLE_OBJECTS) {
+            objects = this._getVisibleObjects();
+        } else {
+            console.error('Wick.History._generateState: A valid stateType is required.');
+            return;
+        }
+
         return objects.map(object => {
             return object.serialize();
-        })
+        });
     }
 
     _recoverState (state) {
@@ -102,5 +132,59 @@ Wick.History = class {
             var object = Wick.ObjectCache.getObjectByUUID(objectData.uuid);
             object.deserialize(objectData);
         });
+    }
+
+    _getAllObjects () {
+        var objects = Wick.ObjectCache.getActiveObjects(this.project);
+        objects.push(this.project);
+        return objects;
+    }
+
+    // this is used for an optimization when snapshots are saved for preview playing.
+    _getAllObjectsWithoutPaths () {
+        return this._getAllObjects().filter(object => {
+            return !(object instanceof Wick.Path);
+        });
+    }
+
+    _getVisibleObjects () {
+        var stateObjects = [];
+
+        // the project itself (for focus, options, etc)
+        stateObjects.push(this.project);
+
+        // the focused clip
+        stateObjects.push(this.project.focus);
+
+        // the focused timeline
+        stateObjects.push(this.project.focus.timeline);
+
+        // the selection
+        stateObjects.push(this.project.selection);
+
+        // layers on focused timeline
+        this.project.activeTimeline.layers.forEach(layer => {
+            stateObjects.push(layer);
+        });
+
+        // frames on focused timeline
+        this.project.activeTimeline.frames.forEach(frame => {
+            stateObjects.push(frame);
+        });
+
+        // objects+tweens on active frames
+        this.project.activeFrames.forEach(frame => {
+            frame.paths.forEach(path => {
+                stateObjects.push(path);
+            });
+            frame.clips.forEach(clip => {
+                stateObjects.push(clip);
+            });
+            frame.tweens.forEach(tween => {
+                stateObjects.push(tween);
+            })
+        });
+
+        return stateObjects;
     }
 }

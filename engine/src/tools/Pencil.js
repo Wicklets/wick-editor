@@ -66,9 +66,11 @@ Wick.Tools.Pencil = class extends Wick.Tool {
     }
 
     onMouseDrag (e) {
+        if(!this.path) return;
+
         this._movement = this._movement.add(e.delta);
 
-        if(this.path && this._movement.length > Wick.Tools.Pencil.MIN_ADD_POINT_MOVEMENT / this.paper.view.zoom) {
+        if(this._movement.length > Wick.Tools.Pencil.MIN_ADD_POINT_MOVEMENT / this.paper.view.zoom) {
             this._movement = new paper.Point();
             this.path.add(e.point);
             this.path.smooth();

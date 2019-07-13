@@ -17,6 +17,8 @@
  * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+// Thanks to FlyOrBoom (https://github.com/FlyOrBoom) for the styling on these sliders!
+
 Wick.GUIElement.OnionSkinRangeEnd = class extends Wick.GUIElement.OnionSkinRange {
     /**
      *
@@ -39,27 +41,35 @@ Wick.GUIElement.OnionSkinRangeEnd = class extends Wick.GUIElement.OnionSkinRange
     /**
      *
      */
-    get x () {
+    get x() {
         var project = this.model.project;
         var x = (project.activeTimeline.playheadPosition + project.onionSkinSeekForwards - 1) * this.gridCellWidth;
-        x += this.gridCellWidth;
-        x -= Wick.GUIElement.OnionSkinRange.DEFAULT_HANDLE_WIDTH;
         x += this.dragOffset * this.gridCellWidth;
+        x -= project.activeTimeline.playheadPosition*this.gridCellWidth; //makes sure the forward skin stays forward of playhead;
+        x = (x+Math.abs(x))/2;
+        x += project.activeTimeline.playheadPosition*this.gridCellWidth;
         return x;
     }
 
     /**
      *
      */
-    get y () {
+    get y() {
         return 0;
     }
 
     /**
      *
      */
-    drop () {
-        this.model.project.onionSkinSeekForwards = project.activeTimeline.playheadPosition + Math.floor(-this.x / this.gridCellWidth);
+    get width() {
+        return this.gridCellWidth - Wick.GUIElement.PLAYHEAD_MARGIN * 2;
+    }
+
+    /**
+     *
+     */
+    drop() {
+        this.model.project.onionSkinSeekForwards = project.activeTimeline.playheadPosition + Math.floor(-this.x / this.gridCellWidth) - 1;
         this.model.project.onionSkinSeekForwards *= -1;
         this.dragOffset = 0;
     }
@@ -72,11 +82,20 @@ Wick.GUIElement.OnionSkinRangeEnd = class extends Wick.GUIElement.OnionSkinRange
 
         if(!this.model.project.onionSkinEnabled) return;
 
-        var rangeSlider = new this.paper.Path.Rectangle({
-            from: new this.paper.Point(this.x, this.y),
-            to: new this.paper.Point(this.x + Wick.GUIElement.OnionSkinRange.DEFAULT_HANDLE_WIDTH, this.y + this.height),
-            fillColor: this.isHoveredOver ? '#ff0000' : '#0000ff',
-            strokeColor: '#000000',
+        var playheadPosition = this.model.project.activeTimeline.playheadPosition*this.gridCellWidth - this.width * 0.875;
+        super.build();
+        var rangeSlider = new this.paper.Path({
+            segments: [[playheadPosition + this.width / 2, this.y], [playheadPosition + this.width / 2, this.y + this.width], [playheadPosition, this.y + 2.5 + this.width * 1.5], [this.x + this.width / 2, this.y + 2.5 + this.width * 1.5], [this.x + this.width + 2.5, this.y + this.width], [this.x + this.width + 2.5, this.y]],
+            fillColor: {
+            gradient: {
+                stops: ['rgba(255,92,92,0.2)','rgba(255,92,92,1)'], //Wick.GUIElement.PLAYHEAD_FILL_COLOR
+            },
+            origin: [playheadPosition,0],
+            destination: [this.x+this.width,0],
+            },
+            opacity: this.isHoveredOver ? 1 : 0.5,
+            strokeJoin: 'round',
+            radius: 4,
         });
         this.item.addChild(rangeSlider);
     }

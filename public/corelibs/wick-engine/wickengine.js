@@ -17254,6 +17254,85 @@ var paper = function (self, undefined) {
   return Atomic;
 });
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* base64-arraybuffer
+* https://github.com/niklasvh/base64-arraybuffer
+*
+* Copyright (c) 2012 Niklas von Hertzen
+* Licensed under the MIT license.
+*/
+var Base64ArrayBuffer = function () {
+  "use strict";
+
+  var base64ArrayBuffer = {};
+  var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"; // Use a lookup table to find the index.
+
+  var lookup = new Uint8Array(256);
+
+  for (var i = 0; i < chars.length; i++) {
+    lookup[chars.charCodeAt(i)] = i;
+  }
+
+  base64ArrayBuffer.encode = function (arraybuffer) {
+    var bytes = new Uint8Array(arraybuffer),
+        i,
+        len = bytes.length,
+        base64 = "";
+
+    for (i = 0; i < len; i += 3) {
+      base64 += chars[bytes[i] >> 2];
+      base64 += chars[(bytes[i] & 3) << 4 | bytes[i + 1] >> 4];
+      base64 += chars[(bytes[i + 1] & 15) << 2 | bytes[i + 2] >> 6];
+      base64 += chars[bytes[i + 2] & 63];
+    }
+
+    if (len % 3 === 2) {
+      base64 = base64.substring(0, base64.length - 1) + "=";
+    } else if (len % 3 === 1) {
+      base64 = base64.substring(0, base64.length - 2) + "==";
+    }
+
+    return base64;
+  };
+
+  base64ArrayBuffer.decode = function (base64) {
+    var bufferLength = base64.length * 0.75,
+        len = base64.length,
+        i,
+        p = 0,
+        encoded1,
+        encoded2,
+        encoded3,
+        encoded4;
+
+    if (base64[base64.length - 1] === "=") {
+      bufferLength--;
+
+      if (base64[base64.length - 2] === "=") {
+        bufferLength--;
+      }
+    }
+
+    var arraybuffer = new ArrayBuffer(bufferLength),
+        bytes = new Uint8Array(arraybuffer);
+
+    for (i = 0; i < len; i += 4) {
+      encoded1 = lookup[base64.charCodeAt(i)];
+      encoded2 = lookup[base64.charCodeAt(i + 1)];
+      encoded3 = lookup[base64.charCodeAt(i + 2)];
+      encoded4 = lookup[base64.charCodeAt(i + 3)];
+      bytes[p++] = encoded1 << 2 | encoded2 >> 4;
+      bytes[p++] = (encoded2 & 15) << 4 | encoded3 >> 2;
+      bytes[p++] = (encoded3 & 3) << 6 | encoded4 & 63;
+    }
+
+    return arraybuffer;
+  };
+
+  return base64ArrayBuffer;
+}();
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
 // https://stackoverflow.com/questions/14224535/scaling-between-two-number-ranges
 function convertRange(value, r1, r2) {
   return (value - r1[0]) * (r2[1] - r2[0]) / (r1[1] - r1[0]) + r2[0];
@@ -64951,6 +65030,130 @@ function Timestamp() {
   return date.join("") + "-" + time.join(".") + "" + suffix;
 }
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
+window.AudioContext = window.AudioContext || window.webkitAudioContext;
+
+Array.prototype.max = function () {
+  return Math.max.apply(null, this);
+};
+
+var audioContext = new AudioContext();
+
+var SCWF = function () {
+  var SoundCloudWaveform = {
+    settings: {
+      canvas_width: 1200,
+      canvas_height: 40,
+      bar_width: 2,
+      bar_gap: 0,
+      wave_color: "#1594FF",
+      download: false,
+      onComplete: function (png, pixels) {}
+    },
+    generate: function (src, options) {
+      // preparing canvas
+      this.settings.canvas = document.createElement('canvas');
+      this.settings.context = this.settings.canvas.getContext('2d');
+      this.settings.canvas.width = options.canvas_width !== undefined ? parseInt(options.canvas_width) : this.settings.canvas_width;
+      this.settings.canvas.height = options.canvas_height !== undefined ? parseInt(options.canvas_height) : this.settings.canvas_height; // setting fill color
+
+      this.settings.wave_color = options.wave_color !== undefined ? options.wave_color : this.settings.wave_color; // setting bars width and gap
+
+      this.settings.bar_width = options.bar_width !== undefined ? parseInt(options.bar_width) : this.settings.bar_width;
+      this.settings.bar_gap = options.bar_gap !== undefined ? parseFloat(options.bar_gap) : this.settings.bar_gap;
+      this.settings.download = options.download !== undefined ? options.download : this.settings.download;
+      this.settings.onComplete = options.onComplete !== undefined ? options.onComplete : this.settings.onComplete; // read file buffer
+
+      /*var reader = new FileReader();
+            reader.onload = function(event) {
+                SoundCloudWaveform.audioContext.decodeAudioData(event.target.result, function(buffer) {
+                    SoundCloudWaveform.extractBuffer(buffer);
+                });
+            };
+            reader.readAsArrayBuffer(file);*/
+
+      var rawData = src.split(",")[1]; // cut off extra filetype/etc data
+
+      var rawBuffer = Base64ArrayBuffer.decode(rawData);
+      audioContext.decodeAudioData(rawBuffer, function (buffer) {
+        if (!buffer) {
+          console.error("failed to decode:", "buffer null");
+          return;
+        }
+
+        SoundCloudWaveform.extractBuffer(buffer);
+      }, function (error) {
+        console.error("failed to decode:", error);
+      });
+    },
+    extractBuffer: function (buffer) {
+      buffer = buffer.getChannelData(0);
+      var sections = this.settings.canvas.width;
+      var len = Math.floor(buffer.length / sections);
+      var maxHeight = this.settings.canvas.height;
+      var vals = [];
+      var lastval = 0;
+
+      for (var i = 0; i < sections; i += this.settings.bar_width) {
+        var val = this.bufferMeasure(i * len, len, buffer) * 10000;
+
+        if (!isNaN(val)) {
+          vals.push(val);
+          lastval = val;
+        } else {
+          vals.push(lastval);
+        }
+      }
+
+      for (var j = 0; j < sections; j += this.settings.bar_width) {
+        var scale = maxHeight / vals.max();
+        var val = this.bufferMeasure(j * len, len, buffer) * 10000;
+        val *= scale;
+        val += 1;
+        this.drawBar(j, val);
+      }
+
+      if (this.settings.download) {
+        this.generateImage();
+      }
+
+      this.settings.onComplete(this.settings.canvas.toDataURL('image/png'), this.settings.context.getImageData(0, 0, this.settings.canvas.width, this.settings.canvas.height)); // clear canvas for redrawing
+
+      this.settings.context.clearRect(0, 0, this.settings.canvas.width, this.settings.canvas.height);
+    },
+    bufferMeasure: function (position, length, data) {
+      var sum = 0.0;
+
+      for (var i = position; i <= position + length - 1; i++) {
+        sum += Math.pow(data[i], 2);
+      }
+
+      return Math.sqrt(sum / data.length);
+    },
+    drawBar: function (i, h) {
+      //if(isNaN(h)) h = Math.random()*50
+      //h = h * 5000;
+      this.settings.context.fillStyle = this.settings.wave_color;
+      var w = this.settings.bar_width;
+
+      if (this.settings.bar_gap !== 0) {
+        w *= Math.abs(1 - this.settings.bar_gap);
+      }
+
+      var x = i + w / 2,
+          y = this.settings.canvas.height / 2 - h / 2 / 1.5;
+      this.settings.context.fillRect(x, y, w, h / 1.5);
+    },
+    generateImage: function () {
+      var image = this.settings.canvas.toDataURL('image/png');
+      var link = document.createElement('a');
+      link.href = image;
+      link.setAttribute('download', '');
+      link.click();
+    }
+  };
+  return SoundCloudWaveform;
+};
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /**
 * Tween.js - Licensed under the MIT license
@@ -65691,7 +65894,7 @@ TWEEN.Interpolation = {
  */
 Wick = {
   /* Major.Minor.Patch[ReleaseType] */
-  version: "1.0.11a"
+  version: "1.0.12a"
 };
 console.log("Wick Engine " + Wick.version + " is available."); // Ensure that the Wick namespace is accessible in environments where globals are finicky (react, webpack, etc)
 
@@ -65940,8 +66143,20 @@ Wick.FileCache = new WickFileCache();
  */
 Wick.History = class {
   /**
+   *
+   */
+  static get StateType() {
+    return {
+      ALL_OBJECTS: 0,
+      ALL_OBJECTS_WITHOUT_PATHS: 1,
+      ONLY_VISIBLE_OBJECTS: 2
+    };
+  }
+  /**
    * Creates a new history object
    */
+
+
   constructor() {
     this._undoStack = [];
     this._redoStack = [];
@@ -65949,10 +66164,13 @@ Wick.History = class {
   }
   /**
    * Push the current state of the ObjectCache to the undo stack.
+   * @param {number} filter - the filter to choose which objects to serialize. See Wick.History.StateType
    */
 
 
   pushState(filter) {
+    this._redoStack = [];
+
     this._undoStack.push(this._generateState(filter));
   }
   /**
@@ -65998,25 +66216,42 @@ Wick.History = class {
   /**
    *
    * @param {string} name - the name of the snapshot
+   * @param {number} filter - the filter to choose which objects to serialize. See Wick.History.StateType
    */
 
 
   saveSnapshot(name, filter) {
-    this._snapshots[name] = this._generateState(filter);
+    this._snapshots[name] = this._generateState(filter || Wick.History.StateType.ALL_OBJECTS_WITHOUT_PATHS);
   }
   /**
-   *
+   * Save a state to the list of snapshots to be recovered at any time.
    * @param {string} name - the name of the snapshot to recover
    */
 
 
   loadSnapshot(name) {
     this._recoverState(this._snapshots[name]);
-  }
+  } // NOTE: State saving/recovery can be greatly optimized by only saving the state of the things that were actually changed.
 
-  _generateState(filter) {
-    var objects = Wick.ObjectCache.getActiveObjects(this.project);
-    objects.push(this.project);
+
+  _generateState(stateType) {
+    var objects = [];
+
+    if (stateType === undefined) {
+      stateType = Wick.History.StateType.ALL_OBJECTS;
+    }
+
+    if (stateType === Wick.History.StateType.ALL_OBJECTS) {
+      objects = this._getAllObjects();
+    } else if (stateType === Wick.History.StateType.ALL_OBJECTS_WITHOUT_PATHS) {
+      objects = this._getAllObjectsWithoutPaths();
+    } else if (stateType === Wick.History.StateType.ONLY_VISIBLE_OBJECTS) {
+      objects = this._getVisibleObjects();
+    } else {
+      console.error('Wick.History._generateState: A valid stateType is required.');
+      return;
+    }
+
     return objects.map(object => {
       return object.serialize();
     });
@@ -66027,6 +66262,52 @@ Wick.History = class {
       var object = Wick.ObjectCache.getObjectByUUID(objectData.uuid);
       object.deserialize(objectData);
     });
+  }
+
+  _getAllObjects() {
+    var objects = Wick.ObjectCache.getActiveObjects(this.project);
+    objects.push(this.project);
+    return objects;
+  } // this is used for an optimization when snapshots are saved for preview playing.
+
+
+  _getAllObjectsWithoutPaths() {
+    return this._getAllObjects().filter(object => {
+      return !(object instanceof Wick.Path);
+    });
+  }
+
+  _getVisibleObjects() {
+    var stateObjects = []; // the project itself (for focus, options, etc)
+
+    stateObjects.push(this.project); // the focused clip
+
+    stateObjects.push(this.project.focus); // the focused timeline
+
+    stateObjects.push(this.project.focus.timeline); // the selection
+
+    stateObjects.push(this.project.selection); // layers on focused timeline
+
+    this.project.activeTimeline.layers.forEach(layer => {
+      stateObjects.push(layer);
+    }); // frames on focused timeline
+
+    this.project.activeTimeline.frames.forEach(frame => {
+      stateObjects.push(frame);
+    }); // objects+tweens on active frames
+
+    this.project.activeFrames.forEach(frame => {
+      frame.paths.forEach(path => {
+        stateObjects.push(path);
+      });
+      frame.clips.forEach(clip => {
+        stateObjects.push(clip);
+      });
+      frame.tweens.forEach(tween => {
+        stateObjects.push(tween);
+      });
+    });
+    return stateObjects;
   }
 
 };
@@ -66583,6 +66864,9 @@ Wick.ToolSettings = class {
 
   constructor() {
     this._settings = {};
+
+    this._onSettingsChangedCallback = () => {};
+
     Wick.ToolSettings.DEFAULT_SETTINGS.forEach(setting => {
       this.createSetting(setting);
     });
@@ -66629,6 +66913,8 @@ Wick.ToolSettings = class {
     }
 
     setting.value = value;
+
+    this._fireOnSettingsChanged(name, value);
   }
   /**
    *
@@ -66667,6 +66953,18 @@ Wick.ToolSettings = class {
     }
 
     return allSettings;
+  }
+  /**
+   *
+   */
+
+
+  onSettingsChanged(callback) {
+    this._onSettingsChangedCallback = callback;
+  }
+
+  _fireOnSettingsChanged(name, value) {
+    this._onSettingsChangedCallback(name, value);
   }
 
 };
@@ -67176,7 +67474,7 @@ Wick.Layer = class extends Wick.Base {
     super(args);
     this.locked = args.locked === undefined ? false : args.locked;
     this.hidden = args.hidden === undefined ? false : args.hidden;
-    this.name = args.name || 'New Layer';
+    this.name = args.name || 'Layer';
   }
 
   serialize(args) {
@@ -67410,10 +67708,19 @@ Wick.Project = class extends Wick.Base {
       text: new Wick.Tools.Text(),
       zoom: new Wick.Tools.Zoom()
     };
-    this._toolSettings = new Wick.ToolSettings();
     this.activeTool = 'cursor';
+    this._toolSettings = new Wick.ToolSettings();
+
+    this._toolSettings.onSettingsChanged((name, value) => {
+      if (name === 'fillColor') {
+        this.selection.fillColor = value;
+      } else if (name === 'strokeColor') {
+        this.selection.strokeColor = value;
+      }
+    });
+
     this.history.project = this;
-    this.history.pushState();
+    this.history.pushState(Wick.History.StateType.ONLY_VISIBLE_OBJECTS);
   }
 
   deserialize(data) {
@@ -68072,10 +68379,11 @@ Wick.Project = class extends Wick.Base {
   /**
    * Plays the sound in the asset library with the given name.
    * @param {string} assetName - Name of the sound asset to play
+   * @param {Object} options - options for the sound. See Wick.SoundAsset.play
    */
 
 
-  playSound(assetName) {
+  playSound(assetName, options) {
     var asset = this.getAssetByName(assetName);
 
     if (!asset) {
@@ -68083,7 +68391,7 @@ Wick.Project = class extends Wick.Base {
     } else if (!(asset instanceof Wick.SoundAsset)) {
       console.warn('playSound(): Asset is not a sound: "' + assetName + '"');
     } else {
-      asset.play();
+      asset.play(options);
     }
   }
   /**
@@ -68092,7 +68400,11 @@ Wick.Project = class extends Wick.Base {
 
 
   stopAllSounds() {
-    // TODO: Stop all sounds started with Wick.Project.playSound();
+    // Stop all sounds started with Wick.Project.playSound();
+    this.getAssets('Sound').forEach(soundAsset => {
+      soundAsset.stop();
+    }); // Stop all sounds on frames
+
     this.getAllFrames().forEach(frame => {
       frame.stopSound();
     });
@@ -68275,7 +68587,9 @@ Wick.Project = class extends Wick.Base {
 
 
   generateImageSequence(args, callback) {
-    var oldCanvasContainer = this.view.canvasContainer; // Put the project canvas inside a div that's the same size as the project so the frames render at the correct resolution.
+    var oldCanvasContainer = this.view.canvasContainer;
+    this.history.saveSnapshot('before-gif-render');
+    this.tick(); // Put the project canvas inside a div that's the same size as the project so the frames render at the correct resolution.
 
     let container = window.document.createElement('div');
     container.style.width = this.width / window.devicePixelRatio + 'px';
@@ -68309,9 +68623,10 @@ Wick.Project = class extends Wick.Base {
 
           this.view.canvasContainer = oldCanvasContainer;
           this.view.resize();
+          this.history.loadSnapshot('before-gif-render');
           callback(frameImages);
         } else {
-          this.focus.timeline.playheadPosition++;
+          this.tick();
           renderFrame();
         }
       };
@@ -70495,30 +70810,25 @@ Wick.SoundAsset = class extends Wick.FileAsset {
   /**
    * Plays this asset's sound.
    * @param {number} seekMS - the amount of time in milliseconds to start the sound at.
+   * @param {number} volume - the volume of the sound, from 0.0 - 1.0
+   * @param {boolean} loop - if set to true, the sound will loop
    * @return {number} The id of the sound instance that was played.
    */
 
 
-  play(seekMS, volume) {
-    // Lazily create howl instance
-    if (!this._howl) {
-      this._howl = new Howl({
-        src: [this.src]
-      });
-    } // Play the sound, saving the ID returned by howler
+  play(options) {
+    if (!options) options = {};
+    if (options.seekMS === undefined) options.seekMS = 0;
+    if (options.volume === undefined) options.volume = 1.0;
+    if (options.loop === undefined) options.loop = false;
 
+    var id = this._howl.play();
 
-    var id = this._howl.play(); // Skip parts of the sound if seekMS was passed in
+    this._howl.seek(options.seekMS / 1000, id);
 
+    this._howl.volume(options.volume, id);
 
-    if (seekMS !== undefined) {
-      this._howl.seek(seekMS / 1000, id);
-    } // Set sound instance volume if volume was passed in
-
-
-    if (volume !== undefined) {
-      this._howl.volume(volume, id);
-    }
+    this._howl.loop(options.loop, id);
 
     return id;
   }
@@ -70539,6 +70849,15 @@ Wick.SoundAsset = class extends Wick.FileAsset {
     } else {
       this._howl.stop(id);
     }
+  }
+  /**
+   * The length of the sound in seconds
+   * @type {number}
+   */
+
+
+  get duration() {
+    return this._howl.duration();
   }
   /**
    * A list of Wick Paths that use this font as their fontFamily.
@@ -70573,6 +70892,31 @@ Wick.SoundAsset = class extends Wick.FileAsset {
     this.getInstances().forEach(frame => {
       frame.removeSound();
     });
+  }
+  /**
+   * Loads data about the sound into the asset.
+   */
+
+
+  load(callback) {
+    if (this._howl.state() === 'loaded') {
+      callback();
+    } else {
+      this._howl.on('load', () => {
+        callback();
+      });
+    }
+  }
+
+  get _howl() {
+    // Lazily create howler instance
+    if (!this._howlInstance) {
+      this._howlInstance = new Howl({
+        src: [this.src]
+      });
+    }
+
+    return this._howlInstance;
   }
 
 };
@@ -71005,14 +71349,15 @@ GlobalAPI = class {
   }
   /**
    * Plays a sound which is currently in the asset library.
-   * @param {string} name of the sound asset in the library.
+   * @param {string} name - name of the sound asset in the library.
+   * @param {Object} options - options for the sound. See Wick.SoundAsset.play
    * @returns {object} object representing the sound which was played.
    */
 
 
-  playSound(assetName) {
+  playSound(assetName, options) {
     if (!this.scriptOwner.project) return null;
-    return this.scriptOwner.project.playSound(assetName);
+    return this.scriptOwner.project.playSound(assetName, options);
   }
   /**
    * Stops all currently playing sounds.
@@ -71071,7 +71416,7 @@ GlobalAPI.Random = class {
 
   choice(array) {
     if (array.length <= 0) return null;
-    return array[Math.floor(Math.random() * myArray.length)];
+    return array[Math.floor(Math.random() * array.length)];
   }
 
 };
@@ -71515,7 +71860,6 @@ Wick.Tickable = class extends Wick.Base {
 
     try {
       fn = new Function([], src);
-      fn = fn.bind(this);
     } catch (e) {
       // This should almost never be thrown unless there is an attempt to use syntax
       // that the syntax checker (esprima) does not understand.
@@ -71557,8 +71901,10 @@ Wick.Tickable = class extends Wick.Base {
     window.parent = this.parentClip;
     window.parentObject = this.parentObject; // Run the function
 
+    var thisScope = this instanceof Wick.Frame ? this.parentClip : this;
+
     try {
-      fn.bind(this)();
+      fn.bind(thisScope)();
     } catch (e) {
       // Catch runtime errors
       error = this._generateErrorInfo(e, name);
@@ -71653,6 +71999,7 @@ Wick.Frame = class extends Wick.Tickable {
     this._soundAssetUUID = null;
     this._soundID = null;
     this._soundVolume = 1.0;
+    this._soundLoop = false;
     this._cropSoundOffsetMS = 0; // milliseconds.
 
     this._originalLayerIndex = -1;
@@ -71664,6 +72011,7 @@ Wick.Frame = class extends Wick.Tickable {
     data.end = this.end;
     data.sound = this._soundAssetUUID;
     data.soundVolume = this._soundVolume;
+    data.soundLoop = this._soundLoop;
     data.originalLayerIndex = this.layerIndex !== -1 ? this.layerIndex : this._originalLayerIndex;
     return data;
   }
@@ -71674,6 +72022,7 @@ Wick.Frame = class extends Wick.Tickable {
     this.end = data.end;
     this._soundAssetUUID = data.sound;
     this._soundVolume = data.soundVolume === undefined ? 1.0 : data.soundVolume;
+    this._soundLoop = data.soundLoop === undefined ? false : data.soundLoop;
     this._originalLayerIndex = data.originalLayerIndex;
   }
 
@@ -71736,6 +72085,19 @@ Wick.Frame = class extends Wick.Tickable {
     this._soundVolume = soundVolume;
   }
   /**
+   * Whether or not the sound loops.
+   * @type {boolean}
+   */
+
+
+  get soundLoop() {
+    return this._soundLoop;
+  }
+
+  set soundLoop(soundLoop) {
+    this._soundLoop = soundLoop;
+  }
+  /**
    * Removes the sound attached to this frame.
    */
 
@@ -71749,9 +72111,16 @@ Wick.Frame = class extends Wick.Tickable {
 
 
   playSound() {
-    if (this.sound) {
-      this._soundID = this.sound.play(this.playheadSoundOffsetMS + this.cropSoundOffsetMS, this.soundVolume);
+    if (!this.sound) {
+      return;
     }
+
+    var options = {
+      seekMS: this.playheadSoundOffsetMS + this.cropSoundOffsetMS,
+      volume: this.soundVolume,
+      loop: this.soundLoop
+    };
+    this._soundID = this.sound.play(options);
   }
   /**
    * Stops the sound attached to this frame.
@@ -74318,9 +74687,10 @@ Wick.Tools.Pencil = class extends Wick.Tool {
   }
 
   onMouseDrag(e) {
+    if (!this.path) return;
     this._movement = this._movement.add(e.delta);
 
-    if (this.path && this._movement.length > Wick.Tools.Pencil.MIN_ADD_POINT_MOVEMENT / this.paper.view.zoom) {
+    if (this._movement.length > Wick.Tools.Pencil.MIN_ADD_POINT_MOVEMENT / this.paper.view.zoom) {
       this._movement = new paper.Point();
       this.path.add(e.point);
       this.path.smooth();
@@ -76578,30 +76948,30 @@ Wick.View.Project = class extends Wick.View {
   }
   /**
    * Rasterizes all the SVGs in the project.
-   * Use this before rendering a project if you want to make sure all SVGs will show up immediately inthe WebGL renderer.
+   * Use this before rendering a project if you want to make sure all SVGs will show up immediately in the WebGL renderer.
    */
 
 
-  prerasterize(callback) {
+  prerasterize(done) {
     var loadedFrames = [];
     var allFrames = this.model.getAllFrames().filter(frame => {
       return frame.paths.length > 0;
     });
-    if (allFrames.length === 0) callback();
-    allFrames.forEach(frame => {
-      frame.view.onFinishRasterize(() => {
-        loadedFrames.push(frame);
-        checkAllFramesLoaded();
-      });
 
-      frame.view._loadPixiTexture();
-    });
-
-    function checkAllFramesLoaded() {
-      if (loadedFrames.length === allFrames.length) {
-        callback();
+    function rasterizeNextFrame() {
+      if (allFrames.length === 0) {
+        done();
+        return;
       }
+
+      var frame = allFrames.pop();
+      frame.view.onFinishRasterize(() => {
+        rasterizeNextFrame();
+      });
+      frame.view.rasterize();
     }
+
+    rasterizeNextFrame();
   }
   /**
    * Destroy the renderer. Call this when the view will no longer be used to save memory/webgl contexts.
@@ -77506,7 +77876,7 @@ Wick.View.Frame = class extends Wick.View {
    * E.g. a multiplier of 2 will make a path 100 pixels wide rasterize into an image 200 pixels wide.
    */
   static get RASTERIZE_RESOLUTION_MODIFIER() {
-    return 2;
+    return 1;
   }
 
   static get RASTERIZE_RESOLUTION_MODIFIER_FOR_DEVICE() {
@@ -77530,7 +77900,7 @@ Wick.View.Frame = class extends Wick.View {
     this._onRasterFinishCallback = function () {};
 
     this._pixiSprite = null;
-    this._rasterImageData = null;
+    this._rasterImageCanvas = null;
     this._dynamicTextCache = {};
   }
   /**
@@ -77542,6 +77912,18 @@ Wick.View.Frame = class extends Wick.View {
     this._applyClipChanges();
 
     this._applyPathChanges();
+  }
+  /**
+   *
+   */
+
+
+  rasterize() {
+    if (this._pixiSprite) {
+      this._onRasterFinishCallback();
+    } else {
+      this._loadPixiTexture();
+    }
   }
   /**
    * Calls a given function when the raster image is done being generated by paper.js + loaded into Pixi.
@@ -77565,7 +77947,7 @@ Wick.View.Frame = class extends Wick.View {
 
     this._pixiSprite = null; // Destroy the raster texture data.
 
-    this._rasterImageData = null; // While we're at it, clear the dynamic text cache.
+    delete this._rasterImageCanvas; // While we're at it, clear the dynamic text cache.
 
     for (var uuid in this._dynamicTextCache) {
       var dynamicText = this._dynamicTextCache[uuid];
@@ -77720,39 +78102,36 @@ Wick.View.Frame = class extends Wick.View {
       x: this.pathsLayer.bounds.x,
       y: this.pathsLayer.bounds.y
     };
-    var dataURL = raster.canvas.toDataURL();
-    this._rasterImageData = dataURL;
+    this._rasterImageCanvas = raster.canvas;
   }
 
   _loadPixiTexture() {
     // Generate raster image data if needed
-    if (!this._rasterImageData) {
+    if (!this._rasterImageCanvas) {
       this._rasterizeSVG();
-    }
+    } // Fast but unstable method:
+    // Create a PIXI texture from the rastered paths image
 
-    var loader = new PIXI.Loader();
-    loader.add(this.model.uuid, this._rasterImageData);
-    loader.load((loader, resources) => {
-      // Get the texture from the loader
-      var texture = resources[this.model.uuid].texture; // Add a Pixi sprite using that texture to the paths container
 
-      var sprite = new PIXI.Sprite(texture);
-      sprite.scale.x = sprite.scale.x / Wick.View.Frame.RASTERIZE_RESOLUTION_MODIFIER;
-      sprite.scale.y = sprite.scale.y / Wick.View.Frame.RASTERIZE_RESOLUTION_MODIFIER;
-      this.pathsContainer.removeChildren();
-      this.pathsContainer.addChild(sprite); // Position sprite correctly
+    var texture = PIXI.Texture.from(this._rasterImageCanvas); // Add a Pixi sprite using that texture to the paths container
 
-      sprite.x = this._SVGBounds.x;
-      sprite.y = this._SVGBounds.y; // Cache pixi sprite
+    var sprite = new PIXI.Sprite(texture);
+    sprite.scale.x = sprite.scale.x / Wick.View.Frame.RASTERIZE_RESOLUTION_MODIFIER;
+    sprite.scale.y = sprite.scale.y / Wick.View.Frame.RASTERIZE_RESOLUTION_MODIFIER;
+    this.pathsContainer.removeChildren();
+    this.pathsContainer.addChild(sprite); // Position sprite correctly
 
-      this._pixiSprite = sprite;
-      this._pixiSprite._wickDebugData = {
-        uuid: this.model.uuid,
-        type: 'frame_svg'
-      };
+    sprite.x = this._SVGBounds.x;
+    sprite.y = this._SVGBounds.y; // Cache pixi sprite
 
-      this._onRasterFinishCallback();
-    });
+    this._pixiSprite = sprite;
+    this._pixiSprite._wickDebugData = {
+      uuid: this.model.uuid,
+      type: 'frame_svg'
+    };
+    delete this._rasterImageCanvas;
+
+    this._onRasterFinishCallback();
   }
 
   _applyClipChanges() {
@@ -78465,10 +78844,17 @@ Wick.GUIElement.CreateLayerLabel = class extends Wick.GUIElement.Clickable {
     var layerRect = new this.paper.Path.Rectangle({
       from: new this.paper.Point(0, 0),
       to: new this.paper.Point(this.width, this.height),
-      fillColor: this.isHoveredOver ? Wick.GUIElement.LAYER_LABEL_ACTIVE_FILL_COLOR : 'rgba(255,255,255,0.3)',
+      fillColor: this.isHoveredOver ? 'rgba(255,255,255,0.6)' : 'rgba(255,255,255,0.3)',
       radius: 2
     });
     this.item.addChild(layerRect);
+    this.item.addChild(new paper.PointText({
+      point: [this.width / 2, this.height / 2 + 6],
+      content: '+',
+      fillColor: 'black',
+      fontFamily: 'Courier New',
+      fontSize: 22
+    }));
     this.item.position = new paper.Point(this.x, this.y);
   }
 
@@ -78592,10 +78978,14 @@ Wick.GUIElement.Draggable = class extends Wick.GUIElement.Clickable {
       this.fire('dragEnd');
       document.removeEventListener('mousemove', onMouseMove);
       document.removeEventListener('mouseup', onMouseUp);
+      document.removeEventListener('touchmove', onMouseMove);
+      document.removeEventListener('touchend', onMouseUp);
     };
 
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseup', onMouseUp);
+    document.addEventListener('touchmove', onMouseMove);
+    document.addEventListener('touchend', onMouseUp);
   }
 
 };
@@ -78740,9 +79130,18 @@ Wick.GUIElement.AddFrameOverlay = class extends Wick.GUIElement {
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
 Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
+  static get cachedWaveforms() {
+    if (!Wick.GUIElement.Frame.__cachedWaveforms) {
+      Wick.GUIElement.Frame.__cachedWaveforms = {};
+    }
+
+    return Wick.GUIElement.Frame.__cachedWaveforms;
+  }
   /**
    *
    */
+
+
   constructor(model) {
     super(model);
     this.dragOffset = new paper.Point(0, 0);
@@ -78977,13 +79376,28 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
 
   build() {
     super.build();
-    this.ghost.position = new paper.Point(0, 0);
-    this.ghost.position = this.ghost.position.subtract(new paper.Point(this.x, this.y));
-    this.ghost.position = this.ghost.position.subtract(new paper.Point(this.dragOffset.x, this.dragOffset.y));
-    this.ghost.position = this.ghost.position.add(this.ghostPosition);
-    this.ghost.width = this.ghostWidth;
-    this.ghost.build();
-    this.item.addChild(this.ghost.item);
+
+    this._buildDropGhost();
+
+    this._buildFrameBody();
+
+    this._buildSoundWaveform();
+
+    this._buildContentfulDot();
+
+    this._buildDraggingEdges();
+
+    this._buildTweens();
+
+    this._buildIdentifierLabel();
+
+    this._buildScriptsLabel();
+
+    this.item.position = new paper.Point(this.x, this.y);
+    this.item.position = this.item.position.add(this.dragOffset);
+  }
+
+  _buildFrameBody() {
     var fillColor = 'rgba(0,0,0,0)';
 
     if (this.isHoveredOver) {
@@ -79009,60 +79423,114 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
       radius: Wick.GUIElement.FRAME_BORDER_RADIUS
     });
     this.item.addChild(frameRect);
+  }
 
-    if (this.model.tweens.length === 0) {
-      var contentDot = new this.paper.Path.Ellipse({
-        center: [this.gridCellWidth / 2, this.gridCellHeight / 2 + 5],
-        radius: Wick.GUIElement.FRAME_CONTENT_DOT_RADIUS,
-        fillColor: this.model.contentful ? Wick.GUIElement.FRAME_CONTENT_DOT_COLOR : 'rgba(0,0,0,0)',
-        strokeColor: Wick.GUIElement.FRAME_CONTENT_DOT_COLOR,
-        strokeWidth: Wick.GUIElement.FRAME_CONTENT_DOT_STROKE_WIDTH
-      });
-      this.item.addChild(contentDot);
+  _buildDropGhost() {
+    this.ghost.position = new paper.Point(0, 0);
+    this.ghost.position = this.ghost.position.subtract(new paper.Point(this.x, this.y));
+    this.ghost.position = this.ghost.position.subtract(new paper.Point(this.dragOffset.x, this.dragOffset.y));
+    this.ghost.position = this.ghost.position.add(this.ghostPosition);
+    this.ghost.width = this.ghostWidth;
+    this.ghost.build();
+    this.item.addChild(this.ghost.item);
+  }
+
+  _buildContentfulDot() {
+    if (this.model.tweens.length > 0) {
+      return;
     }
 
+    var contentDot = new this.paper.Path.Ellipse({
+      center: [this.gridCellWidth / 2, this.gridCellHeight / 2 + 5],
+      radius: Wick.GUIElement.FRAME_CONTENT_DOT_RADIUS,
+      fillColor: this.model.contentful ? Wick.GUIElement.FRAME_CONTENT_DOT_COLOR : 'rgba(0,0,0,0)',
+      strokeColor: Wick.GUIElement.FRAME_CONTENT_DOT_COLOR,
+      strokeWidth: Wick.GUIElement.FRAME_CONTENT_DOT_STROKE_WIDTH
+    });
+    this.item.addChild(contentDot);
+  }
+
+  _buildDraggingEdges() {
     this.rightEdge.build();
     this.item.addChild(this.rightEdge.item);
     this.leftEdge.build();
     this.item.addChild(this.leftEdge.item);
+  }
+
+  _buildTweens() {
     this.model.tweens.forEach(tween => {
       tween.guiElement.build();
       this.item.addChild(tween.guiElement.item);
     });
+  }
 
-    if (this.model.identifier) {
-      var nameTextGroup = new paper.Group({
-        children: [new paper.Path.Rectangle({
-          from: new paper.Point(0, 0),
-          to: new paper.Point(this.width, this.height),
-          fillColor: 'black'
-        }), new paper.PointText({
-          point: [0, 12],
-          content: this.model.identifier,
-          fillColor: 'black',
-          fontFamily: 'Courier New',
-          fontSize: 12
-        })]
-      });
-      nameTextGroup.clipped = true;
-      this.item.addChild(nameTextGroup);
+  _buildIdentifierLabel() {
+    if (!this.model.identifier) {
+      return;
     }
 
-    if (this.model.hasContentfulScripts) {
-      var scriptText = new paper.PointText({
-        point: [this.gridCellWidth / 2 - 5, this.gridCellHeight / 2 + 8],
-        content: 's',
-        fillColor: '#008466',
+    var nameTextGroup = new paper.Group({
+      children: [new paper.Path.Rectangle({
+        from: new paper.Point(0, 0),
+        to: new paper.Point(this.width, this.height),
+        fillColor: 'black'
+      }), new paper.PointText({
+        point: [0, 12],
+        content: this.model.identifier,
+        fillColor: 'black',
         fontFamily: 'Courier New',
-        fontWeight: 'bold',
-        fontSize: 16
-      });
-      scriptText.locked = true;
-      this.item.addChild(scriptText);
+        fontSize: 12
+      })]
+    });
+    nameTextGroup.clipped = true;
+    this.item.addChild(nameTextGroup);
+  }
+
+  _buildScriptsLabel() {
+    if (!this.model.hasContentfulScripts) {
+      return;
     }
 
-    this.item.position = new paper.Point(this.x, this.y);
-    this.item.position = this.item.position.add(this.dragOffset);
+    var scriptText = new paper.PointText({
+      point: [this.gridCellWidth / 2 - 5, this.gridCellHeight / 2 + 8],
+      content: 's',
+      fillColor: '#008466',
+      fontFamily: 'Courier New',
+      fontWeight: 'bold',
+      fontSize: 16
+    });
+    scriptText.locked = true;
+    this.item.addChild(scriptText);
+  }
+
+  _buildSoundWaveform() {
+    if (!this.model.sound) {
+      return;
+    }
+
+    this._generateWaveform();
+
+    var waveform = this._getCachedWaveform();
+
+    if (!waveform) {
+      return;
+    }
+
+    var mask = new paper.Path.Rectangle({
+      from: new paper.Point(0, 0),
+      to: new paper.Point(this.width, this.height),
+      fillColor: 'black'
+    });
+    waveform.remove();
+    waveform.scaling.x = this.gridCellWidth / 1200 * this.model.project.framerate * this.model.sound.duration;
+    waveform.scaling.y = 2;
+    waveform.position = new paper.Point(waveform.width / 2 * waveform.scaling.x, this.gridCellHeight);
+    var clippedWaveform = new paper.Group({
+      children: [mask, waveform]
+    });
+    clippedWaveform.clipped = true;
+    clippedWaveform.remove();
+    this.item.addChild(clippedWaveform);
   }
 
   _dragSelectedFrames() {
@@ -79092,6 +79560,30 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
       frame.guiElement.build();
     });
     this.model.project.guiElement.fire('projectModified');
+  }
+
+  _getCachedWaveform() {
+    return Wick.GUIElement.Frame.cachedWaveforms[this.model.uuid];
+  }
+
+  _setCachedWaveform(waveform) {
+    Wick.GUIElement.Frame.cachedWaveforms[this.model.uuid] = waveform;
+  }
+
+  _generateWaveform() {
+    if (this._getCachedWaveform()) return;
+    var soundSrc = this.model.sound.src;
+    var scwf = new SCWF();
+    scwf.generate(soundSrc, {
+      onComplete: (png, pixels) => {
+        var raster = new paper.Raster(png);
+        raster.remove();
+
+        raster.onLoad = () => {
+          this._setCachedWaveform(raster);
+        };
+      }
+    });
   }
 
 };
@@ -80495,6 +80987,7 @@ Wick.GUIElement.OnionSkinRange = class extends Wick.GUIElement.Draggable {
 * You should have received a copy of the GNU General Public License
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
+// Thanks to FlyOrBoom (https://github.com/FlyOrBoom) for the styling on these sliders!
 Wick.GUIElement.OnionSkinRangeEnd = class extends Wick.GUIElement.OnionSkinRange {
   /**
    *
@@ -80519,9 +81012,11 @@ Wick.GUIElement.OnionSkinRangeEnd = class extends Wick.GUIElement.OnionSkinRange
   get x() {
     var project = this.model.project;
     var x = (project.activeTimeline.playheadPosition + project.onionSkinSeekForwards - 1) * this.gridCellWidth;
-    x += this.gridCellWidth;
-    x -= Wick.GUIElement.OnionSkinRange.DEFAULT_HANDLE_WIDTH;
     x += this.dragOffset * this.gridCellWidth;
+    x -= project.activeTimeline.playheadPosition * this.gridCellWidth; //makes sure the forward skin stays forward of playhead;
+
+    x = (x + Math.abs(x)) / 2;
+    x += project.activeTimeline.playheadPosition * this.gridCellWidth;
     return x;
   }
   /**
@@ -80537,8 +81032,16 @@ Wick.GUIElement.OnionSkinRangeEnd = class extends Wick.GUIElement.OnionSkinRange
    */
 
 
+  get width() {
+    return this.gridCellWidth - Wick.GUIElement.PLAYHEAD_MARGIN * 2;
+  }
+  /**
+   *
+   */
+
+
   drop() {
-    this.model.project.onionSkinSeekForwards = project.activeTimeline.playheadPosition + Math.floor(-this.x / this.gridCellWidth);
+    this.model.project.onionSkinSeekForwards = project.activeTimeline.playheadPosition + Math.floor(-this.x / this.gridCellWidth) - 1;
     this.model.project.onionSkinSeekForwards *= -1;
     this.dragOffset = 0;
   }
@@ -80550,11 +81053,21 @@ Wick.GUIElement.OnionSkinRangeEnd = class extends Wick.GUIElement.OnionSkinRange
   build() {
     super.build();
     if (!this.model.project.onionSkinEnabled) return;
-    var rangeSlider = new this.paper.Path.Rectangle({
-      from: new this.paper.Point(this.x, this.y),
-      to: new this.paper.Point(this.x + Wick.GUIElement.OnionSkinRange.DEFAULT_HANDLE_WIDTH, this.y + this.height),
-      fillColor: this.isHoveredOver ? '#ff0000' : '#0000ff',
-      strokeColor: '#000000'
+    var playheadPosition = this.model.project.activeTimeline.playheadPosition * this.gridCellWidth - this.width * 0.875;
+    super.build();
+    var rangeSlider = new this.paper.Path({
+      segments: [[playheadPosition + this.width / 2, this.y], [playheadPosition + this.width / 2, this.y + this.width], [playheadPosition, this.y + 2.5 + this.width * 1.5], [this.x + this.width / 2, this.y + 2.5 + this.width * 1.5], [this.x + this.width + 2.5, this.y + this.width], [this.x + this.width + 2.5, this.y]],
+      fillColor: {
+        gradient: {
+          stops: ['rgba(255,92,92,0.2)', 'rgba(255,92,92,1)'] //Wick.GUIElement.PLAYHEAD_FILL_COLOR
+
+        },
+        origin: [playheadPosition, 0],
+        destination: [this.x + this.width, 0]
+      },
+      opacity: this.isHoveredOver ? 1 : 0.5,
+      strokeJoin: 'round',
+      radius: 4
     });
     this.item.addChild(rangeSlider);
   }
@@ -80580,6 +81093,7 @@ Wick.GUIElement.OnionSkinRangeEnd = class extends Wick.GUIElement.OnionSkinRange
 * You should have received a copy of the GNU General Public License
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
+// Thanks to FlyOrBoom (https://github.com/FlyOrBoom) for the styling on these sliders!
 Wick.GUIElement.OnionSkinRangeStart = class extends Wick.GUIElement.OnionSkinRange {
   /**
    *
@@ -80603,8 +81117,11 @@ Wick.GUIElement.OnionSkinRangeStart = class extends Wick.GUIElement.OnionSkinRan
 
   get x() {
     var project = this.model.project;
-    var x = (project.activeTimeline.playheadPosition - project.onionSkinSeekBackwards - 1) * this.gridCellWidth;
+    var x = (project.activeTimeline.playheadPosition - project.onionSkinSeekBackwards + 1) * this.gridCellWidth;
     x += this.dragOffset * this.gridCellWidth;
+    x -= project.activeTimeline.playheadPosition * this.gridCellWidth;
+    x = (x - Math.abs(x)) / 2;
+    x += (project.activeTimeline.playheadPosition - 1) * this.gridCellWidth;
     return x;
   }
   /**
@@ -80620,8 +81137,16 @@ Wick.GUIElement.OnionSkinRangeStart = class extends Wick.GUIElement.OnionSkinRan
    */
 
 
+  get width() {
+    return this.gridCellWidth - Wick.GUIElement.PLAYHEAD_MARGIN * 2;
+  }
+  /**
+   *
+   */
+
+
   drop() {
-    this.model.project.onionSkinSeekBackwards = project.activeTimeline.playheadPosition - Math.floor(this.x / this.gridCellWidth) - 1;
+    this.model.project.onionSkinSeekBackwards = project.activeTimeline.playheadPosition - Math.floor(this.x / this.gridCellWidth);
     this.dragOffset = 0;
   }
   /**
@@ -80632,11 +81157,21 @@ Wick.GUIElement.OnionSkinRangeStart = class extends Wick.GUIElement.OnionSkinRan
   build() {
     super.build();
     if (!this.model.project.onionSkinEnabled) return;
-    var rangeSlider = new this.paper.Path.Rectangle({
-      from: new this.paper.Point(this.x, this.y),
-      to: new this.paper.Point(this.x + Wick.GUIElement.OnionSkinRange.DEFAULT_HANDLE_WIDTH, this.y + this.height),
-      fillColor: this.isHoveredOver ? '#ff0000' : '#0000ff',
-      strokeColor: '#000000'
+    var playheadPosition = this.model.project.activeTimeline.playheadPosition * this.gridCellWidth - this.width * 0.875;
+    super.build();
+    var rangeSlider = new this.paper.Path({
+      segments: [[playheadPosition - this.width / 2, this.y], [playheadPosition - this.width / 2, this.y + this.width], [playheadPosition, this.y + 2.5 + this.width * 1.5], [this.x - this.width / 2, this.y + 2.5 + this.width * 1.5], [this.x - this.width - 2.5, this.y + this.width], [this.x - this.width - 2.5, this.y]],
+      fillColor: {
+        gradient: {
+          stops: ['rgba(255,92,92,0.2)', 'rgba(255,92,92,1)'] //Wick.GUIElement.PLAYHEAD_FILL_COLOR
+
+        },
+        origin: [playheadPosition, 0],
+        destination: [this.x - this.width, 0]
+      },
+      opacity: this.isHoveredOver ? 1 : 0.5,
+      strokeJoin: 'round',
+      radius: 4
     });
     this.item.addChild(rangeSlider);
   }
@@ -80808,11 +81343,24 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
 
 
   updateMousePosition(e) {
-    if (e.target && e.target.getBoundingClientRect) {
+    // This fixes the NaN errors on touch devices:
+    var x = 0;
+    var y = 0;
+
+    if (e.touches) {
+      var touch = e.touches[0];
+      x = touch ? touch.clientX : null;
+      y = touch ? touch.clientY : null;
+    } else {
+      x = e.clientX;
+      y = e.clientY;
+    }
+
+    if (x !== null && y !== null && e.target && e.target.getBoundingClientRect) {
       var bounds = e.target.getBoundingClientRect();
       this.mousePosition = {
-        x: e.clientX - bounds.left,
-        y: e.clientY - bounds.top
+        x: x - bounds.left,
+        y: y - bounds.top
       };
     }
   }
@@ -80847,6 +81395,10 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
     });
 
     this.paper.view.onMouseDown = e => {
+      if (e.touches) {
+        this.paper.view.onMouseMove(e);
+      }
+
       if (e.event.button === 2) {
         this.fire('rightClick', {});
       }
@@ -81430,6 +81982,8 @@ Wick.GUIElement.Tween = class extends Wick.GUIElement.Draggable {
       this.build();
     });
     this.on('mouseDown', e => {
+      this.model.project.activeTimeline.playheadPosition = this.model.playheadPosition;
+
       if (!e.modifiers.shift && !this.model.isSelected) {
         this.model.project.selection.clear();
       }

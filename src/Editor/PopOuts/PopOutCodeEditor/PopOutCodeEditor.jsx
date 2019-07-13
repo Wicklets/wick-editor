@@ -54,7 +54,7 @@ class PopOutCodeEditor extends Component {
    * Adds code to the currently accessed code tab.
    */
   addCodeToTab = (code) => {
-    if (this.editors && this.editors.length > 0) {
+    if (this.editors && this.editors.length > 0 && this.props.scriptToEdit !== "add") {
       let editor = this.editors[0];
       editor.session.insert(editor.getCursorPosition(), code);
     }
@@ -103,7 +103,7 @@ class PopOutCodeEditor extends Component {
   getCodeEditorInfo = () => {
     if (this.codeHasErrors()) {
       let error = this.props.errors[0];
-      return "error: on " + error.name + ' | ' + error.message;
+      return "error: on " + error.name + ' | ' + error.message + " (line " + error.lineNumber + ")";
     } else {
       return "editing: " + this.props.getSelectionType()
     }

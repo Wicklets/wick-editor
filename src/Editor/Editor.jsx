@@ -51,7 +51,6 @@ import CanvasTransforms from './Panels/CanvasTransforms/CanvasTransforms';
 import Toolbox from './Panels/Toolbox/Toolbox';
 import AssetLibrary from './Panels/AssetLibrary/AssetLibrary';
 import PopOutCodeEditor from './PopOuts/PopOutCodeEditor/PopOutCodeEditor';
-import CanvasActions from './Panels/CanvasActions/CanvasActions';
 
 class Editor extends EditorCore {
   constructor () {
@@ -69,6 +68,7 @@ class Editor extends EditorCore {
       activeModalQueue: [],
       codeEditorOpen: false,
       scriptToEdit: "default",
+      showCanvasActions: false,
       codeErrors: [],
       inspectorSize: 250,
       timelineSize: 175,
@@ -88,7 +88,7 @@ class Editor extends EditorCore {
 
     // Create interfaces.
     this.fontInfoInterface = new FontInfoInterface(this);
-  
+
     // Init hotkeys
     this.hotKeyInterface = new HotKeyInterface(this);
 
@@ -122,7 +122,7 @@ class Editor extends EditorCore {
     // Initialize "live" engine state
     this.project = new window.Wick.Project();
     this.paper = window.paper;
-    
+
     // Initialize local storage
     localForage.config({
       name        : 'WickEditor',
@@ -376,15 +376,29 @@ class Editor extends EditorCore {
 
   /**
    * Opens and closes the code editor depending on the state of the codeEditor.
-   * @param {boolean} state - Optional. If set to true or false, with set codeEditorOpen to that value.
+   * @param {boolean} state - Optional. True will open the code editor, false will close.
    */
   toggleCodeEditor = (state) => {
-    if (state === undefined) {
+    if (state === undefined || (typeof variable !== "boolean")) {
       state = !this.state.codeEditorOpen;
     }
 
     this.setState({
       codeEditorOpen: state,
+    });
+  }
+
+  /**
+   * Opens and closes the canvas actions popover.
+   * @param {boolean} state - Optional. True will open the canvas actions menu, false will close.
+   */
+  toggleCanvasActions = (state) => {
+    if (state === undefined || (typeof variable !== "boolean")) {
+      state = !this.state.showCanvasActions;
+    }
+
+    this.setState({
+      showCanvasActions: state,
     });
   }
 
@@ -626,6 +640,8 @@ class Editor extends EditorCore {
                                 previewPlaying={this.state.previewPlaying}
                                 editorActions={this.actionMapInterface.editorActions}
                                 getToolSettingRestrictions={this.getToolSettingRestrictions}
+                                showCanvasActions={this.state.showCanvasActions}
+                                toggleCanvasActions={this.toggleCanvasActions}
                               />
 
                             </DockedPanel>
@@ -653,10 +669,6 @@ class Editor extends EditorCore {
                                 setActiveTool={this.setActiveTool}
                                 previewPlaying={this.state.previewPlaying}
                                 togglePreviewPlaying={this.togglePreviewPlaying}
-                              />
-                              <CanvasActions
-                                previewPlaying={this.state.previewPlaying}
-                                editorActions={this.actionMapInterface.editorActions}
                               />
                             </DockedPanel>
                           </ReflexElement>

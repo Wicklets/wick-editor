@@ -18,6 +18,13 @@
  */
 
 Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
+    static get cachedWaveforms () {
+        if(!Wick.GUIElement.Frame.__cachedWaveforms) {
+            Wick.GUIElement.Frame.__cachedWaveforms = {};
+        }
+        return Wick.GUIElement.Frame.__cachedWaveforms;
+    }
+
     /**
      *
      */
@@ -248,14 +255,20 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
     build () {
         super.build();
 
-        this.ghost.position = new paper.Point(0,0);
-        this.ghost.position = this.ghost.position.subtract(new paper.Point(this.x, this.y));
-        this.ghost.position = this.ghost.position.subtract(new paper.Point(this.dragOffset.x, this.dragOffset.y));
-        this.ghost.position = this.ghost.position.add(this.ghostPosition);
-        this.ghost.width = this.ghostWidth;
-        this.ghost.build();
-        this.item.addChild(this.ghost.item);
+        this._buildDropGhost();
+        this._buildFrameBody();
+        this._buildSoundWaveform();
+        this._buildContentfulDot();
+        this._buildDraggingEdges();
+        this._buildTweens();
+        this._buildIdentifierLabel();
+        this._buildScriptsLabel();
 
+        this.item.position = new paper.Point(this.x, this.y);
+        this.item.position = this.item.position.add(this.dragOffset);
+    }
+
+    _buildFrameBody () {
         var fillColor = 'rgba(0,0,0,0)';
         if(this.isHoveredOver) {
             if(this.model.tweens.length > 0) {
@@ -280,66 +293,119 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
             radius: Wick.GUIElement.FRAME_BORDER_RADIUS,
         });
         this.item.addChild(frameRect);
+    }
 
-        if(this.model.tweens.length === 0) {
-            var contentDot = new this.paper.Path.Ellipse({
-                center: [this.gridCellWidth/2, this.gridCellHeight/2 + 5],
-                radius: Wick.GUIElement.FRAME_CONTENT_DOT_RADIUS,
-                fillColor: this.model.contentful ? Wick.GUIElement.FRAME_CONTENT_DOT_COLOR: 'rgba(0,0,0,0)',
-                strokeColor: Wick.GUIElement.FRAME_CONTENT_DOT_COLOR,
-                strokeWidth: Wick.GUIElement.FRAME_CONTENT_DOT_STROKE_WIDTH,
-            });
-            this.item.addChild(contentDot);
+    _buildDropGhost () {
+        this.ghost.position = new paper.Point(0,0);
+        this.ghost.position = this.ghost.position.subtract(new paper.Point(this.x, this.y));
+        this.ghost.position = this.ghost.position.subtract(new paper.Point(this.dragOffset.x, this.dragOffset.y));
+        this.ghost.position = this.ghost.position.add(this.ghostPosition);
+        this.ghost.width = this.ghostWidth;
+        this.ghost.build();
+        this.item.addChild(this.ghost.item);
+    }
+
+    _buildContentfulDot () {
+        if(this.model.tweens.length > 0) {
+            return;
         }
 
+        var contentDot = new this.paper.Path.Ellipse({
+            center: [this.gridCellWidth/2, this.gridCellHeight/2 + 5],
+            radius: Wick.GUIElement.FRAME_CONTENT_DOT_RADIUS,
+            fillColor: this.model.contentful ? Wick.GUIElement.FRAME_CONTENT_DOT_COLOR: 'rgba(0,0,0,0)',
+            strokeColor: Wick.GUIElement.FRAME_CONTENT_DOT_COLOR,
+            strokeWidth: Wick.GUIElement.FRAME_CONTENT_DOT_STROKE_WIDTH,
+        });
+        this.item.addChild(contentDot);
+    }
+
+    _buildDraggingEdges () {
         this.rightEdge.build();
         this.item.addChild(this.rightEdge.item);
 
         this.leftEdge.build();
         this.item.addChild(this.leftEdge.item);
+    }
 
+    _buildTweens () {
         this.model.tweens.forEach(tween => {
             tween.guiElement.build();
             this.item.addChild(tween.guiElement.item);
         });
+    }
 
-        if(this.model.identifier) {
-            var nameTextGroup = new paper.Group({
-                children: [
-                    new paper.Path.Rectangle({
-                        from: new paper.Point(0,0),
-                        to: new paper.Point(this.width,this.height),
-                        fillColor: 'black',
-                    }),
-                    new paper.PointText({
-                        point: [0, 12],
-                        content: this.model.identifier,
-                        fillColor: 'black',
-                        fontFamily: 'Courier New',
-                        fontSize: 12
-                    })
-                ],
-            });
-            nameTextGroup.clipped = true;
-            this.item.addChild(nameTextGroup);
+    _buildIdentifierLabel () {
+        if(!this.model.identifier) {
+            return;
         }
 
-        if(this.model.hasContentfulScripts) {
-            var scriptText = new paper.PointText({
-                point: [this.gridCellWidth/2 - 5, this.gridCellHeight/2 + 8],
-                content: 's',
-                fillColor: '#008466',
-                fontFamily: 'Courier New',
-                fontWeight: 'bold',
-                fontSize: 16,
-            });
-            scriptText.locked = true;
+        var nameTextGroup = new paper.Group({
+            children: [
+                new paper.Path.Rectangle({
+                    from: new paper.Point(0,0),
+                    to: new paper.Point(this.width,this.height),
+                    fillColor: 'black',
+                }),
+                new paper.PointText({
+                    point: [0, 12],
+                    content: this.model.identifier,
+                    fillColor: 'black',
+                    fontFamily: 'Courier New',
+                    fontSize: 12
+                })
+            ],
+        });
+        nameTextGroup.clipped = true;
+        this.item.addChild(nameTextGroup);
+    }
 
-            this.item.addChild(scriptText);
+    _buildScriptsLabel () {
+        if(!this.model.hasContentfulScripts) {
+            return;
         }
 
-        this.item.position = new paper.Point(this.x, this.y);
-        this.item.position = this.item.position.add(this.dragOffset);
+        var scriptText = new paper.PointText({
+            point: [this.gridCellWidth/2 - 5, this.gridCellHeight/2 + 8],
+            content: 's',
+            fillColor: '#008466',
+            fontFamily: 'Courier New',
+            fontWeight: 'bold',
+            fontSize: 16,
+        });
+        scriptText.locked = true;
+
+        this.item.addChild(scriptText);
+    }
+
+    _buildSoundWaveform () {
+        if(!this.model.sound) {
+            return;
+        }
+
+        this._generateWaveform();
+        var waveform = this._getCachedWaveform();
+        if(!waveform) {
+            return;
+        }
+
+        var mask = new paper.Path.Rectangle({
+            from: new paper.Point(0, 0),
+            to: new paper.Point(this.width, this.height),
+            fillColor: 'black'
+        });
+
+        waveform.remove();
+        waveform.scaling.x = this.gridCellWidth / 1200 * this.model.project.framerate * this.model.sound.duration;
+        waveform.scaling.y = 2;
+        waveform.position = new paper.Point((waveform.width/2) * waveform.scaling.x, this.gridCellHeight);
+
+        var clippedWaveform = new paper.Group({
+            children: [mask, waveform]
+        });
+        clippedWaveform.clipped = true;
+        clippedWaveform.remove();
+        this.item.addChild(clippedWaveform);
     }
 
     _dragSelectedFrames () {
@@ -358,7 +424,7 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
                 canDrop = false;
             }
         });
-        
+
         this.draggingFrames.forEach(frame => {
             if(canDrop) {
                 frame.guiElement.drop();
@@ -370,5 +436,30 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
         });
 
         this.model.project.guiElement.fire('projectModified');
+    }
+
+    _getCachedWaveform () {
+        return Wick.GUIElement.Frame.cachedWaveforms[this.model.uuid];
+    }
+
+    _setCachedWaveform (waveform) {
+        Wick.GUIElement.Frame.cachedWaveforms[this.model.uuid] = waveform;
+    }
+
+    _generateWaveform () {
+        if(this._getCachedWaveform()) return;
+
+        var soundSrc = this.model.sound.src;
+
+        var scwf = new SCWF();
+        scwf.generate(soundSrc, {
+            onComplete: (png, pixels) => {
+                var raster = new paper.Raster(png);
+                raster.remove();
+                raster.onLoad = () => {
+                    this._setCachedWaveform(raster);
+                };
+            }
+        });
     }
 }

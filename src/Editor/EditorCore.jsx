@@ -628,7 +628,7 @@ class EditorCore extends Component {
    * Horizontally flips the canvas selection.
    */
   flipSelectedHorizontal = () => {
-    this.project.flipSelectionHorizontally();
+    this.project.selection.flipHorizontally();
     this.projectDidChange();
   }
 
@@ -636,7 +636,7 @@ class EditorCore extends Component {
    * Vertically flips the canvas selection.
    */
   flipSelectedVertical = () => {
-    this.project.flipSelectionVertically();
+    this.project.selection.flipVertically();
     this.projectDidChange();
   }
 
@@ -777,7 +777,7 @@ class EditorCore extends Component {
    */
   dropSoundOntoTimeline = (uuid, x, y) => {
     // TODO
-    console.log("Dropping " + uuid + " at: " + x + "," + y); 
+    console.log("Dropping " + uuid + " at: " + x + "," + y);
   }
 
 
@@ -930,11 +930,11 @@ class EditorCore extends Component {
     this.resetEditorForLoad();
     this.project = project;
     this.project.selection.clear();
-    this.project.view.prerasterize(() => {
+    //this.project.view.prerasterize(() => {
       this.projectDidChange();
       this.hideWaitOverlay();
       this.project.view.render();
-    });
+    //});
   }
 
   showAutosavedProjects = () => {

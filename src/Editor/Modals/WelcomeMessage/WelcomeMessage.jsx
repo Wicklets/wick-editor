@@ -28,7 +28,7 @@ import nightImage from 'resources/interface-images/blue_night.svg';
 
 class WelcomeModal extends Component {
   getVersion() {
-    return "1.0.9"
+    return "1.0.13"
   }
 
   render() {
@@ -49,13 +49,10 @@ class WelcomeModal extends Component {
             <div id="welcome-modal-subtitle" className="welcome-modal-item">Wick Editor {this.getVersion()} includes:</div>
             <div id="welcome-modal-message" className="welcome-modal-item">
               <ul>
-                <li>New Eyedropper Tool!</li>
-                <li>Scroll to Zoom</li>
-                <li>Brush works on touch screens</li>
-                <li>Images now drop on correct location</li>
-                <li>Fixed loading screen on export</li>
-                <li>Legacy project converter fixes</li>
-                <li>Onion Skinning Bug Fixes</li>
+                <li>Sounds are now visualized on frames</li>
+                <li>Sounds played with playSound() can now be looped</li>
+                <li>Code editor now displays line numbers of errors<em>(Thanks <a href="https://github.com/kryptot7/">kryptot7</a>!)</em></li>
+                <li>Improved onion skin range handles<em>(Thanks <a href="https://github.com/FlyOrBoom/">FlyOrBoom</a>!)</em></li>
               </ul>
             </div>
             <div id="welcome-modal-tutorial-links" className="welcom-modal-item">

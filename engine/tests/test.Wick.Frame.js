@@ -280,7 +280,6 @@ describe('Wick.Frame', function() {
 
         it('frames should have access to global API', function() {
             var project = new Wick.Project();
-
             var frame = project.activeFrame;
 
             frame.addScript('load', 'stop(); play();');
@@ -288,31 +287,52 @@ describe('Wick.Frame', function() {
             expect(error).to.equal(null);
         });
 
+        it('"this" should refer to parent clip (tab)', function() {
+            var project = new Wick.Project();
+            var clip = new Wick.Clip();
+            project.activeFrame.addClip(clip);
+            var frame = clip.timeline.layers[0].frames[0];
+
+            frame.addScript('load', 'this.__thisScope = this;');
+            expect(project.tick()).to.equal(null);
+            expect(frame.parentClip.__thisScope).to.equal(clip);
+        });
+
+        it('"this" should refer to parent clip (onEvent)', function() {
+            var project = new Wick.Project();
+            var clip = new Wick.Clip();
+            project.activeFrame.addClip(clip);
+            var frame = clip.timeline.layers[0].frames[0];
+
+            frame.addScript('load', 'this.onEvent("update", () => {this.__thisScope = this;});');
+            expect(project.tick()).to.equal(null);
+            expect(project.tick()).to.equal(null);//we need to tick twice, because the clip has no onEvent functions until the child frame script runs.
+            expect(frame.parentClip.__thisScope).to.equal(clip);
+        });
+
         describe('#project', function () {
             it('project should work as expected', function() {
                 var project = new Wick.Project();
-
                 var frame = project.activeFrame;
 
                 frame.addScript('load', 'this.__project = project');
                 var error = frame.tick();
                 expect(error).to.equal(null);
-                expect(frame.__project).to.equal(project.root);
-                expect(frame.__project.width).to.equal(project.width);
-                expect(frame.__project.height).to.equal(project.height);
+                expect(frame.parentClip.__project).to.equal(project.root);
+                expect(frame.parentClip.__project.width).to.equal(project.width);
+                expect(frame.parentClip.__project.height).to.equal(project.height);
             });
         });
 
         describe('#parent', function () {
             it('project should work as expected', function() {
                 var project = new Wick.Project();
-
                 var frame = project.activeFrame;
 
                 frame.addScript('load', 'this.__parent = parent');
                 var error = frame.tick();
                 expect(error).to.equal(null);
-                expect(frame.__parent).to.equal(frame.parentClip);
+                expect(frame.parentClip.__parent).to.equal(frame.parentClip);
             });
         });
 
@@ -335,8 +355,8 @@ describe('Wick.Frame', function() {
             frame.addScript('load', 'this.__foo = foo; this.__bar = bar;');
             var error = frame.tick();
             expect(error).to.equal(null);
-            expect(frame.__foo).to.equal(clipA);
-            expect(frame.__bar).to.equal(clipB);
+            expect(frame.parentClip.__foo).to.equal(clipA);
+            expect(frame.parentClip.__bar).to.equal(clipB);
         });
 
         it('frames should not have access to other named objects on other frames', function() {

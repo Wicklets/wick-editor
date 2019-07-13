@@ -72,6 +72,7 @@ Wick.ToolSettings = class {
      */
     constructor () {
         this._settings = {};
+        this._onSettingsChangedCallback = () => {};
 
         Wick.ToolSettings.DEFAULT_SETTINGS.forEach(setting => {
             this.createSetting(setting);
@@ -117,6 +118,8 @@ Wick.ToolSettings = class {
         }
 
         setting.value = value;
+
+        this._fireOnSettingsChanged(name, value);
     }
 
     /**
@@ -150,5 +153,16 @@ Wick.ToolSettings = class {
             allSettings.push(this._settings[name]);
         }
         return allSettings;
+    }
+
+    /**
+     *
+     */
+    onSettingsChanged (callback) {
+        this._onSettingsChangedCallback = callback;
+    }
+
+    _fireOnSettingsChanged (name, value) {
+        this._onSettingsChangedCallback(name, value);
     }
  }

@@ -25,6 +25,7 @@ import WickInput from 'Editor/Util/WickInput/WickInput';
 import ToolboxBreak from './ToolboxBreak/ToolboxBreak';
 import ToolButton from './ToolButton/ToolButton';
 import ToolSettings from './ToolSettings/ToolSettings';
+import CanvasActions from './CanvasActions/CanvasActions';
 
 class Toolbox extends Component {
   constructor(props) {
@@ -32,7 +33,7 @@ class Toolbox extends Component {
 
     this.state = {
       openSettings: null,
-      popover: null,
+      moreCanvasActionsPopoverOpen: false,
     }
 
     this.toolButtonProps = {
@@ -128,6 +129,11 @@ class Toolbox extends Component {
 
       <div className="toolbox-actions-right-container">
         <div className="toolbox-actions-right">
+          <div id="more-canvas-actions-popover-button">
+            {this.renderToolButtonFromAction(this.props.editorActions.showMoreCanvasActions)}
+            <CanvasActions {...this.props} />
+          </div>
+
           {this.renderToolButtonFromAction(this.props.editorActions.delete)}
           {this.renderToolButtonFromAction(this.props.editorActions.copy)}
           {this.renderToolButtonFromAction(this.props.editorActions.paste)}
