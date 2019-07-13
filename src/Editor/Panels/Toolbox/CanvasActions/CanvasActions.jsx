@@ -22,10 +22,10 @@ class CanvasActions extends Component {
   renderActions = () => {
     return (
       <div className='actions-container'>
-        {this.renderActionButton(this.props.editorActions.sendBackward)}
         {this.renderActionButton(this.props.editorActions.sendToBack)}
-        {this.renderActionButton(this.props.editorActions.sendToFront)}
+        {this.renderActionButton(this.props.editorActions.sendBackward)}
         {this.renderActionButton(this.props.editorActions.sendForward)}
+        {this.renderActionButton(this.props.editorActions.sendToFront)}
         <ToolboxBreak className="toolbox-item"/>
         {this.renderActionButton(this.props.editorActions.flipHorizontal)}
         {this.renderActionButton(this.props.editorActions.flipVertical)}
