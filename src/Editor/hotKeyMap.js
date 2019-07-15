@@ -108,7 +108,7 @@ class HotKeyInterface extends Object {
       'move-playhead-forwards': this.editor.movePlayheadForwards,
       'move-playhead-backwards': this.editor.movePlayheadBackwards,
       'select-all': this.editor.selectAll,
-      'bring-to-front': this.editor.bringSelectionToFront,
+      'bring-to-front': this.editor.sendSelectionToFront,
       'send-to-back': this.editor.sendSelectionToBack,
       'move-forwards': this.editor.moveSelectionForwards,
       'move-backwards': this.editor.moveSelectionBackwards,
