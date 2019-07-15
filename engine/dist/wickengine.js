@@ -37746,88 +37746,6 @@ Wick.Tools.Cursor = class extends Wick.Tool {
   }
 
 };
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-Wick.Tools.Ellipse = class extends Wick.Tool {
-  /**
-   * Creates an instance of the ellipse tool.
-   */
-  constructor() {
-    super();
-    this.name = 'ellipse';
-    this.path = null;
-    this.topLeft = null;
-    this.bottomRight = null;
-  }
-  /**
-   * A crosshair cursor.
-   * @type {string}
-   */
-
-
-  get cursor() {
-    return 'crosshair';
-  }
-
-  onActivate(e) {}
-
-  onDeactivate(e) {
-    if (this.path) {
-      this.path.remove();
-      this.path = null;
-    }
-  }
-
-  onMouseDown(e) {
-    this.topLeft = e.point;
-    this.bottomRight = e.point;
-  }
-
-  onMouseDrag(e) {
-    if (this.path) this.path.remove();
-    this.bottomRight = e.point; // Lock width and height if shift is held down
-
-    if (e.modifiers.shift) {
-      var d = this.bottomRight.subtract(this.topLeft);
-      var max = Math.max(Math.abs(d.x), Math.abs(d.y));
-      this.bottomRight.x = this.topLeft.x + max * (d.x < 0 ? -1 : 1);
-      this.bottomRight.y = this.topLeft.y + max * (d.y < 0 ? -1 : 1);
-    }
-
-    var bounds = new this.paper.Rectangle(new this.paper.Point(this.topLeft.x, this.topLeft.y), new this.paper.Point(this.bottomRight.x, this.bottomRight.y));
-    this.path = new this.paper.Path.Ellipse(bounds);
-    this.paper.project.activeLayer.addChild(this.path);
-    this.path.fillColor = this.getSetting('fillColor');
-    this.path.strokeColor = this.getSetting('strokeColor');
-    this.path.strokeWidth = this.getSetting('strokeWidth');
-    this.path.strokeCap = 'round';
-  }
-
-  onMouseUp(e) {
-    if (!this.path) return;
-    this.path = null;
-    this.fireEvent('canvasModified');
-  }
-
-};
 // Pressure v2.1.2 | Created By Stuart Yamartino | MIT License | 2015 - 2017
 ;(function(root, factory) {
   if (typeof define === 'function' && define.amd) {
@@ -38420,30 +38338,28 @@ return void 0;
 * You should have received a copy of the GNU General Public License
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
-Wick.Tools.Eraser = class extends Wick.Tool {
+Wick.Tools.Ellipse = class extends Wick.Tool {
   /**
-   *
+   * Creates an instance of the ellipse tool.
    */
   constructor() {
     super();
-    this.name = 'eraser';
+    this.name = 'ellipse';
     this.path = null;
-    this.cursorSize = null;
-    this.cachedCursor = null;
+    this.topLeft = null;
+    this.bottomRight = null;
   }
   /**
-   *
+   * A crosshair cursor.
    * @type {string}
    */
 
 
   get cursor() {
-    return this.cachedCursor || 'crosshair';
+    return 'crosshair';
   }
 
-  onActivate(e) {
-    this.cursorSize = null;
-  }
+  onActivate(e) {}
 
   onDeactivate(e) {
     if (this.path) {
@@ -38452,48 +38368,35 @@ Wick.Tools.Eraser = class extends Wick.Tool {
     }
   }
 
-  onMouseMove(e) {
-    // Don't render cursor after every mouse move, cache and only render when size changes
-    var cursorNeedsRegen = this.getSetting('eraserSize') !== this.cursorSize;
-
-    if (cursorNeedsRegen) {
-      this.cachedCursor = this.createDynamicCursor('#ffffff', this.getSetting('eraserSize') + 1);
-      this.cursorSize = this.getSetting('eraserSize');
-      this.setCursor(this.cachedCursor);
-    }
-  }
-
   onMouseDown(e) {
-    if (!this.path) {
-      this.path = new this.paper.Path({
-        strokeColor: 'white',
-        strokeCap: 'round',
-        strokeWidth: (this.getSetting('eraserSize') + 1) / this.paper.view.zoom
-      });
-    } // Add two points so we always at least have a dot.
-
-
-    this.path.add(e.point);
-    this.path.add(e.point);
+    this.topLeft = e.point;
+    this.bottomRight = e.point;
   }
 
   onMouseDrag(e) {
-    this.path.add(e.point);
-    this.path.smooth();
+    if (this.path) this.path.remove();
+    this.bottomRight = e.point; // Lock width and height if shift is held down
+
+    if (e.modifiers.shift) {
+      var d = this.bottomRight.subtract(this.topLeft);
+      var max = Math.max(Math.abs(d.x), Math.abs(d.y));
+      this.bottomRight.x = this.topLeft.x + max * (d.x < 0 ? -1 : 1);
+      this.bottomRight.y = this.topLeft.y + max * (d.y < 0 ? -1 : 1);
+    }
+
+    var bounds = new this.paper.Rectangle(new this.paper.Point(this.topLeft.x, this.topLeft.y), new this.paper.Point(this.bottomRight.x, this.bottomRight.y));
+    this.path = new this.paper.Path.Ellipse(bounds);
+    this.paper.project.activeLayer.addChild(this.path);
+    this.path.fillColor = this.getSetting('fillColor');
+    this.path.strokeColor = this.getSetting('strokeColor');
+    this.path.strokeWidth = this.getSetting('strokeWidth');
+    this.path.strokeCap = 'round';
   }
 
   onMouseUp(e) {
     if (!this.path) return;
-    var potraceResolution = 0.7;
-    this.path.potrace({
-      done: tracedPath => {
-        this.path.remove();
-        this.paper.project.activeLayer.erase(tracedPath, {});
-        this.path = null;
-        this.fireEvent('canvasModified');
-      },
-      resolution: potraceResolution * this.paper.view.zoom
-    });
+    this.path = null;
+    this.fireEvent('canvasModified');
   }
 
 };
@@ -38719,6 +38622,103 @@ Wick.Tools.Eraser = class extends Wick.Tool {
 
 }));
 
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* Copyright 2019 WICKLETS LLC
+*
+* This file is part of Wick Engine.
+*
+* Wick Engine is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Wick Engine is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+*/
+Wick.Tools.Eraser = class extends Wick.Tool {
+  /**
+   *
+   */
+  constructor() {
+    super();
+    this.name = 'eraser';
+    this.path = null;
+    this.cursorSize = null;
+    this.cachedCursor = null;
+  }
+  /**
+   *
+   * @type {string}
+   */
+
+
+  get cursor() {
+    return this.cachedCursor || 'crosshair';
+  }
+
+  onActivate(e) {
+    this.cursorSize = null;
+  }
+
+  onDeactivate(e) {
+    if (this.path) {
+      this.path.remove();
+      this.path = null;
+    }
+  }
+
+  onMouseMove(e) {
+    // Don't render cursor after every mouse move, cache and only render when size changes
+    var cursorNeedsRegen = this.getSetting('eraserSize') !== this.cursorSize;
+
+    if (cursorNeedsRegen) {
+      this.cachedCursor = this.createDynamicCursor('#ffffff', this.getSetting('eraserSize') + 1);
+      this.cursorSize = this.getSetting('eraserSize');
+      this.setCursor(this.cachedCursor);
+    }
+  }
+
+  onMouseDown(e) {
+    if (!this.path) {
+      this.path = new this.paper.Path({
+        strokeColor: 'white',
+        strokeCap: 'round',
+        strokeWidth: (this.getSetting('eraserSize') + 1) / this.paper.view.zoom
+      });
+    } // Add two points so we always at least have a dot.
+
+
+    this.path.add(e.point);
+    this.path.add(e.point);
+  }
+
+  onMouseDrag(e) {
+    this.path.add(e.point);
+    this.path.smooth();
+  }
+
+  onMouseUp(e) {
+    if (!this.path) return;
+    var potraceResolution = 0.7;
+    this.path.potrace({
+      done: tracedPath => {
+        this.path.remove();
+        this.paper.project.activeLayer.erase(tracedPath, {});
+        this.path = null;
+        this.fireEvent('canvasModified');
+      },
+      resolution: potraceResolution * this.paper.view.zoom
+    });
+  }
+
+};
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
@@ -39204,89 +39204,6 @@ Wick.Tools.Pan = class extends Wick.Tool {
 
   onMouseUp(e) {
     this.fireEvent('canvasViewTransformed');
-  }
-
-};
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-Wick.Tools.Pencil = class extends Wick.Tool {
-  static get MIN_ADD_POINT_MOVEMENT() {
-    return 2;
-  }
-  /**
-   * Creates a pencil tool.
-   */
-
-
-  constructor() {
-    super();
-    this.name = 'pencil';
-    this.path = null;
-    this._movement = new paper.Point();
-  }
-  /**
-   * The pencil cursor.
-   * @type {string}
-   */
-
-
-  get cursor() {
-    return 'url(cursors/pencil.png) 32 32, auto';
-  }
-
-  onActivate(e) {}
-
-  onDeactivate(e) {}
-
-  onMouseDown(e) {
-    this._movement = new paper.Point();
-
-    if (!this.path) {
-      this.path = new this.paper.Path({
-        strokeColor: this.getSetting('strokeColor'),
-        strokeWidth: this.getSetting('strokeWidth'),
-        strokeCap: 'round'
-      });
-    }
-
-    this.path.add(e.point);
-  }
-
-  onMouseDrag(e) {
-    if (!this.path) return;
-    this._movement = this._movement.add(e.delta);
-
-    if (this._movement.length > Wick.Tools.Pencil.MIN_ADD_POINT_MOVEMENT / this.paper.view.zoom) {
-      this._movement = new paper.Point();
-      this.path.add(e.point);
-      this.path.smooth();
-    }
-  }
-
-  onMouseUp(e) {
-    if (!this.path) return;
-    this.path.add(e.point);
-    this.path.simplify();
-    this.path = null;
-    this.fireEvent('canvasModified');
   }
 
 };
@@ -50933,6 +50850,91 @@ module.exports = ZStream;
 * You should have received a copy of the GNU General Public License
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
+Wick.Tools.Pencil = class extends Wick.Tool {
+  static get MIN_ADD_POINT_MOVEMENT() {
+    return 2;
+  }
+  /**
+   * Creates a pencil tool.
+   */
+
+
+  constructor() {
+    super();
+    this.name = 'pencil';
+    this.path = null;
+    this._movement = new paper.Point();
+  }
+  /**
+   * The pencil cursor.
+   * @type {string}
+   */
+
+
+  get cursor() {
+    return 'url(cursors/pencil.png) 32 32, auto';
+  }
+
+  onActivate(e) {}
+
+  onDeactivate(e) {}
+
+  onMouseDown(e) {
+    this._movement = new paper.Point();
+
+    if (!this.path) {
+      this.path = new this.paper.Path({
+        strokeColor: this.getSetting('strokeColor'),
+        strokeWidth: this.getSetting('strokeWidth'),
+        strokeCap: 'round'
+      });
+    }
+
+    this.path.add(e.point);
+  }
+
+  onMouseDrag(e) {
+    if (!this.path) return;
+    this._movement = this._movement.add(e.delta);
+
+    if (this._movement.length > Wick.Tools.Pencil.MIN_ADD_POINT_MOVEMENT / this.paper.view.zoom) {
+      this._movement = new paper.Point();
+      this.path.add(e.point);
+      this.path.smooth();
+    }
+  }
+
+  onMouseUp(e) {
+    if (!this.path) return;
+    this.path.add(e.point);
+    this.path.simplify();
+    this.path = null;
+    this.fireEvent('canvasModified');
+  }
+
+};
+//https://github.com/mattdesl/lerp/blob/master/index.js
+var lerp = function (v0, v1, t) { return v0*(1-t)+v1*t; };
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* Copyright 2019 WICKLETS LLC
+*
+* This file is part of Wick Engine.
+*
+* Wick Engine is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Wick Engine is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+*/
 Wick.Tools.Rectangle = class extends Wick.Tool {
   /**
    *
@@ -51000,8 +51002,6 @@ Wick.Tools.Rectangle = class extends Wick.Tool {
   }
 
 };
-//https://github.com/mattdesl/lerp/blob/master/index.js
-var lerp = function (v0, v1, t) { return v0*(1-t)+v1*t; };
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
@@ -51189,178 +51189,6 @@ Wick.Tools.Zoom = class extends Wick.Tool {
   }
 
 };
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Paper.js-drawing-tools.
-*
-* Paper.js-drawing-tools is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Paper.js-drawing-tools is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Paper.js-drawing-tools.  If not, see <https://www.gnu.org/licenses/>.
-*/
-
-/*
-    paper-erase.js
-    Adds erase() to the paper Layer class which erases paths in that layer using
-    the shape of a given path. Use this to make a vector eraser!
-
-    by zrispo (github.com/zrispo) (zach@wickeditor.com)
- */
-(function () {
-  // Splits a CompoundPath with multiple CW children into individual pieces
-  function splitCompoundPath(compoundPath) {
-    // Create lists of 'holes' (CCW children) and 'parts' (CW children)
-    var holes = [];
-    var parts = [];
-    compoundPath.children.forEach(function (child) {
-      if (!child.clockwise) {
-        holes.push(child);
-      } else {
-        var part = child.clone({
-          insert: false
-        });
-        part.fillColor = compoundPath.fillColor;
-        part.insertAbove(compoundPath);
-        parts.push(part);
-      }
-    }); // Find hole ownership for each 'part'
-
-    parts.forEach(function (part) {
-      var cmp;
-      holes.forEach(function (hole) {
-        if (part.bounds.contains(hole.bounds)) {
-          if (!cmp) {
-            cmp = new paper.CompoundPath({
-              insert: false
-            });
-            cmp.insertAbove(part);
-            cmp.addChild(part.clone({
-              insert: false
-            }));
-          }
-
-          cmp.addChild(hole);
-        }
-
-        if (cmp) {
-          cmp.fillColor = compoundPath.fillColor;
-          cmp.insertAbove(part);
-          part.remove();
-        }
-      });
-    });
-    compoundPath.remove();
-  }
-
-  function eraseFill(path, eraserPath) {
-    if (path.closePath) path.closePath();
-    var res = path.subtract(eraserPath, {
-      insert: false,
-      trace: true
-    });
-    res.fillColor = path.fillColor;
-
-    if (res.children) {
-      res.insertAbove(path);
-      res.data = {};
-      path.remove();
-      splitCompoundPath(res);
-    } else {
-      if (res.segments.length > 0) {
-        res.data = {};
-        res.insertAbove(path);
-      }
-
-      path.remove();
-    }
-
-    path.remove();
-  }
-
-  function eraseStroke(path, eraserPath) {
-    var res = path.subtract(eraserPath, {
-      insert: false,
-      trace: false
-    });
-
-    if (res.children) {
-      // Since the path is only strokes, it's trivial to split it into individual paths
-      var children = [];
-      res.children.forEach(function (child) {
-        child.data = {};
-        children.push(child);
-        child.name = null;
-      });
-      children.forEach(function (child) {
-        child.insertAbove(path);
-      });
-      res.remove();
-    } else {
-      res.remove();
-      if (res.segments.length > 0) res.insertAbove(path);
-    }
-
-    path.remove();
-  }
-
-  function splitPath(path) {
-    var fill = path.clone({
-      insert: false
-    });
-    fill.name = null;
-    fill.strokeColor = null;
-    fill.strokeWidth = 1;
-    var stroke = path.clone({
-      insert: false
-    });
-    stroke.name = null;
-    stroke.fillColor = null;
-    fill.insertAbove(path);
-    stroke.insertAbove(fill);
-    path.remove();
-    return {
-      fill: fill,
-      stroke: stroke
-    };
-  }
-
-  function eraseWithPath(eraserPath) {
-    var touchingPaths = [];
-    this.children.forEach(function (child) {
-      if (eraserPath.bounds.intersects(child.bounds)) {
-        touchingPaths.push(child);
-      }
-    });
-    touchingPaths.filter(path => {
-      return path instanceof paper.Path || path instanceof paper.CompoundPath;
-    }).forEach(path => {
-      if (path.strokeColor && path.fillColor) {
-        var res = splitPath(path);
-        eraseFill(res.fill, eraserPath);
-        eraseStroke(res.stroke, eraserPath);
-      } else if (path.fillColor) {
-        eraseFill(path, eraserPath);
-      } else if (path.strokeColor) {
-        eraseStroke(path, eraserPath);
-      }
-    });
-  }
-
-  paper.Layer.inject({
-    erase: eraseWithPath
-  });
-})();
 /*!
  * Platform.js
  * Copyright 2014-2018 Benjamin Tan
@@ -52601,331 +52429,154 @@ Wick.Tools.Zoom = class extends Wick.Tool {
 */
 
 /*
-    paper-hole.js
-    Adds hole() to the paper Layer class which finds the shape of the hole
-    at a certain point. Use this to make a vector fill bucket!
-
-    This version uses a flood fill + potrace method of filling holes.
-
-    Adapted from the FillBucket tool from old Wick
+    paper-erase.js
+    Adds erase() to the paper Layer class which erases paths in that layer using
+    the shape of a given path. Use this to make a vector eraser!
 
     by zrispo (github.com/zrispo) (zach@wickeditor.com)
  */
 (function () {
-  var VERBOSE = false;
-  var PREVIEW_IMAGE = false;
-  var onError;
-  var onFinish;
-  var layer;
-  var layerGroup;
-  var layerPathsGroup;
-  var layerPathsRaster;
-  var layerPathsImageData;
-  var layerPathsImageDataFloodFilled;
-  var layerPathsImageDataFloodFilledAndProcessed;
-  var layerPathsImageFloodFilledAndProcessed;
-  var floodFillX;
-  var floodFillY;
-  var floodFillCanvas;
-  var floodFillCtx;
-  var floodFillImageData;
-  var floodFillProcessedImage;
-  var resultHolePath;
-  var N_RASTER_CLONE = 1;
-  var RASTER_BASE_RESOLUTION = 1.9;
-  var FILL_TOLERANCE = 35;
-  var CLONE_WIDTH_SHRINK = 1.0;
-  var SHRINK_AMT = 0.85;
-
-  function tryToChangeColorOfExistingShape() {}
-
-  function createLayerPathsGroup(callback) {
-    layerGroup = new paper.Group({
-      insert: false
-    });
-    layer.children.forEach(function (child) {
-      if (child._class !== 'Path' && child._class !== 'CompoundPath') return;
-
-      for (var i = 0; i < N_RASTER_CLONE; i++) {
-        var clone = child.clone({
+  // Splits a CompoundPath with multiple CW children into individual pieces
+  function splitCompoundPath(compoundPath) {
+    // Create lists of 'holes' (CCW children) and 'parts' (CW children)
+    var holes = [];
+    var parts = [];
+    compoundPath.children.forEach(function (child) {
+      if (!child.clockwise) {
+        holes.push(child);
+      } else {
+        var part = child.clone({
           insert: false
         });
+        part.fillColor = compoundPath.fillColor;
+        part.insertAbove(compoundPath);
+        parts.push(part);
+      }
+    }); // Find hole ownership for each 'part'
 
-        if (clone.strokeWidth !== 0 && clone.strokeWidth <= 1) {
-          clone.strokeWidth = 1.5;
+    parts.forEach(function (part) {
+      var cmp;
+      holes.forEach(function (hole) {
+        if (part.bounds.contains(hole.bounds)) {
+          if (!cmp) {
+            cmp = new paper.CompoundPath({
+              insert: false
+            });
+            cmp.insertAbove(part);
+            cmp.addChild(part.clone({
+              insert: false
+            }));
+          }
+
+          cmp.addChild(hole);
         }
 
-        clone.strokeWidth *= CLONE_WIDTH_SHRINK;
-        layerGroup.addChild(clone);
-      }
+        if (cmp) {
+          cmp.fillColor = compoundPath.fillColor;
+          cmp.insertAbove(part);
+          part.remove();
+        }
+      });
     });
-
-    if (layerGroup.children.length === 0) {
-      onError('NO_PATHS');
-    } else {
-      callback();
-    }
+    compoundPath.remove();
   }
 
-  function rasterizeLayerGroup() {
-    var rasterResolution = paper.view.resolution * RASTER_BASE_RESOLUTION / window.devicePixelRatio;
-    layerPathsRaster = layerGroup.rasterize(rasterResolution, {
+  function eraseFill(path, eraserPath) {
+    if (path.closePath) path.closePath();
+    var res = path.subtract(eraserPath, {
+      insert: false,
+      trace: true
+    });
+    res.fillColor = path.fillColor;
+
+    if (res.children) {
+      res.insertAbove(path);
+      res.data = {};
+      path.remove();
+      splitCompoundPath(res);
+    } else {
+      if (res.segments.length > 0) {
+        res.data = {};
+        res.insertAbove(path);
+      }
+
+      path.remove();
+    }
+
+    path.remove();
+  }
+
+  function eraseStroke(path, eraserPath) {
+    var res = path.subtract(eraserPath, {
+      insert: false,
+      trace: false
+    });
+
+    if (res.children) {
+      // Since the path is only strokes, it's trivial to split it into individual paths
+      var children = [];
+      res.children.forEach(function (child) {
+        child.data = {};
+        children.push(child);
+        child.name = null;
+      });
+      children.forEach(function (child) {
+        child.insertAbove(path);
+      });
+      res.remove();
+    } else {
+      res.remove();
+      if (res.segments.length > 0) res.insertAbove(path);
+    }
+
+    path.remove();
+  }
+
+  function splitPath(path) {
+    var fill = path.clone({
       insert: false
     });
-  }
-
-  function generateImageDataFromRaster() {
-    var rasterCanvas = layerPathsRaster.canvas;
-    var rasterCtx = rasterCanvas.getContext('2d');
-    layerPathsImageData = rasterCtx.getImageData(0, 0, layerPathsRaster.width, layerPathsRaster.height);
-  }
-
-  function floodfillImageData(callback) {
-    var rasterPosition = layerPathsRaster.bounds.topLeft;
-    var x = (floodFillX - rasterPosition.x) * RASTER_BASE_RESOLUTION;
-    var y = (floodFillY - rasterPosition.y) * RASTER_BASE_RESOLUTION;
-    x = Math.round(x);
-    y = Math.round(y);
-    floodFillCanvas = document.createElement('canvas');
-    floodFillCanvas.width = layerPathsRaster.canvas.width;
-    floodFillCanvas.height = layerPathsRaster.canvas.height;
-
-    if (x < 0 || y < 0 || x >= floodFillCanvas.width || y >= floodFillCanvas.height) {
-      onError('OUT_OF_BOUNDS');
-    } else {
-      floodFillCtx = floodFillCanvas.getContext('2d');
-      floodFillCtx.putImageData(layerPathsImageData, 0, 0);
-      floodFillCtx.fillStyle = "rgba(123,124,125,1)";
-      floodFillCtx.fillFlood(x, y, FILL_TOLERANCE);
-      floodFillImageData = floodFillCtx.getImageData(0, 0, floodFillCanvas.width, floodFillCanvas.height);
-      callback();
-    }
-  }
-
-  function processImageData(callback) {
-    var imageDataRaw = floodFillImageData.data;
-
-    for (var i = 0; i < imageDataRaw.length; i += 4) {
-      if (imageDataRaw[i] === 123 && imageDataRaw[i + 1] === 124 && imageDataRaw[i + 2] === 125) {
-        imageDataRaw[i] = 0;
-        imageDataRaw[i + 1] = 0;
-        imageDataRaw[i + 2] = 0;
-        imageDataRaw[i + 3] = 255;
-      } else if (imageDataRaw[i + 3] !== 0) {
-        imageDataRaw[i] = 255;
-        imageDataRaw[i + 1] = 0;
-        imageDataRaw[i + 2] = 0;
-        imageDataRaw[i + 3] = 255;
-      } else {
-        imageDataRaw[i] = 1;
-        imageDataRaw[i + 1] = 0;
-        imageDataRaw[i + 2] = 0;
-        imageDataRaw[i + 3] = 0;
-      }
-    }
-
-    var w = floodFillCanvas.width;
-    var h = floodFillCanvas.height;
-    var r = 4;
-
-    for (var this_x = 0; this_x < w; this_x++) {
-      for (var this_y = 0; this_y < h; this_y++) {
-        var thisPix = getPixelAt(this_x, this_y, w, h, imageDataRaw);
-
-        if (thisPix && thisPix.r === 255) {
-          for (var offset_x = -r; offset_x <= r; offset_x++) {
-            for (var offset_y = -r; offset_y <= r; offset_y++) {
-              var other_x = this_x + offset_x;
-              var other_y = this_y + offset_y;
-              var otherPix = getPixelAt(other_x, other_y, w, h, imageDataRaw);
-
-              if (otherPix && otherPix.r === 0) {
-                setPixelAt(this_x, this_y, w, h, imageDataRaw, {
-                  r: 1,
-                  g: 255,
-                  b: 0,
-                  a: 255
-                });
-              }
-            }
-          }
-        }
-      }
-    }
-
-    for (var i = 0; i < imageDataRaw.length; i += 4) {
-      if (imageDataRaw[i] === 255) {
-        imageDataRaw[i] = 0;
-        imageDataRaw[i + 1] = 0;
-        imageDataRaw[i + 2] = 0;
-        imageDataRaw[i + 3] = 0;
-      }
-    }
-
-    floodFillCtx.putImageData(floodFillImageData, 0, 0);
-    floodFillProcessedImage = new Image();
-
-    floodFillProcessedImage.onload = function () {
-      if (PREVIEW_IMAGE) previewImage(floodFillProcessedImage);
-      callback();
-    };
-
-    floodFillProcessedImage.src = floodFillCanvas.toDataURL();
-  }
-
-  function checkForLeakyHole(callback) {
-    var holeIsLeaky = false;
-    var w = floodFillProcessedImage.width;
-    var h = floodFillProcessedImage.height;
-
-    for (var x = 0; x < floodFillProcessedImage.width; x++) {
-      if (getPixelAt(x, 0, w, h, floodFillImageData.data).r === 0 && getPixelAt(x, 0, w, h, floodFillImageData.data).a === 255) {
-        holeIsLeaky = true;
-        onError('LEAKY_HOLE');
-        break;
-      }
-    }
-
-    if (!holeIsLeaky) {
-      callback();
-    }
-  }
-
-  function potraceImageData() {
-    var svgString = potrace.fromImage(floodFillProcessedImage).toSVG(1);
-    var xmlString = svgString,
-        parser = new DOMParser(),
-        doc = parser.parseFromString(xmlString, "text/xml");
-    resultHolePath = paper.project.importSVG(doc, {
-      insert: true
+    fill.name = null;
+    fill.strokeColor = null;
+    fill.strokeWidth = 1;
+    var stroke = path.clone({
+      insert: false
     });
-    resultHolePath.remove();
-    resultHolePath = resultHolePath.children[0];
-  }
-
-  function processFinalResultPath() {
-    resultHolePath.scale(1 / RASTER_BASE_RESOLUTION, new paper.Point(0, 0));
-    var rasterPosition = layerPathsRaster.bounds.topLeft;
-    resultHolePath.position.x += rasterPosition.x;
-    resultHolePath.position.y += rasterPosition.y;
-    resultHolePath.applyMatrix = true;
-    expandHole(resultHolePath);
-  }
-  /* Utilities */
-
-
-  function getPixelAt(x, y, width, height, imageData) {
-    if (x < 0 || y < 0 || x >= width || y >= height) return null;
-    var offset = (y * width + x) * 4;
+    stroke.name = null;
+    stroke.fillColor = null;
+    fill.insertAbove(path);
+    stroke.insertAbove(fill);
+    path.remove();
     return {
-      r: imageData[offset],
-      g: imageData[offset + 1],
-      b: imageData[offset + 2],
-      a: imageData[offset + 3]
+      fill: fill,
+      stroke: stroke
     };
   }
 
-  function setPixelAt(x, y, width, height, imageData, color) {
-    var offset = (y * width + x) * 4;
-    imageData[offset] = color.r;
-    imageData[offset + 1] = color.g;
-    imageData[offset + 2] = color.b;
-    imageData[offset + 3] = color.a;
-  } // http://www.felixeve.co.uk/how-to-rotate-a-point-around-an-origin-with-javascript/
-
-
-  function rotate_point(pointX, pointY, originX, originY, angle) {
-    angle = angle * Math.PI / 180.0;
-    return {
-      x: Math.cos(angle) * (pointX - originX) - Math.sin(angle) * (pointY - originY) + originX,
-      y: Math.sin(angle) * (pointX - originX) + Math.cos(angle) * (pointY - originY) + originY
-    };
-  }
-
-  function previewImage(image) {
-    var win = window.open('', 'Title', 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, width=' + image.width + ', height=' + image.height + ', top=100, left=100');
-    win.document.body.innerHTML = '<div><img src= ' + image.src + '></div>';
-  }
-
-  function expandHole(path) {
-    if (path instanceof paper.Group) {
-      path = path.children[0];
-    }
-
-    var children;
-
-    if (path instanceof paper.Path) {
-      children = [path];
-    } else if (path instanceof paper.CompoundPath) {
-      children = path.children;
-    }
-
-    children.forEach(function (hole) {
-      var normals = [];
-      hole.closePath();
-      hole.segments.forEach(function (segment) {
-        var a = segment.previous.point;
-        var b = segment.point;
-        var c = segment.next.point;
-        var ab = {
-          x: b.x - a.x,
-          y: b.y - a.y
-        };
-        var cb = {
-          x: b.x - c.x,
-          y: b.y - c.y
-        };
-        var d = {
-          x: ab.x - cb.x,
-          y: ab.y - cb.y
-        };
-        d.h = Math.sqrt(d.x * d.x + d.y * d.y);
-        d.x /= d.h;
-        d.y /= d.h;
-        d = rotate_point(d.x, d.y, 0, 0, 90);
-        normals.push({
-          x: d.x,
-          y: d.y
-        });
-      });
-
-      for (var i = 0; i < hole.segments.length; i++) {
-        var segment = hole.segments[i];
-        var normal = normals[i];
-        segment.point.x += normal.x * -SHRINK_AMT;
-        segment.point.y += normal.y * -SHRINK_AMT;
+  function eraseWithPath(eraserPath) {
+    var touchingPaths = [];
+    this.children.forEach(function (child) {
+      if (eraserPath.bounds.intersects(child.bounds)) {
+        touchingPaths.push(child);
+      }
+    });
+    touchingPaths.filter(path => {
+      return path instanceof paper.Path || path instanceof paper.CompoundPath;
+    }).forEach(path => {
+      if (path.strokeColor && path.fillColor) {
+        var res = splitPath(path);
+        eraseFill(res.fill, eraserPath);
+        eraseStroke(res.stroke, eraserPath);
+      } else if (path.fillColor) {
+        eraseFill(path, eraserPath);
+      } else if (path.strokeColor) {
+        eraseStroke(path, eraserPath);
       }
     });
   }
-  /* Add hole() to paper.Layer */
-
 
   paper.Layer.inject({
-    hole: function (args) {
-      if (!args) console.error('paper.hole: args is required');
-      if (!args.point) console.error('paper.hole: args.point is required');
-      if (!args.onFinish) console.error('paper.hole: args.onFinish is required');
-      if (!args.onError) console.error('paper.hole: args.onError is required');
-      onFinish = args.onFinish;
-      onError = args.onError;
-      layer = this;
-      floodFillX = args.point.x;
-      floodFillY = args.point.y;
-      tryToChangeColorOfExistingShape();
-      createLayerPathsGroup(function () {
-        rasterizeLayerGroup();
-        generateImageDataFromRaster();
-        floodfillImageData(function () {
-          processImageData(function () {
-            checkForLeakyHole(function () {
-              potraceImageData();
-              processFinalResultPath();
-              onFinish(resultHolePath);
-            });
-          });
-        });
-      });
-    }
+    erase: eraseWithPath
   });
 })();
 /*
@@ -54099,108 +53750,350 @@ var potrace;
 /*
 * Copyright 2019 WICKLETS LLC
 *
-* This file is part of Wick Engine.
+* This file is part of Paper.js-drawing-tools.
 *
-* Wick Engine is free software: you can redistribute it and/or modify
+* Paper.js-drawing-tools is free software: you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
 * the Free Software Foundation, either version 3 of the License, or
 * (at your option) any later version.
 *
-* Wick Engine is distributed in the hope that it will be useful,
+* Paper.js-drawing-tools is distributed in the hope that it will be useful,
 * but WITHOUT ANY WARRANTY; without even the implied warranty of
 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 * GNU General Public License for more details.
 *
 * You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+* along with Paper.js-drawing-tools.  If not, see <https://www.gnu.org/licenses/>.
 */
-class PaperJSOrderingUtils {
-  /**
-   * Moves the selected items forwards.
-   */
-  static moveForwards(items) {
-    PaperJSOrderingUtils._sortItemsByLayer(items).forEach(layerItems => {
-      PaperJSOrderingUtils._sortItemsByZIndex(layerItems).reverse().forEach(item => {
-        if (item.nextSibling && items.indexOf(item.nextSibling) === -1) {
-          item.insertAbove(item.nextSibling);
+
+/*
+    paper-hole.js
+    Adds hole() to the paper Layer class which finds the shape of the hole
+    at a certain point. Use this to make a vector fill bucket!
+
+    This version uses a flood fill + potrace method of filling holes.
+
+    Adapted from the FillBucket tool from old Wick
+
+    by zrispo (github.com/zrispo) (zach@wickeditor.com)
+ */
+(function () {
+  var VERBOSE = false;
+  var PREVIEW_IMAGE = false;
+  var onError;
+  var onFinish;
+  var layer;
+  var layerGroup;
+  var layerPathsGroup;
+  var layerPathsRaster;
+  var layerPathsImageData;
+  var layerPathsImageDataFloodFilled;
+  var layerPathsImageDataFloodFilledAndProcessed;
+  var layerPathsImageFloodFilledAndProcessed;
+  var floodFillX;
+  var floodFillY;
+  var floodFillCanvas;
+  var floodFillCtx;
+  var floodFillImageData;
+  var floodFillProcessedImage;
+  var resultHolePath;
+  var N_RASTER_CLONE = 1;
+  var RASTER_BASE_RESOLUTION = 1.9;
+  var FILL_TOLERANCE = 35;
+  var CLONE_WIDTH_SHRINK = 1.0;
+  var SHRINK_AMT = 0.85;
+
+  function tryToChangeColorOfExistingShape() {}
+
+  function createLayerPathsGroup(callback) {
+    layerGroup = new paper.Group({
+      insert: false
+    });
+    layer.children.forEach(function (child) {
+      if (child._class !== 'Path' && child._class !== 'CompoundPath') return;
+
+      for (var i = 0; i < N_RASTER_CLONE; i++) {
+        var clone = child.clone({
+          insert: false
+        });
+
+        if (clone.strokeWidth !== 0 && clone.strokeWidth <= 1) {
+          clone.strokeWidth = 1.5;
         }
-      });
+
+        clone.strokeWidth *= CLONE_WIDTH_SHRINK;
+        layerGroup.addChild(clone);
+      }
     });
+
+    if (layerGroup.children.length === 0) {
+      onError('NO_PATHS');
+    } else {
+      callback();
+    }
   }
-  /**
-   * Moves the selected items backwards.
-   */
 
-
-  static moveBackwards(items) {
-    PaperJSOrderingUtils._sortItemsByLayer(items).forEach(layerItems => {
-      PaperJSOrderingUtils._sortItemsByZIndex(layerItems).forEach(item => {
-        if (item.previousSibling && items.indexOf(item.previousSibling) === -1) {
-          item.insertBelow(item.previousSibling);
-        }
-      });
-    });
-  }
-  /**
-   * Brings the selected objects to the front.
-   */
-
-
-  static bringToFront(items) {
-    PaperJSOrderingUtils._sortItemsByLayer(items).forEach(layerItems => {
-      PaperJSOrderingUtils._sortItemsByZIndex(layerItems).forEach(item => {
-        item.bringToFront();
-      });
-    });
-  }
-  /**
-   * Sends the selected objects to the back.
-   */
-
-
-  static sendToBack(items) {
-    PaperJSOrderingUtils._sortItemsByLayer(items).forEach(layerItems => {
-      PaperJSOrderingUtils._sortItemsByZIndex(layerItems).reverse().forEach(item => {
-        item.sendToBack();
-      });
+  function rasterizeLayerGroup() {
+    var rasterResolution = paper.view.resolution * RASTER_BASE_RESOLUTION / window.devicePixelRatio;
+    layerPathsRaster = layerGroup.rasterize(rasterResolution, {
+      insert: false
     });
   }
 
-  static _sortItemsByLayer(items) {
-    var layerLists = {};
-    items.forEach(item => {
-      // Create new list for the item's layer if it doesn't exist
-      var layerID = item.layer.id;
+  function generateImageDataFromRaster() {
+    var rasterCanvas = layerPathsRaster.canvas;
+    var rasterCtx = rasterCanvas.getContext('2d');
+    layerPathsImageData = rasterCtx.getImageData(0, 0, layerPathsRaster.width, layerPathsRaster.height);
+  }
 
-      if (!layerLists[layerID]) {
-        layerLists[layerID] = [];
-      } // Add this item to its corresponding layer list
+  function floodfillImageData(callback) {
+    var rasterPosition = layerPathsRaster.bounds.topLeft;
+    var x = (floodFillX - rasterPosition.x) * RASTER_BASE_RESOLUTION;
+    var y = (floodFillY - rasterPosition.y) * RASTER_BASE_RESOLUTION;
+    x = Math.round(x);
+    y = Math.round(y);
+    floodFillCanvas = document.createElement('canvas');
+    floodFillCanvas.width = layerPathsRaster.canvas.width;
+    floodFillCanvas.height = layerPathsRaster.canvas.height;
 
+    if (x < 0 || y < 0 || x >= floodFillCanvas.width || y >= floodFillCanvas.height) {
+      onError('OUT_OF_BOUNDS');
+    } else {
+      floodFillCtx = floodFillCanvas.getContext('2d');
+      floodFillCtx.putImageData(layerPathsImageData, 0, 0);
+      floodFillCtx.fillStyle = "rgba(123,124,125,1)";
+      floodFillCtx.fillFlood(x, y, FILL_TOLERANCE);
+      floodFillImageData = floodFillCtx.getImageData(0, 0, floodFillCanvas.width, floodFillCanvas.height);
+      callback();
+    }
+  }
 
-      layerLists[layerID].push(item);
-    }); // Convert id->array object to array of arrays
+  function processImageData(callback) {
+    var imageDataRaw = floodFillImageData.data;
 
-    var layerItemsArrays = [];
-
-    for (var layerID in layerLists) {
-      layerItemsArrays.push(layerLists[layerID]);
+    for (var i = 0; i < imageDataRaw.length; i += 4) {
+      if (imageDataRaw[i] === 123 && imageDataRaw[i + 1] === 124 && imageDataRaw[i + 2] === 125) {
+        imageDataRaw[i] = 0;
+        imageDataRaw[i + 1] = 0;
+        imageDataRaw[i + 2] = 0;
+        imageDataRaw[i + 3] = 255;
+      } else if (imageDataRaw[i + 3] !== 0) {
+        imageDataRaw[i] = 255;
+        imageDataRaw[i + 1] = 0;
+        imageDataRaw[i + 2] = 0;
+        imageDataRaw[i + 3] = 255;
+      } else {
+        imageDataRaw[i] = 1;
+        imageDataRaw[i + 1] = 0;
+        imageDataRaw[i + 2] = 0;
+        imageDataRaw[i + 3] = 0;
+      }
     }
 
-    return layerItemsArrays;
+    var w = floodFillCanvas.width;
+    var h = floodFillCanvas.height;
+    var r = 4;
+
+    for (var this_x = 0; this_x < w; this_x++) {
+      for (var this_y = 0; this_y < h; this_y++) {
+        var thisPix = getPixelAt(this_x, this_y, w, h, imageDataRaw);
+
+        if (thisPix && thisPix.r === 255) {
+          for (var offset_x = -r; offset_x <= r; offset_x++) {
+            for (var offset_y = -r; offset_y <= r; offset_y++) {
+              var other_x = this_x + offset_x;
+              var other_y = this_y + offset_y;
+              var otherPix = getPixelAt(other_x, other_y, w, h, imageDataRaw);
+
+              if (otherPix && otherPix.r === 0) {
+                setPixelAt(this_x, this_y, w, h, imageDataRaw, {
+                  r: 1,
+                  g: 255,
+                  b: 0,
+                  a: 255
+                });
+              }
+            }
+          }
+        }
+      }
+    }
+
+    for (var i = 0; i < imageDataRaw.length; i += 4) {
+      if (imageDataRaw[i] === 255) {
+        imageDataRaw[i] = 0;
+        imageDataRaw[i + 1] = 0;
+        imageDataRaw[i + 2] = 0;
+        imageDataRaw[i + 3] = 0;
+      }
+    }
+
+    floodFillCtx.putImageData(floodFillImageData, 0, 0);
+    floodFillProcessedImage = new Image();
+
+    floodFillProcessedImage.onload = function () {
+      if (PREVIEW_IMAGE) previewImage(floodFillProcessedImage);
+      callback();
+    };
+
+    floodFillProcessedImage.src = floodFillCanvas.toDataURL();
   }
 
-  static _sortItemsByZIndex(items) {
-    return items.sort(function (a, b) {
-      return a.index - b.index;
+  function checkForLeakyHole(callback) {
+    var holeIsLeaky = false;
+    var w = floodFillProcessedImage.width;
+    var h = floodFillProcessedImage.height;
+
+    for (var x = 0; x < floodFillProcessedImage.width; x++) {
+      if (getPixelAt(x, 0, w, h, floodFillImageData.data).r === 0 && getPixelAt(x, 0, w, h, floodFillImageData.data).a === 255) {
+        holeIsLeaky = true;
+        onError('LEAKY_HOLE');
+        break;
+      }
+    }
+
+    if (!holeIsLeaky) {
+      callback();
+    }
+  }
+
+  function potraceImageData() {
+    var svgString = potrace.fromImage(floodFillProcessedImage).toSVG(1);
+    var xmlString = svgString,
+        parser = new DOMParser(),
+        doc = parser.parseFromString(xmlString, "text/xml");
+    resultHolePath = paper.project.importSVG(doc, {
+      insert: true
+    });
+    resultHolePath.remove();
+    resultHolePath = resultHolePath.children[0];
+  }
+
+  function processFinalResultPath() {
+    resultHolePath.scale(1 / RASTER_BASE_RESOLUTION, new paper.Point(0, 0));
+    var rasterPosition = layerPathsRaster.bounds.topLeft;
+    resultHolePath.position.x += rasterPosition.x;
+    resultHolePath.position.y += rasterPosition.y;
+    resultHolePath.applyMatrix = true;
+    expandHole(resultHolePath);
+  }
+  /* Utilities */
+
+
+  function getPixelAt(x, y, width, height, imageData) {
+    if (x < 0 || y < 0 || x >= width || y >= height) return null;
+    var offset = (y * width + x) * 4;
+    return {
+      r: imageData[offset],
+      g: imageData[offset + 1],
+      b: imageData[offset + 2],
+      a: imageData[offset + 3]
+    };
+  }
+
+  function setPixelAt(x, y, width, height, imageData, color) {
+    var offset = (y * width + x) * 4;
+    imageData[offset] = color.r;
+    imageData[offset + 1] = color.g;
+    imageData[offset + 2] = color.b;
+    imageData[offset + 3] = color.a;
+  } // http://www.felixeve.co.uk/how-to-rotate-a-point-around-an-origin-with-javascript/
+
+
+  function rotate_point(pointX, pointY, originX, originY, angle) {
+    angle = angle * Math.PI / 180.0;
+    return {
+      x: Math.cos(angle) * (pointX - originX) - Math.sin(angle) * (pointY - originY) + originX,
+      y: Math.sin(angle) * (pointX - originX) + Math.cos(angle) * (pointY - originY) + originY
+    };
+  }
+
+  function previewImage(image) {
+    var win = window.open('', 'Title', 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, width=' + image.width + ', height=' + image.height + ', top=100, left=100');
+    win.document.body.innerHTML = '<div><img src= ' + image.src + '></div>';
+  }
+
+  function expandHole(path) {
+    if (path instanceof paper.Group) {
+      path = path.children[0];
+    }
+
+    var children;
+
+    if (path instanceof paper.Path) {
+      children = [path];
+    } else if (path instanceof paper.CompoundPath) {
+      children = path.children;
+    }
+
+    children.forEach(function (hole) {
+      var normals = [];
+      hole.closePath();
+      hole.segments.forEach(function (segment) {
+        var a = segment.previous.point;
+        var b = segment.point;
+        var c = segment.next.point;
+        var ab = {
+          x: b.x - a.x,
+          y: b.y - a.y
+        };
+        var cb = {
+          x: b.x - c.x,
+          y: b.y - c.y
+        };
+        var d = {
+          x: ab.x - cb.x,
+          y: ab.y - cb.y
+        };
+        d.h = Math.sqrt(d.x * d.x + d.y * d.y);
+        d.x /= d.h;
+        d.y /= d.h;
+        d = rotate_point(d.x, d.y, 0, 0, 90);
+        normals.push({
+          x: d.x,
+          y: d.y
+        });
+      });
+
+      for (var i = 0; i < hole.segments.length; i++) {
+        var segment = hole.segments[i];
+        var normal = normals[i];
+        segment.point.x += normal.x * -SHRINK_AMT;
+        segment.point.y += normal.y * -SHRINK_AMT;
+      }
     });
   }
+  /* Add hole() to paper.Layer */
 
-}
 
-;
-paper.PaperScope.inject({
-  OrderingUtils: PaperJSOrderingUtils
-});
+  paper.Layer.inject({
+    hole: function (args) {
+      if (!args) console.error('paper.hole: args is required');
+      if (!args.point) console.error('paper.hole: args.point is required');
+      if (!args.onFinish) console.error('paper.hole: args.onFinish is required');
+      if (!args.onError) console.error('paper.hole: args.onError is required');
+      onFinish = args.onFinish;
+      onError = args.onError;
+      layer = this;
+      floodFillX = args.point.x;
+      floodFillY = args.point.y;
+      tryToChangeColorOfExistingShape();
+      createLayerPathsGroup(function () {
+        rasterizeLayerGroup();
+        generateImageDataFromRaster();
+        floodfillImageData(function () {
+          processImageData(function () {
+            checkForLeakyHole(function () {
+              potraceImageData();
+              processFinalResultPath();
+              onFinish(resultHolePath);
+            });
+          });
+        });
+      });
+    }
+  });
+})();
 /*
 The MIT License (MIT)
 
@@ -54413,6 +54306,151 @@ var reserved = (() => {
     return exports;
 })();
 
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* Copyright 2019 WICKLETS LLC
+*
+* This file is part of Wick Engine.
+*
+* Wick Engine is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Wick Engine is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+*/
+class PaperJSOrderingUtils {
+  /**
+   * Moves the selected items forwards.
+   */
+  static moveForwards(items) {
+    PaperJSOrderingUtils._sortItemsByLayer(items).forEach(layerItems => {
+      PaperJSOrderingUtils._sortItemsByZIndex(layerItems).reverse().forEach(item => {
+        if (item.nextSibling && items.indexOf(item.nextSibling) === -1) {
+          item.insertAbove(item.nextSibling);
+        }
+      });
+    });
+  }
+  /**
+   * Moves the selected items backwards.
+   */
+
+
+  static moveBackwards(items) {
+    PaperJSOrderingUtils._sortItemsByLayer(items).forEach(layerItems => {
+      PaperJSOrderingUtils._sortItemsByZIndex(layerItems).forEach(item => {
+        if (item.previousSibling && items.indexOf(item.previousSibling) === -1) {
+          item.insertBelow(item.previousSibling);
+        }
+      });
+    });
+  }
+  /**
+   * Brings the selected objects to the front.
+   */
+
+
+  static bringToFront(items) {
+    PaperJSOrderingUtils._sortItemsByLayer(items).forEach(layerItems => {
+      PaperJSOrderingUtils._sortItemsByZIndex(layerItems).forEach(item => {
+        item.bringToFront();
+      });
+    });
+  }
+  /**
+   * Sends the selected objects to the back.
+   */
+
+
+  static sendToBack(items) {
+    PaperJSOrderingUtils._sortItemsByLayer(items).forEach(layerItems => {
+      PaperJSOrderingUtils._sortItemsByZIndex(layerItems).reverse().forEach(item => {
+        item.sendToBack();
+      });
+    });
+  }
+
+  static _sortItemsByLayer(items) {
+    var layerLists = {};
+    items.forEach(item => {
+      // Create new list for the item's layer if it doesn't exist
+      var layerID = item.layer.id;
+
+      if (!layerLists[layerID]) {
+        layerLists[layerID] = [];
+      } // Add this item to its corresponding layer list
+
+
+      layerLists[layerID].push(item);
+    }); // Convert id->array object to array of arrays
+
+    var layerItemsArrays = [];
+
+    for (var layerID in layerLists) {
+      layerItemsArrays.push(layerLists[layerID]);
+    }
+
+    return layerItemsArrays;
+  }
+
+  static _sortItemsByZIndex(items) {
+    return items.sort(function (a, b) {
+      return a.index - b.index;
+    });
+  }
+
+}
+
+;
+paper.PaperScope.inject({
+  OrderingUtils: PaperJSOrderingUtils
+});
+// https://gist.github.com/hurjas/2660489
+
+/**
+ * Return a timestamp with the format "m/d/yy h:MM:ss TT"
+ * @type {Date}
+ */
+
+function Timestamp() {
+// Create a date object with the current time
+  var now = new Date();
+
+  var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
+// Create an array with the current month, day and time
+  var date = [ months[now.getMonth()], now.getDate() + '-', now.getFullYear() ];
+
+// Create an array with the current hour, minute and second
+  var time = [ now.getHours(), now.getMinutes() ];
+
+// Determine AM or PM suffix based on the hour
+  var suffix = ( time[0] < 12 ) ? "AM" : "PM";
+
+// Convert hour from military time
+  time[0] = ( time[0] < 12 ) ? time[0] : time[0] - 12;
+
+// If hour is 0, set it to 12
+  time[0] = time[0] || 12;
+
+// If seconds and minutes are less than 10, add a zero
+  for ( var i = 1; i < 3; i++ ) {
+    if ( time[i] < 10 ) {
+      time[i] = "0" + time[i];
+    }
+  }
+
+// Return the formatted string
+  return date.join("") + "-" + time.join(".") + "" + suffix;
+}
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
@@ -54970,44 +55008,141 @@ SelectionWidget.GHOST_STROKE_WIDTH = 1;
 paper.PaperScope.inject({
   SelectionWidget: SelectionWidget
 });
-// https://gist.github.com/hurjas/2660489
+window.AudioContext = window.AudioContext || window.webkitAudioContext;
 
-/**
- * Return a timestamp with the format "m/d/yy h:MM:ss TT"
- * @type {Date}
- */
+Array.prototype.max = function() {
+  return Math.max.apply(null, this);
+};
 
-function Timestamp() {
-// Create a date object with the current time
-  var now = new Date();
+var audioContext= new AudioContext();
 
-  var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+var SCWF = function () {
 
-// Create an array with the current month, day and time
-  var date = [ months[now.getMonth()], now.getDate() + '-', now.getFullYear() ];
+	var SoundCloudWaveform = {
 
-// Create an array with the current hour, minute and second
-  var time = [ now.getHours(), now.getMinutes() ];
+		settings : {
+			canvas_width: 1200,
+			canvas_height: 40,
+			bar_width: 2,
+			bar_gap : 0,
+			wave_color: "#1594FF",
+			download: false,
+			onComplete: function(png, pixels) {}
+		},
 
-// Determine AM or PM suffix based on the hour
-  var suffix = ( time[0] < 12 ) ? "AM" : "PM";
+		generate: function(src, options) {
 
-// Convert hour from military time
-  time[0] = ( time[0] < 12 ) ? time[0] : time[0] - 12;
+			// preparing canvas
+			this.settings.canvas = document.createElement('canvas');
+			this.settings.context = this.settings.canvas.getContext('2d');
 
-// If hour is 0, set it to 12
-  time[0] = time[0] || 12;
+			this.settings.canvas.width = (options.canvas_width !== undefined) ? parseInt(options.canvas_width) : this.settings.canvas_width;
+			this.settings.canvas.height = (options.canvas_height !== undefined) ? parseInt(options.canvas_height) : this.settings.canvas_height;
 
-// If seconds and minutes are less than 10, add a zero
-  for ( var i = 1; i < 3; i++ ) {
-    if ( time[i] < 10 ) {
-      time[i] = "0" + time[i];
-    }
-  }
+			// setting fill color
+			this.settings.wave_color = (options.wave_color !== undefined) ? options.wave_color : this.settings.wave_color;
 
-// Return the formatted string
-  return date.join("") + "-" + time.join(".") + "" + suffix;
+			// setting bars width and gap
+			this.settings.bar_width = (options.bar_width !== undefined) ? parseInt(options.bar_width) : this.settings.bar_width;
+			this.settings.bar_gap = (options.bar_gap !== undefined) ? parseFloat(options.bar_gap) : this.settings.bar_gap;
+
+			this.settings.download = (options.download !== undefined) ? options.download : this.settings.download;
+
+			this.settings.onComplete = (options.onComplete !== undefined) ? options.onComplete : this.settings.onComplete;
+
+			// read file buffer
+			/*var reader = new FileReader();
+	        reader.onload = function(event) {
+	            SoundCloudWaveform.audioContext.decodeAudioData(event.target.result, function(buffer) {
+	                SoundCloudWaveform.extractBuffer(buffer);
+	            });
+	        };
+	        reader.readAsArrayBuffer(file);*/
+	        var rawData = src.split(",")[1]; // cut off extra filetype/etc data
+	        var rawBuffer = Base64ArrayBuffer.decode(rawData);
+	        audioContext.decodeAudioData(rawBuffer, function (buffer) {
+	            if (!buffer) {
+	                console.error("failed to decode:", "buffer null");
+	                return;
+	            }
+	            SoundCloudWaveform.extractBuffer(buffer);
+	        }, function (error) {
+	            console.error("failed to decode:", error);
+	        });
+		},
+
+		extractBuffer: function(buffer) {
+		    buffer = buffer.getChannelData(0);
+		    var sections = this.settings.canvas.width;
+		    var len = Math.floor(buffer.length / sections);
+		    var maxHeight = this.settings.canvas.height;
+		    var vals = [];
+		    var lastval = 0;
+		    for (var i = 0; i < sections; i += this.settings.bar_width) {
+		    	var val = this.bufferMeasure(i * len, len, buffer) * 10000;
+		    	if(!isNaN(val)){
+		        	vals.push(val);
+		        	lastval = val;
+		        } else {
+		        	vals.push(lastval)
+		        }
+		    }
+
+		    for (var j = 0; j < sections; j += this.settings.bar_width) {
+		        var scale = maxHeight / vals.max();
+		        var val = this.bufferMeasure(j * len, len, buffer) * 10000;
+		        val *= scale;
+		        val += 1;
+		        this.drawBar(j, val);
+		    }
+
+		    if (this.settings.download) {
+		    	this.generateImage();
+		    }
+		    this.settings.onComplete(this.settings.canvas.toDataURL('image/png'), this.settings.context.getImageData(0, 0, this.settings.canvas.width, this.settings.canvas.height));
+		    // clear canvas for redrawing
+		    this.settings.context.clearRect(0, 0, this.settings.canvas.width, this.settings.canvas.height);
+	    },
+
+	    bufferMeasure: function(position, length, data) {
+	        var sum = 0.0;
+	        for (var i = position; i <= (position + length) - 1; i++) {
+	            sum += Math.pow(data[i], 2);
+	        }
+	        return Math.sqrt(sum / data.length);
+	    },
+
+	    drawBar: function(i, h) {
+
+	    	//if(isNaN(h)) h = Math.random()*50
+	    	//h = h * 5000;
+
+	    	this.settings.context.fillStyle = this.settings.wave_color;
+
+			var w = this.settings.bar_width;
+	        if (this.settings.bar_gap !== 0) {
+	            w *= Math.abs(1 - this.settings.bar_gap);
+	        }
+	        var x = i + (w / 2),
+	            y = this.settings.canvas.height/2 - h/2/1.5;
+
+
+	        this.settings.context.fillRect(x, y, w, h/1.5);
+	    },
+
+	    generateImage: function() {
+	    	var image = this.settings.canvas.toDataURL('image/png');
+
+	    	var link = document.createElement('a');
+	    	link.href = image;
+	    	link.setAttribute('download', '');
+	    	link.click();
+	    }
+	}
+
+	return SoundCloudWaveform;
 }
+
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
@@ -55180,141 +55315,6 @@ paper.SelectionBox = class {
 paper.PaperScope.inject({
   SelectionBox: paper.SelectionBox
 });
-window.AudioContext = window.AudioContext || window.webkitAudioContext;
-
-Array.prototype.max = function() {
-  return Math.max.apply(null, this);
-};
-
-var audioContext= new AudioContext();
-
-var SCWF = function () {
-
-	var SoundCloudWaveform = {
-
-		settings : {
-			canvas_width: 1200,
-			canvas_height: 40,
-			bar_width: 2,
-			bar_gap : 0,
-			wave_color: "#1594FF",
-			download: false,
-			onComplete: function(png, pixels) {}
-		},
-
-		generate: function(src, options) {
-
-			// preparing canvas
-			this.settings.canvas = document.createElement('canvas');
-			this.settings.context = this.settings.canvas.getContext('2d');
-
-			this.settings.canvas.width = (options.canvas_width !== undefined) ? parseInt(options.canvas_width) : this.settings.canvas_width;
-			this.settings.canvas.height = (options.canvas_height !== undefined) ? parseInt(options.canvas_height) : this.settings.canvas_height;
-
-			// setting fill color
-			this.settings.wave_color = (options.wave_color !== undefined) ? options.wave_color : this.settings.wave_color;
-
-			// setting bars width and gap
-			this.settings.bar_width = (options.bar_width !== undefined) ? parseInt(options.bar_width) : this.settings.bar_width;
-			this.settings.bar_gap = (options.bar_gap !== undefined) ? parseFloat(options.bar_gap) : this.settings.bar_gap;
-
-			this.settings.download = (options.download !== undefined) ? options.download : this.settings.download;
-
-			this.settings.onComplete = (options.onComplete !== undefined) ? options.onComplete : this.settings.onComplete;
-
-			// read file buffer
-			/*var reader = new FileReader();
-	        reader.onload = function(event) {
-	            SoundCloudWaveform.audioContext.decodeAudioData(event.target.result, function(buffer) {
-	                SoundCloudWaveform.extractBuffer(buffer);
-	            });
-	        };
-	        reader.readAsArrayBuffer(file);*/
-	        var rawData = src.split(",")[1]; // cut off extra filetype/etc data
-	        var rawBuffer = Base64ArrayBuffer.decode(rawData);
-	        audioContext.decodeAudioData(rawBuffer, function (buffer) {
-	            if (!buffer) {
-	                console.error("failed to decode:", "buffer null");
-	                return;
-	            }
-	            SoundCloudWaveform.extractBuffer(buffer);
-	        }, function (error) {
-	            console.error("failed to decode:", error);
-	        });
-		},
-
-		extractBuffer: function(buffer) {
-		    buffer = buffer.getChannelData(0);
-		    var sections = this.settings.canvas.width;
-		    var len = Math.floor(buffer.length / sections);
-		    var maxHeight = this.settings.canvas.height;
-		    var vals = [];
-		    var lastval = 0;
-		    for (var i = 0; i < sections; i += this.settings.bar_width) {
-		    	var val = this.bufferMeasure(i * len, len, buffer) * 10000;
-		    	if(!isNaN(val)){
-		        	vals.push(val);
-		        	lastval = val;
-		        } else {
-		        	vals.push(lastval)
-		        }
-		    }
-
-		    for (var j = 0; j < sections; j += this.settings.bar_width) {
-		        var scale = maxHeight / vals.max();
-		        var val = this.bufferMeasure(j * len, len, buffer) * 10000;
-		        val *= scale;
-		        val += 1;
-		        this.drawBar(j, val);
-		    }
-
-		    if (this.settings.download) {
-		    	this.generateImage();
-		    }
-		    this.settings.onComplete(this.settings.canvas.toDataURL('image/png'), this.settings.context.getImageData(0, 0, this.settings.canvas.width, this.settings.canvas.height));
-		    // clear canvas for redrawing
-		    this.settings.context.clearRect(0, 0, this.settings.canvas.width, this.settings.canvas.height);
-	    },
-
-	    bufferMeasure: function(position, length, data) {
-	        var sum = 0.0;
-	        for (var i = position; i <= (position + length) - 1; i++) {
-	            sum += Math.pow(data[i], 2);
-	        }
-	        return Math.sqrt(sum / data.length);
-	    },
-
-	    drawBar: function(i, h) {
-
-	    	//if(isNaN(h)) h = Math.random()*50
-	    	//h = h * 5000;
-
-	    	this.settings.context.fillStyle = this.settings.wave_color;
-
-			var w = this.settings.bar_width;
-	        if (this.settings.bar_gap !== 0) {
-	            w *= Math.abs(1 - this.settings.bar_gap);
-	        }
-	        var x = i + (w / 2),
-	            y = this.settings.canvas.height/2 - h/2/1.5;
-
-
-	        this.settings.context.fillRect(x, y, w, h/1.5);
-	    },
-
-	    generateImage: function() {
-	    	var image = this.settings.canvas.toDataURL('image/png');
-
-	    	var link = document.createElement('a');
-	    	link.href = image;
-	    	link.setAttribute('download', '');
-	    	link.click();
-	    }
-	}
-
-	return SoundCloudWaveform;
-}
-
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
@@ -56713,6 +56713,17 @@ Wick.View.Project = class extends Wick.View {
     this._renderSVGCanvas();
 
     this._updateCanvasContainerBGColor();
+  }
+  /**
+   * Render all frames in the project to make sure everything is loaded correctly.
+   */
+
+
+  prerender() {
+    this.render();
+    this.model.getAllFrames().forEach(frame => {
+      frame.view.render();
+    });
   }
   /*
    * Resize the canvas to fit it's container div.

@@ -174,6 +174,16 @@ Wick.View.Project = class extends Wick.View {
         this._updateCanvasContainerBGColor();
     }
 
+    /**
+     * Render all frames in the project to make sure everything is loaded correctly.
+     */
+    prerender () {
+        this.render();
+        this.model.getAllFrames().forEach(frame => {
+            frame.view.render();
+        });
+    }
+
     /*
      * Resize the canvas to fit it's container div.
      * Resize is called automatically before each render, but you must call it if you manually change the size of the container div.

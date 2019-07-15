@@ -928,6 +928,7 @@ class EditorCore extends Component {
 
     this.projectDidChange();
     this.hideWaitOverlay();
+    this.project.view.prerender();
     this.project.view.render();
   }
 

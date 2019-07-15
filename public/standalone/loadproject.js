@@ -26,9 +26,11 @@ window.onload = function () {
             project.view.resize();
         }
         project.view.resize();
+        this.project.view.prerender();
 
         project.focus = project.root;
         project.focus.timeline.playheadPosition = 1;
+        
         project.play({
             onAfterTick: (() => {
                 project.view.render();
