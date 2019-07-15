@@ -61,10 +61,7 @@ Wick.View.Project = class extends Wick.View {
         super(model);
 
         this._fitMode = null;
-        this._renderMode = null;
-
         this.fitMode = 'center';
-        this.renderMode = 'svg';
 
         this._canvasContainer = null;
         this._canvasBGColor = null;
@@ -72,14 +69,8 @@ Wick.View.Project = class extends Wick.View {
         this._svgCanvas = null;
         this._svgBackgroundLayer = null;
 
-        this._webGLCanvas = null;
-        this._pixiRootContainer = null;
-
         this._pan = {x: 0, y: 0};
         this._zoom = 1;
-
-        this._keysDown = [];
-        this._isMouseDown = false;
     }
 
     /*
@@ -103,35 +94,10 @@ Wick.View.Project = class extends Wick.View {
     }
 
     /**
-     * The renderer to use.
-     * Options:
-     * - 'svg': Render the project as SVG, enables drawing tools, but decreases performance
-     * - 'webgl': Render the project using WebGL, this increases performance, but disables drawing tools.
-     */
-    get renderMode () {
-        return this._renderMode;
-    }
-
-    set renderMode (renderMode) {
-        if(Wick.View.Project.VALID_RENDER_MODES.indexOf(renderMode) === -1) {
-            console.error("Invalid renderMode: " + renderMode);
-            console.error("Supported renderModes: " + Wick.View.Project.VALID_RENDER_MODES.join(','));
-        } else {
-            this._renderMode = renderMode;
-        }
-    }
-
-    /**
      * The current canvas being rendered to.
      */
     get canvas () {
-        if(this.renderMode === 'webgl') {
-            return this._webGLCanvas;
-        } else if (this.renderMode === 'svg') {
-            return this._svgCanvas;
-        } else {
-            console.error('No canvas for renderMode: ' + this.renderMode);
-        }
+        return this._svgCanvas;
     }
 
     /**
@@ -200,26 +166,22 @@ Wick.View.Project = class extends Wick.View {
         this.zoom = this.model.zoom;
         this.pan = this.model.pan;
 
-        if(this.renderMode === 'webgl') {
-            this._buildWebGLCanvas();
-            this._displayCanvasInContainer(this._webGLCanvas);
-            this.resize();
-            this._renderWebGLCanvas();
-        } else if (this.renderMode === 'svg') {
-            this._buildSVGCanvas();
-            this._displayCanvasInContainer(this._svgCanvas);
-            this.resize();
-            this._renderSVGCanvas();
-        }
+        this._buildSVGCanvas();
+        this._displayCanvasInContainer(this._svgCanvas);
+        this.resize();
+        this._renderSVGCanvas();
+
         this._updateCanvasContainerBGColor();
     }
 
     /**
-     *
+     * Render all frames in the project to make sure everything is loaded correctly.
      */
-    processInput () {
-        this.model.keysDown = this._keysDown;
-        this.model.isMouseDown = this._isMouseDown;
+    prerender () {
+        this.render();
+        this.model.getAllFrames().forEach(frame => {
+            frame.view.render();
+        });
     }
 
     /*
@@ -232,60 +194,19 @@ Wick.View.Project = class extends Wick.View {
         var containerWidth = this.canvasContainer.offsetWidth;
         var containerHeight = this.canvasContainer.offsetHeight;
 
-        if(this._renderMode === 'svg' && this._svgCanvas) {
-            this.paper.view.viewSize.width = containerWidth;
-            this.paper.view.viewSize.height = containerHeight;
-        } else if (this._renderMode === 'webgl' && this._webGLCanvas) {
-            this._pixiApp.renderer.resize(containerWidth, containerHeight);
-        }
+        this.paper.view.viewSize.width = containerWidth;
+        this.paper.view.viewSize.height = containerHeight;
     }
 
     /**
      * Write the SVG data in the view to the project.
      */
     applyChanges () {
-        if(this.renderMode !== 'svg') return;
-
         this.model.selection.view.applyChanges();
 
         this.model.focus.timeline.activeFrames.forEach(frame => {
             frame.view.applyChanges();
         });
-    }
-
-    /**
-     * Rasterizes all the SVGs in the project.
-     * Use this before rendering a project if you want to make sure all SVGs will show up immediately in the WebGL renderer.
-     */
-    prerasterize (done) {
-        var loadedFrames = [];
-        var allFrames = this.model.getAllFrames().filter(frame => {
-            return frame.paths.length > 0;
-        });
-
-        function rasterizeNextFrame () {
-            if(allFrames.length === 0) {
-                done();
-                return;
-            }
-
-            var frame = allFrames.pop();
-            frame.view.onFinishRasterize(() => {
-                rasterizeNextFrame();
-            });
-            frame.view.rasterize();
-        }
-
-        rasterizeNextFrame();
-    }
-
-    /**
-     * Destroy the renderer. Call this when the view will no longer be used to save memory/webgl contexts.
-     */
-    destroy () {
-        if(this._pixiApp) {
-            this._pixiApp.destroy();
-        }
     }
 
     _setupTools () {
@@ -456,112 +377,6 @@ Wick.View.Project = class extends Wick.View {
         return originCrosshair;
     }
 
-    _buildWebGLCanvas () {
-        if(this._pixiApp) return;
-
-        // Create the PIXI.js application
-        this._pixiApp = new PIXI.Application({
-           autoStart: false,
-           transparent: true,
-        });
-        this._pixiApp.ticker.stop();
-
-        // Create the PIXI stage that we'll add things to render // TODO:
-        this._pixiRootContainer = new PIXI.Container();
-
-        // Get the canvas from the PIXI app
-        this._webGLCanvas = this._pixiApp.view;
-
-        // Attach input handlers
-        this._attachKeyListeners();
-        this._attachMouseListeners();
-    }
-
-    _renderWebGLCanvas () {
-        // Calculate pan and zoom
-        var zoom = this._zoom;
-        var pan = {
-            x: this.pan.x,
-            y: this.pan.y
-        };
-        if(!this.model.focus.isRoot) {
-            pan.x += this.model.width / 2;
-            pan.y += this.model.height / 2;
-        }
-
-        if (this._fitMode === 'fill') {
-            // Change pan/zoom if needed depending on fit mode
-            zoom = this._calculateFitZoom();
-            pan.x = 0;
-            pan.y = 0;
-        }
-
-        // Reset cursor (button views will change the cursor style if the mouse is over a button)
-        this._webGLCanvas.style.cursor = 'default';
-        this._pixiRootContainer.removeChildren();
-
-        // Set zoom and pan in Pixi
-        this._pixiRootContainer.pivot = new PIXI.Point(this.model.width/2, this.model.height/2);
-        this._pixiRootContainer.scale.x = zoom;
-        this._pixiRootContainer.scale.y = zoom;
-        this._pixiRootContainer.x = pan.x*zoom + this._pixiApp.renderer.width/2;
-        this._pixiRootContainer.y = pan.y*zoom + this._pixiApp.renderer.height/2;
-
-        // Update mouse position (and adjust based on fit mode)
-        var pixiMouse = this._pixiApp.renderer.plugins.interaction.mouse.getLocalPosition(this._pixiRootContainer);
-        this.model.mousePosition = {
-            x: pixiMouse.x,
-            y: pixiMouse.y,
-        };
-
-        if(this.model.focus.isRoot) {
-            // We're in the root timeline, render the canvas normally
-            this._pixiRootContainer.addChild(this._generateWebGLCanvasStage());
-        } else {
-            // We're inside a clip, don't render the canvas BG, instead render a crosshair at (0,0)
-            this._pixiRootContainer.addChild(this._generateWebGLOriginCrosshair());
-        }
-
-        // Add active frame containers
-        this.model.focus.timeline.view.render();
-        this.model.focus.timeline.view.activeFrameContainers.forEach(container => {
-            this._pixiRootContainer.addChild(container);
-        });
-
-        // Render Pixi
-        this._pixiApp.ticker.update(1);
-        this._pixiApp.renderer.render(this._pixiRootContainer);
-    }
-
-    _generateWebGLCanvasStage () {
-        let graphics = new PIXI.Graphics();
-        graphics._wickDebugData = {type: 'canvas_stage'};
-
-        graphics.beginFill(this._convertCSSColorToPixiColor(this.model.backgroundColor));
-        graphics.drawRect(0, 0, this.model.width, this.model.height);
-
-        return graphics;
-    }
-
-    _generateWebGLOriginCrosshair () {
-        let graphics = new PIXI.Graphics();
-        graphics._wickDebugData = {type: 'origin_crosshair'};
-
-        // crosshair style
-        var pixiColor = this._convertCSSColorToPixiColor(Wick.View.Project.ORIGIN_CROSSHAIR_COLOR);
-        graphics.lineStyle(Wick.View.Project.ORIGIN_CROSSHAIR_THICKNESS, pixiColor);
-
-        // vertical line
-        graphics.moveTo(0, -Wick.View.Project.ORIGIN_CROSSHAIR_SIZE)
-                .lineTo(0, Wick.View.Project.ORIGIN_CROSSHAIR_SIZE)
-
-        // horizontal line
-        graphics.moveTo(-Wick.View.Project.ORIGIN_CROSSHAIR_SIZE, 0)
-                .lineTo(Wick.View.Project.ORIGIN_CROSSHAIR_SIZE, 0);
-
-        return graphics;
-    }
-
     _getCenteredPan () {
         if(this.model.focus.isRoot) {
             return {
@@ -576,71 +391,17 @@ Wick.View.Project = class extends Wick.View {
         }
     }
 
-    _convertCSSColorToPixiColor (cssColor) {
-        cssColor = new paper.Color(cssColor).toCSS(true);
-        return parseInt(cssColor.replace("#", "0x"))
-    }
-
     _calculateFitZoom () {
         var w = 0;
         var h = 0;
 
-        if(this._renderMode === 'svg') {
-            w = this.paper.view.viewSize.width;
-            h = this.paper.view.viewSize.height;
-        } else if (this._renderMode === 'webgl') {
-            w = this._pixiApp.renderer.width;
-            h = this._pixiApp.renderer.height;
-        }
+        w = this.paper.view.viewSize.width;
+        h = this.paper.view.viewSize.height;
 
         var wr = w / this.model.width;
         var hr = h / this.model.height;
 
         return Math.min(wr, hr);
-    }
-
-    _attachKeyListeners () {
-        window.onkeydown = this._onKeyDown.bind(this);
-        window.onkeyup = this._onKeyUp.bind(this);
-    }
-
-    _detachKeyListeners () {
-
-    }
-
-    _cleanKeyName (keyString) {
-        return keyString.toLowerCase().replace("arrow", "");
-    }
-
-    _onKeyDown (e) {
-        let cleanKey = this._cleanKeyName(e.key);
-        if(this._keysDown.indexOf(cleanKey) === -1) {
-            this._keysDown.push(cleanKey);
-        }
-    }
-
-    _onKeyUp (e) {
-        let cleanKey = this._cleanKeyName(e.key);
-        this._keysDown = this._keysDown.filter(key => {
-            return key !== cleanKey;
-        });
-    }
-
-    _attachMouseListeners () {
-        window.onmousedown = () => {
-            this._onMouseDown();
-        };
-        window.onmouseup = () => {
-            this._onMouseUp();
-        };
-    }
-
-    _onMouseDown () {
-        this._isMouseDown = true;
-    }
-
-    _onMouseUp () {
-        this._isMouseDown = false;
     }
 
     _applyZoomAndPanChangesFromPaper () {
@@ -661,13 +422,5 @@ Wick.View.Project = class extends Wick.View {
 
         this.zoom = this.paper.view.zoom;
         this.model.zoom = this.zoom;
-    }
-
-    _uuidsAreDifferent (uuids1, uuids2) {
-        //https://stackoverflow.com/questions/31128855/comparing-ecma6-sets-for-equality
-        var a = new Set(uuids1);
-        var b = new Set(uuids2);
-        var isSetsEqual = (a, b) => a.size === b.size && [...a].every(value => b.has(value));
-        return !isSetsEqual(a,b);
     }
 }

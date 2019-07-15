@@ -56,8 +56,21 @@ describe('Wick.Button', function() {
             var button = new Wick.Button();
             project.activeFrame.addClip(button);
             button.timeline.addLayer(new Wick.Layer());
-            button.activeLayer.addFrame(new Wick.Frame({start:1}));
-            button.activeLayer.addFrame(new Wick.Frame({start:2}));
+            var frame1 = new Wick.Frame({start:1})
+            var frame2 = new Wick.Frame({start:2})
+            button.activeLayer.addFrame(frame1);
+            button.activeLayer.addFrame(frame2);
+
+            frame1.addPath(TestUtils.paperToWickPath(new paper.Path.Rectangle({
+                from: [50, 50],
+                to: [100, 100],
+                fillColor: 'black'
+            })));
+            frame2.addPath(TestUtils.paperToWickPath(new paper.Path.Rectangle({
+                from: [50, 50],
+                to: [100, 100],
+                fillColor: 'black'
+            })));
 
             // Nothing happened yet, button is on frame 1.
             project.tick();
@@ -65,32 +78,32 @@ describe('Wick.Button', function() {
 
             // Hover the mouse over the button. The button should be on frame 2.
             // (We change the mouseState of the view to simulate mouse events.)
-            button.view._mouseState = 'over';
+            project.tools.interact.onMouseMove({point:new paper.Point(50,50)});
             project.tick();
             expect(button.timeline.playheadPosition).to.equal(2);
             project.tick();
             expect(button.timeline.playheadPosition).to.equal(2);
 
             // The mouse left the button. Tht button goes back to frame 1.
-            button.view._mouseState = 'out';
+            project.tools.interact.onMouseMove({point:new paper.Point(0,0)});
             project.tick();
             expect(button.timeline.playheadPosition).to.equal(1);
 
             // The mouse hovers back over the button and clicks it. The button should go to frame 2.
-            button.view._mouseState = 'over';
+            project.tools.interact.onMouseMove({point:new paper.Point(50,50)});
             project.tick();
             expect(button.timeline.playheadPosition).to.equal(2);
-            button.view._mouseState = 'down';
+            project.tools.interact.onMouseDown();
             project.tick();
             expect(button.timeline.playheadPosition).to.equal(2);
 
             // The mouse is no longer down. The button should go back to frame 2.
-            button.view._mouseState = 'over';
+            project.tools.interact.onMouseUp();
             project.tick();
             expect(button.timeline.playheadPosition).to.equal(2);
 
             // The mouse left the button. The button should go back to frame 1.
-            button.view._mouseState = 'out';
+            project.tools.interact.onMouseMove({point:new paper.Point(0,0)});
             project.tick();
             expect(button.timeline.playheadPosition).to.equal(1);
         });
@@ -101,41 +114,61 @@ describe('Wick.Button', function() {
             var button = new Wick.Button();
             project.activeFrame.addClip(button);
             button.timeline.addLayer(new Wick.Layer());
-            button.activeLayer.addFrame(new Wick.Frame({start:1}));
-            button.activeLayer.addFrame(new Wick.Frame({start:2}));
-            button.activeLayer.addFrame(new Wick.Frame({start:3}));
+            var frame1 = new Wick.Frame({start:1})
+            var frame2 = new Wick.Frame({start:2})
+            var frame3 = new Wick.Frame({start:3})
+            button.activeLayer.addFrame(frame1);
+            button.activeLayer.addFrame(frame2);
+            button.activeLayer.addFrame(frame3);
+
+            frame1.addPath(TestUtils.paperToWickPath(new paper.Path.Rectangle({
+                from: [50, 50],
+                to: [100, 100],
+                fillColor: 'black'
+            })));
+            frame2.addPath(TestUtils.paperToWickPath(new paper.Path.Rectangle({
+                from: [50, 50],
+                to: [100, 100],
+                fillColor: 'black'
+            })));
+            frame3.addPath(TestUtils.paperToWickPath(new paper.Path.Rectangle({
+                from: [50, 50],
+                to: [100, 100],
+                fillColor: 'black'
+            })));
 
             // Nothing happened yet, button is on frame 1.
             project.tick();
             expect(button.timeline.playheadPosition).to.equal(1);
 
             // Hover the mouse over the button. The button should be on frame 2.
-            button.view._mouseState = 'over';
+            project.tools.interact.onMouseMove({point: new paper.Point(50,50)});
             project.tick();
             expect(button.timeline.playheadPosition).to.equal(2);
             project.tick();
             expect(button.timeline.playheadPosition).to.equal(2);
 
             // The mouse left the button. Tht button goes back to frame 1.
-            button.view._mouseState = 'out';
+            project.tools.interact.onMouseMove({point:new paper.Point(0,0)});
             project.tick();
             expect(button.timeline.playheadPosition).to.equal(1);
 
             // The mouse hovers back over the button and clicks it. The button should go to frame 2, and then frame 3.
-            button.view._mouseState = 'over';
+            project.tools.interact.onMouseMove({point:new paper.Point(50,50)});
             project.tick();
             expect(button.timeline.playheadPosition).to.equal(2);
-            button.view._mouseState = 'down';
+            project.tools.interact.onMouseMove({point:new paper.Point(50,50)});
+            project.tools.interact.onMouseDown();
             project.tick();
             expect(button.timeline.playheadPosition).to.equal(3);
 
             // The mouse is no longer down. The button should go back to frame 2.
-            button.view._mouseState = 'over';
+            project.tools.interact.onMouseUp();
             project.tick();
             expect(button.timeline.playheadPosition).to.equal(2);
 
             // The mouse left the button. The button should go back to frame 1.
-            button.view._mouseState = 'out';
+            project.tools.interact.onMouseMove({point:new paper.Point(0,0)});
             project.tick();
             expect(button.timeline.playheadPosition).to.equal(1);
         });
@@ -151,27 +184,41 @@ describe('Wick.Button', function() {
             button.activeLayer.addFrame(frame3);
             project.activeFrame.addClip(button);
 
+            frame1.addPath(TestUtils.paperToWickPath(new paper.Path.Rectangle({
+                from: [50, 50],
+                to: [100, 100],
+                fillColor: 'black'
+            })));
+            frame2.addPath(TestUtils.paperToWickPath(new paper.Path.Rectangle({
+                from: [50, 50],
+                to: [100, 100],
+                fillColor: 'black'
+            })));
+            frame3.addPath(TestUtils.paperToWickPath(new paper.Path.Rectangle({
+                from: [50, 50],
+                to: [100, 100],
+                fillColor: 'black'
+            })));
+
             frame1.addScript('load', 'this.__frame1ScriptRan = true;');
             frame2.addScript('load', 'this.__frame2ScriptRan = true;');
             frame3.addScript('load', 'this.__frame3ScriptRan = true;');
 
-            button.view._mouseState = 'out';
+            project.tools.interact.onMouseMove({point: new paper.Point(0,0)});
             project.tick();
             expect(button.timeline.playheadPosition).to.equal(1);
             expect(frame1.parentClip.__frame1ScriptRan).to.equal(true);
             expect(frame2.parentClip.__frame2ScriptRan).to.equal(undefined);
             expect(frame3.parentClip.__frame3ScriptRan).to.equal(undefined);
 
-            button.view._mouseState = 'over';
+            project.tools.interact.onMouseMove({point: new paper.Point(50,50)});
             project.tick();
-            //project.tick();
             expect(button.timeline.playheadPosition).to.equal(2);
             expect(frame2.parentClip.__frame2ScriptRan).to.equal(true);
             expect(frame3.parentClip.__frame3ScriptRan).to.equal(undefined);
 
-            button.view._mouseState = 'down';
+            project.tools.interact.onMouseDown();
             project.tick();
-            //project.tick();
             expect(button.timeline.playheadPosition).to.equal(3);
             expect(frame3.parentClip.__frame3ScriptRan).to.equal(true);
         });

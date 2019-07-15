@@ -267,4 +267,32 @@ describe('Wick.History', function() {
 
         expect(project.redo()).to.equal(false);
     });
+
+    it('numUndoStates should work correctly', function () {
+        var project = new Wick.Project();
+        expect(project.history.numUndoStates).to.equal(1);
+        project.history.pushState();
+        expect(project.history.numUndoStates).to.equal(2);
+        project.history.pushState();
+        expect(project.history.numUndoStates).to.equal(3);
+        project.history.pushState();
+        expect(project.history.numUndoStates).to.equal(4);
+    });
+
+    it('numRedoStates should work correctly', function () {
+        var project = new Wick.Project();
+        expect(project.history.numRedoStates).to.equal(0);
+        project.history.pushState();
+        expect(project.history.numRedoStates).to.equal(0);
+        project.history.pushState();
+        expect(project.history.numRedoStates).to.equal(0);
+        project.history.pushState();
+        expect(project.history.numRedoStates).to.equal(0);
+        project.undo();
+        expect(project.history.numRedoStates).to.equal(1);
+        project.undo();
+        expect(project.history.numRedoStates).to.equal(2);
+        project.undo();
+        expect(project.history.numRedoStates).to.equal(3);
+    });
 });
