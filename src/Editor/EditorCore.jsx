@@ -39,7 +39,7 @@ class EditorCore extends Component {
    */
   setActiveTool = (newTool) => {
     if(newTool !== this.getActiveTool().name) {
-      if(newTool !== 'pan') {
+      if(newTool !== 'pan' && newTool !== 'eyedropper') {
         this.project.selection.clear();
       }
 
