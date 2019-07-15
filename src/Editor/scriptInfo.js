@@ -163,6 +163,15 @@ class ScriptInfoInterface extends Object {
                     returns: [{type: 'bool', description: 'Returns true if the given object intersects this object.'}],
                     deprecated: true,
                 },
+                {
+                    name: 'if (hitTest)',
+                    snippet: 'if (this.hitTest(that)) {\n // Add your code here! \n}\n',
+                    description: 'Runs some custom code when the two objects tested are hitting each other.',
+                    param: [{name: 'that', type: '{string}'}],
+                    returns: [{type: 'bool', description: 'Returns true if the given object intersects this object.'}],
+                    deprecated: true,
+                },
+
             ]
         );
     }
@@ -280,6 +289,11 @@ class ScriptInfoInterface extends Object {
                     description: 'Returns true if the given key was pressed within the last tick.',
                     param: [{name: 'key', type: '{string}'}],
                     returns: [{type: 'bool', description: 'True if passed key was pressed in the last frame.'}],
+                },
+                {
+                    name: 'if (key)',
+                    snippet: 'if (key === "a" ) {\n // Add your code here. \n}\n',
+                    description: 'Runs if the last key pressed is equal to the letter, or symbol, tested in the condition.',
                 },
             ]
         );

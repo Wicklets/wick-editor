@@ -37,6 +37,7 @@ import iconUndo from 'resources/toolbar-icons/undo.svg';
 import iconRedo from 'resources/toolbar-icons/redo.svg';
 import iconCopy from 'resources/toolbar-icons/copy.svg';
 import iconPaste from 'resources/toolbar-icons/paste.svg';
+import iconMoreActions from 'resources/toolbar-icons/moreactions.svg';
 
 import iconPan from 'resources/tool-icons/pan.svg';
 import iconZoom from 'resources/tool-icons/zoom.svg';
@@ -195,6 +196,7 @@ class ToolIcon extends Component {
       "warningdelete": iconWarningDelete, 
       "tween": iconTween, 
       "font": iconFont,
+      "moreactions": iconMoreActions,
     }
   }
 

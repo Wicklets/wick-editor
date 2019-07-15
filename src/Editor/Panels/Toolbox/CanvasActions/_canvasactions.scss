@@ -3,14 +3,15 @@
 $canvas-action-size: 35px;
 
 .more-canvas-actions-popover {
-  background-color: $editor-primary-outline;
+  background-color: $editor-primary;
+  border: 2px solid $editor-primary-outline;
 }
 
 .canvas-actions-widget {
   height: $canvas-action-size;
   display: flex;
   align-items: center;
-  margin: 4px;
+  margin: 1px;
 }
 
 .actions-container {

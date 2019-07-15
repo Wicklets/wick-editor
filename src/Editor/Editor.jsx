@@ -68,6 +68,7 @@ class Editor extends EditorCore {
       activeModalQueue: [],
       codeEditorOpen: false,
       scriptToEdit: "default",
+      showCanvasActions: false,
       codeErrors: [],
       inspectorSize: 250,
       timelineSize: 175,
@@ -375,15 +376,29 @@ class Editor extends EditorCore {
 
   /**
    * Opens and closes the code editor depending on the state of the codeEditor.
-   * @param {boolean} state - Optional. If set to true or false, with set codeEditorOpen to that value.
+   * @param {boolean} state - Optional. True will open the code editor, false will close.
    */
   toggleCodeEditor = (state) => {
-    if (state === undefined) {
+    if (state === undefined || (typeof variable !== "boolean")) {
       state = !this.state.codeEditorOpen;
     }
 
     this.setState({
       codeEditorOpen: state,
+    });
+  }
+
+  /**
+   * Opens and closes the canvas actions popover.
+   * @param {boolean} state - Optional. True will open the canvas actions menu, false will close.
+   */
+  toggleCanvasActions = (state) => {
+    if (state === undefined || (typeof variable !== "boolean")) {
+      state = !this.state.showCanvasActions;
+    }
+
+    this.setState({
+      showCanvasActions: state,
     });
   }
 
@@ -619,6 +634,8 @@ class Editor extends EditorCore {
                                 previewPlaying={this.state.previewPlaying}
                                 editorActions={this.actionMapInterface.editorActions}
                                 getToolSettingRestrictions={this.getToolSettingRestrictions}
+                                showCanvasActions={this.state.showCanvasActions}
+                                toggleCanvasActions={this.toggleCanvasActions}
                               />
 
                             </DockedPanel>
