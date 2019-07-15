@@ -140,6 +140,20 @@ Wick.Tool = class {
     }
 
     /**
+     * Called when a key is pressed and this is the active tool.
+     */
+    onKeyDown (e) {
+
+    }
+
+    /**
+     * Called when a key is released and this is the active tool.
+     */
+    onKeyUp (e) {
+
+    }
+
+    /**
      * Activates this tool in paper.js.
      */
     activate () {
