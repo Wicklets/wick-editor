@@ -139,6 +139,11 @@ class Editor extends EditorCore {
 
     // Leave Page warning.
     window.onbeforeunload = function(event) {
+      // Don't show the warning if nothing has been done to the project
+      if(this.project.numUndoStates > 1) {
+          return null;
+      }
+
       var confirmationMessage = 'Warning: All unsaved changes will be lost!';
       (event || window.event).returnValue = confirmationMessage; //Gecko + IE
       return confirmationMessage; //Gecko + Webkit, Safari, Chrome etc.

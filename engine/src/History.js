@@ -85,7 +85,6 @@ Wick.History = class {
         return true;
     }
 
-
     /**
      *
      * @param {string} name - the name of the snapshot
@@ -101,6 +100,22 @@ Wick.History = class {
      */
     loadSnapshot (name) {
         this._recoverState(this._snapshots[name]);
+    }
+
+    /**
+     * The number of states currently stored for undoing.
+     * @type {number}
+     */
+    get numUndoStates () {
+        return this._undoStack.length;
+    }
+
+    /**
+     * The number of states currently stored for redoing.
+     * @type {number}
+     */
+    get numRedoStates () {
+        return this._redoStack.length;
     }
 
     // NOTE: State saving/recovery can be greatly optimized by only saving the state of the things that were actually changed.
