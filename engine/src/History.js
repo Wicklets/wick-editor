@@ -23,12 +23,20 @@
 Wick.History = class {
     /**
      *
+     * @type {boolean}
+     */
+    static get VERBOSE () {
+        return true;
+    }
+
+    /**
+     * An Enum of all types of state saves.
      */
     static get StateType () {
         return {
-            ALL_OBJECTS: 0,
-            ALL_OBJECTS_WITHOUT_PATHS: 1,
-            ONLY_VISIBLE_OBJECTS: 2,
+            ALL_OBJECTS: 1,
+            ALL_OBJECTS_WITHOUT_PATHS: 2,
+            ONLY_VISIBLE_OBJECTS: 3,
         };
     }
 
@@ -137,6 +145,10 @@ Wick.History = class {
             return;
         }
 
+        if(Wick.History.VERBOSE) {
+            console.log('Wick.History._generateState: Serialized ' + objects.length + ' objects using mode=' + stateType);
+        }
+
         return objects.map(object => {
             return object.serialize();
         });
@@ -167,6 +179,11 @@ Wick.History = class {
 
         // the project itself (for focus, options, etc)
         stateObjects.push(this.project);
+
+        // the assets in the project
+        this.project.getAssets().forEach(asset => {
+            stateObjects.push(asset);
+        });
 
         // the focused clip
         stateObjects.push(this.project.focus);

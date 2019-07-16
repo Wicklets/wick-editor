@@ -445,7 +445,7 @@ class Editor extends EditorCore {
 
     // Save state to history if needed
     if(!options.skipHistory) {
-      this.project.history.pushState();
+      this.project.history.pushState(window.Wick.History.StateType.ONLY_VISIBLE_OBJECTS);
     }
 
     // Render engine
