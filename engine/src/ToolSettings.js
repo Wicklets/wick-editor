@@ -51,7 +51,7 @@ Wick.ToolSettings = class {
             step: 1,
         }, {
             name: 'brushStabilizerWeight',
-            default: 0,
+            default: 20,
             min: 0,
             max: 100,
             step: 1,
