@@ -44,8 +44,20 @@ Wick.Tools.None = class extends Wick.Tool {
     }
 
     onMouseDown (e) {
+        var message = '';
+
+        if(!this.project.activeFrame) {
+            message = 'CLICK_NOT_ALLOWED_NO_FRAME';
+        } else if (this.project.activeLayer.locked) {
+            message = 'CLICK_NOT_ALLOWED_LAYER_LOCKED';
+        } else if (this.project.activeLayer.hidden) {
+            message = 'CLICK_NOT_ALLOWED_LAYER_HIDDEN';
+        } else {
+           return;
+        }
+
         this.fireEvent('error', {
-            message: 'CLICK_NOT_ALLOWED',
+            message: message,
         });
     }
 

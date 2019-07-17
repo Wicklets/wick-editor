@@ -60,14 +60,12 @@ class Canvas extends Component {
         this.props.toast('The shape you are trying to fill has a gap.', 'warning');
       } else if (e.message === 'NO_PATHS') {
         this.props.toast('There is no hole to fill.', 'warning');
-      } else if (e.message === 'CLICK_NOT_ALLOWED') {
-        if (this.props.project.activeLayer.locked) {
-          this.props.toast('The layer you are trying to draw onto is locked.', 'warning');
-        } else if (this.props.project.activeLayer.hidden) {
-          this.props.toast('The layer you are trying to draw onto is hidden.', 'warning');
-        } else if(!this.props.project.activeFrame) {
-          this.props.toast('There is no frame to draw onto.', 'warning');
-        }
+      } else if (e.message === 'CLICK_NOT_ALLOWED_LAYER_LOCKED') {
+        this.props.toast('The layer you are trying to draw onto is locked.', 'warning');
+      } else if (e.message === 'CLICK_NOT_ALLOWED_LAYER_HIDDEN') {
+        this.props.toast('The layer you are trying to draw onto is hidden.', 'warning');
+      } else if (e.message === 'CLICK_NOT_ALLOWED_NO_FRAME') {
+        this.props.toast('There is no frame to draw onto.', 'warning');
       } else {
         this.props.toast('There was an error while drawing.', 'warning');
       }
