@@ -53,7 +53,7 @@ Wick.View.Path = class extends Wick.View {
      * @param {object} json - Data for the path created with paper.js exportJSON({asString:false})
      */
     importJSON (json) {
-        if(this.model.project && !this.model.project.view.paper.view.autoUpdate) return;
+        if(this.model.project && this.model.project.playing) return;
 
         // Don't try to render rasters if there's no project attached - too dangerous!
         // (asset image sources may not be able to be retrieved)

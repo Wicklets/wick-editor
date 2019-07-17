@@ -43,6 +43,10 @@ Wick.Tools.Pencil = class extends Wick.Tool {
         return 'url(cursors/pencil.png) 32 32, auto';
     }
 
+    get isDrawingTool () {
+        return true;
+    }
+
     onActivate (e) {
 
     }

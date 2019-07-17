@@ -97,6 +97,8 @@ Wick.Project = class extends Wick.Base {
             }
         });
 
+        this._playing = false;
+
         this.history.project = this;
         this.history.pushState(Wick.History.StateType.ONLY_VISIBLE_OBJECTS);
     }
@@ -777,6 +779,14 @@ Wick.Project = class extends Wick.Base {
     }
 
     /**
+     * Checks if the project is currently playing.
+     * @type {boolean}
+     */
+    get playing () {
+        return this._playing;
+    }
+
+    /**
      * Start playing the project.
      * Arguments: onError: Called when a script error occurs during a tick.
      *            onBeforeTick: Called before every tick
@@ -789,6 +799,7 @@ Wick.Project = class extends Wick.Base {
         if(!args.onBeforeTick) args.onBeforeTick = () => {};
         if(!args.onAfterTick) args.onAfterTick = () => {};
 
+        this._playing = true;
         this.view.paper.view.autoUpdate = false;
 
         if(this._tickIntervalID) {
@@ -798,7 +809,6 @@ Wick.Project = class extends Wick.Base {
         this.history.saveSnapshot('state-before-play');
 
         this.selection.clear();
-        this.activeTool = 'interact';
 
         // Start tick loop
         this._tickIntervalID = setInterval(() => {
@@ -820,6 +830,7 @@ Wick.Project = class extends Wick.Base {
      * Stop playing the project.
      */
     stop () {
+        this._playing = false;
         this.view.paper.view.autoUpdate = true;
 
         // Run unload scripts on all objects
@@ -1013,7 +1024,18 @@ Wick.Project = class extends Wick.Base {
         callback(sounds);
     }
 
+    /**
+     *
+     */
     objectIsMouseTarget (object) {
         return this._mouseTargets.indexOf(object) !== -1;
+    }
+
+    /**
+     * Returns true if there is currently an active frame to draw onto.
+     * @type {boolean}
+     */
+    get canDraw () {
+        return this.activeFrame !== undefined && !this.activeLayer.locked && !this.activeLayer.hidden;
     }
 }

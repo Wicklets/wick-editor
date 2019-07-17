@@ -38,6 +38,10 @@ Wick.Tools.Text = class extends Wick.Tool {
         return 'text';
     }
 
+    get isDrawingTool () {
+        return true;
+    }
+
     onActivate (e) {
 
     }
