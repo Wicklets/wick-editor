@@ -18,6 +18,7 @@ class CanvasTransforms extends Component {
         tooltipPlace={"top"}
         icon={options.name}
         className={classNames("canvas-transform-button", options.className)}
+        buttonClassName={"canvas-transform-wick-button"}
         iconClassName="canvas-transform-icon"
         />
     );
@@ -33,15 +34,15 @@ class CanvasTransforms extends Component {
           className:'canvas-transform-item onion-skin-button',
           isActive:(() => {return this.props.onionSkinEnabled}),
         })}
-        {this.renderZoomIn()}
-        {this.renderZoomTool()}
-        {this.renderZoomOut()}
         {this.renderTransformButton({
           action: (() => this.props.setActiveTool('pan')),
           name: 'pan',
           tooltip: 'Pan',
           className:'canvas-transform-item'
         })}
+        {this.renderZoomIn()}
+        {this.renderZoomTool()}
+        {this.renderZoomOut()}
         {this.renderTransformButton({
           action: (this.props.recenterCanvas),
           name: 'recenter',
@@ -71,7 +72,7 @@ class CanvasTransforms extends Component {
           action: () => this.props.zoomIn(),
           name: 'zoomin',
           tooltip: 'Zoom In',
-          className: 'thin-transform-button'});
+          className: 'thin-transform-button zoom-in-button'});
   }
 
   renderZoomOut = () => {
@@ -79,7 +80,7 @@ class CanvasTransforms extends Component {
         action: () => this.props.zoomOut(),
         name: 'zoomout',
         tooltip: 'Zoom Out',
-        className: 'thin-transform-button',
+        className: 'thin-transform-button zoom-out-button',
       });
   }
 
