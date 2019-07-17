@@ -26,7 +26,7 @@ Wick.History = class {
      * @type {boolean}
      */
     static get VERBOSE () {
-        return true;
+        return false;
     }
 
     /**
