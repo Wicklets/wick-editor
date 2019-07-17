@@ -3,7 +3,8 @@
 $canvas-action-size: 35px;
 
 .more-canvas-actions-popover {
-  background-color: $editor-primary-outline;
+  background-color: $editor-primary;
+  border: 2px solid $editor-primary-outline;
 }
 
 .canvas-actions-widget {

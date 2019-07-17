@@ -139,6 +139,11 @@ class Editor extends EditorCore {
 
     // Leave Page warning.
     window.onbeforeunload = function(event) {
+      // Don't show the warning if nothing has been done to the project
+      if(this.project.numUndoStates > 1) {
+          return null;
+      }
+
       var confirmationMessage = 'Warning: All unsaved changes will be lost!';
       (event || window.event).returnValue = confirmationMessage; //Gecko + IE
       return confirmationMessage; //Gecko + Webkit, Safari, Chrome etc.
@@ -160,7 +165,7 @@ class Editor extends EditorCore {
           this.stopPreviewPlaying([error])
         },
         onAfterTick: () => {
-          this.project.view.render();
+          //this.project.view.render();
           this.project.activeTimeline.guiElement.numberLine.playhead.build();
         },
         onBeforeTick: () => {
@@ -440,14 +445,8 @@ class Editor extends EditorCore {
 
     // Save state to history if needed
     if(!options.skipHistory) {
-      this.project.history.pushState();
+      this.project.history.pushState(window.Wick.History.StateType.ONLY_VISIBLE_OBJECTS);
     }
-
-    // The current frame was probably changed in some way, so make sure the WebGL
-    // canvas renders the new frame and not an old cached version of it.
-    this.project.activeFrames.forEach(frame => {
-      frame.view.clearRasterCache();
-    });
 
     // Render engine
     this.project.view.render();

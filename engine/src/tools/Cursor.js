@@ -227,7 +227,10 @@ Wick.Tools.Cursor = class extends Wick.Tool {
             this.selectionBox.mode = e.modifiers.alt ? 'contains' : 'intersects';
             this.selectionBox.end(e.point);
 
-            this._selection.clear();
+            if(!e.modifiers.shift) {
+                this._selection.clear();
+            }
+
             this.selectionBox.items.filter(item => {
                 return item.data.wickUUID;
             }).forEach(item => {

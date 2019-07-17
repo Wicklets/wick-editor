@@ -39,7 +39,7 @@ class EditorCore extends Component {
    */
   setActiveTool = (newTool) => {
     if(newTool !== this.getActiveTool().name) {
-      if(newTool !== 'pan') {
+      if(newTool !== 'pan' && newTool !== 'eyedropper') {
         this.project.selection.clear();
       }
 
@@ -507,8 +507,20 @@ class EditorCore extends Component {
   /**
    * Creates a new clip from the selected paths and clips and adds it to the project.
    * @param {string} name The name of the clip after creation.
+   * @param {boolean} wrapSingularClip If the selection is just one Clip, should it be wrapped within another Clip?
+   *    Default is true, to preserve existing script behavior.
+   *    Calling this function with false ensures user doesn't accidentally wrap a Clip within another Clip.
    */
-  createClipFromSelection = (name) => {
+  createClipFromSelection = (name, wrapSingularClip = true) => {
+    
+    if (this.project.selection.numObjects === 0) {
+      console.log("No selection from which to create clips.");
+      return;
+    } else if (!wrapSingularClip && this.project.selection.numObjects === 1
+    && this.project.selection.types[0] === "Clip") {
+      console.log("That's already a Clip.");
+      return;
+    }
     this.project.createClipFromSelection({
       identifier: name,
       type: 'Clip'
@@ -541,6 +553,12 @@ class EditorCore extends Component {
    * Break apart the selected clip(s) and select the objects that were contained within those clip(s).
    */
   breakApartSelection = () => {
+    //only break apart selections that have at least 1 clip or button
+    //it might be better for these checks to go wherever project.breakApartSelection is defined
+    var sel = this.project.selection;
+    if (sel.numObjects === 0 || (!sel.types.includes("Clip") && !sel.types.includes("Button"))) {
+      return;
+    }
     this.project.breakApartSelection();
     this.projectDidChange();
   }
@@ -623,7 +641,7 @@ class EditorCore extends Component {
    * Horizontally flips the canvas selection.
    */
   flipSelectedHorizontal = () => {
-    this.project.flipSelectionHorizontally();
+    this.project.selection.flipHorizontally();
     this.projectDidChange();
   }
 
@@ -631,7 +649,7 @@ class EditorCore extends Component {
    * Vertically flips the canvas selection.
    */
   flipSelectedVertical = () => {
-    this.project.flipSelectionVertically();
+    this.project.selection.flipVertically();
     this.projectDidChange();
   }
 
@@ -925,11 +943,11 @@ class EditorCore extends Component {
     this.resetEditorForLoad();
     this.project = project;
     this.project.selection.clear();
-    //this.project.view.prerasterize(() => {
-      this.projectDidChange();
-      this.hideWaitOverlay();
-      this.project.view.render();
-    //});
+
+    this.projectDidChange();
+    this.hideWaitOverlay();
+    this.project.view.prerender();
+    this.project.view.render();
   }
 
   showAutosavedProjects = () => {
@@ -1034,23 +1052,12 @@ class EditorCore extends Component {
       this.project.selection.clear();
     }
 
-    let proceed = () => {
-      this.setState({
-        previewPlaying: !this.state.previewPlaying,
-        codeErrors: [],
-      });
-      this.hideWaitOverlay();
-      this.processingAction = false;
-    }
-
-    // Skip prerasterize step if we are stopping preview play.
-    if(this.state.previewPlaying) {
-      proceed();
-    } else {
-      this.project.view.prerasterize(() => {
-        proceed();
-      });
-    }
+    this.setState({
+      previewPlaying: !this.state.previewPlaying,
+      codeErrors: [],
+    });
+    this.hideWaitOverlay();
+    this.processingAction = false;
   }
 
   /**

@@ -268,7 +268,8 @@ describe('Wick.Tickable', function() {
             //project.view.render();
 
             resetMouseStateFlags();
-            clip.view._mouseState = 'out';
+            project._mouseTargets = [];
+            project._isMouseDown = false;
             expect(project.focus.tick()).to.equal(null);
             expect(clip.__mouseenter).to.equal(false);
             expect(clip.__mousepressed).to.equal(false);
@@ -280,7 +281,8 @@ describe('Wick.Tickable', function() {
             expect(clip.__mouseclick).to.equal(false);
 
             resetMouseStateFlags();
-            clip.view._mouseState = 'over';
+            project._mouseTargets = [clip];
+            project._isMouseDown = false;
             expect(project.focus.tick()).to.equal(null);
             expect(clip.__mouseenter).to.equal(true);
             expect(clip.__mousepressed).to.equal(false);
@@ -292,7 +294,8 @@ describe('Wick.Tickable', function() {
             expect(clip.__mouseclick).to.equal(false);
 
             resetMouseStateFlags();
-            clip.view._mouseState = 'down';
+            project._mouseTargets = [clip];
+            project._isMouseDown = true;
             expect(project.focus.tick()).to.equal(null);
             expect(clip.__mouseenter).to.equal(false);
             expect(clip.__mousepressed).to.equal(true);
@@ -304,7 +307,8 @@ describe('Wick.Tickable', function() {
             expect(clip.__mouseclick).to.equal(false);
 
             resetMouseStateFlags();
-            clip.view._mouseState = 'down';
+            project._mouseTargets = [clip];
+            project._isMouseDown = true;
             expect(project.focus.tick()).to.equal(null);
             expect(clip.__mouseenter).to.equal(false);
             expect(clip.__mousepressed).to.equal(false);
@@ -316,7 +320,8 @@ describe('Wick.Tickable', function() {
             expect(clip.__mouseclick).to.equal(false);
 
             resetMouseStateFlags();
-            clip.view._mouseState = 'over';
+            project._mouseTargets = [clip];
+            project._isMouseDown = false;
             expect(project.focus.tick()).to.equal(null);
             expect(clip.__mouseenter).to.equal(false);
             expect(clip.__mousepressed).to.equal(false);
@@ -328,7 +333,8 @@ describe('Wick.Tickable', function() {
             expect(clip.__mouseclick).to.equal(true);
 
             resetMouseStateFlags();
-            clip.view._mouseState = 'out';
+            project._mouseTargets = [];
+            project._isMouseDown = false;
             expect(project.focus.tick()).to.equal(null);
             expect(clip.__mouseenter).to.equal(false);
             expect(clip.__mousepressed).to.equal(false);
@@ -340,7 +346,8 @@ describe('Wick.Tickable', function() {
             expect(clip.__mouseclick).to.equal(false);
 
             resetMouseStateFlags();
-            clip.view._mouseState = 'over';
+            project._mouseTargets = [clip];
+            project._isMouseDown = false;
             expect(project.focus.tick()).to.equal(null);
             expect(clip.__mouseenter).to.equal(true);
             expect(clip.__mousepressed).to.equal(false);
@@ -352,7 +359,8 @@ describe('Wick.Tickable', function() {
             expect(clip.__mouseclick).to.equal(false);
 
             resetMouseStateFlags();
-            clip.view._mouseState = 'over';
+            project._mouseTargets = [clip];
+            project._isMouseDown = false;
             expect(project.focus.tick()).to.equal(null);
             expect(clip.__mouseenter).to.equal(false);
             expect(clip.__mousepressed).to.equal(false);
@@ -364,7 +372,8 @@ describe('Wick.Tickable', function() {
             expect(clip.__mouseclick).to.equal(false);
 
             resetMouseStateFlags();
-            clip.view._mouseState = 'down';
+            project._mouseTargets = [clip];
+            project._isMouseDown = true;
             expect(project.focus.tick()).to.equal(null);
             expect(clip.__mouseenter).to.equal(false);
             expect(clip.__mousepressed).to.equal(true);
@@ -376,7 +385,8 @@ describe('Wick.Tickable', function() {
             expect(clip.__mouseclick).to.equal(false);
 
             resetMouseStateFlags();
-            clip.view._mouseState = 'down';
+            project._mouseTargets = [clip];
+            project._isMouseDown = true;
             expect(project.focus.tick()).to.equal(null);
             expect(clip.__mouseenter).to.equal(false);
             expect(clip.__mousepressed).to.equal(false);
@@ -388,7 +398,8 @@ describe('Wick.Tickable', function() {
             expect(clip.__mouseclick).to.equal(false);
 
             resetMouseStateFlags();
-            clip.view._mouseState = 'out';
+            project._mouseTargets = [];
+            project._isMouseDown = false;
             expect(project.focus.tick()).to.equal(null);
             expect(clip.__mouseenter).to.equal(false);
             expect(clip.__mousepressed).to.equal(false);
@@ -400,7 +411,8 @@ describe('Wick.Tickable', function() {
             expect(clip.__mouseclick).to.equal(false);
 
             resetMouseStateFlags();
-            clip.view._mouseState = 'over';
+            project._mouseTargets = [clip];
+            project._isMouseDown = false;
             expect(project.focus.tick()).to.equal(null);
             expect(clip.__mouseenter).to.equal(true);
             expect(clip.__mousepressed).to.equal(false);
@@ -412,7 +424,8 @@ describe('Wick.Tickable', function() {
             expect(clip.__mouseclick).to.equal(false);
 
             resetMouseStateFlags();
-            clip.view._mouseState = 'down';
+            project._mouseTargets = [clip];
+            project._isMouseDown = true;
             expect(project.focus.tick()).to.equal(null);
             expect(clip.__mouseenter).to.equal(false);
             expect(clip.__mousepressed).to.equal(true);
@@ -424,7 +437,8 @@ describe('Wick.Tickable', function() {
             expect(clip.__mouseclick).to.equal(false);
 
             resetMouseStateFlags();
-            clip.view._mouseState = 'over';
+            project._mouseTargets = [clip];
+            project._isMouseDown = false;
             expect(project.focus.tick()).to.equal(null);
             expect(clip.__mouseenter).to.equal(false);
             expect(clip.__mousepressed).to.equal(false);
@@ -436,7 +450,8 @@ describe('Wick.Tickable', function() {
             expect(clip.__mouseclick).to.equal(true);
 
             resetMouseStateFlags();
-            clip.view._mouseState = 'over';
+            project._mouseTargets = [clip];
+            project._isMouseDown = false;
             expect(project.focus.tick()).to.equal(null);
             expect(clip.__mouseenter).to.equal(false);
             expect(clip.__mousepressed).to.equal(false);

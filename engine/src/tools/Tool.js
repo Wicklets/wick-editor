@@ -45,12 +45,20 @@ Wick.Tool = class {
 
         // Attach mouse down + double click event
         this.paperTool.onMouseDown = (e) => {
-            if(this._lastMousedownTimestamp !== null && e.timeStamp - this._lastMousedownTimestamp < Wick.Tool.DOUBLE_CLICK_TIME) {
+            if(this.doubleClickEnabled && this._lastMousedownTimestamp !== null && e.timeStamp - this._lastMousedownTimestamp < Wick.Tool.DOUBLE_CLICK_TIME) {
                 this.onDoubleClick(e);
             } else {
                 this.onMouseDown(e);
             }
             this._lastMousedownTimestamp = e.timeStamp;
+        }
+
+        // Attach key events
+        this.paperTool.onKeyDown = (e) => {
+            this.onKeyDown(e);
+        }
+        this.paperTool.onKeyUp = (e) => {
+            this.onKeyUp(e);
         }
 
         // Attach mouse move event
@@ -132,6 +140,20 @@ Wick.Tool = class {
     }
 
     /**
+     * Called when a key is pressed and this is the active tool.
+     */
+    onKeyDown (e) {
+
+    }
+
+    /**
+     * Called when a key is released and this is the active tool.
+     */
+    onKeyUp (e) {
+
+    }
+
+    /**
      * Activates this tool in paper.js.
      */
     activate () {
@@ -197,8 +219,18 @@ Wick.Tool = class {
         return 'url(' + canvas.toDataURL() + ') 64 64,default';
     }
 
+    /**
+     *
+     */
     getSetting (name) {
         return this.project.toolSettings.getSetting(name);
+    }
+
+    /**
+     *
+     */
+    get doubleClickEnabled () {
+        return true;
     }
 }
 

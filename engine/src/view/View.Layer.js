@@ -31,7 +31,7 @@ Wick.View.Layer = class extends Wick.View {
         this.activeFrameContainers = [];
     }
 
-    _renderSVG () {
+    render () {
         // Add active frame layers
         this.activeFrameLayers = [];
         var frame = this.model.activeFrame;
@@ -84,18 +84,6 @@ Wick.View.Layer = class extends Wick.View {
                 frame.view.clipsLayer.opacity = opacity;
                 frame.view.pathsLayer.opacity = opacity;
             });
-        }
-    }
-
-    _renderWebGL () {
-        this.activeFrameContainers = [];
-        var frame = this.model.activeFrame;
-        if(frame) {
-            frame.view.render();
-
-            this.activeFrameContainers.push(frame.view.pathsContainer);
-            this.activeFrameContainers.push(frame.view.dynamicTextContainer);
-            this.activeFrameContainers.push(frame.view.clipsContainer);
         }
     }
 }

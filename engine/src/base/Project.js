@@ -59,6 +59,8 @@ Wick.Project = class extends Wick.Base {
         this._lastMousePosition = {x:0, y:0};
         this._isMouseDown = false;
 
+        this._mouseTargets = [];
+
         this._keysDown = [];
         this._keysLastDown = [];
         this._currentKey = null;
@@ -72,6 +74,7 @@ Wick.Project = class extends Wick.Base {
             eraser: new Wick.Tools.Eraser(),
             eyedropper: new Wick.Tools.Eyedropper(),
             fillbucket: new Wick.Tools.FillBucket(),
+            interact: new Wick.Tools.Interact(),
             line: new Wick.Tools.Line(),
             none: new Wick.Tools.None(),
             pan: new Wick.Tools.Pan(),
@@ -80,6 +83,9 @@ Wick.Project = class extends Wick.Base {
             text: new Wick.Tools.Text(),
             zoom: new Wick.Tools.Zoom(),
         };
+        for(var toolName in this._tools) {
+            this._tools[toolName].project = this;
+        }
         this.activeTool = 'cursor';
 
         this._toolSettings = new Wick.ToolSettings();
@@ -748,13 +754,24 @@ Wick.Project = class extends Wick.Base {
     tick () {
         this.root._identifier = 'Project';
 
-        this.view.processInput();
+        // Process input
+        this._mousePosition = this.tools.interact.mousePosition;
+        this._isMouseDown = this.tools.interact.mouseIsDown;
 
+        this._keysDown = this.tools.interact.keysDown;
+        this._currentKey = this.tools.interact.lastKeyDown;
+
+        this._mouseTargets = this.tools.interact.mouseTargets;
+
+        // Tick the focus
         this.focus._attachChildClipReferences();
         var error = this.focus.tick();
 
         // Save the current keysDown
+        this._lastMousePosition = {x: this._mousePosition.x, y: this._mousePosition.y};
         this._keysLastDown = [].concat(this._keysDown);
+
+        this.view.render();
 
         return error;
     }
@@ -772,7 +789,7 @@ Wick.Project = class extends Wick.Base {
         if(!args.onBeforeTick) args.onBeforeTick = () => {};
         if(!args.onAfterTick) args.onAfterTick = () => {};
 
-        this.view.renderMode = 'webgl';
+        this.view.paper.view.autoUpdate = false;
 
         if(this._tickIntervalID) {
             this.stop();
@@ -781,12 +798,14 @@ Wick.Project = class extends Wick.Base {
         this.history.saveSnapshot('state-before-play');
 
         this.selection.clear();
+        this.activeTool = 'interact';
 
         // Start tick loop
         this._tickIntervalID = setInterval(() => {
             args.onBeforeTick();
 
             var error = this.tick();
+            this.view.paper.view.update();
             if(error) {
                 args.onError(error);
                 this.stop();
@@ -801,6 +820,8 @@ Wick.Project = class extends Wick.Base {
      * Stop playing the project.
      */
     stop () {
+        this.view.paper.view.autoUpdate = true;
+
         // Run unload scripts on all objects
         this.getAllFrames().forEach(frame => {
             frame.clips.forEach(clip => {
@@ -809,8 +830,6 @@ Wick.Project = class extends Wick.Base {
         });
 
         this.stopAllSounds();
-
-        this.view.renderMode = 'svg';
 
         clearInterval(this._tickIntervalID);
         this._tickIntervalID = null;
@@ -992,5 +1011,9 @@ Wick.Project = class extends Wick.Base {
         });
 
         callback(sounds);
+    }
+
+    objectIsMouseTarget (object) {
+        return this._mouseTargets.indexOf(object) !== -1;
     }
 }

@@ -374,7 +374,7 @@ Wick.Clip = class extends Wick.Tickable {
      * @type {object}
      */
     get bounds () {
-        return this.view.container.getLocalBounds();
+        return this.view.group.bounds;
     }
 
     /**

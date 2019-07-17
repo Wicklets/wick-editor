@@ -755,27 +755,24 @@ describe('Wick.Clip', function() {
                 })));
                 project.activeFrame.addClip(clip);
 
-                // force bounds to be generated from pixi container...
-                project.view.prerasterize(() => {
-                    project.play({
-                        onBeforeTick: () => {
-                            project.view.render();
-                        },
-                        onAfterTick: () => {
-                            expect(clip.width).to.equal(50);
-                            clip.width = 25;
-                            expect(clip.width).to.equal(25);
-                            expect(clip.scaleX).to.equal(0.5);
-                            clip.width = 25;
-                            expect(clip.width).to.equal(25);
-                            expect(clip.scaleX).to.equal(0.5);
-                            clip.width = 100;
-                            expect(clip.width).to.equal(100);
-                            expect(clip.scaleX).to.equal(2);
-                            project.stop();
-                            done();
-                        }
-                    })
+                project.play({
+                    onBeforeTick: () => {
+                        project.view.render();
+                    },
+                    onAfterTick: () => {
+                        expect(clip.width).to.equal(50);
+                        clip.width = 25;
+                        expect(clip.width).to.equal(25);
+                        expect(clip.scaleX).to.equal(0.5);
+                        clip.width = 25;
+                        expect(clip.width).to.equal(25);
+                        expect(clip.scaleX).to.equal(0.5);
+                        clip.width = 100;
+                        expect(clip.width).to.equal(100);
+                        expect(clip.scaleX).to.equal(2);
+                        project.stop();
+                        done();
+                    }
                 });
             });
         });
@@ -792,27 +789,24 @@ describe('Wick.Clip', function() {
                 })));
                 project.activeFrame.addClip(clip);
 
-                // force bounds to be generated from pixi container...
-                project.view.prerasterize(() => {
-                    project.play({
-                        onBeforeTick: () => {
-                            project.view.render();
-                        },
-                        onAfterTick: () => {
-                            expect(clip.height).to.equal(50);
-                            clip.height = 25;
-                            expect(clip.height).to.equal(25);
-                            expect(clip.scaleY).to.equal(0.5);
-                            clip.height = 25;
-                            expect(clip.height).to.equal(25);
-                            expect(clip.scaleY).to.equal(0.5);
-                            clip.height = 100;
-                            expect(clip.height).to.equal(100);
-                            expect(clip.scaleY).to.equal(2);
-                            project.stop();
-                            done();
-                        }
-                    })
+                project.play({
+                    onBeforeTick: () => {
+                        project.view.render();
+                    },
+                    onAfterTick: () => {
+                        expect(clip.height).to.equal(50);
+                        clip.height = 25;
+                        expect(clip.height).to.equal(25);
+                        expect(clip.scaleY).to.equal(0.5);
+                        clip.height = 25;
+                        expect(clip.height).to.equal(25);
+                        expect(clip.scaleY).to.equal(0.5);
+                        clip.height = 100;
+                        expect(clip.height).to.equal(100);
+                        expect(clip.scaleY).to.equal(2);
+                        project.stop();
+                        done();
+                    }
                 });
             });
         });
@@ -1205,11 +1199,11 @@ describe('Wick.Clip', function() {
                 dynamicText.identifier = 'dynamicText';
                 project.activeFrame.addPath(dynamicText);
 
-                project.activeFrame.addScript('default', 'dynamicText.setText("Foo")');
-
+                project.activeFrame.addScript('default', 'dynamicText.setText("bar")');
+                
                 expect(project.tick()).to.equal(null);
 
-                expect(dynamicText.textContent).to.equal('Foo');
+                expect(dynamicText.textContent).to.equal('bar');
             });
 
             it('should throw an error if used on a Clip', function () {

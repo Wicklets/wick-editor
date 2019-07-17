@@ -61,13 +61,6 @@ Wick.View = class {
     /**
      *
      */
-    get renderMode () {
-        return this.model.project && this.model.project.view.renderMode;
-    }
-
-    /**
-     *
-     */
     get paper () {
         return Wick.View.paperScope;
     }
@@ -76,11 +69,7 @@ Wick.View = class {
      *
      */
     render () {
-        if(this.renderMode === 'svg') {
-            this._renderSVG();
-        } else if (this.renderMode === 'webgl') {
-            this._renderWebGL();
-        }
+        
     }
 
     /**

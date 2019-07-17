@@ -35,7 +35,7 @@ class HotKeyInterface extends Object {
   createKeyMap = () => {
     this.keyMap = {
       'activate-brush': 'b',
-      'activate-cursor': 'c',
+      'activate-cursor': ['c','v'],
       'activate-pencil': 'p',
       'activate-eraser': 'e',
       'activate-rectangle': 'r',
@@ -43,8 +43,9 @@ class HotKeyInterface extends Object {
       'activate-line': 'l',
       'activate-text': 't',
       'activate-pan': 'space',
-      'activate-fill': 'f',
+      'activate-fill': ['f','g'],
       'activate-eyedropper': 'd',
+      'deactivate-eyedropper': {sequence: "d", action: "keyup"},
       'deactivate-pan': { sequence: "space", action: "keyup" },
       'activate-zoom': 'z',
       'delete': ['backspace', 'del'],
@@ -74,6 +75,10 @@ class HotKeyInterface extends Object {
       'nudge-left-more': 'shift+left',
       'nudge-right-more': 'shift+right',
       'toggle-script-editor': '`',
+      'export-project-as-wick-file': ['ctrl+s', 'command+s'],
+      'import-project-as-wick-file': ['ctrl+o', 'command+o'],
+      'create-clip-from-selection': ['ctrl+g', 'command+g'],
+      'break-apart-selection': ['ctrl+shift+g', 'command+shift+g']
     }
   }
 
@@ -89,6 +94,7 @@ class HotKeyInterface extends Object {
       'activate-text': (() => this.editor.setActiveTool("text")),
       'activate-fill': (() => this.editor.setActiveTool("fillbucket")),
       'activate-eyedropper': (() => this.editor.setActiveTool("eyedropper")),
+      'deactivate-eyedropper': this.editor.activateLastTool,
       'activate-pan': (() => this.editor.setActiveTool("pan")),
       'deactivate-pan': this.editor.activateLastTool,
       'activate-zoom': (() => this.editor.setActiveTool("zoom")),
@@ -108,7 +114,7 @@ class HotKeyInterface extends Object {
       'move-playhead-forwards': this.editor.movePlayheadForwards,
       'move-playhead-backwards': this.editor.movePlayheadBackwards,
       'select-all': this.editor.selectAll,
-      'bring-to-front': this.editor.bringSelectionToFront,
+      'bring-to-front': this.editor.sendSelectionToFront,
       'send-to-back': this.editor.sendSelectionToBack,
       'move-forwards': this.editor.moveSelectionForwards,
       'move-backwards': this.editor.moveSelectionBackwards,
@@ -121,6 +127,10 @@ class HotKeyInterface extends Object {
       'nudge-left-more': this.editor.nudgeSelectionLeftMore,
       'nudge-right-more': this.editor.nudgeSelectionRightMore,
       'toggle-script-editor': this.editor.toggleCodeEditor,
+      'export-project-as-wick-file': this.editor.exportProjectAsWickFile,
+      'import-project-as-wick-file': (() => console.log("Ctrl-O as a shortcut doesn't work yet.")),
+      'create-clip-from-selection': (() => this.editor.createClipFromSelection("", false)),
+      'break-apart-selection': (() => this.editor.breakApartSelection())
     }
 
     for(let name in this.handlers) {

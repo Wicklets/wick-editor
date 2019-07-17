@@ -18,12 +18,5 @@
  */
 
 Wick.View.Button = class extends Wick.View.Clip {
-    _renderWebGL (e) {
-        super._renderWebGL(e);
-
-        // Use pointer cursor on buttons.
-        if(this._mouseState === 'over' || this._mouseState === 'down') {
-            this.model.project.view._webGLCanvas.style.cursor = 'pointer';
-        }
-    }
+    
 }

@@ -27,7 +27,7 @@ Wick.View.Timeline = class extends Wick.View {
         this.activeFrameContainers = [];
     }
 
-    _renderSVG () {
+    render () {
         this.activeFrameLayers = [];
         this.onionSkinnedFramesLayers = [];
 
@@ -35,15 +35,6 @@ Wick.View.Timeline = class extends Wick.View {
             layer.view.render();
             this.activeFrameLayers = this.activeFrameLayers.concat(layer.view.activeFrameLayers);
             this.onionSkinnedFramesLayers = this.onionSkinnedFramesLayers.concat(layer.view.onionSkinnedFramesLayers);
-        });
-    }
-
-    _renderWebGL () {
-        this.activeFrameContainers = [];
-
-        this._getLayersInOrder().forEach(layer => {
-            layer.view.render();
-            this.activeFrameContainers = this.activeFrameContainers.concat(layer.view.activeFrameContainers);
         });
     }
 

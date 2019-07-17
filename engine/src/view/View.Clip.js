@@ -27,28 +27,18 @@ Wick.View.Clip = class extends Wick.View {
         this.group = new this.paper.Group();
         this.group.remove();
         this.group.applyMatrix = false;
-
-        this.container = new PIXI.Container();
-        this.container.interactive = true;
-        this.container.on('pointerover', this._onPointerOver.bind(this))
-                      .on('pointerdown', this._onPointerDown.bind(this))
-                      .on('pointerup', this._onPointerUp.bind(this))
-                      .on('pointerout', this._onPointerOut.bind(this))
-                      .on('pointerupoutside', this._onPointerUpOutside.bind(this));
-
-        this._mouseState = 'out';
     }
 
-    _renderSVG () {
+    render () {
+        // Render timeline view
+        this.model.timeline.view.render();
+
         // Add some debug info to the paper group
         this.group.data.wickType = 'clip';
         this.group.data.wickUUID = this.model.uuid;
 
-        // Render timeline view
-        this.group.removeChildren();
-        this.model.timeline.view.render();
-
         // Add frame views from timeline
+        this.group.removeChildren();
         this.model.timeline.view.activeFrameLayers.forEach(layer => {
             this.group.addChild(layer);
         });
@@ -64,44 +54,5 @@ Wick.View.Clip = class extends Wick.View {
         this.group.scaling.y = this.model.transformation.scaleY;
         this.group.rotation = this.model.transformation.rotation;
         this.group.opacity = this.model.transformation.opacity;
-    }
-
-    _renderWebGL () {
-        // Render timeline view
-        this.container.removeChildren();
-        this.model.timeline.view.render();
-
-        // Add frame views from timeline
-        this.model.timeline.view.activeFrameContainers.forEach(container => {
-            this.container.addChild(container);
-        });
-
-        // Update transformations
-        this.container.x = this.model.transformation.x - 1;
-        this.container.y = this.model.transformation.y - 1;
-        this.container.scale.x = this.model.transformation.scaleX;
-        this.container.scale.y = this.model.transformation.scaleY;
-        this.container.rotation = this.model.transformation.rotation * (Math.PI/180);//Degrees -> Radians conversion
-        this.container.alpha = this.model.transformation.opacity;
-    }
-
-    _onPointerOver (e) {
-        this._mouseState = 'over';
-    }
-
-    _onPointerDown (e) {
-        this._mouseState = 'down';
-    }
-
-    _onPointerUp (e) {
-        this._mouseState = 'over';
-    }
-
-    _onPointerOut (e) {
-        this._mouseState = 'out';
-    }
-
-    _onPointerUpOutside (e) {
-        this._mouseState = 'out';
     }
 }

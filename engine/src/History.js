@@ -23,12 +23,20 @@
 Wick.History = class {
     /**
      *
+     * @type {boolean}
+     */
+    static get VERBOSE () {
+        return false;
+    }
+
+    /**
+     * An Enum of all types of state saves.
      */
     static get StateType () {
         return {
-            ALL_OBJECTS: 0,
-            ALL_OBJECTS_WITHOUT_PATHS: 1,
-            ONLY_VISIBLE_OBJECTS: 2,
+            ALL_OBJECTS: 1,
+            ALL_OBJECTS_WITHOUT_PATHS: 2,
+            ONLY_VISIBLE_OBJECTS: 3,
         };
     }
 
@@ -85,7 +93,6 @@ Wick.History = class {
         return true;
     }
 
-
     /**
      *
      * @param {string} name - the name of the snapshot
@@ -101,6 +108,22 @@ Wick.History = class {
      */
     loadSnapshot (name) {
         this._recoverState(this._snapshots[name]);
+    }
+
+    /**
+     * The number of states currently stored for undoing.
+     * @type {number}
+     */
+    get numUndoStates () {
+        return this._undoStack.length;
+    }
+
+    /**
+     * The number of states currently stored for redoing.
+     * @type {number}
+     */
+    get numRedoStates () {
+        return this._redoStack.length;
     }
 
     // NOTE: State saving/recovery can be greatly optimized by only saving the state of the things that were actually changed.
@@ -120,6 +143,10 @@ Wick.History = class {
         } else {
             console.error('Wick.History._generateState: A valid stateType is required.');
             return;
+        }
+
+        if(Wick.History.VERBOSE) {
+            console.log('Wick.History._generateState: Serialized ' + objects.length + ' objects using mode=' + stateType);
         }
 
         return objects.map(object => {
@@ -152,6 +179,11 @@ Wick.History = class {
 
         // the project itself (for focus, options, etc)
         stateObjects.push(this.project);
+
+        // the assets in the project
+        this.project.getAssets().forEach(asset => {
+            stateObjects.push(asset);
+        });
 
         // the focused clip
         stateObjects.push(this.project.focus);
