@@ -42,12 +42,12 @@ Wick.Tools.Brush = class extends Wick.Tool {
         this.errorOccured = false;
     }
 
-    /**
-     *
-     * @type {string}
-     */
     get cursor () {
 
+    }
+
+    get isDrawingTool () {
+        return true;
     }
 
     onActivate (e) {

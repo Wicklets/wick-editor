@@ -40,6 +40,10 @@ Wick.Tools.Eraser = class extends Wick.Tool {
         return this.cachedCursor || 'crosshair';
     }
 
+    get isDrawingTool () {
+        return true;
+    }
+
     onActivate (e) {
         this.cursorSize = null;
     }

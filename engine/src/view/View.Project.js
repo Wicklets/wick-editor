@@ -283,11 +283,17 @@ Wick.View.Project = class extends Wick.View {
     _renderSVGCanvas () {
         this.paper.project.clear();
 
+        // Lazily setup tools
         if(!this._toolsSetup) {
             this._toolsSetup = true;
             this._setupTools();
         }
-        if(!this.model.activeFrame || this.model.activeLayer.locked || this.model.activeLayer.hidden) {
+
+        if(this.model.project.playing) {
+            // Enable interact tool if the project is running
+            this.model.tools.interact.activate();
+        } else if(!this.model.canDraw && this.model.activeTool.isDrawingTool) {
+            // Disable drawing tools if there's no frame to edit
             this.model.tools.none.activate();
         } else {
             this.model.activeTool.activate();

@@ -493,6 +493,20 @@ describe('Wick.Project', function() {
             })
         });
 
+        it('playing flag should update correctly', function(done) {
+            var project = new Wick.Project();
+            expect(project.playing).to.equal(false);
+
+            project.play({
+                onAfterTick: () => {
+                    expect(project.playing).to.equal(true);
+                    project.stop();
+                    expect(project.playing).to.equal(false);
+                    done();
+                }
+            })
+        });
+
         it('should send error through callback if there is an error', function(done) {
             var project = new Wick.Project();
             project.framerate = 60;
@@ -1039,4 +1053,29 @@ describe('Wick.Project', function() {
         expect(path.strokeColor.toCSS(true)).to.equal('#00ff00');
         expect(path.fillColor.toCSS(true)).to.equal('#000000');
     });
+
+    describe('#canDraw', function () {
+        it('should be true by default', function () {
+            var project = new Wick.Project();
+            expect(project.canDraw).to.equal(true);
+        });
+
+        it('should be false if there is no active frame', function () {
+            var project = new Wick.Project();
+            project.activeFrame.remove();
+            expect(project.canDraw).to.equal(false);
+        });
+
+        it('should be false if the active layer is locked', function () {
+            var project = new Wick.Project();
+            project.activeLayer.locked = true;
+            expect(project.canDraw).to.equal(false);
+        });
+
+        it('should be false if the active layer is hidden', function () {
+            var project = new Wick.Project();
+            project.activeLayer.hidden = true;
+            expect(project.canDraw).to.equal(false);
+        });
+    })
 });

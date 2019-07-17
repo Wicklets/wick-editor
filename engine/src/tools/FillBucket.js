@@ -35,6 +35,10 @@ Wick.Tools.FillBucket = class extends Wick.Tool {
         return 'url(cursors/fillbucket.png) 32 32, auto';
     }
 
+    get isDrawingTool () {
+        return true;
+    }
+
     onActivate (e) {
 
     }

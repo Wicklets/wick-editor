@@ -40,6 +40,10 @@ Wick.Tools.Rectangle = class extends Wick.Tool {
         return 'crosshair';
     }
 
+    get isDrawingTool () {
+        return true;
+    }
+
     onActivate (e) {
 
     }
