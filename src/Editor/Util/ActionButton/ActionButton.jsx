@@ -36,7 +36,7 @@ class ActionButton extends Component {
     let isActive = this.props.isActive === undefined ? () => false : this.props.isActive;
 
     let colorClass = this.props.color === undefined ? "action-button-green" : "action-button-"+this.props.color;
-    let finalColorClassName = classNames(colorClass, {'active-button' : isActive()})
+    let finalColorClassName = classNames(colorClass, {'active-button' : isActive()}, this.props.buttonClassName)
 
     let tooltipID = this.props.id === undefined ? 'action-button-tooltip-nyi' : ('action-button-tooltip-' + this.props.id);
 

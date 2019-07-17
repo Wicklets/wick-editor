@@ -7,8 +7,8 @@ $canvas-transforms-size: 40px;
   right: 0px;
   bottom: 0px;
   height: $canvas-transforms-size;
-  margin-right: 10px;
-  margin-bottom: 10px;
+  margin-right: 15px;
+  margin-bottom: 15px;
   display: flex;
   align-items: center;
   background-color: $editor-primary-outline;
@@ -26,6 +26,15 @@ $canvas-transforms-size: 40px;
   height: $canvas-transforms-size;
 }
 
+.canvas-transform-wick-button {
+  border-radius: 0px; 
+}
+
+.zoom-tool {
+  padding-left: 0px !important; 
+  padding-right: 0px !important;
+}
+
 .canvas-transform-item {
   padding: 2px;
 }
@@ -33,11 +42,21 @@ $canvas-transforms-size: 40px;
 .canvas-transform-button {
   width: $canvas-transforms-size;
   height: $canvas-transforms-size;
-  padding: 2px;
+  padding: 3px;
+  padding-left: 1.5px;
+  padding-right: 1.5px; 
 }
 
 .thin-transform-button {
-  width: calc(#{$canvas-transforms-size} * .7);
+  width: calc(#{$canvas-transforms-size} * .6); 
+}
+
+.zoom-out-button {
+  padding-left: 0px;
+}
+
+.zoom-in-button {
+  padding-right: 0px;
 }
 
 .canvas-transform-icon {
@@ -45,20 +64,27 @@ $canvas-transforms-size: 40px;
 }
 
 .play-button {
-  width: calc(#{$canvas-transforms-size} * .9);
-  height: calc(#{$canvas-transforms-size} * .9);
+  width: 100%; 
+  height: 100%;
+  padding: 3px; 
 }
 
 .play-button-container {
-  width: $canvas-transforms-size;
-  height: $canvas-transforms-size;
+  width: calc(#{$canvas-transforms-size} * 1.5);
+  height: calc(#{$canvas-transforms-size} * 1.5);
   display: flex;
   align-items: center;
   justify-content: center;
+  background-color: $editor-primary-outline;
+  border-radius: 30px; 
 }
 
 .transforms-container {
   display: flex;
   flex-direction: row;
   align-items: center;
+}
+
+.transforms-container:first-child {
+  padding-left: 2px; 
 }
