@@ -56,6 +56,8 @@ Wick.Tools.PathCursor = class extends Wick.Tool {
     }
 
     onMouseMove (e) {
+        super.onMouseMove(e);
+
         // Remove the hover preview, a new one will be generated if needed
         this.hoverPreview.remove();
 
@@ -180,21 +182,6 @@ Wick.Tools.PathCursor = class extends Wick.Tool {
 
             // Mousing over rasters acts the same as mousing over fills.
             if(newHitResult.type === 'pixel') {
-                newHitResult.type = 'fill';
-            }
-
-            // Disable curve selection unless selectCurves is true.
-            if(!this.getSetting('selectCurves') && newHitResult.type === 'curve') {
-                newHitResult.type = 'fill';
-            }
-
-            // Disable segment selection unless selectPoints is true.
-            if(!this.getSetting('selectPoints') && newHitResult.type === 'segment') {
-                newHitResult.type = 'fill';
-            }
-
-            // You can't drag segments and curves of a selected object.
-            if(this._isItemSelected(newHitResult.item)) {
                 newHitResult.type = 'fill';
             }
         }
