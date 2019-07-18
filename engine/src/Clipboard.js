@@ -70,24 +70,27 @@ Wick.Clipboard = class {
         // Keep track of where objects were originally copied from
         this._copyLocation = project.activeFrame && project.activeFrame.uuid;
 
-        // Prepare objects for export
-        /*
-        var objects = objects.map(object => {
-            var copy = object.copy();
-
-            // Copy frame positions relative to the current playhead position
-            if(copy instanceof Wick.Frame) {
-                copy.start -= playheadCopyOffset - 1;
-                copy.end -= playheadCopyOffset - 1;
-            }
-
-            return copy;
-        });
-        */
-
-        this.clipboardData = objects.map(object => {
+        // Make deep copies of every object
+        var exportedData = objects.map(object => {
             return object.export();
         });
+
+        // Shift frames so that they copy from the relative position of the first frame
+        var startPlayheadPosition = Number.MAX_SAFE_INTEGER;
+        exportedData.forEach(data => {
+            if(data.object.classname !== 'Frame') return;
+            if(data.object.start < startPlayheadPosition) {
+                startPlayheadPosition = data.object.start;
+            }
+        });
+        exportedData.forEach(data => {
+            if(data.object.classname !== 'Frame') return;
+            data.object.start -= startPlayheadPosition - 1;
+            data.object.end -= startPlayheadPosition - 1;
+        });
+
+        // Set the new clipboard data
+        this.clipboardData = exportedData;
     }
 
     /**
