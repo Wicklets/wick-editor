@@ -19,7 +19,7 @@
 
 Wick.Tools.Cursor = class extends Wick.Tool {
     /**
-     * Creates a pencil tool.
+     * Creates a cursor tool.
      */
     constructor () {
         super();
