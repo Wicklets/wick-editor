@@ -31,6 +31,7 @@ import iconEyeDropper from 'resources/toolbar-icons/eyedropper.svg';
 import iconEraser from 'resources/toolbar-icons/eraser.svg';
 import iconText from 'resources/toolbar-icons/text.svg';
 import iconFillBucket from 'resources/toolbar-icons/fillbucket.svg';
+import iconPathCursor from 'resources/toolbar-icons/pathcursor.svg';
 
 import iconDelete from 'resources/toolbar-icons/delete.svg';
 import iconUndo from 'resources/toolbar-icons/undo.svg';
@@ -131,6 +132,7 @@ class ToolIcon extends Component {
       "zoomin":iconZoomIn,
       "zoomout":iconZoomOut,
       "fillbucket": iconFillBucket,
+      "pathcursor": iconPathCursor, 
       "copy": iconCopy,
       "paste": iconPaste,
       "text": iconText,
