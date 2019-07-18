@@ -85,7 +85,7 @@ class Toolbox extends Component {
         <ToolButton {...this.toolButtonProps} name='rectangle' tooltip="Rectangle (R)" />
         <ToolButton {...this.toolButtonProps} name='ellipse' tooltip="Ellipse (O)" />
         <ToolButton {...this.toolButtonProps} name='line' tooltip="Line (L)" />
-        <ToolButton {...this.toolButtonProps} name='pathcursor' tooltip="Path Cursor (A)" />
+        {/*<ToolButton {...this.toolButtonProps} name='pathcursor' tooltip="Path Cursor (A)" />*/}
         <ToolButton {...this.toolButtonProps} name='text' tooltip="Text (T)" />
         <ToolButton {...this.toolButtonProps} name='fillbucket' tooltip="Fill Bucket (F)" />
         <ToolButton {...this.toolButtonProps} name='eyedropper' tooltip="Eyedropper (D)" />

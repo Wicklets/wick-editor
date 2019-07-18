@@ -1200,7 +1200,7 @@ describe('Wick.Clip', function() {
                 project.activeFrame.addPath(dynamicText);
 
                 project.activeFrame.addScript('default', 'dynamicText.setText("bar")');
-                
+
                 expect(project.tick()).to.equal(null);
 
                 expect(dynamicText.textContent).to.equal('bar');
@@ -1216,6 +1216,80 @@ describe('Wick.Clip', function() {
                 project.activeFrame.addScript('default', 'testclip.setText("Foo")');
 
                 expect(project.tick().message).to.equal("setText() can only be used with text objects.");
+            });
+        });
+
+        describe('#hitTest', function() {
+            it('should work with two basic clips (not touching)', function (done) {
+                var project = new Wick.Project();
+
+                var clip1 = new Wick.Clip({identifier: 'clip1'});
+                clip1.activeFrame.addPath(TestUtils.paperToWickPath(new paper.Path.Rectangle({
+                    from: new paper.Point(-50,-50),
+                    to: new paper.Point(50,50),
+                    fillColor: 'red',
+                })));
+                clip1.transformation.x = 50;
+
+                var clip2 = new Wick.Clip({identifier: 'clip2'});
+                clip2.activeFrame.addPath(TestUtils.paperToWickPath(new paper.Path.Rectangle({
+                    from: new paper.Point(-50,-50),
+                    to: new paper.Point(50,50),
+                    fillColor: 'red',
+                })));
+                clip2.transformation.x = 150;
+
+                project.activeFrame.addClip(clip1);
+                project.activeFrame.addClip(clip2);
+
+                clip1.addScript('load', 'this.__hits = this.hitTest(clip2)');
+
+                project.play({
+                    onBeforeTick: () => {
+                        project.view.render();
+                    },
+                    onAfterTick: () => {
+                        expect(clip1.__hits).to.equal(false);
+                        project.stop();
+                        done();
+                    }
+                });
+            });
+
+            it('should work with two basic clips (touching)', function (done) {
+                var project = new Wick.Project();
+
+                var clip1 = new Wick.Clip({identifier: 'clip1'});
+                clip1.activeFrame.addPath(TestUtils.paperToWickPath(new paper.Path.Rectangle({
+                    from: new paper.Point(-50,-50),
+                    to: new paper.Point(50,50),
+                    fillColor: 'red',
+                })));
+                clip1.transformation.x = 50;
+
+                var clip2 = new Wick.Clip({identifier: 'clip2'});
+                clip2.activeFrame.addPath(TestUtils.paperToWickPath(new paper.Path.Rectangle({
+                    from: new paper.Point(-50,-50),
+                    to: new paper.Point(50,50),
+                    fillColor: 'red',
+                })));
+                clip2.transformation.x = 100;
+
+                project.activeFrame.addClip(clip1);
+                project.activeFrame.addClip(clip2);
+
+                clip1.addScript('load', 'this.__hits = this.hitTest(clip2)');
+
+                project.play({
+                    onBeforeTick: () => {
+                        project.view.render();
+                    },
+                    onAfterTick: () => {
+                        expect(clip1.__hits).to.equal(true);
+                        project.stop();
+                        done();
+                    }
+                });
             });
         });
     });
