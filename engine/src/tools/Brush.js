@@ -176,9 +176,11 @@ Wick.Tools.Brush = class extends Wick.Tool {
         if(!this.errorOccured) {
             console.error("Brush error");
             console.error(e);
+            /*
             this.fireEvent('error', {
                 croquisError: e,
             });
+            */
         }
         this.errorOccured = true;
     }
