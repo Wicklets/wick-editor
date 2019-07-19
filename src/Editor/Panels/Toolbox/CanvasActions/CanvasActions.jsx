@@ -29,6 +29,10 @@ class CanvasActions extends Component {
         <ToolboxBreak className="toolbox-item"/>
         {this.renderActionButton(this.props.editorActions.flipHorizontal)}
         {this.renderActionButton(this.props.editorActions.flipVertical)}
+        <ToolboxBreak className="toolbox-item"/>
+        {this.renderActionButton(this.props.editorActions.booleanUnite)}
+        {this.renderActionButton(this.props.editorActions.booleanSubtract)}
+        {this.renderActionButton(this.props.editorActions.booleanIntersect)}
       </div>
     );
   }

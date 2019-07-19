@@ -355,12 +355,71 @@ Wick.Path = class extends Wick.Base {
     }
 
     /**
-     * Creates a new path using boolean unite on multiple paths. Flattens paths if needed. United path will use the fillColor, strokeWidth, and strokeColor of the first path in the array.
-     * @param {Wick.Path[]} paths - an array containing the paths to unite.
+     * Creates a new path using boolean unite on multiple paths. The resulting path will use the fillColor, strokeWidth, and strokeColor of the first path in the array.
+     * @param {Wick.Path[]} paths - an array containing the paths to process.
      * @returns {Wick.Path} The path resulting from the boolean unite.
      */
     static unite (paths) {
+        return Wick.Path.booleanOp(paths, 'unite');
+    }
 
+    /**
+     * Creates a new path using boolean subtration on multiple paths. The resulting path will use the fillColor, strokeWidth, and strokeColor of the first path in the array.
+     * @param {Wick.Path[]} paths - an array containing the paths to process.
+     * @returns {Wick.Path} The path resulting from the boolean subtraction.
+     */
+    static subtract (paths) {
+        return Wick.Path.booleanOp(paths, 'subtract');
+    }
+
+    /**
+     * Creates a new path using boolean intersection on multiple paths. The resulting path will use the fillColor, strokeWidth, and strokeColor of the first path in the array.
+     * @param {Wick.Path[]} paths - an array containing the paths to process.
+     * @returns {Wick.Path} The path resulting from the boolean intersection.
+     */
+    static intersect (paths) {
+        return Wick.Path.booleanOp(paths, 'intersect');
+    }
+
+    /**
+     * Perform a paper.js boolean operation on a list of paths.
+     * @param {Wick.Path[]} paths - a list of paths to perform the boolean operation on.
+     * @param {string} booleanOpName - the name of the boolean operation to perform. Currently supports "unite", "subtract", and "intersect"
+     */
+    static booleanOp (paths, booleanOpName) {
+        if(!booleanOpName) {
+            console.error('Wick.Path.booleanOp: booleanOpName is required');
+        }
+        if(booleanOpName !== 'unite' && booleanOpName !== 'subtract' && booleanOpName !== 'intersect') {
+            console.error('Wick.Path.booleanOp: unsupported booleanOpName: ' + booleanOpName);
+        }
+
+        if(!paths || paths.length === 0) {
+            console.error('Wick.Path.booleanOp: a non-empty list of paths is required');
+        }
+
+        // Single path? Nothing to do.
+        if(paths.length === 1) {
+            return paths[0];
+        }
+
+        // Get paper.js path objects
+        paths = paths.map(path => {
+            return path.view.item;
+        });
+
+        var result = paths[0].clone({insert:false});
+        paths.forEach(path => {
+            if(path === paths[0]) return;
+
+            result = result[booleanOpName](path);
+            result.remove();
+        });
+
+        var resultWickPath = new Wick.Path({
+            json: result.exportJSON({asString:false}),
+        });
+        return resultWickPath;
     }
 
     /**

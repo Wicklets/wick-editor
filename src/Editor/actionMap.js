@@ -52,6 +52,24 @@ class ActionMapInterface extends Object {
         action: this.editor.moveSelectionForwards,
         id: 'action-move-forward',
       },
+      booleanUnite: {
+        icon: 'booleanUnite',
+        tooltip: 'Unite Paths',
+        action: this.editor.booleanUnite,
+        id: 'action-boolean-unite',
+      },
+      booleanSubtract: {
+        icon: 'booleanSubtract',
+        tooltip: 'Subtract Paths',
+        action: this.editor.booleanSubtract,
+        id: 'action-boolean-subtract',
+      },
+      booleanIntersect: {
+        icon: 'booleanIntersect',
+        tooltip: 'Intersect Paths',
+        action: this.editor.booleanIntersect,
+        id: 'action-boolean-intersect',
+      },
       createGroupFromSelection: {
         icon: 'createGroup',
         tooltip: 'Create Group from Selection(NYI)',

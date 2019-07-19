@@ -1077,5 +1077,47 @@ describe('Wick.Project', function() {
             project.activeLayer.hidden = true;
             expect(project.canDraw).to.equal(false);
         });
-    })
+    });
+
+    describe('#doBooleanOperationOnSelection', function () {
+        it('should perform boolean unite', function () {
+            var project = new Wick.Project();
+
+            var fill1 = TestUtils.paperToWickPath(new paper.Path.Rectangle({
+                from: [0, 0],
+                to: [50, 50],
+                fillColor: '#ff0000',
+                strokeColor: '#000000',
+                strokeWidth: 5,
+            }));
+            var fill2 = TestUtils.paperToWickPath(new paper.Path.Rectangle({
+                from: [25, 25],
+                to: [75, 75],
+                fillColor: '#00ff00',
+            }));
+
+            project.activeFrame.addPath(fill1);
+            project.activeFrame.addPath(fill2);
+
+            project.selection.select(fill1);
+            project.selection.select(fill2);
+
+            project.doBooleanOperationOnSelection('unite');
+
+            var united = project.selection.getSelectedObject();
+            expect(united.fillColor.toCSS(true)).to.equal('#ff0000');
+            expect(united.strokeColor.toCSS(true)).to.equal('#000000');
+            expect(united.strokeWidth).to.equal(5);
+            expect(united.bounds.width).to.equal(75);
+            expect(united.bounds.height).to.equal(75);
+        });
+
+        it('should perform boolean subtraction', function () {
+            // TODO
+        });
+
+        it('should perform boolean intersection', function () {
+            // TODO
+        });
+    });
 });

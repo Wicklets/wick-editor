@@ -599,6 +599,21 @@ Wick.Project = class extends Wick.Base {
     }
 
     /**
+     * Perform a boolean operation on all selected paths.
+     * @param {string} booleanOpName - The name of the boolean op function to use. See Wick.Path.booleanOp.
+     */
+    doBooleanOperationOnSelection (booleanOpName) {
+        var paths = this.selection.getSelectedObjects('Path');
+        this.selection.clear();
+        var booleanOpResult = Wick.Path.booleanOp(paths, booleanOpName);
+        paths.forEach(path => {
+            path.remove();
+        });
+        this.activeFrame.addPath(booleanOpResult);
+        this.selection.select(booleanOpResult);
+    }
+
+    /**
      * Copy the contents of the selection to the clipboard.
      * @returns {boolean} True if there was something to copy, false otherwise
      */

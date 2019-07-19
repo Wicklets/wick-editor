@@ -346,25 +346,6 @@ describe('Wick.Path', function() {
         });
     });
 
-    /*
-    describe('#flatten', function() {
-        it('should convert a stroke into a fill', function () {
-            var stroke = TestUtils.paperToWickPath(new paper.Path.Line({
-                from: [0, 0],
-                to: [100, 100],
-                strokeColor: '#ff0000',
-                strokeWidth: 5,
-            }));
-
-            var flattened = stroke.flatten();
-
-            expect(flattened.fillColor.toCSS(true)).to.equal('#ff0000');
-            expect(flattened.strokeColor).to.equal(undefined);
-            expect(flattened.bounds.width).to.equal(105);
-            expect(flattened.bounds.height).to.equal(105);
-        });
-    });
-
     describe('#unite', function() {
         it('should unite two fills', function () {
             var fill1 = TestUtils.paperToWickPath(new paper.Path.Rectangle({
@@ -388,55 +369,55 @@ describe('Wick.Path', function() {
             expect(united.bounds.width).to.equal(75);
             expect(united.bounds.height).to.equal(75);
         });
+    });
 
-        it('should unite two strokes', function () {
-            // These two strokes make an "X"
-            var stroke1 = TestUtils.paperToWickPath(new paper.Path.Line({
-                from: [0, 0],
-                to: [50, 50],
-                strokeColor: '#ff0000',
-                strokeWidth: 5,
-            }));
-            var stroke2 = TestUtils.paperToWickPath(new paper.Path.Line({
-                from: [50, 0],
-                to: [0, 50],
-                strokeColor: '#00ff00',
-                strokeWidth: 5,
-            }));
-
-            var united = Wick.Path.unite([stroke1, stroke1]);
-
-            expect(united.strokeColor).to.equal(undefined);
-            expect(united.fillColor.toCSS(true)).to.equal('#ff0000');
-            expect(united.strokeWidth).to.equal(undefined);
-            expect(united.bounds.width).to.equal(55);
-            expect(united.bounds.height).to.equal(55);
-        });
-
-        it('should unite a stroke and a fill', function () {
-            // These two strokes make an "X"
-            var stroke = TestUtils.paperToWickPath(new paper.Path.Line({
-                from: [25, 25],
-                to: [75, 75],
-                strokeColor: '#00ff00',
-                strokeWidth: 5,
-            }));
-            var fill = TestUtils.paperToWickPath(new paper.Path.Rectangle({
+    describe('#subtract', function() {
+        it('should subtract two fills', function () {
+            var fill1 = TestUtils.paperToWickPath(new paper.Path.Rectangle({
                 from: [0, 0],
                 to: [50, 50],
                 fillColor: '#ff0000',
                 strokeColor: '#000000',
                 strokeWidth: 5,
             }));
+            var fill2 = TestUtils.paperToWickPath(new paper.Path.Rectangle({
+                from: [25, 25],
+                to: [75, 75],
+                fillColor: '#00ff00',
+            }));
 
-            var united = Wick.Path.unite([stroke, fill]);
+            var united = Wick.Path.subtract([fill1, fill2]);
 
-            expect(united.strokeColor.toCSS(true)).to.equal('#000000');
             expect(united.fillColor.toCSS(true)).to.equal('#ff0000');
+            expect(united.strokeColor.toCSS(true)).to.equal('#000000');
             expect(united.strokeWidth).to.equal(5);
-            expect(united.bounds.width).to.equal(75);
-            expect(united.bounds.height).to.equal(75);
+            expect(united.bounds.width).to.equal(50);
+            expect(united.bounds.height).to.equal(50);
         });
     });
-    */
+
+    describe('#intersect', function() {
+        it('should intersect two fills', function () {
+            var fill1 = TestUtils.paperToWickPath(new paper.Path.Rectangle({
+                from: [0, 0],
+                to: [50, 50],
+                fillColor: '#ff0000',
+                strokeColor: '#000000',
+                strokeWidth: 5,
+            }));
+            var fill2 = TestUtils.paperToWickPath(new paper.Path.Rectangle({
+                from: [25, 25],
+                to: [75, 75],
+                fillColor: '#00ff00',
+            }));
+
+            var united = Wick.Path.intersect([fill1, fill2]);
+
+            expect(united.fillColor.toCSS(true)).to.equal('#ff0000');
+            expect(united.strokeColor.toCSS(true)).to.equal('#000000');
+            expect(united.strokeWidth).to.equal(5);
+            expect(united.bounds.width).to.equal(25);
+            expect(united.bounds.height).to.equal(25);
+        });
+    });
 });

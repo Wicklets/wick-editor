@@ -512,7 +512,7 @@ class EditorCore extends Component {
    *    Calling this function with false ensures user doesn't accidentally wrap a Clip within another Clip.
    */
   createClipFromSelection = (name, wrapSingularClip = true) => {
-    
+
     if (this.project.selection.numObjects === 0) {
       console.log("No selection from which to create clips.");
       return;
@@ -714,6 +714,30 @@ class EditorCore extends Component {
    */
   nudgeSelectionLeftMore = () => {
     this.project.selection.x -= 10;
+    this.projectDidChange();
+  }
+
+  /**
+   * Perform a boolean unite on the selected paths.
+   */
+  booleanUnite = () => {
+    this.project.doBooleanOperationOnSelection('unite');
+    this.projectDidChange();
+  }
+
+  /**
+   * Perform a boolean subtraction on the selected paths.
+   */
+  booleanSubtract = () => {
+    this.project.doBooleanOperationOnSelection('subtract');
+    this.projectDidChange();
+  }
+
+  /**
+   * Perform a boolean intersection on the selected paths.
+   */
+  booleanIntersect = () => {
+    this.project.doBooleanOperationOnSelection('intersect');
     this.projectDidChange();
   }
 
