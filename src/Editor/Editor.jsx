@@ -160,6 +160,7 @@ class Editor extends EditorCore {
   componentDidUpdate = (prevProps, prevState) => {
 
     if(this.state.previewPlaying && !prevState.previewPlaying) {
+      this.project.view.canvas.focus();
       this.project.play({
         onError: (error) => {
           this.stopPreviewPlaying([error])
