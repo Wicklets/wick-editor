@@ -66,6 +66,9 @@ import iconBreakApart from 'resources/tool-icons/breakApart.svg';
 import iconClose from 'resources/tool-icons/close.svg';
 import iconRecenter from 'resources/tool-icons/recenter.svg';
 import iconAdd from 'resources/asset-library-icons/add.svg';
+import iconSubtract from 'resources/tool-icons/subtract.svg';
+import iconIntersect from 'resources/tool-icons/intersect.svg';
+import iconUnite from 'resources/tool-icons/unite.svg';
 
 
 // Assets
@@ -199,6 +202,9 @@ class ToolIcon extends Component {
       "tween": iconTween, 
       "font": iconFont,
       "moreactions": iconMoreActions,
+      "unite": iconUnite,
+      "subtract": iconSubtract,
+      "intersect": iconIntersect, 
     }
   }
 

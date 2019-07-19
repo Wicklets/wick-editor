@@ -5,6 +5,7 @@ $canvas-action-size: 35px;
 .more-canvas-actions-popover {
   background-color: $editor-primary;
   border: 2px solid $editor-primary-outline;
+  max-width: 375px;
 }
 
 .canvas-actions-widget {
