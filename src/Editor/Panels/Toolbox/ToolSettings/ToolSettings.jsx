@@ -60,10 +60,7 @@ class ToolSettings extends Component {
   // Selection contents and properties
   renderCursorSettings = () => {
     return (
-      <div className='settings-input-container'>
-        {this.renderSelectPoints()}
-        {this.renderSelectCurves()}
-      </div>
+      <div className='settings-input-container'></div>
     );
   }
 
@@ -134,28 +131,6 @@ class ToolSettings extends Component {
         type='checkbox'
         value={this.getToolSetting('pressureEnabled')}
         onChange={() => this.setToolSetting('pressureEnabled', !this.getToolSetting('pressureEnabled'))}/>
-    )
-  }
-
-  renderSelectCurves = () => {
-    return (
-      <ToolSettingsInput
-        name='Select Curves'
-        icon='curve'
-        type='checkbox'
-        value={this.getToolSetting('selectCurves')}
-        onChange={() => this.setToolSetting('selectCurves', !this.getToolSetting('selectCurves'))}/>
-    )
-  }
-
-  renderSelectPoints = () => {
-    return (
-      <ToolSettingsInput
-        name='Select Points'
-        icon='point'
-        type='checkbox'
-        value={this.getToolSetting('selectPoints')}
-        onChange={() => this.setToolSetting('selectPoints', !this.getToolSetting('selectPoints'))}/>
     )
   }
 
