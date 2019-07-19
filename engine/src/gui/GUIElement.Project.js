@@ -26,8 +26,6 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
 
         // Build canvas + canvas container
         this._canvas = document.createElement('canvas');
-        this._canvas.style.width = '100%';
-        this._canvas.style.height = '100%';
         this.paper.setup(this._canvas);
 
         this._canvasContainer = document.createElement('div');
@@ -72,9 +70,15 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
         var containerWidth = this.canvasContainer.offsetWidth;
         var containerHeight = this.canvasContainer.offsetHeight;
 
+        containerWidth = Math.floor(containerWidth)-2;
+        containerHeight = Math.floor(containerHeight)-1;
+
+        this._canvas.style.width = containerWidth;
+        this._canvas.style.height = containerHeight;
+
         this.paper.view.viewSize.width = containerWidth;
         this.paper.view.viewSize.height = containerHeight;
-    }
+    };
 
     /**
      *
