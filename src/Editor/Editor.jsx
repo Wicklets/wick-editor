@@ -624,28 +624,26 @@ class Editor extends EditorCore {
                     <ReflexContainer windowResizeAware={true} orientation="vertical">
                       {/* Middle Panel */}
                       <ReflexElement {...this.resizeProps}>
+                        {/*Toolbox*/}
+                        <div id="toolbox-container">
+                          <DockedPanel showOverlay={this.state.previewPlaying}>
+                            <Toolbox
+                              project={this.state.project}
+                              getActiveToolName={() => this.getActiveTool().name}
+                              activeToolName={this.getActiveTool().name}
+                              setActiveTool={this.setActiveTool}
+                              getToolSetting={this.getToolSetting}
+                              setToolSetting={this.setToolSetting}
+                              previewPlaying={this.state.previewPlaying}
+                              editorActions={this.actionMapInterface.editorActions}
+                              getToolSettingRestrictions={this.getToolSettingRestrictions}
+                              showCanvasActions={this.state.showCanvasActions}
+                              toggleCanvasActions={this.toggleCanvasActions}
+                            />
+                          </DockedPanel>
+                        </div>
                         <ReflexContainer windowResizeAware={true} orientation="horizontal">
-                          {/*Toolbox*/}
-                          <ReflexElement
-                            size={40}
-                            minSize={40}>
-                            <DockedPanel showOverlay={this.state.previewPlaying}>
-                              <Toolbox
-                                project={this.state.project}
-                                getActiveToolName={() => this.getActiveTool().name}
-                                activeToolName={this.getActiveTool().name}
-                                setActiveTool={this.setActiveTool}
-                                getToolSetting={this.getToolSetting}
-                                setToolSetting={this.setToolSetting}
-                                previewPlaying={this.state.previewPlaying}
-                                editorActions={this.actionMapInterface.editorActions}
-                                getToolSettingRestrictions={this.getToolSettingRestrictions}
-                                showCanvasActions={this.state.showCanvasActions}
-                                toggleCanvasActions={this.toggleCanvasActions}
-                              />
-
-                            </DockedPanel>
-                          </ReflexElement>
+    
                           {/*Canvas*/}
                           <ReflexElement {...this.resizeProps}>
                             <DockedPanel>
