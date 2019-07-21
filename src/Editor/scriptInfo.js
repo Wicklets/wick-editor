@@ -39,7 +39,7 @@ class ScriptInfoInterface extends Object {
     get referenceItems () {
         return {
             'Timeline' : this.timelineReference,
-            'Object' : this.objectReference,
+            'Objects' : this.objectReference,
             'Input' : this.inputReference,
             'Project' : this.projectReference,
             'Random' : this.randomReference,
@@ -55,33 +55,48 @@ class ScriptInfoInterface extends Object {
                     name: 'play',
                     snippet: 'play()',
                     description: 'Plays the parent timeline that this object belongs to.',
+                    warning: 'To control a Clip\'s own timeline, always use this.play();',
                 },
                 {
                     name: 'stop',
                     snippet: 'stop()',
                     description: 'Stops the parent timeline that this object belongs to.',
+                    warning: 'To control a Clip\'s own timeline, always use this.stop();',
                 },
                 {
                     name: 'gotoAndPlay',
                     snippet: 'gotoAndPlay(1)',
                     description: 'Moves the playhead to a frame on the timeline that this object belongs to, and plays that timeline.',
+                    warning: 'To control a Clip\'s own timeline, always use this.gotoAndPlay();',
                     params: [{name: 'frame', type: '{string|Number}'}],
                 },
                 {
                     name: 'gotoAndStop',
                     snippet: 'gotoAndStop(1)',
                     description: 'Moves the playhead to a frame on the timeline that this object belongs to, and stops that timeline.',
+                    warning: 'To control a Clip\'s own timeline, always use this.gotoAndStop();',
                     params: [{name: 'frame', type: '{string|Number}'}],
+                },
+                {
+                    name: 'gotoAndLoop',
+                    snippet: 'gotoAndLoop(1, 10, true)',
+                    description: 'Repeats a specific part of the timeline this object belongs to.',
+                    warning: 'To control a Clip\'s own timeline, always use this.gotoAndLoop();',
+                    params: [{name: 'startFrame', type: '{string|Number}'},
+                             {name: 'endFrame', type: '{string|Number}'},
+                             {name: 'loop', type: '{bool|Number}', description: 'If true, will loop forever. If false, will play once and stop. If a number, it will loop that many times.'}],
                 },
                 {
                     name: 'gotoNextFrame',
                     snippet: 'gotoNextFrame()',
                     description: 'Moves the playhead to the next frame on the timeline that this object belongs to.',
+                    warning: 'To control a Clip\'s own timeline, always use this.gotoNextFrame();',
                 },
                 {
                     name: 'gotoPrevFrame',
                     snippet: 'gotoPrevFrame()',
                     description: 'Moves the playhead to the previous frame on the timeline that this object belongs to.',
+                    warning: 'To control a Clip\'s own timeline, always use this.gotoPrevFrame();',
                 }
             ]
         );
@@ -90,6 +105,21 @@ class ScriptInfoInterface extends Object {
     get objectReference () {
         return (
             [
+                {
+                    name: 'identifier',
+                    snippet: 'this.identifier',
+                    description: 'The name of this Clip. Type a Clip\'s identifier to access it in your code.' ,
+                },
+                {
+                    name: 'parent',
+                    snippet: 'parent',
+                    description: 'Returns the object that owns the calling object.',
+                },
+                {
+                    name: 'project',
+                    snippet: 'project',
+                    description: 'Returns the project - an object that contains all the other objects.\nYou can use this to access Clips: for example, "project.myClip".',
+                },
                 {
                     name: 'x',
                     snippet: 'this.x',
@@ -131,14 +161,30 @@ class ScriptInfoInterface extends Object {
                     description: 'The opacity of the object. 0 is completely transparent, 1 is completely opaque.',
                 },
                 {
-                    name: 'parent',
-                    snippet: 'parent',
-                    description: 'Returns the object that owns the calling object.',
+                    name: 'playheadPosition',
+                    snippet: 'this.playheadPosition',
+                    description: 'The number of the current frame being displayed by this Clip.',
+                },
+                {
+                    name: 'currentFrameName',
+                    snippet: 'this.currentFrameName',
+                    description: 'The name of the current frame being displayed by this Clip.',
+                },
+                {
+                    name: 'playing',
+                    snippet: 'this.playing',
+                    description: 'Is this Clip playing?',
+                },
+                {
+                    name: 'length',
+                    snippet: 'this.length',
+                    description: 'The length of this Clip\'s timeline.',
                 },
                 {
                     name: 'clone',
                     snippet: 'this.clone()',
                     description: 'Creates a clone of this object, places it on the same frame, and returns a reference to it.',
+                    warning: 'Too many clones can cause performance issues.'
                 },
                 {
                     name: 'clones',
@@ -154,6 +200,7 @@ class ScriptInfoInterface extends Object {
                     name: 'setText',
                     snippet: 'textName.setText("Text")',
                     description: 'Changes the content of a text object.',
+                    warning: 'For use on text objects only!',
                 },
                 {
                     name: 'hitTest',
@@ -183,6 +230,9 @@ class ScriptInfoInterface extends Object {
                     name: 'playSound',
                     snippet: 'playSound("sound.mp3")',
                     description: 'Plays a sound in the asset library.',
+                    param: [{name: 'name', type:'{string}', description: 'Name of the sound asset in the library.'},
+                            {name: 'options', type:'{Object}', description: 'Options for the sound:\n   * seekMS - the amount of time in milliseconds to start the sound at.\n   * volume - the volume of the sound, from 0.0 - 1.0\n   * loop - if set to true, the sound will loop.'}],
+                    returns: [{type: 'object', description: 'Object representing the sound which was played.'}],
                 },
                 {
                     name: 'stopAllSounds',
@@ -210,6 +260,11 @@ class ScriptInfoInterface extends Object {
                     name: 'project.framerate',
                     snippet: 'project.framerate',
                     description: 'The framerate of the project.',
+                },
+                {
+                    name: 'project.backgroundColor',
+                    snippet: 'project.backgroundColor',
+                    description: 'The background color of the project, expressed in hexadecimal; for example, #FF0000 is red.',
                 },
             ]
         )
@@ -307,7 +362,7 @@ class ScriptInfoInterface extends Object {
             if (key !== 'default') {
                 events.push({
                     name: key,
-                    snippet: "onEvent('<EVENT_FN>', function () {\n  //Add code here!\n});".replace('<EVENT_FN>', key),
+                    snippet: "onEvent('<EVENT_FN>', function () {\n\t//Add code here!\n});".replace('<EVENT_FN>', key),
                     description: descriptions[key],
                 });
             }

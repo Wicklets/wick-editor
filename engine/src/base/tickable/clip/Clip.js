@@ -237,6 +237,7 @@ Wick.Clip = class extends Wick.Tickable {
 
     /**
      * Plays a clip's timeline from that clip's current playhead position.
+     * @param {number|string} startFrame - number or string representing the frame to move the playhead to.
      */
     play () {
         this.timeline.play();
@@ -256,6 +257,16 @@ Wick.Clip = class extends Wick.Tickable {
      */
     gotoAndPlay (frame) {
         this.timeline.gotoAndPlay(frame);
+    }
+    
+    /**
+     * Repeats a specific part of the timeline.
+     * @param {string|number} startFrame - A playhead position or name of a frame to start at.
+     * @param {string|number} endFrame - When the playhead reaches this frame, it will loop back to startFrame.
+     * @param {number|bool} [loop = true] - If true, will loop forever. If false, will play once and stop. If a number, it will loop that many times.
+     */
+    gotoAndLoop (startFrame, endFrame, loop = true) {
+        this.timeline.gotoAndLoop(startFrame, endFrame, loop);
     }
 
     /**
@@ -456,6 +467,22 @@ Wick.Clip = class extends Wick.Tickable {
         return this._clones;
     }
 
+    /**
+     * The total length of this clip's timeline.
+     * @type {number}
+     */
+    get length () {
+        return this.timeline.length;
+    }
+    
+    /**
+     * Is this clip playing?
+     * @type {boolean}
+     */
+    get playing () {
+        return this.timeline._playing;
+    }
+    
     /**
      * This is a stopgap to prevent users from using setText with a Clip.
      */

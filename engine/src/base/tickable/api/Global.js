@@ -79,7 +79,7 @@ GlobalAPI = class {
     }
 
     /**
-     * Moves the plahead of the parent clip to a frame and stops the timeline of that parent clip.
+     * Moves the playhead of the parent clip to a frame and stops the timeline of that parent clip.
      * @param {string | number} frame Frame name or number to move playhead to.
      */
     gotoAndStop (frame) {
@@ -87,11 +87,21 @@ GlobalAPI = class {
     }
 
     /**
-     * Moves the plahead of the parent clip to a frame and plays the timeline of that parent clip.
+     * Moves the playhead of the parent clip to a frame and plays the timeline of that parent clip.
      * @param {string | number} frame Frame name or number to move playhead to.
      */
     gotoAndPlay (frame) {
         this.scriptOwner.parentClip.gotoAndPlay(frame);
+    }
+    
+    /**
+     * Repeats a specific part of the timeline of the parent Clip.
+     * @param {string|number} startFrame - A playhead position or name of a frame to start at.
+     * @param {string|number} endFrame - When the playhead reaches this frame, it will loop back to startFrame.
+     * @param {number|bool} [loop = true] - If true, will loop forever. If false, will play once and stop. If a number, it will loop that many times.
+     */
+    gotoAndLoop (startFrame, endFrame, loop = true) {
+        this.scriptOwner.parentClip.gotoAndLoop(startFrame, endFrame, loop);
     }
 
     /**

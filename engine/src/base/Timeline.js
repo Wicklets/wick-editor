@@ -32,6 +32,13 @@ Wick.Timeline = class extends Wick.Base {
 
         this._playing = true;
         this._forceNextFrame = null;
+        
+        //is the clip currently set to play in reverse?
+        this._reversed = false;
+        //range of frames to loop between; a blank array means "play all"
+        this._loopRange = [];
+        //how many times should this clip loop? -1 means infinitely. Counts downward the more times the clip loops.
+        this._loopCount = -1;
     }
 
     serialize (args) {
@@ -51,6 +58,10 @@ Wick.Timeline = class extends Wick.Base {
 
         this._playing = true;
         this._forceNextFrame = null;
+        
+        this._reversed = false;
+        this._loopRange = [];
+        this._loopCount = -1;
     }
 
     get classname () {
@@ -303,24 +314,59 @@ Wick.Timeline = class extends Wick.Base {
     }
 
     /**
-     * Advances the timeline one frame forwards. Loops back to beginning if the end is reached.
+     * Advances the timeline one frame forwards (or backwards). Loops back to beginning if the end is reached, if looping is enabled.
      */
-    advance () {
-        if(this._forceNextFrame) {
+    advance (speed = 1) {
+        //positive integers only, please! I don't think the code can handle playheadPosition being a float
+        speed = Math.abs(Math.round(speed));
+        
+        //define boundaries of playback
+        let minFrame = 0;
+        let maxFrame = 0;
+        if (this._loopRange === []) { //if playing all
+            minFrame = 1;
+            maxFrame = this._length;
+        } else {
+            minFrame = Math.min(this._loopRange[0], this._loopRange[1]);
+            maxFrame = Math.max(this._loopRange[0], this._loopRange[1]);
+        }
+        
+        if (this._forceNextFrame) {
             this.playheadPosition = this._forceNextFrame;
             this._forceNextFrame = null;
-        } else if(this._playing) {
-            this.playheadPosition ++;
-            if(this.playheadPosition > this.length) {
-                this.playheadPosition = 1;
+        } else if (this._playing) {
+            let direction = (this._reversed) ? -1 : 1;
+            //you can use this to play clips at double or triple speed
+            this.playheadPosition += speed * direction;
+            //keep playback within bounds, and loop if loop is enabled
+            if(this.playheadPosition > maxFrame || this.playheadPosition < minFrame) {
+                let targetFrame = (this.playheadPosition > maxFrame) ? minFrame : maxFrame;
+                if (this._loopCount !== 0) {
+                    this.playheadPosition = targetFrame;
+                    //if _loopCount is a negative number, loop forever
+                    if (this._loopCount > 0) {
+                        this._loopCount--;
+                    } else {
+                        this._loopCount = -1;
+                    }
+                } else { //no loops left
+                    this.stop(); //stop() resets play settings
+                }
             }
         }
+    }
+    
+    resetPlaySettings () {
+        this._loopCount = -1;
+        this._loopRange = [];
+        this._reversed = false;
     }
 
     /**
      * Makes the timeline advance automatically during ticks.
      */
     play () {
+        this.resetPlaySettings();
         this._playing = true;
     }
 
@@ -328,6 +374,7 @@ Wick.Timeline = class extends Wick.Base {
      * Stops the timeline from advancing during ticks.
      */
     stop () {
+        this.resetPlaySettings();
         this._playing = false;
     }
 
@@ -347,6 +394,48 @@ Wick.Timeline = class extends Wick.Base {
     gotoAndPlay (frame) {
         this.play();
         this.gotoFrame(frame);
+    }
+    
+    /**
+     * Repeats a specific part of the timeline.
+     * @param {string|number} startFrame - A playhead position or name of a frame to start at.
+     * @param {string|number} endFrame - When the playhead reaches this frame, it will loop back to startFrame.
+     * @param {number|bool} [loop = true] - If true, will loop forever. If false, will play once and stop. If a number, it will loop that many times.
+     */
+    gotoAndLoop (startFrame, endFrame, loop = true) {
+        if (endFrame === undefined) endFrame = this.length;
+        //convert frame labels to numbers
+        let sf = 0;
+        let ef = 0;
+        //keep args within bounds
+        if (typeof(startFrame) === 'number') {
+            if (startFrame > this.length) sf = this.length;
+            if (startFrame < 1) sf = 1;
+        } else {
+            sf = this.getPlayheadPositionOfFrameWithName(startFrame);
+        }
+        if (typeof(endFrame) === 'number') {
+            if (endFrame > this.length) ef = this.length;
+            if (endFrame < 1) ef = 1;
+        } else {
+            ef = this.getPlayheadPositionOfFrameWithName(endFrame);
+        }
+        this._loopRange = [sf, ef];
+        //reverse clip is startFrame is larger than endFrame
+        this._reversed = sf > ef;
+        
+        switch (loop) {
+            case true:
+                this._loopCount = -1;
+                break;
+            case false:
+                this._loopCount = 0;
+                break;
+            default:
+                this._loopCount = loop;
+        }
+        this._playing = true;
+        this.gotoFrame(sf);
     }
 
     /**
@@ -379,6 +468,7 @@ Wick.Timeline = class extends Wick.Base {
      * @param {string|number} frame - A playhead position or name of a frame to move to.
      */
     gotoFrame (frame) {
+        this.resetPlaySettings();
         if(typeof frame === 'string') {
             var namedFrame = this.frames.find(seekframe => {
               return seekframe.identifier === frame;
