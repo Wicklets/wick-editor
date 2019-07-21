@@ -341,8 +341,9 @@ Wick.Timeline = class extends Wick.Base {
             //keep playback within bounds, and loop if loop is enabled
             if(this.playheadPosition > maxFrame || this.playheadPosition < minFrame) {
                 let targetFrame = (this.playheadPosition > maxFrame) ? minFrame : maxFrame;
+                console.log(targetFrame);
                 if (this._loopCount !== 0) {
-                    this.playheadPosition = targetFrame;
+                    this.gotoFrame(targetFrame);
                     //if _loopCount is a negative number, loop forever
                     if (this._loopCount > 0) {
                         this._loopCount--;
