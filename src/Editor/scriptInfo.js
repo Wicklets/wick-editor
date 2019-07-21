@@ -45,6 +45,7 @@ class ScriptInfoInterface extends Object {
             'Random' : this.randomReference,
             'Sound' : this.soundReference,
             'Event' : this.eventReference,
+            'Misc.' : this.miscReference,
         }
     }
 
@@ -375,6 +376,22 @@ class ScriptInfoInterface extends Object {
         });
 
         return events;
+    }
+    
+    get miscReference () {
+        return (
+            [
+                {
+                    name: 'lerp()',
+                    snippet: 'lerp(0, 1, 0.5)',
+                    description: 'Linear interpolation.',
+                    params: [{name: 'a', type: '{Number}'},
+                             {name: 'b', type: '{Number}'},
+                             {name: 't', type: '{Number}', description: 'A float between 0 and 1.'}],
+                    return: [{type: '{Number}', description: 'Returns a number between a and b. How close depends on how close t is to 0 or 1. For example, if t = 0.5, the resulting number will be halfway between a and b.'}]
+                },
+            ]
+        )
     }
 }
 
