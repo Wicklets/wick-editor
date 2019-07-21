@@ -42,6 +42,7 @@
     "build": "react-scripts build && cp CNAME_alpha ./build/CNAME",
     "test": "react-scripts test",
     "predeploy": "npm run build",
+    "prerelease-deploy": "npm run build; cp -r build/* ../wick-editor-prerelease/; git add .; git commit -m 'update prerelease build'; git push",
     "deploy": "gh-pages -d build",
     "eject": "react-scripts eject"
   },
