@@ -36,7 +36,7 @@ Wick.Timeline = class extends Wick.Base {
         //is the clip currently set to play in reverse?
         this._reversed = false;
         //range of frames to loop between; a blank array means "play all"
-        this._loopRange = [];
+        this._loopRange = null;
         //how many times should this clip loop? -1 means infinitely. Counts downward the more times the clip loops.
         this._loopCount = -1;
     }
@@ -60,7 +60,7 @@ Wick.Timeline = class extends Wick.Base {
         this._forceNextFrame = null;
         
         this._reversed = false;
-        this._loopRange = [];
+        this._loopRange = null;
         this._loopCount = -1;
     }
 
@@ -204,6 +204,37 @@ Wick.Timeline = class extends Wick.Base {
             return frame.name === name;
         }) || null;
     }
+    
+    /**
+     * Verifies that the given frame number or name exists on this timeline. 
+     * @param {number|string} frame - the frame name or number to search.
+     * @param {bool} [throwError = false] - throw error if frame not found?
+     * @returns {number|null} If frame exists, returns its playhead position. If given an out-of-range number, returns 1 or length. If given an invalid name, returns null.
+     */
+    verifyFrameExists (frame, throwError = false) {
+        if(typeof frame === 'string') {
+            var namedFrame = this.frames.find(seekframe => {
+              return seekframe.identifier === frame;
+            });
+            if (namedFrame) {
+                return namedFrame.start;
+            } else {
+                if (throwError) throw new Error('Frame named "'+frame+'" doesn\'t exist.');
+                return null;
+            }
+        } else if (typeof frame === 'number') {
+            //remove decimal places
+            let f = Math.round(frame);
+            //prevent out-of-range values
+            if (f > this.length) f = this.length;
+            if (f < 1) f = 1;
+            //return
+            return frame;
+        } else {
+            if (throwError) throw new Error('gotoFrame: Invalid argument: ' + frame);
+            return null;
+        }
+    }
 
     /**
      * Add a frame to one of the layers on this timeline. If there is no layer where the frame wants to go, the frame will not be added.
@@ -317,15 +348,15 @@ Wick.Timeline = class extends Wick.Base {
      * Advances the timeline one frame forwards (or backwards). Loops back to beginning if the end is reached, if looping is enabled.
      */
     advance (speed = 1) {
-        //positive integers only, please! I don't think the code can handle playheadPosition being a float
+        //positive integers only, please!
         speed = Math.abs(Math.round(speed));
         
         //define boundaries of playback
         let minFrame = 0;
         let maxFrame = 0;
-        if (this._loopRange === []) { //if playing all
+        if (this._loopRange === null) { //if playing all
             minFrame = 1;
-            maxFrame = this._length;
+            maxFrame = this.length;
         } else {
             minFrame = Math.min(this._loopRange[0], this._loopRange[1]);
             maxFrame = Math.max(this._loopRange[0], this._loopRange[1]);
@@ -338,16 +369,18 @@ Wick.Timeline = class extends Wick.Base {
             let direction = (this._reversed) ? -1 : 1;
             //you can use this to play clips at double or triple speed
             this.playheadPosition += speed * direction;
+            console.log("_loopRange: "+this._loopRange+"\nmin/max frame: ("+minFrame+", "+maxFrame+")\nreversed: "+this._reversed);
             //keep playback within bounds, and loop if loop is enabled
-            if(this.playheadPosition > maxFrame || this.playheadPosition < minFrame) {
-                let targetFrame = (this.playheadPosition > maxFrame) ? minFrame : maxFrame;
-                console.log(targetFrame);
+            if(this.playheadPosition >= maxFrame || this.playheadPosition <= minFrame) {
+                let targetFrame = (this.playheadPosition >= maxFrame) ? minFrame : maxFrame;
+                console.log("going to frame "+targetFrame);
                 if (this._loopCount !== 0) {
                     this.gotoFrame(targetFrame);
                     //if _loopCount is a negative number, loop forever
                     if (this._loopCount > 0) {
                         this._loopCount--;
                     } else {
+                        //keep loopCount at -1 just to make sure it doesn't grow unecessarily large or something
                         this._loopCount = -1;
                     }
                 } else { //no loops left
@@ -359,7 +392,7 @@ Wick.Timeline = class extends Wick.Base {
     
     resetPlaySettings () {
         this._loopCount = -1;
-        this._loopRange = [];
+        this._loopRange = null;
         this._reversed = false;
     }
 
@@ -401,26 +434,14 @@ Wick.Timeline = class extends Wick.Base {
      * Repeats a specific part of the timeline.
      * @param {string|number} startFrame - A playhead position or name of a frame to start at.
      * @param {string|number} endFrame - When the playhead reaches this frame, it will loop back to startFrame.
-     * @param {number|bool} [loop = true] - If true, will loop forever. If false, will play once and stop. If a number, it will loop that many times.
+     * @param {number|bool} [loop = true] - If true, will loop forever. If false, will play once and stop. If a number, it will play that many times in total.
      */
     gotoAndLoop (startFrame, endFrame, loop = true) {
-        if (endFrame === undefined) endFrame = this.length;
-        //convert frame labels to numbers
-        let sf = 0;
-        let ef = 0;
-        //keep args within bounds
-        if (typeof(startFrame) === 'number') {
-            if (startFrame > this.length) sf = this.length;
-            if (startFrame < 1) sf = 1;
-        } else {
-            sf = this.getPlayheadPositionOfFrameWithName(startFrame);
-        }
-        if (typeof(endFrame) === 'number') {
-            if (endFrame > this.length) ef = this.length;
-            if (endFrame < 1) ef = 1;
-        } else {
-            ef = this.getPlayheadPositionOfFrameWithName(endFrame);
-        }
+        //check if these frames exist, throw errors if they don't
+        let sf = this.verifyFrameExists(startFrame, true);
+        let ef = this.verifyFrameExists(endFrame, true);
+        if (!sf || !ef) return;
+        
         this._loopRange = [sf, ef];
         //reverse clip is startFrame is larger than endFrame
         this._reversed = sf > ef;
@@ -433,7 +454,8 @@ Wick.Timeline = class extends Wick.Base {
                 this._loopCount = 0;
                 break;
             default:
-                this._loopCount = loop;
+                //if you set loopCount to 5, it will play 6 times in total
+                this._loopCount = loop-1;
         }
         this._playing = true;
         this.gotoFrame(sf);
@@ -443,6 +465,7 @@ Wick.Timeline = class extends Wick.Base {
      * Moves the timeline forward one frame. Loops back to 1 if gotoNextFrame moves the playhead past the past frame.
      */
     gotoNextFrame () {
+        this.resetPlaySettings();
         // Loop back to beginning if gotoNextFrame goes past the last frame
         var nextFramePlayheadPosition = this.playheadPosition + 1;
         if(nextFramePlayheadPosition > this.length) {
@@ -456,6 +479,7 @@ Wick.Timeline = class extends Wick.Base {
      * Moves the timeline backwards one frame. Loops to the last frame if gotoPrevFrame moves the playhead before the first frame.
      */
     gotoPrevFrame () {
+        this.resetPlaySettings();
         var prevFramePlayheadPosition = this.playheadPosition - 1;
         if(prevFramePlayheadPosition <= 0) {
             prevFramePlayheadPosition = this.length;
@@ -469,16 +493,8 @@ Wick.Timeline = class extends Wick.Base {
      * @param {string|number} frame - A playhead position or name of a frame to move to.
      */
     gotoFrame (frame) {
-        this.resetPlaySettings();
-        if(typeof frame === 'string') {
-            var namedFrame = this.frames.find(seekframe => {
-              return seekframe.identifier === frame;
-            });
-            if(namedFrame) this._forceNextFrame = namedFrame.start;
-        } else if (typeof frame === 'number') {
-            this._forceNextFrame = frame;
-        } else {
-            throw new Error('gotoFrame: Invalid argument: ' + frame);
-        }
+        //verify that this frame exists, throw an error if it doesn't (see definition)
+        let f = this.verifyFrameExists(frame, true);
+        if (f) this._forceNextFrame = f;
     }
 }

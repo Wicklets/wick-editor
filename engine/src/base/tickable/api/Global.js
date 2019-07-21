@@ -24,7 +24,7 @@ GlobalAPI = class {
      */
     static get apiMemberNames () {
         return [
-            'stop','play','gotoAndStop','gotoAndPlay','gotoNextFrame','gotoPrevFrame',
+            'stop','play','gotoAndStop','gotoAndPlay','gotoAndLoop','gotoNextFrame','gotoPrevFrame',
             // These are currently disabled, they are very slow for some reason.
             // They are currently hacked in inside Tickable._runFunction
             //'project','root','parent','parentObject',
@@ -98,7 +98,7 @@ GlobalAPI = class {
      * Repeats a specific part of the timeline of the parent Clip.
      * @param {string|number} startFrame - A playhead position or name of a frame to start at.
      * @param {string|number} endFrame - When the playhead reaches this frame, it will loop back to startFrame.
-     * @param {number|bool} [loop = true] - If true, will loop forever. If false, will play once and stop. If a number, it will loop that many times.
+     * @param {number|bool} [loop = true] - If true, will loop forever. If false, will play once and stop. If a number, it will play that many times in total.
      */
     gotoAndLoop (startFrame, endFrame, loop = true) {
         this.scriptOwner.parentClip.gotoAndLoop(startFrame, endFrame, loop);

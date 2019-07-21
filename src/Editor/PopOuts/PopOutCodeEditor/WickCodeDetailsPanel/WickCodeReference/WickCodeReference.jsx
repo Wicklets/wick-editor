@@ -55,7 +55,10 @@ class WickCodeDetailsPanel extends Component {
                 text += "\n"
                 if (param.name) text += " 💙 "+param.name;
                 //clean up type indication based on the consistent format
-                if (param.type) text += " — "+param.type.replace(/[{}]/g, "").replace(/[|]/g, " or ");
+                if (param.type) {
+                    let ptype = param.type.toLowerCase().replace(/[{}]/g, "").replace(/[|]/g, " or ");
+                    text += " — "+ptype;
+                }
                 if (param.description) text += " • "+param.description;
             });
         }
@@ -65,7 +68,11 @@ class WickCodeDetailsPanel extends Component {
             f.returns.forEach(function(ret, index) {
                 if (!ret.type && !ret.description) return;
                 text += "\n"
-                if (ret.type) text += "("+ret.type+")";
+                //clean up type indication based on the consistent format
+                if (ret.type) {
+                    let ptype = ret.type.toLowerCase().replace(/[{}]/g, "").replace(/[|]/g, " or ");
+                    text += "("+ptype+")";
+                }
                 if (ret.description) text += " - "+ret.description;
             });
         }

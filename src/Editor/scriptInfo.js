@@ -85,7 +85,7 @@ class ScriptInfoInterface extends Object {
                     warning: 'To control a Clip\'s own timeline, always use this.gotoAndLoop();',
                     params: [{name: 'startFrame', type: '{string|Number}'},
                              {name: 'endFrame', type: '{string|Number}'},
-                             {name: 'loop', type: '{bool|Number}', description: 'If true, will loop forever. If false, will play once and stop. If a number, it will loop that many times.'}],
+                             {name: 'loop', type: '{bool|Number}', description: 'If true, will loop forever. If false, will play once and stop. If a number, it will play that many times in total.'}],
                 },
                 {
                     name: 'gotoNextFrame',
@@ -237,7 +237,7 @@ class ScriptInfoInterface extends Object {
                     name: 'playSound',
                     snippet: 'playSound("sound.mp3")',
                     description: 'Plays a sound in the asset library.',
-                    param: [{name: 'name', type:'{string}', description: 'Name of the sound asset in the library.'},
+                    params: [{name: 'name', type:'{string}', description: 'Name of the sound asset in the library.'},
                             {name: 'options', type:'{Object}', description: 'Options for the sound:\n   * seekMS - the amount of time in milliseconds to start the sound at.\n   * volume - the volume of the sound, from 0.0 - 1.0\n   * loop - if set to true, the sound will loop.'}],
                     returns: [{type: 'object', description: 'Object representing the sound which was played.'}],
                 },
@@ -388,7 +388,7 @@ class ScriptInfoInterface extends Object {
                     params: [{name: 'a', type: '{Number}'},
                              {name: 'b', type: '{Number}'},
                              {name: 't', type: '{Number}', description: 'A float between 0 and 1.'}],
-                    return: [{type: '{Number}', description: 'Returns a number between a and b. How close depends on how close t is to 0 or 1. For example, if t = 0.5, the resulting number will be halfway between a and b.'}]
+                    returns: [{type: '{Number}', description: 'Returns a number between a and b. How close depends on how close t is to 0 or 1. For example, if t = 0.5, the resulting number will be halfway between a and b.'}]
                 },
             ]
         )

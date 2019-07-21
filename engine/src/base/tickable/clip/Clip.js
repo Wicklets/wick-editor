@@ -263,7 +263,7 @@ Wick.Clip = class extends Wick.Tickable {
      * Repeats a specific part of the timeline.
      * @param {string|number} startFrame - A playhead position or name of a frame to start at.
      * @param {string|number} endFrame - When the playhead reaches this frame, it will loop back to startFrame.
-     * @param {number|bool} [loop = true] - If true, will loop forever. If false, will play once and stop. If a number, it will loop that many times.
+     * @param {number|bool} [loop = true] - If true, will loop forever. If false, will play once and stop. If a number, it will play that many times in total.
      */
     gotoAndLoop (startFrame, endFrame, loop = true) {
         this.timeline.gotoAndLoop(startFrame, endFrame, loop);
