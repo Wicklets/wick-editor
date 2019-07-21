@@ -111,9 +111,15 @@ class ScriptInfoInterface extends Object {
                     description: 'The name of this Clip. Type a Clip\'s identifier to access it in your code.' ,
                 },
                 {
-                    name: 'parent',
-                    snippet: 'parent',
-                    description: 'Returns the object that owns the calling object.',
+                    name: 'parentClip',
+                    snippet: 'parentClip',
+                    description: 'Returns the Clip that owns the calling object.',
+                    warning: 'Not to be confused with "parent", which may return a Timeline, a Frame, or a Layer.'
+                },
+                {
+                    name: 'parentFrame',
+                    snippet: 'parentFrame',
+                    description: 'Returns the Frame that owns the calling object.',
                 },
                 {
                     name: 'project',
