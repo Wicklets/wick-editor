@@ -642,57 +642,58 @@ class Editor extends EditorCore {
                             />
                           </DockedPanel>
                         </div>
-                        <ReflexContainer windowResizeAware={true} orientation="horizontal">
-    
-                          {/*Canvas*/}
-                          <ReflexElement {...this.resizeProps}>
-                            <DockedPanel>
-                              <Canvas
-                                project={this.project}
-                                projectDidChange={this.projectDidChange}
-                                projectData={this.state.project}
-                                paper={this.paper}
-                                previewPlaying={this.state.previewPlaying}
-                                createImageFromAsset={this.createImageFromAsset}
-                                toast={this.toast}
-                                onRef={ref => this.canvasComponent = ref}
-                              />
-                              <CanvasTransforms
-                                onionSkinEnabled={this.project.onionSkinEnabled}
-                                toggleOnionSkin={this.toggleOnionSkin}
-                                zoomIn={this.zoomIn}
-                                zoomOut={this.zoomOut}
-                                recenterCanvas={this.recenterCanvas}
-                                activeToolName={this.getActiveTool().name}
-                                setActiveTool={this.setActiveTool}
-                                previewPlaying={this.state.previewPlaying}
-                                togglePreviewPlaying={this.togglePreviewPlaying}
-                              />
-                            </DockedPanel>
-                          </ReflexElement>
-                          <ReflexSplitter {...this.resizeProps}/>
-                          {/*Timeline*/}
-                          <ReflexElement
-                            minSize={100}
-                            size={this.state.timelineSize}
-                            onResize={this.resizeProps.onResize}
-                            onStopResize={this.resizeProps.onStopTimelineResize}>
-                            <DockedPanel  showOverlay={this.state.previewPlaying}>
-                              <Timeline
-                                project={this.project}
-                                projectDidChange={this.projectDidChange}
-                                projectData={this.state.project}
-                                getSelectedTimelineObjects={this.getSelectedTimelineObjects}
-                                setOnionSkinOptions={this.setOnionSkinOptions}
-                                getOnionSkinOptions={this.getOnionSkinOptions}
-                                setFocusObject={this.setFocusObject}
-                                addTweenKeyframe={this.addTweenKeyframe}
-                                onRef={ref => this.timelineComponent = ref}
-                                dropSoundOntoTimeline={this.dropSoundOntoTimeline}
-                              />
-                            </DockedPanel>
-                          </ReflexElement>
-                        </ReflexContainer>
+                        <div id="editor-canvas-timeline-panel">
+                          <ReflexContainer windowResizeAware={true} orientation="horizontal">
+                            {/*Canvas*/}
+                            <ReflexElement {...this.resizeProps}>
+                              <DockedPanel>
+                                <Canvas
+                                  project={this.project}
+                                  projectDidChange={this.projectDidChange}
+                                  projectData={this.state.project}
+                                  paper={this.paper}
+                                  previewPlaying={this.state.previewPlaying}
+                                  createImageFromAsset={this.createImageFromAsset}
+                                  toast={this.toast}
+                                  onRef={ref => this.canvasComponent = ref}
+                                />
+                                <CanvasTransforms
+                                  onionSkinEnabled={this.project.onionSkinEnabled}
+                                  toggleOnionSkin={this.toggleOnionSkin}
+                                  zoomIn={this.zoomIn}
+                                  zoomOut={this.zoomOut}
+                                  recenterCanvas={this.recenterCanvas}
+                                  activeToolName={this.getActiveTool().name}
+                                  setActiveTool={this.setActiveTool}
+                                  previewPlaying={this.state.previewPlaying}
+                                  togglePreviewPlaying={this.togglePreviewPlaying}
+                                />
+                              </DockedPanel>
+                            </ReflexElement>
+                            <ReflexSplitter {...this.resizeProps}/>
+                            {/*Timeline*/}
+                            <ReflexElement
+                              minSize={100}
+                              size={this.state.timelineSize}
+                              onResize={this.resizeProps.onResize}
+                              onStopResize={this.resizeProps.onStopTimelineResize}>
+                              <DockedPanel  showOverlay={this.state.previewPlaying}>
+                                <Timeline
+                                  project={this.project}
+                                  projectDidChange={this.projectDidChange}
+                                  projectData={this.state.project}
+                                  getSelectedTimelineObjects={this.getSelectedTimelineObjects}
+                                  setOnionSkinOptions={this.setOnionSkinOptions}
+                                  getOnionSkinOptions={this.getOnionSkinOptions}
+                                  setFocusObject={this.setFocusObject}
+                                  addTweenKeyframe={this.addTweenKeyframe}
+                                  onRef={ref => this.timelineComponent = ref}
+                                  dropSoundOntoTimeline={this.dropSoundOntoTimeline}
+                                />
+                              </DockedPanel>
+                            </ReflexElement>
+                          </ReflexContainer>
+                        </div>
                       </ReflexElement>
 
                       <ReflexSplitter {...this.resizeProps}/>
