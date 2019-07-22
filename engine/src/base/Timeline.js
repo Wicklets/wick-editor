@@ -438,7 +438,10 @@ Wick.Timeline = class extends Wick.Base {
         let ef = this.verifyFrameExists(endFrame, true);
         if (!sf || !ef) return;
         //if the timeline is just gonna do nothing, might as well be honest about it
-        if (sf === ef) return;
+        if (sf === ef) {
+            gotoAndStop(sf);
+            return;
+        }
         
         this._loopRange = [sf, ef];
         //reverse clip is startFrame is larger than endFrame

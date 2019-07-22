@@ -491,7 +491,10 @@ Wick.Tickable = class extends Wick.Base {
           }
           window.root = root;
           window.parent = this.parentClip;
+          window.parentClip = this.parentClip;
+          window.parentFrame = this instanceof Wick.Frame ? this : this.parentFrame;
           window.parentObject = this.parentObject;
+          
 
           // Run the function
           var thisScope = this instanceof Wick.Frame ? this.parentClip : this;

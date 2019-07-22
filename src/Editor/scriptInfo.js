@@ -38,8 +38,9 @@ class ScriptInfoInterface extends Object {
 
     get referenceItems () {
         return {
-            'Timeline' : this.timelineReference,
-            'Objects' : this.objectReference,
+            'Timelines' : this.timelineReference,
+            'Clips & Buttons' : this.objectReference,
+            'Text' : this.textReference,
             'Input' : this.inputReference,
             'Project' : this.projectReference,
             'Random' : this.randomReference,
@@ -56,26 +57,26 @@ class ScriptInfoInterface extends Object {
                     name: 'play',
                     snippet: 'play()',
                     description: 'Plays the parent timeline that this object belongs to.',
-                    warning: 'To control a Clip\'s own timeline, always use this.play();',
+                    warning: 'To control a Clip\'s own timeline, use this.play();',
                 },
                 {
                     name: 'stop',
                     snippet: 'stop()',
                     description: 'Stops the parent timeline that this object belongs to.',
-                    warning: 'To control a Clip\'s own timeline, always use this.stop();',
+                    warning: 'To control a Clip\'s own timeline, use this.stop();',
                 },
                 {
                     name: 'gotoAndPlay',
                     snippet: 'gotoAndPlay(1)',
                     description: 'Moves the playhead to a frame on the timeline that this object belongs to, and plays that timeline.',
-                    warning: 'To control a Clip\'s own timeline, always use this.gotoAndPlay();',
+                    warning: 'To control a Clip\'s own timeline, use this.gotoAndPlay();',
                     params: [{name: 'frame', type: '{string|Number}'}],
                 },
                 {
                     name: 'gotoAndStop',
                     snippet: 'gotoAndStop(1)',
                     description: 'Moves the playhead to a frame on the timeline that this object belongs to, and stops that timeline.',
-                    warning: 'To control a Clip\'s own timeline, always use this.gotoAndStop();',
+                    warning: 'To control a Clip\'s own timeline, use this.gotoAndStop();',
                     params: [{name: 'frame', type: '{string|Number}'}],
                 },
                 {
@@ -91,13 +92,13 @@ class ScriptInfoInterface extends Object {
                     name: 'gotoNextFrame',
                     snippet: 'gotoNextFrame()',
                     description: 'Moves the playhead to the next frame on the timeline that this object belongs to.',
-                    warning: 'To control a Clip\'s own timeline, always use this.gotoNextFrame();',
+                    warning: 'To control a Clip\'s own timeline, use this.gotoNextFrame();',
                 },
                 {
                     name: 'gotoPrevFrame',
                     snippet: 'gotoPrevFrame()',
                     description: 'Moves the playhead to the previous frame on the timeline that this object belongs to.',
-                    warning: 'To control a Clip\'s own timeline, always use this.gotoPrevFrame();',
+                    warning: 'To control a Clip\'s own timeline, use this.gotoPrevFrame();',
                 }
             ]
         );
@@ -209,12 +210,6 @@ class ScriptInfoInterface extends Object {
                     description: 'Removes this object from the project.',
                 },
                 {
-                    name: 'setText',
-                    snippet: 'textName.setText("Text")',
-                    description: 'Changes the content of a text object.',
-                    warning: 'For use on text objects only!',
-                },
-                {
                     name: 'hitTest',
                     snippet: 'this.hitTest(that)',
                     description: 'Determines if the hitboxes of two objects overlap.',
@@ -233,6 +228,19 @@ class ScriptInfoInterface extends Object {
 
             ]
         );
+    }
+    
+    get textReference () {
+        return(
+            [
+                {
+                    name: 'setText',
+                    snippet: 'textName.setText("Text")',
+                    description: 'Changes the content of a text object.',
+                    warning: 'For use on text objects only!',
+                },
+            ]
+        )
     }
 
     get soundReference () {
