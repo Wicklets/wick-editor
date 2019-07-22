@@ -54,7 +54,7 @@ class WelcomeModal extends Component {
                 <li>New Path Cursor tool</li>
                 <li>Flip Horizontally and Flip Vertically added to toolbar</li>
                 <li>Boolean Operations added to toolbar</li>
-                <li><a className="welcome-modal-highlight welcome-link" target="_blank" href="https://forum.wickeditor.com/t/wick-editor-prerelease-1-0-14-new-tool-faster-editor-crisp-rendering-and-much-more/1814">...and more!</a></li>
+                <li><a className="welcome-modal-highlight welcome-link" target="_blank" rel="noopener noreferrer" href="https://forum.wickeditor.com/t/wick-editor-prerelease-1-0-14-new-tool-faster-editor-crisp-rendering-and-much-more/1814">...and more!</a></li>
               </ul>
             </div>
             <div id="welcome-modal-tutorial-links" className="welcom-modal-item">
