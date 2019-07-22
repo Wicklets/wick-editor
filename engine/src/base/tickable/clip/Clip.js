@@ -86,7 +86,7 @@ Wick.Clip = class extends Wick.Tickable {
     /**
      * Syntactic sugar for parentClip; for legacy support. The parent Clip of this object.
      * @type {Wick.Clip}
-     * @deprecated Use parentClip instead.
+     * 
      */
     get parent () {
         return this._getParentByClassName('Clip');

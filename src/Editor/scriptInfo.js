@@ -116,7 +116,6 @@ class ScriptInfoInterface extends Object {
                     name: 'parentClip',
                     snippet: 'parentClip',
                     description: 'Returns the Clip that owns the calling object.',
-                    warning: 'Not to be confused with "parent", which may return a Timeline, a Frame, or a Layer.'
                 },
                 {
                     name: 'parentFrame',
