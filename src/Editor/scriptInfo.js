@@ -209,6 +209,7 @@ class ScriptInfoInterface extends Object {
                     description: 'Removes this object from the project.',
                 },
                 {
+                    //NOTE: it might be faster to accept a Clip object rather than a string
                     name: 'hitTest',
                     snippet: 'this.hitTest(that)',
                     description: 'Determines if the hitboxes of two objects overlap.',
@@ -236,6 +237,7 @@ class ScriptInfoInterface extends Object {
                     name: 'setText',
                     snippet: 'textName.setText("Text")',
                     description: 'Changes the content of a text object.',
+                    params: [{name: 'text', type: '{string}'}],
                     warning: 'For use on text objects only!',
                 },
             ]
@@ -279,11 +281,6 @@ class ScriptInfoInterface extends Object {
                     name: 'project.framerate',
                     snippet: 'project.framerate',
                     description: 'The framerate of the project.',
-                },
-                {
-                    name: 'project.backgroundColor',
-                    snippet: 'project.backgroundColor',
-                    description: 'The background color of the project, expressed in hexadecimal; for example, #FF0000 is red.',
                 },
             ]
         )
@@ -354,14 +351,14 @@ class ScriptInfoInterface extends Object {
                     name: 'isKeyDown',
                     snippet: 'isKeyDown("a")',
                     description: 'Returns true if the given key is currently down.',
-                    param: [{name: 'key', type: '{string}'}],
+                    params: [{name: 'key', type: '{string}'}],
                     returns: [{type: 'bool', description: 'True if passed key is down.'}],
                 },
                 {
                     name: 'isKeyJustPressed',
                     snippet: 'isKeyJustPressed("a")',
                     description: 'Returns true if the given key was pressed within the last tick.',
-                    param: [{name: 'key', type: '{string}'}],
+                    params: [{name: 'key', type: '{string}'}],
                     returns: [{type: 'bool', description: 'True if passed key was pressed in the last frame.'}],
                 },
                 {
