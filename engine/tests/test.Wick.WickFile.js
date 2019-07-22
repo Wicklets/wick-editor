@@ -10,9 +10,9 @@ describe('Wick.WickFile', function () {
                 //saveAs(wickFile, 'wickproject.zip')
                 Wick.WickFile.fromWickFile(wickFile, loadedProject => {
                     expect(loadedProject instanceof Wick.Project).to.equal(true);
-                    expect(loadedProject.selection.parent).to.equal(loadedProject);
+                    expect(loadedProject.selection.parentBase).to.equal(loadedProject);
                     expect(loadedProject.selection.project).to.equal(loadedProject);
-                    expect(loadedProject.root.parent).to.equal(loadedProject);
+                    expect(loadedProject.root.parentBase).to.equal(loadedProject);
                     expect(loadedProject.root.project).to.equal(loadedProject);
                     expect(loadedProject.getAssets().length).to.equal(0);
                     done();

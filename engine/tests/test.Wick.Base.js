@@ -36,17 +36,17 @@ describe('Wick.Base', function() {
         expect(children[0]).to.equal(child1);
         expect(children[1]).to.equal(child2);
         expect(children[2]).to.equal(child3);
-        expect(children[0].parent).to.equal(base);
-        expect(children[1].parent).to.equal(base);
-        expect(children[2].parent).to.equal(base);
+        expect(children[0].parentBase).to.equal(base);
+        expect(children[1].parentBase).to.equal(base);
+        expect(children[2].parentBase).to.equal(base);
 
         var grandchildren = child1.getChildren('Base');
         expect(grandchildren[0]).to.equal(grandchild1);
         expect(grandchildren[1]).to.equal(grandchild2);
         expect(grandchildren[2]).to.equal(grandchild3);
-        expect(grandchildren[0].parent).to.equal(child1);
-        expect(grandchildren[1].parent).to.equal(child1);
-        expect(grandchildren[2].parent).to.equal(child1);
+        expect(grandchildren[0].parentBase).to.equal(child1);
+        expect(grandchildren[1].parentBase).to.equal(child1);
+        expect(grandchildren[2].parentBase).to.equal(child1);
 
         base.removeChild(child1);
         base.removeChild(child2);

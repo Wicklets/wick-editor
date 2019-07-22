@@ -329,10 +329,10 @@ describe('Wick.Frame', function() {
                 var project = new Wick.Project();
                 var frame = project.activeFrame;
 
-                frame.addScript('load', 'this.__parent = parent');
+                frame.addScript('load', 'parentFrame.__parent = this');
                 var error = frame.tick();
                 expect(error).to.equal(null);
-                expect(frame.parentClip.__parent).to.equal(frame.parentClip);
+                expect(frame.__parent).to.equal(frame.parentClip);
             });
         });
 
