@@ -484,6 +484,14 @@ Wick.Clip = class extends Wick.Tickable {
     }
     
     /**
+     * Is this clip playing in reverse?
+     * @type {boolean}
+     */
+    get playingInReverse () {
+        return this.timeline._playing && this.timeline._reversed;
+    }
+    
+    /**
      * This is a stopgap to prevent users from using setText with a Clip.
      */
     setText (newTextContent) {

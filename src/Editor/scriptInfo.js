@@ -183,6 +183,11 @@ class ScriptInfoInterface extends Object {
                     description: 'Is this Clip playing?',
                 },
                 {
+                    name: 'playingInReverse',
+                    snippet: 'this.playingInReverse',
+                    description: 'Is this Clip playing in reverse?',
+                },
+                {
                     name: 'length',
                     snippet: 'this.length',
                     description: 'The length of this Clip\'s timeline.',
