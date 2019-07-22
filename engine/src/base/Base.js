@@ -43,7 +43,7 @@ Wick.Base = class {
 
         this._children = {};
         this._childrenData = null;
-        this._parent = null;
+        this._parentBase = null;
         this._project = this.classname === 'Project' ? this : null;
 
         Wick.ObjectCache.addObject(this);
@@ -304,11 +304,11 @@ Wick.Base = class {
     }
 
     /**
-     * The parent of this object.
+     * The parent Base of this object.
      * @type {Wick.Base}
      */
-    get parent () {
-        return this._parent;
+    get parentBase () {
+        return this._parentBase;
     }
 
     /**
@@ -371,7 +371,7 @@ Wick.Base = class {
             this._children[classname] = [];
         }
 
-        child._parent = this;
+        child._parentBase = this;
         child._setProject(this.project);
 
         this._children[classname].push(child);
@@ -388,7 +388,7 @@ Wick.Base = class {
             return;
         }
 
-        child._parent = null;
+        child._parentBase = null;
         child._project = null;
 
         this._children[classname] = this._children[classname].filter(seekChild => {
@@ -420,13 +420,13 @@ Wick.Base = class {
     }
 
     _getParentByClassName (classname) {
-        if(!this.parent) return null;
+        if(!this.parentBase) return null;
 
-        if(this.parent instanceof Wick[classname]) {
-            return this.parent;
+        if(this.parentBase instanceof Wick[classname]) {
+            return this.parentBase;
         } else {
-            if(!this.parent._getParentByClassName) return null;
-            return this.parent._getParentByClassName(classname);
+            if(!this.parentBase._getParentByClassName) return null;
+            return this.parentBase._getParentByClassName(classname);
         }
     }
 
@@ -438,9 +438,9 @@ Wick.Base = class {
     }
 
     _getUniqueIdentifier (identifier) {
-        if(!this.parent) return identifier;
+        if(!this.parentBase) return identifier;
 
-        var otherIdentifiers = this.parent.getChildren(['Clip','Frame','Button']).filter(child => {
+        var otherIdentifiers = this.parentBase.getChildren(['Clip','Frame','Button']).filter(child => {
             return child !== this && child.identifier;
         }).map(child => {
             return child.identifier;

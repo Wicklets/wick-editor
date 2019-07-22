@@ -119,7 +119,7 @@ Wick.Path = class extends Wick.Base {
      *
      */
     get onScreen () {
-        return this.parent.onScreen;
+        return this.parentBase.onScreen;
     }
 
     /**

@@ -76,11 +76,29 @@ Wick.Clip = class extends Wick.Tickable {
     get onScreen () {
         if(this.isRoot) {
             return true;
-        } else if (this.parent) {
-            return this.parent.onScreen;
+        } else if (this.parentBase) {
+            return this.parentBase.onScreen;
         } else {
             return true;
         }
+    }
+
+    /**
+     * Syntactic sugar for parentClip; for legacy support. The parent Clip of this object.
+     * @type {Wick.Clip}
+     * @deprecated Use parentClip instead.
+     */
+    get parent () {
+        return this._getParentByClassName('Clip');
+    }
+
+    /**
+     * Syntactic sugar for parentObject; for legacy support. The parent Clip of this object.
+     * @type {Wick.Clip}
+     * @deprecated Use parentClip instead.
+     */
+    get parentObject () {
+        return this._getParentByClassName('Clip');
     }
 
     /**
@@ -172,7 +190,7 @@ Wick.Clip = class extends Wick.Tickable {
      * Remove this clip from its parent frame.
      */
     remove () {
-        this.parent.removeClip(this);
+        this.parentBase.removeClip(this);
     }
 
     /**

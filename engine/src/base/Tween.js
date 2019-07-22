@@ -153,7 +153,7 @@ Wick.Tween = class extends Wick.Base {
      * Remove this tween from its parent frame.
      */
     remove () {
-        this.parent.removeTween(this);
+        this.parentBase.removeTween(this);
     }
 
     /**

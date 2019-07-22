@@ -95,7 +95,7 @@ Wick.Frame = class extends Wick.Tickable {
      * @type {boolean}
      */
     get onScreen () {
-        if(!this.parent) return true;
+        if(!this.parentBase) return true;
         return this.inPosition(this.parentTimeline.playheadPosition);
     }
 
@@ -279,7 +279,7 @@ Wick.Frame = class extends Wick.Tickable {
      * Removes this frame from its parent layer.
      */
     remove () {
-        this.parent.removeFrame(this);
+        this.parentBase.removeFrame(this);
     }
 
     /**
@@ -328,7 +328,7 @@ Wick.Frame = class extends Wick.Tickable {
      * @param {Wick.Clip} clip - the clip to add.
      */
     addClip (clip) {
-        if(clip.parent) {
+        if(clip.parentBase) {
             clip.remove();
         }
         this.addChild(clip);
@@ -347,7 +347,7 @@ Wick.Frame = class extends Wick.Tickable {
      * @param {Wick.Path} path - the path to add.
      */
     addPath (path) {
-        if(path.parent) {
+        if(path.parentBase) {
             path.remove();
         }
         this.addChild(path);

@@ -68,14 +68,14 @@ Wick.Layer = class extends Wick.Base {
      * @type {number}
      */
     get index () {
-        return this.parent && this.parent.layers.indexOf(this);
+        return this.parentBase && this.parentBase.layers.indexOf(this);
     }
 
     /**
      * Set this layer to be the active layer in its timeline.
      */
     activate () {
-        this.parent.activeLayerIndex = this.index;
+        this.parentBase.activeLayerIndex = this.index;
     }
 
     /**
@@ -83,7 +83,7 @@ Wick.Layer = class extends Wick.Base {
      * @type {boolean}
      */
     get isActive () {
-        return this.parent && this === this.parent.activeLayer;
+        return this.parentBase && this === this.parentBase.activeLayer;
     }
 
     /**
@@ -105,8 +105,8 @@ Wick.Layer = class extends Wick.Base {
      * @type {Wick.Frame}
      */
     get activeFrame () {
-        if(!this.parent) return null;
-        return this.getFrameAtPlayheadPosition(this.parent.playheadPosition);
+        if(!this.parentBase) return null;
+        return this.getFrameAtPlayheadPosition(this.parentBase.playheadPosition);
     }
 
     /**
@@ -121,7 +121,7 @@ Wick.Layer = class extends Wick.Base {
      * Remove this layer from its timeline.
      */
     remove () {
-        this.parent.removeLayer(this);
+        this.parentBase.removeLayer(this);
     }
 
     /**

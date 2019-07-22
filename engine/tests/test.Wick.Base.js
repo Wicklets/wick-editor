@@ -7,7 +7,7 @@ describe('Wick.Base', function() {
         expect(base.classname).to.equal('Base');
         expect(typeof base.uuid).to.equal('string');
         expect(base.identifier).to.equal('foo');
-        expect(base.parent).to.equal(null);
+        expect(base.parentBase).to.equal(null);
         expect(base.project).to.equal(null);
     });
 
@@ -52,16 +52,16 @@ describe('Wick.Base', function() {
         base.removeChild(child2);
         base.removeChild(child3);
         expect(base.getChildren('Base').length).to.equal(0);
-        expect(child1.parent).to.equal(null);
-        expect(child2.parent).to.equal(null);
-        expect(child3.parent).to.equal(null);
+        expect(child1.parentBase).to.equal(null);
+        expect(child2.parentBase).to.equal(null);
+        expect(child3.parentBase).to.equal(null);
     });
 
     it('should create parent references', function() {
         var parent = new Wick.Base();
         var child = new Wick.Base();
         parent.addChild(child);
-        expect(child.parent).to.equal(parent);
+        expect(child.parentBase).to.equal(parent);
     });
 
     it('should create recursive parent references', function() {
@@ -70,9 +70,9 @@ describe('Wick.Base', function() {
         var grandparent = new Wick.Base();
         parent.addChild(child);
         grandparent.addChild(parent);
-        expect(child.parent).to.equal(parent);
-        expect(parent.parent).to.equal(grandparent);
-        expect(child.parent.parent).to.equal(grandparent);
+        expect(child.parentBase).to.equal(parent);
+        expect(parent.parentBase).to.equal(grandparent);
+        expect(child.parentBase.parentBase).to.equal(grandparent);
     });
 
     it('should serialize/deserialize', function () {

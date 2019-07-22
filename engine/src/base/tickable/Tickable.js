@@ -133,8 +133,8 @@ Wick.Tickable = class extends Wick.Base {
      * @type {boolean}
      */
     get onScreen () {
-        if(!this.parent) return false;
-        return this.parent.onScreen;
+        if(!this.parentBase) return false;
+        return this.parentBase.onScreen;
     }
 
     /**
@@ -490,10 +490,10 @@ Wick.Tickable = class extends Wick.Base {
               window.project.backgroundColor = project.backgroundColor;
           }
           window.root = root;
-          window.parent = this.parentClip;
+          window.parent = this.parent;
           window.parentClip = this.parentClip;
-          window.parentFrame = this instanceof Wick.Frame ? this : this.parentFrame;
           window.parentObject = this.parentObject;
+          window.parentFrame = this instanceof Wick.Frame ? this : this.parentFrame;
           
 
           // Run the function
@@ -509,7 +509,9 @@ Wick.Tickable = class extends Wick.Base {
           delete window.project;
           delete window.root;
           delete window.parent;
+          delete window.parentClip;
           delete window.parentObject;
+          delete window.parentFrame;
 
           // Detatch API methods
           apiMembers.forEach(apiMember => {

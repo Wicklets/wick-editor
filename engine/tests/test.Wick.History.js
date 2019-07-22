@@ -40,7 +40,7 @@ describe('Wick.History', function() {
         expect(project.activeFrame.paths.length).to.equal(1);
         expect(project.activeFrame.paths[0]).to.equal(path1);
         expect(project.activeFrame.paths[0].project).to.equal(project);
-        expect(project.activeFrame.paths[0].parent).to.equal(project.activeFrame);
+        expect(project.activeFrame.paths[0].parentBase).to.equal(project.activeFrame);
 
         expect(project.redo()).to.equal(true);
         expect(project.activeFrame.paths.length).to.equal(2);
@@ -218,7 +218,7 @@ describe('Wick.History', function() {
         project.history.pushState();
         project.activeFrame.remove();
         project.undo();
-        expect(project.activeFrame.parent).to.equal(project.activeLayer);
+        expect(project.activeFrame.parentBase).to.equal(project.activeLayer);
     });
 
     // fix for redo reverting project to old state
