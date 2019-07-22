@@ -122,7 +122,7 @@ GlobalAPI = class {
      * Returns an object representing the project with properties such as width, height, framerate, background color, and name.
      * @returns {object} Project object.
      */
-    get project () {
+    /*get project () {
         var project = this.scriptOwner.project && this.scriptOwner.project.root;
         if(project) {
             // Attach some aliases to the project settings
@@ -133,31 +133,31 @@ GlobalAPI = class {
             project.name = this.scriptOwner.project.name;
         }
         return project;
-    }
+    }*/
 
     /**
      * @deprecated
      * Legacy item which returns the project. Use 'project' instead.
      */
-    get root () {
+    /*get root () {
         return this.project;
-    }
+    }*/
 
     /**
      * Returns a reference to the current object's parent.
      * @returns Current object's parent.
      */
-    get parent () {
+    /*get parent () {
         return this.scriptOwner.parentClip;
-    }
+    }*/
 
     /**
      * @deprecated
      * Legacy item which returns the parent clip. Use 'parent' instead.
      */
-    get parentObject () {
+    /*get parentObject () {
         return this.scriptOwner.parentClip;
-    }
+    }*/
 
     /**
      * Returns the last key pressed down.

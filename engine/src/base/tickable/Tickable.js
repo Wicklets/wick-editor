@@ -490,8 +490,6 @@ Wick.Tickable = class extends Wick.Base {
               window.project.backgroundColor = project.backgroundColor;
           }
           window.root = root;
-        //this should be changed, as it might lead to bugs in which "parent" behaves differently than "someOtherObj.parent"
-        //instead, Wick.Base.parent should be renamed to Wick.Base.parentObject
           window.parent = this.parentClip;
           window.parentObject = this.parentObject;
 

@@ -369,7 +369,6 @@ Wick.Timeline = class extends Wick.Base {
                || this.playheadPosition + direction < minFrame) {
                 //define which frame to loop back to
                 let targetFrame = (this.playheadPosition + direction > maxFrame) ? minFrame : maxFrame;
-                console.log("going to frame "+targetFrame);
                 //if timeline is NOT out of loops, go ahead and loop
                 if (this._loopCount !== 0) {
                     this.playheadPosition = targetFrame;
@@ -383,7 +382,6 @@ Wick.Timeline = class extends Wick.Base {
             } else {
                 //if timeline still has frames left, move forward
                 this.playheadPosition += direction;
-                console.log("_loopRange: "+this._loopRange+"\nmin/max frame: ("+minFrame+", "+maxFrame+")\nreversed: "+this._reversed);
             }
         }
     }
@@ -438,7 +436,6 @@ Wick.Timeline = class extends Wick.Base {
         //check if these frames exist, throw errors if they don't
         let sf = this.verifyFrameExists(startFrame, true);
         let ef = this.verifyFrameExists(endFrame, true);
-        console.log("sf: "+sf+"; ef: "+ef+"; this.length: "+this.length);
         if (!sf || !ef) return;
         //if the timeline is just gonna do nothing, might as well be honest about it
         if (sf === ef) return;
