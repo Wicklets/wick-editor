@@ -605,4 +605,28 @@ describe('Wick.Frame', function() {
             expect(frame.paths[0].view.item instanceof paper.Path).to.equal(true);
         });
     });
+
+    describe('#length', function () {
+        it('length should be able to be set', function () {
+            var project = new Wick.Project();
+            project.activeFrame.length = 3;
+            expect(project.activeFrame.start).to.equal(1);
+            expect(project.activeFrame.end).to.equal(3);
+        });
+
+        it('length should not change if the new length makes the frame touch other frames', function () {
+            var project = new Wick.Project();
+            project.activeLayer.addFrame(new Wick.Frame({start:5}));
+
+            // this is fine
+            project.activeFrame.length = 3;
+            expect(project.activeFrame.start).to.equal(1);
+            expect(project.activeFrame.end).to.equal(3);
+
+            // this is not
+            project.activeFrame.length = 5;
+            expect(project.activeFrame.start).to.equal(1);
+            expect(project.activeFrame.end).to.equal(3);
+        });
+    });
 });

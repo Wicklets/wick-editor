@@ -82,6 +82,18 @@ Wick.Frame = class extends Wick.Tickable {
         return this.end - this.start + 1;
     }
 
+    set length (length) {
+        var oldEnd = this.end;
+
+        var diff = length - this.length;
+        this.end += diff;
+
+        // Revert to old length if we are now touching other frames
+        if(this.parentLayer.getFramesInRange(this.start, this.end).length > 1) {
+            this.end = oldEnd;
+        }
+    }
+
     /**
      * The midpoint of the frame.
      * @type {number}
