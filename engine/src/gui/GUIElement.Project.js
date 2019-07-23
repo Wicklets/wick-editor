@@ -133,7 +133,12 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
         point.x -= canvasPosition.left;
         point.y -= canvasPosition.top;
         var element = this._getGUIElementAtPosition(point);
-        console.log(element.model);
+        if(element.model instanceof Wick.Frame) {
+            var frame = element.model;
+            var asset = this.model.getAssetByUUID(uuid);
+            frame.sound = asset;
+            this.fire('projectModified');
+        }
     }
 
     _attachMouseEvents () {
