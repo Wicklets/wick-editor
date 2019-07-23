@@ -18,5 +18,30 @@
  */
 
 Wick.GUIElement.BreadcrumbsButton = class extends Wick.GUIElement.Clickable {
+    constructor (model) {
+        super(model);
+    };
 
+    build () {
+        super.build();
+
+        var label = new paper.PointText({
+            point: [0, Wick.GUIElement.BREADCRUMBS_HEIGHT/2],
+            fillColor: '#999999',
+            fontFamily: 'Nunito Sans',
+            fontStyle: 'normal',
+            fontWeight: 'bold',
+            fontSize: '12px',
+            content: this.model.identifier || 'Clip',
+        });
+        this.item.addChild(label);
+
+        var buttonBody = new paper.Path.Rectangle({
+            fillColor: '#2A2E30',
+            from: new paper.Point(0, 0),
+            to: new paper.Point(label.bounds.width, Wick.GUIElement.BREADCRUMBS_HEIGHT),
+        });
+        this.item.addChild(buttonBody);
+        buttonBody.sendToBack();
+    };
 };
