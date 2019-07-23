@@ -475,6 +475,18 @@ Wick.Selection = class extends Wick.Base {
     }
 
     /**
+     * The length of the selected frame.
+     * @type {number}
+     */
+    get frameLength () {
+        return this._getSingleAttribute('length');
+    }
+
+    set frameLength (frameLength) {
+        this._setSingleAttribute('length', frameLength);
+    }
+
+    /**
      * The volume of the sound attached to the selected frame.
      * @type {number}
      */

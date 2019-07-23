@@ -213,7 +213,7 @@ class Inspector extends Component {
 
     opts = opts.map(opt => {
       return {
-        value: opt, 
+        value: opt,
         label: opt,
         className: getFontClass(opt),
       }
@@ -232,8 +232,8 @@ class Inspector extends Component {
           // Don't fetch the file if we already have it.
           if (this.props.fontInfoInterface.hasFont(val.value)) {
             this.setSelectionAttribute('fontFamily', font);
-            return; 
-          } 
+            return;
+          }
 
           // Fetch the file if it's missing.
           this.props.fontInfoInterface.getFontFile({
@@ -249,7 +249,7 @@ class Inspector extends Component {
             }
           });
 
-        }}>   
+        }}>
         </InspectorSelector>
     )
   }
@@ -270,20 +270,20 @@ class Inspector extends Component {
 
   renderFontWeight = () => {
     let fontWeights = {
-      'thin': 100, 
-      'extra light': 200, 
-      'light': 300, 
-      'normal': 400, 
-      'medium': 500, 
-      'semi bold': 600, 
-      'bold': 700, 
-      'extra bold': 800, 
+      'thin': 100,
+      'extra light': 200,
+      'light': 300,
+      'normal': 400,
+      'medium': 500,
+      'semi bold': 600,
+      'bold': 700,
+      'extra bold': 800,
       'black': 900
     }
 
     let weight = Math.min(Math.max(this.getSelectionAttribute('fontWeight'), 100), Object.keys(fontWeights).length*100)
 
-    let findFontNameByWeight = (weight) => { 
+    let findFontNameByWeight = (weight) => {
       let finalName = 'normal';
       Object.keys(fontWeights).forEach((name) =>{
         if (fontWeights[name] === weight) {
@@ -576,7 +576,7 @@ class Inspector extends Component {
     return (
         <div className="inspector-content">
           {this.renderIdentifier()}
-          {/*this.renderFrameLength()*/}
+          {this.renderFrameLength()}
           {this.renderSoundContent()}
         </div>
     );
@@ -726,7 +726,7 @@ class Inspector extends Component {
    * Renders the inspector view for all properties of a multi-path selection.
    */
   renderMultiPath = () => {
-    return ( 
+    return (
       <div className="inspector-content">
         {this.renderSelectionTransformProperties()}
         {this.renderSelectionFillColor()}
