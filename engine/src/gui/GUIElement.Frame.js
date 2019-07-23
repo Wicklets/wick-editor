@@ -320,6 +320,12 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
             this.item.addChild(frameSelectedHighlight);
         }
 
+        // Visually alter the frame if the layer is hidden.
+        if (this.model.parentLayer.hidden) {
+            this.item.opacity = .25; 
+        } else {
+            this.item.opacity = 1; 
+        }
     }
 
     _buildDropGhost () {

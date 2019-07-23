@@ -98,5 +98,13 @@ Wick.GUIElement.FramesStrip = class extends Wick.GUIElement.Draggable {
 
         this._addFrameOverlay.build();
         this.item.addChild(this._addFrameOverlay.item);
+
+        // Visually alter the frameStrip if the layer is hidden.
+        if (this.model.hidden) {
+            this.item.opacity = .25; 
+        } else {
+            this.item.opacity = 1; 
+        }
+
     }
 }

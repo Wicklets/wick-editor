@@ -116,13 +116,23 @@ Wick.GUIElement.LayerLabel = class extends Wick.GUIElement.Draggable {
     build () {
         super.build();
 
+        var fillColor;
+
+        if (this.model.hidden) {
+            fillColor = Wick.GUIElement.LAYER_LABEL_HIDDEN_FILL_COLOR;
+        } else if (this.model.isActive) {
+            fillColor = Wick.GUIElement.LAYER_LABEL_ACTIVE_FILL_COLOR;
+        } else {
+            fillColor = Wick.GUIElement.LAYER_LABEL_INACTIVE_FILL_COLOR;
+        }
+
         var layerRect = new this.paper.Path.Rectangle({
             from: new this.paper.Point(0, 0),
             to: new this.paper.Point(this.width, this.height),
-            fillColor: this.model.isActive ? Wick.GUIElement.LAYER_LABEL_ACTIVE_FILL_COLOR : Wick.GUIElement.LAYER_LABEL_INACTIVE_FILL_COLOR,
+            fillColor: fillColor,
             strokeColor: this.model.isSelected ? Wick.GUIElement.SELECTED_ITEM_BORDER_COLOR : 'rgba(0,0,0,0)',
             strokeWidth: this.model.isSelected ? 3 : 0,
-            radius: 2,
+            radius: Wick.GUIElement.LAYER_LABEL_BORDER_RADIUS,
         });
         this.item.addChild(layerRect);
 
