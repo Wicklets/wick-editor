@@ -19,8 +19,6 @@
 
 import React, { Component } from 'react';
 
-import Breadcrumbs from './Breadcrumbs/Breadcrumbs';
-import ActionButton from 'Editor/Util/ActionButton/ActionButton';
 import { DropTarget } from 'react-dnd';
 import DragDropTypes from 'Editor/DragDropTypes.js';
 
@@ -72,22 +70,8 @@ class Timeline extends Component {
 
     return connectDropTarget (
       <div id="animation-timeline-container">
-        <Breadcrumbs
-          project={this.props.project}
-          setFocusObject={this.props.setFocusObject}
-        />
         { isOver && <div className="drag-drop-overlay" /> }
         <div id="animation-timeline" ref={this.canvasContainer} />
-        <div className="animation-timeline-add-keyframe-button">
-          <ActionButton
-            color="tool"
-            id={"add-keyframe-button"}
-            tooltip={"Add Tween"}
-            action={this.props.addTweenKeyframe}
-            tooltipPlace={"top"}
-            icon={'tween'}
-          />
-        </div>
       </div>
 
     )

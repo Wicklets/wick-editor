@@ -21,7 +21,6 @@
 
 $menu-bar-height: 40px;
 $toolbox-height: 40px;
-$breadcrumbs-height: 25px;
 
 body {
   overflow: hidden;
@@ -33,7 +32,7 @@ body {
 }
 
 #editor-canvas-timeline-panel {
-  height: calc(100% - #{$toolbox-height}); 
+  height: calc(100% - #{$toolbox-height});
 }
 
 #editor {

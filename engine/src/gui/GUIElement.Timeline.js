@@ -19,6 +19,7 @@
 
 /**
  * The Timeline contains the following GUI elements:
+ * - The Breadcrumbs
  * - The Frames Container
  * - The Layers Container
  * - The Horizontal Scrollbar
