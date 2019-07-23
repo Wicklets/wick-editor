@@ -100,7 +100,7 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
      *
      */
     get height () {
-        return Wick.GUIElement.FRAMES_STRIP_HEIGHT; 
+        return Wick.GUIElement.FRAMES_STRIP_HEIGHT;
     }
 
     /**
@@ -295,7 +295,7 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
             fillColor: fillColor,
             radius: Wick.GUIElement.FRAME_BORDER_RADIUS,
         });
-        
+
         // Frame Drop Shadow
         var frameDropShadow = new this.paper.Path.Rectangle({
             from: new this.paper.Point(0, Wick.GUIElement.FRAME_DROP_SHADOW_DEPTH),
@@ -326,9 +326,9 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
 
         // Visually alter the frame if the layer is hidden.
         if (this.model.parentLayer.hidden) {
-            this.item.opacity = .25; 
+            this.item.opacity = .25;
         } else {
-            this.item.opacity = 1; 
+            this.item.opacity = 1;
         }
     }
 
@@ -409,7 +409,19 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
             fillColor: Wick.GUIElement.FRAME_SCRIPT_DOT_COLOR,
         });
 
-        this.item.addChild(scriptCircle);
+        var scriptCircleMask = new paper.Path.Rectangle({
+            from: new paper.Point(0, 0),
+            to: new paper.Point(this.width, this.height),
+            fillColor: 'black'
+        });
+
+        var maskedScriptCircle = new paper.Group({
+            children: [scriptCircleMask, scriptCircle]
+        });
+        maskedScriptCircle.clipped = true;
+        maskedScriptCircle.remove();
+
+        this.item.addChild(maskedScriptCircle);
     }
 
     _buildSoundWaveform () {
