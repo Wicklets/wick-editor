@@ -122,6 +122,7 @@ gulp.task("default", function() {
       'src/gui/GUIElement.LayerLockButton.js',
       'src/gui/GUIElement.LayersContainer.js',
       'src/gui/GUIElement.LayersContainerBG.js',
+      'src/gui/GUIElement.LayerTweenButton.js',
       'src/gui/GUIElement.NumberLine.js',
       'src/gui/GUIElement.OnionSkinRange.js',
       'src/gui/GUIElement.OnionSkinRangeEnd.js',

@@ -26,6 +26,7 @@ Wick.GUIElement.LayerLabel = class extends Wick.GUIElement.Draggable {
 
         this.lockButton = new Wick.GUIElement.LayerLockButton(model);
         this.hideButton = new Wick.GUIElement.LayerHideButton(model);
+        this.tweenButton = new Wick.GUIElement.LayerTweenButton(model);
 
         this.ghost = new Wick.GUIElement.LayerGhost(model);
 
@@ -125,28 +126,30 @@ Wick.GUIElement.LayerLabel = class extends Wick.GUIElement.Draggable {
         });
         this.item.addChild(layerRect);
 
-        // Gnurl
-        var gnurl = this.paper.project.importSVG(Wick.GUIElement.LAYER_GNURL_ICON);
-        gnurl.strokeColor = Wick.GUIElement.LAYER_BUTTON_ICON_COLOR;
-        gnurl.opacity = Wick.GUIElement.LAYER_BUTTON_ICON_OPACITY;
-        gnurl.position.x = 15;
-        gnurl.position.y = this.height/2;
-        this.item.addChild(gnurl);
-
         // Buttons
-        this.hideButton.x = this.width - 20;
+        this.hideButton.x = 17;
         this.hideButton.y = this.height/2;
         this.hideButton.build();
         this.item.addChild(this.hideButton.item);
 
-        this.lockButton.x = this.width - 45;
+        this.lockButton.x = 37;
         this.lockButton.y = this.height/2;
         this.lockButton.build();
         this.item.addChild(this.lockButton.item);
 
+        this.tweenButton.x = this.width - 17;
+        this.tweenButton.y = this.height/2;
+        this.tweenButton.build();
+        this.item.addChild(this.tweenButton.item);
+
         // Layer name
-        var layerName = new paper.PointText({
-            point: [30, this.height/2 + 6], // TODO: Create global variable for layer name position.
+        var layerNameMask = new paper.Path.Rectangle({
+            from: new paper.Point(0, -this.height),
+            to: new paper.Point(this.width - 25, this.height),
+            fillColor: 'black'
+        });
+        var layerNameText = new paper.PointText({
+            point: [53, this.height/2 + 6], // TODO: Create global variable for layer name position.
             content: this.model.name,
             fillColor: this.model.isActive ? Wick.GUIElement.LAYER_LABEL_ACTIVE_FONT_COLOR : Wick.GUIElement.LAYER_LABEL_INACTIVE_FONT_COLOR,
             fontFamily: Wick.GUIElement.LAYER_LABEL_FONT_FAMILY,
@@ -155,7 +158,12 @@ Wick.GUIElement.LayerLabel = class extends Wick.GUIElement.Draggable {
             opacity: 0.6,
             pivot: new paper.Point(0, 0),
         });
-        this.item.addChild(layerName);
+        var clippedLayerName = new paper.Group({
+            children: [layerNameMask, layerNameText]
+        });
+        clippedLayerName.clipped = true;
+        clippedLayerName.remove();
+        this.item.addChild(clippedLayerName);
 
         // Drop ghost
         this.ghost.active = this.isDragging && (this.mouseDelta.y !== 0);

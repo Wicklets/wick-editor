@@ -88,15 +88,15 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
         this.resize();
         this._hoverTarget = null;
 
-        // Build breadcrumbs
-        this.breadcrumbs.build();
-        this.item.addChild(this.breadcrumbs.item);
-
         // Build timeline
         var timeline = this.model.focus.timeline;
         timeline.guiElement.build();
         timeline.guiElement.item.position.y = Wick.GUIElement.BREADCRUMBS_HEIGHT;
         this.item.addChild(timeline.guiElement.item);
+
+        // Build breadcrumbs
+        this.breadcrumbs.build();
+        this.item.addChild(this.breadcrumbs.item);
     }
 
     /**

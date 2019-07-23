@@ -36,7 +36,7 @@ Wick.GUIElement.ScrollbarGrabberHorizontal = class extends Wick.GUIElement.Dragg
             this.build();
         });
 
-        this.on('drag', () => {
+        this.on('drag', (e) => {
             this.scrollX = this.scrollX + this.mouseMovement.x;
             this.scrollX = Math.max(0, this.scrollX);
             this.scrollX = Math.min(this.containerWidth - this.grabberWidth, this.scrollX);
