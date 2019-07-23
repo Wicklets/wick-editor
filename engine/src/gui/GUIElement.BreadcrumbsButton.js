@@ -20,10 +20,33 @@
 Wick.GUIElement.BreadcrumbsButton = class extends Wick.GUIElement.Clickable {
     constructor (model) {
         super(model);
+
+        this.on('mouseOver', () => { this.build(); });
+        this.on('mouseDown', () => { this.build(); });
+        this.on('mouseUp', () => { this.build(); });
+        this.on('mouseLeave', () => { this.build(); });
+
+        this.on('mouseDown', () => {
+            this.model.project.focus = this.model;
+            this.model.project.guiElement.fire('projectModified');
+        });
     };
 
     build () {
         super.build();
+
+        var buttonBodyColor = 'red';
+        if(this.model === this.model.project.focus) {
+           buttonBodyColor = 'cyan';
+        } else if(this.isBeingClicked) {
+            buttonBodyColor = 'green';
+        } else if (this.isHoveredOver) {
+            buttonBodyColor = 'yellow';
+        } else if (this.activated) {
+            buttonBodyColor = 'blue';
+        } else {
+            buttonBodyColor = '#2A2E30';
+        }
 
         var label = new paper.PointText({
             point: [0, Wick.GUIElement.BREADCRUMBS_HEIGHT/2],
@@ -37,7 +60,7 @@ Wick.GUIElement.BreadcrumbsButton = class extends Wick.GUIElement.Clickable {
         this.item.addChild(label);
 
         var buttonBody = new paper.Path.Rectangle({
-            fillColor: '#2A2E30',
+            fillColor: buttonBodyColor,
             from: new paper.Point(0, 0),
             to: new paper.Point(label.bounds.width, Wick.GUIElement.BREADCRUMBS_HEIGHT),
         });

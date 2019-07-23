@@ -25,6 +25,17 @@ Wick.GUIElement.Breadcrumbs = class extends Wick.GUIElement {
     build () {
         super.build();
 
+        // Background rectangle to cover rest of the GUI
+        var bgRect = new this.paper.Path.Rectangle({
+            from: new this.paper.Point(0, 0),
+            to: new this.paper.Point(paper.view.element.width, Wick.GUIElement.BREADCRUMBS_HEIGHT),
+            fillColor: '#000000',
+            pivot: new paper.Point(0, 0),
+        });
+        bgRect.position.x -= this.scrollX;
+        this.item.addChild(bgRect);
+
+        // Generate buttons for each Clip in the lineage
         var lastButton = null;
         this.model.focus.lineage.reverse().forEach(clip => {
             var button = new Wick.GUIElement.BreadcrumbsButton(clip);

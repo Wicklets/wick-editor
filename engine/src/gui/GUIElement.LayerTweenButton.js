@@ -27,7 +27,7 @@ Wick.GUIElement.LayerTweenButton = class extends Wick.GUIElement.LayerButton {
         this.y = 0;
 
         this.on('mouseDown', () => {
-            console.warn('TODO')
+            this.model.activeFrame.createTween();
             this.model.project.guiElement.fire('projectModified');
         });
     }
