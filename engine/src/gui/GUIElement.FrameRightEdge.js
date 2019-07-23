@@ -52,11 +52,23 @@ Wick.GUIElement.FrameRightEdge = class extends Wick.GUIElement.FrameEdge {
     build () {
         super.build();
 
+        var rw = Wick.GUIElement.FrameEdge.DEFAULT_HANDLE_WIDTH;
+
         var edgeRect = new this.paper.Path.Rectangle({
-            from: new this.paper.Point(this.width - Wick.GUIElement.FrameEdge.DEFAULT_HANDLE_WIDTH, 0),
+            from: new this.paper.Point(this.width - rw, 0),
             to: new this.paper.Point(this.width, this.height),
             fillColor: this.isHoveredOver ? Wick.GUIElement.FRAME_HANDLE_HOVER_FILL_COLOR : 'rgba(0,0,0,0.001)',
+            radius: Wick.GUIElement.FRAME_BORDER_RADIUS, 
         });
+
+        // Create a rectangle with unrounded edges to sharpen the interior corners.
+        var sharpRect = new this.paper.Path.Rectangle({
+            from: new this.paper.Point(this.width - rw, 0),
+            to: new this.paper.Point(this.width - (rw/2), this.height),
+            fillColor: this.isHoveredOver ? Wick.GUIElement.FRAME_HANDLE_HOVER_FILL_COLOR : 'rgba(0,0,0,0.001)',
+        }); 
+
         this.item.addChild(edgeRect);
+        this.item.addChild(sharpRect);
     }
 }

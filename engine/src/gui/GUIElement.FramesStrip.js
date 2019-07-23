@@ -64,7 +64,7 @@ Wick.GUIElement.FramesStrip = class extends Wick.GUIElement.Draggable {
      *
      */
     get height () {
-        return this.gridCellHeight - Wick.GUIElement.FRAMES_STRIP_VERTICAL_MARGIN*2;
+        return Wick.GUIElement.FRAMES_STRIP_HEIGHT;
     }
 
     /**
@@ -78,7 +78,7 @@ Wick.GUIElement.FramesStrip = class extends Wick.GUIElement.Draggable {
      *
      */
     get y () {
-        return (this.model.index * this.gridCellHeight) + Wick.GUIElement.FRAMES_STRIP_VERTICAL_MARGIN;
+        return (this.model.index * this.gridCellHeight);
     }
 
     /**
@@ -90,8 +90,6 @@ Wick.GUIElement.FramesStrip = class extends Wick.GUIElement.Draggable {
         this.frameStripRect = new this.paper.Path.Rectangle({
             from: new this.paper.Point(this.x, this.y),
             to: new this.paper.Point(this.x + this.width, this.y + this.height),
-            strokeColor: 'rgba(0,0,0,0.5)',
-            strokeWidth: 2,
             fillColor: this.model.isActive ? Wick.GUIElement.FRAMES_STRIP_ACTIVE_FILL_COLOR : Wick.GUIElement.FRAMES_STRIP_INACTIVE_FILL_COLOR,
             applyMatrix: false,
             pivot: new paper.Point(0,0),

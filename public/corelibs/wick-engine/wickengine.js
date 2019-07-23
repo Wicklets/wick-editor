@@ -1794,1113 +1794,6 @@ Wick.Layer = class extends Wick.Base {
   }
 
 };
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-
-/**
- * Class representing a Wick Project.
- */
-Wick.Project = class extends Wick.Base {
-  /**
-   * Create a project.
-   * @param {string} name - Project name. Default "My Project".
-   * @param {number} width - Project width in pixels. Default 720.
-   * @param {number} height - Project height in pixels. Default 405.
-   * @param {number} framerate - Project framerate in frames-per-second. Default 12.
-   * @param {string} backgroundColor - Project background color in hex. Default #ffffff.
-   */
-  constructor(args) {
-    if (!args) args = {};
-    super(args);
-    this._name = args.name || 'My Project';
-    this._width = args.width || 720;
-    this._height = args.height || 405;
-    this._framerate = args.framerate || 12;
-    this._backgroundColor = args.backgroundColor || '#ffffff';
-    this.pan = {
-      x: 0,
-      y: 0
-    };
-    this.zoom = 1.0;
-    this.onionSkinEnabled = false;
-    this.onionSkinSeekBackwards = 1;
-    this.onionSkinSeekForwards = 1;
-    this.selection = new Wick.Selection();
-    this.history = new Wick.History();
-    this.clipboard = new Wick.Clipboard();
-    this.root = new Wick.Clip();
-    this.root._identifier = 'Project';
-    this.focus = this.root;
-    this._mousePosition = {
-      x: 0,
-      y: 0
-    };
-    this._lastMousePosition = {
-      x: 0,
-      y: 0
-    };
-    this._isMouseDown = false;
-    this._mouseTargets = [];
-    this._keysDown = [];
-    this._keysLastDown = [];
-    this._currentKey = null;
-    this._tickIntervalID = null;
-    this._tools = {
-      brush: new Wick.Tools.Brush(),
-      cursor: new Wick.Tools.Cursor(),
-      ellipse: new Wick.Tools.Ellipse(),
-      eraser: new Wick.Tools.Eraser(),
-      eyedropper: new Wick.Tools.Eyedropper(),
-      fillbucket: new Wick.Tools.FillBucket(),
-      interact: new Wick.Tools.Interact(),
-      line: new Wick.Tools.Line(),
-      none: new Wick.Tools.None(),
-      pan: new Wick.Tools.Pan(),
-      pathcursor: new Wick.Tools.PathCursor(),
-      pencil: new Wick.Tools.Pencil(),
-      rectangle: new Wick.Tools.Rectangle(),
-      text: new Wick.Tools.Text(),
-      zoom: new Wick.Tools.Zoom()
-    };
-
-    for (var toolName in this._tools) {
-      this._tools[toolName].project = this;
-    }
-
-    this.activeTool = 'cursor';
-    this._toolSettings = new Wick.ToolSettings();
-
-    this._toolSettings.onSettingsChanged((name, value) => {
-      if (name === 'fillColor') {
-        this.selection.fillColor = value;
-      } else if (name === 'strokeColor') {
-        this.selection.strokeColor = value;
-      }
-    });
-
-    this._playing = false;
-    this.history.project = this;
-    this.history.pushState(Wick.History.StateType.ONLY_VISIBLE_OBJECTS);
-  }
-
-  deserialize(data) {
-    super.deserialize(data);
-    this.name = data.name;
-    this.width = data.width;
-    this.height = data.height;
-    this.framerate = data.framerate;
-    this.backgroundColor = data.backgroundColor;
-    this.pan = {
-      x: data.pan.x,
-      y: data.pan.y
-    };
-    this.zoom = data.zoom;
-    this.onionSkinEnabled = data.onionSkinEnabled;
-    this.onionSkinSeekForwards = data.onionSkinSeekForwards;
-    this.onionSkinSeekBackwards = data.onionSkinSeekBackwards;
-    this._focus = data.focus;
-  }
-
-  serialize(args) {
-    var data = super.serialize(args);
-    data.name = this.name;
-    data.width = this.width;
-    data.height = this.height;
-    data.backgroundColor = this.backgroundColor;
-    data.framerate = this.framerate;
-    data.zoom = this.zoom;
-    data.pan = {
-      x: this.pan.x,
-      y: this.pan.y
-    };
-    data.onionSkinEnabled = this.onionSkinEnabled;
-    data.onionSkinSeekForwards = this.onionSkinSeekForwards;
-    data.onionSkinSeekBackwards = this.onionSkinSeekBackwards;
-    data.focus = this.focus.uuid;
-    data.metadata = {
-      wickengine: Wick.version,
-      platform: {
-        name: platform.name,
-        version: platform.version,
-        product: platform.product,
-        manufacturer: platform.manufacturer,
-        layout: platform.layout,
-        os: {
-          architecture: platform.os.architecture,
-          family: platform.os.family,
-          version: platform.os.version
-        },
-        description: platform.description
-      }
-    };
-    return data;
-  }
-
-  get classname() {
-    return 'Project';
-  }
-  /**
-   * The width of the project.
-   * @type {number}
-   */
-
-
-  get width() {
-    return this._width;
-  }
-
-  set width(width) {
-    if (typeof width !== 'number') return;
-    if (width < 1) width = 1;
-    if (width > 200000) width = 200000;
-    this._width = width;
-  }
-  /**
-   * The height of the project.
-   * @type {number}
-   */
-
-
-  get height() {
-    return this._height;
-  }
-
-  set height(height) {
-    if (typeof height !== 'number') return;
-    if (height < 1) height = 1;
-    if (height > 200000) height = 200000;
-    this._height = height;
-  }
-  /**
-   * The framerate of the project.
-   * @type {number}
-   */
-
-
-  get framerate() {
-    return this._framerate;
-  }
-
-  set framerate(framerate) {
-    if (typeof framerate !== 'number') return;
-    if (framerate < 1) framerate = 1;
-    if (framerate > 9999) framerate = 9999;
-    this._framerate = framerate;
-  }
-  /**
-   * The background color of the project.
-   * @type {string}
-   */
-
-
-  get backgroundColor() {
-    return this._backgroundColor;
-  }
-
-  set backgroundColor(backgroundColor) {
-    if (typeof backgroundColor !== 'string') return;
-    this._backgroundColor = backgroundColor;
-  }
-  /**
-   * The timeline of the active clip.
-   * @type {Wick.Timeline}
-   */
-
-
-  get activeTimeline() {
-    return this.focus.timeline;
-  }
-  /**
-   * The active layer of the active timeline.
-   * @type {Wick.Layer}
-   */
-
-
-  get activeLayer() {
-    return this.activeTimeline.activeLayer;
-  }
-  /**
-   * The active frame of the active layer.
-   * @type {Wick.Frame}
-   */
-
-
-  get activeFrame() {
-    return this.activeLayer.activeFrame;
-  }
-  /**
-   * The active frames of the active timeline.
-   * @type {Wick.Frame[]}
-   */
-
-
-  get activeFrames() {
-    return this.focus.timeline.activeFrames;
-  }
-  /**
-   * The active frame of the active layer.
-   */
-
-
-  getAllFrames() {
-    return this.root.timeline.getAllFrames(true);
-  }
-  /**
-   * The project selection.
-   * @type {Wick.Selection}
-   */
-
-
-  get selection() {
-    return this.getChild('Selection');
-  }
-
-  set selection(selection) {
-    if (this.selection) {
-      this.removeChild(this.selection);
-    }
-
-    this.addChild(selection);
-  }
-  /**
-   * An instance of the Wick.History utility class for undo/redo functionality.
-   * @type {Wick.History}
-   */
-
-
-  get history() {
-    return this._history;
-  }
-
-  set history(history) {
-    this._history = history;
-  }
-  /**
-   * Undo the last action.
-   * @returns {boolean} true if there was something to undo, false otherwise.
-   */
-
-
-  undo() {
-    this.selection.clear();
-    var success = this.project.history.popState();
-    return success;
-  }
-  /**
-   * Redo the last action that was undone.
-   * @returns {boolean} true if there was something to redo, false otherwise.
-   */
-
-
-  redo() {
-    this.selection.clear();
-    var success = this.project.history.recoverState();
-    return success;
-  }
-  /**
-   * The assets belonging to the project.
-   * @type {Wick.Asset[]}
-   */
-
-
-  get assets() {
-    return this.getChildren(['ImageAsset', 'SoundAsset', 'ClipAsset', 'FontAsset']);
-  }
-  /**
-   * Adds an asset to the project.
-   * @param {Wick.Asset} asset - The asset to add to the project.
-   */
-
-
-  addAsset(asset) {
-    if (this.assets.indexOf(asset) === -1) {
-      this.addChild(asset);
-    }
-  }
-  /**
-   * Removes an asset from the project. Also removes all instances of that asset from the project.
-   * @param {Wick.Asset} asset - The asset to remove from the project.
-   */
-
-
-  removeAsset(asset) {
-    asset.removeAllInstances();
-    this.removeChild(asset);
-  }
-  /**
-   * Retrieve an asset from the project by its UUID.
-   * @param {string} uuid - The UUID of the asset to get.
-   * @return {Wick.Asset} The asset
-   */
-
-
-  getAssetByUUID(uuid) {
-    var asset = this.getAssets().find(asset => {
-      return asset.uuid === uuid;
-    });
-
-    if (asset) {
-      return asset;
-    } else {
-      console.warn('Wick.Project.getAssetByUUID: No asset found with uuid ' + uuid);
-    }
-  }
-  /**
-   * Retrieve an asset from the project by its name.
-   * @param {string} name - The name of the asset to get.
-   * @return {Wick.Asset} The asset
-   */
-
-
-  getAssetByName(name) {
-    return this.getAssets().find(asset => {
-      return asset.name === name;
-    });
-  }
-  /**
-   * The assets belonging to the project.
-   * @param {string} type - Optional, filter assets by type ("Sound"/"Image"/"Clip"/"Button")
-   * @returns {Wick.Asset[]} The assets in the project
-   */
-
-
-  getAssets(type) {
-    if (!type) {
-      return this.assets;
-    } else {
-      return this.assets.filter(asset => {
-        return asset instanceof Wick[type + 'Asset'];
-      });
-    }
-  }
-  /**
-   * A list of all "fontFamily" in the asset library.
-   * @returns {[string]}
-   */
-
-
-  getFonts() {
-    return this.getAssets('Font').map(asset => {
-      return asset.fontFamily;
-    });
-  }
-  /**
-   * Check if a FontAsset with a given fontFamily exists in the project.
-   * @param {string} fontFamily - The font to check for
-   * @returns {boolean}
-   */
-
-
-  hasFont(fontFamily) {
-    return this.getFonts().find(seekFontFamily => {
-      return seekFontFamily === fontFamily;
-    }) !== undefined;
-  }
-  /**
-   * The root clip.
-   * @type {Wick.Clip}
-   */
-
-
-  get root() {
-    return this.getChild('Clip');
-  }
-
-  set root(root) {
-    if (this.root) {
-      this.removeChild(this.root);
-    }
-
-    this.addChild(root);
-  }
-  /**
-   * The currently focused clip.
-   * @type {Wick.Clip}
-   */
-
-
-  get focus() {
-    return this._focus && Wick.ObjectCache.getObjectByUUID(this._focus);
-  }
-
-  set focus(focus) {
-    var focusChanged = this.focus !== null && this.focus !== focus;
-    this._focus = focus.uuid;
-
-    if (focusChanged) {
-      this.selection.clear(); // Reset timelines of subclips of the newly focused clip
-
-      focus.timeline.clips.forEach(subclip => {
-        subclip.timeline.playheadPosition = 1;
-      }); // Reset pan and zoom and clear selection on focus change
-
-      this.recenter();
-    }
-  }
-  /**
-   * The position of the mouse
-   * @type {object}
-   */
-
-
-  get mousePosition() {
-    return this._mousePosition;
-  }
-
-  set mousePosition(mousePosition) {
-    this._lastMousePosition = {
-      x: this.mousePosition.x,
-      y: this.mousePosition.y
-    };
-    this._mousePosition = mousePosition;
-  }
-  /**
-   * The amount the mouse has moved in the last tick
-   * @type {object}
-   */
-
-
-  get mouseMove() {
-    let moveX = this.mousePosition.x - this._lastMousePosition.x;
-    let moveY = this.mousePosition.y - this._lastMousePosition.y;
-    return {
-      x: moveX,
-      y: moveY
-    };
-  }
-  /**
-   * Determine if the mouse is down.
-   * @type {boolean}
-   */
-
-
-  get isMouseDown() {
-    return this._isMouseDown;
-  }
-
-  set isMouseDown(isMouseDown) {
-    this._isMouseDown = isMouseDown;
-  }
-  /**
-   * The keys that are currenty held down.
-   * @type {string[]}
-   */
-
-
-  get keysDown() {
-    return this._keysDown;
-  }
-
-  set keysDown(keysDown) {
-    this._keysDown = keysDown;
-  }
-  /**
-   * The keys were just pressed (i.e., are currently held down, but were not last tick).
-   * @type {string[]}
-   */
-
-
-  get keysJustPressed() {
-    // keys that are in _keysDown, but not in _keysLastDown
-    return this._keysDown.filter(key => {
-      return this._keysLastDown.indexOf(key) === -1;
-    });
-  }
-  /**
-   * The keys that were just released (i.e. were down last tick back are no longer down.)
-   * @return {string[]}
-   */
-
-
-  get keysJustReleased() {
-    return this._keysLastDown.filter(key => {
-      return this._keysDown.indexOf(key) === -1;
-    });
-  }
-  /**
-   * Check if a key is being pressed.
-   * @param {string} key - The name of the key to check
-   */
-
-
-  isKeyDown(key) {
-    return this.keysDown.indexOf(key) !== -1;
-  }
-  /**
-   * Check if a key was just pressed.
-   * @param {string} key - The name of the key to check
-   */
-
-
-  isKeyJustPressed(key) {
-    return this.keysJustPressed.indexOf(key) !== -1;
-  }
-  /**
-   * The key to be used in the global 'key' variable in the scripting API. Update currentKey before you run any key script.
-   * @type {string[]}
-   */
-
-
-  get currentKey() {
-    return this._currentKey;
-  }
-
-  set currentKey(currentKey) {
-    this._currentKey = currentKey;
-  }
-  /**
-   * Creates an asset from a File object and adds that asset to the project.
-   * @param {File} file - File object to be read and converted into an asset.
-   * @param {function} callback Function with the created Wick Asset. Can be passed undefined on improper file input.
-   */
-
-
-  importFile(file, callback) {
-    let imageTypes = Wick.ImageAsset.getValidMIMETypes();
-    let soundTypes = Wick.SoundAsset.getValidMIMETypes();
-    let fontTypes = Wick.FontAsset.getValidMIMETypes();
-    let asset = undefined;
-
-    if (imageTypes.indexOf(file.type) !== -1) {
-      asset = new Wick.ImageAsset();
-    } else if (soundTypes.indexOf(file.type) !== -1) {
-      asset = new Wick.SoundAsset();
-    } else if (fontTypes.indexOf(file.type) !== -1) {
-      asset = new Wick.FontAsset();
-    }
-
-    if (asset === undefined) {
-      console.warn('importFile(): Could not import file ' + file.name + ', filetype: "' + file.type + '" is not supported.');
-      console.warn('supported image file types:');
-      console.log(imageTypes);
-      console.warn('supported sound file types:');
-      console.log(soundTypes);
-      console.warn('supported font file types:');
-      console.log(fontTypes);
-      callback(null);
-      return;
-    }
-
-    let reader = new FileReader();
-
-    reader.onload = () => {
-      let dataURL = reader.result;
-      asset.src = dataURL;
-      asset.filename = file.name;
-      asset.name = file.name;
-      this.addAsset(asset);
-      asset.load(() => {
-        callback(asset);
-      });
-    };
-
-    reader.readAsDataURL(file);
-  }
-  /**
-   * Deletes all objects in the selection.
-   */
-
-
-  deleteSelectedObjects() {
-    var objects = this.selection.getSelectedObjects();
-    this.selection.clear();
-    objects.forEach(object => {
-      object.remove && object.remove();
-    });
-  }
-  /**
-   * Perform a boolean operation on all selected paths.
-   * @param {string} booleanOpName - The name of the boolean op function to use. See Wick.Path.booleanOp.
-   */
-
-
-  doBooleanOperationOnSelection(booleanOpName) {
-    var paths = this.selection.getSelectedObjects('Path');
-    this.selection.clear();
-    var booleanOpResult = Wick.Path.booleanOp(paths, booleanOpName);
-    paths.forEach(path => {
-      path.remove();
-    });
-    this.activeFrame.addPath(booleanOpResult);
-    this.selection.select(booleanOpResult);
-  }
-  /**
-   * Copy the contents of the selection to the clipboard.
-   * @returns {boolean} True if there was something to copy, false otherwise
-   */
-
-
-  copySelectionToClipboard() {
-    var objects = this.selection.getSelectedObjects();
-
-    if (objects.length === 0) {
-      return false;
-    } else {
-      this.clipboard.copyObjectsToClipboard(this, objects);
-      return true;
-    }
-  }
-  /**
-   * Paste the contents of the clipboard into the project.
-   * @returns {boolean} True if there was something to paste in the clipboard, false otherwise.
-   */
-
-
-  pasteClipboardContents() {
-    return this.clipboard.pasteObjectsFromClipboard(this);
-  }
-  /**
-   * Selects all objects that are visible on the canvas (excluding locked layers and onion skinned objects)
-   */
-
-
-  selectAll() {
-    this.selection.clear();
-    this.activeFrames.filter(frame => {
-      return !frame.parentLayer.locked && !frame.parentLayer.hidden;
-    }).forEach(frame => {
-      frame.paths.forEach(path => {
-        this.selection.select(path);
-      });
-      frame.clips.forEach(clip => {
-        this.selection.select(clip);
-      });
-    });
-  }
-  /**
-   * Adds an image path to the active frame using a given asset as its image src.
-   * @param {Wick.Asset} asset - the asset to use for the image src
-   * @param {number} x - the x position to create the image path at
-   * @param {number} y - the y position to create the image path at
-   * @param {function} callback - the function to call after the path is created.
-   */
-
-
-  createImagePathFromAsset(asset, x, y, callback) {
-    asset.createInstance(path => {
-      this.activeFrame.addPath(path);
-      path.x = x;
-      path.y = y;
-      callback(path);
-    });
-  }
-  /**
-   * Creates a symbol from the objects currently selected.
-   * @param {string} identifier - the identifier to give the new symbol
-   * @param {string} type - "Clip" or "Button"
-   */
-
-
-  createClipFromSelection(args) {
-    if (!args) {
-      args = {};
-    }
-
-    ;
-
-    if (args.type !== 'Clip' && args.type !== 'Button') {
-      console.error('createClipFromSelection: invalid type: ' + args.type);
-      return;
-    }
-
-    var clip = new Wick[args.type]({
-      identifier: args.identifier,
-      objects: this.selection.getSelectedObjects('Canvas'),
-      transformation: new Wick.Transformation({
-        x: this.selection.x + this.selection.width / 2,
-        y: this.selection.y + this.selection.height / 2
-      })
-    });
-    this.activeFrame.addClip(clip); // TODO add to asset library
-
-    this.selection.clear();
-    this.selection.select(clip);
-  }
-  /**
-   * Breaks selected clips into their children clips and paths.
-   */
-
-
-  breakApartSelection() {
-    var leftovers = [];
-    var clips = this.selection.getSelectedObjects('Clip');
-    this.selection.clear();
-    clips.forEach(clip => {
-      leftovers = leftovers.concat(clip.breakApart());
-    });
-    leftovers.forEach(object => {
-      this.selection.select(object);
-    });
-  }
-  /**
-   * Sets the project focus to the timeline of the selected clip.
-   */
-
-
-  focusTimelineOfSelectedClip() {
-    if (this.selection.getSelectedObject() instanceof Wick.Clip) {
-      this.focus = this.selection.getSelectedObject();
-    }
-  }
-  /**
-   * Sets the project focus to the parent timeline of the currently focused clip.
-   */
-
-
-  focusTimelineOfParentClip() {
-    if (!this.focus.isRoot) {
-      this.focus = this.focus.parentClip;
-    }
-  }
-  /**
-   * Plays the sound in the asset library with the given name.
-   * @param {string} assetName - Name of the sound asset to play
-   * @param {Object} options - options for the sound. See Wick.SoundAsset.play
-   */
-
-
-  playSound(assetName, options) {
-    var asset = this.getAssetByName(assetName);
-
-    if (!asset) {
-      console.warn('playSound(): No asset with name: "' + assetName + '"');
-    } else if (!(asset instanceof Wick.SoundAsset)) {
-      console.warn('playSound(): Asset is not a sound: "' + assetName + '"');
-    } else {
-      asset.play(options);
-    }
-  }
-  /**
-   * Stops all sounds playing from frames and sounds played using playSound().
-   */
-
-
-  stopAllSounds() {
-    // Stop all sounds started with Wick.Project.playSound();
-    this.getAssets('Sound').forEach(soundAsset => {
-      soundAsset.stop();
-    }); // Stop all sounds on frames
-
-    this.getAllFrames().forEach(frame => {
-      frame.stopSound();
-    });
-  }
-  /**
-   * Ticks the project.
-   * @returns {object} An object containing information about an error, if one occured while running scripts. Null otherwise.
-   */
-
-
-  tick() {
-    this.root._identifier = 'Project'; // Process input
-
-    this._mousePosition = this.tools.interact.mousePosition;
-    this._isMouseDown = this.tools.interact.mouseIsDown;
-    this._keysDown = this.tools.interact.keysDown;
-    this._currentKey = this.tools.interact.lastKeyDown;
-    this._mouseTargets = this.tools.interact.mouseTargets; // Tick the focus
-
-    this.focus._attachChildClipReferences();
-
-    var error = this.focus.tick(); // Save the current keysDown
-
-    this._lastMousePosition = {
-      x: this._mousePosition.x,
-      y: this._mousePosition.y
-    };
-    this._keysLastDown = [].concat(this._keysDown);
-    this.view.render();
-    return error;
-  }
-  /**
-   * Checks if the project is currently playing.
-   * @type {boolean}
-   */
-
-
-  get playing() {
-    return this._playing;
-  }
-  /**
-   * Start playing the project.
-   * Arguments: onError: Called when a script error occurs during a tick.
-   *            onBeforeTick: Called before every tick
-   *            onAfterTick: Called after every tick
-   * @param {object} args - Optional arguments
-   */
-
-
-  play(args) {
-    if (!args) args = {};
-    if (!args.onError) args.onError = () => {};
-    if (!args.onBeforeTick) args.onBeforeTick = () => {};
-    if (!args.onAfterTick) args.onAfterTick = () => {};
-    this._playing = true;
-    this.view.paper.view.autoUpdate = false;
-
-    if (this._tickIntervalID) {
-      this.stop();
-    }
-
-    this.history.saveSnapshot('state-before-play');
-    this.selection.clear(); // Start tick loop
-
-    this._tickIntervalID = setInterval(() => {
-      args.onBeforeTick();
-      var error = this.tick();
-      this.view.paper.view.update();
-
-      if (error) {
-        args.onError(error);
-        this.stop();
-        return;
-      }
-
-      args.onAfterTick();
-    }, 1000 / this.framerate);
-  }
-  /**
-   * Stop playing the project.
-   */
-
-
-  stop() {
-    this._playing = false;
-    this.view.paper.view.autoUpdate = true; // Run unload scripts on all objects
-
-    this.getAllFrames().forEach(frame => {
-      frame.clips.forEach(clip => {
-        clip.runScript('unload');
-      });
-    });
-    this.stopAllSounds();
-    clearInterval(this._tickIntervalID);
-    this._tickIntervalID = null; // Loading the snapshot to restore project state also moves the playhead back to where it was originally.
-    // We actually don't want this, preview play should actually move the playhead after it's stopped.
-
-    var currentPlayhead = this.focus.timeline.playheadPosition;
-    this.history.loadSnapshot('state-before-play');
-    this.focus.timeline.playheadPosition = currentPlayhead;
-  }
-  /**
-   * Resets zoom and pan.
-   */
-
-
-  recenter() {
-    this.pan = {
-      x: 0,
-      y: 0
-    };
-    this.zoom = 1;
-  }
-  /**
-   * Zooms the canvas in.
-   */
-
-
-  zoomIn() {
-    this.zoom *= 1.25;
-  }
-  /**
-   * Zooms the canvas out.
-   */
-
-
-  zoomOut() {
-    this.zoom *= 0.8;
-  }
-  /**
-   * All tools belonging to the project.
-   * @type {Array<Wick.Tool>}
-   */
-
-
-  get tools() {
-    return this._tools;
-  }
-  /**
-   * The tool settings for the project's tools.
-   * @type {Wick.ToolSettings}
-   */
-
-
-  get toolSettings() {
-    return this._toolSettings;
-  }
-  /**
-   * The currently activated tool.
-   * @type {Wick.Tool}
-   */
-
-
-  get activeTool() {
-    return this._activeTool;
-  }
-
-  set activeTool(activeTool) {
-    if (typeof activeTool === 'string') {
-      var tool = this.tools[activeTool];
-
-      if (!tool) {
-        console.error('set activeTool: invalid tool: ' + activeTool);
-      }
-
-      this._activeTool = tool;
-    } else {
-      this._activeTool = activeTool;
-    }
-  }
-  /**
-   * Adds an object to the project.
-   * @param {Wick.Base} object
-   * @return {boolean} returns true if the obejct was added successfully, false otherwise.
-   */
-
-
-  addObject(object) {
-    if (object instanceof Wick.Path) {
-      this.activeFrame.addPath(object);
-    } else if (object instanceof Wick.Clip) {
-      this.activeFrame.addClip(object);
-    } else if (object instanceof Wick.Frame) {
-      this.activeTimeline.addFrame(object);
-    } else if (object instanceof Wick.Asset) {
-      this.addAsset(object);
-    } else if (object instanceof Wick.Layer) {
-      this.activeTimeline.addLayer(object);
-    } else if (object instanceof Wick.Tween) {
-      this.activeFrame.addTween(object);
-    } else {
-      return false;
-    }
-
-    return true;
-  }
-  /**
-   * Create a sequence of images from every frame in the project.
-   * @param {object} args - Options for generating the image sequence
-   * @param {function} done - Function to call when the images are all loaded.
-   */
-
-
-  generateImageSequence(args, callback) {
-    var oldCanvasContainer = this.view.canvasContainer;
-    this.history.saveSnapshot('before-gif-render');
-    this.tick(); // Put the project canvas inside a div that's the same size as the project so the frames render at the correct resolution.
-
-    let container = window.document.createElement('div');
-    container.style.width = this.width / window.devicePixelRatio + 'px';
-    container.style.height = this.height / window.devicePixelRatio + 'px';
-    window.document.body.appendChild(container);
-    this.view.canvasContainer = container;
-    this.view.resize(); // Set the initial state of the project.
-
-    this.focus = this.root;
-    this.focus.timeline.playheadPosition = 1;
-    this.onionSkinEnabled = false;
-    this.zoom = 1 / window.devicePixelRatio;
-    this.pan = {
-      x: 0,
-      y: 0
-    }; // We need full control over when paper.js renders, if we leave autoUpdate on, it's possible to lose frames if paper.js doesnt automatically render as fast as we are generating the images.
-    // (See paper.js docs for info about autoUpdate)
-
-    paper.view.autoUpdate = false;
-    var frameImages = [];
-
-    var renderFrame = () => {
-      var frameImage = new Image();
-
-      frameImage.onload = () => {
-        frameImages.push(frameImage);
-
-        if (this.focus.timeline.playheadPosition >= this.focus.timeline.length) {
-          // reset autoUpdate back to normal
-          paper.view.autoUpdate = true; // reset canvas container back to normal
-
-          this.view.canvasContainer = oldCanvasContainer;
-          this.view.resize();
-          this.history.loadSnapshot('before-gif-render');
-          callback(frameImages);
-        } else {
-          this.tick();
-          renderFrame();
-        }
-      };
-
-      this.view.render();
-      paper.view.update();
-      frameImage.src = this.view.canvas.toDataURL(args.imageType || 'image/png');
-    };
-
-    renderFrame();
-  }
-  /**
-   * Create a sequence of images from every frame in the project.
-   * Format:
-   *   start: The amount of time in milliseconds to cut from the beginning of the sound.
-   *   end: The amount of time that the sound will play before stopping.
-   *   offset: The amount of time to offset the start of the sound.
-   *   src: The source of the sound as a dataURL.
-   *   filetype: The file type of the sound asset.
-   * @param {object} args - Options for generating the audio sequence
-   * @param {function} callback- The function which will be passed the generated sound array.
-   */
-
-
-  generateAudioSequence(args, callback) {
-    if (!callback) return;
-    let sounds = this.root.timeline.frames.filter(frame => {
-      return frame.sound !== null;
-    }).map(frame => {
-      return {
-        start: frame.soundStartMS,
-        end: frame.soundEndMS,
-        offset: frame.cropSoundOffsetMS,
-        src: frame.sound.src,
-        filetype: frame.sound.fileExtension
-      };
-    });
-    callback(sounds);
-  }
-  /**
-   *
-   */
-
-
-  objectIsMouseTarget(object) {
-    return this._mouseTargets.indexOf(object) !== -1;
-  }
-  /**
-   * Returns true if there is currently an active frame to draw onto.
-   * @type {boolean}
-   */
-
-
-  get canDraw() {
-    return this.activeFrame !== undefined && !this.activeLayer.locked && !this.activeLayer.hidden;
-  }
-
-};
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -19643,6 +18536,1113 @@ return paper;
 */
 
 /**
+ * Class representing a Wick Project.
+ */
+Wick.Project = class extends Wick.Base {
+  /**
+   * Create a project.
+   * @param {string} name - Project name. Default "My Project".
+   * @param {number} width - Project width in pixels. Default 720.
+   * @param {number} height - Project height in pixels. Default 405.
+   * @param {number} framerate - Project framerate in frames-per-second. Default 12.
+   * @param {string} backgroundColor - Project background color in hex. Default #ffffff.
+   */
+  constructor(args) {
+    if (!args) args = {};
+    super(args);
+    this._name = args.name || 'My Project';
+    this._width = args.width || 720;
+    this._height = args.height || 405;
+    this._framerate = args.framerate || 12;
+    this._backgroundColor = args.backgroundColor || '#ffffff';
+    this.pan = {
+      x: 0,
+      y: 0
+    };
+    this.zoom = 1.0;
+    this.onionSkinEnabled = false;
+    this.onionSkinSeekBackwards = 1;
+    this.onionSkinSeekForwards = 1;
+    this.selection = new Wick.Selection();
+    this.history = new Wick.History();
+    this.clipboard = new Wick.Clipboard();
+    this.root = new Wick.Clip();
+    this.root._identifier = 'Project';
+    this.focus = this.root;
+    this._mousePosition = {
+      x: 0,
+      y: 0
+    };
+    this._lastMousePosition = {
+      x: 0,
+      y: 0
+    };
+    this._isMouseDown = false;
+    this._mouseTargets = [];
+    this._keysDown = [];
+    this._keysLastDown = [];
+    this._currentKey = null;
+    this._tickIntervalID = null;
+    this._tools = {
+      brush: new Wick.Tools.Brush(),
+      cursor: new Wick.Tools.Cursor(),
+      ellipse: new Wick.Tools.Ellipse(),
+      eraser: new Wick.Tools.Eraser(),
+      eyedropper: new Wick.Tools.Eyedropper(),
+      fillbucket: new Wick.Tools.FillBucket(),
+      interact: new Wick.Tools.Interact(),
+      line: new Wick.Tools.Line(),
+      none: new Wick.Tools.None(),
+      pan: new Wick.Tools.Pan(),
+      pathcursor: new Wick.Tools.PathCursor(),
+      pencil: new Wick.Tools.Pencil(),
+      rectangle: new Wick.Tools.Rectangle(),
+      text: new Wick.Tools.Text(),
+      zoom: new Wick.Tools.Zoom()
+    };
+
+    for (var toolName in this._tools) {
+      this._tools[toolName].project = this;
+    }
+
+    this.activeTool = 'cursor';
+    this._toolSettings = new Wick.ToolSettings();
+
+    this._toolSettings.onSettingsChanged((name, value) => {
+      if (name === 'fillColor') {
+        this.selection.fillColor = value;
+      } else if (name === 'strokeColor') {
+        this.selection.strokeColor = value;
+      }
+    });
+
+    this._playing = false;
+    this.history.project = this;
+    this.history.pushState(Wick.History.StateType.ONLY_VISIBLE_OBJECTS);
+  }
+
+  deserialize(data) {
+    super.deserialize(data);
+    this.name = data.name;
+    this.width = data.width;
+    this.height = data.height;
+    this.framerate = data.framerate;
+    this.backgroundColor = data.backgroundColor;
+    this.pan = {
+      x: data.pan.x,
+      y: data.pan.y
+    };
+    this.zoom = data.zoom;
+    this.onionSkinEnabled = data.onionSkinEnabled;
+    this.onionSkinSeekForwards = data.onionSkinSeekForwards;
+    this.onionSkinSeekBackwards = data.onionSkinSeekBackwards;
+    this._focus = data.focus;
+  }
+
+  serialize(args) {
+    var data = super.serialize(args);
+    data.name = this.name;
+    data.width = this.width;
+    data.height = this.height;
+    data.backgroundColor = this.backgroundColor;
+    data.framerate = this.framerate;
+    data.zoom = this.zoom;
+    data.pan = {
+      x: this.pan.x,
+      y: this.pan.y
+    };
+    data.onionSkinEnabled = this.onionSkinEnabled;
+    data.onionSkinSeekForwards = this.onionSkinSeekForwards;
+    data.onionSkinSeekBackwards = this.onionSkinSeekBackwards;
+    data.focus = this.focus.uuid;
+    data.metadata = {
+      wickengine: Wick.version,
+      platform: {
+        name: platform.name,
+        version: platform.version,
+        product: platform.product,
+        manufacturer: platform.manufacturer,
+        layout: platform.layout,
+        os: {
+          architecture: platform.os.architecture,
+          family: platform.os.family,
+          version: platform.os.version
+        },
+        description: platform.description
+      }
+    };
+    return data;
+  }
+
+  get classname() {
+    return 'Project';
+  }
+  /**
+   * The width of the project.
+   * @type {number}
+   */
+
+
+  get width() {
+    return this._width;
+  }
+
+  set width(width) {
+    if (typeof width !== 'number') return;
+    if (width < 1) width = 1;
+    if (width > 200000) width = 200000;
+    this._width = width;
+  }
+  /**
+   * The height of the project.
+   * @type {number}
+   */
+
+
+  get height() {
+    return this._height;
+  }
+
+  set height(height) {
+    if (typeof height !== 'number') return;
+    if (height < 1) height = 1;
+    if (height > 200000) height = 200000;
+    this._height = height;
+  }
+  /**
+   * The framerate of the project.
+   * @type {number}
+   */
+
+
+  get framerate() {
+    return this._framerate;
+  }
+
+  set framerate(framerate) {
+    if (typeof framerate !== 'number') return;
+    if (framerate < 1) framerate = 1;
+    if (framerate > 9999) framerate = 9999;
+    this._framerate = framerate;
+  }
+  /**
+   * The background color of the project.
+   * @type {string}
+   */
+
+
+  get backgroundColor() {
+    return this._backgroundColor;
+  }
+
+  set backgroundColor(backgroundColor) {
+    if (typeof backgroundColor !== 'string') return;
+    this._backgroundColor = backgroundColor;
+  }
+  /**
+   * The timeline of the active clip.
+   * @type {Wick.Timeline}
+   */
+
+
+  get activeTimeline() {
+    return this.focus.timeline;
+  }
+  /**
+   * The active layer of the active timeline.
+   * @type {Wick.Layer}
+   */
+
+
+  get activeLayer() {
+    return this.activeTimeline.activeLayer;
+  }
+  /**
+   * The active frame of the active layer.
+   * @type {Wick.Frame}
+   */
+
+
+  get activeFrame() {
+    return this.activeLayer.activeFrame;
+  }
+  /**
+   * The active frames of the active timeline.
+   * @type {Wick.Frame[]}
+   */
+
+
+  get activeFrames() {
+    return this.focus.timeline.activeFrames;
+  }
+  /**
+   * The active frame of the active layer.
+   */
+
+
+  getAllFrames() {
+    return this.root.timeline.getAllFrames(true);
+  }
+  /**
+   * The project selection.
+   * @type {Wick.Selection}
+   */
+
+
+  get selection() {
+    return this.getChild('Selection');
+  }
+
+  set selection(selection) {
+    if (this.selection) {
+      this.removeChild(this.selection);
+    }
+
+    this.addChild(selection);
+  }
+  /**
+   * An instance of the Wick.History utility class for undo/redo functionality.
+   * @type {Wick.History}
+   */
+
+
+  get history() {
+    return this._history;
+  }
+
+  set history(history) {
+    this._history = history;
+  }
+  /**
+   * Undo the last action.
+   * @returns {boolean} true if there was something to undo, false otherwise.
+   */
+
+
+  undo() {
+    this.selection.clear();
+    var success = this.project.history.popState();
+    return success;
+  }
+  /**
+   * Redo the last action that was undone.
+   * @returns {boolean} true if there was something to redo, false otherwise.
+   */
+
+
+  redo() {
+    this.selection.clear();
+    var success = this.project.history.recoverState();
+    return success;
+  }
+  /**
+   * The assets belonging to the project.
+   * @type {Wick.Asset[]}
+   */
+
+
+  get assets() {
+    return this.getChildren(['ImageAsset', 'SoundAsset', 'ClipAsset', 'FontAsset']);
+  }
+  /**
+   * Adds an asset to the project.
+   * @param {Wick.Asset} asset - The asset to add to the project.
+   */
+
+
+  addAsset(asset) {
+    if (this.assets.indexOf(asset) === -1) {
+      this.addChild(asset);
+    }
+  }
+  /**
+   * Removes an asset from the project. Also removes all instances of that asset from the project.
+   * @param {Wick.Asset} asset - The asset to remove from the project.
+   */
+
+
+  removeAsset(asset) {
+    asset.removeAllInstances();
+    this.removeChild(asset);
+  }
+  /**
+   * Retrieve an asset from the project by its UUID.
+   * @param {string} uuid - The UUID of the asset to get.
+   * @return {Wick.Asset} The asset
+   */
+
+
+  getAssetByUUID(uuid) {
+    var asset = this.getAssets().find(asset => {
+      return asset.uuid === uuid;
+    });
+
+    if (asset) {
+      return asset;
+    } else {
+      console.warn('Wick.Project.getAssetByUUID: No asset found with uuid ' + uuid);
+    }
+  }
+  /**
+   * Retrieve an asset from the project by its name.
+   * @param {string} name - The name of the asset to get.
+   * @return {Wick.Asset} The asset
+   */
+
+
+  getAssetByName(name) {
+    return this.getAssets().find(asset => {
+      return asset.name === name;
+    });
+  }
+  /**
+   * The assets belonging to the project.
+   * @param {string} type - Optional, filter assets by type ("Sound"/"Image"/"Clip"/"Button")
+   * @returns {Wick.Asset[]} The assets in the project
+   */
+
+
+  getAssets(type) {
+    if (!type) {
+      return this.assets;
+    } else {
+      return this.assets.filter(asset => {
+        return asset instanceof Wick[type + 'Asset'];
+      });
+    }
+  }
+  /**
+   * A list of all "fontFamily" in the asset library.
+   * @returns {[string]}
+   */
+
+
+  getFonts() {
+    return this.getAssets('Font').map(asset => {
+      return asset.fontFamily;
+    });
+  }
+  /**
+   * Check if a FontAsset with a given fontFamily exists in the project.
+   * @param {string} fontFamily - The font to check for
+   * @returns {boolean}
+   */
+
+
+  hasFont(fontFamily) {
+    return this.getFonts().find(seekFontFamily => {
+      return seekFontFamily === fontFamily;
+    }) !== undefined;
+  }
+  /**
+   * The root clip.
+   * @type {Wick.Clip}
+   */
+
+
+  get root() {
+    return this.getChild('Clip');
+  }
+
+  set root(root) {
+    if (this.root) {
+      this.removeChild(this.root);
+    }
+
+    this.addChild(root);
+  }
+  /**
+   * The currently focused clip.
+   * @type {Wick.Clip}
+   */
+
+
+  get focus() {
+    return this._focus && Wick.ObjectCache.getObjectByUUID(this._focus);
+  }
+
+  set focus(focus) {
+    var focusChanged = this.focus !== null && this.focus !== focus;
+    this._focus = focus.uuid;
+
+    if (focusChanged) {
+      this.selection.clear(); // Reset timelines of subclips of the newly focused clip
+
+      focus.timeline.clips.forEach(subclip => {
+        subclip.timeline.playheadPosition = 1;
+      }); // Reset pan and zoom and clear selection on focus change
+
+      this.recenter();
+    }
+  }
+  /**
+   * The position of the mouse
+   * @type {object}
+   */
+
+
+  get mousePosition() {
+    return this._mousePosition;
+  }
+
+  set mousePosition(mousePosition) {
+    this._lastMousePosition = {
+      x: this.mousePosition.x,
+      y: this.mousePosition.y
+    };
+    this._mousePosition = mousePosition;
+  }
+  /**
+   * The amount the mouse has moved in the last tick
+   * @type {object}
+   */
+
+
+  get mouseMove() {
+    let moveX = this.mousePosition.x - this._lastMousePosition.x;
+    let moveY = this.mousePosition.y - this._lastMousePosition.y;
+    return {
+      x: moveX,
+      y: moveY
+    };
+  }
+  /**
+   * Determine if the mouse is down.
+   * @type {boolean}
+   */
+
+
+  get isMouseDown() {
+    return this._isMouseDown;
+  }
+
+  set isMouseDown(isMouseDown) {
+    this._isMouseDown = isMouseDown;
+  }
+  /**
+   * The keys that are currenty held down.
+   * @type {string[]}
+   */
+
+
+  get keysDown() {
+    return this._keysDown;
+  }
+
+  set keysDown(keysDown) {
+    this._keysDown = keysDown;
+  }
+  /**
+   * The keys were just pressed (i.e., are currently held down, but were not last tick).
+   * @type {string[]}
+   */
+
+
+  get keysJustPressed() {
+    // keys that are in _keysDown, but not in _keysLastDown
+    return this._keysDown.filter(key => {
+      return this._keysLastDown.indexOf(key) === -1;
+    });
+  }
+  /**
+   * The keys that were just released (i.e. were down last tick back are no longer down.)
+   * @return {string[]}
+   */
+
+
+  get keysJustReleased() {
+    return this._keysLastDown.filter(key => {
+      return this._keysDown.indexOf(key) === -1;
+    });
+  }
+  /**
+   * Check if a key is being pressed.
+   * @param {string} key - The name of the key to check
+   */
+
+
+  isKeyDown(key) {
+    return this.keysDown.indexOf(key) !== -1;
+  }
+  /**
+   * Check if a key was just pressed.
+   * @param {string} key - The name of the key to check
+   */
+
+
+  isKeyJustPressed(key) {
+    return this.keysJustPressed.indexOf(key) !== -1;
+  }
+  /**
+   * The key to be used in the global 'key' variable in the scripting API. Update currentKey before you run any key script.
+   * @type {string[]}
+   */
+
+
+  get currentKey() {
+    return this._currentKey;
+  }
+
+  set currentKey(currentKey) {
+    this._currentKey = currentKey;
+  }
+  /**
+   * Creates an asset from a File object and adds that asset to the project.
+   * @param {File} file - File object to be read and converted into an asset.
+   * @param {function} callback Function with the created Wick Asset. Can be passed undefined on improper file input.
+   */
+
+
+  importFile(file, callback) {
+    let imageTypes = Wick.ImageAsset.getValidMIMETypes();
+    let soundTypes = Wick.SoundAsset.getValidMIMETypes();
+    let fontTypes = Wick.FontAsset.getValidMIMETypes();
+    let asset = undefined;
+
+    if (imageTypes.indexOf(file.type) !== -1) {
+      asset = new Wick.ImageAsset();
+    } else if (soundTypes.indexOf(file.type) !== -1) {
+      asset = new Wick.SoundAsset();
+    } else if (fontTypes.indexOf(file.type) !== -1) {
+      asset = new Wick.FontAsset();
+    }
+
+    if (asset === undefined) {
+      console.warn('importFile(): Could not import file ' + file.name + ', filetype: "' + file.type + '" is not supported.');
+      console.warn('supported image file types:');
+      console.log(imageTypes);
+      console.warn('supported sound file types:');
+      console.log(soundTypes);
+      console.warn('supported font file types:');
+      console.log(fontTypes);
+      callback(null);
+      return;
+    }
+
+    let reader = new FileReader();
+
+    reader.onload = () => {
+      let dataURL = reader.result;
+      asset.src = dataURL;
+      asset.filename = file.name;
+      asset.name = file.name;
+      this.addAsset(asset);
+      asset.load(() => {
+        callback(asset);
+      });
+    };
+
+    reader.readAsDataURL(file);
+  }
+  /**
+   * Deletes all objects in the selection.
+   */
+
+
+  deleteSelectedObjects() {
+    var objects = this.selection.getSelectedObjects();
+    this.selection.clear();
+    objects.forEach(object => {
+      object.remove && object.remove();
+    });
+  }
+  /**
+   * Perform a boolean operation on all selected paths.
+   * @param {string} booleanOpName - The name of the boolean op function to use. See Wick.Path.booleanOp.
+   */
+
+
+  doBooleanOperationOnSelection(booleanOpName) {
+    var paths = this.selection.getSelectedObjects('Path');
+    this.selection.clear();
+    var booleanOpResult = Wick.Path.booleanOp(paths, booleanOpName);
+    paths.forEach(path => {
+      path.remove();
+    });
+    this.activeFrame.addPath(booleanOpResult);
+    this.selection.select(booleanOpResult);
+  }
+  /**
+   * Copy the contents of the selection to the clipboard.
+   * @returns {boolean} True if there was something to copy, false otherwise
+   */
+
+
+  copySelectionToClipboard() {
+    var objects = this.selection.getSelectedObjects();
+
+    if (objects.length === 0) {
+      return false;
+    } else {
+      this.clipboard.copyObjectsToClipboard(this, objects);
+      return true;
+    }
+  }
+  /**
+   * Paste the contents of the clipboard into the project.
+   * @returns {boolean} True if there was something to paste in the clipboard, false otherwise.
+   */
+
+
+  pasteClipboardContents() {
+    return this.clipboard.pasteObjectsFromClipboard(this);
+  }
+  /**
+   * Selects all objects that are visible on the canvas (excluding locked layers and onion skinned objects)
+   */
+
+
+  selectAll() {
+    this.selection.clear();
+    this.activeFrames.filter(frame => {
+      return !frame.parentLayer.locked && !frame.parentLayer.hidden;
+    }).forEach(frame => {
+      frame.paths.forEach(path => {
+        this.selection.select(path);
+      });
+      frame.clips.forEach(clip => {
+        this.selection.select(clip);
+      });
+    });
+  }
+  /**
+   * Adds an image path to the active frame using a given asset as its image src.
+   * @param {Wick.Asset} asset - the asset to use for the image src
+   * @param {number} x - the x position to create the image path at
+   * @param {number} y - the y position to create the image path at
+   * @param {function} callback - the function to call after the path is created.
+   */
+
+
+  createImagePathFromAsset(asset, x, y, callback) {
+    asset.createInstance(path => {
+      this.activeFrame.addPath(path);
+      path.x = x;
+      path.y = y;
+      callback(path);
+    });
+  }
+  /**
+   * Creates a symbol from the objects currently selected.
+   * @param {string} identifier - the identifier to give the new symbol
+   * @param {string} type - "Clip" or "Button"
+   */
+
+
+  createClipFromSelection(args) {
+    if (!args) {
+      args = {};
+    }
+
+    ;
+
+    if (args.type !== 'Clip' && args.type !== 'Button') {
+      console.error('createClipFromSelection: invalid type: ' + args.type);
+      return;
+    }
+
+    var clip = new Wick[args.type]({
+      identifier: args.identifier,
+      objects: this.selection.getSelectedObjects('Canvas'),
+      transformation: new Wick.Transformation({
+        x: this.selection.x + this.selection.width / 2,
+        y: this.selection.y + this.selection.height / 2
+      })
+    });
+    this.activeFrame.addClip(clip); // TODO add to asset library
+
+    this.selection.clear();
+    this.selection.select(clip);
+  }
+  /**
+   * Breaks selected clips into their children clips and paths.
+   */
+
+
+  breakApartSelection() {
+    var leftovers = [];
+    var clips = this.selection.getSelectedObjects('Clip');
+    this.selection.clear();
+    clips.forEach(clip => {
+      leftovers = leftovers.concat(clip.breakApart());
+    });
+    leftovers.forEach(object => {
+      this.selection.select(object);
+    });
+  }
+  /**
+   * Sets the project focus to the timeline of the selected clip.
+   */
+
+
+  focusTimelineOfSelectedClip() {
+    if (this.selection.getSelectedObject() instanceof Wick.Clip) {
+      this.focus = this.selection.getSelectedObject();
+    }
+  }
+  /**
+   * Sets the project focus to the parent timeline of the currently focused clip.
+   */
+
+
+  focusTimelineOfParentClip() {
+    if (!this.focus.isRoot) {
+      this.focus = this.focus.parentClip;
+    }
+  }
+  /**
+   * Plays the sound in the asset library with the given name.
+   * @param {string} assetName - Name of the sound asset to play
+   * @param {Object} options - options for the sound. See Wick.SoundAsset.play
+   */
+
+
+  playSound(assetName, options) {
+    var asset = this.getAssetByName(assetName);
+
+    if (!asset) {
+      console.warn('playSound(): No asset with name: "' + assetName + '"');
+    } else if (!(asset instanceof Wick.SoundAsset)) {
+      console.warn('playSound(): Asset is not a sound: "' + assetName + '"');
+    } else {
+      asset.play(options);
+    }
+  }
+  /**
+   * Stops all sounds playing from frames and sounds played using playSound().
+   */
+
+
+  stopAllSounds() {
+    // Stop all sounds started with Wick.Project.playSound();
+    this.getAssets('Sound').forEach(soundAsset => {
+      soundAsset.stop();
+    }); // Stop all sounds on frames
+
+    this.getAllFrames().forEach(frame => {
+      frame.stopSound();
+    });
+  }
+  /**
+   * Ticks the project.
+   * @returns {object} An object containing information about an error, if one occured while running scripts. Null otherwise.
+   */
+
+
+  tick() {
+    this.root._identifier = 'Project'; // Process input
+
+    this._mousePosition = this.tools.interact.mousePosition;
+    this._isMouseDown = this.tools.interact.mouseIsDown;
+    this._keysDown = this.tools.interact.keysDown;
+    this._currentKey = this.tools.interact.lastKeyDown;
+    this._mouseTargets = this.tools.interact.mouseTargets; // Tick the focus
+
+    this.focus._attachChildClipReferences();
+
+    var error = this.focus.tick(); // Save the current keysDown
+
+    this._lastMousePosition = {
+      x: this._mousePosition.x,
+      y: this._mousePosition.y
+    };
+    this._keysLastDown = [].concat(this._keysDown);
+    this.view.render();
+    return error;
+  }
+  /**
+   * Checks if the project is currently playing.
+   * @type {boolean}
+   */
+
+
+  get playing() {
+    return this._playing;
+  }
+  /**
+   * Start playing the project.
+   * Arguments: onError: Called when a script error occurs during a tick.
+   *            onBeforeTick: Called before every tick
+   *            onAfterTick: Called after every tick
+   * @param {object} args - Optional arguments
+   */
+
+
+  play(args) {
+    if (!args) args = {};
+    if (!args.onError) args.onError = () => {};
+    if (!args.onBeforeTick) args.onBeforeTick = () => {};
+    if (!args.onAfterTick) args.onAfterTick = () => {};
+    this._playing = true;
+    this.view.paper.view.autoUpdate = false;
+
+    if (this._tickIntervalID) {
+      this.stop();
+    }
+
+    this.history.saveSnapshot('state-before-play');
+    this.selection.clear(); // Start tick loop
+
+    this._tickIntervalID = setInterval(() => {
+      args.onBeforeTick();
+      var error = this.tick();
+      this.view.paper.view.update();
+
+      if (error) {
+        args.onError(error);
+        this.stop();
+        return;
+      }
+
+      args.onAfterTick();
+    }, 1000 / this.framerate);
+  }
+  /**
+   * Stop playing the project.
+   */
+
+
+  stop() {
+    this._playing = false;
+    this.view.paper.view.autoUpdate = true; // Run unload scripts on all objects
+
+    this.getAllFrames().forEach(frame => {
+      frame.clips.forEach(clip => {
+        clip.runScript('unload');
+      });
+    });
+    this.stopAllSounds();
+    clearInterval(this._tickIntervalID);
+    this._tickIntervalID = null; // Loading the snapshot to restore project state also moves the playhead back to where it was originally.
+    // We actually don't want this, preview play should actually move the playhead after it's stopped.
+
+    var currentPlayhead = this.focus.timeline.playheadPosition;
+    this.history.loadSnapshot('state-before-play');
+    this.focus.timeline.playheadPosition = currentPlayhead;
+  }
+  /**
+   * Resets zoom and pan.
+   */
+
+
+  recenter() {
+    this.pan = {
+      x: 0,
+      y: 0
+    };
+    this.zoom = 1;
+  }
+  /**
+   * Zooms the canvas in.
+   */
+
+
+  zoomIn() {
+    this.zoom *= 1.25;
+  }
+  /**
+   * Zooms the canvas out.
+   */
+
+
+  zoomOut() {
+    this.zoom *= 0.8;
+  }
+  /**
+   * All tools belonging to the project.
+   * @type {Array<Wick.Tool>}
+   */
+
+
+  get tools() {
+    return this._tools;
+  }
+  /**
+   * The tool settings for the project's tools.
+   * @type {Wick.ToolSettings}
+   */
+
+
+  get toolSettings() {
+    return this._toolSettings;
+  }
+  /**
+   * The currently activated tool.
+   * @type {Wick.Tool}
+   */
+
+
+  get activeTool() {
+    return this._activeTool;
+  }
+
+  set activeTool(activeTool) {
+    if (typeof activeTool === 'string') {
+      var tool = this.tools[activeTool];
+
+      if (!tool) {
+        console.error('set activeTool: invalid tool: ' + activeTool);
+      }
+
+      this._activeTool = tool;
+    } else {
+      this._activeTool = activeTool;
+    }
+  }
+  /**
+   * Adds an object to the project.
+   * @param {Wick.Base} object
+   * @return {boolean} returns true if the obejct was added successfully, false otherwise.
+   */
+
+
+  addObject(object) {
+    if (object instanceof Wick.Path) {
+      this.activeFrame.addPath(object);
+    } else if (object instanceof Wick.Clip) {
+      this.activeFrame.addClip(object);
+    } else if (object instanceof Wick.Frame) {
+      this.activeTimeline.addFrame(object);
+    } else if (object instanceof Wick.Asset) {
+      this.addAsset(object);
+    } else if (object instanceof Wick.Layer) {
+      this.activeTimeline.addLayer(object);
+    } else if (object instanceof Wick.Tween) {
+      this.activeFrame.addTween(object);
+    } else {
+      return false;
+    }
+
+    return true;
+  }
+  /**
+   * Create a sequence of images from every frame in the project.
+   * @param {object} args - Options for generating the image sequence
+   * @param {function} done - Function to call when the images are all loaded.
+   */
+
+
+  generateImageSequence(args, callback) {
+    var oldCanvasContainer = this.view.canvasContainer;
+    this.history.saveSnapshot('before-gif-render');
+    this.tick(); // Put the project canvas inside a div that's the same size as the project so the frames render at the correct resolution.
+
+    let container = window.document.createElement('div');
+    container.style.width = this.width / window.devicePixelRatio + 'px';
+    container.style.height = this.height / window.devicePixelRatio + 'px';
+    window.document.body.appendChild(container);
+    this.view.canvasContainer = container;
+    this.view.resize(); // Set the initial state of the project.
+
+    this.focus = this.root;
+    this.focus.timeline.playheadPosition = 1;
+    this.onionSkinEnabled = false;
+    this.zoom = 1 / window.devicePixelRatio;
+    this.pan = {
+      x: 0,
+      y: 0
+    }; // We need full control over when paper.js renders, if we leave autoUpdate on, it's possible to lose frames if paper.js doesnt automatically render as fast as we are generating the images.
+    // (See paper.js docs for info about autoUpdate)
+
+    paper.view.autoUpdate = false;
+    var frameImages = [];
+
+    var renderFrame = () => {
+      var frameImage = new Image();
+
+      frameImage.onload = () => {
+        frameImages.push(frameImage);
+
+        if (this.focus.timeline.playheadPosition >= this.focus.timeline.length) {
+          // reset autoUpdate back to normal
+          paper.view.autoUpdate = true; // reset canvas container back to normal
+
+          this.view.canvasContainer = oldCanvasContainer;
+          this.view.resize();
+          this.history.loadSnapshot('before-gif-render');
+          callback(frameImages);
+        } else {
+          this.tick();
+          renderFrame();
+        }
+      };
+
+      this.view.render();
+      paper.view.update();
+      frameImage.src = this.view.canvas.toDataURL(args.imageType || 'image/png');
+    };
+
+    renderFrame();
+  }
+  /**
+   * Create a sequence of images from every frame in the project.
+   * Format:
+   *   start: The amount of time in milliseconds to cut from the beginning of the sound.
+   *   end: The amount of time that the sound will play before stopping.
+   *   offset: The amount of time to offset the start of the sound.
+   *   src: The source of the sound as a dataURL.
+   *   filetype: The file type of the sound asset.
+   * @param {object} args - Options for generating the audio sequence
+   * @param {function} callback- The function which will be passed the generated sound array.
+   */
+
+
+  generateAudioSequence(args, callback) {
+    if (!callback) return;
+    let sounds = this.root.timeline.frames.filter(frame => {
+      return frame.sound !== null;
+    }).map(frame => {
+      return {
+        start: frame.soundStartMS,
+        end: frame.soundEndMS,
+        offset: frame.cropSoundOffsetMS,
+        src: frame.sound.src,
+        filetype: frame.sound.fileExtension
+      };
+    });
+    callback(sounds);
+  }
+  /**
+   *
+   */
+
+
+  objectIsMouseTarget(object) {
+    return this._mouseTargets.indexOf(object) !== -1;
+  }
+  /**
+   * Returns true if there is currently an active frame to draw onto.
+   * @type {boolean}
+   */
+
+
+  get canDraw() {
+    return this.activeFrame !== undefined && !this.activeLayer.locked && !this.activeLayer.hidden;
+  }
+
+};
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* Copyright 2019 WICKLETS LLC
+*
+* This file is part of Wick Engine.
+*
+* Wick Engine is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Wick Engine is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
+/**
  * Class representing a Wick Selection.
  */
 Wick.Selection = class extends Wick.Base {
@@ -22147,10 +22147,6 @@ var Base64ArrayBuffer = (function () {
 
 })();
 
-// https://stackoverflow.com/questions/14224535/scaling-between-two-number-ranges
-function convertRange( value, r1, r2 ) { 
-    return ( value - r1[ 0 ] ) * ( r2[ 1 ] - r2[ 0 ] ) / ( r1[ 1 ] - r1[ 0 ] ) + r2[ 0 ];
-}
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
@@ -22628,6 +22624,10 @@ Wick.Path = class extends Wick.Base {
   }
 
 };
+// https://stackoverflow.com/questions/14224535/scaling-between-two-number-ranges
+function convertRange( value, r1, r2 ) { 
+    return ( value - r1[ 0 ] ) * ( r2[ 1 ] - r2[ 0 ] ) / ( r1[ 1 ] - r1[ 0 ] ) + r2[ 0 ];
+}
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
@@ -26456,558 +26456,6 @@ Wick.Frame = class extends Wick.Tickable {
 
         clip._attachChildClipReferences();
       }
-    });
-  }
-
-};
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-
-/**
- * A class representing a Wick Clip.
- */
-Wick.Clip = class extends Wick.Tickable {
-  /**
-   * Create a new clip.
-   * @param {string} identifier - The identifier of the new clip.
-   * @param {Wick.Path|Wick.Clip[]} objects - Optional. A list of objects to add to the clip.
-   * @param {Wick.Transformation} transformation - Optional. The initial transformation of the clip.
-   */
-  constructor(args) {
-    if (!args) args = {};
-    super(args);
-    this.timeline = new Wick.Timeline();
-    this.timeline.addLayer(new Wick.Layer());
-    this.timeline.activeLayer.addFrame(new Wick.Frame());
-    this._transformation = args.transformation || new Wick.Transformation();
-    this.cursor = 'default';
-    /* If objects are passed in, add them to the clip and reposition them */
-
-    if (args.objects) {
-      this.addObjects(args.objects);
-    }
-
-    this._clones = [];
-  }
-
-  serialize(args) {
-    var data = super.serialize(args);
-    data.transformation = this.transformation.values;
-    data.timeline = this._timeline;
-    return data;
-  }
-
-  deserialize(data) {
-    super.deserialize(data);
-    this.transformation = new Wick.Transformation(data.transformation);
-    this._timeline = data.timeline;
-    this._clones = [];
-  }
-
-  get classname() {
-    return 'Clip';
-  }
-  /**
-   * Determines whether or not the clip is visible in the project.
-   * @type {boolean}
-   */
-
-
-  get onScreen() {
-    if (this.isRoot) {
-      return true;
-    } else if (this.parent) {
-      return this.parent.onScreen;
-    } else {
-      return true;
-    }
-  }
-  /**
-   * Determines whether or not the clip is the root clip in the project.
-   * @type {boolean}
-   */
-
-
-  get isRoot() {
-    return this.project && this === this.project.root;
-  }
-  /**
-   * Determines whether or not the clip is the currently focused clip in the project.
-   */
-
-
-  get isFocus() {
-    return this.project && this === this.project.focus;
-  }
-  /**
-   * The timeline of the clip.
-   * @type {Wick.Timeline}
-   */
-
-
-  get timeline() {
-    return this.getChild('Timeline');
-  }
-
-  set timeline(timeline) {
-    if (this.timeline) {
-      this.removeChild(this.timeline);
-    }
-
-    this.addChild(timeline);
-  }
-  /**
-   * The active layer of the clip's timeline.
-   * @type {Wick.Layer}
-   */
-
-
-  get activeLayer() {
-    return this.timeline.activeLayer;
-  }
-  /**
-   * The active frame of the clip's timeline.
-   * @type {Wick.Frame}
-   */
-
-
-  get activeFrame() {
-    return this.activeLayer.activeFrame;
-  }
-  /**
-   * An array containing every clip and frame that is a child of this clip and has an identifier.
-   * @type {Wick.Base[]}
-   */
-
-
-  get namedChildren() {
-    var namedChildren = [];
-    this.timeline.frames.forEach(frame => {
-      // Objects that can be accessed by their identifiers:
-      // Frames
-      if (frame.identifier) {
-        namedChildren.push(frame);
-      } // Clips
-
-
-      frame.clips.forEach(clip => {
-        if (clip.identifier) {
-          namedChildren.push(clip);
-        }
-      }); // Dynamic text paths
-
-      frame.dynamicTextPaths.forEach(path => {
-        namedChildren.push(path);
-      });
-    });
-    return namedChildren;
-  }
-  /**
-   * An array containing every clip and frame that is a child of this clip and has an identifier, and also is visible on screen.
-   * @type {Wick.Base[]}
-   */
-
-
-  get activeNamedChildren() {
-    return this.namedChildren.filter(child => {
-      return child.onScreen;
-    });
-  }
-  /**
-   * Remove this clip from its parent frame.
-   */
-
-
-  remove() {
-    this.parent.removeClip(this);
-  }
-  /**
-   * Remove this clip and add all of its paths and clips to its parent frame.
-   * @returns {Wick.Base[]} the objects that were inside the clip.
-   */
-
-
-  breakApart() {
-    var leftovers = [];
-    this.timeline.activeFrames.forEach(frame => {
-      frame.clips.forEach(clip => {
-        clip.transformation.x += this.transformation.x;
-        clip.transformation.y += this.transformation.y;
-        this.parentTimeline.activeFrame.addClip(clip);
-        leftovers.push(clip);
-      });
-      frame.paths.forEach(path => {
-        path.x += this.transformation.x;
-        path.y += this.transformation.y;
-        this.parentTimeline.activeFrame.addPath(path);
-        leftovers.push(path);
-      });
-    });
-    this.remove();
-    return leftovers;
-  }
-  /**
-   * Add paths and clips to this clip.
-   * @param {Wick.Base[]} objects - the paths and clips to add to the clip
-   */
-
-
-  addObjects(objects) {
-    // Reposition objects such that their origin point is equal to this Clip's position
-    objects.forEach(object => {
-      object.x -= this.transformation.x;
-      object.y -= this.transformation.y;
-    }); // Add clips
-
-    objects.filter(object => {
-      return object instanceof Wick.Clip;
-    }).forEach(clip => {
-      this.activeFrame.addClip(clip);
-    }); // Add paths
-
-    objects.filter(object => {
-      return object instanceof Wick.Path;
-    }).forEach(path => {
-      this.activeFrame.addPath(path);
-    });
-  }
-  /**
-   * Stops a clip's timeline on that clip's current playhead position.
-   */
-
-
-  stop() {
-    this.timeline.stop();
-  }
-  /**
-   * Plays a clip's timeline from that clip's current playhead position.
-   */
-
-
-  play() {
-    this.timeline.play();
-  }
-  /**
-   * Moves a clip's playhead to a specific position and stops that clip's timeline on that position.
-   * @param {number|string} frame - number or string representing the frame to move the playhead to.
-   */
-
-
-  gotoAndStop(frame) {
-    this.timeline.gotoAndStop(frame);
-  }
-  /**
-   * Moves a clip's playhead to a specific position and plays that clip's timeline from that position.
-   * @param {number|string} frame - number or string representing the frame to move the playhead to.
-   */
-
-
-  gotoAndPlay(frame) {
-    this.timeline.gotoAndPlay(frame);
-  }
-  /**
-   * Move the playhead of the clips timeline forward one frame. Does nothing if the clip is on its last frame.
-   */
-
-
-  gotoNextFrame() {
-    this.timeline.gotoNextFrame();
-  }
-  /**
-   * Move the playhead of the clips timeline backwards one frame. Does nothing if the clip is on its first frame.
-   */
-
-
-  gotoPrevFrame() {
-    this.timeline.gotoPrevFrame();
-  }
-  /**
-   * Returns the name of the frame which is currently active. If multiple frames are active, returns the
-   * name of the first active frame.
-   * @returns {string} Active Frame name. If the active frame does not have an identifier, returns empty string.
-   */
-
-
-  get currentFrameName() {
-    let frames = this.timeline.activeFrames;
-    let name = '';
-    frames.forEach(frame => {
-      if (name) return;
-
-      if (frame.identifier) {
-        name = frame.identifier;
-      }
-    });
-    return name;
-  }
-  /**
-   * @deprecated
-   * Returns the current playhead position. This is a legacy function, you should use clip.playheadPosition instead.
-   * @returns {number} Playhead Position.
-   */
-
-
-  get currentFrameNumber() {
-    return this.timeline.playheadPosition;
-  }
-  /**
-   * The current transformation of the clip.
-   * @type {Wick.Transformation}
-   */
-
-
-  get transformation() {
-    return this._transformation;
-  }
-
-  set transformation(transformation) {
-    this._transformation = transformation; // When the transformation changes, update the current tween, if one exists
-
-    if (this.parentFrame) {
-      var tween = this.parentFrame.getActiveTween();
-
-      if (tween) {
-        tween.transformation = this._transformation.copy();
-      }
-    }
-  }
-  /**
-   * Returns true if this clip collides with another clip.
-   * @param {Wick.Clip} other - The other clip to check collision with.
-   * @returns {boolean} True if this clip collides the other clip.
-   */
-
-
-  hitTest(other) {
-    return this.bounds.intersects(other.bounds);
-  }
-  /**
-   * The bounding box of the clip.
-   * @type {object}
-   */
-
-
-  get bounds() {
-    return this.view.group.bounds;
-  }
-  /**
-   * The X position of the clip.
-   * @type {number}
-   */
-
-
-  get x() {
-    return this.transformation.x;
-  }
-
-  set x(x) {
-    this.transformation.x = x;
-  }
-  /**
-   * The Y position of the clip.
-   * @type {number}
-   */
-
-
-  get y() {
-    return this.transformation.y;
-  }
-
-  set y(y) {
-    this.transformation.y = y;
-  }
-  /**
-   * The X scale of the clip.
-   * @type {number}
-   */
-
-
-  get scaleX() {
-    return this.transformation.scaleX;
-  }
-
-  set scaleX(scaleX) {
-    this.transformation.scaleX = scaleX;
-  }
-  /**
-   * The Y scale of the clip.
-   * @type {number}
-   */
-
-
-  get scaleY() {
-    return this.transformation.scaleY;
-  }
-
-  set scaleY(scaleY) {
-    this.transformation.scaleY = scaleY;
-  }
-  /**
-   * The width of the clip.
-   * @type {number}
-   */
-
-
-  get width() {
-    return this.isRoot ? this.project.width : this.bounds.width * this.scaleX;
-  }
-
-  set width(width) {
-    this.scaleX = width / this.width * this.scaleX;
-  }
-  /**
-   * The height of the clip.
-   * @type {number}
-   */
-
-
-  get height() {
-    return this.isRoot ? this.project.height : this.bounds.height * this.scaleY;
-  }
-
-  set height(height) {
-    this.scaleY = height / this.height * this.scaleY;
-  }
-  /**
-   * The rotation of the clip.
-   * @type {number}
-   */
-
-
-  get rotation() {
-    return this.transformation.rotation;
-  }
-
-  set rotation(rotation) {
-    this.transformation.rotation = rotation;
-  }
-  /**
-   * The opacity of the clip.
-   * @type {number}
-   */
-
-
-  get opacity() {
-    return this.transformation.opacity;
-  }
-
-  set opacity(opacity) {
-    opacity = Math.min(1, opacity);
-    opacity = Math.max(0, opacity);
-    this.transformation.opacity = opacity;
-  }
-  /**
-   * Copy this clip, and add the copy to the same frame as the original clip.
-   * @returns {Wick.Clip} the result of the clone.
-   */
-
-
-  clone() {
-    var clone = this.copy();
-    clone.identifier = null;
-    this.parentFrame.addClip(clone);
-
-    this._clones.push(clone);
-
-    return clone;
-  }
-  /**
-   * An array containing all objects that were created by calling clone() on this Clip.
-   * @type {Wick.Clip[]}
-   */
-
-
-  get clones() {
-    return this._clones;
-  }
-  /**
-   * This is a stopgap to prevent users from using setText with a Clip.
-   */
-
-
-  setText(newTextContent) {
-    throw new Error('setText() can only be used with text objects.');
-  }
-  /**
-   * The list of parents, grandparents, grand-grandparents...etc of the clip.
-   * @returns {Wick.Clip[]} Array of all parents
-   */
-
-
-  get lineage() {
-    if (this.isRoot) {
-      return [this];
-    } else {
-      return [this].concat(this.parentClip.lineage);
-    }
-  }
-
-  _onInactive() {
-    return super._onInactive();
-  }
-
-  _onActivated() {
-    var error = super._onActivated();
-
-    if (error) return error;
-    return this._tickChildren();
-  }
-
-  _onActive() {
-    var error = super._onActive();
-
-    if (error) return error;
-    this.timeline.advance();
-    return this._tickChildren();
-  }
-
-  _onDeactivated() {
-    var error = super._onDeactivated();
-
-    if (error) return error;
-    return this._tickChildren();
-  }
-
-  _tickChildren() {
-    var childError = null;
-    this.timeline.frames.forEach(frame => {
-      if (childError) return;
-      childError = frame.tick();
-    });
-    return childError;
-  }
-
-  _attachChildClipReferences() {
-    this.timeline.activeFrames.forEach(frame => {
-      frame.clips.forEach(clip => {
-        if (clip.identifier) {
-          this[clip.identifier] = clip;
-
-          clip._attachChildClipReferences();
-        }
-      }); // Dynamic text paths can be accessed by their identifiers.
-
-      frame.dynamicTextPaths.forEach(path => {
-        this[path.identifier] = path;
-      });
     });
   }
 
@@ -33743,6 +33191,559 @@ return /******/ (function(modules) { // webpackBootstrap
 */
 
 /**
+ * A class representing a Wick Clip.
+ */
+Wick.Clip = class extends Wick.Tickable {
+  /**
+   * Create a new clip.
+   * @param {string} identifier - The identifier of the new clip.
+   * @param {Wick.Path|Wick.Clip[]} objects - Optional. A list of objects to add to the clip.
+   * @param {Wick.Transformation} transformation - Optional. The initial transformation of the clip.
+   */
+  constructor(args) {
+    if (!args) args = {};
+    super(args);
+    this.timeline = new Wick.Timeline();
+    this.timeline.addLayer(new Wick.Layer());
+    this.timeline.activeLayer.addFrame(new Wick.Frame());
+    this._transformation = args.transformation || new Wick.Transformation();
+    this.cursor = 'default';
+    /* If objects are passed in, add them to the clip and reposition them */
+
+    if (args.objects) {
+      this.addObjects(args.objects);
+    }
+
+    this._clones = [];
+  }
+
+  serialize(args) {
+    var data = super.serialize(args);
+    data.transformation = this.transformation.values;
+    data.timeline = this._timeline;
+    return data;
+  }
+
+  deserialize(data) {
+    super.deserialize(data);
+    this.transformation = new Wick.Transformation(data.transformation);
+    this._timeline = data.timeline;
+    this._clones = [];
+  }
+
+  get classname() {
+    return 'Clip';
+  }
+  /**
+   * Determines whether or not the clip is visible in the project.
+   * @type {boolean}
+   */
+
+
+  get onScreen() {
+    if (this.isRoot) {
+      return true;
+    } else if (this.parent) {
+      return this.parent.onScreen;
+    } else {
+      return true;
+    }
+  }
+  /**
+   * Determines whether or not the clip is the root clip in the project.
+   * @type {boolean}
+   */
+
+
+  get isRoot() {
+    return this.project && this === this.project.root;
+  }
+  /**
+   * Determines whether or not the clip is the currently focused clip in the project.
+   */
+
+
+  get isFocus() {
+    return this.project && this === this.project.focus;
+  }
+  /**
+   * The timeline of the clip.
+   * @type {Wick.Timeline}
+   */
+
+
+  get timeline() {
+    return this.getChild('Timeline');
+  }
+
+  set timeline(timeline) {
+    if (this.timeline) {
+      this.removeChild(this.timeline);
+    }
+
+    this.addChild(timeline);
+  }
+  /**
+   * The active layer of the clip's timeline.
+   * @type {Wick.Layer}
+   */
+
+
+  get activeLayer() {
+    return this.timeline.activeLayer;
+  }
+  /**
+   * The active frame of the clip's timeline.
+   * @type {Wick.Frame}
+   */
+
+
+  get activeFrame() {
+    return this.activeLayer.activeFrame;
+  }
+  /**
+   * An array containing every clip and frame that is a child of this clip and has an identifier.
+   * @type {Wick.Base[]}
+   */
+
+
+  get namedChildren() {
+    var namedChildren = [];
+    this.timeline.frames.forEach(frame => {
+      // Objects that can be accessed by their identifiers:
+      // Frames
+      if (frame.identifier) {
+        namedChildren.push(frame);
+      } // Clips
+
+
+      frame.clips.forEach(clip => {
+        if (clip.identifier) {
+          namedChildren.push(clip);
+        }
+      }); // Dynamic text paths
+
+      frame.dynamicTextPaths.forEach(path => {
+        namedChildren.push(path);
+      });
+    });
+    return namedChildren;
+  }
+  /**
+   * An array containing every clip and frame that is a child of this clip and has an identifier, and also is visible on screen.
+   * @type {Wick.Base[]}
+   */
+
+
+  get activeNamedChildren() {
+    return this.namedChildren.filter(child => {
+      return child.onScreen;
+    });
+  }
+  /**
+   * Remove this clip from its parent frame.
+   */
+
+
+  remove() {
+    this.parent.removeClip(this);
+  }
+  /**
+   * Remove this clip and add all of its paths and clips to its parent frame.
+   * @returns {Wick.Base[]} the objects that were inside the clip.
+   */
+
+
+  breakApart() {
+    var leftovers = [];
+    this.timeline.activeFrames.forEach(frame => {
+      frame.clips.forEach(clip => {
+        clip.transformation.x += this.transformation.x;
+        clip.transformation.y += this.transformation.y;
+        this.parentTimeline.activeFrame.addClip(clip);
+        leftovers.push(clip);
+      });
+      frame.paths.forEach(path => {
+        path.x += this.transformation.x;
+        path.y += this.transformation.y;
+        this.parentTimeline.activeFrame.addPath(path);
+        leftovers.push(path);
+      });
+    });
+    this.remove();
+    return leftovers;
+  }
+  /**
+   * Add paths and clips to this clip.
+   * @param {Wick.Base[]} objects - the paths and clips to add to the clip
+   */
+
+
+  addObjects(objects) {
+    // Reposition objects such that their origin point is equal to this Clip's position
+    objects.forEach(object => {
+      object.x -= this.transformation.x;
+      object.y -= this.transformation.y;
+    }); // Add clips
+
+    objects.filter(object => {
+      return object instanceof Wick.Clip;
+    }).forEach(clip => {
+      this.activeFrame.addClip(clip);
+    }); // Add paths
+
+    objects.filter(object => {
+      return object instanceof Wick.Path;
+    }).forEach(path => {
+      this.activeFrame.addPath(path);
+    });
+  }
+  /**
+   * Stops a clip's timeline on that clip's current playhead position.
+   */
+
+
+  stop() {
+    this.timeline.stop();
+  }
+  /**
+   * Plays a clip's timeline from that clip's current playhead position.
+   */
+
+
+  play() {
+    this.timeline.play();
+  }
+  /**
+   * Moves a clip's playhead to a specific position and stops that clip's timeline on that position.
+   * @param {number|string} frame - number or string representing the frame to move the playhead to.
+   */
+
+
+  gotoAndStop(frame) {
+    this.timeline.gotoAndStop(frame);
+  }
+  /**
+   * Moves a clip's playhead to a specific position and plays that clip's timeline from that position.
+   * @param {number|string} frame - number or string representing the frame to move the playhead to.
+   */
+
+
+  gotoAndPlay(frame) {
+    this.timeline.gotoAndPlay(frame);
+  }
+  /**
+   * Move the playhead of the clips timeline forward one frame. Does nothing if the clip is on its last frame.
+   */
+
+
+  gotoNextFrame() {
+    this.timeline.gotoNextFrame();
+  }
+  /**
+   * Move the playhead of the clips timeline backwards one frame. Does nothing if the clip is on its first frame.
+   */
+
+
+  gotoPrevFrame() {
+    this.timeline.gotoPrevFrame();
+  }
+  /**
+   * Returns the name of the frame which is currently active. If multiple frames are active, returns the
+   * name of the first active frame.
+   * @returns {string} Active Frame name. If the active frame does not have an identifier, returns empty string.
+   */
+
+
+  get currentFrameName() {
+    let frames = this.timeline.activeFrames;
+    let name = '';
+    frames.forEach(frame => {
+      if (name) return;
+
+      if (frame.identifier) {
+        name = frame.identifier;
+      }
+    });
+    return name;
+  }
+  /**
+   * @deprecated
+   * Returns the current playhead position. This is a legacy function, you should use clip.playheadPosition instead.
+   * @returns {number} Playhead Position.
+   */
+
+
+  get currentFrameNumber() {
+    return this.timeline.playheadPosition;
+  }
+  /**
+   * The current transformation of the clip.
+   * @type {Wick.Transformation}
+   */
+
+
+  get transformation() {
+    return this._transformation;
+  }
+
+  set transformation(transformation) {
+    this._transformation = transformation; // When the transformation changes, update the current tween, if one exists
+
+    if (this.parentFrame) {
+      var tween = this.parentFrame.getActiveTween();
+
+      if (tween) {
+        tween.transformation = this._transformation.copy();
+      }
+    }
+  }
+  /**
+   * Returns true if this clip collides with another clip.
+   * @param {Wick.Clip} other - The other clip to check collision with.
+   * @returns {boolean} True if this clip collides the other clip.
+   */
+
+
+  hitTest(other) {
+    return this.bounds.intersects(other.bounds);
+  }
+  /**
+   * The bounding box of the clip.
+   * @type {object}
+   */
+
+
+  get bounds() {
+    return this.view.group.bounds;
+  }
+  /**
+   * The X position of the clip.
+   * @type {number}
+   */
+
+
+  get x() {
+    return this.transformation.x;
+  }
+
+  set x(x) {
+    this.transformation.x = x;
+  }
+  /**
+   * The Y position of the clip.
+   * @type {number}
+   */
+
+
+  get y() {
+    return this.transformation.y;
+  }
+
+  set y(y) {
+    this.transformation.y = y;
+  }
+  /**
+   * The X scale of the clip.
+   * @type {number}
+   */
+
+
+  get scaleX() {
+    return this.transformation.scaleX;
+  }
+
+  set scaleX(scaleX) {
+    this.transformation.scaleX = scaleX;
+  }
+  /**
+   * The Y scale of the clip.
+   * @type {number}
+   */
+
+
+  get scaleY() {
+    return this.transformation.scaleY;
+  }
+
+  set scaleY(scaleY) {
+    this.transformation.scaleY = scaleY;
+  }
+  /**
+   * The width of the clip.
+   * @type {number}
+   */
+
+
+  get width() {
+    return this.isRoot ? this.project.width : this.bounds.width * this.scaleX;
+  }
+
+  set width(width) {
+    this.scaleX = width / this.width * this.scaleX;
+  }
+  /**
+   * The height of the clip.
+   * @type {number}
+   */
+
+
+  get height() {
+    return this.isRoot ? this.project.height : this.bounds.height * this.scaleY;
+  }
+
+  set height(height) {
+    this.scaleY = height / this.height * this.scaleY;
+  }
+  /**
+   * The rotation of the clip.
+   * @type {number}
+   */
+
+
+  get rotation() {
+    return this.transformation.rotation;
+  }
+
+  set rotation(rotation) {
+    this.transformation.rotation = rotation;
+  }
+  /**
+   * The opacity of the clip.
+   * @type {number}
+   */
+
+
+  get opacity() {
+    return this.transformation.opacity;
+  }
+
+  set opacity(opacity) {
+    opacity = Math.min(1, opacity);
+    opacity = Math.max(0, opacity);
+    this.transformation.opacity = opacity;
+  }
+  /**
+   * Copy this clip, and add the copy to the same frame as the original clip.
+   * @returns {Wick.Clip} the result of the clone.
+   */
+
+
+  clone() {
+    var clone = this.copy();
+    clone.identifier = null;
+    this.parentFrame.addClip(clone);
+
+    this._clones.push(clone);
+
+    return clone;
+  }
+  /**
+   * An array containing all objects that were created by calling clone() on this Clip.
+   * @type {Wick.Clip[]}
+   */
+
+
+  get clones() {
+    return this._clones;
+  }
+  /**
+   * This is a stopgap to prevent users from using setText with a Clip.
+   */
+
+
+  setText(newTextContent) {
+    throw new Error('setText() can only be used with text objects.');
+  }
+  /**
+   * The list of parents, grandparents, grand-grandparents...etc of the clip.
+   * @returns {Wick.Clip[]} Array of all parents
+   */
+
+
+  get lineage() {
+    if (this.isRoot) {
+      return [this];
+    } else {
+      return [this].concat(this.parentClip.lineage);
+    }
+  }
+
+  _onInactive() {
+    return super._onInactive();
+  }
+
+  _onActivated() {
+    var error = super._onActivated();
+
+    if (error) return error;
+    return this._tickChildren();
+  }
+
+  _onActive() {
+    var error = super._onActive();
+
+    if (error) return error;
+    this.timeline.advance();
+    return this._tickChildren();
+  }
+
+  _onDeactivated() {
+    var error = super._onDeactivated();
+
+    if (error) return error;
+    return this._tickChildren();
+  }
+
+  _tickChildren() {
+    var childError = null;
+    this.timeline.frames.forEach(frame => {
+      if (childError) return;
+      childError = frame.tick();
+    });
+    return childError;
+  }
+
+  _attachChildClipReferences() {
+    this.timeline.activeFrames.forEach(frame => {
+      frame.clips.forEach(clip => {
+        if (clip.identifier) {
+          this[clip.identifier] = clip;
+
+          clip._attachChildClipReferences();
+        }
+      }); // Dynamic text paths can be accessed by their identifiers.
+
+      frame.dynamicTextPaths.forEach(path => {
+        this[path.identifier] = path;
+      });
+    });
+  }
+
+};
+var floodfill=(function(){function f(p,v,u,l,t,g,B){var k=p.length;var q=[];var o=(v+u*g)*4;var r=o,z=o,s,A,n=g*4;var h=[p[o],p[o+1],p[o+2],p[o+3]];if(!a(o,h,l,p,k,t)){return false}q.push(o);while(q.length){o=q.pop();if(e(o,h,l,p,k,t)){r=o;z=o;A=parseInt(o/n)*n;s=A+n;while(A<z&&A<(z-=4)&&e(z,h,l,p,k,t)){}while(s>r&&s>(r+=4)&&e(r,h,l,p,k,t)){}for(var m=z+4;m<r;m+=4){if(m-n>=0&&a(m-n,h,l,p,k,t)){q.push(m-n)}if(m+n<k&&a(m+n,h,l,p,k,t)){q.push(m+n)}}}}return p}function a(j,l,h,m,k,g){if(j<0||j>=k){return false}if(m[j+3]===0&&h.a>0){return true}if(Math.abs(l[3]-h.a)<=g&&Math.abs(l[0]-h.r)<=g&&Math.abs(l[1]-h.g)<=g&&Math.abs(l[2]-h.b)<=g){return false}if((l[3]===m[j+3])&&(l[0]===m[j])&&(l[1]===m[j+1])&&(l[2]===m[j+2])){return true}if(Math.abs(l[3]-m[j+3])<=(255-g)&&Math.abs(l[0]-m[j])<=g&&Math.abs(l[1]-m[j+1])<=g&&Math.abs(l[2]-m[j+2])<=g){return true}return false}function e(j,l,h,m,k,g){if(a(j,l,h,m,k,g)){m[j]=h.r;m[j+1]=h.g;m[j+2]=h.b;m[j+3]=h.a;return true}return false}function b(j,n,m,i,k,g,o){if(!j instanceof Uint8ClampedArray){throw new Error("data must be an instance of Uint8ClampedArray")}if(isNaN(g)||g<1){throw new Error("argument 'width' must be a positive integer")}if(isNaN(o)||o<1){throw new Error("argument 'height' must be a positive integer")}if(isNaN(n)||n<0){throw new Error("argument 'x' must be a positive integer")}if(isNaN(m)||m<0){throw new Error("argument 'y' must be a positive integer")}if(g*o*4!==j.length){throw new Error("width and height do not fit Uint8ClampedArray dimensions")}var l=Math.floor(n);var h=Math.floor(m);if(l!==n){console.warn("x truncated from",n,"to",l)}if(h!==m){console.warn("y truncated from",m,"to",h)}k=(!isNaN(k))?Math.min(Math.abs(Math.round(k)),254):0;return f(j,l,h,i,k,g,o)}var d=function(l){var h=document.createElement("div");var g={r:0,g:0,b:0,a:0};h.style.color=l;h.style.display="none";document.body.appendChild(h);var i=window.getComputedStyle(h,null).color;document.body.removeChild(h);var k=/([\.\d]+)/g;var j=i.match(k);if(j&&j.length>2){g.r=parseInt(j[0])||0;g.g=parseInt(j[1])||0;g.b=parseInt(j[2])||0;g.a=Math.round((parseFloat(j[3])||1)*255)}return g};function c(p,n,m,i,o,q,g){var s=this;var k=d(this.fillStyle);i=(isNaN(i))?0:i;o=(isNaN(o))?0:o;q=(!isNaN(q)&&q)?Math.min(Math.abs(q),s.canvas.width):s.canvas.width;g=(!isNaN(g)&&g)?Math.min(Math.abs(g),s.canvas.height):s.canvas.height;var j=s.getImageData(i,o,q,g);var l=j.data;var h=j.width;var r=j.height;if(h>0&&r>0){b(l,p,n,k,m,h,r);s.putImageData(j,i,o)}}if(typeof CanvasRenderingContext2D!="undefined"){CanvasRenderingContext2D.prototype.fillFlood=c}return b})();
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* Copyright 2019 WICKLETS LLC
+*
+* This file is part of Wick Engine.
+*
+* Wick Engine is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Wick Engine is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
+/**
  * A class representing a Wick Button.
  * Buttons are just clips with special timelines controlled by mouse interactions.
  */
@@ -33809,7 +33810,6 @@ Wick.Button = class extends Wick.Clip {
   }
 
 };
-var floodfill=(function(){function f(p,v,u,l,t,g,B){var k=p.length;var q=[];var o=(v+u*g)*4;var r=o,z=o,s,A,n=g*4;var h=[p[o],p[o+1],p[o+2],p[o+3]];if(!a(o,h,l,p,k,t)){return false}q.push(o);while(q.length){o=q.pop();if(e(o,h,l,p,k,t)){r=o;z=o;A=parseInt(o/n)*n;s=A+n;while(A<z&&A<(z-=4)&&e(z,h,l,p,k,t)){}while(s>r&&s>(r+=4)&&e(r,h,l,p,k,t)){}for(var m=z+4;m<r;m+=4){if(m-n>=0&&a(m-n,h,l,p,k,t)){q.push(m-n)}if(m+n<k&&a(m+n,h,l,p,k,t)){q.push(m+n)}}}}return p}function a(j,l,h,m,k,g){if(j<0||j>=k){return false}if(m[j+3]===0&&h.a>0){return true}if(Math.abs(l[3]-h.a)<=g&&Math.abs(l[0]-h.r)<=g&&Math.abs(l[1]-h.g)<=g&&Math.abs(l[2]-h.b)<=g){return false}if((l[3]===m[j+3])&&(l[0]===m[j])&&(l[1]===m[j+1])&&(l[2]===m[j+2])){return true}if(Math.abs(l[3]-m[j+3])<=(255-g)&&Math.abs(l[0]-m[j])<=g&&Math.abs(l[1]-m[j+1])<=g&&Math.abs(l[2]-m[j+2])<=g){return true}return false}function e(j,l,h,m,k,g){if(a(j,l,h,m,k,g)){m[j]=h.r;m[j+1]=h.g;m[j+2]=h.b;m[j+3]=h.a;return true}return false}function b(j,n,m,i,k,g,o){if(!j instanceof Uint8ClampedArray){throw new Error("data must be an instance of Uint8ClampedArray")}if(isNaN(g)||g<1){throw new Error("argument 'width' must be a positive integer")}if(isNaN(o)||o<1){throw new Error("argument 'height' must be a positive integer")}if(isNaN(n)||n<0){throw new Error("argument 'x' must be a positive integer")}if(isNaN(m)||m<0){throw new Error("argument 'y' must be a positive integer")}if(g*o*4!==j.length){throw new Error("width and height do not fit Uint8ClampedArray dimensions")}var l=Math.floor(n);var h=Math.floor(m);if(l!==n){console.warn("x truncated from",n,"to",l)}if(h!==m){console.warn("y truncated from",m,"to",h)}k=(!isNaN(k))?Math.min(Math.abs(Math.round(k)),254):0;return f(j,l,h,i,k,g,o)}var d=function(l){var h=document.createElement("div");var g={r:0,g:0,b:0,a:0};h.style.color=l;h.style.display="none";document.body.appendChild(h);var i=window.getComputedStyle(h,null).color;document.body.removeChild(h);var k=/([\.\d]+)/g;var j=i.match(k);if(j&&j.length>2){g.r=parseInt(j[0])||0;g.g=parseInt(j[1])||0;g.b=parseInt(j[2])||0;g.a=Math.round((parseFloat(j[3])||1)*255)}return g};function c(p,n,m,i,o,q,g){var s=this;var k=d(this.fillStyle);i=(isNaN(i))?0:i;o=(isNaN(o))?0:o;q=(!isNaN(q)&&q)?Math.min(Math.abs(q),s.canvas.width):s.canvas.width;g=(!isNaN(g)&&g)?Math.min(Math.abs(g),s.canvas.height):s.canvas.height;var j=s.getImageData(i,o,q,g);var l=j.data;var h=j.width;var r=j.height;if(h>0&&r>0){b(l,p,n,k,m,h,r);s.putImageData(j,i,o)}}if(typeof CanvasRenderingContext2D!="undefined"){CanvasRenderingContext2D.prototype.fillFlood=c}return b})();
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
@@ -37761,6 +37761,9 @@ Wick.Tools.Cursor = class extends Wick.Tool {
   };
 })();
 
+/*! @license MIT. https://github.com/onury/invert-color */
+!function(e,t){"object"==typeof exports&&"object"==typeof module?module.exports=t():"function"==typeof define&&define.amd?define("invert",[],t):"object"==typeof exports?exports.invert=t():e.invert=t()}(this,function(){return function(e){var t={};function r(n){if(t[n])return t[n].exports;var o=t[n]={i:n,l:!1,exports:{}};return e[n].call(o.exports,o,o.exports,r),o.l=!0,o.exports}return r.m=e,r.c=t,r.d=function(e,t,n){r.o(e,t)||Object.defineProperty(e,t,{enumerable:!0,get:n})},r.r=function(e){"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(e,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(e,"__esModule",{value:!0})},r.t=function(e,t){if(1&t&&(e=r(e)),8&t)return e;if(4&t&&"object"==typeof e&&e&&e.__esModule)return e;var n=Object.create(null);if(r.r(n),Object.defineProperty(n,"default",{enumerable:!0,value:e}),2&t&&"string"!=typeof e)for(var o in e)r.d(n,o,function(t){return e[t]}.bind(null,o));return n},r.n=function(e){var t=e&&e.__esModule?function(){return e.default}:function(){return e};return r.d(t,"a",t),t},r.o=function(e,t){return Object.prototype.hasOwnProperty.call(e,t)},r.p="lib/",r(r.s=0)}([function(e,t,r){"use strict";Object.defineProperty(t,"__esModule",{value:!0});var n=Math.sqrt(1.05*.05)-.05,o=/^(?:[0-9a-f]{3}){1,2}$/i,i={black:"#000000",white:"#ffffff"};function u(e){if("#"===e.slice(0,1)&&(e=e.slice(1)),!o.test(e))throw new Error('Invalid HEX color: "'+e+'"');return 3===e.length&&(e=e[0]+e[0]+e[1]+e[1]+e[2]+e[2]),[parseInt(e.slice(0,2),16),parseInt(e.slice(2,4),16),parseInt(e.slice(4,6),16)]}function f(e){if(!e)throw new Error("Invalid color value");return Array.isArray(e)?e:"string"==typeof e?u(e):[e.r,e.g,e.b]}function c(e,t,r){var o=!0===t?i:Object.assign({},i,t);return function(e){var t,r,n=[];for(t=0;t<e.length;t++)r=e[t]/255,n[t]=r<=.03928?r/12.92:Math.pow((r+.055)/1.055,2.4);return.2126*n[0]+.7152*n[1]+.0722*n[2]}(e)>n?r?u(o.black):o.black:r?u(o.white):o.white}function a(e,t){return void 0===t&&(t=!1),e=f(e),t?c(e,t):"#"+e.map(function(e){return t=(255-e).toString(16),void 0===r&&(r=2),(new Array(r).join("0")+t).slice(-r);var t,r}).join("")}t.invert=a,function(e){function t(e,t){void 0===t&&(t=!1),e=f(e);var r,n=t?c(e,t,!0):e.map(function(e){return 255-e});return{r:(r=n)[0],g:r[1],b:r[2]}}e.asRGB=t,e.asRgbArray=function(e,t){return void 0===t&&(t=!1),e=f(e),t?c(e,t,!0):e.map(function(e){return 255-e})},e.asRgbObject=t}(a||(a={})),t.invert=a,t.default=a}]).default});
+
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
@@ -37847,9 +37850,6 @@ Wick.Tools.Ellipse = class extends Wick.Tool {
   }
 
 };
-/*! @license MIT. https://github.com/onury/invert-color */
-!function(e,t){"object"==typeof exports&&"object"==typeof module?module.exports=t():"function"==typeof define&&define.amd?define("invert",[],t):"object"==typeof exports?exports.invert=t():e.invert=t()}(this,function(){return function(e){var t={};function r(n){if(t[n])return t[n].exports;var o=t[n]={i:n,l:!1,exports:{}};return e[n].call(o.exports,o,o.exports,r),o.l=!0,o.exports}return r.m=e,r.c=t,r.d=function(e,t,n){r.o(e,t)||Object.defineProperty(e,t,{enumerable:!0,get:n})},r.r=function(e){"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(e,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(e,"__esModule",{value:!0})},r.t=function(e,t){if(1&t&&(e=r(e)),8&t)return e;if(4&t&&"object"==typeof e&&e&&e.__esModule)return e;var n=Object.create(null);if(r.r(n),Object.defineProperty(n,"default",{enumerable:!0,value:e}),2&t&&"string"!=typeof e)for(var o in e)r.d(n,o,function(t){return e[t]}.bind(null,o));return n},r.n=function(e){var t=e&&e.__esModule?function(){return e.default}:function(){return e};return r.d(t,"a",t),t},r.o=function(e,t){return Object.prototype.hasOwnProperty.call(e,t)},r.p="lib/",r(r.s=0)}([function(e,t,r){"use strict";Object.defineProperty(t,"__esModule",{value:!0});var n=Math.sqrt(1.05*.05)-.05,o=/^(?:[0-9a-f]{3}){1,2}$/i,i={black:"#000000",white:"#ffffff"};function u(e){if("#"===e.slice(0,1)&&(e=e.slice(1)),!o.test(e))throw new Error('Invalid HEX color: "'+e+'"');return 3===e.length&&(e=e[0]+e[0]+e[1]+e[1]+e[2]+e[2]),[parseInt(e.slice(0,2),16),parseInt(e.slice(2,4),16),parseInt(e.slice(4,6),16)]}function f(e){if(!e)throw new Error("Invalid color value");return Array.isArray(e)?e:"string"==typeof e?u(e):[e.r,e.g,e.b]}function c(e,t,r){var o=!0===t?i:Object.assign({},i,t);return function(e){var t,r,n=[];for(t=0;t<e.length;t++)r=e[t]/255,n[t]=r<=.03928?r/12.92:Math.pow((r+.055)/1.055,2.4);return.2126*n[0]+.7152*n[1]+.0722*n[2]}(e)>n?r?u(o.black):o.black:r?u(o.white):o.white}function a(e,t){return void 0===t&&(t=!1),e=f(e),t?c(e,t):"#"+e.map(function(e){return t=(255-e).toString(16),void 0===r&&(r=2),(new Array(r).join("0")+t).slice(-r);var t,r}).join("")}t.invert=a,function(e){function t(e,t){void 0===t&&(t=!1),e=f(e);var r,n=t?c(e,t,!0):e.map(function(e){return 255-e});return{r:(r=n)[0],g:r[1],b:r[2]}}e.asRGB=t,e.asRgbArray=function(e,t){return void 0===t&&(t=!1),e=f(e),t?c(e,t,!0):e.map(function(e){return 255-e})},e.asRgbObject=t}(a||(a={})),t.invert=a,t.default=a}]).default});
-
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
@@ -55780,141 +55780,6 @@ function Timestamp() {
 // Return the formatted string
   return date.join("") + "-" + time.join(".") + "" + suffix;
 }
-window.AudioContext = window.AudioContext || window.webkitAudioContext;
-
-Array.prototype.max = function() {
-  return Math.max.apply(null, this);
-};
-
-var audioContext= new AudioContext();
-
-var SCWF = function () {
-
-	var SoundCloudWaveform = {
-
-		settings : {
-			canvas_width: 1200,
-			canvas_height: 40,
-			bar_width: 2,
-			bar_gap : 0,
-			wave_color: "#1594FF",
-			download: false,
-			onComplete: function(png, pixels) {}
-		},
-
-		generate: function(src, options) {
-
-			// preparing canvas
-			this.settings.canvas = document.createElement('canvas');
-			this.settings.context = this.settings.canvas.getContext('2d');
-
-			this.settings.canvas.width = (options.canvas_width !== undefined) ? parseInt(options.canvas_width) : this.settings.canvas_width;
-			this.settings.canvas.height = (options.canvas_height !== undefined) ? parseInt(options.canvas_height) : this.settings.canvas_height;
-
-			// setting fill color
-			this.settings.wave_color = (options.wave_color !== undefined) ? options.wave_color : this.settings.wave_color;
-
-			// setting bars width and gap
-			this.settings.bar_width = (options.bar_width !== undefined) ? parseInt(options.bar_width) : this.settings.bar_width;
-			this.settings.bar_gap = (options.bar_gap !== undefined) ? parseFloat(options.bar_gap) : this.settings.bar_gap;
-
-			this.settings.download = (options.download !== undefined) ? options.download : this.settings.download;
-
-			this.settings.onComplete = (options.onComplete !== undefined) ? options.onComplete : this.settings.onComplete;
-
-			// read file buffer
-			/*var reader = new FileReader();
-	        reader.onload = function(event) {
-	            SoundCloudWaveform.audioContext.decodeAudioData(event.target.result, function(buffer) {
-	                SoundCloudWaveform.extractBuffer(buffer);
-	            });
-	        };
-	        reader.readAsArrayBuffer(file);*/
-	        var rawData = src.split(",")[1]; // cut off extra filetype/etc data
-	        var rawBuffer = Base64ArrayBuffer.decode(rawData);
-	        audioContext.decodeAudioData(rawBuffer, function (buffer) {
-	            if (!buffer) {
-	                console.error("failed to decode:", "buffer null");
-	                return;
-	            }
-	            SoundCloudWaveform.extractBuffer(buffer);
-	        }, function (error) {
-	            console.error("failed to decode:", error);
-	        });
-		},
-
-		extractBuffer: function(buffer) {
-		    buffer = buffer.getChannelData(0);
-		    var sections = this.settings.canvas.width;
-		    var len = Math.floor(buffer.length / sections);
-		    var maxHeight = this.settings.canvas.height;
-		    var vals = [];
-		    var lastval = 0;
-		    for (var i = 0; i < sections; i += this.settings.bar_width) {
-		    	var val = this.bufferMeasure(i * len, len, buffer) * 10000;
-		    	if(!isNaN(val)){
-		        	vals.push(val);
-		        	lastval = val;
-		        } else {
-		        	vals.push(lastval)
-		        }
-		    }
-
-		    for (var j = 0; j < sections; j += this.settings.bar_width) {
-		        var scale = maxHeight / vals.max();
-		        var val = this.bufferMeasure(j * len, len, buffer) * 10000;
-		        val *= scale;
-		        val += 1;
-		        this.drawBar(j, val);
-		    }
-
-		    if (this.settings.download) {
-		    	this.generateImage();
-		    }
-		    this.settings.onComplete(this.settings.canvas.toDataURL('image/png'), this.settings.context.getImageData(0, 0, this.settings.canvas.width, this.settings.canvas.height));
-		    // clear canvas for redrawing
-		    this.settings.context.clearRect(0, 0, this.settings.canvas.width, this.settings.canvas.height);
-	    },
-
-	    bufferMeasure: function(position, length, data) {
-	        var sum = 0.0;
-	        for (var i = position; i <= (position + length) - 1; i++) {
-	            sum += Math.pow(data[i], 2);
-	        }
-	        return Math.sqrt(sum / data.length);
-	    },
-
-	    drawBar: function(i, h) {
-
-	    	//if(isNaN(h)) h = Math.random()*50
-	    	//h = h * 5000;
-
-	    	this.settings.context.fillStyle = this.settings.wave_color;
-
-			var w = this.settings.bar_width;
-	        if (this.settings.bar_gap !== 0) {
-	            w *= Math.abs(1 - this.settings.bar_gap);
-	        }
-	        var x = i + (w / 2),
-	            y = this.settings.canvas.height/2 - h/2/1.5;
-
-
-	        this.settings.context.fillRect(x, y, w, h/1.5);
-	    },
-
-	    generateImage: function() {
-	    	var image = this.settings.canvas.toDataURL('image/png');
-
-	    	var link = document.createElement('a');
-	    	link.href = image;
-	    	link.setAttribute('download', '');
-	    	link.click();
-	    }
-	}
-
-	return SoundCloudWaveform;
-}
-
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
@@ -56346,6 +56211,350 @@ Wick.View.Project = class extends Wick.View {
     };
     this.zoom = this.paper.view.zoom;
     this.model.zoom = this.zoom;
+  }
+
+};
+window.AudioContext = window.AudioContext || window.webkitAudioContext;
+
+Array.prototype.max = function() {
+  return Math.max.apply(null, this);
+};
+
+var audioContext= new AudioContext();
+
+var SCWF = function () {
+
+	var SoundCloudWaveform = {
+
+		settings : {
+			canvas_width: 1200,
+			canvas_height: 40,
+			bar_width: 2,
+			bar_gap : 0,
+			wave_color: "#1594FF",
+			download: false,
+			onComplete: function(png, pixels) {}
+		},
+
+		generate: function(src, options) {
+
+			// preparing canvas
+			this.settings.canvas = document.createElement('canvas');
+			this.settings.context = this.settings.canvas.getContext('2d');
+
+			this.settings.canvas.width = (options.canvas_width !== undefined) ? parseInt(options.canvas_width) : this.settings.canvas_width;
+			this.settings.canvas.height = (options.canvas_height !== undefined) ? parseInt(options.canvas_height) : this.settings.canvas_height;
+
+			// setting fill color
+			this.settings.wave_color = (options.wave_color !== undefined) ? options.wave_color : this.settings.wave_color;
+
+			// setting bars width and gap
+			this.settings.bar_width = (options.bar_width !== undefined) ? parseInt(options.bar_width) : this.settings.bar_width;
+			this.settings.bar_gap = (options.bar_gap !== undefined) ? parseFloat(options.bar_gap) : this.settings.bar_gap;
+
+			this.settings.download = (options.download !== undefined) ? options.download : this.settings.download;
+
+			this.settings.onComplete = (options.onComplete !== undefined) ? options.onComplete : this.settings.onComplete;
+
+			// read file buffer
+			/*var reader = new FileReader();
+	        reader.onload = function(event) {
+	            SoundCloudWaveform.audioContext.decodeAudioData(event.target.result, function(buffer) {
+	                SoundCloudWaveform.extractBuffer(buffer);
+	            });
+	        };
+	        reader.readAsArrayBuffer(file);*/
+	        var rawData = src.split(",")[1]; // cut off extra filetype/etc data
+	        var rawBuffer = Base64ArrayBuffer.decode(rawData);
+	        audioContext.decodeAudioData(rawBuffer, function (buffer) {
+	            if (!buffer) {
+	                console.error("failed to decode:", "buffer null");
+	                return;
+	            }
+	            SoundCloudWaveform.extractBuffer(buffer);
+	        }, function (error) {
+	            console.error("failed to decode:", error);
+	        });
+		},
+
+		extractBuffer: function(buffer) {
+		    buffer = buffer.getChannelData(0);
+		    var sections = this.settings.canvas.width;
+		    var len = Math.floor(buffer.length / sections);
+		    var maxHeight = this.settings.canvas.height;
+		    var vals = [];
+		    var lastval = 0;
+		    for (var i = 0; i < sections; i += this.settings.bar_width) {
+		    	var val = this.bufferMeasure(i * len, len, buffer) * 10000;
+		    	if(!isNaN(val)){
+		        	vals.push(val);
+		        	lastval = val;
+		        } else {
+		        	vals.push(lastval)
+		        }
+		    }
+
+		    for (var j = 0; j < sections; j += this.settings.bar_width) {
+		        var scale = maxHeight / vals.max();
+		        var val = this.bufferMeasure(j * len, len, buffer) * 10000;
+		        val *= scale;
+		        val += 1;
+		        this.drawBar(j, val);
+		    }
+
+		    if (this.settings.download) {
+		    	this.generateImage();
+		    }
+		    this.settings.onComplete(this.settings.canvas.toDataURL('image/png'), this.settings.context.getImageData(0, 0, this.settings.canvas.width, this.settings.canvas.height));
+		    // clear canvas for redrawing
+		    this.settings.context.clearRect(0, 0, this.settings.canvas.width, this.settings.canvas.height);
+	    },
+
+	    bufferMeasure: function(position, length, data) {
+	        var sum = 0.0;
+	        for (var i = position; i <= (position + length) - 1; i++) {
+	            sum += Math.pow(data[i], 2);
+	        }
+	        return Math.sqrt(sum / data.length);
+	    },
+
+	    drawBar: function(i, h) {
+
+	    	//if(isNaN(h)) h = Math.random()*50
+	    	//h = h * 5000;
+
+	    	this.settings.context.fillStyle = this.settings.wave_color;
+
+			var w = this.settings.bar_width;
+	        if (this.settings.bar_gap !== 0) {
+	            w *= Math.abs(1 - this.settings.bar_gap);
+	        }
+	        var x = i + (w / 2),
+	            y = this.settings.canvas.height/2 - h/2/1.5;
+
+
+	        this.settings.context.fillRect(x, y, w, h/1.5);
+	    },
+
+	    generateImage: function() {
+	    	var image = this.settings.canvas.toDataURL('image/png');
+
+	    	var link = document.createElement('a');
+	    	link.href = image;
+	    	link.setAttribute('download', '');
+	    	link.click();
+	    }
+	}
+
+	return SoundCloudWaveform;
+}
+
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* Copyright 2019 WICKLETS LLC
+*
+* This file is part of Wick Engine.
+*
+* Wick Engine is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Wick Engine is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+*/
+Wick.View.Selection = class extends Wick.View {
+  /**
+   * Create a new Selection view.
+   */
+  constructor() {
+    super();
+    this.layer = new this.paper.Layer();
+    this._widget = new paper.SelectionWidget({
+      layer: this.layer
+    });
+    this.paper.project.selectionWidget = this._widget;
+  }
+  /**
+   * The selection widget
+   */
+
+
+  get widget() {
+    if (this.dirty) {
+      this.dirty = false;
+      this.render();
+    }
+
+    return this._widget;
+  }
+  /**
+   *
+   */
+
+
+  applyChanges() {
+    this.model.widgetRotation = this.widget.rotation;
+    this.model.pivotPoint = {
+      x: this.widget.pivot.x,
+      y: this.widget.pivot.y
+    };
+  }
+  /**
+   *
+   */
+
+
+  get x() {
+    return this.widget.position.x;
+  }
+
+  set x(x) {
+    this.widget.position = new paper.Point(x, this.widget.position.y);
+    this.model.project.view.applyChanges();
+  }
+  /**
+   *
+   */
+
+
+  get y() {
+    return this.widget.position.y;
+  }
+
+  set y(y) {
+    this.widget.position = new paper.Point(this.widget.position.x, y);
+    this.model.project.view.applyChanges();
+  }
+  /**
+   *
+   */
+
+
+  get width() {
+    return this.widget.width;
+  }
+
+  set width(width) {
+    this.widget.width = width;
+    this.model.project.view.applyChanges();
+  }
+  /**
+   *
+   */
+
+
+  get height() {
+    return this.widget.height;
+  }
+
+  set height(height) {
+    this.widget.height = height;
+    this.model.project.view.applyChanges();
+  }
+  /**
+   *
+   */
+
+
+  get rotation() {
+    return this.widget.rotation;
+  }
+
+  set rotation(rotation) {
+    this.widget.rotation = rotation;
+    this.model.project.view.applyChanges();
+    this.model.widgetRotation = rotation;
+  }
+  /**
+   *
+   */
+
+
+  flipHorizontally() {
+    this.widget.flipHorizontally();
+    this.model.project.view.applyChanges();
+  }
+  /**
+   *
+   */
+
+
+  flipVertically() {
+    this.widget.flipVertically();
+    this.model.project.view.applyChanges();
+  }
+  /**
+   *
+   */
+
+
+  sendToBack() {
+    paper.OrderingUtils.sendToBack(this._getSelectedObjectViews());
+    this.model.project.view.applyChanges();
+  }
+  /**
+   *
+   */
+
+
+  bringToFront() {
+    paper.OrderingUtils.bringToFront(this._getSelectedObjectViews());
+    this.model.project.view.applyChanges();
+  }
+  /**
+   *
+   */
+
+
+  moveForwards() {
+    paper.OrderingUtils.moveForwards(this._getSelectedObjectViews());
+    this.model.project.view.applyChanges();
+  }
+  /**
+   *
+   */
+
+
+  moveBackwards() {
+    paper.OrderingUtils.moveBackwards(this._getSelectedObjectViews());
+    this.model.project.view.applyChanges();
+  }
+
+  render() {
+    this._widget.build({
+      boxRotation: this.model.widgetRotation,
+      items: this._getSelectedObjectViews(),
+      pivot: new paper.Point(this.model.pivotPoint.x, this.model.pivotPoint.y)
+    });
+  }
+
+  _getSelectedObjects() {
+    return this.model.getSelectedObjects('Canvas');
+  }
+
+  _getObjectViews(objects) {
+    return objects.map(object => {
+      return object.view.item || object.view.group;
+    });
+  }
+
+  _getObjectsBounds(objects) {
+    return this.widget._calculateBoundingBoxOfItems(this._getObjectViews(objects));
+  }
+
+  _getSelectedObjectViews() {
+    return this._getObjectViews(this._getSelectedObjects());
+  }
+
+  _getSelectedObjectsBounds() {
+    return this._getObjectsBounds(this._getSelectedObjects());
   }
 
 };
@@ -57252,217 +57461,6 @@ TWEEN.Interpolation = {
 * You should have received a copy of the GNU General Public License
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
-Wick.View.Selection = class extends Wick.View {
-  /**
-   * Create a new Selection view.
-   */
-  constructor() {
-    super();
-    this.layer = new this.paper.Layer();
-    this._widget = new paper.SelectionWidget({
-      layer: this.layer
-    });
-    this.paper.project.selectionWidget = this._widget;
-  }
-  /**
-   * The selection widget
-   */
-
-
-  get widget() {
-    if (this.dirty) {
-      this.dirty = false;
-      this.render();
-    }
-
-    return this._widget;
-  }
-  /**
-   *
-   */
-
-
-  applyChanges() {
-    this.model.widgetRotation = this.widget.rotation;
-    this.model.pivotPoint = {
-      x: this.widget.pivot.x,
-      y: this.widget.pivot.y
-    };
-  }
-  /**
-   *
-   */
-
-
-  get x() {
-    return this.widget.position.x;
-  }
-
-  set x(x) {
-    this.widget.position = new paper.Point(x, this.widget.position.y);
-    this.model.project.view.applyChanges();
-  }
-  /**
-   *
-   */
-
-
-  get y() {
-    return this.widget.position.y;
-  }
-
-  set y(y) {
-    this.widget.position = new paper.Point(this.widget.position.x, y);
-    this.model.project.view.applyChanges();
-  }
-  /**
-   *
-   */
-
-
-  get width() {
-    return this.widget.width;
-  }
-
-  set width(width) {
-    this.widget.width = width;
-    this.model.project.view.applyChanges();
-  }
-  /**
-   *
-   */
-
-
-  get height() {
-    return this.widget.height;
-  }
-
-  set height(height) {
-    this.widget.height = height;
-    this.model.project.view.applyChanges();
-  }
-  /**
-   *
-   */
-
-
-  get rotation() {
-    return this.widget.rotation;
-  }
-
-  set rotation(rotation) {
-    this.widget.rotation = rotation;
-    this.model.project.view.applyChanges();
-    this.model.widgetRotation = rotation;
-  }
-  /**
-   *
-   */
-
-
-  flipHorizontally() {
-    this.widget.flipHorizontally();
-    this.model.project.view.applyChanges();
-  }
-  /**
-   *
-   */
-
-
-  flipVertically() {
-    this.widget.flipVertically();
-    this.model.project.view.applyChanges();
-  }
-  /**
-   *
-   */
-
-
-  sendToBack() {
-    paper.OrderingUtils.sendToBack(this._getSelectedObjectViews());
-    this.model.project.view.applyChanges();
-  }
-  /**
-   *
-   */
-
-
-  bringToFront() {
-    paper.OrderingUtils.bringToFront(this._getSelectedObjectViews());
-    this.model.project.view.applyChanges();
-  }
-  /**
-   *
-   */
-
-
-  moveForwards() {
-    paper.OrderingUtils.moveForwards(this._getSelectedObjectViews());
-    this.model.project.view.applyChanges();
-  }
-  /**
-   *
-   */
-
-
-  moveBackwards() {
-    paper.OrderingUtils.moveBackwards(this._getSelectedObjectViews());
-    this.model.project.view.applyChanges();
-  }
-
-  render() {
-    this._widget.build({
-      boxRotation: this.model.widgetRotation,
-      items: this._getSelectedObjectViews(),
-      pivot: new paper.Point(this.model.pivotPoint.x, this.model.pivotPoint.y)
-    });
-  }
-
-  _getSelectedObjects() {
-    return this.model.getSelectedObjects('Canvas');
-  }
-
-  _getObjectViews(objects) {
-    return objects.map(object => {
-      return object.view.item || object.view.group;
-    });
-  }
-
-  _getObjectsBounds(objects) {
-    return this.widget._calculateBoundingBoxOfItems(this._getObjectViews(objects));
-  }
-
-  _getSelectedObjectViews() {
-    return this._getObjectViews(this._getSelectedObjects());
-  }
-
-  _getSelectedObjectsBounds() {
-    return this._getObjectsBounds(this._getSelectedObjects());
-  }
-
-};
-/* https://github.com/kelektiv/node-uuid */
-!function(r){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=r();else if("function"==typeof define&&define.amd)define([],r);else{var e;e="undefined"!=typeof window?window:"undefined"!=typeof global?global:"undefined"!=typeof self?self:this,e.uuidv4=r()}}(function(){return function r(e,n,t){function o(f,u){if(!n[f]){if(!e[f]){var a="function"==typeof require&&require;if(!u&&a)return a(f,!0);if(i)return i(f,!0);var d=new Error("Cannot find module '"+f+"'");throw d.code="MODULE_NOT_FOUND",d}var p=n[f]={exports:{}};e[f][0].call(p.exports,function(r){var n=e[f][1][r];return o(n?n:r)},p,p.exports,r,e,n,t)}return n[f].exports}for(var i="function"==typeof require&&require,f=0;f<t.length;f++)o(t[f]);return o}({1:[function(r,e,n){function t(r,e){var n=e||0,t=o;return t[r[n++]]+t[r[n++]]+t[r[n++]]+t[r[n++]]+"-"+t[r[n++]]+t[r[n++]]+"-"+t[r[n++]]+t[r[n++]]+"-"+t[r[n++]]+t[r[n++]]+"-"+t[r[n++]]+t[r[n++]]+t[r[n++]]+t[r[n++]]+t[r[n++]]+t[r[n++]]}for(var o=[],i=0;i<256;++i)o[i]=(i+256).toString(16).substr(1);e.exports=t},{}],2:[function(r,e,n){var t="undefined"!=typeof crypto&&crypto.getRandomValues.bind(crypto)||"undefined"!=typeof msCrypto&&msCrypto.getRandomValues.bind(msCrypto);if(t){var o=new Uint8Array(16);e.exports=function(){return t(o),o}}else{var i=new Array(16);e.exports=function(){for(var r,e=0;e<16;e++)0===(3&e)&&(r=4294967296*Math.random()),i[e]=r>>>((3&e)<<3)&255;return i}}},{}],3:[function(r,e,n){function t(r,e,n){var t=e&&n||0;"string"==typeof r&&(e="binary"===r?new Array(16):null,r=null),r=r||{};var f=r.random||(r.rng||o)();if(f[6]=15&f[6]|64,f[8]=63&f[8]|128,e)for(var u=0;u<16;++u)e[t+u]=f[u];return e||i(f)}var o=r("./lib/rng"),i=r("./lib/bytesToUuid");e.exports=t},{"./lib/bytesToUuid":1,"./lib/rng":2}]},{},[3])(3)});
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
 Wick.View.Clip = class extends Wick.View {
   /**
    * Creates a new Button view.
@@ -57499,6 +57497,8 @@ Wick.View.Clip = class extends Wick.View {
   }
 
 };
+/* https://github.com/kelektiv/node-uuid */
+!function(r){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=r();else if("function"==typeof define&&define.amd)define([],r);else{var e;e="undefined"!=typeof window?window:"undefined"!=typeof global?global:"undefined"!=typeof self?self:this,e.uuidv4=r()}}(function(){return function r(e,n,t){function o(f,u){if(!n[f]){if(!e[f]){var a="function"==typeof require&&require;if(!u&&a)return a(f,!0);if(i)return i(f,!0);var d=new Error("Cannot find module '"+f+"'");throw d.code="MODULE_NOT_FOUND",d}var p=n[f]={exports:{}};e[f][0].call(p.exports,function(r){var n=e[f][1][r];return o(n?n:r)},p,p.exports,r,e,n,t)}return n[f].exports}for(var i="function"==typeof require&&require,f=0;f<t.length;f++)o(t[f]);return o}({1:[function(r,e,n){function t(r,e){var n=e||0,t=o;return t[r[n++]]+t[r[n++]]+t[r[n++]]+t[r[n++]]+"-"+t[r[n++]]+t[r[n++]]+"-"+t[r[n++]]+t[r[n++]]+"-"+t[r[n++]]+t[r[n++]]+"-"+t[r[n++]]+t[r[n++]]+t[r[n++]]+t[r[n++]]+t[r[n++]]+t[r[n++]]}for(var o=[],i=0;i<256;++i)o[i]=(i+256).toString(16).substr(1);e.exports=t},{}],2:[function(r,e,n){var t="undefined"!=typeof crypto&&crypto.getRandomValues.bind(crypto)||"undefined"!=typeof msCrypto&&msCrypto.getRandomValues.bind(msCrypto);if(t){var o=new Uint8Array(16);e.exports=function(){return t(o),o}}else{var i=new Array(16);e.exports=function(){for(var r,e=0;e<16;e++)0===(3&e)&&(r=4294967296*Math.random()),i[e]=r>>>((3&e)<<3)&255;return i}}},{}],3:[function(r,e,n){function t(r,e,n){var t=e&&n||0;"string"==typeof r&&(e="binary"===r?new Array(16):null,r=null),r=r||{};var f=r.random||(r.rng||o)();if(f[6]=15&f[6]|64,f[8]=63&f[8]|128,e)for(var u=0;u<16;++u)e[t+u]=f[u];return e||i(f)}var o=r("./lib/rng"),i=r("./lib/bytesToUuid");e.exports=t},{"./lib/bytesToUuid":1,"./lib/rng":2}]},{},[3])(3)});
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
@@ -58138,10 +58138,12 @@ Wick.GUIElement = class {
   _positionScrollableElements() {}
 
 };
-Wick.GUIElement.GRID_DEFAULT_CELL_WIDTH = 32;
+Wick.GUIElement.GRID_DEFAULT_CELL_WIDTH = 38;
 Wick.GUIElement.GRID_DEFAULT_CELL_HEIGHT = 42;
+Wick.GUIElement.FRAMES_STRIP_HEIGHT = 40;
+Wick.GUIElement.GRID_MARGIN = Wick.GUIElement.GRID_DEFAULT_CELL_HEIGHT - Wick.GUIElement.FRAMES_STRIP_HEIGHT;
 Wick.GUIElement.TIMELINE_BACKGROUND_COLOR = '#303030';
-Wick.GUIElement.SELECTED_ITEM_BORDER_COLOR = '#FFC835';
+Wick.GUIElement.SELECTED_ITEM_BORDER_COLOR = '#00ADEF';
 Wick.GUIElement.BREADCRUMBS_HEIGHT = 34;
 Wick.GUIElement.LAYERS_CONTAINER_WIDTH = 195;
 Wick.GUIElement.NUMBER_LINE_HEIGHT = 35;
@@ -58149,6 +58151,7 @@ Wick.GUIElement.NUMBER_LINE_NUMBERS_HIGHLIGHT_COLOR = '#ffffff';
 Wick.GUIElement.NUMBER_LINE_NUMBERS_COMMON_COLOR = '#494949';
 Wick.GUIElement.NUMBER_LINE_NUMBERS_FONT_FAMILY = 'PT Mono';
 Wick.GUIElement.NUMBER_LINE_NUMBERS_FONT_SIZE = '18';
+Wick.GUIElement.FRAME_HEIGHT = Wick.GUIElement.FRAMES_STRIP_HEIGHT;
 Wick.GUIElement.FRAME_HOVERED_OVER = '#D3F8F4';
 Wick.GUIElement.FRAME_TWEENED_HOVERED_OVER = '#bbbbee';
 Wick.GUIElement.FRAME_CONTENTFUL_FILL_COLOR = '#ffffff';
@@ -58162,7 +58165,8 @@ Wick.GUIElement.FRAME_MARGIN = 0.5;
 Wick.GUIElement.FRAME_DROP_SHADOW_DEPTH = 2; // Number of pixels to shift drop shadow below frame.
 
 Wick.GUIElement.FRAME_DROP_SHADOW_FILL = 'rgba(0,0,0,1)';
-Wick.GUIElement.FRAME_HANDLE_HOVER_FILL_COLOR = '#29F1A3';
+Wick.GUIElement.FRAME_HANDLE_HOVER_FILL_COLOR = Wick.GUIElement.SELECTED_ITEM_BORDER_COLOR;
+Wick.GUIElement.FRAME_HANDLE_WIDTH = 8;
 Wick.GUIElement.TWEEN_DIAMOND_RADIUS = 5.5;
 Wick.GUIElement.TWEEN_STROKE_WIDTH = 3;
 Wick.GUIElement.TWEEN_FILL_COLOR = '#222244';
@@ -58172,8 +58176,8 @@ Wick.GUIElement.FRAME_GHOST_CAN_DROP_COLOR = '#00ff00';
 Wick.GUIElement.FRAME_GHOST_CANT_DROP_COLOR = '#ff0000';
 Wick.GUIElement.FRAME_GHOST_STROKE_WIDTH = 5;
 Wick.GUIElement.FRAMES_STRIP_VERTICAL_MARGIN = 4;
-Wick.GUIElement.FRAMES_STRIP_ACTIVE_FILL_COLOR = '#D8D8D8';
-Wick.GUIElement.FRAMES_STRIP_INACTIVE_FILL_COLOR = '#8A8A8A';
+Wick.GUIElement.FRAMES_STRIP_ACTIVE_FILL_COLOR = 'rgba(216, 216, 216, 0.31)';
+Wick.GUIElement.FRAMES_STRIP_INACTIVE_FILL_COLOR = 'rgba(95, 97, 99, 0.31)';
 Wick.GUIElement.FRAMES_STRIP_BORDER_RADIUS = 4;
 Wick.GUIElement.ADD_FRAME_OVERLAY_FILL_COLOR = '#ffffff';
 Wick.GUIElement.ADD_FRAME_OVERLAY_PLUS_COLOR = '#aaaaaa';
@@ -58915,7 +58919,7 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
 
 
   get height() {
-    return this.gridCellHeight - Wick.GUIElement.FRAME_MARGIN;
+    return Wick.GUIElement.FRAMES_STRIP_HEIGHT;
   }
   /**
    *
@@ -59119,25 +59123,44 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
       fillColor = Wick.GUIElement.FRAME_CONTENTFUL_FILL_COLOR;
     } else {
       fillColor = Wick.GUIElement.FRAME_UNCONTENTFUL_FILL_COLOR;
-    }
+    } // Main Frame Body
+
 
     var frameRect = new this.paper.Path.Rectangle({
       from: new this.paper.Point(0, 0),
       to: new this.paper.Point(this.width, this.height),
       fillColor: fillColor,
-      strokeColor: this.model.isSelected ? Wick.GUIElement.SELECTED_ITEM_BORDER_COLOR : '#000000',
-      strokeWidth: this.model.isSelected ? 3 : 0,
       radius: Wick.GUIElement.FRAME_BORDER_RADIUS
-    });
+    }); // Frame Drop Shadow
+
     var frameDropShadow = new this.paper.Path.Rectangle({
       from: new this.paper.Point(0, Wick.GUIElement.FRAME_DROP_SHADOW_DEPTH),
       to: new this.paper.Point(this.width, this.height + Wick.GUIElement.FRAME_DROP_SHADOW_DEPTH),
       fillColor: Wick.GUIElement.FRAME_DROP_SHADOW_FILL,
       strokeWidth: 0,
       radius: Wick.GUIElement.FRAME_BORDER_RADIUS
-    });
+    }); // Create frame and drop shadow
+
     this.item.addChild(frameDropShadow);
-    this.item.addChild(frameRect);
+    this.item.addChild(frameRect); // Add Selection Highlight If necessary.
+
+    if (this.model.isSelected) {
+      var frameBorderWidth = 2; // How thick is the highlight?
+
+      var frameSelectedHighlight = new this.paper.Path.Rectangle({
+        from: new this.paper.Point(frameBorderWidth, frameBorderWidth),
+        to: new this.paper.Point(this.width - frameBorderWidth, this.height - frameBorderWidth),
+        strokeColor: Wick.GUIElement.SELECTED_ITEM_BORDER_COLOR,
+        strokeWidth: frameBorderWidth + frameBorderWidth,
+        // Adjust strokewidth to account for being inside the shape.
+        fillColor: 'rgba(0,0,0,0)',
+        // Invisible
+        radius: Wick.GUIElement.FRAME_BORDER_RADIUS - frameBorderWidth // Adjust radius to account for being inside the shape.
+
+      }); // Add it to the frame.
+
+      this.item.addChild(frameSelectedHighlight);
+    }
   }
 
   _buildDropGhost() {
@@ -59327,7 +59350,7 @@ Wick.GUIElement.FrameEdge = class extends Wick.GUIElement.Draggable {
    *
    */
   static get DEFAULT_HANDLE_WIDTH() {
-    return 6;
+    return Wick.GUIElement.FRAME_HANDLE_WIDTH;
   }
 
   get cursor() {
@@ -59492,12 +59515,20 @@ Wick.GUIElement.FrameLeftEdge = class extends Wick.GUIElement.FrameEdge {
 
   build() {
     super.build();
+    var rw = Wick.GUIElement.FrameEdge.DEFAULT_HANDLE_WIDTH;
     var edgeRect = new this.paper.Path.Rectangle({
       from: new this.paper.Point(0, 0),
-      to: new this.paper.Point(Wick.GUIElement.FrameEdge.DEFAULT_HANDLE_WIDTH, this.height),
+      to: new this.paper.Point(rw, this.height),
+      fillColor: this.isHoveredOver ? Wick.GUIElement.FRAME_HANDLE_HOVER_FILL_COLOR : 'rgba(0,0,0,0.001)',
+      radius: Wick.GUIElement.FRAME_BORDER_RADIUS
+    });
+    var sharpRect = new this.paper.Path.Rectangle({
+      from: new this.paper.Point(rw / 2, 0),
+      to: new this.paper.Point(rw, this.height),
       fillColor: this.isHoveredOver ? Wick.GUIElement.FRAME_HANDLE_HOVER_FILL_COLOR : 'rgba(0,0,0,0.001)'
     });
     this.item.addChild(edgeRect);
+    this.item.addChild(sharpRect);
   }
 
 };
@@ -59555,12 +59586,21 @@ Wick.GUIElement.FrameRightEdge = class extends Wick.GUIElement.FrameEdge {
 
   build() {
     super.build();
+    var rw = Wick.GUIElement.FrameEdge.DEFAULT_HANDLE_WIDTH;
     var edgeRect = new this.paper.Path.Rectangle({
-      from: new this.paper.Point(this.width - Wick.GUIElement.FrameEdge.DEFAULT_HANDLE_WIDTH, 0),
+      from: new this.paper.Point(this.width - rw, 0),
       to: new this.paper.Point(this.width, this.height),
+      fillColor: this.isHoveredOver ? Wick.GUIElement.FRAME_HANDLE_HOVER_FILL_COLOR : 'rgba(0,0,0,0.001)',
+      radius: Wick.GUIElement.FRAME_BORDER_RADIUS
+    }); // Create a rectangle with unrounded edges to sharpen the interior corners.
+
+    var sharpRect = new this.paper.Path.Rectangle({
+      from: new this.paper.Point(this.width - rw, 0),
+      to: new this.paper.Point(this.width - rw / 2, this.height),
       fillColor: this.isHoveredOver ? Wick.GUIElement.FRAME_HANDLE_HOVER_FILL_COLOR : 'rgba(0,0,0,0.001)'
     });
     this.item.addChild(edgeRect);
+    this.item.addChild(sharpRect);
   }
 
 };
@@ -59824,7 +59864,7 @@ Wick.GUIElement.FramesStrip = class extends Wick.GUIElement.Draggable {
 
 
   get height() {
-    return this.gridCellHeight - Wick.GUIElement.FRAMES_STRIP_VERTICAL_MARGIN * 2;
+    return Wick.GUIElement.FRAMES_STRIP_HEIGHT;
   }
   /**
    *
@@ -59840,7 +59880,7 @@ Wick.GUIElement.FramesStrip = class extends Wick.GUIElement.Draggable {
 
 
   get y() {
-    return this.model.index * this.gridCellHeight + Wick.GUIElement.FRAMES_STRIP_VERTICAL_MARGIN;
+    return this.model.index * this.gridCellHeight;
   }
   /**
    *
@@ -59852,8 +59892,6 @@ Wick.GUIElement.FramesStrip = class extends Wick.GUIElement.Draggable {
     this.frameStripRect = new this.paper.Path.Rectangle({
       from: new this.paper.Point(this.x, this.y),
       to: new this.paper.Point(this.x + this.width, this.y + this.height),
-      strokeColor: 'rgba(0,0,0,0.5)',
-      strokeWidth: 2,
       fillColor: this.model.isActive ? Wick.GUIElement.FRAMES_STRIP_ACTIVE_FILL_COLOR : Wick.GUIElement.FRAMES_STRIP_INACTIVE_FILL_COLOR,
       applyMatrix: false,
       pivot: new paper.Point(0, 0)

@@ -96,7 +96,7 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
      *
      */
     get height () {
-        return this.gridCellHeight - Wick.GUIElement.FRAME_MARGIN;
+        return Wick.GUIElement.FRAMES_STRIP_HEIGHT; 
     }
 
     /**
@@ -284,15 +284,15 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
             fillColor = Wick.GUIElement.FRAME_UNCONTENTFUL_FILL_COLOR;
         }
 
+        // Main Frame Body
         var frameRect = new this.paper.Path.Rectangle({
             from: new this.paper.Point(0, 0),
             to: new this.paper.Point(this.width, this.height),
             fillColor: fillColor,
-            strokeColor: this.model.isSelected ? Wick.GUIElement.SELECTED_ITEM_BORDER_COLOR : '#000000',
-            strokeWidth: this.model.isSelected ? 3 : 0,
             radius: Wick.GUIElement.FRAME_BORDER_RADIUS,
         });
-
+        
+        // Frame Drop Shadow
         var frameDropShadow = new this.paper.Path.Rectangle({
             from: new this.paper.Point(0, Wick.GUIElement.FRAME_DROP_SHADOW_DEPTH),
             to: new this.paper.Point(this.width, this.height + Wick.GUIElement.FRAME_DROP_SHADOW_DEPTH),
@@ -301,8 +301,25 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
             radius: Wick.GUIElement.FRAME_BORDER_RADIUS,
         });
 
+        // Create frame and drop shadow
         this.item.addChild(frameDropShadow);
         this.item.addChild(frameRect);
+
+        // Add Selection Highlight If necessary.
+        if (this.model.isSelected) {
+            var frameBorderWidth = 2; // How thick is the highlight?
+            var frameSelectedHighlight = new this.paper.Path.Rectangle({
+                from: new this.paper.Point(frameBorderWidth, frameBorderWidth),
+                to: new this.paper.Point(this.width-frameBorderWidth, this.height-frameBorderWidth),
+                strokeColor: Wick.GUIElement.SELECTED_ITEM_BORDER_COLOR,
+                strokeWidth: frameBorderWidth + frameBorderWidth, // Adjust strokewidth to account for being inside the shape.
+                fillColor: 'rgba(0,0,0,0)', // Invisible
+                radius: Wick.GUIElement.FRAME_BORDER_RADIUS - frameBorderWidth, // Adjust radius to account for being inside the shape.
+            });
+            // Add it to the frame.
+            this.item.addChild(frameSelectedHighlight);
+        }
+
     }
 
     _buildDropGhost () {

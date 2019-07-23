@@ -22,7 +22,7 @@ Wick.GUIElement.FrameEdge = class extends Wick.GUIElement.Draggable {
      *
      */
     static get DEFAULT_HANDLE_WIDTH () {
-        return 6;
+        return Wick.GUIElement.FRAME_HANDLE_WIDTH;
     }
 
     get cursor () {
