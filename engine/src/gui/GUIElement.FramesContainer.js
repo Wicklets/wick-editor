@@ -59,8 +59,8 @@ Wick.GUIElement.FramesContainer = class extends Wick.GUIElement.Draggable {
         });
 
         this.grid = new paper.Group({
-          applyMatrix: false,
-          pivot: new paper.Point(0,0),
+            applyMatrix: false,
+            pivot: new paper.Point(0,0),
         });
     }
 

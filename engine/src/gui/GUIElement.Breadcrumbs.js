@@ -18,5 +18,24 @@
  */
 
 Wick.GUIElement.Breadcrumbs = class extends Wick.GUIElement {
+    constructor (model) {
+        super(model);
+    };
 
+    build () {
+        super.build();
+
+        var cornerCover = new paper.Path.Rectangle({
+            fillColor: 'red',
+            from: new paper.Point(0, 0),
+            to: new paper.Point(Wick.GUIElement.BREADCRUMBS_HEIGHT, 50),
+        });
+        this.item.addChild(cornerCover);
+
+        var testlabel = new paper.PointText({
+            point: [20, 20],
+            content: 'this is the breadcrumbs sdnaskjdnaskjdbalkjdb',
+        });
+        this.item.addChild(testlabel);
+    };
 };
