@@ -89,7 +89,7 @@ Wick.GUIElement.LayerGhost = class extends Wick.GUIElement {
             from: new this.paper.Point(this.x, this.y),
             to: new this.paper.Point(this.x + this.width, this.y + this.height),
             fillColor: 'rgba(0,0,0,0.1)',
-            strokeColor: 'red',
+            strokeColor: Wick.GUIElement.LAYER_LABEL_GHOST_COLOR,
             strokeWidth: 3,
         });
         this.item.position = this.position;

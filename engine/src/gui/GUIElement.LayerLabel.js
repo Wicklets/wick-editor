@@ -61,6 +61,10 @@ Wick.GUIElement.LayerLabel = class extends Wick.GUIElement.Draggable {
         });
     }
 
+    get cursor () {
+        return 'move';
+    }
+
     /**
      *
      */

@@ -93,6 +93,7 @@ Wick.GUIElement.FramesStrip = class extends Wick.GUIElement.Draggable {
             fillColor: this.model.isActive ? Wick.GUIElement.FRAMES_STRIP_ACTIVE_FILL_COLOR : Wick.GUIElement.FRAMES_STRIP_INACTIVE_FILL_COLOR,
             applyMatrix: false,
             pivot: new paper.Point(0,0),
+            radius: Wick.GUIElement.FRAME_BORDER_RADIUS,
         });
         this.item.addChild(this.frameStripRect);
 

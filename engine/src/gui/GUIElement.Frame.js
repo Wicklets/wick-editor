@@ -71,6 +71,10 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
         });
     }
 
+    get cursor () {
+        return 'move';
+    }
+
     /**
      *
      */
@@ -344,12 +348,13 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
         }
 
         var contentDot = new this.paper.Path.Ellipse({
-            center: [this.gridCellWidth/2, this.gridCellHeight/2 + 5],
+            center: [this.gridCellWidth/2, this.gridCellHeight/2],
             radius: Wick.GUIElement.FRAME_CONTENT_DOT_RADIUS,
             fillColor: this.model.contentful ? Wick.GUIElement.FRAME_CONTENT_DOT_COLOR: 'rgba(0,0,0,0)',
             strokeColor: Wick.GUIElement.FRAME_CONTENT_DOT_COLOR,
             strokeWidth: Wick.GUIElement.FRAME_CONTENT_DOT_STROKE_WIDTH,
         });
+
         this.item.addChild(contentDot);
     }
 
@@ -398,17 +403,13 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
             return;
         }
 
-        var scriptText = new paper.PointText({
-            point: [this.gridCellWidth/2 - 5, this.gridCellHeight/2 + 8],
-            content: 's',
-            fillColor: '#008466',
-            fontFamily: 'Courier New',
-            fontWeight: 'bold',
-            fontSize: 16,
+        var scriptCircle = new this.paper.Path.Ellipse({
+            center: [this.gridCellWidth/2, 0],
+            radius: Wick.GUIElement.FRAME_CONTENT_DOT_RADIUS*1.3,
+            fillColor: Wick.GUIElement.FRAME_SCRIPT_DOT_COLOR,
         });
-        scriptText.locked = true;
 
-        this.item.addChild(scriptText);
+        this.item.addChild(scriptCircle);
     }
 
     _buildSoundWaveform () {
