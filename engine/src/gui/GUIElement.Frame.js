@@ -292,6 +292,16 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
             strokeWidth: this.model.isSelected ? 3 : 0,
             radius: Wick.GUIElement.FRAME_BORDER_RADIUS,
         });
+
+        var frameDropShadow = new this.paper.Path.Rectangle({
+            from: new this.paper.Point(0, Wick.GUIElement.FRAME_DROP_SHADOW_DEPTH),
+            to: new this.paper.Point(this.width, this.height + Wick.GUIElement.FRAME_DROP_SHADOW_DEPTH),
+            fillColor: Wick.GUIElement.FRAME_DROP_SHADOW_FILL,
+            strokeWidth: 0,
+            radius: Wick.GUIElement.FRAME_BORDER_RADIUS,
+        });
+
+        this.item.addChild(frameDropShadow);
         this.item.addChild(frameRect);
     }
 
