@@ -19,6 +19,7 @@
 
 /**
  * The Timeline contains the following GUI elements:
+ * - The Breadcrumbs
  * - The Frames Container
  * - The Layers Container
  * - The Horizontal Scrollbar
@@ -32,6 +33,7 @@ Wick.GUIElement.Timeline = class extends Wick.GUIElement {
     constructor (model) {
         super(model);
 
+        this.breadcrumbs = new Wick.GUIElement.Breadcrumbs(model);
         this.framesContainer = new Wick.GUIElement.FramesContainer(model);
         this.layersContainer = new Wick.GUIElement.LayersContainer(model);
         this.numberLine = new Wick.GUIElement.NumberLine(model);

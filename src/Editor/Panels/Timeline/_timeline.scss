@@ -29,7 +29,7 @@
 
 #animation-timeline {
   width: floor(100%);
-  height: calc(100% - #{$breadcrumbs-height});
+  height: 100%;
   border-left: $editor-outline-padding solid $editor-primary-outline;
   border-bottom: $editor-outline-padding solid $editor-primary-outline;
 }

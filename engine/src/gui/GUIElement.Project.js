@@ -34,11 +34,6 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
         // Use this GUIElement as the root container that contains all other elements in the GUI
         this.paper.project.activeLayer.addChild(this.item);
 
-        // Half pixel nudge for sharper 1px strokes
-        // https://stackoverflow.com/questions/7530593/html5-canvas-and-line-width/7531540#7531540
-        //this.paper.view.translate(0.5, 0.5);
-        // (disabled for now, wasn't actually helping blurriness)
-
         this._attachMouseEvents();
 
         // Re-render canvas on changes that should happen very fast
@@ -70,6 +65,7 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
         var containerWidth = this.canvasContainer.offsetWidth;
         var containerHeight = this.canvasContainer.offsetHeight;
 
+        // Round off canvas size to avoid blurryness.
         containerWidth = Math.floor(containerWidth)-2;
         containerHeight = Math.floor(containerHeight)-1;
 
