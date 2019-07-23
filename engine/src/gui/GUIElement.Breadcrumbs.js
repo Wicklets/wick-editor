@@ -29,7 +29,7 @@ Wick.GUIElement.Breadcrumbs = class extends Wick.GUIElement {
         var bgRect = new this.paper.Path.Rectangle({
             from: new this.paper.Point(0, 0),
             to: new this.paper.Point(paper.view.element.width, Wick.GUIElement.BREADCRUMBS_HEIGHT),
-            fillColor: '#000000',
+            fillColor: Wick.GUIElement.BREADCRUMBS_BG_COLOR,
             pivot: new paper.Point(0, 0),
         });
         bgRect.position.x -= this.scrollX;
