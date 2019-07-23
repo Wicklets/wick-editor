@@ -74,14 +74,14 @@ Wick.GUIElement.Timeline = class extends Wick.GUIElement {
 
         // Build scrollbars
         this.horizontalScrollbar.item.position.x = Wick.GUIElement.LAYERS_CONTAINER_WIDTH;
-        this.horizontalScrollbar.item.position.y = paper.view.element.height/window.devicePixelRatio - Wick.GUIElement.SCROLLBAR_SIZE;
+        this.horizontalScrollbar.item.position.y = paper.view.element.height/window.devicePixelRatio - Wick.GUIElement.BREADCRUMBS_HEIGHT - Wick.GUIElement.SCROLLBAR_SIZE;
         this.horizontalScrollbar.width = paper.view.element.width/window.devicePixelRatio - Wick.GUIElement.LAYERS_CONTAINER_WIDTH - Wick.GUIElement.SCROLLBAR_SIZE;
         this.horizontalScrollbar.build();
         this.item.addChild(this.horizontalScrollbar.item);
 
         this.verticalScrollbar.item.position.x = paper.view.element.width/window.devicePixelRatio - Wick.GUIElement.SCROLLBAR_SIZE;
         this.verticalScrollbar.item.position.y = Wick.GUIElement.NUMBER_LINE_HEIGHT;
-        this.verticalScrollbar.height = paper.view.element.height/window.devicePixelRatio - Wick.GUIElement.NUMBER_LINE_HEIGHT - Wick.GUIElement.SCROLLBAR_SIZE;
+        this.verticalScrollbar.height = paper.view.element.height/window.devicePixelRatio - Wick.GUIElement.NUMBER_LINE_HEIGHT - Wick.GUIElement.BREADCRUMBS_HEIGHT - Wick.GUIElement.SCROLLBAR_SIZE;
         this.verticalScrollbar.build();
         this.item.addChild(this.verticalScrollbar.item);
 

@@ -124,6 +124,18 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
         }
     }
 
+    /**
+     *
+     */
+    dropAssetAtPosition (uuid, x, y) {
+        var point = new paper.Point(x, y);
+        var canvasPosition = this._canvas.getBoundingClientRect();
+        point.x -= canvasPosition.left;
+        point.y -= canvasPosition.top;
+        var element = this._getGUIElementAtPosition(point);
+        console.log(element.model);
+    }
+
     _attachMouseEvents () {
         this.paper.view.onMouseMove = (e) => {
             // don't fire mouseMove functions if we're dragging
