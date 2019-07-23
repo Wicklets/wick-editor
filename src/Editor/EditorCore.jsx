@@ -813,8 +813,7 @@ class EditorCore extends Component {
    * @param {number} y    The y location of the image after creation in relation to the window.
    */
   dropSoundOntoTimeline = (uuid, x, y) => {
-    // TODO
-    console.log("Dropping " + uuid + " at: " + x + "," + y);
+      this.project.guiElement.dropAssetAtPosition(uuid, x, y);
   }
 
 
