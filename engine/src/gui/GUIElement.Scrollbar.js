@@ -31,4 +31,11 @@ Wick.GUIElement.Scrollbar = class extends Wick.GUIElement {
     build () {
         super.build();
     }
+
+    /**
+     *
+     */
+    scrollByAmount (scrollAmount) {
+        this.grabber.scrollByAmount(scrollAmount);
+    }
 }
