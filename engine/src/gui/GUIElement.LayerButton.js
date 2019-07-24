@@ -43,6 +43,10 @@ Wick.GUIElement.LayerButton = class extends Wick.GUIElement.Clickable {
         });
     }
 
+    get cursor () {
+        return 'pointer'; 
+    }
+
     /**
      *
      */
@@ -83,8 +87,6 @@ Wick.GUIElement.LayerButton = class extends Wick.GUIElement.Clickable {
             fillColor = Wick.GUIElement.LAYER_BUTTON_MOUSEDOWN_COLOR;
         } else if (this.isHoveredOver) {
             fillColor = Wick.GUIElement.LAYER_BUTTON_HOVER_COLOR;
-        } else if (this.activated) {
-            fillColor = Wick.GUIElement.LAYER_BUTTON_TOGGLE_ACTIVE_COLOR;
         } else {
             fillColor = Wick.GUIElement.LAYER_BUTTON_TOGGLE_INACTIVE_COLOR;
         }

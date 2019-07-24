@@ -40,7 +40,11 @@ Wick.GUIElement.LayerLockButton = class extends Wick.GUIElement.LayerButton {
     }
 
     get icon () {
-        return Wick.GUIElement.LAYER_LOCK_BUTTON_ICON;
+        if (this.model.locked) {
+            return Wick.GUIElement.LAYER_LABEL_LOCK_BUTTON_ICON; 
+        } else {
+            return Wick.GUIElement.LAYER_LABEL_UNLOCK_BUTTON_ICON
+        }
     }
 
     /**

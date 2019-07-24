@@ -275,15 +275,7 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
     _buildFrameBody () {
         var fillColor = 'rgba(0,0,0,0)';
         if(this.isHoveredOver) {
-            if(this.model.tweens.length > 0) {
-                fillColor = Wick.GUIElement.FRAME_TWEENED_HOVERED_OVER;
-            } else {
-                fillColor = Wick.GUIElement.FRAME_HOVERED_OVER;
-            }
-        } else if(this.model.tweens.length > 0) {
-            fillColor = Wick.GUIElement.FRAME_TWEENED_FILL_COLOR;
-        } else if(this.model.contentful) {
-            fillColor = Wick.GUIElement.FRAME_CONTENTFUL_FILL_COLOR;
+            fillColor = Wick.GUIElement.FRAME_HOVERED_OVER;
         } else {
             fillColor = Wick.GUIElement.FRAME_UNCONTENTFUL_FILL_COLOR;
         }

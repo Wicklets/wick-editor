@@ -40,7 +40,11 @@ Wick.GUIElement.LayerHideButton = class extends Wick.GUIElement.LayerButton {
     }
 
     get icon () {
-        return Wick.GUIElement.LAYER_HIDE_BUTTON_ICON;
+        if (this.model.hidden) {
+            return Wick.GUIElement.LAYER_LABEL_HIDDEN_BUTTON_ICON;
+        } else {
+            return Wick.GUIElement.LAYER_LABEL_SHOW_BUTTON_ICON; 
+        }
     }
 
     /**
