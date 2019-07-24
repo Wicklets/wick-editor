@@ -86,7 +86,6 @@ Wick.Clip = class extends Wick.Tickable {
     /**
      * Syntactic sugar for parentClip; for legacy support. The parent Clip of this object.
      * @type {Wick.Clip}
-     * 
      */
     get parent () {
         return this._getParentByClassName('Clip');
@@ -255,7 +254,6 @@ Wick.Clip = class extends Wick.Tickable {
 
     /**
      * Plays a clip's timeline from that clip's current playhead position.
-     * @param {number|string} startFrame - number or string representing the frame to move the playhead to.
      */
     play () {
         this.timeline.play();
