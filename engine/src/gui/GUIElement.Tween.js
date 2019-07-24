@@ -32,7 +32,6 @@ Wick.GUIElement.Tween = class extends Wick.GUIElement.Draggable {
         });
 
         this.on('mouseDown', (e) => {
-            this.model.project.activeTimeline.playheadPosition = this.model.playheadPosition;
             if(!e.modifiers.shift && !this.model.isSelected) {
                 this.model.project.selection.clear();
             }
@@ -179,6 +178,7 @@ Wick.GUIElement.Tween = class extends Wick.GUIElement.Draggable {
     drop () {
         var newPlayheadPosition = Math.floor(this.x / this.gridCellWidth) + Math.round(this.dragOffset.x / this.gridCellWidth);
         this.model.playheadPosition = newPlayheadPosition + 1;
+        this.model.project.activeTimeline.playheadPosition = this.model.parentFrame.start + this.model.playheadPosition - 1;
     }
 
     /**

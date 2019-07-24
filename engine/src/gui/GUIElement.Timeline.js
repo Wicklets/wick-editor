@@ -86,20 +86,20 @@ Wick.GUIElement.Timeline = class extends Wick.GUIElement {
         this.item.addChild(this.verticalScrollbar.item);
 
         // Build cover for top left corner
-        var cornerCover = new paper.Path.Rectangle({
+        var cornerCoverTopLeft = new paper.Path.Rectangle({
             fillColor: Wick.GUIElement.TIMELINE_BACKGROUND_COLOR,
             from: new paper.Point(0, 0),
             to: new paper.Point(Wick.GUIElement.LAYERS_CONTAINER_WIDTH, Wick.GUIElement.NUMBER_LINE_HEIGHT),
         });
-        this.item.addChild(cornerCover);
+        this.item.addChild(cornerCoverTopLeft);
 
         // Build cover for bottom right corner
-        var cornerCover2 = new paper.Path.Rectangle({
+        var cornerCoverBottomRight = new paper.Path.Rectangle({
             fillColor: Wick.GUIElement.SCROLLBAR_BACKGROUND_COLOR,
-            from: new paper.Point(this.paper.view.element.width - Wick.GUIElement.SCROLLBAR_SIZE, this.paper.view.element.height - Wick.GUIElement.SCROLLBAR_SIZE),
-            to: new paper.Point(this.paper.view.element.width, this.paper.view.element.height),
+            from: new paper.Point(this.paper.view.element.width - Wick.GUIElement.SCROLLBAR_SIZE, this.paper.view.element.height - Wick.GUIElement.SCROLLBAR_SIZE - Wick.GUIElement.BREADCRUMBS_HEIGHT),
+            to: new paper.Point(this.paper.view.element.width, this.paper.view.element.height - Wick.GUIElement.BREADCRUMBS_HEIGHT),
         });
-        this.item.addChild(cornerCover2);
+        this.item.addChild(cornerCoverBottomRight);
 
         this._positionScrollableElements();
     }
