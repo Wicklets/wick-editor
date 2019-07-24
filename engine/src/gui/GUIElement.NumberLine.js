@@ -96,6 +96,7 @@ Wick.GUIElement.NumberLine = class extends Wick.GUIElement.Draggable {
 
     _buildCell (i) {
         var highlight = (i%5 === 4);
+
         var cellNumber = new paper.PointText({
             point: [this.gridCellWidth/2, Wick.GUIElement.NUMBER_LINE_HEIGHT - 5],
             content: (i + 1),
@@ -106,13 +107,15 @@ Wick.GUIElement.NumberLine = class extends Wick.GUIElement.Draggable {
             justification: 'center',
             pivot: new paper.Point(0, 0),
         });
+
         var cellWall = new this.paper.Path.Rectangle({
             from: new this.paper.Point(-Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_STROKE_WIDTH/2, 0),
-            to: new this.paper.Point(Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_STROKE_WIDTH/2, Wick.GUIElement.NUMBER_LINE_HEIGHT + (highlight ? Wick.GUIElement.FRAMES_STRIP_VERTICAL_MARGIN : 0)),
+            to: new this.paper.Point(Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_STROKE_WIDTH/2, Wick.GUIElement.NUMBER_LINE_HEIGHT),
             fillColor: highlight ? Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_HIGHLIGHT_STROKE_COLOR : Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_STROKE_COLOR,
             pivot: new paper.Point(0, 0),
             locked: true,
         });
+
         var cell = new paper.Group({
             children: [cellWall, cellNumber],
             pivot: new paper.Point(0, 0),
