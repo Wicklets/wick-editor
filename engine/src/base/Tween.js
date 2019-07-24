@@ -164,6 +164,17 @@ Wick.Tween = class extends Wick.Base {
         clip.transformation = this.transformation.copy();
     }
 
+    /**
+     * The tween that comes after this tween in the parent frame.
+     * @returns {Wick.Tween}
+     */
+    getNextTween () {
+        if(!this.parentFrame) return null;
+
+        var frontTween = this.parentFrame._seekTweenInFront(this.playheadPosition+1);
+        return frontTween;
+    }
+
     _getTweenFunction () {
         return {
             'none': TWEEN.Easing.Linear.None,

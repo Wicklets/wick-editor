@@ -46,7 +46,6 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
         });
 
         this.on('mouseDown', (e) => {
-            this.model.project.activeTimeline.playheadPosition = this.model.start + this.localMouseGrid.x;
             if(!e.modifiers.shift && !this.model.isSelected) {
                 this.model.project.selection.clear();
             }

@@ -5,7 +5,7 @@ describe('Wick.Tween', function() {
             expect(tween.classname).to.equal('Tween');
         });
     });
-    
+
     describe('#interpolate', function () {
         it('should tween position correctly', function() {
             var tweenA = new Wick.Tween({
@@ -328,6 +328,21 @@ describe('Wick.Tween', function() {
             expect(clip.transformation.scaleY).to.equal(tween.transformation.scaleY);
             expect(clip.transformation.rotation).to.equal(tween.transformation.rotation);
             expect(clip.transformation.opacity).to.equal(tween.transformation.opacity);
+        });
+    });
+
+    describe('#getNextTween', function () {
+        it('should return the next tween in the frame', function () {
+            var frame = new Wick.Frame({start:5, end:15});
+            var tween1 = new Wick.Tween({playheadPosition: 5});
+            var tween2 = new Wick.Tween({playheadPosition: 7});
+            var tween3 = new Wick.Tween({playheadPosition: 15});
+            frame.addTween(tween1);
+            frame.addTween(tween2);
+            frame.addTween(tween3);
+            expect(tween1.getNextTween()).to.equal(tween2);
+            expect(tween2.getNextTween()).to.equal(tween3);
+            expect(tween3.getNextTween()).to.equal(null);
         });
     });
 });
