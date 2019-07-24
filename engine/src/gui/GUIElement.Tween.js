@@ -176,6 +176,8 @@ Wick.GUIElement.Tween = class extends Wick.GUIElement.Draggable {
 
         tweenRectRight.rotate(45, tweenRectRight.bounds.center);
         tweenRectLeft.rotate(45, tweenRectLeft.bounds.center);
+        tweenRectRight.remove();
+        tweenRectLeft.remove();
         tweenRectRight = tweenRectRight.subtract(leftSubtractMask, {insert: false});
         tweenRectLeft = tweenRectLeft.subtract(rightSubtractMask, {insert: false});
         tweenRectRight.position = tweenRectRight.position.add(new paper.Point(this.gridCellWidth/2, this.gridCellHeight/2));
