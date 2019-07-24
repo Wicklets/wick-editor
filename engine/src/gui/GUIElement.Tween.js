@@ -160,7 +160,6 @@ Wick.GUIElement.Tween = class extends Wick.GUIElement.Draggable {
             fillColor: rightColor,
         });
 
-
         // Create left rounded triangle.
         var rightSubtractMask = new this.paper.Path.Rectangle({
             from: new this.paper.Point(.5, -r*2), // Shift 1 pixel to the right.
@@ -204,13 +203,16 @@ Wick.GUIElement.Tween = class extends Wick.GUIElement.Draggable {
 
         if(!nextTween) return;
 
-        var nextTweenPosition = nextTween.playheadPosition;
+        var nextTweenGridPosition = nextTween.playheadPosition - this.model.playheadPosition;
+        var nextTweenPosition = nextTweenGridPosition * this.gridCellWidth;
+        var tweenLineVerticalPosition = this.gridCellHeight / 2;
         var arrowLine = new this.paper.Path.Line({
-            from: [0, 0],
-            to: [nextTweenPosition * this.gridCellWidth, 0],
+            from: [this.gridCellWidth, tweenLineVerticalPosition],
+            to: [nextTweenPosition, tweenLineVerticalPosition],
             strokeColor: Wick.GUIElement.TWEEN_ARROW_STROKE_COLOR,
             strokeWidth: Wick.GUIElement.TWEEN_ARROW_STROKE_WIDTH,
         });
+        arrowLine.locked = true;
 
         this.item.addChild(arrowLine);
     }
