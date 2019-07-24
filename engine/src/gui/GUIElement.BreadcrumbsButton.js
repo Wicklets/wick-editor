@@ -95,6 +95,7 @@ Wick.GUIElement.BreadcrumbsButton = class extends Wick.GUIElement.Clickable {
             to: new paper.Point(buttonWidth + Wick.GUIElement.BREADCRUMBS_DROP_SHADOW_DEPTH, Wick.GUIElement.BREADCRUMBS_HEIGHT),
         });
 
+
         this.item.addChild(buttonBody);
         this.item.addChild(buttonBodyBottomSharp);
         this.item.addChild(buttonBodyDropShadow);
@@ -102,5 +103,16 @@ Wick.GUIElement.BreadcrumbsButton = class extends Wick.GUIElement.Clickable {
         buttonBody.sendToBack();
         buttonBodyDropShadow.sendToBack();
         buttonBodyDropShadowBottomSharp.sendToBack(); 
+
+        // Add the active highlight to the tab, if necessary.
+        if (this.model === this.model.project.focus) {
+            var highlight = new paper.Path.Rectangle({
+                fillColor: Wick.GUIElement.BREADCRUMBS_ACTIVE_BORDER_COLOR,
+                from: new paper.Point(0, Wick.GUIElement.BREADCRUMBS_HEIGHT - Wick.GUIElement.BREADCRUMBS_HIGHLIGHT_HEIGHT),
+                to: new paper.Point(buttonWidth, Wick.GUIElement.BREADCRUMBS_HEIGHT),
+            });
+            this.item.addChild(highlight);
+        }
+
     };
 };
