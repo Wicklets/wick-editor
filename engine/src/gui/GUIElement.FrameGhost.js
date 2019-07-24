@@ -54,7 +54,7 @@ Wick.GUIElement.FrameGhost = class extends Wick.GUIElement {
      *
      */
     get height () {
-        return this.gridCellHeight;
+        return Wick.GUIElement.FRAME_HEIGHT;
     }
 
     /**
