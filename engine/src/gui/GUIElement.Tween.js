@@ -98,6 +98,19 @@ Wick.GUIElement.Tween = class extends Wick.GUIElement.Draggable {
 
         this.item.position = new paper.Point(this.x, this.y);
         this.item.position.x += Math.round(this.dragOffset.x / this.gridCellWidth) * this.gridCellWidth;
+
+
+        // Create Stroke using a united path to remove the line down the center.
+        var combined = tweenRectLeft.unite(tweenRectRight);
+        this.item.addChild(combined);
+        combined.sendToBack();
+
+        if (this.model.isSelected) {
+            combined.strokeColor = Wick.GUIElement.SELECTED_ITEM_BORDER_COLOR;
+            combined.strokeWidth = 4;
+        } else {
+            combined.strokeWidth = 0;
+        }
     }
 
     /**
@@ -132,20 +145,59 @@ Wick.GUIElement.Tween = class extends Wick.GUIElement.Draggable {
     }
 
     _buildTweenDiamond () {
+        var leftColor;
+        var rightColor;
+        if (this.model.isSelected) {
+            leftColor = Wick.GUIElement.TWEEN_HOVER_COLOR_1;
+            rightColor = Wick.GUIElement.TWEEN_HOVER_COLOR_2;
+        } else if (this.isHoveredOver) {
+            leftColor = Wick.GUIElement.TWEEN_HOVER_COLOR_1;
+            rightColor = Wick.GUIElement.TWEEN_HOVER_COLOR_2;
+        } else {
+            leftColor =  Wick.GUIElement.TWEEN_FILL_COLOR_1;
+            rightColor = Wick.GUIElement.TWEEN_FILL_COLOR_2;
+        }
+
         var r = Wick.GUIElement.TWEEN_DIAMOND_RADIUS;
 
-        var tweenRect = new this.paper.Path.Rectangle({
-            from: new this.paper.Point(-r, -r),
-            to: new this.paper.Point(r, r),
-            radius: 1,
-            fillColor: this.isHoveredOver ? Wick.GUIElement.TWEEN_HOVER_COLOR : Wick.GUIElement.TWEEN_FILL_COLOR,
-            strokeColor: this.model.isSelected ? Wick.GUIElement.SELECTED_ITEM_BORDER_COLOR : Wick.GUIElement.TWEEN_STROKE_COLOR,
-            strokeWidth: Wick.GUIElement.TWEEN_STROKE_WIDTH,
+        // Create right rounded triangle.
+        var leftSubtractMask = new this.paper.Path.Rectangle({
+            from: new this.paper.Point(-r*2, -r*2),
+            to: new this.paper.Point(-.5, r*2), // Shift 1 pixel to the left.
         });
 
-        tweenRect.rotate(45, tweenRect.bounds.center);
-        tweenRect.position = tweenRect.position.add(new paper.Point(this.gridCellWidth/2, this.gridCellHeight/2));
-        this.item.addChild(tweenRect);
+        var tweenRectRight = new this.paper.Path.Rectangle({
+            from: new this.paper.Point(-r, -r),
+            to: new this.paper.Point(r, r),
+            radius: 3,
+            fillColor: rightColor,
+        });
+
+
+        // Create left rounded triangle.
+        var rightSubtractMask = new this.paper.Path.Rectangle({
+            from: new this.paper.Point(.5, -r*2), // Shift 1 pixel to the right.
+            to: new this.paper.Point(r*2, r*2),
+        });
+
+        var tweenRectLeft = new this.paper.Path.Rectangle({
+            from: new this.paper.Point(-r, -r),
+            to: new this.paper.Point(r, r),
+            radius: 3,
+            fillColor: leftColor,
+
+        });
+
+        tweenRectRight.rotate(45, tweenRectRight.bounds.center);
+        tweenRectLeft.rotate(45, tweenRectLeft.bounds.center);
+        tweenRectRight = tweenRectRight.subtract(leftSubtractMask, {insert: false});
+        tweenRectLeft = tweenRectLeft.subtract(rightSubtractMask, {insert: false});
+        tweenRectRight.position = tweenRectRight.position.add(new paper.Point(this.gridCellWidth/2, this.gridCellHeight/2));
+        tweenRectLeft.position = tweenRectLeft.position.add(new paper.Point(this.gridCellWidth/2, this.gridCellHeight/2));
+
+
+        this.item.addChild(tweenRectRight);
+        this.item.addChild(tweenRectLeft);
     }
 
     _buildTweenArrow () {
