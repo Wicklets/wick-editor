@@ -98,19 +98,6 @@ Wick.GUIElement.Tween = class extends Wick.GUIElement.Draggable {
 
         this.item.position = new paper.Point(this.x, this.y);
         this.item.position.x += Math.round(this.dragOffset.x / this.gridCellWidth) * this.gridCellWidth;
-
-
-        // Create Stroke using a united path to remove the line down the center.
-        var combined = tweenRectLeft.unite(tweenRectRight);
-        this.item.addChild(combined);
-        combined.sendToBack();
-
-        if (this.model.isSelected) {
-            combined.strokeColor = Wick.GUIElement.SELECTED_ITEM_BORDER_COLOR;
-            combined.strokeWidth = 4;
-        } else {
-            combined.strokeWidth = 0;
-        }
     }
 
     /**
@@ -185,7 +172,6 @@ Wick.GUIElement.Tween = class extends Wick.GUIElement.Draggable {
             to: new this.paper.Point(r, r),
             radius: 3,
             fillColor: leftColor,
-
         });
 
         tweenRectRight.rotate(45, tweenRectRight.bounds.center);
@@ -195,9 +181,20 @@ Wick.GUIElement.Tween = class extends Wick.GUIElement.Draggable {
         tweenRectRight.position = tweenRectRight.position.add(new paper.Point(this.gridCellWidth/2, this.gridCellHeight/2));
         tweenRectLeft.position = tweenRectLeft.position.add(new paper.Point(this.gridCellWidth/2, this.gridCellHeight/2));
 
-
         this.item.addChild(tweenRectRight);
         this.item.addChild(tweenRectLeft);
+
+        // Create Stroke using a united path to remove the line down the center.
+        var combined = tweenRectLeft.unite(tweenRectRight);
+        this.item.addChild(combined);
+        combined.sendToBack();
+
+        if (this.model.isSelected) {
+            combined.strokeColor = Wick.GUIElement.SELECTED_ITEM_BORDER_COLOR;
+            combined.strokeWidth = 4;
+        } else {
+            combined.strokeWidth = 0;
+        }
     }
 
     _buildTweenArrow () {
