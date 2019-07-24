@@ -115,8 +115,8 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
             y = e.clientY;
         }
 
-        if(x !== null && y !== null && e.target && e.target.getBoundingClientRect) {
-            var bounds = e.target.getBoundingClientRect();
+        if(x !== null && y !== null && e.target && this._canvas.getBoundingClientRect) {
+            var bounds = this._canvas.getBoundingClientRect();
             this.mousePosition = {
                 x: x - bounds.left,
                 y: y - bounds.top,

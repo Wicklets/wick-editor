@@ -97,38 +97,7 @@ Wick.GUIElement.Tween = class extends Wick.GUIElement.Draggable {
         this._buildTweenArrow();
 
         this.item.position = new paper.Point(this.x, this.y);
-        this.item.position.x += Math.round(this.dragOffset.x / this.gridCellWidth) * this.gridCellWidth;
-    }
-
-    /**
-     *
-     */
-    get selectedTweens () {
-        return this.model.project.selection.getSelectedObjects(Wick.Tween);
-    }
-
-    /**
-     *
-     */
-    drop () {
-        var newPlayheadPosition = Math.floor(this.x / this.gridCellWidth) + Math.round(this.dragOffset.x / this.gridCellWidth);
-        this.model.playheadPosition = newPlayheadPosition + 1;
-        this.model.project.activeTimeline.playheadPosition = this.model.parentFrame.start + this.model.playheadPosition - 1;
-    }
-
-    /**
-     *
-     */
-    get draggingTweens () {
-        var draggingTweens = [];
-        this.model.parentTimeline.frames.forEach(frame => {
-            frame.tweens.forEach(tween => {
-                if(tween.guiElement.ghost.active) {
-                    draggingTweens.push(tween);
-                }
-            })
-        });
-        return draggingTweens;
+        this.item.position.x += this.dragOffset.x;
     }
 
     _buildTweenDiamond () {
@@ -205,6 +174,7 @@ Wick.GUIElement.Tween = class extends Wick.GUIElement.Draggable {
 
         var nextTweenGridPosition = nextTween.playheadPosition - this.model.playheadPosition;
         var nextTweenPosition = nextTweenGridPosition * this.gridCellWidth;
+        nextTweenPosition -= this.dragOffset.x;
         var tweenLineVerticalPosition = this.gridCellHeight / 2;
         var arrowLine = new this.paper.Path.Line({
             from: [this.gridCellWidth, tweenLineVerticalPosition],
@@ -217,10 +187,41 @@ Wick.GUIElement.Tween = class extends Wick.GUIElement.Draggable {
         this.item.addChild(arrowLine);
     }
 
+    /**
+     *
+     */
+    get selectedTweens () {
+        return this.model.project.selection.getSelectedObjects(Wick.Tween);
+    }
+
+    /**
+     *
+     */
+    drop () {
+        var newPlayheadPosition = Math.floor(this.x / this.gridCellWidth) + Math.round(this.dragOffset.x / this.gridCellWidth);
+        this.model.playheadPosition = newPlayheadPosition + 1;
+        this.model.project.activeTimeline.playheadPosition = this.model.parentFrame.start + this.model.playheadPosition - 1;
+    }
+
+    /**
+     *
+     */
+    get draggingTweens () {
+        var draggingTweens = [];
+        this.model.parentTimeline.frames.forEach(frame => {
+            frame.tweens.forEach(tween => {
+                if(tween.guiElement.ghost.active) {
+                    draggingTweens.push(tween);
+                }
+            })
+        });
+        return draggingTweens;
+    }
+
     _dragSelectedTweens () {
         this.selectedTweens.forEach(tween => {
             tween.guiElement.item.bringToFront();
-            tween.guiElement.dragOffset = this.mouseDelta;
+            tween.guiElement.dragOffset.x = Math.round(this.mouseDelta.x / this.gridCellWidth) * this.gridCellWidth;
             tween.guiElement.dragOffset.y = 0;
             tween.guiElement.ghost.active = true;
             tween.guiElement.build();
