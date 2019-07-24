@@ -22,6 +22,10 @@ Wick.GUIElement.AddFrameOverlay = class extends Wick.GUIElement {
         return 3;
     }
 
+    get cursor () {
+        return 'pointer';
+    }
+
     /**
      *
      */
@@ -60,28 +64,28 @@ Wick.GUIElement.AddFrameOverlay = class extends Wick.GUIElement {
      *
      */
     get x () {
-        return this.gridCellWidth * (this.playheadPosition-1) + Wick.GUIElement.ADD_FRAME_OVERLAY_MARGIN;
+        return this.gridCellWidth * (this.playheadPosition-1);
     }
 
     /**
      *
      */
     get y () {
-        return (this.model.index * this.gridCellHeight) + Wick.GUIElement.ADD_FRAME_OVERLAY_MARGIN;
+        return (this.model.index * this.gridCellHeight);
     }
 
     /**
      *
      */
     get width () {
-        return this.gridCellWidth - Wick.GUIElement.ADD_FRAME_OVERLAY_MARGIN*2;
+        return this.gridCellWidth;
     }
 
     /**
      *
      */
     get height () {
-        return this.gridCellHeight - Wick.GUIElement.ADD_FRAME_OVERLAY_MARGIN*2;
+        return Wick.GUIElement.FRAME_HEIGHT;
     }
 
     /**
@@ -96,19 +100,20 @@ Wick.GUIElement.AddFrameOverlay = class extends Wick.GUIElement {
             from: new this.paper.Point(this.x, this.y),
             to: new this.paper.Point(this.x + this.width, this.y + this.height),
             fillColor: Wick.GUIElement.ADD_FRAME_OVERLAY_FILL_COLOR,
-            radius: Wick.GUIElement.ADD_FRAME_OVERLAY_BORDER_RADIUS,
+            radius: Wick.GUIElement.FRAME_BORDER_RADIUS,
         });
         this.item.addChild(overlayRect);
 
         var overlayText = new this.paper.PointText({
-            point: [this.x + this.width/2, this.y + this.height/2 + 5],
+            point: [this.x + this.width/2, this.y + this.height/2 + 8],
             content: '+',
             fillColor: Wick.GUIElement.ADD_FRAME_OVERLAY_PLUS_COLOR,
             fontFamily: 'Courier New',
             fontWeight: 'bold',
-            fontSize: 18,
+            fontSize: 30,
             justification: 'center',
             pivot: new paper.Point(0, 0),
+            opacity: .5,
         });
         this.item.addChild(overlayText);
     }

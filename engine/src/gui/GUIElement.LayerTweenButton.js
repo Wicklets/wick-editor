@@ -40,7 +40,7 @@ Wick.GUIElement.LayerTweenButton = class extends Wick.GUIElement.LayerButton {
     }
 
     get icon () {
-        return Wick.GUIElement.LAYER_LOCK_BUTTON_ICON;
+        return Wick.GUIElement.ADD_TWEEN_BUTTON_ICON;
     }
 
     /**
