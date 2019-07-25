@@ -32,6 +32,10 @@ Wick.GUIElement.LayerTweenButton = class extends Wick.GUIElement.LayerButton {
         });
     }
 
+    get tooltip () {
+        return "Add Tween";
+    }
+
     /**
      *
      */

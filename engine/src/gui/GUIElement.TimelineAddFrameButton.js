@@ -32,6 +32,11 @@ Wick.GUIElement.TimelineAddFrameButton = class extends Wick.GUIElement.LayerButt
         });
     }
 
+    get tooltip () {
+        return "Copy Forward";
+    }
+
+
     get radius () {
         return 14;
     }

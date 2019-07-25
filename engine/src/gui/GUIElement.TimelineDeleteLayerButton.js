@@ -32,6 +32,10 @@ Wick.GUIElement.TimelineDeleteLayerButton = class extends Wick.GUIElement.LayerB
         });
     }
 
+    get tooltip () {
+        return "Delete";
+    }
+
     get radius () {
         return 14;
     }

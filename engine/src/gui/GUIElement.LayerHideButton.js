@@ -32,6 +32,14 @@ Wick.GUIElement.LayerHideButton = class extends Wick.GUIElement.LayerButton {
         });
     }
 
+    get tooltip () {
+        if (this.model.hidden) {
+            return "Show"; 
+        } else {
+            return "Hide";
+        }
+    }
+
     /**
      *
      */
