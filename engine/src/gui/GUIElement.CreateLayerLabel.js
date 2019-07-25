@@ -43,6 +43,10 @@ Wick.GUIElement.CreateLayerLabel = class extends Wick.GUIElement.Clickable {
         });
     }
 
+    get cursor () {
+        return 'pointer'; 
+    }
+
     /**
      *
      */
@@ -100,13 +104,19 @@ Wick.GUIElement.CreateLayerLabel = class extends Wick.GUIElement.Clickable {
         });
         this.item.addChild(layerRect);
 
-        this.item.addChild(new paper.PointText({
-            point: [this.width/2, this.height/2 + 6],
+        var plusButton = new this.paper.PointText({
+            point: [this.x + this.width/2, this.height/2 + 8],
             content: '+',
-            fillColor: 'black',
+            fillColor: Wick.GUIElement.ADD_FRAME_OVERLAY_PLUS_COLOR,
             fontFamily: 'Courier New',
-            fontSize: 22,
-        }))
+            fontWeight: 'bold',
+            fontSize: 30,
+            justification: 'center',
+            pivot: new paper.Point(0, 0),
+            opacity: .5,
+        });
+
+        this.item.addChild(plusButton);
 
         this.item.position = new paper.Point(this.x, this.y);
     }
