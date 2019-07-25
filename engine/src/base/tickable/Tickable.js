@@ -64,6 +64,7 @@ Wick.Tickable = class extends Wick.Base {
 
         this._mouseState = 'out';
         this._lastMouseState = 'out';
+        this._isClickTarget = false;
 
         this._scripts = [];
 
@@ -379,12 +380,20 @@ Wick.Tickable = class extends Wick.Base {
 
         // Mouse pressed
         if(last === 'over' && current === 'down') {
+            this._isClickTarget = true;
             var error = this.runScript('mousepressed');
             if(error) return error;
         }
 
-        // Mouse up
+        // Mouse click
+        if(last === 'down' && current === 'over' && this._isClickTarget) {
+            var error = this.runScript('mouseclick');
+            if(error) return error;
+        }
+
+        // Mouse released
         if(last === 'down' && current === 'over') {
+            this._isClickTarget = false;
             var error = this.runScript('mousereleased');
             if(error) return error;
         }
@@ -404,12 +413,6 @@ Wick.Tickable = class extends Wick.Base {
         // Mouse drag
         if(last === 'down' && current === 'down') {
             var error = this.runScript('mousedrag');
-            if(error) return error;
-        }
-
-        // Mouse click
-        if(last === 'down' && current === 'over') {
-            var error = this.runScript('mouseclick');
             if(error) return error;
         }
 
@@ -439,6 +442,7 @@ Wick.Tickable = class extends Wick.Base {
     }
 
     _onDeactivated () {
+        this._isClickTarget = false;
         return this.runScript('unload');
     }
 

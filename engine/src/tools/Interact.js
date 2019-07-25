@@ -44,6 +44,10 @@ Wick.Tools.Interact = class extends Wick.Tool {
         this._mousePosition = e.point;
     }
 
+    onMouseDrag (e) {
+        this._mousePosition = e.point;
+    }
+
     onMouseDown (e) {
         this._mouseIsDown = true;
     }
