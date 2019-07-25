@@ -51,10 +51,10 @@ Wick.GUIElement.LayerButton = class extends Wick.GUIElement.Clickable {
     get opacity () {
         return Wick.GUIElement.LAYER_BUTTON_ICON_OPACITY;
     }
-    
+
 
     get cursor () {
-        return 'pointer'; 
+        return 'pointer';
     }
 
     get radius () {
@@ -120,10 +120,10 @@ Wick.GUIElement.LayerButton = class extends Wick.GUIElement.Clickable {
 
         // Icon
         var icon = this.paper.project.importSVG(this.icon);
-        icon.strokeColor = this.strokeColor; 
+        icon.strokeColor = this.strokeColor;
 
         if (this.fillColor) {
-            icon.fillColor = this.fillColor; 
+            icon.fillColor = this.fillColor;
         }
 
         icon.opacity = this.opacity;
@@ -143,12 +143,12 @@ Wick.GUIElement.LayerButton = class extends Wick.GUIElement.Clickable {
             });
 
             var tm = 4; // Text margin
-            var th = label.bounds.height + tm*2; // Height 
+            var th = label.bounds.height + tm*2; // Height
             var tw = label.bounds.width + tm*2; // Width
 
             var top = this.radius;
             var bot = this.radius + th;
-            var left = -tw/2; 
+            var left = -tw/2;
             var right = tw/2;
 
             label.point = [left + tm, top + th/2 + tm];
@@ -156,13 +156,16 @@ Wick.GUIElement.LayerButton = class extends Wick.GUIElement.Clickable {
             var tooltipBody = new paper.Path.Rectangle({
                 from: new paper.Point(left, top),
                 to: new paper.Point(right, bot),
-                radius: Wick.GUIElement.FRAME_BORDER_RADIUS, 
+                radius: Wick.GUIElement.FRAME_BORDER_RADIUS,
                 fillColor: '#3878AF',
                 opacity: .95,
             });
-            
+
+            tooltipBody.locked = true;
+            label.locked = true;
+
             this.item.addChild(tooltipBody);
-            this.item.addChild(label); 
+            this.item.addChild(label);
         }
 
 
