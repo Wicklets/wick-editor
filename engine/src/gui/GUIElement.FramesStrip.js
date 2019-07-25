@@ -53,6 +53,10 @@ Wick.GUIElement.FramesStrip = class extends Wick.GUIElement.Draggable {
         });
     }
 
+    get cursor () {
+        return 'pointer';
+    }
+
     /**
      *
      */
@@ -102,9 +106,9 @@ Wick.GUIElement.FramesStrip = class extends Wick.GUIElement.Draggable {
 
         // Visually alter the frameStrip if the layer is hidden.
         if (this.model.hidden) {
-            this.item.opacity = .25; 
+            this.item.opacity = .25;
         } else {
-            this.item.opacity = 1; 
+            this.item.opacity = 1;
         }
 
     }

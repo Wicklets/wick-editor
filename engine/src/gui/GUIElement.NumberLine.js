@@ -41,13 +41,14 @@ Wick.GUIElement.NumberLine = class extends Wick.GUIElement.Draggable {
         });
     }
 
+    get cursor () {
+        return 'move';
+    }
+
     get width () {
         return paper.view.element.width - Wick.GUIElement.LAYERS_CONTAINER_WIDTH;
     }
 
-    /**
-     *
-     */
     get height () {
         return this._height;
     }
