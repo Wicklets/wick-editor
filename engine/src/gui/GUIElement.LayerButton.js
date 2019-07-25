@@ -142,13 +142,14 @@ Wick.GUIElement.LayerButton = class extends Wick.GUIElement.Clickable {
                 content: this.tooltip,
             });
 
+            var tooltipMargin = 4;
             var tm = 4; // Text margin
             var th = label.bounds.height + tm*2; // Height
             var tw = label.bounds.width + tm*2; // Width
 
-            var top = this.radius;
-            var bot = this.radius + th;
-            var left = -tw/2;
+            var top = this.radius + tooltipMargin;
+            var bot = top + th;
+            var left = -tw/2; 
             var right = tw/2;
 
             label.point = [left + tm, top + th/2 + tm];
@@ -158,7 +159,6 @@ Wick.GUIElement.LayerButton = class extends Wick.GUIElement.Clickable {
                 to: new paper.Point(right, bot),
                 radius: Wick.GUIElement.FRAME_BORDER_RADIUS,
                 fillColor: '#3878AF',
-                opacity: .95,
             });
 
             tooltipBody.locked = true;
