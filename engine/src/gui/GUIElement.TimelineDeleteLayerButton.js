@@ -17,12 +17,34 @@
  * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-Wick.GUIElement.Scrollbar = class extends Wick.GUIElement {
+Wick.GUIElement.TimelineDeleteLayerButton = class extends Wick.GUIElement.LayerButton {
     /**
      *
      */
     constructor (model) {
         super(model);
+        this.x = 0;
+        this.y = 0;
+
+        this.on('mouseDown', () => {
+            // TODO
+            this.model.project.guiElement.fire('projectModified');
+        });
+    }
+
+    /**
+     *
+     */
+    get activated () {
+        return false;
+    }
+
+    get icon () {
+        if (this.model.locked) {
+            return Wick.GUIElement.LAYER_LABEL_LOCK_BUTTON_ICON;
+        } else {
+            return Wick.GUIElement.LAYER_LABEL_UNLOCK_BUTTON_ICON
+        }
     }
 
     /**
@@ -30,12 +52,5 @@ Wick.GUIElement.Scrollbar = class extends Wick.GUIElement {
      */
     build () {
         super.build();
-    }
-
-    /**
-     *
-     */
-    scrollByAmount (scrollAmount) {
-        this.grabber.scrollByAmount(scrollAmount);
     }
 }

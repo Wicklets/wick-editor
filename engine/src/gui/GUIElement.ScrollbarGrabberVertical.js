@@ -37,12 +37,7 @@ Wick.GUIElement.ScrollbarGrabberVertical = class extends Wick.GUIElement.Draggab
         });
 
         this.on('drag', (e) => {
-            this.scrollY = this.scrollY + this.mouseMovement.y;
-            this.scrollY = Math.max(0, this.scrollY);
-            this.scrollY = Math.min(this.containerHeight - this.grabberHeight, this.scrollY);
-            this.model.project.activeTimeline.guiElement.scrollY = (this.scrollY / this.containerHeight) * this.contentHeight;
-            this.fire('scroll', e);
-            this.build();
+            this.scrollByAmount(this.mouseMovement.y);
         });
 
         this.scrollY = 0;
@@ -70,5 +65,17 @@ Wick.GUIElement.ScrollbarGrabberVertical = class extends Wick.GUIElement.Draggab
             radius: Wick.GUIElement.SCROLLBAR_BORDER_RADIUS,
         });
         this.item.addChild(grabber);
+    }
+
+    /**
+     *
+     */
+    scrollByAmount (scrollAmount) {
+        this.scrollY = this.scrollY + scrollAmount;
+        this.scrollY = Math.max(0, this.scrollY);
+        this.scrollY = Math.min(this.containerHeight - this.grabberHeight, this.scrollY);
+        this.model.project.activeTimeline.guiElement.scrollY = (this.scrollY / this.containerHeight) * this.contentHeight;
+        this.fire('scroll', {});
+        this.build();
     }
 }

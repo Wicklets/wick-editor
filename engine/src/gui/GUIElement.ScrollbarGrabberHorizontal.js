@@ -37,12 +37,7 @@ Wick.GUIElement.ScrollbarGrabberHorizontal = class extends Wick.GUIElement.Dragg
         });
 
         this.on('drag', (e) => {
-            this.scrollX = this.scrollX + this.mouseMovement.x;
-            this.scrollX = Math.max(0, this.scrollX);
-            this.scrollX = Math.min(this.containerWidth - this.grabberWidth, this.scrollX);
-            this.model.project.activeTimeline.guiElement.scrollX = (this.scrollX / this.containerWidth) * this.contentWidth;
-            this.fire('scroll', {});
-            this.build();
+            this.scrollByAmount(this.mouseMovement.x);
         });
 
         this.scrollX = 0;
@@ -74,5 +69,17 @@ Wick.GUIElement.ScrollbarGrabberHorizontal = class extends Wick.GUIElement.Dragg
             radius: Wick.GUIElement.SCROLLBAR_BORDER_RADIUS,
         });
         this.item.addChild(grabber);
+    }
+
+    /**
+     *
+     */
+    scrollByAmount (scrollAmount) {
+        this.scrollX = this.scrollX + scrollAmount;
+        this.scrollX = Math.max(0, this.scrollX);
+        this.scrollX = Math.min(this.containerWidth - this.grabberWidth, this.scrollX);
+        this.model.project.activeTimeline.guiElement.scrollX = (this.scrollX / this.containerWidth) * this.contentWidth;
+        this.fire('scroll', {});
+        this.build();
     }
 }

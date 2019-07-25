@@ -335,7 +335,7 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
     }
 
     _buildContentfulDot () {
-        if(this.model.tweens.length > 0) {
+        if(this.model.tweens.length > 0 || this.model.sound) {
             return;
         }
 

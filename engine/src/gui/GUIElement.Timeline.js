@@ -38,6 +38,8 @@ Wick.GUIElement.Timeline = class extends Wick.GUIElement {
         this.numberLine = new Wick.GUIElement.NumberLine(model);
         this.horizontalScrollbar = new Wick.GUIElement.ScrollbarHorizontal(model);
         this.verticalScrollbar = new Wick.GUIElement.ScrollbarVertical(model);
+        this.addFrameButton = new Wick.GUIElement.TimelineAddFrameButton(model);
+        this.deleteLayerButton = new Wick.GUIElement.TimelineDeleteLayerButton(model);
 
         this.horizontalScrollbar.on('scroll', (e) => {
             //this.framesContainer.build();
@@ -100,6 +102,17 @@ Wick.GUIElement.Timeline = class extends Wick.GUIElement {
             to: new paper.Point(this.paper.view.element.width, this.paper.view.element.height - Wick.GUIElement.BREADCRUMBS_HEIGHT),
         });
         this.item.addChild(cornerCoverBottomRight);
+
+        // Build buttons
+        this.deleteLayerButton.x = 20;
+        this.deleteLayerButton.y = 20;
+        this.deleteLayerButton.build();
+        this.item.addChild(this.deleteLayerButton.item);
+
+        this.addFrameButton.x = 50;
+        this.addFrameButton.y = 20;
+        this.addFrameButton.build();
+        this.item.addChild(this.addFrameButton.item);
 
         this._positionScrollableElements();
     }

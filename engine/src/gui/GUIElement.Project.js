@@ -142,6 +142,12 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
     }
 
     _attachMouseEvents () {
+        $(this._canvas).on('mousewheel', e => {
+            e.preventDefault();
+            var d = e.deltaY * e.deltaFactor * 1.0;
+            this.model.activeTimeline.guiElement.verticalScrollbar.scrollByAmount(d);
+        });
+
         this.paper.view.onMouseMove = (e) => {
             // don't fire mouseMove functions if we're dragging
             if(e.event.buttons) return;
