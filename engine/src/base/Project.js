@@ -67,6 +67,8 @@ Wick.Project = class extends Wick.Base {
 
         this._tickIntervalID = null;
 
+        this._hideCursor = false;
+
         this._tools = {
             brush: new Wick.Tools.Brush(),
             cursor: new Wick.Tools.Cursor(),
@@ -1045,6 +1047,18 @@ Wick.Project = class extends Wick.Base {
      */
     objectIsMouseTarget (object) {
         return this._mouseTargets.indexOf(object) !== -1;
+    }
+
+    /**
+     * Whether or not to hide the cursor while project is playing.
+     * @type {boolean}
+     */
+    get hideCursor () {
+        return this._hideCursor;
+    }
+
+    set hideCursor (hideCursor) {
+        this._hideCursor = hideCursor;
     }
 
     /**

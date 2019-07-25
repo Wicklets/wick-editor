@@ -116,10 +116,19 @@ Wick.Tools.Interact = class extends Wick.Tool {
             targets = [];
         }
 
-        // Are we hovered over a button? If we are, use the "pointer" cursor
-        this.setCursor(targets.find(target => {
-            return target instanceof Wick.Button;
-        }) ? 'pointer' : 'default');
+        // Update cursor
+        if(this.project.hideCursor) {
+            this.setCursor('none');
+        } else {
+            var clip = targets.find(target => {
+                return target instanceof Wick.Button;
+            });
+            if(clip) {
+                this.setCursor(clip.cursor)
+            } else {
+                this.setCursor('default');
+            }
+        }
 
         return targets;
     }

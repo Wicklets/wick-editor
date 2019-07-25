@@ -30,6 +30,22 @@ Wick.Button = class extends Wick.Clip {
         super(args);
 
         this.cursor = 'pointer';
+
+        var frame1 = this.timeline.activeFrame;
+        var frame2 = frame1.copy();
+        var frame3 = frame1.copy();
+
+        frame2.start = 2;
+        frame2.end = 2;
+        frame3.start = 3;
+        frame3.end = 3;
+
+        frame1.identifier = 'up';
+        frame2.identifier = 'over';
+        frame3.identifier = 'down';
+
+        this.timeline.activeLayer.addFrame(frame2);
+        this.timeline.activeLayer.addFrame(frame3);
     }
 
     serialize (args) {

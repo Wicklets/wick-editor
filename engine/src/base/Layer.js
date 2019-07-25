@@ -121,7 +121,7 @@ Wick.Layer = class extends Wick.Base {
      * Remove this layer from its timeline.
      */
     remove () {
-        this.parent.removeLayer(this);
+        this.parentTimeline.removeLayer(this);
     }
 
     /**

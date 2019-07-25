@@ -111,8 +111,6 @@ describe('Wick.View.Frame', function() {
             frame.addClip(clip);
 
             var button = new Wick.Button();
-            button.timeline.addLayer(new Wick.Layer());
-            button.timeline.layers[0].addFrame(new Wick.Frame());
             button.timeline.layers[0].frames[0].addPath(new Wick.Path({json: pathJson2}));
             button.transformation.x = 200;
             frame.addClip(button);

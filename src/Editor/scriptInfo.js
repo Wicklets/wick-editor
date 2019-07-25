@@ -295,6 +295,16 @@ class ScriptInfoInterface extends Object {
                     snippet: 'if (key === "a" ) {\n // Add your code here. \n}\n',
                     description: 'Runs if the last key pressed is equal to the letter, or symbol, tested in the condition.',
                 },
+                {
+                    name: 'hideCursor',
+                    snippet: 'hideCursor()',
+                    description: 'Hides the cursor.',
+                },
+                {
+                    name: 'showCursor',
+                    snippet: 'showCursor()',
+                    description: 'Un-hides the cursor.',
+                },
             ]
         );
     }

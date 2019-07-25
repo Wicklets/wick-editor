@@ -33,6 +33,7 @@ GlobalAPI = class {
             'random',
             'playSound','stopAllSounds',
             'onEvent',
+            'hideCursor','showCursor',
         ];
     }
 
@@ -282,6 +283,22 @@ GlobalAPI = class {
      */
     onEvent (name, fn) {
         this.scriptOwner.onEvent(name, fn);
+    }
+
+    /**
+     * Hide the cursor while the project is running.
+     */
+    hideCursor () {
+        if(!this.scriptOwner.project) return null;
+        this.scriptOwner.project.hideCursor = true;
+    }
+
+    /**
+     * Don't hide the cursor while the project is running.
+     */
+    showCursor () {
+        if(!this.scriptOwner.project) return null;
+        this.scriptOwner.project.hideCursor = false;
     }
 }
 

@@ -12,8 +12,8 @@ describe('Wick.Button', function() {
 
             var button = new Wick.Button();
             project.activeFrame.addClip(button);
-            button.timeline.addLayer(new Wick.Layer());
-            button.activeLayer.addFrame(new Wick.Frame({start:1}));
+            button.timeline.activeLayer.getFrameAtPlayheadPosition(2).remove();
+            button.timeline.activeLayer.getFrameAtPlayheadPosition(3).remove();
 
             // Nothing happened yet, button is on frame 1.
             button.tick();
@@ -55,11 +55,11 @@ describe('Wick.Button', function() {
 
             var button = new Wick.Button();
             project.activeFrame.addClip(button);
-            button.timeline.addLayer(new Wick.Layer());
-            var frame1 = new Wick.Frame({start:1})
-            var frame2 = new Wick.Frame({start:2})
-            button.activeLayer.addFrame(frame1);
-            button.activeLayer.addFrame(frame2);
+            
+            button.timeline.activeLayer.getFrameAtPlayheadPosition(3).remove();
+
+            var frame1 = button.timeline.activeLayer.getFrameAtPlayheadPosition(1);
+            var frame2 = button.timeline.activeLayer.getFrameAtPlayheadPosition(2);
 
             frame1.addPath(TestUtils.paperToWickPath(new paper.Path.Rectangle({
                 from: [50, 50],
@@ -113,13 +113,10 @@ describe('Wick.Button', function() {
 
             var button = new Wick.Button();
             project.activeFrame.addClip(button);
-            button.timeline.addLayer(new Wick.Layer());
-            var frame1 = new Wick.Frame({start:1})
-            var frame2 = new Wick.Frame({start:2})
-            var frame3 = new Wick.Frame({start:3})
-            button.activeLayer.addFrame(frame1);
-            button.activeLayer.addFrame(frame2);
-            button.activeLayer.addFrame(frame3);
+
+            var frame1 = button.timeline.activeLayer.getFrameAtPlayheadPosition(1);
+            var frame2 = button.timeline.activeLayer.getFrameAtPlayheadPosition(2);
+            var frame3 = button.timeline.activeLayer.getFrameAtPlayheadPosition(3);
 
             frame1.addPath(TestUtils.paperToWickPath(new paper.Path.Rectangle({
                 from: [50, 50],
