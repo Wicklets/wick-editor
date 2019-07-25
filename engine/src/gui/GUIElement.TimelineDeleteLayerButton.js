@@ -27,7 +27,7 @@ Wick.GUIElement.TimelineDeleteLayerButton = class extends Wick.GUIElement.LayerB
         this.y = 0;
 
         this.on('mouseDown', () => {
-            // TODO
+            this.model.project.deleteSelectedObjects();
             this.model.project.guiElement.fire('projectModified');
         });
     }
@@ -44,8 +44,8 @@ Wick.GUIElement.TimelineDeleteLayerButton = class extends Wick.GUIElement.LayerB
         if (this.isHoveredOver) {
             return '#000000';
         } else {
-            return '#979797'; 
-        }    
+            return '#979797';
+        }
     }
 
     get strokeColor () {

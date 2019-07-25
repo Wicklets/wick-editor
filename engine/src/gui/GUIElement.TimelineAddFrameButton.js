@@ -27,7 +27,7 @@ Wick.GUIElement.TimelineAddFrameButton = class extends Wick.GUIElement.LayerButt
         this.y = 0;
 
         this.on('mouseDown', () => {
-            // TODO
+            
             this.model.project.guiElement.fire('projectModified');
         });
     }
@@ -41,15 +41,15 @@ Wick.GUIElement.TimelineAddFrameButton = class extends Wick.GUIElement.LayerButt
     }
 
     get fillColor () {
-        return 'rgba(0,0,0,0)'; 
+        return 'rgba(0,0,0,0)';
     }
 
     get strokeColor () {
         if (this.isHoveredOver) {
             return '#000000';
         } else {
-            return '#979797'; 
-        }   
+            return '#979797';
+        }
     }
 
     /**

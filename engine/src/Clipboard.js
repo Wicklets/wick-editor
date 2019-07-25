@@ -38,7 +38,8 @@ Wick.Clipboard = class {
     }
 
     /**
-     *
+     * The data of copied objects, stored as JSON.
+     * @type {Object}
      */
     get clipboardData () {
         var json = localStorage[Wick.Clipboard.LOCALSTORAGE_KEY];
