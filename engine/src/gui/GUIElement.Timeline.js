@@ -109,10 +109,13 @@ Wick.GUIElement.Timeline = class extends Wick.GUIElement {
         this.deleteLayerButton.build();
         this.item.addChild(this.deleteLayerButton.item);
 
+        // Disable temporarily
+        /*
         this.addFrameButton.x = 145;
         this.addFrameButton.y = 20;
         this.addFrameButton.build();
         this.item.addChild(this.addFrameButton.item);
+        */
 
         this._positionScrollableElements();
     }
