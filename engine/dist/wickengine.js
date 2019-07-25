@@ -61937,6 +61937,8 @@ Wick.GUIElement.Timeline = class extends Wick.GUIElement {
     this.numberLine = new Wick.GUIElement.NumberLine(model);
     this.horizontalScrollbar = new Wick.GUIElement.ScrollbarHorizontal(model);
     this.verticalScrollbar = new Wick.GUIElement.ScrollbarVertical(model);
+    this.addFrameButton = new Wick.GUIElement.TimelineAddFrameButton(model);
+    this.deleteLayerButton = new Wick.GUIElement.TimelineDeleteLayerButton(model);
     this.horizontalScrollbar.on('scroll', e => {
       //this.framesContainer.build();
       //this.numberLine.build();
@@ -61990,7 +61992,16 @@ Wick.GUIElement.Timeline = class extends Wick.GUIElement {
       from: new paper.Point(this.paper.view.element.width - Wick.GUIElement.SCROLLBAR_SIZE, this.paper.view.element.height - Wick.GUIElement.SCROLLBAR_SIZE - Wick.GUIElement.BREADCRUMBS_HEIGHT),
       to: new paper.Point(this.paper.view.element.width, this.paper.view.element.height - Wick.GUIElement.BREADCRUMBS_HEIGHT)
     });
-    this.item.addChild(cornerCoverBottomRight);
+    this.item.addChild(cornerCoverBottomRight); // Build buttons
+
+    this.deleteLayerButton.x = 20;
+    this.deleteLayerButton.y = 20;
+    this.deleteLayerButton.build();
+    this.item.addChild(this.deleteLayerButton.item);
+    this.addFrameButton.x = 50;
+    this.addFrameButton.y = 20;
+    this.addFrameButton.build();
+    this.item.addChild(this.addFrameButton.item);
 
     this._positionScrollableElements();
   }
@@ -62000,6 +62011,124 @@ Wick.GUIElement.Timeline = class extends Wick.GUIElement {
     this.layersContainer.scrollY = -this.scrollY;
     this.framesContainer.scrollX = -this.scrollX;
     this.framesContainer.scrollY = -this.scrollY;
+  }
+
+};
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* Copyright 2019 WICKLETS LLC
+*
+* This file is part of Wick Engine.
+*
+* Wick Engine is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Wick Engine is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+*/
+Wick.GUIElement.TimelineAddFrameButton = class extends Wick.GUIElement.LayerButton {
+  /**
+   *
+   */
+  constructor(model) {
+    super(model);
+    this.x = 0;
+    this.y = 0;
+    this.on('mouseDown', () => {
+      // TODO
+      this.model.project.guiElement.fire('projectModified');
+    });
+  }
+  /**
+   *
+   */
+
+
+  get activated() {
+    return false;
+  }
+
+  get icon() {
+    if (this.model.locked) {
+      return Wick.GUIElement.LAYER_LABEL_LOCK_BUTTON_ICON;
+    } else {
+      return Wick.GUIElement.LAYER_LABEL_UNLOCK_BUTTON_ICON;
+    }
+  }
+  /**
+   *
+   */
+
+
+  build() {
+    super.build();
+  }
+
+};
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* Copyright 2019 WICKLETS LLC
+*
+* This file is part of Wick Engine.
+*
+* Wick Engine is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Wick Engine is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+*/
+Wick.GUIElement.TimelineDeleteLayerButton = class extends Wick.GUIElement.LayerButton {
+  /**
+   *
+   */
+  constructor(model) {
+    super(model);
+    this.x = 0;
+    this.y = 0;
+    this.on('mouseDown', () => {
+      // TODO
+      this.model.project.guiElement.fire('projectModified');
+    });
+  }
+  /**
+   *
+   */
+
+
+  get activated() {
+    return false;
+  }
+
+  get icon() {
+    if (this.model.locked) {
+      return Wick.GUIElement.LAYER_LABEL_LOCK_BUTTON_ICON;
+    } else {
+      return Wick.GUIElement.LAYER_LABEL_UNLOCK_BUTTON_ICON;
+    }
+  }
+  /**
+   *
+   */
+
+
+  build() {
+    super.build();
   }
 
 };

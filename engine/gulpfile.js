@@ -136,6 +136,8 @@ gulp.task("default", function() {
       'src/gui/GUIElement.ScrollbarVertical.js',
       'src/gui/GUIElement.SelectionBox.js',
       'src/gui/GUIElement.Timeline.js',
+      'src/gui/GUIElement.TimelineAddFrameButton.js',
+      'src/gui/GUIElement.TimelineDeleteLayerButton.js',
       'src/gui/GUIElement.Tween.js',
       'src/gui/GUIElement.TweenGhost.js',
     ])
