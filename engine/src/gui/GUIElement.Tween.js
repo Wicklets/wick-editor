@@ -172,15 +172,19 @@ Wick.GUIElement.Tween = class extends Wick.GUIElement.Draggable {
 
         if(!nextTween) return;
 
+        
+        var overlapAmount = 5; // How much should we overlap the arrow between tweens? 
+
         var nextTweenGridPosition = nextTween.playheadPosition - this.model.playheadPosition;
         var nextTweenPosition = nextTweenGridPosition * this.gridCellWidth;
         nextTweenPosition -= this.dragOffset.x;
         var tweenLineVerticalPosition = this.gridCellHeight / 2;
         var arrowLine = new this.paper.Path.Line({
-            from: [this.gridCellWidth, tweenLineVerticalPosition],
-            to: [nextTweenPosition, tweenLineVerticalPosition],
+            from: [this.gridCellWidth - overlapAmount, tweenLineVerticalPosition],
+            to: [nextTweenPosition + overlapAmount, tweenLineVerticalPosition],
             strokeColor: Wick.GUIElement.TWEEN_ARROW_STROKE_COLOR,
             strokeWidth: Wick.GUIElement.TWEEN_ARROW_STROKE_WIDTH,
+            strokeCap: 'round', 
         });
         arrowLine.locked = true;
 
