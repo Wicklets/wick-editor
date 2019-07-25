@@ -25,6 +25,10 @@ Wick.GUIElement.Playhead = class extends Wick.GUIElement {
         super(model);
     }
 
+    get cursor () {
+        return 'move';
+    }
+
     get x () {
         return Wick.GUIElement.PLAYHEAD_MARGIN;
     }
@@ -38,7 +42,7 @@ Wick.GUIElement.Playhead = class extends Wick.GUIElement {
     }
 
     get height () {
-        return this.width;
+        return this.width *.9;
     }
 
     /**
@@ -62,6 +66,7 @@ Wick.GUIElement.Playhead = class extends Wick.GUIElement {
             strokeJoin: 'round',
             radius: 4,
         });
+
         this.item.addChild(playheadTop);
 
         var playheadBody = new this.paper.Path.Rectangle({
@@ -69,9 +74,31 @@ Wick.GUIElement.Playhead = class extends Wick.GUIElement {
             to: new this.paper.Point(this.gridCellWidth/2 + Wick.GUIElement.PLAYHEAD_STROKE_WIDTH/2, paper.view.element.height),
             fillColor: Wick.GUIElement.PLAYHEAD_FILL_COLOR,
         });
+
         this.item.locked = true;
         this.item.addChild(playheadBody);
 
         this.item.position.x = (this.model.playheadPosition-1) * this.gridCellWidth;
+        
+        
+        // Add gnurl handles.
+        var handleMargin = 3; 
+        var handleSpacing = 4;
+
+        var handleLeft = this.x + handleMargin;
+        var handleRight = handleLeft + this.width - handleMargin*2;
+
+        for (var i=0; i<3; i++) {
+            var playheadGrabHandle = new this.paper.Path({
+                segments: [
+                  [handleLeft, this.y+handleSpacing*(i + 1)],
+                  [handleRight, this.y+handleSpacing*(i + 1)],
+                ],
+                strokeWidth: 2,
+                strokeColor: Wick.GUIElement.PLAYHEAD_STROKE_COLOR,
+                strokeCap: 'round',
+            });
+            this.item.addChild(playheadGrabHandle);
+        }
     }
 }
