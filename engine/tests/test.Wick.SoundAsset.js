@@ -1,9 +1,25 @@
 describe('Wick.SoundAsset', function() {
     describe('#constructor', function () {
-        it('should instantiate correctly', function () {
+        it('should instantiate correctly (wav)', function () {
             var sound = new Wick.SoundAsset({
                 filename: 'test.wav',
                 src: TestUtils.TEST_SOUND_SRC_WAV
+            });
+            expect(sound.classname).to.equal('SoundAsset');
+        });
+
+        it('should instantiate correctly (mp3)', function () {
+            var sound = new Wick.SoundAsset({
+                filename: 'test.mp3',
+                src: TestUtils.TEST_SOUND_SRC_MP3
+            });
+            expect(sound.classname).to.equal('SoundAsset');
+        });
+
+        it('should instantiate correctly (ogg)', function () {
+            var sound = new Wick.SoundAsset({
+                filename: 'test.ogg',
+                src: TestUtils.TEST_SOUND_SRC_OGG
             });
             expect(sound.classname).to.equal('SoundAsset');
         });

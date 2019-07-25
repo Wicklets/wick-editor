@@ -258,7 +258,7 @@ describe('Wick.Project', function() {
     });
 
     describe('#importFile', function () {
-        it('should import sounds correctly', function(done) {
+        it('should import sounds correctly (wav)', function(done) {
             var parts = [ TestUtils.dataURItoBlob(TestUtils.TEST_SOUND_SRC_WAV) ];
             var file = new File(parts, 'test.wav', {
                 lastModified: new Date(0),
@@ -271,6 +271,57 @@ describe('Wick.Project', function() {
                 expect(project.getAssets().length).to.equal(1);
                 expect(project.getAssets()[0]).to.equal(asset);
                 expect(asset.src).to.equal(TestUtils.TEST_SOUND_SRC_WAV);
+                done();
+            });
+        });
+
+        it('should import sounds correctly (mp3)', function(done) {
+            var parts = [ TestUtils.dataURItoBlob(TestUtils.TEST_SOUND_SRC_MP3) ];
+            var file = new File(parts, 'test.mp3', {
+                lastModified: new Date(0),
+                type: "audio/mp3"
+            });
+
+            var project = new Wick.Project();
+            project.importFile(file, function (asset) {
+                expect(asset instanceof Wick.SoundAsset).to.equal(true);
+                expect(project.getAssets().length).to.equal(1);
+                expect(project.getAssets()[0]).to.equal(asset);
+                expect(asset.src).to.equal(TestUtils.TEST_SOUND_SRC_MP3);
+                done();
+            });
+        });
+
+        it('should import sounds correctly (ogg)', function(done) {
+            var parts = [ TestUtils.dataURItoBlob(TestUtils.TEST_SOUND_SRC_OGG) ];
+            var file = new File(parts, 'test.ogg', {
+                lastModified: new Date(0),
+                type: "audio/ogg"
+            });
+
+            var project = new Wick.Project();
+            project.importFile(file, function (asset) {
+                expect(asset instanceof Wick.SoundAsset).to.equal(true);
+                expect(project.getAssets().length).to.equal(1);
+                expect(project.getAssets()[0]).to.equal(asset);
+                expect(asset.src).to.equal(TestUtils.TEST_SOUND_SRC_OGG);
+                done();
+            });
+        });
+
+        it('should import sounds correctly (ogg) (firefox video/ogg bug)', function(done) {
+            var parts = [ TestUtils.dataURItoBlob(TestUtils.TEST_SOUND_SRC_VIDEO_OGG) ];
+            var file = new File(parts, 'test.ogg', {
+                lastModified: new Date(0),
+                type: "video/ogg"
+            });
+
+            var project = new Wick.Project();
+            project.importFile(file, function (asset) {
+                expect(asset instanceof Wick.SoundAsset).to.equal(true);
+                expect(project.getAssets().length).to.equal(1);
+                expect(project.getAssets()[0]).to.equal(asset);
+                expect(asset.src).to.equal(TestUtils.TEST_SOUND_SRC_VIDEO_OGG);
                 done();
             });
         });

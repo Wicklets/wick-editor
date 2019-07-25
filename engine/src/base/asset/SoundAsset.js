@@ -151,8 +151,12 @@ Wick.SoundAsset = class extends Wick.FileAsset {
     get _howl () {
         // Lazily create howler instance
         if(!this._howlInstance) {
+            // This fixes OGGs in firefox, as video/ogg is sometimes set as the MIMEType, which Howl doesn't like.
+            var srcFixed = this.src;
+            srcFixed = this.src.replace('video/ogg', 'audio/ogg');
+
             this._howlInstance = new Howl({
-                src: [this.src]
+                src: [srcFixed]
             });
         }
         return this._howlInstance;
