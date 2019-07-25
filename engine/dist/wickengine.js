@@ -69,7 +69,8 @@ Wick.Clipboard = class {
 
   constructor() {}
   /**
-   *
+   * The data of copied objects, stored as JSON.
+   * @type {Object}
    */
 
 
@@ -674,175 +675,6 @@ Wick.Transformation = class {
 
   copy() {
     return new Wick.Transformation(this.values);
-  }
-
-};
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-
-/**
- * Utility class for creating and parsing wick files.
- */
-Wick.WickFile = class {
-  /**
-   * Create a project from a wick file.
-   * @param {File} wickFile - Wick file containing project data.
-   * @param {function} callback - Function called when the project is created.
-   */
-  static fromWickFile(wickFile, callback) {
-    var zip = new JSZip();
-    zip.loadAsync(wickFile).then(function (contents) {
-      contents.files['project.json'].async('text').then(function (projectJSON) {
-        var projectData = JSON.parse(projectJSON);
-
-        if (!projectData.objects) {
-          // No metadata! This is a pre 1.0.9a project. Convert it.
-          console.log('Wick.WickFile: Converting old project format.');
-          projectData = Wick.WickFile.Alpha.convertJsonProject(projectData);
-        }
-
-        projectData.assets = [];
-
-        for (var uuid in projectData.objects) {
-          var data = projectData.objects[uuid];
-          var object = Wick.Base.fromData(data);
-          Wick.ObjectCache.addObject(object);
-        }
-
-        var project = Wick.Base.fromData(projectData.project);
-        Wick.ObjectCache.addObject(project);
-        var loadedAssetCount = 0; // Immediately end if the project has no assets.
-
-        if (project.getAssets().length === 0) {
-          //Wick.ObjectCache.deserialize(projectData.objects)
-          //var project = Wick.Base.fromData(projectData.project);
-          callback(project);
-        } else {
-          project.getAssets().forEach(assetData => {
-            var assetFile = contents.files['assets/' + assetData.uuid + '.' + assetData.fileExtension];
-            assetFile.async('base64').then(assetFileData => {
-              var assetSrc = 'data:' + assetData.MIMEType + ';base64,' + assetFileData;
-              Wick.FileCache.addFile(assetSrc, assetData.uuid);
-            }).catch(e => {
-              console.log('Error loading asset file.');
-              console.log(e);
-              callback(null);
-            }).finally(() => {
-              assetData.load(() => {
-                loadedAssetCount++;
-
-                if (loadedAssetCount === project.getAssets().length) {
-                  callback(project);
-                }
-              });
-            });
-          });
-        }
-      });
-    }).catch(function (e) {
-      console.log('Error loading project zip.');
-      console.log(e);
-      callback(null);
-    });
-  }
-  /**
-   * Create a wick file from the project.
-   * @param {Wick.Project} project - the project to create a wick file from
-   * @param {function} callback - Function called when the file is created. Contains the file as a parameter.
-   */
-
-
-  static toWickFile(project, callback) {
-    var zip = new JSZip(); // Create assets folder
-
-    var assetsFolder = zip.folder("assets"); // Populate assets folder with files
-
-    project.getAssets().filter(asset => {
-      return asset instanceof Wick.ImageAsset || asset instanceof Wick.SoundAsset || asset instanceof Wick.FontAsset;
-    }).forEach(asset => {
-      // Create file from asset dataurl, add it to assets folder
-      var fileExtension = asset.MIMEType.split('/')[1];
-      var filename = asset.uuid;
-      var data = asset.src.split(',')[1];
-      assetsFolder.file(filename + '.' + fileExtension, data, {
-        base64: true
-      });
-    });
-    var objectCacheSerialized = {};
-    Wick.ObjectCache.getActiveObjects(project).forEach(object => {
-      objectCacheSerialized[object.uuid] = object.serialize();
-    });
-    var projectSerialized = project.serialize();
-
-    for (var uuid in objectCacheSerialized) {
-      if (objectCacheSerialized[uuid].classname === 'Project') {
-        delete objectCacheSerialized[uuid];
-      }
-    } // Remove some extra data that we don't actually want to save
-    // Reset zoom/pan
-
-
-    projectSerialized.zoom = 1;
-    projectSerialized.pan.x = 0;
-    projectSerialized.pan.y = 0; // Clear selection
-
-    for (var uuid in objectCacheSerialized) {
-      var object = objectCacheSerialized[uuid];
-
-      if (object.classname === 'Selection') {
-        object.selectedObjects = [];
-      }
-    } // Set focus to root
-
-
-    for (var uuid in objectCacheSerialized) {
-      var object = objectCacheSerialized[uuid];
-
-      if (projectSerialized.children.indexOf(uuid) !== -1 && object.classname === 'Clip') {
-        projectSerialized.focus = uuid;
-      }
-    } // Reset all playhead positions
-
-
-    for (var uuid in objectCacheSerialized) {
-      var object = objectCacheSerialized[uuid];
-
-      if (object.classname === 'Timeline') {
-        object.playheadPosition = 1;
-      }
-    } // Add project json to root directory of zip file
-
-
-    var projectData = {
-      project: projectSerialized,
-      objects: objectCacheSerialized
-    };
-    zip.file("project.json", JSON.stringify(projectData, null, 2));
-    zip.generateAsync({
-      type: "blob",
-      compression: "DEFLATE",
-      compressionOptions: {
-        level: 9
-      }
-    }).then(callback);
   }
 
 };
@@ -17569,6 +17401,175 @@ return paper;
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
+* Copyright 2019 WICKLETS LLC
+*
+* This file is part of Wick Engine.
+*
+* Wick Engine is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Wick Engine is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
+/**
+ * Utility class for creating and parsing wick files.
+ */
+Wick.WickFile = class {
+  /**
+   * Create a project from a wick file.
+   * @param {File} wickFile - Wick file containing project data.
+   * @param {function} callback - Function called when the project is created.
+   */
+  static fromWickFile(wickFile, callback) {
+    var zip = new JSZip();
+    zip.loadAsync(wickFile).then(function (contents) {
+      contents.files['project.json'].async('text').then(function (projectJSON) {
+        var projectData = JSON.parse(projectJSON);
+
+        if (!projectData.objects) {
+          // No metadata! This is a pre 1.0.9a project. Convert it.
+          console.log('Wick.WickFile: Converting old project format.');
+          projectData = Wick.WickFile.Alpha.convertJsonProject(projectData);
+        }
+
+        projectData.assets = [];
+
+        for (var uuid in projectData.objects) {
+          var data = projectData.objects[uuid];
+          var object = Wick.Base.fromData(data);
+          Wick.ObjectCache.addObject(object);
+        }
+
+        var project = Wick.Base.fromData(projectData.project);
+        Wick.ObjectCache.addObject(project);
+        var loadedAssetCount = 0; // Immediately end if the project has no assets.
+
+        if (project.getAssets().length === 0) {
+          //Wick.ObjectCache.deserialize(projectData.objects)
+          //var project = Wick.Base.fromData(projectData.project);
+          callback(project);
+        } else {
+          project.getAssets().forEach(assetData => {
+            var assetFile = contents.files['assets/' + assetData.uuid + '.' + assetData.fileExtension];
+            assetFile.async('base64').then(assetFileData => {
+              var assetSrc = 'data:' + assetData.MIMEType + ';base64,' + assetFileData;
+              Wick.FileCache.addFile(assetSrc, assetData.uuid);
+            }).catch(e => {
+              console.log('Error loading asset file.');
+              console.log(e);
+              callback(null);
+            }).finally(() => {
+              assetData.load(() => {
+                loadedAssetCount++;
+
+                if (loadedAssetCount === project.getAssets().length) {
+                  callback(project);
+                }
+              });
+            });
+          });
+        }
+      });
+    }).catch(function (e) {
+      console.log('Error loading project zip.');
+      console.log(e);
+      callback(null);
+    });
+  }
+  /**
+   * Create a wick file from the project.
+   * @param {Wick.Project} project - the project to create a wick file from
+   * @param {function} callback - Function called when the file is created. Contains the file as a parameter.
+   */
+
+
+  static toWickFile(project, callback) {
+    var zip = new JSZip(); // Create assets folder
+
+    var assetsFolder = zip.folder("assets"); // Populate assets folder with files
+
+    project.getAssets().filter(asset => {
+      return asset instanceof Wick.ImageAsset || asset instanceof Wick.SoundAsset || asset instanceof Wick.FontAsset;
+    }).forEach(asset => {
+      // Create file from asset dataurl, add it to assets folder
+      var fileExtension = asset.MIMEType.split('/')[1];
+      var filename = asset.uuid;
+      var data = asset.src.split(',')[1];
+      assetsFolder.file(filename + '.' + fileExtension, data, {
+        base64: true
+      });
+    });
+    var objectCacheSerialized = {};
+    Wick.ObjectCache.getActiveObjects(project).forEach(object => {
+      objectCacheSerialized[object.uuid] = object.serialize();
+    });
+    var projectSerialized = project.serialize();
+
+    for (var uuid in objectCacheSerialized) {
+      if (objectCacheSerialized[uuid].classname === 'Project') {
+        delete objectCacheSerialized[uuid];
+      }
+    } // Remove some extra data that we don't actually want to save
+    // Reset zoom/pan
+
+
+    projectSerialized.zoom = 1;
+    projectSerialized.pan.x = 0;
+    projectSerialized.pan.y = 0; // Clear selection
+
+    for (var uuid in objectCacheSerialized) {
+      var object = objectCacheSerialized[uuid];
+
+      if (object.classname === 'Selection') {
+        object.selectedObjects = [];
+      }
+    } // Set focus to root
+
+
+    for (var uuid in objectCacheSerialized) {
+      var object = objectCacheSerialized[uuid];
+
+      if (projectSerialized.children.indexOf(uuid) !== -1 && object.classname === 'Clip') {
+        projectSerialized.focus = uuid;
+      }
+    } // Reset all playhead positions
+
+
+    for (var uuid in objectCacheSerialized) {
+      var object = objectCacheSerialized[uuid];
+
+      if (object.classname === 'Timeline') {
+        object.playheadPosition = 1;
+      }
+    } // Add project json to root directory of zip file
+
+
+    var projectData = {
+      project: projectSerialized,
+      objects: objectCacheSerialized
+    };
+    zip.file("project.json", JSON.stringify(projectData, null, 2));
+    zip.generateAsync({
+      type: "blob",
+      compression: "DEFLATE",
+      compressionOptions: {
+        level: 9
+      }
+    }).then(callback);
+  }
+
+};
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
 * Utility class to convert Pre 1.0.9a projects into the most recent format
 */
 Wick.WickFile.Alpha = class {
@@ -18875,6 +18876,238 @@ Wick.ToolSettings = class {
   return SAT;
 }));
 
+/*!
+ * atomic v4.2.1: A tiny, Promise-based vanilla JS Ajax/HTTP plugin with great browser support.
+ * (c) 2018 Chris Ferdinandi
+ * MIT License
+ * https://github.com/cferdinandi/atomic
+ */
+
+(function (root, factory) {
+	if (typeof define === 'function' && define.amd) {
+		define([], (function () {
+			return factory(root);
+		}));
+	} else if (typeof exports === 'object') {
+		module.exports = factory(root);
+	} else {
+		window.atomic = factory(root);
+	}
+})(typeof global !== 'undefined' ? global : typeof window !== 'undefined' ? window : this, (function (window) {
+
+	'use strict';
+
+	//
+	// Variables
+	//
+
+	var settings;
+
+	// Default settings
+	var defaults = {
+		method: 'GET',
+		username: null,
+		password: null,
+		data: {},
+		headers: {
+			'Content-type': 'application/x-www-form-urlencoded'
+		},
+		responseType: 'text',
+		timeout: null,
+		withCredentials: false
+	};
+
+
+	//
+	// Methods
+	//
+
+	/**
+	 * Feature test
+	 * @return {Boolean} If true, required methods and APIs are supported
+	 */
+	var supports = function () {
+		return 'XMLHttpRequest' in window && 'JSON' in window && 'Promise' in window;
+	};
+
+	/**
+	 * Merge two or more objects together.
+	 * @param   {Object}   objects  The objects to merge together
+	 * @returns {Object}            Merged values of defaults and options
+	 */
+	var extend = function () {
+
+		// Variables
+		var extended = {};
+
+		// Merge the object into the extended object
+		var merge = function (obj) {
+			for (var prop in obj) {
+				if (obj.hasOwnProperty(prop)) {
+					if (Object.prototype.toString.call(obj[prop]) === '[object Object]') {
+						extended[prop] = extend(extended[prop], obj[prop]);
+					} else {
+						extended[prop] = obj[prop];
+					}
+				}
+			}
+		};
+
+		// Loop through each object and conduct a merge
+		for (var i = 0; i < arguments.length; i++) {
+			var obj = arguments[i];
+			merge(obj);
+		}
+
+		return extended;
+
+	};
+
+	/**
+	 * Parse text response into JSON
+	 * @private
+	 * @param  {String} req The response
+	 * @return {Array}      A JSON Object of the responseText, plus the orginal response
+	 */
+	var parse = function (req) {
+		var result;
+		if (settings.responseType !== 'text' && settings.responseType !== '') {
+			return {data: req.response, xhr: req};
+		}
+		try {
+			result = JSON.parse(req.responseText);
+		} catch (e) {
+			result = req.responseText;
+		}
+		return {data: result, xhr: req};
+	};
+
+	/**
+	 * Convert an object into a query string
+	 * @link   https://blog.garstasio.com/you-dont-need-jquery/ajax/
+	 * @param  {Object|Array|String} obj The object
+	 * @return {String}                  The query string
+	 */
+	var param = function (obj) {
+
+		// If already a string, or if a FormData object, return it as-is
+		if (typeof (obj) === 'string' || Object.prototype.toString.call(obj) === '[object FormData]') return obj;
+
+		// If the content-type is set to JSON, stringify the JSON object
+		if (/application\/json/i.test(settings.headers['Content-type']) || Object.prototype.toString.call(obj) === '[object Array]') return JSON.stringify(obj);
+
+		// Otherwise, convert object to a serialized string
+		var encoded = [];
+		for (var prop in obj) {
+			if (obj.hasOwnProperty(prop)) {
+				encoded.push(encodeURIComponent(prop) + '=' + encodeURIComponent(obj[prop]));
+			}
+		}
+		return encoded.join('&');
+
+	};
+
+	/**
+	 * Make an XHR request, returned as a Promise
+	 * @param  {String} url The request URL
+	 * @return {Promise}    The XHR request Promise
+	 */
+	var makeRequest = function (url) {
+
+		// Create the XHR request
+		var request = new XMLHttpRequest();
+
+		// Setup the Promise
+		var xhrPromise = new Promise(function (resolve, reject) {
+
+			// Setup our listener to process compeleted requests
+			request.onreadystatechange = function () {
+
+				// Only run if the request is complete
+				if (request.readyState !== 4) return;
+
+				// Process the response
+				if (request.status >= 200 && request.status < 300) {
+					// If successful
+					resolve(parse(request));
+				} else {
+					// If failed
+					reject({
+						status: request.status,
+						statusText: request.statusText
+					});
+				}
+
+			};
+
+			// Setup our HTTP request
+			request.open(settings.method, url, true, settings.username, settings.password);
+			request.responseType = settings.responseType;
+
+			// Add headers
+			for (var header in settings.headers) {
+				if (settings.headers.hasOwnProperty(header)) {
+					request.setRequestHeader(header, settings.headers[header]);
+				}
+			}
+
+			// Set timeout
+			if (settings.timeout) {
+				request.timeout = settings.timeout;
+				request.ontimeout = function (e) {
+					reject({
+						status: 408,
+						statusText: 'Request timeout'
+					});
+				};
+			}
+
+			// Add withCredentials
+			if (settings.withCredentials) {
+				request.withCredentials = true;
+			}
+
+			// Send the request
+			request.send(param(settings.data));
+
+		});
+
+		// Cancel the XHR request
+		xhrPromise.cancel = function () {
+			request.abort();
+		};
+
+		// Return the request as a Promise
+		return xhrPromise;
+
+	};
+
+	/**
+	 * Instatiate Atomic
+	 * @param {String} url      The request URL
+	 * @param {Object} options  A set of options for the request [optional]
+	 */
+	var Atomic = function (url, options) {
+
+		// Check browser support
+		if (!supports()) throw 'Atomic: This browser does not support the methods used in this plugin.';
+
+		// Merge options into defaults
+		settings = extend(defaults, options || {});
+
+		// Make request
+		return makeRequest(url);
+
+	};
+
+
+	//
+	// Public Methods
+	//
+
+	return Atomic;
+
+}));
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
@@ -19346,6 +19579,79 @@ Wick.Base = class {
   }
 
 };
+/*
+ * base64-arraybuffer
+ * https://github.com/niklasvh/base64-arraybuffer
+ *
+ * Copyright (c) 2012 Niklas von Hertzen
+ * Licensed under the MIT license.
+ */
+var Base64ArrayBuffer = (function () {
+  "use strict";
+
+  var base64ArrayBuffer = { };
+
+  var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
+  // Use a lookup table to find the index.
+  var lookup = new Uint8Array(256);
+  for (var i = 0; i < chars.length; i++) {
+    lookup[chars.charCodeAt(i)] = i;
+  }
+
+  base64ArrayBuffer.encode = function(arraybuffer) {
+    var bytes = new Uint8Array(arraybuffer),
+    i, len = bytes.length, base64 = "";
+
+    for (i = 0; i < len; i+=3) {
+      base64 += chars[bytes[i] >> 2];
+      base64 += chars[((bytes[i] & 3) << 4) | (bytes[i + 1] >> 4)];
+      base64 += chars[((bytes[i + 1] & 15) << 2) | (bytes[i + 2] >> 6)];
+      base64 += chars[bytes[i + 2] & 63];
+    }
+
+    if ((len % 3) === 2) {
+      base64 = base64.substring(0, base64.length - 1) + "=";
+    } else if (len % 3 === 1) {
+      base64 = base64.substring(0, base64.length - 2) + "==";
+    }
+
+    return base64;
+  };
+
+  base64ArrayBuffer.decode =  function(base64) {
+    var bufferLength = base64.length * 0.75,
+    len = base64.length, i, p = 0,
+    encoded1, encoded2, encoded3, encoded4;
+
+    if (base64[base64.length - 1] === "=") {
+      bufferLength--;
+      if (base64[base64.length - 2] === "=") {
+        bufferLength--;
+      }
+    }
+
+    var arraybuffer = new ArrayBuffer(bufferLength),
+    bytes = new Uint8Array(arraybuffer);
+
+    for (i = 0; i < len; i+=4) {
+      encoded1 = lookup[base64.charCodeAt(i)];
+      encoded2 = lookup[base64.charCodeAt(i+1)];
+      encoded3 = lookup[base64.charCodeAt(i+2)];
+      encoded4 = lookup[base64.charCodeAt(i+3)];
+
+      bytes[p++] = (encoded1 << 2) | (encoded2 >> 4);
+      bytes[p++] = ((encoded2 & 15) << 4) | (encoded3 >> 2);
+      bytes[p++] = ((encoded3 & 3) << 6) | (encoded4 & 63);
+    }
+
+    return arraybuffer;
+  };
+
+  return base64ArrayBuffer;
+
+})();
+
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
@@ -19532,311 +19838,10 @@ Wick.Layer = class extends Wick.Base {
   }
 
 };
-/*!
- * atomic v4.2.1: A tiny, Promise-based vanilla JS Ajax/HTTP plugin with great browser support.
- * (c) 2018 Chris Ferdinandi
- * MIT License
- * https://github.com/cferdinandi/atomic
- */
-
-(function (root, factory) {
-	if (typeof define === 'function' && define.amd) {
-		define([], (function () {
-			return factory(root);
-		}));
-	} else if (typeof exports === 'object') {
-		module.exports = factory(root);
-	} else {
-		window.atomic = factory(root);
-	}
-})(typeof global !== 'undefined' ? global : typeof window !== 'undefined' ? window : this, (function (window) {
-
-	'use strict';
-
-	//
-	// Variables
-	//
-
-	var settings;
-
-	// Default settings
-	var defaults = {
-		method: 'GET',
-		username: null,
-		password: null,
-		data: {},
-		headers: {
-			'Content-type': 'application/x-www-form-urlencoded'
-		},
-		responseType: 'text',
-		timeout: null,
-		withCredentials: false
-	};
-
-
-	//
-	// Methods
-	//
-
-	/**
-	 * Feature test
-	 * @return {Boolean} If true, required methods and APIs are supported
-	 */
-	var supports = function () {
-		return 'XMLHttpRequest' in window && 'JSON' in window && 'Promise' in window;
-	};
-
-	/**
-	 * Merge two or more objects together.
-	 * @param   {Object}   objects  The objects to merge together
-	 * @returns {Object}            Merged values of defaults and options
-	 */
-	var extend = function () {
-
-		// Variables
-		var extended = {};
-
-		// Merge the object into the extended object
-		var merge = function (obj) {
-			for (var prop in obj) {
-				if (obj.hasOwnProperty(prop)) {
-					if (Object.prototype.toString.call(obj[prop]) === '[object Object]') {
-						extended[prop] = extend(extended[prop], obj[prop]);
-					} else {
-						extended[prop] = obj[prop];
-					}
-				}
-			}
-		};
-
-		// Loop through each object and conduct a merge
-		for (var i = 0; i < arguments.length; i++) {
-			var obj = arguments[i];
-			merge(obj);
-		}
-
-		return extended;
-
-	};
-
-	/**
-	 * Parse text response into JSON
-	 * @private
-	 * @param  {String} req The response
-	 * @return {Array}      A JSON Object of the responseText, plus the orginal response
-	 */
-	var parse = function (req) {
-		var result;
-		if (settings.responseType !== 'text' && settings.responseType !== '') {
-			return {data: req.response, xhr: req};
-		}
-		try {
-			result = JSON.parse(req.responseText);
-		} catch (e) {
-			result = req.responseText;
-		}
-		return {data: result, xhr: req};
-	};
-
-	/**
-	 * Convert an object into a query string
-	 * @link   https://blog.garstasio.com/you-dont-need-jquery/ajax/
-	 * @param  {Object|Array|String} obj The object
-	 * @return {String}                  The query string
-	 */
-	var param = function (obj) {
-
-		// If already a string, or if a FormData object, return it as-is
-		if (typeof (obj) === 'string' || Object.prototype.toString.call(obj) === '[object FormData]') return obj;
-
-		// If the content-type is set to JSON, stringify the JSON object
-		if (/application\/json/i.test(settings.headers['Content-type']) || Object.prototype.toString.call(obj) === '[object Array]') return JSON.stringify(obj);
-
-		// Otherwise, convert object to a serialized string
-		var encoded = [];
-		for (var prop in obj) {
-			if (obj.hasOwnProperty(prop)) {
-				encoded.push(encodeURIComponent(prop) + '=' + encodeURIComponent(obj[prop]));
-			}
-		}
-		return encoded.join('&');
-
-	};
-
-	/**
-	 * Make an XHR request, returned as a Promise
-	 * @param  {String} url The request URL
-	 * @return {Promise}    The XHR request Promise
-	 */
-	var makeRequest = function (url) {
-
-		// Create the XHR request
-		var request = new XMLHttpRequest();
-
-		// Setup the Promise
-		var xhrPromise = new Promise(function (resolve, reject) {
-
-			// Setup our listener to process compeleted requests
-			request.onreadystatechange = function () {
-
-				// Only run if the request is complete
-				if (request.readyState !== 4) return;
-
-				// Process the response
-				if (request.status >= 200 && request.status < 300) {
-					// If successful
-					resolve(parse(request));
-				} else {
-					// If failed
-					reject({
-						status: request.status,
-						statusText: request.statusText
-					});
-				}
-
-			};
-
-			// Setup our HTTP request
-			request.open(settings.method, url, true, settings.username, settings.password);
-			request.responseType = settings.responseType;
-
-			// Add headers
-			for (var header in settings.headers) {
-				if (settings.headers.hasOwnProperty(header)) {
-					request.setRequestHeader(header, settings.headers[header]);
-				}
-			}
-
-			// Set timeout
-			if (settings.timeout) {
-				request.timeout = settings.timeout;
-				request.ontimeout = function (e) {
-					reject({
-						status: 408,
-						statusText: 'Request timeout'
-					});
-				};
-			}
-
-			// Add withCredentials
-			if (settings.withCredentials) {
-				request.withCredentials = true;
-			}
-
-			// Send the request
-			request.send(param(settings.data));
-
-		});
-
-		// Cancel the XHR request
-		xhrPromise.cancel = function () {
-			request.abort();
-		};
-
-		// Return the request as a Promise
-		return xhrPromise;
-
-	};
-
-	/**
-	 * Instatiate Atomic
-	 * @param {String} url      The request URL
-	 * @param {Object} options  A set of options for the request [optional]
-	 */
-	var Atomic = function (url, options) {
-
-		// Check browser support
-		if (!supports()) throw 'Atomic: This browser does not support the methods used in this plugin.';
-
-		// Merge options into defaults
-		settings = extend(defaults, options || {});
-
-		// Make request
-		return makeRequest(url);
-
-	};
-
-
-	//
-	// Public Methods
-	//
-
-	return Atomic;
-
-}));
-/*
- * base64-arraybuffer
- * https://github.com/niklasvh/base64-arraybuffer
- *
- * Copyright (c) 2012 Niklas von Hertzen
- * Licensed under the MIT license.
- */
-var Base64ArrayBuffer = (function () {
-  "use strict";
-
-  var base64ArrayBuffer = { };
-
-  var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-
-  // Use a lookup table to find the index.
-  var lookup = new Uint8Array(256);
-  for (var i = 0; i < chars.length; i++) {
-    lookup[chars.charCodeAt(i)] = i;
-  }
-
-  base64ArrayBuffer.encode = function(arraybuffer) {
-    var bytes = new Uint8Array(arraybuffer),
-    i, len = bytes.length, base64 = "";
-
-    for (i = 0; i < len; i+=3) {
-      base64 += chars[bytes[i] >> 2];
-      base64 += chars[((bytes[i] & 3) << 4) | (bytes[i + 1] >> 4)];
-      base64 += chars[((bytes[i + 1] & 15) << 2) | (bytes[i + 2] >> 6)];
-      base64 += chars[bytes[i + 2] & 63];
-    }
-
-    if ((len % 3) === 2) {
-      base64 = base64.substring(0, base64.length - 1) + "=";
-    } else if (len % 3 === 1) {
-      base64 = base64.substring(0, base64.length - 2) + "==";
-    }
-
-    return base64;
-  };
-
-  base64ArrayBuffer.decode =  function(base64) {
-    var bufferLength = base64.length * 0.75,
-    len = base64.length, i, p = 0,
-    encoded1, encoded2, encoded3, encoded4;
-
-    if (base64[base64.length - 1] === "=") {
-      bufferLength--;
-      if (base64[base64.length - 2] === "=") {
-        bufferLength--;
-      }
-    }
-
-    var arraybuffer = new ArrayBuffer(bufferLength),
-    bytes = new Uint8Array(arraybuffer);
-
-    for (i = 0; i < len; i+=4) {
-      encoded1 = lookup[base64.charCodeAt(i)];
-      encoded2 = lookup[base64.charCodeAt(i+1)];
-      encoded3 = lookup[base64.charCodeAt(i+2)];
-      encoded4 = lookup[base64.charCodeAt(i+3)];
-
-      bytes[p++] = (encoded1 << 2) | (encoded2 >> 4);
-      bytes[p++] = ((encoded2 & 15) << 4) | (encoded3 >> 2);
-      bytes[p++] = ((encoded3 & 3) << 6) | (encoded4 & 63);
-    }
-
-    return arraybuffer;
-  };
-
-  return base64ArrayBuffer;
-
-})();
-
+// https://stackoverflow.com/questions/14224535/scaling-between-two-number-ranges
+function convertRange( value, r1, r2 ) { 
+    return ( value - r1[ 0 ] ) * ( r2[ 1 ] - r2[ 0 ] ) / ( r1[ 1 ] - r1[ 0 ] ) + r2[ 0 ];
+}
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
@@ -20944,10 +20949,6 @@ Wick.Project = class extends Wick.Base {
   }
 
 };
-// https://stackoverflow.com/questions/14224535/scaling-between-two-number-ranges
-function convertRange( value, r1, r2 ) { 
-    return ( value - r1[ 0 ] ) * ( r2[ 1 ] - r2[ 0 ] ) / ( r1[ 1 ] - r1[ 0 ] ) + r2[ 0 ];
-}
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
@@ -31700,6 +31701,356 @@ Wick.FontAsset = class extends Wick.FileAsset {
   }
 
 };
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* Copyright 2019 WICKLETS LLC
+*
+* This file is part of Wick Engine.
+*
+* Wick Engine is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Wick Engine is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+*/
+GlobalAPI = class {
+  /**
+   * Defines all api members such as functions and properties.
+   * @type {string[]}
+   */
+  static get apiMemberNames() {
+    return ['stop', 'play', 'gotoAndStop', 'gotoAndPlay', 'gotoNextFrame', 'gotoPrevFrame', // These are currently disabled, they are very slow for some reason.
+    // They are currently hacked in inside Tickable._runFunction
+    //'project','root','parent','parentObject',
+    'isMouseDown', 'mouseX', 'mouseY', 'mouseMoveX', 'mouseMoveY', 'key', 'keys', 'isKeyDown', 'keyIsDown', 'isKeyJustPressed', 'keyIsJustPressed', 'random', 'playSound', 'stopAllSounds', 'onEvent'];
+  }
+  /**
+   * @param {object} scriptOwner The tickable object which owns the script being evaluated.
+   */
+
+
+  constructor(scriptOwner) {
+    this.scriptOwner = scriptOwner;
+  }
+  /**
+   * Returns a list of api members bound to the script owner.
+   * @returns {object[]} Array of functions, properties, and api members.
+   */
+
+
+  get apiMembers() {
+    var members = [];
+    GlobalAPI.apiMemberNames.forEach(name => {
+      var fn = this[name];
+
+      if (fn instanceof Function) {
+        fn = fn.bind(this);
+      }
+
+      members.push({
+        name: name,
+        fn: fn
+      });
+    });
+    return members;
+  }
+  /**
+   * Stops the timeline of the object's parent clip.
+   */
+
+
+  stop() {
+    this.scriptOwner.parentClip.stop();
+  }
+  /**
+   * Plays the timeline of the object's parent clip.
+   */
+
+
+  play() {
+    this.scriptOwner.parentClip.play();
+  }
+  /**
+   * Moves the plahead of the parent clip to a frame and stops the timeline of that parent clip.
+   * @param {string | number} frame Frame name or number to move playhead to.
+   */
+
+
+  gotoAndStop(frame) {
+    this.scriptOwner.parentClip.gotoAndStop(frame);
+  }
+  /**
+   * Moves the plahead of the parent clip to a frame and plays the timeline of that parent clip.
+   * @param {string | number} frame Frame name or number to move playhead to.
+   */
+
+
+  gotoAndPlay(frame) {
+    this.scriptOwner.parentClip.gotoAndPlay(frame);
+  }
+  /**
+   * Moves the playhead of the parent clip of the object to the next frame.
+   */
+
+
+  gotoNextFrame() {
+    this.scriptOwner.parentClip.gotoNextFrame();
+  }
+  /**
+   * Moves the playhead of the parent clip of this object to the previous frame.
+   */
+
+
+  gotoPrevFrame() {
+    this.scriptOwner.parentClip.gotoPrevFrame();
+  }
+  /**
+   * Returns an object representing the project with properties such as width, height, framerate, background color, and name.
+   * @returns {object} Project object.
+   */
+
+
+  get project() {
+    var project = this.scriptOwner.project && this.scriptOwner.project.root;
+
+    if (project) {
+      // Attach some aliases to the project settings
+      project.width = this.scriptOwner.project.width;
+      project.height = this.scriptOwner.project.height;
+      project.framerate = this.scriptOwner.project.framerate;
+      project.backgroundColor = this.scriptOwner.project.backgroundColor;
+      project.name = this.scriptOwner.project.name;
+    }
+
+    return project;
+  }
+  /**
+   * @deprecated
+   * Legacy item which returns the project. Use 'project' instead.
+   */
+
+
+  get root() {
+    return this.project;
+  }
+  /**
+   * Returns a reference to the current object's parent.
+   * @returns Current object's parent.
+   */
+
+
+  get parent() {
+    return this.scriptOwner.parentClip;
+  }
+  /**
+   * @deprecated
+   * Legacy item which returns the parent clip. Use 'parent' instead.
+   */
+
+
+  get parentObject() {
+    return this.scriptOwner.parentClip;
+  }
+  /**
+   * Returns the last key pressed down.
+   * @returns {string | null} Returns null if no key has been pressed yet.
+   */
+
+
+  get key() {
+    if (!this.scriptOwner.project) return null;
+    return this.scriptOwner.project.currentKey;
+  }
+  /**
+   * Returns a list of all keys currently pressed down.
+   * @returns {string[]} All keys represented as strings. If no keys are pressed, an empty array is returned.
+   */
+
+
+  get keys() {
+    if (!this.scriptOwner.project) return null;
+    return this.scriptOwner.project.keysDown;
+  }
+  /**
+   * Returns true if the given key is currently down.
+   * @param {string} key
+   * @returns {bool}
+   */
+
+
+  isKeyDown(key) {
+    if (!this.scriptOwner.project) return null;
+    return this.scriptOwner.project.isKeyDown(key);
+  }
+  /**
+   * @deprecated
+   * Legacy item, use 'isKeyDown' instead.
+   */
+
+
+  keyIsDown(key) {
+    return this.isKeyDown(key.toLowerCase());
+  }
+  /**
+   * Returns true if the given key was just pressed within the last tick.
+   * @param {string} key
+   * @returns {bool}
+   */
+
+
+  isKeyJustPressed(key) {
+    if (!this.scriptOwner.project) return null;
+    return this.scriptOwner.project.isKeyJustPressed(key);
+  }
+  /**
+   * @deprecated
+   * Legacy item, use 'isKeyJustPressed' instead.
+   */
+
+
+  keyIsJustPressed(key) {
+    return this.keyIsJustPressed(key.toLowerCase());
+  }
+  /**
+   * Returns true if the mouse is currently held down.
+   * @returns {bool | null} Returns null if the object does not have a project.
+   */
+
+
+  isMouseDown() {
+    if (!this.scriptOwner.project) return null;
+    return this.scriptOwner.project.isMouseDown;
+  }
+  /**
+   * Returns the current x position of the mouse in relation to the canvas.
+   * @returns {number}
+   */
+
+
+  get mouseX() {
+    if (!this.scriptOwner.project) return null;
+    return this.scriptOwner.project.mousePosition.x;
+  }
+  /**
+   * Returns the current y position of the mouse in relation to the canvas.
+   * @returns {number}
+   */
+
+
+  get mouseY() {
+    if (!this.scriptOwner.project) return null;
+    return this.scriptOwner.project.mousePosition.y;
+  }
+  /**
+   * Returns the amount the mouse moved in the last tick on the x axis.
+   * @returns {number}
+   */
+
+
+  get mouseMoveX() {
+    if (!this.scriptOwner.project) return null;
+    return this.scriptOwner.project.mouseMove.x;
+  }
+  /**
+   * Returns the amount the mouse moved in the last tick on the y axis.
+   * @returns {number}
+   */
+
+
+  get mouseMoveY() {
+    if (!this.scriptOwner.project) return null;
+    return this.scriptOwner.project.mouseMove.y;
+  }
+  /**
+   * Returns a new random object.
+   * @returns {GlobalAPI.Random}
+   */
+
+
+  get random() {
+    return new GlobalAPI.Random();
+  }
+  /**
+   * Plays a sound which is currently in the asset library.
+   * @param {string} name - name of the sound asset in the library.
+   * @param {Object} options - options for the sound. See Wick.SoundAsset.play
+   * @returns {object} object representing the sound which was played.
+   */
+
+
+  playSound(assetName, options) {
+    if (!this.scriptOwner.project) return null;
+    return this.scriptOwner.project.playSound(assetName, options);
+  }
+  /**
+   * Stops all currently playing sounds.
+   */
+
+
+  stopAllSounds() {
+    if (!this.scriptOwner.project) return null;
+    this.scriptOwner.project.stopAllSounds();
+  }
+  /**
+   * Attach a function to an event with a given name.
+   * @param {string} name - the name of the event to attach the function to
+   * @param {function} fn - the function to attach to the event
+   */
+
+
+  onEvent(name, fn) {
+    this.scriptOwner.onEvent(name, fn);
+  }
+
+};
+GlobalAPI.Random = class {
+  constructor() {}
+  /**
+   * Returns a random integer (whole number) between two given integers.
+   * @param {number} min The minimum of the returned integer.
+   * @param {number} max The maximum of the returned integer.
+   * @returns {number} A random number between min and max.
+   * https://stackoverflow.com/questions/4959975/generate-random-number-between-two-numbers-in-javascript
+   */
+
+
+  integer(min, max) {
+    return Math.floor(Math.random() * (max - min + 1) + min);
+  }
+  /**
+   * Returns a random floating point (decimal) number between two given integers.
+   * @param {number} min The minimum of the returned number.
+   * @param {number} max The maximum of the returned number.
+   * @returns {number} A random number between min and max.
+   * https://stackoverflow.com/questions/4959975/generate-random-number-between-two-numbers-in-javascript
+   */
+
+
+  float(min, max) {
+    return Math.random() * (max - min + 1) + min;
+  }
+  /**
+   * Returns a random item from an array of items.
+   * @param {array} An array of objects.
+   * @returns {object | null} A random item contained in the array. Returns null if the given array has no items.
+   * https://stackoverflow.com/questions/4550505/getting-a-random-value-from-a-javascript-array
+   */
+
+
+  choice(array) {
+    if (array.length <= 0) return null;
+    return array[Math.floor(Math.random() * array.length)];
+  }
+
+};
 /*!
  *  howler.js v2.1.1
  *  howlerjs.com
@@ -34836,382 +35187,9 @@ Wick.FontAsset = class extends Wick.FileAsset {
   };
 })();
 
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-GlobalAPI = class {
-  /**
-   * Defines all api members such as functions and properties.
-   * @type {string[]}
-   */
-  static get apiMemberNames() {
-    return ['stop', 'play', 'gotoAndStop', 'gotoAndPlay', 'gotoNextFrame', 'gotoPrevFrame', // These are currently disabled, they are very slow for some reason.
-    // They are currently hacked in inside Tickable._runFunction
-    //'project','root','parent','parentObject',
-    'isMouseDown', 'mouseX', 'mouseY', 'mouseMoveX', 'mouseMoveY', 'key', 'keys', 'isKeyDown', 'keyIsDown', 'isKeyJustPressed', 'keyIsJustPressed', 'random', 'playSound', 'stopAllSounds', 'onEvent'];
-  }
-  /**
-   * @param {object} scriptOwner The tickable object which owns the script being evaluated.
-   */
-
-
-  constructor(scriptOwner) {
-    this.scriptOwner = scriptOwner;
-  }
-  /**
-   * Returns a list of api members bound to the script owner.
-   * @returns {object[]} Array of functions, properties, and api members.
-   */
-
-
-  get apiMembers() {
-    var members = [];
-    GlobalAPI.apiMemberNames.forEach(name => {
-      var fn = this[name];
-
-      if (fn instanceof Function) {
-        fn = fn.bind(this);
-      }
-
-      members.push({
-        name: name,
-        fn: fn
-      });
-    });
-    return members;
-  }
-  /**
-   * Stops the timeline of the object's parent clip.
-   */
-
-
-  stop() {
-    this.scriptOwner.parentClip.stop();
-  }
-  /**
-   * Plays the timeline of the object's parent clip.
-   */
-
-
-  play() {
-    this.scriptOwner.parentClip.play();
-  }
-  /**
-   * Moves the plahead of the parent clip to a frame and stops the timeline of that parent clip.
-   * @param {string | number} frame Frame name or number to move playhead to.
-   */
-
-
-  gotoAndStop(frame) {
-    this.scriptOwner.parentClip.gotoAndStop(frame);
-  }
-  /**
-   * Moves the plahead of the parent clip to a frame and plays the timeline of that parent clip.
-   * @param {string | number} frame Frame name or number to move playhead to.
-   */
-
-
-  gotoAndPlay(frame) {
-    this.scriptOwner.parentClip.gotoAndPlay(frame);
-  }
-  /**
-   * Moves the playhead of the parent clip of the object to the next frame.
-   */
-
-
-  gotoNextFrame() {
-    this.scriptOwner.parentClip.gotoNextFrame();
-  }
-  /**
-   * Moves the playhead of the parent clip of this object to the previous frame.
-   */
-
-
-  gotoPrevFrame() {
-    this.scriptOwner.parentClip.gotoPrevFrame();
-  }
-  /**
-   * Returns an object representing the project with properties such as width, height, framerate, background color, and name.
-   * @returns {object} Project object.
-   */
-
-
-  get project() {
-    var project = this.scriptOwner.project && this.scriptOwner.project.root;
-
-    if (project) {
-      // Attach some aliases to the project settings
-      project.width = this.scriptOwner.project.width;
-      project.height = this.scriptOwner.project.height;
-      project.framerate = this.scriptOwner.project.framerate;
-      project.backgroundColor = this.scriptOwner.project.backgroundColor;
-      project.name = this.scriptOwner.project.name;
-    }
-
-    return project;
-  }
-  /**
-   * @deprecated
-   * Legacy item which returns the project. Use 'project' instead.
-   */
-
-
-  get root() {
-    return this.project;
-  }
-  /**
-   * Returns a reference to the current object's parent.
-   * @returns Current object's parent.
-   */
-
-
-  get parent() {
-    return this.scriptOwner.parentClip;
-  }
-  /**
-   * @deprecated
-   * Legacy item which returns the parent clip. Use 'parent' instead.
-   */
-
-
-  get parentObject() {
-    return this.scriptOwner.parentClip;
-  }
-  /**
-   * Returns the last key pressed down.
-   * @returns {string | null} Returns null if no key has been pressed yet.
-   */
-
-
-  get key() {
-    if (!this.scriptOwner.project) return null;
-    return this.scriptOwner.project.currentKey;
-  }
-  /**
-   * Returns a list of all keys currently pressed down.
-   * @returns {string[]} All keys represented as strings. If no keys are pressed, an empty array is returned.
-   */
-
-
-  get keys() {
-    if (!this.scriptOwner.project) return null;
-    return this.scriptOwner.project.keysDown;
-  }
-  /**
-   * Returns true if the given key is currently down.
-   * @param {string} key
-   * @returns {bool}
-   */
-
-
-  isKeyDown(key) {
-    if (!this.scriptOwner.project) return null;
-    return this.scriptOwner.project.isKeyDown(key);
-  }
-  /**
-   * @deprecated
-   * Legacy item, use 'isKeyDown' instead.
-   */
-
-
-  keyIsDown(key) {
-    return this.isKeyDown(key.toLowerCase());
-  }
-  /**
-   * Returns true if the given key was just pressed within the last tick.
-   * @param {string} key
-   * @returns {bool}
-   */
-
-
-  isKeyJustPressed(key) {
-    if (!this.scriptOwner.project) return null;
-    return this.scriptOwner.project.isKeyJustPressed(key);
-  }
-  /**
-   * @deprecated
-   * Legacy item, use 'isKeyJustPressed' instead.
-   */
-
-
-  keyIsJustPressed(key) {
-    return this.keyIsJustPressed(key.toLowerCase());
-  }
-  /**
-   * Returns true if the mouse is currently held down.
-   * @returns {bool | null} Returns null if the object does not have a project.
-   */
-
-
-  isMouseDown() {
-    if (!this.scriptOwner.project) return null;
-    return this.scriptOwner.project.isMouseDown;
-  }
-  /**
-   * Returns the current x position of the mouse in relation to the canvas.
-   * @returns {number}
-   */
-
-
-  get mouseX() {
-    if (!this.scriptOwner.project) return null;
-    return this.scriptOwner.project.mousePosition.x;
-  }
-  /**
-   * Returns the current y position of the mouse in relation to the canvas.
-   * @returns {number}
-   */
-
-
-  get mouseY() {
-    if (!this.scriptOwner.project) return null;
-    return this.scriptOwner.project.mousePosition.y;
-  }
-  /**
-   * Returns the amount the mouse moved in the last tick on the x axis.
-   * @returns {number}
-   */
-
-
-  get mouseMoveX() {
-    if (!this.scriptOwner.project) return null;
-    return this.scriptOwner.project.mouseMove.x;
-  }
-  /**
-   * Returns the amount the mouse moved in the last tick on the y axis.
-   * @returns {number}
-   */
-
-
-  get mouseMoveY() {
-    if (!this.scriptOwner.project) return null;
-    return this.scriptOwner.project.mouseMove.y;
-  }
-  /**
-   * Returns a new random object.
-   * @returns {GlobalAPI.Random}
-   */
-
-
-  get random() {
-    return new GlobalAPI.Random();
-  }
-  /**
-   * Plays a sound which is currently in the asset library.
-   * @param {string} name - name of the sound asset in the library.
-   * @param {Object} options - options for the sound. See Wick.SoundAsset.play
-   * @returns {object} object representing the sound which was played.
-   */
-
-
-  playSound(assetName, options) {
-    if (!this.scriptOwner.project) return null;
-    return this.scriptOwner.project.playSound(assetName, options);
-  }
-  /**
-   * Stops all currently playing sounds.
-   */
-
-
-  stopAllSounds() {
-    if (!this.scriptOwner.project) return null;
-    this.scriptOwner.project.stopAllSounds();
-  }
-  /**
-   * Attach a function to an event with a given name.
-   * @param {string} name - the name of the event to attach the function to
-   * @param {function} fn - the function to attach to the event
-   */
-
-
-  onEvent(name, fn) {
-    this.scriptOwner.onEvent(name, fn);
-  }
-
-};
-GlobalAPI.Random = class {
-  constructor() {}
-  /**
-   * Returns a random integer (whole number) between two given integers.
-   * @param {number} min The minimum of the returned integer.
-   * @param {number} max The maximum of the returned integer.
-   * @returns {number} A random number between min and max.
-   * https://stackoverflow.com/questions/4959975/generate-random-number-between-two-numbers-in-javascript
-   */
-
-
-  integer(min, max) {
-    return Math.floor(Math.random() * (max - min + 1) + min);
-  }
-  /**
-   * Returns a random floating point (decimal) number between two given integers.
-   * @param {number} min The minimum of the returned number.
-   * @param {number} max The maximum of the returned number.
-   * @returns {number} A random number between min and max.
-   * https://stackoverflow.com/questions/4959975/generate-random-number-between-two-numbers-in-javascript
-   */
-
-
-  float(min, max) {
-    return Math.random() * (max - min + 1) + min;
-  }
-  /**
-   * Returns a random item from an array of items.
-   * @param {array} An array of objects.
-   * @returns {object | null} A random item contained in the array. Returns null if the given array has no items.
-   * https://stackoverflow.com/questions/4550505/getting-a-random-value-from-a-javascript-array
-   */
-
-
-  choice(array) {
-    if (array.length <= 0) return null;
-    return array[Math.floor(Math.random() * array.length)];
-  }
-
-};
 /*! @license MIT. https://github.com/onury/invert-color */
 !function(e,t){"object"==typeof exports&&"object"==typeof module?module.exports=t():"function"==typeof define&&define.amd?define("invert",[],t):"object"==typeof exports?exports.invert=t():e.invert=t()}(this,function(){return function(e){var t={};function r(n){if(t[n])return t[n].exports;var o=t[n]={i:n,l:!1,exports:{}};return e[n].call(o.exports,o,o.exports,r),o.l=!0,o.exports}return r.m=e,r.c=t,r.d=function(e,t,n){r.o(e,t)||Object.defineProperty(e,t,{enumerable:!0,get:n})},r.r=function(e){"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(e,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(e,"__esModule",{value:!0})},r.t=function(e,t){if(1&t&&(e=r(e)),8&t)return e;if(4&t&&"object"==typeof e&&e&&e.__esModule)return e;var n=Object.create(null);if(r.r(n),Object.defineProperty(n,"default",{enumerable:!0,value:e}),2&t&&"string"!=typeof e)for(var o in e)r.d(n,o,function(t){return e[t]}.bind(null,o));return n},r.n=function(e){var t=e&&e.__esModule?function(){return e.default}:function(){return e};return r.d(t,"a",t),t},r.o=function(e,t){return Object.prototype.hasOwnProperty.call(e,t)},r.p="lib/",r(r.s=0)}([function(e,t,r){"use strict";Object.defineProperty(t,"__esModule",{value:!0});var n=Math.sqrt(1.05*.05)-.05,o=/^(?:[0-9a-f]{3}){1,2}$/i,i={black:"#000000",white:"#ffffff"};function u(e){if("#"===e.slice(0,1)&&(e=e.slice(1)),!o.test(e))throw new Error('Invalid HEX color: "'+e+'"');return 3===e.length&&(e=e[0]+e[0]+e[1]+e[1]+e[2]+e[2]),[parseInt(e.slice(0,2),16),parseInt(e.slice(2,4),16),parseInt(e.slice(4,6),16)]}function f(e){if(!e)throw new Error("Invalid color value");return Array.isArray(e)?e:"string"==typeof e?u(e):[e.r,e.g,e.b]}function c(e,t,r){var o=!0===t?i:Object.assign({},i,t);return function(e){var t,r,n=[];for(t=0;t<e.length;t++)r=e[t]/255,n[t]=r<=.03928?r/12.92:Math.pow((r+.055)/1.055,2.4);return.2126*n[0]+.7152*n[1]+.0722*n[2]}(e)>n?r?u(o.black):o.black:r?u(o.white):o.white}function a(e,t){return void 0===t&&(t=!1),e=f(e),t?c(e,t):"#"+e.map(function(e){return t=(255-e).toString(16),void 0===r&&(r=2),(new Array(r).join("0")+t).slice(-r);var t,r}).join("")}t.invert=a,function(e){function t(e,t){void 0===t&&(t=!1),e=f(e);var r,n=t?c(e,t,!0):e.map(function(e){return 255-e});return{r:(r=n)[0],g:r[1],b:r[2]}}e.asRGB=t,e.asRgbArray=function(e,t){return void 0===t&&(t=!1),e=f(e),t?c(e,t,!0):e.map(function(e){return 255-e})},e.asRgbObject=t}(a||(a={})),t.invert=a,t.default=a}]).default});
 
-'use strict';
-
-/*!
- * is-var-name | ISC (c) Shinnosuke Watanabe
- * https://github.com/shinnn/is-var-name
-*/
-function isVarName(str) {
-	if (typeof str !== 'string') {
-		return false;
-	}
-
-	if (str.trim() !== str) {
-		return false;
-	}
-
-	try {
-		new Function(str, 'var ' + str);
-	} catch (e) {
-		return false;
-	}
-
-	return true;
-}
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
@@ -35763,6 +35741,29 @@ Wick.Tickable = class extends Wick.Base {
   }
 
 };
+'use strict';
+
+/*!
+ * is-var-name | ISC (c) Shinnosuke Watanabe
+ * https://github.com/shinnn/is-var-name
+*/
+function isVarName(str) {
+	if (typeof str !== 'string') {
+		return false;
+	}
+
+	if (str.trim() !== str) {
+		return false;
+	}
+
+	try {
+		new Function(str, 'var ' + str);
+	} catch (e) {
+		return false;
+	}
+
+	return true;
+}
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
@@ -39194,6 +39195,71 @@ Wick.Tools.Line = class extends Wick.Tool {
   onMouseUp(e) {
     this.fireEvent('canvasModified');
   }
+
+};
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* Copyright 2019 WICKLETS LLC
+*
+* This file is part of Wick Engine.
+*
+* Wick Engine is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Wick Engine is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+*/
+Wick.Tools.None = class extends Wick.Tool {
+  /**
+   * Creates a none tool.
+   */
+  constructor() {
+    super();
+    this.name = 'none';
+  }
+  /**
+   * The "no-sign" cursor.
+   * @type {string}
+   */
+
+
+  get cursor() {
+    return 'not-allowed';
+  }
+
+  onActivate(e) {}
+
+  onDeactivate(e) {}
+
+  onMouseDown(e) {
+    var message = '';
+
+    if (!this.project.activeFrame) {
+      message = 'CLICK_NOT_ALLOWED_NO_FRAME';
+    } else if (this.project.activeLayer.locked) {
+      message = 'CLICK_NOT_ALLOWED_LAYER_LOCKED';
+    } else if (this.project.activeLayer.hidden) {
+      message = 'CLICK_NOT_ALLOWED_LAYER_HIDDEN';
+    } else {
+      return;
+    }
+
+    this.fireEvent('error', {
+      message: message
+    });
+  }
+
+  onMouseDrag(e) {}
+
+  onMouseUp(e) {}
 
 };
 /*!
@@ -50819,71 +50885,6 @@ module.exports = ZStream;
 
 },{}]},{},[10])(10)
 });
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-Wick.Tools.None = class extends Wick.Tool {
-  /**
-   * Creates a none tool.
-   */
-  constructor() {
-    super();
-    this.name = 'none';
-  }
-  /**
-   * The "no-sign" cursor.
-   * @type {string}
-   */
-
-
-  get cursor() {
-    return 'not-allowed';
-  }
-
-  onActivate(e) {}
-
-  onDeactivate(e) {}
-
-  onMouseDown(e) {
-    var message = '';
-
-    if (!this.project.activeFrame) {
-      message = 'CLICK_NOT_ALLOWED_NO_FRAME';
-    } else if (this.project.activeLayer.locked) {
-      message = 'CLICK_NOT_ALLOWED_LAYER_LOCKED';
-    } else if (this.project.activeLayer.hidden) {
-      message = 'CLICK_NOT_ALLOWED_LAYER_HIDDEN';
-    } else {
-      return;
-    }
-
-    this.fireEvent('error', {
-      message: message
-    });
-  }
-
-  onMouseDrag(e) {}
-
-  onMouseUp(e) {}
-
-};
 //https://github.com/mattdesl/lerp/blob/master/index.js
 var lerp = function (v0, v1, t) { return v0*(1-t)+v1*t; };
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
@@ -58254,7 +58255,7 @@ Wick.GUIElement.LAYER_LABEL_GHOST_COLOR = Wick.GUIElement.SELECTED_ITEM_BORDER_C
 Wick.GUIElement.LAYER_LABEL_HIDDEN_BUTTON_ICON = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 13"><path d="M1.5 5.8c-.2-.2-.3-.6 0-.8.8-1.1 3.3-3.7 6.7-3.7S14 3.9 14.9 5c.2.3.2.6 0 .8-1.1.9-3.6 3.2-6.8 3.2S2.4 6.7 1.5 5.8z" fill="none" stroke="#000" stroke-width="1.813"/><path d="M8 8.6c.6 0 1 .4 1 .8v2.5c0 .5-.4.8-1 .8s-1-.4-1-.8V9.5c0-.5.4-.9 1-.9z"/><path d="M10.7 8.1c.5-.2 1.1-.1 1.4.3l1.5 2.1c.3.4.1.9-.4 1.1s-1.1.1-1.4-.3l-1.5-2.1c-.2-.4 0-.9.4-1.1z" fill-rule="evenodd"/><path d="M5.3 8.1c.5.2.6.7.4 1.1l-1.5 2.1c-.3.4-.9.5-1.4.3s-.6-.7-.4-1.1l1.5-2.1c.3-.4.9-.5 1.4-.3z"/></svg>';
 Wick.GUIElement.LAYER_LABEL_SHOW_BUTTON_ICON = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 13"><path d="M1.5 6.7c-.2-.3-.3-.7 0-1 .8-1.3 3.3-4.5 6.7-4.5s5.8 3.2 6.7 4.5a.91.91 0 0 1 0 1c-.9 1.2-3.5 4-6.6 4-3.4 0-5.9-2.8-6.8-4z" fill="none" stroke="#000" stroke-width="2"/><path d="M8.1,8.4c1.4,0,2.5-1.1,2.5-2.5S9.5,3.4,8.1,3.4S5.6,4.6,5.6,5.9S6.7,8.4,8.1,8.4z" fill-rule="evenodd"/></svg>';
 Wick.GUIElement.LAYER_GNURL_ICON = '<g id="Desktop" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linecap="square"><g id="Artboard-Copy-9" transform="translate(0, 0)" stroke="#00AA6B" stroke-width="2"><g id="Group-3" transform="translate(163.000000, 1116.000000)"><g id="Group-16"><g id="Group-13" transform="translate(158.000000, 10.000000)"><path d="M0.1875,1.5 L8.8125,1.5" id="Line-4"></path><path d="M0.1875,5.5 L8.8125,5.5" id="Line-4-Copy"></path><path d="M0.1875,9.5 L8.8125,9.5" id="Line-4-Copy-2"></path></g></g></g></g></g>';
-Wick.GUIElement.ADD_TWEEN_BUTTON_ICON = '<svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg"> <path d="M9.07116 15.8076L2.22801 8.96448L9.07116 2.12133L15.9143 8.96448L9.07116 15.8076Z" stroke="#135530" stroke-width="3"/></svg>';
+Wick.GUIElement.ADD_TWEEN_BUTTON_ICON = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16.5 16.5"><path d="M8.3 15.3c-.4 0-.8-.2-1.1-.4L1.6 9.3c-.6-.6-.6-1.5 0-2.1l5.6-5.6c.3-.3.7-.4 1.1-.4s.8.2 1.1.4L15 7.2c.6.6.6 1.5 0 2.1l-5.6 5.6c-.4.3-.7.4-1.1.4z" fill="#fff"/><path d="M8.3 2.1c.1 0 .3 0 .4.2l5.6 5.6a.61.61 0 0 1 0 .8l-5.6 5.6a.76.76 0 0 1-.4.2c-.1 0-.3 0-.4-.2L2.3 8.7c-.3-.3-.3-.6 0-.9l5.6-5.6c.1-.1.2-.1.4-.1m0-1.8C7.6.3 7 .5 6.5 1L1 6.5C0 7.5 0 9 1 10l5.6 5.6c.4.4 1 .7 1.7.7s1.2-.3 1.7-.8l5.6-5.6c.9-.9.9-2.5 0-3.4L10 1A2.34 2.34 0 0 0 8.3.3z"/></svg>';
 Wick.GUIElement.LAYER_LABEL_LOCK_BUTTON_ICON = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 14.9"><path d="M8.3 6.5v6.7H1.6V6.5h6.7M6.9 0H3.1c-1 0-1.7.7-1.7 1.6V5h1.7V1.6h3.7V5H.6c-.4 0-.6.2-.6.6v8.7c0 .3.2.6.7.6h8.7c.3 0 .7-.2.7-.7V5.6c-.2-.4-.4-.6-.8-.6h-1V1.6C8.3.7 7.7.1 6.9 0z" opacity=".9"/><circle cx="5" cy="9.9" r="1.5" opacity=".9"/></svg>';
 Wick.GUIElement.LAYER_LABEL_UNLOCK_BUTTON_ICON = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 14.9"><path d="M8.3 6.5v6.7H1.6V6.5h6.7M6.9 0H3.1c-1 0-1.7.7-1.7 1.6V5h1.7V1.6h3.7V5H.6c-.4 0-.6.2-.6.6v8.7c0 .3.2.6.7.6h8.7c.3 0 .7-.2.7-.7V5.6c-.2-.4-.4-.6-.8-.6h-1V1.6C8.3.7 7.7.1 6.9 0z" opacity=".9"/></svg>';
 Wick.GUIElement.TIMELINE_COPY_FORWARD_BUTTON_ICON = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 17.7 18.8"><g fill="none" stroke="#979797" stroke-width="1.656"><path d="M15.8.9H5.3A1.11 1.11 0 0 0 4.2 2v3.3h8.3a1.11 1.11 0 0 1 1.1 1.1v7.2h2.2a1.11 1.11 0 0 0 1.1-1.1V2A1.11 1.11 0 0 0 15.8.9z"/><path d="M2,5.3h10.5c0.6,0,1.1,0.5,1.1,1.1v10.5c0,0.6-0.5,1.1-1.1,1.1H2 c-0.6,0-1.1-0.5-1.1-1.1V6.4C0.9,5.8,1.4,5.3,2,5.3z"/></g><path d="M10.3 11.1c.1.1.1.2.1.3s0 .2-.1.3-.2.1-.3.1H7.6v2.4c0 .1 0 .2-.1.3s-.2.1-.3.1-.2 0-.3-.1-.1-.2-.1-.3v-2.4H4.4c-.1 0-.2 0-.3-.1s-.1-.2-.1-.3 0-.2.1-.3c.1 0 .2-.1.3-.1h2.4V8.6c0-.1 0-.2.1-.3s.2-.1.3-.1.2 0 .3.1.1.2.1.3V11H10c.1 0 .2.1.3.1z" fill="#979797"/></svg>';
@@ -58793,7 +58794,7 @@ Wick.GUIElement.BreadcrumbsButton = class extends Wick.GUIElement.Clickable {
 
     var label = new paper.PointText({
       point: [Wick.GUIElement.BREADCRUMBS_PADDING, Wick.GUIElement.BREADCRUMBS_HEIGHT / 2 + Wick.GUIElement.BREADCRUMBS_PADDING],
-      fillColor: '#999999',
+      fillColor: '#BBBBBB',
       fontFamily: 'Nunito Sans',
       fontStyle: 'normal',
       fontSize: '14px',
@@ -60157,6 +60158,10 @@ Wick.GUIElement.LayerButton = class extends Wick.GUIElement.Clickable {
   get activated() {
     return false;
   }
+
+  get tooltip() {
+    return 'tooltip';
+  }
   /**
    *
    */
@@ -60193,6 +60198,38 @@ Wick.GUIElement.LayerButton = class extends Wick.GUIElement.Clickable {
     icon.position.x -= icon.bounds.width / 2;
     icon.position.y -= icon.bounds.height / 2;
     this.item.addChild(icon);
+
+    if (this.tooltip && this.isHoveredOver) {
+      var label = new paper.PointText({
+        point: [0, 0],
+        fillColor: '#FFFFFF',
+        fontFamily: 'Nunito Sans',
+        fontStyle: 'normal',
+        fontSize: '14px',
+        content: this.tooltip
+      });
+      var tm = 4; // Text margin
+
+      var th = label.bounds.height + tm * 2; // Height 
+
+      var tw = label.bounds.width + tm * 2; // Width
+
+      var top = this.radius;
+      var bot = this.radius + th;
+      var left = -tw / 2;
+      var right = tw / 2;
+      label.point = [left + tm, top + th / 2 + tm];
+      var tooltipBody = new paper.Path.Rectangle({
+        from: new paper.Point(left, top),
+        to: new paper.Point(right, bot),
+        radius: Wick.GUIElement.FRAME_BORDER_RADIUS,
+        fillColor: '#3878AF',
+        opacity: .95
+      });
+      this.item.addChild(tooltipBody);
+      this.item.addChild(label);
+    }
+
     this.item.position = new paper.Point(this.x, this.y);
   }
 
@@ -60333,6 +60370,14 @@ Wick.GUIElement.LayerHideButton = class extends Wick.GUIElement.LayerButton {
       this.model.hidden = !this.model.hidden;
       this.model.project.guiElement.fire('projectModified');
     });
+  }
+
+  get tooltip() {
+    if (this.model.hidden) {
+      return "Show";
+    } else {
+      return "Hide";
+    }
   }
   /**
    *
@@ -60588,6 +60633,14 @@ Wick.GUIElement.LayerLockButton = class extends Wick.GUIElement.LayerButton {
       this.model.project.guiElement.fire('projectModified');
     });
   }
+
+  get tooltip() {
+    if (this.model.locked) {
+      return "Unlock";
+    } else {
+      return "Lock";
+    }
+  }
   /**
    *
    */
@@ -60772,6 +60825,10 @@ Wick.GUIElement.LayerTweenButton = class extends Wick.GUIElement.LayerButton {
       this.model.activeFrame.createTween();
       this.model.project.guiElement.fire('projectModified');
     });
+  }
+
+  get tooltip() {
+    return "Add Tween";
   }
   /**
    *
@@ -62094,6 +62151,10 @@ Wick.GUIElement.TimelineAddFrameButton = class extends Wick.GUIElement.LayerButt
     });
   }
 
+  get tooltip() {
+    return "Copy Forward";
+  }
+
   get radius() {
     return 14;
   }
@@ -62167,6 +62228,10 @@ Wick.GUIElement.TimelineDeleteLayerButton = class extends Wick.GUIElement.LayerB
       this.model.project.deleteSelectedObjects();
       this.model.project.guiElement.fire('projectModified');
     });
+  }
+
+  get tooltip() {
+    return "Delete";
   }
 
   get radius() {

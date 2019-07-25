@@ -57,7 +57,7 @@ Wick.GUIElement.BreadcrumbsButton = class extends Wick.GUIElement.Clickable {
 
         var label = new paper.PointText({
             point: [Wick.GUIElement.BREADCRUMBS_PADDING, Wick.GUIElement.BREADCRUMBS_HEIGHT/2 + Wick.GUIElement.BREADCRUMBS_PADDING],
-            fillColor: '#999999',
+            fillColor: '#BBBBBB',
             fontFamily: 'Nunito Sans',
             fontStyle: 'normal',
             fontSize: '14px',

@@ -32,6 +32,14 @@ Wick.GUIElement.LayerLockButton = class extends Wick.GUIElement.LayerButton {
         });
     }
 
+    get tooltip () {
+        if (this.model.locked) {
+            return "Unlock"; 
+        } else {
+            return "Lock";
+        }
+    }
+
     /**
      *
      */
