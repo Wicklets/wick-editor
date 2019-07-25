@@ -32,6 +32,26 @@ Wick.GUIElement.TimelineDeleteLayerButton = class extends Wick.GUIElement.LayerB
         });
     }
 
+    get radius () {
+        return 14;
+    }
+
+    get opacity () {
+        return 1;
+    }
+
+    get fillColor () {
+        if (this.isHoveredOver) {
+            return '#000000';
+        } else {
+            return '#979797'; 
+        }    
+    }
+
+    get strokeColor () {
+        return ('rgba(0,0,0,0)');
+    }
+
     /**
      *
      */
@@ -40,11 +60,8 @@ Wick.GUIElement.TimelineDeleteLayerButton = class extends Wick.GUIElement.LayerB
     }
 
     get icon () {
-        if (this.model.locked) {
-            return Wick.GUIElement.LAYER_LABEL_LOCK_BUTTON_ICON;
-        } else {
-            return Wick.GUIElement.LAYER_LABEL_UNLOCK_BUTTON_ICON
-        }
+        return Wick.GUIElement.TIMELINE_DELETE_BUTTON_ICON;
+
     }
 
     /**

@@ -104,12 +104,12 @@ Wick.GUIElement.Timeline = class extends Wick.GUIElement {
         this.item.addChild(cornerCoverBottomRight);
 
         // Build buttons
-        this.deleteLayerButton.x = 20;
+        this.deleteLayerButton.x = 175;
         this.deleteLayerButton.y = 20;
         this.deleteLayerButton.build();
         this.item.addChild(this.deleteLayerButton.item);
 
-        this.addFrameButton.x = 50;
+        this.addFrameButton.x = 145;
         this.addFrameButton.y = 20;
         this.addFrameButton.build();
         this.item.addChild(this.addFrameButton.item);

@@ -32,6 +32,26 @@ Wick.GUIElement.TimelineAddFrameButton = class extends Wick.GUIElement.LayerButt
         });
     }
 
+    get radius () {
+        return 14;
+    }
+
+    get opacity () {
+        return 1;
+    }
+
+    get fillColor () {
+        return 'rgba(0,0,0,0)'; 
+    }
+
+    get strokeColor () {
+        if (this.isHoveredOver) {
+            return '#000000';
+        } else {
+            return '#979797'; 
+        }   
+    }
+
     /**
      *
      */
@@ -40,11 +60,7 @@ Wick.GUIElement.TimelineAddFrameButton = class extends Wick.GUIElement.LayerButt
     }
 
     get icon () {
-        if (this.model.locked) {
-            return Wick.GUIElement.LAYER_LABEL_LOCK_BUTTON_ICON;
-        } else {
-            return Wick.GUIElement.LAYER_LABEL_UNLOCK_BUTTON_ICON
-        }
+        return Wick.GUIElement.TIMELINE_COPY_FORWARD_BUTTON_ICON;
     }
 
     /**

@@ -43,8 +43,22 @@ Wick.GUIElement.LayerButton = class extends Wick.GUIElement.Clickable {
         });
     }
 
+    get strokeColor () {
+        return Wick.GUIElement.LAYER_BUTTON_ICON_COLOR;
+
+    }
+
+    get opacity () {
+        return Wick.GUIElement.LAYER_BUTTON_ICON_OPACITY;
+    }
+    
+
     get cursor () {
         return 'pointer'; 
+    }
+
+    get radius () {
+        return 10;
     }
 
     /**
@@ -94,15 +108,21 @@ Wick.GUIElement.LayerButton = class extends Wick.GUIElement.Clickable {
         // Button circle
         var buttonCircle = new paper.Path.Circle({
             center: [0, 0],
-            radius: 10,
+            radius: this.radius,
             fillColor: fillColor,
         });
+
         this.item.addChild(buttonCircle);
 
         // Icon
         var icon = this.paper.project.importSVG(this.icon);
-        icon.strokeColor = Wick.GUIElement.LAYER_BUTTON_ICON_COLOR;
-        icon.opacity = Wick.GUIElement.LAYER_BUTTON_ICON_OPACITY;
+        icon.strokeColor = this.strokeColor; 
+        
+        if (this.fillColor) {
+            icon.fillColor = this.fillColor; 
+        }
+
+        icon.opacity = this.opacity;
         icon.position.x -= icon.bounds.width/2;
         icon.position.y -= icon.bounds.height/2;
         this.item.addChild(icon);
