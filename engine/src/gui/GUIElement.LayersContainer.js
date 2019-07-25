@@ -42,10 +42,6 @@ Wick.GUIElement.LayersContainer = class extends Wick.GUIElement {
     build () {
         super.build();
 
-        // Build BG
-        this.bg.build();
-        this.item.addChild(this.bg.item);
-
         // Build layer labels
         this.model.layers.forEach(layer => {
             // Create/cache FramesStrips elements
@@ -58,12 +54,19 @@ Wick.GUIElement.LayersContainer = class extends Wick.GUIElement {
             layerLabel.width = this.width;
             layerLabel.build();
             this.item.addChild(layerLabel.item);
+            layerLabel.item.sendToBack();
         });
 
         this.createLayerLabel.index = this.model.layers.length;
         this.createLayerLabel.width = this.width;
         this.createLayerLabel.build();
         this.item.addChild(this.createLayerLabel.item);
+        this.createLayerLabel.item.sendToBack();
+
+        // Build BG
+        this.bg.build();
+        this.item.addChild(this.bg.item);
+        this.bg.item.sendToBack();
     }
 
     _positionScrollableElements () {
