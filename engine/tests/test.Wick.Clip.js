@@ -1025,7 +1025,7 @@ describe('Wick.Clip', function() {
                 expect(original.__clone1.identifier).to.equal(null);
                 expect(original.__clone1.uuid).to.not.equal(undefined);
                 expect(original.__clone1.uuid).to.not.equal(original.uuid);
-
+                
                 expect(original.__clone2 instanceof Wick.Clip).to.equal(true);
                 expect(original.__clone2.identifier).to.equal(null);
                 expect(original.__clone2.uuid).to.not.equal(undefined);
