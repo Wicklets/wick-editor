@@ -15,4 +15,12 @@ describe('Wick.Tools.Interact', function() {
     it('should click a frame', function() {
 
     });
+
+    it('should be able to click clips on locked layers', function() {
+
+    });
+
+    it('should be able to click frames on locked layers', function() {
+
+    });
 });
