@@ -45,15 +45,17 @@ class VideoExport {
         });
 
         // Build ffmpeg argument list.
-        let ffmpegArgs =     ['-r', project.framerate + '', // Framerate
-                        '-f', 'image2', // Format Type
-                        '-s', project.width + "x" + project.height, // Video Resolution
-                        '-i', 'frame%12d.jpeg', // File naming scheme
-                        '-c:v', 'libvpx',  // Codec
-                        '-q:v', args.quality || 20, // Quality, Lower is better, 1-100.
-                        '-pix_fmt', 'yuv420p', // Pixel format, use -pix_fmts to see all supported.
-                        // '-vf', 'showinfo', // Spit out intermediate info.
-                        'out.webm']; // Filename
+        let ffmpegArgs = [
+          '-r', project.framerate + '', // Framerate
+          '-f', 'image2', // Format Type
+          '-s', project.width + "x" + project.height, // Video Resolution
+          '-i', 'frame%12d.jpeg', // File naming scheme
+          '-c:v', 'libvpx',  // Codec
+          '-q:v', args.quality || 20, // Quality, Lower is better, 1-100.
+          '-pix_fmt', 'yuv420p', // Pixel format, use -pix_fmts to see all supported.
+          // '-vf', 'showinfo', // Spit out intermediate info.
+          'out.webm', // Filename
+        ];
 
         // Run the ffmpeg command.
         worker.postMessage({
