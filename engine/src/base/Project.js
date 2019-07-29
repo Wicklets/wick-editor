@@ -115,12 +115,6 @@ Wick.Project = class extends Wick.Base {
         this.framerate = data.framerate;
         this.backgroundColor = data.backgroundColor;
 
-        this.pan = {
-            x: data.pan.x,
-            y: data.pan.y
-        };
-        this.zoom = data.zoom;
-
         this.onionSkinEnabled = data.onionSkinEnabled;
         this.onionSkinSeekForwards = data.onionSkinSeekForwards;
         this.onionSkinSeekBackwards = data.onionSkinSeekBackwards;
@@ -136,10 +130,7 @@ Wick.Project = class extends Wick.Base {
         data.height = this.height;
         data.backgroundColor = this.backgroundColor;
         data.framerate = this.framerate;
-
-        data.zoom = this.zoom;
-        data.pan = {x:this.pan.x, y:this.pan.y};
-
+        
         data.onionSkinEnabled = this.onionSkinEnabled
         data.onionSkinSeekForwards = this.onionSkinSeekForwards;
         data.onionSkinSeekBackwards = this.onionSkinSeekBackwards;

@@ -62,13 +62,8 @@ describe('Wick.Project', function() {
             expect(data.onionSkinEnabled).to.equal(false);
             expect(data.onionSkinSeekBackwards).to.equal(1);
             expect(data.onionSkinSeekForwards).to.equal(1);
-            expect(data.pan).to.eql({
-                x: 0,
-                y: 0,
-            });
             expect(data.uuid).to.equal(project.uuid);
             expect(data.width).to.equal(720);
-            expect(data.zoom).to.equal(1);
         });
     });
 
@@ -183,6 +178,22 @@ describe('Wick.Project', function() {
             expect(project.root.timeline.playheadPosition).to.equal(2);
             expect(clip1.timeline.playheadPosition).to.equal(1);
             expect(clip2.timeline.playheadPosition).to.equal(1);
+        });
+
+        it('should reset zoom and pan when focus changes', function () {
+            var project = new Wick.Project();
+
+            project.zoom = 2;
+            project.pan.x = 100;
+            project.pan.y = 200;
+
+            var clip1 = new Wick.Clip();
+            project.activeFrame.addClip(clip1);
+
+            project.focus = clip1;
+            expect(project.zoom).to.equal(1);
+            expect(project.pan.x).to.equal(0);
+            expect(project.pan.y).to.equal(0);
         });
     })
 
