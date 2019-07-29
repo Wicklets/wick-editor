@@ -920,7 +920,7 @@ class EditorCore extends Component {
 
     let args = {
       project: this.project,
-      onDone: (buffer) => {saveAs(new Blob([new Uint8Array(buffer)]), outputName + ".webm")},
+      onDone: blob => {saveAs(blob, outputName + ".webm")},
     }
 
     VideoExport.renderProjectAsVideo(args);

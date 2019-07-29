@@ -3,8 +3,8 @@ var b64toBuff = require('base64-arraybuffer');
 class VideoExport {
   /**
    * Create a video from a Wick project.
-   * @param {Object} args - contains all arguments to be used throughout video. 
-   * Options include 
+   * @param {Object} args - contains all arguments to be used throughout video.
+   * Options include
    * project {object} [required] the project to build a video from.
    * onDone {function} [required] will be called with a blob of the video on success.
    * onRun {function} [optional] called when the project starts to render.
@@ -16,7 +16,7 @@ class VideoExport {
   static renderProjectAsVideo (args) {
     // Create Worker
     var worker = new Worker(process.env.PUBLIC_URL + "corelibs/video/ffmpeg-worker-wasm-webm.js");
-    
+
     // Create video.
     let createVideo = function (project) {
       let frames = [];
@@ -28,24 +28,24 @@ class VideoExport {
         images.forEach(image => {
           // Create Name and array buffer of frame image.
           let paddedNum = (frameNumber + '').padStart(12, '0');
-          let name = "frame" + paddedNum + ".jpeg"; 
+          let name = "frame" + paddedNum + ".jpeg";
 
           // Get the base 64 value and convert it to an array buffer.
-          let cleanBase64 = image.src.split(',')[1]; 
+          let cleanBase64 = image.src.split(',')[1];
           let buffer = b64toBuff.decode(cleanBase64);
-  
+
           // Store name and buffer in memfs appropriate object.
           let memfs_obj = {name: name, data:buffer};
-  
-          // Increase frame number. 
+
+          // Increase frame number.
           frameNumber += 1;
-  
+
           // Add frame to frame list.
           frames.push(memfs_obj);
         });
-        
+
         // Build ffmpeg argument list.
-        let ffmpegArgs =     ['-r', project.framerate + '', // Framerate 
+        let ffmpegArgs =     ['-r', project.framerate + '', // Framerate
                         '-f', 'image2', // Format Type
                         '-s', project.width + "x" + project.height, // Video Resolution
                         '-i', 'frame%12d.jpeg', // File naming scheme
@@ -54,12 +54,12 @@ class VideoExport {
                         '-pix_fmt', 'yuv420p', // Pixel format, use -pix_fmts to see all supported.
                         // '-vf', 'showinfo', // Spit out intermediate info.
                         'out.webm']; // Filename
-        
+
         // Run the ffmpeg command.
         worker.postMessage({
-          type: "run", 
-          MEMFS: frames, 
-          arguments: ffmpegArgs, 
+          type: "run",
+          MEMFS: frames,
+          arguments: ffmpegArgs,
         });
       });
     }
@@ -89,7 +89,7 @@ class VideoExport {
       case "done":
         let vid = msg.data.MEMFS[0].data
         let blob = new Blob([new Uint8Array(vid)]);
-        console.log(blob); 
+        console.log(blob);
         if (args.onDone) {
           args.onDone(blob);
         }
@@ -101,9 +101,9 @@ class VideoExport {
         if (args.onError) {
           args.onError(msg.data)
         }
-        break; 
-      default: 
-        break; 
+        break;
+      default:
+        break;
       }
     };
 
