@@ -962,7 +962,12 @@ Wick.Project = class extends Wick.Base {
         if(!args) args = {};
         if(!args.imageType) args.imageType = 'image/png';
 
-        var renderCopy = this.copy();
+        var renderCopy = this;
+
+        var oldCanvasContainer = this.view.canvasContainer;
+
+        this.history.saveSnapshot('before-gif-render');
+        this.tick();
 
         // Put the project canvas inside a div that's the same size as the project so the frames render at the correct resolution.
         let container = window.document.createElement('div');
@@ -979,7 +984,7 @@ Wick.Project = class extends Wick.Base {
         renderCopy.zoom = 1 / window.devicePixelRatio;
         renderCopy.pan = {x: 0, y: 0};
 
-        renderCopy.tick();
+        //renderCopy.tick();
 
         // We need full control over when paper.js renders, if we leave autoUpdate on, it's possible to lose frames if paper.js doesnt automatically render as fast as we are generating the images.
         // (See paper.js docs for info about autoUpdate)
@@ -994,6 +999,12 @@ Wick.Project = class extends Wick.Base {
                 if(renderCopy.focus.timeline.playheadPosition >= renderCopy.focus.timeline.length) {
                     // reset autoUpdate back to normal
                     renderCopy.view.paper.view.autoUpdate = true;
+
+                    this.view.canvasContainer = oldCanvasContainer;
+                    this.view.resize();
+
+                    this.history.loadSnapshot('before-gif-render');
+                    this.view.render();
 
                     window.document.body.removeChild(container);
 
