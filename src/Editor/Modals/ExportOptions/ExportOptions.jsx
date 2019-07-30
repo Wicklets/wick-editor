@@ -59,7 +59,7 @@ class ExportOptions extends Component {
       this.props.exportProjectAsStandaloneZip(name);
     } else if (type === 'HTML') {
       // this.props.exportProjectAsHTML(name);
-      console.warn("HTML Export NYI");
+      console.warn("HTML Export Coming Soon");
     }
 
     this.props.toggle()
@@ -100,8 +100,8 @@ class ExportOptions extends Component {
               }
             ]} />
           <ObjectInfo
-            className="export-object-info export-object-info-off"
-            title="Video (Coming Soon)"
+            className="export-object-info"
+            title="Video"
             rows={[
               {
                 text: "Creates a .webm file",
@@ -175,12 +175,9 @@ class ExportOptions extends Component {
         <ActionButton
           id="export-gif-action-button"
           className="export-modal-button"
-          color='gray'
+          color='gray-green'
           action={() => { this.createAndToggle("VIDEO") }}
-          tooltip={"Coming soon!"}
-          tooltipPlace="top"
           text="Export Video"
-          disabled={true}
           />
       </div>
       );
