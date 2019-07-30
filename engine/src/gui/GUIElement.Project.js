@@ -24,25 +24,7 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
     constructor (model) {
         super(model);
 
-        // Build canvas + canvas container
-        this._canvas = document.createElement('canvas');
-        this.paper.setup(this._canvas);
-
-        this._canvasContainer = document.createElement('div');
-        this._canvasContainer.appendChild(this._canvas);
-
-        // Use this GUIElement as the root container that contains all other elements in the GUI
-        this.paper.project.activeLayer.addChild(this.item);
-
-        // Breadcrumbs GUI
-        this.breadcrumbs = new Wick.GUIElement.Breadcrumbs(model);
-
-        this._attachMouseEvents();
-
-        // Re-render canvas on changes that should happen very fast
-        this.on('projectSoftModified', (e) => {
-            this.model.view.render();
-        });
+        this._isSetup = false;
     }
 
     /**
@@ -65,6 +47,8 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
      *
      */
     resize () {
+        if(!this.canvasContainer || !this._canvas) return;
+
         var containerWidth = this.canvasContainer.offsetWidth;
         var containerHeight = this.canvasContainer.offsetHeight;
 
@@ -83,6 +67,30 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
      *
      */
     build () {
+        if(!this._isSetup) {
+            // Build canvas + canvas container
+            this._canvas = document.createElement('canvas');
+            this.paper.setup(this._canvas);
+
+            this._canvasContainer = document.createElement('div');
+            this._canvasContainer.appendChild(this._canvas);
+
+            // Use this GUIElement as the root container that contains all other elements in the GUI
+            this.paper.project.activeLayer.addChild(this.item);
+
+            // Breadcrumbs GUI
+            this.breadcrumbs = new Wick.GUIElement.Breadcrumbs(this.model);
+
+            this._attachMouseEvents();
+
+            // Re-render canvas on changes that should happen very fast
+            this.on('projectSoftModified', (e) => {
+                this.model.view.render();
+            });
+
+            this._isSetup = true;
+        }
+
         super.build();
 
         this.resize();

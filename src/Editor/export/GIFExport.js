@@ -14,7 +14,6 @@ class GIFExport {
       workerScript: process.env.PUBLIC_URL + "/corelibs/gif/gif.worker.js",
     });
     gif.on('finished', (gif) => {
-      project.view.render();
       done(gif);
     });
 

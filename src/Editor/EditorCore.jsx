@@ -918,12 +918,14 @@ class EditorCore extends Component {
   exportProjectAsVideo = (name) => {
     let outputName = name || this.project.name;
 
-    let args = {
+    this.showWaitOverlay();
+    VideoExport.renderProjectAsVideo({
       project: this.project,
-      onDone: blob => {saveAs(blob, outputName + ".webm")},
-    }
-
-    VideoExport.renderProjectAsVideo(args);
+      onDone: blob => {
+        this.hideWaitOverlay();
+        saveAs(blob, outputName + ".webm")
+      },
+    });
   }
 
   /**

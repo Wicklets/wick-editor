@@ -966,10 +966,11 @@ describe('Wick.Project', function() {
 
             project.generateImageSequence({}, images => {
                 images.forEach(image => {
-                    console.log(image);
+                    // TODO need more tests here
+                    //console.log(image);
                 });
                 expect(images.length).to.equal(3);
-                // TODO need more tests here
+
                 done();
             });
         });
