@@ -958,29 +958,28 @@ Wick.Project = class extends Wick.Base {
      * @param {function} done - Function to call when the images are all loaded.
      */
     generateImageSequence (args, callback) {
-        var oldCanvasContainer = this.view.canvasContainer;
-
-        this.history.saveSnapshot('before-gif-render');
-        this.tick();
+        var renderCopy = this.copy();
 
         // Put the project canvas inside a div that's the same size as the project so the frames render at the correct resolution.
         let container = window.document.createElement('div');
-        container.style.width = (this.width/window.devicePixelRatio)+'px';
-        container.style.height = (this.height/window.devicePixelRatio)+'px';
+        container.style.width = (renderCopy.width/window.devicePixelRatio)+'px';
+        container.style.height = (renderCopy.height/window.devicePixelRatio)+'px';
         window.document.body.appendChild(container);
-        this.view.canvasContainer = container;
-        this.view.resize();
+        renderCopy.view.canvasContainer = container;
+        renderCopy.view.resize();
 
         // Set the initial state of the project.
-        this.focus = this.root;
-        this.focus.timeline.playheadPosition = 1;
-        this.onionSkinEnabled = false;
-        this.zoom = 1 / window.devicePixelRatio;
-        this.pan = {x: 0, y: 0};
+        renderCopy.focus = renderCopy.root;
+        renderCopy.focus.timeline.playheadPosition = 1;
+        renderCopy.onionSkinEnabled = false;
+        renderCopy.zoom = 1 / window.devicePixelRatio;
+        renderCopy.pan = {x: 0, y: 0};
+
+        renderCopy.tick();
 
         // We need full control over when paper.js renders, if we leave autoUpdate on, it's possible to lose frames if paper.js doesnt automatically render as fast as we are generating the images.
         // (See paper.js docs for info about autoUpdate)
-        paper.view.autoUpdate = false;
+        renderCopy.view.paper.view.autoUpdate = false;
 
         var frameImages = [];
         var renderFrame = () => {
@@ -988,26 +987,20 @@ Wick.Project = class extends Wick.Base {
 
             frameImage.onload = () => {
                 frameImages.push(frameImage);
-                if(this.focus.timeline.playheadPosition >= this.focus.timeline.length) {
+                if(renderCopy.focus.timeline.playheadPosition >= renderCopy.focus.timeline.length) {
                     // reset autoUpdate back to normal
-                    paper.view.autoUpdate = true;
-
-                    // reset canvas container back to normal
-                    this.view.canvasContainer = oldCanvasContainer;
-                    this.view.resize();
-
-                    this.history.loadSnapshot('before-gif-render');
+                    renderCopy.view.paper.view.autoUpdate = true;
 
                     callback(frameImages);
                 } else {
-                    this.tick();
+                    renderCopy.tick();
                     renderFrame();
                 }
             }
 
-            this.view.render();
-            paper.view.update();
-            frameImage.src = this.view.canvas.toDataURL(args.imageType || 'image/png');
+            renderCopy.view.render();
+            renderCopy.view.paper.view.update();
+            frameImage.src = renderCopy.view.canvas.toDataURL(args.imageType || 'image/png');
         }
 
         renderFrame();

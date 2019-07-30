@@ -965,6 +965,9 @@ describe('Wick.Project', function() {
             project.activeLayer.frames[2].addPath(path3);
 
             project.generateImageSequence({}, images => {
+                images.forEach(image => {
+                    console.log(image);
+                });
                 expect(images.length).to.equal(3);
                 // TODO need more tests here
                 done();
