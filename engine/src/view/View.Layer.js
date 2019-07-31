@@ -46,8 +46,15 @@ Wick.View.Layer = class extends Wick.View {
             frame.view.clipsLayer.opacity = 1.0;
             frame.view.pathsLayer.opacity = 1.0;
         }
+
+        // Disable mouse events on layers if they are locked.
+        // (However, this is ignored while the project is playing so the interact tool always works.)
         this.activeFrameLayers.forEach(layer => {
-            layer.locked = this.model.locked;
+            if(this.model.project.playing) {
+                layer.locked = false;
+            } else {
+                layer.locked = this.model.locked;
+            }
         });
 
         // Add onion skinned frame layers

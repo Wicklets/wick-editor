@@ -93,7 +93,7 @@ class EditorCore extends Component {
    */
   zoomIn = () => {
     this.project.zoomIn();
-    this.projectDidChange();
+    this.project.view.render();
   }
 
   /**
@@ -101,7 +101,7 @@ class EditorCore extends Component {
    */
   zoomOut = () => {
     this.project.zoomOut();
-    this.projectDidChange();
+    this.project.view.render();
   }
 
   /**
