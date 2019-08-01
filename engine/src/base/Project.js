@@ -130,7 +130,7 @@ Wick.Project = class extends Wick.Base {
         data.height = this.height;
         data.backgroundColor = this.backgroundColor;
         data.framerate = this.framerate;
-        
+
         data.onionSkinEnabled = this.onionSkinEnabled
         data.onionSkinSeekForwards = this.onionSkinSeekForwards;
         data.onionSkinSeekBackwards = this.onionSkinSeekBackwards;
@@ -1026,7 +1026,11 @@ Wick.Project = class extends Wick.Base {
      * @param {function} callback- The function which will be passed the generated sound array.
      */
     generateAudioSequence (args, callback) {
-        if (!callback) return;
+        if (!args) args = {};
+        if (!callback || !(callback instanceof Function)) {
+          console.error('Wick.Project.generateAudioSequence: callback is required.');
+          return;
+        }
 
         let sounds = this.root.timeline.frames.filter(frame => {
             return frame.sound !== null;

@@ -925,6 +925,14 @@ class EditorCore extends Component {
         this.hideWaitOverlay();
         saveAs(blob, outputName + ".webm")
       },
+      onError: (e) => {
+        console.log('onError')
+        console.log(e)
+      },
+      onMessage: (e) => {
+        console.log('onMessage')
+        console.log(e)
+      },
     });
   }
 

@@ -987,6 +987,12 @@ describe('Wick.Project', function() {
         });
     });
 
+    describe('#generateAudioSequence', function () {
+        it('should return audio data' , function () {
+            throw new Error('plese write this test');
+        });
+    })
+
     describe('#isKeyDown', function () {
         // TODO
     });
