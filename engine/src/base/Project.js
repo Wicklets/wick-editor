@@ -1015,24 +1015,16 @@ Wick.Project = class extends Wick.Base {
     }
 
     /**
-     * Create a sequence of images from every frame in the project.
+     * Create an object containing info on all sounds in the project.
      * Format:
      *   start: The amount of time in milliseconds to cut from the beginning of the sound.
      *   end: The amount of time that the sound will play before stopping.
      *   offset: The amount of time to offset the start of the sound.
      *   src: The source of the sound as a dataURL.
      *   filetype: The file type of the sound asset.
-     * @param {object} args - Options for generating the audio sequence
-     * @param {function} callback- The function which will be passed the generated sound array.
      */
-    generateAudioSequence (args, callback) {
-        if (!args) args = {};
-        if (!callback || !(callback instanceof Function)) {
-          console.error('Wick.Project.generateAudioSequence: callback is required.');
-          return;
-        }
-
-        let sounds = this.root.timeline.frames.filter(frame => {
+    getAudioInfo () {
+        return this.root.timeline.frames.filter(frame => {
             return frame.sound !== null;
         }).map(frame => {
             return {
@@ -1043,8 +1035,16 @@ Wick.Project = class extends Wick.Base {
                 filetype: frame.sound.fileExtension,
             }
         });
+    }
 
-        callback(sounds);
+    /**
+     * TODO docs
+     */
+    generateAudioTrack (args, callback) {
+        var audioTrack = new Wick.AudioTrack(this);
+        audioTrack.toAudioBuffer(audioBuffer => {
+            callback(audioBuffer);
+        });
     }
 
     /**
