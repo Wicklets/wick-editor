@@ -61,6 +61,44 @@ class VideoExport {
     }
   }
 
+  static bufferToRawPCM(abuffer, offset, len) {
+
+    var numOfChan = abuffer.numberOfChannels,
+        length = len * numOfChan * 2 + 44,
+        buffer = new ArrayBuffer(length),
+        view = new DataView(buffer),
+        channels = [], i, sample,
+        pos = 0;
+
+    // write interleaved data
+    for(i = 0; i < abuffer.numberOfChannels; i++)
+      channels.push(abuffer.getChannelData(i));
+
+    while(pos < length) {
+      for(i = 0; i < numOfChan; i++) {             // interleave channels
+        sample = Math.max(-1, Math.min(1, channels[i][offset])); // clamp
+        sample = (0.5 + sample < 0 ? sample * 32768 : sample * 32767)|0; // scale to 16-bit signed int
+        view.setInt16(pos, sample, true);          // update data chunk
+        pos += 2;
+      }
+      offset++                                     // next source sample
+    }
+
+    return buffer;
+
+    //window.saveAs(new Blob([buffer], {type: "audio/wav"}, 'test.raw'));
+
+    function setUint16(data) {
+      view.setUint16(pos, data, true);
+      pos += 2;
+    }
+
+    function setUint32(data) {
+      view.setUint32(pos, data, true);
+      pos += 4;
+    }
+  }
+
   //https://github.com/meandavejustice/merge-audio-buffers/blob/master/index.js
   static mergeBuffers(buffers, ac) {
     var maxChannels = 0;
@@ -227,6 +265,11 @@ class VideoExport {
         // Merge audio into single WAV file
         project.generateAudioSequence({}, audioInfo => {
           this.mergeAudio(audioInfo, audioArraybuffer => {
+
+            var pcmBuffer = this.bufferToRawPCM(audioArraybuffer, 0, audioArraybuffer.length);
+            //window.saveAs(new Blob([wavBuffer], { type: "audio/wav" }), 'broken-wav.wav');
+            //return;
+
             //var wavBuffer = this.bufferToWave(audioArraybuffer, 0, audioArraybuffer.length);
             //window.saveAs(wav, 'test2.wav');
             //window.saveAs(new Blob([wavBuffer], { type: "audio/wav" }), 'test.wav');
@@ -235,9 +278,9 @@ class VideoExport {
             let testaudio_memfs_obj = {name: 'audiotrack.wav', data: testaudioBuffer};
             workerMemoryFiles.push(testaudio_memfs_obj);*/
 
-            var wavBuffer = this.bufferToWave(audioArraybuffer, 0, audioArraybuffer.length);
-            let testaudio_memfs_obj = {name: 'audiotrack.wav', data: wavBuffer};
-            workerMemoryFiles.push(testaudio_memfs_obj);
+            //var wavBuffer = this.bufferToWave(audioArraybuffer, 0, audioArraybuffer.length);
+            let audiotrack_memfs_obj = {name: 'audiotrack.pcm', data: pcmBuffer};
+            workerMemoryFiles.push(audiotrack_memfs_obj);
 
             // Build ffmpeg argument list.
             /*let ffmpegArgs = [
@@ -252,9 +295,13 @@ class VideoExport {
               'out.webm', // Filename
             ];*/
             let ffmpegArgs = [
-              '-i', 'audiotrack.wav',
+              /*'-f', 's16le',
+              '-ar', '44.1k',
+              '-ac', '2',
+              '-i', 'audiotrack.pcm',
               'audiotrack.ogg',
-              '-v', '100'
+              '-v', '100'*/
+              '-formats',
             ];
 
             // Run the ffmpeg command.
