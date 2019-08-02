@@ -923,7 +923,7 @@ class EditorCore extends Component {
       project: this.project,
       onDone: blob => {
         this.hideWaitOverlay();
-        saveAs(blob, outputName + ".webm")
+        saveAs(blob, outputName + ".mp4")
       },
       onError: (e) => {
         console.log('onError')

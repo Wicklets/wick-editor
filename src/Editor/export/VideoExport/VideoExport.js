@@ -233,7 +233,8 @@ class VideoExport {
    */
   static renderProjectAsVideo (args) {
     // Create Worker
-    var worker = new Worker(process.env.PUBLIC_URL + "corelibs/video/ffmpeg-worker-wasm-webm.js");
+    //var worker = new Worker(process.env.PUBLIC_URL + "corelibs/video/ffmpeg-worker-wasm-webm.js");
+    var worker = new Worker(process.env.PUBLIC_URL + "corelibs/video/worker-asm.js");
 
     // Create video.
     let createVideo = (project) => {
@@ -253,7 +254,7 @@ class VideoExport {
           let buffer = b64toBuff.decode(cleanBase64);
 
           // Store name and buffer in memfs appropriate object.
-          let memfs_obj = {name: name, data:buffer};
+          let memfs_obj = {name: name, data:new Uint8Array(buffer)};
 
           // Increase frame number.
           frameNumber += 1;
@@ -266,11 +267,11 @@ class VideoExport {
         project.generateAudioSequence({}, audioInfo => {
           this.mergeAudio(audioInfo, audioArraybuffer => {
 
-            var pcmBuffer = this.bufferToRawPCM(audioArraybuffer, 0, audioArraybuffer.length);
+            //var pcmBuffer = this.bufferToRawPCM(audioArraybuffer, 0, audioArraybuffer.length);
             //window.saveAs(new Blob([wavBuffer], { type: "audio/wav" }), 'broken-wav.wav');
             //return;
 
-            //var wavBuffer = this.bufferToWave(audioArraybuffer, 0, audioArraybuffer.length);
+            var wavBuffer = this.bufferToWave(audioArraybuffer, 0, audioArraybuffer.length);
             //window.saveAs(wav, 'test2.wav');
             //window.saveAs(new Blob([wavBuffer], { type: "audio/wav" }), 'test.wav');
             /*let testaudioDataCleanBase64 = testwav.split(',')[1];
@@ -279,36 +280,51 @@ class VideoExport {
             workerMemoryFiles.push(testaudio_memfs_obj);*/
 
             //var wavBuffer = this.bufferToWave(audioArraybuffer, 0, audioArraybuffer.length);
-            let audiotrack_memfs_obj = {name: 'audiotrack.pcm', data: pcmBuffer};
+            let audiotrack_memfs_obj = {name: 'audiotrack.wav', data: new Uint8Array(wavBuffer)};
             workerMemoryFiles.push(audiotrack_memfs_obj);
 
+            //-r <FRAMERATE>
+            //-f image2
+            //-s <WIDTH>x<HEIGHT>
+            //-i pic%12d.jpg
+            //-vcodec <CODEC>
+            //-q:v <QUALITY>
+            //-vf showinfo
+            //test.mp4
             // Build ffmpeg argument list.
-            /*let ffmpegArgs = [
-              '-r', project.framerate + '', // Framerate
-              '-f', 'image2', // Format Type
-              '-s', project.width + "x" + project.height, // Video Resolution
-              '-i', 'frame%12d.jpeg', // File names for images
-              '-i', 'audiotrack.wav',
-              '-c:v', 'libvpx',  // Codec
-              '-q:v', args.quality || 20, // Quality, Lower is better, 1-100.
-              '-pix_fmt', 'yuv420p', // Pixel format, use -pix_fmts to see all supported.
-              'out.webm', // Filename
-            ];*/
             let ffmpegArgs = [
-              /*'-f', 's16le',
+              //'-i', 'audiotrack.wav',
+              '-i', 'frame%12d.jpeg',
+              '-r', project.framerate + '',
+              '-f', 'image2',
+              '-s', project.width + "x" + project.height,
+              '-vcodec', 'mpeg4',
+              '-q:v', '31',
+              'out.mp4',
+            ];
+            /*console.log(workerMemoryFiles)
+            console.log(ffmpegArgs)
+            let ffmpegArgs = [
+              '-f', 's16le',
               '-ar', '44.1k',
               '-ac', '2',
               '-i', 'audiotrack.pcm',
-              'audiotrack.ogg',
-              '-v', '100'*/
-              '-formats',
-            ];
+              '-v', '100',
+              'audiotrack.wav',
+            ];*/
 
             // Run the ffmpeg command.
-            worker.postMessage({
+            /*worker.postMessage({
               type: "run",
               MEMFS: workerMemoryFiles,
               arguments: ffmpegArgs,
+            });*/
+
+            worker.postMessage({
+              type: "command",
+              arguments: ffmpegArgs,
+              files: workerMemoryFiles,
+              commandName: 'video_render',
             });
           });
         });
@@ -318,6 +334,7 @@ class VideoExport {
     // Tell the worker what to do on message.
     worker.onmessage = function(e) {
       var msg = e.data;
+      console.log(msg)
       switch (msg.type) {
       case "ready":
         createVideo(args.project);
@@ -329,16 +346,16 @@ class VideoExport {
         break;
       case "stdout":
         if (args.onMessage) {
-          args.onMessage("stdout: " + msg.data)
+          //args.onMessage("stdout: " + msg.data)
         }
         break;
       case "stderr":
         if (args.onMessage) {
-          args.onMessage("stderr: " + msg.data)
+          //args.onMessage("stderr: " + msg.data)
         }
         break;
       case "done":
-        let vid = msg.data.MEMFS[0].data
+        let vid = msg.data[0].data;
         let blob = new Blob([new Uint8Array(vid)]);
         if (args.onDone) {
           args.onDone(blob);
