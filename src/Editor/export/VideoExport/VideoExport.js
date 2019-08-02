@@ -1,7 +1,66 @@
 var b64toBuff = require('base64-arraybuffer');
 var toWav = require('audiobuffer-to-wav')
 
+let testwav = 'data:audio/wav;base64,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qJrx4KOQjahZxWbcZgztj2c49nKmkId44S71j0c8eV9yDK6uPRzx5X18eDvjvQ6yKo9ZSS6l//8elePK/Lf//IInrOF/FvDoADYAGBMGb7FtErm5MXMlmPAJQVgWta7Zx2go+8xJ0UiCb8LHHdftWyLJE0QIAIsI+UbXu67dZMjmgDGCGl1H+vpF4NSDckSIkk7Vd+sxEhBQMRU8j/12UIRhzSaUdQ+rQU5kGeFxm+hb1oh6pWWmv3uvmReDl0UnvtapVaIzo1jZbf/pD6ElLqSX+rUmOQNpJFa/r+sa4e/pBlAABoAAAAA3CUgShLdGIxsY7AUABPRrgCABdDuQ5GC7DqPQCgbbJUAoRSUj+NIEig0YfyWUho1VBBBA//uQZB4ABZx5zfMakeAAAAmwAAAAF5F3P0w9GtAAACfAAAAAwLhMDmAYWMgVEG1U0FIGCBgXBXAtfMH10000EEEEEECUBYln03TTTdNBDZopopYvrTTdNa325mImNg3TTPV9q3pmY0xoO6bv3r00y+IDGid/9aaaZTGMuj9mpu9Mpio1dXrr5HERTZSmqU36A3CumzN/9Robv/Xx4v9ijkSRSNLQhAWumap82WRSBUqXStV/YcS+XVLnSS+WLDroqArFkMEsAS+eWmrUzrO0oEmE40RlMZ5+ODIkAyKAGUwZ3mVKmcamcJnMW26MRPgUw6j+LkhyHGVGYjSUUKNpuJUQoOIAyDvEyG8S5yfK6dhZc0Tx1KI/gviKL6qvvFs1+bWtaz58uUNnryq6kt5RzOCkPWlVqVX2a/EEBUdU1KrXLf40GoiiFXK///qpoiDXrOgqDR38JB0bw7SoL+ZB9o1RCkQjQ2CBYZKd/+VJxZRRZlqSkKiws0WFxUyCwsKiMy7hUVFhIaCrNQsKkTIsLivwKKigsj8XYlwt/WKi2N4d//uQRCSAAjURNIHpMZBGYiaQPSYyAAABLAAAAAAAACWAAAAApUF/Mg+0aohSIRobBAsMlO//Kk4soosy1JSFRYWaLC4qZBYWFRGZdwqKiwkNBVmoWFSJkWFxX4FFRQWR+LsS4W/rFRb/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////VEFHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAU291bmRib3kuZGUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMjAwNGh0dHA6Ly93d3cuc291bmRib3kuZGUAAAAAAAAAACU=';
+
 class VideoExport {
+  // Convert a audio-buffer segment to a Blob using WAVE representation
+  static bufferToWave(abuffer, offset, len) {
+
+    var numOfChan = abuffer.numberOfChannels,
+        length = len * numOfChan * 2 + 44,
+        buffer = new ArrayBuffer(length),
+        view = new DataView(buffer),
+        channels = [], i, sample,
+        pos = 0;
+
+    // write WAVE header
+    setUint32(0x46464952);                         // "RIFF"
+    setUint32(length - 8);                         // file length - 8
+    setUint32(0x45564157);                         // "WAVE"
+
+    setUint32(0x20746d66);                         // "fmt " chunk
+    setUint32(16);                                 // length = 16
+    setUint16(1);                                  // PCM (uncompressed)
+    setUint16(numOfChan);
+    setUint32(abuffer.sampleRate);
+    setUint32(abuffer.sampleRate * 2 * numOfChan); // avg. bytes/sec
+    setUint16(numOfChan * 2);                      // block-align
+    setUint16(16);                                 // 16-bit (hardcoded in this demo)
+
+    setUint32(0x61746164);                         // "data" - chunk
+    setUint32(length - pos - 4);                   // chunk length
+
+    // write interleaved data
+    for(i = 0; i < abuffer.numberOfChannels; i++)
+      channels.push(abuffer.getChannelData(i));
+
+    while(pos < length) {
+      for(i = 0; i < numOfChan; i++) {             // interleave channels
+        sample = Math.max(-1, Math.min(1, channels[i][offset])); // clamp
+        sample = (0.5 + sample < 0 ? sample * 32768 : sample * 32767)|0; // scale to 16-bit signed int
+        view.setInt16(pos, sample, true);          // update data chunk
+        pos += 2;
+      }
+      offset++                                     // next source sample
+    }
+
+    return buffer;
+
+    // create Blob
+    //return new Blob([buffer], {type: "audio/wav"});
+
+    function setUint16(data) {
+      view.setUint16(pos, data, true);
+      pos += 2;
+    }
+
+    function setUint32(data) {
+      view.setUint32(pos, data, true);
+      pos += 4;
+    }
+  }
+
   //https://github.com/meandavejustice/merge-audio-buffers/blob/master/index.js
   static mergeBuffers(buffers, ac) {
     var maxChannels = 0;
@@ -99,8 +158,9 @@ class VideoExport {
 
     let mergeAudio = () => {
       let mergedAudioBuffer = this.mergeBuffers(audiobuffers, ctx);
-      var wav = toWav(mergedAudioBuffer);
-      callback(wav);
+      callback(mergedAudioBuffer);
+      //var wav = toWav(mergedAudioBuffer);
+      //callback(wav);
 
       /*
       setTimeout(() => {
@@ -154,8 +214,6 @@ class VideoExport {
           let cleanBase64 = image.src.split(',')[1];
           let buffer = b64toBuff.decode(cleanBase64);
 
-          console.log(buffer)
-
           // Store name and buffer in memfs appropriate object.
           let memfs_obj = {name: name, data:buffer};
 
@@ -169,15 +227,20 @@ class VideoExport {
         // Merge audio into single WAV file
         project.generateAudioSequence({}, audioInfo => {
           this.mergeAudio(audioInfo, audioArraybuffer => {
-            console.log(audioArraybuffer)
-            window.saveAs(new Blob([audioArraybuffer], { type: "audio/wav" }), 'test.wav');
-            //let testaudioDataCleanBase64 = base64.split(',')[1];
-            //let testaudioBuffer = b64toBuff.decode(testaudioDataCleanBase64);
-            let testaudio_memfs_obj = {name: 'audiotrack.wav', data: audioArraybuffer};
+            //var wavBuffer = this.bufferToWave(audioArraybuffer, 0, audioArraybuffer.length);
+            //window.saveAs(wav, 'test2.wav');
+            //window.saveAs(new Blob([wavBuffer], { type: "audio/wav" }), 'test.wav');
+            /*let testaudioDataCleanBase64 = testwav.split(',')[1];
+            let testaudioBuffer = b64toBuff.decode(testaudioDataCleanBase64);
+            let testaudio_memfs_obj = {name: 'audiotrack.wav', data: testaudioBuffer};
+            workerMemoryFiles.push(testaudio_memfs_obj);*/
+
+            var wavBuffer = this.bufferToWave(audioArraybuffer, 0, audioArraybuffer.length);
+            let testaudio_memfs_obj = {name: 'audiotrack.wav', data: wavBuffer};
             workerMemoryFiles.push(testaudio_memfs_obj);
 
             // Build ffmpeg argument list.
-            let ffmpegArgs = [
+            /*let ffmpegArgs = [
               '-r', project.framerate + '', // Framerate
               '-f', 'image2', // Format Type
               '-s', project.width + "x" + project.height, // Video Resolution
@@ -186,8 +249,12 @@ class VideoExport {
               '-c:v', 'libvpx',  // Codec
               '-q:v', args.quality || 20, // Quality, Lower is better, 1-100.
               '-pix_fmt', 'yuv420p', // Pixel format, use -pix_fmts to see all supported.
-              // '-vf', 'showinfo', // Spit out intermediate info.
               'out.webm', // Filename
+            ];*/
+            let ffmpegArgs = [
+              '-i', 'audiotrack.wav',
+              'audiotrack.ogg',
+              '-v', '100'
             ];
 
             // Run the ffmpeg command.
@@ -226,7 +293,6 @@ class VideoExport {
       case "done":
         let vid = msg.data.MEMFS[0].data
         let blob = new Blob([new Uint8Array(vid)]);
-        console.log(blob);
         if (args.onDone) {
           args.onDone(blob);
         }
