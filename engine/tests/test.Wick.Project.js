@@ -994,6 +994,15 @@ describe('Wick.Project', function() {
     })
 
     describe('#generateAudioTrack', function () {
+        it('should return an empty audio track if project has no sounds' , function (done) {
+            var project = new Wick.Project();
+
+            project.generateAudioTrack({}, audioBuffer => {
+              expect(audioBuffer).to.equal(null);
+              done();
+            });
+        });
+
         it('should return an audio track with all project sounds playing at correct times' , function (done) {
             var project = new Wick.Project();
 

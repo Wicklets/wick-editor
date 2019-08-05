@@ -108,9 +108,13 @@ class VideoExport {
 
   static generateAudioFiles (project, callback) {
     project.generateAudioTrack({}, audioBuffer => {
-      var wavBuffer = toWav(audioBuffer);
-      let memfs_obj = {name: 'audiotrack.wav', data:new Uint8Array(wavBuffer)};
-      callback([memfs_obj]);
+      if(!audioBuffer) {
+        callback([]);
+      } else {
+        var wavBuffer = toWav(audioBuffer);
+        let memfs_obj = {name: 'audiotrack.wav', data:new Uint8Array(wavBuffer)};
+        callback([memfs_obj]);
+      }
     });
   }
 
