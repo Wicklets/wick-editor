@@ -87,7 +87,6 @@ class VideoExport {
 
         // TODO: Add audio track to video:
         this.generateAudioFiles(project, audioFiles => {
-          audioFiles = [];
           if(audioFiles.length === 0) {
             let blob = new Blob([new Uint8Array(videoData)]);
             window.saveAs(blob, 'result.mp4');
@@ -102,17 +101,21 @@ class VideoExport {
               console.log('add audio track:');
               console.log(videoWithSoundData)
               let blob = new Blob([new Uint8Array(videoWithSoundData)]);
-              window.saveAs(blob, 'result.mp4');
+              window.saveAs(blob, 'result.mp3');
             };
-            //ffmpeg -i input.mp4 -i input.wav -c:v copy -map 0:v:0 -map 1:a:0 -c:a aac -b:a 192k output.mp4
-            //ffmpeg -i input.mp4 -i input.mp3 -c copy -map 0:v:0 -map 1:a:0 output.mp4
+            //var command = "-r " + args.framerate + " " + "-i " + videoFilename + " -i " + soundFilename + " -c:v copy -c:a aac -strict -2 " + "-r " + args.framerate + " " + args.filename;
             this.ffmpeg.run([
+              '-r', project.framerate,
               '-i', 'video-no-sound.mp4',
-              //'-i', 'audiotrack.wav',
+              '-i', 'audiotrack.wav',
+              '-c:v', 'copy',
+              '-c:a', 'aac',
+              '-strict', '-2',
               //'-c', 'copy',
               //'-map', '0:v:0',
               //'-map', '1:a:0',
               //'-c', 'aac',
+              //'-strict', '-2',
               //'-b:a', '192k',
               'out.mp4',
             ], videoAndAudioFiles, 'add_audio_track');
