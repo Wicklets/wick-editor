@@ -42,7 +42,7 @@ Wick.AudioTrack = class {
      * @param {Function} callback -
      */
     toAudioBuffer (callback) {
-        var audioInfo = project.getAudioInfo();
+        var audioInfo = this.project.getAudioInfo();
         Wick.AudioTrack.generateProjectAudioBuffer(audioInfo, audioArraybuffer => {
             callback(audioArraybuffer);
         });
@@ -157,7 +157,7 @@ Wick.AudioTrack = class {
      */
     static base64ToAudioBuffer (base64, ctx, callback) {
         let base64DataOnly = base64.split(',')[1];
-        let arraybuffer = b64toBuff.decode(base64DataOnly);
+        let arraybuffer = Base64ArrayBuffer.decode(base64DataOnly);
 
         ctx.decodeAudioData(arraybuffer, function(audioBuffer) {
             callback(audioBuffer);

@@ -994,8 +994,31 @@ describe('Wick.Project', function() {
     })
 
     describe('#generateAudioTrack', function () {
-        it('should return an audio track with all project sounds playing at correct times' , function () {
-            throw new Error('write me');
+        it('should return an empty audio track if project has no sounds' , function () {
+            var project = new Wick.Project();
+
+            project.generateAudioTrack({}, audioBuffer => {
+              console.log(audioBuffer);
+              done();
+            });
+        });
+
+        it('should return an audio track with all project sounds playing at correct times' , function (done) {
+            var project = new Wick.Project();
+
+            var sound = new Wick.SoundAsset({
+                filename: 'foo.wav',
+                src: TestUtils.TEST_SOUND_SRC_WAV
+            });
+            project.addAsset(sound);
+
+            project.activeFrame.sound = sound;
+            project.activeFrame.end = 10;
+
+            project.generateAudioTrack({}, audioBuffer => {
+              console.log(audioBuffer);
+              done();
+            });
         });
     });
 

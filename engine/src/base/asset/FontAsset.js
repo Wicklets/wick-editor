@@ -65,7 +65,7 @@ Wick.FontAsset = class extends Wick.FileAsset {
      * Loads the font into the window.
      */
     load (callback) {
-        var fontDataArraybuffer = this._base64ToArrayBuffer(this.src.split(',')[1]);
+        var fontDataArraybuffer = Base64ArrayBuffer.decode(this.src.split(',')[1]);
 
         var fontFamily = this.fontFamily;
         if(!fontFamily) {
@@ -122,16 +122,5 @@ Wick.FontAsset = class extends Wick.FileAsset {
      */
     get fontFamily () {
         return this.filename.split('.')[0];
-    }
-
-    // https://stackoverflow.com/questions/21797299/convert-base64-string-to-arraybuffer/21797381
-    _base64ToArrayBuffer (base64) {
-        var binary_string =  window.atob(base64);
-        var len = binary_string.length;
-        var bytes = new Uint8Array( len );
-        for (var i = 0; i < len; i++)        {
-            bytes[i] = binary_string.charCodeAt(i);
-        }
-        return bytes.buffer;
     }
 }

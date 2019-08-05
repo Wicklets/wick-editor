@@ -22,7 +22,7 @@ import localForage from 'localforage';
 import { saveAs } from 'file-saver';
 import GIFExport from './export/GIFExport';
 import ZIPExport from './export/ZIPExport';
-import VideoExport from './export/VideoExport/VideoExport';
+import VideoExport from './export/VideoExport';
 
 class EditorCore extends Component {
   /**
@@ -915,24 +915,10 @@ class EditorCore extends Component {
   /**
    * Export the current project as a video.
    */
-  exportProjectAsVideo = (name) => {
-    let outputName = name || this.project.name;
-
+  exportProjectAsVideo = () => {
     this.showWaitOverlay();
-    VideoExport.renderProjectAsVideo({
-      project: this.project,
-      onDone: blob => {
-        this.hideWaitOverlay();
-        saveAs(blob, outputName + ".mp4")
-      },
-      onError: (e) => {
-        console.log('onError')
-        console.log(e)
-      },
-      onMessage: (e) => {
-        console.log('onMessage')
-        console.log(e)
-      },
+    VideoExport.renderVideo(this.project, () => {
+      this.hideWaitOverlay();
     });
   }
 

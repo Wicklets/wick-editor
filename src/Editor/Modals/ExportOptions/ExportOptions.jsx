@@ -101,10 +101,10 @@ class ExportOptions extends Component {
             ]} />
           <ObjectInfo
             className="export-object-info"
-            title="Video"
+            title="Video (Beta)"
             rows={[
               {
-                text: "Creates a .webm file",
+                text: "Creates an .mp4 file",
                 icon: "check"
               },
               {
@@ -177,7 +177,7 @@ class ExportOptions extends Component {
           className="export-modal-button"
           color='gray-green'
           action={() => { this.createAndToggle("VIDEO") }}
-          text="Export Video"
+          text="Export Video (Beta)"
           />
       </div>
       );
