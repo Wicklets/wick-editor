@@ -81,22 +81,28 @@ class VideoExport {
 
   static renderVideo (project, callback) {
     this.generateImageFiles(project, imageFiles => {
-      this.generateAudioFiles(project, audioFiles => {
-        this.ffmpeg.onDone = (data) => {
-          console.log(data);
-          let blob = new Blob([new Uint8Array(data)]);
-          window.saveAs(blob, 'result.mp4');
-        }
-        this.ffmpeg.run([
-          '-r', project.framerate + '',
-          '-f', 'image2',
-          '-s', project.width + "x" + project.height,
-          '-i', 'frame%12d.jpeg',
-          '-vcodec', 'mpeg4',
-          '-q:v', '31',
-          'out.mp4',
-        ], imageFiles, 'images_to_video');
-      });
+      this.ffmpeg.onDone = (data) => {
+        console.log(data);
+        let blob = new Blob([new Uint8Array(data)]);
+        window.saveAs(blob, 'result.mp4');
+
+        // TODO: Add audio track to video:
+        /*
+        this.generateAudioFiles(project, audioFiles => {
+
+        });
+        */
+        callback();
+      }
+      this.ffmpeg.run([
+        '-r', project.framerate + '',
+        '-f', 'image2',
+        '-s', project.width + "x" + project.height,
+        '-i', 'frame%12d.jpeg',
+        '-vcodec', 'mpeg4',
+        '-q:v', '31',
+        'out.mp4',
+      ], imageFiles, 'images_to_video');
     });
   }
 

@@ -43,6 +43,10 @@ Wick.AudioTrack = class {
      */
     toAudioBuffer (callback) {
         var audioInfo = this.project.getAudioInfo();
+        if(audioInfo.length === 0) {
+            console.error("Wick.AudioTrack: Project has no audio, cannot create an audiobuffer!");
+            return;
+        }
         Wick.AudioTrack.generateProjectAudioBuffer(audioInfo, audioArraybuffer => {
             callback(audioArraybuffer);
         });
