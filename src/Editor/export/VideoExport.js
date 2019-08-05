@@ -81,26 +81,52 @@ class VideoExport {
 
   static renderVideo (project, callback) {
     this.generateImageFiles(project, imageFiles => {
-      this.ffmpeg.onDone = (data) => {
-        console.log(data);
-        let blob = new Blob([new Uint8Array(data)]);
-        window.saveAs(blob, 'result.mp4');
+      this.ffmpeg.onDone = videoData => {
+        console.log('images->video');
+        console.log(videoData);
 
         // TODO: Add audio track to video:
-        /*
         this.generateAudioFiles(project, audioFiles => {
-
+          audioFiles = [];
+          if(audioFiles.length === 0) {
+            let blob = new Blob([new Uint8Array(videoData)]);
+            window.saveAs(blob, 'result.mp4');
+            callback();
+          } else {
+            let videoFiles = [{
+              name: 'video-no-sound.mp4',
+              data: new Uint8Array(videoData),
+            }]
+            let videoAndAudioFiles = audioFiles.concat(videoFiles)
+            this.ffmpeg.onDone = videoWithSoundData => {
+              console.log('add audio track:');
+              console.log(videoWithSoundData)
+              let blob = new Blob([new Uint8Array(videoWithSoundData)]);
+              window.saveAs(blob, 'result.mp4');
+            };
+            //ffmpeg -i input.mp4 -i input.wav -c:v copy -map 0:v:0 -map 1:a:0 -c:a aac -b:a 192k output.mp4
+            //ffmpeg -i input.mp4 -i input.mp3 -c copy -map 0:v:0 -map 1:a:0 output.mp4
+            this.ffmpeg.run([
+              '-i', 'video-no-sound.mp4',
+              //'-i', 'audiotrack.wav',
+              //'-c', 'copy',
+              //'-map', '0:v:0',
+              //'-map', '1:a:0',
+              //'-c', 'aac',
+              //'-b:a', '192k',
+              'out.mp4',
+            ], videoAndAudioFiles, 'add_audio_track');
+          }
         });
-        */
         callback();
-      }
+      };
       this.ffmpeg.run([
         '-r', project.framerate + '',
         '-f', 'image2',
         '-s', project.width + "x" + project.height,
         '-i', 'frame%12d.jpeg',
         '-vcodec', 'mpeg4',
-        '-q:v', '31',
+        '-q:v', '10', //10=good quality, 31=bad quality
         'out.mp4',
       ], imageFiles, 'images_to_video');
     });
@@ -112,7 +138,7 @@ class VideoExport {
         callback([]);
       } else {
         var wavBuffer = toWav(audioBuffer);
-        let memfs_obj = {name: 'audiotrack.wav', data:new Uint8Array(wavBuffer)};
+        let memfs_obj = {name: 'audiotrack.wav', data: new Uint8Array(wavBuffer)};
         callback([memfs_obj]);
       }
     });
