@@ -1038,7 +1038,9 @@ Wick.Project = class extends Wick.Base {
     }
 
     /**
-     * TODO docs
+     * Generate an audiobuffer containing all the project's sounds merged together.
+     * @param {object} args - placeholder for future options, not currently used
+     * @param {Function} callback - callback used to recieve the final audiobuffer.
      */
     generateAudioTrack (args, callback) {
         var audioTrack = new Wick.AudioTrack(this);
@@ -1048,7 +1050,8 @@ Wick.Project = class extends Wick.Base {
     }
 
     /**
-     *
+     * Check if an object is a mouse target (if the mouse is currently hovered over the object)
+     * @param {Wick.Tickable} object - the object to check if it is a mouse target
      */
     objectIsMouseTarget (object) {
         return this._mouseTargets.indexOf(object) !== -1;

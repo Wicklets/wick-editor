@@ -987,11 +987,17 @@ describe('Wick.Project', function() {
         });
     });
 
-    describe('#generateAudioSequence', function () {
+    describe('#getAudioInfo', function () {
         it('should return audio data' , function () {
-            throw new Error('plese write this test');
+            throw new Error('write me');
         });
     })
+
+    describe('#generateAudioTrack', function () {
+        it('should return an audio track with all project sounds playing at correct times' , function () {
+            throw new Error('write me');
+        });
+    });
 
     describe('#isKeyDown', function () {
         // TODO
