@@ -71,83 +71,26 @@ class FFMPEG {
 }
 
 class VideoExport {
-  static get ffmpeg () {
-    // lazily create ffmpeg instance
-    if(!this._ffmpeg) {
-      this._ffmpeg = new FFMPEG();
-    }
-    return this._ffmpeg;
-  }
-
   static renderVideo (project, callback) {
-    this.generateImageFiles(project, imageFiles => {
-      this.ffmpeg.onDone = videoData => {
-        console.log('images->video');
-        console.log(videoData);
-
-        // TODO: Add audio track to video:
-        this.generateAudioFiles(project, audioFiles => {
-          if(audioFiles.length === 0) {
-            let blob = new Blob([new Uint8Array(videoData)]);
-            window.saveAs(blob, 'result.mp4');
-            callback();
-          } else {
-            let videoFiles = [{
-              name: 'video-no-sound.mp4',
-              data: new Uint8Array(videoData),
-            }]
-            let videoAndAudioFiles = audioFiles.concat(videoFiles)
-            this.ffmpeg.onDone = videoWithSoundData => {
-              console.log('add audio track:');
-              console.log(videoWithSoundData)
-              let blob = new Blob([new Uint8Array(videoWithSoundData)]);
-              window.saveAs(blob, 'result.mp3');
-            };
-            //var command = "-r " + args.framerate + " " + "-i " + videoFilename + " -i " + soundFilename + " -c:v copy -c:a aac -strict -2 " + "-r " + args.framerate + " " + args.filename;
-            this.ffmpeg.run([
-              '-r', project.framerate,
-              '-i', 'video-no-sound.mp4',
-              '-i', 'audiotrack.wav',
-              '-c:v', 'copy',
-              '-c:a', 'aac',
-              '-strict', '-2',
-              //'-c', 'copy',
-              //'-map', '0:v:0',
-              //'-map', '1:a:0',
-              //'-c', 'aac',
-              //'-strict', '-2',
-              //'-b:a', '192k',
-              'out.mp4',
-            ], videoAndAudioFiles, 'add_audio_track');
-          }
+    this._generateVideoFile(project, videoFiles => {
+      this._generateAudioFiles(project, audioFiles => {
+        this._mixAudioAndVideoFiles(project, videoFiles, audioFiles, videoWithAudio => {
+          this._saveVideoFile(videoWithAudio);
+          callback();
         });
-        callback();
-      };
-      this.ffmpeg.run([
-        '-r', project.framerate + '',
-        '-f', 'image2',
-        '-s', project.width + "x" + project.height,
-        '-i', 'frame%12d.jpeg',
-        '-vcodec', 'mpeg4',
-        '-q:v', '10', //10=good quality, 31=bad quality
-        'out.mp4',
-      ], imageFiles, 'images_to_video');
-    });
+      });
+    })
   }
 
-  static generateAudioFiles (project, callback) {
-    project.generateAudioTrack({}, audioBuffer => {
-      if(!audioBuffer) {
-        callback([]);
-      } else {
-        var wavBuffer = toWav(audioBuffer);
-        let memfs_obj = {name: 'audiotrack.wav', data: new Uint8Array(wavBuffer)};
-        callback([memfs_obj]);
-      }
-    });
+  static get _ffmpeg () {
+    // lazily create ffmpeg instance
+    if(!this._ffmpegInstance) {
+      this._ffmpegInstance = new FFMPEG();
+    }
+    return this._ffmpegInstance;
   }
 
-  static generateImageFiles (project, callback) {
+  static _generateImageFiles (project, callback) {
     var imageFiles = [];
 
     // Get frame images from project, send to the video worker.
@@ -175,6 +118,64 @@ class VideoExport {
 
       callback(imageFiles);
     });
+  }
+
+  static _generateAudioFiles (project, callback) {
+    project.generateAudioTrack({}, audioBuffer => {
+      if(!audioBuffer) {
+        callback([]);
+      } else {
+        var wavBuffer = toWav(audioBuffer);
+        let memfs_obj = {name: 'audiotrack.wav', data: new Uint8Array(wavBuffer)};
+        callback([memfs_obj]);
+      }
+    });
+  }
+
+  static _generateVideoFile (project, callback) {
+    this._generateImageFiles(project, imageFiles => {
+      this._ffmpeg.onDone = videoData => {
+        let videoFiles = [{
+          name: 'video-no-sound.mp4',
+          data: new Uint8Array(videoData),
+        }];
+        callback(videoFiles);
+      };
+      this._ffmpeg.run([
+        '-r', project.framerate + '',
+        '-f', 'image2',
+        '-s', project.width + "x" + project.height,
+        '-i', 'frame%12d.jpeg',
+        '-vcodec', 'mpeg4',
+        '-q:v', '10', //10=good quality, 31=bad quality
+        'out.mp4',
+      ], imageFiles, 'images_to_video');
+    });
+  }
+
+  static _mixAudioAndVideoFiles (project, videoFiles, audioFiles, callback) {
+    if(audioFiles.length === 0) {
+      callback(videoFiles[0]);
+    } else {
+      let videoAndAudioFiles = audioFiles.concat(videoFiles);
+      this._ffmpeg.onDone = videoWithSoundData => {
+        callback(videoWithSoundData);
+      };
+      this._ffmpeg.run([
+        '-r', project.framerate,
+        '-i', 'video-no-sound.mp4',
+        '-i', 'audiotrack.wav',
+        '-c:v', 'copy',
+        '-c:a', 'aac',
+        '-strict', '-2',
+        'out.mp4',
+      ], videoAndAudioFiles, 'add_audio_track');
+    }
+  }
+
+  static _saveVideoFile (data) {
+    let blob = new Blob([new Uint8Array(data)]);
+    window.saveAs(blob, 'result.mp4');
   }
 }
 
