@@ -75,7 +75,7 @@ class VideoExport {
     this._generateVideoFile(project, videoFiles => {
       this._generateAudioFiles(project, audioFiles => {
         this._mixAudioAndVideoFiles(project, videoFiles, audioFiles, videoWithAudio => {
-          this._saveVideoFile(videoWithAudio);
+          this._saveVideoFile(project, videoWithAudio);
           callback();
         });
       });
@@ -173,9 +173,9 @@ class VideoExport {
     }
   }
 
-  static _saveVideoFile (data) {
+  static _saveVideoFile (project, data) {
     let blob = new Blob([new Uint8Array(data)]);
-    window.saveAs(blob, 'result.mp4');
+    window.saveAs(blob, project.name+'.mp4');
   }
 }
 
