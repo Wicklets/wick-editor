@@ -916,7 +916,7 @@ class EditorCore extends Component {
    * Export the current project as a video.
    */
   exportProjectAsVideo = () => {
-    this.showWaitOverlay();
+    this.showWaitOverlay('Rendering video...');
     VideoExport.renderVideo(this.project, () => {
       this.hideWaitOverlay();
     });

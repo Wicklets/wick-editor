@@ -26,6 +26,7 @@ import WelcomeMessage from '../WelcomeMessage/WelcomeMessage';
 import MakeAnimated from '../MakeAnimated/MakeAnimated';
 import ExportOptions from '../ExportOptions/ExportOptions';
 import GeneralWarning from '../GeneralWarning/GeneralWarning';
+import ExportVideo from '../ExportVideo/ExportVideo';
 
 class ModalHandler extends Component {
   render() {
@@ -65,6 +66,8 @@ class ModalHandler extends Component {
         />
         <ExportOptions
           openModal={this.props.openModal}
+          closeActiveModal={this.props.closeActiveModal}
+          queueModal={this.props.queueModal}
           toggle={this.props.closeActiveModal}
           exportProjectAsGif={this.props.exportProjectAsGif}
           exportProjectAsStandaloneZip={this.props.exportProjectAsStandaloneZip}
@@ -77,6 +80,11 @@ class ModalHandler extends Component {
           toggle={this.props.closeActiveModal}
           open={this.props.activeModalName === 'GeneralWarning'}
           info={this.props.warningModalInfo}
+        />
+        <ExportVideo
+          openModal={this.props.openModal}
+          toggle={this.props.closeActiveModal}
+          open={this.props.activeModalName === 'ExportVideo'}
         />
       </div>
     );

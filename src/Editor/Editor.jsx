@@ -194,10 +194,11 @@ class Editor extends EditorCore {
     }, 2000);
   }
 
-  showWaitOverlay = () => {
+  showWaitOverlay = (message) => {
     window.clearTimeout(this._showWaitOverlayTimeoutID);
     this._showWaitOverlayTimeoutID = window.setTimeout(() => {
       let waitOverlay = window.document.getElementById('wait-overlay');
+      waitOverlay.innerHTML = message || "Please wait...";
       waitOverlay.style.display = 'block';
     }, 250);
   }
@@ -595,6 +596,7 @@ class Editor extends EditorCore {
                     activeModalName={this.state.activeModalName}
                     openModal={this.openModal}
                     closeActiveModal={this.closeActiveModal}
+                    queueModal={this.queueModal}
                     project={this.project}
                     createClipFromSelection={this.createClipFromSelection}
                     createButtonFromSelection={this.createButtonFromSelection}

@@ -52,17 +52,19 @@ class ExportOptions extends Component {
     let name = this.state.name !== "" ? this.state.name : (type);
 
     if (type === 'GIF') {
-      this.props.exportProjectAsGif(name)
+      this.props.exportProjectAsGif(name);
+      this.props.toggle();
     } else if (type === 'VIDEO') {
-      this.props.exportProjectAsVideo(name);
+      //this.props.exportProjectAsVideo(name);
+      this.props.openModal('ExportVideo');
     } else if (type === 'ZIP') {
       this.props.exportProjectAsStandaloneZip(name);
+      this.props.toggle();
     } else if (type === 'HTML') {
       // this.props.exportProjectAsHTML(name);
       console.warn("HTML Export Coming Soon");
+      this.props.toggle();
     }
-
-    this.props.toggle()
   }
 
   // Updates the clip name in the state.

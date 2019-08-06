@@ -5,7 +5,6 @@ describe('Wick.GUIElement.Project', function() {
         project.activeLayer.addFrame(new Wick.Frame(3));
 
         project.guiElement.build();
-        //console.log(paper);
     });
 
     it('should render frame sound waveforms', function (done) {
@@ -26,6 +25,13 @@ describe('Wick.GUIElement.Project', function() {
                 project.guiElement.build();
                 done();
             }, 100);
+        });
+    });
+
+    describe('#performance', function () {
+        it('performance test: many frames of all types', function () {
+            //
+            console.error('write me please');
         });
     });
 });
