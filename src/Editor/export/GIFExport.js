@@ -8,7 +8,7 @@ class GIFExport {
     // Initialize GIF.js
     let gif = new window.GIF({
       workers: 2,
-      quality: 10,
+      quality: 5,
       width: project.width,
       height: project.height,
       workerScript: process.env.PUBLIC_URL + "/corelibs/gif/gif.worker.js",
