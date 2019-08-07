@@ -84,6 +84,7 @@ class ModalHandler extends Component {
         <ExportVideo
           openModal={this.props.openModal}
           toggle={this.props.closeActiveModal}
+          exportProjectAsVideo={this.props.exportProjectAsVideo}
           open={this.props.activeModalName === 'ExportVideo'}
         />
       </div>

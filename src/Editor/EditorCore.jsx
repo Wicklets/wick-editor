@@ -915,10 +915,15 @@ class EditorCore extends Component {
   /**
    * Export the current project as a video.
    */
-  exportProjectAsVideo = () => {
+  exportProjectAsVideo = (onProgress, onFinish) => {
     this.showWaitOverlay('Rendering video...');
-    VideoExport.renderVideo(this.project, () => {
-      this.hideWaitOverlay();
+    VideoExport.renderVideo({
+      project: this.project,
+      onProgress: onProgress,
+      onFinish: () => {
+        this.hideWaitOverlay();
+        onFinish();
+      },
     });
   }
 

@@ -19,6 +19,7 @@
 
 import React, { Component } from 'react';
 import WickModal from 'Editor/Modals/WickModal/WickModal';
+import ActionButton from 'Editor/Util/ActionButton/ActionButton';
 import { Progress } from 'reactstrap';
 
 import './_exportvideo.scss';
@@ -27,11 +28,27 @@ class ExportVideo extends Component {
   constructor (props) {
     super(props);
     this.state = {
+      renderStatusMessage: '',
+      renderProgress: 0,
     };
   }
 
   componentDidUpdate = (prevProps) => {
 
+  }
+
+  exportVideo = () => {
+    this.props.exportProjectAsVideo(
+      (message, progress) => {
+        this.setState({
+          renderStatusMessage: message,
+          renderProgress: progress
+        });
+      },
+      () => {
+
+      }
+    );
   }
 
   render() {
@@ -43,8 +60,14 @@ class ExportVideo extends Component {
         overlayClassName="video-export-modal-overlay"
       >
         <div className="video-export-modal-content">
-          <Progress animated value={2 * 5} />
+          <Progress animated value={this.state.renderProgress} />
+          <div>{this.state.renderStatusMessage}</div>
         </div>
+        <ActionButton
+          color='gray-green'
+          action={this.exportVideo}
+          text="Export"
+        />
       </WickModal>
     );
   }

@@ -2,12 +2,12 @@ var b64toBuff = require('base64-arraybuffer');
 var toWav = require('audiobuffer-to-wav')
 
 class FFMPEG {
-  get onMessage () {
-      return this._onMessage || (() => {});
+  get onProgress () {
+      return this._onProgress || (() => {});
   }
 
-  set onMessage (onMessage) {
-      this._onMessage = onMessage;
+  set onProgress (onProgress) {
+      this._onProgress = onProgress;
   }
 
   get onDone () {
@@ -24,7 +24,6 @@ class FFMPEG {
     this._worker = new Worker(process.env.PUBLIC_URL + "corelibs/video/worker-asm.js");
     this._worker.onmessage = (e) => {
       var msg = e.data;
-      console.log(msg)
       switch (msg.type) {
         case "ready":
           this._isReady = true;
@@ -32,6 +31,9 @@ class FFMPEG {
         case "run":
           break;
         case "stdout":
+          if(msg.data.startsWith('frame=')) {
+            console.log(msg);
+          }
           break;
         case "stderr":
           break;
@@ -71,12 +73,20 @@ class FFMPEG {
 }
 
 class VideoExport {
-  static renderVideo (project, callback) {
-    this._generateVideoFile(project, videoFiles => {
-      this._generateAudioFiles(project, audioFiles => {
-        this._mixAudioAndVideoFiles(project, videoFiles, audioFiles, videoWithAudio => {
-          this._saveVideoFile(project, videoWithAudio);
-          callback();
+  static renderVideo (args) {
+    if(!args.project) console.error('VideoExport: project is required.');
+    if(!args.onProgress) console.error('VideoExport: onProgress is required.');
+    if(!args.onFinish) console.error('VideoExport: onFinish is required.');
+
+    args.onProgress('Rendering video frames', 0);
+    this._generateVideoFile(args.project, videoFiles => {
+      args.onProgress('Rendering audio track', 33);
+      this._generateAudioFiles(args.project, audioFiles => {
+        args.onProgress('Mixing video and audio', 66);
+        this._mixAudioAndVideoFiles(args.project, videoFiles, audioFiles, videoWithAudio => {
+          args.onProgress('Finished video export', 100);
+          this._saveVideoFile(args.project, videoWithAudio);
+          args.onFinish();
         });
       });
     })
@@ -148,6 +158,7 @@ class VideoExport {
         '-i', 'frame%12d.jpeg',
         '-vcodec', 'mpeg4',
         '-q:v', '10', //10=good quality, 31=bad quality
+        '-vf', 'showinfo',
         'out.mp4',
       ], imageFiles, 'images_to_video');
     });
