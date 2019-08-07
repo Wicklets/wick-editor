@@ -947,11 +947,14 @@ Wick.Project = class extends Wick.Base {
      * Create a sequence of images from every frame in the project.
      * @param {object} args - Options for generating the image sequence
      * @param {string} imageType - MIMEtype to use for rendered images. Defaults to 'image/png'.
-     * @param {function} done - Function to call when the images are all loaded.
+     * @param {function} onProgress = Function to call for each image loaded, useful for progress bars
+     * @param {function} onFinish - Function to call when the images are all loaded.
      */
-    generateImageSequence (args, callback) {
+    generateImageSequence (args) {
         if(!args) args = {};
         if(!args.imageType) args.imageType = 'image/png';
+        if(!args.onProgress) args.onProgress = () => {};
+        if(!args.onFinish) args.onFinish = () => {};
 
         var renderCopy = this;
 
@@ -982,12 +985,17 @@ Wick.Project = class extends Wick.Base {
         renderCopy.view.paper.view.autoUpdate = false;
 
         var frameImages = [];
+        var numMaxFrameImages = renderCopy.focus.timeline.length;
         var renderFrame = () => {
             var frameImage = new Image();
 
             frameImage.onload = () => {
                 frameImages.push(frameImage);
-                if(renderCopy.focus.timeline.playheadPosition >= renderCopy.focus.timeline.length) {
+
+                var currentPos = renderCopy.focus.timeline.playheadPosition;
+                args.onProgress(currentPos, numMaxFrameImages);
+
+                if(currentPos >= numMaxFrameImages) {
                     // reset autoUpdate back to normal
                     renderCopy.view.paper.view.autoUpdate = true;
 
@@ -999,7 +1007,7 @@ Wick.Project = class extends Wick.Base {
 
                     window.document.body.removeChild(container);
 
-                    callback(frameImages);
+                    args.onFinish(frameImages);
                 } else {
                     renderCopy.tick();
                     renderFrame();

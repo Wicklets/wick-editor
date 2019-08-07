@@ -975,21 +975,62 @@ describe('Wick.Project', function() {
             project.activeLayer.frames[1].addPath(path2);
             project.activeLayer.frames[2].addPath(path3);
 
-            project.generateImageSequence({}, images => {
-                images.forEach(image => {
-                    // TODO need more tests here
-                    //console.log(image);
-                });
-                expect(images.length).to.equal(3);
+            // for testing is onProgress works (this is kind of hacky and weird to test...)
+            var onProgressCallsCorrect = [[1,3],[2,3],[3,3]];
+            var onProgressCallsResult = [];
 
-                done();
+            project.generateImageSequence({
+                onProgress: (current, max) => {
+                    onProgressCallsResult.push([current,max]);
+                },
+                onFinish: images => {
+                    images.forEach(image => {
+                        // TODO need more tests here
+                        //console.log(image);
+                    });
+                    expect(images.length).to.equal(3);
+
+                    expect(onProgressCallsResult).to.deep.equal(onProgressCallsCorrect);
+
+                    done();
+                }
             });
         });
     });
 
     describe('#getAudioInfo', function () {
         it('should return audio data' , function () {
-            throw new Error('write me');
+            var project = new Wick.Project();
+
+            var sound1 = new Wick.SoundAsset({
+                filename: 'test1.wav',
+                src: TestUtils.TEST_SOUND_SRC_WAV
+            });
+            project.addAsset(sound1);
+
+            var sound2 = new Wick.SoundAsset({
+                filename: 'test2.wav',
+                src: TestUtils.TEST_SOUND_SRC_WAV
+            });
+            project.addAsset(sound2);
+
+            project.activeFrame.sound = sound1;
+            project.activeFrame.end = 10;
+
+            var frame = new Wick.Frame({start: 11, end: 30});
+            frame.sound = sound2
+            project.activeLayer.addFrame(frame);
+
+            var audioInfo = project.getAudioInfo();
+            expect(audioInfo.length).to.equal(2);
+            expect(audioInfo[0].start).to.equal(0);
+            expect(audioInfo[0].end).to.equal(9 * (1000 / project.framerate));
+            expect(audioInfo[0].offset).to.equal(0);
+            expect(audioInfo[0].src).to.equal(sound1.src);
+            expect(audioInfo[1].start).to.equal(10 * (1000 / project.framerate));
+            expect(audioInfo[1].end).to.equal(29 * (1000 / project.framerate));
+            expect(audioInfo[1].offset).to.equal(0);
+            expect(audioInfo[1].src).to.equal(sound1.src);
         });
     })
 
@@ -998,8 +1039,8 @@ describe('Wick.Project', function() {
             var project = new Wick.Project();
 
             project.generateAudioTrack({}, audioBuffer => {
-              expect(audioBuffer).to.equal(null);
-              done();
+                expect(audioBuffer).to.equal(null);
+                done();
             });
         });
 
@@ -1016,8 +1057,8 @@ describe('Wick.Project', function() {
             project.activeFrame.end = 10;
 
             project.generateAudioTrack({}, audioBuffer => {
-              console.log(audioBuffer);
-              done();
+                expect(audioBuffer.length).to.equal(8064);
+                done();
             });
         });
     });

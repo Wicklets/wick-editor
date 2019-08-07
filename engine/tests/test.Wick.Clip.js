@@ -1025,7 +1025,7 @@ describe('Wick.Clip', function() {
                 expect(original.__clone1.identifier).to.equal(null);
                 expect(original.__clone1.uuid).to.not.equal(undefined);
                 expect(original.__clone1.uuid).to.not.equal(original.uuid);
-                
+
                 expect(original.__clone2 instanceof Wick.Clip).to.equal(true);
                 expect(original.__clone2.identifier).to.equal(null);
                 expect(original.__clone2.uuid).to.not.equal(undefined);
@@ -1292,72 +1292,6 @@ describe('Wick.Clip', function() {
                 });
             });
         });
-    });
-
-    it('(performance test) NO Path children', function() {
-        return;
-        console.log(this.test.title);
-
-        var project = new Wick.Project();
-        var clip = new Wick.Clip();
-        for(var i = 0; i < 0; i++) {
-            clip.activeFrame.addPath(TestUtils.paperToWickPath(new paper.Path.Rectangle({
-                from: new paper.Point(0,0),
-                to: new paper.Point(50,50),
-                fillColor: 'red',
-            })))
-        }
-        project.activeFrame.addClip(clip);
-
-        for(var i = 0; i < 100; i++) {
-            var clone = clip.clone();
-            /*clone.addScript('load', 'this.updateCount = 0;');
-            clone.addScript('update', 'this.updateCount ++;');*/
-            clone.addScript('default', 'onEvent("load", () => {this.updateCount = 0;}); onEvent("update", () => {this.updateCount ++;});')
-            project.activeFrame.addClip(clone);
-        }
-
-        for(var i = 0; i < 7; i++) {
-            var s = +new Date();
-            project.tick();
-            console.log((+new Date())-s);
-            console.log('')
-        }
-
-        Wick.ObjectCache.clear();
-    });
-
-    it('(performance test) 250 Path children', function() {
-        return;
-        console.log(this.test.title);
-
-        var project = new Wick.Project();
-        var clip = new Wick.Clip();
-        for(var i = 0; i < 250; i++) {
-            clip.activeFrame.addPath(TestUtils.paperToWickPath(new paper.Path.Rectangle({
-                from: new paper.Point(0,0),
-                to: new paper.Point(50,50),
-                fillColor: 'red',
-            })))
-        }
-        project.activeFrame.addClip(clip);
-
-        for(var i = 0; i < 100; i++) {
-            var clone = clip.clone();
-            /*clone.addScript('load', 'this.updateCount = 0;');
-            clone.addScript('update', 'this.updateCount ++;');*/
-            clone.addScript('default', 'onEvent("load", () => {this.updateCount = 0;}); onEvent("update", () => {this.updateCount ++;});')
-            project.activeFrame.addClip(clone);
-        }
-
-        for(var i = 0; i < 7; i++) {
-            var s = +new Date();
-            project.tick();
-            console.log((+new Date())-s);
-            console.log('')
-        }
-
-        Wick.ObjectCache.clear();
     });
 
     it('isRoot should work', function () {
