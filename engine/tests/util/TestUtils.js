@@ -87,4 +87,11 @@ var TestUtils = {
         window.paper = scope;
         return scope;
     },
+
+    timeFunction : (fn, label) => {
+        var timeStart = +new Date();
+        fn();
+        var timeEnd = +new Date();
+        console.log('"' + label + '" took: ' + (timeEnd - timeStart) + 'ms');
+    }
 };
