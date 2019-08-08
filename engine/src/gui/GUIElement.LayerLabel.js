@@ -120,8 +120,12 @@ Wick.GUIElement.LayerLabel = class extends Wick.GUIElement.Draggable {
     build () {
         super.build();
 
+        var layerRect = this._layerRect || new this.paper.Path.Rectangle({
+            from: new this.paper.Point(0, 0),
+            to: new this.paper.Point(this.width, this.height),
+            radius: Wick.GUIElement.LAYER_LABEL_BORDER_RADIUS,
+        });
         var fillColor;
-
         if (this.model.hidden) {
             fillColor = Wick.GUIElement.LAYER_LABEL_HIDDEN_FILL_COLOR;
         } else if (this.model.isActive) {
@@ -129,15 +133,10 @@ Wick.GUIElement.LayerLabel = class extends Wick.GUIElement.Draggable {
         } else {
             fillColor = Wick.GUIElement.LAYER_LABEL_INACTIVE_FILL_COLOR;
         }
-
-        var layerRect = new this.paper.Path.Rectangle({
-            from: new this.paper.Point(0, 0),
-            to: new this.paper.Point(this.width, this.height),
-            fillColor: fillColor,
-            strokeColor: this.model.isSelected ? Wick.GUIElement.SELECTED_ITEM_BORDER_COLOR : 'rgba(0,0,0,0)',
-            strokeWidth: this.model.isSelected ? 3 : 0,
-            radius: Wick.GUIElement.LAYER_LABEL_BORDER_RADIUS,
-        });
+        layerRect.fillColor = fillColor;
+        layerRect.strokeColor = this.model.isSelected ? Wick.GUIElement.SELECTED_ITEM_BORDER_COLOR : 'rgba(0,0,0,0)';
+        layerRect.strokeWidth = this.model.isSelected ? 3 : 0;
+        this._layerRect = layerRect;
         this.item.addChild(layerRect);
 
         // Buttons
@@ -157,35 +156,41 @@ Wick.GUIElement.LayerLabel = class extends Wick.GUIElement.Draggable {
         this.item.addChild(this.tweenButton.item);
 
         // Layer name
-        var layerNameMask = new paper.Path.Rectangle({
+        var layerNameMask = this._layerNameMask || new paper.Path.Rectangle({
             from: new paper.Point(0, -this.height),
             to: new paper.Point(this.width - 25, this.height),
             fillColor: 'black'
         });
-        var layerNameText = new paper.PointText({
-            point: [53, this.height/2 + 6], // TODO: Create global variable for layer name position.
-            content: this.model.name,
-            fillColor: this.model.isActive ? Wick.GUIElement.LAYER_LABEL_ACTIVE_FONT_COLOR : Wick.GUIElement.LAYER_LABEL_INACTIVE_FONT_COLOR,
-            fontFamily: Wick.GUIElement.LAYER_LABEL_FONT_FAMILY,
+        this._layerNameMask = layerNameMask;
+
+        var layerNameText = this._layerNameText || new paper.PointText({
+            point: [53, this.height/2 + 6], // TODO: Create global variable for layer name position.fontFamily: Wick.GUIElement.LAYER_LABEL_FONT_FAMILY,
             fontWeight: 'bold',
             fontSize: 16,
             opacity: 0.6,
             pivot: new paper.Point(0, 0),
         });
-        var clippedLayerName = new paper.Group({
+        this._layerNameText = layerNameText;
+        this._layerNameText.content = this.model.name;
+        this._layerNameText.fillColor = this.model.isActive ? Wick.GUIElement.LAYER_LABEL_ACTIVE_FONT_COLOR : Wick.GUIElement.LAYER_LABEL_INACTIVE_FONT_COLOR;
+
+        var clippedLayerName = this._clippedLayerName || new paper.Group({
             children: [layerNameMask, layerNameText]
         });
+        this._clippedLayerName = clippedLayerName;
         clippedLayerName.clipped = true;
         clippedLayerName.remove();
         this.item.addChild(clippedLayerName);
 
         // Drop ghost
         this.ghost.active = this.isDragging && (this.mouseDelta.y !== 0);
-        this.ghost.width = this.width;
-        this.ghost.x = 0;
-        this.ghost.y = -this.mouseDelta.y + this.ghostPosition.y;
-        this.ghost.build();
-        this.item.addChild(this.ghost.item);
+        if(this.ghost.active) {
+            this.ghost.width = this.width;
+            this.ghost.x = 0;
+            this.ghost.y = -this.mouseDelta.y + this.ghostPosition.y;
+            this.ghost.build();
+            this.item.addChild(this.ghost.item);
+        }
 
         this.item.position = new paper.Point(this.x, this.y);
     }

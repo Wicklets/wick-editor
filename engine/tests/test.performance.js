@@ -58,7 +58,7 @@ describe('#performance', function () {
             // Thirty contentful frames
             var layer2 = new Wick.Layer();
             project.activeTimeline.addLayer(layer2);
-            for(var i = 0; i < 30; i++) {
+            for(var i = 0; i < 300; i++) {
                 var frame = new Wick.Frame({start: i});
                 frame.addPath(TestUtils.paperToWickPath(new paper.Path.Rectangle({
                     to: [0,0],

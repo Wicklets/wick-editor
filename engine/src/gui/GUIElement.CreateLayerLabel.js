@@ -44,7 +44,7 @@ Wick.GUIElement.CreateLayerLabel = class extends Wick.GUIElement.Clickable {
     }
 
     get cursor () {
-        return 'pointer'; 
+        return 'pointer';
     }
 
     /**

@@ -93,5 +93,5 @@ var TestUtils = {
         fn();
         var timeEnd = +new Date();
         console.log('"' + label + '" took: ' + (timeEnd - timeStart) + 'ms');
-    }
+    },
 };

@@ -106,7 +106,17 @@ Wick.GUIElement.FramesContainer = class extends Wick.GUIElement.Draggable {
         this.item.addChild(this.grid);
 
         // Build frames
-        this.model.getAllFrames().forEach(frame => {
+        this.model.getAllFrames().filter(frame => {
+            // Optimization: Only rebuild frames that are visible
+            var scrollX = frame.parentTimeline.guiElement.framesContainer.scrollX;
+            if(frame.start * this.gridCellWidth + scrollX > 100) {
+                return false;
+            } else if(frame.end * this.gridCellWidth + scrollX < 0) {
+                return false;
+            } else {
+                return true
+            }
+        }).forEach(frame => {
             frame.guiElement.build();
             this.item.addChild(frame.guiElement.item);
         });
