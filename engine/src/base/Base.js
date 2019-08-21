@@ -165,6 +165,12 @@ Wick.Base = class {
 
         // Also import linked assets
         exportData.assets.forEach(assetData => {
+            // Don't import assets if they exist in the project already
+            // (Assets only get reimported when objects are pasted between projects)
+            if(project.getAssetByUUID(assetData.uuid)) {
+                return;
+            }
+
             var asset = Wick.Base.fromData(assetData);
             project.addAsset(asset);
         });

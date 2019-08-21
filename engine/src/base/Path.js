@@ -17,15 +17,6 @@
  * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
  */
 
- // NOTE:
- // Why can't we only export JSON on serialize, and remove the idea of a View for a path?
- // In this way there will never be issues with "is the JSON synced with the paper.Path instance?" questions
- // This gets annoying sometimes (see what we have to do in the getters for path attributes?)
- // Please try this later -zj
-
- // NOTE 2:
- // I think originally the idea was that exportJSON would be called less if we cached the json.
-
 /**
  * Represents a Wick Path.
  */

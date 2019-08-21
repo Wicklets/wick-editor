@@ -125,6 +125,7 @@ Wick.Clipboard = class {
 
             // Add offset to Paths and Clips if pasteInPlace is NOT enabled.
             if(!pasteInPlace && (object instanceof Wick.Path || object instanceof Wick.Clip)) {
+                object.view.render();//This render call updates the json, I think... so without this call the path loses its data somehow :(
                 object.x += Wick.Clipboard.PASTE_OFFSET;
                 object.y += Wick.Clipboard.PASTE_OFFSET;
             }

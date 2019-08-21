@@ -157,6 +157,38 @@ describe('Wick.Clipboard', function() {
         expect(otherProject.activeFrame.paths[0].y).to.equal(50);
     });
 
+    it('should copy and paste image paths to the same project correctly', function (done) {
+        var project = new Wick.Project();
+
+        var imageAsset = new Wick.ImageAsset({
+            filename: 'foo.png',
+            src: TestUtils.TEST_IMG_SRC_PNG,
+        });
+        project.addAsset(imageAsset);
+
+        Wick.Path.createImagePath(imageAsset, path => {
+            // Select the path and copy it
+            project.activeFrame.addPath(path);
+            project.view.render();
+
+            project.selection.select(path);
+            expect(project.copySelectionToClipboard()).to.equal(true);
+            expect(project.getAssets().length).to.equal(1);
+
+            expect(project.pasteClipboardContents()).to.equal(true);
+            project.view.render();
+
+            expect(project.activeFrame.paths.length).to.equal(2);
+            expect(project.getAssets().length).to.equal(1);
+            expect(project.getAssets()[0].uuid).to.equal(project.getAssets()[0].uuid);
+            expect(project.getAssets()[0].src).to.equal(TestUtils.TEST_IMG_SRC_PNG);
+            expect(project.activeFrame.paths[0].json[1].source).to.equal(TestUtils.TEST_IMG_SRC_PNG);
+            expect(project.activeFrame.paths[1].json[1].source).to.equal(TestUtils.TEST_IMG_SRC_PNG);
+
+            done();
+        });
+    });
+
     it('should copy and paste image paths to a different project correctly', function (done) {
         var project = new Wick.Project();
 

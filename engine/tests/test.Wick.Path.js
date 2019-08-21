@@ -20,6 +20,59 @@ describe('Wick.Path', function() {
                 done();
             });
         });
+
+        it('should copy image paths correctly', function (done) {
+            var project = new Wick.Project();
+
+            var imageAsset = new Wick.ImageAsset({
+                filename: 'foo.png',
+                src: TestUtils.TEST_IMG_SRC_PNG,
+            });
+            project.addAsset(imageAsset);
+
+            Wick.Path.createImagePath(imageAsset, path => {
+                project.activeFrame.addPath(path);
+
+                var pathCopy = path.copy();
+                project.activeFrame.addPath(pathCopy);
+
+                project.view.render();
+
+                expect(path.view.item.bounds.width).to.equal(100);
+                expect(path.view.item.bounds.height).to.equal(100);
+                expect(pathCopy.view.item.bounds.width).to.equal(100);
+                expect(pathCopy.view.item.bounds.height).to.equal(100);
+
+                done();
+            });
+        });
+
+        it('should export image paths correctly', function (done) {
+            var project = new Wick.Project();
+
+            var imageAsset = new Wick.ImageAsset({
+                filename: 'foo.png',
+                src: TestUtils.TEST_IMG_SRC_PNG,
+            });
+            project.addAsset(imageAsset);
+
+            Wick.Path.createImagePath(imageAsset, path => {
+                project.activeFrame.addPath(path);
+
+                var exportData = path.export();
+                var exportPath = Wick.Base.import(exportData, project);
+                project.activeFrame.addPath(exportPath);
+
+                project.view.render();
+
+                expect(path.view.item.bounds.width).to.equal(100);
+                expect(path.view.item.bounds.height).to.equal(100);
+                expect(exportPath.view.item.bounds.width).to.equal(100);
+                expect(exportPath.view.item.bounds.height).to.equal(100);
+
+                done();
+            });
+        });
     });
 
     describe('#serialize()', function() {
