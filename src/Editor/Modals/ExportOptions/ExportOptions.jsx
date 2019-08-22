@@ -55,8 +55,7 @@ class ExportOptions extends Component {
       this.props.exportProjectAsGif(name);
       this.props.toggle();
     } else if (type === 'VIDEO') {
-      //this.props.exportProjectAsVideo(name);
-      this.props.openModal('ExportVideo');
+      this.props.exportProjectAsVideo(name);
     } else if (type === 'ZIP') {
       this.props.exportProjectAsStandaloneZip(name);
       this.props.toggle();
@@ -93,13 +92,13 @@ class ExportOptions extends Component {
                 icon: "check"
               },
               {
+                text: "No Sound",
+                icon: "cancel",
+              },
+              {
                 text: "No Code is Run",
                 icon: "cancel"
               },
-              {
-                text: "No Sound",
-                icon: "cancel",
-              }
             ]} />
           <ObjectInfo
             className="export-object-info"
@@ -110,13 +109,13 @@ class ExportOptions extends Component {
                 icon: "check"
               },
               {
+                text: "Has Sound",
+                icon: "check",
+              },
+              {
                 text: "No code is run",
                 icon: "cancel"
               },
-              {
-                text: "Has Sound",
-                icon: "check",
-              }
             ]}/>
         </div>
       );

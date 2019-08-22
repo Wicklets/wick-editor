@@ -900,26 +900,80 @@ class EditorCore extends Component {
    * Export the current project as an animated GIF.
    */
   exportProjectAsAnimatedGIF = (name) => {
+    // Open export media loading bar modal.
+    this.openModal('ExportMedia');
+    this.setState({
+      renderProgress: 0,
+      renderType: "gif",
+      renderStatusMessage: "Creating gif.",
+    });
+
+    // this.showWaitOverlay();
     let outputName = name || this.project.name;
     let toastID = this.toast('Exporting animated GIF...', 'info');
-    this.showWaitOverlay();
-    GIFExport.createAnimatedGIFFromProject(this.project, blob => {
+
+    let onProgress = (message, progress) => {
+      this.setState({
+        renderStatusMessage: message,
+        renderProgress: progress
+      });
+    }
+
+    let onError = (message) => {
+      console.error("Gif Render had an error with message: ", message);
+    }
+
+    let onFinish = (gifBlob) => {
+      console.log("Gif Render Complete");
       this.updateToast(toastID, {
         type: 'success',
         text: "Successfully saved .gif file." });
-      saveAs(blob, outputName + '.gif');
-      this.hideWaitOverlay();
+      saveAs(gifBlob, outputName + '.gif');
+    }
+    
+    GIFExport.createAnimatedGIFFromProject({
+      project: this.project,
+      onFinish: onFinish, 
+      onError: onError, 
+      onProgress: onProgress, 
     });
+
   }
 
   /**
    * Export the current project as a video.
    */
-  exportProjectAsVideo = (onProgress, onFinish) => {
-    this.showWaitOverlay('Rendering video...');
+  exportProjectAsVideo = () => {
+    this.openModal('ExportMedia');
+    this.setState({
+      renderProgress: 0,
+      renderType: "video",
+      renderStatusMessage: "Creating video.",
+    });
+
+    let onProgress = (message, progress) => {
+      this.setState({
+        renderStatusMessage: message,
+        renderProgress: progress
+      });
+    }
+
+    let onError = (message) => {
+      console.error("Video Render had an error with message: ", message);
+    }
+
+    let onFinish = (message) => {
+      console.log("Video Render Complete: ", message);
+    }
+
+    // this.showWaitOverlay('Rendering video...');
     VideoExport.renderVideo({
       project: this.project,
       onProgress: onProgress,
+      onError: () => {
+        this.hideWaitOverlay();
+        onError();
+      },
       onFinish: () => {
         this.hideWaitOverlay();
         onFinish();

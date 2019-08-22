@@ -19,59 +19,28 @@
 
 import React, { Component } from 'react';
 import WickModal from 'Editor/Modals/WickModal/WickModal';
-import ActionButton from 'Editor/Util/ActionButton/ActionButton';
 import { Progress } from 'reactstrap';
 
-import './_exportvideo.scss';
+import './_exportmedia.scss';
 
-class ExportVideo extends Component {
-  constructor (props) {
-    super(props);
-    this.state = {
-      renderStatusMessage: '',
-      renderProgress: 0,
-    };
-  }
-
-  componentDidUpdate = (prevProps) => {
-
-  }
-
-  exportVideo = () => {
-    this.props.exportProjectAsVideo(
-      (message, progress) => {
-        console.log(message, progress);
-        this.setState({
-          renderStatusMessage: message,
-          renderProgress: progress
-        });
-      },
-      () => {
-
-      }
-    );
-  }
-
+class ExportMedia extends Component {
   render() {
+    let renderName = this.props.renderType === "video" ? this.props.project.name+'.mp4' : this.props.project.name+'.gif';
     return (
       <WickModal
         open={this.props.open}
         toggle={this.props.toggle}
-        className="video-export-modal-body"
-        overlayClassName="video-export-modal-overlay"
-      >
-        <div className="video-export-modal-content">
-          <Progress animated value={this.state.renderProgress} />
-          <div>{this.state.renderStatusMessage}</div>
+        className="media-export-modal-body"
+        overlayClassName="media-export-modal-overlay">
+        <div id="media-export-modal-title">Exporting {this.props.renderType}</div>
+        <div className="media-export-modal-content">
+          <div id="media-export-modal-subtitle">Creating "{renderName}"</div>
+          <Progress animated color="success" value={this.props.renderProgress}/>
+          <div id="media-export-modal-status-message">{this.props.renderStatusMessage}</div>
         </div>
-        <ActionButton
-          color='gray-green'
-          action={this.exportVideo}
-          text="Export"
-        />
       </WickModal>
     );
   }
 }
 
-export default ExportVideo
+export default ExportMedia

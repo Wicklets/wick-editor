@@ -19,14 +19,34 @@
 
 @import 'Editor/_wickbrand.scss';
 
-.video-export-modal-body {
-  width: 550px;
-  height: 360px;
-  padding: 20px;
+.media-export-modal-body {
+  width: 300px;
+  min-width: 240px;  
+  height: 160px;
+  padding: 20px; 
 }
 
-.video-export-modal-content {
-  padding-top: 20px;
+.media-export-modal-content {
+  padding-top: 15px;
   width: 100%;
   height: 100%;
+}
+
+#media-export-modal-title {
+  font-size: 18px;
+  color: $editor-modal-text-gray;
+  font-weight: bold; 
+  text-align: left;
+  width: 100%; 
+}
+
+#media-export-modal-subtitle {
+  font-size: 16px;
+  color: $editor-modal-text-gray;
+  padding-bottom: 4px;
+}
+
+#media-export-modal-status-message {
+  font-size: 14px;
+  color: $editor-modal-text-gray;
 }

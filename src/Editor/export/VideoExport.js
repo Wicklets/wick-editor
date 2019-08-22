@@ -10,6 +10,14 @@ class FFMPEG {
       this._onProgress = onProgress;
   }
 
+  get onError () {
+    return this._onError || (() => {});
+  }
+
+  set onError (onError) {
+    this._onError = onError;
+  }
+
   get onDone () {
       return this._onDone || (() => {});
   }
@@ -42,6 +50,7 @@ class FFMPEG {
           this._worker.terminate();
           break;
         case "error":
+          this.onError(msg.data[0].data);
           break;
         default:
           break;
@@ -76,7 +85,7 @@ class VideoExport {
     if(!args.onProgress) console.error('VideoExport: onProgress is required.');
     if(!args.onFinish) console.error('VideoExport: onFinish is required.');
 
-    args.onProgress('Rendering video frames', 0);
+    args.onProgress('Rendering video frames', 10);
     this._generateVideoFile(args.project, videoFiles => {
       args.onProgress('Rendering audio track', 33);
       this._generateAudioFiles(args.project, audioFiles => {

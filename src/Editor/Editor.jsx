@@ -80,7 +80,10 @@ class Editor extends EditorCore {
         cancelText: "Cancel",
         acceptAction: (() => {console.warn("No Accept Action")}),
         cancelAction: (() => {console.warn("No Cancel Action")}),
-      }
+      },
+      renderProgress: 0,
+      renderType: "default",
+      renderStatusMessage: "",
     };
 
     // Set up error.
@@ -607,6 +610,9 @@ class Editor extends EditorCore {
                     warningModalInfo={this.state.warningModalInfo}
                     loadAutosavedProject={this.loadAutosavedProject}
                     clearAutoSavedProject={this.clearAutoSavedProject}
+                    renderProgress={this.state.renderProgress}
+                    renderStatusMessage={this.state.renderStatusMessage}
+                    renderType={this.state.renderType}
                   />
                   {/* Header */}
                   <DockedPanel showOverlay={this.state.previewPlaying}>
