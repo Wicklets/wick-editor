@@ -32,7 +32,8 @@ class FFMPEG {
     this._worker = new Worker(process.env.PUBLIC_URL + "corelibs/video/worker-asm.js");
     this._worker.onmessage = (e) => {
       var msg = e.data;
-      console.log(msg);
+      console.log('from worker:' + msg.type + ':');
+      console.log(msg.data);
       switch (msg.type) {
         case "ready":
           this._isReady = true;
