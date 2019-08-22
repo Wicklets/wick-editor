@@ -40,6 +40,7 @@ class ExportVideo extends Component {
   exportVideo = () => {
     this.props.exportProjectAsVideo(
       (message, progress) => {
+        console.log(message, progress);
         this.setState({
           renderStatusMessage: message,
           renderProgress: progress

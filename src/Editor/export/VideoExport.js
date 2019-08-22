@@ -24,6 +24,7 @@ class FFMPEG {
     this._worker = new Worker(process.env.PUBLIC_URL + "corelibs/video/worker-asm.js");
     this._worker.onmessage = (e) => {
       var msg = e.data;
+      console.log(msg);
       switch (msg.type) {
         case "ready":
           this._isReady = true;
@@ -31,9 +32,6 @@ class FFMPEG {
         case "run":
           break;
         case "stdout":
-          if(msg.data.startsWith('frame=')) {
-            console.log(msg);
-          }
           break;
         case "stderr":
           break;
@@ -105,28 +103,34 @@ class VideoExport {
 
     // Get frame images from project, send to the video worker.
     let frameNumber = 0;
-    project.generateImageSequence({imageType: 'image/jpeg'}, images => {
-      // Load frame images into the web worker's memory
-      images.forEach(image => {
-        // Create Name and array buffer of frame image.
-        let paddedNum = (frameNumber + '').padStart(12, '0');
-        let name = "frame" + paddedNum + ".jpeg";
+    project.generateImageSequence({
+      imageType: 'image/jpeg',
+      onProgress: (currentFrame, numTotalFrames) => {
+        console.log('rendering frame: ' + currentFrame + '/' + numTotalFrames);
+      },
+      onFinish: images => {
+        // Load frame images into the web worker's memory
+        images.forEach(image => {
+          // Create Name and array buffer of frame image.
+          let paddedNum = (frameNumber + '').padStart(12, '0');
+          let name = "frame" + paddedNum + ".jpeg";
 
-        // Get the base 64 value and convert it to an array buffer.
-        let cleanBase64 = image.src.split(',')[1];
-        let buffer = b64toBuff.decode(cleanBase64);
+          // Get the base 64 value and convert it to an array buffer.
+          let cleanBase64 = image.src.split(',')[1];
+          let buffer = b64toBuff.decode(cleanBase64);
 
-        // Store name and buffer in memfs appropriate object.
-        let memfs_obj = {name: name, data:new Uint8Array(buffer)};
+          // Store name and buffer in memfs appropriate object.
+          let memfs_obj = {name: name, data:new Uint8Array(buffer)};
 
-        // Increase frame number.
-        frameNumber += 1;
+          // Increase frame number.
+          frameNumber += 1;
 
-        // Add frame to frame list.
-        imageFiles.push(memfs_obj);
-      });
+          // Add frame to frame list.
+          imageFiles.push(memfs_obj);
+        });
 
-      callback(imageFiles);
+        callback(imageFiles);
+      },
     });
   }
 
