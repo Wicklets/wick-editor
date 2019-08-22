@@ -70,6 +70,11 @@ Wick.SoundAsset = class extends Wick.FileAsset {
         if(options.volume === undefined) options.volume = 1.0;
         if(options.loop === undefined) options.loop = false;
 
+        // don't do anything if the project is muted...
+        if(this.project.muted) {
+            return;
+        }
+
         var id = this._howl.play();
 
         this._howl.seek(options.seekMS / 1000, id);

@@ -68,6 +68,7 @@ Wick.Project = class extends Wick.Base {
         this._tickIntervalID = null;
 
         this._hideCursor = false;
+        this._muted = false;
 
         this._tools = {
             brush: new Wick.Tools.Brush(),
@@ -120,6 +121,9 @@ Wick.Project = class extends Wick.Base {
         this.onionSkinSeekBackwards = data.onionSkinSeekBackwards;
 
         this._focus = data.focus;
+
+        this._hideCursor = false;
+        this._muted = false;
     }
 
     serialize (args) {
@@ -759,6 +763,27 @@ Wick.Project = class extends Wick.Base {
     }
 
     /**
+     * Disable all sounds from playing
+     */
+    mute () {
+        this._muted = true;
+    }
+
+    /**
+     * Enable all sounds to play
+     */
+    unmute () {
+        this._muted = false;
+    }
+
+    /**
+     * Is the project currently muted?
+     */
+    get muted () {
+        return this._muted;
+    }
+
+    /**
      * Ticks the project.
      * @returns {object} An object containing information about an error, if one occured while running scripts. Null otherwise.
      */
@@ -961,6 +986,7 @@ Wick.Project = class extends Wick.Base {
         var oldCanvasContainer = this.view.canvasContainer;
 
         this.history.saveSnapshot('before-gif-render');
+        this.mute();
         this.tick();
 
         // Put the project canvas inside a div that's the same size as the project so the frames render at the correct resolution.
