@@ -170,7 +170,7 @@ class VideoExport {
 
   static _mixAudioAndVideoFiles (project, videoFiles, audioFiles, callback) {
     if(audioFiles.length === 0) {
-      callback(videoFiles[0]);
+      callback(videoFiles[0].data);
     } else {
       let videoAndAudioFiles = audioFiles.concat(videoFiles);
       this._ffmpeg.onDone = videoWithSoundData => {
@@ -189,7 +189,11 @@ class VideoExport {
   }
 
   static _saveVideoFile (project, data) {
-    let blob = new Blob([new Uint8Array(data)]);
+    if(!(data instanceof Uint8Array)) {
+      data = new Uint8Array(data);
+    }
+
+    let blob = new Blob([data]);
     window.saveAs(blob, project.name+'.mp4');
   }
 }
