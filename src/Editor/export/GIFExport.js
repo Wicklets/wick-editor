@@ -7,6 +7,8 @@ class GIFExport {
   static createAnimatedGIFFromProject (args) {
     let { project, onProgress, onFinish } = args;
 
+    onProgress("Creating Gif", 10);
+
     // Initialize GIF.js
     let gif = new window.GIF({
       workers: 2,
@@ -21,23 +23,24 @@ class GIFExport {
     });
 
     let combineImageSequence = images => {
-      let totalImages = images.length;
-      let completed = 0;
       images.forEach(image => {
-        // Change visual of the loading bar
-        let message = "Rendered " + completed + "/" + totalImages + " frames";
-        let percentage = 10 + (90 * (completed/totalImages));
-        onProgress(message, percentage);
-
         // Add frame to gif.
         gif.addFrame(image, {delay: 1000/project.framerate});
       });
       gif.render(); // Finalize gif render.
     }
 
+    let updateProgress = (completed, maxFrames) => {
+      // Change visual of the loading bar
+      let message = "Rendered " + completed + "/" + maxFrames + " frames";
+      let percentage = 10 + (90 * (completed/maxFrames));
+      onProgress(message, percentage);
+    }
+
     // Get frame images from project, add to GIF.js
     project.generateImageSequence({
       onFinish: combineImageSequence, 
+      onProgress: updateProgress,
     });
   }
 }

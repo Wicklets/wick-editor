@@ -53,7 +53,6 @@ class ExportOptions extends Component {
 
     if (type === 'GIF') {
       this.props.exportProjectAsGif(name);
-      this.props.toggle();
     } else if (type === 'VIDEO') {
       this.props.exportProjectAsVideo(name);
     } else if (type === 'ZIP') {

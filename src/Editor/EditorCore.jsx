@@ -924,10 +924,9 @@ class EditorCore extends Component {
     }
 
     let onFinish = (gifBlob) => {
-      console.log("Gif Render Complete");
       this.updateToast(toastID, {
         type: 'success',
-        text: "Successfully saved .gif file." });
+        text: "Successfully created .gif file." });
       saveAs(gifBlob, outputName + '.gif');
     }
     
@@ -944,12 +943,15 @@ class EditorCore extends Component {
    * Export the current project as a video.
    */
   exportProjectAsVideo = () => {
+    // Open export media loading bar modal.
     this.openModal('ExportMedia');
     this.setState({
       renderProgress: 0,
       renderType: "video",
       renderStatusMessage: "Creating video.",
     });
+
+    let toastID = this.toast('Exporting video...', 'info');
 
     let onProgress = (message, progress) => {
       this.setState({
@@ -963,6 +965,9 @@ class EditorCore extends Component {
     }
 
     let onFinish = (message) => {
+      this.updateToast(toastID, {
+        type: 'success',
+        text: "Successfully created .mp4 file." });
       console.log("Video Render Complete: ", message);
     }
 
