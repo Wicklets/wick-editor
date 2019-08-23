@@ -28,7 +28,7 @@ import nightImage from 'resources/interface-images/blue_night.svg';
 
 class WelcomeModal extends Component {
   getVersion() {
-    return "1.0.14"
+    return "1.14"
   }
 
   render() {
@@ -49,11 +49,10 @@ class WelcomeModal extends Component {
             <div id="welcome-modal-subtitle" className="welcome-modal-item">Wick Editor {this.getVersion()} includes:</div>
             <div id="welcome-modal-message" className="welcome-modal-item">
               <ul>
-                <li>Performance boost for the editor</li>
-                <li>Faster and more crisp renderer</li>
+                <li>Video export</li>
+                <li>New timeline interface</li>
                 <li>New Path Cursor tool</li>
-                <li>Flip Horizontally and Flip Vertically added to toolbar</li>
-                <li>Boolean Operations added to toolbar</li>
+                <li>Crisp renderer for playing projects</li>
                 <li><a className="welcome-modal-highlight welcome-link" target="_blank" rel="noopener noreferrer" href="https://forum.wickeditor.com/t/wick-editor-prerelease-1-0-14-new-tool-faster-editor-crisp-rendering-and-much-more/1814">...and more!</a></li>
               </ul>
             </div>
