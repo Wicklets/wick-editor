@@ -1203,7 +1203,7 @@ describe('Wick.Clip', function() {
 
                 expect(project.tick()).to.equal(null);
 
-                expect(dynamicText.textContent).to.equal('bar');
+                expect(dynamicText.view.item.content).to.equal('bar');
             });
 
             it('should throw an error if used on a Clip', function () {

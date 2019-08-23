@@ -304,6 +304,7 @@ Wick.Path = class extends Wick.Base {
 
     set textContent (textContent) {
         this.view.item.content = textContent;
+        this.json[1].content = textContent;
     }
 
     /**
