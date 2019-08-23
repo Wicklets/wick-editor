@@ -1199,11 +1199,11 @@ describe('Wick.Clip', function() {
                 dynamicText.identifier = 'dynamicText';
                 project.activeFrame.addPath(dynamicText);
 
-                project.activeFrame.addScript('default', 'dynamicText.setText("bar")');
+                project.activeFrame.addScript('default', 'dynamicText.setText("bar");dynamicText.__newText = dynamicText.textContent');
 
                 expect(project.tick()).to.equal(null);
 
-                expect(dynamicText.view.item.content).to.equal('bar');
+                expect(dynamicText.__newText).to.equal('bar');
             });
 
             it('should throw an error if used on a Clip', function () {
