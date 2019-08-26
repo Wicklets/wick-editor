@@ -28,7 +28,7 @@ import { DragDropContext } from "react-dnd";
 import 'react-reflex/styles.css'
 import { ReflexContainer, ReflexSplitter, ReflexElement } from 'react-reflex'
 import { throttle } from 'underscore';
-import { HotKeys } from 'react-hotkeys';
+import { GlobalHotKeys } from 'react-hotkeys';
 import Dropzone from 'react-dropzone';
 import localForage from 'localforage';
 import { ToastContainer, toast } from 'react-toastify';
@@ -155,7 +155,6 @@ class Editor extends EditorCore {
 
   componentDidMount = () => {
     this.hidePreloader();
-    this.refocusEditor();
     this.onWindowResize();
     this.showAutosavedProjects();
   }
@@ -345,7 +344,6 @@ class Editor extends EditorCore {
     this.setState({
       activeModalName: name,
     });
-    this.refocusEditor();
   }
 
   /**
@@ -410,13 +408,6 @@ class Editor extends EditorCore {
     this.setState({
       showCanvasActions: state,
     });
-  }
-
-  /**
-   * Focus the editor DOM element.
-   */
-  refocusEditor = () => {
-    window.document.getElementById('hotkeys-container').focus();
   }
 
   /**
@@ -588,11 +579,9 @@ class Editor extends EditorCore {
             pauseOnHover
           />
           <input {...getInputProps()} />
-            <HotKeys
+            <GlobalHotKeys
               keyMap={this.state.previewPlaying ? this.hotKeyInterface.getEssentialKeyMap() : this.hotKeyInterface.getKeyMap()}
-              handlers={this.state.previewPlaying ? this.hotKeyInterface.getEssentialKeyHandlers() : this.hotKeyInterface.getHandlers()}
-              style={{width:"100%", height:"100%"}}
-              id='hotkeys-container'>
+              handlers={this.state.previewPlaying ? this.hotKeyInterface.getEssentialKeyHandlers() : this.hotKeyInterface.getHandlers()}/>
               <div id="editor">
                 <div id="menu-bar-container">
                   <ModalHandler
@@ -761,7 +750,6 @@ class Editor extends EditorCore {
                   </div>
                 </div>
               </div>
-            </HotKeys>
           {this.state.codeEditorOpen &&
             <PopOutCodeEditor
               codeEditorWindowProperties={this.state.codeEditorWindowProperties}

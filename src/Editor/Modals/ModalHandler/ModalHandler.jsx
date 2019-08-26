@@ -27,6 +27,7 @@ import MakeAnimated from '../MakeAnimated/MakeAnimated';
 import ExportOptions from '../ExportOptions/ExportOptions';
 import GeneralWarning from '../GeneralWarning/GeneralWarning';
 import ExportMedia from '../ExportMedia/ExportMedia';
+import KeyboardShortcuts from '../KeyboardShortcuts/KeyboardShortcuts';
 
 class ModalHandler extends Component {
   render() {
@@ -90,6 +91,11 @@ class ModalHandler extends Component {
           renderType={this.props.renderType}
           renderStatusMessage={this.props.renderStatusMessage}
           project={this.props.project}
+        />
+        <KeyboardShortcuts
+          openModal={this.props.openModal}
+          toggle={this.props.closeActiveModal}
+          open={this.props.activeModalName === 'KeyboardShortcuts'}
         />
       </div>
     );
