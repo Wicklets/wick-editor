@@ -121,7 +121,7 @@ class Editor extends EditorCore {
 
   componentWillMount = () => {
     ReactGA.initialize('UA-88233944-1');
-    ReactGA.pageview('editor.wickeditor.com/');
+    ReactGA.pageview(window.location.pathname + window.location.search);
     // Initialize "live" engine state
     this.project = new window.Wick.Project();
     this.paper = window.paper;
