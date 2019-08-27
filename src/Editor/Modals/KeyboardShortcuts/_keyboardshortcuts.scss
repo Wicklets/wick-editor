@@ -19,27 +19,65 @@
 
  @import 'Editor/_wickbrand.scss';
 
- .keyboard-shortcuts-modal-body {
-   width: 400px;
-   height: 300px;
-   overflow-y: scroll;
- }
+.keyboard-shortcuts-modal-body {
+  width: 450px;
+  height: 350px;
+  overflow-y: scroll;
+}
 
- .keyboard-shortcuts-container {
-   overflow-y: scroll;
-   height: 100%;
- }
+.keyboard-shortcuts-container {
+  overflow-y: scroll;
+  overflow-x: hidden; 
+  height: 100%;
+}
 
- .keyboard-shortcuts-modal-row {
-   width: 100%;
-   height: 20px;
-   display: flex;
- }
+.keyboard-shortcuts-modal-row {
+  width: 100%;
+  display: flex;
+  align-items: center; 
+  justify-content: center;
+  border-bottom: 1px solid gray;
+}
 
- .keyboard-shortcuts-modal-name-cell {
-   width: 70%;
- }
+.keyboard-shortcuts-modal-name-cell {
+  height: 100%; 
+  width: 50%;
+  color: $editor-modal-text-gray;
+  padding-left: 2px; 
+}
 
- .keyboard-shortcuts-modal-key-cell {
-  width: 30%;
+.keyboard-shortcuts-modal-key-cell {
+  height: 100%;
+  width: 25%;
+  max-width: 20%;
+  overflow: hidden;
+  display: flex;
+  align-items: center; 
+  justify-content: center;
+  border-left: 1px solid gray;
+  border-right: 1px solid gray;
+  padding: 2px; 
+  font-size: 18px; 
+}
+.keyboard-shortcuts-modal-key-cell:last-child {
+  border: none; 
+}
+
+
+#keyboard-shortcuts-modal-title {
+  font-size: 18px;
+  color: $editor-modal-text-gray;
+  font-weight: bold; 
+  text-align: center;
+}
+
+.keyboard-shortcut-key {
+  margin: 1px; 
+  background-color: $heather-grey-dark;
+  border: 2px solid grey;
+  border-radius: 4px;
+  min-width: 26px; 
+  text-align: center;
+  vertical-align: middle;
+  font-size: 20px; 
 }

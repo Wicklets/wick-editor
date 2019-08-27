@@ -170,10 +170,6 @@ class HotKeyInterface extends Object {
         name: "Move Backwards",
         sequences: ['ctrl+down','command+down'],
       },
-      'move-backwards': {
-        name: "Move Backwards",
-        sequences: ['ctrl+down','command+down'],
-      },
       'nudge-up': {
         name: "Nudge Up",
         sequences: ['up'],

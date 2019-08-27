@@ -24,6 +24,57 @@ import { getApplicationKeyMap } from 'react-hotkeys';
 import './_keyboardshortcuts.scss';
 
 class KeyboardShortcuts extends Component {
+  makeKey = (sequence) => {
+    if (sequence === undefined) {
+      sequence = '';
+    } else if (typeof sequence === 'object') {
+      let key = this.replaceKeys(sequence['sequence']);
+      let action = sequence['action'] ? '+' + sequence['action'] : '';
+      sequence = key + action;
+    }
+
+    return (
+      <span className="keyboard-shortcut-key">
+        { sequence }
+      </span>
+    );
+  } 
+
+  replaceKeys = (str) => {
+    const keys = [
+      ['shift', '⇪'],
+      ['left', '⇦'],
+      ['right', '⇨'],
+      ['up', '⇧'],
+      ['down', '⇩'],
+      ['command', '⌘'],
+    ]
+
+    let newStr = str;
+
+    keys.forEach(swap => {
+      newStr = newStr.replace(swap[0], swap[1]); 
+    });
+
+    return newStr;
+  }
+
+  createRow = ({name, sequence1, sequence2}) => {
+    return (
+      <div className="keyboard-shortcuts-modal-row" key={name}>
+        <div className="keyboard-shortcuts-modal-cell keyboard-shortcuts-modal-name-cell">
+          { name }
+        </div>
+        <div className="keyboard-shortcuts-modal-cell keyboard-shortcuts-modal-key-cell">
+          { this.makeKey(sequence1) }
+        </div>
+        <div className="keyboard-shortcuts-modal-cell keyboard-shortcuts-modal-key-cell">
+          { this.makeKey(sequence2) } 
+        </div>
+      </div>
+    );
+  }
+
   render() {
     const keyMap = getApplicationKeyMap();
 
@@ -33,21 +84,17 @@ class KeyboardShortcuts extends Component {
       toggle={this.props.toggle} 
       className="keyboard-shortcuts-modal-body"
       overlayClassName="keyboard-shortcuts-modal-overlay">
+        <div id="keyboard-shortcuts-modal-title">Hotkeys</div>
         <div className="keyboard-shortcuts-container">
         { 
           Object.keys(keyMap).map( (actionName) => {
-              let { sequences, name, category } = keyMap[actionName];
-              console.log(category);
-              return (
-                <div className="keyboard-shortcuts-modal-row" key={name || actionName}>
-                  <div className="keyboard-shortcuts-modal-cell keyboard-shortcuts-modal-name-cell">
-                    { name || actionName}
-                  </div>
-                  <div className="keyboard-shortcuts-modal-cell keyboard-shortcuts-modal-key-cell">
-                    { sequences.map(({sequence}) => <span key={sequence}>{sequence}</span>) }
-                  </div>
-                </div>
-              );
+              let { sequences, name } = keyMap[actionName];
+              return this.createRow(
+                {
+                  name: name || actionName,
+                  sequence1: sequences[0],
+                  sequence2: sequences.length > 1 ? sequences[1] : undefined, 
+                });
           })
         }
         </div>
