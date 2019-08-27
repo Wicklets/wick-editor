@@ -32,23 +32,16 @@ class HotKeyInterface extends Object {
 
   // Create mappings of actions to keys
   // SINGLE: action:'key' | OR: action:['keya','keyb'] | AND: action 'keya+keyb'
-  // SHOW_DIALOG: { 
-  //   name: 'Display keyboard shortcuts', 
-  //   sequence: 'shift+?', 
-  //   action: 'keyup' 
-  // }
 
   createKeyMap = () => {
     this.keyMap = {
       'activate-brush': {
         name: "Activate Brush",
         sequences: ['b'],
-        category: "Tool"
       },
       'activate-cursor': {
         name: "Activate Cursor",
         sequences: ['c', 'v'],
-        category: "Tool"
       },
       'activate-pencil': {
         name: "Activate Pencil",

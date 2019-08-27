@@ -28,14 +28,25 @@ class KeyboardShortcuts extends Component {
     if (sequence === undefined) {
       sequence = '';
     } else if (typeof sequence === 'object') {
+      // Swap text for icons.
       let key = this.replaceKeys(sequence['sequence']);
       let action = sequence['action'] ? '+' + sequence['action'] : '';
       sequence = key + action;
     }
 
+    let sequenceItems = sequence.split('+');
+
+    // Adds plus signs to keys that are not the last key...
     return (
       <span className="keyboard-shortcut-key">
-        { sequence }
+        {sequenceItems.map((key,i) => {
+          return (
+            <span className="keyboard-shortcuts-key-icon-container">
+              <kbd key={"keyboard-commands-" + key + i}>{key}</kbd> 
+              {sequenceItems.length > i+1 && ' + '}
+            </span>
+          );
+        })}
       </span>
     );
   } 
@@ -62,13 +73,13 @@ class KeyboardShortcuts extends Component {
   createRow = ({name, sequence1, sequence2}) => {
     return (
       <div className="keyboard-shortcuts-modal-row" key={name}>
-        <div className="keyboard-shortcuts-modal-cell keyboard-shortcuts-modal-name-cell">
+        <div className="keyboard-shortcuts-modal-name-cell">
           { name }
         </div>
-        <div className="keyboard-shortcuts-modal-cell keyboard-shortcuts-modal-key-cell">
+        <div className="keyboard-shortcuts-modal-key-cell">
           { this.makeKey(sequence1) }
         </div>
-        <div className="keyboard-shortcuts-modal-cell keyboard-shortcuts-modal-key-cell">
+        <div className="keyboard-shortcuts-modal-key-cell">
           { this.makeKey(sequence2) } 
         </div>
       </div>
@@ -85,6 +96,11 @@ class KeyboardShortcuts extends Component {
       className="keyboard-shortcuts-modal-body"
       overlayClassName="keyboard-shortcuts-modal-overlay">
         <div id="keyboard-shortcuts-modal-title">Hotkeys</div>
+        {this.createRow({
+          name: 'Action', 
+          sequence1: {sequence: 'hotkey 1'}, 
+          sequence2: {sequence: 'hotkey 2'},
+        })}
         <div className="keyboard-shortcuts-container">
         { 
           Object.keys(keyMap).map( (actionName) => {
