@@ -32,53 +32,200 @@ class HotKeyInterface extends Object {
 
   // Create mappings of actions to keys
   // SINGLE: action:'key' | OR: action:['keya','keyb'] | AND: action 'keya+keyb'
+  // SHOW_DIALOG: { 
+  //   name: 'Display keyboard shortcuts', 
+  //   sequence: 'shift+?', 
+  //   action: 'keyup' 
+  // }
+
   createKeyMap = () => {
     this.keyMap = {
-      'activate-brush': 'b',
-      'activate-cursor': ['c','v'],
-      'activate-pencil': 'p',
-      'activate-eraser': 'e',
-      'activate-rectangle': 'r',
-      'activate-ellipse': 'o',
-      'activate-line': 'l',
-      'activate-text': 't',
-      'activate-pan': 'space',
-      'activate-fill': ['f','g'],
-      'activate-eyedropper': 'd',
-      'deactivate-eyedropper': {sequence: "d", action: "keyup"},
-      'deactivate-pan': { sequence: "space", action: "keyup" },
-      'activate-zoom': 'z',
-      'delete': ['backspace', 'del'],
-      'preview-play-toggle': ['enter'],
-      'preview-play-from-start': ['ctrl+enter', 'command+enter'],
-      'undo': ['ctrl+z','command+z'],
-      'redo': ['ctrl+y','command+y'],
-      'copy': ['ctrl+c','command+c'],
-      'paste': ['ctrl+v', 'command+v'],
-      'cut': ['ctrl+x', 'command+x'],
-      'break-apart': 'ctrl+b',
-      'grow-brush-size': ']',
-      'shrink-brush-size': '[',
-      'move-playhead-forwards': '.',
-      'move-playhead-backwards': ',',
-      'select-all': ['ctrl+a', 'command+a'],
-      'bring-to-front': ['ctrl+shift+up', 'command+shift+up'],
-      'send-to-back': ['ctrl+shift+down', 'command+shift+down'],
-      'move-forwards': ['ctrl+up', 'command+up'],
-      'move-backwards': ['ctrl+down', 'command+down'],
-      'nudge-up': 'up',
-      'nudge-down': 'down',
-      'nudge-left': 'left',
-      'nudge-right': 'right',
-      'nudge-up-more': 'shift+up',
-      'nudge-down-more': 'shift+down',
-      'nudge-left-more': 'shift+left',
-      'nudge-right-more': 'shift+right',
-      'toggle-script-editor': '`',
-      'export-project-as-wick-file': ['ctrl+s', 'command+s'],
-      'import-project-as-wick-file': ['ctrl+o', 'command+o'],
-      'create-clip-from-selection': ['ctrl+g', 'command+g'],
-      'break-apart-selection': ['ctrl+shift+g', 'command+shift+g']
+      'activate-brush': {
+        name: "Activate Brush",
+        sequences: ['b'],
+        category: "Tool"
+      },
+      'activate-cursor': {
+        name: "Activate Cursor",
+        sequences: ['c', 'v'],
+        category: "Tool"
+      },
+      'activate-pencil': {
+        name: "Activate Pencil",
+        sequences: ['b'],
+      },
+      'activate-eraser': {
+        name: "Activate Eraser",
+        sequences: ['e'],
+      },
+      'activate-rectangle': {
+        name: "Activate Rectangle",
+        sequences: ['r'],
+      },
+      'activate-ellipse': {
+        name: "Activate Ellipse",
+        sequences: ['o'],
+      },
+      'activate-line': {
+        name: "Activate Line",
+        sequences: ['l'],
+      },
+      'activate-text': {
+        name: "Activate Text",
+        sequences: ['t'],
+      },
+      'activate-pan': {
+        name: "Activate Pan",
+        sequences: ['space'],
+      },
+      'activate-fill': {
+        name: "Activate Fill",
+        sequences: ['f', 'g'],
+      },
+      'activate-eyedropper': {
+        name: "Activate Eyedropper",
+        sequences: ['d', 'i'],
+      },
+      'deactivate-eyedropper': {
+        name: "Deactivate Eyedropper",
+        sequences: [{sequence: "d", action: "keyup"}, {sequence: "i", action: "keyup"}],
+      },
+      'deactivate-pan': {
+        name: "Deactivate Pan",
+        sequences: [{sequence: "space", action: "keyup"}],
+      },
+      'activate-zoom': {
+        name: "Deactivate Zoom",
+        sequences: ['z'],
+      },
+      'delete': {
+        name: "Delete",
+        sequences: ['backspace', 'del'],
+      },
+      'preview-play-toggle': {
+        name: "Toggle Preview Play",
+        sequences: ['enter'],
+      },
+      'preview-play-from-start': {
+        name: "Toggle Preview Play from Start",
+        sequences: ['ctrl+enter','command+enter'],
+      },
+      'undo': {
+        name: "Undo",
+        sequences: ['ctrl+z','command+z'],
+      },
+      'redo': {
+        name: "Redo",
+        sequences: ['ctrl+y','command+y'],
+      },
+      'copy': {
+        name: "Copy",
+        sequences: ['ctrl+c','command+c'],
+      },
+      'paste': {
+        name: "Paste",
+        sequences: ['ctrl+v','command+v'],
+      },
+      'cut': {
+        name: "Cut",
+        sequences: ['ctrl+x','command+x'],
+      },
+      'break-apart': {
+        name: "Break Apart",
+        sequences: ['ctrl+b','command+b'],
+      },
+      'grow-brush-size': {
+        name: "Increase Brush Size",
+        sequences: [']'],
+      },
+      'shrink-brush-size': {
+        name: "Shrink Brush Size",
+        sequences: ['['],
+      },
+      'move-playhead-forwards': {
+        name: "Move Playhead Forward",
+        sequences: ['.'],
+      },
+      'move-playhead-back': {
+        name: "Move Playhead Back",
+        sequences: [','],
+      },
+      'select-all': {
+        name: "Select All",
+        sequences: ['ctrl+a','command+a'],
+      },
+      'bring-to-front': {
+        name: "Bring to Front",
+        sequences: ['ctrl+shift+up','command+shift+up'],
+      },
+      'move-forwards': {
+        name: "Move Forwards",
+        sequences: ['ctrl+up','command+up'],
+      },
+      'send-to-back': {
+        name: "Send to Back",
+        sequences: ['ctrl+shift+down','command+enter'],
+      },
+      'move-backwards': {
+        name: "Move Backwards",
+        sequences: ['ctrl+down','command+down'],
+      },
+      'move-backwards': {
+        name: "Move Backwards",
+        sequences: ['ctrl+down','command+down'],
+      },
+      'nudge-up': {
+        name: "Nudge Up",
+        sequences: ['up'],
+      },
+      'nudge-down': {
+        name: "Nudge Down",
+        sequences: ['down'],
+      },
+      'nudge-left': {
+        name: "Nudge Left",
+        sequences: ['left'],
+      },
+      'nudge-right': {
+        name: "Nudge Right",
+        sequences: ['right'],
+      },
+      'nudge-up-more': {
+        name: "Nudge Up More",
+        sequences: ['shift+up'],
+      },
+      'nudge-down-more': {
+        name: "Nudge Down More",
+        sequences: ['shift+down'],
+      },
+      'nudge-left-more': {
+        name: "Nudge Left More",
+        sequences: ['shift+left'],
+      },
+      'nudge-right-more': {
+        name: "Nudge Right More",
+        sequences: ['shift+right'],
+      },
+      'toggle-script-editor': {
+        name: "Toggle Script Editor",
+        sequences: ['`'],
+      },
+      'export-project-as-wick-file': {
+        name: "Save Project",
+        sequences: ['ctrl+s', 'command+s'],
+      },
+      'import-project-as-wick-file': {
+        name: "Open Project",
+        sequences: ['ctrl+o', 'command+o'],
+      },
+      'create-clip-from-selection': {
+        name: "Create Clip from Selection",
+        sequences: ['ctrl+g', 'command+g'],
+      },
+      'break-apart-selection': {
+        name: "Break Apart Selection",
+        sequences: ['ctrl+shift+g', 'command+shift+g'],
+      },
     }
   }
 

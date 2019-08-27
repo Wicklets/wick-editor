@@ -22,4 +22,24 @@
  .keyboard-shortcuts-modal-body {
    width: 400px;
    height: 300px;
+   overflow-y: scroll;
  }
+
+ .keyboard-shortcuts-container {
+   overflow-y: scroll;
+   height: 100%;
+ }
+
+ .keyboard-shortcuts-modal-row {
+   width: 100%;
+   height: 20px;
+   display: flex;
+ }
+
+ .keyboard-shortcuts-modal-name-cell {
+   width: 70%;
+ }
+
+ .keyboard-shortcuts-modal-key-cell {
+  width: 30%;
+}

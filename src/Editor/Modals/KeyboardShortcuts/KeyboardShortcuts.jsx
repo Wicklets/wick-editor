@@ -33,25 +33,23 @@ class KeyboardShortcuts extends Component {
       toggle={this.props.toggle} 
       className="keyboard-shortcuts-modal-body"
       overlayClassName="keyboard-shortcuts-modal-overlay">
-        <div id="keyboard-shortcuts-interior-content">
-          <table>
-            <tbody>
-            { Object.keys(keyMap).map( (actionName, i) => {
-                  let { sequences, name } = keyMap[actionName];
-                  return (
-                    <tr key={name || actionName}>
-                      <td>
-                        { name || actionName}
-                      </td>
-                      <td>
-                        { sequences.map(({sequence}) => <span key={sequence}>{sequence}</span>) }
-                      </td>
-                    </tr>
-                  );
-              })
-            }
-            </tbody>
-          </table>
+        <div className="keyboard-shortcuts-container">
+        { 
+          Object.keys(keyMap).map( (actionName) => {
+              let { sequences, name, category } = keyMap[actionName];
+              console.log(category);
+              return (
+                <div className="keyboard-shortcuts-modal-row" key={name || actionName}>
+                  <div className="keyboard-shortcuts-modal-cell keyboard-shortcuts-modal-name-cell">
+                    { name || actionName}
+                  </div>
+                  <div className="keyboard-shortcuts-modal-cell keyboard-shortcuts-modal-key-cell">
+                    { sequences.map(({sequence}) => <span key={sequence}>{sequence}</span>) }
+                  </div>
+                </div>
+              );
+          })
+        }
         </div>
       </WickModal>
     );
