@@ -82,14 +82,57 @@ describe('Wick.Layer', function() {
     });
 
     describe('#resolveOverlap', function () {
+        it('should remove one frame on top of another', function () {
+            var project = new Wick.Project();
+            project.activeFrame.remove();
 
+            var layer = project.activeLayer;
+            var frameOver = new Wick.Frame({start: 1, end: 1});
+            var frameUnder = new Wick.Frame({start: 1, end: 1});
+
+            layer.addFrame(frameUnder);
+            layer.addFrame(frameOver);
+
+            expect(layer.frames.length).to.equal(1);
+            expect(layer.frames[0]).to.equal(frameOver);
+        });
     });
 
     describe('#findGaps', function () {
+        it('should find simple gap between two frames', function () {
+            var project = new Wick.Project();
+            project.autoFillFrameGaps = false;
+            project.activeFrame.remove();
 
+            var layer = project.activeLayer;
+            var frameLeft = new Wick.Frame({start: 1, end: 1});
+            var frameRight = new Wick.Frame({start: 3, end: 3});
+            layer.addFrame(frameLeft);
+            layer.addFrame(frameRight);
+
+            var gaps = layer.findGaps();
+            expect(gaps.length).to.equal(1);
+            expect(gaps[0].start).to.equal(2);
+            expect(gaps[0].end).to.equal(2);
+        });
     });
 
     describe('#resolveGaps', function () {
+        it('should fill a simple gap between two frames', function () {
+            var project = new Wick.Project();
+            project.activeFrame.remove();
 
+            var layer = project.activeLayer;
+            var frameLeft = new Wick.Frame({start: 1, end: 1});
+            var frameRight = new Wick.Frame({start: 3, end: 3});
+            layer.addFrame(frameLeft);
+            layer.addFrame(frameRight);
+
+            expect(layer.frames.length).to.equal(2);
+            expect(layer.frames[0].start).to.equal(1);
+            expect(layer.frames[0].end).to.equal(2);
+            expect(layer.frames[1].start).to.equal(3);
+            expect(layer.frames[1].end).to.equal(3)
+        });
     });
 });

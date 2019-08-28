@@ -38,6 +38,7 @@ Wick.Project = class extends Wick.Base {
         this._height = args.height || 405;
         this._framerate = args.framerate || 12;
         this._backgroundColor = args.backgroundColor || '#ffffff';
+        this._autoFillFrameGaps = true;
 
         this.pan = {x: 0, y: 0};
         this.zoom = 1.0;
@@ -110,11 +111,17 @@ Wick.Project = class extends Wick.Base {
     deserialize (data) {
         super.deserialize(data);
 
+        // Werid backwards compatibility thing for projects created before frame gap autofill:
+        if(data.autoFillFrameGaps === undefined) {
+            data.autoFillFrameGaps = false;
+        }
+
         this.name = data.name;
         this.width = data.width;
         this.height = data.height;
         this.framerate = data.framerate;
         this.backgroundColor = data.backgroundColor;
+        this.autoFillFrameGaps = data.autoFillFrameGaps;
 
         this.onionSkinEnabled = data.onionSkinEnabled;
         this.onionSkinSeekForwards = data.onionSkinSeekForwards;
@@ -134,6 +141,7 @@ Wick.Project = class extends Wick.Base {
         data.height = this.height;
         data.backgroundColor = this.backgroundColor;
         data.framerate = this.framerate;
+        data.autoFillFrameGaps = this.autoFillFrameGaps;
 
         data.onionSkinEnabled = this.onionSkinEnabled
         data.onionSkinSeekForwards = this.onionSkinSeekForwards;
@@ -208,6 +216,18 @@ Wick.Project = class extends Wick.Base {
         if(framerate < 1) framerate = 1;
         if(framerate > 9999) framerate = 9999;
         this._framerate = framerate;
+    }
+
+    /**
+     * Should gaps between frames be automatically filled?
+     * @type {boolean}
+     */
+    get autoFillFrameGaps () {
+        return this._autoFillFrameGaps;
+    }
+
+    set autoFillFrameGaps (autoFillFrameGaps) {
+        this._autoFillFrameGaps = autoFillFrameGaps;
     }
 
     /**

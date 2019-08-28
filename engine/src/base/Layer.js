@@ -130,6 +130,8 @@ Wick.Layer = class extends Wick.Base {
      */
     addFrame (frame) {
         this.addChild(frame);
+        this.resolveOverlap([frame]);
+        this.resolveGaps();
     }
 
     /**
@@ -138,6 +140,7 @@ Wick.Layer = class extends Wick.Base {
      */
     removeFrame (frame) {
         this.removeChild(frame);
+        this.resolveGaps();
     }
 
     /**
@@ -180,6 +183,8 @@ Wick.Layer = class extends Wick.Base {
      * Prevents gaps between frames by extending frames to fill empty space between themselves.
      */
     resolveGaps () {
+        if(this.project && !this.project.autoFillFrameGaps) return;
+
         this.findGaps().forEach(gap => {
             if(gap.start === 1) {
                 // If there is no frame on the left, create a blank one
@@ -205,12 +210,16 @@ Wick.Layer = class extends Wick.Base {
         var currentGap = null;
         for(var i = 1; i <= this.length; i++) {
             var frame = this.getFrameAtPlayheadPosition(i);
+
+            // Found the start of a gap
             if(!frame && !currentGap) {
                 currentGap = {};
                 currentGap.start = i;
             }
+
+            // Found the end of a gap
             if(frame && currentGap) {
-                currentGap.end = i;
+                currentGap.end = i-1;
                 gaps.push(currentGap);
                 currentGap = null;
             }
