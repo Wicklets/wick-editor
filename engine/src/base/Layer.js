@@ -138,17 +138,9 @@ Wick.Layer = class extends Wick.Base {
      */
     addFrames (frames) {
         frames.forEach(frame => {
-            frame.wasRecentlyMoved = true;
             this.addChild(frame);
         });
-
-        this.resolveOverlap();
-
-        frames.forEach(frame => {
-            frame.wasRecentlyMoved = false;
-        });
-
-        this.resolveGaps();
+        this.cleanup(frames);
     }
 
     /**
@@ -157,7 +149,7 @@ Wick.Layer = class extends Wick.Base {
      */
     removeFrame (frame) {
         this.removeChild(frame);
-        this.resolveGaps();
+        this.cleanup();
     }
 
     /**
@@ -180,16 +172,24 @@ Wick.Layer = class extends Wick.Base {
     getFramesInRange (playheadPositionStart, playheadPositionEnd) {
         return this.frames.filter(frame => {
             return frame.inRange(playheadPositionStart, playheadPositionEnd);
-        })
+        });
     }
 
     /**
-     * Prevents frames from overlapping each other by removing pieces of frames that are touching. The frames with the wasRecentlyMoved flag set to true will take precidence.
+     * Prevents overlapping frames and gaps between frames. Call this after adding/removing/modifying any frames.
+     * @param {Wick.Frame[]} newOrModifiedFrames - (optional) the frames to take precidence while resolving overlaps.
      */
-    resolveOverlap () {
-        this.frames.filter(frame => {
-            return frame.wasRecentlyMoved;
-        }).forEach(frame => {
+    cleanup (newOrModifiedFrames) {
+        if(!newOrModifiedFrames) newOrModifiedFrames = [];
+        this.resolveOverlap(newOrModifiedFrames);
+        this.resolveGaps();
+    }
+
+    /**
+     * Prevents frames from overlapping each other by removing pieces of frames that are touching.
+     */
+    resolveOverlap (newOrModifiedFrames) {
+        newOrModifiedFrames.forEach(frame => {
             this.getFramesInRange(frame.start, frame.end).forEach(existingFrame => {
                 if(existingFrame === frame) return;
                 existingFrame.remove();
@@ -201,6 +201,14 @@ Wick.Layer = class extends Wick.Base {
      * Prevents gaps between frames by extending frames to fill empty space between themselves.
      */
     resolveGaps () {
+
+    }
+
+    /**
+     * Generate a list of positions where there is empty space between frames.
+     * @returns {Object[]} An array of objects with start/end positions describing gaps.
+     */
+    findGaps () {
 
     }
 }

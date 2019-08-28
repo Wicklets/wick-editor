@@ -40,7 +40,6 @@ Wick.Frame = class extends Wick.Tickable {
         this._cropSoundOffsetMS = 0; // milliseconds.
 
         this._originalLayerIndex = -1;
-        this._wasRecentlyMoved = false;
     }
 
     serialize (args) {
@@ -54,7 +53,6 @@ Wick.Frame = class extends Wick.Tickable {
         data.soundLoop = this._soundLoop;
 
         data.originalLayerIndex = this.layerIndex !== -1 ? this.layerIndex : this._originalLayerIndex;
-        data.wasRecentlyMoved = this._wasRecentlyMoved;
 
         return data;
     }
@@ -70,7 +68,6 @@ Wick.Frame = class extends Wick.Tickable {
         this._soundLoop = data.soundLoop === undefined ? false : data.soundLoop;
 
         this._originalLayerIndex = data.originalLayerIndex;
-        this._wasRecentlyMoved = data.wasRecentlyMoved;
     }
 
     get classname () {
@@ -486,18 +483,6 @@ Wick.Frame = class extends Wick.Tickable {
         }
 
         return linkedAssets;
-    }
-
-    /**
-     * Flag that gets checked during Wick.Layer.resolveOverlap routine. If set to true, this frame will "eat" the frames overlapping it.
-     * @type {boolean}
-     */
-    get wasRecentlyMoved () {
-        return this._wasRecentlyMoved;
-    }
-
-    set wasRecentlyMoved (wasRecentlyMoved) {
-        this._wasRecentlyMoved = wasRecentlyMoved;
     }
 
     /**
