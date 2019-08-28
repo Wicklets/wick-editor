@@ -125,20 +125,30 @@ Wick.Layer = class extends Wick.Base {
     }
 
     /**
-     * Adds a frame to the layer. If a frame exists when the new frame wants to go, the existing frame will be replaced with the new frame.
+     * Adds a frame to the layer. NOTE: If you are moving multiple frames at once, use addFrames instead or the frames will eat each other!
      * @param {Wick.Frame} frame - The frame to add to the Layer.
-     * @param {boolean} options.removeOverlappingFrames - Should adding this frame delete the frames that are in the new frames place? Defaults to true.
      */
-    addFrame (frame, options) {
-        if(!options) options = {};
-        if(options.removeOverlappingFrames === undefined) options.removeOverlappingFrames = true;
+    addFrame (frame) {
+        this.addFrames([frame]);
+    }
 
-        if(options.removeOverlappingFrames) {
-            this.getFramesInRange(frame.start, frame.end).forEach(existingFrame => {
-                existingFrame.remove();
-            });
-        }
-        this.addChild(frame);
+    /**
+     * Adds multiple frames to the layer.
+     * @param {Wick.Frame[]} frames - The frames to add to the Layer.
+     */
+    addFrames (frames) {
+        frames.forEach(frame => {
+            frame.wasRecentlyMoved = true;
+            this.addChild(frame);
+        });
+
+        this.resolveOverlap();
+
+        frames.forEach(frame => {
+            frame.wasRecentlyMoved = false;
+        });
+
+        this.resolveGaps();
     }
 
     /**
@@ -147,6 +157,7 @@ Wick.Layer = class extends Wick.Base {
      */
     removeFrame (frame) {
         this.removeChild(frame);
+        this.resolveGaps();
     }
 
     /**
@@ -170,5 +181,26 @@ Wick.Layer = class extends Wick.Base {
         return this.frames.filter(frame => {
             return frame.inRange(playheadPositionStart, playheadPositionEnd);
         })
+    }
+
+    /**
+     * Prevents frames from overlapping each other by removing pieces of frames that are touching. The frames with the wasRecentlyMoved flag set to true will take precidence.
+     */
+    resolveOverlap () {
+        this.frames.filter(frame => {
+            return frame.wasRecentlyMoved;
+        }).forEach(frame => {
+            this.getFramesInRange(frame.start, frame.end).forEach(existingFrame => {
+                if(existingFrame === frame) return;
+                existingFrame.remove();
+            });
+        })
+    }
+
+    /**
+     * Prevents gaps between frames by extending frames to fill empty space between themselves.
+     */
+    resolveGaps () {
+
     }
 }
