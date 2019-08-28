@@ -80,4 +80,16 @@ describe('Wick.Layer', function() {
             expect(layer.activeFrame).to.equal(frame3);
         });
     });
+
+    describe('#resolveOverlap', function () {
+
+    });
+
+    describe('#findGaps', function () {
+
+    });
+
+    describe('#resolveGaps', function () {
+
+    });
 });

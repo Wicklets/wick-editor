@@ -200,62 +200,6 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
     /**
      *
      */
-    get canDrop () {
-        var dropStart = this.ghostStart;
-        var dropEnd = this.ghostEnd;
-        var dropLayerIndex = this.ghostLayer;
-
-        // Can't drop on non-existent layers...
-        if(dropLayerIndex < 0 || dropLayerIndex >= this.model.parentTimeline.layers.length) {
-            return false;
-        }
-        // ... or on non-existent frames...
-        if(dropStart < 1) {
-            return false;
-        }
-
-        // Can't make an 'inside out' frame
-        if(dropEnd < dropStart) {
-            return false;
-        }
-
-        // Can't drop on existing frames...
-        var onTopOfFrames = this.model.parentTimeline.frames.filter(frame => {
-            return !frame.guiElement.ghost.active;
-        }).filter(frame => {
-            return frame.parentLayer.index === dropLayerIndex;
-        }).filter(frame => {
-            return frame.inRange(dropStart, dropEnd);
-        });
-
-        if(onTopOfFrames.length > 0) {
-            return false;
-        }
-
-        // We're all good!
-        return true;
-    }
-
-    /**
-     *
-     */
-    drop () {
-        var start = this.ghostStart;
-        var end = this.ghostEnd;
-        var layer = this.ghostLayer;
-
-        this.model.start = start;
-        this.model.end = end;
-
-        var oldLayer = this.model.parentLayer;
-        var newLayer = this.model.parentTimeline.layers[layer];
-        oldLayer.removeFrame(this.model);
-        newLayer.addFrame(this.model, {removeOverlappingFrames: false});
-    }
-
-    /**
-     *
-     */
     build () {
         super.build();
 
@@ -456,17 +400,19 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
     }
 
     _tryToDropFrames () {
-        var canDrop = true;
         this.draggingFrames.forEach(frame => {
-            if(!frame.guiElement.canDrop) {
-                canDrop = false;
-            }
-        });
+            var start = frame.ghostStart;
+            var end = frame.ghostEnd;
+            var layer = frame.ghostLayer;
 
-        this.draggingFrames.forEach(frame => {
-            if(canDrop) {
-                frame.guiElement.drop();
-            }
+            frame.model.start = start;
+            frame.model.end = end;
+
+            var oldLayer = frame.model.parentLayer;
+            var newLayer = frame.model.parentTimeline.layers[layer];
+            oldLayer.removeFrame(frame.model);
+            newLayer.addFrame(frame.model);
+
             frame.guiElement.leftEdgeStretch = 0;
             frame.guiElement.dragOffset = new paper.Point(0,0);
             frame.guiElement.ghost.active = false;

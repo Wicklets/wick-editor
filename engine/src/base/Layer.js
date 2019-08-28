@@ -125,22 +125,11 @@ Wick.Layer = class extends Wick.Base {
     }
 
     /**
-     * Adds a frame to the layer. NOTE: If you are moving multiple frames at once, use addFrames instead or the frames will eat each other!
+     * Adds a frame to the layer.
      * @param {Wick.Frame} frame - The frame to add to the Layer.
      */
     addFrame (frame) {
-        this.addFrames([frame]);
-    }
-
-    /**
-     * Adds multiple frames to the layer.
-     * @param {Wick.Frame[]} frames - The frames to add to the Layer.
-     */
-    addFrames (frames) {
-        frames.forEach(frame => {
-            this.addChild(frame);
-        });
-        this.cleanup(frames);
+        this.addChild(frame);
     }
 
     /**
@@ -149,13 +138,12 @@ Wick.Layer = class extends Wick.Base {
      */
     removeFrame (frame) {
         this.removeChild(frame);
-        this.cleanup();
     }
 
     /**
      * Gets the frame at a specific playhead position.
-     * @param  {number} playheadPosition Playhead position to search for frame at.
-     * @return {Wick.Frame}              The frame at the given playheadPosition.
+     * @param {number} playheadPosition - Playhead position to search for frame at.
+     * @return {Wick.Frame} The frame at the given playheadPosition.
      */
     getFrameAtPlayheadPosition (playheadPosition) {
         return this.frames.find(frame => {
@@ -176,17 +164,8 @@ Wick.Layer = class extends Wick.Base {
     }
 
     /**
-     * Prevents overlapping frames and gaps between frames. Call this after adding/removing/modifying any frames.
-     * @param {Wick.Frame[]} newOrModifiedFrames - (optional) the frames to take precidence while resolving overlaps.
-     */
-    cleanup (newOrModifiedFrames) {
-        if(!newOrModifiedFrames) newOrModifiedFrames = [];
-        this.resolveOverlap(newOrModifiedFrames);
-        this.resolveGaps();
-    }
-
-    /**
      * Prevents frames from overlapping each other by removing pieces of frames that are touching.
+     * @param {Wick.Frame[]} newOrModifiedFrames - the frames that should take precedence when determining which frames should get "eaten".
      */
     resolveOverlap (newOrModifiedFrames) {
         newOrModifiedFrames.forEach(frame => {
@@ -201,7 +180,19 @@ Wick.Layer = class extends Wick.Base {
      * Prevents gaps between frames by extending frames to fill empty space between themselves.
      */
     resolveGaps () {
-
+        this.findGaps().forEach(gap => {
+            if(gap.start === 1) {
+                // If there is no frame on the left, create a blank one
+                var empty = new Wick.Frame({
+                    start: gap.start,
+                    end: gap.end,
+                });
+                this.addFrame(empty);
+            } else {
+                // Otherwise, extend the frame to the left to fill the gap
+                this.getFrameAtPlayheadPosition(gap.start-1).end = gap.end;
+            }
+        });
     }
 
     /**
@@ -209,6 +200,22 @@ Wick.Layer = class extends Wick.Base {
      * @returns {Object[]} An array of objects with start/end positions describing gaps.
      */
     findGaps () {
+        var gaps = [];
 
+        var currentGap = null;
+        for(var i = 1; i <= this.length; i++) {
+            var frame = this.getFrameAtPlayheadPosition(i);
+            if(!frame && !currentGap) {
+                currentGap = {};
+                currentGap.start = i;
+            }
+            if(frame && currentGap) {
+                currentGap.end = i;
+                gaps.push(currentGap);
+                currentGap = null;
+            }
+        }
+
+        return gaps;
     }
 }
