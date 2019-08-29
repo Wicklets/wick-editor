@@ -401,17 +401,17 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
 
     _tryToDropFrames () {
         this.draggingFrames.forEach(frame => {
-            var start = frame.ghostStart;
-            var end = frame.ghostEnd;
-            var layer = frame.ghostLayer;
+            var start = frame.guiElement.ghostStart;
+            var end = frame.guiElement.ghostEnd;
+            var layer = frame.guiElement.ghostLayer;
 
-            frame.model.start = start;
-            frame.model.end = end;
+            frame.start = start;
+            frame.end = end;
 
-            var oldLayer = frame.model.parentLayer;
-            var newLayer = frame.model.parentTimeline.layers[layer];
-            oldLayer.removeFrame(frame.model);
-            newLayer.addFrame(frame.model);
+            var oldLayer = frame.parentLayer;
+            var newLayer = frame.parentTimeline.layers[layer];
+            oldLayer.removeFrame(frame);
+            newLayer.addFrame(frame);
 
             frame.guiElement.leftEdgeStretch = 0;
             frame.guiElement.dragOffset = new paper.Point(0,0);
