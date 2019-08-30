@@ -167,16 +167,50 @@ Wick.Layer = class extends Wick.Base {
     }
 
     /**
+     * Gets all frames in the layer that are contained within the two given playhead positions.
+     * @param {number} playheadPositionStart - The start of the range to search
+     * @param {number} playheadPositionEnd - The end of the range to search
+     * @return {Wick.Frame[]} The frames contained in the given range.
+     */
+    getFramesContainedWithin (playheadPositionStart, playheadPositionEnd) {
+        return this.frames.filter(frame => {
+            return frame.containedWithin(playheadPositionStart, playheadPositionEnd);
+        });
+    }
+
+    /**
      * Prevents frames from overlapping each other by removing pieces of frames that are touching.
      * @param {Wick.Frame[]} newOrModifiedFrames - the frames that should take precedence when determining which frames should get "eaten".
      */
     resolveOverlap (newOrModifiedFrames) {
+        var isEdible = existingFrame => {
+            return newOrModifiedFrames.indexOf(existingFrame) === -1;
+        };
+
         newOrModifiedFrames.forEach(frame => {
-            this.getFramesInRange(frame.start, frame.end).forEach(existingFrame => {
-                if(existingFrame === frame) return;
+            // "Full eat"
+            // The frame completely eats the other frame.
+            var containedFrames = this.getFramesContainedWithin(frame.start, frame.end);
+            containedFrames.filter(isEdible).forEach(existingFrame => {
                 existingFrame.remove();
             });
-        })
+
+            // "Right eat"
+            // The frame takes a chunk out of the right side of another frame.
+            this.frames.filter(isEdible).forEach(existingFrame => {
+                if(existingFrame.inPosition(frame.start) && existingFrame.start !== frame.start) {
+                    existingFrame.end = frame.start - 1;
+                }
+            });
+
+            // "Left eat"
+            // The frame takes a chunk out of the left side of another frame.
+            this.frames.filter(isEdible).forEach(existingFrame => {
+                if(existingFrame.inPosition(frame.end) && existingFrame.end !== frame.end) {
+                    existingFrame.start = frame.end + 1;
+                }
+            });
+        });
     }
 
     /**

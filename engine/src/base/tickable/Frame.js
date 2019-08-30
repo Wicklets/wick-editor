@@ -311,6 +311,16 @@ Wick.Frame = class extends Wick.Tickable {
     }
 
     /**
+     * True if the frame is contained fully within a given range.
+     * @param {number} start - the start of the range to check.
+     * @param {number} end - the end of the range to check.
+     * @return {boolean}
+     */
+    containedWithin (start, end) {
+        return this.start >= start && this.end <= end;
+    }
+
+    /**
      * The number of frames that this frame is from a given playhead position.
      * @param {number} playheadPosition
      */

@@ -109,10 +109,36 @@ describe('Wick.Frame', function() {
             expect(frame.inRange(1,5)).to.equal(true);
             expect(frame.inRange(5,5)).to.equal(true);
             expect(frame.inRange(5,10)).to.equal(true);
+            expect(frame.inRange(5,15)).to.equal(true);
+            expect(frame.inRange(0,15)).to.equal(true);
             expect(frame.inRange(4,6)).to.equal(true);
             expect(frame.inRange(9,11)).to.equal(true);
             expect(frame.inRange(10,11)).to.equal(true);
             expect(frame.inRange(11,15)).to.equal(false);
+        });
+    });
+
+    describe('#containedWithin', function () {
+        it('containedWithin should be calculated correctly', function() {
+            var frame = new Wick.Frame();
+            expect(frame.containedWithin(1,1)).to.equal(true);
+            expect(frame.containedWithin(1,2)).to.equal(true);
+            expect(frame.containedWithin(2,2)).to.equal(false);
+            expect(frame.containedWithin(2,3)).to.equal(false);
+            expect(frame.containedWithin(3,10)).to.equal(false);
+
+            frame = new Wick.Frame({start:5, end:10});
+            expect(frame.containedWithin(1,1)).to.equal(false);
+            expect(frame.containedWithin(1,4)).to.equal(false);
+            expect(frame.containedWithin(1,5)).to.equal(false);
+            expect(frame.containedWithin(5,5)).to.equal(false);
+            expect(frame.containedWithin(5,10)).to.equal(true);
+            expect(frame.containedWithin(5,15)).to.equal(true);
+            expect(frame.containedWithin(0,15)).to.equal(true);
+            expect(frame.containedWithin(4,6)).to.equal(false);
+            expect(frame.containedWithin(9,11)).to.equal(false);
+            expect(frame.containedWithin(10,11)).to.equal(false);
+            expect(frame.containedWithin(11,15)).to.equal(false);
         });
     });
 
