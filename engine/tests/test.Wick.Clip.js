@@ -1292,6 +1292,20 @@ describe('Wick.Clip', function() {
                 });
             });
         });
+
+        describe('#remove', function() {
+            it('should only be removed once', function (done) {
+                var project = new Wick.Project();
+
+                var clip1 = new Wick.Clip({identifier: 'clip1'});
+
+                clip1.remove();
+                clip1.remove();
+                
+                expect(clip1.parent).to.be.null;
+                done(); 
+            });
+        });
     });
 
     it('isRoot should work', function () {

@@ -172,6 +172,7 @@ Wick.Clip = class extends Wick.Tickable {
      * Remove this clip from its parent frame.
      */
     remove () {
+        if (!this.parent) return; // Don't attempt to remove if the object has already been removed. 
         this.parent.removeClip(this);
     }
 
