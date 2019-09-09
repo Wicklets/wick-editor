@@ -172,7 +172,10 @@ Wick.Clip = class extends Wick.Tickable {
      * Remove this clip from its parent frame.
      */
     remove () {
-        if (!this.parent) return; // Don't attempt to remove if the object has already been removed. 
+        // Don't attempt to remove if the object has already been removed.
+        // (This is caused by calling remove() multiple times on one object inside a script.)
+        if (!this.parent) return;
+
         this.parent.removeClip(this);
     }
 

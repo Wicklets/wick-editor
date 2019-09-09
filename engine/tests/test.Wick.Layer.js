@@ -33,7 +33,7 @@ describe('Wick.Layer', function() {
     });
 
     describe('#removeFrame', function () {
-        it('should remove frames', function() {
+        it('should remove frames and fill gaps', function() {
             var layer = new Wick.Layer();
 
             var frame1 = new Wick.Frame({start:1,end:5});
@@ -49,11 +49,13 @@ describe('Wick.Layer', function() {
             layer.addFrame(frame2);
             layer.addFrame(frame3);
             expect(layer.frames.length).to.equal(3);
+
             layer.removeFrame(frame2);
-            expect(layer.frames.length).to.equal(2);
+            expect(layer.frames.length).to.equal(3);
+            expect(layer.getFrameAtPlayheadPosition(6)).to.not.equal(frame2);
+
             layer.removeFrame(frame3);
-            expect(layer.frames.length).to.equal(1);
-            layer.removeFrame(frame1);
+            expect(layer.frames.length).to.equal(2);
         });
     });
 
@@ -101,7 +103,7 @@ describe('Wick.Layer', function() {
     describe('#findGaps', function () {
         it('should find simple gap between two frames', function () {
             var project = new Wick.Project();
-            project.autoFillFrameGaps = false;
+            project.activeTimeline.deferFrameGapResolve();
             project.activeFrame.remove();
 
             var layer = project.activeLayer;
@@ -128,11 +130,57 @@ describe('Wick.Layer', function() {
             layer.addFrame(frameLeft);
             layer.addFrame(frameRight);
 
-            expect(layer.frames.length).to.equal(2);
-            expect(layer.frames[0].start).to.equal(1);
-            expect(layer.frames[0].end).to.equal(2);
-            expect(layer.frames[1].start).to.equal(3);
-            expect(layer.frames[1].end).to.equal(3)
+            expect(layer.frames.length).to.equal(3);
+            expect(layer.getFrameAtPlayheadPosition(1)).to.equal(frameLeft);
+            expect(layer.getFrameAtPlayheadPosition(2)).to.not.equal(frameLeft);
+            expect(layer.getFrameAtPlayheadPosition(2)).to.not.equal(frameRight);
+            expect(layer.getFrameAtPlayheadPosition(3)).to.equal(frameRight);
+        });
+
+        it('if multiple frames are deleted, gaps should still be filled correctly', function () {
+            var project = new Wick.Project();
+            project.activeFrame.remove();
+
+            var layer = project.activeLayer;
+            var frame1 = new Wick.Frame({start: 1});
+            var frame2 = new Wick.Frame({start: 2});
+            var frame3 = new Wick.Frame({start: 3});
+            var frame4 = new Wick.Frame({start: 4});
+            var frame5 = new Wick.Frame({start: 5});
+            layer.addFrame(frame1);
+            layer.addFrame(frame2);
+            layer.addFrame(frame3);
+            layer.addFrame(frame4);
+            layer.addFrame(frame5);
+
+            project.selection.select(frame2);
+            project.selection.select(frame3);
+            project.selection.select(frame4);
+
+            project.deleteSelectedObjects();
+
+            expect(layer.frames.length).to.equal(3);
+            expect(layer.getFrameAtPlayheadPosition(1)).to.equal(frame1);
+            expect(layer.getFrameAtPlayheadPosition(5)).to.equal(frame5);
+
+            // Make sure the gap was filled correctly
+            expect(layer.getFrameAtPlayheadPosition(2)).to.not.equal(undefined);
+            expect(layer.getFrameAtPlayheadPosition(3)).to.not.equal(undefined);
+            expect(layer.getFrameAtPlayheadPosition(4)).to.not.equal(undefined);
+
+            expect(layer.getFrameAtPlayheadPosition(2)).to.not.equal(frame2);
+            expect(layer.getFrameAtPlayheadPosition(3)).to.not.equal(frame2);
+            expect(layer.getFrameAtPlayheadPosition(4)).to.not.equal(frame2);
+            expect(layer.getFrameAtPlayheadPosition(2)).to.not.equal(frame3);
+            expect(layer.getFrameAtPlayheadPosition(3)).to.not.equal(frame3);
+            expect(layer.getFrameAtPlayheadPosition(4)).to.not.equal(frame3);
+            expect(layer.getFrameAtPlayheadPosition(2)).to.not.equal(frame4);
+            expect(layer.getFrameAtPlayheadPosition(3)).to.not.equal(frame4);
+            expect(layer.getFrameAtPlayheadPosition(4)).to.not.equal(frame4);
+
+            // The gap should have been filled by a single frame
+            expect(layer.getFrameAtPlayheadPosition(2)).to.equal(layer.getFrameAtPlayheadPosition(3));
+            expect(layer.getFrameAtPlayheadPosition(3)).to.equal(layer.getFrameAtPlayheadPosition(4));
         });
     });
 });

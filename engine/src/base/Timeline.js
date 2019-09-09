@@ -390,4 +390,29 @@ Wick.Timeline = class extends Wick.Base {
             throw new Error('gotoFrame: Invalid argument: ' + frame);
         }
     }
+
+    /**
+     * Check if frame gap fixing should be deferred until later. Read only.
+     * @type {boolean}
+     */
+    get waitToFillFrameGaps () {
+        return this._waitToFillFrameGaps;
+    }
+
+    /**
+     * Disables frame gap filling until resolveFrameGaps is called again.
+     */
+    deferFrameGapResolve () {
+        this._waitToFillFrameGaps = true;
+    }
+
+    /**
+     * Fill in all gaps between frames in all layers in this timeline.
+     */
+    resolveFrameGaps () {
+        this._waitToFillFrameGaps = false;
+        this.layers.forEach(layer => {
+            layer.resolveGaps();
+        });
+    }
 }

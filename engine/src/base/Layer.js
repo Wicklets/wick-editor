@@ -217,7 +217,7 @@ Wick.Layer = class extends Wick.Base {
      * Prevents gaps between frames by extending frames to fill empty space between themselves.
      */
     resolveGaps () {
-        if(this.project && !this.project.autoFillFrameGaps) return;
+        if(this.parentTimeline && this.parentTimeline.waitToFillFrameGaps) return;
 
         this.findGaps().forEach(gap => {
             // Method 1: Use the frame on the left (if there is one) to fill the gap

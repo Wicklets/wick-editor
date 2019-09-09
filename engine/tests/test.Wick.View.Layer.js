@@ -27,13 +27,13 @@ describe('Wick.View.Layer', function() {
 
         it('should have no visible layers if there is no frame at active playhead position', function() {
             var project = new Wick.Project();
+            project.activeTimeline.playheadPosition = 4;
 
-            var layer = new Wick.Layer();
-            project.root.timeline.addLayer(layer);
+            var layer = project.activeLayer;
             layer.addFrame(new Wick.Frame({start:2}));
             layer.addFrame(new Wick.Frame({start:3}));
 
-            layer.view.render();
+            project.view.render();
 
             expect(layer.view.activeFrameLayers.length).to.equal(0);
         });
