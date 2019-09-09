@@ -220,6 +220,9 @@ Wick.Layer = class extends Wick.Base {
         if(this.project && !this.project.autoFillFrameGaps) return;
 
         this.findGaps().forEach(gap => {
+            // Method 1: Use the frame on the left (if there is one) to fill the gap
+            // (Disabled for now - it was confusing to have frames auto-extend themsevles)
+            /*
             if(gap.start === 1) {
                 // If there is no frame on the left, create a blank one
                 var empty = new Wick.Frame({
@@ -231,6 +234,14 @@ Wick.Layer = class extends Wick.Base {
                 // Otherwise, extend the frame to the left to fill the gap
                 this.getFrameAtPlayheadPosition(gap.start-1).end = gap.end;
             }
+            */
+
+            // Method 2: Always create empty frames to fill gaps
+            var empty = new Wick.Frame({
+                start: gap.start,
+                end: gap.end,
+            });
+            this.addFrame(empty);
         });
     }
 
