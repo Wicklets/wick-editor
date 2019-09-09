@@ -68,11 +68,11 @@ Wick.GUIElement.FrameGhost = class extends Wick.GUIElement {
         var frameRect = new this.paper.Path.Rectangle({
             from: new this.paper.Point(this.position.x, this.position.y),
             to: new this.paper.Point(this.position.x + this.width, this.position.y + this.height),
-            fillColor: this.model.guiElement.canDrop ? Wick.GUIElement.FRAME_GHOST_CAN_DROP_COLOR : Wick.GUIElement.FRAME_GHOST_CANT_DROP_COLOR,
-            opacity: Wick.GUIElement.FRAME_GHOST_OPACITY, 
+            fillColor: Wick.GUIElement.FRAME_GHOST_COLOR,
+            opacity: Wick.GUIElement.FRAME_GHOST_OPACITY,
             radius: Wick.GUIElement.FRAME_BORDER_RADIUS,
         });
-        
+
         this.item.position = new paper.Point();
 
         this.item.addChild(frameRect);

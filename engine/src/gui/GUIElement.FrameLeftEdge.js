@@ -25,6 +25,7 @@ Wick.GUIElement.FrameLeftEdge = class extends Wick.GUIElement.FrameEdge {
         super(model);
 
         this.on('drag', () => {
+            this.model.guiElement.item.bringToFront();
             this.model.guiElement.ghost.active = true;
             this.model.guiElement.leftEdgeStretch = this.mouseDelta.x;
             this.model.guiElement.build();
@@ -48,14 +49,14 @@ Wick.GUIElement.FrameLeftEdge = class extends Wick.GUIElement.FrameEdge {
      */
     build () {
         super.build();
-        
+
         var rw = Wick.GUIElement.FrameEdge.DEFAULT_HANDLE_WIDTH;
 
         var edgeRect = new this.paper.Path.Rectangle({
             from: new this.paper.Point(0, 0),
             to: new this.paper.Point(rw, this.height),
             fillColor: this.isHoveredOver ? Wick.GUIElement.FRAME_HANDLE_HOVER_FILL_COLOR : 'rgba(0,0,0,0.001)',
-            radius: Wick.GUIElement.FRAME_BORDER_RADIUS, 
+            radius: Wick.GUIElement.FRAME_BORDER_RADIUS,
         });
 
         var sharpRect = new this.paper.Path.Rectangle({

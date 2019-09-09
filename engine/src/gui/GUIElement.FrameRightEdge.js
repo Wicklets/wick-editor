@@ -25,6 +25,7 @@ Wick.GUIElement.FrameRightEdge = class extends Wick.GUIElement.FrameEdge {
         super(model);
 
         this.on('drag', () => {
+            this.model.guiElement.item.bringToFront();
             this.model.guiElement.ghost.active = true;
             this.model.guiElement.rightEdgeStretch = this.mouseDelta.x;
             this.model.guiElement.build();
@@ -58,7 +59,7 @@ Wick.GUIElement.FrameRightEdge = class extends Wick.GUIElement.FrameEdge {
             from: new this.paper.Point(this.width - rw, 0),
             to: new this.paper.Point(this.width, this.height),
             fillColor: this.isHoveredOver ? Wick.GUIElement.FRAME_HANDLE_HOVER_FILL_COLOR : 'rgba(0,0,0,0.001)',
-            radius: Wick.GUIElement.FRAME_BORDER_RADIUS, 
+            radius: Wick.GUIElement.FRAME_BORDER_RADIUS,
         });
 
         // Create a rectangle with unrounded edges to sharpen the interior corners.
@@ -66,7 +67,7 @@ Wick.GUIElement.FrameRightEdge = class extends Wick.GUIElement.FrameEdge {
             from: new this.paper.Point(this.width - rw, 0),
             to: new this.paper.Point(this.width - (rw/2), this.height),
             fillColor: this.isHoveredOver ? Wick.GUIElement.FRAME_HANDLE_HOVER_FILL_COLOR : 'rgba(0,0,0,0.001)',
-        }); 
+        });
 
         this.item.addChild(edgeRect);
         this.item.addChild(sharpRect);
