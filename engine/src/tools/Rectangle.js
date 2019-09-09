@@ -92,6 +92,8 @@ Wick.Tools.Rectangle = class extends Wick.Tool {
     onMouseUp (e) {
         if(!this.path) return;
 
+        this.path.remove();
+        this.addPathToProject(this.path);
         this.path = null;
 
         this.fireEvent('canvasModified');

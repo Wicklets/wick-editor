@@ -45,7 +45,9 @@ Wick.Tool = class {
 
         // Attach mouse down + double click event
         this.paperTool.onMouseDown = (e) => {
-            if(this.doubleClickEnabled && this._lastMousedownTimestamp !== null && e.timeStamp - this._lastMousedownTimestamp < Wick.Tool.DOUBLE_CLICK_TIME) {
+            if(this.doubleClickEnabled &&
+               this._lastMousedownTimestamp !== null &&
+               e.timeStamp - this._lastMousedownTimestamp < Wick.Tool.DOUBLE_CLICK_TIME) {
                 this.onDoubleClick(e);
             } else {
                 this.onMouseDown(e);
@@ -220,17 +222,35 @@ Wick.Tool = class {
     }
 
     /**
-     *
+     * Get a tool setting from the project. See Wick.ToolSettings for all options
+     * @param {string} name - the name of the setting to get
      */
     getSetting (name) {
         return this.project.toolSettings.getSetting(name);
     }
 
     /**
-     *
+     * Does this tool have a double click action? (override this in classes that extend Wick.Tool)
+     * @type {boolean}
      */
     get doubleClickEnabled () {
         return true;
+    }
+
+    /**
+     * Adds a paper.Path to the active frame's paper.Layer.
+     * @param {paper.Path} path - the path to add
+     */
+    addPathToProject (path) {
+        // Automatically add a frame is there isn't one
+        if(!this.project.activeFrame) {
+            var playheadPosition = this.project.activeTimeline.playheadPosition;
+            var newFrame = new Wick.Frame({start: playheadPosition});
+            this.project.activeLayer.addFrame(newFrame);
+            this.project.view.render();
+        }
+
+        this.paper.project.activeLayer.addChild(path);
     }
 }
 

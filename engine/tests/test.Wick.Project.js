@@ -1202,12 +1202,6 @@ describe('Wick.Project', function() {
             expect(project.canDraw).to.equal(true);
         });
 
-        it('should be false if there is no active frame', function () {
-            var project = new Wick.Project();
-            project.activeFrame.remove();
-            expect(project.canDraw).to.equal(false);
-        });
-
         it('should be false if the active layer is locked', function () {
             var project = new Wick.Project();
             project.activeLayer.locked = true;

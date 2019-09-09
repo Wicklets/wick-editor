@@ -48,4 +48,32 @@ describe('Wick.Tools.Brush', function() {
         brush.onMouseDrag({point: new paper.Point(240,240)});
         brush.onMouseUp({point: new paper.Point(250,250)});
     });
+
+    it('should create a new frame if the user drew on an empty space in the timeline', function(done) {
+        var project = new Wick.Project();
+        var brush = project.tools.brush;
+        buildDummyCanvasContainer(project);
+
+        project.activeTimeline.playheadPosition = 2;
+
+        project.view.on('canvasModified', function (e) {
+            expect(project.activeLayer.frames.length).to.equal(2);
+            expect(project.activeFrame.paths.length).to.equal(1);
+            expect(project.activeFrame.paths[0].view.item.bounds.width).to.be.closeTo(50, 10);
+            expect(project.activeFrame.paths[0].view.item.bounds.height).to.be.closeTo(50, 10);
+            expect(project.activeFrame.paths[0].view.item.bounds.x).to.be.closeTo(200, 10);
+            expect(project.activeFrame.paths[0].view.item.bounds.y).to.be.closeTo(200, 10);
+            destroyDummyCanvasContainer(project);
+            done();
+        });
+
+        brush.activate();
+        brush.onMouseMove();
+        brush.onMouseDown({point: new paper.Point(200,200)});
+        brush.onMouseDrag({point: new paper.Point(210,210)});
+        brush.onMouseDrag({point: new paper.Point(220,220)});
+        brush.onMouseDrag({point: new paper.Point(230,230)});
+        brush.onMouseDrag({point: new paper.Point(240,240)});
+        brush.onMouseUp({point: new paper.Point(250,250)});
+    });
 });

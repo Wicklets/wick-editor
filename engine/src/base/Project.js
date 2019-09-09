@@ -1112,6 +1112,6 @@ Wick.Project = class extends Wick.Base {
      * @type {boolean}
      */
     get canDraw () {
-        return this.activeFrame !== undefined && !this.activeLayer.locked && !this.activeLayer.hidden;
+        return !this.activeLayer.locked && !this.activeLayer.hidden;
     }
 }
