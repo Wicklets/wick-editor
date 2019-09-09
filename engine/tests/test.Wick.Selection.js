@@ -168,7 +168,6 @@ describe('Wick.Selection', function() {
         expect(project.selection.isObjectSelected(frame2));
 
         project.selection.select(frame4);
-        console.log(project.selection.getSelectedObjects())
         expect(project.selection.getSelectedObjects().length).to.equal(3);
         expect(project.selection.isObjectSelected(frame2));
         expect(project.selection.isObjectSelected(frame3));

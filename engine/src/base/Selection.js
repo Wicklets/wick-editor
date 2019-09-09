@@ -487,6 +487,9 @@ Wick.Selection = class extends Wick.Base {
 
     set frameLength (frameLength) {
         this._setSingleAttribute('length', frameLength);
+        var layer = this.project.activeLayer;
+        layer.resolveOverlap(this.getSelectedObjects());
+        layer.resolveGaps();
     }
 
     /**
