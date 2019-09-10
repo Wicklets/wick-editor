@@ -24,6 +24,8 @@ Wick.GUIElement.ScrollbarGrabberHorizontal = class extends Wick.GUIElement.Dragg
     constructor (model) {
         super(model);
 
+        this.isScrollbarGrabber = true;
+
         this.on('mouseOver', () => {
             this.build();
         });

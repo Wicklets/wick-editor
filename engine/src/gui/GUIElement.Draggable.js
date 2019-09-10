@@ -19,6 +19,14 @@
 
 Wick.GUIElement.Draggable = class extends Wick.GUIElement.Clickable {
     /**
+     * How fast the timeline should auto-scroll when something is dragged outside of the GUI.
+     * @type {number}
+     */
+    static get AUTO_SCROLL_SPEED () {
+        return 1;
+    }
+
+    /**
      *
      */
     constructor (model) {
@@ -81,6 +89,33 @@ Wick.GUIElement.Draggable = class extends Wick.GUIElement.Clickable {
             this.model.project.guiElement.updateMousePosition(e);
             this.lastMouseDrag = this.mouseDragEnd;
             this.mouseDragEnd = {x: this.globalMouse.x, y: this.globalMouse.y};
+
+            // Auto scroll when objects are dragged outside of the GUI
+            if(!this.isScrollbarGrabber) {
+                var dragX = this.model.project.guiElement.mousePosition.x;
+                var dragY = this.model.project.guiElement.mousePosition.y;
+                var dragWidth = this.paper.view.element.width;
+                var dragHeight = this.paper.view.element.height;
+                var horizScrollbar = this.model.project.activeTimeline.guiElement.horizontalScrollbar;
+                var verticalScrollbar = this.model.project.activeTimeline.guiElement.verticalScrollbar;
+                var scrollXBefore = this.model.project.activeTimeline.guiElement.scrollX;
+                var scrollYBefore = this.model.project.activeTimeline.guiElement.scrollY;
+                if(dragX > this.paper.view.element.width) {
+                    horizScrollbar.scrollByAmount(Wick.GUIElement.Draggable.AUTO_SCROLL_SPEED);
+                } else if(dragX < 0) {
+                    horizScrollbar.scrollByAmount(-Wick.GUIElement.Draggable.AUTO_SCROLL_SPEED);
+                }
+                if(dragY > this.paper.view.element.height) {
+                    verticalScrollbar.scrollByAmount(Wick.GUIElement.Draggable.AUTO_SCROLL_SPEED);
+                } else if(dragY < 0) {
+                    verticalScrollbar.scrollByAmount(-Wick.GUIElement.Draggable.AUTO_SCROLL_SPEED);
+                }
+                var scrollXAfter = this.model.project.activeTimeline.guiElement.scrollX;
+                var scrollYAfter = this.model.project.activeTimeline.guiElement.scrollY;
+                this.mouseDragStart.x += scrollXBefore - scrollXAfter;
+                this.mouseDragStart.y += scrollYBefore - scrollYAfter;
+            }
+
             this.fire('drag');
         };
         var onMouseUp = (e) => {
