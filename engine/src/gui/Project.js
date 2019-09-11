@@ -28,20 +28,9 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
         super(model);
 
         this._canvas = document.createElement('canvas');
-        this._canvas.addEventListener('mousemove', e => {
-            var rect = this._canvas.getBoundingClientRect();
-            this._mouse = {
-                x: e.clientX - rect.left,
-                y: e.clientY - rect.top
-            };
-            this.draw();
-        }, false);
-        this._canvas.addEventListener('mousedown', e => {
-            if(this.mouseHoverTarget) {
-                this.mouseHoverTarget.onMouseDown(e);
-            }
-            this.draw();
-        }, false);
+        this._canvas.addEventListener('mousemove', this._onMouseMove.bind(this), false);
+        this._canvas.addEventListener('mousedown', this._onMouseDown.bind(this), false);
+        this._canvas.addEventListener('mouseup',this._onMouseUp.bind(this), false);
         this._ctx = this._canvas.getContext('2d');
 
         this._canvasContainer = document.createElement('div');
@@ -50,6 +39,7 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
         this._canvasContainer.appendChild(this._canvas);
 
         this._mouse = {x: 0, y: 0};
+        this._mouseDragTarget = null;
     }
 
     /**
@@ -108,5 +98,39 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
     get mouseHoverTarget () {
         var l = this._mouseHoverTargets.length;
         return this._mouseHoverTargets[l - 1];
+    }
+
+    _onMouseMove (e) {
+        var rect = this._canvas.getBoundingClientRect();
+        this._mouse = {
+            x: e.clientX - rect.left,
+            y: e.clientY - rect.top
+        };
+        if(this._mouseDragTarget) {
+            this._mouseDragEnd = this._mouseDragTarget.mouse;
+            this._mouseDragDelta = {
+                x: this._mouseDragEnd.x - this._mouseDragStart.x,
+                y: this._mouseDragEnd.y - this._mouseDragStart.y
+            };
+            this._mouseDragTarget.onMouseDrag(e);
+        }
+        this.draw();
+    }
+
+    _onMouseDown (e) {
+        if(this.mouseHoverTarget) {
+            this.mouseHoverTarget.onMouseDown(e);
+            this._mouseDragTarget = this.mouseHoverTarget;
+            this._mouseDragStart = this._mouseDragTarget.mouse;
+            this._mouseDragEnd = this._mouseDragTarget.mouse;
+        } else {
+            this.model.selection.clear();
+        }
+        this.draw();
+    }
+
+    _onMouseUp (e) {
+        this._mouseDragTarget = null;
+        this.draw();
     }
 }

@@ -74,7 +74,15 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement {
     }
 
     onMouseDown (e) {
+        this.model.project.selection.clear();
         this.model.project.selection.select(this.model);
+    }
+
+    onMouseDrag (e) {
+        console.log('start ' + this.project._mouseDragStart.x + ', ' + this.project._mouseDragStart.y);
+        console.log('end ' + this.project._mouseDragEnd.x + ', ' + this.project._mouseDragEnd.y);
+        console.log('delta ' + this.project._mouseDragDelta.x + ', ' + this.project._mouseDragDelta.y);
+        console.log('')
     }
 
   /*
