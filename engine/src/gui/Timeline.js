@@ -34,6 +34,8 @@ Wick.GUIElement.Timeline = class extends Wick.GUIElement {
         super(model);
 
         this.breadcrumbs = new Wick.GUIElement.Breadcrumbs(model);
+        this.layersContainer = new Wick.GUIElement.LayersContainer(model);
+        
         /*this.framesContainer = new Wick.GUIElement.FramesContainer(model);
         this.layersContainer = new Wick.GUIElement.LayersContainer(model);
         this.numberLine = new Wick.GUIElement.NumberLine(model);
@@ -47,6 +49,13 @@ Wick.GUIElement.Timeline = class extends Wick.GUIElement {
      * Draw this GUIElement
      */
     draw () {
+        var ctx = this.ctx;
+
         this.breadcrumbs.draw();
+
+        ctx.save();
+        ctx.translate(0, Wick.GUIElement.BREADCRUMBS_HEIGHT);
+            this.layersContainer.draw();
+        ctx.restore();
     }
 }

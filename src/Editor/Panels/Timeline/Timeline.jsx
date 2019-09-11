@@ -55,7 +55,6 @@ class Timeline extends Component {
         { isOver && <div className="drag-drop-overlay" /> }
         <div id="animation-timeline" ref={this.canvasContainer} />
       </div>
-
     )
   }
 }

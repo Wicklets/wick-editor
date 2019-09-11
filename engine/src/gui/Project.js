@@ -27,7 +27,11 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
     constructor (model) {
         super(model);
 
-        this._isSetup = false;
+        this._canvas = document.createElement('canvas');
+        this._ctx = this._canvas.getContext('2d');
+
+        this._canvasContainer = document.createElement('div');
+        this._canvasContainer.appendChild(this._canvas);
     }
 
     /**
@@ -50,7 +54,7 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
      * Resize the canvas so that it fits inside the canvas container, call this when the size of the canvas container changes.
      */
     resize () {
-        if(!this.canvasContainer || !this._canvas) return;
+        if(!this._canvasContainer || !this._canvas) return;
 
         var containerWidth = this.canvasContainer.offsetWidth;
         var containerHeight = this.canvasContainer.offsetHeight;
@@ -59,35 +63,28 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
         containerWidth = Math.floor(containerWidth)-2;
         containerHeight = Math.floor(containerHeight)-1;
 
-        this._canvas.style.width = containerWidth;
-        this._canvas.style.height = containerHeight;
-        this._canvas.width = containerWidth;
-        this._canvas.height = containerHeight;
+        if(this._canvas.width !== containerWidth) {
+            this._canvas.width = containerWidth;
+        }
+        if(this._canvas.height !== containerHeight) {
+            this._canvas.height = containerHeight;
+        }
     };
 
     /**
      * Draw the GUIElement
      */
     draw () {
+        var ctx = this.ctx;
         console.log('drawing the timeline GUI')
 
-        if(!this._isSetup) {
-            // Build canvas + canvas container
-            this._canvas = document.createElement('canvas');
-            this._ctx = this._canvas.getContext('2d');
-            this._canvasContainer = document.createElement('div');
-            this._canvasContainer.appendChild(this._canvas);
-
-            this._isSetup = true;
-        }
-
         this.resize();
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-        this.ctx.save();
+        ctx.save();
         //this.ctx.translate(-0.5, -0.5);
-        this.ctx.translate(0, 0);
+        ctx.translate(0, 0);
             this.model.activeTimeline.guiElement.draw();
-        this.ctx.restore();
+        ctx.restore();
     }
 }
