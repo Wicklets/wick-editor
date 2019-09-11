@@ -19,28 +19,18 @@
 
 // Thanks to FlyOrBoom (https://github.com/FlyOrBoom) for the styling on these sliders!
 
-Wick.GUIElement.OnionSkinRangeEnd = class extends Wick.GUIElement {
-    /**
-     *
-     */
+Wick.GUIElement.OnionSkinRange = class extends Wick.GUIElement {
     constructor (model) {
         super(model);
-
-        this.on('drag', () => {
-            this.dragOffset = Math.floor(this.mouseDelta.x / this.gridCellWidth);
-            this.build();
-        });
-
-        this.on('dragEnd', () => {
-            this.drop();
-            this.build();
-            this.model.project.guiElement.fire('projectModified');
-        });
     }
 
-    /**
-     *
-     */
+    draw () {
+        var ctx = this.ctx;
+
+
+    }
+
+/*
     get x() {
         var project = this.model.project;
         var x = (project.activeTimeline.playheadPosition + project.onionSkinSeekForwards - 1) * this.gridCellWidth;
@@ -51,32 +41,20 @@ Wick.GUIElement.OnionSkinRangeEnd = class extends Wick.GUIElement {
         return x;
     }
 
-    /**
-     *
-     */
     get y() {
         return 0;
     }
 
-    /**
-     *
-     */
     get width() {
         return this.gridCellWidth - Wick.GUIElement.PLAYHEAD_MARGIN * 2;
     }
 
-    /**
-     *
-     */
     drop() {
         this.model.project.onionSkinSeekForwards = project.activeTimeline.playheadPosition + Math.floor(-this.x / this.gridCellWidth) - 1;
         this.model.project.onionSkinSeekForwards *= -1;
         this.dragOffset = 0;
     }
 
-    /**
-     *
-     */
     build () {
         super.build();
 
@@ -99,4 +77,5 @@ Wick.GUIElement.OnionSkinRangeEnd = class extends Wick.GUIElement {
         });
         this.item.addChild(rangeSlider);
     }
+*/
 }

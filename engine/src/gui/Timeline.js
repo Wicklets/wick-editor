@@ -19,12 +19,11 @@
 
 /**
  * The Timeline is responsible for drawing the following GUI elements:
- * - The Breadcrumbs
- * - The Frames Container
- * - The Layers Container
- * - The Horizontal Scrollbar
- * - The Vertical Scrollbar
- * - The Number Line
+ * - Breadcrumbs
+ * - Frames Container
+ * - Layers Container
+ * - Horizontal + Vertical Scrollbars
+ * - Number Line
  */
 Wick.GUIElement.Timeline = class extends Wick.GUIElement {
     /**
@@ -36,9 +35,11 @@ Wick.GUIElement.Timeline = class extends Wick.GUIElement {
         this.breadcrumbs = new Wick.GUIElement.Breadcrumbs(model);
         this.layersContainer = new Wick.GUIElement.LayersContainer(model);
         this.framesContainer = new Wick.GUIElement.FramesContainer(model);
-        //this.numberLine = new Wick.GUIElement.NumberLine(model);
-        //this.horizontalScrollbar = new Wick.GUIElement.ScrollbarHorizontal(model);
-        //this.verticalScrollbar = new Wick.GUIElement.ScrollbarVertical(model);
+        this.numberLine = new Wick.GUIElement.NumberLine(model);
+        this.horizontalScrollbar = new Wick.GUIElement.Scrollbar(model);
+        this.horizontalScrollbar.direction = 'horizontal';
+        this.verticalScrollbar = new Wick.GUIElement.Scrollbar(model);
+        this.verticalScrollbar.direction = 'vertical';
     }
 
     /**
@@ -47,16 +48,25 @@ Wick.GUIElement.Timeline = class extends Wick.GUIElement {
     draw () {
         var ctx = this.ctx;
 
-        // Frames
-        ctx.save();
-        ctx.translate(Wick.GUIElement.LAYERS_CONTAINER_WIDTH, Wick.GUIElement.BREADCRUMBS_HEIGHT);
-            this.framesContainer.draw();
-        ctx.restore();
-
-        // Layers
         ctx.save();
         ctx.translate(0, Wick.GUIElement.BREADCRUMBS_HEIGHT);
-            this.layersContainer.draw();
+            ctx.save();
+            ctx.translate(0, Wick.GUIElement.NUMBER_LINE_HEIGHT);
+                // Frames
+                ctx.save();
+                ctx.translate(Wick.GUIElement.LAYERS_CONTAINER_WIDTH, 0);
+                    this.framesContainer.draw();
+                ctx.restore();
+
+                // Layers
+                this.layersContainer.draw();
+            ctx.restore();
+
+            // Number Line
+            ctx.save();
+            ctx.translate(Wick.GUIElement.LAYERS_CONTAINER_WIDTH, 0);
+                this.numberLine.draw();
+            ctx.restore();
         ctx.restore();
 
         // Breadcrumbs

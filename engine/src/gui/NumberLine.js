@@ -21,130 +21,64 @@ Wick.GUIElement.NumberLine = class extends Wick.GUIElement {
     constructor (model) {
         super(model);
 
-/*
         this.playhead = new Wick.GUIElement.Playhead(model);
-        this.onionSkinRangeStart = new Wick.GUIElement.OnionSkinRangeStart(model);
-        this.onionSkinRangeEnd = new Wick.GUIElement.OnionSkinRangeEnd(model);
-
-        this.on('mouseDown', () => {
-            this._movePlayheadWithMouse();
-        });
-
-        this.on('drag', () => {
-            this._movePlayheadWithMouse();
-        });
-
-        this.on('mouseUp', () => {
-            this.model.project.guiElement.fire('projectModified');
-        });
-*/
+        this.onionSkinRange = new Wick.GUIElement.OnionSkinRange(model);
     }
 
     draw () {
-        
-    }
+        var ctx = this.ctx;
 
-/*
-    get cursor () {
-        return 'move';
-    }
-
-    get width () {
-        return paper.view.element.width - Wick.GUIElement.LAYERS_CONTAINER_WIDTH;
-    }
-
-    get height () {
-        return this._height;
-    }
-
-    set height (height) {
-        this._height = height;
-    }
-*/
-    /**
-     *
-     */
-     /*
-    build () {
-        super.build();
-
-        this.item.removeChildren();
+        var width = this.canvas.width - Wick.GUIElement.LAYERS_CONTAINER_WIDTH;
+        var height = Wick.GUIElement.NUMBER_LINE_HEIGHT;
 
         // Build BG
-        var bgRect = new this.paper.Path.Rectangle({
-            from: new this.paper.Point(0, 0),
-            to: new this.paper.Point(this.width, Wick.GUIElement.NUMBER_LINE_HEIGHT),
-            fillColor: Wick.GUIElement.TIMELINE_BACKGROUND_COLOR,
-            pivot: new paper.Point(0, 0),
-        });
-        bgRect.position.x -= this.scrollX;
-        this.item.addChild(bgRect);
+        ctx.fillStyle = Wick.GUIElement.TIMELINE_BACKGROUND_COLOR;
+        ctx.beginPath();
+        ctx.rect(0, 0, width, height);
+        ctx.fill();
+        ctx.stroke();
 
-        // Build number line cells
-        for(var i = -1; i < this.width / this.gridCellWidth + 1; i++) {
-            var skip =  Math.round(-this.scrollX / this.gridCellWidth);
-            this.item.addChild(this._buildCell(i + skip));
+        // Draw number line cells
+        for(var i = -1; i < width / this.gridCellWidth + 1; i++) {
+            this._drawCell(i);
         }
 
-        // Build playhead
-        this.playhead.build();
-        this.item.addChild(this.playhead.item);
+        // Draw playhead
+        this.playhead.draw();
 
-        // Build onion skin range sliders
-        this.onionSkinRangeStart.height = Wick.GUIElement.NUMBER_LINE_HEIGHT;
-        this.onionSkinRangeStart.build();
-        this.item.addChild(this.onionSkinRangeStart.item);
-
-        this.onionSkinRangeEnd.height = Wick.GUIElement.NUMBER_LINE_HEIGHT;
-        this.onionSkinRangeEnd.build();
-        this.item.addChild(this.onionSkinRangeEnd.item);
+        // Draw onion skin range
+        this.onionSkinRange.draw();
     }
 
-    _buildCell (i) {
+    _drawCell (i) {
+        var ctx = this.ctx;
+
         var highlight = (i%5 === 4);
 
-        var cellNumber = new paper.PointText({
-            point: [this.gridCellWidth/2, Wick.GUIElement.NUMBER_LINE_HEIGHT - 5],
-            content: (i + 1),
-            fillColor: highlight ? Wick.GUIElement.NUMBER_LINE_NUMBERS_HIGHLIGHT_COLOR : Wick.GUIElement.NUMBER_LINE_NUMBERS_COMMON_COLOR,
-            fontFamily: Wick.GUIElement.NUMBER_LINE_NUMBERS_FONT_FAMILY,
-            fontWeight: 'normal',
-            fontSize: (i>=100) ? 13 : 16,
-            justification: 'center',
-            pivot: new paper.Point(0, 0),
-        });
-
-        var cellWall = new this.paper.Path.Rectangle({
-            from: new this.paper.Point(-Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_STROKE_WIDTH/2, 0),
-            to: new this.paper.Point(Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_STROKE_WIDTH/2, Wick.GUIElement.NUMBER_LINE_HEIGHT),
-            fillColor: highlight ? Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_HIGHLIGHT_STROKE_COLOR : Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_STROKE_COLOR,
-            pivot: new paper.Point(0, 0),
-            locked: true,
-        });
-
-        var cell = new paper.Group({
-            children: [cellWall, cellNumber],
-            pivot: new paper.Point(0, 0),
-            applyMatrix: false,
-        });
-        cell.position = new paper.Point(i * this.gridCellWidth, 0);
-        cell.locked = true;
-        return cell;
-    }
-
-    _movePlayheadWithMouse () {
-        var newPlayheadPosition = Math.max(1, this.localMouseGrid.x + 1);
-        if(this.model.playheadPosition !== newPlayheadPosition) {
-            this.model.playheadPosition = newPlayheadPosition;
-            this.playhead.build();
-            this.onionSkinRangeStart.build();
-            this.onionSkinRangeEnd.build();
-            this.model.project.guiElement.fire('projectSoftModified');
+        // Draw cell number
+        var fontSize = (i>=100) ? 13 : 16;
+        var fontFamily = Wick.GUIElement.NUMBER_LINE_NUMBERS_FONT_FAMILY;
+        ctx.font = fontSize + "px " + fontFamily;
+        if(highlight) {
+            ctx.fillStyle = Wick.GUIElement.NUMBER_LINE_NUMBERS_HIGHLIGHT_COLOR;
+        } else {
+            ctx.fillStyle = Wick.GUIElement.NUMBER_LINE_NUMBERS_COMMON_COLOR;
         }
-    }
+        var textContent = ""+(i+1);
+        var textWidth = ctx.measureText(textContent).width;
+        ctx.fillText(textContent, (i * this.gridCellWidth) + (this.gridCellWidth / 2) - (textWidth / 2), Wick.GUIElement.NUMBER_LINE_HEIGHT - 5);
 
-    _positionScrollableElements () {
-        this.item.position.x = Wick.GUIElement.LAYERS_CONTAINER_WIDTH+this.scrollX;
-        this.build();
-    }*/
+        // Draw cell wall
+        ctx.lineWidth = Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_STROKE_WIDTH;
+        if(highlight) {
+            ctx.strokeStyle = Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_HIGHLIGHT_STROKE_COLOR;
+        } else {
+            ctx.strokeStyle = Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_STROKE_COLOR;
+        }
+        ctx.beginPath();
+        var wallX = i * this.gridCellWidth;
+        ctx.moveTo(wallX, 0);
+        ctx.lineTo(wallX, Wick.GUIElement.NUMBER_LINE_HEIGHT);
+        ctx.stroke();
+    }
 }
