@@ -123,6 +123,11 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
 
     set rightEdgeStretch (rightEdgeStretch) {
         this._rightEdgeStretch = rightEdgeStretch;
+        var ddd = this.model.length * this.gridCellWidth;
+        var framePixelLength = ddd + this._rightEdgeStretch;
+        if(framePixelLength < this.gridCellWidth) {
+            this._rightEdgeStretch = -ddd + this.gridCellWidth;
+        }
     }
 
     /**
@@ -141,6 +146,22 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
      */
     get selectedFrames () {
         return this.model.project.selection.getSelectedObjects(Wick.Frame);
+    }
+
+    /**
+     *
+     */
+    get selectedFramesByLayers () {
+        var frames = this.selectedFrames;
+        var layers = {};
+        frames.forEach(frame => {
+            var layer = frame.parentLayer;
+            if(!layers[layer.uuid]) {
+                layers[layer.uuid] = [];
+            }
+            layers[layer.uuid].push(frame);
+        });
+        return layers;
     }
 
     /**

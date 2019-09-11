@@ -25,17 +25,11 @@ Wick.GUIElement.FrameRightEdge = class extends Wick.GUIElement.FrameEdge {
         super(model);
 
         this.on('drag', () => {
-            this.model.guiElement.item.bringToFront();
-            this.model.guiElement.ghost.active = true;
-            this.model.guiElement.rightEdgeStretch = this.mouseDelta.x;
-            this.model.guiElement.build();
+            this._stretchSelectedFrames();
         });
 
         this.on('dragEnd', () => {
-            this.model.guiElement._tryToDropFrames();
-            this.model.guiElement.ghost.active = false;
-            this.model.guiElement.rightEdgeStretch = 0;
-            this.model.guiElement.build();
+            this._dropSelectedFrames();
         });
     }
 
@@ -71,5 +65,43 @@ Wick.GUIElement.FrameRightEdge = class extends Wick.GUIElement.FrameEdge {
 
         this.item.addChild(edgeRect);
         this.item.addChild(sharpRect);
+    }
+
+    _stretchSelectedFrames () {
+        this._getFarthestRightFrames().forEach(frame => {
+            var frameElem = frame.guiElement;
+            frameElem.item.bringToFront();
+            frameElem.ghost.active = true;
+            frameElem.rightEdgeStretch = this.mouseDelta.x;
+            frameElem.build();
+        });
+    }
+
+    _dropSelectedFrames () {
+        this.model.guiElement._tryToDropFrames();
+        this._getFarthestRightFrames().forEach(frame => {
+            var frameElem = frame.guiElement;
+            frameElem.ghost.active = false;
+            frameElem.rightEdgeStretch = 0;
+            frameElem.build();
+        });
+    }
+
+    _getFarthestRightFrames () {
+        var frames = [];
+        var layers = this.model.guiElement.selectedFramesByLayers;
+        for(var uuid in layers) {
+            var layerFrames = layers[uuid];
+            var farthestFrame = layerFrames.sort((a, b) => {
+                return b.end - a.end;
+            })[0];
+            if(farthestFrame.parentLayer !== this.model.parentLayer) {
+                frames.push(farthestFrame);
+            }
+        }
+        if(frames.indexOf(this.model) === -1) {
+            frames.push(this.model);
+        }
+        return frames;
     }
 }
