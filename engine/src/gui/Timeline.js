@@ -35,14 +35,10 @@ Wick.GUIElement.Timeline = class extends Wick.GUIElement {
 
         this.breadcrumbs = new Wick.GUIElement.Breadcrumbs(model);
         this.layersContainer = new Wick.GUIElement.LayersContainer(model);
-        
-        /*this.framesContainer = new Wick.GUIElement.FramesContainer(model);
-        this.layersContainer = new Wick.GUIElement.LayersContainer(model);
-        this.numberLine = new Wick.GUIElement.NumberLine(model);
-        this.horizontalScrollbar = new Wick.GUIElement.ScrollbarHorizontal(model);
-        this.verticalScrollbar = new Wick.GUIElement.ScrollbarVertical(model);
-        this.addFrameButton = new Wick.GUIElement.TimelineAddFrameButton(model);
-        this.deleteLayerButton = new Wick.GUIElement.TimelineDeleteLayerButton(model);*/
+        this.framesContainer = new Wick.GUIElement.FramesContainer(model);
+        //this.numberLine = new Wick.GUIElement.NumberLine(model);
+        //this.horizontalScrollbar = new Wick.GUIElement.ScrollbarHorizontal(model);
+        //this.verticalScrollbar = new Wick.GUIElement.ScrollbarVertical(model);
     }
 
     /**
@@ -51,11 +47,19 @@ Wick.GUIElement.Timeline = class extends Wick.GUIElement {
     draw () {
         var ctx = this.ctx;
 
-        this.breadcrumbs.draw();
+        // Frames
+        ctx.save();
+        ctx.translate(Wick.GUIElement.LAYERS_CONTAINER_WIDTH, Wick.GUIElement.BREADCRUMBS_HEIGHT);
+            this.framesContainer.draw();
+        ctx.restore();
 
+        // Layers
         ctx.save();
         ctx.translate(0, Wick.GUIElement.BREADCRUMBS_HEIGHT);
             this.layersContainer.draw();
         ctx.restore();
+
+        // Breadcrumbs
+        this.breadcrumbs.draw();
     }
 }

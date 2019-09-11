@@ -3,6 +3,7 @@ describe('Wick.GUIElement.Project', function() {
         var project = new Wick.Project();
         project.activeLayer.addFrame(new Wick.Frame({start: 2}));
         project.activeLayer.addFrame(new Wick.Frame({start: 3}));
+        project.activeFrame.addClip(new Wick.Clip());
 
         document.body.appendChild(project.guiElement.canvasContainer);
 
