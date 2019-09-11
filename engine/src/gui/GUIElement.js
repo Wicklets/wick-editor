@@ -20,6 +20,7 @@
 Wick.GUIElement = class {
     /**
      * Create a new GUIElement
+     * @param {Wick.Base} model - The object containing the data to use to draw this GUIElement
      */
     constructor (model) {
         this.model = model;
@@ -37,6 +38,20 @@ Wick.GUIElement = class {
         return this._model;
     }
 
+    /**
+     * The canvas that this GUIElement belongs to
+     */
+    get canvas () {
+        return this.model.project.guiElement._canvas;
+    }
+
+    /**
+     * The context of the canvas that this GUIElement belongs to
+     */
+    get ctx () {
+        return this.model.project.guiElement._ctx;
+    }
+    
     /**
      * The current grid cell width that all GUIElements are based off of.
      * @type {number}
@@ -58,20 +73,6 @@ Wick.GUIElement = class {
      */
     draw () {
         // Implemeneted by subclasses
-    }
-
-    /**
-     * The canvas that this GUIElement belongs to
-     */
-    get canvas () {
-        return this.model.project.guiElement._canvas;
-    }
-
-    /**
-     * The context of the canvas that this GUIElement belongs to
-     */
-    get ctx () {
-        return this.model.project.guiElement._ctx;
     }
 }
 

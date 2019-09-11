@@ -4,6 +4,8 @@ describe('Wick.GUIElement.Project', function() {
         project.activeLayer.addFrame(new Wick.Frame({start: 2}));
         project.activeLayer.addFrame(new Wick.Frame({start: 3}));
 
+        document.body.appendChild(project.guiElement.canvasContainer);
+
         project.guiElement.draw();
     });
 

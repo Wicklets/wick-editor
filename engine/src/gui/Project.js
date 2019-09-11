@@ -81,10 +81,6 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
         this.resize();
         ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-        ctx.save();
-        //this.ctx.translate(-0.5, -0.5);
-        ctx.translate(0, 0);
-            this.model.activeTimeline.guiElement.draw();
-        ctx.restore();
+        this.model.activeTimeline.guiElement.draw();
     }
 }

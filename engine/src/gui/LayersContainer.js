@@ -18,77 +18,30 @@
  */
 
 Wick.GUIElement.LayersContainer = class extends Wick.GUIElement {
-    /**
-     * Create a new GUIElement
-     */
     constructor (model) {
         super(model);
 
         this.layerCreateLabel = new Wick.GUIElement.LayerCreateLabel(model);
-
-        /*
-        this._layerLabels = {};
-        this.createLayerLabel = new Wick.GUIElement.CreateLayerLabel(model);
-        this.bg = new Wick.GUIElement.LayersContainerBG(model);
-        */
     }
 
-    /**
-     *
-     */
-     /*
-    get width () {
-        return Wick.GUIElement.LAYERS_CONTAINER_WIDTH;
-    }
-    */
-
-    /**
-     * Draw this GUIElement
-     */
     draw () {
+        var ctx = this.ctx;
+
+        // Background
+        ctx.fillStyle = Wick.GUIElement.TIMELINE_BACKGROUND_COLOR;
+        ctx.beginPath();
+        ctx.rect(0, 0, Wick.GUIElement.LAYERS_CONTAINER_WIDTH, this.canvas.height);
+        ctx.fill();
+
         // Draw layers
         this.model.layers.forEach(layer => {
-            layer.guiElement.draw();
+            ctx.save();
+            ctx.translate(0, layer.index * this.gridCellHeight);
+                layer.guiElement.draw();
+            ctx.restore();
         });
 
         // New layer creation label
         this.layerCreateLabel.draw();
-
-        // Background
-        /*
-        var bgRect = new paper.Path.Rectangle({
-            fillColor: Wick.GUIElement.TIMELINE_BACKGROUND_COLOR,
-            from: new paper.Point(0, -Wick.GUIElement.NUMBER_LINE_HEIGHT),
-            to: new paper.Point(Wick.GUIElement.LAYERS_CONTAINER_WIDTH, paper.view.element.height + Wick.GUIElement.NUMBER_LINE_HEIGHT),
-        });
-        */
-
-      /*
-        // Build layer labels
-        this.model.layers.forEach(layer => {
-            // Create/cache FramesStrips elements
-            var layerLabel = this._layerLabels[layer.uuid];
-            if(!layerLabel) {
-                layerLabel = new Wick.GUIElement.LayerLabel(layer);
-            }
-            this._layerLabels[layer.uuid] = layerLabel;
-
-            layerLabel.width = this.width;
-            layerLabel.build();
-            this.item.addChild(layerLabel.item);
-            layerLabel.item.sendToBack();
-        });
-
-        this.createLayerLabel.index = this.model.layers.length;
-        this.createLayerLabel.width = this.width;
-        this.createLayerLabel.build();
-        this.item.addChild(this.createLayerLabel.item);
-        this.createLayerLabel.item.sendToBack();
-
-        // Build BG
-        this.bg.build();
-        this.item.addChild(this.bg.item);
-        this.bg.item.sendToBack();
-        */
     }
 }

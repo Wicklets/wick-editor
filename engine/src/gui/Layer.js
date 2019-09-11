@@ -18,11 +18,39 @@
  */
 
 Wick.GUIElement.Layer = class extends Wick.GUIElement {
-    /**
-     *
-     */
     constructor (model) {
         super(model);
+    }
+
+    draw () {
+        var ctx = this.ctx;
+
+        if (this.model.hidden) {
+            ctx.fillStyle = Wick.GUIElement.LAYER_LABEL_HIDDEN_FILL_COLOR;
+        } else if (this.model.isActive) {
+            ctx.fillStyle = Wick.GUIElement.LAYER_LABEL_ACTIVE_FILL_COLOR;
+        } else {
+            ctx.fillStyle = Wick.GUIElement.LAYER_LABEL_INACTIVE_FILL_COLOR;
+        }
+        if(this.model.isSelected) {
+            ctx.strokeColor = Wick.GUIElement.SELECTED_ITEM_BORDER_COLOR;
+            ctx.lineWidth = 3;
+        } else {
+            ctx.strokeColor = 'rgba(0,0,0,0)';
+            ctx.lineWidth = 0;
+        }
+
+        var width = Wick.GUIElement.LAYERS_CONTAINER_WIDTH - Wick.GUIElement.LAYER_LABEL_MARGIN_SIDES*2;
+        var height = this.gridCellHeight - Wick.GUIElement.LAYER_LABEL_MARGIN_TOP_BOTTOM*2;
+
+        ctx.save();
+        ctx.translate(Wick.GUIElement.LAYER_LABEL_MARGIN_SIDES, Wick.GUIElement.LAYER_LABEL_MARGIN_TOP_BOTTOM);
+            ctx.beginPath();
+            ctx.rect(0, 0, width, height);
+            ctx.fill();
+            ctx.stroke();
+        ctx.restore();
+    }
 
 /*
         this.lockButton = new Wick.GUIElement.LayerLockButton(model);
@@ -61,7 +89,6 @@ Wick.GUIElement.Layer = class extends Wick.GUIElement {
             this.model.project.guiElement.fire('projectModified');
         });
         */
-    }
 
     /*
     get x () {
@@ -181,8 +208,4 @@ Wick.GUIElement.Layer = class extends Wick.GUIElement {
         this.item.bringToFront();
     }
     */
-
-    draw () {
-      
-    }
 }

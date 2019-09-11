@@ -33,6 +33,7 @@ Wick.GUIElement.Breadcrumbs = class extends Wick.GUIElement {
 
         // Background rectangle to cover rest of the GUI
         ctx.fillStyle = Wick.GUIElement.BREADCRUMBS_BG_COLOR;
+        ctx.beginPath();
         ctx.rect(0, 0, this.canvas.width, Wick.GUIElement.BREADCRUMBS_HEIGHT);
         ctx.fill();
 
