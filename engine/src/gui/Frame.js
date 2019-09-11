@@ -18,38 +18,51 @@
  */
 
 Wick.GUIElement.Frame = class extends Wick.GUIElement {
-  constructor (model) {
-      super(model);
-  }
+    constructor (model) {
+        super(model);
+    }
 
-  draw () {
-      var ctx = this.ctx;
+    draw () {
+        var ctx = this.ctx;
 
-      // Frame body
-      if(this.isHoveredOver) {
-          ctx.fillStyle = Wick.GUIElement.FRAME_HOVERED_OVER;
-      } else {
-          ctx.fillStyle = Wick.GUIElement.FRAME_UNCONTENTFUL_FILL_COLOR;
-      }
+        // Frame body
+        if(this.isMouseTarget) {
+            ctx.fillStyle = Wick.GUIElement.FRAME_HOVERED_OVER;
+        } else {
+            ctx.fillStyle = Wick.GUIElement.FRAME_UNCONTENTFUL_FILL_COLOR;
+        }
 
-      ctx.beginPath();
-      ctx.rect(0, 0, this.model.length * this.gridCellWidth, this.gridCellHeight);
-      ctx.fill();
+        ctx.beginPath();
+        ctx.roundRect(0, 0, this.model.length * this.gridCellWidth, this.gridCellHeight, Wick.GUIElement.FRAME_BORDER_RADIUS);
+        ctx.fill();
 
-      // Frame contentful dot
-      if(this.model.tweens.length === 0 && !this.model.sound) {
-          ctx.fillStyle = Wick.GUIElement.FRAME_CONTENT_DOT_COLOR;
-          ctx.strokeStyle = Wick.GUIElement.FRAME_CONTENT_DOT_COLOR;
-          ctx.lineWidth = Wick.GUIElement.FRAME_CONTENT_DOT_STROKE_WIDTH;
+        // Frame contentful dot
+        if(this.model.tweens.length === 0 && !this.model.sound) {
+            ctx.fillStyle = Wick.GUIElement.FRAME_CONTENT_DOT_COLOR;
+            ctx.strokeStyle = Wick.GUIElement.FRAME_CONTENT_DOT_COLOR;
+            ctx.lineWidth = Wick.GUIElement.FRAME_CONTENT_DOT_STROKE_WIDTH;
 
-          ctx.beginPath();
-          ctx.arc(this.gridCellWidth/2, this.gridCellHeight/2, Wick.GUIElement.FRAME_CONTENT_DOT_RADIUS, 0, 2 * Math.PI);
-          if(this.model.contentful) {
-              ctx.fill();
-          }
-          ctx.stroke();
-      }
-  }
+            ctx.beginPath();
+            ctx.arc(this.gridCellWidth/2, this.gridCellHeight/2, Wick.GUIElement.FRAME_CONTENT_DOT_RADIUS, 0, 2 * Math.PI);
+            if(this.model.contentful) {
+                ctx.fill();
+            }
+            ctx.stroke();
+        } else if (this.model.sound) {
+            //waveform
+        } else if (this.model.tweens.length > 0) {
+            //tweens
+        }
+    }
+
+    get bounds () {
+        return {
+            x: 0,
+            y: 0,
+            width: this.model.length * this.gridCellWidth,
+            height: this.gridCellHeight,
+        };
+    }
 
   /*
     static get cachedWaveforms () {

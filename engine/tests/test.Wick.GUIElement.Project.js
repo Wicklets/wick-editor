@@ -5,7 +5,11 @@ describe('Wick.GUIElement.Project', function() {
         project.activeLayer.addFrame(new Wick.Frame({start: 3}));
         project.activeFrame.addClip(new Wick.Clip());
 
-        document.body.appendChild(project.guiElement.canvasContainer);
+        var dummy = document.createElement('div');
+        dummy.style.width = 600;
+        dummy.style.height = 400;
+        document.body.appendChild(dummy);
+        dummy.appendChild(project.guiElement.canvasContainer);
 
         project.guiElement.draw();
     });

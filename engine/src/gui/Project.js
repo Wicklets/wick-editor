@@ -28,10 +28,22 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
         super(model);
 
         this._canvas = document.createElement('canvas');
+        this._canvas.addEventListener('mousemove', e => {
+            var rect = this._canvas.getBoundingClientRect();
+            this._mouse = {
+                x: e.clientX - rect.left,
+                y: e.clientY - rect.top
+            };
+            this.draw();
+        }, false);
         this._ctx = this._canvas.getContext('2d');
 
         this._canvasContainer = document.createElement('div');
+        this._canvasContainer.style.width = "100%";
+        this._canvasContainer.style.height = "100%";
         this._canvasContainer.appendChild(this._canvas);
+
+        this._mouse = {x: 0, y: 0};
     }
 
     /**

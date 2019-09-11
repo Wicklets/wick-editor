@@ -39,19 +39,40 @@ Wick.GUIElement = class {
     }
 
     /**
-     * The canvas that this GUIElement belongs to
+     * The root GUIElement.
+     * @type {Wick.GUIElement}
      */
-    get canvas () {
-        return this.model.project.guiElement._canvas;
+    get project () {
+        return this.model.project.guiElement;
     }
 
     /**
-     * The context of the canvas that this GUIElement belongs to
+     * The canvas that this GUIElement belongs to.
+     */
+    get canvas () {
+        return this.project._canvas;
+    }
+
+    /**
+     * The context of the canvas that this GUIElement belongs to.
      */
     get ctx () {
         return this.model.project.guiElement._ctx;
     }
-    
+
+    /**
+     * The current translation of the canvas. NOTE: This won't work without the following polyfill:
+     * https://github.com/goessner/canvas-currentTransform
+     * @type {object}
+     */
+    get translation () {
+        var transform = this.ctx.currentTransform;
+        return {
+            x: transform.e,
+            y: transform.f,
+        };
+    }
+
     /**
      * The current grid cell width that all GUIElements are based off of.
      * @type {number}
@@ -66,6 +87,45 @@ Wick.GUIElement = class {
      */
     get gridCellHeight () {
         return Wick.GUIElement.GRID_DEFAULT_CELL_HEIGHT;
+    }
+
+    /**
+     * The bounding box of the hit area for mouse interactions.
+     * @type {object}
+     */
+    get bounds () {
+        // Implemeneted by subclasses
+        return {
+            x: 0,
+            y: 0,
+            width: 0,
+            height: 0,
+        }
+    }
+
+    /**
+     * The current position of the mouse.
+     * @type {object}
+     */
+    get mouse () {
+        var translation = this.translation;
+        return {
+            x: this.project._mouse.x - translation.x,
+            y: this.project._mouse.y - translation.y,
+        }
+    }
+
+    /**
+     * Checks if this object is touching the mouse.
+     * @type {boolean}
+     */
+    get isMouseTarget () {
+        var bounds = this.bounds;
+        var mouse = this.mouse;
+        return mouse.x > bounds.x &&
+               mouse.y > bounds.y &&
+               mouse.x < bounds.x + bounds.width &&
+               mouse.y < bounds.y + bounds.height;
     }
 
     /**

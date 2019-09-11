@@ -46,7 +46,7 @@ Wick.GUIElement.Layer = class extends Wick.GUIElement {
         ctx.save();
         ctx.translate(Wick.GUIElement.LAYER_LABEL_MARGIN_SIDES, Wick.GUIElement.LAYER_LABEL_MARGIN_TOP_BOTTOM);
             ctx.beginPath();
-            ctx.rect(0, 0, width, height);
+            ctx.roundRect(0, 0, width, height, Wick.GUIElement.LAYER_LABEL_BORDER_RADIUS);
             ctx.fill();
             ctx.stroke();
         ctx.restore();
