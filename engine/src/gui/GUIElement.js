@@ -104,10 +104,10 @@ Wick.GUIElement = class {
     }
 
     /**
-     * The current position of the mouse.
+     * The current position of the mouse relative to this GUIElement.
      * @type {object}
      */
-    get mouse () {
+    get localMouse () {
         var translation = this.translation;
         return {
             x: this.project._mouse.x - translation.x,
@@ -121,7 +121,7 @@ Wick.GUIElement = class {
      */
     get mouseInBounds () {
         var bounds = this.bounds;
-        var mouse = this.mouse;
+        var mouse = this.localMouse;
         return mouse.x > bounds.x &&
                mouse.y > bounds.y &&
                mouse.x < bounds.x + bounds.width &&

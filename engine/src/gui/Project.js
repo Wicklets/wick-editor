@@ -107,7 +107,7 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
             y: e.clientY - rect.top
         };
         if(this._mouseDragTarget) {
-            this._mouseDragEnd = this._mouseDragTarget.mouse;
+            this._mouseDragEnd = this._mouseDragTarget.localMouse;
             this._mouseDragDelta = {
                 x: this._mouseDragEnd.x - this._mouseDragStart.x,
                 y: this._mouseDragEnd.y - this._mouseDragStart.y
@@ -121,8 +121,8 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
         if(this.mouseHoverTarget) {
             this.mouseHoverTarget.onMouseDown(e);
             this._mouseDragTarget = this.mouseHoverTarget;
-            this._mouseDragStart = this._mouseDragTarget.mouse;
-            this._mouseDragEnd = this._mouseDragTarget.mouse;
+            this._mouseDragStart = this._mouseDragTarget.localMouse;
+            this._mouseDragEnd = this._mouseDragTarget.localMouse;
         } else {
             this.model.selection.clear();
         }
