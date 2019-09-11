@@ -17,9 +17,12 @@
  * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+/**
+ * The Project GUIElement handles the creation of the canvas and drawing the rest of the GUIElements.
+ */
 Wick.GUIElement.Project = class extends Wick.GUIElement {
     /**
-     *
+     * Create a new GUIElement.
      */
     constructor (model) {
         super(model);
@@ -28,7 +31,7 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
     }
 
     /**
-     *
+     * The div containing the GUI canvas
      */
     get canvasContainer () {
         return this._canvasContainer;
@@ -44,7 +47,7 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
     }
 
     /**
-     *
+     * Resize the canvas so that it fits inside the canvas container, call this when the size of the canvas container changes.
      */
     resize () {
         if(!this.canvasContainer || !this._canvas) return;
@@ -58,181 +61,33 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
 
         this._canvas.style.width = containerWidth;
         this._canvas.style.height = containerHeight;
-
-        this.paper.view.viewSize.width = containerWidth;
-        this.paper.view.viewSize.height = containerHeight;
+        this._canvas.width = containerWidth;
+        this._canvas.height = containerHeight;
     };
 
     /**
-     *
+     * Draw the GUIElement
      */
-    build () {
+    draw () {
+        console.log('drawing the timeline GUI')
+
         if(!this._isSetup) {
             // Build canvas + canvas container
             this._canvas = document.createElement('canvas');
-            this.paper.setup(this._canvas);
-
+            this._ctx = this._canvas.getContext('2d');
             this._canvasContainer = document.createElement('div');
             this._canvasContainer.appendChild(this._canvas);
-
-            // Use this GUIElement as the root container that contains all other elements in the GUI
-            this.paper.project.activeLayer.addChild(this.item);
-
-            // Breadcrumbs GUI
-            this.breadcrumbs = new Wick.GUIElement.Breadcrumbs(this.model);
-
-            this._attachMouseEvents();
-
-            // Re-render canvas on changes that should happen very fast
-            this.on('projectSoftModified', (e) => {
-                this.model.view.render();
-            });
 
             this._isSetup = true;
         }
 
-        super.build();
-
         this.resize();
-        this._hoverTarget = null;
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-        // Build timeline
-        var timeline = this.model.focus.timeline;
-        timeline.guiElement.build();
-        timeline.guiElement.item.position.y = Wick.GUIElement.BREADCRUMBS_HEIGHT;
-        this.item.addChild(timeline.guiElement.item);
-
-        // Build breadcrumbs
-        this.breadcrumbs.build();
-        this.item.addChild(this.breadcrumbs.item);
-    }
-
-    /**
-     *
-     */
-    updateMousePosition (e) {
-        // This fixes the NaN errors on touch devices:
-        var x = 0;
-        var y = 0;
-        if(e.touches) {
-            var touch = e.touches[0];
-            x = touch ? touch.clientX : null;
-            y = touch ? touch.clientY : null;
-        } else {
-            x = e.clientX;
-            y = e.clientY;
-        }
-
-        if(x !== null && y !== null && e.target && this._canvas.getBoundingClientRect) {
-            var bounds = this._canvas.getBoundingClientRect();
-            this.mousePosition = {
-                x: x - bounds.left,
-                y: y - bounds.top,
-            };
-        }
-    }
-
-    /**
-     *
-     */
-    dropAssetAtPosition (uuid, x, y) {
-        var point = new paper.Point(x, y);
-        var canvasPosition = this._canvas.getBoundingClientRect();
-        point.x -= canvasPosition.left;
-        point.y -= canvasPosition.top;
-        var element = this._getGUIElementAtPosition(point);
-        if(element.model instanceof Wick.Frame) {
-            var frame = element.model;
-            var asset = this.model.getAssetByUUID(uuid);
-            frame.sound = asset;
-            this.fire('projectModified');
-        }
-    }
-
-    _attachMouseEvents () {
-        $(this._canvas).on('mousewheel', e => {
-            e.preventDefault();
-            var d = e.deltaY * e.deltaFactor * 0.5;
-            this.model.activeTimeline.guiElement.verticalScrollbar.scrollByAmount(-d);
-        });
-
-        this.paper.view.onMouseMove = (e) => {
-            // don't fire mouseMove functions if we're dragging
-            if(e.event.buttons) return;
-
-            paper.view.element.style.cursor = 'default';
-
-            this.updateMousePosition(e.event);
-
-            var guiElement = this._getGUIElementAtPosition(e.point);
-            if(guiElement && guiElement.cursor) {
-                paper.view.element.style.cursor = guiElement.cursor;
-            }
-
-            if(this._hoverTarget !== guiElement && this._hoverTarget) {
-                this._hoverTarget.handleMouseLeave(e);
-            }
-            this._hoverTarget = guiElement;
-            if(this._hoverTarget) {
-                this._hoverTarget.handleMouseOver(e);
-            }
-        }
-
-        // Disable right click menu
-        $(this.paper.view.element).on('contextmenu', (e) => { return false; });
-
-        this.paper.view.onMouseDown = (e) => {
-            if(e.touches) {
-                this.paper.view.onMouseMove(e);
-            }
-
-            if(e.event.button === 2) {
-              this.fire('rightClick', {});
-            }
-
-            var guiElement = this._getGUIElementAtPosition(e.point);
-
-            if(guiElement) {
-                guiElement.handleMouseDown(e);
-            }
-        }
-
-        this.paper.view.onMouseUp = (e) => {
-            if(this._hoverTarget) {
-                this._hoverTarget.handleMouseUp(e);
-            }
-        }
-
-        this.paper.view.onMouseLeave = (e) => {
-            if(this._hoverTarget) {
-                this._hoverTarget.handleMouseLeave(e);
-            }
-            this._hoverTarget = null;
-        };
-    }
-
-    _getGUIElementAtPosition (point) {
-        var hitResult = this.paper.project.hitTest(point);
-        if(!hitResult || !hitResult.item) return;
-
-        var guiElement = this._getGUIElementOfItem(hitResult.item);
-        return guiElement;
-    }
-
-    _getGUIElementOfItem (item) {
-        if(item === null || item === undefined) {
-            return null;
-        }
-
-        if(!(item instanceof paper.Group)) {
-            return this._getGUIElementOfItem(item.parent);
-        }
-
-        var guiElement = item.data.guiElement;
-        if(!guiElement || !(guiElement instanceof Wick.GUIElement.Clickable)) {
-            return this._getGUIElementOfItem(item.parent);
-        } else {
-            return guiElement;
-        }
+        this.ctx.save();
+        //this.ctx.translate(-0.5, -0.5);
+        this.ctx.translate(0, 0);
+            this.model.activeTimeline.guiElement.draw();
+        this.ctx.restore();
     }
 }

@@ -455,7 +455,7 @@ class Editor extends EditorCore {
 
     // Render engine
     this.project.view.render();
-    this.project.guiElement.build();
+    this.project.guiElement.draw();
 
     // Force react to render
     this.setState({

@@ -18,24 +18,26 @@
  */
 
 Wick.GUIElement.Breadcrumbs = class extends Wick.GUIElement {
+    /**
+     * Create a new GUIElement
+     */
     constructor (model) {
         super(model);
     };
 
-    build () {
-        super.build();
+    /**
+     * Draw this GUIElement
+     */
+    draw () {
+        var ctx = this.ctx;
 
         // Background rectangle to cover rest of the GUI
-        var bgRect = new this.paper.Path.Rectangle({
-            from: new this.paper.Point(0, 0),
-            to: new this.paper.Point(paper.view.element.width, Wick.GUIElement.BREADCRUMBS_HEIGHT),
-            fillColor: Wick.GUIElement.BREADCRUMBS_BG_COLOR,
-            pivot: new paper.Point(0, 0),
-        });
-        bgRect.position.x -= this.scrollX;
-        this.item.addChild(bgRect);
+        ctx.fillStyle = Wick.GUIElement.BREADCRUMBS_BG_COLOR;
+        ctx.rect(0, 0, this.canvas.width, Wick.GUIElement.BREADCRUMBS_HEIGHT);
+        ctx.fill();
 
         // Generate buttons for each Clip in the lineage
+        /*
         var lastButton = null;
         this.model.focus.lineage.reverse().forEach(clip => {
             var button = new Wick.GUIElement.BreadcrumbsButton(clip);
@@ -47,5 +49,6 @@ Wick.GUIElement.Breadcrumbs = class extends Wick.GUIElement {
             };
             lastButton = button;
         });
+        */
     };
 };

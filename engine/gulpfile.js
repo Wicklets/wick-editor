@@ -65,7 +65,7 @@ gulp.task("default", function() {
       'src/base/Tickable.js',
       'src/base/Frame.js',
       'src/base/Clip.js',
-      'src/base/clip/Button.js',
+      'src/base/Button.js',
       'src/tools/Tool.js',
       'src/tools/Brush.js',
       'src/tools/Cursor.js',

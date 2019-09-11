@@ -34,35 +34,17 @@ class Timeline extends Component {
 
   componentDidMount () {
     let canvasContainerElem = this.canvasContainer.current;
-
     this.props.project.guiElement.canvasContainer = canvasContainerElem;
-    this.props.project.guiElement.resize();
-    this.props.project.guiElement.build();
   }
 
   componentDidUpdate () {
     var project = this.props.project;
 
     if(project !== this.currentAttachedProject) {
-      project.guiElement.on('projectModified', (e) => {
-        this.props.projectDidChange();
-      });
-      project.guiElement.on('projectSoftModified', (e) => {
-
-      });
-      project.guiElement.on('doubleClick', (e) => {
-        console.log('doubleClick event fired');
-        console.log(e);
-      });
-      project.guiElement.on('rightClick', (e) => {
-        console.log('rightClick event fired');
-        console.log(e);
-      });
       this.currentAttachedProject = project;
     }
 
     project.guiElement.canvasContainer = this.canvasContainer.current;
-    project.guiElement.build();
   }
 
   render() {

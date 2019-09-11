@@ -4,7 +4,7 @@ describe('Wick.GUIElement.Project', function() {
         project.activeLayer.addFrame(new Wick.Frame({start: 2}));
         project.activeLayer.addFrame(new Wick.Frame({start: 3}));
 
-        project.guiElement.build();
+        project.guiElement.draw();
     });
 
     it('should render frame sound waveforms', function (done) {
@@ -20,9 +20,9 @@ describe('Wick.GUIElement.Project', function() {
 
         // wait a little bit to load the waveform image...
         sound.load(() => {
-            project.guiElement.build();
+            project.guiElement.draw();
             setTimeout(() => {
-                project.guiElement.build();
+                project.guiElement.draw();
                 done();
             }, 100);
         });

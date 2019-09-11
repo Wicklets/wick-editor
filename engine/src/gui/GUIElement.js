@@ -19,41 +19,15 @@
 
 Wick.GUIElement = class {
     /**
-     * The paper.js scope that all Wick.View subclasses will use to render to.
-     */
-    static get paperScope () {
-        if(!this._paperScope) {
-            this._paperScope = new paper.PaperScope();
-
-            // Create dummy paper.js instance so we can access paper classes
-            var canvas = window.document.createElement('canvas');
-            this._paperScope.setup(canvas);
-        }
-
-        // Use active paper scope for window.paper alias
-        window.paper = this._paperScope;
-
-        // Activate the paper scope
-        this._paperScope.activate();
-
-        return this._paperScope;
-    }
-
-    /**
-     *
+     * Create a new GUIElement
      */
     constructor (model) {
         this.model = model;
-        this.item = null;
-
-        this._eventHandlers = {};
-
-        this._scrollX = 0;
-        this._scrollY = 0;
     }
 
     /**
      * The object to use the data from to create this GUIElement
+     * @type {Wick.Base}
      */
     set model (model) {
         this._model = model;
@@ -64,108 +38,40 @@ Wick.GUIElement = class {
     }
 
     /**
-     * The paper.js item representing this GUIElement
-     */
-    get item () {
-        if(!this._item) {
-            this._item = this._buildItem();
-        }
-        return this._item;
-    }
-
-    set item (item) {
-        if(this._item) {
-            this._item.remove();
-        }
-        this._item = item;
-    }
-
-    /**
-     *
-     */
-    get paper () {
-        return Wick.GUIElement.paperScope;
-    }
-
-    /**
-     *
+     * The current grid cell width that all GUIElements are based off of.
+     * @type {number}
      */
     get gridCellWidth () {
         return Wick.GUIElement.GRID_DEFAULT_CELL_WIDTH;
     }
 
     /**
-     *
+     * The current grid cell height that all GUIElements are based off of.
+     * @type {number}
      */
     get gridCellHeight () {
         return Wick.GUIElement.GRID_DEFAULT_CELL_HEIGHT;
     }
 
     /**
-     *
+     * Draw this GUIElement
      */
-    set scrollX (scrollX) {
-        this._scrollX = scrollX;
-        this._positionScrollableElements();
-    }
-
-    get scrollX () {
-        return this._scrollX;
+    draw () {
+        // Implemeneted by subclasses
     }
 
     /**
-     *
+     * The canvas that this GUIElement belongs to
      */
-    set scrollY (scrollY) {
-        this._scrollY = scrollY;
-        this._positionScrollableElements();
-    }
-
-    get scrollY () {
-        return this._scrollY;
+    get canvas () {
+        return this.model.project.guiElement._canvas;
     }
 
     /**
-     *
+     * The context of the canvas that this GUIElement belongs to
      */
-    on (eventName, fn) {
-        if(!this._eventHandlers[eventName]) {
-            this._eventHandlers[eventName] = [];
-        }
-        this._eventHandlers[eventName].push(fn);
-    }
-
-    /**
-     *
-     */
-    fire (eventName, eventInfo) {
-        var eventFns = this._eventHandlers[eventName];
-        //eventFn && eventFn(eventInfo);
-        if(eventFns) {
-            eventFns.forEach(fn => {
-                fn(eventInfo);
-            });
-        }
-    }
-
-    /**
-     *
-     */
-    build () {
-        this.item.removeChildren();
-    }
-
-    _buildItem () {
-        var item = new this.paper.Group();
-        item.remove();
-        item.applyMatrix = false;
-        item.pivot = new paper.Point(0,0);
-        item.data.guiElement = this;
-        return item;
-    }
-
-    _positionScrollableElements () {
-
+    get ctx () {
+        return this.model.project.guiElement._ctx;
     }
 }
 

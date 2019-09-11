@@ -22222,6 +22222,79 @@ Wick.Selection = class extends Wick.Base {
 	return Atomic;
 
 }));
+/*
+ * base64-arraybuffer
+ * https://github.com/niklasvh/base64-arraybuffer
+ *
+ * Copyright (c) 2012 Niklas von Hertzen
+ * Licensed under the MIT license.
+ */
+var Base64ArrayBuffer = (function () {
+  "use strict";
+
+  var base64ArrayBuffer = { };
+
+  var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
+  // Use a lookup table to find the index.
+  var lookup = new Uint8Array(256);
+  for (var i = 0; i < chars.length; i++) {
+    lookup[chars.charCodeAt(i)] = i;
+  }
+
+  base64ArrayBuffer.encode = function(arraybuffer) {
+    var bytes = new Uint8Array(arraybuffer),
+    i, len = bytes.length, base64 = "";
+
+    for (i = 0; i < len; i+=3) {
+      base64 += chars[bytes[i] >> 2];
+      base64 += chars[((bytes[i] & 3) << 4) | (bytes[i + 1] >> 4)];
+      base64 += chars[((bytes[i + 1] & 15) << 2) | (bytes[i + 2] >> 6)];
+      base64 += chars[bytes[i + 2] & 63];
+    }
+
+    if ((len % 3) === 2) {
+      base64 = base64.substring(0, base64.length - 1) + "=";
+    } else if (len % 3 === 1) {
+      base64 = base64.substring(0, base64.length - 2) + "==";
+    }
+
+    return base64;
+  };
+
+  base64ArrayBuffer.decode =  function(base64) {
+    var bufferLength = base64.length * 0.75,
+    len = base64.length, i, p = 0,
+    encoded1, encoded2, encoded3, encoded4;
+
+    if (base64[base64.length - 1] === "=") {
+      bufferLength--;
+      if (base64[base64.length - 2] === "=") {
+        bufferLength--;
+      }
+    }
+
+    var arraybuffer = new ArrayBuffer(bufferLength),
+    bytes = new Uint8Array(arraybuffer);
+
+    for (i = 0; i < len; i+=4) {
+      encoded1 = lookup[base64.charCodeAt(i)];
+      encoded2 = lookup[base64.charCodeAt(i+1)];
+      encoded3 = lookup[base64.charCodeAt(i+2)];
+      encoded4 = lookup[base64.charCodeAt(i+3)];
+
+      bytes[p++] = (encoded1 << 2) | (encoded2 >> 4);
+      bytes[p++] = ((encoded2 & 15) << 4) | (encoded3 >> 2);
+      bytes[p++] = ((encoded3 & 3) << 6) | (encoded4 & 63);
+    }
+
+    return arraybuffer;
+  };
+
+  return base64ArrayBuffer;
+
+})();
+
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
@@ -22666,79 +22739,6 @@ Wick.Timeline = class extends Wick.Base {
   }
 
 };
-/*
- * base64-arraybuffer
- * https://github.com/niklasvh/base64-arraybuffer
- *
- * Copyright (c) 2012 Niklas von Hertzen
- * Licensed under the MIT license.
- */
-var Base64ArrayBuffer = (function () {
-  "use strict";
-
-  var base64ArrayBuffer = { };
-
-  var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-
-  // Use a lookup table to find the index.
-  var lookup = new Uint8Array(256);
-  for (var i = 0; i < chars.length; i++) {
-    lookup[chars.charCodeAt(i)] = i;
-  }
-
-  base64ArrayBuffer.encode = function(arraybuffer) {
-    var bytes = new Uint8Array(arraybuffer),
-    i, len = bytes.length, base64 = "";
-
-    for (i = 0; i < len; i+=3) {
-      base64 += chars[bytes[i] >> 2];
-      base64 += chars[((bytes[i] & 3) << 4) | (bytes[i + 1] >> 4)];
-      base64 += chars[((bytes[i + 1] & 15) << 2) | (bytes[i + 2] >> 6)];
-      base64 += chars[bytes[i + 2] & 63];
-    }
-
-    if ((len % 3) === 2) {
-      base64 = base64.substring(0, base64.length - 1) + "=";
-    } else if (len % 3 === 1) {
-      base64 = base64.substring(0, base64.length - 2) + "==";
-    }
-
-    return base64;
-  };
-
-  base64ArrayBuffer.decode =  function(base64) {
-    var bufferLength = base64.length * 0.75,
-    len = base64.length, i, p = 0,
-    encoded1, encoded2, encoded3, encoded4;
-
-    if (base64[base64.length - 1] === "=") {
-      bufferLength--;
-      if (base64[base64.length - 2] === "=") {
-        bufferLength--;
-      }
-    }
-
-    var arraybuffer = new ArrayBuffer(bufferLength),
-    bytes = new Uint8Array(arraybuffer);
-
-    for (i = 0; i < len; i+=4) {
-      encoded1 = lookup[base64.charCodeAt(i)];
-      encoded2 = lookup[base64.charCodeAt(i+1)];
-      encoded3 = lookup[base64.charCodeAt(i+2)];
-      encoded4 = lookup[base64.charCodeAt(i+3)];
-
-      bytes[p++] = (encoded1 << 2) | (encoded2 >> 4);
-      bytes[p++] = ((encoded2 & 15) << 4) | (encoded3 >> 2);
-      bytes[p++] = ((encoded3 & 3) << 6) | (encoded4 & 63);
-    }
-
-    return arraybuffer;
-  };
-
-  return base64ArrayBuffer;
-
-})();
-
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
@@ -27463,266 +27463,6 @@ Wick.Clip = class extends Wick.Tickable {
   }
 
 };
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-Wick.Tool = class {
-  static get DOUBLE_CLICK_TIME() {
-    return 300;
-  }
-  /**
-   * Creates a new Wick Tool.
-   */
-
-
-  constructor() {
-    this.paperTool = new this.paper.Tool(); // Attach onActivate event
-
-    this.paperTool.onActivate = e => {
-      this.onActivate(e);
-    }; // Attach onDeactivate event
-
-
-    this.paperTool.onDeactivate = e => {
-      this.onDeactivate(e);
-    }; // Attach mouse move event
-
-
-    this.paperTool.onMouseMove = e => {
-      this.onMouseMove(e);
-    }; // Attach mouse down + double click event
-
-
-    this.paperTool.onMouseDown = e => {
-      if (this.doubleClickEnabled && this._lastMousedownTimestamp !== null && e.timeStamp - this._lastMousedownTimestamp < Wick.Tool.DOUBLE_CLICK_TIME) {
-        this.onDoubleClick(e);
-      } else {
-        this.onMouseDown(e);
-      }
-
-      this._lastMousedownTimestamp = e.timeStamp;
-    }; // Attach key events
-
-
-    this.paperTool.onKeyDown = e => {
-      this.onKeyDown(e);
-    };
-
-    this.paperTool.onKeyUp = e => {
-      this.onKeyUp(e);
-    }; // Attach mouse move event
-
-
-    this.paperTool.onMouseDrag = e => {
-      this.onMouseDrag(e);
-    }; // Attach mouse up event
-
-
-    this.paperTool.onMouseUp = e => {
-      this.onMouseUp(e);
-    };
-
-    this._eventCallbacks = {};
-    this._lastMousedownTimestamp = null;
-  }
-  /**
-   * The paper.js scope to use.
-   */
-
-
-  get paper() {
-    return Wick.View.paperScope;
-  }
-  /**
-   * The CSS cursor to display for this tool.
-   */
-
-
-  get cursor() {
-    console.warn("Warning: Tool is missing a cursor!");
-  }
-  /**
-   * Called when the tool is activated
-   */
-
-
-  onActivate(e) {}
-  /**
-   * Called when the tool is deactivated (another tool is activated)
-   */
-
-
-  onDeactivate(e) {}
-  /**
-   * Called when the mouse moves and the tool is active.
-   */
-
-
-  onMouseMove(e) {
-    this.setCursor(this.cursor);
-  }
-  /**
-   * Called when the mouse clicks the paper.js canvas and this is the active tool.
-   */
-
-
-  onMouseDown(e) {}
-  /**
-   * Called when the mouse is dragged on the paper.js canvas and this is the active tool.
-   */
-
-
-  onMouseDrag(e) {}
-  /**
-   * Called when the mouse is clicked on the paper.js canvas and this is the active tool.
-   */
-
-
-  onMouseUp(e) {}
-  /**
-   * Called when the mouse double clicks on the paper.js canvas and this is the active tool.
-   */
-
-
-  onDoubleClick(e) {}
-  /**
-   * Called when a key is pressed and this is the active tool.
-   */
-
-
-  onKeyDown(e) {}
-  /**
-   * Called when a key is released and this is the active tool.
-   */
-
-
-  onKeyUp(e) {}
-  /**
-   * Activates this tool in paper.js.
-   */
-
-
-  activate() {
-    this.paperTool.activate();
-  }
-  /**
-   * Sets the cursor of the paper.js canvas that the tool belongs to.
-   * @param {string} cursor - a CSS cursor style
-   */
-
-
-  setCursor(cursor) {
-    this.paper.view._element.style.cursor = cursor;
-  }
-  /**
-   * Attach a function to get called when an event happens.
-   * @param {string} eventName - the name of the event
-   * @param {function} fn - the function to call when the event is fired
-   */
-
-
-  on(eventName, fn) {
-    this._eventCallbacks[eventName] = fn;
-  }
-  /**
-   * Call the functions attached to a given event.
-   * @param {string} eventName - the name of the event to fire
-   * @param {object} e - (optional) an object to attach some data to, if needed
-   */
-
-
-  fireEvent(eventName, e) {
-    if (!e) e = {};
-
-    if (!e.layers) {
-      e.layers = [this.paper.project.activeLayer];
-    }
-
-    var fn = this._eventCallbacks[eventName];
-    fn && fn(e);
-  }
-  /**
-   *
-   * @param {paper.Color} color - the color of the cursor
-   * @param {number} size - the width of the cursor image to generate
-   */
-
-
-  createDynamicCursor(color, size) {
-    var canvas = document.createElement("canvas");
-    canvas.width = 128;
-    canvas.height = 128;
-    var context = canvas.getContext('2d');
-    var centerX = canvas.width / 2;
-    var centerY = canvas.height / 2;
-    var radius = size / 2;
-    context.beginPath();
-    context.arc(centerX, centerY, radius + 1, 0, 2 * Math.PI, false);
-    context.fillStyle = invert(color);
-    context.fill();
-    context.beginPath();
-    context.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
-    context.fillStyle = color;
-    context.fill();
-    return 'url(' + canvas.toDataURL() + ') 64 64,default';
-  }
-  /**
-   * Get a tool setting from the project. See Wick.ToolSettings for all options
-   * @param {string} name - the name of the setting to get
-   */
-
-
-  getSetting(name) {
-    return this.project.toolSettings.getSetting(name);
-  }
-  /**
-   * Does this tool have a double click action? (override this in classes that extend Wick.Tool)
-   * @type {boolean}
-   */
-
-
-  get doubleClickEnabled() {
-    return true;
-  }
-  /**
-   * Adds a paper.Path to the active frame's paper.Layer.
-   * @param {paper.Path} path - the path to add
-   */
-
-
-  addPathToProject(path) {
-    // Automatically add a frame is there isn't one
-    if (!this.project.activeFrame) {
-      var playheadPosition = this.project.activeTimeline.playheadPosition;
-      var newFrame = new Wick.Frame({
-        start: playheadPosition
-      });
-      this.project.activeLayer.addFrame(newFrame);
-      this.project.view.render();
-    }
-
-    this.paper.project.activeLayer.addChild(path);
-  }
-
-};
-Wick.Tools = {};
 (function webpackUniversalModuleDefinition(root, factory) {
 /* istanbul ignore next */
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -34452,6 +34192,367 @@ return /******/ (function(modules) { // webpackBootstrap
 * You should have received a copy of the GNU General Public License
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
+
+/**
+ * A class representing a Wick Button.
+ * Buttons are just clips with special timelines controlled by mouse interactions.
+ */
+Wick.Button = class extends Wick.Clip {
+  /**
+   * Create a new button.
+   * @param {object} args
+   */
+  constructor(args) {
+    super(args);
+    this.cursor = 'pointer';
+    var frame1 = this.timeline.activeFrame;
+    var frame2 = frame1.copy();
+    var frame3 = frame1.copy();
+    frame2.start = 2;
+    frame2.end = 2;
+    frame3.start = 3;
+    frame3.end = 3;
+    frame1.identifier = 'up';
+    frame2.identifier = 'over';
+    frame3.identifier = 'down';
+    this.timeline.activeLayer.addFrame(frame2);
+    this.timeline.activeLayer.addFrame(frame3);
+  }
+
+  serialize(args) {
+    var data = super.serialize(args);
+    return data;
+  }
+
+  deserialize(data) {
+    super.deserialize(data);
+  }
+
+  get classname() {
+    return 'Button';
+  }
+
+  _onInactive() {
+    return super._onInactive();
+  }
+
+  _onActivated() {
+    var error = super._onActivated();
+
+    this.timeline.stop();
+    this.timeline.playheadPosition = 1;
+    return error;
+  }
+
+  _onActive() {
+    this.timeline._forceNextFrame = 1;
+    var frame2Exists = this.timeline.getFramesAtPlayheadPosition(2).length > 0;
+    var frame3Exists = this.timeline.getFramesAtPlayheadPosition(3).length > 0;
+
+    if (this._mouseState === 'over') {
+      if (frame2Exists) {
+        this.timeline.gotoFrame(2);
+      }
+    } else if (this._mouseState === 'down') {
+      if (frame3Exists) {
+        this.timeline.gotoFrame(3);
+      } else if (frame2Exists) {
+        this.timeline.gotoFrame(2);
+      }
+    }
+
+    var error = super._onActive();
+
+    if (error) return error;
+    return null;
+  }
+
+  _onDeactivated() {
+    super._onDeactivated();
+  }
+
+};
+var floodfill=(function(){function f(p,v,u,l,t,g,B){var k=p.length;var q=[];var o=(v+u*g)*4;var r=o,z=o,s,A,n=g*4;var h=[p[o],p[o+1],p[o+2],p[o+3]];if(!a(o,h,l,p,k,t)){return false}q.push(o);while(q.length){o=q.pop();if(e(o,h,l,p,k,t)){r=o;z=o;A=parseInt(o/n)*n;s=A+n;while(A<z&&A<(z-=4)&&e(z,h,l,p,k,t)){}while(s>r&&s>(r+=4)&&e(r,h,l,p,k,t)){}for(var m=z+4;m<r;m+=4){if(m-n>=0&&a(m-n,h,l,p,k,t)){q.push(m-n)}if(m+n<k&&a(m+n,h,l,p,k,t)){q.push(m+n)}}}}return p}function a(j,l,h,m,k,g){if(j<0||j>=k){return false}if(m[j+3]===0&&h.a>0){return true}if(Math.abs(l[3]-h.a)<=g&&Math.abs(l[0]-h.r)<=g&&Math.abs(l[1]-h.g)<=g&&Math.abs(l[2]-h.b)<=g){return false}if((l[3]===m[j+3])&&(l[0]===m[j])&&(l[1]===m[j+1])&&(l[2]===m[j+2])){return true}if(Math.abs(l[3]-m[j+3])<=(255-g)&&Math.abs(l[0]-m[j])<=g&&Math.abs(l[1]-m[j+1])<=g&&Math.abs(l[2]-m[j+2])<=g){return true}return false}function e(j,l,h,m,k,g){if(a(j,l,h,m,k,g)){m[j]=h.r;m[j+1]=h.g;m[j+2]=h.b;m[j+3]=h.a;return true}return false}function b(j,n,m,i,k,g,o){if(!j instanceof Uint8ClampedArray){throw new Error("data must be an instance of Uint8ClampedArray")}if(isNaN(g)||g<1){throw new Error("argument 'width' must be a positive integer")}if(isNaN(o)||o<1){throw new Error("argument 'height' must be a positive integer")}if(isNaN(n)||n<0){throw new Error("argument 'x' must be a positive integer")}if(isNaN(m)||m<0){throw new Error("argument 'y' must be a positive integer")}if(g*o*4!==j.length){throw new Error("width and height do not fit Uint8ClampedArray dimensions")}var l=Math.floor(n);var h=Math.floor(m);if(l!==n){console.warn("x truncated from",n,"to",l)}if(h!==m){console.warn("y truncated from",m,"to",h)}k=(!isNaN(k))?Math.min(Math.abs(Math.round(k)),254):0;return f(j,l,h,i,k,g,o)}var d=function(l){var h=document.createElement("div");var g={r:0,g:0,b:0,a:0};h.style.color=l;h.style.display="none";document.body.appendChild(h);var i=window.getComputedStyle(h,null).color;document.body.removeChild(h);var k=/([\.\d]+)/g;var j=i.match(k);if(j&&j.length>2){g.r=parseInt(j[0])||0;g.g=parseInt(j[1])||0;g.b=parseInt(j[2])||0;g.a=Math.round((parseFloat(j[3])||1)*255)}return g};function c(p,n,m,i,o,q,g){var s=this;var k=d(this.fillStyle);i=(isNaN(i))?0:i;o=(isNaN(o))?0:o;q=(!isNaN(q)&&q)?Math.min(Math.abs(q),s.canvas.width):s.canvas.width;g=(!isNaN(g)&&g)?Math.min(Math.abs(g),s.canvas.height):s.canvas.height;var j=s.getImageData(i,o,q,g);var l=j.data;var h=j.width;var r=j.height;if(h>0&&r>0){b(l,p,n,k,m,h,r);s.putImageData(j,i,o)}}if(typeof CanvasRenderingContext2D!="undefined"){CanvasRenderingContext2D.prototype.fillFlood=c}return b})();
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* Copyright 2019 WICKLETS LLC
+*
+* This file is part of Wick Engine.
+*
+* Wick Engine is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Wick Engine is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+*/
+Wick.Tool = class {
+  static get DOUBLE_CLICK_TIME() {
+    return 300;
+  }
+  /**
+   * Creates a new Wick Tool.
+   */
+
+
+  constructor() {
+    this.paperTool = new this.paper.Tool(); // Attach onActivate event
+
+    this.paperTool.onActivate = e => {
+      this.onActivate(e);
+    }; // Attach onDeactivate event
+
+
+    this.paperTool.onDeactivate = e => {
+      this.onDeactivate(e);
+    }; // Attach mouse move event
+
+
+    this.paperTool.onMouseMove = e => {
+      this.onMouseMove(e);
+    }; // Attach mouse down + double click event
+
+
+    this.paperTool.onMouseDown = e => {
+      if (this.doubleClickEnabled && this._lastMousedownTimestamp !== null && e.timeStamp - this._lastMousedownTimestamp < Wick.Tool.DOUBLE_CLICK_TIME) {
+        this.onDoubleClick(e);
+      } else {
+        this.onMouseDown(e);
+      }
+
+      this._lastMousedownTimestamp = e.timeStamp;
+    }; // Attach key events
+
+
+    this.paperTool.onKeyDown = e => {
+      this.onKeyDown(e);
+    };
+
+    this.paperTool.onKeyUp = e => {
+      this.onKeyUp(e);
+    }; // Attach mouse move event
+
+
+    this.paperTool.onMouseDrag = e => {
+      this.onMouseDrag(e);
+    }; // Attach mouse up event
+
+
+    this.paperTool.onMouseUp = e => {
+      this.onMouseUp(e);
+    };
+
+    this._eventCallbacks = {};
+    this._lastMousedownTimestamp = null;
+  }
+  /**
+   * The paper.js scope to use.
+   */
+
+
+  get paper() {
+    return Wick.View.paperScope;
+  }
+  /**
+   * The CSS cursor to display for this tool.
+   */
+
+
+  get cursor() {
+    console.warn("Warning: Tool is missing a cursor!");
+  }
+  /**
+   * Called when the tool is activated
+   */
+
+
+  onActivate(e) {}
+  /**
+   * Called when the tool is deactivated (another tool is activated)
+   */
+
+
+  onDeactivate(e) {}
+  /**
+   * Called when the mouse moves and the tool is active.
+   */
+
+
+  onMouseMove(e) {
+    this.setCursor(this.cursor);
+  }
+  /**
+   * Called when the mouse clicks the paper.js canvas and this is the active tool.
+   */
+
+
+  onMouseDown(e) {}
+  /**
+   * Called when the mouse is dragged on the paper.js canvas and this is the active tool.
+   */
+
+
+  onMouseDrag(e) {}
+  /**
+   * Called when the mouse is clicked on the paper.js canvas and this is the active tool.
+   */
+
+
+  onMouseUp(e) {}
+  /**
+   * Called when the mouse double clicks on the paper.js canvas and this is the active tool.
+   */
+
+
+  onDoubleClick(e) {}
+  /**
+   * Called when a key is pressed and this is the active tool.
+   */
+
+
+  onKeyDown(e) {}
+  /**
+   * Called when a key is released and this is the active tool.
+   */
+
+
+  onKeyUp(e) {}
+  /**
+   * Activates this tool in paper.js.
+   */
+
+
+  activate() {
+    this.paperTool.activate();
+  }
+  /**
+   * Sets the cursor of the paper.js canvas that the tool belongs to.
+   * @param {string} cursor - a CSS cursor style
+   */
+
+
+  setCursor(cursor) {
+    this.paper.view._element.style.cursor = cursor;
+  }
+  /**
+   * Attach a function to get called when an event happens.
+   * @param {string} eventName - the name of the event
+   * @param {function} fn - the function to call when the event is fired
+   */
+
+
+  on(eventName, fn) {
+    this._eventCallbacks[eventName] = fn;
+  }
+  /**
+   * Call the functions attached to a given event.
+   * @param {string} eventName - the name of the event to fire
+   * @param {object} e - (optional) an object to attach some data to, if needed
+   */
+
+
+  fireEvent(eventName, e) {
+    if (!e) e = {};
+
+    if (!e.layers) {
+      e.layers = [this.paper.project.activeLayer];
+    }
+
+    var fn = this._eventCallbacks[eventName];
+    fn && fn(e);
+  }
+  /**
+   *
+   * @param {paper.Color} color - the color of the cursor
+   * @param {number} size - the width of the cursor image to generate
+   */
+
+
+  createDynamicCursor(color, size) {
+    var canvas = document.createElement("canvas");
+    canvas.width = 128;
+    canvas.height = 128;
+    var context = canvas.getContext('2d');
+    var centerX = canvas.width / 2;
+    var centerY = canvas.height / 2;
+    var radius = size / 2;
+    context.beginPath();
+    context.arc(centerX, centerY, radius + 1, 0, 2 * Math.PI, false);
+    context.fillStyle = invert(color);
+    context.fill();
+    context.beginPath();
+    context.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
+    context.fillStyle = color;
+    context.fill();
+    return 'url(' + canvas.toDataURL() + ') 64 64,default';
+  }
+  /**
+   * Get a tool setting from the project. See Wick.ToolSettings for all options
+   * @param {string} name - the name of the setting to get
+   */
+
+
+  getSetting(name) {
+    return this.project.toolSettings.getSetting(name);
+  }
+  /**
+   * Does this tool have a double click action? (override this in classes that extend Wick.Tool)
+   * @type {boolean}
+   */
+
+
+  get doubleClickEnabled() {
+    return true;
+  }
+  /**
+   * Adds a paper.Path to the active frame's paper.Layer.
+   * @param {paper.Path} path - the path to add
+   */
+
+
+  addPathToProject(path) {
+    // Automatically add a frame is there isn't one
+    if (!this.project.activeFrame) {
+      var playheadPosition = this.project.activeTimeline.playheadPosition;
+      var newFrame = new Wick.Frame({
+        start: playheadPosition
+      });
+      this.project.activeLayer.addFrame(newFrame);
+      this.project.view.render();
+    }
+
+    this.paper.project.activeLayer.addChild(path);
+  }
+
+};
+Wick.Tools = {};
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* Copyright 2019 WICKLETS LLC
+*
+* This file is part of Wick Engine.
+*
+* Wick Engine is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Wick Engine is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+*/
 Wick.Tools.Brush = class extends Wick.Tool {
   /**
    *
@@ -34697,7 +34798,6 @@ Wick.Tools.Brush = class extends Wick.Tool {
   }
 
 };
-var floodfill=(function(){function f(p,v,u,l,t,g,B){var k=p.length;var q=[];var o=(v+u*g)*4;var r=o,z=o,s,A,n=g*4;var h=[p[o],p[o+1],p[o+2],p[o+3]];if(!a(o,h,l,p,k,t)){return false}q.push(o);while(q.length){o=q.pop();if(e(o,h,l,p,k,t)){r=o;z=o;A=parseInt(o/n)*n;s=A+n;while(A<z&&A<(z-=4)&&e(z,h,l,p,k,t)){}while(s>r&&s>(r+=4)&&e(r,h,l,p,k,t)){}for(var m=z+4;m<r;m+=4){if(m-n>=0&&a(m-n,h,l,p,k,t)){q.push(m-n)}if(m+n<k&&a(m+n,h,l,p,k,t)){q.push(m+n)}}}}return p}function a(j,l,h,m,k,g){if(j<0||j>=k){return false}if(m[j+3]===0&&h.a>0){return true}if(Math.abs(l[3]-h.a)<=g&&Math.abs(l[0]-h.r)<=g&&Math.abs(l[1]-h.g)<=g&&Math.abs(l[2]-h.b)<=g){return false}if((l[3]===m[j+3])&&(l[0]===m[j])&&(l[1]===m[j+1])&&(l[2]===m[j+2])){return true}if(Math.abs(l[3]-m[j+3])<=(255-g)&&Math.abs(l[0]-m[j])<=g&&Math.abs(l[1]-m[j+1])<=g&&Math.abs(l[2]-m[j+2])<=g){return true}return false}function e(j,l,h,m,k,g){if(a(j,l,h,m,k,g)){m[j]=h.r;m[j+1]=h.g;m[j+2]=h.b;m[j+3]=h.a;return true}return false}function b(j,n,m,i,k,g,o){if(!j instanceof Uint8ClampedArray){throw new Error("data must be an instance of Uint8ClampedArray")}if(isNaN(g)||g<1){throw new Error("argument 'width' must be a positive integer")}if(isNaN(o)||o<1){throw new Error("argument 'height' must be a positive integer")}if(isNaN(n)||n<0){throw new Error("argument 'x' must be a positive integer")}if(isNaN(m)||m<0){throw new Error("argument 'y' must be a positive integer")}if(g*o*4!==j.length){throw new Error("width and height do not fit Uint8ClampedArray dimensions")}var l=Math.floor(n);var h=Math.floor(m);if(l!==n){console.warn("x truncated from",n,"to",l)}if(h!==m){console.warn("y truncated from",m,"to",h)}k=(!isNaN(k))?Math.min(Math.abs(Math.round(k)),254):0;return f(j,l,h,i,k,g,o)}var d=function(l){var h=document.createElement("div");var g={r:0,g:0,b:0,a:0};h.style.color=l;h.style.display="none";document.body.appendChild(h);var i=window.getComputedStyle(h,null).color;document.body.removeChild(h);var k=/([\.\d]+)/g;var j=i.match(k);if(j&&j.length>2){g.r=parseInt(j[0])||0;g.g=parseInt(j[1])||0;g.b=parseInt(j[2])||0;g.a=Math.round((parseFloat(j[3])||1)*255)}return g};function c(p,n,m,i,o,q,g){var s=this;var k=d(this.fillStyle);i=(isNaN(i))?0:i;o=(isNaN(o))?0:o;q=(!isNaN(q)&&q)?Math.min(Math.abs(q),s.canvas.width):s.canvas.width;g=(!isNaN(g)&&g)?Math.min(Math.abs(g),s.canvas.height):s.canvas.height;var j=s.getImageData(i,o,q,g);var l=j.data;var h=j.width;var r=j.height;if(h>0&&r>0){b(l,p,n,k,m,h,r);s.putImageData(j,i,o)}}if(typeof CanvasRenderingContext2D!="undefined"){CanvasRenderingContext2D.prototype.fillFlood=c}return b})();
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
@@ -35149,107 +35249,6 @@ Wick.Tools.Ellipse = class extends Wick.Tool {
     this.addPathToProject(this.path);
     this.path = null;
     this.fireEvent('canvasModified');
-  }
-
-};
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-Wick.Tools.Eraser = class extends Wick.Tool {
-  /**
-   *
-   */
-  constructor() {
-    super();
-    this.name = 'eraser';
-    this.path = null;
-    this.cursorSize = null;
-    this.cachedCursor = null;
-  }
-  /**
-   *
-   * @type {string}
-   */
-
-
-  get cursor() {
-    return this.cachedCursor || 'crosshair';
-  }
-
-  get isDrawingTool() {
-    return true;
-  }
-
-  onActivate(e) {
-    this.cursorSize = null;
-  }
-
-  onDeactivate(e) {
-    if (this.path) {
-      this.path.remove();
-      this.path = null;
-    }
-  }
-
-  onMouseMove(e) {
-    // Don't render cursor after every mouse move, cache and only render when size changes
-    var cursorNeedsRegen = this.getSetting('eraserSize') !== this.cursorSize;
-
-    if (cursorNeedsRegen) {
-      this.cachedCursor = this.createDynamicCursor('#ffffff', this.getSetting('eraserSize') + 1);
-      this.cursorSize = this.getSetting('eraserSize');
-      this.setCursor(this.cachedCursor);
-    }
-  }
-
-  onMouseDown(e) {
-    if (!this.path) {
-      this.path = new this.paper.Path({
-        strokeColor: 'white',
-        strokeCap: 'round',
-        strokeWidth: (this.getSetting('eraserSize') + 1) / this.paper.view.zoom
-      });
-    } // Add two points so we always at least have a dot.
-
-
-    this.path.add(e.point);
-    this.path.add(e.point);
-  }
-
-  onMouseDrag(e) {
-    this.path.add(e.point);
-    this.path.smooth();
-  }
-
-  onMouseUp(e) {
-    if (!this.path) return;
-    var potraceResolution = 0.7;
-    this.path.potrace({
-      done: tracedPath => {
-        this.path.remove();
-        this.paper.project.activeLayer.erase(tracedPath, {});
-        this.path = null;
-        this.fireEvent('canvasModified');
-      },
-      resolution: potraceResolution * this.paper.view.zoom
-    });
   }
 
 };
@@ -38409,6 +38408,110 @@ Wick.Tools.Eraser = class extends Wick.Tool {
 * You should have received a copy of the GNU General Public License
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
+Wick.Tools.Eraser = class extends Wick.Tool {
+  /**
+   *
+   */
+  constructor() {
+    super();
+    this.name = 'eraser';
+    this.path = null;
+    this.cursorSize = null;
+    this.cachedCursor = null;
+  }
+  /**
+   *
+   * @type {string}
+   */
+
+
+  get cursor() {
+    return this.cachedCursor || 'crosshair';
+  }
+
+  get isDrawingTool() {
+    return true;
+  }
+
+  onActivate(e) {
+    this.cursorSize = null;
+  }
+
+  onDeactivate(e) {
+    if (this.path) {
+      this.path.remove();
+      this.path = null;
+    }
+  }
+
+  onMouseMove(e) {
+    // Don't render cursor after every mouse move, cache and only render when size changes
+    var cursorNeedsRegen = this.getSetting('eraserSize') !== this.cursorSize;
+
+    if (cursorNeedsRegen) {
+      this.cachedCursor = this.createDynamicCursor('#ffffff', this.getSetting('eraserSize') + 1);
+      this.cursorSize = this.getSetting('eraserSize');
+      this.setCursor(this.cachedCursor);
+    }
+  }
+
+  onMouseDown(e) {
+    if (!this.path) {
+      this.path = new this.paper.Path({
+        strokeColor: 'white',
+        strokeCap: 'round',
+        strokeWidth: (this.getSetting('eraserSize') + 1) / this.paper.view.zoom
+      });
+    } // Add two points so we always at least have a dot.
+
+
+    this.path.add(e.point);
+    this.path.add(e.point);
+  }
+
+  onMouseDrag(e) {
+    this.path.add(e.point);
+    this.path.smooth();
+  }
+
+  onMouseUp(e) {
+    if (!this.path) return;
+    var potraceResolution = 0.7;
+    this.path.potrace({
+      done: tracedPath => {
+        this.path.remove();
+        this.paper.project.activeLayer.erase(tracedPath, {});
+        this.path = null;
+        this.fireEvent('canvasModified');
+      },
+      resolution: potraceResolution * this.paper.view.zoom
+    });
+  }
+
+};
+/*! @license MIT. https://github.com/onury/invert-color */
+!function(e,t){"object"==typeof exports&&"object"==typeof module?module.exports=t():"function"==typeof define&&define.amd?define("invert",[],t):"object"==typeof exports?exports.invert=t():e.invert=t()}(this,function(){return function(e){var t={};function r(n){if(t[n])return t[n].exports;var o=t[n]={i:n,l:!1,exports:{}};return e[n].call(o.exports,o,o.exports,r),o.l=!0,o.exports}return r.m=e,r.c=t,r.d=function(e,t,n){r.o(e,t)||Object.defineProperty(e,t,{enumerable:!0,get:n})},r.r=function(e){"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(e,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(e,"__esModule",{value:!0})},r.t=function(e,t){if(1&t&&(e=r(e)),8&t)return e;if(4&t&&"object"==typeof e&&e&&e.__esModule)return e;var n=Object.create(null);if(r.r(n),Object.defineProperty(n,"default",{enumerable:!0,value:e}),2&t&&"string"!=typeof e)for(var o in e)r.d(n,o,function(t){return e[t]}.bind(null,o));return n},r.n=function(e){var t=e&&e.__esModule?function(){return e.default}:function(){return e};return r.d(t,"a",t),t},r.o=function(e,t){return Object.prototype.hasOwnProperty.call(e,t)},r.p="lib/",r(r.s=0)}([function(e,t,r){"use strict";Object.defineProperty(t,"__esModule",{value:!0});var n=Math.sqrt(1.05*.05)-.05,o=/^(?:[0-9a-f]{3}){1,2}$/i,i={black:"#000000",white:"#ffffff"};function u(e){if("#"===e.slice(0,1)&&(e=e.slice(1)),!o.test(e))throw new Error('Invalid HEX color: "'+e+'"');return 3===e.length&&(e=e[0]+e[0]+e[1]+e[1]+e[2]+e[2]),[parseInt(e.slice(0,2),16),parseInt(e.slice(2,4),16),parseInt(e.slice(4,6),16)]}function f(e){if(!e)throw new Error("Invalid color value");return Array.isArray(e)?e:"string"==typeof e?u(e):[e.r,e.g,e.b]}function c(e,t,r){var o=!0===t?i:Object.assign({},i,t);return function(e){var t,r,n=[];for(t=0;t<e.length;t++)r=e[t]/255,n[t]=r<=.03928?r/12.92:Math.pow((r+.055)/1.055,2.4);return.2126*n[0]+.7152*n[1]+.0722*n[2]}(e)>n?r?u(o.black):o.black:r?u(o.white):o.white}function a(e,t){return void 0===t&&(t=!1),e=f(e),t?c(e,t):"#"+e.map(function(e){return t=(255-e).toString(16),void 0===r&&(r=2),(new Array(r).join("0")+t).slice(-r);var t,r}).join("")}t.invert=a,function(e){function t(e,t){void 0===t&&(t=!1),e=f(e);var r,n=t?c(e,t,!0):e.map(function(e){return 255-e});return{r:(r=n)[0],g:r[1],b:r[2]}}e.asRGB=t,e.asRgbArray=function(e,t){return void 0===t&&(t=!1),e=f(e),t?c(e,t,!0):e.map(function(e){return 255-e})},e.asRgbObject=t}(a||(a={})),t.invert=a,t.default=a}]).default});
+
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* Copyright 2019 WICKLETS LLC
+*
+* This file is part of Wick Engine.
+*
+* Wick Engine is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Wick Engine is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+*/
 Wick.Tools.Eyedropper = class extends Wick.Tool {
   /**
    *
@@ -38493,9 +38596,29 @@ Wick.Tools.Eyedropper = class extends Wick.Tool {
   }
 
 };
-/*! @license MIT. https://github.com/onury/invert-color */
-!function(e,t){"object"==typeof exports&&"object"==typeof module?module.exports=t():"function"==typeof define&&define.amd?define("invert",[],t):"object"==typeof exports?exports.invert=t():e.invert=t()}(this,function(){return function(e){var t={};function r(n){if(t[n])return t[n].exports;var o=t[n]={i:n,l:!1,exports:{}};return e[n].call(o.exports,o,o.exports,r),o.l=!0,o.exports}return r.m=e,r.c=t,r.d=function(e,t,n){r.o(e,t)||Object.defineProperty(e,t,{enumerable:!0,get:n})},r.r=function(e){"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(e,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(e,"__esModule",{value:!0})},r.t=function(e,t){if(1&t&&(e=r(e)),8&t)return e;if(4&t&&"object"==typeof e&&e&&e.__esModule)return e;var n=Object.create(null);if(r.r(n),Object.defineProperty(n,"default",{enumerable:!0,value:e}),2&t&&"string"!=typeof e)for(var o in e)r.d(n,o,function(t){return e[t]}.bind(null,o));return n},r.n=function(e){var t=e&&e.__esModule?function(){return e.default}:function(){return e};return r.d(t,"a",t),t},r.o=function(e,t){return Object.prototype.hasOwnProperty.call(e,t)},r.p="lib/",r(r.s=0)}([function(e,t,r){"use strict";Object.defineProperty(t,"__esModule",{value:!0});var n=Math.sqrt(1.05*.05)-.05,o=/^(?:[0-9a-f]{3}){1,2}$/i,i={black:"#000000",white:"#ffffff"};function u(e){if("#"===e.slice(0,1)&&(e=e.slice(1)),!o.test(e))throw new Error('Invalid HEX color: "'+e+'"');return 3===e.length&&(e=e[0]+e[0]+e[1]+e[1]+e[2]+e[2]),[parseInt(e.slice(0,2),16),parseInt(e.slice(2,4),16),parseInt(e.slice(4,6),16)]}function f(e){if(!e)throw new Error("Invalid color value");return Array.isArray(e)?e:"string"==typeof e?u(e):[e.r,e.g,e.b]}function c(e,t,r){var o=!0===t?i:Object.assign({},i,t);return function(e){var t,r,n=[];for(t=0;t<e.length;t++)r=e[t]/255,n[t]=r<=.03928?r/12.92:Math.pow((r+.055)/1.055,2.4);return.2126*n[0]+.7152*n[1]+.0722*n[2]}(e)>n?r?u(o.black):o.black:r?u(o.white):o.white}function a(e,t){return void 0===t&&(t=!1),e=f(e),t?c(e,t):"#"+e.map(function(e){return t=(255-e).toString(16),void 0===r&&(r=2),(new Array(r).join("0")+t).slice(-r);var t,r}).join("")}t.invert=a,function(e){function t(e,t){void 0===t&&(t=!1),e=f(e);var r,n=t?c(e,t,!0):e.map(function(e){return 255-e});return{r:(r=n)[0],g:r[1],b:r[2]}}e.asRGB=t,e.asRgbArray=function(e,t){return void 0===t&&(t=!1),e=f(e),t?c(e,t,!0):e.map(function(e){return 255-e})},e.asRgbObject=t}(a||(a={})),t.invert=a,t.default=a}]).default});
+'use strict';
 
+/*!
+ * is-var-name | ISC (c) Shinnosuke Watanabe
+ * https://github.com/shinnn/is-var-name
+*/
+function isVarName(str) {
+	if (typeof str !== 'string') {
+		return false;
+	}
+
+	if (str.trim() !== str) {
+		return false;
+	}
+
+	try {
+		new Function(str, 'var ' + str);
+	} catch (e) {
+		return false;
+	}
+
+	return true;
+}
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
@@ -38584,29 +38707,6 @@ Wick.Tools.FillBucket = class extends Wick.Tool {
   onMouseUp(e) {}
 
 };
-'use strict';
-
-/*!
- * is-var-name | ISC (c) Shinnosuke Watanabe
- * https://github.com/shinnn/is-var-name
-*/
-function isVarName(str) {
-	if (typeof str !== 'string') {
-		return false;
-	}
-
-	if (str.trim() !== str) {
-		return false;
-	}
-
-	try {
-		new Function(str, 'var ' + str);
-	} catch (e) {
-		return false;
-	}
-
-	return true;
-}
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
@@ -38821,6 +38921,9 @@ Wick.Tools.Line = class extends Wick.Tool {
   }
 
 };
+/*! jQuery v3.3.1 | (c) JS Foundation and other contributors | jquery.org/license */
+!function(e,t){"use strict";"object"==typeof module&&"object"==typeof module.exports?module.exports=e.document?t(e,!0):function(e){if(!e.document)throw new Error("jQuery requires a window with a document");return t(e)}:t(e)}("undefined"!=typeof window?window:this,function(e,t){"use strict";var n=[],r=e.document,i=Object.getPrototypeOf,o=n.slice,a=n.concat,s=n.push,u=n.indexOf,l={},c=l.toString,f=l.hasOwnProperty,p=f.toString,d=p.call(Object),h={},g=function e(t){return"function"==typeof t&&"number"!=typeof t.nodeType},y=function e(t){return null!=t&&t===t.window},v={type:!0,src:!0,noModule:!0};function m(e,t,n){var i,o=(t=t||r).createElement("script");if(o.text=e,n)for(i in v)n[i]&&(o[i]=n[i]);t.head.appendChild(o).parentNode.removeChild(o)}function x(e){return null==e?e+"":"object"==typeof e||"function"==typeof e?l[c.call(e)]||"object":typeof e}var b="3.3.1",w=function(e,t){return new w.fn.init(e,t)},T=/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g;w.fn=w.prototype={jquery:"3.3.1",constructor:w,length:0,toArray:function(){return o.call(this)},get:function(e){return null==e?o.call(this):e<0?this[e+this.length]:this[e]},pushStack:function(e){var t=w.merge(this.constructor(),e);return t.prevObject=this,t},each:function(e){return w.each(this,e)},map:function(e){return this.pushStack(w.map(this,function(t,n){return e.call(t,n,t)}))},slice:function(){return this.pushStack(o.apply(this,arguments))},first:function(){return this.eq(0)},last:function(){return this.eq(-1)},eq:function(e){var t=this.length,n=+e+(e<0?t:0);return this.pushStack(n>=0&&n<t?[this[n]]:[])},end:function(){return this.prevObject||this.constructor()},push:s,sort:n.sort,splice:n.splice},w.extend=w.fn.extend=function(){var e,t,n,r,i,o,a=arguments[0]||{},s=1,u=arguments.length,l=!1;for("boolean"==typeof a&&(l=a,a=arguments[s]||{},s++),"object"==typeof a||g(a)||(a={}),s===u&&(a=this,s--);s<u;s++)if(null!=(e=arguments[s]))for(t in e)n=a[t],a!==(r=e[t])&&(l&&r&&(w.isPlainObject(r)||(i=Array.isArray(r)))?(i?(i=!1,o=n&&Array.isArray(n)?n:[]):o=n&&w.isPlainObject(n)?n:{},a[t]=w.extend(l,o,r)):void 0!==r&&(a[t]=r));return a},w.extend({expando:"jQuery"+("3.3.1"+Math.random()).replace(/\D/g,""),isReady:!0,error:function(e){throw new Error(e)},noop:function(){},isPlainObject:function(e){var t,n;return!(!e||"[object Object]"!==c.call(e))&&(!(t=i(e))||"function"==typeof(n=f.call(t,"constructor")&&t.constructor)&&p.call(n)===d)},isEmptyObject:function(e){var t;for(t in e)return!1;return!0},globalEval:function(e){m(e)},each:function(e,t){var n,r=0;if(C(e)){for(n=e.length;r<n;r++)if(!1===t.call(e[r],r,e[r]))break}else for(r in e)if(!1===t.call(e[r],r,e[r]))break;return e},trim:function(e){return null==e?"":(e+"").replace(T,"")},makeArray:function(e,t){var n=t||[];return null!=e&&(C(Object(e))?w.merge(n,"string"==typeof e?[e]:e):s.call(n,e)),n},inArray:function(e,t,n){return null==t?-1:u.call(t,e,n)},merge:function(e,t){for(var n=+t.length,r=0,i=e.length;r<n;r++)e[i++]=t[r];return e.length=i,e},grep:function(e,t,n){for(var r,i=[],o=0,a=e.length,s=!n;o<a;o++)(r=!t(e[o],o))!==s&&i.push(e[o]);return i},map:function(e,t,n){var r,i,o=0,s=[];if(C(e))for(r=e.length;o<r;o++)null!=(i=t(e[o],o,n))&&s.push(i);else for(o in e)null!=(i=t(e[o],o,n))&&s.push(i);return a.apply([],s)},guid:1,support:h}),"function"==typeof Symbol&&(w.fn[Symbol.iterator]=n[Symbol.iterator]),w.each("Boolean Number String Function Array Date RegExp Object Error Symbol".split(" "),function(e,t){l["[object "+t+"]"]=t.toLowerCase()});function C(e){var t=!!e&&"length"in e&&e.length,n=x(e);return!g(e)&&!y(e)&&("array"===n||0===t||"number"==typeof t&&t>0&&t-1 in e)}var E=function(e){var t,n,r,i,o,a,s,u,l,c,f,p,d,h,g,y,v,m,x,b="sizzle"+1*new Date,w=e.document,T=0,C=0,E=ae(),k=ae(),S=ae(),D=function(e,t){return e===t&&(f=!0),0},N={}.hasOwnProperty,A=[],j=A.pop,q=A.push,L=A.push,H=A.slice,O=function(e,t){for(var n=0,r=e.length;n<r;n++)if(e[n]===t)return n;return-1},P="checked|selected|async|autofocus|autoplay|controls|defer|disabled|hidden|ismap|loop|multiple|open|readonly|required|scoped",M="[\\x20\\t\\r\\n\\f]",R="(?:\\\\.|[\\w-]|[^\0-\\xa0])+",I="\\["+M+"*("+R+")(?:"+M+"*([*^$|!~]?=)"+M+"*(?:'((?:\\\\.|[^\\\\'])*)'|\"((?:\\\\.|[^\\\\\"])*)\"|("+R+"))|)"+M+"*\\]",W=":("+R+")(?:\\((('((?:\\\\.|[^\\\\'])*)'|\"((?:\\\\.|[^\\\\\"])*)\")|((?:\\\\.|[^\\\\()[\\]]|"+I+")*)|.*)\\)|)",$=new RegExp(M+"+","g"),B=new RegExp("^"+M+"+|((?:^|[^\\\\])(?:\\\\.)*)"+M+"+$","g"),F=new RegExp("^"+M+"*,"+M+"*"),_=new RegExp("^"+M+"*([>+~]|"+M+")"+M+"*"),z=new RegExp("="+M+"*([^\\]'\"]*?)"+M+"*\\]","g"),X=new RegExp(W),U=new RegExp("^"+R+"$"),V={ID:new RegExp("^#("+R+")"),CLASS:new RegExp("^\\.("+R+")"),TAG:new RegExp("^("+R+"|[*])"),ATTR:new RegExp("^"+I),PSEUDO:new RegExp("^"+W),CHILD:new RegExp("^:(only|first|last|nth|nth-last)-(child|of-type)(?:\\("+M+"*(even|odd|(([+-]|)(\\d*)n|)"+M+"*(?:([+-]|)"+M+"*(\\d+)|))"+M+"*\\)|)","i"),bool:new RegExp("^(?:"+P+")$","i"),needsContext:new RegExp("^"+M+"*[>+~]|:(even|odd|eq|gt|lt|nth|first|last)(?:\\("+M+"*((?:-\\d)?\\d*)"+M+"*\\)|)(?=[^-]|$)","i")},G=/^(?:input|select|textarea|button)$/i,Y=/^h\d$/i,Q=/^[^{]+\{\s*\[native \w/,J=/^(?:#([\w-]+)|(\w+)|\.([\w-]+))$/,K=/[+~]/,Z=new RegExp("\\\\([\\da-f]{1,6}"+M+"?|("+M+")|.)","ig"),ee=function(e,t,n){var r="0x"+t-65536;return r!==r||n?t:r<0?String.fromCharCode(r+65536):String.fromCharCode(r>>10|55296,1023&r|56320)},te=/([\0-\x1f\x7f]|^-?\d)|^-$|[^\0-\x1f\x7f-\uFFFF\w-]/g,ne=function(e,t){return t?"\0"===e?"\ufffd":e.slice(0,-1)+"\\"+e.charCodeAt(e.length-1).toString(16)+" ":"\\"+e},re=function(){p()},ie=me(function(e){return!0===e.disabled&&("form"in e||"label"in e)},{dir:"parentNode",next:"legend"});try{L.apply(A=H.call(w.childNodes),w.childNodes),A[w.childNodes.length].nodeType}catch(e){L={apply:A.length?function(e,t){q.apply(e,H.call(t))}:function(e,t){var n=e.length,r=0;while(e[n++]=t[r++]);e.length=n-1}}}function oe(e,t,r,i){var o,s,l,c,f,h,v,m=t&&t.ownerDocument,T=t?t.nodeType:9;if(r=r||[],"string"!=typeof e||!e||1!==T&&9!==T&&11!==T)return r;if(!i&&((t?t.ownerDocument||t:w)!==d&&p(t),t=t||d,g)){if(11!==T&&(f=J.exec(e)))if(o=f[1]){if(9===T){if(!(l=t.getElementById(o)))return r;if(l.id===o)return r.push(l),r}else if(m&&(l=m.getElementById(o))&&x(t,l)&&l.id===o)return r.push(l),r}else{if(f[2])return L.apply(r,t.getElementsByTagName(e)),r;if((o=f[3])&&n.getElementsByClassName&&t.getElementsByClassName)return L.apply(r,t.getElementsByClassName(o)),r}if(n.qsa&&!S[e+" "]&&(!y||!y.test(e))){if(1!==T)m=t,v=e;else if("object"!==t.nodeName.toLowerCase()){(c=t.getAttribute("id"))?c=c.replace(te,ne):t.setAttribute("id",c=b),s=(h=a(e)).length;while(s--)h[s]="#"+c+" "+ve(h[s]);v=h.join(","),m=K.test(e)&&ge(t.parentNode)||t}if(v)try{return L.apply(r,m.querySelectorAll(v)),r}catch(e){}finally{c===b&&t.removeAttribute("id")}}}return u(e.replace(B,"$1"),t,r,i)}function ae(){var e=[];function t(n,i){return e.push(n+" ")>r.cacheLength&&delete t[e.shift()],t[n+" "]=i}return t}function se(e){return e[b]=!0,e}function ue(e){var t=d.createElement("fieldset");try{return!!e(t)}catch(e){return!1}finally{t.parentNode&&t.parentNode.removeChild(t),t=null}}function le(e,t){var n=e.split("|"),i=n.length;while(i--)r.attrHandle[n[i]]=t}function ce(e,t){var n=t&&e,r=n&&1===e.nodeType&&1===t.nodeType&&e.sourceIndex-t.sourceIndex;if(r)return r;if(n)while(n=n.nextSibling)if(n===t)return-1;return e?1:-1}function fe(e){return function(t){return"input"===t.nodeName.toLowerCase()&&t.type===e}}function pe(e){return function(t){var n=t.nodeName.toLowerCase();return("input"===n||"button"===n)&&t.type===e}}function de(e){return function(t){return"form"in t?t.parentNode&&!1===t.disabled?"label"in t?"label"in t.parentNode?t.parentNode.disabled===e:t.disabled===e:t.isDisabled===e||t.isDisabled!==!e&&ie(t)===e:t.disabled===e:"label"in t&&t.disabled===e}}function he(e){return se(function(t){return t=+t,se(function(n,r){var i,o=e([],n.length,t),a=o.length;while(a--)n[i=o[a]]&&(n[i]=!(r[i]=n[i]))})})}function ge(e){return e&&"undefined"!=typeof e.getElementsByTagName&&e}n=oe.support={},o=oe.isXML=function(e){var t=e&&(e.ownerDocument||e).documentElement;return!!t&&"HTML"!==t.nodeName},p=oe.setDocument=function(e){var t,i,a=e?e.ownerDocument||e:w;return a!==d&&9===a.nodeType&&a.documentElement?(d=a,h=d.documentElement,g=!o(d),w!==d&&(i=d.defaultView)&&i.top!==i&&(i.addEventListener?i.addEventListener("unload",re,!1):i.attachEvent&&i.attachEvent("onunload",re)),n.attributes=ue(function(e){return e.className="i",!e.getAttribute("className")}),n.getElementsByTagName=ue(function(e){return e.appendChild(d.createComment("")),!e.getElementsByTagName("*").length}),n.getElementsByClassName=Q.test(d.getElementsByClassName),n.getById=ue(function(e){return h.appendChild(e).id=b,!d.getElementsByName||!d.getElementsByName(b).length}),n.getById?(r.filter.ID=function(e){var t=e.replace(Z,ee);return function(e){return e.getAttribute("id")===t}},r.find.ID=function(e,t){if("undefined"!=typeof t.getElementById&&g){var n=t.getElementById(e);return n?[n]:[]}}):(r.filter.ID=function(e){var t=e.replace(Z,ee);return function(e){var n="undefined"!=typeof e.getAttributeNode&&e.getAttributeNode("id");return n&&n.value===t}},r.find.ID=function(e,t){if("undefined"!=typeof t.getElementById&&g){var n,r,i,o=t.getElementById(e);if(o){if((n=o.getAttributeNode("id"))&&n.value===e)return[o];i=t.getElementsByName(e),r=0;while(o=i[r++])if((n=o.getAttributeNode("id"))&&n.value===e)return[o]}return[]}}),r.find.TAG=n.getElementsByTagName?function(e,t){return"undefined"!=typeof t.getElementsByTagName?t.getElementsByTagName(e):n.qsa?t.querySelectorAll(e):void 0}:function(e,t){var n,r=[],i=0,o=t.getElementsByTagName(e);if("*"===e){while(n=o[i++])1===n.nodeType&&r.push(n);return r}return o},r.find.CLASS=n.getElementsByClassName&&function(e,t){if("undefined"!=typeof t.getElementsByClassName&&g)return t.getElementsByClassName(e)},v=[],y=[],(n.qsa=Q.test(d.querySelectorAll))&&(ue(function(e){h.appendChild(e).innerHTML="<a id='"+b+"'></a><select id='"+b+"-\r\\' msallowcapture=''><option selected=''></option></select>",e.querySelectorAll("[msallowcapture^='']").length&&y.push("[*^$]="+M+"*(?:''|\"\")"),e.querySelectorAll("[selected]").length||y.push("\\["+M+"*(?:value|"+P+")"),e.querySelectorAll("[id~="+b+"-]").length||y.push("~="),e.querySelectorAll(":checked").length||y.push(":checked"),e.querySelectorAll("a#"+b+"+*").length||y.push(".#.+[+~]")}),ue(function(e){e.innerHTML="<a href='' disabled='disabled'></a><select disabled='disabled'><option/></select>";var t=d.createElement("input");t.setAttribute("type","hidden"),e.appendChild(t).setAttribute("name","D"),e.querySelectorAll("[name=d]").length&&y.push("name"+M+"*[*^$|!~]?="),2!==e.querySelectorAll(":enabled").length&&y.push(":enabled",":disabled"),h.appendChild(e).disabled=!0,2!==e.querySelectorAll(":disabled").length&&y.push(":enabled",":disabled"),e.querySelectorAll("*,:x"),y.push(",.*:")})),(n.matchesSelector=Q.test(m=h.matches||h.webkitMatchesSelector||h.mozMatchesSelector||h.oMatchesSelector||h.msMatchesSelector))&&ue(function(e){n.disconnectedMatch=m.call(e,"*"),m.call(e,"[s!='']:x"),v.push("!=",W)}),y=y.length&&new RegExp(y.join("|")),v=v.length&&new RegExp(v.join("|")),t=Q.test(h.compareDocumentPosition),x=t||Q.test(h.contains)?function(e,t){var n=9===e.nodeType?e.documentElement:e,r=t&&t.parentNode;return e===r||!(!r||1!==r.nodeType||!(n.contains?n.contains(r):e.compareDocumentPosition&&16&e.compareDocumentPosition(r)))}:function(e,t){if(t)while(t=t.parentNode)if(t===e)return!0;return!1},D=t?function(e,t){if(e===t)return f=!0,0;var r=!e.compareDocumentPosition-!t.compareDocumentPosition;return r||(1&(r=(e.ownerDocument||e)===(t.ownerDocument||t)?e.compareDocumentPosition(t):1)||!n.sortDetached&&t.compareDocumentPosition(e)===r?e===d||e.ownerDocument===w&&x(w,e)?-1:t===d||t.ownerDocument===w&&x(w,t)?1:c?O(c,e)-O(c,t):0:4&r?-1:1)}:function(e,t){if(e===t)return f=!0,0;var n,r=0,i=e.parentNode,o=t.parentNode,a=[e],s=[t];if(!i||!o)return e===d?-1:t===d?1:i?-1:o?1:c?O(c,e)-O(c,t):0;if(i===o)return ce(e,t);n=e;while(n=n.parentNode)a.unshift(n);n=t;while(n=n.parentNode)s.unshift(n);while(a[r]===s[r])r++;return r?ce(a[r],s[r]):a[r]===w?-1:s[r]===w?1:0},d):d},oe.matches=function(e,t){return oe(e,null,null,t)},oe.matchesSelector=function(e,t){if((e.ownerDocument||e)!==d&&p(e),t=t.replace(z,"='$1']"),n.matchesSelector&&g&&!S[t+" "]&&(!v||!v.test(t))&&(!y||!y.test(t)))try{var r=m.call(e,t);if(r||n.disconnectedMatch||e.document&&11!==e.document.nodeType)return r}catch(e){}return oe(t,d,null,[e]).length>0},oe.contains=function(e,t){return(e.ownerDocument||e)!==d&&p(e),x(e,t)},oe.attr=function(e,t){(e.ownerDocument||e)!==d&&p(e);var i=r.attrHandle[t.toLowerCase()],o=i&&N.call(r.attrHandle,t.toLowerCase())?i(e,t,!g):void 0;return void 0!==o?o:n.attributes||!g?e.getAttribute(t):(o=e.getAttributeNode(t))&&o.specified?o.value:null},oe.escape=function(e){return(e+"").replace(te,ne)},oe.error=function(e){throw new Error("Syntax error, unrecognized expression: "+e)},oe.uniqueSort=function(e){var t,r=[],i=0,o=0;if(f=!n.detectDuplicates,c=!n.sortStable&&e.slice(0),e.sort(D),f){while(t=e[o++])t===e[o]&&(i=r.push(o));while(i--)e.splice(r[i],1)}return c=null,e},i=oe.getText=function(e){var t,n="",r=0,o=e.nodeType;if(o){if(1===o||9===o||11===o){if("string"==typeof e.textContent)return e.textContent;for(e=e.firstChild;e;e=e.nextSibling)n+=i(e)}else if(3===o||4===o)return e.nodeValue}else while(t=e[r++])n+=i(t);return n},(r=oe.selectors={cacheLength:50,createPseudo:se,match:V,attrHandle:{},find:{},relative:{">":{dir:"parentNode",first:!0}," ":{dir:"parentNode"},"+":{dir:"previousSibling",first:!0},"~":{dir:"previousSibling"}},preFilter:{ATTR:function(e){return e[1]=e[1].replace(Z,ee),e[3]=(e[3]||e[4]||e[5]||"").replace(Z,ee),"~="===e[2]&&(e[3]=" "+e[3]+" "),e.slice(0,4)},CHILD:function(e){return e[1]=e[1].toLowerCase(),"nth"===e[1].slice(0,3)?(e[3]||oe.error(e[0]),e[4]=+(e[4]?e[5]+(e[6]||1):2*("even"===e[3]||"odd"===e[3])),e[5]=+(e[7]+e[8]||"odd"===e[3])):e[3]&&oe.error(e[0]),e},PSEUDO:function(e){var t,n=!e[6]&&e[2];return V.CHILD.test(e[0])?null:(e[3]?e[2]=e[4]||e[5]||"":n&&X.test(n)&&(t=a(n,!0))&&(t=n.indexOf(")",n.length-t)-n.length)&&(e[0]=e[0].slice(0,t),e[2]=n.slice(0,t)),e.slice(0,3))}},filter:{TAG:function(e){var t=e.replace(Z,ee).toLowerCase();return"*"===e?function(){return!0}:function(e){return e.nodeName&&e.nodeName.toLowerCase()===t}},CLASS:function(e){var t=E[e+" "];return t||(t=new RegExp("(^|"+M+")"+e+"("+M+"|$)"))&&E(e,function(e){return t.test("string"==typeof e.className&&e.className||"undefined"!=typeof e.getAttribute&&e.getAttribute("class")||"")})},ATTR:function(e,t,n){return function(r){var i=oe.attr(r,e);return null==i?"!="===t:!t||(i+="","="===t?i===n:"!="===t?i!==n:"^="===t?n&&0===i.indexOf(n):"*="===t?n&&i.indexOf(n)>-1:"$="===t?n&&i.slice(-n.length)===n:"~="===t?(" "+i.replace($," ")+" ").indexOf(n)>-1:"|="===t&&(i===n||i.slice(0,n.length+1)===n+"-"))}},CHILD:function(e,t,n,r,i){var o="nth"!==e.slice(0,3),a="last"!==e.slice(-4),s="of-type"===t;return 1===r&&0===i?function(e){return!!e.parentNode}:function(t,n,u){var l,c,f,p,d,h,g=o!==a?"nextSibling":"previousSibling",y=t.parentNode,v=s&&t.nodeName.toLowerCase(),m=!u&&!s,x=!1;if(y){if(o){while(g){p=t;while(p=p[g])if(s?p.nodeName.toLowerCase()===v:1===p.nodeType)return!1;h=g="only"===e&&!h&&"nextSibling"}return!0}if(h=[a?y.firstChild:y.lastChild],a&&m){x=(d=(l=(c=(f=(p=y)[b]||(p[b]={}))[p.uniqueID]||(f[p.uniqueID]={}))[e]||[])[0]===T&&l[1])&&l[2],p=d&&y.childNodes[d];while(p=++d&&p&&p[g]||(x=d=0)||h.pop())if(1===p.nodeType&&++x&&p===t){c[e]=[T,d,x];break}}else if(m&&(x=d=(l=(c=(f=(p=t)[b]||(p[b]={}))[p.uniqueID]||(f[p.uniqueID]={}))[e]||[])[0]===T&&l[1]),!1===x)while(p=++d&&p&&p[g]||(x=d=0)||h.pop())if((s?p.nodeName.toLowerCase()===v:1===p.nodeType)&&++x&&(m&&((c=(f=p[b]||(p[b]={}))[p.uniqueID]||(f[p.uniqueID]={}))[e]=[T,x]),p===t))break;return(x-=i)===r||x%r==0&&x/r>=0}}},PSEUDO:function(e,t){var n,i=r.pseudos[e]||r.setFilters[e.toLowerCase()]||oe.error("unsupported pseudo: "+e);return i[b]?i(t):i.length>1?(n=[e,e,"",t],r.setFilters.hasOwnProperty(e.toLowerCase())?se(function(e,n){var r,o=i(e,t),a=o.length;while(a--)e[r=O(e,o[a])]=!(n[r]=o[a])}):function(e){return i(e,0,n)}):i}},pseudos:{not:se(function(e){var t=[],n=[],r=s(e.replace(B,"$1"));return r[b]?se(function(e,t,n,i){var o,a=r(e,null,i,[]),s=e.length;while(s--)(o=a[s])&&(e[s]=!(t[s]=o))}):function(e,i,o){return t[0]=e,r(t,null,o,n),t[0]=null,!n.pop()}}),has:se(function(e){return function(t){return oe(e,t).length>0}}),contains:se(function(e){return e=e.replace(Z,ee),function(t){return(t.textContent||t.innerText||i(t)).indexOf(e)>-1}}),lang:se(function(e){return U.test(e||"")||oe.error("unsupported lang: "+e),e=e.replace(Z,ee).toLowerCase(),function(t){var n;do{if(n=g?t.lang:t.getAttribute("xml:lang")||t.getAttribute("lang"))return(n=n.toLowerCase())===e||0===n.indexOf(e+"-")}while((t=t.parentNode)&&1===t.nodeType);return!1}}),target:function(t){var n=e.location&&e.location.hash;return n&&n.slice(1)===t.id},root:function(e){return e===h},focus:function(e){return e===d.activeElement&&(!d.hasFocus||d.hasFocus())&&!!(e.type||e.href||~e.tabIndex)},enabled:de(!1),disabled:de(!0),checked:function(e){var t=e.nodeName.toLowerCase();return"input"===t&&!!e.checked||"option"===t&&!!e.selected},selected:function(e){return e.parentNode&&e.parentNode.selectedIndex,!0===e.selected},empty:function(e){for(e=e.firstChild;e;e=e.nextSibling)if(e.nodeType<6)return!1;return!0},parent:function(e){return!r.pseudos.empty(e)},header:function(e){return Y.test(e.nodeName)},input:function(e){return G.test(e.nodeName)},button:function(e){var t=e.nodeName.toLowerCase();return"input"===t&&"button"===e.type||"button"===t},text:function(e){var t;return"input"===e.nodeName.toLowerCase()&&"text"===e.type&&(null==(t=e.getAttribute("type"))||"text"===t.toLowerCase())},first:he(function(){return[0]}),last:he(function(e,t){return[t-1]}),eq:he(function(e,t,n){return[n<0?n+t:n]}),even:he(function(e,t){for(var n=0;n<t;n+=2)e.push(n);return e}),odd:he(function(e,t){for(var n=1;n<t;n+=2)e.push(n);return e}),lt:he(function(e,t,n){for(var r=n<0?n+t:n;--r>=0;)e.push(r);return e}),gt:he(function(e,t,n){for(var r=n<0?n+t:n;++r<t;)e.push(r);return e})}}).pseudos.nth=r.pseudos.eq;for(t in{radio:!0,checkbox:!0,file:!0,password:!0,image:!0})r.pseudos[t]=fe(t);for(t in{submit:!0,reset:!0})r.pseudos[t]=pe(t);function ye(){}ye.prototype=r.filters=r.pseudos,r.setFilters=new ye,a=oe.tokenize=function(e,t){var n,i,o,a,s,u,l,c=k[e+" "];if(c)return t?0:c.slice(0);s=e,u=[],l=r.preFilter;while(s){n&&!(i=F.exec(s))||(i&&(s=s.slice(i[0].length)||s),u.push(o=[])),n=!1,(i=_.exec(s))&&(n=i.shift(),o.push({value:n,type:i[0].replace(B," ")}),s=s.slice(n.length));for(a in r.filter)!(i=V[a].exec(s))||l[a]&&!(i=l[a](i))||(n=i.shift(),o.push({value:n,type:a,matches:i}),s=s.slice(n.length));if(!n)break}return t?s.length:s?oe.error(e):k(e,u).slice(0)};function ve(e){for(var t=0,n=e.length,r="";t<n;t++)r+=e[t].value;return r}function me(e,t,n){var r=t.dir,i=t.next,o=i||r,a=n&&"parentNode"===o,s=C++;return t.first?function(t,n,i){while(t=t[r])if(1===t.nodeType||a)return e(t,n,i);return!1}:function(t,n,u){var l,c,f,p=[T,s];if(u){while(t=t[r])if((1===t.nodeType||a)&&e(t,n,u))return!0}else while(t=t[r])if(1===t.nodeType||a)if(f=t[b]||(t[b]={}),c=f[t.uniqueID]||(f[t.uniqueID]={}),i&&i===t.nodeName.toLowerCase())t=t[r]||t;else{if((l=c[o])&&l[0]===T&&l[1]===s)return p[2]=l[2];if(c[o]=p,p[2]=e(t,n,u))return!0}return!1}}function xe(e){return e.length>1?function(t,n,r){var i=e.length;while(i--)if(!e[i](t,n,r))return!1;return!0}:e[0]}function be(e,t,n){for(var r=0,i=t.length;r<i;r++)oe(e,t[r],n);return n}function we(e,t,n,r,i){for(var o,a=[],s=0,u=e.length,l=null!=t;s<u;s++)(o=e[s])&&(n&&!n(o,r,i)||(a.push(o),l&&t.push(s)));return a}function Te(e,t,n,r,i,o){return r&&!r[b]&&(r=Te(r)),i&&!i[b]&&(i=Te(i,o)),se(function(o,a,s,u){var l,c,f,p=[],d=[],h=a.length,g=o||be(t||"*",s.nodeType?[s]:s,[]),y=!e||!o&&t?g:we(g,p,e,s,u),v=n?i||(o?e:h||r)?[]:a:y;if(n&&n(y,v,s,u),r){l=we(v,d),r(l,[],s,u),c=l.length;while(c--)(f=l[c])&&(v[d[c]]=!(y[d[c]]=f))}if(o){if(i||e){if(i){l=[],c=v.length;while(c--)(f=v[c])&&l.push(y[c]=f);i(null,v=[],l,u)}c=v.length;while(c--)(f=v[c])&&(l=i?O(o,f):p[c])>-1&&(o[l]=!(a[l]=f))}}else v=we(v===a?v.splice(h,v.length):v),i?i(null,a,v,u):L.apply(a,v)})}function Ce(e){for(var t,n,i,o=e.length,a=r.relative[e[0].type],s=a||r.relative[" "],u=a?1:0,c=me(function(e){return e===t},s,!0),f=me(function(e){return O(t,e)>-1},s,!0),p=[function(e,n,r){var i=!a&&(r||n!==l)||((t=n).nodeType?c(e,n,r):f(e,n,r));return t=null,i}];u<o;u++)if(n=r.relative[e[u].type])p=[me(xe(p),n)];else{if((n=r.filter[e[u].type].apply(null,e[u].matches))[b]){for(i=++u;i<o;i++)if(r.relative[e[i].type])break;return Te(u>1&&xe(p),u>1&&ve(e.slice(0,u-1).concat({value:" "===e[u-2].type?"*":""})).replace(B,"$1"),n,u<i&&Ce(e.slice(u,i)),i<o&&Ce(e=e.slice(i)),i<o&&ve(e))}p.push(n)}return xe(p)}function Ee(e,t){var n=t.length>0,i=e.length>0,o=function(o,a,s,u,c){var f,h,y,v=0,m="0",x=o&&[],b=[],w=l,C=o||i&&r.find.TAG("*",c),E=T+=null==w?1:Math.random()||.1,k=C.length;for(c&&(l=a===d||a||c);m!==k&&null!=(f=C[m]);m++){if(i&&f){h=0,a||f.ownerDocument===d||(p(f),s=!g);while(y=e[h++])if(y(f,a||d,s)){u.push(f);break}c&&(T=E)}n&&((f=!y&&f)&&v--,o&&x.push(f))}if(v+=m,n&&m!==v){h=0;while(y=t[h++])y(x,b,a,s);if(o){if(v>0)while(m--)x[m]||b[m]||(b[m]=j.call(u));b=we(b)}L.apply(u,b),c&&!o&&b.length>0&&v+t.length>1&&oe.uniqueSort(u)}return c&&(T=E,l=w),x};return n?se(o):o}return s=oe.compile=function(e,t){var n,r=[],i=[],o=S[e+" "];if(!o){t||(t=a(e)),n=t.length;while(n--)(o=Ce(t[n]))[b]?r.push(o):i.push(o);(o=S(e,Ee(i,r))).selector=e}return o},u=oe.select=function(e,t,n,i){var o,u,l,c,f,p="function"==typeof e&&e,d=!i&&a(e=p.selector||e);if(n=n||[],1===d.length){if((u=d[0]=d[0].slice(0)).length>2&&"ID"===(l=u[0]).type&&9===t.nodeType&&g&&r.relative[u[1].type]){if(!(t=(r.find.ID(l.matches[0].replace(Z,ee),t)||[])[0]))return n;p&&(t=t.parentNode),e=e.slice(u.shift().value.length)}o=V.needsContext.test(e)?0:u.length;while(o--){if(l=u[o],r.relative[c=l.type])break;if((f=r.find[c])&&(i=f(l.matches[0].replace(Z,ee),K.test(u[0].type)&&ge(t.parentNode)||t))){if(u.splice(o,1),!(e=i.length&&ve(u)))return L.apply(n,i),n;break}}}return(p||s(e,d))(i,t,!g,n,!t||K.test(e)&&ge(t.parentNode)||t),n},n.sortStable=b.split("").sort(D).join("")===b,n.detectDuplicates=!!f,p(),n.sortDetached=ue(function(e){return 1&e.compareDocumentPosition(d.createElement("fieldset"))}),ue(function(e){return e.innerHTML="<a href='#'></a>","#"===e.firstChild.getAttribute("href")})||le("type|href|height|width",function(e,t,n){if(!n)return e.getAttribute(t,"type"===t.toLowerCase()?1:2)}),n.attributes&&ue(function(e){return e.innerHTML="<input/>",e.firstChild.setAttribute("value",""),""===e.firstChild.getAttribute("value")})||le("value",function(e,t,n){if(!n&&"input"===e.nodeName.toLowerCase())return e.defaultValue}),ue(function(e){return null==e.getAttribute("disabled")})||le(P,function(e,t,n){var r;if(!n)return!0===e[t]?t.toLowerCase():(r=e.getAttributeNode(t))&&r.specified?r.value:null}),oe}(e);w.find=E,w.expr=E.selectors,w.expr[":"]=w.expr.pseudos,w.uniqueSort=w.unique=E.uniqueSort,w.text=E.getText,w.isXMLDoc=E.isXML,w.contains=E.contains,w.escapeSelector=E.escape;var k=function(e,t,n){var r=[],i=void 0!==n;while((e=e[t])&&9!==e.nodeType)if(1===e.nodeType){if(i&&w(e).is(n))break;r.push(e)}return r},S=function(e,t){for(var n=[];e;e=e.nextSibling)1===e.nodeType&&e!==t&&n.push(e);return n},D=w.expr.match.needsContext;function N(e,t){return e.nodeName&&e.nodeName.toLowerCase()===t.toLowerCase()}var A=/^<([a-z][^\/\0>:\x20\t\r\n\f]*)[\x20\t\r\n\f]*\/?>(?:<\/\1>|)$/i;function j(e,t,n){return g(t)?w.grep(e,function(e,r){return!!t.call(e,r,e)!==n}):t.nodeType?w.grep(e,function(e){return e===t!==n}):"string"!=typeof t?w.grep(e,function(e){return u.call(t,e)>-1!==n}):w.filter(t,e,n)}w.filter=function(e,t,n){var r=t[0];return n&&(e=":not("+e+")"),1===t.length&&1===r.nodeType?w.find.matchesSelector(r,e)?[r]:[]:w.find.matches(e,w.grep(t,function(e){return 1===e.nodeType}))},w.fn.extend({find:function(e){var t,n,r=this.length,i=this;if("string"!=typeof e)return this.pushStack(w(e).filter(function(){for(t=0;t<r;t++)if(w.contains(i[t],this))return!0}));for(n=this.pushStack([]),t=0;t<r;t++)w.find(e,i[t],n);return r>1?w.uniqueSort(n):n},filter:function(e){return this.pushStack(j(this,e||[],!1))},not:function(e){return this.pushStack(j(this,e||[],!0))},is:function(e){return!!j(this,"string"==typeof e&&D.test(e)?w(e):e||[],!1).length}});var q,L=/^(?:\s*(<[\w\W]+>)[^>]*|#([\w-]+))$/;(w.fn.init=function(e,t,n){var i,o;if(!e)return this;if(n=n||q,"string"==typeof e){if(!(i="<"===e[0]&&">"===e[e.length-1]&&e.length>=3?[null,e,null]:L.exec(e))||!i[1]&&t)return!t||t.jquery?(t||n).find(e):this.constructor(t).find(e);if(i[1]){if(t=t instanceof w?t[0]:t,w.merge(this,w.parseHTML(i[1],t&&t.nodeType?t.ownerDocument||t:r,!0)),A.test(i[1])&&w.isPlainObject(t))for(i in t)g(this[i])?this[i](t[i]):this.attr(i,t[i]);return this}return(o=r.getElementById(i[2]))&&(this[0]=o,this.length=1),this}return e.nodeType?(this[0]=e,this.length=1,this):g(e)?void 0!==n.ready?n.ready(e):e(w):w.makeArray(e,this)}).prototype=w.fn,q=w(r);var H=/^(?:parents|prev(?:Until|All))/,O={children:!0,contents:!0,next:!0,prev:!0};w.fn.extend({has:function(e){var t=w(e,this),n=t.length;return this.filter(function(){for(var e=0;e<n;e++)if(w.contains(this,t[e]))return!0})},closest:function(e,t){var n,r=0,i=this.length,o=[],a="string"!=typeof e&&w(e);if(!D.test(e))for(;r<i;r++)for(n=this[r];n&&n!==t;n=n.parentNode)if(n.nodeType<11&&(a?a.index(n)>-1:1===n.nodeType&&w.find.matchesSelector(n,e))){o.push(n);break}return this.pushStack(o.length>1?w.uniqueSort(o):o)},index:function(e){return e?"string"==typeof e?u.call(w(e),this[0]):u.call(this,e.jquery?e[0]:e):this[0]&&this[0].parentNode?this.first().prevAll().length:-1},add:function(e,t){return this.pushStack(w.uniqueSort(w.merge(this.get(),w(e,t))))},addBack:function(e){return this.add(null==e?this.prevObject:this.prevObject.filter(e))}});function P(e,t){while((e=e[t])&&1!==e.nodeType);return e}w.each({parent:function(e){var t=e.parentNode;return t&&11!==t.nodeType?t:null},parents:function(e){return k(e,"parentNode")},parentsUntil:function(e,t,n){return k(e,"parentNode",n)},next:function(e){return P(e,"nextSibling")},prev:function(e){return P(e,"previousSibling")},nextAll:function(e){return k(e,"nextSibling")},prevAll:function(e){return k(e,"previousSibling")},nextUntil:function(e,t,n){return k(e,"nextSibling",n)},prevUntil:function(e,t,n){return k(e,"previousSibling",n)},siblings:function(e){return S((e.parentNode||{}).firstChild,e)},children:function(e){return S(e.firstChild)},contents:function(e){return N(e,"iframe")?e.contentDocument:(N(e,"template")&&(e=e.content||e),w.merge([],e.childNodes))}},function(e,t){w.fn[e]=function(n,r){var i=w.map(this,t,n);return"Until"!==e.slice(-5)&&(r=n),r&&"string"==typeof r&&(i=w.filter(r,i)),this.length>1&&(O[e]||w.uniqueSort(i),H.test(e)&&i.reverse()),this.pushStack(i)}});var M=/[^\x20\t\r\n\f]+/g;function R(e){var t={};return w.each(e.match(M)||[],function(e,n){t[n]=!0}),t}w.Callbacks=function(e){e="string"==typeof e?R(e):w.extend({},e);var t,n,r,i,o=[],a=[],s=-1,u=function(){for(i=i||e.once,r=t=!0;a.length;s=-1){n=a.shift();while(++s<o.length)!1===o[s].apply(n[0],n[1])&&e.stopOnFalse&&(s=o.length,n=!1)}e.memory||(n=!1),t=!1,i&&(o=n?[]:"")},l={add:function(){return o&&(n&&!t&&(s=o.length-1,a.push(n)),function t(n){w.each(n,function(n,r){g(r)?e.unique&&l.has(r)||o.push(r):r&&r.length&&"string"!==x(r)&&t(r)})}(arguments),n&&!t&&u()),this},remove:function(){return w.each(arguments,function(e,t){var n;while((n=w.inArray(t,o,n))>-1)o.splice(n,1),n<=s&&s--}),this},has:function(e){return e?w.inArray(e,o)>-1:o.length>0},empty:function(){return o&&(o=[]),this},disable:function(){return i=a=[],o=n="",this},disabled:function(){return!o},lock:function(){return i=a=[],n||t||(o=n=""),this},locked:function(){return!!i},fireWith:function(e,n){return i||(n=[e,(n=n||[]).slice?n.slice():n],a.push(n),t||u()),this},fire:function(){return l.fireWith(this,arguments),this},fired:function(){return!!r}};return l};function I(e){return e}function W(e){throw e}function $(e,t,n,r){var i;try{e&&g(i=e.promise)?i.call(e).done(t).fail(n):e&&g(i=e.then)?i.call(e,t,n):t.apply(void 0,[e].slice(r))}catch(e){n.apply(void 0,[e])}}w.extend({Deferred:function(t){var n=[["notify","progress",w.Callbacks("memory"),w.Callbacks("memory"),2],["resolve","done",w.Callbacks("once memory"),w.Callbacks("once memory"),0,"resolved"],["reject","fail",w.Callbacks("once memory"),w.Callbacks("once memory"),1,"rejected"]],r="pending",i={state:function(){return r},always:function(){return o.done(arguments).fail(arguments),this},"catch":function(e){return i.then(null,e)},pipe:function(){var e=arguments;return w.Deferred(function(t){w.each(n,function(n,r){var i=g(e[r[4]])&&e[r[4]];o[r[1]](function(){var e=i&&i.apply(this,arguments);e&&g(e.promise)?e.promise().progress(t.notify).done(t.resolve).fail(t.reject):t[r[0]+"With"](this,i?[e]:arguments)})}),e=null}).promise()},then:function(t,r,i){var o=0;function a(t,n,r,i){return function(){var s=this,u=arguments,l=function(){var e,l;if(!(t<o)){if((e=r.apply(s,u))===n.promise())throw new TypeError("Thenable self-resolution");l=e&&("object"==typeof e||"function"==typeof e)&&e.then,g(l)?i?l.call(e,a(o,n,I,i),a(o,n,W,i)):(o++,l.call(e,a(o,n,I,i),a(o,n,W,i),a(o,n,I,n.notifyWith))):(r!==I&&(s=void 0,u=[e]),(i||n.resolveWith)(s,u))}},c=i?l:function(){try{l()}catch(e){w.Deferred.exceptionHook&&w.Deferred.exceptionHook(e,c.stackTrace),t+1>=o&&(r!==W&&(s=void 0,u=[e]),n.rejectWith(s,u))}};t?c():(w.Deferred.getStackHook&&(c.stackTrace=w.Deferred.getStackHook()),e.setTimeout(c))}}return w.Deferred(function(e){n[0][3].add(a(0,e,g(i)?i:I,e.notifyWith)),n[1][3].add(a(0,e,g(t)?t:I)),n[2][3].add(a(0,e,g(r)?r:W))}).promise()},promise:function(e){return null!=e?w.extend(e,i):i}},o={};return w.each(n,function(e,t){var a=t[2],s=t[5];i[t[1]]=a.add,s&&a.add(function(){r=s},n[3-e][2].disable,n[3-e][3].disable,n[0][2].lock,n[0][3].lock),a.add(t[3].fire),o[t[0]]=function(){return o[t[0]+"With"](this===o?void 0:this,arguments),this},o[t[0]+"With"]=a.fireWith}),i.promise(o),t&&t.call(o,o),o},when:function(e){var t=arguments.length,n=t,r=Array(n),i=o.call(arguments),a=w.Deferred(),s=function(e){return function(n){r[e]=this,i[e]=arguments.length>1?o.call(arguments):n,--t||a.resolveWith(r,i)}};if(t<=1&&($(e,a.done(s(n)).resolve,a.reject,!t),"pending"===a.state()||g(i[n]&&i[n].then)))return a.then();while(n--)$(i[n],s(n),a.reject);return a.promise()}});var B=/^(Eval|Internal|Range|Reference|Syntax|Type|URI)Error$/;w.Deferred.exceptionHook=function(t,n){e.console&&e.console.warn&&t&&B.test(t.name)&&e.console.warn("jQuery.Deferred exception: "+t.message,t.stack,n)},w.readyException=function(t){e.setTimeout(function(){throw t})};var F=w.Deferred();w.fn.ready=function(e){return F.then(e)["catch"](function(e){w.readyException(e)}),this},w.extend({isReady:!1,readyWait:1,ready:function(e){(!0===e?--w.readyWait:w.isReady)||(w.isReady=!0,!0!==e&&--w.readyWait>0||F.resolveWith(r,[w]))}}),w.ready.then=F.then;function _(){r.removeEventListener("DOMContentLoaded",_),e.removeEventListener("load",_),w.ready()}"complete"===r.readyState||"loading"!==r.readyState&&!r.documentElement.doScroll?e.setTimeout(w.ready):(r.addEventListener("DOMContentLoaded",_),e.addEventListener("load",_));var z=function(e,t,n,r,i,o,a){var s=0,u=e.length,l=null==n;if("object"===x(n)){i=!0;for(s in n)z(e,t,s,n[s],!0,o,a)}else if(void 0!==r&&(i=!0,g(r)||(a=!0),l&&(a?(t.call(e,r),t=null):(l=t,t=function(e,t,n){return l.call(w(e),n)})),t))for(;s<u;s++)t(e[s],n,a?r:r.call(e[s],s,t(e[s],n)));return i?e:l?t.call(e):u?t(e[0],n):o},X=/^-ms-/,U=/-([a-z])/g;function V(e,t){return t.toUpperCase()}function G(e){return e.replace(X,"ms-").replace(U,V)}var Y=function(e){return 1===e.nodeType||9===e.nodeType||!+e.nodeType};function Q(){this.expando=w.expando+Q.uid++}Q.uid=1,Q.prototype={cache:function(e){var t=e[this.expando];return t||(t={},Y(e)&&(e.nodeType?e[this.expando]=t:Object.defineProperty(e,this.expando,{value:t,configurable:!0}))),t},set:function(e,t,n){var r,i=this.cache(e);if("string"==typeof t)i[G(t)]=n;else for(r in t)i[G(r)]=t[r];return i},get:function(e,t){return void 0===t?this.cache(e):e[this.expando]&&e[this.expando][G(t)]},access:function(e,t,n){return void 0===t||t&&"string"==typeof t&&void 0===n?this.get(e,t):(this.set(e,t,n),void 0!==n?n:t)},remove:function(e,t){var n,r=e[this.expando];if(void 0!==r){if(void 0!==t){n=(t=Array.isArray(t)?t.map(G):(t=G(t))in r?[t]:t.match(M)||[]).length;while(n--)delete r[t[n]]}(void 0===t||w.isEmptyObject(r))&&(e.nodeType?e[this.expando]=void 0:delete e[this.expando])}},hasData:function(e){var t=e[this.expando];return void 0!==t&&!w.isEmptyObject(t)}};var J=new Q,K=new Q,Z=/^(?:\{[\w\W]*\}|\[[\w\W]*\])$/,ee=/[A-Z]/g;function te(e){return"true"===e||"false"!==e&&("null"===e?null:e===+e+""?+e:Z.test(e)?JSON.parse(e):e)}function ne(e,t,n){var r;if(void 0===n&&1===e.nodeType)if(r="data-"+t.replace(ee,"-$&").toLowerCase(),"string"==typeof(n=e.getAttribute(r))){try{n=te(n)}catch(e){}K.set(e,t,n)}else n=void 0;return n}w.extend({hasData:function(e){return K.hasData(e)||J.hasData(e)},data:function(e,t,n){return K.access(e,t,n)},removeData:function(e,t){K.remove(e,t)},_data:function(e,t,n){return J.access(e,t,n)},_removeData:function(e,t){J.remove(e,t)}}),w.fn.extend({data:function(e,t){var n,r,i,o=this[0],a=o&&o.attributes;if(void 0===e){if(this.length&&(i=K.get(o),1===o.nodeType&&!J.get(o,"hasDataAttrs"))){n=a.length;while(n--)a[n]&&0===(r=a[n].name).indexOf("data-")&&(r=G(r.slice(5)),ne(o,r,i[r]));J.set(o,"hasDataAttrs",!0)}return i}return"object"==typeof e?this.each(function(){K.set(this,e)}):z(this,function(t){var n;if(o&&void 0===t){if(void 0!==(n=K.get(o,e)))return n;if(void 0!==(n=ne(o,e)))return n}else this.each(function(){K.set(this,e,t)})},null,t,arguments.length>1,null,!0)},removeData:function(e){return this.each(function(){K.remove(this,e)})}}),w.extend({queue:function(e,t,n){var r;if(e)return t=(t||"fx")+"queue",r=J.get(e,t),n&&(!r||Array.isArray(n)?r=J.access(e,t,w.makeArray(n)):r.push(n)),r||[]},dequeue:function(e,t){t=t||"fx";var n=w.queue(e,t),r=n.length,i=n.shift(),o=w._queueHooks(e,t),a=function(){w.dequeue(e,t)};"inprogress"===i&&(i=n.shift(),r--),i&&("fx"===t&&n.unshift("inprogress"),delete o.stop,i.call(e,a,o)),!r&&o&&o.empty.fire()},_queueHooks:function(e,t){var n=t+"queueHooks";return J.get(e,n)||J.access(e,n,{empty:w.Callbacks("once memory").add(function(){J.remove(e,[t+"queue",n])})})}}),w.fn.extend({queue:function(e,t){var n=2;return"string"!=typeof e&&(t=e,e="fx",n--),arguments.length<n?w.queue(this[0],e):void 0===t?this:this.each(function(){var n=w.queue(this,e,t);w._queueHooks(this,e),"fx"===e&&"inprogress"!==n[0]&&w.dequeue(this,e)})},dequeue:function(e){return this.each(function(){w.dequeue(this,e)})},clearQueue:function(e){return this.queue(e||"fx",[])},promise:function(e,t){var n,r=1,i=w.Deferred(),o=this,a=this.length,s=function(){--r||i.resolveWith(o,[o])};"string"!=typeof e&&(t=e,e=void 0),e=e||"fx";while(a--)(n=J.get(o[a],e+"queueHooks"))&&n.empty&&(r++,n.empty.add(s));return s(),i.promise(t)}});var re=/[+-]?(?:\d*\.|)\d+(?:[eE][+-]?\d+|)/.source,ie=new RegExp("^(?:([+-])=|)("+re+")([a-z%]*)$","i"),oe=["Top","Right","Bottom","Left"],ae=function(e,t){return"none"===(e=t||e).style.display||""===e.style.display&&w.contains(e.ownerDocument,e)&&"none"===w.css(e,"display")},se=function(e,t,n,r){var i,o,a={};for(o in t)a[o]=e.style[o],e.style[o]=t[o];i=n.apply(e,r||[]);for(o in t)e.style[o]=a[o];return i};function ue(e,t,n,r){var i,o,a=20,s=r?function(){return r.cur()}:function(){return w.css(e,t,"")},u=s(),l=n&&n[3]||(w.cssNumber[t]?"":"px"),c=(w.cssNumber[t]||"px"!==l&&+u)&&ie.exec(w.css(e,t));if(c&&c[3]!==l){u/=2,l=l||c[3],c=+u||1;while(a--)w.style(e,t,c+l),(1-o)*(1-(o=s()/u||.5))<=0&&(a=0),c/=o;c*=2,w.style(e,t,c+l),n=n||[]}return n&&(c=+c||+u||0,i=n[1]?c+(n[1]+1)*n[2]:+n[2],r&&(r.unit=l,r.start=c,r.end=i)),i}var le={};function ce(e){var t,n=e.ownerDocument,r=e.nodeName,i=le[r];return i||(t=n.body.appendChild(n.createElement(r)),i=w.css(t,"display"),t.parentNode.removeChild(t),"none"===i&&(i="block"),le[r]=i,i)}function fe(e,t){for(var n,r,i=[],o=0,a=e.length;o<a;o++)(r=e[o]).style&&(n=r.style.display,t?("none"===n&&(i[o]=J.get(r,"display")||null,i[o]||(r.style.display="")),""===r.style.display&&ae(r)&&(i[o]=ce(r))):"none"!==n&&(i[o]="none",J.set(r,"display",n)));for(o=0;o<a;o++)null!=i[o]&&(e[o].style.display=i[o]);return e}w.fn.extend({show:function(){return fe(this,!0)},hide:function(){return fe(this)},toggle:function(e){return"boolean"==typeof e?e?this.show():this.hide():this.each(function(){ae(this)?w(this).show():w(this).hide()})}});var pe=/^(?:checkbox|radio)$/i,de=/<([a-z][^\/\0>\x20\t\r\n\f]+)/i,he=/^$|^module$|\/(?:java|ecma)script/i,ge={option:[1,"<select multiple='multiple'>","</select>"],thead:[1,"<table>","</table>"],col:[2,"<table><colgroup>","</colgroup></table>"],tr:[2,"<table><tbody>","</tbody></table>"],td:[3,"<table><tbody><tr>","</tr></tbody></table>"],_default:[0,"",""]};ge.optgroup=ge.option,ge.tbody=ge.tfoot=ge.colgroup=ge.caption=ge.thead,ge.th=ge.td;function ye(e,t){var n;return n="undefined"!=typeof e.getElementsByTagName?e.getElementsByTagName(t||"*"):"undefined"!=typeof e.querySelectorAll?e.querySelectorAll(t||"*"):[],void 0===t||t&&N(e,t)?w.merge([e],n):n}function ve(e,t){for(var n=0,r=e.length;n<r;n++)J.set(e[n],"globalEval",!t||J.get(t[n],"globalEval"))}var me=/<|&#?\w+;/;function xe(e,t,n,r,i){for(var o,a,s,u,l,c,f=t.createDocumentFragment(),p=[],d=0,h=e.length;d<h;d++)if((o=e[d])||0===o)if("object"===x(o))w.merge(p,o.nodeType?[o]:o);else if(me.test(o)){a=a||f.appendChild(t.createElement("div")),s=(de.exec(o)||["",""])[1].toLowerCase(),u=ge[s]||ge._default,a.innerHTML=u[1]+w.htmlPrefilter(o)+u[2],c=u[0];while(c--)a=a.lastChild;w.merge(p,a.childNodes),(a=f.firstChild).textContent=""}else p.push(t.createTextNode(o));f.textContent="",d=0;while(o=p[d++])if(r&&w.inArray(o,r)>-1)i&&i.push(o);else if(l=w.contains(o.ownerDocument,o),a=ye(f.appendChild(o),"script"),l&&ve(a),n){c=0;while(o=a[c++])he.test(o.type||"")&&n.push(o)}return f}!function(){var e=r.createDocumentFragment().appendChild(r.createElement("div")),t=r.createElement("input");t.setAttribute("type","radio"),t.setAttribute("checked","checked"),t.setAttribute("name","t"),e.appendChild(t),h.checkClone=e.cloneNode(!0).cloneNode(!0).lastChild.checked,e.innerHTML="<textarea>x</textarea>",h.noCloneChecked=!!e.cloneNode(!0).lastChild.defaultValue}();var be=r.documentElement,we=/^key/,Te=/^(?:mouse|pointer|contextmenu|drag|drop)|click/,Ce=/^([^.]*)(?:\.(.+)|)/;function Ee(){return!0}function ke(){return!1}function Se(){try{return r.activeElement}catch(e){}}function De(e,t,n,r,i,o){var a,s;if("object"==typeof t){"string"!=typeof n&&(r=r||n,n=void 0);for(s in t)De(e,s,n,r,t[s],o);return e}if(null==r&&null==i?(i=n,r=n=void 0):null==i&&("string"==typeof n?(i=r,r=void 0):(i=r,r=n,n=void 0)),!1===i)i=ke;else if(!i)return e;return 1===o&&(a=i,(i=function(e){return w().off(e),a.apply(this,arguments)}).guid=a.guid||(a.guid=w.guid++)),e.each(function(){w.event.add(this,t,i,r,n)})}w.event={global:{},add:function(e,t,n,r,i){var o,a,s,u,l,c,f,p,d,h,g,y=J.get(e);if(y){n.handler&&(n=(o=n).handler,i=o.selector),i&&w.find.matchesSelector(be,i),n.guid||(n.guid=w.guid++),(u=y.events)||(u=y.events={}),(a=y.handle)||(a=y.handle=function(t){return"undefined"!=typeof w&&w.event.triggered!==t.type?w.event.dispatch.apply(e,arguments):void 0}),l=(t=(t||"").match(M)||[""]).length;while(l--)d=g=(s=Ce.exec(t[l])||[])[1],h=(s[2]||"").split(".").sort(),d&&(f=w.event.special[d]||{},d=(i?f.delegateType:f.bindType)||d,f=w.event.special[d]||{},c=w.extend({type:d,origType:g,data:r,handler:n,guid:n.guid,selector:i,needsContext:i&&w.expr.match.needsContext.test(i),namespace:h.join(".")},o),(p=u[d])||((p=u[d]=[]).delegateCount=0,f.setup&&!1!==f.setup.call(e,r,h,a)||e.addEventListener&&e.addEventListener(d,a)),f.add&&(f.add.call(e,c),c.handler.guid||(c.handler.guid=n.guid)),i?p.splice(p.delegateCount++,0,c):p.push(c),w.event.global[d]=!0)}},remove:function(e,t,n,r,i){var o,a,s,u,l,c,f,p,d,h,g,y=J.hasData(e)&&J.get(e);if(y&&(u=y.events)){l=(t=(t||"").match(M)||[""]).length;while(l--)if(s=Ce.exec(t[l])||[],d=g=s[1],h=(s[2]||"").split(".").sort(),d){f=w.event.special[d]||{},p=u[d=(r?f.delegateType:f.bindType)||d]||[],s=s[2]&&new RegExp("(^|\\.)"+h.join("\\.(?:.*\\.|)")+"(\\.|$)"),a=o=p.length;while(o--)c=p[o],!i&&g!==c.origType||n&&n.guid!==c.guid||s&&!s.test(c.namespace)||r&&r!==c.selector&&("**"!==r||!c.selector)||(p.splice(o,1),c.selector&&p.delegateCount--,f.remove&&f.remove.call(e,c));a&&!p.length&&(f.teardown&&!1!==f.teardown.call(e,h,y.handle)||w.removeEvent(e,d,y.handle),delete u[d])}else for(d in u)w.event.remove(e,d+t[l],n,r,!0);w.isEmptyObject(u)&&J.remove(e,"handle events")}},dispatch:function(e){var t=w.event.fix(e),n,r,i,o,a,s,u=new Array(arguments.length),l=(J.get(this,"events")||{})[t.type]||[],c=w.event.special[t.type]||{};for(u[0]=t,n=1;n<arguments.length;n++)u[n]=arguments[n];if(t.delegateTarget=this,!c.preDispatch||!1!==c.preDispatch.call(this,t)){s=w.event.handlers.call(this,t,l),n=0;while((o=s[n++])&&!t.isPropagationStopped()){t.currentTarget=o.elem,r=0;while((a=o.handlers[r++])&&!t.isImmediatePropagationStopped())t.rnamespace&&!t.rnamespace.test(a.namespace)||(t.handleObj=a,t.data=a.data,void 0!==(i=((w.event.special[a.origType]||{}).handle||a.handler).apply(o.elem,u))&&!1===(t.result=i)&&(t.preventDefault(),t.stopPropagation()))}return c.postDispatch&&c.postDispatch.call(this,t),t.result}},handlers:function(e,t){var n,r,i,o,a,s=[],u=t.delegateCount,l=e.target;if(u&&l.nodeType&&!("click"===e.type&&e.button>=1))for(;l!==this;l=l.parentNode||this)if(1===l.nodeType&&("click"!==e.type||!0!==l.disabled)){for(o=[],a={},n=0;n<u;n++)void 0===a[i=(r=t[n]).selector+" "]&&(a[i]=r.needsContext?w(i,this).index(l)>-1:w.find(i,this,null,[l]).length),a[i]&&o.push(r);o.length&&s.push({elem:l,handlers:o})}return l=this,u<t.length&&s.push({elem:l,handlers:t.slice(u)}),s},addProp:function(e,t){Object.defineProperty(w.Event.prototype,e,{enumerable:!0,configurable:!0,get:g(t)?function(){if(this.originalEvent)return t(this.originalEvent)}:function(){if(this.originalEvent)return this.originalEvent[e]},set:function(t){Object.defineProperty(this,e,{enumerable:!0,configurable:!0,writable:!0,value:t})}})},fix:function(e){return e[w.expando]?e:new w.Event(e)},special:{load:{noBubble:!0},focus:{trigger:function(){if(this!==Se()&&this.focus)return this.focus(),!1},delegateType:"focusin"},blur:{trigger:function(){if(this===Se()&&this.blur)return this.blur(),!1},delegateType:"focusout"},click:{trigger:function(){if("checkbox"===this.type&&this.click&&N(this,"input"))return this.click(),!1},_default:function(e){return N(e.target,"a")}},beforeunload:{postDispatch:function(e){void 0!==e.result&&e.originalEvent&&(e.originalEvent.returnValue=e.result)}}}},w.removeEvent=function(e,t,n){e.removeEventListener&&e.removeEventListener(t,n)},w.Event=function(e,t){if(!(this instanceof w.Event))return new w.Event(e,t);e&&e.type?(this.originalEvent=e,this.type=e.type,this.isDefaultPrevented=e.defaultPrevented||void 0===e.defaultPrevented&&!1===e.returnValue?Ee:ke,this.target=e.target&&3===e.target.nodeType?e.target.parentNode:e.target,this.currentTarget=e.currentTarget,this.relatedTarget=e.relatedTarget):this.type=e,t&&w.extend(this,t),this.timeStamp=e&&e.timeStamp||Date.now(),this[w.expando]=!0},w.Event.prototype={constructor:w.Event,isDefaultPrevented:ke,isPropagationStopped:ke,isImmediatePropagationStopped:ke,isSimulated:!1,preventDefault:function(){var e=this.originalEvent;this.isDefaultPrevented=Ee,e&&!this.isSimulated&&e.preventDefault()},stopPropagation:function(){var e=this.originalEvent;this.isPropagationStopped=Ee,e&&!this.isSimulated&&e.stopPropagation()},stopImmediatePropagation:function(){var e=this.originalEvent;this.isImmediatePropagationStopped=Ee,e&&!this.isSimulated&&e.stopImmediatePropagation(),this.stopPropagation()}},w.each({altKey:!0,bubbles:!0,cancelable:!0,changedTouches:!0,ctrlKey:!0,detail:!0,eventPhase:!0,metaKey:!0,pageX:!0,pageY:!0,shiftKey:!0,view:!0,"char":!0,charCode:!0,key:!0,keyCode:!0,button:!0,buttons:!0,clientX:!0,clientY:!0,offsetX:!0,offsetY:!0,pointerId:!0,pointerType:!0,screenX:!0,screenY:!0,targetTouches:!0,toElement:!0,touches:!0,which:function(e){var t=e.button;return null==e.which&&we.test(e.type)?null!=e.charCode?e.charCode:e.keyCode:!e.which&&void 0!==t&&Te.test(e.type)?1&t?1:2&t?3:4&t?2:0:e.which}},w.event.addProp),w.each({mouseenter:"mouseover",mouseleave:"mouseout",pointerenter:"pointerover",pointerleave:"pointerout"},function(e,t){w.event.special[e]={delegateType:t,bindType:t,handle:function(e){var n,r=this,i=e.relatedTarget,o=e.handleObj;return i&&(i===r||w.contains(r,i))||(e.type=o.origType,n=o.handler.apply(this,arguments),e.type=t),n}}}),w.fn.extend({on:function(e,t,n,r){return De(this,e,t,n,r)},one:function(e,t,n,r){return De(this,e,t,n,r,1)},off:function(e,t,n){var r,i;if(e&&e.preventDefault&&e.handleObj)return r=e.handleObj,w(e.delegateTarget).off(r.namespace?r.origType+"."+r.namespace:r.origType,r.selector,r.handler),this;if("object"==typeof e){for(i in e)this.off(i,t,e[i]);return this}return!1!==t&&"function"!=typeof t||(n=t,t=void 0),!1===n&&(n=ke),this.each(function(){w.event.remove(this,e,n,t)})}});var Ne=/<(?!area|br|col|embed|hr|img|input|link|meta|param)(([a-z][^\/\0>\x20\t\r\n\f]*)[^>]*)\/>/gi,Ae=/<script|<style|<link/i,je=/checked\s*(?:[^=]|=\s*.checked.)/i,qe=/^\s*<!(?:\[CDATA\[|--)|(?:\]\]|--)>\s*$/g;function Le(e,t){return N(e,"table")&&N(11!==t.nodeType?t:t.firstChild,"tr")?w(e).children("tbody")[0]||e:e}function He(e){return e.type=(null!==e.getAttribute("type"))+"/"+e.type,e}function Oe(e){return"true/"===(e.type||"").slice(0,5)?e.type=e.type.slice(5):e.removeAttribute("type"),e}function Pe(e,t){var n,r,i,o,a,s,u,l;if(1===t.nodeType){if(J.hasData(e)&&(o=J.access(e),a=J.set(t,o),l=o.events)){delete a.handle,a.events={};for(i in l)for(n=0,r=l[i].length;n<r;n++)w.event.add(t,i,l[i][n])}K.hasData(e)&&(s=K.access(e),u=w.extend({},s),K.set(t,u))}}function Me(e,t){var n=t.nodeName.toLowerCase();"input"===n&&pe.test(e.type)?t.checked=e.checked:"input"!==n&&"textarea"!==n||(t.defaultValue=e.defaultValue)}function Re(e,t,n,r){t=a.apply([],t);var i,o,s,u,l,c,f=0,p=e.length,d=p-1,y=t[0],v=g(y);if(v||p>1&&"string"==typeof y&&!h.checkClone&&je.test(y))return e.each(function(i){var o=e.eq(i);v&&(t[0]=y.call(this,i,o.html())),Re(o,t,n,r)});if(p&&(i=xe(t,e[0].ownerDocument,!1,e,r),o=i.firstChild,1===i.childNodes.length&&(i=o),o||r)){for(u=(s=w.map(ye(i,"script"),He)).length;f<p;f++)l=i,f!==d&&(l=w.clone(l,!0,!0),u&&w.merge(s,ye(l,"script"))),n.call(e[f],l,f);if(u)for(c=s[s.length-1].ownerDocument,w.map(s,Oe),f=0;f<u;f++)l=s[f],he.test(l.type||"")&&!J.access(l,"globalEval")&&w.contains(c,l)&&(l.src&&"module"!==(l.type||"").toLowerCase()?w._evalUrl&&w._evalUrl(l.src):m(l.textContent.replace(qe,""),c,l))}return e}function Ie(e,t,n){for(var r,i=t?w.filter(t,e):e,o=0;null!=(r=i[o]);o++)n||1!==r.nodeType||w.cleanData(ye(r)),r.parentNode&&(n&&w.contains(r.ownerDocument,r)&&ve(ye(r,"script")),r.parentNode.removeChild(r));return e}w.extend({htmlPrefilter:function(e){return e.replace(Ne,"<$1></$2>")},clone:function(e,t,n){var r,i,o,a,s=e.cloneNode(!0),u=w.contains(e.ownerDocument,e);if(!(h.noCloneChecked||1!==e.nodeType&&11!==e.nodeType||w.isXMLDoc(e)))for(a=ye(s),r=0,i=(o=ye(e)).length;r<i;r++)Me(o[r],a[r]);if(t)if(n)for(o=o||ye(e),a=a||ye(s),r=0,i=o.length;r<i;r++)Pe(o[r],a[r]);else Pe(e,s);return(a=ye(s,"script")).length>0&&ve(a,!u&&ye(e,"script")),s},cleanData:function(e){for(var t,n,r,i=w.event.special,o=0;void 0!==(n=e[o]);o++)if(Y(n)){if(t=n[J.expando]){if(t.events)for(r in t.events)i[r]?w.event.remove(n,r):w.removeEvent(n,r,t.handle);n[J.expando]=void 0}n[K.expando]&&(n[K.expando]=void 0)}}}),w.fn.extend({detach:function(e){return Ie(this,e,!0)},remove:function(e){return Ie(this,e)},text:function(e){return z(this,function(e){return void 0===e?w.text(this):this.empty().each(function(){1!==this.nodeType&&11!==this.nodeType&&9!==this.nodeType||(this.textContent=e)})},null,e,arguments.length)},append:function(){return Re(this,arguments,function(e){1!==this.nodeType&&11!==this.nodeType&&9!==this.nodeType||Le(this,e).appendChild(e)})},prepend:function(){return Re(this,arguments,function(e){if(1===this.nodeType||11===this.nodeType||9===this.nodeType){var t=Le(this,e);t.insertBefore(e,t.firstChild)}})},before:function(){return Re(this,arguments,function(e){this.parentNode&&this.parentNode.insertBefore(e,this)})},after:function(){return Re(this,arguments,function(e){this.parentNode&&this.parentNode.insertBefore(e,this.nextSibling)})},empty:function(){for(var e,t=0;null!=(e=this[t]);t++)1===e.nodeType&&(w.cleanData(ye(e,!1)),e.textContent="");return this},clone:function(e,t){return e=null!=e&&e,t=null==t?e:t,this.map(function(){return w.clone(this,e,t)})},html:function(e){return z(this,function(e){var t=this[0]||{},n=0,r=this.length;if(void 0===e&&1===t.nodeType)return t.innerHTML;if("string"==typeof e&&!Ae.test(e)&&!ge[(de.exec(e)||["",""])[1].toLowerCase()]){e=w.htmlPrefilter(e);try{for(;n<r;n++)1===(t=this[n]||{}).nodeType&&(w.cleanData(ye(t,!1)),t.innerHTML=e);t=0}catch(e){}}t&&this.empty().append(e)},null,e,arguments.length)},replaceWith:function(){var e=[];return Re(this,arguments,function(t){var n=this.parentNode;w.inArray(this,e)<0&&(w.cleanData(ye(this)),n&&n.replaceChild(t,this))},e)}}),w.each({appendTo:"append",prependTo:"prepend",insertBefore:"before",insertAfter:"after",replaceAll:"replaceWith"},function(e,t){w.fn[e]=function(e){for(var n,r=[],i=w(e),o=i.length-1,a=0;a<=o;a++)n=a===o?this:this.clone(!0),w(i[a])[t](n),s.apply(r,n.get());return this.pushStack(r)}});var We=new RegExp("^("+re+")(?!px)[a-z%]+$","i"),$e=function(t){var n=t.ownerDocument.defaultView;return n&&n.opener||(n=e),n.getComputedStyle(t)},Be=new RegExp(oe.join("|"),"i");!function(){function t(){if(c){l.style.cssText="position:absolute;left:-11111px;width:60px;margin-top:1px;padding:0;border:0",c.style.cssText="position:relative;display:block;box-sizing:border-box;overflow:scroll;margin:auto;border:1px;padding:1px;width:60%;top:1%",be.appendChild(l).appendChild(c);var t=e.getComputedStyle(c);i="1%"!==t.top,u=12===n(t.marginLeft),c.style.right="60%",s=36===n(t.right),o=36===n(t.width),c.style.position="absolute",a=36===c.offsetWidth||"absolute",be.removeChild(l),c=null}}function n(e){return Math.round(parseFloat(e))}var i,o,a,s,u,l=r.createElement("div"),c=r.createElement("div");c.style&&(c.style.backgroundClip="content-box",c.cloneNode(!0).style.backgroundClip="",h.clearCloneStyle="content-box"===c.style.backgroundClip,w.extend(h,{boxSizingReliable:function(){return t(),o},pixelBoxStyles:function(){return t(),s},pixelPosition:function(){return t(),i},reliableMarginLeft:function(){return t(),u},scrollboxSize:function(){return t(),a}}))}();function Fe(e,t,n){var r,i,o,a,s=e.style;return(n=n||$e(e))&&(""!==(a=n.getPropertyValue(t)||n[t])||w.contains(e.ownerDocument,e)||(a=w.style(e,t)),!h.pixelBoxStyles()&&We.test(a)&&Be.test(t)&&(r=s.width,i=s.minWidth,o=s.maxWidth,s.minWidth=s.maxWidth=s.width=a,a=n.width,s.width=r,s.minWidth=i,s.maxWidth=o)),void 0!==a?a+"":a}function _e(e,t){return{get:function(){if(!e())return(this.get=t).apply(this,arguments);delete this.get}}}var ze=/^(none|table(?!-c[ea]).+)/,Xe=/^--/,Ue={position:"absolute",visibility:"hidden",display:"block"},Ve={letterSpacing:"0",fontWeight:"400"},Ge=["Webkit","Moz","ms"],Ye=r.createElement("div").style;function Qe(e){if(e in Ye)return e;var t=e[0].toUpperCase()+e.slice(1),n=Ge.length;while(n--)if((e=Ge[n]+t)in Ye)return e}function Je(e){var t=w.cssProps[e];return t||(t=w.cssProps[e]=Qe(e)||e),t}function Ke(e,t,n){var r=ie.exec(t);return r?Math.max(0,r[2]-(n||0))+(r[3]||"px"):t}function Ze(e,t,n,r,i,o){var a="width"===t?1:0,s=0,u=0;if(n===(r?"border":"content"))return 0;for(;a<4;a+=2)"margin"===n&&(u+=w.css(e,n+oe[a],!0,i)),r?("content"===n&&(u-=w.css(e,"padding"+oe[a],!0,i)),"margin"!==n&&(u-=w.css(e,"border"+oe[a]+"Width",!0,i))):(u+=w.css(e,"padding"+oe[a],!0,i),"padding"!==n?u+=w.css(e,"border"+oe[a]+"Width",!0,i):s+=w.css(e,"border"+oe[a]+"Width",!0,i));return!r&&o>=0&&(u+=Math.max(0,Math.ceil(e["offset"+t[0].toUpperCase()+t.slice(1)]-o-u-s-.5))),u}function et(e,t,n){var r=$e(e),i=Fe(e,t,r),o="border-box"===w.css(e,"boxSizing",!1,r),a=o;if(We.test(i)){if(!n)return i;i="auto"}return a=a&&(h.boxSizingReliable()||i===e.style[t]),("auto"===i||!parseFloat(i)&&"inline"===w.css(e,"display",!1,r))&&(i=e["offset"+t[0].toUpperCase()+t.slice(1)],a=!0),(i=parseFloat(i)||0)+Ze(e,t,n||(o?"border":"content"),a,r,i)+"px"}w.extend({cssHooks:{opacity:{get:function(e,t){if(t){var n=Fe(e,"opacity");return""===n?"1":n}}}},cssNumber:{animationIterationCount:!0,columnCount:!0,fillOpacity:!0,flexGrow:!0,flexShrink:!0,fontWeight:!0,lineHeight:!0,opacity:!0,order:!0,orphans:!0,widows:!0,zIndex:!0,zoom:!0},cssProps:{},style:function(e,t,n,r){if(e&&3!==e.nodeType&&8!==e.nodeType&&e.style){var i,o,a,s=G(t),u=Xe.test(t),l=e.style;if(u||(t=Je(s)),a=w.cssHooks[t]||w.cssHooks[s],void 0===n)return a&&"get"in a&&void 0!==(i=a.get(e,!1,r))?i:l[t];"string"==(o=typeof n)&&(i=ie.exec(n))&&i[1]&&(n=ue(e,t,i),o="number"),null!=n&&n===n&&("number"===o&&(n+=i&&i[3]||(w.cssNumber[s]?"":"px")),h.clearCloneStyle||""!==n||0!==t.indexOf("background")||(l[t]="inherit"),a&&"set"in a&&void 0===(n=a.set(e,n,r))||(u?l.setProperty(t,n):l[t]=n))}},css:function(e,t,n,r){var i,o,a,s=G(t);return Xe.test(t)||(t=Je(s)),(a=w.cssHooks[t]||w.cssHooks[s])&&"get"in a&&(i=a.get(e,!0,n)),void 0===i&&(i=Fe(e,t,r)),"normal"===i&&t in Ve&&(i=Ve[t]),""===n||n?(o=parseFloat(i),!0===n||isFinite(o)?o||0:i):i}}),w.each(["height","width"],function(e,t){w.cssHooks[t]={get:function(e,n,r){if(n)return!ze.test(w.css(e,"display"))||e.getClientRects().length&&e.getBoundingClientRect().width?et(e,t,r):se(e,Ue,function(){return et(e,t,r)})},set:function(e,n,r){var i,o=$e(e),a="border-box"===w.css(e,"boxSizing",!1,o),s=r&&Ze(e,t,r,a,o);return a&&h.scrollboxSize()===o.position&&(s-=Math.ceil(e["offset"+t[0].toUpperCase()+t.slice(1)]-parseFloat(o[t])-Ze(e,t,"border",!1,o)-.5)),s&&(i=ie.exec(n))&&"px"!==(i[3]||"px")&&(e.style[t]=n,n=w.css(e,t)),Ke(e,n,s)}}}),w.cssHooks.marginLeft=_e(h.reliableMarginLeft,function(e,t){if(t)return(parseFloat(Fe(e,"marginLeft"))||e.getBoundingClientRect().left-se(e,{marginLeft:0},function(){return e.getBoundingClientRect().left}))+"px"}),w.each({margin:"",padding:"",border:"Width"},function(e,t){w.cssHooks[e+t]={expand:function(n){for(var r=0,i={},o="string"==typeof n?n.split(" "):[n];r<4;r++)i[e+oe[r]+t]=o[r]||o[r-2]||o[0];return i}},"margin"!==e&&(w.cssHooks[e+t].set=Ke)}),w.fn.extend({css:function(e,t){return z(this,function(e,t,n){var r,i,o={},a=0;if(Array.isArray(t)){for(r=$e(e),i=t.length;a<i;a++)o[t[a]]=w.css(e,t[a],!1,r);return o}return void 0!==n?w.style(e,t,n):w.css(e,t)},e,t,arguments.length>1)}});function tt(e,t,n,r,i){return new tt.prototype.init(e,t,n,r,i)}w.Tween=tt,tt.prototype={constructor:tt,init:function(e,t,n,r,i,o){this.elem=e,this.prop=n,this.easing=i||w.easing._default,this.options=t,this.start=this.now=this.cur(),this.end=r,this.unit=o||(w.cssNumber[n]?"":"px")},cur:function(){var e=tt.propHooks[this.prop];return e&&e.get?e.get(this):tt.propHooks._default.get(this)},run:function(e){var t,n=tt.propHooks[this.prop];return this.options.duration?this.pos=t=w.easing[this.easing](e,this.options.duration*e,0,1,this.options.duration):this.pos=t=e,this.now=(this.end-this.start)*t+this.start,this.options.step&&this.options.step.call(this.elem,this.now,this),n&&n.set?n.set(this):tt.propHooks._default.set(this),this}},tt.prototype.init.prototype=tt.prototype,tt.propHooks={_default:{get:function(e){var t;return 1!==e.elem.nodeType||null!=e.elem[e.prop]&&null==e.elem.style[e.prop]?e.elem[e.prop]:(t=w.css(e.elem,e.prop,""))&&"auto"!==t?t:0},set:function(e){w.fx.step[e.prop]?w.fx.step[e.prop](e):1!==e.elem.nodeType||null==e.elem.style[w.cssProps[e.prop]]&&!w.cssHooks[e.prop]?e.elem[e.prop]=e.now:w.style(e.elem,e.prop,e.now+e.unit)}}},tt.propHooks.scrollTop=tt.propHooks.scrollLeft={set:function(e){e.elem.nodeType&&e.elem.parentNode&&(e.elem[e.prop]=e.now)}},w.easing={linear:function(e){return e},swing:function(e){return.5-Math.cos(e*Math.PI)/2},_default:"swing"},w.fx=tt.prototype.init,w.fx.step={};var nt,rt,it=/^(?:toggle|show|hide)$/,ot=/queueHooks$/;function at(){rt&&(!1===r.hidden&&e.requestAnimationFrame?e.requestAnimationFrame(at):e.setTimeout(at,w.fx.interval),w.fx.tick())}function st(){return e.setTimeout(function(){nt=void 0}),nt=Date.now()}function ut(e,t){var n,r=0,i={height:e};for(t=t?1:0;r<4;r+=2-t)i["margin"+(n=oe[r])]=i["padding"+n]=e;return t&&(i.opacity=i.width=e),i}function lt(e,t,n){for(var r,i=(pt.tweeners[t]||[]).concat(pt.tweeners["*"]),o=0,a=i.length;o<a;o++)if(r=i[o].call(n,t,e))return r}function ct(e,t,n){var r,i,o,a,s,u,l,c,f="width"in t||"height"in t,p=this,d={},h=e.style,g=e.nodeType&&ae(e),y=J.get(e,"fxshow");n.queue||(null==(a=w._queueHooks(e,"fx")).unqueued&&(a.unqueued=0,s=a.empty.fire,a.empty.fire=function(){a.unqueued||s()}),a.unqueued++,p.always(function(){p.always(function(){a.unqueued--,w.queue(e,"fx").length||a.empty.fire()})}));for(r in t)if(i=t[r],it.test(i)){if(delete t[r],o=o||"toggle"===i,i===(g?"hide":"show")){if("show"!==i||!y||void 0===y[r])continue;g=!0}d[r]=y&&y[r]||w.style(e,r)}if((u=!w.isEmptyObject(t))||!w.isEmptyObject(d)){f&&1===e.nodeType&&(n.overflow=[h.overflow,h.overflowX,h.overflowY],null==(l=y&&y.display)&&(l=J.get(e,"display")),"none"===(c=w.css(e,"display"))&&(l?c=l:(fe([e],!0),l=e.style.display||l,c=w.css(e,"display"),fe([e]))),("inline"===c||"inline-block"===c&&null!=l)&&"none"===w.css(e,"float")&&(u||(p.done(function(){h.display=l}),null==l&&(c=h.display,l="none"===c?"":c)),h.display="inline-block")),n.overflow&&(h.overflow="hidden",p.always(function(){h.overflow=n.overflow[0],h.overflowX=n.overflow[1],h.overflowY=n.overflow[2]})),u=!1;for(r in d)u||(y?"hidden"in y&&(g=y.hidden):y=J.access(e,"fxshow",{display:l}),o&&(y.hidden=!g),g&&fe([e],!0),p.done(function(){g||fe([e]),J.remove(e,"fxshow");for(r in d)w.style(e,r,d[r])})),u=lt(g?y[r]:0,r,p),r in y||(y[r]=u.start,g&&(u.end=u.start,u.start=0))}}function ft(e,t){var n,r,i,o,a;for(n in e)if(r=G(n),i=t[r],o=e[n],Array.isArray(o)&&(i=o[1],o=e[n]=o[0]),n!==r&&(e[r]=o,delete e[n]),(a=w.cssHooks[r])&&"expand"in a){o=a.expand(o),delete e[r];for(n in o)n in e||(e[n]=o[n],t[n]=i)}else t[r]=i}function pt(e,t,n){var r,i,o=0,a=pt.prefilters.length,s=w.Deferred().always(function(){delete u.elem}),u=function(){if(i)return!1;for(var t=nt||st(),n=Math.max(0,l.startTime+l.duration-t),r=1-(n/l.duration||0),o=0,a=l.tweens.length;o<a;o++)l.tweens[o].run(r);return s.notifyWith(e,[l,r,n]),r<1&&a?n:(a||s.notifyWith(e,[l,1,0]),s.resolveWith(e,[l]),!1)},l=s.promise({elem:e,props:w.extend({},t),opts:w.extend(!0,{specialEasing:{},easing:w.easing._default},n),originalProperties:t,originalOptions:n,startTime:nt||st(),duration:n.duration,tweens:[],createTween:function(t,n){var r=w.Tween(e,l.opts,t,n,l.opts.specialEasing[t]||l.opts.easing);return l.tweens.push(r),r},stop:function(t){var n=0,r=t?l.tweens.length:0;if(i)return this;for(i=!0;n<r;n++)l.tweens[n].run(1);return t?(s.notifyWith(e,[l,1,0]),s.resolveWith(e,[l,t])):s.rejectWith(e,[l,t]),this}}),c=l.props;for(ft(c,l.opts.specialEasing);o<a;o++)if(r=pt.prefilters[o].call(l,e,c,l.opts))return g(r.stop)&&(w._queueHooks(l.elem,l.opts.queue).stop=r.stop.bind(r)),r;return w.map(c,lt,l),g(l.opts.start)&&l.opts.start.call(e,l),l.progress(l.opts.progress).done(l.opts.done,l.opts.complete).fail(l.opts.fail).always(l.opts.always),w.fx.timer(w.extend(u,{elem:e,anim:l,queue:l.opts.queue})),l}w.Animation=w.extend(pt,{tweeners:{"*":[function(e,t){var n=this.createTween(e,t);return ue(n.elem,e,ie.exec(t),n),n}]},tweener:function(e,t){g(e)?(t=e,e=["*"]):e=e.match(M);for(var n,r=0,i=e.length;r<i;r++)n=e[r],pt.tweeners[n]=pt.tweeners[n]||[],pt.tweeners[n].unshift(t)},prefilters:[ct],prefilter:function(e,t){t?pt.prefilters.unshift(e):pt.prefilters.push(e)}}),w.speed=function(e,t,n){var r=e&&"object"==typeof e?w.extend({},e):{complete:n||!n&&t||g(e)&&e,duration:e,easing:n&&t||t&&!g(t)&&t};return w.fx.off?r.duration=0:"number"!=typeof r.duration&&(r.duration in w.fx.speeds?r.duration=w.fx.speeds[r.duration]:r.duration=w.fx.speeds._default),null!=r.queue&&!0!==r.queue||(r.queue="fx"),r.old=r.complete,r.complete=function(){g(r.old)&&r.old.call(this),r.queue&&w.dequeue(this,r.queue)},r},w.fn.extend({fadeTo:function(e,t,n,r){return this.filter(ae).css("opacity",0).show().end().animate({opacity:t},e,n,r)},animate:function(e,t,n,r){var i=w.isEmptyObject(e),o=w.speed(t,n,r),a=function(){var t=pt(this,w.extend({},e),o);(i||J.get(this,"finish"))&&t.stop(!0)};return a.finish=a,i||!1===o.queue?this.each(a):this.queue(o.queue,a)},stop:function(e,t,n){var r=function(e){var t=e.stop;delete e.stop,t(n)};return"string"!=typeof e&&(n=t,t=e,e=void 0),t&&!1!==e&&this.queue(e||"fx",[]),this.each(function(){var t=!0,i=null!=e&&e+"queueHooks",o=w.timers,a=J.get(this);if(i)a[i]&&a[i].stop&&r(a[i]);else for(i in a)a[i]&&a[i].stop&&ot.test(i)&&r(a[i]);for(i=o.length;i--;)o[i].elem!==this||null!=e&&o[i].queue!==e||(o[i].anim.stop(n),t=!1,o.splice(i,1));!t&&n||w.dequeue(this,e)})},finish:function(e){return!1!==e&&(e=e||"fx"),this.each(function(){var t,n=J.get(this),r=n[e+"queue"],i=n[e+"queueHooks"],o=w.timers,a=r?r.length:0;for(n.finish=!0,w.queue(this,e,[]),i&&i.stop&&i.stop.call(this,!0),t=o.length;t--;)o[t].elem===this&&o[t].queue===e&&(o[t].anim.stop(!0),o.splice(t,1));for(t=0;t<a;t++)r[t]&&r[t].finish&&r[t].finish.call(this);delete n.finish})}}),w.each(["toggle","show","hide"],function(e,t){var n=w.fn[t];w.fn[t]=function(e,r,i){return null==e||"boolean"==typeof e?n.apply(this,arguments):this.animate(ut(t,!0),e,r,i)}}),w.each({slideDown:ut("show"),slideUp:ut("hide"),slideToggle:ut("toggle"),fadeIn:{opacity:"show"},fadeOut:{opacity:"hide"},fadeToggle:{opacity:"toggle"}},function(e,t){w.fn[e]=function(e,n,r){return this.animate(t,e,n,r)}}),w.timers=[],w.fx.tick=function(){var e,t=0,n=w.timers;for(nt=Date.now();t<n.length;t++)(e=n[t])()||n[t]!==e||n.splice(t--,1);n.length||w.fx.stop(),nt=void 0},w.fx.timer=function(e){w.timers.push(e),w.fx.start()},w.fx.interval=13,w.fx.start=function(){rt||(rt=!0,at())},w.fx.stop=function(){rt=null},w.fx.speeds={slow:600,fast:200,_default:400},w.fn.delay=function(t,n){return t=w.fx?w.fx.speeds[t]||t:t,n=n||"fx",this.queue(n,function(n,r){var i=e.setTimeout(n,t);r.stop=function(){e.clearTimeout(i)}})},function(){var e=r.createElement("input"),t=r.createElement("select").appendChild(r.createElement("option"));e.type="checkbox",h.checkOn=""!==e.value,h.optSelected=t.selected,(e=r.createElement("input")).value="t",e.type="radio",h.radioValue="t"===e.value}();var dt,ht=w.expr.attrHandle;w.fn.extend({attr:function(e,t){return z(this,w.attr,e,t,arguments.length>1)},removeAttr:function(e){return this.each(function(){w.removeAttr(this,e)})}}),w.extend({attr:function(e,t,n){var r,i,o=e.nodeType;if(3!==o&&8!==o&&2!==o)return"undefined"==typeof e.getAttribute?w.prop(e,t,n):(1===o&&w.isXMLDoc(e)||(i=w.attrHooks[t.toLowerCase()]||(w.expr.match.bool.test(t)?dt:void 0)),void 0!==n?null===n?void w.removeAttr(e,t):i&&"set"in i&&void 0!==(r=i.set(e,n,t))?r:(e.setAttribute(t,n+""),n):i&&"get"in i&&null!==(r=i.get(e,t))?r:null==(r=w.find.attr(e,t))?void 0:r)},attrHooks:{type:{set:function(e,t){if(!h.radioValue&&"radio"===t&&N(e,"input")){var n=e.value;return e.setAttribute("type",t),n&&(e.value=n),t}}}},removeAttr:function(e,t){var n,r=0,i=t&&t.match(M);if(i&&1===e.nodeType)while(n=i[r++])e.removeAttribute(n)}}),dt={set:function(e,t,n){return!1===t?w.removeAttr(e,n):e.setAttribute(n,n),n}},w.each(w.expr.match.bool.source.match(/\w+/g),function(e,t){var n=ht[t]||w.find.attr;ht[t]=function(e,t,r){var i,o,a=t.toLowerCase();return r||(o=ht[a],ht[a]=i,i=null!=n(e,t,r)?a:null,ht[a]=o),i}});var gt=/^(?:input|select|textarea|button)$/i,yt=/^(?:a|area)$/i;w.fn.extend({prop:function(e,t){return z(this,w.prop,e,t,arguments.length>1)},removeProp:function(e){return this.each(function(){delete this[w.propFix[e]||e]})}}),w.extend({prop:function(e,t,n){var r,i,o=e.nodeType;if(3!==o&&8!==o&&2!==o)return 1===o&&w.isXMLDoc(e)||(t=w.propFix[t]||t,i=w.propHooks[t]),void 0!==n?i&&"set"in i&&void 0!==(r=i.set(e,n,t))?r:e[t]=n:i&&"get"in i&&null!==(r=i.get(e,t))?r:e[t]},propHooks:{tabIndex:{get:function(e){var t=w.find.attr(e,"tabindex");return t?parseInt(t,10):gt.test(e.nodeName)||yt.test(e.nodeName)&&e.href?0:-1}}},propFix:{"for":"htmlFor","class":"className"}}),h.optSelected||(w.propHooks.selected={get:function(e){var t=e.parentNode;return t&&t.parentNode&&t.parentNode.selectedIndex,null},set:function(e){var t=e.parentNode;t&&(t.selectedIndex,t.parentNode&&t.parentNode.selectedIndex)}}),w.each(["tabIndex","readOnly","maxLength","cellSpacing","cellPadding","rowSpan","colSpan","useMap","frameBorder","contentEditable"],function(){w.propFix[this.toLowerCase()]=this});function vt(e){return(e.match(M)||[]).join(" ")}function mt(e){return e.getAttribute&&e.getAttribute("class")||""}function xt(e){return Array.isArray(e)?e:"string"==typeof e?e.match(M)||[]:[]}w.fn.extend({addClass:function(e){var t,n,r,i,o,a,s,u=0;if(g(e))return this.each(function(t){w(this).addClass(e.call(this,t,mt(this)))});if((t=xt(e)).length)while(n=this[u++])if(i=mt(n),r=1===n.nodeType&&" "+vt(i)+" "){a=0;while(o=t[a++])r.indexOf(" "+o+" ")<0&&(r+=o+" ");i!==(s=vt(r))&&n.setAttribute("class",s)}return this},removeClass:function(e){var t,n,r,i,o,a,s,u=0;if(g(e))return this.each(function(t){w(this).removeClass(e.call(this,t,mt(this)))});if(!arguments.length)return this.attr("class","");if((t=xt(e)).length)while(n=this[u++])if(i=mt(n),r=1===n.nodeType&&" "+vt(i)+" "){a=0;while(o=t[a++])while(r.indexOf(" "+o+" ")>-1)r=r.replace(" "+o+" "," ");i!==(s=vt(r))&&n.setAttribute("class",s)}return this},toggleClass:function(e,t){var n=typeof e,r="string"===n||Array.isArray(e);return"boolean"==typeof t&&r?t?this.addClass(e):this.removeClass(e):g(e)?this.each(function(n){w(this).toggleClass(e.call(this,n,mt(this),t),t)}):this.each(function(){var t,i,o,a;if(r){i=0,o=w(this),a=xt(e);while(t=a[i++])o.hasClass(t)?o.removeClass(t):o.addClass(t)}else void 0!==e&&"boolean"!==n||((t=mt(this))&&J.set(this,"__className__",t),this.setAttribute&&this.setAttribute("class",t||!1===e?"":J.get(this,"__className__")||""))})},hasClass:function(e){var t,n,r=0;t=" "+e+" ";while(n=this[r++])if(1===n.nodeType&&(" "+vt(mt(n))+" ").indexOf(t)>-1)return!0;return!1}});var bt=/\r/g;w.fn.extend({val:function(e){var t,n,r,i=this[0];{if(arguments.length)return r=g(e),this.each(function(n){var i;1===this.nodeType&&(null==(i=r?e.call(this,n,w(this).val()):e)?i="":"number"==typeof i?i+="":Array.isArray(i)&&(i=w.map(i,function(e){return null==e?"":e+""})),(t=w.valHooks[this.type]||w.valHooks[this.nodeName.toLowerCase()])&&"set"in t&&void 0!==t.set(this,i,"value")||(this.value=i))});if(i)return(t=w.valHooks[i.type]||w.valHooks[i.nodeName.toLowerCase()])&&"get"in t&&void 0!==(n=t.get(i,"value"))?n:"string"==typeof(n=i.value)?n.replace(bt,""):null==n?"":n}}}),w.extend({valHooks:{option:{get:function(e){var t=w.find.attr(e,"value");return null!=t?t:vt(w.text(e))}},select:{get:function(e){var t,n,r,i=e.options,o=e.selectedIndex,a="select-one"===e.type,s=a?null:[],u=a?o+1:i.length;for(r=o<0?u:a?o:0;r<u;r++)if(((n=i[r]).selected||r===o)&&!n.disabled&&(!n.parentNode.disabled||!N(n.parentNode,"optgroup"))){if(t=w(n).val(),a)return t;s.push(t)}return s},set:function(e,t){var n,r,i=e.options,o=w.makeArray(t),a=i.length;while(a--)((r=i[a]).selected=w.inArray(w.valHooks.option.get(r),o)>-1)&&(n=!0);return n||(e.selectedIndex=-1),o}}}}),w.each(["radio","checkbox"],function(){w.valHooks[this]={set:function(e,t){if(Array.isArray(t))return e.checked=w.inArray(w(e).val(),t)>-1}},h.checkOn||(w.valHooks[this].get=function(e){return null===e.getAttribute("value")?"on":e.value})}),h.focusin="onfocusin"in e;var wt=/^(?:focusinfocus|focusoutblur)$/,Tt=function(e){e.stopPropagation()};w.extend(w.event,{trigger:function(t,n,i,o){var a,s,u,l,c,p,d,h,v=[i||r],m=f.call(t,"type")?t.type:t,x=f.call(t,"namespace")?t.namespace.split("."):[];if(s=h=u=i=i||r,3!==i.nodeType&&8!==i.nodeType&&!wt.test(m+w.event.triggered)&&(m.indexOf(".")>-1&&(m=(x=m.split(".")).shift(),x.sort()),c=m.indexOf(":")<0&&"on"+m,t=t[w.expando]?t:new w.Event(m,"object"==typeof t&&t),t.isTrigger=o?2:3,t.namespace=x.join("."),t.rnamespace=t.namespace?new RegExp("(^|\\.)"+x.join("\\.(?:.*\\.|)")+"(\\.|$)"):null,t.result=void 0,t.target||(t.target=i),n=null==n?[t]:w.makeArray(n,[t]),d=w.event.special[m]||{},o||!d.trigger||!1!==d.trigger.apply(i,n))){if(!o&&!d.noBubble&&!y(i)){for(l=d.delegateType||m,wt.test(l+m)||(s=s.parentNode);s;s=s.parentNode)v.push(s),u=s;u===(i.ownerDocument||r)&&v.push(u.defaultView||u.parentWindow||e)}a=0;while((s=v[a++])&&!t.isPropagationStopped())h=s,t.type=a>1?l:d.bindType||m,(p=(J.get(s,"events")||{})[t.type]&&J.get(s,"handle"))&&p.apply(s,n),(p=c&&s[c])&&p.apply&&Y(s)&&(t.result=p.apply(s,n),!1===t.result&&t.preventDefault());return t.type=m,o||t.isDefaultPrevented()||d._default&&!1!==d._default.apply(v.pop(),n)||!Y(i)||c&&g(i[m])&&!y(i)&&((u=i[c])&&(i[c]=null),w.event.triggered=m,t.isPropagationStopped()&&h.addEventListener(m,Tt),i[m](),t.isPropagationStopped()&&h.removeEventListener(m,Tt),w.event.triggered=void 0,u&&(i[c]=u)),t.result}},simulate:function(e,t,n){var r=w.extend(new w.Event,n,{type:e,isSimulated:!0});w.event.trigger(r,null,t)}}),w.fn.extend({trigger:function(e,t){return this.each(function(){w.event.trigger(e,t,this)})},triggerHandler:function(e,t){var n=this[0];if(n)return w.event.trigger(e,t,n,!0)}}),h.focusin||w.each({focus:"focusin",blur:"focusout"},function(e,t){var n=function(e){w.event.simulate(t,e.target,w.event.fix(e))};w.event.special[t]={setup:function(){var r=this.ownerDocument||this,i=J.access(r,t);i||r.addEventListener(e,n,!0),J.access(r,t,(i||0)+1)},teardown:function(){var r=this.ownerDocument||this,i=J.access(r,t)-1;i?J.access(r,t,i):(r.removeEventListener(e,n,!0),J.remove(r,t))}}});var Ct=e.location,Et=Date.now(),kt=/\?/;w.parseXML=function(t){var n;if(!t||"string"!=typeof t)return null;try{n=(new e.DOMParser).parseFromString(t,"text/xml")}catch(e){n=void 0}return n&&!n.getElementsByTagName("parsererror").length||w.error("Invalid XML: "+t),n};var St=/\[\]$/,Dt=/\r?\n/g,Nt=/^(?:submit|button|image|reset|file)$/i,At=/^(?:input|select|textarea|keygen)/i;function jt(e,t,n,r){var i;if(Array.isArray(t))w.each(t,function(t,i){n||St.test(e)?r(e,i):jt(e+"["+("object"==typeof i&&null!=i?t:"")+"]",i,n,r)});else if(n||"object"!==x(t))r(e,t);else for(i in t)jt(e+"["+i+"]",t[i],n,r)}w.param=function(e,t){var n,r=[],i=function(e,t){var n=g(t)?t():t;r[r.length]=encodeURIComponent(e)+"="+encodeURIComponent(null==n?"":n)};if(Array.isArray(e)||e.jquery&&!w.isPlainObject(e))w.each(e,function(){i(this.name,this.value)});else for(n in e)jt(n,e[n],t,i);return r.join("&")},w.fn.extend({serialize:function(){return w.param(this.serializeArray())},serializeArray:function(){return this.map(function(){var e=w.prop(this,"elements");return e?w.makeArray(e):this}).filter(function(){var e=this.type;return this.name&&!w(this).is(":disabled")&&At.test(this.nodeName)&&!Nt.test(e)&&(this.checked||!pe.test(e))}).map(function(e,t){var n=w(this).val();return null==n?null:Array.isArray(n)?w.map(n,function(e){return{name:t.name,value:e.replace(Dt,"\r\n")}}):{name:t.name,value:n.replace(Dt,"\r\n")}}).get()}});var qt=/%20/g,Lt=/#.*$/,Ht=/([?&])_=[^&]*/,Ot=/^(.*?):[ \t]*([^\r\n]*)$/gm,Pt=/^(?:about|app|app-storage|.+-extension|file|res|widget):$/,Mt=/^(?:GET|HEAD)$/,Rt=/^\/\//,It={},Wt={},$t="*/".concat("*"),Bt=r.createElement("a");Bt.href=Ct.href;function Ft(e){return function(t,n){"string"!=typeof t&&(n=t,t="*");var r,i=0,o=t.toLowerCase().match(M)||[];if(g(n))while(r=o[i++])"+"===r[0]?(r=r.slice(1)||"*",(e[r]=e[r]||[]).unshift(n)):(e[r]=e[r]||[]).push(n)}}function _t(e,t,n,r){var i={},o=e===Wt;function a(s){var u;return i[s]=!0,w.each(e[s]||[],function(e,s){var l=s(t,n,r);return"string"!=typeof l||o||i[l]?o?!(u=l):void 0:(t.dataTypes.unshift(l),a(l),!1)}),u}return a(t.dataTypes[0])||!i["*"]&&a("*")}function zt(e,t){var n,r,i=w.ajaxSettings.flatOptions||{};for(n in t)void 0!==t[n]&&((i[n]?e:r||(r={}))[n]=t[n]);return r&&w.extend(!0,e,r),e}function Xt(e,t,n){var r,i,o,a,s=e.contents,u=e.dataTypes;while("*"===u[0])u.shift(),void 0===r&&(r=e.mimeType||t.getResponseHeader("Content-Type"));if(r)for(i in s)if(s[i]&&s[i].test(r)){u.unshift(i);break}if(u[0]in n)o=u[0];else{for(i in n){if(!u[0]||e.converters[i+" "+u[0]]){o=i;break}a||(a=i)}o=o||a}if(o)return o!==u[0]&&u.unshift(o),n[o]}function Ut(e,t,n,r){var i,o,a,s,u,l={},c=e.dataTypes.slice();if(c[1])for(a in e.converters)l[a.toLowerCase()]=e.converters[a];o=c.shift();while(o)if(e.responseFields[o]&&(n[e.responseFields[o]]=t),!u&&r&&e.dataFilter&&(t=e.dataFilter(t,e.dataType)),u=o,o=c.shift())if("*"===o)o=u;else if("*"!==u&&u!==o){if(!(a=l[u+" "+o]||l["* "+o]))for(i in l)if((s=i.split(" "))[1]===o&&(a=l[u+" "+s[0]]||l["* "+s[0]])){!0===a?a=l[i]:!0!==l[i]&&(o=s[0],c.unshift(s[1]));break}if(!0!==a)if(a&&e["throws"])t=a(t);else try{t=a(t)}catch(e){return{state:"parsererror",error:a?e:"No conversion from "+u+" to "+o}}}return{state:"success",data:t}}w.extend({active:0,lastModified:{},etag:{},ajaxSettings:{url:Ct.href,type:"GET",isLocal:Pt.test(Ct.protocol),global:!0,processData:!0,async:!0,contentType:"application/x-www-form-urlencoded; charset=UTF-8",accepts:{"*":$t,text:"text/plain",html:"text/html",xml:"application/xml, text/xml",json:"application/json, text/javascript"},contents:{xml:/\bxml\b/,html:/\bhtml/,json:/\bjson\b/},responseFields:{xml:"responseXML",text:"responseText",json:"responseJSON"},converters:{"* text":String,"text html":!0,"text json":JSON.parse,"text xml":w.parseXML},flatOptions:{url:!0,context:!0}},ajaxSetup:function(e,t){return t?zt(zt(e,w.ajaxSettings),t):zt(w.ajaxSettings,e)},ajaxPrefilter:Ft(It),ajaxTransport:Ft(Wt),ajax:function(t,n){"object"==typeof t&&(n=t,t=void 0),n=n||{};var i,o,a,s,u,l,c,f,p,d,h=w.ajaxSetup({},n),g=h.context||h,y=h.context&&(g.nodeType||g.jquery)?w(g):w.event,v=w.Deferred(),m=w.Callbacks("once memory"),x=h.statusCode||{},b={},T={},C="canceled",E={readyState:0,getResponseHeader:function(e){var t;if(c){if(!s){s={};while(t=Ot.exec(a))s[t[1].toLowerCase()]=t[2]}t=s[e.toLowerCase()]}return null==t?null:t},getAllResponseHeaders:function(){return c?a:null},setRequestHeader:function(e,t){return null==c&&(e=T[e.toLowerCase()]=T[e.toLowerCase()]||e,b[e]=t),this},overrideMimeType:function(e){return null==c&&(h.mimeType=e),this},statusCode:function(e){var t;if(e)if(c)E.always(e[E.status]);else for(t in e)x[t]=[x[t],e[t]];return this},abort:function(e){var t=e||C;return i&&i.abort(t),k(0,t),this}};if(v.promise(E),h.url=((t||h.url||Ct.href)+"").replace(Rt,Ct.protocol+"//"),h.type=n.method||n.type||h.method||h.type,h.dataTypes=(h.dataType||"*").toLowerCase().match(M)||[""],null==h.crossDomain){l=r.createElement("a");try{l.href=h.url,l.href=l.href,h.crossDomain=Bt.protocol+"//"+Bt.host!=l.protocol+"//"+l.host}catch(e){h.crossDomain=!0}}if(h.data&&h.processData&&"string"!=typeof h.data&&(h.data=w.param(h.data,h.traditional)),_t(It,h,n,E),c)return E;(f=w.event&&h.global)&&0==w.active++&&w.event.trigger("ajaxStart"),h.type=h.type.toUpperCase(),h.hasContent=!Mt.test(h.type),o=h.url.replace(Lt,""),h.hasContent?h.data&&h.processData&&0===(h.contentType||"").indexOf("application/x-www-form-urlencoded")&&(h.data=h.data.replace(qt,"+")):(d=h.url.slice(o.length),h.data&&(h.processData||"string"==typeof h.data)&&(o+=(kt.test(o)?"&":"?")+h.data,delete h.data),!1===h.cache&&(o=o.replace(Ht,"$1"),d=(kt.test(o)?"&":"?")+"_="+Et+++d),h.url=o+d),h.ifModified&&(w.lastModified[o]&&E.setRequestHeader("If-Modified-Since",w.lastModified[o]),w.etag[o]&&E.setRequestHeader("If-None-Match",w.etag[o])),(h.data&&h.hasContent&&!1!==h.contentType||n.contentType)&&E.setRequestHeader("Content-Type",h.contentType),E.setRequestHeader("Accept",h.dataTypes[0]&&h.accepts[h.dataTypes[0]]?h.accepts[h.dataTypes[0]]+("*"!==h.dataTypes[0]?", "+$t+"; q=0.01":""):h.accepts["*"]);for(p in h.headers)E.setRequestHeader(p,h.headers[p]);if(h.beforeSend&&(!1===h.beforeSend.call(g,E,h)||c))return E.abort();if(C="abort",m.add(h.complete),E.done(h.success),E.fail(h.error),i=_t(Wt,h,n,E)){if(E.readyState=1,f&&y.trigger("ajaxSend",[E,h]),c)return E;h.async&&h.timeout>0&&(u=e.setTimeout(function(){E.abort("timeout")},h.timeout));try{c=!1,i.send(b,k)}catch(e){if(c)throw e;k(-1,e)}}else k(-1,"No Transport");function k(t,n,r,s){var l,p,d,b,T,C=n;c||(c=!0,u&&e.clearTimeout(u),i=void 0,a=s||"",E.readyState=t>0?4:0,l=t>=200&&t<300||304===t,r&&(b=Xt(h,E,r)),b=Ut(h,b,E,l),l?(h.ifModified&&((T=E.getResponseHeader("Last-Modified"))&&(w.lastModified[o]=T),(T=E.getResponseHeader("etag"))&&(w.etag[o]=T)),204===t||"HEAD"===h.type?C="nocontent":304===t?C="notmodified":(C=b.state,p=b.data,l=!(d=b.error))):(d=C,!t&&C||(C="error",t<0&&(t=0))),E.status=t,E.statusText=(n||C)+"",l?v.resolveWith(g,[p,C,E]):v.rejectWith(g,[E,C,d]),E.statusCode(x),x=void 0,f&&y.trigger(l?"ajaxSuccess":"ajaxError",[E,h,l?p:d]),m.fireWith(g,[E,C]),f&&(y.trigger("ajaxComplete",[E,h]),--w.active||w.event.trigger("ajaxStop")))}return E},getJSON:function(e,t,n){return w.get(e,t,n,"json")},getScript:function(e,t){return w.get(e,void 0,t,"script")}}),w.each(["get","post"],function(e,t){w[t]=function(e,n,r,i){return g(n)&&(i=i||r,r=n,n=void 0),w.ajax(w.extend({url:e,type:t,dataType:i,data:n,success:r},w.isPlainObject(e)&&e))}}),w._evalUrl=function(e){return w.ajax({url:e,type:"GET",dataType:"script",cache:!0,async:!1,global:!1,"throws":!0})},w.fn.extend({wrapAll:function(e){var t;return this[0]&&(g(e)&&(e=e.call(this[0])),t=w(e,this[0].ownerDocument).eq(0).clone(!0),this[0].parentNode&&t.insertBefore(this[0]),t.map(function(){var e=this;while(e.firstElementChild)e=e.firstElementChild;return e}).append(this)),this},wrapInner:function(e){return g(e)?this.each(function(t){w(this).wrapInner(e.call(this,t))}):this.each(function(){var t=w(this),n=t.contents();n.length?n.wrapAll(e):t.append(e)})},wrap:function(e){var t=g(e);return this.each(function(n){w(this).wrapAll(t?e.call(this,n):e)})},unwrap:function(e){return this.parent(e).not("body").each(function(){w(this).replaceWith(this.childNodes)}),this}}),w.expr.pseudos.hidden=function(e){return!w.expr.pseudos.visible(e)},w.expr.pseudos.visible=function(e){return!!(e.offsetWidth||e.offsetHeight||e.getClientRects().length)},w.ajaxSettings.xhr=function(){try{return new e.XMLHttpRequest}catch(e){}};var Vt={0:200,1223:204},Gt=w.ajaxSettings.xhr();h.cors=!!Gt&&"withCredentials"in Gt,h.ajax=Gt=!!Gt,w.ajaxTransport(function(t){var n,r;if(h.cors||Gt&&!t.crossDomain)return{send:function(i,o){var a,s=t.xhr();if(s.open(t.type,t.url,t.async,t.username,t.password),t.xhrFields)for(a in t.xhrFields)s[a]=t.xhrFields[a];t.mimeType&&s.overrideMimeType&&s.overrideMimeType(t.mimeType),t.crossDomain||i["X-Requested-With"]||(i["X-Requested-With"]="XMLHttpRequest");for(a in i)s.setRequestHeader(a,i[a]);n=function(e){return function(){n&&(n=r=s.onload=s.onerror=s.onabort=s.ontimeout=s.onreadystatechange=null,"abort"===e?s.abort():"error"===e?"number"!=typeof s.status?o(0,"error"):o(s.status,s.statusText):o(Vt[s.status]||s.status,s.statusText,"text"!==(s.responseType||"text")||"string"!=typeof s.responseText?{binary:s.response}:{text:s.responseText},s.getAllResponseHeaders()))}},s.onload=n(),r=s.onerror=s.ontimeout=n("error"),void 0!==s.onabort?s.onabort=r:s.onreadystatechange=function(){4===s.readyState&&e.setTimeout(function(){n&&r()})},n=n("abort");try{s.send(t.hasContent&&t.data||null)}catch(e){if(n)throw e}},abort:function(){n&&n()}}}),w.ajaxPrefilter(function(e){e.crossDomain&&(e.contents.script=!1)}),w.ajaxSetup({accepts:{script:"text/javascript, application/javascript, application/ecmascript, application/x-ecmascript"},contents:{script:/\b(?:java|ecma)script\b/},converters:{"text script":function(e){return w.globalEval(e),e}}}),w.ajaxPrefilter("script",function(e){void 0===e.cache&&(e.cache=!1),e.crossDomain&&(e.type="GET")}),w.ajaxTransport("script",function(e){if(e.crossDomain){var t,n;return{send:function(i,o){t=w("<script>").prop({charset:e.scriptCharset,src:e.url}).on("load error",n=function(e){t.remove(),n=null,e&&o("error"===e.type?404:200,e.type)}),r.head.appendChild(t[0])},abort:function(){n&&n()}}}});var Yt=[],Qt=/(=)\?(?=&|$)|\?\?/;w.ajaxSetup({jsonp:"callback",jsonpCallback:function(){var e=Yt.pop()||w.expando+"_"+Et++;return this[e]=!0,e}}),w.ajaxPrefilter("json jsonp",function(t,n,r){var i,o,a,s=!1!==t.jsonp&&(Qt.test(t.url)?"url":"string"==typeof t.data&&0===(t.contentType||"").indexOf("application/x-www-form-urlencoded")&&Qt.test(t.data)&&"data");if(s||"jsonp"===t.dataTypes[0])return i=t.jsonpCallback=g(t.jsonpCallback)?t.jsonpCallback():t.jsonpCallback,s?t[s]=t[s].replace(Qt,"$1"+i):!1!==t.jsonp&&(t.url+=(kt.test(t.url)?"&":"?")+t.jsonp+"="+i),t.converters["script json"]=function(){return a||w.error(i+" was not called"),a[0]},t.dataTypes[0]="json",o=e[i],e[i]=function(){a=arguments},r.always(function(){void 0===o?w(e).removeProp(i):e[i]=o,t[i]&&(t.jsonpCallback=n.jsonpCallback,Yt.push(i)),a&&g(o)&&o(a[0]),a=o=void 0}),"script"}),h.createHTMLDocument=function(){var e=r.implementation.createHTMLDocument("").body;return e.innerHTML="<form></form><form></form>",2===e.childNodes.length}(),w.parseHTML=function(e,t,n){if("string"!=typeof e)return[];"boolean"==typeof t&&(n=t,t=!1);var i,o,a;return t||(h.createHTMLDocument?((i=(t=r.implementation.createHTMLDocument("")).createElement("base")).href=r.location.href,t.head.appendChild(i)):t=r),o=A.exec(e),a=!n&&[],o?[t.createElement(o[1])]:(o=xe([e],t,a),a&&a.length&&w(a).remove(),w.merge([],o.childNodes))},w.fn.load=function(e,t,n){var r,i,o,a=this,s=e.indexOf(" ");return s>-1&&(r=vt(e.slice(s)),e=e.slice(0,s)),g(t)?(n=t,t=void 0):t&&"object"==typeof t&&(i="POST"),a.length>0&&w.ajax({url:e,type:i||"GET",dataType:"html",data:t}).done(function(e){o=arguments,a.html(r?w("<div>").append(w.parseHTML(e)).find(r):e)}).always(n&&function(e,t){a.each(function(){n.apply(this,o||[e.responseText,t,e])})}),this},w.each(["ajaxStart","ajaxStop","ajaxComplete","ajaxError","ajaxSuccess","ajaxSend"],function(e,t){w.fn[t]=function(e){return this.on(t,e)}}),w.expr.pseudos.animated=function(e){return w.grep(w.timers,function(t){return e===t.elem}).length},w.offset={setOffset:function(e,t,n){var r,i,o,a,s,u,l,c=w.css(e,"position"),f=w(e),p={};"static"===c&&(e.style.position="relative"),s=f.offset(),o=w.css(e,"top"),u=w.css(e,"left"),(l=("absolute"===c||"fixed"===c)&&(o+u).indexOf("auto")>-1)?(a=(r=f.position()).top,i=r.left):(a=parseFloat(o)||0,i=parseFloat(u)||0),g(t)&&(t=t.call(e,n,w.extend({},s))),null!=t.top&&(p.top=t.top-s.top+a),null!=t.left&&(p.left=t.left-s.left+i),"using"in t?t.using.call(e,p):f.css(p)}},w.fn.extend({offset:function(e){if(arguments.length)return void 0===e?this:this.each(function(t){w.offset.setOffset(this,e,t)});var t,n,r=this[0];if(r)return r.getClientRects().length?(t=r.getBoundingClientRect(),n=r.ownerDocument.defaultView,{top:t.top+n.pageYOffset,left:t.left+n.pageXOffset}):{top:0,left:0}},position:function(){if(this[0]){var e,t,n,r=this[0],i={top:0,left:0};if("fixed"===w.css(r,"position"))t=r.getBoundingClientRect();else{t=this.offset(),n=r.ownerDocument,e=r.offsetParent||n.documentElement;while(e&&(e===n.body||e===n.documentElement)&&"static"===w.css(e,"position"))e=e.parentNode;e&&e!==r&&1===e.nodeType&&((i=w(e).offset()).top+=w.css(e,"borderTopWidth",!0),i.left+=w.css(e,"borderLeftWidth",!0))}return{top:t.top-i.top-w.css(r,"marginTop",!0),left:t.left-i.left-w.css(r,"marginLeft",!0)}}},offsetParent:function(){return this.map(function(){var e=this.offsetParent;while(e&&"static"===w.css(e,"position"))e=e.offsetParent;return e||be})}}),w.each({scrollLeft:"pageXOffset",scrollTop:"pageYOffset"},function(e,t){var n="pageYOffset"===t;w.fn[e]=function(r){return z(this,function(e,r,i){var o;if(y(e)?o=e:9===e.nodeType&&(o=e.defaultView),void 0===i)return o?o[t]:e[r];o?o.scrollTo(n?o.pageXOffset:i,n?i:o.pageYOffset):e[r]=i},e,r,arguments.length)}}),w.each(["top","left"],function(e,t){w.cssHooks[t]=_e(h.pixelPosition,function(e,n){if(n)return n=Fe(e,t),We.test(n)?w(e).position()[t]+"px":n})}),w.each({Height:"height",Width:"width"},function(e,t){w.each({padding:"inner"+e,content:t,"":"outer"+e},function(n,r){w.fn[r]=function(i,o){var a=arguments.length&&(n||"boolean"!=typeof i),s=n||(!0===i||!0===o?"margin":"border");return z(this,function(t,n,i){var o;return y(t)?0===r.indexOf("outer")?t["inner"+e]:t.document.documentElement["client"+e]:9===t.nodeType?(o=t.documentElement,Math.max(t.body["scroll"+e],o["scroll"+e],t.body["offset"+e],o["offset"+e],o["client"+e])):void 0===i?w.css(t,n,s):w.style(t,n,i,s)},t,a?i:void 0,a)}})}),w.each("blur focus focusin focusout resize scroll click dblclick mousedown mouseup mousemove mouseover mouseout mouseenter mouseleave change select submit keydown keypress keyup contextmenu".split(" "),function(e,t){w.fn[t]=function(e,n){return arguments.length>0?this.on(t,null,e,n):this.trigger(t)}}),w.fn.extend({hover:function(e,t){return this.mouseenter(e).mouseleave(t||e)}}),w.fn.extend({bind:function(e,t,n){return this.on(e,null,t,n)},unbind:function(e,t){return this.off(e,null,t)},delegate:function(e,t,n,r){return this.on(t,e,n,r)},undelegate:function(e,t,n){return 1===arguments.length?this.off(e,"**"):this.off(t,e||"**",n)}}),w.proxy=function(e,t){var n,r,i;if("string"==typeof t&&(n=e[t],t=e,e=n),g(e))return r=o.call(arguments,2),i=function(){return e.apply(t||this,r.concat(o.call(arguments)))},i.guid=e.guid=e.guid||w.guid++,i},w.holdReady=function(e){e?w.readyWait++:w.ready(!0)},w.isArray=Array.isArray,w.parseJSON=JSON.parse,w.nodeName=N,w.isFunction=g,w.isWindow=y,w.camelCase=G,w.type=x,w.now=Date.now,w.isNumeric=function(e){var t=w.type(e);return("number"===t||"string"===t)&&!isNaN(e-parseFloat(e))},"function"==typeof define&&define.amd&&define("jquery",[],function(){return w});var Jt=e.jQuery,Kt=e.$;return w.noConflict=function(t){return e.$===w&&(e.$=Kt),t&&e.jQuery===w&&(e.jQuery=Jt),w},t||(e.jQuery=e.$=w),w});
+
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
@@ -38937,200 +39040,6 @@ Wick.Tools.Pan = class extends Wick.Tool {
 
   onMouseUp(e) {
     this.fireEvent('canvasViewTransformed');
-  }
-
-};
-/*! jQuery v3.3.1 | (c) JS Foundation and other contributors | jquery.org/license */
-!function(e,t){"use strict";"object"==typeof module&&"object"==typeof module.exports?module.exports=e.document?t(e,!0):function(e){if(!e.document)throw new Error("jQuery requires a window with a document");return t(e)}:t(e)}("undefined"!=typeof window?window:this,function(e,t){"use strict";var n=[],r=e.document,i=Object.getPrototypeOf,o=n.slice,a=n.concat,s=n.push,u=n.indexOf,l={},c=l.toString,f=l.hasOwnProperty,p=f.toString,d=p.call(Object),h={},g=function e(t){return"function"==typeof t&&"number"!=typeof t.nodeType},y=function e(t){return null!=t&&t===t.window},v={type:!0,src:!0,noModule:!0};function m(e,t,n){var i,o=(t=t||r).createElement("script");if(o.text=e,n)for(i in v)n[i]&&(o[i]=n[i]);t.head.appendChild(o).parentNode.removeChild(o)}function x(e){return null==e?e+"":"object"==typeof e||"function"==typeof e?l[c.call(e)]||"object":typeof e}var b="3.3.1",w=function(e,t){return new w.fn.init(e,t)},T=/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g;w.fn=w.prototype={jquery:"3.3.1",constructor:w,length:0,toArray:function(){return o.call(this)},get:function(e){return null==e?o.call(this):e<0?this[e+this.length]:this[e]},pushStack:function(e){var t=w.merge(this.constructor(),e);return t.prevObject=this,t},each:function(e){return w.each(this,e)},map:function(e){return this.pushStack(w.map(this,function(t,n){return e.call(t,n,t)}))},slice:function(){return this.pushStack(o.apply(this,arguments))},first:function(){return this.eq(0)},last:function(){return this.eq(-1)},eq:function(e){var t=this.length,n=+e+(e<0?t:0);return this.pushStack(n>=0&&n<t?[this[n]]:[])},end:function(){return this.prevObject||this.constructor()},push:s,sort:n.sort,splice:n.splice},w.extend=w.fn.extend=function(){var e,t,n,r,i,o,a=arguments[0]||{},s=1,u=arguments.length,l=!1;for("boolean"==typeof a&&(l=a,a=arguments[s]||{},s++),"object"==typeof a||g(a)||(a={}),s===u&&(a=this,s--);s<u;s++)if(null!=(e=arguments[s]))for(t in e)n=a[t],a!==(r=e[t])&&(l&&r&&(w.isPlainObject(r)||(i=Array.isArray(r)))?(i?(i=!1,o=n&&Array.isArray(n)?n:[]):o=n&&w.isPlainObject(n)?n:{},a[t]=w.extend(l,o,r)):void 0!==r&&(a[t]=r));return a},w.extend({expando:"jQuery"+("3.3.1"+Math.random()).replace(/\D/g,""),isReady:!0,error:function(e){throw new Error(e)},noop:function(){},isPlainObject:function(e){var t,n;return!(!e||"[object Object]"!==c.call(e))&&(!(t=i(e))||"function"==typeof(n=f.call(t,"constructor")&&t.constructor)&&p.call(n)===d)},isEmptyObject:function(e){var t;for(t in e)return!1;return!0},globalEval:function(e){m(e)},each:function(e,t){var n,r=0;if(C(e)){for(n=e.length;r<n;r++)if(!1===t.call(e[r],r,e[r]))break}else for(r in e)if(!1===t.call(e[r],r,e[r]))break;return e},trim:function(e){return null==e?"":(e+"").replace(T,"")},makeArray:function(e,t){var n=t||[];return null!=e&&(C(Object(e))?w.merge(n,"string"==typeof e?[e]:e):s.call(n,e)),n},inArray:function(e,t,n){return null==t?-1:u.call(t,e,n)},merge:function(e,t){for(var n=+t.length,r=0,i=e.length;r<n;r++)e[i++]=t[r];return e.length=i,e},grep:function(e,t,n){for(var r,i=[],o=0,a=e.length,s=!n;o<a;o++)(r=!t(e[o],o))!==s&&i.push(e[o]);return i},map:function(e,t,n){var r,i,o=0,s=[];if(C(e))for(r=e.length;o<r;o++)null!=(i=t(e[o],o,n))&&s.push(i);else for(o in e)null!=(i=t(e[o],o,n))&&s.push(i);return a.apply([],s)},guid:1,support:h}),"function"==typeof Symbol&&(w.fn[Symbol.iterator]=n[Symbol.iterator]),w.each("Boolean Number String Function Array Date RegExp Object Error Symbol".split(" "),function(e,t){l["[object "+t+"]"]=t.toLowerCase()});function C(e){var t=!!e&&"length"in e&&e.length,n=x(e);return!g(e)&&!y(e)&&("array"===n||0===t||"number"==typeof t&&t>0&&t-1 in e)}var E=function(e){var t,n,r,i,o,a,s,u,l,c,f,p,d,h,g,y,v,m,x,b="sizzle"+1*new Date,w=e.document,T=0,C=0,E=ae(),k=ae(),S=ae(),D=function(e,t){return e===t&&(f=!0),0},N={}.hasOwnProperty,A=[],j=A.pop,q=A.push,L=A.push,H=A.slice,O=function(e,t){for(var n=0,r=e.length;n<r;n++)if(e[n]===t)return n;return-1},P="checked|selected|async|autofocus|autoplay|controls|defer|disabled|hidden|ismap|loop|multiple|open|readonly|required|scoped",M="[\\x20\\t\\r\\n\\f]",R="(?:\\\\.|[\\w-]|[^\0-\\xa0])+",I="\\["+M+"*("+R+")(?:"+M+"*([*^$|!~]?=)"+M+"*(?:'((?:\\\\.|[^\\\\'])*)'|\"((?:\\\\.|[^\\\\\"])*)\"|("+R+"))|)"+M+"*\\]",W=":("+R+")(?:\\((('((?:\\\\.|[^\\\\'])*)'|\"((?:\\\\.|[^\\\\\"])*)\")|((?:\\\\.|[^\\\\()[\\]]|"+I+")*)|.*)\\)|)",$=new RegExp(M+"+","g"),B=new RegExp("^"+M+"+|((?:^|[^\\\\])(?:\\\\.)*)"+M+"+$","g"),F=new RegExp("^"+M+"*,"+M+"*"),_=new RegExp("^"+M+"*([>+~]|"+M+")"+M+"*"),z=new RegExp("="+M+"*([^\\]'\"]*?)"+M+"*\\]","g"),X=new RegExp(W),U=new RegExp("^"+R+"$"),V={ID:new RegExp("^#("+R+")"),CLASS:new RegExp("^\\.("+R+")"),TAG:new RegExp("^("+R+"|[*])"),ATTR:new RegExp("^"+I),PSEUDO:new RegExp("^"+W),CHILD:new RegExp("^:(only|first|last|nth|nth-last)-(child|of-type)(?:\\("+M+"*(even|odd|(([+-]|)(\\d*)n|)"+M+"*(?:([+-]|)"+M+"*(\\d+)|))"+M+"*\\)|)","i"),bool:new RegExp("^(?:"+P+")$","i"),needsContext:new RegExp("^"+M+"*[>+~]|:(even|odd|eq|gt|lt|nth|first|last)(?:\\("+M+"*((?:-\\d)?\\d*)"+M+"*\\)|)(?=[^-]|$)","i")},G=/^(?:input|select|textarea|button)$/i,Y=/^h\d$/i,Q=/^[^{]+\{\s*\[native \w/,J=/^(?:#([\w-]+)|(\w+)|\.([\w-]+))$/,K=/[+~]/,Z=new RegExp("\\\\([\\da-f]{1,6}"+M+"?|("+M+")|.)","ig"),ee=function(e,t,n){var r="0x"+t-65536;return r!==r||n?t:r<0?String.fromCharCode(r+65536):String.fromCharCode(r>>10|55296,1023&r|56320)},te=/([\0-\x1f\x7f]|^-?\d)|^-$|[^\0-\x1f\x7f-\uFFFF\w-]/g,ne=function(e,t){return t?"\0"===e?"\ufffd":e.slice(0,-1)+"\\"+e.charCodeAt(e.length-1).toString(16)+" ":"\\"+e},re=function(){p()},ie=me(function(e){return!0===e.disabled&&("form"in e||"label"in e)},{dir:"parentNode",next:"legend"});try{L.apply(A=H.call(w.childNodes),w.childNodes),A[w.childNodes.length].nodeType}catch(e){L={apply:A.length?function(e,t){q.apply(e,H.call(t))}:function(e,t){var n=e.length,r=0;while(e[n++]=t[r++]);e.length=n-1}}}function oe(e,t,r,i){var o,s,l,c,f,h,v,m=t&&t.ownerDocument,T=t?t.nodeType:9;if(r=r||[],"string"!=typeof e||!e||1!==T&&9!==T&&11!==T)return r;if(!i&&((t?t.ownerDocument||t:w)!==d&&p(t),t=t||d,g)){if(11!==T&&(f=J.exec(e)))if(o=f[1]){if(9===T){if(!(l=t.getElementById(o)))return r;if(l.id===o)return r.push(l),r}else if(m&&(l=m.getElementById(o))&&x(t,l)&&l.id===o)return r.push(l),r}else{if(f[2])return L.apply(r,t.getElementsByTagName(e)),r;if((o=f[3])&&n.getElementsByClassName&&t.getElementsByClassName)return L.apply(r,t.getElementsByClassName(o)),r}if(n.qsa&&!S[e+" "]&&(!y||!y.test(e))){if(1!==T)m=t,v=e;else if("object"!==t.nodeName.toLowerCase()){(c=t.getAttribute("id"))?c=c.replace(te,ne):t.setAttribute("id",c=b),s=(h=a(e)).length;while(s--)h[s]="#"+c+" "+ve(h[s]);v=h.join(","),m=K.test(e)&&ge(t.parentNode)||t}if(v)try{return L.apply(r,m.querySelectorAll(v)),r}catch(e){}finally{c===b&&t.removeAttribute("id")}}}return u(e.replace(B,"$1"),t,r,i)}function ae(){var e=[];function t(n,i){return e.push(n+" ")>r.cacheLength&&delete t[e.shift()],t[n+" "]=i}return t}function se(e){return e[b]=!0,e}function ue(e){var t=d.createElement("fieldset");try{return!!e(t)}catch(e){return!1}finally{t.parentNode&&t.parentNode.removeChild(t),t=null}}function le(e,t){var n=e.split("|"),i=n.length;while(i--)r.attrHandle[n[i]]=t}function ce(e,t){var n=t&&e,r=n&&1===e.nodeType&&1===t.nodeType&&e.sourceIndex-t.sourceIndex;if(r)return r;if(n)while(n=n.nextSibling)if(n===t)return-1;return e?1:-1}function fe(e){return function(t){return"input"===t.nodeName.toLowerCase()&&t.type===e}}function pe(e){return function(t){var n=t.nodeName.toLowerCase();return("input"===n||"button"===n)&&t.type===e}}function de(e){return function(t){return"form"in t?t.parentNode&&!1===t.disabled?"label"in t?"label"in t.parentNode?t.parentNode.disabled===e:t.disabled===e:t.isDisabled===e||t.isDisabled!==!e&&ie(t)===e:t.disabled===e:"label"in t&&t.disabled===e}}function he(e){return se(function(t){return t=+t,se(function(n,r){var i,o=e([],n.length,t),a=o.length;while(a--)n[i=o[a]]&&(n[i]=!(r[i]=n[i]))})})}function ge(e){return e&&"undefined"!=typeof e.getElementsByTagName&&e}n=oe.support={},o=oe.isXML=function(e){var t=e&&(e.ownerDocument||e).documentElement;return!!t&&"HTML"!==t.nodeName},p=oe.setDocument=function(e){var t,i,a=e?e.ownerDocument||e:w;return a!==d&&9===a.nodeType&&a.documentElement?(d=a,h=d.documentElement,g=!o(d),w!==d&&(i=d.defaultView)&&i.top!==i&&(i.addEventListener?i.addEventListener("unload",re,!1):i.attachEvent&&i.attachEvent("onunload",re)),n.attributes=ue(function(e){return e.className="i",!e.getAttribute("className")}),n.getElementsByTagName=ue(function(e){return e.appendChild(d.createComment("")),!e.getElementsByTagName("*").length}),n.getElementsByClassName=Q.test(d.getElementsByClassName),n.getById=ue(function(e){return h.appendChild(e).id=b,!d.getElementsByName||!d.getElementsByName(b).length}),n.getById?(r.filter.ID=function(e){var t=e.replace(Z,ee);return function(e){return e.getAttribute("id")===t}},r.find.ID=function(e,t){if("undefined"!=typeof t.getElementById&&g){var n=t.getElementById(e);return n?[n]:[]}}):(r.filter.ID=function(e){var t=e.replace(Z,ee);return function(e){var n="undefined"!=typeof e.getAttributeNode&&e.getAttributeNode("id");return n&&n.value===t}},r.find.ID=function(e,t){if("undefined"!=typeof t.getElementById&&g){var n,r,i,o=t.getElementById(e);if(o){if((n=o.getAttributeNode("id"))&&n.value===e)return[o];i=t.getElementsByName(e),r=0;while(o=i[r++])if((n=o.getAttributeNode("id"))&&n.value===e)return[o]}return[]}}),r.find.TAG=n.getElementsByTagName?function(e,t){return"undefined"!=typeof t.getElementsByTagName?t.getElementsByTagName(e):n.qsa?t.querySelectorAll(e):void 0}:function(e,t){var n,r=[],i=0,o=t.getElementsByTagName(e);if("*"===e){while(n=o[i++])1===n.nodeType&&r.push(n);return r}return o},r.find.CLASS=n.getElementsByClassName&&function(e,t){if("undefined"!=typeof t.getElementsByClassName&&g)return t.getElementsByClassName(e)},v=[],y=[],(n.qsa=Q.test(d.querySelectorAll))&&(ue(function(e){h.appendChild(e).innerHTML="<a id='"+b+"'></a><select id='"+b+"-\r\\' msallowcapture=''><option selected=''></option></select>",e.querySelectorAll("[msallowcapture^='']").length&&y.push("[*^$]="+M+"*(?:''|\"\")"),e.querySelectorAll("[selected]").length||y.push("\\["+M+"*(?:value|"+P+")"),e.querySelectorAll("[id~="+b+"-]").length||y.push("~="),e.querySelectorAll(":checked").length||y.push(":checked"),e.querySelectorAll("a#"+b+"+*").length||y.push(".#.+[+~]")}),ue(function(e){e.innerHTML="<a href='' disabled='disabled'></a><select disabled='disabled'><option/></select>";var t=d.createElement("input");t.setAttribute("type","hidden"),e.appendChild(t).setAttribute("name","D"),e.querySelectorAll("[name=d]").length&&y.push("name"+M+"*[*^$|!~]?="),2!==e.querySelectorAll(":enabled").length&&y.push(":enabled",":disabled"),h.appendChild(e).disabled=!0,2!==e.querySelectorAll(":disabled").length&&y.push(":enabled",":disabled"),e.querySelectorAll("*,:x"),y.push(",.*:")})),(n.matchesSelector=Q.test(m=h.matches||h.webkitMatchesSelector||h.mozMatchesSelector||h.oMatchesSelector||h.msMatchesSelector))&&ue(function(e){n.disconnectedMatch=m.call(e,"*"),m.call(e,"[s!='']:x"),v.push("!=",W)}),y=y.length&&new RegExp(y.join("|")),v=v.length&&new RegExp(v.join("|")),t=Q.test(h.compareDocumentPosition),x=t||Q.test(h.contains)?function(e,t){var n=9===e.nodeType?e.documentElement:e,r=t&&t.parentNode;return e===r||!(!r||1!==r.nodeType||!(n.contains?n.contains(r):e.compareDocumentPosition&&16&e.compareDocumentPosition(r)))}:function(e,t){if(t)while(t=t.parentNode)if(t===e)return!0;return!1},D=t?function(e,t){if(e===t)return f=!0,0;var r=!e.compareDocumentPosition-!t.compareDocumentPosition;return r||(1&(r=(e.ownerDocument||e)===(t.ownerDocument||t)?e.compareDocumentPosition(t):1)||!n.sortDetached&&t.compareDocumentPosition(e)===r?e===d||e.ownerDocument===w&&x(w,e)?-1:t===d||t.ownerDocument===w&&x(w,t)?1:c?O(c,e)-O(c,t):0:4&r?-1:1)}:function(e,t){if(e===t)return f=!0,0;var n,r=0,i=e.parentNode,o=t.parentNode,a=[e],s=[t];if(!i||!o)return e===d?-1:t===d?1:i?-1:o?1:c?O(c,e)-O(c,t):0;if(i===o)return ce(e,t);n=e;while(n=n.parentNode)a.unshift(n);n=t;while(n=n.parentNode)s.unshift(n);while(a[r]===s[r])r++;return r?ce(a[r],s[r]):a[r]===w?-1:s[r]===w?1:0},d):d},oe.matches=function(e,t){return oe(e,null,null,t)},oe.matchesSelector=function(e,t){if((e.ownerDocument||e)!==d&&p(e),t=t.replace(z,"='$1']"),n.matchesSelector&&g&&!S[t+" "]&&(!v||!v.test(t))&&(!y||!y.test(t)))try{var r=m.call(e,t);if(r||n.disconnectedMatch||e.document&&11!==e.document.nodeType)return r}catch(e){}return oe(t,d,null,[e]).length>0},oe.contains=function(e,t){return(e.ownerDocument||e)!==d&&p(e),x(e,t)},oe.attr=function(e,t){(e.ownerDocument||e)!==d&&p(e);var i=r.attrHandle[t.toLowerCase()],o=i&&N.call(r.attrHandle,t.toLowerCase())?i(e,t,!g):void 0;return void 0!==o?o:n.attributes||!g?e.getAttribute(t):(o=e.getAttributeNode(t))&&o.specified?o.value:null},oe.escape=function(e){return(e+"").replace(te,ne)},oe.error=function(e){throw new Error("Syntax error, unrecognized expression: "+e)},oe.uniqueSort=function(e){var t,r=[],i=0,o=0;if(f=!n.detectDuplicates,c=!n.sortStable&&e.slice(0),e.sort(D),f){while(t=e[o++])t===e[o]&&(i=r.push(o));while(i--)e.splice(r[i],1)}return c=null,e},i=oe.getText=function(e){var t,n="",r=0,o=e.nodeType;if(o){if(1===o||9===o||11===o){if("string"==typeof e.textContent)return e.textContent;for(e=e.firstChild;e;e=e.nextSibling)n+=i(e)}else if(3===o||4===o)return e.nodeValue}else while(t=e[r++])n+=i(t);return n},(r=oe.selectors={cacheLength:50,createPseudo:se,match:V,attrHandle:{},find:{},relative:{">":{dir:"parentNode",first:!0}," ":{dir:"parentNode"},"+":{dir:"previousSibling",first:!0},"~":{dir:"previousSibling"}},preFilter:{ATTR:function(e){return e[1]=e[1].replace(Z,ee),e[3]=(e[3]||e[4]||e[5]||"").replace(Z,ee),"~="===e[2]&&(e[3]=" "+e[3]+" "),e.slice(0,4)},CHILD:function(e){return e[1]=e[1].toLowerCase(),"nth"===e[1].slice(0,3)?(e[3]||oe.error(e[0]),e[4]=+(e[4]?e[5]+(e[6]||1):2*("even"===e[3]||"odd"===e[3])),e[5]=+(e[7]+e[8]||"odd"===e[3])):e[3]&&oe.error(e[0]),e},PSEUDO:function(e){var t,n=!e[6]&&e[2];return V.CHILD.test(e[0])?null:(e[3]?e[2]=e[4]||e[5]||"":n&&X.test(n)&&(t=a(n,!0))&&(t=n.indexOf(")",n.length-t)-n.length)&&(e[0]=e[0].slice(0,t),e[2]=n.slice(0,t)),e.slice(0,3))}},filter:{TAG:function(e){var t=e.replace(Z,ee).toLowerCase();return"*"===e?function(){return!0}:function(e){return e.nodeName&&e.nodeName.toLowerCase()===t}},CLASS:function(e){var t=E[e+" "];return t||(t=new RegExp("(^|"+M+")"+e+"("+M+"|$)"))&&E(e,function(e){return t.test("string"==typeof e.className&&e.className||"undefined"!=typeof e.getAttribute&&e.getAttribute("class")||"")})},ATTR:function(e,t,n){return function(r){var i=oe.attr(r,e);return null==i?"!="===t:!t||(i+="","="===t?i===n:"!="===t?i!==n:"^="===t?n&&0===i.indexOf(n):"*="===t?n&&i.indexOf(n)>-1:"$="===t?n&&i.slice(-n.length)===n:"~="===t?(" "+i.replace($," ")+" ").indexOf(n)>-1:"|="===t&&(i===n||i.slice(0,n.length+1)===n+"-"))}},CHILD:function(e,t,n,r,i){var o="nth"!==e.slice(0,3),a="last"!==e.slice(-4),s="of-type"===t;return 1===r&&0===i?function(e){return!!e.parentNode}:function(t,n,u){var l,c,f,p,d,h,g=o!==a?"nextSibling":"previousSibling",y=t.parentNode,v=s&&t.nodeName.toLowerCase(),m=!u&&!s,x=!1;if(y){if(o){while(g){p=t;while(p=p[g])if(s?p.nodeName.toLowerCase()===v:1===p.nodeType)return!1;h=g="only"===e&&!h&&"nextSibling"}return!0}if(h=[a?y.firstChild:y.lastChild],a&&m){x=(d=(l=(c=(f=(p=y)[b]||(p[b]={}))[p.uniqueID]||(f[p.uniqueID]={}))[e]||[])[0]===T&&l[1])&&l[2],p=d&&y.childNodes[d];while(p=++d&&p&&p[g]||(x=d=0)||h.pop())if(1===p.nodeType&&++x&&p===t){c[e]=[T,d,x];break}}else if(m&&(x=d=(l=(c=(f=(p=t)[b]||(p[b]={}))[p.uniqueID]||(f[p.uniqueID]={}))[e]||[])[0]===T&&l[1]),!1===x)while(p=++d&&p&&p[g]||(x=d=0)||h.pop())if((s?p.nodeName.toLowerCase()===v:1===p.nodeType)&&++x&&(m&&((c=(f=p[b]||(p[b]={}))[p.uniqueID]||(f[p.uniqueID]={}))[e]=[T,x]),p===t))break;return(x-=i)===r||x%r==0&&x/r>=0}}},PSEUDO:function(e,t){var n,i=r.pseudos[e]||r.setFilters[e.toLowerCase()]||oe.error("unsupported pseudo: "+e);return i[b]?i(t):i.length>1?(n=[e,e,"",t],r.setFilters.hasOwnProperty(e.toLowerCase())?se(function(e,n){var r,o=i(e,t),a=o.length;while(a--)e[r=O(e,o[a])]=!(n[r]=o[a])}):function(e){return i(e,0,n)}):i}},pseudos:{not:se(function(e){var t=[],n=[],r=s(e.replace(B,"$1"));return r[b]?se(function(e,t,n,i){var o,a=r(e,null,i,[]),s=e.length;while(s--)(o=a[s])&&(e[s]=!(t[s]=o))}):function(e,i,o){return t[0]=e,r(t,null,o,n),t[0]=null,!n.pop()}}),has:se(function(e){return function(t){return oe(e,t).length>0}}),contains:se(function(e){return e=e.replace(Z,ee),function(t){return(t.textContent||t.innerText||i(t)).indexOf(e)>-1}}),lang:se(function(e){return U.test(e||"")||oe.error("unsupported lang: "+e),e=e.replace(Z,ee).toLowerCase(),function(t){var n;do{if(n=g?t.lang:t.getAttribute("xml:lang")||t.getAttribute("lang"))return(n=n.toLowerCase())===e||0===n.indexOf(e+"-")}while((t=t.parentNode)&&1===t.nodeType);return!1}}),target:function(t){var n=e.location&&e.location.hash;return n&&n.slice(1)===t.id},root:function(e){return e===h},focus:function(e){return e===d.activeElement&&(!d.hasFocus||d.hasFocus())&&!!(e.type||e.href||~e.tabIndex)},enabled:de(!1),disabled:de(!0),checked:function(e){var t=e.nodeName.toLowerCase();return"input"===t&&!!e.checked||"option"===t&&!!e.selected},selected:function(e){return e.parentNode&&e.parentNode.selectedIndex,!0===e.selected},empty:function(e){for(e=e.firstChild;e;e=e.nextSibling)if(e.nodeType<6)return!1;return!0},parent:function(e){return!r.pseudos.empty(e)},header:function(e){return Y.test(e.nodeName)},input:function(e){return G.test(e.nodeName)},button:function(e){var t=e.nodeName.toLowerCase();return"input"===t&&"button"===e.type||"button"===t},text:function(e){var t;return"input"===e.nodeName.toLowerCase()&&"text"===e.type&&(null==(t=e.getAttribute("type"))||"text"===t.toLowerCase())},first:he(function(){return[0]}),last:he(function(e,t){return[t-1]}),eq:he(function(e,t,n){return[n<0?n+t:n]}),even:he(function(e,t){for(var n=0;n<t;n+=2)e.push(n);return e}),odd:he(function(e,t){for(var n=1;n<t;n+=2)e.push(n);return e}),lt:he(function(e,t,n){for(var r=n<0?n+t:n;--r>=0;)e.push(r);return e}),gt:he(function(e,t,n){for(var r=n<0?n+t:n;++r<t;)e.push(r);return e})}}).pseudos.nth=r.pseudos.eq;for(t in{radio:!0,checkbox:!0,file:!0,password:!0,image:!0})r.pseudos[t]=fe(t);for(t in{submit:!0,reset:!0})r.pseudos[t]=pe(t);function ye(){}ye.prototype=r.filters=r.pseudos,r.setFilters=new ye,a=oe.tokenize=function(e,t){var n,i,o,a,s,u,l,c=k[e+" "];if(c)return t?0:c.slice(0);s=e,u=[],l=r.preFilter;while(s){n&&!(i=F.exec(s))||(i&&(s=s.slice(i[0].length)||s),u.push(o=[])),n=!1,(i=_.exec(s))&&(n=i.shift(),o.push({value:n,type:i[0].replace(B," ")}),s=s.slice(n.length));for(a in r.filter)!(i=V[a].exec(s))||l[a]&&!(i=l[a](i))||(n=i.shift(),o.push({value:n,type:a,matches:i}),s=s.slice(n.length));if(!n)break}return t?s.length:s?oe.error(e):k(e,u).slice(0)};function ve(e){for(var t=0,n=e.length,r="";t<n;t++)r+=e[t].value;return r}function me(e,t,n){var r=t.dir,i=t.next,o=i||r,a=n&&"parentNode"===o,s=C++;return t.first?function(t,n,i){while(t=t[r])if(1===t.nodeType||a)return e(t,n,i);return!1}:function(t,n,u){var l,c,f,p=[T,s];if(u){while(t=t[r])if((1===t.nodeType||a)&&e(t,n,u))return!0}else while(t=t[r])if(1===t.nodeType||a)if(f=t[b]||(t[b]={}),c=f[t.uniqueID]||(f[t.uniqueID]={}),i&&i===t.nodeName.toLowerCase())t=t[r]||t;else{if((l=c[o])&&l[0]===T&&l[1]===s)return p[2]=l[2];if(c[o]=p,p[2]=e(t,n,u))return!0}return!1}}function xe(e){return e.length>1?function(t,n,r){var i=e.length;while(i--)if(!e[i](t,n,r))return!1;return!0}:e[0]}function be(e,t,n){for(var r=0,i=t.length;r<i;r++)oe(e,t[r],n);return n}function we(e,t,n,r,i){for(var o,a=[],s=0,u=e.length,l=null!=t;s<u;s++)(o=e[s])&&(n&&!n(o,r,i)||(a.push(o),l&&t.push(s)));return a}function Te(e,t,n,r,i,o){return r&&!r[b]&&(r=Te(r)),i&&!i[b]&&(i=Te(i,o)),se(function(o,a,s,u){var l,c,f,p=[],d=[],h=a.length,g=o||be(t||"*",s.nodeType?[s]:s,[]),y=!e||!o&&t?g:we(g,p,e,s,u),v=n?i||(o?e:h||r)?[]:a:y;if(n&&n(y,v,s,u),r){l=we(v,d),r(l,[],s,u),c=l.length;while(c--)(f=l[c])&&(v[d[c]]=!(y[d[c]]=f))}if(o){if(i||e){if(i){l=[],c=v.length;while(c--)(f=v[c])&&l.push(y[c]=f);i(null,v=[],l,u)}c=v.length;while(c--)(f=v[c])&&(l=i?O(o,f):p[c])>-1&&(o[l]=!(a[l]=f))}}else v=we(v===a?v.splice(h,v.length):v),i?i(null,a,v,u):L.apply(a,v)})}function Ce(e){for(var t,n,i,o=e.length,a=r.relative[e[0].type],s=a||r.relative[" "],u=a?1:0,c=me(function(e){return e===t},s,!0),f=me(function(e){return O(t,e)>-1},s,!0),p=[function(e,n,r){var i=!a&&(r||n!==l)||((t=n).nodeType?c(e,n,r):f(e,n,r));return t=null,i}];u<o;u++)if(n=r.relative[e[u].type])p=[me(xe(p),n)];else{if((n=r.filter[e[u].type].apply(null,e[u].matches))[b]){for(i=++u;i<o;i++)if(r.relative[e[i].type])break;return Te(u>1&&xe(p),u>1&&ve(e.slice(0,u-1).concat({value:" "===e[u-2].type?"*":""})).replace(B,"$1"),n,u<i&&Ce(e.slice(u,i)),i<o&&Ce(e=e.slice(i)),i<o&&ve(e))}p.push(n)}return xe(p)}function Ee(e,t){var n=t.length>0,i=e.length>0,o=function(o,a,s,u,c){var f,h,y,v=0,m="0",x=o&&[],b=[],w=l,C=o||i&&r.find.TAG("*",c),E=T+=null==w?1:Math.random()||.1,k=C.length;for(c&&(l=a===d||a||c);m!==k&&null!=(f=C[m]);m++){if(i&&f){h=0,a||f.ownerDocument===d||(p(f),s=!g);while(y=e[h++])if(y(f,a||d,s)){u.push(f);break}c&&(T=E)}n&&((f=!y&&f)&&v--,o&&x.push(f))}if(v+=m,n&&m!==v){h=0;while(y=t[h++])y(x,b,a,s);if(o){if(v>0)while(m--)x[m]||b[m]||(b[m]=j.call(u));b=we(b)}L.apply(u,b),c&&!o&&b.length>0&&v+t.length>1&&oe.uniqueSort(u)}return c&&(T=E,l=w),x};return n?se(o):o}return s=oe.compile=function(e,t){var n,r=[],i=[],o=S[e+" "];if(!o){t||(t=a(e)),n=t.length;while(n--)(o=Ce(t[n]))[b]?r.push(o):i.push(o);(o=S(e,Ee(i,r))).selector=e}return o},u=oe.select=function(e,t,n,i){var o,u,l,c,f,p="function"==typeof e&&e,d=!i&&a(e=p.selector||e);if(n=n||[],1===d.length){if((u=d[0]=d[0].slice(0)).length>2&&"ID"===(l=u[0]).type&&9===t.nodeType&&g&&r.relative[u[1].type]){if(!(t=(r.find.ID(l.matches[0].replace(Z,ee),t)||[])[0]))return n;p&&(t=t.parentNode),e=e.slice(u.shift().value.length)}o=V.needsContext.test(e)?0:u.length;while(o--){if(l=u[o],r.relative[c=l.type])break;if((f=r.find[c])&&(i=f(l.matches[0].replace(Z,ee),K.test(u[0].type)&&ge(t.parentNode)||t))){if(u.splice(o,1),!(e=i.length&&ve(u)))return L.apply(n,i),n;break}}}return(p||s(e,d))(i,t,!g,n,!t||K.test(e)&&ge(t.parentNode)||t),n},n.sortStable=b.split("").sort(D).join("")===b,n.detectDuplicates=!!f,p(),n.sortDetached=ue(function(e){return 1&e.compareDocumentPosition(d.createElement("fieldset"))}),ue(function(e){return e.innerHTML="<a href='#'></a>","#"===e.firstChild.getAttribute("href")})||le("type|href|height|width",function(e,t,n){if(!n)return e.getAttribute(t,"type"===t.toLowerCase()?1:2)}),n.attributes&&ue(function(e){return e.innerHTML="<input/>",e.firstChild.setAttribute("value",""),""===e.firstChild.getAttribute("value")})||le("value",function(e,t,n){if(!n&&"input"===e.nodeName.toLowerCase())return e.defaultValue}),ue(function(e){return null==e.getAttribute("disabled")})||le(P,function(e,t,n){var r;if(!n)return!0===e[t]?t.toLowerCase():(r=e.getAttributeNode(t))&&r.specified?r.value:null}),oe}(e);w.find=E,w.expr=E.selectors,w.expr[":"]=w.expr.pseudos,w.uniqueSort=w.unique=E.uniqueSort,w.text=E.getText,w.isXMLDoc=E.isXML,w.contains=E.contains,w.escapeSelector=E.escape;var k=function(e,t,n){var r=[],i=void 0!==n;while((e=e[t])&&9!==e.nodeType)if(1===e.nodeType){if(i&&w(e).is(n))break;r.push(e)}return r},S=function(e,t){for(var n=[];e;e=e.nextSibling)1===e.nodeType&&e!==t&&n.push(e);return n},D=w.expr.match.needsContext;function N(e,t){return e.nodeName&&e.nodeName.toLowerCase()===t.toLowerCase()}var A=/^<([a-z][^\/\0>:\x20\t\r\n\f]*)[\x20\t\r\n\f]*\/?>(?:<\/\1>|)$/i;function j(e,t,n){return g(t)?w.grep(e,function(e,r){return!!t.call(e,r,e)!==n}):t.nodeType?w.grep(e,function(e){return e===t!==n}):"string"!=typeof t?w.grep(e,function(e){return u.call(t,e)>-1!==n}):w.filter(t,e,n)}w.filter=function(e,t,n){var r=t[0];return n&&(e=":not("+e+")"),1===t.length&&1===r.nodeType?w.find.matchesSelector(r,e)?[r]:[]:w.find.matches(e,w.grep(t,function(e){return 1===e.nodeType}))},w.fn.extend({find:function(e){var t,n,r=this.length,i=this;if("string"!=typeof e)return this.pushStack(w(e).filter(function(){for(t=0;t<r;t++)if(w.contains(i[t],this))return!0}));for(n=this.pushStack([]),t=0;t<r;t++)w.find(e,i[t],n);return r>1?w.uniqueSort(n):n},filter:function(e){return this.pushStack(j(this,e||[],!1))},not:function(e){return this.pushStack(j(this,e||[],!0))},is:function(e){return!!j(this,"string"==typeof e&&D.test(e)?w(e):e||[],!1).length}});var q,L=/^(?:\s*(<[\w\W]+>)[^>]*|#([\w-]+))$/;(w.fn.init=function(e,t,n){var i,o;if(!e)return this;if(n=n||q,"string"==typeof e){if(!(i="<"===e[0]&&">"===e[e.length-1]&&e.length>=3?[null,e,null]:L.exec(e))||!i[1]&&t)return!t||t.jquery?(t||n).find(e):this.constructor(t).find(e);if(i[1]){if(t=t instanceof w?t[0]:t,w.merge(this,w.parseHTML(i[1],t&&t.nodeType?t.ownerDocument||t:r,!0)),A.test(i[1])&&w.isPlainObject(t))for(i in t)g(this[i])?this[i](t[i]):this.attr(i,t[i]);return this}return(o=r.getElementById(i[2]))&&(this[0]=o,this.length=1),this}return e.nodeType?(this[0]=e,this.length=1,this):g(e)?void 0!==n.ready?n.ready(e):e(w):w.makeArray(e,this)}).prototype=w.fn,q=w(r);var H=/^(?:parents|prev(?:Until|All))/,O={children:!0,contents:!0,next:!0,prev:!0};w.fn.extend({has:function(e){var t=w(e,this),n=t.length;return this.filter(function(){for(var e=0;e<n;e++)if(w.contains(this,t[e]))return!0})},closest:function(e,t){var n,r=0,i=this.length,o=[],a="string"!=typeof e&&w(e);if(!D.test(e))for(;r<i;r++)for(n=this[r];n&&n!==t;n=n.parentNode)if(n.nodeType<11&&(a?a.index(n)>-1:1===n.nodeType&&w.find.matchesSelector(n,e))){o.push(n);break}return this.pushStack(o.length>1?w.uniqueSort(o):o)},index:function(e){return e?"string"==typeof e?u.call(w(e),this[0]):u.call(this,e.jquery?e[0]:e):this[0]&&this[0].parentNode?this.first().prevAll().length:-1},add:function(e,t){return this.pushStack(w.uniqueSort(w.merge(this.get(),w(e,t))))},addBack:function(e){return this.add(null==e?this.prevObject:this.prevObject.filter(e))}});function P(e,t){while((e=e[t])&&1!==e.nodeType);return e}w.each({parent:function(e){var t=e.parentNode;return t&&11!==t.nodeType?t:null},parents:function(e){return k(e,"parentNode")},parentsUntil:function(e,t,n){return k(e,"parentNode",n)},next:function(e){return P(e,"nextSibling")},prev:function(e){return P(e,"previousSibling")},nextAll:function(e){return k(e,"nextSibling")},prevAll:function(e){return k(e,"previousSibling")},nextUntil:function(e,t,n){return k(e,"nextSibling",n)},prevUntil:function(e,t,n){return k(e,"previousSibling",n)},siblings:function(e){return S((e.parentNode||{}).firstChild,e)},children:function(e){return S(e.firstChild)},contents:function(e){return N(e,"iframe")?e.contentDocument:(N(e,"template")&&(e=e.content||e),w.merge([],e.childNodes))}},function(e,t){w.fn[e]=function(n,r){var i=w.map(this,t,n);return"Until"!==e.slice(-5)&&(r=n),r&&"string"==typeof r&&(i=w.filter(r,i)),this.length>1&&(O[e]||w.uniqueSort(i),H.test(e)&&i.reverse()),this.pushStack(i)}});var M=/[^\x20\t\r\n\f]+/g;function R(e){var t={};return w.each(e.match(M)||[],function(e,n){t[n]=!0}),t}w.Callbacks=function(e){e="string"==typeof e?R(e):w.extend({},e);var t,n,r,i,o=[],a=[],s=-1,u=function(){for(i=i||e.once,r=t=!0;a.length;s=-1){n=a.shift();while(++s<o.length)!1===o[s].apply(n[0],n[1])&&e.stopOnFalse&&(s=o.length,n=!1)}e.memory||(n=!1),t=!1,i&&(o=n?[]:"")},l={add:function(){return o&&(n&&!t&&(s=o.length-1,a.push(n)),function t(n){w.each(n,function(n,r){g(r)?e.unique&&l.has(r)||o.push(r):r&&r.length&&"string"!==x(r)&&t(r)})}(arguments),n&&!t&&u()),this},remove:function(){return w.each(arguments,function(e,t){var n;while((n=w.inArray(t,o,n))>-1)o.splice(n,1),n<=s&&s--}),this},has:function(e){return e?w.inArray(e,o)>-1:o.length>0},empty:function(){return o&&(o=[]),this},disable:function(){return i=a=[],o=n="",this},disabled:function(){return!o},lock:function(){return i=a=[],n||t||(o=n=""),this},locked:function(){return!!i},fireWith:function(e,n){return i||(n=[e,(n=n||[]).slice?n.slice():n],a.push(n),t||u()),this},fire:function(){return l.fireWith(this,arguments),this},fired:function(){return!!r}};return l};function I(e){return e}function W(e){throw e}function $(e,t,n,r){var i;try{e&&g(i=e.promise)?i.call(e).done(t).fail(n):e&&g(i=e.then)?i.call(e,t,n):t.apply(void 0,[e].slice(r))}catch(e){n.apply(void 0,[e])}}w.extend({Deferred:function(t){var n=[["notify","progress",w.Callbacks("memory"),w.Callbacks("memory"),2],["resolve","done",w.Callbacks("once memory"),w.Callbacks("once memory"),0,"resolved"],["reject","fail",w.Callbacks("once memory"),w.Callbacks("once memory"),1,"rejected"]],r="pending",i={state:function(){return r},always:function(){return o.done(arguments).fail(arguments),this},"catch":function(e){return i.then(null,e)},pipe:function(){var e=arguments;return w.Deferred(function(t){w.each(n,function(n,r){var i=g(e[r[4]])&&e[r[4]];o[r[1]](function(){var e=i&&i.apply(this,arguments);e&&g(e.promise)?e.promise().progress(t.notify).done(t.resolve).fail(t.reject):t[r[0]+"With"](this,i?[e]:arguments)})}),e=null}).promise()},then:function(t,r,i){var o=0;function a(t,n,r,i){return function(){var s=this,u=arguments,l=function(){var e,l;if(!(t<o)){if((e=r.apply(s,u))===n.promise())throw new TypeError("Thenable self-resolution");l=e&&("object"==typeof e||"function"==typeof e)&&e.then,g(l)?i?l.call(e,a(o,n,I,i),a(o,n,W,i)):(o++,l.call(e,a(o,n,I,i),a(o,n,W,i),a(o,n,I,n.notifyWith))):(r!==I&&(s=void 0,u=[e]),(i||n.resolveWith)(s,u))}},c=i?l:function(){try{l()}catch(e){w.Deferred.exceptionHook&&w.Deferred.exceptionHook(e,c.stackTrace),t+1>=o&&(r!==W&&(s=void 0,u=[e]),n.rejectWith(s,u))}};t?c():(w.Deferred.getStackHook&&(c.stackTrace=w.Deferred.getStackHook()),e.setTimeout(c))}}return w.Deferred(function(e){n[0][3].add(a(0,e,g(i)?i:I,e.notifyWith)),n[1][3].add(a(0,e,g(t)?t:I)),n[2][3].add(a(0,e,g(r)?r:W))}).promise()},promise:function(e){return null!=e?w.extend(e,i):i}},o={};return w.each(n,function(e,t){var a=t[2],s=t[5];i[t[1]]=a.add,s&&a.add(function(){r=s},n[3-e][2].disable,n[3-e][3].disable,n[0][2].lock,n[0][3].lock),a.add(t[3].fire),o[t[0]]=function(){return o[t[0]+"With"](this===o?void 0:this,arguments),this},o[t[0]+"With"]=a.fireWith}),i.promise(o),t&&t.call(o,o),o},when:function(e){var t=arguments.length,n=t,r=Array(n),i=o.call(arguments),a=w.Deferred(),s=function(e){return function(n){r[e]=this,i[e]=arguments.length>1?o.call(arguments):n,--t||a.resolveWith(r,i)}};if(t<=1&&($(e,a.done(s(n)).resolve,a.reject,!t),"pending"===a.state()||g(i[n]&&i[n].then)))return a.then();while(n--)$(i[n],s(n),a.reject);return a.promise()}});var B=/^(Eval|Internal|Range|Reference|Syntax|Type|URI)Error$/;w.Deferred.exceptionHook=function(t,n){e.console&&e.console.warn&&t&&B.test(t.name)&&e.console.warn("jQuery.Deferred exception: "+t.message,t.stack,n)},w.readyException=function(t){e.setTimeout(function(){throw t})};var F=w.Deferred();w.fn.ready=function(e){return F.then(e)["catch"](function(e){w.readyException(e)}),this},w.extend({isReady:!1,readyWait:1,ready:function(e){(!0===e?--w.readyWait:w.isReady)||(w.isReady=!0,!0!==e&&--w.readyWait>0||F.resolveWith(r,[w]))}}),w.ready.then=F.then;function _(){r.removeEventListener("DOMContentLoaded",_),e.removeEventListener("load",_),w.ready()}"complete"===r.readyState||"loading"!==r.readyState&&!r.documentElement.doScroll?e.setTimeout(w.ready):(r.addEventListener("DOMContentLoaded",_),e.addEventListener("load",_));var z=function(e,t,n,r,i,o,a){var s=0,u=e.length,l=null==n;if("object"===x(n)){i=!0;for(s in n)z(e,t,s,n[s],!0,o,a)}else if(void 0!==r&&(i=!0,g(r)||(a=!0),l&&(a?(t.call(e,r),t=null):(l=t,t=function(e,t,n){return l.call(w(e),n)})),t))for(;s<u;s++)t(e[s],n,a?r:r.call(e[s],s,t(e[s],n)));return i?e:l?t.call(e):u?t(e[0],n):o},X=/^-ms-/,U=/-([a-z])/g;function V(e,t){return t.toUpperCase()}function G(e){return e.replace(X,"ms-").replace(U,V)}var Y=function(e){return 1===e.nodeType||9===e.nodeType||!+e.nodeType};function Q(){this.expando=w.expando+Q.uid++}Q.uid=1,Q.prototype={cache:function(e){var t=e[this.expando];return t||(t={},Y(e)&&(e.nodeType?e[this.expando]=t:Object.defineProperty(e,this.expando,{value:t,configurable:!0}))),t},set:function(e,t,n){var r,i=this.cache(e);if("string"==typeof t)i[G(t)]=n;else for(r in t)i[G(r)]=t[r];return i},get:function(e,t){return void 0===t?this.cache(e):e[this.expando]&&e[this.expando][G(t)]},access:function(e,t,n){return void 0===t||t&&"string"==typeof t&&void 0===n?this.get(e,t):(this.set(e,t,n),void 0!==n?n:t)},remove:function(e,t){var n,r=e[this.expando];if(void 0!==r){if(void 0!==t){n=(t=Array.isArray(t)?t.map(G):(t=G(t))in r?[t]:t.match(M)||[]).length;while(n--)delete r[t[n]]}(void 0===t||w.isEmptyObject(r))&&(e.nodeType?e[this.expando]=void 0:delete e[this.expando])}},hasData:function(e){var t=e[this.expando];return void 0!==t&&!w.isEmptyObject(t)}};var J=new Q,K=new Q,Z=/^(?:\{[\w\W]*\}|\[[\w\W]*\])$/,ee=/[A-Z]/g;function te(e){return"true"===e||"false"!==e&&("null"===e?null:e===+e+""?+e:Z.test(e)?JSON.parse(e):e)}function ne(e,t,n){var r;if(void 0===n&&1===e.nodeType)if(r="data-"+t.replace(ee,"-$&").toLowerCase(),"string"==typeof(n=e.getAttribute(r))){try{n=te(n)}catch(e){}K.set(e,t,n)}else n=void 0;return n}w.extend({hasData:function(e){return K.hasData(e)||J.hasData(e)},data:function(e,t,n){return K.access(e,t,n)},removeData:function(e,t){K.remove(e,t)},_data:function(e,t,n){return J.access(e,t,n)},_removeData:function(e,t){J.remove(e,t)}}),w.fn.extend({data:function(e,t){var n,r,i,o=this[0],a=o&&o.attributes;if(void 0===e){if(this.length&&(i=K.get(o),1===o.nodeType&&!J.get(o,"hasDataAttrs"))){n=a.length;while(n--)a[n]&&0===(r=a[n].name).indexOf("data-")&&(r=G(r.slice(5)),ne(o,r,i[r]));J.set(o,"hasDataAttrs",!0)}return i}return"object"==typeof e?this.each(function(){K.set(this,e)}):z(this,function(t){var n;if(o&&void 0===t){if(void 0!==(n=K.get(o,e)))return n;if(void 0!==(n=ne(o,e)))return n}else this.each(function(){K.set(this,e,t)})},null,t,arguments.length>1,null,!0)},removeData:function(e){return this.each(function(){K.remove(this,e)})}}),w.extend({queue:function(e,t,n){var r;if(e)return t=(t||"fx")+"queue",r=J.get(e,t),n&&(!r||Array.isArray(n)?r=J.access(e,t,w.makeArray(n)):r.push(n)),r||[]},dequeue:function(e,t){t=t||"fx";var n=w.queue(e,t),r=n.length,i=n.shift(),o=w._queueHooks(e,t),a=function(){w.dequeue(e,t)};"inprogress"===i&&(i=n.shift(),r--),i&&("fx"===t&&n.unshift("inprogress"),delete o.stop,i.call(e,a,o)),!r&&o&&o.empty.fire()},_queueHooks:function(e,t){var n=t+"queueHooks";return J.get(e,n)||J.access(e,n,{empty:w.Callbacks("once memory").add(function(){J.remove(e,[t+"queue",n])})})}}),w.fn.extend({queue:function(e,t){var n=2;return"string"!=typeof e&&(t=e,e="fx",n--),arguments.length<n?w.queue(this[0],e):void 0===t?this:this.each(function(){var n=w.queue(this,e,t);w._queueHooks(this,e),"fx"===e&&"inprogress"!==n[0]&&w.dequeue(this,e)})},dequeue:function(e){return this.each(function(){w.dequeue(this,e)})},clearQueue:function(e){return this.queue(e||"fx",[])},promise:function(e,t){var n,r=1,i=w.Deferred(),o=this,a=this.length,s=function(){--r||i.resolveWith(o,[o])};"string"!=typeof e&&(t=e,e=void 0),e=e||"fx";while(a--)(n=J.get(o[a],e+"queueHooks"))&&n.empty&&(r++,n.empty.add(s));return s(),i.promise(t)}});var re=/[+-]?(?:\d*\.|)\d+(?:[eE][+-]?\d+|)/.source,ie=new RegExp("^(?:([+-])=|)("+re+")([a-z%]*)$","i"),oe=["Top","Right","Bottom","Left"],ae=function(e,t){return"none"===(e=t||e).style.display||""===e.style.display&&w.contains(e.ownerDocument,e)&&"none"===w.css(e,"display")},se=function(e,t,n,r){var i,o,a={};for(o in t)a[o]=e.style[o],e.style[o]=t[o];i=n.apply(e,r||[]);for(o in t)e.style[o]=a[o];return i};function ue(e,t,n,r){var i,o,a=20,s=r?function(){return r.cur()}:function(){return w.css(e,t,"")},u=s(),l=n&&n[3]||(w.cssNumber[t]?"":"px"),c=(w.cssNumber[t]||"px"!==l&&+u)&&ie.exec(w.css(e,t));if(c&&c[3]!==l){u/=2,l=l||c[3],c=+u||1;while(a--)w.style(e,t,c+l),(1-o)*(1-(o=s()/u||.5))<=0&&(a=0),c/=o;c*=2,w.style(e,t,c+l),n=n||[]}return n&&(c=+c||+u||0,i=n[1]?c+(n[1]+1)*n[2]:+n[2],r&&(r.unit=l,r.start=c,r.end=i)),i}var le={};function ce(e){var t,n=e.ownerDocument,r=e.nodeName,i=le[r];return i||(t=n.body.appendChild(n.createElement(r)),i=w.css(t,"display"),t.parentNode.removeChild(t),"none"===i&&(i="block"),le[r]=i,i)}function fe(e,t){for(var n,r,i=[],o=0,a=e.length;o<a;o++)(r=e[o]).style&&(n=r.style.display,t?("none"===n&&(i[o]=J.get(r,"display")||null,i[o]||(r.style.display="")),""===r.style.display&&ae(r)&&(i[o]=ce(r))):"none"!==n&&(i[o]="none",J.set(r,"display",n)));for(o=0;o<a;o++)null!=i[o]&&(e[o].style.display=i[o]);return e}w.fn.extend({show:function(){return fe(this,!0)},hide:function(){return fe(this)},toggle:function(e){return"boolean"==typeof e?e?this.show():this.hide():this.each(function(){ae(this)?w(this).show():w(this).hide()})}});var pe=/^(?:checkbox|radio)$/i,de=/<([a-z][^\/\0>\x20\t\r\n\f]+)/i,he=/^$|^module$|\/(?:java|ecma)script/i,ge={option:[1,"<select multiple='multiple'>","</select>"],thead:[1,"<table>","</table>"],col:[2,"<table><colgroup>","</colgroup></table>"],tr:[2,"<table><tbody>","</tbody></table>"],td:[3,"<table><tbody><tr>","</tr></tbody></table>"],_default:[0,"",""]};ge.optgroup=ge.option,ge.tbody=ge.tfoot=ge.colgroup=ge.caption=ge.thead,ge.th=ge.td;function ye(e,t){var n;return n="undefined"!=typeof e.getElementsByTagName?e.getElementsByTagName(t||"*"):"undefined"!=typeof e.querySelectorAll?e.querySelectorAll(t||"*"):[],void 0===t||t&&N(e,t)?w.merge([e],n):n}function ve(e,t){for(var n=0,r=e.length;n<r;n++)J.set(e[n],"globalEval",!t||J.get(t[n],"globalEval"))}var me=/<|&#?\w+;/;function xe(e,t,n,r,i){for(var o,a,s,u,l,c,f=t.createDocumentFragment(),p=[],d=0,h=e.length;d<h;d++)if((o=e[d])||0===o)if("object"===x(o))w.merge(p,o.nodeType?[o]:o);else if(me.test(o)){a=a||f.appendChild(t.createElement("div")),s=(de.exec(o)||["",""])[1].toLowerCase(),u=ge[s]||ge._default,a.innerHTML=u[1]+w.htmlPrefilter(o)+u[2],c=u[0];while(c--)a=a.lastChild;w.merge(p,a.childNodes),(a=f.firstChild).textContent=""}else p.push(t.createTextNode(o));f.textContent="",d=0;while(o=p[d++])if(r&&w.inArray(o,r)>-1)i&&i.push(o);else if(l=w.contains(o.ownerDocument,o),a=ye(f.appendChild(o),"script"),l&&ve(a),n){c=0;while(o=a[c++])he.test(o.type||"")&&n.push(o)}return f}!function(){var e=r.createDocumentFragment().appendChild(r.createElement("div")),t=r.createElement("input");t.setAttribute("type","radio"),t.setAttribute("checked","checked"),t.setAttribute("name","t"),e.appendChild(t),h.checkClone=e.cloneNode(!0).cloneNode(!0).lastChild.checked,e.innerHTML="<textarea>x</textarea>",h.noCloneChecked=!!e.cloneNode(!0).lastChild.defaultValue}();var be=r.documentElement,we=/^key/,Te=/^(?:mouse|pointer|contextmenu|drag|drop)|click/,Ce=/^([^.]*)(?:\.(.+)|)/;function Ee(){return!0}function ke(){return!1}function Se(){try{return r.activeElement}catch(e){}}function De(e,t,n,r,i,o){var a,s;if("object"==typeof t){"string"!=typeof n&&(r=r||n,n=void 0);for(s in t)De(e,s,n,r,t[s],o);return e}if(null==r&&null==i?(i=n,r=n=void 0):null==i&&("string"==typeof n?(i=r,r=void 0):(i=r,r=n,n=void 0)),!1===i)i=ke;else if(!i)return e;return 1===o&&(a=i,(i=function(e){return w().off(e),a.apply(this,arguments)}).guid=a.guid||(a.guid=w.guid++)),e.each(function(){w.event.add(this,t,i,r,n)})}w.event={global:{},add:function(e,t,n,r,i){var o,a,s,u,l,c,f,p,d,h,g,y=J.get(e);if(y){n.handler&&(n=(o=n).handler,i=o.selector),i&&w.find.matchesSelector(be,i),n.guid||(n.guid=w.guid++),(u=y.events)||(u=y.events={}),(a=y.handle)||(a=y.handle=function(t){return"undefined"!=typeof w&&w.event.triggered!==t.type?w.event.dispatch.apply(e,arguments):void 0}),l=(t=(t||"").match(M)||[""]).length;while(l--)d=g=(s=Ce.exec(t[l])||[])[1],h=(s[2]||"").split(".").sort(),d&&(f=w.event.special[d]||{},d=(i?f.delegateType:f.bindType)||d,f=w.event.special[d]||{},c=w.extend({type:d,origType:g,data:r,handler:n,guid:n.guid,selector:i,needsContext:i&&w.expr.match.needsContext.test(i),namespace:h.join(".")},o),(p=u[d])||((p=u[d]=[]).delegateCount=0,f.setup&&!1!==f.setup.call(e,r,h,a)||e.addEventListener&&e.addEventListener(d,a)),f.add&&(f.add.call(e,c),c.handler.guid||(c.handler.guid=n.guid)),i?p.splice(p.delegateCount++,0,c):p.push(c),w.event.global[d]=!0)}},remove:function(e,t,n,r,i){var o,a,s,u,l,c,f,p,d,h,g,y=J.hasData(e)&&J.get(e);if(y&&(u=y.events)){l=(t=(t||"").match(M)||[""]).length;while(l--)if(s=Ce.exec(t[l])||[],d=g=s[1],h=(s[2]||"").split(".").sort(),d){f=w.event.special[d]||{},p=u[d=(r?f.delegateType:f.bindType)||d]||[],s=s[2]&&new RegExp("(^|\\.)"+h.join("\\.(?:.*\\.|)")+"(\\.|$)"),a=o=p.length;while(o--)c=p[o],!i&&g!==c.origType||n&&n.guid!==c.guid||s&&!s.test(c.namespace)||r&&r!==c.selector&&("**"!==r||!c.selector)||(p.splice(o,1),c.selector&&p.delegateCount--,f.remove&&f.remove.call(e,c));a&&!p.length&&(f.teardown&&!1!==f.teardown.call(e,h,y.handle)||w.removeEvent(e,d,y.handle),delete u[d])}else for(d in u)w.event.remove(e,d+t[l],n,r,!0);w.isEmptyObject(u)&&J.remove(e,"handle events")}},dispatch:function(e){var t=w.event.fix(e),n,r,i,o,a,s,u=new Array(arguments.length),l=(J.get(this,"events")||{})[t.type]||[],c=w.event.special[t.type]||{};for(u[0]=t,n=1;n<arguments.length;n++)u[n]=arguments[n];if(t.delegateTarget=this,!c.preDispatch||!1!==c.preDispatch.call(this,t)){s=w.event.handlers.call(this,t,l),n=0;while((o=s[n++])&&!t.isPropagationStopped()){t.currentTarget=o.elem,r=0;while((a=o.handlers[r++])&&!t.isImmediatePropagationStopped())t.rnamespace&&!t.rnamespace.test(a.namespace)||(t.handleObj=a,t.data=a.data,void 0!==(i=((w.event.special[a.origType]||{}).handle||a.handler).apply(o.elem,u))&&!1===(t.result=i)&&(t.preventDefault(),t.stopPropagation()))}return c.postDispatch&&c.postDispatch.call(this,t),t.result}},handlers:function(e,t){var n,r,i,o,a,s=[],u=t.delegateCount,l=e.target;if(u&&l.nodeType&&!("click"===e.type&&e.button>=1))for(;l!==this;l=l.parentNode||this)if(1===l.nodeType&&("click"!==e.type||!0!==l.disabled)){for(o=[],a={},n=0;n<u;n++)void 0===a[i=(r=t[n]).selector+" "]&&(a[i]=r.needsContext?w(i,this).index(l)>-1:w.find(i,this,null,[l]).length),a[i]&&o.push(r);o.length&&s.push({elem:l,handlers:o})}return l=this,u<t.length&&s.push({elem:l,handlers:t.slice(u)}),s},addProp:function(e,t){Object.defineProperty(w.Event.prototype,e,{enumerable:!0,configurable:!0,get:g(t)?function(){if(this.originalEvent)return t(this.originalEvent)}:function(){if(this.originalEvent)return this.originalEvent[e]},set:function(t){Object.defineProperty(this,e,{enumerable:!0,configurable:!0,writable:!0,value:t})}})},fix:function(e){return e[w.expando]?e:new w.Event(e)},special:{load:{noBubble:!0},focus:{trigger:function(){if(this!==Se()&&this.focus)return this.focus(),!1},delegateType:"focusin"},blur:{trigger:function(){if(this===Se()&&this.blur)return this.blur(),!1},delegateType:"focusout"},click:{trigger:function(){if("checkbox"===this.type&&this.click&&N(this,"input"))return this.click(),!1},_default:function(e){return N(e.target,"a")}},beforeunload:{postDispatch:function(e){void 0!==e.result&&e.originalEvent&&(e.originalEvent.returnValue=e.result)}}}},w.removeEvent=function(e,t,n){e.removeEventListener&&e.removeEventListener(t,n)},w.Event=function(e,t){if(!(this instanceof w.Event))return new w.Event(e,t);e&&e.type?(this.originalEvent=e,this.type=e.type,this.isDefaultPrevented=e.defaultPrevented||void 0===e.defaultPrevented&&!1===e.returnValue?Ee:ke,this.target=e.target&&3===e.target.nodeType?e.target.parentNode:e.target,this.currentTarget=e.currentTarget,this.relatedTarget=e.relatedTarget):this.type=e,t&&w.extend(this,t),this.timeStamp=e&&e.timeStamp||Date.now(),this[w.expando]=!0},w.Event.prototype={constructor:w.Event,isDefaultPrevented:ke,isPropagationStopped:ke,isImmediatePropagationStopped:ke,isSimulated:!1,preventDefault:function(){var e=this.originalEvent;this.isDefaultPrevented=Ee,e&&!this.isSimulated&&e.preventDefault()},stopPropagation:function(){var e=this.originalEvent;this.isPropagationStopped=Ee,e&&!this.isSimulated&&e.stopPropagation()},stopImmediatePropagation:function(){var e=this.originalEvent;this.isImmediatePropagationStopped=Ee,e&&!this.isSimulated&&e.stopImmediatePropagation(),this.stopPropagation()}},w.each({altKey:!0,bubbles:!0,cancelable:!0,changedTouches:!0,ctrlKey:!0,detail:!0,eventPhase:!0,metaKey:!0,pageX:!0,pageY:!0,shiftKey:!0,view:!0,"char":!0,charCode:!0,key:!0,keyCode:!0,button:!0,buttons:!0,clientX:!0,clientY:!0,offsetX:!0,offsetY:!0,pointerId:!0,pointerType:!0,screenX:!0,screenY:!0,targetTouches:!0,toElement:!0,touches:!0,which:function(e){var t=e.button;return null==e.which&&we.test(e.type)?null!=e.charCode?e.charCode:e.keyCode:!e.which&&void 0!==t&&Te.test(e.type)?1&t?1:2&t?3:4&t?2:0:e.which}},w.event.addProp),w.each({mouseenter:"mouseover",mouseleave:"mouseout",pointerenter:"pointerover",pointerleave:"pointerout"},function(e,t){w.event.special[e]={delegateType:t,bindType:t,handle:function(e){var n,r=this,i=e.relatedTarget,o=e.handleObj;return i&&(i===r||w.contains(r,i))||(e.type=o.origType,n=o.handler.apply(this,arguments),e.type=t),n}}}),w.fn.extend({on:function(e,t,n,r){return De(this,e,t,n,r)},one:function(e,t,n,r){return De(this,e,t,n,r,1)},off:function(e,t,n){var r,i;if(e&&e.preventDefault&&e.handleObj)return r=e.handleObj,w(e.delegateTarget).off(r.namespace?r.origType+"."+r.namespace:r.origType,r.selector,r.handler),this;if("object"==typeof e){for(i in e)this.off(i,t,e[i]);return this}return!1!==t&&"function"!=typeof t||(n=t,t=void 0),!1===n&&(n=ke),this.each(function(){w.event.remove(this,e,n,t)})}});var Ne=/<(?!area|br|col|embed|hr|img|input|link|meta|param)(([a-z][^\/\0>\x20\t\r\n\f]*)[^>]*)\/>/gi,Ae=/<script|<style|<link/i,je=/checked\s*(?:[^=]|=\s*.checked.)/i,qe=/^\s*<!(?:\[CDATA\[|--)|(?:\]\]|--)>\s*$/g;function Le(e,t){return N(e,"table")&&N(11!==t.nodeType?t:t.firstChild,"tr")?w(e).children("tbody")[0]||e:e}function He(e){return e.type=(null!==e.getAttribute("type"))+"/"+e.type,e}function Oe(e){return"true/"===(e.type||"").slice(0,5)?e.type=e.type.slice(5):e.removeAttribute("type"),e}function Pe(e,t){var n,r,i,o,a,s,u,l;if(1===t.nodeType){if(J.hasData(e)&&(o=J.access(e),a=J.set(t,o),l=o.events)){delete a.handle,a.events={};for(i in l)for(n=0,r=l[i].length;n<r;n++)w.event.add(t,i,l[i][n])}K.hasData(e)&&(s=K.access(e),u=w.extend({},s),K.set(t,u))}}function Me(e,t){var n=t.nodeName.toLowerCase();"input"===n&&pe.test(e.type)?t.checked=e.checked:"input"!==n&&"textarea"!==n||(t.defaultValue=e.defaultValue)}function Re(e,t,n,r){t=a.apply([],t);var i,o,s,u,l,c,f=0,p=e.length,d=p-1,y=t[0],v=g(y);if(v||p>1&&"string"==typeof y&&!h.checkClone&&je.test(y))return e.each(function(i){var o=e.eq(i);v&&(t[0]=y.call(this,i,o.html())),Re(o,t,n,r)});if(p&&(i=xe(t,e[0].ownerDocument,!1,e,r),o=i.firstChild,1===i.childNodes.length&&(i=o),o||r)){for(u=(s=w.map(ye(i,"script"),He)).length;f<p;f++)l=i,f!==d&&(l=w.clone(l,!0,!0),u&&w.merge(s,ye(l,"script"))),n.call(e[f],l,f);if(u)for(c=s[s.length-1].ownerDocument,w.map(s,Oe),f=0;f<u;f++)l=s[f],he.test(l.type||"")&&!J.access(l,"globalEval")&&w.contains(c,l)&&(l.src&&"module"!==(l.type||"").toLowerCase()?w._evalUrl&&w._evalUrl(l.src):m(l.textContent.replace(qe,""),c,l))}return e}function Ie(e,t,n){for(var r,i=t?w.filter(t,e):e,o=0;null!=(r=i[o]);o++)n||1!==r.nodeType||w.cleanData(ye(r)),r.parentNode&&(n&&w.contains(r.ownerDocument,r)&&ve(ye(r,"script")),r.parentNode.removeChild(r));return e}w.extend({htmlPrefilter:function(e){return e.replace(Ne,"<$1></$2>")},clone:function(e,t,n){var r,i,o,a,s=e.cloneNode(!0),u=w.contains(e.ownerDocument,e);if(!(h.noCloneChecked||1!==e.nodeType&&11!==e.nodeType||w.isXMLDoc(e)))for(a=ye(s),r=0,i=(o=ye(e)).length;r<i;r++)Me(o[r],a[r]);if(t)if(n)for(o=o||ye(e),a=a||ye(s),r=0,i=o.length;r<i;r++)Pe(o[r],a[r]);else Pe(e,s);return(a=ye(s,"script")).length>0&&ve(a,!u&&ye(e,"script")),s},cleanData:function(e){for(var t,n,r,i=w.event.special,o=0;void 0!==(n=e[o]);o++)if(Y(n)){if(t=n[J.expando]){if(t.events)for(r in t.events)i[r]?w.event.remove(n,r):w.removeEvent(n,r,t.handle);n[J.expando]=void 0}n[K.expando]&&(n[K.expando]=void 0)}}}),w.fn.extend({detach:function(e){return Ie(this,e,!0)},remove:function(e){return Ie(this,e)},text:function(e){return z(this,function(e){return void 0===e?w.text(this):this.empty().each(function(){1!==this.nodeType&&11!==this.nodeType&&9!==this.nodeType||(this.textContent=e)})},null,e,arguments.length)},append:function(){return Re(this,arguments,function(e){1!==this.nodeType&&11!==this.nodeType&&9!==this.nodeType||Le(this,e).appendChild(e)})},prepend:function(){return Re(this,arguments,function(e){if(1===this.nodeType||11===this.nodeType||9===this.nodeType){var t=Le(this,e);t.insertBefore(e,t.firstChild)}})},before:function(){return Re(this,arguments,function(e){this.parentNode&&this.parentNode.insertBefore(e,this)})},after:function(){return Re(this,arguments,function(e){this.parentNode&&this.parentNode.insertBefore(e,this.nextSibling)})},empty:function(){for(var e,t=0;null!=(e=this[t]);t++)1===e.nodeType&&(w.cleanData(ye(e,!1)),e.textContent="");return this},clone:function(e,t){return e=null!=e&&e,t=null==t?e:t,this.map(function(){return w.clone(this,e,t)})},html:function(e){return z(this,function(e){var t=this[0]||{},n=0,r=this.length;if(void 0===e&&1===t.nodeType)return t.innerHTML;if("string"==typeof e&&!Ae.test(e)&&!ge[(de.exec(e)||["",""])[1].toLowerCase()]){e=w.htmlPrefilter(e);try{for(;n<r;n++)1===(t=this[n]||{}).nodeType&&(w.cleanData(ye(t,!1)),t.innerHTML=e);t=0}catch(e){}}t&&this.empty().append(e)},null,e,arguments.length)},replaceWith:function(){var e=[];return Re(this,arguments,function(t){var n=this.parentNode;w.inArray(this,e)<0&&(w.cleanData(ye(this)),n&&n.replaceChild(t,this))},e)}}),w.each({appendTo:"append",prependTo:"prepend",insertBefore:"before",insertAfter:"after",replaceAll:"replaceWith"},function(e,t){w.fn[e]=function(e){for(var n,r=[],i=w(e),o=i.length-1,a=0;a<=o;a++)n=a===o?this:this.clone(!0),w(i[a])[t](n),s.apply(r,n.get());return this.pushStack(r)}});var We=new RegExp("^("+re+")(?!px)[a-z%]+$","i"),$e=function(t){var n=t.ownerDocument.defaultView;return n&&n.opener||(n=e),n.getComputedStyle(t)},Be=new RegExp(oe.join("|"),"i");!function(){function t(){if(c){l.style.cssText="position:absolute;left:-11111px;width:60px;margin-top:1px;padding:0;border:0",c.style.cssText="position:relative;display:block;box-sizing:border-box;overflow:scroll;margin:auto;border:1px;padding:1px;width:60%;top:1%",be.appendChild(l).appendChild(c);var t=e.getComputedStyle(c);i="1%"!==t.top,u=12===n(t.marginLeft),c.style.right="60%",s=36===n(t.right),o=36===n(t.width),c.style.position="absolute",a=36===c.offsetWidth||"absolute",be.removeChild(l),c=null}}function n(e){return Math.round(parseFloat(e))}var i,o,a,s,u,l=r.createElement("div"),c=r.createElement("div");c.style&&(c.style.backgroundClip="content-box",c.cloneNode(!0).style.backgroundClip="",h.clearCloneStyle="content-box"===c.style.backgroundClip,w.extend(h,{boxSizingReliable:function(){return t(),o},pixelBoxStyles:function(){return t(),s},pixelPosition:function(){return t(),i},reliableMarginLeft:function(){return t(),u},scrollboxSize:function(){return t(),a}}))}();function Fe(e,t,n){var r,i,o,a,s=e.style;return(n=n||$e(e))&&(""!==(a=n.getPropertyValue(t)||n[t])||w.contains(e.ownerDocument,e)||(a=w.style(e,t)),!h.pixelBoxStyles()&&We.test(a)&&Be.test(t)&&(r=s.width,i=s.minWidth,o=s.maxWidth,s.minWidth=s.maxWidth=s.width=a,a=n.width,s.width=r,s.minWidth=i,s.maxWidth=o)),void 0!==a?a+"":a}function _e(e,t){return{get:function(){if(!e())return(this.get=t).apply(this,arguments);delete this.get}}}var ze=/^(none|table(?!-c[ea]).+)/,Xe=/^--/,Ue={position:"absolute",visibility:"hidden",display:"block"},Ve={letterSpacing:"0",fontWeight:"400"},Ge=["Webkit","Moz","ms"],Ye=r.createElement("div").style;function Qe(e){if(e in Ye)return e;var t=e[0].toUpperCase()+e.slice(1),n=Ge.length;while(n--)if((e=Ge[n]+t)in Ye)return e}function Je(e){var t=w.cssProps[e];return t||(t=w.cssProps[e]=Qe(e)||e),t}function Ke(e,t,n){var r=ie.exec(t);return r?Math.max(0,r[2]-(n||0))+(r[3]||"px"):t}function Ze(e,t,n,r,i,o){var a="width"===t?1:0,s=0,u=0;if(n===(r?"border":"content"))return 0;for(;a<4;a+=2)"margin"===n&&(u+=w.css(e,n+oe[a],!0,i)),r?("content"===n&&(u-=w.css(e,"padding"+oe[a],!0,i)),"margin"!==n&&(u-=w.css(e,"border"+oe[a]+"Width",!0,i))):(u+=w.css(e,"padding"+oe[a],!0,i),"padding"!==n?u+=w.css(e,"border"+oe[a]+"Width",!0,i):s+=w.css(e,"border"+oe[a]+"Width",!0,i));return!r&&o>=0&&(u+=Math.max(0,Math.ceil(e["offset"+t[0].toUpperCase()+t.slice(1)]-o-u-s-.5))),u}function et(e,t,n){var r=$e(e),i=Fe(e,t,r),o="border-box"===w.css(e,"boxSizing",!1,r),a=o;if(We.test(i)){if(!n)return i;i="auto"}return a=a&&(h.boxSizingReliable()||i===e.style[t]),("auto"===i||!parseFloat(i)&&"inline"===w.css(e,"display",!1,r))&&(i=e["offset"+t[0].toUpperCase()+t.slice(1)],a=!0),(i=parseFloat(i)||0)+Ze(e,t,n||(o?"border":"content"),a,r,i)+"px"}w.extend({cssHooks:{opacity:{get:function(e,t){if(t){var n=Fe(e,"opacity");return""===n?"1":n}}}},cssNumber:{animationIterationCount:!0,columnCount:!0,fillOpacity:!0,flexGrow:!0,flexShrink:!0,fontWeight:!0,lineHeight:!0,opacity:!0,order:!0,orphans:!0,widows:!0,zIndex:!0,zoom:!0},cssProps:{},style:function(e,t,n,r){if(e&&3!==e.nodeType&&8!==e.nodeType&&e.style){var i,o,a,s=G(t),u=Xe.test(t),l=e.style;if(u||(t=Je(s)),a=w.cssHooks[t]||w.cssHooks[s],void 0===n)return a&&"get"in a&&void 0!==(i=a.get(e,!1,r))?i:l[t];"string"==(o=typeof n)&&(i=ie.exec(n))&&i[1]&&(n=ue(e,t,i),o="number"),null!=n&&n===n&&("number"===o&&(n+=i&&i[3]||(w.cssNumber[s]?"":"px")),h.clearCloneStyle||""!==n||0!==t.indexOf("background")||(l[t]="inherit"),a&&"set"in a&&void 0===(n=a.set(e,n,r))||(u?l.setProperty(t,n):l[t]=n))}},css:function(e,t,n,r){var i,o,a,s=G(t);return Xe.test(t)||(t=Je(s)),(a=w.cssHooks[t]||w.cssHooks[s])&&"get"in a&&(i=a.get(e,!0,n)),void 0===i&&(i=Fe(e,t,r)),"normal"===i&&t in Ve&&(i=Ve[t]),""===n||n?(o=parseFloat(i),!0===n||isFinite(o)?o||0:i):i}}),w.each(["height","width"],function(e,t){w.cssHooks[t]={get:function(e,n,r){if(n)return!ze.test(w.css(e,"display"))||e.getClientRects().length&&e.getBoundingClientRect().width?et(e,t,r):se(e,Ue,function(){return et(e,t,r)})},set:function(e,n,r){var i,o=$e(e),a="border-box"===w.css(e,"boxSizing",!1,o),s=r&&Ze(e,t,r,a,o);return a&&h.scrollboxSize()===o.position&&(s-=Math.ceil(e["offset"+t[0].toUpperCase()+t.slice(1)]-parseFloat(o[t])-Ze(e,t,"border",!1,o)-.5)),s&&(i=ie.exec(n))&&"px"!==(i[3]||"px")&&(e.style[t]=n,n=w.css(e,t)),Ke(e,n,s)}}}),w.cssHooks.marginLeft=_e(h.reliableMarginLeft,function(e,t){if(t)return(parseFloat(Fe(e,"marginLeft"))||e.getBoundingClientRect().left-se(e,{marginLeft:0},function(){return e.getBoundingClientRect().left}))+"px"}),w.each({margin:"",padding:"",border:"Width"},function(e,t){w.cssHooks[e+t]={expand:function(n){for(var r=0,i={},o="string"==typeof n?n.split(" "):[n];r<4;r++)i[e+oe[r]+t]=o[r]||o[r-2]||o[0];return i}},"margin"!==e&&(w.cssHooks[e+t].set=Ke)}),w.fn.extend({css:function(e,t){return z(this,function(e,t,n){var r,i,o={},a=0;if(Array.isArray(t)){for(r=$e(e),i=t.length;a<i;a++)o[t[a]]=w.css(e,t[a],!1,r);return o}return void 0!==n?w.style(e,t,n):w.css(e,t)},e,t,arguments.length>1)}});function tt(e,t,n,r,i){return new tt.prototype.init(e,t,n,r,i)}w.Tween=tt,tt.prototype={constructor:tt,init:function(e,t,n,r,i,o){this.elem=e,this.prop=n,this.easing=i||w.easing._default,this.options=t,this.start=this.now=this.cur(),this.end=r,this.unit=o||(w.cssNumber[n]?"":"px")},cur:function(){var e=tt.propHooks[this.prop];return e&&e.get?e.get(this):tt.propHooks._default.get(this)},run:function(e){var t,n=tt.propHooks[this.prop];return this.options.duration?this.pos=t=w.easing[this.easing](e,this.options.duration*e,0,1,this.options.duration):this.pos=t=e,this.now=(this.end-this.start)*t+this.start,this.options.step&&this.options.step.call(this.elem,this.now,this),n&&n.set?n.set(this):tt.propHooks._default.set(this),this}},tt.prototype.init.prototype=tt.prototype,tt.propHooks={_default:{get:function(e){var t;return 1!==e.elem.nodeType||null!=e.elem[e.prop]&&null==e.elem.style[e.prop]?e.elem[e.prop]:(t=w.css(e.elem,e.prop,""))&&"auto"!==t?t:0},set:function(e){w.fx.step[e.prop]?w.fx.step[e.prop](e):1!==e.elem.nodeType||null==e.elem.style[w.cssProps[e.prop]]&&!w.cssHooks[e.prop]?e.elem[e.prop]=e.now:w.style(e.elem,e.prop,e.now+e.unit)}}},tt.propHooks.scrollTop=tt.propHooks.scrollLeft={set:function(e){e.elem.nodeType&&e.elem.parentNode&&(e.elem[e.prop]=e.now)}},w.easing={linear:function(e){return e},swing:function(e){return.5-Math.cos(e*Math.PI)/2},_default:"swing"},w.fx=tt.prototype.init,w.fx.step={};var nt,rt,it=/^(?:toggle|show|hide)$/,ot=/queueHooks$/;function at(){rt&&(!1===r.hidden&&e.requestAnimationFrame?e.requestAnimationFrame(at):e.setTimeout(at,w.fx.interval),w.fx.tick())}function st(){return e.setTimeout(function(){nt=void 0}),nt=Date.now()}function ut(e,t){var n,r=0,i={height:e};for(t=t?1:0;r<4;r+=2-t)i["margin"+(n=oe[r])]=i["padding"+n]=e;return t&&(i.opacity=i.width=e),i}function lt(e,t,n){for(var r,i=(pt.tweeners[t]||[]).concat(pt.tweeners["*"]),o=0,a=i.length;o<a;o++)if(r=i[o].call(n,t,e))return r}function ct(e,t,n){var r,i,o,a,s,u,l,c,f="width"in t||"height"in t,p=this,d={},h=e.style,g=e.nodeType&&ae(e),y=J.get(e,"fxshow");n.queue||(null==(a=w._queueHooks(e,"fx")).unqueued&&(a.unqueued=0,s=a.empty.fire,a.empty.fire=function(){a.unqueued||s()}),a.unqueued++,p.always(function(){p.always(function(){a.unqueued--,w.queue(e,"fx").length||a.empty.fire()})}));for(r in t)if(i=t[r],it.test(i)){if(delete t[r],o=o||"toggle"===i,i===(g?"hide":"show")){if("show"!==i||!y||void 0===y[r])continue;g=!0}d[r]=y&&y[r]||w.style(e,r)}if((u=!w.isEmptyObject(t))||!w.isEmptyObject(d)){f&&1===e.nodeType&&(n.overflow=[h.overflow,h.overflowX,h.overflowY],null==(l=y&&y.display)&&(l=J.get(e,"display")),"none"===(c=w.css(e,"display"))&&(l?c=l:(fe([e],!0),l=e.style.display||l,c=w.css(e,"display"),fe([e]))),("inline"===c||"inline-block"===c&&null!=l)&&"none"===w.css(e,"float")&&(u||(p.done(function(){h.display=l}),null==l&&(c=h.display,l="none"===c?"":c)),h.display="inline-block")),n.overflow&&(h.overflow="hidden",p.always(function(){h.overflow=n.overflow[0],h.overflowX=n.overflow[1],h.overflowY=n.overflow[2]})),u=!1;for(r in d)u||(y?"hidden"in y&&(g=y.hidden):y=J.access(e,"fxshow",{display:l}),o&&(y.hidden=!g),g&&fe([e],!0),p.done(function(){g||fe([e]),J.remove(e,"fxshow");for(r in d)w.style(e,r,d[r])})),u=lt(g?y[r]:0,r,p),r in y||(y[r]=u.start,g&&(u.end=u.start,u.start=0))}}function ft(e,t){var n,r,i,o,a;for(n in e)if(r=G(n),i=t[r],o=e[n],Array.isArray(o)&&(i=o[1],o=e[n]=o[0]),n!==r&&(e[r]=o,delete e[n]),(a=w.cssHooks[r])&&"expand"in a){o=a.expand(o),delete e[r];for(n in o)n in e||(e[n]=o[n],t[n]=i)}else t[r]=i}function pt(e,t,n){var r,i,o=0,a=pt.prefilters.length,s=w.Deferred().always(function(){delete u.elem}),u=function(){if(i)return!1;for(var t=nt||st(),n=Math.max(0,l.startTime+l.duration-t),r=1-(n/l.duration||0),o=0,a=l.tweens.length;o<a;o++)l.tweens[o].run(r);return s.notifyWith(e,[l,r,n]),r<1&&a?n:(a||s.notifyWith(e,[l,1,0]),s.resolveWith(e,[l]),!1)},l=s.promise({elem:e,props:w.extend({},t),opts:w.extend(!0,{specialEasing:{},easing:w.easing._default},n),originalProperties:t,originalOptions:n,startTime:nt||st(),duration:n.duration,tweens:[],createTween:function(t,n){var r=w.Tween(e,l.opts,t,n,l.opts.specialEasing[t]||l.opts.easing);return l.tweens.push(r),r},stop:function(t){var n=0,r=t?l.tweens.length:0;if(i)return this;for(i=!0;n<r;n++)l.tweens[n].run(1);return t?(s.notifyWith(e,[l,1,0]),s.resolveWith(e,[l,t])):s.rejectWith(e,[l,t]),this}}),c=l.props;for(ft(c,l.opts.specialEasing);o<a;o++)if(r=pt.prefilters[o].call(l,e,c,l.opts))return g(r.stop)&&(w._queueHooks(l.elem,l.opts.queue).stop=r.stop.bind(r)),r;return w.map(c,lt,l),g(l.opts.start)&&l.opts.start.call(e,l),l.progress(l.opts.progress).done(l.opts.done,l.opts.complete).fail(l.opts.fail).always(l.opts.always),w.fx.timer(w.extend(u,{elem:e,anim:l,queue:l.opts.queue})),l}w.Animation=w.extend(pt,{tweeners:{"*":[function(e,t){var n=this.createTween(e,t);return ue(n.elem,e,ie.exec(t),n),n}]},tweener:function(e,t){g(e)?(t=e,e=["*"]):e=e.match(M);for(var n,r=0,i=e.length;r<i;r++)n=e[r],pt.tweeners[n]=pt.tweeners[n]||[],pt.tweeners[n].unshift(t)},prefilters:[ct],prefilter:function(e,t){t?pt.prefilters.unshift(e):pt.prefilters.push(e)}}),w.speed=function(e,t,n){var r=e&&"object"==typeof e?w.extend({},e):{complete:n||!n&&t||g(e)&&e,duration:e,easing:n&&t||t&&!g(t)&&t};return w.fx.off?r.duration=0:"number"!=typeof r.duration&&(r.duration in w.fx.speeds?r.duration=w.fx.speeds[r.duration]:r.duration=w.fx.speeds._default),null!=r.queue&&!0!==r.queue||(r.queue="fx"),r.old=r.complete,r.complete=function(){g(r.old)&&r.old.call(this),r.queue&&w.dequeue(this,r.queue)},r},w.fn.extend({fadeTo:function(e,t,n,r){return this.filter(ae).css("opacity",0).show().end().animate({opacity:t},e,n,r)},animate:function(e,t,n,r){var i=w.isEmptyObject(e),o=w.speed(t,n,r),a=function(){var t=pt(this,w.extend({},e),o);(i||J.get(this,"finish"))&&t.stop(!0)};return a.finish=a,i||!1===o.queue?this.each(a):this.queue(o.queue,a)},stop:function(e,t,n){var r=function(e){var t=e.stop;delete e.stop,t(n)};return"string"!=typeof e&&(n=t,t=e,e=void 0),t&&!1!==e&&this.queue(e||"fx",[]),this.each(function(){var t=!0,i=null!=e&&e+"queueHooks",o=w.timers,a=J.get(this);if(i)a[i]&&a[i].stop&&r(a[i]);else for(i in a)a[i]&&a[i].stop&&ot.test(i)&&r(a[i]);for(i=o.length;i--;)o[i].elem!==this||null!=e&&o[i].queue!==e||(o[i].anim.stop(n),t=!1,o.splice(i,1));!t&&n||w.dequeue(this,e)})},finish:function(e){return!1!==e&&(e=e||"fx"),this.each(function(){var t,n=J.get(this),r=n[e+"queue"],i=n[e+"queueHooks"],o=w.timers,a=r?r.length:0;for(n.finish=!0,w.queue(this,e,[]),i&&i.stop&&i.stop.call(this,!0),t=o.length;t--;)o[t].elem===this&&o[t].queue===e&&(o[t].anim.stop(!0),o.splice(t,1));for(t=0;t<a;t++)r[t]&&r[t].finish&&r[t].finish.call(this);delete n.finish})}}),w.each(["toggle","show","hide"],function(e,t){var n=w.fn[t];w.fn[t]=function(e,r,i){return null==e||"boolean"==typeof e?n.apply(this,arguments):this.animate(ut(t,!0),e,r,i)}}),w.each({slideDown:ut("show"),slideUp:ut("hide"),slideToggle:ut("toggle"),fadeIn:{opacity:"show"},fadeOut:{opacity:"hide"},fadeToggle:{opacity:"toggle"}},function(e,t){w.fn[e]=function(e,n,r){return this.animate(t,e,n,r)}}),w.timers=[],w.fx.tick=function(){var e,t=0,n=w.timers;for(nt=Date.now();t<n.length;t++)(e=n[t])()||n[t]!==e||n.splice(t--,1);n.length||w.fx.stop(),nt=void 0},w.fx.timer=function(e){w.timers.push(e),w.fx.start()},w.fx.interval=13,w.fx.start=function(){rt||(rt=!0,at())},w.fx.stop=function(){rt=null},w.fx.speeds={slow:600,fast:200,_default:400},w.fn.delay=function(t,n){return t=w.fx?w.fx.speeds[t]||t:t,n=n||"fx",this.queue(n,function(n,r){var i=e.setTimeout(n,t);r.stop=function(){e.clearTimeout(i)}})},function(){var e=r.createElement("input"),t=r.createElement("select").appendChild(r.createElement("option"));e.type="checkbox",h.checkOn=""!==e.value,h.optSelected=t.selected,(e=r.createElement("input")).value="t",e.type="radio",h.radioValue="t"===e.value}();var dt,ht=w.expr.attrHandle;w.fn.extend({attr:function(e,t){return z(this,w.attr,e,t,arguments.length>1)},removeAttr:function(e){return this.each(function(){w.removeAttr(this,e)})}}),w.extend({attr:function(e,t,n){var r,i,o=e.nodeType;if(3!==o&&8!==o&&2!==o)return"undefined"==typeof e.getAttribute?w.prop(e,t,n):(1===o&&w.isXMLDoc(e)||(i=w.attrHooks[t.toLowerCase()]||(w.expr.match.bool.test(t)?dt:void 0)),void 0!==n?null===n?void w.removeAttr(e,t):i&&"set"in i&&void 0!==(r=i.set(e,n,t))?r:(e.setAttribute(t,n+""),n):i&&"get"in i&&null!==(r=i.get(e,t))?r:null==(r=w.find.attr(e,t))?void 0:r)},attrHooks:{type:{set:function(e,t){if(!h.radioValue&&"radio"===t&&N(e,"input")){var n=e.value;return e.setAttribute("type",t),n&&(e.value=n),t}}}},removeAttr:function(e,t){var n,r=0,i=t&&t.match(M);if(i&&1===e.nodeType)while(n=i[r++])e.removeAttribute(n)}}),dt={set:function(e,t,n){return!1===t?w.removeAttr(e,n):e.setAttribute(n,n),n}},w.each(w.expr.match.bool.source.match(/\w+/g),function(e,t){var n=ht[t]||w.find.attr;ht[t]=function(e,t,r){var i,o,a=t.toLowerCase();return r||(o=ht[a],ht[a]=i,i=null!=n(e,t,r)?a:null,ht[a]=o),i}});var gt=/^(?:input|select|textarea|button)$/i,yt=/^(?:a|area)$/i;w.fn.extend({prop:function(e,t){return z(this,w.prop,e,t,arguments.length>1)},removeProp:function(e){return this.each(function(){delete this[w.propFix[e]||e]})}}),w.extend({prop:function(e,t,n){var r,i,o=e.nodeType;if(3!==o&&8!==o&&2!==o)return 1===o&&w.isXMLDoc(e)||(t=w.propFix[t]||t,i=w.propHooks[t]),void 0!==n?i&&"set"in i&&void 0!==(r=i.set(e,n,t))?r:e[t]=n:i&&"get"in i&&null!==(r=i.get(e,t))?r:e[t]},propHooks:{tabIndex:{get:function(e){var t=w.find.attr(e,"tabindex");return t?parseInt(t,10):gt.test(e.nodeName)||yt.test(e.nodeName)&&e.href?0:-1}}},propFix:{"for":"htmlFor","class":"className"}}),h.optSelected||(w.propHooks.selected={get:function(e){var t=e.parentNode;return t&&t.parentNode&&t.parentNode.selectedIndex,null},set:function(e){var t=e.parentNode;t&&(t.selectedIndex,t.parentNode&&t.parentNode.selectedIndex)}}),w.each(["tabIndex","readOnly","maxLength","cellSpacing","cellPadding","rowSpan","colSpan","useMap","frameBorder","contentEditable"],function(){w.propFix[this.toLowerCase()]=this});function vt(e){return(e.match(M)||[]).join(" ")}function mt(e){return e.getAttribute&&e.getAttribute("class")||""}function xt(e){return Array.isArray(e)?e:"string"==typeof e?e.match(M)||[]:[]}w.fn.extend({addClass:function(e){var t,n,r,i,o,a,s,u=0;if(g(e))return this.each(function(t){w(this).addClass(e.call(this,t,mt(this)))});if((t=xt(e)).length)while(n=this[u++])if(i=mt(n),r=1===n.nodeType&&" "+vt(i)+" "){a=0;while(o=t[a++])r.indexOf(" "+o+" ")<0&&(r+=o+" ");i!==(s=vt(r))&&n.setAttribute("class",s)}return this},removeClass:function(e){var t,n,r,i,o,a,s,u=0;if(g(e))return this.each(function(t){w(this).removeClass(e.call(this,t,mt(this)))});if(!arguments.length)return this.attr("class","");if((t=xt(e)).length)while(n=this[u++])if(i=mt(n),r=1===n.nodeType&&" "+vt(i)+" "){a=0;while(o=t[a++])while(r.indexOf(" "+o+" ")>-1)r=r.replace(" "+o+" "," ");i!==(s=vt(r))&&n.setAttribute("class",s)}return this},toggleClass:function(e,t){var n=typeof e,r="string"===n||Array.isArray(e);return"boolean"==typeof t&&r?t?this.addClass(e):this.removeClass(e):g(e)?this.each(function(n){w(this).toggleClass(e.call(this,n,mt(this),t),t)}):this.each(function(){var t,i,o,a;if(r){i=0,o=w(this),a=xt(e);while(t=a[i++])o.hasClass(t)?o.removeClass(t):o.addClass(t)}else void 0!==e&&"boolean"!==n||((t=mt(this))&&J.set(this,"__className__",t),this.setAttribute&&this.setAttribute("class",t||!1===e?"":J.get(this,"__className__")||""))})},hasClass:function(e){var t,n,r=0;t=" "+e+" ";while(n=this[r++])if(1===n.nodeType&&(" "+vt(mt(n))+" ").indexOf(t)>-1)return!0;return!1}});var bt=/\r/g;w.fn.extend({val:function(e){var t,n,r,i=this[0];{if(arguments.length)return r=g(e),this.each(function(n){var i;1===this.nodeType&&(null==(i=r?e.call(this,n,w(this).val()):e)?i="":"number"==typeof i?i+="":Array.isArray(i)&&(i=w.map(i,function(e){return null==e?"":e+""})),(t=w.valHooks[this.type]||w.valHooks[this.nodeName.toLowerCase()])&&"set"in t&&void 0!==t.set(this,i,"value")||(this.value=i))});if(i)return(t=w.valHooks[i.type]||w.valHooks[i.nodeName.toLowerCase()])&&"get"in t&&void 0!==(n=t.get(i,"value"))?n:"string"==typeof(n=i.value)?n.replace(bt,""):null==n?"":n}}}),w.extend({valHooks:{option:{get:function(e){var t=w.find.attr(e,"value");return null!=t?t:vt(w.text(e))}},select:{get:function(e){var t,n,r,i=e.options,o=e.selectedIndex,a="select-one"===e.type,s=a?null:[],u=a?o+1:i.length;for(r=o<0?u:a?o:0;r<u;r++)if(((n=i[r]).selected||r===o)&&!n.disabled&&(!n.parentNode.disabled||!N(n.parentNode,"optgroup"))){if(t=w(n).val(),a)return t;s.push(t)}return s},set:function(e,t){var n,r,i=e.options,o=w.makeArray(t),a=i.length;while(a--)((r=i[a]).selected=w.inArray(w.valHooks.option.get(r),o)>-1)&&(n=!0);return n||(e.selectedIndex=-1),o}}}}),w.each(["radio","checkbox"],function(){w.valHooks[this]={set:function(e,t){if(Array.isArray(t))return e.checked=w.inArray(w(e).val(),t)>-1}},h.checkOn||(w.valHooks[this].get=function(e){return null===e.getAttribute("value")?"on":e.value})}),h.focusin="onfocusin"in e;var wt=/^(?:focusinfocus|focusoutblur)$/,Tt=function(e){e.stopPropagation()};w.extend(w.event,{trigger:function(t,n,i,o){var a,s,u,l,c,p,d,h,v=[i||r],m=f.call(t,"type")?t.type:t,x=f.call(t,"namespace")?t.namespace.split("."):[];if(s=h=u=i=i||r,3!==i.nodeType&&8!==i.nodeType&&!wt.test(m+w.event.triggered)&&(m.indexOf(".")>-1&&(m=(x=m.split(".")).shift(),x.sort()),c=m.indexOf(":")<0&&"on"+m,t=t[w.expando]?t:new w.Event(m,"object"==typeof t&&t),t.isTrigger=o?2:3,t.namespace=x.join("."),t.rnamespace=t.namespace?new RegExp("(^|\\.)"+x.join("\\.(?:.*\\.|)")+"(\\.|$)"):null,t.result=void 0,t.target||(t.target=i),n=null==n?[t]:w.makeArray(n,[t]),d=w.event.special[m]||{},o||!d.trigger||!1!==d.trigger.apply(i,n))){if(!o&&!d.noBubble&&!y(i)){for(l=d.delegateType||m,wt.test(l+m)||(s=s.parentNode);s;s=s.parentNode)v.push(s),u=s;u===(i.ownerDocument||r)&&v.push(u.defaultView||u.parentWindow||e)}a=0;while((s=v[a++])&&!t.isPropagationStopped())h=s,t.type=a>1?l:d.bindType||m,(p=(J.get(s,"events")||{})[t.type]&&J.get(s,"handle"))&&p.apply(s,n),(p=c&&s[c])&&p.apply&&Y(s)&&(t.result=p.apply(s,n),!1===t.result&&t.preventDefault());return t.type=m,o||t.isDefaultPrevented()||d._default&&!1!==d._default.apply(v.pop(),n)||!Y(i)||c&&g(i[m])&&!y(i)&&((u=i[c])&&(i[c]=null),w.event.triggered=m,t.isPropagationStopped()&&h.addEventListener(m,Tt),i[m](),t.isPropagationStopped()&&h.removeEventListener(m,Tt),w.event.triggered=void 0,u&&(i[c]=u)),t.result}},simulate:function(e,t,n){var r=w.extend(new w.Event,n,{type:e,isSimulated:!0});w.event.trigger(r,null,t)}}),w.fn.extend({trigger:function(e,t){return this.each(function(){w.event.trigger(e,t,this)})},triggerHandler:function(e,t){var n=this[0];if(n)return w.event.trigger(e,t,n,!0)}}),h.focusin||w.each({focus:"focusin",blur:"focusout"},function(e,t){var n=function(e){w.event.simulate(t,e.target,w.event.fix(e))};w.event.special[t]={setup:function(){var r=this.ownerDocument||this,i=J.access(r,t);i||r.addEventListener(e,n,!0),J.access(r,t,(i||0)+1)},teardown:function(){var r=this.ownerDocument||this,i=J.access(r,t)-1;i?J.access(r,t,i):(r.removeEventListener(e,n,!0),J.remove(r,t))}}});var Ct=e.location,Et=Date.now(),kt=/\?/;w.parseXML=function(t){var n;if(!t||"string"!=typeof t)return null;try{n=(new e.DOMParser).parseFromString(t,"text/xml")}catch(e){n=void 0}return n&&!n.getElementsByTagName("parsererror").length||w.error("Invalid XML: "+t),n};var St=/\[\]$/,Dt=/\r?\n/g,Nt=/^(?:submit|button|image|reset|file)$/i,At=/^(?:input|select|textarea|keygen)/i;function jt(e,t,n,r){var i;if(Array.isArray(t))w.each(t,function(t,i){n||St.test(e)?r(e,i):jt(e+"["+("object"==typeof i&&null!=i?t:"")+"]",i,n,r)});else if(n||"object"!==x(t))r(e,t);else for(i in t)jt(e+"["+i+"]",t[i],n,r)}w.param=function(e,t){var n,r=[],i=function(e,t){var n=g(t)?t():t;r[r.length]=encodeURIComponent(e)+"="+encodeURIComponent(null==n?"":n)};if(Array.isArray(e)||e.jquery&&!w.isPlainObject(e))w.each(e,function(){i(this.name,this.value)});else for(n in e)jt(n,e[n],t,i);return r.join("&")},w.fn.extend({serialize:function(){return w.param(this.serializeArray())},serializeArray:function(){return this.map(function(){var e=w.prop(this,"elements");return e?w.makeArray(e):this}).filter(function(){var e=this.type;return this.name&&!w(this).is(":disabled")&&At.test(this.nodeName)&&!Nt.test(e)&&(this.checked||!pe.test(e))}).map(function(e,t){var n=w(this).val();return null==n?null:Array.isArray(n)?w.map(n,function(e){return{name:t.name,value:e.replace(Dt,"\r\n")}}):{name:t.name,value:n.replace(Dt,"\r\n")}}).get()}});var qt=/%20/g,Lt=/#.*$/,Ht=/([?&])_=[^&]*/,Ot=/^(.*?):[ \t]*([^\r\n]*)$/gm,Pt=/^(?:about|app|app-storage|.+-extension|file|res|widget):$/,Mt=/^(?:GET|HEAD)$/,Rt=/^\/\//,It={},Wt={},$t="*/".concat("*"),Bt=r.createElement("a");Bt.href=Ct.href;function Ft(e){return function(t,n){"string"!=typeof t&&(n=t,t="*");var r,i=0,o=t.toLowerCase().match(M)||[];if(g(n))while(r=o[i++])"+"===r[0]?(r=r.slice(1)||"*",(e[r]=e[r]||[]).unshift(n)):(e[r]=e[r]||[]).push(n)}}function _t(e,t,n,r){var i={},o=e===Wt;function a(s){var u;return i[s]=!0,w.each(e[s]||[],function(e,s){var l=s(t,n,r);return"string"!=typeof l||o||i[l]?o?!(u=l):void 0:(t.dataTypes.unshift(l),a(l),!1)}),u}return a(t.dataTypes[0])||!i["*"]&&a("*")}function zt(e,t){var n,r,i=w.ajaxSettings.flatOptions||{};for(n in t)void 0!==t[n]&&((i[n]?e:r||(r={}))[n]=t[n]);return r&&w.extend(!0,e,r),e}function Xt(e,t,n){var r,i,o,a,s=e.contents,u=e.dataTypes;while("*"===u[0])u.shift(),void 0===r&&(r=e.mimeType||t.getResponseHeader("Content-Type"));if(r)for(i in s)if(s[i]&&s[i].test(r)){u.unshift(i);break}if(u[0]in n)o=u[0];else{for(i in n){if(!u[0]||e.converters[i+" "+u[0]]){o=i;break}a||(a=i)}o=o||a}if(o)return o!==u[0]&&u.unshift(o),n[o]}function Ut(e,t,n,r){var i,o,a,s,u,l={},c=e.dataTypes.slice();if(c[1])for(a in e.converters)l[a.toLowerCase()]=e.converters[a];o=c.shift();while(o)if(e.responseFields[o]&&(n[e.responseFields[o]]=t),!u&&r&&e.dataFilter&&(t=e.dataFilter(t,e.dataType)),u=o,o=c.shift())if("*"===o)o=u;else if("*"!==u&&u!==o){if(!(a=l[u+" "+o]||l["* "+o]))for(i in l)if((s=i.split(" "))[1]===o&&(a=l[u+" "+s[0]]||l["* "+s[0]])){!0===a?a=l[i]:!0!==l[i]&&(o=s[0],c.unshift(s[1]));break}if(!0!==a)if(a&&e["throws"])t=a(t);else try{t=a(t)}catch(e){return{state:"parsererror",error:a?e:"No conversion from "+u+" to "+o}}}return{state:"success",data:t}}w.extend({active:0,lastModified:{},etag:{},ajaxSettings:{url:Ct.href,type:"GET",isLocal:Pt.test(Ct.protocol),global:!0,processData:!0,async:!0,contentType:"application/x-www-form-urlencoded; charset=UTF-8",accepts:{"*":$t,text:"text/plain",html:"text/html",xml:"application/xml, text/xml",json:"application/json, text/javascript"},contents:{xml:/\bxml\b/,html:/\bhtml/,json:/\bjson\b/},responseFields:{xml:"responseXML",text:"responseText",json:"responseJSON"},converters:{"* text":String,"text html":!0,"text json":JSON.parse,"text xml":w.parseXML},flatOptions:{url:!0,context:!0}},ajaxSetup:function(e,t){return t?zt(zt(e,w.ajaxSettings),t):zt(w.ajaxSettings,e)},ajaxPrefilter:Ft(It),ajaxTransport:Ft(Wt),ajax:function(t,n){"object"==typeof t&&(n=t,t=void 0),n=n||{};var i,o,a,s,u,l,c,f,p,d,h=w.ajaxSetup({},n),g=h.context||h,y=h.context&&(g.nodeType||g.jquery)?w(g):w.event,v=w.Deferred(),m=w.Callbacks("once memory"),x=h.statusCode||{},b={},T={},C="canceled",E={readyState:0,getResponseHeader:function(e){var t;if(c){if(!s){s={};while(t=Ot.exec(a))s[t[1].toLowerCase()]=t[2]}t=s[e.toLowerCase()]}return null==t?null:t},getAllResponseHeaders:function(){return c?a:null},setRequestHeader:function(e,t){return null==c&&(e=T[e.toLowerCase()]=T[e.toLowerCase()]||e,b[e]=t),this},overrideMimeType:function(e){return null==c&&(h.mimeType=e),this},statusCode:function(e){var t;if(e)if(c)E.always(e[E.status]);else for(t in e)x[t]=[x[t],e[t]];return this},abort:function(e){var t=e||C;return i&&i.abort(t),k(0,t),this}};if(v.promise(E),h.url=((t||h.url||Ct.href)+"").replace(Rt,Ct.protocol+"//"),h.type=n.method||n.type||h.method||h.type,h.dataTypes=(h.dataType||"*").toLowerCase().match(M)||[""],null==h.crossDomain){l=r.createElement("a");try{l.href=h.url,l.href=l.href,h.crossDomain=Bt.protocol+"//"+Bt.host!=l.protocol+"//"+l.host}catch(e){h.crossDomain=!0}}if(h.data&&h.processData&&"string"!=typeof h.data&&(h.data=w.param(h.data,h.traditional)),_t(It,h,n,E),c)return E;(f=w.event&&h.global)&&0==w.active++&&w.event.trigger("ajaxStart"),h.type=h.type.toUpperCase(),h.hasContent=!Mt.test(h.type),o=h.url.replace(Lt,""),h.hasContent?h.data&&h.processData&&0===(h.contentType||"").indexOf("application/x-www-form-urlencoded")&&(h.data=h.data.replace(qt,"+")):(d=h.url.slice(o.length),h.data&&(h.processData||"string"==typeof h.data)&&(o+=(kt.test(o)?"&":"?")+h.data,delete h.data),!1===h.cache&&(o=o.replace(Ht,"$1"),d=(kt.test(o)?"&":"?")+"_="+Et+++d),h.url=o+d),h.ifModified&&(w.lastModified[o]&&E.setRequestHeader("If-Modified-Since",w.lastModified[o]),w.etag[o]&&E.setRequestHeader("If-None-Match",w.etag[o])),(h.data&&h.hasContent&&!1!==h.contentType||n.contentType)&&E.setRequestHeader("Content-Type",h.contentType),E.setRequestHeader("Accept",h.dataTypes[0]&&h.accepts[h.dataTypes[0]]?h.accepts[h.dataTypes[0]]+("*"!==h.dataTypes[0]?", "+$t+"; q=0.01":""):h.accepts["*"]);for(p in h.headers)E.setRequestHeader(p,h.headers[p]);if(h.beforeSend&&(!1===h.beforeSend.call(g,E,h)||c))return E.abort();if(C="abort",m.add(h.complete),E.done(h.success),E.fail(h.error),i=_t(Wt,h,n,E)){if(E.readyState=1,f&&y.trigger("ajaxSend",[E,h]),c)return E;h.async&&h.timeout>0&&(u=e.setTimeout(function(){E.abort("timeout")},h.timeout));try{c=!1,i.send(b,k)}catch(e){if(c)throw e;k(-1,e)}}else k(-1,"No Transport");function k(t,n,r,s){var l,p,d,b,T,C=n;c||(c=!0,u&&e.clearTimeout(u),i=void 0,a=s||"",E.readyState=t>0?4:0,l=t>=200&&t<300||304===t,r&&(b=Xt(h,E,r)),b=Ut(h,b,E,l),l?(h.ifModified&&((T=E.getResponseHeader("Last-Modified"))&&(w.lastModified[o]=T),(T=E.getResponseHeader("etag"))&&(w.etag[o]=T)),204===t||"HEAD"===h.type?C="nocontent":304===t?C="notmodified":(C=b.state,p=b.data,l=!(d=b.error))):(d=C,!t&&C||(C="error",t<0&&(t=0))),E.status=t,E.statusText=(n||C)+"",l?v.resolveWith(g,[p,C,E]):v.rejectWith(g,[E,C,d]),E.statusCode(x),x=void 0,f&&y.trigger(l?"ajaxSuccess":"ajaxError",[E,h,l?p:d]),m.fireWith(g,[E,C]),f&&(y.trigger("ajaxComplete",[E,h]),--w.active||w.event.trigger("ajaxStop")))}return E},getJSON:function(e,t,n){return w.get(e,t,n,"json")},getScript:function(e,t){return w.get(e,void 0,t,"script")}}),w.each(["get","post"],function(e,t){w[t]=function(e,n,r,i){return g(n)&&(i=i||r,r=n,n=void 0),w.ajax(w.extend({url:e,type:t,dataType:i,data:n,success:r},w.isPlainObject(e)&&e))}}),w._evalUrl=function(e){return w.ajax({url:e,type:"GET",dataType:"script",cache:!0,async:!1,global:!1,"throws":!0})},w.fn.extend({wrapAll:function(e){var t;return this[0]&&(g(e)&&(e=e.call(this[0])),t=w(e,this[0].ownerDocument).eq(0).clone(!0),this[0].parentNode&&t.insertBefore(this[0]),t.map(function(){var e=this;while(e.firstElementChild)e=e.firstElementChild;return e}).append(this)),this},wrapInner:function(e){return g(e)?this.each(function(t){w(this).wrapInner(e.call(this,t))}):this.each(function(){var t=w(this),n=t.contents();n.length?n.wrapAll(e):t.append(e)})},wrap:function(e){var t=g(e);return this.each(function(n){w(this).wrapAll(t?e.call(this,n):e)})},unwrap:function(e){return this.parent(e).not("body").each(function(){w(this).replaceWith(this.childNodes)}),this}}),w.expr.pseudos.hidden=function(e){return!w.expr.pseudos.visible(e)},w.expr.pseudos.visible=function(e){return!!(e.offsetWidth||e.offsetHeight||e.getClientRects().length)},w.ajaxSettings.xhr=function(){try{return new e.XMLHttpRequest}catch(e){}};var Vt={0:200,1223:204},Gt=w.ajaxSettings.xhr();h.cors=!!Gt&&"withCredentials"in Gt,h.ajax=Gt=!!Gt,w.ajaxTransport(function(t){var n,r;if(h.cors||Gt&&!t.crossDomain)return{send:function(i,o){var a,s=t.xhr();if(s.open(t.type,t.url,t.async,t.username,t.password),t.xhrFields)for(a in t.xhrFields)s[a]=t.xhrFields[a];t.mimeType&&s.overrideMimeType&&s.overrideMimeType(t.mimeType),t.crossDomain||i["X-Requested-With"]||(i["X-Requested-With"]="XMLHttpRequest");for(a in i)s.setRequestHeader(a,i[a]);n=function(e){return function(){n&&(n=r=s.onload=s.onerror=s.onabort=s.ontimeout=s.onreadystatechange=null,"abort"===e?s.abort():"error"===e?"number"!=typeof s.status?o(0,"error"):o(s.status,s.statusText):o(Vt[s.status]||s.status,s.statusText,"text"!==(s.responseType||"text")||"string"!=typeof s.responseText?{binary:s.response}:{text:s.responseText},s.getAllResponseHeaders()))}},s.onload=n(),r=s.onerror=s.ontimeout=n("error"),void 0!==s.onabort?s.onabort=r:s.onreadystatechange=function(){4===s.readyState&&e.setTimeout(function(){n&&r()})},n=n("abort");try{s.send(t.hasContent&&t.data||null)}catch(e){if(n)throw e}},abort:function(){n&&n()}}}),w.ajaxPrefilter(function(e){e.crossDomain&&(e.contents.script=!1)}),w.ajaxSetup({accepts:{script:"text/javascript, application/javascript, application/ecmascript, application/x-ecmascript"},contents:{script:/\b(?:java|ecma)script\b/},converters:{"text script":function(e){return w.globalEval(e),e}}}),w.ajaxPrefilter("script",function(e){void 0===e.cache&&(e.cache=!1),e.crossDomain&&(e.type="GET")}),w.ajaxTransport("script",function(e){if(e.crossDomain){var t,n;return{send:function(i,o){t=w("<script>").prop({charset:e.scriptCharset,src:e.url}).on("load error",n=function(e){t.remove(),n=null,e&&o("error"===e.type?404:200,e.type)}),r.head.appendChild(t[0])},abort:function(){n&&n()}}}});var Yt=[],Qt=/(=)\?(?=&|$)|\?\?/;w.ajaxSetup({jsonp:"callback",jsonpCallback:function(){var e=Yt.pop()||w.expando+"_"+Et++;return this[e]=!0,e}}),w.ajaxPrefilter("json jsonp",function(t,n,r){var i,o,a,s=!1!==t.jsonp&&(Qt.test(t.url)?"url":"string"==typeof t.data&&0===(t.contentType||"").indexOf("application/x-www-form-urlencoded")&&Qt.test(t.data)&&"data");if(s||"jsonp"===t.dataTypes[0])return i=t.jsonpCallback=g(t.jsonpCallback)?t.jsonpCallback():t.jsonpCallback,s?t[s]=t[s].replace(Qt,"$1"+i):!1!==t.jsonp&&(t.url+=(kt.test(t.url)?"&":"?")+t.jsonp+"="+i),t.converters["script json"]=function(){return a||w.error(i+" was not called"),a[0]},t.dataTypes[0]="json",o=e[i],e[i]=function(){a=arguments},r.always(function(){void 0===o?w(e).removeProp(i):e[i]=o,t[i]&&(t.jsonpCallback=n.jsonpCallback,Yt.push(i)),a&&g(o)&&o(a[0]),a=o=void 0}),"script"}),h.createHTMLDocument=function(){var e=r.implementation.createHTMLDocument("").body;return e.innerHTML="<form></form><form></form>",2===e.childNodes.length}(),w.parseHTML=function(e,t,n){if("string"!=typeof e)return[];"boolean"==typeof t&&(n=t,t=!1);var i,o,a;return t||(h.createHTMLDocument?((i=(t=r.implementation.createHTMLDocument("")).createElement("base")).href=r.location.href,t.head.appendChild(i)):t=r),o=A.exec(e),a=!n&&[],o?[t.createElement(o[1])]:(o=xe([e],t,a),a&&a.length&&w(a).remove(),w.merge([],o.childNodes))},w.fn.load=function(e,t,n){var r,i,o,a=this,s=e.indexOf(" ");return s>-1&&(r=vt(e.slice(s)),e=e.slice(0,s)),g(t)?(n=t,t=void 0):t&&"object"==typeof t&&(i="POST"),a.length>0&&w.ajax({url:e,type:i||"GET",dataType:"html",data:t}).done(function(e){o=arguments,a.html(r?w("<div>").append(w.parseHTML(e)).find(r):e)}).always(n&&function(e,t){a.each(function(){n.apply(this,o||[e.responseText,t,e])})}),this},w.each(["ajaxStart","ajaxStop","ajaxComplete","ajaxError","ajaxSuccess","ajaxSend"],function(e,t){w.fn[t]=function(e){return this.on(t,e)}}),w.expr.pseudos.animated=function(e){return w.grep(w.timers,function(t){return e===t.elem}).length},w.offset={setOffset:function(e,t,n){var r,i,o,a,s,u,l,c=w.css(e,"position"),f=w(e),p={};"static"===c&&(e.style.position="relative"),s=f.offset(),o=w.css(e,"top"),u=w.css(e,"left"),(l=("absolute"===c||"fixed"===c)&&(o+u).indexOf("auto")>-1)?(a=(r=f.position()).top,i=r.left):(a=parseFloat(o)||0,i=parseFloat(u)||0),g(t)&&(t=t.call(e,n,w.extend({},s))),null!=t.top&&(p.top=t.top-s.top+a),null!=t.left&&(p.left=t.left-s.left+i),"using"in t?t.using.call(e,p):f.css(p)}},w.fn.extend({offset:function(e){if(arguments.length)return void 0===e?this:this.each(function(t){w.offset.setOffset(this,e,t)});var t,n,r=this[0];if(r)return r.getClientRects().length?(t=r.getBoundingClientRect(),n=r.ownerDocument.defaultView,{top:t.top+n.pageYOffset,left:t.left+n.pageXOffset}):{top:0,left:0}},position:function(){if(this[0]){var e,t,n,r=this[0],i={top:0,left:0};if("fixed"===w.css(r,"position"))t=r.getBoundingClientRect();else{t=this.offset(),n=r.ownerDocument,e=r.offsetParent||n.documentElement;while(e&&(e===n.body||e===n.documentElement)&&"static"===w.css(e,"position"))e=e.parentNode;e&&e!==r&&1===e.nodeType&&((i=w(e).offset()).top+=w.css(e,"borderTopWidth",!0),i.left+=w.css(e,"borderLeftWidth",!0))}return{top:t.top-i.top-w.css(r,"marginTop",!0),left:t.left-i.left-w.css(r,"marginLeft",!0)}}},offsetParent:function(){return this.map(function(){var e=this.offsetParent;while(e&&"static"===w.css(e,"position"))e=e.offsetParent;return e||be})}}),w.each({scrollLeft:"pageXOffset",scrollTop:"pageYOffset"},function(e,t){var n="pageYOffset"===t;w.fn[e]=function(r){return z(this,function(e,r,i){var o;if(y(e)?o=e:9===e.nodeType&&(o=e.defaultView),void 0===i)return o?o[t]:e[r];o?o.scrollTo(n?o.pageXOffset:i,n?i:o.pageYOffset):e[r]=i},e,r,arguments.length)}}),w.each(["top","left"],function(e,t){w.cssHooks[t]=_e(h.pixelPosition,function(e,n){if(n)return n=Fe(e,t),We.test(n)?w(e).position()[t]+"px":n})}),w.each({Height:"height",Width:"width"},function(e,t){w.each({padding:"inner"+e,content:t,"":"outer"+e},function(n,r){w.fn[r]=function(i,o){var a=arguments.length&&(n||"boolean"!=typeof i),s=n||(!0===i||!0===o?"margin":"border");return z(this,function(t,n,i){var o;return y(t)?0===r.indexOf("outer")?t["inner"+e]:t.document.documentElement["client"+e]:9===t.nodeType?(o=t.documentElement,Math.max(t.body["scroll"+e],o["scroll"+e],t.body["offset"+e],o["offset"+e],o["client"+e])):void 0===i?w.css(t,n,s):w.style(t,n,i,s)},t,a?i:void 0,a)}})}),w.each("blur focus focusin focusout resize scroll click dblclick mousedown mouseup mousemove mouseover mouseout mouseenter mouseleave change select submit keydown keypress keyup contextmenu".split(" "),function(e,t){w.fn[t]=function(e,n){return arguments.length>0?this.on(t,null,e,n):this.trigger(t)}}),w.fn.extend({hover:function(e,t){return this.mouseenter(e).mouseleave(t||e)}}),w.fn.extend({bind:function(e,t,n){return this.on(e,null,t,n)},unbind:function(e,t){return this.off(e,null,t)},delegate:function(e,t,n,r){return this.on(t,e,n,r)},undelegate:function(e,t,n){return 1===arguments.length?this.off(e,"**"):this.off(t,e||"**",n)}}),w.proxy=function(e,t){var n,r,i;if("string"==typeof t&&(n=e[t],t=e,e=n),g(e))return r=o.call(arguments,2),i=function(){return e.apply(t||this,r.concat(o.call(arguments)))},i.guid=e.guid=e.guid||w.guid++,i},w.holdReady=function(e){e?w.readyWait++:w.ready(!0)},w.isArray=Array.isArray,w.parseJSON=JSON.parse,w.nodeName=N,w.isFunction=g,w.isWindow=y,w.camelCase=G,w.type=x,w.now=Date.now,w.isNumeric=function(e){var t=w.type(e);return("number"===t||"string"===t)&&!isNaN(e-parseFloat(e))},"function"==typeof define&&define.amd&&define("jquery",[],function(){return w});var Jt=e.jQuery,Kt=e.$;return w.noConflict=function(t){return e.$===w&&(e.$=Kt),t&&e.jQuery===w&&(e.jQuery=Jt),w},t||(e.jQuery=e.$=w),w});
-
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-Wick.Tools.PathCursor = class extends Wick.Tool {
-  constructor() {
-    super();
-    this.name = 'pathcursor';
-    this.SELECTION_TOLERANCE = 3;
-    this.CURSOR_DEFAULT = 'cursors/default.png';
-    this.CURSOR_SEGMENT = 'cursors/segment.png';
-    this.CURSOR_CURVE = 'cursors/curve.png';
-    this.HOVER_PREVIEW_SEGMENT_STROKE_COLOR = 'rgba(100,150,255,1.0)';
-    this.HOVER_PREVIEW_SEGMENT_STROKE_WIDTH = 1.5;
-    this.HOVER_PREVIEW_SEGMENT_FILL_COLOR = '#ffffff';
-    this.HOVER_PREVIEW_SEGMENT_RADIUS = 5;
-    this.HOVER_PREVIEW_CURVE_STROKE_WIDTH = 2;
-    this.HOVER_PREVIEW_CURVE_STROKE_COLOR = this.HOVER_PREVIEW_SEGMENT_STROKE_COLOR;
-    this.hitResult = new this.paper.HitResult();
-    this.draggingCurve = new this.paper.Curve();
-    this.draggingSegment = new this.paper.Segment();
-    this.hoverPreview = new this.paper.Item({
-      insert: false
-    });
-    this.currentCursorIcon = '';
-  }
-
-  get cursor() {
-    return 'url("' + this.currentCursorIcon + '") 32 32, auto';
-  }
-
-  onActivate(e) {}
-
-  onDeactivate(e) {}
-
-  onMouseMove(e) {
-    super.onMouseMove(e); // Remove the hover preview, a new one will be generated if needed
-
-    this.hoverPreview.remove(); // Find the thing that is currently under the cursor.
-
-    this.hitResult = this._updateHitResult(e); // Update the image being used for the cursor
-
-    this._setCursor(this._getCursor()); // Regen hover preview
-
-
-    if (this.hitResult.type === 'segment' && !this.hitResult.item.data.isSelectionBoxGUI) {
-      // Hovering over a segment, draw a circle where the segment is
-      this.hoverPreview = new this.paper.Path.Circle(this.hitResult.segment.point, this.HOVER_PREVIEW_SEGMENT_RADIUS / this.paper.view.zoom);
-      this.hoverPreview.strokeColor = this.HOVER_PREVIEW_SEGMENT_STROKE_COLOR;
-      this.hoverPreview.strokeWidth = this.HOVER_PREVIEW_SEGMENT_STROKE_WIDTH;
-      this.hoverPreview.fillColor = this.HOVER_PREVIEW_SEGMENT_FILL_COLOR;
-    } else if (this.hitResult.type === 'curve' && !this.hitResult.item.data.isSelectionBoxGUI) {
-      // Hovering over a curve, render a copy of the curve that can be bent
-      this.hoverPreview = new this.paper.Path();
-      this.hoverPreview.strokeWidth = this.HOVER_PREVIEW_CURVE_STROKE_WIDTH;
-      this.hoverPreview.strokeColor = this.HOVER_PREVIEW_CURVE_STROKE_COLOR;
-      this.hoverPreview.add(new this.paper.Point(this.hitResult.location.curve.point1));
-      this.hoverPreview.add(new this.paper.Point(this.hitResult.location.curve.point2));
-      this.hoverPreview.segments[0].handleOut = this.hitResult.location.curve.handle1;
-      this.hoverPreview.segments[1].handleIn = this.hitResult.location.curve.handle2;
-    }
-
-    this.hoverPreview.data.wickType = 'gui';
-  }
-
-  onMouseDown(e) {
-    super.onMouseDown(e);
-    if (!e.modifiers) e.modifiers = {};
-    this.hitResult = this._updateHitResult(e);
-
-    if (this.hitResult.item && this.hitResult.type === 'curve') {
-      // Clicked a curve, start dragging it
-      this.draggingCurve = this.hitResult.location.curve;
-    } else if (this.hitResult.item && this.hitResult.type === 'segment') {}
-  }
-
-  onDoubleClick(e) {}
-
-  onMouseDrag(e) {
-    if (!e.modifiers) e.modifiers = {};
-
-    if (this.hitResult.item && this.hitResult.type === 'segment') {
-      // We're dragging an individual point, so move the point.
-      this.hitResult.segment.point = this.hitResult.segment.point.add(e.delta);
-      this.hoverPreview.position = this.hitResult.segment.point;
-    } else if (this.hitResult.item && this.hitResult.type === 'curve') {
-      // We're dragging a curve, so bend the curve.
-      var segment1 = this.draggingCurve.segment1;
-      var segment2 = this.draggingCurve.segment2;
-      var handleIn = segment1.handleOut;
-      var handleOut = segment2.handleIn;
-
-      if (handleIn.x === 0 && handleIn.y === 0) {
-        handleIn.x = (segment2.point.x - segment1.point.x) / 4;
-        handleIn.y = (segment2.point.y - segment1.point.y) / 4;
-      }
-
-      if (handleOut.x === 0 && handleOut.y === 0) {
-        handleOut.x = (segment1.point.x - segment2.point.x) / 4;
-        handleOut.y = (segment1.point.y - segment2.point.y) / 4;
-      }
-
-      handleIn.x += e.delta.x;
-      handleIn.y += e.delta.y;
-      handleOut.x += e.delta.x;
-      handleOut.y += e.delta.y; // Update the hover preview to match the curve we just changed
-
-      this.hoverPreview.segments[0].handleOut = this.draggingCurve.handle1;
-      this.hoverPreview.segments[1].handleIn = this.draggingCurve.handle2;
-    }
-  }
-
-  onMouseUp(e) {
-    if (this.hitResult.type === 'segment' || this.hitResult.type === 'curve') {
-      this.fireEvent('canvasModified');
-    }
-  }
-
-  _updateHitResult(e) {
-    var newHitResult = this.paper.project.hitTest(e.point, {
-      fill: true,
-      stroke: true,
-      curves: true,
-      segments: true,
-      tolerance: this.SELECTION_TOLERANCE,
-      match: result => {
-        return result.item !== this.hoverPreview && !result.item.data.isBorder;
-      }
-    });
-    if (!newHitResult) newHitResult = new this.paper.HitResult();
-
-    if (newHitResult.item && !newHitResult.item.data.isSelectionBoxGUI) {
-      // You can't select children of compound paths, you can only select the whole thing.
-      if (newHitResult.item.parent.className === 'CompoundPath') {
-        newHitResult.item = newHitResult.item.parent;
-      } // You can't select individual children in a group, you can only select the whole thing.
-
-
-      if (newHitResult.item.parent.parent) {
-        newHitResult.type = 'fill';
-
-        while (newHitResult.item.parent.parent) {
-          newHitResult.item = newHitResult.item.parent;
-        }
-      } // this.paper.js has two names for strokes+curves, we don't need that extra info
-
-
-      if (newHitResult.type === 'stroke') {
-        newHitResult.type = 'curve';
-      } // Mousing over rasters acts the same as mousing over fills.
-
-
-      if (newHitResult.type === 'pixel') {
-        newHitResult.type = 'fill';
-      }
-    }
-
-    return newHitResult;
-  }
-
-  _getCursor() {
-    if (!this.hitResult.item) {
-      return this.CURSOR_DEFAULT;
-    } else if (this.hitResult.type === 'curve') {
-      return this.CURSOR_CURVE;
-    } else if (this.hitResult.type === 'segment') {
-      return this.CURSOR_SEGMENT;
-    }
-  }
-
-  _setCursor(cursor) {
-    this.currentCursorIcon = cursor;
   }
 
 };
@@ -39726,165 +39635,174 @@ return void 0;
 * You should have received a copy of the GNU General Public License
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
-Wick.Tools.Pencil = class extends Wick.Tool {
-  static get MIN_ADD_POINT_MOVEMENT() {
-    return 2;
-  }
-  /**
-   * Creates a pencil tool.
-   */
-
-
+Wick.Tools.PathCursor = class extends Wick.Tool {
   constructor() {
     super();
-    this.name = 'pencil';
-    this.path = null;
-    this._movement = new paper.Point();
+    this.name = 'pathcursor';
+    this.SELECTION_TOLERANCE = 3;
+    this.CURSOR_DEFAULT = 'cursors/default.png';
+    this.CURSOR_SEGMENT = 'cursors/segment.png';
+    this.CURSOR_CURVE = 'cursors/curve.png';
+    this.HOVER_PREVIEW_SEGMENT_STROKE_COLOR = 'rgba(100,150,255,1.0)';
+    this.HOVER_PREVIEW_SEGMENT_STROKE_WIDTH = 1.5;
+    this.HOVER_PREVIEW_SEGMENT_FILL_COLOR = '#ffffff';
+    this.HOVER_PREVIEW_SEGMENT_RADIUS = 5;
+    this.HOVER_PREVIEW_CURVE_STROKE_WIDTH = 2;
+    this.HOVER_PREVIEW_CURVE_STROKE_COLOR = this.HOVER_PREVIEW_SEGMENT_STROKE_COLOR;
+    this.hitResult = new this.paper.HitResult();
+    this.draggingCurve = new this.paper.Curve();
+    this.draggingSegment = new this.paper.Segment();
+    this.hoverPreview = new this.paper.Item({
+      insert: false
+    });
+    this.currentCursorIcon = '';
   }
-  /**
-   * The pencil cursor.
-   * @type {string}
-   */
-
 
   get cursor() {
-    return 'url(cursors/pencil.png) 32 32, auto';
-  }
-
-  get isDrawingTool() {
-    return true;
+    return 'url("' + this.currentCursorIcon + '") 32 32, auto';
   }
 
   onActivate(e) {}
 
   onDeactivate(e) {}
 
-  onMouseDown(e) {
-    this._movement = new paper.Point();
+  onMouseMove(e) {
+    super.onMouseMove(e); // Remove the hover preview, a new one will be generated if needed
 
-    if (!this.path) {
-      this.path = new this.paper.Path({
-        strokeColor: this.getSetting('strokeColor'),
-        strokeWidth: this.getSetting('strokeWidth'),
-        strokeCap: 'round'
-      });
+    this.hoverPreview.remove(); // Find the thing that is currently under the cursor.
+
+    this.hitResult = this._updateHitResult(e); // Update the image being used for the cursor
+
+    this._setCursor(this._getCursor()); // Regen hover preview
+
+
+    if (this.hitResult.type === 'segment' && !this.hitResult.item.data.isSelectionBoxGUI) {
+      // Hovering over a segment, draw a circle where the segment is
+      this.hoverPreview = new this.paper.Path.Circle(this.hitResult.segment.point, this.HOVER_PREVIEW_SEGMENT_RADIUS / this.paper.view.zoom);
+      this.hoverPreview.strokeColor = this.HOVER_PREVIEW_SEGMENT_STROKE_COLOR;
+      this.hoverPreview.strokeWidth = this.HOVER_PREVIEW_SEGMENT_STROKE_WIDTH;
+      this.hoverPreview.fillColor = this.HOVER_PREVIEW_SEGMENT_FILL_COLOR;
+    } else if (this.hitResult.type === 'curve' && !this.hitResult.item.data.isSelectionBoxGUI) {
+      // Hovering over a curve, render a copy of the curve that can be bent
+      this.hoverPreview = new this.paper.Path();
+      this.hoverPreview.strokeWidth = this.HOVER_PREVIEW_CURVE_STROKE_WIDTH;
+      this.hoverPreview.strokeColor = this.HOVER_PREVIEW_CURVE_STROKE_COLOR;
+      this.hoverPreview.add(new this.paper.Point(this.hitResult.location.curve.point1));
+      this.hoverPreview.add(new this.paper.Point(this.hitResult.location.curve.point2));
+      this.hoverPreview.segments[0].handleOut = this.hitResult.location.curve.handle1;
+      this.hoverPreview.segments[1].handleIn = this.hitResult.location.curve.handle2;
     }
 
-    this.path.add(e.point);
+    this.hoverPreview.data.wickType = 'gui';
   }
 
-  onMouseDrag(e) {
-    if (!this.path) return;
-    this._movement = this._movement.add(e.delta);
+  onMouseDown(e) {
+    super.onMouseDown(e);
+    if (!e.modifiers) e.modifiers = {};
+    this.hitResult = this._updateHitResult(e);
 
-    if (this._movement.length > Wick.Tools.Pencil.MIN_ADD_POINT_MOVEMENT / this.paper.view.zoom) {
-      this._movement = new paper.Point();
-      this.path.add(e.point);
-      this.path.smooth();
+    if (this.hitResult.item && this.hitResult.type === 'curve') {
+      // Clicked a curve, start dragging it
+      this.draggingCurve = this.hitResult.location.curve;
+    } else if (this.hitResult.item && this.hitResult.type === 'segment') {}
+  }
+
+  onDoubleClick(e) {}
+
+  onMouseDrag(e) {
+    if (!e.modifiers) e.modifiers = {};
+
+    if (this.hitResult.item && this.hitResult.type === 'segment') {
+      // We're dragging an individual point, so move the point.
+      this.hitResult.segment.point = this.hitResult.segment.point.add(e.delta);
+      this.hoverPreview.position = this.hitResult.segment.point;
+    } else if (this.hitResult.item && this.hitResult.type === 'curve') {
+      // We're dragging a curve, so bend the curve.
+      var segment1 = this.draggingCurve.segment1;
+      var segment2 = this.draggingCurve.segment2;
+      var handleIn = segment1.handleOut;
+      var handleOut = segment2.handleIn;
+
+      if (handleIn.x === 0 && handleIn.y === 0) {
+        handleIn.x = (segment2.point.x - segment1.point.x) / 4;
+        handleIn.y = (segment2.point.y - segment1.point.y) / 4;
+      }
+
+      if (handleOut.x === 0 && handleOut.y === 0) {
+        handleOut.x = (segment1.point.x - segment2.point.x) / 4;
+        handleOut.y = (segment1.point.y - segment2.point.y) / 4;
+      }
+
+      handleIn.x += e.delta.x;
+      handleIn.y += e.delta.y;
+      handleOut.x += e.delta.x;
+      handleOut.y += e.delta.y; // Update the hover preview to match the curve we just changed
+
+      this.hoverPreview.segments[0].handleOut = this.draggingCurve.handle1;
+      this.hoverPreview.segments[1].handleIn = this.draggingCurve.handle2;
     }
   }
 
   onMouseUp(e) {
-    if (!this.path) return;
-    this.path.add(e.point);
-    this.path.simplify();
-    this.path.remove();
-    this.addPathToProject(this.path);
-    this.path = null;
-    this.fireEvent('canvasModified');
-  }
-
-};
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-Wick.Tools.Rectangle = class extends Wick.Tool {
-  /**
-   *
-   */
-  constructor() {
-    super();
-    this.name = 'rectangle';
-    this.path = null;
-    this.topLeft = null;
-    this.bottomRight = null;
-  }
-  /**
-   *
-   * @type {string}
-   */
-
-
-  get cursor() {
-    return 'crosshair';
-  }
-
-  get isDrawingTool() {
-    return true;
-  }
-
-  onActivate(e) {}
-
-  onDeactivate(e) {
-    if (this.path) {
-      this.path.remove();
-      this.path = null;
+    if (this.hitResult.type === 'segment' || this.hitResult.type === 'curve') {
+      this.fireEvent('canvasModified');
     }
   }
 
-  onMouseDown(e) {
-    this.topLeft = e.point;
-    this.bottomRight = e.point;
-  }
+  _updateHitResult(e) {
+    var newHitResult = this.paper.project.hitTest(e.point, {
+      fill: true,
+      stroke: true,
+      curves: true,
+      segments: true,
+      tolerance: this.SELECTION_TOLERANCE,
+      match: result => {
+        return result.item !== this.hoverPreview && !result.item.data.isBorder;
+      }
+    });
+    if (!newHitResult) newHitResult = new this.paper.HitResult();
 
-  onMouseDrag(e) {
-    if (this.path) this.path.remove();
-    this.bottomRight = e.point; // Lock width and height if shift is held down
+    if (newHitResult.item && !newHitResult.item.data.isSelectionBoxGUI) {
+      // You can't select children of compound paths, you can only select the whole thing.
+      if (newHitResult.item.parent.className === 'CompoundPath') {
+        newHitResult.item = newHitResult.item.parent;
+      } // You can't select individual children in a group, you can only select the whole thing.
 
-    if (e.modifiers.shift) {
-      var d = this.bottomRight.subtract(this.topLeft);
-      var max = Math.max(Math.abs(d.x), Math.abs(d.y));
-      this.bottomRight.x = this.topLeft.x + max * (d.x < 0 ? -1 : 1);
-      this.bottomRight.y = this.topLeft.y + max * (d.y < 0 ? -1 : 1);
+
+      if (newHitResult.item.parent.parent) {
+        newHitResult.type = 'fill';
+
+        while (newHitResult.item.parent.parent) {
+          newHitResult.item = newHitResult.item.parent;
+        }
+      } // this.paper.js has two names for strokes+curves, we don't need that extra info
+
+
+      if (newHitResult.type === 'stroke') {
+        newHitResult.type = 'curve';
+      } // Mousing over rasters acts the same as mousing over fills.
+
+
+      if (newHitResult.type === 'pixel') {
+        newHitResult.type = 'fill';
+      }
     }
 
-    var bounds = new this.paper.Rectangle(new paper.Point(this.topLeft.x, this.topLeft.y), new paper.Point(this.bottomRight.x, this.bottomRight.y));
-
-    if (this.getSetting('cornerRadius') !== 0) {
-      this.path = new this.paper.Path.Rectangle(bounds, this.getSetting('cornerRadius'));
-    } else {
-      this.path = new this.paper.Path.Rectangle(bounds);
-    }
-
-    this.path.fillColor = this.getSetting('fillColor');
-    this.path.strokeColor = this.getSetting('strokeColor');
-    this.path.strokeWidth = this.getSetting('strokeWidth');
-    this.path.strokeCap = 'round';
+    return newHitResult;
   }
 
-  onMouseUp(e) {
-    if (!this.path) return;
-    this.path.remove();
-    this.addPathToProject(this.path);
-    this.path = null;
-    this.fireEvent('canvasModified');
+  _getCursor() {
+    if (!this.hitResult.item) {
+      return this.CURSOR_DEFAULT;
+    } else if (this.hitResult.type === 'curve') {
+      return this.CURSOR_CURVE;
+    } else if (this.hitResult.type === 'segment') {
+      return this.CURSOR_SEGMENT;
+    }
+  }
+
+  _setCursor(cursor) {
+    this.currentCursorIcon = cursor;
   }
 
 };
@@ -40110,6 +40028,188 @@ Wick.Tools.Rectangle = class extends Wick.Tool {
 
 }));
 
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* Copyright 2019 WICKLETS LLC
+*
+* This file is part of Wick Engine.
+*
+* Wick Engine is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Wick Engine is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+*/
+Wick.Tools.Pencil = class extends Wick.Tool {
+  static get MIN_ADD_POINT_MOVEMENT() {
+    return 2;
+  }
+  /**
+   * Creates a pencil tool.
+   */
+
+
+  constructor() {
+    super();
+    this.name = 'pencil';
+    this.path = null;
+    this._movement = new paper.Point();
+  }
+  /**
+   * The pencil cursor.
+   * @type {string}
+   */
+
+
+  get cursor() {
+    return 'url(cursors/pencil.png) 32 32, auto';
+  }
+
+  get isDrawingTool() {
+    return true;
+  }
+
+  onActivate(e) {}
+
+  onDeactivate(e) {}
+
+  onMouseDown(e) {
+    this._movement = new paper.Point();
+
+    if (!this.path) {
+      this.path = new this.paper.Path({
+        strokeColor: this.getSetting('strokeColor'),
+        strokeWidth: this.getSetting('strokeWidth'),
+        strokeCap: 'round'
+      });
+    }
+
+    this.path.add(e.point);
+  }
+
+  onMouseDrag(e) {
+    if (!this.path) return;
+    this._movement = this._movement.add(e.delta);
+
+    if (this._movement.length > Wick.Tools.Pencil.MIN_ADD_POINT_MOVEMENT / this.paper.view.zoom) {
+      this._movement = new paper.Point();
+      this.path.add(e.point);
+      this.path.smooth();
+    }
+  }
+
+  onMouseUp(e) {
+    if (!this.path) return;
+    this.path.add(e.point);
+    this.path.simplify();
+    this.path.remove();
+    this.addPathToProject(this.path);
+    this.path = null;
+    this.fireEvent('canvasModified');
+  }
+
+};
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* Copyright 2019 WICKLETS LLC
+*
+* This file is part of Wick Engine.
+*
+* Wick Engine is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Wick Engine is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+*/
+Wick.Tools.Rectangle = class extends Wick.Tool {
+  /**
+   *
+   */
+  constructor() {
+    super();
+    this.name = 'rectangle';
+    this.path = null;
+    this.topLeft = null;
+    this.bottomRight = null;
+  }
+  /**
+   *
+   * @type {string}
+   */
+
+
+  get cursor() {
+    return 'crosshair';
+  }
+
+  get isDrawingTool() {
+    return true;
+  }
+
+  onActivate(e) {}
+
+  onDeactivate(e) {
+    if (this.path) {
+      this.path.remove();
+      this.path = null;
+    }
+  }
+
+  onMouseDown(e) {
+    this.topLeft = e.point;
+    this.bottomRight = e.point;
+  }
+
+  onMouseDrag(e) {
+    if (this.path) this.path.remove();
+    this.bottomRight = e.point; // Lock width and height if shift is held down
+
+    if (e.modifiers.shift) {
+      var d = this.bottomRight.subtract(this.topLeft);
+      var max = Math.max(Math.abs(d.x), Math.abs(d.y));
+      this.bottomRight.x = this.topLeft.x + max * (d.x < 0 ? -1 : 1);
+      this.bottomRight.y = this.topLeft.y + max * (d.y < 0 ? -1 : 1);
+    }
+
+    var bounds = new this.paper.Rectangle(new paper.Point(this.topLeft.x, this.topLeft.y), new paper.Point(this.bottomRight.x, this.bottomRight.y));
+
+    if (this.getSetting('cornerRadius') !== 0) {
+      this.path = new this.paper.Path.Rectangle(bounds, this.getSetting('cornerRadius'));
+    } else {
+      this.path = new this.paper.Path.Rectangle(bounds);
+    }
+
+    this.path.fillColor = this.getSetting('fillColor');
+    this.path.strokeColor = this.getSetting('strokeColor');
+    this.path.strokeWidth = this.getSetting('strokeWidth');
+    this.path.strokeCap = 'round';
+  }
+
+  onMouseUp(e) {
+    if (!this.path) return;
+    this.path.remove();
+    this.addPathToProject(this.path);
+    this.path = null;
+    this.fireEvent('canvasModified');
+  }
+
+};
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
@@ -41832,30 +41932,6 @@ paper.View.inject({
     }, {
       polyfill: false
     });
-  }
-});
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Paper.js-drawing-tools.
-*
-* Paper.js-drawing-tools is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Paper.js-drawing-tools is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Paper.js-drawing-tools.  If not, see <https://www.gnu.org/licenses/>.
-*/
-paper.View.inject({
-  enableGestures: function (args) {// TODO
   }
 });
 /*!
@@ -53502,11 +53578,35 @@ module.exports = ZStream;
 * along with Paper.js-drawing-tools.  If not, see <https://www.gnu.org/licenses/>.
 */
 paper.View.inject({
-  enableScrollToZoom: function (args) {// TODO
+  enableGestures: function (args) {// TODO
   }
 });
 //https://github.com/mattdesl/lerp/blob/master/index.js
 var lerp = function (v0, v1, t) { return v0*(1-t)+v1*t; };
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* Copyright 2019 WICKLETS LLC
+*
+* This file is part of Paper.js-drawing-tools.
+*
+* Paper.js-drawing-tools is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Paper.js-drawing-tools is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Paper.js-drawing-tools.  If not, see <https://www.gnu.org/licenses/>.
+*/
+paper.View.inject({
+  enableScrollToZoom: function (args) {// TODO
+  }
+});
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
@@ -53605,439 +53705,6 @@ Wick.View = class {
     eventFns.forEach(fn => {
       fn(e);
     });
-  }
-
-};
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-Wick.View.Project = class extends Wick.View {
-  static get DEFAULT_CANVAS_BG_COLOR() {
-    return 'rgb(187, 187, 187)';
-  }
-
-  static get VALID_FIT_MODES() {
-    return ['center', 'fill'];
-  }
-
-  static get VALID_RENDER_MODES() {
-    return ['svg', 'webgl'];
-  }
-
-  static get ORIGIN_CROSSHAIR_COLOR() {
-    return '#CCCCCC';
-  }
-
-  static get ORIGIN_CROSSHAIR_SIZE() {
-    return 100;
-  }
-
-  static get ORIGIN_CROSSHAIR_THICKNESS() {
-    return 1;
-  }
-
-  static get ZOOM_MIN() {
-    return 0.1;
-  }
-
-  static get ZOOM_MAX() {
-    return 10.0;
-  }
-
-  static get PAN_LIMIT() {
-    return 10000;
-  }
-  /*
-   * Create a new Project View.
-   */
-
-
-  constructor(model) {
-    super(model);
-    this._fitMode = null;
-    this.fitMode = 'center';
-    this._canvasContainer = null;
-    this._canvasBGColor = null;
-    this._svgCanvas = null;
-    this._svgBackgroundLayer = null;
-    this._pan = {
-      x: 0,
-      y: 0
-    };
-    this._zoom = 1;
-  }
-  /*
-   * Determines the way the project will scale itself based on its container.
-   * 'center' will keep the project at its original resolution, and center it inside its container.
-   * 'fill' will stretch the project to fit the container (while maintaining its original aspect ratio).
-   *
-   * Note: For these changes to be reflected after setting fitMode, you must call Project.View.resize().
-   */
-
-
-  set fitMode(fitMode) {
-    if (Wick.View.Project.VALID_FIT_MODES.indexOf(fitMode) === -1) {
-      console.error("Invalid fitMode: " + fitMode);
-      console.error("Supported fitModes: " + Wick.View.Project.VALID_FIT_MODES.join(','));
-    } else {
-      this._fitMode = fitMode;
-    }
-  }
-
-  get fitMode() {
-    return this._fitMode;
-  }
-  /**
-   * The current canvas being rendered to.
-   */
-
-
-  get canvas() {
-    return this._svgCanvas;
-  }
-  /**
-   * The zoom amount. 1 = 100% zoom
-   */
-
-
-  get zoom() {
-    return this._zoom;
-  }
-
-  set zoom(zoom) {
-    this._zoom = zoom;
-  }
-  /**
-   * The amount to pan the view. (0,0) is the center.
-   */
-
-
-  get pan() {
-    var pan = {
-      x: -this.paper.view.center.x,
-      y: -this.paper.view.center.y
-    };
-
-    if (this.model.focus.isRoot) {
-      pan.x += this.model.width / 2;
-      pan.y += this.model.height / 2;
-    }
-
-    return pan;
-  }
-
-  set pan(pan) {
-    this._pan = {
-      x: pan.x,
-      y: pan.y
-    };
-
-    if (this.model.focus.isRoot) {
-      this._pan.x -= this.model.width / 2;
-      this._pan.y -= this.model.height / 2;
-    }
-  }
-  /*
-   * The element to insert the project's canvas into.
-   */
-
-
-  set canvasContainer(canvasContainer) {
-    this._canvasContainer = canvasContainer;
-  }
-
-  get canvasContainer() {
-    return this._canvasContainer;
-  }
-  /**
-   * The background color of the canvas.
-   */
-
-
-  set canvasBGColor(canvasBGColor) {
-    this._canvasBGColor = canvasBGColor;
-  }
-
-  get canvasBGColor() {
-    return this._canvasBGColor;
-  }
-  /**
-   * Render the view.
-   */
-
-
-  render() {
-    this.zoom = this.model.zoom;
-    this.pan = this.model.pan;
-
-    this._buildSVGCanvas();
-
-    this._displayCanvasInContainer(this._svgCanvas);
-
-    this.resize();
-
-    this._renderSVGCanvas();
-
-    this._updateCanvasContainerBGColor();
-  }
-  /**
-   * Render all frames in the project to make sure everything is loaded correctly.
-   */
-
-
-  prerender() {
-    this.render();
-    this.model.getAllFrames().forEach(frame => {
-      frame.view.render();
-    });
-  }
-  /*
-   * Resize the canvas to fit it's container div.
-   * Resize is called automatically before each render, but you must call it if you manually change the size of the container div.
-   */
-
-
-  resize() {
-    if (!this.canvasContainer) return;
-    var containerWidth = this.canvasContainer.offsetWidth;
-    var containerHeight = this.canvasContainer.offsetHeight;
-    this.paper.view.viewSize.width = containerWidth;
-    this.paper.view.viewSize.height = containerHeight;
-  }
-  /**
-   * Write the SVG data in the view to the project.
-   */
-
-
-  applyChanges() {
-    this.model.selection.view.applyChanges();
-    this.model.focus.timeline.activeFrames.forEach(frame => {
-      frame.view.applyChanges();
-    });
-  }
-
-  _setupTools() {
-    // This is a hacky way to create scroll-to-zoom functionality.
-    // (Using https://github.com/jquery/jquery-mousewheel for cross-browser mousewheel event)
-    $(this._svgCanvas).on('mousewheel', e => {
-      e.preventDefault();
-      var d = e.deltaY * e.deltaFactor * 0.001;
-      this.paper.view.zoom = Math.max(0.1, this.paper.view.zoom + d);
-
-      this._applyZoomAndPanChangesFromPaper();
-    });
-
-    for (var toolName in this.model.tools) {
-      var tool = this.model.tools[toolName];
-      tool.project = this.model;
-      tool.on('canvasModified', e => {
-        this.applyChanges();
-        this.fireEvent('canvasModified', e);
-      });
-      tool.on('canvasViewTransformed', e => {
-        this._applyZoomAndPanChangesFromPaper();
-
-        this.fireEvent('canvasModified', e);
-      });
-      tool.on('error', e => {
-        this.fireEvent('error', e);
-      });
-    }
-
-    this.model.tools.none.activate();
-  }
-
-  _displayCanvasInContainer(canvas) {
-    if (!this.canvasContainer) return;
-
-    if (canvas !== this.canvasContainer.children[0]) {
-      if (this.canvasContainer.children.length === 0) {
-        this.canvasContainer.appendChild(canvas);
-      } else {
-        this.canvasContainer.innerHTML = '';
-        this.canvasContainer.appendChild(canvas);
-      }
-
-      this.resize();
-    }
-  }
-
-  _updateCanvasContainerBGColor() {
-    if (this.model.focus === this.model.root) {
-      // We're in the root timeline, use the color given to us from the user (or use a default)
-      this.canvas.style.backgroundColor = this.canvasBGColor || Wick.View.Project.DEFAULT_CANVAS_BG_COLOR;
-    } else {
-      // We're inside a clip, so use the project background color as the container background color
-      this.canvas.style.backgroundColor = this.model.backgroundColor;
-    }
-  }
-
-  _buildSVGCanvas() {
-    if (this._svgCanvas) return;
-    this._svgCanvas = document.createElement('canvas');
-    this._svgCanvas.style.width = '100%';
-    this._svgCanvas.style.height = '100%';
-    this._svgCanvas.tabIndex = 0;
-
-    this._svgCanvas.onclick = () => {
-      this._svgCanvas.focus();
-    };
-
-    this.paper.setup(this._svgCanvas);
-    this._svgBackgroundLayer = new paper.Layer();
-    this._svgBackgroundLayer.name = 'wick_project_bg';
-
-    this._svgBackgroundLayer.remove();
-
-    this.paper.project.clear();
-  }
-
-  _renderSVGCanvas() {
-    this.paper.project.clear(); // Lazily setup tools
-
-    if (!this._toolsSetup) {
-      this._toolsSetup = true;
-
-      this._setupTools();
-    }
-
-    if (this.model.project.playing) {
-      // Enable interact tool if the project is running
-      this.model.tools.interact.activate();
-    } else if (!this.model.canDraw && this.model.activeTool.isDrawingTool) {
-      // Disable drawing tools if there's no frame to edit
-      this.model.tools.none.activate();
-    } else {
-      this.model.activeTool.activate();
-    } // Update zoom and pan
-
-
-    if (this._fitMode === 'center') {
-      this.paper.view.zoom = this.model.zoom;
-    } else if (this._fitMode === 'fill') {
-      // Fill mode: Try to fit the wick project's canvas inside the container canvas by
-      // scaling it as much as possible without changing the project's original aspect ratio
-      this.paper.view.zoom = this._calculateFitZoom();
-    }
-
-    var pan = this._pan;
-    this.paper.view.center = new paper.Point(-pan.x, -pan.y); // Generate background layer
-
-    this._svgBackgroundLayer.removeChildren();
-
-    this._svgBackgroundLayer.locked = true;
-    this.paper.project.addLayer(this._svgBackgroundLayer);
-
-    if (this.model.focus.isRoot) {
-      // We're in the root timeline, render the canvas normally
-      var stage = this._generateSVGCanvasStage();
-
-      this._svgBackgroundLayer.addChild(stage);
-    } else {
-      // We're inside a clip, don't render the canvas BG, instead render a crosshair at (0,0)
-      var originCrosshair = this._generateSVGOriginCrosshair();
-
-      this._svgBackgroundLayer.addChild(originCrosshair);
-    } // Generate frame layers
-
-
-    this.model.focus.timeline.view.render();
-    this.model.focus.timeline.view.activeFrameLayers.forEach(layer => {
-      this.paper.project.addLayer(layer);
-
-      if (this.model.project && this.model.project.activeFrame && layer.data.wickType === 'paths' && layer.data.wickUUID === this.model.project.activeFrame.uuid) {
-        layer.activate();
-      }
-    });
-    this.model.focus.timeline.view.onionSkinnedFramesLayers.forEach(layer => {
-      this.paper.project.addLayer(layer);
-    }); // TODO replace
-    // Render selection
-
-    this.model.selection.view.render();
-    this.paper.project.addLayer(this.model.selection.view.layer);
-  }
-
-  _generateSVGCanvasStage() {
-    var stage = new paper.Path.Rectangle(new this.paper.Point(0, 0), new this.paper.Point(this.model.width, this.model.height));
-    stage.remove();
-    stage.fillColor = this.model.backgroundColor;
-    return stage;
-  }
-
-  _generateSVGOriginCrosshair() {
-    var originCrosshair = new this.paper.Group({
-      insert: false
-    });
-    var vertical = new paper.Path.Line(new this.paper.Point(0, -Wick.View.Project.ORIGIN_CROSSHAIR_SIZE), new this.paper.Point(0, Wick.View.Project.ORIGIN_CROSSHAIR_SIZE));
-    vertical.strokeColor = Wick.View.Project.ORIGIN_CROSSHAIR_COLOR;
-    vertical.strokeWidth = Wick.View.Project.ORIGIN_CROSSHAIR_THICKNESS / this.paper.view.zoom;
-    var horizontal = new paper.Path.Line(new this.paper.Point(-Wick.View.Project.ORIGIN_CROSSHAIR_SIZE, 0), new this.paper.Point(Wick.View.Project.ORIGIN_CROSSHAIR_SIZE, 0));
-    horizontal.strokeColor = Wick.View.Project.ORIGIN_CROSSHAIR_COLOR;
-    horizontal.strokeWidth = Wick.View.Project.ORIGIN_CROSSHAIR_THICKNESS / this.paper.view.zoom;
-    originCrosshair.addChild(vertical);
-    originCrosshair.addChild(horizontal);
-    originCrosshair.position.x = 0;
-    originCrosshair.position.y = 0;
-    return originCrosshair;
-  }
-
-  _getCenteredPan() {
-    if (this.model.focus.isRoot) {
-      return {
-        x: this.model.pan.x - this.model.width / 2,
-        y: this.model.pan.y - this.model.height / 2
-      };
-    } else {
-      return {
-        x: this.model.pan.x,
-        y: this.model.pan.y
-      };
-    }
-  }
-
-  _calculateFitZoom() {
-    var w = 0;
-    var h = 0;
-    w = this.paper.view.viewSize.width;
-    h = this.paper.view.viewSize.height;
-    var wr = w / this.model.width;
-    var hr = h / this.model.height;
-    return Math.min(wr, hr);
-  }
-
-  _applyZoomAndPanChangesFromPaper() {
-    // limit zoom to min and max
-    this.paper.view.zoom = Math.min(Wick.View.Project.ZOOM_MAX, this.paper.view.zoom);
-    this.paper.view.zoom = Math.max(Wick.View.Project.ZOOM_MIN, this.paper.view.zoom); // limit pan
-
-    this.pan.x = Math.min(Wick.View.Project.PAN_LIMIT, this.pan.x);
-    this.pan.x = Math.max(-Wick.View.Project.PAN_LIMIT, this.pan.x);
-    this.pan.y = Math.min(Wick.View.Project.PAN_LIMIT, this.pan.y);
-    this.pan.y = Math.max(-Wick.View.Project.PAN_LIMIT, this.pan.y);
-    this.model.pan = {
-      x: this.pan.x,
-      y: this.pan.y
-    };
-    this.zoom = this.paper.view.zoom;
-    this.model.zoom = this.zoom;
   }
 
 };
@@ -55279,6 +54946,439 @@ Wick.View.Project = class extends Wick.View {
 * You should have received a copy of the GNU General Public License
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
+Wick.View.Project = class extends Wick.View {
+  static get DEFAULT_CANVAS_BG_COLOR() {
+    return 'rgb(187, 187, 187)';
+  }
+
+  static get VALID_FIT_MODES() {
+    return ['center', 'fill'];
+  }
+
+  static get VALID_RENDER_MODES() {
+    return ['svg', 'webgl'];
+  }
+
+  static get ORIGIN_CROSSHAIR_COLOR() {
+    return '#CCCCCC';
+  }
+
+  static get ORIGIN_CROSSHAIR_SIZE() {
+    return 100;
+  }
+
+  static get ORIGIN_CROSSHAIR_THICKNESS() {
+    return 1;
+  }
+
+  static get ZOOM_MIN() {
+    return 0.1;
+  }
+
+  static get ZOOM_MAX() {
+    return 10.0;
+  }
+
+  static get PAN_LIMIT() {
+    return 10000;
+  }
+  /*
+   * Create a new Project View.
+   */
+
+
+  constructor(model) {
+    super(model);
+    this._fitMode = null;
+    this.fitMode = 'center';
+    this._canvasContainer = null;
+    this._canvasBGColor = null;
+    this._svgCanvas = null;
+    this._svgBackgroundLayer = null;
+    this._pan = {
+      x: 0,
+      y: 0
+    };
+    this._zoom = 1;
+  }
+  /*
+   * Determines the way the project will scale itself based on its container.
+   * 'center' will keep the project at its original resolution, and center it inside its container.
+   * 'fill' will stretch the project to fit the container (while maintaining its original aspect ratio).
+   *
+   * Note: For these changes to be reflected after setting fitMode, you must call Project.View.resize().
+   */
+
+
+  set fitMode(fitMode) {
+    if (Wick.View.Project.VALID_FIT_MODES.indexOf(fitMode) === -1) {
+      console.error("Invalid fitMode: " + fitMode);
+      console.error("Supported fitModes: " + Wick.View.Project.VALID_FIT_MODES.join(','));
+    } else {
+      this._fitMode = fitMode;
+    }
+  }
+
+  get fitMode() {
+    return this._fitMode;
+  }
+  /**
+   * The current canvas being rendered to.
+   */
+
+
+  get canvas() {
+    return this._svgCanvas;
+  }
+  /**
+   * The zoom amount. 1 = 100% zoom
+   */
+
+
+  get zoom() {
+    return this._zoom;
+  }
+
+  set zoom(zoom) {
+    this._zoom = zoom;
+  }
+  /**
+   * The amount to pan the view. (0,0) is the center.
+   */
+
+
+  get pan() {
+    var pan = {
+      x: -this.paper.view.center.x,
+      y: -this.paper.view.center.y
+    };
+
+    if (this.model.focus.isRoot) {
+      pan.x += this.model.width / 2;
+      pan.y += this.model.height / 2;
+    }
+
+    return pan;
+  }
+
+  set pan(pan) {
+    this._pan = {
+      x: pan.x,
+      y: pan.y
+    };
+
+    if (this.model.focus.isRoot) {
+      this._pan.x -= this.model.width / 2;
+      this._pan.y -= this.model.height / 2;
+    }
+  }
+  /*
+   * The element to insert the project's canvas into.
+   */
+
+
+  set canvasContainer(canvasContainer) {
+    this._canvasContainer = canvasContainer;
+  }
+
+  get canvasContainer() {
+    return this._canvasContainer;
+  }
+  /**
+   * The background color of the canvas.
+   */
+
+
+  set canvasBGColor(canvasBGColor) {
+    this._canvasBGColor = canvasBGColor;
+  }
+
+  get canvasBGColor() {
+    return this._canvasBGColor;
+  }
+  /**
+   * Render the view.
+   */
+
+
+  render() {
+    this.zoom = this.model.zoom;
+    this.pan = this.model.pan;
+
+    this._buildSVGCanvas();
+
+    this._displayCanvasInContainer(this._svgCanvas);
+
+    this.resize();
+
+    this._renderSVGCanvas();
+
+    this._updateCanvasContainerBGColor();
+  }
+  /**
+   * Render all frames in the project to make sure everything is loaded correctly.
+   */
+
+
+  prerender() {
+    this.render();
+    this.model.getAllFrames().forEach(frame => {
+      frame.view.render();
+    });
+  }
+  /*
+   * Resize the canvas to fit it's container div.
+   * Resize is called automatically before each render, but you must call it if you manually change the size of the container div.
+   */
+
+
+  resize() {
+    if (!this.canvasContainer) return;
+    var containerWidth = this.canvasContainer.offsetWidth;
+    var containerHeight = this.canvasContainer.offsetHeight;
+    this.paper.view.viewSize.width = containerWidth;
+    this.paper.view.viewSize.height = containerHeight;
+  }
+  /**
+   * Write the SVG data in the view to the project.
+   */
+
+
+  applyChanges() {
+    this.model.selection.view.applyChanges();
+    this.model.focus.timeline.activeFrames.forEach(frame => {
+      frame.view.applyChanges();
+    });
+  }
+
+  _setupTools() {
+    // This is a hacky way to create scroll-to-zoom functionality.
+    // (Using https://github.com/jquery/jquery-mousewheel for cross-browser mousewheel event)
+    $(this._svgCanvas).on('mousewheel', e => {
+      e.preventDefault();
+      var d = e.deltaY * e.deltaFactor * 0.001;
+      this.paper.view.zoom = Math.max(0.1, this.paper.view.zoom + d);
+
+      this._applyZoomAndPanChangesFromPaper();
+    });
+
+    for (var toolName in this.model.tools) {
+      var tool = this.model.tools[toolName];
+      tool.project = this.model;
+      tool.on('canvasModified', e => {
+        this.applyChanges();
+        this.fireEvent('canvasModified', e);
+      });
+      tool.on('canvasViewTransformed', e => {
+        this._applyZoomAndPanChangesFromPaper();
+
+        this.fireEvent('canvasModified', e);
+      });
+      tool.on('error', e => {
+        this.fireEvent('error', e);
+      });
+    }
+
+    this.model.tools.none.activate();
+  }
+
+  _displayCanvasInContainer(canvas) {
+    if (!this.canvasContainer) return;
+
+    if (canvas !== this.canvasContainer.children[0]) {
+      if (this.canvasContainer.children.length === 0) {
+        this.canvasContainer.appendChild(canvas);
+      } else {
+        this.canvasContainer.innerHTML = '';
+        this.canvasContainer.appendChild(canvas);
+      }
+
+      this.resize();
+    }
+  }
+
+  _updateCanvasContainerBGColor() {
+    if (this.model.focus === this.model.root) {
+      // We're in the root timeline, use the color given to us from the user (or use a default)
+      this.canvas.style.backgroundColor = this.canvasBGColor || Wick.View.Project.DEFAULT_CANVAS_BG_COLOR;
+    } else {
+      // We're inside a clip, so use the project background color as the container background color
+      this.canvas.style.backgroundColor = this.model.backgroundColor;
+    }
+  }
+
+  _buildSVGCanvas() {
+    if (this._svgCanvas) return;
+    this._svgCanvas = document.createElement('canvas');
+    this._svgCanvas.style.width = '100%';
+    this._svgCanvas.style.height = '100%';
+    this._svgCanvas.tabIndex = 0;
+
+    this._svgCanvas.onclick = () => {
+      this._svgCanvas.focus();
+    };
+
+    this.paper.setup(this._svgCanvas);
+    this._svgBackgroundLayer = new paper.Layer();
+    this._svgBackgroundLayer.name = 'wick_project_bg';
+
+    this._svgBackgroundLayer.remove();
+
+    this.paper.project.clear();
+  }
+
+  _renderSVGCanvas() {
+    this.paper.project.clear(); // Lazily setup tools
+
+    if (!this._toolsSetup) {
+      this._toolsSetup = true;
+
+      this._setupTools();
+    }
+
+    if (this.model.project.playing) {
+      // Enable interact tool if the project is running
+      this.model.tools.interact.activate();
+    } else if (!this.model.canDraw && this.model.activeTool.isDrawingTool) {
+      // Disable drawing tools if there's no frame to edit
+      this.model.tools.none.activate();
+    } else {
+      this.model.activeTool.activate();
+    } // Update zoom and pan
+
+
+    if (this._fitMode === 'center') {
+      this.paper.view.zoom = this.model.zoom;
+    } else if (this._fitMode === 'fill') {
+      // Fill mode: Try to fit the wick project's canvas inside the container canvas by
+      // scaling it as much as possible without changing the project's original aspect ratio
+      this.paper.view.zoom = this._calculateFitZoom();
+    }
+
+    var pan = this._pan;
+    this.paper.view.center = new paper.Point(-pan.x, -pan.y); // Generate background layer
+
+    this._svgBackgroundLayer.removeChildren();
+
+    this._svgBackgroundLayer.locked = true;
+    this.paper.project.addLayer(this._svgBackgroundLayer);
+
+    if (this.model.focus.isRoot) {
+      // We're in the root timeline, render the canvas normally
+      var stage = this._generateSVGCanvasStage();
+
+      this._svgBackgroundLayer.addChild(stage);
+    } else {
+      // We're inside a clip, don't render the canvas BG, instead render a crosshair at (0,0)
+      var originCrosshair = this._generateSVGOriginCrosshair();
+
+      this._svgBackgroundLayer.addChild(originCrosshair);
+    } // Generate frame layers
+
+
+    this.model.focus.timeline.view.render();
+    this.model.focus.timeline.view.activeFrameLayers.forEach(layer => {
+      this.paper.project.addLayer(layer);
+
+      if (this.model.project && this.model.project.activeFrame && layer.data.wickType === 'paths' && layer.data.wickUUID === this.model.project.activeFrame.uuid) {
+        layer.activate();
+      }
+    });
+    this.model.focus.timeline.view.onionSkinnedFramesLayers.forEach(layer => {
+      this.paper.project.addLayer(layer);
+    }); // TODO replace
+    // Render selection
+
+    this.model.selection.view.render();
+    this.paper.project.addLayer(this.model.selection.view.layer);
+  }
+
+  _generateSVGCanvasStage() {
+    var stage = new paper.Path.Rectangle(new this.paper.Point(0, 0), new this.paper.Point(this.model.width, this.model.height));
+    stage.remove();
+    stage.fillColor = this.model.backgroundColor;
+    return stage;
+  }
+
+  _generateSVGOriginCrosshair() {
+    var originCrosshair = new this.paper.Group({
+      insert: false
+    });
+    var vertical = new paper.Path.Line(new this.paper.Point(0, -Wick.View.Project.ORIGIN_CROSSHAIR_SIZE), new this.paper.Point(0, Wick.View.Project.ORIGIN_CROSSHAIR_SIZE));
+    vertical.strokeColor = Wick.View.Project.ORIGIN_CROSSHAIR_COLOR;
+    vertical.strokeWidth = Wick.View.Project.ORIGIN_CROSSHAIR_THICKNESS / this.paper.view.zoom;
+    var horizontal = new paper.Path.Line(new this.paper.Point(-Wick.View.Project.ORIGIN_CROSSHAIR_SIZE, 0), new this.paper.Point(Wick.View.Project.ORIGIN_CROSSHAIR_SIZE, 0));
+    horizontal.strokeColor = Wick.View.Project.ORIGIN_CROSSHAIR_COLOR;
+    horizontal.strokeWidth = Wick.View.Project.ORIGIN_CROSSHAIR_THICKNESS / this.paper.view.zoom;
+    originCrosshair.addChild(vertical);
+    originCrosshair.addChild(horizontal);
+    originCrosshair.position.x = 0;
+    originCrosshair.position.y = 0;
+    return originCrosshair;
+  }
+
+  _getCenteredPan() {
+    if (this.model.focus.isRoot) {
+      return {
+        x: this.model.pan.x - this.model.width / 2,
+        y: this.model.pan.y - this.model.height / 2
+      };
+    } else {
+      return {
+        x: this.model.pan.x,
+        y: this.model.pan.y
+      };
+    }
+  }
+
+  _calculateFitZoom() {
+    var w = 0;
+    var h = 0;
+    w = this.paper.view.viewSize.width;
+    h = this.paper.view.viewSize.height;
+    var wr = w / this.model.width;
+    var hr = h / this.model.height;
+    return Math.min(wr, hr);
+  }
+
+  _applyZoomAndPanChangesFromPaper() {
+    // limit zoom to min and max
+    this.paper.view.zoom = Math.min(Wick.View.Project.ZOOM_MAX, this.paper.view.zoom);
+    this.paper.view.zoom = Math.max(Wick.View.Project.ZOOM_MIN, this.paper.view.zoom); // limit pan
+
+    this.pan.x = Math.min(Wick.View.Project.PAN_LIMIT, this.pan.x);
+    this.pan.x = Math.max(-Wick.View.Project.PAN_LIMIT, this.pan.x);
+    this.pan.y = Math.min(Wick.View.Project.PAN_LIMIT, this.pan.y);
+    this.pan.y = Math.max(-Wick.View.Project.PAN_LIMIT, this.pan.y);
+    this.model.pan = {
+      x: this.pan.x,
+      y: this.pan.y
+    };
+    this.zoom = this.paper.view.zoom;
+    this.model.zoom = this.zoom;
+  }
+
+};
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* Copyright 2019 WICKLETS LLC
+*
+* This file is part of Wick Engine.
+*
+* Wick Engine is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Wick Engine is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+*/
 Wick.View.Selection = class extends Wick.View {
   /**
    * Create a new Selection view.
@@ -55465,62 +55565,6 @@ Wick.View.Selection = class extends Wick.View {
 
   _getSelectedObjectsBounds() {
     return this._getObjectsBounds(this._getSelectedObjects());
-  }
-
-};
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-Wick.View.Clip = class extends Wick.View {
-  /**
-   * Creates a new Button view.
-   */
-  constructor() {
-    super();
-    this.group = new this.paper.Group();
-    this.group.remove();
-    this.group.applyMatrix = false;
-  }
-
-  render() {
-    // Render timeline view
-    this.model.timeline.view.render(); // Add some debug info to the paper group
-
-    this.group.data.wickType = 'clip';
-    this.group.data.wickUUID = this.model.uuid; // Add frame views from timeline
-
-    this.group.removeChildren();
-    this.model.timeline.view.activeFrameLayers.forEach(layer => {
-      this.group.addChild(layer);
-    });
-    this.model.timeline.view.onionSkinnedFramesLayers.forEach(layer => {
-      this.group.addChild(layer);
-    }); // Update transformations
-
-    this.group.pivot = new this.paper.Point(0, 0);
-    this.group.position.x = this.model.transformation.x;
-    this.group.position.y = this.model.transformation.y;
-    this.group.scaling.x = this.model.transformation.scaleX;
-    this.group.scaling.y = this.model.transformation.scaleY;
-    this.group.rotation = this.model.transformation.rotation;
-    this.group.opacity = this.model.transformation.opacity;
   }
 
 };
@@ -56710,7 +56754,42 @@ var potrace;
 * You should have received a copy of the GNU General Public License
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
-Wick.View.Button = class extends Wick.View.Clip {};
+Wick.View.Clip = class extends Wick.View {
+  /**
+   * Creates a new Button view.
+   */
+  constructor() {
+    super();
+    this.group = new this.paper.Group();
+    this.group.remove();
+    this.group.applyMatrix = false;
+  }
+
+  render() {
+    // Render timeline view
+    this.model.timeline.view.render(); // Add some debug info to the paper group
+
+    this.group.data.wickType = 'clip';
+    this.group.data.wickUUID = this.model.uuid; // Add frame views from timeline
+
+    this.group.removeChildren();
+    this.model.timeline.view.activeFrameLayers.forEach(layer => {
+      this.group.addChild(layer);
+    });
+    this.model.timeline.view.onionSkinnedFramesLayers.forEach(layer => {
+      this.group.addChild(layer);
+    }); // Update transformations
+
+    this.group.pivot = new this.paper.Point(0, 0);
+    this.group.position.x = this.model.transformation.x;
+    this.group.position.y = this.model.transformation.y;
+    this.group.scaling.x = this.model.transformation.scaleX;
+    this.group.scaling.y = this.model.transformation.scaleY;
+    this.group.rotation = this.model.transformation.rotation;
+    this.group.opacity = this.model.transformation.opacity;
+  }
+
+};
 /*
 The MIT License (MIT)
 
@@ -56943,32 +57022,7 @@ var reserved = (() => {
 * You should have received a copy of the GNU General Public License
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
-Wick.View.Timeline = class extends Wick.View {
-  constructor(wickTimeline) {
-    super();
-    this.activeFrameLayers = [];
-    this.onionSkinnedFramesLayers = [];
-    this.activeFrameContainers = [];
-  }
-
-  render() {
-    this.activeFrameLayers = [];
-    this.onionSkinnedFramesLayers = [];
-
-    this._getLayersInOrder().forEach(layer => {
-      layer.view.render();
-      this.activeFrameLayers = this.activeFrameLayers.concat(layer.view.activeFrameLayers);
-      this.onionSkinnedFramesLayers = this.onionSkinnedFramesLayers.concat(layer.view.onionSkinnedFramesLayers);
-    });
-  }
-
-  _getLayersInOrder() {
-    return this.model.layers.filter(layer => {
-      return !layer.hidden;
-    }).reverse();
-  }
-
-};
+Wick.View.Button = class extends Wick.View.Clip {};
 // https://gist.github.com/hurjas/2660489
 
 /**
@@ -57027,12 +57081,8 @@ function Timestamp() {
 * You should have received a copy of the GNU General Public License
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
-Wick.View.Layer = class extends Wick.View {
-  static get BASE_ONION_OPACITY() {
-    return 0.35;
-  }
-
-  constructor(wickLayer) {
+Wick.View.Timeline = class extends Wick.View {
+  constructor(wickTimeline) {
     super();
     this.activeFrameLayers = [];
     this.onionSkinnedFramesLayers = [];
@@ -57040,61 +57090,20 @@ Wick.View.Layer = class extends Wick.View {
   }
 
   render() {
-    // Add active frame layers
     this.activeFrameLayers = [];
-    var frame = this.model.activeFrame;
-
-    if (frame) {
-      frame.view.render();
-      this.activeFrameLayers.push(frame.view.pathsLayer);
-      this.activeFrameLayers.push(frame.view.clipsLayer);
-      frame.view.clipsLayer.locked = false;
-      frame.view.pathsLayer.locked = false;
-      frame.view.clipsLayer.opacity = 1.0;
-      frame.view.pathsLayer.opacity = 1.0;
-    } // Disable mouse events on layers if they are locked.
-    // (However, this is ignored while the project is playing so the interact tool always works.)
-
-
-    this.activeFrameLayers.forEach(layer => {
-      if (this.model.project.playing) {
-        layer.locked = false;
-      } else {
-        layer.locked = this.model.locked;
-      }
-    }); // Add onion skinned frame layers
-
     this.onionSkinnedFramesLayers = [];
 
-    if (this.model.project && this.model.parentClip.isFocus && this.model.project.onionSkinEnabled) {
-      var playheadPosition = this.model.project.focus.timeline.playheadPosition;
-      var onionSkinEnabled = this.model.project.onionSkinEnabled;
-      var onionSkinSeekBackwards = this.model.project.onionSkinSeekBackwards;
-      var onionSkinSeekForwards = this.model.project.onionSkinSeekForwards;
-      this.model.frames.filter(frame => {
-        return !frame.inPosition(playheadPosition) && frame.inRange(playheadPosition - onionSkinSeekBackwards, playheadPosition + onionSkinSeekForwards);
-      }).forEach(frame => {
-        frame.view.render();
-        this.onionSkinnedFramesLayers.push(frame.view.pathsLayer);
-        this.onionSkinnedFramesLayers.push(frame.view.clipsLayer);
-        var seek = 0;
+    this._getLayersInOrder().forEach(layer => {
+      layer.view.render();
+      this.activeFrameLayers = this.activeFrameLayers.concat(layer.view.activeFrameLayers);
+      this.onionSkinnedFramesLayers = this.onionSkinnedFramesLayers.concat(layer.view.onionSkinnedFramesLayers);
+    });
+  }
 
-        if (frame.midpoint < playheadPosition) {
-          seek = onionSkinSeekBackwards;
-        } else if (frame.midpoint > playheadPosition) {
-          seek = onionSkinSeekForwards;
-        }
-
-        var dist = frame.distanceFrom(playheadPosition);
-        var onionMult = (seek - dist + 1) / seek;
-        onionMult = Math.min(1, Math.max(0, onionMult));
-        var opacity = onionMult * Wick.View.Layer.BASE_ONION_OPACITY;
-        frame.view.clipsLayer.locked = true;
-        frame.view.pathsLayer.locked = true;
-        frame.view.clipsLayer.opacity = opacity;
-        frame.view.pathsLayer.opacity = opacity;
-      });
-    }
+  _getLayersInOrder() {
+    return this.model.layers.filter(layer => {
+      return !layer.hidden;
+    }).reverse();
   }
 
 };
@@ -57253,287 +57262,74 @@ var SCWF = function () {
 * You should have received a copy of the GNU General Public License
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
-Wick.View.Frame = class extends Wick.View {
-  /**
-   * A multiplier for the resolution for the rasterization process.
-   * E.g. a multiplier of 2 will make a path 100 pixels wide rasterize into an image 200 pixels wide.
-   */
-  static get RASTERIZE_RESOLUTION_MODIFIER() {
-    return 1;
+Wick.View.Layer = class extends Wick.View {
+  static get BASE_ONION_OPACITY() {
+    return 0.35;
   }
 
-  static get RASTERIZE_RESOLUTION_MODIFIER_FOR_DEVICE() {
-    return Wick.View.Frame.RASTERIZE_RESOLUTION_MODIFIER / window.devicePixelRatio;
-  }
-  /**
-   * Create a frame view.
-   */
-
-
-  constructor() {
+  constructor(wickLayer) {
     super();
-    this.clipsLayer = new this.paper.Layer();
-    this.clipsLayer.remove();
-    this.pathsLayer = new this.paper.Layer();
-    this.pathsLayer.remove();
-  }
-  /**
-   * Write the changes made to the view to the frame.
-   */
-
-
-  applyChanges() {
-    this._applyClipChanges();
-
-    this._applyPathChanges();
-  }
-  /**
-   * Import SVG data into the paper.js layer, and updates the Frame's json data.
-   * @param {string} svg - the SVG data to parse and import.
-   */
-
-
-  importSVG(svg) {
-    var importedItem = this.pathsLayer.importSVG(svg);
-
-    this._recursiveBreakApart(importedItem);
-
-    this._applyPathChanges();
+    this.activeFrameLayers = [];
+    this.onionSkinnedFramesLayers = [];
+    this.activeFrameContainers = [];
   }
 
   render() {
-    this._renderPaths();
+    // Add active frame layers
+    this.activeFrameLayers = [];
+    var frame = this.model.activeFrame;
 
-    this._renderClips();
-  }
-
-  _renderPaths(args) {
-    if (!args) args = {};
-    this.pathsLayer.data.wickUUID = this.model.uuid;
-    this.pathsLayer.data.wickType = 'paths';
-    this.pathsLayer.removeChildren();
-    this.model.paths.forEach(path => {
-      path.view.render();
-      this.pathsLayer.addChild(path.view.item);
-    });
-  }
-
-  _renderClips() {
-    this.clipsLayer.data.wickUUID = this.model.uuid;
-    this.clipsLayer.data.wickType = 'clips';
-    this.clipsLayer.removeChildren();
-    this.model.clips.forEach(clip => {
-      clip.view.render();
-      this.clipsLayer.addChild(clip.view.group);
-    });
-  }
-
-  _applyClipChanges() {
-    // Reorder clips
-    var clips = this.model.clips.concat([]);
-    clips.forEach(clip => {
-      this.model.removeClip(clip);
-    });
-    this.clipsLayer.children.forEach(child => {
-      this.model.addClip(clips.find(g => {
-        return g.uuid === child.data.wickUUID;
-      }));
-    }); // Update clip transforms
-
-    this.clipsLayer.children.forEach(child => {
-      var wickClip = Wick.ObjectCache.getObjectByUUID(child.data.wickUUID);
-      wickClip.transformation = new Wick.Transformation({
-        x: child.position.x,
-        y: child.position.y,
-        scaleX: child.scaling.x,
-        scaleY: child.scaling.y,
-        rotation: child.rotation,
-        opacity: child.opacity
-      });
-    });
-  }
-
-  _applyPathChanges() {
-    // NOTE:
-    // This could be optimized by updating existing paths instead of completely clearing the frame children.
-    // Quickfix for now:
-    // Force all dynamic text paths to render in front of all other paths.
-    this.model.paths.filter(path => {
-      return path.isDynamicText;
-    }).forEach(path => {
-      path.view.item.bringToFront();
-    }); // Clear all WickPaths from the frame
-
-    this.model.paths.forEach(path => {
-      this.model.removePath(path);
-    }); // Create new WickPaths for the frame
-
-    this.pathsLayer.children.filter(child => {
-      return child.data.wickType !== 'gui';
-    }).forEach(child => {
-      var originalWickPath = child.data.wickUUID ? Wick.ObjectCache.getObjectByUUID(child.data.wickUUID) : null;
-      var pathJSON = Wick.View.Path.exportJSON(child);
-      var wickPath = new Wick.Path({
-        json: pathJSON
-      });
-      this.model.addPath(wickPath);
-      wickPath.fontWeight = originalWickPath ? originalWickPath.fontWeight : 400;
-      wickPath.fontStyle = originalWickPath ? originalWickPath.fontStyle : 'normal';
-      wickPath.identifier = originalWickPath ? originalWickPath.identifier : null;
-      child.name = wickPath.uuid;
-    });
-  } // Helper function for SVG import (paper.js imports SVGs as one big group.)
+    if (frame) {
+      frame.view.render();
+      this.activeFrameLayers.push(frame.view.pathsLayer);
+      this.activeFrameLayers.push(frame.view.clipsLayer);
+      frame.view.clipsLayer.locked = false;
+      frame.view.pathsLayer.locked = false;
+      frame.view.clipsLayer.opacity = 1.0;
+      frame.view.pathsLayer.opacity = 1.0;
+    } // Disable mouse events on layers if they are locked.
+    // (However, this is ignored while the project is playing so the interact tool always works.)
 
 
-  _recursiveBreakApart(item) {
-    item.applyMatrix = true;
-
-    if (item instanceof paper.Shape) {
-      var path = item.toPath();
-      item.parent.addChild(path);
-      item.remove();
-    }
-
-    if (item instanceof paper.Group) {
-      var children = item.removeChildren();
-      item.parent.addChildren(children);
-      item.remove();
-      children.forEach(child => {
-        this._recursiveBreakApart(child);
-      });
-    }
-  }
-
-};
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-Wick.View.Path = class extends Wick.View {
-  /**
-   * Create a frame view.
-   */
-  constructor() {
-    super();
-    this._item = null;
-  }
-  /**
-   * The paper.js representation of the Wick Path.
-   */
-
-
-  get item() {
-    if (!this._item) {
-      this.render();
-    }
-
-    return this._item;
-  }
-  /**
-   *
-   */
-
-
-  render() {
-    if (!this.model.json) {
-      console.warn('Path ' + this.model.uuid + ' is missing path JSON.');
-      return;
-    }
-
-    this.importJSON(this.model.json);
-  }
-  /**
-   * Import paper.js path data into this Wick Path, replacing the current path data.
-   * @param {object} json - Data for the path created with paper.js exportJSON({asString:false})
-   */
-
-
-  importJSON(json) {
-    if (this.model.project && this.model.project.playing) return; // Don't try to render rasters if there's no project attached - too dangerous!
-    // (asset image sources may not be able to be retrieved)
-
-    if (json[0] === 'Raster' && !json[1].source.startsWith('data') && !this.model.project) {
-      return;
-    } // Backwards compatibility check for old raster formats:
-
-
-    if (json[0] === 'Raster' && this.model.project) {
-      if (json[1].source.startsWith('data')) {
-        // Bug: Raw dataURL was saved, need find asset with that data
-        this.model.project.getAssets('Image').forEach(imageAsset => {
-          if (imageAsset.src === json[1].source) {
-            json[1].source = 'asset:' + imageAsset.uuid;
-          }
-        });
-      } else if (json[1].source.startsWith('asset:')) {// Current format, no fix needed
-      } else if (json[1].source === 'asset') {
-        // Old format: Asset UUID is stored in 'data'
-        json[1].source = 'asset:' + (json[1].asset || json[1].data.asset);
+    this.activeFrameLayers.forEach(layer => {
+      if (this.model.project.playing) {
+        layer.locked = false;
       } else {
-        console.error('WARNING: raster source format not recognized:');
-        console.log(json);
-        return;
+        layer.locked = this.model.locked;
       }
-    } // Get image source from assets
+    }); // Add onion skinned frame layers
 
+    this.onionSkinnedFramesLayers = [];
 
-    if (json[0] === 'Raster' && json[1].source.startsWith('asset:')) {
-      var assetUUID = json[1].source.split(':')[1];
-      json[1].source = this.model.project.getAssetByUUID(assetUUID).src;
-    } // Import JSON data into paper.js
+    if (this.model.project && this.model.parentClip.isFocus && this.model.project.onionSkinEnabled) {
+      var playheadPosition = this.model.project.focus.timeline.playheadPosition;
+      var onionSkinEnabled = this.model.project.onionSkinEnabled;
+      var onionSkinSeekBackwards = this.model.project.onionSkinSeekBackwards;
+      var onionSkinSeekForwards = this.model.project.onionSkinSeekForwards;
+      this.model.frames.filter(frame => {
+        return !frame.inPosition(playheadPosition) && frame.inRange(playheadPosition - onionSkinSeekBackwards, playheadPosition + onionSkinSeekForwards);
+      }).forEach(frame => {
+        frame.view.render();
+        this.onionSkinnedFramesLayers.push(frame.view.pathsLayer);
+        this.onionSkinnedFramesLayers.push(frame.view.clipsLayer);
+        var seek = 0;
 
+        if (frame.midpoint < playheadPosition) {
+          seek = onionSkinSeekBackwards;
+        } else if (frame.midpoint > playheadPosition) {
+          seek = onionSkinSeekForwards;
+        }
 
-    this._item = this.paper.importJSON(json);
-
-    this._item.remove(); // Check if we need to recover the UUID from the paper path
-
-
-    if (this._item.data.wickUUID) {
-      this.model.uuid = this._item.data.wickUUID;
-    } else {
-      this._item.data.wickUUID = this.model.uuid;
-      this._item.data.wickType = 'path';
-    } // Extra text options
-
-
-    if (this._item instanceof paper.TextItem) {
-      // https://github.com/paperjs/paper.js/issues/937
-      this._item.fontWeight = this.model.fontWeight + ' ' + this.model.fontStyle;
+        var dist = frame.distanceFrom(playheadPosition);
+        var onionMult = (seek - dist + 1) / seek;
+        onionMult = Math.min(1, Math.max(0, onionMult));
+        var opacity = onionMult * Wick.View.Layer.BASE_ONION_OPACITY;
+        frame.view.clipsLayer.locked = true;
+        frame.view.pathsLayer.locked = true;
+        frame.view.clipsLayer.opacity = opacity;
+        frame.view.pathsLayer.opacity = opacity;
+      });
     }
-  }
-  /**
-   * Export this path as paper.js Path json data.
-   */
-
-
-  exportJSON() {
-    return Wick.View.Path.exportJSON(this.item);
-  }
-  /**
-   * Export a path as paper.js Path json data.
-   */
-
-
-  static exportJSON(item) {
-    return item.exportJSON({
-      asString: false
-    });
   }
 
 };
@@ -58440,40 +58236,322 @@ TWEEN.Interpolation = {
 * You should have received a copy of the GNU General Public License
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
-Wick.GUIElement = class {
+Wick.View.Frame = class extends Wick.View {
   /**
-   * The paper.js scope that all Wick.View subclasses will use to render to.
+   * A multiplier for the resolution for the rasterization process.
+   * E.g. a multiplier of 2 will make a path 100 pixels wide rasterize into an image 200 pixels wide.
    */
-  static get paperScope() {
-    if (!this._paperScope) {
-      this._paperScope = new paper.PaperScope(); // Create dummy paper.js instance so we can access paper classes
+  static get RASTERIZE_RESOLUTION_MODIFIER() {
+    return 1;
+  }
 
-      var canvas = window.document.createElement('canvas');
+  static get RASTERIZE_RESOLUTION_MODIFIER_FOR_DEVICE() {
+    return Wick.View.Frame.RASTERIZE_RESOLUTION_MODIFIER / window.devicePixelRatio;
+  }
+  /**
+   * Create a frame view.
+   */
 
-      this._paperScope.setup(canvas);
-    } // Use active paper scope for window.paper alias
+
+  constructor() {
+    super();
+    this.clipsLayer = new this.paper.Layer();
+    this.clipsLayer.remove();
+    this.pathsLayer = new this.paper.Layer();
+    this.pathsLayer.remove();
+  }
+  /**
+   * Write the changes made to the view to the frame.
+   */
 
 
-    window.paper = this._paperScope; // Activate the paper scope
+  applyChanges() {
+    this._applyClipChanges();
 
-    this._paperScope.activate();
+    this._applyPathChanges();
+  }
+  /**
+   * Import SVG data into the paper.js layer, and updates the Frame's json data.
+   * @param {string} svg - the SVG data to parse and import.
+   */
 
-    return this._paperScope;
+
+  importSVG(svg) {
+    var importedItem = this.pathsLayer.importSVG(svg);
+
+    this._recursiveBreakApart(importedItem);
+
+    this._applyPathChanges();
+  }
+
+  render() {
+    this._renderPaths();
+
+    this._renderClips();
+  }
+
+  _renderPaths(args) {
+    if (!args) args = {};
+    this.pathsLayer.data.wickUUID = this.model.uuid;
+    this.pathsLayer.data.wickType = 'paths';
+    this.pathsLayer.removeChildren();
+    this.model.paths.forEach(path => {
+      path.view.render();
+      this.pathsLayer.addChild(path.view.item);
+    });
+  }
+
+  _renderClips() {
+    this.clipsLayer.data.wickUUID = this.model.uuid;
+    this.clipsLayer.data.wickType = 'clips';
+    this.clipsLayer.removeChildren();
+    this.model.clips.forEach(clip => {
+      clip.view.render();
+      this.clipsLayer.addChild(clip.view.group);
+    });
+  }
+
+  _applyClipChanges() {
+    // Reorder clips
+    var clips = this.model.clips.concat([]);
+    clips.forEach(clip => {
+      this.model.removeClip(clip);
+    });
+    this.clipsLayer.children.forEach(child => {
+      this.model.addClip(clips.find(g => {
+        return g.uuid === child.data.wickUUID;
+      }));
+    }); // Update clip transforms
+
+    this.clipsLayer.children.forEach(child => {
+      var wickClip = Wick.ObjectCache.getObjectByUUID(child.data.wickUUID);
+      wickClip.transformation = new Wick.Transformation({
+        x: child.position.x,
+        y: child.position.y,
+        scaleX: child.scaling.x,
+        scaleY: child.scaling.y,
+        rotation: child.rotation,
+        opacity: child.opacity
+      });
+    });
+  }
+
+  _applyPathChanges() {
+    // NOTE:
+    // This could be optimized by updating existing paths instead of completely clearing the frame children.
+    // Quickfix for now:
+    // Force all dynamic text paths to render in front of all other paths.
+    this.model.paths.filter(path => {
+      return path.isDynamicText;
+    }).forEach(path => {
+      path.view.item.bringToFront();
+    }); // Clear all WickPaths from the frame
+
+    this.model.paths.forEach(path => {
+      this.model.removePath(path);
+    }); // Create new WickPaths for the frame
+
+    this.pathsLayer.children.filter(child => {
+      return child.data.wickType !== 'gui';
+    }).forEach(child => {
+      var originalWickPath = child.data.wickUUID ? Wick.ObjectCache.getObjectByUUID(child.data.wickUUID) : null;
+      var pathJSON = Wick.View.Path.exportJSON(child);
+      var wickPath = new Wick.Path({
+        json: pathJSON
+      });
+      this.model.addPath(wickPath);
+      wickPath.fontWeight = originalWickPath ? originalWickPath.fontWeight : 400;
+      wickPath.fontStyle = originalWickPath ? originalWickPath.fontStyle : 'normal';
+      wickPath.identifier = originalWickPath ? originalWickPath.identifier : null;
+      child.name = wickPath.uuid;
+    });
+  } // Helper function for SVG import (paper.js imports SVGs as one big group.)
+
+
+  _recursiveBreakApart(item) {
+    item.applyMatrix = true;
+
+    if (item instanceof paper.Shape) {
+      var path = item.toPath();
+      item.parent.addChild(path);
+      item.remove();
+    }
+
+    if (item instanceof paper.Group) {
+      var children = item.removeChildren();
+      item.parent.addChildren(children);
+      item.remove();
+      children.forEach(child => {
+        this._recursiveBreakApart(child);
+      });
+    }
+  }
+
+};
+/* https://github.com/kelektiv/node-uuid */
+!function(r){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=r();else if("function"==typeof define&&define.amd)define([],r);else{var e;e="undefined"!=typeof window?window:"undefined"!=typeof global?global:"undefined"!=typeof self?self:this,e.uuidv4=r()}}(function(){return function r(e,n,t){function o(f,u){if(!n[f]){if(!e[f]){var a="function"==typeof require&&require;if(!u&&a)return a(f,!0);if(i)return i(f,!0);var d=new Error("Cannot find module '"+f+"'");throw d.code="MODULE_NOT_FOUND",d}var p=n[f]={exports:{}};e[f][0].call(p.exports,function(r){var n=e[f][1][r];return o(n?n:r)},p,p.exports,r,e,n,t)}return n[f].exports}for(var i="function"==typeof require&&require,f=0;f<t.length;f++)o(t[f]);return o}({1:[function(r,e,n){function t(r,e){var n=e||0,t=o;return t[r[n++]]+t[r[n++]]+t[r[n++]]+t[r[n++]]+"-"+t[r[n++]]+t[r[n++]]+"-"+t[r[n++]]+t[r[n++]]+"-"+t[r[n++]]+t[r[n++]]+"-"+t[r[n++]]+t[r[n++]]+t[r[n++]]+t[r[n++]]+t[r[n++]]+t[r[n++]]}for(var o=[],i=0;i<256;++i)o[i]=(i+256).toString(16).substr(1);e.exports=t},{}],2:[function(r,e,n){var t="undefined"!=typeof crypto&&crypto.getRandomValues.bind(crypto)||"undefined"!=typeof msCrypto&&msCrypto.getRandomValues.bind(msCrypto);if(t){var o=new Uint8Array(16);e.exports=function(){return t(o),o}}else{var i=new Array(16);e.exports=function(){for(var r,e=0;e<16;e++)0===(3&e)&&(r=4294967296*Math.random()),i[e]=r>>>((3&e)<<3)&255;return i}}},{}],3:[function(r,e,n){function t(r,e,n){var t=e&&n||0;"string"==typeof r&&(e="binary"===r?new Array(16):null,r=null),r=r||{};var f=r.random||(r.rng||o)();if(f[6]=15&f[6]|64,f[8]=63&f[8]|128,e)for(var u=0;u<16;++u)e[t+u]=f[u];return e||i(f)}var o=r("./lib/rng"),i=r("./lib/bytesToUuid");e.exports=t},{"./lib/bytesToUuid":1,"./lib/rng":2}]},{},[3])(3)});
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* Copyright 2019 WICKLETS LLC
+*
+* This file is part of Wick Engine.
+*
+* Wick Engine is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Wick Engine is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+*/
+Wick.View.Path = class extends Wick.View {
+  /**
+   * Create a frame view.
+   */
+  constructor() {
+    super();
+    this._item = null;
+  }
+  /**
+   * The paper.js representation of the Wick Path.
+   */
+
+
+  get item() {
+    if (!this._item) {
+      this.render();
+    }
+
+    return this._item;
   }
   /**
    *
    */
 
 
+  render() {
+    if (!this.model.json) {
+      console.warn('Path ' + this.model.uuid + ' is missing path JSON.');
+      return;
+    }
+
+    this.importJSON(this.model.json);
+  }
+  /**
+   * Import paper.js path data into this Wick Path, replacing the current path data.
+   * @param {object} json - Data for the path created with paper.js exportJSON({asString:false})
+   */
+
+
+  importJSON(json) {
+    if (this.model.project && this.model.project.playing) return; // Don't try to render rasters if there's no project attached - too dangerous!
+    // (asset image sources may not be able to be retrieved)
+
+    if (json[0] === 'Raster' && !json[1].source.startsWith('data') && !this.model.project) {
+      return;
+    } // Backwards compatibility check for old raster formats:
+
+
+    if (json[0] === 'Raster' && this.model.project) {
+      if (json[1].source.startsWith('data')) {
+        // Bug: Raw dataURL was saved, need find asset with that data
+        this.model.project.getAssets('Image').forEach(imageAsset => {
+          if (imageAsset.src === json[1].source) {
+            json[1].source = 'asset:' + imageAsset.uuid;
+          }
+        });
+      } else if (json[1].source.startsWith('asset:')) {// Current format, no fix needed
+      } else if (json[1].source === 'asset') {
+        // Old format: Asset UUID is stored in 'data'
+        json[1].source = 'asset:' + (json[1].asset || json[1].data.asset);
+      } else {
+        console.error('WARNING: raster source format not recognized:');
+        console.log(json);
+        return;
+      }
+    } // Get image source from assets
+
+
+    if (json[0] === 'Raster' && json[1].source.startsWith('asset:')) {
+      var assetUUID = json[1].source.split(':')[1];
+      json[1].source = this.model.project.getAssetByUUID(assetUUID).src;
+    } // Import JSON data into paper.js
+
+
+    this._item = this.paper.importJSON(json);
+
+    this._item.remove(); // Check if we need to recover the UUID from the paper path
+
+
+    if (this._item.data.wickUUID) {
+      this.model.uuid = this._item.data.wickUUID;
+    } else {
+      this._item.data.wickUUID = this.model.uuid;
+      this._item.data.wickType = 'path';
+    } // Extra text options
+
+
+    if (this._item instanceof paper.TextItem) {
+      // https://github.com/paperjs/paper.js/issues/937
+      this._item.fontWeight = this.model.fontWeight + ' ' + this.model.fontStyle;
+    }
+  }
+  /**
+   * Export this path as paper.js Path json data.
+   */
+
+
+  exportJSON() {
+    return Wick.View.Path.exportJSON(this.item);
+  }
+  /**
+   * Export a path as paper.js Path json data.
+   */
+
+
+  static exportJSON(item) {
+    return item.exportJSON({
+      asString: false
+    });
+  }
+
+};
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* Copyright 2019 WICKLETS LLC
+*
+* This file is part of Wick Engine.
+*
+* Wick Engine is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Wick Engine is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+*/
+Wick.GUIElement = class {
+  /**
+   * Create a new GUIElement
+   */
   constructor(model) {
     this.model = model;
-    this.item = null;
-    this._eventHandlers = {};
-    this._scrollX = 0;
-    this._scrollY = 0;
   }
   /**
    * The object to use the data from to create this GUIElement
+   * @type {Wick.Base}
    */
 
 
@@ -58485,35 +58563,8 @@ Wick.GUIElement = class {
     return this._model;
   }
   /**
-   * The paper.js item representing this GUIElement
-   */
-
-
-  get item() {
-    if (!this._item) {
-      this._item = this._buildItem();
-    }
-
-    return this._item;
-  }
-
-  set item(item) {
-    if (this._item) {
-      this._item.remove();
-    }
-
-    this._item = item;
-  }
-  /**
-   *
-   */
-
-
-  get paper() {
-    return Wick.GUIElement.paperScope;
-  }
-  /**
-   *
+   * The current grid cell width that all GUIElements are based off of.
+   * @type {number}
    */
 
 
@@ -58521,7 +58572,8 @@ Wick.GUIElement = class {
     return Wick.GUIElement.GRID_DEFAULT_CELL_WIDTH;
   }
   /**
-   *
+   * The current grid cell height that all GUIElements are based off of.
+   * @type {number}
    */
 
 
@@ -58529,78 +58581,28 @@ Wick.GUIElement = class {
     return Wick.GUIElement.GRID_DEFAULT_CELL_HEIGHT;
   }
   /**
-   *
+   * Draw this GUIElement
    */
 
 
-  set scrollX(scrollX) {
-    this._scrollX = scrollX;
+  draw() {} // Implemeneted by subclasses
 
-    this._positionScrollableElements();
-  }
+  /**
+   * The canvas that this GUIElement belongs to
+   */
 
-  get scrollX() {
-    return this._scrollX;
+
+  get canvas() {
+    return this.model.project.guiElement._canvas;
   }
   /**
-   *
+   * The context of the canvas that this GUIElement belongs to
    */
 
 
-  set scrollY(scrollY) {
-    this._scrollY = scrollY;
-
-    this._positionScrollableElements();
+  get ctx() {
+    return this.model.project.guiElement._ctx;
   }
-
-  get scrollY() {
-    return this._scrollY;
-  }
-  /**
-   *
-   */
-
-
-  on(eventName, fn) {
-    if (!this._eventHandlers[eventName]) {
-      this._eventHandlers[eventName] = [];
-    }
-
-    this._eventHandlers[eventName].push(fn);
-  }
-  /**
-   *
-   */
-
-
-  fire(eventName, eventInfo) {
-    var eventFns = this._eventHandlers[eventName]; //eventFn && eventFn(eventInfo);
-
-    if (eventFns) {
-      eventFns.forEach(fn => {
-        fn(eventInfo);
-      });
-    }
-  }
-  /**
-   *
-   */
-
-
-  build() {
-    this.item.removeChildren();
-  }
-
-  _buildItem() {
-    var item = new this.paper.Group();
-    item.remove();
-    item.applyMatrix = false;
-    item.pivot = new paper.Point(0, 0);
-    item.data.guiElement = this;
-    return item;
-  }
-
-  _positionScrollableElements() {}
 
 };
 Wick.GUIElement.GRID_DEFAULT_CELL_WIDTH = 38;
@@ -58700,450 +58702,6 @@ Wick.GUIElement.SCROLLBAR_ACTIVE_FILL_COLOR = '#cccccc';
 Wick.GUIElement.SCROLLBAR_SIZE = 18;
 Wick.GUIElement.SCROLLBAR_MARGIN = 3;
 Wick.GUIElement.SCROLLBAR_BORDER_RADIUS = 4;
-/* https://github.com/kelektiv/node-uuid */
-!function(r){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=r();else if("function"==typeof define&&define.amd)define([],r);else{var e;e="undefined"!=typeof window?window:"undefined"!=typeof global?global:"undefined"!=typeof self?self:this,e.uuidv4=r()}}(function(){return function r(e,n,t){function o(f,u){if(!n[f]){if(!e[f]){var a="function"==typeof require&&require;if(!u&&a)return a(f,!0);if(i)return i(f,!0);var d=new Error("Cannot find module '"+f+"'");throw d.code="MODULE_NOT_FOUND",d}var p=n[f]={exports:{}};e[f][0].call(p.exports,function(r){var n=e[f][1][r];return o(n?n:r)},p,p.exports,r,e,n,t)}return n[f].exports}for(var i="function"==typeof require&&require,f=0;f<t.length;f++)o(t[f]);return o}({1:[function(r,e,n){function t(r,e){var n=e||0,t=o;return t[r[n++]]+t[r[n++]]+t[r[n++]]+t[r[n++]]+"-"+t[r[n++]]+t[r[n++]]+"-"+t[r[n++]]+t[r[n++]]+"-"+t[r[n++]]+t[r[n++]]+"-"+t[r[n++]]+t[r[n++]]+t[r[n++]]+t[r[n++]]+t[r[n++]]+t[r[n++]]}for(var o=[],i=0;i<256;++i)o[i]=(i+256).toString(16).substr(1);e.exports=t},{}],2:[function(r,e,n){var t="undefined"!=typeof crypto&&crypto.getRandomValues.bind(crypto)||"undefined"!=typeof msCrypto&&msCrypto.getRandomValues.bind(msCrypto);if(t){var o=new Uint8Array(16);e.exports=function(){return t(o),o}}else{var i=new Array(16);e.exports=function(){for(var r,e=0;e<16;e++)0===(3&e)&&(r=4294967296*Math.random()),i[e]=r>>>((3&e)<<3)&255;return i}}},{}],3:[function(r,e,n){function t(r,e,n){var t=e&&n||0;"string"==typeof r&&(e="binary"===r?new Array(16):null,r=null),r=r||{};var f=r.random||(r.rng||o)();if(f[6]=15&f[6]|64,f[8]=63&f[8]|128,e)for(var u=0;u<16;++u)e[t+u]=f[u];return e||i(f)}var o=r("./lib/rng"),i=r("./lib/bytesToUuid");e.exports=t},{"./lib/bytesToUuid":1,"./lib/rng":2}]},{},[3])(3)});
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-Wick.GUIElement.Clickable = class extends Wick.GUIElement {
-  /**
-   *
-   */
-  constructor(model) {
-    super(model);
-    this.isHoveredOver = false;
-    this.isBeingClicked = false;
-  }
-  /**
-   *
-   */
-
-
-  get isClickable() {
-    return true;
-  }
-  /**
-   *
-   */
-
-
-  get isHoveredOver() {
-    return this._isHoveredOver;
-  }
-
-  set isHoveredOver(isHoveredOver) {
-    this._isHoveredOver = isHoveredOver;
-  }
-  /**
-   *
-   */
-
-
-  get isBeingClicked() {
-    return this._isBeingClicked;
-  }
-
-  set isBeingClicked(isBeingClicked) {
-    this._isBeingClicked = isBeingClicked;
-  }
-  /**
-   *
-   */
-
-
-  get globalMouse() {
-    return this.model.project.guiElement.mousePosition;
-  }
-  /**
-   *
-   */
-
-
-  get localMouse() {
-    var offset = this._mouseOffset(this.item);
-
-    return {
-      x: this.globalMouse.x - offset.x,
-      y: this.globalMouse.y - offset.y
-    };
-  }
-  /**
-   *
-   */
-
-
-  get localMouseGrid() {
-    return {
-      x: Math.floor(this.localMouse.x / this.gridCellWidth),
-      y: Math.floor(this.localMouse.y / this.gridCellHeight)
-    };
-  }
-  /**
-   *
-   */
-
-
-  handleMouseOver(e) {
-    this.isHoveredOver = true;
-    this.fire('mouseOver', e);
-  }
-  /**
-   *
-   */
-
-
-  handleMouseLeave(e) {
-    this.isHoveredOver = false;
-    this.isBeingClicked = false;
-    this.fire('mouseLeave', e);
-  }
-  /**
-   *
-   */
-
-
-  handleMouseDown(e) {
-    this.isBeingClicked = true;
-    this.fire('mouseDown', e);
-  }
-  /**
-   *
-   */
-
-
-  handleMouseUp(e) {
-    this.isBeingClicked = false;
-    this.isHoveredOver = false;
-    this.fire('mouseUp', e);
-  }
-
-  _mouseOffset(item) {
-    var offset = {
-      x: item.position.x,
-      y: item.position.y
-    };
-
-    if (item.parent && !(item.parent instanceof paper.Layer)) {
-      var parentOffset = this._mouseOffset(item.parent);
-
-      offset.x += parentOffset.x;
-      offset.y += parentOffset.y;
-    }
-
-    return offset;
-  }
-
-};
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-Wick.GUIElement.Draggable = class extends Wick.GUIElement.Clickable {
-  /**
-   * How fast the timeline should auto-scroll when something is dragged outside of the GUI.
-   * @type {number}
-   */
-  static get AUTO_SCROLL_SPEED() {
-    return 1;
-  }
-  /**
-   *
-   */
-
-
-  constructor(model) {
-    super(model);
-    this.isDragging = false;
-    this.mouseDragStart = {
-      x: 0,
-      y: 0
-    };
-    this.mouseDragEnd = {
-      x: 0,
-      y: 0
-    };
-  }
-  /**
-   *
-   */
-
-
-  get isDraggable() {
-    return true;
-  }
-  /**
-   *
-   */
-
-
-  get isDragging() {
-    return this._isDragging;
-  }
-
-  set isDragging(isDragging) {
-    this._isDragging = isDragging;
-  }
-  /**
-   *
-   */
-
-
-  get mouseDelta() {
-    return {
-      x: this.mouseDragEnd.x - this.mouseDragStart.x,
-      y: this.mouseDragEnd.y - this.mouseDragStart.y
-    };
-  }
-  /**
-   *
-   */
-
-
-  get mouseMovement() {
-    return {
-      x: this.mouseDragEnd.x - this.lastMouseDrag.x,
-      y: this.mouseDragEnd.y - this.lastMouseDrag.y
-    };
-  }
-  /**
-   *
-   */
-
-
-  handleMouseDown(e) {
-    super.handleMouseDown(e);
-    this.isDragging = true;
-    this.fire('dragStart');
-    this.mouseDragStart = {
-      x: this.globalMouse.x,
-      y: this.globalMouse.y
-    };
-    this.mouseDragEnd = {
-      x: this.globalMouse.x,
-      y: this.globalMouse.y
-    };
-
-    var onMouseMove = e => {
-      this.model.project.guiElement.updateMousePosition(e);
-      this.lastMouseDrag = this.mouseDragEnd;
-      this.mouseDragEnd = {
-        x: this.globalMouse.x,
-        y: this.globalMouse.y
-      }; // Auto scroll when objects are dragged outside of the GUI
-
-      if (!this.isScrollbarGrabber) {
-        var dragX = this.model.project.guiElement.mousePosition.x;
-        var dragY = this.model.project.guiElement.mousePosition.y;
-        var dragWidth = this.paper.view.element.width;
-        var dragHeight = this.paper.view.element.height;
-        var horizScrollbar = this.model.project.activeTimeline.guiElement.horizontalScrollbar;
-        var verticalScrollbar = this.model.project.activeTimeline.guiElement.verticalScrollbar;
-        var scrollXBefore = this.model.project.activeTimeline.guiElement.scrollX;
-        var scrollYBefore = this.model.project.activeTimeline.guiElement.scrollY;
-
-        if (dragX > this.paper.view.element.width) {
-          horizScrollbar.scrollByAmount(Wick.GUIElement.Draggable.AUTO_SCROLL_SPEED);
-        } else if (dragX < 0) {
-          horizScrollbar.scrollByAmount(-Wick.GUIElement.Draggable.AUTO_SCROLL_SPEED);
-        }
-
-        if (dragY > this.paper.view.element.height) {
-          verticalScrollbar.scrollByAmount(Wick.GUIElement.Draggable.AUTO_SCROLL_SPEED);
-        } else if (dragY < 0) {
-          verticalScrollbar.scrollByAmount(-Wick.GUIElement.Draggable.AUTO_SCROLL_SPEED);
-        }
-
-        var scrollXAfter = this.model.project.activeTimeline.guiElement.scrollX;
-        var scrollYAfter = this.model.project.activeTimeline.guiElement.scrollY;
-        this.mouseDragStart.x += scrollXBefore - scrollXAfter;
-        this.mouseDragStart.y += scrollYBefore - scrollYAfter;
-      }
-
-      this.fire('drag');
-    };
-
-    var onMouseUp = e => {
-      this.isDragging = false;
-      this.mouseDragStart = {
-        x: 0,
-        y: 0
-      };
-      this.mouseDragEnd = {
-        x: 0,
-        y: 0
-      };
-      this.fire('dragEnd');
-      document.removeEventListener('mousemove', onMouseMove);
-      document.removeEventListener('mouseup', onMouseUp);
-      document.removeEventListener('touchmove', onMouseMove);
-      document.removeEventListener('touchend', onMouseUp);
-    };
-
-    document.addEventListener('mousemove', onMouseMove);
-    document.addEventListener('mouseup', onMouseUp);
-    document.addEventListener('touchmove', onMouseMove);
-    document.addEventListener('touchend', onMouseUp);
-  }
-
-};
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-Wick.GUIElement.AddFrameOverlay = class extends Wick.GUIElement {
-  static get MARGIN() {
-    return 3;
-  }
-
-  get cursor() {
-    return 'pointer';
-  }
-  /**
-   *
-   */
-
-
-  constructor(model) {
-    super(model);
-    this._playheadPosition = 1;
-    this._active = false;
-    this.item.locked = true;
-  }
-  /**
-   *
-   */
-
-
-  get playheadPosition() {
-    return this._playheadPosition;
-  }
-
-  set playheadPosition(playheadPosition) {
-    this._playheadPosition = playheadPosition;
-  }
-  /**
-   *
-   */
-
-
-  get active() {
-    return this._active;
-  }
-
-  set active(active) {
-    this._active = active;
-  }
-  /**
-   *
-   */
-
-
-  get x() {
-    return this.gridCellWidth * (this.playheadPosition - 1);
-  }
-  /**
-   *
-   */
-
-
-  get y() {
-    return this.model.index * this.gridCellHeight;
-  }
-  /**
-   *
-   */
-
-
-  get width() {
-    return this.gridCellWidth;
-  }
-  /**
-   *
-   */
-
-
-  get height() {
-    return Wick.GUIElement.FRAME_HEIGHT;
-  }
-  /**
-   *
-   */
-
-
-  build() {
-    super.build();
-    if (!this.active) return;
-    var overlayRect = new this.paper.Path.Rectangle({
-      from: new this.paper.Point(this.x, this.y),
-      to: new this.paper.Point(this.x + this.width, this.y + this.height),
-      fillColor: Wick.GUIElement.ADD_FRAME_OVERLAY_FILL_COLOR,
-      radius: Wick.GUIElement.FRAME_BORDER_RADIUS
-    });
-    this.item.addChild(overlayRect);
-    var overlayText = new this.paper.PointText({
-      point: [this.x + this.width / 2, this.y + this.height / 2 + 8],
-      content: '+',
-      fillColor: Wick.GUIElement.ADD_FRAME_OVERLAY_PLUS_COLOR,
-      fontFamily: 'Courier New',
-      fontWeight: 'bold',
-      fontSize: 30,
-      justification: 'center',
-      pivot: new paper.Point(0, 0),
-      opacity: .5
-    });
-    this.item.addChild(overlayText);
-  }
-
-};
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
@@ -59165,1072 +58723,35 @@ Wick.GUIElement.AddFrameOverlay = class extends Wick.GUIElement {
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
 Wick.GUIElement.Breadcrumbs = class extends Wick.GUIElement {
+  /**
+   * Create a new GUIElement
+   */
   constructor(model) {
     super(model);
   }
 
-  build() {
-    super.build(); // Background rectangle to cover rest of the GUI
+  /**
+   * Draw this GUIElement
+   */
+  draw() {
+    var ctx = this.ctx; // Background rectangle to cover rest of the GUI
 
-    var bgRect = new this.paper.Path.Rectangle({
-      from: new this.paper.Point(0, 0),
-      to: new this.paper.Point(paper.view.element.width, Wick.GUIElement.BREADCRUMBS_HEIGHT),
-      fillColor: Wick.GUIElement.BREADCRUMBS_BG_COLOR,
-      pivot: new paper.Point(0, 0)
-    });
-    bgRect.position.x -= this.scrollX;
-    this.item.addChild(bgRect); // Generate buttons for each Clip in the lineage
+    ctx.fillStyle = Wick.GUIElement.BREADCRUMBS_BG_COLOR;
+    ctx.rect(0, 0, this.canvas.width, Wick.GUIElement.BREADCRUMBS_HEIGHT);
+    ctx.fill(); // Generate buttons for each Clip in the lineage
 
+    /*
     var lastButton = null;
     this.model.focus.lineage.reverse().forEach(clip => {
-      var button = new Wick.GUIElement.BreadcrumbsButton(clip);
-      button.build();
-      this.item.addChild(button.item);
-
-      if (lastButton) {
-        button.item.position.x = lastButton.item.bounds.right;
-      }
-
-      ;
-      lastButton = button;
-    });
-  }
-
-};
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-Wick.GUIElement.BreadcrumbsButton = class extends Wick.GUIElement.Clickable {
-  constructor(model) {
-    super(model);
-    this.on('mouseOver', () => {
-      this.build();
-    });
-    this.on('mouseDown', () => {
-      this.build();
-    });
-    this.on('mouseUp', () => {
-      this.build();
-    });
-    this.on('mouseLeave', () => {
-      this.build();
-    });
-    this.on('mouseDown', () => {
-      this.model.project.focus = this.model;
-      this.model.project.guiElement.fire('projectModified');
-    });
-  }
-
-  get cursor() {
-    if (this.model === this.model.project.focus) {
-      return 'default';
-    } else {
-      return 'pointer';
-    }
-  }
-
-  build() {
-    super.build();
-    var buttonBodyColor = 'red';
-
-    if (this.model === this.model.project.focus) {
-      buttonBodyColor = Wick.GUIElement.BREADCRUMBS_ACTIVE_BUTTON_FILL_COLOR;
-    } else if (this.isBeingClicked) {
-      buttonBodyColor = Wick.GUIElement.BREADCRUMBS_INACTIVE_BUTTON_FILL_COLOR;
-    } else if (this.isHoveredOver) {
-      buttonBodyColor = Wick.GUIElement.BREADCRUMBS_HOVER_BUTTON_FILL_COLOR;
-    } else {
-      buttonBodyColor = Wick.GUIElement.BREADCRUMBS_INACTIVE_BUTTON_FILL_COLOR;
-    }
-
-    var label = new paper.PointText({
-      point: [Wick.GUIElement.BREADCRUMBS_PADDING, Wick.GUIElement.BREADCRUMBS_HEIGHT / 2 + Wick.GUIElement.BREADCRUMBS_PADDING],
-      fillColor: '#BBBBBB',
-      fontFamily: 'Nunito Sans',
-      fontStyle: 'normal',
-      fontSize: '14px',
-      content: this.model.identifier || 'Clip'
-    });
-    this.item.addChild(label); // One padding is added by shifting the text right...
-
-    var buttonWidth = label.bounds.width + Wick.GUIElement.BREADCRUMBS_PADDING * 2;
-    var buttonBody = new paper.Path.Rectangle({
-      fillColor: buttonBodyColor,
-      from: new paper.Point(0, 0),
-      to: new paper.Point(buttonWidth, Wick.GUIElement.BREADCRUMBS_HEIGHT),
-      radius: Wick.GUIElement.FRAME_BORDER_RADIUS
-    });
-    var buttonBodyBottomSharp = new paper.Path.Rectangle({
-      fillColor: buttonBodyColor,
-      from: new paper.Point(0, Wick.GUIElement.BREADCRUMBS_HEIGHT - Wick.GUIElement.BREADCRUMBS_PADDING),
-      to: new paper.Point(buttonWidth, Wick.GUIElement.BREADCRUMBS_HEIGHT)
-    }); // Add shadow and mask for bottom radius.
-
-    var buttonBodyDropShadow = new paper.Path.Rectangle({
-      fillColor: Wick.GUIElement.BREADCRUMBS_SHADOW_COLOR,
-      from: new paper.Point(Wick.GUIElement.BREADCRUMBS_DROP_SHADOW_DEPTH, 0),
-      to: new paper.Point(buttonWidth + Wick.GUIElement.BREADCRUMBS_DROP_SHADOW_DEPTH, Wick.GUIElement.BREADCRUMBS_HEIGHT),
-      radius: Wick.GUIElement.FRAME_BORDER_RADIUS
-    });
-    var buttonBodyDropShadowBottomSharp = new paper.Path.Rectangle({
-      fillColor: Wick.GUIElement.BREADCRUMBS_SHADOW_COLOR,
-      from: new paper.Point(Wick.GUIElement.BREADCRUMBS_DROP_SHADOW_DEPTH, Wick.GUIElement.BREADCRUMBS_HEIGHT - Wick.GUIElement.BREADCRUMBS_PADDING),
-      to: new paper.Point(buttonWidth + Wick.GUIElement.BREADCRUMBS_DROP_SHADOW_DEPTH, Wick.GUIElement.BREADCRUMBS_HEIGHT)
-    });
-    this.item.addChild(buttonBody);
-    this.item.addChild(buttonBodyBottomSharp);
-    this.item.addChild(buttonBodyDropShadow);
-    this.item.addChild(buttonBodyDropShadowBottomSharp);
-    buttonBody.sendToBack();
-    buttonBodyDropShadow.sendToBack();
-    buttonBodyDropShadowBottomSharp.sendToBack(); // Add the active highlight to the tab, if necessary.
-
-    if (this.model === this.model.project.focus) {
-      var highlight = new paper.Path.Rectangle({
-        fillColor: Wick.GUIElement.BREADCRUMBS_ACTIVE_BORDER_COLOR,
-        from: new paper.Point(0, Wick.GUIElement.BREADCRUMBS_HEIGHT - Wick.GUIElement.BREADCRUMBS_HIGHLIGHT_HEIGHT),
-        to: new paper.Point(buttonWidth, Wick.GUIElement.BREADCRUMBS_HEIGHT)
-      });
-      this.item.addChild(highlight);
-    }
-  }
-
-};
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-Wick.GUIElement.CreateLayerLabel = class extends Wick.GUIElement.Clickable {
-  /**
-   *
-   */
-  constructor(model) {
-    super(model);
-    this.on('mouseOver', () => {
-      this.build();
-    });
-    this.on('mouseDown', () => {
-      var layer = new Wick.Layer();
-      this.model.project.activeTimeline.addLayer(layer);
-      layer.activate();
-      this.model.project.selection.clear();
-      this.model.project.selection.select(layer);
-      this.model.project.guiElement.build();
-      this.model.project.guiElement.fire('projectModified');
-    });
-    this.on('mouseLeave', () => {
-      this.build();
-    });
-  }
-
-  get cursor() {
-    return 'pointer';
-  }
-  /**
-   *
-   */
-
-
-  get index() {
-    return this._index;
-  }
-
-  set index(index) {
-    this._index = index;
-  }
-  /**
-   *
-   */
-
-
-  get x() {
-    return Wick.GUIElement.LAYER_LABEL_MARGIN_SIDES;
-  }
-  /**
-   *
-   */
-
-
-  get y() {
-    return this.index * this.gridCellHeight + Wick.GUIElement.LAYER_LABEL_MARGIN_TOP_BOTTOM;
-  }
-  /**
-   *
-   */
-
-
-  get width() {
-    return this._width - Wick.GUIElement.LAYER_LABEL_MARGIN_SIDES * 2;
-  }
-
-  set width(width) {
-    this._width = width;
-  }
-  /**
-   *
-   */
-
-
-  get height() {
-    return this.gridCellHeight - Wick.GUIElement.LAYER_LABEL_MARGIN_TOP_BOTTOM * 2;
-  }
-  /**
-   *
-   */
-
-
-  build() {
-    super.build();
-    var layerRect = new this.paper.Path.Rectangle({
-      from: new this.paper.Point(0, 0),
-      to: new this.paper.Point(this.width, this.height),
-      fillColor: this.isHoveredOver ? 'rgba(255,255,255,0.6)' : 'rgba(255,255,255,0.3)',
-      radius: 2
-    });
-    this.item.addChild(layerRect);
-    var plusButton = new this.paper.PointText({
-      point: [this.x + this.width / 2, this.height / 2 + 8],
-      content: '+',
-      fillColor: Wick.GUIElement.ADD_FRAME_OVERLAY_PLUS_COLOR,
-      fontFamily: 'Courier New',
-      fontWeight: 'bold',
-      fontSize: 30,
-      justification: 'center',
-      pivot: new paper.Point(0, 0),
-      opacity: .5
-    });
-    this.item.addChild(plusButton);
-    this.item.position = new paper.Point(this.x, this.y);
-  }
-
-};
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-Wick.GUIElement.Frame = class extends Wick.GUIElement.Draggable {
-  static get cachedWaveforms() {
-    if (!Wick.GUIElement.Frame.__cachedWaveforms) {
-      Wick.GUIElement.Frame.__cachedWaveforms = {};
-    }
-
-    return Wick.GUIElement.Frame.__cachedWaveforms;
-  }
-  /**
-   *
-   */
-
-
-  constructor(model) {
-    super(model);
-    this.dragOffset = new paper.Point(0, 0);
-    this.rightEdge = new Wick.GUIElement.FrameRightEdge(model);
-    this.rightEdgeStretch = 0;
-    this.leftEdge = new Wick.GUIElement.FrameLeftEdge(model);
-    this.leftEdgeStretch = 0;
-    this.ghost = new Wick.GUIElement.FrameGhost(model);
-    this.on('mouseOver', () => {
-      this.build();
-    });
-    this.on('mouseDown', e => {
-      this.model.project.activeTimeline.playheadPosition = this.model.start + this.localMouseGrid.x;
-
-      if (!e.modifiers.shift && !this.model.isSelected) {
-        this.model.project.selection.clear();
-      }
-
-      if (!this.model.isSelected) {
-        this.model.project.selection.select(this.model);
-        this.model.parentLayer.activate();
-      }
-
-      this.model.project.guiElement.build();
-      this.model.project.guiElement.fire('projectModified');
-    });
-    this.on('mouseLeave', () => {
-      this.build();
-    });
-    this.on('drag', () => {
-      this._dragSelectedFrames();
-    });
-    this.on('dragEnd', () => {
-      this._tryToDropFrames();
-    });
-  }
-
-  get cursor() {
-    return 'move';
-  }
-  /**
-   *
-   */
-
-
-  get x() {
-    return this.gridCellWidth * (this.model.start - 1) + this.leftEdgeStretch + Wick.GUIElement.FRAME_MARGIN;
-  }
-  /**
-   *
-   */
-
-
-  get y() {
-    return this.gridCellHeight * this.model.parentLayer.index + Wick.GUIElement.FRAME_MARGIN;
-  }
-  /**
-   *
-   */
-
-
-  get width() {
-    return this.gridCellWidth * this.model.length + this.rightEdgeStretch - this.leftEdgeStretch - Wick.GUIElement.FRAME_MARGIN;
-  }
-  /**
-   *
-   */
-
-
-  get height() {
-    return Wick.GUIElement.FRAMES_STRIP_HEIGHT;
-  }
-  /**
-   *
-   */
-
-
-  get dragOffset() {
-    return this._dragOffset;
-  }
-
-  set dragOffset(dragOffset) {
-    this._dragOffset = dragOffset;
-  }
-  /**
-   *
-   */
-
-
-  get rightEdgeStretch() {
-    return this._rightEdgeStretch;
-  }
-
-  set rightEdgeStretch(rightEdgeStretch) {
-    this._rightEdgeStretch = rightEdgeStretch;
-    var ddd = this.model.length * this.gridCellWidth;
-    var framePixelLength = ddd + this._rightEdgeStretch;
-
-    if (framePixelLength < this.gridCellWidth) {
-      this._rightEdgeStretch = -ddd + this.gridCellWidth;
-    }
-  }
-  /**
-   *
-   */
-
-
-  get leftEdgeStretch() {
-    return this._leftEdgeStretch;
-  }
-
-  set leftEdgeStretch(leftEdgeStretch) {
-    this._leftEdgeStretch = leftEdgeStretch;
-  }
-  /**
-   *
-   */
-
-
-  get selectedFrames() {
-    return this.model.project.selection.getSelectedObjects(Wick.Frame);
-  }
-  /**
-   *
-   */
-
-
-  get selectedFramesByLayers() {
-    var frames = this.selectedFrames;
-    var layers = {};
-    frames.forEach(frame => {
-      var layer = frame.parentLayer;
-
-      if (!layers[layer.uuid]) {
-        layers[layer.uuid] = [];
-      }
-
-      layers[layer.uuid].push(frame);
-    });
-    return layers;
-  }
-  /**
-   *
-   */
-
-
-  get draggingFrames() {
-    return this.model.parentTimeline.frames.filter(frame => {
-      return frame.guiElement.ghost.active;
-    });
-  }
-  /**
-   *
-   */
-
-
-  get ghostStart() {
-    var x = this.x + this.dragOffset.x;
-    x = Math.round(x / this.gridCellWidth);
-    x += 1;
-    return x;
-  }
-  /**
-   *
-   */
-
-
-  get ghostEnd() {
-    var x = this.x + this.dragOffset.x + this.width;
-    x = Math.round(x / this.gridCellWidth);
-    return x;
-  }
-  /**
-   *
-   */
-
-
-  get ghostLayer() {
-    var y = this.y + this.dragOffset.y;
-    y = Math.round(y / this.gridCellHeight);
-    return y;
-  }
-  /**
-   *
-   */
-
-
-  get ghostPosition() {
-    return new paper.Point((this.ghostStart - 1) * this.gridCellWidth, this.ghostLayer * this.gridCellHeight);
-  }
-  /**
-   *
-   */
-
-
-  get ghostWidth() {
-    return (this.ghostEnd + 1 - this.ghostStart) * this.gridCellWidth;
-  }
-  /**
-   *
-   */
-
-
-  build() {
-    super.build();
-
-    this._buildDropGhost();
-
-    this._buildFrameBody();
-
-    this._buildSoundWaveform();
-
-    this._buildContentfulDot();
-
-    this._buildDraggingEdges();
-
-    this._buildTweens();
-
-    this._buildIdentifierLabel();
-
-    this._buildScriptsLabel();
-
-    this.item.position = new paper.Point(this.x, this.y);
-    this.item.position = this.item.position.add(this.dragOffset);
-  }
-
-  _buildFrameBody() {
-    var fillColor = 'rgba(0,0,0,0)';
-
-    if (this.isHoveredOver) {
-      fillColor = Wick.GUIElement.FRAME_HOVERED_OVER;
-    } else {
-      fillColor = Wick.GUIElement.FRAME_UNCONTENTFUL_FILL_COLOR;
-    } // Main Frame Body
-
-
-    var frameRect = new this.paper.Path.Rectangle({
-      from: new this.paper.Point(0, 0),
-      to: new this.paper.Point(this.width, this.height),
-      fillColor: fillColor,
-      radius: Wick.GUIElement.FRAME_BORDER_RADIUS
-    }); // Frame Drop Shadow
-
-    var frameDropShadow = new this.paper.Path.Rectangle({
-      from: new this.paper.Point(0, Wick.GUIElement.FRAME_DROP_SHADOW_DEPTH),
-      to: new this.paper.Point(this.width, this.height + Wick.GUIElement.FRAME_DROP_SHADOW_DEPTH),
-      fillColor: Wick.GUIElement.FRAME_DROP_SHADOW_FILL,
-      strokeWidth: 0,
-      radius: Wick.GUIElement.FRAME_BORDER_RADIUS
-    }); // Create frame and drop shadow
-
-    this.item.addChild(frameDropShadow);
-    this.item.addChild(frameRect); // Add Selection Highlight If necessary.
-
-    if (this.model.isSelected) {
-      var frameBorderWidth = 2; // How thick is the highlight?
-
-      var frameSelectedHighlight = new this.paper.Path.Rectangle({
-        from: new this.paper.Point(frameBorderWidth, frameBorderWidth),
-        to: new this.paper.Point(this.width - frameBorderWidth, this.height - frameBorderWidth),
-        strokeColor: Wick.GUIElement.SELECTED_ITEM_BORDER_COLOR,
-        strokeWidth: frameBorderWidth + frameBorderWidth,
-        // Adjust strokewidth to account for being inside the shape.
-        fillColor: 'rgba(0,0,0,0)',
-        // Invisible
-        radius: Wick.GUIElement.FRAME_BORDER_RADIUS - frameBorderWidth // Adjust radius to account for being inside the shape.
-
-      }); // Add it to the frame.
-
-      this.item.addChild(frameSelectedHighlight);
-    } // Visually alter the frame if the layer is hidden.
-
-
-    if (this.model.parentLayer.hidden) {
-      this.item.opacity = .25;
-    } else {
-      this.item.opacity = 1;
-    }
-  }
-
-  _buildDropGhost() {
-    this.ghost.position = new paper.Point(0, 0);
-    this.ghost.position = this.ghost.position.subtract(new paper.Point(this.x, this.y));
-    this.ghost.position = this.ghost.position.subtract(new paper.Point(this.dragOffset.x, this.dragOffset.y));
-    this.ghost.position = this.ghost.position.add(this.ghostPosition);
-    this.ghost.width = this.ghostWidth;
-    this.ghost.build();
-    this.item.addChild(this.ghost.item);
-  }
-
-  _buildContentfulDot() {
-    if (this.model.tweens.length > 0 || this.model.sound) {
-      return;
-    }
-
-    var contentDot = new this.paper.Path.Ellipse({
-      center: [this.gridCellWidth / 2, this.gridCellHeight / 2],
-      radius: Wick.GUIElement.FRAME_CONTENT_DOT_RADIUS,
-      fillColor: this.model.contentful ? Wick.GUIElement.FRAME_CONTENT_DOT_COLOR : 'rgba(0,0,0,0)',
-      strokeColor: Wick.GUIElement.FRAME_CONTENT_DOT_COLOR,
-      strokeWidth: Wick.GUIElement.FRAME_CONTENT_DOT_STROKE_WIDTH
-    });
-    this.item.addChild(contentDot);
-  }
-
-  _buildDraggingEdges() {
-    this.rightEdge.build();
-    this.item.addChild(this.rightEdge.item);
-    this.leftEdge.build();
-    this.item.addChild(this.leftEdge.item);
-  }
-
-  _buildTweens() {
-    this.model.tweens.forEach(tween => {
-      tween.guiElement.build();
-      this.item.addChild(tween.guiElement.item);
-    });
-  }
-
-  _buildIdentifierLabel() {
-    if (!this.model.identifier) {
-      return;
-    }
-
-    var nameTextGroup = new paper.Group({
-      children: [new paper.Path.Rectangle({
-        from: new paper.Point(0, 0),
-        to: new paper.Point(this.width, this.height),
-        fillColor: 'black'
-      }), new paper.PointText({
-        point: [0, 12],
-        content: this.model.identifier,
-        fillColor: 'black',
-        fontFamily: 'Courier New',
-        fontSize: 12
-      })]
-    });
-    nameTextGroup.clipped = true;
-    this.item.addChild(nameTextGroup);
-  }
-
-  _buildScriptsLabel() {
-    if (!this.model.hasContentfulScripts) {
-      return;
-    }
-
-    var scriptCircle = new this.paper.Path.Ellipse({
-      center: [this.gridCellWidth / 2, 0],
-      radius: Wick.GUIElement.FRAME_CONTENT_DOT_RADIUS * 1.3,
-      fillColor: Wick.GUIElement.FRAME_SCRIPT_DOT_COLOR
-    });
-    var scriptCircleMask = new paper.Path.Rectangle({
-      from: new paper.Point(0, 0),
-      to: new paper.Point(this.width, this.height),
-      fillColor: 'black'
-    });
-    var maskedScriptCircle = new paper.Group({
-      children: [scriptCircleMask, scriptCircle]
-    });
-    maskedScriptCircle.clipped = true;
-    maskedScriptCircle.remove();
-    this.item.addChild(maskedScriptCircle);
-  }
-
-  _buildSoundWaveform() {
-    if (!this.model.sound) {
-      return;
-    }
-
-    this._generateWaveform();
-
-    var waveform = this._getCachedWaveform();
-
-    if (!waveform) {
-      return;
-    }
-
-    var mask = new paper.Path.Rectangle({
-      from: new paper.Point(0, 0),
-      to: new paper.Point(this.width, this.height),
-      fillColor: 'black'
-    });
-    waveform.remove();
-    waveform.scaling.x = this.gridCellWidth / 1200 * this.model.project.framerate * this.model.sound.duration;
-    waveform.scaling.y = 2;
-    waveform.position = new paper.Point(waveform.width / 2 * waveform.scaling.x, this.gridCellHeight);
-    var clippedWaveform = new paper.Group({
-      children: [mask, waveform]
-    });
-    clippedWaveform.clipped = true;
-    clippedWaveform.remove();
-    this.item.addChild(clippedWaveform);
-  }
-
-  _dragSelectedFrames() {
-    this.selectedFrames.forEach(frame => {
-      frame.guiElement.item.bringToFront();
-      frame.guiElement.dragOffset = this.mouseDelta;
-      frame.guiElement.ghost.active = true;
-      frame.guiElement.build();
-    });
-  }
-
-  _tryToDropFrames() {
-    this.draggingFrames.forEach(frame => {
-      var start = frame.guiElement.ghostStart;
-      var end = frame.guiElement.ghostEnd;
-      var layer = frame.guiElement.ghostLayer;
-      frame.start = start;
-      frame.end = end;
-      var oldLayer = frame.parentLayer;
-      var newLayer = frame.parentTimeline.layers[layer];
-      oldLayer.removeFrame(frame);
-      newLayer.addFrame(frame);
-      frame.guiElement.leftEdgeStretch = 0;
-      frame.guiElement.dragOffset = new paper.Point(0, 0);
-      frame.guiElement.ghost.active = false;
-      frame.guiElement.build();
-    });
-    this.model.project.guiElement.fire('projectModified');
-  }
-
-  _getCachedWaveform() {
-    return Wick.GUIElement.Frame.cachedWaveforms[this.model.uuid];
-  }
-
-  _setCachedWaveform(waveform) {
-    Wick.GUIElement.Frame.cachedWaveforms[this.model.uuid] = waveform;
-  }
-
-  _generateWaveform() {
-    if (this._getCachedWaveform()) return;
-    var soundSrc = this.model.sound.src;
-    var scwf = new SCWF();
-    scwf.generate(soundSrc, {
-      onComplete: (png, pixels) => {
-        var raster = new paper.Raster(png);
-        raster.remove();
-
-        raster.onLoad = () => {
-          this._setCachedWaveform(raster);
+        var button = new Wick.GUIElement.BreadcrumbsButton(clip);
+        button.build();
+        this.item.addChild(button.item);
+         if(lastButton) {
+            button.item.position.x = lastButton.item.bounds.right;
         };
-      }
+        lastButton = button;
     });
-  }
-
-};
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-Wick.GUIElement.FrameEdge = class extends Wick.GUIElement.Draggable {
-  /**
-   *
-   */
-  static get DEFAULT_HANDLE_WIDTH() {
-    return Wick.GUIElement.FRAME_HANDLE_WIDTH;
-  }
-
-  get cursor() {
-    return 'ew-resize';
-  }
-  /**
-   *
-   */
-
-
-  constructor(model) {
-    super(model);
-    this.on('mouseOver', () => {
-      this.build();
-    });
-    this.on('mouseDown', () => {
-      this.build();
-    });
-    this.on('mouseLeave', () => {
-      this.build();
-    });
-  }
-  /**
-   *
-   */
-
-
-  build() {
-    super.build();
-  }
-
-};
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-Wick.GUIElement.FrameGhost = class extends Wick.GUIElement {
-  /**
-   *
-   */
-  constructor(model) {
-    super(model);
-    this.active = false;
-    this.position = new paper.Point(0, 0);
-    this.width = 0;
-  }
-  /**
-   *
-   */
-
-
-  get active() {
-    return this._active;
-  }
-
-  set active(active) {
-    this._active = active;
-  }
-  /**
-   *
-   */
-
-
-  get position() {
-    return this._position;
-  }
-
-  set position(position) {
-    this._position = position;
-  }
-  /**
-   *
-   */
-
-
-  get height() {
-    return Wick.GUIElement.FRAME_HEIGHT;
-  }
-  /**
-   *
-   */
-
-
-  build() {
-    super.build();
-    if (!this.active) return;
-    var frameRect = new this.paper.Path.Rectangle({
-      from: new this.paper.Point(this.position.x, this.position.y),
-      to: new this.paper.Point(this.position.x + this.width, this.position.y + this.height),
-      fillColor: Wick.GUIElement.FRAME_GHOST_COLOR,
-      opacity: Wick.GUIElement.FRAME_GHOST_OPACITY,
-      radius: Wick.GUIElement.FRAME_BORDER_RADIUS
-    });
-    this.item.position = new paper.Point();
-    this.item.addChild(frameRect);
-  }
-
-};
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-Wick.GUIElement.FrameLeftEdge = class extends Wick.GUIElement.FrameEdge {
-  /**
-   *
-   */
-  constructor(model) {
-    super(model);
-    this.on('drag', () => {
-      this.model.guiElement.item.bringToFront();
-      this.model.guiElement.ghost.active = true;
-      this.model.guiElement.leftEdgeStretch = this.mouseDelta.x;
-      this.model.guiElement.build();
-    });
-    this.on('dragEnd', () => {
-      this.model.guiElement._tryToDropFrames();
-    });
-  }
-
-  get width() {
-    return this.model.guiElement.width;
-  }
-
-  get height() {
-    return this.model.guiElement.height;
-  }
-  /**
-   *
-   */
-
-
-  build() {
-    super.build();
-    var rw = Wick.GUIElement.FrameEdge.DEFAULT_HANDLE_WIDTH;
-    var edgeRect = new this.paper.Path.Rectangle({
-      from: new this.paper.Point(0, 0),
-      to: new this.paper.Point(rw, this.height),
-      fillColor: this.isHoveredOver ? Wick.GUIElement.FRAME_HANDLE_HOVER_FILL_COLOR : 'rgba(0,0,0,0.001)',
-      radius: Wick.GUIElement.FRAME_BORDER_RADIUS
-    });
-    var sharpRect = new this.paper.Path.Rectangle({
-      from: new this.paper.Point(rw / 2, 0),
-      to: new this.paper.Point(rw, this.height),
-      fillColor: this.isHoveredOver ? Wick.GUIElement.FRAME_HANDLE_HOVER_FILL_COLOR : 'rgba(0,0,0,0.001)'
-    });
-    this.item.addChild(edgeRect);
-    this.item.addChild(sharpRect);
-  }
-
-};
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-Wick.GUIElement.FrameRightEdge = class extends Wick.GUIElement.FrameEdge {
-  /**
-   *
-   */
-  constructor(model) {
-    super(model);
-    this.on('drag', () => {
-      this._stretchSelectedFrames();
-    });
-    this.on('dragEnd', () => {
-      this._dropSelectedFrames();
-    });
-  }
-
-  get width() {
-    return this.model.guiElement.width;
-  }
-
-  get height() {
-    return this.model.guiElement.height;
-  }
-  /**
-   *
-   */
-
-
-  build() {
-    super.build();
-    var rw = Wick.GUIElement.FrameEdge.DEFAULT_HANDLE_WIDTH;
-    var edgeRect = new this.paper.Path.Rectangle({
-      from: new this.paper.Point(this.width - rw, 0),
-      to: new this.paper.Point(this.width, this.height),
-      fillColor: this.isHoveredOver ? Wick.GUIElement.FRAME_HANDLE_HOVER_FILL_COLOR : 'rgba(0,0,0,0.001)',
-      radius: Wick.GUIElement.FRAME_BORDER_RADIUS
-    }); // Create a rectangle with unrounded edges to sharpen the interior corners.
-
-    var sharpRect = new this.paper.Path.Rectangle({
-      from: new this.paper.Point(this.width - rw, 0),
-      to: new this.paper.Point(this.width - rw / 2, this.height),
-      fillColor: this.isHoveredOver ? Wick.GUIElement.FRAME_HANDLE_HOVER_FILL_COLOR : 'rgba(0,0,0,0.001)'
-    });
-    this.item.addChild(edgeRect);
-    this.item.addChild(sharpRect);
-  }
-
-  _stretchSelectedFrames() {
-    this._getFarthestRightFrames().forEach(frame => {
-      var frameElem = frame.guiElement;
-      frameElem.item.bringToFront();
-      frameElem.ghost.active = true;
-      frameElem.rightEdgeStretch = this.mouseDelta.x;
-      frameElem.build();
-    });
-  }
-
-  _dropSelectedFrames() {
-    this.model.guiElement._tryToDropFrames();
-
-    this._getFarthestRightFrames().forEach(frame => {
-      var frameElem = frame.guiElement;
-      frameElem.ghost.active = false;
-      frameElem.rightEdgeStretch = 0;
-      frameElem.build();
-    });
-  }
-
-  _getFarthestRightFrames() {
-    var frames = [];
-    var layers = this.model.guiElement.selectedFramesByLayers;
-
-    for (var uuid in layers) {
-      var layerFrames = layers[uuid];
-      var farthestFrame = layerFrames.sort((a, b) => {
-        return b.end - a.end;
-      })[0];
-
-      if (farthestFrame.parentLayer !== this.model.parentLayer) {
-        frames.push(farthestFrame);
-      }
-    }
-
-    if (frames.indexOf(this.model) === -1) {
-      frames.push(this.model);
-    }
-
-    return frames;
+    */
   }
 
 };
@@ -60256,1612 +58777,18 @@ Wick.GUIElement.FrameRightEdge = class extends Wick.GUIElement.FrameEdge {
 */
 
 /**
- * The Frames Container contains the following GUI elements:
- * - All frames in the current timeline
- * - The Frames Strips for each layer
- * - The Selection Box
+ * The Project GUIElement handles the creation of the canvas and drawing the rest of the GUIElements.
  */
-Wick.GUIElement.FramesContainer = class extends Wick.GUIElement.Draggable {
-  /**
-   *
-   */
-  constructor(model) {
-    super(model);
-    this.framesStrips = {};
-    this.selectionBox = new Wick.GUIElement.SelectionBox(model);
-    this.bg = new Wick.GUIElement.FramesContainerBG(model);
-    this.bg.on('dragStart', () => {
-      this.selectionBox.active = true;
-      this.selectionBox.start = new paper.Point(this.localMouse.x, this.localMouse.y);
-      this.selectionBox.end = new paper.Point(this.localMouse.x, this.localMouse.y);
-      this.selectionBox.build();
-    });
-    this.bg.on('drag', () => {
-      this.selectionBox.end = new paper.Point(this.localMouse.x, this.localMouse.y);
-      this.selectionBox.build();
-    });
-    this.bg.on('dragEnd', e => {
-      this.model.getAllFrames().filter(frame => {
-        return this.selectionBox.touches(frame.guiElement.item);
-      }).forEach(frame => {
-        this.model.project.selection.select(frame);
-      });
-      this.selectionBox.active = false;
-      this.model.project.guiElement.build();
-      this.model.project.guiElement.fire('projectModified');
-    });
-    this.grid = new paper.Group({
-      applyMatrix: false,
-      pivot: new paper.Point(0, 0)
-    });
-  }
-  /**
-   *
-   */
-
-
-  build() {
-    super.build(); // Build BG
-
-    this.bg.build();
-    this.item.addChild(this.bg.item); // Build frames strips
-
-    this.model.layers.forEach(layer => {
-      // Create/cache FramesStrips elements
-      var framesStrip = this.framesStrips[layer.uuid];
-
-      if (!framesStrip) {
-        framesStrip = new Wick.GUIElement.FramesStrip(layer);
-      }
-
-      this.framesStrips[layer.uuid] = framesStrip;
-      framesStrip.build();
-      this.item.addChild(framesStrip.item);
-    }); // Build grid
-
-    this.grid.removeChildren();
-    this.grid.locked = true;
-
-    for (var i = -1; i < paper.view.element.width / this.gridCellWidth + 1; i++) {
-      var gridLine = new this.paper.Path.Rectangle({
-        from: new this.paper.Point(-Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_STROKE_WIDTH / 2, 0),
-        to: new this.paper.Point(Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_STROKE_WIDTH / 2, paper.view.element.height),
-        fillColor: Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_STROKE_COLOR,
-        pivot: new paper.Point(0, 0),
-        locked: true,
-        insert: false
-      });
-      gridLine.position.x += i * this.gridCellWidth;
-      gridLine.locked = true;
-      this.grid.addChild(gridLine);
-    }
-
-    this.item.addChild(this.grid); // Build frames
-
-    this.model.getAllFrames().forEach(frame => {
-      frame.guiElement.build();
-      this.item.addChild(frame.guiElement.item);
-    }); // Build selection box
-
-    this.selectionBox.build();
-    this.item.addChild(this.selectionBox.item);
-
-    this._positionScrollableElements();
-  }
-
-  _positionScrollableElements() {
-    this.item.position.x = Wick.GUIElement.LAYERS_CONTAINER_WIDTH + this.scrollX;
-    this.item.position.y = Wick.GUIElement.NUMBER_LINE_HEIGHT + this.scrollY;
-    this.bg.item.position.x = -this.scrollX;
-    this.bg.item.position.y = -this.scrollY;
-    this.grid.position.x = -this.scrollX;
-    this.grid.position.x = this.grid.position.x - this.grid.position.x % this.gridCellWidth;
-    this.grid.position.y = -this.scrollY;
-    this.model.layers.forEach(layer => {
-      this.framesStrips[layer.uuid].frameStripRect.position.x = -this.scrollX;
-    });
-  }
-
-};
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-
-/**
- * The Frames Container contains the following GUI elements:
- * - All frames in the current timeline
- * - The Frames Strips for each layer
- * - The Selection Box
- */
-Wick.GUIElement.FramesContainerBG = class extends Wick.GUIElement.Draggable {
-  /**
-   *
-   */
-  constructor(model) {
-    super(model);
-    this.on('mouseDown', e => {
-      if (!e.modifiers.shift) {
-        this.model.project.selection.clear();
-      }
-
-      this.model.project.guiElement.build();
-      this.model.project.guiElement.fire('projectModified');
-    });
-  }
-  /**
-   *
-   */
-
-
-  build() {
-    super.build(); // Build BG
-
-    var bgRect = new paper.Path.Rectangle({
-      fillColor: Wick.GUIElement.TIMELINE_BACKGROUND_COLOR,
-      from: new paper.Point(-5, -5),
-      to: new paper.Point(paper.view.element.width, paper.view.element.height)
-    });
-    this.item.addChild(bgRect);
-  }
-
-};
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-Wick.GUIElement.FramesStrip = class extends Wick.GUIElement.Draggable {
-  static get VERTICAL_MARGIN() {
-    return 4;
-  }
-  /**
-   *
-   */
-
-
-  constructor(model) {
-    super(model);
-    this._addFrameOverlay = new Wick.GUIElement.AddFrameOverlay(model);
-    this.on('mouseOver', () => {
-      this._addFrameOverlay.active = true;
-      this._addFrameOverlay.playheadPosition = this.localMouseGrid.x + 1;
-
-      this._addFrameOverlay.build();
-    });
-    this.on('mouseDown', () => {
-      this._addFrameOverlay.active = false;
-      var playheadPosition = this._addFrameOverlay.playheadPosition;
-      var newFrame = new Wick.Frame({
-        start: playheadPosition
-      });
-      this.model.activate();
-      this.model.addFrame(newFrame);
-      this.model.project.selection.clear();
-      this.model.project.selection.select(newFrame);
-      this.model.parentTimeline.playheadPosition = playheadPosition;
-      this.model.parentTimeline.guiElement.build();
-      this.model.project.guiElement.fire('projectModified');
-    });
-    this.on('mouseLeave', () => {
-      this._addFrameOverlay.active = false;
-
-      this._addFrameOverlay.build();
-    });
-  }
-
-  get cursor() {
-    return 'pointer';
-  }
-  /**
-   *
-   */
-
-
-  get width() {
-    return paper.view.element.width - Wick.GUIElement.LAYERS_CONTAINER_WIDTH;
-  }
-  /**
-   *
-   */
-
-
-  get height() {
-    return Wick.GUIElement.FRAMES_STRIP_HEIGHT;
-  }
-  /**
-   *
-   */
-
-
-  get x() {
-    return 0;
-  }
-  /**
-   *
-   */
-
-
-  get y() {
-    return this.model.index * this.gridCellHeight;
-  }
-  /**
-   *
-   */
-
-
-  build() {
-    super.build();
-    this.frameStripRect = new this.paper.Path.Rectangle({
-      from: new this.paper.Point(this.x, this.y),
-      to: new this.paper.Point(this.x + this.width, this.y + this.height),
-      fillColor: this.model.isActive ? Wick.GUIElement.FRAMES_STRIP_ACTIVE_FILL_COLOR : Wick.GUIElement.FRAMES_STRIP_INACTIVE_FILL_COLOR,
-      applyMatrix: false,
-      pivot: new paper.Point(0, 0),
-      radius: Wick.GUIElement.FRAME_BORDER_RADIUS
-    });
-    this.item.addChild(this.frameStripRect);
-
-    this._addFrameOverlay.build();
-
-    this.item.addChild(this._addFrameOverlay.item); // Visually alter the frameStrip if the layer is hidden.
-
-    if (this.model.hidden) {
-      this.item.opacity = .25;
-    } else {
-      this.item.opacity = 1;
-    }
-  }
-
-};
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-Wick.GUIElement.LayerButton = class extends Wick.GUIElement.Clickable {
-  /**
-   *
-   */
-  constructor(model) {
-    super(model);
-    this.x = 0;
-    this.y = 0;
-    this.on('mouseOver', () => {
-      this.build();
-    });
-    this.on('mouseDown', () => {
-      this.build();
-    });
-    this.on('mouseUp', () => {
-      this.build();
-    });
-    this.on('mouseLeave', () => {
-      this.build();
-    });
-  }
-
-  get strokeColor() {
-    return Wick.GUIElement.LAYER_BUTTON_ICON_COLOR;
-  }
-
-  get opacity() {
-    return Wick.GUIElement.LAYER_BUTTON_ICON_OPACITY;
-  }
-
-  get cursor() {
-    return 'pointer';
-  }
-
-  get radius() {
-    return 10;
-  }
-  /**
-   *
-   */
-
-
-  get x() {
-    return this._x;
-  }
-
-  set x(x) {
-    this._x = x;
-  }
-  /**
-   *
-   */
-
-
-  get y() {
-    return this._y;
-  }
-
-  set y(y) {
-    this._y = y;
-  }
-  /**
-   *
-   */
-
-
-  get activated() {
-    return false;
-  }
-
-  get tooltip() {
-    return 'tooltip';
-  }
-  /**
-   *
-   */
-
-
-  build() {
-    super.build();
-    var fillColor;
-
-    if (this.isBeingClicked) {
-      fillColor = Wick.GUIElement.LAYER_BUTTON_MOUSEDOWN_COLOR;
-    } else if (this.isHoveredOver) {
-      fillColor = Wick.GUIElement.LAYER_BUTTON_HOVER_COLOR;
-    } else {
-      fillColor = Wick.GUIElement.LAYER_BUTTON_TOGGLE_INACTIVE_COLOR;
-    } // Button circle
-
-
-    var buttonCircle = new paper.Path.Circle({
-      center: [0, 0],
-      radius: this.radius,
-      fillColor: fillColor
-    });
-    this.item.addChild(buttonCircle); // Icon
-
-    var icon = this.paper.project.importSVG(this.icon);
-    icon.strokeColor = this.strokeColor;
-
-    if (this.fillColor) {
-      icon.fillColor = this.fillColor;
-    }
-
-    icon.opacity = this.opacity;
-    icon.position.x -= icon.bounds.width / 2;
-    icon.position.y -= icon.bounds.height / 2;
-    this.item.addChild(icon);
-
-    if (this.tooltip && this.isHoveredOver) {
-      var label = new paper.PointText({
-        point: [0, 0],
-        fillColor: '#FFFFFF',
-        fontFamily: 'Nunito Sans',
-        fontStyle: 'normal',
-        fontSize: '14px',
-        content: this.tooltip
-      });
-      var tooltipMargin = 4;
-      var tm = 4; // Text margin
-
-      var th = label.bounds.height + tm * 2; // Height
-
-      var tw = label.bounds.width + tm * 2; // Width
-
-      var top = this.radius + tooltipMargin;
-      var bot = top + th;
-      var left = -tw / 2;
-      var right = tw / 2;
-      label.point = [left + tm, top + th / 2 + tm];
-      var tooltipBody = new paper.Path.Rectangle({
-        from: new paper.Point(left, top),
-        to: new paper.Point(right, bot),
-        radius: Wick.GUIElement.FRAME_BORDER_RADIUS,
-        fillColor: '#3878AF'
-      });
-      tooltipBody.locked = true;
-      label.locked = true;
-      this.item.addChild(tooltipBody);
-      this.item.addChild(label);
-    }
-
-    this.item.position = new paper.Point(this.x, this.y);
-  }
-
-};
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-Wick.GUIElement.LayerGhost = class extends Wick.GUIElement {
-  /**
-   *
-   */
-  constructor(model) {
-    super(model);
-    this.active = false;
-  }
-  /**
-   *
-   */
-
-
-  get active() {
-    return this._active;
-  }
-
-  set active(active) {
-    this._active = active;
-  }
-  /**
-   *
-   */
-
-
-  get x() {
-    return this._x;
-  }
-
-  set x(x) {
-    this._x = x;
-  }
-  /**
-   *
-   */
-
-
-  get y() {
-    return this._y;
-  }
-
-  set y(y) {
-    this._y = y;
-  }
-  /**
-   *
-   */
-
-
-  get width() {
-    return this._width;
-  }
-
-  set width(width) {
-    this._width = width;
-  }
-  /**
-   *
-   */
-
-
-  get height() {
-    return 0;
-  }
-  /**
-   *
-   */
-
-
-  build() {
-    super.build();
-    if (!this.active) return;
-    var layerGhostRect = new this.paper.Path.Rectangle({
-      from: new this.paper.Point(this.x, this.y),
-      to: new this.paper.Point(this.x + this.width, this.y + this.height),
-      fillColor: 'rgba(0,0,0,0.1)',
-      strokeColor: Wick.GUIElement.LAYER_LABEL_GHOST_COLOR,
-      strokeWidth: 3
-    });
-    this.item.position = this.position;
-    this.item.addChild(layerGhostRect);
-  }
-
-};
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-Wick.GUIElement.LayerHideButton = class extends Wick.GUIElement.LayerButton {
-  /**
-   *
-   */
-  constructor(model) {
-    super(model);
-    this.x = 0;
-    this.y = 0;
-    this.on('mouseDown', () => {
-      this.model.hidden = !this.model.hidden;
-      this.model.project.guiElement.fire('projectModified');
-    });
-  }
-
-  get tooltip() {
-    if (this.model.hidden) {
-      return "Show";
-    } else {
-      return "Hide";
-    }
-  }
-  /**
-   *
-   */
-
-
-  get activated() {
-    return this.model.hidden;
-  }
-
-  get icon() {
-    if (this.model.hidden) {
-      return Wick.GUIElement.LAYER_LABEL_HIDDEN_BUTTON_ICON;
-    } else {
-      return Wick.GUIElement.LAYER_LABEL_SHOW_BUTTON_ICON;
-    }
-  }
-  /**
-   *
-   */
-
-
-  build() {
-    super.build();
-  }
-
-};
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-Wick.GUIElement.LayerLabel = class extends Wick.GUIElement.Draggable {
-  /**
-   *
-   */
-  constructor(model) {
-    super(model);
-    this.lockButton = new Wick.GUIElement.LayerLockButton(model);
-    this.hideButton = new Wick.GUIElement.LayerHideButton(model);
-    this.tweenButton = new Wick.GUIElement.LayerTweenButton(model);
-    this.ghost = new Wick.GUIElement.LayerGhost(model);
-    this.on('mouseOver', () => {
-      this.build();
-    });
-    this.on('mouseDown', () => {
-      this.model.project.selection.clear();
-      this.model.project.selection.select(this.model);
-      this.model.activate();
-      this.model.project.guiElement.build();
-      this.model.project.guiElement.fire('projectModified');
-    });
-    this.on('mouseLeave', () => {
-      this.build();
-    });
-    this.on('dragStart', () => {
-      this._drag();
-    });
-    this.on('drag', () => {
-      this._drag();
-    });
-    this.on('dragEnd', () => {
-      this.drop();
-      this.model.project.guiElement.build();
-      this.model.project.guiElement.fire('projectModified');
-    });
-  }
-
-  get cursor() {
-    return 'move';
-  }
-  /**
-   *
-   */
-
-
-  get x() {
-    return Wick.GUIElement.LAYER_LABEL_MARGIN_SIDES;
-  }
-  /**
-   *
-   */
-
-
-  get y() {
-    return this.model.index * this.gridCellHeight + Wick.GUIElement.LAYER_LABEL_MARGIN_TOP_BOTTOM;
-  }
-  /**
-   *
-   */
-
-
-  get width() {
-    return this._width - Wick.GUIElement.LAYER_LABEL_MARGIN_SIDES * 2;
-  }
-
-  set width(width) {
-    this._width = width;
-  }
-  /**
-   *
-   */
-
-
-  get height() {
-    return this.gridCellHeight - Wick.GUIElement.LAYER_LABEL_MARGIN_TOP_BOTTOM * 2;
-  }
-  /**
-   *
-   */
-
-
-  get ghostPosition() {
-    return new paper.Point(0, this.ghostIndex * this.gridCellHeight - this.model.index * this.gridCellHeight);
-  }
-  /**
-   *
-   */
-
-
-  drop() {
-    var moveIndex = this.ghostIndex;
-    if (moveIndex > this.model.index) moveIndex--;
-    this.model.move(moveIndex);
-    this.model.activate();
-  }
-  /**
-   *
-   */
-
-
-  build() {
-    super.build();
-    var layerRect = this._layerRect || new this.paper.Path.Rectangle({
-      from: new this.paper.Point(0, 0),
-      to: new this.paper.Point(this.width, this.height),
-      radius: Wick.GUIElement.LAYER_LABEL_BORDER_RADIUS
-    });
-    var fillColor;
-
-    if (this.model.hidden) {
-      fillColor = Wick.GUIElement.LAYER_LABEL_HIDDEN_FILL_COLOR;
-    } else if (this.model.isActive) {
-      fillColor = Wick.GUIElement.LAYER_LABEL_ACTIVE_FILL_COLOR;
-    } else {
-      fillColor = Wick.GUIElement.LAYER_LABEL_INACTIVE_FILL_COLOR;
-    }
-
-    layerRect.fillColor = fillColor;
-    layerRect.strokeColor = this.model.isSelected ? Wick.GUIElement.SELECTED_ITEM_BORDER_COLOR : 'rgba(0,0,0,0)';
-    layerRect.strokeWidth = this.model.isSelected ? 3 : 0;
-    this._layerRect = layerRect;
-    this.item.addChild(layerRect); // Buttons
-
-    this.hideButton.x = 17;
-    this.hideButton.y = this.height / 2;
-    this.hideButton.build();
-    this.item.addChild(this.hideButton.item);
-    this.lockButton.x = 37;
-    this.lockButton.y = this.height / 2;
-    this.lockButton.build();
-    this.item.addChild(this.lockButton.item);
-    this.tweenButton.x = this.width - 17;
-    this.tweenButton.y = this.height / 2;
-    this.tweenButton.build();
-    this.item.addChild(this.tweenButton.item); // Layer name
-
-    var layerNameMask = this._layerNameMask || new paper.Path.Rectangle({
-      from: new paper.Point(0, -this.height),
-      to: new paper.Point(this.width - 25, this.height),
-      fillColor: 'black'
-    });
-    this._layerNameMask = layerNameMask;
-    var layerNameText = this._layerNameText || new paper.PointText({
-      point: [53, this.height / 2 + 6],
-      // TODO: Create global variable for layer name position.fontFamily: Wick.GUIElement.LAYER_LABEL_FONT_FAMILY,
-      fontWeight: 'bold',
-      fontSize: 16,
-      opacity: 0.6,
-      pivot: new paper.Point(0, 0)
-    });
-    this._layerNameText = layerNameText;
-    this._layerNameText.content = this.model.name;
-    this._layerNameText.fillColor = this.model.isActive ? Wick.GUIElement.LAYER_LABEL_ACTIVE_FONT_COLOR : Wick.GUIElement.LAYER_LABEL_INACTIVE_FONT_COLOR;
-    var clippedLayerName = this._clippedLayerName || new paper.Group({
-      children: [layerNameMask, layerNameText]
-    });
-    this._clippedLayerName = clippedLayerName;
-    clippedLayerName.clipped = true;
-    clippedLayerName.remove();
-    this.item.addChild(clippedLayerName); // Drop ghost
-
-    this.ghost.active = this.isDragging && this.mouseDelta.y !== 0;
-
-    if (this.ghost.active) {
-      this.ghost.width = this.width;
-      this.ghost.x = 0;
-      this.ghost.y = -this.mouseDelta.y + this.ghostPosition.y;
-      this.ghost.build();
-      this.item.addChild(this.ghost.item);
-    }
-
-    this.item.position = new paper.Point(this.x, this.y);
-  }
-
-  _drag() {
-    var moveIndices = Math.round(this.mouseDelta.y / this.gridCellHeight);
-    this.ghostIndex = this.model.index + moveIndices;
-    this.build();
-    this.item.position.y += this.mouseDelta.y;
-    this.item.bringToFront();
-  }
-
-};
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-Wick.GUIElement.LayerLockButton = class extends Wick.GUIElement.LayerButton {
-  /**
-   *
-   */
-  constructor(model) {
-    super(model);
-    this.x = 0;
-    this.y = 0;
-    this.on('mouseDown', () => {
-      this.model.locked = !this.model.locked;
-      this.model.project.guiElement.fire('projectModified');
-    });
-  }
-
-  get tooltip() {
-    if (this.model.locked) {
-      return "Unlock";
-    } else {
-      return "Lock";
-    }
-  }
-  /**
-   *
-   */
-
-
-  get activated() {
-    return this.model.locked;
-  }
-
-  get icon() {
-    if (this.model.locked) {
-      return Wick.GUIElement.LAYER_LABEL_LOCK_BUTTON_ICON;
-    } else {
-      return Wick.GUIElement.LAYER_LABEL_UNLOCK_BUTTON_ICON;
-    }
-  }
-  /**
-   *
-   */
-
-
-  build() {
-    super.build();
-  }
-
-};
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-Wick.GUIElement.LayersContainer = class extends Wick.GUIElement {
-  /**
-   *
-   */
-  constructor(model) {
-    super(model);
-    this._layerLabels = {};
-    this.createLayerLabel = new Wick.GUIElement.CreateLayerLabel(model);
-    this.bg = new Wick.GUIElement.LayersContainerBG(model);
-  }
-  /**
-   *
-   */
-
-
-  get width() {
-    return Wick.GUIElement.LAYERS_CONTAINER_WIDTH;
-  }
-  /**
-   *
-   */
-
-
-  build() {
-    super.build(); // Build layer labels
-
-    this.model.layers.forEach(layer => {
-      // Create/cache FramesStrips elements
-      var layerLabel = this._layerLabels[layer.uuid];
-
-      if (!layerLabel) {
-        layerLabel = new Wick.GUIElement.LayerLabel(layer);
-      }
-
-      this._layerLabels[layer.uuid] = layerLabel;
-      layerLabel.width = this.width;
-      layerLabel.build();
-      this.item.addChild(layerLabel.item);
-      layerLabel.item.sendToBack();
-    });
-    this.createLayerLabel.index = this.model.layers.length;
-    this.createLayerLabel.width = this.width;
-    this.createLayerLabel.build();
-    this.item.addChild(this.createLayerLabel.item);
-    this.createLayerLabel.item.sendToBack(); // Build BG
-
-    this.bg.build();
-    this.item.addChild(this.bg.item);
-    this.bg.item.sendToBack();
-  }
-
-  _positionScrollableElements() {
-    this.item.position.y = Wick.GUIElement.NUMBER_LINE_HEIGHT + this.scrollY;
-    this.bg.item.position.y = Wick.GUIElement.NUMBER_LINE_HEIGHT - this.scrollY;
-  }
-
-};
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-Wick.GUIElement.LayersContainerBG = class extends Wick.GUIElement.Draggable {
-  /**
-   *
-   */
-  constructor(model) {
-    super(model);
-    this.on('mouseDown', e => {
-      if (!e.modifiers.shift) {
-        this.model.project.selection.clear();
-      }
-
-      this.model.project.guiElement.build();
-      this.model.project.guiElement.fire('projectModified');
-    });
-  }
-  /**
-   *
-   */
-
-
-  build() {
-    super.build(); // Build BG
-
-    var bgRect = new paper.Path.Rectangle({
-      fillColor: Wick.GUIElement.TIMELINE_BACKGROUND_COLOR,
-      from: new paper.Point(0, -Wick.GUIElement.NUMBER_LINE_HEIGHT),
-      to: new paper.Point(Wick.GUIElement.LAYERS_CONTAINER_WIDTH, paper.view.element.height + Wick.GUIElement.NUMBER_LINE_HEIGHT)
-    });
-    this.item.addChild(bgRect);
-  }
-
-};
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-Wick.GUIElement.LayerTweenButton = class extends Wick.GUIElement.LayerButton {
-  /**
-   *
-   */
-  constructor(model) {
-    super(model);
-    this.x = 0;
-    this.y = 0;
-    this.on('mouseDown', () => {
-      this.model.activeFrame.createTween();
-      this.model.project.guiElement.fire('projectModified');
-    });
-  }
-
-  get tooltip() {
-    return "Add Tween";
-  }
-  /**
-   *
-   */
-
-
-  get activated() {
-    return false;
-  }
-
-  get icon() {
-    return Wick.GUIElement.ADD_TWEEN_BUTTON_ICON;
-  }
-  /**
-   *
-   */
-
-
-  build() {
-    super.build();
-  }
-
-};
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-Wick.GUIElement.NumberLine = class extends Wick.GUIElement.Draggable {
-  /**
-   *
-   */
-  constructor(model) {
-    super(model);
-    this.playhead = new Wick.GUIElement.Playhead(model);
-    this.onionSkinRangeStart = new Wick.GUIElement.OnionSkinRangeStart(model);
-    this.onionSkinRangeEnd = new Wick.GUIElement.OnionSkinRangeEnd(model);
-    this.on('mouseDown', () => {
-      this._movePlayheadWithMouse();
-    });
-    this.on('drag', () => {
-      this._movePlayheadWithMouse();
-    });
-    this.on('mouseUp', () => {
-      this.model.project.guiElement.fire('projectModified');
-    });
-  }
-
-  get cursor() {
-    return 'move';
-  }
-
-  get width() {
-    return paper.view.element.width - Wick.GUIElement.LAYERS_CONTAINER_WIDTH;
-  }
-
-  get height() {
-    return this._height;
-  }
-
-  set height(height) {
-    this._height = height;
-  }
-  /**
-   *
-   */
-
-
-  build() {
-    super.build();
-    this.item.removeChildren(); // Build BG
-
-    var bgRect = new this.paper.Path.Rectangle({
-      from: new this.paper.Point(0, 0),
-      to: new this.paper.Point(this.width, Wick.GUIElement.NUMBER_LINE_HEIGHT),
-      fillColor: Wick.GUIElement.TIMELINE_BACKGROUND_COLOR,
-      pivot: new paper.Point(0, 0)
-    });
-    bgRect.position.x -= this.scrollX;
-    this.item.addChild(bgRect); // Build number line cells
-
-    for (var i = -1; i < this.width / this.gridCellWidth + 1; i++) {
-      var skip = Math.round(-this.scrollX / this.gridCellWidth);
-      this.item.addChild(this._buildCell(i + skip));
-    } // Build playhead
-
-
-    this.playhead.build();
-    this.item.addChild(this.playhead.item); // Build onion skin range sliders
-
-    this.onionSkinRangeStart.height = Wick.GUIElement.NUMBER_LINE_HEIGHT;
-    this.onionSkinRangeStart.build();
-    this.item.addChild(this.onionSkinRangeStart.item);
-    this.onionSkinRangeEnd.height = Wick.GUIElement.NUMBER_LINE_HEIGHT;
-    this.onionSkinRangeEnd.build();
-    this.item.addChild(this.onionSkinRangeEnd.item);
-  }
-
-  _buildCell(i) {
-    var highlight = i % 5 === 4;
-    var cellNumber = new paper.PointText({
-      point: [this.gridCellWidth / 2, Wick.GUIElement.NUMBER_LINE_HEIGHT - 5],
-      content: i + 1,
-      fillColor: highlight ? Wick.GUIElement.NUMBER_LINE_NUMBERS_HIGHLIGHT_COLOR : Wick.GUIElement.NUMBER_LINE_NUMBERS_COMMON_COLOR,
-      fontFamily: Wick.GUIElement.NUMBER_LINE_NUMBERS_FONT_FAMILY,
-      fontWeight: 'normal',
-      fontSize: i >= 100 ? 13 : 16,
-      justification: 'center',
-      pivot: new paper.Point(0, 0)
-    });
-    var cellWall = new this.paper.Path.Rectangle({
-      from: new this.paper.Point(-Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_STROKE_WIDTH / 2, 0),
-      to: new this.paper.Point(Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_STROKE_WIDTH / 2, Wick.GUIElement.NUMBER_LINE_HEIGHT),
-      fillColor: highlight ? Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_HIGHLIGHT_STROKE_COLOR : Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_STROKE_COLOR,
-      pivot: new paper.Point(0, 0),
-      locked: true
-    });
-    var cell = new paper.Group({
-      children: [cellWall, cellNumber],
-      pivot: new paper.Point(0, 0),
-      applyMatrix: false
-    });
-    cell.position = new paper.Point(i * this.gridCellWidth, 0);
-    cell.locked = true;
-    return cell;
-  }
-
-  _movePlayheadWithMouse() {
-    var newPlayheadPosition = Math.max(1, this.localMouseGrid.x + 1);
-
-    if (this.model.playheadPosition !== newPlayheadPosition) {
-      this.model.playheadPosition = newPlayheadPosition;
-      this.playhead.build();
-      this.onionSkinRangeStart.build();
-      this.onionSkinRangeEnd.build();
-      this.model.project.guiElement.fire('projectSoftModified');
-    }
-  }
-
-  _positionScrollableElements() {
-    this.item.position.x = Wick.GUIElement.LAYERS_CONTAINER_WIDTH + this.scrollX;
-    this.build();
-  }
-
-};
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-Wick.GUIElement.OnionSkinRange = class extends Wick.GUIElement.Draggable {
-  /**
-   *
-   */
-  static get DEFAULT_HANDLE_WIDTH() {
-    return 10;
-  }
-  /**
-   *
-   */
-
-
-  constructor(model) {
-    super(model);
-    this.height = 0;
-    this.dragOffset = 0;
-    this.on('mouseOver', () => {
-      this.build();
-    });
-    this.on('mouseDown', e => {
-      this.build();
-    });
-    this.on('mouseLeave', () => {
-      this.build();
-    });
-  }
-  /**
-   *
-   */
-
-
-  build() {
-    super.build();
-  }
-
-};
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-// Thanks to FlyOrBoom (https://github.com/FlyOrBoom) for the styling on these sliders!
-Wick.GUIElement.OnionSkinRangeEnd = class extends Wick.GUIElement.OnionSkinRange {
-  /**
-   *
-   */
-  constructor(model) {
-    super(model);
-    this.on('drag', () => {
-      this.dragOffset = Math.floor(this.mouseDelta.x / this.gridCellWidth);
-      this.build();
-    });
-    this.on('dragEnd', () => {
-      this.drop();
-      this.build();
-      this.model.project.guiElement.fire('projectModified');
-    });
-  }
-  /**
-   *
-   */
-
-
-  get x() {
-    var project = this.model.project;
-    var x = (project.activeTimeline.playheadPosition + project.onionSkinSeekForwards - 1) * this.gridCellWidth;
-    x += this.dragOffset * this.gridCellWidth;
-    x -= project.activeTimeline.playheadPosition * this.gridCellWidth; //makes sure the forward skin stays forward of playhead;
-
-    x = (x + Math.abs(x)) / 2;
-    x += project.activeTimeline.playheadPosition * this.gridCellWidth;
-    return x;
-  }
-  /**
-   *
-   */
-
-
-  get y() {
-    return 0;
-  }
-  /**
-   *
-   */
-
-
-  get width() {
-    return this.gridCellWidth - Wick.GUIElement.PLAYHEAD_MARGIN * 2;
-  }
-  /**
-   *
-   */
-
-
-  drop() {
-    this.model.project.onionSkinSeekForwards = project.activeTimeline.playheadPosition + Math.floor(-this.x / this.gridCellWidth) - 1;
-    this.model.project.onionSkinSeekForwards *= -1;
-    this.dragOffset = 0;
-  }
-  /**
-   *
-   */
-
-
-  build() {
-    super.build();
-    if (!this.model.project.onionSkinEnabled) return;
-    var playheadPosition = this.model.project.activeTimeline.playheadPosition * this.gridCellWidth - this.width * 0.875;
-    super.build();
-    var rangeSlider = new this.paper.Path({
-      segments: [[playheadPosition + this.width / 2, this.y], [playheadPosition + this.width / 2, this.y + this.width], [playheadPosition, this.y + 2.5 + this.width * 1.5], [this.x + this.width / 2, this.y + 2.5 + this.width * 1.5], [this.x + this.width + 2.5, this.y + this.width], [this.x + this.width + 2.5, this.y]],
-      fillColor: {
-        gradient: {
-          stops: ['rgba(255,92,92,0.2)', 'rgba(255,92,92,1)'] //Wick.GUIElement.PLAYHEAD_FILL_COLOR
-
-        },
-        origin: [playheadPosition, 0],
-        destination: [this.x + this.width, 0]
-      },
-      opacity: this.isHoveredOver ? 1 : 0.5,
-      strokeJoin: 'round',
-      radius: 4
-    });
-    this.item.addChild(rangeSlider);
-  }
-
-};
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-// Thanks to FlyOrBoom (https://github.com/FlyOrBoom) for the styling on these sliders!
-Wick.GUIElement.OnionSkinRangeStart = class extends Wick.GUIElement.OnionSkinRange {
-  /**
-   *
-   */
-  constructor(model) {
-    super(model);
-    this.on('drag', () => {
-      this.dragOffset = Math.floor(this.mouseDelta.x / this.gridCellWidth);
-      this.build();
-    });
-    this.on('dragEnd', () => {
-      this.drop();
-      this.build();
-      this.model.project.guiElement.fire('projectModified');
-    });
-  }
-  /**
-   *
-   */
-
-
-  get x() {
-    var project = this.model.project;
-    var x = (project.activeTimeline.playheadPosition - project.onionSkinSeekBackwards + 1) * this.gridCellWidth;
-    x += this.dragOffset * this.gridCellWidth;
-    x -= project.activeTimeline.playheadPosition * this.gridCellWidth;
-    x = (x - Math.abs(x)) / 2;
-    x += (project.activeTimeline.playheadPosition - 1) * this.gridCellWidth;
-    return x;
-  }
-  /**
-   *
-   */
-
-
-  get y() {
-    return 0;
-  }
-  /**
-   *
-   */
-
-
-  get width() {
-    return this.gridCellWidth - Wick.GUIElement.PLAYHEAD_MARGIN * 2;
-  }
-  /**
-   *
-   */
-
-
-  drop() {
-    this.model.project.onionSkinSeekBackwards = project.activeTimeline.playheadPosition - Math.floor(this.x / this.gridCellWidth);
-    this.dragOffset = 0;
-  }
-  /**
-   *
-   */
-
-
-  build() {
-    super.build();
-    if (!this.model.project.onionSkinEnabled) return;
-    var playheadPosition = this.model.project.activeTimeline.playheadPosition * this.gridCellWidth - this.width * 0.875;
-    super.build();
-    var rangeSlider = new this.paper.Path({
-      segments: [[playheadPosition - this.width / 2, this.y], [playheadPosition - this.width / 2, this.y + this.width], [playheadPosition, this.y + 2.5 + this.width * 1.5], [this.x - this.width / 2, this.y + 2.5 + this.width * 1.5], [this.x - this.width - 2.5, this.y + this.width], [this.x - this.width - 2.5, this.y]],
-      fillColor: {
-        gradient: {
-          stops: ['rgba(255,92,92,0.2)', 'rgba(255,92,92,1)'] //Wick.GUIElement.PLAYHEAD_FILL_COLOR
-
-        },
-        origin: [playheadPosition, 0],
-        destination: [this.x - this.width, 0]
-      },
-      opacity: this.isHoveredOver ? 1 : 0.5,
-      strokeJoin: 'round',
-      radius: 4
-    });
-    this.item.addChild(rangeSlider);
-  }
-
-};
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-Wick.GUIElement.Playhead = class extends Wick.GUIElement {
-  /**
-   *
-   */
-  constructor(model) {
-    super(model);
-  }
-
-  get cursor() {
-    return 'move';
-  }
-
-  get x() {
-    return Wick.GUIElement.PLAYHEAD_MARGIN;
-  }
-
-  get y() {
-    return 0;
-  }
-
-  get width() {
-    return this.gridCellWidth - Wick.GUIElement.PLAYHEAD_MARGIN * 2;
-  }
-
-  get height() {
-    return this.width * .9;
-  }
-  /**
-   *
-   */
-
-
-  build() {
-    super.build();
-    var playheadTop = new this.paper.Path({
-      segments: [[this.x, this.y], [this.x + this.width, this.y], [this.x + this.width, this.y + this.height], [this.x + this.width / 2, this.y + this.height + this.height / 2], [this.x, this.y + this.height], [this.x, this.y]],
-      fillColor: Wick.GUIElement.PLAYHEAD_FILL_COLOR,
-      strokeWidth: 5,
-      strokeColor: Wick.GUIElement.PLAYHEAD_FILL_COLOR,
-      strokeJoin: 'round',
-      radius: 4
-    });
-    this.item.addChild(playheadTop);
-    var playheadBody = new this.paper.Path.Rectangle({
-      from: new this.paper.Point(this.gridCellWidth / 2 - Wick.GUIElement.PLAYHEAD_STROKE_WIDTH / 2, 0),
-      to: new this.paper.Point(this.gridCellWidth / 2 + Wick.GUIElement.PLAYHEAD_STROKE_WIDTH / 2, paper.view.element.height),
-      fillColor: Wick.GUIElement.PLAYHEAD_FILL_COLOR
-    });
-    this.item.locked = true;
-    this.item.addChild(playheadBody);
-    this.item.position.x = (this.model.playheadPosition - 1) * this.gridCellWidth; // Add gnurl handles.
-
-    var handleMargin = 3;
-    var handleSpacing = 4;
-    var handleLeft = this.x + handleMargin;
-    var handleRight = handleLeft + this.width - handleMargin * 2;
-
-    for (var i = 0; i < 3; i++) {
-      var playheadGrabHandle = new this.paper.Path({
-        segments: [[handleLeft, this.y + handleSpacing * (i + 1)], [handleRight, this.y + handleSpacing * (i + 1)]],
-        strokeWidth: 2,
-        strokeColor: Wick.GUIElement.PLAYHEAD_STROKE_COLOR,
-        strokeCap: 'round'
-      });
-      this.item.addChild(playheadGrabHandle);
-    }
-  }
-
-};
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
 Wick.GUIElement.Project = class extends Wick.GUIElement {
   /**
-   *
+   * Create a new GUIElement.
    */
   constructor(model) {
     super(model);
     this._isSetup = false;
   }
   /**
-   *
+   * The div containing the GUI canvas
    */
 
 
@@ -61879,12 +58806,13 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
     }
   }
   /**
-   *
+   * Resize the canvas so that it fits inside the canvas container, call this when the size of the canvas container changes.
    */
 
 
   resize() {
     if (!this.canvasContainer || !this._canvas) return;
+    console.log('resize');
     var containerWidth = this.canvasContainer.offsetWidth;
     var containerHeight = this.canvasContainer.offsetHeight; // Round off canvas size to avoid blurryness.
 
@@ -61892,607 +58820,34 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
     containerHeight = Math.floor(containerHeight) - 1;
     this._canvas.style.width = containerWidth;
     this._canvas.style.height = containerHeight;
-    this.paper.view.viewSize.width = containerWidth;
-    this.paper.view.viewSize.height = containerHeight;
+    this._canvas.width = containerWidth;
+    this._canvas.height = containerHeight;
   }
 
   /**
-   *
+   * Draw the GUIElement
    */
-  build() {
+  draw() {
+    console.log('drawing the timeline GUI');
+
     if (!this._isSetup) {
       // Build canvas + canvas container
       this._canvas = document.createElement('canvas');
-      this.paper.setup(this._canvas);
+      this._ctx = this._canvas.getContext('2d');
       this._canvasContainer = document.createElement('div');
 
-      this._canvasContainer.appendChild(this._canvas); // Use this GUIElement as the root container that contains all other elements in the GUI
+      this._canvasContainer.appendChild(this._canvas);
 
-
-      this.paper.project.activeLayer.addChild(this.item); // Breadcrumbs GUI
-
-      this.breadcrumbs = new Wick.GUIElement.Breadcrumbs(this.model);
-
-      this._attachMouseEvents(); // Re-render canvas on changes that should happen very fast
-
-
-      this.on('projectSoftModified', e => {
-        this.model.view.render();
-      });
       this._isSetup = true;
     }
 
-    super.build();
     this.resize();
-    this._hoverTarget = null; // Build timeline
-
-    var timeline = this.model.focus.timeline;
-    timeline.guiElement.build();
-    timeline.guiElement.item.position.y = Wick.GUIElement.BREADCRUMBS_HEIGHT;
-    this.item.addChild(timeline.guiElement.item); // Build breadcrumbs
-
-    this.breadcrumbs.build();
-    this.item.addChild(this.breadcrumbs.item);
-  }
-  /**
-   *
-   */
-
-
-  updateMousePosition(e) {
-    // This fixes the NaN errors on touch devices:
-    var x = 0;
-    var y = 0;
-
-    if (e.touches) {
-      var touch = e.touches[0];
-      x = touch ? touch.clientX : null;
-      y = touch ? touch.clientY : null;
-    } else {
-      x = e.clientX;
-      y = e.clientY;
-    }
-
-    if (x !== null && y !== null && e.target && this._canvas.getBoundingClientRect) {
-      var bounds = this._canvas.getBoundingClientRect();
-
-      this.mousePosition = {
-        x: x - bounds.left,
-        y: y - bounds.top
-      };
-    }
-  }
-  /**
-   *
-   */
-
-
-  dropAssetAtPosition(uuid, x, y) {
-    var point = new paper.Point(x, y);
-
-    var canvasPosition = this._canvas.getBoundingClientRect();
-
-    point.x -= canvasPosition.left;
-    point.y -= canvasPosition.top;
-
-    var element = this._getGUIElementAtPosition(point);
-
-    if (element.model instanceof Wick.Frame) {
-      var frame = element.model;
-      var asset = this.model.getAssetByUUID(uuid);
-      frame.sound = asset;
-      this.fire('projectModified');
-    }
-  }
-
-  _attachMouseEvents() {
-    $(this._canvas).on('mousewheel', e => {
-      e.preventDefault();
-      var d = e.deltaY * e.deltaFactor * 0.5;
-      this.model.activeTimeline.guiElement.verticalScrollbar.scrollByAmount(-d);
-    });
-
-    this.paper.view.onMouseMove = e => {
-      // don't fire mouseMove functions if we're dragging
-      if (e.event.buttons) return;
-      paper.view.element.style.cursor = 'default';
-      this.updateMousePosition(e.event);
-
-      var guiElement = this._getGUIElementAtPosition(e.point);
-
-      if (guiElement && guiElement.cursor) {
-        paper.view.element.style.cursor = guiElement.cursor;
-      }
-
-      if (this._hoverTarget !== guiElement && this._hoverTarget) {
-        this._hoverTarget.handleMouseLeave(e);
-      }
-
-      this._hoverTarget = guiElement;
-
-      if (this._hoverTarget) {
-        this._hoverTarget.handleMouseOver(e);
-      }
-    }; // Disable right click menu
-
-
-    $(this.paper.view.element).on('contextmenu', e => {
-      return false;
-    });
-
-    this.paper.view.onMouseDown = e => {
-      if (e.touches) {
-        this.paper.view.onMouseMove(e);
-      }
-
-      if (e.event.button === 2) {
-        this.fire('rightClick', {});
-      }
-
-      var guiElement = this._getGUIElementAtPosition(e.point);
-
-      if (guiElement) {
-        guiElement.handleMouseDown(e);
-      }
-    };
-
-    this.paper.view.onMouseUp = e => {
-      if (this._hoverTarget) {
-        this._hoverTarget.handleMouseUp(e);
-      }
-    };
-
-    this.paper.view.onMouseLeave = e => {
-      if (this._hoverTarget) {
-        this._hoverTarget.handleMouseLeave(e);
-      }
-
-      this._hoverTarget = null;
-    };
-  }
-
-  _getGUIElementAtPosition(point) {
-    var hitResult = this.paper.project.hitTest(point);
-    if (!hitResult || !hitResult.item) return;
-
-    var guiElement = this._getGUIElementOfItem(hitResult.item);
-
-    return guiElement;
-  }
-
-  _getGUIElementOfItem(item) {
-    if (item === null || item === undefined) {
-      return null;
-    }
-
-    if (!(item instanceof paper.Group)) {
-      return this._getGUIElementOfItem(item.parent);
-    }
-
-    var guiElement = item.data.guiElement;
-
-    if (!guiElement || !(guiElement instanceof Wick.GUIElement.Clickable)) {
-      return this._getGUIElementOfItem(item.parent);
-    } else {
-      return guiElement;
-    }
-  }
-
-};
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-Wick.GUIElement.Scrollbar = class extends Wick.GUIElement {
-  /**
-   *
-   */
-  constructor(model) {
-    super(model);
-  }
-  /**
-   *
-   */
-
-
-  build() {
-    super.build();
-  }
-  /**
-   *
-   */
-
-
-  scrollByAmount(scrollAmount) {
-    this.grabber.scrollByAmount(scrollAmount);
-  }
-
-};
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-Wick.GUIElement.ScrollbarGrabberHorizontal = class extends Wick.GUIElement.Draggable {
-  /**
-   *
-   */
-  constructor(model) {
-    super(model);
-    this.isScrollbarGrabber = true;
-    this.on('mouseOver', () => {
-      this.build();
-    });
-    this.on('mouseDown', () => {
-      this.build();
-    });
-    this.on('mouseLeave', () => {
-      this.build();
-    });
-    this.on('drag', e => {
-      this.scrollByAmount(this.mouseMovement.x);
-    });
-    this.scrollX = 0;
-  }
-
-  get contentWidth() {
-    var buffer = 30;
-    return (this.model.length * 2 + buffer) * this.gridCellWidth;
-  }
-
-  get grabberWidth() {
-    return Math.max(this.containerWidth / this.contentWidth * this.containerWidth, 30);
-  }
-  /**
-   *
-   */
-
-
-  build() {
-    super.build();
-
-    if (this.grabberWidth > this.contentWidth) {
-      return;
-    }
-
-    var grabber = new this.paper.Path.Rectangle({
-      from: new this.paper.Point(this.scrollX, Wick.GUIElement.SCROLLBAR_MARGIN),
-      to: new this.paper.Point(this.scrollX + this.grabberWidth, Wick.GUIElement.SCROLLBAR_SIZE - Wick.GUIElement.SCROLLBAR_MARGIN),
-      fillColor: this.isHoveredOver ? Wick.GUIElement.SCROLLBAR_ACTIVE_FILL_COLOR : Wick.GUIElement.SCROLLBAR_FILL_COLOR,
-      radius: Wick.GUIElement.SCROLLBAR_BORDER_RADIUS
-    });
-    this.item.addChild(grabber);
-  }
-  /**
-   *
-   */
-
-
-  scrollByAmount(scrollAmount) {
-    this.scrollX = this.scrollX + scrollAmount;
-    this.scrollX = Math.max(0, this.scrollX);
-    this.scrollX = Math.min(this.containerWidth - this.grabberWidth, this.scrollX);
-    this.model.project.activeTimeline.guiElement.scrollX = this.scrollX / this.containerWidth * this.contentWidth;
-    this.fire('scroll', {});
-    this.build();
-  }
-
-};
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-Wick.GUIElement.ScrollbarGrabberVertical = class extends Wick.GUIElement.Draggable {
-  /**
-   *
-   */
-  constructor(model) {
-    super(model);
-    this.isScrollbarGrabber = true;
-    this.on('mouseOver', () => {
-      this.build();
-    });
-    this.on('mouseDown', () => {
-      this.build();
-    });
-    this.on('mouseLeave', () => {
-      this.build();
-    });
-    this.on('drag', e => {
-      this.scrollByAmount(this.mouseMovement.y);
-    });
-    this.scrollY = 0;
-  }
-
-  get contentHeight() {
-    var buffer = 1;
-    return (this.model.layers.length * 2 + buffer) * this.gridCellHeight;
-  }
-
-  get grabberHeight() {
-    return Math.max(this.containerHeight / this.contentHeight * this.containerHeight, 30);
-  }
-  /**
-   *
-   */
-
-
-  build() {
-    super.build();
-    var grabber = new this.paper.Path.Rectangle({
-      from: new this.paper.Point(Wick.GUIElement.SCROLLBAR_MARGIN, this.scrollY),
-      to: new this.paper.Point(Wick.GUIElement.SCROLLBAR_SIZE - Wick.GUIElement.SCROLLBAR_MARGIN, this.scrollY + this.grabberHeight),
-      fillColor: this.isHoveredOver ? Wick.GUIElement.SCROLLBAR_ACTIVE_FILL_COLOR : Wick.GUIElement.SCROLLBAR_FILL_COLOR,
-      radius: Wick.GUIElement.SCROLLBAR_BORDER_RADIUS
-    });
-    this.item.addChild(grabber);
-  }
-  /**
-   *
-   */
-
-
-  scrollByAmount(scrollAmount) {
-    this.scrollY = this.scrollY + scrollAmount;
-    this.scrollY = Math.max(0, this.scrollY);
-    this.scrollY = Math.min(this.containerHeight - this.grabberHeight, this.scrollY);
-    this.model.project.activeTimeline.guiElement.scrollY = this.scrollY / this.containerHeight * this.contentHeight;
-    this.fire('scroll', {});
-    this.build();
-  }
-
-};
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-Wick.GUIElement.ScrollbarHorizontal = class extends Wick.GUIElement.Scrollbar {
-  /**
-   *
-   */
-  constructor(model) {
-    super(model);
-    this.width = 0;
-    this.grabber = new Wick.GUIElement.ScrollbarGrabberHorizontal(model);
-    this.grabber.on('scroll', e => {
-      this.fire('scroll', e);
-    });
-  }
-  /**
-   *
-   */
-
-
-  build() {
-    super.build();
-    this.grabber.containerWidth = this.width; // Always show scrollbar for now.
-
-    if (this.grabber.grabberWidth > this.grabber.contentWidth) {
-      return;
-    }
-
-    var scrollbar = new this.paper.Path.Rectangle({
-      from: new this.paper.Point(0, 0),
-      to: new this.paper.Point(this.width, Wick.GUIElement.SCROLLBAR_SIZE),
-      fillColor: Wick.GUIElement.SCROLLBAR_BACKGROUND_COLOR
-    });
-    this.item.addChild(scrollbar);
-    this.grabber.build();
-    this.item.addChild(this.grabber.item);
-  }
-
-};
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-Wick.GUIElement.ScrollbarVertical = class extends Wick.GUIElement.Scrollbar {
-  /**
-   *
-   */
-  constructor(model) {
-    super(model);
-    this.height = 0;
-    this.grabber = new Wick.GUIElement.ScrollbarGrabberVertical(model);
-    this.grabber.on('scroll', e => {
-      this.fire('scroll', e);
-    });
-  }
-  /**
-   *
-   */
-
-
-  build() {
-    super.build();
-    this.grabber.containerHeight = this.height; // Always show scrollbar for now.
-
-    if (this.grabber.grabberHeight > this.grabber.contentHeight) {
-      return;
-    }
-
-    var scrollbar = new this.paper.Path.Rectangle({
-      from: new this.paper.Point(0, 0),
-      to: new this.paper.Point(Wick.GUIElement.SCROLLBAR_SIZE, this.height),
-      fillColor: Wick.GUIElement.SCROLLBAR_BACKGROUND_COLOR
-    });
-    this.item.addChild(scrollbar);
-    this.grabber.build();
-    this.item.addChild(this.grabber.item);
-  }
-
-};
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-Wick.GUIElement.SelectionBox = class extends Wick.GUIElement {
-  /**
-   *
-   */
-  constructor(model) {
-    super(model);
-    this._active = false;
-    this._start = new paper.Point(0, 0);
-    this._end = new paper.Point(0, 0);
-  }
-  /**
-   *
-   */
-
-
-  get active() {
-    return this._active;
-  }
-
-  set active(active) {
-    this._active = active;
-  }
-  /**
-   *
-   */
-
-
-  get start() {
-    return this._start;
-  }
-
-  set start(start) {
-    this._start = start;
-  }
-  /**
-   *
-   */
-
-
-  get end() {
-    return this._end;
-  }
-
-  set end(end) {
-    this._end = end;
-  }
-  /**
-   *
-   */
-
-
-  touches(item) {
-    return this.item.bounds.intersects(item.bounds) || this.item.bounds.contains(item.bounds);
-  }
-  /**
-   *
-   */
-
-
-  build() {
-    super.build();
-
-    if (this.active) {
-      var frameRect = new this.paper.Path.Rectangle({
-        from: this.start,
-        to: this.end,
-        fillColor: '#aaccff',
-        strokeColor: '#0000ff',
-        opacity: 0.3
-      });
-      this.item.addChild(frameRect);
-    }
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.ctx.save(); //this.ctx.translate(-0.5, -0.5);
+
+    this.ctx.translate(0, 0);
+    this.model.activeTimeline.guiElement.draw();
+    this.ctx.restore();
   }
 
 };
@@ -62518,7 +58873,7 @@ Wick.GUIElement.SelectionBox = class extends Wick.GUIElement {
 */
 
 /**
- * The Timeline contains the following GUI elements:
+ * The Timeline is responsible for drawing the following GUI elements:
  * - The Breadcrumbs
  * - The Frames Container
  * - The Layers Container
@@ -62528,556 +58883,26 @@ Wick.GUIElement.SelectionBox = class extends Wick.GUIElement {
  */
 Wick.GUIElement.Timeline = class extends Wick.GUIElement {
   /**
-   *
+   * Create a new GUIElement
    */
   constructor(model) {
     super(model);
-    this.framesContainer = new Wick.GUIElement.FramesContainer(model);
+    this.breadcrumbs = new Wick.GUIElement.Breadcrumbs(model);
+    /*this.framesContainer = new Wick.GUIElement.FramesContainer(model);
     this.layersContainer = new Wick.GUIElement.LayersContainer(model);
     this.numberLine = new Wick.GUIElement.NumberLine(model);
     this.horizontalScrollbar = new Wick.GUIElement.ScrollbarHorizontal(model);
     this.verticalScrollbar = new Wick.GUIElement.ScrollbarVertical(model);
     this.addFrameButton = new Wick.GUIElement.TimelineAddFrameButton(model);
-    this.deleteLayerButton = new Wick.GUIElement.TimelineDeleteLayerButton(model);
-    this.horizontalScrollbar.on('scroll', e => {
-      //this.framesContainer.build();
-      //this.numberLine.build();
-      this._positionScrollableElements();
-    });
-    this.verticalScrollbar.on('scroll', e => {
-      //this.framesContainer.build();
-      //this.layersContainer.build();
-      this._positionScrollableElements();
-    });
-    this._scrollX = 0;
-    this._scrollY = 0;
+    this.deleteLayerButton = new Wick.GUIElement.TimelineDeleteLayerButton(model);*/
   }
   /**
-   *
+   * Draw this GUIElement
    */
 
 
-  build() {
-    super.build(); // Build frames container
-
-    this.framesContainer.build();
-    this.item.addChild(this.framesContainer.item); // Build number line
-
-    this.numberLine.build();
-    this.item.addChild(this.numberLine.item); // Build layers container
-
-    this.layersContainer.build();
-    this.item.addChild(this.layersContainer.item); // Build scrollbars
-
-    this.horizontalScrollbar.item.position.x = Wick.GUIElement.LAYERS_CONTAINER_WIDTH;
-    this.horizontalScrollbar.item.position.y = paper.view.element.height / window.devicePixelRatio - Wick.GUIElement.BREADCRUMBS_HEIGHT - Wick.GUIElement.SCROLLBAR_SIZE;
-    this.horizontalScrollbar.width = paper.view.element.width / window.devicePixelRatio - Wick.GUIElement.LAYERS_CONTAINER_WIDTH - Wick.GUIElement.SCROLLBAR_SIZE;
-    this.horizontalScrollbar.build();
-    this.item.addChild(this.horizontalScrollbar.item);
-    this.verticalScrollbar.item.position.x = paper.view.element.width / window.devicePixelRatio - Wick.GUIElement.SCROLLBAR_SIZE;
-    this.verticalScrollbar.item.position.y = Wick.GUIElement.NUMBER_LINE_HEIGHT;
-    this.verticalScrollbar.height = paper.view.element.height / window.devicePixelRatio - Wick.GUIElement.NUMBER_LINE_HEIGHT - Wick.GUIElement.BREADCRUMBS_HEIGHT - Wick.GUIElement.SCROLLBAR_SIZE;
-    this.verticalScrollbar.build();
-    this.item.addChild(this.verticalScrollbar.item); // Build cover for top left corner
-
-    var cornerCoverTopLeft = new paper.Path.Rectangle({
-      fillColor: Wick.GUIElement.TIMELINE_BACKGROUND_COLOR,
-      from: new paper.Point(0, 0),
-      to: new paper.Point(Wick.GUIElement.LAYERS_CONTAINER_WIDTH, Wick.GUIElement.NUMBER_LINE_HEIGHT)
-    });
-    this.item.addChild(cornerCoverTopLeft); // Build cover for bottom right corner
-
-    var cornerCoverBottomRight = new paper.Path.Rectangle({
-      fillColor: Wick.GUIElement.SCROLLBAR_BACKGROUND_COLOR,
-      from: new paper.Point(this.paper.view.element.width - Wick.GUIElement.SCROLLBAR_SIZE, this.paper.view.element.height - Wick.GUIElement.SCROLLBAR_SIZE - Wick.GUIElement.BREADCRUMBS_HEIGHT),
-      to: new paper.Point(this.paper.view.element.width, this.paper.view.element.height - Wick.GUIElement.BREADCRUMBS_HEIGHT)
-    });
-    this.item.addChild(cornerCoverBottomRight); // Build buttons
-
-    this.deleteLayerButton.x = 175;
-    this.deleteLayerButton.y = 20;
-    this.deleteLayerButton.build();
-    this.item.addChild(this.deleteLayerButton.item); // Disable temporarily
-
-    /*
-    this.addFrameButton.x = 145;
-    this.addFrameButton.y = 20;
-    this.addFrameButton.build();
-    this.item.addChild(this.addFrameButton.item);
-    */
-
-    this._positionScrollableElements();
-  }
-
-  _positionScrollableElements() {
-    this.numberLine.scrollX = -this.scrollX;
-    this.layersContainer.scrollY = -this.scrollY;
-    this.framesContainer.scrollX = -this.scrollX;
-    this.framesContainer.scrollY = -this.scrollY;
-  }
-
-};
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-Wick.GUIElement.TimelineAddFrameButton = class extends Wick.GUIElement.LayerButton {
-  /**
-   *
-   */
-  constructor(model) {
-    super(model);
-    this.x = 0;
-    this.y = 0;
-    this.on('mouseDown', () => {
-      this.model.project.guiElement.fire('projectModified');
-    });
-  }
-
-  get tooltip() {
-    return "Copy Forward";
-  }
-
-  get radius() {
-    return 14;
-  }
-
-  get opacity() {
-    return 1;
-  }
-
-  get fillColor() {
-    return 'rgba(0,0,0,0)';
-  }
-
-  get strokeColor() {
-    if (this.isHoveredOver) {
-      return '#000000';
-    } else {
-      return '#979797';
-    }
-  }
-  /**
-   *
-   */
-
-
-  get activated() {
-    return false;
-  }
-
-  get icon() {
-    return Wick.GUIElement.TIMELINE_COPY_FORWARD_BUTTON_ICON;
-  }
-  /**
-   *
-   */
-
-
-  build() {
-    super.build();
-  }
-
-};
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-Wick.GUIElement.TimelineDeleteLayerButton = class extends Wick.GUIElement.LayerButton {
-  /**
-   *
-   */
-  constructor(model) {
-    super(model);
-    this.x = 0;
-    this.y = 0;
-    this.on('mouseDown', () => {
-      this.model.project.deleteSelectedObjects();
-      this.model.project.guiElement.fire('projectModified');
-    });
-  }
-
-  get tooltip() {
-    return "Delete";
-  }
-
-  get radius() {
-    return 14;
-  }
-
-  get opacity() {
-    return 1;
-  }
-
-  get fillColor() {
-    if (this.isHoveredOver) {
-      return '#000000';
-    } else {
-      return '#979797';
-    }
-  }
-
-  get strokeColor() {
-    return 'rgba(0,0,0,0)';
-  }
-  /**
-   *
-   */
-
-
-  get activated() {
-    return false;
-  }
-
-  get icon() {
-    return Wick.GUIElement.TIMELINE_DELETE_BUTTON_ICON;
-  }
-  /**
-   *
-   */
-
-
-  build() {
-    super.build();
-  }
-
-};
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-Wick.GUIElement.Tween = class extends Wick.GUIElement.Draggable {
-  /**
-   *
-   */
-  constructor(model) {
-    super(model);
-    this.dragOffset = new paper.Point(0, 0);
-    this.ghost = new Wick.GUIElement.TweenGhost(model);
-    this.on('mouseOver', () => {
-      this.build();
-    });
-    this.on('mouseDown', e => {
-      if (!e.modifiers.shift && !this.model.isSelected) {
-        this.model.project.selection.clear();
-      }
-
-      if (!this.model.isSelected) {
-        this.model.project.selection.select(this.model);
-        this.model.project.guiElement.build();
-      }
-
-      this.build();
-    });
-    this.on('mouseLeave', () => {
-      this.build();
-    });
-    this.on('dragStart', () => {});
-    this.on('drag', () => {
-      this._dragSelectedTweens();
-    });
-    this.on('dragEnd', () => {
-      this._tryToDropTweens();
-    });
-  }
-  /**
-   *
-   */
-
-
-  get x() {
-    return (this.model.playheadPosition - 1) * this.gridCellWidth;
-  }
-  /**
-   *
-   */
-
-
-  get y() {
-    return 0;
-  }
-  /**
-   *
-   */
-
-
-  get width() {
-    return 10;
-  }
-  /**
-   *
-   */
-
-
-  get height() {
-    return 10;
-  }
-  /**
-   *
-   */
-
-
-  build() {
-    super.build();
-
-    this._buildTweenDiamond();
-
-    this._buildTweenArrow();
-
-    this.item.position = new paper.Point(this.x, this.y);
-    this.item.position.x += this.dragOffset.x;
-  }
-
-  _buildTweenDiamond() {
-    var leftColor;
-    var rightColor;
-
-    if (this.model.isSelected) {
-      leftColor = Wick.GUIElement.TWEEN_HOVER_COLOR_1;
-      rightColor = Wick.GUIElement.TWEEN_HOVER_COLOR_2;
-    } else if (this.isHoveredOver) {
-      leftColor = Wick.GUIElement.TWEEN_HOVER_COLOR_1;
-      rightColor = Wick.GUIElement.TWEEN_HOVER_COLOR_2;
-    } else {
-      leftColor = Wick.GUIElement.TWEEN_FILL_COLOR_1;
-      rightColor = Wick.GUIElement.TWEEN_FILL_COLOR_2;
-    }
-
-    var r = Wick.GUIElement.TWEEN_DIAMOND_RADIUS; // Create right rounded triangle.
-
-    var leftSubtractMask = new this.paper.Path.Rectangle({
-      from: new this.paper.Point(-r * 2, -r * 2),
-      to: new this.paper.Point(-.5, r * 2) // Shift 1 pixel to the left.
-
-    });
-    var tweenRectRight = new this.paper.Path.Rectangle({
-      from: new this.paper.Point(-r, -r),
-      to: new this.paper.Point(r, r),
-      radius: 3,
-      fillColor: rightColor
-    }); // Create left rounded triangle.
-
-    var rightSubtractMask = new this.paper.Path.Rectangle({
-      from: new this.paper.Point(.5, -r * 2),
-      // Shift 1 pixel to the right.
-      to: new this.paper.Point(r * 2, r * 2)
-    });
-    var tweenRectLeft = new this.paper.Path.Rectangle({
-      from: new this.paper.Point(-r, -r),
-      to: new this.paper.Point(r, r),
-      radius: 3,
-      fillColor: leftColor
-    });
-    tweenRectRight.rotate(45, tweenRectRight.bounds.center);
-    tweenRectLeft.rotate(45, tweenRectLeft.bounds.center);
-    tweenRectRight.remove();
-    tweenRectLeft.remove();
-    tweenRectRight = tweenRectRight.subtract(leftSubtractMask, {
-      insert: false
-    });
-    tweenRectLeft = tweenRectLeft.subtract(rightSubtractMask, {
-      insert: false
-    });
-    tweenRectRight.position = tweenRectRight.position.add(new paper.Point(this.gridCellWidth / 2, this.gridCellHeight / 2));
-    tweenRectLeft.position = tweenRectLeft.position.add(new paper.Point(this.gridCellWidth / 2, this.gridCellHeight / 2));
-    this.item.addChild(tweenRectRight);
-    this.item.addChild(tweenRectLeft); // Create Stroke using a united path to remove the line down the center.
-
-    var combined = tweenRectLeft.unite(tweenRectRight);
-    this.item.addChild(combined);
-    combined.sendToBack();
-
-    if (this.model.isSelected) {
-      combined.strokeColor = Wick.GUIElement.SELECTED_ITEM_BORDER_COLOR;
-      combined.strokeWidth = 4;
-    } else {
-      combined.strokeWidth = 0;
-    }
-  }
-
-  _buildTweenArrow() {
-    var nextTween = this.model.getNextTween();
-    if (!nextTween) return;
-    var overlapAmount = 5; // How much should we overlap the arrow between tweens? 
-
-    var nextTweenGridPosition = nextTween.playheadPosition - this.model.playheadPosition;
-    var nextTweenPosition = nextTweenGridPosition * this.gridCellWidth;
-    nextTweenPosition -= this.dragOffset.x;
-    var tweenLineVerticalPosition = this.gridCellHeight / 2;
-    var arrowLine = new this.paper.Path.Line({
-      from: [this.gridCellWidth - overlapAmount, tweenLineVerticalPosition],
-      to: [nextTweenPosition + overlapAmount, tweenLineVerticalPosition],
-      strokeColor: Wick.GUIElement.TWEEN_ARROW_STROKE_COLOR,
-      strokeWidth: Wick.GUIElement.TWEEN_ARROW_STROKE_WIDTH,
-      strokeCap: 'round'
-    });
-    arrowLine.locked = true;
-    this.item.addChild(arrowLine);
-  }
-  /**
-   *
-   */
-
-
-  get selectedTweens() {
-    return this.model.project.selection.getSelectedObjects(Wick.Tween);
-  }
-  /**
-   *
-   */
-
-
-  drop() {
-    var newPlayheadPosition = Math.floor(this.x / this.gridCellWidth) + Math.round(this.dragOffset.x / this.gridCellWidth);
-    this.model.playheadPosition = newPlayheadPosition + 1;
-    this.model.project.activeTimeline.playheadPosition = this.model.parentFrame.start + this.model.playheadPosition - 1;
-  }
-  /**
-   *
-   */
-
-
-  get draggingTweens() {
-    var draggingTweens = [];
-    this.model.parentTimeline.frames.forEach(frame => {
-      frame.tweens.forEach(tween => {
-        if (tween.guiElement.ghost.active) {
-          draggingTweens.push(tween);
-        }
-      });
-    });
-    return draggingTweens;
-  }
-
-  _dragSelectedTweens() {
-    this.selectedTweens.forEach(tween => {
-      tween.guiElement.item.bringToFront();
-      tween.guiElement.dragOffset.x = Math.round(this.mouseDelta.x / this.gridCellWidth) * this.gridCellWidth;
-      tween.guiElement.dragOffset.y = 0;
-      tween.guiElement.ghost.active = true;
-      tween.guiElement.build();
-    });
-  }
-
-  _tryToDropTweens() {
-    this.draggingTweens.forEach(tween => {
-      tween.guiElement.drop();
-      tween.guiElement.dragOffset = new paper.Point(0, 0);
-      tween.guiElement.ghost.active = false;
-      tween.guiElement.build();
-    });
-    this.model.project.guiElement.fire('projectModified');
-  }
-
-};
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-Wick.GUIElement.TweenGhost = class extends Wick.GUIElement {
-  /**
-   *
-   */
-  constructor(model) {
-    super(model);
-    this.active = false;
-    this.position = new paper.Point(0, 0);
-  }
-  /**
-   *
-   */
-
-
-  get active() {
-    return this._active;
-  }
-
-  set active(active) {
-    this._active = active;
-  }
-  /**
-   *
-   */
-
-
-  get position() {
-    return this._position;
-  }
-
-  set position(position) {
-    this._position = position;
-  }
-  /**
-   *
-   */
-
-
-  build() {
-    super.build();
+  draw() {
+    this.breadcrumbs.draw();
   }
 
 };
