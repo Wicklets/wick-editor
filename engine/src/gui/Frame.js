@@ -23,10 +23,12 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement {
     }
 
     draw () {
+        super.draw();
+
         var ctx = this.ctx;
 
         // Frame body
-        if(this.isMouseTarget) {
+        if(this.mouseState === 'over') {
             ctx.fillStyle = Wick.GUIElement.FRAME_HOVERED_OVER;
         } else {
             ctx.fillStyle = Wick.GUIElement.FRAME_UNCONTENTFUL_FILL_COLOR;
@@ -35,6 +37,13 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement {
         ctx.beginPath();
         ctx.roundRect(0, 0, this.model.length * this.gridCellWidth, this.gridCellHeight, Wick.GUIElement.FRAME_BORDER_RADIUS);
         ctx.fill();
+
+        // Add selection highlight if necessary
+        if (this.model.isSelected) {
+            ctx.strokeStyle = Wick.GUIElement.SELECTED_ITEM_BORDER_COLOR;
+            ctx.lineWidth = Wick.GUIElement.FRAME_HIGHLIGHT_STROKEWIDTH;
+            ctx.stroke();
+        }
 
         // Frame contentful dot
         if(this.model.tweens.length === 0 && !this.model.sound) {
@@ -62,6 +71,10 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement {
             width: this.model.length * this.gridCellWidth,
             height: this.gridCellHeight,
         };
+    }
+
+    onMouseDown (e) {
+        this.model.project.selection.select(this.model);
     }
 
   /*

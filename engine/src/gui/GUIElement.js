@@ -119,7 +119,7 @@ Wick.GUIElement = class {
      * Checks if this object is touching the mouse.
      * @type {boolean}
      */
-    get isMouseTarget () {
+    get mouseInBounds () {
         var bounds = this.bounds;
         var mouse = this.mouse;
         return mouse.x > bounds.x &&
@@ -128,10 +128,27 @@ Wick.GUIElement = class {
                mouse.y < bounds.y + bounds.height;
     }
 
+    get mouseState () {
+        if(this === this.project.mouseHoverTarget) {
+            return 'over';
+        } else {
+            return 'out';
+        }
+    }
+
     /**
-     * Draw this GUIElement
+     * Draw and update mouse state for this GUIElement
      */
     draw () {
+        if(this.mouseInBounds) {
+            this.project._mouseHoverTargets.push(this);
+        }
+    }
+
+    /**
+     * Function to call when this GUIElement is clicked.
+     */
+    onMouseDown (e) {
         // Implemeneted by subclasses
     }
 }
@@ -196,6 +213,7 @@ Wick.GUIElement.TWEEN_ARROW_STROKE_COLOR = '#D8D8D8';
 Wick.GUIElement.FRAME_GHOST_COLOR = Wick.GUIElement.SELECTED_ITEM_BORDER_COLOR;
 Wick.GUIElement.FRAME_GHOST_OPACITY = .45;
 Wick.GUIElement.FRAME_GHOST_STROKE_WIDTH = 5;
+Wick.GUIElement.FRAME_HIGHLIGHT_STROKEWIDTH = 3;
 
 Wick.GUIElement.FRAMES_STRIP_VERTICAL_MARGIN = 4;
 Wick.GUIElement.FRAMES_STRIP_ACTIVE_FILL_COLOR = 'rgba(216, 216, 216, 0.31)';

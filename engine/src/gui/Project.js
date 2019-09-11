@@ -22,7 +22,7 @@
  */
 Wick.GUIElement.Project = class extends Wick.GUIElement {
     /**
-     * Create a new GUIElement.
+     * Create a new GUIElement and build the canvas.
      */
     constructor (model) {
         super(model);
@@ -34,6 +34,12 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
                 x: e.clientX - rect.left,
                 y: e.clientY - rect.top
             };
+            this.draw();
+        }, false);
+        this._canvas.addEventListener('mousedown', e => {
+            if(this.mouseHoverTarget) {
+                this.mouseHoverTarget.onMouseDown(e);
+            }
             this.draw();
         }, false);
         this._ctx = this._canvas.getContext('2d');
@@ -72,8 +78,8 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
         var containerHeight = this.canvasContainer.offsetHeight;
 
         // Round off canvas size to avoid blurryness.
-        containerWidth = Math.floor(containerWidth)-2;
-        containerHeight = Math.floor(containerHeight)-1;
+        containerWidth = Math.floor(containerWidth) - 2;
+        containerHeight = Math.floor(containerHeight) - 1;
 
         if(this._canvas.width !== containerWidth) {
             this._canvas.width = containerWidth;
@@ -84,15 +90,23 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
     };
 
     /**
-     * Draw the GUIElement
+     * Draw this GUIElement and update the mouse state
      */
     draw () {
         var ctx = this.ctx;
-        console.log('drawing the timeline GUI')
 
         this.resize();
-        ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this._mouseHoverTargets = [];
 
+        ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.model.activeTimeline.guiElement.draw();
+    }
+
+    /**
+     * The topmost GUIElement that the mouse is hovering over.
+     */
+    get mouseHoverTarget () {
+        var l = this._mouseHoverTargets.length;
+        return this._mouseHoverTargets[l - 1];
     }
 }
