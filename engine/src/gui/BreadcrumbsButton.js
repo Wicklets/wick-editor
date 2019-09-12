@@ -17,9 +17,12 @@
  * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-Wick.GUIElement.BreadcrumbsButton = class extends Wick.GUIElement {
+Wick.GUIElement.BreadcrumbsButton = class extends Wick.GUIElement.Button {
     constructor (model) {
-        super(model);
+        super(model, null, () => {
+            console.log('focus this clip, please:')
+            console.log(model)
+        });
     };
 
     draw () {

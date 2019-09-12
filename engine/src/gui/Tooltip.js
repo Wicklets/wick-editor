@@ -17,31 +17,17 @@
  * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-Wick.GUIElement.Button = class extends Wick.GUIElement {
-    constructor (model, iconSrc, actionFn) {
+Wick.GUIElement.Tooltop = class extends Wick.GUIElement {
+    constructor (model, label) {
         super(model);
 
-        if(iconSrc) {
-            var svgContainer = document.createElement('div');
-            svgContainer.innerHTML = iconSrc;
-            var xml = new XMLSerializer().serializeToString(svgContainer.children[0]);
-            var svg64 = btoa(xml);
-            var b64Start = 'data:image/svg+xml;base64,';
-            var image64 = b64Start + svg64;
-
-            this.icon = new Image();
-            this.icon.src = image64;
-        }
-
-        this.actionFn = actionFn;
-
-    }
+        this.label = label;
+    };
 
     draw () {
         super.draw();
-    }
 
-    onMouseDown (e) {
-        this.actionFn(e);
+        var ctx = this.ctx;
+        
     }
-}
+};

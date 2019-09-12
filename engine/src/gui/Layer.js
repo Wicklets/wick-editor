@@ -30,6 +30,7 @@ Wick.GUIElement.Layer = class extends Wick.GUIElement {
 
         var ctx = this.ctx;
 
+        // Body
         if (this.model.hidden) {
             ctx.fillStyle = Wick.GUIElement.LAYER_LABEL_HIDDEN_FILL_COLOR;
         } else if (this.model.isActive) {
@@ -37,6 +38,7 @@ Wick.GUIElement.Layer = class extends Wick.GUIElement {
         } else {
             ctx.fillStyle = Wick.GUIElement.LAYER_LABEL_INACTIVE_FILL_COLOR;
         }
+
         if(this.model.isSelected) {
             ctx.strokeStyle = Wick.GUIElement.SELECTED_ITEM_BORDER_COLOR;
             ctx.lineWidth = 3;
@@ -48,7 +50,6 @@ Wick.GUIElement.Layer = class extends Wick.GUIElement {
         var width = Wick.GUIElement.LAYERS_CONTAINER_WIDTH - Wick.GUIElement.LAYER_LABEL_MARGIN_SIDES*2;
         var height = this.gridCellHeight - Wick.GUIElement.LAYER_LABEL_MARGIN_TOP_BOTTOM*2;
 
-        // Body
         ctx.save();
         ctx.translate(Wick.GUIElement.LAYER_LABEL_MARGIN_SIDES, Wick.GUIElement.LAYER_LABEL_MARGIN_TOP_BOTTOM);
             ctx.beginPath();

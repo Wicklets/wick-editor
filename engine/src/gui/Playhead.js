@@ -49,7 +49,7 @@ Wick.GUIElement.Playhead = class extends Wick.GUIElement {
             ctx.stroke();
 
             // Playhead body
-            var playheadX = this.gridCellWidth/2 - Wick.GUIElement.PLAYHEAD_STROKE_WIDTH/2;
+            var playheadX = this.gridCellWidth / 2 - Wick.GUIElement.PLAYHEAD_STROKE_WIDTH / 2 + 1.5;
             ctx.strokeStyle = 'Wick.GUIElement.PLAYHEAD_FILL_COLOR';
             ctx.lineWidth = Wick.GUIElement.PLAYHEAD_STROKE_WIDTH;
             ctx.beginPath();

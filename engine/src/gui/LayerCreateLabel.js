@@ -39,8 +39,8 @@ Wick.GUIElement.LayerCreateLabel = class extends Wick.GUIElement {
         ctx.restore();
 
         // Plus sign
-        ctx.font = "16px " + Wick.GUIElement.LAYER_LABEL_FONT_FAMILY;
+        ctx.font = "20px " + Wick.GUIElement.LAYER_LABEL_FONT_FAMILY;
         ctx.fillStyle = Wick.GUIElement.ADD_FRAME_OVERLAY_PLUS_COLOR
-        ctx.fillText('+', 90, this.gridCellHeight / 2 + 4);
+        ctx.fillText('+', 90, this.gridCellHeight / 2 + 5);
     }
 }
