@@ -52,6 +52,13 @@ Wick.GUIElement.Layer = class extends Wick.GUIElement {
             ctx.fill();
             ctx.stroke();
         ctx.restore();
+
+        ctx.font = "16px " + Wick.GUIElement.LAYER_LABEL_FONT_FAMILY;
+        ctx.fillStyle = this.model.isActive
+          ? Wick.GUIElement.LAYER_LABEL_ACTIVE_FONT_COLOR
+          : Wick.GUIElement.LAYER_LABEL_INACTIVE_FONT_COLOR;
+        ctx.fillText(this.model.name, 53, this.gridCellHeight / 2 + 6);
+
     }
 
     get bounds () {
