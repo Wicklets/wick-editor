@@ -18,13 +18,11 @@
  */
 
 Wick.GUIElement.Playhead = class extends Wick.GUIElement {
-    /**
-     *
-     */
     constructor (model) {
         super(model);
     }
 
+/*
     get cursor () {
         return 'move';
     }
@@ -44,61 +42,58 @@ Wick.GUIElement.Playhead = class extends Wick.GUIElement {
     get height () {
         return this.width *.9;
     }
+    */
 
-    /**
-     *
-     */
-    build () {
-        super.build();
+    draw () {
+        super.draw();
 
-        var playheadTop = new this.paper.Path({
-            segments: [
-              [this.x, this.y],
-              [this.x + this.width, this.y],
-              [this.x + this.width, this.y + this.height],
-              [this.x + this.width/2, this.y + this.height + this.height/2],
-              [this.x, this.y + this.height],
-              [this.x, this.y],
-            ],
-            fillColor: Wick.GUIElement.PLAYHEAD_FILL_COLOR,
-            strokeWidth: 5,
-            strokeColor: Wick.GUIElement.PLAYHEAD_FILL_COLOR,
-            strokeJoin: 'round',
-            radius: 4,
-        });
+        var ctx = this.ctx;
 
-        this.item.addChild(playheadTop);
+        var x = Wick.GUIElement.PLAYHEAD_MARGIN;
+        var y = 0;
+        var width = this.gridCellWidth - Wick.GUIElement.PLAYHEAD_MARGIN * 2;
+        var height = width * 0.9;
 
-        var playheadBody = new this.paper.Path.Rectangle({
-            from: new this.paper.Point(this.gridCellWidth/2 - Wick.GUIElement.PLAYHEAD_STROKE_WIDTH/2, 0),
-            to: new this.paper.Point(this.gridCellWidth/2 + Wick.GUIElement.PLAYHEAD_STROKE_WIDTH/2, paper.view.element.height),
-            fillColor: Wick.GUIElement.PLAYHEAD_FILL_COLOR,
-        });
+        ctx.fillStyle = Wick.GUIElement.PLAYHEAD_FILL_COLOR;
+        ctx.strokeStyle = Wick.GUIElement.PLAYHEAD_FILL_COLOR;
+        ctx.lineWidth = 5,
+        ctx.save();
+        ctx.translate(this.model.playheadPosition * this.gridCellWidth, 0);
+            // Playhead top
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.lineTo(x + width, y);
+            ctx.lineTo(x + width, y + height);
+            ctx.lineTo(x + width / 2, y + height * 3 / 2);
+            ctx.lineTo(x, y + height);
+            ctx.lineTo(x, y);
+            ctx.fill();
+            ctx.stroke();
 
-        this.item.locked = true;
-        this.item.addChild(playheadBody);
+            // Playhead body
+            var playheadX = this.gridCellWidth/2 - Wick.GUIElement.PLAYHEAD_STROKE_WIDTH/2;
+            ctx.strokeStyle = 'Wick.GUIElement.PLAYHEAD_FILL_COLOR';
+            ctx.lineWidth = Wick.GUIElement.PLAYHEAD_STROKE_WIDTH;
+            ctx.beginPath();
+            ctx.moveTo(playheadX, 0);
+            ctx.lineTo(playheadX, this.canvas.height);
+            ctx.stroke();
 
-        this.item.position.x = (this.model.playheadPosition-1) * this.gridCellWidth;
-        
-        
-        // Add gnurl handles.
-        var handleMargin = 3; 
-        var handleSpacing = 4;
+            // Add gnurl handles.
+            var handleMargin = 3;
+            var handleSpacing = 4;
 
-        var handleLeft = this.x + handleMargin;
-        var handleRight = handleLeft + this.width - handleMargin*2;
+            var handleLeft = x + handleMargin;
+            var handleRight = handleLeft + width - handleMargin * 2;
 
-        for (var i=0; i<3; i++) {
-            var playheadGrabHandle = new this.paper.Path({
-                segments: [
-                  [handleLeft, this.y+handleSpacing*(i + 1)],
-                  [handleRight, this.y+handleSpacing*(i + 1)],
-                ],
-                strokeWidth: 2,
-                strokeColor: Wick.GUIElement.PLAYHEAD_STROKE_COLOR,
-                strokeCap: 'round',
-            });
-            this.item.addChild(playheadGrabHandle);
-        }
+            ctx.strokeStyle = Wick.GUIElement.PLAYHEAD_STROKE_COLOR;
+            ctx.lineWidth = 2;
+            for (var i = 0; i < 3; i++) {
+                ctx.beginPath();
+                ctx.moveTo(handleLeft, y + handleSpacing * (i + 1));
+                ctx.lineTo(handleRight, y + handleSpacing * (i + 1));
+                ctx.stroke();
+            }
+        ctx.restore();
     }
 }
