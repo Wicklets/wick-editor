@@ -42,6 +42,9 @@ Wick.GUIElement.LayersContainer = class extends Wick.GUIElement {
         });
 
         // New layer creation label
-        this.layerCreateLabel.draw();
+        ctx.save();
+        ctx.translate(0, this.model.layers.length * this.gridCellHeight);
+            this.layerCreateLabel.draw();
+        ctx.restore();
     }
 }

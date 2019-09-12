@@ -20,85 +20,27 @@
 Wick.GUIElement.LayerCreateLabel = class extends Wick.GUIElement {
     constructor (model) {
         super(model);
-
-        /*
-        this.on('mouseOver', () => {
-            this.build();
-        });
-
-        this.on('mouseDown', () => {
-            var layer = new Wick.Layer();
-            this.model.project.activeTimeline.addLayer(layer);
-            layer.activate();
-            this.model.project.selection.clear();
-            this.model.project.selection.select(layer);
-            this.model.project.guiElement.build();
-            this.model.project.guiElement.fire('projectModified');
-        });
-
-        this.on('mouseLeave', () => {
-            this.build();
-        });
-        */
     }
-
-/*
-    get index () {
-        return this._index;
-    }
-
-    set index (index) {
-        this._index = index;
-    }
-
-    get x () {
-        return Wick.GUIElement.LAYER_LABEL_MARGIN_SIDES;
-    }
-
-    get y () {
-        return this.index * this.gridCellHeight + Wick.GUIElement.LAYER_LABEL_MARGIN_TOP_BOTTOM;
-    }
-
-    get width () {
-        return this._width - Wick.GUIElement.LAYER_LABEL_MARGIN_SIDES*2;
-    }
-
-    set width (width) {
-        this._width = width;
-    }
-
-    get height () {
-        return this.gridCellHeight - Wick.GUIElement.LAYER_LABEL_MARGIN_TOP_BOTTOM*2;
-    }
-*/
 
     draw () {
-      /*
-        super.build();
+        var ctx = this.ctx;
 
-        var layerRect = new this.paper.Path.Rectangle({
-            from: new this.paper.Point(0, 0),
-            to: new this.paper.Point(this.width, this.height),
-            fillColor: this.isHoveredOver ? 'rgba(255,255,255,0.6)' : 'rgba(255,255,255,0.3)',
-            radius: 2,
-        });
-        this.item.addChild(layerRect);
+        ctx.fillStyle = this.isHoveredOver ? 'rgba(255,255,255,0.6)' : 'rgba(255,255,255,0.3)';
 
-        var plusButton = new this.paper.PointText({
-            point: [this.x + this.width/2, this.height/2 + 8],
-            content: '+',
-            fillColor: Wick.GUIElement.ADD_FRAME_OVERLAY_PLUS_COLOR,
-            fontFamily: 'Courier New',
-            fontWeight: 'bold',
-            fontSize: 30,
-            justification: 'center',
-            pivot: new paper.Point(0, 0),
-            opacity: .5,
-        });
+        var width = Wick.GUIElement.LAYERS_CONTAINER_WIDTH - Wick.GUIElement.LAYER_LABEL_MARGIN_SIDES*2;
+        var height = this.gridCellHeight - Wick.GUIElement.LAYER_LABEL_MARGIN_TOP_BOTTOM*2;
 
-        this.item.addChild(plusButton);
+        // Body
+        ctx.save();
+        ctx.translate(Wick.GUIElement.LAYER_LABEL_MARGIN_SIDES, Wick.GUIElement.LAYER_LABEL_MARGIN_TOP_BOTTOM);
+            ctx.beginPath();
+            ctx.roundRect(0, 0, width, height, Wick.GUIElement.LAYER_LABEL_BORDER_RADIUS);
+            ctx.fill();
+        ctx.restore();
 
-        this.item.position = new paper.Point(this.x, this.y);
-        */
+        // Plus sign
+        ctx.font = "16px " + Wick.GUIElement.LAYER_LABEL_FONT_FAMILY;
+        ctx.fillStyle = Wick.GUIElement.ADD_FRAME_OVERLAY_PLUS_COLOR
+        ctx.fillText('+', 90, this.gridCellHeight / 2 + 4);
     }
 }
