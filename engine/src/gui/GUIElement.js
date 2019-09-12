@@ -129,7 +129,7 @@ Wick.GUIElement = class {
     }
 
     get mouseState () {
-        if(this === this.project.mouseDragTarget) {
+        if(this.project.mouseDragTargets.indexOf(this) !== -1) {
             return 'down';
         } else if(this === this.project.mouseHoverTarget) {
             return 'over';

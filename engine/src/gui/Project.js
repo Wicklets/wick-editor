@@ -39,12 +39,9 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
         this._canvasContainer.appendChild(this._canvas);
 
         this._mouse = {x: 0, y: 0};
-        this._mouseDragTarget = null;
-        this._mouseDragStart = {x: 0, y: 0};
-        this._mouseDragEnd = {x: 0, y: 0};
-        this._mouseDragDelta = {x: 0, y: 0};
-
-        this._dragGhost = null;
+        this._mouseHoverTargets = [];
+        this._mouseDragTargets = [];
+        this._dragGhosts = [];
     }
 
     /**
@@ -56,7 +53,7 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
 
     set canvasContainer (canvasContainer) {
         this._canvasContainer = canvasContainer;
-
+        
         if(this._canvas !== this._canvasContainer.children[0]) {
             this._canvasContainer.innerHTML = '';
             this._canvasContainer.appendChild(this._canvas);
@@ -90,15 +87,20 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
     draw () {
         var ctx = this.ctx;
 
+        // Make sure canvas is the correct size
         this.resize();
+
+        // Reset mouse state stuff
         this._mouseHoverTargets = [];
 
+        // Draw the entire GUI
         ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.model.activeTimeline.guiElement.draw();
 
-        if(this._dragGhost) {
-            this._dragGhost.draw();
-        }
+        // Draw the drag ghosts
+        this._dragGhosts.forEach(dragGhost => {
+            dragGhost.draw();
+        });
     }
 
     /**
@@ -111,53 +113,52 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
     }
 
     /**
-     * The GUIElement that is currently being clicked.
+     * The GUIElements that are currently being dragged.
      * @type {Wick.GUIElement}
      */
-    get mouseDragTarget () {
-        return this._mouseDragTarget;
+    get mouseDragTargets () {
+        return this._mouseDragTargets;
     }
 
     _onMouseMove (e) {
+        // Update mouse position
         var rect = this._canvas.getBoundingClientRect();
         this._mouse = {
             x: e.clientX - rect.left,
             y: e.clientY - rect.top
         };
-        if(this._mouseDragTarget) {
-            this._mouseDragEnd = this._mouseDragTarget.localMouse;
-            this._mouseDragDelta = {
-                x: this._mouseDragEnd.x - this._mouseDragStart.x,
-                y: this._mouseDragEnd.y - this._mouseDragStart.y
-            };
-        }
+
         this.draw();
     }
 
     _onMouseDown (e) {
         if(this.mouseHoverTarget) {
+            // Call the mousedown function for the object that we just clicked on
             this.mouseHoverTarget.onMouseDown(e);
 
-            var dragGhostClassname = this.mouseHoverTarget.dragGhostClassname;
-            if(dragGhostClassname) {
-                this._dragGhost = new Wick.GUIElement[dragGhostClassname](this.mouseHoverTarget.model);
-            }
+            // Generate list of objects being dragged
+            this._mouseDragTargets = this.model.selection.getSelectedObjects().map(object => {
+                return object.guiElement;
+            });
 
-            this._mouseDragTarget = this.mouseHoverTarget;
-            this._mouseDragStart = this._mouseDragTarget.localMouse;
-            this._mouseDragEnd = this._mouseDragTarget.localMouse;
+            // Create drag ghosts
+            this._dragGhosts = this._mouseDragTargets.filter(dragTarget => {
+                return dragTarget.dragGhostClassname;
+            }).map(dragTarget => {
+                return new Wick.GUIElement[dragTarget.dragGhostClassname](dragTarget.model);
+            });
         } else {
+            // Clicked on nothing, clear the selection
             this.model.selection.clear();
         }
+
         this.draw();
     }
 
     _onMouseUp (e) {
-        this._dragGhost = null;
-        this._mouseDragTarget = null;
-        this._mouseDragStart = {x: 0, y: 0};
-        this._mouseDragEnd = {x: 0, y: 0};
-        this._mouseDragDelta = {x: 0, y: 0};
+        // Reset all mouse state stuff
+        this._dragGhosts = [];
+        this._mouseDragTargets = [];
         this.draw();
     }
 }

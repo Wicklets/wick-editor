@@ -23,6 +23,8 @@ Wick.GUIElement.Layer = class extends Wick.GUIElement {
     }
 
     draw () {
+        super.draw();
+
         var ctx = this.ctx;
 
         if (this.model.hidden) {
@@ -50,6 +52,20 @@ Wick.GUIElement.Layer = class extends Wick.GUIElement {
             ctx.fill();
             ctx.stroke();
         ctx.restore();
+    }
+
+    get bounds () {
+        return {
+            x: 0,
+            y: 0,
+            width: Wick.GUIElement.LAYERS_CONTAINER_WIDTH,
+            height: this.gridCellHeight,
+        }
+    }
+
+    onMouseDown (e) {
+        this.model.project.selection.clear();
+        this.model.project.selection.select(this.model);
     }
 
 /*
