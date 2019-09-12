@@ -129,7 +129,9 @@ Wick.GUIElement = class {
     }
 
     get mouseState () {
-        if(this === this.project.mouseHoverTarget) {
+        if(this === this.project.mouseDragTarget) {
+            return 'down';
+        } else if(this === this.project.mouseHoverTarget) {
             return 'over';
         } else {
             return 'out';
@@ -149,6 +151,13 @@ Wick.GUIElement = class {
      * Function to call when this GUIElement is clicked.
      */
     onMouseDown (e) {
+        // Implemeneted by subclasses
+    }
+
+    /**
+     * Function to call when this GUIElement is clicked out.
+     */
+    onMouseUp (e) {
         // Implemeneted by subclasses
     }
 }

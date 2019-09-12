@@ -40,6 +40,9 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
 
         this._mouse = {x: 0, y: 0};
         this._mouseDragTarget = null;
+        this._mouseDragStart = {x: 0, y: 0};
+        this._mouseDragEnd = {x: 0, y: 0};
+        this._mouseDragDelta = {x: 0, y: 0};
     }
 
     /**
@@ -94,10 +97,19 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
 
     /**
      * The topmost GUIElement that the mouse is hovering over.
+     * @type {Wick.GUIElement}
      */
     get mouseHoverTarget () {
         var l = this._mouseHoverTargets.length;
         return this._mouseHoverTargets[l - 1];
+    }
+
+    /**
+     * The GUIElement that is currently being clicked.
+     * @type {Wick.GUIElement}
+     */
+    get mouseDragTarget () {
+        return this._mouseDragTarget;
     }
 
     _onMouseMove (e) {
@@ -112,7 +124,6 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
                 x: this._mouseDragEnd.x - this._mouseDragStart.x,
                 y: this._mouseDragEnd.y - this._mouseDragStart.y
             };
-            this._mouseDragTarget.onMouseDrag(e);
         }
         this.draw();
     }
@@ -130,7 +141,13 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
     }
 
     _onMouseUp (e) {
+        if(this._mouseDragTarget) {
+            this._mouseDragTarget.onMouseUp(e);
+        }
         this._mouseDragTarget = null;
+        this._mouseDragStart = {x: 0, y: 0};
+        this._mouseDragEnd = {x: 0, y: 0};
+        this._mouseDragDelta = {x: 0, y: 0};
         this.draw();
     }
 }

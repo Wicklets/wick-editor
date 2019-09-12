@@ -28,7 +28,7 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement {
         var ctx = this.ctx;
 
         // Frame body
-        if(this.mouseState === 'over') {
+        if(this.mouseState === 'over' || this.mouseState === 'down') {
             ctx.fillStyle = Wick.GUIElement.FRAME_HOVERED_OVER;
         } else {
             ctx.fillStyle = Wick.GUIElement.FRAME_UNCONTENTFUL_FILL_COLOR;
@@ -62,6 +62,18 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement {
         } else if (this.model.tweens.length > 0) {
             //tweens
         }
+
+        // Dragging ghost
+        if(this.mouseState === 'down') {
+            ctx.fillStyle = Wick.GUIElement.FRAME_GHOST_COLOR;
+
+            var x = Math.round(this.project._mouseDragDelta.x / this.gridCellWidth) * this.gridCellWidth;
+            var y = Math.round(this.project._mouseDragDelta.y / this.gridCellHeight) * this.gridCellHeight;
+
+            ctx.beginPath();
+            ctx.roundRect(x, y, this.model.length * this.gridCellWidth, this.gridCellHeight, Wick.GUIElement.FRAME_BORDER_RADIUS);
+            ctx.fill();
+        }
     }
 
     get bounds () {
@@ -78,11 +90,8 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement {
         this.model.project.selection.select(this.model);
     }
 
-    onMouseDrag (e) {
-        console.log('start ' + this.project._mouseDragStart.x + ', ' + this.project._mouseDragStart.y);
-        console.log('end ' + this.project._mouseDragEnd.x + ', ' + this.project._mouseDragEnd.y);
-        console.log('delta ' + this.project._mouseDragDelta.x + ', ' + this.project._mouseDragDelta.y);
-        console.log('')
+    onMouseUp (e) {
+        console.log(Math.round(this.project._mouseDragDelta.x / this.gridCellWidth));
     }
 
   /*
