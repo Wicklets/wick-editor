@@ -22,28 +22,6 @@ Wick.GUIElement.Playhead = class extends Wick.GUIElement {
         super(model);
     }
 
-/*
-    get cursor () {
-        return 'move';
-    }
-
-    get x () {
-        return Wick.GUIElement.PLAYHEAD_MARGIN;
-    }
-
-    get y () {
-        return 0;
-    }
-
-    get width () {
-        return this.gridCellWidth - Wick.GUIElement.PLAYHEAD_MARGIN*2;
-    }
-
-    get height () {
-        return this.width *.9;
-    }
-    */
-
     draw () {
         super.draw();
 
@@ -58,7 +36,7 @@ Wick.GUIElement.Playhead = class extends Wick.GUIElement {
         ctx.strokeStyle = Wick.GUIElement.PLAYHEAD_FILL_COLOR;
         ctx.lineWidth = 5,
         ctx.save();
-        ctx.translate(this.model.playheadPosition * this.gridCellWidth, 0);
+        ctx.translate((this.model.playheadPosition - 1) * this.gridCellWidth, 0);
             // Playhead top
             ctx.beginPath();
             ctx.moveTo(x, y);

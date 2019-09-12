@@ -20,6 +20,9 @@
 Wick.GUIElement.Layer = class extends Wick.GUIElement {
     constructor (model) {
         super(model);
+
+        this.hideButton = new Wick.GUIElement.LayerButton(model, Wick.GUIElement.LAYER_LABEL_SHOW_BUTTON_ICON, () => {});
+        this.lockButton = new Wick.GUIElement.LayerButton(model, Wick.GUIElement.LAYER_LABEL_LOCK_BUTTON_ICON, () => {});
     }
 
     draw () {
@@ -45,6 +48,7 @@ Wick.GUIElement.Layer = class extends Wick.GUIElement {
         var width = Wick.GUIElement.LAYERS_CONTAINER_WIDTH - Wick.GUIElement.LAYER_LABEL_MARGIN_SIDES*2;
         var height = this.gridCellHeight - Wick.GUIElement.LAYER_LABEL_MARGIN_TOP_BOTTOM*2;
 
+        // Body
         ctx.save();
         ctx.translate(Wick.GUIElement.LAYER_LABEL_MARGIN_SIDES, Wick.GUIElement.LAYER_LABEL_MARGIN_TOP_BOTTOM);
             ctx.beginPath();
@@ -53,12 +57,23 @@ Wick.GUIElement.Layer = class extends Wick.GUIElement {
             ctx.stroke();
         ctx.restore();
 
+        // Layer name
         ctx.font = "16px " + Wick.GUIElement.LAYER_LABEL_FONT_FAMILY;
         ctx.fillStyle = this.model.isActive
           ? Wick.GUIElement.LAYER_LABEL_ACTIVE_FONT_COLOR
           : Wick.GUIElement.LAYER_LABEL_INACTIVE_FONT_COLOR;
         ctx.fillText(this.model.name, 53, this.gridCellHeight / 2 + 6);
 
+        // Buttons
+        ctx.save();
+        ctx.translate(20, 20);
+            this.hideButton.draw();
+        ctx.restore();
+
+        ctx.save();
+        ctx.translate(40, 20);
+            this.lockButton.draw();
+        ctx.restore();
     }
 
     get bounds () {

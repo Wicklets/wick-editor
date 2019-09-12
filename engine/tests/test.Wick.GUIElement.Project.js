@@ -14,9 +14,21 @@ describe('Wick.GUIElement.Project', function() {
         tweenFrame.addTween(new Wick.Tween({playheadPosition: 5}));
         tweenFrame.addTween(new Wick.Tween({playheadPosition: 10}));
 
+        var layer3 = new Wick.Layer();
+        project.activeTimeline.addLayer(layer3);
+        layer3.addFrame(new Wick.Frame());
+        layer3.locked = true;
+
+        var layer4 = new Wick.Layer();
+        project.activeTimeline.addLayer(layer4);
+        layer4.addFrame(new Wick.Frame());
+        layer4.hidden = true;
+
         var sound = new Wick.SoundAsset({filename:'test.wav', src:TestUtils.TEST_SOUND_SRC_WAV});
         project.addAsset(sound);
         project.activeLayer.getFrameAtPlayheadPosition(4).sound = sound;
+
+        project.onionSkinEnabled = true;
 
         var dummy = document.createElement('div');
         dummy.style.width = 600;
@@ -24,27 +36,8 @@ describe('Wick.GUIElement.Project', function() {
         document.body.appendChild(dummy);
         dummy.appendChild(project.guiElement.canvasContainer);
 
-        project.guiElement.draw();
-    });
-
-    it('should render frame sound waveforms', function (done) {
-        var project = new Wick.Project();
-
-        var frame = project.activeFrame;
-        frame.end = 10;
-
-        var sound = new Wick.SoundAsset({filename:'test.wav', src:TestUtils.TEST_SOUND_SRC_WAV});
-        project.addAsset(sound);
-
-        frame.sound = sound;
-
-        // wait a little bit to load the waveform image...
         sound.load(() => {
             project.guiElement.draw();
-            setTimeout(() => {
-                project.guiElement.draw();
-                done();
-            }, 100);
         });
     });
 });
