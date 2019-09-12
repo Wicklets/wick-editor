@@ -39,7 +39,7 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement {
         }
 
         ctx.beginPath();
-        ctx.roundRect(0, 0, this.model.length * this.gridCellWidth, this.gridCellHeight, Wick.GUIElement.FRAME_BORDER_RADIUS);
+        ctx.roundRect(0, 0, this.model.length * this.gridCellWidth - 1, this.gridCellHeight - 1, Wick.GUIElement.FRAME_BORDER_RADIUS);
         ctx.fill();
 
         // Add selection highlight if necessary
@@ -78,7 +78,10 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement {
     }
 
     onMouseDown (e) {
-        this.model.project.selection.clear();
+        if(this.model.isSelected) return;
+        if(!e.shiftKey) {
+            this.model.project.selection.clear();
+        }
         this.model.project.selection.select(this.model);
     }
 

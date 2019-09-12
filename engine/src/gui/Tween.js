@@ -18,12 +18,9 @@
  */
 
 Wick.GUIElement.Tween = class extends Wick.GUIElement {
-    /**
-     *
-     */
     constructor (model) {
         super(model);
-
+/*
         this.dragOffset = new paper.Point(0,0);
         this.ghost = new Wick.GUIElement.TweenGhost(model);
 
@@ -57,50 +54,39 @@ Wick.GUIElement.Tween = class extends Wick.GUIElement {
         this.on('dragEnd', () => {
             this._tryToDropTweens();
         });
+        */
     }
 
-    /**
-     *
-     */
+/*
     get x () {
         return (this.model.playheadPosition-1) * this.gridCellWidth;
     }
 
-    /**
-     *
-     */
     get y () {
         return 0;
     }
 
-    /**
-     *
-     */
     get width () {
         return 10;
     }
 
-    /**
-     *
-     */
     get height () {
         return 10;
     }
+*/
 
-    /**
-     *
-     */
-    build () {
+    draw () {
         super.build();
 
-        this._buildTweenDiamond();
-        this._buildTweenArrow();
+        this._drawTweenDiamond();
+        this._drawTweenArrow();
 
-        this.item.position = new paper.Point(this.x, this.y);
-        this.item.position.x += this.dragOffset.x;
+        /*this.item.position = new paper.Point(this.x, this.y);
+        this.item.position.x += this.dragOffset.x;*/
     }
 
-    _buildTweenDiamond () {
+    _drawTweenDiamond () {
+      /*
         var leftColor;
         var rightColor;
         if (this.model.isSelected) {
@@ -165,9 +151,11 @@ Wick.GUIElement.Tween = class extends Wick.GUIElement {
         } else {
             combined.strokeWidth = 0;
         }
+        */
     }
 
-    _buildTweenArrow () {
+    _drawTweenArrow () {
+      /*
         var nextTween = this.model.getNextTween();
 
         if(!nextTween) return;
@@ -189,27 +177,20 @@ Wick.GUIElement.Tween = class extends Wick.GUIElement {
         arrowLine.locked = true;
 
         this.item.addChild(arrowLine);
+        */
     }
 
-    /**
-     *
-     */
+/*
     get selectedTweens () {
         return this.model.project.selection.getSelectedObjects(Wick.Tween);
     }
 
-    /**
-     *
-     */
     drop () {
         var newPlayheadPosition = Math.floor(this.x / this.gridCellWidth) + Math.round(this.dragOffset.x / this.gridCellWidth);
         this.model.playheadPosition = newPlayheadPosition + 1;
         this.model.project.activeTimeline.playheadPosition = this.model.parentFrame.start + this.model.playheadPosition - 1;
     }
 
-    /**
-     *
-     */
     get draggingTweens () {
         var draggingTweens = [];
         this.model.parentTimeline.frames.forEach(frame => {
@@ -242,4 +223,5 @@ Wick.GUIElement.Tween = class extends Wick.GUIElement {
 
         this.model.project.guiElement.fire('projectModified');
     }
+    */
 }

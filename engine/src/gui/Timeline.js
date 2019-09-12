@@ -33,6 +33,7 @@ Wick.GUIElement.Timeline = class extends Wick.GUIElement {
         super(model);
 
         this.breadcrumbs = new Wick.GUIElement.Breadcrumbs(model);
+        this.actionButtonsContainer = new Wick.GUIElement.ActionButtonsContainer(model);
         this.layersContainer = new Wick.GUIElement.LayersContainer(model);
         this.framesContainer = new Wick.GUIElement.FramesContainer(model);
         this.numberLine = new Wick.GUIElement.NumberLine(model);
@@ -67,6 +68,9 @@ Wick.GUIElement.Timeline = class extends Wick.GUIElement {
             ctx.translate(Wick.GUIElement.LAYERS_CONTAINER_WIDTH, 0);
                 this.numberLine.draw();
             ctx.restore();
+
+            // Action buttons
+            this.actionButtonsContainer.draw();
         ctx.restore();
 
         // Breadcrumbs
