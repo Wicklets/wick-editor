@@ -55,8 +55,4 @@ Wick.GUIElement.LayerButton = class extends Wick.GUIElement.Button {
             height: Wick.GUIElement.LAYER_BUTTON_ICON_RADIUS*2,
         }
     }
-
-    onMouseDown (e) {
-
-    }
 }
