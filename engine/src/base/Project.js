@@ -937,15 +937,24 @@ Wick.Project = class extends Wick.Base {
     }
 
     set activeTool (activeTool) {
+        var newTool;
+
         if(typeof activeTool === 'string') {
             var tool = this.tools[activeTool];
             if(!tool) {
                 console.error('set activeTool: invalid tool: ' + activeTool);
             }
-            this._activeTool = tool;
+            newTool = tool;
         } else {
-            this._activeTool = activeTool;
+            newTool = activeTool;
         }
+
+        // Clear selection if we changed between drawing tools
+        if(newTool.name !== 'pan' && newTool.name !== 'eyedropper') {
+            this.selection.clear();
+        }
+
+        this._activeTool = newTool;
     }
 
     /**

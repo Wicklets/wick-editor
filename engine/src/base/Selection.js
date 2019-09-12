@@ -67,6 +67,37 @@ Wick.Selection = class extends Wick.Base {
     }
 
     /**
+     * The names of all attributes of the selection that can be changed.
+     * @type {string[]}
+     */
+    get allAttributeNames () {
+        return [
+            "strokeWidth",
+            "fillColor",
+            "strokeColor",
+            "name",
+            "filename",
+            "fontSize",
+            "fontFamily",
+            "fontWeight",
+            "fontStyle",
+            "src",
+            "frameLength",
+            "x",
+            "y",
+            "width",
+            "height",
+            "rotation",
+            "opacity",
+            "sound",
+            "soundVolume",
+            "soundStart",
+            "identifier",
+            "easingType",
+        ];
+    }
+
+    /**
      * Add a wick object to the selection.
      * @param {Wick.Base} object - The object to select.
      */
@@ -209,6 +240,65 @@ Wick.Selection = class extends Wick.Base {
         });
         var uniqueTypes = [...new Set(types)];
         return uniqueTypes;
+    }
+
+    /**
+     * A single string describing the contents of the selection.
+     * @type {string}
+     */
+    get selectionType () {
+      let selection = this;
+
+      if(selection.location === 'Canvas') {
+        if(selection.numObjects === 1) {
+          var selectedObject = selection.getSelectedObject();
+          if(selectedObject instanceof window.Wick.Path) {
+            return selectedObject.pathType;
+          } else if(selectedObject instanceof window.Wick.Button) {
+            return 'button';
+          } else if(selectedObject instanceof window.Wick.Clip) {
+            return 'clip';
+          }
+        } else if (selection.types.length === 1) {
+          if (selection.types[0] === 'Path') {
+            return 'multipath';
+          } else {
+            return 'multiclip';
+          }
+        } else {
+          return 'multicanvas';
+        }
+      } else if (selection.location === 'Timeline') {
+        if(selection.numObjects === 1) {
+          if(selection.getSelectedObject() instanceof window.Wick.Frame) {
+            return 'frame';
+          } else if(selection.getSelectedObject() instanceof window.Wick.Layer) {
+            return 'layer';
+          } else if(selection.getSelectedObject() instanceof window.Wick.Tween) {
+            return 'tween';
+          }
+        } else if (selection.types.length === 1) {
+          if(selection.getSelectedObject() instanceof window.Wick.Frame) {
+            return 'multiframe';
+          } else if(selection.getSelectedObject() instanceof window.Wick.Layer) {
+            return 'multilayer';
+          } else if(selection.getSelectedObject() instanceof window.Wick.Tween) {
+            return 'multitween';
+          }
+        } else {
+          return 'multitimeline';
+        }
+      } else if (selection.location === 'AssetLibrary') {
+        if(selection.getSelectedObjects()[0] instanceof window.Wick.ImageAsset) {
+          return 'imageasset';
+        } else if(selection.getSelectedObjects()[0] instanceof window.Wick.SoundAsset) {
+          return 'soundasset';
+        } else {
+          return 'multiassetmixed'
+        }
+      } else {
+        return 'unknown';
+      }
     }
 
     /**
@@ -522,6 +612,14 @@ Wick.Selection = class extends Wick.Base {
      */
     get filename () {
         return this._getSingleAttribute('filename');
+    }
+
+    /**
+     * True if the selection is scriptable.
+     * @type {boolean}
+     */
+    get isScriptable () {
+        return this.numObjects === 1 && this.selectedObjects[0].isScriptable;
     }
 
     _locationOf (object) {

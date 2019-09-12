@@ -1256,4 +1256,14 @@ describe('Wick.Project', function() {
             // TODO
         });
     });
+
+    describe('#activeTool', function () {
+        it('should change active tool', function () {
+            console.error("write me");
+        });
+
+        it('should clear selection when switching between drawing tools', function () {
+            console.error("write me");
+        });
+    });
 });
