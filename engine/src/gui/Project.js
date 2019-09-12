@@ -43,6 +43,8 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
         this._mouseDragStart = {x: 0, y: 0};
         this._mouseDragEnd = {x: 0, y: 0};
         this._mouseDragDelta = {x: 0, y: 0};
+
+        this._dragGhost = null;
     }
 
     /**
@@ -93,6 +95,10 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
 
         ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.model.activeTimeline.guiElement.draw();
+
+        if(this._dragGhost) {
+            this._dragGhost.draw();
+        }
     }
 
     /**
@@ -131,6 +137,12 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
     _onMouseDown (e) {
         if(this.mouseHoverTarget) {
             this.mouseHoverTarget.onMouseDown(e);
+
+            var dragGhostClassname = this.mouseHoverTarget.dragGhostClassname;
+            if(dragGhostClassname) {
+                this._dragGhost = new Wick.GUIElement[dragGhostClassname](this.mouseHoverTarget.model);
+            }
+
             this._mouseDragTarget = this.mouseHoverTarget;
             this._mouseDragStart = this._mouseDragTarget.localMouse;
             this._mouseDragEnd = this._mouseDragTarget.localMouse;
@@ -141,9 +153,7 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
     }
 
     _onMouseUp (e) {
-        if(this._mouseDragTarget) {
-            this._mouseDragTarget.onMouseUp(e);
-        }
+        this._dragGhost = null;
         this._mouseDragTarget = null;
         this._mouseDragStart = {x: 0, y: 0};
         this._mouseDragEnd = {x: 0, y: 0};

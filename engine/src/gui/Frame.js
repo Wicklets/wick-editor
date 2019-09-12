@@ -22,6 +22,10 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement {
         super(model);
     }
 
+    get dragGhostClassname () {
+        return 'FrameGhost';
+    }
+
     draw () {
         super.draw();
 
@@ -62,18 +66,6 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement {
         } else if (this.model.tweens.length > 0) {
             //tweens
         }
-
-        // Dragging ghost
-        if(this.mouseState === 'down') {
-            ctx.fillStyle = Wick.GUIElement.FRAME_GHOST_COLOR;
-
-            var x = Math.round(this.project._mouseDragDelta.x / this.gridCellWidth) * this.gridCellWidth;
-            var y = Math.round(this.project._mouseDragDelta.y / this.gridCellHeight) * this.gridCellHeight;
-
-            ctx.beginPath();
-            ctx.roundRect(x, y, this.model.length * this.gridCellWidth, this.gridCellHeight, Wick.GUIElement.FRAME_BORDER_RADIUS);
-            ctx.fill();
-        }
     }
 
     get bounds () {
@@ -88,10 +80,6 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement {
     onMouseDown (e) {
         this.model.project.selection.clear();
         this.model.project.selection.select(this.model);
-    }
-
-    onMouseUp (e) {
-        console.log(Math.round(this.project._mouseDragDelta.x / this.gridCellWidth));
     }
 
   /*
