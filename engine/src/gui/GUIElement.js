@@ -142,6 +142,7 @@ Wick.GUIElement = class {
      * Draw and update mouse state for this GUIElement
      */
     draw () {
+        this.localTranslation = this.translation;
         if(this.mouseInBounds) {
             this.project._mouseHoverTargets.push(this);
         }

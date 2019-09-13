@@ -135,6 +135,13 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
         };
 
         this.draw();
+
+        // Draw tooltips
+        this._mouseHoverTargets.forEach(target => {
+            if(target.tooltip) {
+                target.tooltip.draw(target.localTranslation.x, target.localTranslation.y);
+            }
+        });
     }
 
     _onMouseDown (e) {

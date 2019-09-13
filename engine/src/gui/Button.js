@@ -30,6 +30,10 @@ Wick.GUIElement.Button = class extends Wick.GUIElement {
         if(!args) args = {};
         this._clickFn = args.clickFn;
         this._tooltip = args.tooltip;
+
+        if(this._tooltip) {
+            this.tooltip = new Wick.GUIElement.Tooltip(this.model, this._tooltip);
+        }
     }
 
     draw () {

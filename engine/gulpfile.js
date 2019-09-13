@@ -104,6 +104,7 @@ gulp.task("default", function() {
       'src/view/View.Path.js',
       'src/gui/GUIElement.js',
       'src/gui/Button.js',
+      'src/gui/Icons.js',
       'src/gui/ActionButton.js',
       'src/gui/ActionButtonsContainer.js',
       'src/gui/Breadcrumbs.js',

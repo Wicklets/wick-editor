@@ -17,17 +17,41 @@
  * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-Wick.GUIElement.Tooltop = class extends Wick.GUIElement {
+Wick.GUIElement.Tooltip = class extends Wick.GUIElement {
     constructor (model, label) {
         super(model);
 
         this.label = label;
     };
 
-    draw () {
+    draw (x, y) {
         super.draw();
 
         var ctx = this.ctx;
-        
+
+        // Label text settings
+        ctx.font = "14px Nunito Sans";
+        var textContent = this.label;
+        var textWidth = ctx.measureText(textContent).width;
+        var textHeight = 14;
+
+        ctx.save();
+        var tx = x - textWidth/2;
+        var ty = y + textHeight;
+        if(tx < 3) tx = 3;
+        ctx.translate(tx, ty);
+
+            // Body
+            var margin = 4;
+            ctx.fillStyle = '#3878AF';
+            ctx.beginPath();
+            ctx.roundRect(-margin/2, -margin/2, textWidth+margin, textHeight+margin, Wick.GUIElement.FRAME_BORDER_RADIUS);
+            ctx.fill();
+
+            // Label text
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillText(textContent, 0, 12);
+
+        ctx.restore();
     }
 };
