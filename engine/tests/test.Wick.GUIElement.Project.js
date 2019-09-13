@@ -7,6 +7,9 @@ describe('Wick.GUIElement.Project', function() {
         parentClip.activeFrame.addClip(childClip);
         project.focus = childClip;
 
+        project.activeTimeline.playheadPosition = 3;
+        project.onionSkinEnabled = true;
+
         project.activeLayer.addFrame(new Wick.Frame({start: 2}));
         project.activeLayer.addFrame(new Wick.Frame({start: 3}));
         project.activeLayer.getFrameAtPlayheadPosition(1).addClip(new Wick.Clip());

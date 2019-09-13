@@ -79,12 +79,12 @@ Wick.GUIElement.Layer = class extends Wick.GUIElement {
         // Buttons
         ctx.save();
         ctx.translate(20, 20);
-            this.hideButton.draw('eye_open', false);
+            this.hideButton.draw(this.model.hidden ? 'eye_closed' : 'eye_open', this.model.hidden);
         ctx.restore();
 
         ctx.save();
         ctx.translate(40, 20);
-            this.lockButton.draw('lock_open', false);
+            this.lockButton.draw(this.model.locked ? 'lock_closed' : 'lock_open', this.model.locked);
         ctx.restore();
     }
 

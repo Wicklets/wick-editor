@@ -22,7 +22,8 @@ Wick.GUIElement.NumberLine = class extends Wick.GUIElement {
         super(model);
 
         this.playhead = new Wick.GUIElement.Playhead(model);
-        this.onionSkinRange = new Wick.GUIElement.OnionSkinRange(model);
+        this.onionSkinRangeLeft = new Wick.GUIElement.OnionSkinRange(model, 'left');
+        this.onionSkinRangeRight = new Wick.GUIElement.OnionSkinRange(model, 'right');
     }
 
     draw () {
@@ -36,18 +37,20 @@ Wick.GUIElement.NumberLine = class extends Wick.GUIElement {
         ctx.beginPath();
         ctx.rect(0, 0, width, height);
         ctx.fill();
-        ctx.stroke();
 
         // Draw number line cells
         for(var i = -1; i < width / this.gridCellWidth + 1; i++) {
             this._drawCell(i);
         }
 
+        // Draw onion skin range
+        if(this.model.project.onionSkinEnabled) {
+            this.onionSkinRangeLeft.draw();
+            this.onionSkinRangeRight.draw();
+        }
+
         // Draw playhead
         this.playhead.draw();
-
-        // Draw onion skin range
-        this.onionSkinRange.draw();
     }
 
     _drawCell (i) {

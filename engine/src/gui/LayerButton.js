@@ -18,8 +18,8 @@
  */
 
 Wick.GUIElement.LayerButton = class extends Wick.GUIElement.Button {
-    constructor (model) {
-        super(model);
+    constructor (model, args) {
+        super(model, args);
     }
 
     /**
