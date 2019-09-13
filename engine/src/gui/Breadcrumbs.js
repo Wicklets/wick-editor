@@ -40,7 +40,7 @@ Wick.GUIElement.Breadcrumbs = class extends Wick.GUIElement {
         ctx.fill();
 
         // Generate buttons for each Clip in the lineage
-        var lastButton = null;
+        var totalWidth = 0;
         this.model.project.focus.lineage.reverse().forEach(clip => {
             var button = this._buttons[clip.uuid];
 
@@ -49,14 +49,11 @@ Wick.GUIElement.Breadcrumbs = class extends Wick.GUIElement {
                 this._buttons[clip.uuid] = button;
             }
 
-            button.draw();
-
-            /*
-            if(lastButton) {
-                button.item.position.x = lastButton.item.bounds.right;
-            };
-            */
-            lastButton = button;
+            ctx.save();
+            ctx.translate(totalWidth, 0);
+                button.draw();
+            ctx.restore();
+            totalWidth += button.buttonWidth;
         });
     };
 };

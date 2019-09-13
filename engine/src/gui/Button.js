@@ -27,16 +27,7 @@ Wick.GUIElement.Button = class extends Wick.GUIElement {
     constructor (model, args) {
         super(model);
 
-        if(!args) {
-            console.error("Warning: Wick.GUIElement.Button: args is required")
-        }
-        if(!args.clickFn) {
-            console.error("Warning: Wick.GUIElement.Button: args.clickFn is required")
-        }
-        if(!args.tooltip) {
-            console.error("Warning: Wick.GUIElement.Button: args.tooltip is required")
-        }
-
+        if(!args) args = {};
         this._clickFn = args.clickFn;
         this._tooltip = args.tooltip;
     }

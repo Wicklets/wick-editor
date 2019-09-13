@@ -39,7 +39,7 @@ Wick.GUIElement.LayerButton = class extends Wick.GUIElement.Button {
             fillColor = Wick.GUIElement.LAYER_BUTTON_HOVER_COLOR;
         } else if (isToggled) {
             fillColor = Wick.GUIElement.LAYER_BUTTON_TOGGLE_ACTIVE_COLOR;
-        } else if (isToggled) {
+        } else {
             fillColor = Wick.GUIElement.LAYER_BUTTON_TOGGLE_INACTIVE_COLOR;
         }
         ctx.fillStyle = fillColor;

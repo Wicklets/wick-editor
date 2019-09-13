@@ -19,9 +19,11 @@
 
 Wick.GUIElement.BreadcrumbsButton = class extends Wick.GUIElement.Button {
     constructor (model) {
-        super(model, null, () => {
-            console.log('focus this clip, please:')
-            console.log(model)
+        super(model, {
+            clickFn: () => {
+                console.log('focus this clip, please:')
+                console.log(model)
+            }
         });
     };
 
@@ -50,6 +52,8 @@ Wick.GUIElement.BreadcrumbsButton = class extends Wick.GUIElement.Button {
         }
 
         var buttonWidth = textWidth + Wick.GUIElement.BREADCRUMBS_PADDING*2;
+        this.buttonWidth = buttonWidth; // Save how large the button is to use in other places...
+
         ctx.fillStyle = buttonBodyColor;
         ctx.beginPath();
         ctx.roundRect(0, 0, buttonWidth, Wick.GUIElement.BREADCRUMBS_HEIGHT, Wick.GUIElement.FRAME_BORDER_RADIUS);
@@ -70,5 +74,14 @@ Wick.GUIElement.BreadcrumbsButton = class extends Wick.GUIElement.Button {
         // Button label
         ctx.fillStyle = '#BBBBBB';
         ctx.fillText(textContent, textX, textY);
+    }
+
+    get bounds () {
+        return {
+            x: 0,
+            y: 0,
+            width: this.buttonWidth,
+            height: Wick.GUIElement.BREADCRUMBS_HEIGHT,
+        }
     }
 };

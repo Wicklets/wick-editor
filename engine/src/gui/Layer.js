@@ -25,13 +25,15 @@ Wick.GUIElement.Layer = class extends Wick.GUIElement {
             tooltip: 'Show/Hide Layer',
             clickFn: () => {
                 console.log('asdas');
-            });
-            
+            }
+        });
+
         this.lockButton = new Wick.GUIElement.LayerButton(model, {
             tooltip: 'Lock/Unlock Layer',
             clickFn: () => {
                 console.log('asdas2');
-            });
+            }
+        });
     }
 
     draw () {
@@ -77,12 +79,12 @@ Wick.GUIElement.Layer = class extends Wick.GUIElement {
         // Buttons
         ctx.save();
         ctx.translate(20, 20);
-            this.hideButton.draw();
+            this.hideButton.draw('eye_open', false);
         ctx.restore();
 
         ctx.save();
         ctx.translate(40, 20);
-            this.lockButton.draw();
+            this.lockButton.draw('lock_open', false);
         ctx.restore();
     }
 

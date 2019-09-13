@@ -1,6 +1,12 @@
 describe('Wick.GUIElement.Project', function() {
     it('should render frames correctly', function () {
         var project = new Wick.Project();
+        var parentClip = new Wick.Clip({identifier: 'Parent clip'});
+        var childClip = new Wick.Clip({identifier: 'Child clip'});
+        project.activeFrame.addClip(parentClip);
+        parentClip.activeFrame.addClip(childClip);
+        project.focus = childClip;
+
         project.activeLayer.addFrame(new Wick.Frame({start: 2}));
         project.activeLayer.addFrame(new Wick.Frame({start: 3}));
         project.activeLayer.getFrameAtPlayheadPosition(1).addClip(new Wick.Clip());
