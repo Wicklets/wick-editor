@@ -47,10 +47,6 @@ Wick.GUIElement.Scrollbar = class extends Wick.GUIElement {
         */
     }
 
-    onMouseDrag () {
-        console.log('a')
-    }
-
     get bounds () {
         var width = this.canvas.width - this.localTranslation.x;
         var height = this.canvas.height - this.localTranslation.y;

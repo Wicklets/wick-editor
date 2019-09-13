@@ -156,13 +156,6 @@ Wick.GUIElement = class {
     }
 
     /**
-     * Function to call when this GUIElement is dragged.
-     */
-    onMouseDrag (e) {
-        // Implemeneted by subclasses
-    }
-
-    /**
      * The classname of the ghost object to create when this object is dragged.
      * @type {string}
      */
