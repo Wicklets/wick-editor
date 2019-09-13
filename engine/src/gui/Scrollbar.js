@@ -18,29 +18,58 @@
  */
 
 Wick.GUIElement.Scrollbar = class extends Wick.GUIElement {
-    constructor (model) {
+    constructor (model, direction) {
         super(model);
+
+        this.direction = direction;
     }
 
     draw () {
+        super.draw();
+
         var ctx = this.ctx;
 
-        /*
-        this.grabber.containerWidth = this.width;
-        // Always show scrollbar for now.
-        if(this.grabber.grabberWidth > this.grabber.contentWidth) {
-            return;
+        // Background
+        ctx.fillStyle = this.mouseState === 'over' ? 'red' : Wick.GUIElement.SCROLLBAR_BACKGROUND_COLOR;
+        ctx.beginPath();
+        if(this.direction === 'horizontal') {
+            ctx.rect(0, 0, this.canvas.width - this.localTranslation.x - Wick.GUIElement.SCROLLBAR_SIZE, Wick.GUIElement.SCROLLBAR_SIZE);
+        } else if (this.direction === 'vertical') {
+            ctx.rect(0, 0, Wick.GUIElement.SCROLLBAR_SIZE, this.canvas.height - this.localTranslation.y - Wick.GUIElement.SCROLLBAR_SIZE);
         }
+        ctx.fill();
 
-        var scrollbar = new this.paper.Path.Rectangle({
-            from: new this.paper.Point(0, 0),
-            to: new this.paper.Point(this.width, Wick.GUIElement.SCROLLBAR_SIZE),
-            fillColor: Wick.GUIElement.SCROLLBAR_BACKGROUND_COLOR,
-        });
-        this.item.addChild(scrollbar);
-
-        this.grabber.build();
-        this.item.addChild(this.grabber.item);
+        // Background corner piece
+        /*
+        ctx.beginPath();
+        ctx.roundRect(width-size, height-size, width, height, 0);
+        ctx.fill();
         */
+    }
+
+    onMouseDrag () {
+        console.log('a')
+    }
+
+    get bounds () {
+        var width = this.canvas.width - this.localTranslation.x;
+        var height = this.canvas.height - this.localTranslation.y;
+        var size = Wick.GUIElement.SCROLLBAR_SIZE;
+
+        if(this.direction === 'horizontal') {
+            return {
+                x: 0,
+                y: 0,
+                width: width - size,
+                height: size
+            };
+        } else if(this.direction === 'vertical') {
+            return {
+                x: 0,
+                y: 0,
+                width: size,
+                height: height - size
+            };
+        }
     }
 }

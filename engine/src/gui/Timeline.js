@@ -37,16 +37,16 @@ Wick.GUIElement.Timeline = class extends Wick.GUIElement {
         this.layersContainer = new Wick.GUIElement.LayersContainer(model);
         this.framesContainer = new Wick.GUIElement.FramesContainer(model);
         this.numberLine = new Wick.GUIElement.NumberLine(model);
-        this.horizontalScrollbar = new Wick.GUIElement.Scrollbar(model);
-        this.horizontalScrollbar.direction = 'horizontal';
-        this.verticalScrollbar = new Wick.GUIElement.Scrollbar(model);
-        this.verticalScrollbar.direction = 'vertical';
+        this.horizontalScrollbar = new Wick.GUIElement.Scrollbar(model, 'horizontal');
+        this.verticalScrollbar = new Wick.GUIElement.Scrollbar(model, 'vertical');
     }
 
     /**
      * Draw this GUIElement
      */
     draw () {
+        super.draw();
+
         var ctx = this.ctx;
 
         ctx.save();
@@ -56,7 +56,10 @@ Wick.GUIElement.Timeline = class extends Wick.GUIElement {
                 // Frames
                 ctx.save();
                 ctx.translate(Wick.GUIElement.LAYERS_CONTAINER_WIDTH, 0);
-                    this.framesContainer.draw();
+                    ctx.save();
+                    ctx.translate(-this.project.scrollX, this.project.scrollY);
+                        this.framesContainer.draw();
+                    ctx.restore();
                 ctx.restore();
 
                 // Layers
@@ -71,6 +74,20 @@ Wick.GUIElement.Timeline = class extends Wick.GUIElement {
 
             // Action buttons
             this.actionButtonsContainer.draw();
+        ctx.restore();
+
+        // Scrollbars
+        ctx.save();
+        ctx.translate(Wick.GUIElement.LAYERS_CONTAINER_WIDTH, Wick.GUIElement.BREADCRUMBS_HEIGHT + Wick.GUIElement.NUMBER_LINE_HEIGHT);
+            ctx.save();
+            ctx.translate(0, this.canvas.height - this.translation.y - Wick.GUIElement.SCROLLBAR_SIZE);
+                this.horizontalScrollbar.draw();
+            ctx.restore();
+
+            ctx.save();
+            ctx.translate(this.canvas.width - this.translation.x - Wick.GUIElement.SCROLLBAR_SIZE, 0);
+                this.verticalScrollbar.draw();
+            ctx.restore();
         ctx.restore();
 
         // Breadcrumbs

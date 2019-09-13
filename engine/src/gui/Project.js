@@ -43,6 +43,9 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
         this._mouseDragTargets = [];
         this._dragGhosts = [];
 
+        this._scrollX = 0;
+        this._scrollY = 0;
+
         Wick.GUIElement.Icons.loadIcon('eye_open', Wick.GUIElement.LAYER_LABEL_SHOW_BUTTON_ICON);
         Wick.GUIElement.Icons.loadIcon('eye_closed', Wick.GUIElement.LAYER_LABEL_HIDDEN_BUTTON_ICON);
         Wick.GUIElement.Icons.loadIcon('lock_open', Wick.GUIElement.LAYER_LABEL_UNLOCK_BUTTON_ICON);
@@ -124,6 +127,30 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
      */
     get mouseDragTargets () {
         return this._mouseDragTargets;
+    }
+
+    /**
+     * The amount the timeline is scrolled horizontally.
+     * @type {number}
+     */
+    get scrollX () {
+        return this._scrollX;
+    }
+
+    set scrollX (scrollX) {
+        this._scrollX = scrollX;
+    }
+
+    /**
+     * The amount the timeline is scrolled vertically.
+     * @type {number}
+     */
+    get scrollY () {
+        return this._scrollY;
+    }
+
+    set scrollY (scrollY) {
+        this._scrollY = scrollY;
     }
 
     _onMouseMove (e) {
