@@ -33,10 +33,10 @@ Wick.GUIElement.ActionButton = class extends Wick.GUIElement.Button {
         if (this.mouseState == 'over') {
             ctx.fillStyle = Wick.GUIElement.ACTION_BUTTON_COLOR;
         } else {
-            ctx.fillStyle = Wick.GUIElement.ACTION_BUTTON_HOVER_COLOR;
+            ctx.fillStyle = Wick.GUIElement.TIMELINE_BACKGROUND_COLOR;
         }
         ctx.beginPath();
-        ctx.arc(0, 0, Wick.GUIElement.LAYER_BUTTON_ICON_RADIUS, 0, 2 * Math.PI);
+        ctx.arc(0, 0, Wick.GUIElement.ACTION_BUTTON_RADIUS, 0, 2 * Math.PI);
         ctx.fill();
 
         // Icon

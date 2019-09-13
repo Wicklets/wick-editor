@@ -23,7 +23,7 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
 
         this.deleteFrameButton = new Wick.GUIElement.ActionButton(this.model, {
             tooltip: 'Delete',
-            icon: 'eye_open',
+            icon: 'trashcan',
             clickFn: () => {
                 console.log('delete frame')
             }
