@@ -18,8 +18,8 @@
  */
 
 Wick.GUIElement.LayerButton = class extends Wick.GUIElement.Button {
-    constructor (model, tooltip, actionFn) {
-        super(model, tooltip, actionFn);
+    constructor (model) {
+        super(model);
     }
 
     /**
@@ -55,11 +55,12 @@ Wick.GUIElement.LayerButton = class extends Wick.GUIElement.Button {
     }
 
     get bounds () {
+        var r = Wick.GUIElement.LAYER_BUTTON_ICON_RADIUS;
         return {
-            x: -Wick.GUIElement.LAYER_BUTTON_ICON_RADIUS,
-            y: -Wick.GUIElement.LAYER_BUTTON_ICON_RADIUS,
-            width: Wick.GUIElement.LAYER_BUTTON_ICON_RADIUS*2,
-            height: Wick.GUIElement.LAYER_BUTTON_ICON_RADIUS*2,
+            x: -r,
+            y: -r,
+            width: r * 2,
+            height: r * 2,
         }
     }
 }

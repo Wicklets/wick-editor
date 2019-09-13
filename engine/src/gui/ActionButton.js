@@ -18,13 +18,39 @@
  */
 
 Wick.GUIElement.ActionButton = class extends Wick.GUIElement.Button {
-    constructor (model) {
-        super(model);
+    constructor (model, args) {
+        super(model, args);
+
+        this.icon = args.icon;
     };
 
-    draw () {
+    draw (icon) {
+        super.draw();
+
         var ctx = this.ctx;
 
+        // Circle
+        if (this.mouseState == 'over') {
+            ctx.fillStyle = Wick.GUIElement.ACTION_BUTTON_COLOR;
+        } else {
+            ctx.fillStyle = Wick.GUIElement.ACTION_BUTTON_HOVER_COLOR;
+        }
+        ctx.beginPath();
+        ctx.arc(0, 0, Wick.GUIElement.LAYER_BUTTON_ICON_RADIUS, 0, 2 * Math.PI);
+        ctx.fill();
 
+        // Icon
+        var r = Wick.GUIElement.ACTION_BUTTON_RADIUS * 0.8;
+        ctx.drawImage(Wick.GUIElement.Icons.getIcon(this.icon), -r, -r, r*2, r*2);
     };
+
+    get bounds () {
+        var r = Wick.GUIElement.ACTION_BUTTON_RADIUS;
+        return {
+            x: -r,
+            y: -r,
+            width: r * 2,
+            height: r * 2,
+        }
+    }
 };

@@ -20,6 +20,14 @@
 Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
     constructor (model) {
         super(model);
+
+        this.deleteFrameButton = new Wick.GUIElement.ActionButton(this.model, {
+            tooltip: 'Delete',
+            icon: 'eye_open',
+            clickFn: () => {
+                console.log('delete frame')
+            }
+        });
     };
 
     draw () {
@@ -30,5 +38,11 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
         ctx.beginPath();
         ctx.rect(0, 0, Wick.GUIElement.LAYERS_CONTAINER_WIDTH, Wick.GUIElement.NUMBER_LINE_HEIGHT);
         ctx.fill();
+
+        // Delete frame button
+        ctx.save();
+        ctx.translate(20, 20);
+            this.deleteFrameButton.draw();
+        ctx.restore();
     };
 };
