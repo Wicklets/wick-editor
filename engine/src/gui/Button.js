@@ -18,23 +18,27 @@
  */
 
 Wick.GUIElement.Button = class extends Wick.GUIElement {
-    constructor (model, iconSrc, actionFn) {
+    /**
+     * Create a new button.
+     * @param {Wick.Base} model - See Wick.GUIElement constructor
+     * @param {function} clickFn - The function to call when the button is clicked
+     * @param {string} tooltip - (Optional) The title of the tooltip
+     */
+    constructor (model, args) {
         super(model);
 
-        if(iconSrc) {
-            var svgContainer = document.createElement('div');
-            svgContainer.innerHTML = iconSrc;
-            var xml = new XMLSerializer().serializeToString(svgContainer.children[0]);
-            var svg64 = btoa(xml);
-            var b64Start = 'data:image/svg+xml;base64,';
-            var image64 = b64Start + svg64;
-
-            this.icon = new Image();
-            this.icon.src = image64;
+        if(!args) {
+            console.error("Warning: Wick.GUIElement.Button: args is required")
+        }
+        if(!args.clickFn) {
+            console.error("Warning: Wick.GUIElement.Button: args.clickFn is required")
+        }
+        if(!args.tooltip) {
+            console.error("Warning: Wick.GUIElement.Button: args.tooltip is required")
         }
 
-        this.actionFn = actionFn;
-
+        this._clickFn = args.clickFn;
+        this._tooltip = args.tooltip;
     }
 
     draw () {
@@ -42,6 +46,6 @@ Wick.GUIElement.Button = class extends Wick.GUIElement {
     }
 
     onMouseDown (e) {
-        this.actionFn(e);
+        this._clickFn(e);
     }
 }

@@ -21,8 +21,17 @@ Wick.GUIElement.Layer = class extends Wick.GUIElement {
     constructor (model) {
         super(model);
 
-        this.hideButton = new Wick.GUIElement.LayerButton(model, Wick.GUIElement.LAYER_LABEL_SHOW_BUTTON_ICON, () => {console.log('asdas')});
-        this.lockButton = new Wick.GUIElement.LayerButton(model, Wick.GUIElement.LAYER_LABEL_UNLOCK_BUTTON_ICON, () => {});
+        this.hideButton = new Wick.GUIElement.LayerButton(model, {
+            tooltip: 'Show/Hide Layer',
+            clickFn: () => {
+                console.log('asdas');
+            });
+            
+        this.lockButton = new Wick.GUIElement.LayerButton(model, {
+            tooltip: 'Lock/Unlock Layer',
+            clickFn: () => {
+                console.log('asdas2');
+            });
     }
 
     draw () {

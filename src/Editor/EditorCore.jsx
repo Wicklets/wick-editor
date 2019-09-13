@@ -428,7 +428,6 @@ class EditorCore extends Component {
    *    Calling this function with false ensures user doesn't accidentally wrap a Clip within another Clip.
    */
   createClipFromSelection = (name, wrapSingularClip = true) => {
-
     if (this.project.selection.numObjects === 0) {
       console.log("No selection from which to create clips.");
       return;
@@ -731,7 +730,6 @@ class EditorCore extends Component {
   dropSoundOntoTimeline = (uuid, x, y) => {
       this.project.guiElement.dropAssetAtPosition(uuid, x, y);
   }
-
 
   /**
    * Attempts to import an arbitrary asset to the project. Displays an error or success message

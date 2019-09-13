@@ -18,11 +18,16 @@
  */
 
 Wick.GUIElement.LayerButton = class extends Wick.GUIElement.Button {
-    constructor (model, iconSrc, actionFn) {
-        super(model, iconSrc, actionFn);
+    constructor (model, tooltip, actionFn) {
+        super(model, tooltip, actionFn);
     }
 
-    draw () {
+    /**
+     * Draw this layer button.
+     * @param {string} icon - The name of the icon to draw.
+     * @param {boolean} isToggled - Should the button be toggled?
+     */
+    draw (icon, isToggled) {
         super.draw();
 
         var ctx = this.ctx;
@@ -32,7 +37,9 @@ Wick.GUIElement.LayerButton = class extends Wick.GUIElement.Button {
             fillColor = Wick.GUIElement.LAYER_BUTTON_MOUSEDOWN_COLOR;
         } else if (this.mouseState == 'over') {
             fillColor = Wick.GUIElement.LAYER_BUTTON_HOVER_COLOR;
-        } else {
+        } else if (isToggled) {
+            fillColor = Wick.GUIElement.LAYER_BUTTON_TOGGLE_ACTIVE_COLOR;
+        } else if (isToggled) {
             fillColor = Wick.GUIElement.LAYER_BUTTON_TOGGLE_INACTIVE_COLOR;
         }
         ctx.fillStyle = fillColor;
@@ -43,7 +50,7 @@ Wick.GUIElement.LayerButton = class extends Wick.GUIElement.Button {
 
         var r = Wick.GUIElement.LAYER_BUTTON_ICON_RADIUS * 0.8;
         ctx.globalAlpha = 0.5;
-        ctx.drawImage(this.icon, -r, -r, r*2, r*2);
+        ctx.drawImage(Wick.GUIElement.Icons.getIcon(icon), -r, -r, r*2, r*2);
         ctx.globalAlpha = 1.0;
     }
 

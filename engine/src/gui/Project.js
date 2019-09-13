@@ -42,6 +42,11 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
         this._mouseHoverTargets = [];
         this._mouseDragTargets = [];
         this._dragGhosts = [];
+
+        Wick.GUIElement.Icons.loadIcon('eye_open', Wick.GUIElement.LAYER_LABEL_SHOW_BUTTON_ICON);
+        Wick.GUIElement.Icons.loadIcon('eye_closed', Wick.GUIElement.LAYER_LABEL_HIDDEN_BUTTON_ICON);
+        Wick.GUIElement.Icons.loadIcon('lock_open', Wick.GUIElement.LAYER_LABEL_LOCK_BUTTON_ICON);
+        Wick.GUIElement.Icons.loadIcon('lock_closed', Wick.GUIElement.LAYER_LABEL_UNLOCK_BUTTON_ICON);
     }
 
     /**
@@ -53,7 +58,7 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
 
     set canvasContainer (canvasContainer) {
         this._canvasContainer = canvasContainer;
-        
+
         if(this._canvas !== this._canvasContainer.children[0]) {
             this._canvasContainer.innerHTML = '';
             this._canvasContainer.appendChild(this._canvas);
