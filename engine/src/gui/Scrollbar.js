@@ -67,6 +67,8 @@ Wick.GUIElement.Scrollbar = class extends Wick.GUIElement {
             ctx.translate(0, pos.y);
         }
 
+        this.grabber.scrollRatioX = this.project.horizontalScrollSpace / (this.maxWidth - Wick.GUIElement.SCROLLBAR_HORIZONTAL_LENGTH);
+        this.grabber.scrollRatioY = this.project.verticalScrollSpace / (this.maxHeight - Wick.GUIElement.SCROLLBAR_VERTICAL_LENGTH);
         this.grabber.draw();
 
         ctx.restore();
