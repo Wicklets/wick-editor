@@ -38,10 +38,10 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
         this._canvasContainer.style.height = "100%";
         this._canvasContainer.appendChild(this._canvas);
 
+        this._drawnElements = [];
+
         this._mouse = {x: 0, y: 0};
         this._mouseHoverTargets = [];
-        this._mouseDragTargets = [];
-        this._dragGhosts = [];
 
         this._scrollX = 0;
         this._scrollY = 0;
@@ -99,34 +99,27 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
         // Make sure canvas is the correct size
         this.resize();
 
-        // Reset mouse state stuff
-        this._mouseHoverTargets = [];
+        // Reset drawn objects list
+        this._drawnElements = [];
 
         // Draw the entire GUI
         ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.model.activeTimeline.guiElement.draw();
 
-        // Draw the drag ghosts
-        this._dragGhosts.forEach(dragGhost => {
-            dragGhost.draw();
+        // Draw tooltips
+        this._mouseHoverTargets.forEach(target => {
+            if(target.tooltip) {
+                target.tooltip.draw(target.localTranslation.x, target.localTranslation.y);
+            }
         });
     }
 
     /**
-     * The topmost GUIElement that the mouse is hovering over.
-     * @type {Wick.GUIElement}
+     * Add a GUIElement to the list of objects that were drawn in the last draw call.
+     * @param {Wick.GUIElement} elem - the GUIElement to add
      */
-    get mouseHoverTarget () {
-        var l = this._mouseHoverTargets.length;
-        return this._mouseHoverTargets[l - 1];
-    }
-
-    /**
-     * The GUIElements that are currently being dragged.
-     * @type {Wick.GUIElement}
-     */
-    get mouseDragTargets () {
-        return this._mouseDragTargets;
+    markElementAsDrawn (elem) {
+        this._drawnElements.push(elem);
     }
 
     /**
@@ -161,34 +154,23 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
             y: e.clientY - rect.top
         };
 
-        this.draw();
+        // Update mouse targets
+        if(e.buttons === 0) {
+            this._mouseHoverTargets = this._drawnElements.filter(elem => {
+                return elem.mouseInBounds(this._mouse);
+            });
+        }
 
-        // Draw tooltips
-        this._mouseHoverTargets.forEach(target => {
-            if(target.tooltip) {
-                target.tooltip.draw(target.localTranslation.x, target.localTranslation.y);
-            }
-        });
+        this.draw();
     }
 
     _onMouseDown (e) {
-        if(this.mouseHoverTarget) {
-            // Call the mousedown function for the object that we just clicked on
-            this.mouseHoverTarget.onMouseDown(e);
+        this._mouseHoverTargets.forEach(elem => {
+            elem.onMouseDown(e);
+        });
 
-            // Generate list of objects being dragged
-            this._mouseDragTargets = this.model.selection.getSelectedObjects().map(object => {
-                return object.guiElement;
-            });
-
-            // Create drag ghosts
-            this._dragGhosts = this._mouseDragTargets.filter(dragTarget => {
-                return dragTarget.dragGhostClassname;
-            }).map(dragTarget => {
-                return new Wick.GUIElement[dragTarget.dragGhostClassname](dragTarget.model);
-            });
-        } else {
-            // Clicked on nothing, clear the selection
+        // Clicked nothing - clear the selection
+        if(this._mouseHoverTargets.length === 0) {
             this.model.selection.clear();
         }
 
@@ -196,9 +178,6 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
     }
 
     _onMouseUp (e) {
-        // Reset all mouse state stuff
-        this._dragGhosts = [];
-        this._mouseDragTargets = [];
-        this.draw();
+        this._onMouseMove(e);
     }
 }

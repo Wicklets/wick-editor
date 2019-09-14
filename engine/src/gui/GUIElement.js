@@ -65,12 +65,20 @@ Wick.GUIElement = class {
      * https://github.com/goessner/canvas-currentTransform
      * @type {object}
      */
-    get translation () {
+    get currentTranslation () {
         var transform = this.ctx.currentTransform;
         return {
             x: transform.e,
             y: transform.f,
         };
+    }
+
+    /**
+     * A copy of the transformation of the canvas when this object was drawn.
+     * @type {object}
+     */
+    get localTranslation () {
+        return this._localTranslation;
     }
 
     /**
@@ -95,43 +103,37 @@ Wick.GUIElement = class {
      */
     get bounds () {
         // Implemeneted by subclasses
-        return {
-            x: 0,
-            y: 0,
-            width: 0,
-            height: 0,
-        }
-    }
-
-    /**
-     * The current position of the mouse relative to this GUIElement.
-     * @type {object}
-     */
-    get localMouse () {
-        var translation = this.translation;
-        return {
-            x: this.project._mouse.x - translation.x,
-            y: this.project._mouse.y - translation.y,
-        }
+        return null;
     }
 
     /**
      * Checks if this object is touching the mouse.
-     * @type {boolean}
+     * @returns {boolean}
      */
-    get mouseInBounds () {
+    mouseInBounds (mouse) {
+        if(!this.bounds) return false;
+
+        var translation = this.localTranslation;
+        var localMouse = {
+            x: mouse.x - translation.x,
+            y: mouse.y - translation.y,
+        };
+
         var bounds = this.bounds;
-        var mouse = this.localMouse;
-        return mouse.x > bounds.x &&
-               mouse.y > bounds.y &&
-               mouse.x < bounds.x + bounds.width &&
-               mouse.y < bounds.y + bounds.height;
+        return localMouse.x > bounds.x &&
+               localMouse.y > bounds.y &&
+               localMouse.x < bounds.x + bounds.width &&
+               localMouse.y < bounds.y + bounds.height;
     }
 
+    /**
+     * Check if the mouse is hovering or clicking this element.
+     * @type {string}
+     */
     get mouseState () {
-        if(this.project.mouseDragTargets.indexOf(this) !== -1) {
+        /*if(this.project.mouseDragTargets.indexOf(this) !== -1) {
             return 'down';
-        } else if(this === this.project.mouseHoverTarget) {
+        } else */if(this.project._mouseHoverTargets.indexOf(this) !== -1) {
             return 'over';
         } else {
             return 'out';
@@ -139,20 +141,11 @@ Wick.GUIElement = class {
     }
 
     /**
-     * Draw and update mouse state for this GUIElement
+     * Draw this GUIElement
      */
     draw () {
-        this.localTranslation = this.translation;
-        if(this.mouseInBounds) {
-            this.project._mouseHoverTargets.push(this);
-        }
-    }
-
-    /**
-     * Function to call when this GUIElement is clicked.
-     */
-    onMouseDown (e) {
-        // Implemeneted by subclasses
+        this._localTranslation = this.currentTranslation;
+        this.project.markElementAsDrawn(this);
     }
 
     /**

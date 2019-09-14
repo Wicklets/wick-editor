@@ -79,6 +79,7 @@ Wick.GUIElement.Timeline = class extends Wick.GUIElement {
         // Scrollbars
         ctx.save();
         ctx.translate(Wick.GUIElement.LAYERS_CONTAINER_WIDTH, Wick.GUIElement.BREADCRUMBS_HEIGHT + Wick.GUIElement.NUMBER_LINE_HEIGHT);
+            /*
             ctx.save();
             ctx.translate(0, this.canvas.height - this.translation.y - Wick.GUIElement.SCROLLBAR_SIZE);
                 this.horizontalScrollbar.draw();
@@ -88,6 +89,7 @@ Wick.GUIElement.Timeline = class extends Wick.GUIElement {
             ctx.translate(this.canvas.width - this.translation.x - Wick.GUIElement.SCROLLBAR_SIZE, 0);
                 this.verticalScrollbar.draw();
             ctx.restore();
+            */
         ctx.restore();
 
         // Breadcrumbs
