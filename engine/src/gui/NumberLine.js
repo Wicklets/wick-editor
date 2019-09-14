@@ -27,7 +27,12 @@ Wick.GUIElement.NumberLine = class extends Wick.GUIElement {
     }
 
     draw () {
+        super.draw();
+
         var ctx = this.ctx;
+
+        // Save where the mouse is if the user wants to drag the playhead around
+        this.mousePlayheadPosition = Math.floor(this.localMouse.x / this.gridCellWidth) + 1;
 
         var width = this.canvas.width - Wick.GUIElement.LAYERS_CONTAINER_WIDTH;
         var height = Wick.GUIElement.NUMBER_LINE_HEIGHT;
@@ -84,5 +89,22 @@ Wick.GUIElement.NumberLine = class extends Wick.GUIElement {
         ctx.moveTo(wallX, 0);
         ctx.lineTo(wallX, Wick.GUIElement.NUMBER_LINE_HEIGHT);
         ctx.stroke();
+    }
+
+    onMouseDown (e) {
+        this.project.model.activeTimeline.playheadPosition = this.mousePlayheadPosition;
+    }
+
+    onMouseDrag (e) {
+        this.project.model.activeTimeline.playheadPosition = this.mousePlayheadPosition;
+    }
+
+    get bounds () {
+        return {
+            x: this.project.scrollX,
+            y: 0,
+            width: this.canvas.width,
+            height: Wick.GUIElement.NUMBER_LINE_HEIGHT,
+        }
     }
 }
