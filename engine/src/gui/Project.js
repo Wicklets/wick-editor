@@ -28,7 +28,7 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
         super(model);
 
         this._canvas = document.createElement('canvas');
-        this._canvas.addEventListener('mousemove', this._onMouseMove.bind(this), false);
+        document.addEventListener('mousemove', this._onMouseMove.bind(this), false);
         this._canvas.addEventListener('mousedown', this._onMouseDown.bind(this), false);
         this._canvas.addEventListener('mouseup',this._onMouseUp.bind(this), false);
         this._ctx = this._canvas.getContext('2d');
@@ -155,6 +155,15 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
             x: e.clientX - rect.left,
             y: e.clientY - rect.top
         };
+
+        // Optimization: Only update if the mouse is on the canvas (unless something is being dragged)
+        if(e.buttons === 0 && (
+            this._mouse.x < 0 ||
+            this._mouse.y < 0 ||
+            this._mouse.x > this.canvas.width ||
+            this._mouse.y > this.canvas.height)) {
+            return;
+        }
 
         // Update mouse targets
         if(e.buttons === 0) {
