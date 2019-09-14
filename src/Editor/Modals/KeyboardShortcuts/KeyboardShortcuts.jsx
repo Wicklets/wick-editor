@@ -73,13 +73,13 @@ class KeyboardShortcuts extends Component {
   createRow = ({name, sequence1, sequence2}) => {
     return (
       <tr className="keyboard-shortcuts-modal-row" key={name}>
-        <td className="keyboard-shortcuts-modal-name-cell">
+        <td className="hotkey-action-column">
           { name }
         </td>
-        <td className="keyboard-shortcuts-modal-key-cell">
+        <td className="hotkey-column">
           { this.makeKey(sequence1) }
         </td>
-        <td className="keyboard-shortcuts-modal-key-cell">
+        <td className="hotkey-column">
           { this.makeKey(sequence2) } 
         </td>
       </tr>
@@ -96,28 +96,31 @@ class KeyboardShortcuts extends Component {
       className="keyboard-shortcuts-modal-body"
       overlayClassName="keyboard-shortcuts-modal-overlay">
         <div id="keyboard-shortcuts-modal-title">Hotkeys</div>
-        <table class="fixed_header">
-          <thead>
-            <tr>
-              <th>Action</th>
-              <th>Hotkey 1</th>
-              <th>Hotkey 2</th>
-            </tr>
-          </thead>
-          <tbody>
-            { 
-              Object.keys(keyMap).map( (actionName) => {
-                  let { sequences, name } = keyMap[actionName];
-                  return this.createRow(
-                    {
-                      name: name || actionName,
-                      sequence1: sequences[0],
-                      sequence2: sequences.length > 1 ? sequences[1] : undefined, 
-                    });
-              })
-            }
-          </tbody>
-        </table>
+        <div id="keyboard-shortcuts-body">
+
+          <table class="tableSection">
+            <thead>
+              <tr>
+                <th className="hotkey-action-column">Action</th>
+                <th className="hotkey-column">Hotkey 1</th>
+                <th className="hotkey-column">Hotkey 2</th>
+              </tr>
+            </thead>
+            <tbody>
+              { 
+                Object.keys(keyMap).map( (actionName) => {
+                    let { sequences, name } = keyMap[actionName];
+                    return this.createRow(
+                      {
+                        name: name || actionName,
+                        sequence1: sequences[0],
+                        sequence2: sequences.length > 1 ? sequences[1] : undefined, 
+                      });
+                })
+              } 
+            </tbody>
+          </table>
+        </div>
       </WickModal>
     );
   }

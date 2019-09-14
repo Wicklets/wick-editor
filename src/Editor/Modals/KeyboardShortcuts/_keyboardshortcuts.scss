@@ -20,49 +20,15 @@
  @import 'Editor/_wickbrand.scss';
 
  $keyboard-shortcuts-modal-height : 350px;
+ $action-column-width: 45%;
 
 .keyboard-shortcuts-modal-body {
   width: 500px;
   height: $keyboard-shortcuts-modal-height;
-  overflow-y: scroll;
-}
-
-.keyboard-shortcuts-container {
-  overflow-y: scroll;
-  overflow-x: hidden; 
-  height: 100%;
-  width: 100%; 
-}
-
-.keyboard-shortcuts-modal-row {
-  width: 100%;
-  display: flex;
-  align-items: center; 
-  justify-content: left;
-  border-bottom: 1px solid gray;
-}
-
-.keyboard-shortcuts-modal-name-cell {
-  height: 100%; 
-  width: 40%;
-  color: $editor-modal-text-gray;
-  padding-left: 2px; 
 }
 
 .keyboard-shortcuts-modal-key-cell {
-  height: 100%;
-  width: 30%;
-  overflow: hidden;
-  display: flex;
-  align-items: center; 
-  justify-content: center;
-  border-left: 1px solid gray;
-  border-right: 1px solid gray;
-  padding: 2px; 
-  font-size: 18px; 
-}
-.keyboard-shortcuts-modal-key-cell:last-child {
-  border: none; 
+  justify-content: center; 
 }
 
 #keyboard-shortcuts-modal-title {
@@ -94,3 +60,52 @@ kbd {
  .keyboard-shortcuts-key-icon-container {
   color: $editor-modal-text-gray; 
  }
+
+ #keyboard-shortcuts-body {
+   width: 100%;
+   height: 100%;
+ }
+
+ .hotkey-action-column {
+   width: $action-column-width;
+   color: $editor-modal-text-gray; 
+ }
+
+ .hotkey-column {
+   width: calc(calc(100% - #{$action-column-width}) / 2);
+ }
+
+ tr {
+   width: 100%;
+ }
+
+ thead {
+   color: $editor-popout-secondary-text;
+ }
+ table {
+   width: 100%; 
+ }
+
+ // Pulled from http://jsfiddle.net/venkateshwar/5KJka/1/
+ table.tableSection {
+  display: table;
+  width: 100%;
+}
+table.tableSection thead, table.tableSection tbody {
+  float: left;
+  width: 100%;
+}
+table.tableSection tbody {
+  overflow: auto;
+  height: calc(#{$keyboard-shortcuts-modal-height} - 70px);
+}
+table.tableSection tr {
+  width: 100%;
+  display: table;
+  text-align: left;
+  border-bottom: 1px solid black; 
+}
+
+td {
+  border-left: 1px solid black;
+}

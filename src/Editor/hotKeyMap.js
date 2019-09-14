@@ -45,7 +45,7 @@ class HotKeyInterface extends Object {
       },
       'activate-pencil': {
         name: "Activate Pencil",
-        sequences: ['b'],
+        sequences: ['p'],
       },
       'activate-eraser': {
         name: "Activate Eraser",
@@ -96,11 +96,11 @@ class HotKeyInterface extends Object {
         sequences: ['backspace', 'del'],
       },
       'preview-play-toggle': {
-        name: "Toggle Preview Play",
+        name: "Preview Play",
         sequences: ['enter'],
       },
       'preview-play-from-start': {
-        name: "Toggle Preview Play from Start",
+        name: "Preview Play from Start",
         sequences: ['ctrl+enter','command+enter'],
       },
       'undo': {
