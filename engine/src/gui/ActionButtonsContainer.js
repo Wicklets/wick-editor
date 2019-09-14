@@ -25,7 +25,7 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
             tooltip: 'Delete',
             icon: 'trashcan',
             clickFn: () => {
-                console.log('delete frame')
+                this.model.project.deleteSelectedObjects();
             }
         });
     };
