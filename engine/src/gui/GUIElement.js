@@ -107,18 +107,26 @@ Wick.GUIElement = class {
     }
 
     /**
+     * The position of the mouse relative to this elements translation.
+     * @type {object}
+     */
+    get localMouse () {
+        var translation = this.localTranslation;
+        var localMouse = {
+            x: this.project._mouse.x - translation.x,
+            y: this.project._mouse.y - translation.y,
+        };
+        return localMouse;
+    }
+
+    /**
      * Checks if this object is touching the mouse.
      * @returns {boolean}
      */
     mouseInBounds (mouse) {
         if(!this.bounds) return false;
 
-        var translation = this.localTranslation;
-        var localMouse = {
-            x: mouse.x - translation.x,
-            y: mouse.y - translation.y,
-        };
-
+        var localMouse = this.localMouse;
         var bounds = this.bounds;
         return localMouse.x > bounds.x &&
                localMouse.y > bounds.y &&
@@ -131,9 +139,11 @@ Wick.GUIElement = class {
      * @type {string}
      */
     get mouseState () {
+        var targets = this.project._mouseHoverTargets;
+        var l = targets.length - 1;
         /*if(this.project.mouseDragTargets.indexOf(this) !== -1) {
             return 'down';
-        } else */if(this.project._mouseHoverTargets.indexOf(this) !== -1) {
+        } else */if(targets[l] === this) {
             return 'over';
         } else {
             return 'out';

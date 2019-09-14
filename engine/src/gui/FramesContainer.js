@@ -20,6 +20,8 @@
 Wick.GUIElement.FramesContainer = class extends Wick.GUIElement {
     constructor (model) {
         super(model);
+
+        this._frameStrips = {};
     }
 
     draw () {
@@ -35,20 +37,13 @@ Wick.GUIElement.FramesContainer = class extends Wick.GUIElement {
         for(var i = 0; i < this.model.layers.length; i++) {
             var layer = this.model.layers[i];
 
-            if(layer.isActive) {
-                ctx.fillStyle = Wick.GUIElement.FRAMES_STRIP_ACTIVE_FILL_COLOR;
-            } else {
-                ctx.fillStyle = Wick.GUIElement.FRAMES_STRIP_INACTIVE_FILL_COLOR;
+            if(!this._frameStrips[layer.uuid]) {
+                this._frameStrips[layer.uuid] = new Wick.GUIElement.FrameStrip(this.model);
             }
-
-            var width = this.canvas.width;
-            var height = Wick.GUIElement.FRAMES_STRIP_HEIGHT;
 
             ctx.save();
             ctx.translate(0, i * this.gridCellHeight);
-                ctx.beginPath();
-                ctx.rect(0, 0, this.canvas.width, height);
-                ctx.fill();
+                this._frameStrips[layer.uuid].draw();
             ctx.restore();
         }
 
