@@ -1,5 +1,17 @@
 describe('Wick.GUIElement.Project', function() {
-    it('should render frames correctly', function () {
+    it('should render timeline correctly', function () {
+        var project = new Wick.Project();
+
+        var dummy = document.createElement('div');
+        dummy.style.width = 600;
+        dummy.style.height = 300;
+        document.body.appendChild(dummy);
+        dummy.appendChild(project.guiElement.canvasContainer);
+
+        project.guiElement.draw();
+    });
+
+    it('should render timeline correctly', function () {
         var project = new Wick.Project();
         var parentClip = new Wick.Clip({identifier: 'Parent clip'});
         var childClip = new Wick.Clip({identifier: 'Child clip'});
@@ -41,7 +53,7 @@ describe('Wick.GUIElement.Project', function() {
 
         var dummy = document.createElement('div');
         dummy.style.width = 600;
-        dummy.style.height = 400;
+        dummy.style.height = 300;
         document.body.appendChild(dummy);
         dummy.appendChild(project.guiElement.canvasContainer);
 

@@ -30,17 +30,22 @@ Wick.GUIElement.Scrollbar = class extends Wick.GUIElement {
 
         var ctx = this.ctx;
 
-        var maxWidth = this.canvas.width - this.localTranslation.x - Wick.GUIElement.SCROLLBAR_SIZE;
-        var maxHeight = this.canvas.height - this.localTranslation.y - Wick.GUIElement.SCROLLBAR_SIZE;
+        this.maxWidth = this.canvas.width - this.localTranslation.x - Wick.GUIElement.SCROLLBAR_SIZE;
+        this.maxHeight = this.canvas.height - this.localTranslation.y - Wick.GUIElement.SCROLLBAR_SIZE;
         var size = Wick.GUIElement.SCROLLBAR_SIZE;
+
+        // Don't render the scrollbar if there's not enough content to scroll
+        if(!this._canScrollVertically() && this.direction === 'vertical') {
+            return;
+        }
 
         // Background
         ctx.fillStyle = Wick.GUIElement.SCROLLBAR_BACKGROUND_COLOR;
         ctx.beginPath();
         if(this.direction === 'horizontal') {
-            ctx.rect(0, 0, maxWidth, size);
+            ctx.rect(0, 0, this.maxWidth, size);
         } else if (this.direction === 'vertical') {
-            ctx.rect(0, 0, size, maxHeight);
+            ctx.rect(0, 0, size, this.maxHeight);
         }
         ctx.fill();
 
@@ -48,7 +53,7 @@ Wick.GUIElement.Scrollbar = class extends Wick.GUIElement {
         if(this.direction === 'horizontal') {
             ctx.fillStyle = Wick.GUIElement.SCROLLBAR_BACKGROUND_COLOR;
             ctx.beginPath();
-            ctx.roundRect(maxWidth, 0, maxWidth + size, size, 0);
+            ctx.roundRect(this.maxWidth, 0, this.maxWidth + size, size, 0);
             ctx.fill();
         }
 
@@ -63,5 +68,9 @@ Wick.GUIElement.Scrollbar = class extends Wick.GUIElement {
         this.grabber.draw();
 
         ctx.restore();
+    }
+
+    _canScrollVertically () {
+        return this.model.layers.length * this.gridCellHeight * 1.5 > this.maxHeight;
     }
 }
