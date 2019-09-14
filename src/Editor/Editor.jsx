@@ -170,7 +170,7 @@ class Editor extends EditorCore {
         },
         onAfterTick: () => {
           //this.project.view.render();
-          this.project.activeTimeline.guiElement.numberLine.playhead.build();
+          this.project.guiElement.draw();
         },
         onBeforeTick: () => {
 

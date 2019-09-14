@@ -162,6 +162,10 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
             this._mouse.y < 0 ||
             this._mouse.x > this.canvas.width ||
             this._mouse.y > this.canvas.height)) {
+            if(this._mouseHoverTargets.length > 0) {
+                this._mouseHoverTargets = [];
+                this.draw();
+            }
             return;
         }
 

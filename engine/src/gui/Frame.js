@@ -49,20 +49,19 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement {
             ctx.stroke();
         }
 
+        // Frame scripts dot
+        if(this.model.hasContentfulScripts) {
+            ctx.fillStyle = Wick.GUIElement.FRAME_SCRIPT_DOT_COLOR;
+            ctx.beginPath();
+            ctx.arc(this.gridCellWidth/2, 0, Wick.GUIElement.FRAME_CONTENT_DOT_RADIUS*1.3, 0, Math.PI);
+            ctx.fill();
+        }
+
         // Frame identifier
         if(this.model.identifier) {
             ctx.font = '12px Courier New';
             ctx.fillStyle = 'black';
             ctx.fillText(this.model.identifier, 0, 12, this.model.length * this.gridCellWidth);
-        }
-
-        // Frame scripts dot
-        if(this.model.hasContentfulScripts) {
-            /*var scriptCircle = new this.paper.Path.Ellipse({
-                center: [this.gridCellWidth/2, 0],
-                radius: Wick.GUIElement.FRAME_CONTENT_DOT_RADIUS*1.3,
-                fillColor: Wick.GUIElement.FRAME_SCRIPT_DOT_COLOR,
-            });*/
         }
 
         // Frame contentful dot
@@ -78,11 +77,14 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement {
             }
             ctx.stroke();
         } else if (this.model.sound) {
-            ctx.drawImage(this.model.sound.waveform, 0, 0);
-            /*waveform.scaling.x = this.gridCellWidth / 1200 * this.model.project.framerate * this.model.sound.duration;
-            waveform.scaling.y = 2;
-            waveform.position = new paper.Point((waveform.width/2) * waveform.scaling.x, this.gridCellHeight);
-            */
+            var sound = this.model.sound;
+            var framerate = this.model.project.framerate;
+
+            var waveform = this.model.sound.waveform;
+            var maxWidth = this.model.length * this.gridCellWidth;
+
+            var crop = (maxWidth / sound.duration) * this.gridCellWidth / framerate;
+            ctx.drawImage(waveform, 0, 0, crop, waveform.height/*/2*/, 0, 0, maxWidth, this.gridCellHeight);
         } else if (this.model.tweens.length > 0) {
             // todo tweens
         }

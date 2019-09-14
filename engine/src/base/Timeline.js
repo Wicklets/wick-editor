@@ -80,6 +80,9 @@ Wick.Timeline = class extends Wick.Base {
         }
 
         this._playheadPosition = playheadPosition;
+        if(this._playheadPosition < 1) {
+            this._playheadPosition = 1;
+        }
 
         // Automatically apply tween transforms on child frames when playhead moves
         this.activeFrames.forEach(frame => {
