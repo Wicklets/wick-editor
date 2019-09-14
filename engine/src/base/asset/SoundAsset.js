@@ -42,6 +42,8 @@ Wick.SoundAsset = class extends Wick.FileAsset {
      */
     constructor (args) {
         super(args);
+
+        this._waveform = null;
     }
 
     serialize (args) {
@@ -144,6 +146,36 @@ Wick.SoundAsset = class extends Wick.FileAsset {
      * Loads data about the sound into the asset.
      */
     load (callback) {
+        this._generateWaveform(() => {
+            this._waitForHowlLoad(() => {
+                callback();
+            });
+        });
+    }
+
+    /**
+     * Image of the waveform of this sound.
+     * @type {Image}
+     */
+    get waveform () {
+        return this._waveform;
+    }
+
+    get _howl () {
+        // Lazily create howler instance
+        if(!this._howlInstance) {
+            // This fixes OGGs in firefox, as video/ogg is sometimes set as the MIMEType, which Howler doesn't like.
+            var srcFixed = this.src;
+            srcFixed = this.src.replace('video/ogg', 'audio/ogg');
+
+            this._howlInstance = new Howl({
+                src: [srcFixed]
+            });
+        }
+        return this._howlInstance;
+    }
+
+    _waitForHowlLoad (callback) {
         if(this._howl.state() === 'loaded') {
             callback();
         } else {
@@ -153,17 +185,23 @@ Wick.SoundAsset = class extends Wick.FileAsset {
         }
     }
 
-    get _howl () {
-        // Lazily create howler instance
-        if(!this._howlInstance) {
-            // This fixes OGGs in firefox, as video/ogg is sometimes set as the MIMEType, which Howl doesn't like.
-            var srcFixed = this.src;
-            srcFixed = this.src.replace('video/ogg', 'audio/ogg');
-
-            this._howlInstance = new Howl({
-                src: [srcFixed]
-            });
+    _generateWaveform (callback) {
+        if(this._waveform) {
+            callback();
+            return;
         }
-        return this._howlInstance;
+
+        var soundSrc = this.src;
+
+        var scwf = new SCWF();
+        scwf.generate(soundSrc, {
+            onComplete: (png, pixels) => {
+                this._waveform = new Image();
+                this._waveform.onload = () => {
+                    callback();
+                }
+                this._waveform.src = png;
+            }
+        });
     }
 }
