@@ -1,3 +1,5 @@
+/* https://github.com/Idnan/soundcloud-waveform-generator */
+
 window.AudioContext = window.AudioContext || window.webkitAudioContext;
 
 Array.prototype.max = function() {
