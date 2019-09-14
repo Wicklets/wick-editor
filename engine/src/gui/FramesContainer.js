@@ -38,7 +38,7 @@ Wick.GUIElement.FramesContainer = class extends Wick.GUIElement {
             var layer = this.model.layers[i];
 
             if(!this._frameStrips[layer.uuid]) {
-                this._frameStrips[layer.uuid] = new Wick.GUIElement.FrameStrip(this.model);
+                this._frameStrips[layer.uuid] = new Wick.GUIElement.FrameStrip(layer);
             }
 
             ctx.save();

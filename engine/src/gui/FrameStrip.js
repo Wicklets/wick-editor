@@ -64,6 +64,11 @@ Wick.GUIElement.FrameStrip = class extends Wick.GUIElement {
         }
     }
 
+    onMouseDown (e) {
+        var newFrame = new Wick.Frame({start: this.addFrameCol+1});
+        this.model.addFrame(newFrame);
+    }
+
     get bounds () {
         return {
             x: 0,

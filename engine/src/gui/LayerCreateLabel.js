@@ -23,9 +23,11 @@ Wick.GUIElement.LayerCreateLabel = class extends Wick.GUIElement {
     }
 
     draw () {
+        super.draw();
+
         var ctx = this.ctx;
 
-        ctx.fillStyle = this.isHoveredOver ? 'rgba(255,255,255,0.6)' : 'rgba(255,255,255,0.3)';
+        ctx.fillStyle = (this.mouseState === 'over') ? 'rgba(255,255,255,0.6)' : 'rgba(255,255,255,0.3)';
 
         var width = Wick.GUIElement.LAYERS_CONTAINER_WIDTH - Wick.GUIElement.LAYER_LABEL_MARGIN_SIDES*2;
         var height = this.gridCellHeight - Wick.GUIElement.LAYER_LABEL_MARGIN_TOP_BOTTOM*2;
@@ -42,5 +44,22 @@ Wick.GUIElement.LayerCreateLabel = class extends Wick.GUIElement {
         ctx.font = "20px " + Wick.GUIElement.LAYER_LABEL_FONT_FAMILY;
         ctx.fillStyle = Wick.GUIElement.ADD_FRAME_OVERLAY_PLUS_COLOR
         ctx.fillText('+', 90, this.gridCellHeight / 2 + 5);
+    }
+
+    get bounds () {
+        return {
+            x: 0,
+            y: 0,
+            width: Wick.GUIElement.LAYERS_CONTAINER_WIDTH,
+            height: this.gridCellHeight,
+        }
+    }
+
+    onMouseDown (e) {
+        var newLayer = new Wick.Layer();
+        this.model.project.activeTimeline.addLayer(newLayer);
+        newLayer.activate();
+        this.model.project.selection.clear();
+        this.model.project.selection.select(newLayer);
     }
 }

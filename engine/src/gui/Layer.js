@@ -24,14 +24,14 @@ Wick.GUIElement.Layer = class extends Wick.GUIElement {
         this.hideButton = new Wick.GUIElement.LayerButton(model, {
             tooltip: 'Show/Hide Layer',
             clickFn: () => {
-                console.log('asdas');
+                this.model.hidden = !this.model.hidden;
             }
         });
 
         this.lockButton = new Wick.GUIElement.LayerButton(model, {
             tooltip: 'Lock/Unlock Layer',
             clickFn: () => {
-                console.log('asdas2');
+                this.model.locked = !this.model.locked;
             }
         });
     }
@@ -99,6 +99,7 @@ Wick.GUIElement.Layer = class extends Wick.GUIElement {
     }
 
     onMouseDown (e) {
+        this.model.activate();
         this.model.project.selection.clear();
         this.model.project.selection.select(this.model);
     }

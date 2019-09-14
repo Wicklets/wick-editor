@@ -31,6 +31,7 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
         document.addEventListener('mousemove', this._onMouseMove.bind(this), false);
         this._canvas.addEventListener('mousedown', this._onMouseDown.bind(this), false);
         this._canvas.addEventListener('mouseup',this._onMouseUp.bind(this), false);
+        $(this._canvas).on('mousewheel', this._onMouseWheel.bind(this));
         this._ctx = this._canvas.getContext('2d');
 
         this._canvasContainer = document.createElement('div');
@@ -202,13 +203,13 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
     }
 
     _onMouseDown (e) {
-        this._mouseHoverTargets.forEach(elem => {
-            elem.onMouseDown(e);
-        });
-
         // Clicked nothing - clear the selection
         if(this._mouseHoverTargets.length === 0) {
+            // Clicked nothing - clear the selection
             this.model.selection.clear();
+        } else {
+            var l = this._mouseHoverTargets.length-1;
+            this._mouseHoverTargets[l].onMouseDown(e);
         }
 
         this.draw();
@@ -216,5 +217,14 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
 
     _onMouseUp (e) {
         this._onMouseMove(e);
+    }
+
+    _onMouseWheel (e) {
+        e.preventDefault();
+        var dx = e.deltaX * e.deltaFactor * 0.5;
+        var dy = e.deltaY * e.deltaFactor * 0.5;
+        this.scrollX += dx;
+        this.scrollY += dy;
+        this.draw();
     }
 }
