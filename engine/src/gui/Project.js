@@ -131,6 +131,7 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
     }
 
     set scrollX (scrollX) {
+        if(scrollX < 0) scrollX = 0;
         this._scrollX = scrollX;
     }
 
@@ -143,6 +144,7 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
     }
 
     set scrollY (scrollY) {
+        if(scrollY < 0) scrollY = 0;
         this._scrollY = scrollY;
     }
 
@@ -158,6 +160,10 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
         if(e.buttons === 0) {
             this._mouseHoverTargets = this._drawnElements.filter(elem => {
                 return elem.mouseInBounds(this._mouse);
+            });
+        } else {
+            this._mouseHoverTargets.forEach(elem => {
+                elem.onMouseDrag(e);
             });
         }
 

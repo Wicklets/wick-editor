@@ -50,6 +50,10 @@ Wick.GUIElement.ScrollbarGrabber = class extends Wick.GUIElement {
         ctx.restore();
     }
 
+    onMouseDrag (e) {
+        this.project.scrollX += e.movementX;
+    }
+
     get bounds () {
         if(this.direction === 'horizontal') {
             return {

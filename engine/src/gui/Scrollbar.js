@@ -71,6 +71,6 @@ Wick.GUIElement.Scrollbar = class extends Wick.GUIElement {
     }
 
     _canScrollVertically () {
-        return this.model.layers.length * this.gridCellHeight * 1.5 > this.maxHeight;
+        return this.model.layers.length * this.gridCellHeight + this.gridCellHeight * 2 > this.maxHeight;
     }
 }

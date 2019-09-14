@@ -155,6 +155,20 @@ Wick.GUIElement = class {
     get dragGhostClassname () {
         return null; // Implemeneted by subclasses.
     }
+
+    /**
+     * The function to call when the mouse clicks this element.
+     */
+    onMouseDown (e) {
+        // Implemeneted by subclasses.
+    }
+
+    /**
+     * The function to call when the mouse drags this element.
+     */
+    onMouseDrag (e) {
+        // Implemeneted by subclasses.
+    }
 }
 
 Wick.GUIElement.GRID_DEFAULT_CELL_WIDTH = 38;
