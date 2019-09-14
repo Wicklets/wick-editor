@@ -36,6 +36,7 @@ Wick.GUIElement.Scrollbar = class extends Wick.GUIElement {
 
         // Don't render the scrollbar if there's not enough content to scroll
         if(!this._canScrollVertically() && this.direction === 'vertical') {
+            this.project.scrollY = 0;
             return;
         }
 
@@ -59,10 +60,11 @@ Wick.GUIElement.Scrollbar = class extends Wick.GUIElement {
 
         // Grabber piece
         ctx.save();
+        var pos = this._getScrollbarPosition();
         if(this.direction === 'horizontal') {
-            ctx.translate(0, 0);
+            ctx.translate(pos.x, 0);
         } else if(this.direction === 'vertical') {
-            ctx.translate(0, 0);
+            ctx.translate(0, pos.y);
         }
 
         this.grabber.draw();
@@ -71,6 +73,13 @@ Wick.GUIElement.Scrollbar = class extends Wick.GUIElement {
     }
 
     _canScrollVertically () {
-        return this.model.layers.length * this.gridCellHeight + this.gridCellHeight * 2 > this.maxHeight;
+        return this.project.verticalScrollSpace > this.maxHeight;
+    }
+
+    _getScrollbarPosition () {
+        return {
+            x: (this.project.scrollX / this.project.horizontalScrollSpace) * (this.maxWidth - Wick.GUIElement.SCROLLBAR_HORIZONTAL_LENGTH),
+            y: (this.project.scrollY / this.project.verticalScrollSpace) * (this.maxHeight - Wick.GUIElement.SCROLLBAR_VERTICAL_LENGTH),
+        };
     }
 }

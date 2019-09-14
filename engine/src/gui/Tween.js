@@ -76,10 +76,22 @@ Wick.GUIElement.Tween = class extends Wick.GUIElement {
 */
 
     draw () {
-        super.build();
+        super.draw();
 
-        this._drawTweenDiamond();
-        this._drawTweenArrow();
+        var ctx = this.ctx;
+
+        // Tween diamond
+        ctx.save();
+        ctx.rotate(Math.PI / 4);
+            var r = Wick.GUIElement.TWEEN_DIAMOND_RADIUS;
+            ctx.fillStyle = Wick.GUIElement.TWEEN_FILL_COLOR_1;
+            ctx.beginPath();
+            ctx.roundRect(-r, -r, r*2, r*2, 3);
+            ctx.fill();
+        ctx.restore();
+
+        /*this._drawTweenDiamond();
+        this._drawTweenArrow();*/
 
         /*this.item.position = new paper.Point(this.x, this.y);
         this.item.position.x += this.dragOffset.x;*/

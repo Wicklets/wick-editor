@@ -1,7 +1,7 @@
 describe('Wick.GUIElement.Project', function() {
     it('should render timeline correctly', function () {
         var project = new Wick.Project();
-        project.framerate = 1;
+        window.project = project
         var parentClip = new Wick.Clip({identifier: 'Parent clip'});
         var childClip = new Wick.Clip({identifier: 'Child clip'});
         project.activeFrame.addClip(parentClip);
@@ -19,16 +19,13 @@ describe('Wick.GUIElement.Project', function() {
         project.addAsset(sound);
         project.activeLayer.getFrameAtPlayheadPosition(4).sound = sound;
 
-        var layer2 = new Wick.Layer({name: 'LayerWithVeryLongName'});
-        project.activeTimeline.addLayer(layer2);/*
+        var layer2 = new Wick.Layer({name: 'LayerWithTweensVeryLongName'});
+        project.activeTimeline.addLayer(layer2);
         var tweenFrame = new Wick.Frame({start: 1, end: 10});
         layer2.addFrame(tweenFrame);
         tweenFrame.addTween(new Wick.Tween({playheadPosition: 1}));
         tweenFrame.addTween(new Wick.Tween({playheadPosition: 5}));
-        tweenFrame.addTween(new Wick.Tween({playheadPosition: 10}));*/
-        var tweenFrame = new Wick.Frame({start: 1, end: 10});
-        layer2.addFrame(tweenFrame);
-        tweenFrame.sound = sound;
+        tweenFrame.addTween(new Wick.Tween({playheadPosition: 10}));
 
         var layer3 = new Wick.Layer({name: 'LayerWithName'});
         project.activeTimeline.addLayer(layer3);

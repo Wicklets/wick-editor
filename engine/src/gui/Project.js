@@ -132,6 +132,7 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
 
     set scrollX (scrollX) {
         if(scrollX < 0) scrollX = 0;
+        if(scrollX > this.horizontalScrollSpace) scrollX = this.horizontalScrollSpace;
         this._scrollX = scrollX;
     }
 
@@ -145,7 +146,24 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
 
     set scrollY (scrollY) {
         if(scrollY < 0) scrollY = 0;
+        if(scrollY > this.verticalScrollSpace) scrollY = this.verticalScrollSpace;
         this._scrollY = scrollY;
+    }
+
+    /**
+     * The amount of distance the timeline can be scrolled horizontally. Depends on the number of frames.
+     * @type {number}
+     */
+    get horizontalScrollSpace () {
+        return (this.model.activeTimeline.length * this.gridCellWidth * 3) + 500;
+    }
+
+    /**
+     * The amount of distance the timeline can be scrolled vertically. Depends on the number of layers.
+     * @type {number}
+     */
+    get verticalScrollSpace () {
+        return this.model.activeTimeline.layers.length * this.gridCellHeight + this.gridCellHeight * 2;
     }
 
     _onMouseMove (e) {

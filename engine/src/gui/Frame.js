@@ -64,8 +64,9 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement {
             ctx.fillText(this.model.identifier, 0, 12, this.model.length * this.gridCellWidth);
         }
 
-        // Frame contentful dot
         if(this.model.tweens.length === 0 && !this.model.sound) {
+            // Frame contentful dot
+
             ctx.fillStyle = Wick.GUIElement.FRAME_CONTENT_DOT_COLOR;
             ctx.strokeStyle = Wick.GUIElement.FRAME_CONTENT_DOT_COLOR;
             ctx.lineWidth = Wick.GUIElement.FRAME_CONTENT_DOT_STROKE_WIDTH;
@@ -77,6 +78,8 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement {
             }
             ctx.stroke();
         } else if (this.model.sound) {
+            // Frame sound waveform
+
             var sound = this.model.sound;
             var framerate = this.model.project.framerate;
 
@@ -86,7 +89,14 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement {
             var crop = (maxWidth / sound.duration) * this.gridCellWidth / framerate;
             ctx.drawImage(waveform, 0, 0, crop, waveform.height/*/2*/, 0, 0, maxWidth, this.gridCellHeight);
         } else if (this.model.tweens.length > 0) {
-            // todo tweens
+            // Tweens
+
+            this.model.tweens.forEach(tween => {
+                ctx.save();
+                ctx.translate((tween.playheadPosition-1) * this.gridCellWidth + this.gridCellWidth/2, this.gridCellHeight/2);
+                    tween.guiElement.draw();
+                ctx.restore();
+            });
         }
     }
 
