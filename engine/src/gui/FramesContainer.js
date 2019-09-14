@@ -61,10 +61,25 @@ Wick.GUIElement.FramesContainer = class extends Wick.GUIElement {
 
         // Draw frames
         this.model.getAllFrames().forEach(frame => {
-            var frameX = (frame.start - 1) * this.gridCellWidth;
-            var frameY = frame.parentLayer.index * this.gridCellHeight;
+            var frameStartX = (frame.start - 1) * this.gridCellWidth;
+            var frameStartY = frame.parentLayer.index * this.gridCellHeight;
+            var frameEndX = frameStartX + frame.length * this.gridCellWidth;
+            var frameEndY = frameStartY + this.gridCellHeight;
+            var framesContainerWidth = this.canvas.width - Wick.GUIElement.LAYERS_CONTAINER_WIDTH;
+            var framesContainerHeight = this.canvas.height - Wick.GUIElement.BREADCRUMBS_HEIGHT - Wick.GUIElement.NUMBER_LINE_HEIGHT;
+
+            // Optimization: don't render frames that are outside the scroll area
+            var scrollX = this.project.scrollX;
+            var scrollY = this.project.scrollY;
+            if(frameEndX < scrollX || frameEndY < scrollY) {
+                return;
+            }
+            if(frameStartX > scrollX + framesContainerWidth || frameStartY > scrollY + framesContainerHeight) {
+                return;
+            }
+
             ctx.save();
-            ctx.translate(frameX, frameY);
+            ctx.translate(frameStartX, frameStartY);
                 frame.guiElement.draw();
             ctx.restore();
         });
