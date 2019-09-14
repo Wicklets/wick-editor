@@ -57,19 +57,26 @@ Wick.GUIElement.Timeline = class extends Wick.GUIElement {
                 ctx.save();
                 ctx.translate(Wick.GUIElement.LAYERS_CONTAINER_WIDTH, 0);
                     ctx.save();
-                    ctx.translate(-this.project.scrollX, this.project.scrollY);
+                    ctx.translate(-this.project.scrollX, -this.project.scrollY);
                         this.framesContainer.draw();
                     ctx.restore();
                 ctx.restore();
-
-                // Layers
-                this.layersContainer.draw();
             ctx.restore();
 
             // Number Line
             ctx.save();
-            ctx.translate(Wick.GUIElement.LAYERS_CONTAINER_WIDTH, 0);
+            ctx.translate(-this.project.scrollX+Wick.GUIElement.LAYERS_CONTAINER_WIDTH, 0);
                 this.numberLine.draw();
+            ctx.restore();
+
+
+            // Layers
+            ctx.save();
+            ctx.translate(0, Wick.GUIElement.NUMBER_LINE_HEIGHT);
+                ctx.save();
+                ctx.translate(0, -this.project.scrollY);
+                    this.layersContainer.draw();
+                ctx.restore();
             ctx.restore();
 
             // Action buttons
