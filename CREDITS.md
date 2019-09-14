@@ -42,62 +42,62 @@
 
 ## NPM and React Libraries
 
-[audiobuffer-to-wav] (https://www.npmjs.com/package/audiobuffer-to-wav) - Sound Conversion
+[audiobuffer-to-wav](https://www.npmjs.com/package/audiobuffer-to-wav) - Sound Conversion
 
-[base64-arraybuffer] (https://www.npmjs.com/package/base64-arraybuffer) - Data Conversion
+[base64-arraybuffer](https://www.npmjs.com/package/base64-arraybuffer) - Data Conversion
 
-[Bootstrap] (https://github.com/twbs/bootstrap) - Some Interface Elements
+[Bootstrap](https://github.com/twbs/bootstrap) - Some Interface Elements
 
-[Reactstrap] (https://github.com/reactstrap/reactstrap) - Many Interface Elements
+[Reactstrap](https://github.com/reactstrap/reactstrap) - Many Interface Elements
 
-[classnames] (https://github.com/JedWatson/classnames) - Used to Create Classnames Easily
+[classnames](https://github.com/JedWatson/classnames) - Used to Create Classnames Easily
 
-[file-saver] (https://github.com/eligrey/FileSaver.js) - Used to Save Files for the User
+[file-saver](https://github.com/eligrey/FileSaver.js) - Used to Save Files for the User
 
-[local-forage] (https://github.com/localForage/localForage) - Used to save local data, like autosave and key
+[local-forage](https://github.com/localForage/localForage) - Used to save local data, like autosave and key
 commands, for the user.
 
-[node-sass] (https://github.com/sass/node-sass) - Used for Interface Styling
+[node-sass](https://github.com/sass/node-sass) - Used for Interface Styling
 
-[rc-slider] (https://github.com/react-component/slider) - Used for Sliders In the Editor.
+[rc-slider](https://github.com/react-component/slider) - Used for Sliders In the Editor.
 
-[gh-pages] (https://github.com/tschaub/gh-pages) - Critical for Building the Website and Tool
+[gh-pages](https://github.com/tschaub/gh-pages) - Critical for Building the Website and Tool
 
-[react] (https://github.com/facebook/react) - What the Entire Interface is Built on
+[react](https://github.com/facebook/react) - What the Entire Interface is Built on
 
-[react-ace] (https://github.com/securingsincity/react-ace) - Used for the Code Editor
+[react-ace](https://github.com/securingsincity/react-ace) - Used for the Code Editor
 
-[react-aria-menubutton] (https://github.com/davidtheclark/react-aria-menubutton) - Used for Cascading Dropdown
+[react-aria-menubutton](https://github.com/davidtheclark/react-aria-menubutton) - Used for Cascading Dropdown
 Menus
 
-[react-color] (https://github.com/casesandberg/react-color) - Used for all of the Color Pickers
+[react-color](https://github.com/casesandberg/react-color) - Used for all of the Color Pickers
 
-[react-dnd] (https://github.com/react-dnd/react-dnd) - Used for all Drag and Drop in the Interface (Outside of the timeline)
+[react-dnd](https://github.com/react-dnd/react-dnd) - Used for all Drag and Drop in the Interface (Outside of the timeline)
 
-[react-dropdown] (https://github.com/fraserxu/react-dropdown) - Used for Dropdown Menus
+[react-dropdown](https://github.com/fraserxu/react-dropdown) - Used for Dropdown Menus
 
-[react-ga] (https://github.com/react-ga/react-ga) - Used for Analytics
+[react-ga](https://github.com/react-ga/react-ga) - Used for Analytics
 
-[react-hotkeys] (https://github.com/greena13/react-hotkeys) - Used for hotkey system
+[react-hotkeys](https://github.com/greena13/react-hotkeys) - Used for hotkey system
 
-[react-modal] (https://github.com/reactjs/react-modal) - Used for popping up modals
+[react-modal](https://github.com/reactjs/react-modal) - Used for popping up modals
 
-[react-numeric-input] (https://github.com/vlad-ignatov/react-numeric-input) - Used for all numeric input prompts
+[react-numeric-input](https://github.com/vlad-ignatov/react-numeric-input) - Used for all numeric input prompts
 
-[react-popover] (https://github.com/littlebits/react-popover) - Used in the Code Editor Pop over interface
+[react-popover](https://github.com/littlebits/react-popover) - Used in the Code Editor Pop over interface
 
-[react-reflex] (https://github.com/leefsmp/Re-Flex) - Used for the reflex interface
+[react-reflex](https://github.com/leefsmp/Re-Flex) - Used for the reflex interface
 
-[react-resize-detector] (https://github.com/maslianok/react-resize-detector) - Used for knowing when the window resizes
+[react-resize-detector](https://github.com/maslianok/react-resize-detector) - Used for knowing when the window resizes
 
-[react-rnd] (https://github.com/bokuweb/react-rnd) - Used for resizable and draggable components in the editor.
+[react-rnd](https://github.com/bokuweb/react-rnd) - Used for resizable and draggable components in the editor.
 
-[react-select] (https://github.com/JedWatson/react-select) - Used to create selection dropdown menus
+[react-select](https://github.com/JedWatson/react-select) - Used to create selection dropdown menus
 
-[react-tabs] (https://github.com/reactjs/react-tabs) - Used to create the tabs of the code editor and all other tabbed interfaces in the editor.
+[react-tabs](https://github.com/reactjs/react-tabs) - Used to create the tabs of the code editor and all other tabbed interfaces in the editor.
 
-[react-toastify] (https://github.com/fkhadra/react-toastify) - Used for all toast notifications in the editor.
+[react-toastify](https://github.com/fkhadra/react-toastify) - Used for all toast notifications in the editor.
 
-[react-tooltip] (https://github.com/wwayne/react-tooltip) - Used to generate tooltips on buttons and images
+[react-tooltip](https://github.com/wwayne/react-tooltip) - Used to generate tooltips on buttons and images
 
-[underscore] (https://github.com/jashkenas/underscore) - Used for some math and throttling functionality in the editor.
+[underscore](https://github.com/jashkenas/underscore) - Used for some math and throttling functionality in the editor.
