@@ -33,7 +33,11 @@ Wick.GUIElement.OnionSkinRange = class extends Wick.GUIElement {
 
         var ctx = this.ctx;
 
-        var width = this.model.project.onionSkinSeekForwards * this.gridCellWidth;
+        // Save where the mouse is if the user wants to drag the sliders around
+        this.mousePlayheadPosition = Math.round(this.localMouse.x / this.gridCellWidth);
+
+        var seek = this.direction === 'right' ? this.model.project.onionSkinSeekForwards : this.model.project.onionSkinSeekBackwards;
+        var width = seek * this.gridCellWidth;
         var edgeWidth = this.gridCellWidth - Wick.GUIElement.PLAYHEAD_MARGIN * 2;
         var height = Wick.GUIElement.NUMBER_LINE_HEIGHT * 0.9;
 
@@ -45,7 +49,7 @@ Wick.GUIElement.OnionSkinRange = class extends Wick.GUIElement {
         ctx.fillStyle = grd;
         ctx.lineWidth = 1,
         ctx.save();
-        ctx.translate((this.model.playheadPosition - 1) * this.gridCellWidth + this.gridCellWidth/2, 0);
+        ctx.globalAlpha = this.mouseState === 'over' ? 0.5 : 1.0;
         if(this.direction == 'left') ctx.scale(-1, 1);
             // Playhead top
             ctx.beginPath();
@@ -58,5 +62,31 @@ Wick.GUIElement.OnionSkinRange = class extends Wick.GUIElement {
             ctx.lineTo(0, 0);
             ctx.fill();
         ctx.restore();
+    }
+
+    onMouseDrag (e) {
+        if(this.direction === 'right') {
+            this.model.project.onionSkinSeekForwards = Math.max(1, this.mousePlayheadPosition);
+        } else if(this.direction === 'left') {
+            this.model.project.onionSkinSeekBackwards = Math.max(1, -this.mousePlayheadPosition);
+        }
+    }
+
+    get bounds () {
+        if(this.direction === 'right') {
+            return {
+                x: this.gridCellWidth/2,
+                y: 0,
+                width: this.model.project.onionSkinSeekForwards * this.gridCellWidth,
+                height: Wick.GUIElement.NUMBER_LINE_HEIGHT,
+            };
+        } else if (this.direction === 'left') {
+            return {
+                x: -this.model.project.onionSkinSeekBackwards * this.gridCellWidth - this.gridCellWidth/2,
+                y: 0,
+                width: this.model.project.onionSkinSeekBackwards * this.gridCellWidth,
+                height: Wick.GUIElement.NUMBER_LINE_HEIGHT,
+            };
+        }
     }
 }

@@ -53,8 +53,11 @@ Wick.GUIElement.NumberLine = class extends Wick.GUIElement {
 
         // Draw onion skin range
         if(this.model.project.onionSkinEnabled) {
-            this.onionSkinRangeLeft.draw();
-            this.onionSkinRangeRight.draw();
+            ctx.save();
+            ctx.translate((this.model.playheadPosition - 1) * this.gridCellWidth + this.gridCellWidth/2, 0);
+                this.onionSkinRangeLeft.draw();
+                this.onionSkinRangeRight.draw();
+            ctx.restore();
         }
 
         // Draw playhead
