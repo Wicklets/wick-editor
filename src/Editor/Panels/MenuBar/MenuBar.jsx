@@ -58,6 +58,10 @@ class MenuBar extends Component {
             onChange={this.handleWickFileLoad}
           />
           <MenuBarButton
+            text="new"
+            action={this.props.openNewProjectConfirmation}
+          />
+          <MenuBarButton
             text="open"
             action={this.openProjectFileDialog}
           />

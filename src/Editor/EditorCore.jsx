@@ -934,17 +934,38 @@ class EditorCore extends Component {
   /**
    * Sets up a new project in the editor. This operation will remove the
    * history, selection, and all other ability to retrieve your project.
-   * @param {Wick.Project} project project to load.
+   * @param {Wick.Project} project - the project to load.
    */
   setupNewProject = (project) => {
     this.resetEditorForLoad();
-    this.project = project;
+    this.project = project || new window.Wick.Project();
     this.project.selection.clear();
 
     this.projectDidChange();
     this.hideWaitOverlay();
     this.project.view.prerender();
     this.project.view.render();
+  }
+
+  openNewProjectConfirmation = () => {
+      this.setState({
+        warningModalInfo: {
+          description: "You will lose any unsaved changes to the current project.",
+          title: "Open a New Project?",
+          acceptText: "Accept",
+          cancelText: "Cancel",
+          acceptAction: (() => {
+            setTimeout(() => {
+              this.setupNewProject();
+            }, 100)
+          }),
+          cancelAction: (() => {}),
+          finalAction: (() => {
+
+          })
+        }
+      });
+      this.openModal('GeneralWarning');
   }
 
   showAutosavedProjects = () => {

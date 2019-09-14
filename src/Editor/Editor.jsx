@@ -619,6 +619,7 @@ class Editor extends EditorCore {
                     <MenuBar
                       openModal={this.openModal}
                       projectName={this.project.name}
+                      openNewProjectConfirmation={this.openNewProjectConfirmation}
                       exportProjectAsWickFile={this.exportProjectAsWickFile}
                       importProjectAsWickFile={this.importProjectAsWickFile}
                       toast={this.toast}
