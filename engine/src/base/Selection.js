@@ -619,7 +619,7 @@ Wick.Selection = class extends Wick.Base {
      * @type {boolean}
      */
     get isScriptable () {
-        return this.numObjects === 1 && this.selectedObjects[0].isScriptable;
+        return this.numObjects === 1 && this.getSelectedObjects()[0].isScriptable;
     }
 
     _locationOf (object) {

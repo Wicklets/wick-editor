@@ -51,13 +51,9 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement {
 
         // Frame identifier
         if(this.model.identifier) {
-            /*new paper.PointText({
-                point: [0, 12],
-                content: this.model.identifier,
-                fillColor: 'black',
-                fontFamily: 'Courier New',
-                fontSize: 12
-            })*/
+            ctx.font = '12px Courier New';
+            ctx.fillStyle = 'black';
+            ctx.fillText(this.model.identifier, 0, 12, this.model.length * this.gridCellWidth);
         }
 
         // Frame scripts dot
