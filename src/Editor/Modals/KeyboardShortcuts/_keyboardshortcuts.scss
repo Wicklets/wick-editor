@@ -19,9 +19,11 @@
 
  @import 'Editor/_wickbrand.scss';
 
+ $keyboard-shortcuts-modal-height : 350px;
+
 .keyboard-shortcuts-modal-body {
   width: 500px;
-  height: 350px;
+  height: $keyboard-shortcuts-modal-height;
   overflow-y: scroll;
 }
 
