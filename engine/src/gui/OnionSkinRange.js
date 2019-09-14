@@ -23,6 +23,8 @@ Wick.GUIElement.OnionSkinRange = class extends Wick.GUIElement {
     constructor (model, direction) {
         super(model);
 
+        this.canAutoScrollX = true;
+
         this.direction = direction;
     }
 
@@ -57,53 +59,4 @@ Wick.GUIElement.OnionSkinRange = class extends Wick.GUIElement {
             ctx.fill();
         ctx.restore();
     }
-
-/*
-    get x() {
-        var project = this.model.project;
-        var x = (project.activeTimeline.playheadPosition + project.onionSkinSeekForwards - 1) * this.gridCellWidth;
-        x += this.dragOffset * this.gridCellWidth;
-        x -= project.activeTimeline.playheadPosition*this.gridCellWidth; //makes sure the forward skin stays forward of playhead;
-        x = (x+Math.abs(x))/2;
-        x += project.activeTimeline.playheadPosition*this.gridCellWidth;
-        return x;
-    }
-
-    get y() {
-        return 0;
-    }
-
-    get width() {
-        return this.gridCellWidth - Wick.GUIElement.PLAYHEAD_MARGIN * 2;
-    }
-
-    drop() {
-        this.model.project.onionSkinSeekForwards = project.activeTimeline.playheadPosition + Math.floor(-this.x / this.gridCellWidth) - 1;
-        this.model.project.onionSkinSeekForwards *= -1;
-        this.dragOffset = 0;
-    }
-
-    build () {
-        super.build();
-
-        if(!this.model.project.onionSkinEnabled) return;
-
-        var playheadPosition = this.model.project.activeTimeline.playheadPosition*this.gridCellWidth - this.width * 0.875;
-        super.build();
-        var rangeSlider = new this.paper.Path({
-            segments: [[playheadPosition + this.width / 2, this.y], [playheadPosition + this.width / 2, this.y + this.width], [playheadPosition, this.y + 2.5 + this.width * 1.5], [this.x + this.width / 2, this.y + 2.5 + this.width * 1.5], [this.x + this.width + 2.5, this.y + this.width], [this.x + this.width + 2.5, this.y]],
-            fillColor: {
-            gradient: {
-                stops: ['rgba(255,92,92,0.2)','rgba(255,92,92,1)'], //Wick.GUIElement.PLAYHEAD_FILL_COLOR
-            },
-            origin: [playheadPosition,0],
-            destination: [this.x+this.width,0],
-            },
-            opacity: this.isHoveredOver ? 1 : 0.5,
-            strokeJoin: 'round',
-            radius: 4,
-        });
-        this.item.addChild(rangeSlider);
-    }
-*/
 }

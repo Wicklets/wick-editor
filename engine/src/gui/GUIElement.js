@@ -24,6 +24,9 @@ Wick.GUIElement = class {
      */
     constructor (model) {
         this.model = model;
+
+        this.canAutoScrollY = false;
+        this.canAutoScrollY = false;
     }
 
     /**
@@ -294,7 +297,6 @@ Wick.GUIElement.ACTION_BUTTON_HOVER_COLOR = '#979797';
 Wick.GUIElement.ACTION_BUTTON_COLOR = '#000000';
 Wick.GUIElement.ACTION_BUTTON_RADIUS = 14;
 
-
 Wick.GUIElement.SCROLLBAR_HORIZONTAL_LENGTH = 100;
 Wick.GUIElement.SCROLLBAR_VERTICAL_LENGTH = 50;
 Wick.GUIElement.SCROLLBAR_BACKGROUND_COLOR = '#191919';
@@ -303,3 +305,5 @@ Wick.GUIElement.SCROLLBAR_ACTIVE_FILL_COLOR = '#cccccc';
 Wick.GUIElement.SCROLLBAR_SIZE = 18;
 Wick.GUIElement.SCROLLBAR_MARGIN = 3;
 Wick.GUIElement.SCROLLBAR_BORDER_RADIUS = 6;
+
+Wick.GUIElement.AUTO_SCROLL_SPEED = 5;

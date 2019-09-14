@@ -20,6 +20,9 @@
 Wick.GUIElement.Frame = class extends Wick.GUIElement {
     constructor (model) {
         super(model);
+
+        this.canAutoScrollX = true;
+        this.canAutoScrollY = true;
     }
 
     get dragGhostClassname () {

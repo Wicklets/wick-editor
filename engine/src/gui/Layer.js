@@ -20,6 +20,8 @@
 Wick.GUIElement.Layer = class extends Wick.GUIElement {
     constructor (model) {
         super(model);
+        
+        this.canAutoScrollY = true;
 
         this.hideButton = new Wick.GUIElement.LayerButton(model, {
             tooltip: 'Show/Hide Layer',

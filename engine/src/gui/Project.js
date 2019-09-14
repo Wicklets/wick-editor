@@ -194,9 +194,9 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
                 return elem.mouseInBounds(this._mouse);
             });
         } else {
-            this._mouseHoverTargets.forEach(elem => {
-                elem.onMouseDrag(e);
-            });
+            var target = this._getTopMouseTarget();
+            target.onMouseDrag(e);
+            this._doAutoScroll(target);
         }
 
         this.draw();
@@ -208,8 +208,7 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
             // Clicked nothing - clear the selection
             this.model.selection.clear();
         } else {
-            var l = this._mouseHoverTargets.length-1;
-            this._mouseHoverTargets[l].onMouseDown(e);
+            this._getTopMouseTarget().onMouseDown(e);
         }
 
         this.draw();
@@ -226,5 +225,29 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
         this.scrollX += dx;
         this.scrollY -= dy;
         this.draw();
+    }
+
+    _getTopMouseTarget () {
+        var l = this._mouseHoverTargets.length-1;
+        return this._mouseHoverTargets[l];
+    }
+
+    _doAutoScroll (target) {
+        if(target.canAutoScrollX) {
+            if(this._mouse.x > this.canvas.width) {
+                this.scrollX += Wick.GUIElement.AUTO_SCROLL_SPEED;
+            }
+            if(this._mouse.x < Wick.GUIElement.LAYERS_CONTAINER_WIDTH) {
+                this.scrollX -= Wick.GUIElement.AUTO_SCROLL_SPEED;
+            }
+        }
+        if(target.canAutoScrollY) {
+            if(this._mouse.y > this.canvas.height) {
+                this.scrollY += Wick.GUIElement.AUTO_SCROLL_SPEED;
+            }
+            if(this._mouse.y < Wick.GUIElement.NUMBER_LINE_HEIGHT + Wick.GUIElement.BREADCRUMBS_HEIGHT) {
+                this.scrollY -= Wick.GUIElement.AUTO_SCROLL_SPEED;
+            }
+        }
     }
 }

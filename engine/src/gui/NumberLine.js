@@ -21,6 +21,8 @@ Wick.GUIElement.NumberLine = class extends Wick.GUIElement {
     constructor (model) {
         super(model);
 
+        this.canAutoScrollX = true;
+
         this.playhead = new Wick.GUIElement.Playhead(model);
         this.onionSkinRangeLeft = new Wick.GUIElement.OnionSkinRange(model, 'left');
         this.onionSkinRangeRight = new Wick.GUIElement.OnionSkinRange(model, 'right');
