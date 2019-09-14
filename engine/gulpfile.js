@@ -11,7 +11,6 @@ gulp.task("default", function() {
     .src([
       'lib/paper.js',
       'lib/SAT.js',
-      'lib/atomic.js',
       'lib/base64-arraybuffer.js',
       'lib/convert-range.js',
       'lib/croquis.js',
