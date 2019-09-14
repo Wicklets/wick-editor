@@ -21,6 +21,7 @@ Wick.GUIElement.Scrollbar = class extends Wick.GUIElement {
     constructor (model, direction) {
         super(model);
 
+        this.grabber = new Wick.GUIElement.ScrollbarGrabber(this.model, direction);
         this.direction = direction;
     }
 
@@ -29,43 +30,38 @@ Wick.GUIElement.Scrollbar = class extends Wick.GUIElement {
 
         var ctx = this.ctx;
 
+        var maxWidth = this.canvas.width - this.localTranslation.x - Wick.GUIElement.SCROLLBAR_SIZE;
+        var maxHeight = this.canvas.height - this.localTranslation.y - Wick.GUIElement.SCROLLBAR_SIZE;
+        var size = Wick.GUIElement.SCROLLBAR_SIZE;
+
         // Background
-        ctx.fillStyle = this.mouseState === 'over' ? 'red' : Wick.GUIElement.SCROLLBAR_BACKGROUND_COLOR;
+        ctx.fillStyle = Wick.GUIElement.SCROLLBAR_BACKGROUND_COLOR;
         ctx.beginPath();
         if(this.direction === 'horizontal') {
-            ctx.rect(0, 0, this.canvas.width - this.localTranslation.x - Wick.GUIElement.SCROLLBAR_SIZE, Wick.GUIElement.SCROLLBAR_SIZE);
+            ctx.rect(0, 0, maxWidth, size);
         } else if (this.direction === 'vertical') {
-            ctx.rect(0, 0, Wick.GUIElement.SCROLLBAR_SIZE, this.canvas.height - this.localTranslation.y - Wick.GUIElement.SCROLLBAR_SIZE);
+            ctx.rect(0, 0, size, maxHeight);
         }
         ctx.fill();
 
         // Background corner piece
-        /*
-        ctx.beginPath();
-        ctx.roundRect(width-size, height-size, width, height, 0);
-        ctx.fill();
-        */
-    }
-
-    get bounds () {
-        var width = this.canvas.width - this.localTranslation.x;
-        var height = this.canvas.height - this.localTranslation.y;
-        var size = Wick.GUIElement.SCROLLBAR_SIZE;
-
         if(this.direction === 'horizontal') {
-            return {
-                x: 0,
-                y: 0,
-                width: width - size,
-                height: size
-            };
-        } else if(this.direction === 'vertical') {
-            return {
-                x: 0,
-                y: 0,
-                width: size,
-                height: height - size
-            };
+            ctx.fillStyle = Wick.GUIElement.SCROLLBAR_BACKGROUND_COLOR;
+            ctx.beginPath();
+            ctx.roundRect(maxWidth, 0, maxWidth + size, size, 0);
+            ctx.fill();
         }
+
+        // Grabber piece
+        ctx.save();
+        if(this.direction === 'horizontal') {
+            ctx.translate(0, 0);
+        } else if(this.direction === 'vertical') {
+            ctx.translate(0, 0);
+        }
+
+        this.grabber.draw();
+
+        ctx.restore();
     }
 }
