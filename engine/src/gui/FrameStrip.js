@@ -38,7 +38,7 @@ Wick.GUIElement.FrameStrip = class extends Wick.GUIElement {
         var height = Wick.GUIElement.FRAMES_STRIP_HEIGHT;
 
         ctx.beginPath();
-        ctx.rect(0, 0, width, height);
+        ctx.rect(this.project.scrollX, 0, width, height);
         ctx.fill();
 
         // Add frame overlay
@@ -71,7 +71,7 @@ Wick.GUIElement.FrameStrip = class extends Wick.GUIElement {
 
     get bounds () {
         return {
-            x: 0,
+            x: this.project.scrollX,
             y: 0,
             width: this.canvas.width,
             height: Wick.GUIElement.FRAMES_STRIP_HEIGHT,

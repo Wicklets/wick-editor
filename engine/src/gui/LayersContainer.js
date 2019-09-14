@@ -30,7 +30,7 @@ Wick.GUIElement.LayersContainer = class extends Wick.GUIElement {
         // Background
         ctx.fillStyle = Wick.GUIElement.TIMELINE_BACKGROUND_COLOR;
         ctx.beginPath();
-        ctx.rect(0, 0, Wick.GUIElement.LAYERS_CONTAINER_WIDTH, this.canvas.height);
+        ctx.rect(0, this.project.scrollY, Wick.GUIElement.LAYERS_CONTAINER_WIDTH, this.canvas.height);
         ctx.fill();
 
         // Draw layers

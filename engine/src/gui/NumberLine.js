@@ -35,12 +35,13 @@ Wick.GUIElement.NumberLine = class extends Wick.GUIElement {
         // Build BG
         ctx.fillStyle = Wick.GUIElement.TIMELINE_BACKGROUND_COLOR;
         ctx.beginPath();
-        ctx.rect(0, 0, width, height);
+        ctx.rect(this.project.scrollX, 0, width, height);
         ctx.fill();
 
         // Draw number line cells
         for(var i = -1; i < width / this.gridCellWidth + 1; i++) {
-            this._drawCell(i);
+            var skip =  Math.round(this.project.scrollX / this.gridCellWidth);
+            this._drawCell(i + skip);
         }
 
         // Draw onion skin range

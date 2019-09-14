@@ -30,7 +30,7 @@ Wick.GUIElement.FramesContainer = class extends Wick.GUIElement {
         // Background
         ctx.fillStyle = Wick.GUIElement.TIMELINE_BACKGROUND_COLOR;
         ctx.beginPath();
-        ctx.rect(0, 0, this.canvas.width, this.canvas.height);
+        ctx.rect(this.project.scrollX, this.project.scrollY, this.canvas.width, this.canvas.height);
         ctx.fill();
 
         // Draw frame strips
@@ -50,11 +50,12 @@ Wick.GUIElement.FramesContainer = class extends Wick.GUIElement {
         // Draw grid
         ctx.lineWidth = 1;
         ctx.strokeStyle = Wick.GUIElement.FRAMES_CONTAINER_VERTICAL_GRID_STROKE_COLOR;
+        var skip =  Math.round(this.project.scrollX / this.gridCellWidth);
         for(var i = -1; i < this.canvas.width / this.gridCellWidth + 1; i++) {
             ctx.beginPath();
-            var x = i * this.gridCellWidth;
-            ctx.moveTo(x, 0);
-            ctx.lineTo(x, this.canvas.height);
+            var x = (i+skip) * this.gridCellWidth;
+            ctx.moveTo(x, this.project.scrollY);
+            ctx.lineTo(x, this.project.scrollY+this.canvas.height);
             ctx.stroke();
         }
 

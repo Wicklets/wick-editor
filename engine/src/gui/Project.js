@@ -224,7 +224,7 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
         var dx = e.deltaX * e.deltaFactor * 0.5;
         var dy = e.deltaY * e.deltaFactor * 0.5;
         this.scrollX += dx;
-        this.scrollY += dy;
+        this.scrollY -= dy;
         this.draw();
     }
 }
