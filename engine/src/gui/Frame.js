@@ -23,6 +23,8 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement {
 
         this.canAutoScrollX = true;
         this.canAutoScrollY = true;
+
+        this._ghost = null;
     }
 
     draw () {
@@ -103,7 +105,7 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement {
 
         ctx.globalAlpha = 1.0;
 
-        // Drag ghost
+        // Draw drag ghost
         if(this._ghost) {
             this._ghost.draw();
         }
@@ -128,10 +130,12 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement {
     }
 
     onMouseDrag (e) {
-
+        if(!this._ghost) {
+            this._ghost = new Wick.GUIElement.FrameGhost(this.model);
+        }
     }
 
     onMouseUp (e) {
-
+        this._ghost = null;
     }
 }
