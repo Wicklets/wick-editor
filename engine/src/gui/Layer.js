@@ -27,6 +27,7 @@ Wick.GUIElement.Layer = class extends Wick.GUIElement {
             tooltip: 'Show/Hide Layer',
             clickFn: () => {
                 this.model.hidden = !this.model.hidden;
+                this.model.activate();
             }
         });
 
@@ -34,6 +35,7 @@ Wick.GUIElement.Layer = class extends Wick.GUIElement {
             tooltip: 'Lock/Unlock Layer',
             clickFn: () => {
                 this.model.locked = !this.model.locked;
+                this.model.activate();
             }
         });
 
@@ -41,6 +43,7 @@ Wick.GUIElement.Layer = class extends Wick.GUIElement {
             tooltip: 'Add Tween',
             clickFn: () => {
                 this.model.activeFrame && this.model.activeFrame.createTween();
+                this.model.activate();
             }
         });
     }
@@ -85,13 +88,17 @@ Wick.GUIElement.Layer = class extends Wick.GUIElement {
             ctx.stroke();
         ctx.restore();
 
-        // Layer name
-        var maxWidth = Wick.GUIElement.LAYERS_CONTAINER_WIDTH - 90;
+        var maxWidth = Wick.GUIElement.LAYERS_CONTAINER_WIDTH - 35;
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(0, 0, maxWidth, this.gridCellHeight);
+        ctx.clip();
         ctx.font = "16px " + Wick.GUIElement.LAYER_LABEL_FONT_FAMILY;
         ctx.fillStyle = this.model.isActive
           ? Wick.GUIElement.LAYER_LABEL_ACTIVE_FONT_COLOR
           : Wick.GUIElement.LAYER_LABEL_INACTIVE_FONT_COLOR;
-        ctx.fillText(this.model.name, 53, this.gridCellHeight / 2 + 6, maxWidth);
+        ctx.fillText(this.model.name, 53, this.gridCellHeight / 2 + 6);
+        ctx.restore();
 
         // Buttons
         ctx.save();
