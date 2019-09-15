@@ -162,14 +162,6 @@ Wick.GUIElement = class {
     }
 
     /**
-     * The classname of the ghost object to create when this object is dragged.
-     * @type {string}
-     */
-    get dragGhostClassname () {
-        return null; // Implemeneted by subclasses.
-    }
-
-    /**
      * The function to call when the mouse clicks this element.
      */
     onMouseDown (e) {

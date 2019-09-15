@@ -22,6 +22,7 @@ Wick.GUIElement.FramesContainer = class extends Wick.GUIElement {
         super(model);
 
         this._frameStrips = {};
+        this._frameGhost = null;
     }
 
     draw () {
