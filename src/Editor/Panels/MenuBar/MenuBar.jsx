@@ -58,6 +58,10 @@ class MenuBar extends Component {
             onChange={this.handleWickFileLoad}
           />
           <MenuBarButton
+            text="hotkeys"
+            action={() => this.props.openModal('KeyboardShortcuts')}
+          />
+          <MenuBarButton
             text="open"
             action={this.openProjectFileDialog}
           />
@@ -69,7 +73,9 @@ class MenuBar extends Component {
             action={this.props.exportProjectAsWickFile}
             color='save'
           />
-          <div className="project-settings-preview" onClick={() => this.props.openModal('ProjectSettings')}>
+          <div 
+            className="project-settings-preview" 
+            onClick={() => this.props.openModal('ProjectSettings')}>
             <ToolIcon name='gear' />
           </div>
         </div>
