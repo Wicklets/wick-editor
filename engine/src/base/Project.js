@@ -625,6 +625,15 @@ Wick.Project = class extends Wick.Base {
     }
 
     /**
+     * Copy the currently selected frames forwards.
+     */
+    copySelectedFramesForward () {
+        this.selection.getSelectedObjects('Frame').forEach(frame => {
+            frame.copyForward();
+        });
+    }
+
+    /**
      * Paste the contents of the clipboard into the project.
      * @returns {boolean} True if there was something to paste in the clipboard, false otherwise.
      */

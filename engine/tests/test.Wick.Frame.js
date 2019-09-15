@@ -654,10 +654,31 @@ describe('Wick.Frame', function() {
             frameToCut.cut();
 
             expect(project.activeLayer.frames.length).to.equal(2);
+            expect(project.activeLayer.getFrameAtPlayheadPosition(1)).to.equal(frameToCut);
             expect(project.activeLayer.getFrameAtPlayheadPosition(1).identifier).to.equal('frameToCut');
             expect(project.activeLayer.getFrameAtPlayheadPosition(1).length).to.equal(5);
             expect(project.activeLayer.getFrameAtPlayheadPosition(6).identifier).to.equal(null);
             expect(project.activeLayer.getFrameAtPlayheadPosition(6).length).to.equal(5);
+        });
+    });
+
+    describe('#copyForward', function () {
+        it('should copy forward correctly', function () {
+            var project = new Wick.Project();
+            project.activeFrame.remove();
+
+            var frameToCopy = new Wick.Frame({start: 1, end: 10, identifier: 'frameToCopy'});
+            project.activeLayer.addFrame(frameToCopy);
+            frameToCopy.addClip(new Wick.Clip({identifier: 'childShouldBeCopied'}));
+
+            frameToCopy.copyForward();
+
+            expect(project.activeLayer.frames.length).to.equal(2);
+            expect(project.activeLayer.getFrameAtPlayheadPosition(1)).to.equal(frameToCopy);
+            expect(project.activeLayer.getFrameAtPlayheadPosition(1).identifier).to.equal('frameToCopy');
+            expect(project.activeLayer.getFrameAtPlayheadPosition(1).length).to.equal(10);
+            expect(project.activeLayer.getFrameAtPlayheadPosition(11).identifier).to.equal(null);
+            expect(project.activeLayer.getFrameAtPlayheadPosition(11).length).to.equal(10);
         });
     });
 });

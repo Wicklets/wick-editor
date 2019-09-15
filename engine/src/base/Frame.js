@@ -526,6 +526,18 @@ Wick.Frame = class extends Wick.Tickable {
     }
 
     /**
+     * Copy this frame and paste it in front of itself.
+     */
+    copyForward () {
+        if(!this.parentLayer) return;
+        var copy = this.copy();
+        copy.identifier = null;
+        copy.start += this.length;
+        copy.end += this.length;
+        this.parentLayer.addFrame(copy);
+    }
+
+    /**
      * Import SVG data into this frame. SVGs containing mulitple paths will be split into multiple Wick Paths.
      * @param {string} svg - the SVG data to parse and import.
      */
