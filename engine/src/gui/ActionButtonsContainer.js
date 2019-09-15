@@ -49,7 +49,7 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
             tooltip: 'Add Tween',
             icon: 'add_tween',
             clickFn: () => {
-                this.model.activeFrame && this.model.activeFrame.createTween();
+                this.model.project.createTweenOnSelectedFrames();
             }
         });
     };

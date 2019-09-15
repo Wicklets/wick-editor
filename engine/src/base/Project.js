@@ -634,6 +634,15 @@ Wick.Project = class extends Wick.Base {
     }
 
     /**
+     * Create a new tween on all selected frames.
+     */
+    createTweenOnSelectedFrames () {
+        this.selection.getSelectedObjects('Frame').forEach(frame => {
+            frame.createTween();
+        });
+    }
+
+    /**
      * Paste the contents of the clipboard into the project.
      * @returns {boolean} True if there was something to paste in the clipboard, false otherwise.
      */
