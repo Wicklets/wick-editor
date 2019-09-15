@@ -43,6 +43,10 @@ Wick.GUIElement.FrameGhost = class extends Wick.GUIElement {
 
         var ctx = this.ctx;
 
+        // Save how many rows/columns we've moved for later
+        this.moveCols = Math.round(this._mouseDiff.x/this.gridCellWidth);
+        this.moveRows = Math.round(this._mouseDiff.y/this.gridCellHeight);
+
         this._frames.forEach(frame => {
             var start = frame.start - this._mainFrame.start;
             var length = frame.length;
@@ -63,7 +67,7 @@ Wick.GUIElement.FrameGhost = class extends Wick.GUIElement {
             ctx.restore();
 
             ctx.save();
-            ctx.translate(Math.round(this._mouseDiff.x/this.gridCellWidth)*this.gridCellWidth, Math.round(this._mouseDiff.y/this.gridCellHeight)*this.gridCellHeight);
+            ctx.translate(this.moveCols*this.gridCellWidth, this.moveRows*this.gridCellHeight);
             ctx.strokeStyle = '#00ff00';
             ctx.setLineDash([5, 5]);
             ctx.lineWidth = 3;
@@ -73,5 +77,28 @@ Wick.GUIElement.FrameGhost = class extends Wick.GUIElement {
                 ctx.stroke();
             ctx.restore();
         });
+    }
+
+    finish () {
+        var timeline = this.model.parentTimeline;
+        timeline.deferFrameGapResolve();
+
+        this._frames.forEach(frame => {
+            frame._originalLayerIndex = frame.parentLayer.index;
+            frame.remove();
+        });
+        this._frames.forEach(frame => {
+            frame.start += this.moveCols;
+            frame.end += this.moveCols;
+        });
+        this._frames.forEach(frame => {
+            var layer = timeline.layers[frame._originalLayerIndex + this.moveRows];
+            delete frame._originalLayerIndex;
+            if(layer) {
+                layer.addFrame(frame);
+            }
+        });
+
+        timeline.resolveFrameGaps();
     }
 }

@@ -232,6 +232,8 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
         this.canvasClicked = false;
         this._isDragging = false;
 
+        this.draw();
+
         this._onMouseMove(e);
     }
 

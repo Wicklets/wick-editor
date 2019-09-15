@@ -136,6 +136,7 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement {
     }
 
     onMouseUp (e) {
+        this._ghost.finish();
         this._ghost = null;
     }
 }
