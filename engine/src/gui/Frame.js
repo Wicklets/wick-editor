@@ -34,6 +34,9 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement {
 
         var ctx = this.ctx;
 
+        // Fade out frames is layer is hidden
+        if(this.model.parentLayer.hidden) ctx.globalAlpha = 0.3;
+
         // Frame body
         if(this.mouseState === 'over' || this.mouseState === 'down') {
             ctx.fillStyle = Wick.GUIElement.FRAME_HOVERED_OVER;
@@ -101,6 +104,8 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement {
                 ctx.restore();
             });
         }
+
+        ctx.globalAlpha = 1.0;
     }
 
     get bounds () {
