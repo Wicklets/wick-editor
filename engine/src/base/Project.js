@@ -950,7 +950,9 @@ Wick.Project = class extends Wick.Base {
         }
 
         // Clear selection if we changed between drawing tools
-        if(newTool.name !== 'pan' && newTool.name !== 'eyedropper') {
+        if(newTool.name !== 'pan' &&
+           newTool.name !== 'eyedropper' &&
+           newTool.name !== 'cursor') {
             this.selection.clear();
         }
 

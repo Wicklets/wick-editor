@@ -21,6 +21,22 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
     constructor (model) {
         super(model);
 
+        this.copyFrameForwardButton = new Wick.GUIElement.ActionButton(this.model, {
+            tooltip: 'Copy Frame Forward',
+            icon: 'add_tween',
+            clickFn: () => {
+                alert('todo copy frame forward')
+            }
+        });
+
+        this.cutFrameButton = new Wick.GUIElement.ActionButton(this.model, {
+            tooltip: 'Cut Frame',
+            icon: 'add_tween',
+            clickFn: () => {
+                alert('todo cut frame')
+            }
+        });
+
         this.deleteFrameButton = new Wick.GUIElement.ActionButton(this.model, {
             tooltip: 'Delete',
             icon: 'trashcan',
@@ -28,6 +44,7 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
                 this.model.project.deleteSelectedObjects();
             }
         });
+
         this.addTweenButton = new Wick.GUIElement.ActionButton(this.model, {
             tooltip: 'Add Tween',
             icon: 'add_tween',
@@ -46,16 +63,28 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
         ctx.rect(0, 0, Wick.GUIElement.LAYERS_CONTAINER_WIDTH, Wick.GUIElement.NUMBER_LINE_HEIGHT);
         ctx.fill();
 
-        // Add tween button
+        // Copy Frame Forward button
         ctx.save();
-        ctx.translate(175, 20);
-            this.addTweenButton.draw();
+        ctx.translate(85, 20);
+            this.copyFrameForwardButton.draw();
         ctx.restore();
 
-        // Delete frame button
+        // Cut Frame button
+        ctx.save();
+        ctx.translate(115, 20);
+            this.cutFrameButton.draw();
+        ctx.restore();
+
+        // Delete Frame button
         ctx.save();
         ctx.translate(145, 20);
             this.deleteFrameButton.draw();
+        ctx.restore();
+
+        // Add Tween button
+        ctx.save();
+        ctx.translate(175, 20);
+            this.addTweenButton.draw();
         ctx.restore();
     };
 };
