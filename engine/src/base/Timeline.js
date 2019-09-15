@@ -32,6 +32,8 @@ Wick.Timeline = class extends Wick.Base {
 
         this._playing = true;
         this._forceNextFrame = null;
+
+        this._fillGapsMethod = "auto_extend";
     }
 
     serialize (args) {
@@ -80,6 +82,9 @@ Wick.Timeline = class extends Wick.Base {
         }
 
         this._playheadPosition = playheadPosition;
+        if(this._playheadPosition < 1) {
+            this._playheadPosition = 1;
+        }
 
         // Automatically apply tween transforms on child frames when playhead moves
         this.activeFrames.forEach(frame => {
@@ -388,6 +393,22 @@ Wick.Timeline = class extends Wick.Base {
             this._forceNextFrame = frame;
         } else {
             throw new Error('gotoFrame: Invalid argument: ' + frame);
+        }
+    }
+
+    /**
+     * The method to use to fill gaps in-beteen frames. Options: "blank_frames" or "auto_extend" (see Wick.Layer.resolveGaps)
+     * @type {string}
+     */
+    get fillGapsMethod () {
+        return this._fillGapsMethod;
+    }
+
+    set fillGapsMethod (fillGapsMethod) {
+        if(fillGapsMethod === 'blank_frames' || fillGapsMethod === 'auto_extend') {
+            this._fillGapsMethod = fillGapsMethod;
+        } else {
+            console.warning('Warning: Invalid fillGapsMethod: ' + fillGapsMethod);
         }
     }
 

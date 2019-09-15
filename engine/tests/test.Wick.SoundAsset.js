@@ -66,4 +66,20 @@ describe('Wick.SoundAsset', function() {
             expect(project.activeLayer.frames[2].sound).to.equal(asset2);
         });
     });
+
+    describe('#waveform', function () {
+        it('should generate waveform image', function (done) {
+            var project = new Wick.Project();
+            var asset1 = new Wick.SoundAsset({
+                filename: 'test.wav',
+                src: TestUtils.TEST_SOUND_SRC_WAV
+            });
+            project.addAsset(asset1);
+
+            asset1.load(() => {
+                expect(asset1.waveform instanceof Image).to.equal(true);
+                done();
+            });
+        });
+    });
 });

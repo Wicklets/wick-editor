@@ -25,14 +25,14 @@ import './_generalwarning.scss';
 
 class GeneralWarning extends Component {
   acceptAndToggle = () => {
-    this.props.info.acceptAction();
-    this.props.info.finalAction(); 
     this.props.toggle();
+    this.props.info.acceptAction();
+    this.props.info.finalAction();
   }
 
   cancelAndToggle = () => {
     this.props.info.cancelAction();
-    this.props.info.finalAction(); 
+    this.props.info.finalAction();
     this.props.toggle();
   }
 
@@ -61,12 +61,12 @@ class GeneralWarning extends Component {
               <div id="general-warning-modal-accept">
                 <ActionButton
                   className="general-warning-modal-button"
-                  color='red'
+                  color='green'
                   action={this.acceptAndToggle}
                   text={this.props.info.acceptText}
                   />
               </div>
-          </div>
+           </div>
         </div>
       </WickModal>
     );

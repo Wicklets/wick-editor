@@ -18,8 +18,8 @@ describe('#performance', function () {
             layer1.addFrame(new Wick.Frame({start: 2}));
             layer1.addFrame(new Wick.Frame({start: 3}));
 
-            project.guiElement.build();
-            project.guiElement.build();
+            project.guiElement.draw();
+            project.guiElement.draw();
         });
 
         it('three frames', function () {
@@ -35,14 +35,14 @@ describe('#performance', function () {
             // Render timeline and time how long it took
             console.log('--- basic perf test ---');
             TestUtils.timeFunction(() => {
-                project.guiElement.build();
-            }, 'init build');
+                project.guiElement.draw();
+            }, 'init draw');
             TestUtils.timeFunction(() => {
-                project.guiElement.build();
-            }, 'second build');
+                project.guiElement.draw();
+            }, 'second draw');
             TestUtils.timeFunction(() => {
-                project.guiElement.build();
-            }, 'third build');
+                project.guiElement.draw();
+            }, 'third draw');
         });
 
         it('many frames of all types', function () {
@@ -71,14 +71,14 @@ describe('#performance', function () {
             // Render timeline and time how long it took
             console.log('--- heavy perf test ---');
             TestUtils.timeFunction(() => {
-                project.guiElement.build();
-            }, 'init build');
+                project.guiElement.draw();
+            }, 'init draw');
             TestUtils.timeFunction(() => {
-                project.guiElement.build();
-            }, 'second build');
+                project.guiElement.draw();
+            }, 'second draw');
             TestUtils.timeFunction(() => {
-                project.guiElement.build();
-            }, 'third build');
+                project.guiElement.draw();
+            }, 'third draw');
         });
     });
 

@@ -28,9 +28,9 @@ Wick.WickFile = class {
      */
     static fromWickFile (wickFile, callback) {
         var zip = new JSZip();
-        zip.loadAsync(wickFile).then(function(contents) {
+        zip.loadAsync(wickFile).then((contents) => {
             contents.files['project.json'].async('text')
-            .then(function (projectJSON) {
+            .then(projectJSON => {
                 var projectData = JSON.parse(projectJSON);
                 if(!projectData.objects) {
                     // No metadata! This is a pre 1.0.9a project. Convert it.
@@ -51,8 +51,7 @@ Wick.WickFile = class {
                 var loadedAssetCount = 0;
                 // Immediately end if the project has no assets.
                 if (project.getAssets().length === 0) {
-                    //Wick.ObjectCache.deserialize(projectData.objects)
-                    //var project = Wick.Base.fromData(projectData.project);
+                    this._prepareProject(project);
                     callback(project);
                 } else {
                     project.getAssets().forEach(assetData => {
@@ -69,6 +68,7 @@ Wick.WickFile = class {
                             assetData.load(() => {
                                 loadedAssetCount++;
                                 if(loadedAssetCount === project.getAssets().length) {
+                                    this._prepareProject(project);
                                     callback(project);
                                 }
                             });
@@ -76,7 +76,7 @@ Wick.WickFile = class {
                     });
                 }
             });
-        }).catch(function (e) {
+        }).catch((e) => {
             console.log('Error loading project zip.')
             console.log(e);
             callback(null);
@@ -157,5 +157,18 @@ Wick.WickFile = class {
                 level: 9
             },
         }).then(callback);
+    }
+
+    /* Make any small backwards compatibility fixes needed */
+    static _prepareProject (project) {
+        // 1.16+ projects don't allow gaps between frames.
+        Wick.ObjectCache.getAllObjects().filter(object => {
+            return object instanceof Wick.Timeline;
+        }).forEach(timeline => {
+            var oldFrameGapFillMethod = timeline.fillGapsMethod;
+            timeline.fillGapsMethod = 'blank_frames';
+            timeline.resolveFrameGaps();
+            timeline.fillGapsMethod = oldFrameGapFillMethod;
+        });
     }
 }

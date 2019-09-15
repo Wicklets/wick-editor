@@ -62,6 +62,10 @@ class MenuBar extends Component {
             action={() => this.props.openModal('KeyboardShortcuts')}
           />
           <MenuBarButton
+            text="new"
+            action={this.props.openNewProjectConfirmation}
+          />
+          <MenuBarButton
             text="open"
             action={this.openProjectFileDialog}
           />
@@ -73,8 +77,8 @@ class MenuBar extends Component {
             action={this.props.exportProjectAsWickFile}
             color='save'
           />
-          <div 
-            className="project-settings-preview" 
+          <div
+            className="project-settings-preview"
             onClick={() => this.props.openModal('ProjectSettings')}>
             <ToolIcon name='gear' />
           </div>

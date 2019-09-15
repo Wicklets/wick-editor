@@ -219,29 +219,33 @@ Wick.Layer = class extends Wick.Base {
     resolveGaps () {
         if(this.parentTimeline && this.parentTimeline.waitToFillFrameGaps) return;
 
+        var fillGapsMethod = this.parentTimeline && this.parentTimeline.fillGapsMethod;
+        if(!fillGapsMethod) fillGapsMethod = 'blank_frames';
+
         this.findGaps().forEach(gap => {
             // Method 1: Use the frame on the left (if there is one) to fill the gap
-            // (Disabled for now - it was confusing to have frames auto-extend themsevles)
-            /*
-            if(gap.start === 1) {
-                // If there is no frame on the left, create a blank one
+            if(fillGapsMethod === 'auto_extend') {
+                if(gap.start === 1) {
+                    // If there is no frame on the left, create a blank one
+                    var empty = new Wick.Frame({
+                        start: gap.start,
+                        end: gap.end,
+                    });
+                    this.addFrame(empty);
+                } else {
+                    // Otherwise, extend the frame to the left to fill the gap
+                    this.getFrameAtPlayheadPosition(gap.start-1).end = gap.end;
+                }
+            }
+
+            // Method 2: Always create empty frames to fill gaps
+            if(fillGapsMethod === 'blank_frames') {
                 var empty = new Wick.Frame({
                     start: gap.start,
                     end: gap.end,
                 });
                 this.addFrame(empty);
-            } else {
-                // Otherwise, extend the frame to the left to fill the gap
-                this.getFrameAtPlayheadPosition(gap.start-1).end = gap.end;
             }
-            */
-
-            // Method 2: Always create empty frames to fill gaps
-            var empty = new Wick.Frame({
-                start: gap.start,
-                end: gap.end,
-            });
-            this.addFrame(empty);
         });
     }
 

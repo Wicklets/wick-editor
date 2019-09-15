@@ -169,7 +169,7 @@ class Editor extends EditorCore {
         },
         onAfterTick: () => {
           //this.project.view.render();
-          this.project.activeTimeline.guiElement.numberLine.playhead.build();
+          this.project.guiElement.draw();
         },
         onBeforeTick: () => {
 
@@ -446,7 +446,7 @@ class Editor extends EditorCore {
 
     // Render engine
     this.project.view.render();
-    this.project.guiElement.build();
+    this.project.guiElement.draw();
 
     // Force react to render
     this.setState({
@@ -608,6 +608,7 @@ class Editor extends EditorCore {
                     <MenuBar
                       openModal={this.openModal}
                       projectName={this.project.name}
+                      openNewProjectConfirmation={this.openNewProjectConfirmation}
                       exportProjectAsWickFile={this.exportProjectAsWickFile}
                       importProjectAsWickFile={this.importProjectAsWickFile}
                       toast={this.toast}

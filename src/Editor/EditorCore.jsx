@@ -39,10 +39,6 @@ class EditorCore extends Component {
    */
   setActiveTool = (newTool) => {
     if(newTool !== this.getActiveTool().name) {
-      if(newTool !== 'pan' && newTool !== 'eyedropper') {
-        this.project.selection.clear();
-      }
-
       this.lastUsedTool = this.getActiveTool();
       this.project.activeTool = newTool;
 
@@ -166,8 +162,7 @@ class EditorCore extends Component {
    * Moves the active timeline's playhead forward one frame.
    */
   movePlayheadForwards = () => {
-    let timeline = this.project.focus.timeline;
-    timeline.playheadPosition ++;
+    this.project.focus.timeline.playheadPosition++;
     this.projectDidChange();
   }
 
@@ -175,69 +170,16 @@ class EditorCore extends Component {
    * Moves the active timeline's playhead backwards one frame.
    */
   movePlayheadBackwards = () => {
-    let timeline = this.project.focus.timeline;
-    timeline.playheadPosition = Math.max(1, timeline.playheadPosition - 1);
+    this.project.focus.timeline.playheadPosition --;
     this.projectDidChange();
   }
 
   /**
    * Determines the type of the object/objects that are in the selection state.
-   * @returns {string} The string representation of the type of object/objects
-   * selected
+   * @returns {string} The string representation of the type of object/objects selected
    */
   getSelectionType = () => {
-    let selection = this.project.selection;
-
-    if(selection.location === 'Canvas') {
-      if(selection.numObjects === 1) {
-        var selectedObject = selection.getSelectedObject();
-        if(selectedObject instanceof window.Wick.Path) {
-          return selectedObject.pathType;
-        } else if(selectedObject instanceof window.Wick.Button) {
-          return 'button';
-        } else if(selectedObject instanceof window.Wick.Clip) {
-          return 'clip';
-        }
-      } else if (selection.types.length === 1) {
-        if (selection.types[0] === 'Path') {
-          return 'multipath';
-        } else {
-          return 'multiclip';
-        }
-      } else {
-        return 'multicanvas';
-      }
-    } else if (selection.location === 'Timeline') {
-      if(selection.numObjects === 1) {
-        if(selection.getSelectedObject() instanceof window.Wick.Frame) {
-          return 'frame';
-        } else if(selection.getSelectedObject() instanceof window.Wick.Layer) {
-          return 'layer';
-        } else if(selection.getSelectedObject() instanceof window.Wick.Tween) {
-          return 'tween';
-        }
-      } else if (selection.types.length === 1) {
-        if(selection.getSelectedObject() instanceof window.Wick.Frame) {
-          return 'multiframe';
-        } else if(selection.getSelectedObject() instanceof window.Wick.Layer) {
-          return 'multilayer';
-        } else if(selection.getSelectedObject() instanceof window.Wick.Tween) {
-          return 'multitween';
-        }
-      } else {
-        return 'multitimeline';
-      }
-    } else if (selection.location === 'AssetLibrary') {
-      if(selection.getSelectedObjects()[0] instanceof window.Wick.ImageAsset) {
-        return 'imageasset';
-      } else if(selection.getSelectedObjects()[0] instanceof window.Wick.SoundAsset) {
-        return 'soundasset';
-      } else {
-        return 'multiassetmixed'
-      }
-    } else {
-      return 'unknown';
-    }
+    return this.project.selection.selectionType;
   }
 
   /**
@@ -245,10 +187,7 @@ class EditorCore extends Component {
    * @return {boolean} True if the selection is scriptable.
    */
   selectionIsScriptable = () => {
-    return this.project.selection.numObjects === 1
-        && (this.project.selection.types[0] === 'Clip' ||
-            this.project.selection.types[0] === 'Frame' ||
-            this.project.selection.types[0] === 'Button');
+    return this.project.selection.isScriptable;
   }
 
   /**
@@ -372,6 +311,7 @@ class EditorCore extends Component {
    */
   selectObject = (object) => {
     this.project.selection.select(object);
+    this.projectDidChange();
   }
 
   /**
@@ -381,7 +321,7 @@ class EditorCore extends Component {
    */
   selectObjects = (objects) => {
     objects.forEach(object => {
-      this.selectObject(object);
+      this.project.selection.select(object);
     });
     this.projectDidChange();
   }
@@ -431,31 +371,7 @@ class EditorCore extends Component {
    * @return {string[]} Array of selection attribute names.
    */
   getAllSelectionAttributeNames = () => {
-    var attributes = [
-      "strokeWidth",
-      "fillColor",
-      "strokeColor",
-      "name",
-      "filename",
-      "fontSize",
-      "fontFamily",
-      "fontWeight",
-      "fontStyle",
-      "src",
-      "frameLength",
-      "x",
-      "y",
-      "width",
-      "height",
-      "rotation",
-      "opacity",
-      "sound",
-      "soundVolume",
-      "soundStart",
-      "identifier",
-      "easingType",
-    ];
-    return attributes;
+    return this.project.selection.allAttributeNames;
   }
 
   /**
@@ -512,7 +428,6 @@ class EditorCore extends Component {
    *    Calling this function with false ensures user doesn't accidentally wrap a Clip within another Clip.
    */
   createClipFromSelection = (name, wrapSingularClip = true) => {
-
     if (this.project.selection.numObjects === 0) {
       console.log("No selection from which to create clips.");
       return;
@@ -816,7 +731,6 @@ class EditorCore extends Component {
       this.project.guiElement.dropAssetAtPosition(uuid, x, y);
   }
 
-
   /**
    * Attempts to import an arbitrary asset to the project. Displays an error or success message
    * depending on if the action was successful.
@@ -929,12 +843,12 @@ class EditorCore extends Component {
         text: "Successfully created .gif file." });
       saveAs(gifBlob, outputName + '.gif');
     }
-    
+
     GIFExport.createAnimatedGIFFromProject({
       project: this.project,
-      onFinish: onFinish, 
-      onError: onError, 
-      onProgress: onProgress, 
+      onFinish: onFinish,
+      onError: onError,
+      onProgress: onProgress,
     });
 
   }
@@ -1020,17 +934,38 @@ class EditorCore extends Component {
   /**
    * Sets up a new project in the editor. This operation will remove the
    * history, selection, and all other ability to retrieve your project.
-   * @param {Wick.Project} project project to load.
+   * @param {Wick.Project} project - the project to load.
    */
   setupNewProject = (project) => {
     this.resetEditorForLoad();
-    this.project = project;
+    this.project = project || new window.Wick.Project();
     this.project.selection.clear();
 
     this.projectDidChange();
     this.hideWaitOverlay();
     this.project.view.prerender();
     this.project.view.render();
+  }
+
+  openNewProjectConfirmation = () => {
+      this.setState({
+        warningModalInfo: {
+          description: "You will lose any unsaved changes to the current project.",
+          title: "Open a New Project?",
+          acceptText: "Accept",
+          cancelText: "Cancel",
+          acceptAction: (() => {
+            setTimeout(() => {
+              this.setupNewProject();
+            }, 100)
+          }),
+          cancelAction: (() => {}),
+          finalAction: (() => {
+
+          })
+        }
+      });
+      this.openModal('GeneralWarning');
   }
 
   showAutosavedProjects = () => {

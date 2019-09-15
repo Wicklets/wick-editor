@@ -67,6 +67,37 @@ Wick.Selection = class extends Wick.Base {
     }
 
     /**
+     * The names of all attributes of the selection that can be changed.
+     * @type {string[]}
+     */
+    get allAttributeNames () {
+        return [
+            "strokeWidth",
+            "fillColor",
+            "strokeColor",
+            "name",
+            "filename",
+            "fontSize",
+            "fontFamily",
+            "fontWeight",
+            "fontStyle",
+            "src",
+            "frameLength",
+            "x",
+            "y",
+            "width",
+            "height",
+            "rotation",
+            "opacity",
+            "sound",
+            "soundVolume",
+            "soundStart",
+            "identifier",
+            "easingType",
+        ];
+    }
+
+    /**
      * Add a wick object to the selection.
      * @param {Wick.Base} object - The object to select.
      */
@@ -97,9 +128,6 @@ Wick.Selection = class extends Wick.Base {
 
         // Add the object to the selection!
         this._selectedObjectsUUIDs.push(object.uuid);
-
-        // Select frames that are between other selected frames
-        this._selectInBetweenFrames();
 
         this._resetPositioningValues();
 
@@ -209,6 +237,65 @@ Wick.Selection = class extends Wick.Base {
         });
         var uniqueTypes = [...new Set(types)];
         return uniqueTypes;
+    }
+
+    /**
+     * A single string describing the contents of the selection.
+     * @type {string}
+     */
+    get selectionType () {
+      let selection = this;
+
+      if(selection.location === 'Canvas') {
+        if(selection.numObjects === 1) {
+          var selectedObject = selection.getSelectedObject();
+          if(selectedObject instanceof window.Wick.Path) {
+            return selectedObject.pathType;
+          } else if(selectedObject instanceof window.Wick.Button) {
+            return 'button';
+          } else if(selectedObject instanceof window.Wick.Clip) {
+            return 'clip';
+          }
+        } else if (selection.types.length === 1) {
+          if (selection.types[0] === 'Path') {
+            return 'multipath';
+          } else {
+            return 'multiclip';
+          }
+        } else {
+          return 'multicanvas';
+        }
+      } else if (selection.location === 'Timeline') {
+        if(selection.numObjects === 1) {
+          if(selection.getSelectedObject() instanceof window.Wick.Frame) {
+            return 'frame';
+          } else if(selection.getSelectedObject() instanceof window.Wick.Layer) {
+            return 'layer';
+          } else if(selection.getSelectedObject() instanceof window.Wick.Tween) {
+            return 'tween';
+          }
+        } else if (selection.types.length === 1) {
+          if(selection.getSelectedObject() instanceof window.Wick.Frame) {
+            return 'multiframe';
+          } else if(selection.getSelectedObject() instanceof window.Wick.Layer) {
+            return 'multilayer';
+          } else if(selection.getSelectedObject() instanceof window.Wick.Tween) {
+            return 'multitween';
+          }
+        } else {
+          return 'multitimeline';
+        }
+      } else if (selection.location === 'AssetLibrary') {
+        if(selection.getSelectedObjects()[0] instanceof window.Wick.ImageAsset) {
+          return 'imageasset';
+        } else if(selection.getSelectedObjects()[0] instanceof window.Wick.SoundAsset) {
+          return 'soundasset';
+        } else {
+          return 'multiassetmixed'
+        }
+      } else {
+        return 'unknown';
+      }
     }
 
     /**
@@ -524,6 +611,14 @@ Wick.Selection = class extends Wick.Base {
         return this._getSingleAttribute('filename');
     }
 
+    /**
+     * True if the selection is scriptable.
+     * @type {boolean}
+     */
+    get isScriptable () {
+        return this.numObjects === 1 && this.getSelectedObjects()[0].isScriptable;
+    }
+
     _locationOf (object) {
         if(object instanceof Wick.Frame
         || object instanceof Wick.Tween
@@ -537,6 +632,7 @@ Wick.Selection = class extends Wick.Base {
         }
     }
 
+    /* Helper function: Calculate the selection x,y */
     _resetPositioningValues () {
         var selectedObject = this.getSelectedObject();
         if(selectedObject instanceof Wick.Clip) {
@@ -568,26 +664,6 @@ Wick.Selection = class extends Wick.Base {
     _setSingleAttribute (attributeName, value) {
         this.getSelectedObjects().forEach(selectedObject => {
             selectedObject[attributeName] = value;
-        });
-    }
-
-    /* Helper function for shift+click selecting frames */
-    _selectInBetweenFrames () {
-        var currentFrame;
-        this.project.activeTimeline.layers.forEach(layer => {
-            for(var i = 1; i < layer.length; i++) {
-                var frame = layer.getFrameAtPlayheadPosition(i);
-                if(this.isObjectSelected(frame)) {
-                    if(currentFrame) {
-                        layer.getFramesInRange(currentFrame.start, frame.end).forEach(selectFrame => {
-                            if(!this.isObjectSelected(selectFrame)) {
-                                this._selectedObjectsUUIDs.push(selectFrame.uuid);
-                            }
-                        })
-                    }
-                    currentFrame = frame;
-                }
-            }
         });
     }
 }

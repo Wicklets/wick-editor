@@ -418,7 +418,7 @@ Wick.Base = class {
 
     _generateGUIElement () {
         var guiElementClass = Wick.GUIElement[this.classname];
-        if(guiElementClass) {
+        if(guiElementClass && guiElementClass !== Wick.Button) {
             return new guiElementClass(this);
         } else {
             return null;
