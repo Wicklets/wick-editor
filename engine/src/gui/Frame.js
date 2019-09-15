@@ -129,12 +129,17 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement {
         var playheadPosition = this.model.start + Math.floor(this.localMouse.x / this.gridCellWidth);
         this.model.project.activeTimeline.playheadPosition = playheadPosition;
 
-        if(this.model.isSelected) return;
-        if(!e.shiftKey) {
-            this.model.project.selection.clear();
+        if(this.model.isSelected) {
+            if(e.shiftKey) {
+                this.model.project.selection.deselect(this.model);
+            }
+        } else {
+            if(!e.shiftKey) {
+                this.model.project.selection.clear();
+            }
+            this.model.project.selection.select(this.model);
+            this.model.parentLayer.activate();
         }
-        this.model.project.selection.select(this.model);
-        this.model.parentLayer.activate();
     }
 
     onMouseDrag (e) {
