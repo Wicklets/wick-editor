@@ -30,7 +30,7 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
         this._canvas = document.createElement('canvas');
         document.addEventListener('mousemove', this._onMouseMove.bind(this), false);
         this._canvas.addEventListener('mousedown', this._onMouseDown.bind(this), false);
-        this._canvas.addEventListener('mouseup',this._onMouseUp.bind(this), false);
+        document.addEventListener('mouseup',this._onMouseUp.bind(this), false);
         $(this._canvas).on('mousewheel', this._onMouseWheel.bind(this));
         this._ctx = this._canvas.getContext('2d');
 
@@ -177,11 +177,12 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
         };
 
         // Optimization: Only update if the mouse is on the canvas (unless something is being dragged)
-        if(e.buttons === 0 && (
+        var mouseOffCanvas = (
             this._mouse.x < 0 ||
             this._mouse.y < 0 ||
             this._mouse.x > this.canvas.width ||
-            this._mouse.y > this.canvas.height)) {
+            this._mouse.y > this.canvas.height);
+        if(e.buttons === 0 && !this.canvasClicked && mouseOffCanvas) {
             if(this._mouseHoverTargets.length > 0) {
                 this._mouseHoverTargets = [];
                 this.draw();
@@ -195,15 +196,22 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
                 return elem.mouseInBounds(this._mouse);
             });
         } else {
+            if(!this.canvasClicked) {
+                return;
+            }
             var target = this._getTopMouseTarget();
-            target.onMouseDrag(e);
-            this._doAutoScroll(target);
+            if(target) {
+                target.onMouseDrag(e);
+                this._doAutoScroll(target);
+            }
         }
 
         this.draw();
     }
 
     _onMouseDown (e) {
+        this.canvasClicked = true;
+
         // Clicked nothing - clear the selection
         if(this._mouseHoverTargets.length === 0) {
             // Clicked nothing - clear the selection
@@ -216,6 +224,8 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
     }
 
     _onMouseUp (e) {
+        this.canvasClicked = false;
+
         this._onMouseMove(e);
     }
 
