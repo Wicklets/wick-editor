@@ -42,9 +42,9 @@ Wick.GUIElement.BreadcrumbsButton = class extends Wick.GUIElement.Button {
         var buttonBodyColor = 'red';
         if(this.model === this.model.project.focus) {
            buttonBodyColor = Wick.GUIElement.BREADCRUMBS_ACTIVE_BUTTON_FILL_COLOR;
-        } else if(this.isBeingClicked) {
+        } else if(this.mouseState === 'down') {
             buttonBodyColor = Wick.GUIElement.BREADCRUMBS_INACTIVE_BUTTON_FILL_COLOR;
-        } else if (this.isHoveredOver) {
+        } else if (this.mouseState === 'over') {
             buttonBodyColor = Wick.GUIElement.BREADCRUMBS_HOVER_BUTTON_FILL_COLOR;
         } else {
             buttonBodyColor = Wick.GUIElement.BREADCRUMBS_INACTIVE_BUTTON_FILL_COLOR;
