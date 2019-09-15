@@ -170,7 +170,7 @@ class EditorCore extends Component {
    * Moves the active timeline's playhead backwards one frame.
    */
   movePlayheadBackwards = () => {
-    this.project.focus.timeline.playheadPosition --;
+    this.project.focus.timeline.playheadPosition--;
     this.projectDidChange();
   }
 

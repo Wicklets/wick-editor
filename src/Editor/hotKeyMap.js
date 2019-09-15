@@ -139,7 +139,7 @@ class HotKeyInterface extends Object {
         name: "Move Playhead Forward",
         sequences: ['.'],
       },
-      'move-playhead-back': {
+      'move-playhead-backwards': {
         name: "Move Playhead Back",
         sequences: [','],
       },
