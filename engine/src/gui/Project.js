@@ -197,12 +197,18 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
             });
         } else {
             if(!this.canvasClicked) {
+                // Don't drag if the click didn't originate from the canvas.
                 return;
-            }
-            var target = this._getTopMouseTarget();
-            if(target) {
-                target.onMouseDrag(e);
-                this._doAutoScroll(target);
+            } else if (!this._mouseHasMoved(this._clickXY, {x:e.x, y:e.y}, 5)) {
+                // Don't start dragging things until the mouse has moved a little bit.
+                return;
+            } else {
+                this._isDragging = true;
+                var target = this._getTopMouseTarget();
+                if(target) {
+                    target.onMouseDrag(e);
+                    this._doAutoScroll(target);
+                }
             }
         }
 
@@ -211,12 +217,13 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
 
     _onMouseDown (e) {
         this.canvasClicked = true;
+        this._clickXY = {x: e.x, y: e.y};
 
-        // Clicked nothing - clear the selection
         if(this._mouseHoverTargets.length === 0) {
             // Clicked nothing - clear the selection
             this.model.selection.clear();
         } else {
+            // Clicked something - run that element's onMouseDown
             this._getTopMouseTarget().onMouseDown(e);
         }
 
@@ -224,8 +231,11 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
     }
 
     _onMouseUp (e) {
-        this._getTopMouseTarget().onMouseUp(e);
+        if(this._isDragging) {
+            this._getTopMouseTarget().onMouseUp(e);
+        }
         this.canvasClicked = false;
+        this._isDragging = false;
 
         this._onMouseMove(e);
     }
@@ -261,5 +271,13 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
                 this.scrollY -= Wick.GUIElement.AUTO_SCROLL_SPEED;
             }
         }
+    }
+
+    _mouseHasMoved (origMouse, currMouse, amount) {
+        var d = {
+            x: Math.abs(origMouse.x - currMouse.x),
+            y: Math.abs(origMouse.y - currMouse.y),
+        };
+        return d.x > amount || d.y > amount;
     }
 }

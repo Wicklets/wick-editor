@@ -143,7 +143,7 @@ Wick.GUIElement = class {
      */
     get mouseState () {
         if(this === this.project._getTopMouseTarget()) {
-            if(this.project.canvasClicked) {
+            if(this.project._isDragging) {
                 return 'down';
             } else {
                 return 'over';
