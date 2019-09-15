@@ -63,9 +63,13 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement {
 
         // Frame identifier
         if(this.model.identifier) {
+            ctx.save();
+            ctx.rect(0,0,this.model.length * this.gridCellWidth, this.gridCellHeight);
+            ctx.clip();
             ctx.font = '12px Courier New';
             ctx.fillStyle = 'black';
-            ctx.fillText(this.model.identifier, 0, 12, this.model.length * this.gridCellWidth);
+            ctx.fillText(this.model.identifier, 0, 12);
+            ctx.restore();
         }
 
         if(this.model.tweens.length === 0 && !this.model.sound) {
