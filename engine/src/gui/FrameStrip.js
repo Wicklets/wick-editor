@@ -65,11 +65,13 @@ Wick.GUIElement.FrameStrip = class extends Wick.GUIElement {
     }
 
     onMouseDown (e) {
-        var newFrame = new Wick.Frame({start: this.addFrameCol+1});
+        var playheadPosition = this.addFrameCol+1;
+        var newFrame = new Wick.Frame({start: playheadPosition});
         this.model.addFrame(newFrame);
         this.model.project.selection.clear();
         this.model.project.selection.select(newFrame);
         newFrame.parentLayer.activate();
+        this.model.project.activeTimeline.playheadPosition = playheadPosition;
     }
 
     get bounds () {

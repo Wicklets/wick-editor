@@ -121,6 +121,9 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement {
     }
 
     onMouseDown (e) {
+        var playheadPosition = this.model.start + Math.floor(this.localMouse.x / this.gridCellWidth);
+        this.model.project.activeTimeline.playheadPosition = playheadPosition;
+
         if(this.model.isSelected) return;
         if(!e.shiftKey) {
             this.model.project.selection.clear();

@@ -81,6 +81,7 @@ Wick.GUIElement.FrameGhost = class extends Wick.GUIElement {
 
     finish () {
         var timeline = this.model.parentTimeline;
+        timeline.playheadPosition += this.moveCols;
         timeline.deferFrameGapResolve();
 
         this._frames.forEach(frame => {
