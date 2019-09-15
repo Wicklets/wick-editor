@@ -143,7 +143,11 @@ Wick.GUIElement = class {
      */
     get mouseState () {
         if(this === this.project._getTopMouseTarget()) {
-            return 'over';
+            if(this.project.canvasClicked) {
+                return 'down';
+            } else {
+                return 'over';
+            }
         } else {
             return 'out';
         }
@@ -176,6 +180,13 @@ Wick.GUIElement = class {
      * The function to call when the mouse drags this element.
      */
     onMouseDrag (e) {
+        // Implemeneted by subclasses.
+    }
+
+    /**
+     * The function to call when the mouse finishes a click on this element.
+     */
+    onMouseUp (e) {
         // Implemeneted by subclasses.
     }
 }

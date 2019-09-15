@@ -50,6 +50,13 @@ Wick.GUIElement.Layer = class extends Wick.GUIElement {
 
         var ctx = this.ctx;
 
+        // Save where the mouse is if the user wants to drag the playhead around
+        var mouseY = this.localMouse.y + this.model.index * this.gridCellHeight;
+        this.mouseLayerIndex = Math.round(mouseY / this.gridCellHeight) + 1;
+        this.mouseLayerIndex = Math.max(1, this.mouseLayerIndex);
+        this.mouseLayerIndex = Math.min(this.model.parentTimeline.layers.length+1, this.mouseLayerIndex);
+        this.mouseLayerIndex -= this.model.index;
+
         // Body
         if (this.model.hidden) {
             ctx.fillStyle = Wick.GUIElement.LAYER_LABEL_HIDDEN_FILL_COLOR;
@@ -101,6 +108,18 @@ Wick.GUIElement.Layer = class extends Wick.GUIElement {
         ctx.translate(175, 20);
             this.addTweenButton.draw('add_tween', false);
         ctx.restore();
+
+        // Reordering ghost
+        if(this.mouseState === 'down') {
+            ctx.fillStyle = 'red';
+            ctx.save();
+            ctx.translate(0, (this.mouseLayerIndex-1) * this.gridCellHeight);
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.lineTo(Wick.GUIElement.LAYERS_CONTAINER_WIDTH, 0)
+                ctx.stroke();
+            ctx.restore();
+        }
     }
 
     get bounds () {
@@ -116,5 +135,16 @@ Wick.GUIElement.Layer = class extends Wick.GUIElement {
         this.model.activate();
         this.model.project.selection.clear();
         this.model.project.selection.select(this.model);
+    }
+
+    onMouseDrag (e) {
+
+    }
+
+    onMouseUp (e) {
+        var moveIndex = this.mouseLayerIndex - 1 + this.model.index;
+        if(moveIndex > this.model.index) moveIndex --;
+        this.model.move(moveIndex);
+        this.model.activate();
     }
 }

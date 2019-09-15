@@ -224,6 +224,7 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
     }
 
     _onMouseUp (e) {
+        this._getTopMouseTarget().onMouseUp(e);
         this.canvasClicked = false;
 
         this._onMouseMove(e);
