@@ -38,5 +38,52 @@ Wick.GUIElement.Tween = class extends Wick.GUIElement {
             ctx.roundRect(-r, -r, r*2, r*2, 3);
             ctx.fill();
         ctx.restore();
+
+        // Tween diamond right half
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(0, -30, 30, 60);
+        ctx.clip();
+        ctx.rotate(Math.PI / 4);
+            var r = Wick.GUIElement.TWEEN_DIAMOND_RADIUS;
+            ctx.fillStyle = Wick.GUIElement.TWEEN_FILL_COLOR_2;
+            ctx.beginPath();
+            ctx.roundRect(-r, -r, r*2, r*2, 3);
+            ctx.fill();
+        ctx.restore();
+
+        // Tween arrows
+        var nextTween = this.model.getNextTween();
+        if(nextTween) {
+            var nextTweenGridPosition = nextTween.playheadPosition - this.model.playheadPosition;
+            var nextTweenPosition = nextTweenGridPosition * this.gridCellWidth;
+            var padding = 18;
+            var arrowSize = 5;
+
+            // Line
+            ctx.strokeStyle = Wick.GUIElement.TWEEN_ARROW_STROKE_COLOR;
+            ctx.lineWidth = Wick.GUIElement.TWEEN_ARROW_STROKE_WIDTH;
+            ctx.beginPath();
+            ctx.moveTo(padding, 0);
+            ctx.lineTo(nextTweenPosition - padding, 0);
+            ctx.stroke();
+
+            // Arrow head
+            ctx.fillStyle = Wick.GUIElement.TWEEN_ARROW_STROKE_COLOR;
+            ctx.beginPath();
+            ctx.moveTo(nextTweenPosition - padding, 0);
+            ctx.lineTo(nextTweenPosition - padding - arrowSize, -arrowSize);
+            ctx.stroke();
+
+            // Arrow head
+            ctx.fillStyle = Wick.GUIElement.TWEEN_ARROW_STROKE_COLOR;
+            ctx.beginPath();
+            ctx.moveTo(nextTweenPosition - padding, 0);
+            ctx.lineTo(nextTweenPosition - padding - arrowSize, -arrowSize);
+            ctx.beginPath();
+            ctx.moveTo(nextTweenPosition - padding, 0);
+            ctx.lineTo(nextTweenPosition - padding - arrowSize, arrowSize);
+            ctx.stroke();
+        }
     }
 }

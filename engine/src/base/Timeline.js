@@ -219,6 +219,13 @@ Wick.Timeline = class extends Wick.Base {
      */
     addLayer (layer) {
         this.addChild(layer);
+        if(!layer.name) {
+            if(this.layers.length > 1) {
+                layer.name = "Layer " + this.layers.length;
+            } else {
+                layer.name = "Layer";
+            }
+        }
     }
 
     /**
