@@ -152,6 +152,8 @@ describe('Wick.Selection', function() {
     });
 
     it('should select frames between frames if multple frames are selected', function () {
+        throw new Error('todo')
+
         var project = new Wick.Project();
         var frame1 = project.activeFrame;
         var frame2 = new Wick.Frame({start:2});

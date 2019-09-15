@@ -140,8 +140,9 @@ describe('Wick.Layer', function() {
     });
 
     describe('#resolveGaps', function () {
-        it('should fill a simple gap between two frames', function () {
+        it('should fill a simple gap between two frames (blank_frames method)', function () {
             var project = new Wick.Project();
+            project.activeTimeline.fillGapsMethod = 'blank_frames';
             project.activeFrame.remove();
 
             var layer = project.activeLayer;
@@ -157,8 +158,9 @@ describe('Wick.Layer', function() {
             expect(layer.getFrameAtPlayheadPosition(3)).to.equal(frameRight);
         });
 
-        it('if multiple frames are deleted, gaps should still be filled correctly', function () {
+        it('if multiple frames are deleted, gaps should still be filled correctly (blank_frames method)', function () {
             var project = new Wick.Project();
+            project.activeTimeline.fillGapsMethod = 'blank_frames';
             project.activeFrame.remove();
 
             var layer = project.activeLayer;
@@ -203,8 +205,10 @@ describe('Wick.Layer', function() {
             expect(layer.getFrameAtPlayheadPosition(3)).to.equal(layer.getFrameAtPlayheadPosition(4));
         });
 
-        it('gaps should be filled when frame length is changed through selection', function () {
+        it('gaps should be filled when frame length is changed through selection (blank_frames method)', function () {
             var project = new Wick.Project();
+            project.activeTimeline.fillGapsMethod = 'blank_frames';
+
             project.activeFrame.remove();
 
             var layer = project.activeLayer;
@@ -230,6 +234,10 @@ describe('Wick.Layer', function() {
             expect(project.activeLayer.getFrameAtPlayheadPosition(2)).to.not.equal(frame2);
             expect(project.activeLayer.getFrameAtPlayheadPosition(3)).to.not.equal(frame2);
             expect(project.activeLayer.getFrameAtPlayheadPosition(4)).to.not.equal(frame2);
+        });
+
+        it('gaps should be filled when frame length is changed through selection (extend frames method)', function () {
+            throw new Error('todo')
         });
     });
 });

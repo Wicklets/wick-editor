@@ -256,7 +256,8 @@ Wick.Project = class extends Wick.Base {
     }
 
     /**
-     * The active frame of the active layer.
+     * All frames in this project.
+     * @type {Wick.Frame[]}
      */
     getAllFrames () {
         return this.root.timeline.getAllFrames(true);

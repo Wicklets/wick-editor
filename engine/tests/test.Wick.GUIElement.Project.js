@@ -44,7 +44,7 @@ describe('Wick.GUIElement.Project', function() {
         var dummy = document.createElement('div');
         dummy.style.width = 600;
         dummy.style.height = 300;
-        document.body.appendChild(dummy);
+        //document.body.appendChild(dummy);
         dummy.appendChild(project.guiElement.canvasContainer);
 
         sound.load(() => {

@@ -129,9 +129,6 @@ Wick.Selection = class extends Wick.Base {
         // Add the object to the selection!
         this._selectedObjectsUUIDs.push(object.uuid);
 
-        // Select frames that are between other selected frames
-        this._selectInBetweenFrames();
-
         this._resetPositioningValues();
 
         // Make sure the view gets updated the next time its needed...
@@ -635,6 +632,7 @@ Wick.Selection = class extends Wick.Base {
         }
     }
 
+    /* Helper function: Calculate the selection x,y */
     _resetPositioningValues () {
         var selectedObject = this.getSelectedObject();
         if(selectedObject instanceof Wick.Clip) {
@@ -666,26 +664,6 @@ Wick.Selection = class extends Wick.Base {
     _setSingleAttribute (attributeName, value) {
         this.getSelectedObjects().forEach(selectedObject => {
             selectedObject[attributeName] = value;
-        });
-    }
-
-    /* Helper function for shift+click selecting frames */
-    _selectInBetweenFrames () {
-        var currentFrame;
-        this.project.activeTimeline.layers.forEach(layer => {
-            for(var i = 1; i < layer.length; i++) {
-                var frame = layer.getFrameAtPlayheadPosition(i);
-                if(this.isObjectSelected(frame)) {
-                    if(currentFrame) {
-                        layer.getFramesInRange(currentFrame.start, frame.end).forEach(selectFrame => {
-                            if(!this.isObjectSelected(selectFrame)) {
-                                this._selectedObjectsUUIDs.push(selectFrame.uuid);
-                            }
-                        })
-                    }
-                    currentFrame = frame;
-                }
-            }
         });
     }
 }

@@ -28,10 +28,6 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
         super(model);
 
         this._canvas = document.createElement('canvas');
-        document.addEventListener('mousemove', this._onMouseMove.bind(this), false);
-        this._canvas.addEventListener('mousedown', this._onMouseDown.bind(this), false);
-        document.addEventListener('mouseup',this._onMouseUp.bind(this), false);
-        $(this._canvas).on('mousewheel', this._onMouseWheel.bind(this));
         this._ctx = this._canvas.getContext('2d');
 
         this._canvasContainer = document.createElement('div');
@@ -68,6 +64,15 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
         if(this._canvas !== this._canvasContainer.children[0]) {
             this._canvasContainer.innerHTML = '';
             this._canvasContainer.appendChild(this._canvas);
+        }
+
+        if(!this._mouseEventsAttached) {
+            document.addEventListener('mousemove', this._onMouseMove.bind(this), false);
+            this._canvas.addEventListener('mousedown', this._onMouseDown.bind(this), false);
+            document.addEventListener('mouseup',this._onMouseUp.bind(this), false);
+            $(this._canvas).on('mousewheel', this._onMouseWheel.bind(this));
+
+            this._mouseEventsAttached = true;
         }
     }
 

@@ -138,5 +138,9 @@ describe('Wick.WickFile', function () {
                 });
             });
         });
+
+        it('should fill gaps between frames on project load (1.16+ files do not allow gaps)', function (done) {
+            throw new Error('todo');
+        });
     });
 });
