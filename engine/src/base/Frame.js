@@ -424,6 +424,15 @@ Wick.Frame = class extends Wick.Tickable {
     }
 
     /**
+     * Remove all tweens from this frame.
+     */
+    removeAllTweens (tween) {
+        this.tweens.forEach(tween => {
+            tween.remove();
+        });
+    }
+
+    /**
      * Get the tween at the given playhead position. Returns null if there is no tween.
      * @param {number} playheadPosition - the playhead position to look for tweens at.
      * @returns {Wick.Tween} the tween at the given playhead position.
@@ -486,6 +495,34 @@ Wick.Frame = class extends Wick.Tickable {
         }
 
         return linkedAssets;
+    }
+
+    /**
+     * Cut this frame in half using the playhead position.
+     */
+    cut () {
+        // Can't cut a frame that doesn't beolong to a timeline + layer
+        if(!this.parentTimeline) return;
+
+        // Can't cut a frame with length 1
+        if(this.length === 1) return;
+
+        // Can't cut a frame that isn't under the playhead
+        var playheadPosition = this.parentTimeline.playheadPosition;
+        if(!this.inPosition(playheadPosition)) return;
+
+        // Create right half (leftover) frame
+        var rightHalf = this.copy();
+        rightHalf.identifier = null;
+        rightHalf.removeSound();
+        rightHalf.removeAllTweens();
+        rightHalf.start = playheadPosition = playheadPosition;
+
+        // Cut this frame shorter
+        this.end = playheadPosition - 1;
+
+        // Add right frame
+        this.parentLayer.addFrame(rightHalf);
     }
 
     /**

@@ -25,7 +25,7 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
             tooltip: 'Copy Frame Forward',
             icon: 'add_tween',
             clickFn: () => {
-                alert('todo copy frame forward')
+                this.model.project.copySelectedFrameForward();
             }
         });
 
@@ -33,7 +33,7 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
             tooltip: 'Cut Frame',
             icon: 'add_tween',
             clickFn: () => {
-                alert('todo cut frame')
+                this.model.project.cutSelectedFrames();
             }
         });
 

@@ -640,4 +640,24 @@ describe('Wick.Frame', function() {
             expect(project.activeFrame.end).to.equal(3);
         });
     });
+
+    describe('#cut', function () {
+        it('should cut frame correctly', function () {
+            var project = new Wick.Project();
+            project.activeFrame.remove();
+
+            var frameToCut = new Wick.Frame({start: 1, end: 10, identifier: 'frameToCut'});
+            project.activeLayer.addFrame(frameToCut);
+            frameToCut.addClip(new Wick.Clip({identifier: 'childShouldBeCopied'}));
+
+            project.activeTimeline.playheadPosition = 6;
+            frameToCut.cut();
+
+            expect(project.activeLayer.frames.length).to.equal(2);
+            expect(project.activeLayer.getFrameAtPlayheadPosition(1).identifier).to.equal('frameToCut');
+            expect(project.activeLayer.getFrameAtPlayheadPosition(1).length).to.equal(5);
+            expect(project.activeLayer.getFrameAtPlayheadPosition(6).identifier).to.equal(null);
+            expect(project.activeLayer.getFrameAtPlayheadPosition(6).length).to.equal(5);
+        });
+    });
 });

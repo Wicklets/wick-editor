@@ -21,8 +21,8 @@
  * This object creates a Wick namespace for wick-engine functionality and utilities.
  */
 Wick = {
-    /* Major.Minor.Patch[ReleaseType] */
-    version: "1.0.12a",
+    /* Year.Month.Day[micro] */
+    version: "2019.8.15",
 }
 
 console.log("Wick Engine " + Wick.version + " is available.");

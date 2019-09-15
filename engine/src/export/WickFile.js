@@ -22,6 +22,29 @@
  */
 Wick.WickFile = class {
     /**
+     * Generate some metadata for debugging wick projects.
+     * @returns {object}
+     */
+    static generateMetaData () {
+        return {
+            wickengine: Wick.version,
+            platform: {
+                name: platform.name,
+                version: platform.version,
+                product: platform.product,
+                manufacturer: platform.manufacturer,
+                layout: platform.layout,
+                os: {
+                    architecture: platform.os.architecture,
+                    family: platform.os.family,
+                    version: platform.os.version,
+                },
+                description: platform.description,
+            }
+        };
+    }
+
+    /**
      * Create a project from a wick file.
      * @param {File} wickFile - Wick file containing project data.
      * @param {function} callback - Function called when the project is created.
