@@ -20,7 +20,7 @@
 Wick.GUIElement.Layer = class extends Wick.GUIElement {
     constructor (model) {
         super(model);
-        
+
         this.canAutoScrollY = true;
 
         this.hideButton = new Wick.GUIElement.LayerButton(model, {
@@ -34,6 +34,13 @@ Wick.GUIElement.Layer = class extends Wick.GUIElement {
             tooltip: 'Lock/Unlock Layer',
             clickFn: () => {
                 this.model.locked = !this.model.locked;
+            }
+        });
+
+        this.addTweenButton = new Wick.GUIElement.LayerButton(model, {
+            tooltip: 'Add Tween',
+            clickFn: () => {
+                this.model.activeFrame && this.model.activeFrame.createTween();
             }
         });
     }
@@ -72,7 +79,7 @@ Wick.GUIElement.Layer = class extends Wick.GUIElement {
         ctx.restore();
 
         // Layer name
-        var maxWidth = Wick.GUIElement.LAYERS_CONTAINER_WIDTH - 60;
+        var maxWidth = Wick.GUIElement.LAYERS_CONTAINER_WIDTH - 90;
         ctx.font = "16px " + Wick.GUIElement.LAYER_LABEL_FONT_FAMILY;
         ctx.fillStyle = this.model.isActive
           ? Wick.GUIElement.LAYER_LABEL_ACTIVE_FONT_COLOR
@@ -88,6 +95,11 @@ Wick.GUIElement.Layer = class extends Wick.GUIElement {
         ctx.save();
         ctx.translate(40, 20);
             this.lockButton.draw(this.model.locked ? 'lock_closed' : 'lock_open', this.model.locked);
+        ctx.restore();
+
+        ctx.save();
+        ctx.translate(175, 20);
+            this.addTweenButton.draw('add_tween', false);
         ctx.restore();
     }
 

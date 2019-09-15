@@ -30,7 +30,7 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
         });
         this.addTweenButton = new Wick.GUIElement.ActionButton(this.model, {
             tooltip: 'Add Tween',
-            icon: 'trashcan',
+            icon: 'add_tween',
             clickFn: () => {
                 this.model.activeFrame && this.model.activeFrame.createTween();
             }
@@ -48,13 +48,13 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
 
         // Add tween button
         ctx.save();
-        ctx.translate(170, 20);
+        ctx.translate(175, 20);
             this.addTweenButton.draw();
         ctx.restore();
 
         // Delete frame button
         ctx.save();
-        ctx.translate(130, 20);
+        ctx.translate(145, 20);
             this.deleteFrameButton.draw();
         ctx.restore();
     };

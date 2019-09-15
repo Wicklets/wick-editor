@@ -52,6 +52,7 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
         Wick.GUIElement.Icons.loadIcon('lock_open', Wick.GUIElement.LAYER_LABEL_UNLOCK_BUTTON_ICON);
         Wick.GUIElement.Icons.loadIcon('lock_closed', Wick.GUIElement.LAYER_LABEL_LOCK_BUTTON_ICON);
         Wick.GUIElement.Icons.loadIcon('trashcan', Wick.GUIElement.TIMELINE_DELETE_BUTTON_ICON);
+        Wick.GUIElement.Icons.loadIcon('add_tween', Wick.GUIElement.ADD_TWEEN_BUTTON_ICON);
     }
 
     /**
