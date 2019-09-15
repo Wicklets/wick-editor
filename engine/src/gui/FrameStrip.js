@@ -69,6 +69,7 @@ Wick.GUIElement.FrameStrip = class extends Wick.GUIElement {
         this.model.addFrame(newFrame);
         this.model.project.selection.clear();
         this.model.project.selection.select(newFrame);
+        newFrame.parentLayer.activate();
     }
 
     get bounds () {

@@ -28,6 +28,13 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
                 this.model.project.deleteSelectedObjects();
             }
         });
+        this.addTweenButton = new Wick.GUIElement.ActionButton(this.model, {
+            tooltip: 'Add Tween',
+            icon: 'trashcan',
+            clickFn: () => {
+                this.model.activeFrame && this.model.activeFrame.createTween();
+            }
+        });
     };
 
     draw () {
@@ -39,9 +46,15 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
         ctx.rect(0, 0, Wick.GUIElement.LAYERS_CONTAINER_WIDTH, Wick.GUIElement.NUMBER_LINE_HEIGHT);
         ctx.fill();
 
+        // Add tween button
+        ctx.save();
+        ctx.translate(170, 20);
+            this.addTweenButton.draw();
+        ctx.restore();
+
         // Delete frame button
         ctx.save();
-        ctx.translate(20, 20);
+        ctx.translate(130, 20);
             this.deleteFrameButton.draw();
         ctx.restore();
     };

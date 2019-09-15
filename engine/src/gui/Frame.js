@@ -118,5 +118,6 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement {
             this.model.project.selection.clear();
         }
         this.model.project.selection.select(this.model);
+        this.model.parentLayer.activate();
     }
 }
