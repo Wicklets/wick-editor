@@ -20,7 +20,7 @@ describe('Wick.GUIElement.Project', function() {
 
         var layer2 = new Wick.Layer({name: 'LayerWithTweensVeryLongName'});
         project.activeTimeline.addLayer(layer2);
-        var tweenFrame = new Wick.Frame({start: 1, end: 10});
+        var tweenFrame = new Wick.Frame({start: 1, end: 15});
         layer2.addFrame(tweenFrame);
         tweenFrame.addTween(new Wick.Tween({playheadPosition: 1}));
         tweenFrame.addTween(new Wick.Tween({playheadPosition: 5}));

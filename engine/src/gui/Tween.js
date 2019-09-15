@@ -53,37 +53,52 @@ Wick.GUIElement.Tween = class extends Wick.GUIElement {
         ctx.restore();
 
         // Tween arrows
+        var linePadding = 18;
         var nextTween = this.model.getNextTween();
         if(nextTween) {
             var nextTweenGridPosition = nextTween.playheadPosition - this.model.playheadPosition;
             var nextTweenPosition = nextTweenGridPosition * this.gridCellWidth;
-            var padding = 18;
             var arrowSize = 5;
 
             // Line
             ctx.strokeStyle = Wick.GUIElement.TWEEN_ARROW_STROKE_COLOR;
             ctx.lineWidth = Wick.GUIElement.TWEEN_ARROW_STROKE_WIDTH;
             ctx.beginPath();
-            ctx.moveTo(padding, 0);
-            ctx.lineTo(nextTweenPosition - padding, 0);
+            ctx.moveTo(linePadding, 0);
+            ctx.lineTo(nextTweenPosition - linePadding, 0);
             ctx.stroke();
 
             // Arrow head
             ctx.fillStyle = Wick.GUIElement.TWEEN_ARROW_STROKE_COLOR;
             ctx.beginPath();
-            ctx.moveTo(nextTweenPosition - padding, 0);
-            ctx.lineTo(nextTweenPosition - padding - arrowSize, -arrowSize);
+            ctx.moveTo(nextTweenPosition - linePadding, 0);
+            ctx.lineTo(nextTweenPosition - linePadding - arrowSize, -arrowSize);
             ctx.stroke();
 
             // Arrow head
             ctx.fillStyle = Wick.GUIElement.TWEEN_ARROW_STROKE_COLOR;
             ctx.beginPath();
-            ctx.moveTo(nextTweenPosition - padding, 0);
-            ctx.lineTo(nextTweenPosition - padding - arrowSize, -arrowSize);
+            ctx.moveTo(nextTweenPosition - linePadding, 0);
+            ctx.lineTo(nextTweenPosition - linePadding - arrowSize, -arrowSize);
             ctx.beginPath();
-            ctx.moveTo(nextTweenPosition - padding, 0);
-            ctx.lineTo(nextTweenPosition - padding - arrowSize, arrowSize);
+            ctx.moveTo(nextTweenPosition - linePadding, 0);
+            ctx.lineTo(nextTweenPosition - linePadding - arrowSize, arrowSize);
             ctx.stroke();
+        } else {
+            var tweenPos = this.model.playheadPosition * this.gridCellWidth;
+            var frameLength = this.model.parentFrame.length * this.gridCellWidth;
+            var frameRightEdge = frameLength - tweenPos + this.gridCellWidth/2;
+
+            // Line
+            ctx.save();
+            ctx.strokeStyle = Wick.GUIElement.TWEEN_ARROW_STROKE_COLOR;
+            ctx.lineWidth = Wick.GUIElement.TWEEN_ARROW_STROKE_WIDTH;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            ctx.moveTo(linePadding, 0);
+            ctx.lineTo(frameRightEdge - 2, 0);
+            ctx.stroke();
+            ctx.restore();
         }
     }
 }
