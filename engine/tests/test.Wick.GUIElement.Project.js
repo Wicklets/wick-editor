@@ -27,12 +27,17 @@ describe('Wick.GUIElement.Project', function() {
         tweenFrame.addTween(new Wick.Tween({playheadPosition: 10}));
 
         var layer3 = new Wick.Layer({name: 'LayerWithName'});
+        layer3.locked = true;
         project.activeTimeline.addLayer(layer3);
         var scriptFrame = new Wick.Frame({identifier: 'FrameWithIdentifier2', start:1, end:2});
-        scriptFrame.addScript('default', 'this.thereIsCodeInHereLol = true;')
-        layer3.addFrame(new Wick.Frame({identifier: 'FrameWithIdentifier', start:3, end:5}));
-        layer3.locked = true;
+        scriptFrame.addScript('default', 'this.thereIsCodeInHereLol = true;');
         layer3.addFrame(scriptFrame);
+        layer3.addFrame(new Wick.Frame({identifier: 'FrameWithIdentifier', start:3, end:5}));
+        var tweenFrame2 = new Wick.Frame({start: 6, end: 15});
+        layer3.addFrame(tweenFrame2);
+        tweenFrame2.addTween(new Wick.Tween({playheadPosition: 1}));
+        tweenFrame2.addTween(new Wick.Tween({playheadPosition: 5}));
+        tweenFrame2.addTween(new Wick.Tween({playheadPosition: 10}));
 
         var layer4 = new Wick.Layer();
         project.activeTimeline.addLayer(layer4);

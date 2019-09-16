@@ -62,16 +62,25 @@ Wick.GUIElement.FramesContainer = class extends Wick.GUIElement {
 
         // Draw frames
         var frames = this.model.getAllFrames();
-        frames.forEach(frame => {
-            if(!frame.guiElement._ghost) {
-                this._drawFrame(frame, true);
+
+        var draggingFrames = frames.filter(frame => {
+            if(frame._ghost) return true;
+            if(frame.tweens.find(tween => {
+                return tween.guiElement._ghost;
+            })) {
+                return true;
             }
+            return false;
         });
-        // Make sure to render the frame being dragged last.
+
         frames.forEach(frame => {
-            if(frame.guiElement._ghost) {
-                this._drawFrame(frame, false);
-            }
+            if(draggingFrames.indexOf(frame) !== -1) return;
+            this._drawFrame(frame, true);
+        });
+
+        // Make sure to render the frames being dragged last.
+        draggingFrames.forEach(frame => {
+            this._drawFrame(frame, false);
         });
     }
 

@@ -22,6 +22,8 @@ Wick.GUIElement.Tween = class extends Wick.GUIElement {
         super(model);
 
         this.canAutoScrollX = true;
+
+        this._ghost = null;
     }
 
     draw () {
@@ -33,7 +35,11 @@ Wick.GUIElement.Tween = class extends Wick.GUIElement {
         ctx.save();
         ctx.rotate(Math.PI / 4);
             var r = Wick.GUIElement.TWEEN_DIAMOND_RADIUS;
-            ctx.fillStyle = Wick.GUIElement.TWEEN_FILL_COLOR_1;
+            if(this.mouseState === 'over') {
+                ctx.fillStyle = Wick.GUIElement.TWEEN_HOVER_COLOR_1;
+            } else {
+                ctx.fillStyle = Wick.GUIElement.TWEEN_FILL_COLOR_1;
+            }
             ctx.beginPath();
             ctx.roundRect(-r, -r, r*2, r*2, 3);
             ctx.fill();
@@ -46,11 +52,29 @@ Wick.GUIElement.Tween = class extends Wick.GUIElement {
         ctx.clip();
         ctx.rotate(Math.PI / 4);
             var r = Wick.GUIElement.TWEEN_DIAMOND_RADIUS;
-            ctx.fillStyle = Wick.GUIElement.TWEEN_FILL_COLOR_2;
+            if(this.mouseState === 'over') {
+                ctx.fillStyle = Wick.GUIElement.TWEEN_HOVER_COLOR_2;
+            } else {
+                ctx.fillStyle = Wick.GUIElement.TWEEN_FILL_COLOR_2;
+            }
             ctx.beginPath();
             ctx.roundRect(-r, -r, r*2, r*2, 3);
             ctx.fill();
         ctx.restore();
+
+        // Selection border
+
+        if (this.model.isSelected) {
+            ctx.save();
+            ctx.rotate(Math.PI / 4);
+                var r = Wick.GUIElement.TWEEN_DIAMOND_RADIUS;
+                ctx.strokeStyle = Wick.GUIElement.SELECTED_ITEM_BORDER_COLOR;
+                ctx.lineWidth = Wick.GUIElement.FRAME_HIGHLIGHT_STROKEWIDTH;
+                ctx.beginPath();
+                ctx.roundRect(-r, -r, r*2, r*2, 3);
+                ctx.stroke();
+            ctx.restore();
+        }
 
         // Tween arrows
         var linePadding = 18;
@@ -100,5 +124,47 @@ Wick.GUIElement.Tween = class extends Wick.GUIElement {
             ctx.stroke();
             ctx.restore();
         }
+
+        if(this._ghost) {
+            this._ghost.draw();
+        }
+    }
+
+    get bounds () {
+        var r = Wick.GUIElement.TWEEN_DIAMOND_RADIUS * 1.25;
+        return {
+            x: -r,
+            y: -r,
+            width: r*2,
+            height: r*2,
+        }
+    }
+
+    onMouseDown (e) {
+        var playheadPosition = this.model.playheadPosition - this.model.parentFrame.start + 1;
+        this.model.project.activeTimeline.playheadPosition = playheadPosition;
+
+        if(this.model.isSelected) {
+            if(e.shiftKey) {
+                this.model.project.selection.deselect(this.model);
+            }
+        } else {
+            if(!e.shiftKey) {
+                this.model.project.selection.clear();
+            }
+            this.model.project.selection.select(this.model);
+            this.model.parentLayer.activate();
+        }
+    }
+
+    onMouseDrag (e) {
+        if(!this._ghost) {
+            this._ghost = new Wick.GUIElement.TweenGhost(this.model);
+        }
+    }
+
+    onMouseUp (e) {
+        this._ghost.finish();
+        this._ghost = null;
     }
 }

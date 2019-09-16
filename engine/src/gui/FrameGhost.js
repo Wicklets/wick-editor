@@ -17,35 +17,18 @@
  * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-Wick.GUIElement.FrameGhost = class extends Wick.GUIElement {
+Wick.GUIElement.FrameGhost = class extends Wick.GUIElement.Ghost {
     constructor (model) {
         super(model);
 
         this._mainFrame = model;
-        this._frames = model.project.selection.getSelectedObjects();
+        this._frames = model.project.selection.getSelectedObjects('Frame');
     }
 
     draw () {
         super.draw();
 
-        this._mouseStart = this._mouseStart || {
-            x: this.localMouse.x,
-            y: this.localMouse.y
-        };
-        this._mouseEnd = {
-            x: this.localMouse.x,
-            y: this.localMouse.y
-        };
-        this._mouseDiff = {
-            x: this._mouseEnd.x - this._mouseStart.x,
-            y: this._mouseEnd.y - this._mouseStart.y
-        };
-
         var ctx = this.ctx;
-
-        // Save how many rows/columns we've moved for later
-        this.moveCols = Math.round(this._mouseDiff.x/this.gridCellWidth);
-        this.moveRows = Math.round(this._mouseDiff.y/this.gridCellHeight);
 
         this._frames.forEach(frame => {
             var start = frame.start - this._mainFrame.start;
