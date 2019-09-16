@@ -103,6 +103,7 @@ gulp.task("default", function() {
       'src/view/View.Path.js',
       'src/gui/GUIElement.js',
       'src/gui/Button.js',
+      'src/gui/Ghost.js',
       'src/gui/Icons.js',
       'src/gui/ActionButton.js',
       'src/gui/ActionButtonsContainer.js',
@@ -125,6 +126,7 @@ gulp.task("default", function() {
       'src/gui/Timeline.js',
       'src/gui/Tooltip.js',
       'src/gui/Tween.js',
+      'src/gui/TweenGhost.js',
     ])
     .pipe(header('/*Wick Engine https://github.com/Wicklets/wick-engine*/'))
     .pipe(babel());
