@@ -143,6 +143,34 @@ class HotKeyInterface extends Object {
         name: "Move Playhead Back",
         sequences: [','],
       },
+      'extend-frame': {
+        name: "Extend Frame",
+        sequences: ['shift+.'],
+      },
+      'shrink-frame': {
+        name: "Shrink Frame",
+        sequences: ['shift+,'],
+      },
+      'move-frame-right': {
+        name: "Move Frame Right",
+        sequences: ['ctrl+shift+.', 'command+shift+.'],
+      },
+      'move-frame-left': {
+        name: "Move Frame Left",
+        sequences: ['ctrl+shift+,', 'command+shift+,'],
+      },
+      'create-tween': {
+        name: "Create Tween",
+        sequences: ['shift+t'],
+      },
+      'cut-frame': {
+        name: "Cut Frame",
+        sequences: ['shift+c'],
+      },
+      'copy-frame-forward': {
+        name: "Copy Frame Forward",
+        sequences: ['shift+f'],
+      },
       'select-all': {
         name: "Select All",
         sequences: ['ctrl+a','command+a'],
@@ -249,6 +277,13 @@ class HotKeyInterface extends Object {
       'shrink-brush-size': this.editor.shrinkBrushSize,
       'move-playhead-forwards': this.editor.movePlayheadForwards,
       'move-playhead-backwards': this.editor.movePlayheadBackwards,
+      'extend-frame': this.editor.extendFrame,
+      'shrink-frame': this.editor.shrinkFrame,
+      'move-frame-right': this.editor.moveFrameRight,
+      'move-frame-left': this.editor.moveFrameLeft,
+      'create-tween': this.editor.createTween,
+      'cut-frame': this.editor.cutFrame,
+      'copy-frame-forward': this.editor.copyFrameForward,
       'select-all': this.editor.selectAll,
       'bring-to-front': this.editor.sendSelectionToFront,
       'send-to-back': this.editor.sendSelectionToBack,

@@ -1259,11 +1259,53 @@ describe('Wick.Project', function() {
 
     describe('#activeTool', function () {
         it('should change active tool', function () {
-            console.error("write me");
+            throw new Error('write me');
         });
 
         it('should clear selection when switching between drawing tools', function () {
-            console.error("write me");
+            throw new Error('write me');
+        });
+    });
+
+    describe('#cutSelectedFrames', function () {
+        it('should cut selected frames', function () {
+            throw new Error('write me');
+        })
+    });
+
+    describe('#copySelectedFramesForward', function () {
+        it('should copy selected frames forwards', function () {
+            throw new Error('write me');
+        })
+    });
+
+    describe('#createTweenOnSelectedFrames', function () {
+        it('should create tweens on selected frames', function () {
+            throw new Error('write me');
+        })
+    });
+
+    describe('#extendSelectedFrames', function () {
+        it('should extend selected frames', function () {
+            throw new Error('write me');
+        });
+    });
+
+    describe('#shrinkSelectedFrames', function () {
+        it('should shrink selected frames', function () {
+            throw new Error('write me');
+        });
+    });
+
+    describe('#moveSelectedFramesRight', function () {
+        it('should move selected frames right', function () {
+            throw new Error('write me');
+        });
+    });
+
+    describe('#moveSelectedFramesLeft', function () {
+        it('should move selected frames left', function () {
+            throw new Error('write me');
         });
     });
 });

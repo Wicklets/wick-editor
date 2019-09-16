@@ -443,4 +443,16 @@ Wick.Timeline = class extends Wick.Base {
             layer.resolveGaps();
         });
     }
+
+    /**
+     * Prevents frames from overlapping each other by removing pieces of frames that are touching.
+     * @param {Wick.Frame[]} newOrModifiedFrames - the frames that should take precedence when determining which frames should get "eaten".
+     */
+    resolveFrameOverlap (frames) {
+        this.layers.forEach(layer => {
+            layer.resolveOverlap(frames.filter(frame => {
+                return frame.parentLayer === layer;
+            }));
+        });
+    }
 }

@@ -64,7 +64,7 @@ Wick.GUIElement.FramesContainer = class extends Wick.GUIElement {
         var frames = this.model.getAllFrames();
 
         var draggingFrames = frames.filter(frame => {
-            if(frame._ghost) return true;
+            if(frame.guiElement._ghost) return true;
             if(frame.tweens.find(tween => {
                 return tween.guiElement._ghost;
             })) {

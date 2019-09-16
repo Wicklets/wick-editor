@@ -35,6 +35,7 @@ class Timeline extends Component {
   componentDidMount () {
     let canvasContainerElem = this.canvasContainer.current;
     this.props.project.guiElement.canvasContainer = canvasContainerElem;
+    this.props.project.guiElement.draw();
   }
 
   componentDidUpdate () {

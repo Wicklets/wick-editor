@@ -1166,6 +1166,49 @@ class EditorCore extends Component {
     return this.project.hasFont(font);
   }
 
+  /*
+  'extend-frame': this.editor.extendFrame,
+  'shrink-frame': this.editor.shrinkFrame,
+  'move-frame-right': this.editor.moveFrameRight,
+  'move-frame-left': this.editor.moveFrameLeft,
+  'create-tween': this.editor.createTween,
+  'cut-frame': this.editor.cutFrame,
+  'copy-frame-forward': this.editor.copyFrameForward,*/
+
+  extendFrame = () => {
+      this.project.extendSelectedFrames();
+      this.projectDidChange();
+  }
+
+  shrinkFrame = () => {
+      this.project.shrinkSelectedFrames();
+      this.projectDidChange();
+  }
+
+  moveFrameRight = () => {
+      this.project.moveSelectedFramesRight();
+      this.projectDidChange();
+  }
+
+  moveFrameLeft = () => {
+      this.project.moveSelectedFramesLeft();
+      this.projectDidChange();
+  }
+
+  createTween = () => {
+      this.project.createTweenOnSelectedFrames();
+      this.projectDidChange();
+  }
+
+  cutFrame = () => {
+      this.project.cutSelectedFrames();
+      this.projectDidChange();
+  }
+
+  copyFrameForward = () => {
+      this.project.copySelectedFramesForward();
+      this.projectDidChange();
+  }
 }
 
 export default EditorCore;

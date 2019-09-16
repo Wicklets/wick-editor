@@ -643,6 +643,57 @@ Wick.Project = class extends Wick.Base {
     }
 
     /**
+     * Move the right edge of all selected frames right one frame.
+     */
+    extendSelectedFrames () {
+        var frames = this.selection.getSelectedObjects('Frame');
+        frames.forEach(frame => {
+            frame.end ++;
+        });
+        this.activeTimeline.resolveFrameOverlap(frames);
+        this.activeTimeline.resolveFrameGaps();
+    }
+
+    /**
+     * Move the right edge of all selected frames left one frame.
+     */
+    shrinkSelectedFrames () {
+        var frames = this.selection.getSelectedObjects('Frame');
+        frames.forEach(frame => {
+            if(frame.length === 1) return;
+            frame.end --;
+        });
+        this.activeTimeline.resolveFrameOverlap(frames);
+        this.activeTimeline.resolveFrameGaps();
+    }
+
+    /**
+     * Shift all selected frames over one frame to the right
+     */
+    moveSelectedFramesRight () {
+        var frames = this.selection.getSelectedObjects('Frame');
+        frames.forEach(frame => {
+            frame.end ++;
+            frame.start ++;
+        });
+        this.activeTimeline.resolveFrameOverlap(frames);
+        this.activeTimeline.resolveFrameGaps();
+    }
+
+    /**
+     * Shift all selected frames over one frame to the left
+     */
+    moveSelectedFramesLeft () {
+        var frames = this.selection.getSelectedObjects('Frame');
+        frames.forEach(frame => {
+            frame.start --;
+            frame.end --;
+        });
+        this.activeTimeline.resolveFrameOverlap(frames);
+        this.activeTimeline.resolveFrameGaps();
+    }
+
+    /**
      * Paste the contents of the clipboard into the project.
      * @returns {boolean} True if there was something to paste in the clipboard, false otherwise.
      */

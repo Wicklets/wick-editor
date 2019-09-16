@@ -19960,6 +19960,61 @@ Wick.Project = class extends Wick.Base {
     });
   }
   /**
+   * Move the right edge of all selected frames right one frame.
+   */
+
+
+  extendSelectedFrames() {
+    var frames = this.selection.getSelectedObjects('Frame');
+    frames.forEach(frame => {
+      frame.end++;
+    });
+    this.activeTimeline.resolveFrameOverlap(frames);
+    this.activeTimeline.resolveFrameGaps();
+  }
+  /**
+   * Move the right edge of all selected frames left one frame.
+   */
+
+
+  shrinkSelectedFrames() {
+    var frames = this.selection.getSelectedObjects('Frame');
+    frames.forEach(frame => {
+      if (frame.length === 1) return;
+      frame.end--;
+    });
+    this.activeTimeline.resolveFrameOverlap(frames);
+    this.activeTimeline.resolveFrameGaps();
+  }
+  /**
+   * Shift all selected frames over one frame to the right
+   */
+
+
+  moveSelectedFramesRight() {
+    var frames = this.selection.getSelectedObjects('Frame');
+    frames.forEach(frame => {
+      frame.end++;
+      frame.start++;
+    });
+    this.activeTimeline.resolveFrameOverlap(frames);
+    this.activeTimeline.resolveFrameGaps();
+  }
+  /**
+   * Shift all selected frames over one frame to the left
+   */
+
+
+  moveSelectedFramesLeft() {
+    var frames = this.selection.getSelectedObjects('Frame');
+    frames.forEach(frame => {
+      frame.start--;
+      frame.end--;
+    });
+    this.activeTimeline.resolveFrameOverlap(frames);
+    this.activeTimeline.resolveFrameGaps();
+  }
+  /**
    * Paste the contents of the clipboard into the project.
    * @returns {boolean} True if there was something to paste in the clipboard, false otherwise.
    */
@@ -21685,6 +21740,19 @@ Wick.Timeline = class extends Wick.Base {
     this._waitToFillFrameGaps = false;
     this.layers.forEach(layer => {
       layer.resolveGaps();
+    });
+  }
+  /**
+   * Prevents frames from overlapping each other by removing pieces of frames that are touching.
+   * @param {Wick.Frame[]} newOrModifiedFrames - the frames that should take precedence when determining which frames should get "eaten".
+   */
+
+
+  resolveFrameOverlap(frames) {
+    this.layers.forEach(layer => {
+      layer.resolveOverlap(frames.filter(frame => {
+        return frame.parentLayer === layer;
+      }));
     });
   }
 
@@ -41018,85 +41086,6 @@ paper.Path.inject({
     img.src = rasterDataURL;
   }
 });
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Paper.js-drawing-tools.
-*
-* Paper.js-drawing-tools is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Paper.js-drawing-tools is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Paper.js-drawing-tools.  If not, see <https://www.gnu.org/licenses/>.
-*/
-(function () {
-  var editElem = $('<textarea style="resize: none;">');
-  editElem.css('position', 'absolute');
-  editElem.css('overflow', 'hidden');
-  editElem.css('width', '100px');
-  editElem.css('height', '100px');
-  editElem.css('left', '0px');
-  editElem.css('top', '0px');
-  editElem.css('resize', 'none');
-  editElem.css('line-height', '1.2');
-  editElem.css('background-color', '#ffffff');
-  editElem.css('box-sizing', 'content-box');
-  editElem.css('-moz-box-sizing', 'content-box');
-  editElem.css('-webkit-box-sizing', 'content-box');
-  editElem.css('border', 'none');
-  paper.TextItem.inject({
-    attachTextArea: function (paper) {
-      $(paper.view.element.offsetParent).append(editElem);
-      editElem.focus();
-      var clone = this.clone();
-      clone.rotation = 0;
-      clone.scaling = new paper.Point(1, 1);
-      clone.remove();
-      var extraPadding = 3; // Extra padding so edit item doesn't get cut off.
-
-      var width = clone.bounds.width * paper.view.zoom + extraPadding;
-      var height = clone.bounds.height * paper.view.zoom + extraPadding;
-      editElem.css('width', width + 'px');
-      editElem.css('height', height + 'px');
-      editElem.css('outline', 1 * paper.view.zoom + 'px dashed black');
-      var position = paper.view.projectToView(clone.bounds.topLeft.x, clone.bounds.topLeft.y);
-      var scale = this.scaling;
-      var rotation = this.rotation;
-      var fontSize = this.fontSize * paper.view.zoom;
-      var fontFamily = this.fontFamily;
-      var content = this.content;
-      editElem.css('font-family', fontFamily);
-      editElem.css('font-size', fontSize);
-      editElem.val(content);
-      var transformString = '';
-      transformString += 'translate(' + position.x + 'px,' + position.y + 'px) ';
-      transformString += 'rotate(' + rotation + 'deg) ';
-      transformString += 'scale(' + scale.x + ',' + scale.y + ') ';
-      editElem.css('transform', transformString);
-    },
-    edit: function (paper) {
-      this.attachTextArea(paper);
-      var self = this;
-
-      editElem[0].oninput = function () {
-        self.content = editElem[0].value;
-        self.attachTextArea(paper);
-      };
-    },
-    finishEditing: function () {
-      editElem.remove();
-    }
-  });
-})();
 /*!
 
 JSZip v3.1.5 - A JavaScript class for generating and reading zip files
@@ -52740,23 +52729,65 @@ module.exports = ZStream;
 * You should have received a copy of the GNU General Public License
 * along with Paper.js-drawing-tools.  If not, see <https://www.gnu.org/licenses/>.
 */
-paper.View.inject({
-  pressure: 1,
-  enablePressure: function (args) {
-    let self = this;
-    let MIN_PRESSURE = 0.14;
-    $(this.element.parentElement).pressure({
-      change: function (force, event) {
-        self.pressure = $.pressureMap(force, 0.0, 1.0, MIN_PRESSURE, 1.0);
-      },
-      end: function () {
-        self.pressure = 1.0;
-      }
-    }, {
-      polyfill: false
-    });
-  }
-});
+(function () {
+  var editElem = $('<textarea style="resize: none;">');
+  editElem.css('position', 'absolute');
+  editElem.css('overflow', 'hidden');
+  editElem.css('width', '100px');
+  editElem.css('height', '100px');
+  editElem.css('left', '0px');
+  editElem.css('top', '0px');
+  editElem.css('resize', 'none');
+  editElem.css('line-height', '1.2');
+  editElem.css('background-color', '#ffffff');
+  editElem.css('box-sizing', 'content-box');
+  editElem.css('-moz-box-sizing', 'content-box');
+  editElem.css('-webkit-box-sizing', 'content-box');
+  editElem.css('border', 'none');
+  paper.TextItem.inject({
+    attachTextArea: function (paper) {
+      $(paper.view.element.offsetParent).append(editElem);
+      editElem.focus();
+      var clone = this.clone();
+      clone.rotation = 0;
+      clone.scaling = new paper.Point(1, 1);
+      clone.remove();
+      var extraPadding = 3; // Extra padding so edit item doesn't get cut off.
+
+      var width = clone.bounds.width * paper.view.zoom + extraPadding;
+      var height = clone.bounds.height * paper.view.zoom + extraPadding;
+      editElem.css('width', width + 'px');
+      editElem.css('height', height + 'px');
+      editElem.css('outline', 1 * paper.view.zoom + 'px dashed black');
+      var position = paper.view.projectToView(clone.bounds.topLeft.x, clone.bounds.topLeft.y);
+      var scale = this.scaling;
+      var rotation = this.rotation;
+      var fontSize = this.fontSize * paper.view.zoom;
+      var fontFamily = this.fontFamily;
+      var content = this.content;
+      editElem.css('font-family', fontFamily);
+      editElem.css('font-size', fontSize);
+      editElem.val(content);
+      var transformString = '';
+      transformString += 'translate(' + position.x + 'px,' + position.y + 'px) ';
+      transformString += 'rotate(' + rotation + 'deg) ';
+      transformString += 'scale(' + scale.x + ',' + scale.y + ') ';
+      editElem.css('transform', transformString);
+    },
+    edit: function (paper) {
+      this.attachTextArea(paper);
+      var self = this;
+
+      editElem[0].oninput = function () {
+        self.content = editElem[0].value;
+        self.attachTextArea(paper);
+      };
+    },
+    finishEditing: function () {
+      editElem.remove();
+    }
+  });
+})();
 //https://github.com/mattdesl/lerp/blob/master/index.js
 var lerp = function (v0, v1, t) { return v0*(1-t)+v1*t; };
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
@@ -52780,7 +52811,20 @@ var lerp = function (v0, v1, t) { return v0*(1-t)+v1*t; };
 * along with Paper.js-drawing-tools.  If not, see <https://www.gnu.org/licenses/>.
 */
 paper.View.inject({
-  enableGestures: function (args) {// TODO
+  pressure: 1,
+  enablePressure: function (args) {
+    let self = this;
+    let MIN_PRESSURE = 0.14;
+    $(this.element.parentElement).pressure({
+      change: function (force, event) {
+        self.pressure = $.pressureMap(force, 0.0, 1.0, MIN_PRESSURE, 1.0);
+      },
+      end: function () {
+        self.pressure = 1.0;
+      }
+    }, {
+      polyfill: false
+    });
   }
 });
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
@@ -52804,7 +52848,7 @@ paper.View.inject({
 * along with Paper.js-drawing-tools.  If not, see <https://www.gnu.org/licenses/>.
 */
 paper.View.inject({
-  enableScrollToZoom: function (args) {// TODO
+  enableGestures: function (args) {// TODO
   }
 });
 /*!
@@ -54030,6 +54074,30 @@ paper.View.inject({
 /*
 * Copyright 2019 WICKLETS LLC
 *
+* This file is part of Paper.js-drawing-tools.
+*
+* Paper.js-drawing-tools is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Paper.js-drawing-tools is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Paper.js-drawing-tools.  If not, see <https://www.gnu.org/licenses/>.
+*/
+paper.View.inject({
+  enableScrollToZoom: function (args) {// TODO
+  }
+});
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* Copyright 2019 WICKLETS LLC
+*
 * This file is part of Wick Engine.
 *
 * Wick Engine is free software: you can redistribute it and/or modify
@@ -54123,439 +54191,6 @@ Wick.View = class {
     eventFns.forEach(fn => {
       fn(e);
     });
-  }
-
-};
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-Wick.View.Project = class extends Wick.View {
-  static get DEFAULT_CANVAS_BG_COLOR() {
-    return 'rgb(187, 187, 187)';
-  }
-
-  static get VALID_FIT_MODES() {
-    return ['center', 'fill'];
-  }
-
-  static get VALID_RENDER_MODES() {
-    return ['svg', 'webgl'];
-  }
-
-  static get ORIGIN_CROSSHAIR_COLOR() {
-    return '#CCCCCC';
-  }
-
-  static get ORIGIN_CROSSHAIR_SIZE() {
-    return 100;
-  }
-
-  static get ORIGIN_CROSSHAIR_THICKNESS() {
-    return 1;
-  }
-
-  static get ZOOM_MIN() {
-    return 0.1;
-  }
-
-  static get ZOOM_MAX() {
-    return 10.0;
-  }
-
-  static get PAN_LIMIT() {
-    return 10000;
-  }
-  /*
-   * Create a new Project View.
-   */
-
-
-  constructor(model) {
-    super(model);
-    this._fitMode = null;
-    this.fitMode = 'center';
-    this._canvasContainer = null;
-    this._canvasBGColor = null;
-    this._svgCanvas = null;
-    this._svgBackgroundLayer = null;
-    this._pan = {
-      x: 0,
-      y: 0
-    };
-    this._zoom = 1;
-  }
-  /*
-   * Determines the way the project will scale itself based on its container.
-   * 'center' will keep the project at its original resolution, and center it inside its container.
-   * 'fill' will stretch the project to fit the container (while maintaining its original aspect ratio).
-   *
-   * Note: For these changes to be reflected after setting fitMode, you must call Project.View.resize().
-   */
-
-
-  set fitMode(fitMode) {
-    if (Wick.View.Project.VALID_FIT_MODES.indexOf(fitMode) === -1) {
-      console.error("Invalid fitMode: " + fitMode);
-      console.error("Supported fitModes: " + Wick.View.Project.VALID_FIT_MODES.join(','));
-    } else {
-      this._fitMode = fitMode;
-    }
-  }
-
-  get fitMode() {
-    return this._fitMode;
-  }
-  /**
-   * The current canvas being rendered to.
-   */
-
-
-  get canvas() {
-    return this._svgCanvas;
-  }
-  /**
-   * The zoom amount. 1 = 100% zoom
-   */
-
-
-  get zoom() {
-    return this._zoom;
-  }
-
-  set zoom(zoom) {
-    this._zoom = zoom;
-  }
-  /**
-   * The amount to pan the view. (0,0) is the center.
-   */
-
-
-  get pan() {
-    var pan = {
-      x: -this.paper.view.center.x,
-      y: -this.paper.view.center.y
-    };
-
-    if (this.model.focus.isRoot) {
-      pan.x += this.model.width / 2;
-      pan.y += this.model.height / 2;
-    }
-
-    return pan;
-  }
-
-  set pan(pan) {
-    this._pan = {
-      x: pan.x,
-      y: pan.y
-    };
-
-    if (this.model.focus.isRoot) {
-      this._pan.x -= this.model.width / 2;
-      this._pan.y -= this.model.height / 2;
-    }
-  }
-  /*
-   * The element to insert the project's canvas into.
-   */
-
-
-  set canvasContainer(canvasContainer) {
-    this._canvasContainer = canvasContainer;
-  }
-
-  get canvasContainer() {
-    return this._canvasContainer;
-  }
-  /**
-   * The background color of the canvas.
-   */
-
-
-  set canvasBGColor(canvasBGColor) {
-    this._canvasBGColor = canvasBGColor;
-  }
-
-  get canvasBGColor() {
-    return this._canvasBGColor;
-  }
-  /**
-   * Render the view.
-   */
-
-
-  render() {
-    this.zoom = this.model.zoom;
-    this.pan = this.model.pan;
-
-    this._buildSVGCanvas();
-
-    this._displayCanvasInContainer(this._svgCanvas);
-
-    this.resize();
-
-    this._renderSVGCanvas();
-
-    this._updateCanvasContainerBGColor();
-  }
-  /**
-   * Render all frames in the project to make sure everything is loaded correctly.
-   */
-
-
-  prerender() {
-    this.render();
-    this.model.getAllFrames().forEach(frame => {
-      frame.view.render();
-    });
-  }
-  /*
-   * Resize the canvas to fit it's container div.
-   * Resize is called automatically before each render, but you must call it if you manually change the size of the container div.
-   */
-
-
-  resize() {
-    if (!this.canvasContainer) return;
-    var containerWidth = this.canvasContainer.offsetWidth;
-    var containerHeight = this.canvasContainer.offsetHeight;
-    this.paper.view.viewSize.width = containerWidth;
-    this.paper.view.viewSize.height = containerHeight;
-  }
-  /**
-   * Write the SVG data in the view to the project.
-   */
-
-
-  applyChanges() {
-    this.model.selection.view.applyChanges();
-    this.model.focus.timeline.activeFrames.forEach(frame => {
-      frame.view.applyChanges();
-    });
-  }
-
-  _setupTools() {
-    // This is a hacky way to create scroll-to-zoom functionality.
-    // (Using https://github.com/jquery/jquery-mousewheel for cross-browser mousewheel event)
-    $(this._svgCanvas).on('mousewheel', e => {
-      e.preventDefault();
-      var d = e.deltaY * e.deltaFactor * 0.001;
-      this.paper.view.zoom = Math.max(0.1, this.paper.view.zoom + d);
-
-      this._applyZoomAndPanChangesFromPaper();
-    });
-
-    for (var toolName in this.model.tools) {
-      var tool = this.model.tools[toolName];
-      tool.project = this.model;
-      tool.on('canvasModified', e => {
-        this.applyChanges();
-        this.fireEvent('canvasModified', e);
-      });
-      tool.on('canvasViewTransformed', e => {
-        this._applyZoomAndPanChangesFromPaper();
-
-        this.fireEvent('canvasModified', e);
-      });
-      tool.on('error', e => {
-        this.fireEvent('error', e);
-      });
-    }
-
-    this.model.tools.none.activate();
-  }
-
-  _displayCanvasInContainer(canvas) {
-    if (!this.canvasContainer) return;
-
-    if (canvas !== this.canvasContainer.children[0]) {
-      if (this.canvasContainer.children.length === 0) {
-        this.canvasContainer.appendChild(canvas);
-      } else {
-        this.canvasContainer.innerHTML = '';
-        this.canvasContainer.appendChild(canvas);
-      }
-
-      this.resize();
-    }
-  }
-
-  _updateCanvasContainerBGColor() {
-    if (this.model.focus === this.model.root) {
-      // We're in the root timeline, use the color given to us from the user (or use a default)
-      this.canvas.style.backgroundColor = this.canvasBGColor || Wick.View.Project.DEFAULT_CANVAS_BG_COLOR;
-    } else {
-      // We're inside a clip, so use the project background color as the container background color
-      this.canvas.style.backgroundColor = this.model.backgroundColor;
-    }
-  }
-
-  _buildSVGCanvas() {
-    if (this._svgCanvas) return;
-    this._svgCanvas = document.createElement('canvas');
-    this._svgCanvas.style.width = '100%';
-    this._svgCanvas.style.height = '100%';
-    this._svgCanvas.tabIndex = 0;
-
-    this._svgCanvas.onclick = () => {
-      this._svgCanvas.focus();
-    };
-
-    this.paper.setup(this._svgCanvas);
-    this._svgBackgroundLayer = new paper.Layer();
-    this._svgBackgroundLayer.name = 'wick_project_bg';
-
-    this._svgBackgroundLayer.remove();
-
-    this.paper.project.clear();
-  }
-
-  _renderSVGCanvas() {
-    this.paper.project.clear(); // Lazily setup tools
-
-    if (!this._toolsSetup) {
-      this._toolsSetup = true;
-
-      this._setupTools();
-    }
-
-    if (this.model.project.playing) {
-      // Enable interact tool if the project is running
-      this.model.tools.interact.activate();
-    } else if (!this.model.canDraw && this.model.activeTool.isDrawingTool) {
-      // Disable drawing tools if there's no frame to edit
-      this.model.tools.none.activate();
-    } else {
-      this.model.activeTool.activate();
-    } // Update zoom and pan
-
-
-    if (this._fitMode === 'center') {
-      this.paper.view.zoom = this.model.zoom;
-    } else if (this._fitMode === 'fill') {
-      // Fill mode: Try to fit the wick project's canvas inside the container canvas by
-      // scaling it as much as possible without changing the project's original aspect ratio
-      this.paper.view.zoom = this._calculateFitZoom();
-    }
-
-    var pan = this._pan;
-    this.paper.view.center = new paper.Point(-pan.x, -pan.y); // Generate background layer
-
-    this._svgBackgroundLayer.removeChildren();
-
-    this._svgBackgroundLayer.locked = true;
-    this.paper.project.addLayer(this._svgBackgroundLayer);
-
-    if (this.model.focus.isRoot) {
-      // We're in the root timeline, render the canvas normally
-      var stage = this._generateSVGCanvasStage();
-
-      this._svgBackgroundLayer.addChild(stage);
-    } else {
-      // We're inside a clip, don't render the canvas BG, instead render a crosshair at (0,0)
-      var originCrosshair = this._generateSVGOriginCrosshair();
-
-      this._svgBackgroundLayer.addChild(originCrosshair);
-    } // Generate frame layers
-
-
-    this.model.focus.timeline.view.render();
-    this.model.focus.timeline.view.activeFrameLayers.forEach(layer => {
-      this.paper.project.addLayer(layer);
-
-      if (this.model.project && this.model.project.activeFrame && layer.data.wickType === 'paths' && layer.data.wickUUID === this.model.project.activeFrame.uuid) {
-        layer.activate();
-      }
-    });
-    this.model.focus.timeline.view.onionSkinnedFramesLayers.forEach(layer => {
-      this.paper.project.addLayer(layer);
-    }); // TODO replace
-    // Render selection
-
-    this.model.selection.view.render();
-    this.paper.project.addLayer(this.model.selection.view.layer);
-  }
-
-  _generateSVGCanvasStage() {
-    var stage = new paper.Path.Rectangle(new this.paper.Point(0, 0), new this.paper.Point(this.model.width, this.model.height));
-    stage.remove();
-    stage.fillColor = this.model.backgroundColor;
-    return stage;
-  }
-
-  _generateSVGOriginCrosshair() {
-    var originCrosshair = new this.paper.Group({
-      insert: false
-    });
-    var vertical = new paper.Path.Line(new this.paper.Point(0, -Wick.View.Project.ORIGIN_CROSSHAIR_SIZE), new this.paper.Point(0, Wick.View.Project.ORIGIN_CROSSHAIR_SIZE));
-    vertical.strokeColor = Wick.View.Project.ORIGIN_CROSSHAIR_COLOR;
-    vertical.strokeWidth = Wick.View.Project.ORIGIN_CROSSHAIR_THICKNESS / this.paper.view.zoom;
-    var horizontal = new paper.Path.Line(new this.paper.Point(-Wick.View.Project.ORIGIN_CROSSHAIR_SIZE, 0), new this.paper.Point(Wick.View.Project.ORIGIN_CROSSHAIR_SIZE, 0));
-    horizontal.strokeColor = Wick.View.Project.ORIGIN_CROSSHAIR_COLOR;
-    horizontal.strokeWidth = Wick.View.Project.ORIGIN_CROSSHAIR_THICKNESS / this.paper.view.zoom;
-    originCrosshair.addChild(vertical);
-    originCrosshair.addChild(horizontal);
-    originCrosshair.position.x = 0;
-    originCrosshair.position.y = 0;
-    return originCrosshair;
-  }
-
-  _getCenteredPan() {
-    if (this.model.focus.isRoot) {
-      return {
-        x: this.model.pan.x - this.model.width / 2,
-        y: this.model.pan.y - this.model.height / 2
-      };
-    } else {
-      return {
-        x: this.model.pan.x,
-        y: this.model.pan.y
-      };
-    }
-  }
-
-  _calculateFitZoom() {
-    var w = 0;
-    var h = 0;
-    w = this.paper.view.viewSize.width;
-    h = this.paper.view.viewSize.height;
-    var wr = w / this.model.width;
-    var hr = h / this.model.height;
-    return Math.min(wr, hr);
-  }
-
-  _applyZoomAndPanChangesFromPaper() {
-    // limit zoom to min and max
-    this.paper.view.zoom = Math.min(Wick.View.Project.ZOOM_MAX, this.paper.view.zoom);
-    this.paper.view.zoom = Math.max(Wick.View.Project.ZOOM_MIN, this.paper.view.zoom); // limit pan
-
-    this.pan.x = Math.min(Wick.View.Project.PAN_LIMIT, this.pan.x);
-    this.pan.x = Math.max(-Wick.View.Project.PAN_LIMIT, this.pan.x);
-    this.pan.y = Math.min(Wick.View.Project.PAN_LIMIT, this.pan.y);
-    this.pan.y = Math.max(-Wick.View.Project.PAN_LIMIT, this.pan.y);
-    this.model.pan = {
-      x: this.pan.x,
-      y: this.pan.y
-    };
-    this.zoom = this.paper.view.zoom;
-    this.model.zoom = this.zoom;
   }
 
 };
@@ -55745,192 +55380,416 @@ var potrace;
 * You should have received a copy of the GNU General Public License
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
-Wick.View.Selection = class extends Wick.View {
-  /**
-   * Create a new Selection view.
+Wick.View.Project = class extends Wick.View {
+  static get DEFAULT_CANVAS_BG_COLOR() {
+    return 'rgb(187, 187, 187)';
+  }
+
+  static get VALID_FIT_MODES() {
+    return ['center', 'fill'];
+  }
+
+  static get VALID_RENDER_MODES() {
+    return ['svg', 'webgl'];
+  }
+
+  static get ORIGIN_CROSSHAIR_COLOR() {
+    return '#CCCCCC';
+  }
+
+  static get ORIGIN_CROSSHAIR_SIZE() {
+    return 100;
+  }
+
+  static get ORIGIN_CROSSHAIR_THICKNESS() {
+    return 1;
+  }
+
+  static get ZOOM_MIN() {
+    return 0.1;
+  }
+
+  static get ZOOM_MAX() {
+    return 10.0;
+  }
+
+  static get PAN_LIMIT() {
+    return 10000;
+  }
+  /*
+   * Create a new Project View.
    */
-  constructor() {
-    super();
-    this.layer = new this.paper.Layer();
-    this._widget = new paper.SelectionWidget({
-      layer: this.layer
-    });
-    this.paper.project.selectionWidget = this._widget;
+
+
+  constructor(model) {
+    super(model);
+    this._fitMode = null;
+    this.fitMode = 'center';
+    this._canvasContainer = null;
+    this._canvasBGColor = null;
+    this._svgCanvas = null;
+    this._svgBackgroundLayer = null;
+    this._pan = {
+      x: 0,
+      y: 0
+    };
+    this._zoom = 1;
+  }
+  /*
+   * Determines the way the project will scale itself based on its container.
+   * 'center' will keep the project at its original resolution, and center it inside its container.
+   * 'fill' will stretch the project to fit the container (while maintaining its original aspect ratio).
+   *
+   * Note: For these changes to be reflected after setting fitMode, you must call Project.View.resize().
+   */
+
+
+  set fitMode(fitMode) {
+    if (Wick.View.Project.VALID_FIT_MODES.indexOf(fitMode) === -1) {
+      console.error("Invalid fitMode: " + fitMode);
+      console.error("Supported fitModes: " + Wick.View.Project.VALID_FIT_MODES.join(','));
+    } else {
+      this._fitMode = fitMode;
+    }
+  }
+
+  get fitMode() {
+    return this._fitMode;
   }
   /**
-   * The selection widget
+   * The current canvas being rendered to.
    */
 
 
-  get widget() {
-    if (this.dirty) {
-      this.dirty = false;
-      this.render();
+  get canvas() {
+    return this._svgCanvas;
+  }
+  /**
+   * The zoom amount. 1 = 100% zoom
+   */
+
+
+  get zoom() {
+    return this._zoom;
+  }
+
+  set zoom(zoom) {
+    this._zoom = zoom;
+  }
+  /**
+   * The amount to pan the view. (0,0) is the center.
+   */
+
+
+  get pan() {
+    var pan = {
+      x: -this.paper.view.center.x,
+      y: -this.paper.view.center.y
+    };
+
+    if (this.model.focus.isRoot) {
+      pan.x += this.model.width / 2;
+      pan.y += this.model.height / 2;
     }
 
-    return this._widget;
+    return pan;
+  }
+
+  set pan(pan) {
+    this._pan = {
+      x: pan.x,
+      y: pan.y
+    };
+
+    if (this.model.focus.isRoot) {
+      this._pan.x -= this.model.width / 2;
+      this._pan.y -= this.model.height / 2;
+    }
+  }
+  /*
+   * The element to insert the project's canvas into.
+   */
+
+
+  set canvasContainer(canvasContainer) {
+    this._canvasContainer = canvasContainer;
+  }
+
+  get canvasContainer() {
+    return this._canvasContainer;
   }
   /**
-   *
+   * The background color of the canvas.
+   */
+
+
+  set canvasBGColor(canvasBGColor) {
+    this._canvasBGColor = canvasBGColor;
+  }
+
+  get canvasBGColor() {
+    return this._canvasBGColor;
+  }
+  /**
+   * Render the view.
+   */
+
+
+  render() {
+    this.zoom = this.model.zoom;
+    this.pan = this.model.pan;
+
+    this._buildSVGCanvas();
+
+    this._displayCanvasInContainer(this._svgCanvas);
+
+    this.resize();
+
+    this._renderSVGCanvas();
+
+    this._updateCanvasContainerBGColor();
+  }
+  /**
+   * Render all frames in the project to make sure everything is loaded correctly.
+   */
+
+
+  prerender() {
+    this.render();
+    this.model.getAllFrames().forEach(frame => {
+      frame.view.render();
+    });
+  }
+  /*
+   * Resize the canvas to fit it's container div.
+   * Resize is called automatically before each render, but you must call it if you manually change the size of the container div.
+   */
+
+
+  resize() {
+    if (!this.canvasContainer) return;
+    var containerWidth = this.canvasContainer.offsetWidth;
+    var containerHeight = this.canvasContainer.offsetHeight;
+    this.paper.view.viewSize.width = containerWidth;
+    this.paper.view.viewSize.height = containerHeight;
+  }
+  /**
+   * Write the SVG data in the view to the project.
    */
 
 
   applyChanges() {
-    this.model.widgetRotation = this.widget.rotation;
-    this.model.pivotPoint = {
-      x: this.widget.pivot.x,
-      y: this.widget.pivot.y
+    this.model.selection.view.applyChanges();
+    this.model.focus.timeline.activeFrames.forEach(frame => {
+      frame.view.applyChanges();
+    });
+  }
+
+  _setupTools() {
+    // This is a hacky way to create scroll-to-zoom functionality.
+    // (Using https://github.com/jquery/jquery-mousewheel for cross-browser mousewheel event)
+    $(this._svgCanvas).on('mousewheel', e => {
+      e.preventDefault();
+      var d = e.deltaY * e.deltaFactor * 0.001;
+      this.paper.view.zoom = Math.max(0.1, this.paper.view.zoom + d);
+
+      this._applyZoomAndPanChangesFromPaper();
+    });
+
+    for (var toolName in this.model.tools) {
+      var tool = this.model.tools[toolName];
+      tool.project = this.model;
+      tool.on('canvasModified', e => {
+        this.applyChanges();
+        this.fireEvent('canvasModified', e);
+      });
+      tool.on('canvasViewTransformed', e => {
+        this._applyZoomAndPanChangesFromPaper();
+
+        this.fireEvent('canvasModified', e);
+      });
+      tool.on('error', e => {
+        this.fireEvent('error', e);
+      });
+    }
+
+    this.model.tools.none.activate();
+  }
+
+  _displayCanvasInContainer(canvas) {
+    if (!this.canvasContainer) return;
+
+    if (canvas !== this.canvasContainer.children[0]) {
+      if (this.canvasContainer.children.length === 0) {
+        this.canvasContainer.appendChild(canvas);
+      } else {
+        this.canvasContainer.innerHTML = '';
+        this.canvasContainer.appendChild(canvas);
+      }
+
+      this.resize();
+    }
+  }
+
+  _updateCanvasContainerBGColor() {
+    if (this.model.focus === this.model.root) {
+      // We're in the root timeline, use the color given to us from the user (or use a default)
+      this.canvas.style.backgroundColor = this.canvasBGColor || Wick.View.Project.DEFAULT_CANVAS_BG_COLOR;
+    } else {
+      // We're inside a clip, so use the project background color as the container background color
+      this.canvas.style.backgroundColor = this.model.backgroundColor;
+    }
+  }
+
+  _buildSVGCanvas() {
+    if (this._svgCanvas) return;
+    this._svgCanvas = document.createElement('canvas');
+    this._svgCanvas.style.width = '100%';
+    this._svgCanvas.style.height = '100%';
+    this._svgCanvas.tabIndex = 0;
+
+    this._svgCanvas.onclick = () => {
+      this._svgCanvas.focus();
     };
-  }
-  /**
-   *
-   */
 
+    this.paper.setup(this._svgCanvas);
+    this._svgBackgroundLayer = new paper.Layer();
+    this._svgBackgroundLayer.name = 'wick_project_bg';
 
-  get x() {
-    return this.widget.position.x;
-  }
+    this._svgBackgroundLayer.remove();
 
-  set x(x) {
-    this.widget.position = new paper.Point(x, this.widget.position.y);
-    this.model.project.view.applyChanges();
-  }
-  /**
-   *
-   */
-
-
-  get y() {
-    return this.widget.position.y;
+    this.paper.project.clear();
   }
 
-  set y(y) {
-    this.widget.position = new paper.Point(this.widget.position.x, y);
-    this.model.project.view.applyChanges();
-  }
-  /**
-   *
-   */
+  _renderSVGCanvas() {
+    this.paper.project.clear(); // Lazily setup tools
+
+    if (!this._toolsSetup) {
+      this._toolsSetup = true;
+
+      this._setupTools();
+    }
+
+    if (this.model.project.playing) {
+      // Enable interact tool if the project is running
+      this.model.tools.interact.activate();
+    } else if (!this.model.canDraw && this.model.activeTool.isDrawingTool) {
+      // Disable drawing tools if there's no frame to edit
+      this.model.tools.none.activate();
+    } else {
+      this.model.activeTool.activate();
+    } // Update zoom and pan
 
 
-  get width() {
-    return this.widget.width;
-  }
+    if (this._fitMode === 'center') {
+      this.paper.view.zoom = this.model.zoom;
+    } else if (this._fitMode === 'fill') {
+      // Fill mode: Try to fit the wick project's canvas inside the container canvas by
+      // scaling it as much as possible without changing the project's original aspect ratio
+      this.paper.view.zoom = this._calculateFitZoom();
+    }
 
-  set width(width) {
-    this.widget.width = width;
-    this.model.project.view.applyChanges();
-  }
-  /**
-   *
-   */
+    var pan = this._pan;
+    this.paper.view.center = new paper.Point(-pan.x, -pan.y); // Generate background layer
 
+    this._svgBackgroundLayer.removeChildren();
 
-  get height() {
-    return this.widget.height;
-  }
+    this._svgBackgroundLayer.locked = true;
+    this.paper.project.addLayer(this._svgBackgroundLayer);
 
-  set height(height) {
-    this.widget.height = height;
-    this.model.project.view.applyChanges();
-  }
-  /**
-   *
-   */
+    if (this.model.focus.isRoot) {
+      // We're in the root timeline, render the canvas normally
+      var stage = this._generateSVGCanvasStage();
 
+      this._svgBackgroundLayer.addChild(stage);
+    } else {
+      // We're inside a clip, don't render the canvas BG, instead render a crosshair at (0,0)
+      var originCrosshair = this._generateSVGOriginCrosshair();
 
-  get rotation() {
-    return this.widget.rotation;
-  }
-
-  set rotation(rotation) {
-    this.widget.rotation = rotation;
-    this.model.project.view.applyChanges();
-    this.model.widgetRotation = rotation;
-  }
-  /**
-   *
-   */
+      this._svgBackgroundLayer.addChild(originCrosshair);
+    } // Generate frame layers
 
 
-  flipHorizontally() {
-    this.widget.flipHorizontally();
-    this.model.project.view.applyChanges();
-  }
-  /**
-   *
-   */
+    this.model.focus.timeline.view.render();
+    this.model.focus.timeline.view.activeFrameLayers.forEach(layer => {
+      this.paper.project.addLayer(layer);
 
-
-  flipVertically() {
-    this.widget.flipVertically();
-    this.model.project.view.applyChanges();
-  }
-  /**
-   *
-   */
-
-
-  sendToBack() {
-    paper.OrderingUtils.sendToBack(this._getSelectedObjectViews());
-    this.model.project.view.applyChanges();
-  }
-  /**
-   *
-   */
-
-
-  bringToFront() {
-    paper.OrderingUtils.bringToFront(this._getSelectedObjectViews());
-    this.model.project.view.applyChanges();
-  }
-  /**
-   *
-   */
-
-
-  moveForwards() {
-    paper.OrderingUtils.moveForwards(this._getSelectedObjectViews());
-    this.model.project.view.applyChanges();
-  }
-  /**
-   *
-   */
-
-
-  moveBackwards() {
-    paper.OrderingUtils.moveBackwards(this._getSelectedObjectViews());
-    this.model.project.view.applyChanges();
-  }
-
-  render() {
-    this._widget.build({
-      boxRotation: this.model.widgetRotation,
-      items: this._getSelectedObjectViews(),
-      pivot: new paper.Point(this.model.pivotPoint.x, this.model.pivotPoint.y)
+      if (this.model.project && this.model.project.activeFrame && layer.data.wickType === 'paths' && layer.data.wickUUID === this.model.project.activeFrame.uuid) {
+        layer.activate();
+      }
     });
+    this.model.focus.timeline.view.onionSkinnedFramesLayers.forEach(layer => {
+      this.paper.project.addLayer(layer);
+    }); // TODO replace
+    // Render selection
+
+    this.model.selection.view.render();
+    this.paper.project.addLayer(this.model.selection.view.layer);
   }
 
-  _getSelectedObjects() {
-    return this.model.getSelectedObjects('Canvas');
+  _generateSVGCanvasStage() {
+    var stage = new paper.Path.Rectangle(new this.paper.Point(0, 0), new this.paper.Point(this.model.width, this.model.height));
+    stage.remove();
+    stage.fillColor = this.model.backgroundColor;
+    return stage;
   }
 
-  _getObjectViews(objects) {
-    return objects.map(object => {
-      return object.view.item || object.view.group;
+  _generateSVGOriginCrosshair() {
+    var originCrosshair = new this.paper.Group({
+      insert: false
     });
+    var vertical = new paper.Path.Line(new this.paper.Point(0, -Wick.View.Project.ORIGIN_CROSSHAIR_SIZE), new this.paper.Point(0, Wick.View.Project.ORIGIN_CROSSHAIR_SIZE));
+    vertical.strokeColor = Wick.View.Project.ORIGIN_CROSSHAIR_COLOR;
+    vertical.strokeWidth = Wick.View.Project.ORIGIN_CROSSHAIR_THICKNESS / this.paper.view.zoom;
+    var horizontal = new paper.Path.Line(new this.paper.Point(-Wick.View.Project.ORIGIN_CROSSHAIR_SIZE, 0), new this.paper.Point(Wick.View.Project.ORIGIN_CROSSHAIR_SIZE, 0));
+    horizontal.strokeColor = Wick.View.Project.ORIGIN_CROSSHAIR_COLOR;
+    horizontal.strokeWidth = Wick.View.Project.ORIGIN_CROSSHAIR_THICKNESS / this.paper.view.zoom;
+    originCrosshair.addChild(vertical);
+    originCrosshair.addChild(horizontal);
+    originCrosshair.position.x = 0;
+    originCrosshair.position.y = 0;
+    return originCrosshair;
   }
 
-  _getObjectsBounds(objects) {
-    return this.widget._calculateBoundingBoxOfItems(this._getObjectViews(objects));
+  _getCenteredPan() {
+    if (this.model.focus.isRoot) {
+      return {
+        x: this.model.pan.x - this.model.width / 2,
+        y: this.model.pan.y - this.model.height / 2
+      };
+    } else {
+      return {
+        x: this.model.pan.x,
+        y: this.model.pan.y
+      };
+    }
   }
 
-  _getSelectedObjectViews() {
-    return this._getObjectViews(this._getSelectedObjects());
+  _calculateFitZoom() {
+    var w = 0;
+    var h = 0;
+    w = this.paper.view.viewSize.width;
+    h = this.paper.view.viewSize.height;
+    var wr = w / this.model.width;
+    var hr = h / this.model.height;
+    return Math.min(wr, hr);
   }
 
-  _getSelectedObjectsBounds() {
-    return this._getObjectsBounds(this._getSelectedObjects());
+  _applyZoomAndPanChangesFromPaper() {
+    // limit zoom to min and max
+    this.paper.view.zoom = Math.min(Wick.View.Project.ZOOM_MAX, this.paper.view.zoom);
+    this.paper.view.zoom = Math.max(Wick.View.Project.ZOOM_MIN, this.paper.view.zoom); // limit pan
+
+    this.pan.x = Math.min(Wick.View.Project.PAN_LIMIT, this.pan.x);
+    this.pan.x = Math.max(-Wick.View.Project.PAN_LIMIT, this.pan.x);
+    this.pan.y = Math.min(Wick.View.Project.PAN_LIMIT, this.pan.y);
+    this.pan.y = Math.max(-Wick.View.Project.PAN_LIMIT, this.pan.y);
+    this.model.pan = {
+      x: this.pan.x,
+      y: this.pan.y
+    };
+    this.zoom = this.paper.view.zoom;
+    this.model.zoom = this.zoom;
   }
 
 };
@@ -56166,39 +56025,192 @@ var reserved = (() => {
 * You should have received a copy of the GNU General Public License
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
-Wick.View.Clip = class extends Wick.View {
+Wick.View.Selection = class extends Wick.View {
   /**
-   * Creates a new Button view.
+   * Create a new Selection view.
    */
   constructor() {
     super();
-    this.group = new this.paper.Group();
-    this.group.remove();
-    this.group.applyMatrix = false;
+    this.layer = new this.paper.Layer();
+    this._widget = new paper.SelectionWidget({
+      layer: this.layer
+    });
+    this.paper.project.selectionWidget = this._widget;
+  }
+  /**
+   * The selection widget
+   */
+
+
+  get widget() {
+    if (this.dirty) {
+      this.dirty = false;
+      this.render();
+    }
+
+    return this._widget;
+  }
+  /**
+   *
+   */
+
+
+  applyChanges() {
+    this.model.widgetRotation = this.widget.rotation;
+    this.model.pivotPoint = {
+      x: this.widget.pivot.x,
+      y: this.widget.pivot.y
+    };
+  }
+  /**
+   *
+   */
+
+
+  get x() {
+    return this.widget.position.x;
+  }
+
+  set x(x) {
+    this.widget.position = new paper.Point(x, this.widget.position.y);
+    this.model.project.view.applyChanges();
+  }
+  /**
+   *
+   */
+
+
+  get y() {
+    return this.widget.position.y;
+  }
+
+  set y(y) {
+    this.widget.position = new paper.Point(this.widget.position.x, y);
+    this.model.project.view.applyChanges();
+  }
+  /**
+   *
+   */
+
+
+  get width() {
+    return this.widget.width;
+  }
+
+  set width(width) {
+    this.widget.width = width;
+    this.model.project.view.applyChanges();
+  }
+  /**
+   *
+   */
+
+
+  get height() {
+    return this.widget.height;
+  }
+
+  set height(height) {
+    this.widget.height = height;
+    this.model.project.view.applyChanges();
+  }
+  /**
+   *
+   */
+
+
+  get rotation() {
+    return this.widget.rotation;
+  }
+
+  set rotation(rotation) {
+    this.widget.rotation = rotation;
+    this.model.project.view.applyChanges();
+    this.model.widgetRotation = rotation;
+  }
+  /**
+   *
+   */
+
+
+  flipHorizontally() {
+    this.widget.flipHorizontally();
+    this.model.project.view.applyChanges();
+  }
+  /**
+   *
+   */
+
+
+  flipVertically() {
+    this.widget.flipVertically();
+    this.model.project.view.applyChanges();
+  }
+  /**
+   *
+   */
+
+
+  sendToBack() {
+    paper.OrderingUtils.sendToBack(this._getSelectedObjectViews());
+    this.model.project.view.applyChanges();
+  }
+  /**
+   *
+   */
+
+
+  bringToFront() {
+    paper.OrderingUtils.bringToFront(this._getSelectedObjectViews());
+    this.model.project.view.applyChanges();
+  }
+  /**
+   *
+   */
+
+
+  moveForwards() {
+    paper.OrderingUtils.moveForwards(this._getSelectedObjectViews());
+    this.model.project.view.applyChanges();
+  }
+  /**
+   *
+   */
+
+
+  moveBackwards() {
+    paper.OrderingUtils.moveBackwards(this._getSelectedObjectViews());
+    this.model.project.view.applyChanges();
   }
 
   render() {
-    // Render timeline view
-    this.model.timeline.view.render(); // Add some debug info to the paper group
-
-    this.group.data.wickType = 'clip';
-    this.group.data.wickUUID = this.model.uuid; // Add frame views from timeline
-
-    this.group.removeChildren();
-    this.model.timeline.view.activeFrameLayers.forEach(layer => {
-      this.group.addChild(layer);
+    this._widget.build({
+      boxRotation: this.model.widgetRotation,
+      items: this._getSelectedObjectViews(),
+      pivot: new paper.Point(this.model.pivotPoint.x, this.model.pivotPoint.y)
     });
-    this.model.timeline.view.onionSkinnedFramesLayers.forEach(layer => {
-      this.group.addChild(layer);
-    }); // Update transformations
+  }
 
-    this.group.pivot = new this.paper.Point(0, 0);
-    this.group.position.x = this.model.transformation.x;
-    this.group.position.y = this.model.transformation.y;
-    this.group.scaling.x = this.model.transformation.scaleX;
-    this.group.scaling.y = this.model.transformation.scaleY;
-    this.group.rotation = this.model.transformation.rotation;
-    this.group.opacity = this.model.transformation.opacity;
+  _getSelectedObjects() {
+    return this.model.getSelectedObjects('Canvas');
+  }
+
+  _getObjectViews(objects) {
+    return objects.map(object => {
+      return object.view.item || object.view.group;
+    });
+  }
+
+  _getObjectsBounds(objects) {
+    return this.widget._calculateBoundingBoxOfItems(this._getObjectViews(objects));
+  }
+
+  _getSelectedObjectViews() {
+    return this._getObjectViews(this._getSelectedObjects());
+  }
+
+  _getSelectedObjectsBounds() {
+    return this._getObjectsBounds(this._getSelectedObjects());
   }
 
 };
@@ -56238,7 +56250,42 @@ CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
 * You should have received a copy of the GNU General Public License
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
-Wick.View.Button = class extends Wick.View.Clip {};
+Wick.View.Clip = class extends Wick.View {
+  /**
+   * Creates a new Button view.
+   */
+  constructor() {
+    super();
+    this.group = new this.paper.Group();
+    this.group.remove();
+    this.group.applyMatrix = false;
+  }
+
+  render() {
+    // Render timeline view
+    this.model.timeline.view.render(); // Add some debug info to the paper group
+
+    this.group.data.wickType = 'clip';
+    this.group.data.wickUUID = this.model.uuid; // Add frame views from timeline
+
+    this.group.removeChildren();
+    this.model.timeline.view.activeFrameLayers.forEach(layer => {
+      this.group.addChild(layer);
+    });
+    this.model.timeline.view.onionSkinnedFramesLayers.forEach(layer => {
+      this.group.addChild(layer);
+    }); // Update transformations
+
+    this.group.pivot = new this.paper.Point(0, 0);
+    this.group.position.x = this.model.transformation.x;
+    this.group.position.y = this.model.transformation.y;
+    this.group.scaling.x = this.model.transformation.scaleX;
+    this.group.scaling.y = this.model.transformation.scaleY;
+    this.group.rotation = this.model.transformation.rotation;
+    this.group.opacity = this.model.transformation.opacity;
+  }
+
+};
 // https://gist.github.com/hurjas/2660489
 
 /**
@@ -56297,32 +56344,7 @@ function Timestamp() {
 * You should have received a copy of the GNU General Public License
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
-Wick.View.Timeline = class extends Wick.View {
-  constructor(wickTimeline) {
-    super();
-    this.activeFrameLayers = [];
-    this.onionSkinnedFramesLayers = [];
-    this.activeFrameContainers = [];
-  }
-
-  render() {
-    this.activeFrameLayers = [];
-    this.onionSkinnedFramesLayers = [];
-
-    this._getLayersInOrder().forEach(layer => {
-      layer.view.render();
-      this.activeFrameLayers = this.activeFrameLayers.concat(layer.view.activeFrameLayers);
-      this.onionSkinnedFramesLayers = this.onionSkinnedFramesLayers.concat(layer.view.onionSkinnedFramesLayers);
-    });
-  }
-
-  _getLayersInOrder() {
-    return this.model.layers.filter(layer => {
-      return !layer.hidden;
-    }).reverse();
-  }
-
-};
+Wick.View.Button = class extends Wick.View.Clip {};
 /* https://github.com/Idnan/soundcloud-waveform-generator */
 
 window.AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -56480,12 +56502,8 @@ var SCWF = function () {
 * You should have received a copy of the GNU General Public License
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
-Wick.View.Layer = class extends Wick.View {
-  static get BASE_ONION_OPACITY() {
-    return 0.35;
-  }
-
-  constructor(wickLayer) {
+Wick.View.Timeline = class extends Wick.View {
+  constructor(wickTimeline) {
     super();
     this.activeFrameLayers = [];
     this.onionSkinnedFramesLayers = [];
@@ -56493,61 +56511,20 @@ Wick.View.Layer = class extends Wick.View {
   }
 
   render() {
-    // Add active frame layers
     this.activeFrameLayers = [];
-    var frame = this.model.activeFrame;
-
-    if (frame) {
-      frame.view.render();
-      this.activeFrameLayers.push(frame.view.pathsLayer);
-      this.activeFrameLayers.push(frame.view.clipsLayer);
-      frame.view.clipsLayer.locked = false;
-      frame.view.pathsLayer.locked = false;
-      frame.view.clipsLayer.opacity = 1.0;
-      frame.view.pathsLayer.opacity = 1.0;
-    } // Disable mouse events on layers if they are locked.
-    // (However, this is ignored while the project is playing so the interact tool always works.)
-
-
-    this.activeFrameLayers.forEach(layer => {
-      if (this.model.project.playing) {
-        layer.locked = false;
-      } else {
-        layer.locked = this.model.locked;
-      }
-    }); // Add onion skinned frame layers
-
     this.onionSkinnedFramesLayers = [];
 
-    if (this.model.project && this.model.parentClip.isFocus && this.model.project.onionSkinEnabled) {
-      var playheadPosition = this.model.project.focus.timeline.playheadPosition;
-      var onionSkinEnabled = this.model.project.onionSkinEnabled;
-      var onionSkinSeekBackwards = this.model.project.onionSkinSeekBackwards;
-      var onionSkinSeekForwards = this.model.project.onionSkinSeekForwards;
-      this.model.frames.filter(frame => {
-        return !frame.inPosition(playheadPosition) && frame.inRange(playheadPosition - onionSkinSeekBackwards, playheadPosition + onionSkinSeekForwards);
-      }).forEach(frame => {
-        frame.view.render();
-        this.onionSkinnedFramesLayers.push(frame.view.pathsLayer);
-        this.onionSkinnedFramesLayers.push(frame.view.clipsLayer);
-        var seek = 0;
+    this._getLayersInOrder().forEach(layer => {
+      layer.view.render();
+      this.activeFrameLayers = this.activeFrameLayers.concat(layer.view.activeFrameLayers);
+      this.onionSkinnedFramesLayers = this.onionSkinnedFramesLayers.concat(layer.view.onionSkinnedFramesLayers);
+    });
+  }
 
-        if (frame.midpoint < playheadPosition) {
-          seek = onionSkinSeekBackwards;
-        } else if (frame.midpoint > playheadPosition) {
-          seek = onionSkinSeekForwards;
-        }
-
-        var dist = frame.distanceFrom(playheadPosition);
-        var onionMult = (seek - dist + 1) / seek;
-        onionMult = Math.min(1, Math.max(0, onionMult));
-        var opacity = onionMult * Wick.View.Layer.BASE_ONION_OPACITY;
-        frame.view.clipsLayer.locked = true;
-        frame.view.pathsLayer.locked = true;
-        frame.view.clipsLayer.opacity = opacity;
-        frame.view.pathsLayer.opacity = opacity;
-      });
-    }
+  _getLayersInOrder() {
+    return this.model.layers.filter(layer => {
+      return !layer.hidden;
+    }).reverse();
   }
 
 };
@@ -57434,6 +57411,97 @@ TWEEN.Interpolation = {
 
 })(this);
 
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* Copyright 2019 WICKLETS LLC
+*
+* This file is part of Wick Engine.
+*
+* Wick Engine is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Wick Engine is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+*/
+Wick.View.Layer = class extends Wick.View {
+  static get BASE_ONION_OPACITY() {
+    return 0.35;
+  }
+
+  constructor(wickLayer) {
+    super();
+    this.activeFrameLayers = [];
+    this.onionSkinnedFramesLayers = [];
+    this.activeFrameContainers = [];
+  }
+
+  render() {
+    // Add active frame layers
+    this.activeFrameLayers = [];
+    var frame = this.model.activeFrame;
+
+    if (frame) {
+      frame.view.render();
+      this.activeFrameLayers.push(frame.view.pathsLayer);
+      this.activeFrameLayers.push(frame.view.clipsLayer);
+      frame.view.clipsLayer.locked = false;
+      frame.view.pathsLayer.locked = false;
+      frame.view.clipsLayer.opacity = 1.0;
+      frame.view.pathsLayer.opacity = 1.0;
+    } // Disable mouse events on layers if they are locked.
+    // (However, this is ignored while the project is playing so the interact tool always works.)
+
+
+    this.activeFrameLayers.forEach(layer => {
+      if (this.model.project.playing) {
+        layer.locked = false;
+      } else {
+        layer.locked = this.model.locked;
+      }
+    }); // Add onion skinned frame layers
+
+    this.onionSkinnedFramesLayers = [];
+
+    if (this.model.project && this.model.parentClip.isFocus && this.model.project.onionSkinEnabled) {
+      var playheadPosition = this.model.project.focus.timeline.playheadPosition;
+      var onionSkinEnabled = this.model.project.onionSkinEnabled;
+      var onionSkinSeekBackwards = this.model.project.onionSkinSeekBackwards;
+      var onionSkinSeekForwards = this.model.project.onionSkinSeekForwards;
+      this.model.frames.filter(frame => {
+        return !frame.inPosition(playheadPosition) && frame.inRange(playheadPosition - onionSkinSeekBackwards, playheadPosition + onionSkinSeekForwards);
+      }).forEach(frame => {
+        frame.view.render();
+        this.onionSkinnedFramesLayers.push(frame.view.pathsLayer);
+        this.onionSkinnedFramesLayers.push(frame.view.clipsLayer);
+        var seek = 0;
+
+        if (frame.midpoint < playheadPosition) {
+          seek = onionSkinSeekBackwards;
+        } else if (frame.midpoint > playheadPosition) {
+          seek = onionSkinSeekForwards;
+        }
+
+        var dist = frame.distanceFrom(playheadPosition);
+        var onionMult = (seek - dist + 1) / seek;
+        onionMult = Math.min(1, Math.max(0, onionMult));
+        var opacity = onionMult * Wick.View.Layer.BASE_ONION_OPACITY;
+        frame.view.clipsLayer.locked = true;
+        frame.view.pathsLayer.locked = true;
+        frame.view.clipsLayer.opacity = opacity;
+        frame.view.pathsLayer.opacity = opacity;
+      });
+    }
+  }
+
+};
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
@@ -58780,7 +58848,7 @@ Wick.GUIElement.FramesContainer = class extends Wick.GUIElement {
 
     var frames = this.model.getAllFrames();
     var draggingFrames = frames.filter(frame => {
-      if (frame._ghost) return true;
+      if (frame.guiElement._ghost) return true;
 
       if (frame.tweens.find(tween => {
         return tween.guiElement._ghost;
