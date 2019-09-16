@@ -2235,7 +2235,7 @@ Wick.Layer = class extends Wick.Base {
     super(args);
     this.locked = args.locked === undefined ? false : args.locked;
     this.hidden = args.hidden === undefined ? false : args.hidden;
-    this.name = args.name || 'Layer';
+    this.name = args.name || null;
   }
 
   serialize(args) {
@@ -20588,7 +20588,12 @@ Wick.Selection = class extends Wick.Base {
     } // Add the object to the selection!
 
 
-    this._selectedObjectsUUIDs.push(object.uuid);
+    this._selectedObjectsUUIDs.push(object.uuid); // Select in between frames (for shift+click selecting frames)
+
+
+    if (object instanceof Wick.Frame) {
+      this._selectInBetweenFrames(object);
+    }
 
     this._resetPositioningValues(); // Make sure the view gets updated the next time its needed...
 
@@ -21171,471 +21176,40 @@ Wick.Selection = class extends Wick.Base {
       selectedObject[attributeName] = value;
     });
   }
-
-};
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-
-/**
- * Class representing a Wick Timeline.
- */
-Wick.Timeline = class extends Wick.Base {
-  /**
-   * Create a timeline.
-   */
-  constructor(args) {
-    super(args);
-    this._playheadPosition = 1;
-    this._activeLayerIndex = 0;
-    this._playing = true;
-    this._forceNextFrame = null;
-    this._fillGapsMethod = "auto_extend";
-  }
-
-  serialize(args) {
-    var data = super.serialize(args);
-    data.playheadPosition = this._playheadPosition;
-    data.activeLayerIndex = this._activeLayerIndex;
-    return data;
-  }
-
-  deserialize(data) {
-    super.deserialize(data);
-    this._playheadPosition = data.playheadPosition;
-    this._activeLayerIndex = data.activeLayerIndex;
-    this._playing = true;
-    this._forceNextFrame = null;
-  }
-
-  get classname() {
-    return 'Timeline';
-  }
-  /**
-   * The layers that belong to this timeline.
-   * @type {Wick.Layer}
-   */
+  /*helper function for shift+selecting frames*/
 
 
-  get layers() {
-    return this.getChildren('Layer');
-  }
-  /**
-   * The position of the playhead. Determines which frames are visible.
-   * @type {number}
-   */
+  _selectInBetweenFrames(selectedFrame) {
+    var frameBounds = {
+      playheadStart: null,
+      playheadEnd: null
+    }; // Calculate bounding box of all selected frames
 
+    var selectedFrames = this.getSelectedObjects('Frame');
+    selectedFrames.filter(frame => {
+      return frame.parentLayer === selectedFrame.parentLayer;
+    }).forEach(frame => {
+      var start = frame.start;
+      var end = frame.end;
 
-  get playheadPosition() {
-    return this._playheadPosition;
-  }
-
-  set playheadPosition(playheadPosition) {
-    // Automatically clear selection when any playhead in the project moves
-    if (this.project && this._playheadPosition !== playheadPosition) {
-      this.project.selection.clear('Canvas');
-    }
-
-    this._playheadPosition = playheadPosition;
-
-    if (this._playheadPosition < 1) {
-      this._playheadPosition = 1;
-    } // Automatically apply tween transforms on child frames when playhead moves
-
-
-    this.activeFrames.forEach(frame => {
-      frame.applyTweenTransforms();
-    });
-  }
-  /**
-   * The index of the active layer. Determines which frame to draw onto.
-   * @type {number}
-   */
-
-
-  get activeLayerIndex() {
-    return this._activeLayerIndex;
-  }
-
-  set activeLayerIndex(activeLayerIndex) {
-    this._activeLayerIndex = activeLayerIndex;
-  }
-  /**
-   * The total length of the timeline.
-   * @type {number}
-   */
-
-
-  get length() {
-    var length = 0;
-    this.layers.forEach(function (layer) {
-      var layerLength = layer.length;
-
-      if (layerLength > length) {
-        length = layerLength;
+      if (!frameBounds.playheadStart || !frameBounds.playheadEnd) {
+        frameBounds.playheadStart = start;
+        frameBounds.playheadEnd = end;
       }
-    });
-    return length;
-  }
-  /**
-   * The active layer.
-   * @type {Wick.Layer}
-   */
 
-
-  get activeLayer() {
-    return this.layers[this.activeLayerIndex];
-  }
-  /**
-   * The active frames, determined by the playhead position.
-   * @type {Wick.Frame[]}
-   */
-
-
-  get activeFrames() {
-    var frames = [];
-    this.layers.forEach(layer => {
-      var layerFrame = layer.activeFrame;
-
-      if (layerFrame) {
-        frames.push(layerFrame);
+      if (start < frameBounds.playheadStart) {
+        frameBounds.playheadStart = start;
       }
-    });
-    return frames;
-  }
-  /**
-   * The active frame, determined by the playhead position.
-   * @type {Wick.Frame}
-   */
 
-
-  get activeFrame() {
-    return this.activeLayer && this.activeLayer.activeFrame;
-  }
-  /**
-   * All frames inside the timeline.
-   * @type {Wick.Frame[]}
-   */
-
-
-  get frames() {
-    var frames = [];
-    this.layers.forEach(layer => {
-      layer.frames.forEach(frame => {
-        frames.push(frame);
-      });
-    });
-    return frames;
-  }
-  /**
-   * All clips inside the timeline.
-   * @type {Wick.Clip[]}
-   */
-
-
-  get clips() {
-    var clips = [];
-    this.frames.forEach(frame => {
-      clips = clips.concat(frame.clips);
-    });
-    return clips;
-  }
-  /**
-   * The playhead position of the frame with the given name.
-   * @type {number|null}
-   */
-
-
-  getPlayheadPositionOfFrameWithName(name) {
-    var frame = this.getFrameByName(name);
-
-    if (frame) {
-      return frame.start;
-    } else {
-      return null;
-    }
-  }
-  /**
-   * Finds the frame with a given name.
-   * @type {Wick.Frame|null}
-   */
-
-
-  getFrameByName(name) {
-    return this.frames.find(frame => {
-      return frame.name === name;
-    }) || null;
-  }
-  /**
-   * Add a frame to one of the layers on this timeline. If there is no layer where the frame wants to go, the frame will not be added.
-   * @param {Wick.Frame} frame - the frame to add
-   */
-
-
-  addFrame(frame) {
-    if (frame.originalLayerIndex >= this.layers.length) return;
-
-    if (frame.originalLayerIndex === -1) {
-      this.activeLayer.addFrame(frame);
-    } else {
-      this.layers[frame.originalLayerIndex].addFrame(frame);
-    }
-  }
-  /**
-   * Adds a layer to the timeline.
-   * @param {Wick.Layer} layer - The layer to add.
-   */
-
-
-  addLayer(layer) {
-    this.addChild(layer);
-  }
-  /**
-   * Remmoves a layer from the timeline.
-   * @param {Wick.Layer} layer - The layer to remove.
-   */
-
-
-  removeLayer(layer) {
-    // You can't remove the last layer.
-    if (this.layers.length <= 1) {
-      return;
-    } // Activate the layer below the removed layer if we removed the active layer.
-
-
-    if (this.activeLayerIndex === this.layers.length - 1) {
-      this.activeLayerIndex--;
-    }
-
-    this.removeChild(layer);
-  }
-  /**
-   * Moves a layer to a different position, inserting it before/after other layers if needed.
-   * @param {Wick.Layer} layer - The layer to add.
-   * @param {number} index - the new position to move the layer to.
-   */
-
-
-  moveLayer(layer, index) {
-    var layers = this.getChildren('Layer');
-    layers.splice(layers.indexOf(layer), 1);
-    layers.splice(index, 0, layer);
-  }
-  /**
-   * Gets the frames at the given playhead position.
-   * @param {number} playheadPosition - the playhead position to search.
-   * @returns {Wick.Frame[]} The frames at the playhead position.
-   */
-
-
-  getFramesAtPlayheadPosition(playheadPosition) {
-    var frames = [];
-    this.layers.forEach(layer => {
-      var frame = layer.getFrameAtPlayheadPosition(playheadPosition);
-      if (frame) frames.push(frame);
-    });
-    return frames;
-  }
-  /**
-   * Get all frames in this timeline.
-   * @param {boolean} recursive - If set to true, will also include the children of all child timelines.
-   */
-
-
-  getAllFrames(recursive) {
-    var allFrames = [];
-    this.layers.forEach(layer => {
-      allFrames = allFrames.concat(layer.frames);
-
-      if (recursive) {
-        layer.frames.forEach(frame => {
-          frame.clips.forEach(clip => {
-            allFrames = allFrames.concat(clip.timeline.getAllFrames(recursive));
-          });
-        });
+      if (end > frameBounds.playheadEnd) {
+        frameBounds.playheadEnd = end;
       }
-    });
-    return allFrames;
-  }
-  /**
-   * Gets all frames in the layer that are between the two given playhead positions and layer indices.
-   * @param {number} playheadPositionStart - The start of the horizontal range to search
-   * @param {number} playheadPositionEnd - The end of the horizontal range to search
-   * @param {number} layerIndexStart - The start of the vertical range to search
-   * @param {number} layerIndexEnd - The end of the vertical range to search
-   * @return {Wick.Frame[]} The frames in the given range.
-   */
+    }); // Select all frames inside bounding box
 
-
-  getFramesInRange(playheadPositionStart, playheadPositionEnd, layerIndexStart, layerIndexEnd) {
-    var framesInRange = [];
-    this.layers.filter(layer => {
-      return layer.index >= layerIndexStart && layer.index <= layerIndexEnd;
-    }).forEach(layer => {
-      framesInRange = framesInRange.concat(layer.getFramesInRange(playheadPositionStart, playheadPositionEnd));
-    });
-    return framesInRange;
-  }
-  /**
-   * Advances the timeline one frame forwards. Loops back to beginning if the end is reached.
-   */
-
-
-  advance() {
-    if (this._forceNextFrame) {
-      this.playheadPosition = this._forceNextFrame;
-      this._forceNextFrame = null;
-    } else if (this._playing) {
-      this.playheadPosition++;
-
-      if (this.playheadPosition > this.length) {
-        this.playheadPosition = 1;
-      }
-    }
-  }
-  /**
-   * Makes the timeline advance automatically during ticks.
-   */
-
-
-  play() {
-    this._playing = true;
-  }
-  /**
-   * Stops the timeline from advancing during ticks.
-   */
-
-
-  stop() {
-    this._playing = false;
-  }
-  /**
-   * Stops the timeline and moves to a given frame number or name.
-   * @param {string|number} frame - A playhead position or name of a frame to move to.
-   */
-
-
-  gotoAndStop(frame) {
-    this.stop();
-    this.gotoFrame(frame);
-  }
-  /**
-   * Plays the timeline and moves to a given frame number or name.
-   * @param {string|number} frame - A playhead position or name of a frame to move to.
-   */
-
-
-  gotoAndPlay(frame) {
-    this.play();
-    this.gotoFrame(frame);
-  }
-  /**
-   * Moves the timeline forward one frame. Loops back to 1 if gotoNextFrame moves the playhead past the past frame.
-   */
-
-
-  gotoNextFrame() {
-    // Loop back to beginning if gotoNextFrame goes past the last frame
-    var nextFramePlayheadPosition = this.playheadPosition + 1;
-
-    if (nextFramePlayheadPosition > this.length) {
-      nextFramePlayheadPosition = 1;
-    }
-
-    this.gotoFrame(nextFramePlayheadPosition);
-  }
-  /**
-   * Moves the timeline backwards one frame. Loops to the last frame if gotoPrevFrame moves the playhead before the first frame.
-   */
-
-
-  gotoPrevFrame() {
-    var prevFramePlayheadPosition = this.playheadPosition - 1;
-
-    if (prevFramePlayheadPosition <= 0) {
-      prevFramePlayheadPosition = this.length;
-    }
-
-    this.gotoFrame(prevFramePlayheadPosition);
-  }
-  /**
-   * Moves the playhead to a given frame number or name.
-   * @param {string|number} frame - A playhead position or name of a frame to move to.
-   */
-
-
-  gotoFrame(frame) {
-    if (typeof frame === 'string') {
-      var namedFrame = this.frames.find(seekframe => {
-        return seekframe.identifier === frame;
-      });
-      if (namedFrame) this._forceNextFrame = namedFrame.start;
-    } else if (typeof frame === 'number') {
-      this._forceNextFrame = frame;
-    } else {
-      throw new Error('gotoFrame: Invalid argument: ' + frame);
-    }
-  }
-  /**
-   * The method to use to fill gaps in-beteen frames. Options: "blank_frames" or "auto_extend" (see Wick.Layer.resolveGaps)
-   * @type {string}
-   */
-
-
-  get fillGapsMethod() {
-    return this._fillGapsMethod;
-  }
-
-  set fillGapsMethod(fillGapsMethod) {
-    if (fillGapsMethod === 'blank_frames' || fillGapsMethod === 'auto_extend') {
-      this._fillGapsMethod = fillGapsMethod;
-    } else {
-      console.warning('Warning: Invalid fillGapsMethod: ' + fillGapsMethod);
-    }
-  }
-  /**
-   * Check if frame gap fixing should be deferred until later. Read only.
-   * @type {boolean}
-   */
-
-
-  get waitToFillFrameGaps() {
-    return this._waitToFillFrameGaps;
-  }
-  /**
-   * Disables frame gap filling until resolveFrameGaps is called again.
-   */
-
-
-  deferFrameGapResolve() {
-    this._waitToFillFrameGaps = true;
-  }
-  /**
-   * Fill in all gaps between frames in all layers in this timeline.
-   */
-
-
-  resolveFrameGaps() {
-    this._waitToFillFrameGaps = false;
-    this.layers.forEach(layer => {
-      layer.resolveGaps();
+    this.project.activeTimeline.getAllFrames().filter(frame => {
+      return !frame.isSelected && frame.parentLayer === selectedFrame.parentLayer && frame.inRange(frameBounds.playheadStart, frameBounds.playheadEnd);
+    }).forEach(frame => {
+      this._selectedObjectsUUIDs.push(frame.uuid);
     });
   }
 
@@ -23213,99 +22787,50 @@ Croquis.Brush = function () {
 */
 
 /**
- * Class representing a tween.
+ * Class representing a Wick Timeline.
  */
-Wick.Tween = class extends Wick.Base {
-  static get VALID_EASING_TYPES() {
-    return ['none', 'in', 'out', 'in-out'];
-  }
-
-  static _calculateTimeValue(tweenA, tweenB, playheadPosition) {
-    var tweenAPlayhead = tweenA.playheadPosition;
-    var tweenBPlayhead = tweenB.playheadPosition;
-    var dist = tweenBPlayhead - tweenAPlayhead;
-    var t = (playheadPosition - tweenAPlayhead) / dist;
-    return t;
-  }
+Wick.Timeline = class extends Wick.Base {
   /**
-   * Create a tween
-   * @param {number} playheadPosition - the playhead position relative to the frame that the tween belongs to
-   * @param {Wick.Transform} transformation - the transformation this tween will apply to child objects
-   * @param {number} fullRotations - the number of rotations to add to the tween's transformation
+   * Create a timeline.
    */
-
-
   constructor(args) {
-    if (!args) args = {};
     super(args);
-    this._playheadPosition = args.playheadPosition || 1;
-    this.transformation = args.transformation || new Wick.Transformation();
-    this.fullRotations = args.fullRotations === undefined ? 0 : args.fullRotations;
-    this.easingType = args.easingType || 'none';
-  }
-  /**
-   * Create a tween by interpolating two existing tweens.
-   * @param {Wick.Tween} tweenA - The first tween
-   * @param {Wick.Tween} tweenB - The second tween
-   * @param {Number} playheadPosition - The point between the two tweens to use to interpolate
-   */
-
-
-  static interpolate(tweenA, tweenB, playheadPosition) {
-    var interpTween = new Wick.Tween(); // Calculate value (0.0-1.0) to pass to tweening function
-
-    var t = Wick.Tween._calculateTimeValue(tweenA, tweenB, playheadPosition); // Interpolate every transformation attribute using the t value
-
-
-    ["x", "y", "scaleX", "scaleY", "rotation", "opacity"].forEach(propName => {
-      var tweenFn = tweenA._getTweenFunction();
-
-      var tt = tweenFn(t);
-      var valA = tweenA.transformation[propName];
-      var valB = tweenB.transformation[propName];
-
-      if (propName === 'rotation') {
-        // Constrain rotation values to range of -180 to 180
-        while (valA < -180) valA += 360;
-
-        while (valB < -180) valB += 360;
-
-        while (valA > 180) valA -= 360;
-
-        while (valB > 180) valB -= 360; // Convert full rotations to 360 degree amounts
-
-
-        valB += tweenA.fullRotations * 360;
-      }
-
-      interpTween.transformation[propName] = lerp(valA, valB, tt);
-    });
-    interpTween.playheadPosition = playheadPosition;
-    return interpTween;
-  }
-
-  get classname() {
-    return 'Tween';
+    this._playheadPosition = 1;
+    this._activeLayerIndex = 0;
+    this._playing = true;
+    this._forceNextFrame = null;
+    this._fillGapsMethod = "auto_extend";
   }
 
   serialize(args) {
     var data = super.serialize(args);
-    data.playheadPosition = this.playheadPosition;
-    data.transformation = this.transformation.values;
-    data.fullRotations = this.fullRotations;
-    data.easingType = this.easingType;
+    data.playheadPosition = this._playheadPosition;
+    data.activeLayerIndex = this._activeLayerIndex;
     return data;
   }
 
   deserialize(data) {
     super.deserialize(data);
-    this.playheadPosition = data.playheadPosition;
-    this.transformation = new Wick.Transformation(data.transformation);
-    this.fullRotations = data.fullRotations;
-    this.easingType = data.easingType;
+    this._playheadPosition = data.playheadPosition;
+    this._activeLayerIndex = data.activeLayerIndex;
+    this._playing = true;
+    this._forceNextFrame = null;
+  }
+
+  get classname() {
+    return 'Timeline';
   }
   /**
-   * The playhead position of the tween.
+   * The layers that belong to this timeline.
+   * @type {Wick.Layer}
+   */
+
+
+  get layers() {
+    return this.getChildren('Layer');
+  }
+  /**
+   * The position of the playhead. Determines which frames are visible.
    * @type {number}
    */
 
@@ -23315,79 +22840,403 @@ Wick.Tween = class extends Wick.Base {
   }
 
   set playheadPosition(playheadPosition) {
-    if (this.parentFrame) {
-      // Eat other tweens to prevent having two tweens in the same position.
-      var tween = this.parentFrame.getTweenAtPosition(playheadPosition);
-
-      if (tween && this !== tween) {
-        tween.remove();
-      } // Remove tween if playheadPosition is out of bounds
-
-
-      if (playheadPosition < 1 || playheadPosition > this.parentFrame.length) {
-        this.remove();
-      }
+    // Automatically clear selection when any playhead in the project moves
+    if (this.project && this._playheadPosition !== playheadPosition) {
+      this.project.selection.clear('Canvas');
     }
 
     this._playheadPosition = playheadPosition;
+
+    if (this._playheadPosition < 1) {
+      this._playheadPosition = 1;
+    } // Automatically apply tween transforms on child frames when playhead moves
+
+
+    this.activeFrames.forEach(frame => {
+      frame.applyTweenTransforms();
+    });
   }
   /**
-   * The type of interpolation to use for easing.
+   * The index of the active layer. Determines which frame to draw onto.
+   * @type {number}
+   */
+
+
+  get activeLayerIndex() {
+    return this._activeLayerIndex;
+  }
+
+  set activeLayerIndex(activeLayerIndex) {
+    this._activeLayerIndex = activeLayerIndex;
+  }
+  /**
+   * The total length of the timeline.
+   * @type {number}
+   */
+
+
+  get length() {
+    var length = 0;
+    this.layers.forEach(function (layer) {
+      var layerLength = layer.length;
+
+      if (layerLength > length) {
+        length = layerLength;
+      }
+    });
+    return length;
+  }
+  /**
+   * The active layer.
+   * @type {Wick.Layer}
+   */
+
+
+  get activeLayer() {
+    return this.layers[this.activeLayerIndex];
+  }
+  /**
+   * The active frames, determined by the playhead position.
+   * @type {Wick.Frame[]}
+   */
+
+
+  get activeFrames() {
+    var frames = [];
+    this.layers.forEach(layer => {
+      var layerFrame = layer.activeFrame;
+
+      if (layerFrame) {
+        frames.push(layerFrame);
+      }
+    });
+    return frames;
+  }
+  /**
+   * The active frame, determined by the playhead position.
+   * @type {Wick.Frame}
+   */
+
+
+  get activeFrame() {
+    return this.activeLayer && this.activeLayer.activeFrame;
+  }
+  /**
+   * All frames inside the timeline.
+   * @type {Wick.Frame[]}
+   */
+
+
+  get frames() {
+    var frames = [];
+    this.layers.forEach(layer => {
+      layer.frames.forEach(frame => {
+        frames.push(frame);
+      });
+    });
+    return frames;
+  }
+  /**
+   * All clips inside the timeline.
+   * @type {Wick.Clip[]}
+   */
+
+
+  get clips() {
+    var clips = [];
+    this.frames.forEach(frame => {
+      clips = clips.concat(frame.clips);
+    });
+    return clips;
+  }
+  /**
+   * The playhead position of the frame with the given name.
+   * @type {number|null}
+   */
+
+
+  getPlayheadPositionOfFrameWithName(name) {
+    var frame = this.getFrameByName(name);
+
+    if (frame) {
+      return frame.start;
+    } else {
+      return null;
+    }
+  }
+  /**
+   * Finds the frame with a given name.
+   * @type {Wick.Frame|null}
+   */
+
+
+  getFrameByName(name) {
+    return this.frames.find(frame => {
+      return frame.name === name;
+    }) || null;
+  }
+  /**
+   * Add a frame to one of the layers on this timeline. If there is no layer where the frame wants to go, the frame will not be added.
+   * @param {Wick.Frame} frame - the frame to add
+   */
+
+
+  addFrame(frame) {
+    if (frame.originalLayerIndex >= this.layers.length) return;
+
+    if (frame.originalLayerIndex === -1) {
+      this.activeLayer.addFrame(frame);
+    } else {
+      this.layers[frame.originalLayerIndex].addFrame(frame);
+    }
+  }
+  /**
+   * Adds a layer to the timeline.
+   * @param {Wick.Layer} layer - The layer to add.
+   */
+
+
+  addLayer(layer) {
+    this.addChild(layer);
+
+    if (!layer.name) {
+      if (this.layers.length > 1) {
+        layer.name = "Layer " + this.layers.length;
+      } else {
+        layer.name = "Layer";
+      }
+    }
+  }
+  /**
+   * Remmoves a layer from the timeline.
+   * @param {Wick.Layer} layer - The layer to remove.
+   */
+
+
+  removeLayer(layer) {
+    // You can't remove the last layer.
+    if (this.layers.length <= 1) {
+      return;
+    } // Activate the layer below the removed layer if we removed the active layer.
+
+
+    if (this.activeLayerIndex === this.layers.length - 1) {
+      this.activeLayerIndex--;
+    }
+
+    this.removeChild(layer);
+  }
+  /**
+   * Moves a layer to a different position, inserting it before/after other layers if needed.
+   * @param {Wick.Layer} layer - The layer to add.
+   * @param {number} index - the new position to move the layer to.
+   */
+
+
+  moveLayer(layer, index) {
+    var layers = this.getChildren('Layer');
+    layers.splice(layers.indexOf(layer), 1);
+    layers.splice(index, 0, layer);
+  }
+  /**
+   * Gets the frames at the given playhead position.
+   * @param {number} playheadPosition - the playhead position to search.
+   * @returns {Wick.Frame[]} The frames at the playhead position.
+   */
+
+
+  getFramesAtPlayheadPosition(playheadPosition) {
+    var frames = [];
+    this.layers.forEach(layer => {
+      var frame = layer.getFrameAtPlayheadPosition(playheadPosition);
+      if (frame) frames.push(frame);
+    });
+    return frames;
+  }
+  /**
+   * Get all frames in this timeline.
+   * @param {boolean} recursive - If set to true, will also include the children of all child timelines.
+   */
+
+
+  getAllFrames(recursive) {
+    var allFrames = [];
+    this.layers.forEach(layer => {
+      allFrames = allFrames.concat(layer.frames);
+
+      if (recursive) {
+        layer.frames.forEach(frame => {
+          frame.clips.forEach(clip => {
+            allFrames = allFrames.concat(clip.timeline.getAllFrames(recursive));
+          });
+        });
+      }
+    });
+    return allFrames;
+  }
+  /**
+   * Gets all frames in the layer that are between the two given playhead positions and layer indices.
+   * @param {number} playheadPositionStart - The start of the horizontal range to search
+   * @param {number} playheadPositionEnd - The end of the horizontal range to search
+   * @param {number} layerIndexStart - The start of the vertical range to search
+   * @param {number} layerIndexEnd - The end of the vertical range to search
+   * @return {Wick.Frame[]} The frames in the given range.
+   */
+
+
+  getFramesInRange(playheadPositionStart, playheadPositionEnd, layerIndexStart, layerIndexEnd) {
+    var framesInRange = [];
+    this.layers.filter(layer => {
+      return layer.index >= layerIndexStart && layer.index <= layerIndexEnd;
+    }).forEach(layer => {
+      framesInRange = framesInRange.concat(layer.getFramesInRange(playheadPositionStart, playheadPositionEnd));
+    });
+    return framesInRange;
+  }
+  /**
+   * Advances the timeline one frame forwards. Loops back to beginning if the end is reached.
+   */
+
+
+  advance() {
+    if (this._forceNextFrame) {
+      this.playheadPosition = this._forceNextFrame;
+      this._forceNextFrame = null;
+    } else if (this._playing) {
+      this.playheadPosition++;
+
+      if (this.playheadPosition > this.length) {
+        this.playheadPosition = 1;
+      }
+    }
+  }
+  /**
+   * Makes the timeline advance automatically during ticks.
+   */
+
+
+  play() {
+    this._playing = true;
+  }
+  /**
+   * Stops the timeline from advancing during ticks.
+   */
+
+
+  stop() {
+    this._playing = false;
+  }
+  /**
+   * Stops the timeline and moves to a given frame number or name.
+   * @param {string|number} frame - A playhead position or name of a frame to move to.
+   */
+
+
+  gotoAndStop(frame) {
+    this.stop();
+    this.gotoFrame(frame);
+  }
+  /**
+   * Plays the timeline and moves to a given frame number or name.
+   * @param {string|number} frame - A playhead position or name of a frame to move to.
+   */
+
+
+  gotoAndPlay(frame) {
+    this.play();
+    this.gotoFrame(frame);
+  }
+  /**
+   * Moves the timeline forward one frame. Loops back to 1 if gotoNextFrame moves the playhead past the past frame.
+   */
+
+
+  gotoNextFrame() {
+    // Loop back to beginning if gotoNextFrame goes past the last frame
+    var nextFramePlayheadPosition = this.playheadPosition + 1;
+
+    if (nextFramePlayheadPosition > this.length) {
+      nextFramePlayheadPosition = 1;
+    }
+
+    this.gotoFrame(nextFramePlayheadPosition);
+  }
+  /**
+   * Moves the timeline backwards one frame. Loops to the last frame if gotoPrevFrame moves the playhead before the first frame.
+   */
+
+
+  gotoPrevFrame() {
+    var prevFramePlayheadPosition = this.playheadPosition - 1;
+
+    if (prevFramePlayheadPosition <= 0) {
+      prevFramePlayheadPosition = this.length;
+    }
+
+    this.gotoFrame(prevFramePlayheadPosition);
+  }
+  /**
+   * Moves the playhead to a given frame number or name.
+   * @param {string|number} frame - A playhead position or name of a frame to move to.
+   */
+
+
+  gotoFrame(frame) {
+    if (typeof frame === 'string') {
+      var namedFrame = this.frames.find(seekframe => {
+        return seekframe.identifier === frame;
+      });
+      if (namedFrame) this._forceNextFrame = namedFrame.start;
+    } else if (typeof frame === 'number') {
+      this._forceNextFrame = frame;
+    } else {
+      throw new Error('gotoFrame: Invalid argument: ' + frame);
+    }
+  }
+  /**
+   * The method to use to fill gaps in-beteen frames. Options: "blank_frames" or "auto_extend" (see Wick.Layer.resolveGaps)
    * @type {string}
    */
 
 
-  get easingType() {
-    return this._easingType;
+  get fillGapsMethod() {
+    return this._fillGapsMethod;
   }
 
-  set easingType(easingType) {
-    if (Wick.Tween.VALID_EASING_TYPES.indexOf(easingType) === -1) {
-      console.warn('Invalid easingType. Valid easingTypes: ');
-      console.warn(Wick.Tween.VALID_EASING_TYPES);
-      return;
+  set fillGapsMethod(fillGapsMethod) {
+    if (fillGapsMethod === 'blank_frames' || fillGapsMethod === 'auto_extend') {
+      this._fillGapsMethod = fillGapsMethod;
+    } else {
+      console.warning('Warning: Invalid fillGapsMethod: ' + fillGapsMethod);
     }
-
-    this._easingType = easingType;
   }
   /**
-   * Remove this tween from its parent frame.
+   * Check if frame gap fixing should be deferred until later. Read only.
+   * @type {boolean}
    */
 
 
-  remove() {
-    this.parent.removeTween(this);
+  get waitToFillFrameGaps() {
+    return this._waitToFillFrameGaps;
   }
   /**
-   * Set the transformation of a clip to this tween's transformation.
-   * @param {Wick.Clip} clip - the clip to apply the tween transforms to.
+   * Disables frame gap filling until resolveFrameGaps is called again.
    */
 
 
-  applyTransformsToClip(clip) {
-    clip.transformation = this.transformation.copy();
+  deferFrameGapResolve() {
+    this._waitToFillFrameGaps = true;
   }
   /**
-   * The tween that comes after this tween in the parent frame.
-   * @returns {Wick.Tween}
+   * Fill in all gaps between frames in all layers in this timeline.
    */
 
 
-  getNextTween() {
-    if (!this.parentFrame) return null;
-
-    var frontTween = this.parentFrame._seekTweenInFront(this.playheadPosition + 1);
-
-    return frontTween;
-  }
-
-  _getTweenFunction() {
-    return {
-      'none': TWEEN.Easing.Linear.None,
-      'in': TWEEN.Easing.Quadratic.In,
-      'out': TWEEN.Easing.Quadratic.Out,
-      'in-out': TWEEN.Easing.Quadratic.InOut
-    }[this.easingType];
+  resolveFrameGaps() {
+    this._waitToFillFrameGaps = false;
+    this.layers.forEach(layer => {
+      layer.resolveGaps();
+    });
   }
 
 };
@@ -23540,6 +23389,217 @@ if (!("currentTransform" in CanvasRenderingContext2D.prototype)) {
    }
 }
 
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* Copyright 2019 WICKLETS LLC
+*
+* This file is part of Wick Engine.
+*
+* Wick Engine is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Wick Engine is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
+/**
+ * Class representing a tween.
+ */
+Wick.Tween = class extends Wick.Base {
+  static get VALID_EASING_TYPES() {
+    return ['none', 'in', 'out', 'in-out'];
+  }
+
+  static _calculateTimeValue(tweenA, tweenB, playheadPosition) {
+    var tweenAPlayhead = tweenA.playheadPosition;
+    var tweenBPlayhead = tweenB.playheadPosition;
+    var dist = tweenBPlayhead - tweenAPlayhead;
+    var t = (playheadPosition - tweenAPlayhead) / dist;
+    return t;
+  }
+  /**
+   * Create a tween
+   * @param {number} playheadPosition - the playhead position relative to the frame that the tween belongs to
+   * @param {Wick.Transform} transformation - the transformation this tween will apply to child objects
+   * @param {number} fullRotations - the number of rotations to add to the tween's transformation
+   */
+
+
+  constructor(args) {
+    if (!args) args = {};
+    super(args);
+    this._playheadPosition = args.playheadPosition || 1;
+    this.transformation = args.transformation || new Wick.Transformation();
+    this.fullRotations = args.fullRotations === undefined ? 0 : args.fullRotations;
+    this.easingType = args.easingType || 'none';
+  }
+  /**
+   * Create a tween by interpolating two existing tweens.
+   * @param {Wick.Tween} tweenA - The first tween
+   * @param {Wick.Tween} tweenB - The second tween
+   * @param {Number} playheadPosition - The point between the two tweens to use to interpolate
+   */
+
+
+  static interpolate(tweenA, tweenB, playheadPosition) {
+    var interpTween = new Wick.Tween(); // Calculate value (0.0-1.0) to pass to tweening function
+
+    var t = Wick.Tween._calculateTimeValue(tweenA, tweenB, playheadPosition); // Interpolate every transformation attribute using the t value
+
+
+    ["x", "y", "scaleX", "scaleY", "rotation", "opacity"].forEach(propName => {
+      var tweenFn = tweenA._getTweenFunction();
+
+      var tt = tweenFn(t);
+      var valA = tweenA.transformation[propName];
+      var valB = tweenB.transformation[propName];
+
+      if (propName === 'rotation') {
+        // Constrain rotation values to range of -180 to 180
+        while (valA < -180) valA += 360;
+
+        while (valB < -180) valB += 360;
+
+        while (valA > 180) valA -= 360;
+
+        while (valB > 180) valB -= 360; // Convert full rotations to 360 degree amounts
+
+
+        valB += tweenA.fullRotations * 360;
+      }
+
+      interpTween.transformation[propName] = lerp(valA, valB, tt);
+    });
+    interpTween.playheadPosition = playheadPosition;
+    return interpTween;
+  }
+
+  get classname() {
+    return 'Tween';
+  }
+
+  serialize(args) {
+    var data = super.serialize(args);
+    data.playheadPosition = this.playheadPosition;
+    data.transformation = this.transformation.values;
+    data.fullRotations = this.fullRotations;
+    data.easingType = this.easingType;
+    return data;
+  }
+
+  deserialize(data) {
+    super.deserialize(data);
+    this.playheadPosition = data.playheadPosition;
+    this.transformation = new Wick.Transformation(data.transformation);
+    this.fullRotations = data.fullRotations;
+    this.easingType = data.easingType;
+  }
+  /**
+   * The playhead position of the tween.
+   * @type {number}
+   */
+
+
+  get playheadPosition() {
+    return this._playheadPosition;
+  }
+
+  set playheadPosition(playheadPosition) {
+    if (this.parentFrame) {
+      // Eat other tweens to prevent having two tweens in the same position.
+      var tween = this.parentFrame.getTweenAtPosition(playheadPosition);
+
+      if (tween && this !== tween) {
+        tween.remove();
+      }
+
+      this.restrictToFrameSize();
+    }
+
+    this._playheadPosition = playheadPosition;
+  }
+  /**
+   * The type of interpolation to use for easing.
+   * @type {string}
+   */
+
+
+  get easingType() {
+    return this._easingType;
+  }
+
+  set easingType(easingType) {
+    if (Wick.Tween.VALID_EASING_TYPES.indexOf(easingType) === -1) {
+      console.warn('Invalid easingType. Valid easingTypes: ');
+      console.warn(Wick.Tween.VALID_EASING_TYPES);
+      return;
+    }
+
+    this._easingType = easingType;
+  }
+  /**
+   * Remove this tween from its parent frame.
+   */
+
+
+  remove() {
+    this.parent.removeTween(this);
+  }
+  /**
+   * Set the transformation of a clip to this tween's transformation.
+   * @param {Wick.Clip} clip - the clip to apply the tween transforms to.
+   */
+
+
+  applyTransformsToClip(clip) {
+    clip.transformation = this.transformation.copy();
+  }
+  /**
+   * The tween that comes after this tween in the parent frame.
+   * @returns {Wick.Tween}
+   */
+
+
+  getNextTween() {
+    if (!this.parentFrame) return null;
+
+    var frontTween = this.parentFrame._seekTweenInFront(this.playheadPosition + 1);
+
+    return frontTween;
+  }
+  /**
+   * Prevents tweens from existing outside of the frame's length. Call this after changing the length of the parent frame.
+   */
+
+
+  restrictToFrameSize() {
+    var playheadPosition = this.playheadPosition; // Remove tween if playheadPosition is out of bounds
+
+    if (playheadPosition < 1 || playheadPosition > this.parentFrame.length) {
+      this.remove();
+    }
+  }
+  /* retrieve Tween.js easing functions by name */
+
+
+  _getTweenFunction() {
+    return {
+      'none': TWEEN.Easing.Linear.None,
+      'in': TWEEN.Easing.Quadratic.In,
+      'out': TWEEN.Easing.Quadratic.Out,
+      'in-out': TWEEN.Easing.Quadratic.InOut
+    }[this.easingType];
+  }
+
+};
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
@@ -32360,6 +32420,11 @@ Wick.Frame = class extends Wick.Tickable {
 
 
   get tweens() {
+    // Ensure no tweens are outside of this frame's length.
+    var tweens = this.getChildren('Tween');
+    tweens.forEach(tween => {
+      tween.restrictToFrameSize();
+    });
     return this.getChildren('Tween');
   }
   /**
@@ -37984,81 +38049,6 @@ Wick.Tools.Interact = class extends Wick.Tool {
   }
 
 };
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-Wick.Tools.Line = class extends Wick.Tool {
-  /**
-   *
-   */
-  constructor() {
-    super();
-    this.name = 'line';
-    this.path = new this.paper.Path({
-      insert: false
-    });
-    this.startPoint;
-    this.endPoint;
-  }
-  /**
-   *
-   * @type {string}
-   */
-
-
-  get cursor() {
-    return 'crosshair';
-  }
-
-  get isDrawingTool() {
-    return true;
-  }
-
-  onActivate(e) {
-    this.path.remove();
-  }
-
-  onDeactivate(e) {
-    this.path.remove();
-  }
-
-  onMouseDown(e) {
-    this.startPoint = e.point;
-  }
-
-  onMouseDrag(e) {
-    this.path.remove();
-    this.endPoint = e.point;
-    this.path = new paper.Path.Line(this.startPoint, this.endPoint);
-    this.path.strokeCap = 'round';
-    this.path.strokeColor = this.getSetting('strokeColor');
-    this.path.strokeWidth = this.getSetting('strokeWidth');
-  }
-
-  onMouseUp(e) {
-    this.path.remove();
-    this.addPathToProject(this.path);
-    this.fireEvent('canvasModified');
-  }
-
-};
 // Pressure v2.1.2 | Created By Stuart Yamartino | MIT License | 2015 - 2017
 ;(function(root, factory) {
   if (typeof define === 'function' && define.amd) {
@@ -38631,6 +38621,81 @@ if (typeof window !== 'undefined') {
 return void 0;
 }));
 
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* Copyright 2019 WICKLETS LLC
+*
+* This file is part of Wick Engine.
+*
+* Wick Engine is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Wick Engine is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+*/
+Wick.Tools.Line = class extends Wick.Tool {
+  /**
+   *
+   */
+  constructor() {
+    super();
+    this.name = 'line';
+    this.path = new this.paper.Path({
+      insert: false
+    });
+    this.startPoint;
+    this.endPoint;
+  }
+  /**
+   *
+   * @type {string}
+   */
+
+
+  get cursor() {
+    return 'crosshair';
+  }
+
+  get isDrawingTool() {
+    return true;
+  }
+
+  onActivate(e) {
+    this.path.remove();
+  }
+
+  onDeactivate(e) {
+    this.path.remove();
+  }
+
+  onMouseDown(e) {
+    this.startPoint = e.point;
+  }
+
+  onMouseDrag(e) {
+    this.path.remove();
+    this.endPoint = e.point;
+    this.path = new paper.Path.Line(this.startPoint, this.endPoint);
+    this.path.strokeCap = 'round';
+    this.path.strokeColor = this.getSetting('strokeColor');
+    this.path.strokeWidth = this.getSetting('strokeWidth');
+  }
+
+  onMouseUp(e) {
+    this.path.remove();
+    this.addPathToProject(this.path);
+    this.fireEvent('canvasModified');
+  }
+
+};
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
@@ -40892,66 +40957,6 @@ paper.SelectionBox = class {
 };
 paper.PaperScope.inject({
   SelectionBox: paper.SelectionBox
-});
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Paper.js-drawing-tools.
-*
-* Paper.js-drawing-tools is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Paper.js-drawing-tools is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Paper.js-drawing-tools.  If not, see <https://www.gnu.org/licenses/>.
-*/
-
-/*
-    paper-potrace.js
-    Adds a potrace() method to paper Items that runs potrace on a rasterized
-    version of that Item.
-
-    by zrispo (github.com/zrispo) (zach@wickeditor.com)
- */
-paper.Path.inject({
-  potrace: function (args) {
-    var self = this;
-    if (!args) throw new Error('Path.potrace: args is required.');
-    if (!args.resolution) throw new Error('Path.potrace: args.resolution is required.');
-    if (!args.done) throw new Error('Path.potrace: args.done is required.');
-    var finalRasterResolution = paper.view.resolution * args.resolution / window.devicePixelRatio;
-    var raster = this.rasterize(finalRasterResolution);
-    raster.remove();
-    var rasterDataURL = raster.toDataURL();
-
-    if (rasterDataURL === 'data:,') {
-      args.done(null);
-    } // https://oov.github.io/potrace/
-
-
-    var img = new Image();
-
-    img.onload = function () {
-      var svg = potrace.fromImage(img).toSVG(1 / args.resolution);
-      var potracePath = paper.project.importSVG(svg);
-      potracePath.position.x = self.position.x;
-      potracePath.position.y = self.position.y;
-      potracePath.remove();
-      potracePath.closed = true;
-      potracePath.children[0].closed = true;
-      args.done(potracePath.children[0]);
-    };
-
-    img.src = rasterDataURL;
-  }
 });
 /*!
 
@@ -52596,6 +52601,68 @@ module.exports = ZStream;
 * You should have received a copy of the GNU General Public License
 * along with Paper.js-drawing-tools.  If not, see <https://www.gnu.org/licenses/>.
 */
+
+/*
+    paper-potrace.js
+    Adds a potrace() method to paper Items that runs potrace on a rasterized
+    version of that Item.
+
+    by zrispo (github.com/zrispo) (zach@wickeditor.com)
+ */
+paper.Path.inject({
+  potrace: function (args) {
+    var self = this;
+    if (!args) throw new Error('Path.potrace: args is required.');
+    if (!args.resolution) throw new Error('Path.potrace: args.resolution is required.');
+    if (!args.done) throw new Error('Path.potrace: args.done is required.');
+    var finalRasterResolution = paper.view.resolution * args.resolution / window.devicePixelRatio;
+    var raster = this.rasterize(finalRasterResolution);
+    raster.remove();
+    var rasterDataURL = raster.toDataURL();
+
+    if (rasterDataURL === 'data:,') {
+      args.done(null);
+    } // https://oov.github.io/potrace/
+
+
+    var img = new Image();
+
+    img.onload = function () {
+      var svg = potrace.fromImage(img).toSVG(1 / args.resolution);
+      var potracePath = paper.project.importSVG(svg);
+      potracePath.position.x = self.position.x;
+      potracePath.position.y = self.position.y;
+      potracePath.remove();
+      potracePath.closed = true;
+      potracePath.children[0].closed = true;
+      args.done(potracePath.children[0]);
+    };
+
+    img.src = rasterDataURL;
+  }
+});
+//https://github.com/mattdesl/lerp/blob/master/index.js
+var lerp = function (v0, v1, t) { return v0*(1-t)+v1*t; };
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* Copyright 2019 WICKLETS LLC
+*
+* This file is part of Paper.js-drawing-tools.
+*
+* Paper.js-drawing-tools is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Paper.js-drawing-tools is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Paper.js-drawing-tools.  If not, see <https://www.gnu.org/licenses/>.
+*/
 (function () {
   var editElem = $('<textarea style="resize: none;">');
   editElem.css('position', 'absolute');
@@ -52655,8 +52722,6 @@ module.exports = ZStream;
     }
   });
 })();
-//https://github.com/mattdesl/lerp/blob/master/index.js
-var lerp = function (v0, v1, t) { return v0*(1-t)+v1*t; };
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
@@ -52692,30 +52757,6 @@ paper.View.inject({
     }, {
       polyfill: false
     });
-  }
-});
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Paper.js-drawing-tools.
-*
-* Paper.js-drawing-tools is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Paper.js-drawing-tools is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Paper.js-drawing-tools.  If not, see <https://www.gnu.org/licenses/>.
-*/
-paper.View.inject({
-  enableGestures: function (args) {// TODO
   }
 });
 /*!
@@ -53936,6 +53977,30 @@ paper.View.inject({
   }
 }.call(this));
 
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* Copyright 2019 WICKLETS LLC
+*
+* This file is part of Paper.js-drawing-tools.
+*
+* Paper.js-drawing-tools is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Paper.js-drawing-tools is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Paper.js-drawing-tools.  If not, see <https://www.gnu.org/licenses/>.
+*/
+paper.View.inject({
+  enableGestures: function (args) {// TODO
+  }
+});
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
@@ -55227,6 +55292,218 @@ var potrace;
     }
     potrace.fromFunction = fromFunction;
 })(potrace || (potrace = {}));
+/*
+The MIT License (MIT)
+
+Copyright 2015 Alexej Yaroshevich and other contributors
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+
+// Code originally from https://github.com/zxqfox/reserved-words
+// zrispo made this code work without webpack or whatever
+
+var reserved = (() => {
+    var exports = {};
+
+    /**
+    * Structure for storing keywords.
+    *
+    * @typedef {Object.<String,Boolean>} KeywordsHash
+    */
+
+    /**
+    * ECMAScript dialects.
+    *
+    * @const
+    * @type {Object.<String,Number|String>} - keys as readable names and values as versions
+    */
+    var DIALECTS = {
+      es3: 3,
+      es5: 5,
+      es2015: 6,
+      es7: 7,
+
+      // aliases
+      es6: 6,
+      'default': 5,
+      next: 6
+    };
+
+    /**
+    * ECMAScript reserved words.
+    *
+    * @type {Object.<String,KeywordsHash>}
+    */
+    var KEYWORDS = exports.KEYWORDS = {};
+
+    /**
+    * Check word for being an reserved word.
+    *
+    * @param {String} word - word to check
+    * @param {String|Number} [dialect] - dialect or version
+    * @param {Boolean} [strict] - strict mode
+    * @returns {?Boolean}
+    */
+    exports.check = function check(word, dialect, strict) {
+      dialect = dialect || DIALECTS.default;
+      var version = DIALECTS[dialect] || dialect;
+
+      if (strict && version >= 5) {
+          version += '-strict';
+      }
+
+      if(!KEYWORDS[version]) console.error('reserved-words: Unknown dialect');
+
+      return KEYWORDS[version].hasOwnProperty(word);
+    };
+
+    /**
+    * Reserved Words for ES3
+    *
+    * ECMA-262 3rd: 7.5.1
+    * http://www.ecma-international.org/publications/files/ECMA-ST-ARCH/ECMA-262,%203rd%20edition,%20December%201999.pdf
+    *
+    * @type {KeywordsHash}
+    */
+    KEYWORDS['3'] = _hash(
+      // Keyword, ECMA-262 3rd: 7.5.2
+      'break    else       new     var',
+      'case     finally    return  void',
+      'catch    for        switch  while',
+      'continue function   this    with',
+      'default  if         throw',
+      'delete   in         try',
+      'do       instanceof typeof',
+      // FutureReservedWord, ECMA-262 3rd 7.5.3
+      'abstract enum       int        short',
+      'boolean  export     interface  static',
+      'byte     extends    long       super',
+      'char     final      native     synchronized',
+      'class    float      package    throws',
+      'const    goto       private    transient',
+      'debugger implements protected  volatile',
+      'double   import     public',
+      // NullLiteral & BooleanLiteral
+      'null true false'
+    );
+
+    /**
+    * Reserved Words for ES5.
+    *
+    * http://es5.github.io/#x7.6.1
+    *
+    * @type {KeywordsHash}
+    */
+    KEYWORDS['5'] = _hash(
+      // Keyword
+      'break    do       instanceof typeof',
+      'case     else     new        var',
+      'catch    finally  return     void',
+      'continue for      switch     while',
+      'debugger function this       with',
+      'default  if       throw',
+      'delete   in       try',
+      // FutureReservedWord
+      'class enum extends super',
+      'const export import',
+      // NullLiteral & BooleanLiteral
+      'null true false',
+      // added by zrispo
+      'window',
+    );
+
+    /**
+    * Reserved Words for ES5 in strict mode.
+    *
+    * @type {KeywordsHash}
+    */
+    KEYWORDS['5-strict'] = _hash(
+      KEYWORDS['5'],
+      // FutureReservedWord, strict mode. http://es5.github.io/#x7.6.1.2
+      'implements let     private   public yield',
+      'interface  package protected static'
+    );
+
+    /**
+    * Reserved Words for ES6.
+    *
+    * 11.6.2
+    * http://www.ecma-international.org/ecma-262/6.0/index.html#sec-reserved-words
+    *
+    * @type {KeywordsHash}
+    */
+    KEYWORDS['6'] = _hash(
+      // Keywords, ES6 11.6.2.1, http://www.ecma-international.org/ecma-262/6.0/index.html#sec-keywords
+      'break    do       in         typeof',
+      'case     else     instanceof var',
+      'catch    export   new        void',
+      'class    extends  return     while',
+      'const    finally  super      with',
+      'continue for      switch     yield',
+      'debugger function this',
+      'default  if       throw',
+      'delete   import   try',
+      // Future Reserved Words, ES6 11.6.2.2
+      // http://www.ecma-international.org/ecma-262/6.0/index.html#sec-future-reserved-words
+      'enum await',
+      // NullLiteral & BooleanLiteral
+      'null true false'
+    );
+
+    /**
+    * Reserved Words for ES6 in strict mode.
+    *
+    * @type {KeywordsHash}
+    */
+    KEYWORDS['6-strict'] = _hash(
+      KEYWORDS['6'],
+      // Keywords, ES6 11.6.2.1
+      'let static',
+      // Future Reserved Words, ES6 11.6.2.2
+      'implements package protected',
+      'interface private public'
+    );
+
+    /**
+    * Generates hash from strings
+    *
+    * @private
+    * @param {...String|KeywordsHash} keywords - Space-delimited string or previous result of _hash
+    * @return {KeywordsHash} - Object with keywords in keys and true in values
+    */
+    function _hash() {
+      var set = Array.prototype.map.call(arguments, function(v) {
+          return typeof v === 'string' ? v : Object.keys(v).join(' ');
+      }).join(' ');
+
+      return set.split(/\s+/)
+          .reduce(function(res, keyword) {
+              res[keyword] = true;
+              return res;
+          }, {});
+    }
+
+    return exports;
+})();
+
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
@@ -55660,217 +55937,21 @@ Wick.View.Project = class extends Wick.View {
   }
 
 };
-/*
-The MIT License (MIT)
+// A helper function for drawing rounded rectangles on a canvas.
+// https://stackoverflow.com/a/7838871
 
-Copyright 2015 Alexej Yaroshevich and other contributors
-
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*/
-
-// Code originally from https://github.com/zxqfox/reserved-words
-// zrispo made this code work without webpack or whatever
-
-var reserved = (() => {
-    var exports = {};
-
-    /**
-    * Structure for storing keywords.
-    *
-    * @typedef {Object.<String,Boolean>} KeywordsHash
-    */
-
-    /**
-    * ECMAScript dialects.
-    *
-    * @const
-    * @type {Object.<String,Number|String>} - keys as readable names and values as versions
-    */
-    var DIALECTS = {
-      es3: 3,
-      es5: 5,
-      es2015: 6,
-      es7: 7,
-
-      // aliases
-      es6: 6,
-      'default': 5,
-      next: 6
-    };
-
-    /**
-    * ECMAScript reserved words.
-    *
-    * @type {Object.<String,KeywordsHash>}
-    */
-    var KEYWORDS = exports.KEYWORDS = {};
-
-    /**
-    * Check word for being an reserved word.
-    *
-    * @param {String} word - word to check
-    * @param {String|Number} [dialect] - dialect or version
-    * @param {Boolean} [strict] - strict mode
-    * @returns {?Boolean}
-    */
-    exports.check = function check(word, dialect, strict) {
-      dialect = dialect || DIALECTS.default;
-      var version = DIALECTS[dialect] || dialect;
-
-      if (strict && version >= 5) {
-          version += '-strict';
-      }
-
-      if(!KEYWORDS[version]) console.error('reserved-words: Unknown dialect');
-
-      return KEYWORDS[version].hasOwnProperty(word);
-    };
-
-    /**
-    * Reserved Words for ES3
-    *
-    * ECMA-262 3rd: 7.5.1
-    * http://www.ecma-international.org/publications/files/ECMA-ST-ARCH/ECMA-262,%203rd%20edition,%20December%201999.pdf
-    *
-    * @type {KeywordsHash}
-    */
-    KEYWORDS['3'] = _hash(
-      // Keyword, ECMA-262 3rd: 7.5.2
-      'break    else       new     var',
-      'case     finally    return  void',
-      'catch    for        switch  while',
-      'continue function   this    with',
-      'default  if         throw',
-      'delete   in         try',
-      'do       instanceof typeof',
-      // FutureReservedWord, ECMA-262 3rd 7.5.3
-      'abstract enum       int        short',
-      'boolean  export     interface  static',
-      'byte     extends    long       super',
-      'char     final      native     synchronized',
-      'class    float      package    throws',
-      'const    goto       private    transient',
-      'debugger implements protected  volatile',
-      'double   import     public',
-      // NullLiteral & BooleanLiteral
-      'null true false'
-    );
-
-    /**
-    * Reserved Words for ES5.
-    *
-    * http://es5.github.io/#x7.6.1
-    *
-    * @type {KeywordsHash}
-    */
-    KEYWORDS['5'] = _hash(
-      // Keyword
-      'break    do       instanceof typeof',
-      'case     else     new        var',
-      'catch    finally  return     void',
-      'continue for      switch     while',
-      'debugger function this       with',
-      'default  if       throw',
-      'delete   in       try',
-      // FutureReservedWord
-      'class enum extends super',
-      'const export import',
-      // NullLiteral & BooleanLiteral
-      'null true false',
-      // added by zrispo
-      'window',
-    );
-
-    /**
-    * Reserved Words for ES5 in strict mode.
-    *
-    * @type {KeywordsHash}
-    */
-    KEYWORDS['5-strict'] = _hash(
-      KEYWORDS['5'],
-      // FutureReservedWord, strict mode. http://es5.github.io/#x7.6.1.2
-      'implements let     private   public yield',
-      'interface  package protected static'
-    );
-
-    /**
-    * Reserved Words for ES6.
-    *
-    * 11.6.2
-    * http://www.ecma-international.org/ecma-262/6.0/index.html#sec-reserved-words
-    *
-    * @type {KeywordsHash}
-    */
-    KEYWORDS['6'] = _hash(
-      // Keywords, ES6 11.6.2.1, http://www.ecma-international.org/ecma-262/6.0/index.html#sec-keywords
-      'break    do       in         typeof',
-      'case     else     instanceof var',
-      'catch    export   new        void',
-      'class    extends  return     while',
-      'const    finally  super      with',
-      'continue for      switch     yield',
-      'debugger function this',
-      'default  if       throw',
-      'delete   import   try',
-      // Future Reserved Words, ES6 11.6.2.2
-      // http://www.ecma-international.org/ecma-262/6.0/index.html#sec-future-reserved-words
-      'enum await',
-      // NullLiteral & BooleanLiteral
-      'null true false'
-    );
-
-    /**
-    * Reserved Words for ES6 in strict mode.
-    *
-    * @type {KeywordsHash}
-    */
-    KEYWORDS['6-strict'] = _hash(
-      KEYWORDS['6'],
-      // Keywords, ES6 11.6.2.1
-      'let static',
-      // Future Reserved Words, ES6 11.6.2.2
-      'implements package protected',
-      'interface private public'
-    );
-
-    /**
-    * Generates hash from strings
-    *
-    * @private
-    * @param {...String|KeywordsHash} keywords - Space-delimited string or previous result of _hash
-    * @return {KeywordsHash} - Object with keywords in keys and true in values
-    */
-    function _hash() {
-      var set = Array.prototype.map.call(arguments, function(v) {
-          return typeof v === 'string' ? v : Object.keys(v).join(' ');
-      }).join(' ');
-
-      return set.split(/\s+/)
-          .reduce(function(res, keyword) {
-              res[keyword] = true;
-              return res;
-          }, {});
-    }
-
-    return exports;
-})();
+CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
+  if (w < 2 * r) r = w / 2;
+  if (h < 2 * r) r = h / 2;
+  this.beginPath();
+  this.moveTo(x+r, y);
+  this.arcTo(x+w, y,   x+w, y+h, r);
+  this.arcTo(x+w, y+h, x,   y+h, r);
+  this.arcTo(x,   y+h, x,   y,   r);
+  this.arcTo(x,   y,   x+w, y,   r);
+  this.closePath();
+  return this;
+}
 
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
@@ -56081,78 +56162,6 @@ Wick.View.Selection = class extends Wick.View {
   }
 
 };
-// A helper function for drawing rounded rectangles on a canvas.
-// https://stackoverflow.com/a/7838871
-
-CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
-  if (w < 2 * r) r = w / 2;
-  if (h < 2 * r) r = h / 2;
-  this.beginPath();
-  this.moveTo(x+r, y);
-  this.arcTo(x+w, y,   x+w, y+h, r);
-  this.arcTo(x+w, y+h, x,   y+h, r);
-  this.arcTo(x,   y+h, x,   y,   r);
-  this.arcTo(x,   y,   x+w, y,   r);
-  this.closePath();
-  return this;
-}
-
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-Wick.View.Clip = class extends Wick.View {
-  /**
-   * Creates a new Button view.
-   */
-  constructor() {
-    super();
-    this.group = new this.paper.Group();
-    this.group.remove();
-    this.group.applyMatrix = false;
-  }
-
-  render() {
-    // Render timeline view
-    this.model.timeline.view.render(); // Add some debug info to the paper group
-
-    this.group.data.wickType = 'clip';
-    this.group.data.wickUUID = this.model.uuid; // Add frame views from timeline
-
-    this.group.removeChildren();
-    this.model.timeline.view.activeFrameLayers.forEach(layer => {
-      this.group.addChild(layer);
-    });
-    this.model.timeline.view.onionSkinnedFramesLayers.forEach(layer => {
-      this.group.addChild(layer);
-    }); // Update transformations
-
-    this.group.pivot = new this.paper.Point(0, 0);
-    this.group.position.x = this.model.transformation.x;
-    this.group.position.y = this.model.transformation.y;
-    this.group.scaling.x = this.model.transformation.scaleX;
-    this.group.scaling.y = this.model.transformation.scaleY;
-    this.group.rotation = this.model.transformation.rotation;
-    this.group.opacity = this.model.transformation.opacity;
-  }
-
-};
 // https://gist.github.com/hurjas/2660489
 
 /**
@@ -56211,7 +56220,42 @@ function Timestamp() {
 * You should have received a copy of the GNU General Public License
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
-Wick.View.Button = class extends Wick.View.Clip {};
+Wick.View.Clip = class extends Wick.View {
+  /**
+   * Creates a new Button view.
+   */
+  constructor() {
+    super();
+    this.group = new this.paper.Group();
+    this.group.remove();
+    this.group.applyMatrix = false;
+  }
+
+  render() {
+    // Render timeline view
+    this.model.timeline.view.render(); // Add some debug info to the paper group
+
+    this.group.data.wickType = 'clip';
+    this.group.data.wickUUID = this.model.uuid; // Add frame views from timeline
+
+    this.group.removeChildren();
+    this.model.timeline.view.activeFrameLayers.forEach(layer => {
+      this.group.addChild(layer);
+    });
+    this.model.timeline.view.onionSkinnedFramesLayers.forEach(layer => {
+      this.group.addChild(layer);
+    }); // Update transformations
+
+    this.group.pivot = new this.paper.Point(0, 0);
+    this.group.position.x = this.model.transformation.x;
+    this.group.position.y = this.model.transformation.y;
+    this.group.scaling.x = this.model.transformation.scaleX;
+    this.group.scaling.y = this.model.transformation.scaleY;
+    this.group.rotation = this.model.transformation.rotation;
+    this.group.opacity = this.model.transformation.opacity;
+  }
+
+};
 /* https://github.com/Idnan/soundcloud-waveform-generator */
 
 window.AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -56369,6 +56413,27 @@ var SCWF = function () {
 * You should have received a copy of the GNU General Public License
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
+Wick.View.Button = class extends Wick.View.Clip {};
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* Copyright 2019 WICKLETS LLC
+*
+* This file is part of Wick Engine.
+*
+* Wick Engine is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Wick Engine is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+*/
 Wick.View.Timeline = class extends Wick.View {
   constructor(wickTimeline) {
     super();
@@ -56392,97 +56457,6 @@ Wick.View.Timeline = class extends Wick.View {
     return this.model.layers.filter(layer => {
       return !layer.hidden;
     }).reverse();
-  }
-
-};
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-Wick.View.Layer = class extends Wick.View {
-  static get BASE_ONION_OPACITY() {
-    return 0.35;
-  }
-
-  constructor(wickLayer) {
-    super();
-    this.activeFrameLayers = [];
-    this.onionSkinnedFramesLayers = [];
-    this.activeFrameContainers = [];
-  }
-
-  render() {
-    // Add active frame layers
-    this.activeFrameLayers = [];
-    var frame = this.model.activeFrame;
-
-    if (frame) {
-      frame.view.render();
-      this.activeFrameLayers.push(frame.view.pathsLayer);
-      this.activeFrameLayers.push(frame.view.clipsLayer);
-      frame.view.clipsLayer.locked = false;
-      frame.view.pathsLayer.locked = false;
-      frame.view.clipsLayer.opacity = 1.0;
-      frame.view.pathsLayer.opacity = 1.0;
-    } // Disable mouse events on layers if they are locked.
-    // (However, this is ignored while the project is playing so the interact tool always works.)
-
-
-    this.activeFrameLayers.forEach(layer => {
-      if (this.model.project.playing) {
-        layer.locked = false;
-      } else {
-        layer.locked = this.model.locked;
-      }
-    }); // Add onion skinned frame layers
-
-    this.onionSkinnedFramesLayers = [];
-
-    if (this.model.project && this.model.parentClip.isFocus && this.model.project.onionSkinEnabled) {
-      var playheadPosition = this.model.project.focus.timeline.playheadPosition;
-      var onionSkinEnabled = this.model.project.onionSkinEnabled;
-      var onionSkinSeekBackwards = this.model.project.onionSkinSeekBackwards;
-      var onionSkinSeekForwards = this.model.project.onionSkinSeekForwards;
-      this.model.frames.filter(frame => {
-        return !frame.inPosition(playheadPosition) && frame.inRange(playheadPosition - onionSkinSeekBackwards, playheadPosition + onionSkinSeekForwards);
-      }).forEach(frame => {
-        frame.view.render();
-        this.onionSkinnedFramesLayers.push(frame.view.pathsLayer);
-        this.onionSkinnedFramesLayers.push(frame.view.clipsLayer);
-        var seek = 0;
-
-        if (frame.midpoint < playheadPosition) {
-          seek = onionSkinSeekBackwards;
-        } else if (frame.midpoint > playheadPosition) {
-          seek = onionSkinSeekForwards;
-        }
-
-        var dist = frame.distanceFrom(playheadPosition);
-        var onionMult = (seek - dist + 1) / seek;
-        onionMult = Math.min(1, Math.max(0, onionMult));
-        var opacity = onionMult * Wick.View.Layer.BASE_ONION_OPACITY;
-        frame.view.clipsLayer.locked = true;
-        frame.view.pathsLayer.locked = true;
-        frame.view.clipsLayer.opacity = opacity;
-        frame.view.pathsLayer.opacity = opacity;
-      });
-    }
   }
 
 };
@@ -57389,6 +57363,99 @@ TWEEN.Interpolation = {
 * You should have received a copy of the GNU General Public License
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
+Wick.View.Layer = class extends Wick.View {
+  static get BASE_ONION_OPACITY() {
+    return 0.35;
+  }
+
+  constructor(wickLayer) {
+    super();
+    this.activeFrameLayers = [];
+    this.onionSkinnedFramesLayers = [];
+    this.activeFrameContainers = [];
+  }
+
+  render() {
+    // Add active frame layers
+    this.activeFrameLayers = [];
+    var frame = this.model.activeFrame;
+
+    if (frame) {
+      frame.view.render();
+      this.activeFrameLayers.push(frame.view.pathsLayer);
+      this.activeFrameLayers.push(frame.view.clipsLayer);
+      frame.view.clipsLayer.locked = false;
+      frame.view.pathsLayer.locked = false;
+      frame.view.clipsLayer.opacity = 1.0;
+      frame.view.pathsLayer.opacity = 1.0;
+    } // Disable mouse events on layers if they are locked.
+    // (However, this is ignored while the project is playing so the interact tool always works.)
+
+
+    this.activeFrameLayers.forEach(layer => {
+      if (this.model.project.playing) {
+        layer.locked = false;
+      } else {
+        layer.locked = this.model.locked;
+      }
+    }); // Add onion skinned frame layers
+
+    this.onionSkinnedFramesLayers = [];
+
+    if (this.model.project && this.model.parentClip.isFocus && this.model.project.onionSkinEnabled) {
+      var playheadPosition = this.model.project.focus.timeline.playheadPosition;
+      var onionSkinEnabled = this.model.project.onionSkinEnabled;
+      var onionSkinSeekBackwards = this.model.project.onionSkinSeekBackwards;
+      var onionSkinSeekForwards = this.model.project.onionSkinSeekForwards;
+      this.model.frames.filter(frame => {
+        return !frame.inPosition(playheadPosition) && frame.inRange(playheadPosition - onionSkinSeekBackwards, playheadPosition + onionSkinSeekForwards);
+      }).forEach(frame => {
+        frame.view.render();
+        this.onionSkinnedFramesLayers.push(frame.view.pathsLayer);
+        this.onionSkinnedFramesLayers.push(frame.view.clipsLayer);
+        var seek = 0;
+
+        if (frame.midpoint < playheadPosition) {
+          seek = onionSkinSeekBackwards;
+        } else if (frame.midpoint > playheadPosition) {
+          seek = onionSkinSeekForwards;
+        }
+
+        var dist = frame.distanceFrom(playheadPosition);
+        var onionMult = (seek - dist + 1) / seek;
+        onionMult = Math.min(1, Math.max(0, onionMult));
+        var opacity = onionMult * Wick.View.Layer.BASE_ONION_OPACITY;
+        frame.view.clipsLayer.locked = true;
+        frame.view.pathsLayer.locked = true;
+        frame.view.clipsLayer.opacity = opacity;
+        frame.view.pathsLayer.opacity = opacity;
+      });
+    }
+  }
+
+};
+/* https://github.com/kelektiv/node-uuid */
+!function(r){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=r();else if("function"==typeof define&&define.amd)define([],r);else{var e;e="undefined"!=typeof window?window:"undefined"!=typeof global?global:"undefined"!=typeof self?self:this,e.uuidv4=r()}}(function(){return function r(e,n,t){function o(f,u){if(!n[f]){if(!e[f]){var a="function"==typeof require&&require;if(!u&&a)return a(f,!0);if(i)return i(f,!0);var d=new Error("Cannot find module '"+f+"'");throw d.code="MODULE_NOT_FOUND",d}var p=n[f]={exports:{}};e[f][0].call(p.exports,function(r){var n=e[f][1][r];return o(n?n:r)},p,p.exports,r,e,n,t)}return n[f].exports}for(var i="function"==typeof require&&require,f=0;f<t.length;f++)o(t[f]);return o}({1:[function(r,e,n){function t(r,e){var n=e||0,t=o;return t[r[n++]]+t[r[n++]]+t[r[n++]]+t[r[n++]]+"-"+t[r[n++]]+t[r[n++]]+"-"+t[r[n++]]+t[r[n++]]+"-"+t[r[n++]]+t[r[n++]]+"-"+t[r[n++]]+t[r[n++]]+t[r[n++]]+t[r[n++]]+t[r[n++]]+t[r[n++]]}for(var o=[],i=0;i<256;++i)o[i]=(i+256).toString(16).substr(1);e.exports=t},{}],2:[function(r,e,n){var t="undefined"!=typeof crypto&&crypto.getRandomValues.bind(crypto)||"undefined"!=typeof msCrypto&&msCrypto.getRandomValues.bind(msCrypto);if(t){var o=new Uint8Array(16);e.exports=function(){return t(o),o}}else{var i=new Array(16);e.exports=function(){for(var r,e=0;e<16;e++)0===(3&e)&&(r=4294967296*Math.random()),i[e]=r>>>((3&e)<<3)&255;return i}}},{}],3:[function(r,e,n){function t(r,e,n){var t=e&&n||0;"string"==typeof r&&(e="binary"===r?new Array(16):null,r=null),r=r||{};var f=r.random||(r.rng||o)();if(f[6]=15&f[6]|64,f[8]=63&f[8]|128,e)for(var u=0;u<16;++u)e[t+u]=f[u];return e||i(f)}var o=r("./lib/rng"),i=r("./lib/bytesToUuid");e.exports=t},{"./lib/bytesToUuid":1,"./lib/rng":2}]},{},[3])(3)});
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* Copyright 2019 WICKLETS LLC
+*
+* This file is part of Wick Engine.
+*
+* Wick Engine is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Wick Engine is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+*/
 Wick.View.Frame = class extends Wick.View {
   /**
    * A multiplier for the resolution for the rasterization process.
@@ -57541,8 +57608,6 @@ Wick.View.Frame = class extends Wick.View {
   }
 
 };
-/* https://github.com/kelektiv/node-uuid */
-!function(r){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=r();else if("function"==typeof define&&define.amd)define([],r);else{var e;e="undefined"!=typeof window?window:"undefined"!=typeof global?global:"undefined"!=typeof self?self:this,e.uuidv4=r()}}(function(){return function r(e,n,t){function o(f,u){if(!n[f]){if(!e[f]){var a="function"==typeof require&&require;if(!u&&a)return a(f,!0);if(i)return i(f,!0);var d=new Error("Cannot find module '"+f+"'");throw d.code="MODULE_NOT_FOUND",d}var p=n[f]={exports:{}};e[f][0].call(p.exports,function(r){var n=e[f][1][r];return o(n?n:r)},p,p.exports,r,e,n,t)}return n[f].exports}for(var i="function"==typeof require&&require,f=0;f<t.length;f++)o(t[f]);return o}({1:[function(r,e,n){function t(r,e){var n=e||0,t=o;return t[r[n++]]+t[r[n++]]+t[r[n++]]+t[r[n++]]+"-"+t[r[n++]]+t[r[n++]]+"-"+t[r[n++]]+t[r[n++]]+"-"+t[r[n++]]+t[r[n++]]+"-"+t[r[n++]]+t[r[n++]]+t[r[n++]]+t[r[n++]]+t[r[n++]]+t[r[n++]]}for(var o=[],i=0;i<256;++i)o[i]=(i+256).toString(16).substr(1);e.exports=t},{}],2:[function(r,e,n){var t="undefined"!=typeof crypto&&crypto.getRandomValues.bind(crypto)||"undefined"!=typeof msCrypto&&msCrypto.getRandomValues.bind(msCrypto);if(t){var o=new Uint8Array(16);e.exports=function(){return t(o),o}}else{var i=new Array(16);e.exports=function(){for(var r,e=0;e<16;e++)0===(3&e)&&(r=4294967296*Math.random()),i[e]=r>>>((3&e)<<3)&255;return i}}},{}],3:[function(r,e,n){function t(r,e,n){var t=e&&n||0;"string"==typeof r&&(e="binary"===r?new Array(16):null,r=null),r=r||{};var f=r.random||(r.rng||o)();if(f[6]=15&f[6]|64,f[8]=63&f[8]|128,e)for(var u=0;u<16;++u)e[t+u]=f[u];return e||i(f)}var o=r("./lib/rng"),i=r("./lib/bytesToUuid");e.exports=t},{"./lib/bytesToUuid":1,"./lib/rng":2}]},{},[3])(3)});
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
@@ -57915,8 +57980,8 @@ Wick.GUIElement.TWEEN_FILL_COLOR_2 = '#8E8E8E';
 Wick.GUIElement.TWEEN_HOVER_COLOR_1 = '#09C07D';
 Wick.GUIElement.TWEEN_HOVER_COLOR_2 = '#1EE29A';
 Wick.GUIElement.TWEEN_STROKE_COLOR = '#222244';
-Wick.GUIElement.TWEEN_ARROW_STROKE_WIDTH = 3;
-Wick.GUIElement.TWEEN_ARROW_STROKE_COLOR = '#D8D8D8';
+Wick.GUIElement.TWEEN_ARROW_STROKE_WIDTH = 2;
+Wick.GUIElement.TWEEN_ARROW_STROKE_COLOR = '#8E8E8E';
 Wick.GUIElement.FRAME_GHOST_COLOR = Wick.GUIElement.SELECTED_ITEM_BORDER_COLOR;
 Wick.GUIElement.FRAME_GHOST_OPACITY = .45;
 Wick.GUIElement.FRAME_GHOST_STROKE_WIDTH = 5;
@@ -58101,11 +58166,11 @@ Wick.GUIElement.ActionButton = class extends Wick.GUIElement.Button {
     this.icon = args.icon;
   }
 
-  draw(icon) {
+  draw(isActive) {
     super.draw();
     var ctx = this.ctx; // Circle
 
-    if (this.mouseState == 'over') {
+    if (isActive && this.mouseState == 'over') {
       ctx.fillStyle = Wick.GUIElement.ACTION_BUTTON_COLOR;
     } else {
       ctx.fillStyle = Wick.GUIElement.TIMELINE_BACKGROUND_COLOR;
@@ -58155,14 +58220,14 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
     super(model);
     this.copyFrameForwardButton = new Wick.GUIElement.ActionButton(this.model, {
       tooltip: 'Copy Frame Forward',
-      icon: 'add_tween',
+      icon: 'trashcan',
       clickFn: () => {
         this.model.project.copySelectedFramesForward();
       }
     });
     this.cutFrameButton = new Wick.GUIElement.ActionButton(this.model, {
       tooltip: 'Cut Frame',
-      icon: 'add_tween',
+      icon: 'trashcan',
       clickFn: () => {
         this.model.project.cutSelectedFrames();
       }
@@ -58176,7 +58241,7 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
     });
     this.addTweenButton = new Wick.GUIElement.ActionButton(this.model, {
       tooltip: 'Add Tween',
-      icon: 'add_tween',
+      icon: 'trashcan',
       clickFn: () => {
         this.model.project.createTweenOnSelectedFrames();
       }
@@ -58189,26 +58254,34 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
     ctx.fillStyle = Wick.GUIElement.TIMELINE_BACKGROUND_COLOR;
     ctx.beginPath();
     ctx.rect(0, 0, Wick.GUIElement.LAYERS_CONTAINER_WIDTH, Wick.GUIElement.NUMBER_LINE_HEIGHT);
-    ctx.fill(); // Copy Frame Forward button
+    ctx.fill();
+    var buttonsAreActive = this.model.project.selection.getSelectedObjects('Timeline').length > 0;
+    ctx.save();
+
+    if (!buttonsAreActive) {
+      ctx.globalAlpha = 0.3;
+    } // Copy Frame Forward button
+
 
     ctx.save();
     ctx.translate(85, 20);
-    this.copyFrameForwardButton.draw();
+    this.copyFrameForwardButton.draw(buttonsAreActive);
     ctx.restore(); // Cut Frame button
 
     ctx.save();
     ctx.translate(115, 20);
-    this.cutFrameButton.draw();
+    this.cutFrameButton.draw(buttonsAreActive);
     ctx.restore(); // Delete Frame button
 
     ctx.save();
     ctx.translate(145, 20);
-    this.deleteFrameButton.draw();
+    this.deleteFrameButton.draw(buttonsAreActive);
     ctx.restore(); // Add Tween button
 
     ctx.save();
     ctx.translate(175, 20);
-    this.addTweenButton.draw();
+    this.addTweenButton.draw(buttonsAreActive);
+    ctx.restore();
     ctx.restore();
   }
 
@@ -58416,6 +58489,7 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement {
 
     if (this.model.identifier) {
       ctx.save();
+      ctx.beginPath();
       ctx.rect(0, 0, this.model.length * this.gridCellWidth, this.gridCellHeight);
       ctx.clip();
       ctx.font = '12px Courier New';
@@ -58476,14 +58550,19 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement {
   onMouseDown(e) {
     var playheadPosition = this.model.start + Math.floor(this.localMouse.x / this.gridCellWidth);
     this.model.project.activeTimeline.playheadPosition = playheadPosition;
-    if (this.model.isSelected) return;
 
-    if (!e.shiftKey) {
-      this.model.project.selection.clear();
+    if (this.model.isSelected) {
+      if (e.shiftKey) {
+        this.model.project.selection.deselect(this.model);
+      }
+    } else {
+      if (!e.shiftKey) {
+        this.model.project.selection.clear();
+      }
+
+      this.model.project.selection.select(this.model);
+      this.model.parentLayer.activate();
     }
-
-    this.model.project.selection.select(this.model);
-    this.model.parentLayer.activate();
   }
 
   onMouseDrag(e) {
@@ -58818,18 +58897,21 @@ Wick.GUIElement.Layer = class extends Wick.GUIElement {
       tooltip: 'Show/Hide Layer',
       clickFn: () => {
         this.model.hidden = !this.model.hidden;
+        this.model.activate();
       }
     });
     this.lockButton = new Wick.GUIElement.LayerButton(model, {
       tooltip: 'Lock/Unlock Layer',
       clickFn: () => {
         this.model.locked = !this.model.locked;
+        this.model.activate();
       }
     });
     this.addTweenButton = new Wick.GUIElement.LayerButton(model, {
       tooltip: 'Add Tween',
       clickFn: () => {
         this.model.activeFrame && this.model.activeFrame.createTween();
+        this.model.activate();
       }
     });
   }
@@ -58868,12 +58950,16 @@ Wick.GUIElement.Layer = class extends Wick.GUIElement {
     ctx.roundRect(0, 0, width, height, Wick.GUIElement.LAYER_LABEL_BORDER_RADIUS);
     ctx.fill();
     ctx.stroke();
-    ctx.restore(); // Layer name
-
-    var maxWidth = Wick.GUIElement.LAYERS_CONTAINER_WIDTH - 90;
+    ctx.restore();
+    var maxWidth = Wick.GUIElement.LAYERS_CONTAINER_WIDTH - 35;
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(0, 0, maxWidth, this.gridCellHeight);
+    ctx.clip();
     ctx.font = "16px " + Wick.GUIElement.LAYER_LABEL_FONT_FAMILY;
     ctx.fillStyle = this.model.isActive ? Wick.GUIElement.LAYER_LABEL_ACTIVE_FONT_COLOR : Wick.GUIElement.LAYER_LABEL_INACTIVE_FONT_COLOR;
-    ctx.fillText(this.model.name, 53, this.gridCellHeight / 2 + 6, maxWidth); // Buttons
+    ctx.fillText(this.model.name, 53, this.gridCellHeight / 2 + 6);
+    ctx.restore(); // Buttons
 
     ctx.save();
     ctx.translate(20, 20);
@@ -60032,7 +60118,64 @@ Wick.GUIElement.Tween = class extends Wick.GUIElement {
     ctx.beginPath();
     ctx.roundRect(-r, -r, r * 2, r * 2, 3);
     ctx.fill();
-    ctx.restore();
+    ctx.restore(); // Tween diamond right half
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(0, -30, 30, 60);
+    ctx.clip();
+    ctx.rotate(Math.PI / 4);
+    var r = Wick.GUIElement.TWEEN_DIAMOND_RADIUS;
+    ctx.fillStyle = Wick.GUIElement.TWEEN_FILL_COLOR_2;
+    ctx.beginPath();
+    ctx.roundRect(-r, -r, r * 2, r * 2, 3);
+    ctx.fill();
+    ctx.restore(); // Tween arrows
+
+    var linePadding = 18;
+    var nextTween = this.model.getNextTween();
+
+    if (nextTween) {
+      var nextTweenGridPosition = nextTween.playheadPosition - this.model.playheadPosition;
+      var nextTweenPosition = nextTweenGridPosition * this.gridCellWidth;
+      var arrowSize = 5; // Line
+
+      ctx.strokeStyle = Wick.GUIElement.TWEEN_ARROW_STROKE_COLOR;
+      ctx.lineWidth = Wick.GUIElement.TWEEN_ARROW_STROKE_WIDTH;
+      ctx.beginPath();
+      ctx.moveTo(linePadding, 0);
+      ctx.lineTo(nextTweenPosition - linePadding, 0);
+      ctx.stroke(); // Arrow head
+
+      ctx.fillStyle = Wick.GUIElement.TWEEN_ARROW_STROKE_COLOR;
+      ctx.beginPath();
+      ctx.moveTo(nextTweenPosition - linePadding, 0);
+      ctx.lineTo(nextTweenPosition - linePadding - arrowSize, -arrowSize);
+      ctx.stroke(); // Arrow head
+
+      ctx.fillStyle = Wick.GUIElement.TWEEN_ARROW_STROKE_COLOR;
+      ctx.beginPath();
+      ctx.moveTo(nextTweenPosition - linePadding, 0);
+      ctx.lineTo(nextTweenPosition - linePadding - arrowSize, -arrowSize);
+      ctx.beginPath();
+      ctx.moveTo(nextTweenPosition - linePadding, 0);
+      ctx.lineTo(nextTweenPosition - linePadding - arrowSize, arrowSize);
+      ctx.stroke();
+    } else {
+      var tweenPos = this.model.playheadPosition * this.gridCellWidth;
+      var frameLength = this.model.parentFrame.length * this.gridCellWidth;
+      var frameRightEdge = frameLength - tweenPos + this.gridCellWidth / 2; // Line
+
+      ctx.save();
+      ctx.strokeStyle = Wick.GUIElement.TWEEN_ARROW_STROKE_COLOR;
+      ctx.lineWidth = Wick.GUIElement.TWEEN_ARROW_STROKE_WIDTH;
+      ctx.setLineDash([5, 5]);
+      ctx.beginPath();
+      ctx.moveTo(linePadding, 0);
+      ctx.lineTo(frameRightEdge - 2, 0);
+      ctx.stroke();
+      ctx.restore();
+    }
   }
 
 };

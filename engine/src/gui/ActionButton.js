@@ -24,13 +24,13 @@ Wick.GUIElement.ActionButton = class extends Wick.GUIElement.Button {
         this.icon = args.icon;
     };
 
-    draw (icon) {
+    draw (isActive) {
         super.draw();
 
         var ctx = this.ctx;
 
         // Circle
-        if (this.mouseState == 'over') {
+        if (isActive && this.mouseState == 'over') {
             ctx.fillStyle = Wick.GUIElement.ACTION_BUTTON_COLOR;
         } else {
             ctx.fillStyle = Wick.GUIElement.TIMELINE_BACKGROUND_COLOR;

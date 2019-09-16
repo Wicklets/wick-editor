@@ -123,10 +123,7 @@ Wick.Tween = class extends Wick.Base {
                 tween.remove();
             }
 
-            // Remove tween if playheadPosition is out of bounds
-            if(playheadPosition < 1 || playheadPosition > this.parentFrame.length) {
-                this.remove();
-            }
+            this.restrictToFrameSize();
         }
 
         this._playheadPosition = playheadPosition;
@@ -175,6 +172,19 @@ Wick.Tween = class extends Wick.Base {
         return frontTween;
     }
 
+    /**
+     * Prevents tweens from existing outside of the frame's length. Call this after changing the length of the parent frame.
+     */
+    restrictToFrameSize () {
+        var playheadPosition = this.playheadPosition;
+
+        // Remove tween if playheadPosition is out of bounds
+        if(playheadPosition < 1 || playheadPosition > this.parentFrame.length) {
+            this.remove();
+        }
+    }
+
+     /* retrieve Tween.js easing functions by name */
     _getTweenFunction () {
         return {
             'none': TWEEN.Easing.Linear.None,

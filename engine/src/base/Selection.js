@@ -129,6 +129,11 @@ Wick.Selection = class extends Wick.Base {
         // Add the object to the selection!
         this._selectedObjectsUUIDs.push(object.uuid);
 
+        // Select in between frames (for shift+click selecting frames)
+        if(object instanceof Wick.Frame) {
+            this._selectInBetweenFrames(object);
+        }
+
         this._resetPositioningValues();
 
         // Make sure the view gets updated the next time its needed...
@@ -664,6 +669,44 @@ Wick.Selection = class extends Wick.Base {
     _setSingleAttribute (attributeName, value) {
         this.getSelectedObjects().forEach(selectedObject => {
             selectedObject[attributeName] = value;
+        });
+    }
+
+    /*helper function for shift+selecting frames*/
+    _selectInBetweenFrames (selectedFrame) {
+        var frameBounds = {
+            playheadStart: null,
+            playheadEnd: null,
+        };
+
+        // Calculate bounding box of all selected frames
+        var selectedFrames = this.getSelectedObjects('Frame');
+        selectedFrames.filter(frame => {
+            return frame.parentLayer === selectedFrame.parentLayer;
+        }).forEach(frame => {
+            var start = frame.start;
+            var end = frame.end;
+
+            if(!frameBounds.playheadStart || !frameBounds.playheadEnd) {
+                frameBounds.playheadStart = start;
+                frameBounds.playheadEnd = end;
+            }
+
+            if(start < frameBounds.playheadStart) {
+                frameBounds.playheadStart = start;
+            }
+            if(end > frameBounds.playheadEnd) {
+                frameBounds.playheadEnd = end;
+            }
+        });
+
+        // Select all frames inside bounding box
+        this.project.activeTimeline.getAllFrames().filter(frame => {
+            return !frame.isSelected &&
+                   frame.parentLayer === selectedFrame.parentLayer &&
+                   frame.inRange(frameBounds.playheadStart, frameBounds.playheadEnd)
+        }).forEach(frame => {
+            this._selectedObjectsUUIDs.push(frame.uuid);
         });
     }
 }

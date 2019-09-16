@@ -253,6 +253,12 @@ Wick.Frame = class extends Wick.Tickable {
      * @type {Wick.Tween[]}
      */
     get tweens () {
+        // Ensure no tweens are outside of this frame's length.
+        var tweens = this.getChildren('Tween')
+        tweens.forEach(tween => {
+            tween.restrictToFrameSize();
+        });
+
         return this.getChildren('Tween');
     }
 

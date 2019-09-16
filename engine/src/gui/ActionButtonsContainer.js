@@ -23,7 +23,7 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
 
         this.copyFrameForwardButton = new Wick.GUIElement.ActionButton(this.model, {
             tooltip: 'Copy Frame Forward',
-            icon: 'add_tween',
+            icon: 'trashcan',
             clickFn: () => {
                 this.model.project.copySelectedFramesForward();
             }
@@ -31,7 +31,7 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
 
         this.cutFrameButton = new Wick.GUIElement.ActionButton(this.model, {
             tooltip: 'Cut Frame',
-            icon: 'add_tween',
+            icon: 'trashcan',
             clickFn: () => {
                 this.model.project.cutSelectedFrames();
             }
@@ -47,7 +47,7 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
 
         this.addTweenButton = new Wick.GUIElement.ActionButton(this.model, {
             tooltip: 'Add Tween',
-            icon: 'add_tween',
+            icon: 'trashcan',
             clickFn: () => {
                 this.model.project.createTweenOnSelectedFrames();
             }
@@ -63,28 +63,36 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
         ctx.rect(0, 0, Wick.GUIElement.LAYERS_CONTAINER_WIDTH, Wick.GUIElement.NUMBER_LINE_HEIGHT);
         ctx.fill();
 
+        var buttonsAreActive = this.model.project.selection.getSelectedObjects('Timeline').length > 0;
+        ctx.save();
+        if(!buttonsAreActive) {
+            ctx.globalAlpha = 0.3;
+        }
+
         // Copy Frame Forward button
         ctx.save();
         ctx.translate(85, 20);
-            this.copyFrameForwardButton.draw();
+            this.copyFrameForwardButton.draw(buttonsAreActive);
         ctx.restore();
 
         // Cut Frame button
         ctx.save();
         ctx.translate(115, 20);
-            this.cutFrameButton.draw();
+            this.cutFrameButton.draw(buttonsAreActive);
         ctx.restore();
 
         // Delete Frame button
         ctx.save();
         ctx.translate(145, 20);
-            this.deleteFrameButton.draw();
+            this.deleteFrameButton.draw(buttonsAreActive);
         ctx.restore();
 
         // Add Tween button
         ctx.save();
         ctx.translate(175, 20);
-            this.addTweenButton.draw();
+            this.addTweenButton.draw(buttonsAreActive);
+        ctx.restore();
+
         ctx.restore();
     };
 };
