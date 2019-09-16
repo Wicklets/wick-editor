@@ -62,16 +62,42 @@ Wick.GUIElement.FrameStrip = class extends Wick.GUIElement {
             ctx.fillText('+', x + this.gridCellWidth / 2 - 8, y + this.gridCellHeight / 2 + 8);
             ctx.globalAlpha = 1.0;
         }
+
+        // Selection box
+        if(this._selectionBox) {
+            this._selectionBox.draw();
+        }
     }
 
     onMouseDown (e) {
-        var playheadPosition = this.addFrameCol+1;
-        var newFrame = new Wick.Frame({start: playheadPosition});
-        this.model.addFrame(newFrame);
-        this.model.project.selection.clear();
-        this.model.project.selection.select(newFrame);
-        newFrame.parentLayer.activate();
-        this.model.project.activeTimeline.playheadPosition = playheadPosition;
+
+    }
+
+    onMouseDrag (e) {
+        if(!this._selectionBox) {
+            this._selectionBox = new Wick.GUIElement.SelectionBox(this.model);
+        }
+    }
+
+    onMouseUp (e) {
+        if(this._selectionBox) {
+            this._selectionBox.finish();
+            this._selectionBox = null;
+        } else {
+            var playheadPosition = this.addFrameCol+1;
+
+            var newFrame = new Wick.Frame({start: playheadPosition});
+            this.model.addFrame(newFrame);
+
+            this.model.project.selection.clear();
+            this.model.project.selection.select(newFrame);
+
+            newFrame.parentLayer.activate();
+
+            this.model.project.activeTimeline.playheadPosition = playheadPosition;
+
+            this.projectWasModified();
+        }
     }
 
     get bounds () {

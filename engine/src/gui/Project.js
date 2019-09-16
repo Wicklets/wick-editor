@@ -43,6 +43,9 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
         this._scrollX = 0;
         this._scrollY = 0;
 
+        this._onProjectModified = () => {};
+        this._onProjectSoftModified = () => {};
+
         Wick.GUIElement.Icons.loadIcon('eye_open', Wick.GUIElement.LAYER_LABEL_SHOW_BUTTON_ICON);
         Wick.GUIElement.Icons.loadIcon('eye_closed', Wick.GUIElement.LAYER_LABEL_HIDDEN_BUTTON_ICON);
         Wick.GUIElement.Icons.loadIcon('lock_open', Wick.GUIElement.LAYER_LABEL_UNLOCK_BUTTON_ICON);
@@ -119,6 +122,22 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
                 target.tooltip.draw(target.localTranslation.x, target.localTranslation.y);
             }
         });
+    }
+
+    /**
+     * Give a function to call when the timeline modifies the project.
+     * @param {function} fn - the function to call
+     */
+    onProjectModified (fn) {
+        this._onProjectModified = fn;
+    }
+
+    /**
+     * Give a function to call when the timeline "soft modifies" the project (moving the playhead, etc).
+     * @param {function} fn - the function to call
+     */
+    onProjectSoftModified (fn) {
+        this._onProjectSoftModified = fn;
     }
 
     /**
@@ -224,15 +243,20 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
             this.model.selection.clear();
         } else {
             // Clicked something - run that element's onMouseDown
-            this._getTopMouseTarget().onMouseDown(e);
+
+            this._lastClickedElem = this._getTopMouseTarget();
+            this._lastClickedElem.onMouseDown(e);
         }
 
         this.draw();
     }
-
+    
     _onMouseUp (e) {
+        var target = this._getTopMouseTarget()
         if(this._isDragging) {
-            this._getTopMouseTarget().onMouseUp(e);
+            target && target.onMouseUp(e);
+        } else if (this._lastClickedElem === target) {
+            target && target.onMouseUp(e);
         }
         this.canvasClicked = false;
         this._isDragging = false;

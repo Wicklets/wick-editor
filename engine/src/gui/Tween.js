@@ -164,7 +164,10 @@ Wick.GUIElement.Tween = class extends Wick.GUIElement {
     }
 
     onMouseUp (e) {
-        this._ghost.finish();
-        this._ghost = null;
+        if(this._ghost) {
+            this._ghost.finish();
+            this._ghost = null;
+            this.projectWasModified();
+        }
     }
 }

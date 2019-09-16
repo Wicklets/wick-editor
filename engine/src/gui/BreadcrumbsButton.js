@@ -22,6 +22,7 @@ Wick.GUIElement.BreadcrumbsButton = class extends Wick.GUIElement.Button {
         super(model, {
             clickFn: () => {
                 this.model.project.focus = model;
+                this.projectWasModified();
             }
         });
     };

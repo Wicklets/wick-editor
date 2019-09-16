@@ -61,5 +61,6 @@ Wick.GUIElement.LayerCreateLabel = class extends Wick.GUIElement {
         newLayer.activate();
         this.model.project.selection.clear();
         this.model.project.selection.select(newLayer);
+        this.projectWasModified();
     }
 }

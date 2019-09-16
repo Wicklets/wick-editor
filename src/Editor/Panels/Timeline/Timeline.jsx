@@ -42,7 +42,14 @@ class Timeline extends Component {
     var project = this.props.project;
 
     if(project !== this.currentAttachedProject) {
+      if(this.currentAttachedProject) {
+        this.currentAttachedProject.guiElement.onProjectModified = () => {};
+        this.currentAttachedProject.guiElement.onProjectSoftModified = () => {};
+      }
+
       this.currentAttachedProject = project;
+      project.guiElement.onProjectModified(this.onProjectModified);
+      project.guiElement.onProjectSoftModified(this.onProjectSoftModified);
     }
 
     project.guiElement.canvasContainer = this.canvasContainer.current;
@@ -57,6 +64,14 @@ class Timeline extends Component {
         <div id="animation-timeline" ref={this.canvasContainer} />
       </div>
     )
+  }
+
+  onProjectModified = () => {
+      this.props.projectDidChange();
+  }
+
+  onProjectSoftModified = () => {
+      this.props.project.view.render();
   }
 }
 

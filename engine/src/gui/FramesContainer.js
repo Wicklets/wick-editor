@@ -35,8 +35,13 @@ Wick.GUIElement.FramesContainer = class extends Wick.GUIElement {
         ctx.fill();
 
         // Draw frame strips
-        for(var i = 0; i < this.model.layers.length; i++) {
-            var layer = this.model.layers[i];
+        var layers = this.model.layers;
+        layers.sort((a,b) => {
+            if(a.guiElement._selectionBox) return -1;
+            if(b.guiElement._selectionBox) return 1;
+            return 0;
+        }).forEach(layer => {
+            var i = layer.index;
 
             if(!this._frameStrips[layer.uuid]) {
                 this._frameStrips[layer.uuid] = new Wick.GUIElement.FrameStrip(layer);
@@ -46,7 +51,7 @@ Wick.GUIElement.FramesContainer = class extends Wick.GUIElement {
             ctx.translate(0, i * this.gridCellHeight);
                 this._frameStrips[layer.uuid].draw();
             ctx.restore();
-        }
+        });
 
         // Draw grid
         ctx.lineWidth = 1;

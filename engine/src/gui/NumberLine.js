@@ -97,11 +97,11 @@ Wick.GUIElement.NumberLine = class extends Wick.GUIElement {
     }
 
     onMouseDown (e) {
-        this.project.model.activeTimeline.playheadPosition = this.mousePlayheadPosition;
+        this._movePlayhead();
     }
 
     onMouseDrag (e) {
-        this.project.model.activeTimeline.playheadPosition = this.mousePlayheadPosition;
+        this._movePlayhead();
     }
 
     get bounds () {
@@ -110,6 +110,15 @@ Wick.GUIElement.NumberLine = class extends Wick.GUIElement {
             y: 0,
             width: this.canvas.width,
             height: Wick.GUIElement.NUMBER_LINE_HEIGHT,
+        }
+    }
+
+    /* Helper function for dragging the playhead around */
+    _movePlayhead () {
+        var timeline = this.project.model.activeTimeline;
+        if(timeline.playheadPosition !== this.mousePlayheadPosition) {
+            timeline.playheadPosition = this.mousePlayheadPosition;
+            this.projectWasSoftModified();
         }
     }
 }

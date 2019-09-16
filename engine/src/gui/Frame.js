@@ -140,6 +140,8 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement {
             this.model.project.selection.select(this.model);
             this.model.parentLayer.activate();
         }
+
+        this.projectWasModified();
     }
 
     onMouseDrag (e) {
@@ -149,7 +151,10 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement {
     }
 
     onMouseUp (e) {
-        this._ghost.finish();
-        this._ghost = null;
+        if(this._ghost) {
+            this._ghost.finish();
+            this._ghost = null;
+            this.projectWasModified();
+        }
     }
 }

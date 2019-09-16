@@ -181,6 +181,20 @@ Wick.GUIElement = class {
     onMouseUp (e) {
         // Implemeneted by subclasses.
     }
+
+    /**
+     * Causes the project to call it's onProjectModified function. Call this after modifying the project.
+     */
+    projectWasModified () {
+        this.project._onProjectModified();
+    }
+
+    /**
+     * Causes the project to call it's onProjectSoftModified function. Call this after modifying the project.
+     */
+    projectWasSoftModified () {
+        this.project._onProjectSoftModified();
+    }
 }
 
 Wick.GUIElement.GRID_DEFAULT_CELL_WIDTH = 38;

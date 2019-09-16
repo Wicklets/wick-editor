@@ -18,7 +18,7 @@
  */
 
 import React, { Component } from 'react';
-import WickModal from 'Editor/Modals/WickModal/WickModal'; 
+import WickModal from 'Editor/Modals/WickModal/WickModal';
 import { getApplicationKeyMap } from 'react-hotkeys';
 
 import './_keyboardshortcuts.scss';
@@ -42,14 +42,14 @@ class KeyboardShortcuts extends Component {
         {sequenceItems.map((key,i) => {
           return (
             <span className="keyboard-shortcuts-key-icon-container">
-              <kbd key={"keyboard-commands-" + key + i}>{key}</kbd> 
+              <kbd key={"keyboard-commands-" + key + i}>{key}</kbd>
               {sequenceItems.length > i+1 && ' + '}
             </span>
           );
         })}
       </span>
     );
-  } 
+  }
 
   replaceKeys = (str) => {
     const keys = [
@@ -64,7 +64,7 @@ class KeyboardShortcuts extends Component {
     let newStr = str;
 
     keys.forEach(swap => {
-      newStr = newStr.replace(swap[0], swap[1]); 
+      newStr = newStr.replace(swap[0], swap[1]);
     });
 
     return newStr;
@@ -80,7 +80,7 @@ class KeyboardShortcuts extends Component {
           { this.makeKey(sequence1) }
         </td>
         <td className="hotkey-column">
-          { this.makeKey(sequence2) } 
+          { this.makeKey(sequence2) }
         </td>
       </tr>
     );
@@ -90,9 +90,9 @@ class KeyboardShortcuts extends Component {
     const keyMap = getApplicationKeyMap();
 
     return (
-      <WickModal 
-      open={this.props.open} 
-      toggle={this.props.toggle} 
+      <WickModal
+      open={this.props.open}
+      toggle={this.props.toggle}
       className="keyboard-shortcuts-modal-body"
       overlayClassName="keyboard-shortcuts-modal-overlay">
         <div id="keyboard-shortcuts-modal-title">Hotkeys</div>
@@ -107,17 +107,17 @@ class KeyboardShortcuts extends Component {
               </tr>
             </thead>
             <tbody>
-              { 
+              {
                 Object.keys(keyMap).map( (actionName) => {
                     let { sequences, name } = keyMap[actionName];
                     return this.createRow(
                       {
                         name: name || actionName,
                         sequence1: sequences[0],
-                        sequence2: sequences.length > 1 ? sequences[1] : undefined, 
+                        sequence2: sequences.length > 1 ? sequences[1] : undefined,
                       });
                 })
-              } 
+              }
             </tbody>
           </table>
         </div>

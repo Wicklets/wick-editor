@@ -70,6 +70,7 @@ Wick.GUIElement.OnionSkinRange = class extends Wick.GUIElement {
         } else if(this.direction === 'left') {
             this.model.project.onionSkinSeekBackwards = Math.max(1, -this.mousePlayheadPosition);
         }
+        this.projectWasSoftModified();
     }
 
     get bounds () {

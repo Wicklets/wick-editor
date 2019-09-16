@@ -28,6 +28,7 @@ Wick.GUIElement.Layer = class extends Wick.GUIElement {
             clickFn: () => {
                 this.model.hidden = !this.model.hidden;
                 this.model.activate();
+                this.projectWasModified();
             }
         });
 
@@ -36,6 +37,7 @@ Wick.GUIElement.Layer = class extends Wick.GUIElement {
             clickFn: () => {
                 this.model.locked = !this.model.locked;
                 this.model.activate();
+                this.projectWasModified();
             }
         });
 
@@ -44,6 +46,7 @@ Wick.GUIElement.Layer = class extends Wick.GUIElement {
             clickFn: () => {
                 this.model.activeFrame && this.model.activeFrame.createTween();
                 this.model.activate();
+                this.projectWasModified();
             }
         });
     }
@@ -142,6 +145,7 @@ Wick.GUIElement.Layer = class extends Wick.GUIElement {
         this.model.activate();
         this.model.project.selection.clear();
         this.model.project.selection.select(this.model);
+        this.projectWasModified();
     }
 
     onMouseDrag (e) {
@@ -150,8 +154,10 @@ Wick.GUIElement.Layer = class extends Wick.GUIElement {
 
     onMouseUp (e) {
         var moveIndex = this.mouseLayerIndex - 1 + this.model.index;
+        if(moveIndex === this.model.index) return;
         if(moveIndex > this.model.index) moveIndex --;
         this.model.move(moveIndex);
         this.model.activate();
+        this.projectWasModified();
     }
 }

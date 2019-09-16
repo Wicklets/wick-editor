@@ -26,6 +26,7 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
             icon: 'trashcan',
             clickFn: () => {
                 this.model.project.copySelectedFramesForward();
+                this.projectWasModified();
             }
         });
 
@@ -34,6 +35,7 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
             icon: 'trashcan',
             clickFn: () => {
                 this.model.project.cutSelectedFrames();
+                this.projectWasModified();
             }
         });
 
@@ -42,6 +44,7 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
             icon: 'trashcan',
             clickFn: () => {
                 this.model.project.deleteSelectedObjects();
+                this.projectWasModified();
             }
         });
 
@@ -50,6 +53,7 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
             icon: 'trashcan',
             clickFn: () => {
                 this.model.project.createTweenOnSelectedFrames();
+                this.projectWasModified();
             }
         });
     };

@@ -39,11 +39,27 @@ Wick.GUIElement.Ghost = class extends Wick.GUIElement {
         };
 
         // Save how many rows/columns we've moved for later
-        this.moveCols = Math.round(this._mouseDiff.x/this.gridCellWidth);
-        this.moveRows = Math.round(this._mouseDiff.y/this.gridCellHeight);
+        var moveRowCols = this._roundToGrid(this._mouseDiff.x, this._mouseDiff.y);
+        this.moveCols = moveRowCols.col;
+        this.moveRows = moveRowCols.row;
+
+        var startRowCols = this._roundToGrid(this._mouseStart.x, this._mouseStart.y);
+        this.startCol = startRowCols.col;
+        this.startRow = startRowCols.row;
+
+        var endRowCols = this._roundToGrid(this._mouseEnd.x, this._mouseEnd.y);
+        this.endCol = endRowCols.col;
+        this.endRow = endRowCols.row;
     }
 
     finish () {
         // Implemeneted by subclasses.
+    }
+
+    _roundToGrid (x, y) {
+        return {
+            col: Math.round(x / this.gridCellWidth),
+            row: Math.round(y / this.gridCellWidth)
+        }
     }
 }
