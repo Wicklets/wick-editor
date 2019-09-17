@@ -24,8 +24,25 @@ Wick.GUIElement.SelectionBox = class extends Wick.GUIElement.Ghost {
 
     draw () {
         super.draw();
-        
-        console.log(this.startCol, this.startRow);
+
+        var ctx = this.ctx;
+
+        this.playheadStart = Math.min(this.startCol, this.endCol);
+        this.playheadEnd = Math.max(this.startCol, this.endCol);
+        this.layerStart = Math.min(this.startRow, this.endRow);
+        this.layerEnd = Math.max(this.startRow, this.endRow);
+
+        console.log(this.playheadStart, this.playheadEnd, this.layerStart, this.layerEnd)
+
+        ctx.fillStyle = 'rgba(100,100,255,0.4)';
+        ctx.beginPath();
+        ctx.roundRect(
+            this.playheadStart * this.gridCellWidth,
+            this.layerStart * this.gridCellHeight,
+            this.playheadEnd * this.gridCellWidth,
+            this.layerEnd * this.gridCellHeight,
+            Wick.GUIElement.FRAME_BORDER_RADIUS);
+        ctx.fill();
     }
 
     finish () {

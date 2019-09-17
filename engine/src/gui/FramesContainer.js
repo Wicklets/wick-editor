@@ -21,11 +21,21 @@ Wick.GUIElement.FramesContainer = class extends Wick.GUIElement {
     constructor (model) {
         super(model);
 
+        this.canAutoScrollX = true;
+        this.canAutoScrollY = true;
+
         this._frameStrips = {};
         this._frameGhost = null;
+
+        this._selectionBox = null;
     }
 
     draw () {
+        super.draw();
+
+        this.addFrameCol = Math.floor(this.localMouse.x / this.gridCellWidth);
+        this.addFrameRow = Math.floor(this.localMouse.y / this.gridCellHeight);
+
         var ctx = this.ctx;
 
         // Background
@@ -36,20 +46,23 @@ Wick.GUIElement.FramesContainer = class extends Wick.GUIElement {
 
         // Draw frame strips
         var layers = this.model.layers;
-        layers.sort((a,b) => {
-            if(a.guiElement._selectionBox) return -1;
-            if(b.guiElement._selectionBox) return 1;
-            return 0;
-        }).forEach(layer => {
+        layers.forEach(layer => {
             var i = layer.index;
-
-            if(!this._frameStrips[layer.uuid]) {
-                this._frameStrips[layer.uuid] = new Wick.GUIElement.FrameStrip(layer);
-            }
 
             ctx.save();
             ctx.translate(0, i * this.gridCellHeight);
-                this._frameStrips[layer.uuid].draw();
+                if(layer.isActive) {
+                    ctx.fillStyle = Wick.GUIElement.FRAMES_STRIP_ACTIVE_FILL_COLOR;
+                } else {
+                    ctx.fillStyle = Wick.GUIElement.FRAMES_STRIP_INACTIVE_FILL_COLOR;
+                }
+
+                var width = this.canvas.width;
+                var height = Wick.GUIElement.FRAMES_STRIP_HEIGHT;
+
+                ctx.beginPath();
+                ctx.rect(this.project.scrollX, 0, width, height);
+                ctx.fill();
             ctx.restore();
         });
 
@@ -87,6 +100,30 @@ Wick.GUIElement.FramesContainer = class extends Wick.GUIElement {
         draggingFrames.forEach(frame => {
             this._drawFrame(frame, false);
         });
+
+        // Add frame overlay
+        if(this.mouseState === 'over' && !this._selectionBox && this._addFrameOverlayIsActive()) {
+            var x = this.addFrameCol * this.gridCellWidth;
+            var y = this.addFrameRow * this.gridCellHeight;
+
+            ctx.fillStyle = Wick.GUIElement.ADD_FRAME_OVERLAY_FILL_COLOR;
+
+            ctx.beginPath();
+            ctx.roundRect(x, y, this.gridCellWidth, this.gridCellHeight, Wick.GUIElement.FRAME_BORDER_RADIUS);
+            ctx.fill();
+
+            // Plus sign
+            ctx.font = '30px bold Courier New';
+            ctx.fillStyle = Wick.GUIElement.ADD_FRAME_OVERLAY_PLUS_COLOR;
+            ctx.globalAlpha = 0.5;
+            ctx.fillText('+', x + this.gridCellWidth / 2 - 8, y + this.gridCellHeight / 2 + 8);
+            ctx.globalAlpha = 1.0;
+        }
+
+        // Selection box
+        if(this._selectionBox) {
+            this._selectionBox.draw();
+        }
     }
 
     _drawFrame (frame, enableCull) {
@@ -115,5 +152,49 @@ Wick.GUIElement.FramesContainer = class extends Wick.GUIElement {
         ctx.translate(frameStartX, frameStartY);
             frame.guiElement.draw();
         ctx.restore();
+    }
+
+    onMouseDrag () {
+        if(!this._selectionBox) {
+            this._selectionBox = new Wick.GUIElement.SelectionBox(this.model);
+        }
+    }
+
+    onMouseUp () {
+        if(this._selectionBox) {
+            console.log('select em')
+        } else if (this._addFrameOverlayIsActive()) {
+            var playheadPosition = this.addFrameCol+1;
+            var layerIndex = this.addFrameRow;
+
+            var newFrame = new Wick.Frame({start: playheadPosition});
+            this.model.layers[layerIndex].addFrame(newFrame);
+
+            this.model.project.selection.clear();
+            this.model.project.selection.select(newFrame);
+
+            newFrame.parentLayer.activate();
+
+            this.model.project.activeTimeline.playheadPosition = playheadPosition;
+
+            this.projectWasModified();
+        }
+
+        this._selectionBox = null;
+    }
+
+    get bounds () {
+        return {
+            x: this.project.scrollX,
+            y: this.project.scrollY,
+            width: this.canvas.width,
+            height: this.canvas.height,
+        };
+    }
+
+    _addFrameOverlayIsActive () {
+        return this.addFrameCol >= 0 &&
+               this.addFrameRow >= 0 &&
+               this.addFrameRow < this.model.layers.length;
     }
 }

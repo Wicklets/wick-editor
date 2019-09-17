@@ -218,7 +218,7 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
         if(e.buttons === 0) {
             // Mouse moved - find new hover targets
             this._mouseHoverTargets = this._drawnElements.filter(elem => {
-                return elem.mouseInBounds(this._mouse);
+                return elem.model.project && elem.mouseInBounds(this._mouse);
             });
         } else {
             // Mouse is dragging - fire drag events if needed
@@ -250,9 +250,9 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
 
         this.draw();
     }
-    
+
     _onMouseUp (e) {
-        var target = this._getTopMouseTarget()
+        var target = this._getTopMouseTarget();
         if(this._isDragging) {
             target && target.onMouseUp(e);
         } else if (this._lastClickedElem === target) {
@@ -262,7 +262,7 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
         this._isDragging = false;
 
         this.draw();
-
+        
         this._onMouseMove(e);
     }
 

@@ -46,7 +46,10 @@ Wick.GUIElement = class {
      * @type {Wick.GUIElement}
      */
     get project () {
-        return this.model.project.guiElement;
+        if(!this._root) {
+            this._root = this.model.project.guiElement;
+        }
+        return this._root;
     }
 
     /**
