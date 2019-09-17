@@ -166,8 +166,8 @@ Wick.Tools.Brush = class extends Wick.Tool {
             potracePath.fillColor = this.getSetting('fillColor');
             potracePath.position.x += this.paper.view.bounds.x;
             potracePath.position.y += this.paper.view.bounds.y;
-            potracePath.position.x += this.strokeBounds.x;
-            potracePath.position.y += this.strokeBounds.y;
+            potracePath.position.x += this.strokeBounds.x / this.paper.view.zoom;
+            potracePath.position.y += this.strokeBounds.y / this.paper.view.zoom;
             potracePath.remove();
             potracePath.closed = true;
             potracePath.children[0].closed = true;
@@ -176,38 +176,6 @@ Wick.Tools.Brush = class extends Wick.Tool {
             this.croquis.clearLayer();
             this.fireEvent('canvasModified');
         }, croquisWaitAmtMS);
-
-        /*
-        setTimeout(() => {
-            var img = new Image();
-            img.onload = () => {
-                var svg = potrace.fromImage(img).toSVG(1/this.POTRACE_RESOLUTION/this.paper.view.zoom);
-                var potracePath = this.paper.project.importSVG(svg);
-                potracePath.fillColor = this.getSetting('fillColor');
-                potracePath.position.x += this.paper.view.bounds.x;
-                potracePath.position.y += this.paper.view.bounds.y;
-                potracePath.remove();
-                potracePath.closed = true;
-                potracePath.children[0].closed = true;
-                potracePath.children[0].applyMatrix = true;
-                this.paper.project.activeLayer.addChild(potracePath.children[0]);
-                this.croquis.clearLayer();
-                this.fireEvent('canvasModified');
-            }
-            var canvas = this.paper.view._element.parentElement.getElementsByClassName('croquis-layer-canvas')[1];
-            if(!canvas) {
-                console.warn("Croquis canvas was not found in the canvas container. Something very bad has happened.")
-                this.handleBrushError('misingCroquisCanvas');
-                return;
-            }
-            var resizedCanvas = document.createElement("canvas");
-            var resizedContext = resizedCanvas.getContext("2d");
-            resizedCanvas.width = canvas.width * this.POTRACE_RESOLUTION;
-            resizedCanvas.height = canvas.height * this.POTRACE_RESOLUTION;
-            resizedContext.drawImage(canvas, 0, 0, resizedCanvas.width, resizedCanvas.height);
-            img.src = resizedCanvas.toDataURL();
-        }, 20);
-        */
     }
 
     /**
@@ -224,11 +192,6 @@ Wick.Tools.Brush = class extends Wick.Tool {
         if(!this.errorOccured) {
             console.error("Brush error");
             console.error(e);
-            /*
-            this.fireEvent('error', {
-                croquisError: e,
-            });
-            */
         }
         this.errorOccured = true;
     }
