@@ -69,7 +69,6 @@ Wick.GUIElement.Timeline = class extends Wick.GUIElement {
                 this.numberLine.draw();
             ctx.restore();
 
-
             // Layers
             ctx.save();
             ctx.translate(0, Wick.GUIElement.NUMBER_LINE_HEIGHT);

@@ -44,6 +44,10 @@ Wick.GUIElement.FramesContainer = class extends Wick.GUIElement {
         ctx.rect(this.project.scrollX, this.project.scrollY, this.canvas.width, this.canvas.height);
         ctx.fill();
 
+        // Add a small buffer to prevent some graphics from being cut off
+        ctx.save();
+        ctx.translate(1,1);
+
         // Draw frame strips
         var layers = this.model.layers;
         layers.forEach(layer => {
@@ -124,11 +128,15 @@ Wick.GUIElement.FramesContainer = class extends Wick.GUIElement {
         if(this._selectionBox) {
             this._selectionBox.draw();
         }
+
+        ctx.restore();
     }
 
     _drawFrame (frame, enableCull) {
         var ctx = this.ctx;
 
+        // Optimization: don't render frames that are outside the scroll area
+        // This really speeds things up!!
         var frameStartX = (frame.start - 1) * this.gridCellWidth;
         var frameStartY = frame.parentLayer.index * this.gridCellHeight;
         var frameEndX = frameStartX + frame.length * this.gridCellWidth;
@@ -136,7 +144,6 @@ Wick.GUIElement.FramesContainer = class extends Wick.GUIElement {
         var framesContainerWidth = this.canvas.width - Wick.GUIElement.LAYERS_CONTAINER_WIDTH;
         var framesContainerHeight = this.canvas.height - Wick.GUIElement.BREADCRUMBS_HEIGHT - Wick.GUIElement.NUMBER_LINE_HEIGHT;
 
-        // Optimization: don't render frames that are outside the scroll area
         if(enableCull) {
             var scrollX = this.project.scrollX;
             var scrollY = this.project.scrollY;
@@ -148,6 +155,7 @@ Wick.GUIElement.FramesContainer = class extends Wick.GUIElement {
             }
         }
 
+        // Draw the frame
         ctx.save();
         ctx.translate(frameStartX, frameStartY);
             frame.guiElement.draw();
@@ -162,22 +170,28 @@ Wick.GUIElement.FramesContainer = class extends Wick.GUIElement {
 
     onMouseUp () {
         if(this._selectionBox) {
-            console.log('select em')
+            // The selection box was just finished, select frames with the box bounds
+            console.log('todo select frames with selection box')
         } else if (this._addFrameOverlayIsActive()) {
             var playheadPosition = this.addFrameCol+1;
             var layerIndex = this.addFrameRow;
 
+            // Create a new frame and add that frame to the project
             var newFrame = new Wick.Frame({start: playheadPosition});
             this.model.layers[layerIndex].addFrame(newFrame);
 
+            // Select that frame and activate the layer it belongs to
             this.model.project.selection.clear();
             this.model.project.selection.select(newFrame);
-
             newFrame.parentLayer.activate();
 
+            // Move the playhead onto the new frame
             this.model.project.activeTimeline.playheadPosition = playheadPosition;
 
             this.projectWasModified();
+        } else {
+            // Nothing was clicked - clear the selection
+            this.model.project.selection.clear();
         }
 
         this._selectionBox = null;

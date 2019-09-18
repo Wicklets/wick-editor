@@ -29,12 +29,13 @@ Wick.GUIElement.Tooltip = class extends Wick.GUIElement {
 
         var ctx = this.ctx;
 
-        // Label text settings
+        // Font settings
         ctx.font = "14px Nunito Sans";
         var textContent = this.label;
         var textWidth = ctx.measureText(textContent).width;
         var textHeight = 14;
 
+        // Tooltip
         ctx.save();
         var tx = x - textWidth/2;
         var ty = y + textHeight;
@@ -43,9 +44,10 @@ Wick.GUIElement.Tooltip = class extends Wick.GUIElement {
 
             // Body
             var margin = 4;
+            var r = Wick.GUIElement.FRAME_BORDER_RADIUS
             ctx.fillStyle = '#3878AF';
             ctx.beginPath();
-            ctx.roundRect(-margin/2, -margin/2, textWidth+margin, textHeight+margin, Wick.GUIElement.FRAME_BORDER_RADIUS);
+            ctx.roundRect(-margin/2, -margin/2, textWidth+margin, textHeight+margin, r);
             ctx.fill();
 
             // Label text

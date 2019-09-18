@@ -29,7 +29,7 @@ Wick.GUIElement.ActionButton = class extends Wick.GUIElement.Button {
 
         var ctx = this.ctx;
 
-        // Circle
+        // Button Circle
         if (isActive && this.mouseState == 'over') {
             ctx.fillStyle = Wick.GUIElement.ACTION_BUTTON_COLOR;
         } else {
@@ -39,7 +39,7 @@ Wick.GUIElement.ActionButton = class extends Wick.GUIElement.Button {
         ctx.arc(0, 0, Wick.GUIElement.ACTION_BUTTON_RADIUS, 0, 2 * Math.PI);
         ctx.fill();
 
-        // Icon
+        // Button Icon
         var r = Wick.GUIElement.ACTION_BUTTON_RADIUS * 0.8;
         ctx.drawImage(Wick.GUIElement.Icons.getIcon(this.icon), -r, -r, r*2, r*2);
     };

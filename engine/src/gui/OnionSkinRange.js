@@ -36,22 +36,22 @@ Wick.GUIElement.OnionSkinRange = class extends Wick.GUIElement {
         // Save where the mouse is if the user wants to drag the sliders around
         this.mousePlayheadPosition = Math.round(this.localMouse.x / this.gridCellWidth);
 
+        // Calculate positions of the handle
         var seek = this.direction === 'right' ? this.model.project.onionSkinSeekForwards : this.model.project.onionSkinSeekBackwards;
         var width = seek * this.gridCellWidth;
         var edgeWidth = this.gridCellWidth - Wick.GUIElement.PLAYHEAD_MARGIN * 2;
         var height = Wick.GUIElement.NUMBER_LINE_HEIGHT * 0.9;
 
-        // Create gradient
+        // Draw handle
         var grd = ctx.createLinearGradient(0, 0, width + edgeWidth, 0);
         grd.addColorStop(0, 'rgba(255,92,92,0.2)');
         grd.addColorStop(1, 'rgba(255,92,92,1)');
-
         ctx.fillStyle = grd;
         ctx.lineWidth = 1,
+
         ctx.save();
         ctx.globalAlpha = this.mouseState === 'over' ? 0.5 : 1.0;
         if(this.direction == 'left') ctx.scale(-1, 1);
-            // Playhead top
             ctx.beginPath();
             ctx.moveTo(0, 0);
             ctx.lineTo(width, 0);

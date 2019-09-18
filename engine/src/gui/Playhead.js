@@ -35,7 +35,7 @@ Wick.GUIElement.Playhead = class extends Wick.GUIElement {
         ctx.lineWidth = 5,
         ctx.save();
         ctx.translate((this.model.playheadPosition - 1) * this.gridCellWidth, 0);
-            // Playhead body
+            // Playhead body (the vertical line)
             var playheadX = this.gridCellWidth / 2 - Wick.GUIElement.PLAYHEAD_STROKE_WIDTH / 2 + 1.5;
             ctx.strokeStyle = 'Wick.GUIElement.PLAYHEAD_FILL_COLOR';
             ctx.lineWidth = Wick.GUIElement.PLAYHEAD_STROKE_WIDTH;
@@ -44,9 +44,9 @@ Wick.GUIElement.Playhead = class extends Wick.GUIElement {
             ctx.lineTo(playheadX, this.canvas.height);
             ctx.stroke();
 
-            // Playhead top
             ctx.save();
             ctx.translate(Wick.GUIElement.PLAYHEAD_MARGIN, 0);
+                // Playhead top (the triangle/rectangle thing on the number line)
                 ctx.beginPath();
                 ctx.moveTo(0, 0);
                 ctx.lineTo(width, 0);
@@ -57,7 +57,7 @@ Wick.GUIElement.Playhead = class extends Wick.GUIElement {
                 ctx.fill();
                 ctx.stroke();
 
-                // Add gnurl handles.
+                // Gnurl handles
                 var handleMargin = 3;
                 var handleSpacing = 4;
 

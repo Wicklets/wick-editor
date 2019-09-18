@@ -32,6 +32,7 @@ Wick.GUIElement.LayerButton = class extends Wick.GUIElement.Button {
 
         var ctx = this.ctx;
 
+        // Change fill color depending on mouse interactions
         var fillColor;
         if(this.mouseState == 'down') {
             fillColor = Wick.GUIElement.LAYER_BUTTON_MOUSEDOWN_COLOR;
@@ -44,10 +45,12 @@ Wick.GUIElement.LayerButton = class extends Wick.GUIElement.Button {
         }
         ctx.fillStyle = fillColor;
 
+        // Button circle
         ctx.beginPath();
         ctx.arc(0, 0, Wick.GUIElement.LAYER_BUTTON_ICON_RADIUS, 0, 2 * Math.PI);
         ctx.fill();
 
+        // Button icon
         var r = Wick.GUIElement.LAYER_BUTTON_ICON_RADIUS * 0.8;
         ctx.globalAlpha = 0.5;
         ctx.drawImage(Wick.GUIElement.Icons.getIcon(icon), -r, -r, r*2, r*2);

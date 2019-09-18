@@ -39,30 +39,28 @@ Wick.GUIElement.TweenGhost = class extends Wick.GUIElement.Ghost {
             var x = tween.playheadPosition * this.gridCellWidth;
             var y = tween.parentLayer.index * this.gridCellHeight;
             ctx.translate(x, y);
+                ctx.save();
+                ctx.globalAlpha = 0.3;
+                ctx.translate(this._mouseDiff.x, /*this._mouseDiff.y*/0);
+                ctx.rotate(Math.PI / 4);
+                    var r = Wick.GUIElement.TWEEN_DIAMOND_RADIUS;
+                    ctx.fillStyle = Wick.GUIElement.FRAME_GHOST_COLOR;
+                    ctx.beginPath();
+                    ctx.roundRect(-r, -r, r*2, r*2, 3);
+                    ctx.fill();
+                ctx.restore();
 
-            ctx.save();
-            ctx.globalAlpha = 0.3;
-            ctx.translate(this._mouseDiff.x, /*this._mouseDiff.y*/0);
-            ctx.rotate(Math.PI / 4);
-                var r = Wick.GUIElement.TWEEN_DIAMOND_RADIUS;
-                ctx.fillStyle = Wick.GUIElement.FRAME_GHOST_COLOR;
-                ctx.beginPath();
-                ctx.roundRect(-r, -r, r*2, r*2, 3);
-                ctx.fill();
-            ctx.restore();
-
-            ctx.save();
-            ctx.strokeStyle = '#00ff00';
-            ctx.setLineDash([3, 3]);
-            ctx.translate(this.moveCols*this.gridCellWidth, /*this.moveRows*this.gridCellHeight*/0);
-            ctx.rotate(Math.PI / 4);
-                var r = Wick.GUIElement.TWEEN_DIAMOND_RADIUS;
-                ctx.fillStyle = Wick.GUIElement.FRAME_GHOST_COLOR;
-                ctx.beginPath();
-                ctx.roundRect(-r, -r, r*2, r*2, 3);
-                ctx.stroke();
-            ctx.restore();
-
+                ctx.save();
+                ctx.strokeStyle = '#00ff00';
+                ctx.setLineDash([3, 3]);
+                ctx.translate(this.moveCols*this.gridCellWidth, /*this.moveRows*this.gridCellHeight*/0);
+                ctx.rotate(Math.PI / 4);
+                    var r = Wick.GUIElement.TWEEN_DIAMOND_RADIUS;
+                    ctx.fillStyle = Wick.GUIElement.FRAME_GHOST_COLOR;
+                    ctx.beginPath();
+                    ctx.roundRect(-r, -r, r*2, r*2, 3);
+                    ctx.stroke();
+                ctx.restore();
             ctx.restore();
         });
     }

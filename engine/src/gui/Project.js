@@ -243,7 +243,6 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
             this.model.selection.clear();
         } else {
             // Clicked something - run that element's onMouseDown
-
             this._lastClickedElem = this._getTopMouseTarget();
             this._lastClickedElem.onMouseDown(e);
         }
@@ -252,22 +251,27 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
     }
 
     _onMouseUp (e) {
+        // Call mouse event functions on the elements interacted with
         var target = this._getTopMouseTarget();
         if(this._isDragging) {
             target && target.onMouseUp(e);
         } else if (this._lastClickedElem === target) {
             target && target.onMouseUp(e);
         }
+
         this.canvasClicked = false;
         this._isDragging = false;
 
         this.draw();
-        
+
+        // Call mousemove so that the next mouse targets can be found without having to move the mouse again
         this._onMouseMove(e);
     }
 
     _onMouseDrag (e) {
         this._isDragging = true;
+
+        // Call event functons on the elements interacted with
         var target = this._getTopMouseTarget();
         if(target) {
             target.onMouseDrag(e);

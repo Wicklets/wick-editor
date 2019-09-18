@@ -39,7 +39,7 @@ Wick.GUIElement.NumberLine = class extends Wick.GUIElement {
         var width = this.canvas.width - Wick.GUIElement.LAYERS_CONTAINER_WIDTH;
         var height = Wick.GUIElement.NUMBER_LINE_HEIGHT;
 
-        // Build BG
+        // Draw background cover
         ctx.fillStyle = Wick.GUIElement.TIMELINE_BACKGROUND_COLOR;
         ctx.beginPath();
         ctx.rect(this.project.scrollX, 0, width, height);
@@ -64,6 +64,7 @@ Wick.GUIElement.NumberLine = class extends Wick.GUIElement {
         this.playhead.draw();
     }
 
+    // Helper function for drawing each cell of the numberline (draws the border and the number)
     _drawCell (i) {
         var ctx = this.ctx;
 

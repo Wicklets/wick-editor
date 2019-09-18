@@ -63,6 +63,10 @@ Wick.GUIElement.Layer = class extends Wick.GUIElement {
         this.mouseLayerIndex = Math.min(this.model.parentTimeline.layers.length+1, this.mouseLayerIndex);
         this.mouseLayerIndex -= this.model.index;
 
+        // Calculate absolute width of layer label
+        var width = Wick.GUIElement.LAYERS_CONTAINER_WIDTH - Wick.GUIElement.LAYER_LABEL_MARGIN_SIDES*2;
+        var height = this.gridCellHeight - Wick.GUIElement.LAYER_LABEL_MARGIN_TOP_BOTTOM*2;
+
         // Body
         if (this.model.hidden) {
             ctx.fillStyle = Wick.GUIElement.LAYER_LABEL_HIDDEN_FILL_COLOR;
@@ -80,9 +84,6 @@ Wick.GUIElement.Layer = class extends Wick.GUIElement {
             ctx.lineWidth = 0;
         }
 
-        var width = Wick.GUIElement.LAYERS_CONTAINER_WIDTH - Wick.GUIElement.LAYER_LABEL_MARGIN_SIDES*2;
-        var height = this.gridCellHeight - Wick.GUIElement.LAYER_LABEL_MARGIN_TOP_BOTTOM*2;
-
         ctx.save();
         ctx.translate(Wick.GUIElement.LAYER_LABEL_MARGIN_SIDES, Wick.GUIElement.LAYER_LABEL_MARGIN_TOP_BOTTOM);
             ctx.beginPath();
@@ -91,6 +92,7 @@ Wick.GUIElement.Layer = class extends Wick.GUIElement {
             ctx.stroke();
         ctx.restore();
 
+        // Label text
         var maxWidth = Wick.GUIElement.LAYERS_CONTAINER_WIDTH - 35;
         ctx.save();
         ctx.beginPath();

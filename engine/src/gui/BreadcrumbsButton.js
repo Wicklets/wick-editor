@@ -39,7 +39,7 @@ Wick.GUIElement.BreadcrumbsButton = class extends Wick.GUIElement.Button {
         var textX = Wick.GUIElement.BREADCRUMBS_PADDING;
         var textY = Wick.GUIElement.BREADCRUMBS_HEIGHT/2 + Wick.GUIElement.BREADCRUMBS_PADDING;
 
-        // Button body
+        // Fill color based on mouse interactions
         var buttonBodyColor = 'red';
         if(this.model === this.model.project.focus) {
            buttonBodyColor = Wick.GUIElement.BREADCRUMBS_ACTIVE_BUTTON_FILL_COLOR;
@@ -54,6 +54,7 @@ Wick.GUIElement.BreadcrumbsButton = class extends Wick.GUIElement.Button {
         var buttonWidth = textWidth + Wick.GUIElement.BREADCRUMBS_PADDING*2;
         this.buttonWidth = buttonWidth; // Save how large the button is to use in other places...
 
+        // Button body
         ctx.fillStyle = buttonBodyColor;
         ctx.beginPath();
         ctx.roundRect(0, 0, buttonWidth, Wick.GUIElement.BREADCRUMBS_HEIGHT, Wick.GUIElement.FRAME_BORDER_RADIUS);
@@ -71,7 +72,7 @@ Wick.GUIElement.BreadcrumbsButton = class extends Wick.GUIElement.Button {
             ctx.fill();
         }
 
-        // Button label
+        // Button label text
         ctx.fillStyle = '#BBBBBB';
         ctx.fillText(textContent, textX, textY);
     }

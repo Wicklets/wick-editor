@@ -63,7 +63,6 @@ Wick.GUIElement.Tween = class extends Wick.GUIElement {
         ctx.restore();
 
         // Selection border
-
         if (this.model.isSelected) {
             ctx.save();
             ctx.rotate(Math.PI / 4);
@@ -80,6 +79,8 @@ Wick.GUIElement.Tween = class extends Wick.GUIElement {
         var linePadding = 18;
         var nextTween = this.model.getNextTween();
         if(nextTween) {
+            // Draw an arrow pointing towards the next tween
+
             var nextTweenGridPosition = nextTween.playheadPosition - this.model.playheadPosition;
             var nextTweenPosition = nextTweenGridPosition * this.gridCellWidth;
             var arrowSize = 5;
@@ -98,22 +99,18 @@ Wick.GUIElement.Tween = class extends Wick.GUIElement {
             ctx.moveTo(nextTweenPosition - linePadding, 0);
             ctx.lineTo(nextTweenPosition - linePadding - arrowSize, -arrowSize);
             ctx.stroke();
-
-            // Arrow head
-            ctx.fillStyle = Wick.GUIElement.TWEEN_ARROW_STROKE_COLOR;
-            ctx.beginPath();
-            ctx.moveTo(nextTweenPosition - linePadding, 0);
-            ctx.lineTo(nextTweenPosition - linePadding - arrowSize, -arrowSize);
             ctx.beginPath();
             ctx.moveTo(nextTweenPosition - linePadding, 0);
             ctx.lineTo(nextTweenPosition - linePadding - arrowSize, arrowSize);
             ctx.stroke();
         } else {
+            // There is no tween in front of this tween, so draw a dotted line to the end of the frame
+
             var tweenPos = this.model.playheadPosition * this.gridCellWidth;
             var frameLength = this.model.parentFrame.length * this.gridCellWidth;
             var frameRightEdge = frameLength - tweenPos + this.gridCellWidth/2;
 
-            // Line
+            // Dotted line
             ctx.save();
             ctx.strokeStyle = Wick.GUIElement.TWEEN_ARROW_STROKE_COLOR;
             ctx.lineWidth = Wick.GUIElement.TWEEN_ARROW_STROKE_WIDTH;

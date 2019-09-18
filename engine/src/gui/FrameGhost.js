@@ -31,6 +31,7 @@ Wick.GUIElement.FrameGhost = class extends Wick.GUIElement.Ghost {
         var ctx = this.ctx;
 
         this._frames.forEach(frame => {
+            // Calculate position values...
             var start = frame.start - this._mainFrame.start;
             var length = frame.length;
             var row = frame.parentLayer.index - this._mainFrame.parentLayer.index;
@@ -40,6 +41,8 @@ Wick.GUIElement.FrameGhost = class extends Wick.GUIElement.Ghost {
             var width = length * this.gridCellWidth;
             var height = this.gridCellHeight;
 
+            // New position of frames based on mouse x,y
+            // (this makes things feel more responsive)
             ctx.save();
             ctx.translate(this._mouseDiff.x, this._mouseDiff.y);
             ctx.globalAlpha = 0.4;
@@ -49,6 +52,8 @@ Wick.GUIElement.FrameGhost = class extends Wick.GUIElement.Ghost {
                 ctx.fill();
             ctx.restore();
 
+            // New position of frames based on grid cells moved
+            // (this makes it easy to tell where frames will land)
             ctx.save();
             ctx.translate(this.moveCols*this.gridCellWidth, this.moveRows*this.gridCellHeight);
             ctx.strokeStyle = '#00ff00';
@@ -67,6 +72,7 @@ Wick.GUIElement.FrameGhost = class extends Wick.GUIElement.Ghost {
         timeline.playheadPosition += this.moveCols;
         timeline.deferFrameGapResolve();
 
+        // Remove all frames, then re-add them in their new places
         this._frames.forEach(frame => {
             frame._originalLayerIndex = frame.parentLayer.index;
             frame.remove();

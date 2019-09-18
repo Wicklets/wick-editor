@@ -67,6 +67,7 @@ Wick.GUIElement.Scrollbar = class extends Wick.GUIElement {
             ctx.translate(0, pos.y);
         }
 
+        // Calculate "scroll ratio" (used to convert between scrollbar's position and the actual pixel scroll amount)
         this.grabber.scrollRatioX = this.project.horizontalScrollSpace / (this.maxWidth - Wick.GUIElement.SCROLLBAR_HORIZONTAL_LENGTH);
         this.grabber.scrollRatioY = this.project.verticalScrollSpace / (this.maxHeight - Wick.GUIElement.SCROLLBAR_VERTICAL_LENGTH);
         this.grabber.draw();

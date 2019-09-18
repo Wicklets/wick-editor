@@ -120,8 +120,8 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement {
         return {
             x: 0,
             y: 0,
-            width: this.model.length * this.gridCellWidth,
-            height: this.gridCellHeight,
+            width: this.model.length * this.gridCellWidth + 1,
+            height: this.gridCellHeight + 1,
         };
     }
 

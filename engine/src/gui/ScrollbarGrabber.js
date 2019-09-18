@@ -31,10 +31,12 @@ Wick.GUIElement.ScrollbarGrabber = class extends Wick.GUIElement {
 
         var ctx = this.ctx;
 
+        // Set color based on if the mouse is hovered over the bar
         var fillColor = this.mouseState === 'over' ? Wick.GUIElement.SCROLLBAR_ACTIVE_FILL_COLOR : Wick.GUIElement.SCROLLBAR_FILL_COLOR;
         var r = Wick.GUIElement.SCROLLBAR_BORDER_RADIUS;
         var s = Wick.GUIElement.SCROLLBAR_SIZE - Wick.GUIElement.SCROLLBAR_MARGIN;
 
+        // Draw the bar
         ctx.fillStyle = fillColor;
         ctx.save();
         ctx.translate(Wick.GUIElement.SCROLLBAR_MARGIN/2, Wick.GUIElement.SCROLLBAR_MARGIN/2);

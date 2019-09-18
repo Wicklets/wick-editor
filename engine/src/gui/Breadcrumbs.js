@@ -42,13 +42,14 @@ Wick.GUIElement.Breadcrumbs = class extends Wick.GUIElement {
         // Generate buttons for each Clip in the lineage
         var totalWidth = 0;
         this.model.project.focus.lineage.reverse().forEach(clip => {
+            // Lazy generate buttons
             var button = this._buttons[clip.uuid];
-
             if(!button) {
                 button = new Wick.GUIElement.BreadcrumbsButton(clip);
                 this._buttons[clip.uuid] = button;
             }
 
+            // Draw the button
             ctx.save();
             ctx.translate(totalWidth, 0);
                 button.draw();
