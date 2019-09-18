@@ -28,16 +28,18 @@ Wick.GUIElement.SelectionBox = class extends Wick.GUIElement.Ghost {
         var ctx = this.ctx;
 
         // Draw selection box (using mouse position - this is drawn just so it feels more responsive)
-        ctx.fillStyle = 'rgba(33,66,255,0.8)';
-        ctx.strokeStyle = 'rgba(33,66,255,0.8)';
+        // (Disabled for now - didn't look good.)
+        /*
+        ctx.globalAlpha = 0.4;
+        ctx.fillStyle = Wick.GUIElement.FRAME_GHOST_COLOR;
         ctx.beginPath();
         ctx.rect(
             this._mouseStart.x,
             this._mouseStart.y,
             this._mouseDiff.x,
             this._mouseDiff.y);
-        ctx.stroke();
         ctx.fill();
+        */
 
         this.gridStart = {
             x: Math.floor(this._mouseStart.x / this.gridCellWidth),
@@ -63,20 +65,35 @@ Wick.GUIElement.SelectionBox = class extends Wick.GUIElement.Ghost {
         }
 
         // Draw selection box (using grid position - this shows what will actually be selected)
-        ctx.fillStyle = 'rgba(255,66,33,0.8)';
-        ctx.strokeStyle = 'rgba(255,66,33,0.8)';
+        ctx.strokeStyle = 'rgba(66, 111, 200, 1.0)';
+        ctx.fillStyle = 'rgba(66, 111, 200, 0.4)';
+        ctx.globalAlpha = 1.0;
+        ctx.setLineDash([5, 5]);
         ctx.beginPath();
-        ctx.rect(
+        ctx.roundRect(
             this.gridStart.x * this.gridCellWidth,
             this.gridStart.y * this.gridCellHeight,
             (this.gridEnd.x - this.gridStart.x + 1) * this.gridCellWidth,
-            (this.gridEnd.y - this.gridStart.y + 1) * this.gridCellHeight
+            (this.gridEnd.y - this.gridStart.y + 1) * this.gridCellHeight,
+            Wick.GUIElement.FRAME_BORDER_RADIUS
         );
         ctx.stroke();
-        ctx.fill();
+        ctx.fill()
     }
 
     finish () {
-        console.log('selection box finish')
+        var playheadRangeStart = this.gridStart.x + 1;
+        var playheadRangeEnd = this.gridEnd.x + 1;
+        var layerRangeStart = this.gridStart.y;
+        var layerRangeEnd = this.gridEnd.y;
+
+        // Find all frames within selection box bounds and select them.
+        this.model.getAllFrames().filter(frame => {
+            return frame.inRange(playheadRangeStart, playheadRangeEnd)
+                && frame.parentLayer.index >= layerRangeStart
+                && frame.parentLayer.index <= layerRangeEnd;
+        }).forEach(frame => {
+            frame.project.selection.select(frame);
+        });
     }
 }

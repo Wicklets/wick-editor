@@ -168,10 +168,14 @@ Wick.GUIElement.FramesContainer = class extends Wick.GUIElement {
         }
     }
 
-    onMouseUp () {
+    onMouseUp (e) {
         if(this._selectionBox) {
+            if(!e.shiftKey) {
+                this.model.project.selection.clear();
+            }
+
             // The selection box was just finished, select frames with the box bounds
-            console.log('todo select frames with selection box')
+            this._selectionBox.finish();
         } else if (this._addFrameOverlayIsActive()) {
             var playheadPosition = this.addFrameCol+1;
             var layerIndex = this.addFrameRow;
