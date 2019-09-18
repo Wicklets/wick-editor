@@ -89,6 +89,6 @@ Wick.GUIElement.FrameGhost = class extends Wick.GUIElement.Ghost {
             }
         });
 
-        timeline.resolveFrameGaps();
+        timeline.resolveFrameGaps(this._frames);
     }
 }

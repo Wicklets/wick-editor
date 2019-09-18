@@ -131,7 +131,7 @@ Wick.Layer = class extends Wick.Base {
     addFrame (frame) {
         this.addChild(frame);
         this.resolveOverlap([frame]);
-        this.resolveGaps();
+        this.resolveGaps([frame]);
     }
 
     /**
@@ -183,6 +183,8 @@ Wick.Layer = class extends Wick.Base {
      * @param {Wick.Frame[]} newOrModifiedFrames - the frames that should take precedence when determining which frames should get "eaten".
      */
     resolveOverlap (newOrModifiedFrames) {
+        newOrModifiedFrames = newOrModifiedFrames || [];
+
         // Ensure that frames never go beyond the beginning of the timeline
         newOrModifiedFrames.forEach(frame => {
             if(frame.start <= 1) {
@@ -223,8 +225,10 @@ Wick.Layer = class extends Wick.Base {
     /**
      * Prevents gaps between frames by extending frames to fill empty space between themselves.
      */
-    resolveGaps () {
+    resolveGaps (newOrModifiedFrames) {
         if(this.parentTimeline && this.parentTimeline.waitToFillFrameGaps) return;
+
+        newOrModifiedFrames = newOrModifiedFrames || [];
 
         var fillGapsMethod = this.parentTimeline && this.parentTimeline.fillGapsMethod;
         if(!fillGapsMethod) fillGapsMethod = 'blank_frames';
@@ -232,7 +236,8 @@ Wick.Layer = class extends Wick.Base {
         this.findGaps().forEach(gap => {
             // Method 1: Use the frame on the left (if there is one) to fill the gap
             if(fillGapsMethod === 'auto_extend') {
-                if(gap.start === 1) {
+                var frameOnLeft = this.getFrameAtPlayheadPosition(gap.start-1);
+                if(!frameOnLeft || newOrModifiedFrames.indexOf(frameOnLeft) !== -1 || gap.start === 1) {
                     // If there is no frame on the left, create a blank one
                     var empty = new Wick.Frame({
                         start: gap.start,
@@ -241,7 +246,7 @@ Wick.Layer = class extends Wick.Base {
                     this.addFrame(empty);
                 } else {
                     // Otherwise, extend the frame to the left to fill the gap
-                    this.getFrameAtPlayheadPosition(gap.start-1).end = gap.end;
+                    frameOnLeft.end = gap.end;
                 }
             }
 

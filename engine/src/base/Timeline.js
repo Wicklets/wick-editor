@@ -437,10 +437,12 @@ Wick.Timeline = class extends Wick.Base {
     /**
      * Fill in all gaps between frames in all layers in this timeline.
      */
-    resolveFrameGaps () {
+    resolveFrameGaps (newOrModifiedFrames) {
         this._waitToFillFrameGaps = false;
         this.layers.forEach(layer => {
-            layer.resolveGaps();
+            layer.resolveGaps(newOrModifiedFrames.filter(frame => {
+                return frame.parentLayer === layer;
+            }));
         });
     }
 

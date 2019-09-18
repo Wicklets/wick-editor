@@ -129,7 +129,7 @@ Wick.GUIElement = class {
      * Checks if this object is touching the mouse.
      * @returns {boolean}
      */
-    mouseInBounds (mouse) {
+    mouseInBounds () {
         if(!this.bounds) return false;
 
         var localMouse = this.localMouse;
@@ -244,7 +244,7 @@ Wick.GUIElement.FRAME_DROP_SHADOW_FILL = 'rgba(0,0,0,1)';
 Wick.GUIElement.FRAME_SCRIPT_DOT_COLOR = '#F5A623';
 
 Wick.GUIElement.FRAME_HANDLE_HOVER_FILL_COLOR = Wick.GUIElement.SELECTED_ITEM_BORDER_COLOR;
-Wick.GUIElement.FRAME_HANDLE_WIDTH = 8;
+Wick.GUIElement.FRAME_HANDLE_WIDTH = 12;
 
 Wick.GUIElement.TWEEN_DIAMOND_RADIUS = 7;
 Wick.GUIElement.TWEEN_STROKE_WIDTH = 3;

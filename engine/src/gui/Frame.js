@@ -36,15 +36,42 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement {
         if(this.model.parentLayer.hidden) ctx.globalAlpha = 0.3;
 
         // Frame body
-        if(this.mouseState === 'over' || this.mouseState === 'down') {
+        var widthPx = this.model.length * this.gridCellWidth - 1;
+        var heightPx = this.gridCellHeight - 1;
+
+        var edge = this._mouseOverFrameEdge();
+        if(!edge && this.mouseState === 'over' || this.mouseState === 'down') {
             ctx.fillStyle = Wick.GUIElement.FRAME_HOVERED_OVER;
         } else {
             ctx.fillStyle = Wick.GUIElement.FRAME_UNCONTENTFUL_FILL_COLOR;
         }
 
         ctx.beginPath();
-        ctx.roundRect(0, 0, this.model.length * this.gridCellWidth - 1, this.gridCellHeight - 1, Wick.GUIElement.FRAME_BORDER_RADIUS);
+        ctx.roundRect(0, 0, widthPx, heightPx, Wick.GUIElement.FRAME_BORDER_RADIUS);
         ctx.fill();
+
+        // Frame body edge
+        if(edge) {
+            var edgeGradient = ctx.createLinearGradient(widthPx - Wick.GUIElement.FRAME_HANDLE_WIDTH, 0, widthPx, 0);
+            edgeGradient.addColorStop(0, 'rgba(255,222,35, 0.0)');
+            edgeGradient.addColorStop(1, 'rgba(255,222,35, 1.0)');
+            ctx.fillStyle = edgeGradient;
+            ctx.strokeStyle = edgeGradient;
+            ctx.lineWidth = 5;
+
+            ctx.save();
+            if(edge === 'left') {
+                ctx.translate(widthPx, 0);
+                ctx.scale(-1, 1);
+            }
+
+            ctx.beginPath();
+            ctx.roundRect(0, 0, widthPx, heightPx, Wick.GUIElement.FRAME_BORDER_RADIUS);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.restore();
+        }
 
         // Add selection highlight if necessary
         if (this.model.isSelected) {
@@ -116,16 +143,9 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement {
         }
     }
 
-    get bounds () {
-        return {
-            x: 0,
-            y: 0,
-            width: this.model.length * this.gridCellWidth + 1,
-            height: this.gridCellHeight + 1,
-        };
-    }
-
     onMouseDown (e) {
+        this._clickedEdge = this._mouseOverFrameEdge();
+
         var playheadPosition = this.model.start + Math.floor(this.localMouse.x / this.gridCellWidth);
         this.model.project.activeTimeline.playheadPosition = playheadPosition;
 
@@ -146,7 +166,12 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement {
 
     onMouseDrag (e) {
         if(!this._ghost) {
-            this._ghost = new Wick.GUIElement.FrameGhost(this.model);
+            var edge = this._clickedEdge;
+            if(edge) {
+                this._ghost = new Wick.GUIElement.FrameEdgeGhost(this.model, edge);
+            } else {
+                this._ghost = new Wick.GUIElement.FrameGhost(this.model);
+            }
         }
     }
 
@@ -155,6 +180,34 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement {
             this._ghost.finish();
             this._ghost = null;
             this.projectWasModified();
+        }
+    }
+
+    get bounds () {
+        // Notice the slight addition of 1px on the left and right sides
+        // This prevents issues where you can create frames in between other frames.
+        return {
+            x: -1,
+            y: 0,
+            width: this.model.length * this.gridCellWidth + 1,
+            height: this.gridCellHeight + 1,
+        };
+    }
+
+    /* helper function for frame edge dragging */
+    _mouseOverFrameEdge () {
+        var widthPx = this.model.length * this.gridCellWidth;
+        var handlePx = Wick.GUIElement.FRAME_HANDLE_WIDTH;
+
+        if(this.project._isDragging || !this.mouseInBounds()) {
+            return null;
+        } else if(this.localMouse.x < handlePx) {
+            return 'left'
+        } else if (this.localMouse.x > widthPx - handlePx) {
+            return 'right';
+        } else {
+            // Mouse is over the frame, but on either edge
+            return null;
         }
     }
 }
