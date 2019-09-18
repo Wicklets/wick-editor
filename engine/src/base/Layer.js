@@ -183,6 +183,13 @@ Wick.Layer = class extends Wick.Base {
      * @param {Wick.Frame[]} newOrModifiedFrames - the frames that should take precedence when determining which frames should get "eaten".
      */
     resolveOverlap (newOrModifiedFrames) {
+        // Ensure that frames never go beyond the beginning of the timeline
+        newOrModifiedFrames.forEach(frame => {
+            if(frame.start <= 1) {
+                frame.start = 1;
+            }
+        });
+
         var isEdible = existingFrame => {
             return newOrModifiedFrames.indexOf(existingFrame) === -1;
         };
