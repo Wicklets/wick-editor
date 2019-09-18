@@ -387,7 +387,14 @@ Wick.Frame = class extends Wick.Tickable {
      * @param {Wick.Tween} tween - the tween to add.
      */
     addTween (tween) {
+        // New tweens eat existing tweens.
+        var otherTween = this.getTweenAtPosition(tween.playheadPosition);
+        if(otherTween) {
+            otherTween.remove();
+        }
+
         this.addChild(tween);
+        tween.restrictToFrameSize();
     }
 
     /**

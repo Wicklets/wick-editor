@@ -116,16 +116,6 @@ Wick.Tween = class extends Wick.Base {
     }
 
     set playheadPosition (playheadPosition) {
-        if(this.parentFrame) {
-            // Eat other tweens to prevent having two tweens in the same position.
-            var tween = this.parentFrame.getTweenAtPosition(playheadPosition);
-            if(tween && this !== tween) {
-                tween.remove();
-            }
-
-            this.restrictToFrameSize();
-        }
-
         this._playheadPosition = playheadPosition;
     }
 

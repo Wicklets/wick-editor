@@ -138,14 +138,17 @@ Wick.GUIElement.Tween = class extends Wick.GUIElement {
     }
 
     onMouseDown (e) {
-        var playheadPosition = this.model.playheadPosition - this.model.parentFrame.start + 1;
+        // Move playhead over the tween that was clicked
+        var playheadPosition = this.model.playheadPosition + this.model.parentFrame.start - 1;
         this.model.project.activeTimeline.playheadPosition = playheadPosition;
 
         if(this.model.isSelected) {
+            // Shift clicking a tween deselects that tween if it's already selected
             if(e.shiftKey) {
                 this.model.project.selection.deselect(this.model);
             }
         } else {
+            // Shift clicking a tween adds that tween to the current selection
             if(!e.shiftKey) {
                 this.model.project.selection.clear();
             }
@@ -155,6 +158,7 @@ Wick.GUIElement.Tween = class extends Wick.GUIElement {
     }
 
     onMouseDrag (e) {
+        // Start dragging: Create the tween ghosts
         if(!this._ghost) {
             this._ghost = new Wick.GUIElement.TweenGhost(this.model);
         }

@@ -31,17 +31,24 @@ Wick.GUIElement.TweenGhost = class extends Wick.GUIElement.Ghost {
         var ctx = this.ctx;
 
         // Save how many rows/columns we've moved for later
-        this.moveCols = Math.round(this._mouseDiff.x/this.gridCellWidth);
-        this.moveRows = Math.round(this._mouseDiff.y/this.gridCellHeight);
+        this.moveCols = Math.round(this._mouseDiff.x / this.gridCellWidth);
+        this.moveRows = Math.round(this._mouseDiff.y / this.gridCellHeight);
 
         this._tweens.forEach(tween => {
+            // Calculate absolute position of this tween ghost
+            var relativePlayhead = tween.playheadPosition - this._mainTween.playheadPosition;
+            relativePlayhead += tween.parentFrame.start - this._mainTween.parentFrame.start;
+            var relativeLayer = tween.parentLayer.index - this._mainTween.parentLayer.index;
+            var x = relativePlayhead * this.gridCellWidth;
+            var y = relativeLayer * this.gridCellHeight;
+
+            // Translate all tweens relative to the tween originally clicked and dragged
             ctx.save();
-            var x = tween.playheadPosition * this.gridCellWidth;
-            var y = tween.parentLayer.index * this.gridCellHeight;
             ctx.translate(x, y);
+                // New tween position (mouse x,y based)
                 ctx.save();
                 ctx.globalAlpha = 0.3;
-                ctx.translate(this._mouseDiff.x, /*this._mouseDiff.y*/0);
+                ctx.translate(this._mouseDiff.x, 0);
                 ctx.rotate(Math.PI / 4);
                     var r = Wick.GUIElement.TWEEN_DIAMOND_RADIUS;
                     ctx.fillStyle = Wick.GUIElement.FRAME_GHOST_COLOR;
@@ -50,10 +57,11 @@ Wick.GUIElement.TweenGhost = class extends Wick.GUIElement.Ghost {
                     ctx.fill();
                 ctx.restore();
 
+                // New tween position (grid based)
                 ctx.save();
                 ctx.strokeStyle = '#00ff00';
                 ctx.setLineDash([3, 3]);
-                ctx.translate(this.moveCols*this.gridCellWidth, /*this.moveRows*this.gridCellHeight*/0);
+                ctx.translate(this.moveCols * this.gridCellWidth, 0);
                 ctx.rotate(Math.PI / 4);
                     var r = Wick.GUIElement.TWEEN_DIAMOND_RADIUS;
                     ctx.fillStyle = Wick.GUIElement.FRAME_GHOST_COLOR;
@@ -66,6 +74,20 @@ Wick.GUIElement.TweenGhost = class extends Wick.GUIElement.Ghost {
     }
 
     finish () {
-        console.log('tween ghost finish')
+        var timeline = this._mainTween.project.activeTimeline;
+        timeline.playheadPosition += this.moveCols;
+
+        // Move all tweens by how much the mouse moved.
+        this._tweens.forEach(tween => {
+            tween._originalFrame = tween.parentFrame;
+            tween.remove();
+        });
+        this._tweens.forEach(tween => {
+            tween.playheadPosition += this.moveCols;
+        });
+        this._tweens.forEach(tween => {
+            tween._originalFrame.addTween(tween)
+            delete tween._originalFrame;
+        });
     }
 }
