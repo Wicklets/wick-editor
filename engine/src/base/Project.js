@@ -116,10 +116,6 @@ Wick.Project = class extends Wick.Base {
         this.framerate = data.framerate;
         this.backgroundColor = data.backgroundColor;
 
-        this.onionSkinEnabled = data.onionSkinEnabled;
-        this.onionSkinSeekForwards = data.onionSkinSeekForwards;
-        this.onionSkinSeekBackwards = data.onionSkinSeekBackwards;
-
         this._focus = data.focus;
 
         this._hideCursor = false;
