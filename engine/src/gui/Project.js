@@ -63,10 +63,43 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
         }
 
         if(!this._mouseEventsAttached) {
-            document.addEventListener('mousemove', this._onMouseMove.bind(this), false);
-            this._canvas.addEventListener('mousedown', this._onMouseDown.bind(this), false);
-            document.addEventListener('mouseup',this._onMouseUp.bind(this), false);
+            // Mouse events
+            // (Only call these with non-touch devices)
+            document.addEventListener('mousemove', e => {
+                if(e.sourceCapabilities.firesTouchEvents) return;
+                this._onMouseMove(e);
+            }, false);
+
+            document.addEventListener('mouseup', e => {
+                if(e.sourceCapabilities.firesTouchEvents) return;
+                this._onMouseUp(e);
+            }, false);
+
+            this._canvas.addEventListener('mousedown', e => {
+                if(e.sourceCapabilities.firesTouchEvents) return;
+                this._onMouseDown(e);
+            }, false);
+
+            // Scroll events
             $(this._canvas).on('mousewheel', this._onMouseWheel.bind(this));
+
+            // Touch events
+            document.addEventListener('touchstart', e => {
+                e.buttons = 0;
+                e.clientX = e.touches[0].clientX;
+                e.clientY = e.touches[0].clientY;
+                this._onMouseMove(e);
+                this._onMouseDown(e);
+            }, false);
+            document.addEventListener('touchmove', e => {
+                e.buttons = 1;
+                e.clientX = e.touches[0].clientX;
+                e.clientY = e.touches[0].clientY;
+                this._onMouseMove(e);
+            }, false);
+            document.addEventListener('touchend', e => {
+                this._onMouseUp(e);
+            }, false);
 
             this._mouseEventsAttached = true;
         }
@@ -225,7 +258,7 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
             // Mouse is dragging - fire drag events if needed
             if(!this.canvasClicked) {
                 // Don't drag if the click didn't originate from the canvas.
-            } else if (!this._mouseHasMoved(this._clickXY, {x:e.x, y:e.y}, 5)) {
+            } else if (!this._mouseHasMoved(this._clickXY, {x:e.clientX, y:e.clientY}, 5)) {
                 // Don't start dragging things until the mouse has moved a little bit.
             } else {
                 this._onMouseDrag(e);
@@ -237,7 +270,7 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
 
     _onMouseDown (e) {
         this.canvasClicked = true;
-        this._clickXY = {x: e.x, y: e.y};
+        this._clickXY = {x: e.clientX, y: e.clientY};
 
         if(this._mouseHoverTargets.length === 0) {
             // Clicked nothing - clear the selection
