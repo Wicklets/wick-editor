@@ -29,6 +29,13 @@ Wick.GUIElement.ActionButton = class extends Wick.GUIElement.Button {
 
         var ctx = this.ctx;
 
+        // Disable pointer cursor if the button isn't active
+        if(isActive) {
+            this.cursor = 'pointer';
+        } else {
+            this.cursor = 'default';
+        }
+
         // Button Circle
         if (isActive && this.mouseState == 'over') {
             ctx.fillStyle = Wick.GUIElement.ACTION_BUTTON_COLOR;
