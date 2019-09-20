@@ -23,7 +23,7 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
 
         this.copyFrameForwardButton = new Wick.GUIElement.ActionButton(this.model, {
             tooltip: 'Copy Frame Forward',
-            icon: 'trashcan',
+            icon: 'copy_frame_forward',
             clickFn: () => {
                 this.model.project.copySelectedFramesForward();
                 this.projectWasModified();
@@ -32,7 +32,7 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
 
         this.cutFrameButton = new Wick.GUIElement.ActionButton(this.model, {
             tooltip: 'Cut Frame',
-            icon: 'trashcan',
+            icon: 'cut_frame',
             clickFn: () => {
                 this.model.project.cutSelectedFrames();
                 this.projectWasModified();
@@ -41,7 +41,7 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
 
         this.deleteFrameButton = new Wick.GUIElement.ActionButton(this.model, {
             tooltip: 'Delete',
-            icon: 'trashcan',
+            icon: 'delete_frame',
             clickFn: () => {
                 this.model.project.deleteSelectedObjects();
                 this.projectWasModified();
@@ -50,7 +50,7 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
 
         this.addTweenButton = new Wick.GUIElement.ActionButton(this.model, {
             tooltip: 'Add Tween',
-            icon: 'trashcan',
+            icon: 'add_tween',
             clickFn: () => {
                 this.model.project.createTweenOnSelectedFrames();
                 this.projectWasModified();

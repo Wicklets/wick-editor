@@ -46,7 +46,15 @@ class Timeline extends Component {
     if(project !== this.currentAttachedProject) {
       // Import icons into the timeline GUI.
       let Icons = window.Wick.GUIElement.Icons;
+      Icons.loadIcon('hide_layer', iconShowLayer);
       Icons.loadIcon('show_layer', iconShowLayer);
+      Icons.loadIcon('lock_layer', iconShowLayer);
+      Icons.loadIcon('unlock_layer', iconShowLayer);
+      Icons.loadIcon('copy_frame_forward', iconShowLayer);
+      Icons.loadIcon('cut_frame', iconShowLayer);
+      Icons.loadIcon('delete_frame', iconShowLayer);
+      Icons.loadIcon('add_tween', iconShowLayer);
+      Icons.loadIcon('copy_frame_forward', iconShowLayer);
 
       if(this.currentAttachedProject) {
         this.currentAttachedProject.guiElement.onProjectModified = () => {};

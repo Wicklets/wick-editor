@@ -56,8 +56,11 @@ Wick.GUIElement.Layer = class extends Wick.GUIElement {
         });
 
         this.addTweenButton = new Wick.GUIElement.LayerButton(model, {
-            toggledTooltip: 'Add Tween',
-            toggledIcon: 'add_tween',
+            untoggledTooltip: 'Add Tween',
+            untoggledIcon: 'add_tween',
+            isToggledFn: () => {
+                return false;
+            },
             clickFn: () => {
                 this.model.activeFrame && this.model.activeFrame.createTween();
                 this.model.activate();

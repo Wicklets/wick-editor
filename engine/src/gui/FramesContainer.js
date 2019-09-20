@@ -200,6 +200,7 @@ Wick.GUIElement.FramesContainer = class extends Wick.GUIElement {
         } else {
             // Nothing was clicked - clear the selection
             this.model.project.selection.clear();
+            this.projectWasModified();
         }
 
         this._selectionBox = null;
