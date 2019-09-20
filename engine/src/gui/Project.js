@@ -45,13 +45,6 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
 
         this._onProjectModified = () => {};
         this._onProjectSoftModified = () => {};
-
-        Wick.GUIElement.Icons.loadIcon('eye_open', Wick.GUIElement.LAYER_LABEL_SHOW_BUTTON_ICON);
-        Wick.GUIElement.Icons.loadIcon('eye_closed', Wick.GUIElement.LAYER_LABEL_HIDDEN_BUTTON_ICON);
-        Wick.GUIElement.Icons.loadIcon('lock_open', Wick.GUIElement.LAYER_LABEL_UNLOCK_BUTTON_ICON);
-        Wick.GUIElement.Icons.loadIcon('lock_closed', Wick.GUIElement.LAYER_LABEL_LOCK_BUTTON_ICON);
-        Wick.GUIElement.Icons.loadIcon('trashcan', Wick.GUIElement.TIMELINE_DELETE_BUTTON_ICON);
-        Wick.GUIElement.Icons.loadIcon('add_tween', Wick.GUIElement.ADD_TWEEN_BUTTON_ICON);
     }
 
     /**
@@ -220,6 +213,14 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
             this._mouseHoverTargets = this._drawnElements.filter(elem => {
                 return elem.model.project && elem.mouseInBounds(this._mouse);
             });
+
+            // Update cursor
+            var top = this._getTopMouseTarget();
+            if(top) {
+                this.canvas.style.cursor = top.cursor
+            } else {
+                this.canvas.style.cursor = 'default';
+            }
         } else {
             // Mouse is dragging - fire drag events if needed
             if(!this.canvasClicked) {
@@ -274,6 +275,7 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
         // Call event functons on the elements interacted with
         var target = this._getTopMouseTarget();
         if(target) {
+            this.canvas.style.cursor = 'grabbing';
             target.onMouseDrag(e);
             this._doAutoScroll(target);
         }

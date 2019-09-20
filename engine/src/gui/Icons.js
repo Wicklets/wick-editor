@@ -18,32 +18,27 @@
  */
 
 Wick.GUIElement.Icons = class {
+    static get icons () {
+        if(!this._icons) {
+            this._icons = {};
+        }
+        return this._icons;
+    }
+
     static loadIcon (name, src) {
-        if(this._icons && this._icons[name]) {
+        if(this.icons && this.icons[name]) {
             // Icon is already loaded.
             return;
         }
 
-        // Convert SVG string into base64 dataURI
-        var svgContainer = document.createElement('div');
-        svgContainer.innerHTML = src;
-        var xml = new XMLSerializer().serializeToString(svgContainer.children[0]);
-        var svg64 = btoa(xml);
-        var b64Start = 'data:image/svg+xml;base64,';
-        var image64 = b64Start + svg64;
-
-        if(!this._icons) {
-            this._icons = {};
-        }
-
-        this._icons[name] = new Image();
-        this._icons[name].src = image64;
+        this.icons[name] = new Image();
+        this.icons[name].src = src;
     }
 
     static getIcon (name) {
-        var icon = this._icons[name];
+        var icon = this.icons[name];
         if(!icon) {
-            console.error('Warning: Missing icon: ' + name);
+            return new Image();
         }
         return icon;
     }

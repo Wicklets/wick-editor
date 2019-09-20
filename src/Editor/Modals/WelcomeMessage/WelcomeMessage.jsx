@@ -62,14 +62,6 @@ class WelcomeModal extends Component {
             </div>
             <div id="welcome-modal-forum-link" className="welcome-modal-item">Please report all bugs on our <a className="welcome-modal-highlight" target="_blank" rel="noopener noreferrer" href="https://forum.wickeditor.com">forum!</a></div>
             <div id="welcome-modal-footer">
-              <div id="welcome-modal-cancel">
-                <ActionButton
-                  className="welcome-modal-button"
-                  color='gray'
-                  action={() => window.location.href="http://www.wickeditor.com"}
-                  text="Back"
-                  />
-              </div>
               <div id="welcome-modal-accept">
                 <ActionButton
                   className="welcome-modal-button"

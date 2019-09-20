@@ -27,6 +27,9 @@ Wick.GUIElement.Tooltip = class extends Wick.GUIElement {
     draw (x, y) {
         super.draw();
 
+        // No label was given yet - don't render.
+        if(!this.label) return;
+
         var ctx = this.ctx;
 
         // Font settings

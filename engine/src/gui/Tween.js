@@ -21,6 +21,7 @@ Wick.GUIElement.Tween = class extends Wick.GUIElement {
     constructor (model) {
         super(model);
 
+        this.cursor = 'grab';
         this.canAutoScrollX = true;
 
         this._ghost = null;

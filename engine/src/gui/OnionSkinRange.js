@@ -23,6 +23,7 @@ Wick.GUIElement.OnionSkinRange = class extends Wick.GUIElement {
     constructor (model, direction) {
         super(model);
 
+        this.cursor = 'grab';
         this.canAutoScrollX = true;
 
         this.direction = direction;

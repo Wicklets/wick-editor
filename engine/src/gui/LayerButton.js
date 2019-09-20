@@ -20,6 +20,14 @@
 Wick.GUIElement.LayerButton = class extends Wick.GUIElement.Button {
     constructor (model, args) {
         super(model, args);
+
+        this.toggledIcon = args.toggledIcon;
+        this.untoggledIcon = args.untoggledIcon;
+
+        this.toggledTooltip = args.toggledTooltip;
+        this.untoggledTooltip = args.untoggledTooltip;
+
+        this.isToggledFn = args.isToggledFn;
     }
 
     /**
@@ -27,14 +35,28 @@ Wick.GUIElement.LayerButton = class extends Wick.GUIElement.Button {
      * @param {string} icon - The name of the icon to draw.
      * @param {boolean} isToggled - Should the button be toggled?
      */
-    draw (icon, isToggled) {
+    draw (isToggled) {
         super.draw();
 
+        // Check if the button is toggled
+        var isToggled = this.isToggledFn && this.isToggledFn();
+
         var ctx = this.ctx;
+
+        // Render different options depending on isToggledFn
+        var icon = null;
+        if(isToggled) {
+            this.tooltip.label = this.toggledTooltip;
+            icon = this.toggledIcon;
+        } else {
+            this.tooltip.label = this.untoggledTooltip;
+            icon = this.untoggledIcon;
+        }
 
         // Change fill color depending on mouse interactions
         var fillColor;
         if(this.mouseState == 'down') {
+            this._tooltip.label = this.
             fillColor = Wick.GUIElement.LAYER_BUTTON_MOUSEDOWN_COLOR;
         } else if (this.mouseState == 'over') {
             fillColor = Wick.GUIElement.LAYER_BUTTON_HOVER_COLOR;

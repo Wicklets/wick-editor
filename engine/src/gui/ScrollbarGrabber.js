@@ -21,6 +21,8 @@ Wick.GUIElement.ScrollbarGrabber = class extends Wick.GUIElement {
     constructor (model, direction) {
         super(model);
 
+        this.cursor = 'grab';
+
         this.direction = direction;
         this.horizontalLength = 100;
         this.verticalLength = 50;

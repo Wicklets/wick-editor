@@ -25,6 +25,8 @@ import DragDropTypes from 'Editor/DragDropTypes.js';
 import './_timeline.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
+import iconShowLayer from 'resources/timeline-icons/show_layer.png';
+
 class Timeline extends Component {
   constructor (props) {
     super(props);
@@ -42,6 +44,10 @@ class Timeline extends Component {
     var project = this.props.project;
 
     if(project !== this.currentAttachedProject) {
+      // Import icons into the timeline GUI.
+      let Icons = window.Wick.GUIElement.Icons;
+      Icons.loadIcon('show_layer', iconShowLayer);
+
       if(this.currentAttachedProject) {
         this.currentAttachedProject.guiElement.onProjectModified = () => {};
         this.currentAttachedProject.guiElement.onProjectSoftModified = () => {};

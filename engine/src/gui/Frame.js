@@ -52,6 +52,8 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement {
 
         // Frame body edge
         if(edge) {
+            this.cursor = 'ew-resize';
+
             var edgeGradient = ctx.createLinearGradient(widthPx - Wick.GUIElement.FRAME_HANDLE_WIDTH, 0, widthPx, 0);
             edgeGradient.addColorStop(0, 'rgba(255,222,35, 0.0)');
             edgeGradient.addColorStop(1, 'rgba(255,222,35, 1.0)');
@@ -71,6 +73,8 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement {
             ctx.stroke();
 
             ctx.restore();
+        } else {
+            this.cursor = 'grab';
         }
 
         // Add selection highlight if necessary

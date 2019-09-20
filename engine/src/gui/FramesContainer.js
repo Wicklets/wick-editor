@@ -107,6 +107,8 @@ Wick.GUIElement.FramesContainer = class extends Wick.GUIElement {
 
         // Add frame overlay
         if(this.mouseState === 'over' && !this._selectionBox && this._addFrameOverlayIsActive()) {
+            this.cursor = 'pointer';
+
             var x = this.addFrameCol * this.gridCellWidth;
             var y = this.addFrameRow * this.gridCellHeight;
 
@@ -122,6 +124,8 @@ Wick.GUIElement.FramesContainer = class extends Wick.GUIElement {
             ctx.globalAlpha = 0.5;
             ctx.fillText('+', x + this.gridCellWidth / 2 - 8, y + this.gridCellHeight / 2 + 8);
             ctx.globalAlpha = 1.0;
+        } else {
+            this.cursor = 'default';
         }
 
         // Selection box

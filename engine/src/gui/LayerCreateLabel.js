@@ -20,6 +20,8 @@
 Wick.GUIElement.LayerCreateLabel = class extends Wick.GUIElement {
     constructor (model) {
         super(model);
+
+        this.cursor = 'pointer';
     }
 
     draw () {
