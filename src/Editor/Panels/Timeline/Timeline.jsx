@@ -25,7 +25,14 @@ import DragDropTypes from 'Editor/DragDropTypes.js';
 import './_timeline.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-import iconShowLayer from 'resources/timeline-icons/show_layer.png';
+import iconLock from 'resources/timeline-icons/locked.png'; 
+import iconUnlock from 'resources/timeline-icons/unlocked.png'; 
+import iconHidden from 'resources/timeline-icons/hidden.png'; 
+import iconShown from 'resources/timeline-icons/shown.png'; 
+import iconCopyForward from 'resources/timeline-icons/copyForward.png';
+import iconSplit from 'resources/timeline-icons/cut_frame.png';
+import iconLayerTween from 'resources/timeline-icons/layerTween.png';
+import iconDelete from 'resources/timeline-icons/delete.png';
 
 class Timeline extends Component {
   constructor (props) {
@@ -46,15 +53,14 @@ class Timeline extends Component {
     if(project !== this.currentAttachedProject) {
       // Import icons into the timeline GUI.
       let Icons = window.Wick.GUIElement.Icons;
-      Icons.loadIcon('hide_layer', iconShowLayer);
-      Icons.loadIcon('show_layer', iconShowLayer);
-      Icons.loadIcon('lock_layer', iconShowLayer);
-      Icons.loadIcon('unlock_layer', iconShowLayer);
-      Icons.loadIcon('copy_frame_forward', iconShowLayer);
-      Icons.loadIcon('cut_frame', iconShowLayer);
-      Icons.loadIcon('delete_frame', iconShowLayer);
-      Icons.loadIcon('add_tween', iconShowLayer);
-      Icons.loadIcon('copy_frame_forward', iconShowLayer);
+      Icons.loadIcon('hide_layer', iconShown);
+      Icons.loadIcon('show_layer', iconHidden);
+      Icons.loadIcon('lock_layer', iconUnlock);
+      Icons.loadIcon('unlock_layer', iconLock);
+      Icons.loadIcon('copy_frame_forward', iconCopyForward);
+      Icons.loadIcon('cut_frame', iconSplit);
+      Icons.loadIcon('delete_frame', iconDelete);
+      Icons.loadIcon('add_tween', iconLayerTween);
 
       if(this.currentAttachedProject) {
         this.currentAttachedProject.guiElement.onProjectModified = () => {};

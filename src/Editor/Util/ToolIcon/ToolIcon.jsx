@@ -113,7 +113,16 @@ import iconWarning from 'resources/interface-images/warning.svg';
 import iconCheck from 'resources/interface-images/check.svg';
 import iconCircle from 'resources/tool-icons/circle.svg'; 
 import iconCloseTab from 'resources/tool-icons/closetab.svg'; 
-import iconWarningDelete from 'resources/interface-images/warning_delete.svg'; 
+import iconWarningDelete from 'resources/interface-images/warning_delete.svg';
+
+// Timeline
+import iconLock from 'resources/tool-icons/lock.svg'; 
+import iconUnlock from 'resources/tool-icons/unlock.svg'; 
+import iconHidden from 'resources/tool-icons/hidden.svg'; 
+import iconShown from 'resources/tool-icons/shown.svg'; 
+import iconCopyForward from 'resources/tool-icons/copyForward.svg';
+import iconSplit from 'resources/tool-icons/split.svg';
+import iconLayerTween from 'resources/tool-icons/layerTween.svg';
 
 var classNames = require('classnames');
 
@@ -205,6 +214,13 @@ class ToolIcon extends Component {
       "unite": iconUnite,
       "subtract": iconSubtract,
       "intersect": iconIntersect, 
+      "lock": iconLock,
+      "unlock": iconUnlock,
+      "hidden": iconHidden,
+      "shown": iconShown, 
+      "copyForward": iconCopyForward,
+      "split": iconSplit, 
+      "layerTween": iconLayerTween,
     }
   }
 
