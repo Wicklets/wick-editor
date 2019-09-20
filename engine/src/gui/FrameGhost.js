@@ -56,12 +56,19 @@ Wick.GUIElement.FrameGhost = class extends Wick.GUIElement.Ghost {
             // (this makes it easy to tell where frames will land)
             ctx.save();
             ctx.translate(this.moveCols*this.gridCellWidth, this.moveRows*this.gridCellHeight);
-            ctx.strokeStyle = '#00ff00';
+            if(frame.parentLayer.index + this.moveRows > frame.parentTimeline.layers.length - 1) {
+                ctx.fillStyle = Wick.GUIElement.FRAME_GHOST_NOT_ALLOWED_COLOR
+                ctx.strokeStyle = '#ff0000';
+            } else {
+                ctx.fillStyle = 'rgba(0,0,0,0)';
+                ctx.strokeStyle = '#00ff00';
+            }
             ctx.setLineDash([5, 5]);
             ctx.lineWidth = 3;
                 ctx.beginPath();
                 ctx.roundRect(x, y, width, height, Wick.GUIElement.FRAME_BORDER_RADIUS);
                 ctx.globalAlpha = 0.8;
+                ctx.fill();
                 ctx.stroke();
             ctx.restore();
         });
