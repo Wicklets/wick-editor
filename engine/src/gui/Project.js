@@ -218,6 +218,37 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
         return this.model.activeTimeline.layers.length * this.gridCellHeight + this.gridCellHeight * 2;
     }
 
+   /**
+     * Drop an asset onto the timeline.
+     * @param {string} uuid - The UUID of the desired asset.
+     * @param {number} x - The x location of the image after creation in relation to the window.
+     * @param {number} y - The y location of the image after creation in relation to the window.
+     * @param {boolean} drop - If true, will drop the asset with the uuid onto the hovered frame, modifying the frame.
+     */
+    dragAssetAtPosition (uuid, x, y, drop) {
+        this._onMouseMove({clientX: x, clientY: y, buttons: 0});
+        var target = this._getTopMouseTarget();
+        if(!target || !(target.model instanceof Wick.Frame)) {
+            return;
+        }
+
+        var frame = target.model;
+        var asset = target.project.model.getAssetByUUID(uuid);
+        var oldSound = frame.sound;
+        frame.sound = asset;
+
+        if(drop) {
+            this.projectWasModified();
+        } else {
+            this.draw();
+            if(oldSound) {
+                frame.sound = oldSound;
+            } else {
+                frame.removeSound();
+            }
+        }
+    }
+    
     _onMouseMove (e) {
         // Update mouse position
         var rect = this._canvas.getBoundingClientRect();

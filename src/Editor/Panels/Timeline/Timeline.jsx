@@ -25,10 +25,10 @@ import DragDropTypes from 'Editor/DragDropTypes.js';
 import './_timeline.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-import iconLock from 'resources/timeline-icons/locked.png'; 
-import iconUnlock from 'resources/timeline-icons/unlocked.png'; 
-import iconHidden from 'resources/timeline-icons/hidden.png'; 
-import iconShown from 'resources/timeline-icons/shown.png'; 
+import iconLock from 'resources/timeline-icons/locked.png';
+import iconUnlock from 'resources/timeline-icons/unlocked.png';
+import iconHidden from 'resources/timeline-icons/hidden.png';
+import iconShown from 'resources/timeline-icons/shown.png';
 import iconCopyForward from 'resources/timeline-icons/copyForward.png';
 import iconSplit from 'resources/timeline-icons/cut_frame.png';
 import iconLayerTween from 'resources/timeline-icons/layerTween.png';
@@ -70,6 +70,10 @@ class Timeline extends Component {
       this.currentAttachedProject = project;
       project.guiElement.onProjectModified(this.onProjectModified);
       project.guiElement.onProjectSoftModified(this.onProjectSoftModified);
+
+      let canvasContainerElem = this.canvasContainer.current;
+      this.props.project.guiElement.canvasContainer = canvasContainerElem;
+      project.guiElement.draw();
     }
 
     project.guiElement.canvasContainer = this.canvasContainer.current;
@@ -100,7 +104,12 @@ const timelineTarget = {
   drop(props, monitor) {
     const dropLocation = monitor.getClientOffset();
     let draggedItem = monitor.getItem();
-    props.dropSoundOntoTimeline(draggedItem.uuid, dropLocation.x, dropLocation.y);
+    props.dragSoundOntoTimeline(draggedItem.uuid, dropLocation.x, dropLocation.y, true);
+  },
+  hover(props, monitor, component) {
+    const dropLocation = monitor.getClientOffset();
+    let draggedItem = monitor.getItem();
+    props.dragSoundOntoTimeline(draggedItem.uuid, dropLocation.x, dropLocation.y, false);
   }
 }
 

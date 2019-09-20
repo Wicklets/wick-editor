@@ -686,7 +686,7 @@ class Editor extends EditorCore {
                                   setFocusObject={this.setFocusObject}
                                   addTweenKeyframe={this.addTweenKeyframe}
                                   onRef={ref => this.timelineComponent = ref}
-                                  dropSoundOntoTimeline={this.dropSoundOntoTimeline}
+                                  dragSoundOntoTimeline={this.dragSoundOntoTimeline}
                                 />
                               </DockedPanel>
                             </ReflexElement>

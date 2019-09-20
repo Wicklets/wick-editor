@@ -131,7 +131,7 @@ Wick.GUIElement = class {
      * Checks if this object is touching the mouse.
      * @returns {boolean}
      */
-    mouseInBounds () {
+    mouseInBounds (mouse) {
         if(!this.bounds) return false;
 
         var localMouse = this.localMouse;

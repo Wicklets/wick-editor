@@ -722,13 +722,14 @@ class EditorCore extends Component {
   }
 
  /**
-   * Is called when a sound asset is dropped on the timeline element.
-   * @param {string} uuid The UUID of the desired asset.
-   * @param {number} x    The x location of the image after creation in relation to the window.
-   * @param {number} y    The y location of the image after creation in relation to the window.
+   * Is called when a sound asset is dragged/dropped on the timeline element.
+   * @param {string} uuid - The UUID of the desired asset.
+   * @param {number} x - The x location of the image after creation in relation to the window.
+   * @param {number} y - The y location of the image after creation in relation to the window.
+   * @param {boolean} drop - If true, will drop the asset with the uuid onto the hovered frame, modifying the frame.
    */
-  dropSoundOntoTimeline = (uuid, x, y) => {
-      this.project.guiElement.dropAssetAtPosition(uuid, x, y);
+  dragSoundOntoTimeline = (uuid, x, y, drop) => {
+      this.project.guiElement.dragAssetAtPosition(uuid, x, y, drop);
   }
 
   /**
