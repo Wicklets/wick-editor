@@ -181,7 +181,7 @@ describe('Wick.Layer', function() {
 
             project.deleteSelectedObjects();
 
-            expect(layer.frames.length).to.equal(3);
+            expect(layer.frames.length).to.equal(3); // Should have filled the empty space with a new frame.
             expect(layer.getFrameAtPlayheadPosition(1)).to.equal(frame1);
             expect(layer.getFrameAtPlayheadPosition(5)).to.equal(frame5);
 
