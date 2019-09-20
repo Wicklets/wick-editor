@@ -20,10 +20,11 @@
 @import 'Editor/_wickbrand.scss';
 
 .menu-bar-button {
-  width: 55px;
+  width: auto;
   height: 80%;
   float: left;
   padding-right: 8px;
+  margin-right: 4px;
   font-size: 16px;
   display: flex;
   align-items: center;

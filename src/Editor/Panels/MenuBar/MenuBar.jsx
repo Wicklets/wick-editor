@@ -71,7 +71,8 @@ class MenuBar extends Component {
           />
           <MenuBarButton
             text="export"
-            action={this.props.openExportOptions} />
+            action={this.props.openExportOptions}
+          />
           <MenuBarButton
             text="save"
             action={this.props.exportProjectAsWickFile}
