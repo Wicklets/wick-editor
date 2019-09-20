@@ -158,7 +158,7 @@ Wick.Tween = class extends Wick.Base {
     getNextTween () {
         if(!this.parentFrame) return null;
 
-        var frontTween = this.parentFrame._seekTweenInFront(this.playheadPosition+1);
+        var frontTween = this.parentFrame.seekTweenInFront(this.playheadPosition+1);
         return frontTween;
     }
 

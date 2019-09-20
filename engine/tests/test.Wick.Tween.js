@@ -333,10 +333,10 @@ describe('Wick.Tween', function() {
 
     describe('#getNextTween', function () {
         it('should return the next tween in the frame', function () {
-            var frame = new Wick.Frame({start:5, end:15});
-            var tween1 = new Wick.Tween({playheadPosition: 5});
-            var tween2 = new Wick.Tween({playheadPosition: 7});
-            var tween3 = new Wick.Tween({playheadPosition: 15});
+            var frame = new Wick.Frame({start: 10, end: 20});
+            var tween1 = new Wick.Tween({playheadPosition: 1});
+            var tween2 = new Wick.Tween({playheadPosition: 5});
+            var tween3 = new Wick.Tween({playheadPosition: 9});
             frame.addTween(tween1);
             frame.addTween(tween2);
             frame.addTween(tween3);

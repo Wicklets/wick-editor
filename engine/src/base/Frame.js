@@ -418,7 +418,7 @@ Wick.Frame = class extends Wick.Tickable {
         }
 
         // Create the tween (if there's not already a tween at the current playhead position)
-        var playheadPosition = this._getRelativePlayheadPosition();
+        var playheadPosition = this.getRelativePlayheadPosition();
         if(!this.getTweenAtPosition(playheadPosition)) {
             var clip = this.clips[0];
             this.addTween(new Wick.Tween({
@@ -453,7 +453,7 @@ Wick.Frame = class extends Wick.Tickable {
     getTweenAtPosition (playheadPosition) {
         return this.tweens.find(tween => {
             return tween.playheadPosition === playheadPosition;
-        });
+        }) || null;
     }
 
     /**
@@ -463,15 +463,15 @@ Wick.Frame = class extends Wick.Tickable {
     getActiveTween () {
         if(!this.parentTimeline) return null;
 
-        var playheadPosition = this._getRelativePlayheadPosition();
+        var playheadPosition = this.getRelativePlayheadPosition();
 
         var tween = this.getTweenAtPosition(playheadPosition);
         if(tween) {
             return tween;
         }
 
-        var seekBackwardsTween = this._seekTweenBehind(playheadPosition);
-        var seekForwardsTween = this._seekTweenInFront(playheadPosition);
+        var seekBackwardsTween = this.seekTweenBehind(playheadPosition);
+        var seekForwardsTween = this.seekTweenInFront(playheadPosition);
 
         if (seekBackwardsTween && seekForwardsTween) {
             return Wick.Tween.interpolate(seekBackwardsTween, seekForwardsTween, playheadPosition);
@@ -558,6 +558,44 @@ Wick.Frame = class extends Wick.Tickable {
         this.view.importSVG(svg);
     }
 
+    /**
+     * Get the position of this frame in relation to the parent timeline's playhead position.
+     * @returns {number}
+     */
+    getRelativePlayheadPosition () {
+        return this.parentTimeline.playheadPosition - this.start + 1;
+    }
+
+    /**
+     * Find the first tween on this frame that exists behind the given playhead position.
+     * @returns {Wick.Tween}
+     */
+    seekTweenBehind (playheadPosition) {
+        var seekBackwardsPosition = playheadPosition;
+        var seekBackwardsTween = null;
+        while (seekBackwardsPosition > 0) {
+            seekBackwardsTween = this.getTweenAtPosition(seekBackwardsPosition);
+            seekBackwardsPosition--;
+            if(seekBackwardsTween) break;
+        }
+        return seekBackwardsTween;
+    }
+
+    /**
+     * Find the first tween on this frame that exists past the given playhead position.
+     * @returns {Wick.Tween}
+     */
+    seekTweenInFront (playheadPosition) {
+        var seekForwardsPosition = playheadPosition;
+        var seekForwardsTween = null;
+        while (seekForwardsPosition <= this.end) {
+            seekForwardsTween = this.getTweenAtPosition(seekForwardsPosition);
+            seekForwardsPosition++;
+            if(seekForwardsTween) break;
+        }
+        return seekForwardsTween;
+    }
+
     _onInactive () {
         return super._onInactive();
     }
@@ -594,32 +632,6 @@ Wick.Frame = class extends Wick.Tickable {
             childError = clip.tick();
         });
         return childError;
-    }
-
-    _getRelativePlayheadPosition () {
-        return this.parentTimeline.playheadPosition - this.start + 1;
-    }
-
-    _seekTweenBehind (playheadPosition) {
-        var seekBackwardsPosition = playheadPosition;
-        var seekBackwardsTween = null;
-        while (seekBackwardsPosition > 0) {
-            seekBackwardsTween = this.getTweenAtPosition(seekBackwardsPosition);
-            seekBackwardsPosition--;
-            if(seekBackwardsTween) break;
-        }
-        return seekBackwardsTween;
-    }
-
-    _seekTweenInFront (playheadPosition) {
-        var seekForwardsPosition = playheadPosition;
-        var seekForwardsTween = null;
-        while (seekForwardsPosition <= this.end) {
-            seekForwardsTween = this.getTweenAtPosition(seekForwardsPosition);
-            seekForwardsPosition++;
-            if(seekForwardsTween) break;
-        }
-        return seekForwardsTween;
     }
 
     _attachChildClipReferences () {

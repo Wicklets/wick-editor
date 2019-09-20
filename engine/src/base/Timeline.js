@@ -436,8 +436,11 @@ Wick.Timeline = class extends Wick.Base {
 
     /**
      * Fill in all gaps between frames in all layers in this timeline.
+     * @param {Wick.Frame[]} newOrModifiedFrames - The frames that should not be affected by the gap fill by being extended or shrunk.
      */
     resolveFrameGaps (newOrModifiedFrames) {
+        if(!newOrModifiedFrames) newOrModifiedFrames = [];
+
         this._waitToFillFrameGaps = false;
         this.layers.forEach(layer => {
             layer.resolveGaps(newOrModifiedFrames.filter(frame => {

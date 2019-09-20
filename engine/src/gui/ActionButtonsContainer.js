@@ -21,6 +21,15 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
     constructor (model) {
         super(model);
 
+        this.deleteFrameButton = new Wick.GUIElement.ActionButton(this.model, {
+            tooltip: 'Delete',
+            icon: 'delete_frame',
+            clickFn: () => {
+                this.model.project.deleteSelectedObjects();
+                this.projectWasModified();
+            }
+        });
+
         this.copyFrameForwardButton = new Wick.GUIElement.ActionButton(this.model, {
             tooltip: 'Copy Frame Forward',
             icon: 'copy_frame_forward',
@@ -35,15 +44,6 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
             icon: 'cut_frame',
             clickFn: () => {
                 this.model.project.cutSelectedFrames();
-                this.projectWasModified();
-            }
-        });
-
-        this.deleteFrameButton = new Wick.GUIElement.ActionButton(this.model, {
-            tooltip: 'Delete',
-            icon: 'delete_frame',
-            clickFn: () => {
-                this.model.project.deleteSelectedObjects();
                 this.projectWasModified();
             }
         });
@@ -67,34 +67,36 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
         ctx.rect(0, 0, Wick.GUIElement.LAYERS_CONTAINER_WIDTH, Wick.GUIElement.NUMBER_LINE_HEIGHT);
         ctx.fill();
 
-        var buttonsAreActive = this.model.project.selection.getSelectedObjects('Timeline').length > 0;
+        var frameButtonsAreActive = this.model.project.selection.getSelectedObjects('Frame').length > 0;
+        var deleteButtonIsActive = this.model.project.selection.getSelectedObjects('Timeline').length > 0;
         ctx.save();
-        if(!buttonsAreActive) {
-            ctx.globalAlpha = 0.3;
-        }
+
+        ctx.globalAlpha = deleteButtonIsActive ? 1.0 : 0.3;
+
+        // Delete Frame button
+        ctx.save();
+        ctx.translate(85, 20);
+            this.deleteFrameButton.draw(deleteButtonIsActive);
+        ctx.restore();
+
+        ctx.globalAlpha = frameButtonsAreActive ? 1.0 : 0.3;
 
         // Copy Frame Forward button
         ctx.save();
-        ctx.translate(85, 20);
-            this.copyFrameForwardButton.draw(buttonsAreActive);
+        ctx.translate(115, 20);
+            this.copyFrameForwardButton.draw(frameButtonsAreActive);
         ctx.restore();
 
         // Cut Frame button
         ctx.save();
-        ctx.translate(115, 20);
-            this.cutFrameButton.draw(buttonsAreActive);
-        ctx.restore();
-
-        // Delete Frame button
-        ctx.save();
         ctx.translate(145, 20);
-            this.deleteFrameButton.draw(buttonsAreActive);
+            this.cutFrameButton.draw(frameButtonsAreActive);
         ctx.restore();
 
         // Add Tween button
         ctx.save();
         ctx.translate(175, 20);
-            this.addTweenButton.draw(buttonsAreActive);
+            this.addTweenButton.draw(frameButtonsAreActive);
         ctx.restore();
 
         ctx.restore();
