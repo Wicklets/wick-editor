@@ -88,6 +88,10 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
                 e.buttons = 0;
                 e.clientX = e.touches[0].clientX;
                 e.clientY = e.touches[0].clientY;
+                this._touchStartX = e.clientX;
+                this._touchStartY = e.clientY;
+                e.movementX = e.touches[0].movementX;
+                e.movementY = e.touches[0].movementY;
                 this._onMouseMove(e);
                 this._onMouseDown(e);
             }, false);
@@ -95,6 +99,10 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
                 e.buttons = 1;
                 e.clientX = e.touches[0].clientX;
                 e.clientY = e.touches[0].clientY;
+                e.movementX = e.clientX - this._touchStartX;
+                e.movementY = e.clientY - this._touchStartY;
+                this._touchStartX = e.clientX;
+                this._touchStartY = e.clientY;
                 this._onMouseMove(e);
             }, false);
             document.addEventListener('touchend', e => {
