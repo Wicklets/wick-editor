@@ -295,4 +295,8 @@ describe('Wick.History', function() {
         project.undo();
         expect(project.history.numRedoStates).to.equal(3);
     });
+
+    it('undo() should cancel in-progress brush strokes', function () {
+        throw new Error('write me');
+    });
 });

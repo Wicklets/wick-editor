@@ -18,8 +18,12 @@
  */
 
 Wick.Tools.Brush = class extends Wick.Tool {
+    static get CROQUIS_WAIT_AMT_MS () {
+        return 5;
+    }
+
     /**
-     *
+     * Creates the brush tool.
      */
     constructor () {
         super();
@@ -45,7 +49,7 @@ Wick.Tools.Brush = class extends Wick.Tool {
     }
 
     get cursor () {
-
+        // the brush cursor is done in a custom way through croquis.
     }
 
     get isDrawingTool () {
@@ -60,6 +64,7 @@ Wick.Tools.Brush = class extends Wick.Tool {
             this.croquis.fillLayer('rgba(0,0,0,0)');
             this.croquis.addLayer();
             this.croquis.selectLayer(1);
+            this.croquis.lockHistory();
 
             this.croquisBrush = new Croquis.Brush();
             this.croquis.setTool(this.croquisBrush);
@@ -86,6 +91,8 @@ Wick.Tools.Brush = class extends Wick.Tool {
     }
 
     onMouseDown (e) {
+        this._isInProgress = true;
+
         this._updateCanvasAttributes();
 
         // Update croquis params
@@ -107,6 +114,8 @@ Wick.Tools.Brush = class extends Wick.Tool {
     }
 
     onMouseDrag (e) {
+        if(!this._isInProgress) return;
+
         // Forward mouse event to croquis canvas
         var point = this._croquisToPaperPoint(e.point);
         this._updateStrokeBounds(point);
@@ -124,6 +133,9 @@ Wick.Tools.Brush = class extends Wick.Tool {
     }
 
     onMouseUp (e) {
+        if(!this._isInProgress) return;
+        this._isInProgress = false;
+
         // Forward mouse event to croquis canvas
         var point = this._croquisToPaperPoint(e.point);
         this._updateStrokeBounds(point);
@@ -136,9 +148,7 @@ Wick.Tools.Brush = class extends Wick.Tool {
         }
 
         // Give croquis just a little bit to get the canvas ready...
-        var croquisWaitAmtMS = 5;
         setTimeout(() => {
-
             this.errorOccured = false;
 
             // Retrieve Croquis canvas
@@ -173,9 +183,11 @@ Wick.Tools.Brush = class extends Wick.Tool {
             potracePath.children[0].closed = true;
             potracePath.children[0].applyMatrix = true;
             this.addPathToProject(potracePath.children[0]);
+
+            // Clear croquis canvas
             this.croquis.clearLayer();
             this.fireEvent('canvasModified');
-        }, croquisWaitAmtMS);
+        }, Wick.Tools.Brush.CROQUIS_WAIT_AMT_MS);
     }
 
     /**
@@ -189,11 +201,35 @@ Wick.Tools.Brush = class extends Wick.Tool {
      * Croquis throws a lot of errrors. This is a helpful function to handle those errors gracefully.
      */
     handleBrushError (e) {
+        this._isInProgress = false;
+        this.croquis.clearLayer();
+
         if(!this.errorOccured) {
             console.error("Brush error");
             console.error(e);
         }
         this.errorOccured = true;
+    }
+
+    /**
+     * Is the brush currently making a stroke?
+     * @type {boolean}
+     */
+    isInProgress () {
+        return this._isInProgress;
+    }
+
+    /**
+     * Discard the current brush stroke.
+     */
+    discard () {
+        if(!this.isInProgress) return;
+
+        setTimeout(() => {
+            this.croquis.up(0, 0, 0);
+            this.croquis.clearLayer();
+            this.croquisDOMElement.style.opacity = 0;
+        }, Wick.Tools.Brush.CROQUIS_WAIT_AMT_MS);
     }
 
     _regenCursor () {

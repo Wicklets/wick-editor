@@ -277,6 +277,12 @@ Wick.Project = class extends Wick.Base {
      * @returns {boolean} true if there was something to undo, false otherwise.
      */
     undo () {
+        // Undo discards in-progress brush strokes.
+        if (this._tools.brush.isInProgress()) {
+            this._tools.brush.discard();
+            return true;
+        }
+
         this.selection.clear();
         var success = this.project.history.popState();
         return success;
