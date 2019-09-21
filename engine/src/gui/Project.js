@@ -393,8 +393,6 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
                 }
             }
 
-            console.log(this.scrollX)
-
             this.draw();
         }, 16);
     }
