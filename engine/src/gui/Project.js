@@ -66,17 +66,17 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
             // Mouse events
             // (Only call these with non-touch devices)
             document.addEventListener('mousemove', e => {
-                if(e.sourceCapabilities.firesTouchEvents) return;
+                if(e.touches) return;
                 this._onMouseMove(e);
             }, false);
 
             document.addEventListener('mouseup', e => {
-                if(e.sourceCapabilities.firesTouchEvents) return;
+                if(e.touches) return;
                 this._onMouseUp(e);
             }, false);
 
             this._canvas.addEventListener('mousedown', e => {
-                if(e.sourceCapabilities.firesTouchEvents) return;
+                if(e.touches) return;
                 this._onMouseDown(e);
             }, false);
 
