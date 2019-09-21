@@ -624,6 +624,52 @@ Wick.Selection = class extends Wick.Base {
         return this.numObjects === 1 && this.getSelectedObjects()[0].isScriptable;
     }
 
+    /**
+     * Get a list of only the farthest right frames on each layer.
+     * @returns {Wick.Frame[]}
+     */
+    getRightmostFrames () {
+        var selectedFrames = this.getSelectedObjects('Frame');
+
+        var rightmostFrames = {};
+        selectedFrames.forEach(frame => {
+              var layerid = frame.parentLayer.uuid;
+              if(!rightmostFrames[layerid] || frame.end > rightmostFrames[layerid].end) {
+                  rightmostFrames[layerid] = frame;
+              }
+        });
+
+        var result = [];
+        for(var id in rightmostFrames) {
+            result.push(rightmostFrames[id]);
+        }
+
+        return result;
+    }
+
+    /**
+     * Get a list of only the farthest left frames on each layer.
+     * @returns {Wick.Frame[]}
+     */
+    getLeftmostFrames () {
+        var selectedFrames = this.getSelectedObjects('Frame');
+
+        var leftmostFrames = {};
+        selectedFrames.forEach(frame => {
+              var layerid = frame.parentLayer.uuid;
+              if(!leftmostFrames[layerid] || frame.start < leftmostFrames[layerid].end) {
+                  leftmostFrames[layerid] = frame;
+              }
+        });
+
+        var result = [];
+        for(var id in leftmostFrames) {
+            result.push(leftmostFrames[id]);
+        }
+
+        return result;
+    }
+
     _locationOf (object) {
         if(object instanceof Wick.Frame
         || object instanceof Wick.Tween

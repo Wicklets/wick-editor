@@ -22,8 +22,12 @@ Wick.GUIElement.FrameEdgeGhost = class extends Wick.GUIElement.Ghost {
         super(model);
 
         this._mainFrame = model;
-        // Multi frame extending/shrinking isn't reay yet...
-        this._frames = [model];//model.project.selection.getSelectedObjects('Frame');
+        this._frames = [];
+        if(edge === 'left') {
+            this._frames = model.project.selection.getLeftmostFrames();
+        } else if (edge === 'right') {
+            this._frames = model.project.selection.getRightmostFrames();
+        }
 
         this._edge = edge;
     }
@@ -33,75 +37,95 @@ Wick.GUIElement.FrameEdgeGhost = class extends Wick.GUIElement.Ghost {
 
         var ctx = this.ctx;
 
-        var frame = this._mainFrame;
+        var mainFrame = this._mainFrame;
 
         // Calculate position values...
-        var start = frame.start - this._mainFrame.start;
-        var length = frame.length;
-        var row = frame.parentLayer.index - this._mainFrame.parentLayer.index;
-
-        var x = start * this.gridCellWidth;
-        var y = row * this.gridCellHeight;
-        var width = length * this.gridCellWidth;
-        var height = this.gridCellHeight;
+        var start = mainFrame.start - this._mainFrame.start;
+        var row = mainFrame.parentLayer.index - this._mainFrame.parentLayer.index;
 
         this.moveCols = Math.round(this._mouseDiff.x / this.gridCellWidth);
 
         // Prevent 'inside out' frames
-        if(this._edge === 'right') {
-            this.moveCols = Math.max(-length + 1, this.moveCols);
-        } else if(this._edge === 'left') {
-            this.moveCols = Math.min(length - 1, this.moveCols);
-        }
         var movePx = this._mouseDiff.x;
-        if(this._edge === 'right') {
-            movePx = Math.max(movePx, this.moveCols * this.gridCellWidth);
-        } else if(this._edge === 'left') {
-            movePx = Math.min(movePx, this.moveCols * this.gridCellWidth);
-        }
+        this._frames.forEach(frame => {
+            var length = frame.length;
 
-        // New length of frames based on mouse x,y
-        // (this makes things feel more responsive)
-        ctx.save();
-        ctx.globalAlpha = 0.4;
-        ctx.fillStyle = Wick.GUIElement.FRAME_GHOST_COLOR;
-        ctx.beginPath();
-        if(this._edge === 'right') {
-            ctx.roundRect(x, y, width + movePx, height, Wick.GUIElement.FRAME_BORDER_RADIUS);
-        } else if(this._edge === 'left') {
-            ctx.roundRect(x + movePx, y, width - movePx, height, Wick.GUIElement.FRAME_BORDER_RADIUS);
-        }
-        ctx.fill();
-        ctx.restore();
+            if(this._edge === 'right') {
+                this.moveCols = Math.max(-length + 1, this.moveCols);
+            } else if(this._edge === 'left') {
+                this.moveCols = Math.min(length - 1, this.moveCols);
+            }
+            if(this._edge === 'right') {
+                movePx = Math.max(movePx, this.moveCols * this.gridCellWidth);
+            } else if(this._edge === 'left') {
+                movePx = Math.min(movePx, this.moveCols * this.gridCellWidth);
+            }
+        });
 
-        // New length of frames based on grid cells moved
-        // (this makes it easy to tell where frames will land)
-        ctx.strokeStyle = '#00ff00';
-        ctx.setLineDash([5, 5]);
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        if(this._edge === 'right') {
-            ctx.roundRect(x, y, width + this.moveCols * this.gridCellWidth, height, Wick.GUIElement.FRAME_BORDER_RADIUS);
-        } else if(this._edge === 'left') {
-            var movePx = this.moveCols * this.gridCellWidth;
-            ctx.roundRect(x + movePx, y, width - movePx, height, Wick.GUIElement.FRAME_BORDER_RADIUS);
-        }
-        ctx.save();
-        ctx.globalAlpha = 0.8;
-            ctx.stroke();
-        ctx.restore();
+        this._frames.forEach(frame => {
+            var x = start * this.gridCellWidth;
+            var y = row * this.gridCellHeight;
+            var width = frame.length * this.gridCellWidth;
+            var height = this.gridCellHeight;
+
+            // Offset frame by it's position
+            var gridDiffX = frame.start - mainFrame.start;
+            var gridDiffY = frame.parentLayer.index - mainFrame.parentLayer.index;
+            ctx.save();
+            ctx.translate(gridDiffX * this.gridCellWidth, gridDiffY * this.gridCellHeight);
+
+            // New length of frames based on mouse x,y
+            // (this makes things feel more responsive)
+            ctx.save();
+            ctx.globalAlpha = 0.4;
+            ctx.fillStyle = Wick.GUIElement.FRAME_GHOST_COLOR;
+            ctx.beginPath();
+            if(this._edge === 'right') {
+                ctx.roundRect(x, y, width + movePx, height, Wick.GUIElement.FRAME_BORDER_RADIUS);
+            } else if(this._edge === 'left') {
+                ctx.roundRect(x + movePx, y, width - movePx, height, Wick.GUIElement.FRAME_BORDER_RADIUS);
+            }
+            ctx.fill();
+            ctx.restore();
+
+            // New length of frames based on grid cells moved
+            // (this makes it easy to tell where frames will land)
+            ctx.strokeStyle = '#00ff00';
+            ctx.setLineDash([5, 5]);
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            if(this._edge === 'right') {
+                ctx.roundRect(x, y, width + this.moveCols * this.gridCellWidth, height, Wick.GUIElement.FRAME_BORDER_RADIUS);
+            } else if(this._edge === 'left') {
+                var gridMovePx = this.moveCols * this.gridCellWidth;
+                ctx.roundRect(x + gridMovePx, y, width - gridMovePx, height, Wick.GUIElement.FRAME_BORDER_RADIUS);
+            }
+            ctx.save();
+            ctx.globalAlpha = 0.8;
+                ctx.stroke();
+            ctx.restore();
+
+            ctx.restore();
+        });
     }
 
     finish () {
-        var layer = this._mainFrame.parentLayer;
-        this._mainFrame.remove();
+        // Move frames
+        this._frames.forEach(frame => {
+            frame._originalLayer = frame.parentLayer;
+            frame.remove();
 
-        if(this._edge === 'right') {
-            this._mainFrame.end += this.moveCols;
-        } else if (this._edge === 'left') {
-            this._mainFrame.start += this.moveCols;
-        }
+            if(this._edge === 'right') {
+                frame.end += this.moveCols;
+            } else if (this._edge === 'left') {
+                frame.start += this.moveCols;
+            }
+        });
 
-        layer.addFrame(this._mainFrame);
+        // Re-add frames to trigger overlap/gap cleanup
+        this._frames.forEach(frame => {
+            frame._originalLayer.addFrame(frame);
+            delete frame._originalLayer;
+        });
     }
 }

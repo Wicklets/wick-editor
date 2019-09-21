@@ -175,4 +175,16 @@ describe('Wick.Selection', function() {
         expect(project.selection.isObjectSelected(frame3));
         expect(project.selection.isObjectSelected(frame4));
     });
+
+    describe('#getRightmostFrames', function () {
+        it('should return rightmost frames', function () {
+            throw new Error('write me');
+        });
+    });
+
+    describe('#getLeftmostFrames', function () {
+        it('should return leftmost frames', function () {
+            throw new Error('write me');
+        });
+    });
 });
