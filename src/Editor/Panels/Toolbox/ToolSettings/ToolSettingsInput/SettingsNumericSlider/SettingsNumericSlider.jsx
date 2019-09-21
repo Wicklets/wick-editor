@@ -10,9 +10,10 @@ class SettingsNumericSlider extends Component {
   constructor(props) {
     super(props);
 
+    this.sliderTimeout = null;
+
     this.state = {
         sliderOn: false,
-
     }
   }
 
@@ -29,13 +30,21 @@ class SettingsNumericSlider extends Component {
       </div>);
   }
 
-/**
- * @param {bool} val True will turn the slider on, false will turn the slider off.
- */
+  /**
+   * @param {bool} val True will turn the slider on, false will turn the slider off.
+   */
   setSlider(val) {
+      clearTimeout(this.sliderTimeout);
       this.setState({
           sliderOn : val,
       });
+  }
+
+  closeSlider = () => {
+      clearTimeout(this.sliderTimeout);
+      this.sliderTimeout = setTimeout(() => {
+          this.setSlider(false)
+      }, 400);
   }
 
   /**
@@ -50,22 +59,22 @@ class SettingsNumericSlider extends Component {
         onChange={this.props.onChange}
         value={this.props.value}
         {...this.props.inputRestrictions} />
-      ); 
+      );
   }
 
   render () {
       return (
-          <div 
-          className="settings-numeric-slider-container" 
+          <div
+          className="settings-numeric-slider-container"
           onMouseOver = {() => this.setSlider(true)}
-          onMouseLeave = {() => this.setSlider(false)}>
-            <Popover 
-            isOpen={this.state.sliderOn} 
-            preferPlace='below' 
+          onMouseLeave = {this.closeSlider}>
+            <Popover
+            isOpen={this.state.sliderOn}
+            preferPlace='below'
             enterExitTransitionDurationMs={200}
             refreshIntervalMs={100}
             body={this.getSliderNode()}
-            tipSize={5}> 
+            tipSize={5}>
                 <div className="settings-numeric-top-container">
                     <div className="settings-numeric-slider-icon">
                         <ToolIcon name={this.props.icon}/>

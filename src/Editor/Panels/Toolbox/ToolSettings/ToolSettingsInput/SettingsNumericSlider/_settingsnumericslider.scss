@@ -24,7 +24,7 @@ $tool-settings-size: $toolbox-min-button-size;
 $tool-settings-bottom-container-height: calc(2 * #{$tool-settings-size});
 
 .settings-numeric-slider-container {
-    
+
 }
 
 .settings-numeric-top-container {
@@ -35,7 +35,7 @@ $tool-settings-bottom-container-height: calc(2 * #{$tool-settings-size});
 
 .settings-numeric-slider-icon {
     height: calc(#{$tool-settings-size} * .6);
-    width: 50%; 
+    width: 50%;
 }
 
 .settings-numeric-wick-input-container {
@@ -46,7 +46,7 @@ $tool-settings-bottom-container-height: calc(2 * #{$tool-settings-size});
 .settings-numeric-bottom-container {
     position: absolute;
     z-index: 1;
-    left: 50; 
+    left: 50;
     top: 200;
     height: $tool-settings-bottom-container-height;
     width: 50px;
@@ -58,9 +58,8 @@ $tool-settings-bottom-container-height: calc(2 * #{$tool-settings-size});
     display: flex;
     justify-content: center;
     border-radius: 4px;
-    height: 100%; 
+    height: 100%;
     width: 105%;
-    background-color: $editor-primary; 
-    margin-top: 10px;
-    margin-left: 5px;
+    background-color: $editor-primary;
+    padding: 4px;
 }
