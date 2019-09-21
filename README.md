@@ -2,7 +2,7 @@
 
 These instructions are for MacOS and Linux, we currently don't have instructions for Windows, but if you need help please feel free to email zach@wickeditor.com.
 
-### Requirements 
+### Requirements
 
 You'll need to download the following:
 
@@ -12,7 +12,7 @@ You'll need to download the following:
 
 1) Clone this repository:
 
-`git clone https://github.com/Wicklets/wick-editor/` 
+`git clone https://github.com/Wicklets/wick-editor/`
 
 2) Using the command line, change directories into the newly created `wick-editor` folder:
 
@@ -34,9 +34,14 @@ You'll need to download the following:
 
 Have fun hacking on Wick!
 
-### Deploying
+### Deploying to Production
+
+To deploy, you'll need to have push access to this repo.
 
 1) Test the production build by using `npm predeploy`
 
 2) Run `npm run deploy`
 
+### Deploying to Prerelease
+
+1) Run `npm run prerelease-deploy`
