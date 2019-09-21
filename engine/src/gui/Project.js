@@ -248,7 +248,7 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
             }
         }
     }
-    
+
     _onMouseMove (e) {
         // Update mouse position
         var rect = this._canvas.getBoundingClientRect();
@@ -331,6 +331,9 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
 
         // Call mousemove so that the next mouse targets can be found without having to move the mouse again
         this._onMouseMove(e);
+
+        clearInterval(this.autoscrollInterval);
+        this.autoscrollInterval = null;
     }
 
     _onMouseDrag (e) {
@@ -360,22 +363,40 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
     }
 
     _doAutoScroll (target) {
-        if(target.canAutoScrollX) {
-            if(this._mouse.x > this.canvas.width) {
-                this.scrollX += Wick.GUIElement.AUTO_SCROLL_SPEED;
+        if(this.autoscrollInterval) return;
+
+        this.autoscrollInterval = setInterval(() => {
+            var left = Wick.GUIElement.LAYERS_CONTAINER_WIDTH;
+            var right = this.canvas.width - Wick.GUIElement.SCROLLBAR_SIZE;
+            var top = Wick.GUIElement.NUMBER_LINE_HEIGHT + Wick.GUIElement.BREADCRUMBS_HEIGHT;
+            var bottom = this.canvas.height - Wick.GUIElement.SCROLLBAR_SIZE;
+
+            var distFromLeft = this._mouse.x - left;
+            var distFromRight = this._mouse.x - right;
+            var distFromTop = this._mouse.y - top;
+            var distFromBottom = this._mouse.y - bottom;
+
+            if(target.canAutoScrollX) {
+                if(this._mouse.x > right) {
+                    this.scrollX += distFromRight * Wick.GUIElement.AUTO_SCROLL_SPEED;
+                }
+                if(this._mouse.x < left) {
+                    this.scrollX += distFromLeft * Wick.GUIElement.AUTO_SCROLL_SPEED;
+                }
             }
-            if(this._mouse.x < Wick.GUIElement.LAYERS_CONTAINER_WIDTH) {
-                this.scrollX -= Wick.GUIElement.AUTO_SCROLL_SPEED;
+            if(target.canAutoScrollY) {
+                if(this._mouse.y > bottom) {
+                    this.scrollY += distFromBottom * Wick.GUIElement.AUTO_SCROLL_SPEED;
+                }
+                if(this._mouse.y < top) {
+                    this.scrollY += distFromTop * Wick.GUIElement.AUTO_SCROLL_SPEED;
+                }
             }
-        }
-        if(target.canAutoScrollY) {
-            if(this._mouse.y > this.canvas.height) {
-                this.scrollY += Wick.GUIElement.AUTO_SCROLL_SPEED;
-            }
-            if(this._mouse.y < Wick.GUIElement.NUMBER_LINE_HEIGHT + Wick.GUIElement.BREADCRUMBS_HEIGHT) {
-                this.scrollY -= Wick.GUIElement.AUTO_SCROLL_SPEED;
-            }
-        }
+
+            console.log(this.scrollX)
+
+            this.draw();
+        }, 16);
     }
 
     _mouseHasMoved (origMouse, currMouse, amount) {
