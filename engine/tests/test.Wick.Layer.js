@@ -205,7 +205,7 @@ describe('Wick.Layer', function() {
             expect(layer.getFrameAtPlayheadPosition(3)).to.equal(layer.getFrameAtPlayheadPosition(4));
         });
 
-        it('gaps should be filled when frame length is changed through selection (blank_frames method)', function () {
+        it('gaps should be filled when frame length is changed through selection', function () {
             var project = new Wick.Project();
             project.activeTimeline.fillGapsMethod = 'blank_frames';
 
@@ -234,10 +234,6 @@ describe('Wick.Layer', function() {
             expect(project.activeLayer.getFrameAtPlayheadPosition(2)).to.not.equal(frame2);
             expect(project.activeLayer.getFrameAtPlayheadPosition(3)).to.not.equal(frame2);
             expect(project.activeLayer.getFrameAtPlayheadPosition(4)).to.not.equal(frame2);
-        });
-
-        it('gaps should be filled when frame length is changed through selection (extend frames method)', function () {
-            throw new Error('todo')
         });
     });
 });

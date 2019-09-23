@@ -10,11 +10,11 @@ describe('Wick.Tickable', function() {
     });
 
     describe('#scripts', function () {
-
+        // TODO
     });
 
     describe('#onScreen', function () {
-
+        // TODO
     });
 
     describe('#addScript', function () {

@@ -511,7 +511,30 @@ describe('Wick.Frame', function() {
         });
 
         it('should create a tween and convert everything on the frame into one clip (single path)', function () {
-            // TODO
+            var project = new Wick.Project();
+
+            var path = TestUtils.paperToWickPath(new paper.Path.Rectangle({
+                from: new paper.Point(50,50),
+                to: new paper.Point(100,100),
+                fillColor: 'red',
+            }));
+
+            project.activeFrame.addPath(path);
+
+            project.activeFrame.createTween();
+
+            expect(project.activeFrame.paths.length).to.equal(0);
+            expect(project.activeFrame.clips.length).to.equal(1);
+
+            expect(project.activeFrame.tweens.length).to.equal(1);
+
+            expect(project.activeFrame.tweens[0].playheadPosition).to.equal(1);
+            expect(project.activeFrame.tweens[0].transformation.x).to.equal(100);
+            expect(project.activeFrame.tweens[0].transformation.y).to.equal(100);
+            expect(project.activeFrame.tweens[0].transformation.scaleX).to.equal(1);
+            expect(project.activeFrame.tweens[0].transformation.scaleY).to.equal(1);
+            expect(project.activeFrame.tweens[0].transformation.rotation).to.equal(0);
+            expect(project.activeFrame.tweens[0].transformation.opacity).to.equal(1);
         });
     });
 

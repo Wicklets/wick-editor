@@ -1092,7 +1092,7 @@ describe('Wick.Project', function() {
             // TODO
         })
 
-        it('should not select items on locked layers', function () {
+        it('should not select items on locked/hidden layers', function () {
             // TODO
         })
     });

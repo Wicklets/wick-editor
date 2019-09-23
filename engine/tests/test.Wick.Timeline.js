@@ -280,6 +280,4 @@ describe('Wick.Timeline', function() {
 
         firstPlay();
     });
-
-    /*resolveFrameOverlap*/
 });
