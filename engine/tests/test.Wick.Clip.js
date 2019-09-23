@@ -1,4 +1,3 @@
-// TODO
 describe('Wick.Clip', function() {
     describe('#constructor', function () {
         it('should instantiate correctly', function() {
@@ -1301,18 +1300,39 @@ describe('Wick.Clip', function() {
 
                 clip1.remove();
                 clip1.remove();
-                
-                expect(clip1.parent).to.be.null;
-                done(); 
+
+                expect(clip1.parent).to.equal(null);
+                done();
             });
         });
     });
 
-    it('isRoot should work', function () {
-        // TODO
+    describe('#isRoot', function() {
+        it('isRoot should work', function () {
+            var project = new Wick.Project();
+
+            var clip = new Wick.Clip({identifier: 'clip1'});
+            project.activeFrame.addClip(clip);
+
+            expect(project.root.isRoot).to.equal(true);
+            expect(clip.isRoot).to.equal(false);
+        });
     });
 
-    it('isFocus should work', function () {
-        // TODO
+    describe('#isRoot', function() {
+        it('isFocus should work', function () {
+            var project = new Wick.Project();
+
+            var clip = new Wick.Clip({identifier: 'clip1'});
+            project.activeFrame.addClip(clip);
+
+            expect(project.root.isFocus).to.equal(true);
+            expect(clip.isFocus).to.equal(false);
+
+            project.focus = clip;
+
+            expect(project.root.isFocus).to.equal(false);
+            expect(clip.isFocus).to.equal(true);
+        });
     });
 });

@@ -187,4 +187,50 @@ describe('Wick.Selection', function() {
             throw new Error('write me');
         });
     });
+
+    it('should automatically create tweens when objects are moved on a tweened frame', function () {
+        var project = new Wick.Project();
+
+        var frame = project.activeFrame;
+        frame.end = 9;
+
+        var clip = new Wick.Clip();
+        frame.addClip(clip);
+
+        var tweenA = new Wick.Tween({
+            playheadPosition: 1,
+            transformation: new Wick.Transformation({
+                x: 0,
+                y: 0,
+                scaleX: 1,
+                scaleY: 1,
+                rotation: 0,
+                opacity: 1,
+            }),
+            fullRotations: 0,
+        });
+        var tweenB = new Wick.Tween({
+            playheadPosition: 9,
+            transformation: new Wick.Transformation({
+                x: 100,
+                y: 200,
+                scaleX: 2,
+                scaleY: 0.5,
+                rotation: 180,
+                opacity: 0.0,
+            }),
+            fullRotations: 0,
+        });
+        frame.addTween(tweenA);
+        frame.addTween(tweenB);
+
+        project.activeTimeline.playheadPosition = 5;
+        project.selection.select(clip);
+        project.selection.x = 300;
+
+        expect(frame.tweens.length).to.equal(3);
+        expect(frame.getTweenAtPosition(1)).to.equal(tweenA);
+        expect(frame.getTweenAtPosition(9)).to.equal(tweenB);
+        expect(frame.getTweenAtPosition(5).transformation.x).to.equal(300);
+    });
 });

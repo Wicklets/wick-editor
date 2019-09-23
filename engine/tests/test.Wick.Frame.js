@@ -515,10 +515,6 @@ describe('Wick.Frame', function() {
         });
     });
 
-    it('should automatically create tweens when objects are moved on a tweened frame', function () {
-        // TODO
-    });
-
     describe('#dynamicTextPaths', function () {
         it('should return all dynamic text paths', function () {
             var frame = new Wick.Frame();
