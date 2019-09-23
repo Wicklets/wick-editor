@@ -3,6 +3,8 @@ describe('Wick.Button', function() {
         it('should instantiate correctly', function() {
             var button = new Wick.Button();
             expect(button.classname).to.equal('Button');
+            expect(button.scripts.length).to.equal(1);
+            expect(button.getScript('mouseclick').src).to.equal('');
         });
     });
 
@@ -55,7 +57,7 @@ describe('Wick.Button', function() {
 
             var button = new Wick.Button();
             project.activeFrame.addClip(button);
-            
+
             button.timeline.activeLayer.getFrameAtPlayheadPosition(3).remove();
 
             var frame1 = button.timeline.activeLayer.getFrameAtPlayheadPosition(1);

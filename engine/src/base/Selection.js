@@ -345,7 +345,6 @@ Wick.Selection = class extends Wick.Base {
 
     set x (x) {
         this.view.x = x;
-        this._checkAutoAddTween();
     }
 
     /**
@@ -358,7 +357,6 @@ Wick.Selection = class extends Wick.Base {
 
     set y (y) {
         this.view.y = y;
-        this._checkAutoAddTween();
     }
 
     /**
@@ -371,7 +369,6 @@ Wick.Selection = class extends Wick.Base {
 
     set width (width) {
         this.view.width = width;
-        this._checkAutoAddTween();
     }
 
     /**
@@ -384,7 +381,6 @@ Wick.Selection = class extends Wick.Base {
 
     set height (height) {
         this.view.height = height;
-        this._checkAutoAddTween();
     }
 
     /**
@@ -397,7 +393,6 @@ Wick.Selection = class extends Wick.Base {
 
     set rotation (rotation) {
         this.view.rotation = rotation;
-        this._checkAutoAddTween();
     }
 
     /**
@@ -405,7 +400,6 @@ Wick.Selection = class extends Wick.Base {
      */
     flipHorizontally () {
         this.view.flipHorizontally();
-        this._checkAutoAddTween();
     }
 
     /**
@@ -413,7 +407,6 @@ Wick.Selection = class extends Wick.Base {
      */
     flipVertically () {
         this.view.flipVertically();
-        this._checkAutoAddTween();
     }
 
     /**
@@ -761,17 +754,5 @@ Wick.Selection = class extends Wick.Base {
         }).forEach(frame => {
             this._selectedObjectsUUIDs.push(frame.uuid);
         });
-    }
-
-    /* Helper function to automatically create tweens when tweened objects are moved. */
-    _checkAutoAddTween () {
-        if(this.location !== 'Cavnas' || this.numObjects === 0) {
-            return;
-        }
-
-        var selectionFrame = this.getSelectedObject().parentFrame;
-        if(selectionFrame.tweens.length > 0) {
-            selectionFrame.createTween();
-        }
     }
 }

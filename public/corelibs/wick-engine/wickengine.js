@@ -2200,6 +2200,306 @@ Wick.Base = class {
   }
 
 };
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* Copyright 2019 WICKLETS LLC
+*
+* This file is part of Wick Engine.
+*
+* Wick Engine is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Wick Engine is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
+/**
+ * Represents a Wick Layer.
+ */
+Wick.Layer = class extends Wick.Base {
+  /**
+   * Called when creating a Wick Layer.
+   * @param {boolean} locked - Is the layer locked?
+   * @param {boolean} hideen - Is the layer hidden?
+   */
+  constructor(args) {
+    if (!args) args = {};
+    super(args);
+    this.locked = args.locked === undefined ? false : args.locked;
+    this.hidden = args.hidden === undefined ? false : args.hidden;
+    this.name = args.name || null;
+  }
+
+  serialize(args) {
+    var data = super.serialize(args);
+    data.locked = this.locked;
+    data.hidden = this.hidden;
+    return data;
+  }
+
+  deserialize(data) {
+    super.deserialize(data);
+    this.locked = data.locked;
+    this.hidden = data.hidden;
+  }
+
+  get classname() {
+    return 'Layer';
+  }
+  /**
+   * The frames belonging to this layer.
+   * @type {Wick.Frame[]}
+   */
+
+
+  get frames() {
+    return this.getChildren('Frame');
+  }
+  /**
+   * The order of the Layer in the timeline.
+   * @type {number}
+   */
+
+
+  get index() {
+    return this.parent && this.parent.layers.indexOf(this);
+  }
+  /**
+   * Set this layer to be the active layer in its timeline.
+   */
+
+
+  activate() {
+    this.parent.activeLayerIndex = this.index;
+  }
+  /**
+   * True if this layer is the active layer in its timeline.
+   * @type {boolean}
+   */
+
+
+  get isActive() {
+    return this.parent && this === this.parent.activeLayer;
+  }
+  /**
+   * The length of the layer in frames.
+   * @type {number}
+   */
+
+
+  get length() {
+    var end = 0;
+    this.frames.forEach(function (frame) {
+      if (frame.end > end) {
+        end = frame.end;
+      }
+    });
+    return end;
+  }
+  /**
+   * The active frame on the layer.
+   * @type {Wick.Frame}
+   */
+
+
+  get activeFrame() {
+    if (!this.parent) return null;
+    return this.getFrameAtPlayheadPosition(this.parent.playheadPosition);
+  }
+  /**
+   * Moves this layer to a different position, inserting it before/after other layers if needed.
+   * @param {number} index - the new position to move the layer to.
+   */
+
+
+  move(index) {
+    this.parentTimeline.moveLayer(this, index);
+  }
+  /**
+   * Remove this layer from its timeline.
+   */
+
+
+  remove() {
+    this.parentTimeline.removeLayer(this);
+  }
+  /**
+   * Adds a frame to the layer.
+   * @param {Wick.Frame} frame - The frame to add to the Layer.
+   */
+
+
+  addFrame(frame) {
+    this.addChild(frame);
+    this.resolveOverlap([frame]);
+    this.resolveGaps([frame]);
+  }
+  /**
+   * Removes a frame from the Layer.
+   * @param  {Wick.Frame} frame Frame to remove.
+   */
+
+
+  removeFrame(frame) {
+    this.removeChild(frame);
+    this.resolveGaps();
+  }
+  /**
+   * Gets the frame at a specific playhead position.
+   * @param {number} playheadPosition - Playhead position to search for frame at.
+   * @return {Wick.Frame} The frame at the given playheadPosition.
+   */
+
+
+  getFrameAtPlayheadPosition(playheadPosition) {
+    return this.frames.find(frame => {
+      return frame.inPosition(playheadPosition);
+    });
+  }
+  /**
+   * Gets all frames in the layer that are between the two given playhead positions.
+   * @param {number} playheadPositionStart - The start of the range to search
+   * @param {number} playheadPositionEnd - The end of the range to search
+   * @return {Wick.Frame[]} The frames in the given range.
+   */
+
+
+  getFramesInRange(playheadPositionStart, playheadPositionEnd) {
+    return this.frames.filter(frame => {
+      return frame.inRange(playheadPositionStart, playheadPositionEnd);
+    });
+  }
+  /**
+   * Gets all frames in the layer that are contained within the two given playhead positions.
+   * @param {number} playheadPositionStart - The start of the range to search
+   * @param {number} playheadPositionEnd - The end of the range to search
+   * @return {Wick.Frame[]} The frames contained in the given range.
+   */
+
+
+  getFramesContainedWithin(playheadPositionStart, playheadPositionEnd) {
+    return this.frames.filter(frame => {
+      return frame.containedWithin(playheadPositionStart, playheadPositionEnd);
+    });
+  }
+  /**
+   * Prevents frames from overlapping each other by removing pieces of frames that are touching.
+   * @param {Wick.Frame[]} newOrModifiedFrames - the frames that should take precedence when determining which frames should get "eaten".
+   */
+
+
+  resolveOverlap(newOrModifiedFrames) {
+    newOrModifiedFrames = newOrModifiedFrames || []; // Ensure that frames never go beyond the beginning of the timeline
+
+    newOrModifiedFrames.forEach(frame => {
+      if (frame.start <= 1) {
+        frame.start = 1;
+      }
+    });
+
+    var isEdible = existingFrame => {
+      return newOrModifiedFrames.indexOf(existingFrame) === -1;
+    };
+
+    newOrModifiedFrames.forEach(frame => {
+      // "Full eat"
+      // The frame completely eats the other frame.
+      var containedFrames = this.getFramesContainedWithin(frame.start, frame.end);
+      containedFrames.filter(isEdible).forEach(existingFrame => {
+        existingFrame.remove();
+      }); // "Right eat"
+      // The frame takes a chunk out of the right side of another frame.
+
+      this.frames.filter(isEdible).forEach(existingFrame => {
+        if (existingFrame.inPosition(frame.start) && existingFrame.start !== frame.start) {
+          existingFrame.end = frame.start - 1;
+        }
+      }); // "Left eat"
+      // The frame takes a chunk out of the left side of another frame.
+
+      this.frames.filter(isEdible).forEach(existingFrame => {
+        if (existingFrame.inPosition(frame.end) && existingFrame.end !== frame.end) {
+          existingFrame.start = frame.end + 1;
+        }
+      });
+    });
+  }
+  /**
+   * Prevents gaps between frames by extending frames to fill empty space between themselves.
+   */
+
+
+  resolveGaps(newOrModifiedFrames) {
+    if (this.parentTimeline && this.parentTimeline.waitToFillFrameGaps) return;
+    newOrModifiedFrames = newOrModifiedFrames || [];
+    var fillGapsMethod = this.parentTimeline && this.parentTimeline.fillGapsMethod;
+    if (!fillGapsMethod) fillGapsMethod = 'blank_frames';
+    this.findGaps().forEach(gap => {
+      // Method 1: Use the frame on the left (if there is one) to fill the gap
+      if (fillGapsMethod === 'auto_extend') {
+        var frameOnLeft = this.getFrameAtPlayheadPosition(gap.start - 1);
+
+        if (!frameOnLeft || newOrModifiedFrames.indexOf(frameOnLeft) !== -1 || gap.start === 1) {
+          // If there is no frame on the left, create a blank one
+          var empty = new Wick.Frame({
+            start: gap.start,
+            end: gap.end
+          });
+          this.addFrame(empty);
+        } else {
+          // Otherwise, extend the frame to the left to fill the gap
+          frameOnLeft.end = gap.end;
+        }
+      } // Method 2: Always create empty frames to fill gaps
+
+
+      if (fillGapsMethod === 'blank_frames') {
+        var empty = new Wick.Frame({
+          start: gap.start,
+          end: gap.end
+        });
+        this.addFrame(empty);
+      }
+    });
+  }
+  /**
+   * Generate a list of positions where there is empty space between frames.
+   * @returns {Object[]} An array of objects with start/end positions describing gaps.
+   */
+
+
+  findGaps() {
+    var gaps = [];
+    var currentGap = null;
+
+    for (var i = 1; i <= this.length; i++) {
+      var frame = this.getFrameAtPlayheadPosition(i); // Found the start of a gap
+
+      if (!frame && !currentGap) {
+        currentGap = {};
+        currentGap.start = i;
+      } // Found the end of a gap
+
+
+      if (frame && currentGap) {
+        currentGap.end = i - 1;
+        gaps.push(currentGap);
+        currentGap = null;
+      }
+    }
+
+    return gaps;
+  }
+
+};
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -18920,306 +19220,6 @@ if (typeof define === 'function' && define.amd) {
 return paper;
 }.call(this, typeof self === 'object' ? self : null);
 
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-
-/**
- * Represents a Wick Layer.
- */
-Wick.Layer = class extends Wick.Base {
-  /**
-   * Called when creating a Wick Layer.
-   * @param {boolean} locked - Is the layer locked?
-   * @param {boolean} hideen - Is the layer hidden?
-   */
-  constructor(args) {
-    if (!args) args = {};
-    super(args);
-    this.locked = args.locked === undefined ? false : args.locked;
-    this.hidden = args.hidden === undefined ? false : args.hidden;
-    this.name = args.name || null;
-  }
-
-  serialize(args) {
-    var data = super.serialize(args);
-    data.locked = this.locked;
-    data.hidden = this.hidden;
-    return data;
-  }
-
-  deserialize(data) {
-    super.deserialize(data);
-    this.locked = data.locked;
-    this.hidden = data.hidden;
-  }
-
-  get classname() {
-    return 'Layer';
-  }
-  /**
-   * The frames belonging to this layer.
-   * @type {Wick.Frame[]}
-   */
-
-
-  get frames() {
-    return this.getChildren('Frame');
-  }
-  /**
-   * The order of the Layer in the timeline.
-   * @type {number}
-   */
-
-
-  get index() {
-    return this.parent && this.parent.layers.indexOf(this);
-  }
-  /**
-   * Set this layer to be the active layer in its timeline.
-   */
-
-
-  activate() {
-    this.parent.activeLayerIndex = this.index;
-  }
-  /**
-   * True if this layer is the active layer in its timeline.
-   * @type {boolean}
-   */
-
-
-  get isActive() {
-    return this.parent && this === this.parent.activeLayer;
-  }
-  /**
-   * The length of the layer in frames.
-   * @type {number}
-   */
-
-
-  get length() {
-    var end = 0;
-    this.frames.forEach(function (frame) {
-      if (frame.end > end) {
-        end = frame.end;
-      }
-    });
-    return end;
-  }
-  /**
-   * The active frame on the layer.
-   * @type {Wick.Frame}
-   */
-
-
-  get activeFrame() {
-    if (!this.parent) return null;
-    return this.getFrameAtPlayheadPosition(this.parent.playheadPosition);
-  }
-  /**
-   * Moves this layer to a different position, inserting it before/after other layers if needed.
-   * @param {number} index - the new position to move the layer to.
-   */
-
-
-  move(index) {
-    this.parentTimeline.moveLayer(this, index);
-  }
-  /**
-   * Remove this layer from its timeline.
-   */
-
-
-  remove() {
-    this.parentTimeline.removeLayer(this);
-  }
-  /**
-   * Adds a frame to the layer.
-   * @param {Wick.Frame} frame - The frame to add to the Layer.
-   */
-
-
-  addFrame(frame) {
-    this.addChild(frame);
-    this.resolveOverlap([frame]);
-    this.resolveGaps([frame]);
-  }
-  /**
-   * Removes a frame from the Layer.
-   * @param  {Wick.Frame} frame Frame to remove.
-   */
-
-
-  removeFrame(frame) {
-    this.removeChild(frame);
-    this.resolveGaps();
-  }
-  /**
-   * Gets the frame at a specific playhead position.
-   * @param {number} playheadPosition - Playhead position to search for frame at.
-   * @return {Wick.Frame} The frame at the given playheadPosition.
-   */
-
-
-  getFrameAtPlayheadPosition(playheadPosition) {
-    return this.frames.find(frame => {
-      return frame.inPosition(playheadPosition);
-    });
-  }
-  /**
-   * Gets all frames in the layer that are between the two given playhead positions.
-   * @param {number} playheadPositionStart - The start of the range to search
-   * @param {number} playheadPositionEnd - The end of the range to search
-   * @return {Wick.Frame[]} The frames in the given range.
-   */
-
-
-  getFramesInRange(playheadPositionStart, playheadPositionEnd) {
-    return this.frames.filter(frame => {
-      return frame.inRange(playheadPositionStart, playheadPositionEnd);
-    });
-  }
-  /**
-   * Gets all frames in the layer that are contained within the two given playhead positions.
-   * @param {number} playheadPositionStart - The start of the range to search
-   * @param {number} playheadPositionEnd - The end of the range to search
-   * @return {Wick.Frame[]} The frames contained in the given range.
-   */
-
-
-  getFramesContainedWithin(playheadPositionStart, playheadPositionEnd) {
-    return this.frames.filter(frame => {
-      return frame.containedWithin(playheadPositionStart, playheadPositionEnd);
-    });
-  }
-  /**
-   * Prevents frames from overlapping each other by removing pieces of frames that are touching.
-   * @param {Wick.Frame[]} newOrModifiedFrames - the frames that should take precedence when determining which frames should get "eaten".
-   */
-
-
-  resolveOverlap(newOrModifiedFrames) {
-    newOrModifiedFrames = newOrModifiedFrames || []; // Ensure that frames never go beyond the beginning of the timeline
-
-    newOrModifiedFrames.forEach(frame => {
-      if (frame.start <= 1) {
-        frame.start = 1;
-      }
-    });
-
-    var isEdible = existingFrame => {
-      return newOrModifiedFrames.indexOf(existingFrame) === -1;
-    };
-
-    newOrModifiedFrames.forEach(frame => {
-      // "Full eat"
-      // The frame completely eats the other frame.
-      var containedFrames = this.getFramesContainedWithin(frame.start, frame.end);
-      containedFrames.filter(isEdible).forEach(existingFrame => {
-        existingFrame.remove();
-      }); // "Right eat"
-      // The frame takes a chunk out of the right side of another frame.
-
-      this.frames.filter(isEdible).forEach(existingFrame => {
-        if (existingFrame.inPosition(frame.start) && existingFrame.start !== frame.start) {
-          existingFrame.end = frame.start - 1;
-        }
-      }); // "Left eat"
-      // The frame takes a chunk out of the left side of another frame.
-
-      this.frames.filter(isEdible).forEach(existingFrame => {
-        if (existingFrame.inPosition(frame.end) && existingFrame.end !== frame.end) {
-          existingFrame.start = frame.end + 1;
-        }
-      });
-    });
-  }
-  /**
-   * Prevents gaps between frames by extending frames to fill empty space between themselves.
-   */
-
-
-  resolveGaps(newOrModifiedFrames) {
-    if (this.parentTimeline && this.parentTimeline.waitToFillFrameGaps) return;
-    newOrModifiedFrames = newOrModifiedFrames || [];
-    var fillGapsMethod = this.parentTimeline && this.parentTimeline.fillGapsMethod;
-    if (!fillGapsMethod) fillGapsMethod = 'blank_frames';
-    this.findGaps().forEach(gap => {
-      // Method 1: Use the frame on the left (if there is one) to fill the gap
-      if (fillGapsMethod === 'auto_extend') {
-        var frameOnLeft = this.getFrameAtPlayheadPosition(gap.start - 1);
-
-        if (!frameOnLeft || newOrModifiedFrames.indexOf(frameOnLeft) !== -1 || gap.start === 1) {
-          // If there is no frame on the left, create a blank one
-          var empty = new Wick.Frame({
-            start: gap.start,
-            end: gap.end
-          });
-          this.addFrame(empty);
-        } else {
-          // Otherwise, extend the frame to the left to fill the gap
-          frameOnLeft.end = gap.end;
-        }
-      } // Method 2: Always create empty frames to fill gaps
-
-
-      if (fillGapsMethod === 'blank_frames') {
-        var empty = new Wick.Frame({
-          start: gap.start,
-          end: gap.end
-        });
-        this.addFrame(empty);
-      }
-    });
-  }
-  /**
-   * Generate a list of positions where there is empty space between frames.
-   * @returns {Object[]} An array of objects with start/end positions describing gaps.
-   */
-
-
-  findGaps() {
-    var gaps = [];
-    var currentGap = null;
-
-    for (var i = 1; i <= this.length; i++) {
-      var frame = this.getFrameAtPlayheadPosition(i); // Found the start of a gap
-
-      if (!frame && !currentGap) {
-        currentGap = {};
-        currentGap.start = i;
-      } // Found the end of a gap
-
-
-      if (frame && currentGap) {
-        currentGap.end = i - 1;
-        gaps.push(currentGap);
-        currentGap = null;
-      }
-    }
-
-    return gaps;
-  }
-
-};
 /*
  * base64-arraybuffer
  * https://github.com/niklasvh/base64-arraybuffer
@@ -19293,10 +19293,6 @@ var Base64ArrayBuffer = (function () {
 
 })();
 
-// https://stackoverflow.com/questions/14224535/scaling-between-two-number-ranges
-function convertRange( value, r1, r2 ) { 
-    return ( value - r1[ 0 ] ) * ( r2[ 1 ] - r2[ 0 ] ) / ( r1[ 1 ] - r1[ 0 ] ) + r2[ 0 ];
-}
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
@@ -20545,6 +20541,10 @@ Wick.Project = class extends Wick.Base {
   }
 
 };
+// https://stackoverflow.com/questions/14224535/scaling-between-two-number-ranges
+function convertRange( value, r1, r2 ) { 
+    return ( value - r1[ 0 ] ) * ( r2[ 1 ] - r2[ 0 ] ) / ( r1[ 1 ] - r1[ 0 ] ) + r2[ 0 ];
+}
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
@@ -25096,7 +25096,7 @@ Wick.Tickable = class extends Wick.Base {
   }
   /**
    * The scripts on this object.
-   * @type {Wick.Script[]}
+   * @type {object[]}
    */
 
 
@@ -32276,7 +32276,6 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ ])
 });
 ;
-var floodfill=(function(){function f(p,v,u,l,t,g,B){var k=p.length;var q=[];var o=(v+u*g)*4;var r=o,z=o,s,A,n=g*4;var h=[p[o],p[o+1],p[o+2],p[o+3]];if(!a(o,h,l,p,k,t)){return false}q.push(o);while(q.length){o=q.pop();if(e(o,h,l,p,k,t)){r=o;z=o;A=parseInt(o/n)*n;s=A+n;while(A<z&&A<(z-=4)&&e(z,h,l,p,k,t)){}while(s>r&&s>(r+=4)&&e(r,h,l,p,k,t)){}for(var m=z+4;m<r;m+=4){if(m-n>=0&&a(m-n,h,l,p,k,t)){q.push(m-n)}if(m+n<k&&a(m+n,h,l,p,k,t)){q.push(m+n)}}}}return p}function a(j,l,h,m,k,g){if(j<0||j>=k){return false}if(m[j+3]===0&&h.a>0){return true}if(Math.abs(l[3]-h.a)<=g&&Math.abs(l[0]-h.r)<=g&&Math.abs(l[1]-h.g)<=g&&Math.abs(l[2]-h.b)<=g){return false}if((l[3]===m[j+3])&&(l[0]===m[j])&&(l[1]===m[j+1])&&(l[2]===m[j+2])){return true}if(Math.abs(l[3]-m[j+3])<=(255-g)&&Math.abs(l[0]-m[j])<=g&&Math.abs(l[1]-m[j+1])<=g&&Math.abs(l[2]-m[j+2])<=g){return true}return false}function e(j,l,h,m,k,g){if(a(j,l,h,m,k,g)){m[j]=h.r;m[j+1]=h.g;m[j+2]=h.b;m[j+3]=h.a;return true}return false}function b(j,n,m,i,k,g,o){if(!j instanceof Uint8ClampedArray){throw new Error("data must be an instance of Uint8ClampedArray")}if(isNaN(g)||g<1){throw new Error("argument 'width' must be a positive integer")}if(isNaN(o)||o<1){throw new Error("argument 'height' must be a positive integer")}if(isNaN(n)||n<0){throw new Error("argument 'x' must be a positive integer")}if(isNaN(m)||m<0){throw new Error("argument 'y' must be a positive integer")}if(g*o*4!==j.length){throw new Error("width and height do not fit Uint8ClampedArray dimensions")}var l=Math.floor(n);var h=Math.floor(m);if(l!==n){console.warn("x truncated from",n,"to",l)}if(h!==m){console.warn("y truncated from",m,"to",h)}k=(!isNaN(k))?Math.min(Math.abs(Math.round(k)),254):0;return f(j,l,h,i,k,g,o)}var d=function(l){var h=document.createElement("div");var g={r:0,g:0,b:0,a:0};h.style.color=l;h.style.display="none";document.body.appendChild(h);var i=window.getComputedStyle(h,null).color;document.body.removeChild(h);var k=/([\.\d]+)/g;var j=i.match(k);if(j&&j.length>2){g.r=parseInt(j[0])||0;g.g=parseInt(j[1])||0;g.b=parseInt(j[2])||0;g.a=Math.round((parseFloat(j[3])||1)*255)}return g};function c(p,n,m,i,o,q,g){var s=this;var k=d(this.fillStyle);i=(isNaN(i))?0:i;o=(isNaN(o))?0:o;q=(!isNaN(q)&&q)?Math.min(Math.abs(q),s.canvas.width):s.canvas.width;g=(!isNaN(g)&&g)?Math.min(Math.abs(g),s.canvas.height):s.canvas.height;var j=s.getImageData(i,o,q,g);var l=j.data;var h=j.width;var r=j.height;if(h>0&&r>0){b(l,p,n,k,m,h,r);s.putImageData(j,i,o)}}if(typeof CanvasRenderingContext2D!="undefined"){CanvasRenderingContext2D.prototype.fillFlood=c}return b})();
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
@@ -32703,7 +32702,14 @@ Wick.Frame = class extends Wick.Tickable {
 
 
   createTween() {
-    // If more than one object exists on the frame, or if there is only one path, create a clip from those objects
+    // Don't make a tween if one already exits
+    var playheadPosition = this.getRelativePlayheadPosition();
+
+    if (this.getTweenAtPosition(playheadPosition)) {
+      return;
+    } // If more than one object exists on the frame, or if there is only one path, create a clip from those objects
+
+
     var numClips = this.clips.length;
     var numPaths = this.paths.length;
 
@@ -32723,15 +32729,11 @@ Wick.Frame = class extends Wick.Tickable {
     } // Create the tween (if there's not already a tween at the current playhead position)
 
 
-    var playheadPosition = this.getRelativePlayheadPosition();
-
-    if (!this.getTweenAtPosition(playheadPosition)) {
-      var clip = this.clips[0];
-      this.addTween(new Wick.Tween({
-        playheadPosition: playheadPosition,
-        transformation: clip ? clip.transformation.copy() : new Wick.Transformation()
-      }));
-    }
+    var clip = this.clips[0];
+    this.addTween(new Wick.Tween({
+      playheadPosition: playheadPosition,
+      transformation: clip ? clip.transformation.copy() : new Wick.Transformation()
+    }));
   }
   /**
    * Remove a tween from the frame.
@@ -32960,6 +32962,7 @@ Wick.Frame = class extends Wick.Tickable {
   }
 
 };
+var floodfill=(function(){function f(p,v,u,l,t,g,B){var k=p.length;var q=[];var o=(v+u*g)*4;var r=o,z=o,s,A,n=g*4;var h=[p[o],p[o+1],p[o+2],p[o+3]];if(!a(o,h,l,p,k,t)){return false}q.push(o);while(q.length){o=q.pop();if(e(o,h,l,p,k,t)){r=o;z=o;A=parseInt(o/n)*n;s=A+n;while(A<z&&A<(z-=4)&&e(z,h,l,p,k,t)){}while(s>r&&s>(r+=4)&&e(r,h,l,p,k,t)){}for(var m=z+4;m<r;m+=4){if(m-n>=0&&a(m-n,h,l,p,k,t)){q.push(m-n)}if(m+n<k&&a(m+n,h,l,p,k,t)){q.push(m+n)}}}}return p}function a(j,l,h,m,k,g){if(j<0||j>=k){return false}if(m[j+3]===0&&h.a>0){return true}if(Math.abs(l[3]-h.a)<=g&&Math.abs(l[0]-h.r)<=g&&Math.abs(l[1]-h.g)<=g&&Math.abs(l[2]-h.b)<=g){return false}if((l[3]===m[j+3])&&(l[0]===m[j])&&(l[1]===m[j+1])&&(l[2]===m[j+2])){return true}if(Math.abs(l[3]-m[j+3])<=(255-g)&&Math.abs(l[0]-m[j])<=g&&Math.abs(l[1]-m[j+1])<=g&&Math.abs(l[2]-m[j+2])<=g){return true}return false}function e(j,l,h,m,k,g){if(a(j,l,h,m,k,g)){m[j]=h.r;m[j+1]=h.g;m[j+2]=h.b;m[j+3]=h.a;return true}return false}function b(j,n,m,i,k,g,o){if(!j instanceof Uint8ClampedArray){throw new Error("data must be an instance of Uint8ClampedArray")}if(isNaN(g)||g<1){throw new Error("argument 'width' must be a positive integer")}if(isNaN(o)||o<1){throw new Error("argument 'height' must be a positive integer")}if(isNaN(n)||n<0){throw new Error("argument 'x' must be a positive integer")}if(isNaN(m)||m<0){throw new Error("argument 'y' must be a positive integer")}if(g*o*4!==j.length){throw new Error("width and height do not fit Uint8ClampedArray dimensions")}var l=Math.floor(n);var h=Math.floor(m);if(l!==n){console.warn("x truncated from",n,"to",l)}if(h!==m){console.warn("y truncated from",m,"to",h)}k=(!isNaN(k))?Math.min(Math.abs(Math.round(k)),254):0;return f(j,l,h,i,k,g,o)}var d=function(l){var h=document.createElement("div");var g={r:0,g:0,b:0,a:0};h.style.color=l;h.style.display="none";document.body.appendChild(h);var i=window.getComputedStyle(h,null).color;document.body.removeChild(h);var k=/([\.\d]+)/g;var j=i.match(k);if(j&&j.length>2){g.r=parseInt(j[0])||0;g.g=parseInt(j[1])||0;g.b=parseInt(j[2])||0;g.a=Math.round((parseFloat(j[3])||1)*255)}return g};function c(p,n,m,i,o,q,g){var s=this;var k=d(this.fillStyle);i=(isNaN(i))?0:i;o=(isNaN(o))?0:o;q=(!isNaN(q)&&q)?Math.min(Math.abs(q),s.canvas.width):s.canvas.width;g=(!isNaN(g)&&g)?Math.min(Math.abs(g),s.canvas.height):s.canvas.height;var j=s.getImageData(i,o,q,g);var l=j.data;var h=j.width;var r=j.height;if(h>0&&r>0){b(l,p,n,k,m,h,r);s.putImageData(j,i,o)}}if(typeof CanvasRenderingContext2D!="undefined"){CanvasRenderingContext2D.prototype.fillFlood=c}return b})();
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
@@ -33560,6 +33563,8 @@ Wick.Button = class extends Wick.Clip {
     frame3.identifier = 'down';
     this.timeline.activeLayer.addFrame(frame2);
     this.timeline.activeLayer.addFrame(frame3);
+    this.removeScript('default');
+    this.addScript('mouseclick', '');
   }
 
   serialize(args) {
@@ -54168,6 +54173,107 @@ paper.View.inject({
   enableScrollToZoom: function (args) {// TODO
   }
 });
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* Copyright 2019 WICKLETS LLC
+*
+* This file is part of Wick Engine.
+*
+* Wick Engine is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Wick Engine is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+*/
+Wick.View = class {
+  /**
+   * The paper.js scope that all Wick.View subclasses will use to render to.
+   */
+  static get paperScope() {
+    if (!this._paperScope) {
+      this._paperScope = new paper.PaperScope(); // Create dummy paper.js instance so we can access paper classes
+
+      var canvas = window.document.createElement('canvas');
+
+      this._paperScope.setup(canvas);
+    } // Use active paper scope for window.paper alias
+
+
+    window.paper = this._paperScope; // Activate the paper scope
+
+    this._paperScope.activate();
+
+    return this._paperScope;
+  }
+  /**
+   *
+   */
+
+
+  constructor(model) {
+    this.model = model;
+    this._eventHandlers = {};
+  }
+  /**
+   *
+   */
+
+
+  set model(model) {
+    this._model = model;
+  }
+
+  get model() {
+    return this._model;
+  }
+  /**
+   *
+   */
+
+
+  get paper() {
+    return Wick.View.paperScope;
+  }
+  /**
+   *
+   */
+
+
+  render() {}
+  /**
+   *
+   */
+
+
+  on(eventName, fn) {
+    if (!this._eventHandlers[eventName]) {
+      this._eventHandlers[eventName] = [];
+    }
+
+    this._eventHandlers[eventName].push(fn);
+  }
+  /**
+   *
+   */
+
+
+  fireEvent(eventName, e) {
+    var eventFns = this._eventHandlers[eventName];
+    if (!eventFns) return;
+    eventFns.forEach(fn => {
+      fn(e);
+    });
+  }
+
+};
 /*
  * TypeScript port of Potrace (http://potrace.sourceforge.net).
  * https://github.com/oov/potrace
@@ -55334,107 +55440,6 @@ var potrace;
     }
     potrace.fromFunction = fromFunction;
 })(potrace || (potrace = {}));
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
-Wick.View = class {
-  /**
-   * The paper.js scope that all Wick.View subclasses will use to render to.
-   */
-  static get paperScope() {
-    if (!this._paperScope) {
-      this._paperScope = new paper.PaperScope(); // Create dummy paper.js instance so we can access paper classes
-
-      var canvas = window.document.createElement('canvas');
-
-      this._paperScope.setup(canvas);
-    } // Use active paper scope for window.paper alias
-
-
-    window.paper = this._paperScope; // Activate the paper scope
-
-    this._paperScope.activate();
-
-    return this._paperScope;
-  }
-  /**
-   *
-   */
-
-
-  constructor(model) {
-    this.model = model;
-    this._eventHandlers = {};
-  }
-  /**
-   *
-   */
-
-
-  set model(model) {
-    this._model = model;
-  }
-
-  get model() {
-    return this._model;
-  }
-  /**
-   *
-   */
-
-
-  get paper() {
-    return Wick.View.paperScope;
-  }
-  /**
-   *
-   */
-
-
-  render() {}
-  /**
-   *
-   */
-
-
-  on(eventName, fn) {
-    if (!this._eventHandlers[eventName]) {
-      this._eventHandlers[eventName] = [];
-    }
-
-    this._eventHandlers[eventName].push(fn);
-  }
-  /**
-   *
-   */
-
-
-  fireEvent(eventName, e) {
-    var eventFns = this._eventHandlers[eventName];
-    if (!eventFns) return;
-    eventFns.forEach(fn => {
-      fn(e);
-    });
-  }
-
-};
 /*
 The MIT License (MIT)
 
@@ -56400,6 +56405,27 @@ Wick.View.Clip = class extends Wick.View {
   }
 
 };
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* Copyright 2019 WICKLETS LLC
+*
+* This file is part of Wick Engine.
+*
+* Wick Engine is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Wick Engine is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+*/
+Wick.View.Button = class extends Wick.View.Clip {};
 /* https://github.com/Idnan/soundcloud-waveform-generator */
 
 window.AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -56557,7 +56583,32 @@ var SCWF = function () {
 * You should have received a copy of the GNU General Public License
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
-Wick.View.Button = class extends Wick.View.Clip {};
+Wick.View.Timeline = class extends Wick.View {
+  constructor(wickTimeline) {
+    super();
+    this.activeFrameLayers = [];
+    this.onionSkinnedFramesLayers = [];
+    this.activeFrameContainers = [];
+  }
+
+  render() {
+    this.activeFrameLayers = [];
+    this.onionSkinnedFramesLayers = [];
+
+    this._getLayersInOrder().forEach(layer => {
+      layer.view.render();
+      this.activeFrameLayers = this.activeFrameLayers.concat(layer.view.activeFrameLayers);
+      this.onionSkinnedFramesLayers = this.onionSkinnedFramesLayers.concat(layer.view.onionSkinnedFramesLayers);
+    });
+  }
+
+  _getLayersInOrder() {
+    return this.model.layers.filter(layer => {
+      return !layer.hidden;
+    }).reverse();
+  }
+
+};
 /**
  * Tween.js - Licensed under the MIT license
  * https://github.com/tweenjs/tween.js
@@ -57461,54 +57512,6 @@ TWEEN.Interpolation = {
 * You should have received a copy of the GNU General Public License
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
-Wick.View.Timeline = class extends Wick.View {
-  constructor(wickTimeline) {
-    super();
-    this.activeFrameLayers = [];
-    this.onionSkinnedFramesLayers = [];
-    this.activeFrameContainers = [];
-  }
-
-  render() {
-    this.activeFrameLayers = [];
-    this.onionSkinnedFramesLayers = [];
-
-    this._getLayersInOrder().forEach(layer => {
-      layer.view.render();
-      this.activeFrameLayers = this.activeFrameLayers.concat(layer.view.activeFrameLayers);
-      this.onionSkinnedFramesLayers = this.onionSkinnedFramesLayers.concat(layer.view.onionSkinnedFramesLayers);
-    });
-  }
-
-  _getLayersInOrder() {
-    return this.model.layers.filter(layer => {
-      return !layer.hidden;
-    }).reverse();
-  }
-
-};
-/* https://github.com/kelektiv/node-uuid */
-!function(r){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=r();else if("function"==typeof define&&define.amd)define([],r);else{var e;e="undefined"!=typeof window?window:"undefined"!=typeof global?global:"undefined"!=typeof self?self:this,e.uuidv4=r()}}(function(){return function r(e,n,t){function o(f,u){if(!n[f]){if(!e[f]){var a="function"==typeof require&&require;if(!u&&a)return a(f,!0);if(i)return i(f,!0);var d=new Error("Cannot find module '"+f+"'");throw d.code="MODULE_NOT_FOUND",d}var p=n[f]={exports:{}};e[f][0].call(p.exports,function(r){var n=e[f][1][r];return o(n?n:r)},p,p.exports,r,e,n,t)}return n[f].exports}for(var i="function"==typeof require&&require,f=0;f<t.length;f++)o(t[f]);return o}({1:[function(r,e,n){function t(r,e){var n=e||0,t=o;return t[r[n++]]+t[r[n++]]+t[r[n++]]+t[r[n++]]+"-"+t[r[n++]]+t[r[n++]]+"-"+t[r[n++]]+t[r[n++]]+"-"+t[r[n++]]+t[r[n++]]+"-"+t[r[n++]]+t[r[n++]]+t[r[n++]]+t[r[n++]]+t[r[n++]]+t[r[n++]]}for(var o=[],i=0;i<256;++i)o[i]=(i+256).toString(16).substr(1);e.exports=t},{}],2:[function(r,e,n){var t="undefined"!=typeof crypto&&crypto.getRandomValues.bind(crypto)||"undefined"!=typeof msCrypto&&msCrypto.getRandomValues.bind(msCrypto);if(t){var o=new Uint8Array(16);e.exports=function(){return t(o),o}}else{var i=new Array(16);e.exports=function(){for(var r,e=0;e<16;e++)0===(3&e)&&(r=4294967296*Math.random()),i[e]=r>>>((3&e)<<3)&255;return i}}},{}],3:[function(r,e,n){function t(r,e,n){var t=e&&n||0;"string"==typeof r&&(e="binary"===r?new Array(16):null,r=null),r=r||{};var f=r.random||(r.rng||o)();if(f[6]=15&f[6]|64,f[8]=63&f[8]|128,e)for(var u=0;u<16;++u)e[t+u]=f[u];return e||i(f)}var o=r("./lib/rng"),i=r("./lib/bytesToUuid");e.exports=t},{"./lib/bytesToUuid":1,"./lib/rng":2}]},{},[3])(3)});
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
 Wick.View.Layer = class extends Wick.View {
   static get BASE_ONION_OPACITY() {
     return 0.35;
@@ -57580,6 +57583,8 @@ Wick.View.Layer = class extends Wick.View {
   }
 
 };
+/* https://github.com/kelektiv/node-uuid */
+!function(r){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=r();else if("function"==typeof define&&define.amd)define([],r);else{var e;e="undefined"!=typeof window?window:"undefined"!=typeof global?global:"undefined"!=typeof self?self:this,e.uuidv4=r()}}(function(){return function r(e,n,t){function o(f,u){if(!n[f]){if(!e[f]){var a="function"==typeof require&&require;if(!u&&a)return a(f,!0);if(i)return i(f,!0);var d=new Error("Cannot find module '"+f+"'");throw d.code="MODULE_NOT_FOUND",d}var p=n[f]={exports:{}};e[f][0].call(p.exports,function(r){var n=e[f][1][r];return o(n?n:r)},p,p.exports,r,e,n,t)}return n[f].exports}for(var i="function"==typeof require&&require,f=0;f<t.length;f++)o(t[f]);return o}({1:[function(r,e,n){function t(r,e){var n=e||0,t=o;return t[r[n++]]+t[r[n++]]+t[r[n++]]+t[r[n++]]+"-"+t[r[n++]]+t[r[n++]]+"-"+t[r[n++]]+t[r[n++]]+"-"+t[r[n++]]+t[r[n++]]+"-"+t[r[n++]]+t[r[n++]]+t[r[n++]]+t[r[n++]]+t[r[n++]]+t[r[n++]]}for(var o=[],i=0;i<256;++i)o[i]=(i+256).toString(16).substr(1);e.exports=t},{}],2:[function(r,e,n){var t="undefined"!=typeof crypto&&crypto.getRandomValues.bind(crypto)||"undefined"!=typeof msCrypto&&msCrypto.getRandomValues.bind(msCrypto);if(t){var o=new Uint8Array(16);e.exports=function(){return t(o),o}}else{var i=new Array(16);e.exports=function(){for(var r,e=0;e<16;e++)0===(3&e)&&(r=4294967296*Math.random()),i[e]=r>>>((3&e)<<3)&255;return i}}},{}],3:[function(r,e,n){function t(r,e,n){var t=e&&n||0;"string"==typeof r&&(e="binary"===r?new Array(16):null,r=null),r=r||{};var f=r.random||(r.rng||o)();if(f[6]=15&f[6]|64,f[8]=63&f[8]|128,e)for(var u=0;u<16;++u)e[t+u]=f[u];return e||i(f)}var o=r("./lib/rng"),i=r("./lib/bytesToUuid");e.exports=t},{"./lib/bytesToUuid":1,"./lib/rng":2}]},{},[3])(3)});
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
@@ -60076,6 +60081,10 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
         e.buttons = 0;
         e.clientX = e.touches[0].clientX;
         e.clientY = e.touches[0].clientY;
+        this._touchStartX = e.clientX;
+        this._touchStartY = e.clientY;
+        e.movementX = e.touches[0].movementX;
+        e.movementY = e.touches[0].movementY;
 
         this._onMouseMove(e);
 
@@ -60085,6 +60094,10 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
         e.buttons = 1;
         e.clientX = e.touches[0].clientX;
         e.clientY = e.touches[0].clientY;
+        e.movementX = e.clientX - this._touchStartX;
+        e.movementY = e.clientY - this._touchStartY;
+        this._touchStartX = e.clientX;
+        this._touchStartY = e.clientY;
 
         this._onMouseMove(e);
       }, false);

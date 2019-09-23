@@ -108,7 +108,7 @@ Wick.Tickable = class extends Wick.Base {
 
     /**
      * The scripts on this object.
-     * @type {Wick.Script[]}
+     * @type {object[]}
      */
     get scripts () {
         return this._scripts;

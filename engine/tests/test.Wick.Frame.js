@@ -515,7 +515,7 @@ describe('Wick.Frame', function() {
 
             var path = TestUtils.paperToWickPath(new paper.Path.Rectangle({
                 from: new paper.Point(50,50),
-                to: new paper.Point(100,100),
+                to: new paper.Point(150,150),
                 fillColor: 'red',
             }));
 

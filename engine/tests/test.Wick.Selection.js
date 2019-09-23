@@ -190,7 +190,7 @@ describe('Wick.Selection', function() {
         var project = new Wick.Project();
 
         var frame = project.activeFrame;
-        frame.end = 9;
+        frame.end = 10;
 
         var clip = new Wick.Clip();
         frame.addClip(clip);
@@ -224,7 +224,11 @@ describe('Wick.Selection', function() {
 
         project.activeTimeline.playheadPosition = 5;
         project.selection.select(clip);
+        project.view.render();
         project.selection.x = 300;
+
+        expect(frame.clips.length).to.equal(1);
+        expect(frame.clips[0]).to.equal(clip);
 
         expect(frame.tweens.length).to.equal(3);
         expect(frame.getTweenAtPosition(1)).to.equal(tweenA);

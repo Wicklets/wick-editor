@@ -46,6 +46,9 @@ Wick.Button = class extends Wick.Clip {
 
         this.timeline.activeLayer.addFrame(frame2);
         this.timeline.activeLayer.addFrame(frame3);
+
+        this.removeScript('default');
+        this.addScript('mouseclick', '');
     }
 
     serialize (args) {
