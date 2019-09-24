@@ -56,6 +56,7 @@ class ScriptWindowRow extends Component {
                 tooltipPlace="left"
                 action={this.props.editScript}
                 color="script-name"
+                className="action-button-script-name"
                 />
         </div>
         <div className="script-row-item inspector-script-window-row-delete">

@@ -415,3 +415,7 @@ $action-button-transition-duration: .2s;
 .action-button-script-name.active-button {
   background-color: $editor-primary;
 }
+
+.action-button-script-name-text {
+  text-align: left;
+}
