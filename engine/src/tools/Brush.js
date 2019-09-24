@@ -31,9 +31,7 @@ Wick.Tools.Brush = class extends Wick.Tool {
         this.name = 'brush';
 
         this.BRUSH_POINT_SPACING = 0.2;
-        this.BRUSH_STABILIZE_LEVEL = 20;
-        this.BRUSH_STABILIZE_WEIGHT = 0.2;
-        this.BRUSH_STABILIZE_INTERVAL = Infinity;
+        this.BRUSH_STABILIZER_LEVEL = 20;
         this.POTRACE_RESOLUTION = 1.0;
 
         this.croquis;
@@ -100,9 +98,8 @@ Wick.Tools.Brush = class extends Wick.Tool {
         this.croquisBrush.setSize(this.getSetting('brushSize') + 1);
         this.croquisBrush.setColor(this.getSetting('fillColor').toCSS(true));
         this.croquisBrush.setSpacing(this.BRUSH_POINT_SPACING);
-        this.croquis.setToolStabilizeLevel(this.BRUSH_STABILIZE_LEVEL);
-        this.croquis.setToolStabilizeWeight(this.BRUSH_STABILIZE_WEIGHT);
-        this.croquis.getToolStabilizeInterval(this.BRUSH_STABILIZE_INTERVAL);
+        this.croquis.setToolStabilizeLevel(this.BRUSH_STABILIZER_LEVEL);
+        this.croquis.setToolStabilizeWeight((this.getSetting('brushStabilizerWeight') / 100.0) + 0.3);
 
         // Forward mouse event to croquis canvas
         var point = this._croquisToPaperPoint(e.point);
