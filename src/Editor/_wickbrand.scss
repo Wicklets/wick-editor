@@ -22,6 +22,49 @@
 @import url("https://fonts.googleapis.com/css?family=Nunito+Sans");
 
 // Define Color Scheme
+
+// Spring 2019 color scheme
+$editor-primary: #303030;
+$editor-primary-text: #AFAFAF;
+$editor-primary-property-text: $editor-primary-text;
+$editor-primary-outline: #191919;
+
+$editor-text-input-background: #D8D8D8;
+$editor-text-input-text: #000000;
+
+$editor-menubar-project-text:#DADADA;
+$editor-menubar-option-text: #BABABA;
+
+$editor-secondary: #3B3B3B;
+$editor-secondary-text: #797979;
+
+$editor-tertiary: #4A4A4A;
+
+$editor-modal-dark: #1E1E1E; 
+$editor-modal-gray: #3D3B3B; 
+$editor-modal-gray-secondary: #525252;
+
+$editor-modal-text-white: #FFFFFF; 
+$editor-modal-text-gray: #E6E6E6; 
+$editor-modal-text-highlight: #1EE29A; 
+
+$editor-green-highlight: #1EE29A;
+$editor-green-highlight-dark: rgb(18, 134, 92);
+
+$editor-canvas-border: #6A6A6A;
+
+$editor-outline-padding: 4px;
+$editor-input-border-width: 3px; 
+$editor-panel-padding: 10px;
+
+$editor-popout-primary: #292927;
+$editor-popout-secondary: #353434;
+$editor-popout-tertiary: #3F3D3D;
+
+$editor-popout-primary-text: #FFFFFF;
+$editor-popout-secondary-text: #B1B1B1; 
+$editor-popout-tertiary-text: #919191; 
+
 // Default palette
 $heather-grey: #F5F5F5;
 $heather-grey-light: #F9F9F9;
@@ -31,7 +74,7 @@ $heather-grey-text: black;
 $wick-green: #1EE29A;
 $wick-green-light: #29F1A3;
 $wick-green-dark: #01C094;
-$wick-green-text: white;
+$wick-green-text: $editor-primary;
 
 $sleepy-sky: #B4ECE6;
 $sleepy-sky-light: #D3F8F4;
@@ -41,7 +84,7 @@ $sleepy-sky-text: black;
 $wick-active-blue: #00ADEF;
 $wick-active-blue-dark: #00709c;
 $wick-active-blue-light: #00B9FF;
-$wick-active-blue-text: white; 
+$wick-active-blue-text: $editor-primary; 
 
 $deep-cereulian: #101DA5;
 $deep-cereulian-light: #2636E1;
@@ -128,49 +171,6 @@ $interface-warning-light: $flame-light;
 $interface-warning-text: #FFFFFF;
 
 $interface-menu-bar-background: black;
-
-// Spring 2019 color scheme
-$editor-primary: #303030;
-$editor-primary-text: #AFAFAF;
-$editor-primary-property-text: $editor-primary-text;
-$editor-primary-outline: #191919;
-
-$editor-text-input-background: #D8D8D8;
-$editor-text-input-text: #000000;
-
-$editor-menubar-project-text:#DADADA;
-$editor-menubar-option-text: #BABABA;
-
-$editor-secondary: #3B3B3B;
-$editor-secondary-text: #797979;
-
-$editor-tertiary: #4A4A4A;
-
-$editor-modal-dark: #1E1E1E; 
-$editor-modal-gray: #3D3B3B; 
-$editor-modal-gray-secondary: #525252;
-
-$editor-modal-text-white: #FFFFFF; 
-$editor-modal-text-gray: #E6E6E6; 
-$editor-modal-text-highlight: #1EE29A; 
-
-$editor-green-highlight: #1EE29A;
-$editor-green-highlight-dark: rgb(18, 134, 92);
-
-$editor-canvas-border: #6A6A6A;
-
-$editor-outline-padding: 4px;
-$editor-input-border-width: 3px; 
-$editor-panel-padding: 10px;
-
-$editor-popout-primary: #292927;
-$editor-popout-secondary: #353434;
-$editor-popout-tertiary: #3F3D3D;
-
-$editor-popout-primary-text: #FFFFFF;
-$editor-popout-secondary-text: #B1B1B1; 
-$editor-popout-tertiary-text: #919191; 
-
 
 // Set editor styles.
 a:link {

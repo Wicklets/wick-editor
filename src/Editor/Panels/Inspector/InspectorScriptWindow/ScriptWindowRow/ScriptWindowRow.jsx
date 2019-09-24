@@ -44,21 +44,18 @@ class ScriptWindowRow extends Component {
   }
 
   render() {
-    
+    let scriptName = capitalize(this.props.name);
     return(
       <div className="inspector-script-window-row-container">
         <div className="script-row-item inspector-script-window-row-name">
-            <div className={"inspector-script-window-row-color-bar " + this.getColorBar()}/>
-            {capitalize(this.props.name)}
-        </div>
-        <div className="script-row-item inspector-script-window-row-edit">
-            <ActionButton 
+          <div className={"inspector-script-window-row-color-bar " + this.getColorBar()}/>
+          <ActionButton 
                 id={"inspector-script-window-row-edit" + this.props.name}
-                icon="pencil"
-                tooltip="Edit"
+                text={capitalize(this.props.name)}
+                tooltip={"Edit " + scriptName}
                 tooltipPlace="left"
-                color="inspector"
                 action={this.props.editScript}
+                color="script-name"
                 />
         </div>
         <div className="script-row-item inspector-script-window-row-delete">

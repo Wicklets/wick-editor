@@ -1,8 +1,11 @@
 @import 'Editor/_wickbrand.scss';
 @import '../_inspectorscriptwindow.scss';
 
+$delete-button-size: 25px;
+$delete-button-padding: 4px;
+
 .inspector-script-window-row-name {
-    width: calc(100% - 50px - 10px); 
+    width: calc(100% - #{$delete-button-size} - #{$delete-button-padding}); 
     height: 100%; 
     background-color: $editor-primary;
     color: $editor-primary-text;
@@ -20,7 +23,7 @@
 }
 
 .inspector-script-window-row-delete {
-    width: 25px;
+    width: $delete-button-size;
     height: 100%; 
     background-color: $editor-primary;
     color: $editor-primary-text;

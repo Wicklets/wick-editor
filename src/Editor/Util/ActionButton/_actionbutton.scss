@@ -392,3 +392,26 @@ $action-button-transition-duration: .2s;
   background-color: $wick-active-blue-dark;
   color: white;
 }
+
+// Styling for script name buttons in the inspector script window.
+
+.action-button-script-name {
+  -webkit-transition-duration: $action-button-transition-duration; /* Safari */
+  transition-duration: $action-button-transition-duration;
+
+  background-color: $editor-primary;
+  color: $editor-primary-text;
+  font-size: 16px;
+}
+
+.action-button-script-name:hover {
+  background-color: $editor-secondary;
+}
+
+.action-button-script-name:active {
+  background-color: $editor-primary;
+}
+
+.action-button-script-name.active-button {
+  background-color: $editor-primary;
+}
