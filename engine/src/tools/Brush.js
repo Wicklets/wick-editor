@@ -31,7 +31,7 @@ Wick.Tools.Brush = class extends Wick.Tool {
         this.name = 'brush';
 
         this.BRUSH_POINT_SPACING = 0.2;
-        this.BRUSH_STABILIZER_LEVEL = 20;
+        this.BRUSH_STABILIZER_LEVEL = 3;
         this.POTRACE_RESOLUTION = 1.0;
 
         this.croquis;
