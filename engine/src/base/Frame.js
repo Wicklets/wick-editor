@@ -83,6 +83,7 @@ Wick.Frame = class extends Wick.Tickable {
     }
 
     set length (length) {
+        length = Math.max(1, length);
         var diff = length - this.length;
         this.end += diff;
     }

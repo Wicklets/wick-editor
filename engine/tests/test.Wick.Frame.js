@@ -658,6 +658,17 @@ describe('Wick.Frame', function() {
             expect(project.activeFrame.start).to.equal(1);
             expect(project.activeFrame.end).to.equal(3);
         });
+
+        it('length should not be allow to be set to 0', function () {
+            var project = new Wick.Project();
+            project.activeFrame.length = 3;
+            expect(project.activeFrame.start).to.equal(1);
+            expect(project.activeFrame.end).to.equal(3);
+
+            project.activeFrame.length = 0;
+            expect(project.activeFrame.start).to.equal(1);
+            expect(project.activeFrame.end).to.equal(1);
+        });
     });
 
     describe('#cut', function () {
