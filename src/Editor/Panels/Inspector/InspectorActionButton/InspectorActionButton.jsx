@@ -23,19 +23,20 @@ import ActionButton from 'Editor/Util/ActionButton/ActionButton';
 
 class InspectorActionButton extends Component {
   render() {
-    let btn = this.props.btn;
+    let action = this.props.action;
 
-    if (btn === undefined) return (<div />)
+    if (action === undefined) return (<div />)
 
-    let btnID = btn.id === undefined ? 'tooltip-nyi' : btn.id;
+    let btnID = action.id === undefined ? 'tooltip-nyi' : action.id;
+    let actionColor = action.color ? action.color : "inspector";
 
     return(
       <div className="inspector-button">
         <ActionButton
-          color="inspector"
+          color={actionColor}
           id={"inspector-button-" + btnID}
-          action={btn.action}
-          text={btn.tooltip}/>
+          action={action.action}
+          text={action.tooltip}/>
       </div>
 
     )

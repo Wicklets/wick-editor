@@ -68,8 +68,8 @@ class Inspector extends Component {
      */
     this.actionRules = {
       'breakApart': ["clip", "button",],
-      'makeInteractive': ["path", "text", "image", "multipath", "multiclip", "multicanvas"],
-      'makeAnimated': ["path", "text", "image", "multipath", "multiclip", "multicanvas"],
+      'convertSelectionToButton': ["path", "text", "image", "multipath", "multiclip", "multicanvas"],
+      'convertSelectionToClip': ["path", "text", "image", "multipath", "multiclip", "multicanvas"],
       'editTimeline': ["clip", "button"],
     }
 
@@ -803,11 +803,11 @@ class Inspector extends Component {
    * @param {number} i unique key to be applied to returned object.
    * @returns {Component} JSX component to render.
    */
-  renderActionButton = (btn, i) => {
+  renderActionButton = (action, i) => {
     return (
       <div key={i} className="inspector-item">
         <InspectorActionButton
-          btn={btn} />
+          action={action} />
       </div>
     );
   }
