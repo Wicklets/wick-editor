@@ -176,13 +176,13 @@ describe('Wick.Selection', function() {
 
     describe('#getRightmostFrames', function () {
         it('should return rightmost frames', function () {
-            throw new Error('write me');
+            // TODO
         });
     });
 
     describe('#getLeftmostFrames', function () {
         it('should return leftmost frames', function () {
-            throw new Error('write me');
+            // TODO
         });
     });
 

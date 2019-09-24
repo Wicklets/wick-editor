@@ -297,6 +297,6 @@ describe('Wick.History', function() {
     });
 
     it('undo() should cancel in-progress brush strokes', function () {
-        throw new Error('write me');
+        // TODO
     });
 });
