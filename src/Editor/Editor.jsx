@@ -102,7 +102,7 @@ class Editor extends EditorCore {
     this.scriptInfoInterface = new ScriptInfoInterface();
 
     // Resizable panels
-    this.RESIZE_THROTTLE_AMOUNT_MS = 10;
+    this.RESIZE_THROTTLE_AMOUNT_MS = 100;
     this.WINDOW_RESIZE_THROTTLE_AMOUNT_MS = 300;
     this.resizeProps = {
       onStopResize: throttle(this.onStopResize, this.resizeThrottleAmount),
@@ -245,7 +245,7 @@ class Editor extends EditorCore {
 
   onResize = (e) => {
     this.project.view.resize();
-    this.project.guiElement.resize();
+    this.project.guiElement.draw();
   }
 
   onStopResize = ({domElement, component}) => {
