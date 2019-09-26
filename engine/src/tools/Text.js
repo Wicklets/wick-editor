@@ -76,7 +76,16 @@ Wick.Tools.Text = class extends Wick.Tool {
             text.fillColor = 'black';
             text.content = 'Text';
             text.fontSize = 24;
-            this.fireEvent('canvasModified');
+
+            var wickText = new Wick.Path({json: text.exportJSON({asString:false})})
+            this.project.activeFrame.addPath(wickText);
+
+            this.project.view.render();
+
+            this.editingText = wickText.view.item;
+            this.editingText.edit(this.project.view.paper);
+            
+            //this.fireEvent('canvasModified');
         }
     }
 
