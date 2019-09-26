@@ -35,6 +35,11 @@
 
     paper.TextItem.inject({
         attachTextArea: function (paper) {
+            // Just in case the textbox is still on screen somehow...
+            if(editElem) {
+                editElem.remove();
+            }
+
             $(paper.view.element.offsetParent).append(editElem);
             editElem.focus();
 

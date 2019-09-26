@@ -61,6 +61,7 @@ Wick.Tools.Text = class extends Wick.Tool {
             this.setCursor('text');
         } else {
             this.hoveredOverText = null;
+            this.setCursor('url(cursors/text.png) 32 32, auto');
         }
     }
 
@@ -84,7 +85,7 @@ Wick.Tools.Text = class extends Wick.Tool {
 
             this.editingText = wickText.view.item;
             this.editingText.edit(this.project.view.paper);
-            
+
             //this.fireEvent('canvasModified');
         }
     }

@@ -199,14 +199,15 @@ Wick.Tool = class {
      * @param {number} size - the width of the cursor image to generate
      */
     createDynamicCursor (color, size) {
+        var radius = size/2;
+
         var canvas = document.createElement("canvas");
-        canvas.width = 128;
-        canvas.height = 128;
+        canvas.width = radius * 2 + 2;
+        canvas.height = radius * 2 + 2;
         var context = canvas.getContext('2d');
 
         var centerX = canvas.width / 2;
         var centerY = canvas.height / 2;
-        var radius = size/2;
 
         context.beginPath();
         context.arc(centerX, centerY, radius+1, 0, 2 * Math.PI, false);
