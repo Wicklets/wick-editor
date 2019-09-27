@@ -41,11 +41,7 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement {
 
         var edge = this._mouseOverFrameEdge();
 
-        if(this.model.sound) {
-            ctx.fillStyle = Wick.GUIElement.FRAME_AUDIO_FILL_COLOR;
-        } else if(this.model.tweens.length > 0) {
-            ctx.fillStyle = Wick.GUIElement.FRAME_TWEENED_HOVERED_OVER;
-        } else if(this.model.contentful) {
+        if(this.model.contentful || this.model.tweens.length > 0 || this.model.sound) {
             ctx.fillStyle = Wick.GUIElement.FRAME_CONTENTFUL_FILL_COLOR;
         } else {
             ctx.fillStyle = Wick.GUIElement.FRAME_UNCONTENTFUL_FILL_COLOR;

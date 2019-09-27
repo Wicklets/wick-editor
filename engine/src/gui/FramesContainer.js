@@ -218,6 +218,7 @@ Wick.GUIElement.FramesContainer = class extends Wick.GUIElement {
     _addFrameOverlayIsActive () {
         return this.addFrameCol >= 0 &&
                this.addFrameRow >= 0 &&
-               this.addFrameRow < this.model.layers.length;
+               this.addFrameRow < this.model.layers.length &&
+               !this.model.layers[this.addFrameRow].getFrameAtPlayheadPosition(this.addFrameCol+1);
     }
 }
