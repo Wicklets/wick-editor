@@ -26,20 +26,6 @@ class MenuBar extends Component {
 
   constructor(props) {
     super();
-    this.openFileRef = React.createRef();
-  }
-
-  handleWickFileLoad = (e) => {
-    var file = e.target.files[0];
-    if (!file) {
-      console.warn('handleWickFileLoad: no files recieved');
-      return;
-    }
-    this.props.importProjectAsWickFile(file);
-  }
-
-  openProjectFileDialog = () => {
-    this.openFileRef.current.click();
   }
 
   render() {
@@ -49,14 +35,6 @@ class MenuBar extends Component {
           {this.props.projectName}
         </div>
         <div className="menu-bar-actions-container">
-          {/* Add hidden file input to retrieve wick files. */}
-          <input
-            type='file'
-            accept='.zip, .wick'
-            style={{display: 'none'}}
-            ref={this.openFileRef}
-            onChange={this.handleWickFileLoad}
-          />
           <MenuBarButton
             text="hotkeys"
             action={() => this.props.openModal('KeyboardShortcuts')}
@@ -67,7 +45,7 @@ class MenuBar extends Component {
           />
           <MenuBarButton
             text="open"
-            action={this.openProjectFileDialog}
+            action={this.props.openProjectFileDialog}
           />
           <MenuBarButton
             text="export"

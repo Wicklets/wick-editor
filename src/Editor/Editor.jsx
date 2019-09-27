@@ -101,6 +101,9 @@ class Editor extends EditorCore {
     // Init Script Info
     this.scriptInfoInterface = new ScriptInfoInterface();
 
+    // Wick file input
+    this.openFileRef = React.createRef();
+
     // Resizable panels
     this.RESIZE_THROTTLE_AMOUNT_MS = 100;
     this.WINDOW_RESIZE_THROTTLE_AMOUNT_MS = 300;
@@ -552,6 +555,19 @@ class Editor extends EditorCore {
     this._processingAction = processingAction;
   }
 
+  handleWickFileLoad = (e) => {
+    var file = e.target.files[0];
+    if (!file) {
+      console.warn('handleWickFileLoad: no files recieved');
+      return;
+    }
+    this.importProjectAsWickFile(file);
+  }
+
+  openProjectFileDialog = () => {
+    this.openFileRef.current.click();
+  }
+
   render = () => {
     // Create some references to the project and editor to make debugging in the console easier:
     window.project = this.project;
@@ -563,6 +579,7 @@ class Editor extends EditorCore {
       onDrop={(accepted, rejected) => this.createAssets(accepted, rejected)}
       disableClick
     >
+    {/* Add hidden file input to retrieve wick files. */}
     {/*TODO: Check the onClick event */}
       {({getRootProps, getInputProps, open}) => (
         <div {...getRootProps()}>
@@ -583,6 +600,13 @@ class Editor extends EditorCore {
               keyMap={this.state.previewPlaying ? this.hotKeyInterface.getEssentialKeyMap() : this.hotKeyInterface.getKeyMap()}
               handlers={this.state.previewPlaying ? this.hotKeyInterface.getEssentialKeyHandlers() : this.hotKeyInterface.getHandlers()}/>
               <div id="editor">
+                <input
+                  type='file'
+                  accept='.zip, .wick'
+                  style={{display: 'none'}}
+                  ref={this.openFileRef}
+                  onChange={this.handleWickFileLoad}
+                />
                 <div id="menu-bar-container">
                   <ModalHandler
                     activeModalName={this.state.activeModalName}
@@ -608,6 +632,7 @@ class Editor extends EditorCore {
                     <MenuBar
                       openModal={this.openModal}
                       projectName={this.project.name}
+                      openProjectFileDialog={this.openProjectFileDialog}
                       openNewProjectConfirmation={this.openNewProjectConfirmation}
                       exportProjectAsWickFile={this.exportProjectAsWickFile}
                       importProjectAsWickFile={this.importProjectAsWickFile}
