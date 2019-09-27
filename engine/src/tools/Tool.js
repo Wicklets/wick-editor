@@ -219,7 +219,7 @@ Wick.Tool = class {
         context.fillStyle = color;
         context.fill();
 
-        return 'url(' + canvas.toDataURL() + ') 64 64,default';
+        return 'url(' + canvas.toDataURL() + ') '+(radius+1)+' '+(radius+1)+',default';
     }
 
     /**
