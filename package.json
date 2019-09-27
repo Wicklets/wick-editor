@@ -48,7 +48,8 @@
     "deploy": "gh-pages -d build",
     "eject": "react-scripts eject",
     "electron-dev": "ELECTRON_START_URL=http://localhost:3000 electron .",
-    "electron": "electron ."
+    "electron": "electron .",
+    "electron-build": "electron-packager ."
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -60,6 +61,7 @@
     "not op_mini all"
   ],
   "devDependencies": {
-    "electron": "^6.0.10"
+    "electron": "^6.0.10",
+    "electron-packager": "^14.0.6"
   }
 }
