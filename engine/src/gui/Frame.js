@@ -40,15 +40,22 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement {
         var heightPx = this.gridCellHeight - 1;
 
         var edge = this._mouseOverFrameEdge();
-        if(!edge && this.mouseState === 'over' || this.mouseState === 'down') {
-            ctx.fillStyle = Wick.GUIElement.FRAME_HOVERED_OVER;
+
+        if(this.model.tweens.length > 0) {
+            ctx.fillStyle = Wick.GUIElement.FRAME_TWEENED_HOVERED_OVER;
+        } else if(this.model.contentful) {
+            ctx.fillStyle = Wick.GUIElement.FRAME_CONTENTFUL_FILL_COLOR;
         } else {
             ctx.fillStyle = Wick.GUIElement.FRAME_UNCONTENTFUL_FILL_COLOR;
         }
-
         ctx.beginPath();
         ctx.roundRect(0, 0, widthPx, heightPx, Wick.GUIElement.FRAME_BORDER_RADIUS);
         ctx.fill();
+        if(!edge && this.mouseState === 'over' || this.mouseState === 'down') {
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = Wick.GUIElement.FRAME_HOVERED_OVER;
+            ctx.stroke();
+        }
 
         // Frame body edge
         if(edge) {
