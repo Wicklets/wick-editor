@@ -167,9 +167,13 @@ class HotKeyInterface extends Object {
         name: "Cut Frame",
         sequences: ['shift+c'],
       },
-      'copy-frame-forward': {
-        name: "Copy Frame Forward",
-        sequences: ['shift+f'],
+      'insert-blank-frame': {
+        name: "Insert Blank Frame",
+        sequences: ['shift+8'],
+      },
+      'extend-and-push-other-frames': {
+        name: "Extend And Push Frames",
+        sequences: ['shift+9'],
       },
       'select-all': {
         name: "Select All",
@@ -283,7 +287,8 @@ class HotKeyInterface extends Object {
       'move-frame-left': this.editor.moveFrameLeft,
       'create-tween': this.editor.createTween,
       'cut-frame': this.editor.cutFrame,
-      'copy-frame-forward': this.editor.copyFrameForward,
+      'insert-blank-frame': this.editor.insertBlankFrame,
+      'extend-and-push-other-frames': this.editor.extendSelectedFramesAndPushOtherFrames,
       'select-all': this.editor.selectAll,
       'bring-to-front': this.editor.sendSelectionToFront,
       'send-to-back': this.editor.sendSelectionToBack,

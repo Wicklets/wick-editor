@@ -674,6 +674,16 @@ Wick.Project = class extends Wick.Base {
     }
 
     /**
+     * Move the right edge of all selected frames right one frame, and push other frames away.
+     */
+    extendSelectedFramesAndPushOtherFrames () {
+        var frames = this.selection.getSelectedObjects('Frame');
+        frames.forEach(frame => {
+            frame.extendAndPushOtherFrames();
+        });
+    }
+
+    /**
      * Move the right edge of all selected frames left one frame.
      */
     shrinkSelectedFrames () {

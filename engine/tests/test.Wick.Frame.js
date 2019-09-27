@@ -731,4 +731,31 @@ describe('Wick.Frame', function() {
             expect(project.activeLayer.getFrameAtPlayheadPosition(11).length).to.equal(1);
         });
     });
+
+    describe('#extendAndPushOtherFrames', function () {
+        it('should extend a frame and push other frames', function () {
+            var project = new Wick.Project();
+            project.activeFrame.remove();
+
+            var frame1 = new Wick.Frame({start: 1, end: 1, identifier: 'frame1'});
+            project.activeLayer.addFrame(frame1);
+            var frame2 = new Wick.Frame({start: 2, end: 2, identifier: 'frame2'});
+            project.activeLayer.addFrame(frame2);
+            var frame3 = new Wick.Frame({start: 3, end: 10, identifier: 'frame3'});
+            project.activeLayer.addFrame(frame3);
+            var frame4 = new Wick.Frame({start: 11, end: 11, identifier: 'frame4'});
+            project.activeLayer.addFrame(frame4);
+
+            frame1.extendAndPushOtherFrames();
+
+            expect(frame1.start).to.equal(1);
+            expect(frame1.end).to.equal(2);
+            expect(frame2.start).to.equal(3);
+            expect(frame2.end).to.equal(3);
+            expect(frame3.start).to.equal(4);
+            expect(frame3.end).to.equal(11);
+            expect(frame4.start).to.equal(12);
+            expect(frame4.end).to.equal(12);
+        });
+    });
 });
