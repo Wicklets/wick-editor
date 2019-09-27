@@ -627,11 +627,28 @@ Wick.Project = class extends Wick.Base {
     }
 
     /**
-     * Copy the currently selected frames forwards.
+     * Insert a blank frame at the current playhead position, and selects the newly added frames.
      */
-    copySelectedFramesForward () {
-        this.selection.getSelectedObjects('Frame').forEach(frame => {
-            frame.copyForward();
+    insertBlankFrame () {
+        var addedFrames = [];
+
+        if(this.selection.numObjects > 0) {
+            // Are there frames selected? insert blank frames inside of them
+            this.selection.getSelectedObjects('Frame').forEach(frame => {
+                addedFrames.push(frame.insertBlankFrame());
+            });
+        } else {
+            // Otherwise, just add a frame at the playhead position + active layer
+            var frame = this.activeFrame;
+            if(frame) {
+                addedFrames.push(frame.insertBlankFrame());
+            }
+        }
+
+        // Select the newly added frames
+        this.selection.clear();
+        addedFrames.forEach(frame => {
+            this.selection.select(frame);
         });
     }
 

@@ -30,11 +30,11 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
             }
         });
 
-        this.copyFrameForwardButton = new Wick.GUIElement.ActionButton(this.model, {
-            tooltip: 'Copy Frame Forward',
+        this.insertBlankFrameButton = new Wick.GUIElement.ActionButton(this.model, {
+            tooltip: 'Insert Blank Frame',
             icon: 'copy_frame_forward',
             clickFn: () => {
-                this.model.project.copySelectedFramesForward();
+                this.model.project.insertBlankFrame();
                 this.projectWasModified();
             }
         });
@@ -84,7 +84,7 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
         // Copy Frame Forward button
         ctx.save();
         ctx.translate(115, 20);
-            this.copyFrameForwardButton.draw(frameButtonsAreActive);
+            this.insertBlankFrameButton.draw(frameButtonsAreActive);
         ctx.restore();
 
         // Cut Frame button

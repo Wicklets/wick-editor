@@ -515,7 +515,7 @@ Wick.Frame = class extends Wick.Tickable {
     }
 
     /**
-     * Cut this frame in half using the playhead position.
+     * Cut this frame in half using the parent timeline's playhead position.
      */
     cut () {
         // Can't cut a frame that doesn't beolong to a timeline + layer
@@ -543,15 +543,19 @@ Wick.Frame = class extends Wick.Tickable {
     }
 
     /**
-     * Copy this frame and paste it in front of itself.
+     * Insert a blank frame into this frame using the parent timeline's playhead position.
+     * @returns {Wick.Frame} the newly added blank frame.
      */
-    copyForward () {
-        if(!this.parentLayer) return;
-        var copy = this.copy();
-        copy.identifier = null;
-        copy.start += this.length;
-        copy.end += this.length;
-        this.parentLayer.addFrame(copy);
+    insertBlankFrame () {
+        var playheadPosition = this.parentTimeline.playheadPosition;
+
+        // Cut this frame
+        this.cut();
+
+        // Add a blank frame where this frame was cut
+        var blankFrame = new Wick.Frame({start: playheadPosition});
+        this.parentLayer.addFrame(blankFrame);
+        return blankFrame;
     }
 
     /**

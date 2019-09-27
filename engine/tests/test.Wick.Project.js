@@ -1308,4 +1308,10 @@ describe('Wick.Project', function() {
             // TODO
         });
     });
+
+    describe('#insertBlankFrame', function () {
+        it('should insert blank frames correctly', function () {
+            // TODO
+        });
+    });
 });
