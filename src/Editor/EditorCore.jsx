@@ -163,6 +163,7 @@ class EditorCore extends Component {
    */
   movePlayheadForwards = () => {
     this.project.focus.timeline.playheadPosition++;
+    this.project.guiElement.checkForPlayheadAutoscroll();
     this.projectDidChange();
   }
 
@@ -171,6 +172,7 @@ class EditorCore extends Component {
    */
   movePlayheadBackwards = () => {
     this.project.focus.timeline.playheadPosition--;
+    this.project.guiElement.checkForPlayheadAutoscroll();
     this.projectDidChange();
   }
 

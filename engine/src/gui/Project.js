@@ -257,6 +257,31 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
         }
     }
 
+    /**
+     * Auto scrolls the timeline if the playhead is considered off-screen.
+     * This is built specifically for moving the playead with hotkeys.
+     */
+    checkForPlayheadAutoscroll () {
+        var scrollWidth = this.canvas.width;
+        scrollWidth -= Wick.GUIElement.LAYERS_CONTAINER_WIDTH;
+        scrollWidth -= Wick.GUIElement.SCROLLBAR_SIZE;
+        scrollWidth -= this.gridCellWidth;
+
+        var scrollMin = this.scrollX;
+        var scrollMax = this.scrollX + scrollWidth;
+
+        var playheadPosition = this.model.activeTimeline.playheadPosition;
+        var playheadX = (playheadPosition - 1) * this.gridCellWidth;
+
+        if(playheadX < scrollMin) {
+            this.scrollX = playheadX;
+            this.draw();
+        } if (playheadX > scrollMax) {
+            this.scrollX = playheadX - scrollWidth;
+            this.draw();
+        }
+    }
+
     _onMouseMove (e) {
         // Update mouse position
         var rect = this._canvas.getBoundingClientRect();

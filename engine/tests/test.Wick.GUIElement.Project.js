@@ -1,6 +1,9 @@
 describe('Wick.GUIElement.Project', function() {
     it('should render timeline correctly', function () {
         var project = new Wick.Project();
+
+        window.project = project;
+
         var parentClip = new Wick.Clip({identifier: 'Parent clip'});
         var childClip = new Wick.Clip({identifier: 'Child clip'});
         project.activeFrame.addClip(parentClip);
