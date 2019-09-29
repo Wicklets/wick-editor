@@ -66,20 +66,21 @@ Wick.FontAsset = class extends Wick.FileAsset {
      */
     load (callback) {
         var fontDataArraybuffer = Base64ArrayBuffer.decode(this.src.split(',')[1]);
-
         var fontFamily = this.fontFamily;
-        if(!fontFamily) {
+        if (!fontFamily) {
             console.error('FontAsset: Could not get fontFamily from filename.');
+        } else if (fontFamily === "") {
+            console.error('FontAsset: fontfamily not found. Showing as "".')
         }
-
-    		var font = new FontFace(fontFamily, fontDataArraybuffer);
+            var font = new FontFace(fontFamily, fontDataArraybuffer);
     		font.load().then(loaded_face => {
     		    document.fonts.add(loaded_face);
-    		    //document.body.style.fontFamily = '"ABeeZee", Arial';
-            callback();
+                callback(); 
     		}).catch(error => {
-            console.error('FontAsset.load(): An error occured while loading a font:');
-            console.error(error);
+                console.error('FontAsset.load(): An error occured while loading a font:');
+                console.log(font);
+                console.error(error);
+                callback(); // Make the callback so that the page doesn't freeze.
     		});
     }
 
