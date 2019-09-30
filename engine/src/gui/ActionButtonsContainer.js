@@ -73,30 +73,33 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
 
         ctx.globalAlpha = deleteButtonIsActive ? 1.0 : 0.3;
 
-        // Delete Frame button
         ctx.save();
-        ctx.translate(85, 20);
-            this.deleteFrameButton.draw(deleteButtonIsActive);
-        ctx.restore();
+        ctx.translate(50, 0);
+            // Delete Frame button
+            ctx.save();
+            ctx.translate(0, 20);
+                this.deleteFrameButton.draw(deleteButtonIsActive);
+            ctx.restore();
 
-        ctx.globalAlpha = frameButtonsAreActive ? 1.0 : 0.3;
+            ctx.globalAlpha = frameButtonsAreActive ? 1.0 : 0.3;
 
-        // Copy Frame Forward button
-        ctx.save();
-        ctx.translate(115, 20);
-            this.insertBlankFrameButton.draw(frameButtonsAreActive);
-        ctx.restore();
+            // Copy Frame Forward button
+            ctx.save();
+            ctx.translate(30, 20);
+                this.insertBlankFrameButton.draw(frameButtonsAreActive);
+            ctx.restore();
 
-        // Cut Frame button
-        ctx.save();
-        ctx.translate(145, 20);
-            this.cutFrameButton.draw(frameButtonsAreActive);
-        ctx.restore();
+            // Cut Frame button
+            ctx.save();
+            ctx.translate(60, 20);
+                this.cutFrameButton.draw(frameButtonsAreActive);
+            ctx.restore();
 
-        // Add Tween button
-        ctx.save();
-        ctx.translate(175, 20);
-            this.addTweenButton.draw(frameButtonsAreActive);
+            // Add Tween button
+            ctx.save();
+            ctx.translate(90, 20);
+                this.addTweenButton.draw(frameButtonsAreActive);
+            ctx.restore();
         ctx.restore();
 
         ctx.restore();

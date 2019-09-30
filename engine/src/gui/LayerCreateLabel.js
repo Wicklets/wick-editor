@@ -45,7 +45,7 @@ Wick.GUIElement.LayerCreateLabel = class extends Wick.GUIElement {
         // Plus sign
         ctx.font = "20px " + Wick.GUIElement.LAYER_LABEL_FONT_FAMILY;
         ctx.fillStyle = Wick.GUIElement.ADD_FRAME_OVERLAY_PLUS_COLOR
-        ctx.fillText('+', 90, this.gridCellHeight / 2 + 5);
+        ctx.fillText('+', Wick.GUIElement.LAYERS_CONTAINER_WIDTH/2 - 5, this.gridCellHeight / 2 + 5);
     }
 
     get bounds () {

@@ -94,7 +94,10 @@ Wick.GUIElement.Layer = class extends Wick.GUIElement {
             ctx.fillStyle = Wick.GUIElement.LAYER_LABEL_INACTIVE_FILL_COLOR;
         }
 
-        if(this.model.isSelected) {
+        if(this.mouseState === 'over' || this.mouseState === 'down') {
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = Wick.GUIElement.FRAME_HOVERED_OVER;
+        } else if(this.model.isSelected) {
             ctx.strokeStyle = Wick.GUIElement.SELECTED_ITEM_BORDER_COLOR;
             ctx.lineWidth = 3;
         } else {
@@ -111,7 +114,7 @@ Wick.GUIElement.Layer = class extends Wick.GUIElement {
         ctx.restore();
 
         // Label text
-        var maxWidth = Wick.GUIElement.LAYERS_CONTAINER_WIDTH - 35;
+        var maxWidth = Wick.GUIElement.LAYERS_CONTAINER_WIDTH - 10;
         ctx.save();
         ctx.beginPath();
         ctx.rect(0, 0, maxWidth, this.gridCellHeight);
@@ -120,7 +123,7 @@ Wick.GUIElement.Layer = class extends Wick.GUIElement {
         ctx.fillStyle = this.model.isActive
           ? Wick.GUIElement.LAYER_LABEL_ACTIVE_FONT_COLOR
           : Wick.GUIElement.LAYER_LABEL_INACTIVE_FONT_COLOR;
-        ctx.fillText(this.model.name, 53, this.gridCellHeight / 2 + 6);
+        ctx.fillText(this.model.name, 57, this.gridCellHeight / 2 + 6);
         ctx.restore();
 
         // Buttons
@@ -134,10 +137,12 @@ Wick.GUIElement.Layer = class extends Wick.GUIElement {
             this.lockButton.draw(this.model.locked ? 'lock_closed' : 'lock_open', this.model.locked);
         ctx.restore();
 
+        /*
         ctx.save();
         ctx.translate(175, 20);
             this.addTweenButton.draw('add_tween', false);
         ctx.restore();
+        */
 
         // Reordering ghost
         if(this.mouseState === 'down') {
