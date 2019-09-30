@@ -770,9 +770,10 @@ class EditorCore extends Component {
     }
 
     // Add all successfully uploaded assets
-    acceptedFiles.forEach(file => {
+    for(var i = 0; i < acceptedFiles.length; i++) {
+      var file = acceptedFiles[i];
       this.importFileAsAsset(file);
-    });
+    }
   }
 
   /**

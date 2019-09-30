@@ -37,7 +37,7 @@ class AssetLibrary extends Component {
   }
 
   handleAdd = (uuid) => {
-    this.props.openFileDialog();
+    this.props.openImportAssetFileDialog();
   }
 
   updateFilter = (text) => {

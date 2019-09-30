@@ -29,7 +29,6 @@ import 'react-reflex/styles.css'
 import { ReflexContainer, ReflexSplitter, ReflexElement } from 'react-reflex'
 import { throttle } from 'underscore';
 import { GlobalHotKeys } from 'react-hotkeys';
-import Dropzone from 'react-dropzone';
 import localForage from 'localforage';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -103,6 +102,7 @@ class Editor extends EditorCore {
 
     // Wick file input
     this.openFileRef = React.createRef();
+    this.importAssetRef = React.createRef();
 
     // Resizable panels
     this.RESIZE_THROTTLE_AMOUNT_MS = 100;
@@ -564,8 +564,16 @@ class Editor extends EditorCore {
     this.importProjectAsWickFile(file);
   }
 
+  handleAssetFileImport = (e) => {
+    this.createAssets(e.target.files, []);
+  }
+
   openProjectFileDialog = () => {
     this.openFileRef.current.click();
+  }
+
+  openImportAssetFileDialog = () => {
+    this.importAssetRef.current.click();
   }
 
   render = () => {
@@ -574,15 +582,8 @@ class Editor extends EditorCore {
     window.editor = this;
 
     return (
-    <Dropzone
-      accept={window.Wick.FileAsset.getValidExtensions()}
-      onDrop={(accepted, rejected) => this.createAssets(accepted, rejected)}
-      disableClick
-    >
-    {/* Add hidden file input to retrieve wick files. */}
-    {/*TODO: Check the onClick event */}
-      {({getRootProps, getInputProps, open}) => (
-        <div {...getRootProps()}>
+      <div>
+        <div>
           <ToastContainer
            transition={Slide}
             position="top-right"
@@ -595,11 +596,17 @@ class Editor extends EditorCore {
             draggable
             pauseOnHover
           />
-          <input {...getInputProps()} />
             <GlobalHotKeys
               keyMap={this.state.previewPlaying ? this.hotKeyInterface.getEssentialKeyMap() : this.hotKeyInterface.getKeyMap()}
               handlers={this.state.previewPlaying ? this.hotKeyInterface.getEssentialKeyHandlers() : this.hotKeyInterface.getHandlers()}/>
               <div id="editor">
+                <input
+                  type='file'
+                  accept={window.Wick.FileAsset.getValidExtensions().join(', ')}
+                  style={{display: 'none'}}
+                  ref={this.importAssetRef}
+                  onChange={this.handleAssetFileImport}
+                />
                 <input
                   type='file'
                   accept='.zip, .wick'
@@ -763,7 +770,7 @@ class Editor extends EditorCore {
                               <AssetLibrary
                                 projectData={this.state.project}
                                 assets={this.project.getAssets()}
-                                openFileDialog={() => open()}
+                                openImportAssetFileDialog={this.openImportAssetFileDialog}
                                 selectObjects={this.selectObjects}
                                 clearSelection={this.clearSelection}
                                 isObjectSelected={this.isObjectSelected}
@@ -793,8 +800,7 @@ class Editor extends EditorCore {
               toggleCodeEditor={this.toggleCodeEditor}
               />}
         </div>
-      )}
-      </Dropzone>
+      </div>
       )
   }
 }
