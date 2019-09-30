@@ -32,7 +32,7 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
 
         this.insertBlankFrameButton = new Wick.GUIElement.ActionButton(this.model, {
             tooltip: 'Insert Blank Frame',
-            icon: 'copy_frame_forward',
+            icon: 'cut_frame',
             clickFn: () => {
                 this.model.project.insertBlankFrame();
                 this.projectWasModified();
@@ -74,7 +74,7 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
         ctx.globalAlpha = deleteButtonIsActive ? 1.0 : 0.3;
 
         ctx.save();
-        ctx.translate(50, 0);
+        ctx.translate(80, 0);
             // Delete Frame button
             ctx.save();
             ctx.translate(0, 20);
@@ -90,14 +90,14 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
             ctx.restore();
 
             // Cut Frame button
-            ctx.save();
+            /*ctx.save();
             ctx.translate(60, 20);
                 this.cutFrameButton.draw(frameButtonsAreActive);
-            ctx.restore();
+            ctx.restore();*/
 
             // Add Tween button
             ctx.save();
-            ctx.translate(90, 20);
+            ctx.translate(60, 20);
                 this.addTweenButton.draw(frameButtonsAreActive);
             ctx.restore();
         ctx.restore();

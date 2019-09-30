@@ -173,7 +173,7 @@ class HotKeyInterface extends Object {
       },
       'extend-and-push-other-frames': {
         name: "Extend And Push Frames",
-        sequences: ['shift+9'],
+        sequences: ['shift+]'],
       },
       'select-all': {
         name: "Select All",
