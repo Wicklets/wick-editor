@@ -49,8 +49,8 @@
     "eject": "react-scripts eject",
     "electron-dev": "ELECTRON_START_URL=http://localhost:3000 electron .",
     "electron": "electron .",
-    "electron-build": "electron-packager .",
-    "electron-build-win": "electron-packager . wickwin --platform=win32"
+    "electron-build-macos": "electron-packager . wickmacos --ignore=node_modules --platform=darwin --out electron-build",
+    "electron-build-windows": "electron-packager . wickwindows --ignore=node_modules --platform=win32 --out electron-build"
   },
   "eslintConfig": {
     "extends": "react-app"
