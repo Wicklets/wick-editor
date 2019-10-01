@@ -45,3 +45,11 @@ To deploy, you'll need to have push access to this repo.
 ### Deploying to Prerelease
 
 1) Run `npm run prerelease-deploy`
+
+### Bundling the Electron App (Desktop App)
+
+This build process uses [electron-packager](https://github.com/electron/electron-packager) and uses code from this tutorial: [Building an Electron application with create-react-app](https://www.freecodecamp.org/news/building-an-electron-application-with-create-react-app-97945861647c/).
+
+1) Run 'npm run build'
+
+2) Run `electron-build-macos` and/or `electron-build-windows`

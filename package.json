@@ -2,7 +2,7 @@
   "name": "wick-editor-react",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://alpha.wickeditor.com",
+  "homepage": "./",
   "dependencies": {
     "audiobuffer-to-wav": "^1.0.0",
     "base64-arraybuffer": "^0.2.0",
@@ -38,6 +38,7 @@
     "reactstrap": "^6.5.0",
     "underscore": "^1.9.1"
   },
+  "main": "src/electron-starter.js",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build && cp CNAME_editor ./build/CNAME",
@@ -45,7 +46,12 @@
     "predeploy": "npm run build",
     "prerelease-deploy": "npm run build; cp -r build/* ../wick-editor-prerelease/; cd ../wick-editor-prerelease; rm CNAME; echo 'test.wickeditor.com' > CNAME; git add .; git commit -m 'update prerelease build'; git push --force;",
     "deploy": "gh-pages -d build",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "electron-dev-macos": "ELECTRON_START_URL=http://localhost:3000 electron .",
+    "electron-dev-windows": "set ELECTRON_START_URL=http://localhost:3000 && electron .",
+    "electron": "electron .",
+    "electron-build-macos": "electron-packager . wickmacos --ignore=node_modules --platform=darwin --out electron-build",
+    "electron-build-windows": "electron-packager . wickwindows --ignore=node_modules --platform=win32 --out electron-build"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -55,5 +61,9 @@
     "not dead",
     "not ie <= 11",
     "not op_mini all"
-  ]
+  ],
+  "devDependencies": {
+    "electron": "^6.0.10",
+    "electron-packager": "^14.0.6"
+  }
 }

@@ -3,6 +3,7 @@
 # dependencies
 /node_modules
 */node_modules
+/electron-build
 
 # testing
 /coverage
