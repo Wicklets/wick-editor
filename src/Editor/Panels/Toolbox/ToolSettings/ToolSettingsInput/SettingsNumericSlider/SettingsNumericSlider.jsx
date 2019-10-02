@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import Popover from 'react-popover';
+import ReactTooltip from 'react-tooltip';
 
 import WickInput from 'Editor/Util/WickInput/WickInput';
 import ToolIcon from 'Editor/Util/ToolIcon/ToolIcon';
@@ -63,6 +64,11 @@ class SettingsNumericSlider extends Component {
   }
 
   render () {
+      /*TODO Move the tooltip to somewhere more generic*/
+
+      // Detect if on mobile to disable tooltips.
+      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+
       return (
         <div
         className="settings-numeric-slider-container">
@@ -75,8 +81,22 @@ class SettingsNumericSlider extends Component {
           tipSize={5}>
               <div className="settings-numeric-top-container">
                 {/*TODO Move the tooltip to somewhere more generic*/}
-                <div className="settings-numeric-slider-icon">
-                    <ToolIcon name={this.props.icon}/>
+                <div
+                  className="settings-numeric-slider-icon"
+                  data-tip
+                  data-for={'setting-' + this.props.name}
+                  id={'setting-' + this.props.name}>
+                  <ToolIcon name={this.props.icon}/>
+                    <ReactTooltip
+                      disable={isMobile}
+                      id={'setting-' + this.props.name}
+                      type='info'
+                      place={'bottom'}
+                      effect='solid'
+                      aria-haspopup='true'
+                      className="wick-tooltip">
+                      <span>{this.props.name}</span>
+                    </ReactTooltip>
                 </div>
                 <div
                   onMouseOver = {() => this.setSlider(true)}

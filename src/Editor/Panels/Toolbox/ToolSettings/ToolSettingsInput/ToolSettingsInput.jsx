@@ -22,34 +22,18 @@ import React, { Component } from 'react';
 import WickInput from 'Editor/Util/WickInput/WickInput';
 import SettingsNumericSlider from './SettingsNumericSlider/SettingsNumericSlider';
 import ReactTooltip from 'react-tooltip';
-import ActionButton from 'Editor/Util/ActionButton/ActionButton'; 
+import ActionButton from 'Editor/Util/ActionButton/ActionButton';
 
 import './_toolsettingsinput.scss';
 
 class ToolSettingsInput extends Component {
-  renderTooltip = (tooltipID) => {
-    // Detect if on mobile to disable tooltips.
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
-
-    return (
-      <ReactTooltip
-        disable={isMobile}
-        id={tooltipID}
-        type='info'
-        place={this.props.tooltipPlace === undefined ? 'bottom' : this.props.tooltipPlace}
-        effect='solid'
-        aria-haspopup='true'>
-        <span>{this.props.name}</span>
-      </ReactTooltip>
-    )
-  }
-
   renderNumericInput = () => {
     return (
       <SettingsNumericSlider
         onChange={this.props.onChange}
         value={this.props.value}
         inputRestrictions={this.props.inputRestrictions}
+        name={this.props.name}
         icon={this.props.icon} />
     );
   }
