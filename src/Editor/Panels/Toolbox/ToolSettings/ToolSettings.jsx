@@ -70,6 +70,7 @@ class ToolSettings extends Component {
         {this.renderBrushSize()}
         {this.renderBrushSmoothing()}
         {this.renderEnablePressure()}
+        {this.renderEnableRelativeBrushSize()}
       </div>
     );
   }
@@ -131,6 +132,17 @@ class ToolSettings extends Component {
         type='checkbox'
         value={this.getToolSetting('pressureEnabled')}
         onChange={() => this.setToolSetting('pressureEnabled', !this.getToolSetting('pressureEnabled'))}/>
+    )
+  }
+
+  renderEnableRelativeBrushSize = () => {
+    return (
+      <ToolSettingsInput
+        name='Relative Brush Size'
+        icon='brushpressure'
+        type='checkbox'
+        value={this.getToolSetting('relativeBrushSize')}
+        onChange={() => this.setToolSetting('relativeBrushSize', !this.getToolSetting('relativeBrushSize'))}/>
     )
   }
 
