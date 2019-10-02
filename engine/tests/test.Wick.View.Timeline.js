@@ -48,5 +48,9 @@ describe('Wick.View.Timeline', function() {
 
             expect(timeline.view.onionSkinnedFramesLayers.length).to.equal(0);
         });
+
+        it('should render hidden layers if project publishedMode is set to true', function() {
+            // TODO
+        });
     });
 });

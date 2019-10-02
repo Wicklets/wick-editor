@@ -76,7 +76,7 @@ Wick.GUIElement.Scrollbar = class extends Wick.GUIElement {
     }
 
     _canScrollVertically () {
-        return this.project.verticalScrollSpace > this.maxHeight;
+        return this.model.project.activeTimeline.layers.length > 1;
     }
 
     _getScrollbarPosition () {
