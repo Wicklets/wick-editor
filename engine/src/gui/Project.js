@@ -84,7 +84,7 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
             $(this._canvas).on('mousewheel', this._onMouseWheel.bind(this));
 
             // Touch events
-            document.addEventListener('touchstart', e => {
+            this._canvas.addEventListener('touchstart', e => {
                 e.buttons = 0;
                 e.clientX = e.touches[0].clientX;
                 e.clientY = e.touches[0].clientY;
