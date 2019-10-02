@@ -622,7 +622,9 @@ class Inspector extends Component {
    * Renders the inspector view for all properties of a multi-tween selection.
    */
   renderMultiTween = () => {
-    return ( <div className="inspector-content"/> );
+    return ( <div className="inspector-content">
+      {this.renderTweenEasingType()}
+    </div> );
   }
 
   /**

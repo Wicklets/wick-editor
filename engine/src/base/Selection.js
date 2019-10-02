@@ -280,11 +280,11 @@ Wick.Selection = class extends Wick.Base {
             return 'tween';
           }
         } else if (selection.types.length === 1) {
-          if(selection.getSelectedObject() instanceof window.Wick.Frame) {
+          if(selection.getSelectedObjects()[0] instanceof window.Wick.Frame) {
             return 'multiframe';
-          } else if(selection.getSelectedObject() instanceof window.Wick.Layer) {
+          } else if(selection.getSelectedObjects()[0] instanceof window.Wick.Layer) {
             return 'multilayer';
-          } else if(selection.getSelectedObject() instanceof window.Wick.Tween) {
+          } else if(selection.getSelectedObjects()[0] instanceof window.Wick.Tween) {
             return 'multitween';
           }
         } else {

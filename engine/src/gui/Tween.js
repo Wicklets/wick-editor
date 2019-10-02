@@ -155,6 +155,8 @@ Wick.GUIElement.Tween = class extends Wick.GUIElement {
             }
             this.model.project.selection.select(this.model);
             this.model.parentLayer.activate();
+            
+            this.projectWasModified();
         }
     }
 
