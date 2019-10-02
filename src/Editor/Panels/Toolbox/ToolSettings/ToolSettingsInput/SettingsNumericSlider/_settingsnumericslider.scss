@@ -36,6 +36,7 @@ $tool-settings-bottom-container-height: calc(2 * #{$tool-settings-size});
 .settings-numeric-slider-icon {
     height: calc(#{$tool-settings-size} * .6);
     width: 50%;
+    margin-right: 5px;
 }
 
 .settings-numeric-wick-input-container {

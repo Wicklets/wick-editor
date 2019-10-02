@@ -64,33 +64,36 @@ class SettingsNumericSlider extends Component {
 
   render () {
       return (
-          <div
-          className="settings-numeric-slider-container"
-          onMouseOver = {() => this.setSlider(true)}
-          onMouseLeave = {this.closeSlider}>
-            <Popover
-            isOpen={this.state.sliderOn}
-            preferPlace='below'
-            enterExitTransitionDurationMs={200}
-            refreshIntervalMs={100}
-            body={this.getSliderNode()}
-            tipSize={5}>
-                <div className="settings-numeric-top-container">
-                    <div className="settings-numeric-slider-icon">
-                        <ToolIcon name={this.props.icon}/>
-                    </div>
-                        <WickInput
-                            type="numeric"
-                            containerclassname="settings-numeric-wick-input-container"
-                            className="settings-numeric-input"
-                            onChange={this.props.onChange}
-                            onFocus={() => {this.setSlider(true)}}
-                            onBlur={() => {this.setSlider(false)}}
-                            value={this.props.value}
-                            {...this.props.inputRestrictions}/>
+        <div
+        className="settings-numeric-slider-container">
+          <Popover
+          isOpen={this.state.sliderOn}
+          preferPlace='below'
+          enterExitTransitionDurationMs={200}
+          refreshIntervalMs={100}
+          body={this.getSliderNode()}
+          tipSize={5}>
+              <div className="settings-numeric-top-container">
+                {/*TODO Move the tooltip to somewhere more generic*/}
+                <div className="settings-numeric-slider-icon">
+                    <ToolIcon name={this.props.icon}/>
                 </div>
-            </Popover>
-          </div>
+                <div
+                  onMouseOver = {() => this.setSlider(true)}
+                  onMouseLeave = {this.closeSlider}>
+                    <WickInput
+                        type="numeric"
+                        containerclassname="settings-numeric-wick-input-container"
+                        className="settings-numeric-input"
+                        onChange={this.props.onChange}
+                        onFocus={() => {this.setSlider(true)}}
+                        onBlur={() => {this.setSlider(false)}}
+                        value={this.props.value}
+                        {...this.props.inputRestrictions}/>
+              </div>
+            </div>
+          </Popover>
+        </div>
       );
   }
 }
