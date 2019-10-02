@@ -170,6 +170,13 @@ Wick.GUIElement.FramesContainer = class extends Wick.GUIElement {
         if(!this._selectionBox) {
             this._selectionBox = new Wick.GUIElement.SelectionBox(this.model);
         }
+
+        // Move the playhead when the selection box is dragged.
+        var newPlayhead = this.addFrameCol+1;
+        if(this.model.playheadPosition !== newPlayhead) {
+            this.model.playheadPosition = newPlayhead;
+            this.projectWasSoftModified();
+        }
     }
 
     onMouseUp (e) {

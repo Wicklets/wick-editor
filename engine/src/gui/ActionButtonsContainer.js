@@ -39,15 +39,6 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
             }
         });
 
-        this.cutFrameButton = new Wick.GUIElement.ActionButton(this.model, {
-            tooltip: 'Cut Frame',
-            icon: 'cut_frame',
-            clickFn: () => {
-                this.model.project.cutSelectedFrames();
-                this.projectWasModified();
-            }
-        });
-
         this.addTweenButton = new Wick.GUIElement.ActionButton(this.model, {
             tooltip: 'Add Tween',
             icon: 'add_tween',
@@ -56,15 +47,35 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
                 this.projectWasModified();
             }
         });
+
+        this.fillGapsModeButton = new Wick.GUIElement.ActionButton(this.model, {
+            tooltip: 'Gap Fill Mode',
+            icon: 'add_tween',
+            clickFn: () => {
+                var timeline = this.model.project.activeTimeline;
+                if(timeline.fillGapsMethod === 'blank_frames') {
+                    timeline.fillGapsMethod = 'auto_extend';
+                } else {
+                    timeline.fillGapsMethod = 'blank_frames';
+                }
+                this.projectWasModified();
+            }
+        });
     };
 
     draw () {
         var ctx = this.ctx;
 
-        // Background
+        // Top background
         ctx.fillStyle = Wick.GUIElement.TIMELINE_BACKGROUND_COLOR;
         ctx.beginPath();
         ctx.rect(0, 0, Wick.GUIElement.LAYERS_CONTAINER_WIDTH, Wick.GUIElement.NUMBER_LINE_HEIGHT);
+        ctx.fill();
+
+        // Buttom background
+        ctx.fillStyle = Wick.GUIElement.TIMELINE_BACKGROUND_COLOR;
+        ctx.beginPath();
+        ctx.rect(0, this.canvas.height - Wick.GUIElement.BREADCRUMBS_HEIGHT - Wick.GUIElement.SCROLLBAR_SIZE, Wick.GUIElement.LAYERS_CONTAINER_WIDTH, Wick.GUIElement.SCROLLBAR_SIZE);
         ctx.fill();
 
         var frameButtonsAreActive = this.model.project.selection.getSelectedObjects('Frame').length > 0;
@@ -89,17 +100,17 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
                 this.insertBlankFrameButton.draw(frameButtonsAreActive);
             ctx.restore();
 
-            // Cut Frame button
-            /*ctx.save();
-            ctx.translate(60, 20);
-                this.cutFrameButton.draw(frameButtonsAreActive);
-            ctx.restore();*/
-
             // Add Tween button
             ctx.save();
             ctx.translate(60, 20);
                 this.addTweenButton.draw(frameButtonsAreActive);
             ctx.restore();
+        ctx.restore();
+
+        // Gap Fill Mode button
+        ctx.save();
+        ctx.translate(15, this.canvas.height - Wick.GUIElement.NUMBER_LINE_HEIGHT - 15);
+            this.fillGapsModeButton.draw(true);
         ctx.restore();
 
         ctx.restore();
