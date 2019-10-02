@@ -151,6 +151,14 @@ class HotKeyInterface extends Object {
         name: "Shrink Frame",
         sequences: ['shift+,'],
       },
+      'extend-and-push-other-frames': {
+        name: "Extend And Push Frames",
+        sequences: ['shift+]'],
+      },
+      'shrink-and-pull-other-frames': {
+        name: "Shrink And Pull Frames",
+        sequences: ['shift+['],
+      },
       'move-frame-right': {
         name: "Move Frame Right",
         sequences: ['ctrl+shift+.', 'command+shift+.'],
@@ -170,10 +178,6 @@ class HotKeyInterface extends Object {
       'insert-blank-frame': {
         name: "Insert Blank Frame",
         sequences: ['shift+8'],
-      },
-      'extend-and-push-other-frames': {
-        name: "Extend And Push Frames",
-        sequences: ['shift+]'],
       },
       'select-all': {
         name: "Select All",
@@ -283,12 +287,13 @@ class HotKeyInterface extends Object {
       'move-playhead-backwards': this.editor.movePlayheadBackwards,
       'extend-frame': this.editor.extendFrame,
       'shrink-frame': this.editor.shrinkFrame,
+      'extend-and-push-other-frames': this.editor.extendSelectedFramesAndPushOtherFrames,
+      'shrink-and-pull-other-frames': this.editor.shrinkSelectedFramesAndPullOtherFrames,
       'move-frame-right': this.editor.moveFrameRight,
       'move-frame-left': this.editor.moveFrameLeft,
       'create-tween': this.editor.createTween,
       'cut-frame': this.editor.cutFrame,
       'insert-blank-frame': this.editor.insertBlankFrame,
-      'extend-and-push-other-frames': this.editor.extendSelectedFramesAndPushOtherFrames,
       'select-all': this.editor.selectAll,
       'bring-to-front': this.editor.sendSelectionToFront,
       'send-to-back': this.editor.sendSelectionToBack,

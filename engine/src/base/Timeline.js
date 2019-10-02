@@ -415,7 +415,8 @@ Wick.Timeline = class extends Wick.Base {
         if(fillGapsMethod === 'blank_frames' || fillGapsMethod === 'auto_extend') {
             this._fillGapsMethod = fillGapsMethod;
         } else {
-            console.warning('Warning: Invalid fillGapsMethod: ' + fillGapsMethod);
+            console.warn('Warning: Invalid fillGapsMethod: ' + fillGapsMethod);
+            console.warn('Valid fillGapsMethod: "blank_frames", "auto_extend"');
         }
     }
 

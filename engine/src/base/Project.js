@@ -671,7 +671,7 @@ Wick.Project = class extends Wick.Base {
             frame.end ++;
         });
         this.activeTimeline.resolveFrameOverlap(frames);
-        this.activeTimeline.resolveFrameGaps();
+        this.activeTimeline.resolveFrameGaps(frames);
     }
 
     /**
@@ -694,7 +694,17 @@ Wick.Project = class extends Wick.Base {
             frame.end --;
         });
         this.activeTimeline.resolveFrameOverlap(frames);
-        this.activeTimeline.resolveFrameGaps();
+        this.activeTimeline.resolveFrameGaps(frames);
+    }
+
+    /**
+     * Move the right edge of all selected frames left one frame, and pull other frames along.
+     */
+    shrinkSelectedFramesAndPullOtherFrames () {
+        var frames = this.selection.getSelectedObjects('Frame');
+        frames.forEach(frame => {
+            frame.shrinkAndPullOtherFrames();
+        });
     }
 
     /**

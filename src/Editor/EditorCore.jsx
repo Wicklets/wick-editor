@@ -1209,6 +1209,11 @@ class EditorCore extends Component {
       this.project.extendSelectedFramesAndPushOtherFrames();
       this.projectDidChange();
   }
+
+  shrinkSelectedFramesAndPullOtherFrames = () => {
+      this.project.shrinkSelectedFramesAndPullOtherFrames();
+      this.projectDidChange();
+  }
 }
 
 export default EditorCore;

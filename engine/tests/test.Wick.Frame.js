@@ -758,4 +758,31 @@ describe('Wick.Frame', function() {
             expect(frame4.end).to.equal(12);
         });
     });
+
+    describe('#shrinkAndPullOtherFrames', function () {
+        it('should shrink a frame and pull other frames', function () {
+            var project = new Wick.Project();
+            project.activeFrame.remove();
+
+            var frame1 = new Wick.Frame({start: 1, end: 5, identifier: 'frame1'});
+            project.activeLayer.addFrame(frame1);
+            var frame2 = new Wick.Frame({start: 6, end: 6, identifier: 'frame2'});
+            project.activeLayer.addFrame(frame2);
+            var frame3 = new Wick.Frame({start: 7, end: 10, identifier: 'frame3'});
+            project.activeLayer.addFrame(frame3);
+            var frame4 = new Wick.Frame({start: 11, end: 11, identifier: 'frame4'});
+            project.activeLayer.addFrame(frame4);
+
+            frame1.shrinkAndPullOtherFrames();
+
+            expect(frame1.start).to.equal(1);
+            expect(frame1.end).to.equal(4);
+            expect(frame2.start).to.equal(5);
+            expect(frame2.end).to.equal(5);
+            expect(frame3.start).to.equal(6);
+            expect(frame3.end).to.equal(9);
+            expect(frame4.start).to.equal(10);
+            expect(frame4.end).to.equal(10);
+        });
+    });
 });

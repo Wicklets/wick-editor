@@ -570,6 +570,19 @@ Wick.Frame = class extends Wick.Tickable {
     }
 
     /**
+     * Shrink this frame by one and pull all frames left of this frame to the left.
+     */
+    shrinkAndPullOtherFrames () {
+        if(this.length === 1) return;
+        
+        this.parentLayer.getFramesInRange(this.end + 1, Infinity).forEach(frame => {
+            frame.start -= 1;
+            frame.end -= 1;
+        });
+        this.end -= 1;
+    }
+
+    /**
      * Import SVG data into this frame. SVGs containing mulitple paths will be split into multiple Wick Paths.
      * @param {string} svg - the SVG data to parse and import.
      */
