@@ -30,7 +30,8 @@ window.onload = function () {
 
         project.focus = project.root;
         project.focus.timeline.playheadPosition = 1;
-        
+
+        project.publishedMode = true;
         project.play({
             onAfterTick: (() => {
                 project.view.render();

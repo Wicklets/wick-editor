@@ -69,6 +69,7 @@ Wick.Project = class extends Wick.Base {
 
         this._hideCursor = false;
         this._muted = false;
+        this._publishedMode = false;
 
         this._tools = {
             brush: new Wick.Tools.Brush(),
@@ -882,6 +883,19 @@ Wick.Project = class extends Wick.Base {
     }
 
     /**
+     * In "Published Mode", all layers will be rendered even if they are set to be hidden.
+     * This is enabled during GIF/Video export, and enabled when the project is run standalone.
+     * @type {boolean}
+     */
+    get publishedMode () {
+        return this._publishedMode;
+    }
+
+    set publishedMode (publishedMode) {
+        this._publishedMode = publishedMode;
+    }
+
+    /**
      * Ticks the project.
      * @returns {object} An object containing information about an error, if one occured while running scripts. Null otherwise.
      */
@@ -1096,6 +1110,7 @@ Wick.Project = class extends Wick.Base {
 
         this.history.saveSnapshot('before-gif-render');
         this.mute();
+        this.publishedMode = true;
         this.tick();
 
         // Put the project canvas inside a div that's the same size as the project so the frames render at the correct resolution.
@@ -1138,6 +1153,7 @@ Wick.Project = class extends Wick.Base {
                     this.view.resize();
 
                     this.history.loadSnapshot('before-gif-render');
+                    this.publishedMode = false;
                     this.view.render();
 
                     window.document.body.removeChild(container);
