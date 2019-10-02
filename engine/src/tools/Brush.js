@@ -95,7 +95,7 @@ Wick.Tools.Brush = class extends Wick.Tool {
         this._updateCanvasAttributes();
 
         // Update croquis params
-        this.croquisBrush.setSize(this.getSetting('brushSize') + 1);
+        this.croquisBrush.setSize(this._getRealBrushSize());
         this.croquisBrush.setColor(this.getSetting('fillColor').toCSS(true));
         this.croquisBrush.setSpacing(this.BRUSH_POINT_SPACING);
         this.croquis.setToolStabilizeLevel(this.BRUSH_STABILIZER_LEVEL);
@@ -138,7 +138,7 @@ Wick.Tools.Brush = class extends Wick.Tool {
         // Forward mouse event to croquis canvas
         var point = this._croquisToPaperPoint(e.point);
         this._updateStrokeBounds(point);
-        this.strokeBounds = this.strokeBounds.expand(this.getSetting('brushSize') + 1);//prevents cropping out edges of the brush stroke
+        this.strokeBounds = this.strokeBounds.expand(this._getRealBrushSize());//prevents cropping out edges of the brush stroke
         try {
             this.croquis.up(point.x, point.y, this.lastPressure);
         } catch (e) {
@@ -231,13 +231,24 @@ Wick.Tools.Brush = class extends Wick.Tool {
         }, Wick.Tools.Brush.CROQUIS_WAIT_AMT_MS);
     }
 
+    /* Generate a new circle cursor based on the brush size. */
     _regenCursor () {
-        var size = (this.getSetting('brushSize') + 1) * this.pressure;
+        var size = (this._getRealBrushSize()) * this.pressure;
         var color = this.getSetting('fillColor').toCSS(true);
         this.cachedCursor = this.createDynamicCursor(color, size);
         this.setCursor(this.cachedCursor);
     }
 
+    /* Get the actual pixel size of the brush to send to Croquis. */
+    _getRealBrushSize () {
+        var size = this.getSetting('brushSize') + 1;
+        if(!this.getSetting('relativeBrushSize')) {
+            size *= this.paper.view.zoom;
+        }
+        return size;
+    }
+
+    /* Update Croquis and the div containing croquis to reflect all current options. */
     _updateCanvasAttributes () {
         // Update croquis element and pressure options
         if(!this.paper.view._element.parentElement.contains(this.croquisDOMElement)) {
@@ -258,15 +269,18 @@ Wick.Tools.Brush = class extends Wick.Tool {
         this.croquisDOMElement.style.opacity = this.getSetting('fillColor').alpha;
     }
 
+    /* Convert a point in Croquis' canvas space to paper.js's canvas space. */
     _croquisToPaperPoint (croquisPoint) {
         var paperPoint = this.paper.view.projectToView(croquisPoint.x, croquisPoint.y);
         return paperPoint;
     }
 
+    /* Used for calculating the crop amount for potrace. */
     _resetStrokeBounds (point) {
         this.strokeBounds = new paper.Rectangle(point.x, point.y, 1, 1);
     }
 
+    /* Used for calculating the crop amount for potrace. */
     _updateStrokeBounds (point) {
         this.strokeBounds = this.strokeBounds.include(point);
     }

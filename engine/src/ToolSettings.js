@@ -59,11 +59,8 @@ Wick.ToolSettings = class {
             name: 'pressureEnabled',
             default: false,
         }, {
-            name: 'selectPoints',
-            default: false,
-        }, {
-            name: 'selectCurves',
-            default: false,
+            name: 'relativeBrushSize',
+            default: true,
         }];
     }
 
