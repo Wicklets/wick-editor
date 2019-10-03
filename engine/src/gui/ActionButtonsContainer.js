@@ -53,8 +53,24 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
             icon: 'add_tween',
             size: 8,
             clickFn: () => {
-                var position = {x: 0, y: this.canvas.height - Wick.GUIElement.SCROLLBAR_SIZE};
-                this.project.openPopupMenu(new Wick.GUIElement.PopupMenu(this.model, position));
+                this.project.openPopupMenu(new Wick.GUIElement.PopupMenu(this.model, {
+                    x: 0,
+                    y: this.canvas.height - Wick.GUIElement.SCROLLBAR_SIZE,
+                    mode: 'gapfill',
+                }));
+            }
+        });
+
+        this.gridSizeButton = new Wick.GUIElement.ActionButton(this.model, {
+            tooltip: 'Size',
+            icon: 'add_tween',
+            size: 8,
+            clickFn: () => {
+                this.project.openPopupMenu(new Wick.GUIElement.PopupMenu(this.model, {
+                    x: 20,
+                    y: this.canvas.height - Wick.GUIElement.SCROLLBAR_SIZE,
+                    mode: 'framesize'
+                }));
             }
         });
     };
@@ -78,6 +94,12 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
         ctx.save();
         ctx.translate(9, this.canvas.height - Wick.GUIElement.NUMBER_LINE_HEIGHT - 5);
             this.fillGapsModeButton.draw(true);
+        ctx.restore();
+
+        // Frame Size button
+        ctx.save();
+        ctx.translate(29, this.canvas.height - Wick.GUIElement.NUMBER_LINE_HEIGHT - 5);
+            this.gridSizeButton.draw(true);
         ctx.restore();
 
         var frameButtonsAreActive = this.model.project.selection.getSelectedObjects('Frame').length > 0;
