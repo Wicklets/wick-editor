@@ -121,6 +121,7 @@ gulp.task("default", function() {
       'src/gui/NumberLine.js',
       'src/gui/OnionSkinRange.js',
       'src/gui/Playhead.js',
+      'src/gui/PopupMenu.js',
       'src/gui/Project.js',
       'src/gui/Scrollbar.js',
       'src/gui/ScrollbarGrabber.js',

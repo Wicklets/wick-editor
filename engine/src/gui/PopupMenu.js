@@ -24,6 +24,9 @@ Wick.GUIElement.PopupMenu = class extends Wick.GUIElement {
         this.x = args.x;
         this.y = args.y;
 
+        this.width = 80;
+        this.height = 40;
+
         this.extendFramesButton = new Wick.GUIElement.ActionButton(this.model, {
             tooltip: 'Extend Frames',
             icon: 'add_tween',
@@ -48,21 +51,28 @@ Wick.GUIElement.PopupMenu = class extends Wick.GUIElement {
 
         var ctx = this.ctx;
 
-        // Background
-        ctx.fillStyle = 'red';
-        ctx.beginPath();
-        ctx.rect(0, 0, 100, 100);
-        ctx.fill();
-
-        // Buttons
-        ctx.save();
-        ctx.translate(50, 50);
-            this.extendFramesButton.draw(true);
-        ctx.restore();
+        var method = this.project.model.activeTimeline.fillGapsMethod;
 
         ctx.save();
-        ctx.translate(50, 80);
-            this.emptyFramesButton.draw(true);
+        ctx.translate(this.x, this.y - this.height);
+            // Background
+            ctx.fillStyle = '#111';
+            ctx.beginPath();
+            ctx.roundRect(0, 0, 80, 40, 3);
+            ctx.fill();
+
+            // Buttons
+            ctx.save();
+            ctx.globalAlpha = method !== 'auto_extend' ? 1.0 : 0.3;
+            ctx.translate(20, 20);
+                this.extendFramesButton.draw(method !== 'auto_extend');
+            ctx.restore();
+
+            ctx.save();
+            ctx.globalAlpha = method !== 'blank_frames' ? 1.0 : 0.3;
+            ctx.translate(57, 20);
+                this.emptyFramesButton.draw(method !== 'blank_frames');
+            ctx.restore();
         ctx.restore();
     };
 };
