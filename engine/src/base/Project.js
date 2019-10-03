@@ -619,6 +619,39 @@ Wick.Project = class extends Wick.Base {
     }
 
     /**
+     * Copy the contents of the selection to the clipboard, and delete what was copied.
+     * @returns {boolean} True if there was something to cut, false otherwise
+     */
+    cutSelectionToClipboard () {
+        if(this.copySelectionToClipboard()) {
+            this.deleteSelectedObjects();
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Paste the contents of the clipboard into the project.
+     * @returns {boolean} True if there was something to paste in the clipboard, false otherwise.
+     */
+    pasteClipboardContents () {
+        return this.clipboard.pasteObjectsFromClipboard(this);
+    }
+
+    /**
+     * Copy and paste the current selection.
+     * @returns {boolean} True if there was something to duplicate, false otherwise
+     */
+    duplicateSelection () {
+        if(!this.copySelectionToClipboard()) {
+            return false;
+        } else {
+            return this.pasteClipboardContents();
+        }
+    }
+
+    /**
      * Cut the currently selected frames.
      */
     cutSelectedFrames () {
@@ -731,14 +764,6 @@ Wick.Project = class extends Wick.Base {
         });
         this.activeTimeline.resolveFrameOverlap(frames);
         this.activeTimeline.resolveFrameGaps();
-    }
-
-    /**
-     * Paste the contents of the clipboard into the project.
-     * @returns {boolean} True if there was something to paste in the clipboard, false otherwise.
-     */
-    pasteClipboardContents () {
-        return this.clipboard.pasteObjectsFromClipboard(this);
     }
 
     /**

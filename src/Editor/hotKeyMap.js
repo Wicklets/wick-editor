@@ -119,6 +119,10 @@ class HotKeyInterface extends Object {
         name: "Paste",
         sequences: ['ctrl+v','command+v'],
       },
+      'duplicate': {
+        name: "Duplicate",
+        sequences: ['ctrl+d','command+d'],
+      },
       'cut': {
         name: "Cut",
         sequences: ['ctrl+x','command+x'],
@@ -279,8 +283,9 @@ class HotKeyInterface extends Object {
       'leave-focus': this.editor.focusTimelineOfParentObject,
       'do-nothing': (() => console.log("donothing")),
       'copy': this.editor.copySelectionToClipboard,
-      'cut': this.editor.cutSelectionToClipboard,
       'paste': this.editor.pasteFromClipboard,
+      'cut': this.editor.cutSelectionToClipboard,
+      'duplicate': this.editor.duplicateSelection,
       'grow-brush-size': this.editor.growBrushSize,
       'shrink-brush-size': this.editor.shrinkBrushSize,
       'move-playhead-forwards': this.editor.movePlayheadForwards,

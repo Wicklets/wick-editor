@@ -349,22 +349,22 @@ describe('Wick.Clipboard', function() {
         project.pasteClipboardContents();
 
         expect(project.activeLayer.frames.length).to.equal(3);
-        expect(project.activeLayer.getFrameAtPlayheadPosition(1)).to.not.equal(undefined);
-        expect(project.activeLayer.getFrameAtPlayheadPosition(2)).to.not.equal(undefined);
-        expect(project.activeLayer.getFrameAtPlayheadPosition(3)).to.not.equal(undefined);
-        expect(project.activeLayer.getFrameAtPlayheadPosition(4)).to.equal(undefined);
+        expect(project.activeLayer.getFrameAtPlayheadPosition(1)).to.not.equal(null);
+        expect(project.activeLayer.getFrameAtPlayheadPosition(2)).to.not.equal(null);
+        expect(project.activeLayer.getFrameAtPlayheadPosition(3)).to.not.equal(null);
+        expect(project.activeLayer.getFrameAtPlayheadPosition(4)).to.equal(null);
 
         project.activeTimeline.playheadPosition = 4;
         project.pasteClipboardContents();
 
         expect(project.activeLayer.frames.length).to.equal(6);
-        expect(project.activeLayer.getFrameAtPlayheadPosition(1)).to.not.equal(undefined);
-        expect(project.activeLayer.getFrameAtPlayheadPosition(2)).to.not.equal(undefined);
-        expect(project.activeLayer.getFrameAtPlayheadPosition(3)).to.not.equal(undefined);
-        expect(project.activeLayer.getFrameAtPlayheadPosition(4)).to.not.equal(undefined);
-        expect(project.activeLayer.getFrameAtPlayheadPosition(5)).to.not.equal(undefined);
-        expect(project.activeLayer.getFrameAtPlayheadPosition(6)).to.not.equal(undefined);
-        expect(project.activeLayer.getFrameAtPlayheadPosition(7)).equal(undefined);
+        expect(project.activeLayer.getFrameAtPlayheadPosition(1)).to.not.equal(null);
+        expect(project.activeLayer.getFrameAtPlayheadPosition(2)).to.not.equal(null);
+        expect(project.activeLayer.getFrameAtPlayheadPosition(3)).to.not.equal(null);
+        expect(project.activeLayer.getFrameAtPlayheadPosition(4)).to.not.equal(null);
+        expect(project.activeLayer.getFrameAtPlayheadPosition(5)).to.not.equal(null);
+        expect(project.activeLayer.getFrameAtPlayheadPosition(6)).to.not.equal(null);
+        expect(project.activeLayer.getFrameAtPlayheadPosition(7)).equal(null);
 
         project.selection.clear();
         project.selection.select(project.activeLayer.getFrameAtPlayheadPosition(4));
@@ -376,16 +376,16 @@ describe('Wick.Clipboard', function() {
 
         expect(project.activeLayer.frames.length).to.equal(9);
 
-        expect(project.activeLayer.getFrameAtPlayheadPosition(1)).to.not.equal(undefined);
-        expect(project.activeLayer.getFrameAtPlayheadPosition(2)).to.not.equal(undefined);
-        expect(project.activeLayer.getFrameAtPlayheadPosition(3)).to.not.equal(undefined);
-        expect(project.activeLayer.getFrameAtPlayheadPosition(4)).to.not.equal(undefined);
-        expect(project.activeLayer.getFrameAtPlayheadPosition(5)).to.not.equal(undefined);
-        expect(project.activeLayer.getFrameAtPlayheadPosition(6)).to.not.equal(undefined);
-        expect(project.activeLayer.getFrameAtPlayheadPosition(7)).to.not.equal(undefined);
-        expect(project.activeLayer.getFrameAtPlayheadPosition(8)).to.not.equal(undefined);
-        expect(project.activeLayer.getFrameAtPlayheadPosition(9)).to.not.equal(undefined);
-        expect(project.activeLayer.getFrameAtPlayheadPosition(10)).equal(undefined);
+        expect(project.activeLayer.getFrameAtPlayheadPosition(1)).to.not.equal(null);
+        expect(project.activeLayer.getFrameAtPlayheadPosition(2)).to.not.equal(null);
+        expect(project.activeLayer.getFrameAtPlayheadPosition(3)).to.not.equal(null);
+        expect(project.activeLayer.getFrameAtPlayheadPosition(4)).to.not.equal(null);
+        expect(project.activeLayer.getFrameAtPlayheadPosition(5)).to.not.equal(null);
+        expect(project.activeLayer.getFrameAtPlayheadPosition(6)).to.not.equal(null);
+        expect(project.activeLayer.getFrameAtPlayheadPosition(7)).to.not.equal(null);
+        expect(project.activeLayer.getFrameAtPlayheadPosition(8)).to.not.equal(null);
+        expect(project.activeLayer.getFrameAtPlayheadPosition(9)).to.not.equal(null);
+        expect(project.activeLayer.getFrameAtPlayheadPosition(10)).equal(null);
     });
 
     it('(bug) copied objects should have new uuids', function () {
@@ -404,9 +404,9 @@ describe('Wick.Clipboard', function() {
         var frame2 = project.activeLayer.getFrameAtPlayheadPosition(2);
         var frame3 = project.activeLayer.getFrameAtPlayheadPosition(3);
         expect(project.activeLayer.frames.length).to.equal(3);
-        expect(frame1).to.not.equal(undefined);
-        expect(frame2).to.not.equal(undefined);
-        expect(frame3).to.not.equal(undefined);
+        expect(frame1).to.not.equal(null);
+        expect(frame2).to.not.equal(null);
+        expect(frame3).to.not.equal(null);
         expect(frame1.uuid).to.not.equal(frame2.uuid);
         expect(frame2.uuid).to.not.equal(frame3.uuid);
         expect(frame1.uuid).to.not.equal(frame3.uuid);
@@ -425,7 +425,7 @@ describe('Wick.Clipboard', function() {
 
         expect(project.activeLayer.frames.length).to.equal(2);
         expect(project.activeLayer.getFrameAtPlayheadPosition(1)).to.not.equal(project.activeFrame);
-        expect(project.activeLayer.getFrameAtPlayheadPosition(2)).to.not.equal(undefined);
+        expect(project.activeLayer.getFrameAtPlayheadPosition(2)).to.not.equal(null);
     });
 
     it('should avoid duplicate identifiers while pasting', function () {

@@ -1071,6 +1071,46 @@ describe('Wick.Project', function() {
         // TODO
     });
 
+    describe('#copySelectionToClipboard', function () {
+        it('should copy correctly', function () {
+            // TODO
+        });
+    });
+
+    describe('#pasteClipboardContents', function () {
+        it('should paste correctly', function () {
+            // TODO
+        });
+    });
+
+    describe('#duplicateSelection', function () {
+        it('should copy and paste correctly', function () {
+            var project = new Wick.Project();
+            project.selection.select(project.activeFrame);
+            project.activeTimeline.playheadPosition = 2;
+            project.duplicateSelection();
+            expect(project.activeLayer.frames.length).to.equal(2);
+            expect(project.activeLayer.getFrameAtPlayheadPosition(1)).to.not.equal(null);
+            expect(project.activeLayer.getFrameAtPlayheadPosition(2)).to.not.equal(null);
+        });
+    });
+
+    describe('#cutSelectionToClipboard', function () {
+        it('should cut correctly', function () {
+            var project = new Wick.Project();
+            project.activeLayer.addFrame(new Wick.Frame({start:2}));
+            project.selection.select(project.activeLayer.getFrameAtPlayheadPosition(2));
+            project.cutSelectionToClipboard();
+            expect(project.activeLayer.frames.length).to.equal(1);
+            expect(project.activeLayer.getFrameAtPlayheadPosition(1)).to.not.equal(null);
+            project.activeTimeline.playheadPosition = 2;
+            project.pasteClipboardContents();
+            expect(project.activeLayer.frames.length).to.equal(2);
+            expect(project.activeLayer.getFrameAtPlayheadPosition(1)).to.not.equal(null);
+            expect(project.activeLayer.getFrameAtPlayheadPosition(2)).to.not.equal(null);
+        });
+    });
+
     describe('#clipboard + history bug', function () {
         it('should not throw an error when history is undone after clipboard content changes', function () {
             var project = new Wick.Project();

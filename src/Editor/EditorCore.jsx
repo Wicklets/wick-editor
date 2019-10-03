@@ -1122,14 +1122,24 @@ class EditorCore extends Component {
   }
 
   /**
+   * Duplicates the current objects in the selection.
+   */
+  duplicateSelection = () => {
+    if(this.project.duplicateSelection()) {
+      this.projectDidChange();
+    } else {
+      this.toast('There is nothing to duplicate.', 'warning');
+    }
+  }
+
+  /**
    * Copies the selected objects to the clipboard and then deletes them from the project.
    */
   cutSelectionToClipboard = () => {
-    if(this.project.copySelectionToClipboard()) {
-      this.deleteSelectedObjects();
+    if(this.project.cutSelection()) {
       this.projectDidChange();
     } else {
-      this.toast('There is nothing to cut.', 'warning');
+      this.toast('There is nothing to duplicate.', 'warning');
     }
   }
 

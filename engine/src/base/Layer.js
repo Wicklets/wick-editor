@@ -151,7 +151,7 @@ Wick.Layer = class extends Wick.Base {
     getFrameAtPlayheadPosition (playheadPosition) {
         return this.frames.find(frame => {
             return frame.inPosition(playheadPosition);
-        });
+        }) || null;
     }
 
     /**
