@@ -43,6 +43,8 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
         this._scrollX = 0;
         this._scrollY = 0;
 
+        this._popupMenu = null;
+
         this._onProjectModified = () => {};
         this._onProjectSoftModified = () => {};
     }
@@ -150,6 +152,11 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
         ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.model.activeTimeline.guiElement.draw();
 
+        // Draw current popup menu
+        if(this._popupMenu) {
+            this._popupMenu.draw();
+        }
+
         // Draw tooltips
         this._mouseHoverTargets.forEach(target => {
             if(target.tooltip) {
@@ -226,7 +233,24 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
         return this.model.activeTimeline.layers.length * this.gridCellHeight + this.gridCellHeight * 2;
     }
 
-   /**
+    /**
+     * Open a popup menu
+     * @param {Wick.GUIElement.PopupMenu} popupMenu - the PopupMenu to open
+     */
+    openPopupMenu (popupMenu) {
+        this._popupMenu = popupMenu;
+        this.draw();
+    }
+
+    /**
+     * Close the current popup menu
+     */
+    closePopupMenu () {
+        this._popupMenu = null;
+        this.draw();
+    }
+
+    /**
      * Drop an asset onto the timeline.
      * @param {string} uuid - The UUID of the desired asset.
      * @param {number} x - The x location of the image after creation in relation to the window.
@@ -333,6 +357,7 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
     }
 
     _onMouseDown (e) {
+        this.closePopupMenu();
         this.canvasClicked = true;
         this._clickXY = {x: e.clientX, y: e.clientY};
 

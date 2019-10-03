@@ -22,6 +22,7 @@ Wick.GUIElement.ActionButton = class extends Wick.GUIElement.Button {
         super(model, args);
 
         this.icon = args.icon;
+        this.size = args.size || Wick.GUIElement.ACTION_BUTTON_RADIUS;
     };
 
     draw (isActive) {
@@ -43,16 +44,16 @@ Wick.GUIElement.ActionButton = class extends Wick.GUIElement.Button {
             ctx.fillStyle = Wick.GUIElement.TIMELINE_BACKGROUND_COLOR;
         }
         ctx.beginPath();
-        ctx.arc(0, 0, Wick.GUIElement.ACTION_BUTTON_RADIUS, 0, 2 * Math.PI);
+        ctx.arc(0, 0, this.size, 0, 2 * Math.PI);
         ctx.fill();
 
         // Button Icon
-        var r = Wick.GUIElement.ACTION_BUTTON_RADIUS * 0.8;
+        var r = this.size * 0.8;
         ctx.drawImage(Wick.GUIElement.Icons.getIcon(this.icon), -r, -r, r*2, r*2);
     };
 
     get bounds () {
-        var r = Wick.GUIElement.ACTION_BUTTON_RADIUS;
+        var r = this.size;
         return {
             x: -r,
             y: -r,
