@@ -164,7 +164,8 @@ class EditorCore extends Component {
   movePlayheadForwards = () => {
     this.project.focus.timeline.playheadPosition++;
     this.project.guiElement.checkForPlayheadAutoscroll();
-    this.projectDidChange();
+    this.project.view.render();
+    this.project.guiElement.draw();
   }
 
   /**
@@ -173,6 +174,14 @@ class EditorCore extends Component {
   movePlayheadBackwards = () => {
     this.project.focus.timeline.playheadPosition--;
     this.project.guiElement.checkForPlayheadAutoscroll();
+    this.project.view.render();
+    this.project.guiElement.draw();
+  }
+
+  /**
+   * Finishes a playhead moving operation.
+   */
+  finishMovingPlayhead = () => {
     this.projectDidChange();
   }
 
@@ -575,7 +584,8 @@ class EditorCore extends Component {
    */
   nudgeSelectionUp = () => {
     this.project.selection.y -= 1;
-    this.projectDidChange();
+    this.project.view.render();
+    this.project.guiElement.draw();
   }
 
   /**
@@ -583,7 +593,8 @@ class EditorCore extends Component {
    */
   nudgeSelectionDown = () => {
     this.project.selection.y += 1;
-    this.projectDidChange();
+    this.project.view.render();
+    this.project.guiElement.draw();
   }
 
   /**
@@ -591,7 +602,8 @@ class EditorCore extends Component {
    */
   nudgeSelectionRight = () => {
     this.project.selection.x += 1;
-    this.projectDidChange();
+    this.project.view.render();
+    this.project.guiElement.draw();
   }
 
   /**
@@ -599,7 +611,8 @@ class EditorCore extends Component {
    */
   nudgeSelectionLeft = () => {
     this.project.selection.x -= 1;
-    this.projectDidChange();
+    this.project.view.render();
+    this.project.guiElement.draw();
   }
 
   /**
@@ -607,7 +620,8 @@ class EditorCore extends Component {
    */
   nudgeSelectionUpMore = () => {
     this.project.selection.y -= 10;
-    this.projectDidChange();
+    this.project.view.render();
+    this.project.guiElement.draw();
   }
 
   /**
@@ -615,7 +629,8 @@ class EditorCore extends Component {
    */
   nudgeSelectionDownMore = () => {
     this.project.selection.y += 10;
-    this.projectDidChange();
+    this.project.view.render();
+    this.project.guiElement.draw();
   }
 
   /**
@@ -623,7 +638,8 @@ class EditorCore extends Component {
    */
   nudgeSelectionRightMore = () => {
     this.project.selection.x += 10;
-    this.projectDidChange();
+    this.project.view.render();
+    this.project.guiElement.draw();
   }
 
   /**
@@ -631,6 +647,15 @@ class EditorCore extends Component {
    */
   nudgeSelectionLeftMore = () => {
     this.project.selection.x -= 10;
+    this.project.view.render();
+    this.project.guiElement.draw();
+  }
+
+  /**
+   * Finish the current nudging operation
+   */
+  finishNudgingObject = () => {
+    console.log('finishNudgingObject');
     this.projectDidChange();
   }
 

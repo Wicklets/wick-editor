@@ -19,10 +19,25 @@
 
 // Use React Hotkeys style mappings
 class HotKeyInterface extends Object {
+  static get DEFAULT_REPEAT_START_MS () {
+    return 500;
+  }
+
+  static get DEFAULT_REPEAT_MS () {
+    return 20;
+  }
+
   // Take in wick editor
   constructor(editor) {
     super();
+
     this.editor = editor;
+
+    // Timers for repeatable keys
+    this.repeatKeyTimeout = null;
+    this.repeatKeyInterval = null;
+
+    // Initialize all hotkeys settings
     this.createKeyMap();
     this.createHandlers();
 
@@ -142,34 +157,42 @@ class HotKeyInterface extends Object {
       'move-playhead-forwards': {
         name: "Move Playhead Forward",
         sequences: ['.'],
+        repeatable: true,
       },
       'move-playhead-backwards': {
         name: "Move Playhead Back",
         sequences: [','],
+        repeatable: true,
       },
       'extend-frame': {
         name: "Extend Frame",
         sequences: ['shift+.'],
+        repeatable: true,
       },
       'shrink-frame': {
         name: "Shrink Frame",
         sequences: ['shift+,'],
+        repeatable: true,
       },
       'extend-and-push-other-frames': {
         name: "Extend And Push Frames",
         sequences: ['shift+]'],
+        repeatable: true,
       },
       'shrink-and-pull-other-frames': {
         name: "Shrink And Pull Frames",
         sequences: ['shift+['],
+        repeatable: true,
       },
       'move-frame-right': {
         name: "Move Frame Right",
         sequences: ['ctrl+shift+.', 'command+shift+.'],
+        repeatable: true,
       },
       'move-frame-left': {
         name: "Move Frame Left",
         sequences: ['ctrl+shift+,', 'command+shift+,'],
+        repeatable: true,
       },
       'create-tween': {
         name: "Create Tween",
@@ -206,34 +229,42 @@ class HotKeyInterface extends Object {
       'nudge-up': {
         name: "Nudge Up",
         sequences: ['up'],
+        repeatable: true,
       },
       'nudge-down': {
         name: "Nudge Down",
         sequences: ['down'],
+        repeatable: true,
       },
       'nudge-left': {
         name: "Nudge Left",
         sequences: ['left'],
+        repeatable: true,
       },
       'nudge-right': {
         name: "Nudge Right",
         sequences: ['right'],
+        repeatable: true,
       },
       'nudge-up-more': {
         name: "Nudge Up More",
         sequences: ['shift+up'],
+        repeatable: true,
       },
       'nudge-down-more': {
         name: "Nudge Down More",
         sequences: ['shift+down'],
+        repeatable: true,
       },
       'nudge-left-more': {
         name: "Nudge Left More",
         sequences: ['shift+left'],
+        repeatable: true,
       },
       'nudge-right-more': {
         name: "Nudge Right More",
         sequences: ['shift+right'],
+        repeatable: true,
       },
       'toggle-script-editor': {
         name: "Toggle Script Editor",
@@ -255,6 +286,24 @@ class HotKeyInterface extends Object {
         name: "Break Apart Selection",
         sequences: ['ctrl+shift+g', 'command+shift+g'],
       },
+    }
+
+    // Create special sequence for repeatable hotkeys
+    this.keyMap['finish-repeating'] = {
+      name: 'Finish Repeating',
+      sequences: [],
+    }
+    // Map all repeatable sequences to the custom handler that clears the repeat timers (see finishRepeating)
+    for(var name in this.keyMap) {
+      var key = this.keyMap[name];
+      if(key.repeatable) {
+        key.sequences.forEach(sequence => {
+          this.keyMap['finish-repeating'].sequences.push({
+            sequence: sequence,
+            action: 'keyup',
+          });
+        });
+      }
     }
   }
 
@@ -316,19 +365,51 @@ class HotKeyInterface extends Object {
       'export-project-as-wick-file': this.editor.exportProjectAsWickFile,
       'import-project-as-wick-file': (() => console.log("Ctrl-O as a shortcut doesn't work yet.")),
       'create-clip-from-selection': (() => this.editor.createClipFromSelection("", false)),
-      'break-apart-selection': (() => this.editor.breakApartSelection())
+      'break-apart-selection': (() => this.editor.breakApartSelection()),
+      'finish-repeating': this.finishRepeating,
     }
 
+    // Wrap each handler for some custom functionality (see wrapHotkeyFunction)
     for(let name in this.handlers) {
       let origHandler = this.handlers[name];
       this.handlers[name] = ((e) => {
-        // If we are not on a text input area, use the original hotkey function and prevent the default action.
-        if(e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
-          e.preventDefault();
-          origHandler();
-        }
+        this.wrapHotkeyFunction(e, name, origHandler);
       });
     }
+
+    // Emergency stopgap to make sure the repeat timers don't get stuck
+    document.addEventListener('keyup', () => {
+      this.finishRepeating();
+    });
+  }
+
+  wrapHotkeyFunction = (e, name, fn) => {
+    if(e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+      // If we are not on a text input area, use the hotkey's function
+      e.preventDefault();
+      fn();
+
+      // Start the repeat timers if this hotkey is repeatable
+      var options = this.keyMap[name];
+      if(options.repeatable) {
+        this.repeatKeyTimeout = setTimeout(() => {
+          this.repeatKeyInterval = setInterval(() => {
+            fn();
+          }, options.repeatMS || HotKeyInterface.DEFAULT_REPEAT_MS);
+        }, options.startMS || HotKeyInterface.DEFAULT_REPEAT_START_MS);
+      }
+    } else {
+      // Otherwise, don't call preventDefault and the browser will do it's
+      // native keyboard shortcut function (i.e. copy and stuff)
+    }
+  }
+
+  finishRepeating = () => {
+    clearInterval(this.repeatKeyInterval);
+    clearTimeout(this.repeatKeyTimeout);
+    this.repeatKeyInterval = null;
+    this.repeatKeyTimeout = null;
+    this.editor.projectDidChange();
   }
 
   getKeyMap = () => {
