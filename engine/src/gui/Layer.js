@@ -54,19 +54,6 @@ Wick.GUIElement.Layer = class extends Wick.GUIElement {
                 this.projectWasModified();
             }
         });
-
-        this.addTweenButton = new Wick.GUIElement.LayerButton(model, {
-            untoggledTooltip: 'Add Tween',
-            untoggledIcon: 'add_tween',
-            isToggledFn: () => {
-                return false;
-            },
-            clickFn: () => {
-                this.model.activeFrame && this.model.activeFrame.createTween();
-                this.model.activate();
-                this.projectWasModified();
-            }
-        });
     }
 
     draw () {
@@ -128,21 +115,14 @@ Wick.GUIElement.Layer = class extends Wick.GUIElement {
 
         // Buttons
         ctx.save();
-        ctx.translate(20, 20);
+        ctx.translate(20, this.gridCellHeight / 2);
             this.hideButton.draw(this.model.hidden ? 'eye_closed' : 'eye_open', this.model.hidden);
         ctx.restore();
 
         ctx.save();
-        ctx.translate(40, 20);
+        ctx.translate(40, this.gridCellHeight / 2);
             this.lockButton.draw(this.model.locked ? 'lock_closed' : 'lock_open', this.model.locked);
         ctx.restore();
-
-        /*
-        ctx.save();
-        ctx.translate(175, 20);
-            this.addTweenButton.draw('add_tween', false);
-        ctx.restore();
-        */
 
         // Reordering ghost
         if(this.mouseState === 'down') {
