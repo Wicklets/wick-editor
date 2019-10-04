@@ -73,7 +73,7 @@ Wick.GUIElement.NumberLine = class extends Wick.GUIElement {
         var highlight = (i%5 === 4);
 
         // Draw cell number
-        var fontSize = (i>=100) ? 13 : 16;
+        var fontSize = (i>=99) ? 13 : 16;
         var fontFamily = Wick.GUIElement.NUMBER_LINE_NUMBERS_FONT_FAMILY;
         ctx.font = fontSize + "px " + fontFamily;
         if(highlight) {
