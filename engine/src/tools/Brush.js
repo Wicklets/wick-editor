@@ -34,6 +34,9 @@ Wick.Tools.Brush = class extends Wick.Tool {
         this.BRUSH_STABILIZER_LEVEL = 3;
         this.POTRACE_RESOLUTION = 1.0;
 
+        this.PRESSURE_BASE_MULT = 3;
+        this.MIN_PRESSURE = 0.14;
+
         this.croquis;
         this.croquisDOMElement;
         this.croquisBrush;
@@ -193,7 +196,11 @@ Wick.Tools.Brush = class extends Wick.Tool {
      * The current amount of pressure applied to the paper js canvas this tool belongs to.
      */
     get pressure () {
-        return this.getSetting('pressureEnabled') ? this.paper.view.pressure : 1;
+        if(this.getSetting('pressureEnabled')) {
+            return Math.max(this.MIN_PRESSURE, this.paper.view.pressure) * this.PRESSURE_BASE_MULT;
+        } else {
+            return 1;
+        }
     }
 
     /**

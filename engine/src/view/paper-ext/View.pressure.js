@@ -18,17 +18,16 @@
  */
 
 paper.View.inject({
-  pressure: 1,
+  pressure: 0,
   enablePressure: function(args) {
     let self = this;
-    let MIN_PRESSURE = 0.14;
 
     $(this.element.parentElement).pressure({
       change: function(force, event) {
-        self.pressure = $.pressureMap(force, 0.0, 1.0, MIN_PRESSURE, 1.0);
+        self.pressure = force;
       },
       end: function() {
-        self.pressure = 1.0;
+        self.pressure = 0;
       }
     }, {polyfill: false})
   },
