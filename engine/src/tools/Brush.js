@@ -19,7 +19,7 @@
 
 Wick.Tools.Brush = class extends Wick.Tool {
     static get CROQUIS_WAIT_AMT_MS () {
-        return 25;
+        return 100;
     }
 
     get doubleClickEnabled () {
@@ -115,7 +115,6 @@ Wick.Tools.Brush = class extends Wick.Tool {
 
         // Forward mouse event to croquis canvas
         var point = this._croquisToPaperPoint(e.point);
-        this._resetStrokeBounds(point);
         try {
             this.croquis.down(point.x, point.y, this.pressure);
         } catch (e) {
@@ -147,7 +146,8 @@ Wick.Tools.Brush = class extends Wick.Tool {
         // Forward mouse event to croquis canvas
         var point = this._croquisToPaperPoint(e.point);
         this._updateStrokeBounds(point);
-        this.strokeBounds = this.strokeBounds.expand(this._getRealBrushSize());//prevents cropping out edges of the brush stroke
+        // This prevents cropping out edges of the brush stroke
+        this.strokeBounds = this.strokeBounds.expand(this._getRealBrushSize());
         try {
             this.croquis.up(point.x, point.y, this.lastPressure);
         } catch (e) {
@@ -158,6 +158,10 @@ Wick.Tools.Brush = class extends Wick.Tool {
         // Give croquis just a little bit to get the canvas ready...
         this.errorOccured = false;
         this._croquisStartTimeout = setTimeout(() => {
+            var strokeBounds = this.strokeBounds.clone();
+            // We're done potracing the croquis canvas, discard the stroke bounds
+            this._resetStrokeBounds(point);
+
             // Retrieve Croquis canvas
             var canvas = this.paper.view._element.parentElement.getElementsByClassName('croquis-layer-canvas')[1];
             if(!canvas) {
@@ -170,11 +174,12 @@ Wick.Tools.Brush = class extends Wick.Tool {
             // (and crop out empty space using strokeBounds - this massively speeds up potrace)
             var croppedCanvas = document.createElement("canvas");
             var croppedCanvasCtx = croppedCanvas.getContext("2d");
-            croppedCanvas.width = this.strokeBounds.width;
-            croppedCanvas.height = this.strokeBounds.height;
+            croppedCanvas.width = strokeBounds.width;
+            croppedCanvas.height = strokeBounds.height;
             croppedCanvasCtx.drawImage(
               canvas,
-              this.strokeBounds.x, this.strokeBounds.y, this.strokeBounds.width, this.strokeBounds.height,
+              strokeBounds.x, strokeBounds.y,
+              strokeBounds.width, strokeBounds.height,
               0, 0, croppedCanvas.width, croppedCanvas.height);
 
             // Run potrace and add the resulting path to the project
@@ -183,8 +188,8 @@ Wick.Tools.Brush = class extends Wick.Tool {
             potracePath.fillColor = this.getSetting('fillColor');
             potracePath.position.x += this.paper.view.bounds.x;
             potracePath.position.y += this.paper.view.bounds.y;
-            potracePath.position.x += this.strokeBounds.x / this.paper.view.zoom;
-            potracePath.position.y += this.strokeBounds.y / this.paper.view.zoom;
+            potracePath.position.x += strokeBounds.x / this.paper.view.zoom;
+            potracePath.position.y += strokeBounds.y / this.paper.view.zoom;
             potracePath.remove();
             potracePath.closed = true;
             potracePath.children[0].closed = true;
@@ -248,7 +253,7 @@ Wick.Tools.Brush = class extends Wick.Tool {
     _regenCursor () {
         var size = (this._getRealBrushSize());
         var color = this.getSetting('fillColor').toCSS(true);
-        this.cachedCursor = this.createDynamicCursor(color, size, true);
+        this.cachedCursor = this.createDynamicCursor(color, size, this.getSetting('pressureEnabled'));
         this.setCursor(this.cachedCursor);
     }
 
