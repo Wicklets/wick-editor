@@ -19,7 +19,11 @@
 
 Wick.Tools.Brush = class extends Wick.Tool {
     static get CROQUIS_WAIT_AMT_MS () {
-        return 5;
+        return 25;
+    }
+
+    get doubleClickEnabled () {
+        return false;
     }
 
     /**
@@ -34,7 +38,6 @@ Wick.Tools.Brush = class extends Wick.Tool {
         this.BRUSH_STABILIZER_LEVEL = 3;
         this.POTRACE_RESOLUTION = 1.0;
 
-        this.PRESSURE_BASE_MULT = 3;
         this.MIN_PRESSURE = 0.14;
 
         this.croquis;
@@ -48,6 +51,8 @@ Wick.Tools.Brush = class extends Wick.Tool {
         this.errorOccured = false;
 
         this.strokeBounds = new paper.Rectangle();
+
+        this._croquisStartTimeout = null;
     }
 
     get cursor () {
@@ -93,6 +98,9 @@ Wick.Tools.Brush = class extends Wick.Tool {
     }
 
     onMouseDown (e) {
+        console.log('onMouseDown')
+
+        clearTimeout(this._croquisStartTimeout);
         this._isInProgress = true;
 
         this._updateCanvasAttributes();
@@ -103,6 +111,7 @@ Wick.Tools.Brush = class extends Wick.Tool {
         this.croquisBrush.setSpacing(this.BRUSH_POINT_SPACING);
         this.croquis.setToolStabilizeLevel(this.BRUSH_STABILIZER_LEVEL);
         this.croquis.setToolStabilizeWeight((this.getSetting('brushStabilizerWeight') / 100.0) + 0.3);
+        this.croquis.setToolStabilizeInterval(1);
 
         // Forward mouse event to croquis canvas
         var point = this._croquisToPaperPoint(e.point);
@@ -129,9 +138,6 @@ Wick.Tools.Brush = class extends Wick.Tool {
         }
 
         this.lastPressure = this.pressure;
-
-        // Regen cursor
-        this._regenCursor();
     }
 
     onMouseUp (e) {
@@ -150,9 +156,8 @@ Wick.Tools.Brush = class extends Wick.Tool {
         }
 
         // Give croquis just a little bit to get the canvas ready...
-        setTimeout(() => {
-            this.errorOccured = false;
-
+        this.errorOccured = false;
+        this._croquisStartTimeout = setTimeout(() => {
             // Retrieve Croquis canvas
             var canvas = this.paper.view._element.parentElement.getElementsByClassName('croquis-layer-canvas')[1];
             if(!canvas) {
@@ -197,7 +202,8 @@ Wick.Tools.Brush = class extends Wick.Tool {
      */
     get pressure () {
         if(this.getSetting('pressureEnabled')) {
-            return Math.max(this.MIN_PRESSURE, this.paper.view.pressure) * this.PRESSURE_BASE_MULT;
+            var pressure = this.paper.view.pressure;
+            return convertRange(pressure, [0, 1], [this.MIN_PRESSURE, 1]);
         } else {
             return 1;
         }
@@ -240,9 +246,9 @@ Wick.Tools.Brush = class extends Wick.Tool {
 
     /* Generate a new circle cursor based on the brush size. */
     _regenCursor () {
-        var size = (this._getRealBrushSize()) * this.pressure;
+        var size = (this._getRealBrushSize());
         var color = this.getSetting('fillColor').toCSS(true);
-        this.cachedCursor = this.createDynamicCursor(color, size);
+        this.cachedCursor = this.createDynamicCursor(color, size, true);
         this.setCursor(this.cachedCursor);
     }
 

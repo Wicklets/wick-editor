@@ -197,8 +197,9 @@ Wick.Tool = class {
      *
      * @param {paper.Color} color - the color of the cursor
      * @param {number} size - the width of the cursor image to generate
+     * @param {boolean} transparent - if set to true, color is ignored
      */
-    createDynamicCursor (color, size) {
+    createDynamicCursor (color, size, transparent) {
         var radius = size/2;
 
         var canvas = document.createElement("canvas");
@@ -210,14 +211,16 @@ Wick.Tool = class {
         var centerY = canvas.height / 2;
 
         context.beginPath();
-        context.arc(centerX, centerY, radius+1, 0, 2 * Math.PI, false);
-        context.fillStyle = invert(color);
-        context.fill();
-
-        context.beginPath();
         context.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
-        context.fillStyle = color;
-        context.fill();
+        context.strokeStyle = transparent ? 'black' : invert(color);
+        context.stroke();
+
+        if(!transparent) {
+            context.beginPath();
+            context.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
+            context.fillStyle = color;
+            context.fill();
+        }
 
         return 'url(' + canvas.toDataURL() + ') '+(radius+1)+' '+(radius+1)+',default';
     }
