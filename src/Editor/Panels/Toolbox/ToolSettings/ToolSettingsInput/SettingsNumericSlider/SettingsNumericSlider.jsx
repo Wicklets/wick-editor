@@ -45,7 +45,7 @@ class SettingsNumericSlider extends Component {
       clearTimeout(this.sliderTimeout);
       this.sliderTimeout = setTimeout(() => {
           this.setSlider(false)
-      }, 400);
+      }, 750);
   }
 
   /**
@@ -71,6 +71,8 @@ class SettingsNumericSlider extends Component {
 
       return (
         <div
+        onMouseLeave = {this.closeSlider}
+        onMouseOver = {() => {clearTimeout(this.sliderTimeout)}}
         className="settings-numeric-slider-container">
           <Popover
           isOpen={this.state.sliderOn}
@@ -99,17 +101,17 @@ class SettingsNumericSlider extends Component {
                     </ReactTooltip>
                 </div>
                 <div
-                  onMouseOver = {() => this.setSlider(true)}
-                  onMouseLeave = {this.closeSlider}>
+                  onMouseOver = {() => this.setSlider(true)}>
                     <WickInput
-                        type="numeric"
-                        containerclassname="settings-numeric-wick-input-container"
-                        className="settings-numeric-input"
-                        onChange={this.props.onChange}
-                        onFocus={() => {this.setSlider(true)}}
-                        onBlur={() => {this.setSlider(false)}}
-                        value={this.props.value}
-                        {...this.props.inputRestrictions}/>
+                      type="numeric"
+                      containerclassname="settings-numeric-wick-input-container"
+                      className="settings-numeric-input"
+                      onChange={this.props.onChange}
+                      onFocus={() => {this.setSlider(true)}}
+                      onBlur={() => {this.setSlider(false)}}
+                      value={this.props.value}
+                      {...this.props.inputRestrictions}
+                    />
               </div>
             </div>
           </Popover>
