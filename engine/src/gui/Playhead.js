@@ -27,8 +27,17 @@ Wick.GUIElement.Playhead = class extends Wick.GUIElement {
 
         var ctx = this.ctx;
 
+        var margin = 0;
+        if(this.project.frameSizeMode === 'small') {
+            margin = 2;
+        } else if (this.project.frameSizeMode === 'normal') {
+            margin = 8;
+        } else if (this.project.frameSizeMode === 'large') {
+            margin = 20;
+        }
+
         var height = Wick.GUIElement.NUMBER_LINE_HEIGHT - 2;
-        var width = this.gridCellWidth - Wick.GUIElement.PLAYHEAD_MARGIN * 2;
+        var width = this.gridCellWidth - margin * 2;
 
         ctx.fillStyle = Wick.GUIElement.PLAYHEAD_FILL_COLOR;
         ctx.strokeStyle = Wick.GUIElement.PLAYHEAD_FILL_COLOR;
@@ -45,7 +54,7 @@ Wick.GUIElement.Playhead = class extends Wick.GUIElement {
             ctx.stroke();
 
             ctx.save();
-            ctx.translate(Wick.GUIElement.PLAYHEAD_MARGIN, 0);
+            ctx.translate(margin, 0);
                 // Playhead top (the triangle/rectangle thing on the number line)
                 ctx.beginPath();
                 ctx.moveTo(0, 0);

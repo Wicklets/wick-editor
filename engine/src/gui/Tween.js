@@ -32,10 +32,14 @@ Wick.GUIElement.Tween = class extends Wick.GUIElement {
 
         var ctx = this.ctx;
 
+        var r = Wick.GUIElement.TWEEN_DIAMOND_RADIUS;
+        if(this.project.frameSizeMode === 'large') {
+            r *= 1.25;
+        }
+
         // Tween diamond
         ctx.save();
         ctx.rotate(Math.PI / 4);
-            var r = Wick.GUIElement.TWEEN_DIAMOND_RADIUS;
             if(this.mouseState === 'over') {
                 ctx.fillStyle = Wick.GUIElement.TWEEN_HOVER_COLOR_1;
             } else {
@@ -52,7 +56,6 @@ Wick.GUIElement.Tween = class extends Wick.GUIElement {
         ctx.rect(0, -30, 30, 60);
         ctx.clip();
         ctx.rotate(Math.PI / 4);
-            var r = Wick.GUIElement.TWEEN_DIAMOND_RADIUS;
             if(this.mouseState === 'over') {
                 ctx.fillStyle = Wick.GUIElement.TWEEN_HOVER_COLOR_2;
             } else {
@@ -67,7 +70,6 @@ Wick.GUIElement.Tween = class extends Wick.GUIElement {
         if (this.model.isSelected) {
             ctx.save();
             ctx.rotate(Math.PI / 4);
-                var r = Wick.GUIElement.TWEEN_DIAMOND_RADIUS;
                 ctx.strokeStyle = Wick.GUIElement.SELECTED_ITEM_BORDER_COLOR;
                 ctx.lineWidth = Wick.GUIElement.FRAME_HIGHLIGHT_STROKEWIDTH;
                 ctx.beginPath();
@@ -104,7 +106,7 @@ Wick.GUIElement.Tween = class extends Wick.GUIElement {
             ctx.moveTo(nextTweenPosition - linePadding, 0);
             ctx.lineTo(nextTweenPosition - linePadding - arrowSize, arrowSize);
             ctx.stroke();
-        } else {
+        } else if (this.model.playheadPosition !== this.model.parentFrame.length) {
             // There is no tween in front of this tween, so draw a dotted line to the end of the frame
 
             var tweenPos = this.model.playheadPosition * this.gridCellWidth;
@@ -155,7 +157,7 @@ Wick.GUIElement.Tween = class extends Wick.GUIElement {
             }
             this.model.project.selection.select(this.model);
             this.model.parentLayer.activate();
-            
+
             this.projectWasModified();
         }
     }

@@ -251,6 +251,20 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
     }
 
     /**
+     * String representation of the current frame size, can be "small", "normal", or "large".
+     * @type {string}
+     */
+    get frameSizeMode () {
+        if(Wick.GUIElement.GRID_DEFAULT_CELL_WIDTH === Wick.GUIElement.GRID_SMALL_CELL_WIDTH) {
+            return 'small';
+        } else if(Wick.GUIElement.GRID_DEFAULT_CELL_WIDTH === Wick.GUIElement.GRID_NORMAL_CELL_WIDTH) {
+            return 'normal'
+        } else if(Wick.GUIElement.GRID_DEFAULT_CELL_WIDTH === Wick.GUIElement.GRID_LARGE_CELL_WIDTH) {
+            return 'large';
+        }
+    }
+
+    /**
      * Drop an asset onto the timeline.
      * @param {string} uuid - The UUID of the desired asset.
      * @param {number} x - The x location of the image after creation in relation to the window.

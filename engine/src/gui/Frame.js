@@ -113,11 +113,22 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement {
             // Frame contentful dot
 
             ctx.fillStyle = Wick.GUIElement.FRAME_CONTENT_DOT_COLOR;
-            ctx.strokeStyle = Wick.GUIElement.FRAME_CONTENT_DOT_COLOR;
+            if(this.model.contentful) {
+                ctx.strokeStyle = Wick.GUIElement.FRAME_CONTENT_DOT_COLOR;
+            } else {
+                ctx.strokeStyle = '#aaa';
+            }
             ctx.lineWidth = Wick.GUIElement.FRAME_CONTENT_DOT_STROKE_WIDTH;
 
+            var r = Wick.GUIElement.FRAME_CONTENT_DOT_RADIUS;
+            if(this.project.frameSizeMode === 'small') {
+                r *= 0.75;
+            } else if(this.project.frameSizeMode === 'large') {
+                r *= 1.25;
+            }
+
             ctx.beginPath();
-            ctx.arc(this.gridCellWidth/2, this.gridCellHeight/2, Wick.GUIElement.FRAME_CONTENT_DOT_RADIUS, 0, 2 * Math.PI);
+            ctx.arc(this.gridCellWidth/2, this.gridCellHeight/2, r, 0, 2 * Math.PI);
             if(this.model.contentful) {
                 ctx.fill();
             }
@@ -131,8 +142,8 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement {
             var waveform = this.model.sound.waveform;
             var maxWidth = this.model.length * this.gridCellWidth;
 
-            var crop = (maxWidth / sound.duration) * this.gridCellWidth / framerate;
-            ctx.drawImage(waveform, 0, 0, crop, waveform.height/*/2*/, 0, 0, maxWidth, this.gridCellHeight);
+            var crop = (maxWidth / sound.duration) * (this.gridCellWidth / framerate);
+            ctx.drawImage(waveform, 0, 0, crop, waveform.height, 0, 0, maxWidth, this.gridCellHeight);
         } else if (this.model.tweens.length > 0) {
             // Tweens
 
