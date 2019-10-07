@@ -35,6 +35,10 @@ Wick.GUIElement.NumberLine = class extends Wick.GUIElement {
 
         var ctx = this.ctx;
 
+        // Shift over 2px for some breathing room
+        ctx.save();
+        ctx.translate(2,0);
+
         // Save where the mouse is if the user wants to drag the playhead around
         this.mousePlayheadPosition = Math.floor(this.localMouse.x / this.gridCellWidth) + 1;
 
@@ -44,7 +48,7 @@ Wick.GUIElement.NumberLine = class extends Wick.GUIElement {
         // Draw background cover
         ctx.fillStyle = Wick.GUIElement.TIMELINE_BACKGROUND_COLOR;
         ctx.beginPath();
-        ctx.rect(this.project.scrollX, 0, width, height);
+        ctx.rect(this.project.scrollX-2, 0, width, height);
         ctx.fill();
 
         // Draw number line cells
@@ -64,6 +68,8 @@ Wick.GUIElement.NumberLine = class extends Wick.GUIElement {
 
         // Draw playhead
         this.playhead.draw();
+
+        ctx.restore();
     }
 
     // Helper function for drawing each cell of the numberline (draws the border and the number)
