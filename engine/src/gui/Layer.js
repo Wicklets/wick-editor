@@ -81,12 +81,12 @@ Wick.GUIElement.Layer = class extends Wick.GUIElement {
             ctx.fillStyle = Wick.GUIElement.LAYER_LABEL_INACTIVE_FILL_COLOR;
         }
 
-        if(this.mouseState === 'over' || this.mouseState === 'down') {
-            ctx.lineWidth = 3;
-            ctx.strokeStyle = Wick.GUIElement.FRAME_HOVERED_OVER;
-        } else if(this.model.isSelected) {
+        if(this.model.isSelected) {
             ctx.strokeStyle = Wick.GUIElement.SELECTED_ITEM_BORDER_COLOR;
             ctx.lineWidth = 3;
+        } else if(this.mouseState === 'over' || this.mouseState === 'down') {
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = Wick.GUIElement.LAYER_LABEL_HOVER_COLOR;
         } else {
             ctx.strokeStyle = 'rgba(0,0,0,0)';
             ctx.lineWidth = 0;

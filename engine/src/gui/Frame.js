@@ -55,6 +55,13 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement {
             ctx.stroke();
         }
 
+        // Add selection highlight if necessary
+        if (this.model.isSelected) {
+            ctx.strokeStyle = Wick.GUIElement.SELECTED_ITEM_BORDER_COLOR;
+            ctx.lineWidth = Wick.GUIElement.FRAME_HIGHLIGHT_STROKEWIDTH;
+            ctx.stroke();
+        }
+
         // Frame body edge
         if(edge) {
             this.cursor = 'ew-resize';
@@ -80,13 +87,6 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement {
             ctx.restore();
         } else {
             this.cursor = 'grab';
-        }
-
-        // Add selection highlight if necessary
-        if (this.model.isSelected) {
-            ctx.strokeStyle = Wick.GUIElement.SELECTED_ITEM_BORDER_COLOR;
-            ctx.lineWidth = Wick.GUIElement.FRAME_HIGHLIGHT_STROKEWIDTH;
-            ctx.stroke();
         }
 
         // Frame scripts dot
