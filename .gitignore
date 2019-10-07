@@ -3,13 +3,14 @@
 # dependencies
 /node_modules
 */node_modules
-/electron-build
 
 # testing
 /coverage
 
 # production
 /build
+/build-ios/WebViewExample/local_html
+/build-electron
 
 # misc
 .DS_Store
@@ -21,3 +22,4 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
