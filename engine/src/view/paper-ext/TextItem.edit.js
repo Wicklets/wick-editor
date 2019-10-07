@@ -55,9 +55,12 @@
             editElem.css('width', width+'px');
             editElem.css('height', height+'px');
 
-            editElem.css('outline', (1*paper.view.zoom)+'px dashed black');
+            var outlineWidth = 1;
+            editElem.css('outline', (outlineWidth*paper.view.zoom)+'px dashed black');
 
             var position = paper.view.projectToView(clone.bounds.topLeft.x, clone.bounds.topLeft.y);
+            position.x -= extraPadding/2 + outlineWidth;
+            position.y -= extraPadding/2 + outlineWidth;
             var scale = this.scaling;
             var rotation = this.rotation;
 
