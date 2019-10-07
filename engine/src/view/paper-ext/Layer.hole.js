@@ -63,6 +63,7 @@
         });
         if(layerGroup.children.length === 0) {
             onError('NO_PATHS');
+            return;
         }
 
         var rasterResolution = paper.view.resolution * RASTER_BASE_RESOLUTION / window.devicePixelRatio;
@@ -96,6 +97,7 @@
 
         if(x < 0 || y < 0 || x >= floodFillCanvas.width || y >= floodFillCanvas.height) {
             onError('OUT_OF_BOUNDS');
+            return;
         }
 
         var floodFillCtx = floodFillCanvas.getContext('2d');
@@ -148,14 +150,12 @@
                    getPixelAt(x,0,w,h,floodFillImageData.data).a === 255) {
                     holeIsLeaky = true;
                     onError('LEAKY_HOLE');
-                    break;
+                    return;
                 }
             }
 
-            if(!holeIsLeaky) {
-                expandHole(resultHolePath);
-                callback(resultHolePath);
-            }
+            expandHole(resultHolePath);
+            callback(resultHolePath);
         }
         floodFillProcessedImage.src = floodFillCanvas.toDataURL();
     }
