@@ -220,7 +220,7 @@ class HotKeyInterface extends Object {
       },
       'send-to-back': {
         name: "Send to Back",
-        sequences: ['ctrl+shift+down','command+enter'],
+        sequences: ['ctrl+shift+down','command+shift+down'],
       },
       'move-backwards': {
         name: "Move Backwards",
