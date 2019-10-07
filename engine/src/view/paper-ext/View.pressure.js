@@ -18,7 +18,7 @@
  */
 
 paper.View.inject({
-  pressure: 0,
+  pressure: 1,
   enablePressure: function(args) {
     let self = this;
 
@@ -27,7 +27,7 @@ paper.View.inject({
         self.pressure = force;
       },
       end: function() {
-        self.pressure = 0;
+        self.pressure = 1;
       }
     }, {polyfill: false})
   },

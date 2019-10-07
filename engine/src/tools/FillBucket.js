@@ -48,39 +48,30 @@ Wick.Tools.FillBucket = class extends Wick.Tool {
     }
 
     onMouseDown (e) {
-        var hitResult = paper.project.activeLayer.hitTest(e.point, {
-            fill: true
-        });
-        if(hitResult && hitResult.item) {
-            hitResult.item.fillColor = this.getSetting('fillColor');
-            this.fireEvent('canvasModified');
-        } else {
-            setTimeout(() => {
-                this.setCursor('wait');
-            }, 0);
+        setTimeout(() => {
+            this.setCursor('wait');
+        }, 0);
 
-            setTimeout(() => {
-                this.paper.project.activeLayer.hole({
-                    point: e.point,
-                    onFinish: (path) => {
-                        this.setCursor('default');
-                        if(path) {
-                            path.fillColor = this.getSetting('fillColor');
-                            path.name = null;
-                            this.paper.project.activeLayer.addChild(path);
-                            this.paper.OrderingUtils.sendToBack([path]);
-                            this.fireEvent('canvasModified');
-                        }
-                    },
-                    onError: (message) => {
-                        this.setCursor('default');
-                        this.fireEvent('error', {
-                            message: message,
-                        });
+        setTimeout(() => {
+            this.paper.project.activeLayer.hole({
+                point: e.point,
+                onFinish: (path) => {
+                    this.setCursor('default');
+                    if(path) {
+                        path.fillColor = this.getSetting('fillColor');
+                        path.name = null;
+                        this.paper.project.activeLayer.addChild(path);
+                        this.fireEvent('canvasModified');
                     }
-                });
-            }, 50);
-        }
+                },
+                onError: (message) => {
+                    this.setCursor('default');
+                    this.fireEvent('error', {
+                        message: message,
+                    });
+                }
+            });
+        }, 50);
     }
 
     onMouseDrag (e) {

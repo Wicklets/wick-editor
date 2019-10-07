@@ -32,94 +32,78 @@
 (function () {
 
     var VERBOSE = false;
-    var PREVIEW_IMAGE = false;
+    var PREVIEW_IMAGE = true;
+
+    var N_RASTER_CLONE = 1;
+    var RASTER_BASE_RESOLUTION = 3;
+    var FILL_TOLERANCE = 0;
+    var EXPAND_AMT = 0.7;
 
     var onError;
     var onFinish;
 
     var layer;
-    var layerGroup;
-    var layerPathsGroup;
-    var layerPathsRaster;
-    var layerPathsImageData;
-    var layerPathsImageDataFloodFilled;
-    var layerPathsImageDataFloodFilledAndProcessed;
-    var layerPathsImageFloodFilledAndProcessed;
 
     var floodFillX;
     var floodFillY;
-    var floodFillCanvas;
-    var floodFillCtx;
-    var floodFillImageData;
-    var floodFillProcessedImage;
 
-    var resultHolePath;
-
-    var N_RASTER_CLONE = 1;
-    var RASTER_BASE_RESOLUTION = 1.9;
-    var FILL_TOLERANCE = 35;
-    var CLONE_WIDTH_SHRINK = 1.0;
-    var SHRINK_AMT = 0.85;
-
-    function tryToChangeColorOfExistingShape () {
-
+    function previewImage (image) {
+        var win = window.open('', 'Title', 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, width='+image.width+', height='+image.height+', top=100, left=100');
+        win.document.body.innerHTML = '<div><img src= '+image.src+'></div>';
     }
 
-    function createLayerPathsGroup (callback) {
-        layerGroup = new paper.Group({insert:false});
+    function rasterizePaths (callback) {
+        var layerGroup = new paper.Group({insert:false});
         layer.children.forEach(function (child) {
             if(child._class !== 'Path' && child._class !== 'CompoundPath') return;
             for(var i = 0; i < N_RASTER_CLONE; i++) {
                 var clone = child.clone({insert:false});
-                if(clone.strokeWidth !== 0 && clone.strokeWidth <= 1) {
-                    clone.strokeWidth = 1.5
-                }
-                clone.strokeWidth *= CLONE_WIDTH_SHRINK;
                 layerGroup.addChild(clone);
             }
         });
         if(layerGroup.children.length === 0) {
             onError('NO_PATHS');
-        } else {
-            callback();
         }
-    }
 
-    function rasterizeLayerGroup () {
         var rasterResolution = paper.view.resolution * RASTER_BASE_RESOLUTION / window.devicePixelRatio;
-        layerPathsRaster = layerGroup.rasterize(rasterResolution, {insert:false});
-    }
+        var layerPathsRaster = layerGroup.rasterize(rasterResolution, {insert:false});
 
-    function generateImageDataFromRaster () {
         var rasterCanvas = layerPathsRaster.canvas;
         var rasterCtx = rasterCanvas.getContext('2d');
-        layerPathsImageData = rasterCtx.getImageData(0, 0, layerPathsRaster.width, layerPathsRaster.height);
-    }
+        var layerPathsImageData = rasterCtx.getImageData(0, 0, layerPathsRaster.width, layerPathsRaster.height);
 
-    function floodfillImageData (callback) {
+        var layerPathsImageDataRaw = layerPathsImageData.data;
+        for(var i = 0; i < layerPathsImageDataRaw.length; i += 4) {
+          if(layerPathsImageDataRaw[i+3] === 0) {
+            layerPathsImageDataRaw[i] = 255;
+            layerPathsImageDataRaw[i+1] = 255;
+            layerPathsImageDataRaw[i+2] = 255;
+            layerPathsImageDataRaw[i+3] = 255;
+          }
+        }
+        rasterCtx.putImageData(layerPathsImageData, 0, 0);
+        layerPathsImageData = rasterCtx.getImageData(0, 0, layerPathsRaster.width, layerPathsRaster.height);
+
         var rasterPosition = layerPathsRaster.bounds.topLeft;
         var x = (floodFillX - rasterPosition.x) * RASTER_BASE_RESOLUTION;
         var y = (floodFillY - rasterPosition.y) * RASTER_BASE_RESOLUTION;
         x = Math.round(x);
         y = Math.round(y);
 
-        floodFillCanvas = document.createElement('canvas');
+        var floodFillCanvas = document.createElement('canvas');
         floodFillCanvas.width = layerPathsRaster.canvas.width;
         floodFillCanvas.height = layerPathsRaster.canvas.height;
 
         if(x < 0 || y < 0 || x >= floodFillCanvas.width || y >= floodFillCanvas.height) {
             onError('OUT_OF_BOUNDS');
-        } else {
-            floodFillCtx = floodFillCanvas.getContext('2d');
-            floodFillCtx.putImageData(layerPathsImageData, 0, 0);
-            floodFillCtx.fillStyle = "rgba(123,124,125,1)";
-            floodFillCtx.fillFlood(x, y, FILL_TOLERANCE);
-            floodFillImageData = floodFillCtx.getImageData(0,0,floodFillCanvas.width,floodFillCanvas.height);
-            callback();
         }
-    }
 
-    function processImageData (callback) {
+        var floodFillCtx = floodFillCanvas.getContext('2d');
+        floodFillCtx.putImageData(layerPathsImageData, 0, 0);
+        floodFillCtx.fillStyle = "rgba(123,124,125,255)";
+        floodFillCtx.fillFlood(x, y, FILL_TOLERANCE);
+        var floodFillImageData = floodFillCtx.getImageData(0,0,floodFillCanvas.width,floodFillCanvas.height);
+
         var imageDataRaw = floodFillImageData.data;
 
         for(var i = 0; i < imageDataRaw.length; i += 4) {
@@ -128,135 +112,52 @@
             imageDataRaw[i+1] = 0;
             imageDataRaw[i+2] = 0;
             imageDataRaw[i+3] = 255;
-          } else if(imageDataRaw[i+3] !== 0) {
-            imageDataRaw[i] = 255;
-            imageDataRaw[i+1] = 0;
-            imageDataRaw[i+2] = 0;
-            imageDataRaw[i+3] = 255;
           } else {
-            imageDataRaw[i] = 1;
-            imageDataRaw[i+1] = 0;
-            imageDataRaw[i+2] = 0;
-            imageDataRaw[i+3] = 0;
-          }
-        }
-
-        var w = floodFillCanvas.width;
-        var h = floodFillCanvas.height;
-        var r = 4;
-        for(var this_x = 0; this_x < w; this_x++) {
-            for(var this_y = 0; this_y < h; this_y++) {
-                var thisPix = getPixelAt(this_x, this_y, w, h, imageDataRaw);
-                if(thisPix && thisPix.r === 255) {
-                    for(var offset_x = -r; offset_x <= r; offset_x++) {
-                        for(var offset_y = -r; offset_y <= r; offset_y++) {
-                            var other_x = this_x+offset_x;
-                            var other_y = this_y+offset_y;
-                            var otherPix = getPixelAt(other_x, other_y, w, h, imageDataRaw);
-                            if(otherPix && otherPix.r === 0) {
-                                setPixelAt(this_x, this_y, w, h, imageDataRaw, {
-                                    r: 1,
-                                    g: 255,
-                                    b: 0,
-                                    a: 255,
-                                });
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        for(var i = 0; i < imageDataRaw.length; i += 4) {
-          if(imageDataRaw[i] === 255) {
-            imageDataRaw[i] = 0;
-            imageDataRaw[i+1] = 0;
-            imageDataRaw[i+2] = 0;
+            imageDataRaw[i] = 255;
+            imageDataRaw[i+1] = 255;
+            imageDataRaw[i+2] = 255;
             imageDataRaw[i+3] = 0;
           }
         }
 
         floodFillCtx.putImageData(floodFillImageData, 0, 0);
 
-        floodFillProcessedImage = new Image();
+        var floodFillProcessedImage = new Image();
         floodFillProcessedImage.onload = function () {
-            if(PREVIEW_IMAGE) previewImage(floodFillProcessedImage);
-            callback();
-        }
-        floodFillProcessedImage.src = floodFillCanvas.toDataURL();
-    }
+            //previewImage(floodFillProcessedImage);
 
-    function checkForLeakyHole (callback) {
-        var holeIsLeaky = false;
-        var w = floodFillProcessedImage.width;
-        var h = floodFillProcessedImage.height;
-        for(var x = 0; x < floodFillProcessedImage.width; x++) {
-            if(getPixelAt(x,0,w,h,floodFillImageData.data).r === 0 &&
-               getPixelAt(x,0,w,h,floodFillImageData.data).a === 255) {
-                holeIsLeaky = true;
-                onError('LEAKY_HOLE');
-                break;
+            var svgString = potrace.fromImage(floodFillProcessedImage).toSVG(1);
+            var xmlString = svgString
+              , parser = new DOMParser()
+              , doc = parser.parseFromString(xmlString, "text/xml");
+            var resultHolePath = paper.project.importSVG(doc, {insert:true});
+            resultHolePath.remove();
+            resultHolePath = resultHolePath.children[0];
+
+            resultHolePath.scale(1/RASTER_BASE_RESOLUTION, new paper.Point(0,0))
+            var rasterPosition = layerPathsRaster.bounds.topLeft;
+            resultHolePath.position.x += rasterPosition.x;
+            resultHolePath.position.y += rasterPosition.y;
+            resultHolePath.applyMatrix = true;
+
+            var holeIsLeaky = false;
+            var w = floodFillProcessedImage.width;
+            var h = floodFillProcessedImage.height;
+            for(var x = 0; x < floodFillProcessedImage.width; x++) {
+                if(getPixelAt(x,0,w,h,floodFillImageData.data).r === 0 &&
+                   getPixelAt(x,0,w,h,floodFillImageData.data).a === 255) {
+                    holeIsLeaky = true;
+                    onError('LEAKY_HOLE');
+                    break;
+                }
+            }
+
+            if(!holeIsLeaky) {
+                expandHole(resultHolePath);
+                callback(resultHolePath);
             }
         }
-
-        if(!holeIsLeaky) {
-            callback();
-        }
-    }
-
-    function potraceImageData () {
-        var svgString = potrace.fromImage(floodFillProcessedImage).toSVG(1);
-        var xmlString = svgString
-          , parser = new DOMParser()
-          , doc = parser.parseFromString(xmlString, "text/xml");
-        resultHolePath = paper.project.importSVG(doc, {insert:true});
-        resultHolePath.remove();
-        resultHolePath = resultHolePath.children[0];
-    }
-
-    function processFinalResultPath () {
-        resultHolePath.scale(1/RASTER_BASE_RESOLUTION, new paper.Point(0,0))
-        var rasterPosition = layerPathsRaster.bounds.topLeft;
-        resultHolePath.position.x += rasterPosition.x;
-        resultHolePath.position.y += rasterPosition.y;
-        resultHolePath.applyMatrix = true;
-        expandHole(resultHolePath);
-    }
-
-    /* Utilities */
-
-    function getPixelAt (x,y,width,height,imageData) {
-        if(x<0 || y<0 || x>=width || y>=height) return null;
-
-        var offset = (y*width+x)*4;
-        return {
-            r: imageData[offset],
-            g: imageData[offset+1],
-            b: imageData[offset+2],
-            a: imageData[offset+3]
-        }
-    }
-
-    function setPixelAt (x,y,width,height,imageData,color) {
-        var offset = (y*width+x)*4;
-        imageData[offset] = color.r
-        imageData[offset+1] = color.g
-        imageData[offset+2] = color.b
-        imageData[offset+3] = color.a
-    }
-
-    // http://www.felixeve.co.uk/how-to-rotate-a-point-around-an-origin-with-javascript/
-    function rotate_point(pointX, pointY, originX, originY, angle) {
-        angle = angle * Math.PI / 180.0;
-        return {
-            x: Math.cos(angle) * (pointX-originX) - Math.sin(angle) * (pointY-originY) + originX,
-            y: Math.sin(angle) * (pointX-originX) + Math.cos(angle) * (pointY-originY) + originY
-        };
-    }
-
-    function previewImage (image) {
-        var win = window.open('', 'Title', 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, width='+image.width+', height='+image.height+', top=100, left=100');
-        win.document.body.innerHTML = '<div><img src= '+image.src+'></div>';
+        floodFillProcessedImage.src = floodFillCanvas.toDataURL();
     }
 
     function expandHole (path) {
@@ -295,14 +196,34 @@
             for (var i = 0; i < hole.segments.length; i++) {
                 var segment = hole.segments[i];
                 var normal = normals[i];
-                segment.point.x += normal.x*-SHRINK_AMT;
-                segment.point.y += normal.y*-SHRINK_AMT;
+                segment.point.x += normal.x*EXPAND_AMT;
+                segment.point.y += normal.y*EXPAND_AMT;
             }
         });
     }
 
-    /* Add hole() to paper.Layer */
+    // http://www.felixeve.co.uk/how-to-rotate-a-point-around-an-origin-with-javascript/
+    function rotate_point(pointX, pointY, originX, originY, angle) {
+        angle = angle * Math.PI / 180.0;
+        return {
+            x: Math.cos(angle) * (pointX-originX) - Math.sin(angle) * (pointY-originY) + originX,
+            y: Math.sin(angle) * (pointX-originX) + Math.cos(angle) * (pointY-originY) + originY
+        };
+    }
 
+    function getPixelAt (x,y,width,height,imageData) {
+        if(x<0 || y<0 || x>=width || y>=height) return null;
+
+        var offset = (y*width+x)*4;
+        return {
+            r: imageData[offset],
+            g: imageData[offset+1],
+            b: imageData[offset+2],
+            a: imageData[offset+3]
+        }
+    }
+
+    /* Add hole() method to paper.Layer */
     paper.Layer.inject({
         hole: function(args) {
             if(!args) console.error('paper.hole: args is required');
@@ -317,21 +238,7 @@
             floodFillX = args.point.x;
             floodFillY = args.point.y;
 
-            tryToChangeColorOfExistingShape();
-            createLayerPathsGroup(function () {
-                rasterizeLayerGroup();
-                generateImageDataFromRaster();
-                floodfillImageData(function () {
-                    processImageData(function () {
-                        checkForLeakyHole(function () {
-                            potraceImageData();
-                            processFinalResultPath();
-                            onFinish(resultHolePath);
-                        });
-                    });
-                });
-            });
+            rasterizePaths(onFinish);
         }
     });
-
 })();
