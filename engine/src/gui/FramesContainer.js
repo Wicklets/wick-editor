@@ -135,9 +135,12 @@ Wick.GUIElement.FramesContainer = class extends Wick.GUIElement {
 
         // Top drop shadow
         var dropShadow
-        ctx.fillStyle = 'rgba(0,0,0,0.3)';
+        ctx.fillStyle = 'rgba(0,0,0,0.2)';
         ctx.beginPath();
-        ctx.rect(this.project.scrollX, this.project.scrollY-2, this.canvas.width, 2);
+        ctx.rect(this.project.scrollX-2, this.project.scrollY-2, this.canvas.width, 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.rect(this.project.scrollX-2, this.project.scrollY-2, this.canvas.width, 1);
         ctx.fill();
 
         ctx.restore();

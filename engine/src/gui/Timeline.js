@@ -102,9 +102,12 @@ Wick.GUIElement.Timeline = class extends Wick.GUIElement {
         // Drop shadows
         ctx.save();
         ctx.translate(Wick.GUIElement.LAYERS_CONTAINER_WIDTH, Wick.GUIElement.BREADCRUMBS_HEIGHT);
-            ctx.fillStyle = 'rgba(0,0,0,0.3)';
+            ctx.fillStyle = 'rgba(0,0,0,0.2)';
             ctx.beginPath();
             ctx.rect(0, 0, 2, this.canvas.height);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.rect(0, 0, 1, this.canvas.height);
             ctx.fill();
         ctx.restore();
     }
