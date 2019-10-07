@@ -17,10 +17,6 @@
  * along with Wick Editor.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-// Import Fonts
-@import url('https://fonts.googleapis.com/css?family=Nunito');
-@import url("https://fonts.googleapis.com/css?family=Nunito+Sans");
-
 // Define Color Scheme
 
 // Spring 2019 color scheme
@@ -40,13 +36,13 @@ $editor-secondary-text: #797979;
 
 $editor-tertiary: #4A4A4A;
 
-$editor-modal-dark: #1E1E1E; 
-$editor-modal-gray: #3D3B3B; 
+$editor-modal-dark: #1E1E1E;
+$editor-modal-gray: #3D3B3B;
 $editor-modal-gray-secondary: #525252;
 
-$editor-modal-text-white: #FFFFFF; 
-$editor-modal-text-gray: #E6E6E6; 
-$editor-modal-text-highlight: #1EE29A; 
+$editor-modal-text-white: #FFFFFF;
+$editor-modal-text-gray: #E6E6E6;
+$editor-modal-text-highlight: #1EE29A;
 
 $editor-green-highlight: #1EE29A;
 $editor-green-highlight-dark: rgb(18, 134, 92);
@@ -54,7 +50,7 @@ $editor-green-highlight-dark: rgb(18, 134, 92);
 $editor-canvas-border: #6A6A6A;
 
 $editor-outline-padding: 4px;
-$editor-input-border-width: 3px; 
+$editor-input-border-width: 3px;
 $editor-panel-padding: 10px;
 
 $editor-popout-primary: #292927;
@@ -62,8 +58,8 @@ $editor-popout-secondary: #353434;
 $editor-popout-tertiary: #3F3D3D;
 
 $editor-popout-primary-text: #FFFFFF;
-$editor-popout-secondary-text: #B1B1B1; 
-$editor-popout-tertiary-text: #919191; 
+$editor-popout-secondary-text: #B1B1B1;
+$editor-popout-tertiary-text: #919191;
 
 // Default palette
 $heather-grey: #F5F5F5;
@@ -84,7 +80,7 @@ $sleepy-sky-text: black;
 $wick-active-blue: #00ADEF;
 $wick-active-blue-dark: #00709c;
 $wick-active-blue-light: #00B9FF;
-$wick-active-blue-text: $editor-primary; 
+$wick-active-blue-text: $editor-primary;
 
 $deep-cereulian: #101DA5;
 $deep-cereulian-light: #2636E1;
@@ -123,14 +119,14 @@ $wick-gray-text: #848484;
 $wick-gray-text-light: #b6b6b6;
 
 $wick-cool-blue: #89919C;
-$wick-cool-blue-light: #AFD6FF; 
+$wick-cool-blue-light: #AFD6FF;
 $wick-cool-blue-dark:#5C5F65;
 $wick-cool-blue-text: #353434;
 
-$wick-error-red: #E27663; 
-$wick-error-red-light: #FF7867; 
+$wick-error-red: #E27663;
+$wick-error-red-light: #FF7867;
 $wick-error-red-dark: #8D564D;
-$wick-error-red-text: #FF7867; 
+$wick-error-red-text: #FF7867;
 
 // interface palette
 $interface-primary: #464646; // most background colors
@@ -174,11 +170,11 @@ $interface-menu-bar-background: black;
 
 // Set editor styles.
 a:link {
-  color: $editor-green-highlight; 
+  color: $editor-green-highlight;
 }
 
 a:hover {
-  color: $editor-green-highlight-dark; 
+  color: $editor-green-highlight-dark;
 }
 
 
@@ -199,7 +195,7 @@ a:hover {
 
 // Modal body and overlay information.
 .modal-body {
-  border-radius: 4px; 
+  border-radius: 4px;
   background-color: $editor-modal-gray;
   margin: 0;
   position: absolute;
@@ -208,7 +204,7 @@ a:hover {
   transform: translate(-50%, -50%);
   overflow: hidden;
   font-family: 'Nunito Sans';
-  box-shadow: 2px 2px 5px rgba(0,0,0,0.2); 
+  box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
 }
 
 .modal-overlay {
