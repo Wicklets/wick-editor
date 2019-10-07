@@ -133,6 +133,13 @@ Wick.GUIElement.FramesContainer = class extends Wick.GUIElement {
             this._selectionBox.draw();
         }
 
+        // Draw left side drop shadow
+        var dropShadow
+        ctx.fillStyle = 'rgba(0,0,0,0.3)';
+        ctx.beginPath();
+        ctx.rect(this.project.scrollX-1, 0, 2, this.canvas.height);
+        ctx.fill();
+
         ctx.restore();
     }
 

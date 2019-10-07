@@ -41355,6 +41355,66 @@ paper.SelectionBox = class {
 paper.PaperScope.inject({
   SelectionBox: paper.SelectionBox
 });
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* Copyright 2019 WICKLETS LLC
+*
+* This file is part of Paper.js-drawing-tools.
+*
+* Paper.js-drawing-tools is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Paper.js-drawing-tools is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Paper.js-drawing-tools.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
+/*
+    paper-potrace.js
+    Adds a potrace() method to paper Items that runs potrace on a rasterized
+    version of that Item.
+
+    by zrispo (github.com/zrispo) (zach@wickeditor.com)
+ */
+paper.Path.inject({
+  potrace: function (args) {
+    var self = this;
+    if (!args) throw new Error('Path.potrace: args is required.');
+    if (!args.resolution) throw new Error('Path.potrace: args.resolution is required.');
+    if (!args.done) throw new Error('Path.potrace: args.done is required.');
+    var finalRasterResolution = paper.view.resolution * args.resolution / window.devicePixelRatio;
+    var raster = this.rasterize(finalRasterResolution);
+    raster.remove();
+    var rasterDataURL = raster.toDataURL();
+
+    if (rasterDataURL === 'data:,') {
+      args.done(null);
+    } // https://oov.github.io/potrace/
+
+
+    var img = new Image();
+
+    img.onload = function () {
+      var svg = potrace.fromImage(img).toSVG(1 / args.resolution);
+      var potracePath = paper.project.importSVG(svg);
+      potracePath.position.x = self.position.x;
+      potracePath.position.y = self.position.y;
+      potracePath.remove();
+      potracePath.closed = true;
+      potracePath.children[0].closed = true;
+      args.done(potracePath.children[0]);
+    };
+
+    img.src = rasterDataURL;
+  }
+});
 /*!
 
 JSZip v3.1.5 - A JavaScript class for generating and reading zip files
@@ -52998,68 +53058,6 @@ module.exports = ZStream;
 * You should have received a copy of the GNU General Public License
 * along with Paper.js-drawing-tools.  If not, see <https://www.gnu.org/licenses/>.
 */
-
-/*
-    paper-potrace.js
-    Adds a potrace() method to paper Items that runs potrace on a rasterized
-    version of that Item.
-
-    by zrispo (github.com/zrispo) (zach@wickeditor.com)
- */
-paper.Path.inject({
-  potrace: function (args) {
-    var self = this;
-    if (!args) throw new Error('Path.potrace: args is required.');
-    if (!args.resolution) throw new Error('Path.potrace: args.resolution is required.');
-    if (!args.done) throw new Error('Path.potrace: args.done is required.');
-    var finalRasterResolution = paper.view.resolution * args.resolution / window.devicePixelRatio;
-    var raster = this.rasterize(finalRasterResolution);
-    raster.remove();
-    var rasterDataURL = raster.toDataURL();
-
-    if (rasterDataURL === 'data:,') {
-      args.done(null);
-    } // https://oov.github.io/potrace/
-
-
-    var img = new Image();
-
-    img.onload = function () {
-      var svg = potrace.fromImage(img).toSVG(1 / args.resolution);
-      var potracePath = paper.project.importSVG(svg);
-      potracePath.position.x = self.position.x;
-      potracePath.position.y = self.position.y;
-      potracePath.remove();
-      potracePath.closed = true;
-      potracePath.children[0].closed = true;
-      args.done(potracePath.children[0]);
-    };
-
-    img.src = rasterDataURL;
-  }
-});
-//https://github.com/mattdesl/lerp/blob/master/index.js
-var lerp = function (v0, v1, t) { return v0*(1-t)+v1*t; };
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Paper.js-drawing-tools.
-*
-* Paper.js-drawing-tools is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Paper.js-drawing-tools is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Paper.js-drawing-tools.  If not, see <https://www.gnu.org/licenses/>.
-*/
 (function () {
   var editElem = $('<textarea style="resize: none;">');
   editElem.css('position', 'absolute');
@@ -53127,6 +53125,8 @@ var lerp = function (v0, v1, t) { return v0*(1-t)+v1*t; };
     }
   });
 })();
+//https://github.com/mattdesl/lerp/blob/master/index.js
+var lerp = function (v0, v1, t) { return v0*(1-t)+v1*t; };
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
@@ -53161,6 +53161,30 @@ paper.View.inject({
     }, {
       polyfill: false
     });
+  }
+});
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* Copyright 2019 WICKLETS LLC
+*
+* This file is part of Paper.js-drawing-tools.
+*
+* Paper.js-drawing-tools is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Paper.js-drawing-tools is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Paper.js-drawing-tools.  If not, see <https://www.gnu.org/licenses/>.
+*/
+paper.View.inject({
+  enableGestures: function (args) {// TODO
   }
 });
 /*!
@@ -54402,7 +54426,7 @@ paper.View.inject({
 * along with Paper.js-drawing-tools.  If not, see <https://www.gnu.org/licenses/>.
 */
 paper.View.inject({
-  enableGestures: function (args) {// TODO
+  enableScrollToZoom: function (args) {// TODO
   }
 });
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
@@ -54410,25 +54434,102 @@ paper.View.inject({
 /*
 * Copyright 2019 WICKLETS LLC
 *
-* This file is part of Paper.js-drawing-tools.
+* This file is part of Wick Engine.
 *
-* Paper.js-drawing-tools is free software: you can redistribute it and/or modify
+* Wick Engine is free software: you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
 * the Free Software Foundation, either version 3 of the License, or
 * (at your option) any later version.
 *
-* Paper.js-drawing-tools is distributed in the hope that it will be useful,
+* Wick Engine is distributed in the hope that it will be useful,
 * but WITHOUT ANY WARRANTY; without even the implied warranty of
 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 * GNU General Public License for more details.
 *
 * You should have received a copy of the GNU General Public License
-* along with Paper.js-drawing-tools.  If not, see <https://www.gnu.org/licenses/>.
+* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
-paper.View.inject({
-  enableScrollToZoom: function (args) {// TODO
+Wick.View = class {
+  /**
+   * The paper.js scope that all Wick.View subclasses will use to render to.
+   */
+  static get paperScope() {
+    if (!this._paperScope) {
+      this._paperScope = new paper.PaperScope(); // Create dummy paper.js instance so we can access paper classes
+
+      var canvas = window.document.createElement('canvas');
+
+      this._paperScope.setup(canvas);
+    } // Use active paper scope for window.paper alias
+
+
+    window.paper = this._paperScope; // Activate the paper scope
+
+    this._paperScope.activate();
+
+    return this._paperScope;
   }
-});
+  /**
+   *
+   */
+
+
+  constructor(model) {
+    this.model = model;
+    this._eventHandlers = {};
+  }
+  /**
+   *
+   */
+
+
+  set model(model) {
+    this._model = model;
+  }
+
+  get model() {
+    return this._model;
+  }
+  /**
+   *
+   */
+
+
+  get paper() {
+    return Wick.View.paperScope;
+  }
+  /**
+   *
+   */
+
+
+  render() {}
+  /**
+   *
+   */
+
+
+  on(eventName, fn) {
+    if (!this._eventHandlers[eventName]) {
+      this._eventHandlers[eventName] = [];
+    }
+
+    this._eventHandlers[eventName].push(fn);
+  }
+  /**
+   *
+   */
+
+
+  fireEvent(eventName, e) {
+    var eventFns = this._eventHandlers[eventName];
+    if (!eventFns) return;
+    eventFns.forEach(fn => {
+      fn(e);
+    });
+  }
+
+};
 /*
  * TypeScript port of Potrace (http://potrace.sourceforge.net).
  * https://github.com/oov/potrace
@@ -55615,319 +55716,6 @@ var potrace;
 * You should have received a copy of the GNU General Public License
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
-Wick.View = class {
-  /**
-   * The paper.js scope that all Wick.View subclasses will use to render to.
-   */
-  static get paperScope() {
-    if (!this._paperScope) {
-      this._paperScope = new paper.PaperScope(); // Create dummy paper.js instance so we can access paper classes
-
-      var canvas = window.document.createElement('canvas');
-
-      this._paperScope.setup(canvas);
-    } // Use active paper scope for window.paper alias
-
-
-    window.paper = this._paperScope; // Activate the paper scope
-
-    this._paperScope.activate();
-
-    return this._paperScope;
-  }
-  /**
-   *
-   */
-
-
-  constructor(model) {
-    this.model = model;
-    this._eventHandlers = {};
-  }
-  /**
-   *
-   */
-
-
-  set model(model) {
-    this._model = model;
-  }
-
-  get model() {
-    return this._model;
-  }
-  /**
-   *
-   */
-
-
-  get paper() {
-    return Wick.View.paperScope;
-  }
-  /**
-   *
-   */
-
-
-  render() {}
-  /**
-   *
-   */
-
-
-  on(eventName, fn) {
-    if (!this._eventHandlers[eventName]) {
-      this._eventHandlers[eventName] = [];
-    }
-
-    this._eventHandlers[eventName].push(fn);
-  }
-  /**
-   *
-   */
-
-
-  fireEvent(eventName, e) {
-    var eventFns = this._eventHandlers[eventName];
-    if (!eventFns) return;
-    eventFns.forEach(fn => {
-      fn(e);
-    });
-  }
-
-};
-/*
-The MIT License (MIT)
-
-Copyright 2015 Alexej Yaroshevich and other contributors
-
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*/
-
-// Code originally from https://github.com/zxqfox/reserved-words
-// zrispo made this code work without webpack or whatever
-
-var reserved = (() => {
-    var exports = {};
-
-    /**
-    * Structure for storing keywords.
-    *
-    * @typedef {Object.<String,Boolean>} KeywordsHash
-    */
-
-    /**
-    * ECMAScript dialects.
-    *
-    * @const
-    * @type {Object.<String,Number|String>} - keys as readable names and values as versions
-    */
-    var DIALECTS = {
-      es3: 3,
-      es5: 5,
-      es2015: 6,
-      es7: 7,
-
-      // aliases
-      es6: 6,
-      'default': 5,
-      next: 6
-    };
-
-    /**
-    * ECMAScript reserved words.
-    *
-    * @type {Object.<String,KeywordsHash>}
-    */
-    var KEYWORDS = exports.KEYWORDS = {};
-
-    /**
-    * Check word for being an reserved word.
-    *
-    * @param {String} word - word to check
-    * @param {String|Number} [dialect] - dialect or version
-    * @param {Boolean} [strict] - strict mode
-    * @returns {?Boolean}
-    */
-    exports.check = function check(word, dialect, strict) {
-      dialect = dialect || DIALECTS.default;
-      var version = DIALECTS[dialect] || dialect;
-
-      if (strict && version >= 5) {
-          version += '-strict';
-      }
-
-      if(!KEYWORDS[version]) console.error('reserved-words: Unknown dialect');
-
-      return KEYWORDS[version].hasOwnProperty(word);
-    };
-
-    /**
-    * Reserved Words for ES3
-    *
-    * ECMA-262 3rd: 7.5.1
-    * http://www.ecma-international.org/publications/files/ECMA-ST-ARCH/ECMA-262,%203rd%20edition,%20December%201999.pdf
-    *
-    * @type {KeywordsHash}
-    */
-    KEYWORDS['3'] = _hash(
-      // Keyword, ECMA-262 3rd: 7.5.2
-      'break    else       new     var',
-      'case     finally    return  void',
-      'catch    for        switch  while',
-      'continue function   this    with',
-      'default  if         throw',
-      'delete   in         try',
-      'do       instanceof typeof',
-      // FutureReservedWord, ECMA-262 3rd 7.5.3
-      'abstract enum       int        short',
-      'boolean  export     interface  static',
-      'byte     extends    long       super',
-      'char     final      native     synchronized',
-      'class    float      package    throws',
-      'const    goto       private    transient',
-      'debugger implements protected  volatile',
-      'double   import     public',
-      // NullLiteral & BooleanLiteral
-      'null true false'
-    );
-
-    /**
-    * Reserved Words for ES5.
-    *
-    * http://es5.github.io/#x7.6.1
-    *
-    * @type {KeywordsHash}
-    */
-    KEYWORDS['5'] = _hash(
-      // Keyword
-      'break    do       instanceof typeof',
-      'case     else     new        var',
-      'catch    finally  return     void',
-      'continue for      switch     while',
-      'debugger function this       with',
-      'default  if       throw',
-      'delete   in       try',
-      // FutureReservedWord
-      'class enum extends super',
-      'const export import',
-      // NullLiteral & BooleanLiteral
-      'null true false',
-      // added by zrispo
-      'window',
-    );
-
-    /**
-    * Reserved Words for ES5 in strict mode.
-    *
-    * @type {KeywordsHash}
-    */
-    KEYWORDS['5-strict'] = _hash(
-      KEYWORDS['5'],
-      // FutureReservedWord, strict mode. http://es5.github.io/#x7.6.1.2
-      'implements let     private   public yield',
-      'interface  package protected static'
-    );
-
-    /**
-    * Reserved Words for ES6.
-    *
-    * 11.6.2
-    * http://www.ecma-international.org/ecma-262/6.0/index.html#sec-reserved-words
-    *
-    * @type {KeywordsHash}
-    */
-    KEYWORDS['6'] = _hash(
-      // Keywords, ES6 11.6.2.1, http://www.ecma-international.org/ecma-262/6.0/index.html#sec-keywords
-      'break    do       in         typeof',
-      'case     else     instanceof var',
-      'catch    export   new        void',
-      'class    extends  return     while',
-      'const    finally  super      with',
-      'continue for      switch     yield',
-      'debugger function this',
-      'default  if       throw',
-      'delete   import   try',
-      // Future Reserved Words, ES6 11.6.2.2
-      // http://www.ecma-international.org/ecma-262/6.0/index.html#sec-future-reserved-words
-      'enum await',
-      // NullLiteral & BooleanLiteral
-      'null true false'
-    );
-
-    /**
-    * Reserved Words for ES6 in strict mode.
-    *
-    * @type {KeywordsHash}
-    */
-    KEYWORDS['6-strict'] = _hash(
-      KEYWORDS['6'],
-      // Keywords, ES6 11.6.2.1
-      'let static',
-      // Future Reserved Words, ES6 11.6.2.2
-      'implements package protected',
-      'interface private public'
-    );
-
-    /**
-    * Generates hash from strings
-    *
-    * @private
-    * @param {...String|KeywordsHash} keywords - Space-delimited string or previous result of _hash
-    * @return {KeywordsHash} - Object with keywords in keys and true in values
-    */
-    function _hash() {
-      var set = Array.prototype.map.call(arguments, function(v) {
-          return typeof v === 'string' ? v : Object.keys(v).join(' ');
-      }).join(' ');
-
-      return set.split(/\s+/)
-          .reduce(function(res, keyword) {
-              res[keyword] = true;
-              return res;
-          }, {});
-    }
-
-    return exports;
-})();
-
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
 Wick.View.Project = class extends Wick.View {
   static get DEFAULT_CANVAS_BG_COLOR() {
     return 'rgb(187, 187, 187)';
@@ -56341,22 +56129,217 @@ Wick.View.Project = class extends Wick.View {
   }
 
 };
-// A helper function for drawing rounded rectangles on a canvas.
-// https://stackoverflow.com/a/7838871
+/*
+The MIT License (MIT)
 
-CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
-  if (w < 2 * r) r = w / 2;
-  if (h < 2 * r) r = h / 2;
-  if(r < 0) r = 0;
-  this.beginPath();
-  this.moveTo(x+r, y);
-  this.arcTo(x+w, y,   x+w, y+h, r);
-  this.arcTo(x+w, y+h, x,   y+h, r);
-  this.arcTo(x,   y+h, x,   y,   r);
-  this.arcTo(x,   y,   x+w, y,   r);
-  this.closePath();
-  return this;
-}
+Copyright 2015 Alexej Yaroshevich and other contributors
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+
+// Code originally from https://github.com/zxqfox/reserved-words
+// zrispo made this code work without webpack or whatever
+
+var reserved = (() => {
+    var exports = {};
+
+    /**
+    * Structure for storing keywords.
+    *
+    * @typedef {Object.<String,Boolean>} KeywordsHash
+    */
+
+    /**
+    * ECMAScript dialects.
+    *
+    * @const
+    * @type {Object.<String,Number|String>} - keys as readable names and values as versions
+    */
+    var DIALECTS = {
+      es3: 3,
+      es5: 5,
+      es2015: 6,
+      es7: 7,
+
+      // aliases
+      es6: 6,
+      'default': 5,
+      next: 6
+    };
+
+    /**
+    * ECMAScript reserved words.
+    *
+    * @type {Object.<String,KeywordsHash>}
+    */
+    var KEYWORDS = exports.KEYWORDS = {};
+
+    /**
+    * Check word for being an reserved word.
+    *
+    * @param {String} word - word to check
+    * @param {String|Number} [dialect] - dialect or version
+    * @param {Boolean} [strict] - strict mode
+    * @returns {?Boolean}
+    */
+    exports.check = function check(word, dialect, strict) {
+      dialect = dialect || DIALECTS.default;
+      var version = DIALECTS[dialect] || dialect;
+
+      if (strict && version >= 5) {
+          version += '-strict';
+      }
+
+      if(!KEYWORDS[version]) console.error('reserved-words: Unknown dialect');
+
+      return KEYWORDS[version].hasOwnProperty(word);
+    };
+
+    /**
+    * Reserved Words for ES3
+    *
+    * ECMA-262 3rd: 7.5.1
+    * http://www.ecma-international.org/publications/files/ECMA-ST-ARCH/ECMA-262,%203rd%20edition,%20December%201999.pdf
+    *
+    * @type {KeywordsHash}
+    */
+    KEYWORDS['3'] = _hash(
+      // Keyword, ECMA-262 3rd: 7.5.2
+      'break    else       new     var',
+      'case     finally    return  void',
+      'catch    for        switch  while',
+      'continue function   this    with',
+      'default  if         throw',
+      'delete   in         try',
+      'do       instanceof typeof',
+      // FutureReservedWord, ECMA-262 3rd 7.5.3
+      'abstract enum       int        short',
+      'boolean  export     interface  static',
+      'byte     extends    long       super',
+      'char     final      native     synchronized',
+      'class    float      package    throws',
+      'const    goto       private    transient',
+      'debugger implements protected  volatile',
+      'double   import     public',
+      // NullLiteral & BooleanLiteral
+      'null true false'
+    );
+
+    /**
+    * Reserved Words for ES5.
+    *
+    * http://es5.github.io/#x7.6.1
+    *
+    * @type {KeywordsHash}
+    */
+    KEYWORDS['5'] = _hash(
+      // Keyword
+      'break    do       instanceof typeof',
+      'case     else     new        var',
+      'catch    finally  return     void',
+      'continue for      switch     while',
+      'debugger function this       with',
+      'default  if       throw',
+      'delete   in       try',
+      // FutureReservedWord
+      'class enum extends super',
+      'const export import',
+      // NullLiteral & BooleanLiteral
+      'null true false',
+      // added by zrispo
+      'window',
+    );
+
+    /**
+    * Reserved Words for ES5 in strict mode.
+    *
+    * @type {KeywordsHash}
+    */
+    KEYWORDS['5-strict'] = _hash(
+      KEYWORDS['5'],
+      // FutureReservedWord, strict mode. http://es5.github.io/#x7.6.1.2
+      'implements let     private   public yield',
+      'interface  package protected static'
+    );
+
+    /**
+    * Reserved Words for ES6.
+    *
+    * 11.6.2
+    * http://www.ecma-international.org/ecma-262/6.0/index.html#sec-reserved-words
+    *
+    * @type {KeywordsHash}
+    */
+    KEYWORDS['6'] = _hash(
+      // Keywords, ES6 11.6.2.1, http://www.ecma-international.org/ecma-262/6.0/index.html#sec-keywords
+      'break    do       in         typeof',
+      'case     else     instanceof var',
+      'catch    export   new        void',
+      'class    extends  return     while',
+      'const    finally  super      with',
+      'continue for      switch     yield',
+      'debugger function this',
+      'default  if       throw',
+      'delete   import   try',
+      // Future Reserved Words, ES6 11.6.2.2
+      // http://www.ecma-international.org/ecma-262/6.0/index.html#sec-future-reserved-words
+      'enum await',
+      // NullLiteral & BooleanLiteral
+      'null true false'
+    );
+
+    /**
+    * Reserved Words for ES6 in strict mode.
+    *
+    * @type {KeywordsHash}
+    */
+    KEYWORDS['6-strict'] = _hash(
+      KEYWORDS['6'],
+      // Keywords, ES6 11.6.2.1
+      'let static',
+      // Future Reserved Words, ES6 11.6.2.2
+      'implements package protected',
+      'interface private public'
+    );
+
+    /**
+    * Generates hash from strings
+    *
+    * @private
+    * @param {...String|KeywordsHash} keywords - Space-delimited string or previous result of _hash
+    * @return {KeywordsHash} - Object with keywords in keys and true in values
+    */
+    function _hash() {
+      var set = Array.prototype.map.call(arguments, function(v) {
+          return typeof v === 'string' ? v : Object.keys(v).join(' ');
+      }).join(' ');
+
+      return set.split(/\s+/)
+          .reduce(function(res, keyword) {
+              res[keyword] = true;
+              return res;
+          }, {});
+    }
+
+    return exports;
+})();
 
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
@@ -56567,6 +56550,79 @@ Wick.View.Selection = class extends Wick.View {
   }
 
 };
+// A helper function for drawing rounded rectangles on a canvas.
+// https://stackoverflow.com/a/7838871
+
+CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
+  if (w < 2 * r) r = w / 2;
+  if (h < 2 * r) r = h / 2;
+  if(r < 0) r = 0;
+  this.beginPath();
+  this.moveTo(x+r, y);
+  this.arcTo(x+w, y,   x+w, y+h, r);
+  this.arcTo(x+w, y+h, x,   y+h, r);
+  this.arcTo(x,   y+h, x,   y,   r);
+  this.arcTo(x,   y,   x+w, y,   r);
+  this.closePath();
+  return this;
+}
+
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* Copyright 2019 WICKLETS LLC
+*
+* This file is part of Wick Engine.
+*
+* Wick Engine is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Wick Engine is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+*/
+Wick.View.Clip = class extends Wick.View {
+  /**
+   * Creates a new Button view.
+   */
+  constructor() {
+    super();
+    this.group = new this.paper.Group();
+    this.group.remove();
+    this.group.applyMatrix = false;
+  }
+
+  render() {
+    // Render timeline view
+    this.model.timeline.view.render(); // Add some debug info to the paper group
+
+    this.group.data.wickType = 'clip';
+    this.group.data.wickUUID = this.model.uuid; // Add frame views from timeline
+
+    this.group.removeChildren();
+    this.model.timeline.view.activeFrameLayers.forEach(layer => {
+      this.group.addChild(layer);
+    });
+    this.model.timeline.view.onionSkinnedFramesLayers.forEach(layer => {
+      this.group.addChild(layer);
+    }); // Update transformations
+
+    this.group.pivot = new this.paper.Point(0, 0);
+    this.group.position.x = this.model.transformation.x;
+    this.group.position.y = this.model.transformation.y;
+    this.group.scaling.x = this.model.transformation.scaleX;
+    this.group.scaling.y = this.model.transformation.scaleY;
+    this.group.rotation = this.model.transformation.rotation;
+    this.group.opacity = this.model.transformation.opacity;
+  }
+
+};
 // https://gist.github.com/hurjas/2660489
 
 /**
@@ -56625,42 +56681,7 @@ function Timestamp() {
 * You should have received a copy of the GNU General Public License
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
-Wick.View.Clip = class extends Wick.View {
-  /**
-   * Creates a new Button view.
-   */
-  constructor() {
-    super();
-    this.group = new this.paper.Group();
-    this.group.remove();
-    this.group.applyMatrix = false;
-  }
-
-  render() {
-    // Render timeline view
-    this.model.timeline.view.render(); // Add some debug info to the paper group
-
-    this.group.data.wickType = 'clip';
-    this.group.data.wickUUID = this.model.uuid; // Add frame views from timeline
-
-    this.group.removeChildren();
-    this.model.timeline.view.activeFrameLayers.forEach(layer => {
-      this.group.addChild(layer);
-    });
-    this.model.timeline.view.onionSkinnedFramesLayers.forEach(layer => {
-      this.group.addChild(layer);
-    }); // Update transformations
-
-    this.group.pivot = new this.paper.Point(0, 0);
-    this.group.position.x = this.model.transformation.x;
-    this.group.position.y = this.model.transformation.y;
-    this.group.scaling.x = this.model.transformation.scaleX;
-    this.group.scaling.y = this.model.transformation.scaleY;
-    this.group.rotation = this.model.transformation.rotation;
-    this.group.opacity = this.model.transformation.opacity;
-  }
-
-};
+Wick.View.Button = class extends Wick.View.Clip {};
 /* https://github.com/Idnan/soundcloud-waveform-generator */
 
 window.AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -56818,27 +56839,6 @@ var SCWF = function () {
 * You should have received a copy of the GNU General Public License
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
-Wick.View.Button = class extends Wick.View.Clip {};
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
 Wick.View.Timeline = class extends Wick.View {
   constructor(wickTimeline) {
     super();
@@ -56862,6 +56862,97 @@ Wick.View.Timeline = class extends Wick.View {
     return this.model.layers.filter(layer => {
       return layer.project.publishedMode || !layer.hidden;
     }).reverse();
+  }
+
+};
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
+
+/*
+* Copyright 2019 WICKLETS LLC
+*
+* This file is part of Wick Engine.
+*
+* Wick Engine is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Wick Engine is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+*/
+Wick.View.Layer = class extends Wick.View {
+  static get BASE_ONION_OPACITY() {
+    return 0.35;
+  }
+
+  constructor(wickLayer) {
+    super();
+    this.activeFrameLayers = [];
+    this.onionSkinnedFramesLayers = [];
+    this.activeFrameContainers = [];
+  }
+
+  render() {
+    // Add active frame layers
+    this.activeFrameLayers = [];
+    var frame = this.model.activeFrame;
+
+    if (frame) {
+      frame.view.render();
+      this.activeFrameLayers.push(frame.view.pathsLayer);
+      this.activeFrameLayers.push(frame.view.clipsLayer);
+      frame.view.clipsLayer.locked = false;
+      frame.view.pathsLayer.locked = false;
+      frame.view.clipsLayer.opacity = 1.0;
+      frame.view.pathsLayer.opacity = 1.0;
+    } // Disable mouse events on layers if they are locked.
+    // (However, this is ignored while the project is playing so the interact tool always works.)
+
+
+    this.activeFrameLayers.forEach(layer => {
+      if (this.model.project.playing) {
+        layer.locked = false;
+      } else {
+        layer.locked = this.model.locked;
+      }
+    }); // Add onion skinned frame layers
+
+    this.onionSkinnedFramesLayers = [];
+
+    if (this.model.project && !this.model.project.playing && this.model.parentClip.isFocus && this.model.project.onionSkinEnabled) {
+      var playheadPosition = this.model.project.focus.timeline.playheadPosition;
+      var onionSkinEnabled = this.model.project.onionSkinEnabled;
+      var onionSkinSeekBackwards = this.model.project.onionSkinSeekBackwards;
+      var onionSkinSeekForwards = this.model.project.onionSkinSeekForwards;
+      this.model.frames.filter(frame => {
+        return !frame.inPosition(playheadPosition) && frame.inRange(playheadPosition - onionSkinSeekBackwards, playheadPosition + onionSkinSeekForwards);
+      }).forEach(frame => {
+        frame.view.render();
+        this.onionSkinnedFramesLayers.push(frame.view.pathsLayer);
+        this.onionSkinnedFramesLayers.push(frame.view.clipsLayer);
+        var seek = 0;
+
+        if (frame.midpoint < playheadPosition) {
+          seek = onionSkinSeekBackwards;
+        } else if (frame.midpoint > playheadPosition) {
+          seek = onionSkinSeekForwards;
+        }
+
+        var dist = frame.distanceFrom(playheadPosition);
+        var onionMult = (seek - dist + 1) / seek;
+        onionMult = Math.min(1, Math.max(0, onionMult));
+        var opacity = onionMult * Wick.View.Layer.BASE_ONION_OPACITY;
+        frame.view.clipsLayer.locked = true;
+        frame.view.pathsLayer.locked = true;
+        frame.view.clipsLayer.opacity = opacity;
+        frame.view.pathsLayer.opacity = opacity;
+      });
+    }
   }
 
 };
@@ -57768,99 +57859,6 @@ TWEEN.Interpolation = {
 * You should have received a copy of the GNU General Public License
 * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
 */
-Wick.View.Layer = class extends Wick.View {
-  static get BASE_ONION_OPACITY() {
-    return 0.35;
-  }
-
-  constructor(wickLayer) {
-    super();
-    this.activeFrameLayers = [];
-    this.onionSkinnedFramesLayers = [];
-    this.activeFrameContainers = [];
-  }
-
-  render() {
-    // Add active frame layers
-    this.activeFrameLayers = [];
-    var frame = this.model.activeFrame;
-
-    if (frame) {
-      frame.view.render();
-      this.activeFrameLayers.push(frame.view.pathsLayer);
-      this.activeFrameLayers.push(frame.view.clipsLayer);
-      frame.view.clipsLayer.locked = false;
-      frame.view.pathsLayer.locked = false;
-      frame.view.clipsLayer.opacity = 1.0;
-      frame.view.pathsLayer.opacity = 1.0;
-    } // Disable mouse events on layers if they are locked.
-    // (However, this is ignored while the project is playing so the interact tool always works.)
-
-
-    this.activeFrameLayers.forEach(layer => {
-      if (this.model.project.playing) {
-        layer.locked = false;
-      } else {
-        layer.locked = this.model.locked;
-      }
-    }); // Add onion skinned frame layers
-
-    this.onionSkinnedFramesLayers = [];
-
-    if (this.model.project && !this.model.project.playing && this.model.parentClip.isFocus && this.model.project.onionSkinEnabled) {
-      var playheadPosition = this.model.project.focus.timeline.playheadPosition;
-      var onionSkinEnabled = this.model.project.onionSkinEnabled;
-      var onionSkinSeekBackwards = this.model.project.onionSkinSeekBackwards;
-      var onionSkinSeekForwards = this.model.project.onionSkinSeekForwards;
-      this.model.frames.filter(frame => {
-        return !frame.inPosition(playheadPosition) && frame.inRange(playheadPosition - onionSkinSeekBackwards, playheadPosition + onionSkinSeekForwards);
-      }).forEach(frame => {
-        frame.view.render();
-        this.onionSkinnedFramesLayers.push(frame.view.pathsLayer);
-        this.onionSkinnedFramesLayers.push(frame.view.clipsLayer);
-        var seek = 0;
-
-        if (frame.midpoint < playheadPosition) {
-          seek = onionSkinSeekBackwards;
-        } else if (frame.midpoint > playheadPosition) {
-          seek = onionSkinSeekForwards;
-        }
-
-        var dist = frame.distanceFrom(playheadPosition);
-        var onionMult = (seek - dist + 1) / seek;
-        onionMult = Math.min(1, Math.max(0, onionMult));
-        var opacity = onionMult * Wick.View.Layer.BASE_ONION_OPACITY;
-        frame.view.clipsLayer.locked = true;
-        frame.view.pathsLayer.locked = true;
-        frame.view.clipsLayer.opacity = opacity;
-        frame.view.pathsLayer.opacity = opacity;
-      });
-    }
-  }
-
-};
-/* https://github.com/kelektiv/node-uuid */
-!function(r){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=r();else if("function"==typeof define&&define.amd)define([],r);else{var e;e="undefined"!=typeof window?window:"undefined"!=typeof global?global:"undefined"!=typeof self?self:this,e.uuidv4=r()}}(function(){return function r(e,n,t){function o(f,u){if(!n[f]){if(!e[f]){var a="function"==typeof require&&require;if(!u&&a)return a(f,!0);if(i)return i(f,!0);var d=new Error("Cannot find module '"+f+"'");throw d.code="MODULE_NOT_FOUND",d}var p=n[f]={exports:{}};e[f][0].call(p.exports,function(r){var n=e[f][1][r];return o(n?n:r)},p,p.exports,r,e,n,t)}return n[f].exports}for(var i="function"==typeof require&&require,f=0;f<t.length;f++)o(t[f]);return o}({1:[function(r,e,n){function t(r,e){var n=e||0,t=o;return t[r[n++]]+t[r[n++]]+t[r[n++]]+t[r[n++]]+"-"+t[r[n++]]+t[r[n++]]+"-"+t[r[n++]]+t[r[n++]]+"-"+t[r[n++]]+t[r[n++]]+"-"+t[r[n++]]+t[r[n++]]+t[r[n++]]+t[r[n++]]+t[r[n++]]+t[r[n++]]}for(var o=[],i=0;i<256;++i)o[i]=(i+256).toString(16).substr(1);e.exports=t},{}],2:[function(r,e,n){var t="undefined"!=typeof crypto&&crypto.getRandomValues.bind(crypto)||"undefined"!=typeof msCrypto&&msCrypto.getRandomValues.bind(msCrypto);if(t){var o=new Uint8Array(16);e.exports=function(){return t(o),o}}else{var i=new Array(16);e.exports=function(){for(var r,e=0;e<16;e++)0===(3&e)&&(r=4294967296*Math.random()),i[e]=r>>>((3&e)<<3)&255;return i}}},{}],3:[function(r,e,n){function t(r,e,n){var t=e&&n||0;"string"==typeof r&&(e="binary"===r?new Array(16):null,r=null),r=r||{};var f=r.random||(r.rng||o)();if(f[6]=15&f[6]|64,f[8]=63&f[8]|128,e)for(var u=0;u<16;++u)e[t+u]=f[u];return e||i(f)}var o=r("./lib/rng"),i=r("./lib/bytesToUuid");e.exports=t},{"./lib/bytesToUuid":1,"./lib/rng":2}]},{},[3])(3)});
-/*Wick Engine https://github.com/Wicklets/wick-engine*/
-
-/*
-* Copyright 2019 WICKLETS LLC
-*
-* This file is part of Wick Engine.
-*
-* Wick Engine is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Wick Engine is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
-*/
 Wick.View.Frame = class extends Wick.View {
   /**
    * A multiplier for the resolution for the rasterization process.
@@ -58013,6 +58011,8 @@ Wick.View.Frame = class extends Wick.View {
   }
 
 };
+/* https://github.com/kelektiv/node-uuid */
+!function(r){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=r();else if("function"==typeof define&&define.amd)define([],r);else{var e;e="undefined"!=typeof window?window:"undefined"!=typeof global?global:"undefined"!=typeof self?self:this,e.uuidv4=r()}}(function(){return function r(e,n,t){function o(f,u){if(!n[f]){if(!e[f]){var a="function"==typeof require&&require;if(!u&&a)return a(f,!0);if(i)return i(f,!0);var d=new Error("Cannot find module '"+f+"'");throw d.code="MODULE_NOT_FOUND",d}var p=n[f]={exports:{}};e[f][0].call(p.exports,function(r){var n=e[f][1][r];return o(n?n:r)},p,p.exports,r,e,n,t)}return n[f].exports}for(var i="function"==typeof require&&require,f=0;f<t.length;f++)o(t[f]);return o}({1:[function(r,e,n){function t(r,e){var n=e||0,t=o;return t[r[n++]]+t[r[n++]]+t[r[n++]]+t[r[n++]]+"-"+t[r[n++]]+t[r[n++]]+"-"+t[r[n++]]+t[r[n++]]+"-"+t[r[n++]]+t[r[n++]]+"-"+t[r[n++]]+t[r[n++]]+t[r[n++]]+t[r[n++]]+t[r[n++]]+t[r[n++]]}for(var o=[],i=0;i<256;++i)o[i]=(i+256).toString(16).substr(1);e.exports=t},{}],2:[function(r,e,n){var t="undefined"!=typeof crypto&&crypto.getRandomValues.bind(crypto)||"undefined"!=typeof msCrypto&&msCrypto.getRandomValues.bind(msCrypto);if(t){var o=new Uint8Array(16);e.exports=function(){return t(o),o}}else{var i=new Array(16);e.exports=function(){for(var r,e=0;e<16;e++)0===(3&e)&&(r=4294967296*Math.random()),i[e]=r>>>((3&e)<<3)&255;return i}}},{}],3:[function(r,e,n){function t(r,e,n){var t=e&&n||0;"string"==typeof r&&(e="binary"===r?new Array(16):null,r=null),r=r||{};var f=r.random||(r.rng||o)();if(f[6]=15&f[6]|64,f[8]=63&f[8]|128,e)for(var u=0;u<16;++u)e[t+u]=f[u];return e||i(f)}var o=r("./lib/rng"),i=r("./lib/bytesToUuid");e.exports=t},{"./lib/bytesToUuid":1,"./lib/rng":2}]},{},[3])(3)});
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
 
 /*
@@ -59565,8 +59565,14 @@ Wick.GUIElement.FramesContainer = class extends Wick.GUIElement {
 
     if (this._selectionBox) {
       this._selectionBox.draw();
-    }
+    } // Draw left side drop shadow
 
+
+    var dropShadow;
+    ctx.fillStyle = 'rgba(0,0,0,0.3)';
+    ctx.beginPath();
+    ctx.rect(this.project.scrollX - 1, 0, 2, this.canvas.height);
+    ctx.fill();
     ctx.restore();
   }
 
