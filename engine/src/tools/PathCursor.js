@@ -43,6 +43,10 @@ Wick.Tools.PathCursor = class extends Wick.Tool {
         this.currentCursorIcon = '';
     }
 
+    get doubleClickEnabled () {
+        return false;
+    }
+
     get cursor () {
         return 'url("'+this.currentCursorIcon+'") 32 32, auto';
     }

@@ -32,6 +32,10 @@ Wick.Tools.Rectangle = class extends Wick.Tool {
         this.bottomRight = null;
     }
 
+    get doubleClickEnabled () {
+        return false;
+    }
+
     /**
      *
      * @type {string}

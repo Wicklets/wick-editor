@@ -30,6 +30,10 @@ Wick.Tools.Text = class extends Wick.Tool {
         this.editingText = null;
     }
 
+    get doubleClickEnabled () {
+        return false;
+    }
+
     /**
      *
      * @type {string}

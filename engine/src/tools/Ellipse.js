@@ -32,6 +32,10 @@ Wick.Tools.Ellipse = class extends Wick.Tool {
         this.bottomRight = null;
     }
 
+    get doubleClickEnabled () {
+        return false;
+    }
+
     /**
      * A crosshair cursor.
      * @type {string}

@@ -32,6 +32,10 @@ Wick.Tools.Line = class extends Wick.Tool {
         this.endPoint;
     }
 
+    get doubleClickEnabled () {
+        return false;
+    }
+
     /**
      *
      * @type {string}

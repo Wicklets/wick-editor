@@ -133,9 +133,6 @@ Wick.Tools.Interact = class extends Wick.Tool {
         return targets;
     }
 
-    /**
-     *
-     */
     get doubleClickEnabled () {
         return false;
     }

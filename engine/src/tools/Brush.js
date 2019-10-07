@@ -56,7 +56,7 @@ Wick.Tools.Brush = class extends Wick.Tool {
     }
 
     get cursor () {
-        // the brush cursor is done in a custom way through croquis.
+        // the brush cursor is done in a custom way using _regenCursor().
     }
 
     get isDrawingTool () {
@@ -113,6 +113,7 @@ Wick.Tools.Brush = class extends Wick.Tool {
 
         // Forward mouse event to croquis canvas
         var point = this._croquisToPaperPoint(e.point);
+        this._updateStrokeBounds(point);
         try {
             this.croquis.down(point.x, point.y, this.pressure);
         } catch (e) {
@@ -155,11 +156,8 @@ Wick.Tools.Brush = class extends Wick.Tool {
 
         // Give croquis just a little bit to get the canvas ready...
         this.errorOccured = false;
+        var strokeBounds = this.strokeBounds.clone();
         this._croquisStartTimeout = setTimeout(() => {
-            var strokeBounds = this.strokeBounds.clone();
-            // We're done potracing the croquis canvas, discard the stroke bounds
-            this._resetStrokeBounds(point);
-
             // Retrieve Croquis canvas
             var canvas = this.paper.view._element.parentElement.getElementsByClassName('croquis-layer-canvas')[1];
             if(!canvas) {
@@ -174,6 +172,8 @@ Wick.Tools.Brush = class extends Wick.Tool {
             var croppedCanvasCtx = croppedCanvas.getContext("2d");
             croppedCanvas.width = strokeBounds.width;
             croppedCanvas.height = strokeBounds.height;
+            if(strokeBounds.x < 0) strokeBounds.x = 0;
+            if(strokeBounds.y < 0) strokeBounds.y = 0;
             croppedCanvasCtx.drawImage(
               canvas,
               strokeBounds.x, strokeBounds.y,
@@ -193,6 +193,9 @@ Wick.Tools.Brush = class extends Wick.Tool {
             potracePath.children[0].closed = true;
             potracePath.children[0].applyMatrix = true;
             this.addPathToProject(potracePath.children[0]);
+
+            // We're done potracing using the current croquis canvas, reset the stroke bounds
+            this._resetStrokeBounds(point);
 
             // Clear croquis canvas
             this.croquis.clearLayer();

@@ -62,7 +62,7 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
         });
 
         this.gridSizeButton = new Wick.GUIElement.ActionButton(this.model, {
-            tooltip: 'Size',
+            tooltip: 'Frame Size',
             icon: 'add_tween',
             size: 8,
             clickFn: () => {

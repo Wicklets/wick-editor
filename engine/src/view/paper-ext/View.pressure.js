@@ -27,7 +27,7 @@ paper.View.inject({
         self.pressure = force;
       },
       end: function() {
-        self.pressure = 1;
+        self.pressure = 0;
       }
     }, {polyfill: false})
   },

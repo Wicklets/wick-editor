@@ -35,6 +35,10 @@ Wick.Tools.Pencil = class extends Wick.Tool {
         this._movement = new paper.Point();
     }
 
+    get doubleClickEnabled () {
+        return false;
+    }
+
     /**
      * The pencil cursor.
      * @type {string}

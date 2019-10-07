@@ -32,6 +32,10 @@ Wick.Tools.Eraser = class extends Wick.Tool {
         this.cachedCursor = null;
     }
 
+    get doubleClickEnabled () {
+        return false;
+    }
+
     /**
      *
      * @type {string}

@@ -27,6 +27,10 @@ Wick.Tools.Pan = class extends Wick.Tool {
         this.name = 'pan';
     }
 
+    get doubleClickEnabled () {
+        return false;
+    }
+
     /**
      *
      * @type {string}

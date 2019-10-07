@@ -32,6 +32,10 @@ Wick.Tools.Eyedropper = class extends Wick.Tool {
         this.colorPreview = null;
     }
 
+    get doubleClickEnabled () {
+        return false;
+    }
+
     /**
      *
      * @type {string}

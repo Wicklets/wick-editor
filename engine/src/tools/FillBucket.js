@@ -27,6 +27,10 @@ Wick.Tools.FillBucket = class extends Wick.Tool {
         this.name = 'fillbucket';
     }
 
+    get doubleClickEnabled () {
+        return false;
+    }
+
     /**
      *
      * @type {string}

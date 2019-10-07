@@ -32,6 +32,10 @@ Wick.Tools.Zoom = class extends Wick.Tool {
         this.zoomBox = null;
     }
 
+    get doubleClickEnabled () {
+        return false;
+    }
+
     /**
      *
      * @type {string}
