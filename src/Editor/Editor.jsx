@@ -83,6 +83,7 @@ class Editor extends EditorCore {
       renderProgress: 0,
       renderType: "default",
       renderStatusMessage: "",
+      customHotkeys: {},
     };
 
     // Set up error.
@@ -544,6 +545,31 @@ class Editor extends EditorCore {
   }
 
   /**
+   * Adds a custom hotkey for an action to the editor.
+   * @param {Object} hotkeyInfo must contain actionName {String}, index {Number}, sequence {String}
+   */
+  addCustomHotKey = (hotkeyInfo) => {
+    let customHotkeys = this.state.customHotkeys;
+    let actionToUpdate = hotkeyInfo.actionName;
+    let index = hotkeyInfo.index;
+
+    if (customHotkeys[actionToUpdate]) {
+      customHotkeys[actionToUpdate][index] = hotkeyInfo.sequence;
+    } else {
+      customHotkeys[actionToUpdate] = {}
+      customHotkeys[actionToUpdate][index] = hotkeyInfo.sequence;
+    }
+
+    this.hotKeyInterface.setCustomHotkeys(customHotkeys);
+
+    this.setState({
+      customHotkeys: customHotkeys,
+    });
+
+    
+  }
+
+  /**
    * A flag to prevent "double state changes" where an action tries to happen while another is still processing.
    * Set this to true before doing something asynchronous that will take a long time, and set it back to false when done.
    */
@@ -597,8 +623,8 @@ class Editor extends EditorCore {
             pauseOnHover
           />
             <GlobalHotKeys
-              keyMap={this.state.previewPlaying ? this.hotKeyInterface.getEssentialKeyMap() : this.hotKeyInterface.getKeyMap()}
-              handlers={this.state.previewPlaying ? this.hotKeyInterface.getEssentialKeyHandlers() : this.hotKeyInterface.getHandlers()}/>
+              keyMap={this.state.previewPlaying ? this.hotKeyInterface.getEssentialKeyMap(this.state.customHotkeys) : this.hotKeyInterface.getKeyMap(this.state.customHotkeys)}
+              handlers={this.state.previewPlaying ? this.hotKeyInterface.getEssentialKeyHandlers(this.state.customHotkeys) : this.hotKeyInterface.getHandlers(this.state.customHotkeys)}/>
               <div id="editor">
                 <input
                   type='file'
@@ -633,6 +659,7 @@ class Editor extends EditorCore {
                     renderProgress={this.state.renderProgress}
                     renderStatusMessage={this.state.renderStatusMessage}
                     renderType={this.state.renderType}
+                    addCustomHotKey={this.addCustomHotKey}
                   />
                   {/* Header */}
                   <DockedPanel showOverlay={this.state.previewPlaying}>

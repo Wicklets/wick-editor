@@ -19,11 +19,23 @@
 
 import React, { Component } from 'react';
 import WickModal from 'Editor/Modals/WickModal/WickModal';
-import { getApplicationKeyMap } from 'react-hotkeys';
+import { getApplicationKeyMap, recordKeyCombination } from 'react-hotkeys';
 
 import './_keyboardshortcuts.scss';
 
+var classNames = require('classnames'); 
+
 class KeyboardShortcuts extends Component {
+  constructor () {
+    super();
+    // Instantiate default behavior.
+    this.state = {
+      editingAction: {actionName: "", actionIndex: 0}, 
+      cancelKeyRecording: () => {},
+    }
+  }
+
+  // Creates the key icons to show on each row.
   makeKey = (sequence) => {
     if (sequence === undefined) {
       sequence = '';
@@ -41,8 +53,8 @@ class KeyboardShortcuts extends Component {
       <span className="keyboard-shortcut-key">
         {sequenceItems.map((key,i) => {
           return (
-            <span className="keyboard-shortcuts-key-icon-container">
-              <kbd key={"keyboard-commands-" + key + i}>{key}</kbd>
+            <span key={"keyboard-commands-" + key + i} className="keyboard-shortcuts-key-icon-container">
+              <kbd>{key}</kbd>
               {sequenceItems.length > i+1 && ' + '}
             </span>
           );
@@ -51,14 +63,21 @@ class KeyboardShortcuts extends Component {
     );
   }
 
+  // Replaces keys with symbols.
   replaceKeys = (str) => {
     const keys = [
       ['shift', '⇪'],
+      ['Shift', '⇪'],
       ['left', '⇦'],
+      ['Left', '⇦'],
       ['right', '⇨'],
+      ['Right', '⇨'],
       ['up', '⇧'],
+      ['Up', '⇧'],
       ['down', '⇩'],
+      ['Down', '⇩'],
       ['command', '⌘'],
+      ['Command', '⌘'],
     ]
 
     let newStr = str;
@@ -70,20 +89,59 @@ class KeyboardShortcuts extends Component {
     return newStr;
   }
 
-  createRow = ({name, sequence1, sequence2}) => {
+  createRow = (rowInfo) => {
+    let {actionName, name, sequence1, sequence2} = rowInfo;
+
+    let editingAction = this.state.editingAction;
     return (
       <tr className="keyboard-shortcuts-modal-row" key={name}>
         <td className="hotkey-action-column">
           { name }
         </td>
-        <td className="hotkey-column">
+        <td className={classNames("hotkey-column", {"editing": actionName === editingAction.actionName && editingAction.index === 0})} 
+            onClick={() => this.beginEdit(actionName, 0)}>
           { this.makeKey(sequence1) }
         </td>
-        <td className="hotkey-column">
+        <td className={classNames("hotkey-column", {"editing": actionName === editingAction.actionName && editingAction.index === 1})}
+            onClick={() => this.beginEdit(actionName, 1)}>
           { this.makeKey(sequence2) }
         </td>
       </tr>
     );
+  }
+
+  beginEdit = (actionName, index) => {
+    // Begin recording that we are editing a key.
+    var cancelKeyRecording =  recordKeyCombination(
+      (sequence) => this.changeKey(actionName, index, sequence)
+    );
+
+    // Set that we are editing a key.
+    this.setState({
+      editingAction: {actionName: actionName, index: index || 0}, 
+      cancelKeyRecording: cancelKeyRecording,
+    });
+
+
+  }
+
+  // Initiate custom hotkey change.
+  changeKey = (actionName, sequenceIndex, sequence) => {
+    this.props.addCustomHotKey({
+      actionName: actionName, 
+      index: sequenceIndex,
+      sequence: sequence.id,
+    });
+
+    this.stopEditingKey();
+  } 
+
+  stopEditingKey = () => {
+    this.state.cancelKeyRecording();
+    this.setState({
+      editingAction: {actionName: "", actionIndex: 0}, 
+      cancelKeyRecording: () => {},
+    });
   }
 
   render() {
@@ -92,13 +150,16 @@ class KeyboardShortcuts extends Component {
     return (
       <WickModal
       open={this.props.open}
-      toggle={this.props.toggle}
+      toggle={() => {
+        this.stopEditingKey(); // Ensure we cancel key recording if in the process.
+        this.props.toggle();
+      }}
       className="keyboard-shortcuts-modal-body"
       overlayClassName="keyboard-shortcuts-modal-overlay">
         <div id="keyboard-shortcuts-modal-title">Hotkeys</div>
         <div id="keyboard-shortcuts-body">
 
-          <table class="tableSection">
+          <table className="tableSection">
             <thead>
               <tr>
                 <th className="hotkey-action-column">Action</th>
@@ -112,9 +173,10 @@ class KeyboardShortcuts extends Component {
                     let { sequences, name } = keyMap[actionName];
                     return this.createRow(
                       {
+                        actionName: actionName,
                         name: name || actionName,
                         sequence1: sequences[0],
-                        sequence2: sequences.length > 1 ? sequences[1] : undefined,
+                        sequence2: sequences[1],
                       });
                 })
               }

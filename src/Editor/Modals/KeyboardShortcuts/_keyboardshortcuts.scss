@@ -75,6 +75,15 @@ kbd {
    width: calc(calc(100% - #{$action-column-width}) / 2);
  }
 
+ .hotkey-column:hover {
+   cursor: pointer;
+   background-color: $editor-popout-secondary;
+ }
+ .hotkey-column.editing {
+   background-color: $wick-yellow-light;
+   color: $wick-yellow-text;
+ }
+
  tr {
    width: 100%;
  }

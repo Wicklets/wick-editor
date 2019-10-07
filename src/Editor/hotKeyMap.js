@@ -38,8 +38,11 @@ class HotKeyInterface extends Object {
     this.repeatKeyInterval = null;
 
     // Initialize all hotkeys settings
-    this.createKeyMap();
-    this.createHandlers();
+    this.createDefaultKeyMap();
+    this.createDefaultHandlers();
+
+    // Initialize custom hotkeys;
+    this.customHotkeys = {};
 
     // Keys that should always work.
     this.essentialKeys = ['preview-play-toggle'];
@@ -48,7 +51,7 @@ class HotKeyInterface extends Object {
   // Create mappings of actions to keys
   // SINGLE: action:'key' | OR: action:['keya','keyb'] | AND: action 'keya+keyb'
 
-  createKeyMap = () => {
+  createDefaultKeyMap = () => {
     this.keyMap = {
       'activate-brush': {
         name: "Activate Brush",
@@ -116,35 +119,35 @@ class HotKeyInterface extends Object {
       },
       'preview-play-from-start': {
         name: "Preview Play from Start",
-        sequences: ['ctrl+enter','command+enter'],
+        sequences: ['meta+enter'],
       },
       'undo': {
         name: "Undo",
-        sequences: ['ctrl+z','command+z'],
+        sequences: ['meta+z'],
       },
       'redo': {
         name: "Redo",
-        sequences: ['ctrl+y','command+y'],
+        sequences: ['meta+y'],
       },
       'copy': {
         name: "Copy",
-        sequences: ['ctrl+c','command+c'],
+        sequences: ['meta+c'],
       },
       'paste': {
         name: "Paste",
-        sequences: ['ctrl+v','command+v'],
+        sequences: ['meta+v'],
       },
       'duplicate': {
         name: "Duplicate",
-        sequences: ['ctrl+d','command+d'],
+        sequences: ['meta+d'],
       },
       'cut': {
         name: "Cut",
-        sequences: ['ctrl+x','command+x'],
+        sequences: ['meta+x'],
       },
       'break-apart': {
         name: "Break Apart",
-        sequences: ['ctrl+b','command+b'],
+        sequences: ['meta+b'],
       },
       'grow-brush-size': {
         name: "Increase Brush Size",
@@ -186,12 +189,12 @@ class HotKeyInterface extends Object {
       },
       'move-frame-right': {
         name: "Move Frame Right",
-        sequences: ['ctrl+shift+.', 'command+shift+.'],
+        sequences: ['meta+shift+.'],
         repeatable: true,
       },
       'move-frame-left': {
         name: "Move Frame Left",
-        sequences: ['ctrl+shift+,', 'command+shift+,'],
+        sequences: ['meta+shift+,'],
         repeatable: true,
       },
       'create-tween': {
@@ -208,23 +211,23 @@ class HotKeyInterface extends Object {
       },
       'select-all': {
         name: "Select All",
-        sequences: ['ctrl+a','command+a'],
+        sequences: ['meta+a'],
       },
       'bring-to-front': {
         name: "Bring to Front",
-        sequences: ['ctrl+shift+up','command+shift+up'],
+        sequences: ['meta+shift+up'],
       },
       'move-forwards': {
         name: "Move Forwards",
-        sequences: ['ctrl+up','command+up'],
+        sequences: ['meta+up'],
       },
       'send-to-back': {
         name: "Send to Back",
-        sequences: ['ctrl+shift+down','command+enter'],
+        sequences: ['meta+enter'],
       },
       'move-backwards': {
         name: "Move Backwards",
-        sequences: ['ctrl+down','command+down'],
+        sequences: ['meta+down'],
       },
       'nudge-up': {
         name: "Nudge Up",
@@ -272,19 +275,19 @@ class HotKeyInterface extends Object {
       },
       'export-project-as-wick-file': {
         name: "Save Project",
-        sequences: ['ctrl+s', 'command+s'],
+        sequences: ['meta+s'],
       },
       'import-project-as-wick-file': {
         name: "Open Project",
-        sequences: ['ctrl+o', 'command+o'],
+        sequences: ['meta+o'],
       },
       'create-clip-from-selection': {
         name: "Create Clip from Selection",
-        sequences: ['ctrl+g', 'command+g'],
+        sequences: ['meta+g'],
       },
       'break-apart-selection': {
         name: "Break Apart Selection",
-        sequences: ['ctrl+shift+g', 'command+shift+g'],
+        sequences: ['meta+shift+g'],
       },
     }
 
@@ -307,7 +310,7 @@ class HotKeyInterface extends Object {
     }
   }
 
-  createHandlers = () => {
+  createDefaultHandlers = () => {
     this.handlers = {
       'activate-brush': (() => this.editor.setActiveTool("brush")),
       'activate-cursor': (() => this.editor.setActiveTool("cursor")),
@@ -412,20 +415,56 @@ class HotKeyInterface extends Object {
     this.editor.projectDidChange();
   }
 
-  getKeyMap = () => {
-    return this.keyMap;
+  // Sets the hotkey interface's custom hotkeys. 
+  setCustomHotkeys = (customHotkeys) => {
+    this.customHotkeys = customHotkeys;
   }
 
+  // Returns the application keymap, with modifications for custom hotkeys.
+  getKeyMap = () => {
+    return this.modifyKeyMap(this.keyMap, this.customHotkeys);
+  }
+
+  // Returns the application key handlers, with modifications for custom hotkeys.
   getHandlers = () => {
     return this.handlers;
   }
 
+  // Returns essential keymap of the application, with modifications for custom hotkeys.
   getEssentialKeyMap = () => {
-    return this.filterObject(this.essentialKeys, this.getKeyMap());
+    let essentialMap = this.filterObject(this.essentialKeys, this.getKeyMap());
+    return this.modifyKeyMap(essentialMap, this.customHotkeys);
   }
 
+  // Returns essential keyhandlers for the application, with modifications for custom hotkeys.
   getEssentialKeyHandlers = () => {
     return this.filterObject(this.essentialKeys, this.getHandlers());
+  }
+
+  modifyKeyMap = (keyMap, customKeys) => {
+    let newKeyMap = {};
+
+    Object.keys(keyMap).forEach((actionName) => {
+
+      // Set default attributes...
+      newKeyMap[actionName] = {
+        name: keyMap[actionName].name,
+        sequences: keyMap[actionName].sequences,
+      }
+
+      // Update keymap with new attributes.
+      if (customKeys[actionName]) {
+        let customSequences = customKeys[actionName];
+        if (customSequences[0]) {
+          newKeyMap[actionName].sequences[0] = customSequences[0];
+        }
+        if (customSequences[1]) {
+          newKeyMap[actionName].sequences[1] = customSequences[1];
+        }
+      }
+    }); 
+
+    return newKeyMap;
   }
 
   /**
