@@ -405,11 +405,13 @@ class HotKeyInterface extends Object {
   }
 
   finishRepeating = () => {
-    clearInterval(this.repeatKeyInterval);
-    clearTimeout(this.repeatKeyTimeout);
-    this.repeatKeyInterval = null;
-    this.repeatKeyTimeout = null;
-    this.editor.projectDidChange();
+    if(this.repeatKeyInterval || this.repeatKeyTimeout) {
+      clearInterval(this.repeatKeyInterval);
+      clearTimeout(this.repeatKeyTimeout);
+      this.repeatKeyInterval = null;
+      this.repeatKeyTimeout = null;
+      this.editor.projectDidChange();
+    }
   }
 
   getKeyMap = () => {

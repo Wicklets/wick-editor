@@ -1207,22 +1207,26 @@ class EditorCore extends Component {
 
   extendFrame = () => {
       this.project.extendSelectedFrames();
-      this.projectDidChange();
+      this.project.guiElement.draw();
+      //this.projectDidChange();
   }
 
   shrinkFrame = () => {
       this.project.shrinkSelectedFrames();
-      this.projectDidChange();
+      this.project.guiElement.draw();
+      //this.projectDidChange();
   }
 
   moveFrameRight = () => {
       this.project.moveSelectedFramesRight();
-      this.projectDidChange();
+      this.project.guiElement.draw();
+      //this.projectDidChange();
   }
 
   moveFrameLeft = () => {
       this.project.moveSelectedFramesLeft();
-      this.projectDidChange();
+      this.project.guiElement.draw();
+      //this.projectDidChange();
   }
 
   createTween = () => {
@@ -1242,12 +1246,14 @@ class EditorCore extends Component {
 
   extendSelectedFramesAndPushOtherFrames = () => {
       this.project.extendSelectedFramesAndPushOtherFrames();
-      this.projectDidChange();
+      this.project.guiElement.draw();
+      //this.projectDidChange();
   }
 
   shrinkSelectedFramesAndPullOtherFrames = () => {
       this.project.shrinkSelectedFramesAndPullOtherFrames();
-      this.projectDidChange();
+      this.project.guiElement.draw();
+      //this.projectDidChange();
   }
 }
 
