@@ -43,16 +43,17 @@
     "start": "react-scripts start",
     "build": "react-scripts build && cp CNAME_editor ./build/CNAME",
     "build-engine": "cd engine; mkdir dist/; gulp; cp dist/wickengine.js ../public/corelibs/wick-engine/wickengine.js; rm dist/wickengine.js;",
+    "build-electron-macos": "electron-packager . wickmacos --ignore=node_modules --platform=darwin --out electron-build",
+    "build-electron-windows": "electron-packager . wickwindows --ignore=node_modules --platform=win32 --out electron-build",
+    "build-ios": "cp -r build/* build-ios/WebViewExample/local_html",
     "test": "react-scripts test",
     "predeploy": "npm run build",
     "prerelease-deploy": "npm run build; cp -r build/* ../wick-editor-prerelease/; cd ../wick-editor-prerelease; rm CNAME; echo 'test.wickeditor.com' > CNAME; git add .; git commit -m 'update prerelease build'; git push --force;",
     "deploy": "gh-pages -d build",
     "eject": "react-scripts eject",
-    "electron-dev-macos": "ELECTRON_START_URL=http://localhost:3000 electron .",
-    "electron-dev-windows": "set ELECTRON_START_URL=http://localhost:3000 && electron .",
     "electron": "electron .",
-    "electron-build-macos": "electron-packager . wickmacos --ignore=node_modules --platform=darwin --out electron-build",
-    "electron-build-windows": "electron-packager . wickwindows --ignore=node_modules --platform=win32 --out electron-build"
+    "electron-dev-macos": "ELECTRON_START_URL=http://localhost:3000 electron .",
+    "electron-dev-windows": "set ELECTRON_START_URL=http://localhost:3000 && electron ."
   },
   "eslintConfig": {
     "extends": "react-app"
