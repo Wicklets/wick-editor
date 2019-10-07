@@ -98,5 +98,14 @@ Wick.GUIElement.Timeline = class extends Wick.GUIElement {
 
         // Breadcrumbs
         this.breadcrumbs.draw();
+
+        // Drop shadows
+        ctx.save();
+        ctx.translate(Wick.GUIElement.LAYERS_CONTAINER_WIDTH, Wick.GUIElement.BREADCRUMBS_HEIGHT);
+            ctx.fillStyle = 'rgba(0,0,0,0.3)';
+            ctx.beginPath();
+            ctx.rect(0, 0, 2, this.canvas.height);
+            ctx.fill();
+        ctx.restore();
     }
 }
