@@ -46,7 +46,7 @@ Wick.GUIElement.FramesContainer = class extends Wick.GUIElement {
 
         // Add a small buffer to prevent some graphics from being cut off
         ctx.save();
-        ctx.translate(1,1);
+        ctx.translate(2,2);
 
         // Draw frame strips
         var layers = this.model.layers;
@@ -137,7 +137,7 @@ Wick.GUIElement.FramesContainer = class extends Wick.GUIElement {
         var dropShadow
         ctx.fillStyle = 'rgba(0,0,0,0.3)';
         ctx.beginPath();
-        ctx.rect(this.project.scrollX, this.project.scrollY-1, this.canvas.width, 2);
+        ctx.rect(this.project.scrollX, this.project.scrollY-2, this.canvas.width, 2);
         ctx.fill();
 
         ctx.restore();
