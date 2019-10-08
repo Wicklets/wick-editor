@@ -82,6 +82,15 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
                 this._onMouseDown(e);
             }, false);
 
+            // Auto-close popup menu if there is a click off-canvas
+            document.addEventListener('mousedown', e => {
+                if(e.touches) return;
+                if(e.target !== this._canvas) {
+                    this.closePopupMenu();
+                    this.draw();
+                }
+            }, false);
+
             // Scroll events
             $(this._canvas).on('mousewheel', this._onMouseWheel.bind(this));
 
