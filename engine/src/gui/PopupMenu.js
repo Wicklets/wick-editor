@@ -99,14 +99,14 @@ Wick.GUIElement.PopupMenu = class extends Wick.GUIElement {
 
             // Buttons
             ctx.save();
-            ctx.globalAlpha = method !== 'auto_extend' ? 1.0 : 0.3;
             ctx.translate(20, 20);
+                this.extendFramesButton.toggled = method === 'auto_extend';
                 this.extendFramesButton.draw(method !== 'auto_extend');
             ctx.restore();
 
             ctx.save();
-            ctx.globalAlpha = method !== 'blank_frames' ? 1.0 : 0.3;
             ctx.translate(57, 20);
+                this.emptyFramesButton.toggled = method === 'blank_frames';
                 this.emptyFramesButton.draw(method !== 'blank_frames');
             ctx.restore();
         ctx.restore();
@@ -130,20 +130,20 @@ Wick.GUIElement.PopupMenu = class extends Wick.GUIElement {
 
             // Buttons
             ctx.save();
-            ctx.globalAlpha = currentSize !== smallSize ? 1.0 : 0.3;
             ctx.translate(20, 20);
+                this.smallFramesButton.toggled = currentSize === smallSize;
                 this.smallFramesButton.draw(currentSize !== smallSize);
             ctx.restore();
 
             ctx.save();
-            ctx.globalAlpha = currentSize !== normalSize ? 1.0 : 0.3;
             ctx.translate(57, 20);
+                this.normalFramesButton.toggled = currentSize === normalSize;
                 this.normalFramesButton.draw(currentSize !== normalSize);
             ctx.restore();
 
             ctx.save();
-            ctx.globalAlpha = currentSize !== largeSize ? 1.0 : 0.3;
             ctx.translate(94, 20);
+                this.largeFramesButton.toggled = currentSize === largeSize;
                 this.largeFramesButton.draw(currentSize !== largeSize);
             ctx.restore();
         ctx.restore();

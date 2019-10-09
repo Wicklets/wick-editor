@@ -24,6 +24,7 @@ Wick.GUIElement.ActionButton = class extends Wick.GUIElement.Button {
         this.icon = args.icon;
         this.width = args.width || Wick.GUIElement.ACTION_BUTTON_RADIUS;
         this.height = args.height || Wick.GUIElement.ACTION_BUTTON_RADIUS;
+        this.toggled = args.toggled || false;
     };
 
     draw (isActive) {
@@ -39,7 +40,7 @@ Wick.GUIElement.ActionButton = class extends Wick.GUIElement.Button {
         }
 
         // Button Circle
-        if (isActive && this.mouseState == 'over') {
+        if ((isActive && this.mouseState == 'over') || this.toggled) {
             ctx.fillStyle = Wick.GUIElement.FRAME_HOVERED_OVER;
             ctx.beginPath();
             ctx.roundRect(-this.width, -this.height, this.width*2, this.height*2, 3);
