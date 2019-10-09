@@ -48,8 +48,9 @@ Wick.GUIElement.ActionButton = class extends Wick.GUIElement.Button {
         }
 
         // Button Icon
-        var r = this.height * 0.8;
-        ctx.drawImage(Wick.GUIElement.Icons.getIcon(this.icon), -r, -r, r*2, r*2);
+        var w = this.width * 0.8;
+        var h = this.height * 0.8;
+        ctx.drawImage(Wick.GUIElement.Icons.getIcon(this.icon), -w, -h, w*2, h*2);
     };
 
     get bounds () {

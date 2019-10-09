@@ -37,7 +37,7 @@ import iconSmallFrames from 'resources/timeline-icons/framesSmall.png';
 import iconNormalFrames from 'resources/timeline-icons/framesNormal.png';
 import iconLargeFrames from 'resources/timeline-icons/framesLarge.png';
 import iconFrameSizeMenu from 'resources/timeline-icons/frameSizeMenu.png';
-import iconGapFillMenu from 'resources/timeline-icons/frameSizeMenu.png';
+import iconGapFillMenu from 'resources/timeline-icons/gapFillMenu.png';
 import iconGapFillBlankFrames from 'resources/timeline-icons/gapFillBlankFrames.png';
 import iconGapFillExtendFrames from 'resources/timeline-icons/gapFillExtendFrames.png';
 

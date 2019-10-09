@@ -94,13 +94,13 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
 
         // Gap Fill Mode button
         ctx.save();
-        ctx.translate(18, this.canvas.height - Wick.GUIElement.NUMBER_LINE_HEIGHT - 5);
+        ctx.translate(18, this.canvas.height - Wick.GUIElement.NUMBER_LINE_HEIGHT - 4);
             this.fillGapsModeButton.draw(true);
         ctx.restore();
 
         // Frame Size button
         ctx.save();
-        ctx.translate(54, this.canvas.height - Wick.GUIElement.NUMBER_LINE_HEIGHT - 5);
+        ctx.translate(54, this.canvas.height - Wick.GUIElement.NUMBER_LINE_HEIGHT - 4);
             this.gridSizeButton.draw(true);
         ctx.restore();
 
