@@ -97,6 +97,7 @@ class ModalHandler extends Component {
           toggle={this.props.closeActiveModal}
           open={this.props.activeModalName === 'KeyboardShortcuts'}
           addCustomHotKey={this.props.addCustomHotKey}
+          resetCustomHotKeys={this.props.resetCustomHotKeys}
         />
       </div>
     );

@@ -415,8 +415,14 @@ class HotKeyInterface extends Object {
     this.editor.projectDidChange();
   }
 
-  // Sets the hotkey interface's custom hotkeys. 
+  // Sets the hotkey interface's custom hotkeys. Ignores null or undefined inputs.
+  // Expects a parameter customHotkeys of the following schema.
+  // customHotkeys {object}
+  // ** action {string representing action id (ex. activate-brush)}
+  // ** ** 0 {Hotkey string sequence}
+  // ** ** 1 {Hotkey string sequence}
   setCustomHotkeys = (customHotkeys) => {
+    if (!customHotkeys) return; // Ignore operation if customHotkeys is not set.
     this.customHotkeys = customHotkeys;
   }
 

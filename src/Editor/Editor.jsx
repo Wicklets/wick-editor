@@ -135,7 +135,16 @@ class Editor extends EditorCore {
       name        : 'WickEditor',
       description : 'Live Data storage of the Wick Editor app.'
     });
+
     this.autoSaveKey = "wickProjectAutosave1-0-11";
+    this.customHotKeysKey = "wickEditorCustomHotKeys";
+
+    // Set up custom hotkeys if they exist.
+    localForage.getItem(this.customHotKeysKey).then(
+      (customHotkeys) => {
+        this.hotKeyInterface.setCustomHotkeys(customHotkeys);
+      }
+    );
 
     // Setup the initial project state
     this.setState({
@@ -560,15 +569,20 @@ class Editor extends EditorCore {
       customHotkeys[actionToUpdate][index] = hotkeyInfo.sequence;
     }
 
-    this.hotKeyInterface.setCustomHotkeys(customHotkeys);
-
-    this.setState({
-      customHotkeys: customHotkeys,
-    });
-
-    
+    this.syncHotKeys(customHotkeys);
   }
 
+  resetCustomHotKeys = () => {
+    this.syncHotkeys({});
+  }
+
+  syncHotKeys = (hotkeys) => {
+    this.hotKeyInterface.setCustomHotkeys(hotkeys);
+    localForage.setItem(this.customHotKeysKey, hotkeys);
+    this.setState({
+      customHotkeys: hotkeys
+    })
+  }
   /**
    * A flag to prevent "double state changes" where an action tries to happen while another is still processing.
    * Set this to true before doing something asynchronous that will take a long time, and set it back to false when done.
@@ -623,6 +637,7 @@ class Editor extends EditorCore {
             pauseOnHover
           />
             <GlobalHotKeys
+              allowChanges={true}
               keyMap={this.state.previewPlaying ? this.hotKeyInterface.getEssentialKeyMap(this.state.customHotkeys) : this.hotKeyInterface.getKeyMap(this.state.customHotkeys)}
               handlers={this.state.previewPlaying ? this.hotKeyInterface.getEssentialKeyHandlers(this.state.customHotkeys) : this.hotKeyInterface.getHandlers(this.state.customHotkeys)}/>
               <div id="editor">
@@ -660,6 +675,7 @@ class Editor extends EditorCore {
                     renderStatusMessage={this.state.renderStatusMessage}
                     renderType={this.state.renderType}
                     addCustomHotKey={this.addCustomHotKey}
+                    resetCustomHotKeys={this.resetCustomHotKeys}
                   />
                   {/* Header */}
                   <DockedPanel showOverlay={this.state.previewPlaying}>
