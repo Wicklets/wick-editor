@@ -60727,9 +60727,9 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
     // Call mouse event functions on the elements interacted with
     var target = this._getTopMouseTarget();
 
-    if (this._isDragging) {
+    if (this.canvasClicked && this._isDragging) {
       target && target.onMouseUp(e);
-    } else if (this._lastClickedElem === target) {
+    } else if (this.canvasClicked && this._lastClickedElem === target) {
       target && target.onMouseUp(e);
     }
 
