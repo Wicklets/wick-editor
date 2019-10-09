@@ -21,8 +21,8 @@ import React, { Component } from 'react';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 
 import WickAceEditor from './WickAceEditor/WickAceEditor';
-import SelectSubTabButton from 'Editor/Util/SelectSubTabButton/SelectSubTabButton';
 import AddScriptPanel from './AddScriptPanel/AddScriptPanel';
+import TabbedInterface from 'Editor/Util/TabbedInterface/TabbedInterface';
 
 import './_wicktabcodeeditor.scss';
 import './_wicktabcodeeditortabstyling.scss';
@@ -156,8 +156,8 @@ class WickTabCodeEditor extends Component {
    * Returns the scripts which can be added based on the currently selected sub tab.
    * @returns {object[]} Scripts returned in the form of an object with name, used, and description properties.
    */
-  getAddableScripts = () => {
-    let addable = this.scriptsByType[this.state.scriptSubTab];
+  getAddableScripts = (tab) => {
+    let addable = this.scriptsByType[tab];
     let availableScripts = this.props.script.getAvailableScripts();
 
     let final = []
@@ -181,18 +181,34 @@ class WickTabCodeEditor extends Component {
     this.props.rerenderCodeEditor();
   }
 
+  renderAddScriptPanel = (tab) => {
+    return (
+      <AddScriptPanel
+      scripts={this.getAddableScripts(tab)}
+      addScript={this.addScript} />
+    )
+  }
+
   renderAddScriptTabPanel = () => {
+    let tabs = [
+      {
+        name: "Mouse",
+        body: this.renderAddScriptPanel("Mouse")
+      },
+      {
+        name: "Keyboard",
+        body: this.renderAddScriptPanel("Keyboard")
+      },
+      {
+        name: "Timeline",
+        body: this.renderAddScriptPanel("Timeline")
+      },
+    ]
+
     return (
       <TabPanel>
         <div id="add-scripts-panel-container">
-          <div id="select-sub-tab-list">
-            <SelectSubTabButton selected={this.state.scriptSubTab} name="Mouse" action={this.setSubTab}/>
-            <SelectSubTabButton selected={this.state.scriptSubTab} name="Keyboard" action={this.setSubTab}/>
-            <SelectSubTabButton selected={this.state.scriptSubTab} name="Timeline" action={this.setSubTab}/>
-          </div>
-          <AddScriptPanel
-            scripts={this.getAddableScripts()}
-            addScript={this.addScript} />
+          <TabbedInterface className="pop-out-add-scripts-body" tabs={tabs} />
         </div>
       </TabPanel>
     );

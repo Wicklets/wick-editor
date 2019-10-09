@@ -13,11 +13,11 @@ $tab-editor-left-padding: 15px;
 #add-scripts-panel-container {
   width: 100%;
   height: 100%; 
-  overflow-y: scroll;
   display: flex;
   flex-direction: column;
   align-items: center;
   background-color: $editor-popout-tertiary; 
+  overflow: hidden;
 }
 
 #code-editor-add-script-tab {
@@ -45,4 +45,9 @@ $tab-editor-left-padding: 15px;
   height: 17px;
   width: 17px; 
   margin-left: 4px; 
+}
+
+.pop-out-add-scripts-body {
+  margin-left: 10px;
+  width: calc(100% - 10px); 
 }
