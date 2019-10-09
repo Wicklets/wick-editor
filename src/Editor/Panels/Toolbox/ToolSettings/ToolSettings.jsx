@@ -139,7 +139,7 @@ class ToolSettings extends Component {
     return (
       <ToolSettingsInput
         name='Relative Brush Size'
-        icon='brushpressure'
+        icon='brushrelativesize'
         type='checkbox'
         value={this.getToolSetting('relativeBrushSize')}
         onChange={() => this.setToolSetting('relativeBrushSize', !this.getToolSetting('relativeBrushSize'))}/>
