@@ -76,7 +76,7 @@ Wick.GUIElement.NumberLine = class extends Wick.GUIElement {
     _drawCell (i) {
         var ctx = this.ctx;
 
-        var highlight = (i%5 === 4);
+        var highlight = i===0 || (i%5 === 4);
 
         // Draw cell number
         if(this.project.frameSizeMode !== 'small' || highlight) {

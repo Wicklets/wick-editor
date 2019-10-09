@@ -48,7 +48,7 @@ Wick.GUIElement.PopupMenu = class extends Wick.GUIElement {
 
         this.smallFramesButton = new Wick.GUIElement.ActionButton(this.model, {
             tooltip: 'Small',
-            icon: 'add_tween',
+            icon: 'small_frames',
             clickFn: () => {
                 Wick.GUIElement.GRID_DEFAULT_CELL_WIDTH = Wick.GUIElement.GRID_SMALL_CELL_WIDTH;
                 Wick.GUIElement.GRID_DEFAULT_CELL_HEIGHT = Wick.GUIElement.GRID_SMALL_CELL_HEIGHT;
@@ -57,7 +57,7 @@ Wick.GUIElement.PopupMenu = class extends Wick.GUIElement {
 
         this.normalFramesButton = new Wick.GUIElement.ActionButton(this.model, {
             tooltip: 'Medium',
-            icon: 'add_tween',
+            icon: 'normal_frames',
             clickFn: () => {
                 Wick.GUIElement.GRID_DEFAULT_CELL_WIDTH = Wick.GUIElement.GRID_NORMAL_CELL_WIDTH;
                 Wick.GUIElement.GRID_DEFAULT_CELL_HEIGHT = Wick.GUIElement.GRID_NORMAL_CELL_HEIGHT;
@@ -66,7 +66,7 @@ Wick.GUIElement.PopupMenu = class extends Wick.GUIElement {
 
         this.largeFramesButton = new Wick.GUIElement.ActionButton(this.model, {
             tooltip: 'Large',
-            icon: 'add_tween',
+            icon: 'large_frames',
             clickFn: () => {
                 Wick.GUIElement.GRID_DEFAULT_CELL_WIDTH = Wick.GUIElement.GRID_LARGE_CELL_WIDTH;
                 Wick.GUIElement.GRID_DEFAULT_CELL_HEIGHT = Wick.GUIElement.GRID_LARGE_CELL_HEIGHT;

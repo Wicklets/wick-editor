@@ -51,7 +51,8 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
         this.fillGapsModeButton = new Wick.GUIElement.ActionButton(this.model, {
             tooltip: 'Gap Fill Mode',
             icon: 'add_tween',
-            size: 8,
+            height: 8,
+            width: 16,
             clickFn: () => {
                 this.project.openPopupMenu(new Wick.GUIElement.PopupMenu(this.model, {
                     x: 0,
@@ -63,8 +64,9 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
 
         this.gridSizeButton = new Wick.GUIElement.ActionButton(this.model, {
             tooltip: 'Frame Size',
-            icon: 'add_tween',
-            size: 8,
+            icon: 'large_frames',
+            height: 8,
+            width: 16,
             clickFn: () => {
                 this.project.openPopupMenu(new Wick.GUIElement.PopupMenu(this.model, {
                     x: 20,
@@ -84,7 +86,7 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
         ctx.rect(0, 0, Wick.GUIElement.LAYERS_CONTAINER_WIDTH, Wick.GUIElement.NUMBER_LINE_HEIGHT);
         ctx.fill();
 
-        // Buttom background
+        // Bottom background
         ctx.fillStyle = '#111';
         ctx.beginPath();
         ctx.rect(0, this.canvas.height - Wick.GUIElement.BREADCRUMBS_HEIGHT - Wick.GUIElement.SCROLLBAR_SIZE, Wick.GUIElement.LAYERS_CONTAINER_WIDTH, Wick.GUIElement.SCROLLBAR_SIZE);
@@ -92,13 +94,13 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
 
         // Gap Fill Mode button
         ctx.save();
-        ctx.translate(9, this.canvas.height - Wick.GUIElement.NUMBER_LINE_HEIGHT - 5);
+        ctx.translate(18, this.canvas.height - Wick.GUIElement.NUMBER_LINE_HEIGHT - 5);
             this.fillGapsModeButton.draw(true);
         ctx.restore();
 
         // Frame Size button
         ctx.save();
-        ctx.translate(29, this.canvas.height - Wick.GUIElement.NUMBER_LINE_HEIGHT - 5);
+        ctx.translate(54, this.canvas.height - Wick.GUIElement.NUMBER_LINE_HEIGHT - 5);
             this.gridSizeButton.draw(true);
         ctx.restore();
 

@@ -58540,7 +58540,8 @@ Wick.GUIElement.ActionButton = class extends Wick.GUIElement.Button {
   constructor(model, args) {
     super(model, args);
     this.icon = args.icon;
-    this.size = args.size || Wick.GUIElement.ACTION_BUTTON_RADIUS;
+    this.width = args.width || Wick.GUIElement.ACTION_BUTTON_RADIUS;
+    this.height = args.height || Wick.GUIElement.ACTION_BUTTON_RADIUS;
   }
 
   draw(isActive) {
@@ -58555,26 +58556,23 @@ Wick.GUIElement.ActionButton = class extends Wick.GUIElement.Button {
 
 
     if (isActive && this.mouseState == 'over') {
-      ctx.fillStyle = Wick.GUIElement.ACTION_BUTTON_COLOR;
-    } else {
-      ctx.fillStyle = Wick.GUIElement.TIMELINE_BACKGROUND_COLOR;
-    }
+      ctx.fillStyle = Wick.GUIElement.FRAME_HOVERED_OVER;
+      ctx.beginPath();
+      ctx.roundRect(-this.width, -this.height, this.width * 2, this.height * 2, 3);
+      ctx.fill();
+    } // Button Icon
 
-    ctx.beginPath();
-    ctx.arc(0, 0, this.size, 0, 2 * Math.PI);
-    ctx.fill(); // Button Icon
 
-    var r = this.size * 0.8;
+    var r = this.height * 0.8;
     ctx.drawImage(Wick.GUIElement.Icons.getIcon(this.icon), -r, -r, r * 2, r * 2);
   }
 
   get bounds() {
-    var r = this.size;
     return {
-      x: -r,
-      y: -r,
-      width: r * 2,
-      height: r * 2
+      x: -this.width,
+      y: -this.height,
+      width: this.width * 2,
+      height: this.height * 2
     };
   }
 
@@ -58627,7 +58625,8 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
     this.fillGapsModeButton = new Wick.GUIElement.ActionButton(this.model, {
       tooltip: 'Gap Fill Mode',
       icon: 'add_tween',
-      size: 8,
+      height: 8,
+      width: 16,
       clickFn: () => {
         this.project.openPopupMenu(new Wick.GUIElement.PopupMenu(this.model, {
           x: 0,
@@ -58638,8 +58637,9 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
     });
     this.gridSizeButton = new Wick.GUIElement.ActionButton(this.model, {
       tooltip: 'Frame Size',
-      icon: 'add_tween',
-      size: 8,
+      icon: 'large_frames',
+      height: 8,
+      width: 16,
       clickFn: () => {
         this.project.openPopupMenu(new Wick.GUIElement.PopupMenu(this.model, {
           x: 20,
@@ -58656,7 +58656,7 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
     ctx.fillStyle = Wick.GUIElement.TIMELINE_BACKGROUND_COLOR;
     ctx.beginPath();
     ctx.rect(0, 0, Wick.GUIElement.LAYERS_CONTAINER_WIDTH, Wick.GUIElement.NUMBER_LINE_HEIGHT);
-    ctx.fill(); // Buttom background
+    ctx.fill(); // Bottom background
 
     ctx.fillStyle = '#111';
     ctx.beginPath();
@@ -58664,12 +58664,12 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
     ctx.fill(); // Gap Fill Mode button
 
     ctx.save();
-    ctx.translate(9, this.canvas.height - Wick.GUIElement.NUMBER_LINE_HEIGHT - 5);
+    ctx.translate(18, this.canvas.height - Wick.GUIElement.NUMBER_LINE_HEIGHT - 5);
     this.fillGapsModeButton.draw(true);
     ctx.restore(); // Frame Size button
 
     ctx.save();
-    ctx.translate(29, this.canvas.height - Wick.GUIElement.NUMBER_LINE_HEIGHT - 5);
+    ctx.translate(54, this.canvas.height - Wick.GUIElement.NUMBER_LINE_HEIGHT - 5);
     this.gridSizeButton.draw(true);
     ctx.restore();
     var frameButtonsAreActive = this.model.project.selection.getSelectedObjects('Frame').length > 0;
@@ -59056,6 +59056,7 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement {
   _mouseOverFrameEdge() {
     var widthPx = this.model.length * this.gridCellWidth;
     var handlePx = Wick.GUIElement.FRAME_HANDLE_WIDTH;
+    if (this.project.frameSizeMode === 'small') handlePx *= 0.5;
 
     if (this.project._isDragging || !this.mouseInBounds()) {
       return null;
@@ -59935,7 +59936,7 @@ Wick.GUIElement.NumberLine = class extends Wick.GUIElement {
 
   _drawCell(i) {
     var ctx = this.ctx;
-    var highlight = i % 5 === 4; // Draw cell number
+    var highlight = i === 0 || i % 5 === 4; // Draw cell number
 
     if (this.project.frameSizeMode !== 'small' || highlight) {
       var fontSize = i >= 99 ? 13 : 16;
@@ -60209,7 +60210,7 @@ Wick.GUIElement.PopupMenu = class extends Wick.GUIElement {
     });
     this.smallFramesButton = new Wick.GUIElement.ActionButton(this.model, {
       tooltip: 'Small',
-      icon: 'add_tween',
+      icon: 'small_frames',
       clickFn: () => {
         Wick.GUIElement.GRID_DEFAULT_CELL_WIDTH = Wick.GUIElement.GRID_SMALL_CELL_WIDTH;
         Wick.GUIElement.GRID_DEFAULT_CELL_HEIGHT = Wick.GUIElement.GRID_SMALL_CELL_HEIGHT;
@@ -60217,7 +60218,7 @@ Wick.GUIElement.PopupMenu = class extends Wick.GUIElement {
     });
     this.normalFramesButton = new Wick.GUIElement.ActionButton(this.model, {
       tooltip: 'Medium',
-      icon: 'add_tween',
+      icon: 'normal_frames',
       clickFn: () => {
         Wick.GUIElement.GRID_DEFAULT_CELL_WIDTH = Wick.GUIElement.GRID_NORMAL_CELL_WIDTH;
         Wick.GUIElement.GRID_DEFAULT_CELL_HEIGHT = Wick.GUIElement.GRID_NORMAL_CELL_HEIGHT;
@@ -60225,7 +60226,7 @@ Wick.GUIElement.PopupMenu = class extends Wick.GUIElement {
     });
     this.largeFramesButton = new Wick.GUIElement.ActionButton(this.model, {
       tooltip: 'Large',
-      icon: 'add_tween',
+      icon: 'large_frames',
       clickFn: () => {
         Wick.GUIElement.GRID_DEFAULT_CELL_WIDTH = Wick.GUIElement.GRID_LARGE_CELL_WIDTH;
         Wick.GUIElement.GRID_DEFAULT_CELL_HEIGHT = Wick.GUIElement.GRID_LARGE_CELL_HEIGHT;
@@ -61212,7 +61213,7 @@ Wick.GUIElement.Tooltip = class extends Wick.GUIElement {
     var ty = y + textHeight; // Restrict tooltip so it's always on-screen
 
     var xMin = 3;
-    var yMax = this.canvas.height - 33;
+    var yMax = this.canvas.height - 35;
     if (tx < xMin) tx = xMin;
     if (ty > yMax) ty = yMax;
     ctx.translate(tx, ty); // Body

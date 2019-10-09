@@ -45,7 +45,7 @@ Wick.GUIElement.Tooltip = class extends Wick.GUIElement {
 
         // Restrict tooltip so it's always on-screen
         var xMin = 3;
-        var yMax = this.canvas.height - 33;
+        var yMax = this.canvas.height - 35;
         if(tx < xMin) tx = xMin;
         if(ty > yMax) ty = yMax;
 

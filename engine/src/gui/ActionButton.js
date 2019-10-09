@@ -22,7 +22,8 @@ Wick.GUIElement.ActionButton = class extends Wick.GUIElement.Button {
         super(model, args);
 
         this.icon = args.icon;
-        this.size = args.size || Wick.GUIElement.ACTION_BUTTON_RADIUS;
+        this.width = args.width || Wick.GUIElement.ACTION_BUTTON_RADIUS;
+        this.height = args.height || Wick.GUIElement.ACTION_BUTTON_RADIUS;
     };
 
     draw (isActive) {
@@ -39,26 +40,23 @@ Wick.GUIElement.ActionButton = class extends Wick.GUIElement.Button {
 
         // Button Circle
         if (isActive && this.mouseState == 'over') {
-            ctx.fillStyle = Wick.GUIElement.ACTION_BUTTON_COLOR;
-        } else {
-            ctx.fillStyle = Wick.GUIElement.TIMELINE_BACKGROUND_COLOR;
+            ctx.fillStyle = Wick.GUIElement.FRAME_HOVERED_OVER;
+            ctx.beginPath();
+            ctx.roundRect(-this.width, -this.height, this.width*2, this.height*2, 3);
+            ctx.fill();
         }
-        ctx.beginPath();
-        ctx.arc(0, 0, this.size, 0, 2 * Math.PI);
-        ctx.fill();
 
         // Button Icon
-        var r = this.size * 0.8;
+        var r = this.height * 0.8;
         ctx.drawImage(Wick.GUIElement.Icons.getIcon(this.icon), -r, -r, r*2, r*2);
     };
 
     get bounds () {
-        var r = this.size;
         return {
-            x: -r,
-            y: -r,
-            width: r * 2,
-            height: r * 2,
+            x: -this.width,
+            y: -this.height,
+            width: this.width * 2,
+            height: this.height * 2,
         }
     }
 };

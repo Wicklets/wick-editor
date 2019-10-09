@@ -219,6 +219,8 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement {
         var widthPx = this.model.length * this.gridCellWidth;
         var handlePx = Wick.GUIElement.FRAME_HANDLE_WIDTH;
 
+        if(this.project.frameSizeMode === 'small') handlePx *= 0.5;
+
         if(this.project._isDragging || !this.mouseInBounds()) {
             return null;
         } else if(this.localMouse.x < handlePx) {

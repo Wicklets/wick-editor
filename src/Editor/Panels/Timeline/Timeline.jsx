@@ -33,6 +33,9 @@ import iconCopyForward from 'resources/timeline-icons/copyForward.png';
 import iconSplit from 'resources/timeline-icons/cut_frame.png';
 import iconLayerTween from 'resources/timeline-icons/layerTween.png';
 import iconDelete from 'resources/timeline-icons/delete.png';
+import iconSmallFrames from 'resources/timeline-icons/frames-small.png';
+import iconNormalFrames from 'resources/timeline-icons/frames-normal.png';
+import iconLargeFrames from 'resources/timeline-icons/frames-large.png';
 
 class Timeline extends Component {
   constructor (props) {
@@ -61,6 +64,9 @@ class Timeline extends Component {
       Icons.loadIcon('cut_frame', iconSplit);
       Icons.loadIcon('delete_frame', iconDelete);
       Icons.loadIcon('add_tween', iconLayerTween);
+      Icons.loadIcon('small_frames', iconSmallFrames);
+      Icons.loadIcon('normal_frames', iconNormalFrames);
+      Icons.loadIcon('large_frames', iconLargeFrames);
 
       if(this.currentAttachedProject) {
         this.currentAttachedProject.guiElement.onProjectModified = () => {};
