@@ -47792,13 +47792,16 @@ Wick.Project = class extends Wick.Base {
       this.selection.getSelectedObjects('Frame').forEach(frame => {
         addedFrames.push(frame.insertBlankFrame());
       });
-    } else {
+    } else if (this.activeFrame) {
       // Otherwise, just add a frame at the playhead position + active layer
-      var frame = this.activeFrame;
-
-      if (frame) {
-        addedFrames.push(frame.insertBlankFrame());
-      }
+      addedFrames.push(this.activeFrame.insertBlankFrame());
+    } else {
+      // Or, if there was no active frame, create a new frame
+      var newFrame = new Wick.Frame({
+        start: this.activeTimeline.playheadPosition
+      });
+      this.activeLayer.addFrame(newFrame);
+      addedFrames.push(newFrame);
     } // Select the newly added frames
 
 
@@ -47808,14 +47811,52 @@ Wick.Project = class extends Wick.Base {
     });
   }
   /**
-   * Create a new tween on all selected frames.
+   * A tween can be created if frames are selected or if there is a frame under the playhead on the active layer.
    */
 
 
-  createTweenOnSelectedFrames() {
-    this.selection.getSelectedObjects('Frame').forEach(frame => {
-      frame.createTween();
-    });
+  get canCreateTween() {
+    // Frames are selected, a tween can be created
+    var selectedFrames = this.selection.getSelectedObjects('Frame');
+
+    if (selectedFrames.length > 0) {
+      // Make sure you can only create tweens on contentful frames
+      if (selectedFrames.find(frame => {
+        return !frame.contentful;
+      })) {
+        return false;
+      } else {
+        return true;
+      }
+    } // There is a frame under the playhead on the active layer, a tween can be created
+
+
+    var activeFrame = this.activeLayer.activeFrame;
+
+    if (activeFrame) {
+      // ...but only if that frame is contentful
+      return activeFrame.contentful;
+    }
+
+    return false;
+  }
+  /**
+   * Create a new tween on all selected frames OR on the active frame of the active layer.
+   */
+
+
+  createTween() {
+    var selectedFrames = this.selection.getSelectedObjects('Frame');
+
+    if (selectedFrames.length > 0) {
+      // Create a tween on all selected frames
+      this.selection.getSelectedObjects('Frame').forEach(frame => {
+        frame.createTween();
+      });
+    } else {
+      // Create a tween on the active frame
+      this.activeLayer.activeFrame.createTween();
+    }
   }
   /**
    * Move the right edge of all selected frames right one frame.
@@ -58609,7 +58650,7 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
       }
     });
     this.insertBlankFrameButton = new Wick.GUIElement.ActionButton(this.model, {
-      tooltip: 'Insert Blank Frame',
+      tooltip: 'Add Frame',
       icon: 'cut_frame',
       clickFn: () => {
         this.model.project.insertBlankFrame();
@@ -58620,7 +58661,7 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
       tooltip: 'Add Tween',
       icon: 'add_tween',
       clickFn: () => {
-        this.model.project.createTweenOnSelectedFrames();
+        this.model.project.createTween();
         this.projectWasModified();
       }
     });
@@ -58674,27 +58715,28 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
     ctx.translate(54, this.canvas.height - Wick.GUIElement.NUMBER_LINE_HEIGHT - 4);
     this.gridSizeButton.draw(true);
     ctx.restore();
-    var frameButtonsAreActive = this.model.project.selection.getSelectedObjects('Frame').length > 0;
+    var tweenButtonIsActive = this.model.project.canCreateTween;
     var deleteButtonIsActive = this.model.project.selection.getSelectedObjects('Timeline').length > 0;
     ctx.save();
-    ctx.globalAlpha = deleteButtonIsActive ? 1.0 : 0.3;
     ctx.save();
     ctx.translate(80, 0); // Delete Frame button
 
     ctx.save();
+    ctx.globalAlpha = deleteButtonIsActive ? 1.0 : 0.3;
     ctx.translate(0, 20);
     this.deleteFrameButton.draw(deleteButtonIsActive);
-    ctx.restore();
-    ctx.globalAlpha = frameButtonsAreActive ? 1.0 : 0.3; // Copy Frame Forward button
+    ctx.restore(); // Copy Frame Forward button
 
     ctx.save();
+    ctx.globalAlpha = 1.0;
     ctx.translate(30, 20);
-    this.insertBlankFrameButton.draw(frameButtonsAreActive);
+    this.insertBlankFrameButton.draw(true);
     ctx.restore(); // Add Tween button
 
     ctx.save();
+    ctx.globalAlpha = tweenButtonIsActive ? 1.0 : 0.3;
     ctx.translate(60, 20);
-    this.addTweenButton.draw(frameButtonsAreActive);
+    this.addTweenButton.draw(tweenButtonIsActive);
     ctx.restore();
     ctx.restore();
     ctx.restore();

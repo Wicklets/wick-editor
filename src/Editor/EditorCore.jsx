@@ -1230,7 +1230,7 @@ class EditorCore extends Component {
   }
 
   createTween = () => {
-      this.project.createTweenOnSelectedFrames();
+      this.project.createTween();
       this.projectDidChange();
   }
 

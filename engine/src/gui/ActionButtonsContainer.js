@@ -31,7 +31,7 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
         });
 
         this.insertBlankFrameButton = new Wick.GUIElement.ActionButton(this.model, {
-            tooltip: 'Insert Blank Frame',
+            tooltip: 'Add Frame',
             icon: 'cut_frame',
             clickFn: () => {
                 this.model.project.insertBlankFrame();
@@ -43,7 +43,7 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
             tooltip: 'Add Tween',
             icon: 'add_tween',
             clickFn: () => {
-                this.model.project.createTweenOnSelectedFrames();
+                this.model.project.createTween();
                 this.projectWasModified();
             }
         });
@@ -104,32 +104,31 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
             this.gridSizeButton.draw(true);
         ctx.restore();
 
-        var frameButtonsAreActive = this.model.project.selection.getSelectedObjects('Frame').length > 0;
+        var tweenButtonIsActive = this.model.project.canCreateTween;
         var deleteButtonIsActive = this.model.project.selection.getSelectedObjects('Timeline').length > 0;
         ctx.save();
-
-        ctx.globalAlpha = deleteButtonIsActive ? 1.0 : 0.3;
 
         ctx.save();
         ctx.translate(80, 0);
             // Delete Frame button
             ctx.save();
+            ctx.globalAlpha = deleteButtonIsActive ? 1.0 : 0.3;
             ctx.translate(0, 20);
                 this.deleteFrameButton.draw(deleteButtonIsActive);
             ctx.restore();
 
-            ctx.globalAlpha = frameButtonsAreActive ? 1.0 : 0.3;
-
             // Copy Frame Forward button
             ctx.save();
+            ctx.globalAlpha = 1.0;
             ctx.translate(30, 20);
-                this.insertBlankFrameButton.draw(frameButtonsAreActive);
+                this.insertBlankFrameButton.draw(true);
             ctx.restore();
 
             // Add Tween button
             ctx.save();
+            ctx.globalAlpha = tweenButtonIsActive ? 1.0 : 0.3;
             ctx.translate(60, 20);
-                this.addTweenButton.draw(frameButtonsAreActive);
+                this.addTweenButton.draw(tweenButtonIsActive);
             ctx.restore();
         ctx.restore();
 

@@ -1319,10 +1319,16 @@ describe('Wick.Project', function() {
         })
     });
 
-    describe('#createTweenOnSelectedFrames', function () {
-        it('should create tweens on selected frames', function () {
+    describe('#canCreateTween', function () {
+        it('should determine if tweens can be created or not', function () {
             // TODO
-        })
+        });
+    });
+
+    describe('#createTween', function () {
+        it('should create tweens', function () {
+            // TODO
+        });
     });
 
     describe('#extendSelectedFrames', function () {

@@ -671,12 +671,14 @@ Wick.Project = class extends Wick.Base {
             this.selection.getSelectedObjects('Frame').forEach(frame => {
                 addedFrames.push(frame.insertBlankFrame());
             });
-        } else {
+        } else if (this.activeFrame) {
             // Otherwise, just add a frame at the playhead position + active layer
-            var frame = this.activeFrame;
-            if(frame) {
-                addedFrames.push(frame.insertBlankFrame());
-            }
+            addedFrames.push(this.activeFrame.insertBlankFrame());
+        } else {
+            // Or, if there was no active frame, create a new frame
+            var newFrame = new Wick.Frame({start: this.activeTimeline.playheadPosition});
+            this.activeLayer.addFrame(newFrame);
+            addedFrames.push(newFrame);
         }
 
         // Select the newly added frames
@@ -687,12 +689,46 @@ Wick.Project = class extends Wick.Base {
     }
 
     /**
-     * Create a new tween on all selected frames.
+     * A tween can be created if frames are selected or if there is a frame under the playhead on the active layer.
      */
-    createTweenOnSelectedFrames () {
-        this.selection.getSelectedObjects('Frame').forEach(frame => {
-            frame.createTween();
-        });
+    get canCreateTween () {
+        // Frames are selected, a tween can be created
+        var selectedFrames = this.selection.getSelectedObjects('Frame');
+        if(selectedFrames.length > 0) {
+            // Make sure you can only create tweens on contentful frames
+            if(selectedFrames.find(frame => {
+                return !frame.contentful;
+            })) {
+                return false
+            } else {
+                return true;
+            }
+        }
+
+        // There is a frame under the playhead on the active layer, a tween can be created
+        var activeFrame = this.activeLayer.activeFrame;
+        if(activeFrame) {
+            // ...but only if that frame is contentful
+            return activeFrame.contentful;
+        }
+
+        return false;
+    }
+
+    /**
+     * Create a new tween on all selected frames OR on the active frame of the active layer.
+     */
+    createTween () {
+        var selectedFrames = this.selection.getSelectedObjects('Frame');
+        if(selectedFrames.length > 0) {
+            // Create a tween on all selected frames
+            this.selection.getSelectedObjects('Frame').forEach(frame => {
+                frame.createTween();
+            });
+        } else {
+            // Create a tween on the active frame
+            this.activeLayer.activeFrame.createTween();
+        }
     }
 
     /**
