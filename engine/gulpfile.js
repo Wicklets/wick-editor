@@ -7,6 +7,15 @@ var header = require('gulp-header');
 var mergeStream = require('merge-stream');
 
 gulp.task("default", function() {
+
+  /* Generate build number */
+  /* Year.Month.Day[micro] */
+  var date = new Date();
+  var year = date.getFullYear();
+  var month = date.getMonth();
+  var day = date.getDay();
+  var buildString = year + '.' + month + '.' + day;
+
   var libs = gulp
     .src([
       'lib/paper.js',
@@ -32,7 +41,8 @@ gulp.task("default", function() {
       'lib/soundcloud-waveform.js',
       'lib/Tween.js',
       'lib/uuid.js'
-    ]);
+    ])
+    .pipe(concat('libs.js'));
 
   var src = gulp
     .src([
@@ -131,10 +141,11 @@ gulp.task("default", function() {
       'src/gui/Tween.js',
       'src/gui/TweenGhost.js',
     ])
-    .pipe(header('/*Wick Engine https://github.com/Wicklets/wick-engine*/'))
-    .pipe(babel());
+    .pipe(babel())
+    .pipe(concat('src.js'));
 
-  return mergeStream(libs, src)
+  return mergeStream(src, libs)
     .pipe(concat('wickengine.js'))
+    .pipe(header('/*Wick Engine https://github.com/Wicklets/wick-engine*/\nvar WICK_ENGINE_BUILD_VERSION = "' + buildString + '";\n'))
     .pipe(gulp.dest('dist'));
 });

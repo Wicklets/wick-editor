@@ -21,11 +21,10 @@
  * This object creates a Wick namespace for wick-engine functionality and utilities.
  */
 Wick = {
-    /* Year.Month.Day[micro] */
-    version: "2019.8.15",
+    version: window.WICK_ENGINE_BUILD_VERSION || "dev",
 }
 
-console.log("Wick Engine " + Wick.version + " is available.");
+console.log('Wick Engine version "' + Wick.version + '" is available.');
 
 // Ensure that the Wick namespace is accessible in environments where globals are finicky (react, webpack, etc)
 window.Wick = Wick;
