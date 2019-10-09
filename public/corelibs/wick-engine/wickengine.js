@@ -58624,7 +58624,7 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
     });
     this.fillGapsModeButton = new Wick.GUIElement.ActionButton(this.model, {
       tooltip: 'Gap Fill Mode',
-      icon: 'add_tween',
+      icon: 'gap_fill_menu',
       height: 8,
       width: 16,
       clickFn: () => {
@@ -58637,7 +58637,7 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
     });
     this.gridSizeButton = new Wick.GUIElement.ActionButton(this.model, {
       tooltip: 'Frame Size',
-      icon: 'large_frames',
+      icon: 'frame_size_menu',
       height: 8,
       width: 16,
       clickFn: () => {
@@ -60194,7 +60194,7 @@ Wick.GUIElement.PopupMenu = class extends Wick.GUIElement {
     this.mode = args.mode;
     this.extendFramesButton = new Wick.GUIElement.ActionButton(this.model, {
       tooltip: 'Extend Frames',
-      icon: 'add_tween',
+      icon: 'gap_fill_extend_frames',
       clickFn: () => {
         this.project.model.activeTimeline.fillGapsMethod = 'auto_extend';
         this.projectWasModified();
@@ -60202,7 +60202,7 @@ Wick.GUIElement.PopupMenu = class extends Wick.GUIElement {
     });
     this.emptyFramesButton = new Wick.GUIElement.ActionButton(this.model, {
       tooltip: 'Add Blank Frames',
-      icon: 'add_tween',
+      icon: 'gap_fill_empty_frames',
       clickFn: () => {
         this.project.model.activeTimeline.fillGapsMethod = 'blank_frames';
         this.projectWasModified();

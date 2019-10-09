@@ -33,9 +33,13 @@ import iconCopyForward from 'resources/timeline-icons/copyForward.png';
 import iconSplit from 'resources/timeline-icons/cut_frame.png';
 import iconLayerTween from 'resources/timeline-icons/layerTween.png';
 import iconDelete from 'resources/timeline-icons/delete.png';
-import iconSmallFrames from 'resources/timeline-icons/frames-small.png';
-import iconNormalFrames from 'resources/timeline-icons/frames-normal.png';
-import iconLargeFrames from 'resources/timeline-icons/frames-large.png';
+import iconSmallFrames from 'resources/timeline-icons/framesSmall.png';
+import iconNormalFrames from 'resources/timeline-icons/framesNormal.png';
+import iconLargeFrames from 'resources/timeline-icons/framesLarge.png';
+import iconFrameSizeMenu from 'resources/timeline-icons/frameSizeMenu.png';
+import iconGapFillMenu from 'resources/timeline-icons/frameSizeMenu.png';
+import iconGapFillBlankFrames from 'resources/timeline-icons/gapFillBlankFrames.png';
+import iconGapFillExtendFrames from 'resources/timeline-icons/gapFillExtendFrames.png';
 
 class Timeline extends Component {
   constructor (props) {
@@ -67,6 +71,10 @@ class Timeline extends Component {
       Icons.loadIcon('small_frames', iconSmallFrames);
       Icons.loadIcon('normal_frames', iconNormalFrames);
       Icons.loadIcon('large_frames', iconLargeFrames);
+      Icons.loadIcon('frame_size_menu', iconFrameSizeMenu);
+      Icons.loadIcon('gap_fill_menu', iconGapFillMenu);
+      Icons.loadIcon('gap_fill_empty_frames', iconGapFillBlankFrames);
+      Icons.loadIcon('gap_fill_extend_frames', iconGapFillExtendFrames);
 
       if(this.currentAttachedProject) {
         this.currentAttachedProject.guiElement.onProjectModified = () => {};

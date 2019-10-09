@@ -50,7 +50,7 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
 
         this.fillGapsModeButton = new Wick.GUIElement.ActionButton(this.model, {
             tooltip: 'Gap Fill Mode',
-            icon: 'add_tween',
+            icon: 'gap_fill_menu',
             height: 8,
             width: 16,
             clickFn: () => {
@@ -64,7 +64,7 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
 
         this.gridSizeButton = new Wick.GUIElement.ActionButton(this.model, {
             tooltip: 'Frame Size',
-            icon: 'large_frames',
+            icon: 'frame_size_menu',
             height: 8,
             width: 16,
             clickFn: () => {

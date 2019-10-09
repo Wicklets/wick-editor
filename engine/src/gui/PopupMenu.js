@@ -30,7 +30,7 @@ Wick.GUIElement.PopupMenu = class extends Wick.GUIElement {
 
         this.extendFramesButton = new Wick.GUIElement.ActionButton(this.model, {
             tooltip: 'Extend Frames',
-            icon: 'add_tween',
+            icon: 'gap_fill_extend_frames',
             clickFn: () => {
                 this.project.model.activeTimeline.fillGapsMethod = 'auto_extend';
                 this.projectWasModified();
@@ -39,7 +39,7 @@ Wick.GUIElement.PopupMenu = class extends Wick.GUIElement {
 
         this.emptyFramesButton = new Wick.GUIElement.ActionButton(this.model, {
             tooltip: 'Add Blank Frames',
-            icon: 'add_tween',
+            icon: 'gap_fill_empty_frames',
             clickFn: () => {
                 this.project.model.activeTimeline.fillGapsMethod = 'blank_frames';
                 this.projectWasModified();
