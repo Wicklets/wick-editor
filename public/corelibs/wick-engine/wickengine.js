@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2019.9.3";
+var WICK_ENGINE_BUILD_VERSION = "2019.9.4";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -58667,7 +58667,7 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
     });
     this.fillGapsModeButton = new Wick.GUIElement.ActionButton(this.model, {
       tooltip: 'Gap Fill Mode',
-      icon: 'gap_fill_menu',
+      icon: 'gap_fill_menu_blank_frames',
       height: 8,
       width: 16,
       clickFn: () => {
@@ -58707,6 +58707,14 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
     ctx.fill(); // Gap Fill Mode button
 
     ctx.save();
+    var method = this.project.model.activeTimeline.fillGapsMethod;
+
+    if (method === 'auto_extend') {
+      this.fillGapsModeButton.icon = 'gap_fill_menu_extend_frames';
+    } else if (method === 'blank_frames') {
+      this.fillGapsModeButton.icon = 'gap_fill_menu_blank_frames';
+    }
+
     ctx.translate(18, this.canvas.height - Wick.GUIElement.NUMBER_LINE_HEIGHT - 4);
     this.fillGapsModeButton.draw(true);
     ctx.restore(); // Frame Size button

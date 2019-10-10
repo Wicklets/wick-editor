@@ -37,7 +37,8 @@ import iconSmallFrames from 'resources/timeline-icons/framesSmall.png';
 import iconNormalFrames from 'resources/timeline-icons/framesNormal.png';
 import iconLargeFrames from 'resources/timeline-icons/framesLarge.png';
 import iconFrameSizeMenu from 'resources/timeline-icons/frameSizeMenu.png';
-import iconGapFillMenu from 'resources/timeline-icons/gapFillMenu.png';
+import iconGapFillMenuBlankFrames from 'resources/timeline-icons/gapFillMenuBlankFrames.png';
+import iconGapFillMenuExtendFrames from 'resources/timeline-icons/gapFillMenuExtendFrames.png';
 import iconGapFillBlankFrames from 'resources/timeline-icons/gapFillBlankFrames.png';
 import iconGapFillExtendFrames from 'resources/timeline-icons/gapFillExtendFrames.png';
 
@@ -72,7 +73,8 @@ class Timeline extends Component {
       Icons.loadIcon('normal_frames', iconNormalFrames);
       Icons.loadIcon('large_frames', iconLargeFrames);
       Icons.loadIcon('frame_size_menu', iconFrameSizeMenu);
-      Icons.loadIcon('gap_fill_menu', iconGapFillMenu);
+      Icons.loadIcon('gap_fill_menu_blank_frames', iconGapFillMenuBlankFrames);
+      Icons.loadIcon('gap_fill_menu_extend_frames', iconGapFillMenuExtendFrames);
       Icons.loadIcon('gap_fill_empty_frames', iconGapFillBlankFrames);
       Icons.loadIcon('gap_fill_extend_frames', iconGapFillExtendFrames);
 

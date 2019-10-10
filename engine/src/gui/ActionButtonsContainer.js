@@ -50,7 +50,7 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
 
         this.fillGapsModeButton = new Wick.GUIElement.ActionButton(this.model, {
             tooltip: 'Gap Fill Mode',
-            icon: 'gap_fill_menu',
+            icon: 'gap_fill_menu_blank_frames',
             height: 8,
             width: 16,
             clickFn: () => {
@@ -94,6 +94,12 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
 
         // Gap Fill Mode button
         ctx.save();
+        var method = this.project.model.activeTimeline.fillGapsMethod;
+        if(method === 'auto_extend') {
+            this.fillGapsModeButton.icon = 'gap_fill_menu_extend_frames';
+        } else if (method === 'blank_frames') {
+            this.fillGapsModeButton.icon = 'gap_fill_menu_blank_frames';
+        }
         ctx.translate(18, this.canvas.height - Wick.GUIElement.NUMBER_LINE_HEIGHT - 4);
             this.fillGapsModeButton.draw(true);
         ctx.restore();
