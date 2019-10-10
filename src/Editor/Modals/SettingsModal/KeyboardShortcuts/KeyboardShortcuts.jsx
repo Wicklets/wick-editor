@@ -19,6 +19,7 @@
 
 import React, { Component } from 'react';
 import { getApplicationKeyMap, recordKeyCombination } from 'react-hotkeys';
+import ActionButton from 'Editor/Util/ActionButton/ActionButton'; 
 
 import './_keyboardshortcuts.scss';
 
@@ -148,13 +149,12 @@ class KeyboardShortcuts extends Component {
 
     return (
         <div id="keyboard-shortcuts-body">
-
           <table className="tableSection">
             <thead>
               <tr>
                 <th className="hotkey-action-column">Action</th>
-                <th className="hotkey-column">Hotkey 1</th>
-                <th className="hotkey-column">Hotkey 2</th>
+                <th className="hotkey-column header">Hotkey 1</th>
+                <th className="hotkey-column header">Hotkey 2</th>
               </tr>
             </thead>
             <tbody>
@@ -172,6 +172,25 @@ class KeyboardShortcuts extends Component {
               }
             </tbody>
           </table>
+            {/* Footer */}
+            <div id="project-settings-modal-footer">
+            <div id="project-settings-modal-cancel">
+                <ActionButton 
+                  className="project-settings-modal-button"
+                  color='gray'
+                  action={this.resetAndToggle}
+                  text="Cancel"
+                  />
+              </div>
+              <div id="autosave-modal-accept">
+                <ActionButton 
+                  className="autosave-modal-button"
+                  color='green'
+                  action={this.acceptProjectSettings}
+                  text="Accept"
+                  />
+              </div>
+          </div>
         </div>
     );
   }

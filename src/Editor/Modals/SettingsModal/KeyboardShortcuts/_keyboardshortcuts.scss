@@ -63,7 +63,7 @@ kbd {
 
  #keyboard-shortcuts-body {
    width: 100%;
-   height: 100%;
+   height: 85%;
  }
 
  .hotkey-action-column {
@@ -79,6 +79,12 @@ kbd {
    cursor: pointer;
    background-color: $editor-popout-secondary;
  }
+
+ .hotkey-column.header:hover {
+   cursor: default;
+   background-color: $editor-modal-gray;
+ }
+
  .hotkey-column.editing {
    background-color: $wick-yellow-light;
    color: $wick-yellow-text;
@@ -91,24 +97,34 @@ kbd {
  thead {
    color: $editor-popout-secondary-text;
  }
+
  table {
-   width: 100%; 
+   width: 100%;
+ }
+
+ .tableSection {
+   height: 100%;
+   width: 100%;
  }
 
  // Pulled from http://jsfiddle.net/venkateshwar/5KJka/1/
  table.tableSection {
   display: table;
   width: 100%;
-  height: 100%;
 }
+
 table.tableSection thead, table.tableSection tbody {
   float: left;
   width: 100%;
 }
+
 table.tableSection tbody {
   overflow: auto;
-  height: calc(#{$keyboard-shortcuts-modal-height} - 70px);
+  height: 220px;
+  border-bottom: 1px solid black;
+  border-right: 1px solid black;
 }
+
 table.tableSection tr {
   width: 100%;
   display: table;
