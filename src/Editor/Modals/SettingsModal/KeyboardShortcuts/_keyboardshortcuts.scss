@@ -23,8 +23,8 @@
  $action-column-width: 45%;
 
 .keyboard-shortcuts-modal-body {
-  width: 500px;
-  height: $keyboard-shortcuts-modal-height;
+  width: 100%;
+  height: 100%;
 }
 
 .keyboard-shortcuts-modal-key-cell {
@@ -99,6 +99,7 @@ kbd {
  table.tableSection {
   display: table;
   width: 100%;
+  height: 100%;
 }
 table.tableSection thead, table.tableSection tbody {
   float: left;

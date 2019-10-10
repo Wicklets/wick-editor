@@ -18,7 +18,6 @@
  */
 
 import React, { Component } from 'react';
-import WickModal from 'Editor/Modals/WickModal/WickModal';
 import { getApplicationKeyMap, recordKeyCombination } from 'react-hotkeys';
 
 import './_keyboardshortcuts.scss';
@@ -148,15 +147,6 @@ class KeyboardShortcuts extends Component {
     const keyMap = getApplicationKeyMap();
 
     return (
-      <WickModal
-      open={this.props.open}
-      toggle={() => {
-        this.stopEditingKey(); // Ensure we cancel key recording if in the process.
-        this.props.toggle();
-      }}
-      className="keyboard-shortcuts-modal-body"
-      overlayClassName="keyboard-shortcuts-modal-overlay">
-        <div id="keyboard-shortcuts-modal-title">Hotkeys</div>
         <div id="keyboard-shortcuts-body">
 
           <table className="tableSection">
@@ -183,7 +173,6 @@ class KeyboardShortcuts extends Component {
             </tbody>
           </table>
         </div>
-      </WickModal>
     );
   }
 }

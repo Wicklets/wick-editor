@@ -18,44 +18,28 @@
  */
 
  @import 'Editor/_wickbrand.scss';
- 
-$header-height: 30px;
 
-.tabbed-interface {
+ $settings-modal-height: 375px;
+ $settings-title-height: 32px;
+ $modal-margin: 15px;
+ $settings-body-height: $settings-modal-height - $settings-title-height - (2 * $modal-margin);
+
+.settings-modal-title {
+    height: $settings-title-height;
+    min-height: $settings-title-height; 
+    font-size: 18px;
+    color: $editor-modal-text-gray;
+    font-weight: bold; 
+    text-align: left;
     width: 100%;
-    height: 100%;
 }
 
-.tabbed-interface-body {
+.settings-modal-body {
     width: 100%;
-    height: calc(100% - #{$header-height});
+    height: $settings-body-height;
 }
 
-.tabbed-interface-main-tab-container {
-    height: $header-height; 
-    min-height: $header-height; 
-    width: 100%;
-    display: flex;
-    flex-direction: row;
-    align-items: flex-end;
-    justify-content: left;
-    overflow: auto; 
-}
-
-.tabbed-interface-main-tab {
-    margin-left: 15px; 
-    border-bottom: 2px solid $editor-popout-secondary; 
-    color: $editor-popout-tertiary-text; 
-    font-size: 16px;
-    cursor: pointer;
-}
-
-.tabbed-interface-main-tab:first-child {
-    margin-left: 0px; 
-}
-
-.tabbed-interface-main-tab.selected {
-    transition: .4s;
-    border-bottom: 2px solid $wick-green; 
-    color: white; 
+.settings-modal-container {
+    width: 500px;
+    height: $settings-modal-height;
 }

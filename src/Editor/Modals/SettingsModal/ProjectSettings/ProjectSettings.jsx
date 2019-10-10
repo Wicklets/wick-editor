@@ -19,7 +19,6 @@
 
 import React, { Component } from 'react';
 import ActionButton from 'Editor/Util/ActionButton/ActionButton'; 
-import WickModal from 'Editor/Modals/WickModal/WickModal'; 
 import WickInput from 'Editor/Util/WickInput/WickInput';
 
 import './_projectsettings.scss';
@@ -108,7 +107,6 @@ class ProjectSettings extends Component {
     }
 
     this.props.updateProjectSettings(newSettings);
-    this.props.toggle();
   }
 
   resetAndToggle = () => {
@@ -119,80 +117,90 @@ class ProjectSettings extends Component {
       framerate: this.props.project.framerate,
       backgroundColor: this.props.project.backgroundColor,
     });
-    this.props.toggle(); 
+  }
+
+  renderNameObject = () => {
+    return (
+      <div className="project-setting-element">
+        <div className="project-settings-property-label">
+        Name
+        </div>
+        <WickInput
+            id="projectName"
+            type="text"
+            value={this.state.name}
+            placeholder={this.defaultName}
+            onChange={this.changeProjectName}
+          />
+      </div>
+    );
+  }
+
+  renderFramerateObject = () => {
+    return (
+      <div className="project-setting-element">
+        <div className="project-settings-property-label">
+        Framerate (FPS)
+        </div>
+        <WickInput
+        id="projectFramerate"
+        type="numeric"
+        min={this.projectMinFramerate}
+        value={this.state.framerate}
+        onChange={this.changeProjectFramerate} />
+      </div>
+    );
+  }
+
+  renderSizeObject = () => {
+    return (
+      <div className="project-setting-element">
+        <div className="project-settings-property-label">
+          Size (W x H)
+        </div>
+        <div className="project-settings-size-input-container">
+          <WickInput
+            id="projectWidth"
+            type="numeric"
+            min={this.projectMinWidth}
+            value={this.state.width}
+            onChange = {this.changeProjectWidth}
+            className="project-settings-size-input" />
+          <div className="project-settings-split">x</div>
+          <WickInput
+            id="projectHeight"
+            type="numeric"
+            min={this.projectMinHeight}
+            value={this.state.height}
+            onChange={this.changeProjectHeight} 
+            className="project-settings-size-input" /> 
+        </div>
+      </div>
+    );
+  }
+
+  renderBackgroundColorObject = () => {
+    return (
+      <div className="project-setting-element">
+        <div className="project-settings-property-label">
+          Background Color
+        </div>
+        <div className="project-setting-property-container">
+          <WickInput
+            type="color"
+            id="project-background-color-picker"
+            disableAlpha={true}
+            placement={'bottom'}
+            color={this.state.backgroundColor}
+            onChange={this.changeProjectBackgroundColor} />
+        </div>
+      </div>
+    );
   }
 
   render() {
     return (
-      <WickModal 
-      open={this.props.open} 
-      toggle={this.resetAndToggle} 
-      className="project-settings-modal-body"
-      overlayClassName="project-settings-modal-overlay">
         <div id="project-settings-interior-content">
-          <div id="project-settings-modal-title">Project Settings</div>
-          <div className="project-setting-container" id="project-name-setting-container">
-            <div className="project-settings-property-label">
-              Project Name
-            </div>
-            <WickInput
-                id="projectName"
-                type="text"
-                value={this.state.name}
-                placeholder={this.defaultName}
-                onChange={this.changeProjectName}
-              />
-          </div>
-
-          <div className="project-setting-container" id="project-size-setting-container">
-            <div className="project-settings-property-label">
-              Project Size (W x H)
-            </div>
-            <div className="project-settings-size-input-container">
-              <WickInput
-                id="projectWidth"
-                type="numeric"
-                min={this.projectMinWidth}
-                value={this.state.width}
-                onChange = {this.changeProjectWidth}
-                className="project-settings-size-input" />
-              <div className="project-settings-split">x</div>
-              <WickInput
-                id="projectHeight"
-                type="numeric"
-                min={this.projectMinHeight}
-                value={this.state.height}
-                onChange={this.changeProjectHeight} 
-                className="project-settings-size-input" /> 
-            </div>
-          </div>
-
-          <div className="project-setting-container" id="project-framerate-setting-container">
-            <div className="project-settings-property-label">
-              Framerate (FPS)
-            </div>
-            <WickInput
-            id="projectFramerate"
-            type="numeric"
-            min={this.projectMinFramerate}
-            value={this.state.framerate}
-            onChange={this.changeProjectFramerate} />
-          </div>
-
-          <div className="project-setting-container" id="project-background-color-setting-container">
-            <div className="project-settings-property-label">
-              Background Color
-            </div>
-            <div className="project-setting-property-container">
-              <WickInput
-                type="color"
-                id="project-background-color-picker"
-                disableAlpha={true}
-                placement={'bottom'}
-                color={this.state.backgroundColor}
-                onChange={this.changeProjectBackgroundColor} />
-            </div>
-          </div>
 
           {/* Footer */}
           <div id="project-settings-modal-footer">
@@ -214,7 +222,6 @@ class ProjectSettings extends Component {
               </div>
           </div>
         </div>
-      </WickModal>
     );
   }
 }

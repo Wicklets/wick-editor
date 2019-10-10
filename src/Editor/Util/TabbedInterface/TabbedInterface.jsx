@@ -39,14 +39,6 @@ class TabbedInterface extends Component {
         this.state = {
           selectedTab: this.tabs[0].name,
         }
-
-
-        
-    }
-
-    // Set up tabs after mounting.
-    componentDidMount = () => {
-        
     }
 
     /**
