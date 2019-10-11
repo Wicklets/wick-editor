@@ -197,10 +197,7 @@ class KeyboardShortcuts extends Component {
 
   // Apply all new hotkeys to the editor.
   applyNewKeys = () => {
-    this.state.newActions.forEach(action => {
-        this.props.addCustomHotKey(action)
-      }
-    );
+    this.props.addCustomHotKeys(this.state.newActions); 
 
     this.resetNewActions();
     this.stopEditingKey();

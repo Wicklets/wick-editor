@@ -38,7 +38,7 @@ class SettingsModal extends Component {
   renderShortcuts = () => {
     return (
       <KeyboardShortcuts
-        addCustomHotKey={this.props.addCustomHotKey}
+        addCustomHotKeys={this.props.addCustomHotKeys}
         resetCustomHotKeys={this.props.resetCustomHotKeys}
         keyMap={this.props.keyMap} />
     )

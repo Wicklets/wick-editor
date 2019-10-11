@@ -90,7 +90,7 @@ class ModalHandler extends Component {
           open={this.props.activeModalName === 'SettingsModal'}
           project={this.props.project}
           updateProjectSettings={this.props.updateProjectSettings}
-          addCustomHotKey={this.props.addCustomHotKey}
+          addCustomHotKeys={this.props.addCustomHotKeys}
           resetCustomHotKeys={this.props.resetCustomHotKeys}
           keyMap={this.props.keyMap}
         />

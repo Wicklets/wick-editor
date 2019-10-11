@@ -553,23 +553,44 @@ class Editor extends EditorCore {
     });
   }
 
-  /**
-   * Adds a custom hotkey for an action to the editor.
-   * @param {Object} hotkeyInfo must contain actionName {String}, index {Number}, sequence {String}
-   */
-  addCustomHotKey = (hotkeyInfo) => {
-    let customHotkeys = this.state.customHotkeys;
-    let actionToUpdate = hotkeyInfo.actionName;
-    let index = hotkeyInfo.index;
+  // Any elements that are in hotkeys 2 will overwrite items by same name in hotkeys1.
+  combineHotKeys = (hotkeys1, hotkeys2) => {
+    // Try to combine all keys
+    let newHotKeys = {...hotkeys1, ...hotkeys2};
 
-    if (customHotkeys[actionToUpdate]) {
-      customHotkeys[actionToUpdate][index] = hotkeyInfo.sequence;
-    } else {
-      customHotkeys[actionToUpdate] = {}
-      customHotkeys[actionToUpdate][index] = hotkeyInfo.sequence;
-    }
+    let keys1 = Object.keys(hotkeys1);
+    let keys2 = Object.keys(hotkeys2);
 
-    this.syncHotKeys(customHotkeys);
+    let similarKeys = keys2.filter(key => keys1[key] !== undefined);
+
+    similarKeys.forEach(key => {
+      let combinedKey = {...hotkeys1[key], ...hotkeys2[key]};
+      newHotKeys[key] = combinedKey;
+    }); 
+
+    return newHotKeys;
+  }
+
+  convertHotkeyArray = (hotkeys) => {
+    let keyObj = {}; 
+
+    hotkeys.forEach(key => {
+      if (keyObj[key.actionName]) {
+        keyObj[key.actionName][key.index] = key.sequence;
+      } else {
+        keyObj[key.actionName] = {}
+        keyObj[key.actionName][key.index] = key.sequence;
+      }
+    });
+
+    return keyObj;
+  }
+
+  // Expects array of hotkey objects
+  addCustomHotKeys = (newHotKeys) => {
+    let combined = this.combineHotKeys(this.state.customHotkeys, this.convertHotkeyArray(newHotKeys)); 
+
+    this.syncHotKeys(combined);
   }
 
   syncHotKeys = (hotkeys) => {
@@ -577,7 +598,7 @@ class Editor extends EditorCore {
     localForage.setItem(this.customHotKeysKey, hotkeys);
     this.setState({
       customHotkeys: hotkeys
-    })
+    }); 
   }
 
   resetCustomHotKeys = () => {
@@ -675,7 +696,7 @@ class Editor extends EditorCore {
                     renderProgress={this.state.renderProgress}
                     renderStatusMessage={this.state.renderStatusMessage}
                     renderType={this.state.renderType}
-                    addCustomHotKey={this.addCustomHotKey}
+                    addCustomHotKeys={this.addCustomHotKeys}
                     resetCustomHotKeys={this.resetCustomHotKeys}
                     keyMap={getApplicationKeyMap()}
                   />
