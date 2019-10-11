@@ -444,3 +444,27 @@ $action-button-transition-duration: .2s;
   text-align: left;
   vertical-align: center; 
 }
+
+.action-button-flame {
+  -webkit-transition-duration: $action-button-transition-duration; /* Safari */
+  transition-duration: $action-button-transition-duration;
+
+  background-color: $flame;
+  color: $flame-text;
+  font-size: 16px;
+}
+
+.action-button-flame:hover {
+  background-color: $flame-light;
+  color: $flame-text;
+}
+
+.action-button-flame:active {
+  background-color: $flame-dark;
+  color: $flame-text;
+}
+
+.action-button-flame.active-button {
+  background-color: $flame-dark;
+  color: $flame-text;
+}

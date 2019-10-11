@@ -18,7 +18,7 @@
  */
 
 import React, { Component } from 'react';
-import { getApplicationKeyMap, recordKeyCombination } from 'react-hotkeys';
+import { recordKeyCombination } from 'react-hotkeys';
 import ActionButton from 'Editor/Util/ActionButton/ActionButton'; 
 
 import './_keyboardshortcuts.scss';
@@ -31,6 +31,7 @@ class KeyboardShortcuts extends Component {
     // Instantiate default behavior.
     this.state = {
       editingAction: {actionName: "", actionIndex: 0}, 
+      newActions: [],
       cancelKeyRecording: () => {},
     }
   }
@@ -89,22 +90,57 @@ class KeyboardShortcuts extends Component {
     return newStr;
   }
 
+  // Returns the action if it is edited, undefined otherwise.
+  isEdited = (actionName, index) => {
+    let actions = this.state.newActions.filter(obj => obj.actionName === actionName);
+
+    return actions.find(obj => obj.index === index);
+  }
+
+  // Returns true if the action is currently being edited.
+  isEditing = (actionName, index) => {
+    return actionName === this.state.editingAction.actionName && this.state.editingAction.index === index; 
+  }
+
   createRow = (rowInfo) => {
     let {actionName, name, sequence1, sequence2} = rowInfo;
 
-    let editingAction = this.state.editingAction;
+
+    // Only check each column once.
+    let action0 = {
+      edited : this.isEdited(actionName, 0),
+      editing : this.isEditing(actionName, 0)
+    }
+
+    let action1 = {
+      edited : this.isEdited(actionName, 1),
+      editing : this.isEditing(actionName, 1)
+    }
+
     return (
       <tr className="keyboard-shortcuts-modal-row" key={name}>
         <td className="hotkey-action-column">
           { name }
         </td>
-        <td className={classNames("hotkey-column", {"editing": actionName === editingAction.actionName && editingAction.index === 0})} 
+        <td className={classNames("hotkey-column", 
+        {"edited" : action0.edited && !action0.editing},
+        {"editing": action0.editing})}
             onClick={() => this.beginEdit(actionName, 0)}>
-          { this.makeKey(sequence1) }
+          { // Displays edited action if it exists...
+            action0.edited ? 
+                this.makeKey(action0.edited.sequence) :
+                this.makeKey(sequence1)
+          }
         </td>
-        <td className={classNames("hotkey-column", {"editing": actionName === editingAction.actionName && editingAction.index === 1})}
+        <td className={classNames("hotkey-column",
+        {"edited" : action1.edited && !action1.editing},
+        {"editing": action1.editing})}
             onClick={() => this.beginEdit(actionName, 1)}>
-          { this.makeKey(sequence2) }
+            { // Displays edited action if it exists...
+              action1.edited ? 
+                  this.makeKey(action1.edited.sequence) :
+                  this.makeKey(sequence2)
+            }
         </td>
       </tr>
     );
@@ -125,17 +161,23 @@ class KeyboardShortcuts extends Component {
 
   }
 
-  // Initiate custom hotkey change.
+  // Initiate custom hotkey change locally.
   changeKey = (actionName, sequenceIndex, sequence) => {
-    this.props.addCustomHotKey({
+    let newAction = {
       actionName: actionName, 
       index: sequenceIndex,
       sequence: sequence.id,
-    });
+    }
+
+    this.setState(prevState => ({
+        newActions: prevState.newActions.concat([newAction])
+      })
+    )
 
     this.stopEditingKey();
   } 
 
+  // Stop the recording / editing process.
   stopEditingKey = () => {
     this.state.cancelKeyRecording();
     this.setState({
@@ -144,8 +186,41 @@ class KeyboardShortcuts extends Component {
     });
   }
 
+  // Remove all potential hotkeys.
+  resetAndToggle = () => {
+    this.stopEditingKey();
+    this.setState({
+      newActions: [],
+    });
+    if (this.props.toggle) this.props.toggle();
+  }
+
+  // Apply all new hotkeys to the editor.
+  applyNewKeys = () => {
+    this.state.newActions.forEach(action => {
+        this.props.addCustomHotKey(action)
+      }
+    );
+
+    this.resetNewActions();
+    this.stopEditingKey();
+  }
+
+  resetNewActions = () => {
+    // Remove existing actions as they've already been applied. 
+    this.setState({
+      newActions : [],
+    });
+  }
+
+  resetHotkeys = () => {
+    this.props.resetCustomHotKeys(); 
+    this.resetNewActions();
+    this.stopEditingKey(); 
+  }
+
   render() {
-    const keyMap = getApplicationKeyMap();
+    let keyMap = this.props.keyMap || {};
 
     return (
         <div id="keyboard-shortcuts-body">
@@ -173,21 +248,34 @@ class KeyboardShortcuts extends Component {
             </tbody>
           </table>
             {/* Footer */}
-            <div id="project-settings-modal-footer">
-            <div id="project-settings-modal-cancel">
+            <div id="keyboard-shortcuts-modal-footer">
+              <div className= "keyboard-shortcuts-footer-button-container" id="keyboard-shortcuts-modal-reset">
                 <ActionButton 
-                  className="project-settings-modal-button"
+                  className="keyboard-shortcuts-modal-button"
+                  id="keyboard-shorcuts-reset-button"
+                  color='flame'
+                  action={this.resetHotkeys}
+                  text="Reset"
+                  tooltip="Reset hotkeys to default settings."
+                  tooltipPlace="top"
+                  />
+              </div>
+              <div className= "keyboard-shortcuts-footer-button-container" id="keyboard-shortcuts-modal-cancel">
+                <ActionButton 
+                  className="keyboard-shortcuts-modal-button"
+                  id="keyboard-shorcuts-cancel-button"
                   color='gray'
                   action={this.resetAndToggle}
                   text="Cancel"
                   />
               </div>
-              <div id="autosave-modal-accept">
+              <div className= "keyboard-shortcuts-footer-button-container" id="keyboard-shortcuts-modal-accept">
                 <ActionButton 
-                  className="autosave-modal-button"
+                  className="keyboard-shortcuts-modal-button"
+                  id="keyboard-shorcuts-apply-button"
                   color='green'
-                  action={this.acceptProjectSettings}
-                  text="Accept"
+                  action={this.applyNewKeys}
+                  text="Apply"
                   />
               </div>
           </div>

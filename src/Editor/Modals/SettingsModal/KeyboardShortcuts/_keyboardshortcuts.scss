@@ -42,6 +42,26 @@
   margin: 1px; 
 }
 
+#keyboard-shortcuts-modal-footer {
+  position: absolute;
+  bottom: 18px; 
+  right: 18px; 
+  display: flex;
+  flex-direction: row;
+  justify-content: right; 
+  margin-top:4px; 
+
+}
+
+.keyboard-shortcuts-footer-button-container {
+  width: 80px;
+  margin-left: 8px; 
+}
+
+#keyboard-shortcuts-modal-reset {
+  margin-left: 0; 
+}
+
 // Found on MDN at https://developer.mozilla.org/en-US/docs/Web/HTML/Element/kbd
 kbd {
   background-color: #eee;
@@ -90,6 +110,11 @@ kbd {
    color: $wick-yellow-text;
  }
 
+ .hotkey-column.edited {
+   background-color: $magenta-light;
+   color: black; 
+ }
+
  tr {
    width: 100%;
  }
@@ -135,3 +160,5 @@ table.tableSection tr {
 td {
   border-left: 1px solid black;
 }
+
+

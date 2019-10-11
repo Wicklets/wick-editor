@@ -117,6 +117,8 @@ class ProjectSettings extends Component {
       framerate: this.props.project.framerate,
       backgroundColor: this.props.project.backgroundColor,
     });
+
+    if (this.props.toggle) this.props.toggle();
   }
 
   renderNameObject = () => {
@@ -251,7 +253,7 @@ class ProjectSettings extends Component {
                   className="autosave-modal-button"
                   color='green'
                   action={this.acceptProjectSettings}
-                  text="Accept"
+                  text="Apply"
                   />
               </div>
           </div>

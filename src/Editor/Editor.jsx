@@ -28,7 +28,7 @@ import { DragDropContext } from "react-dnd";
 import 'react-reflex/styles.css'
 import { ReflexContainer, ReflexSplitter, ReflexElement } from 'react-reflex'
 import { throttle } from 'underscore';
-import { GlobalHotKeys } from 'react-hotkeys';
+import { GlobalHotKeys, getApplicationKeyMap} from 'react-hotkeys';
 import localForage from 'localforage';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -572,10 +572,6 @@ class Editor extends EditorCore {
     this.syncHotKeys(customHotkeys);
   }
 
-  resetCustomHotKeys = () => {
-    this.syncHotkeys({});
-  }
-
   syncHotKeys = (hotkeys) => {
     this.hotKeyInterface.setCustomHotkeys(hotkeys);
     localForage.setItem(this.customHotKeysKey, hotkeys);
@@ -583,6 +579,11 @@ class Editor extends EditorCore {
       customHotkeys: hotkeys
     })
   }
+
+  resetCustomHotKeys = () => {
+    this.syncHotKeys({});
+  }
+
   /**
    * A flag to prevent "double state changes" where an action tries to happen while another is still processing.
    * Set this to true before doing something asynchronous that will take a long time, and set it back to false when done.
@@ -676,6 +677,7 @@ class Editor extends EditorCore {
                     renderType={this.state.renderType}
                     addCustomHotKey={this.addCustomHotKey}
                     resetCustomHotKeys={this.resetCustomHotKeys}
+                    keyMap={getApplicationKeyMap()}
                   />
                   {/* Header */}
                   <DockedPanel showOverlay={this.state.previewPlaying}>
