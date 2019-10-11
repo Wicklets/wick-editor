@@ -71,8 +71,9 @@ class TabbedInterface extends Component {
     renderTabs = () => {
         return (
             <div className="tabbed-interface-main-tab-container">
-                {this.tabs.map( (tab) => 
+                {this.tabs.map( (tab, i) => 
                     <div 
+                    key={"tabbed-interface-"+tab.name+"-i"}
                     className={classNames("tabbed-interface-main-tab", this.props.tabClassName, {"selected": (this.state.selectedTab === tab.name)})}
                     onClick={() => {this.selectTab(tab.name)}}>
                         {tab.name}

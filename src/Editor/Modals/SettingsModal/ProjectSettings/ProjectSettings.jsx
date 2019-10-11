@@ -67,7 +67,7 @@ class ProjectSettings extends Component {
       height: this.props.project.height,
       framerate: this.props.project.framerate,
       backgroundColor: this.props.project.backgroundColor,
-      preset: this.setPreset(this.props.project.width, this.props.project.height),
+      preset: this.getPreset(this.props.project.width, this.props.project.height),
     }
   }
 
@@ -85,20 +85,19 @@ class ProjectSettings extends Component {
     }
   }
 
-  setPreset = (width, height) => {
+  getPreset = (width, height) => {
     let possiblePreset = this.presets.find(preset => preset.width === width);
-
     if (possiblePreset && possiblePreset.height === height) {
-      this.setState({
-        preset: possiblePreset.name,
-      }); 
       return possiblePreset.name;
     } else {
-      this.setState({
-        preset: "Custom",
-      }); 
-      return possiblePreset.name;
+      return "Custom";
     }
+  }
+
+  setPreset = (width, height) => {
+    this.setState({
+      preset: this.getPreset(width, height)
+    }); 
   }
 
   changeProjectName = (proposedName) => {
@@ -157,9 +156,8 @@ class ProjectSettings extends Component {
       height: this.props.project.height,
       framerate: this.props.project.framerate,
       backgroundColor: this.props.project.backgroundColor,
+      preset: this.getPreset(this.props.project.width, this.props.project.height)
     });
-
-    this.setPreset(this.props.project.width, this.props.project.height);
   }
 
   resetAndToggle = () => {
@@ -261,8 +259,9 @@ class ProjectSettings extends Component {
   renderPresetBoxes = () => {
     return (
       <div className="preset-boxes">
-        {this.presets.map(preset => {
-          return <div className={ classNames("project-settings-modal-preset", {"selected" : this.state.preset === preset.name})}
+        {this.presets.map((preset,i) => {
+          return <div key={"preset-box-" + i}
+                      className={ classNames("project-settings-modal-preset", {"selected" : this.state.preset === preset.name})}
                       onClick={() => this.selectPreset(preset)}>{preset.name}</div>
         })}
       </div>
