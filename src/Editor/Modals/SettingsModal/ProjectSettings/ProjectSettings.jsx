@@ -31,20 +31,13 @@ class ProjectSettings extends Component {
 
     this.defaultName = "New Project";
 
-    this.state = {
-      name: this.props.project.name,
-      width: this.props.project.width,
-      height: this.props.project.height,
-      framerate: this.props.project.framerate,
-      backgroundColor: this.props.project.backgroundColor,
-      preset: "Default",
-    }
-
     // Set minimums for project settings.
     // TODO: Add this to the engine.
     this.projectMinWidth = 1;
     this.projectMinHeight = 1;
     this.projectMinFramerate = 1;
+
+    // Create presets.
     this.presets = [
       {
         name: "Default",
@@ -67,6 +60,15 @@ class ProjectSettings extends Component {
         height: 1080
       }
     ]
+
+    this.state = {
+      name: this.props.project.name,
+      width: this.props.project.width,
+      height: this.props.project.height,
+      framerate: this.props.project.framerate,
+      backgroundColor: this.props.project.backgroundColor,
+      preset: this.setPreset(this.props.project.width, this.props.project.height),
+    }
   }
 
   componentDidUpdate = (prevProps) => {
@@ -83,17 +85,19 @@ class ProjectSettings extends Component {
     }
   }
 
-  checkPreset = () => {
-    let possiblePreset = this.presets.find(preset => preset.width === this.state.width);
+  setPreset = (width, height) => {
+    let possiblePreset = this.presets.find(preset => preset.width === width);
 
-    if (possiblePreset && possiblePreset.height === this.state.height) {
+    if (possiblePreset && possiblePreset.height === height) {
       this.setState({
         preset: possiblePreset.name,
       }); 
+      return possiblePreset.name;
     } else {
       this.setState({
         preset: "Custom",
       }); 
+      return possiblePreset.name;
     }
   }
 
@@ -107,14 +111,18 @@ class ProjectSettings extends Component {
     let cleanWidthAsNumber = (!widthAsNumber) ? this.projectMinWidth : Math.max(this.projectMinWidth, widthAsNumber);
     this.setState({
       width: cleanWidthAsNumber,
-    }, this.checkPreset);
+    });
+
+    this.setPreset(cleanWidthAsNumber, this.state.height);
   }
 
   changeProjectHeight = (heightAsNumber) => {
     let cleanHeightAsNumber = (!heightAsNumber) ? this.projectMinHeight : Math.max(this.projectMinHeight, heightAsNumber);
     this.setState({
       height: cleanHeightAsNumber,
-    }, this.checkPreset);
+    });
+
+    this.setPreset(this.state.width, cleanHeightAsNumber);
   }
 
   changeProjectFramerate = (framerateAsNumber) => {
@@ -149,7 +157,9 @@ class ProjectSettings extends Component {
       height: this.props.project.height,
       framerate: this.props.project.framerate,
       backgroundColor: this.props.project.backgroundColor,
-    }, this.checkPreset);
+    });
+
+    this.setPreset(this.props.project.width, this.props.project.height);
   }
 
   resetAndToggle = () => {
@@ -241,8 +251,11 @@ class ProjectSettings extends Component {
   }
 
   selectPreset = (preset) => {
-    this.changeProjectWidth(preset.width);
-    this.changeProjectHeight(preset.height);
+    this.setState({
+      width: preset.width,
+      height: preset.height,
+      preset: preset.name,
+    });
   }
 
   renderPresetBoxes = () => {
