@@ -23,6 +23,8 @@ import WickInput from 'Editor/Util/WickInput/WickInput';
 
 import './_projectsettings.scss';
 
+var classNames = require('classnames'); 
+
 class ProjectSettings extends Component {
   constructor(props) {
     super(props);
@@ -35,6 +37,7 @@ class ProjectSettings extends Component {
       height: this.props.project.height,
       framerate: this.props.project.framerate,
       backgroundColor: this.props.project.backgroundColor,
+      preset: "Default",
     }
 
     // Set minimums for project settings.
@@ -42,6 +45,28 @@ class ProjectSettings extends Component {
     this.projectMinWidth = 1;
     this.projectMinHeight = 1;
     this.projectMinFramerate = 1;
+    this.presets = [
+      {
+        name: "Default",
+        width: 720,
+        height: 405
+      }, 
+      {
+        name: "Square",
+        width: 600,
+        height: 600
+      }, 
+      {
+        name: "720p",
+        width: 1280,
+        height: 720
+      }, 
+      {
+        name: "1080p",
+        width: 1920,
+        height: 1080
+      }
+    ]
   }
 
   componentDidUpdate = (prevProps) => {
@@ -54,13 +79,21 @@ class ProjectSettings extends Component {
     });
 
     if (different) {
+      this.reset();
+    }
+  }
+
+  checkPreset = () => {
+    let possiblePreset = this.presets.find(preset => preset.width === this.state.width);
+
+    if (possiblePreset && possiblePreset.height === this.state.height) {
       this.setState({
-          name: this.props.project.name,
-          width: this.props.project.width,
-          height: this.props.project.height,
-          framerate: this.props.project.framerate,
-          backgroundColor: this.props.project.backgroundColor,
-        });
+        preset: possiblePreset.name,
+      }); 
+    } else {
+      this.setState({
+        preset: "Custom",
+      }); 
     }
   }
 
@@ -74,14 +107,14 @@ class ProjectSettings extends Component {
     let cleanWidthAsNumber = (!widthAsNumber) ? this.projectMinWidth : Math.max(this.projectMinWidth, widthAsNumber);
     this.setState({
       width: cleanWidthAsNumber,
-    });
+    }, this.checkPreset);
   }
 
   changeProjectHeight = (heightAsNumber) => {
     let cleanHeightAsNumber = (!heightAsNumber) ? this.projectMinHeight : Math.max(this.projectMinHeight, heightAsNumber);
     this.setState({
       height: cleanHeightAsNumber,
-    });
+    }, this.checkPreset);
   }
 
   changeProjectFramerate = (framerateAsNumber) => {
@@ -109,15 +142,18 @@ class ProjectSettings extends Component {
     this.props.updateProjectSettings(newSettings);
   }
 
-  resetAndToggle = () => {
+  reset = () => {
     this.setState({
       name: this.props.project.name,
       width: this.props.project.width,
       height: this.props.project.height,
       framerate: this.props.project.framerate,
       backgroundColor: this.props.project.backgroundColor,
-    });
+    }, this.checkPreset);
+  }
 
+  resetAndToggle = () => {
+    this.reset();
     if (this.props.toggle) this.props.toggle();
   }
 
@@ -204,6 +240,22 @@ class ProjectSettings extends Component {
     );
   }
 
+  selectPreset = (preset) => {
+    this.changeProjectWidth(preset.width);
+    this.changeProjectHeight(preset.height);
+  }
+
+  renderPresetBoxes = () => {
+    return (
+      <div className="preset-boxes">
+        {this.presets.map(preset => {
+          return <div className={ classNames("project-settings-modal-preset", {"selected" : this.state.preset === preset.name})}
+                      onClick={() => this.selectPreset(preset)}>{preset.name}</div>
+        })}
+      </div>
+    );
+  }
+
   renderPresets = () => {
     return (
       <div className="project-setting-element project-settings-presets-container">
@@ -211,11 +263,7 @@ class ProjectSettings extends Component {
           Presets
         </div>
         <div className="project-settings-presets-body-container">
-          <div className="project-settings-modal-preset"/>
-          <div className="project-settings-modal-preset"/>
-          <div className="project-settings-modal-preset"/>
-          <div className="project-settings-modal-preset"/>
-          <div className="project-settings-modal-preset"/>
+          {this.renderPresetBoxes()}
         </div>
       </div>
     )
