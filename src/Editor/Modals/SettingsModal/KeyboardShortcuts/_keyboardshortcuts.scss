@@ -23,8 +23,8 @@
  $action-column-width: 45%;
 
 .keyboard-shortcuts-modal-body {
-  width: 500px;
-  height: $keyboard-shortcuts-modal-height;
+  width: 100%;
+  height: 100%;
 }
 
 .keyboard-shortcuts-modal-key-cell {
@@ -40,6 +40,26 @@
 
 .keyboard-shortcut-key {
   margin: 1px; 
+}
+
+#keyboard-shortcuts-modal-footer {
+  position: absolute;
+  bottom: 18px; 
+  right: 18px; 
+  display: flex;
+  flex-direction: row;
+  justify-content: right; 
+  margin-top:4px; 
+
+}
+
+.keyboard-shortcuts-footer-button-container {
+  width: 80px;
+  margin-left: 8px; 
+}
+
+#keyboard-shortcuts-modal-reset {
+  margin-left: 0; 
 }
 
 // Found on MDN at https://developer.mozilla.org/en-US/docs/Web/HTML/Element/kbd
@@ -63,7 +83,7 @@ kbd {
 
  #keyboard-shortcuts-body {
    width: 100%;
-   height: 100%;
+   height: 85%;
  }
 
  .hotkey-action-column {
@@ -75,6 +95,26 @@ kbd {
    width: calc(calc(100% - #{$action-column-width}) / 2);
  }
 
+ .hotkey-column:hover {
+   cursor: pointer;
+   background-color: $editor-popout-secondary;
+ }
+
+ .hotkey-column.header:hover {
+   cursor: default;
+   background-color: $editor-modal-gray;
+ }
+
+ .hotkey-column.editing {
+   background-color: $wick-yellow-light;
+   color: $wick-yellow-text;
+ }
+
+ .hotkey-column.edited {
+   background-color: $magenta-light;
+   color: black; 
+ }
+
  tr {
    width: 100%;
  }
@@ -82,8 +122,14 @@ kbd {
  thead {
    color: $editor-popout-secondary-text;
  }
+
  table {
-   width: 100%; 
+   width: 100%;
+ }
+
+ .tableSection {
+   height: 100%;
+   width: 100%;
  }
 
  // Pulled from http://jsfiddle.net/venkateshwar/5KJka/1/
@@ -91,14 +137,19 @@ kbd {
   display: table;
   width: 100%;
 }
+
 table.tableSection thead, table.tableSection tbody {
   float: left;
   width: 100%;
 }
+
 table.tableSection tbody {
   overflow: auto;
-  height: calc(#{$keyboard-shortcuts-modal-height} - 70px);
+  height: 220px;
+  border-bottom: 1px solid black;
+  border-right: 1px solid black;
 }
+
 table.tableSection tr {
   width: 100%;
   display: table;
@@ -109,3 +160,5 @@ table.tableSection tr {
 td {
   border-left: 1px solid black;
 }
+
+

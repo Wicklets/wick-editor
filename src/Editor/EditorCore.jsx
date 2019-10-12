@@ -1025,9 +1025,14 @@ class EditorCore extends Component {
     this.showWaitOverlay();
 
     window.Wick.WickFile.toWickFile(this.project, wickFile => {
-      localForage.setItem(this.autoSaveKey, wickFile).then(() => {
+      localForage.setItem(this.autoSaveKey, wickFile)
+      .then(() => {
         this.hideWaitOverlay();
-      });
+      })
+      .catch(err => {
+        console.error(err)
+        this.hideWaitOverlay();
+      }) 
     });
   }
 
