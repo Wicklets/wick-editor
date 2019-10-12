@@ -450,6 +450,8 @@ class HotKeyInterface extends Object {
   }
 
   modifyKeyMap = (keyMap, customKeys) => {
+    if (!customKeys) customKeys = {};
+     
     let newKeyMap = {};
 
     Object.keys(keyMap).forEach((actionName) => {
