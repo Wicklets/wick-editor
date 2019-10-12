@@ -112,6 +112,7 @@
   width: 24%;
   margin-right: 1.25%;
   background-color: $editor-modal-gray-secondary;
+  color: $editor-modal-text-gray;
   border-radius: 2px; 
   line-height: 50px;
   vertical-align: center;
@@ -124,10 +125,12 @@
 
 .project-settings-modal-preset:hover {
   background-color: $wick-green-light; 
+  color: $wick-green-text; 
 }
 
 .project-settings-modal-preset.selected {
   background-color: $wick-green;
+  color: $wick-green-text; 
 }
 
 .project-settings-modal-preset:last-child {

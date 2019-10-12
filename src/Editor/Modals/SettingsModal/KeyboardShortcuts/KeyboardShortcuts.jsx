@@ -211,9 +211,9 @@ class KeyboardShortcuts extends Component {
   }
 
   resetHotkeys = () => {
-    this.props.resetCustomHotKeys(); 
     this.resetNewActions();
     this.stopEditingKey(); 
+    this.props.resetCustomHotKeys(); 
   }
 
   render() {

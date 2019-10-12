@@ -561,7 +561,7 @@ class Editor extends EditorCore {
     let keys1 = Object.keys(hotkeys1);
     let keys2 = Object.keys(hotkeys2);
 
-    let similarKeys = keys2.filter(key => keys1[key] !== undefined);
+    let similarKeys = keys2.filter(key => keys1.indexOf(key) > -1);
 
     similarKeys.forEach(key => {
       let combinedKey = {...hotkeys1[key], ...hotkeys2[key]};
@@ -638,6 +638,31 @@ class Editor extends EditorCore {
     this.importAssetRef.current.click();
   }
 
+  /**
+   * Returns the appropriate keymap based on the state of the editor.
+   * @param fullKeyMap {Bool} If true, returns the full keymap for the editor. Otherwise, the appropriate keymap is returned.
+   * @returns {Object} Keymap listed as actionName : Object { 0 : sequence, 1 : sequence }
+   */
+  getKeyMap = (fullKeyMap) => {
+    if (this.state.previewPlaying && !fullKeyMap) {
+      return this.hotKeyInterface.getEssentialKeyMap(this.state.customHotkeys)
+    } else {
+      return this.hotKeyInterface.getKeyMap(this.state.customHotkeys)
+    }
+  }
+
+  /**
+   * Returns the appropriate key handlers based on the state of the editor.
+   * @param fullKeyHandlers {Bool} If true, returns all key handlers for the editor. Otherwise, the appropriate keyhandlers returned.
+   */
+  getKeyHandlers = (fullKeyHandlers) => {
+    if (this.state.previewPlaying && !fullKeyHandlers) {
+      return this.hotKeyInterface.getEssentialKeyHandlers(this.state.customHotkeys)
+    } else {
+      return this.hotKeyInterface.getHandlers(this.state.customHotkeys)
+    }
+  }
+
   render = () => {
     // Create some references to the project and editor to make debugging in the console easier:
     window.project = this.project;
@@ -660,8 +685,8 @@ class Editor extends EditorCore {
           />
             <GlobalHotKeys
               allowChanges={true}
-              keyMap={this.state.previewPlaying ? this.hotKeyInterface.getEssentialKeyMap(this.state.customHotkeys) : this.hotKeyInterface.getKeyMap(this.state.customHotkeys)}
-              handlers={this.state.previewPlaying ? this.hotKeyInterface.getEssentialKeyHandlers(this.state.customHotkeys) : this.hotKeyInterface.getHandlers(this.state.customHotkeys)}/>
+              keyMap={this.getKeyMap()}
+              handlers={this.getKeyHandlers()}/>
               <div id="editor">
                 <input
                   type='file'
@@ -698,7 +723,7 @@ class Editor extends EditorCore {
                     renderType={this.state.renderType}
                     addCustomHotKeys={this.addCustomHotKeys}
                     resetCustomHotKeys={this.resetCustomHotKeys}
-                    keyMap={getApplicationKeyMap()}
+                    keyMap={this.getKeyMap(true)}
                   />
                   {/* Header */}
                   <DockedPanel showOverlay={this.state.previewPlaying}>
