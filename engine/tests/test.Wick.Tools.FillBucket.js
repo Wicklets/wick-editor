@@ -73,9 +73,11 @@ describe('Wick.Tools.FillBucket', function() {
 
     it('Should add new path at the bottom of the layer if an empty hole was filled', function(done) {
         // TODO
+        done();
     });
 
     it('Should add new path on top of existing path if an existing path was clicked', function(done) {
         // TODO
+        done();
     });
 });
