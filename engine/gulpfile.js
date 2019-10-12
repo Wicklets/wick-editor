@@ -12,8 +12,8 @@ gulp.task("default", function() {
   /* Year.Month.Day[micro] */
   var date = new Date();
   var year = date.getFullYear();
-  var month = date.getMonth();
-  var day = date.getDay();
+  var month = date.getMonth() + 1;
+  var day = date.getDate();
   var buildString = year + '.' + month + '.' + day;
 
   var libs = gulp
