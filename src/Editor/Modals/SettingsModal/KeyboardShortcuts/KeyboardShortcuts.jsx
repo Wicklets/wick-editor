@@ -232,6 +232,7 @@ class KeyboardShortcuts extends Component {
               {
                 Object.keys(keyMap).map( (actionName) => {
                     let { sequences, name } = keyMap[actionName];
+                    if (actionName === "finish-repeating") return; 
                     return this.createRow(
                       {
                         actionName: actionName,

@@ -422,7 +422,6 @@ class HotKeyInterface extends Object {
   // ** ** 0 {String} (Hotkey string sequence)
   // ** ** 1 {String} (Hotkey string sequence)
   setCustomHotKeys = (customHotKeys) => {
-    console.log("Setting in the mapper", customHotKeys);
     if (customHotKeys === undefined) return; // Ignore operation if customHotKeys is not set.
     this.customHotKeys = customHotKeys;
   }
@@ -456,7 +455,7 @@ class HotKeyInterface extends Object {
       // Set default attributes...
       newKeyMap[actionName] = {
         name: keyMap[actionName].name,
-        sequences: keyMap[actionName].sequences,
+        sequences: keyMap[actionName].sequences.concat([]), // Ensure we get a deep copy of this array, avoid reference errors.
       }
 
       // Update keymap with new attributes.

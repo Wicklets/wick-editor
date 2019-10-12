@@ -724,7 +724,7 @@ class Editor extends EditorCore {
                     addCustomHotKeys={this.addCustomHotKeys}
                     resetCustomHotKeys={this.resetCustomHotKeys}
                     customHotKeys={this.state.customHotKeys}
-                    keyMap={this.getKeyMap(true)}
+                    keyMap={this.getKeyMap()}
                   />
                   {/* Header */}
                   <DockedPanel showOverlay={this.state.previewPlaying}>
