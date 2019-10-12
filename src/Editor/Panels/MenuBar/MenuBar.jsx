@@ -36,10 +36,6 @@ class MenuBar extends Component {
         </div>
         <div className="menu-bar-actions-container">
           <MenuBarButton
-            text="hotkeys"
-            action={() => this.props.openModal('KeyboardShortcuts')}
-          />
-          <MenuBarButton
             text="new"
             action={this.props.openNewProjectConfirmation}
           />
@@ -58,7 +54,7 @@ class MenuBar extends Component {
           />
           <div
             className="project-settings-preview"
-            onClick={() => this.props.openModal('ProjectSettings')}>
+            onClick={() => this.props.openModal('SettingsModal')}>
             <ToolIcon name='gear' />
           </div>
         </div>

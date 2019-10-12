@@ -2,11 +2,11 @@
 
 .add-script-container {
     overflow: auto; 
-    height: $add-script-container-height; 
+    height: calc(100% - 40px - 10px);
     width: 100%;
     display: flex; 
-    padding-left: $tab-editor-left-padding;
     flex-wrap: wrap;
     align-items: flex-start;
     align-content: flex-start;
+    margin-top: 10px;
   }

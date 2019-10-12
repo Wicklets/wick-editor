@@ -22,7 +22,7 @@ import ActionButton from 'Editor/Util/ActionButton/ActionButton';
 import WickModal from 'Editor/Modals/WickModal/WickModal';
 import WickInput from 'Editor/Util/WickInput/WickInput';
 import ObjectInfo from '../Util/ObjectInfo/ObjectInfo';
-import SelectSubTabButton from 'Editor/Util/SelectSubTabButton/SelectSubTabButton';
+import TabbedInterface from 'Editor/Util/TabbedInterface/TabbedInterface';
 
 import './_exportoptions.scss';
 
@@ -78,10 +78,11 @@ class ExportOptions extends Component {
     });
   }
 
-  renderObjectInfo = () => {
-    if (this.state.subTab === 'Animation') {
-      return (
-        <div className="export-info-container">
+  // Renders the body of the "Animation" tab.
+  renderAnimatedInfo = () => {
+    return (
+      <div className="export-info-container">
+        <div className="export-info-item">
           <ObjectInfo
             className="export-object-info"
             title="Animated GIF"
@@ -99,6 +100,15 @@ class ExportOptions extends Component {
                 icon: "cancel"
               },
             ]} />
+          <div className="export-modal-button-container">
+          <ActionButton
+            color='gray-green'
+            action={() => { this.createAndToggle("GIF") }}
+            text="Export GIF"
+            />
+          </div>
+        </div>
+        <div className="export-info-item">
           <ObjectInfo
             className="export-object-info"
             title="Video (Beta)"
@@ -116,11 +126,23 @@ class ExportOptions extends Component {
                 icon: "cancel"
               },
             ]}/>
+          <div className="export-modal-button-container">
+          <ActionButton
+            color='gray-green'
+            action={() => { this.createAndToggle("VIDEO") }}
+            text="Export Video (Beta)"
+            />
+          </div>
         </div>
-      );
-    } else if (this.state.subTab === 'Interactive') {
-      return (
-        <div className="export-info-container">
+      </div>
+    );
+  }
+
+  // Renders the body of the "Interactive" tab.
+  renderInteractiveInfo = () => {
+    return (
+      <div className="export-info-container">
+        <div className="export-info-item">
           <ObjectInfo
             className="export-object-info"
             title="ZIP Archive"
@@ -137,7 +159,17 @@ class ExportOptions extends Component {
                 text: "Exports a .zip file",
                 icon: "check",
               }
-            ]}/>
+            ]}>
+          </ObjectInfo>
+          <div className="export-modal-button-container">
+            <ActionButton
+            color='gray-green'
+            action={() => { this.createAndToggle("ZIP") }}
+            text="Export ZIP"
+            />
+          </div>
+        </div>
+        <div className="export-info-item">
           <ObjectInfo
             className="export-object-info export-object-info-off"
             title="HTML (Coming Soon)"
@@ -154,58 +186,37 @@ class ExportOptions extends Component {
                 text: "Exports a .html file",
                 icon: "check",
               }
-            ]}/>
+            ]}>
+          </ObjectInfo>
+          <div className="export-modal-button-container">
+            <ActionButton
+              id="export-gif-action-button"
+              className="export-modal-button"
+              color='gray'
+              action={() => { this.createAndToggle("HTML") }}
+              tooltipPlace="top"
+              tooltip={"Coming soon!"}
+              text="Export HTML"
+              disabled={true}
+              />
+          </div>
         </div>
-      );
-    }
-
-
-  }
-
-  renderFooter = () => {
-    if (this.state.subTab === 'Animation') {
-      return (
-        <div id="export-modal-footer">
-        <ActionButton
-          className="export-modal-button"
-          color='gray-green'
-          action={() => { this.createAndToggle("GIF") }}
-          text="Export GIF"
-          />
-        <ActionButton
-          id="export-gif-action-button"
-          className="export-modal-button"
-          color='gray-green'
-          action={() => { this.createAndToggle("VIDEO") }}
-          text="Export Video (Beta)"
-          />
       </div>
-      );
-    } else if (this.state.subTab === 'Interactive') {
-      return (
-        <div id="export-modal-footer">
-        <ActionButton
-          className="export-modal-button"
-          color='gray-green'
-          action={() => { this.createAndToggle("ZIP") }}
-          text="Export ZIP"
-          />
-        <ActionButton
-          id="export-gif-action-button"
-          className="export-modal-button"
-          color='gray'
-          action={() => { this.createAndToggle("HTML") }}
-          tooltipPlace="top"
-          tooltip={"Coming soon!"}
-          text="Export HTML"
-          disabled={true}
-          />
-      </div>
-      );
-    }
+    ); 
   }
 
   render() {
+    let tabs = [
+      {
+        name: "Animation",
+        body: this.renderAnimatedInfo(),
+      },
+      {
+        name: "Interactive",
+        body: this.renderInteractiveInfo(),
+      }
+    ]
+
     return (
       <WickModal
       open={this.props.open}
@@ -221,13 +232,11 @@ class ExportOptions extends Component {
               onChange={this.updateExportName}
               placeholder={this.placeholderName} />
           </div>
-          <div id="export-sub-tab-list">
-            <SelectSubTabButton selected={this.state.subTab} name="Animation" action={this.setSubTab}/>
-            <SelectSubTabButton selected={this.state.subTab} name="Interactive" action={this.setSubTab}/>
-          </div>
-          {this.renderObjectInfo()}
+          <TabbedInterface tabNames={["Animation", "Interactive"]}>
+            {this.renderAnimatedInfo()}
+            {this.renderInteractiveInfo()}
+          </TabbedInterface>
         </div>
-        {this.renderFooter()}
       </WickModal>
     );
   }

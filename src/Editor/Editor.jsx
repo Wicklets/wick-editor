@@ -28,7 +28,7 @@ import { DragDropContext } from "react-dnd";
 import 'react-reflex/styles.css'
 import { ReflexContainer, ReflexSplitter, ReflexElement } from 'react-reflex'
 import { throttle } from 'underscore';
-import { GlobalHotKeys } from 'react-hotkeys';
+import { GlobalHotKeys, getApplicationKeyMap} from 'react-hotkeys';
 import localForage from 'localforage';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -83,6 +83,7 @@ class Editor extends EditorCore {
       renderProgress: 0,
       renderType: "default",
       renderStatusMessage: "",
+      customHotKeys: {},
     };
 
     // Set up error.
@@ -134,7 +135,16 @@ class Editor extends EditorCore {
       name        : 'WickEditor',
       description : 'Live Data storage of the Wick Editor app.'
     });
+
     this.autoSaveKey = "wickProjectAutosave1-0-11";
+    this.customHotKeysKey = "wickEditorcustomHotKeys";
+
+    // Set up custom hotkeys if they exist.
+    localForage.getItem(this.customHotKeysKey).then(
+      (customHotKeys) => {
+        this.hotKeyInterface.setCustomHotKeys(customHotKeys);
+      }
+    );
 
     // Setup the initial project state
     this.setState({
@@ -543,6 +553,58 @@ class Editor extends EditorCore {
     });
   }
 
+  // Any elements that are in hotkeys 2 will overwrite items by same name in hotkeys1.
+  combineHotKeys = (hotkeys1, hotkeys2) => {
+    // Try to combine all keys
+    let newHotKeys = {...hotkeys1, ...hotkeys2};
+
+    let keys1 = Object.keys(hotkeys1);
+    let keys2 = Object.keys(hotkeys2);
+
+    let similarKeys = keys2.filter(key => keys1.indexOf(key) > -1);
+
+    similarKeys.forEach(key => {
+      let combinedKey = {...hotkeys1[key], ...hotkeys2[key]};
+      newHotKeys[key] = combinedKey;
+    }); 
+
+    return newHotKeys;
+  }
+
+  convertHotkeyArray = (hotkeys) => {
+    let keyObj = {}; 
+
+    hotkeys.forEach(key => {
+      if (keyObj[key.actionName]) {
+        keyObj[key.actionName][key.index] = key.sequence;
+      } else {
+        keyObj[key.actionName] = {}
+        keyObj[key.actionName][key.index] = key.sequence;
+      }
+    });
+
+    return keyObj;
+  }
+
+  // Expects array of hotkey objects
+  addCustomHotKeys = (newHotKeys) => {
+    let combined = this.combineHotKeys(this.state.customHotKeys, this.convertHotkeyArray(newHotKeys)); 
+
+    this.syncHotKeys(combined);
+  }
+
+  syncHotKeys = (hotkeys) => {
+    this.hotKeyInterface.setCustomHotKeys(hotkeys);
+    localForage.setItem(this.customHotKeysKey, hotkeys);
+    this.setState({
+      customHotKeys: hotkeys
+    }); 
+  }
+
+  resetCustomHotKeys = () => {
+    this.syncHotKeys({});
+  }
+
   /**
    * A flag to prevent "double state changes" where an action tries to happen while another is still processing.
    * Set this to true before doing something asynchronous that will take a long time, and set it back to false when done.
@@ -576,6 +638,31 @@ class Editor extends EditorCore {
     this.importAssetRef.current.click();
   }
 
+  /**
+   * Returns the appropriate keymap based on the state of the editor.
+   * @param fullKeyMap {Bool} If true, returns the full keymap for the editor. Otherwise, the appropriate keymap is returned.
+   * @returns {Object} Keymap listed as actionName : Object { 0 : sequence, 1 : sequence }
+   */
+  getKeyMap = (fullKeyMap) => {
+    if (this.state.previewPlaying && !fullKeyMap) {
+      return this.hotKeyInterface.getEssentialKeyMap(this.state.customHotKeys)
+    } else {
+      return this.hotKeyInterface.getKeyMap(this.state.customHotKeys)
+    }
+  }
+
+  /**
+   * Returns the appropriate key handlers based on the state of the editor.
+   * @param fullKeyHandlers {Bool} If true, returns all key handlers for the editor. Otherwise, the appropriate keyhandlers returned.
+   */
+  getKeyHandlers = (fullKeyHandlers) => {
+    if (this.state.previewPlaying && !fullKeyHandlers) {
+      return this.hotKeyInterface.getEssentialKeyHandlers(this.state.customHotKeys)
+    } else {
+      return this.hotKeyInterface.getHandlers(this.state.customHotKeys)
+    }
+  }
+
   render = () => {
     // Create some references to the project and editor to make debugging in the console easier:
     window.project = this.project;
@@ -597,8 +684,9 @@ class Editor extends EditorCore {
             pauseOnHover
           />
             <GlobalHotKeys
-              keyMap={this.state.previewPlaying ? this.hotKeyInterface.getEssentialKeyMap() : this.hotKeyInterface.getKeyMap()}
-              handlers={this.state.previewPlaying ? this.hotKeyInterface.getEssentialKeyHandlers() : this.hotKeyInterface.getHandlers()}/>
+              allowChanges={true}
+              keyMap={this.getKeyMap()}
+              handlers={this.getKeyHandlers()}/>
               <div id="editor">
                 <input
                   type='file'
@@ -633,6 +721,10 @@ class Editor extends EditorCore {
                     renderProgress={this.state.renderProgress}
                     renderStatusMessage={this.state.renderStatusMessage}
                     renderType={this.state.renderType}
+                    addCustomHotKeys={this.addCustomHotKeys}
+                    resetCustomHotKeys={this.resetCustomHotKeys}
+                    customHotKeys={this.state.customHotKeys}
+                    keyMap={this.getKeyMap()}
                   />
                   {/* Header */}
                   <DockedPanel showOverlay={this.state.previewPlaying}>
