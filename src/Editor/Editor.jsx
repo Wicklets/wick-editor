@@ -142,6 +142,7 @@ class Editor extends EditorCore {
     // Set up custom hotkeys if they exist.
     localForage.getItem(this.customHotKeysKey).then(
       (customHotKeys) => {
+        if (!customHotKeys) customHotKeys = {}; // Ensure we never send a null hotkey setting.
         this.hotKeyInterface.setCustomHotKeys(customHotKeys);
       }
     );
