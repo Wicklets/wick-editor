@@ -232,7 +232,10 @@ class ExportOptions extends Component {
               onChange={this.updateExportName}
               placeholder={this.placeholderName} />
           </div>
-          <TabbedInterface tabs={tabs}/>
+          <TabbedInterface tabNames={["Animation", "Interactive"]}>
+            {this.renderAnimatedInfo()}
+            {this.renderInteractiveInfo()}
+          </TabbedInterface>
         </div>
       </WickModal>
     );

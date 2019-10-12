@@ -34,31 +34,17 @@ class TabbedInterface extends Component {
      */
     constructor (props) {
         super(props);
-        this.setupTabs();
 
         this.state = {
-          selectedTab: this.tabs[0].name,
+          selectedTab: this.props.tabNames[0],
         }
-    }
-
-    /**
-     * Sets up the tabs of the tabbed interface. Will provide default names for tabs if a name is not provided.
-     */
-    setupTabs = () => {
-        this.tabs = this.props.tabs;
-        
-        this.tabs.forEach((tab, i) => {
-            if (!tab.name) {
-                tab.name = "Tab " + (i+1);
-            }
-        }); 
     }
 
     // Selects the tab of the given name.
     selectTab = (name) => {
         this.setState({
             selectedTab: name,
-        })
+        });
 
         if (this.props.onTabSelect) {
             this.props.onTabSelect(name);
@@ -71,24 +57,16 @@ class TabbedInterface extends Component {
     renderTabs = () => {
         return (
             <div className="tabbed-interface-main-tab-container">
-                {this.tabs.map( (tab, i) => 
+                {this.props.tabNames.map( (tab, i) => 
                     <div 
-                    key={"tabbed-interface-"+tab.name+"-i"}
-                    className={classNames("tabbed-interface-main-tab", this.props.tabClassName, {"selected": (this.state.selectedTab === tab.name)})}
-                    onClick={() => {this.selectTab(tab.name)}}>
-                        {tab.name}
+                    key={"tabbed-interface-"+tab+"-i"}
+                    className={classNames("tabbed-interface-main-tab", this.props.tabClassName, {"selected": (this.state.selectedTab === tab)})}
+                    onClick={() => {this.selectTab(tab)}}>
+                        {tab}
                 </div> 
                 )}
             </div>
         );
-    }
-
-    // Renders the body of the component based on the selected tab.
-    renderBody = () => {
-        for (let i=0; i<this.tabs.length; i++) {
-            let tab = this.tabs[i];
-            if (tab.name === this.state.selectedTab) return tab.body;
-        }
     }
 
     render() {
@@ -96,7 +74,7 @@ class TabbedInterface extends Component {
             <div className={classNames("tabbed-interface", this.props.className)}>
                 {this.renderTabs()}
                 <div className={classNames("tabbed-interface-body", this.props.bodyClassName)}>
-                    {this.renderBody()}
+                    {this.props.children[this.props.tabNames.indexOf(this.state.selectedTab)]}
                 </div>
             </div>
         ); 

@@ -218,7 +218,6 @@ class KeyboardShortcuts extends Component {
 
   render() {
     let keyMap = this.props.keyMap || {};
-
     return (
         <div id="keyboard-shortcuts-body">
           <table className="tableSection">

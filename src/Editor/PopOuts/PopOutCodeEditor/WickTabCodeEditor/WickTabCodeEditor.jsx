@@ -208,7 +208,11 @@ class WickTabCodeEditor extends Component {
     return (
       <TabPanel>
         <div id="add-scripts-panel-container">
-          <TabbedInterface className="pop-out-add-scripts-body" tabs={tabs} />
+          <TabbedInterface className="pop-out-add-scripts-body" tabNames={["Mouse", "Keyboard", "Timeline"]}>
+            {this.renderAddScriptPanel("Mouse")}
+            {this.renderAddScriptPanel("Keyboard")}
+            {this.renderAddScriptPanel("Timeline")}
+          </TabbedInterface>
         </div>
       </TabPanel>
     );

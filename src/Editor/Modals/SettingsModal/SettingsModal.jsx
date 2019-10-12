@@ -40,22 +40,12 @@ class SettingsModal extends Component {
       <KeyboardShortcuts
         addCustomHotKeys={this.props.addCustomHotKeys}
         resetCustomHotKeys={this.props.resetCustomHotKeys}
+        customHotKeys={this.props.customHotKeys}
         keyMap={this.props.keyMap} />
     )
   }
 
   render() {
-    let tabs = [
-      {
-        name: 'Project',
-        body: this.renderProjectSettings(),
-      },
-      {
-        name: 'Shortcuts',
-        body: this.renderShortcuts(),
-      }
-    ]
-
     return (
       <WickModal 
       open={this.props.open} 
@@ -66,7 +56,16 @@ class SettingsModal extends Component {
           Settings
         </div>
         <div className="settings-modal-body">
-          <TabbedInterface tabs={tabs} /> 
+          <TabbedInterface tabNames={["Project", "Shortcuts"]} >
+            <ProjectSettings
+              project={this.props.project}
+              updateProjectSettings={this.props.updateProjectSettings} />
+            <KeyboardShortcuts
+              addCustomHotKeys={this.props.addCustomHotKeys}
+              resetCustomHotKeys={this.props.resetCustomHotKeys}
+              customHotKeys={this.props.customHotKeys}
+              keyMap={this.props.keyMap} />
+          </TabbedInterface>
         </div>
       </WickModal>
     );

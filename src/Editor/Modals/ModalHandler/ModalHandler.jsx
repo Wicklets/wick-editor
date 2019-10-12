@@ -93,6 +93,7 @@ class ModalHandler extends Component {
           addCustomHotKeys={this.props.addCustomHotKeys}
           resetCustomHotKeys={this.props.resetCustomHotKeys}
           keyMap={this.props.keyMap}
+          customHotKeys={this.props.customHotKeys}
         />
       </div>
     );

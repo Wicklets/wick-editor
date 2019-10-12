@@ -83,7 +83,7 @@ class Editor extends EditorCore {
       renderProgress: 0,
       renderType: "default",
       renderStatusMessage: "",
-      customHotkeys: {},
+      customHotKeys: {},
     };
 
     // Set up error.
@@ -137,12 +137,12 @@ class Editor extends EditorCore {
     });
 
     this.autoSaveKey = "wickProjectAutosave1-0-11";
-    this.customHotKeysKey = "wickEditorCustomHotKeys";
+    this.customHotKeysKey = "wickEditorcustomHotKeys";
 
     // Set up custom hotkeys if they exist.
     localForage.getItem(this.customHotKeysKey).then(
-      (customHotkeys) => {
-        this.hotKeyInterface.setCustomHotkeys(customHotkeys);
+      (customHotKeys) => {
+        this.hotKeyInterface.setCustomHotKeys(customHotKeys);
       }
     );
 
@@ -588,16 +588,16 @@ class Editor extends EditorCore {
 
   // Expects array of hotkey objects
   addCustomHotKeys = (newHotKeys) => {
-    let combined = this.combineHotKeys(this.state.customHotkeys, this.convertHotkeyArray(newHotKeys)); 
+    let combined = this.combineHotKeys(this.state.customHotKeys, this.convertHotkeyArray(newHotKeys)); 
 
     this.syncHotKeys(combined);
   }
 
   syncHotKeys = (hotkeys) => {
-    this.hotKeyInterface.setCustomHotkeys(hotkeys);
+    this.hotKeyInterface.setCustomHotKeys(hotkeys);
     localForage.setItem(this.customHotKeysKey, hotkeys);
     this.setState({
-      customHotkeys: hotkeys
+      customHotKeys: hotkeys
     }); 
   }
 
@@ -645,9 +645,9 @@ class Editor extends EditorCore {
    */
   getKeyMap = (fullKeyMap) => {
     if (this.state.previewPlaying && !fullKeyMap) {
-      return this.hotKeyInterface.getEssentialKeyMap(this.state.customHotkeys)
+      return this.hotKeyInterface.getEssentialKeyMap(this.state.customHotKeys)
     } else {
-      return this.hotKeyInterface.getKeyMap(this.state.customHotkeys)
+      return this.hotKeyInterface.getKeyMap(this.state.customHotKeys)
     }
   }
 
@@ -657,9 +657,9 @@ class Editor extends EditorCore {
    */
   getKeyHandlers = (fullKeyHandlers) => {
     if (this.state.previewPlaying && !fullKeyHandlers) {
-      return this.hotKeyInterface.getEssentialKeyHandlers(this.state.customHotkeys)
+      return this.hotKeyInterface.getEssentialKeyHandlers(this.state.customHotKeys)
     } else {
-      return this.hotKeyInterface.getHandlers(this.state.customHotkeys)
+      return this.hotKeyInterface.getHandlers(this.state.customHotKeys)
     }
   }
 
@@ -723,6 +723,7 @@ class Editor extends EditorCore {
                     renderType={this.state.renderType}
                     addCustomHotKeys={this.addCustomHotKeys}
                     resetCustomHotKeys={this.resetCustomHotKeys}
+                    customHotKeys={this.state.customHotKeys}
                     keyMap={this.getKeyMap(true)}
                   />
                   {/* Header */}

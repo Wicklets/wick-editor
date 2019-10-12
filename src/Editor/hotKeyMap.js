@@ -42,7 +42,7 @@ class HotKeyInterface extends Object {
     this.createDefaultHandlers();
 
     // Initialize custom hotkeys;
-    this.customHotkeys = {};
+    this.customHotKeys = {};
 
     // Keys that should always work.
     this.essentialKeys = ['preview-play-toggle'];
@@ -416,19 +416,20 @@ class HotKeyInterface extends Object {
   }
 
   // Sets the hotkey interface's custom hotkeys. Ignores null or undefined inputs.
-  // Expects a parameter customHotkeys of the following schema.
-  // customHotkeys {object}
-  // ** action {string representing action id (ex. activate-brush)}
-  // ** ** 0 {Hotkey string sequence}
-  // ** ** 1 {Hotkey string sequence}
-  setCustomHotkeys = (customHotkeys) => {
-    if (!customHotkeys) return; // Ignore operation if customHotkeys is not set.
-    this.customHotkeys = customHotkeys;
+  // Expects a parameter customHotKeys of the following schema.
+  // customHotKeys {object}
+  // ** action {String} represents action id (ex. activate-brush)
+  // ** ** 0 {String} (Hotkey string sequence)
+  // ** ** 1 {String} (Hotkey string sequence)
+  setCustomHotKeys = (customHotKeys) => {
+    console.log("Setting in the mapper", customHotKeys);
+    if (customHotKeys === undefined) return; // Ignore operation if customHotKeys is not set.
+    this.customHotKeys = customHotKeys;
   }
 
   // Returns the application keymap, with modifications for custom hotkeys.
   getKeyMap = () => {
-    return this.modifyKeyMap(this.keyMap, this.customHotkeys);
+    return this.modifyKeyMap(this.keyMap, this.customHotKeys);
   }
 
   // Returns the application key handlers, with modifications for custom hotkeys.
@@ -439,7 +440,7 @@ class HotKeyInterface extends Object {
   // Returns essential keymap of the application, with modifications for custom hotkeys.
   getEssentialKeyMap = () => {
     let essentialMap = this.filterObject(this.essentialKeys, this.getKeyMap());
-    return this.modifyKeyMap(essentialMap, this.customHotkeys);
+    return this.modifyKeyMap(essentialMap, this.customHotKeys);
   }
 
   // Returns essential keyhandlers for the application, with modifications for custom hotkeys.
