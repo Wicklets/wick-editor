@@ -28,7 +28,7 @@ import { DragDropContext } from "react-dnd";
 import 'react-reflex/styles.css'
 import { ReflexContainer, ReflexSplitter, ReflexElement } from 'react-reflex'
 import { throttle } from 'underscore';
-import { GlobalHotKeys, getApplicationKeyMap} from 'react-hotkeys';
+import { GlobalHotKeys} from 'react-hotkeys';
 import localForage from 'localforage';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
