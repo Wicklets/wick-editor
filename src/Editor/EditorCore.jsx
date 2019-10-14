@@ -128,34 +128,26 @@ class EditorCore extends Component {
    * Shrinks the brush size by toolSettings.sizeJump if a brush tool is selected.
    */
   shrinkBrushSize = () => {
-    if (this.getActiveTool() !== 'brush' && this.getActiveTool() !== 'eraser') { return }
+    let minimum = 2;
 
-    let toolSettings = this.getToolSettings();
-    let minimum = 1;
+    let brushSize = this.getToolSetting('brushSize');
+    let newBrushSize = brushSize - 2
+    newBrushSize = Math.max(newBrushSize, minimum);
 
-    let brushSize = toolSettings.brushSize;
-    let newBrushSize = Math.max(brushSize-toolSettings.sizeJump, minimum);
-
-    this.setToolSettings({
-      brushSize: newBrushSize,
-    });
+    this.setToolSetting('brushSize', newBrushSize);
   }
 
   /**
    * Grows the brush size by toolSettings.sizeJump if a brush tool is selected.
    */
   growBrushSize = () => {
-    if (this.getActiveTool() !== 'brush' && this.getActiveTool() !== 'eraser') { return }
-
-    let toolSettings = this.getToolSettings();
     let maximum = 100;
 
-    let brushSize = toolSettings.brushSize;
-    let newBrushSize = Math.min(brushSize+toolSettings.sizeJump, maximum);
+    let brushSize = this.getToolSetting('brushSize');
+    let newBrushSize = brushSize + 2;
+    newBrushSize = Math.min(newBrushSize, maximum);
 
-    this.setToolSettings({
-      brushSize: newBrushSize,
-    });
+    this.setToolSetting('brushSize', newBrushSize);
   }
 
   /**
@@ -1032,7 +1024,7 @@ class EditorCore extends Component {
       .catch(err => {
         console.error(err)
         this.hideWaitOverlay();
-      }) 
+      })
     });
   }
 

@@ -37,7 +37,7 @@
     var N_RASTER_CLONE = 1;
     var RASTER_BASE_RESOLUTION = 3;
     var FILL_TOLERANCE = 0;
-    var EXPAND_AMT = 0.7;
+    var EXPAND_AMT = 0.85;
 
     var onError;
     var onFinish;
