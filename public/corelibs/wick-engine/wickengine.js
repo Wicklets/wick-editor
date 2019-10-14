@@ -44675,7 +44675,10 @@ Wick.Clipboard = class {
    */
 
 
-  constructor() {}
+  constructor() {
+    this._copyLocation = null;
+    this._copyLayerIndex = 0;
+  }
   /**
    * The data of copied objects, stored as JSON.
    * @type {Object}
@@ -44709,7 +44712,9 @@ Wick.Clipboard = class {
       }
     }); // Keep track of where objects were originally copied from
 
-    this._copyLocation = project.activeFrame && project.activeFrame.uuid; // Make deep copies of every object
+    this._copyLocation = project.activeFrame && project.activeFrame.uuid; // Keep track of what layer was active when the copying happened (we use this later to position frames)
+
+    this._copyLayerIndex = project.activeLayer.index; // Make deep copies of every object
 
     var exportedData = objects.map(object => {
       return object.export();
@@ -44746,13 +44751,16 @@ Wick.Clipboard = class {
     } // Always paste in-place if we're pasting to a different frame than where we copied from.
 
 
-    var pasteInPlace = project.activeFrame && this._copyLocation !== project.activeFrame.uuid;
+    var pasteInPlace = project.activeFrame && this._copyLocation !== project.activeFrame.uuid; // Use this value later to position frames on the corrent pasted layer
+
+    var layerIndicesMoved = project.activeLayer.index - this._copyLayerIndex;
     project.selection.clear();
     this.clipboardData.map(data => {
       return Wick.Base.import(data, project).copy();
     }).forEach(object => {
       // Paste frames at the position of the playhead
       if (object instanceof Wick.Frame) {
+        object._originalLayerIndex += layerIndicesMoved;
         object.start += project.focus.timeline.playheadPosition - 1;
         object.end += project.focus.timeline.playheadPosition - 1;
       }
