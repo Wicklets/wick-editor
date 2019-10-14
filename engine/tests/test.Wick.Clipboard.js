@@ -388,6 +388,10 @@ describe('Wick.Clipboard', function() {
         expect(project.activeLayer.getFrameAtPlayheadPosition(10)).equal(null);
     });
 
+    it('should copy and paste frames to correct layers', function () {
+        // TODO
+    });
+
     it('(bug) copied objects should have new uuids', function () {
         localStorage.clear();
 
