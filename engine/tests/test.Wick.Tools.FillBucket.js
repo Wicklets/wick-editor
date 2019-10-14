@@ -80,4 +80,9 @@ describe('Wick.Tools.FillBucket', function() {
         // TODO
         done();
     });
+
+    it('Should fill holes between layers', function(done) {
+        // TODO
+        done();
+    });
 });

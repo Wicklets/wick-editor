@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2019.10.12";
+var WICK_ENGINE_BUILD_VERSION = "2019.10.14";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -54431,8 +54431,12 @@ Wick.Tools.FillBucket = class extends Wick.Tool {
       this.setCursor('wait');
     }, 0);
     setTimeout(() => {
-      this.paper.project.activeLayer.hole({
+      this.paper.hole({
         point: e.point,
+        bgColor: new paper.Color(this.project.backgroundColor),
+        layers: this.project.activeFrames.map(frame => {
+          return frame.view.pathsLayer;
+        }),
         onFinish: path => {
           this.setCursor('default');
 
@@ -55586,9 +55590,10 @@ Wick.Tools.Zoom = class extends Wick.Tool {
   var EXPAND_AMT = 0.7;
   var onError;
   var onFinish;
-  var layer;
+  var layers;
   var floodFillX;
   var floodFillY;
+  var bgColor;
 
   function previewImage(image) {
     var win = window.open('', 'Title', 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, width=' + image.width + ', height=' + image.height + ', top=100, left=100');
@@ -55599,15 +55604,17 @@ Wick.Tools.Zoom = class extends Wick.Tool {
     var layerGroup = new paper.Group({
       insert: false
     });
-    layer.children.forEach(function (child) {
-      if (child._class !== 'Path' && child._class !== 'CompoundPath') return;
+    layers.forEach(layer => {
+      layer.children.forEach(function (child) {
+        if (child._class !== 'Path' && child._class !== 'CompoundPath') return;
 
-      for (var i = 0; i < N_RASTER_CLONE; i++) {
-        var clone = child.clone({
-          insert: false
-        });
-        layerGroup.addChild(clone);
-      }
+        for (var i = 0; i < N_RASTER_CLONE; i++) {
+          var clone = child.clone({
+            insert: false
+          });
+          layerGroup.addChild(clone);
+        }
+      });
     });
 
     if (layerGroup.children.length === 0) {
@@ -55626,9 +55633,9 @@ Wick.Tools.Zoom = class extends Wick.Tool {
 
     for (var i = 0; i < layerPathsImageDataRaw.length; i += 4) {
       if (layerPathsImageDataRaw[i + 3] === 0) {
-        layerPathsImageDataRaw[i] = 255;
-        layerPathsImageDataRaw[i + 1] = 255;
-        layerPathsImageDataRaw[i + 2] = 255;
+        layerPathsImageDataRaw[i] = bgColor.red;
+        layerPathsImageDataRaw[i + 1] = bgColor.green;
+        layerPathsImageDataRaw[i + 2] = bgColor.blue;
         layerPathsImageDataRaw[i + 3] = 255;
       }
     }
@@ -55778,20 +55785,23 @@ Wick.Tools.Zoom = class extends Wick.Tool {
       a: imageData[offset + 3]
     };
   }
-  /* Add hole() method to paper.Layer */
+  /* Add hole() method to paper */
 
 
-  paper.Layer.inject({
+  paper.PaperScope.inject({
     hole: function (args) {
       if (!args) console.error('paper.hole: args is required');
       if (!args.point) console.error('paper.hole: args.point is required');
       if (!args.onFinish) console.error('paper.hole: args.onFinish is required');
       if (!args.onError) console.error('paper.hole: args.onError is required');
+      if (!args.bgColor) console.error('paper.hole: args.bgColor is required');
+      if (!args.layers) console.error('paper.hole: args.layers is required');
       onFinish = args.onFinish;
       onError = args.onError;
-      layer = this;
+      layers = args.layers;
       floodFillX = args.point.x;
       floodFillY = args.point.y;
+      bgColor = args.bgColor;
       rasterizePaths(onFinish);
     }
   });
