@@ -58534,7 +58534,7 @@ Wick.GUIElement.Ghost = class extends Wick.GUIElement {
   _roundToGrid(x, y) {
     return {
       col: Math.round(x / this.gridCellWidth),
-      row: Math.round(y / this.gridCellWidth)
+      row: Math.round(y / this.gridCellHeight)
     };
   }
 
