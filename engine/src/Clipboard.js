@@ -72,8 +72,14 @@ Wick.Clipboard = class {
         // Keep track of where objects were originally copied from
         this._copyLocation = project.activeFrame && project.activeFrame.uuid;
 
-        // Keep track of what layer was active when the copying happened (we use this later to position frames)
-        this._copyLayerIndex = project.activeLayer.index;
+        // Keep track of the topmost layer of the selection (we use this later to position frames)
+        this._copyLayerIndex = objects.filter(object => {
+            return object instanceof Wick.Frame;
+        }).map(frame => {
+            return frame.parentLayer.index;
+        }).reduce((a,b) => {
+            return Math.min(a,b);
+        });
 
         // Make deep copies of every object
         var exportedData = objects.map(object => {
