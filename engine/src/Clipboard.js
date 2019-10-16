@@ -73,12 +73,13 @@ Wick.Clipboard = class {
         this._copyLocation = project.activeFrame && project.activeFrame.uuid;
 
         // Keep track of the topmost layer of the selection (we use this later to position frames)
-        this._copyLayerIndex = objects.filter(object => {
+        this._copyLayerIndex = Infinity;
+        objects.filter(object => {
             return object instanceof Wick.Frame;
         }).map(frame => {
             return frame.parentLayer.index;
-        }).reduce((a,b) => {
-            return Math.min(a,b);
+        }).forEach(i => {
+            this._copyLayerIndex = Math.min(this._copyLayerIndex, i);
         });
 
         // Make deep copies of every object
