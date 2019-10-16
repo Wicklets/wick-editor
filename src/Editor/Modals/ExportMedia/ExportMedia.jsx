@@ -36,8 +36,9 @@ class ExportMedia extends Component {
         <div className="media-export-modal-content">
           <div id="media-export-modal-subtitle">Creating "{renderName}"</div>
           <Progress
+            striped
             animated={!this.renderDone}
-            color={this.renderDone ? 'info' : 'success'}
+            color={this.renderDone ? 'success' : 'warning'}
             value={this.props.renderProgress}
           />
           <div id="media-export-modal-status-message">{this.props.renderStatusMessage}</div>
