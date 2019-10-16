@@ -417,6 +417,36 @@ class HotKeyInterface extends Object {
     }
   }
 
+  mapSequencesToOperatingSystem = (keyMap) => {
+    // Test if we are on a Mac...
+    // Choose the appropriate replacement text for each platform.
+    var isMac = /(Mac|iPhone|iPod|iPad)/i.test(navigator.platform);
+
+    var replacement = "ctrl";
+
+    if (isMac) {
+      replacement = "cmd"
+    }
+
+    Object.keys(keyMap).forEach((actionName) => {
+
+      // Set default attributes...
+      let oldSequences = keyMap[actionName].sequences.concat([]);
+      oldSequences.forEach((sequence,i) => {
+        let newSequence = sequence;
+
+        // If meta occurs in a string, replace with the appropriate controlling key.
+        if (typeof sequence === "string") {
+          newSequence = sequence.replace("meta", replacement);
+        } else if (typeof sequence === "object") {
+          newSequence = sequence.sequence.replace("meta", replacement);
+        } 
+
+        oldSequences[i] = newSequence;
+      });
+    });
+  }
+
   // Sets the hotkey interface's custom hotkeys. Ignores null or undefined inputs.
   // Expects a parameter customHotKeys of the following schema.
   // customHotKeys {object}
@@ -454,12 +484,33 @@ class HotKeyInterface extends Object {
      
     let newKeyMap = {};
 
+    // Test if we are on a Mac...
+    // Choose the appropriate replacement text for each platform.
+    var isMac = /(Mac|iPhone|iPod|iPad)/i.test(navigator.platform);
+
+    var replacement = "ctrl";
+    if (isMac) {
+      replacement = "cmd"
+    }
     Object.keys(keyMap).forEach((actionName) => {
 
       // Set default attributes...
+      let oldSequences = keyMap[actionName].sequences.concat([]);
+      oldSequences.forEach((sequence,i) => {
+        let newSequence = sequence;
+
+        if (typeof sequence === "string") {
+          newSequence = sequence.replace("meta", replacement);
+        } else if (typeof sequence === "object") {
+          newSequence = sequence.sequence.replace("meta", replacement);
+        } 
+        oldSequences[i] = newSequence;
+      });
+
+      // Copy over each action.
       newKeyMap[actionName] = {
         name: keyMap[actionName].name,
-        sequences: keyMap[actionName].sequences.concat([]), // Ensure we get a deep copy of this array, avoid reference errors.
+        sequences: oldSequences, // Ensure we get a deep copy of this array, avoid reference errors.
       }
 
       // Update keymap with new attributes.
