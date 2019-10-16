@@ -57,14 +57,23 @@ Wick.Tools.FillBucket = class extends Wick.Tool {
         }, 0);
 
         setTimeout(() => {
-            this.paper.project.activeLayer.hole({
+            this.paper.hole({
                 point: e.point,
+                bgColor: new paper.Color(this.project.backgroundColor),
+                layers: this.project.activeFrames.map(frame => {
+                    return frame.view.pathsLayer;
+                }),
                 onFinish: (path) => {
                     this.setCursor('default');
                     if(path) {
                         path.fillColor = this.getSetting('fillColor');
                         path.name = null;
-                        this.paper.project.activeLayer.addChild(path);
+                        if(e.item) {
+                            path.insertAbove(e.item);
+                        } else {
+                            this.paper.project.activeLayer.addChild(path);
+                            this.paper.OrderingUtils.sendToBack([path]);
+                        }
                         this.fireEvent('canvasModified');
                     }
                 },

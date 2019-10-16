@@ -481,7 +481,7 @@ class HotKeyInterface extends Object {
 
   modifyKeyMap = (keyMap, customKeys) => {
     if (!customKeys) customKeys = {};
-     
+
     let newKeyMap = {};
 
     // Test if we are on a Mac...

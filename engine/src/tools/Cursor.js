@@ -174,6 +174,7 @@ Wick.Tools.Cursor = class extends Wick.Tool {
         } else if (this._selection.numObjects > 0) {
             if(this.__isDragging) {
                 this.__isDragging = false;
+                this.project.tryToAutoCreateTween();
                 this._widget.finishTransformation();
                 this.fireEvent('canvasModified');
             }

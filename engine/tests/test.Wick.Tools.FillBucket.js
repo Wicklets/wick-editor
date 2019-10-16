@@ -4,40 +4,6 @@ describe('Wick.Tools.FillBucket', function() {
         project.tools.fillbucket.activate();
     });
 
-    /*
-    it('Should change fill color of path', function(done) {
-        var project = new Wick.Project();
-        var fillbucket = project.tools.fillbucket;
-
-        var json1 = ["Path",{"segments":[[0,0],[50,0],[50,50],[0,50]],"closed":true,"fillColor":[1,1,1]}];
-        var json2 = ["Path",{"segments":[[50,50],[100,50],[100,100],[50,100]],"closed":true,"fillColor":[1,1,1]}];
-
-        var path1 = new Wick.Path({json:json1});
-        var path2 = new Wick.Path({json:json2});
-        project.activeFrame.addPath(path1);
-        project.activeFrame.addPath(path2);
-        project.view.render();
-
-        project.view.on('canvasModified', function (e) {
-            expect(project.activeFrame.paths.length).to.equal(2);
-            expect(project.activeFrame.paths[0].view.item.fillColor.toCSS(true)).to.equal('#ff0000');
-        });
-
-        fillbucket.activate();
-        project.toolSettings.setSetting('fillColor', '#ff0000');
-        fillbucket.onMouseDown({point: new paper.Point(25,25), modifiers: {}});
-
-        project.view.on('canvasModified', function (e) {
-            expect(project.activeFrame.paths.length).to.equal(2);
-            expect(project.activeFrame.paths[0].view.item.fillColor.toCSS(true)).to.equal('#ff0000');
-            expect(project.activeFrame.paths[1].view.item.fillColor.toCSS(true)).to.equal('#0000ff');
-            done();
-        });
-        project.toolSettings.setSetting('fillColor', '#0000ff');
-        fillbucket.onMouseDown({point: new paper.Point(75,75), modifiers: {}});
-    });
-    */
-
     it('Should fill a hole made by a few paths', function(done) {
         var project = new Wick.Project();
         var fillbucket = project.tools.fillbucket;
@@ -103,5 +69,20 @@ describe('Wick.Tools.FillBucket', function() {
         fillbucket.activate();
         project.toolSettings.setSetting('fillColor', '#ff0000');
         fillbucket.onMouseDown({point: new paper.Point(25,25), modifiers: {}});
+    });
+
+    it('Should add new path at the bottom of the layer if an empty hole was filled', function(done) {
+        // TODO
+        done();
+    });
+
+    it('Should add new path on top of existing path if an existing path was clicked', function(done) {
+        // TODO
+        done();
+    });
+
+    it('Should fill holes between layers', function(done) {
+        // TODO
+        done();
     });
 });

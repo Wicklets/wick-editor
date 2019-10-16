@@ -37,15 +37,17 @@
     var N_RASTER_CLONE = 1;
     var RASTER_BASE_RESOLUTION = 3;
     var FILL_TOLERANCE = 0;
-    var EXPAND_AMT = 0.7;
+    var EXPAND_AMT = 0.85;
 
     var onError;
     var onFinish;
 
-    var layer;
+    var layers;
 
     var floodFillX;
     var floodFillY;
+
+    var bgColor;
 
     function previewImage (image) {
         var win = window.open('', 'Title', 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, width='+image.width+', height='+image.height+', top=100, left=100');
@@ -54,12 +56,14 @@
 
     function rasterizePaths (callback) {
         var layerGroup = new paper.Group({insert:false});
-        layer.children.forEach(function (child) {
-            if(child._class !== 'Path' && child._class !== 'CompoundPath') return;
-            for(var i = 0; i < N_RASTER_CLONE; i++) {
-                var clone = child.clone({insert:false});
-                layerGroup.addChild(clone);
-            }
+        layers.forEach(layer => {
+            layer.children.forEach(function (child) {
+                if(child._class !== 'Path' && child._class !== 'CompoundPath') return;
+                for(var i = 0; i < N_RASTER_CLONE; i++) {
+                    var clone = child.clone({insert:false});
+                    layerGroup.addChild(clone);
+                }
+            });
         });
         if(layerGroup.children.length === 0) {
             onError('NO_PATHS');
@@ -76,9 +80,9 @@
         var layerPathsImageDataRaw = layerPathsImageData.data;
         for(var i = 0; i < layerPathsImageDataRaw.length; i += 4) {
           if(layerPathsImageDataRaw[i+3] === 0) {
-            layerPathsImageDataRaw[i] = 255;
-            layerPathsImageDataRaw[i+1] = 255;
-            layerPathsImageDataRaw[i+2] = 255;
+            layerPathsImageDataRaw[i] = bgColor.red;
+            layerPathsImageDataRaw[i+1] = bgColor.green;
+            layerPathsImageDataRaw[i+2] = bgColor.blue;
             layerPathsImageDataRaw[i+3] = 255;
           }
         }
@@ -223,20 +227,24 @@
         }
     }
 
-    /* Add hole() method to paper.Layer */
-    paper.Layer.inject({
+    /* Add hole() method to paper */
+    paper.PaperScope.inject({
         hole: function(args) {
             if(!args) console.error('paper.hole: args is required');
             if(!args.point) console.error('paper.hole: args.point is required');
             if(!args.onFinish) console.error('paper.hole: args.onFinish is required');
             if(!args.onError) console.error('paper.hole: args.onError is required');
+            if(!args.bgColor) console.error('paper.hole: args.bgColor is required');
+            if(!args.layers) console.error('paper.hole: args.layers is required');
 
             onFinish = args.onFinish;
             onError = args.onError;
 
-            layer = this;
+            layers = args.layers;
             floodFillX = args.point.x;
             floodFillY = args.point.y;
+
+            bgColor = args.bgColor;
 
             rasterizePaths(onFinish);
         }

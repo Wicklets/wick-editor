@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2019.9.4";
+var WICK_ENGINE_BUILD_VERSION = "2019.10.16";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -44675,7 +44675,10 @@ Wick.Clipboard = class {
    */
 
 
-  constructor() {}
+  constructor() {
+    this._copyLocation = null;
+    this._copyLayerIndex = 0;
+  }
   /**
    * The data of copied objects, stored as JSON.
    * @type {Object}
@@ -44709,7 +44712,16 @@ Wick.Clipboard = class {
       }
     }); // Keep track of where objects were originally copied from
 
-    this._copyLocation = project.activeFrame && project.activeFrame.uuid; // Make deep copies of every object
+    this._copyLocation = project.activeFrame && project.activeFrame.uuid; // Keep track of the topmost layer of the selection (we use this later to position frames)
+
+    this._copyLayerIndex = Infinity;
+    objects.filter(object => {
+      return object instanceof Wick.Frame;
+    }).map(frame => {
+      return frame.parentLayer.index;
+    }).forEach(i => {
+      this._copyLayerIndex = Math.min(this._copyLayerIndex, i);
+    }); // Make deep copies of every object
 
     var exportedData = objects.map(object => {
       return object.export();
@@ -44746,13 +44758,16 @@ Wick.Clipboard = class {
     } // Always paste in-place if we're pasting to a different frame than where we copied from.
 
 
-    var pasteInPlace = project.activeFrame && this._copyLocation !== project.activeFrame.uuid;
+    var pasteInPlace = project.activeFrame && this._copyLocation !== project.activeFrame.uuid; // Use this value later to position frames on the corrent pasted layer
+
+    var layerIndicesMoved = project.activeLayer.index - this._copyLayerIndex;
     project.selection.clear();
     this.clipboardData.map(data => {
       return Wick.Base.import(data, project).copy();
     }).forEach(object => {
       // Paste frames at the position of the playhead
       if (object instanceof Wick.Frame) {
+        object._originalLayerIndex += layerIndicesMoved;
         object.start += project.focus.timeline.playheadPosition - 1;
         object.end += project.focus.timeline.playheadPosition - 1;
       }
@@ -47859,6 +47874,18 @@ Wick.Project = class extends Wick.Base {
     }
   }
   /**
+   * Tries to create a tween if there is an empty space between tweens.
+   */
+
+
+  tryToAutoCreateTween() {
+    var frame = this.activeFrame;
+
+    if (frame.tweens.length > 0 && !frame.getTweenAtPosition(frame.getRelativePlayheadPosition())) {
+      frame.createTween();
+    }
+  }
+  /**
    * Move the right edge of all selected frames right one frame.
    */
 
@@ -48797,6 +48824,7 @@ Wick.Selection = class extends Wick.Base {
   }
 
   set x(x) {
+    this.project.tryToAutoCreateTween();
     this.view.x = x;
   }
   /**
@@ -48810,6 +48838,7 @@ Wick.Selection = class extends Wick.Base {
   }
 
   set y(y) {
+    this.project.tryToAutoCreateTween();
     this.view.y = y;
   }
   /**
@@ -48823,6 +48852,7 @@ Wick.Selection = class extends Wick.Base {
   }
 
   set width(width) {
+    this.project.tryToAutoCreateTween();
     this.view.width = width;
   }
   /**
@@ -48836,6 +48866,7 @@ Wick.Selection = class extends Wick.Base {
   }
 
   set height(height) {
+    this.project.tryToAutoCreateTween();
     this.view.height = height;
   }
   /**
@@ -48849,6 +48880,7 @@ Wick.Selection = class extends Wick.Base {
   }
 
   set rotation(rotation) {
+    this.project.tryToAutoCreateTween();
     this.view.rotation = rotation;
   }
   /**
@@ -48857,6 +48889,7 @@ Wick.Selection = class extends Wick.Base {
 
 
   flipHorizontally() {
+    this.project.tryToAutoCreateTween();
     this.view.flipHorizontally();
   }
   /**
@@ -48865,6 +48898,7 @@ Wick.Selection = class extends Wick.Base {
 
 
   flipVertically() {
+    this.project.tryToAutoCreateTween();
     this.view.flipVertically();
   }
   /**
@@ -49027,6 +49061,8 @@ Wick.Selection = class extends Wick.Base {
   }
 
   set opacity(opacity) {
+    this.project.tryToAutoCreateTween();
+
     this._setSingleAttribute('opacity', opacity);
   }
   /**
@@ -53863,6 +53899,7 @@ Wick.Tools.Cursor = class extends Wick.Tool {
     } else if (this._selection.numObjects > 0) {
       if (this.__isDragging) {
         this.__isDragging = false;
+        this.project.tryToAutoCreateTween();
 
         this._widget.finishTransformation();
 
@@ -54409,15 +54446,26 @@ Wick.Tools.FillBucket = class extends Wick.Tool {
       this.setCursor('wait');
     }, 0);
     setTimeout(() => {
-      this.paper.project.activeLayer.hole({
+      this.paper.hole({
         point: e.point,
+        bgColor: new paper.Color(this.project.backgroundColor),
+        layers: this.project.activeFrames.map(frame => {
+          return frame.view.pathsLayer;
+        }),
         onFinish: path => {
           this.setCursor('default');
 
           if (path) {
             path.fillColor = this.getSetting('fillColor');
             path.name = null;
-            this.paper.project.activeLayer.addChild(path);
+
+            if (e.item) {
+              path.insertAbove(e.item);
+            } else {
+              this.paper.project.activeLayer.addChild(path);
+              this.paper.OrderingUtils.sendToBack([path]);
+            }
+
             this.fireEvent('canvasModified');
           }
         },
@@ -55554,12 +55602,13 @@ Wick.Tools.Zoom = class extends Wick.Tool {
   var N_RASTER_CLONE = 1;
   var RASTER_BASE_RESOLUTION = 3;
   var FILL_TOLERANCE = 0;
-  var EXPAND_AMT = 0.7;
+  var EXPAND_AMT = 0.85;
   var onError;
   var onFinish;
-  var layer;
+  var layers;
   var floodFillX;
   var floodFillY;
+  var bgColor;
 
   function previewImage(image) {
     var win = window.open('', 'Title', 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, width=' + image.width + ', height=' + image.height + ', top=100, left=100');
@@ -55570,15 +55619,17 @@ Wick.Tools.Zoom = class extends Wick.Tool {
     var layerGroup = new paper.Group({
       insert: false
     });
-    layer.children.forEach(function (child) {
-      if (child._class !== 'Path' && child._class !== 'CompoundPath') return;
+    layers.forEach(layer => {
+      layer.children.forEach(function (child) {
+        if (child._class !== 'Path' && child._class !== 'CompoundPath') return;
 
-      for (var i = 0; i < N_RASTER_CLONE; i++) {
-        var clone = child.clone({
-          insert: false
-        });
-        layerGroup.addChild(clone);
-      }
+        for (var i = 0; i < N_RASTER_CLONE; i++) {
+          var clone = child.clone({
+            insert: false
+          });
+          layerGroup.addChild(clone);
+        }
+      });
     });
 
     if (layerGroup.children.length === 0) {
@@ -55597,9 +55648,9 @@ Wick.Tools.Zoom = class extends Wick.Tool {
 
     for (var i = 0; i < layerPathsImageDataRaw.length; i += 4) {
       if (layerPathsImageDataRaw[i + 3] === 0) {
-        layerPathsImageDataRaw[i] = 255;
-        layerPathsImageDataRaw[i + 1] = 255;
-        layerPathsImageDataRaw[i + 2] = 255;
+        layerPathsImageDataRaw[i] = bgColor.red;
+        layerPathsImageDataRaw[i + 1] = bgColor.green;
+        layerPathsImageDataRaw[i + 2] = bgColor.blue;
         layerPathsImageDataRaw[i + 3] = 255;
       }
     }
@@ -55749,20 +55800,23 @@ Wick.Tools.Zoom = class extends Wick.Tool {
       a: imageData[offset + 3]
     };
   }
-  /* Add hole() method to paper.Layer */
+  /* Add hole() method to paper */
 
 
-  paper.Layer.inject({
+  paper.PaperScope.inject({
     hole: function (args) {
       if (!args) console.error('paper.hole: args is required');
       if (!args.point) console.error('paper.hole: args.point is required');
       if (!args.onFinish) console.error('paper.hole: args.onFinish is required');
       if (!args.onError) console.error('paper.hole: args.onError is required');
+      if (!args.bgColor) console.error('paper.hole: args.bgColor is required');
+      if (!args.layers) console.error('paper.hole: args.layers is required');
       onFinish = args.onFinish;
       onError = args.onError;
-      layer = this;
+      layers = args.layers;
       floodFillX = args.point.x;
       floodFillY = args.point.y;
+      bgColor = args.bgColor;
       rasterizePaths(onFinish);
     }
   });
@@ -58495,7 +58549,7 @@ Wick.GUIElement.Ghost = class extends Wick.GUIElement {
   _roundToGrid(x, y) {
     return {
       col: Math.round(x / this.gridCellWidth),
-      row: Math.round(y / this.gridCellWidth)
+      row: Math.round(y / this.gridCellHeight)
     };
   }
 

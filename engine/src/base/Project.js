@@ -732,6 +732,16 @@ Wick.Project = class extends Wick.Base {
     }
 
     /**
+     * Tries to create a tween if there is an empty space between tweens.
+     */
+    tryToAutoCreateTween () {
+        var frame = this.activeFrame;
+        if(frame.tweens.length > 0 && !frame.getTweenAtPosition(frame.getRelativePlayheadPosition())) {
+            frame.createTween();
+        }
+    }
+
+    /**
      * Move the right edge of all selected frames right one frame.
      */
     extendSelectedFrames () {

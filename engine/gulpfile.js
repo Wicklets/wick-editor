@@ -12,8 +12,8 @@ gulp.task("default", function() {
   /* Year.Month.Day[micro] */
   var date = new Date();
   var year = date.getFullYear();
-  var month = date.getMonth();
-  var day = date.getDay();
+  var month = date.getMonth() + 1;
+  var day = date.getDate();
   var buildString = year + '.' + month + '.' + day;
 
   var libs = gulp
@@ -93,7 +93,7 @@ gulp.task("default", function() {
       'src/tools/Text.js',
       'src/tools/Zoom.js',
       'src/view/paper-ext/Layer.erase.js',
-      'src/view/paper-ext/Layer.hole.js',
+      'src/view/paper-ext/Paper.hole.js',
       'src/view/paper-ext/Paper.OrderingUtils.js',
       'src/view/paper-ext/Paper.SelectionWidget.js',
       'src/view/paper-ext/Paper.SelectionBox.js',

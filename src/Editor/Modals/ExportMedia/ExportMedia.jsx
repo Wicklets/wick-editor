@@ -35,11 +35,20 @@ class ExportMedia extends Component {
         <div id="media-export-modal-title">Exporting {this.props.renderType}</div>
         <div className="media-export-modal-content">
           <div id="media-export-modal-subtitle">Creating "{renderName}"</div>
-          <Progress animated color="success" value={this.props.renderProgress}/>
+          <Progress
+            striped
+            animated={!this.renderDone}
+            color={this.renderDone ? 'success' : 'warning'}
+            value={this.props.renderProgress}
+          />
           <div id="media-export-modal-status-message">{this.props.renderStatusMessage}</div>
         </div>
       </WickModal>
     );
+  }
+
+  get renderDone () {
+    return this.props.renderProgress === 100;
   }
 }
 

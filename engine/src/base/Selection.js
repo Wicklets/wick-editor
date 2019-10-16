@@ -344,6 +344,7 @@ Wick.Selection = class extends Wick.Base {
     }
 
     set x (x) {
+        this.project.tryToAutoCreateTween();
         this.view.x = x;
     }
 
@@ -356,6 +357,7 @@ Wick.Selection = class extends Wick.Base {
     }
 
     set y (y) {
+        this.project.tryToAutoCreateTween();
         this.view.y = y;
     }
 
@@ -368,6 +370,7 @@ Wick.Selection = class extends Wick.Base {
     }
 
     set width (width) {
+        this.project.tryToAutoCreateTween();
         this.view.width = width;
     }
 
@@ -380,6 +383,7 @@ Wick.Selection = class extends Wick.Base {
     }
 
     set height (height) {
+        this.project.tryToAutoCreateTween();
         this.view.height = height;
     }
 
@@ -392,6 +396,7 @@ Wick.Selection = class extends Wick.Base {
     }
 
     set rotation (rotation) {
+        this.project.tryToAutoCreateTween();
         this.view.rotation = rotation;
     }
 
@@ -399,6 +404,7 @@ Wick.Selection = class extends Wick.Base {
      * Flips the selected obejcts horizontally.
      */
     flipHorizontally () {
+        this.project.tryToAutoCreateTween();
         this.view.flipHorizontally();
     }
 
@@ -406,6 +412,7 @@ Wick.Selection = class extends Wick.Base {
      * Flips the selected obejcts vertically.
      */
     flipVertically () {
+        this.project.tryToAutoCreateTween();
         this.view.flipVertically();
     }
 
@@ -554,6 +561,7 @@ Wick.Selection = class extends Wick.Base {
     }
 
     set opacity (opacity) {
+        this.project.tryToAutoCreateTween();
         this._setSingleAttribute('opacity', opacity);
     }
 

@@ -19,6 +19,7 @@ class GIFExport {
     });
 
     gif.on('finished', (gif) => {
+      onProgress('Finished GIF export', 100);
       onFinish(gif);
     });
 
@@ -39,7 +40,7 @@ class GIFExport {
 
     // Get frame images from project, add to GIF.js
     project.generateImageSequence({
-      onFinish: combineImageSequence, 
+      onFinish: combineImageSequence,
       onProgress: updateProgress,
     });
   }
