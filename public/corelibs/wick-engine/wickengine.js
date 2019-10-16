@@ -53375,7 +53375,12 @@ Wick.Tool = class {
     context.strokeStyle = transparent ? 'black' : invert(color);
     context.stroke();
 
-    if (!transparent) {
+    if (transparent) {
+      context.beginPath();
+      context.arc(centerX, centerY, radius - 1, 0, 2 * Math.PI, false);
+      context.strokeStyle = 'white';
+      context.stroke();
+    } else {
       context.beginPath();
       context.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
       context.fillStyle = color;
