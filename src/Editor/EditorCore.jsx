@@ -125,29 +125,25 @@ class EditorCore extends Component {
   }
 
   /**
-   * Shrinks the brush size by toolSettings.sizeJump if a brush tool is selected.
+   * Shrinks the brush/eraser size by a given amount.
    */
-  shrinkBrushSize = () => {
-    let minimum = 2;
+  changeBrushSize = (amt) => {
+    var tool = this.project.activeTool.name
+    var option;
+    if(tool === 'brush') {
+        option = 'brushSize';
+    } else if (tool === 'eraser') {
+        option = 'eraserSize';
+    } else {
+        return;
+    }
 
-    let brushSize = this.getToolSetting('brushSize');
-    let newBrushSize = brushSize - 2
+    let minimum = 2;
+    let brushSize = this.getToolSetting(tool);
+    let newBrushSize = brushSize - amt;
     newBrushSize = Math.max(newBrushSize, minimum);
 
-    this.setToolSetting('brushSize', newBrushSize);
-  }
-
-  /**
-   * Grows the brush size by toolSettings.sizeJump if a brush tool is selected.
-   */
-  growBrushSize = () => {
-    let maximum = 100;
-
-    let brushSize = this.getToolSetting('brushSize');
-    let newBrushSize = brushSize + 2;
-    newBrushSize = Math.min(newBrushSize, maximum);
-
-    this.setToolSetting('brushSize', newBrushSize);
+    this.setToolSetting(tool, newBrushSize);
   }
 
   /**
