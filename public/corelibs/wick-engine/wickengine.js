@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2019.10.16";
+var WICK_ENGINE_BUILD_VERSION = "2019.10.18";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -59085,13 +59085,15 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement {
 
       ctx.stroke();
     } else if (this.model.sound) {
-      // Frame sound waveform
-      var sound = this.model.sound;
       var framerate = this.model.project.framerate;
-      var waveform = this.model.sound.waveform;
-      var maxWidth = this.model.length * this.gridCellWidth;
-      var crop = maxWidth / sound.duration * (this.gridCellWidth / framerate);
-      ctx.drawImage(waveform, 0, 0, crop, waveform.height, 0, 0, maxWidth, this.gridCellHeight);
+      var sound = this.model.sound;
+      var waveform = sound.waveform;
+      var soundLengthMS = sound.duration * 1000;
+      var frameLengthMS = 1 / framerate * this.model.length * 1000;
+      var frameLengthPx = this.model.length * this.gridCellWidth;
+      var cropPx = frameLengthMS / soundLengthMS * 1200; // base waveform image size: 1200px
+
+      ctx.drawImage(waveform, 0, 0, cropPx, waveform.height, 0, 0, frameLengthPx, this.gridCellHeight);
     } else if (this.model.tweens.length > 0) {
       // Tweens
       this.model.tweens.forEach(tween => {
