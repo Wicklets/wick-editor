@@ -134,6 +134,8 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement {
             }
             ctx.stroke();
         } else if (this.model.sound) {
+            // Sound waveform
+
             var framerate = this.model.project.framerate;
             var sound = this.model.sound;
             var waveform = sound.waveform;
