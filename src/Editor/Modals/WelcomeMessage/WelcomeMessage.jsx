@@ -49,10 +49,12 @@ class WelcomeModal extends Component {
             <div id="welcome-modal-subtitle" className="welcome-modal-item">Wick Editor {this.getVersion()} includes:</div>
             <div id="welcome-modal-message" className="welcome-modal-item">
               <ul>
-                <li>Upgraded Timeline interactions</li>
-                <li>Major performance upgrade for Timeline</li>
-                <li>New Hotkeys window</li>
-                <li>New faster Brush!</li>
+                <li>New <a className="welcome-modal-highlight welcome-link" target="_blank" href="https://www.patreon.com/WickEditor">Patreon</a> rewards!</li>
+                <li>Faster brush</li>
+                <li>Faster timeline</li>
+                <li>New timeline interactions</li>
+                <li>Customizable hotkeys system</li>
+                <li>New project settings window</li>
                 <li><a className="welcome-modal-highlight welcome-link" target="_blank" rel="noopener noreferrer" href="https://forum.wickeditor.com/t/wick-editor-1-15-customizable-hotkeys-faster-brush-new-timeline-and-more/2004">...and more!</a></li>
               </ul>
             </div>
