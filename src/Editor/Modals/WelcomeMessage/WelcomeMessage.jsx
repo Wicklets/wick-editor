@@ -55,7 +55,7 @@ class WelcomeModal extends Component {
                 <li>New timeline interactions</li>
                 <li>Customizable hotkeys system</li>
                 <li>New project settings window</li>
-                <li><a className="welcome-modal-highlight welcome-link" target="_blank" rel="noopener noreferrer" href="https://forum.wickeditor.com/t/wick-editor-1-15-customizable-hotkeys-faster-brush-new-timeline-and-more/2004">...and more!</a></li>
+                <li><a className="welcome-modal-highlight welcome-link" target="_blank" rel="noopener noreferrer" href="https://forum.wickeditor.com/t/wick-editor-1-15-customizable-hotkeys-faster-brush-new-timeline-discord-patreon-rewards-and-more/2010">...and more!</a></li>
               </ul>
             </div>
             <div id="welcome-modal-tutorial-links" className="welcom-modal-item">
