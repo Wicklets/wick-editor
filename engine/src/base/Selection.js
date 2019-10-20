@@ -344,8 +344,8 @@ Wick.Selection = class extends Wick.Base {
     }
 
     set x (x) {
-        this.project.tryToAutoCreateTween();
         this.view.x = x;
+        this.project.tryToAutoCreateTween();
     }
 
     /**
@@ -357,8 +357,8 @@ Wick.Selection = class extends Wick.Base {
     }
 
     set y (y) {
-        this.project.tryToAutoCreateTween();
         this.view.y = y;
+        this.project.tryToAutoCreateTween();
     }
 
     /**

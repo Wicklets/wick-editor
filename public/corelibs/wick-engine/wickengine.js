@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2019.10.18";
+var WICK_ENGINE_BUILD_VERSION = "2019.10.19";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -48824,8 +48824,8 @@ Wick.Selection = class extends Wick.Base {
   }
 
   set x(x) {
-    this.project.tryToAutoCreateTween();
     this.view.x = x;
+    this.project.tryToAutoCreateTween();
   }
   /**
    * The position of the selection.
@@ -48838,8 +48838,8 @@ Wick.Selection = class extends Wick.Base {
   }
 
   set y(y) {
-    this.project.tryToAutoCreateTween();
     this.view.y = y;
+    this.project.tryToAutoCreateTween();
   }
   /**
    * The width of the selection.
@@ -59085,6 +59085,7 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement {
 
       ctx.stroke();
     } else if (this.model.sound) {
+      // Sound waveform
       var framerate = this.model.project.framerate;
       var sound = this.model.sound;
       var waveform = sound.waveform;

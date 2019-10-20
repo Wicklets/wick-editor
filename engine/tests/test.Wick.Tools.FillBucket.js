@@ -10,9 +10,9 @@ describe('Wick.Tools.FillBucket', function() {
 
         project.view.on('canvasModified', function (e) {
             expect(project.activeFrame.paths.length).to.equal(5);
-            expect(project.activeFrame.paths[4].view.item.fillColor.toCSS(true)).to.equal('#ff0000');
-            expect(project.activeFrame.paths[4].view.item.bounds.width).to.be.closeTo(30, 10);
-            expect(project.activeFrame.paths[4].view.item.bounds.height).to.be.closeTo(30, 10);
+            expect(project.activeFrame.paths[0].view.item.fillColor.toCSS(true)).to.equal('#ff0000');
+            expect(project.activeFrame.paths[0].view.item.bounds.width).to.be.closeTo(30, 10);
+            expect(project.activeFrame.paths[0].view.item.bounds.height).to.be.closeTo(30, 10);
             done();
         });
 

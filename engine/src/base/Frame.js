@@ -574,7 +574,7 @@ Wick.Frame = class extends Wick.Tickable {
      */
     shrinkAndPullOtherFrames () {
         if(this.length === 1) return;
-        
+
         this.parentLayer.getFramesInRange(this.end + 1, Infinity).forEach(frame => {
             frame.start -= 1;
             frame.end -= 1;
