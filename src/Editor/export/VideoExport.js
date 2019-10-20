@@ -29,7 +29,7 @@ class FFMPEG {
   constructor () {
     this._isReady = false;
 
-    this._worker = new Worker(process.env.PUBLIC_URL + "corelibs/video/worker-asm.js");
+    this._worker = new Worker("corelibs/video/worker-asm.js");
     this._worker.onmessage = (e) => {
       var msg = e.data;
       console.log('from worker:' + msg.type + ':');
