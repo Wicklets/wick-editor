@@ -56,7 +56,7 @@
 
     function rasterizePaths (callback) {
         var layerGroup = new paper.Group({insert:false});
-        layers.forEach(layer => {
+        layers.reverse().forEach(layer => {
             layer.children.forEach(function (child) {
                 if(child._class !== 'Path' && child._class !== 'CompoundPath') return;
                 for(var i = 0; i < N_RASTER_CLONE; i++) {
