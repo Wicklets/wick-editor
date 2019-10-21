@@ -53424,7 +53424,7 @@ Wick.Tool = class {
       this.project.view.render();
     }
 
-    this.paper.project.activeLayer.addChild(path);
+    if (path) this.paper.project.activeLayer.addChild(path);
   }
 
 };
@@ -54464,6 +54464,7 @@ Wick.Tools.FillBucket = class extends Wick.Tool {
           if (path) {
             path.fillColor = this.getSetting('fillColor');
             path.name = null;
+            this.addPathToProject();
 
             if (e.item) {
               path.insertAbove(e.item);

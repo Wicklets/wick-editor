@@ -259,7 +259,8 @@ Wick.Tool = class {
             this.project.view.render();
         }
 
-        this.paper.project.activeLayer.addChild(path);
+        if(path)
+            this.paper.project.activeLayer.addChild(path);
     }
 }
 

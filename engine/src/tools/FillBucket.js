@@ -69,6 +69,7 @@ Wick.Tools.FillBucket = class extends Wick.Tool {
                     if(path) {
                         path.fillColor = this.getSetting('fillColor');
                         path.name = null;
+                        this.addPathToProject();
                         if(e.item) {
                             path.insertAbove(e.item);
                         } else {
