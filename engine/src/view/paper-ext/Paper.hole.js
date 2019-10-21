@@ -32,7 +32,7 @@
 (function () {
 
     var VERBOSE = false;
-    var PREVIEW_IMAGE = true;
+    var PREVIEW_IMAGE = false;
 
     var N_RASTER_CLONE = 1;
     var RASTER_BASE_RESOLUTION = 3;
@@ -48,6 +48,7 @@
     var floodFillY;
 
     var bgColor;
+    var gapFillMargin;
 
     function previewImage (image) {
         var win = window.open('', 'Title', 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, width='+image.width+', height='+image.height+', top=100, left=100');
@@ -61,6 +62,15 @@
                 if(child._class !== 'Path' && child._class !== 'CompoundPath') return;
                 for(var i = 0; i < N_RASTER_CLONE; i++) {
                     var clone = child.clone({insert:false});
+
+                    //experiment: bump out all strokes a bit by expanding their stroke widths
+                    if(!clone.strokeColor && clone.fillColor) {
+                        clone.strokeColor = clone.fillColor;
+                        clone.strokeWidth = gapFillMargin / RASTER_BASE_RESOLUTION;
+                    } else if(clone.strokeWidth) {
+                        clone.strokeWidth += gapFillMargin / RASTER_BASE_RESOLUTION;
+                    }
+
                     layerGroup.addChild(clone);
                 }
             });
@@ -130,7 +140,8 @@
 
         var floodFillProcessedImage = new Image();
         floodFillProcessedImage.onload = function () {
-            //previewImage(floodFillProcessedImage);
+            if(PREVIEW_IMAGE)
+                previewImage(floodFillProcessedImage);
 
             var svgString = potrace.fromImage(floodFillProcessedImage).toSVG(1);
             var xmlString = svgString
@@ -236,6 +247,7 @@
             if(!args.onError) console.error('paper.hole: args.onError is required');
             if(!args.bgColor) console.error('paper.hole: args.bgColor is required');
             if(!args.layers) console.error('paper.hole: args.layers is required');
+            if(!args.gapFillMargin) console.error('paper.hole: args.gapFillMargin is required');
 
             onFinish = args.onFinish;
             onError = args.onError;
@@ -245,6 +257,7 @@
             floodFillY = args.point.y;
 
             bgColor = args.bgColor;
+            gapFillMargin = args.gapFillMargin;
 
             rasterizePaths(onFinish);
         }

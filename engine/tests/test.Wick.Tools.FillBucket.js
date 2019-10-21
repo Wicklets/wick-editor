@@ -85,4 +85,10 @@ describe('Wick.Tools.FillBucket', function() {
         // TODO
         done();
     });
+
+    it('Should fill existing shapes between layers', function(done) {
+        // TODO
+        // Make sure this tests against that one bug where the bottom layers were rendering first.
+        done();
+    });
 });
