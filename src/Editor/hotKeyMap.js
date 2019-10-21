@@ -223,7 +223,7 @@ class HotKeyInterface extends Object {
       },
       'send-to-back': {
         name: "Send to Back",
-        sequences: ['meta+enter'],
+        sequences: ['meta+shift+down'],
       },
       'move-backwards': {
         name: "Move Backwards",
@@ -440,7 +440,7 @@ class HotKeyInterface extends Object {
           newSequence = sequence.replace("meta", replacement);
         } else if (typeof sequence === "object") {
           newSequence = sequence.sequence.replace("meta", replacement);
-        } 
+        }
 
         oldSequences[i] = newSequence;
       });
@@ -503,7 +503,7 @@ class HotKeyInterface extends Object {
           newSequence = sequence.replace("meta", replacement);
         } else if (typeof sequence === "object") {
           newSequence = sequence.sequence.replace("meta", replacement);
-        } 
+        }
         oldSequences[i] = newSequence;
       });
 
