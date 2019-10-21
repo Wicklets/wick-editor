@@ -1154,7 +1154,7 @@ class EditorCore extends Component {
    * Copies the selected objects to the clipboard and then deletes them from the project.
    */
   cutSelectionToClipboard = () => {
-    if(this.project.cutSelection()) {
+    if(this.project.cutSelectionToClipboard()) {
       this.projectDidChange();
     } else {
       this.toast('There is nothing to duplicate.', 'warning');
