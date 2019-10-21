@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2019.10.19";
+var WICK_ENGINE_BUILD_VERSION = "2019.10.21";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -55624,7 +55624,7 @@ Wick.Tools.Zoom = class extends Wick.Tool {
     var layerGroup = new paper.Group({
       insert: false
     });
-    layers.forEach(layer => {
+    layers.reverse().forEach(layer => {
       layer.children.forEach(function (child) {
         if (child._class !== 'Path' && child._class !== 'CompoundPath') return;
 
