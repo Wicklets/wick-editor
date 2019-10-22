@@ -138,12 +138,10 @@ class EditorCore extends Component {
         return;
     }
 
-    let minimum = 2;
-    let brushSize = this.getToolSetting(tool);
-    let newBrushSize = brushSize - amt;
-    newBrushSize = Math.max(newBrushSize, minimum);
+    let brushSize = this.getToolSetting(option);
+    let newBrushSize = brushSize += amt;
 
-    this.setToolSetting(tool, newBrushSize);
+    this.setToolSetting(option, newBrushSize);
   }
 
   /**

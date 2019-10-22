@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2019.10.21";
+var WICK_ENGINE_BUILD_VERSION = "2019.10.22";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -47198,6 +47198,8 @@ Wick.Project = class extends Wick.Base {
         this.selection.fillColor = value;
       } else if (name === 'strokeColor') {
         this.selection.strokeColor = value;
+      } else if (name === '') {
+        this.tools.brush._regenCursor();
       }
     });
 

@@ -99,6 +99,8 @@ Wick.Project = class extends Wick.Base {
                 this.selection.fillColor = value;
             } else if (name === 'strokeColor') {
                 this.selection.strokeColor = value;
+            } else if (name === 'brushSize') {
+                alert('fix me')
             }
         });
 
