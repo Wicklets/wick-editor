@@ -89,6 +89,10 @@ class HotKeyInterface extends Object {
         name: "Activate Pan",
         sequences: ['space'],
       },
+      'deactivate-pan': {
+        name: "Deactivate Pan",
+        sequences: [{sequence: "space", action: "keyup"}],
+      },
       'activate-fill': {
         name: "Activate Fill",
         sequences: ['f', 'g'],
@@ -100,10 +104,6 @@ class HotKeyInterface extends Object {
       'deactivate-eyedropper': {
         name: "Deactivate Eyedropper",
         sequences: [{sequence: "d", action: "keyup"}, {sequence: "i", action: "keyup"}],
-      },
-      'deactivate-pan': {
-        name: "Deactivate Pan",
-        sequences: [{sequence: "space", action: "keyup"}],
       },
       'activate-zoom': {
         name: "Deactivate Zoom",
@@ -417,36 +417,6 @@ class HotKeyInterface extends Object {
     }
   }
 
-  mapSequencesToOperatingSystem = (keyMap) => {
-    // Test if we are on a Mac...
-    // Choose the appropriate replacement text for each platform.
-    var isMac = /(Mac|iPhone|iPod|iPad)/i.test(navigator.platform);
-
-    var replacement = "ctrl";
-
-    if (isMac) {
-      replacement = "cmd"
-    }
-
-    Object.keys(keyMap).forEach((actionName) => {
-
-      // Set default attributes...
-      let oldSequences = keyMap[actionName].sequences.concat([]);
-      oldSequences.forEach((sequence,i) => {
-        let newSequence = sequence;
-
-        // If meta occurs in a string, replace with the appropriate controlling key.
-        if (typeof sequence === "string") {
-          newSequence = sequence.replace("meta", replacement);
-        } else if (typeof sequence === "object") {
-          newSequence = sequence.sequence.replace("meta", replacement);
-        }
-
-        oldSequences[i] = newSequence;
-      });
-    });
-  }
-
   // Sets the hotkey interface's custom hotkeys. Ignores null or undefined inputs.
   // Expects a parameter customHotKeys of the following schema.
   // customHotKeys {object}
@@ -502,7 +472,10 @@ class HotKeyInterface extends Object {
         if (typeof sequence === "string") {
           newSequence = sequence.replace("meta", replacement);
         } else if (typeof sequence === "object") {
-          newSequence = sequence.sequence.replace("meta", replacement);
+          newSequence = {
+              sequence: sequence.sequence.replace("meta", replacement),
+              action: sequence.action,
+          }
         }
         oldSequences[i] = newSequence;
       });
