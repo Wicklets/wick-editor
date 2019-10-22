@@ -5,9 +5,13 @@ describe('Wick.WickObjectFile', function () {
         clip.identifier = 'testclip';
         clip.activeFrame.identifier = 'testframe';
 
-        Wick.WickObjectFile.toWickObjectFile(clip, file => {
-            Wick.WickObjectFile.fromWickObjectFile(file, clipCopy => {
-
+        Wick.WickObjectFile.toWickObjectFile(clip, wickObjectFile => {
+            //saveAs(wickObjectFile, 'wickobject.json')
+            Wick.WickObjectFile.fromWickObjectFile(wickObjectFile, clipData => {
+                var clipCopy = Wick.Base.import(clipData, project).copy();
+                project.addObject(clipCopy);
+                expect(clipCopy.activeFrame.identifier).to.equal('testframe');
+                done();
             });
         });
     });

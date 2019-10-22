@@ -27,7 +27,14 @@ Wick.WickObjectFile = class {
      * @param {function} callback - Function called when the object is done being loaded
      */
     static fromWickObjectFile (wickObjectFile, callback) {
-        
+        var fr = new FileReader();
+
+        fr.onload = () => {
+            var data = JSON.parse(fr.result);
+            callback(data);
+        };
+
+        fr.readAsText(wickObjectFile);
     }
 
     /**
