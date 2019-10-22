@@ -47198,8 +47198,8 @@ Wick.Project = class extends Wick.Base {
         this.selection.fillColor = value;
       } else if (name === 'strokeColor') {
         this.selection.strokeColor = value;
-      } else if (name === '') {
-        this.tools.brush._regenCursor();
+      } else if (name === 'brushSize') {
+        alert('fix me');
       }
     });
 
@@ -53514,6 +53514,8 @@ Wick.Tools.Brush = class extends Wick.Tool {
     super.onMouseMove(e);
 
     this._updateCanvasAttributes();
+
+    this._regenCursor();
   }
 
   onMouseDown(e) {
@@ -53707,10 +53709,7 @@ Wick.Tools.Brush = class extends Wick.Tool {
 
     if (this.croquis.getCanvasWidth() !== this.paper.view._element.width || this.croquis.getCanvasHeight() !== this.paper.view._element.height) {
       this.croquis.setCanvasSize(this.paper.view._element.width, this.paper.view._element.height);
-    } // Generate new cursor
-
-
-    this._regenCursor(); // Fake brush opacity in croquis by changing the opacity of the croquis canvas
+    } // Fake brush opacity in croquis by changing the opacity of the croquis canvas
 
 
     this.croquisDOMElement.style.opacity = this.getSetting('fillColor').alpha;

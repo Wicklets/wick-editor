@@ -95,6 +95,7 @@ Wick.Tools.Brush = class extends Wick.Tool {
         super.onMouseMove(e);
 
         this._updateCanvasAttributes();
+        this._regenCursor();
     }
 
     onMouseDown (e) {
@@ -280,9 +281,6 @@ Wick.Tools.Brush = class extends Wick.Tool {
            this.croquis.getCanvasHeight() !== this.paper.view._element.height) {
             this.croquis.setCanvasSize(this.paper.view._element.width, this.paper.view._element.height);
         }
-
-        // Generate new cursor
-        this._regenCursor();
 
         // Fake brush opacity in croquis by changing the opacity of the croquis canvas
         this.croquisDOMElement.style.opacity = this.getSetting('fillColor').alpha;
