@@ -1,14 +1,25 @@
 describe('Wick.ClipAsset', function() {
     describe('#constructor', function () {
         it('should instantiate correctly', function() {
-          /*
             var clip = new Wick.Clip();
-            var asset = new Wick.ClipAsset(clip);
+            var asset = new Wick.ClipAsset({data: clip.export()});
 
             expect(asset instanceof Wick.ClipAsset).to.equal(true);
-            expect(asset.timeline instanceof Wick.Timeline).to.equal(true);
-            expect(asset.linkedClips.length).to.equal(0);
-            */
+            expect(asset.data instanceof Object).to.equal(true);
+        });
+    });
+
+    describe('#createInstance', function () {
+        it('should create an instance of the Clip correctly', function(done) {
+            var project = new Wick.Project();
+            var clip = new Wick.Clip();
+            var asset = new Wick.ClipAsset({data: clip.export()});
+            project.addAsset(asset);
+
+            asset.createInstance(instance => {
+                expect(instance instanceof Wick.Clip).to.equal(true);
+                done();
+            }, project);
         });
     });
 /*

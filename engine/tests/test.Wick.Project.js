@@ -41,8 +41,13 @@ describe('Wick.Project', function() {
                 filename: 'foo.wav',
                 src: TestUtils.TEST_SOUND_SRC_WAV
             });
+            var clip = new Wick.ClipAsset({
+                filename: 'foo.wickobject',
+                data: new Wick.Clip().export(),
+            });
             project.addAsset(image);
             project.addAsset(sound);
+            project.addAsset(clip);
 
             var data = project.serialize();
 
@@ -52,6 +57,7 @@ describe('Wick.Project', function() {
                 project.root.uuid,
                 image.uuid,
                 sound.uuid,
+                clip.uuid,
             ]);
             expect(data.classname).to.equal('Project');
             expect(data.focus).to.equal(project.focus.uuid);
@@ -897,7 +903,9 @@ describe('Wick.Project', function() {
             });
             project.addAsset(soundAsset);
 
-            var clipAsset = new Wick.ClipAsset();
+            var clipAsset = new Wick.ClipAsset({
+                data: new Wick.Clip().export(),
+            });
             project.addAsset(clipAsset);
 
             expect(project.getAssets()).to.eql([imageAsset, soundAsset, clipAsset]);
@@ -916,7 +924,9 @@ describe('Wick.Project', function() {
             });
             project.addAsset(soundAsset);
 
-            var clipAsset = new Wick.ClipAsset();
+            var clipAsset = new Wick.ClipAsset({
+                data: new Wick.Clip().export(),
+            });
             project.addAsset(clipAsset);
 
             expect(project.getAssets('Image')).to.eql([imageAsset]);
@@ -935,7 +945,9 @@ describe('Wick.Project', function() {
             });
             project.addAsset(soundAsset);
 
-            var clipAsset = new Wick.ClipAsset();
+            var clipAsset = new Wick.ClipAsset({
+                data: new Wick.Clip().export(),
+            });
             project.addAsset(clipAsset);
 
             expect(project.getAssets('Sound')).to.eql([soundAsset]);
@@ -954,7 +966,9 @@ describe('Wick.Project', function() {
             });
             project.addAsset(soundAsset);
 
-            var clipAsset = new Wick.ClipAsset();
+            var clipAsset = new Wick.ClipAsset({
+                data: new Wick.Clip().export(),
+            });
             project.addAsset(clipAsset);
 
             expect(project.getAssets('Clip')).to.eql([clipAsset]);
