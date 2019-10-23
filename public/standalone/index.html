@@ -7,8 +7,15 @@
         <meta charset="utf-8"/>
         <title>Loading...</title>
 
-        <script src="preloadjs.min.js"></script>
-        <script src="loadproject.js"></script>
+        <!-- For ZIP export: -->
+
+        <!--inject_loadproject.js-->
+        <!--inject_preloadjs.min.js-->
+
+        <!-- For HTML export: -->
+
+        <!--inject_wickengine.js-->
+        <!--inject_wickproject-->
 
         <style>
             body, html {
@@ -87,6 +94,12 @@
     </head>
 
     <script>
+      window.onload = function () {
+        if(window.INJECTED_WICKPROJECT) {
+          playProject(window.INJECTED_WICKPROJECT);
+        }
+      }
+
       function playProject (project) {
           window.project = project;
 

@@ -25,7 +25,6 @@ class ZIPExport {
         {id: "index.html", src: "standalone/index.html", type:createjs.Types.BINARY},
         {id: "loadproject.js", src: "standalone/loadproject.js", type:createjs.Types.BINARY},
         {id: "preloadjs.min.js", src: "standalone/preloadjs.min.js", type:createjs.Types.BINARY},
-        {id: "preloader-animation.css", src: "standalone/preloader-animation.css", type:createjs.Types.BINARY},
         {id: "wickengine.js", src: "corelibs/wick-engine/wickengine.js", type:createjs.Types.BINARY},
     ]);
   }
