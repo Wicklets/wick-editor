@@ -377,6 +377,40 @@ describe('Wick.Project', function() {
                 done();
             });
         });
+
+        it('should import clips correctly', function(done) {
+            var parts = [ TestUtils.dataURItoBlob(TestUtils.TEST_WICKOBJ_SRC) ];
+            var file = new File(parts, 'object.wickobj', {
+                lastModified: new Date(0),
+                type: "application/json",
+            });
+
+            var project = new Wick.Project();
+            project.importFile(file, function (asset) {
+                expect(asset instanceof Wick.ClipAsset).to.equal(true);
+                expect(project.getAssets().length).to.equal(1);
+                expect(project.getAssets()[0]).to.equal(asset);
+                expect(asset.src).to.equal(TestUtils.TEST_WICKOBJ_SRC);
+                done();
+            });
+        });
+
+        it('should import clips correctly (missing mimetype bug)', function(done) {
+            var parts = [ TestUtils.dataURItoBlob(TestUtils.TEST_WICKOBJ_SRC) ];
+            var file = new File(parts, 'object.wickobj', {
+                lastModified: new Date(0),
+                type: "",
+            });
+
+            var project = new Wick.Project();
+            project.importFile(file, function (asset) {
+                expect(asset instanceof Wick.ClipAsset).to.equal(true);
+                expect(project.getAssets().length).to.equal(1);
+                expect(project.getAssets()[0]).to.equal(asset);
+                expect(asset.src).to.equal(TestUtils.TEST_WICKOBJ_SRC);
+                done();
+            });
+        });
     });
 
     describe('#tick', function () {
@@ -1153,6 +1187,13 @@ describe('Wick.Project', function() {
 
     describe('createImagePathFromAsset', function () {
         it('should create an image path', function (done) {
+            // TODO
+            done();
+        })
+    });
+
+    describe('createClipInstanceFromAsset', function () {
+        it('should create a clip', function (done) {
             // TODO
             done();
         })

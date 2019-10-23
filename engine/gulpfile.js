@@ -59,6 +59,7 @@ gulp.task("default", function() {
       'src/export/AudioTrack.js',
       'src/export/WickFile.js',
       'src/export/WickFile.Alpha.js',
+      'src/export/WickObjectFile.js',
       'src/base/Base.js',
       'src/base/Layer.js',
       'src/base/Project.js',

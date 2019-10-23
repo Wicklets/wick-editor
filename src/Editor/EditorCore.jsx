@@ -724,14 +724,17 @@ class EditorCore extends Component {
 
     let obj = window.Wick.ObjectCache.getObjectByUUID(uuid);
 
-    if (!(obj instanceof window.Wick.ImageAsset)) {
-      console.error("Object not an instance of Wick Image Asset");
-      return;
+    if (obj instanceof window.Wick.ImageAsset) {
+      this.project.createImagePathFromAsset(window.Wick.ObjectCache.getObjectByUUID(uuid), dropPoint.x, dropPoint.y, path => {
+        this.projectDidChange();
+      });
+    } else if (obj instanceof window.Wick.ClipAsset) {
+      this.project.createClipInstanceFromAsset(window.Wick.ObjectCache.getObjectByUUID(uuid), dropPoint.x, dropPoint.y, clip => {
+        this.projectDidChange();
+      });
+    } else {
+      console.error('object is not an ImageAsset or a ClipAsset')
     }
-
-    this.project.createImagePathFromAsset(window.Wick.ObjectCache.getObjectByUUID(uuid), dropPoint.x, dropPoint.y, path => {
-      this.projectDidChange();
-    });
   }
 
  /**
@@ -1245,6 +1248,16 @@ class EditorCore extends Component {
       this.project.shrinkSelectedFramesAndPullOtherFrames();
       this.project.guiElement.draw();
       //this.projectDidChange();
+  }
+
+  exportSelectedClip = () => {
+      var clip = this.project.selection.getSelectedObject();
+      if(!clip) return;
+      if(!(clip instanceof window.Wick.Clip)) return;
+
+      window.Wick.WickObjectFile.toWickObjectFile(clip, 'blob', file => {
+          window.saveAs(file, (clip.identifier || 'object') + '.wickobj');
+      });
   }
 }
 

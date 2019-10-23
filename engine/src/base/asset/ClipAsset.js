@@ -17,15 +17,30 @@
  * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-Wick.ClipAsset = class extends Wick.Asset {
+Wick.ClipAsset = class extends Wick.FileAsset {
+    /**
+     * Returns all valid MIME types for files which can be converted to ClipAssets.
+     * @return {string[]} Array of strings of MIME types in the form MediaType/Subtype.
+     */
+    static getValidMIMETypes () {
+        return ['application/json'];
+    }
+
+    /**
+     * Returns all valid extensions types for files which can be attempted to be
+     * converted to ClipAssets.
+     * @return  {string[]} Array of strings representing extensions.
+     */
+    static getValidExtensions () {
+        return ['.wickobj']
+    }
+
     /**
      * Create a new ClipAsset.
      * @param {object} args
      */
     constructor (args) {
         super(args);
-
-        this.data = args.data;
     }
 
     serialize (args) {
@@ -70,6 +85,7 @@ Wick.ClipAsset = class extends Wick.Asset {
      */
     load (callback) {
         // We don't need to do anything here, the data for ClipAssets is just json
+        callback();
     }
 
     /**
@@ -77,7 +93,9 @@ Wick.ClipAsset = class extends Wick.Asset {
      * @param {function} callback - called when the Clip is done loading.
      */
     createInstance (callback, project) {
-        var clip = Wick.Base.import(this.data, project).copy();
-        callback(clip);
+        Wick.WickObjectFile.fromWickObjectFile(this.src, data => {
+            var clip = Wick.Base.import(data, project).copy();
+            callback(clip);
+        });
     }
 }
