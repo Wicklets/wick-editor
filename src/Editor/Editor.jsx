@@ -50,6 +50,7 @@ import CanvasTransforms from './Panels/CanvasTransforms/CanvasTransforms';
 import Toolbox from './Panels/Toolbox/Toolbox';
 import AssetLibrary from './Panels/AssetLibrary/AssetLibrary';
 import PopOutCodeEditor from './PopOuts/PopOutCodeEditor/PopOutCodeEditor';
+import ErrorBoundary from './Util/ErrorBoundary';
 
 class Editor extends EditorCore {
   constructor () {
@@ -670,231 +671,236 @@ class Editor extends EditorCore {
     window.editor = this;
 
     return (
-      <div>
+      <ErrorBoundary
+        fallback={() => <div>Oops! Something broke</div>}
+        processError={(error, errorInfo)=> null /* save project here */ }
+        >
         <div>
-          <ToastContainer
-           transition={Slide}
-            position="top-right"
-            autoClose={5000}
-            hideProgressBar={false}
-            newestOnTop={false}
-            closeOnClick
-            rtl={false}
-            pauseOnVisibilityChange
-            draggable
-            pauseOnHover
-          />
-            <GlobalHotKeys
-              allowChanges={true}
-              keyMap={this.getKeyMap()}
-              handlers={this.getKeyHandlers()}/>
-              <div id="editor">
-                <input
-                  type='file'
-                  accept={window.Wick.FileAsset.getValidExtensions().join(', ')}
-                  style={{display: 'none'}}
-                  ref={this.importAssetRef}
-                  onChange={this.handleAssetFileImport}
-                />
-                <input
-                  type='file'
-                  accept='.zip, .wick'
-                  style={{display: 'none'}}
-                  ref={this.openFileRef}
-                  onChange={this.handleWickFileLoad}
-                />
-                <div id="menu-bar-container">
-                  <ModalHandler
-                    activeModalName={this.state.activeModalName}
-                    openModal={this.openModal}
-                    closeActiveModal={this.closeActiveModal}
-                    queueModal={this.queueModal}
-                    project={this.project}
-                    createClipFromSelection={this.createClipFromSelection}
-                    createButtonFromSelection={this.createButtonFromSelection}
-                    updateProjectSettings={this.updateProjectSettings}
-                    exportProjectAsGif={this.exportProjectAsAnimatedGIF}
-                    exportProjectAsVideo={this.exportProjectAsVideo}
-                    exportProjectAsStandaloneZip={this.exportProjectAsStandaloneZip}
-                    warningModalInfo={this.state.warningModalInfo}
-                    loadAutosavedProject={this.loadAutosavedProject}
-                    clearAutoSavedProject={this.clearAutoSavedProject}
-                    renderProgress={this.state.renderProgress}
-                    renderStatusMessage={this.state.renderStatusMessage}
-                    renderType={this.state.renderType}
-                    addCustomHotKeys={this.addCustomHotKeys}
-                    resetCustomHotKeys={this.resetCustomHotKeys}
-                    customHotKeys={this.state.customHotKeys}
-                    keyMap={this.getKeyMap()}
+          <div>
+            <ToastContainer
+            transition={Slide}
+              position="top-right"
+              autoClose={5000}
+              hideProgressBar={false}
+              newestOnTop={false}
+              closeOnClick
+              rtl={false}
+              pauseOnVisibilityChange
+              draggable
+              pauseOnHover
+            />
+              <GlobalHotKeys
+                allowChanges={true}
+                keyMap={this.getKeyMap()}
+                handlers={this.getKeyHandlers()}/>
+                <div id="editor">
+                  <input
+                    type='file'
+                    accept={window.Wick.FileAsset.getValidExtensions().join(', ')}
+                    style={{display: 'none'}}
+                    ref={this.importAssetRef}
+                    onChange={this.handleAssetFileImport}
                   />
-                  {/* Header */}
-                  <DockedPanel showOverlay={this.state.previewPlaying}>
-                    <MenuBar
+                  <input
+                    type='file'
+                    accept='.zip, .wick'
+                    style={{display: 'none'}}
+                    ref={this.openFileRef}
+                    onChange={this.handleWickFileLoad}
+                  />
+                  <div id="menu-bar-container">
+                    <ModalHandler
+                      activeModalName={this.state.activeModalName}
                       openModal={this.openModal}
-                      projectName={this.project.name}
-                      openProjectFileDialog={this.openProjectFileDialog}
-                      openNewProjectConfirmation={this.openNewProjectConfirmation}
-                      exportProjectAsWickFile={this.exportProjectAsWickFile}
-                      importProjectAsWickFile={this.importProjectAsWickFile}
-                      toast={this.toast}
-                      openExportOptions={() => {this.openModal('ExportOptions')}}
+                      closeActiveModal={this.closeActiveModal}
+                      queueModal={this.queueModal}
+                      project={this.project}
+                      createClipFromSelection={this.createClipFromSelection}
+                      createButtonFromSelection={this.createButtonFromSelection}
+                      updateProjectSettings={this.updateProjectSettings}
+                      exportProjectAsGif={this.exportProjectAsAnimatedGIF}
+                      exportProjectAsVideo={this.exportProjectAsVideo}
+                      exportProjectAsStandaloneZip={this.exportProjectAsStandaloneZip}
+                      warningModalInfo={this.state.warningModalInfo}
+                      loadAutosavedProject={this.loadAutosavedProject}
+                      clearAutoSavedProject={this.clearAutoSavedProject}
+                      renderProgress={this.state.renderProgress}
+                      renderStatusMessage={this.state.renderStatusMessage}
+                      renderType={this.state.renderType}
+                      addCustomHotKeys={this.addCustomHotKeys}
+                      resetCustomHotKeys={this.resetCustomHotKeys}
+                      customHotKeys={this.state.customHotKeys}
+                      keyMap={this.getKeyMap()}
                     />
-                  </DockedPanel>
-                </div>
-                <div id="editor-body">
-                  <div id="flexible-container">
-                    {/*App*/}
-                    <ReflexContainer windowResizeAware={true} orientation="vertical">
-                      {/* Middle Panel */}
-                      <ReflexElement {...this.resizeProps}>
-                        {/*Toolbox*/}
-                        <div id="toolbox-container">
-                          <DockedPanel showOverlay={this.state.previewPlaying}>
-                            <Toolbox
-                              project={this.state.project}
-                              getActiveToolName={() => this.getActiveTool().name}
-                              activeToolName={this.getActiveTool().name}
-                              setActiveTool={this.setActiveTool}
-                              getToolSetting={this.getToolSetting}
-                              setToolSetting={this.setToolSetting}
-                              previewPlaying={this.state.previewPlaying}
-                              editorActions={this.actionMapInterface.editorActions}
-                              getToolSettingRestrictions={this.getToolSettingRestrictions}
-                              showCanvasActions={this.state.showCanvasActions}
-                              toggleCanvasActions={this.toggleCanvasActions}
-                            />
-                          </DockedPanel>
-                        </div>
-                        <div id="editor-canvas-timeline-panel">
+                    {/* Header */}
+                    <DockedPanel showOverlay={this.state.previewPlaying}>
+                      <MenuBar
+                        openModal={this.openModal}
+                        projectName={this.project.name}
+                        openProjectFileDialog={this.openProjectFileDialog}
+                        openNewProjectConfirmation={this.openNewProjectConfirmation}
+                        exportProjectAsWickFile={this.exportProjectAsWickFile}
+                        importProjectAsWickFile={this.importProjectAsWickFile}
+                        toast={this.toast}
+                        openExportOptions={() => {this.openModal('ExportOptions')}}
+                      />
+                    </DockedPanel>
+                  </div>
+                  <div id="editor-body">
+                    <div id="flexible-container">
+                      {/*App*/}
+                      <ReflexContainer windowResizeAware={true} orientation="vertical">
+                        {/* Middle Panel */}
+                        <ReflexElement {...this.resizeProps}>
+                          {/*Toolbox*/}
+                          <div id="toolbox-container">
+                            <DockedPanel showOverlay={this.state.previewPlaying}>
+                              <Toolbox
+                                project={this.state.project}
+                                getActiveToolName={() => this.getActiveTool().name}
+                                activeToolName={this.getActiveTool().name}
+                                setActiveTool={this.setActiveTool}
+                                getToolSetting={this.getToolSetting}
+                                setToolSetting={this.setToolSetting}
+                                previewPlaying={this.state.previewPlaying}
+                                editorActions={this.actionMapInterface.editorActions}
+                                getToolSettingRestrictions={this.getToolSettingRestrictions}
+                                showCanvasActions={this.state.showCanvasActions}
+                                toggleCanvasActions={this.toggleCanvasActions}
+                              />
+                            </DockedPanel>
+                          </div>
+                          <div id="editor-canvas-timeline-panel">
+                            <ReflexContainer windowResizeAware={true} orientation="horizontal">
+                              {/*Canvas*/}
+                              <ReflexElement {...this.resizeProps}>
+                                <DockedPanel>
+                                  <Canvas
+                                    project={this.project}
+                                    projectDidChange={this.projectDidChange}
+                                    projectData={this.state.project}
+                                    paper={this.paper}
+                                    previewPlaying={this.state.previewPlaying}
+                                    createImageFromAsset={this.createImageFromAsset}
+                                    toast={this.toast}
+                                    onRef={ref => this.canvasComponent = ref}
+                                  />
+                                  <CanvasTransforms
+                                    onionSkinEnabled={this.project.onionSkinEnabled}
+                                    toggleOnionSkin={this.toggleOnionSkin}
+                                    zoomIn={this.zoomIn}
+                                    zoomOut={this.zoomOut}
+                                    recenterCanvas={this.recenterCanvas}
+                                    activeToolName={this.getActiveTool().name}
+                                    setActiveTool={this.setActiveTool}
+                                    previewPlaying={this.state.previewPlaying}
+                                    togglePreviewPlaying={this.togglePreviewPlaying}
+                                  />
+                                </DockedPanel>
+                              </ReflexElement>
+                              <ReflexSplitter {...this.resizeProps}/>
+                              {/*Timeline*/}
+                              <ReflexElement
+                                minSize={100}
+                                size={this.state.timelineSize}
+                                onResize={this.resizeProps.onResize}
+                                onStopResize={this.resizeProps.onStopTimelineResize}>
+                                <DockedPanel  showOverlay={this.state.previewPlaying}>
+                                  <Timeline
+                                    project={this.project}
+                                    projectDidChange={this.projectDidChange}
+                                    projectData={this.state.project}
+                                    getSelectedTimelineObjects={this.getSelectedTimelineObjects}
+                                    setOnionSkinOptions={this.setOnionSkinOptions}
+                                    getOnionSkinOptions={this.getOnionSkinOptions}
+                                    setFocusObject={this.setFocusObject}
+                                    addTweenKeyframe={this.addTweenKeyframe}
+                                    onRef={ref => this.timelineComponent = ref}
+                                    dragSoundOntoTimeline={this.dragSoundOntoTimeline}
+                                  />
+                                </DockedPanel>
+                              </ReflexElement>
+                            </ReflexContainer>
+                          </div>
+                        </ReflexElement>
+
+                        <ReflexSplitter {...this.resizeProps}/>
+
+                        {/* Right Sidebar */}
+                        <ReflexElement
+                          size={250}
+                          maxSize={300} minSize={200}
+                          onResize={this.resizeProps.onResize}
+                          onStopResize={this.resizeProps.onStopInspectorResize}>
                           <ReflexContainer windowResizeAware={true} orientation="horizontal">
-                            {/*Canvas*/}
+                            {/* Inspector */}
                             <ReflexElement {...this.resizeProps}>
-                              <DockedPanel>
-                                <Canvas
+                              <DockedPanel showOverlay={this.state.previewPlaying}>
+                                <Inspector
+                                  getToolSetting={this.getToolSetting}
+                                  setToolSetting={this.setToolSetting}
+                                  getSelectionType={this.getSelectionType}
+                                  getAllSoundAssets={this.getAllSoundAssets}
+                                  getAllSelectionAttributes={this.getAllSelectionAttributes}
+                                  setSelectionAttribute={this.setSelectionAttribute}
+                                  editorActions={this.actionMapInterface.editorActions}
+                                  selectionIsScriptable={this.selectionIsScriptable}
+                                  script={this.getSelectedObjectScript()}
+                                  scriptInfoInterface={this.scriptInfoInterface}
+                                  deleteScript={this.deleteScript}
+                                  editScript={this.editScript}
+                                  fontInfoInterface={this.fontInfoInterface}
                                   project={this.project}
-                                  projectDidChange={this.projectDidChange}
-                                  projectData={this.state.project}
-                                  paper={this.paper}
-                                  previewPlaying={this.state.previewPlaying}
-                                  createImageFromAsset={this.createImageFromAsset}
-                                  toast={this.toast}
-                                  onRef={ref => this.canvasComponent = ref}
-                                />
-                                <CanvasTransforms
-                                  onionSkinEnabled={this.project.onionSkinEnabled}
-                                  toggleOnionSkin={this.toggleOnionSkin}
-                                  zoomIn={this.zoomIn}
-                                  zoomOut={this.zoomOut}
-                                  recenterCanvas={this.recenterCanvas}
-                                  activeToolName={this.getActiveTool().name}
-                                  setActiveTool={this.setActiveTool}
-                                  previewPlaying={this.state.previewPlaying}
-                                  togglePreviewPlaying={this.togglePreviewPlaying}
+                                  importFileAsAsset={this.importFileAsAsset}
                                 />
                               </DockedPanel>
                             </ReflexElement>
+
                             <ReflexSplitter {...this.resizeProps}/>
-                            {/*Timeline*/}
+
+                            {/* Asset Library */}
                             <ReflexElement
                               minSize={100}
-                              size={this.state.timelineSize}
+                              size={this.state.assetLibrarySize}
                               onResize={this.resizeProps.onResize}
-                              onStopResize={this.resizeProps.onStopTimelineResize}>
-                              <DockedPanel  showOverlay={this.state.previewPlaying}>
-                                <Timeline
-                                  project={this.project}
-                                  projectDidChange={this.projectDidChange}
+                              onStopResize={this.resizeProps.onStopAssetLibraryResize}>
+                              <DockedPanel showOverlay={this.state.previewPlaying}>
+                                <AssetLibrary
                                   projectData={this.state.project}
-                                  getSelectedTimelineObjects={this.getSelectedTimelineObjects}
-                                  setOnionSkinOptions={this.setOnionSkinOptions}
-                                  getOnionSkinOptions={this.getOnionSkinOptions}
-                                  setFocusObject={this.setFocusObject}
-                                  addTweenKeyframe={this.addTweenKeyframe}
-                                  onRef={ref => this.timelineComponent = ref}
-                                  dragSoundOntoTimeline={this.dragSoundOntoTimeline}
+                                  assets={this.project.getAssets()}
+                                  openImportAssetFileDialog={this.openImportAssetFileDialog}
+                                  selectObjects={this.selectObjects}
+                                  clearSelection={this.clearSelection}
+                                  isObjectSelected={this.isObjectSelected}
                                 />
                               </DockedPanel>
                             </ReflexElement>
                           </ReflexContainer>
-                        </div>
-                      </ReflexElement>
-
-                      <ReflexSplitter {...this.resizeProps}/>
-
-                      {/* Right Sidebar */}
-                      <ReflexElement
-                        size={250}
-                        maxSize={300} minSize={200}
-                        onResize={this.resizeProps.onResize}
-                        onStopResize={this.resizeProps.onStopInspectorResize}>
-                        <ReflexContainer windowResizeAware={true} orientation="horizontal">
-                          {/* Inspector */}
-                          <ReflexElement {...this.resizeProps}>
-                            <DockedPanel showOverlay={this.state.previewPlaying}>
-                              <Inspector
-                                getToolSetting={this.getToolSetting}
-                                setToolSetting={this.setToolSetting}
-                                getSelectionType={this.getSelectionType}
-                                getAllSoundAssets={this.getAllSoundAssets}
-                                getAllSelectionAttributes={this.getAllSelectionAttributes}
-                                setSelectionAttribute={this.setSelectionAttribute}
-                                editorActions={this.actionMapInterface.editorActions}
-                                selectionIsScriptable={this.selectionIsScriptable}
-                                script={this.getSelectedObjectScript()}
-                                scriptInfoInterface={this.scriptInfoInterface}
-                                deleteScript={this.deleteScript}
-                                editScript={this.editScript}
-                                fontInfoInterface={this.fontInfoInterface}
-                                project={this.project}
-                                importFileAsAsset={this.importFileAsAsset}
-                              />
-                            </DockedPanel>
-                          </ReflexElement>
-
-                          <ReflexSplitter {...this.resizeProps}/>
-
-                          {/* Asset Library */}
-                          <ReflexElement
-                            minSize={100}
-                            size={this.state.assetLibrarySize}
-                            onResize={this.resizeProps.onResize}
-                            onStopResize={this.resizeProps.onStopAssetLibraryResize}>
-                            <DockedPanel showOverlay={this.state.previewPlaying}>
-                              <AssetLibrary
-                                projectData={this.state.project}
-                                assets={this.project.getAssets()}
-                                openImportAssetFileDialog={this.openImportAssetFileDialog}
-                                selectObjects={this.selectObjects}
-                                clearSelection={this.clearSelection}
-                                isObjectSelected={this.isObjectSelected}
-                              />
-                            </DockedPanel>
-                          </ReflexElement>
-                        </ReflexContainer>
-                      </ReflexElement>
-                    </ReflexContainer>
+                        </ReflexElement>
+                      </ReflexContainer>
+                    </div>
                   </div>
                 </div>
-              </div>
-          {this.state.codeEditorOpen &&
-            <PopOutCodeEditor
-              codeEditorWindowProperties={this.state.codeEditorWindowProperties}
-              updateCodeEditorWindowProperties={this.updateCodeEditorWindowProperties}
-              scriptInfoInterface={this.scriptInfoInterface}
-              selectionIsScriptable={this.selectionIsScriptable}
-              getSelectionType={this.getSelectionType}
-              script={this.getSelectedObjectScript()}
-              errors={this.state.codeErrors}
-              onMinorScriptUpdate={this.onMinorScriptUpdate}
-              onMajorScriptUpdate={this.onMajorScriptUpdate}
-              deleteScript={this.deleteScript}
-              scriptToEdit={this.state.scriptToEdit}
-              editScript={this.editScript}
-              toggleCodeEditor={this.toggleCodeEditor}
-              />}
+            {this.state.codeEditorOpen &&
+              <PopOutCodeEditor
+                codeEditorWindowProperties={this.state.codeEditorWindowProperties}
+                updateCodeEditorWindowProperties={this.updateCodeEditorWindowProperties}
+                scriptInfoInterface={this.scriptInfoInterface}
+                selectionIsScriptable={this.selectionIsScriptable}
+                getSelectionType={this.getSelectionType}
+                script={this.getSelectedObjectScript()}
+                errors={this.state.codeErrors}
+                onMinorScriptUpdate={this.onMinorScriptUpdate}
+                onMajorScriptUpdate={this.onMajorScriptUpdate}
+                deleteScript={this.deleteScript}
+                scriptToEdit={this.state.scriptToEdit}
+                editScript={this.editScript}
+                toggleCodeEditor={this.toggleCodeEditor}
+                />}
+          </div>
         </div>
-      </div>
-      )
+      </ErrorBoundary>
+    )
   }
 }
 
