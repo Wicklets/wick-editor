@@ -51,6 +51,7 @@ import Toolbox from './Panels/Toolbox/Toolbox';
 import AssetLibrary from './Panels/AssetLibrary/AssetLibrary';
 import PopOutCodeEditor from './PopOuts/PopOutCodeEditor/PopOutCodeEditor';
 import ErrorBoundary from './Util/ErrorBoundary';
+import ErrorPage from './Util/ErrorPage';
 
 class Editor extends EditorCore {
   constructor () {
@@ -672,8 +673,8 @@ class Editor extends EditorCore {
 
     return (
       <ErrorBoundary
-        fallback={() => <div>Oops! Something broke</div>}
-        processError={(error, errorInfo)=> null /* save project here */ }
+        fallback={ErrorPage}
+        processError={(error, errorInfo) => null /* save project here */ }
         >
         <div>
           <div>
