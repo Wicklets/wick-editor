@@ -1,3 +1,4 @@
+var fs = require('fs');
 var gulp = require('gulp');
 var babel = require("gulp-babel");
 var concat = require('gulp-concat');
@@ -7,7 +8,6 @@ var header = require('gulp-header');
 var mergeStream = require('merge-stream');
 
 gulp.task("default", function() {
-
   /* Generate build number */
   /* Year.Month.Day[micro] */
   var date = new Date();
@@ -16,6 +16,7 @@ gulp.task("default", function() {
   var day = date.getDate();
   var buildString = year + '.' + month + '.' + day;
 
+  /* Concatenate libraries */
   var libs = gulp
     .src([
       'lib/paper.js',
@@ -44,6 +45,7 @@ gulp.task("default", function() {
     ])
     .pipe(concat('libs.js'));
 
+  /* Concatenate + babel engine src */
   var src = gulp
     .src([
       'src/Wick.js',
@@ -56,9 +58,10 @@ gulp.task("default", function() {
       'src/ObjectCache.js',
       'src/Transformation.js',
       'src/GlobalAPI.js',
-      'src/export/AudioTrack.js',
-      'src/export/WickFile.js',
-      'src/export/WickFile.Alpha.js',
+      'src/export/audio/AudioTrack.js',
+      'src/export/wick/WickFile.js',
+      'src/export/wick/WickFile.Alpha.js',
+      'src/export/html/HTMLExport.js',
       'src/base/Base.js',
       'src/base/Layer.js',
       'src/base/Project.js',
@@ -144,8 +147,16 @@ gulp.task("default", function() {
     .pipe(babel())
     .pipe(concat('src.js'));
 
+  /* Write wickengine.js */
   return mergeStream(src, libs)
     .pipe(concat('wickengine.js'))
     .pipe(header('/*Wick Engine https://github.com/Wicklets/wick-engine*/\nvar WICK_ENGINE_BUILD_VERSION = "' + buildString + '";\n'))
-    .pipe(gulp.dest('dist'));
+    .pipe(gulp.dest('dist'))
+    .on('end', () => {
+      /* Generate empty HTML file ready for wick projects to be injected into */
+      var blankHTML = fs.readFileSync('src/export/html/template.html', 'utf8');
+      var engineSRC = fs.readFileSync('dist/wickengine.js', 'utf8');
+      //blankHTML = blankHTML.replace('<!--INJECT_WICKENGINE_HERE-->', engineSRC);
+      fs.writeFileSync('dist/emptyproject.html', blankHTML);
+    });
 });

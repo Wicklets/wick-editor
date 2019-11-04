@@ -46360,7 +46360,7 @@ Wick.HTMLExport = class {
   static bundleProject(project, callback) {
     Wick.WickFile.toWickFile(project, wickFileBase64 => {
       fetch('../dist/emptyproject.html').then(resp => resp.text()).then(text => {
-        text = text.replace('<!--INJECT_WICKPROJECTDATA_HERE-->', wickFileBase64);
+        text = text.replace('<!--INJECT_WICK ' + 'PROJECTDATA_HERE-->', wickFileBase64);
         callback(text);
       }).catch(e => {
         console.error('Wick.HTMLExport: Could not download HTML file template.');

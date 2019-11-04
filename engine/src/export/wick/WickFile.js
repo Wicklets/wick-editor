@@ -110,8 +110,16 @@ Wick.WickFile = class {
      * Create a wick file from the project.
      * @param {Wick.Project} project - the project to create a wick file from
      * @param {function} callback - Function called when the file is created. Contains the file as a parameter.
+     * @param {string} format - The format to return. Can be 'blob' or 'base64'.
      */
-    static toWickFile (project, callback) {
+    static toWickFile (project, callback, format) {
+        if(!format) {
+            format = 'blob';
+        }
+        if(format !== 'blob' && format !== 'base64') {
+            console.error('WickFile.toWickFile: invalid format: ' + format);
+        }
+
         var zip = new JSZip();
 
         // Create assets folder
@@ -174,7 +182,7 @@ Wick.WickFile = class {
         zip.file("project.json", JSON.stringify(projectData, null, 2));
 
         zip.generateAsync({
-            type:"blob",
+            type: format,
             compression: "DEFLATE",
             compressionOptions: {
                 level: 9

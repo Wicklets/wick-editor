@@ -6,29 +6,29 @@
     <head>
         <meta charset="utf-8"/>
         <title>Loading...</title>
-
-        <!--INJECT_WICKENGINE_HERE-->
     </head>
 
+    <!-- The Wick project is bundled here during HTML export. (see src/export/html/HTMLExport.js) -->
     <script>
-      window.INJECTED_WICKPROJECT_DATA = 'INJECT_WICKPROJECT_DATA_HERE';
+        window.INJECTED_WICKPROJECT_DATA = '<!--INJECT_WICKPROJECTDATA_HERE-->';
+    </script>
 
+    <!-- The Wick Engine build is injected here during the engine build step (see gulpfile.js) -->
+    <script>
+        <!--INJECT_WICKENGINE_HERE-->
+    </script>
+
+    <script>
       window.onload = function () {
-        alert('todo parse project data here please');
-        var project = null;
-        playProject(project);
+          Wick.WickFile.fromWickFile(window.INJECTED_WICKPROJECT_DATA, project => {
+              playProject(project);
+          });
       }
 
       function playProject (project) {
-          window.project = project;
-
           document.title = project.name;
 
-          var container = document.getElementById('wick-canvas-container')
-          container.innerHTML = '';
-
-          project.view.renderMode = 'webgl';
-          project.view.canvasContainer = container;
+          project.view.canvasContainer = document.getElementById('wick-canvas-container');
           project.view.fitMode = 'fill';
           project.view.canvasBGColor = '#000000';
 
@@ -55,19 +55,19 @@
     </script>
 
     <body>
-      <style>
-        body, html {
-            margin: 0px;
-            width: 100%;
-            height: 100%;
-        }
+        <style>
+            body, html {
+                margin: 0px;
+                width: 100%;
+                height: 100%;
+            }
 
-        #wick-canvas-container {
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-        }
-      </style>
-      <div id="wick-canvas-container"></div>
+            #wick-canvas-container {
+                width: 100%;
+                height: 100%;
+                overflow: hidden;
+            }
+        </style>
+        <div id="wick-canvas-container"></div>
     </body>
 </html>

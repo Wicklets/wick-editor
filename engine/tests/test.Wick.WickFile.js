@@ -20,6 +20,20 @@ describe('Wick.WickFile', function () {
             });
         });
 
+        it('should write a base64 wick project without errors', function (done) {
+            Wick.ObjectCache.clear();
+
+            var project = new Wick.Project();
+
+            Wick.WickFile.toWickFile(project, wickFile => {
+                expect(wickFile.length).not.to.equal(null);
+                expect(wickFile.length).not.to.equal(undefined);
+                expect(typeof wickFile).to.equal('string');
+                expect(wickFile.length).not.to.equal(0);
+                done();
+            }, 'base64');
+        });
+
         it('should create and load a project from a wick file correctly with assets', function (done) {
             Wick.ObjectCache.clear();
             Wick.FileCache.clear();

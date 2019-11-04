@@ -8,124 +8,114 @@
       <title>Loading...</title>
 
       <script src="preloadjs.min.js"/>
-      <script src="downloadproject.js"/>
     </head>
 
     <script>
       window.onload = function () {
-        function handleComplete () {
-            var projectData = queue.getResult("project");
-            Wick.WickFile.fromWickFile(new Blob([new Uint8Array(projectData)]), project => {
-                alert('todo: please inject html into iframe here')
-            });
-        }
-
-        function handleProgress(event) {
-            let container = document.getElementById("loading-bar");
-            container.innerHTML = "Loading... " + ((event.loaded * 100).toFixed(1)) + '%';
-        }
-
-        var queue = new createjs.LoadQueue();
-        queue.on("complete", onPreloadComplete, this);
-        queue.on("progress", onPreloadProgress, this);
-        queue.loadManifest([
-            {id: "project", src: "project.html", type:createjs.Types.BINARY},
-        ]);
+          var queue = new createjs.LoadQueue();
+          queue.on("complete", onPreloadComplete, this);
+          queue.on("progress", onPreloadProgress, this);
+          queue.loadManifest([
+              {id: "projectwick", src: "project.wick", type: createjs.Types.BINARY},
+              {id: "projecthtml", src: "project.html", type: createjs.Types.BINARY},
+          ]);
       }
 
       function onPreloadComplete () {
-        var projectData = queue.getResult("project");
-        Wick.WickFile.fromWickFile(new Blob([new Uint8Array(projectData)]), project => {
-            playProject(project);
-        });
+          var projectData = queue.getResult("project");
+          var projectBlob = new Blob([new Uint8Array(projectData)]);
+          Wick.WickFile.fromWickFile(projectBlob, project => {
+              document.title = project.name;
+              console.error('somehow inject project.html into iframe');
+              console.error('send base64 project into project iframe (set INJECTED_WICKPROJECT_DATA)');
+          });
       }
 
       function onPreloadProgress(event) {
-        let container = document.getElementById("loading-bar");
-        container.innerHTML = "Loading... " + ((event.loaded * 100).toFixed(1)) + '%';
+          let container = document.getElementById("loading-bar");
+          container.innerHTML = "Loading... " + ((event.loaded * 100).toFixed(1)) + '%';
       }
     </script>
 
     <body>
+        <style>
+            body, html {
+                margin: 0px;
+                width: 100%;
+                height: 100%;
+                background-color: black;
+            }
 
-      <style>
-        body, html {
-            margin: 0px;
-            width: 100%;
-            height: 100%;
-            background-color: black;
-        }
+            #wick-canvas-container {
+                width: 100%;
+                height: 100%;
+                overflow: hidden;
+            }
 
-        #wick-canvas-container {
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-        }
+            #preloader {
+                width: 100%;
+                height: 100%;
+                margin: 0px;
+                background-color: #1EE29A;
+                font-family: sans-serif;
+            }
 
-        #preloader {
-            width: 100%;
-            height: 100%;
-            margin: 0px;
-            background-color: #1EE29A;
-            font-family: sans-serif;
-        }
+            #loading-bar {
+                text-align: center;
+                vertical-align: center;
+            }
 
-        #loading-bar {
-            text-align: center;
-            vertical-align: center;
-        }
+            .animated {
+                animation-iteration-count: infinite;
+            }
 
-        .animated {
-            animation-iteration-count: infinite;
-        }
+            .flashy {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                margin-left: -50px;
+                margin-top: -50px;
+                width: 100px;
+                height: 100px;
+                animation: float .6s ease-in-out infinite alternate;
+            }
 
-        .flashy {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            margin-left: -50px;
-            margin-top: -50px;
-            width: 100px;
-            height: 100px;
-            animation: float .6s ease-in-out infinite alternate;
-        }
+            .shadow {
+                position: absolute;
+                top: calc(50% + 70px);
+                left: 50%;
+                margin-left: -45px;
+                margin-top: -22.5px;
+                width: 90px;
+                height: 45px;
+                animation: pulse .6s ease-in-out infinite alternate;
+            }
 
-        .shadow {
-            position: absolute;
-            top: calc(50% + 70px);
-            left: 50%;
-            margin-left: -45px;
-            margin-top: -22.5px;
-            width: 90px;
-            height: 45px;
-            animation: pulse .6s ease-in-out infinite alternate;
-        }
+            .text {
+                position: absolute;
+                top: calc(50% + 100px);
+                left: 50%;
+                margin-left: -100px;
+                width: 200px;
+                height: 30px;
+                animation: pulse 1.2s ease-in-out infinite alternate;
+                color: white;
+                font-size: 20px;
+            }
 
-        .text {
-            position: absolute;
-            top: calc(50% + 100px);
-            left: 50%;
-            margin-left: -100px;
-            width: 200px;
-            height: 30px;
-            animation: pulse 1.2s ease-in-out infinite alternate;
-            color: white;
-            font-size: 20px;
-        }
+            @keyframes float {
+                0% {top: 48%;}
+                100% {top:50%;}
+            }
 
-        @keyframes float {
-            0% {top: 48%;}
-            100% {top:50%;}
-        }
+            @keyframes pulse {
+                0% {transform: scale3d(.9, .9, .9);}
+                100% { transform: scale3d(1, 1, 1); }
+            }
+        </style>
 
-        @keyframes pulse {
-            0% {transform: scale3d(.9, .9, .9);}
-            100% { transform: scale3d(1, 1, 1); }
-        }
-      </style>
-      
-      <!-- Preloader -->
-      <div id="preloader">
+        <!-- Preloader -->
+        <div id="preloader">
           <div class="flashy">
             <svg viewBox="0 0 399 405" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                 <g id="Style-Guide" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
