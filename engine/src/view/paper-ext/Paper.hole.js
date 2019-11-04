@@ -38,6 +38,7 @@
     var RASTER_BASE_RESOLUTION = 3;
     var FILL_TOLERANCE = 0;
     var EXPAND_AMT = 0.85;
+    var GAP_FILL_MARGIN = 1;
 
     var onError;
     var onFinish;
@@ -48,7 +49,6 @@
     var floodFillY;
 
     var bgColor;
-    var gapFillMargin;
 
     function previewImage (image) {
         var win = window.open('', 'Title', 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, width='+image.width+', height='+image.height+', top=100, left=100');
@@ -66,9 +66,9 @@
                     //experiment: bump out all strokes a bit by expanding their stroke widths
                     if(!clone.strokeColor && clone.fillColor) {
                         clone.strokeColor = clone.fillColor;
-                        clone.strokeWidth = gapFillMargin / RASTER_BASE_RESOLUTION;
+                        clone.strokeWidth = GAP_FILL_MARGIN / RASTER_BASE_RESOLUTION;
                     } else if(clone.strokeWidth) {
-                        clone.strokeWidth += gapFillMargin / RASTER_BASE_RESOLUTION;
+                        clone.strokeWidth += GAP_FILL_MARGIN / RASTER_BASE_RESOLUTION;
                     }
 
                     layerGroup.addChild(clone);
@@ -247,7 +247,6 @@
             if(!args.onError) console.error('paper.hole: args.onError is required');
             if(!args.bgColor) console.error('paper.hole: args.bgColor is required');
             if(!args.layers) console.error('paper.hole: args.layers is required');
-            if(!args.gapFillMargin) console.error('paper.hole: args.gapFillMargin is required');
 
             onFinish = args.onFinish;
             onError = args.onError;
@@ -257,7 +256,6 @@
             floodFillY = args.point.y;
 
             bgColor = args.bgColor;
-            gapFillMargin = args.gapFillMargin;
 
             rasterizePaths(onFinish);
         }

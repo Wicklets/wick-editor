@@ -553,6 +553,10 @@ Wick.Tickable = class extends Wick.Base {
             var lineInt = parseInt(lineString);
             if(!isNaN(lineInt)) {
                 lineNumber = lineInt-2;
+                lineNumber = lineInt;
+                if(platform.name === 'Firefox') {
+                    lineNumber = lineNumber - 2;
+                }
             }
         });
 
