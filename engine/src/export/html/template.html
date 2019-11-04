@@ -22,7 +22,7 @@
       window.onload = function () {
           Wick.WickFile.fromWickFile(window.INJECTED_WICKPROJECT_DATA, project => {
               playProject(project);
-          });
+          }, 'base64');
       }
 
       function playProject (project) {

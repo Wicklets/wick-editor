@@ -20,7 +20,7 @@ describe('Wick.WickFile', function () {
             });
         });
 
-        it('should write a base64 wick project without errors', function (done) {
+        it('should read/write a base64 wick project without errors', function (done) {
             Wick.ObjectCache.clear();
 
             var project = new Wick.Project();
@@ -30,7 +30,17 @@ describe('Wick.WickFile', function () {
                 expect(wickFile.length).not.to.equal(undefined);
                 expect(typeof wickFile).to.equal('string');
                 expect(wickFile.length).not.to.equal(0);
-                done();
+
+                Wick.ObjectCache.clear();
+                Wick.WickFile.fromWickFile(wickFile, loadedProject => {
+                    expect(loadedProject instanceof Wick.Project).to.equal(true);
+                    expect(loadedProject.selection.parent).to.equal(loadedProject);
+                    expect(loadedProject.selection.project).to.equal(loadedProject);
+                    expect(loadedProject.root.parent).to.equal(loadedProject);
+                    expect(loadedProject.root.project).to.equal(loadedProject);
+                    expect(loadedProject.getAssets().length).to.equal(0);
+                    done();
+                }, 'base64');
             }, 'base64');
         });
 
