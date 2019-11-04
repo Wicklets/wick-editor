@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2019.10.22";
+var WICK_ENGINE_BUILD_VERSION = "2019.11.4";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -51785,6 +51785,11 @@ Wick.Tickable = class extends Wick.Base {
 
       if (!isNaN(lineInt)) {
         lineNumber = lineInt - 2;
+        lineNumber = lineInt;
+
+        if (platform.name === 'Firefox') {
+          lineNumber = lineNumber - 2;
+        }
       }
     });
     return lineNumber;
@@ -54453,7 +54458,6 @@ Wick.Tools.FillBucket = class extends Wick.Tool {
       this.paper.hole({
         point: e.point,
         bgColor: new paper.Color(this.project.backgroundColor),
-        gapFillMargin: 1,
         layers: this.project.activeFrames.map(frame => {
           return frame.view.pathsLayer;
         }),
@@ -55609,13 +55613,13 @@ Wick.Tools.Zoom = class extends Wick.Tool {
   var RASTER_BASE_RESOLUTION = 3;
   var FILL_TOLERANCE = 0;
   var EXPAND_AMT = 0.85;
+  var GAP_FILL_MARGIN = 1;
   var onError;
   var onFinish;
   var layers;
   var floodFillX;
   var floodFillY;
   var bgColor;
-  var gapFillMargin;
 
   function previewImage(image) {
     var win = window.open('', 'Title', 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, width=' + image.width + ', height=' + image.height + ', top=100, left=100');
@@ -55637,9 +55641,9 @@ Wick.Tools.Zoom = class extends Wick.Tool {
 
           if (!clone.strokeColor && clone.fillColor) {
             clone.strokeColor = clone.fillColor;
-            clone.strokeWidth = gapFillMargin / RASTER_BASE_RESOLUTION;
+            clone.strokeWidth = GAP_FILL_MARGIN / RASTER_BASE_RESOLUTION;
           } else if (clone.strokeWidth) {
-            clone.strokeWidth += gapFillMargin / RASTER_BASE_RESOLUTION;
+            clone.strokeWidth += GAP_FILL_MARGIN / RASTER_BASE_RESOLUTION;
           }
 
           layerGroup.addChild(clone);
@@ -55826,14 +55830,12 @@ Wick.Tools.Zoom = class extends Wick.Tool {
       if (!args.onError) console.error('paper.hole: args.onError is required');
       if (!args.bgColor) console.error('paper.hole: args.bgColor is required');
       if (!args.layers) console.error('paper.hole: args.layers is required');
-      if (!args.gapFillMargin) console.error('paper.hole: args.gapFillMargin is required');
       onFinish = args.onFinish;
       onError = args.onError;
       layers = args.layers;
       floodFillX = args.point.x;
       floodFillY = args.point.y;
       bgColor = args.bgColor;
-      gapFillMargin = args.gapFillMargin;
       rasterizePaths(onFinish);
     }
   });
