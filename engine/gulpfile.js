@@ -156,7 +156,8 @@ gulp.task("default", function() {
       /* Generate empty HTML file ready for wick projects to be injected into */
       var blankHTML = fs.readFileSync('src/export/html/template.html', 'utf8');
       var engineSRC = fs.readFileSync('dist/wickengine.js', 'utf8');
-      //blankHTML = blankHTML.replace('<!--INJECT_WICKENGINE_HERE-->', engineSRC);
+      var engineSRCSafe = engineSRC.replace(/\$/g, "$$$"); // http://forums.mozillazine.org/viewtopic.php?f=19&t=2182187
+      blankHTML = blankHTML.replace('<!--INJECT_WICKENGINE_HERE-->', engineSRCSafe);
       fs.writeFileSync('dist/emptyproject.html', blankHTML);
     });
 });
