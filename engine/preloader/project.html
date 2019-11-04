@@ -1,0 +1,73 @@
+</body>
+</html>
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8"/>
+        <title>Loading...</title>
+
+        <!--INJECT_WICKENGINE_HERE-->
+    </head>
+
+    <script>
+      window.INJECTED_WICKPROJECT_DATA = 'INJECT_WICKPROJECT_DATA_HERE';
+
+      window.onload = function () {
+        alert('todo parse project data here please');
+        var project = null;
+        playProject(project);
+      }
+
+      function playProject (project) {
+          window.project = project;
+
+          document.title = project.name;
+
+          var container = document.getElementById('wick-canvas-container')
+          container.innerHTML = '';
+
+          project.view.renderMode = 'webgl';
+          project.view.canvasContainer = container;
+          project.view.fitMode = 'fill';
+          project.view.canvasBGColor = '#000000';
+
+          window.onresize = function () {
+              project.view.resize();
+          }
+          project.view.resize();
+          this.project.view.prerender();
+
+          project.focus = project.root;
+          project.focus.timeline.playheadPosition = 1;
+
+          project.publishedMode = true;
+          project.play({
+              onAfterTick: (() => {
+                  project.view.render();
+              }),
+              onError: (error => {
+                  console.error('Project threw an error!');
+                  console.error(error);
+              }),
+          });
+      }
+    </script>
+
+    <body>
+      <style>
+        body, html {
+            margin: 0px;
+            width: 100%;
+            height: 100%;
+        }
+
+        #wick-canvas-container {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+      </style>
+      <div id="wick-canvas-container"></div>
+    </body>
+</html>

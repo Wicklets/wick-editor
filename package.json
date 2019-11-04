@@ -42,7 +42,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build && cp CNAME_editor ./build/CNAME",
-    "build-engine": "cd engine; mkdir dist/; gulp; cp dist/wickengine.js ../public/corelibs/wick-engine/wickengine.js; rm dist/wickengine.js;",
+    "build-engine": "cd engine; mkdir dist/; gulp; cp dist/wickengine.js ../public/corelibs/wick-engine/wickengine.js;",
     "build-electron-macos": "electron-packager . 'Wick Editor' --ignore=node_modules --icon=public/icon.icns--platform=darwin --out build-electron",
     "build-electron-windows": "electron-packager . wickwindows --ignore=node_modules --icon=public/icon.ico --platform=win32 --out build-electron",
     "build-ios": "cp -r build/* build-ios/WebViewExample/local_html",
