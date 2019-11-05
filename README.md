@@ -1,6 +1,7 @@
 <h1 align="center">
   <br>
   <a href="https://editor.wickeditor.com/"><img src=".github/images/logo.svg" alt="Wick Editor" width="25%"></a>
+  <br>
 </h1>
 
 <p align="center">
