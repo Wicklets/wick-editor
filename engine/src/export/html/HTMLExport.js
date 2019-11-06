@@ -23,7 +23,7 @@
 Wick.HTMLExport = class {
     static bundleProject (project, callback) {
         Wick.WickFile.toWickFile(project, wickFileBase64 => {
-            fetch('../dist/emptyproject.html')
+            fetch(Wick.resourcepath + 'emptyproject.html')
                 .then(resp => resp.text())
                 .then(text => {
                     text = text.replace('<!--INJECT_WICKPROJECTDATA_HERE-->', wickFileBase64);

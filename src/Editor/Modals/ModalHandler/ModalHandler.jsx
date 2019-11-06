@@ -64,6 +64,7 @@ class ModalHandler extends Component {
           toggle={this.props.closeActiveModal}
           exportProjectAsGif={this.props.exportProjectAsGif}
           exportProjectAsStandaloneZip={this.props.exportProjectAsStandaloneZip}
+          exportProjectAsStandaloneHTML={this.props.exportProjectAsStandaloneHTML}
           exportProjectAsVideo={this.props.exportProjectAsVideo}
           open={this.props.activeModalName === 'ExportOptions'}
           projectName={this.props.project.name}

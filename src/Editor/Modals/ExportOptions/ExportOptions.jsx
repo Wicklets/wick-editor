@@ -59,8 +59,7 @@ class ExportOptions extends Component {
       this.props.exportProjectAsStandaloneZip(name);
       this.props.toggle();
     } else if (type === 'HTML') {
-      // this.props.exportProjectAsHTML(name);
-      console.warn("HTML Export Coming Soon");
+      this.props.exportProjectAsStandaloneHTML(name);
       this.props.toggle();
     }
   }
@@ -171,8 +170,8 @@ class ExportOptions extends Component {
         </div>
         <div className="export-info-item">
           <ObjectInfo
-            className="export-object-info export-object-info-off"
-            title="HTML (Coming Soon)"
+            className="export-object-info"
+            title="HTML"
             rows={[
               {
                 text: "1-Click open",
@@ -190,19 +189,14 @@ class ExportOptions extends Component {
           </ObjectInfo>
           <div className="export-modal-button-container">
             <ActionButton
-              id="export-gif-action-button"
-              className="export-modal-button"
-              color='gray'
+              color='gray-green'
               action={() => { this.createAndToggle("HTML") }}
-              tooltipPlace="top"
-              tooltip={"Coming soon!"}
               text="Export HTML"
-              disabled={true}
-              />
+            />
           </div>
         </div>
       </div>
-    ); 
+    );
   }
 
   render() {
