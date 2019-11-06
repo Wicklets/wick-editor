@@ -1,22 +1,4 @@
-</body>
-</html>
-
-<!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="utf-8"/>
-        <title>Loading...</title>
-    </head>
-
-    <body>
-        <!-- The Wick project is bundled here during HTML export. (see src/export/html/HTMLExport.js) -->
-        <script>
-            window.INJECTED_WICKPROJECT_DATA = '<!--INJECT_WICKPROJECTDATA_HERE-->';
-        </script>
-
-        <!-- The Wick Engine build is injected here during the engine build step (see gulpfile.js) -->
-        <script>
-            /*Wick Engine https://github.com/Wicklets/wick-engine*/
+/*Wick Engine https://github.com/Wicklets/wick-engine*/
 var WICK_ENGINE_BUILD_VERSION = "2019.11.6";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
@@ -46435,7 +46417,7 @@ Wick.ZIPExport = class {
 
   static _downloadDependenciesFiles(done) {
     var list = [];
-    var urls = ["index.html", "project.html", "preloadjs.min.js", "wickengine.js"];
+    var urls = ["index.html", "preloadjs.min.js", "wickengine.js"];
     var results = [];
     urls.forEach(function (url, i) {
       list.push(fetch(Wick.resourcepath + url).then(function (res) {
@@ -61770,57 +61752,3 @@ Wick.GUIElement.TweenGhost = class extends Wick.GUIElement.Ghost {
   }
 
 };
-        </script>
-
-        <script>
-          window.addEventListener('load', function() {
-              Wick.WickFile.fromWickFile(window.INJECTED_WICKPROJECT_DATA, project => {
-                  playProject(project);
-              }, 'base64');
-          }, false);
-
-          function playProject (project) {
-              document.title = project.name;
-
-              project.view.canvasContainer = document.getElementById('wick-canvas-container');
-              project.view.fitMode = 'fill';
-              project.view.canvasBGColor = '#000000';
-
-              window.onresize = function () {
-                  project.view.resize();
-              }
-              project.view.resize();
-              project.view.prerender();
-
-              project.focus = project.root;
-              project.focus.timeline.playheadPosition = 1;
-
-              project.publishedMode = true;
-              project.play({
-                  onAfterTick: (() => {
-                      project.view.render();
-                  }),
-                  onError: (error => {
-                      console.error('Project threw an error!');
-                      console.error(error);
-                  }),
-              });
-          }
-        </script>
-
-        <style>
-            body, html {
-                margin: 0px;
-                width: 100%;
-                height: 100%;
-            }
-
-            #wick-canvas-container {
-                width: 100%;
-                height: 100%;
-                overflow: hidden;
-            }
-        </style>
-        <div id="wick-canvas-container"></div>
-    </body>
-</html>

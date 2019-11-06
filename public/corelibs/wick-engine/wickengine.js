@@ -46417,7 +46417,7 @@ Wick.ZIPExport = class {
 
   static _downloadDependenciesFiles(done) {
     var list = [];
-    var urls = ["index.html", "preloadjs.min.js", "wickengine.js"];
+    var urls = ["index.html", "project.html", "preloadjs.min.js", "wickengine.js"];
     var results = [];
     urls.forEach(function (url, i) {
       list.push(fetch(Wick.resourcepath + url).then(function (res) {

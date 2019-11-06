@@ -33,6 +33,7 @@ Wick.ZIPExport = class {
       var list = [];
       var urls = [
           "index.html",
+          "project.html",
           "preloadjs.min.js",
           "wickengine.js",
       ];
