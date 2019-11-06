@@ -22,6 +22,7 @@
  */
 Wick = {
     version: window.WICK_ENGINE_BUILD_VERSION || "dev",
+    resourcepath: '../dist/',
 }
 
 console.log('Wick Engine version "' + Wick.version + '" is available.');

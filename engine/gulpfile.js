@@ -16,7 +16,7 @@ gulp.task("default", function() {
   var day = date.getDate();
   var buildString = year + '.' + month + '.' + day;
 
-  /* Concatenate libraries */
+  /* Libraries */
   var libs = gulp
     .src([
       'lib/paper.js',
@@ -45,7 +45,7 @@ gulp.task("default", function() {
     ])
     .pipe(concat('libs.js'));
 
-  /* Concatenate + babel engine src */
+  /* Engine */
   var src = gulp
     .src([
       'src/Wick.js',
@@ -62,6 +62,7 @@ gulp.task("default", function() {
       'src/export/wick/WickFile.js',
       'src/export/wick/WickFile.Alpha.js',
       'src/export/html/HTMLExport.js',
+      'src/export/zip/ZIPExport.js',
       'src/base/Base.js',
       'src/base/Layer.js',
       'src/base/Project.js',
@@ -159,5 +160,11 @@ gulp.task("default", function() {
       var engineSRCSafe = engineSRC.replace(/\$/g, "$$$"); // http://forums.mozillazine.org/viewtopic.php?f=19&t=2182187
       blankHTML = blankHTML.replace('<!--INJECT_WICKENGINE_HERE-->', engineSRCSafe);
       fs.writeFileSync('dist/emptyproject.html', blankHTML);
+
+      /* Copy ZIP export resources to dist folder */
+      var zipindex = fs.readFileSync('src/export/zip/index.html', 'utf8');
+      var preloadjs = fs.readFileSync('src/export/zip/preloadjs.min.js', 'utf8');
+      fs.writeFileSync('dist/index.html', zipindex);
+      fs.writeFileSync('dist/preloadjs.min.js', preloadjs);
     });
 });
