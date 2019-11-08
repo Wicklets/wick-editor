@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2019.11.7";
+var WICK_ENGINE_BUILD_VERSION = "2019.11.8";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -46417,7 +46417,7 @@ Wick.ZIPExport = class {
 
   static _downloadDependenciesFiles(done) {
     var list = [];
-    var urls = ["index.html", "project.html", "preloadjs.min.js", "wickengine.js"];
+    var urls = ["index.html", "preloadjs.min.js", "wickengine.js"];
     var results = [];
     urls.forEach(function (url, i) {
       list.push(fetch(Wick.resourcepath + url).then(function (res) {
@@ -48355,6 +48355,37 @@ Wick.Project = class extends Wick.Base {
     var currentPlayhead = this.focus.timeline.playheadPosition;
     this.history.loadSnapshot('state-before-play');
     this.focus.timeline.playheadPosition = currentPlayhead;
+  }
+  /**
+   * Inject the project into an element on a webpage and start playing the project.
+   * @param {Element} element - the element to inject the project into
+   */
+
+
+  inject(element) {
+    document.title = this.name;
+    this.view.canvasContainer = element;
+    this.view.fitMode = 'fill';
+    this.view.canvasBGColor = '#000000';
+
+    window.onresize = function () {
+      project.view.resize();
+    };
+
+    this.view.resize();
+    this.view.prerender();
+    this.focus = this.root;
+    this.focus.timeline.playheadPosition = 1;
+    this.publishedMode = true;
+    this.play({
+      onAfterTick: () => {
+        this.view.render();
+      },
+      onError: error => {
+        console.error('Project threw an error!');
+        console.error(error);
+      }
+    });
   }
   /**
    * Resets zoom and pan.

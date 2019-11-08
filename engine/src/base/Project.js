@@ -1080,6 +1080,38 @@ Wick.Project = class extends Wick.Base {
     }
 
     /**
+     * Inject the project into an element on a webpage and start playing the project.
+     * @param {Element} element - the element to inject the project into
+     */
+    inject (element) {
+        document.title = this.name;
+
+        this.view.canvasContainer = element;
+        this.view.fitMode = 'fill';
+        this.view.canvasBGColor = '#000000';
+
+        window.onresize = function () {
+            project.view.resize();
+        }
+        this.view.resize();
+        this.view.prerender();
+
+        this.focus = this.root;
+        this.focus.timeline.playheadPosition = 1;
+
+        this.publishedMode = true;
+        this.play({
+            onAfterTick: (() => {
+                this.view.render();
+            }),
+            onError: (error => {
+                console.error('Project threw an error!');
+                console.error(error);
+            }),
+        });
+    }
+
+    /**
      * Resets zoom and pan.
      */
     recenter () {

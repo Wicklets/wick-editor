@@ -22,37 +22,9 @@
         <script>
           window.addEventListener('load', function() {
               Wick.WickFile.fromWickFile(window.INJECTED_WICKPROJECT_DATA, project => {
-                  playProject(project);
+                  project.inject(document.getElementById('wick-canvas-container'));
               }, 'base64');
           }, false);
-
-          function playProject (project) {
-              document.title = project.name;
-
-              project.view.canvasContainer = document.getElementById('wick-canvas-container');
-              project.view.fitMode = 'fill';
-              project.view.canvasBGColor = '#000000';
-
-              window.onresize = function () {
-                  project.view.resize();
-              }
-              project.view.resize();
-              project.view.prerender();
-
-              project.focus = project.root;
-              project.focus.timeline.playheadPosition = 1;
-
-              project.publishedMode = true;
-              project.play({
-                  onAfterTick: (() => {
-                      project.view.render();
-                  }),
-                  onError: (error => {
-                      console.error('Project threw an error!');
-                      console.error(error);
-                  }),
-              });
-          }
         </script>
 
         <style>

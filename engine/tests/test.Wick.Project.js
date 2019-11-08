@@ -673,6 +673,12 @@ describe('Wick.Project', function() {
         });
     });
 
+    describe('#inject', function () {
+        it('should inject into a div correctly', function () {
+            throw new Error("todo");
+        });
+    });
+
     describe('#getAllFrames', function () {
         it('should return all frames in the project', function () {
             var project = new Wick.Project();
