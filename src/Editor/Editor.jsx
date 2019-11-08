@@ -55,6 +55,9 @@ class Editor extends EditorCore {
   constructor () {
     super();
 
+    // Set path for engine dependencies
+    window.Wick.resourcepath = 'corelibs/wick-engine/';
+
     // "Live" editor states
     this.project = null;
     this.paper = null;

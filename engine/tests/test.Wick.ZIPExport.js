@@ -5,7 +5,7 @@ describe('Wick.ZIPExport', function () {
         var project = new Wick.Project();
 
         Wick.ZIPExport.bundleProject(project, zip => {
-            saveAs(zip, 'project.zip');
+            //saveAs(zip, 'project.zip');
             done();
         });
     });

@@ -934,11 +934,11 @@ class EditorCore extends Component {
   exportProjectAsStandaloneHTML = (name) => {
     let toastID = this.toast('Exporting project as HTML...', 'info');
     let outputName = name || this.project.name;
-    window.Wick.HTMLExport.bundleProject(this.project, blob => {
+    window.Wick.HTMLExport.bundleProject(this.project, html => {
       this.updateToast(toastID, {
         type: 'success',
         text: "Successfully created .html file." });
-      saveAs(blob, outputName + '.html');
+      saveAs(new Blob([html], {type: "text/plain"}), outputName + '.html');
     });
   }
 
