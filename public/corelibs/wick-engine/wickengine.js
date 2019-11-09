@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2019.11.8";
+var WICK_ENGINE_BUILD_VERSION = "2019.11.9";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -45855,496 +45855,82 @@ GlobalAPI.Random = class {
  * You should have received a copy of the GNU General Public License
  * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
  */
-Wick.AudioTrack = class {
-  /**
-   * @type {Wick.Project}
-   */
-  get project() {
-    return this._project;
-  }
-
-  set project(project) {
-    this._project = project;
-  }
-  /**
-   * Create a new AudioTrack
-   * @param {Wick.Project} project - the project to use audio from
-   */
-
-
-  constructor(project) {
-    this._project = project;
-  }
-  /**
-   * Generate an AudioBuffer of all the project's sounds as one audio track.
-   * @param {Function} callback -
-   */
-
-
-  toAudioBuffer(callback) {
-    var audioInfo = this.project.getAudioInfo();
-
-    if (audioInfo.length === 0) {
-      console.error("Wick.AudioTrack: Project has no audio, cannot create an audiobuffer!");
-      callback(null);
-      return;
-    }
-
-    Wick.AudioTrack.generateProjectAudioBuffer(audioInfo, audioArraybuffer => {
-      callback(audioArraybuffer);
-    });
-  }
-  /**
-   * Create an AudioBuffer from given sounds.
-   * @param {object} projectAudioInfo - info generated from Wick.Project.getAudioInfo
-   * @param {Function} callback - callback to recieve the generated AudioBuffer
-   */
-
-
-  static generateProjectAudioBuffer(projectAudioInfo, callback) {
-    window.AudioContext = window.AudioContext || window.webkitAudioContext;
-    var ctx = new AudioContext();
-    let audiobuffers = [];
-
-    let prepareNextAudioInfo = () => {
-      if (projectAudioInfo.length === 0) {
-        mergeAudio();
-      } else {
-        var audioInfo = projectAudioInfo.pop();
-        this.base64ToAudioBuffer(audioInfo.src, ctx, audiobuffer => {
-          let delayedAudiobuffer = this.addStartDelayToAudioBuffer(audiobuffer, audioInfo.start / 1000, ctx);
-          audiobuffers.push(delayedAudiobuffer);
-          prepareNextAudioInfo();
-        });
-      }
-    };
-
-    let mergeAudio = () => {
-      let mergedAudioBuffer = this.mergeBuffers(audiobuffers, ctx);
-      callback(mergedAudioBuffer);
-    };
-
-    prepareNextAudioInfo();
-  }
-  /*
-   * Merges multiple audiobuffers into a single audiobuffer.
-   * @param {AudioBuffer[]} buffers - the AudioBuffers to merge together
-   * @param {AudioContext} ac - An AudioContext instance
-   */
-
-
-  static mergeBuffers(buffers, ac) {
-    // original function from:
-    // https://github.com/meandavejustice/merge-audio-buffers/blob/master/index.js
-    var maxChannels = 0;
-    var maxDuration = 0;
-
-    for (let i = 0; i < buffers.length; i++) {
-      if (buffers[i].numberOfChannels > maxChannels) {
-        maxChannels = buffers[i].numberOfChannels;
-      }
-
-      if (buffers[i].duration > maxDuration) {
-        maxDuration = buffers[i].duration;
-      }
-    }
-
-    var out = ac.createBuffer(maxChannels, ac.sampleRate * maxDuration, ac.sampleRate);
-
-    for (var j = 0; j < buffers.length; j++) {
-      for (var srcChannel = 0; srcChannel < buffers[j].numberOfChannels; srcChannel++) {
-        var outt = out.getChannelData(srcChannel);
-        var inn = buffers[j].getChannelData(srcChannel);
-
-        for (let i = 0; i < inn.length; i++) {
-          outt[i] += inn[i];
-        }
-
-        out.getChannelData(srcChannel).set(outt, 0);
-      }
-    }
-
-    return out;
-  }
-  /**
-   * Adds silence to the beginning of an AudioBuffer with a given length.
-   * @param {AudioBuffer} originalBuffer - the buffer to update
-   * @param {number} delaySeconds - the amount of time, in seconds, to delay the sound
-   * @param {AudioContext} ctx - An AudioContext instance
-   */
-
-
-  static addStartDelayToAudioBuffer(originalBuffer, delaySeconds, ctx) {
-    // Create buffer with a length equal to the original buffer's length plus the requested delay
-    var delayedBuffer = ctx.createBuffer(originalBuffer.numberOfChannels, ctx.sampleRate * originalBuffer.duration + ctx.sampleRate * delaySeconds, ctx.sampleRate); // For each channel in the audiobuffer...
-
-    for (var srcChannel = 0; srcChannel < originalBuffer.numberOfChannels; srcChannel++) {
-      // Retrieve sample data...
-      var delayedBufferChannelData = delayedBuffer.getChannelData(srcChannel);
-      var originalBufferChannelData = originalBuffer.getChannelData(srcChannel); // Copy samples from the original buffer to the delayed buffer with an offset equal to the delay
-
-      var delayOffset = ctx.sampleRate * delaySeconds;
-
-      for (var i = 0; i < delayedBufferChannelData.length; i++) {
-        delayedBufferChannelData[i + delayOffset] = originalBufferChannelData[i];
-      }
-
-      delayedBuffer.getChannelData(srcChannel).set(delayedBufferChannelData, 0);
-    }
-
-    return delayedBuffer;
-  }
-  /**
-   * Convert a base64 string of an audio file into an AudioBuffer.
-   * @param {string} base64 - a base64 dataURI of an audio file.
-   * @param {AudioContext} ctx - an AudioContext instance.
-   * @param {Function} callback - callback to recieve the generated AudioBuffer
-   */
-
-
-  static base64ToAudioBuffer(base64, ctx, callback) {
-    let base64DataOnly = base64.split(',')[1];
-    let arraybuffer = Base64ArrayBuffer.decode(base64DataOnly);
-    ctx.decodeAudioData(arraybuffer, function (audioBuffer) {
-      callback(audioBuffer);
-    }, e => {
-      console.log('onError');
-      console.log(e);
-    });
-  }
-
-};
-/*
- * Copyright 2019 WICKLETS LLC
- *
- * This file is part of Wick Engine.
- *
- * Wick Engine is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Wick Engine is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
- */
 
 /**
- * Utility class for creating and parsing wick files.
+ * Utility class for creating and parsing wickobject files.
  */
-Wick.WickFile = class {
-  /**
-   * Generate some metadata for debugging wick projects.
-   * @returns {object}
-   */
-  static generateMetaData() {
-    return {
-      wickengine: Wick.version,
-      platform: {
-        name: platform.name,
-        version: platform.version,
-        product: platform.product,
-        manufacturer: platform.manufacturer,
-        layout: platform.layout,
-        os: {
-          architecture: platform.os.architecture,
-          family: platform.os.family,
-          version: platform.os.version
-        },
-        description: platform.description
-      }
-    };
-  }
+Wick.WickObjectFile = class {
   /**
    * Create a project from a wick file.
-   * @param {File} wickFile - Wick file containing project data.
-   * @param {function} callback - Function called when the project is created.
-   * @param {string} format - The format to return. Can be 'blob' or 'base64'.
+   * @param {Blob | string} wickObjectFile - WickObject file containing object data (can be a Blob or a dataURL string)
+   * @param {function} callback - Function called when the object is done being loaded
    */
-
-
-  static fromWickFile(wickFile, callback, format) {
-    if (!format) {
-      format = 'blob';
+  static fromWickObjectFile(wickObjectFile, callback) {
+    // Convert to blob if needed
+    if (typeof wickObjectFile === 'string') {
+      wickObjectFile = this._dataURItoBlob(wickObjectFile);
     }
 
-    if (format !== 'blob' && format !== 'base64') {
-      console.error('WickFile.toWickFile: invalid format: ' + format);
-      return;
-    }
+    var fr = new FileReader();
 
-    var zip = new JSZip();
-    zip.loadAsync(wickFile, {
-      base64: format === 'base64'
-    }).then(contents => {
-      contents.files['project.json'].async('text').then(projectJSON => {
-        var projectData = JSON.parse(projectJSON);
+    fr.onload = () => {
+      var data = JSON.parse(fr.result);
+      callback(data);
+    };
 
-        if (!projectData.objects) {
-          // No metadata! This is a pre 1.0.9a project. Convert it.
-          console.log('Wick.WickFile: Converting old project format.');
-          projectData = Wick.WickFile.Alpha.convertJsonProject(projectData);
-        }
-
-        projectData.assets = [];
-
-        for (var uuid in projectData.objects) {
-          var data = projectData.objects[uuid];
-          var object = Wick.Base.fromData(data);
-          Wick.ObjectCache.addObject(object);
-        }
-
-        var project = Wick.Base.fromData(projectData.project);
-        Wick.ObjectCache.addObject(project);
-        var loadedAssetCount = 0; // Immediately end if the project has no assets.
-
-        if (project.getAssets().length === 0) {
-          this._prepareProject(project);
-
-          callback(project);
-        } else {
-          project.getAssets().forEach(assetData => {
-            var assetFile = contents.files['assets/' + assetData.uuid + '.' + assetData.fileExtension];
-            assetFile.async('base64').then(assetFileData => {
-              var assetSrc = 'data:' + assetData.MIMEType + ';base64,' + assetFileData;
-              Wick.FileCache.addFile(assetSrc, assetData.uuid);
-            }).catch(e => {
-              console.log('Error loading asset file.');
-              console.log(e);
-              callback(null);
-            }).finally(() => {
-              assetData.load(() => {
-                loadedAssetCount++;
-
-                if (loadedAssetCount === project.getAssets().length) {
-                  this._prepareProject(project);
-
-                  callback(project);
-                }
-              });
-            });
-          });
-        }
-      });
-    }).catch(e => {
-      console.log('Error loading project zip.');
-      console.log(e);
-      callback(null);
-    });
+    fr.readAsText(wickObjectFile);
   }
   /**
    * Create a wick file from the project.
-   * @param {Wick.Project} project - the project to create a wick file from
-   * @param {function} callback - Function called when the file is created. Contains the file as a parameter.
-   * @param {string} format - The format to return. Can be 'blob' or 'base64'.
+   * @param {Wick.Project} clip - the clip to create a wickobject file from
+   * @param {string} format - Can be 'blob' or 'dataurl'.
    */
 
 
-  static toWickFile(project, callback, format) {
-    if (!format) {
-      format = 'blob';
-    }
-
-    if (format !== 'blob' && format !== 'base64') {
-      console.error('WickFile.toWickFile: invalid format: ' + format);
-      return;
-    }
-
-    var zip = new JSZip(); // Create assets folder
-
-    var assetsFolder = zip.folder("assets"); // Populate assets folder with files
-
-    project.getAssets().filter(asset => {
-      return asset instanceof Wick.ImageAsset || asset instanceof Wick.SoundAsset || asset instanceof Wick.FontAsset;
-    }).forEach(asset => {
-      // Create file from asset dataurl, add it to assets folder
-      var fileExtension = asset.MIMEType.split('/')[1];
-      var filename = asset.uuid;
-      var data = asset.src.split(',')[1];
-      assetsFolder.file(filename + '.' + fileExtension, data, {
-        base64: true
-      });
+  static toWickObjectFile(clip, format, callback) {
+    if (!format) format = 'blob';
+    var data = clip.export();
+    var json = JSON.stringify(data);
+    var blob = new Blob([json], {
+      type: "application/json"
     });
-    var objectCacheSerialized = {};
-    Wick.ObjectCache.getActiveObjects(project).forEach(object => {
-      objectCacheSerialized[object.uuid] = object.serialize();
-    });
-    var projectSerialized = project.serialize();
 
-    for (var uuid in objectCacheSerialized) {
-      if (objectCacheSerialized[uuid].classname === 'Project') {
-        delete objectCacheSerialized[uuid];
-      }
-    } // Remove some extra data that we don't actually want to save
-    // Clear selection:
+    if (format === 'blob') {
+      callback(blob);
+    } else if (format === 'dataurl') {
+      var fr = new FileReader();
 
-
-    for (var uuid in objectCacheSerialized) {
-      var object = objectCacheSerialized[uuid];
-
-      if (object.classname === 'Selection') {
-        object.selectedObjects = [];
-      }
-    } // Set focus to root
-
-
-    for (var uuid in objectCacheSerialized) {
-      var object = objectCacheSerialized[uuid];
-
-      if (projectSerialized.children.indexOf(uuid) !== -1 && object.classname === 'Clip') {
-        projectSerialized.focus = uuid;
-      }
-    } // Reset all playhead positions
-
-
-    for (var uuid in objectCacheSerialized) {
-      var object = objectCacheSerialized[uuid];
-
-      if (object.classname === 'Timeline') {
-        object.playheadPosition = 1;
-      }
-    } // Add project json to root directory of zip file
-
-
-    var projectData = {
-      project: projectSerialized,
-      objects: objectCacheSerialized
-    };
-    zip.file("project.json", JSON.stringify(projectData, null, 2));
-    zip.generateAsync({
-      type: format,
-      compression: "DEFLATE",
-      compressionOptions: {
-        level: 9
-      }
-    }).then(callback);
-  }
-  /* Make any small backwards compatibility fixes needed */
-
-
-  static _prepareProject(project) {
-    // 1.16+ projects don't allow gaps between frames.
-    Wick.ObjectCache.getAllObjects().filter(object => {
-      return object instanceof Wick.Timeline;
-    }).forEach(timeline => {
-      var oldFrameGapFillMethod = timeline.fillGapsMethod;
-      timeline.fillGapsMethod = 'blank_frames';
-      timeline.resolveFrameGaps();
-      timeline.fillGapsMethod = oldFrameGapFillMethod;
-    });
-  }
-
-};
-/*
- * Utility class to convert Pre 1.0.9a projects into the most recent format
- */
-Wick.WickFile.Alpha = class {
-  /**
-   * Convert the old recursive format to the new flat format.
-   */
-  static convertJsonProject(projectJSON) {
-    var newProjectJSON = projectJSON;
-    newProjectJSON.pan = {
-      x: 0,
-      y: 0
-    };
-    newProjectJSON.zoom = 1;
-    var newProjectObjects = {};
-    Wick.WickFile.Alpha.flattenWickObject(projectJSON, null, newProjectObjects);
-    return {
-      project: newProjectJSON,
-      objects: newProjectObjects
-    };
-  }
-
-  static flattenWickObject(objectJSON, parentJSON, objects) {
-    objectJSON.children = [];
-    if (parentJSON) parentJSON.children.push(objectJSON.uuid);
-    objects[objectJSON.uuid] = objectJSON;
-
-    if (objectJSON.root) {
-      objectJSON.focus = objectJSON.root.uuid;
-      Wick.WickFile.Alpha.flattenWickObject(objectJSON.root, objectJSON, objects);
-      delete objectJSON.root;
-    }
-
-    if (objectJSON.assets) {
-      objectJSON.assets.forEach(asset => {
-        Wick.WickFile.Alpha.flattenWickObject(asset, objectJSON, objects);
-      });
-      delete objectJSON.assets;
-    }
-
-    if (objectJSON.selection) {
-      objectJSON.selection.widgetRotation = 0;
-      objectJSON.selection.pivotPoint = {
-        x: 0,
-        y: 0
+      fr.onload = function (e) {
+        callback(e.target.result);
       };
-      Wick.WickFile.Alpha.flattenWickObject(objectJSON.selection, objectJSON, objects);
-      delete objectJSON.selection;
-    }
 
-    if (objectJSON.transform) {
-      objectJSON.transformation = {
-        x: objectJSON.transform.x,
-        y: objectJSON.transform.y,
-        scaleX: objectJSON.transform.scaleX,
-        scaleY: objectJSON.transform.scaleY,
-        rotation: objectJSON.transform.rotation,
-        opacity: objectJSON.transform.opacity
-      };
-      delete objectJSON.transform;
+      fr.readAsDataURL(blob);
+    } else {
+      console.error('toWickObjectFile: invalid format: ' + format);
     }
+  } // https://stackoverflow.com/questions/12168909/blob-from-dataurl
 
-    if (objectJSON.timeline) {
-      Wick.WickFile.Alpha.flattenWickObject(objectJSON.timeline, objectJSON, objects);
-      delete objectJSON.timeline;
-    }
 
-    if (objectJSON.layers) {
-      objectJSON.layers.forEach(layer => {
-        Wick.WickFile.Alpha.flattenWickObject(layer, objectJSON, objects);
-      });
-      delete objectJSON.layers;
-    }
+  static _dataURItoBlob(dataURI) {
+    // convert base64 to raw binary data held in a string
+    // doesn't handle URLEncoded DataURIs - see SO answer #6850276 for code that does this
+    var byteString = atob(dataURI.split(',')[1]); // separate out the mime component
 
-    if (objectJSON.frames) {
-      objectJSON.frames.forEach(frame => {
-        Wick.WickFile.Alpha.flattenWickObject(frame, objectJSON, objects);
-      });
-      delete objectJSON.frames;
-    }
+    var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0]; // write the bytes of the string to an ArrayBuffer
 
-    if (objectJSON.clips) {
-      objectJSON.clips.forEach(clip => {
-        Wick.WickFile.Alpha.flattenWickObject(clip, objectJSON, objects);
-      });
-      delete objectJSON.clips;
-    }
+    var ab = new ArrayBuffer(byteString.length); // create a view into the buffer
 
-    if (objectJSON.paths) {
-      objectJSON.paths.forEach(path => {
-        Wick.WickFile.Alpha.flattenWickObject(path, objectJSON, objects);
-      });
-      delete objectJSON.paths;
-    }
+    var ia = new Uint8Array(ab); // set the bytes of the buffer to the correct values
 
-    if (objectJSON.tweens) {
-      objectJSON.tweens.forEach(tween => {
-        Wick.WickFile.Alpha.flattenWickObject(tween, objectJSON, objects);
-      });
-      delete objectJSON.tweens;
-    }
+    for (var i = 0; i < byteString.length; i++) {
+      ia[i] = byteString.charCodeAt(i);
+    } // write the ArrayBuffer to a blob, and you're done
 
-    if (objectJSON.pathJSON) {
-      objectJSON.json = objectJSON.pathJSON;
-      delete objectJSON.pathJSON;
-    }
+
+    var blob = new Blob([ab], {
+      type: mimeString
+    });
+    return blob;
   }
 
 };
@@ -47788,14 +47374,24 @@ Wick.Project = class extends Wick.Base {
     let imageTypes = Wick.ImageAsset.getValidMIMETypes();
     let soundTypes = Wick.SoundAsset.getValidMIMETypes();
     let fontTypes = Wick.FontAsset.getValidMIMETypes();
+    let clipTypes = Wick.ClipAsset.getValidMIMETypes(); // Fix missing mimetype for wickobj files
+
+    var type = file.type;
+
+    if (file.type === '' && file.name.endsWith('.wickobj')) {
+      type = 'application/json';
+    }
+
     let asset = undefined;
 
-    if (imageTypes.indexOf(file.type) !== -1) {
+    if (imageTypes.indexOf(type) !== -1) {
       asset = new Wick.ImageAsset();
-    } else if (soundTypes.indexOf(file.type) !== -1) {
+    } else if (soundTypes.indexOf(type) !== -1) {
       asset = new Wick.SoundAsset();
-    } else if (fontTypes.indexOf(file.type) !== -1) {
+    } else if (fontTypes.indexOf(type) !== -1) {
       asset = new Wick.FontAsset();
+    } else if (clipTypes.indexOf(type) !== -1) {
+      asset = new Wick.ClipAsset();
     }
 
     if (asset === undefined) {
@@ -47806,6 +47402,8 @@ Wick.Project = class extends Wick.Base {
       console.log(soundTypes);
       console.warn('supported font file types:');
       console.log(fontTypes);
+      console.warn('supported clip file types:');
+      console.log(clipTypes);
       callback(null);
       return;
     }
@@ -48118,6 +47716,23 @@ Wick.Project = class extends Wick.Base {
       path.x = x;
       path.y = y;
       callback(path);
+    });
+  }
+  /**
+   * Adds an instance of a clip asset to the active frame.
+   * @param {Wick.Asset} asset - the asset to create the clip instance from
+   * @param {number} x - the x position to create the image path at
+   * @param {number} y - the y position to create the image path at
+   * @param {function} callback - the function to call after the path is created.
+   */
+
+
+  createClipInstanceFromAsset(asset, x, y, callback) {
+    asset.createInstance(clip => {
+      this.activeFrame.addPath(clip);
+      clip.x = x;
+      clip.y = y;
+      callback(clip);
     });
   }
   /**
@@ -50685,7 +50300,9 @@ Wick.FileAsset = class extends Wick.Asset {
   static getValidMIMETypes() {
     let imageTypes = Wick.ImageAsset.getValidMIMETypes();
     let soundTypes = Wick.SoundAsset.getValidMIMETypes();
-    return imageTypes.concat(soundTypes);
+    let fontTypes = Wick.FontAsset.getValidMIMETypes();
+    let clipTypes = Wick.ClipAsset.getValidMIMETypes();
+    return imageTypes.concat(soundTypes).concat(fontTypes).concat(clipTypes);
   }
   /**
    * Returns all valid extensions types for files which can be attempted to be
@@ -50697,7 +50314,9 @@ Wick.FileAsset = class extends Wick.Asset {
   static getValidExtensions() {
     let imageExtensions = Wick.ImageAsset.getValidExtensions();
     let soundExtensions = Wick.SoundAsset.getValidExtensions();
-    return imageExtensions.concat(soundExtensions);
+    let fontExtensions = Wick.FontAsset.getValidExtensions();
+    let clipExtensions = Wick.ClipAsset.getValidExtensions();
+    return imageExtensions.concat(soundExtensions).concat(fontExtensions).concat(clipExtensions);
   }
   /**
    * Create a new FileAsset.
@@ -50923,119 +50542,91 @@ Wick.ImageAsset = class extends Wick.FileAsset {
  * You should have received a copy of the GNU General Public License
  * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
  */
-Wick.ClipAsset = class extends Wick.Asset {
+Wick.ClipAsset = class extends Wick.FileAsset {
   /**
-   * Creates a new Clip Asset.
-   * @param {Wick.Clip} clip - the clip to link this asset to
+   * Returns all valid MIME types for files which can be converted to ClipAssets.
+   * @return {string[]} Array of strings of MIME types in the form MediaType/Subtype.
    */
-  constructor(args) {
-    if (!args) args = {};
-    args.identifier = args.clip ? args.clip.identifier : null;
-    super(args);
-    this.clipType = null;
-    this.linkedClips = [];
-    if (args.clip) this.useClipAsSource(args.clip);
+  static getValidMIMETypes() {
+    return ['application/json'];
   }
+  /**
+   * Returns all valid extensions types for files which can be attempted to be
+   * converted to ClipAssets.
+   * @return  {string[]} Array of strings representing extensions.
+   */
 
-  deserialize(data) {
-    super.deserialize(data);
-    this._timeline = data.timeline;
+
+  static getValidExtensions() {
+    return ['.wickobj'];
+  }
+  /**
+   * Create a new ClipAsset.
+   * @param {object} args
+   */
+
+
+  constructor(args) {
+    super(args);
   }
 
   serialize(args) {
     var data = super.serialize(args);
-    data.timeline = this._timeline;
     return data;
+  }
+
+  deserialize(data) {
+    super.deserialize(data);
   }
 
   get classname() {
     return 'ClipAsset';
   }
   /**
-   * The timeline that this asset is linked to.
+   * A list of Wick Clips that use this ClipAsset as their image source.
+   * @returns {Wick.Path[]}
    */
 
 
-  get timeline() {
-    return Wick.ObjectCache.getObjectByUUID(this._timeline);
+  getInstances() {
+    return []; // TODO
   }
   /**
-   * Uses the timeline of the given clip as the data for this asset.
-   * @param {Wick.Clip} clip - the clip to use as the source
+   * Check if there are any objects in the project that use this asset.
+   * @returns {boolean}
    */
 
 
-  useClipAsSource(clip) {
-    this.identifier = clip.identifier;
-    this.clipType = clip.classname;
-    this.timeline = clip.timeline.copy();
+  hasInstances() {
+    return false; // TODO
   }
   /**
-   * Creates a new Clip using the source of this asset.
+   * Removes all Clips using this asset as their source from the project.
+   * @returns {boolean}
    */
 
 
-  createInstance() {
-    var clip = new Wick[this.clipType]();
-    this.useAsSourceForClip(clip);
-    return clip;
+  removeAllInstances() {} // TODO
+
+  /**
+   * Load data in the asset
+   */
+
+
+  load(callback) {
+    // We don't need to do anything here, the data for ClipAssets is just json
+    callback();
   }
   /**
-   * Sets a given clip to use the source of this asset for its timeline data.
-   * Note: This will replace the timeline of the clip with the asset's timeline.
-   * @param {Wick.Clip} clip - the clip to change the timeline data of
+   * Creates a new Wick Clip that uses this asset's data.
+   * @param {function} callback - called when the Clip is done loading.
    */
 
 
-  useAsSourceForClip(clip) {
-    this.linkedClips.push(clip);
-    this.updateClipFromAsset(clip);
-  }
-  /**
-   * Unlink a given clip from this asset. The clip's timeline will no longer be synced with this asset.
-   * @param {Wick.Clip} clip - The clip to unlink from this asset.
-   */
-
-
-  removeAsSourceForClip(clip) {
-    this.linkedClips = this.linkedClips.filter(checkClip => {
-      return checkClip !== clip;
-    });
-  }
-  /**
-   * Take the timeline data from a clip and use it to update this asset.
-   * This will also update the timelines of all instances of this asset.
-   * @param {Wick.Clip} clip - The clip to use the timeline of to update this asset.
-   */
-
-
-  updateAssetFromClip(clip) {
-    this.timeline = clip.timeline.copy();
-    var self = this;
-    this.linkedClips.forEach(linkedClip => {
-      if (linkedClip === clip) return; // This one should already be synced, of course
-
-      this.updateClipFromAsset(linkedClip);
-    });
-  }
-  /**
-   * Replace the timeline of the clip with the asset's timeline.
-   * @param {Wick.Clip} clip - the clip to change the timeline data of
-   */
-
-
-  updateClipFromAsset(clip) {
-    var timeline = this.timeline.copy();
-    clip.timeline = timeline;
-  }
-  /**
-   * Removes all instances of this asset from the project.
-   */
-
-
-  removeAllInstances() {
-    this.linkedClips.forEach(clip => {
-      clip.remove();
+  createInstance(callback, project) {
+    Wick.WickObjectFile.fromWickObjectFile(this.src, data => {
+      var clip = Wick.Base.import(data, project).copy();
+      callback(clip);
     });
   }
 
@@ -53856,7 +53447,11 @@ Wick.Tools.Brush = class extends Wick.Tool {
 
 
   _updateCanvasAttributes() {
-    // Update croquis element and pressure options
+    if (!this.paper.view._element.parentElement) {
+      return;
+    } // Update croquis element and pressure options
+
+
     if (!this.paper.view._element.parentElement.contains(this.croquisDOMElement)) {
       this.paper.view.enablePressure();
 

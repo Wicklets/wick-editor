@@ -289,6 +289,10 @@ class HotKeyInterface extends Object {
         name: "Break Apart Selection",
         sequences: ['meta+shift+g'],
       },
+      'export-selection': {
+        name: "Export Selected Clip",
+        sequences: ['meta+e'],
+      }
     }
 
     // Create special sequence for repeatable hotkeys
@@ -369,6 +373,7 @@ class HotKeyInterface extends Object {
       'import-project-as-wick-file': (() => console.log("Ctrl-O as a shortcut doesn't work yet.")),
       'create-clip-from-selection': (() => this.editor.createClipFromSelection("", false)),
       'break-apart-selection': (() => this.editor.breakApartSelection()),
+      'export-selection': this.editor.exportSelectedClip,
       'finish-repeating': this.finishRepeating,
     }
 

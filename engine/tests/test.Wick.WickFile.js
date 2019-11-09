@@ -62,6 +62,12 @@ describe('Wick.WickFile', function () {
             });
             project.addAsset(soundAsset);
 
+            var clipAsset = new Wick.ClipAsset({
+                filename: 'foo.wickobj',
+                src: TestUtils.TEST_WICKOBJ_SRC,
+            });
+            project.addAsset(clipAsset);
+
             Wick.WickFile.toWickFile(project, function (wickFile) {
                 Wick.FileCache.clear();
                 Wick.ObjectCache.clear();
@@ -71,8 +77,10 @@ describe('Wick.WickFile', function () {
                     expect(loadedProject.getAssets().length).to.equal(project.getAssets().length);
                     expect(loadedProject.getAssets()[0].uuid).to.equal(project.getAssets()[0].uuid);
                     expect(loadedProject.getAssets()[1].uuid).to.equal(project.getAssets()[1].uuid);
+                    expect(loadedProject.getAssets()[2].uuid).to.equal(project.getAssets()[2].uuid);
                     expect(loadedProject.getAssets()[0].src).to.equal(project.getAssets()[0].src);
                     expect(loadedProject.getAssets()[1].src).to.equal(project.getAssets()[1].src);
+                    expect(loadedProject.getAssets()[2].src).to.equal(project.getAssets()[2].src);
                     done();
                 });
             });

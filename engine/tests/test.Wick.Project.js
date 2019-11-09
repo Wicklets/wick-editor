@@ -41,8 +41,13 @@ describe('Wick.Project', function() {
                 filename: 'foo.wav',
                 src: TestUtils.TEST_SOUND_SRC_WAV
             });
+            var clip = new Wick.ClipAsset({
+                filename: 'foo.wickobject',
+                data: new Wick.Clip().export(),
+            });
             project.addAsset(image);
             project.addAsset(sound);
+            project.addAsset(clip);
 
             var data = project.serialize();
 
@@ -52,6 +57,7 @@ describe('Wick.Project', function() {
                 project.root.uuid,
                 image.uuid,
                 sound.uuid,
+                clip.uuid,
             ]);
             expect(data.classname).to.equal('Project');
             expect(data.focus).to.equal(project.focus.uuid);
@@ -368,6 +374,40 @@ describe('Wick.Project', function() {
                 expect(project.getAssets()[0]).to.equal(asset);
                 expect(asset.src).to.equal(TestUtils.TEST_FONT_SRC_TTF);
                 expect(asset.fontFamily).to.equal('ABeeZee');
+                done();
+            });
+        });
+
+        it('should import clips correctly', function(done) {
+            var parts = [ TestUtils.dataURItoBlob(TestUtils.TEST_WICKOBJ_SRC) ];
+            var file = new File(parts, 'object.wickobj', {
+                lastModified: new Date(0),
+                type: "application/json",
+            });
+
+            var project = new Wick.Project();
+            project.importFile(file, function (asset) {
+                expect(asset instanceof Wick.ClipAsset).to.equal(true);
+                expect(project.getAssets().length).to.equal(1);
+                expect(project.getAssets()[0]).to.equal(asset);
+                expect(asset.src).to.equal(TestUtils.TEST_WICKOBJ_SRC);
+                done();
+            });
+        });
+
+        it('should import clips correctly (missing mimetype bug)', function(done) {
+            var parts = [ TestUtils.dataURItoBlob(TestUtils.TEST_WICKOBJ_SRC) ];
+            var file = new File(parts, 'object.wickobj', {
+                lastModified: new Date(0),
+                type: "",
+            });
+
+            var project = new Wick.Project();
+            project.importFile(file, function (asset) {
+                expect(asset instanceof Wick.ClipAsset).to.equal(true);
+                expect(project.getAssets().length).to.equal(1);
+                expect(project.getAssets()[0]).to.equal(asset);
+                expect(asset.src).to.equal(TestUtils.TEST_WICKOBJ_SRC);
                 done();
             });
         });
@@ -903,7 +943,9 @@ describe('Wick.Project', function() {
             });
             project.addAsset(soundAsset);
 
-            var clipAsset = new Wick.ClipAsset();
+            var clipAsset = new Wick.ClipAsset({
+                data: new Wick.Clip().export(),
+            });
             project.addAsset(clipAsset);
 
             expect(project.getAssets()).to.eql([imageAsset, soundAsset, clipAsset]);
@@ -922,7 +964,9 @@ describe('Wick.Project', function() {
             });
             project.addAsset(soundAsset);
 
-            var clipAsset = new Wick.ClipAsset();
+            var clipAsset = new Wick.ClipAsset({
+                data: new Wick.Clip().export(),
+            });
             project.addAsset(clipAsset);
 
             expect(project.getAssets('Image')).to.eql([imageAsset]);
@@ -941,7 +985,9 @@ describe('Wick.Project', function() {
             });
             project.addAsset(soundAsset);
 
-            var clipAsset = new Wick.ClipAsset();
+            var clipAsset = new Wick.ClipAsset({
+                data: new Wick.Clip().export(),
+            });
             project.addAsset(clipAsset);
 
             expect(project.getAssets('Sound')).to.eql([soundAsset]);
@@ -960,7 +1006,9 @@ describe('Wick.Project', function() {
             });
             project.addAsset(soundAsset);
 
-            var clipAsset = new Wick.ClipAsset();
+            var clipAsset = new Wick.ClipAsset({
+                data: new Wick.Clip().export(),
+            });
             project.addAsset(clipAsset);
 
             expect(project.getAssets('Clip')).to.eql([clipAsset]);
@@ -1145,6 +1193,13 @@ describe('Wick.Project', function() {
 
     describe('createImagePathFromAsset', function () {
         it('should create an image path', function (done) {
+            // TODO
+            done();
+        })
+    });
+
+    describe('createClipInstanceFromAsset', function () {
+        it('should create a clip', function (done) {
             // TODO
             done();
         })

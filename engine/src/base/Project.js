@@ -536,14 +536,23 @@ Wick.Project = class extends Wick.Base {
         let imageTypes = Wick.ImageAsset.getValidMIMETypes();
         let soundTypes = Wick.SoundAsset.getValidMIMETypes();
         let fontTypes = Wick.FontAsset.getValidMIMETypes();
+        let clipTypes = Wick.ClipAsset.getValidMIMETypes();
+
+        // Fix missing mimetype for wickobj files
+        var type = file.type;
+        if(file.type === '' && file.name.endsWith('.wickobj')) {
+            type = 'application/json';
+        }
 
         let asset = undefined;
-        if (imageTypes.indexOf(file.type) !== -1) {
+        if (imageTypes.indexOf(type) !== -1) {
             asset = new Wick.ImageAsset();
-        } else if (soundTypes.indexOf(file.type) !== -1) {
+        } else if (soundTypes.indexOf(type) !== -1) {
             asset = new Wick.SoundAsset();
-        } else if (fontTypes.indexOf(file.type) !== -1) {
+        } else if (fontTypes.indexOf(type) !== -1) {
             asset = new Wick.FontAsset();
+        } else if (clipTypes.indexOf(type) !== -1) {
+            asset = new Wick.ClipAsset();
         }
 
         if (asset === undefined) {
@@ -554,6 +563,8 @@ Wick.Project = class extends Wick.Base {
             console.log(soundTypes)
             console.warn('supported font file types:');
             console.log(fontTypes)
+            console.warn('supported clip file types:');
+            console.log(clipTypes)
             callback(null);
             return;
         }
@@ -843,6 +854,22 @@ Wick.Project = class extends Wick.Base {
             path.x = x;
             path.y = y;
             callback(path);
+        });
+    }
+
+    /**
+     * Adds an instance of a clip asset to the active frame.
+     * @param {Wick.Asset} asset - the asset to create the clip instance from
+     * @param {number} x - the x position to create the image path at
+     * @param {number} y - the y position to create the image path at
+     * @param {function} callback - the function to call after the path is created.
+     */
+    createClipInstanceFromAsset (asset, x, y, callback) {
+        asset.createInstance(clip => {
+            this.activeFrame.addPath(clip);
+            clip.x = x;
+            clip.y = y;
+            callback(clip);
         });
     }
 

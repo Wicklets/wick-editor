@@ -28,7 +28,7 @@ import nightImage from 'resources/interface-images/blue_night.svg';
 
 class WelcomeModal extends Component {
   getVersion() {
-    return "1.15"
+    return "1.16rc1"
   }
 
   render() {
@@ -49,12 +49,8 @@ class WelcomeModal extends Component {
             <div id="welcome-modal-subtitle" className="welcome-modal-item">Wick Editor {this.getVersion()} includes:</div>
             <div id="welcome-modal-message" className="welcome-modal-item">
               <ul>
-                <li>New <a className="welcome-modal-highlight welcome-link" target="_blank" href="https://www.patreon.com/WickEditor">Patreon</a> rewards!</li>
-                <li>Faster brush</li>
-                <li>Faster timeline</li>
-                <li>New timeline interactions</li>
-                <li>Customizable hotkeys system</li>
-                <li>New project settings window</li>
+                <li>New builtin asset window</li>
+                <li>Clips can be exported as .wickobj files</li>
                 <li><a className="welcome-modal-highlight welcome-link" target="_blank" rel="noopener noreferrer" href="https://forum.wickeditor.com/t/wick-editor-1-15-customizable-hotkeys-faster-brush-new-timeline-discord-patreon-rewards-and-more/2010">...and more!</a></li>
               </ul>
             </div>

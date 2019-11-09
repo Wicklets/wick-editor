@@ -27,6 +27,7 @@ import ExportOptions from '../ExportOptions/ExportOptions';
 import GeneralWarning from '../GeneralWarning/GeneralWarning';
 import ExportMedia from '../ExportMedia/ExportMedia';
 import SettingsModal from '../SettingsModal/SettingsModal';
+import BuiltinLibrary from '../BuiltinLibrary/BuiltinLibrary';
 
 class ModalHandler extends Component {
   render() {
@@ -95,6 +96,13 @@ class ModalHandler extends Component {
           resetCustomHotKeys={this.props.resetCustomHotKeys}
           keyMap={this.props.keyMap}
           customHotKeys={this.props.customHotKeys}
+        />
+        <BuiltinLibrary
+          openModal={this.props.openModal}
+          toggle={this.props.closeActiveModal}
+          open={this.props.activeModalName === 'BuiltinLibrary'}
+          project={this.props.project}
+          importFileAsAsset={this.props.importFileAsAsset}
         />
       </div>
     );

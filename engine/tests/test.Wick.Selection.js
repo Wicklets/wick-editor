@@ -39,10 +39,13 @@ describe('Wick.Selection', function() {
         });
         project.addAsset(asset1);
         var asset2 = new Wick.SoundAsset({
-
+            filename: 'foo.mp3',
+            src: TestUtils.TEST_SOUND_SRC_MP3,
         });
         project.addAsset(asset2);
-        var asset3 = new Wick.ClipAsset();
+        var asset3 = new Wick.ClipAsset({
+            data: new Wick.Clip().export(),
+        });
         project.addAsset(asset3);
 
         var layer1 = project.activeLayer;

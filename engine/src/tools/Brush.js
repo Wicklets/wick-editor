@@ -270,6 +270,10 @@ Wick.Tools.Brush = class extends Wick.Tool {
 
     /* Update Croquis and the div containing croquis to reflect all current options. */
     _updateCanvasAttributes () {
+        if(!this.paper.view._element.parentElement) {
+            return;
+        }
+
         // Update croquis element and pressure options
         if(!this.paper.view._element.parentElement.contains(this.croquisDOMElement)) {
             this.paper.view.enablePressure();
