@@ -48,10 +48,19 @@ Wick.WickFile = class {
      * Create a project from a wick file.
      * @param {File} wickFile - Wick file containing project data.
      * @param {function} callback - Function called when the project is created.
+     * @param {string} format - The format to return. Can be 'blob' or 'base64'.
      */
-    static fromWickFile (wickFile, callback) {
+    static fromWickFile (wickFile, callback, format) {
+        if(!format) {
+            format = 'blob';
+        }
+        if(format !== 'blob' && format !== 'base64') {
+            console.error('WickFile.toWickFile: invalid format: ' + format);
+            return;
+        }
+
         var zip = new JSZip();
-        zip.loadAsync(wickFile).then((contents) => {
+        zip.loadAsync(wickFile, {base64: format === 'base64'}).then((contents) => {
             contents.files['project.json'].async('text')
             .then(projectJSON => {
                 var projectData = JSON.parse(projectJSON);
@@ -110,8 +119,17 @@ Wick.WickFile = class {
      * Create a wick file from the project.
      * @param {Wick.Project} project - the project to create a wick file from
      * @param {function} callback - Function called when the file is created. Contains the file as a parameter.
+     * @param {string} format - The format to return. Can be 'blob' or 'base64'.
      */
-    static toWickFile (project, callback) {
+    static toWickFile (project, callback, format) {
+        if(!format) {
+            format = 'blob';
+        }
+        if(format !== 'blob' && format !== 'base64') {
+            console.error('WickFile.toWickFile: invalid format: ' + format);
+            return;
+        }
+
         var zip = new JSZip();
 
         // Create assets folder
@@ -174,7 +192,7 @@ Wick.WickFile = class {
         zip.file("project.json", JSON.stringify(projectData, null, 2));
 
         zip.generateAsync({
-            type:"blob",
+            type: format,
             compression: "DEFLATE",
             compressionOptions: {
                 level: 9

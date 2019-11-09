@@ -20,9 +20,8 @@
 import { Component } from 'react';
 import localForage from 'localforage';
 import { saveAs } from 'file-saver';
-import GIFExport from './export/GIFExport';
-import ZIPExport from './export/ZIPExport';
 import VideoExport from './export/VideoExport';
+import GIFExport from './export/GIFExport';
 
 class EditorCore extends Component {
   /**
@@ -921,11 +920,25 @@ class EditorCore extends Component {
   exportProjectAsStandaloneZip = (name) => {
     let toastID = this.toast('Exporting project as ZIP...', 'info');
     let outputName = name || this.project.name;
-    ZIPExport.bundleStandaloneProject(this.project, blob => {
+    window.Wick.ZIPExport.bundleProject(this.project, blob => {
       this.updateToast(toastID, {
         type: 'success',
-        text: "Successfully saved .zip file." });
+        text: "Successfully created .zip file." });
       saveAs(blob, outputName + '.zip');
+    });
+  }
+
+  /**
+   * Export the current project as a bundled standalone HTML file.
+   */
+  exportProjectAsStandaloneHTML = (name) => {
+    let toastID = this.toast('Exporting project as HTML...', 'info');
+    let outputName = name || this.project.name;
+    window.Wick.HTMLExport.bundleProject(this.project, html => {
+      this.updateToast(toastID, {
+        type: 'success',
+        text: "Successfully created .html file." });
+      saveAs(new Blob([html], {type: "text/plain"}), outputName + '.html');
     });
   }
 

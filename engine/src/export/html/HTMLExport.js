@@ -18,14 +18,21 @@
  */
 
 /**
- * This object creates a Wick namespace for wick-engine functionality and utilities.
+ * Utility class for bundling Wick projects inside HTML files.
  */
-Wick = {
-    version: window.WICK_ENGINE_BUILD_VERSION || "dev",
-    resourcepath: '../dist/',
+Wick.HTMLExport = class {
+    static bundleProject (project, callback) {
+        Wick.WickFile.toWickFile(project, wickFileBase64 => {
+            fetch(Wick.resourcepath + 'emptyproject.html')
+                .then(resp => resp.text())
+                .then(text => {
+                    text = text.replace('<!--INJECT_WICKPROJECTDATA_HERE-->', wickFileBase64);
+                    callback(text);
+                })
+                .catch((e) => {
+                    console.error('Wick.HTMLExport: Could not download HTML file template.')
+                    console.error(e);
+                });
+        }, 'base64');
+    }
 }
-
-console.log('Wick Engine version "' + Wick.version + '" is available.');
-
-// Ensure that the Wick namespace is accessible in environments where globals are finicky (react, webpack, etc)
-window.Wick = Wick;

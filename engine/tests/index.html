@@ -9,127 +9,9 @@
   <div id="mocha"></div>
 </body>
 
-<!-- Libs -->
-
-<script src="../lib/base64-arraybuffer.js"></script>
-<script src="../lib/convert-range.js"></script>
-<script src="../lib/croquis.js"></script>
-<script src="../lib/currentTransform.js"></script>
-<script src="../lib/esprima.js"></script>
-<script src="../lib/floodfill.min.js"></script>
-<script src="../lib/howler.js"></script>
-<script src="../lib/paper.js"></script>
-<script src="../lib/jszip.js"></script>
-<script src="../lib/lerp.js"></script>
-<script src="../lib/offset.js"></script>
-<script src="../lib/invert.min.js"></script>
-<script src="../lib/is-var-name.js"></script>
-<script src="../lib/jquery-3.3.1.min.js"></script>
-<script src="../lib/jquery.pressure.js"></script>
-<script src="../lib/jquery.mousewheel.js"></script>
-<script src="../lib/platform.js"></script>
-<script src="../lib/potrace.js"></script>
-<script src="../lib/reserved-words.js"></script>
-<script src="../lib/roundRect.js"></script>
-<script src="../lib/soundcloud-waveform.js"></script>
-<script src="../lib/timestamp.js"></script>
-<script src="../lib/Tween.js"></script>
-<script src="../lib/uuid.js"></script>
-
 <!-- Wick Engine -->
 
-<script src="../src/Wick.js"></script>
-<script src="../src/FileCache.js"></script>
-<script src="../src/ObjectCache.js"></script>
-<script src="../src/Transformation.js"></script>
-<script src="../src/Clipboard.js"></script>
-<script src="../src/History.js"></script>
-<script src="../src/ToolSettings.js"></script>
-<script src="../src/GlobalAPI.js"></script>
-<script src="../src/export/WickFile.js"></script>
-<script src="../src/export/WickFile.Alpha.js"></script>
-<script src="../src/export/AudioTrack.js"></script>
-<script src="../src/base/Base.js"></script>
-<script src="../src/base/Layer.js"></script>
-<script src="../src/base/Project.js"></script>
-<script src="../src/base/Selection.js"></script>
-<script src="../src/base/Timeline.js"></script>
-<script src="../src/base/Tween.js"></script>
-<script src="../src/base/Path.js"></script>
-<script src="../src/base/asset/Asset.js"></script>
-<script src="../src/base/asset/FileAsset.js"></script>
-<script src="../src/base/asset/ImageAsset.js"></script>
-<script src="../src/base/asset/ClipAsset.js"></script>
-<script src="../src/base/asset/SoundAsset.js"></script>
-<script src="../src/base/asset/FontAsset.js"></script>
-<script src="../src/base/Tickable.js"></script>
-<script src="../src/base/Frame.js"></script>
-<script src="../src/base/Clip.js"></script>
-<script src="../src/base/Button.js"></script>
-<script src="../src/tools/Tool.js"></script>
-<script src="../src/tools/Brush.js"></script>
-<script src="../src/tools/Cursor.js"></script>
-<script src="../src/tools/Ellipse.js"></script>
-<script src="../src/tools/Eraser.js"></script>
-<script src="../src/tools/Eyedropper.js"></script>
-<script src="../src/tools/FillBucket.js"></script>
-<script src="../src/tools/Interact.js"></script>
-<script src="../src/tools/Line.js"></script>
-<script src="../src/tools/None.js"></script>
-<script src="../src/tools/Pan.js"></script>
-<script src="../src/tools/PathCursor.js"></script>
-<script src="../src/tools/Pencil.js"></script>
-<script src="../src/tools/Rectangle.js"></script>
-<script src="../src/tools/Text.js"></script>
-<script src="../src/tools/Zoom.js"></script>
-<script src="../src/view/paper-ext/Layer.erase.js"></script>
-<script src="../src/view/paper-ext/Paper.hole.js"></script>
-<script src="../src/view/paper-ext/Paper.OrderingUtils.js"></script>
-<script src="../src/view/paper-ext/Paper.SelectionWidget.js"></script>
-<script src="../src/view/paper-ext/Paper.SelectionBox.js"></script>
-<script src="../src/view/paper-ext/Path.flatten.js"></script>
-<script src="../src/view/paper-ext/Path.potrace.js"></script>
-<script src="../src/view/paper-ext/TextItem.edit.js"></script>
-<script src="../src/view/paper-ext/View.pressure.js"></script>
-<script src="../src/view/paper-ext/View.gestures.js"></script>
-<script src="../src/view/paper-ext/View.scrollToZoom.js"></script>
-<script src="../src/view/View.js"></script>
-<script src="../src/view/View.Project.js"></script>
-<script src="../src/view/View.Selection.js"></script>
-<script src="../src/view/View.Clip.js"></script>
-<script src="../src/view/View.Button.js"></script>
-<script src="../src/view/View.Timeline.js"></script>
-<script src="../src/view/View.Layer.js"></script>
-<script src="../src/view/View.Frame.js"></script>
-<script src="../src/view/View.Path.js"></script>
-<script src="../src/gui/GUIElement.js"></script>
-<script src="../src/gui/Icons.js"></script>
-<script src="../src/gui/Button.js"></script>
-<script src="../src/gui/Ghost.js"></script>
-<script src="../src/gui/SelectionBox.js"></script>
-<script src="../src/gui/ActionButton.js"></script>
-<script src="../src/gui/ActionButtonsContainer.js"></script>
-<script src="../src/gui/Breadcrumbs.js"></script>
-<script src="../src/gui/BreadcrumbsButton.js"></script>
-<script src="../src/gui/Frame.js"></script>
-<script src="../src/gui/FrameEdgeGhost.js"></script>
-<script src="../src/gui/FrameGhost.js"></script>
-<script src="../src/gui/FramesContainer.js"></script>
-<script src="../src/gui/Layer.js"></script>
-<script src="../src/gui/LayerButton.js"></script>
-<script src="../src/gui/LayerCreateLabel.js"></script>
-<script src="../src/gui/LayersContainer.js"></script>
-<script src="../src/gui/NumberLine.js"></script>
-<script src="../src/gui/OnionSkinRange.js"></script>
-<script src="../src/gui/Playhead.js"></script>
-<script src="../src/gui/PopupMenu.js"></script>
-<script src="../src/gui/Project.js"></script>
-<script src="../src/gui/Scrollbar.js"></script>
-<script src="../src/gui/ScrollbarGrabber.js"></script>
-<script src="../src/gui/Timeline.js"></script>
-<script src="../src/gui/Tooltip.js"></script>
-<script src="../src/gui/Tween.js"></script>
-<script src="../src/gui/TweenGhost.js"></script>
+<script src="../dist/wickengine.js"></script>
 
 <!-- Testing Utils -->
 
@@ -162,7 +44,6 @@
 <script src="test.Wick.Transformation.js"></script>
 <script src="test.Wick.Timeline.js"></script>
 <script src="test.Wick.Project.js"></script>
-<script src="test.Wick.WickFile.js"></script>
 <script src="test.Wick.AudioTrack.js"></script>
 <script src="test.Wick.Selection.js"></script>
 <script src="test.Wick.History.js"></script>
@@ -189,7 +70,10 @@
 <script src="test.Wick.Tools.Rectangle.js"></script>
 <script src="test.Wick.Tools.Text.js"></script>
 <script src="test.Wick.Tools.Zoom.js"></script>
+<script src="test.Wick.HTMLExport.js"></script>
+<script src="test.Wick.ZIPExport.js"></script>
 <script src="test.Wick.GUIElement.Project.js"></script>
+
 <script src="paper-ext/test.Layer.erase.js"></script>
 <script src="paper-ext/test.Paper.hole.js"></script>
 <script src="paper-ext/test.Paper.SelectionWidget.js"></script>
@@ -198,6 +82,7 @@
 <script src="paper-ext/test.View.pressure.js"></script>
 <script src="paper-ext/test.View.gestures.js"></script>
 <script src="paper-ext/test.View.scrollToZoom.js"></script>
+
 <!--<script src="test.performance.js"></script>-->
 
 <!-- Run tests -->

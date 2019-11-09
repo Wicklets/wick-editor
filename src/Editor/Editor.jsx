@@ -55,6 +55,9 @@ class Editor extends EditorCore {
   constructor () {
     super();
 
+    // Set path for engine dependencies
+    window.Wick.resourcepath = 'corelibs/wick-engine/';
+
     // "Live" editor states
     this.project = null;
     this.paper = null;
@@ -567,13 +570,13 @@ class Editor extends EditorCore {
     similarKeys.forEach(key => {
       let combinedKey = {...hotkeys1[key], ...hotkeys2[key]};
       newHotKeys[key] = combinedKey;
-    }); 
+    });
 
     return newHotKeys;
   }
 
   convertHotkeyArray = (hotkeys) => {
-    let keyObj = {}; 
+    let keyObj = {};
 
     hotkeys.forEach(key => {
       if (keyObj[key.actionName]) {
@@ -589,7 +592,7 @@ class Editor extends EditorCore {
 
   // Expects array of hotkey objects
   addCustomHotKeys = (newHotKeys) => {
-    let combined = this.combineHotKeys(this.state.customHotKeys, this.convertHotkeyArray(newHotKeys)); 
+    let combined = this.combineHotKeys(this.state.customHotKeys, this.convertHotkeyArray(newHotKeys));
 
     this.syncHotKeys(combined);
   }
@@ -599,7 +602,7 @@ class Editor extends EditorCore {
     localForage.setItem(this.customHotKeysKey, hotkeys);
     this.setState({
       customHotKeys: hotkeys
-    }); 
+    });
   }
 
   resetCustomHotKeys = () => {
@@ -716,6 +719,7 @@ class Editor extends EditorCore {
                     exportProjectAsGif={this.exportProjectAsAnimatedGIF}
                     exportProjectAsVideo={this.exportProjectAsVideo}
                     exportProjectAsStandaloneZip={this.exportProjectAsStandaloneZip}
+                    exportProjectAsStandaloneHTML={this.exportProjectAsStandaloneHTML}
                     warningModalInfo={this.state.warningModalInfo}
                     loadAutosavedProject={this.loadAutosavedProject}
                     clearAutoSavedProject={this.clearAutoSavedProject}
