@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2019.11.8";
+var WICK_ENGINE_BUILD_VERSION = "2019.11.9";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -46159,7 +46159,7 @@ Wick.WickFile = class {
     var assetsFolder = zip.folder("assets"); // Populate assets folder with files
 
     project.getAssets().filter(asset => {
-      return asset instanceof Wick.ImageAsset || asset instanceof Wick.SoundAsset || asset instanceof Wick.FontAsset;
+      return asset instanceof Wick.ImageAsset || asset instanceof Wick.SoundAsset || asset instanceof Wick.FontAsset || asset instanceof Wick.ClipAsset;
     }).forEach(asset => {
       // Create file from asset dataurl, add it to assets folder
       var fileExtension = asset.MIMEType.split('/')[1];
@@ -46345,6 +46345,103 @@ Wick.WickFile.Alpha = class {
       objectJSON.json = objectJSON.pathJSON;
       delete objectJSON.pathJSON;
     }
+  }
+
+};
+/*
+ * Copyright 2019 WICKLETS LLC
+ *
+ * This file is part of Wick Engine.
+ *
+ * Wick Engine is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Wick Engine is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+/**
+ * Utility class for creating and parsing wickobject files.
+ */
+Wick.WickObjectFile = class {
+  /**
+   * Create a project from a wick file.
+   * @param {Blob | string} wickObjectFile - WickObject file containing object data (can be a Blob or a dataURL string)
+   * @param {function} callback - Function called when the object is done being loaded
+   */
+  static fromWickObjectFile(wickObjectFile, callback) {
+    // Convert to blob if needed
+    if (typeof wickObjectFile === 'string') {
+      wickObjectFile = this._dataURItoBlob(wickObjectFile);
+    }
+
+    var fr = new FileReader();
+
+    fr.onload = () => {
+      var data = JSON.parse(fr.result);
+      callback(data);
+    };
+
+    fr.readAsText(wickObjectFile);
+  }
+  /**
+   * Create a wick file from the project.
+   * @param {Wick.Project} clip - the clip to create a wickobject file from
+   * @param {string} format - Can be 'blob' or 'dataurl'.
+   */
+
+
+  static toWickObjectFile(clip, format, callback) {
+    if (!format) format = 'blob';
+    var data = clip.export();
+    var json = JSON.stringify(data);
+    var blob = new Blob([json], {
+      type: "application/json"
+    });
+
+    if (format === 'blob') {
+      callback(blob);
+    } else if (format === 'dataurl') {
+      var fr = new FileReader();
+
+      fr.onload = function (e) {
+        callback(e.target.result);
+      };
+
+      fr.readAsDataURL(blob);
+    } else {
+      console.error('toWickObjectFile: invalid format: ' + format);
+    }
+  } // https://stackoverflow.com/questions/12168909/blob-from-dataurl
+
+
+  static _dataURItoBlob(dataURI) {
+    // convert base64 to raw binary data held in a string
+    // doesn't handle URLEncoded DataURIs - see SO answer #6850276 for code that does this
+    var byteString = atob(dataURI.split(',')[1]); // separate out the mime component
+
+    var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0]; // write the bytes of the string to an ArrayBuffer
+
+    var ab = new ArrayBuffer(byteString.length); // create a view into the buffer
+
+    var ia = new Uint8Array(ab); // set the bytes of the buffer to the correct values
+
+    for (var i = 0; i < byteString.length; i++) {
+      ia[i] = byteString.charCodeAt(i);
+    } // write the ArrayBuffer to a blob, and you're done
+
+
+    var blob = new Blob([ab], {
+      type: mimeString
+    });
+    return blob;
   }
 
 };
@@ -47788,14 +47885,24 @@ Wick.Project = class extends Wick.Base {
     let imageTypes = Wick.ImageAsset.getValidMIMETypes();
     let soundTypes = Wick.SoundAsset.getValidMIMETypes();
     let fontTypes = Wick.FontAsset.getValidMIMETypes();
+    let clipTypes = Wick.ClipAsset.getValidMIMETypes(); // Fix missing mimetype for wickobj files
+
+    var type = file.type;
+
+    if (file.type === '' && file.name.endsWith('.wickobj')) {
+      type = 'application/json';
+    }
+
     let asset = undefined;
 
-    if (imageTypes.indexOf(file.type) !== -1) {
+    if (imageTypes.indexOf(type) !== -1) {
       asset = new Wick.ImageAsset();
-    } else if (soundTypes.indexOf(file.type) !== -1) {
+    } else if (soundTypes.indexOf(type) !== -1) {
       asset = new Wick.SoundAsset();
-    } else if (fontTypes.indexOf(file.type) !== -1) {
+    } else if (fontTypes.indexOf(type) !== -1) {
       asset = new Wick.FontAsset();
+    } else if (clipTypes.indexOf(type) !== -1) {
+      asset = new Wick.ClipAsset();
     }
 
     if (asset === undefined) {
@@ -47806,6 +47913,8 @@ Wick.Project = class extends Wick.Base {
       console.log(soundTypes);
       console.warn('supported font file types:');
       console.log(fontTypes);
+      console.warn('supported clip file types:');
+      console.log(clipTypes);
       callback(null);
       return;
     }
@@ -48118,6 +48227,23 @@ Wick.Project = class extends Wick.Base {
       path.x = x;
       path.y = y;
       callback(path);
+    });
+  }
+  /**
+   * Adds an instance of a clip asset to the active frame.
+   * @param {Wick.Asset} asset - the asset to create the clip instance from
+   * @param {number} x - the x position to create the image path at
+   * @param {number} y - the y position to create the image path at
+   * @param {function} callback - the function to call after the path is created.
+   */
+
+
+  createClipInstanceFromAsset(asset, x, y, callback) {
+    asset.createInstance(clip => {
+      this.activeFrame.addPath(clip);
+      clip.x = x;
+      clip.y = y;
+      callback(clip);
     });
   }
   /**
@@ -50685,7 +50811,9 @@ Wick.FileAsset = class extends Wick.Asset {
   static getValidMIMETypes() {
     let imageTypes = Wick.ImageAsset.getValidMIMETypes();
     let soundTypes = Wick.SoundAsset.getValidMIMETypes();
-    return imageTypes.concat(soundTypes);
+    let fontTypes = Wick.FontAsset.getValidMIMETypes();
+    let clipTypes = Wick.ClipAsset.getValidMIMETypes();
+    return imageTypes.concat(soundTypes).concat(fontTypes).concat(clipTypes);
   }
   /**
    * Returns all valid extensions types for files which can be attempted to be
@@ -50697,7 +50825,9 @@ Wick.FileAsset = class extends Wick.Asset {
   static getValidExtensions() {
     let imageExtensions = Wick.ImageAsset.getValidExtensions();
     let soundExtensions = Wick.SoundAsset.getValidExtensions();
-    return imageExtensions.concat(soundExtensions);
+    let fontExtensions = Wick.FontAsset.getValidExtensions();
+    let clipExtensions = Wick.ClipAsset.getValidExtensions();
+    return imageExtensions.concat(soundExtensions).concat(fontExtensions).concat(clipExtensions);
   }
   /**
    * Create a new FileAsset.
@@ -50923,119 +51053,91 @@ Wick.ImageAsset = class extends Wick.FileAsset {
  * You should have received a copy of the GNU General Public License
  * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
  */
-Wick.ClipAsset = class extends Wick.Asset {
+Wick.ClipAsset = class extends Wick.FileAsset {
   /**
-   * Creates a new Clip Asset.
-   * @param {Wick.Clip} clip - the clip to link this asset to
+   * Returns all valid MIME types for files which can be converted to ClipAssets.
+   * @return {string[]} Array of strings of MIME types in the form MediaType/Subtype.
    */
-  constructor(args) {
-    if (!args) args = {};
-    args.identifier = args.clip ? args.clip.identifier : null;
-    super(args);
-    this.clipType = null;
-    this.linkedClips = [];
-    if (args.clip) this.useClipAsSource(args.clip);
+  static getValidMIMETypes() {
+    return ['application/json'];
   }
+  /**
+   * Returns all valid extensions types for files which can be attempted to be
+   * converted to ClipAssets.
+   * @return  {string[]} Array of strings representing extensions.
+   */
 
-  deserialize(data) {
-    super.deserialize(data);
-    this._timeline = data.timeline;
+
+  static getValidExtensions() {
+    return ['.wickobj'];
+  }
+  /**
+   * Create a new ClipAsset.
+   * @param {object} args
+   */
+
+
+  constructor(args) {
+    super(args);
   }
 
   serialize(args) {
     var data = super.serialize(args);
-    data.timeline = this._timeline;
     return data;
+  }
+
+  deserialize(data) {
+    super.deserialize(data);
   }
 
   get classname() {
     return 'ClipAsset';
   }
   /**
-   * The timeline that this asset is linked to.
+   * A list of Wick Clips that use this ClipAsset as their image source.
+   * @returns {Wick.Path[]}
    */
 
 
-  get timeline() {
-    return Wick.ObjectCache.getObjectByUUID(this._timeline);
+  getInstances() {
+    return []; // TODO
   }
   /**
-   * Uses the timeline of the given clip as the data for this asset.
-   * @param {Wick.Clip} clip - the clip to use as the source
+   * Check if there are any objects in the project that use this asset.
+   * @returns {boolean}
    */
 
 
-  useClipAsSource(clip) {
-    this.identifier = clip.identifier;
-    this.clipType = clip.classname;
-    this.timeline = clip.timeline.copy();
+  hasInstances() {
+    return false; // TODO
   }
   /**
-   * Creates a new Clip using the source of this asset.
+   * Removes all Clips using this asset as their source from the project.
+   * @returns {boolean}
    */
 
 
-  createInstance() {
-    var clip = new Wick[this.clipType]();
-    this.useAsSourceForClip(clip);
-    return clip;
+  removeAllInstances() {} // TODO
+
+  /**
+   * Load data in the asset
+   */
+
+
+  load(callback) {
+    // We don't need to do anything here, the data for ClipAssets is just json
+    callback();
   }
   /**
-   * Sets a given clip to use the source of this asset for its timeline data.
-   * Note: This will replace the timeline of the clip with the asset's timeline.
-   * @param {Wick.Clip} clip - the clip to change the timeline data of
+   * Creates a new Wick Clip that uses this asset's data.
+   * @param {function} callback - called when the Clip is done loading.
    */
 
 
-  useAsSourceForClip(clip) {
-    this.linkedClips.push(clip);
-    this.updateClipFromAsset(clip);
-  }
-  /**
-   * Unlink a given clip from this asset. The clip's timeline will no longer be synced with this asset.
-   * @param {Wick.Clip} clip - The clip to unlink from this asset.
-   */
-
-
-  removeAsSourceForClip(clip) {
-    this.linkedClips = this.linkedClips.filter(checkClip => {
-      return checkClip !== clip;
-    });
-  }
-  /**
-   * Take the timeline data from a clip and use it to update this asset.
-   * This will also update the timelines of all instances of this asset.
-   * @param {Wick.Clip} clip - The clip to use the timeline of to update this asset.
-   */
-
-
-  updateAssetFromClip(clip) {
-    this.timeline = clip.timeline.copy();
-    var self = this;
-    this.linkedClips.forEach(linkedClip => {
-      if (linkedClip === clip) return; // This one should already be synced, of course
-
-      this.updateClipFromAsset(linkedClip);
-    });
-  }
-  /**
-   * Replace the timeline of the clip with the asset's timeline.
-   * @param {Wick.Clip} clip - the clip to change the timeline data of
-   */
-
-
-  updateClipFromAsset(clip) {
-    var timeline = this.timeline.copy();
-    clip.timeline = timeline;
-  }
-  /**
-   * Removes all instances of this asset from the project.
-   */
-
-
-  removeAllInstances() {
-    this.linkedClips.forEach(clip => {
-      clip.remove();
+  createInstance(callback, project) {
+    Wick.WickObjectFile.fromWickObjectFile(this.src, data => {
+      var clip = Wick.Base.import(data, project).copy();
+      callback(clip);
     });
   }
 
@@ -53856,7 +53958,11 @@ Wick.Tools.Brush = class extends Wick.Tool {
 
 
   _updateCanvasAttributes() {
-    // Update croquis element and pressure options
+    if (!this.paper.view._element.parentElement) {
+      return;
+    } // Update croquis element and pressure options
+
+
     if (!this.paper.view._element.parentElement.contains(this.croquisDOMElement)) {
       this.paper.view.enablePressure();
 

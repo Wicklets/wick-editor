@@ -45855,6 +45855,517 @@ GlobalAPI.Random = class {
  * You should have received a copy of the GNU General Public License
  * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
  */
+Wick.AudioTrack = class {
+  /**
+   * @type {Wick.Project}
+   */
+  get project() {
+    return this._project;
+  }
+
+  set project(project) {
+    this._project = project;
+  }
+  /**
+   * Create a new AudioTrack
+   * @param {Wick.Project} project - the project to use audio from
+   */
+
+
+  constructor(project) {
+    this._project = project;
+  }
+  /**
+   * Generate an AudioBuffer of all the project's sounds as one audio track.
+   * @param {Function} callback -
+   */
+
+
+  toAudioBuffer(callback) {
+    var audioInfo = this.project.getAudioInfo();
+
+    if (audioInfo.length === 0) {
+      console.error("Wick.AudioTrack: Project has no audio, cannot create an audiobuffer!");
+      callback(null);
+      return;
+    }
+
+    Wick.AudioTrack.generateProjectAudioBuffer(audioInfo, audioArraybuffer => {
+      callback(audioArraybuffer);
+    });
+  }
+  /**
+   * Create an AudioBuffer from given sounds.
+   * @param {object} projectAudioInfo - info generated from Wick.Project.getAudioInfo
+   * @param {Function} callback - callback to recieve the generated AudioBuffer
+   */
+
+
+  static generateProjectAudioBuffer(projectAudioInfo, callback) {
+    window.AudioContext = window.AudioContext || window.webkitAudioContext;
+    var ctx = new AudioContext();
+    let audiobuffers = [];
+
+    let prepareNextAudioInfo = () => {
+      if (projectAudioInfo.length === 0) {
+        mergeAudio();
+      } else {
+        var audioInfo = projectAudioInfo.pop();
+        this.base64ToAudioBuffer(audioInfo.src, ctx, audiobuffer => {
+          let delayedAudiobuffer = this.addStartDelayToAudioBuffer(audiobuffer, audioInfo.start / 1000, ctx);
+          audiobuffers.push(delayedAudiobuffer);
+          prepareNextAudioInfo();
+        });
+      }
+    };
+
+    let mergeAudio = () => {
+      let mergedAudioBuffer = this.mergeBuffers(audiobuffers, ctx);
+      callback(mergedAudioBuffer);
+    };
+
+    prepareNextAudioInfo();
+  }
+  /*
+   * Merges multiple audiobuffers into a single audiobuffer.
+   * @param {AudioBuffer[]} buffers - the AudioBuffers to merge together
+   * @param {AudioContext} ac - An AudioContext instance
+   */
+
+
+  static mergeBuffers(buffers, ac) {
+    // original function from:
+    // https://github.com/meandavejustice/merge-audio-buffers/blob/master/index.js
+    var maxChannels = 0;
+    var maxDuration = 0;
+
+    for (let i = 0; i < buffers.length; i++) {
+      if (buffers[i].numberOfChannels > maxChannels) {
+        maxChannels = buffers[i].numberOfChannels;
+      }
+
+      if (buffers[i].duration > maxDuration) {
+        maxDuration = buffers[i].duration;
+      }
+    }
+
+    var out = ac.createBuffer(maxChannels, ac.sampleRate * maxDuration, ac.sampleRate);
+
+    for (var j = 0; j < buffers.length; j++) {
+      for (var srcChannel = 0; srcChannel < buffers[j].numberOfChannels; srcChannel++) {
+        var outt = out.getChannelData(srcChannel);
+        var inn = buffers[j].getChannelData(srcChannel);
+
+        for (let i = 0; i < inn.length; i++) {
+          outt[i] += inn[i];
+        }
+
+        out.getChannelData(srcChannel).set(outt, 0);
+      }
+    }
+
+    return out;
+  }
+  /**
+   * Adds silence to the beginning of an AudioBuffer with a given length.
+   * @param {AudioBuffer} originalBuffer - the buffer to update
+   * @param {number} delaySeconds - the amount of time, in seconds, to delay the sound
+   * @param {AudioContext} ctx - An AudioContext instance
+   */
+
+
+  static addStartDelayToAudioBuffer(originalBuffer, delaySeconds, ctx) {
+    // Create buffer with a length equal to the original buffer's length plus the requested delay
+    var delayedBuffer = ctx.createBuffer(originalBuffer.numberOfChannels, ctx.sampleRate * originalBuffer.duration + ctx.sampleRate * delaySeconds, ctx.sampleRate); // For each channel in the audiobuffer...
+
+    for (var srcChannel = 0; srcChannel < originalBuffer.numberOfChannels; srcChannel++) {
+      // Retrieve sample data...
+      var delayedBufferChannelData = delayedBuffer.getChannelData(srcChannel);
+      var originalBufferChannelData = originalBuffer.getChannelData(srcChannel); // Copy samples from the original buffer to the delayed buffer with an offset equal to the delay
+
+      var delayOffset = ctx.sampleRate * delaySeconds;
+
+      for (var i = 0; i < delayedBufferChannelData.length; i++) {
+        delayedBufferChannelData[i + delayOffset] = originalBufferChannelData[i];
+      }
+
+      delayedBuffer.getChannelData(srcChannel).set(delayedBufferChannelData, 0);
+    }
+
+    return delayedBuffer;
+  }
+  /**
+   * Convert a base64 string of an audio file into an AudioBuffer.
+   * @param {string} base64 - a base64 dataURI of an audio file.
+   * @param {AudioContext} ctx - an AudioContext instance.
+   * @param {Function} callback - callback to recieve the generated AudioBuffer
+   */
+
+
+  static base64ToAudioBuffer(base64, ctx, callback) {
+    let base64DataOnly = base64.split(',')[1];
+    let arraybuffer = Base64ArrayBuffer.decode(base64DataOnly);
+    ctx.decodeAudioData(arraybuffer, function (audioBuffer) {
+      callback(audioBuffer);
+    }, e => {
+      console.log('onError');
+      console.log(e);
+    });
+  }
+
+};
+/*
+ * Copyright 2019 WICKLETS LLC
+ *
+ * This file is part of Wick Engine.
+ *
+ * Wick Engine is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Wick Engine is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+/**
+ * Utility class for creating and parsing wick files.
+ */
+Wick.WickFile = class {
+  /**
+   * Generate some metadata for debugging wick projects.
+   * @returns {object}
+   */
+  static generateMetaData() {
+    return {
+      wickengine: Wick.version,
+      platform: {
+        name: platform.name,
+        version: platform.version,
+        product: platform.product,
+        manufacturer: platform.manufacturer,
+        layout: platform.layout,
+        os: {
+          architecture: platform.os.architecture,
+          family: platform.os.family,
+          version: platform.os.version
+        },
+        description: platform.description
+      }
+    };
+  }
+  /**
+   * Create a project from a wick file.
+   * @param {File} wickFile - Wick file containing project data.
+   * @param {function} callback - Function called when the project is created.
+   * @param {string} format - The format to return. Can be 'blob' or 'base64'.
+   */
+
+
+  static fromWickFile(wickFile, callback, format) {
+    if (!format) {
+      format = 'blob';
+    }
+
+    if (format !== 'blob' && format !== 'base64') {
+      console.error('WickFile.toWickFile: invalid format: ' + format);
+      return;
+    }
+
+    var zip = new JSZip();
+    zip.loadAsync(wickFile, {
+      base64: format === 'base64'
+    }).then(contents => {
+      contents.files['project.json'].async('text').then(projectJSON => {
+        var projectData = JSON.parse(projectJSON);
+
+        if (!projectData.objects) {
+          // No metadata! This is a pre 1.0.9a project. Convert it.
+          console.log('Wick.WickFile: Converting old project format.');
+          projectData = Wick.WickFile.Alpha.convertJsonProject(projectData);
+        }
+
+        projectData.assets = [];
+
+        for (var uuid in projectData.objects) {
+          var data = projectData.objects[uuid];
+          var object = Wick.Base.fromData(data);
+          Wick.ObjectCache.addObject(object);
+        }
+
+        var project = Wick.Base.fromData(projectData.project);
+        Wick.ObjectCache.addObject(project);
+        var loadedAssetCount = 0; // Immediately end if the project has no assets.
+
+        if (project.getAssets().length === 0) {
+          this._prepareProject(project);
+
+          callback(project);
+        } else {
+          project.getAssets().forEach(assetData => {
+            var assetFile = contents.files['assets/' + assetData.uuid + '.' + assetData.fileExtension];
+            assetFile.async('base64').then(assetFileData => {
+              var assetSrc = 'data:' + assetData.MIMEType + ';base64,' + assetFileData;
+              Wick.FileCache.addFile(assetSrc, assetData.uuid);
+            }).catch(e => {
+              console.log('Error loading asset file.');
+              console.log(e);
+              callback(null);
+            }).finally(() => {
+              assetData.load(() => {
+                loadedAssetCount++;
+
+                if (loadedAssetCount === project.getAssets().length) {
+                  this._prepareProject(project);
+
+                  callback(project);
+                }
+              });
+            });
+          });
+        }
+      });
+    }).catch(e => {
+      console.log('Error loading project zip.');
+      console.log(e);
+      callback(null);
+    });
+  }
+  /**
+   * Create a wick file from the project.
+   * @param {Wick.Project} project - the project to create a wick file from
+   * @param {function} callback - Function called when the file is created. Contains the file as a parameter.
+   * @param {string} format - The format to return. Can be 'blob' or 'base64'.
+   */
+
+
+  static toWickFile(project, callback, format) {
+    if (!format) {
+      format = 'blob';
+    }
+
+    if (format !== 'blob' && format !== 'base64') {
+      console.error('WickFile.toWickFile: invalid format: ' + format);
+      return;
+    }
+
+    var zip = new JSZip(); // Create assets folder
+
+    var assetsFolder = zip.folder("assets"); // Populate assets folder with files
+
+    project.getAssets().filter(asset => {
+      return asset instanceof Wick.ImageAsset || asset instanceof Wick.SoundAsset || asset instanceof Wick.FontAsset || asset instanceof Wick.ClipAsset;
+    }).forEach(asset => {
+      // Create file from asset dataurl, add it to assets folder
+      var fileExtension = asset.MIMEType.split('/')[1];
+      var filename = asset.uuid;
+      var data = asset.src.split(',')[1];
+      assetsFolder.file(filename + '.' + fileExtension, data, {
+        base64: true
+      });
+    });
+    var objectCacheSerialized = {};
+    Wick.ObjectCache.getActiveObjects(project).forEach(object => {
+      objectCacheSerialized[object.uuid] = object.serialize();
+    });
+    var projectSerialized = project.serialize();
+
+    for (var uuid in objectCacheSerialized) {
+      if (objectCacheSerialized[uuid].classname === 'Project') {
+        delete objectCacheSerialized[uuid];
+      }
+    } // Remove some extra data that we don't actually want to save
+    // Clear selection:
+
+
+    for (var uuid in objectCacheSerialized) {
+      var object = objectCacheSerialized[uuid];
+
+      if (object.classname === 'Selection') {
+        object.selectedObjects = [];
+      }
+    } // Set focus to root
+
+
+    for (var uuid in objectCacheSerialized) {
+      var object = objectCacheSerialized[uuid];
+
+      if (projectSerialized.children.indexOf(uuid) !== -1 && object.classname === 'Clip') {
+        projectSerialized.focus = uuid;
+      }
+    } // Reset all playhead positions
+
+
+    for (var uuid in objectCacheSerialized) {
+      var object = objectCacheSerialized[uuid];
+
+      if (object.classname === 'Timeline') {
+        object.playheadPosition = 1;
+      }
+    } // Add project json to root directory of zip file
+
+
+    var projectData = {
+      project: projectSerialized,
+      objects: objectCacheSerialized
+    };
+    zip.file("project.json", JSON.stringify(projectData, null, 2));
+    zip.generateAsync({
+      type: format,
+      compression: "DEFLATE",
+      compressionOptions: {
+        level: 9
+      }
+    }).then(callback);
+  }
+  /* Make any small backwards compatibility fixes needed */
+
+
+  static _prepareProject(project) {
+    // 1.16+ projects don't allow gaps between frames.
+    Wick.ObjectCache.getAllObjects().filter(object => {
+      return object instanceof Wick.Timeline;
+    }).forEach(timeline => {
+      var oldFrameGapFillMethod = timeline.fillGapsMethod;
+      timeline.fillGapsMethod = 'blank_frames';
+      timeline.resolveFrameGaps();
+      timeline.fillGapsMethod = oldFrameGapFillMethod;
+    });
+  }
+
+};
+/*
+ * Utility class to convert Pre 1.0.9a projects into the most recent format
+ */
+Wick.WickFile.Alpha = class {
+  /**
+   * Convert the old recursive format to the new flat format.
+   */
+  static convertJsonProject(projectJSON) {
+    var newProjectJSON = projectJSON;
+    newProjectJSON.pan = {
+      x: 0,
+      y: 0
+    };
+    newProjectJSON.zoom = 1;
+    var newProjectObjects = {};
+    Wick.WickFile.Alpha.flattenWickObject(projectJSON, null, newProjectObjects);
+    return {
+      project: newProjectJSON,
+      objects: newProjectObjects
+    };
+  }
+
+  static flattenWickObject(objectJSON, parentJSON, objects) {
+    objectJSON.children = [];
+    if (parentJSON) parentJSON.children.push(objectJSON.uuid);
+    objects[objectJSON.uuid] = objectJSON;
+
+    if (objectJSON.root) {
+      objectJSON.focus = objectJSON.root.uuid;
+      Wick.WickFile.Alpha.flattenWickObject(objectJSON.root, objectJSON, objects);
+      delete objectJSON.root;
+    }
+
+    if (objectJSON.assets) {
+      objectJSON.assets.forEach(asset => {
+        Wick.WickFile.Alpha.flattenWickObject(asset, objectJSON, objects);
+      });
+      delete objectJSON.assets;
+    }
+
+    if (objectJSON.selection) {
+      objectJSON.selection.widgetRotation = 0;
+      objectJSON.selection.pivotPoint = {
+        x: 0,
+        y: 0
+      };
+      Wick.WickFile.Alpha.flattenWickObject(objectJSON.selection, objectJSON, objects);
+      delete objectJSON.selection;
+    }
+
+    if (objectJSON.transform) {
+      objectJSON.transformation = {
+        x: objectJSON.transform.x,
+        y: objectJSON.transform.y,
+        scaleX: objectJSON.transform.scaleX,
+        scaleY: objectJSON.transform.scaleY,
+        rotation: objectJSON.transform.rotation,
+        opacity: objectJSON.transform.opacity
+      };
+      delete objectJSON.transform;
+    }
+
+    if (objectJSON.timeline) {
+      Wick.WickFile.Alpha.flattenWickObject(objectJSON.timeline, objectJSON, objects);
+      delete objectJSON.timeline;
+    }
+
+    if (objectJSON.layers) {
+      objectJSON.layers.forEach(layer => {
+        Wick.WickFile.Alpha.flattenWickObject(layer, objectJSON, objects);
+      });
+      delete objectJSON.layers;
+    }
+
+    if (objectJSON.frames) {
+      objectJSON.frames.forEach(frame => {
+        Wick.WickFile.Alpha.flattenWickObject(frame, objectJSON, objects);
+      });
+      delete objectJSON.frames;
+    }
+
+    if (objectJSON.clips) {
+      objectJSON.clips.forEach(clip => {
+        Wick.WickFile.Alpha.flattenWickObject(clip, objectJSON, objects);
+      });
+      delete objectJSON.clips;
+    }
+
+    if (objectJSON.paths) {
+      objectJSON.paths.forEach(path => {
+        Wick.WickFile.Alpha.flattenWickObject(path, objectJSON, objects);
+      });
+      delete objectJSON.paths;
+    }
+
+    if (objectJSON.tweens) {
+      objectJSON.tweens.forEach(tween => {
+        Wick.WickFile.Alpha.flattenWickObject(tween, objectJSON, objects);
+      });
+      delete objectJSON.tweens;
+    }
+
+    if (objectJSON.pathJSON) {
+      objectJSON.json = objectJSON.pathJSON;
+      delete objectJSON.pathJSON;
+    }
+  }
+
+};
+/*
+ * Copyright 2019 WICKLETS LLC
+ *
+ * This file is part of Wick Engine.
+ *
+ * Wick Engine is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Wick Engine is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+ */
 
 /**
  * Utility class for creating and parsing wickobject files.
