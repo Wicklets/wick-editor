@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2019.11.9";
+var WICK_ENGINE_BUILD_VERSION = "2019.11.11";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -57317,6 +57317,7 @@ Wick.View.Project = class extends Wick.View {
     this._canvasBGColor = null;
     this._svgCanvas = null;
     this._svgBackgroundLayer = null;
+    this._svgBordersLayer = null;
     this._pan = {
       x: 0,
       y: 0
@@ -57546,6 +57547,13 @@ Wick.View.Project = class extends Wick.View {
 
     this._svgBackgroundLayer.remove();
 
+    this._svgBordersLayer = new paper.Layer();
+    this._svgBordersLayer.name = 'wick_project_borders';
+
+    this._svgBordersLayer.addChildren(this._generateSVGBorders());
+
+    this._svgBordersLayer.remove();
+
     this.paper.project.clear();
   }
 
@@ -57608,11 +57616,14 @@ Wick.View.Project = class extends Wick.View {
     });
     this.model.focus.timeline.view.onionSkinnedFramesLayers.forEach(layer => {
       this.paper.project.addLayer(layer);
-    }); // TODO replace
-    // Render selection
+    }); // Render selection
 
     this.model.selection.view.render();
-    this.paper.project.addLayer(this.model.selection.view.layer);
+    this.paper.project.addLayer(this.model.selection.view.layer); // Render black bars (for published projects)
+
+    if (this.model.publishedMode) {
+      this.paper.project.addLayer(this._svgBordersLayer);
+    }
   }
 
   _generateSVGCanvasStage() {
@@ -57637,6 +57648,43 @@ Wick.View.Project = class extends Wick.View {
     originCrosshair.position.x = 0;
     originCrosshair.position.y = 0;
     return originCrosshair;
+  }
+
+  _generateSVGBorders() {
+    /**
+     * +----------------------------+
+     * |             top            +
+     * +----------------------------+
+     * +-----+ +------------+ +-----+
+     * |left | |   canvas   | |right|
+     * +-----+ +------------+ +-----+
+     * +----------------------------+
+     * |           bottom           +
+     * +----------------------------+
+     */
+    var borderMin = -10000,
+        borderMax = 10000;
+    return [// top
+    new paper.Path.Rectangle({
+      from: new paper.Point(borderMin, borderMin),
+      to: new paper.Point(borderMax, 0),
+      fillColor: 'black'
+    }), // bottom
+    new paper.Path.Rectangle({
+      from: new paper.Point(borderMin, this.model.height),
+      to: new paper.Point(borderMax, borderMax),
+      fillColor: 'black'
+    }), // left
+    new paper.Path.Rectangle({
+      from: new paper.Point(borderMin, 0),
+      to: new paper.Point(0, this.model.height),
+      fillColor: 'black'
+    }), // right
+    new paper.Path.Rectangle({
+      from: new paper.Point(this.model.width, 0),
+      to: new paper.Point(borderMax, borderMax),
+      fillColor: 'black'
+    })];
   }
 
   _getCenteredPan() {
