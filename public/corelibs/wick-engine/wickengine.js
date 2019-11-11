@@ -45358,6 +45358,12 @@ Wick.ToolSettings = class {
     }, {
       name: 'relativeBrushSize',
       default: true
+    }, {
+      name: 'gapFillAmount',
+      default: 1,
+      min: 0,
+      max: 5,
+      step: 1
     }];
   }
   /**
@@ -54718,6 +54724,7 @@ Wick.Tools.FillBucket = class extends Wick.Tool {
       this.paper.hole({
         point: e.point,
         bgColor: new paper.Color(this.project.backgroundColor),
+        gapFillAmount: this.getSetting('gapFillAmount'),
         layers: this.project.activeFrames.map(frame => {
           return frame.view.pathsLayer;
         }),
@@ -55873,13 +55880,13 @@ Wick.Tools.Zoom = class extends Wick.Tool {
   var RASTER_BASE_RESOLUTION = 3;
   var FILL_TOLERANCE = 0;
   var EXPAND_AMT = 0.85;
-  var GAP_FILL_MARGIN = 1;
   var onError;
   var onFinish;
   var layers;
   var floodFillX;
   var floodFillY;
   var bgColor;
+  var gapFillAmount;
 
   function previewImage(image) {
     var win = window.open('', 'Title', 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, width=' + image.width + ', height=' + image.height + ', top=100, left=100');
@@ -55901,9 +55908,9 @@ Wick.Tools.Zoom = class extends Wick.Tool {
 
           if (!clone.strokeColor && clone.fillColor) {
             clone.strokeColor = clone.fillColor;
-            clone.strokeWidth = GAP_FILL_MARGIN / RASTER_BASE_RESOLUTION;
+            clone.strokeWidth = gapFillAmount / RASTER_BASE_RESOLUTION;
           } else if (clone.strokeWidth) {
-            clone.strokeWidth += GAP_FILL_MARGIN / RASTER_BASE_RESOLUTION;
+            clone.strokeWidth += gapFillAmount / RASTER_BASE_RESOLUTION;
           }
 
           layerGroup.addChild(clone);
@@ -56095,6 +56102,7 @@ Wick.Tools.Zoom = class extends Wick.Tool {
       layers = args.layers;
       floodFillX = args.point.x;
       floodFillY = args.point.y;
+      gapFillAmount = args.gapFillAmount === undefined ? 1 : args.gapFillAmount;
       bgColor = args.bgColor;
       rasterizePaths(onFinish);
     }

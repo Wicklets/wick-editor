@@ -60,6 +60,7 @@ Wick.Tools.FillBucket = class extends Wick.Tool {
             this.paper.hole({
                 point: e.point,
                 bgColor: new paper.Color(this.project.backgroundColor),
+                gapFillAmount: this.getSetting('gapFillAmount'),
                 layers: this.project.activeFrames.map(frame => {
                     return frame.view.pathsLayer;
                 }),

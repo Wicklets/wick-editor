@@ -36,6 +36,7 @@ class ToolSettings extends Component {
       "ellipse": this.renderEllipseSettings,
       "line": this.renderLineSettings,
       "text": this.renderTextSettings,
+      "fillbucket": this.renderFillbucketSettings,
     }
   }
 
@@ -120,6 +121,14 @@ class ToolSettings extends Component {
     return (
       <div className='settings-input-container'>
         {/*this.renderFontSize()*/}
+      </div>
+    );
+  }
+
+  renderFillbucketSettings = () => {
+    return (
+      <div className='settings-input-container'>
+        {this.renderGapFillAmount()}
       </div>
     );
   }
@@ -237,6 +246,18 @@ class ToolSettings extends Component {
         value={this.getToolSetting('brushSize')}
         onChange={(val) => this.setToolSetting('brushSize', val)}
         inputRestrictions={this.props.getToolSettingRestrictions('brushSize')}/>
+    )
+  }
+
+  renderGapFillAmount = () => {
+    return (
+      <ToolSettingsInput
+        name='Gap Fill Amount'
+        icon='gapfillamount'
+        type='numeric'
+        value={this.getToolSetting('gapFillAmount')}
+        onChange={(val) => this.setToolSetting('gapFillAmount', val)}
+        inputRestrictions={this.props.getToolSettingRestrictions('gapFillAmount')}/>
     )
   }
 

@@ -13,3 +13,4 @@
 'Undo' by Timothy Miller from the Noun Project, Edited by Luca Damasco | in tool-icons/ ... undo.svg, redo.svg
 'Raindrop Close Up' by Freepik from Flaticon, Edited by Zach Rispoli | in tool-icons/ brushpressure.png
 'Button' by Google from Flaticon, Edited by Zach Rispoli | in tool-icons/ brushpressure.png
+'Circle' by Ivan Kostriukov from the Noun Project | in tool-icons/property-icons/gapFillAmount.png

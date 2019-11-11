@@ -61,6 +61,12 @@ Wick.ToolSettings = class {
         }, {
             name: 'relativeBrushSize',
             default: true,
+        }, {
+            name: 'gapFillAmount',
+            default: 1,
+            min: 0,
+            max: 5,
+            step: 1,
         }];
     }
 
