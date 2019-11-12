@@ -28,7 +28,7 @@ import missingImage from 'resources/interface/missing.jpg';
 // Import Ace Editor themes.
 import 'brace/mode/javascript';
 import 'brace/theme/monokai';
-
+import 'brace/ext/searchbox';
 
 import './_popoutcodeditor.scss';
 
