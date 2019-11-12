@@ -115,12 +115,17 @@ class ScriptInfoInterface extends Object {
                 {
                     name: 'parentClip',
                     snippet: 'parentClip',
-                    description: 'Returns the Clip that owns the calling object.',
+                    description: 'Returns the Clip that owns the calling Clip.',
                 },
                 {
                     name: 'parentFrame',
                     snippet: 'parentFrame',
-                    description: 'Returns the Frame that owns the calling object.',
+                    description: 'Returns the Frame that owns the calling Clip.',
+                },
+                {
+                    name: 'thisFrame',
+                    snippet: 'thisFrame',
+                    description: '(On a frame script) The frame this code is running on.\n(On a Clip\'s script) Same as parentFrame.',
                 },
                 {
                     name: 'project',
