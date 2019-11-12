@@ -493,7 +493,8 @@ Wick.Tickable = class extends Wick.Base {
           //Frame.parentClip returns the clip you are editing; we want that clip's parent
           window.parent = this instanceof Wick.Frame ? this.parentClip.parentClip : this.parentClip;
           window.parentObject = window.parentClip = window.parent;
-          window.parentFrame = this instanceof Wick.Frame ? this : this.parentFrame;
+          window.parentFrame = this.parentFrame;
+          window.thisFrame = this instanceof Wick.Frame ? this : this.parentFrame;
           
 
           // Run the function
