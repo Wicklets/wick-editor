@@ -404,7 +404,7 @@ class Editor extends EditorCore {
    * @param {boolean} state - Optional. True will open the code editor, false will close.
    */
   toggleCodeEditor = (state) => {
-    if (state === undefined || (typeof variable !== "boolean")) {
+    if (state === undefined || (typeof state !== "boolean")) {
       state = !this.state.codeEditorOpen;
     }
 
