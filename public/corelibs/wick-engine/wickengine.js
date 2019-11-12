@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2019.11.11";
+var WICK_ENGINE_BUILD_VERSION = "2019.11.12";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -46624,7 +46624,16 @@ Wick.Base = class {
     this._identifier = data.identifier;
     this._name = data.name;
     this._children = {};
-    this._childrenData = data.children;
+    this._childrenData = data.children; // Clear any custom attributes set by scripts
+
+    var compareObj = new Wick[this.classname]();
+
+    for (var name in this) {
+      if (compareObj[name] === undefined) {
+        delete this[name];
+      }
+    }
+
     Wick.ObjectCache.addObject(this);
   }
   /**

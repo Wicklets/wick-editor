@@ -76,6 +76,14 @@ Wick.Base = class {
         this._children = {};
         this._childrenData = data.children;
 
+        // Clear any custom attributes set by scripts
+        var compareObj = new Wick[this.classname]();
+        for (var name in this) {
+            if(compareObj[name] === undefined) {
+                delete this[name];
+            }
+        }
+
         Wick.ObjectCache.addObject(this);
     }
 

@@ -678,19 +678,22 @@ describe('Wick.Project', function() {
         it('should run unload scripts on all clips when the project is stopped', function (done) {
             var project = new Wick.Project();
 
+            window.tempArea = {};
+
             var rootLevelClip = new Wick.Clip();
-            rootLevelClip.addScript('unload', 'this.__unloadScriptRan = true;');
+            rootLevelClip.addScript('unload', 'window.tempArea[this.uuid] = true;');
             project.activeFrame.addClip(rootLevelClip);
 
             var childClip = new Wick.Clip();
-            childClip.addScript('unload', 'this.__unloadScriptRan = true;');
+            childClip.addScript('unload', 'window.tempArea[this.uuid] = true;');
             rootLevelClip.activeFrame.addClip(childClip);
 
             project.play({
                 onAfterTick: () => {
                     project.stop();
-                    expect(rootLevelClip.__unloadScriptRan).to.equal(true);
-                    expect(childClip.__unloadScriptRan).to.equal(true);
+                    expect(window.tempArea[rootLevelClip.uuid]).to.equal(true);
+                    expect(window.tempArea[childClip.uuid]).to.equal(true);
+                    delete window.tempArea;
                     done();
                 }
             });
@@ -708,6 +711,24 @@ describe('Wick.Project', function() {
                         expect(project.activeTimeline.playheadPosition).to.equal(3);
                         done();
                     }
+                }
+            });
+        });
+
+        it('should clear all custom attributes set by scripts', function (done) {
+            var project = new Wick.Project();
+
+            var frame = project.activeFrame;
+            var clip = new Wick.Clip();
+            clip.addScript('default', 'this._shouldNotLeak = 123');
+            frame.addClip(clip);
+
+            project.play({
+                onAfterTick: () => {
+                    expect(clip._shouldNotLeak).to.equal(123);
+                    project.stop();
+                    expect(clip._shouldNotLeak).to.equal(undefined);
+                    done();
                 }
             });
         });
