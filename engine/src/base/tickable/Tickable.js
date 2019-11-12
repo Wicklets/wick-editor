@@ -513,6 +513,7 @@ Wick.Tickable = class extends Wick.Base {
           delete window.parentClip;
           delete window.parentObject;
           delete window.parentFrame;
+          delete window.thisFrame;
 
           // Detatch API methods
           apiMembers.forEach(apiMember => {
