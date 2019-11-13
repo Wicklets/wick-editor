@@ -271,7 +271,9 @@ class HotKeyInterface extends Object {
       },
       'toggle-script-editor': {
         name: "Toggle Script Editor",
-        sequences: ['`'],
+        // Note: Chrome and Firefox seem to use different backquotes.
+        // This should ensure that the hotkey works on both browsers.
+        sequences: ['`', '`'],
       },
       'export-project-as-wick-file': {
         name: "Save Project",
