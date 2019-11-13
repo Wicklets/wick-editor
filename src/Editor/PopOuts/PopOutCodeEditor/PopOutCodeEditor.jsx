@@ -93,6 +93,8 @@ class PopOutCodeEditor extends Component {
   }
 
   rerenderCodeEditor = () => {
+    // Not calling forceUpdate seems to improve performance.
+    // Does this cause any issues for displaying the correct script for the selection?
     //this.forceUpdate();
   }
 
