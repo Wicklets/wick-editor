@@ -93,7 +93,7 @@ class PopOutCodeEditor extends Component {
   }
 
   rerenderCodeEditor = () => {
-    this.forceUpdate();
+    //this.forceUpdate();
   }
 
   codeHasErrors = () => {
