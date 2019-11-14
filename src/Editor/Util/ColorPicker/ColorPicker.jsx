@@ -20,6 +20,8 @@
 import React, { Component } from 'react';
 import { Popover } from 'reactstrap';
 import { SketchPicker } from 'react-color';
+import  ActionButton  from 'Editor/Util/ActionButton/ActionButton';
+import WickColorPicker  from 'Editor/Util/ColorPicker/WickColorPicker';
 
 import './_colorpicker.scss';
 
@@ -64,7 +66,8 @@ class ColorPicker extends Component {
           toggle={this.toggle}
           boundariesElement={'viewport'}
         >
-          <SketchPicker
+          <WickColorPicker 
+            toggle={this.toggle}
             disableAlpha={ this.props.disableAlpha }
             color={this.props.color !== null ? this.props.color : 'transparent'}
             onChangeComplete={ this.props.onChangeComplete }
@@ -74,5 +77,6 @@ class ColorPicker extends Component {
     )
   }
 }
+
 
 export default ColorPicker

@@ -1,0 +1,80 @@
+/*
+ * Copyright 2018 WICKLETS LLC
+ *
+ * This file is part of Wick Editor.
+ *
+ * Wick Editor is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Wick Editor is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Wick Editor.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+ @import 'Editor/_wickbrand.scss';
+
+ $color-picker-width: 175px;
+ $color-picker-height: 200px;
+ $color-picker-padding: 10px;
+ $color-picker-bar-height: 25px;
+ $color-picker-block-margin: 5px;
+
+ .wick-color-picker {
+     background: 'black';
+     width: $color-picker-width;
+     height: $color-picker-height;
+     padding: $color-picker-padding;
+ }
+
+ .wick-color-picker-header {
+    height: $color-picker-bar-height;
+    display: flex;
+ }
+
+ .wick-color-picker-saturation {
+    width: 100%;
+    height: 75px;
+    position: relative;
+    margin-top: $color-picker-block-margin;
+    border-radius: 2px;
+    overflow: hidden;
+ }
+
+#btn-color-picker-close {
+    margin-left: auto;
+    width:$color-picker-bar-height;
+    height:$color-picker-bar-height;
+}
+  
+#btn-color-picker-dropper {
+    width:$color-picker-bar-height;
+    height:$color-picker-bar-height;
+    margin-right: $color-picker-block-margin; 
+}
+
+.wick-color-picker-control-body {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    margin-top: $color-picker-block-margin;
+}
+
+.wick-color-picker-control-bar {
+    width: calc(#{$color-picker-width} - 2 * #{$color-picker-padding} - 2 * #{$color-picker-bar-height} - 2 * #{$color-picker-block-margin});
+    height: 45%;
+    position: relative;
+    margin-bottom: 2.5%; 
+}
+
+.wick-color-picker-color-block-container {
+    position: relative;
+    width: $color-picker-bar-height;
+    height: $color-picker-bar-height;
+    margin-left: $color-picker-block-margin;
+}
