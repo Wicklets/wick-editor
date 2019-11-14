@@ -63,11 +63,12 @@ class ColorPicker extends Component {
           placement={this.props.placement}
           isOpen={this.state.open}
           target={itemID}
-          toggle={this.toggle}
           boundariesElement={'viewport'}
         >
           <WickColorPicker 
             toggle={this.toggle}
+            colorPickerType={this.props.colorPickerType}
+            changeColorPickerType={this.props.changeColorPickerType}
             disableAlpha={ this.props.disableAlpha }
             color={this.props.color !== null ? this.props.color : 'transparent'}
             onChangeComplete={ this.props.onChangeComplete }

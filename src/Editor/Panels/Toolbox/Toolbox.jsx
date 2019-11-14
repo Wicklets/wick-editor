@@ -103,6 +103,8 @@ class Toolbox extends Component {
               tooltipID="tool-box-fill-color"
               tooltip="Fill Color"
               placement="bottom"
+              colorPickerType={this.props.colorPickerType}
+              changeColorPickerType={this.props.changeColorPickerType}
               />
           </div>
           <div className="color-container toolbox-item" id="stroke-color-picker-container">
@@ -117,6 +119,8 @@ class Toolbox extends Component {
               tooltip="Stroke Color"
               placement="bottom"
               stroke={true}
+              colorPickerType={this.props.colorPickerType}
+              changeColorPickerType={this.props.changeColorPickerType}
               />
           </div>
 

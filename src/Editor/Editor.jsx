@@ -84,6 +84,7 @@ class Editor extends EditorCore {
       renderType: "default",
       renderStatusMessage: "",
       customHotKeys: {},
+      colorPickerType: "spectrum",
     };
 
     // Set up error.
@@ -230,6 +231,16 @@ class Editor extends EditorCore {
    */
   resetEditorForLoad = () => {
 
+  }
+
+  /**
+   * Updates the color picker type within the editor state.
+   * @param {String} type String representing the type of the color picker, can be swatches, spectrum, or gradient (TODO).
+   */
+  changeColorPickerType = (type) => {
+    this.setState({
+      colorPickerType: type,
+    });
   }
 
   onWindowResize = () => {
@@ -762,6 +773,8 @@ class Editor extends EditorCore {
                               getToolSettingRestrictions={this.getToolSettingRestrictions}
                               showCanvasActions={this.state.showCanvasActions}
                               toggleCanvasActions={this.toggleCanvasActions}
+                              colorPickerType={this.state.colorPickerType}
+                              changeColorPickerType={this.changeColorPickerType}
                             />
                           </DockedPanel>
                         </div>
