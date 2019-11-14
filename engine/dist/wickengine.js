@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2019.11.12";
+var WICK_ENGINE_BUILD_VERSION = "2019.11.14";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -54643,6 +54643,9 @@ Wick.Tools.Eyedropper = class extends Wick.Tool {
       this.project.toolSettings.setSetting('strokeColor', this.hoverColor);
     }
 
+    this.fireEvent('eyedropperPickedColor', {
+      color: this.hoverColor
+    });
     this.fireEvent('canvasModified');
   }
 
@@ -57513,6 +57516,9 @@ Wick.View.Project = class extends Wick.View {
         this._applyZoomAndPanChangesFromPaper();
 
         this.fireEvent('canvasModified', e);
+      });
+      tool.on('eyedropperPickedColor', e => {
+        this.fireEvent('eyedropperPickedColor', e);
       });
       tool.on('error', e => {
         this.fireEvent('error', e);

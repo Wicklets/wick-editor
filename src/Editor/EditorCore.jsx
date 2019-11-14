@@ -1272,6 +1272,10 @@ class EditorCore extends Component {
           window.saveAs(file, (clip.identifier || 'object') + '.wickobj');
       });
   }
+
+  onEyedropperPickedColor = (color) => {
+      console.log(color)
+  }
 }
 
 export default EditorCore;

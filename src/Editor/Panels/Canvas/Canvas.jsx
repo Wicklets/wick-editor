@@ -55,6 +55,10 @@ class Canvas extends Component {
       this.props.projectDidChange();
     });
 
+    project.view.on('eyedropperPickedColor', (e) => {
+      this.props.onEyedropperPickedColor(e);
+    });
+
     project.view.on('error', (e) => {
       if(e.message === 'OUT_OF_BOUNDS' || e.message === 'LEAKY_HOLE') {
         this.props.toast('The shape you are trying to fill has a gap.', 'warning');
