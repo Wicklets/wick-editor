@@ -72,6 +72,7 @@ class ColorPicker extends Component {
             disableAlpha={ this.props.disableAlpha }
             color={this.props.color !== null ? this.props.color : 'transparent'}
             onChangeComplete={ this.props.onChangeComplete }
+            lastColorsUsed={this.props.lastColorsUsed}
           />
         </Popover>
       </div>

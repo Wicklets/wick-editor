@@ -85,6 +85,7 @@ class Editor extends EditorCore {
       renderStatusMessage: "",
       customHotKeys: {},
       colorPickerType: "spectrum",
+      lastColorsUsed: ["#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF"]
     };
 
     // Set up error.
@@ -105,6 +106,9 @@ class Editor extends EditorCore {
     // Wick file input
     this.openFileRef = React.createRef();
     this.importAssetRef = React.createRef();
+
+    // Set up color picker
+    this.maxLastColors = 8;
 
     // Resizable panels
     this.RESIZE_THROTTLE_AMOUNT_MS = 100;
@@ -266,6 +270,16 @@ class Editor extends EditorCore {
         minHeight: 300,
       }
     );
+  }
+
+  updateLastColors = (color) => {
+    let newArray = this.state.lastColorsUsed.concat([]); // make a deep copy.
+    newArray.unshift(color);
+    newArray.pop();
+
+    this.setState({
+      lastColorsUsed: newArray,
+    });
   }
 
   onResize = (e) => {
@@ -775,6 +789,8 @@ class Editor extends EditorCore {
                               toggleCanvasActions={this.toggleCanvasActions}
                               colorPickerType={this.state.colorPickerType}
                               changeColorPickerType={this.changeColorPickerType}
+                              updateLastColors={this.updateLastColors}
+                              lastColorsUsed={this.state.lastColorsUsed}
                             />
                           </DockedPanel>
                         </div>

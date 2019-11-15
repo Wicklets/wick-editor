@@ -10,10 +10,6 @@ var { Saturation, Hue, Alpha, Checkboard, Swatches, Swatch } = require('react-co
 var { SketchFields } = require('react-color/lib/components/sketch/SketchFields');
 
 class WickColorPicker extends Component {
-    constructor (props) {
-        super(props);
-    }
-
     renderSwatches = () => {
         return (
             <SwatchesPicker {...this.props} />
@@ -65,7 +61,8 @@ class WickColorPicker extends Component {
         }
 
         let colors = ['#D0021B', '#F5A623', '#F8E71C', '#8B572A', '#7ED321', '#417505', '#BD10E0', '#9013FE', '#4A90E2', '#50E3C2', '#B8E986', '#000000', '#4A4A4A', '#9B9B9B', '#FFFFFF']
-        let lastUsedColors = ["#000000","#000000","#000000","#000000","#000000","#000000","#000000","#000000",]
+        let lastUsedColorsDefaults = ["#000000","#000000","#000000","#000000","#000000","#000000","#000000","#000000"]
+        let lastColors = this.props.lastColorsUsed || lastUsedColorsDefaults;
         return (
             <div className="wick-color-picker">
                 {this.renderHeader()}
@@ -93,7 +90,7 @@ class WickColorPicker extends Component {
                 </div>
                 <SketchFields {...this.props} /> 
                 {this.renderSwatchContainer(colors)}
-                {this.renderSwatchContainer(lastUsedColors)}
+                {this.renderSwatchContainer(lastColors)}
             </div>
         );
     }
