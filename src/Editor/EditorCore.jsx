@@ -1014,13 +1014,16 @@ class EditorCore extends Component {
    */
   tryToParseProjectURL () {
     // Retrieve URL
-    var urlParam = queryString.parse(window.location.search);
-    var url = new urlParse(urlParam.project);
+    var urlParams = queryString.parse(window.location.search);
+    var urlParam = urlParams.project;
 
     // No URL param, skip the download
-    if(!url) {
+    if(!urlParam) {
       return false;
     }
+
+    // Parse requested URL
+    var url = new urlParse(urlParam);
 
     // Check if the provided URL is allowed in the whitelist.
     var whitelist = ['zrispo.co'];
