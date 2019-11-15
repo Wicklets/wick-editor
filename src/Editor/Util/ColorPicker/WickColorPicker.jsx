@@ -7,6 +7,7 @@ import './_wickcolorpicker.scss';
 import { CustomPicker, SwatchesPicker } from 'react-color';
 
 var { Saturation, Hue, Alpha, Checkboard, Swatches, Swatch } = require('react-color/lib/components/common');
+var { SketchFields } = require('react-color/lib/components/sketch/SketchFields');
 
 class WickColorPicker extends Component {
     constructor (props) {
@@ -19,11 +20,31 @@ class WickColorPicker extends Component {
         );
     }
 
+    renderSwatchContainer = (colors) => {
+        return (
+            <div className="wick-color-picker-swatches-container">
+                {colors.map((color, i) => {
+                    return (
+                        <div key={"color-swatch-" + color + "-" + i} className="wick-color-picker-small-swatch">
+                            <Swatch  
+                                color={color}
+                                onClick={(color) => {this.props.onChangeComplete(color)}}  />
+                        </div>
+                    );
+                })}
+            </div>
+        );
+    }
+
     renderHeader () {
         return (
             <div className="wick-color-picker-header">
-                <ActionButton action={() => {this.props.changeColorPickerType("swatches")}} text="S" />
-                <ActionButton action={() => {this.props.changeColorPickerType("spectrum")}} text="Sp" />
+                <div className="wick-color-picker-action-button">
+                    <ActionButton action={() => {this.props.changeColorPickerType("swatches")}} text="S" />
+                </div>
+                <div className="wick-color-picker-action-button spacer">
+                    <ActionButton action={() => {this.props.changeColorPickerType("spectrum")}} text="Sp" />
+                </div>
                 <div className="color-picker-control-div">
                     <div id="btn-color-picker-close">
                         <ActionButton icon="closemodal" action={this.props.toggle}/>
@@ -34,8 +55,6 @@ class WickColorPicker extends Component {
     }
 
     renderSpectrum = () => {
-        let rgb = this.props.rgb;
-
         let styles = {
             activeColor: {
                 width: "100%",
@@ -45,6 +64,8 @@ class WickColorPicker extends Component {
             }
         }
 
+        let colors = ['#D0021B', '#F5A623', '#F8E71C', '#8B572A', '#7ED321', '#417505', '#BD10E0', '#9013FE', '#4A90E2', '#50E3C2', '#B8E986', '#000000', '#4A4A4A', '#9B9B9B', '#FFFFFF']
+        let lastUsedColors = ["#000000","#000000","#000000","#000000","#000000","#000000","#000000","#000000",]
         return (
             <div className="wick-color-picker">
                 {this.renderHeader()}
@@ -53,7 +74,9 @@ class WickColorPicker extends Component {
                 </div>
                 <div className="wick-color-picker-control-body">
                     <div id="btn-color-picker-dropper">
-                        <ActionButton icon="eyedropper"/>
+                        <ActionButton 
+                            icon="eyedropper"
+                            action={() => {console.log("Open Eyedropper")}}/>
                     </div>
                     <div id="wick-color-picker-bar-container">
                         <div className="wick-color-picker-control-bar">
@@ -68,19 +91,9 @@ class WickColorPicker extends Component {
                         <div style={styles.activeColor} />
                     </div>             
                 </div>
-                <div className="wick-color-picker-swatches-container">
-                    <Swatch 
-                        onChangeComplete={this.props.onChangeComplete} 
-                        color='#D0021B'
-                        onClick={(evt) => {console.log(evt)}}  />
-                    {/* <Swatches {...this.props} colors={[
-                        ['#D0021B', '#F5A623', '#F8E71C'], 
-                        ['#8B572A', '#7ED321', '#417505'],
-                        ['#BD10E0', '#9013FE', '#4A90E2'], 
-                        ['#50E3C2', '#B8E986', '#000000'],
-                        ['#4A4A4A', '#9B9B9B', '#FFFFFF']
-                    ]} /> */}
-                </div>
+                <SketchFields {...this.props} /> 
+                {this.renderSwatchContainer(colors)}
+                {this.renderSwatchContainer(lastUsedColors)}
             </div>
         );
     }

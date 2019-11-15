@@ -62,9 +62,9 @@ class ColorPicker extends Component {
         <Popover
           placement={this.props.placement}
           isOpen={this.state.open}
+          toggle={this.toggle}
           target={itemID}
-          boundariesElement={'viewport'}
-        >
+          boundariesElement={'viewport'}>
           <WickColorPicker 
             toggle={this.toggle}
             colorPickerType={this.props.colorPickerType}

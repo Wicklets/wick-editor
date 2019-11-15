@@ -19,8 +19,8 @@
 
  @import 'Editor/_wickbrand.scss';
 
- $color-picker-width: 175px;
- $color-picker-height: 200px;
+ $color-picker-width: 220px;
+ $color-picker-height: 300px;
  $color-picker-padding: 10px;
  $color-picker-bar-height: 25px;
  $color-picker-block-margin: 5px;
@@ -29,7 +29,8 @@
      background: 'black';
      width: $color-picker-width;
      height: $color-picker-height;
-     padding: $color-picker-padding;
+     padding: 10px 10px 0px;
+     
  }
 
  .wick-color-picker-header {
@@ -39,7 +40,7 @@
 
  .wick-color-picker-saturation {
     width: 100%;
-    height: 75px;
+    height: 90px;
     position: relative;
     margin-top: $color-picker-block-margin;
     border-radius: 2px;
@@ -56,6 +57,16 @@
     width:$color-picker-bar-height;
     height:$color-picker-bar-height;
     margin-right: $color-picker-block-margin; 
+}
+
+.wick-color-picker-action-button {
+    width:$color-picker-bar-height;
+    height:$color-picker-bar-height;
+    margin-right: 10px 
+}
+
+.wick-color-picker-action-button.spacer {
+    margin-right: auto; 
 }
 
 .wick-color-picker-control-body {
@@ -80,6 +91,37 @@
 }
 
 .wick-color-picker-swatches-container {
-    width: 100%;
-    height: 50px; 
+    height: 50px;
+    display: flex;
+    margin-top: $color-picker-block-margin; 
+    flex-wrap: wrap;
+    border-top: 1px solid rgba(0,0,0,.1);
+    padding-top: 8px;
+    margin: $color-picker-block-margin -10px;
+    padding: 5px 0px 0px 10px; 
+}
+
+.wick-color-picker-small-swatch {
+    width: 16px;
+    min-width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    overflow: hidden;
+    border: 1px solid rgba(0,0,0,.2);
+    margin: 0px 10px 10px 0px;
+}
+
+// Fix the styling for the Sketch Inputs.
+.wick-color-picker .flexbox-fix {
+    margin-top: calc(#{$color-picker-block-margin} + 4px) !important;
+    padding-top: 0px !important; 
+}
+
+.wick-color-picker input {
+    width: 100% !important; 
+    border-radius: 4px;
+}
+
+.wick-color-picker span {
+    padding-bottom: 0px !important; 
 }
