@@ -173,7 +173,9 @@ class Editor extends EditorCore {
   componentDidMount = () => {
     this.hidePreloader();
     this.onWindowResize();
-    this.showAutosavedProjects();
+    if(!this.tryToParseProjectURL()) {
+      this.showAutosavedProjects();
+    }
   }
 
   componentDidUpdate = (prevProps, prevState) => {

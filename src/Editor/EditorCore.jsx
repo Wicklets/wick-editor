@@ -19,6 +19,8 @@
 
 import { Component } from 'react';
 import localForage from 'localforage';
+import * as urlParse from 'url-parse/dist/url-parse';
+import queryString from 'query-string';
 import { saveAs } from 'file-saver';
 import VideoExport from './export/VideoExport';
 import GIFExport from './export/GIFExport';
@@ -1005,6 +1007,42 @@ class EditorCore extends Component {
         this.queueModal('AutosaveWarning');
       }
     });
+  }
+
+  /**
+   * Parses a URL passed into the editor using ?project=file.wick in the URL. URLs must be encoded with encodeURIComponent.
+   */
+  tryToParseProjectURL () {
+    // Retrieve URL
+    var urlParam = queryString.parse(window.location.search);
+    var url = new urlParse(urlParam.project);
+
+    // No URL param, skip the download
+    if(!url) {
+      return false;
+    }
+
+    // Check if the provided URL is allowed in the whitelist.
+    var whitelist = ['zrispo.co'];
+    if(whitelist.indexOf(url.hostname) === -1) {
+      console.error('tryToParseProjectURL: URL is not in the whitelist.');
+      return false;
+    }
+
+    // Download and open the wick project.
+    fetch(url)
+      .then(resp => resp.blob())
+      .then(blob => {
+        window.Wick.WickFile.fromWickFile(blob, loadedProject => {
+          this.setupNewProject(loadedProject);
+        }, 'blob');
+      })
+      .catch((e) => {
+        console.error('tryToParseProjectURL: Could not download Wick project.')
+        console.error(e);
+      });
+
+    return true;
   }
 
   /**
