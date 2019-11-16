@@ -153,7 +153,6 @@ class WickInput extends Component {
 
       this.props.updateLastColors && this.props.updateLastColors(newColor); 
       this.props.onChange && this.props.onChange(newColor);
-
     };
 
     return (

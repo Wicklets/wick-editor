@@ -1,21 +1,14 @@
 import React, { Component } from 'react'
 
-import { ColorWrap, } from 'react-color';
 import  ActionButton  from 'Editor/Util/ActionButton/ActionButton';
 
 import './_wickcolorpicker.scss';
 import { CustomPicker, SwatchesPicker } from 'react-color';
 
-var { Saturation, Hue, Alpha, Checkboard, Swatches, Swatch } = require('react-color/lib/components/common');
+var { Saturation, Hue, Alpha, Checkboard, Swatch } = require('react-color/lib/components/common');
 var { SketchFields } = require('react-color/lib/components/sketch/SketchFields');
 
 class WickColorPicker extends Component {
-    renderSwatches = () => {
-        return (
-            <SwatchesPicker {...this.props} />
-        );
-    }
-
     renderSwatchContainer = (colors) => {
         return (
             <div className="wick-color-picker-swatches-container">
@@ -31,6 +24,61 @@ class WickColorPicker extends Component {
             </div>
         );
     }
+
+    renderSwatchColumn = (colorList, i) => {
+        return (
+            <div key={"swatch-color-column-" + i} className="wick-swatch-picker-column">
+                {colorList.map((color,i) => {
+                    console.log(color);
+                    return (
+                    <div key={"swatch-color-"+color+"-"+i} className="column-swatch">
+                        <Swatch  
+                            color={color}
+                            onClick={(color) => {this.props.onChangeComplete(color)}}  />
+                    </div>
+                    );
+                })}
+            </div>    
+        );
+    }
+
+    renderSwatchbook = (colors) => {
+        return (
+            <div className="wick-swatch-picker-book">
+                {colors.map((colorList, i) => {
+                    return (this.renderSwatchColumn(colorList, i));
+                })}
+            </div>
+        );
+    }
+
+    renderSwatches = () => {
+        let colors = [
+            ["#ff0000","#ffcccc","#ff9999","#ff4d4d","#cc0000","#800000"],
+            ["#ff8000","#ffe6cc","#ffcc99","#ffa64d","#cc6600","#804000"],
+            ["#ffff00","#ffffcc","#ffff99","#ffff4d","#cccc00","#808000"],
+            ["#00ff00","#ccffcc","#99ff99","#4dff4d","#00cc00","#008000"],
+            ["#00ff80","#ccffe6","#99ffcc","#4dffa6","#00cc66","#008040"],
+            ["#00ffff","#ccffff","#99ffff","#4dffff","#00cccc","#008080"],
+            ["#0080ff","#cce6ff","#99ccff","#4da6ff","#0066cc","#004080"],
+            ["#0000ff","#ccccff","#9999ff","#4d4dff","#0000cc","#000080"],
+            ["#8000ff","#e6ccff","#cc99ff","#a64dff","#6600cc","#400080"],
+            ["#ff00ff","#ffccff","#ff99ff","#ff4dff","#cc00cc","#800080"],
+            ["#ff0080","#ffcce6","#ff99cc","#ff4da6","#cc0066","#800040"],
+            ["#000000","#FFFFFF","#cccccc","#999999","#666666","#333333"]
+        ]
+        
+        return (
+            <div className="wick-color-picker">
+                {this.renderHeader()}
+                <div className="wick-swatch-color-picker-body">
+                    {this.renderSwatchbook(colors)}
+                </div>
+            </div>
+        );
+    }
+
+
 
     renderHeader () {
         return (

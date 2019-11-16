@@ -19,8 +19,6 @@
 
 import React, { Component } from 'react';
 import { Popover } from 'reactstrap';
-import { SketchPicker } from 'react-color';
-import  ActionButton  from 'Editor/Util/ActionButton/ActionButton';
 import WickColorPicker  from 'Editor/Util/ColorPicker/WickColorPicker';
 
 import './_colorpicker.scss';

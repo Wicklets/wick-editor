@@ -26,11 +26,12 @@
  $color-picker-block-margin: 5px;
 
  .wick-color-picker {
-     background: 'black';
+     background-color: $editor-secondary;
      width: $color-picker-width;
      height: $color-picker-height;
      padding: 10px 10px 0px;
-     
+     border-color: $editor-modal-dark;
+     border-radius: 4px;
  }
 
  .wick-color-picker-header {
@@ -109,6 +110,37 @@
     overflow: hidden;
     border: 1px solid rgba(0,0,0,.2);
     margin: 0px 10px 10px 0px;
+}
+
+//Swatchbook styling
+.column-swatch {
+    width: 30px;
+    height: 20px;
+}
+
+.column-swatch:first-child {
+    margin-bottom: 2px;
+}
+
+.wick-swatch-picker-column {
+    display: flex;
+    flex-direction: column;
+    margin: 0px 4px 4px 0px;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.wick-swatch-picker-book {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin: $color-picker-block-margin -10px;
+    padding: 5px 0px 0px 10px; 
+}
+
+.wick-swatch-color-picker-body {
+    display: flex;
+    flex-direction: column;
 }
 
 // Fix the styling for the Sketch Inputs.
