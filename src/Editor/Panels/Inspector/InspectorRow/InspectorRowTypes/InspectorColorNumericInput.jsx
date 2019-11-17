@@ -34,6 +34,10 @@ class InspectorColorNumericInput extends Component {
               id: this.props.id,
               stroke: !this.props.stroke ? false : this.props.stroke,
               placement: "left",
+              colorPickerType: this.props.colorPickerType,
+              changeColorPickerType:this.props.changeColorPickerType,
+              updateLastColors:this.props.updateLastColors,
+              lastColorsUsed:this.props.lastColorsUsed,
             }
           }
           input2={

@@ -897,6 +897,10 @@ class Editor extends EditorCore {
                                 fontInfoInterface={this.fontInfoInterface}
                                 project={this.project}
                                 importFileAsAsset={this.importFileAsAsset}
+                                colorPickerType={this.state.colorPickerType}
+                                changeColorPickerType={this.changeColorPickerType}
+                                updateLastColors={this.updateLastColors}
+                                lastColorsUsed={this.state.lastColorsUsed}
                               />
                             </DockedPanel>
                           </ReflexElement>
