@@ -10,25 +10,6 @@ var { Saturation, Hue, Alpha, Checkboard, Swatch } = require('react-color/lib/co
 var { SketchFields } = require('react-color/lib/components/sketch/SketchFields');
 
 class WickColorPicker extends Component {
-
-    renderSwatchContainer = (colors) => {
-        return (
-            <div className="wick-color-picker-swatches-container">
-                {colors.map((color, i) => {
-                    return (
-                        <div 
-                            key={"color-swatch-" + color + "-" + i} 
-                            className="wick-color-picker-small-swatch">
-                            <Swatch  
-                                color={color}
-                                onClick={(color) => {this.props.onChangeComplete(color)}}  />
-                        </div>
-                    );
-                })}
-            </div>
-        );
-    }
-
     renderSwatchColumn = (colorList, i) => {
         return (
             <div key={"swatch-color-column-" + i} className="wick-swatch-picker-column">
@@ -109,6 +90,25 @@ class WickColorPicker extends Component {
         );
     }
 
+    
+    renderSwatchContainer = (colors) => {
+        return (
+            <div className="wick-color-picker-swatches-container">
+                {colors.map((color, i) => {
+                    return (
+                        <div 
+                            key={"color-swatch-" + color + "-" + i} 
+                            className="wick-color-picker-small-swatch">
+                            <Swatch  
+                                color={color}
+                                onClick={(color) => {this.props.onChangeComplete(color)}}  />
+                        </div>
+                    );
+                })}
+            </div>
+        );
+    }
+    
     renderSpectrum = () => {
         let styles = {
             activeColor: {
@@ -136,7 +136,7 @@ class WickColorPicker extends Component {
                     </div>
                     <div id="wick-color-picker-bar-container">
                         <div className="wick-color-picker-control-bar">
-                            <Hue {...this.props} />
+                            <Hue {...this.props} height={11}/>
                         </div>
                         <div className="wick-color-picker-control-bar">
                             <Alpha {...this.props} />

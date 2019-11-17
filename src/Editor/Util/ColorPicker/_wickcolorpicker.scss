@@ -152,8 +152,15 @@
 .wick-color-picker input {
     width: 100% !important; 
     border-radius: 4px;
+    background-color: $editor-primary !important;
+    border: $editor-input-border-width solid $editor-primary-outline !important;
+    color: $editor-primary-property-text !important;
+    box-shadow: none !important;
+    padding: 0px 0px 0px 2px !important;
 }
 
 .wick-color-picker span {
     padding-bottom: 0px !important; 
+    color: $editor-primary-property-text !important;
 }
+
