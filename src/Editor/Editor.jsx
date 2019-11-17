@@ -772,6 +772,10 @@ class Editor extends EditorCore {
                     resetCustomHotKeys={this.resetCustomHotKeys}
                     customHotKeys={this.state.customHotKeys}
                     keyMap={this.getKeyMap()}
+                    colorPickerType={this.state.colorPickerType}
+                    changeColorPickerType={this.changeColorPickerType}
+                    updateLastColors={this.updateLastColors}
+                    lastColorsUsed={this.state.lastColorsUsed}
                   />
                   {/* Header */}
                   <DockedPanel showOverlay={this.state.previewPlaying}>

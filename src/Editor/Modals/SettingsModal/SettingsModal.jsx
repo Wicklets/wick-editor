@@ -59,7 +59,11 @@ class SettingsModal extends Component {
           <TabbedInterface tabNames={["Project", "Shortcuts"]} >
             <ProjectSettings
               project={this.props.project}
-              updateProjectSettings={this.props.updateProjectSettings} />
+              updateProjectSettings={this.props.updateProjectSettings} 
+              colorPickerType={this.props.colorPickerType}
+              changeColorPickerType={this.props.changeColorPickerType}
+              updateLastColors={this.props.updateLastColors}
+              lastColorsUsed={this.props.lastColorsUsed}/>
             <KeyboardShortcuts
               addCustomHotKeys={this.props.addCustomHotKeys}
               resetCustomHotKeys={this.props.resetCustomHotKeys}

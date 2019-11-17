@@ -242,7 +242,11 @@ class ProjectSettings extends Component {
             disableAlpha={true}
             placement={'bottom'}
             color={this.state.backgroundColor}
-            onChange={this.changeProjectBackgroundColor} />
+            onChange={this.changeProjectBackgroundColor}
+            colorPickerType={this.props.colorPickerType}
+            changeColorPickerType={this.props.changeColorPickerType}
+            updateLastColors={this.props.updateLastColors}
+            lastColorsUsed={this.props.lastColorsUsed} />
         </div>
       </div>
     );
