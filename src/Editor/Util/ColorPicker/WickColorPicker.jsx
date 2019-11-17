@@ -87,10 +87,10 @@ class WickColorPicker extends Component {
         return (
             <div className="wick-color-picker-header">
                 <div className="wick-color-picker-action-button">
-                    <ActionButton action={() => {this.props.changeColorPickerType("swatches")}} text="S" />
+                    <ActionButton action={() => {this.props.changeColorPickerType("swatches")}} icon="swatches" />
                 </div>
                 <div className="wick-color-picker-action-button spacer">
-                    <ActionButton action={() => {this.props.changeColorPickerType("spectrum")}} text="Sp" />
+                    <ActionButton action={() => {this.props.changeColorPickerType("spectrum")}} icon="spectrum" />
                 </div>
                 <div className="color-picker-control-div">
                     <div id="btn-color-picker-close">
