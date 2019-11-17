@@ -84,7 +84,7 @@ class Editor extends EditorCore {
       renderType: "default",
       renderStatusMessage: "",
       customHotKeys: {},
-      colorPickerType: "spectrum",
+      colorPickerType: "swatches",
       lastColorsUsed: ["#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF"]
     };
 
