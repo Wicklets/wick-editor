@@ -143,12 +143,23 @@ class Editor extends EditorCore {
 
     this.autoSaveKey = "wickProjectAutosave1-0-11";
     this.customHotKeysKey = "wickEditorcustomHotKeys";
+    this.colorPickerTypeKey = "wickEditorColorPickerType";
 
     // Set up custom hotkeys if they exist.
     localForage.getItem(this.customHotKeysKey).then(
       (customHotKeys) => {
         if (!customHotKeys) customHotKeys = {}; // Ensure we never send a null hotkey setting.
         this.hotKeyInterface.setCustomHotKeys(customHotKeys);
+      }
+    );
+
+    // Set color picker state.
+    localForage.getItem(this.colorPickerTypeKey).then(
+      (colorPickerType) => {
+        if (!colorPickerType) colorPickerType = "swatches";
+        this.setState({
+          colorPickerType: colorPickerType,
+        });
       }
     );
 
@@ -242,6 +253,7 @@ class Editor extends EditorCore {
    * @param {String} type String representing the type of the color picker, can be swatches, spectrum, or gradient (TODO).
    */
   changeColorPickerType = (type) => {
+    localForage.setItem(this.colorPickerTypeKey, type);
     this.setState({
       colorPickerType: type,
     });
