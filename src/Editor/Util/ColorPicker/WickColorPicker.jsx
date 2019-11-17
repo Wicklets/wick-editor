@@ -3,18 +3,22 @@ import React, { Component } from 'react'
 import  ActionButton  from 'Editor/Util/ActionButton/ActionButton';
 
 import './_wickcolorpicker.scss';
-import { CustomPicker, SwatchesPicker } from 'react-color';
+import { CustomPicker } from 'react-color';
+import WickSwatch from 'Editor/Util/ColorPicker/WickSwatch/WickSwatch'
 
 var { Saturation, Hue, Alpha, Checkboard, Swatch } = require('react-color/lib/components/common');
 var { SketchFields } = require('react-color/lib/components/sketch/SketchFields');
 
 class WickColorPicker extends Component {
+
     renderSwatchContainer = (colors) => {
         return (
             <div className="wick-color-picker-swatches-container">
                 {colors.map((color, i) => {
                     return (
-                        <div key={"color-swatch-" + color + "-" + i} className="wick-color-picker-small-swatch">
+                        <div 
+                            key={"color-swatch-" + color + "-" + i} 
+                            className="wick-color-picker-small-swatch">
                             <Swatch  
                                 color={color}
                                 onClick={(color) => {this.props.onChangeComplete(color)}}  />
@@ -29,13 +33,12 @@ class WickColorPicker extends Component {
         return (
             <div key={"swatch-color-column-" + i} className="wick-swatch-picker-column">
                 {colorList.map((color,i) => {
-                    console.log(color);
                     return (
-                    <div key={"swatch-color-"+color+"-"+i} className="column-swatch">
-                        <Swatch  
+                        <WickSwatch
                             color={color}
-                            onClick={(color) => {this.props.onChangeComplete(color)}}  />
-                    </div>
+                            onChangeComplete={this.props.onChangeComplete}
+                            selectedColor={this.props.color}
+                            key={"swatch-color-"+color+"-"+i} />
                     );
                 })}
             </div>    
@@ -65,7 +68,7 @@ class WickColorPicker extends Component {
             ["#8000ff","#e6ccff","#cc99ff","#a64dff","#6600cc","#400080"],
             ["#ff00ff","#ffccff","#ff99ff","#ff4dff","#cc00cc","#800080"],
             ["#ff0080","#ffcce6","#ff99cc","#ff4da6","#cc0066","#800040"],
-            ["#000000","#FFFFFF","#cccccc","#999999","#666666","#333333"]
+            ["#000000","#ffffff","#cccccc","#999999","#666666","#333333"]
         ]
         
         return (
