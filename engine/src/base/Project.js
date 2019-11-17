@@ -104,6 +104,9 @@ Wick.Project = class extends Wick.Base {
 
         this._playing = false;
 
+        this._scriptSchedule = [];
+        this._error = null;
+
         this.history.project = this;
         this.history.pushState(Wick.History.StateType.ONLY_VISIBLE_OBJECTS);
     }
@@ -1004,6 +1007,18 @@ Wick.Project = class extends Wick.Base {
     }
 
     /**
+     * The current error, if one was thrown, during the last tick.
+     * @type {Error}
+     */
+    get error () {
+        return this._error;
+    }
+
+    set error (error) {
+        this._error = error;
+    }
+
+    /**
      * Ticks the project.
      * @returns {object} An object containing information about an error, if one occured while running scripts. Null otherwise.
      */
@@ -1016,12 +1031,37 @@ Wick.Project = class extends Wick.Base {
 
         this._keysDown = this.tools.interact.keysDown;
         this._currentKey = this.tools.interact.lastKeyDown;
-
+        
         this._mouseTargets = this.tools.interact.mouseTargets;
 
-        // Tick the focus
+        // Reset scripts before ticking
+        this._scriptSchedule = [];
+
+        // Tick the focused clip
         this.focus._attachChildClipReferences();
-        var error = this.focus.tick();
+        this.focus.tick();
+
+        // Run scripts in schedule, in order based on Tickable.possibleScripts.
+        this._error = null;
+        Wick.Tickable.possibleScripts.forEach(scriptOrderName => {
+            this._scriptSchedule.forEach(scheduledScript => {
+                // Stop early if an error was thrown in the last script ran.
+                if(this._error) {
+                    return;
+                }
+
+                var uuid = scheduledScript.uuid;
+                var name = scheduledScript.name;
+
+                // Make sure we only run the script based on the current iteration through possibleScripts
+                if(name !== scriptOrderName) {
+                    return;
+                }
+
+                // Run the script on the corresponding object!
+                Wick.ObjectCache.getObjectByUUID(uuid).runScript(name);
+            });
+        });
 
         // Save the current keysDown
         this._lastMousePosition = {x: this._mousePosition.x, y: this._mousePosition.y};
@@ -1029,7 +1069,23 @@ Wick.Project = class extends Wick.Base {
 
         this.view.render();
 
-        return error;
+        if(this._error) {
+            return this._error;
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Schedules a script to be run at the end of the current tick.
+     * @param {string} uuid - the UUID of the object running the script.
+     * @param {string} name - the name of the script to run, see Tickable.possibleScripts.
+     */
+    scheduleScript (uuid, name) {
+        this._scriptSchedule.push({
+            uuid: uuid,
+            name: name,
+        });
     }
 
     /**

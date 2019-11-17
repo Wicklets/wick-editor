@@ -581,6 +581,45 @@ describe('Wick.Project', function() {
             expect(clip.transformation.rotation).to.be.closeTo(180, 0.01);
             expect(clip.transformation.opacity).to.be.closeTo(1.0, 0.01);
         });
+
+        it('should run all scripts in the correct order', function () {
+            // This checks that all default scrips run before all load scripts.
+            window.scriptOrder = [];
+
+            var project = new Wick.Project();
+            var frame = project.activeFrame;
+
+            var clip1 = new Wick.Clip();
+            var clip2 = new Wick.Clip();
+            var clip3 = new Wick.Clip();
+            frame.addClip(clip1);
+            frame.addClip(clip2);
+            frame.addClip(clip3);
+
+            clip1.addScript('load', 'window.scriptOrder.push({uuid: this.uuid, name: "load"})');
+            clip1.addScript('default', 'window.scriptOrder.push({uuid: this.uuid, name: "default"})');
+            clip2.addScript('load', 'window.scriptOrder.push({uuid: this.uuid, name: "load"})');
+            clip2.addScript('default', 'window.scriptOrder.push({uuid: this.uuid, name: "default"})');
+            clip3.addScript('load', 'window.scriptOrder.push({uuid: this.uuid, name: "load"})');
+            clip3.addScript('default', 'window.scriptOrder.push({uuid: this.uuid, name: "default"})');
+
+            project.tick();
+            project.tick(); // (tick twice because first tick calls onActivated not onActive)
+            expect(window.scriptOrder[0].uuid).to.equal(clip1.uuid);
+            expect(window.scriptOrder[0].name).to.equal('default');
+            expect(window.scriptOrder[1].uuid).to.equal(clip2.uuid);
+            expect(window.scriptOrder[1].name).to.equal('default');
+            expect(window.scriptOrder[2].uuid).to.equal(clip3.uuid);
+            expect(window.scriptOrder[2].name).to.equal('default');
+            expect(window.scriptOrder[3].uuid).to.equal(clip1.uuid);
+            expect(window.scriptOrder[3].name).to.equal('load');
+            expect(window.scriptOrder[4].uuid).to.equal(clip2.uuid);
+            expect(window.scriptOrder[4].name).to.equal('load');
+            expect(window.scriptOrder[5].uuid).to.equal(clip3.uuid);
+            expect(window.scriptOrder[5].name).to.equal('load');
+
+            delete window.scriptOrder;
+        });
     });
 
     describe('#play', function () {

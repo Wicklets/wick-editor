@@ -129,119 +129,120 @@ describe('Wick.Tickable', function() {
         });
 
         it('should run empty script without errors', function() {
-            var tickable = new Wick.Tickable();
-            tickable.addScript('load', '');
+            var project = new Wick.Project();
 
-            var parent = new Wick.Base();
-            parent.addChild(tickable);
-            parent.onScreen = false;
+            var clip = new Wick.Clip();
+            project.addObject(clip);
 
-            var error = tickable.tick();
+            clip.addScript('load', '');
+
+            var error = project.tick();
             expect(error).to.equal(null);
         });
 
         it('should set a property on load without error', function() {
-            var tickable = new Wick.Tickable();
-            tickable.addScript('load', 'this.randomVariable = "loaded";');
+            var project = new Wick.Project();
 
-            var parent = new Wick.Base();
-            parent.addChild(tickable);
-            parent.onScreen = true;
+            var clip = new Wick.Clip();
+            project.addObject(clip);
 
-            tickable.tick();
-            expect(tickable.randomVariable).to.equal("loaded");
+            clip.addScript('load', 'this.randomVariable = "loaded";');
+
+            var error = project.tick();
+            expect(error).to.equal(null);
+            expect(clip.randomVariable).to.equal("loaded");
         });
 
         it('should set a variable on load without error', function() {
-            var tickable = new Wick.Tickable();
-            tickable.addScript('load', 'var randomVariable = "a"; this.randomVariable = randomVariable');
+            var project = new Wick.Project();
 
-            var parent = new Wick.Base();
-            parent.addChild(tickable);
-            parent.onScreen = true;
+            var clip = new Wick.Clip();
+            project.addObject(clip);
 
-            tickable.tick();
-            expect(tickable.randomVariable).to.equal("a");
+            clip.addScript('load', 'var randomVariable = "a"; this.randomVariable = randomVariable');
+
+            var error = project.tick();
+            expect(error).to.equal(null);
+            expect(clip.randomVariable).to.equal("a");
         });
 
         it('should update a property over multiple ticks', function() {
-            var tickable = new Wick.Tickable();
-            tickable.addScript('load', 'this.randomVariable = 0;');
-            tickable.addScript('update', 'this.randomVariable += 1;');
-            tickable.addScript('unload', 'this.randomVariable = null;');
+            var project = new Wick.Project();
 
-            var parent = new Wick.Base();
-            parent.addChild(tickable);
-            parent.onScreen = true;
+            var clip = new Wick.Clip();
+            project.addObject(clip);
 
-            tickable.tick();
-            expect(tickable.randomVariable).to.equal(0);
+            clip.addScript('load', 'this.randomVariable = 0;');
+            clip.addScript('update', 'this.randomVariable += 1;');
+            clip.addScript('unload', 'this.randomVariable = null;');
 
-            tickable.tick();
-            expect(tickable.randomVariable).to.equal(1);
+            var error = project.tick();
+            expect(error).to.equal(null);
+            expect(clip.randomVariable).to.equal(0);
 
-            tickable.tick();
-            expect(tickable.randomVariable).to.equal(2);
+            error = project.tick();
+            expect(error).to.equal(null);
+            expect(clip.randomVariable).to.equal(1);
 
-            parent.onScreen = false;
-            tickable.tick();
-            expect(tickable.randomVariable).to.equal(null);
-
-            parent.onScreen = true;
-            tickable.tick();
-            expect(tickable.randomVariable).to.equal(0);
+            error = project.tick();
+            expect(error).to.equal(null);
+            expect(clip.randomVariable).to.equal(2);
         });
 
         it('should return correct info for a syntax error', function() {
-            var tickable = new Wick.Tickable();
+            var project = new Wick.Project();
 
-            // Add tickable to a parent so we can tick it!
-            var parent = new Wick.Base();
-            parent.addChild(tickable);
-            parent.onScreen = true;
+            var clip = new Wick.Clip();
+            project.addObject(clip);
 
-            tickable.addScript('load', 'fn();\nfn(');
-            tickable.addScript('update', 'fn()\nfn()\nfn(');
+            clip.addScript('load', 'fn();\nfn(');
 
-            var error = tickable.tick();
+            var error = project.tick();
             expect(error).to.not.equal(null);
             expect(error.name).to.equal('load');
             expect(error.lineNumber).to.equal(2);
             expect(error.message).to.equal('Unexpected end of input');
-            expect(error.uuid).to.equal(tickable.uuid);
+            expect(error.uuid).to.equal(clip.uuid);
 
-            var error = tickable.tick();
+            clip.addScript('load', '');
+            clip.addScript('update', 'fn()\nfn()\nfn(');
+
+            var error = project.tick();
             expect(error).to.not.equal(null);
             expect(error.name).to.equal('update');
             expect(error.lineNumber).to.equal(3);
             expect(error.message).to.equal('Unexpected end of input');
-            expect(error.uuid).to.equal(tickable.uuid);
+            expect(error.uuid).to.equal(clip.uuid);
         });
 
         it('should return correct info for a runtime error', function() {
-            var tickable = new Wick.Tickable();
-            tickable.addScript('load', 'thisWillCauseAnError();');
-            tickable.addScript('update', 'var i = 0;\ni++\n\nthisWillCauseAnError();');
+            var project = new Wick.Project();
 
-            var parent = new Wick.Base();
-            parent.addChild(tickable);
-            parent.onScreen = true;
+            var clip = new Wick.Clip();
+            project.addObject(clip);
 
-            var error = tickable.tick();
+            clip.addScript('load', 'thisWillCauseAnError();');
+            clip.addScript('update', 'var i = 0;\ni++\n\nthisWillCauseAnError();');
+
+            var error = project.tick();
             expect(error).to.not.equal(null);
             expect(error.lineNumber).to.equal(1);
             expect(error.message).to.equal('thisWillCauseAnError is not defined');
-            expect(error.uuid).to.equal(tickable.uuid);
+            expect(error.uuid).to.equal(clip.uuid);
 
-            var error = tickable.tick();
+            var error = project.tick();
             expect(error).to.not.equal(null);
             expect(error.lineNumber).to.equal(4);
             expect(error.message).to.equal('thisWillCauseAnError is not defined');
-            expect(error.uuid).to.equal(tickable.uuid);
+            expect(error.uuid).to.equal(clip.uuid);
         });
 
         it('should run correct mouse scripts for different mouse states', function() {
+            var project = new Wick.Project();
+
             var clip = new Wick.Clip();
+            project.addObject(clip);
+
             clip.addScript('mouseenter', 'this.__mouseenter = true;');
             clip.addScript('mousepressed', 'this.__mousepressed = true;');
             clip.addScript('mousedown', 'this.__mousedown = true;');
@@ -265,12 +266,10 @@ describe('Wick.Tickable', function() {
             var project = new Wick.Project();
             project.activeFrame.addClip(clip);
 
-            //project.view.render();
-
             resetMouseStateFlags();
-            project._mouseTargets = [];
-            project._isMouseDown = false;
-            expect(project.focus.tick()).to.equal(null);
+            project.tools.interact.mouseTargets = [];
+            project.tools.interact.mouseIsDown = false;
+            expect(project.tick()).to.equal(null);
             expect(clip.__mouseenter).to.equal(false);
             expect(clip.__mousepressed).to.equal(false);
             expect(clip.__mousedown).to.equal(false);
@@ -281,9 +280,9 @@ describe('Wick.Tickable', function() {
             expect(clip.__mouseclick).to.equal(false);
 
             resetMouseStateFlags();
-            project._mouseTargets = [clip];
-            project._isMouseDown = false;
-            expect(project.focus.tick()).to.equal(null);
+            project.tools.interact.mouseTargets = [clip];
+            project.tools.interact.mouseIsDown = false;
+            expect(project.tick()).to.equal(null);
             expect(clip.__mouseenter).to.equal(true);
             expect(clip.__mousepressed).to.equal(false);
             expect(clip.__mousedown).to.equal(false);
@@ -295,8 +294,8 @@ describe('Wick.Tickable', function() {
 
             resetMouseStateFlags();
             project._mouseTargets = [clip];
-            project._isMouseDown = true;
-            expect(project.focus.tick()).to.equal(null);
+            project.tools.interact.mouseIsDown = true;
+            expect(project.tick()).to.equal(null);
             expect(clip.__mouseenter).to.equal(false);
             expect(clip.__mousepressed).to.equal(true);
             expect(clip.__mousedown).to.equal(true);
@@ -309,7 +308,7 @@ describe('Wick.Tickable', function() {
             resetMouseStateFlags();
             project._mouseTargets = [clip];
             project._isMouseDown = true;
-            expect(project.focus.tick()).to.equal(null);
+            expect(project.tick()).to.equal(null);
             expect(clip.__mouseenter).to.equal(false);
             expect(clip.__mousepressed).to.equal(false);
             expect(clip.__mousedown).to.equal(true);
@@ -322,7 +321,7 @@ describe('Wick.Tickable', function() {
             resetMouseStateFlags();
             project._mouseTargets = [clip];
             project._isMouseDown = false;
-            expect(project.focus.tick()).to.equal(null);
+            expect(project.tick()).to.equal(null);
             expect(clip.__mouseenter).to.equal(false);
             expect(clip.__mousepressed).to.equal(false);
             expect(clip.__mousedown).to.equal(false);
@@ -335,7 +334,7 @@ describe('Wick.Tickable', function() {
             resetMouseStateFlags();
             project._mouseTargets = [];
             project._isMouseDown = false;
-            expect(project.focus.tick()).to.equal(null);
+            expect(project.tick()).to.equal(null);
             expect(clip.__mouseenter).to.equal(false);
             expect(clip.__mousepressed).to.equal(false);
             expect(clip.__mousedown).to.equal(false);
@@ -348,7 +347,7 @@ describe('Wick.Tickable', function() {
             resetMouseStateFlags();
             project._mouseTargets = [clip];
             project._isMouseDown = false;
-            expect(project.focus.tick()).to.equal(null);
+            expect(project.tick()).to.equal(null);
             expect(clip.__mouseenter).to.equal(true);
             expect(clip.__mousepressed).to.equal(false);
             expect(clip.__mousedown).to.equal(false);
@@ -361,7 +360,7 @@ describe('Wick.Tickable', function() {
             resetMouseStateFlags();
             project._mouseTargets = [clip];
             project._isMouseDown = false;
-            expect(project.focus.tick()).to.equal(null);
+            expect(project.tick()).to.equal(null);
             expect(clip.__mouseenter).to.equal(false);
             expect(clip.__mousepressed).to.equal(false);
             expect(clip.__mousedown).to.equal(false);
@@ -374,7 +373,7 @@ describe('Wick.Tickable', function() {
             resetMouseStateFlags();
             project._mouseTargets = [clip];
             project._isMouseDown = true;
-            expect(project.focus.tick()).to.equal(null);
+            expect(project.tick()).to.equal(null);
             expect(clip.__mouseenter).to.equal(false);
             expect(clip.__mousepressed).to.equal(true);
             expect(clip.__mousedown).to.equal(true);
@@ -387,7 +386,7 @@ describe('Wick.Tickable', function() {
             resetMouseStateFlags();
             project._mouseTargets = [clip];
             project._isMouseDown = true;
-            expect(project.focus.tick()).to.equal(null);
+            expect(project.tick()).to.equal(null);
             expect(clip.__mouseenter).to.equal(false);
             expect(clip.__mousepressed).to.equal(false);
             expect(clip.__mousedown).to.equal(true);
@@ -400,7 +399,7 @@ describe('Wick.Tickable', function() {
             resetMouseStateFlags();
             project._mouseTargets = [];
             project._isMouseDown = false;
-            expect(project.focus.tick()).to.equal(null);
+            expect(project.tick()).to.equal(null);
             expect(clip.__mouseenter).to.equal(false);
             expect(clip.__mousepressed).to.equal(false);
             expect(clip.__mousedown).to.equal(false);
@@ -413,7 +412,7 @@ describe('Wick.Tickable', function() {
             resetMouseStateFlags();
             project._mouseTargets = [clip];
             project._isMouseDown = false;
-            expect(project.focus.tick()).to.equal(null);
+            expect(project.tick()).to.equal(null);
             expect(clip.__mouseenter).to.equal(true);
             expect(clip.__mousepressed).to.equal(false);
             expect(clip.__mousedown).to.equal(false);
@@ -426,7 +425,7 @@ describe('Wick.Tickable', function() {
             resetMouseStateFlags();
             project._mouseTargets = [clip];
             project._isMouseDown = true;
-            expect(project.focus.tick()).to.equal(null);
+            expect(project.tick()).to.equal(null);
             expect(clip.__mouseenter).to.equal(false);
             expect(clip.__mousepressed).to.equal(true);
             expect(clip.__mousedown).to.equal(true);
@@ -439,7 +438,7 @@ describe('Wick.Tickable', function() {
             resetMouseStateFlags();
             project._mouseTargets = [clip];
             project._isMouseDown = false;
-            expect(project.focus.tick()).to.equal(null);
+            expect(project.tick()).to.equal(null);
             expect(clip.__mouseenter).to.equal(false);
             expect(clip.__mousepressed).to.equal(false);
             expect(clip.__mousedown).to.equal(false);
@@ -452,7 +451,7 @@ describe('Wick.Tickable', function() {
             resetMouseStateFlags();
             project._mouseTargets = [clip];
             project._isMouseDown = false;
-            expect(project.focus.tick()).to.equal(null);
+            expect(project.tick()).to.equal(null);
             expect(clip.__mouseenter).to.equal(false);
             expect(clip.__mousepressed).to.equal(false);
             expect(clip.__mousedown).to.equal(false);

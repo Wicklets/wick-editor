@@ -275,13 +275,14 @@ describe('Wick.Frame', function() {
 
     describe('#tick', function () {
         it('script errors from child clips should bubble up', function() {
-            var frame = new Wick.Frame();
+            var project = new Wick.Project();
+            var frame = project.activeFrame;
 
             var child = new Wick.Clip();
             child.addScript('load', 'thisWillCauseAnError()');
             frame.addClip(child);
 
-            var error = frame.tick();
+            var error = project.tick();
             expect(error).to.not.equal(null);
             expect(error.message).to.equal('thisWillCauseAnError is not defined');
             expect(error.lineNumber).to.equal(1);
@@ -289,7 +290,8 @@ describe('Wick.Frame', function() {
         });
 
         it('script errors from child frames should bubble up', function() {
-            var frame = new Wick.Frame();
+            var project = new Wick.Project();
+            var frame = project.activeFrame;
 
             var child = new Wick.Frame();
             child.addScript('load', 'thisWillCauseAnError()');
@@ -297,7 +299,7 @@ describe('Wick.Frame', function() {
             frame.clips[0].timeline.addLayer(new Wick.Layer());
             frame.clips[0].timeline.layers[0].addFrame(child);
 
-            var error = frame.tick();
+            var error = project.tick();
             expect(error).to.not.equal(null);
             expect(error.message).to.equal('thisWillCauseAnError is not defined');
             expect(error.lineNumber).to.equal(1);
@@ -309,7 +311,7 @@ describe('Wick.Frame', function() {
             var frame = project.activeFrame;
 
             frame.addScript('load', 'stop(); play();');
-            var error = frame.tick();
+            var error = project.tick();
             expect(error).to.equal(null);
         });
 
@@ -342,7 +344,7 @@ describe('Wick.Frame', function() {
                 var frame = project.activeFrame;
 
                 frame.addScript('load', 'this.__project = project');
-                var error = frame.tick();
+                var error = project.tick();
                 expect(error).to.equal(null);
                 expect(frame.parentClip.__project).to.equal(project.root);
                 expect(frame.parentClip.__project.width).to.equal(project.width);
@@ -356,7 +358,7 @@ describe('Wick.Frame', function() {
                 var frame = project.activeFrame;
 
                 frame.addScript('load', 'this.__parent = parent');
-                var error = frame.tick();
+                var error = project.tick();
                 expect(error).to.equal(null);
                 expect(frame.parentClip.__parent).to.equal(frame.parentClip);
             });
@@ -379,7 +381,7 @@ describe('Wick.Frame', function() {
             var frame = project.activeFrame;
 
             frame.addScript('load', 'this.__foo = foo; this.__bar = bar;');
-            var error = frame.tick();
+            var error = project.tick();
             expect(error).to.equal(null);
             expect(frame.parentClip.__foo).to.equal(clipA);
             expect(frame.parentClip.__bar).to.equal(clipB);
@@ -426,25 +428,25 @@ describe('Wick.Frame', function() {
             expect(frame1.isSoundPlaying()).to.equal(false);
             expect(frame2.isSoundPlaying()).to.equal(false);
 
-            project.root.tick(); // playhead = 1
+            project.tick(); // playhead = 1
 
             expect(frame1.isSoundPlaying()).to.equal(true);
             expect(frame2.isSoundPlaying()).to.equal(false);
 
-            project.root.tick(); // playhead = 2
-            project.root.tick(); // playhead = 3
-            project.root.tick(); // playhead = 4
-            project.root.tick(); // playhead = 5
-            project.root.tick(); // playhead = 6
+            project.tick(); // playhead = 2
+            project.tick(); // playhead = 3
+            project.tick(); // playhead = 4
+            project.tick(); // playhead = 5
+            project.tick(); // playhead = 6
 
             expect(frame1.isSoundPlaying()).to.equal(false);
             expect(frame2.isSoundPlaying()).to.equal(true);
 
-            project.root.tick(); // playhead = 7
-            project.root.tick(); // playhead = 8
-            project.root.tick(); // playhead = 9
-            project.root.tick(); // playhead = 10
-            project.root.tick(); // playhead = 11
+            project.tick(); // playhead = 7
+            project.tick(); // playhead = 8
+            project.tick(); // playhead = 9
+            project.tick(); // playhead = 10
+            project.tick(); // playhead = 11
 
             expect(frame1.isSoundPlaying()).to.equal(false);
             expect(frame2.isSoundPlaying()).to.equal(false);

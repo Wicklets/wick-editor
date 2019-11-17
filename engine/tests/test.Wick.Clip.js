@@ -338,14 +338,17 @@ describe('Wick.Clip', function() {
         });
 
         it('script errors from child frame should bubble up', function() {
+            var project = new Wick.Project();
             var clip = new Wick.Clip();
+            project.activeFrame.addClip(clip);
+
             clip.timeline.addLayer(new Wick.Layer());
 
             var child = new Wick.Frame();
             child.addScript('load', 'thisWillCauseAnError()');
             clip.timeline.layers[0].addFrame(child);
 
-            var error = clip.tick();
+            var error = project.tick();
             expect(error).to.not.equal(null);
             expect(error.message).to.equal('thisWillCauseAnError is not defined');
             expect(error.lineNumber).to.equal(1);
@@ -353,7 +356,10 @@ describe('Wick.Clip', function() {
         });
 
         it('script errors from child clip should bubble up', function() {
+            var project = new Wick.Project();
             var clip = new Wick.Clip();
+            project.activeFrame.addClip(clip);
+
             clip.timeline.addLayer(new Wick.Layer());
             clip.timeline.layers[0].addFrame(new Wick.Frame());
 
@@ -361,7 +367,7 @@ describe('Wick.Clip', function() {
             child.addScript('load', 'thisWillCauseAnError()');
             clip.timeline.activeFrame.addClip(child);
 
-            var error = clip.tick();
+            var error = project.tick();
             expect(error).to.not.equal(null);
             expect(error.message).to.equal('thisWillCauseAnError is not defined');
             expect(error.lineNumber).to.equal(1);
@@ -381,7 +387,9 @@ describe('Wick.Clip', function() {
 
             var maxDepth = 10;
             for(var depth = 1; depth < maxDepth; depth ++) {
+                var project = new Wick.Project();
                 var parentClip = new Wick.Clip();
+                project.addObject(parentClip);
 
                 var clip = parentClip;
                 for(var i = 0; i < depth; i++) {
@@ -389,7 +397,7 @@ describe('Wick.Clip', function() {
                 }
                 clip.addScript('load', 'thisWillCauseAnError()');
 
-                var error = parentClip.tick();
+                var error = project.tick();
                 expect(error).to.not.equal(null);
                 expect(error.message).to.equal('thisWillCauseAnError is not defined');
                 expect(error.lineNumber).to.equal(1);
@@ -398,7 +406,11 @@ describe('Wick.Clip', function() {
         });
 
         it('scripts should stop execution after error', function() {
+            var project = new Wick.Project();
+
             var clip = new Wick.Clip();
+            project.addObject(clip);
+
             clip.timeline.addLayer(new Wick.Layer());
             clip.timeline.layers[0].addFrame(new Wick.Frame());
 
@@ -414,7 +426,7 @@ describe('Wick.Clip', function() {
             childC.addScript('load', 'this.__scriptDidRun = true;');
             clip.timeline.layers[0].frames[0].addClip(childC);
 
-            var result = clip.tick();
+            var result = project.tick();
             expect(childA.__scriptDidRun).to.equal(true);
             expect(childB.__scriptDidRun).to.equal(true);
             expect(childC.__scriptDidRun).to.equal(undefined);
@@ -664,19 +676,23 @@ describe('Wick.Clip', function() {
 
         describe('#x', function () {
             it('should update x correctly', function() {
+                var project = new Wick.Project();
+
                 var clip = new Wick.Clip();
+                project.addObject(clip);
+
                 clip.addScript('load', 'this.x = 100;');
                 clip.addScript('update', 'this.x += 5;');
 
-                var error = clip.tick();
+                var error = project.tick();
                 expect(error).to.equal(null);
                 expect(clip.transformation.x).to.equal(100);
 
-                error = clip.tick();
+                error = project.tick();
                 expect(error).to.equal(null);
                 expect(clip.transformation.x).to.equal(105);
 
-                error = clip.tick();
+                error = project.tick();
                 expect(error).to.equal(null);
                 expect(clip.transformation.x).to.equal(110);
             });
@@ -684,19 +700,23 @@ describe('Wick.Clip', function() {
 
         describe('#y', function () {
             it('should update y correctly', function() {
+                var project = new Wick.Project();
+
                 var clip = new Wick.Clip();
+                project.addObject(clip);
+
                 clip.addScript('load', 'this.y = 100;');
                 clip.addScript('update', 'this.y += 5;');
 
-                var error = clip.tick();
+                var error = project.tick();
                 expect(error).to.equal(null);
                 expect(clip.transformation.y).to.equal(100);
 
-                error = clip.tick();
+                error = project.tick();
                 expect(error).to.equal(null);
                 expect(clip.transformation.y).to.equal(105);
 
-                error = clip.tick();
+                error = project.tick();
                 expect(error).to.equal(null);
                 expect(clip.transformation.y).to.equal(110);
             });
@@ -704,19 +724,23 @@ describe('Wick.Clip', function() {
 
         describe('#scaleX', function () {
             it('should update scaleX correctly', function() {
+                var project = new Wick.Project();
+
                 var clip = new Wick.Clip();
+                project.addObject(clip);
+
                 clip.addScript('load', 'this.scaleX = 2;');
                 clip.addScript('update', 'this.scaleX += 0.1;');
 
-                var error = clip.tick();
+                var error = project.tick();
                 expect(error).to.equal(null);
                 expect(clip.transformation.scaleX).to.equal(2);
 
-                error = clip.tick();
+                error = project.tick();
                 expect(error).to.equal(null);
                 expect(clip.transformation.scaleX).to.equal(2.1);
 
-                error = clip.tick();
+                error = project.tick();
                 expect(error).to.equal(null);
                 expect(clip.transformation.scaleX).to.equal(2.2);
             });
@@ -724,19 +748,23 @@ describe('Wick.Clip', function() {
 
         describe('#scaleY', function () {
             it('should update scaleY correctly', function() {
+                var project = new Wick.Project();
+
                 var clip = new Wick.Clip();
+                project.addObject(clip);
+
                 clip.addScript('load', 'this.scaleY = 2;');
                 clip.addScript('update', 'this.scaleY += 0.1;');
 
-                var error = clip.tick();
+                var error = project.tick();
                 expect(error).to.equal(null);
                 expect(clip.transformation.scaleY).to.equal(2);
 
-                error = clip.tick();
+                error = project.tick();
                 expect(error).to.equal(null);
                 expect(clip.transformation.scaleY).to.equal(2.1);
 
-                error = clip.tick();
+                error = project.tick();
                 expect(error).to.equal(null);
                 expect(clip.transformation.scaleY).to.equal(2.2);
             });
@@ -812,23 +840,27 @@ describe('Wick.Clip', function() {
 
         describe('#rotation', function () {
             it('should update rotation correctly', function() {
+                var project = new Wick.Project();
+
                 var clip = new Wick.Clip();
+                project.addObject(clip);
+
                 clip.addScript('load', 'this.rotation = 180;');
                 clip.addScript('update', 'this.rotation += 90;');
 
-                var error = clip.tick();
+                var error = project.tick();
                 expect(error).to.equal(null);
                 expect(clip.transformation.rotation).to.equal(180);
 
-                error = clip.tick();
+                error = project.tick();
                 expect(error).to.equal(null);
                 expect(clip.transformation.rotation).to.equal(270);
 
-                error = clip.tick();
+                error = project.tick();
                 expect(error).to.equal(null);
                 expect(clip.transformation.rotation).to.equal(360);
 
-                error = clip.tick();
+                error = project.tick();
                 expect(error).to.equal(null);
                 expect(clip.transformation.rotation).to.equal(450);
             });
@@ -836,45 +868,49 @@ describe('Wick.Clip', function() {
 
         describe('#opacity', function () {
             it('should update opacity correctly', function() {
+                var project = new Wick.Project();
+
                 var clip = new Wick.Clip();
+                project.addObject(clip);
+
                 clip.addScript('load', 'this.opacity = 0.5;');
                 clip.addScript('update', 'this.opacity += 0.25;');
 
-                var error = clip.tick();
+                var error = project.tick();
                 expect(error).to.equal(null);
                 expect(clip.transformation.opacity).to.equal(0.5);
 
-                error = clip.tick();
+                error = project.tick();
                 expect(error).to.equal(null);
                 expect(clip.transformation.opacity).to.equal(0.75);
 
-                error = clip.tick();
+                error = project.tick();
                 expect(error).to.equal(null);
                 expect(clip.transformation.opacity).to.equal(1);
 
-                error = clip.tick();
+                error = project.tick();
                 expect(error).to.equal(null);
                 expect(clip.transformation.opacity).to.equal(1);
 
                 clip.updateScript('update', 'this.opacity -= 0.25;');
 
-                error = clip.tick();
+                error = project.tick();
                 expect(error).to.equal(null);
                 expect(clip.transformation.opacity).to.equal(0.75);
 
-                error = clip.tick();
+                error = project.tick();
                 expect(error).to.equal(null);
                 expect(clip.transformation.opacity).to.equal(0.5);
 
-                error = clip.tick();
+                error = project.tick();
                 expect(error).to.equal(null);
                 expect(clip.transformation.opacity).to.equal(0.25);
 
-                error = clip.tick();
+                error = project.tick();
                 expect(error).to.equal(null);
                 expect(clip.transformation.opacity).to.equal(0);
 
-                error = clip.tick();
+                error = project.tick();
                 expect(error).to.equal(null);
                 expect(clip.transformation.opacity).to.equal(0);
             });
@@ -888,7 +924,7 @@ describe('Wick.Clip', function() {
                 project.activeFrame.addClip(clip);
 
                 clip.addScript('load', 'this.__project = project');
-                var error = clip.tick();
+                var error = project.tick();
                 expect(error).to.equal(null);
                 expect(clip.__project).to.equal(project.root);
                 expect(clip.__project.resolution.x).to.equal(project.width);
@@ -906,7 +942,7 @@ describe('Wick.Clip', function() {
                 project.activeFrame.addClip(clip);
 
                 clip.addScript('load', 'this.__parent = parent');
-                var error = clip.tick();
+                var error = project.tick();
                 expect(error).to.equal(null);
                 expect(clip.__parent).to.equal(clip.parentClip);
             });
@@ -922,7 +958,7 @@ describe('Wick.Clip', function() {
                     project.activeFrame.addClip(clip);
 
                     clip.addScript('load', 'this.__randomResult = random.integer(5,10);');
-                    var error = clip.tick();
+                    var error = project.tick();
                     expect(error).to.equal(null);
                     expect(typeof clip.__randomResult).to.equal("number");
                     expect(clip.__randomResult >= 5).to.equal(true);
@@ -940,17 +976,17 @@ describe('Wick.Clip', function() {
 
                 clip.addScript('load', 'this.__frameName = this.currentFrameName;');
                 clip.addScript('update', 'this.__frameName = this.currentFrameName;');
-                var error = clip.tick();
+                var error = project.tick();
                 expect(error).to.equal(null);
                 expect(clip.__frameName).to.equal('');
                 clip.timeline.activeFrame.identifier = "Tester";
 
-                error = clip.tick();
+                error = project.tick();
                 expect(clip.__frameName).to.equal("Tester");
             });
         })
 
-        describe('#currentFrameName', function () {
+        describe('#currentFrameNumber', function () {
             it ('clips should return current frame number', function () {
                 var project = new Wick.Project();
 
@@ -968,8 +1004,6 @@ describe('Wick.Clip', function() {
                 clip2.addScript('update', 'this.__frameNumber = this.currentFrameNumber;');
 
                 var error = project.tick();
-                expect(error).to.equal(null);
-                error = project.tick();
                 expect(error).to.equal(null);
 
                 expect(clip.__frameNumber).to.equal(1);
@@ -1118,7 +1152,7 @@ describe('Wick.Clip', function() {
             project.activeLayer.frames[1].addClip(clipB);
 
             clipA.addScript('load', 'this.__bar = bar;');
-            var errorA = clipA.tick();
+            var errorA = project.tick();
             expect(errorA).not.to.equal(null);
             expect(errorA.message).to.equal("bar is not defined");
         });
