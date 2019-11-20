@@ -22,7 +22,7 @@ class WickColorPicker extends Component {
                             key={"swatch-color-"+color+"-"+i} />
                     );
                 })}
-            </div>    
+            </div>
         );
     }
 
@@ -51,7 +51,7 @@ class WickColorPicker extends Component {
             ["#ff0080","#ffcce6","#ff99cc","#ff4da6","#cc0066","#800040"],
             ["#000000","#ffffff","#cccccc","#999999","#666666","#333333"]
         ]
-        
+
         return (
             <div className="wick-color-picker">
                 {this.renderHeader()}
@@ -68,20 +68,20 @@ class WickColorPicker extends Component {
         return (
             <div className="wick-color-picker-header">
                 <div className="wick-color-picker-action-button">
-                    <ActionButton 
-                        color="tool" 
+                    <ActionButton
+                        color="tool"
                         id="color-picker-swatches-button"
                         tooltip="Swatches"
-                        action={() => {this.props.changeColorPickerType("swatches")}} 
+                        action={() => {this.props.changeColorPickerType("swatches")}}
                         isActive={ () => this.props.colorPickerType === "swatches" }
                         icon="swatches" />
                 </div>
                 <div className="wick-color-picker-action-button spacer">
-                    <ActionButton 
-                        color="tool" 
+                    <ActionButton
+                        color="tool"
                         id="color-picker-spectrum-button"
                         tooltip="Spectrum"
-                        action={() => {this.props.changeColorPickerType("spectrum")}} 
+                        action={() => {this.props.changeColorPickerType("spectrum")}}
                         isActive={ () => this.props.colorPickerType === "spectrum" }
                         icon="spectrum" />
                 </div>
@@ -94,16 +94,16 @@ class WickColorPicker extends Component {
         );
     }
 
-    
+
     renderSwatchContainer = (colors) => {
         return (
             <div className="wick-color-picker-swatches-container">
                 {colors.map((color, i) => {
                     return (
-                        <div 
-                            key={"color-swatch-" + color + "-" + i} 
+                        <div
+                            key={"color-swatch-" + color + "-" + i}
                             className="wick-color-picker-small-swatch">
-                            <Swatch  
+                            <Swatch
                                 color={color}
                                 onClick={(color) => {this.props.onChangeComplete(color)}}  />
                         </div>
@@ -134,12 +134,12 @@ class WickColorPicker extends Component {
                 </div>
                 <div className="wick-color-picker-control-body">
                     <div id="btn-color-picker-dropper">
-                        <ActionButton 
+                        <ActionButton
                             icon="eyedropper"
                             id="color-picker-eyedropper"
                             tooltip="Eyedropper"
                             color="tool"
-                            action={() => {console.log("Open Eyedropper")}}/>
+                            action={this.openEyedropper}/>
                     </div>
                     <div id="wick-color-picker-bar-container">
                         <div className="wick-color-picker-control-bar">
@@ -152,9 +152,9 @@ class WickColorPicker extends Component {
                     <div className="wick-color-picker-color-block-container">
                         <Checkboard />
                         <div style={styles.activeColor} />
-                    </div>             
+                    </div>
                 </div>
-                <SketchFields {...this.props} /> 
+                <SketchFields {...this.props} />
                 {this.renderSwatchContainer(colors)}
                 {this.renderSwatchContainer(lastColors)}
             </div>
@@ -167,6 +167,10 @@ class WickColorPicker extends Component {
         } else if (this.props.colorPickerType === "spectrum") {
             return this.renderSpectrum();
         };
+    }
+
+    openEyedropper = () => {
+        //
     }
 }
 
