@@ -35,7 +35,7 @@ class InspectorInput extends Component {
       <div  className="single-input-element inspector-input-element">
         <WickInput {...this.props.input1}/>
       </div>
-    )
+    );
   }
 
   renderDoubleComponent() {

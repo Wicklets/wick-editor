@@ -19,7 +19,7 @@
 
 import React, { Component } from 'react';
 import { Popover } from 'reactstrap';
-import { SketchPicker } from 'react-color';
+import WickColorPicker  from 'Editor/Util/ColorPicker/WickColorPicker';
 
 import './_colorpicker.scss';
 
@@ -60,19 +60,23 @@ class ColorPicker extends Component {
         <Popover
           placement={this.props.placement}
           isOpen={this.state.open}
-          target={itemID}
           toggle={this.toggle}
-          boundariesElement={'viewport'}
-        >
-          <SketchPicker
+          target={itemID}
+          boundariesElement={'viewport'}>
+          <WickColorPicker 
+            toggle={this.toggle}
+            colorPickerType={this.props.colorPickerType}
+            changeColorPickerType={this.props.changeColorPickerType}
             disableAlpha={ this.props.disableAlpha }
             color={this.props.color !== null ? this.props.color : 'transparent'}
             onChangeComplete={ this.props.onChangeComplete }
+            lastColorsUsed={this.props.lastColorsUsed}
           />
         </Popover>
       </div>
     )
   }
 }
+
 
 export default ColorPicker

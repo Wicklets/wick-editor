@@ -173,6 +173,10 @@ class Inspector extends Component {
           val2={this.getSelectionAttribute('fillColorOpacity')}
           onChange2={(val) => this.setSelectionAttribute('fillColorOpacity', val)}
           divider={false}
+          colorPickerType={this.props.colorPickerType}
+          changeColorPickerType={this.props.changeColorPickerType}
+          updateLastColors={this.props.updateLastColors}
+          lastColorsUsed={this.props.lastColorsUsed}
         />
       </div>
     );
@@ -194,6 +198,10 @@ class Inspector extends Component {
           val2={this.getSelectionAttribute('strokeWidth')}
           onChange2={(val) => this.setSelectionAttribute('strokeWidth', val)}
           divider={false}
+          colorPickerType={this.props.colorPickerType}
+          changeColorPickerType={this.props.changeColorPickerType}
+          updateLastColors={this.props.updateLastColors}
+          lastColorsUsed={this.props.lastColorsUsed}
         />
       </div>
     );

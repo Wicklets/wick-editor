@@ -25,3 +25,8 @@
   border-radius: 8px;
   border: 4px solid $editor-tertiary;
 }
+
+.color-picker-control-div {
+  display: flex;
+  flex-direction: row;
+}

@@ -142,9 +142,17 @@ class WickInput extends Component {
 
   renderColor = () => {
     let wrappedOnChange = (color) => {
-      let rgb = color.rgb;
-      let str = "rgba(" + rgb.r + "," + rgb.g + "," + rgb.b + "," + rgb.a + ")"; 
-      this.props.onChange(str);
+      let newColor = color;
+
+      // TODO: Check if we can just use HEX here.
+      if (color.rgb) {
+        let rgb = color.rgb;
+        let str = "rgba(" + rgb.r + "," + rgb.g + "," + rgb.b + "," + rgb.a + ")"; 
+        newColor = str;
+      }
+
+      this.props.updateLastColors && this.props.updateLastColors(newColor); 
+      this.props.onChange && this.props.onChange(newColor);
     };
 
     return (

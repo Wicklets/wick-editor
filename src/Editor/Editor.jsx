@@ -87,6 +87,8 @@ class Editor extends EditorCore {
       renderType: "default",
       renderStatusMessage: "",
       customHotKeys: {},
+      colorPickerType: "swatches",
+      lastColorsUsed: ["#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF"]
     };
 
     // Set up error.
@@ -107,6 +109,9 @@ class Editor extends EditorCore {
     // Wick file input
     this.openFileRef = React.createRef();
     this.importAssetRef = React.createRef();
+
+    // Set up color picker
+    this.maxLastColors = 8;
 
     // Resizable panels
     this.RESIZE_THROTTLE_AMOUNT_MS = 100;
@@ -141,12 +146,23 @@ class Editor extends EditorCore {
 
     this.autoSaveKey = "wickProjectAutosave1-0-11";
     this.customHotKeysKey = "wickEditorcustomHotKeys";
+    this.colorPickerTypeKey = "wickEditorColorPickerType";
 
     // Set up custom hotkeys if they exist.
     localForage.getItem(this.customHotKeysKey).then(
       (customHotKeys) => {
         if (!customHotKeys) customHotKeys = {}; // Ensure we never send a null hotkey setting.
         this.hotKeyInterface.setCustomHotKeys(customHotKeys);
+      }
+    );
+
+    // Set color picker state.
+    localForage.getItem(this.colorPickerTypeKey).then(
+      (colorPickerType) => {
+        if (!colorPickerType) colorPickerType = "swatches";
+        this.setState({
+          colorPickerType: colorPickerType,
+        });
       }
     );
 
@@ -237,6 +253,17 @@ class Editor extends EditorCore {
 
   }
 
+  /**
+   * Updates the color picker type within the editor state.
+   * @param {String} type String representing the type of the color picker, can be swatches, spectrum, or gradient (TODO).
+   */
+  changeColorPickerType = (type) => {
+    localForage.setItem(this.colorPickerTypeKey, type);
+    this.setState({
+      colorPickerType: type,
+    });
+  }
+
   onWindowResize = () => {
     // Ensure that all elements resize on window resize.
     this.resizeProps.onResize();
@@ -260,6 +287,25 @@ class Editor extends EditorCore {
         minHeight: 300,
       }
     );
+  }
+
+  updateLastColors = (color) => {
+    let newArray = this.state.lastColorsUsed.concat([]); // make a deep copy.
+
+    // Remove a color from the array. If the new color is in the array, remove it.
+    let index = newArray.indexOf(color);
+    if (index > -1) {
+      newArray.splice(index, 1);
+    } else {
+      newArray.pop();
+    }
+
+    // Add the new color to the front of the array.
+    newArray.unshift(color);
+
+    this.setState({
+      lastColorsUsed: newArray,
+    });
   }
 
   onResize = (e) => {
@@ -733,6 +779,10 @@ class Editor extends EditorCore {
                     customHotKeys={this.state.customHotKeys}
                     keyMap={this.getKeyMap()}
                     importFileAsAsset={this.importFileAsAsset}
+                    colorPickerType={this.state.colorPickerType}
+                    changeColorPickerType={this.changeColorPickerType}
+                    updateLastColors={this.updateLastColors}
+                    lastColorsUsed={this.state.lastColorsUsed}
                   />
                   {/* Header */}
                   <DockedPanel showOverlay={this.state.previewPlaying}>
@@ -769,6 +819,10 @@ class Editor extends EditorCore {
                               getToolSettingRestrictions={this.getToolSettingRestrictions}
                               showCanvasActions={this.state.showCanvasActions}
                               toggleCanvasActions={this.toggleCanvasActions}
+                              colorPickerType={this.state.colorPickerType}
+                              changeColorPickerType={this.changeColorPickerType}
+                              updateLastColors={this.updateLastColors}
+                              lastColorsUsed={this.state.lastColorsUsed}
                             />
                           </DockedPanel>
                         </div>
@@ -855,6 +909,10 @@ class Editor extends EditorCore {
                                 fontInfoInterface={this.fontInfoInterface}
                                 project={this.project}
                                 importFileAsAsset={this.importFileAsAsset}
+                                colorPickerType={this.state.colorPickerType}
+                                changeColorPickerType={this.changeColorPickerType}
+                                updateLastColors={this.updateLastColors}
+                                lastColorsUsed={this.state.lastColorsUsed}
                               />
                             </DockedPanel>
                           </ReflexElement>
