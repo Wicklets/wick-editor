@@ -165,14 +165,21 @@ class VideoExport {
         }];
         callback(videoFiles);
       };
+
+      // Slow down the video if the framerate is less than 6 (framerate <6 causes a corrupted video to render)
+      let filterv = 'showinfo';
+      if(project.framerate < 6) {
+          filterv = 'setpts='+(6/project.framerate)+'*PTS' + ', ' + filterv;
+      }
+
       this._ffmpeg.run([
-        '-r', project.framerate + '',
+        '-r', '' + Math.max(6, project.framerate),
         '-f', 'image2',
         '-s', project.width + "x" + project.height,
         '-i', 'frame%12d.jpeg',
         '-vcodec', 'mpeg4',
         '-q:v', '10', //10=good quality, 31=bad quality
-        '-vf', 'showinfo',
+        '-filter:v', filterv,
         'out.mp4',
       ], imageFiles, 'images_to_video');
     });
@@ -187,7 +194,6 @@ class VideoExport {
         callback(videoWithSoundData);
       };
       this._ffmpeg.run([
-        '-r', project.framerate,
         '-i', 'video-no-sound.mp4',
         '-i', 'audiotrack.wav',
         '-c:v', 'copy',

@@ -70,7 +70,11 @@ Wick.AudioTrack = class {
             } else {
                 var audioInfo = projectAudioInfo.pop();
                 this.base64ToAudioBuffer(audioInfo.src, ctx, audiobuffer => {
-                    let delayedAudiobuffer = this.addStartDelayToAudioBuffer(audiobuffer, audioInfo.start / 1000, ctx);
+                    let startSeconds = audioInfo.start / 1000;
+                    let endSeconds = audioInfo.end / 1000;
+                    let lengthSeconds = endSeconds - startSeconds;
+                    let croppedAudioBuffer = this.cropAudioBuffer(audiobuffer, lengthSeconds, ctx);
+                    let delayedAudiobuffer = this.addStartDelayToAudioBuffer(croppedAudioBuffer, startSeconds, ctx);
                     audiobuffers.push(delayedAudiobuffer);
                     prepareNextAudioInfo();
                 });
@@ -124,8 +128,38 @@ Wick.AudioTrack = class {
     }
 
     /**
+     * Crops an AudioBuffer to a given length.
+     * @param {AudioBuffer} originalBuffer - the buffer to crop
+     * @param {number} delaySeconds - the time, in seconds, to crop the sound at
+     * @param {AudioContext} ctx - An AudioContext instance
+     */
+    static cropAudioBuffer (originalBuffer, lengthSeconds, ctx) {
+        // Create a blank buffer with a length of the crop amount
+        var croppedBuffer = ctx.createBuffer(
+            originalBuffer.numberOfChannels,
+            ctx.sampleRate * lengthSeconds,
+            ctx.sampleRate,
+        );
+
+        // Copy data from the original buffer into the cropped buffer
+        for (var srcChannel = 0; srcChannel < croppedBuffer.numberOfChannels; srcChannel++) {
+            // Retrieve sample data...
+            var croppedBufferChannelData = croppedBuffer.getChannelData(srcChannel);
+            var originalBufferChannelData = originalBuffer.getChannelData(srcChannel);
+
+            // Copy samples from the original buffer to the cropped buffer
+            for (var i = 0; i < croppedBufferChannelData.length; i++) {
+                croppedBufferChannelData[i] = originalBufferChannelData[i];
+            }
+            croppedBuffer.getChannelData(srcChannel).set(croppedBufferChannelData, 0);
+        }
+
+        return croppedBuffer;
+    }
+
+    /**
      * Adds silence to the beginning of an AudioBuffer with a given length.
-     * @param {AudioBuffer} originalBuffer - the buffer to update
+     * @param {AudioBuffer} originalBuffer - the buffer to pad with silence
      * @param {number} delaySeconds - the amount of time, in seconds, to delay the sound
      * @param {AudioContext} ctx - An AudioContext instance
      */

@@ -220,7 +220,7 @@ Wick.Frame = class extends Wick.Tickable {
      * @type {number}
      */
     get soundEndMS () {
-        return (1000/this.project.framerate) * (this.end - 1);
+        return (1000/this.project.framerate) * this.end;
     }
 
     /**
