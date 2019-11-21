@@ -95,7 +95,7 @@ class Toolbox extends Component {
         <div className="color-container toolbox-item" id="fill-color-picker-container">
             <WickInput
               type="color"
-              color={this.props.getToolSetting('fillColor').toCSS()}
+              color={this.props.getToolSetting('fillColor')}
               onChange={(color) => {
                 this.props.setToolSetting('fillColor', color);
               }}
@@ -112,7 +112,7 @@ class Toolbox extends Component {
           <div className="color-container toolbox-item" id="stroke-color-picker-container">
             <WickInput
               type="color"
-              color= {this.props.getToolSetting('strokeColor').toCSS()}
+              color= {this.props.getToolSetting('strokeColor')}
               onChange={(color) => {
                 this.props.setToolSetting('strokeColor', color);
               }}

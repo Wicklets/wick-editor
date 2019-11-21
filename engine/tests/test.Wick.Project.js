@@ -7,7 +7,7 @@ describe('Wick.Project', function() {
             expect(project.width).to.equal(720);
             expect(project.height).to.equal(405);
             expect(project.framerate).to.equal(12);
-            expect(project.backgroundColor).to.equal('#ffffff');
+            expect(project.backgroundColor.hex).to.equal('#ffffff');
 
             expect(project.zoom).to.equal(1);
             expect(project.pan.x).to.equal(0);
@@ -51,7 +51,7 @@ describe('Wick.Project', function() {
 
             var data = project.serialize();
 
-            expect(data.backgroundColor).to.equal('#ffffff');
+            expect(data.backgroundColor.hex).to.equal('#ffffff');
             expect(data.children).to.eql([
                 project.selection.uuid,
                 project.root.uuid,
@@ -93,7 +93,7 @@ describe('Wick.Project', function() {
             var data = project.serialize();
             var projectFromData = Wick.Project.fromData(data);
 
-            expect(projectFromData.backgroundColor).to.equal('#ffffff');
+            expect(projectFromData.backgroundColor.hex).to.equal('#ffffff');
             expect(projectFromData.getChildren().length).to.equal(4);
             expect(projectFromData.getChildren()[0]).to.equal(project.selection);
             expect(projectFromData.getChildren()[1]).to.equal(project.root);
@@ -1363,14 +1363,14 @@ describe('Wick.Project', function() {
         project.activeFrame.addPath(path);
 
         // path isn't selected. fillcolor should not change
-        project.toolSettings.setSetting('fillColor', '#ff0000');
+        project.toolSettings.setSetting('fillColor', new Wick.Color('#ff0000'));
         expect(path.fillColor.toCSS(true)).to.equal('#000000');
 
         project.selection.select(path);
         expect(path.fillColor.toCSS(true)).to.equal('#000000');
 
         // path is selected, fillcolor should be changed
-        project.toolSettings.setSetting('fillColor', '#00ff00');
+        project.toolSettings.setSetting('fillColor', new Wick.Color('#00ff00'));
         expect(path.fillColor.toCSS(true)).to.equal('#00ff00');
         expect(path.strokeColor.toCSS(true)).to.equal('#000000');
     });
@@ -1386,14 +1386,14 @@ describe('Wick.Project', function() {
         project.activeFrame.addPath(path);
 
         // path isn't selected. fillcolor should not change
-        project.toolSettings.setSetting('strokeColor', '#ff0000');
+        project.toolSettings.setSetting('strokeColor', new Wick.Color('#ff0000'));
         expect(path.strokeColor.toCSS(true)).to.equal('#000000');
 
         project.selection.select(path);
         expect(path.strokeColor.toCSS(true)).to.equal('#000000');
 
         // path is selected, fillcolor should be changed
-        project.toolSettings.setSetting('strokeColor', '#00ff00');
+        project.toolSettings.setSetting('strokeColor', new Wick.Color('#00ff00'));
         expect(path.strokeColor.toCSS(true)).to.equal('#00ff00');
         expect(path.fillColor.toCSS(true)).to.equal('#000000');
     });

@@ -83,18 +83,18 @@ describe('Wick.View.Project', function() {
 
             expect(project.view._svgBackgroundLayer instanceof paper.Layer).to.equal(true);
             expect(project.view._svgBackgroundLayer.children.length).to.equal(1);
-            expect(project.view._svgBackgroundLayer.children[0].fillColor.toCSS(true)).to.equal(project.backgroundColor);
+            expect(project.view._svgBackgroundLayer.children[0].fillColor.toCSS(true)).to.equal(project.backgroundColor.hex);
             expect(project.view._svgBackgroundLayer.children[0].bounds.width).to.equal(project.width);
             expect(project.view._svgBackgroundLayer.children[0].bounds.height).to.equal(project.height);
 
             project.width = 100;
             project.height = 200;
-            project.backgroundColor = '#ff0000';
+            project.backgroundColor = new Wick.Color('#ff0000');
             project.view.render(project);
 
             expect(project.view._svgBackgroundLayer instanceof paper.Layer).to.equal(true);
             expect(project.view._svgBackgroundLayer.children.length).to.equal(1);
-            expect(project.view._svgBackgroundLayer.children[0].fillColor.toCSS(true)).to.equal(project.backgroundColor);
+            expect(project.view._svgBackgroundLayer.children[0].fillColor.toCSS(true)).to.equal(project.backgroundColor.hex);
             expect(project.view._svgBackgroundLayer.children[0].bounds.width).to.equal(project.width);
             expect(project.view._svgBackgroundLayer.children[0].bounds.height).to.equal(project.height);
         });

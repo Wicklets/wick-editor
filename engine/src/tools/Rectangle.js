@@ -87,8 +87,8 @@ Wick.Tools.Rectangle = class extends Wick.Tool {
             this.path = new this.paper.Path.Rectangle(bounds);
         }
 
-        this.path.fillColor = this.getSetting('fillColor');
-        this.path.strokeColor = this.getSetting('strokeColor');
+        this.path.fillColor = this.getSetting('fillColor').rgba;
+        this.path.strokeColor = this.getSetting('strokeColor').rgba;
         this.path.strokeWidth = this.getSetting('strokeWidth');
         this.path.strokeCap = 'round';
     }

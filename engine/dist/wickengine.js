@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2019.11.20";
+var WICK_ENGINE_BUILD_VERSION = "2019.11.21";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -44808,6 +44808,88 @@ Wick.Clipboard = class {
  * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+/* Small utility class for colors. */
+Wick.Color = class {
+  /**
+   * Creates a Transformation.
+   * @param {string} color - (Optional) Hex or Rgba color to create a Wick.Color from.
+   */
+  constructor(color) {
+    if (color) {
+      this._color = new paper.Color(color);
+    } else {
+      this._color = new paper.Color();
+    }
+  }
+  /**
+   *
+   */
+
+
+  get r() {
+    return this._color.red;
+  }
+  /**
+   *
+   */
+
+
+  get g() {
+    return this._color.green;
+  }
+  /**
+   *
+   */
+
+
+  get b() {
+    return this._color.blue;
+  }
+  /**
+   *
+   */
+
+
+  get a() {
+    return this._color.alpha;
+  }
+  /**
+   *
+   */
+
+
+  get hex() {
+    return this._color.toCSS(true);
+  }
+  /**
+   *
+   */
+
+
+  get rgba() {
+    return this._color.toCSS();
+  }
+
+};
+/*
+ * Copyright 2019 WICKLETS LLC
+ *
+ * This file is part of Wick Engine.
+ *
+ * Wick Engine is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Wick Engine is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 /**
  * Global utility class for storing and retrieving large file data.
  */
@@ -45318,10 +45400,10 @@ Wick.ToolSettings = class {
   static get DEFAULT_SETTINGS() {
     return [{
       name: 'fillColor',
-      default: new paper.Color('#000000')
+      default: new Wick.Color('#000000')
     }, {
       name: 'strokeColor',
-      default: new paper.Color('#000000')
+      default: new Wick.Color('#000000')
     }, {
       name: 'strokeWidth',
       default: 1,
@@ -45367,7 +45449,7 @@ Wick.ToolSettings = class {
     }];
   }
   /**
-   *
+   * Create a new ToolSettings object.
    */
 
 
@@ -45398,12 +45480,21 @@ Wick.ToolSettings = class {
     };
   }
   /**
-   *
+   * Update a value in the settings.
+   * @param {string} name - The name of the setting to update.
+   * @param {string|number|Color} value - The value of the setting to change to.
    */
 
 
   setSetting(name, value) {
-    var setting = this._settings[name];
+    var setting = this._settings[name]; // Check to make sure there's no type mismatch
+
+    if (typeof value !== typeof setting.value) {
+      console.warn('Warning: Wick.ToolSettings: Type mismatch while setting ' + name);
+      console.warn(value);
+      return;
+    }
+
     var min = setting.min;
 
     if (min !== undefined) {
@@ -45414,11 +45505,6 @@ Wick.ToolSettings = class {
 
     if (max !== undefined) {
       value = Math.min(max, value);
-    } // Auto convert paper.js colors
-
-
-    if (setting.default instanceof paper.Color && typeof value === 'string') {
-      value = new paper.Color(value);
     }
 
     setting.value = value;
@@ -45426,7 +45512,8 @@ Wick.ToolSettings = class {
     this._fireOnSettingsChanged(name, value);
   }
   /**
-   *
+   * Retrieve a value in the settings.
+   * @param {string} name - The name of the setting to retrieve.
    */
 
 
@@ -47392,7 +47479,7 @@ Wick.Project = class extends Wick.Base {
    * @param {number} width - Project width in pixels. Default 720.
    * @param {number} height - Project height in pixels. Default 405.
    * @param {number} framerate - Project framerate in frames-per-second. Default 12.
-   * @param {string} backgroundColor - Project background color in hex. Default #ffffff.
+   * @param {Color} backgroundColor - Project background color in hex. Default #ffffff.
    */
   constructor(args) {
     if (!args) args = {};
@@ -47401,7 +47488,7 @@ Wick.Project = class extends Wick.Base {
     this._width = args.width || 720;
     this._height = args.height || 405;
     this._framerate = args.framerate || 12;
-    this._backgroundColor = args.backgroundColor || '#ffffff';
+    this._backgroundColor = args.backgroundColor || new Wick.Color('#ffffff');
     this.pan = {
       x: 0,
       y: 0
@@ -47460,9 +47547,9 @@ Wick.Project = class extends Wick.Base {
 
     this._toolSettings.onSettingsChanged((name, value) => {
       if (name === 'fillColor') {
-        this.selection.fillColor = value;
+        this.selection.fillColor = value.rgba;
       } else if (name === 'strokeColor') {
-        this.selection.strokeColor = value;
+        this.selection.strokeColor = value.rgba;
       }
     });
 
@@ -53889,7 +53976,7 @@ Wick.Tools.Brush = class extends Wick.Tool {
 
 
     this.croquisBrush.setSize(this._getRealBrushSize());
-    this.croquisBrush.setColor(this.getSetting('fillColor').toCSS(true));
+    this.croquisBrush.setColor(this.getSetting('fillColor').hex);
     this.croquisBrush.setSpacing(this.BRUSH_POINT_SPACING);
     this.croquis.setToolStabilizeLevel(this.BRUSH_STABILIZER_LEVEL);
     this.croquis.setToolStabilizeWeight(this.getSetting('brushStabilizerWeight') / 100.0 + 0.3);
@@ -53967,7 +54054,7 @@ Wick.Tools.Brush = class extends Wick.Tool {
 
       var svg = potrace.fromImage(croppedCanvas).toSVG(1 / this.POTRACE_RESOLUTION / this.paper.view.zoom);
       var potracePath = this.paper.project.importSVG(svg);
-      potracePath.fillColor = this.getSetting('fillColor');
+      potracePath.fillColor = this.getSetting('fillColor').rgba;
       potracePath.position.x += this.paper.view.bounds.x;
       potracePath.position.y += this.paper.view.bounds.y;
       potracePath.position.x += strokeBounds.x / this.paper.view.zoom;
@@ -54042,7 +54129,7 @@ Wick.Tools.Brush = class extends Wick.Tool {
   _regenCursor() {
     var size = this._getRealBrushSize();
 
-    var color = this.getSetting('fillColor').toCSS(true);
+    var color = this.getSetting('fillColor').hex;
     this.cachedCursor = this.createDynamicCursor(color, size, this.getSetting('pressureEnabled'));
     this.setCursor(this.cachedCursor);
   }
@@ -54079,7 +54166,7 @@ Wick.Tools.Brush = class extends Wick.Tool {
     } // Fake brush opacity in croquis by changing the opacity of the croquis canvas
 
 
-    this.croquisDOMElement.style.opacity = this.getSetting('fillColor').alpha;
+    this.croquisDOMElement.style.opacity = this.getSetting('fillColor').a;
   }
   /* Convert a point in Croquis' canvas space to paper.js's canvas space. */
 
@@ -54542,8 +54629,8 @@ Wick.Tools.Ellipse = class extends Wick.Tool {
     var bounds = new this.paper.Rectangle(new this.paper.Point(this.topLeft.x, this.topLeft.y), new this.paper.Point(this.bottomRight.x, this.bottomRight.y));
     this.path = new this.paper.Path.Ellipse(bounds);
     this.paper.project.activeLayer.addChild(this.path);
-    this.path.fillColor = this.getSetting('fillColor');
-    this.path.strokeColor = this.getSetting('strokeColor');
+    this.path.fillColor = this.getSetting('fillColor').rgba;
+    this.path.strokeColor = this.getSetting('strokeColor').rgba;
     this.path.strokeWidth = this.getSetting('strokeWidth');
     this.path.strokeCap = 'round';
   }
@@ -54725,22 +54812,9 @@ Wick.Tools.Eyedropper = class extends Wick.Tool {
 
   onMouseDown(e) {
     this._destroyColorPreview();
-    /*if(this.project.toolSettings.getSetting('')) {
-        if(!e.modifiers.shift) {
-            this.project.toolSettings.setSetting('fillColor', this.hoverColor);
-        } else {
-            this.project.toolSettings.setSetting('strokeColor', this.hoverColor);
-        }
-         this.fireEvent('canvasModified');
-    } else {
-        this.fireEvent('eyedropperPickedColor', {
-            color: this.hoverColor,
-        });
-    }*/
-
 
     this.fireEvent('eyedropperPickedColor', {
-      color: new paper.Color(this.hoverColor)
+      color: new Wick.Color(this.hoverColor)
     });
   }
 
@@ -54839,7 +54913,7 @@ Wick.Tools.FillBucket = class extends Wick.Tool {
           this.setCursor('default');
 
           if (path) {
-            path.fillColor = this.getSetting('fillColor');
+            path.fillColor = this.getSetting('fillColor').rgba;
             path.name = null;
             this.addPathToProject();
 
@@ -55067,7 +55141,7 @@ Wick.Tools.Line = class extends Wick.Tool {
     this.endPoint = e.point;
     this.path = new paper.Path.Line(this.startPoint, this.endPoint);
     this.path.strokeCap = 'round';
-    this.path.strokeColor = this.getSetting('strokeColor');
+    this.path.strokeColor = this.getSetting('strokeColor').rgba;
     this.path.strokeWidth = this.getSetting('strokeWidth');
   }
 
@@ -55450,7 +55524,7 @@ Wick.Tools.Pencil = class extends Wick.Tool {
 
     if (!this.path) {
       this.path = new this.paper.Path({
-        strokeColor: this.getSetting('strokeColor'),
+        strokeColor: this.getSetting('strokeColor').rgba,
         strokeWidth: this.getSetting('strokeWidth'),
         strokeCap: 'round'
       });
@@ -55561,8 +55635,8 @@ Wick.Tools.Rectangle = class extends Wick.Tool {
       this.path = new this.paper.Path.Rectangle(bounds);
     }
 
-    this.path.fillColor = this.getSetting('fillColor');
-    this.path.strokeColor = this.getSetting('strokeColor');
+    this.path.fillColor = this.getSetting('fillColor').rgba;
+    this.path.strokeColor = this.getSetting('strokeColor').rgba;
     this.path.strokeWidth = this.getSetting('strokeWidth');
     this.path.strokeCap = 'round';
   }
@@ -57747,7 +57821,7 @@ Wick.View.Project = class extends Wick.View {
   _generateSVGCanvasStage() {
     var stage = new paper.Path.Rectangle(new this.paper.Point(0, 0), new this.paper.Point(this.model.width, this.model.height));
     stage.remove();
-    stage.fillColor = this.model.backgroundColor;
+    stage.fillColor = this.model.backgroundColor.rgba;
     return stage;
   }
 

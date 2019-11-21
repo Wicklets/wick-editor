@@ -930,7 +930,7 @@ describe('Wick.Clip', function() {
                 expect(clip.__project.resolution.x).to.equal(project.width);
                 expect(clip.__project.resolution.y).to.equal(project.height);
                 expect(clip.__project.framerate).to.equal(project.framerate);
-                expect(clip.__project.backgroundColor).to.equal('#ffffff');
+                expect(clip.__project.backgroundColor.hex).to.equal('#ffffff');
             });
         });
 

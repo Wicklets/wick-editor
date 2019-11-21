@@ -364,7 +364,7 @@ Wick.View.Project = class extends Wick.View {
             new this.paper.Point(this.model.width, this.model.height),
         );
         stage.remove();
-        stage.fillColor = this.model.backgroundColor;
+        stage.fillColor = this.model.backgroundColor.rgba;
 
         return stage;
     }

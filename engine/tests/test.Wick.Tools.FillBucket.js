@@ -32,7 +32,7 @@ describe('Wick.Tools.FillBucket', function() {
         project.view.render();
 
         fillbucket.activate();
-        project.toolSettings.setSetting('fillColor', '#ff0000');
+        project.toolSettings.setSetting('fillColor', new Wick.Color('#ff0000'));
         fillbucket.onMouseDown({point: new paper.Point(15,15), modifiers: {}});
     });
 
@@ -67,7 +67,7 @@ describe('Wick.Tools.FillBucket', function() {
         project.view.render();
 
         fillbucket.activate();
-        project.toolSettings.setSetting('fillColor', '#ff0000');
+        project.toolSettings.setSetting('fillColor', new Wick.Color('#ff0000'));
         fillbucket.onMouseDown({point: new paper.Point(25,25), modifiers: {}});
     });
 

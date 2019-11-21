@@ -67,7 +67,7 @@ Wick.Tools.FillBucket = class extends Wick.Tool {
                 onFinish: (path) => {
                     this.setCursor('default');
                     if(path) {
-                        path.fillColor = this.getSetting('fillColor');
+                        path.fillColor = this.getSetting('fillColor').rgba;
                         path.name = null;
                         this.addPathToProject();
                         if(e.item) {

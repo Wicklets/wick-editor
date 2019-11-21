@@ -1317,8 +1317,6 @@ class EditorCore extends Component {
   }
 
   onEyedropperPickedColor = (color) => {
-      console.log(this._onEyedropperPickedColor)
-      console.log(color)
       this._onEyedropperPickedColor(color);
   }
 }

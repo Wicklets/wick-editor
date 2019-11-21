@@ -29,7 +29,7 @@ class ColorPicker extends Component {
 
     this.state = {
       open: false,
-      color: this.props.color === undefined ? "#FFFFFF" : this.props.color,
+      color: this.props.color === undefined ? new window.Wick.Color("#FFFFFF") : this.props.color,
     }
 
     this.toggle = this.toggle.bind(this);
@@ -69,7 +69,7 @@ class ColorPicker extends Component {
             colorPickerType={this.props.colorPickerType}
             changeColorPickerType={this.props.changeColorPickerType}
             disableAlpha={ this.props.disableAlpha }
-            color={this.props.color !== null ? this.props.color : 'transparent'}
+            color={this.props.color !== null ? this.props.color.rgba : 'transparent'}
             onChangeComplete={ this.props.onChangeComplete }
             lastColorsUsed={this.props.lastColorsUsed}
           />

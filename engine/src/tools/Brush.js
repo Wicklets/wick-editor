@@ -106,7 +106,7 @@ Wick.Tools.Brush = class extends Wick.Tool {
 
         // Update croquis params
         this.croquisBrush.setSize(this._getRealBrushSize());
-        this.croquisBrush.setColor(this.getSetting('fillColor').toCSS(true));
+        this.croquisBrush.setColor(this.getSetting('fillColor').hex);
         this.croquisBrush.setSpacing(this.BRUSH_POINT_SPACING);
         this.croquis.setToolStabilizeLevel(this.BRUSH_STABILIZER_LEVEL);
         this.croquis.setToolStabilizeWeight((this.getSetting('brushStabilizerWeight') / 100.0) + 0.3);
@@ -184,7 +184,7 @@ Wick.Tools.Brush = class extends Wick.Tool {
             // Run potrace and add the resulting path to the project
             var svg = potrace.fromImage(croppedCanvas).toSVG(1/this.POTRACE_RESOLUTION/this.paper.view.zoom);
             var potracePath = this.paper.project.importSVG(svg);
-            potracePath.fillColor = this.getSetting('fillColor');
+            potracePath.fillColor = this.getSetting('fillColor').rgba;
             potracePath.position.x += this.paper.view.bounds.x;
             potracePath.position.y += this.paper.view.bounds.y;
             potracePath.position.x += strokeBounds.x / this.paper.view.zoom;
@@ -254,7 +254,7 @@ Wick.Tools.Brush = class extends Wick.Tool {
     /* Generate a new circle cursor based on the brush size. */
     _regenCursor () {
         var size = (this._getRealBrushSize());
-        var color = this.getSetting('fillColor').toCSS(true);
+        var color = this.getSetting('fillColor').hex;
         this.cachedCursor = this.createDynamicCursor(color, size, this.getSetting('pressureEnabled'));
         this.setCursor(this.cachedCursor);
     }
@@ -287,7 +287,7 @@ Wick.Tools.Brush = class extends Wick.Tool {
         }
 
         // Fake brush opacity in croquis by changing the opacity of the croquis canvas
-        this.croquisDOMElement.style.opacity = this.getSetting('fillColor').alpha;
+        this.croquisDOMElement.style.opacity = this.getSetting('fillColor').a;
     }
 
     /* Convert a point in Croquis' canvas space to paper.js's canvas space. */

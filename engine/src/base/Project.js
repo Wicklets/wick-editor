@@ -96,9 +96,9 @@ Wick.Project = class extends Wick.Base {
         this._toolSettings = new Wick.ToolSettings();
         this._toolSettings.onSettingsChanged((name, value) => {
             if(name === 'fillColor') {
-                this.selection.fillColor = value;
+                this.selection.fillColor = value.rgba;
             } else if (name === 'strokeColor') {
-                this.selection.strokeColor = value;
+                this.selection.strokeColor = value.rgba;
             }
         });
 

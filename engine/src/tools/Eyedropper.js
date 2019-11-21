@@ -72,22 +72,8 @@ Wick.Tools.Eyedropper = class extends Wick.Tool {
     onMouseDown (e) {
         this._destroyColorPreview();
 
-        /*if(this.project.toolSettings.getSetting('')) {
-            if(!e.modifiers.shift) {
-                this.project.toolSettings.setSetting('fillColor', this.hoverColor);
-            } else {
-                this.project.toolSettings.setSetting('strokeColor', this.hoverColor);
-            }
-
-            this.fireEvent('canvasModified');
-        } else {
-            this.fireEvent('eyedropperPickedColor', {
-                color: this.hoverColor,
-            });
-        }*/
-
         this.fireEvent('eyedropperPickedColor', {
-            color: new paper.Color(this.hoverColor),
+            color: new Wick.Color(this.hoverColor),
         });
     }
 
