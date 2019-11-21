@@ -43,6 +43,8 @@ class EditorCore extends Component {
       this.lastUsedTool = this.getActiveTool();
       this.project.activeTool = newTool;
 
+      this._onEyedropperPickedColor = (color) => {};
+
       this.projectDidChange();
     }
   }
@@ -1315,7 +1317,9 @@ class EditorCore extends Component {
   }
 
   onEyedropperPickedColor = (color) => {
+      console.log(this._onEyedropperPickedColor)
       console.log(color)
+      this._onEyedropperPickedColor(color);
   }
 }
 

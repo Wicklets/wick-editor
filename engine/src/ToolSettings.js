@@ -21,10 +21,10 @@ Wick.ToolSettings = class {
     static get DEFAULT_SETTINGS () {
         return [{
             name: 'fillColor',
-            default: new paper.Color('#000000')
+            default: new Wick.Color('#000000')
         }, {
             name: 'strokeColor',
-            default: new paper.Color('#000000')
+            default: new Wick.Color('#000000')
         }, {
             name: 'strokeWidth',
             default: 1,
@@ -71,7 +71,7 @@ Wick.ToolSettings = class {
     }
 
     /**
-     *
+     * Create a new ToolSettings object.
      */
     constructor () {
         this._settings = {};
@@ -100,10 +100,19 @@ Wick.ToolSettings = class {
     }
 
     /**
-     *
+     * Update a value in the settings.
+     * @param {string} name - The name of the setting to update.
+     * @param {string|number|Color} value - The value of the setting to change to.
      */
     setSetting (name, value) {
         var setting = this._settings[name];
+
+        // Check to make sure there's no type mismatch
+        if((typeof value) !== (typeof setting.value)) {
+            console.warn('Warning: Wick.ToolSettings: Type mismatch while setting ' + name);
+            console.warn(value);
+            return;
+        }
 
         var min = setting.min;
         if(min !== undefined) {
@@ -115,18 +124,14 @@ Wick.ToolSettings = class {
             value = Math.min(max, value);
         }
 
-        // Auto convert paper.js colors
-        if(setting.default instanceof paper.Color && typeof value === 'string') {
-            value = new paper.Color(value);
-        }
-
         setting.value = value;
 
         this._fireOnSettingsChanged(name, value);
     }
 
     /**
-     *
+     * Retrieve a value in the settings.
+     * @param {string} name - The name of the setting to retrieve.
      */
     getSetting (name) {
         var setting = this._settings[name];

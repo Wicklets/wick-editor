@@ -27,7 +27,7 @@ Wick.Project = class extends Wick.Base {
      * @param {number} width - Project width in pixels. Default 720.
      * @param {number} height - Project height in pixels. Default 405.
      * @param {number} framerate - Project framerate in frames-per-second. Default 12.
-     * @param {string} backgroundColor - Project background color in hex. Default #ffffff.
+     * @param {Color} backgroundColor - Project background color in hex. Default #ffffff.
      */
     constructor (args) {
         if(!args) args = {};
@@ -37,7 +37,7 @@ Wick.Project = class extends Wick.Base {
         this._width = args.width || 720;
         this._height = args.height || 405;
         this._framerate = args.framerate || 12;
-        this._backgroundColor = args.backgroundColor || '#ffffff';
+        this._backgroundColor = args.backgroundColor || new Wick.Color('#ffffff');
 
         this.pan = {x: 0, y: 0};
         this.zoom = 1.0;
@@ -1031,7 +1031,7 @@ Wick.Project = class extends Wick.Base {
 
         this._keysDown = this.tools.interact.keysDown;
         this._currentKey = this.tools.interact.lastKeyDown;
-        
+
         this._mouseTargets = this.tools.interact.mouseTargets;
 
         // Reset scripts before ticking

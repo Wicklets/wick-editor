@@ -170,7 +170,8 @@ class WickColorPicker extends Component {
     }
 
     openEyedropper = () => {
-        //
+        window.editor.setActiveTool('eyedropper');
+        window.editor._onEyedropperPickedColor = this.props.onChange;
     }
 }
 

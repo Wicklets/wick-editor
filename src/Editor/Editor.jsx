@@ -112,6 +112,7 @@ class Editor extends EditorCore {
 
     // Set up color picker
     this.maxLastColors = 8;
+    this._onEyedropperPickedColor = (color) => {};
 
     // Resizable panels
     this.RESIZE_THROTTLE_AMOUNT_MS = 100;

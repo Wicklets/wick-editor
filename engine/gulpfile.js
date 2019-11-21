@@ -50,6 +50,7 @@ gulp.task("default", function() {
     .src([
       'src/Wick.js',
       'src/Clipboard.js',
+      'src/Color.js',
       'src/FileCache.js',
       'src/History.js',
       'src/ObjectCache.js',
