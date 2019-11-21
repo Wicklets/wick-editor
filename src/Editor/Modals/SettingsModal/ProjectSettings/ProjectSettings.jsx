@@ -18,12 +18,12 @@
  */
 
 import React, { Component } from 'react';
-import ActionButton from 'Editor/Util/ActionButton/ActionButton'; 
+import ActionButton from 'Editor/Util/ActionButton/ActionButton';
 import WickInput from 'Editor/Util/WickInput/WickInput';
 
 import './_projectsettings.scss';
 
-var classNames = require('classnames'); 
+var classNames = require('classnames');
 
 class ProjectSettings extends Component {
   constructor(props) {
@@ -43,17 +43,17 @@ class ProjectSettings extends Component {
         name: "Default",
         width: 720,
         height: 405
-      }, 
+      },
       {
         name: "Square",
         width: 600,
         height: 600
-      }, 
+      },
       {
         name: "720p",
         width: 1280,
         height: 720
-      }, 
+      },
       {
         name: "1080p",
         width: 1920,
@@ -97,7 +97,7 @@ class ProjectSettings extends Component {
   setPreset = (width, height) => {
     this.setState({
       preset: this.getPreset(width, height)
-    }); 
+    });
   }
 
   changeProjectName = (proposedName) => {
@@ -142,7 +142,7 @@ class ProjectSettings extends Component {
       name: this.state.name === '' ? this.defaultName : this.state.name,
       width: this.state.width,
       height: this.state.height,
-      backgroundColor: this.state.backgroundColor,
+      backgroundColor: new window.Wick.Color(this.state.backgroundColor),
       framerate: this.state.framerate,
     }
 
@@ -155,7 +155,7 @@ class ProjectSettings extends Component {
       width: this.props.project.width,
       height: this.props.project.height,
       framerate: this.props.project.framerate,
-      backgroundColor: this.props.project.backgroundColor,
+      backgroundColor: this.props.project.backgroundColor.hex,
       preset: this.getPreset(this.props.project.width, this.props.project.height)
     });
   }
@@ -222,8 +222,8 @@ class ProjectSettings extends Component {
               type="numeric"
               min={this.projectMinHeight}
               value={this.state.height}
-              onChange={this.changeProjectHeight} 
-              className="project-settings-size-input" /> 
+              onChange={this.changeProjectHeight}
+              className="project-settings-size-input" />
         </div>
       </div>
     );
@@ -305,7 +305,7 @@ class ProjectSettings extends Component {
           {/* Footer */}
           <div id="project-settings-modal-footer">
             <div id="project-settings-modal-cancel">
-                <ActionButton 
+                <ActionButton
                   className="project-settings-modal-button"
                   color='gray'
                   action={this.resetAndToggle}
@@ -313,7 +313,7 @@ class ProjectSettings extends Component {
                   />
               </div>
               <div id="autosave-modal-accept">
-                <ActionButton 
+                <ActionButton
                   className="autosave-modal-button"
                   color='green'
                   action={this.acceptProjectSettings}

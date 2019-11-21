@@ -205,7 +205,6 @@ Wick.Project = class extends Wick.Base {
     }
 
     set backgroundColor (backgroundColor) {
-        if(typeof backgroundColor !== 'string') return;
         this._backgroundColor = backgroundColor;
     }
 
