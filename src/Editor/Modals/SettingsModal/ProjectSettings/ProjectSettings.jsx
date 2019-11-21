@@ -66,7 +66,7 @@ class ProjectSettings extends Component {
       width: this.props.project.width,
       height: this.props.project.height,
       framerate: this.props.project.framerate,
-      backgroundColor: this.props.project.backgroundColor,
+      backgroundColor: this.props.project.backgroundColor.rgba,
       preset: this.getPreset(this.props.project.width, this.props.project.height),
     }
   }
@@ -155,7 +155,7 @@ class ProjectSettings extends Component {
       width: this.props.project.width,
       height: this.props.project.height,
       framerate: this.props.project.framerate,
-      backgroundColor: this.props.project.backgroundColor.hex,
+      backgroundColor: this.props.project.backgroundColor.rgba,
       preset: this.getPreset(this.props.project.width, this.props.project.height)
     });
   }
