@@ -53,21 +53,21 @@
     width:$color-picker-bar-height;
     height:$color-picker-bar-height;
 }
-  
+
 #btn-color-picker-dropper {
     width:$color-picker-bar-height;
     height:$color-picker-bar-height;
-    margin-right: $color-picker-block-margin; 
+    margin-right: $color-picker-block-margin;
 }
 
 .wick-color-picker-action-button {
     width:30px;
     height:$color-picker-bar-height;
-    margin-right: 4px 
+    margin-right: 4px
 }
 
 .wick-color-picker-action-button.spacer {
-    margin-right: auto; 
+    margin-right: auto;
 }
 
 .wick-color-picker-control-body {
@@ -81,7 +81,8 @@
     width: calc(#{$color-picker-width} - 2 * #{$color-picker-padding} - 2 * #{$color-picker-bar-height} - 2 * #{$color-picker-block-margin});
     height: 45%;
     position: relative;
-    margin-bottom: 2.5%; 
+    margin-bottom: 2.5%;
+    background-color: white;
 }
 
 .wick-color-picker-color-block-container {
@@ -89,17 +90,19 @@
     width: $color-picker-bar-height;
     height: $color-picker-bar-height;
     margin-left: $color-picker-block-margin;
+    background-color: white;
+    border-radius: 2px;
 }
 
 .wick-color-picker-swatches-container {
     height: 50px;
     display: flex;
-    margin-top: $color-picker-block-margin; 
+    margin-top: $color-picker-block-margin;
     flex-wrap: wrap;
     border-top: 1px solid rgba(0,0,0,.1);
     padding-top: 8px;
     margin: $color-picker-block-margin -10px;
-    padding: 5px 0px 0px 10px; 
+    padding: 5px 0px 0px 10px;
 }
 
 .wick-color-picker-small-swatch {
@@ -135,7 +138,7 @@
     flex-direction: row;
     flex-wrap: wrap;
     margin: $color-picker-block-margin -10px;
-    padding: 5px 0px 0px 10px; 
+    padding: 5px 0px 0px 10px;
 }
 
 .wick-swatch-color-picker-body {
@@ -146,11 +149,11 @@
 // Fix the styling for the Sketch Inputs.
 .wick-color-picker .flexbox-fix {
     margin-top: calc(#{$color-picker-block-margin} + 4px) !important;
-    padding-top: 0px !important; 
+    padding-top: 0px !important;
 }
 
 .wick-color-picker input {
-    width: 100% !important; 
+    width: 100% !important;
     border-radius: 4px;
     background-color: $editor-primary !important;
     border: $editor-input-border-width solid $editor-primary-outline !important;
@@ -160,7 +163,6 @@
 }
 
 .wick-color-picker span {
-    padding-bottom: 0px !important; 
+    padding-bottom: 0px !important;
     color: $editor-primary-property-text !important;
 }
-

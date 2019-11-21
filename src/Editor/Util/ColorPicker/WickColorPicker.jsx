@@ -116,9 +116,9 @@ class WickColorPicker extends Component {
     renderSpectrum = () => {
         let styles = {
             activeColor: {
+                position:'absolute',
                 width: "100%",
                 height: "100%",
-                borderRadius: '2px',
                 backgroundColor: this.props.color,
             }
         }
