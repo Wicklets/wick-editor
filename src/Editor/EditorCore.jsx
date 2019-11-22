@@ -43,7 +43,9 @@ class EditorCore extends Component {
       this.lastUsedTool = this.getActiveTool();
       this.project.activeTool = newTool;
 
-      this._onEyedropperPickedColor = (color) => {};
+      this._onEyedropperPickedColor = (color) => {
+        this.project.toolSettings.setSetting('fillColor', new window.Wick.Color(color));
+      };
 
       this.projectDidChange();
     }
