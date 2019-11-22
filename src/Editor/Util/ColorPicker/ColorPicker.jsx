@@ -65,7 +65,7 @@ class ColorPicker extends Component {
           boundariesElement={'viewport'}>
           <WickColorPicker
             toggle={this.toggle}
-            onChange={this.props.onChange}
+            //onChange={this.props.onChange}
             colorPickerType={this.props.colorPickerType}
             changeColorPickerType={this.props.changeColorPickerType}
             disableAlpha={ this.props.disableAlpha }

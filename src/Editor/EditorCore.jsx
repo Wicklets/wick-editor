@@ -1316,8 +1316,9 @@ class EditorCore extends Component {
       });
   }
 
-  onEyedropperPickedColor = (color) => {
-      this._onEyedropperPickedColor(color);
+  onEyedropperPickedColor = (e) => {
+      this._onEyedropperPickedColor(e.color);
+      this.activateLastTool();
   }
 }
 

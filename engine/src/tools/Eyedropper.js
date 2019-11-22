@@ -73,7 +73,7 @@ Wick.Tools.Eyedropper = class extends Wick.Tool {
         this._destroyColorPreview();
 
         this.fireEvent('eyedropperPickedColor', {
-            color: new Wick.Color(this.hoverColor),
+            color: this.hoverColor,
         });
     }
 

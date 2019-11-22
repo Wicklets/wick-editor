@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2019.11.21";
+var WICK_ENGINE_BUILD_VERSION = "2019.11.22";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -54813,7 +54813,7 @@ Wick.Tools.Eyedropper = class extends Wick.Tool {
     this._destroyColorPreview();
 
     this.fireEvent('eyedropperPickedColor', {
-      color: new Wick.Color(this.hoverColor)
+      color: this.hoverColor
     });
   }
 
@@ -54903,7 +54903,7 @@ Wick.Tools.FillBucket = class extends Wick.Tool {
     setTimeout(() => {
       this.paper.hole({
         point: e.point,
-        bgColor: new paper.Color(this.project.backgroundColor),
+        bgColor: new paper.Color(this.project.backgroundColor.hex),
         gapFillAmount: this.getSetting('gapFillAmount'),
         layers: this.project.activeFrames.map(frame => {
           return frame.view.pathsLayer;
