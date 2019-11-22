@@ -111,8 +111,11 @@
     height: 16px;
     border-radius: 4px;
     overflow: hidden;
-    border: 1px solid rgba(0,0,0,.2);
+    border: 1px solid #222;
     margin: 0px 10px 10px 0px;
+    background: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAMUlEQVQ4T2NkYGAQYcAP3uCTZhw1gGGYhAGBZIA/nYDCgBDAm9BGDWAAJyRCgLaBCAAgXwixzAS0pgAAAABJRU5ErkJggg==");
+    background-color: white;
+    background-size: 15px 15px;
 }
 
 //Swatchbook styling
