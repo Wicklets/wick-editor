@@ -91,6 +91,17 @@ class Editor extends EditorCore {
       lastColorsUsed: ["#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF"]
     };
 
+    // Catch all errors that happen in the editor.
+    window.onerror = function(e, url, line) {
+      // TODO: Handle this error however we want (send it somewhere, display it to user, etc)
+      console.error(e);
+      console.error('error logged: ');
+      console.log(e)
+      console.log(url)
+      console.log(line);
+      return true;
+    }
+
     // Set up error.
     this.error = null;
 
