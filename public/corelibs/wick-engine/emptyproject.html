@@ -57735,7 +57735,7 @@ Wick.View.Project = class extends Wick.View {
       this.canvas.style.backgroundColor = this.canvasBGColor || Wick.View.Project.DEFAULT_CANVAS_BG_COLOR;
     } else {
       // We're inside a clip, so use the project background color as the container background color
-      this.canvas.style.backgroundColor = this.model.backgroundColor;
+      this.canvas.style.backgroundColor = this.model.backgroundColor.hex;
     }
   }
 
