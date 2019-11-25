@@ -1,6 +1,6 @@
 class FontInfoInterface extends Object {
     constructor (editor) {
-        super(editor);
+        super();
         this._allFontInfo = {};
 
         this._getAllFontInfo();
