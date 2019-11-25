@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2019.11.22";
+var WICK_ENGINE_BUILD_VERSION = "2019.11.25";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -47566,7 +47566,7 @@ Wick.Project = class extends Wick.Base {
     this.width = data.width;
     this.height = data.height;
     this.framerate = data.framerate;
-    this.backgroundColor = data.backgroundColor;
+    this.backgroundColor = new Wick.Color(data.backgroundColor);
     this._focus = data.focus;
     this._hideCursor = false;
     this._muted = false;
@@ -47577,7 +47577,7 @@ Wick.Project = class extends Wick.Base {
     data.name = this.name;
     data.width = this.width;
     data.height = this.height;
-    data.backgroundColor = this.backgroundColor;
+    data.backgroundColor = this.backgroundColor.rgba;
     data.framerate = this.framerate;
     data.onionSkinEnabled = this.onionSkinEnabled;
     data.onionSkinSeekForwards = this.onionSkinSeekForwards;

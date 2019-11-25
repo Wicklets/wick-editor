@@ -118,7 +118,7 @@ Wick.Project = class extends Wick.Base {
         this.width = data.width;
         this.height = data.height;
         this.framerate = data.framerate;
-        this.backgroundColor = data.backgroundColor;
+        this.backgroundColor = new Wick.Color(data.backgroundColor);
 
         this._focus = data.focus;
 
@@ -132,7 +132,7 @@ Wick.Project = class extends Wick.Base {
         data.name = this.name;
         data.width = this.width;
         data.height = this.height;
-        data.backgroundColor = this.backgroundColor;
+        data.backgroundColor = this.backgroundColor.rgba;
         data.framerate = this.framerate;
 
         data.onionSkinEnabled = this.onionSkinEnabled
