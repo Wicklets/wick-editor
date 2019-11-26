@@ -941,6 +941,7 @@ class Editor extends EditorCore {
                               <AssetLibrary
                                 projectData={this.state.project}
                                 assets={this.project.getAssets()}
+                                openModal={this.openModal}
                                 openImportAssetFileDialog={this.openImportAssetFileDialog}
                                 selectObjects={this.selectObjects}
                                 clearSelection={this.clearSelection}

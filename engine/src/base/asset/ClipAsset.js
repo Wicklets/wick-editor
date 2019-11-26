@@ -23,7 +23,7 @@ Wick.ClipAsset = class extends Wick.FileAsset {
      * @return {string[]} Array of strings of MIME types in the form MediaType/Subtype.
      */
     static getValidMIMETypes () {
-        return ['application/json'];
+        return ['application/json', 'application/octet-stream'];
     }
 
     /**

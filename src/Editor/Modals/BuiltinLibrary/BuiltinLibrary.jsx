@@ -46,9 +46,10 @@ class BuiltinLibrary extends Component {
 
     fetch (path)
     .then((response) => response.blob())
-    .then((data) => {
-      alert('todo blob -> file')
-      this.props.importFileAsAsset(data, () => {
+    .then((blob) => {
+      blob.lastModifiedDate = new Date();
+      blob.name = assetPath.split('/').pop();
+      this.props.importFileAsAsset(blob, () => {
 
       });
     })
