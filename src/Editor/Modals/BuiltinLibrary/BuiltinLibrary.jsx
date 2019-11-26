@@ -36,7 +36,35 @@ class BuiltinLibrary extends Component {
       {
         file: 'sounds/jason-derulo.mp3',
         name: 'Jason Derulo',
-      }
+      },
+      {
+        file: 'sounds/jason-derulo.mp3',
+        name: 'Jason Derulo',
+      },
+      {
+        file: 'sounds/jason-derulo.mp3',
+        name: 'Jason Derulo',
+      },
+      {
+        file: 'sounds/jason-derulo.mp3',
+        name: 'Jason Derulo',
+      },
+      {
+        file: 'sounds/jason-derulo.mp3',
+        name: 'Jason Derulo',
+      },
+      {
+        file: 'sounds/jason-derulo.mp3',
+        name: 'Jason Derulo',
+      },
+      {
+        file: 'sounds/jason-derulo.mp3',
+        name: 'Jason Derulo',
+      },
+      {
+        file: 'sounds/jason-derulo.mp3',
+        name: 'Jason Derulo',
+      },
     ]
   }
 
@@ -59,17 +87,6 @@ class BuiltinLibrary extends Component {
     });
   }
 
-  renderBuiltinAsset = (asset) => {
-    return (
-      <ActionButton
-        className="builtin-library-modal-button"
-        color='green'
-        action={(() => this.importAsset(asset.file, asset.name))}
-        text={asset.name}
-      />
-    );
-  }
-
   render() {
     return (
       <Modal
@@ -78,12 +95,24 @@ class BuiltinLibrary extends Component {
       onRequestClose={this.props.toggle}
       className="modal-body welcome-modal-body"
       overlayClassName="modal-overlay welcome-modal-overlay">
-        {
-          this.builtinAssets.map(asset => {
-            return this.renderBuiltinAsset(asset)
-          })
-        }
+        <div class='builtin-library-asset-grid'>
+          {
+            this.builtinAssets.map(asset => {
+              return this.renderBuiltinAsset(asset)
+            })
+          }
+        </div>
       </Modal>
+    );
+  }
+
+  renderBuiltinAsset = (asset) => {
+    return (
+      <div
+        class='builtin-library-asset'
+        onClick={(() => this.importAsset(asset.file, asset.name))}>
+        {asset.name}
+      </div>
     );
   }
 }

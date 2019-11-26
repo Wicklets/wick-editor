@@ -19,7 +19,21 @@
 
 @import 'Editor/_wickbrand.scss';
 
-.builtin-library-modal-button {
+.builtin-library-asset-grid {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.builtin-library-asset {
   width: 200px;
-  height: 50px;
+  height: 150px;
+  background-color: red;
+  cursor: pointer;
+  margin: 3px;
+}
+
+.builtin-library-asset:hover {
+  background-color: blue;
 }
