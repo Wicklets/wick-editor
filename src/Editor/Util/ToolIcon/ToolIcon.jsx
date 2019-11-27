@@ -79,6 +79,7 @@ import iconImage from 'resources/tool-icons/image.svg';
 import iconGear from 'resources/tool-icons/settings.svg';
 import iconGroup from 'resources/tool-icons/group.svg';
 import iconSearch from 'resources/tool-icons/search.svg';
+import iconClip from 'resources/asset-library-icons/clip.svg';
 
 // Rows
 import iconBrushSize from "resources/inspector-icons/property-icons/brushsize.svg";
@@ -154,6 +155,7 @@ class ToolIcon extends Component {
       "text": iconText,
       "image": iconImage,
       "imageAsset": iconImage,
+      "clip": iconClip,
       "leaveUp": iconLeaveUp,
       "upload": iconUpload,
       "action": iconAction,
