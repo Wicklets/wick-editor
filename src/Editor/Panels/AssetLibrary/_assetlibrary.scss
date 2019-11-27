@@ -50,15 +50,15 @@ $filter-height: 40px;
   width: 200px;
 }
 
+.btn-asset-builtin {
+  width: $upload-button-height;
+  height: $upload-button-height;
+}
+
 .btn-asset-upload {
   width: $upload-button-height;
   height: $upload-button-height;
-  display: inline-block;
-  margin-left: auto;
-}
-
-.btn-asset-upload-text {
-  font-size: 18px;
+  margin-right: 5px;
 }
 
 .asset-library-body {

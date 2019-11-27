@@ -14,3 +14,4 @@
 'Raindrop Close Up' by Freepik from Flaticon, Edited by Zach Rispoli | in tool-icons/ brushpressure.png
 'Button' by Google from Flaticon, Edited by Zach Rispoli | in tool-icons/ brushpressure.png
 'Circle' by Ivan Kostriukov from the Noun Project | in tool-icons/property-icons/gapFillAmount.png
+'Upload' by Kiranshastry from Flaticon | in asset-library-icons/upload.svg

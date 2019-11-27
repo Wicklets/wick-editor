@@ -53,7 +53,6 @@ import iconRelativeBrushSize from 'resources/tool-icons/relativebrush.png';
 
 // Actions
 import iconAction from 'resources/tool-icons/action.svg';
-import iconUpload from 'resources/tool-icons/upload.svg';
 import iconDuplicate from 'resources/tool-icons/duplicate.svg';
 import iconFlipHorizontal from 'resources/tool-icons/flipHorizontal.svg';
 import iconFlipVertical from 'resources/tool-icons/flipVertical.svg';
@@ -69,6 +68,7 @@ import iconBreakApart from 'resources/tool-icons/breakApart.svg';
 import iconClose from 'resources/tool-icons/close.svg';
 import iconRecenter from 'resources/tool-icons/recenter.svg';
 import iconAdd from 'resources/asset-library-icons/add.svg';
+import iconUpload from 'resources/asset-library-icons/upload.svg';
 import iconSubtract from 'resources/tool-icons/subtract.svg';
 import iconIntersect from 'resources/tool-icons/intersect.svg';
 import iconUnite from 'resources/tool-icons/unite.svg';
