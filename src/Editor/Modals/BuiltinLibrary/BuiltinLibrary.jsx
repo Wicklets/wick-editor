@@ -19,7 +19,7 @@
 
 import React, { Component } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import Modal from 'react-modal';
+import WickModal from 'Editor/Modals/WickModal/WickModal';
 import TabbedInterface from 'Editor/Util/TabbedInterface/TabbedInterface';
 
 import './_builtinlibrary.scss';
@@ -37,99 +37,51 @@ class BuiltinLibrary extends Component {
           file: 'wickobjects/vcam.wickobj',
           name: 'Vcam',
           icon: '',
+          type: 'wickobject',
         },{
           file: 'wickobjects/checkbox.wickobj',
           name: 'Checkbox',
           icon: '',
+          type: 'wickobject',
         },{
           file: 'wickobjects/keyboardcontrol.wickobj',
           name: 'Keyboard Controlled Character',
           icon: '',
+          type: 'wickobject',
         },{
           file: 'wickobjects/link.wickobj',
           name: 'URL Link',
           icon: '',
+          type: 'wickobject',
         },{
           file: 'wickobjects/slider.wickobj',
           name: 'Slider',
           icon: '',
+          type: 'wickobject',
         },{
           file: 'wickobjects/textinput.wickobj',
           name: 'Text Input',
           icon: '',
+          type: 'wickobject',
         }],
       },
       {
         name: 'Sounds',
         assets: [{
-          file: 'sounds/jason-derulo.mp3',
-          name: 'Jason Derulo',
-          icon: 'icons/derulo.jpeg',
-        },
-        {
-          file: 'sounds/jason-derulo.mp3',
-          name: 'Jason Derulo',
-          icon: 'icons/derulo.jpeg',
-        },
-        {
-          file: 'sounds/jason-derulo.mp3',
-          name: 'Jason Derulo',
-          icon: 'icons/derulo.jpeg',
-        },
-        {
-          file: 'sounds/jason-derulo.mp3',
-          name: 'Jason Derulo',
-          icon: 'icons/derulo.jpeg',
-        },
-        {
-          file: 'sounds/jason-derulo.mp3',
-          name: 'Jason Derulo',
-          icon: 'icons/derulo.jpeg',
-        },
-        {
-          file: 'sounds/jason-derulo.mp3',
-          name: 'Jason Derulo',
-          icon: 'icons/derulo.jpeg',
-        },
-        {
-          file: 'sounds/jason-derulo.mp3',
-          name: 'Jason Derulo',
-          icon: 'icons/derulo.jpeg',
-        },
-        {
-          file: 'sounds/jason-derulo.mp3',
-          name: 'Jason Derulo',
-          icon: 'icons/derulo.jpeg',
-        },
-        {
-          file: 'sounds/jason-derulo.mp3',
-          name: 'Jason Derulo',
-          icon: 'icons/derulo.jpeg',
-        },
-        {
-          file: 'sounds/jason-derulo.mp3',
-          name: 'Jason Derulo',
-          icon: 'icons/derulo.jpeg',
-        },
-        {
-          file: 'sounds/jason-derulo.mp3',
-          name: 'Jason Derulo',
-          icon: 'icons/derulo.jpeg',
-        },
-        {
-          file: 'sounds/jason-derulo.mp3',
-          name: 'Jason Derulo',
-          icon: 'icons/derulo.jpeg',
-        },
-        {
-          file: 'sounds/jason-derulo.mp3',
-          name: 'Jason Derulo',
-          icon: 'icons/derulo.jpeg',
-        },
-        {
-          file: 'sounds/jason-derulo.mp3',
-          name: 'Jason Derulo',
-          icon: 'icons/derulo.jpeg',
+          file: 'sounds/bite1.ogg',
+          name: 'Bite 1',
+          icon: 'icons/sound.jpg',
+          type: 'sound',
+        },{
+          file: 'sounds/bloop1.ogg',
+          name: 'Bloop 1',
+          icon: 'icons/sound.jpg',
+          type: 'sound',
+        },{
+          file: 'sounds/bloop2.ogg',
+          name: 'Bloop 2',
+          icon: 'icons/sound.jpg',
+          type: 'sound',
         }]
       },
     ]
@@ -156,10 +108,9 @@ class BuiltinLibrary extends Component {
 
   render() {
     return (
-      <Modal
-      isOpen={this.props.open}
+      <WickModal
+      open={this.props.open}
       toggle={this.props.toggle}
-      onRequestClose={this.props.toggle}
       className="modal-body welcome-modal-body"
       overlayClassName="modal-overlay welcome-modal-overlay">
         <div className='builtin-library'>
@@ -172,7 +123,7 @@ class BuiltinLibrary extends Component {
             })}
           </TabbedInterface>
         </div>
-      </Modal>
+      </WickModal>
     );
   }
 
@@ -191,9 +142,10 @@ class BuiltinLibrary extends Component {
   renderBuiltinAsset = (asset) => {
     return (
       <div
-        className='builtin-library-asset'
-        onClick={(() => this.importAsset(asset.file, asset.name))}>
-        <div className='builtin-library-asset-icon-container'>
+        className='builtin-library-asset'>
+        <div
+          className='builtin-library-asset-icon-container'
+          onClick={(() => this.importAsset(asset.file, asset.name))}>
           <img
             src={BuiltinLibrary.ROOT_ASSET_PATH + asset.icon}
             className='builtin-library-asset-icon'/>
@@ -201,6 +153,11 @@ class BuiltinLibrary extends Component {
         <div className='builtin-library-asset-name'>
           {asset.name}
         </div>
+        {asset.type === 'sound' &&
+          <div className='builtin-library-asset-sound-preview'>
+            <audio ref="audio_tag" src={BuiltinLibrary.ROOT_ASSET_PATH + asset.file} controls autoPlay/>
+          </div>
+        }
       </div>
     );
   }

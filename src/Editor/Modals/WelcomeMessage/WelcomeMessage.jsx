@@ -28,7 +28,7 @@ import nightImage from 'resources/interface-images/blue_night.svg';
 
 class WelcomeModal extends Component {
   getVersion() {
-    return "1.16rc2"
+    return "1.16rc3"
   }
 
   render() {
@@ -50,6 +50,7 @@ class WelcomeModal extends Component {
             <div id="welcome-modal-message" className="welcome-modal-item">
               <ul>
                 <li>Projects can now be exported as single HTML files</li>
+                <li>Upgraded color picker</li>
                 <li>New builtin asset window</li>
                 <li>Clips can be exported as .wickobj files</li>
                 <li><a className="welcome-modal-highlight welcome-link" target="_blank" rel="noopener noreferrer" href="https://forum.wickeditor.com/t/wick-editor-1-15-customizable-hotkeys-faster-brush-new-timeline-discord-patreon-rewards-and-more/2010">...and more!</a></li>

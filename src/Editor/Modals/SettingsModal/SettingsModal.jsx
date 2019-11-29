@@ -18,7 +18,7 @@
  */
 
 import React, { Component } from 'react';
-import WickModal from 'Editor/Modals/WickModal/WickModal'; 
+import WickModal from 'Editor/Modals/WickModal/WickModal';
 import TabbedInterface from 'Editor/Util/TabbedInterface/TabbedInterface';
 import ProjectSettings from './ProjectSettings/ProjectSettings';
 import KeyboardShortcuts from './KeyboardShortcuts/KeyboardShortcuts';
@@ -47,9 +47,9 @@ class SettingsModal extends Component {
 
   render() {
     return (
-      <WickModal 
+      <WickModal
       open={this.props.open} 
-      toggle={this.props.toggle} 
+      toggle={this.props.toggle}
       className="settings-modal-container"
       overlayClassName="settings-modal-overlay">
         <div className="settings-modal-title">
@@ -59,7 +59,7 @@ class SettingsModal extends Component {
           <TabbedInterface tabNames={["Project", "Shortcuts"]} >
             <ProjectSettings
               project={this.props.project}
-              updateProjectSettings={this.props.updateProjectSettings} 
+              updateProjectSettings={this.props.updateProjectSettings}
               colorPickerType={this.props.colorPickerType}
               changeColorPickerType={this.props.changeColorPickerType}
               updateLastColors={this.props.updateLastColors}
