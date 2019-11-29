@@ -25,40 +25,93 @@ import ActionButton from 'Editor/Util/ActionButton/ActionButton';
 import './_welcomemessage.scss';
 
 import nightImage from 'resources/interface-images/blue_night.svg';
+import nightImageShort from 'resources/interface-images/blue_night_short.svg';
+
+var classNames = require('classnames');
 
 class WelcomeModal extends Component {
-  getVersion() {
-    return "1.16rc3"
+  constructor () {
+    super();
+    this.version = "1.16rc3";
+    this.updates = [
+      "New color picker",
+      "Builtin asset window",
+      "HTML export",
+    ] // No More than 3
+
+    let t1 = ["Maye Geraghty", "Tina Nack", "Janett Biros",]
+    let t2 = ["Ming Loper", "Janelle Dewitt", "Ara Perez", "Alma Cain", "Adrian Lobue",]
+    let t3 = ["Desiree Eisenmenger", "Nanette Stamm", "Bert Lipsey", "Krystal Maddix", "Katlyn Dowdy", "Bobette Lasley",  "Florencio Bermejo",]
+    let t4 = ["Bee Alcaraz", "Hsiu Apple", "Mariella Schreck", "Cristina Moulden", "Delphine Vigil" ]
+    this.patreonSupporters = t1.concat(t2, t3, t4)
   }
 
-  render() {
+  // Render updates as a list.
+  renderUpdates = (className) => {
+    return  (
+      <ul className={classNames("updates-list", className)}>
+        {this.updates.map((update,i) => {
+          return (<li key={"update-" + i}>{update}</li>);
+        })}
+      </ul>
+    );
+  }
+
+  // Render a list of all Patreon supporters.
+  renderPatreonSupporters = (className) => {
+    return  (
+      <div className={classNames("supporter-list-container", className)}>
+        <a className="welcome-modal-highlight" target="_blank" rel="noopener noreferrer" href="https://www.patreon.com/WickEditor">Patreon Supporters</a>
+        <div className="supporter-list">
+          {this.patreonSupporters.join(", ")}
+        </div>
+      </div>
+    );
+  }
+
+  renderMobileModal = (modalProps) => {
     return (
       <Modal
-      isOpen={this.props.open}
-      toggle={this.props.toggle}
-      onRequestClose={this.props.toggle}
-      className="modal-body welcome-modal-body"
-      overlayClassName="modal-overlay welcome-modal-overlay">
+        {...modalProps}
+        className="modal-body welcome-modal-mobile-body">
+          <div className="welcome-modal-mobile-image-container">
+            <img className="welcome-modal-mobile-image" alt="Night sky with mountains, clouds, a moon and stars" src={nightImageShort}/>
+          </div>
+          <div className="welcome-modal-mobile-content">
+            <div className="welcome-modal-title small-modal">The Wick Editor</div>
+            <div className="welcome-modal-version small-modal">Version {this.version}</div>
+            {this.renderUpdates("small-modal")}
+            {this.renderPatreonSupporters()}
+          </div>
+          <div id="welcome-modal-mobile-accept">
+              <ActionButton
+                className="welcome-modal-button"
+                color='green'
+                action={this.props.toggle}
+                text="Try it"
+              />
+            </div>
+      </Modal>
+    );
+  }
+
+  renderDesktopModal = (modalProps) => {
+    return (
+      <Modal
+      {...modalProps}
+      className="modal-body welcome-modal-body">
+
         <div id="welcome-modal-interior-content">
           <div id="welcome-image-container" className="welcome-modal-main-container">
-            <img id="welcome-image" alt="welcome to wick editor" src={nightImage} />
+            <img id="welcome-image" alt="Night sky with mountains, clouds, a moon and stars" src={nightImage} />
           </div>
           <div id="welcome-message-container" className="modal-main-container">
             <div id="welcome-modal-title" className="welcome-modal-item">Welcome to the Wick Editor!</div>
-            <div id="welcome-modal-version" className="welcome-modal-item">Version {this.getVersion()}</div>
-            <div id="welcome-modal-subtitle" className="welcome-modal-item">Wick Editor {this.getVersion()} includes:</div>
+            <div id="welcome-modal-version" className="welcome-modal-item">Version {this.version}</div>
+            <div id="welcome-modal-subtitle" className="welcome-modal-item">Wick Editor {this.version} includes:</div>
             <div id="welcome-modal-message" className="welcome-modal-item">
-              <ul>
-                <li>Projects can now be exported as single HTML files</li>
-                <li>Upgraded color picker</li>
-                <li>New builtin asset window</li>
-                <li>Clips can be exported as .wickobj files</li>
-                <li><a className="welcome-modal-highlight welcome-link" target="_blank" rel="noopener noreferrer" href="https://forum.wickeditor.com/t/wick-editor-1-15-customizable-hotkeys-faster-brush-new-timeline-discord-patreon-rewards-and-more/2010">...and more!</a></li>
-              </ul>
-            </div>
-            <div id="welcome-modal-tutorial-links" className="welcom-modal-item">
-              <a className="welcome-modal-highlight welcome-link" target="_blank" rel="noopener noreferrer" href="https://www.youtube.com/watch?v=pAsrXT8KIrI">Animation Tutorial</a>
-              <a className="welcome-modal-highlight welcome-link" target="_blank" rel="noopener noreferrer" href="https://www.youtube.com/watch?v=cvANBF43KsY">Interactive Tutorial</a>
+              {this.renderUpdates()}
+              {this.renderPatreonSupporters("desktop-modal")}
             </div>
             <div id="welcome-modal-forum-link" className="welcome-modal-item">Please report all bugs on our <a className="welcome-modal-highlight" target="_blank" rel="noopener noreferrer" href="https://forum.wickeditor.com">forum!</a></div>
             <div id="welcome-modal-footer">
@@ -74,8 +127,24 @@ class WelcomeModal extends Component {
           </div>
         </div>
       </Modal>
-    );
+    )
   }
+
+  render() {
+    let modalProps = {
+      isOpen: this.props.open,
+      toggle: this.props.toggle,
+      onRequestClose: this.props.toggle,
+      overlayClassName: "modal-overlay welcome-modal-overlay",
+    };
+
+    if (window.innerWidth < 800) {
+      return this.renderMobileModal(modalProps);
+    } else {
+      return this.renderDesktopModal(modalProps);
+    }
+  }
+
 }
 
 export default WelcomeModal

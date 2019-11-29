@@ -106,3 +106,7 @@ Wick Editor is under the GNU v3 Public License. See the [LICENSE](LICENSE.md) fo
 * [Wick Editor Community Forum](https://forum.wickeditor.com/)
 * [Follow on Twitter](https://twitter.com/wickeditor)
 * [Follow on Facebook](https://www.facebook.com/wickeditor/)
+
+## Testing Support From
+
+<a href="https://www.browserstack.com/"><img src=".github/images/browserstack.svg" alt="Browser Stack" width="25%"></a>

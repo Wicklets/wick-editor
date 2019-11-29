@@ -207,7 +207,6 @@ class Editor extends EditorCore {
   }
 
   componentDidUpdate = (prevProps, prevState) => {
-
     if(this.state.previewPlaying && !prevState.previewPlaying) {
       this.project.view.canvas.focus();
       this.project.play({
@@ -896,7 +895,9 @@ class Editor extends EditorCore {
                       <ReflexSplitter {...this.resizeProps}/>
 
                       {/* Right Sidebar */}
-                      <ReflexElement
+                      {
+                        window.innerWidth > 640 &&
+                        <ReflexElement
                         size={250}
                         maxSize={300} minSize={200}
                         onResize={this.resizeProps.onResize}
@@ -951,6 +952,7 @@ class Editor extends EditorCore {
                           </ReflexElement>
                         </ReflexContainer>
                       </ReflexElement>
+                      }
                     </ReflexContainer>
                   </div>
                 </div>
