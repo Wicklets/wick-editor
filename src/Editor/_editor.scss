@@ -99,6 +99,11 @@ body {
   background-color: $wick-green-dark;
 }
 
+.mobile-editor-body {
+  border-right-width: calc(#{$splitter-size} * 2);
+  border-right-style: solid;
+  border-right-color: $splitter-color !important;
+}
 
 /* Basic re-flex panel/splitter styling */
 
