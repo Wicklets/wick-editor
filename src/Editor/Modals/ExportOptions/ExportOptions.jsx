@@ -200,17 +200,6 @@ class ExportOptions extends Component {
   }
 
   render() {
-    let tabs = [
-      {
-        name: "Animation",
-        body: this.renderAnimatedInfo(),
-      },
-      {
-        name: "Interactive",
-        body: this.renderInteractiveInfo(),
-      }
-    ]
-
     return (
       <WickModal
       open={this.props.open}

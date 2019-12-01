@@ -190,21 +190,6 @@ class WickTabCodeEditor extends Component {
   }
 
   renderAddScriptTabPanel = () => {
-    let tabs = [
-      {
-        name: "Mouse",
-        body: this.renderAddScriptPanel("Mouse")
-      },
-      {
-        name: "Keyboard",
-        body: this.renderAddScriptPanel("Keyboard")
-      },
-      {
-        name: "Timeline",
-        body: this.renderAddScriptPanel("Timeline")
-      },
-    ]
-
     return (
       <TabPanel>
         <div id="add-scripts-panel-container">

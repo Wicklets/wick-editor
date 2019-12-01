@@ -51,6 +51,8 @@ import Toolbox from './Panels/Toolbox/Toolbox';
 import AssetLibrary from './Panels/AssetLibrary/AssetLibrary';
 import PopOutCodeEditor from './PopOuts/PopOutCodeEditor/PopOutCodeEditor';
 
+var classNames = require('classnames'); 
+
 class Editor extends EditorCore {
   constructor () {
     super();
@@ -239,7 +241,7 @@ class Editor extends EditorCore {
         preloader.style.display = 'none';
       }, 500);
       this.project.view.render()
-    }, 2000);
+    }, 2000); // Wait two seconds to allow editor to set up... TODO: Should connect this to load events.
   }
 
   showWaitOverlay = (message) => {
@@ -731,6 +733,8 @@ class Editor extends EditorCore {
     window.project = this.project;
     window.editor = this;
 
+    let renderMobile = window.innerWidth < 640;
+
     return (
       <div>
         <div>
@@ -811,7 +815,7 @@ class Editor extends EditorCore {
                   </DockedPanel>
                 </div>
                 <div id="editor-body">
-                  <div id="flexible-container">
+                  <div className={classNames({"mobile-editor-body": renderMobile})} id="flexible-container">
                     {/*App*/}
                     <ReflexContainer windowResizeAware={true} orientation="vertical">
                       {/* Middle Panel */}
@@ -893,11 +897,12 @@ class Editor extends EditorCore {
                         </div>
                       </ReflexElement>
 
-                      <ReflexSplitter {...this.resizeProps}/>
+                      {!renderMobile && <ReflexSplitter {...this.resizeProps}/>}
 
                       {/* Right Sidebar */}
                       {
-                        window.innerWidth > 640 &&
+                        !renderMobile && 
+
                         <ReflexElement
                         size={250}
                         maxSize={300} minSize={200}

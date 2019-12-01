@@ -218,6 +218,7 @@ class KeyboardShortcuts extends Component {
 
   render() {
     let keyMap = this.props.keyMap || {};
+    let keys = Object.keys(keyMap).filter(key => key !== "finish-repeating"); // Remove unecessary keys.
     return (
         <div id="keyboard-shortcuts-body">
           <table className="tableSection">
@@ -230,9 +231,8 @@ class KeyboardShortcuts extends Component {
             </thead>
             <tbody>
               {
-                Object.keys(keyMap).map( (actionName) => {
+                keys.map( (actionName) => {
                     let { sequences, name } = keyMap[actionName];
-                    if (actionName === "finish-repeating") return; 
                     return this.createRow(
                       {
                         actionName: actionName,
