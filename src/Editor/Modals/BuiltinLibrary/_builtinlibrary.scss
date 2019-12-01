@@ -63,6 +63,7 @@
   cursor: pointer;
   border-radius: 5px;
   overflow: hidden;
+  text-align: center;
 }
 
 .builtin-library-asset-icon-container:hover {
@@ -70,6 +71,7 @@
 }
 
 .builtin-library-asset-icon {
-  width: 100%;
+  display: block;
+  width: auto;
   height: 100%;
 }

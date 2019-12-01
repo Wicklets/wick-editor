@@ -34,34 +34,39 @@ class BuiltinLibrary extends Component {
       {
         name: 'Clips',
         assets: [{
+          file: 'wickobjects/button.wickobj',
+          name: 'Button',
+          icon: 'icons/button.png',
+          type: 'wickobject',
+        },{
           file: 'wickobjects/vcam.wickobj',
           name: 'Vcam',
-          icon: '',
+          icon: 'icons/vcam.png',
           type: 'wickobject',
         },{
           file: 'wickobjects/checkbox.wickobj',
           name: 'Checkbox',
-          icon: '',
+          icon: 'icons/checkbox.png',
           type: 'wickobject',
         },{
           file: 'wickobjects/keyboardcontrol.wickobj',
           name: 'Keyboard Controlled Character',
-          icon: '',
+          icon: 'icons/keyboardcharacter.png',
           type: 'wickobject',
         },{
           file: 'wickobjects/link.wickobj',
           name: 'URL Link',
-          icon: '',
+          icon: 'icons/link.png',
           type: 'wickobject',
         },{
           file: 'wickobjects/slider.wickobj',
           name: 'Slider',
-          icon: '',
+          icon: 'icons/slider.png',
           type: 'wickobject',
         },{
           file: 'wickobjects/textinput.wickobj',
           name: 'Text Input',
-          icon: '',
+          icon: 'icons/textinput.png',
           type: 'wickobject',
         }],
       },
@@ -70,17 +75,17 @@ class BuiltinLibrary extends Component {
         assets: [{
           file: 'sounds/bite1.ogg',
           name: 'Bite 1',
-          icon: 'icons/sound.jpg',
+          icon: 'icons/sound.png',
           type: 'sound',
         },{
           file: 'sounds/bloop1.ogg',
           name: 'Bloop 1',
-          icon: 'icons/sound.jpg',
+          icon: 'icons/sound.png',
           type: 'sound',
         },{
           file: 'sounds/bloop2.ogg',
           name: 'Bloop 2',
-          icon: 'icons/sound.jpg',
+          icon: 'icons/sound.png',
           type: 'sound',
         }]
       },
@@ -147,20 +152,21 @@ class BuiltinLibrary extends Component {
           className='builtin-library-asset-icon-container'
           onClick={(() => this.importAsset(asset.file, asset.name))}>
           <img
-            alt='add built in asset icon'
+            alt='Builtin Asset Icon'
             src={BuiltinLibrary.ROOT_ASSET_PATH + asset.icon}
             className='builtin-library-asset-icon'/>
         </div>
         <div className='builtin-library-asset-name'>
           {asset.name}
         </div>
-        {asset.type === 'sound' &&
-          <div className='builtin-library-asset-sound-preview'>
-            <audio ref="audio_tag" src={BuiltinLibrary.ROOT_ASSET_PATH + asset.file} controls autoPlay/>
-          </div>
-        }
       </div>
     );
+
+    /*{asset.type === 'sound' &&
+      <div className='builtin-library-asset-sound-preview'>
+        <audio ref="audio_tag" src={BuiltinLibrary.ROOT_ASSET_PATH + asset.file} controls autoPlay/>
+      </div>
+    }*/
   }
 }
 

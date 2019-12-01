@@ -16,3 +16,5 @@
 'Circle' by Ivan Kostriukov from the Noun Project | in tool-icons/property-icons/gapFillAmount.png
 'Upload' by Kiranshastry from Flaticon | in asset-library-icons/upload.svg
 'Settings Gears' by Freepik | in asset-library-icons/clip.svg
+'Music Player' by Smashicons | in public/builtinlibrary/icons/music.png
+'Sound Waves' by Darius Dan | in public/builtinlibrary/icons/sound.png
