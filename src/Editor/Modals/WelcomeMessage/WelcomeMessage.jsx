@@ -39,10 +39,10 @@ class WelcomeModal extends Component {
       "HTML export",
     ] // No More than 3
 
-    let t1 = ["Maye Geraghty", "Tina Nack", "Janett Biros",]
-    let t2 = ["Ming Loper", "Janelle Dewitt", "Ara Perez", "Alma Cain", "Adrian Lobue",]
-    let t3 = ["Desiree Eisenmenger", "Nanette Stamm", "Bert Lipsey", "Krystal Maddix", "Katlyn Dowdy", "Bobette Lasley",  "Florencio Bermejo",]
-    let t4 = ["Bee Alcaraz", "Hsiu Apple", "Mariella Schreck", "Cristina Moulden", "Delphine Vigil" ]
+    let t1 = ["Hyun's Dojo", "Guy de Bree"]
+    let t2 = ["Constance Ye", "Victoria Rojas"]
+    let t3 = ["Gautaum Bose", "Ji Heon Han"]
+    let t4 = ["Golan Levin", "ThisPodcastIsInEnglish", "Anonymous"]
     this.patreonSupporters = t1.concat(t2, t3, t4)
   }
 
