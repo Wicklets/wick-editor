@@ -9,6 +9,10 @@ export default {
     "name": "Vcam",
     "icon": "icons/vcam.png",
   },{
+    "file": "wickobjects/multiframeclip.wickobj",
+    "name": "Multi-Frame Clip",
+    "icon": "icons/multiframeclip.png",
+  },{
     "file": "wickobjects/checkbox.wickobj",
     "name": "Checkbox",
     "icon": "icons/checkbox.png",
