@@ -94,7 +94,7 @@ class AssetLibrary extends Component {
             action={this.openBuiltinAssetLibrary}
             id="button-asset-builtin"
             icon="add"
-            tooltip="Builtin Assets" />
+            tooltip="Add Builtin Asset" />
         </div>
         <div className="btn-asset-builtin">
           <ActionButton

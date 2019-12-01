@@ -85,6 +85,7 @@ class BuiltinLibrary extends Component {
   renderBuiltinAsset = (asset) => {
     return (
       <div
+        key={"builtin-asset-" + asset.name}
         className='builtin-library-asset'>
         <div
           className='builtin-library-asset-icon-container'
