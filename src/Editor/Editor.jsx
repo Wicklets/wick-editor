@@ -757,6 +757,7 @@ class Editor extends EditorCore {
                   style={{display: 'none'}}
                   ref={this.importAssetRef}
                   onChange={this.handleAssetFileImport}
+                  multiple="multiple"
                 />
                 <input
                   type='file'
