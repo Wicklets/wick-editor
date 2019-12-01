@@ -122,8 +122,8 @@ class WickColorPicker extends Component {
                 backgroundColor: this.props.color,
             }
         }
-
-        let colors = ['#D0021B', '#F5A623', '#F8E71C', '#8B572A', '#7ED321', '#417505', '#BD10E0', '#9013FE', '#4A90E2', '#50E3C2', '#B8E986', '#000000', '#4A4A4A', '#9B9B9B', '#FFFFFF', '#FFFFFF00']
+        
+        let colors = ['#D0021B', '#F8E71C', '#7ED321', '#4A90E2', '#000000', '#4A4A4A', '#FFFFFF', '#FFFFFF00']
         let lastUsedColorsDefaults = ["#000000","#000000","#000000","#000000","#000000","#000000","#000000","#000000"]
         let lastColors = this.props.lastColorsUsed || lastUsedColorsDefaults;
         return (
