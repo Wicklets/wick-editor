@@ -22,6 +22,9 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import WickModal from 'Editor/Modals/WickModal/WickModal';
 import TabbedInterface from 'Editor/Util/TabbedInterface/TabbedInterface';
 
+import wickobjects from './wickobjects.js'
+import sounds from './sounds.js'
+
 import './_builtinlibrary.scss';
 
 class BuiltinLibrary extends Component {
@@ -29,72 +32,8 @@ class BuiltinLibrary extends Component {
     return process.env.PUBLIC_URL + '/builtinlibrary/';
   }
 
-  get builtinAssets () {
-    return [
-      {
-        name: 'Clips',
-        assets: [{
-          file: 'wickobjects/button.wickobj',
-          name: 'Button',
-          icon: 'icons/button.png',
-          type: 'wickobject',
-        },{
-          file: 'wickobjects/vcam.wickobj',
-          name: 'Vcam',
-          icon: 'icons/vcam.png',
-          type: 'wickobject',
-        },{
-          file: 'wickobjects/checkbox.wickobj',
-          name: 'Checkbox',
-          icon: 'icons/checkbox.png',
-          type: 'wickobject',
-        },{
-          file: 'wickobjects/keyboardcontrol.wickobj',
-          name: 'Keyboard Controlled Character',
-          icon: 'icons/keyboardcharacter.png',
-          type: 'wickobject',
-        },{
-          file: 'wickobjects/link.wickobj',
-          name: 'URL Link',
-          icon: 'icons/link.png',
-          type: 'wickobject',
-        },{
-          file: 'wickobjects/slider.wickobj',
-          name: 'Slider',
-          icon: 'icons/slider.png',
-          type: 'wickobject',
-        },{
-          file: 'wickobjects/textinput.wickobj',
-          name: 'Text Input',
-          icon: 'icons/textinput.png',
-          type: 'wickobject',
-        }],
-      },
-      {
-        name: 'Sounds',
-        assets: [{
-          file: 'sounds/bite1.ogg',
-          name: 'Bite 1',
-          icon: 'icons/sound.png',
-          type: 'sound',
-        },{
-          file: 'sounds/bloop1.ogg',
-          name: 'Bloop 1',
-          icon: 'icons/sound.png',
-          type: 'sound',
-        },{
-          file: 'sounds/bloop2.ogg',
-          name: 'Bloop 2',
-          icon: 'icons/sound.png',
-          type: 'sound',
-        }]
-      },
-    ]
-  }
-
   importAsset = (assetPath, assetName) => {
     var path = BuiltinLibrary.ROOT_ASSET_PATH + assetPath;
-    console.log(path);
 
     fetch (path)
     .then((response) => response.blob())
@@ -123,9 +62,8 @@ class BuiltinLibrary extends Component {
             Builtin Library
           </div>
           <TabbedInterface tabNames={["Clips", "Sounds"]} >
-            {this.builtinAssets.map(assetGroup => {
-              return this.renderAssetGroup(assetGroup.name, assetGroup.assets)
-            })}
+            {this.renderAssetGroup(wickobjects.name, wickobjects.assets)}
+            {this.renderAssetGroup(sounds.name, sounds.assets)}
           </TabbedInterface>
         </div>
       </WickModal>
