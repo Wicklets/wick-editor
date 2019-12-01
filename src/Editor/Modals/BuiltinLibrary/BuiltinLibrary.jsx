@@ -147,6 +147,7 @@ class BuiltinLibrary extends Component {
           className='builtin-library-asset-icon-container'
           onClick={(() => this.importAsset(asset.file, asset.name))}>
           <img
+            alt='add built in asset icon'
             src={BuiltinLibrary.ROOT_ASSET_PATH + asset.icon}
             className='builtin-library-asset-icon'/>
         </div>

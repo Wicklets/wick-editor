@@ -160,7 +160,6 @@ class ToolIcon extends Component {
       "upload": iconUpload,
       "action": iconAction,
       "breakApart": iconBreakApart,
-      "brushsize": iconBrushSize,
       "brushsmoothness": iconBrushSmoothness,
       "brushpressure": iconBrushPressure,
       "brushrelativesize": iconRelativeBrushSize,
@@ -230,7 +229,8 @@ class ToolIcon extends Component {
       "split": iconSplit,
       "layerTween": iconLayerTween,
       "spectrum": iconSpectrum,
-      "swatches": iconSwatches
+      "swatches": iconSwatches,
+      "group": iconGroup,
     }
   }
 
