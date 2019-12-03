@@ -165,6 +165,7 @@ class PopOutCodeEditor extends Component {
                 editScript={this.props.editScript}
                 onCursorChange={this.onCursorChange}
                 toggleCodeEditor={this.props.toggleCodeEditor}
+                requestAutosave={this.props.requestAutosave}
               /> }
               {!this.props.selectionIsScriptable() && this.renderNotScriptableInfo()}
           </div>

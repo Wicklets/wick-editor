@@ -101,6 +101,7 @@ class WickTabCodeEditor extends Component {
 
   renderNewAceEditor = (script) => {
     let wrappedUpdate = (src) => {
+      this.props.requestAutosave();
       this.props.script.updateScript(script.name, src);
       this.props.onMinorScriptUpdate(src);
     }

@@ -51,7 +51,7 @@ import Toolbox from './Panels/Toolbox/Toolbox';
 import AssetLibrary from './Panels/AssetLibrary/AssetLibrary';
 import PopOutCodeEditor from './PopOuts/PopOutCodeEditor/PopOutCodeEditor';
 
-var classNames = require('classnames'); 
+var classNames = require('classnames');
 
 class Editor extends EditorCore {
   constructor () {
@@ -901,7 +901,7 @@ class Editor extends EditorCore {
 
                       {/* Right Sidebar */}
                       {
-                        !renderMobile && 
+                        !renderMobile &&
 
                         <ReflexElement
                         size={250}
@@ -978,6 +978,7 @@ class Editor extends EditorCore {
               scriptToEdit={this.state.scriptToEdit}
               editScript={this.editScript}
               toggleCodeEditor={this.toggleCodeEditor}
+              requestAutosave={this.requestAutosave}
               />}
         </div>
       </div>
