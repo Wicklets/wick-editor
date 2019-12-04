@@ -36,8 +36,13 @@ describe('Wick.Tools.Eyedropper', function() {
         })));
         project.view.render();
 
-        project.view.on('canvasModified', function (e) {
+        /*project.view.on('canvasModified', function (e) {
             expect(project.toolSettings.getSetting('fillColor').toCSS(true)).to.equal('#ff00ff');
+            destroyDummyCanvasContainer(project);
+            done();
+        });*/
+        project.view.on('eyedropperPickedColor', (e) => {
+            expect(e.color).to.equal('#ff00ff');
             destroyDummyCanvasContainer(project);
             done();
         });

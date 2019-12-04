@@ -51,7 +51,7 @@ describe('Wick.Project', function() {
 
             var data = project.serialize();
 
-            expect(data.backgroundColor.hex).to.equal('#ffffff');
+            expect(data.backgroundColor).to.equal('rgb(255,255,255)');
             expect(data.children).to.eql([
                 project.selection.uuid,
                 project.root.uuid,

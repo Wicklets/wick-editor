@@ -65,7 +65,7 @@ describe('Wick.View.Project', function() {
 
         it('background color should be project background color if not inside root', function() {
             var project = new Wick.Project();
-            project.backgroundColor = 'rgb(255, 0, 0)';
+            project.backgroundColor = new Wick.Color('rgb(255, 0, 0)');
 
             var clip = new Wick.Clip();
             project.root.timeline.layers[0].frames[0].addClip(clip);

@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2019.11.26";
+var WICK_ENGINE_BUILD_VERSION = "2019.12.4";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -52036,18 +52036,17 @@ Wick.Tickable = class extends Wick.Base {
 
 
     if (!this._onscreen && !this._onscreenLastTick) {
-      return this._onInactive();
+      this._onInactive();
     } else if (this._onscreen && !this._onscreenLastTick) {
-      return this._onActivated();
+      this._onActivated();
     } else if (this._onscreen && this._onscreenLastTick) {
-      return this._onActive();
+      this._onActive();
     } else if (!this._onscreen && this._onscreenLastTick) {
-      return this._onDeactivated();
+      this._onDeactivated();
     }
   }
 
-  _onInactive() {
-    return null;
+  _onInactive() {// Do nothing.
   }
 
   _onActivated() {
@@ -52099,10 +52098,8 @@ Wick.Tickable = class extends Wick.Base {
 
     if (last === 'down' && current === 'down') {
       this.scheduleScript('mousedrag');
-    } // Key events require the Tickable object to be inside of a project. Don't run them if there is no project
+    } // Key down
 
-
-    if (!this.project) return null; // Key down
 
     this.project.keysDown.forEach(key => {
       this.project.currentKey = key;
@@ -52343,7 +52340,7 @@ Wick.Frame = class extends Wick.Tickable {
 
   get onScreen() {
     if (!this.parent) return true;
-    return this.inPosition(this.parentTimeline.playheadPosition);
+    return this.inPosition(this.parentTimeline.playheadPosition) && this.parentClip.onScreen;
   }
   /**
    * The sound attached to the frame.
@@ -52913,39 +52910,37 @@ Wick.Frame = class extends Wick.Tickable {
   }
 
   _onInactive() {
-    return super._onInactive();
+    super._onInactive();
+
+    this._tickChildren();
   }
 
   _onActivated() {
-    var error = super._onActivated();
+    super._onActivated();
 
-    if (error) return error;
     this.playSound();
-    return this._tickChildren();
+
+    this._tickChildren();
   }
 
   _onActive() {
-    var error = super._onActive();
+    super._onActive();
 
-    if (error) return error;
-    return this._tickChildren();
+    this._tickChildren();
   }
 
   _onDeactivated() {
-    var error = super._onDeactivated();
+    super._onDeactivated();
 
-    if (error) return error;
     this.stopSound();
-    return this._tickChildren();
+
+    this._tickChildren();
   }
 
   _tickChildren() {
-    var childError = null;
     this.clips.forEach(clip => {
-      if (childError) return;
-      childError = clip.tick();
+      clip.tick();
     });
-    return childError;
   }
 
   _attachChildClipReferences() {
@@ -53031,10 +53026,8 @@ Wick.Clip = class extends Wick.Tickable {
   get onScreen() {
     if (this.isRoot) {
       return true;
-    } else if (this.parent) {
-      return this.parent.onScreen;
-    } else {
-      return true;
+    } else if (this.parentFrame) {
+      return this.parentFrame.onScreen;
     }
   }
   /**
@@ -53461,29 +53454,29 @@ Wick.Clip = class extends Wick.Tickable {
   }
 
   _onInactive() {
-    return super._onInactive();
+    super._onInactive();
+
+    this._tickChildren();
   }
 
   _onActivated() {
-    var error = super._onActivated();
+    super._onActivated();
 
-    if (error) return error;
-    return this._tickChildren();
+    this._tickChildren();
   }
 
   _onActive() {
-    var error = super._onActive();
+    super._onActive();
 
-    if (error) return error;
     this.timeline.advance();
-    return this._tickChildren();
+
+    this._tickChildren();
   }
 
   _onDeactivated() {
-    var error = super._onDeactivated();
+    super._onDeactivated();
 
-    if (error) return error;
-    return this._tickChildren();
+    this._tickChildren();
   }
 
   _tickChildren() {
@@ -53957,7 +53950,9 @@ Wick.Tools.Brush = class extends Wick.Tool {
     }
   }
 
-  onDeactivate(e) {}
+  onDeactivate(e) {
+    this.discard();
+  }
 
   onMouseMove(e) {
     super.onMouseMove(e);
