@@ -88,7 +88,8 @@ Wick.Tools.Brush = class extends Wick.Tool {
     }
 
     onDeactivate (e) {
-
+        // This prevents croquis from leaving stuck brush strokes on the screen.
+        this.discard();
     }
 
     onMouseMove (e) {
