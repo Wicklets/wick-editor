@@ -128,7 +128,7 @@ class WickInput extends Component {
   renderSlider = () => {
     // Spit out the value of a text box back to the onChange function.
     let wrappedOnChange = (val) => {
-      this.props.onChange(val.target.value);
+      this.props.onChange(parseFloat(val.target.value));
     };
     return (
       <input
@@ -147,11 +147,11 @@ class WickInput extends Component {
       // TODO: Check if we can just use HEX here.
       if (color.rgb) {
         let rgb = color.rgb;
-        let str = "rgba(" + rgb.r + "," + rgb.g + "," + rgb.b + "," + rgb.a + ")"; 
+        let str = "rgba(" + rgb.r + "," + rgb.g + "," + rgb.b + "," + rgb.a + ")";
         newColor = str;
       }
 
-      this.props.updateLastColors && this.props.updateLastColors(newColor); 
+      this.props.updateLastColors && this.props.updateLastColors(newColor);
       this.props.onChange && this.props.onChange(newColor);
     };
 
