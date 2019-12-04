@@ -76,10 +76,8 @@ Wick.Clip = class extends Wick.Tickable {
     get onScreen () {
         if(this.isRoot) {
             return true;
-        } else if (this.parent) {
-            return this.parent.onScreen;
-        } else {
-            return true;
+        } else if (this.parentFrame) {
+            return this.parentFrame.onScreen;
         }
     }
 
@@ -480,29 +478,24 @@ Wick.Clip = class extends Wick.Tickable {
     }
 
     _onInactive () {
-        return super._onInactive();
+        super._onInactive();
+        this._tickChildren();
     }
 
     _onActivated () {
-        var error = super._onActivated();
-        if(error) return error;
-
-        return this._tickChildren();
+        super._onActivated();
+        this._tickChildren();
     }
 
     _onActive () {
-        var error = super._onActive();
-        if(error) return error;
-
+        super._onActive();
         this.timeline.advance();
-        return this._tickChildren();
+        this._tickChildren();
     }
 
     _onDeactivated () {
-        var error = super._onDeactivated();
-        if(error) return error;
-
-        return this._tickChildren();
+        super._onDeactivated();
+        this._tickChildren();
     }
 
     _tickChildren () {

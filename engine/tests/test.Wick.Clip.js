@@ -281,6 +281,52 @@ describe('Wick.Clip', function() {
         });
     });
 
+    describe('#onScreen', function () {
+        it('should only be considered on screen if the parent playhead is over the frame', function () {
+            var project = new Wick.Project();
+
+            var frame1 = project.activeFrame;
+            var frame2 = new Wick.Frame({start: 2});
+            project.activeLayer.addFrame(frame2);
+
+            var clip1 = new Wick.Clip();
+            frame1.addClip(clip1);
+            var clip2 = new Wick.Clip();
+            frame2.addClip(clip2);
+
+            project.activeTimeline.playheadPosition = 1;
+            expect(clip1.onScreen).to.equal(true);
+            expect(clip2.onScreen).to.equal(false);
+
+            project.activeTimeline.playheadPosition = 2;
+            expect(clip1.onScreen).to.equal(false);
+            expect(clip2.onScreen).to.equal(true);
+        });
+
+        it('should not be on screen if the parent playhead is over the frame, but the parent clip is not on screen', function () {
+            var project = new Wick.Project();
+            var toplevelClip = new Wick.Clip();
+            project.activeFrame.addClip(toplevelClip);
+
+            var frame1 = toplevelClip.activeFrame;
+            var frame2 = new Wick.Frame({start: 2});
+            toplevelClip.activeLayer.addFrame(frame2);
+
+            var clip1 = new Wick.Clip();
+            frame1.addClip(clip1);
+            var clip2 = new Wick.Clip();
+            frame2.addClip(clip2);
+
+            project.activeTimeline.playheadPosition = 1;
+            expect(clip1.onScreen).to.equal(true);
+            expect(clip2.onScreen).to.equal(false);
+
+            project.activeTimeline.playheadPosition = 2;
+            expect(clip1.onScreen).to.equal(false);
+            expect(clip2.onScreen).to.equal(false);
+        });
+    });
+
     describe('#breakApart', function () {
         it('should break apart correctly', function () {
             var project = new Wick.Project();
@@ -327,13 +373,16 @@ describe('Wick.Clip', function() {
 
     describe('#tick', function () {
         it('should advance timeline on update', function() {
+            var project = new Wick.Project();
             var clip = new Wick.Clip();
             clip.timeline.addLayer(new Wick.Layer());
             clip.timeline.layers[0].addFrame(new Wick.Frame({start:1}));
             clip.timeline.layers[0].addFrame(new Wick.Frame({start:2}));
+            project.addObject(clip);
 
             expect(clip.timeline.playheadPosition).to.equal(1);
-            clip._onActive();
+            project.tick();
+            project.tick();
             expect(clip.timeline.playheadPosition).to.equal(2);
         });
 
@@ -430,6 +479,63 @@ describe('Wick.Clip', function() {
             expect(childA.__scriptDidRun).to.equal(true);
             expect(childB.__scriptDidRun).to.equal(true);
             expect(childC.__scriptDidRun).to.equal(undefined);
+        });
+
+        it('unload script should run if clip stops being visible', function() {
+            window.tempHolder = [];
+
+            var project = new Wick.Project();
+
+            var clip = new Wick.Clip();
+            clip.addScript('load', 'window.tempHolder.push("load")');
+            clip.addScript('unload', 'window.tempHolder.push("unload")');
+
+            var frame1 = project.activeFrame;
+            var frame2 = new Wick.Frame({start:2});
+            project.activeLayer.addFrame(frame2);
+
+            frame1.addClip(clip);
+
+            project.tick();
+            expect(project.focus.timeline.playheadPosition).to.equal(1);
+            project.tick();
+            expect(project.focus.timeline.playheadPosition).to.equal(2);
+
+            expect(window.tempHolder[0]).to.equal('load');
+            expect(window.tempHolder[1]).to.equal('unload');
+            expect(window.tempHolder.length).to.equal(2);
+
+            delete window.tempHolder;
+        });
+
+        it('unload script should run if clip stops being visible (nested clip)', function() {
+            window.tempHolder = [];
+
+            var project = new Wick.Project();
+
+            var innerClip = new Wick.Clip();
+            innerClip.addScript('load', 'window.tempHolder.push("load")');
+            innerClip.addScript('unload', 'window.tempHolder.push("unload")');
+
+            var outerClip = new Wick.Clip();
+            outerClip.activeFrame.addClip(innerClip);
+
+            var frame1 = project.activeFrame;
+            var frame2 = new Wick.Frame({start:2});
+            project.activeLayer.addFrame(frame2);
+
+            frame1.addClip(outerClip);
+
+            project.tick();
+            expect(project.focus.timeline.playheadPosition).to.equal(1);
+            project.tick();
+            expect(project.focus.timeline.playheadPosition).to.equal(2);
+
+            expect(window.tempHolder[0]).to.equal('load');
+            expect(window.tempHolder[1]).to.equal('unload');
+            expect(window.tempHolder.length).to.equal(2);
+
+            delete window.tempHolder;
         });
 
         describe('#stop', function () {
@@ -1090,8 +1196,8 @@ describe('Wick.Clip', function() {
             project.activeFrame.addClip(clip);
 
             clip.addScript('load', 'stop(); play();');
-            var error = clip.tick();
-            expect(error).to.equal(null);
+            project.tick();
+            expect(project.error).to.equal(null);
         });
 
         it('clips should have access to other named objects', function() {

@@ -351,18 +351,18 @@ Wick.Tickable = class extends Wick.Base {
 
         // Call tick event function that corresponds to state.
         if(!this._onscreen && !this._onscreenLastTick) {
-            return this._onInactive();
+            this._onInactive();
         } else if (this._onscreen && !this._onscreenLastTick) {
-            return this._onActivated();
+            this._onActivated();
         } else if (this._onscreen && this._onscreenLastTick) {
-            return this._onActive();
+            this._onActive();
         } else if (!this._onscreen && this._onscreenLastTick) {
-            return this._onDeactivated();
+            this._onDeactivated();
         }
     }
 
     _onInactive () {
-        return null;
+        // Do nothing.
     }
 
     _onActivated () {
@@ -417,9 +417,6 @@ Wick.Tickable = class extends Wick.Base {
         if(last === 'down' && current === 'down') {
             this.scheduleScript('mousedrag');
         }
-
-        // Key events require the Tickable object to be inside of a project. Don't run them if there is no project
-        if(!this.project) return null;
 
         // Key down
         this.project.keysDown.forEach(key => {

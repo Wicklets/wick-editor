@@ -101,33 +101,6 @@ describe('Wick.Tickable', function() {
     });
 
     describe('#tick', function () {
-        it('should tick based on onScreen correctly', function() {
-            var tickable = new Wick.Tickable();
-            tickable.addScript('default', 'this.defaultDidRun = true;');
-            tickable.addScript('load', 'this.tickState = "load";');
-            tickable.addScript('update', 'this.tickState = "update";');
-            tickable.addScript('unload', 'this.tickState = "unload";');
-
-            var parent = new Wick.Base();
-            parent.addChild(tickable);
-
-            parent.onScreen = false;
-            tickable.tick();
-
-            parent.onScreen = true;
-            tickable.tick();
-            expect(tickable.tickState).to.equal('load');
-            expect(tickable.defaultDidRun).to.equal(true);
-            tickable.tick();
-            expect(tickable.tickState).to.equal('update');
-            tickable.tick();
-            expect(tickable.tickState).to.equal('update');
-
-            parent.onScreen = false;
-            tickable.tick();
-            expect(tickable.tickState).to.equal('unload');
-        });
-
         it('should run empty script without errors', function() {
             var project = new Wick.Project();
 

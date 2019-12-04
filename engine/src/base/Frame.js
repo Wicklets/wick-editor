@@ -102,7 +102,7 @@ Wick.Frame = class extends Wick.Tickable {
      */
     get onScreen () {
         if(!this.parent) return true;
-        return this.inPosition(this.parentTimeline.playheadPosition);
+        return this.inPosition(this.parentTimeline.playheadPosition) && this.parentClip.onScreen;
     }
 
     /**
@@ -629,41 +629,31 @@ Wick.Frame = class extends Wick.Tickable {
     }
 
     _onInactive () {
-        return super._onInactive();
+        super._onInactive();
+        this._tickChildren();
     }
 
     _onActivated () {
-        var error = super._onActivated();
-        if(error) return error;
-
+        super._onActivated();
         this.playSound();
-
-        return this._tickChildren();
+        this._tickChildren();
     }
 
     _onActive () {
-        var error = super._onActive();
-        if(error) return error;
-
-        return this._tickChildren();
+        super._onActive();
+        this._tickChildren();
     }
 
     _onDeactivated () {
-        var error = super._onDeactivated();
-        if(error) return error;
-
+        super._onDeactivated();
         this.stopSound();
-
-        return this._tickChildren();
+        this._tickChildren();
     }
 
     _tickChildren () {
-        var childError = null;
         this.clips.forEach(clip => {
-            if(childError) return;
-            childError = clip.tick();
+            clip.tick();
         });
-        return childError;
     }
 
     _attachChildClipReferences () {

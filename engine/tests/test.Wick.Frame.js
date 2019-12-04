@@ -142,6 +142,45 @@ describe('Wick.Frame', function() {
         });
     });
 
+    describe('#onScreen', function () {
+        it('should only be considered on screen if the parent playhead is over the frame', function () {
+            var project = new Wick.Project();
+
+            var frame1 = project.activeFrame;
+            var frame2 = new Wick.Frame({start: 2});
+            project.activeLayer.addFrame(frame2);
+
+            project.activeTimeline.playheadPosition = 1;
+            expect(frame1.onScreen).to.equal(true);
+            expect(frame2.onScreen).to.equal(false);
+
+            project.activeTimeline.playheadPosition = 2;
+            expect(frame1.onScreen).to.equal(false);
+            expect(frame2.onScreen).to.equal(true);
+        });
+
+        it('should not be on screen if the parent playhead is over the frame, but the parent clip is not on screen', function () {
+            var project = new Wick.Project();
+
+            var frame1 = project.activeFrame;
+            var frame2 = new Wick.Frame({start: 2});
+            project.activeLayer.addFrame(frame2);
+
+            var clip1 = new Wick.Clip();
+            frame1.addClip(clip1);
+            var clip2 = new Wick.Clip();
+            frame2.addClip(clip2);
+
+            project.activeTimeline.playheadPosition = 1;
+            expect(clip1.activeFrame.onScreen).to.equal(true);
+            expect(clip2.activeFrame.onScreen).to.equal(false);
+
+            project.activeTimeline.playheadPosition = 2;
+            expect(clip1.activeFrame.onScreen).to.equal(false);
+            expect(clip2.activeFrame.onScreen).to.equal(true);
+        });
+    });
+
     describe('#contentful', function () {
         it('should determine contentful correctly', function() {
             var frameEmpty = new Wick.Frame();
