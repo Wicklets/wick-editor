@@ -119,6 +119,24 @@ export default {
       "link": "https://freesound.org/people/Planman/sounds/208111/"
     },
     {
+      "file": "sounds/stone1.ogg",
+      "name": "Stone 1",
+      "icon": "icons/sound.png",
+      "credit": "User: Mediaman57 on Freesound.org",
+      "license": "Creative Commons 0 License",
+      "licenseLink": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "link": "https://freesound.org/people/Mediaman57/sounds/347149/"
+    },
+    {
+      "file": "sounds/stone2.ogg",
+      "name": "Stone 2",
+      "icon": "icons/sound.png",
+      "credit": "User: ertfelda on Freesound.org",
+      "license": "Creative Commons 0 License",
+      "licenseLink": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "link": "https://freesound.org/people/ertfelda/sounds/243699/"
+    },
+    {
       "file": "sounds/thump.ogg",
       "name": "Thump",
       "icon": "icons/sound.png",
