@@ -478,14 +478,6 @@ Wick.Tickable = class extends Wick.Base {
                   fn: otherObject,
               }
           }));
-
-        // Save default window API members
-        let windowDefaultAPIMembers = {};
-        for (var def of Object.keys(window)) {
-            windowDefaultAPIMembers[def] = window[def];
-        }
-
-        // Attach custom API members to the window
           apiMembers.forEach(apiMember => {
               window[apiMember.name] = apiMember.fn;
           });
@@ -518,18 +510,11 @@ Wick.Tickable = class extends Wick.Base {
           delete window.parent;
           delete window.parentObject;
 
-          // Detatch custom API methods
+          // Detatch API methods
           apiMembers.forEach(apiMember => {
               delete window[apiMember.name];
           });
-              
-          // Reattach window default API members.
-          for (var windowAPIMember of Object.keys(windowDefaultAPIMembers)) {
-              window[windowAPIMember] = windowDefaultAPIMembers[windowAPIMember];
-          }
 
-          console.log("Reattaching");
-                    
           return error;
     }
 
