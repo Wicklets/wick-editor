@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2019.12.4";
+var WICK_ENGINE_BUILD_VERSION = "2019.12.6";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -51125,6 +51125,143 @@ Wick.FileAsset = class extends Wick.Asset {
  * You should have received a copy of the GNU General Public License
  * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
  */
+Wick.FontAsset = class extends Wick.FileAsset {
+  /**
+   * Valid MIME types for font assets.
+   * @returns {string[]} Array of strings representing MIME types in the form font/filetype.
+   */
+  static getValidMIMETypes() {
+    return ['font/ttf', 'application/x-font-ttf', 'application/x-font-truetype'];
+  }
+  /**
+   * Valid extensions for font assets.
+   * @returns {string[]} Array of strings representing extensions.
+   */
+
+
+  static getValidExtensions() {
+    return ['.ttf'];
+  }
+  /**
+   * The default font to use if a font couldn't load, or if a FontAsset was deleted
+   */
+
+
+  static get MISSING_FONT_DEFAULT() {
+    return 'Helvetica, Arial, sans-serif';
+  }
+  /**
+   * Create a new FontAsset.
+   */
+
+
+  constructor(args) {
+    super(args);
+  }
+
+  serialize(args) {
+    var data = super.serialize(args);
+    return data;
+  }
+
+  deserialize(data) {
+    super.deserialize(data);
+  }
+
+  get classname() {
+    return 'FontAsset';
+  }
+  /**
+   * Loads the font into the window.
+   */
+
+
+  load(callback) {
+    var fontDataArraybuffer = Base64ArrayBuffer.decode(this.src.split(',')[1]);
+    var fontFamily = this.fontFamily;
+
+    if (!fontFamily) {
+      console.error('FontAsset: Could not get fontFamily from filename.');
+    } else if (fontFamily === "") {
+      console.error('FontAsset: fontfamily not found. Showing as "".');
+    }
+
+    var font = new FontFace(fontFamily, fontDataArraybuffer);
+    font.load().then(loaded_face => {
+      document.fonts.add(loaded_face);
+      callback();
+    }).catch(error => {
+      console.error('FontAsset.load(): An error occured while loading a font:');
+      console.log(font);
+      console.error(error);
+      callback(); // Make the callback so that the page doesn't freeze.
+    });
+  }
+  /**
+   * A list of Wick Paths that use this font as their fontFamily.
+   * @returns {Wick.Path[]}
+   */
+
+
+  getInstances() {
+    var paths = [];
+    this.project.getAllFrames().forEach(frame => {
+      frame.paths.forEach(path => {
+        if (path.fontFamily === this.fontFamily) {
+          paths.push(path);
+        }
+      });
+    });
+    return paths;
+  }
+  /**
+   * Check if there are any objects in the project that use this asset.
+   * @returns {boolean}
+   */
+
+
+  hasInstances() {
+    return this.getInstances().length > 0;
+  }
+  /**
+   * Finds all PointText paths using this font as their fontFamily and replaces that font with a default font.
+   */
+
+
+  removeAllInstances() {
+    this.getInstances().forEach(path => {
+      path.fontFamily = Wick.FontAsset.MISSING_FONT_DEFAULT;
+    });
+  }
+  /**
+   *
+   * @type {string}
+   */
+
+
+  get fontFamily() {
+    return this.filename.split('.')[0];
+  }
+
+};
+/*
+ * Copyright 2019 WICKLETS LLC
+ *
+ * This file is part of Wick Engine.
+ *
+ * Wick Engine is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Wick Engine is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+ */
 Wick.ImageAsset = class extends Wick.FileAsset {
   /**
    * Valid MIME types for image assets.
@@ -51281,7 +51418,7 @@ Wick.ClipAsset = class extends Wick.FileAsset {
   }
   /**
    * A list of Wick Clips that use this ClipAsset as their image source.
-   * @returns {Wick.Path[]}
+   * @returns {Wick.Clip[]}
    */
 
 
@@ -51564,33 +51701,27 @@ Wick.SoundAsset = class extends Wick.FileAsset {
  * You should have received a copy of the GNU General Public License
  * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
  */
-Wick.FontAsset = class extends Wick.FileAsset {
+Wick.SVGAsset = class extends Wick.FileAsset {
   /**
-   * Valid MIME types for font assets.
-   * @returns {string[]} Array of strings representing MIME types in the form font/filetype.
+   * Returns all valid MIME types for files which can be converted to SVGAssets.
+   * @return {string[]} Array of strings of MIME types in the form MediaType/Subtype.
    */
   static getValidMIMETypes() {
-    return ['font/ttf', 'application/x-font-ttf', 'application/x-font-truetype'];
+    return ['image/svg+xml'];
   }
   /**
-   * Valid extensions for font assets.
-   * @returns {string[]} Array of strings representing extensions.
+   * Returns all valid extensions types for files which can be attempted to be
+   * converted to SVGAssets.
+   * @return  {string[]} Array of strings representing extensions.
    */
 
 
   static getValidExtensions() {
-    return ['.ttf'];
+    return ['.svg'];
   }
   /**
-   * The default font to use if a font couldn't load, or if a FontAsset was deleted
-   */
-
-
-  static get MISSING_FONT_DEFAULT() {
-    return 'Helvetica, Arial, sans-serif';
-  }
-  /**
-   * Create a new FontAsset.
+   * Create a new SVGAsset.
+   * @param {object} args
    */
 
 
@@ -51608,50 +51739,16 @@ Wick.FontAsset = class extends Wick.FileAsset {
   }
 
   get classname() {
-    return 'FontAsset';
+    return 'SVGAsset';
   }
   /**
-   * Loads the font into the window.
-   */
-
-
-  load(callback) {
-    var fontDataArraybuffer = Base64ArrayBuffer.decode(this.src.split(',')[1]);
-    var fontFamily = this.fontFamily;
-
-    if (!fontFamily) {
-      console.error('FontAsset: Could not get fontFamily from filename.');
-    } else if (fontFamily === "") {
-      console.error('FontAsset: fontfamily not found. Showing as "".');
-    }
-
-    var font = new FontFace(fontFamily, fontDataArraybuffer);
-    font.load().then(loaded_face => {
-      document.fonts.add(loaded_face);
-      callback();
-    }).catch(error => {
-      console.error('FontAsset.load(): An error occured while loading a font:');
-      console.log(font);
-      console.error(error);
-      callback(); // Make the callback so that the page doesn't freeze.
-    });
-  }
-  /**
-   * A list of Wick Paths that use this font as their fontFamily.
+   * A list of Wick Paths that use this SVGAsset as their image source.
    * @returns {Wick.Path[]}
    */
 
 
   getInstances() {
-    var paths = [];
-    this.project.getAllFrames().forEach(frame => {
-      frame.paths.forEach(path => {
-        if (path.fontFamily === this.fontFamily) {
-          paths.push(path);
-        }
-      });
-    });
-    return paths;
+    return []; // TODO
   }
   /**
    * Check if there are any objects in the project that use this asset.
@@ -51660,26 +51757,32 @@ Wick.FontAsset = class extends Wick.FileAsset {
 
 
   hasInstances() {
-    return this.getInstances().length > 0;
+    return false; // TODO
   }
   /**
-   * Finds all PointText paths using this font as their fontFamily and replaces that font with a default font.
+   * Removes all Paths using this asset as their source from the project.
+   * @returns {boolean}
    */
 
 
-  removeAllInstances() {
-    this.getInstances().forEach(path => {
-      path.fontFamily = Wick.FontAsset.MISSING_FONT_DEFAULT;
-    });
-  }
+  removeAllInstances() {} // TODO
+
   /**
-   *
-   * @type {string}
+   * Load data in the asset
    */
 
 
-  get fontFamily() {
-    return this.filename.split('.')[0];
+  load(callback) {
+    // We don't need to do anything here, the data for SVGAssets is just SVG
+    callback();
+  }
+  /**
+   * Creates a new Wick Path that uses this asset's data.
+   * @param {function} callback - called when the Path is done loading.
+   */
+
+
+  createInstance(callback, project) {// TODO
   }
 
 };
@@ -53951,6 +54054,7 @@ Wick.Tools.Brush = class extends Wick.Tool {
   }
 
   onDeactivate(e) {
+    // This prevents croquis from leaving stuck brush strokes on the screen.
     this.discard();
   }
 
