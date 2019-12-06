@@ -17,26 +17,26 @@
  * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-Wick.ClipAsset = class extends Wick.FileAsset {
+Wick.SVGAsset = class extends Wick.FileAsset {
     /**
-     * Returns all valid MIME types for files which can be converted to ClipAssets.
+     * Returns all valid MIME types for files which can be converted to SVGAssets.
      * @return {string[]} Array of strings of MIME types in the form MediaType/Subtype.
      */
     static getValidMIMETypes () {
-        return ['application/json', 'application/octet-stream'];
+        return ['image/svg+xml'];
     }
 
     /**
      * Returns all valid extensions types for files which can be attempted to be
-     * converted to ClipAssets.
+     * converted to SVGAssets.
      * @return  {string[]} Array of strings representing extensions.
      */
     static getValidExtensions () {
-        return ['.wickobj']
+        return ['.svg']
     }
 
     /**
-     * Create a new ClipAsset.
+     * Create a new SVGAsset.
      * @param {object} args
      */
     constructor (args) {
@@ -53,12 +53,12 @@ Wick.ClipAsset = class extends Wick.FileAsset {
     }
 
     get classname () {
-        return 'ClipAsset';
+        return 'SVGAsset';
     }
 
     /**
-     * A list of Wick Clips that use this ClipAsset as their image source.
-     * @returns {Wick.Clip[]}
+     * A list of Wick Paths that use this SVGAsset as their image source.
+     * @returns {Wick.Path[]}
      */
     getInstances () {
         return []; // TODO
@@ -73,7 +73,7 @@ Wick.ClipAsset = class extends Wick.FileAsset {
     }
 
     /**
-     * Removes all Clips using this asset as their source from the project.
+     * Removes all Paths using this asset as their source from the project.
      * @returns {boolean}
      */
     removeAllInstances () {
@@ -84,18 +84,15 @@ Wick.ClipAsset = class extends Wick.FileAsset {
      * Load data in the asset
      */
     load (callback) {
-        // We don't need to do anything here, the data for ClipAssets is just json
+        // We don't need to do anything here, the data for SVGAssets is just SVG
         callback();
     }
 
     /**
-     * Creates a new Wick Clip that uses this asset's data.
-     * @param {function} callback - called when the Clip is done loading.
+     * Creates a new Wick Path that uses this asset's data.
+     * @param {function} callback - called when the Path is done loading.
      */
     createInstance (callback, project) {
-        Wick.WickObjectFile.fromWickObjectFile(this.src, data => {
-            var clip = Wick.Base.import(data, project).copy();
-            callback(clip);
-        });
+        // TODO
     }
 }

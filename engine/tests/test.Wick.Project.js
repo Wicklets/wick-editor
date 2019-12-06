@@ -45,9 +45,14 @@ describe('Wick.Project', function() {
                 filename: 'foo.wickobject',
                 data: new Wick.Clip().export(),
             });
+            var svg = new Wick.SVGAsset({
+                filename: 'foo.svg',
+                data: TestUtils.TEST_SVG_SRC
+            });
             project.addAsset(image);
             project.addAsset(sound);
             project.addAsset(clip);
+            project.addAsset(svg);
 
             var data = project.serialize();
 
@@ -58,6 +63,7 @@ describe('Wick.Project', function() {
                 image.uuid,
                 sound.uuid,
                 clip.uuid,
+                svg.uuid,
             ]);
             expect(data.classname).to.equal('Project');
             expect(data.focus).to.equal(project.focus.uuid);
