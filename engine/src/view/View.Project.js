@@ -443,21 +443,7 @@ Wick.View.Project = class extends Wick.View {
             }),
         ];
     }
-
-    _getCenteredPan () {
-        if(this.model.focus.isRoot) {
-            return {
-                x: this.model.pan.x - this.model.width/2,
-                y: this.model.pan.y - this.model.height/2
-            };
-        } else {
-            return {
-                x: this.model.pan.x,
-                y: this.model.pan.y,
-            };
-        }
-    }
-
+    
     _calculateFitZoom () {
         var w = 0;
         var h = 0;
