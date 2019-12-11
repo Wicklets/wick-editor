@@ -32,7 +32,8 @@ var classNames = require('classnames');
 class WelcomeModal extends Component {
   constructor () {
     super();
-    this.version = "1.16rc3";
+    this.version = "1.16";
+    this.forumPost = "https://forum.wickeditor.com/t/wick-editor-1-16-prerelease-3-new-color-picker-builtin-assets-and-more/2105/9";
     this.updates = [
       "New color picker",
       "Builtin asset window",
@@ -79,7 +80,7 @@ class WelcomeModal extends Component {
           </div>
           <div className="welcome-modal-mobile-content">
             <div className="welcome-modal-title small-modal">The Wick Editor</div>
-            <div className="welcome-modal-version small-modal">Version {this.version}</div>
+            <div className="welcome-modal-version small-modal"><a className="welcome-modal-highlight" target="_blank" rel="noopener noreferrer" href={this.forumPost}>Version {this.version}</a></div>
             {this.renderUpdates("small-modal")}
             {this.renderPatreonSupporters()}
           </div>
@@ -107,7 +108,7 @@ class WelcomeModal extends Component {
           </div>
           <div id="welcome-message-container" className="modal-main-container">
             <div id="welcome-modal-title" className="welcome-modal-item">Welcome to the Wick Editor!</div>
-            <div id="welcome-modal-version" className="welcome-modal-item">Version {this.version}</div>
+            <div id="welcome-modal-version" className="welcome-modal-item"><a className="welcome-modal-highlight" target="_blank" rel="noopener noreferrer" href={this.forumPost}>Version {this.version}</a></div>
             <div id="welcome-modal-subtitle" className="welcome-modal-item">Wick Editor {this.version} includes:</div>
             <div id="welcome-modal-message" className="welcome-modal-item">
               {this.renderUpdates()}

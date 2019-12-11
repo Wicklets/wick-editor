@@ -1030,7 +1030,7 @@ class EditorCore extends Component {
     var url = new urlParse(urlParam);
 
     // Check if the provided URL is allowed in the whitelist.
-    var whitelist = ['zrispo.co'];
+    var whitelist = ['wickeditor.com', 'editor.wickeditor.com', 'test.wickeditor.com', 'aka.ms'];
     if(whitelist.indexOf(url.hostname) === -1) {
       console.error('tryToParseProjectURL: URL is not in the whitelist.');
       return false;
