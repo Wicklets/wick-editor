@@ -395,7 +395,13 @@ Wick.View.Project = class extends Wick.View {
         return originCrosshair;
     }
 
+    /* Renders the off-screen borders that hide content out of the project bounds. */
     _generateSVGBorders () {
+        // Do not render the offscreen borders if the project isn't in published mode
+        if(!this.model.publishedMode) {
+            return [];
+        }
+
         /**
          * +----------------------------+
          * |             top            +

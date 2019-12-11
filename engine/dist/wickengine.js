@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2019.12.6";
+var WICK_ENGINE_BUILD_VERSION = "2019.12.11";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -57939,8 +57939,14 @@ Wick.View.Project = class extends Wick.View {
     originCrosshair.position.y = 0;
     return originCrosshair;
   }
+  /* Renders the off-screen borders that hide content out of the project bounds. */
+
 
   _generateSVGBorders() {
+    // Do not render the offscreen borders if the project isn't in published mode
+    if (!this.model.publishedMode) {
+      return [];
+    }
     /**
      * +----------------------------+
      * |             top            +
@@ -57952,6 +57958,8 @@ Wick.View.Project = class extends Wick.View {
      * |           bottom           +
      * +----------------------------+
      */
+
+
     var borderMin = -10000,
         borderMax = 10000;
     return [// top
