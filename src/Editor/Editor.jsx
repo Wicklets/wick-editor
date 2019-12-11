@@ -285,6 +285,9 @@ class Editor extends EditorCore {
     this.setState({
       codeEditorWindowProperties: this.getDefaultCodeEditorProperties(),
     });
+
+    // re-render project to avoid incorrect pan
+    this.project.view.render();
   }
 
   getDefaultCodeEditorProperties = () => {
