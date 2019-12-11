@@ -54020,6 +54020,7 @@ Wick.Tools.Brush = class extends Wick.Tool {
     this.cachedCursor;
     this.lastPressure;
     this.errorOccured = false;
+    this._isInProgress = false;
     this.strokeBounds = new paper.Rectangle();
     this._croquisStartTimeout = null;
   }
@@ -54051,6 +54052,8 @@ Wick.Tools.Brush = class extends Wick.Tool {
       this.croquisDOMElement.style.display = 'block';
       this.croquisDOMElement.style.pointerEvents = 'none';
     }
+
+    this._isInProgress = false;
   }
 
   onDeactivate(e) {
@@ -54214,12 +54217,12 @@ Wick.Tools.Brush = class extends Wick.Tool {
 
 
   discard() {
-    if (!this.isInProgress) return;
+    if (!this._isInProgress) return;
+    this._isInProgress = false;
+    this.croquis.up(0, 0, 0);
     setTimeout(() => {
-      this.croquis.up(0, 0, 0);
       this.croquis.clearLayer();
-      this.croquisDOMElement.style.opacity = 0;
-    }, Wick.Tools.Brush.CROQUIS_WAIT_AMT_MS);
+    }, 10);
   }
   /* Generate a new circle cursor based on the brush size. */
 
