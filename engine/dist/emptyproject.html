@@ -54038,6 +54038,8 @@ Wick.Tools.Brush = class extends Wick.Tool {
     this._isInProgress = false;
     this.strokeBounds = new paper.Rectangle();
     this._croquisStartTimeout = null;
+    this._lastMousePoint = new paper.Point(0, 0);
+    this._lastMousePressure = 1;
   }
 
   get cursor() {// the brush cursor is done in a custom way using _regenCursor().
@@ -54069,6 +54071,8 @@ Wick.Tools.Brush = class extends Wick.Tool {
     }
 
     this._isInProgress = false;
+    this._lastMousePoint = new paper.Point(0, 0);
+    this._lastMousePressure = 1;
   }
 
   onDeactivate(e) {
@@ -54103,6 +54107,8 @@ Wick.Tools.Brush = class extends Wick.Tool {
     this._updateStrokeBounds(point);
 
     try {
+      this._updateLastMouseState(point, this.pressure);
+
       this.croquis.down(point.x, point.y, this.pressure);
     } catch (e) {
       this.handleBrushError(e);
@@ -54118,6 +54124,8 @@ Wick.Tools.Brush = class extends Wick.Tool {
     this._updateStrokeBounds(point);
 
     try {
+      this._updateLastMouseState(point, this.pressure);
+
       this.croquis.move(point.x, point.y, this.pressure);
     } catch (e) {
       this.handleBrushError(e);
@@ -54233,8 +54241,10 @@ Wick.Tools.Brush = class extends Wick.Tool {
 
   discard() {
     if (!this._isInProgress) return;
-    this._isInProgress = false;
-    this.croquis.up(0, 0, 0);
+    this._isInProgress = false; // "Give up" on the current stroke by forcing a mouseup
+
+    this.croquis.up(this._lastMousePoint.x, this._lastMousePoint.y, this._lastMousePressure); // Clear the current croquis canvas
+
     setTimeout(() => {
       this.croquis.clearLayer();
     }, 10);
@@ -54302,6 +54312,13 @@ Wick.Tools.Brush = class extends Wick.Tool {
 
   _updateStrokeBounds(point) {
     this.strokeBounds = this.strokeBounds.include(point);
+  }
+  /* Used for saving information on the mouse (croquis does not save this.) */
+
+
+  _updateLastMouseState(point, pressure) {
+    this._lastMousePoint = new paper.Point(point.x, point.y);
+    this._lastMousePressure = this.pressure;
   }
 
 };
@@ -55906,6 +55923,7 @@ Wick.Tools.Zoom = class extends Wick.Tool {
     this.name = 'zoom';
     this.ZOOM_IN_AMOUNT = 1.25;
     this.ZOOM_OUT_AMOUNT = 0.8;
+    this.MIN_ZOOMBOX_SIZE = 20;
     this.zoomBox = null;
   }
 
@@ -55966,7 +55984,7 @@ Wick.Tools.Zoom = class extends Wick.Tool {
   }
 
   zoomBoxIsValidSize() {
-    return this.zoomBox.bounds.width > 5 && this.zoomBox.bounds.height > 5;
+    return this.zoomBox.bounds.width > this.MIN_ZOOMBOX_SIZE && this.zoomBox.bounds.height > this.MIN_ZOOMBOX_SIZE;
   }
 
 };

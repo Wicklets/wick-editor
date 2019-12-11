@@ -29,6 +29,8 @@ Wick.Tools.Zoom = class extends Wick.Tool {
         this.ZOOM_IN_AMOUNT = 1.25;
         this.ZOOM_OUT_AMOUNT = 0.8;
 
+        this.MIN_ZOOMBOX_SIZE = 20;
+
         this.zoomBox = null;
     }
 
@@ -93,7 +95,7 @@ Wick.Tools.Zoom = class extends Wick.Tool {
     }
 
     zoomBoxIsValidSize () {
-        return this.zoomBox.bounds.width > 5
-            && this.zoomBox.bounds.height > 5;
+        return this.zoomBox.bounds.width > this.MIN_ZOOMBOX_SIZE
+            && this.zoomBox.bounds.height > this.MIN_ZOOMBOX_SIZE;
     }
 }

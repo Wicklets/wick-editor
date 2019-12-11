@@ -55,6 +55,9 @@ Wick.Tools.Brush = class extends Wick.Tool {
         this.strokeBounds = new paper.Rectangle();
 
         this._croquisStartTimeout = null;
+
+        this._lastMousePoint = new paper.Point(0,0);
+        this._lastMousePressure = 1;
     }
 
     get cursor () {
@@ -89,6 +92,9 @@ Wick.Tools.Brush = class extends Wick.Tool {
         }
 
         this._isInProgress = false;
+
+        this._lastMousePoint = new paper.Point(0,0);
+        this._lastMousePressure = 1;
     }
 
     onDeactivate (e) {
@@ -121,6 +127,7 @@ Wick.Tools.Brush = class extends Wick.Tool {
         var point = this._croquisToPaperPoint(e.point);
         this._updateStrokeBounds(point);
         try {
+            this._updateLastMouseState(point, this.pressure);
             this.croquis.down(point.x, point.y, this.pressure);
         } catch (e) {
             this.handleBrushError(e);
@@ -135,6 +142,7 @@ Wick.Tools.Brush = class extends Wick.Tool {
         var point = this._croquisToPaperPoint(e.point);
         this._updateStrokeBounds(point);
         try {
+            this._updateLastMouseState(point, this.pressure);
             this.croquis.move(point.x, point.y, this.pressure);
         } catch (e) {
             this.handleBrushError(e);
@@ -250,7 +258,10 @@ Wick.Tools.Brush = class extends Wick.Tool {
         if(!this._isInProgress) return;
         this._isInProgress = false;
 
-        this.croquis.up(0, 0, 0);
+        // "Give up" on the current stroke by forcing a mouseup
+        this.croquis.up(this._lastMousePoint.x, this._lastMousePoint.y, this._lastMousePressure);
+
+        // Clear the current croquis canvas
         setTimeout(() => {
             this.croquis.clearLayer();
         }, 10);
@@ -309,5 +320,11 @@ Wick.Tools.Brush = class extends Wick.Tool {
     /* Used for calculating the crop amount for potrace. */
     _updateStrokeBounds (point) {
         this.strokeBounds = this.strokeBounds.include(point);
+    }
+
+    /* Used for saving information on the mouse (croquis does not save this.) */
+    _updateLastMouseState (point, pressure) {
+        this._lastMousePoint = new paper.Point(point.x, point.y);
+        this._lastMousePressure = this.pressure;
     }
 }
