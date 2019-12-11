@@ -57764,13 +57764,16 @@ Wick.View.Project = class extends Wick.View {
   _setupTools() {
     // This is a hacky way to create scroll-to-zoom functionality.
     // (Using https://github.com/jquery/jquery-mousewheel for cross-browser mousewheel event)
-    $(this._svgCanvas).on('mousewheel', e => {
-      e.preventDefault();
-      var d = e.deltaY * e.deltaFactor * 0.001;
-      this.paper.view.zoom = Math.max(0.1, this.paper.view.zoom + d);
+    if (!this.model.publishedMode) {
+      $(this._svgCanvas).on('mousewheel', e => {
+        e.preventDefault();
+        var d = e.deltaY * e.deltaFactor * 0.001;
+        this.paper.view.zoom = Math.max(0.1, this.paper.view.zoom + d);
 
-      this._applyZoomAndPanChangesFromPaper();
-    });
+        this._applyZoomAndPanChangesFromPaper();
+      });
+    } // Connect all Wick Tools into the paper.js project
+
 
     for (var toolName in this.model.tools) {
       var tool = this.model.tools[toolName];
@@ -57983,20 +57986,6 @@ Wick.View.Project = class extends Wick.View {
       to: new paper.Point(borderMax, borderMax),
       fillColor: 'black'
     })];
-  }
-
-  _getCenteredPan() {
-    if (this.model.focus.isRoot) {
-      return {
-        x: this.model.pan.x - this.model.width / 2,
-        y: this.model.pan.y - this.model.height / 2
-      };
-    } else {
-      return {
-        x: this.model.pan.x,
-        y: this.model.pan.y
-      };
-    }
   }
 
   _calculateFitZoom() {
