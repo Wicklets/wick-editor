@@ -1030,8 +1030,9 @@ class EditorCore extends Component {
     var url = new urlParse(urlParam);
 
     // Check if the provided URL is allowed in the whitelist.
-    var whitelist = ['zrispo.co'];
+    var whitelist = ['wickeditor.com', 'editor.wickeditor.com', 'test.wickeditor.com', 'aka.ms'];
     if(whitelist.indexOf(url.hostname) === -1) {
+      this.toast('Could not open project from link! \n URL is not on whitelist.','warning');
       console.error('tryToParseProjectURL: URL is not in the whitelist.');
       return false;
     }
@@ -1045,6 +1046,7 @@ class EditorCore extends Component {
         }, 'blob');
       })
       .catch((e) => {
+        this.toast('Could not download project from URL.','warning');
         console.error('tryToParseProjectURL: Could not download Wick project.')
         console.error(e);
       });
