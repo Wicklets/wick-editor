@@ -117,6 +117,11 @@ Wick.Clipboard = class {
             return false;
         }
 
+        // Prevent crash when pasting into an empty space
+        if(!project.activeFrame) {
+            project.insertBlankFrame();
+        }
+
         // Always paste in-place if we're pasting to a different frame than where we copied from.
         var pasteInPlace = project.activeFrame && this._copyLocation !== project.activeFrame.uuid;
 

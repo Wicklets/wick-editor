@@ -253,9 +253,7 @@ Wick.Tool = class {
     addPathToProject (path) {
         // Automatically add a frame is there isn't one
         if(!this.project.activeFrame) {
-            var playheadPosition = this.project.activeTimeline.playheadPosition;
-            var newFrame = new Wick.Frame({start: playheadPosition});
-            this.project.activeLayer.addFrame(newFrame);
+            this.project.insertBlankFrame();
             this.project.view.render();
         }
 

@@ -44756,6 +44756,11 @@ Wick.Clipboard = class {
 
     if (!this.clipboardData) {
       return false;
+    } // Prevent crash when pasting into an empty space
+
+
+    if (!project.activeFrame) {
+      project.insertBlankFrame();
     } // Always paste in-place if we're pasting to a different frame than where we copied from.
 
 
@@ -53963,11 +53968,7 @@ Wick.Tool = class {
   addPathToProject(path) {
     // Automatically add a frame is there isn't one
     if (!this.project.activeFrame) {
-      var playheadPosition = this.project.activeTimeline.playheadPosition;
-      var newFrame = new Wick.Frame({
-        start: playheadPosition
-      });
-      this.project.activeLayer.addFrame(newFrame);
+      this.project.insertBlankFrame();
       this.project.view.render();
     }
 
