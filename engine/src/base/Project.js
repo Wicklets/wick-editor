@@ -1356,7 +1356,9 @@ Wick.Project = class extends Wick.Base {
 
                     args.onFinish(frameImages);
                 } else {
+                    var oldPlayhead = renderCopy.activeTimeline.playheadPosition
                     renderCopy.tick();
+                    renderCopy.activeTimeline.playheadPosition = oldPlayhead + 1;
                     renderFrame();
                 }
             }

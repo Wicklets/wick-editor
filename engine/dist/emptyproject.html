@@ -48912,7 +48912,9 @@ Wick.Project = class extends Wick.Base {
           window.document.body.removeChild(container);
           args.onFinish(frameImages);
         } else {
+          var oldPlayhead = renderCopy.activeTimeline.playheadPosition;
           renderCopy.tick();
+          renderCopy.activeTimeline.playheadPosition = oldPlayhead + 1;
           renderFrame();
         }
       };
