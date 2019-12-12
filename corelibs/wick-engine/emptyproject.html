@@ -14,7 +14,7 @@
         <!-- The Wick Engine build is injected here during the engine build step (see gulpfile.js) -->
         <script>
             /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2019.12.11";
+var WICK_ENGINE_BUILD_VERSION = "2019.12.12";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -44694,6 +44694,7 @@ Wick.Clipboard = class {
   constructor() {
     this._copyLocation = null;
     this._copyLayerIndex = 0;
+    this._originalObjects = [];
   }
   /**
    * The data of copied objects, stored as JSON.
@@ -44741,6 +44742,10 @@ Wick.Clipboard = class {
 
     var exportedData = objects.map(object => {
       return object.export();
+    }); // Save references to the original objects
+
+    this._originalObjects = objects.map(object => {
+      return object;
     }); // Shift frames so that they copy from the relative position of the first frame
 
     var startPlayheadPosition = Number.MAX_SAFE_INTEGER;
@@ -44771,10 +44776,22 @@ Wick.Clipboard = class {
 
     if (!this.clipboardData) {
       return false;
-    } // Always paste in-place if we're pasting to a different frame than where we copied from.
+    } // Prevent crash when pasting into an empty space
 
 
-    var pasteInPlace = project.activeFrame && this._copyLocation !== project.activeFrame.uuid; // Use this value later to position frames on the corrent pasted layer
+    if (!project.activeFrame) {
+      project.insertBlankFrame();
+    } // Always paste in-place if the original objects are no longer visible
+
+
+    var pasteInPlace = true;
+
+    this._originalObjects.forEach(origObj => {
+      if (origObj.parentFrame && origObj.parentFrame.onScreen) {
+        pasteInPlace = false;
+      }
+    }); // Use this value later to position frames on the corrent pasted layer
+
 
     var layerIndicesMoved = project.activeLayer.index - this._copyLayerIndex;
     project.selection.clear();
@@ -46898,13 +46915,19 @@ Wick.Base = class {
   }
 
   set identifier(identifier) {
+    // Treat empty string identifier as null
     if (identifier === '' || identifier === null) {
       this._identifier = null;
       return;
-    }
+    } // Make sure the identifier doesn't squash any attributes of the window
 
-    if (!isVarName(identifier)) return;
-    if (reserved.check(identifier)) return;
+
+    if (this._identifierNameExistsInWindowContext(identifier)) return; // Make sure the identifier is a valid js variable name
+
+    if (!isVarName(identifier)) return; // Make sure the identifier is not a reserved word in js
+
+    if (reserved.check(identifier)) return; // Ensure no objects with duplicate identifiers can exist
+
     this._identifier = this._getUniqueIdentifier(identifier);
   }
   /**
@@ -47163,6 +47186,14 @@ Wick.Base = class {
       return identifier;
     } else {
       return this._getUniqueIdentifier(identifier + '_copy');
+    }
+  }
+
+  _identifierNameExistsInWindowContext(identifier) {
+    if (window[identifier]) {
+      return true;
+    } else {
+      return false;
     }
   }
 
@@ -48107,6 +48138,11 @@ Wick.Project = class extends Wick.Base {
     this.selection.clear();
     var booleanOpResult = Wick.Path.booleanOp(paths, booleanOpName);
     paths.forEach(path => {
+      // Don't remove the topmost path if performing subtration
+      if (paths.indexOf(path) === paths.length - 1 && booleanOpName === 'subtract') {
+        return;
+      }
+
       path.remove();
     });
     this.activeFrame.addPath(booleanOpResult);
@@ -48836,6 +48872,7 @@ Wick.Project = class extends Wick.Base {
     var oldCanvasContainer = this.view.canvasContainer;
     this.history.saveSnapshot('before-gif-render');
     this.mute();
+    this.selection.clear();
     this.publishedMode = true;
     this.tick(); // Put the project canvas inside a div that's the same size as the project so the frames render at the correct resolution.
 
@@ -48880,7 +48917,9 @@ Wick.Project = class extends Wick.Base {
           window.document.body.removeChild(container);
           args.onFinish(frameImages);
         } else {
+          var oldPlayhead = renderCopy.activeTimeline.playheadPosition;
           renderCopy.tick();
+          renderCopy.activeTimeline.playheadPosition = oldPlayhead + 1;
           renderFrame();
         }
       };
@@ -53745,6 +53784,10 @@ Wick.Tool = class {
   static get DOUBLE_CLICK_TIME() {
     return 300;
   }
+
+  static get DOUBLE_CLICK_MAX_DISTANCE() {
+    return 20;
+  }
   /**
    * Creates a new Wick Tool.
    */
@@ -53769,13 +53812,14 @@ Wick.Tool = class {
 
 
     this.paperTool.onMouseDown = e => {
-      if (this.doubleClickEnabled && this._lastMousedownTimestamp !== null && e.timeStamp - this._lastMousedownTimestamp < Wick.Tool.DOUBLE_CLICK_TIME) {
+      if (this.doubleClickEnabled && this._lastMousedownTimestamp !== null && e.timeStamp - this._lastMousedownTimestamp < Wick.Tool.DOUBLE_CLICK_TIME && e.point.subtract(this._lastMousedownPoint).length < Wick.Tool.DOUBLE_CLICK_MAX_DISTANCE) {
         this.onDoubleClick(e);
       } else {
         this.onMouseDown(e);
       }
 
       this._lastMousedownTimestamp = e.timeStamp;
+      this._lastMousedownPoint = e.point;
     }; // Attach key events
 
 
@@ -53978,11 +54022,7 @@ Wick.Tool = class {
   addPathToProject(path) {
     // Automatically add a frame is there isn't one
     if (!this.project.activeFrame) {
-      var playheadPosition = this.project.activeTimeline.playheadPosition;
-      var newFrame = new Wick.Frame({
-        start: playheadPosition
-      });
-      this.project.activeLayer.addFrame(newFrame);
+      this.project.insertBlankFrame();
       this.project.view.render();
     }
 
@@ -54403,7 +54443,7 @@ Wick.Tools.Cursor = class extends Wick.Tool {
       if (e.modifiers.shift) {
         this._deselectItem(this.hitResult.item);
 
-        this._checkIfSelectionChanged();
+        this.fireEvent('canvasModified');
       }
     } else if (this.hitResult.item && this.hitResult.type === 'fill') {
       if (!e.modifiers.shift) {
@@ -54414,14 +54454,14 @@ Wick.Tools.Cursor = class extends Wick.Tool {
 
       this._selectItem(this.hitResult.item);
 
-      this._checkIfSelectionChanged();
+      this.fireEvent('canvasModified');
     } else {
       // Nothing was clicked, so clear the selection and start a new selection box
       // (don't clear the selection if shift is held, though)
       if (this._selection.numObjects > 0 && !e.modifiers.shift) {
         this._clearSelection();
 
-        this._checkIfSelectionChanged();
+        this.fireEvent('canvasModified');
       }
 
       this.selectionBox.start(e.point);
@@ -54437,7 +54477,7 @@ Wick.Tools.Cursor = class extends Wick.Tool {
       this.fireEvent('canvasModified');
     } else if (selectedObject && selectedObject instanceof Wick.Path && selectedObject.view.item instanceof paper.PointText) {// Double clicked text, switch to text tool and edit the text item.
       // TODO
-    } else {
+    } else if (!selectedObject) {
       // Double clicked the canvas, leave the current focus.
       this.project.focusTimelineOfParentClip();
       this.fireEvent('canvasModified');
@@ -54487,8 +54527,7 @@ Wick.Tools.Cursor = class extends Wick.Tool {
       }).forEach(item => {
         this._selectItem(item);
       });
-
-      this._checkIfSelectionChanged();
+      this.fireEvent('canvasModified');
     } else if (this._selection.numObjects > 0) {
       if (this.__isDragging) {
         this.__isDragging = false;
@@ -54670,20 +54709,6 @@ Wick.Tools.Cursor = class extends Wick.Tool {
     }
 
     return Wick.ObjectCache.getObjectByUUID(uuid);
-  }
-
-  _checkIfSelectionChanged() {
-    var newSelectionData = this._createSelectionData();
-
-    if (newSelectionData !== this._lastSelection) {
-      this.fireEvent('canvasModified');
-    }
-
-    this._lastSelection = newSelectionData;
-  }
-
-  _createSelectionData() {
-    return this._selection.getSelectedObjectUUIDs().join('');
   }
 
 };
@@ -55860,7 +55885,7 @@ Wick.Tools.Text = class extends Wick.Tool {
     } else {
       var text = new this.paper.PointText(e.point);
       text.justification = 'left';
-      text.fillColor = 'black';
+      text.fillColor = this.getSetting('fillColor').rgba;
       text.content = 'Text';
       text.fontSize = 24;
       var wickText = new Wick.Path({
@@ -57936,15 +57961,15 @@ Wick.View.Project = class extends Wick.View {
 
 
     this.model.focus.timeline.view.render();
+    this.model.focus.timeline.view.onionSkinnedFramesLayers.forEach(layer => {
+      this.paper.project.addLayer(layer);
+    });
     this.model.focus.timeline.view.activeFrameLayers.forEach(layer => {
       this.paper.project.addLayer(layer);
 
       if (this.model.project && this.model.project.activeFrame && layer.data.wickType === 'paths' && layer.data.wickUUID === this.model.project.activeFrame.uuid) {
         layer.activate();
       }
-    });
-    this.model.focus.timeline.view.onionSkinnedFramesLayers.forEach(layer => {
-      this.paper.project.addLayer(layer);
     }); // Render selection
 
     this.model.selection.view.render();
@@ -58049,6 +58074,7 @@ Wick.View.Project = class extends Wick.View {
     };
     this.zoom = this.paper.view.zoom;
     this.model.zoom = this.zoom;
+    this.render();
   }
 
 };
@@ -58421,10 +58447,11 @@ Wick.View.Layer = class extends Wick.View {
       frame.view.pathsLayer.opacity = 1.0;
     } // Disable mouse events on layers if they are locked.
     // (However, this is ignored while the project is playing so the interact tool always works.)
+    // (This is also ignored for layers which are inside clips and not the current focus.)
 
 
     this.activeFrameLayers.forEach(layer => {
-      if (this.model.project.playing) {
+      if (this.model.project.playing || !this.model.parentClip.isFocus) {
         layer.locked = false;
       } else {
         layer.locked = this.model.locked;
