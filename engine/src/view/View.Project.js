@@ -338,6 +338,9 @@ Wick.View.Project = class extends Wick.View {
 
         // Generate frame layers
         this.model.focus.timeline.view.render();
+        this.model.focus.timeline.view.onionSkinnedFramesLayers.forEach(layer => {
+            this.paper.project.addLayer(layer);
+        });
         this.model.focus.timeline.view.activeFrameLayers.forEach(layer => {
             this.paper.project.addLayer(layer);
             if(this.model.project &&
@@ -346,9 +349,6 @@ Wick.View.Project = class extends Wick.View {
                layer.data.wickUUID === this.model.project.activeFrame.uuid) {
                 layer.activate();
             }
-        });
-        this.model.focus.timeline.view.onionSkinnedFramesLayers.forEach(layer => {
-            this.paper.project.addLayer(layer);
         });
 
         // Render selection
