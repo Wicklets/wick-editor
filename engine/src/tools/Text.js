@@ -78,7 +78,7 @@ Wick.Tools.Text = class extends Wick.Tool {
         } else {
             var text = new this.paper.PointText(e.point);
             text.justification = 'left';
-            text.fillColor = 'black';
+            text.fillColor = this.getSetting('fillColor').rgba;
             text.content = 'Text';
             text.fontSize = 24;
 
