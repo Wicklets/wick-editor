@@ -36,6 +36,7 @@ Wick.Clipboard = class {
     constructor () {
         this._copyLocation = null;
         this._copyLayerIndex = 0;
+        this._originalObjects = [];
     }
 
     /**
@@ -87,6 +88,11 @@ Wick.Clipboard = class {
             return object.export();
         });
 
+        // Save references to the original objects
+        this._originalObjects = objects.map(object => {
+            return object;
+        });
+
         // Shift frames so that they copy from the relative position of the first frame
         var startPlayheadPosition = Number.MAX_SAFE_INTEGER;
         exportedData.forEach(data => {
@@ -122,8 +128,13 @@ Wick.Clipboard = class {
             project.insertBlankFrame();
         }
 
-        // Always paste in-place if we're pasting to a different frame than where we copied from.
-        var pasteInPlace = project.activeFrame && this._copyLocation !== project.activeFrame.uuid;
+        // Always paste in-place if the original objects are no longer visible
+        var pasteInPlace = true;
+        this._originalObjects.forEach(origObj => {
+            if(origObj.parentFrame && origObj.parentFrame.onScreen) {
+                pasteInPlace = false;
+            }
+        });
 
         // Use this value later to position frames on the corrent pasted layer
         var layerIndicesMoved = project.activeLayer.index - this._copyLayerIndex;
