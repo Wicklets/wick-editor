@@ -58020,6 +58020,7 @@ Wick.View.Project = class extends Wick.View {
     };
     this.zoom = this.paper.view.zoom;
     this.model.zoom = this.zoom;
+    this.render();
   }
 
 };
