@@ -1070,6 +1070,7 @@ class EditorCore extends Component {
   autoSaveProject = () => {
     if (!this.project) return;
     if (this.state.previewPlaying) return;
+    if (this.state.activeModalName !== null) return;
 
     this.showWaitOverlay();
 
