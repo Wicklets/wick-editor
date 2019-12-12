@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2019.10.22";
+var WICK_ENGINE_BUILD_VERSION = "2019.12.11";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -44634,7 +44634,8 @@ TWEEN.Interpolation = {
  * This object creates a Wick namespace for wick-engine functionality and utilities.
  */
 Wick = {
-  version: window.WICK_ENGINE_BUILD_VERSION || "dev"
+  version: window.WICK_ENGINE_BUILD_VERSION || "dev",
+  resourcepath: '../dist/'
 };
 console.log('Wick Engine version "' + Wick.version + '" is available.'); // Ensure that the Wick namespace is accessible in environments where globals are finicky (react, webpack, etc)
 
@@ -44785,6 +44786,88 @@ Wick.Clipboard = class {
       project.selection.select(object);
     });
     return true;
+  }
+
+};
+/*
+ * Copyright 2019 WICKLETS LLC
+ *
+ * This file is part of Wick Engine.
+ *
+ * Wick Engine is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Wick Engine is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+/* Small utility class for colors. */
+Wick.Color = class {
+  /**
+   * Creates a Transformation.
+   * @param {string} color - (Optional) Hex or Rgba color to create a Wick.Color from.
+   */
+  constructor(color) {
+    if (color) {
+      this._color = new paper.Color(color);
+    } else {
+      this._color = new paper.Color();
+    }
+  }
+  /**
+   *
+   */
+
+
+  get r() {
+    return this._color.red;
+  }
+  /**
+   *
+   */
+
+
+  get g() {
+    return this._color.green;
+  }
+  /**
+   *
+   */
+
+
+  get b() {
+    return this._color.blue;
+  }
+  /**
+   *
+   */
+
+
+  get a() {
+    return this._color.alpha;
+  }
+  /**
+   *
+   */
+
+
+  get hex() {
+    return this._color.toCSS(true);
+  }
+  /**
+   *
+   */
+
+
+  get rgba() {
+    return this._color.toCSS();
   }
 
 };
@@ -45317,10 +45400,10 @@ Wick.ToolSettings = class {
   static get DEFAULT_SETTINGS() {
     return [{
       name: 'fillColor',
-      default: new paper.Color('#000000')
+      default: new Wick.Color('#000000')
     }, {
       name: 'strokeColor',
-      default: new paper.Color('#000000')
+      default: new Wick.Color('#000000')
     }, {
       name: 'strokeWidth',
       default: 1,
@@ -45357,10 +45440,16 @@ Wick.ToolSettings = class {
     }, {
       name: 'relativeBrushSize',
       default: true
+    }, {
+      name: 'gapFillAmount',
+      default: 1,
+      min: 0,
+      max: 5,
+      step: 1
     }];
   }
   /**
-   *
+   * Create a new ToolSettings object.
    */
 
 
@@ -45391,12 +45480,21 @@ Wick.ToolSettings = class {
     };
   }
   /**
-   *
+   * Update a value in the settings.
+   * @param {string} name - The name of the setting to update.
+   * @param {string|number|Color} value - The value of the setting to change to.
    */
 
 
   setSetting(name, value) {
-    var setting = this._settings[name];
+    var setting = this._settings[name]; // Check to make sure there's no type mismatch
+
+    if (typeof value !== typeof setting.value) {
+      console.warn('Warning: Wick.ToolSettings: Type mismatch while setting ' + name);
+      console.warn(value);
+      return;
+    }
+
     var min = setting.min;
 
     if (min !== undefined) {
@@ -45407,11 +45505,6 @@ Wick.ToolSettings = class {
 
     if (max !== undefined) {
       value = Math.min(max, value);
-    } // Auto convert paper.js colors
-
-
-    if (setting.default instanceof paper.Color && typeof value === 'string') {
-      value = new paper.Color(value);
     }
 
     setting.value = value;
@@ -45419,7 +45512,8 @@ Wick.ToolSettings = class {
     this._fireOnSettingsChanged(name, value);
   }
   /**
-   *
+   * Retrieve a value in the settings.
+   * @param {string} name - The name of the setting to retrieve.
    */
 
 
@@ -45911,7 +46005,11 @@ Wick.AudioTrack = class {
       } else {
         var audioInfo = projectAudioInfo.pop();
         this.base64ToAudioBuffer(audioInfo.src, ctx, audiobuffer => {
-          let delayedAudiobuffer = this.addStartDelayToAudioBuffer(audiobuffer, audioInfo.start / 1000, ctx);
+          let startSeconds = audioInfo.start / 1000;
+          let endSeconds = audioInfo.end / 1000;
+          let lengthSeconds = endSeconds - startSeconds;
+          let croppedAudioBuffer = this.cropAudioBuffer(audiobuffer, lengthSeconds, ctx);
+          let delayedAudiobuffer = this.addStartDelayToAudioBuffer(croppedAudioBuffer, startSeconds, ctx);
           audiobuffers.push(delayedAudiobuffer);
           prepareNextAudioInfo();
         });
@@ -45966,8 +46064,34 @@ Wick.AudioTrack = class {
     return out;
   }
   /**
+   * Crops an AudioBuffer to a given length.
+   * @param {AudioBuffer} originalBuffer - the buffer to crop
+   * @param {number} delaySeconds - the time, in seconds, to crop the sound at
+   * @param {AudioContext} ctx - An AudioContext instance
+   */
+
+
+  static cropAudioBuffer(originalBuffer, lengthSeconds, ctx) {
+    // Create a blank buffer with a length of the crop amount
+    var croppedBuffer = ctx.createBuffer(originalBuffer.numberOfChannels, ctx.sampleRate * lengthSeconds, ctx.sampleRate); // Copy data from the original buffer into the cropped buffer
+
+    for (var srcChannel = 0; srcChannel < croppedBuffer.numberOfChannels; srcChannel++) {
+      // Retrieve sample data...
+      var croppedBufferChannelData = croppedBuffer.getChannelData(srcChannel);
+      var originalBufferChannelData = originalBuffer.getChannelData(srcChannel); // Copy samples from the original buffer to the cropped buffer
+
+      for (var i = 0; i < croppedBufferChannelData.length; i++) {
+        croppedBufferChannelData[i] = originalBufferChannelData[i];
+      }
+
+      croppedBuffer.getChannelData(srcChannel).set(croppedBufferChannelData, 0);
+    }
+
+    return croppedBuffer;
+  }
+  /**
    * Adds silence to the beginning of an AudioBuffer with a given length.
-   * @param {AudioBuffer} originalBuffer - the buffer to update
+   * @param {AudioBuffer} originalBuffer - the buffer to pad with silence
    * @param {number} delaySeconds - the amount of time, in seconds, to delay the sound
    * @param {AudioContext} ctx - An AudioContext instance
    */
@@ -46062,12 +46186,24 @@ Wick.WickFile = class {
    * Create a project from a wick file.
    * @param {File} wickFile - Wick file containing project data.
    * @param {function} callback - Function called when the project is created.
+   * @param {string} format - The format to return. Can be 'blob' or 'base64'.
    */
 
 
-  static fromWickFile(wickFile, callback) {
+  static fromWickFile(wickFile, callback, format) {
+    if (!format) {
+      format = 'blob';
+    }
+
+    if (format !== 'blob' && format !== 'base64') {
+      console.error('WickFile.toWickFile: invalid format: ' + format);
+      return;
+    }
+
     var zip = new JSZip();
-    zip.loadAsync(wickFile).then(contents => {
+    zip.loadAsync(wickFile, {
+      base64: format === 'base64'
+    }).then(contents => {
       contents.files['project.json'].async('text').then(projectJSON => {
         var projectData = JSON.parse(projectJSON);
 
@@ -46127,16 +46263,26 @@ Wick.WickFile = class {
    * Create a wick file from the project.
    * @param {Wick.Project} project - the project to create a wick file from
    * @param {function} callback - Function called when the file is created. Contains the file as a parameter.
+   * @param {string} format - The format to return. Can be 'blob' or 'base64'.
    */
 
 
-  static toWickFile(project, callback) {
+  static toWickFile(project, callback, format) {
+    if (!format) {
+      format = 'blob';
+    }
+
+    if (format !== 'blob' && format !== 'base64') {
+      console.error('WickFile.toWickFile: invalid format: ' + format);
+      return;
+    }
+
     var zip = new JSZip(); // Create assets folder
 
     var assetsFolder = zip.folder("assets"); // Populate assets folder with files
 
     project.getAssets().filter(asset => {
-      return asset instanceof Wick.ImageAsset || asset instanceof Wick.SoundAsset || asset instanceof Wick.FontAsset;
+      return asset instanceof Wick.ImageAsset || asset instanceof Wick.SoundAsset || asset instanceof Wick.FontAsset || asset instanceof Wick.ClipAsset;
     }).forEach(asset => {
       // Create file from asset dataurl, add it to assets folder
       var fileExtension = asset.MIMEType.split('/')[1];
@@ -46193,7 +46339,7 @@ Wick.WickFile = class {
     };
     zip.file("project.json", JSON.stringify(projectData, null, 2));
     zip.generateAsync({
-      type: "blob",
+      type: format,
       compression: "DEFLATE",
       compressionOptions: {
         level: 9
@@ -46345,6 +46491,203 @@ Wick.WickFile.Alpha = class {
  */
 
 /**
+ * Utility class for creating and parsing wickobject files.
+ */
+Wick.WickObjectFile = class {
+  /**
+   * Create a project from a wick file.
+   * @param {Blob | string} wickObjectFile - WickObject file containing object data (can be a Blob or a dataURL string)
+   * @param {function} callback - Function called when the object is done being loaded
+   */
+  static fromWickObjectFile(wickObjectFile, callback) {
+    // Convert to blob if needed
+    if (typeof wickObjectFile === 'string') {
+      wickObjectFile = this._dataURItoBlob(wickObjectFile);
+    }
+
+    var fr = new FileReader();
+
+    fr.onload = () => {
+      var data = JSON.parse(fr.result);
+      callback(data);
+    };
+
+    fr.readAsText(wickObjectFile);
+  }
+  /**
+   * Create a wick file from the project.
+   * @param {Wick.Project} clip - the clip to create a wickobject file from
+   * @param {string} format - Can be 'blob' or 'dataurl'.
+   */
+
+
+  static toWickObjectFile(clip, format, callback) {
+    if (!format) format = 'blob';
+    var data = clip.export();
+    var json = JSON.stringify(data);
+    var blob = new Blob([json], {
+      type: "application/json"
+    });
+
+    if (format === 'blob') {
+      callback(blob);
+    } else if (format === 'dataurl') {
+      var fr = new FileReader();
+
+      fr.onload = function (e) {
+        callback(e.target.result);
+      };
+
+      fr.readAsDataURL(blob);
+    } else {
+      console.error('toWickObjectFile: invalid format: ' + format);
+    }
+  } // https://stackoverflow.com/questions/12168909/blob-from-dataurl
+
+
+  static _dataURItoBlob(dataURI) {
+    // convert base64 to raw binary data held in a string
+    // doesn't handle URLEncoded DataURIs - see SO answer #6850276 for code that does this
+    var byteString = atob(dataURI.split(',')[1]); // separate out the mime component
+
+    var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0]; // write the bytes of the string to an ArrayBuffer
+
+    var ab = new ArrayBuffer(byteString.length); // create a view into the buffer
+
+    var ia = new Uint8Array(ab); // set the bytes of the buffer to the correct values
+
+    for (var i = 0; i < byteString.length; i++) {
+      ia[i] = byteString.charCodeAt(i);
+    } // write the ArrayBuffer to a blob, and you're done
+
+
+    var blob = new Blob([ab], {
+      type: mimeString
+    });
+    return blob;
+  }
+
+};
+/*
+ * Copyright 2019 WICKLETS LLC
+ *
+ * This file is part of Wick Engine.
+ *
+ * Wick Engine is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Wick Engine is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+/**
+ * Utility class for bundling Wick projects inside HTML files.
+ */
+Wick.HTMLExport = class {
+  static bundleProject(project, callback) {
+    Wick.WickFile.toWickFile(project, wickFileBase64 => {
+      fetch(Wick.resourcepath + 'emptyproject.html').then(resp => resp.text()).then(text => {
+        text = text.replace('<!--INJECT_WICKPROJECTDATA_HERE-->', wickFileBase64);
+        callback(text);
+      }).catch(e => {
+        console.error('Wick.HTMLExport: Could not download HTML file template.');
+        console.error(e);
+      });
+    }, 'base64');
+  }
+
+};
+/*
+ * Copyright 2019 WICKLETS LLC
+ *
+ * This file is part of Wick Engine.
+ *
+ * Wick Engine is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Wick Engine is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+/**
+ * Utility class for bundling Wick projects inside ZIP files.
+ */
+Wick.ZIPExport = class {
+  static bundleProject(project, done) {
+    this._downloadDependenciesFiles(items => {
+      window.Wick.WickFile.toWickFile(project, wickFile => {
+        this._bundleFilesIntoZip(wickFile, items, done);
+      });
+    });
+  }
+
+  static _downloadDependenciesFiles(done) {
+    var list = [];
+    var urls = ["index.html", "preloadjs.min.js", "wickengine.js"];
+    var results = [];
+    urls.forEach(function (url, i) {
+      list.push(fetch(Wick.resourcepath + url).then(function (res) {
+        results[i] = {
+          data: res.blob(),
+          name: url
+        };
+      }));
+    });
+    Promise.all(list).then(function () {
+      done(results);
+    });
+  }
+
+  static _bundleFilesIntoZip(wickFile, dependenciesFiles, done) {
+    var zip = new JSZip();
+    dependenciesFiles.forEach(file => {
+      zip.file(file.name, file.data);
+    });
+    zip.file('project.wick', wickFile);
+    zip.generateAsync({
+      type: "blob",
+      compression: "DEFLATE",
+      compressionOptions: {
+        level: 9
+      }
+    }).then(done);
+  }
+
+};
+/*
+ * Copyright 2019 WICKLETS LLC
+ *
+ * This file is part of Wick Engine.
+ *
+ * Wick Engine is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Wick Engine is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+/**
  * The base class for all objects within the Wick Engine.
  */
 Wick.Base = class {
@@ -46398,7 +46741,16 @@ Wick.Base = class {
     this._identifier = data.identifier;
     this._name = data.name;
     this._children = {};
-    this._childrenData = data.children;
+    this._childrenData = data.children; // Clear any custom attributes set by scripts
+
+    var compareObj = new Wick[this.classname]();
+
+    for (var name in this) {
+      if (compareObj[name] === undefined) {
+        delete this[name];
+      }
+    }
+
     Wick.ObjectCache.addObject(this);
   }
   /**
@@ -47127,7 +47479,7 @@ Wick.Project = class extends Wick.Base {
    * @param {number} width - Project width in pixels. Default 720.
    * @param {number} height - Project height in pixels. Default 405.
    * @param {number} framerate - Project framerate in frames-per-second. Default 12.
-   * @param {string} backgroundColor - Project background color in hex. Default #ffffff.
+   * @param {Color} backgroundColor - Project background color in hex. Default #ffffff.
    */
   constructor(args) {
     if (!args) args = {};
@@ -47136,7 +47488,7 @@ Wick.Project = class extends Wick.Base {
     this._width = args.width || 720;
     this._height = args.height || 405;
     this._framerate = args.framerate || 12;
-    this._backgroundColor = args.backgroundColor || '#ffffff';
+    this._backgroundColor = args.backgroundColor || new Wick.Color('#ffffff');
     this.pan = {
       x: 0,
       y: 0
@@ -47195,13 +47547,15 @@ Wick.Project = class extends Wick.Base {
 
     this._toolSettings.onSettingsChanged((name, value) => {
       if (name === 'fillColor') {
-        this.selection.fillColor = value;
+        this.selection.fillColor = value.rgba;
       } else if (name === 'strokeColor') {
-        this.selection.strokeColor = value;
+        this.selection.strokeColor = value.rgba;
       }
     });
 
     this._playing = false;
+    this._scriptSchedule = [];
+    this._error = null;
     this.history.project = this;
     this.history.pushState(Wick.History.StateType.ONLY_VISIBLE_OBJECTS);
   }
@@ -47212,7 +47566,7 @@ Wick.Project = class extends Wick.Base {
     this.width = data.width;
     this.height = data.height;
     this.framerate = data.framerate;
-    this.backgroundColor = data.backgroundColor;
+    this.backgroundColor = new Wick.Color(data.backgroundColor);
     this._focus = data.focus;
     this._hideCursor = false;
     this._muted = false;
@@ -47223,7 +47577,7 @@ Wick.Project = class extends Wick.Base {
     data.name = this.name;
     data.width = this.width;
     data.height = this.height;
-    data.backgroundColor = this.backgroundColor;
+    data.backgroundColor = this.backgroundColor.rgba;
     data.framerate = this.framerate;
     data.onionSkinEnabled = this.onionSkinEnabled;
     data.onionSkinSeekForwards = this.onionSkinSeekForwards;
@@ -47296,7 +47650,6 @@ Wick.Project = class extends Wick.Base {
   }
 
   set backgroundColor(backgroundColor) {
-    if (typeof backgroundColor !== 'string') return;
     this._backgroundColor = backgroundColor;
   }
   /**
@@ -47665,14 +48018,24 @@ Wick.Project = class extends Wick.Base {
     let imageTypes = Wick.ImageAsset.getValidMIMETypes();
     let soundTypes = Wick.SoundAsset.getValidMIMETypes();
     let fontTypes = Wick.FontAsset.getValidMIMETypes();
+    let clipTypes = Wick.ClipAsset.getValidMIMETypes(); // Fix missing mimetype for wickobj files
+
+    var type = file.type;
+
+    if (file.type === '' && file.name.endsWith('.wickobj')) {
+      type = 'application/json';
+    }
+
     let asset = undefined;
 
-    if (imageTypes.indexOf(file.type) !== -1) {
+    if (imageTypes.indexOf(type) !== -1) {
       asset = new Wick.ImageAsset();
-    } else if (soundTypes.indexOf(file.type) !== -1) {
+    } else if (soundTypes.indexOf(type) !== -1) {
       asset = new Wick.SoundAsset();
-    } else if (fontTypes.indexOf(file.type) !== -1) {
+    } else if (fontTypes.indexOf(type) !== -1) {
       asset = new Wick.FontAsset();
+    } else if (clipTypes.indexOf(type) !== -1) {
+      asset = new Wick.ClipAsset();
     }
 
     if (asset === undefined) {
@@ -47683,6 +48046,8 @@ Wick.Project = class extends Wick.Base {
       console.log(soundTypes);
       console.warn('supported font file types:');
       console.log(fontTypes);
+      console.warn('supported clip file types:');
+      console.log(clipTypes);
       callback(null);
       return;
     }
@@ -47998,6 +48363,23 @@ Wick.Project = class extends Wick.Base {
     });
   }
   /**
+   * Adds an instance of a clip asset to the active frame.
+   * @param {Wick.Asset} asset - the asset to create the clip instance from
+   * @param {number} x - the x position to create the image path at
+   * @param {number} y - the y position to create the image path at
+   * @param {function} callback - the function to call after the path is created.
+   */
+
+
+  createClipInstanceFromAsset(asset, x, y, callback) {
+    asset.createInstance(clip => {
+      this.activeFrame.addPath(clip);
+      clip.x = x;
+      clip.y = y;
+      callback(clip);
+    });
+  }
+  /**
    * Creates a symbol from the objects currently selected.
    * @param {string} identifier - the identifier to give the new symbol
    * @param {string} type - "Clip" or "Button"
@@ -48137,6 +48519,19 @@ Wick.Project = class extends Wick.Base {
     this._publishedMode = publishedMode;
   }
   /**
+   * The current error, if one was thrown, during the last tick.
+   * @type {Error}
+   */
+
+
+  get error() {
+    return this._error;
+  }
+
+  set error(error) {
+    this._error = error;
+  }
+  /**
    * Ticks the project.
    * @returns {object} An object containing information about an error, if one occured while running scripts. Null otherwise.
    */
@@ -48149,11 +48544,33 @@ Wick.Project = class extends Wick.Base {
     this._isMouseDown = this.tools.interact.mouseIsDown;
     this._keysDown = this.tools.interact.keysDown;
     this._currentKey = this.tools.interact.lastKeyDown;
-    this._mouseTargets = this.tools.interact.mouseTargets; // Tick the focus
+    this._mouseTargets = this.tools.interact.mouseTargets; // Reset scripts before ticking
+
+    this._scriptSchedule = []; // Tick the focused clip
 
     this.focus._attachChildClipReferences();
 
-    var error = this.focus.tick(); // Save the current keysDown
+    this.focus.tick(); // Run scripts in schedule, in order based on Tickable.possibleScripts.
+
+    this._error = null;
+    Wick.Tickable.possibleScripts.forEach(scriptOrderName => {
+      this._scriptSchedule.forEach(scheduledScript => {
+        // Stop early if an error was thrown in the last script ran.
+        if (this._error) {
+          return;
+        }
+
+        var uuid = scheduledScript.uuid;
+        var name = scheduledScript.name; // Make sure we only run the script based on the current iteration through possibleScripts
+
+        if (name !== scriptOrderName) {
+          return;
+        } // Run the script on the corresponding object!
+
+
+        Wick.ObjectCache.getObjectByUUID(uuid).runScript(name);
+      });
+    }); // Save the current keysDown
 
     this._lastMousePosition = {
       x: this._mousePosition.x,
@@ -48161,7 +48578,25 @@ Wick.Project = class extends Wick.Base {
     };
     this._keysLastDown = [].concat(this._keysDown);
     this.view.render();
-    return error;
+
+    if (this._error) {
+      return this._error;
+    } else {
+      return null;
+    }
+  }
+  /**
+   * Schedules a script to be run at the end of the current tick.
+   * @param {string} uuid - the UUID of the object running the script.
+   * @param {string} name - the name of the script to run, see Tickable.possibleScripts.
+   */
+
+
+  scheduleScript(uuid, name) {
+    this._scriptSchedule.push({
+      uuid: uuid,
+      name: name
+    });
   }
   /**
    * Checks if the project is currently playing.
@@ -48232,6 +48667,37 @@ Wick.Project = class extends Wick.Base {
     var currentPlayhead = this.focus.timeline.playheadPosition;
     this.history.loadSnapshot('state-before-play');
     this.focus.timeline.playheadPosition = currentPlayhead;
+  }
+  /**
+   * Inject the project into an element on a webpage and start playing the project.
+   * @param {Element} element - the element to inject the project into
+   */
+
+
+  inject(element) {
+    document.title = this.name;
+    this.view.canvasContainer = element;
+    this.view.fitMode = 'fill';
+    this.view.canvasBGColor = '#000000';
+
+    window.onresize = function () {
+      project.view.resize();
+    };
+
+    this.view.resize();
+    this.view.prerender();
+    this.focus = this.root;
+    this.focus.timeline.playheadPosition = 1;
+    this.publishedMode = true;
+    this.play({
+      onAfterTick: () => {
+        this.view.render();
+      },
+      onError: error => {
+        console.error('Project threw an error!');
+        console.error(error);
+      }
+    });
   }
   /**
    * Resets zoom and pan.
@@ -50531,7 +50997,9 @@ Wick.FileAsset = class extends Wick.Asset {
   static getValidMIMETypes() {
     let imageTypes = Wick.ImageAsset.getValidMIMETypes();
     let soundTypes = Wick.SoundAsset.getValidMIMETypes();
-    return imageTypes.concat(soundTypes);
+    let fontTypes = Wick.FontAsset.getValidMIMETypes();
+    let clipTypes = Wick.ClipAsset.getValidMIMETypes();
+    return imageTypes.concat(soundTypes).concat(fontTypes).concat(clipTypes);
   }
   /**
    * Returns all valid extensions types for files which can be attempted to be
@@ -50543,7 +51011,9 @@ Wick.FileAsset = class extends Wick.Asset {
   static getValidExtensions() {
     let imageExtensions = Wick.ImageAsset.getValidExtensions();
     let soundExtensions = Wick.SoundAsset.getValidExtensions();
-    return imageExtensions.concat(soundExtensions);
+    let fontExtensions = Wick.FontAsset.getValidExtensions();
+    let clipExtensions = Wick.ClipAsset.getValidExtensions();
+    return imageExtensions.concat(soundExtensions).concat(fontExtensions).concat(clipExtensions);
   }
   /**
    * Create a new FileAsset.
@@ -50634,6 +51104,143 @@ Wick.FileAsset = class extends Wick.Asset {
     var MIMEType = this._MIMETypeOfString(string);
 
     return MIMEType && MIMEType.split('/')[1];
+  }
+
+};
+/*
+ * Copyright 2019 WICKLETS LLC
+ *
+ * This file is part of Wick Engine.
+ *
+ * Wick Engine is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Wick Engine is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+ */
+Wick.FontAsset = class extends Wick.FileAsset {
+  /**
+   * Valid MIME types for font assets.
+   * @returns {string[]} Array of strings representing MIME types in the form font/filetype.
+   */
+  static getValidMIMETypes() {
+    return ['font/ttf', 'application/x-font-ttf', 'application/x-font-truetype'];
+  }
+  /**
+   * Valid extensions for font assets.
+   * @returns {string[]} Array of strings representing extensions.
+   */
+
+
+  static getValidExtensions() {
+    return ['.ttf'];
+  }
+  /**
+   * The default font to use if a font couldn't load, or if a FontAsset was deleted
+   */
+
+
+  static get MISSING_FONT_DEFAULT() {
+    return 'Helvetica, Arial, sans-serif';
+  }
+  /**
+   * Create a new FontAsset.
+   */
+
+
+  constructor(args) {
+    super(args);
+  }
+
+  serialize(args) {
+    var data = super.serialize(args);
+    return data;
+  }
+
+  deserialize(data) {
+    super.deserialize(data);
+  }
+
+  get classname() {
+    return 'FontAsset';
+  }
+  /**
+   * Loads the font into the window.
+   */
+
+
+  load(callback) {
+    var fontDataArraybuffer = Base64ArrayBuffer.decode(this.src.split(',')[1]);
+    var fontFamily = this.fontFamily;
+
+    if (!fontFamily) {
+      console.error('FontAsset: Could not get fontFamily from filename.');
+    } else if (fontFamily === "") {
+      console.error('FontAsset: fontfamily not found. Showing as "".');
+    }
+
+    var font = new FontFace(fontFamily, fontDataArraybuffer);
+    font.load().then(loaded_face => {
+      document.fonts.add(loaded_face);
+      callback();
+    }).catch(error => {
+      console.error('FontAsset.load(): An error occured while loading a font:');
+      console.log(font);
+      console.error(error);
+      callback(); // Make the callback so that the page doesn't freeze.
+    });
+  }
+  /**
+   * A list of Wick Paths that use this font as their fontFamily.
+   * @returns {Wick.Path[]}
+   */
+
+
+  getInstances() {
+    var paths = [];
+    this.project.getAllFrames().forEach(frame => {
+      frame.paths.forEach(path => {
+        if (path.fontFamily === this.fontFamily) {
+          paths.push(path);
+        }
+      });
+    });
+    return paths;
+  }
+  /**
+   * Check if there are any objects in the project that use this asset.
+   * @returns {boolean}
+   */
+
+
+  hasInstances() {
+    return this.getInstances().length > 0;
+  }
+  /**
+   * Finds all PointText paths using this font as their fontFamily and replaces that font with a default font.
+   */
+
+
+  removeAllInstances() {
+    this.getInstances().forEach(path => {
+      path.fontFamily = Wick.FontAsset.MISSING_FONT_DEFAULT;
+    });
+  }
+  /**
+   *
+   * @type {string}
+   */
+
+
+  get fontFamily() {
+    return this.filename.split('.')[0];
   }
 
 };
@@ -50769,119 +51376,91 @@ Wick.ImageAsset = class extends Wick.FileAsset {
  * You should have received a copy of the GNU General Public License
  * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
  */
-Wick.ClipAsset = class extends Wick.Asset {
+Wick.ClipAsset = class extends Wick.FileAsset {
   /**
-   * Creates a new Clip Asset.
-   * @param {Wick.Clip} clip - the clip to link this asset to
+   * Returns all valid MIME types for files which can be converted to ClipAssets.
+   * @return {string[]} Array of strings of MIME types in the form MediaType/Subtype.
    */
-  constructor(args) {
-    if (!args) args = {};
-    args.identifier = args.clip ? args.clip.identifier : null;
-    super(args);
-    this.clipType = null;
-    this.linkedClips = [];
-    if (args.clip) this.useClipAsSource(args.clip);
+  static getValidMIMETypes() {
+    return ['application/json', 'application/octet-stream'];
   }
+  /**
+   * Returns all valid extensions types for files which can be attempted to be
+   * converted to ClipAssets.
+   * @return  {string[]} Array of strings representing extensions.
+   */
 
-  deserialize(data) {
-    super.deserialize(data);
-    this._timeline = data.timeline;
+
+  static getValidExtensions() {
+    return ['.wickobj'];
+  }
+  /**
+   * Create a new ClipAsset.
+   * @param {object} args
+   */
+
+
+  constructor(args) {
+    super(args);
   }
 
   serialize(args) {
     var data = super.serialize(args);
-    data.timeline = this._timeline;
     return data;
+  }
+
+  deserialize(data) {
+    super.deserialize(data);
   }
 
   get classname() {
     return 'ClipAsset';
   }
   /**
-   * The timeline that this asset is linked to.
+   * A list of Wick Clips that use this ClipAsset as their image source.
+   * @returns {Wick.Clip[]}
    */
 
 
-  get timeline() {
-    return Wick.ObjectCache.getObjectByUUID(this._timeline);
+  getInstances() {
+    return []; // TODO
   }
   /**
-   * Uses the timeline of the given clip as the data for this asset.
-   * @param {Wick.Clip} clip - the clip to use as the source
+   * Check if there are any objects in the project that use this asset.
+   * @returns {boolean}
    */
 
 
-  useClipAsSource(clip) {
-    this.identifier = clip.identifier;
-    this.clipType = clip.classname;
-    this.timeline = clip.timeline.copy();
+  hasInstances() {
+    return false; // TODO
   }
   /**
-   * Creates a new Clip using the source of this asset.
+   * Removes all Clips using this asset as their source from the project.
+   * @returns {boolean}
    */
 
 
-  createInstance() {
-    var clip = new Wick[this.clipType]();
-    this.useAsSourceForClip(clip);
-    return clip;
+  removeAllInstances() {} // TODO
+
+  /**
+   * Load data in the asset
+   */
+
+
+  load(callback) {
+    // We don't need to do anything here, the data for ClipAssets is just json
+    callback();
   }
   /**
-   * Sets a given clip to use the source of this asset for its timeline data.
-   * Note: This will replace the timeline of the clip with the asset's timeline.
-   * @param {Wick.Clip} clip - the clip to change the timeline data of
+   * Creates a new Wick Clip that uses this asset's data.
+   * @param {function} callback - called when the Clip is done loading.
    */
 
 
-  useAsSourceForClip(clip) {
-    this.linkedClips.push(clip);
-    this.updateClipFromAsset(clip);
-  }
-  /**
-   * Unlink a given clip from this asset. The clip's timeline will no longer be synced with this asset.
-   * @param {Wick.Clip} clip - The clip to unlink from this asset.
-   */
-
-
-  removeAsSourceForClip(clip) {
-    this.linkedClips = this.linkedClips.filter(checkClip => {
-      return checkClip !== clip;
-    });
-  }
-  /**
-   * Take the timeline data from a clip and use it to update this asset.
-   * This will also update the timelines of all instances of this asset.
-   * @param {Wick.Clip} clip - The clip to use the timeline of to update this asset.
-   */
-
-
-  updateAssetFromClip(clip) {
-    this.timeline = clip.timeline.copy();
-    var self = this;
-    this.linkedClips.forEach(linkedClip => {
-      if (linkedClip === clip) return; // This one should already be synced, of course
-
-      this.updateClipFromAsset(linkedClip);
-    });
-  }
-  /**
-   * Replace the timeline of the clip with the asset's timeline.
-   * @param {Wick.Clip} clip - the clip to change the timeline data of
-   */
-
-
-  updateClipFromAsset(clip) {
-    var timeline = this.timeline.copy();
-    clip.timeline = timeline;
-  }
-  /**
-   * Removes all instances of this asset from the project.
-   */
-
-
-  removeAllInstances() {
-    this.linkedClips.forEach(clip => {
-      clip.remove();
+  createInstance(callback, project) {
+    Wick.WickObjectFile.fromWickObjectFile(this.src, data => {
+      var clip = Wick.Base.import(data, project).copy();
+      callback(clip);
     });
   }
 
@@ -51122,33 +51701,27 @@ Wick.SoundAsset = class extends Wick.FileAsset {
  * You should have received a copy of the GNU General Public License
  * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
  */
-Wick.FontAsset = class extends Wick.FileAsset {
+Wick.SVGAsset = class extends Wick.FileAsset {
   /**
-   * Valid MIME types for font assets.
-   * @returns {string[]} Array of strings representing MIME types in the form font/filetype.
+   * Returns all valid MIME types for files which can be converted to SVGAssets.
+   * @return {string[]} Array of strings of MIME types in the form MediaType/Subtype.
    */
   static getValidMIMETypes() {
-    return ['font/ttf', 'application/x-font-ttf', 'application/x-font-truetype'];
+    return ['image/svg+xml'];
   }
   /**
-   * Valid extensions for font assets.
-   * @returns {string[]} Array of strings representing extensions.
+   * Returns all valid extensions types for files which can be attempted to be
+   * converted to SVGAssets.
+   * @return  {string[]} Array of strings representing extensions.
    */
 
 
   static getValidExtensions() {
-    return ['.ttf'];
+    return ['.svg'];
   }
   /**
-   * The default font to use if a font couldn't load, or if a FontAsset was deleted
-   */
-
-
-  static get MISSING_FONT_DEFAULT() {
-    return 'Helvetica, Arial, sans-serif';
-  }
-  /**
-   * Create a new FontAsset.
+   * Create a new SVGAsset.
+   * @param {object} args
    */
 
 
@@ -51166,50 +51739,16 @@ Wick.FontAsset = class extends Wick.FileAsset {
   }
 
   get classname() {
-    return 'FontAsset';
+    return 'SVGAsset';
   }
   /**
-   * Loads the font into the window.
-   */
-
-
-  load(callback) {
-    var fontDataArraybuffer = Base64ArrayBuffer.decode(this.src.split(',')[1]);
-    var fontFamily = this.fontFamily;
-
-    if (!fontFamily) {
-      console.error('FontAsset: Could not get fontFamily from filename.');
-    } else if (fontFamily === "") {
-      console.error('FontAsset: fontfamily not found. Showing as "".');
-    }
-
-    var font = new FontFace(fontFamily, fontDataArraybuffer);
-    font.load().then(loaded_face => {
-      document.fonts.add(loaded_face);
-      callback();
-    }).catch(error => {
-      console.error('FontAsset.load(): An error occured while loading a font:');
-      console.log(font);
-      console.error(error);
-      callback(); // Make the callback so that the page doesn't freeze.
-    });
-  }
-  /**
-   * A list of Wick Paths that use this font as their fontFamily.
+   * A list of Wick Paths that use this SVGAsset as their image source.
    * @returns {Wick.Path[]}
    */
 
 
   getInstances() {
-    var paths = [];
-    this.project.getAllFrames().forEach(frame => {
-      frame.paths.forEach(path => {
-        if (path.fontFamily === this.fontFamily) {
-          paths.push(path);
-        }
-      });
-    });
-    return paths;
+    return []; // TODO
   }
   /**
    * Check if there are any objects in the project that use this asset.
@@ -51218,26 +51757,32 @@ Wick.FontAsset = class extends Wick.FileAsset {
 
 
   hasInstances() {
-    return this.getInstances().length > 0;
+    return false; // TODO
   }
   /**
-   * Finds all PointText paths using this font as their fontFamily and replaces that font with a default font.
+   * Removes all Paths using this asset as their source from the project.
+   * @returns {boolean}
    */
 
 
-  removeAllInstances() {
-    this.getInstances().forEach(path => {
-      path.fontFamily = Wick.FontAsset.MISSING_FONT_DEFAULT;
-    });
-  }
+  removeAllInstances() {} // TODO
+
   /**
-   *
-   * @type {string}
+   * Load data in the asset
    */
 
 
-  get fontFamily() {
-    return this.filename.split('.')[0];
+  load(callback) {
+    // We don't need to do anything here, the data for SVGAssets is just SVG
+    callback();
+  }
+  /**
+   * Creates a new Wick Path that uses this asset's data.
+   * @param {function} callback - called when the Path is done loading.
+   */
+
+
+  createInstance(callback, project) {// TODO
   }
 
 };
@@ -51507,6 +52052,16 @@ Wick.Tickable = class extends Wick.Base {
     });
   }
   /**
+   * Schedule a script to run at the end of the tick.
+   * @param {string} name - The name of the script to run. See Tickable.possibleScripts
+   */
+
+
+  scheduleScript(name) {
+    if (!this.project) return;
+    this.project.scheduleScript(this.uuid, name);
+  }
+  /**
    * Run the script with the corresponding event name.
    * @param {string} name - The name of the event. See Wick.Tickable.possibleScripts
    * @returns {object} object containing error info if an error happened. Returns null if there was no error (script ran successfully)
@@ -51530,7 +52085,12 @@ Wick.Tickable = class extends Wick.Base {
       if (eventFnError) return;
       eventFnError = this._runFunction(eventFn);
     });
-    if (eventFnError) return eventFnError; // Run function inside tab
+
+    if (eventFnError) {
+      this.project.error = eventFnError;
+      return;
+    } // Run function inside tab
+
 
     if (this.scriptIsContentful(name)) {
       var script = this.getScript(name);
@@ -51545,10 +52105,11 @@ Wick.Tickable = class extends Wick.Base {
 
       var error = this._runFunction(fn);
 
-      if (error) return error;
+      if (error) {
+        this.project.error = error;
+        return;
+      }
     }
-
-    return null;
   }
   /**
    * The tick routine to be called when the object ticks.
@@ -51578,107 +52139,90 @@ Wick.Tickable = class extends Wick.Base {
 
 
     if (!this._onscreen && !this._onscreenLastTick) {
-      return this._onInactive();
+      this._onInactive();
     } else if (this._onscreen && !this._onscreenLastTick) {
-      return this._onActivated();
+      this._onActivated();
     } else if (this._onscreen && this._onscreenLastTick) {
-      return this._onActive();
+      this._onActive();
     } else if (!this._onscreen && this._onscreenLastTick) {
-      return this._onDeactivated();
+      this._onDeactivated();
     }
   }
 
-  _onInactive() {
-    return null;
+  _onInactive() {// Do nothing.
   }
 
   _onActivated() {
-    var error = this.runScript('default');
-    if (error) return error;
-    error = this.runScript('load');
-    return error;
+    this.scheduleScript('default');
+    this.scheduleScript('load');
   }
 
   _onActive() {
-    var error = this.runScript('update');
-    if (error) return error;
+    this.scheduleScript('update');
     var current = this._mouseState;
     var last = this._lastMouseState; // Mouse enter
 
     if (last === 'out' && current !== 'out') {
-      var error = this.runScript('mouseenter');
-      if (error) return error;
+      this.scheduleScript('mouseenter');
     } // Mouse down
 
 
     if (current === 'down') {
-      var error = this.runScript('mousedown');
-      if (error) return error;
+      this.scheduleScript('mousedown');
     } // Mouse pressed
 
 
     if (last === 'over' && current === 'down') {
       this._isClickTarget = true;
-      var error = this.runScript('mousepressed');
-      if (error) return error;
+      this.scheduleScript('mousepressed');
     } // Mouse click
 
 
     if (last === 'down' && current === 'over' && this._isClickTarget) {
-      var error = this.runScript('mouseclick');
-      if (error) return error;
+      this.scheduleScript('mouseclick');
     } // Mouse released
 
 
     if (last === 'down' && current === 'over') {
       this._isClickTarget = false;
-      var error = this.runScript('mousereleased');
-      if (error) return error;
+      this.scheduleScript('mousereleased');
     } // Mouse leave
 
 
     if (last !== 'out' && current === 'out') {
-      var error = this.runScript('mouseleave');
-      if (error) return error;
+      this.scheduleScript('mouseleave');
     } // Mouse hover
 
 
     if (current === 'over') {
-      var error = this.runScript('mousehover');
-      if (error) return error;
+      this.scheduleScript('mousehover');
     } // Mouse drag
 
 
     if (last === 'down' && current === 'down') {
-      var error = this.runScript('mousedrag');
-      if (error) return error;
-    } // Key events require the Tickable object to be inside of a project. Don't run them if there is no project
+      this.scheduleScript('mousedrag');
+    } // Key down
 
-
-    if (!this.project) return null; // Key down
 
     this.project.keysDown.forEach(key => {
       this.project.currentKey = key;
-      var error = this.runScript('keydown');
-      if (error) return error;
+      this.scheduleScript('keydown');
     }); // Key press
 
     this.project.keysJustPressed.forEach(key => {
       this.project.currentKey = key;
-      var error = this.runScript('keypressed');
-      if (error) return error;
+      this.scheduleScript('keypressed');
     }); // Key released
 
     this.project.keysJustReleased.forEach(key => {
       this.project.currentKey = key;
-      var error = this.runScript('keyreleased');
-      if (error) return error;
+      this.scheduleScript('keyreleased');
     });
   }
 
   _onDeactivated() {
     this._isClickTarget = false;
-    return this.runScript('unload');
+    this.scheduleScript('unload');
   }
 
   _evalScript(name, src) {
@@ -51687,7 +52231,8 @@ Wick.Tickable = class extends Wick.Base {
     try {
       esprima.parseScript(src);
     } catch (e) {
-      return this._generateEsprimaErrorInfo(e, name);
+      this.project.error = this._generateEsprimaErrorInfo(e, name);
+      return;
     } // Attempt to create valid function...
 
 
@@ -51696,7 +52241,8 @@ Wick.Tickable = class extends Wick.Base {
     } catch (e) {
       // This should almost never be thrown unless there is an attempt to use syntax
       // that the syntax checker (esprima) does not understand.
-      return this._generateErrorInfo(e, name);
+      this.project.error = this._generateErrorInfo(e, name);
+      return;
     }
 
     return fn;
@@ -51785,6 +52331,11 @@ Wick.Tickable = class extends Wick.Base {
 
       if (!isNaN(lineInt)) {
         lineNumber = lineInt - 2;
+        lineNumber = lineInt;
+
+        if (platform.name === 'Firefox') {
+          lineNumber = lineNumber - 2;
+        }
       }
     });
     return lineNumber;
@@ -51892,7 +52443,7 @@ Wick.Frame = class extends Wick.Tickable {
 
   get onScreen() {
     if (!this.parent) return true;
-    return this.inPosition(this.parentTimeline.playheadPosition);
+    return this.inPosition(this.parentTimeline.playheadPosition) && this.parentClip.onScreen;
   }
   /**
    * The sound attached to the frame.
@@ -52021,7 +52572,7 @@ Wick.Frame = class extends Wick.Tickable {
 
 
   get soundEndMS() {
-    return 1000 / this.project.framerate * (this.end - 1);
+    return 1000 / this.project.framerate * this.end;
   }
   /**
    * The paths on the frame.
@@ -52462,39 +53013,37 @@ Wick.Frame = class extends Wick.Tickable {
   }
 
   _onInactive() {
-    return super._onInactive();
+    super._onInactive();
+
+    this._tickChildren();
   }
 
   _onActivated() {
-    var error = super._onActivated();
+    super._onActivated();
 
-    if (error) return error;
     this.playSound();
-    return this._tickChildren();
+
+    this._tickChildren();
   }
 
   _onActive() {
-    var error = super._onActive();
+    super._onActive();
 
-    if (error) return error;
-    return this._tickChildren();
+    this._tickChildren();
   }
 
   _onDeactivated() {
-    var error = super._onDeactivated();
+    super._onDeactivated();
 
-    if (error) return error;
     this.stopSound();
-    return this._tickChildren();
+
+    this._tickChildren();
   }
 
   _tickChildren() {
-    var childError = null;
     this.clips.forEach(clip => {
-      if (childError) return;
-      childError = clip.tick();
+      clip.tick();
     });
-    return childError;
   }
 
   _attachChildClipReferences() {
@@ -52580,10 +53129,8 @@ Wick.Clip = class extends Wick.Tickable {
   get onScreen() {
     if (this.isRoot) {
       return true;
-    } else if (this.parent) {
-      return this.parent.onScreen;
-    } else {
-      return true;
+    } else if (this.parentFrame) {
+      return this.parentFrame.onScreen;
     }
   }
   /**
@@ -53010,29 +53557,29 @@ Wick.Clip = class extends Wick.Tickable {
   }
 
   _onInactive() {
-    return super._onInactive();
+    super._onInactive();
+
+    this._tickChildren();
   }
 
   _onActivated() {
-    var error = super._onActivated();
+    super._onActivated();
 
-    if (error) return error;
-    return this._tickChildren();
+    this._tickChildren();
   }
 
   _onActive() {
-    var error = super._onActive();
+    super._onActive();
 
-    if (error) return error;
     this.timeline.advance();
-    return this._tickChildren();
+
+    this._tickChildren();
   }
 
   _onDeactivated() {
-    var error = super._onDeactivated();
+    super._onDeactivated();
 
-    if (error) return error;
-    return this._tickChildren();
+    this._tickChildren();
   }
 
   _tickChildren() {
@@ -53473,8 +54020,11 @@ Wick.Tools.Brush = class extends Wick.Tool {
     this.cachedCursor;
     this.lastPressure;
     this.errorOccured = false;
+    this._isInProgress = false;
     this.strokeBounds = new paper.Rectangle();
     this._croquisStartTimeout = null;
+    this._lastMousePoint = new paper.Point(0, 0);
+    this._lastMousePressure = 1;
   }
 
   get cursor() {// the brush cursor is done in a custom way using _regenCursor().
@@ -53504,9 +54054,16 @@ Wick.Tools.Brush = class extends Wick.Tool {
       this.croquisDOMElement.style.display = 'block';
       this.croquisDOMElement.style.pointerEvents = 'none';
     }
+
+    this._isInProgress = false;
+    this._lastMousePoint = new paper.Point(0, 0);
+    this._lastMousePressure = 1;
   }
 
-  onDeactivate(e) {}
+  onDeactivate(e) {
+    // This prevents croquis from leaving stuck brush strokes on the screen.
+    this.discard();
+  }
 
   onMouseMove(e) {
     super.onMouseMove(e);
@@ -53524,7 +54081,7 @@ Wick.Tools.Brush = class extends Wick.Tool {
 
 
     this.croquisBrush.setSize(this._getRealBrushSize());
-    this.croquisBrush.setColor(this.getSetting('fillColor').toCSS(true));
+    this.croquisBrush.setColor(this.getSetting('fillColor').hex);
     this.croquisBrush.setSpacing(this.BRUSH_POINT_SPACING);
     this.croquis.setToolStabilizeLevel(this.BRUSH_STABILIZER_LEVEL);
     this.croquis.setToolStabilizeWeight(this.getSetting('brushStabilizerWeight') / 100.0 + 0.3);
@@ -53535,6 +54092,8 @@ Wick.Tools.Brush = class extends Wick.Tool {
     this._updateStrokeBounds(point);
 
     try {
+      this._updateLastMouseState(point, this.pressure);
+
       this.croquis.down(point.x, point.y, this.pressure);
     } catch (e) {
       this.handleBrushError(e);
@@ -53550,6 +54109,8 @@ Wick.Tools.Brush = class extends Wick.Tool {
     this._updateStrokeBounds(point);
 
     try {
+      this._updateLastMouseState(point, this.pressure);
+
       this.croquis.move(point.x, point.y, this.pressure);
     } catch (e) {
       this.handleBrushError(e);
@@ -53602,7 +54163,7 @@ Wick.Tools.Brush = class extends Wick.Tool {
 
       var svg = potrace.fromImage(croppedCanvas).toSVG(1 / this.POTRACE_RESOLUTION / this.paper.view.zoom);
       var potracePath = this.paper.project.importSVG(svg);
-      potracePath.fillColor = this.getSetting('fillColor');
+      potracePath.fillColor = this.getSetting('fillColor').rgba;
       potracePath.position.x += this.paper.view.bounds.x;
       potracePath.position.y += this.paper.view.bounds.y;
       potracePath.position.x += strokeBounds.x / this.paper.view.zoom;
@@ -53664,12 +54225,14 @@ Wick.Tools.Brush = class extends Wick.Tool {
 
 
   discard() {
-    if (!this.isInProgress) return;
+    if (!this._isInProgress) return;
+    this._isInProgress = false; // "Give up" on the current stroke by forcing a mouseup
+
+    this.croquis.up(this._lastMousePoint.x, this._lastMousePoint.y, this._lastMousePressure); // Clear the current croquis canvas
+
     setTimeout(() => {
-      this.croquis.up(0, 0, 0);
       this.croquis.clearLayer();
-      this.croquisDOMElement.style.opacity = 0;
-    }, Wick.Tools.Brush.CROQUIS_WAIT_AMT_MS);
+    }, 10);
   }
   /* Generate a new circle cursor based on the brush size. */
 
@@ -53677,7 +54240,7 @@ Wick.Tools.Brush = class extends Wick.Tool {
   _regenCursor() {
     var size = this._getRealBrushSize();
 
-    var color = this.getSetting('fillColor').toCSS(true);
+    var color = this.getSetting('fillColor').hex;
     this.cachedCursor = this.createDynamicCursor(color, size, this.getSetting('pressureEnabled'));
     this.setCursor(this.cachedCursor);
   }
@@ -53697,7 +54260,11 @@ Wick.Tools.Brush = class extends Wick.Tool {
 
 
   _updateCanvasAttributes() {
-    // Update croquis element and pressure options
+    if (!this.paper.view._element.parentElement) {
+      return;
+    } // Update croquis element and pressure options
+
+
     if (!this.paper.view._element.parentElement.contains(this.croquisDOMElement)) {
       this.paper.view.enablePressure();
 
@@ -53710,7 +54277,7 @@ Wick.Tools.Brush = class extends Wick.Tool {
     } // Fake brush opacity in croquis by changing the opacity of the croquis canvas
 
 
-    this.croquisDOMElement.style.opacity = this.getSetting('fillColor').alpha;
+    this.croquisDOMElement.style.opacity = this.getSetting('fillColor').a;
   }
   /* Convert a point in Croquis' canvas space to paper.js's canvas space. */
 
@@ -53730,6 +54297,13 @@ Wick.Tools.Brush = class extends Wick.Tool {
 
   _updateStrokeBounds(point) {
     this.strokeBounds = this.strokeBounds.include(point);
+  }
+  /* Used for saving information on the mouse (croquis does not save this.) */
+
+
+  _updateLastMouseState(point, pressure) {
+    this._lastMousePoint = new paper.Point(point.x, point.y);
+    this._lastMousePressure = this.pressure;
   }
 
 };
@@ -54173,8 +54747,8 @@ Wick.Tools.Ellipse = class extends Wick.Tool {
     var bounds = new this.paper.Rectangle(new this.paper.Point(this.topLeft.x, this.topLeft.y), new this.paper.Point(this.bottomRight.x, this.bottomRight.y));
     this.path = new this.paper.Path.Ellipse(bounds);
     this.paper.project.activeLayer.addChild(this.path);
-    this.path.fillColor = this.getSetting('fillColor');
-    this.path.strokeColor = this.getSetting('strokeColor');
+    this.path.fillColor = this.getSetting('fillColor').rgba;
+    this.path.strokeColor = this.getSetting('strokeColor').rgba;
     this.path.strokeWidth = this.getSetting('strokeWidth');
     this.path.strokeCap = 'round';
   }
@@ -54357,13 +54931,9 @@ Wick.Tools.Eyedropper = class extends Wick.Tool {
   onMouseDown(e) {
     this._destroyColorPreview();
 
-    if (!e.modifiers.shift) {
-      this.project.toolSettings.setSetting('fillColor', this.hoverColor);
-    } else {
-      this.project.toolSettings.setSetting('strokeColor', this.hoverColor);
-    }
-
-    this.fireEvent('canvasModified');
+    this.fireEvent('eyedropperPickedColor', {
+      color: this.hoverColor
+    });
   }
 
   onMouseDrag(e) {}
@@ -54452,8 +55022,8 @@ Wick.Tools.FillBucket = class extends Wick.Tool {
     setTimeout(() => {
       this.paper.hole({
         point: e.point,
-        bgColor: new paper.Color(this.project.backgroundColor),
-        gapFillMargin: 1,
+        bgColor: new paper.Color(this.project.backgroundColor.hex),
+        gapFillAmount: this.getSetting('gapFillAmount'),
         layers: this.project.activeFrames.map(frame => {
           return frame.view.pathsLayer;
         }),
@@ -54461,7 +55031,7 @@ Wick.Tools.FillBucket = class extends Wick.Tool {
           this.setCursor('default');
 
           if (path) {
-            path.fillColor = this.getSetting('fillColor');
+            path.fillColor = this.getSetting('fillColor').rgba;
             path.name = null;
             this.addPathToProject();
 
@@ -54689,7 +55259,7 @@ Wick.Tools.Line = class extends Wick.Tool {
     this.endPoint = e.point;
     this.path = new paper.Path.Line(this.startPoint, this.endPoint);
     this.path.strokeCap = 'round';
-    this.path.strokeColor = this.getSetting('strokeColor');
+    this.path.strokeColor = this.getSetting('strokeColor').rgba;
     this.path.strokeWidth = this.getSetting('strokeWidth');
   }
 
@@ -55072,7 +55642,7 @@ Wick.Tools.Pencil = class extends Wick.Tool {
 
     if (!this.path) {
       this.path = new this.paper.Path({
-        strokeColor: this.getSetting('strokeColor'),
+        strokeColor: this.getSetting('strokeColor').rgba,
         strokeWidth: this.getSetting('strokeWidth'),
         strokeCap: 'round'
       });
@@ -55183,8 +55753,8 @@ Wick.Tools.Rectangle = class extends Wick.Tool {
       this.path = new this.paper.Path.Rectangle(bounds);
     }
 
-    this.path.fillColor = this.getSetting('fillColor');
-    this.path.strokeColor = this.getSetting('strokeColor');
+    this.path.fillColor = this.getSetting('fillColor').rgba;
+    this.path.strokeColor = this.getSetting('strokeColor').rgba;
     this.path.strokeWidth = this.getSetting('strokeWidth');
     this.path.strokeCap = 'round';
   }
@@ -55338,6 +55908,7 @@ Wick.Tools.Zoom = class extends Wick.Tool {
     this.name = 'zoom';
     this.ZOOM_IN_AMOUNT = 1.25;
     this.ZOOM_OUT_AMOUNT = 0.8;
+    this.MIN_ZOOMBOX_SIZE = 20;
     this.zoomBox = null;
   }
 
@@ -55398,7 +55969,7 @@ Wick.Tools.Zoom = class extends Wick.Tool {
   }
 
   zoomBoxIsValidSize() {
-    return this.zoomBox.bounds.width > 5 && this.zoomBox.bounds.height > 5;
+    return this.zoomBox.bounds.width > this.MIN_ZOOMBOX_SIZE && this.zoomBox.bounds.height > this.MIN_ZOOMBOX_SIZE;
   }
 
 };
@@ -55615,7 +56186,7 @@ Wick.Tools.Zoom = class extends Wick.Tool {
   var floodFillX;
   var floodFillY;
   var bgColor;
-  var gapFillMargin;
+  var gapFillAmount;
 
   function previewImage(image) {
     var win = window.open('', 'Title', 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, width=' + image.width + ', height=' + image.height + ', top=100, left=100');
@@ -55637,9 +56208,9 @@ Wick.Tools.Zoom = class extends Wick.Tool {
 
           if (!clone.strokeColor && clone.fillColor) {
             clone.strokeColor = clone.fillColor;
-            clone.strokeWidth = gapFillMargin / RASTER_BASE_RESOLUTION;
+            clone.strokeWidth = gapFillAmount / RASTER_BASE_RESOLUTION;
           } else if (clone.strokeWidth) {
-            clone.strokeWidth += gapFillMargin / RASTER_BASE_RESOLUTION;
+            clone.strokeWidth += gapFillAmount / RASTER_BASE_RESOLUTION;
           }
 
           layerGroup.addChild(clone);
@@ -55826,14 +56397,13 @@ Wick.Tools.Zoom = class extends Wick.Tool {
       if (!args.onError) console.error('paper.hole: args.onError is required');
       if (!args.bgColor) console.error('paper.hole: args.bgColor is required');
       if (!args.layers) console.error('paper.hole: args.layers is required');
-      if (!args.gapFillMargin) console.error('paper.hole: args.gapFillMargin is required');
       onFinish = args.onFinish;
       onError = args.onError;
       layers = args.layers;
       floodFillX = args.point.x;
       floodFillY = args.point.y;
+      gapFillAmount = args.gapFillAmount === undefined ? 1 : args.gapFillAmount;
       bgColor = args.bgColor;
-      gapFillMargin = args.gapFillMargin;
       rasterizePaths(onFinish);
     }
   });
@@ -57055,6 +57625,7 @@ Wick.View.Project = class extends Wick.View {
     this._canvasBGColor = null;
     this._svgCanvas = null;
     this._svgBackgroundLayer = null;
+    this._svgBordersLayer = null;
     this._pan = {
       x: 0,
       y: 0
@@ -57214,13 +57785,16 @@ Wick.View.Project = class extends Wick.View {
   _setupTools() {
     // This is a hacky way to create scroll-to-zoom functionality.
     // (Using https://github.com/jquery/jquery-mousewheel for cross-browser mousewheel event)
-    $(this._svgCanvas).on('mousewheel', e => {
-      e.preventDefault();
-      var d = e.deltaY * e.deltaFactor * 0.001;
-      this.paper.view.zoom = Math.max(0.1, this.paper.view.zoom + d);
+    if (!this.model.publishedMode) {
+      $(this._svgCanvas).on('mousewheel', e => {
+        e.preventDefault();
+        var d = e.deltaY * e.deltaFactor * 0.001;
+        this.paper.view.zoom = Math.max(0.1, this.paper.view.zoom + d);
 
-      this._applyZoomAndPanChangesFromPaper();
-    });
+        this._applyZoomAndPanChangesFromPaper();
+      });
+    } // Connect all Wick Tools into the paper.js project
+
 
     for (var toolName in this.model.tools) {
       var tool = this.model.tools[toolName];
@@ -57233,6 +57807,9 @@ Wick.View.Project = class extends Wick.View {
         this._applyZoomAndPanChangesFromPaper();
 
         this.fireEvent('canvasModified', e);
+      });
+      tool.on('eyedropperPickedColor', e => {
+        this.fireEvent('eyedropperPickedColor', e);
       });
       tool.on('error', e => {
         this.fireEvent('error', e);
@@ -57263,7 +57840,7 @@ Wick.View.Project = class extends Wick.View {
       this.canvas.style.backgroundColor = this.canvasBGColor || Wick.View.Project.DEFAULT_CANVAS_BG_COLOR;
     } else {
       // We're inside a clip, so use the project background color as the container background color
-      this.canvas.style.backgroundColor = this.model.backgroundColor;
+      this.canvas.style.backgroundColor = this.model.backgroundColor.hex;
     }
   }
 
@@ -57283,6 +57860,13 @@ Wick.View.Project = class extends Wick.View {
     this._svgBackgroundLayer.name = 'wick_project_bg';
 
     this._svgBackgroundLayer.remove();
+
+    this._svgBordersLayer = new paper.Layer();
+    this._svgBordersLayer.name = 'wick_project_borders';
+
+    this._svgBordersLayer.addChildren(this._generateSVGBorders());
+
+    this._svgBordersLayer.remove();
 
     this.paper.project.clear();
   }
@@ -57346,17 +57930,20 @@ Wick.View.Project = class extends Wick.View {
     });
     this.model.focus.timeline.view.onionSkinnedFramesLayers.forEach(layer => {
       this.paper.project.addLayer(layer);
-    }); // TODO replace
-    // Render selection
+    }); // Render selection
 
     this.model.selection.view.render();
-    this.paper.project.addLayer(this.model.selection.view.layer);
+    this.paper.project.addLayer(this.model.selection.view.layer); // Render black bars (for published projects)
+
+    if (this.model.publishedMode) {
+      this.paper.project.addLayer(this._svgBordersLayer);
+    }
   }
 
   _generateSVGCanvasStage() {
     var stage = new paper.Path.Rectangle(new this.paper.Point(0, 0), new this.paper.Point(this.model.width, this.model.height));
     stage.remove();
-    stage.fillColor = this.model.backgroundColor;
+    stage.fillColor = this.model.backgroundColor.rgba;
     return stage;
   }
 
@@ -57376,19 +57963,50 @@ Wick.View.Project = class extends Wick.View {
     originCrosshair.position.y = 0;
     return originCrosshair;
   }
+  /* Renders the off-screen borders that hide content out of the project bounds. */
 
-  _getCenteredPan() {
-    if (this.model.focus.isRoot) {
-      return {
-        x: this.model.pan.x - this.model.width / 2,
-        y: this.model.pan.y - this.model.height / 2
-      };
-    } else {
-      return {
-        x: this.model.pan.x,
-        y: this.model.pan.y
-      };
+
+  _generateSVGBorders() {
+    // Do not render the offscreen borders if the project isn't in published mode
+    if (!this.model.publishedMode) {
+      return [];
     }
+    /**
+     * +----------------------------+
+     * |             top            +
+     * +----------------------------+
+     * +-----+ +------------+ +-----+
+     * |left | |   canvas   | |right|
+     * +-----+ +------------+ +-----+
+     * +----------------------------+
+     * |           bottom           +
+     * +----------------------------+
+     */
+
+
+    var borderMin = -10000,
+        borderMax = 10000;
+    return [// top
+    new paper.Path.Rectangle({
+      from: new paper.Point(borderMin, borderMin),
+      to: new paper.Point(borderMax, 0),
+      fillColor: 'black'
+    }), // bottom
+    new paper.Path.Rectangle({
+      from: new paper.Point(borderMin, this.model.height),
+      to: new paper.Point(borderMax, borderMax),
+      fillColor: 'black'
+    }), // left
+    new paper.Path.Rectangle({
+      from: new paper.Point(borderMin, 0),
+      to: new paper.Point(0, this.model.height),
+      fillColor: 'black'
+    }), // right
+    new paper.Path.Rectangle({
+      from: new paper.Point(this.model.width, 0),
+      to: new paper.Point(borderMax, borderMax),
+      fillColor: 'black'
+    })];
   }
 
   _calculateFitZoom() {
