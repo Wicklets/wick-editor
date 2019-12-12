@@ -1305,6 +1305,7 @@ Wick.Project = class extends Wick.Base {
 
         this.history.saveSnapshot('before-gif-render');
         this.mute();
+        this.selection.clear();
         this.publishedMode = true;
         this.tick();
 

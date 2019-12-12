@@ -48838,6 +48838,7 @@ Wick.Project = class extends Wick.Base {
     var oldCanvasContainer = this.view.canvasContainer;
     this.history.saveSnapshot('before-gif-render');
     this.mute();
+    this.selection.clear();
     this.publishedMode = true;
     this.tick(); // Put the project canvas inside a div that's the same size as the project so the frames render at the correct resolution.
 
