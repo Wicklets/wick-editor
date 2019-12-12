@@ -6,7 +6,7 @@ export default {
     "icon": "icons/button.png",
   },{
     "file": "wickobjects/vcam.wickobj",
-    "name": "Vcam",
+    "name": "Vcam (beta)",
     "icon": "icons/vcam.png",
   },{
     "file": "wickobjects/multiframeclip.wickobj",
