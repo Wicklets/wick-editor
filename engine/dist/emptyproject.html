@@ -54451,7 +54451,7 @@ Wick.Tools.Cursor = class extends Wick.Tool {
       this.fireEvent('canvasModified');
     } else if (selectedObject && selectedObject instanceof Wick.Path && selectedObject.view.item instanceof paper.PointText) {// Double clicked text, switch to text tool and edit the text item.
       // TODO
-    } else {
+    } else if (!selectedObject) {
       // Double clicked the canvas, leave the current focus.
       this.project.focusTimelineOfParentClip();
       this.fireEvent('canvasModified');
