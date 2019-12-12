@@ -32,7 +32,7 @@ var classNames = require('classnames');
 class WelcomeModal extends Component {
   constructor () {
     super();
-    this.version = "1.16";
+    this.version = "1.16.1";
     this.forumPost = "https://forum.wickeditor.com/t/wick-editor-1-16-prerelease-3-new-color-picker-builtin-assets-and-more/2105/9";
     this.updates = [
       "New color picker",
