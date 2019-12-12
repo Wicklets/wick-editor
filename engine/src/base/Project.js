@@ -610,9 +610,15 @@ Wick.Project = class extends Wick.Base {
         var paths = this.selection.getSelectedObjects('Path');
         this.selection.clear();
         var booleanOpResult = Wick.Path.booleanOp(paths, booleanOpName);
+
         paths.forEach(path => {
+            // Don't remove the topmost path if performing subtration
+            if(paths.indexOf(path) === paths.length - 1 && booleanOpName === 'subtract') {
+                return;
+            }
             path.remove();
         });
+
         this.activeFrame.addPath(booleanOpResult);
         this.selection.select(booleanOpResult);
     }
