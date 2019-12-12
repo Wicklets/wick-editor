@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2019.12.11";
+var WICK_ENGINE_BUILD_VERSION = "2019.12.12";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -54388,7 +54388,7 @@ Wick.Tools.Cursor = class extends Wick.Tool {
       if (e.modifiers.shift) {
         this._deselectItem(this.hitResult.item);
 
-        this._checkIfSelectionChanged();
+        this.fireEvent('canvasModified');
       }
     } else if (this.hitResult.item && this.hitResult.type === 'fill') {
       if (!e.modifiers.shift) {
@@ -54399,14 +54399,14 @@ Wick.Tools.Cursor = class extends Wick.Tool {
 
       this._selectItem(this.hitResult.item);
 
-      this._checkIfSelectionChanged();
+      this.fireEvent('canvasModified');
     } else {
       // Nothing was clicked, so clear the selection and start a new selection box
       // (don't clear the selection if shift is held, though)
       if (this._selection.numObjects > 0 && !e.modifiers.shift) {
         this._clearSelection();
 
-        this._checkIfSelectionChanged();
+        this.fireEvent('canvasModified');
       }
 
       this.selectionBox.start(e.point);
@@ -54472,8 +54472,7 @@ Wick.Tools.Cursor = class extends Wick.Tool {
       }).forEach(item => {
         this._selectItem(item);
       });
-
-      this._checkIfSelectionChanged();
+      this.fireEvent('canvasModified');
     } else if (this._selection.numObjects > 0) {
       if (this.__isDragging) {
         this.__isDragging = false;
@@ -54655,20 +54654,6 @@ Wick.Tools.Cursor = class extends Wick.Tool {
     }
 
     return Wick.ObjectCache.getObjectByUUID(uuid);
-  }
-
-  _checkIfSelectionChanged() {
-    var newSelectionData = this._createSelectionData();
-
-    if (newSelectionData !== this._lastSelection) {
-      this.fireEvent('canvasModified');
-    }
-
-    this._lastSelection = newSelectionData;
-  }
-
-  _createSelectionData() {
-    return this._selection.getSelectedObjectUUIDs().join('');
   }
 
 };
