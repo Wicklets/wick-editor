@@ -217,14 +217,22 @@ Wick.Base = class {
     }
 
     set identifier (identifier) {
+        // Treat empty string identifier as null
         if(identifier === '' || identifier === null) {
             this._identifier = null;
             return;
         }
 
+        // Make sure the identifier doesn't squash any attributes of the window
+        if(this._identifierNameExistsInWindowContext(identifier)) return;
+
+        // Make sure the identifier is a valid js variable name
         if(!isVarName(identifier)) return;
+
+        // Make sure the identifier is not a reserved word in js
         if(reserved.check(identifier)) return;
 
+        // Ensure no objects with duplicate identifiers can exist
         this._identifier = this._getUniqueIdentifier(identifier);
     }
 
@@ -464,6 +472,14 @@ Wick.Base = class {
             return identifier;
         } else {
             return this._getUniqueIdentifier(identifier + '_copy');
+        }
+    }
+
+    _identifierNameExistsInWindowContext (identifier) {
+        if(window[identifier]) {
+            return true;
+        } else {
+            return false;
         }
     }
 }
