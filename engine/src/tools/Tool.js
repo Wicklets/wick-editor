@@ -22,6 +22,10 @@ Wick.Tool = class {
         return 300;
     }
 
+    static get DOUBLE_CLICK_MAX_DISTANCE () {
+        return 20;
+    }
+
     /**
      * Creates a new Wick Tool.
      */
@@ -47,12 +51,14 @@ Wick.Tool = class {
         this.paperTool.onMouseDown = (e) => {
             if(this.doubleClickEnabled &&
                this._lastMousedownTimestamp !== null &&
-               e.timeStamp - this._lastMousedownTimestamp < Wick.Tool.DOUBLE_CLICK_TIME) {
+               e.timeStamp - this._lastMousedownTimestamp < Wick.Tool.DOUBLE_CLICK_TIME &&
+               e.point.subtract(this._lastMousedownPoint).length < Wick.Tool.DOUBLE_CLICK_MAX_DISTANCE) {
                 this.onDoubleClick(e);
             } else {
                 this.onMouseDown(e);
             }
             this._lastMousedownTimestamp = e.timeStamp;
+            this._lastMousedownPoint = e.point;
         }
 
         // Attach key events
