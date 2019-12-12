@@ -59,7 +59,7 @@ class BuiltinLibrary extends Component {
       overlayClassName="modal-overlay welcome-modal-overlay">
         <div className='builtin-library'>
           <div className="builtin-library-modal-title">
-            Builtin Library
+            Builtin Library (Beta)
           </div>
           <TabbedInterface tabNames={["Clips", "Sounds"]} >
             {this.renderAssetGroup(wickobjects.name, wickobjects.assets)}
