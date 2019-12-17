@@ -39,6 +39,8 @@ Wick.Clip = class extends Wick.Tickable {
 
         this.cursor = 'default';
 
+        this._isClone = false;
+
         /* If objects are passed in, add them to the clip and reposition them */
         if(args.objects) {
             this.addObjects(args.objects);
@@ -94,6 +96,14 @@ Wick.Clip = class extends Wick.Tickable {
      */
     get isFocus () {
         return this.project && this === this.project.focus;
+    }
+
+    /**
+     * Check if a Clip is a clone of another object.
+     * @type {boolean}
+     */
+    get isClone () {
+        return this._isClone;
     }
 
     /**
@@ -447,6 +457,7 @@ Wick.Clip = class extends Wick.Tickable {
         clone.identifier = null;
         this.parentFrame.addClip(clone);
         this._clones.push(clone);
+        clone._isClone = true;
         return clone;
     }
 

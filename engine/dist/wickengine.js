@@ -53130,6 +53130,7 @@ Wick.Clip = class extends Wick.Tickable {
     this.timeline.activeLayer.addFrame(new Wick.Frame());
     this._transformation = args.transformation || new Wick.Transformation();
     this.cursor = 'default';
+    this._isClone = false;
     /* If objects are passed in, add them to the clip and reposition them */
 
     if (args.objects) {
@@ -53185,6 +53186,15 @@ Wick.Clip = class extends Wick.Tickable {
 
   get isFocus() {
     return this.project && this === this.project.focus;
+  }
+  /**
+   * Check if a Clip is a clone of another object.
+   * @type {boolean}
+   */
+
+
+  get isClone() {
+    return this._isClone;
   }
   /**
    * The timeline of the clip.
@@ -53559,6 +53569,7 @@ Wick.Clip = class extends Wick.Tickable {
 
     this._clones.push(clone);
 
+    clone._isClone = true;
     return clone;
   }
   /**

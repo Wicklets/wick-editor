@@ -1134,8 +1134,10 @@ describe('Wick.Clip', function() {
                 expect(error).to.equal(null);
 
                 // Was the clone successful?
+                expect(original.isClone).to.equal(false);
                 expect(original.__cloneOfMyself instanceof Wick.Clip).to.equal(true);
                 expect(original.__cloneOfMyself.identifier).to.equal(null);
+                expect(original.__cloneOfMyself.isClone).to.equal(true);
                 expect(original.__cloneOfMyself.uuid).to.not.equal(undefined);
                 expect(original.__cloneOfMyself.uuid).to.not.equal(original.uuid);
 
