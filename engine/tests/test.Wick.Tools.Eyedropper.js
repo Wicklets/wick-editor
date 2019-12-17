@@ -42,7 +42,7 @@ describe('Wick.Tools.Eyedropper', function() {
             done();
         });*/
         project.view.on('eyedropperPickedColor', (e) => {
-            expect(e.color).to.equal('#ff00ff');
+            expect(e.color).to.equal('rgb(255,0,255)');
             destroyDummyCanvasContainer(project);
             done();
         });

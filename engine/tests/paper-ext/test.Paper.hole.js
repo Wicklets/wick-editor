@@ -93,6 +93,7 @@ describe('Paper.hole', function() {
         var holeyPath = new paper.Path();
         holeyPath.strokeWidth = 5;
         holeyPath.strokeColor = 'black';
+
         // Path will look like this:
         // +---------+
         // |         |

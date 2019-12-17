@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2019.12.12";
+var WICK_ENGINE_BUILD_VERSION = "2019.12.17";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -45995,7 +45995,7 @@ Wick.AudioTrack = class {
     var audioInfo = this.project.getAudioInfo();
 
     if (audioInfo.length === 0) {
-      console.error("Wick.AudioTrack: Project has no audio, cannot create an audiobuffer!");
+      // No audio in the project, no AudioBuffer to create
       callback(null);
       return;
     }

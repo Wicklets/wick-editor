@@ -413,7 +413,7 @@ describe('Wick.Project', function() {
                 expect(asset instanceof Wick.ClipAsset).to.equal(true);
                 expect(project.getAssets().length).to.equal(1);
                 expect(project.getAssets()[0]).to.equal(asset);
-                expect(asset.src).to.equal(TestUtils.TEST_WICKOBJ_SRC);
+                expect(asset.src.split(';')[1]).to.equal(TestUtils.TEST_WICKOBJ_SRC.split(';')[1]);
                 done();
             });
         });
