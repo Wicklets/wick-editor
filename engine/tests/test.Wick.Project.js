@@ -781,7 +781,20 @@ describe('Wick.Project', function() {
 
     describe('#inject', function () {
         it('should inject into a div correctly', function () {
-            throw new Error("todo");
+            var container = document.createElement('div');
+            container.width = 500;
+            container.height = 500;
+            document.body.appendChild(container);
+
+            var project = new Wick.Project();
+
+            project.inject(container);
+
+            project.stop();
+
+            expect(container.children[0]).to.equal(project.view._svgCanvas);
+
+            document.body.removeChild(container);
         });
     });
 
