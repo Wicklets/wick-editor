@@ -48669,6 +48669,7 @@ Wick.Project = class extends Wick.Base {
 
     this._tickIntervalID = setInterval(() => {
       args.onBeforeTick();
+      this.tools.interact.determineMouseTargets();
       var error = this.tick();
       this.view.paper.view.update();
 
@@ -48711,7 +48712,6 @@ Wick.Project = class extends Wick.Base {
 
 
   inject(element) {
-    document.title = this.name;
     this.view.canvasContainer = element;
     this.view.fitMode = 'fill';
     this.view.canvasBGColor = '#000000';
@@ -55114,6 +55114,7 @@ Wick.Tools.Interact = class extends Wick.Tool {
     this._lastKeyDown = null;
     this._mouseIsDown = false;
     this._mousePosition = new paper.Point(0, 0);
+    this._mouseTargets = [];
   }
 
   onActivate(e) {}
@@ -55167,6 +55168,18 @@ Wick.Tools.Interact = class extends Wick.Tool {
   }
 
   get mouseTargets() {
+    return this._mouseTargets;
+  }
+
+  get doubleClickEnabled() {
+    return false;
+  }
+  /**
+   * Use the current position of the mouse to determine which object(s) are under the mouse
+   */
+
+
+  determineMouseTargets() {
     var targets = [];
     var hitResult = this.paper.project.hitTest(this.mousePosition, {
       fill: true,
@@ -55210,11 +55223,7 @@ Wick.Tools.Interact = class extends Wick.Tool {
       }
     }
 
-    return targets;
-  }
-
-  get doubleClickEnabled() {
-    return false;
+    this._mouseTargets = targets;
   }
 
 };

@@ -1129,6 +1129,7 @@ Wick.Project = class extends Wick.Base {
         this._tickIntervalID = setInterval(() => {
             args.onBeforeTick();
 
+            this.tools.interact.determineMouseTargets();
             var error = this.tick();
             this.view.paper.view.update();
             if(error) {
@@ -1172,8 +1173,6 @@ Wick.Project = class extends Wick.Base {
      * @param {Element} element - the element to inject the project into
      */
     inject (element) {
-        document.title = this.name;
-
         this.view.canvasContainer = element;
         this.view.fitMode = 'fill';
         this.view.canvasBGColor = '#000000';

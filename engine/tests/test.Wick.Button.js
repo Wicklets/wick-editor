@@ -81,6 +81,7 @@ describe('Wick.Button', function() {
             // Hover the mouse over the button. The button should be on frame 2.
             // (We change the mouseState of the view to simulate mouse events.)
             project.tools.interact.onMouseMove({point:new paper.Point(50,50)});
+            project.tools.interact.determineMouseTargets();
             project.tick();
             expect(button.timeline.playheadPosition).to.equal(2);
             project.tick();
@@ -88,11 +89,13 @@ describe('Wick.Button', function() {
 
             // The mouse left the button. Tht button goes back to frame 1.
             project.tools.interact.onMouseMove({point:new paper.Point(0,0)});
+            project.tools.interact.determineMouseTargets();
             project.tick();
             expect(button.timeline.playheadPosition).to.equal(1);
 
             // The mouse hovers back over the button and clicks it. The button should go to frame 2.
             project.tools.interact.onMouseMove({point:new paper.Point(50,50)});
+            project.tools.interact.determineMouseTargets();
             project.tick();
             expect(button.timeline.playheadPosition).to.equal(2);
             project.tools.interact.onMouseDown();
@@ -101,11 +104,13 @@ describe('Wick.Button', function() {
 
             // The mouse is no longer down. The button should go back to frame 2.
             project.tools.interact.onMouseUp();
+            project.tools.interact.determineMouseTargets();
             project.tick();
             expect(button.timeline.playheadPosition).to.equal(2);
 
             // The mouse left the button. The button should go back to frame 1.
             project.tools.interact.onMouseMove({point:new paper.Point(0,0)});
+            project.tools.interact.determineMouseTargets();
             project.tick();
             expect(button.timeline.playheadPosition).to.equal(1);
         });
@@ -142,6 +147,7 @@ describe('Wick.Button', function() {
 
             // Hover the mouse over the button. The button should be on frame 2.
             project.tools.interact.onMouseMove({point: new paper.Point(50,50)});
+            project.tools.interact.determineMouseTargets();
             project.tick();
             expect(button.timeline.playheadPosition).to.equal(2);
             project.tick();
@@ -149,25 +155,30 @@ describe('Wick.Button', function() {
 
             // The mouse left the button. Tht button goes back to frame 1.
             project.tools.interact.onMouseMove({point:new paper.Point(0,0)});
+            project.tools.interact.determineMouseTargets();
             project.tick();
             expect(button.timeline.playheadPosition).to.equal(1);
 
             // The mouse hovers back over the button and clicks it. The button should go to frame 2, and then frame 3.
             project.tools.interact.onMouseMove({point:new paper.Point(50,50)});
+            project.tools.interact.determineMouseTargets();
             project.tick();
             expect(button.timeline.playheadPosition).to.equal(2);
             project.tools.interact.onMouseMove({point:new paper.Point(50,50)});
             project.tools.interact.onMouseDown();
+            project.tools.interact.determineMouseTargets();
             project.tick();
             expect(button.timeline.playheadPosition).to.equal(3);
 
             // The mouse is no longer down. The button should go back to frame 2.
             project.tools.interact.onMouseUp();
+            project.tools.interact.determineMouseTargets();
             project.tick();
             expect(button.timeline.playheadPosition).to.equal(2);
 
             // The mouse left the button. The button should go back to frame 1.
             project.tools.interact.onMouseMove({point:new paper.Point(0,0)});
+            project.tools.interact.determineMouseTargets();
             project.tick();
             expect(button.timeline.playheadPosition).to.equal(1);
         });
@@ -204,6 +215,7 @@ describe('Wick.Button', function() {
             frame3.addScript('load', 'this.__frame3ScriptRan = true;');
 
             project.tools.interact.onMouseMove({point: new paper.Point(0,0)});
+            project.tools.interact.determineMouseTargets();
             project.tick();
             expect(button.timeline.playheadPosition).to.equal(1);
             expect(frame1.parentClip.__frame1ScriptRan).to.equal(true);
@@ -211,12 +223,14 @@ describe('Wick.Button', function() {
             expect(frame3.parentClip.__frame3ScriptRan).to.equal(undefined);
 
             project.tools.interact.onMouseMove({point: new paper.Point(50,50)});
+            project.tools.interact.determineMouseTargets();
             project.tick();
             expect(button.timeline.playheadPosition).to.equal(2);
             expect(frame2.parentClip.__frame2ScriptRan).to.equal(true);
             expect(frame3.parentClip.__frame3ScriptRan).to.equal(undefined);
 
             project.tools.interact.onMouseDown();
+            project.tools.interact.determineMouseTargets();
             project.tick();
             expect(button.timeline.playheadPosition).to.equal(3);
             expect(frame3.parentClip.__frame3ScriptRan).to.equal(true);

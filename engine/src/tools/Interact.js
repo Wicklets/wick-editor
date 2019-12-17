@@ -30,6 +30,7 @@ Wick.Tools.Interact = class extends Wick.Tool {
         this._lastKeyDown = null;
         this._mouseIsDown = false;
         this._mousePosition = new paper.Point(0,0);
+        this._mouseTargets = [];
     }
 
     onActivate (e) {
@@ -87,6 +88,17 @@ Wick.Tools.Interact = class extends Wick.Tool {
     }
 
     get mouseTargets () {
+        return this._mouseTargets;
+    }
+
+    get doubleClickEnabled () {
+        return false;
+    }
+
+    /**
+     * Use the current position of the mouse to determine which object(s) are under the mouse
+     */
+    determineMouseTargets () {
         var targets = [];
 
         var hitResult = this.paper.project.hitTest(this.mousePosition, {
@@ -130,10 +142,6 @@ Wick.Tools.Interact = class extends Wick.Tool {
             }
         }
 
-        return targets;
-    }
-
-    get doubleClickEnabled () {
-        return false;
+        this._mouseTargets = targets;
     }
 }
