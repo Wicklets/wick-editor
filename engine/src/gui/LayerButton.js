@@ -56,7 +56,6 @@ Wick.GUIElement.LayerButton = class extends Wick.GUIElement.Button {
         // Change fill color depending on mouse interactions
         var fillColor;
         if(this.mouseState == 'down') {
-            this._tooltip.label = this.
             fillColor = Wick.GUIElement.LAYER_BUTTON_MOUSEDOWN_COLOR;
         } else if (this.mouseState == 'over') {
             fillColor = Wick.GUIElement.LAYER_BUTTON_HOVER_COLOR;
