@@ -57993,6 +57993,7 @@ Wick.View.Project = class extends Wick.View {
     this.paper.project.addLayer(this.model.selection.view.layer); // Render black bars (for published projects)
 
     if (this.model.publishedMode) {
+      console.log(this._svgBordersLayer);
       this.paper.project.addLayer(this._svgBordersLayer);
     }
   }
@@ -58024,10 +58025,6 @@ Wick.View.Project = class extends Wick.View {
 
 
   _generateSVGBorders() {
-    // Do not render the offscreen borders if the project isn't in published mode
-    if (!this.model.publishedMode) {
-      return [];
-    }
     /**
      * +----------------------------+
      * |             top            +
@@ -58039,8 +58036,6 @@ Wick.View.Project = class extends Wick.View {
      * |           bottom           +
      * +----------------------------+
      */
-
-
     var borderMin = -10000,
         borderMax = 10000;
     return [// top

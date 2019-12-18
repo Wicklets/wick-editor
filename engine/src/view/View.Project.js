@@ -357,6 +357,7 @@ Wick.View.Project = class extends Wick.View {
 
         // Render black bars (for published projects)
         if(this.model.publishedMode) {
+            console.log(this._svgBordersLayer)
             this.paper.project.addLayer(this._svgBordersLayer);
         }
     }
@@ -400,11 +401,6 @@ Wick.View.Project = class extends Wick.View {
 
     /* Renders the off-screen borders that hide content out of the project bounds. */
     _generateSVGBorders () {
-        // Do not render the offscreen borders if the project isn't in published mode
-        if(!this.model.publishedMode) {
-            return [];
-        }
-
         /**
          * +----------------------------+
          * |             top            +
