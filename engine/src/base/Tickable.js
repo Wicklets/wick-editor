@@ -302,7 +302,7 @@ Wick.Tickable = class extends Wick.Base {
         var eventFnError = null;
         this.getEventFns(name).forEach(eventFn => {
             if(eventFnError) return;
-            eventFnError = this._runFunction(eventFn);
+            eventFnError = this._runFunction(eventFn, name);
         });
         if(eventFnError) {
             this.project.error = eventFnError;
@@ -317,7 +317,7 @@ Wick.Tickable = class extends Wick.Base {
                 return fn; // error
             }
             this._cachedScripts[name] = fn;
-            var error = this._runFunction(fn);
+            var error = this._runFunction(fn, name);
             if(error) {
                 this.project.error = error;
                 return;
@@ -466,7 +466,7 @@ Wick.Tickable = class extends Wick.Base {
         return fn;
     }
 
-    _runFunction (fn) {
+    _runFunction (fn, name) {
           var error = null;
 
           // Attach API methods

@@ -1164,8 +1164,24 @@ Wick.Project = class extends Wick.Base {
         // Loading the snapshot to restore project state also moves the playhead back to where it was originally.
         // We actually don't want this, preview play should actually move the playhead after it's stopped.
         var currentPlayhead = this.focus.timeline.playheadPosition;
+
+        // Load the state of the project before it was played
         this.history.loadSnapshot('state-before-play');
-        this.focus.timeline.playheadPosition = currentPlayhead;
+
+        if(this.error) {
+            // An error occured.
+            var errorObjUUID = this._error.uuid;
+            var errorObj = Wick.ObjectCache.getObjectByUUID(errorObjUUID);
+
+            // Focus the parent of the object that caused the error so that we can select the error-causer.
+            this.focus = errorObj.parentClip;
+
+            // Select the object that caused the error
+            this.selection.clear();
+            this.selection.select(errorObj);
+        } else {
+            this.focus.timeline.playheadPosition = currentPlayhead;
+        }
     }
 
     /**

@@ -1158,7 +1158,7 @@ class EditorCore extends Component {
 
     this.setState({
       previewPlaying: !this.state.previewPlaying,
-      codeErrors: [],
+      showCodeErrors: false,
     });
     this.hideWaitOverlay();
     this.processingAction = false;
@@ -1175,21 +1175,28 @@ class EditorCore extends Component {
   }
 
   /**
-   * Stops the project if it is currently preview playing and displays provided
-   * errors in the code editor.
-   * @param  {object[]} errors Array of error objects.
+   * Stops the project if it is currently preview playing and displays any errors in the code window.
    */
-  stopPreviewPlaying = (errors) => {
+  stopPreviewPlaying = () => {
     this.setState({
       previewPlaying: false,
-      codeErrors: errors === undefined ? [] : errors,
+      codeEditorOpen: this.project.error === undefined ? this.state.codeEditorOpen : true,
+      showCodeErrors: this.project.error === undefined ? false : true,
     });
 
-    this.projectDidChange();
-
-    if (errors) {
-      this.showCodeErrors(errors);
+    if(this.project.error) {
+        this.editScript(this.project.error.name);
     }
+
+    this.projectDidChange();
+  }
+
+  /**
+   * Clears the current error message in the project.
+   */
+  clearCodeEditorError = () => {
+      this.project.error = null;
+      this.projectDidChange();
   }
 
   /**

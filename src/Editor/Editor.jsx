@@ -73,7 +73,7 @@ class Editor extends EditorCore {
       codeEditorOpen: false,
       scriptToEdit: "default",
       showCanvasActions: false,
-      codeErrors: [],
+      showCodeErrors: false,
       inspectorSize: 250,
       timelineSize: 175,
       assetLibrarySize: 150,
@@ -357,20 +357,11 @@ class Editor extends EditorCore {
   }
 
   /**
-   * Removes all code errors.
-   */
-  removeCodeErrors = () => {
-    this.setState({
-      codeErrors: [],
-    });
-  }
-
-  /**
    * An event called when a minor code update happens as defined by the code editor.
    */
   onMinorScriptUpdate = () => {
-    if (this.state.codeErrors.length > 0) {
-      this.removeCodeErrors();
+    if (this.project.error) {
+      this.clearCodeEditorError();
     }
   }
 
@@ -974,7 +965,7 @@ class Editor extends EditorCore {
               selectionIsScriptable={this.selectionIsScriptable}
               getSelectionType={this.getSelectionType}
               script={this.getSelectedObjectScript()}
-              errors={this.state.codeErrors}
+              error={this.project.error}
               onMinorScriptUpdate={this.onMinorScriptUpdate}
               onMajorScriptUpdate={this.onMajorScriptUpdate}
               deleteScript={this.deleteScript}
@@ -982,7 +973,8 @@ class Editor extends EditorCore {
               editScript={this.editScript}
               toggleCodeEditor={this.toggleCodeEditor}
               requestAutosave={this.requestAutosave}
-              />}
+              clearCodeEditorError={this.clearCodeEditorError}
+            />}
         </div>
       </div>
       )

@@ -679,9 +679,54 @@ describe('Wick.Project', function() {
 
             project.play({
                 onError: error => {
+                    expect(error.uuid).to.equal(frame.uuid);
+                    expect(error.name).to.equal("load");
+                    expect(error.lineNumber).to.equal(1);
                     expect(error.message).to.equal('thisWillCauseAnError is not defined');
                     done();
                 },
+            });
+        });
+
+        it('should select object that error occured in', function(done) {
+            var project = new Wick.Project();
+            project.framerate = 60;
+
+            project.activeFrame.addScript('load', 'thisWillCauseAnError();');
+
+            project.play({
+                onError: error => {
+                    project.stop();
+                    expect(error.uuid).to.equal(project.activeFrame.uuid);
+                    expect(error.name).to.equal("load");
+                    expect(error.lineNumber).to.equal(1);
+                    expect(error.message).to.equal('thisWillCauseAnError is not defined');
+                    expect(project.selection.getSelectedObject()).to.equal(project.activeFrame);
+                    expect(project.focus).to.equal(project.root);
+                    done();
+                }
+            });
+        });
+
+        it('should change focus to parent of object that error occured in', function(done) {
+            var project = new Wick.Project();
+            project.framerate = 60;
+
+            var clip = new Wick.Clip();
+            clip.activeFrame.addScript('load', 'thisWillCauseAnError();');
+            project.activeFrame.addClip(clip);
+
+            project.play({
+                onError: error => {
+                    project.stop();
+                    expect(error.uuid).to.equal(clip.activeFrame.uuid);
+                    expect(error.name).to.equal("load");
+                    expect(error.lineNumber).to.equal(1);
+                    expect(error.message).to.equal('thisWillCauseAnError is not defined');
+                    expect(project.focus).to.equal(clip);
+                    expect(project.selection.getSelectedObject()).to.equal(clip.activeFrame);
+                    done();
+                }
             });
         });
     });

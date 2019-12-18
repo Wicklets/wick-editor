@@ -99,12 +99,12 @@ class PopOutCodeEditor extends Component {
   }
 
   codeHasErrors = () => {
-    return this.props.errors && this.props.errors.length > 0;
+    return this.props.error;
   }
 
   getCodeEditorInfo = () => {
     if (this.codeHasErrors()) {
-      let error = this.props.errors[0];
+      let error = this.props.error;
       return "error: on " + error.name + ' | ' + error.message + " (line " + error.lineNumber + ")";
     } else {
       return "editing: " + this.props.getSelectionType()
@@ -156,7 +156,7 @@ class PopOutCodeEditor extends Component {
                 addNewEditor={this.addNewEditor}
                 script={this.props.script}
                 rerenderCodeEditor={this.rerenderCodeEditor}
-                errors={this.props.errors}
+                error={this.props.error}
                 onMinorScriptUpdate={this.props.onMinorScriptUpdate}
                 onMajorScriptUpdate={this.props.onMajorScriptUpdate}
                 scriptInfoInterface={this.props.scriptInfoInterface}
@@ -166,6 +166,7 @@ class PopOutCodeEditor extends Component {
                 onCursorChange={this.onCursorChange}
                 toggleCodeEditor={this.props.toggleCodeEditor}
                 requestAutosave={this.props.requestAutosave}
+                clearCodeEditorError={this.props.clearCodeEditorError}
               /> }
               {!this.props.selectionIsScriptable() && this.renderNotScriptableInfo()}
           </div>
