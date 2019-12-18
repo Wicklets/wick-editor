@@ -98,12 +98,12 @@ describe('Wick.Button', function() {
             project.tools.interact.determineMouseTargets();
             project.tick();
             expect(button.timeline.playheadPosition).to.equal(2);
-            project.tools.interact.onMouseDown();
+            project.tools.interact.onMouseDown({point:new paper.Point(50,50)});
             project.tick();
             expect(button.timeline.playheadPosition).to.equal(2);
 
             // The mouse is no longer down. The button should go back to frame 2.
-            project.tools.interact.onMouseUp();
+            project.tools.interact.onMouseUp({point:new paper.Point(50,50)});
             project.tools.interact.determineMouseTargets();
             project.tick();
             expect(button.timeline.playheadPosition).to.equal(2);
@@ -165,13 +165,13 @@ describe('Wick.Button', function() {
             project.tick();
             expect(button.timeline.playheadPosition).to.equal(2);
             project.tools.interact.onMouseMove({point:new paper.Point(50,50)});
-            project.tools.interact.onMouseDown();
+            project.tools.interact.onMouseDown({point:new paper.Point(50,50)});
             project.tools.interact.determineMouseTargets();
             project.tick();
             expect(button.timeline.playheadPosition).to.equal(3);
 
             // The mouse is no longer down. The button should go back to frame 2.
-            project.tools.interact.onMouseUp();
+            project.tools.interact.onMouseUp({point:new paper.Point(50,50)});
             project.tools.interact.determineMouseTargets();
             project.tick();
             expect(button.timeline.playheadPosition).to.equal(2);
@@ -229,7 +229,7 @@ describe('Wick.Button', function() {
             expect(frame2.parentClip.__frame2ScriptRan).to.equal(true);
             expect(frame3.parentClip.__frame3ScriptRan).to.equal(undefined);
 
-            project.tools.interact.onMouseDown();
+            project.tools.interact.onMouseDown({point:new paper.Point(50,50)});
             project.tools.interact.determineMouseTargets();
             project.tick();
             expect(button.timeline.playheadPosition).to.equal(3);

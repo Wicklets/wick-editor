@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2019.12.17";
+var WICK_ENGINE_BUILD_VERSION = "2019.12.18";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -55151,10 +55151,12 @@ Wick.Tools.Interact = class extends Wick.Tool {
   }
 
   onMouseDown(e) {
+    this._mousePosition = e.point;
     this._mouseIsDown = true;
   }
 
   onMouseUp(e) {
+    this._mousePosition = e.point;
     this._mouseIsDown = false;
   }
 

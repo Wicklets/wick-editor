@@ -50,10 +50,12 @@ Wick.Tools.Interact = class extends Wick.Tool {
     }
 
     onMouseDown (e) {
+        this._mousePosition = e.point;
         this._mouseIsDown = true;
     }
 
     onMouseUp (e) {
+        this._mousePosition = e.point;
         this._mouseIsDown = false;
     }
 
