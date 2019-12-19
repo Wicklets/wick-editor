@@ -177,19 +177,6 @@ Wick.Timeline = class extends Wick.Base {
     }
 
     /**
-     * The playhead position of the frame with the given name.
-     * @type {number|null}
-     */
-    getPlayheadPositionOfFrameWithName (name) {
-        var frame = this.getFrameByName(name);
-        if(frame) {
-            return frame.start;
-        } else {
-            return null;
-        }
-    }
-
-    /**
      * Finds the frame with a given name.
      * @type {Wick.Frame|null}
      */
@@ -393,9 +380,12 @@ Wick.Timeline = class extends Wick.Base {
     gotoFrame (frame) {
         if(typeof frame === 'string') {
             var namedFrame = this.frames.find(seekframe => {
-              return seekframe.identifier === frame;
+                return seekframe.identifier === frame && !seekframe.onScreen;
             });
-            if(namedFrame) this._forceNextFrame = namedFrame.start;
+
+            if(namedFrame) {
+                this._forceNextFrame = namedFrame.start;
+            }
         } else if (typeof frame === 'number') {
             this._forceNextFrame = frame;
         } else {
