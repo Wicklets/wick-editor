@@ -357,7 +357,6 @@ Wick.View.Project = class extends Wick.View {
 
         // Render black bars (for published projects)
         if(this.model.publishedMode) {
-            console.log(this._svgBordersLayer)
             this.paper.project.addLayer(this._svgBordersLayer);
         }
     }
