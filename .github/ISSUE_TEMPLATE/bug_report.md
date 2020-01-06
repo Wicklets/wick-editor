@@ -34,5 +34,7 @@ If applicable, add screenshots to help explain your problem.
  - Browser [e.g. stock browser, safari]
  - Version [e.g. 22]
 
+**Do you have a suggested solution to this issue? (ex. has another program fixed this bug a certain way? Are you familiar with where in the code base someone would need to fix this issue?)**
+
 **Additional context**
 Add any other context about the problem here.
