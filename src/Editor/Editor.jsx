@@ -158,7 +158,6 @@ class Editor extends EditorCore {
       description : 'Live Data storage of the Wick Editor app.'
     });
 
-    this.autoSaveKey = "wickProjectAutosave1-0-11";
     this.customHotKeysKey = "wickEditorcustomHotKeys";
     this.colorPickerTypeKey = "wickEditorColorPickerType";
 
