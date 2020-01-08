@@ -45307,8 +45307,11 @@ WickObjectCache = class {
 
 
   removeUnusedObjects(project) {
-    this.getActiveObjects(project).forEach(object => {
-      this.removeObject(object);
+    var activeObjects = this.getActiveObjects(project);
+    this.getAllObjects().forEach(object => {
+      if (activeObjects.indexOf(object) === -1) {
+        this.removeObject(object);
+      }
     });
   }
   /**
@@ -49115,9 +49118,8 @@ Wick.Selection = class extends Wick.Base {
 
     if (object instanceof Wick.Frame) {
       this._selectInBetweenFrames(object);
-    }
-
-    this._resetPositioningValues(); // Make sure the view gets updated the next time its needed...
+    } //this._resetPositioningValues();
+    // Make sure the view gets updated the next time its needed...
 
 
     this.view.dirty = true;

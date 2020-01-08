@@ -98,8 +98,11 @@ WickObjectCache = class {
      * @param {Wick.Project} project - the project to use to determine which objects have no references
      */
     removeUnusedObjects (project) {
-        this.getActiveObjects(project).forEach(object => {
-            this.removeObject(object);
+        var activeObjects = this.getActiveObjects(project);
+        this.getAllObjects().forEach(object => {
+            if(activeObjects.indexOf(object) === -1) {
+                this.removeObject(object);
+            }
         });
     }
 
