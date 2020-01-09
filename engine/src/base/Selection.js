@@ -39,6 +39,8 @@ Wick.Selection = class extends Wick.Base {
         this._selectedObjectsUUIDs = args.selectedObjects || [];
         this._widgetRotation = args.widgetRotation || 0;
         this._pivotPoint = {x: 0, y: 0};
+        this._originalWidth = 0;
+        this._originalHeight = 0;
     }
 
     serialize (args) {
@@ -47,8 +49,10 @@ Wick.Selection = class extends Wick.Base {
         data.widgetRotation = this._widgetRotation;
         data.pivotPoint = {
             x: this._pivotPoint.x,
-            y: this._pivotPoint.y
+            y: this._pivotPoint.y,
         };
+        data.originalWidth = this._originalWidth;
+        data.originalHeight = this._originalHeight;
         return data;
     }
 
@@ -60,6 +64,8 @@ Wick.Selection = class extends Wick.Base {
             x: data.pivotPoint.x,
             y: data.pivotPoint.y
         };
+        this._originalWidth = data.originalWidth;
+        this._originalHeight = data.originalHeight;
     }
 
     get classname () {
@@ -94,6 +100,8 @@ Wick.Selection = class extends Wick.Base {
             "soundStart",
             "identifier",
             "easingType",
+            "scaleX",
+            "scaleY",
         ];
     }
 
@@ -401,6 +409,54 @@ Wick.Selection = class extends Wick.Base {
     }
 
     /**
+     * It is the original width of the selection at creation.
+     * @type {number}
+     */
+    get originalWidth () {
+        return this._originalWidth;
+    }
+
+    set originalWidth (originalWidth) {
+        this._originalWidth = originalWidth;
+    }
+
+    /**
+     * It is the original height of the selection at creation.
+     * @type {number}
+     */
+    get originalHeight () {
+        return this._originalWidth;
+    }
+
+    set originalHeight (originalHeight) {
+        this._originalHeight = originalHeight;
+    }
+
+    /**
+     * The scale of the selection on the X axis.
+     * @type {number}
+     */
+    get scaleX () {
+        return this.width / this.originalWidth;
+    }
+    
+    set scaleX (scaleX) {
+        this.width = this.originalWidth * scaleX;
+    }
+
+    /**
+     * The scale of the selection on the Y axis.
+     * @type {number}
+     */
+    get scaleY () {
+        return this.height / this.originalHeight;
+    }
+    
+    set scaleY (scaleY) {
+        this.height = this.originalHeight * scaleY;
+    }
+
+    /**
      * Flips the selected obejcts horizontally.
      */
     flipHorizontally () {
@@ -694,6 +750,7 @@ Wick.Selection = class extends Wick.Base {
     /* Helper function: Calculate the selection x,y */
     _resetPositioningValues () {
         var selectedObject = this.getSelectedObject();
+
         if(selectedObject instanceof Wick.Clip) {
             // Single clip selected: Use that Clip's transformation for the pivot point and rotation
             this._widgetRotation = selectedObject.transformation.rotation;
@@ -710,6 +767,10 @@ Wick.Selection = class extends Wick.Base {
                 x: boundsCenter.x,
                 y: boundsCenter.y,
             };
+
+            // Always pull original size values.
+            this._originalWidth = this.view._getSelectedObjectsBounds().width;
+            this._originalHeight = this.view._getSelectedObjectsBounds().width;
         }
     }
 
