@@ -425,7 +425,7 @@ Wick.Selection = class extends Wick.Base {
      * @type {number}
      */
     get originalHeight () {
-        return this._originalWidth;
+        return this._originalHeight;
     }
 
     set originalHeight (originalHeight) {
@@ -437,11 +437,22 @@ Wick.Selection = class extends Wick.Base {
      * @type {number}
      */
     get scaleX () {
-        return this.width / this.originalWidth;
+        // Clips store their scale state internally
+        if (this.selectionType === "clip" || this.selectionType === "button") {
+            return this.getSelectedObject().transformation.scaleX;
+        } else {
+            // Paths do not save their internal scale state.
+            return this.width / this.originalWidth;
+        }
     }
     
     set scaleX (scaleX) {
-        this.width = this.originalWidth * scaleX;
+        // Clips store their scale state internally
+        if (this.selectionType === "clip" || this.selectionType === "button") {
+            this.getSelectedObject().transformation.scaleX = scaleX;
+        } else {
+            this.width = this.originalWidth * scaleX;
+        }
     }
 
     /**
@@ -449,11 +460,21 @@ Wick.Selection = class extends Wick.Base {
      * @type {number}
      */
     get scaleY () {
-        return this.height / this.originalHeight;
+        // Clips store their scale state internally
+        if (this.selectionType === "clip" || this.selectionType === "button") {
+            return this.getSelectedObject().transformation.scaleY;
+        } else {
+            return this.height / this.originalHeight;
+        }
     }
     
     set scaleY (scaleY) {
-        this.height = this.originalHeight * scaleY;
+        // Clips store their scale state internally
+        if (this.selectionType === "clip" || this.selectionType === "button") {
+            this.getSelectedObject().transformation.scaleY = scaleY;
+        } else {
+            this.height = this.originalHeight * scaleY;
+        }
     }
 
     /**
@@ -770,7 +791,7 @@ Wick.Selection = class extends Wick.Base {
 
             // Always pull original size values.
             this._originalWidth = this.view._getSelectedObjectsBounds().width;
-            this._originalHeight = this.view._getSelectedObjectsBounds().width;
+            this._originalHeight = this.view._getSelectedObjectsBounds().height;
         }
     }
 

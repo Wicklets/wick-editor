@@ -485,7 +485,7 @@ class Inspector extends Component {
       <div className="inspector-item">
         {this.renderPosition()}
         {this.renderSize()}
-        {/*this.renderScale() disabled scale temporarily -zj */}
+        {this.renderScale()}
         {this.renderRotation()}
         {this.renderOpacity()}
       </div>
