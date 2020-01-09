@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2019.12.19";
+var WICK_ENGINE_BUILD_VERSION = "2020.1.9";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -49118,8 +49118,9 @@ Wick.Selection = class extends Wick.Base {
 
     if (object instanceof Wick.Frame) {
       this._selectInBetweenFrames(object);
-    } //this._resetPositioningValues();
-    // Make sure the view gets updated the next time its needed...
+    }
+
+    this._resetPositioningValues(); // Make sure the view gets updated the next time its needed...
 
 
     this.view.dirty = true;
