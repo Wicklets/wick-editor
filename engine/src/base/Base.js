@@ -46,8 +46,7 @@ Wick.Base = class {
         this._parent = null;
         this._project = this.classname === 'Project' ? this : null;
 
-        this._serializeDataCache = null;
-        this._serializeCacheIsOutdated = false;
+        this._needsAutosave = null;
 
         Wick.ObjectCache.addObject(this);
     }
@@ -95,23 +94,13 @@ Wick.Base = class {
      * @return {object} Plain JavaScript object representing this Wick Base object.
      */
     serialize () {
-        var data = null;
+        var data = {};
 
-        if (!this._serializeDataCache || this._serializeCacheIsOutdated) {
-            // Regenerate serialied data
-            data = {};
-            data.classname = this.classname;
-            data.identifier = this._identifier;
-            data.name = this._name;
-            data.uuid = this._uuid;
-            data.children = this.getChildren().map(child => { return child.uuid });
-
-            // Cache serialied data
-            this._serializeDataCache = data;
-            this._serializeCacheIsOutdated = false;
-        } else {
-            data = this._serializeDataCache;
-        }
+        data.classname = this.classname;
+        data.identifier = this._identifier;
+        data.name = this._name;
+        data.uuid = this._uuid;
+        data.children = this.getChildren().map(child => { return child.uuid });
 
         return data;
     }
@@ -200,11 +189,10 @@ Wick.Base = class {
     }
 
     /**
-     * Marks the cached serialization data in this object to be refreshed.
-     * This function must be called if this object is modified.
+     * Marks the object as possibly changed, so that next time autosave happens, this object is written to the save.
      */
-    setSerializationCacheOutdated () {
-        this._serializeCacheIsOutdated = true;
+    needsAutosave () {
+        this._needsAutosave = true;
     }
 
     /**

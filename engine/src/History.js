@@ -146,10 +146,13 @@ Wick.History = class {
         }
 
         if(Wick.History.VERBOSE) {
-            console.log('Wick.History._generateState: Serialized ' + objects.length + ' objects using mode=' + stateType);
+            console.log('Wick.History._generateState: Serializing ' + objects.length + ' objects using mode=' + stateType);
         }
 
         return objects.map(object => {
+            // The object most likely was altered in some way, make sure those changes will be reflected in the autosave.
+            object.needsAutosave();
+
             return object.serialize();
         });
     }
