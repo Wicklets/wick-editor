@@ -46,6 +46,9 @@ Wick.Base = class {
         this._parent = null;
         this._project = this.classname === 'Project' ? this : null;
 
+        this._serializeDataCache = null;
+        this._serializeCacheIsOutdated = false;
+
         Wick.ObjectCache.addObject(this);
     }
 
@@ -92,13 +95,23 @@ Wick.Base = class {
      * @return {object} Plain JavaScript object representing this Wick Base object.
      */
     serialize () {
-        var data = {};
+        var data = null;
 
-        data.classname = this.classname;
-        data.identifier = this._identifier;
-        data.name = this._name;
-        data.uuid = this._uuid;
-        data.children = this.getChildren().map(child => { return child.uuid });
+        if (!this._serializeDataCache || this._serializeCacheIsOutdated) {
+            // Regenerate serialied data
+            data = {};
+            data.classname = this.classname;
+            data.identifier = this._identifier;
+            data.name = this._name;
+            data.uuid = this._uuid;
+            data.children = this.getChildren().map(child => { return child.uuid });
+
+            // Cache serialied data
+            this._serializeDataCache = data;
+            this._serializeCacheIsOutdated = false;
+        } else {
+            data = this._serializeDataCache;
+        }
 
         return data;
     }
@@ -184,6 +197,14 @@ Wick.Base = class {
         });
 
         return object;
+    }
+
+    /**
+     * Marks the cached serialization data in this object to be refreshed.
+     * This function must be called if this object is modified.
+     */
+    setSerializationCacheOutdated () {
+        this._serializeCacheIsOutdated = true;
     }
 
     /**
