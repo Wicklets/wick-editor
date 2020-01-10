@@ -34,9 +34,17 @@ Wick.AutoSave = class {
      * @param {Wick.Project} project
      */
     static save (project) {
+        // The object that will be saved in localforage
+        var projectAutosaveData = {};
+
         // Get all objects in the project
         var objects = Wick.ObjectCache.getActiveObjects(project);
         console.log(objects.length + ' objects in cache');
+
+        // Save UUIDs of objects that belong to this project
+        projectAutosaveData.objectUUIDs = objects.map(object => {
+            return object.uuid;
+        });
 
         // Write objects with needsAutosave flag to localforage
         var objectsNeedAutosave = objects.filter(object => {
@@ -52,8 +60,9 @@ Wick.AutoSave = class {
         });
 
         // Update projects list
+        projectAutosaveData.project = project.serialize();
         this.getAutosavedProjects(autosavedProjects => {
-            autosavedProjects[project.uuid] = project.serialize();
+            autosavedProjects[project.uuid] = projectData;
             this.updateAutosavedProjects(autosavedProjects);
         });
     }
@@ -64,25 +73,26 @@ Wick.AutoSave = class {
      */
     static load (uuid, callback) {
         // Retrieve the most recent autosaved project
-        this.getSortedAutosavedProjects(projects => {
-            if(projects.length === 0) {
-                callback(null);
-                return;
-            }
-
+        this.getAutosavedProjects(projects => {
             // Load the project
-            var projectData = projects[0];
+            var projectAutosaveData = projects[uuid];
 
+            // Load all objects that belong to this project
+            Promise.all(objectUUIDs.map(uuid => {
+                return localforage.getItem(uuid);
+            })).then(function(values) {
+                values.forEach(objectData => {
+                    var object = Wick.Base.fromData(objectData);
+                    Wick.ObjectCache.addObject(object);
+                });
+            });
+
+            // Deserialize the project
+            var project = Wick.Base.fromData(projectAutosaveData.project);
+            Wick.ObjectCache.addObject(project);
+
+            callback(project);
         });
-
-        /*
-        for(var uuid in projectData.objects) {
-            var data = projectData.objects[uuid];
-            var object = Wick.Base.fromData(data);
-            Wick.ObjectCache.addObject(object);
-        }
-        var project = Wick.Base.fromData(projectData.project);
-        Wick.ObjectCache.addObject(project);*/
     }
 
     /**
@@ -133,6 +143,7 @@ Wick.AutoSave = class {
     /**
      * Recursively pulls objects from localForage to build a list of all children UUIDS of a project.
      */
+     /*
     static _getChildrenUUIDsRecursive (object, masterCallback) {
         var uuids = [object.uuid];
         var total = 0;
@@ -153,4 +164,5 @@ Wick.AutoSave = class {
             });
         });
     }
+    */
 }
