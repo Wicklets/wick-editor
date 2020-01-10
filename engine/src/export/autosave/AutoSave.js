@@ -34,65 +34,77 @@ Wick.AutoSave = class {
      * @param {Wick.Project} project
      */
     static save (project) {
-        // The object that will be saved in localforage
-        var projectAutosaveData = {};
+        const promise = new Promise((resolve, reject) => {
+            // The object that will be saved in localforage
+            var projectAutosaveData = {};
 
-        // Get all objects in the project
-        var objects = Wick.ObjectCache.getActiveObjects(project);
-        console.log(objects.length + ' objects in cache');
+            // Get all objects in the project
+            var objects = Wick.ObjectCache.getActiveObjects(project);
+            console.log(objects.length + ' objects in cache');
 
-        // Save UUIDs of objects that belong to this project
-        projectAutosaveData.objectUUIDs = objects.map(object => {
-            return object.uuid;
+            // Save UUIDs of objects that belong to this project
+            projectAutosaveData.objectUUIDs = objects.map(object => {
+                return object.uuid;
+            });
+
+            // Write objects with needsAutosave flag to localforage
+            var objectsNeedAutosave = objects.filter(object => {
+                return object.needsAutosave;
+            });
+            console.log(objectsNeedAutosave.length + ' objects to write to localforage');
+
+            objectsNeedAutosave.forEach(object => {
+                // Serialize and save data in localforage
+                var data = object.serialize();
+                localforage.setItem(object.uuid, data);
+                object.needsAutosave = false;
+            });
+
+            // Update projects list
+            projectAutosaveData.project = project.serialize();
+            this.getAutosavedProjects().then(autosavedProjects => {
+                autosavedProjects[project.uuid] = projectAutosaveData;
+                this.updateAutosavedProjects(autosavedProjects).then(() => {resolve()});
+            });
         });
 
-        // Write objects with needsAutosave flag to localforage
-        var objectsNeedAutosave = objects.filter(object => {
-            return object.needsAutosave;
-        });
-        console.log(objectsNeedAutosave.length + ' objects to write to localforage');
-
-        objectsNeedAutosave.forEach(object => {
-            // Serialize and save data in localforage
-            var data = object.serialize();
-            localforage.setItem(object.uuid, data);
-            object.needsAutosave = false;
-        });
-
-        // Update projects list
-        projectAutosaveData.project = project.serialize();
-        this.getAutosavedProjects(autosavedProjects => {
-            autosavedProjects[project.uuid] = projectData;
-            this.updateAutosavedProjects(autosavedProjects);
-        });
+        return promise;
     }
 
     /**
      * Loads a given project from localforage.
      * @param {string} uuid
      */
-    static load (uuid, callback) {
-        // Retrieve the most recent autosaved project
-        this.getAutosavedProjects(projects => {
-            // Load the project
-            var projectAutosaveData = projects[uuid];
+    static load (uuid) {
+      const promise = new Promise((resolve, reject) => {
+          // Retrieve the most recent autosaved project
+          this.getAutosavedProjects().then(projects => {
+              // Load the project
+              var projectAutosaveData = projects[uuid];
+              if(!projectAutosaveData) {
+                  reject(new Error('Project with uuid ' + uuid + ' does not exist in autosave.'));
+                  return;
+              }
 
-            // Load all objects that belong to this project
-            Promise.all(objectUUIDs.map(uuid => {
-                return localforage.getItem(uuid);
-            })).then(function(values) {
-                values.forEach(objectData => {
-                    var object = Wick.Base.fromData(objectData);
-                    Wick.ObjectCache.addObject(object);
-                });
-            });
+              // Load all objects that belong to this project
+              Promise.all(projectAutosaveData.objectUUIDs.map(uuid => {
+                  return localforage.getItem(uuid);
+              })).then(function(values) {
+                  values.forEach(objectData => {
+                      var object = Wick.Base.fromData(objectData);
+                      Wick.ObjectCache.addObject(object);
+                  });
+              });
 
-            // Deserialize the project
-            var project = Wick.Base.fromData(projectAutosaveData.project);
-            Wick.ObjectCache.addObject(project);
+              // Deserialize the project
+              var project = Wick.Base.fromData(projectAutosaveData.project);
+              Wick.ObjectCache.addObject(project);
 
-            callback(project);
-        });
+              resolve(project);
+          });
+      });
+
+      return promise;
     }
 
     /**
@@ -109,26 +121,34 @@ Wick.AutoSave = class {
      * Passes an object containing all currently stored autosaved projects to a callback function.
      * @param {function} callback - function to be passed object containing all autosaved projects.
      */
-    static getAutosavedProjects (callback) {
-        localforage.getItem(Wick.AutoSave.PROJECTS_LIST_KEY, result => {
-            callback(result || {});
-        });
+    static getAutosavedProjects () {
+        const promise = new Promise((resolve, reject) => {
+            localforage.getItem(Wick.AutoSave.PROJECTS_LIST_KEY).then(result => {
+                resolve(result || {});
+            });
+        })
+
+        return promise;
     }
 
     /**
      * Passes a sorted list of all projects currently stored in autosaved by the date they were last modified.
      * @param {function} callback - function to be passed sorted list of projects.
      */
-    static getSortedAutosavedProjects (callback) {
-        this.getAutosavedProjects(projectsObject => {
-            var list = Object.keys(projectsObject).map(key => projectsObject[key]);
+    static getSortedAutosavedProjects () {
+        const promise = new Promise((resolve, reject) => {
+            this.getAutosavedProjects().then(projectsObject => {
+                var list = Object.keys(projectsObject).map(key => projectsObject[key]);
 
-            list.sort((a,b) => {
-                return b.metadata.lastModified - a.metadata.lastModified;
+                list.sort((a,b) => {
+                    return b.metadata.lastModified - a.metadata.lastModified;
+                });
+
+                resolve(list);
             });
-
-            callback(list);
         });
+
+        return promise;
     }
 
     /**
@@ -136,8 +156,11 @@ Wick.AutoSave = class {
      * @param {Object} autosavedProjects - the list of projects
      * @param {function} callback - called when saving is finished
      */
-    static updateAutosavedProjects (autosavedProjects, callback) {
-        localforage.setItem(Wick.AutoSave.PROJECTS_LIST_KEY, autosavedProjects, callback);
+    static updateAutosavedProjects (autosavedProjects) {
+        const promise = new Promise((resolve, reject) => {
+            localforage.setItem(Wick.AutoSave.PROJECTS_LIST_KEY, autosavedProjects).then(() => {resolve()});
+        });
+        return promise;
     }
 
     /**

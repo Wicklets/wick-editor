@@ -93,6 +93,10 @@
 
 <script>
   window.onload = () => {
+    localforage.config({
+        name        : 'WickEditorTests',
+        description : 'Live Data storage of the Wick Editor test suite.'
+    });
     window.onmousedown = () => {
       window.onmousedown = () => {};
       document.getElementById('interact-message').style.display = 'none';
