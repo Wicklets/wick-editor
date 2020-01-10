@@ -46,7 +46,7 @@ Wick.Base = class {
         this._parent = null;
         this._project = this.classname === 'Project' ? this : null;
 
-        this._needsAutosave = null;
+        this._needsAutosave = true;
 
         Wick.ObjectCache.addObject(this);
     }
@@ -190,9 +190,14 @@ Wick.Base = class {
 
     /**
      * Marks the object as possibly changed, so that next time autosave happens, this object is written to the save.
+     * @type {boolean}
      */
-    needsAutosave () {
-        this._needsAutosave = true;
+    set needsAutosave (needsAutosave) {
+        this._needsAutosave = needsAutosave;
+    }
+
+    get needsAutosave () {
+        return this._needsAutosave;
     }
 
     /**

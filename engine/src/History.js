@@ -151,7 +151,7 @@ Wick.History = class {
 
         return objects.map(object => {
             // The object most likely was altered in some way, make sure those changes will be reflected in the autosave.
-            object.needsAutosave();
+            object.needsAutosave = true;
 
             return object.serialize();
         });

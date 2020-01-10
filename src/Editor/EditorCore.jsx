@@ -1072,7 +1072,7 @@ class EditorCore extends Component {
     if (this.state.previewPlaying) return;
     if (this.state.activeModalName !== null) return;
 
-    console.error("Please use the new engine API for autosave.")
+    window.Wick.AutoSave.save(this.project);
   }
 
   /**
