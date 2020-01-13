@@ -44650,7 +44650,9 @@ TWEEN.Interpolation = {
  */
 Wick = {
   version: window.WICK_ENGINE_BUILD_VERSION || "dev",
-  resourcepath: '../dist/'
+  resourcepath: '../dist/',
+  _originals: {} // Eventually store a single instance of each type of Wick.Base object (see Wick.Base constructor).
+
 };
 console.log('Wick Engine version "' + Wick.version + '" is available.'); // Ensure that the Wick namespace is accessible in environments where globals are finicky (react, webpack, etc)
 
@@ -46732,10 +46734,9 @@ Wick.Base = class {
    * @parm {string} name - (Optional) The name of the object. Defaults to null.
    */
   constructor(args) {
-    if (!Wick._originals) {
-      Wick._originals = {};
-    }
-
+    /* One instance of each Wick.Base class is created so we can access
+     * a list of all possible properties of each class. This is used
+     * to clean up custom variables after projects are stopped. */
     if (!Wick._originals[this.classname]) {
       Wick._originals[this.classname] = {};
       Wick._originals[this.classname] = new Wick[this.classname]();
