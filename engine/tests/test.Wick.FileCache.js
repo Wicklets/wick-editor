@@ -19,4 +19,8 @@ describe('Wick.FileCache', function() {
         Wick.FileCache.clear();
         expect(Wick.FileCache.getAllFiles().length).to.equal(0);
     });
+
+    it('should have the correct prefix for saved files', function() {
+      expect(Wick.FileCache.FILE_LOCALFORAGE_KEY_PREFIX).to.equal('filesrc_');
+    });
 });
