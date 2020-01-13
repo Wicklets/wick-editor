@@ -47,7 +47,7 @@ WickFileCache = class {
     getFile (uuid) {
         var file = this._files[uuid];
         if(!file) {
-          console.warn('Asset with UUID ' + uuid + ' was not found in FileCache!');
+          console.error('Asset with UUID ' + uuid + ' was not found in FileCache!');
           return null;
         } else {
           return file;

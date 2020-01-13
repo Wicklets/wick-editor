@@ -27,4 +27,26 @@ describe('Wick.AutoSave', function() {
               });
         });
     });
+
+    it('should save and load a project with assets', function(done) {
+        Wick.FileCache.clear();
+        localforage.clear(() => {
+            var origProject = new Wick.Project();
+            var asset = new Wick.SoundAsset({
+                filename: 'test.wav',
+                src: TestUtils.TEST_SOUND_SRC_WAV
+            });
+            origProject.addAsset(asset);
+
+            Wick.AutoSave.save(origProject).then(() => {
+                Wick.FileCache.clear();
+                Wick.AutoSave.load(origProject.uuid).then(project => {
+                    expect(project.assets.length).to.equal(origProject.assets.length);
+                    expect(project.assets[0].uuid).to.equal(origProject.assets[0].uuid);
+                    expect(project.assets[0].src).to.equal(origProject.assets[0].src);
+                    done();
+                });
+            });
+        });
+    });
 });
