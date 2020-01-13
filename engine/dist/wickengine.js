@@ -44928,14 +44928,6 @@ Wick.FileCache = class {
     return 'filesrc_'; // This should never change.
   }
   /**
-   * Create a WickFileCache.
-   */
-
-
-  constructor() {
-    this._files = {};
-  }
-  /**
    * Add a file to the cache.
    * @param {string} src - The file source
    * @param {string} uuid - The UUID of the file
@@ -44973,6 +44965,7 @@ Wick.FileCache = class {
 
 
   static removeFile(uuid) {
+    console.log(uuid);
     delete this._files[uuid]; // Remove file from localforage
 
     localforage.removeItem(this.getLocalForageKeyForUUID(uuid)).then(() => {});
@@ -45034,6 +45027,7 @@ Wick.FileCache = class {
   }
 
 };
+Wick.FileCache._files = {};
 /*
  * Copyright 2019 WICKLETS LLC
  *
@@ -45338,7 +45332,7 @@ WickObjectCache = class {
     var object = this._objects[uuid];
 
     if (!object) {
-      console.warn("Warning: object with uuid " + uuid + " was not found in the cache.");
+      console.error("Warning: object with uuid " + uuid + " was not found in the cache.");
       return null;
     } else {
       return object;
@@ -46311,14 +46305,12 @@ Wick.AutoSave = class {
         })).then(function (values) {
           values.forEach(objectData => {
             var object = Wick.Base.fromData(objectData);
-            Wick.ObjectCache.addObject(object);
-          });
-        }); // Deserialize the project
+          }); // Deserialize the project
 
-        var project = Wick.Base.fromData(projectAutosaveData.project);
-        Wick.FileCache.loadFilesFromLocalforage(project, () => {
-          Wick.ObjectCache.addObject(project);
-          resolve(project);
+          var project = Wick.Base.fromData(projectAutosaveData.project);
+          Wick.FileCache.loadFilesFromLocalforage(project, () => {
+            resolve(project);
+          });
         });
       });
     });
@@ -46356,7 +46348,7 @@ Wick.AutoSave = class {
   static getSortedAutosavedProjects() {
     const promise = new Promise((resolve, reject) => {
       this.getAutosavedProjects().then(projectsObject => {
-        var list = Object.keys(projectsObject).map(key => projectsObject[key]);
+        var list = Object.keys(projectsObject).map(key => projectsObject[key].project);
         list.sort((a, b) => {
           return b.metadata.lastModified - a.metadata.lastModified;
         });

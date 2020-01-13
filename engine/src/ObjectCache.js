@@ -70,7 +70,7 @@ WickObjectCache = class {
 
         var object = this._objects[uuid];
         if(!object) {
-            console.warn("Warning: object with uuid " + uuid + " was not found in the cache.");
+            console.error("Warning: object with uuid " + uuid + " was not found in the cache.");
             return null;
         } else {
             return object;

@@ -92,15 +92,13 @@ Wick.AutoSave = class {
                 })).then(function(values) {
                     values.forEach(objectData => {
                         var object = Wick.Base.fromData(objectData);
-                        Wick.ObjectCache.addObject(object);
                     });
-                });
 
-                // Deserialize the project
-                var project = Wick.Base.fromData(projectAutosaveData.project);
-                Wick.FileCache.loadFilesFromLocalforage(project, () => {
-                    Wick.ObjectCache.addObject(project);
-                    resolve(project);
+                    // Deserialize the project
+                    var project = Wick.Base.fromData(projectAutosaveData.project);
+                    Wick.FileCache.loadFilesFromLocalforage(project, () => {
+                        resolve(project);
+                    });
                 });
             });
         });
@@ -139,7 +137,7 @@ Wick.AutoSave = class {
     static getSortedAutosavedProjects () {
         const promise = new Promise((resolve, reject) => {
             this.getAutosavedProjects().then(projectsObject => {
-                var list = Object.keys(projectsObject).map(key => projectsObject[key]);
+                var list = Object.keys(projectsObject).map(key => projectsObject[key].project);
 
                 list.sort((a,b) => {
                     return b.metadata.lastModified - a.metadata.lastModified;

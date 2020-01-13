@@ -16,13 +16,13 @@ describe('Wick.FileCache', function() {
         expect(allFiles[1].src).to.equal('bar');
         expect(allFiles[2].src).to.equal('baz');
 
-        Wick.FileCache.removeFile('foo');
+        Wick.FileCache.removeFile('item1');
         var allFilesWithOneMissing = Wick.FileCache.getAllFiles();
         expect(allFilesWithOneMissing.length).to.equal(2);
-        expect(allFiles[0].uuid).to.equal('item2');
-        expect(allFiles[1].uuid).to.equal('item3');
-        expect(allFiles[0].src).to.equal('bar');
-        expect(allFiles[1].src).to.equal('baz');
+        expect(allFilesWithOneMissing[0].uuid).to.equal('item2');
+        expect(allFilesWithOneMissing[1].uuid).to.equal('item3');
+        expect(allFilesWithOneMissing[0].src).to.equal('bar');
+        expect(allFilesWithOneMissing[1].src).to.equal('baz');
 
         Wick.FileCache.clear();
         expect(Wick.FileCache.getAllFiles().length).to.equal(0);

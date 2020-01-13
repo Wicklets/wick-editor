@@ -1081,7 +1081,18 @@ class EditorCore extends Component {
    * Does nothing if not autosaved project is stored.
    */
   loadAutosavedProject = (callback) => {
-    console.error("Please use the new engine API for autosave.")
+    window.Wick.AutoSave.getSortedAutosavedProjects().then(projectsData => {
+      if(!projectsData[0]) {
+        callback();
+      } else {
+        this.showWaitOverlay();
+        window.Wick.AutoSave.load(projectsData[0].uuid).then(project => {
+          this.setupNewProject(project);
+          this.hideWaitOverlay();
+          callback();
+        });
+      }
+    });
   }
 
   /**
@@ -1090,7 +1101,9 @@ class EditorCore extends Component {
    * True if an autosave exists.
    */
   doesAutoSavedProjectExist = (callback) => {
-    console.error("Please use the new engine API for autosave.")
+    window.Wick.AutoSave.getSortedAutosavedProjects().then(projectsData => {
+      callback(projectsData.length > 0);
+    });
   }
 
   /**

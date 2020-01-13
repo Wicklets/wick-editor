@@ -30,13 +30,6 @@ Wick.FileCache = class {
     }
 
     /**
-     * Create a WickFileCache.
-     */
-    constructor () {
-        this._files = {};
-    }
-
-    /**
      * Add a file to the cache.
      * @param {string} src - The file source
      * @param {string} uuid - The UUID of the file
@@ -72,6 +65,7 @@ Wick.FileCache = class {
      * @param {string} uuid - the UUID of the file to remove.
      */
     static removeFile (uuid) {
+        console.log(uuid)
         delete this._files[uuid];
 
         // Remove file from localforage
@@ -127,3 +121,5 @@ Wick.FileCache = class {
         return this.FILE_LOCALFORAGE_KEY_PREFIX + uuid;
     }
 }
+
+Wick.FileCache._files = {};
