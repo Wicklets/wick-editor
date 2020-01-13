@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.1.10";
+var WICK_ENGINE_BUILD_VERSION = "2020.1.13";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -44642,7 +44642,9 @@ TWEEN.Interpolation = {
  */
 Wick = {
   version: window.WICK_ENGINE_BUILD_VERSION || "dev",
-  resourcepath: '../dist/'
+  resourcepath: '../dist/',
+  _originals: {} // Eventually store a single instance of each type of Wick.Base object (see Wick.Base constructor).
+
 };
 console.log('Wick Engine version "' + Wick.version + '" is available.'); // Ensure that the Wick namespace is accessible in environments where globals are finicky (react, webpack, etc)
 
@@ -46914,10 +46916,18 @@ Wick.Base = class {
    * @parm {string} name - (Optional) The name of the object. Defaults to null.
    */
   constructor(args) {
+    /* One instance of each Wick.Base class is created so we can access
+     * a list of all possible properties of each class. This is used
+     * to clean up custom variables after projects are stopped. */
+    if (!Wick._originals[this.classname]) {
+      Wick._originals[this.classname] = {};
+      Wick._originals[this.classname] = new Wick[this.classname]();
+    }
+
     if (!args) args = {};
-    this._uuid = uuidv4();
+    this._uuid = args.uuid || uuidv4();
     this._identifier = args.identifier || null;
-    this._name = args.naeme || null;
+    this._name = args.name || null;
     this._view = null;
     this.view = this._generateView();
     this._guiElement = null;
@@ -46944,7 +46954,9 @@ Wick.Base = class {
       console.warn('Tried to deserialize an object with no Wick class: ' + data.classname);
     }
 
-    var object = new Wick[data.classname]();
+    var object = new Wick[data.classname]({
+      uuid: data.uuid
+    });
     object.deserialize(data);
     return object;
   }
@@ -46961,15 +46973,13 @@ Wick.Base = class {
     this._children = {};
     this._childrenData = data.children; // Clear any custom attributes set by scripts
 
-    var compareObj = new Wick[this.classname]();
+    var compareObj = Wick._originals[this.classname];
 
     for (var name in this) {
       if (compareObj[name] === undefined) {
         delete this[name];
       }
     }
-
-    Wick.ObjectCache.addObject(this);
   }
   /**
    * Converts this Wick Base object into a plain javascript object contianing raw data (no references).

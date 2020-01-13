@@ -36,12 +36,24 @@ class TimedChangeInput extends Component {
 
     valueValid = () => {
         let stalled = false;
+        let period = false;
+
+        // Stall if the only character in the input is a stall character.
         if (this.props.stall !== undefined) {
             stalled = this.props.stall.includes(this.state.value)
         }
 
-        return (this.state.value !== "") && !stalled;
+        // If we're trying to add floats, ensure we can add periods.
+        if (this.state.value.length > 0) {
+            let char = this.state.value.charAt(this.state.value.length - 1);
+            if (char === '.') {
+                period = true;
+            }
+        }
+
+        return (this.state.value !== "") && !stalled && !period;
     }
+
     /**
      * Wrapped onChange prop which is passed the clean value. Only fires if the value
      * has changed since the last update.
@@ -110,13 +122,13 @@ class TimedChangeInput extends Component {
     render() {
         return (
             <input
-            className={classNames(this.props.className)}
-            {...this.props}
-            value={this.state.value}
-            type="text"
-            onChange={this.internalOnChange}
-            onBlur={this.wrappedOnChange}
-            onKeyPress={this.handleKeyDown}
+                className={classNames(this.props.className)}
+                {...this.props}
+                value={this.state.value}
+                type="text"
+                onChange={this.internalOnChange}
+                onBlur={this.wrappedOnChange}
+                onKeyPress={this.handleKeyDown}
           />
         )
     }

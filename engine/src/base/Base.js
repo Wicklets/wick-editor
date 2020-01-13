@@ -27,11 +27,19 @@ Wick.Base = class {
      * @parm {string} name - (Optional) The name of the object. Defaults to null.
      */
     constructor (args) {
+        /* One instance of each Wick.Base class is created so we can access
+         * a list of all possible properties of each class. This is used
+         * to clean up custom variables after projects are stopped. */
+        if(!Wick._originals[this.classname]) {
+            Wick._originals[this.classname] = {};
+            Wick._originals[this.classname] = new Wick[this.classname];
+        }
+
         if(!args) args = {};
 
-        this._uuid = uuidv4();
+        this._uuid = args.uuid || uuidv4();
         this._identifier = args.identifier || null;
-        this._name = args.naeme || null;
+        this._name = args.name || null;
 
         this._view = null;
         this.view = this._generateView();
@@ -62,7 +70,7 @@ Wick.Base = class {
             console.warn('Tried to deserialize an object with no Wick class: ' + data.classname);
         }
 
-        var object = new Wick[data.classname]();
+        var object = new Wick[data.classname]({uuid: data.uuid});
         object.deserialize(data);
         return object;
     }
@@ -79,14 +87,12 @@ Wick.Base = class {
         this._childrenData = data.children;
 
         // Clear any custom attributes set by scripts
-        var compareObj = new Wick[this.classname]();
+        var compareObj = Wick._originals[this.classname];
         for (var name in this) {
             if(compareObj[name] === undefined) {
                 delete this[name];
             }
         }
-
-        Wick.ObjectCache.addObject(this);
     }
 
     /**
@@ -217,10 +223,10 @@ Wick.Base = class {
     }
 
     set uuid (uuid) {
-        // Please try to avoid using this unless you absolutely have to ;_;
-        this._uuid = uuid;
-        Wick.ObjectCache.addObject(this);
-    }
+         // Please try to avoid using this unless you absolutely have to ;_;
+         this._uuid = uuid;
+         Wick.ObjectCache.addObject(this);
+     }
 
     /**
      * The name of the object that is used to access the object through scripts. Must be a valid JS variable name.

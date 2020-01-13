@@ -23,6 +23,7 @@
 Wick = {
     version: window.WICK_ENGINE_BUILD_VERSION || "dev",
     resourcepath: '../dist/',
+    _originals: {}, // Eventually store a single instance of each type of Wick.Base object (see Wick.Base constructor).
 }
 
 console.log('Wick Engine version "' + Wick.version + '" is available.');

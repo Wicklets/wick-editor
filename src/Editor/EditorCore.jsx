@@ -24,6 +24,7 @@ import queryString from 'query-string';
 import { saveAs } from 'file-saver';
 import VideoExport from './export/VideoExport';
 import GIFExport from './export/GIFExport';
+import timeStamp from './Util/DataFunctions/timestamp';
 
 class EditorCore extends Component {
   /**
@@ -828,7 +829,7 @@ class EditorCore extends Component {
       this.updateToast(toastID, {
         type: 'success',
         text: "Successfully saved .wick file." });
-      saveAs(file, this.project.name + '.wick');
+      saveAs(file, this.project.name + timeStamp() + '.wick');
       this.hideWaitOverlay();
     });
   }
