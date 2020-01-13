@@ -1,5 +1,7 @@
 describe('Wick.ObjectCache', function() {
     it('should instantiate correctly and not add additional files on play/pause', function () {
+        Wick.ObjectCache.clear();
+
         var project = new Wick.Project();
 
         var objectCacheSize = Wick.ObjectCache.getAllObjects().length;
@@ -7,12 +9,15 @@ describe('Wick.ObjectCache', function() {
         project.play();
         project.stop();
 
+        console.log(Wick.ObjectCache.getAllObjects())
         var cacheSizeAfterPlayStop = Wick.ObjectCache.getAllObjects().length;
 
         expect(cacheSizeAfterPlayStop).to.equal(objectCacheSize);
     });
 
     it('should add/remove files correctly when testing with a simple object', function() {
+        Wick.ObjectCache.clear();
+
         var objectCacheSize = Wick.ObjectCache.getAllObjects().length;
 
         var dummy = {uuid: "abcdefghijklmnop"}
@@ -30,6 +35,8 @@ describe('Wick.ObjectCache', function() {
     });
 
     it('should not create duplicates when deserializing an object from previously cached data', function() {
+        Wick.ObjectCache.clear();
+
         var project = new Wick.Project();
         var path = new Wick.Path({json:TestUtils.TEST_PATH_JSON_RED_SQUARE});
         project.activeFrame.addPath(path);
@@ -38,13 +45,13 @@ describe('Wick.ObjectCache', function() {
 
         var data = path.serialize();
         var object = Wick.Base.fromData(data);
-        
+
         var objectCacheSizeAfterSerialization = Wick.ObjectCache.getAllObjects().length;
 
         expect(objectCacheSizeAfterSerialization).to.equal(objectCacheSize);
     });
 
     it('should garbage collect correctly', function() {
-
+        Wick.ObjectCache.clear();
     });
 });

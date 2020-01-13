@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.1.9";
+var WICK_ENGINE_BUILD_VERSION = "2020.1.13";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -45241,6 +45241,7 @@ WickObjectCache = class {
 
 
   addObject(object) {
+    console.error('!!!');
     this._objects[object.uuid] = object;
     /*object.children.forEach(child => {
         this.addObject(child);
@@ -46718,9 +46719,9 @@ Wick.Base = class {
    */
   constructor(args) {
     if (!args) args = {};
-    this._uuid = uuidv4();
+    this._uuid = args.uuid || uuidv4();
     this._identifier = args.identifier || null;
-    this._name = args.naeme || null;
+    this._name = args.name || null;
     this._view = null;
     this.view = this._generateView();
     this._guiElement = null;
@@ -46730,7 +46731,10 @@ Wick.Base = class {
     this._childrenData = null;
     this._parent = null;
     this._project = this.classname === 'Project' ? this : null;
-    Wick.ObjectCache.addObject(this);
+
+    if (!args.skipCache) {
+      Wick.ObjectCache.addObject(this);
+    }
   }
   /**
    * @param {object} data - Serialized data to use to create a new object.
@@ -46746,7 +46750,9 @@ Wick.Base = class {
       console.warn('Tried to deserialize an object with no Wick class: ' + data.classname);
     }
 
-    var object = new Wick[data.classname]();
+    var object = new Wick[data.classname]({
+      uuid: data.uuid
+    });
     object.deserialize(data);
     return object;
   }
@@ -46763,15 +46769,15 @@ Wick.Base = class {
     this._children = {};
     this._childrenData = data.children; // Clear any custom attributes set by scripts
 
-    var compareObj = new Wick[this.classname]();
+    var compareObj = new Wick[this.classname]({
+      skipCache: true
+    });
 
     for (var name in this) {
       if (compareObj[name] === undefined) {
         delete this[name];
       }
     }
-
-    Wick.ObjectCache.addObject(this);
   }
   /**
    * Converts this Wick Base object into a plain javascript object contianing raw data (no references).
@@ -46885,12 +46891,6 @@ Wick.Base = class {
 
   get uuid() {
     return this._uuid;
-  }
-
-  set uuid(uuid) {
-    // Please try to avoid using this unless you absolutely have to ;_;
-    this._uuid = uuid;
-    Wick.ObjectCache.addObject(this);
   }
   /**
    * The name of the object that is used to access the object through scripts. Must be a valid JS variable name.
@@ -47531,9 +47531,15 @@ Wick.Project = class extends Wick.Base {
     this.onionSkinEnabled = false;
     this.onionSkinSeekBackwards = 1;
     this.onionSkinSeekForwards = 1;
-    this.selection = new Wick.Selection();
-    this.history = new Wick.History();
-    this.clipboard = new Wick.Clipboard();
+    this.selection = new Wick.Selection({
+      skipCache: args.skipCache
+    });
+    this.history = new Wick.History({
+      skipCache: args.skipCache
+    });
+    this.clipboard = new Wick.Clipboard({
+      skipCache: args.skipCache
+    });
     this.root = new Wick.Clip();
     this.root._identifier = 'Project';
     this.focus = this.root;
@@ -53129,9 +53135,15 @@ Wick.Clip = class extends Wick.Tickable {
   constructor(args) {
     if (!args) args = {};
     super(args);
-    this.timeline = new Wick.Timeline();
-    this.timeline.addLayer(new Wick.Layer());
-    this.timeline.activeLayer.addFrame(new Wick.Frame());
+    this.timeline = new Wick.Timeline({
+      skipCache: args.skipCache
+    });
+    this.timeline.addLayer(new Wick.Layer({
+      skipCache: args.skipCache
+    }));
+    this.timeline.activeLayer.addFrame(new Wick.Frame({
+      skipCache: args.skipCache
+    }));
     this._transformation = args.transformation || new Wick.Transformation();
     this.cursor = 'default';
     this._isClone = false;

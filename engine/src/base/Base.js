@@ -29,9 +29,9 @@ Wick.Base = class {
     constructor (args) {
         if(!args) args = {};
 
-        this._uuid = uuidv4();
+        this._uuid = args.uuid || uuidv4();
         this._identifier = args.identifier || null;
-        this._name = args.naeme || null;
+        this._name = args.name || null;
 
         this._view = null;
         this.view = this._generateView();
@@ -46,7 +46,9 @@ Wick.Base = class {
         this._parent = null;
         this._project = this.classname === 'Project' ? this : null;
 
-        Wick.ObjectCache.addObject(this);
+        if (!args.skipCache) {
+            Wick.ObjectCache.addObject(this);
+        }
     }
 
     /**
@@ -60,7 +62,7 @@ Wick.Base = class {
             console.warn('Tried to deserialize an object with no Wick class: ' + data.classname);
         }
 
-        var object = new Wick[data.classname]();
+        var object = new Wick[data.classname]({uuid: data.uuid});
         object.deserialize(data);
         return object;
     }
@@ -77,14 +79,12 @@ Wick.Base = class {
         this._childrenData = data.children;
 
         // Clear any custom attributes set by scripts
-        var compareObj = new Wick[this.classname]();
+        var compareObj = new Wick[this.classname]({skipCache: true});
         for (var name in this) {
             if(compareObj[name] === undefined) {
                 delete this[name];
             }
         }
-
-        Wick.ObjectCache.addObject(this);
     }
 
     /**
@@ -200,12 +200,6 @@ Wick.Base = class {
      */
     get uuid () {
         return this._uuid;
-    }
-
-    set uuid (uuid) {
-        // Please try to avoid using this unless you absolutely have to ;_;
-        this._uuid = uuid;
-        Wick.ObjectCache.addObject(this);
     }
 
     /**
