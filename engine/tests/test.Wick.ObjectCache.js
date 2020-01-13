@@ -9,7 +9,6 @@ describe('Wick.ObjectCache', function() {
         project.play();
         project.stop();
 
-        console.log(Wick.ObjectCache.getAllObjects())
         var cacheSizeAfterPlayStop = Wick.ObjectCache.getAllObjects().length;
 
         expect(cacheSizeAfterPlayStop).to.equal(objectCacheSize);

@@ -37,8 +37,6 @@ WickObjectCache = class {
      * @param {Wick.Base} object - the object to add
      */
     addObject (object) {
-        console.error('!!!');
-
         this._objects[object.uuid] = object;
 
         /*object.children.forEach(child => {

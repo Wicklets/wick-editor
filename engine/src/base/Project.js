@@ -46,9 +46,9 @@ Wick.Project = class extends Wick.Base {
         this.onionSkinSeekBackwards = 1;
         this.onionSkinSeekForwards = 1;
 
-        this.selection = new Wick.Selection({skipCache: args.skipCache});
-        this.history = new Wick.History({skipCache: args.skipCache});
-        this.clipboard = new Wick.Clipboard({skipCache: args.skipCache});
+        this.selection = new Wick.Selection();
+        this.history = new Wick.History();
+        this.clipboard = new Wick.Clipboard();
 
         this.root = new Wick.Clip();
         this.root._identifier = 'Project';

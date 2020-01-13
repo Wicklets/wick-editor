@@ -45241,7 +45241,6 @@ WickObjectCache = class {
 
 
   addObject(object) {
-    console.error('!!!');
     this._objects[object.uuid] = object;
     /*object.children.forEach(child => {
         this.addObject(child);
@@ -46718,6 +46717,15 @@ Wick.Base = class {
    * @parm {string} name - (Optional) The name of the object. Defaults to null.
    */
   constructor(args) {
+    if (!Wick._originals) {
+      Wick._originals = {};
+    }
+
+    if (!Wick._originals[this.classname]) {
+      Wick._originals[this.classname] = {};
+      Wick._originals[this.classname] = new Wick[this.classname]();
+    }
+
     if (!args) args = {};
     this._uuid = args.uuid || uuidv4();
     this._identifier = args.identifier || null;
@@ -46731,10 +46739,7 @@ Wick.Base = class {
     this._childrenData = null;
     this._parent = null;
     this._project = this.classname === 'Project' ? this : null;
-
-    if (!args.skipCache) {
-      Wick.ObjectCache.addObject(this);
-    }
+    Wick.ObjectCache.addObject(this);
   }
   /**
    * @param {object} data - Serialized data to use to create a new object.
@@ -46769,9 +46774,7 @@ Wick.Base = class {
     this._children = {};
     this._childrenData = data.children; // Clear any custom attributes set by scripts
 
-    var compareObj = new Wick[this.classname]({
-      skipCache: true
-    });
+    var compareObj = Wick._originals[this.classname];
 
     for (var name in this) {
       if (compareObj[name] === undefined) {
@@ -46891,6 +46894,12 @@ Wick.Base = class {
 
   get uuid() {
     return this._uuid;
+  }
+
+  set uuid(uuid) {
+    // Please try to avoid using this unless you absolutely have to ;_;
+    this._uuid = uuid;
+    Wick.ObjectCache.addObject(this);
   }
   /**
    * The name of the object that is used to access the object through scripts. Must be a valid JS variable name.
@@ -47531,15 +47540,9 @@ Wick.Project = class extends Wick.Base {
     this.onionSkinEnabled = false;
     this.onionSkinSeekBackwards = 1;
     this.onionSkinSeekForwards = 1;
-    this.selection = new Wick.Selection({
-      skipCache: args.skipCache
-    });
-    this.history = new Wick.History({
-      skipCache: args.skipCache
-    });
-    this.clipboard = new Wick.Clipboard({
-      skipCache: args.skipCache
-    });
+    this.selection = new Wick.Selection();
+    this.history = new Wick.History();
+    this.clipboard = new Wick.Clipboard();
     this.root = new Wick.Clip();
     this.root._identifier = 'Project';
     this.focus = this.root;
@@ -53135,15 +53138,9 @@ Wick.Clip = class extends Wick.Tickable {
   constructor(args) {
     if (!args) args = {};
     super(args);
-    this.timeline = new Wick.Timeline({
-      skipCache: args.skipCache
-    });
-    this.timeline.addLayer(new Wick.Layer({
-      skipCache: args.skipCache
-    }));
-    this.timeline.activeLayer.addFrame(new Wick.Frame({
-      skipCache: args.skipCache
-    }));
+    this.timeline = new Wick.Timeline();
+    this.timeline.addLayer(new Wick.Layer());
+    this.timeline.activeLayer.addFrame(new Wick.Frame());
     this._transformation = args.transformation || new Wick.Transformation();
     this.cursor = 'default';
     this._isClone = false;

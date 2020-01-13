@@ -27,6 +27,14 @@ Wick.Base = class {
      * @parm {string} name - (Optional) The name of the object. Defaults to null.
      */
     constructor (args) {
+        if(!Wick._originals) {
+            Wick._originals = {};
+        }
+        if(!Wick._originals[this.classname]) {
+            Wick._originals[this.classname] = {};
+            Wick._originals[this.classname] = new Wick[this.classname];
+        }
+
         if(!args) args = {};
 
         this._uuid = args.uuid || uuidv4();
@@ -46,9 +54,7 @@ Wick.Base = class {
         this._parent = null;
         this._project = this.classname === 'Project' ? this : null;
 
-        if (!args.skipCache) {
-            Wick.ObjectCache.addObject(this);
-        }
+        Wick.ObjectCache.addObject(this);
     }
 
     /**
@@ -79,7 +85,7 @@ Wick.Base = class {
         this._childrenData = data.children;
 
         // Clear any custom attributes set by scripts
-        var compareObj = new Wick[this.classname]({skipCache: true});
+        var compareObj = Wick._originals[this.classname];
         for (var name in this) {
             if(compareObj[name] === undefined) {
                 delete this[name];
@@ -201,6 +207,12 @@ Wick.Base = class {
     get uuid () {
         return this._uuid;
     }
+
+    set uuid (uuid) {
+         // Please try to avoid using this unless you absolutely have to ;_;
+         this._uuid = uuid;
+         Wick.ObjectCache.addObject(this);
+     }
 
     /**
      * The name of the object that is used to access the object through scripts. Must be a valid JS variable name.
