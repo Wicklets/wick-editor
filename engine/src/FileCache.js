@@ -22,6 +22,14 @@
  */
 WickFileCache = class {
     /**
+     * A prefix to use in localforage so we can identify which items in localforage are files.
+     * @type {string}
+     */
+    static get FILE_LOCALFORAGE_KEY_PREFIX () {
+        return 'filesrc_'; // This should never change.
+    }
+
+    /**
      * Create a WickFileCache.
      */
     constructor () {
@@ -37,6 +45,9 @@ WickFileCache = class {
         this._files[uuid] = {
             src: src
         };
+
+        // Save asset to localforage
+        localforage.setItem(Wick.FileCache.getLocalForageKeyForUUID(uuid), src).then(() => {});
     }
 
     /**
@@ -60,6 +71,31 @@ WickFileCache = class {
      */
     removeFile (uuid) {
         delete this._files[uuid];
+
+        // Remove file from localforage
+        localforage.removeItem(Wick.FileCache.getLocalForageKeyForUUID(uuid), src).then(() => {});
+    }
+
+    /**
+     * Loads all files from local forage associated with a previously saved project, if possible.
+     * @param {Wick.Project} project - the project that we want to load assets for.
+     * @param {function} callback - called when the assets are done being loaded.
+     */
+    loadFilesFromLocalforage (uuids, callback) {
+        project.getAssets().forEach(asset => {
+            localforage.getItem(Wick.FileCache.getLocalForageKeyForUUID(uuid)).then(result => {
+                this.addFile(uuid, result);
+            });
+        });
+
+        Promise.all(project.getAssets().map(asset => {
+            return localforage.getItem(asset.uuid);
+        })).then(function(values) {
+            values.forEach(val => {
+                this.addFile(uuid, val);
+            });
+            callback();
+        });
     }
 
     /**
@@ -81,7 +117,16 @@ WickFileCache = class {
      * Clear the cache.
      */
     clear () {
+        // Clear all files from localforage
+        for(var uuid in this._files) {
+            localforage.removeItem(Wick.FileCache.getLocalForageKeyForUUID(uuid), src).then(() => {});
+        }
+
         this._files = {};
+    }
+
+    static getLocalForageKeyForUUID (uuid) {
+        return this.FILE_LOCALFORAGE_KEY_PREFIX + uuid;
     }
 }
 

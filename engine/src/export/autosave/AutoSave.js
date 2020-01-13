@@ -76,35 +76,35 @@ Wick.AutoSave = class {
      * @param {string} uuid
      */
     static load (uuid) {
-      const promise = new Promise((resolve, reject) => {
-          // Retrieve the most recent autosaved project
-          this.getAutosavedProjects().then(projects => {
-              // Load the project
-              var projectAutosaveData = projects[uuid];
-              if(!projectAutosaveData) {
-                  reject(new Error('Project with uuid ' + uuid + ' does not exist in autosave.'));
-                  return;
-              }
+        const promise = new Promise((resolve, reject) => {
+            // Retrieve the most recent autosaved project
+            this.getAutosavedProjects().then(projects => {
+                // Load the project
+                var projectAutosaveData = projects[uuid];
+                if(!projectAutosaveData) {
+                    reject(new Error('Project with uuid ' + uuid + ' does not exist in autosave.'));
+                    return;
+                }
 
-              // Load all objects that belong to this project
-              Promise.all(projectAutosaveData.objectUUIDs.map(uuid => {
-                  return localforage.getItem(uuid);
-              })).then(function(values) {
-                  values.forEach(objectData => {
-                      var object = Wick.Base.fromData(objectData);
-                      Wick.ObjectCache.addObject(object);
-                  });
-              });
+                // Load all objects that belong to this project
+                Promise.all(projectAutosaveData.objectUUIDs.map(uuid => {
+                    return localforage.getItem(uuid);
+                })).then(function(values) {
+                    values.forEach(objectData => {
+                        var object = Wick.Base.fromData(objectData);
+                        Wick.ObjectCache.addObject(object);
+                    });
+                });
 
-              // Deserialize the project
-              var project = Wick.Base.fromData(projectAutosaveData.project);
-              Wick.ObjectCache.addObject(project);
+                // Deserialize the project
+                var project = Wick.Base.fromData(projectAutosaveData.project);
+                Wick.ObjectCache.addObject(project);
 
-              resolve(project);
-          });
-      });
+                resolve(project);
+            });
+        });
 
-      return promise;
+        return promise;
     }
 
     /**
