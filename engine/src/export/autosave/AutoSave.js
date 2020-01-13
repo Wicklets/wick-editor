@@ -38,6 +38,7 @@ Wick.AutoSave = class {
             // The object that will be saved in localforage
             var projectAutosaveData = {};
 
+            console.time('needsAutosave');
             // Write objects with needsAutosave flag to localforage
             Wick.ObjectCache.getObjectsNeedAutosaved().forEach(object => {
                 // Serialize and save data in localforage
@@ -45,18 +46,29 @@ Wick.AutoSave = class {
                 localforage.setItem(object.uuid, data);
                 object.needsAutosave = false;
             });
+            console.timeEnd('needsAutosave');
 
+            console.time('recursive');
             // Save UUIDs of objects that belong to this project
             projectAutosaveData.objectUUIDs = project.getChildrenRecursive().map(object => {
                 return object.uuid;
             });
+            console.timeEnd('recursive');
 
+            console.time('serialize');
             // Update projects list
             projectAutosaveData.project = project.serialize();
+            console.timeEnd('serialize');
+
+            console.time('getAutosaves');
             this.getAutosavedProjects().then(autosavedProjects => {
+                console.timeEnd('getAutosaves');
+
+                console.time('update');
                 autosavedProjects[project.uuid] = projectAutosaveData;
-                this.updateAutosavedProjects(autosavedProjects).then(() => {resolve()});
+                this.updateAutosavedProjects(autosavedProjects).then(() => {console.timeEnd('update'); resolve()});
             });
+
         });
 
         return promise;
@@ -114,7 +126,9 @@ Wick.AutoSave = class {
      */
     static getAutosavedProjects () {
         const promise = new Promise((resolve, reject) => {
+            console.time('getItem')
             localforage.getItem(Wick.AutoSave.PROJECTS_LIST_KEY).then(result => {
+                console.timeEnd('getItem')
                 resolve(result || {});
             });
         })
@@ -148,6 +162,7 @@ Wick.AutoSave = class {
      * @param {function} callback - called when saving is finished
      */
     static updateAutosavedProjects (autosavedProjects) {
+        console.log(autosavedProjects);
         const promise = new Promise((resolve, reject) => {
             localforage.setItem(Wick.AutoSave.PROJECTS_LIST_KEY, autosavedProjects).then(() => {resolve()});
         });

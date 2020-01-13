@@ -46289,23 +46289,33 @@ Wick.AutoSave = class {
   static save(project) {
     const promise = new Promise((resolve, reject) => {
       // The object that will be saved in localforage
-      var projectAutosaveData = {}; // Write objects with needsAutosave flag to localforage
+      var projectAutosaveData = {};
+      console.time('needsAutosave'); // Write objects with needsAutosave flag to localforage
 
       Wick.ObjectCache.getObjectsNeedAutosaved().forEach(object => {
         // Serialize and save data in localforage
         var data = object.serialize();
         localforage.setItem(object.uuid, data);
         object.needsAutosave = false;
-      }); // Save UUIDs of objects that belong to this project
+      });
+      console.timeEnd('needsAutosave');
+      console.time('recursive'); // Save UUIDs of objects that belong to this project
 
       projectAutosaveData.objectUUIDs = project.getChildrenRecursive().map(object => {
         return object.uuid;
-      }); // Update projects list
+      });
+      console.timeEnd('recursive');
+      console.time('serialize'); // Update projects list
 
       projectAutosaveData.project = project.serialize();
+      console.timeEnd('serialize');
+      console.time('getAutosaves');
       this.getAutosavedProjects().then(autosavedProjects => {
+        console.timeEnd('getAutosaves');
+        console.time('update');
         autosavedProjects[project.uuid] = projectAutosaveData;
         this.updateAutosavedProjects(autosavedProjects).then(() => {
+          console.timeEnd('update');
           resolve();
         });
       });
@@ -46365,7 +46375,9 @@ Wick.AutoSave = class {
 
   static getAutosavedProjects() {
     const promise = new Promise((resolve, reject) => {
+      console.time('getItem');
       localforage.getItem(Wick.AutoSave.PROJECTS_LIST_KEY).then(result => {
+        console.timeEnd('getItem');
         resolve(result || {});
       });
     });

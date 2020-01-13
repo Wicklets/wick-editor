@@ -1068,12 +1068,14 @@ class EditorCore extends Component {
   /**
    * Save the current project in localstorage
    */
-  autoSaveProject = () => {
+  autoSaveProject = (callback) => {
     if (!this.project) return;
     if (this.state.previewPlaying) return;
     if (this.state.activeModalName !== null) return;
 
-    window.Wick.AutoSave.save(this.project);
+    window.Wick.AutoSave.save(this.project).then(() => {
+      callback();
+    });
   }
 
   /**
