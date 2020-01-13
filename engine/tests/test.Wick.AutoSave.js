@@ -51,7 +51,6 @@ describe('Wick.AutoSave', function() {
     });
 
     it('should have the correct prefix for saved files', function() {
-      expect(Wick.FileCache.PROJECTS_LIST_KEY).to.equal('autosavedProjects');
+        expect(Wick.FileCache.FILE_LOCALFORAGE_KEY_PREFIX).to.equal('filesrc_');
     });
-
 });

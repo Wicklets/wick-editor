@@ -98,9 +98,10 @@ Wick.AutoSave = class {
 
                 // Deserialize the project
                 var project = Wick.Base.fromData(projectAutosaveData.project);
-                Wick.ObjectCache.addObject(project);
-
-                resolve(project);
+                Wick.FileCache.loadFilesFromLocalforage(project, () => {
+                    Wick.ObjectCache.addObject(project);
+                    resolve(project);
+                });
             });
         });
 

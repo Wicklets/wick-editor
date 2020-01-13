@@ -44934,10 +44934,19 @@ Wick.Color = class {
 /**
  * Global utility class for storing and retrieving large file data.
  */
-WickFileCache = class {
+Wick.FileCache = class {
+  /**
+   * A prefix to use in localforage so we can identify which items in localforage are files.
+   * @type {string}
+   */
+  static get FILE_LOCALFORAGE_KEY_PREFIX() {
+    return 'filesrc_'; // This should never change.
+  }
   /**
    * Create a WickFileCache.
    */
+
+
   constructor() {
     this._files = {};
   }
@@ -44948,10 +44957,12 @@ WickFileCache = class {
    */
 
 
-  addFile(src, uuid) {
+  static addFile(src, uuid) {
     this._files[uuid] = {
       src: src
-    };
+    }; // Save asset to localforage
+
+    localforage.setItem(this.getLocalForageKeyForUUID(uuid), src).then(() => {});
   }
   /**
    * Get info for a file by its UUID.
@@ -44960,7 +44971,7 @@ WickFileCache = class {
    */
 
 
-  getFile(uuid) {
+  static getFile(uuid) {
     var file = this._files[uuid];
 
     if (!file) {
@@ -44976,8 +44987,28 @@ WickFileCache = class {
    */
 
 
-  removeFile(uuid) {
-    delete this._files[uuid];
+  static removeFile(uuid) {
+    delete this._files[uuid]; // Remove file from localforage
+
+    localforage.removeItem(this.getLocalForageKeyForUUID(uuid)).then(() => {});
+  }
+  /**
+   * Loads all files from local forage associated with a previously saved project, if possible.
+   * @param {Wick.Project} project - the project that we want to load assets for.
+   * @param {function} callback - called when the assets are done being loaded.
+   */
+
+
+  static loadFilesFromLocalforage(project, callback) {
+    Promise.all(project.getAssets().map(asset => {
+      return localforage.getItem(this.getLocalForageKeyForUUID(asset.uuid));
+    })).then(assets => {
+      for (var i = 0; i < assets.length; i++) {
+        this.addFile(assets[i], project.getAssets()[i].uuid);
+      }
+
+      callback();
+    });
   }
   /**
    * On object containing all files in WickFileCache.
@@ -44985,7 +45016,7 @@ WickFileCache = class {
    */
 
 
-  getAllFiles() {
+  static getAllFiles() {
     var files = [];
 
     for (var uuid in this._files) {
@@ -45002,12 +45033,22 @@ WickFileCache = class {
    */
 
 
-  clear() {
+  static clear() {
     this._files = {};
   }
 
+  static clearLocalforage() {
+    // Clear all files from localforage
+    for (var uuid in this._files) {
+      localforage.removeItem(this.getLocalForageKeyForUUID(uuid)).then(() => {});
+    }
+  }
+
+  static getLocalForageKeyForUUID(uuid) {
+    return this.FILE_LOCALFORAGE_KEY_PREFIX + uuid;
+  }
+
 };
-Wick.FileCache = new WickFileCache();
 /*
  * Copyright 2019 WICKLETS LLC
  *
@@ -46290,8 +46331,10 @@ Wick.AutoSave = class {
         }); // Deserialize the project
 
         var project = Wick.Base.fromData(projectAutosaveData.project);
-        Wick.ObjectCache.addObject(project);
-        resolve(project);
+        Wick.FileCache.loadFilesFromLocalforage(project, () => {
+          Wick.ObjectCache.addObject(project);
+          resolve(project);
+        });
       });
     });
     return promise;
