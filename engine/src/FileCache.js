@@ -47,11 +47,19 @@ WickFileCache = class {
     getFile (uuid) {
         var file = this._files[uuid];
         if(!file) {
-          console.warn('Asset with UUID ' + uuid + ' was not found in FileCache!');
-          return null;
+            console.error('Asset with UUID ' + uuid + ' was not found in FileCache!');
+            return null;
         } else {
-          return file;
+            return file;
         }
+    }
+
+    /**
+     * Removes a file from the FileCache with a given UUID.
+     * @param {string} uuid - the UUID of the file to remove.
+     */
+    removeFile (uuid) {
+        delete this._files[uuid];
     }
 
     /**
