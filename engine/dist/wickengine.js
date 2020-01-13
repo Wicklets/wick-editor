@@ -45288,6 +45288,7 @@ WickObjectCache = class {
    */
   constructor() {
     this._objects = {};
+    this._objectsNeedAutosave = {};
   }
   /**
    * Add an object to the cache.
@@ -45317,6 +45318,7 @@ WickObjectCache = class {
 
   clear() {
     this._objects = {};
+    this._objectsNeedAutosave = {};
   }
   /**
    * Get an object by its UUID.
@@ -45384,6 +45386,42 @@ WickObjectCache = class {
     return this.getAllObjects().filter(object => {
       return uuids.indexOf(object.uuid) !== -1;
     });
+  }
+  /**
+   * Saves an object to be autosaved upon the next auto save.
+   * @param {Wick.Base} object object to be saved.
+   */
+
+
+  markObjectToBeAutosaved(object) {
+    this._objectsNeedAutosave[object.uuid] = true;
+  }
+  /**
+   * Removes a given object from the list of objects that must be autosaved.
+   * @param {Wick.Base} object - the object to remove from the list of objects to be autosaved.
+   */
+
+
+  clearObjectToBeAutosaved(object) {
+    delete this._objectsNeedAutosave[object.uuid];
+  }
+  /**
+   * Returns true if a given object is marked to be autosaved during the next autosave.
+   * @param {Wick.Base} object - the object to check for autosave
+   */
+
+
+  objectNeedsAutosave(object) {
+    return Wick.ObjectCache._objectsNeedAutosave[object.uuid];
+  }
+  /**
+   * Returns an array of objects that currently need to be autosaved.
+   * @returns {Wick.Base[]} The objects that are marked to be autosaved.
+   */
+
+
+  getObjectsNeedAutosaved() {
+    return Object.keys(this._objectsNeedAutosave).map(uuid => this.getObjectByUUID(uuid));
   }
 
 };
@@ -46251,24 +46289,17 @@ Wick.AutoSave = class {
   static save(project) {
     const promise = new Promise((resolve, reject) => {
       // The object that will be saved in localforage
-      var projectAutosaveData = {}; // Get all objects in the project
+      var projectAutosaveData = {}; // Write objects with needsAutosave flag to localforage
 
-      var objects = Wick.ObjectCache.getActiveObjects(project);
-      console.log(objects.length + ' objects in cache'); // Save UUIDs of objects that belong to this project
-
-      projectAutosaveData.objectUUIDs = objects.map(object => {
-        return object.uuid;
-      }); // Write objects with needsAutosave flag to localforage
-
-      var objectsNeedAutosave = objects.filter(object => {
-        return object.needsAutosave;
-      });
-      console.log(objectsNeedAutosave.length + ' objects to write to localforage');
-      objectsNeedAutosave.forEach(object => {
+      Wick.ObjectCache.getObjectsNeedAutosaved().forEach(object => {
         // Serialize and save data in localforage
         var data = object.serialize();
         localforage.setItem(object.uuid, data);
         object.needsAutosave = false;
+      }); // Save UUIDs of objects that belong to this project
+
+      projectAutosaveData.objectUUIDs = project.getChildrenRecursive().map(object => {
+        return object.uuid;
       }); // Update projects list
 
       projectAutosaveData.project = project.serialize();
@@ -46300,6 +46331,7 @@ Wick.AutoSave = class {
         } // Load all objects that belong to this project
 
 
+        console.log(projectAutosaveData);
         Promise.all(projectAutosaveData.objectUUIDs.map(uuid => {
           return localforage.getItem(uuid);
         })).then(function (values) {
@@ -46981,7 +47013,7 @@ Wick.Base = class {
     this._childrenData = null;
     this._parent = null;
     this._project = this.classname === 'Project' ? this : null;
-    this._needsAutosave = true;
+    this.needsAutosave = true;
     Wick.ObjectCache.addObject(this);
   }
   /**
@@ -47127,11 +47159,15 @@ Wick.Base = class {
 
 
   set needsAutosave(needsAutosave) {
-    this._needsAutosave = needsAutosave;
+    if (needsAutosave) {
+      Wick.ObjectCache.markObjectToBeAutosaved(this);
+    } else {
+      Wick.ObjectCache.clearObjectToBeAutosaved(this);
+    }
   }
 
   get needsAutosave() {
-    return this._needsAutosave;
+    return Wick.ObjectCache.objectNeedsAutosave(this);
   }
   /**
    * Returns the classname of a Wick Base object.

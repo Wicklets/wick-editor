@@ -54,7 +54,7 @@ Wick.Base = class {
         this._parent = null;
         this._project = this.classname === 'Project' ? this : null;
 
-        this._needsAutosave = true;
+        this.needsAutosave = true;
 
         Wick.ObjectCache.addObject(this);
     }
@@ -199,11 +199,15 @@ Wick.Base = class {
      * @type {boolean}
      */
     set needsAutosave (needsAutosave) {
-        this._needsAutosave = needsAutosave;
+        if(needsAutosave) {
+            Wick.ObjectCache.markObjectToBeAutosaved(this);
+        } else {
+            Wick.ObjectCache.clearObjectToBeAutosaved(this);
+        }
     }
 
     get needsAutosave () {
-        return this._needsAutosave;
+        return Wick.ObjectCache.objectNeedsAutosave(this);
     }
 
     /**

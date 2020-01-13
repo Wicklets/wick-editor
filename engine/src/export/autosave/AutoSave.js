@@ -38,26 +38,17 @@ Wick.AutoSave = class {
             // The object that will be saved in localforage
             var projectAutosaveData = {};
 
-            // Get all objects in the project
-            var objects = Wick.ObjectCache.getActiveObjects(project);
-            console.log(objects.length + ' objects in cache');
-
-            // Save UUIDs of objects that belong to this project
-            projectAutosaveData.objectUUIDs = objects.map(object => {
-                return object.uuid;
-            });
-
             // Write objects with needsAutosave flag to localforage
-            var objectsNeedAutosave = objects.filter(object => {
-                return object.needsAutosave;
-            });
-            console.log(objectsNeedAutosave.length + ' objects to write to localforage');
-
-            objectsNeedAutosave.forEach(object => {
+            Wick.ObjectCache.getObjectsNeedAutosaved().forEach(object => {
                 // Serialize and save data in localforage
                 var data = object.serialize();
                 localforage.setItem(object.uuid, data);
                 object.needsAutosave = false;
+            });
+
+            // Save UUIDs of objects that belong to this project
+            projectAutosaveData.objectUUIDs = project.getChildrenRecursive().map(object => {
+                return object.uuid;
             });
 
             // Update projects list
@@ -87,6 +78,7 @@ Wick.AutoSave = class {
                 }
 
                 // Load all objects that belong to this project
+                console.log(projectAutosaveData)
                 Promise.all(projectAutosaveData.objectUUIDs.map(uuid => {
                     return localforage.getItem(uuid);
                 })).then(function(values) {
