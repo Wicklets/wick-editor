@@ -1061,7 +1061,7 @@ class EditorCore extends Component {
   requestAutosave = () => {
       window.clearTimeout(this._autosaveTimeoutID);
       this._autosaveTimeoutID = window.setTimeout(() => {
-          this.autoSaveProject();
+          //this.autoSaveProject();
       }, 1000 * 60);
   }
 
@@ -1073,7 +1073,7 @@ class EditorCore extends Component {
     if (this.state.previewPlaying) return;
     if (this.state.activeModalName !== null) return;
 
-    window.Wick.AutoSave.save(this.project).then(() => {
+    window.Wick.AutoSave.save(this.project, () => {
       callback();
     });
   }
@@ -1083,12 +1083,12 @@ class EditorCore extends Component {
    * Does nothing if not autosaved project is stored.
    */
   loadAutosavedProject = (callback) => {
-    window.Wick.AutoSave.getSortedAutosavedProjects().then(projectsData => {
-      if(!projectsData[0]) {
+    window.Wick.AutoSave.getAutosavesList(autosaveList => {
+      if(!autosaveList[0]) {
         callback();
       } else {
         this.showWaitOverlay();
-        window.Wick.AutoSave.load(projectsData[0].uuid).then(project => {
+        window.Wick.AutoSave.load(autosaveList[0].uuid, project => {
           this.setupNewProject(project);
           this.hideWaitOverlay();
           callback();
@@ -1103,8 +1103,8 @@ class EditorCore extends Component {
    * True if an autosave exists.
    */
   doesAutoSavedProjectExist = (callback) => {
-    window.Wick.AutoSave.getSortedAutosavedProjects().then(projectsData => {
-      callback(projectsData.length > 0);
+    window.Wick.AutoSave.getAutosavesList(autosaveList => {
+      callback(autosaveList.length > 0);
     });
   }
 
