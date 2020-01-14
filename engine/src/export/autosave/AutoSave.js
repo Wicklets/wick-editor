@@ -30,7 +30,7 @@ Wick.AutoSave = class {
     }
 
     /**
-     *
+     * The prefix to use for keys to save project autosave data.
      * @type {string}
      */
     static get AUTOSAVE_DATA_PREFIX () {
@@ -77,8 +77,8 @@ Wick.AutoSave = class {
     }
 
     /**
-     *
-     * @param {Wick.Project} project -
+     * Generates an object that is writable to localforage from a project.
+     * @param {Wick.Project} project - The project to generate data for.
      */
     static generateAutosaveData (project) {
         var projectData = project.serialize();
@@ -95,8 +95,8 @@ Wick.AutoSave = class {
     }
 
     /**
-     *
-     * @param {object} autosaveData -
+     * Creates a project from data loaded from the autosave system
+     * @param {object} autosaveData - An autosave data object, use generateAutosaveData/readAutosaveData to get this object
      */
     static generateProjectFromAutosaveData (autosaveData, callback) {
         // Deserialize all objects in the project so they are added to the ObjectCache
@@ -173,7 +173,8 @@ Wick.AutoSave = class {
     }
 
     /**
-     *
+     * Save project data into the autosave system.
+     * @param {Object} autosaveData - Autosave data of a project, use generateAutosaveData to create this object
      */
     static writeAutosaveData (autosaveData, callback) {
         localforage.setItem(this.AUTOSAVE_DATA_PREFIX + autosaveData.projectData.uuid, autosaveData).then(() => {
@@ -182,16 +183,8 @@ Wick.AutoSave = class {
     }
 
     /**
-     *
-     */
-    static deleteAutosaveData (uuid, callback) {
-        localforage.removeItem(this.AUTOSAVE_DATA_PREFIX + uuid).then(() => {
-            callback();
-        });
-    }
-
-    /**
-     *
+     * Load project data from the autosave system.
+     * @param {string} uuid - the UUID of the project to load
      */
     static readAutosaveData (uuid, callback) {
         localforage.getItem(this.AUTOSAVE_DATA_PREFIX + uuid).then(result => {
@@ -199,6 +192,16 @@ Wick.AutoSave = class {
                 console.error('Could not load autosaveData for project: ' + uuid);
             }
             callback(result);
+        });
+    }
+
+    /**
+     * Deletes project data from the autosave system.
+     * @param {string} uuid - the UUID of the project to delete
+     */
+    static deleteAutosaveData (uuid, callback) {
+        localforage.removeItem(this.AUTOSAVE_DATA_PREFIX + uuid).then(() => {
+            callback();
         });
     }
 }
