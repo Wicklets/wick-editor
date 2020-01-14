@@ -21,7 +21,6 @@
  * Utility class for generating image sequences.
  */
 Wick.ImageSequence = class {
-
     /**
      * Create a png sequence from a project.
      * @param {Wick.Project} project - the project to create a png sequence from
@@ -45,10 +44,10 @@ Wick.ImageSequence = class {
                 },
             }).then(onFinish);
         }
-        
+
         project.generateImageSequence({
             onFinish: buildZip,
             onProgress: onProgress,
-        }); 
+        });
     }
 }
