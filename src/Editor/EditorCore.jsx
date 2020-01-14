@@ -23,7 +23,6 @@ import * as urlParse from 'url-parse/dist/url-parse';
 import queryString from 'query-string';
 import { saveAs } from 'file-saver';
 import VideoExport from './export/VideoExport';
-import ImageExport from './export/ImageExport'; 
 import GIFExport from './export/GIFExport';
 import timeStamp from './Util/DataFunctions/timestamp';
 import ImageExport from './export/ImageExport';
@@ -899,18 +898,25 @@ class EditorCore extends Component {
       });
     }
 
+    // let updateProgress = (completed, maxFrames) => {
+    //   // Change visual of the loading bar
+    //   let message = "Rendered " + completed + "/" + maxFrames + " frames";
+    //   let percentage = 10 + (90 * (completed/maxFrames));
+    //   onProgress(message, percentage);
+    // }
+
     let onError = (message) => {
       console.error("Video Render had an error with message: ", message);
     }
 
-    let onFinish = (message) => {
+    let onFinish = (zipFile) => {
       this.updateToast(toastID, {
         type: 'success',
         text: "Successfully created .mp4 file." });
-      console.log("Video Render Complete: ", message);
+      saveAs(zipFile, this.project.name +'_imageSequence.zip');
     }
 
-    ImageExport.generateImageSequence({
+    window.Wick.ImageSequence.toPNGSequence({
       project: this.project,
       onProgress: onProgress,
       onError: () => {
@@ -921,7 +927,7 @@ class EditorCore extends Component {
         this.hideWaitOverlay();
         onFinish();
       },
-    }); 
+    });
   }
 
   /**

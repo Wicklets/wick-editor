@@ -46661,10 +46661,13 @@ Wick.ImageSequence = class {
     var zip = new JSZip();
 
     let buildZip = files => {
+      let index = 0;
       files.forEach(file => {
-        zip.file("hello.png", imgData, {
-          binary: true
+        var blob = new Blob([dataURI], {
+          type: 'image/png'
         });
+        zip.file('frame' + index + '.png', blob);
+        index += 1;
       });
       zip.generateAsync({
         type: format,
