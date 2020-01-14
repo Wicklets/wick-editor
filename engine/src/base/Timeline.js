@@ -36,8 +36,8 @@ Wick.Timeline = class extends Wick.Base {
         this._fillGapsMethod = "auto_extend";
     }
 
-    serialize (args) {
-        var data = super.serialize(args);
+    _serialize (args) {
+        var data = super._serialize(args);
 
         data.playheadPosition = this._playheadPosition;
         data.activeLayerIndex = this._activeLayerIndex;
@@ -45,8 +45,8 @@ Wick.Timeline = class extends Wick.Base {
         return data;
     }
 
-    deserialize (data) {
-        super.deserialize(data);
+    _deserialize (data) {
+        super._deserialize(data);
 
         this._playheadPosition = data.playheadPosition;
         this._activeLayerIndex = data.activeLayerIndex;

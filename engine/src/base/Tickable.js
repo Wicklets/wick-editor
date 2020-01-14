@@ -76,8 +76,8 @@ Wick.Tickable = class extends Wick.Base {
         this._cachedScripts = {};
     }
 
-    deserialize (data) {
-        super.deserialize(data);
+    _deserialize (data) {
+        super._deserialize(data);
 
         this._onscreen = false;
         this._onscreenLastTick = false;
@@ -93,8 +93,8 @@ Wick.Tickable = class extends Wick.Base {
 
     }
 
-    serialize (args) {
-        var data = super.serialize(args);
+    _serialize (args) {
+        var data = super._serialize(args);
 
         data.scripts = JSON.parse(JSON.stringify(this._scripts));
         data.cursor = this.cursor;

@@ -111,8 +111,8 @@ Wick.Project = class extends Wick.Base {
         this.history.pushState(Wick.History.StateType.ONLY_VISIBLE_OBJECTS);
     }
 
-    deserialize (data) {
-        super.deserialize(data);
+    _deserialize (data) {
+        super._deserialize(data);
 
         this.name = data.name;
         this.width = data.width;
@@ -126,8 +126,8 @@ Wick.Project = class extends Wick.Base {
         this._muted = false;
     }
 
-    serialize (args) {
-        var data = super.serialize(args);
+    _serialize (args) {
+        var data = super._serialize(args);
 
         data.name = this.name;
         data.width = this.width;

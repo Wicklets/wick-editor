@@ -48,13 +48,13 @@ Wick.FontAsset = class extends Wick.FileAsset {
         super(args);
     }
 
-    serialize (args) {
-        var data = super.serialize(args);
+    _serialize (args) {
+        var data = super._serialize(args);
         return data;
     }
 
-    deserialize (data) {
-        super.deserialize(data);
+    _deserialize (data) {
+        super._deserialize(data);
     }
 
     get classname () {
@@ -75,7 +75,7 @@ Wick.FontAsset = class extends Wick.FileAsset {
             var font = new FontFace(fontFamily, fontDataArraybuffer);
     		font.load().then(loaded_face => {
     		    document.fonts.add(loaded_face);
-                callback(); 
+                callback();
     		}).catch(error => {
                 console.error('FontAsset.load(): An error occured while loading a font:');
                 console.log(font);

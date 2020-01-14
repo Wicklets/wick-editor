@@ -46281,7 +46281,7 @@ Wick.AutoSave = class {
     return 'autosaveList';
   }
   /**
-   *
+   * The prefix to use for keys to save project autosave data.
    * @type {string}
    */
 
@@ -46296,9 +46296,13 @@ Wick.AutoSave = class {
 
 
   static save(project, callback) {
+    if (Wick.AutoSave.ENABLE_PERF_TIMERS) console.time('serialize step');
     var autosaveData = this.generateAutosaveData(project);
+    if (Wick.AutoSave.ENABLE_PERF_TIMERS) console.timeEnd('serialize step');
+    if (Wick.AutoSave.ENABLE_PERF_TIMERS) console.time('localforage step');
     this.addAutosaveToList(autosaveData, () => {
       this.writeAutosaveData(autosaveData, () => {
+        if (Wick.AutoSave.ENABLE_PERF_TIMERS) console.timeEnd('localforage step');
         callback();
       });
     });
@@ -46332,8 +46336,8 @@ Wick.AutoSave = class {
     });
   }
   /**
-   *
-   * @param {Wick.Project} project -
+   * Generates an object that is writable to localforage from a project.
+   * @param {Wick.Project} project - The project to generate data for.
    */
 
 
@@ -46350,8 +46354,8 @@ Wick.AutoSave = class {
     };
   }
   /**
-   *
-   * @param {object} autosaveData -
+   * Creates a project from data loaded from the autosave system
+   * @param {object} autosaveData - An autosave data object, use generateAutosaveData/readAutosaveData to get this object
    */
 
 
@@ -46429,7 +46433,8 @@ Wick.AutoSave = class {
     });
   }
   /**
-   *
+   * Save project data into the autosave system.
+   * @param {Object} autosaveData - Autosave data of a project, use generateAutosaveData to create this object
    */
 
 
@@ -46439,17 +46444,8 @@ Wick.AutoSave = class {
     });
   }
   /**
-   *
-   */
-
-
-  static deleteAutosaveData(uuid, callback) {
-    localforage.removeItem(this.AUTOSAVE_DATA_PREFIX + uuid).then(() => {
-      callback();
-    });
-  }
-  /**
-   *
+   * Load project data from the autosave system.
+   * @param {string} uuid - the UUID of the project to load
    */
 
 
@@ -46462,8 +46458,20 @@ Wick.AutoSave = class {
       callback(result);
     });
   }
+  /**
+   * Deletes project data from the autosave system.
+   * @param {string} uuid - the UUID of the project to delete
+   */
+
+
+  static deleteAutosaveData(uuid, callback) {
+    localforage.removeItem(this.AUTOSAVE_DATA_PREFIX + uuid).then(() => {
+      callback();
+    });
+  }
 
 };
+Wick.AutoSave.ENABLE_PERF_TIMERS = true;
 /*
  * Copyright 2019 WICKLETS LLC
  *
@@ -47070,12 +47078,37 @@ Wick.Base = class {
     return object;
   }
   /**
+   * Converts this Wick Base object into a plain javascript object contianing raw data (no references).
+   * @return {object} Plain JavaScript object representing this Wick Base object.
+   */
+
+
+  serialize() {
+    return this._serialize();
+  }
+  /**
    * Parses serialized data representing Base Objects which have been serialized using the serialize function of their class.
    * @param  {object} data Serialized data that was returned by a Base Object's serialize function.
    */
 
 
   deserialize(data) {
+    this._deserialize(data);
+  }
+
+  _serialize() {
+    var data = {};
+    data.classname = this.classname;
+    data.identifier = this._identifier;
+    data.name = this._name;
+    data.uuid = this._uuid;
+    data.children = this.getChildren().map(child => {
+      return child.uuid;
+    });
+    return data;
+  }
+
+  _deserialize(data) {
     this._uuid = data.uuid;
     this._identifier = data.identifier;
     this._name = data.name;
@@ -47089,23 +47122,6 @@ Wick.Base = class {
         delete this[name];
       }
     }
-  }
-  /**
-   * Converts this Wick Base object into a plain javascript object contianing raw data (no references).
-   * @return {object} Plain JavaScript object representing this Wick Base object.
-   */
-
-
-  serialize() {
-    var data = {};
-    data.classname = this.classname;
-    data.identifier = this._identifier;
-    data.name = this._name;
-    data.uuid = this._uuid;
-    data.children = this.getChildren().map(child => {
-      return child.uuid;
-    });
-    return data;
   }
   /**
    * Returns a copy of a Wick Base object.
@@ -47556,15 +47572,17 @@ Wick.Layer = class extends Wick.Base {
     this.name = args.name || null;
   }
 
-  serialize(args) {
-    var data = super.serialize(args);
+  _serialize(args) {
+    var data = super._serialize(args);
+
     data.locked = this.locked;
     data.hidden = this.hidden;
     return data;
   }
 
-  deserialize(data) {
-    super.deserialize(data);
+  _deserialize(data) {
+    super._deserialize(data);
+
     this.locked = data.locked;
     this.hidden = data.hidden;
   }
@@ -47928,8 +47946,9 @@ Wick.Project = class extends Wick.Base {
     this.history.pushState(Wick.History.StateType.ONLY_VISIBLE_OBJECTS);
   }
 
-  deserialize(data) {
-    super.deserialize(data);
+  _deserialize(data) {
+    super._deserialize(data);
+
     this.name = data.name;
     this.width = data.width;
     this.height = data.height;
@@ -47940,8 +47959,9 @@ Wick.Project = class extends Wick.Base {
     this._muted = false;
   }
 
-  serialize(args) {
-    var data = super.serialize(args);
+  _serialize(args) {
+    var data = super._serialize(args);
+
     data.name = this.name;
     data.width = this.width;
     data.height = this.height;
@@ -49382,8 +49402,9 @@ Wick.Selection = class extends Wick.Base {
     };
   }
 
-  serialize(args) {
-    var data = super.serialize(args);
+  _serialize(args) {
+    var data = super._serialize(args);
+
     data.selectedObjects = Array.from(this._selectedObjectsUUIDs);
     data.widgetRotation = this._widgetRotation;
     data.pivotPoint = {
@@ -49393,8 +49414,9 @@ Wick.Selection = class extends Wick.Base {
     return data;
   }
 
-  deserialize(data) {
-    super.deserialize(data);
+  _deserialize(data) {
+    super._deserialize(data);
+
     this._selectedObjectsUUIDs = data.selectedObjects || [];
     this._widgetRotation = data.widgetRotation;
     this._pivotPoint = {
@@ -50165,15 +50187,17 @@ Wick.Timeline = class extends Wick.Base {
     this._fillGapsMethod = "auto_extend";
   }
 
-  serialize(args) {
-    var data = super.serialize(args);
+  _serialize(args) {
+    var data = super._serialize(args);
+
     data.playheadPosition = this._playheadPosition;
     data.activeLayerIndex = this._activeLayerIndex;
     return data;
   }
 
-  deserialize(data) {
-    super.deserialize(data);
+  _deserialize(data) {
+    super._deserialize(data);
+
     this._playheadPosition = data.playheadPosition;
     this._activeLayerIndex = data.activeLayerIndex;
     this._playing = true;
@@ -50704,8 +50728,9 @@ Wick.Tween = class extends Wick.Base {
     return 'Tween';
   }
 
-  serialize(args) {
-    var data = super.serialize(args);
+  _serialize(args) {
+    var data = super._serialize(args);
+
     data.playheadPosition = this.playheadPosition;
     data.transformation = this.transformation.values;
     data.fullRotations = this.fullRotations;
@@ -50713,8 +50738,9 @@ Wick.Tween = class extends Wick.Base {
     return data;
   }
 
-  deserialize(data) {
-    super.deserialize(data);
+  _deserialize(data) {
+    super._deserialize(data);
+
     this.playheadPosition = data.playheadPosition;
     this.transformation = new Wick.Transformation(data.transformation);
     this.fullRotations = data.fullRotations;
@@ -50887,8 +50913,9 @@ Wick.Path = class extends Wick.Base {
     return 'Path';
   }
 
-  serialize(args) {
-    var data = super.serialize(args);
+  _serialize(args) {
+    var data = super._serialize(args);
+
     data.json = this.json;
     delete data.json[1].data; // optimization: replace dataurls with asset uuids
 
@@ -50909,8 +50936,9 @@ Wick.Path = class extends Wick.Base {
     return data;
   }
 
-  deserialize(data) {
-    super.deserialize(data);
+  _deserialize(data) {
+    super._deserialize(data);
+
     this.json = data.json;
     this._fontStyle = data.fontStyle || 'normal';
     this._fontWeight = data.fontWeight || 400;
@@ -51302,14 +51330,16 @@ Wick.Asset = class extends Wick.Base {
     this.name = args.name;
   }
 
-  serialize(args) {
-    var data = super.serialize(args);
+  _serialize(args) {
+    var data = super._serialize(args);
+
     data.name = this.name;
     return data;
   }
 
-  deserialize(data) {
-    super.deserialize(data);
+  _deserialize(data) {
+    super._deserialize(data);
+
     this.name = data.name;
   }
   /**
@@ -51409,8 +51439,9 @@ Wick.FileAsset = class extends Wick.Asset {
     this.src = args.src;
   }
 
-  serialize(args) {
-    var data = super.serialize(args);
+  _serialize(args) {
+    var data = super._serialize(args);
+
     data.filename = this.filename;
     data.MIMEType = this.MIMEType;
     data.fileExtension = this.fileExtension;
@@ -51422,8 +51453,9 @@ Wick.FileAsset = class extends Wick.Asset {
     return data;
   }
 
-  deserialize(data) {
-    super.deserialize(data);
+  _deserialize(data) {
+    super._deserialize(data);
+
     this.filename = data.filename;
     this.MIMEType = data.MIMEType;
     this.fileExtension = data.fileExtension;
@@ -51536,13 +51568,14 @@ Wick.FontAsset = class extends Wick.FileAsset {
     super(args);
   }
 
-  serialize(args) {
-    var data = super.serialize(args);
+  _serialize(args) {
+    var data = super._serialize(args);
+
     return data;
   }
 
-  deserialize(data) {
-    super.deserialize(data);
+  _deserialize(data) {
+    super._deserialize(data);
   }
 
   get classname() {
@@ -51668,13 +51701,14 @@ Wick.ImageAsset = class extends Wick.FileAsset {
     super(args);
   }
 
-  serialize(args) {
-    var data = super.serialize(args);
+  _serialize(args) {
+    var data = super._serialize(args);
+
     return data;
   }
 
-  deserialize(data) {
-    super.deserialize(data);
+  _deserialize(data) {
+    super._deserialize(data);
   }
 
   get classname() {
@@ -51781,13 +51815,14 @@ Wick.ClipAsset = class extends Wick.FileAsset {
     super(args);
   }
 
-  serialize(args) {
-    var data = super.serialize(args);
+  _serialize(args) {
+    var data = super._serialize(args);
+
     return data;
   }
 
-  deserialize(data) {
-    super.deserialize(data);
+  _deserialize(data) {
+    super._deserialize(data);
   }
 
   get classname() {
@@ -51890,13 +51925,14 @@ Wick.SoundAsset = class extends Wick.FileAsset {
     this._waveform = null;
   }
 
-  serialize(args) {
-    var data = super.serialize(args);
+  _serialize(args) {
+    var data = super._serialize(args);
+
     return data;
   }
 
-  deserialize(data) {
-    super.deserialize(data);
+  _deserialize(data) {
+    super._deserialize(data);
   }
 
   get classname() {
@@ -52106,13 +52142,14 @@ Wick.SVGAsset = class extends Wick.FileAsset {
     super(args);
   }
 
-  serialize(args) {
-    var data = super.serialize(args);
+  _serialize(args) {
+    var data = super._serialize(args);
+
     return data;
   }
 
-  deserialize(data) {
-    super.deserialize(data);
+  _deserialize(data) {
+    super._deserialize(data);
   }
 
   get classname() {
@@ -52221,8 +52258,9 @@ Wick.Tickable = class extends Wick.Base {
     this._cachedScripts = {};
   }
 
-  deserialize(data) {
-    super.deserialize(data);
+  _deserialize(data) {
+    super._deserialize(data);
+
     this._onscreen = false;
     this._onscreenLastTick = false;
     this._mouseState = 'out';
@@ -52233,8 +52271,9 @@ Wick.Tickable = class extends Wick.Base {
     this._cachedScripts = {};
   }
 
-  serialize(args) {
-    var data = super.serialize(args);
+  _serialize(args) {
+    var data = super._serialize(args);
+
     data.scripts = JSON.parse(JSON.stringify(this._scripts));
     data.cursor = this.cursor;
     return data;
@@ -52761,8 +52800,9 @@ Wick.Frame = class extends Wick.Tickable {
     this._originalLayerIndex = -1;
   }
 
-  serialize(args) {
-    var data = super.serialize(args);
+  _serialize(args) {
+    var data = super._serialize(args);
+
     data.start = this.start;
     data.end = this.end;
     data.sound = this._soundAssetUUID;
@@ -52772,8 +52812,9 @@ Wick.Frame = class extends Wick.Tickable {
     return data;
   }
 
-  deserialize(data) {
-    super.deserialize(data);
+  _deserialize(data) {
+    super._deserialize(data);
+
     this.start = data.start;
     this.end = data.end;
     this._soundAssetUUID = data.sound;
@@ -53478,15 +53519,17 @@ Wick.Clip = class extends Wick.Tickable {
     this._clones = [];
   }
 
-  serialize(args) {
-    var data = super.serialize(args);
+  _serialize(args) {
+    var data = super._serialize(args);
+
     data.transformation = this.transformation.values;
     data.timeline = this._timeline;
     return data;
   }
 
-  deserialize(data) {
-    super.deserialize(data);
+  _deserialize(data) {
+    super._deserialize(data);
+
     this.transformation = new Wick.Transformation(data.transformation);
     this._timeline = data.timeline;
     this._clones = [];
@@ -54040,13 +54083,14 @@ Wick.Button = class extends Wick.Clip {
     this.addScript('mouseclick', '');
   }
 
-  serialize(args) {
-    var data = super.serialize(args);
+  _serialize(args) {
+    var data = super._serialize(args);
+
     return data;
   }
 
-  deserialize(data) {
-    super.deserialize(data);
+  _deserialize(data) {
+    super._deserialize(data);
   }
 
   get classname() {

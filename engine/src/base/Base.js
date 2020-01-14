@@ -76,10 +76,34 @@ Wick.Base = class {
     }
 
     /**
+     * Converts this Wick Base object into a plain javascript object contianing raw data (no references).
+     * @return {object} Plain JavaScript object representing this Wick Base object.
+     */
+    serialize () {
+        return this._serialize();
+    }
+
+    /**
      * Parses serialized data representing Base Objects which have been serialized using the serialize function of their class.
      * @param  {object} data Serialized data that was returned by a Base Object's serialize function.
      */
     deserialize (data) {
+        this._deserialize(data);
+    }
+
+    _serialize () {
+        var data = {};
+
+        data.classname = this.classname;
+        data.identifier = this._identifier;
+        data.name = this._name;
+        data.uuid = this._uuid;
+        data.children = this.getChildren().map(child => { return child.uuid });
+
+        return data;
+    }
+
+    _deserialize (data) {
         this._uuid = data.uuid;
         this._identifier = data.identifier;
         this._name = data.name;
@@ -93,22 +117,6 @@ Wick.Base = class {
                 delete this[name];
             }
         }
-    }
-
-    /**
-     * Converts this Wick Base object into a plain javascript object contianing raw data (no references).
-     * @return {object} Plain JavaScript object representing this Wick Base object.
-     */
-    serialize () {
-        var data = {};
-
-        data.classname = this.classname;
-        data.identifier = this._identifier;
-        data.name = this._name;
-        data.uuid = this._uuid;
-        data.children = this.getChildren().map(child => { return child.uuid });
-
-        return data;
     }
 
     /**

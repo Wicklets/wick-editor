@@ -42,9 +42,14 @@ Wick.AutoSave = class {
      * @param {Wick.Project} project - the project to store in the AutoSave system.
      */
     static save (project, callback) {
+        if(Wick.AutoSave.ENABLE_PERF_TIMERS) console.time('serialize step')
         var autosaveData = this.generateAutosaveData(project);
+        if(Wick.AutoSave.ENABLE_PERF_TIMERS) console.timeEnd('serialize step')
+
+        if(Wick.AutoSave.ENABLE_PERF_TIMERS) console.time('localforage step')
         this.addAutosaveToList(autosaveData, () => {
             this.writeAutosaveData(autosaveData, () => {
+                if(Wick.AutoSave.ENABLE_PERF_TIMERS) console.timeEnd('localforage step')
                 callback();
             })
         });
@@ -205,3 +210,5 @@ Wick.AutoSave = class {
         });
     }
 }
+
+Wick.AutoSave.ENABLE_PERF_TIMERS = true;

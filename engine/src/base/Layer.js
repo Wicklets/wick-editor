@@ -35,8 +35,8 @@ Wick.Layer = class extends Wick.Base {
         this.name = args.name || null;
     }
 
-    serialize (args) {
-        var data = super.serialize(args);
+    _serialize (args) {
+        var data = super._serialize(args);
 
         data.locked = this.locked;
         data.hidden = this.hidden;
@@ -44,8 +44,8 @@ Wick.Layer = class extends Wick.Base {
         return data;
     }
 
-    deserialize (data) {
-        super.deserialize(data);
+    _deserialize (data) {
+        super._deserialize(data);
 
         this.locked = data.locked;
         this.hidden = data.hidden;

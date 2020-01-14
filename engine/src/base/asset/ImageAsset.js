@@ -44,13 +44,13 @@ Wick.ImageAsset = class extends Wick.FileAsset {
         super(args);
     }
 
-    serialize (args) {
-        var data = super.serialize(args);
+    _serialize (args) {
+        var data = super._serialize(args);
         return data;
     }
 
-    deserialize (data) {
-        super.deserialize(data);
+    _deserialize (data) {
+        super._deserialize(data);
     }
 
     get classname () {

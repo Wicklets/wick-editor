@@ -41,8 +41,8 @@ Wick.Selection = class extends Wick.Base {
         this._pivotPoint = {x: 0, y: 0};
     }
 
-    serialize (args) {
-        var data = super.serialize(args);
+    _serialize (args) {
+        var data = super._serialize(args);
         data.selectedObjects = Array.from(this._selectedObjectsUUIDs);
         data.widgetRotation = this._widgetRotation;
         data.pivotPoint = {
@@ -52,8 +52,8 @@ Wick.Selection = class extends Wick.Base {
         return data;
     }
 
-    deserialize (data) {
-        super.deserialize(data);
+    _deserialize (data) {
+        super._deserialize(data);
         this._selectedObjectsUUIDs = data.selectedObjects || [];
         this._widgetRotation = data.widgetRotation;
         this._pivotPoint = {
