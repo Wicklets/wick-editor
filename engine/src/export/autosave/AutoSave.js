@@ -225,4 +225,4 @@ Wick.AutoSave = class {
     }
 }
 
-Wick.AutoSave.ENABLE_PERF_TIMERS = true;
+Wick.AutoSave.ENABLE_PERF_TIMERS = false;
