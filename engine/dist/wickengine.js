@@ -51697,12 +51697,12 @@ Wick.ImageAsset = class extends Wick.FileAsset {
    */
 
 
-  constructor(args) {
-    super(args);
+  constructor() {
+    super();
   }
 
-  _serialize(args) {
-    var data = super._serialize(args);
+  _serialize() {
+    var data = super._serialize();
 
     return data;
   }
@@ -51811,11 +51811,11 @@ Wick.ClipAsset = class extends Wick.FileAsset {
    */
 
 
-  constructor(args) {
+  constructor() {
     super(args);
   }
 
-  _serialize(args) {
+  _serialize() {
     var data = super._serialize(args);
 
     return data;
