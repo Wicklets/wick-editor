@@ -909,11 +909,12 @@ class EditorCore extends Component {
       console.error("Video Render had an error with message: ", message);
     }
 
-    let onFinish = (zipFile) => {
+    let onFinish = (sequenceBlobZip) => {
       this.updateToast(toastID, {
         type: 'success',
         text: "Successfully created .mp4 file." });
-      saveAs(zipFile, this.project.name +'_imageSequence.zip');
+      console.log(sequenceBlobZip);
+      saveAs(sequenceBlobZip, this.project.name +'_imageSequence.zip');
     }
 
     window.Wick.ImageSequence.toPNGSequence({
@@ -923,9 +924,9 @@ class EditorCore extends Component {
         this.hideWaitOverlay();
         onError();
       },
-      onFinish: () => {
+      onFinish: (file) => {
         this.hideWaitOverlay();
-        onFinish();
+        onFinish(file);
       },
     });
   }

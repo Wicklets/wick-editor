@@ -12,9 +12,12 @@ describe('Wick.ImageSequence', function () {
         project.activeLayer.frames[1].addPath(path2);
         project.activeLayer.frames[2].addPath(path3);
 
-        Wick.ImageSequence.toPNGSequence(project, file => {
+        Wick.ImageSequence.toPNGSequence({
+          project: project,
+          onFinish: file => {
             console.log(file);
             done();
+          },
         });
 
         /*// for testing is onProgress works (this is kind of hacky and weird to test...)
