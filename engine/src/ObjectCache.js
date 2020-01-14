@@ -114,13 +114,18 @@ WickObjectCache = class {
      * @returns {Wick.Base[]} the active objects.
      */
     getActiveObjects (project) {
-        var children = project.getChildrenRecursive();
+        /*var children = project.getChildrenRecursive();
         var uuids = children.map(child => {
             return child.uuid;
         });
 
         return this.getAllObjects().filter(object => {
             return uuids.indexOf(object.uuid) !== -1;
+        });*/
+
+        // This does the same thing, but it's WAY faster.
+        return project.getChildrenRecursive().map(object => {
+            return this.getObjectByUUID(object.uuid);
         });
     }
 

@@ -32,6 +32,7 @@ describe('Wick.Project', function() {
             Wick.ObjectCache.clear();
 
             var project = new Wick.Project();
+            project.backgroundColor = new Wick.Color('#000000');
 
             var image = new Wick.ImageAsset({
                 filename: 'foo.png',
@@ -56,7 +57,7 @@ describe('Wick.Project', function() {
 
             var data = project.serialize();
 
-            expect(data.backgroundColor).to.equal('rgb(255,255,255)');
+            expect(data.backgroundColor).to.equal('rgb(0,0,0)');
             expect(data.children).to.eql([
                 project.selection.uuid,
                 project.root.uuid,

@@ -40,8 +40,8 @@ Wick.ImageAsset = class extends Wick.FileAsset {
      * Create a new ImageAsset.
      * @param {object} args
      */
-    constructor () {
-        super();
+    constructor (args) {
+        super(args);
     }
 
     _serialize (args) {

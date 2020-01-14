@@ -44965,7 +44965,6 @@ Wick.FileCache = class {
 
 
   static removeFile(uuid) {
-    console.log(uuid);
     delete this._files[uuid]; // Remove file from localforage
 
     localforage.removeItem(this.getLocalForageKeyForUUID(uuid)).then(() => {});
@@ -45379,12 +45378,16 @@ WickObjectCache = class {
 
 
   getActiveObjects(project) {
-    var children = project.getChildrenRecursive();
+    /*var children = project.getChildrenRecursive();
     var uuids = children.map(child => {
-      return child.uuid;
+        return child.uuid;
     });
-    return this.getAllObjects().filter(object => {
-      return uuids.indexOf(object.uuid) !== -1;
+     return this.getAllObjects().filter(object => {
+        return uuids.indexOf(object.uuid) !== -1;
+    });*/
+    // This does the same thing, but it's WAY faster.
+    return project.getChildrenRecursive().map(object => {
+      return this.getObjectByUUID(object.uuid);
     });
   }
   /**
@@ -46342,10 +46345,22 @@ Wick.AutoSave = class {
 
 
   static generateAutosaveData(project) {
+    /*
+    var objects = Wick.ObjectCache.getActiveObjects(project);
+    var objectsNeedAutosave = objects.filter(object => {
+        return object.needsAutosave;
+    });
+    if(this.ENABLE_PERF_TIMERS) console.log('all: ' + objects.length, 'changed: ' + objectsNeedAutosave.length);
+    */
+    console.time('generate objects list');
+    var objects = Wick.ObjectCache.getActiveObjects(project);
+    console.timeEnd('generate objects list');
+    console.time('serialize objects list');
     var projectData = project.serialize();
-    var objectsData = Wick.ObjectCache.getActiveObjects(project).map(object => {
+    var objectsData = objects.map(object => {
       return object.serialize();
     });
+    console.timeEnd('serialize objects list');
     var lastModified = projectData.metadata.lastModified;
     return {
       projectData: projectData,
@@ -47055,6 +47070,7 @@ Wick.Base = class {
     this._parent = null;
     this._project = this.classname === 'Project' ? this : null;
     this.needsAutosave = true;
+    this._cachedSerializeData = null;
     Wick.ObjectCache.addObject(this);
   }
   /**
@@ -47084,7 +47100,23 @@ Wick.Base = class {
 
 
   serialize(args) {
-    return this._serialize(args);
+    // TEMPORARY: Force the cache to never be accessed.
+    // This is because the cache was causing issues in the tests, and the
+    // performance boost that came with the cache was not signifigant enough
+    // to be worth fixing the bugs over...
+    this.needsAutosave = true;
+
+    if (this.needsAutosave || !this._cachedSerializeData) {
+      // If the cache is outdated or does not exist, reserialize and cache.
+      var data = this._serialize(args);
+
+      this._cacheSerializeData(data);
+
+      return data;
+    } else {
+      // Otherwise, just read from the cache
+      return this._cachedSerializeData;
+    }
   }
   /**
    * Parses serialized data representing Base Objects which have been serialized using the serialize function of their class.
@@ -47094,7 +47126,11 @@ Wick.Base = class {
 
   deserialize(data) {
     this._deserialize(data);
+
+    this._cacheSerializeData(data);
   }
+  /* The internal serialize method that actually creates the data. Every class that inherits from Base must have one of these. */
+
 
   _serialize(args) {
     var data = {};
@@ -47107,6 +47143,8 @@ Wick.Base = class {
     });
     return data;
   }
+  /* The internal deserialize method that actually reads the data. Every class that inherits from Base must have one of these. */
+
 
   _deserialize(data) {
     this._uuid = data.uuid;
@@ -47122,6 +47160,11 @@ Wick.Base = class {
         delete this[name];
       }
     }
+  }
+
+  _cacheSerializeData(data) {
+    this._cachedSerializeData = data;
+    this.needsAutosave = false;
   }
   /**
    * Returns a copy of a Wick Base object.
@@ -51697,13 +51740,11 @@ Wick.ImageAsset = class extends Wick.FileAsset {
    */
 
 
-  constructor() {
-    super();
+  constructor(args) {
+    super(args);
   }
 
   _serialize(args) {
-    console.log(args);
-
     var data = super._serialize(args);
 
     return data;
@@ -51927,8 +51968,8 @@ Wick.SoundAsset = class extends Wick.FileAsset {
     this._waveform = null;
   }
 
-  _serialize() {
-    var data = super._serialize();
+  _serialize(args) {
+    var data = super._serialize(args);
 
     return data;
   }

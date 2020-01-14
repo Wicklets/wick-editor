@@ -55,6 +55,7 @@ Wick.Base = class {
         this._project = this.classname === 'Project' ? this : null;
 
         this.needsAutosave = true;
+        this._cachedSerializeData = null;
 
         Wick.ObjectCache.addObject(this);
     }
@@ -80,7 +81,21 @@ Wick.Base = class {
      * @return {object} Plain JavaScript object representing this Wick Base object.
      */
     serialize (args) {
-        return this._serialize(args);
+        // TEMPORARY: Force the cache to never be accessed.
+        // This is because the cache was causing issues in the tests, and the
+        // performance boost that came with the cache was not signifigant enough
+        // to be worth fixing the bugs over...
+        this.needsAutosave = true;
+
+        if(this.needsAutosave || !this._cachedSerializeData) {
+            // If the cache is outdated or does not exist, reserialize and cache.
+            var data = this._serialize(args);
+            this._cacheSerializeData(data);
+            return data;
+        } else {
+            // Otherwise, just read from the cache
+            return this._cachedSerializeData;
+        }
     }
 
     /**
@@ -89,8 +104,10 @@ Wick.Base = class {
      */
     deserialize (data) {
         this._deserialize(data);
+        this._cacheSerializeData(data);
     }
 
+    /* The internal serialize method that actually creates the data. Every class that inherits from Base must have one of these. */
     _serialize (args) {
         var data = {};
 
@@ -103,6 +120,7 @@ Wick.Base = class {
         return data;
     }
 
+    /* The internal deserialize method that actually reads the data. Every class that inherits from Base must have one of these. */
     _deserialize (data) {
         this._uuid = data.uuid;
         this._identifier = data.identifier;
@@ -117,6 +135,11 @@ Wick.Base = class {
                 delete this[name];
             }
         }
+    }
+
+    _cacheSerializeData (data) {
+        this._cachedSerializeData = data;
+        this.needsAutosave = false;
     }
 
     /**

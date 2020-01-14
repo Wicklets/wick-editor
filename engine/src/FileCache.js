@@ -65,7 +65,6 @@ Wick.FileCache = class {
      * @param {string} uuid - the UUID of the file to remove.
      */
     static removeFile (uuid) {
-        console.log(uuid)
         delete this._files[uuid];
 
         // Remove file from localforage
