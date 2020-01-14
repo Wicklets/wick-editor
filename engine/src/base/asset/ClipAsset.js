@@ -39,11 +39,11 @@ Wick.ClipAsset = class extends Wick.FileAsset {
      * Create a new ClipAsset.
      * @param {object} args
      */
-    constructor () {
+    constructor (args) {
         super(args);
     }
 
-    _serialize () {
+    _serialize (args) {
         var data = super._serialize(args);
         return data;
     }

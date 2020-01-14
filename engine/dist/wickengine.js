@@ -47083,12 +47083,12 @@ Wick.Base = class {
    */
 
 
-  serialize() {
-    return this._serialize();
+  serialize(args) {
+    return this._serialize(args);
   }
   /**
    * Parses serialized data representing Base Objects which have been serialized using the serialize function of their class.
-   * @param  {object} data Serialized data that was returned by a Base Object's serialize function.
+   * @param {object} data Serialized data that was returned by a Base Object's serialize function.
    */
 
 
@@ -47096,7 +47096,7 @@ Wick.Base = class {
     this._deserialize(data);
   }
 
-  _serialize() {
+  _serialize(args) {
     var data = {};
     data.classname = this.classname;
     data.identifier = this._identifier;
@@ -51701,8 +51701,10 @@ Wick.ImageAsset = class extends Wick.FileAsset {
     super();
   }
 
-  _serialize() {
-    var data = super._serialize();
+  _serialize(args) {
+    console.log(args);
+
+    var data = super._serialize(args);
 
     return data;
   }
@@ -51811,11 +51813,11 @@ Wick.ClipAsset = class extends Wick.FileAsset {
    */
 
 
-  constructor() {
+  constructor(args) {
     super(args);
   }
 
-  _serialize() {
+  _serialize(args) {
     var data = super._serialize(args);
 
     return data;
@@ -51925,8 +51927,8 @@ Wick.SoundAsset = class extends Wick.FileAsset {
     this._waveform = null;
   }
 
-  _serialize(args) {
-    var data = super._serialize(args);
+  _serialize() {
+    var data = super._serialize();
 
     return data;
   }
