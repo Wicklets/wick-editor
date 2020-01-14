@@ -59,6 +59,7 @@ gulp.task("default", function() {
       'src/ObjectCache.js',
       'src/Transformation.js',
       'src/GlobalAPI.js',
+      'src/export/ExportUtils.js',
       'src/export/audio/AudioTrack.js',
       'src/export/wick/WickFile.js',
       'src/export/wick/WickFile.Alpha.js',

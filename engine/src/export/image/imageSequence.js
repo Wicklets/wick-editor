@@ -34,9 +34,7 @@ Wick.ImageSequence = class {
         let buildZip = (files) => {
             let index = 0;
             files.forEach((file) => {
-                console.log(file)
-                var blob = new Blob([file], {type : 'image/png'})
-                console.log(blob)
+                var blob = Wick.ExportUtils.dataURItoBlob(file.src);
                 zip.file('frame' + index + '.png', blob);
                 index += 1;
             });
