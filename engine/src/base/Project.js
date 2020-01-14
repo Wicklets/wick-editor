@@ -1311,7 +1311,7 @@ Wick.Project = class extends Wick.Base {
      * Create a sequence of images from every frame in the project.
      * @param {object} args - Options for generating the image sequence
      * @param {string} imageType - MIMEtype to use for rendered images. Defaults to 'image/png'.
-     * @param {function} onProgress = Function to call for each image loaded, useful for progress bars
+     * @param {function} onProgress - Function to call for each image loaded, useful for progress bars
      * @param {function} onFinish - Function to call when the images are all loaded.
      */
     generateImageSequence (args) {

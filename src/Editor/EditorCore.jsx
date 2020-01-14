@@ -23,8 +23,10 @@ import * as urlParse from 'url-parse/dist/url-parse';
 import queryString from 'query-string';
 import { saveAs } from 'file-saver';
 import VideoExport from './export/VideoExport';
+import ImageExport from './export/ImageExport'; 
 import GIFExport from './export/GIFExport';
 import timeStamp from './Util/DataFunctions/timestamp';
+import ImageExport from './export/ImageExport';
 
 class EditorCore extends Component {
   /**
@@ -875,6 +877,51 @@ class EditorCore extends Component {
       onProgress: onProgress,
     });
 
+  }
+
+  /**
+   * Export the current project as an image sequence
+   */
+  exportProjectAsImageSequence = () => {
+    this.openModal('ExportMedia');
+    this.setState({
+      renderProgress: 0,
+      renderType: "video",
+      renderStatusMessage: "Creating image sequence.",
+    });
+
+    let toastID = this.toast('Exporting image sequence...', 'info');
+
+    let onProgress = (message, progress) => {
+      this.setState({
+        renderStatusMessage: message,
+        renderProgress: progress
+      });
+    }
+
+    let onError = (message) => {
+      console.error("Video Render had an error with message: ", message);
+    }
+
+    let onFinish = (message) => {
+      this.updateToast(toastID, {
+        type: 'success',
+        text: "Successfully created .mp4 file." });
+      console.log("Video Render Complete: ", message);
+    }
+
+    ImageExport.generateImageSequence({
+      project: this.project,
+      onProgress: onProgress,
+      onError: () => {
+        this.hideWaitOverlay();
+        onError();
+      },
+      onFinish: () => {
+        this.hideWaitOverlay();
+        onFinish();
+      },
+    }); 
   }
 
   /**
