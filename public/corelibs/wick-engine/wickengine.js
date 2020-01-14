@@ -49046,6 +49046,8 @@ Wick.Selection = class extends Wick.Base {
       x: 0,
       y: 0
     };
+    this._originalWidth = 0;
+    this._originalHeight = 0;
   }
 
   serialize(args) {
@@ -49056,6 +49058,8 @@ Wick.Selection = class extends Wick.Base {
       x: this._pivotPoint.x,
       y: this._pivotPoint.y
     };
+    data.originalWidth = this._originalWidth;
+    data.originalHeight = this._originalHeight;
     return data;
   }
 
@@ -49067,6 +49071,8 @@ Wick.Selection = class extends Wick.Base {
       x: data.pivotPoint.x,
       y: data.pivotPoint.y
     };
+    this._originalWidth = data.originalWidth;
+    this._originalHeight = data.originalHeight;
   }
 
   get classname() {
@@ -49079,7 +49085,7 @@ Wick.Selection = class extends Wick.Base {
 
 
   get allAttributeNames() {
-    return ["strokeWidth", "fillColor", "strokeColor", "name", "filename", "fontSize", "fontFamily", "fontWeight", "fontStyle", "src", "frameLength", "x", "y", "width", "height", "rotation", "opacity", "sound", "soundVolume", "soundStart", "identifier", "easingType"];
+    return ["strokeWidth", "fillColor", "strokeColor", "name", "filename", "fontSize", "fontFamily", "fontWeight", "fontStyle", "src", "frameLength", "x", "y", "width", "height", "rotation", "opacity", "sound", "soundVolume", "soundStart", "identifier", "easingType", "scaleX", "scaleY"];
   }
   /**
    * Add a wick object to the selection.
@@ -49403,6 +49409,79 @@ Wick.Selection = class extends Wick.Base {
   set rotation(rotation) {
     this.project.tryToAutoCreateTween();
     this.view.rotation = rotation;
+  }
+  /**
+   * It is the original width of the selection at creation.
+   * @type {number}
+   */
+
+
+  get originalWidth() {
+    return this._originalWidth;
+  }
+
+  set originalWidth(originalWidth) {
+    this._originalWidth = originalWidth;
+  }
+  /**
+   * It is the original height of the selection at creation.
+   * @type {number}
+   */
+
+
+  get originalHeight() {
+    return this._originalHeight;
+  }
+
+  set originalHeight(originalHeight) {
+    this._originalHeight = originalHeight;
+  }
+  /**
+   * The scale of the selection on the X axis.
+   * @type {number}
+   */
+
+
+  get scaleX() {
+    // Clips store their scale state internally
+    if (this.selectionType === "clip" || this.selectionType === "button") {
+      return this.getSelectedObject().transformation.scaleX;
+    } else {
+      // Paths do not save their internal scale state.
+      return this.width / this.originalWidth;
+    }
+  }
+
+  set scaleX(scaleX) {
+    // Clips store their scale state internally
+    if (this.selectionType === "clip" || this.selectionType === "button") {
+      this.getSelectedObject().transformation.scaleX = scaleX;
+    } else {
+      this.width = this.originalWidth * scaleX;
+    }
+  }
+  /**
+   * The scale of the selection on the Y axis.
+   * @type {number}
+   */
+
+
+  get scaleY() {
+    // Clips store their scale state internally
+    if (this.selectionType === "clip" || this.selectionType === "button") {
+      return this.getSelectedObject().transformation.scaleY;
+    } else {
+      return this.height / this.originalHeight;
+    }
+  }
+
+  set scaleY(scaleY) {
+    // Clips store their scale state internally
+    if (this.selectionType === "clip" || this.selectionType === "button") {
+      this.getSelectedObject().transformation.scaleY = scaleY;
+    } else {
+      this.height = this.originalHeight * scaleY;
+    }
   }
   /**
    * Flips the selected obejcts horizontally.
@@ -49740,7 +49819,10 @@ Wick.Selection = class extends Wick.Base {
       this._pivotPoint = {
         x: boundsCenter.x,
         y: boundsCenter.y
-      };
+      }; // Always pull original size values.
+
+      this._originalWidth = this.view._getSelectedObjectsBounds().width;
+      this._originalHeight = this.view._getSelectedObjectsBounds().height;
     }
   }
   /* helper function for getting a single value from multiple selected objects */
