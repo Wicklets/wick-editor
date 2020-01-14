@@ -226,6 +226,131 @@ describe('Wick.Selection', function() {
         expect(frame.getTweenAtPosition(5).transformation.y).to.equal(300);
     });
 
+    describe('ScaleX and ScaleY', function () {
+        it('should properly provide scaleX and scaleY properties for selection on Paths', function () {
+            var project = new Wick.Project();
+    
+            var frame = project.activeFrame;
+    
+            var path = new Wick.Path({json:TestUtils.TEST_PATH_JSON_RED_SQUARE});
+            frame.addPath(path);
+
+            project.selection.select(path);
+            project.view.render();
+
+            var baseWidth = project.selection.width;
+            var baseHeight = project.selection.height;
+    
+            expect(project.selection.scaleX).to.equal(1);
+            expect(project.selection.scaleY).to.equal(1);
+            
+            var newWidth = baseWidth * 1.5;
+            project.selection.width = newWidth;
+            project.view.render();
+            expect(project.selection.scaleX).to.equal(1.5);
+            expect(project.selection.scaleY).to.equal(1)
+    
+            var newHeight = baseHeight * 1.75;
+            project.selection.height = newHeight;
+            project.view.render();
+            expect(project.selection.scaleX).to.equal(1.5);
+            expect(project.selection.scaleY).to.equal(1.75)
+    
+            project.selection.clear();
+    
+            project.selection.select(path);
+            project.view.render();
+            expect(project.selection.scaleX).to.equal(1);
+            expect(project.selection.scaleY).to.equal(1);
+            expect(project.selection.width).to.equal(newWidth);
+            expect(project.selection.height).to.equal(newHeight);
+        }); 
+    
+        it('should properly provide scaleX and scaleY properties for selection on Groups', function () {
+            var project = new Wick.Project();
+    
+            var frame = project.activeFrame;
+    
+            var clip = new Wick.Clip();
+            var clipPath = new Wick.Path({json:TestUtils.TEST_PATH_JSON_RED_SQUARE});
+            clip.addObjects([clipPath])
+
+            var path = new Wick.Path({json:TestUtils.TEST_PATH_JSON_RED_SQUARE});
+            frame.addClip(clip);
+            frame.addClip(path);
+
+            project.selection.select(clip);
+            project.selection.select(path);
+            project.view.render();
+
+            var baseWidth = project.selection.width;
+            var baseHeight = project.selection.height;
+            expect(project.selection.scaleX).to.equal(1);
+            expect(project.selection.scaleY).to.equal(1);
+
+            var newWidth = baseWidth * 1.5;
+            project.selection.width = newWidth;
+            project.view.render();
+            expect(project.selection.scaleX).to.equal(1.5);
+            expect(project.selection.scaleY).to.equal(1)
+
+            var newHeight = baseHeight * 1.75;
+            project.selection.height = newHeight;
+            project.view.render();
+            expect(project.selection.scaleX).to.equal(1.5);
+            expect(project.selection.scaleY).to.equal(1.75)
+    
+            project.selection.clear();
+    
+            project.selection.select(clip);
+            project.view.render();
+            expect(project.selection.scaleX).to.equal(1.5);
+            expect(project.selection.scaleY).to.equal(1.75);
+            expect(project.selection.width).to.equal(newWidth);
+            expect(project.selection.height).to.equal(newHeight);
+        }); 
+    
+        it('should properly provide scaleX and scaleY properties for selection on Clips', function () {
+            var project = new Wick.Project();
+    
+            var frame = project.activeFrame;
+    
+            var clip = new Wick.Clip();
+            var path = new Wick.Path({json:TestUtils.TEST_PATH_JSON_RED_SQUARE});
+            clip.addObjects([path])
+            frame.addClip(clip);
+    
+            project.selection.select(clip);
+            project.view.render();
+
+            var baseWidth = project.selection.width;
+            var baseHeight = project.selection.height;
+            expect(project.selection.scaleX).to.equal(1);
+            expect(project.selection.scaleY).to.equal(1);
+            
+            var newWidth = baseWidth * 1.5;
+            project.selection.width = newWidth;
+            project.view.render();
+            expect(project.selection.scaleX).to.equal(1.5);
+            expect(project.selection.scaleY).to.equal(1)
+    
+            var newHeight = baseHeight * 1.75;
+            project.selection.height = newHeight;
+            project.view.render();
+            expect(project.selection.scaleX).to.equal(1.5);
+            expect(project.selection.scaleY).to.equal(1.75)
+    
+            project.selection.clear();
+    
+            project.selection.select(clip);
+            project.view.render();
+            expect(project.selection.scaleX).to.equal(1.5);
+            expect(project.selection.scaleY).to.equal(1.75);
+            expect(project.selection.width).to.equal(newWidth);
+            expect(project.selection.height).to.equal(newHeight);
+        });
+    });
+    
     it('should automatically create tweens when objects are moved on a tweened frame (between two tweens)', function () {
         // TODO
 
