@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.1.14";
+var WICK_ENGINE_BUILD_VERSION = "2020.1.15";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -45378,13 +45378,6 @@ WickObjectCache = class {
 
 
   getActiveObjects(project) {
-    /*var children = project.getChildrenRecursive();
-    var uuids = children.map(child => {
-        return child.uuid;
-    });
-     return this.getAllObjects().filter(object => {
-        return uuids.indexOf(object.uuid) !== -1;
-    });*/
     // This does the same thing, but it's WAY faster.
     return project.getChildrenRecursive().map(object => {
       return this.getObjectByUUID(object.uuid);
@@ -46529,7 +46522,7 @@ Wick.AutoSave = class {
   }
 
 };
-Wick.AutoSave.ENABLE_PERF_TIMERS = true;
+Wick.AutoSave.ENABLE_PERF_TIMERS = false;
 /*
  * Copyright 2019 WICKLETS LLC
  *
@@ -47015,7 +47008,6 @@ Wick.ImageSequence = class {
       let index = 0;
       files.forEach(file => {
         var blob = Wick.ExportUtils.dataURItoBlob(file.src);
-        console.log(blob);
         zip.file('frame' + index + '.png', blob);
         index += 1;
       });
