@@ -60,8 +60,8 @@ Wick.FileAsset = class extends Wick.Asset {
         this.src = args.src;
     }
 
-    serialize (args) {
-        var data = super.serialize(args);
+    _serialize (args) {
+        var data = super._serialize(args);
 
         data.filename = this.filename;
         data.MIMEType = this.MIMEType;
@@ -74,8 +74,8 @@ Wick.FileAsset = class extends Wick.Asset {
         return data;
     }
 
-    deserialize (data) {
-        super.deserialize(data);
+    _deserialize (data) {
+        super._deserialize(data);
 
         this.filename = data.filename;
         this.MIMEType = data.MIMEType;

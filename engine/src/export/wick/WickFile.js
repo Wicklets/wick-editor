@@ -28,6 +28,7 @@ Wick.WickFile = class {
     static generateMetaData () {
         return {
             wickengine: Wick.version,
+            lastModified: +new Date(),
             platform: {
                 name: platform.name,
                 version: platform.version,

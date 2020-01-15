@@ -16,7 +16,22 @@ describe('Wick.FileCache', function() {
         expect(allFiles[1].src).to.equal('bar');
         expect(allFiles[2].src).to.equal('baz');
 
+        Wick.FileCache.removeFile('item1');
+        var allFilesWithOneMissing = Wick.FileCache.getAllFiles();
+        expect(allFilesWithOneMissing.length).to.equal(2);
+        expect(allFilesWithOneMissing[0].uuid).to.equal('item2');
+        expect(allFilesWithOneMissing[1].uuid).to.equal('item3');
+        expect(allFilesWithOneMissing[0].src).to.equal('bar');
+        expect(allFilesWithOneMissing[1].src).to.equal('baz');
+
         Wick.FileCache.clear();
         expect(Wick.FileCache.getAllFiles().length).to.equal(0);
+
+        Wick.FileCache.removeFile('foo');
+        expect(Wick.FileCache.getAllFiles().length).to.equal(0);
+    });
+
+    it('should have the correct prefix for saved files', function() {
+      expect(Wick.FileCache.FILE_LOCALFORAGE_KEY_PREFIX).to.equal('filesrc_');
     });
 });

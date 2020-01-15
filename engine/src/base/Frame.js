@@ -42,8 +42,8 @@ Wick.Frame = class extends Wick.Tickable {
         this._originalLayerIndex = -1;
     }
 
-    serialize (args) {
-        var data = super.serialize(args);
+    _serialize (args) {
+        var data = super._serialize(args);
 
         data.start = this.start;
         data.end = this.end;
@@ -57,8 +57,8 @@ Wick.Frame = class extends Wick.Tickable {
         return data;
     }
 
-    deserialize (data) {
-        super.deserialize(data);
+    _deserialize (data) {
+        super._deserialize(data);
 
         this.start = data.start;
         this.end = data.end;

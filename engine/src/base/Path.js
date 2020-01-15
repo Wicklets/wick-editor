@@ -74,8 +74,8 @@ Wick.Path = class extends Wick.Base {
         return 'Path';
     }
 
-    serialize (args) {
-        var data = super.serialize(args);
+    _serialize (args) {
+        var data = super._serialize(args);
 
         data.json = this.json;
         delete data.json[1].data;
@@ -99,8 +99,8 @@ Wick.Path = class extends Wick.Base {
         return data;
     }
 
-    deserialize (data) {
-        super.deserialize(data);
+    _deserialize (data) {
+        super._deserialize(data);
         this.json = data.json;
         this._fontStyle = data.fontStyle || 'normal';
         this._fontWeight = data.fontWeight || 400;

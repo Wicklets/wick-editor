@@ -1115,32 +1115,21 @@ class EditorCore extends Component {
   requestAutosave = () => {
       window.clearTimeout(this._autosaveTimeoutID);
       this._autosaveTimeoutID = window.setTimeout(() => {
-          this.autoSaveProject();
+          //this.autoSaveProject();
       }, 1000 * 60);
   }
 
   /**
    * Save the current project in localstorage
    */
-  autoSaveProject = () => {
+  autoSaveProject = (callback) => {
     if (!this.project) return;
     if (this.state.previewPlaying) return;
     if (this.state.activeModalName !== null) return;
 
-    this.showWaitOverlay();
-
-    setTimeout(() => {
-      window.Wick.WickFile.toWickFile(this.project, wickFile => {
-        localForage.setItem(this.autoSaveKey, wickFile)
-        .then(() => {
-          this.hideWaitOverlay();
-        })
-        .catch(err => {
-          console.error(err)
-          this.hideWaitOverlay();
-        })
-      });
-    }, 500);
+    window.Wick.AutoSave.save(this.project, () => {
+      callback();
+    });
   }
 
   /**
@@ -1148,13 +1137,17 @@ class EditorCore extends Component {
    * Does nothing if not autosaved project is stored.
    */
   loadAutosavedProject = (callback) => {
-    this.showWaitOverlay();
-    localForage.getItem(this.autoSaveKey).then(wickFile => {
-      window.Wick.WickFile.fromWickFile(wickFile, project => {
-        this.setupNewProject(project);
-        this.hideWaitOverlay();
+    window.Wick.AutoSave.getAutosavesList(autosaveList => {
+      if(!autosaveList[0]) {
         callback();
-      });
+      } else {
+        this.showWaitOverlay();
+        window.Wick.AutoSave.load(autosaveList[0].uuid, project => {
+          this.setupNewProject(project);
+          this.hideWaitOverlay();
+          callback();
+        });
+      }
     });
   }
 
@@ -1164,12 +1157,8 @@ class EditorCore extends Component {
    * True if an autosave exists.
    */
   doesAutoSavedProjectExist = (callback) => {
-    localForage.getItem(this.autoSaveKey).then(serializedProject => {
-      if (serializedProject) {
-        callback(true);
-      } else {
-        callback(false);
-      }
+    window.Wick.AutoSave.getAutosavesList(autosaveList => {
+      callback(autosaveList.length > 0);
     });
   }
 
@@ -1177,9 +1166,7 @@ class EditorCore extends Component {
    * Clears any autosaved project from local storage.
    */
   clearAutoSavedProject = (callback) => {
-    localForage.removeItem(this.autoSaveKey).then(() => {
-      callback();
-    });
+    console.error("Please use the new engine API for autosave.")
   }
 
   /**

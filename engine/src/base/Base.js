@@ -27,11 +27,19 @@ Wick.Base = class {
      * @parm {string} name - (Optional) The name of the object. Defaults to null.
      */
     constructor (args) {
+        /* One instance of each Wick.Base class is created so we can access
+         * a list of all possible properties of each class. This is used
+         * to clean up custom variables after projects are stopped. */
+        if(!Wick._originals[this.classname]) {
+            Wick._originals[this.classname] = {};
+            Wick._originals[this.classname] = new Wick[this.classname];
+        }
+
         if(!args) args = {};
 
-        this._uuid = uuidv4();
+        this._uuid = args.uuid || uuidv4();
         this._identifier = args.identifier || null;
-        this._name = args.naeme || null;
+        this._name = args.name || null;
 
         this._view = null;
         this.view = this._generateView();
@@ -45,6 +53,9 @@ Wick.Base = class {
         this._childrenData = null;
         this._parent = null;
         this._project = this.classname === 'Project' ? this : null;
+
+        this.needsAutosave = true;
+        this._cachedSerializeData = null;
 
         Wick.ObjectCache.addObject(this);
     }
@@ -60,38 +71,44 @@ Wick.Base = class {
             console.warn('Tried to deserialize an object with no Wick class: ' + data.classname);
         }
 
-        var object = new Wick[data.classname]();
+        var object = new Wick[data.classname]({uuid: data.uuid});
         object.deserialize(data);
         return object;
-    }
-
-    /**
-     * Parses serialized data representing Base Objects which have been serialized using the serialize function of their class.
-     * @param  {object} data Serialized data that was returned by a Base Object's serialize function.
-     */
-    deserialize (data) {
-        this._uuid = data.uuid;
-        this._identifier = data.identifier;
-        this._name = data.name;
-        this._children = {};
-        this._childrenData = data.children;
-
-        // Clear any custom attributes set by scripts
-        var compareObj = new Wick[this.classname]();
-        for (var name in this) {
-            if(compareObj[name] === undefined) {
-                delete this[name];
-            }
-        }
-
-        Wick.ObjectCache.addObject(this);
     }
 
     /**
      * Converts this Wick Base object into a plain javascript object contianing raw data (no references).
      * @return {object} Plain JavaScript object representing this Wick Base object.
      */
-    serialize () {
+    serialize (args) {
+        // TEMPORARY: Force the cache to never be accessed.
+        // This is because the cache was causing issues in the tests, and the
+        // performance boost that came with the cache was not signifigant enough
+        // to be worth fixing the bugs over...
+        this.needsAutosave = true;
+
+        if(this.needsAutosave || !this._cachedSerializeData) {
+            // If the cache is outdated or does not exist, reserialize and cache.
+            var data = this._serialize(args);
+            this._cacheSerializeData(data);
+            return data;
+        } else {
+            // Otherwise, just read from the cache
+            return this._cachedSerializeData;
+        }
+    }
+
+    /**
+     * Parses serialized data representing Base Objects which have been serialized using the serialize function of their class.
+     * @param {object} data Serialized data that was returned by a Base Object's serialize function.
+     */
+    deserialize (data) {
+        this._deserialize(data);
+        this._cacheSerializeData(data);
+    }
+
+    /* The internal serialize method that actually creates the data. Every class that inherits from Base must have one of these. */
+    _serialize (args) {
         var data = {};
 
         data.classname = this.classname;
@@ -101,6 +118,28 @@ Wick.Base = class {
         data.children = this.getChildren().map(child => { return child.uuid });
 
         return data;
+    }
+
+    /* The internal deserialize method that actually reads the data. Every class that inherits from Base must have one of these. */
+    _deserialize (data) {
+        this._uuid = data.uuid;
+        this._identifier = data.identifier;
+        this._name = data.name;
+        this._children = {};
+        this._childrenData = data.children;
+
+        // Clear any custom attributes set by scripts
+        var compareObj = Wick._originals[this.classname];
+        for (var name in this) {
+            if(compareObj[name] === undefined) {
+                delete this[name];
+            }
+        }
+    }
+
+    _cacheSerializeData (data) {
+        this._cachedSerializeData = data;
+        this.needsAutosave = false;
     }
 
     /**
@@ -187,6 +226,22 @@ Wick.Base = class {
     }
 
     /**
+     * Marks the object as possibly changed, so that next time autosave happens, this object is written to the save.
+     * @type {boolean}
+     */
+    set needsAutosave (needsAutosave) {
+        if(needsAutosave) {
+            Wick.ObjectCache.markObjectToBeAutosaved(this);
+        } else {
+            Wick.ObjectCache.clearObjectToBeAutosaved(this);
+        }
+    }
+
+    get needsAutosave () {
+        return Wick.ObjectCache.objectNeedsAutosave(this);
+    }
+
+    /**
      * Returns the classname of a Wick Base object.
      * @type {string}
      */
@@ -203,10 +258,10 @@ Wick.Base = class {
     }
 
     set uuid (uuid) {
-        // Please try to avoid using this unless you absolutely have to ;_;
-        this._uuid = uuid;
-        Wick.ObjectCache.addObject(this);
-    }
+         // Please try to avoid using this unless you absolutely have to ;_;
+         this._uuid = uuid;
+         Wick.ObjectCache.addObject(this);
+     }
 
     /**
      * The name of the object that is used to access the object through scripts. Must be a valid JS variable name.
