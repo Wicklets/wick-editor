@@ -46367,7 +46367,7 @@ Wick.AutoSave = class {
    */
 
 
-  static delete(uuid) {
+  static delete(uuid, callback) {
     this.removeAutosaveFromList(uuid, () => {
       this.deleteAutosaveData(uuid, () => {
         callback();
@@ -46381,22 +46381,15 @@ Wick.AutoSave = class {
 
 
   static generateAutosaveData(project) {
-    /*
+    if (Wick.AutoSave.ENABLE_PERF_TIMERS) console.time('generate objects list');
     var objects = Wick.ObjectCache.getActiveObjects(project);
-    var objectsNeedAutosave = objects.filter(object => {
-        return object.needsAutosave;
-    });
-    if(this.ENABLE_PERF_TIMERS) console.log('all: ' + objects.length, 'changed: ' + objectsNeedAutosave.length);
-    */
-    console.time('generate objects list');
-    var objects = Wick.ObjectCache.getActiveObjects(project);
-    console.timeEnd('generate objects list');
-    console.time('serialize objects list');
+    if (Wick.AutoSave.ENABLE_PERF_TIMERS) console.timeEnd('generate objects list');
+    if (Wick.AutoSave.ENABLE_PERF_TIMERS) console.time('serialize objects list');
     var projectData = project.serialize();
     var objectsData = objects.map(object => {
       return object.serialize();
     });
-    console.timeEnd('serialize objects list');
+    if (Wick.AutoSave.ENABLE_PERF_TIMERS) console.timeEnd('serialize objects list');
     var lastModified = projectData.metadata.lastModified;
     return {
       projectData: projectData,

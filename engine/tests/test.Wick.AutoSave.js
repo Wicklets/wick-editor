@@ -43,8 +43,22 @@ describe('Wick.AutoSave', function() {
         expect(Wick.AutoSave.AUTOSAVE_DATA_PREFIX).to.equal('autosave_');
     });
 
-    it('should delete autosaves correctly', function() {
-        
+    it('should delete autosaves correctly', function(done) {
+        localforage.clear(() => {
+            var project = new Wick.Project();
+            Wick.AutoSave.save(project, () => {
+                Wick.AutoSave.getAutosavesList(autosaveList => {
+                    expect(autosaveList.length).to.equal(1);
+                    expect(autosaveList[0].uuid).to.equal(project.uuid);
+                    Wick.AutoSave.delete(project.uuid, () => {
+                        Wick.AutoSave.getAutosavesList(autosaveList => {
+                            expect(autosaveList.length).to.equal(0);
+                            done();
+                        });
+                    });
+                });
+            });
+        });
     });
 
     it('getSortedAutosavedProjects should return a sorted list of project info', function(done) {
