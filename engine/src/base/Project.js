@@ -1470,4 +1470,25 @@ Wick.Project = class extends Wick.Base {
     get canDraw () {
         return !this.activeLayer.locked && !this.activeLayer.hidden;
     }
+
+    /**
+     * Loads all Assets in the project's asset library. This must be called after opening a project.
+     * @param {function} callback - Called when all assets are done loading.
+     */
+    loadAssets (callback) {
+        if(this.assets.length === 0) {
+            callback();
+            return;
+        }
+
+        var loadedAssetCount = 0;
+        this.assets.forEach(asset => {
+            asset.load(() => {
+                loadedAssetCount++;
+                if(loadedAssetCount === this.assets.length) {
+                    callback();
+                }
+            });
+        });
+    }
 }

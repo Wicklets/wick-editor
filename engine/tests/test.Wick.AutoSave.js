@@ -19,11 +19,14 @@ describe('Wick.AutoSave', function() {
         Wick.FileCache.clear();
         localforage.clear(() => {
             var origProject = new Wick.Project();
+
             var asset = new Wick.SoundAsset({
                 filename: 'test.wav',
                 src: TestUtils.TEST_SOUND_SRC_WAV
             });
             origProject.addAsset(asset);
+
+            origProject.activeFrame.sound = asset;
 
             Wick.AutoSave.save(origProject, () => {
                 Wick.ObjectCache.clear();
@@ -32,6 +35,68 @@ describe('Wick.AutoSave', function() {
                     expect(project.assets.length).to.equal(origProject.assets.length);
                     expect(project.assets[0].uuid).to.equal(origProject.assets[0].uuid);
                     expect(project.assets[0].src).to.equal(origProject.assets[0].src);
+                    done();
+                });
+            });
+        });
+    });
+
+    it('assets must have their load method called after autosave', function(done) {
+        Wick.FileCache.clear();
+        localforage.clear(() => {
+            var project = new Wick.Project();
+
+            // Frame with sound to test waveform load
+            var soundAsset = new Wick.SoundAsset({
+                filename: 'test.wav',
+                src: TestUtils.TEST_SOUND_SRC_WAV
+            });
+            project.addAsset(soundAsset);
+            project.activeFrame.sound = soundAsset;
+
+            // Image path to test image load
+            var imageAsset = new Wick.ImageAsset({
+                filename: 'test.png',
+                src: TestUtils.TEST_IMG_SRC_PNG
+            });
+            project.addAsset(imageAsset);
+
+            imageAsset.createInstance(path => {
+                project.activeFrame.addPath(path);
+
+                Wick.AutoSave.save(project, () => {
+                    Wick.ObjectCache.clear();
+                    Wick.FileCache.clear();
+                    Wick.AutoSave.load(project.uuid, project => {
+                        expect(project.activeFrame.sound.waveform).to.not.equal(null);
+                        expect(project.activeFrame.sound.waveform).to.not.equal(undefined);
+                        project.view.render();
+                        expect(project.activeFrame.paths[0].view.item.source).to.equal(TestUtils.TEST_IMG_SRC_PNG);
+                        done();
+                    });
+                });
+            });
+        });
+    });
+
+    it('(bug) projects with frames with sounds loaded from autosave crash the timeline interface', function(done) {
+        Wick.FileCache.clear();
+        localforage.clear(() => {
+            var origProject = new Wick.Project();
+
+            var asset = new Wick.SoundAsset({
+                filename: 'test.wav',
+                src: TestUtils.TEST_SOUND_SRC_WAV
+            });
+            origProject.addAsset(asset);
+
+            origProject.activeFrame.sound = asset;
+
+            Wick.AutoSave.save(origProject, () => {
+                Wick.ObjectCache.clear();
+                Wick.FileCache.clear();
+                Wick.AutoSave.load(origProject.uuid, project => {
+                    project.project.guiElement.draw();
                     done();
                 });
             });

@@ -120,7 +120,9 @@ Wick.AutoSave = class {
 
         // Load source files for assets from localforage
         Wick.FileCache.loadFilesFromLocalforage(project, () => {
-            callback(project);
+            project.loadAssets(() => {
+                callback(project);
+            });
         });
     }
 
