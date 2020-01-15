@@ -269,6 +269,24 @@ GlobalAPI = class {
     }
 
     /**
+     * Stops sound(s) currently playing.
+     * @param {string} assetName - The name of the SoundAsset to stop.
+     * @param {number} id - (optional) The ID of the sound to stop. Returned by playSound. If an ID is not given, all instances of the given sound asset will be stopped.
+     */
+    stopSound (assetName, id) {
+        if(!this.scriptOwner.project) return null;
+        return this.scriptOwner.project.stopSound(assetName, id);
+    }
+
+    /**
+     * Stops all currently playing sounds.
+     */
+    stopAllSounds () {
+        if(!this.scriptOwner.project) return null;
+        this.scriptOwner.project.stopAllSounds();
+    }
+
+    /**
      * Stops all currently playing sounds.
      */
     stopAllSounds () {

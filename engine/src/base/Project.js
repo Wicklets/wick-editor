@@ -958,7 +958,23 @@ Wick.Project = class extends Wick.Base {
         } else if (!(asset instanceof Wick.SoundAsset)) {
             console.warn('playSound(): Asset is not a sound: "' + assetName + '"');
         } else {
-            asset.play(options);
+            return asset.play(options);
+        }
+    }
+
+    /**
+     * Stops sound(s) currently playing.
+     * @param {string} assetName - The name of the SoundAsset to stop.
+     * @param {number} id - (optional) The ID of the sound to stop. Returned by playSound. If an ID is not given, all instances of the given sound asset will be stopped.
+     */
+    stopSound (id) {
+        var asset = this.getAssetByName(assetName);
+        if(!asset) {
+            console.warn('stopSound(): No asset with name: "' + assetName + '"');
+        } else if (!(asset instanceof Wick.SoundAsset)) {
+            console.warn('stopSound(): Asset is not a sound: "' + assetName + '"');
+        } else {
+            return asset.stop(id);
         }
     }
 
