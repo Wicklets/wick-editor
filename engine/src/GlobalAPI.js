@@ -277,15 +277,7 @@ GlobalAPI = class {
         if(!this.scriptOwner.project) return null;
         return this.scriptOwner.project.stopSound(assetName, id);
     }
-
-    /**
-     * Stops all currently playing sounds.
-     */
-    stopAllSounds () {
-        if(!this.scriptOwner.project) return null;
-        this.scriptOwner.project.stopAllSounds();
-    }
-
+    
     /**
      * Stops all currently playing sounds.
      */
