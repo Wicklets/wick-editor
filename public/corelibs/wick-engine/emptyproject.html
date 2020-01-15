@@ -45976,6 +45976,26 @@ GlobalAPI = class {
     return this.scriptOwner.project.playSound(assetName, options);
   }
   /**
+   * Stops sound(s) currently playing.
+   * @param {string} assetName - The name of the SoundAsset to stop.
+   * @param {number} id - (optional) The ID of the sound to stop. Returned by playSound. If an ID is not given, all instances of the given sound asset will be stopped.
+   */
+
+
+  stopSound(assetName, id) {
+    if (!this.scriptOwner.project) return null;
+    return this.scriptOwner.project.stopSound(assetName, id);
+  }
+  /**
+   * Stops all currently playing sounds.
+   */
+
+
+  stopAllSounds() {
+    if (!this.scriptOwner.project) return null;
+    this.scriptOwner.project.stopAllSounds();
+  }
+  /**
    * Stops all currently playing sounds.
    */
 
@@ -48978,7 +48998,25 @@ Wick.Project = class extends Wick.Base {
     } else if (!(asset instanceof Wick.SoundAsset)) {
       console.warn('playSound(): Asset is not a sound: "' + assetName + '"');
     } else {
-      asset.play(options);
+      return asset.play(options);
+    }
+  }
+  /**
+   * Stops sound(s) currently playing.
+   * @param {string} assetName - The name of the SoundAsset to stop.
+   * @param {number} id - (optional) The ID of the sound to stop. Returned by playSound. If an ID is not given, all instances of the given sound asset will be stopped.
+   */
+
+
+  stopSound(id) {
+    var asset = this.getAssetByName(assetName);
+
+    if (!asset) {
+      console.warn('stopSound(): No asset with name: "' + assetName + '"');
+    } else if (!(asset instanceof Wick.SoundAsset)) {
+      console.warn('stopSound(): Asset is not a sound: "' + assetName + '"');
+    } else {
+      return asset.stop(id);
     }
   }
   /**
