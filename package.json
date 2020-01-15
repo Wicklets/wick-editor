@@ -56,7 +56,8 @@
     "eject": "react-scripts eject",
     "electron": "electron .",
     "electron-dev-macos": "ELECTRON_START_URL=http://localhost:3000 electron .",
-    "electron-dev-windows": "set ELECTRON_START_URL=http://localhost:3000 && electron ."
+    "electron-dev-windows": "set ELECTRON_START_URL=http://localhost:3000 && electron .",
+    "engine-tests": "cd engine; python -m SimpleHTTPServer 9999"
   },
   "eslintConfig": {
     "extends": "react-app"
