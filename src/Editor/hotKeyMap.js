@@ -294,6 +294,10 @@ class HotKeyInterface extends Object {
       'export-selection': {
         name: "Export Selected Clip",
         sequences: ['meta+e'],
+      }, 
+      'export-project-to-new-window': {
+        name: "Export Project to New Window",
+        sequences: ['alt+enter']
       }
     }
 
@@ -372,6 +376,7 @@ class HotKeyInterface extends Object {
       'nudge-right-more': this.editor.nudgeSelectionRightMore,
       'toggle-script-editor': this.editor.toggleCodeEditor,
       'export-project-as-wick-file': this.editor.exportProjectAsWickFile,
+      'export-project-to-new-window': this.editor.exportProjectToNewWindow,
       'import-project-as-wick-file': (() => console.log("Ctrl-O as a shortcut doesn't work yet.")),
       'create-clip-from-selection': (() => this.editor.createClipFromSelection("", false)),
       'break-apart-selection': (() => this.editor.breakApartSelection()),
