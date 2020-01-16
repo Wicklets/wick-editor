@@ -91,6 +91,8 @@ Wick.Selection = class extends Wick.Base {
             "frameLength",
             "x",
             "y",
+            "originX",
+            "originY",
             "width",
             "height",
             "rotation",
@@ -368,6 +370,49 @@ Wick.Selection = class extends Wick.Base {
         this.view.y = y;
         this.project.tryToAutoCreateTween();
     }
+
+    /**
+     * The origin position the selection.
+     * @type {number}
+     */
+    get originX () {
+        // If there's only 1 object selected, the origin is that object's position.
+        if(this.getSelectedObject()) {
+            return this.getSelectedObject().x;
+        } else {
+            return this.view.x + this.view.width/2;
+        }
+    }
+
+    set originX (x) {
+        if(this.getSelectedObject()) {
+            this.getSelectedObject().x = x;
+        } else {
+            this.x = x - this.width/2;
+        }
+    }
+
+    /**
+     * The origin position the selection.
+     * @type {number}
+     */
+    get originY () {
+        // If there's only 1 object selected, the origin is that object's position.
+        if (this.getSelectedObject()) {
+            return this.getSelectedObject().y
+        } else {
+            return this.y + this.width/2;
+        }
+    }
+
+    set originY (y) {
+        if (this.getSelectedObject()) {
+            this.getSelectedObject().y = y;
+        } else {
+            this.y = y - this.width/2;
+        }
+    }
+
 
     /**
      * The width of the selection.

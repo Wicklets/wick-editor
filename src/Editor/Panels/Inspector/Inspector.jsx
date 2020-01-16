@@ -417,6 +417,22 @@ class Inspector extends Component {
   }
 
   /**
+   * Renders an inspector row allowing viewing and editing of the selection's origin x y position.
+   */
+  renderOrigin = () => {
+    return (
+      <InspectorDualNumericInput
+        tooltip="Origin"
+        val1={this.getSelectionAttribute('originX')}
+        val2={this.getSelectionAttribute('originY')}
+        onChange1={(val) => this.setSelectionAttribute('originX', val)}
+        onChange2={(val) => this.setSelectionAttribute('originY', val)}
+        divider={true}
+        id="inspector-origin" />
+    )
+  }
+
+  /**
    * Renders an inspector row allowing viewing and editing of the selection's width and height.
    */
   renderSize = () => {
@@ -484,6 +500,7 @@ class Inspector extends Component {
     return (
       <div className="inspector-item">
         {this.renderPosition()}
+        {this.renderOrigin()}
         {this.renderSize()}
         {this.renderScale()}
         {this.renderRotation()}

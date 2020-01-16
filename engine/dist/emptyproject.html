@@ -49667,7 +49667,7 @@ Wick.Selection = class extends Wick.Base {
 
 
   get allAttributeNames() {
-    return ["strokeWidth", "fillColor", "strokeColor", "name", "filename", "fontSize", "fontFamily", "fontWeight", "fontStyle", "src", "frameLength", "x", "y", "width", "height", "rotation", "opacity", "sound", "soundVolume", "soundStart", "identifier", "easingType", "scaleX", "scaleY"];
+    return ["strokeWidth", "fillColor", "strokeColor", "name", "filename", "fontSize", "fontFamily", "fontWeight", "fontStyle", "src", "frameLength", "x", "y", "originX", "originY", "width", "height", "rotation", "opacity", "sound", "soundVolume", "soundStart", "identifier", "easingType", "scaleX", "scaleY"];
   }
   /**
    * Add a wick object to the selection.
@@ -49949,6 +49949,48 @@ Wick.Selection = class extends Wick.Base {
   set y(y) {
     this.view.y = y;
     this.project.tryToAutoCreateTween();
+  }
+  /**
+   * The origin position the selection.
+   * @type {number}
+   */
+
+
+  get originX() {
+    if (this.getSelectedObject()) {
+      return this.getSelectedObject().x;
+    } else {
+      return this.view.x + this.view.width / 2;
+    }
+  }
+
+  set originX(x) {
+    if (this.getSelectedObject()) {
+      this.getSelectedObject().x = x;
+    } else {
+      this.x = x - this.width / 2;
+    }
+  }
+  /**
+   * The origin position the selection.
+   * @type {number}
+   */
+
+
+  get originY() {
+    if (this.getSelectedObject()) {
+      return this.getSelectedObject().y;
+    } else {
+      return this.y + this.width / 2;
+    }
+  }
+
+  set originY(y) {
+    if (this.getSelectedObject()) {
+      this.getSelectedObject().y = y;
+    } else {
+      this.y = y - this.width / 2;
+    }
   }
   /**
    * The width of the selection.
