@@ -21,6 +21,10 @@
  * Utility class for bundling Wick projects inside HTML files.
  */
 Wick.HTMLExport = class {
+    /**
+     * Bundles a wick project into the standalone HTML player. This creates a single-file playable Wick project.
+     * @param {Wick.Project} project - The project to bundle.
+     */
     static bundleProject (project, callback) {
         Wick.WickFile.toWickFile(project, wickFileBase64 => {
             fetch(Wick.resourcepath + 'emptyproject.html')

@@ -14,7 +14,7 @@
         <!-- The Wick Engine build is injected here during the engine build step (see gulpfile.js) -->
         <script>
             /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.1.15";
+var WICK_ENGINE_BUILD_VERSION = "2020.1.16";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -46976,6 +46976,10 @@ Wick.WickObjectFile = class {
  * Utility class for bundling Wick projects inside HTML files.
  */
 Wick.HTMLExport = class {
+  /**
+   * Bundles a wick project into the standalone HTML player. This creates a single-file playable Wick project.
+   * @param {Wick.Project} project - The project to bundle.
+   */
   static bundleProject(project, callback) {
     Wick.WickFile.toWickFile(project, wickFileBase64 => {
       fetch(Wick.resourcepath + 'emptyproject.html').then(resp => resp.text()).then(text => {
@@ -46986,6 +46990,44 @@ Wick.HTMLExport = class {
         console.error(e);
       });
     }, 'base64');
+  }
+
+};
+/*
+ * Copyright 2019 WICKLETS LLC
+ *
+ * This file is part of Wick Engine.
+ *
+ * Wick Engine is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Wick Engine is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+/**
+ * Utility class for opening Wick projects inside popup windows.
+ */
+Wick.HTMLPreview = class {
+  /**
+   * Runs a project inside a popup window.
+   * @param {Wick.Project} project - The project to run.
+   * @param {function} callback - Function that's called when the popup is successfully created.
+   */
+  static previewProject(project, callback) {
+    Wick.HTMLExport.bundleProject(project, html => {
+      var popupWindow = window.open('', '_blank', "height=" + project.height + ",width=" + project.width);
+      popupWindow.document.write(html);
+      popupWindow.runBundledProject();
+      callback();
+    });
   }
 
 };
@@ -62929,10 +62971,14 @@ Wick.GUIElement.TweenGhost = class extends Wick.GUIElement.Ghost {
 
         <script>
           window.addEventListener('load', function() {
+              window.runBundledProject();
+          }, false);
+
+          window.runBundledProject = () => {
               Wick.WickFile.fromWickFile(window.INJECTED_WICKPROJECT_DATA, project => {
                   project.inject(document.getElementById('wick-canvas-container'));
               }, 'base64');
-          }, false);
+          }
         </script>
 
         <style>

@@ -1109,7 +1109,9 @@ class EditorCore extends Component {
   requestAutosave = () => {
       window.clearTimeout(this._autosaveTimeoutID);
       this._autosaveTimeoutID = window.setTimeout(() => {
-          //this.autoSaveProject();
+          this.autoSaveProject(() => {
+
+          });
       }, 1000 * 60);
   }
 
@@ -1160,7 +1162,9 @@ class EditorCore extends Component {
    * Clears any autosaved project from local storage.
    */
   clearAutoSavedProject = (callback) => {
-    console.error("Please use the new engine API for autosave.")
+    window.Wick.AutoSave.delete(this.project.uuid, () => {
+      callback();
+    });
   }
 
   /**

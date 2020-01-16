@@ -18,10 +18,14 @@
 
         <script>
           window.addEventListener('load', function() {
+              window.runBundledProject();
+          }, false);
+
+          window.runBundledProject = () => {
               Wick.WickFile.fromWickFile(window.INJECTED_WICKPROJECT_DATA, project => {
                   project.inject(document.getElementById('wick-canvas-container'));
               }, 'base64');
-          }, false);
+          }
         </script>
 
         <style>
