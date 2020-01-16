@@ -777,6 +777,7 @@ class Editor extends EditorCore {
                     exportProjectAsVideo={this.exportProjectAsVideo}
                     exportProjectAsStandaloneZip={this.exportProjectAsStandaloneZip}
                     exportProjectAsStandaloneHTML={this.exportProjectAsStandaloneHTML}
+                    exportProjectAsImageSequence={this.exportProjectAsImageSequence}
                     warningModalInfo={this.state.warningModalInfo}
                     loadAutosavedProject={this.loadAutosavedProject}
                     clearAutoSavedProject={this.clearAutoSavedProject}

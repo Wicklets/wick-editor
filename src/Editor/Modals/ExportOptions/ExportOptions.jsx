@@ -61,6 +61,9 @@ class ExportOptions extends Component {
     } else if (type === 'HTML') {
       this.props.exportProjectAsStandaloneHTML(name);
       this.props.toggle();
+    } else if (type === 'IMAGE_SEQUENCE') {
+      this.props.exportProjectAsImageSequence(name);
+      this.props.toggle();
     }
   }
 
@@ -199,6 +202,40 @@ class ExportOptions extends Component {
     );
   }
 
+    // Renders the body of the "Animation" tab.
+    renderImageInfo = () => {
+      return (
+        <div className="export-info-container">
+          <div className="wide-export-info-item">
+            <ObjectInfo
+              className="export-object-info"
+              title="Image Sequence"
+              rows={[
+                {
+                  text: "Creates a .zip file of images",
+                  icon: "check"
+                },
+                {
+                  text: "Exports an .png image of each frame",
+                  icon: "check",
+                },
+                {
+                  text: "No Code is Run",
+                  icon: "cancel"
+                },
+              ]} />
+            <div className="export-modal-button-container">
+            <ActionButton
+              color='gray-green'
+              action={() => { this.createAndToggle('IMAGE_SEQUENCE') }}
+              text="Export Image Sequence"
+              />
+            </div>
+          </div>
+        </div>
+      );
+    }
+
   render() {
     return (
       <WickModal
@@ -215,9 +252,10 @@ class ExportOptions extends Component {
               onChange={this.updateExportName}
               placeholder={this.placeholderName} />
           </div>
-          <TabbedInterface tabNames={["Animation", "Interactive"]}>
+          <TabbedInterface tabNames={["Animation", "Interactive", "Images"]}>
             {this.renderAnimatedInfo()}
             {this.renderInteractiveInfo()}
+            {this.renderImageInfo()}
           </TabbedInterface>
         </div>
       </WickModal>

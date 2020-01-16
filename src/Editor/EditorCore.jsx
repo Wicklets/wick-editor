@@ -25,7 +25,6 @@ import { saveAs } from 'file-saver';
 import VideoExport from './export/VideoExport';
 import GIFExport from './export/GIFExport';
 import timeStamp from './Util/DataFunctions/timestamp';
-import ImageExport from './export/ImageExport';
 
 class EditorCore extends Component {
   /**
@@ -891,19 +890,14 @@ class EditorCore extends Component {
 
     let toastID = this.toast('Exporting image sequence...', 'info');
 
-    let onProgress = (message, progress) => {
+    let onProgress = (completed, maxFrames) => {
+      let message = "Rendered " + completed + "/" + maxFrames + " frames";
+      let percentage = 10 + (90 * (completed/maxFrames));
       this.setState({
         renderStatusMessage: message,
-        renderProgress: progress
+        renderProgress: percentage,
       });
     }
-
-    // let updateProgress = (completed, maxFrames) => {
-    //   // Change visual of the loading bar
-    //   let message = "Rendered " + completed + "/" + maxFrames + " frames";
-    //   let percentage = 10 + (90 * (completed/maxFrames));
-    //   onProgress(message, percentage);
-    // }
 
     let onError = (message) => {
       console.error("Video Render had an error with message: ", message);
