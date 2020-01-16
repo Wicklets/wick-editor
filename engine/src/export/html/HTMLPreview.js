@@ -30,10 +30,12 @@ Wick.HTMLPreview = class {
         Wick.HTMLExport.bundleProject(project, html => {
             var windowFeatures = "height="+project.height+",width="+project.width;
             var popupWindow = window.open('', '_blank', windowFeatures);
-            popupWindow.document.title = project.name;
-            popupWindow.document.open();
-            popupWindow.document.write(html);
-            popupWindow.document.close();
+            if(popupWindow) {
+                popupWindow.document.title = project.name;
+                popupWindow.document.open();
+                popupWindow.document.write(html);
+                popupWindow.document.close();
+            }
             callback(popupWindow);
         });
     }
