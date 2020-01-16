@@ -37,7 +37,7 @@ Wick.Frame = class extends Wick.Tickable {
         this._soundID = null;
         this._soundVolume = 1.0;
         this._soundLoop = false;
-        this._soundCropOffsetMS = 0;
+        this._soundStart = 0;
 
         this._originalLayerIndex = -1;
     }
@@ -158,7 +158,7 @@ Wick.Frame = class extends Wick.Tickable {
         }
 
         var options = {
-            seekMS: this.playheadSoundOffsetMS + this.soundCropOffsetMS,
+            seekMS: this.playheadSoundOffsetMS + this.soundStart,
             volume: this.soundVolume,
             loop: this.soundLoop,
         };
@@ -199,12 +199,12 @@ Wick.Frame = class extends Wick.Tickable {
      * in the track. THIS DOES NOT DETERMINE WHEN A SOUND PLAYS.
      * @type {number}
      */
-    get soundCropOffsetMS () {
-        return this._soundCropOffsetMS;
+    get soundStart () {
+        return this._soundStart;
     }
 
-    set soundCropOffsetMS (val) {
-        this._soundCropOffsetMS = val;
+    set soundStart (val) {
+        this._soundStart = val;
     }
 
     /**

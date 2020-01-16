@@ -145,9 +145,14 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement {
 
             var frameLengthPx = this.model.length * this.gridCellWidth;
             var cropPx = (frameLengthMS / soundLengthMS) * 1200; // base waveform image size: 1200px
+            
+            // Determining Pxls/milliseconds to shift waveform.
+            var msPerFrame = 1000/framerate;
+            var pxPerMS = msPerFrame/this.gridCellWidth;
+            var shiftSoundStart = -(this.model.soundStart * (1/pxPerMS));
 
             var volumeCropAmt = (waveform.height/2)*(1-(1/this.model.soundVolume));
-            ctx.drawImage(waveform, 0, volumeCropAmt, cropPx, waveform.height-volumeCropAmt*2, 0, 0, frameLengthPx, this.gridCellHeight);
+            ctx.drawImage(waveform, 0, volumeCropAmt, cropPx, waveform.height-volumeCropAmt*2, shiftSoundStart, 0, frameLengthPx, this.gridCellHeight);
         } else if (this.model.tweens.length > 0) {
             // Tweens
 

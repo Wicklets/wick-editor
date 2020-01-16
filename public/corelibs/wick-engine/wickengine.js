@@ -50328,6 +50328,19 @@ Wick.Selection = class extends Wick.Base {
     this._setSingleAttribute('soundVolume', soundVolume);
   }
   /**
+   * The starting position of the sound on the frame in ms.
+   * @type {number}
+   */
+
+
+  get soundStart() {
+    return this._getSingleAttribute('soundStart');
+  }
+
+  set soundStart(soundStart) {
+    this._setSingleAttribute('soundStart', soundStart);
+  }
+  /**
    * The easing type of a selected tween. See Wick.Tween.VALID_EASING_TYPES.
    * @type {string}
    */
@@ -53140,7 +53153,7 @@ Wick.Frame = class extends Wick.Tickable {
     this._soundID = null;
     this._soundVolume = 1.0;
     this._soundLoop = false;
-    this._soundCropOffsetMS = 0;
+    this._soundStart = 0;
     this._originalLayerIndex = -1;
   }
 
@@ -53263,7 +53276,7 @@ Wick.Frame = class extends Wick.Tickable {
     }
 
     var options = {
-      seekMS: this.playheadSoundOffsetMS + this.soundCropOffsetMS,
+      seekMS: this.playheadSoundOffsetMS + this.soundStart,
       volume: this.soundVolume,
       loop: this.soundLoop
     };
@@ -53308,12 +53321,12 @@ Wick.Frame = class extends Wick.Tickable {
    */
 
 
-  get soundCropOffsetMS() {
-    return this._soundCropOffsetMS;
+  get soundStart() {
+    return this._soundStart;
   }
 
-  set soundCropOffsetMS(val) {
-    this._soundCropOffsetMS = val;
+  set soundStart(val) {
+    this._soundStart = val;
   }
   /**
    * When should the sound start, in milliseconds.
@@ -60489,9 +60502,13 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement {
       var frameLengthMS = 1 / framerate * this.model.length * 1000;
       var frameLengthPx = this.model.length * this.gridCellWidth;
       var cropPx = frameLengthMS / soundLengthMS * 1200; // base waveform image size: 1200px
+      // Determining Pxls/milliseconds to shift waveform.
 
+      var msPerFrame = 1000 / framerate;
+      var pxPerMS = msPerFrame / this.gridCellWidth;
+      var shiftSoundStart = -(this.model.soundStart * (1 / pxPerMS));
       var volumeCropAmt = waveform.height / 2 * (1 - 1 / this.model.soundVolume);
-      ctx.drawImage(waveform, 0, volumeCropAmt, cropPx, waveform.height - volumeCropAmt * 2, 0, 0, frameLengthPx, this.gridCellHeight);
+      ctx.drawImage(waveform, 0, volumeCropAmt, cropPx, waveform.height - volumeCropAmt * 2, shiftSoundStart, 0, frameLengthPx, this.gridCellHeight);
     } else if (this.model.tweens.length > 0) {
       // Tweens
       this.model.tweens.forEach(tween => {

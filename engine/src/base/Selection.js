@@ -729,6 +729,18 @@ Wick.Selection = class extends Wick.Base {
     }
 
     /**
+     * The starting position of the sound on the frame in ms.
+     * @type {number}
+     */
+    get soundStart () {
+        return this._getSingleAttribute('soundStart');
+    }
+
+    set soundStart (soundStart) {
+        this._setSingleAttribute('soundStart', soundStart);
+    }
+
+    /**
      * The easing type of a selected tween. See Wick.Tween.VALID_EASING_TYPES.
      * @type {string}
      */
