@@ -811,6 +811,25 @@ class EditorCore extends Component {
   }
 
   /**
+   * Export the current project to a new window.
+   */
+  exportProjectToNewWindow = () => {
+    var projectInfo = "height=" + this.project.height + ",width=" + this.project.width;
+    this.showWaitOverlay();
+    window.Wick.HTMLExport.bundleProject(this.project, html => {
+      this.hideWaitOverlay(); 
+      var previewWindow = window.open('', '_blank', projectInfo);
+      // If pop ups are disabled, previewWindow will be null.
+      if (previewWindow) {
+        previewWindow.document.title = this.project.name;
+        previewWindow.document.open();
+        previewWindow.document.write(html);
+        previewWindow.document.close();
+      }
+    }); 
+  }
+
+  /**
    * Export the current project as a Wick File using the save as dialog.
    */
   exportProjectAsWickFile = () => {
