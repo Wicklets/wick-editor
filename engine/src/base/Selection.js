@@ -377,7 +377,7 @@ Wick.Selection = class extends Wick.Base {
      */
     get originX () {
         // If there's only 1 object selected, the origin is that object's position.
-        if(this.getSelectedObject()) {
+        if(this.getSelectedObject() && (this.selectionType === "clip" || this.selectionType === "button")) {
             return this.getSelectedObject().x;
         } else {
             return this.view.x + this.width/2;
@@ -385,7 +385,7 @@ Wick.Selection = class extends Wick.Base {
     }
 
     set originX (x) {
-        if(this.getSelectedObject()) {
+        if(this.getSelectedObject() && (this.selectionType === "clip" || this.selectionType === "button")) {
             this.getSelectedObject().x = x;
         } else {
             this.x = x - this.width/2;
@@ -398,7 +398,7 @@ Wick.Selection = class extends Wick.Base {
      */
     get originY () {
         // If there's only 1 object selected, the origin is that object's position.
-        if (this.getSelectedObject()) {
+        if (this.getSelectedObject() && (this.selectionType === "clip" || this.selectionType === "button")) {
             return this.getSelectedObject().y
         } else {
             return this.y + this.height/2;
@@ -406,7 +406,7 @@ Wick.Selection = class extends Wick.Base {
     }
 
     set originY (y) {
-        if (this.getSelectedObject()) {
+        if (this.getSelectedObject() && (this.selectionType === "clip" || this.selectionType === "button")) {
             this.getSelectedObject().y = y;
         } else {
             this.y = y - this.height/2;
