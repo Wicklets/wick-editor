@@ -226,6 +226,77 @@ describe('Wick.Selection', function() {
         expect(frame.getTweenAtPosition(5).transformation.y).to.equal(300);
     });
 
+    describe('Origin Point Transformation', function () {
+        it('should properly translate the origin point when selecting a single object', function () {
+            var project = new Wick.Project();
+
+            var frame = project.activeFrame;
+                
+            var path = new Wick.Path({json:TestUtils.TEST_PATH_JSON_RED_SQUARE});
+            frame.addPath(path);
+
+            project.selection.select(path);
+            project.view.render();
+
+            var x = project.selection.x;
+            var baseWidth = project.selection.width;
+            var y = project.selection.y;
+            var baseHeight = project.selection.height;
+
+            var expectedOriginX = x + baseWidth/2;
+            var expectedOriginY = y + baseHeight/2;
+
+            expect(project.selection.originX).to.equal(expectedOriginX);
+            expect(project.selection.originY).to.equal(expectedOriginY);
+
+            project.selection.originX = 50;
+            project.selection.originY = 100;
+            project.view.render();
+
+            expect(project.selection.originX).to.equal(50);
+            expect(project.selection.originY).to.equal(100);
+            expect(project.selection.x).to.equal(project.selection.originX - baseWidth/2);
+            expect(project.selection.y).to.equal(project.selection.originY - baseHeight/2);
+        });
+
+        it('should properly translate the origin point when selecting a multiple objects', function () {
+            var project = new Wick.Project();
+
+            var frame = project.activeFrame;
+                
+            var path = new Wick.Path({json:TestUtils.TEST_PATH_JSON_RED_SQUARE});
+            var path2 = new Wick.Path({json:TestUtils.TEST_PATH_JSON_RED_SQUARE});
+            frame.addPath(path);
+            frame.addPath(path2);
+
+            path2.x = 100; // Reposition path2 so that they are not in the same location.
+
+            project.selection.select(path);
+            project.selection.select(path2);
+            project.view.render();
+
+            var x = project.selection.x;
+            var baseWidth = project.selection.width;
+            var y = project.selection.y;
+            var baseHeight = project.selection.height;
+
+            var expectedOriginX = x + baseWidth/2;
+            var expectedOriginY = y + baseHeight/2;
+
+            expect(project.selection.originX).to.equal(expectedOriginX);
+            expect(project.selection.originY).to.equal(expectedOriginY);
+
+            project.selection.originX = 50;
+            project.selection.originY = 100;
+            project.view.render();
+
+            expect(project.selection.originX).to.equal(50);
+            expect(project.selection.originY).to.equal(100);
+            expect(project.selection.x).to.equal(project.selection.originX - baseWidth/2);
+            expect(project.selection.y).to.equal(project.selection.originY - baseHeight/2);
+        });
+    });
+
     describe('ScaleX and ScaleY', function () {
         it('should properly provide scaleX and scaleY properties for selection on Paths', function () {
             var project = new Wick.Project();

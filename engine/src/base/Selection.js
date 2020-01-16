@@ -380,7 +380,7 @@ Wick.Selection = class extends Wick.Base {
         if(this.getSelectedObject()) {
             return this.getSelectedObject().x;
         } else {
-            return this.view.x + this.view.width/2;
+            return this.view.x + this.width/2;
         }
     }
 
@@ -401,7 +401,7 @@ Wick.Selection = class extends Wick.Base {
         if (this.getSelectedObject()) {
             return this.getSelectedObject().y
         } else {
-            return this.y + this.width/2;
+            return this.y + this.height/2;
         }
     }
 
@@ -409,7 +409,7 @@ Wick.Selection = class extends Wick.Base {
         if (this.getSelectedObject()) {
             this.getSelectedObject().y = y;
         } else {
-            this.y = y - this.width/2;
+            this.y = y - this.height/2;
         }
     }
 
