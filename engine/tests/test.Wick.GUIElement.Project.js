@@ -15,9 +15,18 @@ describe('Wick.GUIElement.Project', function() {
         project.activeLayer.addFrame(new Wick.Frame({start: 3}));
         project.activeLayer.getFrameAtPlayheadPosition(1).addClip(new Wick.Clip());
         project.activeLayer.addFrame(new Wick.Frame({start: 4, end: 10}));
+        project.activeLayer.addFrame(new Wick.Frame({start: 11, end: 15}));
+        project.activeLayer.addFrame(new Wick.Frame({start: 16, end: 20}));
+        project.activeLayer.addFrame(new Wick.Frame({start: 21, end: 25}));
         var sound = new Wick.SoundAsset({filename:'test.wav', src:TestUtils.TEST_SOUND_SRC_MP3});
         project.addAsset(sound);
         project.activeLayer.getFrameAtPlayheadPosition(4).sound = sound;
+        project.activeLayer.getFrameAtPlayheadPosition(11).sound = sound;
+        project.activeLayer.getFrameAtPlayheadPosition(11).soundVolume = 0.5;
+        project.activeLayer.getFrameAtPlayheadPosition(16).sound = sound;
+        project.activeLayer.getFrameAtPlayheadPosition(16).soundVolume = 0.75;
+        project.activeLayer.getFrameAtPlayheadPosition(21).sound = sound;
+        project.activeLayer.getFrameAtPlayheadPosition(21).soundVolume = 1.5;
 
         var layer2 = new Wick.Layer({name: 'LayerWithTweensVeryLongName'});
         project.activeTimeline.addLayer(layer2);
