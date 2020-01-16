@@ -816,17 +816,15 @@ class EditorCore extends Component {
   exportProjectToNewWindow = () => {
     var projectInfo = "height=" + this.project.height + ",width=" + this.project.width;
     this.showWaitOverlay();
-    window.Wick.HTMLExport.bundleProject(this.project, html => {
-      this.hideWaitOverlay(); 
-      var previewWindow = window.open('', '_blank', projectInfo);
-      // If pop ups are disabled, previewWindow will be null.
+    window.Wick.HTMLPreview.previewProject(this.project, previewWindow => {
+      this.hideWaitOverlay();
       if (previewWindow) {
-        previewWindow.document.title = this.project.name;
-        previewWindow.document.open();
-        previewWindow.document.write(html);
-        previewWindow.document.close();
+        let toastID = this.toast('Project preview window opened.', 'info', {autoClose: false});
+      } else {
+        // If pop ups are disabled, previewWindow will be null.
+        let toastID = this.toast('Could not open a preview window. Try disabling your popup blocker!', 'warn', {autoClose: false});
       }
-    }); 
+    });
   }
 
   /**

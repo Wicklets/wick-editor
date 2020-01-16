@@ -28,9 +28,13 @@ Wick.HTMLPreview = class {
      */
     static previewProject (project, callback) {
         Wick.HTMLExport.bundleProject(project, html => {
-            var popupWindow = window.open('', '_blank', "height="+project.height+",width="+project.width);
-            popupWindow.document.write(html);popupWindow.runBundledProject();
-            callback();
+            var windowFeatures = "height="+project.height+",width="+project.width;
+            var popupWindow = window.open('', '_blank', windowFeatures);
+            popupWindow.document.title = project.name;
+            popupWindow.document.open();
+            popupWindow.document.write(html);
+            popupWindow.document.close();
+            callback(popupWindow);
         });
     }
 }
