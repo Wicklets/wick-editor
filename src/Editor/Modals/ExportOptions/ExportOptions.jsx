@@ -206,17 +206,17 @@ class ExportOptions extends Component {
     renderImageInfo = () => {
       return (
         <div className="export-info-container">
-          <div className="export-info-item">
+          <div className="wide-export-info-item">
             <ObjectInfo
               className="export-object-info"
               title="Image Sequence"
               rows={[
                 {
-                  text: "Creates a .zip file",
+                  text: "Creates a .zip file of images",
                   icon: "check"
                 },
                 {
-                  text: "Exports an image for each frame",
+                  text: "Exports an .png image of each frame",
                   icon: "check",
                 },
                 {
