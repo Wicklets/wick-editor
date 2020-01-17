@@ -120,11 +120,17 @@ class TimedChangeInput extends Component {
     }
 
     render() {
+        // Never display -0 to the user.
+        let val = this.state.value;
+        if (this.state.value === "-0") {
+            val = "0";
+        }
+        
         return (
             <input
                 className={classNames(this.props.className)}
                 {...this.props}
-                value={this.state.value}
+                value={val}
                 type="text"
                 onChange={this.internalOnChange}
                 onBlur={this.wrappedOnChange}

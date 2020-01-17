@@ -57,7 +57,9 @@ class NumericTimedChangeInput extends Component {
             let parsedVal = parseFloat(val); 
 
             parsedVal = this.constrain(parsedVal);
+
             this.props.onChange(parsedVal);
+            
             this.setState({
                 validEntry: true,
             }); 
