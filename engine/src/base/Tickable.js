@@ -275,23 +275,24 @@ Wick.Tickable = class extends Wick.Base {
     /**
      * Schedule a script to run at the end of the tick.
      * @param {string} name - The name of the script to run. See Tickable.possibleScripts
+     * @param {Object} parameters - An object consisting of key,value pairs which correspond to parameters to pass to the script.
      */
-    scheduleScript (name) {
+    scheduleScript (name, parameters) {
         if(!this.project) return;
 
-        this.project.scheduleScript(this.uuid, name);
+        this.project.scheduleScript(this.uuid, name, parameters);
     }
 
     /**
      * Run the script with the corresponding event name.
      * @param {string} name - The name of the event. See Wick.Tickable.possibleScripts
+     * @param {Object} parameters - An object containing key,value pairs of parameters to send to the script.
      * @returns {object} object containing error info if an error happened. Returns null if there was no error (script ran successfully)
      */
-    runScript (name) {
+    runScript (name, parameters) {
         if(!Wick.Tickable.possibleScripts.indexOf(name) === -1) {
             console.error(name + ' is not a valid script!');
         }
-
         // Don't run scripts if this object is the focus
         // (this makes it so preview play will always play, even if the parent Clip of the timeline has a stop script)
         if(this.project && this.project.focus === this) {
@@ -302,7 +303,7 @@ Wick.Tickable = class extends Wick.Base {
         var eventFnError = null;
         this.getEventFns(name).forEach(eventFn => {
             if(eventFnError) return;
-            eventFnError = this._runFunction(eventFn, name);
+            eventFnError = this._runFunction(eventFn, name, parameters);
         });
         if(eventFnError) {
             this.project.error = eventFnError;
@@ -317,7 +318,7 @@ Wick.Tickable = class extends Wick.Base {
                 return fn; // error
             }
             this._cachedScripts[name] = fn;
-            var error = this._runFunction(fn, name);
+            var error = this._runFunction(fn, name, parameters);
             if(error) {
                 this.project.error = error;
                 return;
@@ -421,19 +422,19 @@ Wick.Tickable = class extends Wick.Base {
         // Key down
         this.project.keysDown.forEach(key => {
             this.project.currentKey = key;
-            this.scheduleScript('keydown');
+            this.scheduleScript('keydown', {key: key});
         });
 
         // Key press
         this.project.keysJustPressed.forEach(key => {
             this.project.currentKey = key;
-            this.scheduleScript('keypressed');
+            this.scheduleScript('keypressed', {key: key});
         });
 
         // Key released
         this.project.keysJustReleased.forEach(key => {
             this.project.currentKey = key;
-            this.scheduleScript('keyreleased');
+            this.scheduleScript('keyreleased', {key: key});
         });
     }
 
@@ -466,7 +467,13 @@ Wick.Tickable = class extends Wick.Base {
         return fn;
     }
 
-    _runFunction (fn, name) {
+    /**
+     * _runFunction runs an event function while passing in necessary global and local parameters.
+     * @param {string} fn - Function to run.
+     * @param {string} name - Name of the event function being run (i.e. keyDown) 
+     * @param {Object} parameters - An object of key,value pairs to be passed as parameters to the function.
+     */
+    _runFunction (fn, name, parameters) {
           var error = null;
 
           // Attach API methods
@@ -478,6 +485,17 @@ Wick.Tickable = class extends Wick.Base {
                   fn: otherObject,
               }
           }));
+
+          // Add in parameters, if necessary.
+          if (parameters) {
+            Object.keys(parameters).forEach(parameter => {
+                apiMembers.push({
+                    name: parameter,
+                    fn: parameters[parameter],
+                })
+            });
+          }
+
           apiMembers.forEach(apiMember => {
               window[apiMember.name] = apiMember.fn;
           });
