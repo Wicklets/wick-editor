@@ -33,7 +33,25 @@ class KeyboardShortcuts extends Component {
       editingAction: {actionName: "", actionIndex: 0}, 
       newActions: [],
       cancelKeyRecording: () => {},
+      openTabs: [],
     }
+  }
+
+  /**
+   * Toggles a tab in the hotkey interface.
+   * @param {string} name - Tab to toggle.
+   */
+  toggleTab = (name) => {
+    let tabs = this.state.openTabs.concat([]);
+    let tabIndex = tabs.indexOf(name);
+    if (tabIndex > -1) { // Tab is open.
+      tabs = tabs.filter(tabName => tabName !== name);
+    } else { // Tab is closed.
+      tabs.push(name);
+    }
+    this.setState({
+      openTabs: tabs,
+    })
   }
 
   // Creates the key icons to show on each row.
@@ -106,8 +124,13 @@ class KeyboardShortcuts extends Component {
     let {name} = headerInfo;
 
     return (
-      <tr className="keyboard-shortcuts-modal-row" key={name}>
+      <tr 
+        className="keyboard-shortcuts-modal-row" 
+        key={name}
+        onClick={() => {this.toggleTab(name)}}>
         <td className="hotkey-action-column hotkey-header-column">
+          {this.state.openTabs.indexOf(name) === -1 && <i className="wick-brand-arrow arrow-right"/>} 
+          {this.state.openTabs.indexOf(name) > -1 && <i className="wick-brand-arrow arrow-down"/>} 
           { name }
         </td>
       </tr>
@@ -229,19 +252,25 @@ class KeyboardShortcuts extends Component {
     this.props.resetCustomHotKeys(); 
   }
 
-  render() {
-    let keyMap = this.props.keyMap || {};
+  getGroupedRows = () => {
     let keyGroups = Object.keys(this.props.keyMapGroups);
 
     let groupedRows = [];
     keyGroups.forEach(groupName => {
       groupedRows.push({name:groupName, type:"header"});
-      let groupMembers = this.props.keyMapGroups[groupName];
-      groupMembers.forEach(member => {
-        groupedRows.push({name:member, type:"member"})
-      })
+      if (this.state.openTabs.indexOf(groupName) > -1) {
+        let groupMembers = this.props.keyMapGroups[groupName];
+        groupMembers.forEach(member => {
+          groupedRows.push({name:member, type:"member"})
+        })
+      }
     });
+    return groupedRows;
+  }
 
+  render() {
+    let keyMap = this.props.keyMap || {};
+    let groupedRows = this.getGroupedRows();
     return (
         <div id="keyboard-shortcuts-body">
           <table className="tableSection">

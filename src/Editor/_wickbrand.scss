@@ -42,6 +42,7 @@ $editor-modal-gray-secondary: #525252;
 
 $editor-modal-text-white: #FFFFFF;
 $editor-modal-text-gray: #E6E6E6;
+$editor-modal-text-dark: #a6a6a6;
 $editor-modal-text-highlight: #1EE29A;
 
 $editor-green-highlight: #1EE29A;
@@ -214,6 +215,35 @@ a:hover {
   right: 0;
   bottom: 0;
   background-color: rgba(0,0,0,0.6);
+}
+
+.wick-brand-arrow {
+  border: solid $wick-green;
+  border-width: 0 3px 3px 0;
+  border-radius: 2px; 
+  display: inline-block;
+  padding: 3px;
+  margin: 4px;
+}
+
+.arrow-right {
+  transform: rotate(-45deg);
+  -webkit-transform: rotate(-45deg);
+}
+
+.arrow-left {
+  transform: rotate(135deg);
+  -webkit-transform: rotate(135deg);
+}
+
+.arrow-up {
+  transform: rotate(-135deg);
+  -webkit-transform: rotate(-135deg);
+}
+
+.arrow-down {
+  transform: rotate(45deg);
+  -webkit-transform: rotate(45deg);
 }
 
 // define Bootstrap 4 button Mixins

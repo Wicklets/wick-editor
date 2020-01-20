@@ -95,8 +95,15 @@ kbd {
  .hotkey-header-column {
   font-size: 24px;
   padding-left: .5em; 
-  background-color: $editor-popout-secondary; 
+  background-color: $editor-popout-primary; 
   font-weight: bold;
+  vertical-align: middle;
+  cursor: pointer;
+ }
+
+ .hotkey-header-column:hover {
+  background-color: $editor-popout-secondary; 
+  color: $editor-modal-text-highlight; 
  }
 
  .hotkey-column {
