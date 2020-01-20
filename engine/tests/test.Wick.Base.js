@@ -222,6 +222,20 @@ describe('Wick.Base', function() {
         expect(child1.identifier).to.equal('foo');
     });
 
+    it('identifier should not accept Wick API methods', function() {
+        var base = new Wick.Base({identifier: 'dummy'});
+
+        // Invalid names
+        base.identifier = 'keyIsDown';
+        expect(base.identifier).to.equal('dummy');
+        base.identifier = 'stop';
+        expect(base.identifier).to.equal('dummy');
+        base.identifier = 'random';
+        expect(base.identifier).to.equal('dummy');
+        base.identifier = 'onEvent';
+        expect(base.identifier).to.equal('dummy');
+    });
+
     it('should get parent clip correctly', function() {
         var subclip = new Wick.Clip();
         var frame = new Wick.Frame();
