@@ -1438,7 +1438,7 @@ Wick.Project = class extends Wick.Base {
             return {
                 start: frame.soundStartMS,
                 end: frame.soundEndMS,
-                offset: frame.soundCropOffsetMS,
+                offset: frame.soundStart,
                 src: frame.sound.src,
                 filetype: frame.sound.fileExtension,
             }

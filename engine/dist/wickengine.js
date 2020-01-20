@@ -47430,7 +47430,9 @@ Wick.Base = class {
     } // Make sure the identifier doesn't squash any attributes of the window
 
 
-    if (this._identifierNameExistsInWindowContext(identifier)) return; // Make sure the identifier is a valid js variable name
+    if (this._identifierNameExistsInWindowContext(identifier)) return; // Make sure the identifier will not be squashed by Wick API functions
+
+    if (this._identiferNameIsPartOfWickAPI(identifier)) return; // Make sure the identifier is a valid js variable name
 
     if (!isVarName(identifier)) return; // Make sure the identifier is not a reserved word in js
 
@@ -47699,6 +47701,16 @@ Wick.Base = class {
 
   _identifierNameExistsInWindowContext(identifier) {
     if (window[identifier]) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  _identiferNameIsPartOfWickAPI(identifier) {
+    var globalAPI = new GlobalAPI(this);
+
+    if (globalAPI[identifier]) {
       return true;
     } else {
       return false;
@@ -49511,7 +49523,7 @@ Wick.Project = class extends Wick.Base {
       return {
         start: frame.soundStartMS,
         end: frame.soundEndMS,
-        offset: frame.soundCropOffsetMS,
+        offset: frame.soundStart,
         src: frame.sound.src,
         filetype: frame.sound.fileExtension
       };

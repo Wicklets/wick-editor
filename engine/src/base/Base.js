@@ -281,6 +281,9 @@ Wick.Base = class {
         // Make sure the identifier doesn't squash any attributes of the window
         if(this._identifierNameExistsInWindowContext(identifier)) return;
 
+        // Make sure the identifier will not be squashed by Wick API functions
+        if(this._identiferNameIsPartOfWickAPI(identifier)) return;
+
         // Make sure the identifier is a valid js variable name
         if(!isVarName(identifier)) return;
 
@@ -532,6 +535,15 @@ Wick.Base = class {
 
     _identifierNameExistsInWindowContext (identifier) {
         if(window[identifier]) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    _identiferNameIsPartOfWickAPI (identifier) {
+        var globalAPI = new GlobalAPI(this);
+        if(globalAPI[identifier]) {
             return true;
         } else {
             return false;
