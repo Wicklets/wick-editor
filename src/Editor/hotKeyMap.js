@@ -301,11 +301,15 @@ class HotKeyInterface extends Object {
       },
       'toggle-onion-skinning': {
         name: "Toggle Onion Skinning",
-        sequences: ['ctrl+o']
+        sequences: ['0']
       }, 
       'leave-focus': {
         name: "Leave Focus",
         sequences : ['alt+f'],
+      },
+      'toggle-clip-borders': {
+        name: "Toggle Clip Borders",
+        sequences : ['9'],
       }
     }
 
@@ -384,6 +388,7 @@ class HotKeyInterface extends Object {
         "activate-pan",
         "activate-zoom",
         "toggle-onion-skinning",
+        "toggle-clip-borders",
         "leave-focus",
       ],
       "Timeline": [
@@ -473,6 +478,7 @@ class HotKeyInterface extends Object {
       'break-apart-selection': (() => this.editor.breakApartSelection()),
       'export-selection': this.editor.exportSelectedClip,
       'toggle-onion-skinning': this.editor.toggleOnionSkin,
+      'toggle-clip-borders': this.editor.toggleClipBorders,
       'finish-repeating': this.finishRepeating,
     }
 

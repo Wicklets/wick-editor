@@ -52,6 +52,14 @@ class EditorCore extends Component {
   }
 
   /**
+   * Toggles highlighted clip borders.
+   */
+  toggleClipBorders = () => {
+    this.project.showClipBorders = !this.project.showClipBorders;
+    this.projectDidChange();
+  }
+
+  /**
    * Activates the tool that was used before the current tool was activated.
    */
   activateLastTool = () => {
