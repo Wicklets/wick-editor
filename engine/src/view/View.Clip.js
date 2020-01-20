@@ -60,10 +60,10 @@ Wick.View.Clip = class extends Wick.View {
             this.group.addChild(layer);
         });
 
-        this._bounds = this.group.bounds;
-
         // Update transformations
         this.group.matrix.set(new paper.Matrix());
+        this._bounds = this.group.bounds.clone();
+
         this.group.pivot = new this.paper.Point(0,0);
         this.group.position.x = this.model.transformation.x;
         this.group.position.y = this.model.transformation.y;
@@ -89,6 +89,14 @@ Wick.View.Clip = class extends Wick.View {
             insert: false,
         });
         group.addChild(border);
+
+        group.pivot = new this.paper.Point(0,0);
+        group.position.x = this.model.transformation.x;
+        group.position.y = this.model.transformation.y;
+        group.scaling.x = this.model.transformation.scaleX;
+        group.scaling.y = this.model.transformation.scaleY;
+        group.rotation = this.model.transformation.rotation;
+        group.opacity = this.model.transformation.opacity;
 
         return group;
     }

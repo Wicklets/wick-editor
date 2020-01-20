@@ -472,7 +472,8 @@ Wick.View.Project = class extends Wick.View {
 
         this.model.activeFrames.forEach(frame => {
             var clipsWithScripts = frame.clips.filter(clip => {
-                return clip.hasContentfulScripts;
+                return clip.hasContentfulScripts &&
+                       !clip.isSelected;
             });
             clipsWithScripts.forEach(clip => {
                 var clipBorder = clip.view.generateBorder();
