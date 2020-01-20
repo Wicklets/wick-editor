@@ -53009,12 +53009,16 @@ Wick.Tickable = class extends Wick.Base {
 
     this.project.keysJustPressed.forEach(key => {
       this.project.currentKey = key;
-      this.scheduleScript('keypressed');
+      this.scheduleScript('keypressed', {
+        key: key
+      });
     }); // Key released
 
     this.project.keysJustReleased.forEach(key => {
       this.project.currentKey = key;
-      this.scheduleScript('keyreleased');
+      this.scheduleScript('keyreleased', {
+        key: key
+      });
     });
   }
 
