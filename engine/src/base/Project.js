@@ -70,6 +70,7 @@ Wick.Project = class extends Wick.Base {
         this._hideCursor = false;
         this._muted = false;
         this._publishedMode = false;
+        this._showClipBorders = true;
 
         this._tools = {
             brush: new Wick.Tools.Brush(),
@@ -1028,8 +1029,20 @@ Wick.Project = class extends Wick.Base {
     }
 
     /**
+     * Toggle whether or not to render borders around clips.
+     * @type {boolean}
+     */
+    get showClipBorders () {
+        return this._showClipBorders;
+    }
+
+    set showClipBorders (showClipBorders) {
+        this._showClipBorders = showClipBorders;
+    }
+
+    /**
      * The current error, if one was thrown, during the last tick.
-     * @type {Error}
+     * @type {Object}
      */
     get error () {
         return this._error;

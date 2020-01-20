@@ -69,6 +69,7 @@ Wick.View.Project = class extends Wick.View {
         this._svgCanvas = null;
         this._svgBackgroundLayer = null;
         this._svgBordersLayer = null;
+        this._svgGUILayer = null;
 
         this._pan = {x: 0, y: 0};
         this._zoom = 1;
@@ -287,6 +288,11 @@ Wick.View.Project = class extends Wick.View {
         this._svgBordersLayer.name = 'wick_project_borders';
         this._svgBordersLayer.remove();
 
+        this._svgGUILayer = new paper.Layer();
+        this._svgGUILayer.locked = true;
+        this._svgGUILayer.name = 'wick_project_gui';
+        this._svgGUILayer.remove();
+
         this.paper.project.clear();
     }
 
@@ -353,6 +359,14 @@ Wick.View.Project = class extends Wick.View {
         // Render selection
         this.model.selection.view.render();
         this.paper.project.addLayer(this.model.selection.view.layer);
+
+        // Render GUI Layer
+        this._svgGUILayer.removeChildren();
+        this._svgGUILayer.locked = true;
+        if(this.model.showClipBorders && !this.model.playing) {
+            this._svgGUILayer.addChildren(this._generateClipBorders());
+            this.paper.project.addLayer(this._svgGUILayer);
+        }
 
         // Render black bars (for published projects)
         if(this.model.publishedMode) {
@@ -454,6 +468,22 @@ Wick.View.Project = class extends Wick.View {
         var hr = h / this.model.height;
 
         return Math.min(wr, hr);
+    }
+
+    _generateClipBorders () {
+        var clipBorders = [];
+
+        this.model.activeFrames.forEach(frame => {
+            var clips = frame.clips.filter(clip => {
+                return !clip.isSelected;
+            });
+            clips.forEach(clip => {
+                var clipBorder = clip.view.generateBorder();
+                clipBorders.push(clipBorder);
+            });
+        });
+
+        return clipBorders;
     }
 
     _applyZoomAndPanChangesFromPaper () {

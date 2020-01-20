@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.1.19";
+var WICK_ENGINE_BUILD_VERSION = "2020.1.20";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -48076,6 +48076,7 @@ Wick.Project = class extends Wick.Base {
     this._hideCursor = false;
     this._muted = false;
     this._publishedMode = false;
+    this._showClipBorders = true;
     this._tools = {
       brush: new Wick.Tools.Brush(),
       cursor: new Wick.Tools.Cursor(),
@@ -49100,8 +49101,21 @@ Wick.Project = class extends Wick.Base {
     this._publishedMode = publishedMode;
   }
   /**
+   * Toggle whether or not to render borders around clips.
+   * @type {boolean}
+   */
+
+
+  get showClipBorders() {
+    return this._showClipBorders;
+  }
+
+  set showClipBorders(showClipBorders) {
+    this._showClipBorders = showClipBorders;
+  }
+  /**
    * The current error, if one was thrown, during the last tick.
-   * @type {Error}
+   * @type {Object}
    */
 
 
@@ -54216,7 +54230,7 @@ Wick.Clip = class extends Wick.Tickable {
 
 
   get bounds() {
-    return this.view.group.bounds;
+    return this.view.bounds;
   }
   /**
    * The X position of the clip.
@@ -58439,6 +58453,7 @@ Wick.View.Project = class extends Wick.View {
     this._svgCanvas = null;
     this._svgBackgroundLayer = null;
     this._svgBordersLayer = null;
+    this._svgGUILayer = null;
     this._pan = {
       x: 0,
       y: 0
@@ -58679,6 +58694,12 @@ Wick.View.Project = class extends Wick.View {
 
     this._svgBordersLayer.remove();
 
+    this._svgGUILayer = new paper.Layer();
+    this._svgGUILayer.locked = true;
+    this._svgGUILayer.name = 'wick_project_gui';
+
+    this._svgGUILayer.remove();
+
     this.paper.project.clear();
   }
 
@@ -58744,7 +58765,18 @@ Wick.View.Project = class extends Wick.View {
     }); // Render selection
 
     this.model.selection.view.render();
-    this.paper.project.addLayer(this.model.selection.view.layer); // Render black bars (for published projects)
+    this.paper.project.addLayer(this.model.selection.view.layer); // Render GUI Layer
+
+    this._svgGUILayer.removeChildren();
+
+    this._svgGUILayer.locked = true;
+
+    if (this.model.showClipBorders && !this.model.playing) {
+      this._svgGUILayer.addChildren(this._generateClipBorders());
+
+      this.paper.project.addLayer(this._svgGUILayer);
+    } // Render black bars (for published projects)
+
 
     if (this.model.publishedMode) {
       this._svgBordersLayer.removeChildren();
@@ -58826,6 +58858,20 @@ Wick.View.Project = class extends Wick.View {
     var wr = w / this.model.width;
     var hr = h / this.model.height;
     return Math.min(wr, hr);
+  }
+
+  _generateClipBorders() {
+    var clipBorders = [];
+    this.model.activeFrames.forEach(frame => {
+      var clips = frame.clips.filter(clip => {
+        return !clip.isSelected;
+      });
+      clips.forEach(clip => {
+        var clipBorder = clip.view.generateBorder();
+        clipBorders.push(clipBorder);
+      });
+    });
+    return clipBorders;
   }
 
   _applyZoomAndPanChangesFromPaper() {
@@ -59073,14 +59119,36 @@ Wick.View.Selection = class extends Wick.View {
  * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
  */
 Wick.View.Clip = class extends Wick.View {
+  static get BORDER_STROKE_WIDTH() {
+    return 2;
+  }
+
+  static get BORDER_STROKE_COLOR_NORMAL() {
+    return '#9999ff';
+  }
+
+  static get BORDER_STROKE_COLOR_HAS_CODE() {
+    return '#00ff00';
+  }
+
+  static get BORDER_STROKE_COLOR_HAS_CODE_ERROR() {
+    return '#ff0000';
+  }
   /**
    * Creates a new Button view.
    */
+
+
   constructor() {
     super();
     this.group = new this.paper.Group();
     this.group.remove();
     this.group.applyMatrix = false;
+    this._bounds = new paper.Rectangle();
+  }
+
+  get bounds() {
+    return this._bounds;
   }
 
   render() {
@@ -59098,6 +59166,8 @@ Wick.View.Clip = class extends Wick.View {
       this.group.addChild(layer);
     }); // Update transformations
 
+    this.group.matrix.set(new paper.Matrix());
+    this._bounds = this.group.bounds.clone();
     this.group.pivot = new this.paper.Point(0, 0);
     this.group.position.x = this.model.transformation.x;
     this.group.position.y = this.model.transformation.y;
@@ -59105,6 +59175,41 @@ Wick.View.Clip = class extends Wick.View {
     this.group.scaling.y = this.model.transformation.scaleY;
     this.group.rotation = this.model.transformation.rotation;
     this.group.opacity = this.model.transformation.opacity;
+  }
+
+  generateBorder() {
+    var group = new this.paper.Group({
+      insert: false
+    });
+    group.locked = true;
+    group.data.wickType = 'clip_border_' + this.model.uuid;
+    var bounds = this.bounds; // Change border colors based on if the Clip caused an error
+
+    var strokeColor = Wick.View.Clip.BORDER_STROKE_COLOR_NORMAL;
+
+    if (this.model.project.error && this.model.project.error.uuid === this.model.uuid) {
+      strokeColor = Wick.View.Clip.BORDER_STROKE_COLOR_HAS_CODE_ERROR;
+    } else if (this.model.hasContentfulScripts) {
+      strokeColor = Wick.View.Clip.BORDER_STROKE_COLOR_HAS_CODE;
+    }
+
+    var border = new paper.Path.Rectangle({
+      name: 'border',
+      from: bounds.topLeft,
+      to: bounds.bottomRight,
+      strokeWidth: Wick.View.Clip.BORDER_STROKE_WIDTH / this.paper.view.zoom,
+      strokeColor: strokeColor,
+      insert: false
+    });
+    group.addChild(border);
+    group.pivot = new this.paper.Point(0, 0);
+    group.position.x = this.model.transformation.x;
+    group.position.y = this.model.transformation.y;
+    group.scaling.x = this.model.transformation.scaleX;
+    group.scaling.y = this.model.transformation.scaleY;
+    group.rotation = this.model.transformation.rotation;
+    group.opacity = this.model.transformation.opacity;
+    return group;
   }
 
 };

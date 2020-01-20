@@ -18,6 +18,22 @@
  */
 
 Wick.View.Clip = class extends Wick.View {
+    static get BORDER_STROKE_WIDTH () {
+        return 2;
+    }
+
+    static get BORDER_STROKE_COLOR_NORMAL () {
+        return '#9999ff';
+    }
+
+    static get BORDER_STROKE_COLOR_HAS_CODE () {
+        return '#00ff00';
+    }
+
+    static get BORDER_STROKE_COLOR_HAS_CODE_ERROR () {
+        return '#ff0000';
+    }
+
     /**
      * Creates a new Button view.
      */
@@ -27,6 +43,12 @@ Wick.View.Clip = class extends Wick.View {
         this.group = new this.paper.Group();
         this.group.remove();
         this.group.applyMatrix = false;
+
+        this._bounds = new paper.Rectangle();
+    }
+
+    get bounds () {
+        return this._bounds;
     }
 
     render () {
@@ -47,6 +69,9 @@ Wick.View.Clip = class extends Wick.View {
         });
 
         // Update transformations
+        this.group.matrix.set(new paper.Matrix());
+        this._bounds = this.group.bounds.clone();
+
         this.group.pivot = new this.paper.Point(0,0);
         this.group.position.x = this.model.transformation.x;
         this.group.position.y = this.model.transformation.y;
@@ -54,5 +79,41 @@ Wick.View.Clip = class extends Wick.View {
         this.group.scaling.y = this.model.transformation.scaleY;
         this.group.rotation = this.model.transformation.rotation;
         this.group.opacity = this.model.transformation.opacity;
+    }
+
+    generateBorder () {
+        var group = new this.paper.Group({insert:false});
+        group.locked = true;
+        group.data.wickType = 'clip_border_' + this.model.uuid;
+
+        var bounds = this.bounds;
+
+        // Change border colors based on if the Clip caused an error
+        var strokeColor = Wick.View.Clip.BORDER_STROKE_COLOR_NORMAL;
+        if(this.model.project.error && this.model.project.error.uuid === this.model.uuid) {
+            strokeColor = Wick.View.Clip.BORDER_STROKE_COLOR_HAS_CODE_ERROR;
+        } else if(this.model.hasContentfulScripts) {
+            strokeColor = Wick.View.Clip.BORDER_STROKE_COLOR_HAS_CODE;
+        }
+
+        var border = new paper.Path.Rectangle({
+            name: 'border',
+            from: bounds.topLeft,
+            to: bounds.bottomRight,
+            strokeWidth: Wick.View.Clip.BORDER_STROKE_WIDTH / this.paper.view.zoom,
+            strokeColor: strokeColor,
+            insert: false,
+        });
+        group.addChild(border);
+
+        group.pivot = new this.paper.Point(0,0);
+        group.position.x = this.model.transformation.x;
+        group.position.y = this.model.transformation.y;
+        group.scaling.x = this.model.transformation.scaleX;
+        group.scaling.y = this.model.transformation.scaleY;
+        group.rotation = this.model.transformation.rotation;
+        group.opacity = this.model.transformation.opacity;
+
+        return group;
     }
 }
