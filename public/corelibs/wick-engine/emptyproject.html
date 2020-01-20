@@ -48091,6 +48091,7 @@ Wick.Project = class extends Wick.Base {
     this._hideCursor = false;
     this._muted = false;
     this._publishedMode = false;
+    this._showClipBorders = true;
     this._tools = {
       brush: new Wick.Tools.Brush(),
       cursor: new Wick.Tools.Cursor(),
@@ -49113,6 +49114,19 @@ Wick.Project = class extends Wick.Base {
 
   set publishedMode(publishedMode) {
     this._publishedMode = publishedMode;
+  }
+  /**
+   * Toggle whether or not to render borders around clips.
+   * @type {boolean}
+   */
+
+
+  get showClipBorders() {
+    return this._showClipBorders;
+  }
+
+  set showClipBorders(showClipBorders) {
+    this._showClipBorders = showClipBorders;
   }
   /**
    * The current error, if one was thrown, during the last tick.
@@ -58731,9 +58745,12 @@ Wick.View.Project = class extends Wick.View {
 
     this._svgGUILayer.locked = true;
 
-    this._svgGUILayer.addChildren(this._generateClipBorders());
+    if (this.model.showClipBorders && !this.model.playing) {
+      this._svgGUILayer.addChildren(this._generateClipBorders());
 
-    this.paper.project.addLayer(this._svgGUILayer); // Render black bars (for published projects)
+      this.paper.project.addLayer(this._svgGUILayer);
+    } // Render black bars (for published projects)
+
 
     if (this.model.publishedMode) {
       this.paper.project.addLayer(this._svgBordersLayer);

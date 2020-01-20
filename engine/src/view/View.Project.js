@@ -364,8 +364,10 @@ Wick.View.Project = class extends Wick.View {
         // Render GUI Layer
         this._svgGUILayer.removeChildren();
         this._svgGUILayer.locked = true;
-        this._svgGUILayer.addChildren(this._generateClipBorders());
-        this.paper.project.addLayer(this._svgGUILayer);
+        if(this.model.showClipBorders && !this.model.playing) {
+            this._svgGUILayer.addChildren(this._generateClipBorders());
+            this.paper.project.addLayer(this._svgGUILayer);
+        }
 
         // Render black bars (for published projects)
         if(this.model.publishedMode) {
