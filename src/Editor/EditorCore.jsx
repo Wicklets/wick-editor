@@ -18,7 +18,6 @@
  */
 
 import { Component } from 'react';
-import localForage from 'localforage';
 import * as urlParse from 'url-parse/dist/url-parse';
 import queryString from 'query-string';
 import { saveAs } from 'file-saver';
