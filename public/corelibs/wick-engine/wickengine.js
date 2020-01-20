@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.1.16";
+var WICK_ENGINE_BUILD_VERSION = "2020.1.17";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -59028,9 +59028,18 @@ Wick.View.Selection = class extends Wick.View {
  * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
  */
 Wick.View.Clip = class extends Wick.View {
+  static get BORDER_STROKE_WIDTH() {
+    return 2;
+  }
+
+  static get BORDER_STROKE_COLOR() {
+    return '#00ff00';
+  }
   /**
    * Creates a new Button view.
    */
+
+
   constructor() {
     super();
     this.group = new this.paper.Group();
@@ -59051,7 +59060,12 @@ Wick.View.Clip = class extends Wick.View {
     });
     this.model.timeline.view.onionSkinnedFramesLayers.forEach(layer => {
       this.group.addChild(layer);
-    }); // Update transformations
+    }); // Build Clip border (differentiates Clips from Paths)
+
+    if (this.model.hasContentfulScripts) {
+      this.group.addChild(this._generateBorder());
+    } // Update transformations
+
 
     this.group.pivot = new this.paper.Point(0, 0);
     this.group.position.x = this.model.transformation.x;
@@ -59060,6 +59074,25 @@ Wick.View.Clip = class extends Wick.View {
     this.group.scaling.y = this.model.transformation.scaleY;
     this.group.rotation = this.model.transformation.rotation;
     this.group.opacity = this.model.transformation.opacity;
+  }
+
+  _generateBorder() {
+    var group = new this.paper.Group({
+      insert: false
+    });
+    group.locked = true;
+    group.data.wickType = 'clip_border';
+    var bounds = this.model.bounds;
+    var border = new paper.Path.Rectangle({
+      name: 'border',
+      from: bounds.topLeft.subtract(new paper.Point(this.model.transformation.x, this.model.transformation.y)),
+      to: bounds.bottomRight.subtract(new paper.Point(this.model.transformation.x, this.model.transformation.y)),
+      strokeWidth: Wick.View.Clip.BORDER_STROKE_WIDTH / this.paper.view.zoom,
+      strokeColor: Wick.View.Clip.BORDER_STROKE_COLOR,
+      insert: false
+    });
+    group.addChild(border);
+    return group;
   }
 
 };
