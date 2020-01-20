@@ -285,7 +285,6 @@ Wick.View.Project = class extends Wick.View {
 
         this._svgBordersLayer = new paper.Layer();
         this._svgBordersLayer.name = 'wick_project_borders';
-        this._svgBordersLayer.addChildren(this._generateSVGBorders());
         this._svgBordersLayer.remove();
 
         this.paper.project.clear();
@@ -357,6 +356,8 @@ Wick.View.Project = class extends Wick.View {
 
         // Render black bars (for published projects)
         if(this.model.publishedMode) {
+            this._svgBordersLayer.removeChildren();
+            this._svgBordersLayer.addChildren(this._generateSVGBorders());
             this.paper.project.addLayer(this._svgBordersLayer);
         }
     }
