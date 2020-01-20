@@ -1283,6 +1283,70 @@ describe('Wick.Project', function() {
         });
     });
 
+    describe('#keyDown', function () {
+        it ('should use the correct key values when firing keydown scripts', function () {
+            // TODO: This test is commented out because we cannot find a consistent way to generate keypresses and keydowns virtually.
+            // var project = new Wick.Project();
+
+            // var clip = new Wick.Clip();
+            // project.addObject(clip);
+
+            // clip.addScript('load', `
+            //     this.aDown = 0;
+            //     this.bDown = 0;
+            // `);
+
+            // clip.addScript('keydown', `
+            // if (key === "a") {
+            //     this.aDown += 1;
+            // } 
+
+            // if (key === "b") {
+            //     this.bDown += 1;
+            // }`);
+
+
+            // // No keys down
+            // var error = project.tick();
+            // expect(error).to.equal(null);
+            // expect(clip.aDown).to.equal(0);
+            // expect(clip.bDown).to.equal(0);
+
+            // var error = project.tick();
+            // expect(error).to.equal(null);
+            // expect(clip.aDown).to.equal(1);
+            // expect(clip.bDown).to.equal(0);
+
+            // var error = project.tick();
+            // expect(error).to.equal(null);
+            // expect(clip.aDown).to.equal(2);
+            // expect(clip.bDown).to.equal(0);
+
+            // // a and b keys down
+            // var error = project.tick();
+            // expect(error).to.equal(null);
+            // expect(clip.aDown).to.equal(3);
+            // expect(clip.bDown).to.equal(1);
+
+            // var error = project.tick();
+            // expect(error).to.equal(null);
+            // expect(clip.aDown).to.equal(4);
+            // expect(clip.bDown).to.equal(2);
+
+            // // b key down
+            // var error = project.tick();
+            // expect(error).to.equal(null);
+            // expect(clip.aDown).to.equal(4);
+            // expect(clip.bDown).to.equal(3);
+
+            // // No keys down
+            // var error = project.tick();
+            // expect(error).to.equal(null);
+            // expect(clip.aDown).to.equal(4);
+            // expect(clip.bDown).to.equal(3);
+        });
+    });
+
     describe('#isKeyDown', function () {
         // TODO
     });

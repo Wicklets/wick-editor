@@ -135,7 +135,6 @@ gulp.task("default", function() {
       'src/gui/FrameEdgeGhost.js',
       'src/gui/FrameGhost.js',
       'src/gui/FramesContainer.js',
-      'src/gui/FrameStrip.js',
       'src/gui/Layer.js',
       'src/gui/LayerButton.js',
       'src/gui/LayerCreateLabel.js',
