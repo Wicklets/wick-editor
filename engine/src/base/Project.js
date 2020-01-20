@@ -1029,7 +1029,7 @@ Wick.Project = class extends Wick.Base {
 
     /**
      * The current error, if one was thrown, during the last tick.
-     * @type {Error}
+     * @type {Object}
      */
     get error () {
         return this._error;

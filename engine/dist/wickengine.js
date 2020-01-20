@@ -49101,7 +49101,7 @@ Wick.Project = class extends Wick.Base {
   }
   /**
    * The current error, if one was thrown, during the last tick.
-   * @type {Error}
+   * @type {Object}
    */
 
 
@@ -59061,8 +59061,12 @@ Wick.View.Clip = class extends Wick.View {
     return 2;
   }
 
-  static get BORDER_STROKE_COLOR() {
+  static get BORDER_STROKE_COLOR_NORMAL() {
     return '#00ff00';
+  }
+
+  static get BORDER_STROKE_COLOR_ERROR() {
+    return '#ff0000';
   }
   /**
    * Creates a new Button view.
@@ -59113,13 +59117,20 @@ Wick.View.Clip = class extends Wick.View {
     });
     group.locked = true;
     group.data.wickType = 'clip_border_' + this.model.uuid;
-    var bounds = this.bounds;
+    var bounds = this.bounds; // Change border colors based on if the Clip caused an error
+
+    var strokeColor = Wick.View.Clip.BORDER_STROKE_COLOR_NORMAL;
+
+    if (this.model.project.error && this.model.project.error.uuid === this.model.uuid) {
+      strokeColor = Wick.View.Clip.BORDER_STROKE_COLOR_ERROR;
+    }
+
     var border = new paper.Path.Rectangle({
       name: 'border',
       from: bounds.topLeft,
       to: bounds.bottomRight,
       strokeWidth: Wick.View.Clip.BORDER_STROKE_WIDTH / this.paper.view.zoom,
-      strokeColor: Wick.View.Clip.BORDER_STROKE_COLOR,
+      strokeColor: strokeColor,
       insert: false
     });
     group.addChild(border);
