@@ -58801,10 +58801,10 @@ Wick.View.Project = class extends Wick.View {
   _generateClipBorders() {
     var clipBorders = [];
     this.model.activeFrames.forEach(frame => {
-      var clipsWithScripts = frame.clips.filter(clip => {
-        return clip.hasContentfulScripts && !clip.isSelected;
+      var clips = frame.clips.filter(clip => {
+        return !clip.isSelected;
       });
-      clipsWithScripts.forEach(clip => {
+      clips.forEach(clip => {
         var clipBorder = clip.view.generateBorder();
         clipBorders.push(clipBorder);
       });
@@ -59062,10 +59062,14 @@ Wick.View.Clip = class extends Wick.View {
   }
 
   static get BORDER_STROKE_COLOR_NORMAL() {
+    return '#9999ff';
+  }
+
+  static get BORDER_STROKE_COLOR_HAS_CODE() {
     return '#00ff00';
   }
 
-  static get BORDER_STROKE_COLOR_ERROR() {
+  static get BORDER_STROKE_COLOR_HAS_CODE_ERROR() {
     return '#ff0000';
   }
   /**
@@ -59122,7 +59126,9 @@ Wick.View.Clip = class extends Wick.View {
     var strokeColor = Wick.View.Clip.BORDER_STROKE_COLOR_NORMAL;
 
     if (this.model.project.error && this.model.project.error.uuid === this.model.uuid) {
-      strokeColor = Wick.View.Clip.BORDER_STROKE_COLOR_ERROR;
+      strokeColor = Wick.View.Clip.BORDER_STROKE_COLOR_HAS_CODE_ERROR;
+    } else if (this.model.hasContentfulScripts) {
+      strokeColor = Wick.View.Clip.BORDER_STROKE_COLOR_HAS_CODE;
     }
 
     var border = new paper.Path.Rectangle({
