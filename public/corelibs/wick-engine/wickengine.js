@@ -58716,8 +58716,9 @@ Wick.View.Project = class extends Wick.View {
 
     this._svgGUILayer.locked = true;
 
-    this._svgGUILayer.addChildren(this._generateClipBorders()); // Render black bars (for published projects)
+    this._svgGUILayer.addChildren(this._generateClipBorders());
 
+    this.paper.project.addLayer(this._svgGUILayer); // Render black bars (for published projects)
 
     if (this.model.publishedMode) {
       this.paper.project.addLayer(this._svgBordersLayer);
@@ -58797,7 +58798,19 @@ Wick.View.Project = class extends Wick.View {
     return Math.min(wr, hr);
   }
 
-  _generateClipBorders() {}
+  _generateClipBorders() {
+    var clipBorders = [];
+    this.model.activeFrames.forEach(frame => {
+      var clipsWithScripts = frame.clips.filter(clip => {
+        return clip.hasContentfulScripts;
+      });
+      clipsWithScripts.forEach(clip => {
+        var clipBorder = clip.view.generateBorder();
+        clipBorders.push(clipBorder);
+      });
+    });
+    return clipBorders;
+  }
 
   _applyZoomAndPanChangesFromPaper() {
     // limit zoom to min and max
@@ -59082,15 +59095,7 @@ Wick.View.Clip = class extends Wick.View {
     this.model.timeline.view.onionSkinnedFramesLayers.forEach(layer => {
       this.group.addChild(layer);
     });
-    this._bounds = this.group.bounds; // Build Clip border (differentiates Clips from Paths)
-
-    /*if(this.model.hasContentfulScripts) {
-        var border = this._generateBorder();
-        this.group.addChild(border);
-        border.matrix.append(this.group.matrix.inverted());
-        this.group.addChild(this._generateBorder());
-    }*/
-    // Update transformations
+    this._bounds = this.group.bounds; // Update transformations
 
     this.group.matrix.set(new paper.Matrix());
     this.group.pivot = new this.paper.Point(0, 0);
@@ -59101,23 +59106,25 @@ Wick.View.Clip = class extends Wick.View {
     this.group.rotation = this.model.transformation.rotation;
     this.group.opacity = this.model.transformation.opacity;
   }
-  /*_generateBorder () {
-      var group = new this.paper.Group({insert:false});
-      group.locked = true;
-      group.data.wickType = 'clip_border';
-       var bounds = this.bounds;
-       var border = new paper.Path.Rectangle({
-          name: 'border',
-          from: bounds.topLeft,
-          to: bounds.bottomRight,
-          strokeWidth: Wick.View.Clip.BORDER_STROKE_WIDTH / this.paper.view.zoom,
-          strokeColor: Wick.View.Clip.BORDER_STROKE_COLOR,
-          insert: false,
-      });
-      group.addChild(border);
-       return group;
-  }*/
 
+  generateBorder() {
+    var group = new this.paper.Group({
+      insert: false
+    });
+    group.locked = true;
+    group.data.wickType = 'clip_border_' + this.model.uuid;
+    var bounds = this.bounds;
+    var border = new paper.Path.Rectangle({
+      name: 'border',
+      from: bounds.topLeft,
+      to: bounds.bottomRight,
+      strokeWidth: Wick.View.Clip.BORDER_STROKE_WIDTH / this.paper.view.zoom,
+      strokeColor: Wick.View.Clip.BORDER_STROKE_COLOR,
+      insert: false
+    });
+    group.addChild(border);
+    return group;
+  }
 
 };
 /*

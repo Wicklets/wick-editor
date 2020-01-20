@@ -51,35 +51,6 @@ describe('Wick.View.Clip', function() {
             expect(clip.view.group.children[1].data.wickType).to.equal('clips');
         });
 
-        /*it('should create paper group from populated wick clip with scripts', function() {
-            var project = new Wick.Project();
-            project.view.renderMode = 'svg';
-
-            var dummyPathJson = new paper.Path().exportJSON({asString:false});
-
-            var clip = new Wick.Clip();
-            clip.addScript('update', '// There is content in this script!');
-            project.activeFrame.addClip(clip);
-            clip.timeline.addLayer(new Wick.Layer());
-            clip.timeline.layers[0].addFrame(new Wick.Frame());
-            clip.timeline.layers[0].frames[0].addPath(new Wick.Path({json: dummyPathJson}));
-            clip.timeline.layers[0].frames[0].addPath(new Wick.Path({json: dummyPathJson}));
-            clip.timeline.layers[0].frames[0].addPath(new Wick.Path({json: dummyPathJson}));
-
-            clip.view.render(clip);
-
-            expect(clip.view.group.children.length).to.equal(3);
-
-            expect(clip.view.group.children[0].data.wickUUID).to.equal(clip.activeFrame.uuid);
-            expect(clip.view.group.children[0].data.wickType).to.equal('paths');
-            expect(clip.view.group.children[0].children.length).to.equal(3);
-
-            expect(clip.view.group.children[1].data.wickUUID).to.equal(clip.activeFrame.uuid);
-            expect(clip.view.group.children[1].data.wickType).to.equal('clips');
-
-            expect(clip.view.group.children[2].data.wickType).to.equal('clip_border');
-        });*/
-
         it('should create paper group with correct transformation', function() {
             var project = new Wick.Project();
             project.view.renderMode = 'svg';

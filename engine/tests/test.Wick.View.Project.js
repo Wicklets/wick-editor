@@ -122,6 +122,8 @@ describe('Wick.View.Project', function() {
             expect(paper.project.layers[1].data.wickUUID).to.equal(project.activeFrame.uuid);
             expect(paper.project.layers[2].data.wickUUID).to.equal(project.activeFrame.uuid);
             expect(paper.project.layers[3]).to.equal(project.selection.view.layer);
+            expect(paper.project.layers[4].name).to.equal('wick_project_gui');
+            expect(paper.project.layers[5]).to.equal(undefined);
         });
 
         it('should create layers correctly for focused clip', function() {

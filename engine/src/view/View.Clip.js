@@ -62,14 +62,6 @@ Wick.View.Clip = class extends Wick.View {
 
         this._bounds = this.group.bounds;
 
-        // Build Clip border (differentiates Clips from Paths)
-        /*if(this.model.hasContentfulScripts) {
-            var border = this._generateBorder();
-            this.group.addChild(border);
-            border.matrix.append(this.group.matrix.inverted());
-            this.group.addChild(this._generateBorder());
-        }*/
-
         // Update transformations
         this.group.matrix.set(new paper.Matrix());
         this.group.pivot = new this.paper.Point(0,0);
@@ -81,10 +73,10 @@ Wick.View.Clip = class extends Wick.View {
         this.group.opacity = this.model.transformation.opacity;
     }
 
-    /*_generateBorder () {
+    generateBorder () {
         var group = new this.paper.Group({insert:false});
         group.locked = true;
-        group.data.wickType = 'clip_border';
+        group.data.wickType = 'clip_border_' + this.model.uuid;
 
         var bounds = this.bounds;
 
@@ -99,5 +91,5 @@ Wick.View.Clip = class extends Wick.View {
         group.addChild(border);
 
         return group;
-    }*/
+    }
 }

@@ -365,6 +365,7 @@ Wick.View.Project = class extends Wick.View {
         this._svgGUILayer.removeChildren();
         this._svgGUILayer.locked = true;
         this._svgGUILayer.addChildren(this._generateClipBorders());
+        this.paper.project.addLayer(this._svgGUILayer);
 
         // Render black bars (for published projects)
         if(this.model.publishedMode) {
@@ -467,7 +468,19 @@ Wick.View.Project = class extends Wick.View {
     }
 
     _generateClipBorders () {
-        
+        var clipBorders = [];
+
+        this.model.activeFrames.forEach(frame => {
+            var clipsWithScripts = frame.clips.filter(clip => {
+                return clip.hasContentfulScripts;
+            });
+            clipsWithScripts.forEach(clip => {
+                var clipBorder = clip.view.generateBorder();
+                clipBorders.push(clipBorder);
+            });
+        });
+
+        return clipBorders;
     }
 
     _applyZoomAndPanChangesFromPaper () {
