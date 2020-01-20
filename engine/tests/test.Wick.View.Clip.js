@@ -51,7 +51,7 @@ describe('Wick.View.Clip', function() {
             expect(clip.view.group.children[1].data.wickType).to.equal('clips');
         });
 
-        it('should create paper group from populated wick clip with scripts', function() {
+        /*it('should create paper group from populated wick clip with scripts', function() {
             var project = new Wick.Project();
             project.view.renderMode = 'svg';
 
@@ -78,7 +78,7 @@ describe('Wick.View.Clip', function() {
             expect(clip.view.group.children[1].data.wickType).to.equal('clips');
 
             expect(clip.view.group.children[2].data.wickType).to.equal('clip_border');
-        });
+        });*/
 
         it('should create paper group with correct transformation', function() {
             var project = new Wick.Project();

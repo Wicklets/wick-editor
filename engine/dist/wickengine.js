@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.1.17";
+var WICK_ENGINE_BUILD_VERSION = "2020.1.20";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -54173,7 +54173,7 @@ Wick.Clip = class extends Wick.Tickable {
 
 
   get bounds() {
-    return this.view.group.bounds;
+    return this.view.bounds;
   }
   /**
    * The X position of the clip.
@@ -58396,6 +58396,7 @@ Wick.View.Project = class extends Wick.View {
     this._svgCanvas = null;
     this._svgBackgroundLayer = null;
     this._svgBordersLayer = null;
+    this._svgGUILayer = null;
     this._pan = {
       x: 0,
       y: 0
@@ -58638,6 +58639,12 @@ Wick.View.Project = class extends Wick.View {
 
     this._svgBordersLayer.remove();
 
+    this._svgGUILayer = new paper.Layer();
+    this._svgGUILayer.locked = true;
+    this._svgGUILayer.name = 'wick_project_gui';
+
+    this._svgGUILayer.remove();
+
     this.paper.project.clear();
   }
 
@@ -58703,7 +58710,14 @@ Wick.View.Project = class extends Wick.View {
     }); // Render selection
 
     this.model.selection.view.render();
-    this.paper.project.addLayer(this.model.selection.view.layer); // Render black bars (for published projects)
+    this.paper.project.addLayer(this.model.selection.view.layer); // Render GUI Layer
+
+    this._svgGUILayer.removeChildren();
+
+    this._svgGUILayer.locked = true;
+
+    this._svgGUILayer.addChildren(this._generateClipBorders()); // Render black bars (for published projects)
+
 
     if (this.model.publishedMode) {
       this.paper.project.addLayer(this._svgBordersLayer);
@@ -58782,6 +58796,8 @@ Wick.View.Project = class extends Wick.View {
     var hr = h / this.model.height;
     return Math.min(wr, hr);
   }
+
+  _generateClipBorders() {}
 
   _applyZoomAndPanChangesFromPaper() {
     // limit zoom to min and max
@@ -59045,6 +59061,11 @@ Wick.View.Clip = class extends Wick.View {
     this.group = new this.paper.Group();
     this.group.remove();
     this.group.applyMatrix = false;
+    this._bounds = new paper.Rectangle();
+  }
+
+  get bounds() {
+    return this._bounds;
   }
 
   render() {
@@ -59060,13 +59081,18 @@ Wick.View.Clip = class extends Wick.View {
     });
     this.model.timeline.view.onionSkinnedFramesLayers.forEach(layer => {
       this.group.addChild(layer);
-    }); // Build Clip border (differentiates Clips from Paths)
+    });
+    this._bounds = this.group.bounds; // Build Clip border (differentiates Clips from Paths)
 
-    if (this.model.hasContentfulScripts) {
-      this.group.addChild(this._generateBorder());
-    } // Update transformations
+    /*if(this.model.hasContentfulScripts) {
+        var border = this._generateBorder();
+        this.group.addChild(border);
+        border.matrix.append(this.group.matrix.inverted());
+        this.group.addChild(this._generateBorder());
+    }*/
+    // Update transformations
 
-
+    this.group.matrix.set(new paper.Matrix());
     this.group.pivot = new this.paper.Point(0, 0);
     this.group.position.x = this.model.transformation.x;
     this.group.position.y = this.model.transformation.y;
@@ -59075,25 +59101,23 @@ Wick.View.Clip = class extends Wick.View {
     this.group.rotation = this.model.transformation.rotation;
     this.group.opacity = this.model.transformation.opacity;
   }
+  /*_generateBorder () {
+      var group = new this.paper.Group({insert:false});
+      group.locked = true;
+      group.data.wickType = 'clip_border';
+       var bounds = this.bounds;
+       var border = new paper.Path.Rectangle({
+          name: 'border',
+          from: bounds.topLeft,
+          to: bounds.bottomRight,
+          strokeWidth: Wick.View.Clip.BORDER_STROKE_WIDTH / this.paper.view.zoom,
+          strokeColor: Wick.View.Clip.BORDER_STROKE_COLOR,
+          insert: false,
+      });
+      group.addChild(border);
+       return group;
+  }*/
 
-  _generateBorder() {
-    var group = new this.paper.Group({
-      insert: false
-    });
-    group.locked = true;
-    group.data.wickType = 'clip_border';
-    var bounds = this.model.bounds;
-    var border = new paper.Path.Rectangle({
-      name: 'border',
-      from: bounds.topLeft.subtract(new paper.Point(this.model.transformation.x, this.model.transformation.y)),
-      to: bounds.bottomRight.subtract(new paper.Point(this.model.transformation.x, this.model.transformation.y)),
-      strokeWidth: Wick.View.Clip.BORDER_STROKE_WIDTH / this.paper.view.zoom,
-      strokeColor: Wick.View.Clip.BORDER_STROKE_COLOR,
-      insert: false
-    });
-    group.addChild(border);
-    return group;
-  }
 
 };
 /*

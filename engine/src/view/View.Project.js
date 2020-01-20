@@ -69,6 +69,7 @@ Wick.View.Project = class extends Wick.View {
         this._svgCanvas = null;
         this._svgBackgroundLayer = null;
         this._svgBordersLayer = null;
+        this._svgGUILayer = null;
 
         this._pan = {x: 0, y: 0};
         this._zoom = 1;
@@ -288,6 +289,11 @@ Wick.View.Project = class extends Wick.View {
         this._svgBordersLayer.addChildren(this._generateSVGBorders());
         this._svgBordersLayer.remove();
 
+        this._svgGUILayer = new paper.Layer();
+        this._svgGUILayer.locked = true;
+        this._svgGUILayer.name = 'wick_project_gui';
+        this._svgGUILayer.remove();
+
         this.paper.project.clear();
     }
 
@@ -354,6 +360,11 @@ Wick.View.Project = class extends Wick.View {
         // Render selection
         this.model.selection.view.render();
         this.paper.project.addLayer(this.model.selection.view.layer);
+
+        // Render GUI Layer
+        this._svgGUILayer.removeChildren();
+        this._svgGUILayer.locked = true;
+        this._svgGUILayer.addChildren(this._generateClipBorders());
 
         // Render black bars (for published projects)
         if(this.model.publishedMode) {
@@ -453,6 +464,10 @@ Wick.View.Project = class extends Wick.View {
         var hr = h / this.model.height;
 
         return Math.min(wr, hr);
+    }
+
+    _generateClipBorders () {
+        
     }
 
     _applyZoomAndPanChangesFromPaper () {

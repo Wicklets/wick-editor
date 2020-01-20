@@ -35,6 +35,12 @@ Wick.View.Clip = class extends Wick.View {
         this.group = new this.paper.Group();
         this.group.remove();
         this.group.applyMatrix = false;
+
+        this._bounds = new paper.Rectangle();
+    }
+
+    get bounds () {
+        return this._bounds;
     }
 
     render () {
@@ -54,12 +60,18 @@ Wick.View.Clip = class extends Wick.View {
             this.group.addChild(layer);
         });
 
+        this._bounds = this.group.bounds;
+
         // Build Clip border (differentiates Clips from Paths)
-        if(this.model.hasContentfulScripts) {
+        /*if(this.model.hasContentfulScripts) {
+            var border = this._generateBorder();
+            this.group.addChild(border);
+            border.matrix.append(this.group.matrix.inverted());
             this.group.addChild(this._generateBorder());
-        }
+        }*/
 
         // Update transformations
+        this.group.matrix.set(new paper.Matrix());
         this.group.pivot = new this.paper.Point(0,0);
         this.group.position.x = this.model.transformation.x;
         this.group.position.y = this.model.transformation.y;
@@ -69,17 +81,17 @@ Wick.View.Clip = class extends Wick.View {
         this.group.opacity = this.model.transformation.opacity;
     }
 
-    _generateBorder () {
+    /*_generateBorder () {
         var group = new this.paper.Group({insert:false});
         group.locked = true;
         group.data.wickType = 'clip_border';
 
-        var bounds = this.model.bounds;
+        var bounds = this.bounds;
 
         var border = new paper.Path.Rectangle({
             name: 'border',
-            from: bounds.topLeft.subtract(new paper.Point(this.model.transformation.x, this.model.transformation.y)),
-            to: bounds.bottomRight.subtract(new paper.Point(this.model.transformation.x, this.model.transformation.y)),
+            from: bounds.topLeft,
+            to: bounds.bottomRight,
             strokeWidth: Wick.View.Clip.BORDER_STROKE_WIDTH / this.paper.view.zoom,
             strokeColor: Wick.View.Clip.BORDER_STROKE_COLOR,
             insert: false,
@@ -87,5 +99,5 @@ Wick.View.Clip = class extends Wick.View {
         group.addChild(border);
 
         return group;
-    }
+    }*/
 }
