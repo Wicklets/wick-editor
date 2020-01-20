@@ -50,6 +50,8 @@ import CanvasTransforms from './Panels/CanvasTransforms/CanvasTransforms';
 import Toolbox from './Panels/Toolbox/Toolbox';
 import AssetLibrary from './Panels/AssetLibrary/AssetLibrary';
 import PopOutCodeEditor from './PopOuts/PopOutCodeEditor/PopOutCodeEditor';
+import ErrorBoundary from './Util/ErrorBoundary';
+import ErrorPage from './Util/ErrorPage';
 
 var classNames = require('classnames');
 
@@ -729,6 +731,10 @@ class Editor extends EditorCore {
     let renderMobile = window.innerWidth < 640;
 
     return (
+      <ErrorBoundary
+      fallback={ErrorPage}
+      processError={(error, errorInfo) => {this.autoSaveProject(() => {"Project Autosaved"})} }
+      >
       <div>
         <div>
           <ToastContainer
@@ -978,6 +984,7 @@ class Editor extends EditorCore {
             />}
         </div>
       </div>
+      </ErrorBoundary>
       )
   }
 }
