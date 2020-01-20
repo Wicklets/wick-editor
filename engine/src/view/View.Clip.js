@@ -51,6 +51,10 @@ Wick.View.Clip = class extends Wick.View {
         return this._bounds;
     }
 
+    get absoluteBounds () {
+        return this.group.bounds;
+    }
+
     render () {
         // Render timeline view
         this.model.timeline.view.render();

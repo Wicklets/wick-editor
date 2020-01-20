@@ -339,7 +339,8 @@ Wick.Clip = class extends Wick.Tickable {
      * @returns {boolean} True if this clip collides the other clip.
      */
     hitTest (other) {
-        return this.bounds.intersects(other.bounds);
+        // TODO: Refactor so that getting bounds does not rely on the view
+        return this.view.absoluteBounds.intersects(other.view.absoluteBounds);
     }
 
     /**
@@ -347,6 +348,7 @@ Wick.Clip = class extends Wick.Tickable {
      * @type {object}
      */
     get bounds () {
+        // TODO: Refactor so that getting bounds does not rely on the view
         return this.view.bounds;
     }
 

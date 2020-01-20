@@ -54233,7 +54233,8 @@ Wick.Clip = class extends Wick.Tickable {
 
 
   hitTest(other) {
-    return this.bounds.intersects(other.bounds);
+    // TODO: Refactor so that getting bounds does not rely on the view
+    return this.view.absoluteBounds.intersects(other.view.absoluteBounds);
   }
   /**
    * The bounding box of the clip.
@@ -54242,6 +54243,7 @@ Wick.Clip = class extends Wick.Tickable {
 
 
   get bounds() {
+    // TODO: Refactor so that getting bounds does not rely on the view
     return this.view.bounds;
   }
   /**
@@ -59161,6 +59163,10 @@ Wick.View.Clip = class extends Wick.View {
 
   get bounds() {
     return this._bounds;
+  }
+
+  get absoluteBounds() {
+    return this.group.bounds;
   }
 
   render() {
