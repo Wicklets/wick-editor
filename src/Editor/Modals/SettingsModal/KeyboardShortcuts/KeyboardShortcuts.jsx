@@ -102,6 +102,19 @@ class KeyboardShortcuts extends Component {
     return actionName === this.state.editingAction.actionName && this.state.editingAction.index === index; 
   }
 
+  createHeader = (headerInfo) => {
+    let {name} = headerInfo;
+
+    return (
+      <tr className="keyboard-shortcuts-modal-row" key={name}>
+        <td className="hotkey-action-column hotkey-header-column">
+          { name }
+        </td>
+      </tr>
+    );
+
+  }
+
   createRow = (rowInfo) => {
     let {actionName, name, sequence1, sequence2} = rowInfo;
 
@@ -218,7 +231,17 @@ class KeyboardShortcuts extends Component {
 
   render() {
     let keyMap = this.props.keyMap || {};
-    let keys = Object.keys(keyMap).filter(key => key !== "finish-repeating"); // Remove unecessary keys.
+    let keyGroups = Object.keys(this.props.keyMapGroups);
+
+    let groupedRows = [];
+    keyGroups.forEach(groupName => {
+      groupedRows.push({name:groupName, type:"header"});
+      let groupMembers = this.props.keyMapGroups[groupName];
+      groupMembers.forEach(member => {
+        groupedRows.push({name:member, type:"member"})
+      })
+    });
+
     return (
         <div id="keyboard-shortcuts-body">
           <table className="tableSection">
@@ -231,7 +254,11 @@ class KeyboardShortcuts extends Component {
             </thead>
             <tbody>
               {
-                keys.map( (actionName) => {
+                groupedRows.map( action => {
+                  if (action.type === "header") {
+                    return (this.createHeader(action));
+                  } else {
+                    let actionName = action.name; 
                     let { sequences, name } = keyMap[actionName];
                     return this.createRow(
                       {
@@ -240,6 +267,7 @@ class KeyboardShortcuts extends Component {
                         sequence1: sequences[0],
                         sequence2: sequences[1],
                       });
+                  }
                 })
               }
             </tbody>

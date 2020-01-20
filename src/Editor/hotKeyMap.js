@@ -298,6 +298,14 @@ class HotKeyInterface extends Object {
       'export-project-to-new-window': {
         name: "Export Project to New Window",
         sequences: ['alt+enter']
+      },
+      'toggle-onion-skinning': {
+        name: "Toggle Onion Skinning",
+        sequences: ['ctrl+o']
+      }, 
+      'leave-focus': {
+        name: "Leave Focus",
+        sequences : ['alt+f'],
       }
     }
 
@@ -318,6 +326,89 @@ class HotKeyInterface extends Object {
         });
       }
     }
+  }
+
+  /**
+   * CreateHandlerGroups
+   * Defines groups of event handlers for hotkeys. This should be used to generate a hotkey list.
+   * 
+   */
+  createHandlerGroups = () => {
+    return ({
+      "Drawing Tools": [
+        "activate-brush",
+        "activate-cursor",
+        "activate-pencil",
+        "activate-eraser",
+        "activate-rectangle",
+        "activate-ellipse",
+        "activate-line",
+        "activate-text",
+        "activate-fill",
+        "activate-eyedropper",
+      ],
+      "Drawing Tool Options": [
+        "grow-brush-size",
+        "shrink-brush-size",
+      ],
+      "Edit Controls": [
+        "delete",
+        "break-apart",
+        "undo", 
+        "redo",
+        "copy", 
+        "cut",
+        "paste",
+        "duplicate",
+        "select-all",
+      ],
+      "Windows and Modals": [
+        "toggle-script-editor",
+      ], 
+      "Canvas Selection": [
+        "create-clip-from-selection",
+        "bring-to-front", 
+        "send-to-back", 
+        "move-forwards",
+        "move-backwards",
+        "nudge-up", 
+        "nudge-down", 
+        "nudge-left",
+        "nudge-right",
+        "nudge-up-more",
+        "nudge-down-more",
+        "nudge-left-more",
+        "nudge-right-more",
+      ],
+      "Canvas Controls": [
+        "activate-pan",
+        "activate-zoom",
+        "toggle-onion-skinning",
+        "leave-focus",
+      ],
+      "Timeline": [
+        "move-playhead-forwards",
+        "move-playhead-backwards",
+        "extend-frame",
+        "shrink-frame",
+        "extend-and-push-other-frames",
+        "shrink-and-pull-other-frames",
+        "move-frame-right",
+        "move-frame-left",
+        "create-tween",
+        "cut-frame",
+        "insert-blank-frame",
+      ],
+      "Export": [
+        "export-project-as-wick-file",
+        "export-selection",
+      ],
+      "Preview": [
+        "preview-play-toggle",
+        "preview-play-from-start",
+        "export-project-to-new-window",
+      ],
+    });
   }
 
   createDefaultHandlers = () => {
@@ -381,6 +472,7 @@ class HotKeyInterface extends Object {
       'create-clip-from-selection': (() => this.editor.createClipFromSelection("", false)),
       'break-apart-selection': (() => this.editor.breakApartSelection()),
       'export-selection': this.editor.exportSelectedClip,
+      'toggle-onion-skinning': this.editor.toggleOnionSkin,
       'finish-repeating': this.finishRepeating,
     }
 

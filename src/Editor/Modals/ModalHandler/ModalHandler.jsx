@@ -96,6 +96,7 @@ class ModalHandler extends Component {
           addCustomHotKeys={this.props.addCustomHotKeys}
           resetCustomHotKeys={this.props.resetCustomHotKeys}
           keyMap={this.props.keyMap}
+          keyMapGroups={this.props.keyMapGroups}
           customHotKeys={this.props.customHotKeys}
           colorPickerType={this.props.colorPickerType}
           changeColorPickerType={this.props.changeColorPickerType}

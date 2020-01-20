@@ -787,7 +787,8 @@ class Editor extends EditorCore {
                     addCustomHotKeys={this.addCustomHotKeys}
                     resetCustomHotKeys={this.resetCustomHotKeys}
                     customHotKeys={this.state.customHotKeys}
-                    keyMap={this.getKeyMap()}
+                    keyMap={this.getKeyMap(true)}
+                    keyMapGroups={this.hotKeyInterface.createHandlerGroups()}
                     importFileAsAsset={this.importFileAsAsset}
                     colorPickerType={this.state.colorPickerType}
                     changeColorPickerType={this.changeColorPickerType}
