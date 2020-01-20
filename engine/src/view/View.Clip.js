@@ -23,15 +23,15 @@ Wick.View.Clip = class extends Wick.View {
     }
 
     static get BORDER_STROKE_COLOR_NORMAL () {
-        return '#9999ff';
+        return '#2636E1';
     }
 
     static get BORDER_STROKE_COLOR_HAS_CODE () {
-        return '#00ff00';
+        return '#01C094';
     }
 
     static get BORDER_STROKE_COLOR_HAS_CODE_ERROR () {
-        return '#ff0000';
+        return '#E61E07';
     }
 
     /**
@@ -112,7 +112,6 @@ Wick.View.Clip = class extends Wick.View {
         group.scaling.x = this.model.transformation.scaleX;
         group.scaling.y = this.model.transformation.scaleY;
         group.rotation = this.model.transformation.rotation;
-        group.opacity = this.model.transformation.opacity;
 
         return group;
     }
