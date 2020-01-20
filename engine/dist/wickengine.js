@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.1.16";
+var WICK_ENGINE_BUILD_VERSION = "2020.1.19";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -49141,15 +49141,18 @@ Wick.Project = class extends Wick.Base {
           return;
         }
 
-        var uuid = scheduledScript.uuid;
-        var name = scheduledScript.name; // Make sure we only run the script based on the current iteration through possibleScripts
+        var {
+          uuid,
+          name,
+          parameters
+        } = scheduledScript; // Make sure we only run the script based on the current iteration through possibleScripts
 
         if (name !== scriptOrderName) {
           return;
         } // Run the script on the corresponding object!
 
 
-        Wick.ObjectCache.getObjectByUUID(uuid).runScript(name);
+        Wick.ObjectCache.getObjectByUUID(uuid).runScript(name, parameters);
       });
     }); // Save the current keysDown
 
@@ -49170,13 +49173,15 @@ Wick.Project = class extends Wick.Base {
    * Schedules a script to be run at the end of the current tick.
    * @param {string} uuid - the UUID of the object running the script.
    * @param {string} name - the name of the script to run, see Tickable.possibleScripts.
+   * @param {Object} parameters - An object of key,value pairs to send as parameters to the script which runs.
    */
 
 
-  scheduleScript(uuid, name) {
+  scheduleScript(uuid, name, parameters) {
     this._scriptSchedule.push({
       uuid: uuid,
-      name: name
+      name: name,
+      parameters: parameters
     });
   }
   /**
@@ -52828,21 +52833,23 @@ Wick.Tickable = class extends Wick.Base {
   /**
    * Schedule a script to run at the end of the tick.
    * @param {string} name - The name of the script to run. See Tickable.possibleScripts
+   * @param {Object} parameters - An object consisting of key,value pairs which correspond to parameters to pass to the script.
    */
 
 
-  scheduleScript(name) {
+  scheduleScript(name, parameters) {
     if (!this.project) return;
-    this.project.scheduleScript(this.uuid, name);
+    this.project.scheduleScript(this.uuid, name, parameters);
   }
   /**
    * Run the script with the corresponding event name.
    * @param {string} name - The name of the event. See Wick.Tickable.possibleScripts
+   * @param {Object} parameters - An object containing key,value pairs of parameters to send to the script.
    * @returns {object} object containing error info if an error happened. Returns null if there was no error (script ran successfully)
    */
 
 
-  runScript(name) {
+  runScript(name, parameters) {
     if (!Wick.Tickable.possibleScripts.indexOf(name) === -1) {
       console.error(name + ' is not a valid script!');
     } // Don't run scripts if this object is the focus
@@ -52857,7 +52864,7 @@ Wick.Tickable = class extends Wick.Base {
     var eventFnError = null;
     this.getEventFns(name).forEach(eventFn => {
       if (eventFnError) return;
-      eventFnError = this._runFunction(eventFn, name);
+      eventFnError = this._runFunction(eventFn, name, parameters);
     });
 
     if (eventFnError) {
@@ -52877,7 +52884,7 @@ Wick.Tickable = class extends Wick.Base {
 
       this._cachedScripts[name] = fn;
 
-      var error = this._runFunction(fn, name);
+      var error = this._runFunction(fn, name, parameters);
 
       if (error) {
         this.project.error = error;
@@ -52980,17 +52987,23 @@ Wick.Tickable = class extends Wick.Base {
 
     this.project.keysDown.forEach(key => {
       this.project.currentKey = key;
-      this.scheduleScript('keydown');
+      this.scheduleScript('keydown', {
+        key: key
+      });
     }); // Key press
 
     this.project.keysJustPressed.forEach(key => {
       this.project.currentKey = key;
-      this.scheduleScript('keypressed');
+      this.scheduleScript('keypressed', {
+        key: key
+      });
     }); // Key released
 
     this.project.keysJustReleased.forEach(key => {
       this.project.currentKey = key;
-      this.scheduleScript('keyreleased');
+      this.scheduleScript('keyreleased', {
+        key: key
+      });
     });
   }
 
@@ -53021,8 +53034,15 @@ Wick.Tickable = class extends Wick.Base {
 
     return fn;
   }
+  /**
+   * _runFunction runs an event function while passing in necessary global and local parameters.
+   * @param {string} fn - Function to run.
+   * @param {string} name - Name of the event function being run (i.e. keyDown) 
+   * @param {Object} parameters - An object of key,value pairs to be passed as parameters to the function.
+   */
 
-  _runFunction(fn, name) {
+
+  _runFunction(fn, name, parameters) {
     var error = null; // Attach API methods
 
     var globalAPI = new GlobalAPI(this);
@@ -53032,7 +53052,17 @@ Wick.Tickable = class extends Wick.Base {
         name: otherObject.identifier,
         fn: otherObject
       };
-    }));
+    })); // Add in parameters, if necessary.
+
+    if (parameters) {
+      Object.keys(parameters).forEach(parameter => {
+        apiMembers.push({
+          name: parameter,
+          fn: parameters[parameter]
+        });
+      });
+    }
+
     apiMembers.forEach(apiMember => {
       window[apiMember.name] = apiMember.fn;
     }); // These are currently hacked in here for performance reasons...

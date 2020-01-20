@@ -1071,8 +1071,7 @@ Wick.Project = class extends Wick.Base {
                     return;
                 }
 
-                var uuid = scheduledScript.uuid;
-                var name = scheduledScript.name;
+                var {uuid, name, parameters} = scheduledScript;
 
                 // Make sure we only run the script based on the current iteration through possibleScripts
                 if(name !== scriptOrderName) {
@@ -1080,7 +1079,7 @@ Wick.Project = class extends Wick.Base {
                 }
 
                 // Run the script on the corresponding object!
-                Wick.ObjectCache.getObjectByUUID(uuid).runScript(name);
+                Wick.ObjectCache.getObjectByUUID(uuid).runScript(name, parameters);
             });
         });
 
@@ -1101,11 +1100,13 @@ Wick.Project = class extends Wick.Base {
      * Schedules a script to be run at the end of the current tick.
      * @param {string} uuid - the UUID of the object running the script.
      * @param {string} name - the name of the script to run, see Tickable.possibleScripts.
+     * @param {Object} parameters - An object of key,value pairs to send as parameters to the script which runs.
      */
-    scheduleScript (uuid, name) {
+    scheduleScript (uuid, name, parameters) {
         this._scriptSchedule.push({
             uuid: uuid,
             name: name,
+            parameters: parameters,
         });
     }
 
