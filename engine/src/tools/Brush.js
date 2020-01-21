@@ -69,6 +69,9 @@ Wick.Tools.Brush = class extends Wick.Tool {
     }
 
     onActivate (e) {
+        if(this._isInProgress)
+            this.discard();
+
         if(!this.croquis) {
             this.croquis = new Croquis();
             this.croquis.setCanvasSize(500, 500);

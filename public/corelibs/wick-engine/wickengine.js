@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.1.20";
+var WICK_ENGINE_BUILD_VERSION = "2020.1.21";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -54880,6 +54880,8 @@ Wick.Tools.Brush = class extends Wick.Tool {
   }
 
   onActivate(e) {
+    if (this._isInProgress) this.discard();
+
     if (!this.croquis) {
       this.croquis = new Croquis();
       this.croquis.setCanvasSize(500, 500);
