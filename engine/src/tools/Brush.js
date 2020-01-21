@@ -113,6 +113,9 @@ Wick.Tools.Brush = class extends Wick.Tool {
     }
 
     onMouseDown (e) {
+        if(this._isInProgress)
+            this.discard();
+
         clearTimeout(this._croquisStartTimeout);
         this._isInProgress = true;
 
