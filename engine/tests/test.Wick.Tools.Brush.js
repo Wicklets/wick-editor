@@ -76,4 +76,39 @@ describe('Wick.Tools.Brush', function() {
         brush.onMouseDrag({point: new paper.Point(240,240)});
         brush.onMouseUp({point: new paper.Point(250,250)});
     });
+
+    it('should add the brush stroke to the frame where the stroke was originally started.', function(done) {
+        var project = new Wick.Project();
+        var brush = project.tools.brush;
+        buildDummyCanvasContainer(project);
+
+        project.view.on('canvasModified', function (e) {
+            var frame1 = project.activeLayer.getFrameAtPlayheadPosition(1);
+            var frame2 = project.activeLayer.getFrameAtPlayheadPosition(2);
+            expect(frame2.paths.length).to.equal(0);
+            expect(frame1.paths.length).to.equal(1);
+            expect(frame1.paths[0].view.item.bounds.width).to.be.closeTo(20, 10);
+            expect(frame1.paths[0].view.item.bounds.height).to.be.closeTo(20, 10);
+            expect(frame1.paths[0].view.item.bounds.x).to.be.closeTo(200, 10);
+            expect(frame1.paths[0].view.item.bounds.y).to.be.closeTo(200, 10);
+            destroyDummyCanvasContainer(project);
+            done();
+        });
+
+        brush.activate();
+        brush.onMouseMove();
+
+        // Start drawing
+        brush.onMouseDown({point: new paper.Point(200,200)});
+        brush.onMouseDrag({point: new paper.Point(210,210)});
+        brush.onMouseDrag({point: new paper.Point(220,220)});
+        // Move to different frame
+        project.activeTimeline.playheadPosition = 2;
+        project.view.render();
+        // Keep drawing
+        brush.onMouseDrag({point: new paper.Point(230,230)});
+        brush.onMouseDrag({point: new paper.Point(240,240)});
+        // Finish drawing on the new frame.
+        brush.onMouseUp({point: new paper.Point(250,250)});
+    });
 });

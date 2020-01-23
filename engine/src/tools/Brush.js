@@ -40,24 +40,27 @@ Wick.Tools.Brush = class extends Wick.Tool {
 
         this.MIN_PRESSURE = 0.14;
 
-        this.croquis;
-        this.croquisDOMElement;
-        this.croquisBrush;
+        this.croquis = null;
+        this.croquisDOMElement = null;
+        this.croquisBrush = null;
 
-        this.cachedCursor;
+        this.cachedCursor = null;
 
-        this.lastPressure;
+        this.lastPressure = null;
 
         this.errorOccured = false;
 
         this._isInProgress = false;
 
-        this.strokeBounds = new paper.Rectangle();
-
         this._croquisStartTimeout = null;
 
+        // These are used to crop the final path image.
+        this.strokeBounds = new paper.Rectangle();
         this._lastMousePoint = new paper.Point(0,0);
         this._lastMousePressure = 1;
+
+        // The frame that the brush started the current stroke on.
+        this._currentDrawingFrame = null;
     }
 
     get cursor () {
@@ -70,7 +73,7 @@ Wick.Tools.Brush = class extends Wick.Tool {
 
     onActivate (e) {
         if(this._isInProgress)
-            this.discard();
+            this.finishStrokeEarly();
 
         if(!this.croquis) {
             this.croquis = new Croquis();
@@ -102,7 +105,7 @@ Wick.Tools.Brush = class extends Wick.Tool {
 
     onDeactivate (e) {
         // This prevents croquis from leaving stuck brush strokes on the screen.
-        this.discard();
+        this.finishStrokeEarly();
     }
 
     onMouseMove (e) {
@@ -115,6 +118,8 @@ Wick.Tools.Brush = class extends Wick.Tool {
     onMouseDown (e) {
         if(this._isInProgress)
             this.discard();
+
+        this._currentDrawingFrame = this.project.activeFrame;
 
         clearTimeout(this._croquisStartTimeout);
         this._isInProgress = true;
@@ -162,11 +167,9 @@ Wick.Tools.Brush = class extends Wick.Tool {
         if(!this._isInProgress) return;
         this._isInProgress = false;
 
-        // Forward mouse event to croquis canvas
         var point = this._croquisToPaperPoint(e.point);
-        this._updateStrokeBounds(point);
-        // This prevents cropping out edges of the brush stroke
-        this.strokeBounds = this.strokeBounds.expand(this._getRealBrushSize());
+        this._calculateStrokeBounds(point);
+
         try {
             this.croquis.up(point.x, point.y, this.lastPressure);
         } catch (e) {
@@ -174,53 +177,7 @@ Wick.Tools.Brush = class extends Wick.Tool {
             return;
         }
 
-        // Give croquis just a little bit to get the canvas ready...
-        this.errorOccured = false;
-        var strokeBounds = this.strokeBounds.clone();
-        this._croquisStartTimeout = setTimeout(() => {
-            // Retrieve Croquis canvas
-            var canvas = this.paper.view._element.parentElement.getElementsByClassName('croquis-layer-canvas')[1];
-            if(!canvas) {
-                console.warn("Croquis canvas was not found in the canvas container. Something very bad has happened.")
-                this.handleBrushError('misingCroquisCanvas');
-                return;
-            }
-
-            // Rip image data out of Croquis.js canvas
-            // (and crop out empty space using strokeBounds - this massively speeds up potrace)
-            var croppedCanvas = document.createElement("canvas");
-            var croppedCanvasCtx = croppedCanvas.getContext("2d");
-            croppedCanvas.width = strokeBounds.width;
-            croppedCanvas.height = strokeBounds.height;
-            if(strokeBounds.x < 0) strokeBounds.x = 0;
-            if(strokeBounds.y < 0) strokeBounds.y = 0;
-            croppedCanvasCtx.drawImage(
-              canvas,
-              strokeBounds.x, strokeBounds.y,
-              strokeBounds.width, strokeBounds.height,
-              0, 0, croppedCanvas.width, croppedCanvas.height);
-
-            // Run potrace and add the resulting path to the project
-            var svg = potrace.fromImage(croppedCanvas).toSVG(1/this.POTRACE_RESOLUTION/this.paper.view.zoom);
-            var potracePath = this.paper.project.importSVG(svg);
-            potracePath.fillColor = this.getSetting('fillColor').rgba;
-            potracePath.position.x += this.paper.view.bounds.x;
-            potracePath.position.y += this.paper.view.bounds.y;
-            potracePath.position.x += strokeBounds.x / this.paper.view.zoom;
-            potracePath.position.y += strokeBounds.y / this.paper.view.zoom;
-            potracePath.remove();
-            potracePath.closed = true;
-            potracePath.children[0].closed = true;
-            potracePath.children[0].applyMatrix = true;
-            this.addPathToProject(potracePath.children[0]);
-
-            // We're done potracing using the current croquis canvas, reset the stroke bounds
-            this._resetStrokeBounds(point);
-
-            // Clear croquis canvas
-            this.croquis.clearLayer();
-            this.fireEvent('canvasModified');
-        }, Wick.Tools.Brush.CROQUIS_WAIT_AMT_MS);
+        this._potraceCroquisCanvas(point);
     }
 
     /**
@@ -271,6 +228,24 @@ Wick.Tools.Brush = class extends Wick.Tool {
         setTimeout(() => {
             this.croquis.clearLayer();
         }, 10);
+    }
+
+    /**
+     * Force the current stroke to be finished, and add the stroke to the project.
+     */
+    finishStrokeEarly () {
+        if(!this._isInProgress) return;
+        this._isInProgress = false;
+
+        // Hide the croquis canvas so that the current stroke is never seen on the new frame.
+        this.croquisDOMElement.style.opacity = 0;
+
+        // "Give up" on the current stroke by forcing a mouseup
+        this.croquis.up(this._lastMousePoint.x, this._lastMousePoint.y, this._lastMousePressure);
+
+        // Add path to project
+        this._calculateStrokeBounds(this._lastMousePoint);
+        this._potraceCroquisCanvas(this._lastMousePoint);
     }
 
     /* Generate a new circle cursor based on the brush size. */
@@ -332,5 +307,64 @@ Wick.Tools.Brush = class extends Wick.Tool {
     _updateLastMouseState (point, pressure) {
         this._lastMousePoint = new paper.Point(point.x, point.y);
         this._lastMousePressure = this.pressure;
+    }
+
+    _calculateStrokeBounds (point) {
+        // Forward mouse event to croquis canvas
+        this._updateStrokeBounds(point);
+        // This prevents cropping out edges of the brush stroke
+        this.strokeBounds = this.strokeBounds.expand(this._getRealBrushSize());
+    }
+
+    /* Create a paper.js path by potracing the croquis canvas, and add the resulting path to the project. */
+    _potraceCroquisCanvas (point) {
+        this.errorOccured = false;
+        var strokeBounds = this.strokeBounds.clone();
+
+        // Give croquis just a little bit to get the canvas ready...
+        this._croquisStartTimeout = setTimeout(() => {
+            // Retrieve Croquis canvas
+            var canvas = this.paper.view._element.parentElement.getElementsByClassName('croquis-layer-canvas')[1];
+            if(!canvas) {
+                console.warn("Croquis canvas was not found in the canvas container. Something very bad has happened.")
+                this.handleBrushError('misingCroquisCanvas');
+                return;
+            }
+
+            // Rip image data out of Croquis.js canvas
+            // (and crop out empty space using strokeBounds - this massively speeds up potrace)
+            var croppedCanvas = document.createElement("canvas");
+            var croppedCanvasCtx = croppedCanvas.getContext("2d");
+            croppedCanvas.width = strokeBounds.width;
+            croppedCanvas.height = strokeBounds.height;
+            if(strokeBounds.x < 0) strokeBounds.x = 0;
+            if(strokeBounds.y < 0) strokeBounds.y = 0;
+            croppedCanvasCtx.drawImage(
+              canvas,
+              strokeBounds.x, strokeBounds.y,
+              strokeBounds.width, strokeBounds.height,
+              0, 0, croppedCanvas.width, croppedCanvas.height);
+
+            // Run potrace and add the resulting path to the project
+            var svg = potrace.fromImage(croppedCanvas).toSVG(1/this.POTRACE_RESOLUTION/this.paper.view.zoom);
+            var potracePath = this.paper.project.importSVG(svg);
+            potracePath.fillColor = this.getSetting('fillColor').rgba;
+            potracePath.position.x += this.paper.view.bounds.x;
+            potracePath.position.y += this.paper.view.bounds.y;
+            potracePath.position.x += strokeBounds.x / this.paper.view.zoom;
+            potracePath.position.y += strokeBounds.y / this.paper.view.zoom;
+            potracePath.remove();
+            potracePath.closed = true;
+            potracePath.children[0].closed = true;
+            potracePath.children[0].applyMatrix = true;
+            this.addPathToProject(potracePath.children[0], this._currentDrawingFrame);
+
+            // We're done potracing using the current croquis canvas, reset the stroke bounds
+            this._resetStrokeBounds(point);
+
+            // Clear croquis canvas
+            this.croquis.clearLayer();
+            this.fireEvent('canvasModified');
+        }, Wick.Tools.Brush.CROQUIS_WAIT_AMT_MS);
     }
 }

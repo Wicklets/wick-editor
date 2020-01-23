@@ -255,16 +255,33 @@ Wick.Tool = class {
     /**
      * Adds a paper.Path to the active frame's paper.Layer.
      * @param {paper.Path} path - the path to add
+     * @param {Wick.Frame} frame - (optional) the frame to add the path to.
      */
-    addPathToProject (path) {
-        // Automatically add a frame is there isn't one
+    addPathToProject (path, frame) {
         if(!this.project.activeFrame) {
+            // Automatically add a frame is there isn't one
             this.project.insertBlankFrame();
             this.project.view.render();
         }
 
-        if(path)
+        if(!path) {
+            console.error("Warning: addPathToProject: path is null/undefined");
+            return;
+        }
+
+        if(frame && frame !== this.project.activeFrame) {
+            /* If the path must be added to a frame other than the active frame,
+             * convert the paper.js path into a Wick path and add it to the given frame. */
+            var wickPath = new Wick.Path({
+                json: path.exportJSON({asString:false}),
+            });
+            frame.addPath(wickPath);
+        } else {
+            /* Otherwise, directly add the paper.js path to the paper.js project.
+               This is signifigantly faster than creating the Wick path, as this
+               method does not require a re-render of the canvas. */
             this.paper.project.activeLayer.addChild(path);
+        }
     }
 }
 
