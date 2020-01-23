@@ -385,6 +385,7 @@ Wick.Clip = class extends Wick.Tickable {
     }
 
     set scaleX (scaleX) {
+        if(scaleX === 0) return; // Protects against NaN issues
         this.transformation.scaleX = scaleX;
     }
 
@@ -397,6 +398,7 @@ Wick.Clip = class extends Wick.Tickable {
     }
 
     set scaleY (scaleY) {
+        if(scaleY === 0) return; // Protects against NaN issues
         this.transformation.scaleY = scaleY;
     }
 

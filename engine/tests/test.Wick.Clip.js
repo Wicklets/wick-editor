@@ -814,7 +814,7 @@ describe('Wick.Clip', function() {
                 clip.addScript('load', 'this.x = undefined;this.y = undefined;');
 
                 project.play({
-                    onError: error => {
+                    onAfterTick: () => {
                         project.stop();
                         expect(clip.x).to.equal(200);
                         expect(clip.y).to.equal(100);
@@ -834,7 +834,7 @@ describe('Wick.Clip', function() {
                 clip.addScript('load', 'this.x = null;this.y = null;');
 
                 project.play({
-                    onError: error => {
+                    onAfterTick: error => {
                         project.stop();
                         expect(clip.x).to.equal(200);
                         expect(clip.y).to.equal(100);
@@ -947,6 +947,25 @@ describe('Wick.Clip', function() {
                         done();
                     }
                 });
+            });
+
+            it('should prevent setting width to zero', function() {
+                var project = new Wick.Project();
+
+                var clip = new Wick.Clip();
+                clip.activeFrame.addPath(TestUtils.paperToWickPath(new paper.Path.Rectangle({
+                    from: new paper.Point(0,0),
+                    to: new paper.Point(50,50),
+                    fillColor: 'red',
+                })));
+                project.activeFrame.addClip(clip);
+                clip.view.render();// This is needed for now, as width/height are calculated in the view
+
+                console.log(clip.width)
+                clip.width = 100;
+                expect(clip.width).to.equal(100);
+                clip.width = 0;
+                expect(clip.width).to.equal(100); // Width should not be changed to zero
             });
         });
 
