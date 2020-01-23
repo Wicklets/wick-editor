@@ -802,6 +802,46 @@ describe('Wick.Clip', function() {
                 expect(error).to.equal(null);
                 expect(clip.transformation.x).to.equal(110);
             });
+
+            it('(bug) object should be recovered after project is stopped if x/y is set to undefined', function(done) {
+                var project = new Wick.Project();
+                project.framerate = 60;
+
+                var clip = new Wick.Clip();
+                project.addObject(clip);
+                clip.x = 200;
+                clip.y = 100;
+                clip.addScript('load', 'this.x = undefined;this.y = undefined;');
+
+                project.play({
+                    onError: error => {
+                        project.stop();
+                        expect(clip.x).to.equal(200);
+                        expect(clip.y).to.equal(100);
+                        done();
+                    }
+                });
+            });
+
+            it('(bug) object should be recovered after project is stopped if x/y is set to null', function(done) {
+                var project = new Wick.Project();
+                project.framerate = 60;
+
+                var clip = new Wick.Clip();
+                project.addObject(clip);
+                clip.x = 200;
+                clip.y = 100;
+                clip.addScript('load', 'this.x = null;this.y = null;');
+
+                project.play({
+                    onError: error => {
+                        project.stop();
+                        expect(clip.x).to.equal(200);
+                        expect(clip.y).to.equal(100);
+                        done();
+                    }
+                });
+            });
         });
 
         describe('#y', function () {
