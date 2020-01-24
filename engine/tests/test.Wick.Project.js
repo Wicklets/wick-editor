@@ -1299,7 +1299,7 @@ describe('Wick.Project', function() {
             // clip.addScript('keydown', `
             // if (key === "a") {
             //     this.aDown += 1;
-            // } 
+            // }
 
             // if (key === "b") {
             //     this.bDown += 1;
@@ -1622,13 +1622,25 @@ describe('Wick.Project', function() {
         });
     });
 
-    describe('#extendSelectedFrames', function () {
+    describe('#extendFrames', function () {
         it('should extend selected frames', function () {
             // TODO
         });
     });
 
-    describe('#shrinkSelectedFrames', function () {
+    describe('#extendFramesAndPushOtherFrames', function () {
+        it('should extend selected frames', function () {
+            // TODO
+        });
+    });
+
+    describe('#shrinkFrames', function () {
+        it('should shrink selected frames', function () {
+            // TODO
+        });
+    });
+
+    describe('#shrinkFramesAndPullOtherFrames', function () {
         it('should shrink selected frames', function () {
             // TODO
         });

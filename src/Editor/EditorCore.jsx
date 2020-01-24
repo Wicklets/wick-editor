@@ -1333,13 +1333,15 @@ class EditorCore extends Component {
   }
 
   extendFrame = () => {
-      this.project.extendSelectedFrames();
+      var frames = this.project.selection.getSelectedObjects('Frame');
+      this.project.extendFrames(frames);
       this.project.guiElement.draw();
       //this.projectDidChange();
   }
 
   shrinkFrame = () => {
-      this.project.shrinkSelectedFrames();
+      var frames = this.project.selection.getSelectedObjects('Frame');
+      this.project.shrinkFrames(frames);
       this.project.guiElement.draw();
       //this.projectDidChange();
   }
@@ -1372,13 +1374,29 @@ class EditorCore extends Component {
   }
 
   extendSelectedFramesAndPushOtherFrames = () => {
-      this.project.extendSelectedFramesAndPushOtherFrames();
+      var frames = this.project.selection.getSelectedObjects('Frame');
+      this.project.extendFramesAndPushOtherFrames(frames);
       this.project.guiElement.draw();
       //this.projectDidChange();
   }
 
   shrinkSelectedFramesAndPullOtherFrames = () => {
-      this.project.shrinkSelectedFramesAndPullOtherFrames();
+      var frames = this.project.selection.getSelectedObjects('Frame');
+      this.project.shrinkFramesAndPullOtherFrames(frames);
+      this.project.guiElement.draw();
+      //this.projectDidChange();
+  }
+
+  extendActiveFramesAndPushOtherFrames = () => {
+      var frames = this.project.activeTimeline.activeFrames;
+      this.project.extendFramesAndPushOtherFrames(frames);
+      this.project.guiElement.draw();
+      //this.projectDidChange();
+  }
+
+  shrinkActiveFramesAndPullOtherFrames = () => {
+      var frames = this.project.activeTimeline.activeFrames;
+      this.project.shrinkFramesAndPullOtherFrames(frames);
       this.project.guiElement.draw();
       //this.projectDidChange();
   }

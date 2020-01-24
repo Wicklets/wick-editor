@@ -267,7 +267,7 @@ Wick.Layer = class extends Wick.Base {
      */
     findGaps () {
         var gaps = [];
-
+        
         var currentGap = null;
         for(var i = 1; i <= this.length; i++) {
             var frame = this.getFrameAtPlayheadPosition(i);

@@ -762,10 +762,9 @@ Wick.Project = class extends Wick.Base {
     }
 
     /**
-     * Move the right edge of all selected frames right one frame.
+     * Move the right edge of all frames right one frame.
      */
-    extendSelectedFrames () {
-        var frames = this.selection.getSelectedObjects('Frame');
+    extendFrames (frames) {
         frames.forEach(frame => {
             frame.end ++;
         });
@@ -774,20 +773,18 @@ Wick.Project = class extends Wick.Base {
     }
 
     /**
-     * Move the right edge of all selected frames right one frame, and push other frames away.
+     * Move the right edge of all frames right one frame, and push other frames away.
      */
-    extendSelectedFramesAndPushOtherFrames () {
-        var frames = this.selection.getSelectedObjects('Frame');
+    extendFramesAndPushOtherFrames (frames) {
         frames.forEach(frame => {
             frame.extendAndPushOtherFrames();
         });
     }
 
     /**
-     * Move the right edge of all selected frames left one frame.
+     * Move the right edge of all frames left one frame.
      */
-    shrinkSelectedFrames () {
-        var frames = this.selection.getSelectedObjects('Frame');
+    shrinkFrames (frames) {
         frames.forEach(frame => {
             if(frame.length === 1) return;
             frame.end --;
@@ -797,10 +794,9 @@ Wick.Project = class extends Wick.Base {
     }
 
     /**
-     * Move the right edge of all selected frames left one frame, and pull other frames along.
+     * Move the right edge of all frames left one frame, and pull other frames along.
      */
-    shrinkSelectedFramesAndPullOtherFrames () {
-        var frames = this.selection.getSelectedObjects('Frame');
+    shrinkFramesAndPullOtherFrames (frames) {
         frames.forEach(frame => {
             frame.shrinkAndPullOtherFrames();
         });
