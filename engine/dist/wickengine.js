@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.1.23";
+var WICK_ENGINE_BUILD_VERSION = "2020.1.24";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -50105,7 +50105,7 @@ Wick.Selection = class extends Wick.Base {
   set scaleX(scaleX) {
     // Clips store their scale state internally
     if (this.selectionType === "clip" || this.selectionType === "button") {
-      this.getSelectedObject().transformation.scaleX = scaleX;
+      this.getSelectedObject().scaleX = scaleX;
     } else {
       this.width = this.originalWidth * scaleX;
     }
@@ -50128,7 +50128,7 @@ Wick.Selection = class extends Wick.Base {
   set scaleY(scaleY) {
     // Clips store their scale state internally
     if (this.selectionType === "clip" || this.selectionType === "button") {
-      this.getSelectedObject().transformation.scaleY = scaleY;
+      this.getSelectedObject().scaleY = scaleY;
     } else {
       this.height = this.originalHeight * scaleY;
     }
@@ -54283,7 +54283,7 @@ Wick.Clip = class extends Wick.Tickable {
   }
 
   set scaleX(scaleX) {
-    if (scaleX === 0) return; // Protects against NaN issues
+    if (scaleX === 0) scaleX = 0.001; // Protects against NaN issues
 
     this.transformation.scaleX = scaleX;
   }
@@ -54298,7 +54298,7 @@ Wick.Clip = class extends Wick.Tickable {
   }
 
   set scaleY(scaleY) {
-    if (scaleY === 0) return; // Protects against NaN issues
+    if (scaleY === 0) scaleY = 0.001; // Protects against NaN issues
 
     this.transformation.scaleY = scaleY;
   }
@@ -57519,6 +57519,7 @@ class SelectionWidget {
 
   set width(width) {
     var d = width / this.width;
+    if (d === 0) d = 0.001;
     this.scaleSelection(new paper.Point(d, 1.0));
   }
   /**

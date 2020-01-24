@@ -97,6 +97,7 @@ class SelectionWidget {
 
     set width (width) {
         var d = width / this.width;
+        if(d === 0) d = 0.001;
         this.scaleSelection(new paper.Point(d, 1.0));
     }
 

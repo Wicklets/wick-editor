@@ -496,7 +496,7 @@ Wick.Selection = class extends Wick.Base {
     set scaleX (scaleX) {
         // Clips store their scale state internally
         if (this.selectionType === "clip" || this.selectionType === "button") {
-            this.getSelectedObject().transformation.scaleX = scaleX;
+            this.getSelectedObject().scaleX = scaleX;
         } else {
             this.width = this.originalWidth * scaleX;
         }
@@ -518,7 +518,7 @@ Wick.Selection = class extends Wick.Base {
     set scaleY (scaleY) {
         // Clips store their scale state internally
         if (this.selectionType === "clip" || this.selectionType === "button") {
-            this.getSelectedObject().transformation.scaleY = scaleY;
+            this.getSelectedObject().scaleY = scaleY;
         } else {
             this.height = this.originalHeight * scaleY;
         }
