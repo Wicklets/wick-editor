@@ -104,6 +104,8 @@ Wick.Selection = class extends Wick.Base {
             "easingType",
             "scaleX",
             "scaleY",
+            "animationType",
+            "singleFrameNumber",
         ];
     }
 
@@ -343,6 +345,46 @@ Wick.Selection = class extends Wick.Base {
 
     set pivotPoint (pivotPoint) {
         this._pivotPoint = pivotPoint;
+    }
+
+    /**
+     * The animation type of a clip.
+     * @type {string}
+     */
+    get animationType () {
+        if (this.getSelectedObject() && this.selectionType === 'clip') {
+            return this.getSelectedObject().animationType;
+        } else {
+            return null;
+        }
+    }
+
+    set animationType (newType) {
+        if (this.getSelectedObject()) {
+            this.getSelectedObject().animationType = newType;
+        } else {
+            console.error("Cannot set the animation type of multiple objects...");
+        }
+    }
+
+    /**
+     * If a clip is set to singleFrame, this number will be used to determine that frame.
+     */
+    get singleFrameNumber () {
+        if (this.getSelectedObject() && this.selectionType === 'clip') {
+            return this.getSelectedObject().singleFrameNumber;
+        } else {
+            return null;
+        }
+    }
+
+    set singleFrameNumber (frame) {
+        if (this.getSelectedObject()) {
+            this.getSelectedObject().singleFrameNumber = frame;
+        } else {
+            console.error("Cannot set singleFrameNumber of multiple objects...");
+        }
+        
     }
 
     /**

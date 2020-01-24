@@ -933,6 +933,7 @@ class Editor extends EditorCore {
                                 changeColorPickerType={this.changeColorPickerType}
                                 updateLastColors={this.updateLastColors}
                                 lastColorsUsed={this.state.lastColorsUsed}
+                                getClipAnimationTypes={this.getClipAnimationTypes}
                               />
                             </DockedPanel>
                           </ReflexElement>

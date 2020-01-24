@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.1.23";
+var WICK_ENGINE_BUILD_VERSION = "2020.1.24";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -49683,7 +49683,7 @@ Wick.Selection = class extends Wick.Base {
 
 
   get allAttributeNames() {
-    return ["strokeWidth", "fillColor", "strokeColor", "name", "filename", "fontSize", "fontFamily", "fontWeight", "fontStyle", "src", "frameLength", "x", "y", "originX", "originY", "width", "height", "rotation", "opacity", "sound", "soundVolume", "soundStart", "identifier", "easingType", "scaleX", "scaleY"];
+    return ["strokeWidth", "fillColor", "strokeColor", "name", "filename", "fontSize", "fontFamily", "fontWeight", "fontStyle", "src", "frameLength", "x", "y", "originX", "originY", "width", "height", "rotation", "opacity", "sound", "soundVolume", "soundStart", "identifier", "easingType", "scaleX", "scaleY", "animationType", "singleFrameNumber"];
   }
   /**
    * Add a wick object to the selection.
@@ -49937,6 +49937,47 @@ Wick.Selection = class extends Wick.Base {
 
   set pivotPoint(pivotPoint) {
     this._pivotPoint = pivotPoint;
+  }
+  /**
+   * The animation type of a clip.
+   * @type {string}
+   */
+
+
+  get animationType() {
+    if (this.getSelectedObject() && this.selectionType === 'clip') {
+      return this.getSelectedObject().animationType;
+    } else {
+      return null;
+    }
+  }
+
+  set animationType(newType) {
+    if (this.getSelectedObject()) {
+      this.getSelectedObject().animationType = newType;
+    } else {
+      console.error("Cannot set the animation type of multiple objects...");
+    }
+  }
+  /**
+   * If a clip is set to singleFrame, this number will be used to determine that frame.
+   */
+
+
+  get singleFrameNumber() {
+    if (this.getSelectedObject() && this.selectionType === 'clip') {
+      return this.getSelectedObject().singleFrameNumber;
+    } else {
+      return null;
+    }
+  }
+
+  set singleFrameNumber(frame) {
+    if (this.getSelectedObject()) {
+      this.getSelectedObject().singleFrameNumber = frame;
+    } else {
+      console.error("Cannot set singleFrameNumber of multiple objects...");
+    }
   }
   /**
    * The position of the selection.
@@ -53909,17 +53950,34 @@ Wick.Frame = class extends Wick.Tickable {
  */
 Wick.Clip = class extends Wick.Tickable {
   /**
+   * Returns a list of all possible animation types for this object.
+   * @returns {Object} - An object containing keys that represent the animation type a a key and a human-readable version of the animation type as a value.
+   */
+  static get animationTypes() {
+    return {
+      'loop': 'Loop',
+      'single': 'Single Frame',
+      'playOnce': 'Play Once'
+    };
+  }
+  /**
    * Create a new clip.
    * @param {string} identifier - The identifier of the new clip.
    * @param {Wick.Path|Wick.Clip[]} objects - Optional. A list of objects to add to the clip.
    * @param {Wick.Transformation} transformation - Optional. The initial transformation of the clip.
    */
+
+
   constructor(args) {
     if (!args) args = {};
     super(args);
     this.timeline = new Wick.Timeline();
     this.timeline.addLayer(new Wick.Layer());
     this.timeline.activeLayer.addFrame(new Wick.Frame());
+    this._animationType = 'loop'; // Can be one of loop, oneFrame, single
+
+    this._singleFrameNumber = 1; // Default to 1, this value is only used if the animation type is single
+
     this._transformation = args.transformation || new Wick.Transformation();
     this.cursor = 'default';
     this._isClone = false;
@@ -54006,6 +54064,49 @@ Wick.Clip = class extends Wick.Tickable {
     }
 
     this.addChild(timeline);
+  }
+  /**
+   * The animation type of the clip. Must be of a type represented within animationTypes;
+   * @type {string}
+   */
+
+
+  get animationType() {
+    return this._animationType;
+  }
+
+  set animationType(animationType) {
+    // Default to loop if an invalid animation type is passed in.
+    if (!Wick.Clip.animationTypes[animationType]) {
+      console.error("Animation type:" + animationType + "is invalid for clips! Defaulting to Loop.");
+      this._animationType = 'loop';
+    } else {
+      this._animationType = animationType;
+    }
+  }
+  /**
+   * The frame to display when animation type is set to singleFrame.
+   * @type {number}
+   */
+
+
+  get singleFrameNumber() {
+    if (this.animationType !== 'single') {
+      return null;
+    } else {
+      return this._singleFrameNumber;
+    }
+  }
+
+  set singleFrameNumber(frame) {
+    // Constrain to be within the length of the clip.
+    if (frame < 1) {
+      frame = 0;
+    } else if (frame > this.timeline.length) {
+      frame = this.timeline.length;
+    }
+
+    this._singleFrameNumber = frame;
   }
   /**
    * The active layer of the clip's timeline.

@@ -22,6 +22,18 @@
  */
 Wick.Clip = class extends Wick.Tickable {
     /**
+     * Returns a list of all possible animation types for this object.
+     * @returns {Object} - An object containing keys that represent the animation type a a key and a human-readable version of the animation type as a value.
+     */
+    static get animationTypes () {
+        return {
+            'loop': 'Loop',
+            'single': 'Single Frame',
+            'playOnce': 'Play Once',
+        }
+    }
+
+    /**
      * Create a new clip.
      * @param {string} identifier - The identifier of the new clip.
      * @param {Wick.Path|Wick.Clip[]} objects - Optional. A list of objects to add to the clip.
@@ -34,6 +46,8 @@ Wick.Clip = class extends Wick.Tickable {
         this.timeline = new Wick.Timeline();
         this.timeline.addLayer(new Wick.Layer());
         this.timeline.activeLayer.addFrame(new Wick.Frame());
+        this._animationType = 'loop'; // Can be one of loop, oneFrame, single
+        this._singleFrameNumber = 1; // Default to 1, this value is only used if the animation type is single
 
         this._transformation = args.transformation || new Wick.Transformation();
 
@@ -47,7 +61,9 @@ Wick.Clip = class extends Wick.Tickable {
         }
 
         this._clones = [];
+
     }
+
 
     _serialize (args) {
         var data = super._serialize(args);
@@ -119,6 +135,47 @@ Wick.Clip = class extends Wick.Tickable {
             this.removeChild(this.timeline);
         }
         this.addChild(timeline);
+    }
+
+    /**
+     * The animation type of the clip. Must be of a type represented within animationTypes;
+     * @type {string}
+     */
+    get animationType () {
+        return this._animationType;
+    }
+
+    set animationType (animationType) {
+        // Default to loop if an invalid animation type is passed in.
+        if (!Wick.Clip.animationTypes[animationType]) {
+            console.error("Animation type:" + animationType + "is invalid for clips! Defaulting to Loop.");
+            this._animationType = 'loop';
+        } else {
+            this._animationType = animationType;
+        }
+    }
+
+    /**
+     * The frame to display when animation type is set to singleFrame.
+     * @type {number}
+     */
+    get singleFrameNumber () {
+        if (this.animationType !== 'single') {
+            return null;
+        } else {
+            return this._singleFrameNumber;
+        }
+    }
+
+    set singleFrameNumber (frame) {
+        // Constrain to be within the length of the clip.
+        if (frame < 1) {
+            frame = 0;
+        } else if (frame > this.timeline.length) {
+            frame = this.timeline.length;
+        }
+
+        this._singleFrameNumber = frame;
     }
 
     /**
