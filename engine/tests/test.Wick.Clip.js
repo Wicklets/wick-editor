@@ -965,7 +965,7 @@ describe('Wick.Clip', function() {
                 clip.width = 100;
                 expect(clip.width).to.equal(100);
                 clip.width = 0;
-                expect(clip.width).to.equal(100); // Width should not be changed to zero
+                expect(clip.width).to.equal(0.05); // Width should not be changed to zero
             });
         });
 
