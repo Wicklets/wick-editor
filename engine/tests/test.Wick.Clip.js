@@ -1547,26 +1547,183 @@ describe('Wick.Clip', function() {
         });
 
         it ('should animate correctly as a looped clip', function () {
+            let project = new Wick.Project();
 
+            let clip = new Wick.Clip();
+            let frame2 = new Wick.Frame({start:2});
+            let frame3 = new Wick.Frame({start:3});
+
+            clip.timeline.addFrame(frame2);
+            clip.timeline.addFrame(frame3);
+
+            clip.animationType = 'loop';
+
+            project.activeFrame.addClip(clip);
+
+            let totalTicks = 0;
+
+            project.play({
+                onBeforeTick: () => {
+                    expect(clip.timeline.playheadPosition).to.equal(totalTicks % 3 + 1);
+                },
+                onAfterTick: () => {
+                    totalTicks += 1;
+                    if (totalTicks === 7) {
+                        project.stop();
+                        done();
+                    }                    
+                }
+            });
         });
 
         it ('should animate correctly as a single frame clip', function () {
+            let project = new Wick.Project();
 
+            let clip = new Wick.Clip();
+            let frame2 = new Wick.Frame({start:2});
+            let frame3 = new Wick.Frame({start:3});
+
+            clip.timeline.addFrame(frame2);
+            clip.timeline.addFrame(frame3);
+
+            clip.animationType = 'single';
+            clip.singleFrameNumber = 2;
+            project.activeFrame.addClip(clip);
+
+            let totalTicks = 0;
+
+            project.play({
+                onBeforeTick: () => {
+                    expect(clip.timeline.playheadPosition).to.equal(2);
+                },
+                onAfterTick: () => {
+                    totalTicks += 1;
+                    if (totalTicks === 7) {
+                        project.stop();
+                        done();
+                    }                    
+                }
+            });
         });
 
         it ('should animate correctly as a playOnce clip', function () {
+            let project = new Wick.Project();
 
+            let clip = new Wick.Clip();
+            let frame2 = new Wick.Frame({start:2});
+            let frame3 = new Wick.Frame({start:3});
+
+            clip.timeline.addFrame(frame2);
+            clip.timeline.addFrame(frame3);
+
+            clip.animationType = 'playOnce';
+
+            project.activeFrame.addClip(clip);
+
+            let totalTicks = 0;
+
+            project.play({
+                onBeforeTick: () => {
+                    if (totalTicks < 3) {
+                        expect(clip.timeline.playheadPosition).to.equal(totalTicks + 1);
+                    } else {
+                        expect(clip.timeline.playheadPosition).to.equal(3);
+                    }
+                },
+                onAfterTick: () => {
+                    totalTicks += 1;
+                    if (totalTicks === 7) {
+                        project.stop();
+                        done();
+                    }                    
+                }
+            });
         });
 
-        it ('should maintain animationType state when copied', function () {
+        it ('should maintain animationType state of clip when copied', function () {
+            let clip1 = new Wick.Clip();
+            let frame2 = new Wick.Frame({start:2});
+            let frame3 = new Wick.Frame({start:3});
+
+            clip1.timeline.addFrame(frame2);
+            clip1.timeline.addFrame(frame3);
+
+            clip1.animationType = 'loop';
+
+            let serialized = clip1.serialize();
+
+            let clip1Copy = new Wick.Clip();
+
+            clip1Copy.deserialize(serialized);
+
+            expect(clip1Copy.animationType).to.equal(clip1.animationType);
+
+            let clip2 = new Wick.Clip();
+            let frame2b = new Wick.Frame({start:2});
+            let frame3b = new Wick.Frame({start:3});
+
+            clip1.timeline.addFrame(frame2b);
+            clip1.timeline.addFrame(frame3b);
+
+            clip1.animationType = 'single';
+            clip2.singleFrameNumber = 2;
+
+            let serialized2 = clip2.serialize();
+
+            let clip2Copy = new Wick.Clip();
+
+            clip2Copy.deserialize(serialized2);
+
+            expect(clip2Copy.animationType).to.equal(clip2.animationType);
+            expect(clip2Copy.singleFrameNumber).to.equal(clip2.singleFrameNumber);
+
+            let clip3 = new Wick.Clip();
+            let frame2c = new Wick.Frame({start:2});
+            let frame3c = new Wick.Frame({start:3});
+
+            clip3.timeline.addFrame(frame2c);
+            clip3.timeline.addFrame(frame3c);
+
+            clip3.animationType = 'playOnce';
+
+            let serialized3 = clip3.serialize();
+
+            let clip3Copy = new Wick.Clip();
+
+            clip3Copy.deserialize(serialized3);
+
+            expect(clip3Copy.animationType).to.equal(clip3.animationType);
+        });
+
+        it ('should display the correct frame when in single frame mode', function () {
+            let clip = new Wick.Clip();
+            let frame2 = new Wick.Frame({start:2});
+            let frame3 = new Wick.Frame({start:3});
+
+            clip.timeline.addFrame(frame2);
+            clip.timeline.addFrame(frame3);
+
+            clip.animationType = 'single';
+
+            expect(clip.animationType).to.equal('single');
+            expect(clip.singleFrameNumber).to.equal(1);
+            expect(clip.timeline.playheadPosition).to.equal(1);
+
+            clip.singleFrameNumber = 2;
+            expect(clip.singleFrameNumber).to.equal(2);
+            expect(clip.timeline.playheadPosition).to.equal(2);
+
+            clip.singleFrameNumber = 3;
+            expect(clip.singleFrameNumber).to.equal(3);
+            expect(clip.timeline.playheadPosition).to.equal(3);
+
+            clip.singleFrameNumber = 1;
+            expect(clip.singleFrameNumber).to.equal(1);
+            expect(clip.timeline.playheadPosition).to.equal(1);
 
         });
 
         it ('should maintain animationType state when loaded from a save file', function () {
-
-        });
-
-        it ('should display the correct frame when in single frame mode', function () {
 
         });
 
