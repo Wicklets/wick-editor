@@ -177,6 +177,14 @@ Wick.Timeline = class extends Wick.Base {
     }
 
     /**
+     * Updates the playhead position of the timeline without any other changes.
+     * @param {number} playheadPosition 
+     */
+    syncPlayhead (playheadPosition) {
+        this._playheadPosition = playheadPosition;
+    }
+
+    /**
      * Finds the frame with a given name.
      * @type {Wick.Frame|null}
      */
