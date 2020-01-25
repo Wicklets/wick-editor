@@ -1508,6 +1508,73 @@ describe('Wick.Clip', function() {
         });
     });
 
+    describe('#animationType', function () {
+        it('should have the correct animation type', function () {
+            let clip = new Wick.Clip();
+
+            expect(clip.animationType).to.equal('loop');
+
+            clip.animationType = 'single';
+            expect(clip.animationType).to.equal('single');
+
+            clip.animationType = 'playOnce';
+            expect(clip.animationType).to.equal('playOnce');
+
+            clip.animationType = 'randomAnimationTypeThatIsNotReal';
+            expect(clip.animationType).to.equal('loop');
+        });
+
+        it('should have the correct singleFrame number', function () {
+            let clip = new Wick.Clip();
+            expect(clip.animationType).to.equal('loop');
+            expect(clip.singleFrameNumber).to.equal(null);
+
+            clip.animationType = 'single';
+            expect(clip.animationType).to.equal('single');
+            expect(clip.singleFrameNumber).to.equal(1);
+
+            clip.singleFrameNumber = 2; // This clip does not have 2 frames, this is illegal
+            expect(clip.singleFrameNumber).to.equal(1);
+
+            clip.singleFrameNumber = -1; // Cannot set a clip to show a frame that can't exist. i.e. below 1.
+            expect(clip.singleFrameNumber).to.equal(1);
+
+            let frame = new Wick.Frame({start: 2});
+            clip.timeline.addFrame(frame);
+
+            clip.singleFrameNumber = 2;
+            expect(clip.singleFrameNumber).to.equal(2);
+        });
+
+        it ('should animate correctly as a looped clip', function () {
+
+        });
+
+        it ('should animate correctly as a single frame clip', function () {
+
+        });
+
+        it ('should animate correctly as a playOnce clip', function () {
+
+        });
+
+        it ('should maintain animationType state when copied', function () {
+
+        });
+
+        it ('should maintain animationType state when loaded from a save file', function () {
+
+        });
+
+        it ('should display the correct frame when in single frame mode', function () {
+
+        });
+
+        it ('should display the correct frame when in single frame mode and loaded from a save file', function () {
+
+        });
+    });
+
     describe('#isRoot', function() {
         it('isRoot should work', function () {
             var project = new Wick.Project();

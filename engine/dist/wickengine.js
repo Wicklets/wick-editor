@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.1.24";
+var WICK_ENGINE_BUILD_VERSION = "2020.1.25";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -54122,7 +54122,7 @@ Wick.Clip = class extends Wick.Tickable {
   set singleFrameNumber(frame) {
     // Constrain to be within the length of the clip.
     if (frame < 1) {
-      frame = 0;
+      frame = 1;
     } else if (frame > this.timeline.length) {
       frame = this.timeline.length;
     }

@@ -183,7 +183,7 @@ Wick.Clip = class extends Wick.Tickable {
     set singleFrameNumber (frame) {
         // Constrain to be within the length of the clip.
         if (frame < 1) {
-            frame = 0;
+            frame = 1;
         } else if (frame > this.timeline.length) {
             frame = this.timeline.length;
         }
