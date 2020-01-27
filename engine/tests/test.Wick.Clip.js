@@ -1546,7 +1546,7 @@ describe('Wick.Clip', function() {
             expect(clip.singleFrameNumber).to.equal(2);
         });
 
-        it ('should animate correctly as a looped clip', function () {
+        it ('should animate correctly as a looped clip', function (done) {
             let project = new Wick.Project();
 
             let clip = new Wick.Clip();
@@ -1559,24 +1559,24 @@ describe('Wick.Clip', function() {
             clip.animationType = 'loop';
 
             project.activeFrame.addClip(clip);
+            project.framerate = 60; // speed up test time.
 
             let totalTicks = 0;
 
             project.play({
-                onBeforeTick: () => {
-                    expect(clip.timeline.playheadPosition).to.equal(totalTicks % 3 + 1);
-                },
                 onAfterTick: () => {
+                    expect(clip.timeline.playheadPosition).to.equal(totalTicks % 3 + 1);
                     totalTicks += 1;
+
                     if (totalTicks === 7) {
                         project.stop();
                         done();
-                    }                    
+                    }
                 }
-            });
+            }); 
         });
 
-        it ('should animate correctly as a single frame clip', function () {
+        it ('should animate correctly as a single frame clip', function (done) {
             let project = new Wick.Project();
 
             let clip = new Wick.Clip();
@@ -1589,24 +1589,24 @@ describe('Wick.Clip', function() {
             clip.animationType = 'single';
             clip.singleFrameNumber = 2;
             project.activeFrame.addClip(clip);
+            project.framerate = 60; // speed up test time.
 
             let totalTicks = 0;
 
             project.play({
-                onBeforeTick: () => {
-                    expect(clip.timeline.playheadPosition).to.equal(2);
-                },
                 onAfterTick: () => {
+                    expect(clip.timeline.playheadPosition).to.equal(2);
                     totalTicks += 1;
+
                     if (totalTicks === 7) {
                         project.stop();
                         done();
-                    }                    
+                    }
                 }
-            });
+            }); 
         });
 
-        it ('should animate correctly as a playOnce clip', function () {
+        it ('should animate correctly as a playOnce clip', function (done) {
             let project = new Wick.Project();
 
             let clip = new Wick.Clip();
@@ -1619,19 +1619,20 @@ describe('Wick.Clip', function() {
             clip.animationType = 'playOnce';
 
             project.activeFrame.addClip(clip);
+            project.framerate = 60; // speed up test time.
 
-            let totalTicks = 0;
+            let totalTicks = 1;
 
             project.play({
-                onBeforeTick: () => {
-                    if (totalTicks < 3) {
-                        expect(clip.timeline.playheadPosition).to.equal(totalTicks + 1);
+                onAfterTick: () => {
+                    if (totalTicks <= 3) {
+                        expect(clip.timeline.playheadPosition).to.equal(totalTicks);
                     } else {
                         expect(clip.timeline.playheadPosition).to.equal(3);
                     }
-                },
-                onAfterTick: () => {
+
                     totalTicks += 1;
+
                     if (totalTicks === 7) {
                         project.stop();
                         done();
@@ -1640,7 +1641,7 @@ describe('Wick.Clip', function() {
             });
         });
 
-        it ('should maintain animationType state of clip when copied', function () {
+        it ('should maintain animationType state of clip when serialized', function () {
             let clip1 = new Wick.Clip();
             let frame2 = new Wick.Frame({start:2});
             let frame3 = new Wick.Frame({start:3});
@@ -1720,15 +1721,64 @@ describe('Wick.Clip', function() {
             clip.singleFrameNumber = 1;
             expect(clip.singleFrameNumber).to.equal(1);
             expect(clip.timeline.playheadPosition).to.equal(1);
-
         });
 
-        it ('should maintain animationType state when loaded from a save file', function () {
+        it ('should maintain animationType state when loaded from a save file', function (done) {
+            Wick.ObjectCache.clear();
 
-        });
+            var project = new Wick.Project();
 
-        it ('should display the correct frame when in single frame mode and loaded from a save file', function () {
+            let clipA = new Wick.Clip();
+            let frame2 = new Wick.Frame({start:2});
+            let frame3 = new Wick.Frame({start:3});
 
+            clipA.timeline.addFrame(frame2);
+            clipA.timeline.addFrame(frame3);
+
+            let clipB = new Wick.Clip();
+            let frame2b = new Wick.Frame({start:2});
+            let frame3b = new Wick.Frame({start:3});
+
+            clipB.timeline.addFrame(frame2b);
+            clipB.timeline.addFrame(frame3b);
+
+            clipB.animationType = 'single';
+            clipB.singleFrameNumber = 2;
+
+            let clipC = new Wick.Clip();
+            let frame2c = new Wick.Frame({start:2});
+            let frame3c = new Wick.Frame({start:3});
+
+            clipC.timeline.addFrame(frame2c);
+            clipC.timeline.addFrame(frame3c);
+
+            clipC.animationType = 'playOnce';
+
+            project.activeFrame.addClip(clipA);
+            project.activeFrame.addClip(clipB);
+            project.activeFrame.addClip(clipC);
+
+            Wick.WickFile.toWickFile(project, wickFile => {
+                Wick.ObjectCache.clear();
+                //saveAs(wickFile, 'wickproject.zip')
+                Wick.WickFile.fromWickFile(wickFile, loadedProject => {
+                    expect(loadedProject instanceof Wick.Project).to.equal(true);
+                    expect(loadedProject.selection.parent).to.equal(loadedProject);
+                    expect(loadedProject.selection.project).to.equal(loadedProject);
+                    expect(loadedProject.root.parent).to.equal(loadedProject);
+                    expect(loadedProject.root.project).to.equal(loadedProject);
+                    expect(loadedProject.activeFrame.clips.length).to.equal(3);
+                    let loadedClipA = loadedProject.activeFrame.clips[0];
+                    let loadedClipB = loadedProject.activeFrame.clips[1];
+                    let loadedClipC = loadedProject.activeFrame.clips[2];
+                    expect(loadedClipA.animationType).to.equal("loop");
+                    expect(loadedClipB.animationType).to.equal("single");
+                    expect(loadedClipC.animationType).to.equal("playOnce");
+                    expect(loadedClipB.singleFrameNumber).to.equal(2);
+                    expect(loadedClipB.timeline.playheadPosition).to.equal(2);
+                    done();
+                });
+            });
         });
     });
 

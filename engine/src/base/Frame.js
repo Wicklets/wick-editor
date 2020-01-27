@@ -501,6 +501,15 @@ Wick.Frame = class extends Wick.Tickable {
     }
 
     /**
+     * Applies single frame positions to timelines if necessary.
+     */
+    applyClipSingleFramePositions () {
+        this.clips.forEach(clip => {
+            clip.applySingleFramePosition();
+        })
+    }
+
+    /**
      * The asset of the sound attached to this frame, if one exists
      * @returns {Wick.Asset[]}
      */

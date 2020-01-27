@@ -14,7 +14,7 @@
         <!-- The Wick Engine build is injected here during the engine build step (see gulpfile.js) -->
         <script>
             /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.1.25";
+var WICK_ENGINE_BUILD_VERSION = "2020.1.27";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -50673,7 +50673,7 @@ Wick.Timeline = class extends Wick.Base {
 
   set playheadPosition(playheadPosition) {
     // Automatically clear selection when any playhead in the project moves
-    if (this.project && this._playheadPosition !== playheadPosition) {
+    if (this.project && this._playheadPosition !== playheadPosition && this.isFocus) {
       this.project.selection.clear('Canvas');
     }
 
@@ -50686,6 +50686,7 @@ Wick.Timeline = class extends Wick.Base {
 
     this.activeFrames.forEach(frame => {
       frame.applyTweenTransforms();
+      frame.applyClipSingleFramePositions();
     });
   }
   /**
@@ -50780,15 +50781,6 @@ Wick.Timeline = class extends Wick.Base {
       clips = clips.concat(frame.clips);
     });
     return clips;
-  }
-  /**
-   * Updates the playhead position of the timeline without any other changes.
-   * @param {number} playheadPosition 
-   */
-
-
-  syncPlayhead(playheadPosition) {
-    this._playheadPosition = playheadPosition;
   }
   /**
    * Finds the frame with a given name.
@@ -53770,6 +53762,16 @@ Wick.Frame = class extends Wick.Tickable {
     }
   }
   /**
+   * Applies single frame positions to timelines if necessary.
+   */
+
+
+  applyClipSingleFramePositions() {
+    this.clips.forEach(clip => {
+      clip.applySingleFramePosition();
+    });
+  }
+  /**
    * The asset of the sound attached to this frame, if one exists
    * @returns {Wick.Asset[]}
    */
@@ -54114,9 +54116,9 @@ Wick.Clip = class extends Wick.Tickable {
       this._animationType = animationType;
 
       if (animationType === 'single') {
-        this.timeline.syncPlayhead(this.singleFrameNumber);
+        this.timeline.playheadPosition = this.singleFrameNumber;
       } else {
-        this.timeline.syncPlayhead(1); // Reset timeline position if we are not on single frame.
+        this.timeline.playheadPosition = 1; // Reset timeline position if we are not on single frame.
       }
     }
   }
@@ -54142,9 +54144,8 @@ Wick.Clip = class extends Wick.Tickable {
       frame = this.timeline.length;
     }
 
-    this._singleFrameNumber = frame; // Ensure that the single frame we've chosen is reflected no matter what.
-
-    this.timeline.syncPlayhead(frame);
+    this._singleFrameNumber = frame;
+    this.applySingleFramePosition();
   }
   /**
    * Returns true if the clip has been played through fully once.
@@ -54215,6 +54216,18 @@ Wick.Clip = class extends Wick.Tickable {
     return this.namedChildren.filter(child => {
       return child.onScreen;
     });
+  }
+  /**
+   * Updates the frame's single frame positions if necessary. Only works if the
+   * clip's animationType is 'single'.
+   */
+
+
+  applySingleFramePosition() {
+    if (this.animationType === 'single') {
+      // Ensure that the single frame we've chosen is reflected no matter what.
+      this.timeline.playheadPosition = this.singleFrameNumber;
+    }
   }
   /**
    * Remove this clip from its parent frame.

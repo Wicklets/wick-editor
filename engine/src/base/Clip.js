@@ -161,9 +161,9 @@ Wick.Clip = class extends Wick.Tickable {
             this._animationType = animationType;
 
             if (animationType === 'single') {
-                this.timeline.syncPlayhead(this.singleFrameNumber);
+                this.timeline.playheadPosition = this.singleFrameNumber;
             } else {
-                this.timeline.syncPlayhead(1); // Reset timeline position if we are not on single frame.
+                this.timeline.playheadPosition = 1; // Reset timeline position if we are not on single frame.
             }
         }
     }
@@ -189,8 +189,7 @@ Wick.Clip = class extends Wick.Tickable {
         }
 
         this._singleFrameNumber = frame;
-        // Ensure that the single frame we've chosen is reflected no matter what.
-        this.timeline.syncPlayhead(frame);
+        this.applySingleFramePosition();
     }
 
     /**
@@ -258,6 +257,17 @@ Wick.Clip = class extends Wick.Tickable {
         return this.namedChildren.filter(child => {
             return child.onScreen;
         });
+    }
+
+    /**
+     * Updates the frame's single frame positions if necessary. Only works if the
+     * clip's animationType is 'single'.
+     */
+    applySingleFramePosition () {
+        if (this.animationType === 'single') {
+            // Ensure that the single frame we've chosen is reflected no matter what.
+            this.timeline.playheadPosition = this.singleFrameNumber;
+        }
     }
 
     /**

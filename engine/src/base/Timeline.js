@@ -77,7 +77,7 @@ Wick.Timeline = class extends Wick.Base {
 
     set playheadPosition (playheadPosition) {
         // Automatically clear selection when any playhead in the project moves
-        if(this.project && this._playheadPosition !== playheadPosition) {
+        if(this.project && this._playheadPosition !== playheadPosition && this.isFocus) {
             this.project.selection.clear('Canvas');
         }
 
@@ -89,6 +89,7 @@ Wick.Timeline = class extends Wick.Base {
         // Automatically apply tween transforms on child frames when playhead moves
         this.activeFrames.forEach(frame => {
             frame.applyTweenTransforms();
+            frame.applyClipSingleFramePositions();
         });
     }
 
@@ -174,14 +175,6 @@ Wick.Timeline = class extends Wick.Base {
             clips = clips.concat(frame.clips);
         });
         return clips;
-    }
-
-    /**
-     * Updates the playhead position of the timeline without any other changes.
-     * @param {number} playheadPosition 
-     */
-    syncPlayhead (playheadPosition) {
-        this._playheadPosition = playheadPosition;
     }
 
     /**
