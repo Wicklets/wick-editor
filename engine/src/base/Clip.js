@@ -65,7 +65,6 @@ Wick.Clip = class extends Wick.Tickable {
 
     }
 
-
     _serialize (args) {
         var data = super._serialize(args);
 

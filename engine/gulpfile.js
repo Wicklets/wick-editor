@@ -14,7 +14,10 @@ gulp.task("default", function() {
   var year = date.getFullYear();
   var month = date.getMonth() + 1;
   var day = date.getDate();
-  var buildString = year + '.' + month + '.' + day;
+  var hour = date.getHours();
+  var minute = date.getMinutes();
+  var second = date.getSeconds();
+  var buildString = year + '.' + month + '.' + day + '.' + hour + '.' + minute + '.' + second;
 
   /* Libraries */
   var libs = gulp

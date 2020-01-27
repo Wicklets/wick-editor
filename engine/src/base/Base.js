@@ -73,6 +73,11 @@ Wick.Base = class {
 
         var object = new Wick[data.classname]({uuid: data.uuid});
         object.deserialize(data);
+
+        if (data.classname === 'Project') {
+            object.initialize();
+        }
+
         return object;
     }
 
