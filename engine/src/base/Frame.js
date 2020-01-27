@@ -548,12 +548,13 @@ Wick.Frame = class extends Wick.Tickable {
      */
     insertBlankFrame () {
         var playheadPosition = this.parentTimeline.playheadPosition;
+        var originalEnd = this.end;
 
         // Cut this frame
         this.cut();
 
         // Add a blank frame where this frame was cut
-        var blankFrame = new Wick.Frame({start: playheadPosition});
+        var blankFrame = new Wick.Frame({start: playheadPosition, end: originalEnd});
         this.parentLayer.addFrame(blankFrame);
         return blankFrame;
     }

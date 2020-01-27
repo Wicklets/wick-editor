@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.1.24";
+var WICK_ENGINE_BUILD_VERSION = "2020.1.27";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -53746,12 +53746,14 @@ Wick.Frame = class extends Wick.Tickable {
 
 
   insertBlankFrame() {
-    var playheadPosition = this.parentTimeline.playheadPosition; // Cut this frame
+    var playheadPosition = this.parentTimeline.playheadPosition;
+    var originalEnd = this.end; // Cut this frame
 
     this.cut(); // Add a blank frame where this frame was cut
 
     var blankFrame = new Wick.Frame({
-      start: playheadPosition
+      start: playheadPosition,
+      end: originalEnd
     });
     this.parentLayer.addFrame(blankFrame);
     return blankFrame;
