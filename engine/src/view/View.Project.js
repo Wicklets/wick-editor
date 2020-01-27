@@ -363,7 +363,7 @@ Wick.View.Project = class extends Wick.View {
         // Render GUI Layer
         this._svgGUILayer.removeChildren();
         this._svgGUILayer.locked = true;
-        if(this.model.showClipBorders && !this.model.playing) {
+        if(this.model.showClipBorders && !this.model.playing && !this.model.publishedMode) {
             this._svgGUILayer.addChildren(this._generateClipBorders());
             this.paper.project.addLayer(this._svgGUILayer);
         }
