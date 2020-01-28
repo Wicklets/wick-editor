@@ -135,6 +135,33 @@ Wick.Layer = class extends Wick.Base {
     }
 
     /**
+     * Adds a frame to the layer. If there is an existing frame where the new frame is
+     * inserted, then the existing frame will be cut, and the new frame will fill the
+     * gap created by that cut.
+     * @param {number} playheadPosition - Where to add the blank frame.
+     */
+    insertBlankFrame (playheadPosition) {
+        if(!playheadPosition) {
+            throw new Error('insertBlankFrame: playheadPosition is required');
+        }
+
+        var frame = new Wick.Frame({start: playheadPosition});
+        this.addChild(frame);
+
+        // If there is is overlap with an existing frame
+        var existingFrame = this.getFrameAtPlayheadPosition(playheadPosition);
+        if (existingFrame) {
+            // Make sure the new frame fills the empty space
+            frame.end = existingFrame.end;
+        }
+
+        this.resolveOverlap([frame]);
+        this.resolveGaps([frame]);
+
+        return frame;
+    }
+
+    /**
      * Removes a frame from the Layer.
      * @param  {Wick.Frame} frame Frame to remove.
      */
@@ -267,7 +294,7 @@ Wick.Layer = class extends Wick.Base {
      */
     findGaps () {
         var gaps = [];
-        
+
         var currentGap = null;
         for(var i = 1; i <= this.length; i++) {
             var frame = this.getFrameAtPlayheadPosition(i);

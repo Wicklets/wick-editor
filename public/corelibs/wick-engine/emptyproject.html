@@ -14,7 +14,7 @@
         <!-- The Wick Engine build is injected here during the engine build step (see gulpfile.js) -->
         <script>
             /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.1.27";
+var WICK_ENGINE_BUILD_VERSION = "2020.1.28";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -47876,6 +47876,35 @@ Wick.Layer = class extends Wick.Base {
     this.resolveGaps([frame]);
   }
   /**
+   * Adds a frame to the layer. If there is an existing frame where the new frame is
+   * inserted, then the existing frame will be cut, and the new frame will fill the
+   * gap created by that cut.
+   * @param {number} playheadPosition - Where to add the blank frame.
+   */
+
+
+  insertBlankFrame(playheadPosition) {
+    if (!playheadPosition) {
+      throw new Error('insertBlankFrame: playheadPosition is required');
+    }
+
+    var frame = new Wick.Frame({
+      start: playheadPosition
+    });
+    this.addChild(frame); // If there is is overlap with an existing frame
+
+    var existingFrame = this.getFrameAtPlayheadPosition(playheadPosition);
+
+    if (existingFrame) {
+      // Make sure the new frame fills the empty space
+      frame.end = existingFrame.end;
+    }
+
+    this.resolveOverlap([frame]);
+    this.resolveGaps([frame]);
+    return frame;
+  }
+  /**
    * Removes a frame from the Layer.
    * @param  {Wick.Frame} frame Frame to remove.
    */
@@ -48751,33 +48780,35 @@ Wick.Project = class extends Wick.Base {
     });
   }
   /**
-   * Insert a blank frame at the current playhead position, and selects the newly added frames.
+   * Inserts a blank frame into the timeline at the position of the playhead.
+   * If the playhead is over an existing frame, that frame will be cut in half,
+   * and a blank frame will be added to fill the empty space created by the cut.
    */
 
 
   insertBlankFrame() {
-    var addedFrames = [];
+    var playheadPosition = this.activeTimeline.playheadPosition;
+    var newFrames = []; // Insert new frames
 
     if (this.selection.numObjects > 0) {
-      // Are there frames selected? insert blank frames inside of them
+      // Insert frames on all frames that are both active and selected
+
+      /*this.activeTimeline.activeFrames.filter(frame => {
+          return frame.isSelected;
+      }).forEach(frame => {
+          newFrames.push(frame.parentLayer.insertBlankFrame(playheadPosition));
+      });*/
       this.selection.getSelectedObjects('Frame').forEach(frame => {
-        addedFrames.push(frame.insertBlankFrame());
+        newFrames.push(frame.parentLayer.insertBlankFrame(playheadPosition));
       });
-    } else if (this.activeFrame) {
-      // Otherwise, just add a frame at the playhead position + active layer
-      addedFrames.push(this.activeFrame.insertBlankFrame());
     } else {
-      // Or, if there was no active frame, create a new frame
-      var newFrame = new Wick.Frame({
-        start: this.activeTimeline.playheadPosition
-      });
-      this.activeLayer.addFrame(newFrame);
-      addedFrames.push(newFrame);
+      // Insert one frame on the active layer
+      newFrames.push(this.activeLayer.insertBlankFrame(playheadPosition));
     } // Select the newly added frames
 
 
     this.selection.clear();
-    addedFrames.forEach(frame => {
+    newFrames.forEach(frame => {
       this.selection.select(frame);
     });
   }
@@ -53753,25 +53784,6 @@ Wick.Frame = class extends Wick.Tickable {
     this.end = playheadPosition - 1; // Add right frame
 
     this.parentLayer.addFrame(rightHalf);
-  }
-  /**
-   * Insert a blank frame into this frame using the parent timeline's playhead position.
-   * @returns {Wick.Frame} the newly added blank frame.
-   */
-
-
-  insertBlankFrame() {
-    var playheadPosition = this.parentTimeline.playheadPosition;
-    var originalEnd = this.end; // Cut this frame
-
-    this.cut(); // Add a blank frame where this frame was cut
-
-    var blankFrame = new Wick.Frame({
-      start: playheadPosition,
-      end: originalEnd
-    });
-    this.parentLayer.addFrame(blankFrame);
-    return blankFrame;
   }
   /**
    * Extend this frame by one and push all frames right of this frame to the right.

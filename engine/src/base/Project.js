@@ -681,29 +681,33 @@ Wick.Project = class extends Wick.Base {
     }
 
     /**
-     * Insert a blank frame at the current playhead position, and selects the newly added frames.
+     * Inserts a blank frame into the timeline at the position of the playhead.
+     * If the playhead is over an existing frame, that frame will be cut in half,
+     * and a blank frame will be added to fill the empty space created by the cut.
      */
     insertBlankFrame () {
-        var addedFrames = [];
+        var playheadPosition = this.activeTimeline.playheadPosition;
+        var newFrames = [];
 
+        // Insert new frames
         if(this.selection.numObjects > 0) {
-            // Are there frames selected? insert blank frames inside of them
+            // Insert frames on all frames that are both active and selected
+            /*this.activeTimeline.activeFrames.filter(frame => {
+                return frame.isSelected;
+            }).forEach(frame => {
+                newFrames.push(frame.parentLayer.insertBlankFrame(playheadPosition));
+            });*/
             this.selection.getSelectedObjects('Frame').forEach(frame => {
-                addedFrames.push(frame.insertBlankFrame());
+                newFrames.push(frame.parentLayer.insertBlankFrame(playheadPosition));
             });
-        } else if (this.activeFrame) {
-            // Otherwise, just add a frame at the playhead position + active layer
-            addedFrames.push(this.activeFrame.insertBlankFrame());
         } else {
-            // Or, if there was no active frame, create a new frame
-            var newFrame = new Wick.Frame({start: this.activeTimeline.playheadPosition});
-            this.activeLayer.addFrame(newFrame);
-            addedFrames.push(newFrame);
+            // Insert one frame on the active layer
+            newFrames.push(this.activeLayer.insertBlankFrame(playheadPosition));
         }
 
         // Select the newly added frames
         this.selection.clear();
-        addedFrames.forEach(frame => {
+        newFrames.forEach(frame => {
             this.selection.select(frame);
         });
     }

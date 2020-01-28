@@ -733,46 +733,6 @@ describe('Wick.Frame', function() {
         });
     });
 
-    describe('#insertBlankFrame', function () {
-        it('should insert a blank frame', function () {
-            var project = new Wick.Project();
-            project.activeFrame.remove();
-
-            var frameToCut = new Wick.Frame({start: 1, end: 10, identifier: 'frameToCut'});
-            project.activeLayer.addFrame(frameToCut);
-            frameToCut.addClip(new Wick.Clip({identifier: 'childShouldBeCopied'}));
-
-            project.activeTimeline.playheadPosition = 6;
-            frameToCut.insertBlankFrame();
-
-            expect(project.activeLayer.frames.length).to.equal(3);
-            expect(project.activeLayer.getFrameAtPlayheadPosition(1)).to.equal(frameToCut);
-            expect(project.activeLayer.getFrameAtPlayheadPosition(1).identifier).to.equal('frameToCut');
-            expect(project.activeLayer.getFrameAtPlayheadPosition(1).length).to.equal(5);
-            expect(project.activeLayer.getFrameAtPlayheadPosition(6).identifier).to.equal(null);
-            expect(project.activeLayer.getFrameAtPlayheadPosition(7).identifier).to.equal(null);
-            expect(project.activeLayer.getFrameAtPlayheadPosition(7).length).to.equal(4);
-        });
-
-        it('should add blank frame but not cut frame if the parent playhead is not in range', function () {
-            var project = new Wick.Project();
-            project.activeFrame.remove();
-
-            var frameToCut = new Wick.Frame({start: 1, end: 10, identifier: 'frameToCut'});
-            project.activeLayer.addFrame(frameToCut);
-            frameToCut.addClip(new Wick.Clip({identifier: 'childShouldBeCopied'}));
-
-            project.activeTimeline.playheadPosition = 11;
-            frameToCut.insertBlankFrame();
-
-            expect(project.activeLayer.frames.length).to.equal(2);
-            expect(project.activeLayer.getFrameAtPlayheadPosition(1)).to.equal(frameToCut);
-            expect(project.activeLayer.getFrameAtPlayheadPosition(1).identifier).to.equal('frameToCut');
-            expect(project.activeLayer.getFrameAtPlayheadPosition(11)).to.not.equal(frameToCut);
-            expect(project.activeLayer.getFrameAtPlayheadPosition(11).length).to.equal(1);
-        });
-    });
-
     describe('#extendAndPushOtherFrames', function () {
         it('should extend a frame and push other frames', function () {
             var project = new Wick.Project();

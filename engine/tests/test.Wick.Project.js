@@ -1659,8 +1659,77 @@ describe('Wick.Project', function() {
     });
 
     describe('#insertBlankFrame', function () {
-        it('should insert blank frames correctly', function () {
-            // TODO
+        it('should insert a blank frame', function () {
+            var project = new Wick.Project();
+            project.activeFrame.remove();
+
+            var frameToCut = new Wick.Frame({start: 1, end: 10, identifier: 'frameToCut'});
+            project.activeLayer.addFrame(frameToCut);
+            frameToCut.addClip(new Wick.Clip({identifier: 'childShouldBeCopied'}));
+
+            project.activeTimeline.playheadPosition = 6;
+            project.insertBlankFrame();
+
+            expect(project.activeLayer.frames.length).to.equal(2);
+            expect(project.activeLayer.getFrameAtPlayheadPosition(1)).to.equal(frameToCut);
+            expect(project.activeLayer.getFrameAtPlayheadPosition(1).identifier).to.equal('frameToCut');
+            expect(project.activeLayer.getFrameAtPlayheadPosition(1).length).to.equal(5);
+            expect(project.activeLayer.getFrameAtPlayheadPosition(6).identifier).to.equal(null);
+            expect(project.activeLayer.getFrameAtPlayheadPosition(7).length).to.equal(5);
+        });
+
+        it('should add blank frame but not cut frame if the parent playhead is not in range', function () {
+            var project = new Wick.Project();
+            project.activeFrame.remove();
+
+            var frameToCut = new Wick.Frame({start: 1, end: 10, identifier: 'frameToCut'});
+            project.activeLayer.addFrame(frameToCut);
+            frameToCut.addClip(new Wick.Clip({identifier: 'childShouldBeCopied'}));
+
+            project.activeTimeline.playheadPosition = 11;
+            project.insertBlankFrame();
+
+            expect(project.activeLayer.frames.length).to.equal(2);
+            expect(project.activeLayer.getFrameAtPlayheadPosition(1)).to.equal(frameToCut);
+            expect(project.activeLayer.getFrameAtPlayheadPosition(1).identifier).to.equal('frameToCut');
+            expect(project.activeLayer.getFrameAtPlayheadPosition(11)).to.not.equal(frameToCut);
+            expect(project.activeLayer.getFrameAtPlayheadPosition(11).length).to.equal(1);
+        });
+
+        it('should insert blank frames to all layers with selected frames', function () {
+            var project = new Wick.Project();
+            project.activeFrame.remove();
+            project.activeTimeline.addLayer(new Wick.Layer());
+            project.activeTimeline.addLayer(new Wick.Layer());
+            project.activeTimeline.addLayer(new Wick.Layer());
+
+            var frame0 = new Wick.Frame({start:1, end:10});
+            var frame1 = new Wick.Frame({start:1, end:10});
+            var frame2 = new Wick.Frame({start:1, end:5});
+            var frame3 = new Wick.Frame({start:1, end:10});
+            project.activeTimeline.layers[0].addFrame(frame0);
+            project.activeTimeline.layers[1].addFrame(frame1);
+            project.activeTimeline.layers[2].addFrame(frame2);
+            project.activeTimeline.layers[3].addFrame(frame3);
+
+            project.selection.select(frame0);
+            project.selection.select(frame1);
+            project.selection.select(frame2);
+
+            project.activeTimeline.playheadPosition = 7;
+            project.insertBlankFrame();
+
+            expect(project.activeTimeline.layers[0].frames.length).to.equal(2);
+            expect(project.activeTimeline.layers[0].getFrameAtPlayheadPosition(1).length).to.equal(6);
+            expect(project.activeTimeline.layers[0].getFrameAtPlayheadPosition(7).length).to.equal(4);
+            expect(project.activeTimeline.layers[1].frames.length).to.equal(2);
+            expect(project.activeTimeline.layers[1].getFrameAtPlayheadPosition(1).length).to.equal(6);
+            expect(project.activeTimeline.layers[1].getFrameAtPlayheadPosition(7).length).to.equal(4);
+            expect(project.activeTimeline.layers[2].frames.length).to.equal(2);
+            expect(project.activeTimeline.layers[2].getFrameAtPlayheadPosition(1).length).to.equal(6);
+            expect(project.activeTimeline.layers[2].getFrameAtPlayheadPosition(7).length).to.equal(1);
+            expect(project.activeTimeline.layers[3].frames.length).to.equal(1);
+            expect(project.activeTimeline.layers[3].getFrameAtPlayheadPosition(1).length).to.equal(10);
         });
     });
 });
