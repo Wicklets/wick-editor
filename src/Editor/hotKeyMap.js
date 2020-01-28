@@ -310,6 +310,14 @@ class HotKeyInterface extends Object {
       'toggle-clip-borders': {
         name: "Toggle Clip Borders",
         sequences : ['9'],
+      }, 
+      'shrink-active-frames': {
+        name: "Shrink Active Frames",
+        sequences : ['shift+5'],
+      }, 
+      'extend-active-frames': {
+        name: "Extend Active Frames",
+        sequences : ['shift+4'],
       }
     }
 
@@ -398,6 +406,8 @@ class HotKeyInterface extends Object {
         "shrink-frame",
         "extend-and-push-other-frames",
         "shrink-and-pull-other-frames",
+        "extend-active-frames",
+        "shrink-active-frames",
         "move-frame-right",
         "move-frame-left",
         "create-tween",
@@ -480,6 +490,8 @@ class HotKeyInterface extends Object {
       'toggle-onion-skinning': this.editor.toggleOnionSkin,
       'toggle-clip-borders': this.editor.toggleClipBorders,
       'finish-repeating': this.finishRepeating,
+      'shrink-active-frames': this.editor.shrinkActiveFramesAndPullOtherFrames,
+      'extend-active-frames': this.editor.extendActiveFramesAndPushOtherFrames,
     }
 
     // Wrap each handler for some custom functionality (see wrapHotkeyFunction)
