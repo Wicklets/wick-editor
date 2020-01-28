@@ -113,7 +113,8 @@ Wick.Project = class extends Wick.Base {
     }
 
     /**
-     * Used to initialize the state of elements within the project. Should only be called after deserialization of project and all objects within the project. 
+     * Used to initialize the state of elements within the project. Should only be called after 
+     * deserialization of project and all objects within the project. 
      */
     initialize () {
         // Fixing all clip positions... This should be done in an internal method when the project is done loading...

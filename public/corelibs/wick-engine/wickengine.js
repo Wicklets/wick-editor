@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.1.28.14.47.11";
+var WICK_ENGINE_BUILD_VERSION = "2020.1.28.16.33.4";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -46417,7 +46417,7 @@ Wick.AutoSave = class {
   static generateProjectFromAutosaveData(autosaveData, callback) {
     // Deserialize all objects in the project so they are added to the ObjectCache
     autosaveData.objectsData.forEach(objectData => {
-      var object = Wick.Base.fromData(objectData);
+      var object = Wick.Base.fromData(objectData); // Is this being used? 
     }); // Deserialize the project itself
 
     var project = Wick.Base.fromData(autosaveData.projectData); // Load source files for assets from localforage
@@ -48134,7 +48134,8 @@ Wick.Project = class extends Wick.Base {
     this.history.pushState(Wick.History.StateType.ONLY_VISIBLE_OBJECTS);
   }
   /**
-   * Used to initialize the state of elements within the project. Should only be called after deserialization of project and all objects within the project. 
+   * Used to initialize the state of elements within the project. Should only be called after 
+   * deserialization of project and all objects within the project. 
    */
 
 
@@ -54173,10 +54174,7 @@ Wick.Clip = class extends Wick.Tickable {
 
 
   get syncFrame() {
-    console.log(this.parentClip);
-    console.log(this.parentFrame);
     let timelineOffset = this.parentClip.timeline.playheadPosition - this.parentFrame.start;
-    console.log('timeline', this.timeline.length);
     return timelineOffset % this.timeline.length + 1;
   }
   /**
@@ -54267,8 +54265,6 @@ Wick.Clip = class extends Wick.Tickable {
 
 
   applySyncPosition() {
-    console.log(this.syncFrame);
-
     if (this.animationType === 'sync') {
       this.timeline.playheadPosition = this.syncFrame;
     }
@@ -54642,7 +54638,7 @@ Wick.Clip = class extends Wick.Tickable {
     if (this.animationType === 'loop') {
       this.timeline.advance();
     } else if (this.animationType === 'single') {
-      this.gotoAndStop(this.singleFrameNumber);
+      this.timeline.playheadPosition = this.singleFrameNumber;
     } else if (this.animationType === 'playOnce') {
       if (!this.playedOnce) {
         if (this.timeline.playheadPosition === this.timeline.length) {
@@ -54652,7 +54648,7 @@ Wick.Clip = class extends Wick.Tickable {
         }
       }
     } else if (this.animationType === 'sync') {
-      this.gotoAndStop(this.syncFrame);
+      this.timeline.playheadPosition = this.syncFrame;
     }
 
     this._tickChildren();

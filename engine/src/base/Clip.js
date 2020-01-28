@@ -632,7 +632,7 @@ Wick.Clip = class extends Wick.Tickable {
         if (this.animationType === 'loop') {
             this.timeline.advance();
         } else if (this.animationType === 'single') {
-            this.gotoAndStop(this.singleFrameNumber);
+            this.timeline.playheadPosition = this.singleFrameNumber;
         } else if (this.animationType === 'playOnce') {
             if (!this.playedOnce) {
                 if (this.timeline.playheadPosition === this.timeline.length) {
@@ -642,7 +642,7 @@ Wick.Clip = class extends Wick.Tickable {
                 }
             }
         } else if (this.animationType === 'sync') {
-            this.gotoAndStop(this.syncFrame);
+            this.timeline.playheadPosition = this.syncFrame;
         }
 
         this._tickChildren();
