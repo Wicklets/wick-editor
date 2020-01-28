@@ -89,7 +89,7 @@ Wick.Timeline = class extends Wick.Base {
         // Automatically apply tween transforms on child frames when playhead moves
         this.activeFrames.forEach(frame => {
             frame.applyTweenTransforms();
-            frame.applyClipSingleFramePositions();
+            frame.updateClipTimelinesForAnimationType();
         });
     }
 

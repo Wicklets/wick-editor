@@ -506,6 +506,15 @@ Wick.Frame = class extends Wick.Tickable {
     applyClipSingleFramePositions () {
         this.clips.forEach(clip => {
             clip.applySingleFramePosition();
+        });
+    }
+
+    /**
+     * Update all clip timelines for their animation type.
+     */
+    updateClipTimelinesForAnimationType () {
+        this.clips.forEach(clip => {
+            clip.updateTimelineForAnimationType(); 
         })
     }
 
