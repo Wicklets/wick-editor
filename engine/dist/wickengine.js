@@ -58837,13 +58837,10 @@ Wick.View.Project = class extends Wick.View {
 
 
     this.model.focus.timeline.view.render();
-    this.model.focus.timeline.view.onionSkinnedFramesLayers.forEach(layer => {
-      this.paper.project.addLayer(layer);
-    });
-    this.model.focus.timeline.view.activeFrameLayers.forEach(layer => {
+    this.model.focus.timeline.view.frameLayers.forEach(layer => {
       this.paper.project.addLayer(layer);
 
-      if (this.model.project && this.model.project.activeFrame && layer.data.wickType === 'paths' && layer.data.wickUUID === this.model.project.activeFrame.uuid) {
+      if (this.model.project && this.model.project.activeFrame && !layer.locked && layer.data.wickType === 'paths' && layer.data.wickUUID === this.model.project.activeFrame.uuid) {
         layer.activate();
       }
     }); // Render selection
@@ -59247,10 +59244,7 @@ Wick.View.Clip = class extends Wick.View {
     this.group.data.wickUUID = this.model.uuid; // Add frame views from timeline
 
     this.group.removeChildren();
-    this.model.timeline.view.activeFrameLayers.forEach(layer => {
-      this.group.addChild(layer);
-    });
-    this.model.timeline.view.onionSkinnedFramesLayers.forEach(layer => {
+    this.model.timeline.view.frameLayers.forEach(layer => {
       this.group.addChild(layer);
     }); // Update transformations
 
@@ -59340,26 +59334,20 @@ Wick.View.Button = class extends Wick.View.Clip {};
 Wick.View.Timeline = class extends Wick.View {
   constructor(wickTimeline) {
     super();
-    this.activeFrameLayers = [];
-    this.onionSkinnedFramesLayers = [];
+    this.frameLayers = [];
     this.activeFrameContainers = [];
   }
 
   render() {
-    this.activeFrameLayers = [];
-    this.onionSkinnedFramesLayers = [];
-
-    this._getLayersInOrder().forEach(layer => {
-      layer.view.render();
-      this.activeFrameLayers = this.activeFrameLayers.concat(layer.view.activeFrameLayers);
-      this.onionSkinnedFramesLayers = this.onionSkinnedFramesLayers.concat(layer.view.onionSkinnedFramesLayers);
-    });
-  }
-
-  _getLayersInOrder() {
-    return this.model.layers.filter(layer => {
+    this.frameLayers = [];
+    var layersInRenderOrder = this.model.layers.filter(layer => {
       return layer.project.publishedMode || !layer.hidden;
     }).reverse();
+    layersInRenderOrder.forEach(layer => {
+      layer.view.render();
+      this.frameLayers = this.frameLayers.concat(layer.view.onionSkinnedFramesLayers);
+      this.frameLayers = this.frameLayers.concat(layer.view.activeFrameLayers);
+    });
   }
 
 };

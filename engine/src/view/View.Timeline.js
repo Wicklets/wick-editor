@@ -21,26 +21,22 @@ Wick.View.Timeline = class extends Wick.View {
     constructor (wickTimeline) {
         super();
 
-        this.activeFrameLayers = [];
-        this.onionSkinnedFramesLayers = [];
+        this.frameLayers = [];
 
         this.activeFrameContainers = [];
     }
 
     render () {
-        this.activeFrameLayers = [];
-        this.onionSkinnedFramesLayers = [];
+        this.frameLayers = [];
 
-        this._getLayersInOrder().forEach(layer => {
-            layer.view.render();
-            this.activeFrameLayers = this.activeFrameLayers.concat(layer.view.activeFrameLayers);
-            this.onionSkinnedFramesLayers = this.onionSkinnedFramesLayers.concat(layer.view.onionSkinnedFramesLayers);
-        });
-    }
-
-    _getLayersInOrder () {
-        return this.model.layers.filter(layer => {
+        var layersInRenderOrder = this.model.layers.filter(layer => {
             return layer.project.publishedMode || !layer.hidden;
         }).reverse();
+
+        layersInRenderOrder.forEach(layer => {
+            layer.view.render();
+            this.frameLayers = this.frameLayers.concat(layer.view.onionSkinnedFramesLayers);
+            this.frameLayers = this.frameLayers.concat(layer.view.activeFrameLayers);
+        });
     }
 }

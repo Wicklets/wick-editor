@@ -65,10 +65,7 @@ Wick.View.Clip = class extends Wick.View {
 
         // Add frame views from timeline
         this.group.removeChildren();
-        this.model.timeline.view.activeFrameLayers.forEach(layer => {
-            this.group.addChild(layer);
-        });
-        this.model.timeline.view.onionSkinnedFramesLayers.forEach(layer => {
+        this.model.timeline.view.frameLayers.forEach(layer => {
             this.group.addChild(layer);
         });
 
