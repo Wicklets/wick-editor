@@ -63,7 +63,8 @@
     "electron": "electron .",
     "electron-dev-macos": "ELECTRON_START_URL=http://localhost:3000 electron .",
     "electron-dev-windows": "set ELECTRON_START_URL=http://localhost:3000 && electron .",
-    "engine-tests": "cd engine; python -m SimpleHTTPServer 9999"
+    "engine-tests": "cd engine; python -m SimpleHTTPServer 9999",
+    "dist": "electron-builder"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -76,6 +77,14 @@
   ],
   "devDependencies": {
     "electron": "^6.0.10",
-    "electron-packager": "^14.0.6"
+    "electron-packager": "^14.0.6",
+    "electron-builder": "^22.3.2"
+  },
+  "build": {
+    "appId": "wickeditor.app",
+    "productName": "Wick Editor",
+    "mac": {
+      "category": "public.app-category.education"
+    }
   }
 }

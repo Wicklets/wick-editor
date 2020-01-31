@@ -1,0 +1,14 @@
+directories:
+  output: dist
+  buildResources: assets
+files:
+  - filter:
+      - build/**/*
+extraMetadata:
+  main: build/electron.js
+appId: wickeditor.app
+productName: Wick Editor
+mac:
+  category: public.app-category.education
+extends: react-cra
+electronVersion: 6.0.10
