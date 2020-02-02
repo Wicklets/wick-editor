@@ -22,6 +22,19 @@
  */
 Wick.Clip = class extends Wick.Tickable {
     /**
+     * Returns a list of all possible animation types for this object.
+     * @returns {Object} - An object containing keys that represent the animation type a a key and a human-readable version of the animation type as a value.
+     */
+    static get animationTypes () {
+        return {
+            'loop': 'Loop',
+            'sync': 'Sync',
+            'single': 'Single Frame',
+            'playOnce': 'Play Once',
+        }
+    }
+
+    /**
      * Create a new clip.
      * @param {string} identifier - The identifier of the new clip.
      * @param {Wick.Path|Wick.Clip[]} objects - Optional. A list of objects to add to the clip.
@@ -34,6 +47,9 @@ Wick.Clip = class extends Wick.Tickable {
         this.timeline = new Wick.Timeline();
         this.timeline.addLayer(new Wick.Layer());
         this.timeline.activeLayer.addFrame(new Wick.Frame());
+        this._animationType = 'loop'; // Can be one of loop, oneFrame, single
+        this._singleFrameNumber = 1; // Default to 1, this value is only used if the animation type is single
+        this._playedOnce = false; 
 
         this._transformation = args.transformation || new Wick.Transformation();
 
@@ -47,6 +63,7 @@ Wick.Clip = class extends Wick.Tickable {
         }
 
         this._clones = [];
+
     }
 
     _serialize (args) {
@@ -54,6 +71,8 @@ Wick.Clip = class extends Wick.Tickable {
 
         data.transformation = this.transformation.values;
         data.timeline = this._timeline;
+        data.animationType = this._animationType;
+        data.singleFrameNumber = this._singleFrameNumber;
 
         return data;
     }
@@ -63,6 +82,10 @@ Wick.Clip = class extends Wick.Tickable {
 
         this.transformation = new Wick.Transformation(data.transformation);
         this._timeline = data.timeline;
+        this._animationType = data.animationType || 'loop';
+        this._singleFrameNumber = data.singleFrameNumber || 1;
+        
+        this._playedOnce = false; 
 
         this._clones = [];
     }
@@ -122,6 +145,76 @@ Wick.Clip = class extends Wick.Tickable {
     }
 
     /**
+     * The animation type of the clip. Must be of a type represented within animationTypes;
+     * @type {string}
+     */
+    get animationType () {
+        return this._animationType;
+    }
+
+    set animationType (animationType) {
+        // Default to loop if an invalid animation type is passed in.
+        if (!Wick.Clip.animationTypes[animationType]) {
+            console.error("Animation type:" + animationType + " is invalid for clips! Defaulting to Loop.");
+            this._animationType = 'loop';
+        } else {
+            this._animationType = animationType;
+
+            if (animationType === 'single') {
+                this.applySingleFramePosition();
+            } else if (animationType === 'sync') {
+                this.applySyncPosition();
+            } else {
+                this.timeline.playheadPosition = 1; // Reset timeline position if we are not on single frame.
+            } 
+        }
+    }
+
+    /**
+     * The frame to display when animation type is set to singleFrame.
+     * @type {number}
+     */
+    get singleFrameNumber () {
+        if (this.animationType !== 'single') {
+            return null;
+        } else {
+            return this._singleFrameNumber;
+        }
+    }
+
+    set singleFrameNumber (frame) {
+        // Constrain to be within the length of the clip.
+        if (frame < 1) {
+            frame = 1;
+        } else if (frame > this.timeline.length) {
+            frame = this.timeline.length;
+        }
+
+        this._singleFrameNumber = frame;
+        this.applySingleFramePosition();
+    }
+
+    /**
+     * The frame to display when the clip has an animationType of "sync";
+     */
+    get syncFrame () {
+        let timelineOffset = this.parentClip.timeline.playheadPosition - this.parentFrame.start;
+        return (timelineOffset % this.timeline.length) + 1;
+    }
+
+    /**
+     * Returns true if the clip has been played through fully once.
+     * @type {boolean}
+     */
+    get playedOnce () {
+        return this._playedOnce;
+    }
+
+    set playedOnce (bool) {
+        return this._playedOnce = bool;
+    }
+
+    /**
      * The active layer of the clip's timeline.
      * @type {Wick.Layer}
      */
@@ -174,6 +267,37 @@ Wick.Clip = class extends Wick.Tickable {
         return this.namedChildren.filter(child => {
             return child.onScreen;
         });
+    }
+
+    /**
+     * Updates the frame's single frame positions if necessary. Only works if the
+     * clip's animationType is 'single'.
+     */
+    applySingleFramePosition () {
+        if (this.animationType === 'single') {
+            // Ensure that the single frame we've chosen is reflected no matter what.
+            this.timeline.playheadPosition = this.singleFrameNumber;
+        }
+    }
+
+    /**
+     * Updates the clip's 
+     */
+    applySyncPosition () {
+        if (this.animationType === 'sync') {
+            this.timeline.playheadPosition = this.syncFrame;
+        }
+    }
+
+    /**
+     * Updates the timeline of the clip based on the animation type of the clip.
+     */
+    updateTimelineForAnimationType () {
+        if (this.animationType === 'single') {
+            this.applySingleFramePosition();
+        } else if (this.animationType === 'sync') {
+            this.applySyncPosition();
+        }
     }
 
     /**
@@ -504,7 +628,23 @@ Wick.Clip = class extends Wick.Tickable {
 
     _onActive () {
         super._onActive();
-        this.timeline.advance();
+
+        if (this.animationType === 'loop') {
+            this.timeline.advance();
+        } else if (this.animationType === 'single') {
+            this.timeline.playheadPosition = this.singleFrameNumber;
+        } else if (this.animationType === 'playOnce') {
+            if (!this.playedOnce) {
+                if (this.timeline.playheadPosition === this.timeline.length) {
+                    this.playedOnce = true;
+                } else {
+                    this.timeline.advance();
+                }
+            }
+        } else if (this.animationType === 'sync') {
+            this.timeline.playheadPosition = this.syncFrame;
+        }
+
         this._tickChildren();
     }
 

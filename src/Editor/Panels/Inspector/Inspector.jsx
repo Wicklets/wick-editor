@@ -576,6 +576,26 @@ class Inspector extends Component {
     )
   }
 
+  renderAnimationType = () => {
+    return (
+      <div className="inspector-item">
+        <InspectorSelector
+          tooltip="Animation"
+          type="select"
+          options={this.props.getClipAnimationTypes()}
+          value={this.getSelectionAttribute('animationType')}
+          isSearchable={true}
+          onChange={(val) => {this.setSelectionAttribute('animationType', val.value)}} />
+          {this.getSelectionAttribute('singleFrameNumber') &&
+            <InspectorNumericInput
+            tooltip="Frame Number"
+            val={this.getSelectionAttribute('singleFrameNumber')}
+            onChange={(val) => this.setSelectionAttribute('singleFrameNumber', val)} />
+          } 
+      </div>
+    )
+  }
+
   renderTweenEasingType = () => {
     let options = window.Wick.Tween.VALID_EASING_TYPES;
 
@@ -736,6 +756,17 @@ class Inspector extends Component {
         {this.renderFontContent()}
       </div>
     )
+  }
+
+  /**
+   * Renders the inspector view for clip animation type.
+   */
+  renderAnimationSetting = () => {
+    return (
+      <div className="inspector-content">
+        {this.renderAnimationType()}
+      </div>
+    ); 
   }
 
   /**
@@ -903,6 +934,7 @@ class Inspector extends Component {
           {this.renderDisplay(selectionType)}
           {this.renderActions()}
           {this.props.selectionIsScriptable() && this.renderScripts()}
+          {selectionType === 'clip' && this.renderAnimationSetting()}
         </div>
       </div>
     )

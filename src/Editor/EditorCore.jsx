@@ -138,6 +138,18 @@ class EditorCore extends Component {
   }
 
   /**
+   * Returns all animation types available
+   * @returns {Object[]} - Animation types listed as objects with label and value keys.
+   */
+  getClipAnimationTypes = () => {
+    let outputTypes = [];
+    Object.keys(window.Wick.Clip.animationTypes).forEach(key => {
+      outputTypes.push({label: window.Wick.Clip.animationTypes[key], value: key});
+    });
+    return outputTypes;
+  }
+
+  /**
    * Shrinks the brush/eraser size by a given amount.
    */
   changeBrushSize = (amt) => {
@@ -654,7 +666,6 @@ class EditorCore extends Component {
    * Finish the current nudging operation
    */
   finishNudgingObject = () => {
-    console.log('finishNudgingObject');
     this.projectDidChange();
   }
 
@@ -930,7 +941,6 @@ class EditorCore extends Component {
       this.updateToast(toastID, {
         type: 'success',
         text: "Successfully created .mp4 file." });
-      console.log(sequenceBlobZip);
       saveAs(sequenceBlobZip, this.project.name +'_imageSequence.zip');
     }
 

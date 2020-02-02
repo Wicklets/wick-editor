@@ -113,6 +113,17 @@ Wick.Project = class extends Wick.Base {
         this.history.pushState(Wick.History.StateType.ONLY_VISIBLE_OBJECTS);
     }
 
+    /**
+     * Used to initialize the state of elements within the project. Should only be called after 
+     * deserialization of project and all objects within the project. 
+     */
+    initialize () {
+        // Fixing all clip positions... This should be done in an internal method when the project is done loading...
+        this.activeFrame.clips.forEach(clip => {
+            clip.applySingleFramePosition();
+        });
+    }
+
     _deserialize (data) {
         super._deserialize(data);
 
@@ -446,12 +457,20 @@ Wick.Project = class extends Wick.Base {
 
             // Reset timelines of subclips of the newly focused clip
             focus.timeline.clips.forEach(subclip => {
-                subclip.timeline.playheadPosition = 1;
+                subclip.timeline.playheadPosition =  1;
+                subclip.applySingleFramePosition(); // Make sure to visualize single frame clips properly.
             });
 
             // Reset pan and zoom and clear selection on focus change
             this.recenter();
+        } else {
+            // Make sure the single frame 
+            focus.timeline.clips.forEach(subclip => {
+                subclip.applySingleFramePosition();
+            }); 
         }
+
+
     }
 
     /**
