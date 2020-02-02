@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.1.29";
+var WICK_ENGINE_BUILD_VERSION = "2020.2.2";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -49002,7 +49002,7 @@ Wick.Project = class extends Wick.Base {
       clip.x = x;
       clip.y = y;
       callback(clip);
-    });
+    }, this);
   }
   /**
    * Creates a symbol from the objects currently selected.
@@ -52308,6 +52308,14 @@ Wick.ClipAsset = class extends Wick.FileAsset {
 
 
   createInstance(callback, project) {
+    if (!callback) {
+      console.warn("Cannot create clip instance without callback.");
+    }
+
+    if (!project) {
+      console.warn("Cannot create clip instance without project reference.");
+    }
+
     Wick.WickObjectFile.fromWickObjectFile(this.src, data => {
       var clip = Wick.Base.import(data, project).copy();
       callback(clip);

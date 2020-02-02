@@ -742,9 +742,9 @@ class EditorCore extends Component {
         this.projectDidChange();
       });
     } else if (obj instanceof window.Wick.ClipAsset) {
-      this.project.createClipInstanceFromAsset(window.Wick.ObjectCache.getObjectByUUID(uuid), dropPoint.x, dropPoint.y, clip => {
-        this.projectDidChange();
-      });
+        this.project.createClipInstanceFromAsset(window.Wick.ObjectCache.getObjectByUUID(uuid), dropPoint.x, dropPoint.y, clip => {
+          this.projectDidChange();
+        });
     } else {
       console.error('object is not an ImageAsset or a ClipAsset')
     }

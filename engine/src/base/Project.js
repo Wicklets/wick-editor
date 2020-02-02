@@ -899,7 +899,7 @@ Wick.Project = class extends Wick.Base {
             clip.x = x;
             clip.y = y;
             callback(clip);
-        });
+        }, this);
     }
 
     /**
