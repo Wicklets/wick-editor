@@ -61,6 +61,10 @@ class HotKeyInterface extends Object {
         name: "Activate Cursor",
         sequences: ['c', 'v'],
       },
+      'activate-path-cursor': {
+        name: "Activate Path Cursor",
+        sequences: ['a'],
+      },
       'activate-pencil': {
         name: "Activate Pencil",
         sequences: ['p'],
@@ -355,6 +359,7 @@ class HotKeyInterface extends Object {
         "activate-rectangle",
         "activate-ellipse",
         "activate-line",
+        "activate-path-cursor", 
         "activate-text",
         "activate-fill",
         "activate-eyedropper",
@@ -437,6 +442,7 @@ class HotKeyInterface extends Object {
       'activate-line': (() => this.editor.setActiveTool("line")),
       'activate-text': (() => this.editor.setActiveTool("text")),
       'activate-fill': (() => this.editor.setActiveTool("fillbucket")),
+      'activate-path-cursor': (() => this.editor.setActiveTool("pathcursor")),
       'activate-eyedropper': (() => this.editor.setActiveTool("eyedropper")),
       'deactivate-eyedropper': this.editor.activateLastTool,
       'activate-pan': (() => this.editor.setActiveTool("pan")),
