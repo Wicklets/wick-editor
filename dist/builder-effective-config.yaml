@@ -6,14 +6,23 @@ files:
       - build/**/*
 extraMetadata:
   main: build/electron.js
-appId: wickeditor.app
-productName: Wick Editor
+appId: wicklets.wickeditor.app
+productName: Wick-Editor
+artifactName: '${productName}-Setup-${version}.${ext}'
+copyright: Copyright © 2020 Wicklets
 npmRebuild: false
 mac:
   category: public.app-category.education
+  artifactName: '${productName}.${ext}'
   target:
     - pkg
+  identity: identity
 pkg:
+  installLocation: /Applications
+  allowAnywhere: true
+  allowCurrentUserHome: true
+  allowRootDirectory: true
+  isRelocatable: false
   license: LICENSE.md
 extends: react-cra
 electronVersion: 6.0.10
