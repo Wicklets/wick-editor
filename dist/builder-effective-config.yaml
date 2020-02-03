@@ -8,6 +8,7 @@ extraMetadata:
   main: build/electron.js
 appId: wickeditor.app
 productName: Wick Editor
+npmRebuild: false
 mac:
   category: public.app-category.education
 extends: react-cra

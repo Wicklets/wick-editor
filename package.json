@@ -47,7 +47,7 @@
     "underscore": "^1.9.1",
     "url-parse": "^1.4.7"
   },
-  "main": "src/electron-starter.js",
+  "main": "src/electron.js",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build && cp CNAME_editor ./build/CNAME",
@@ -83,6 +83,7 @@
   "build": {
     "appId": "wickeditor.app",
     "productName": "Wick Editor",
+    "npmRebuild": "false",
     "mac": {
       "category": "public.app-category.education"
     }
