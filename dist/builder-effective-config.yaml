@@ -11,5 +11,9 @@ productName: Wick Editor
 npmRebuild: false
 mac:
   category: public.app-category.education
+  target:
+    - pkg
+pkg:
+  license: LICENSE.md
 extends: react-cra
 electronVersion: 6.0.10
