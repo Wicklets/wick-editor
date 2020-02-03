@@ -82,7 +82,8 @@
   },
   "build": {
     "appId": "wicklets.wickeditor.app",
-    "productName": "Wick-Editor",
+    "productName": "Wick Editor",
+    "icon": "public/icon.icns",
     "artifactName": "${productName}-Setup-${version}.${ext}",
     "copyright": "Copyright © 2020 Wicklets",
     "npmRebuild": "false",
