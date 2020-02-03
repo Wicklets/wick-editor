@@ -52,9 +52,7 @@
     "start": "react-scripts start",
     "build": "react-scripts build && cp CNAME_editor ./build/CNAME",
     "build-engine": "cd engine; mkdir dist/; gulp; cp -a dist/. ../public/corelibs/wick-engine/",
-    "build-electron-macos": "electron-packager . 'Wick Editor' --ignore=node_modules --icon=public/icon.icns--platform=darwin --out build-electron --overwrite",
-    "build-electron-windows": "electron-packager . wickwindows --ignore=node_modules --icon=public/icon.ico --platform=win32 --out build-electron --overwrite",
-    "build-electron-installer-macos": "electron-builder",
+    "build-desktop": "electron-builder",
     "build-ios": "cp -r build/* build-ios/WebViewExample/local_html",
     "test": "react-scripts test",
     "predeploy": "npm run build",
@@ -83,17 +81,21 @@
   "build": {
     "appId": "wicklets.wickeditor.app",
     "productName": "Wick Editor",
-    "icon": "public/icon.icns",
     "artifactName": "${productName}-Setup-${version}.${ext}",
     "copyright": "Copyright © 2020 Wicklets",
     "npmRebuild": "false",
+    "win": {
+      "target": "nsis",
+      "icon": "public/icon.ico"
+    },
     "mac": {
       "category": "public.app-category.education",
       "artifactName": "${productName}.${ext}",
       "target":[
         "pkg"
       ],
-      "identity": "identity"
+      "identity": "identity",
+      "icon": "public/icon.icns"
     },
     "pkg": {
       "installLocation": "/Applications",

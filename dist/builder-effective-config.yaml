@@ -8,16 +8,19 @@ extraMetadata:
   main: build/electron.js
 appId: wicklets.wickeditor.app
 productName: Wick Editor
-icon: public/icon.icns
 artifactName: '${productName}-Setup-${version}.${ext}'
 copyright: Copyright © 2020 Wicklets
 npmRebuild: false
+win:
+  target: nsis
+  icon: public/icon.ico
 mac:
   category: public.app-category.education
   artifactName: '${productName}.${ext}'
   target:
     - pkg
   identity: identity
+  icon: public/icon.icns
 pkg:
   installLocation: /Applications
   allowAnywhere: true
