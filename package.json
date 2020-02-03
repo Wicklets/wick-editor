@@ -47,13 +47,14 @@
     "underscore": "^1.9.1",
     "url-parse": "^1.4.7"
   },
-  "main": "src/electron.js",
+  "main": "public/electron.js",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build && cp CNAME_editor ./build/CNAME",
     "build-engine": "cd engine; mkdir dist/; gulp; cp -a dist/. ../public/corelibs/wick-engine/",
     "build-electron-macos": "electron-packager . 'Wick Editor' --ignore=node_modules --icon=public/icon.icns--platform=darwin --out build-electron --overwrite",
     "build-electron-windows": "electron-packager . wickwindows --ignore=node_modules --icon=public/icon.ico --platform=win32 --out build-electron --overwrite",
+    "build-electron-installer-macos": "electron-builder",
     "build-ios": "cp -r build/* build-ios/WebViewExample/local_html",
     "test": "react-scripts test",
     "predeploy": "npm run build",
@@ -63,8 +64,7 @@
     "electron": "electron .",
     "electron-dev-macos": "ELECTRON_START_URL=http://localhost:3000 electron .",
     "electron-dev-windows": "set ELECTRON_START_URL=http://localhost:3000 && electron .",
-    "engine-tests": "cd engine; python -m SimpleHTTPServer 9999",
-    "dist": "electron-builder"
+    "engine-tests": "cd engine; python -m SimpleHTTPServer 9999"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -85,7 +85,7 @@
     "productName": "Wick Editor",
     "npmRebuild": "false",
     "mac": {
-      "category": "public.app-category.education"
+      "category": "public.app-category.education",
     }
   }
 }
