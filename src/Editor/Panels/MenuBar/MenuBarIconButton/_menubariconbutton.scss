@@ -19,47 +19,14 @@
 
 @import 'Editor/_wickbrand.scss';
 
-.menu-bar {
+.menu-bar-icon-button {
   height: 100%;
-  width: 100%;
-  background-color: $editor-primary;
-  overflow: visible;
-  border: $editor-outline-padding solid $editor-primary-outline;
-  display: flex;
-  box-sizing: border-box;
-  align-items: center;
-}
-
-.menu-bar-project-name {
-  transition: .4s;
-  font-size: 18px;
-  font-family: 'Nunito Sans';
-  float: left;
-  margin: 4px;
-  color: $editor-menubar-project-text;
-  cursor: pointer;
-}
-
-.menu-bar-project-name:hover {
-  color: $editor-menubar-option-text;
-}
-
-.menu-bar-actions-container {
+  padding: 2px; 
   display: flex;
   align-items: center;
-  font-size: 14px;
-  font-family: 'Nunito Sans';
-  float: right;
-  position:absolute;
-  right: 0;
-  height: calc(100% - 2 * #{$editor-outline-padding});
+  justify-content: center;
 }
 
-.project-settings-preview {
-  height: 70%;
-  padding-left: 8px;
-  padding-right: 16px;
-  display: flex;
-  align-items: center;
-  cursor: pointer;
+.menu-bar-icon-button:last-child {
+  margin-right: 6px; 
 }
