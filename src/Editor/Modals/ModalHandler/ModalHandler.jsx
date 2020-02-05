@@ -29,6 +29,7 @@ import ExportMedia from '../ExportMedia/ExportMedia';
 import SettingsModal from '../SettingsModal/SettingsModal';
 import BuiltinLibrary from '../BuiltinLibrary/BuiltinLibrary';
 import EditorInfo from '../EditorInfo/EditorInfo';
+import OpenSourceNotices from '../OpenSourceNotices/OpenSourceNotices';
 
 class ModalHandler extends Component {
   render() {
@@ -116,6 +117,11 @@ class ModalHandler extends Component {
           toggle={this.props.closeActiveModal}
           open={this.props.activeModalName === 'EditorInfo'} 
         />
+        <OpenSourceNotices
+          openModal={this.props.openModal}
+          toggle={this.props.closeActiveModal}
+          open={this.props.activeModalName === 'OpenSourceNotices'}
+          />
       </div>
     );
   }

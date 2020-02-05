@@ -25,8 +25,6 @@ import ActionButton from 'Editor/Util/ActionButton/ActionButton';
 import './_editorinfo.scss';
 import ToolIcon from '../../Util/ToolIcon/ToolIcon';
 
-var classNames = require('classnames');
-
 class WelcomeModal extends Component {
     render () {
         return (
@@ -40,15 +38,15 @@ class WelcomeModal extends Component {
                         <ToolIcon name="mascot"/>
                     </div>
                     <div className="editor-info-version">Wick Editor Version 1.0.0</div>
-                    <div className="editor-info-link"><a href="www.wickeditor.com/#/terms-and-conditions">Terms and Conditions</a></div>
-                    <div className="editor-info-link"><a href="www.wickeditor.com/#/privacy-policy">Privacy Policy</a></div>
-                    <div className="editor-info-link"><a href="www.wickeditor.com/#/cookie-policy">Cookie Policy</a></div>
-                    <div className="editor-info-link"><a href="forum.wickeditor.com">Community Forum</a></div>
+                    <div className="editor-info-link"><a href="https://www.wickeditor.com/#/terms-and-conditions">Terms and Conditions</a></div>
+                    <div className="editor-info-link"><a href="https://www.wickeditor.com/#/privacy-policy">Privacy Policy</a></div>
+                    <div className="editor-info-link"><a href="https://www.wickeditor.com/#/cookie-policy">Cookie Policy</a></div>
+                    <div className="editor-info-link"><a href="https://forum.wickeditor.com">Community Forum</a></div>
                     <div className="editor-info-open-source-notices">
                         <ActionButton
                             color="menu"
                             text="Open Source Notices"
-                            action={() => {this.props.openModal("openSourceNoticesModal")}} />
+                            action={() => {this.props.openModal("OpenSourceNotices")}} />
                     </div>
                 </div> 
             </WickModal>
