@@ -37,7 +37,7 @@ class MenuBar extends Component {
           id="tool-information-button"
           tooltip="Editor Information"
           action={() => this.props.openModal('EditorInfo')}
-          icon="mascotMark"
+          icon="mascotmark"
           />
         <div className="menu-bar-project-name" onClick={() => this.props.openModal('ProjectSettings')}>
           {this.props.projectName}
