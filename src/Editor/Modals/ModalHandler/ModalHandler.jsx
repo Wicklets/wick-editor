@@ -59,6 +59,7 @@ class ModalHandler extends Component {
           openModal={this.props.openModal}
           toggle={this.props.closeActiveModal}
           open={this.props.activeModalName === 'WelcomeMessage'}
+          editorVersion={this.props.editorVersion}
         />
         <ExportOptions
           openModal={this.props.openModal}
@@ -116,6 +117,7 @@ class ModalHandler extends Component {
           openModal={this.props.openModal}
           toggle={this.props.closeActiveModal}
           open={this.props.activeModalName === 'EditorInfo'} 
+          editorVersion={this.props.editorVersion}
         />
         <OpenSourceNotices
           openModal={this.props.openModal}

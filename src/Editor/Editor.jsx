@@ -65,6 +65,7 @@ class Editor extends EditorCore {
     // "Live" editor states
     this.project = null;
     this.paper = null;
+    this.editorVersion = "1.17";
 
     // GUI state
     this.state = {
@@ -92,7 +93,7 @@ class Editor extends EditorCore {
       renderStatusMessage: "",
       customHotKeys: {},
       colorPickerType: "swatches",
-      lastColorsUsed: ["#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF"]
+      lastColorsUsed: ["#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF"],
     };
 
     // Catch all errors that happen in the editor.
@@ -800,6 +801,7 @@ class Editor extends EditorCore {
                     changeColorPickerType={this.changeColorPickerType}
                     updateLastColors={this.updateLastColors}
                     lastColorsUsed={this.state.lastColorsUsed}
+                    editorVersion={this.editorVersion}
                   />
                   {/* Header */}
                   <DockedPanel showOverlay={this.state.previewPlaying}>
