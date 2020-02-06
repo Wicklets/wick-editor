@@ -14,7 +14,7 @@
         <!-- The Wick Engine build is injected here during the engine build step (see gulpfile.js) -->
         <script>
             /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2019.12.12";
+var WICK_ENGINE_BUILD_VERSION = "2020.1.28";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -40954,6 +40954,13 @@ module.exports = ZStream;
 //https://github.com/mattdesl/lerp/blob/master/index.js
 var lerp = function (v0, v1, t) { return v0*(1-t)+v1*t; };
 /*!
+    localForage -- Offline Storage, Improved
+    Version 1.7.3
+    https://localforage.github.io/localForage
+    (c) 2013-2017 Mozilla, Apache License 2.0
+*/
+!function(a){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=a();else if("function"==typeof define&&define.amd)define([],a);else{var b;b="undefined"!=typeof window?window:"undefined"!=typeof global?global:"undefined"!=typeof self?self:this,b.localforage=a()}}(function(){return function a(b,c,d){function e(g,h){if(!c[g]){if(!b[g]){var i="function"==typeof require&&require;if(!h&&i)return i(g,!0);if(f)return f(g,!0);var j=new Error("Cannot find module '"+g+"'");throw j.code="MODULE_NOT_FOUND",j}var k=c[g]={exports:{}};b[g][0].call(k.exports,function(a){var c=b[g][1][a];return e(c||a)},k,k.exports,a,b,c,d)}return c[g].exports}for(var f="function"==typeof require&&require,g=0;g<d.length;g++)e(d[g]);return e}({1:[function(a,b,c){(function(a){"use strict";function c(){k=!0;for(var a,b,c=l.length;c;){for(b=l,l=[],a=-1;++a<c;)b[a]();c=l.length}k=!1}function d(a){1!==l.push(a)||k||e()}var e,f=a.MutationObserver||a.WebKitMutationObserver;if(f){var g=0,h=new f(c),i=a.document.createTextNode("");h.observe(i,{characterData:!0}),e=function(){i.data=g=++g%2}}else if(a.setImmediate||void 0===a.MessageChannel)e="document"in a&&"onreadystatechange"in a.document.createElement("script")?function(){var b=a.document.createElement("script");b.onreadystatechange=function(){c(),b.onreadystatechange=null,b.parentNode.removeChild(b),b=null},a.document.documentElement.appendChild(b)}:function(){setTimeout(c,0)};else{var j=new a.MessageChannel;j.port1.onmessage=c,e=function(){j.port2.postMessage(0)}}var k,l=[];b.exports=d}).call(this,"undefined"!=typeof global?global:"undefined"!=typeof self?self:"undefined"!=typeof window?window:{})},{}],2:[function(a,b,c){"use strict";function d(){}function e(a){if("function"!=typeof a)throw new TypeError("resolver must be a function");this.state=s,this.queue=[],this.outcome=void 0,a!==d&&i(this,a)}function f(a,b,c){this.promise=a,"function"==typeof b&&(this.onFulfilled=b,this.callFulfilled=this.otherCallFulfilled),"function"==typeof c&&(this.onRejected=c,this.callRejected=this.otherCallRejected)}function g(a,b,c){o(function(){var d;try{d=b(c)}catch(b){return p.reject(a,b)}d===a?p.reject(a,new TypeError("Cannot resolve promise with itself")):p.resolve(a,d)})}function h(a){var b=a&&a.then;if(a&&("object"==typeof a||"function"==typeof a)&&"function"==typeof b)return function(){b.apply(a,arguments)}}function i(a,b){function c(b){f||(f=!0,p.reject(a,b))}function d(b){f||(f=!0,p.resolve(a,b))}function e(){b(d,c)}var f=!1,g=j(e);"error"===g.status&&c(g.value)}function j(a,b){var c={};try{c.value=a(b),c.status="success"}catch(a){c.status="error",c.value=a}return c}function k(a){return a instanceof this?a:p.resolve(new this(d),a)}function l(a){var b=new this(d);return p.reject(b,a)}function m(a){function b(a,b){function d(a){g[b]=a,++h!==e||f||(f=!0,p.resolve(j,g))}c.resolve(a).then(d,function(a){f||(f=!0,p.reject(j,a))})}var c=this;if("[object Array]"!==Object.prototype.toString.call(a))return this.reject(new TypeError("must be an array"));var e=a.length,f=!1;if(!e)return this.resolve([]);for(var g=new Array(e),h=0,i=-1,j=new this(d);++i<e;)b(a[i],i);return j}function n(a){function b(a){c.resolve(a).then(function(a){f||(f=!0,p.resolve(h,a))},function(a){f||(f=!0,p.reject(h,a))})}var c=this;if("[object Array]"!==Object.prototype.toString.call(a))return this.reject(new TypeError("must be an array"));var e=a.length,f=!1;if(!e)return this.resolve([]);for(var g=-1,h=new this(d);++g<e;)b(a[g]);return h}var o=a(1),p={},q=["REJECTED"],r=["FULFILLED"],s=["PENDING"];b.exports=e,e.prototype.catch=function(a){return this.then(null,a)},e.prototype.then=function(a,b){if("function"!=typeof a&&this.state===r||"function"!=typeof b&&this.state===q)return this;var c=new this.constructor(d);if(this.state!==s){g(c,this.state===r?a:b,this.outcome)}else this.queue.push(new f(c,a,b));return c},f.prototype.callFulfilled=function(a){p.resolve(this.promise,a)},f.prototype.otherCallFulfilled=function(a){g(this.promise,this.onFulfilled,a)},f.prototype.callRejected=function(a){p.reject(this.promise,a)},f.prototype.otherCallRejected=function(a){g(this.promise,this.onRejected,a)},p.resolve=function(a,b){var c=j(h,b);if("error"===c.status)return p.reject(a,c.value);var d=c.value;if(d)i(a,d);else{a.state=r,a.outcome=b;for(var e=-1,f=a.queue.length;++e<f;)a.queue[e].callFulfilled(b)}return a},p.reject=function(a,b){a.state=q,a.outcome=b;for(var c=-1,d=a.queue.length;++c<d;)a.queue[c].callRejected(b);return a},e.resolve=k,e.reject=l,e.all=m,e.race=n},{1:1}],3:[function(a,b,c){(function(b){"use strict";"function"!=typeof b.Promise&&(b.Promise=a(2))}).call(this,"undefined"!=typeof global?global:"undefined"!=typeof self?self:"undefined"!=typeof window?window:{})},{2:2}],4:[function(a,b,c){"use strict";function d(a,b){if(!(a instanceof b))throw new TypeError("Cannot call a class as a function")}function e(){try{if("undefined"!=typeof indexedDB)return indexedDB;if("undefined"!=typeof webkitIndexedDB)return webkitIndexedDB;if("undefined"!=typeof mozIndexedDB)return mozIndexedDB;if("undefined"!=typeof OIndexedDB)return OIndexedDB;if("undefined"!=typeof msIndexedDB)return msIndexedDB}catch(a){return}}function f(){try{if(!ua)return!1;var a="undefined"!=typeof openDatabase&&/(Safari|iPhone|iPad|iPod)/.test(navigator.userAgent)&&!/Chrome/.test(navigator.userAgent)&&!/BlackBerry/.test(navigator.platform),b="function"==typeof fetch&&-1!==fetch.toString().indexOf("[native code");return(!a||b)&&"undefined"!=typeof indexedDB&&"undefined"!=typeof IDBKeyRange}catch(a){return!1}}function g(a,b){a=a||[],b=b||{};try{return new Blob(a,b)}catch(f){if("TypeError"!==f.name)throw f;for(var c="undefined"!=typeof BlobBuilder?BlobBuilder:"undefined"!=typeof MSBlobBuilder?MSBlobBuilder:"undefined"!=typeof MozBlobBuilder?MozBlobBuilder:WebKitBlobBuilder,d=new c,e=0;e<a.length;e+=1)d.append(a[e]);return d.getBlob(b.type)}}function h(a,b){b&&a.then(function(a){b(null,a)},function(a){b(a)})}function i(a,b,c){"function"==typeof b&&a.then(b),"function"==typeof c&&a.catch(c)}function j(a){return"string"!=typeof a&&(console.warn(a+" used as a key, but it is not a string."),a=String(a)),a}function k(){if(arguments.length&&"function"==typeof arguments[arguments.length-1])return arguments[arguments.length-1]}function l(a){for(var b=a.length,c=new ArrayBuffer(b),d=new Uint8Array(c),e=0;e<b;e++)d[e]=a.charCodeAt(e);return c}function m(a){return new va(function(b){var c=a.transaction(wa,Ba),d=g([""]);c.objectStore(wa).put(d,"key"),c.onabort=function(a){a.preventDefault(),a.stopPropagation(),b(!1)},c.oncomplete=function(){var a=navigator.userAgent.match(/Chrome\/(\d+)/),c=navigator.userAgent.match(/Edge\//);b(c||!a||parseInt(a[1],10)>=43)}}).catch(function(){return!1})}function n(a){return"boolean"==typeof xa?va.resolve(xa):m(a).then(function(a){return xa=a})}function o(a){var b=ya[a.name],c={};c.promise=new va(function(a,b){c.resolve=a,c.reject=b}),b.deferredOperations.push(c),b.dbReady?b.dbReady=b.dbReady.then(function(){return c.promise}):b.dbReady=c.promise}function p(a){var b=ya[a.name],c=b.deferredOperations.pop();if(c)return c.resolve(),c.promise}function q(a,b){var c=ya[a.name],d=c.deferredOperations.pop();if(d)return d.reject(b),d.promise}function r(a,b){return new va(function(c,d){if(ya[a.name]=ya[a.name]||B(),a.db){if(!b)return c(a.db);o(a),a.db.close()}var e=[a.name];b&&e.push(a.version);var f=ua.open.apply(ua,e);b&&(f.onupgradeneeded=function(b){var c=f.result;try{c.createObjectStore(a.storeName),b.oldVersion<=1&&c.createObjectStore(wa)}catch(c){if("ConstraintError"!==c.name)throw c;console.warn('The database "'+a.name+'" has been upgraded from version '+b.oldVersion+" to version "+b.newVersion+', but the storage "'+a.storeName+'" already exists.')}}),f.onerror=function(a){a.preventDefault(),d(f.error)},f.onsuccess=function(){c(f.result),p(a)}})}function s(a){return r(a,!1)}function t(a){return r(a,!0)}function u(a,b){if(!a.db)return!0;var c=!a.db.objectStoreNames.contains(a.storeName),d=a.version<a.db.version,e=a.version>a.db.version;if(d&&(a.version!==b&&console.warn('The database "'+a.name+"\" can't be downgraded from version "+a.db.version+" to version "+a.version+"."),a.version=a.db.version),e||c){if(c){var f=a.db.version+1;f>a.version&&(a.version=f)}return!0}return!1}function v(a){return new va(function(b,c){var d=new FileReader;d.onerror=c,d.onloadend=function(c){var d=btoa(c.target.result||"");b({__local_forage_encoded_blob:!0,data:d,type:a.type})},d.readAsBinaryString(a)})}function w(a){return g([l(atob(a.data))],{type:a.type})}function x(a){return a&&a.__local_forage_encoded_blob}function y(a){var b=this,c=b._initReady().then(function(){var a=ya[b._dbInfo.name];if(a&&a.dbReady)return a.dbReady});return i(c,a,a),c}function z(a){o(a);for(var b=ya[a.name],c=b.forages,d=0;d<c.length;d++){var e=c[d];e._dbInfo.db&&(e._dbInfo.db.close(),e._dbInfo.db=null)}return a.db=null,s(a).then(function(b){return a.db=b,u(a)?t(a):b}).then(function(d){a.db=b.db=d;for(var e=0;e<c.length;e++)c[e]._dbInfo.db=d}).catch(function(b){throw q(a,b),b})}function A(a,b,c,d){void 0===d&&(d=1);try{var e=a.db.transaction(a.storeName,b);c(null,e)}catch(e){if(d>0&&(!a.db||"InvalidStateError"===e.name||"NotFoundError"===e.name))return va.resolve().then(function(){if(!a.db||"NotFoundError"===e.name&&!a.db.objectStoreNames.contains(a.storeName)&&a.version<=a.db.version)return a.db&&(a.version=a.db.version+1),t(a)}).then(function(){return z(a).then(function(){A(a,b,c,d-1)})}).catch(c);c(e)}}function B(){return{forages:[],db:null,dbReady:null,deferredOperations:[]}}function C(a){function b(){return va.resolve()}var c=this,d={db:null};if(a)for(var e in a)d[e]=a[e];var f=ya[d.name];f||(f=B(),ya[d.name]=f),f.forages.push(c),c._initReady||(c._initReady=c.ready,c.ready=y);for(var g=[],h=0;h<f.forages.length;h++){var i=f.forages[h];i!==c&&g.push(i._initReady().catch(b))}var j=f.forages.slice(0);return va.all(g).then(function(){return d.db=f.db,s(d)}).then(function(a){return d.db=a,u(d,c._defaultConfig.version)?t(d):a}).then(function(a){d.db=f.db=a,c._dbInfo=d;for(var b=0;b<j.length;b++){var e=j[b];e!==c&&(e._dbInfo.db=d.db,e._dbInfo.version=d.version)}})}function D(a,b){var c=this;a=j(a);var d=new va(function(b,d){c.ready().then(function(){A(c._dbInfo,Aa,function(e,f){if(e)return d(e);try{var g=f.objectStore(c._dbInfo.storeName),h=g.get(a);h.onsuccess=function(){var a=h.result;void 0===a&&(a=null),x(a)&&(a=w(a)),b(a)},h.onerror=function(){d(h.error)}}catch(a){d(a)}})}).catch(d)});return h(d,b),d}function E(a,b){var c=this,d=new va(function(b,d){c.ready().then(function(){A(c._dbInfo,Aa,function(e,f){if(e)return d(e);try{var g=f.objectStore(c._dbInfo.storeName),h=g.openCursor(),i=1;h.onsuccess=function(){var c=h.result;if(c){var d=c.value;x(d)&&(d=w(d));var e=a(d,c.key,i++);void 0!==e?b(e):c.continue()}else b()},h.onerror=function(){d(h.error)}}catch(a){d(a)}})}).catch(d)});return h(d,b),d}function F(a,b,c){var d=this;a=j(a);var e=new va(function(c,e){var f;d.ready().then(function(){return f=d._dbInfo,"[object Blob]"===za.call(b)?n(f.db).then(function(a){return a?b:v(b)}):b}).then(function(b){A(d._dbInfo,Ba,function(f,g){if(f)return e(f);try{var h=g.objectStore(d._dbInfo.storeName);null===b&&(b=void 0);var i=h.put(b,a);g.oncomplete=function(){void 0===b&&(b=null),c(b)},g.onabort=g.onerror=function(){var a=i.error?i.error:i.transaction.error;e(a)}}catch(a){e(a)}})}).catch(e)});return h(e,c),e}function G(a,b){var c=this;a=j(a);var d=new va(function(b,d){c.ready().then(function(){A(c._dbInfo,Ba,function(e,f){if(e)return d(e);try{var g=f.objectStore(c._dbInfo.storeName),h=g.delete(a);f.oncomplete=function(){b()},f.onerror=function(){d(h.error)},f.onabort=function(){var a=h.error?h.error:h.transaction.error;d(a)}}catch(a){d(a)}})}).catch(d)});return h(d,b),d}function H(a){var b=this,c=new va(function(a,c){b.ready().then(function(){A(b._dbInfo,Ba,function(d,e){if(d)return c(d);try{var f=e.objectStore(b._dbInfo.storeName),g=f.clear();e.oncomplete=function(){a()},e.onabort=e.onerror=function(){var a=g.error?g.error:g.transaction.error;c(a)}}catch(a){c(a)}})}).catch(c)});return h(c,a),c}function I(a){var b=this,c=new va(function(a,c){b.ready().then(function(){A(b._dbInfo,Aa,function(d,e){if(d)return c(d);try{var f=e.objectStore(b._dbInfo.storeName),g=f.count();g.onsuccess=function(){a(g.result)},g.onerror=function(){c(g.error)}}catch(a){c(a)}})}).catch(c)});return h(c,a),c}function J(a,b){var c=this,d=new va(function(b,d){if(a<0)return void b(null);c.ready().then(function(){A(c._dbInfo,Aa,function(e,f){if(e)return d(e);try{var g=f.objectStore(c._dbInfo.storeName),h=!1,i=g.openCursor();i.onsuccess=function(){var c=i.result;if(!c)return void b(null);0===a?b(c.key):h?b(c.key):(h=!0,c.advance(a))},i.onerror=function(){d(i.error)}}catch(a){d(a)}})}).catch(d)});return h(d,b),d}function K(a){var b=this,c=new va(function(a,c){b.ready().then(function(){A(b._dbInfo,Aa,function(d,e){if(d)return c(d);try{var f=e.objectStore(b._dbInfo.storeName),g=f.openCursor(),h=[];g.onsuccess=function(){var b=g.result;if(!b)return void a(h);h.push(b.key),b.continue()},g.onerror=function(){c(g.error)}}catch(a){c(a)}})}).catch(c)});return h(c,a),c}function L(a,b){b=k.apply(this,arguments);var c=this.config();a="function"!=typeof a&&a||{},a.name||(a.name=a.name||c.name,a.storeName=a.storeName||c.storeName);var d,e=this;if(a.name){var f=a.name===c.name&&e._dbInfo.db,g=f?va.resolve(e._dbInfo.db):s(a).then(function(b){var c=ya[a.name],d=c.forages;c.db=b;for(var e=0;e<d.length;e++)d[e]._dbInfo.db=b;return b});d=a.storeName?g.then(function(b){if(b.objectStoreNames.contains(a.storeName)){var c=b.version+1;o(a);var d=ya[a.name],e=d.forages;b.close();for(var f=0;f<e.length;f++){var g=e[f];g._dbInfo.db=null,g._dbInfo.version=c}return new va(function(b,d){var e=ua.open(a.name,c);e.onerror=function(a){e.result.close(),d(a)},e.onupgradeneeded=function(){e.result.deleteObjectStore(a.storeName)},e.onsuccess=function(){var a=e.result;a.close(),b(a)}}).then(function(a){d.db=a;for(var b=0;b<e.length;b++){var c=e[b];c._dbInfo.db=a,p(c._dbInfo)}}).catch(function(b){throw(q(a,b)||va.resolve()).catch(function(){}),b})}}):g.then(function(b){o(a);var c=ya[a.name],d=c.forages;b.close();for(var e=0;e<d.length;e++){d[e]._dbInfo.db=null}return new va(function(b,c){var d=ua.deleteDatabase(a.name);d.onerror=d.onblocked=function(a){var b=d.result;b&&b.close(),c(a)},d.onsuccess=function(){var a=d.result;a&&a.close(),b(a)}}).then(function(a){c.db=a;for(var b=0;b<d.length;b++)p(d[b]._dbInfo)}).catch(function(b){throw(q(a,b)||va.resolve()).catch(function(){}),b})})}else d=va.reject("Invalid arguments");return h(d,b),d}function M(){return"function"==typeof openDatabase}function N(a){var b,c,d,e,f,g=.75*a.length,h=a.length,i=0;"="===a[a.length-1]&&(g--,"="===a[a.length-2]&&g--);var j=new ArrayBuffer(g),k=new Uint8Array(j);for(b=0;b<h;b+=4)c=Da.indexOf(a[b]),d=Da.indexOf(a[b+1]),e=Da.indexOf(a[b+2]),f=Da.indexOf(a[b+3]),k[i++]=c<<2|d>>4,k[i++]=(15&d)<<4|e>>2,k[i++]=(3&e)<<6|63&f;return j}function O(a){var b,c=new Uint8Array(a),d="";for(b=0;b<c.length;b+=3)d+=Da[c[b]>>2],d+=Da[(3&c[b])<<4|c[b+1]>>4],d+=Da[(15&c[b+1])<<2|c[b+2]>>6],d+=Da[63&c[b+2]];return c.length%3==2?d=d.substring(0,d.length-1)+"=":c.length%3==1&&(d=d.substring(0,d.length-2)+"=="),d}function P(a,b){var c="";if(a&&(c=Ua.call(a)),a&&("[object ArrayBuffer]"===c||a.buffer&&"[object ArrayBuffer]"===Ua.call(a.buffer))){var d,e=Ga;a instanceof ArrayBuffer?(d=a,e+=Ia):(d=a.buffer,"[object Int8Array]"===c?e+=Ka:"[object Uint8Array]"===c?e+=La:"[object Uint8ClampedArray]"===c?e+=Ma:"[object Int16Array]"===c?e+=Na:"[object Uint16Array]"===c?e+=Pa:"[object Int32Array]"===c?e+=Oa:"[object Uint32Array]"===c?e+=Qa:"[object Float32Array]"===c?e+=Ra:"[object Float64Array]"===c?e+=Sa:b(new Error("Failed to get type for BinaryArray"))),b(e+O(d))}else if("[object Blob]"===c){var f=new FileReader;f.onload=function(){var c=Ea+a.type+"~"+O(this.result);b(Ga+Ja+c)},f.readAsArrayBuffer(a)}else try{b(JSON.stringify(a))}catch(c){console.error("Couldn't convert value into a JSON string: ",a),b(null,c)}}function Q(a){if(a.substring(0,Ha)!==Ga)return JSON.parse(a);var b,c=a.substring(Ta),d=a.substring(Ha,Ta);if(d===Ja&&Fa.test(c)){var e=c.match(Fa);b=e[1],c=c.substring(e[0].length)}var f=N(c);switch(d){case Ia:return f;case Ja:return g([f],{type:b});case Ka:return new Int8Array(f);case La:return new Uint8Array(f);case Ma:return new Uint8ClampedArray(f);case Na:return new Int16Array(f);case Pa:return new Uint16Array(f);case Oa:return new Int32Array(f);case Qa:return new Uint32Array(f);case Ra:return new Float32Array(f);case Sa:return new Float64Array(f);default:throw new Error("Unkown type: "+d)}}function R(a,b,c,d){a.executeSql("CREATE TABLE IF NOT EXISTS "+b.storeName+" (id INTEGER PRIMARY KEY, key unique, value)",[],c,d)}function S(a){var b=this,c={db:null};if(a)for(var d in a)c[d]="string"!=typeof a[d]?a[d].toString():a[d];var e=new va(function(a,d){try{c.db=openDatabase(c.name,String(c.version),c.description,c.size)}catch(a){return d(a)}c.db.transaction(function(e){R(e,c,function(){b._dbInfo=c,a()},function(a,b){d(b)})},d)});return c.serializer=Va,e}function T(a,b,c,d,e,f){a.executeSql(c,d,e,function(a,g){g.code===g.SYNTAX_ERR?a.executeSql("SELECT name FROM sqlite_master WHERE type='table' AND name = ?",[b.storeName],function(a,h){h.rows.length?f(a,g):R(a,b,function(){a.executeSql(c,d,e,f)},f)},f):f(a,g)},f)}function U(a,b){var c=this;a=j(a);var d=new va(function(b,d){c.ready().then(function(){var e=c._dbInfo;e.db.transaction(function(c){T(c,e,"SELECT * FROM "+e.storeName+" WHERE key = ? LIMIT 1",[a],function(a,c){var d=c.rows.length?c.rows.item(0).value:null;d&&(d=e.serializer.deserialize(d)),b(d)},function(a,b){d(b)})})}).catch(d)});return h(d,b),d}function V(a,b){var c=this,d=new va(function(b,d){c.ready().then(function(){var e=c._dbInfo;e.db.transaction(function(c){T(c,e,"SELECT * FROM "+e.storeName,[],function(c,d){for(var f=d.rows,g=f.length,h=0;h<g;h++){var i=f.item(h),j=i.value;if(j&&(j=e.serializer.deserialize(j)),void 0!==(j=a(j,i.key,h+1)))return void b(j)}b()},function(a,b){d(b)})})}).catch(d)});return h(d,b),d}function W(a,b,c,d){var e=this;a=j(a);var f=new va(function(f,g){e.ready().then(function(){void 0===b&&(b=null);var h=b,i=e._dbInfo;i.serializer.serialize(b,function(b,j){j?g(j):i.db.transaction(function(c){T(c,i,"INSERT OR REPLACE INTO "+i.storeName+" (key, value) VALUES (?, ?)",[a,b],function(){f(h)},function(a,b){g(b)})},function(b){if(b.code===b.QUOTA_ERR){if(d>0)return void f(W.apply(e,[a,h,c,d-1]));g(b)}})})}).catch(g)});return h(f,c),f}function X(a,b,c){return W.apply(this,[a,b,c,1])}function Y(a,b){var c=this;a=j(a);var d=new va(function(b,d){c.ready().then(function(){var e=c._dbInfo;e.db.transaction(function(c){T(c,e,"DELETE FROM "+e.storeName+" WHERE key = ?",[a],function(){b()},function(a,b){d(b)})})}).catch(d)});return h(d,b),d}function Z(a){var b=this,c=new va(function(a,c){b.ready().then(function(){var d=b._dbInfo;d.db.transaction(function(b){T(b,d,"DELETE FROM "+d.storeName,[],function(){a()},function(a,b){c(b)})})}).catch(c)});return h(c,a),c}function $(a){var b=this,c=new va(function(a,c){b.ready().then(function(){var d=b._dbInfo;d.db.transaction(function(b){T(b,d,"SELECT COUNT(key) as c FROM "+d.storeName,[],function(b,c){var d=c.rows.item(0).c;a(d)},function(a,b){c(b)})})}).catch(c)});return h(c,a),c}function _(a,b){var c=this,d=new va(function(b,d){c.ready().then(function(){var e=c._dbInfo;e.db.transaction(function(c){T(c,e,"SELECT key FROM "+e.storeName+" WHERE id = ? LIMIT 1",[a+1],function(a,c){var d=c.rows.length?c.rows.item(0).key:null;b(d)},function(a,b){d(b)})})}).catch(d)});return h(d,b),d}function aa(a){var b=this,c=new va(function(a,c){b.ready().then(function(){var d=b._dbInfo;d.db.transaction(function(b){T(b,d,"SELECT key FROM "+d.storeName,[],function(b,c){for(var d=[],e=0;e<c.rows.length;e++)d.push(c.rows.item(e).key);a(d)},function(a,b){c(b)})})}).catch(c)});return h(c,a),c}function ba(a){return new va(function(b,c){a.transaction(function(d){d.executeSql("SELECT name FROM sqlite_master WHERE type='table' AND name <> '__WebKitDatabaseInfoTable__'",[],function(c,d){for(var e=[],f=0;f<d.rows.length;f++)e.push(d.rows.item(f).name);b({db:a,storeNames:e})},function(a,b){c(b)})},function(a){c(a)})})}function ca(a,b){b=k.apply(this,arguments);var c=this.config();a="function"!=typeof a&&a||{},a.name||(a.name=a.name||c.name,a.storeName=a.storeName||c.storeName);var d,e=this;return d=a.name?new va(function(b){var d;d=a.name===c.name?e._dbInfo.db:openDatabase(a.name,"","",0),b(a.storeName?{db:d,storeNames:[a.storeName]}:ba(d))}).then(function(a){return new va(function(b,c){a.db.transaction(function(d){function e(a){return new va(function(b,c){d.executeSql("DROP TABLE IF EXISTS "+a,[],function(){b()},function(a,b){c(b)})})}for(var f=[],g=0,h=a.storeNames.length;g<h;g++)f.push(e(a.storeNames[g]));va.all(f).then(function(){b()}).catch(function(a){c(a)})},function(a){c(a)})})}):va.reject("Invalid arguments"),h(d,b),d}function da(){try{return"undefined"!=typeof localStorage&&"setItem"in localStorage&&!!localStorage.setItem}catch(a){return!1}}function ea(a,b){var c=a.name+"/";return a.storeName!==b.storeName&&(c+=a.storeName+"/"),c}function fa(){var a="_localforage_support_test";try{return localStorage.setItem(a,!0),localStorage.removeItem(a),!1}catch(a){return!0}}function ga(){return!fa()||localStorage.length>0}function ha(a){var b=this,c={};if(a)for(var d in a)c[d]=a[d];return c.keyPrefix=ea(a,b._defaultConfig),ga()?(b._dbInfo=c,c.serializer=Va,va.resolve()):va.reject()}function ia(a){var b=this,c=b.ready().then(function(){for(var a=b._dbInfo.keyPrefix,c=localStorage.length-1;c>=0;c--){var d=localStorage.key(c);0===d.indexOf(a)&&localStorage.removeItem(d)}});return h(c,a),c}function ja(a,b){var c=this;a=j(a);var d=c.ready().then(function(){var b=c._dbInfo,d=localStorage.getItem(b.keyPrefix+a);return d&&(d=b.serializer.deserialize(d)),d});return h(d,b),d}function ka(a,b){var c=this,d=c.ready().then(function(){for(var b=c._dbInfo,d=b.keyPrefix,e=d.length,f=localStorage.length,g=1,h=0;h<f;h++){var i=localStorage.key(h);if(0===i.indexOf(d)){var j=localStorage.getItem(i);if(j&&(j=b.serializer.deserialize(j)),void 0!==(j=a(j,i.substring(e),g++)))return j}}});return h(d,b),d}function la(a,b){var c=this,d=c.ready().then(function(){var b,d=c._dbInfo;try{b=localStorage.key(a)}catch(a){b=null}return b&&(b=b.substring(d.keyPrefix.length)),b});return h(d,b),d}function ma(a){var b=this,c=b.ready().then(function(){for(var a=b._dbInfo,c=localStorage.length,d=[],e=0;e<c;e++){var f=localStorage.key(e);0===f.indexOf(a.keyPrefix)&&d.push(f.substring(a.keyPrefix.length))}return d});return h(c,a),c}function na(a){var b=this,c=b.keys().then(function(a){return a.length});return h(c,a),c}function oa(a,b){var c=this;a=j(a);var d=c.ready().then(function(){var b=c._dbInfo;localStorage.removeItem(b.keyPrefix+a)});return h(d,b),d}function pa(a,b,c){var d=this;a=j(a);var e=d.ready().then(function(){void 0===b&&(b=null);var c=b;return new va(function(e,f){var g=d._dbInfo;g.serializer.serialize(b,function(b,d){if(d)f(d);else try{localStorage.setItem(g.keyPrefix+a,b),e(c)}catch(a){"QuotaExceededError"!==a.name&&"NS_ERROR_DOM_QUOTA_REACHED"!==a.name||f(a),f(a)}})})});return h(e,c),e}function qa(a,b){if(b=k.apply(this,arguments),a="function"!=typeof a&&a||{},!a.name){var c=this.config();a.name=a.name||c.name,a.storeName=a.storeName||c.storeName}var d,e=this;return d=a.name?new va(function(b){b(a.storeName?ea(a,e._defaultConfig):a.name+"/")}).then(function(a){for(var b=localStorage.length-1;b>=0;b--){var c=localStorage.key(b);0===c.indexOf(a)&&localStorage.removeItem(c)}}):va.reject("Invalid arguments"),h(d,b),d}function ra(a,b){a[b]=function(){var c=arguments;return a.ready().then(function(){return a[b].apply(a,c)})}}function sa(){for(var a=1;a<arguments.length;a++){var b=arguments[a];if(b)for(var c in b)b.hasOwnProperty(c)&&($a(b[c])?arguments[0][c]=b[c].slice():arguments[0][c]=b[c])}return arguments[0]}var ta="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(a){return typeof a}:function(a){return a&&"function"==typeof Symbol&&a.constructor===Symbol&&a!==Symbol.prototype?"symbol":typeof a},ua=e();"undefined"==typeof Promise&&a(3);var va=Promise,wa="local-forage-detect-blob-support",xa=void 0,ya={},za=Object.prototype.toString,Aa="readonly",Ba="readwrite",Ca={_driver:"asyncStorage",_initStorage:C,_support:f(),iterate:E,getItem:D,setItem:F,removeItem:G,clear:H,length:I,key:J,keys:K,dropInstance:L},Da="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/",Ea="~~local_forage_type~",Fa=/^~~local_forage_type~([^~]+)~/,Ga="__lfsc__:",Ha=Ga.length,Ia="arbf",Ja="blob",Ka="si08",La="ui08",Ma="uic8",Na="si16",Oa="si32",Pa="ur16",Qa="ui32",Ra="fl32",Sa="fl64",Ta=Ha+Ia.length,Ua=Object.prototype.toString,Va={serialize:P,deserialize:Q,stringToBuffer:N,bufferToString:O},Wa={_driver:"webSQLStorage",_initStorage:S,_support:M(),iterate:V,getItem:U,setItem:X,removeItem:Y,clear:Z,length:$,key:_,keys:aa,dropInstance:ca},Xa={_driver:"localStorageWrapper",_initStorage:ha,_support:da(),iterate:ka,getItem:ja,setItem:pa,removeItem:oa,clear:ia,length:na,key:la,keys:ma,dropInstance:qa},Ya=function(a,b){return a===b||"number"==typeof a&&"number"==typeof b&&isNaN(a)&&isNaN(b)},Za=function(a,b){for(var c=a.length,d=0;d<c;){if(Ya(a[d],b))return!0;d++}return!1},$a=Array.isArray||function(a){return"[object Array]"===Object.prototype.toString.call(a)},_a={},ab={},bb={INDEXEDDB:Ca,WEBSQL:Wa,LOCALSTORAGE:Xa},cb=[bb.INDEXEDDB._driver,bb.WEBSQL._driver,bb.LOCALSTORAGE._driver],db=["dropInstance"],eb=["clear","getItem","iterate","key","keys","length","removeItem","setItem"].concat(db),fb={description:"",driver:cb.slice(),name:"localforage",size:4980736,storeName:"keyvaluepairs",version:1},gb=function(){function a(b){d(this,a);for(var c in bb)if(bb.hasOwnProperty(c)){var e=bb[c],f=e._driver;this[c]=f,_a[f]||this.defineDriver(e)}this._defaultConfig=sa({},fb),this._config=sa({},this._defaultConfig,b),this._driverSet=null,this._initDriver=null,this._ready=!1,this._dbInfo=null,this._wrapLibraryMethodsWithReady(),this.setDriver(this._config.driver).catch(function(){})}return a.prototype.config=function(a){if("object"===(void 0===a?"undefined":ta(a))){if(this._ready)return new Error("Can't call config() after localforage has been used.");for(var b in a){if("storeName"===b&&(a[b]=a[b].replace(/\W/g,"_")),"version"===b&&"number"!=typeof a[b])return new Error("Database version must be a number.");this._config[b]=a[b]}return!("driver"in a&&a.driver)||this.setDriver(this._config.driver)}return"string"==typeof a?this._config[a]:this._config},a.prototype.defineDriver=function(a,b,c){var d=new va(function(b,c){try{var d=a._driver,e=new Error("Custom driver not compliant; see https://mozilla.github.io/localForage/#definedriver");if(!a._driver)return void c(e);for(var f=eb.concat("_initStorage"),g=0,i=f.length;g<i;g++){var j=f[g];if((!Za(db,j)||a[j])&&"function"!=typeof a[j])return void c(e)}(function(){for(var b=function(a){return function(){var b=new Error("Method "+a+" is not implemented by the current driver"),c=va.reject(b);return h(c,arguments[arguments.length-1]),c}},c=0,d=db.length;c<d;c++){var e=db[c];a[e]||(a[e]=b(e))}})();var k=function(c){_a[d]&&console.info("Redefining LocalForage driver: "+d),_a[d]=a,ab[d]=c,b()};"_support"in a?a._support&&"function"==typeof a._support?a._support().then(k,c):k(!!a._support):k(!0)}catch(a){c(a)}});return i(d,b,c),d},a.prototype.driver=function(){return this._driver||null},a.prototype.getDriver=function(a,b,c){var d=_a[a]?va.resolve(_a[a]):va.reject(new Error("Driver not found."));return i(d,b,c),d},a.prototype.getSerializer=function(a){var b=va.resolve(Va);return i(b,a),b},a.prototype.ready=function(a){var b=this,c=b._driverSet.then(function(){return null===b._ready&&(b._ready=b._initDriver()),b._ready});return i(c,a,a),c},a.prototype.setDriver=function(a,b,c){function d(){g._config.driver=g.driver()}function e(a){return g._extend(a),d(),g._ready=g._initStorage(g._config),g._ready}function f(a){return function(){function b(){for(;c<a.length;){var f=a[c];return c++,g._dbInfo=null,g._ready=null,g.getDriver(f).then(e).catch(b)}d();var h=new Error("No available storage method found.");return g._driverSet=va.reject(h),g._driverSet}var c=0;return b()}}var g=this;$a(a)||(a=[a]);var h=this._getSupportedDrivers(a),j=null!==this._driverSet?this._driverSet.catch(function(){return va.resolve()}):va.resolve();return this._driverSet=j.then(function(){var a=h[0];return g._dbInfo=null,g._ready=null,g.getDriver(a).then(function(a){g._driver=a._driver,d(),g._wrapLibraryMethodsWithReady(),g._initDriver=f(h)})}).catch(function(){d();var a=new Error("No available storage method found.");return g._driverSet=va.reject(a),g._driverSet}),i(this._driverSet,b,c),this._driverSet},a.prototype.supports=function(a){return!!ab[a]},a.prototype._extend=function(a){sa(this,a)},a.prototype._getSupportedDrivers=function(a){for(var b=[],c=0,d=a.length;c<d;c++){var e=a[c];this.supports(e)&&b.push(e)}return b},a.prototype._wrapLibraryMethodsWithReady=function(){for(var a=0,b=eb.length;a<b;a++)ra(this,eb[a])},a.prototype.createInstance=function(b){return new a(b)},a}(),hb=new gb;b.exports=hb},{3:3}]},{},[4])(4)});
+/*!
  * Platform.js
  * Copyright 2014-2018 Benjamin Tan
  * Copyright 2011-2013 John-David Dalton
@@ -44650,7 +44657,9 @@ TWEEN.Interpolation = {
  */
 Wick = {
   version: window.WICK_ENGINE_BUILD_VERSION || "dev",
-  resourcepath: '../dist/'
+  resourcepath: '../dist/',
+  _originals: {} // Eventually store a single instance of each type of Wick.Base object (see Wick.Base constructor).
+
 };
 console.log('Wick Engine version "' + Wick.version + '" is available.'); // Ensure that the Wick namespace is accessible in environments where globals are finicky (react, webpack, etc)
 
@@ -44925,12 +44934,13 @@ Wick.Color = class {
 /**
  * Global utility class for storing and retrieving large file data.
  */
-WickFileCache = class {
+Wick.FileCache = class {
   /**
-   * Create a WickFileCache.
+   * A prefix to use in localforage so we can identify which items in localforage are files.
+   * @type {string}
    */
-  constructor() {
-    this._files = {};
+  static get FILE_LOCALFORAGE_KEY_PREFIX() {
+    return 'filesrc_'; // This should never change.
   }
   /**
    * Add a file to the cache.
@@ -44939,10 +44949,12 @@ WickFileCache = class {
    */
 
 
-  addFile(src, uuid) {
+  static addFile(src, uuid) {
     this._files[uuid] = {
       src: src
-    };
+    }; // Save asset to localforage
+
+    localforage.setItem(this.getLocalForageKeyForUUID(uuid), src).then(() => {});
   }
   /**
    * Get info for a file by its UUID.
@@ -44951,15 +44963,44 @@ WickFileCache = class {
    */
 
 
-  getFile(uuid) {
+  static getFile(uuid) {
     var file = this._files[uuid];
 
     if (!file) {
-      console.warn('Asset with UUID ' + uuid + ' was not found in FileCache!');
+      console.error('Asset with UUID ' + uuid + ' was not found in FileCache!');
       return null;
     } else {
       return file;
     }
+  }
+  /**
+   * Removes a file from the FileCache with a given UUID.
+   * @param {string} uuid - the UUID of the file to remove.
+   */
+
+
+  static removeFile(uuid) {
+    delete this._files[uuid]; // Remove file from localforage
+
+    localforage.removeItem(this.getLocalForageKeyForUUID(uuid)).then(() => {});
+  }
+  /**
+   * Loads all files from local forage associated with a previously saved project, if possible.
+   * @param {Wick.Project} project - the project that we want to load assets for.
+   * @param {function} callback - called when the assets are done being loaded.
+   */
+
+
+  static loadFilesFromLocalforage(project, callback) {
+    Promise.all(project.getAssets().map(asset => {
+      return localforage.getItem(this.getLocalForageKeyForUUID(asset.uuid));
+    })).then(assets => {
+      for (var i = 0; i < assets.length; i++) {
+        this.addFile(assets[i], project.getAssets()[i].uuid);
+      }
+
+      callback();
+    });
   }
   /**
    * On object containing all files in WickFileCache.
@@ -44967,7 +45008,7 @@ WickFileCache = class {
    */
 
 
-  getAllFiles() {
+  static getAllFiles() {
     var files = [];
 
     for (var uuid in this._files) {
@@ -44984,12 +45025,23 @@ WickFileCache = class {
    */
 
 
-  clear() {
+  static clear() {
     this._files = {};
   }
 
+  static clearLocalforage() {
+    // Clear all files from localforage
+    for (var uuid in this._files) {
+      localforage.removeItem(this.getLocalForageKeyForUUID(uuid)).then(() => {});
+    }
+  }
+
+  static getLocalForageKeyForUUID(uuid) {
+    return this.FILE_LOCALFORAGE_KEY_PREFIX + uuid;
+  }
+
 };
-Wick.FileCache = new WickFileCache();
+Wick.FileCache._files = {};
 /*
  * Copyright 2019 WICKLETS LLC
  *
@@ -45151,10 +45203,12 @@ Wick.History = class {
     }
 
     if (Wick.History.VERBOSE) {
-      console.log('Wick.History._generateState: Serialized ' + objects.length + ' objects using mode=' + stateType);
+      console.log('Wick.History._generateState: Serializing ' + objects.length + ' objects using mode=' + stateType);
     }
 
     return objects.map(object => {
+      // The object most likely was altered in some way, make sure those changes will be reflected in the autosave.
+      object.needsAutosave = true;
       return object.serialize();
     });
   }
@@ -45248,6 +45302,7 @@ WickObjectCache = class {
    */
   constructor() {
     this._objects = {};
+    this._objectsNeedAutosave = {};
   }
   /**
    * Add an object to the cache.
@@ -45277,6 +45332,7 @@ WickObjectCache = class {
 
   clear() {
     this._objects = {};
+    this._objectsNeedAutosave = {};
   }
   /**
    * Get an object by its UUID.
@@ -45292,7 +45348,7 @@ WickObjectCache = class {
     var object = this._objects[uuid];
 
     if (!object) {
-      console.warn("Warning: object with uuid " + uuid + " was not found in the cache.");
+      console.error("Warning: object with uuid " + uuid + " was not found in the cache.");
       return null;
     } else {
       return object;
@@ -45322,8 +45378,11 @@ WickObjectCache = class {
 
 
   removeUnusedObjects(project) {
-    this.getActiveObjects(project).forEach(object => {
-      this.removeObject(object);
+    var activeObjects = this.getActiveObjects(project);
+    this.getAllObjects().forEach(object => {
+      if (activeObjects.indexOf(object) === -1) {
+        this.removeObject(object);
+      }
     });
   }
   /**
@@ -45334,13 +45393,46 @@ WickObjectCache = class {
 
 
   getActiveObjects(project) {
-    var children = project.getChildrenRecursive();
-    var uuids = children.map(child => {
-      return child.uuid;
+    // This does the same thing, but it's WAY faster.
+    return project.getChildrenRecursive().map(object => {
+      return this.getObjectByUUID(object.uuid);
     });
-    return this.getAllObjects().filter(object => {
-      return uuids.indexOf(object.uuid) !== -1;
-    });
+  }
+  /**
+   * Saves an object to be autosaved upon the next auto save.
+   * @param {Wick.Base} object object to be saved.
+   */
+
+
+  markObjectToBeAutosaved(object) {
+    this._objectsNeedAutosave[object.uuid] = true;
+  }
+  /**
+   * Removes a given object from the list of objects that must be autosaved.
+   * @param {Wick.Base} object - the object to remove from the list of objects to be autosaved.
+   */
+
+
+  clearObjectToBeAutosaved(object) {
+    delete this._objectsNeedAutosave[object.uuid];
+  }
+  /**
+   * Returns true if a given object is marked to be autosaved during the next autosave.
+   * @param {Wick.Base} object - the object to check for autosave
+   */
+
+
+  objectNeedsAutosave(object) {
+    return Wick.ObjectCache._objectsNeedAutosave[object.uuid];
+  }
+  /**
+   * Returns an array of objects that currently need to be autosaved.
+   * @returns {Wick.Base[]} The objects that are marked to be autosaved.
+   */
+
+
+  getObjectsNeedAutosaved() {
+    return Object.keys(this._objectsNeedAutosave).map(uuid => this.getObjectByUUID(uuid));
   }
 
 };
@@ -45884,6 +45976,17 @@ GlobalAPI = class {
     return this.scriptOwner.project.playSound(assetName, options);
   }
   /**
+   * Stops sound(s) currently playing.
+   * @param {string} assetName - The name of the SoundAsset to stop.
+   * @param {number} id - (optional) The ID of the sound to stop. Returned by playSound. If an ID is not given, all instances of the given sound asset will be stopped.
+   */
+
+
+  stopSound(assetName, id) {
+    if (!this.scriptOwner.project) return null;
+    return this.scriptOwner.project.stopSound(assetName, id);
+  }
+  /**
    * Stops all currently playing sounds.
    */
 
@@ -45980,6 +46083,49 @@ GlobalAPI.Random = class {
  * You should have received a copy of the GNU General Public License
  * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
  */
+Wick.ExportUtils = class {
+  // https://stackoverflow.com/questions/12168909/blob-from-dataurl
+  static dataURItoBlob(dataURI) {
+    // convert base64 to raw binary data held in a string
+    // doesn't handle URLEncoded DataURIs - see SO answer #6850276 for code that does this
+    var byteString = atob(dataURI.split(',')[1]); // separate out the mime component
+
+    var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0]; // write the bytes of the string to an ArrayBuffer
+
+    var ab = new ArrayBuffer(byteString.length); // create a view into the buffer
+
+    var ia = new Uint8Array(ab); // set the bytes of the buffer to the correct values
+
+    for (var i = 0; i < byteString.length; i++) {
+      ia[i] = byteString.charCodeAt(i);
+    } // write the ArrayBuffer to a blob, and you're done
+
+
+    var blob = new Blob([ab], {
+      type: mimeString
+    });
+    return blob;
+  }
+
+};
+/*
+ * Copyright 2019 WICKLETS LLC
+ *
+ * This file is part of Wick Engine.
+ *
+ * Wick Engine is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Wick Engine is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+ */
 Wick.AudioTrack = class {
   /**
    * @type {Wick.Project}
@@ -46010,7 +46156,7 @@ Wick.AudioTrack = class {
     var audioInfo = this.project.getAudioInfo();
 
     if (audioInfo.length === 0) {
-      console.error("Wick.AudioTrack: Project has no audio, cannot create an audiobuffer!");
+      // No audio in the project, no AudioBuffer to create
       callback(null);
       return;
     }
@@ -46189,6 +46335,235 @@ Wick.AudioTrack = class {
  */
 
 /**
+ * Utility class for autosaving projects.
+ */
+Wick.AutoSave = class {
+  /**
+   * The key used to store the list of autosaved projects.
+   * @type {string}
+   */
+  static get AUTOSAVES_LIST_KEY() {
+    return 'autosaveList';
+  }
+  /**
+   * The prefix to use for keys to save project autosave data.
+   * @type {string}
+   */
+
+
+  static get AUTOSAVE_DATA_PREFIX() {
+    return 'autosave_';
+  }
+  /**
+   * Saves a given project to localforage.
+   * @param {Wick.Project} project - the project to store in the AutoSave system.
+   */
+
+
+  static save(project, callback) {
+    if (Wick.AutoSave.ENABLE_PERF_TIMERS) console.time('serialize step');
+    var autosaveData = this.generateAutosaveData(project);
+    if (Wick.AutoSave.ENABLE_PERF_TIMERS) console.timeEnd('serialize step');
+    if (Wick.AutoSave.ENABLE_PERF_TIMERS) console.time('localforage step');
+    this.addAutosaveToList(autosaveData, () => {
+      this.writeAutosaveData(autosaveData, () => {
+        if (Wick.AutoSave.ENABLE_PERF_TIMERS) console.timeEnd('localforage step');
+        callback();
+      });
+    });
+  }
+  /**
+   * Loads a given project from localforage.
+   * @param {string} uuid - the UUID of the project to load from the AutoSave system.
+   * @param {function} callback
+   */
+
+
+  static load(uuid, callback) {
+    this.readAutosaveData(uuid, autosaveData => {
+      this.generateProjectFromAutosaveData(autosaveData, project => {
+        callback(project);
+      });
+    });
+  }
+  /**
+   * Deletes a project with a given UUID in the autosaves.
+   * @param {string} uuid - uuid of project ot delete.
+   * @param {function} callback
+   */
+
+
+  static delete(uuid, callback) {
+    this.removeAutosaveFromList(uuid, () => {
+      this.deleteAutosaveData(uuid, () => {
+        callback();
+      });
+    });
+  }
+  /**
+   * Generates an object that is writable to localforage from a project.
+   * @param {Wick.Project} project - The project to generate data for.
+   */
+
+
+  static generateAutosaveData(project) {
+    if (Wick.AutoSave.ENABLE_PERF_TIMERS) console.time('generate objects list');
+    var objects = Wick.ObjectCache.getActiveObjects(project);
+    if (Wick.AutoSave.ENABLE_PERF_TIMERS) console.timeEnd('generate objects list');
+    if (Wick.AutoSave.ENABLE_PERF_TIMERS) console.time('serialize objects list');
+    var projectData = project.serialize();
+    var objectsData = objects.map(object => {
+      return object.serialize();
+    });
+    if (Wick.AutoSave.ENABLE_PERF_TIMERS) console.timeEnd('serialize objects list');
+    var lastModified = projectData.metadata.lastModified;
+    return {
+      projectData: projectData,
+      objectsData: objectsData,
+      lastModified: lastModified
+    };
+  }
+  /**
+   * Creates a project from data loaded from the autosave system
+   * @param {object} autosaveData - An autosave data object, use generateAutosaveData/readAutosaveData to get this object
+   */
+
+
+  static generateProjectFromAutosaveData(autosaveData, callback) {
+    // Deserialize all objects in the project so they are added to the ObjectCache
+    autosaveData.objectsData.forEach(objectData => {
+      var object = Wick.Base.fromData(objectData);
+    }); // Deserialize the project itself
+
+    var project = Wick.Base.fromData(autosaveData.projectData); // Load source files for assets from localforage
+
+    Wick.FileCache.loadFilesFromLocalforage(project, () => {
+      project.loadAssets(() => {
+        callback(project);
+      });
+    });
+  }
+  /**
+   * Adds autosaved project data to the list of autosaved projects.
+   * @param {Object} projectData -
+   */
+
+
+  static addAutosaveToList(autosaveData, callback) {
+    this.getAutosavesList(list => {
+      list.push({
+        uuid: autosaveData.projectData.uuid,
+        lastModified: autosaveData.lastModified
+      });
+      this.updateAutosavesList(list, () => {
+        callback();
+      });
+    });
+  }
+  /**
+   * Removes autosaved project data to the list of autosaved projects.
+   * @param {string} uuid -
+   */
+
+
+  static removeAutosaveFromList(uuid, callback) {
+    this.getAutosavesList(list => {
+      list = list.filter(item => {
+        return item.uuid !== uuid;
+      });
+      this.updateAutosavesList(list, () => {
+        callback();
+      });
+    });
+  }
+  /**
+   * Get the list of autosaved projects currently in the AutoSave system.
+   * @param {function} callback - function to be passed object containing all autosaved projects.
+   */
+
+
+  static getAutosavesList(callback) {
+    localforage.getItem(this.AUTOSAVES_LIST_KEY).then(result => {
+      var projectList = result || []; // Sort by lastModified
+
+      projectList.sort((a, b) => {
+        return b.lastModified - a.lastModified;
+      });
+      callback(projectList);
+    });
+  }
+  /**
+   * Updates the list of autosaved projects currently in the AutoSave system.
+   * @param {Object} autosaveList - the list of projects
+   * @param {function} callback - called when saving is finished
+   */
+
+
+  static updateAutosavesList(autosaveList, callback) {
+    localforage.setItem(this.AUTOSAVES_LIST_KEY, autosaveList).then(result => {
+      callback();
+    });
+  }
+  /**
+   * Save project data into the autosave system.
+   * @param {Object} autosaveData - Autosave data of a project, use generateAutosaveData to create this object
+   */
+
+
+  static writeAutosaveData(autosaveData, callback) {
+    localforage.setItem(this.AUTOSAVE_DATA_PREFIX + autosaveData.projectData.uuid, autosaveData).then(() => {
+      callback();
+    });
+  }
+  /**
+   * Load project data from the autosave system.
+   * @param {string} uuid - the UUID of the project to load
+   */
+
+
+  static readAutosaveData(uuid, callback) {
+    localforage.getItem(this.AUTOSAVE_DATA_PREFIX + uuid).then(result => {
+      if (!result) {
+        console.error('Could not load autosaveData for project: ' + uuid);
+      }
+
+      callback(result);
+    });
+  }
+  /**
+   * Deletes project data from the autosave system.
+   * @param {string} uuid - the UUID of the project to delete
+   */
+
+
+  static deleteAutosaveData(uuid, callback) {
+    localforage.removeItem(this.AUTOSAVE_DATA_PREFIX + uuid).then(() => {
+      callback();
+    });
+  }
+
+};
+Wick.AutoSave.ENABLE_PERF_TIMERS = false;
+/*
+ * Copyright 2019 WICKLETS LLC
+ *
+ * This file is part of Wick Engine.
+ *
+ * Wick Engine is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Wick Engine is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+/**
  * Utility class for creating and parsing wick files.
  */
 Wick.WickFile = class {
@@ -46199,6 +46574,7 @@ Wick.WickFile = class {
   static generateMetaData() {
     return {
       wickengine: Wick.version,
+      lastModified: +new Date(),
       platform: {
         name: platform.name,
         version: platform.version,
@@ -46534,7 +46910,7 @@ Wick.WickObjectFile = class {
   static fromWickObjectFile(wickObjectFile, callback) {
     // Convert to blob if needed
     if (typeof wickObjectFile === 'string') {
-      wickObjectFile = this._dataURItoBlob(wickObjectFile);
+      wickObjectFile = Wick.ExportUtils.dataURItoBlob(wickObjectFile);
     }
 
     var fr = new FileReader();
@@ -46574,29 +46950,6 @@ Wick.WickObjectFile = class {
     } else {
       console.error('toWickObjectFile: invalid format: ' + format);
     }
-  } // https://stackoverflow.com/questions/12168909/blob-from-dataurl
-
-
-  static _dataURItoBlob(dataURI) {
-    // convert base64 to raw binary data held in a string
-    // doesn't handle URLEncoded DataURIs - see SO answer #6850276 for code that does this
-    var byteString = atob(dataURI.split(',')[1]); // separate out the mime component
-
-    var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0]; // write the bytes of the string to an ArrayBuffer
-
-    var ab = new ArrayBuffer(byteString.length); // create a view into the buffer
-
-    var ia = new Uint8Array(ab); // set the bytes of the buffer to the correct values
-
-    for (var i = 0; i < byteString.length; i++) {
-      ia[i] = byteString.charCodeAt(i);
-    } // write the ArrayBuffer to a blob, and you're done
-
-
-    var blob = new Blob([ab], {
-      type: mimeString
-    });
-    return blob;
   }
 
 };
@@ -46623,6 +46976,10 @@ Wick.WickObjectFile = class {
  * Utility class for bundling Wick projects inside HTML files.
  */
 Wick.HTMLExport = class {
+  /**
+   * Bundles a wick project into the standalone HTML player. This creates a single-file playable Wick project.
+   * @param {Wick.Project} project - The project to bundle.
+   */
   static bundleProject(project, callback) {
     Wick.WickFile.toWickFile(project, wickFileBase64 => {
       fetch(Wick.resourcepath + 'emptyproject.html').then(resp => resp.text()).then(text => {
@@ -46633,6 +46990,110 @@ Wick.HTMLExport = class {
         console.error(e);
       });
     }, 'base64');
+  }
+
+};
+/*
+ * Copyright 2019 WICKLETS LLC
+ *
+ * This file is part of Wick Engine.
+ *
+ * Wick Engine is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Wick Engine is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+/**
+ * Utility class for opening Wick projects inside popup windows.
+ */
+Wick.HTMLPreview = class {
+  /**
+   * Runs a project inside a popup window.
+   * @param {Wick.Project} project - The project to run.
+   * @param {function} callback - Function that's called when the popup is successfully created.
+   */
+  static previewProject(project, callback) {
+    Wick.HTMLExport.bundleProject(project, html => {
+      var windowFeatures = "height=" + project.height + ",width=" + project.width;
+      var popupWindow = window.open('', '_blank', windowFeatures);
+
+      if (popupWindow) {
+        popupWindow.document.title = project.name;
+        popupWindow.document.open();
+        popupWindow.document.write(html);
+        popupWindow.document.close();
+      }
+
+      callback(popupWindow);
+    });
+  }
+
+};
+/*
+ * Copyright 2019 WICKLETS LLC
+ *
+ * This file is part of Wick Engine.
+ *
+ * Wick Engine is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Wick Engine is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+/**
+ * Utility class for generating image sequences.
+ */
+Wick.ImageSequence = class {
+  /**
+   * Create a png sequence from a project.
+   * @param {Wick.Project} project - the project to create a png sequence from
+   * @param {function} callback - Function called when the file is created. Contains the file as a parameter.
+   **/
+  static toPNGSequence(args) {
+    let {
+      project,
+      onProgress,
+      onFinish
+    } = args;
+    var zip = new JSZip();
+
+    let buildZip = files => {
+      let index = 0;
+      files.forEach(file => {
+        var blob = Wick.ExportUtils.dataURItoBlob(file.src);
+        zip.file('frame' + index + '.png', blob);
+        index += 1;
+      });
+      zip.generateAsync({
+        type: 'blob',
+        compression: "DEFLATE",
+        compressionOptions: {
+          level: 9
+        }
+      }).then(onFinish);
+    };
+
+    project.generateImageSequence({
+      onFinish: buildZip,
+      onProgress: onProgress
+    });
   }
 
 };
@@ -46729,10 +47190,18 @@ Wick.Base = class {
    * @parm {string} name - (Optional) The name of the object. Defaults to null.
    */
   constructor(args) {
+    /* One instance of each Wick.Base class is created so we can access
+     * a list of all possible properties of each class. This is used
+     * to clean up custom variables after projects are stopped. */
+    if (!Wick._originals[this.classname]) {
+      Wick._originals[this.classname] = {};
+      Wick._originals[this.classname] = new Wick[this.classname]();
+    }
+
     if (!args) args = {};
-    this._uuid = uuidv4();
+    this._uuid = args.uuid || uuidv4();
     this._identifier = args.identifier || null;
-    this._name = args.naeme || null;
+    this._name = args.name || null;
     this._view = null;
     this.view = this._generateView();
     this._guiElement = null;
@@ -46742,6 +47211,8 @@ Wick.Base = class {
     this._childrenData = null;
     this._parent = null;
     this._project = this.classname === 'Project' ? this : null;
+    this.needsAutosave = true;
+    this._cachedSerializeData = null;
     Wick.ObjectCache.addObject(this);
   }
   /**
@@ -46758,32 +47229,11 @@ Wick.Base = class {
       console.warn('Tried to deserialize an object with no Wick class: ' + data.classname);
     }
 
-    var object = new Wick[data.classname]();
+    var object = new Wick[data.classname]({
+      uuid: data.uuid
+    });
     object.deserialize(data);
     return object;
-  }
-  /**
-   * Parses serialized data representing Base Objects which have been serialized using the serialize function of their class.
-   * @param  {object} data Serialized data that was returned by a Base Object's serialize function.
-   */
-
-
-  deserialize(data) {
-    this._uuid = data.uuid;
-    this._identifier = data.identifier;
-    this._name = data.name;
-    this._children = {};
-    this._childrenData = data.children; // Clear any custom attributes set by scripts
-
-    var compareObj = new Wick[this.classname]();
-
-    for (var name in this) {
-      if (compareObj[name] === undefined) {
-        delete this[name];
-      }
-    }
-
-    Wick.ObjectCache.addObject(this);
   }
   /**
    * Converts this Wick Base object into a plain javascript object contianing raw data (no references).
@@ -46791,7 +47241,40 @@ Wick.Base = class {
    */
 
 
-  serialize() {
+  serialize(args) {
+    // TEMPORARY: Force the cache to never be accessed.
+    // This is because the cache was causing issues in the tests, and the
+    // performance boost that came with the cache was not signifigant enough
+    // to be worth fixing the bugs over...
+    this.needsAutosave = true;
+
+    if (this.needsAutosave || !this._cachedSerializeData) {
+      // If the cache is outdated or does not exist, reserialize and cache.
+      var data = this._serialize(args);
+
+      this._cacheSerializeData(data);
+
+      return data;
+    } else {
+      // Otherwise, just read from the cache
+      return this._cachedSerializeData;
+    }
+  }
+  /**
+   * Parses serialized data representing Base Objects which have been serialized using the serialize function of their class.
+   * @param {object} data Serialized data that was returned by a Base Object's serialize function.
+   */
+
+
+  deserialize(data) {
+    this._deserialize(data);
+
+    this._cacheSerializeData(data);
+  }
+  /* The internal serialize method that actually creates the data. Every class that inherits from Base must have one of these. */
+
+
+  _serialize(args) {
     var data = {};
     data.classname = this.classname;
     data.identifier = this._identifier;
@@ -46801,6 +47284,29 @@ Wick.Base = class {
       return child.uuid;
     });
     return data;
+  }
+  /* The internal deserialize method that actually reads the data. Every class that inherits from Base must have one of these. */
+
+
+  _deserialize(data) {
+    this._uuid = data.uuid;
+    this._identifier = data.identifier;
+    this._name = data.name;
+    this._children = {};
+    this._childrenData = data.children; // Clear any custom attributes set by scripts
+
+    var compareObj = Wick._originals[this.classname];
+
+    for (var name in this) {
+      if (compareObj[name] === undefined) {
+        delete this[name];
+      }
+    }
+  }
+
+  _cacheSerializeData(data) {
+    this._cachedSerializeData = data;
+    this.needsAutosave = false;
   }
   /**
    * Returns a copy of a Wick Base object.
@@ -46881,6 +47387,23 @@ Wick.Base = class {
     return object;
   }
   /**
+   * Marks the object as possibly changed, so that next time autosave happens, this object is written to the save.
+   * @type {boolean}
+   */
+
+
+  set needsAutosave(needsAutosave) {
+    if (needsAutosave) {
+      Wick.ObjectCache.markObjectToBeAutosaved(this);
+    } else {
+      Wick.ObjectCache.clearObjectToBeAutosaved(this);
+    }
+  }
+
+  get needsAutosave() {
+    return Wick.ObjectCache.objectNeedsAutosave(this);
+  }
+  /**
    * Returns the classname of a Wick Base object.
    * @type {string}
    */
@@ -46922,7 +47445,9 @@ Wick.Base = class {
     } // Make sure the identifier doesn't squash any attributes of the window
 
 
-    if (this._identifierNameExistsInWindowContext(identifier)) return; // Make sure the identifier is a valid js variable name
+    if (this._identifierNameExistsInWindowContext(identifier)) return; // Make sure the identifier will not be squashed by Wick API functions
+
+    if (this._identiferNameIsPartOfWickAPI(identifier)) return; // Make sure the identifier is a valid js variable name
 
     if (!isVarName(identifier)) return; // Make sure the identifier is not a reserved word in js
 
@@ -47197,6 +47722,16 @@ Wick.Base = class {
     }
   }
 
+  _identiferNameIsPartOfWickAPI(identifier) {
+    var globalAPI = new GlobalAPI(this);
+
+    if (globalAPI[identifier]) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
 };
 /*
  * Copyright 2019 WICKLETS LLC
@@ -47234,15 +47769,17 @@ Wick.Layer = class extends Wick.Base {
     this.name = args.name || null;
   }
 
-  serialize(args) {
-    var data = super.serialize(args);
+  _serialize(args) {
+    var data = super._serialize(args);
+
     data.locked = this.locked;
     data.hidden = this.hidden;
     return data;
   }
 
-  deserialize(data) {
-    super.deserialize(data);
+  _deserialize(data) {
+    super._deserialize(data);
+
     this.locked = data.locked;
     this.hidden = data.hidden;
   }
@@ -47337,6 +47874,35 @@ Wick.Layer = class extends Wick.Base {
     this.addChild(frame);
     this.resolveOverlap([frame]);
     this.resolveGaps([frame]);
+  }
+  /**
+   * Adds a frame to the layer. If there is an existing frame where the new frame is
+   * inserted, then the existing frame will be cut, and the new frame will fill the
+   * gap created by that cut.
+   * @param {number} playheadPosition - Where to add the blank frame.
+   */
+
+
+  insertBlankFrame(playheadPosition) {
+    if (!playheadPosition) {
+      throw new Error('insertBlankFrame: playheadPosition is required');
+    }
+
+    var frame = new Wick.Frame({
+      start: playheadPosition
+    });
+    this.addChild(frame); // If there is is overlap with an existing frame
+
+    var existingFrame = this.getFrameAtPlayheadPosition(playheadPosition);
+
+    if (existingFrame) {
+      // Make sure the new frame fills the empty space
+      frame.end = existingFrame.end;
+    }
+
+    this.resolveOverlap([frame]);
+    this.resolveGaps([frame]);
+    return frame;
   }
   /**
    * Removes a frame from the Layer.
@@ -47566,6 +48132,7 @@ Wick.Project = class extends Wick.Base {
     this._hideCursor = false;
     this._muted = false;
     this._publishedMode = false;
+    this._showClipBorders = true;
     this._tools = {
       brush: new Wick.Tools.Brush(),
       cursor: new Wick.Tools.Cursor(),
@@ -47606,8 +48173,9 @@ Wick.Project = class extends Wick.Base {
     this.history.pushState(Wick.History.StateType.ONLY_VISIBLE_OBJECTS);
   }
 
-  deserialize(data) {
-    super.deserialize(data);
+  _deserialize(data) {
+    super._deserialize(data);
+
     this.name = data.name;
     this.width = data.width;
     this.height = data.height;
@@ -47618,8 +48186,9 @@ Wick.Project = class extends Wick.Base {
     this._muted = false;
   }
 
-  serialize(args) {
-    var data = super.serialize(args);
+  _serialize(args) {
+    var data = super._serialize(args);
+
     data.name = this.name;
     data.width = this.width;
     data.height = this.height;
@@ -48211,33 +48780,35 @@ Wick.Project = class extends Wick.Base {
     });
   }
   /**
-   * Insert a blank frame at the current playhead position, and selects the newly added frames.
+   * Inserts a blank frame into the timeline at the position of the playhead.
+   * If the playhead is over an existing frame, that frame will be cut in half,
+   * and a blank frame will be added to fill the empty space created by the cut.
    */
 
 
   insertBlankFrame() {
-    var addedFrames = [];
+    var playheadPosition = this.activeTimeline.playheadPosition;
+    var newFrames = []; // Insert new frames
 
     if (this.selection.numObjects > 0) {
-      // Are there frames selected? insert blank frames inside of them
+      // Insert frames on all frames that are both active and selected
+
+      /*this.activeTimeline.activeFrames.filter(frame => {
+          return frame.isSelected;
+      }).forEach(frame => {
+          newFrames.push(frame.parentLayer.insertBlankFrame(playheadPosition));
+      });*/
       this.selection.getSelectedObjects('Frame').forEach(frame => {
-        addedFrames.push(frame.insertBlankFrame());
+        newFrames.push(frame.parentLayer.insertBlankFrame(playheadPosition));
       });
-    } else if (this.activeFrame) {
-      // Otherwise, just add a frame at the playhead position + active layer
-      addedFrames.push(this.activeFrame.insertBlankFrame());
     } else {
-      // Or, if there was no active frame, create a new frame
-      var newFrame = new Wick.Frame({
-        start: this.activeTimeline.playheadPosition
-      });
-      this.activeLayer.addFrame(newFrame);
-      addedFrames.push(newFrame);
+      // Insert one frame on the active layer
+      newFrames.push(this.activeLayer.insertBlankFrame(playheadPosition));
     } // Select the newly added frames
 
 
     this.selection.clear();
-    addedFrames.forEach(frame => {
+    newFrames.forEach(frame => {
       this.selection.select(frame);
     });
   }
@@ -48302,12 +48873,11 @@ Wick.Project = class extends Wick.Base {
     }
   }
   /**
-   * Move the right edge of all selected frames right one frame.
+   * Move the right edge of all frames right one frame.
    */
 
 
-  extendSelectedFrames() {
-    var frames = this.selection.getSelectedObjects('Frame');
+  extendFrames(frames) {
     frames.forEach(frame => {
       frame.end++;
     });
@@ -48315,23 +48885,21 @@ Wick.Project = class extends Wick.Base {
     this.activeTimeline.resolveFrameGaps(frames);
   }
   /**
-   * Move the right edge of all selected frames right one frame, and push other frames away.
+   * Move the right edge of all frames right one frame, and push other frames away.
    */
 
 
-  extendSelectedFramesAndPushOtherFrames() {
-    var frames = this.selection.getSelectedObjects('Frame');
+  extendFramesAndPushOtherFrames(frames) {
     frames.forEach(frame => {
       frame.extendAndPushOtherFrames();
     });
   }
   /**
-   * Move the right edge of all selected frames left one frame.
+   * Move the right edge of all frames left one frame.
    */
 
 
-  shrinkSelectedFrames() {
-    var frames = this.selection.getSelectedObjects('Frame');
+  shrinkFrames(frames) {
     frames.forEach(frame => {
       if (frame.length === 1) return;
       frame.end--;
@@ -48340,12 +48908,11 @@ Wick.Project = class extends Wick.Base {
     this.activeTimeline.resolveFrameGaps(frames);
   }
   /**
-   * Move the right edge of all selected frames left one frame, and pull other frames along.
+   * Move the right edge of all frames left one frame, and pull other frames along.
    */
 
 
-  shrinkSelectedFramesAndPullOtherFrames() {
-    var frames = this.selection.getSelectedObjects('Frame');
+  shrinkFramesAndPullOtherFrames(frames) {
     frames.forEach(frame => {
       frame.shrinkAndPullOtherFrames();
     });
@@ -48513,7 +49080,25 @@ Wick.Project = class extends Wick.Base {
     } else if (!(asset instanceof Wick.SoundAsset)) {
       console.warn('playSound(): Asset is not a sound: "' + assetName + '"');
     } else {
-      asset.play(options);
+      return asset.play(options);
+    }
+  }
+  /**
+   * Stops sound(s) currently playing.
+   * @param {string} assetName - The name of the SoundAsset to stop.
+   * @param {number} id - (optional) The ID of the sound to stop. Returned by playSound. If an ID is not given, all instances of the given sound asset will be stopped.
+   */
+
+
+  stopSound(id) {
+    var asset = this.getAssetByName(assetName);
+
+    if (!asset) {
+      console.warn('stopSound(): No asset with name: "' + assetName + '"');
+    } else if (!(asset instanceof Wick.SoundAsset)) {
+      console.warn('stopSound(): Asset is not a sound: "' + assetName + '"');
+    } else {
+      return asset.stop(id);
     }
   }
   /**
@@ -48570,8 +49155,21 @@ Wick.Project = class extends Wick.Base {
     this._publishedMode = publishedMode;
   }
   /**
+   * Toggle whether or not to render borders around clips.
+   * @type {boolean}
+   */
+
+
+  get showClipBorders() {
+    return this._showClipBorders;
+  }
+
+  set showClipBorders(showClipBorders) {
+    this._showClipBorders = showClipBorders;
+  }
+  /**
    * The current error, if one was thrown, during the last tick.
-   * @type {Error}
+   * @type {Object}
    */
 
 
@@ -48611,15 +49209,18 @@ Wick.Project = class extends Wick.Base {
           return;
         }
 
-        var uuid = scheduledScript.uuid;
-        var name = scheduledScript.name; // Make sure we only run the script based on the current iteration through possibleScripts
+        var {
+          uuid,
+          name,
+          parameters
+        } = scheduledScript; // Make sure we only run the script based on the current iteration through possibleScripts
 
         if (name !== scriptOrderName) {
           return;
         } // Run the script on the corresponding object!
 
 
-        Wick.ObjectCache.getObjectByUUID(uuid).runScript(name);
+        Wick.ObjectCache.getObjectByUUID(uuid).runScript(name, parameters);
       });
     }); // Save the current keysDown
 
@@ -48640,13 +49241,15 @@ Wick.Project = class extends Wick.Base {
    * Schedules a script to be run at the end of the current tick.
    * @param {string} uuid - the UUID of the object running the script.
    * @param {string} name - the name of the script to run, see Tickable.possibleScripts.
+   * @param {Object} parameters - An object of key,value pairs to send as parameters to the script which runs.
    */
 
 
-  scheduleScript(uuid, name) {
+  scheduleScript(uuid, name, parameters) {
     this._scriptSchedule.push({
       uuid: uuid,
-      name: name
+      name: name,
+      parameters: parameters
     });
   }
   /**
@@ -48684,6 +49287,7 @@ Wick.Project = class extends Wick.Base {
 
     this._tickIntervalID = setInterval(() => {
       args.onBeforeTick();
+      this.tools.interact.determineMouseTargets();
       var error = this.tick();
       this.view.paper.view.update();
 
@@ -48715,9 +49319,22 @@ Wick.Project = class extends Wick.Base {
     this._tickIntervalID = null; // Loading the snapshot to restore project state also moves the playhead back to where it was originally.
     // We actually don't want this, preview play should actually move the playhead after it's stopped.
 
-    var currentPlayhead = this.focus.timeline.playheadPosition;
+    var currentPlayhead = this.focus.timeline.playheadPosition; // Load the state of the project before it was played
+
     this.history.loadSnapshot('state-before-play');
-    this.focus.timeline.playheadPosition = currentPlayhead;
+
+    if (this.error) {
+      // An error occured.
+      var errorObjUUID = this._error.uuid;
+      var errorObj = Wick.ObjectCache.getObjectByUUID(errorObjUUID); // Focus the parent of the object that caused the error so that we can select the error-causer.
+
+      this.focus = errorObj.parentClip; // Select the object that caused the error
+
+      this.selection.clear();
+      this.selection.select(errorObj);
+    } else {
+      this.focus.timeline.playheadPosition = currentPlayhead;
+    }
   }
   /**
    * Inject the project into an element on a webpage and start playing the project.
@@ -48726,7 +49343,6 @@ Wick.Project = class extends Wick.Base {
 
 
   inject(element) {
-    document.title = this.name;
     this.view.canvasContainer = element;
     this.view.fitMode = 'fill';
     this.view.canvasBGColor = '#000000';
@@ -48858,7 +49474,7 @@ Wick.Project = class extends Wick.Base {
    * Create a sequence of images from every frame in the project.
    * @param {object} args - Options for generating the image sequence
    * @param {string} imageType - MIMEtype to use for rendered images. Defaults to 'image/png'.
-   * @param {function} onProgress = Function to call for each image loaded, useful for progress bars
+   * @param {function} onProgress - Function to call for each image loaded, useful for progress bars
    * @param {function} onFinish - Function to call when the images are all loaded.
    */
 
@@ -48949,7 +49565,7 @@ Wick.Project = class extends Wick.Base {
       return {
         start: frame.soundStartMS,
         end: frame.soundEndMS,
-        offset: frame.cropSoundOffsetMS,
+        offset: frame.soundStart,
         src: frame.sound.src,
         filetype: frame.sound.fileExtension
       };
@@ -48999,6 +49615,29 @@ Wick.Project = class extends Wick.Base {
   get canDraw() {
     return !this.activeLayer.locked && !this.activeLayer.hidden;
   }
+  /**
+   * Loads all Assets in the project's asset library. This must be called after opening a project.
+   * @param {function} callback - Called when all assets are done loading.
+   */
+
+
+  loadAssets(callback) {
+    if (this.assets.length === 0) {
+      callback();
+      return;
+    }
+
+    var loadedAssetCount = 0;
+    this.assets.forEach(asset => {
+      asset.load(() => {
+        loadedAssetCount++;
+
+        if (loadedAssetCount === this.assets.length) {
+          callback();
+        }
+      });
+    });
+  }
 
 };
 /*
@@ -49045,27 +49684,35 @@ Wick.Selection = class extends Wick.Base {
       x: 0,
       y: 0
     };
+    this._originalWidth = 0;
+    this._originalHeight = 0;
   }
 
-  serialize(args) {
-    var data = super.serialize(args);
+  _serialize(args) {
+    var data = super._serialize(args);
+
     data.selectedObjects = Array.from(this._selectedObjectsUUIDs);
     data.widgetRotation = this._widgetRotation;
     data.pivotPoint = {
       x: this._pivotPoint.x,
       y: this._pivotPoint.y
     };
+    data.originalWidth = this._originalWidth;
+    data.originalHeight = this._originalHeight;
     return data;
   }
 
-  deserialize(data) {
-    super.deserialize(data);
+  _deserialize(data) {
+    super._deserialize(data);
+
     this._selectedObjectsUUIDs = data.selectedObjects || [];
     this._widgetRotation = data.widgetRotation;
     this._pivotPoint = {
       x: data.pivotPoint.x,
       y: data.pivotPoint.y
     };
+    this._originalWidth = data.originalWidth;
+    this._originalHeight = data.originalHeight;
   }
 
   get classname() {
@@ -49078,7 +49725,7 @@ Wick.Selection = class extends Wick.Base {
 
 
   get allAttributeNames() {
-    return ["strokeWidth", "fillColor", "strokeColor", "name", "filename", "fontSize", "fontFamily", "fontWeight", "fontStyle", "src", "frameLength", "x", "y", "width", "height", "rotation", "opacity", "sound", "soundVolume", "soundStart", "identifier", "easingType"];
+    return ["strokeWidth", "fillColor", "strokeColor", "name", "filename", "fontSize", "fontFamily", "fontWeight", "fontStyle", "src", "frameLength", "x", "y", "originX", "originY", "width", "height", "rotation", "opacity", "sound", "soundVolume", "soundStart", "identifier", "easingType", "scaleX", "scaleY"];
   }
   /**
    * Add a wick object to the selection.
@@ -49362,6 +50009,58 @@ Wick.Selection = class extends Wick.Base {
     this.project.tryToAutoCreateTween();
   }
   /**
+   * The origin position the selection.
+   * @type {number}
+   */
+
+
+  get originX() {
+    // If there's only 1 object selected, the origin is that object's position.
+    if (this.getSelectedObject() && (this.selectionType === "clip" || this.selectionType === "button")) {
+      return this.getSelectedObject().transformation.x;
+    } else {
+      return this.x + this.width / 2;
+    }
+  }
+
+  set originX(x) {
+    if (this.getSelectedObject() && (this.selectionType === "clip" || this.selectionType === "button")) {
+      this.getSelectedObject().x = x;
+      this.pivotPoint = {
+        x: x,
+        y: this.pivotPoint.y
+      };
+    } else {
+      this.x = x - this.width / 2;
+    }
+  }
+  /**
+   * The origin position the selection.
+   * @type {number}
+   */
+
+
+  get originY() {
+    // If there's only 1 object selected, the origin is that object's position.
+    if (this.getSelectedObject() && (this.selectionType === "clip" || this.selectionType === "button")) {
+      return this.getSelectedObject().y;
+    } else {
+      return this.y + this.height / 2;
+    }
+  }
+
+  set originY(y) {
+    if (this.getSelectedObject() && (this.selectionType === "clip" || this.selectionType === "button")) {
+      this.getSelectedObject().y = y;
+      this.pivotPoint = {
+        x: this.pivotPoint.x,
+        y: y
+      };
+    } else {
+      this.y = y - this.height / 2;
+    }
+  }
+  /**
    * The width of the selection.
    * @type {number}
    */
@@ -49402,6 +50101,79 @@ Wick.Selection = class extends Wick.Base {
   set rotation(rotation) {
     this.project.tryToAutoCreateTween();
     this.view.rotation = rotation;
+  }
+  /**
+   * It is the original width of the selection at creation.
+   * @type {number}
+   */
+
+
+  get originalWidth() {
+    return this._originalWidth;
+  }
+
+  set originalWidth(originalWidth) {
+    this._originalWidth = originalWidth;
+  }
+  /**
+   * It is the original height of the selection at creation.
+   * @type {number}
+   */
+
+
+  get originalHeight() {
+    return this._originalHeight;
+  }
+
+  set originalHeight(originalHeight) {
+    this._originalHeight = originalHeight;
+  }
+  /**
+   * The scale of the selection on the X axis.
+   * @type {number}
+   */
+
+
+  get scaleX() {
+    // Clips store their scale state internally
+    if (this.selectionType === "clip" || this.selectionType === "button") {
+      return this.getSelectedObject().transformation.scaleX;
+    } else {
+      // Paths do not save their internal scale state.
+      return this.width / this.originalWidth;
+    }
+  }
+
+  set scaleX(scaleX) {
+    // Clips store their scale state internally
+    if (this.selectionType === "clip" || this.selectionType === "button") {
+      this.getSelectedObject().scaleX = scaleX;
+    } else {
+      this.width = this.originalWidth * scaleX;
+    }
+  }
+  /**
+   * The scale of the selection on the Y axis.
+   * @type {number}
+   */
+
+
+  get scaleY() {
+    // Clips store their scale state internally
+    if (this.selectionType === "clip" || this.selectionType === "button") {
+      return this.getSelectedObject().transformation.scaleY;
+    } else {
+      return this.height / this.originalHeight;
+    }
+  }
+
+  set scaleY(scaleY) {
+    // Clips store their scale state internally
+    if (this.selectionType === "clip" || this.selectionType === "button") {
+      this.getSelectedObject().scaleY = scaleY;
+    } else {
+      this.height = this.originalHeight * scaleY;
+    }
   }
   /**
    * Flips the selected obejcts horizontally.
@@ -49629,6 +50401,19 @@ Wick.Selection = class extends Wick.Base {
     this._setSingleAttribute('soundVolume', soundVolume);
   }
   /**
+   * The starting position of the sound on the frame in ms.
+   * @type {number}
+   */
+
+
+  get soundStart() {
+    return this._getSingleAttribute('soundStart');
+  }
+
+  set soundStart(soundStart) {
+    this._setSingleAttribute('soundStart', soundStart);
+  }
+  /**
    * The easing type of a selected tween. See Wick.Tween.VALID_EASING_TYPES.
    * @type {string}
    */
@@ -49739,7 +50524,10 @@ Wick.Selection = class extends Wick.Base {
       this._pivotPoint = {
         x: boundsCenter.x,
         y: boundsCenter.y
-      };
+      }; // Always pull original size values.
+
+      this._originalWidth = this.view._getSelectedObjectsBounds().width;
+      this._originalHeight = this.view._getSelectedObjectsBounds().height;
     }
   }
   /* helper function for getting a single value from multiple selected objects */
@@ -49830,15 +50618,17 @@ Wick.Timeline = class extends Wick.Base {
     this._fillGapsMethod = "auto_extend";
   }
 
-  serialize(args) {
-    var data = super.serialize(args);
+  _serialize(args) {
+    var data = super._serialize(args);
+
     data.playheadPosition = this._playheadPosition;
     data.activeLayerIndex = this._activeLayerIndex;
     return data;
   }
 
-  deserialize(data) {
-    super.deserialize(data);
+  _deserialize(data) {
+    super._deserialize(data);
+
     this._playheadPosition = data.playheadPosition;
     this._activeLayerIndex = data.activeLayerIndex;
     this._playing = true;
@@ -49976,21 +50766,6 @@ Wick.Timeline = class extends Wick.Base {
       clips = clips.concat(frame.clips);
     });
     return clips;
-  }
-  /**
-   * The playhead position of the frame with the given name.
-   * @type {number|null}
-   */
-
-
-  getPlayheadPositionOfFrameWithName(name) {
-    var frame = this.getFrameByName(name);
-
-    if (frame) {
-      return frame.start;
-    } else {
-      return null;
-    }
   }
   /**
    * Finds the frame with a given name.
@@ -50212,9 +50987,12 @@ Wick.Timeline = class extends Wick.Base {
   gotoFrame(frame) {
     if (typeof frame === 'string') {
       var namedFrame = this.frames.find(seekframe => {
-        return seekframe.identifier === frame;
+        return seekframe.identifier === frame && !seekframe.onScreen;
       });
-      if (namedFrame) this._forceNextFrame = namedFrame.start;
+
+      if (namedFrame) {
+        this._forceNextFrame = namedFrame.start;
+      }
     } else if (typeof frame === 'number') {
       this._forceNextFrame = frame;
     } else {
@@ -50381,8 +51159,9 @@ Wick.Tween = class extends Wick.Base {
     return 'Tween';
   }
 
-  serialize(args) {
-    var data = super.serialize(args);
+  _serialize(args) {
+    var data = super._serialize(args);
+
     data.playheadPosition = this.playheadPosition;
     data.transformation = this.transformation.values;
     data.fullRotations = this.fullRotations;
@@ -50390,8 +51169,9 @@ Wick.Tween = class extends Wick.Base {
     return data;
   }
 
-  deserialize(data) {
-    super.deserialize(data);
+  _deserialize(data) {
+    super._deserialize(data);
+
     this.playheadPosition = data.playheadPosition;
     this.transformation = new Wick.Transformation(data.transformation);
     this.fullRotations = data.fullRotations;
@@ -50564,8 +51344,9 @@ Wick.Path = class extends Wick.Base {
     return 'Path';
   }
 
-  serialize(args) {
-    var data = super.serialize(args);
+  _serialize(args) {
+    var data = super._serialize(args);
+
     data.json = this.json;
     delete data.json[1].data; // optimization: replace dataurls with asset uuids
 
@@ -50586,8 +51367,9 @@ Wick.Path = class extends Wick.Base {
     return data;
   }
 
-  deserialize(data) {
-    super.deserialize(data);
+  _deserialize(data) {
+    super._deserialize(data);
+
     this.json = data.json;
     this._fontStyle = data.fontStyle || 'normal';
     this._fontWeight = data.fontWeight || 400;
@@ -50979,14 +51761,16 @@ Wick.Asset = class extends Wick.Base {
     this.name = args.name;
   }
 
-  serialize(args) {
-    var data = super.serialize(args);
+  _serialize(args) {
+    var data = super._serialize(args);
+
     data.name = this.name;
     return data;
   }
 
-  deserialize(data) {
-    super.deserialize(data);
+  _deserialize(data) {
+    super._deserialize(data);
+
     this.name = data.name;
   }
   /**
@@ -51086,8 +51870,9 @@ Wick.FileAsset = class extends Wick.Asset {
     this.src = args.src;
   }
 
-  serialize(args) {
-    var data = super.serialize(args);
+  _serialize(args) {
+    var data = super._serialize(args);
+
     data.filename = this.filename;
     data.MIMEType = this.MIMEType;
     data.fileExtension = this.fileExtension;
@@ -51099,8 +51884,9 @@ Wick.FileAsset = class extends Wick.Asset {
     return data;
   }
 
-  deserialize(data) {
-    super.deserialize(data);
+  _deserialize(data) {
+    super._deserialize(data);
+
     this.filename = data.filename;
     this.MIMEType = data.MIMEType;
     this.fileExtension = data.fileExtension;
@@ -51213,13 +51999,14 @@ Wick.FontAsset = class extends Wick.FileAsset {
     super(args);
   }
 
-  serialize(args) {
-    var data = super.serialize(args);
+  _serialize(args) {
+    var data = super._serialize(args);
+
     return data;
   }
 
-  deserialize(data) {
-    super.deserialize(data);
+  _deserialize(data) {
+    super._deserialize(data);
   }
 
   get classname() {
@@ -51345,13 +52132,14 @@ Wick.ImageAsset = class extends Wick.FileAsset {
     super(args);
   }
 
-  serialize(args) {
-    var data = super.serialize(args);
+  _serialize(args) {
+    var data = super._serialize(args);
+
     return data;
   }
 
-  deserialize(data) {
-    super.deserialize(data);
+  _deserialize(data) {
+    super._deserialize(data);
   }
 
   get classname() {
@@ -51458,13 +52246,14 @@ Wick.ClipAsset = class extends Wick.FileAsset {
     super(args);
   }
 
-  serialize(args) {
-    var data = super.serialize(args);
+  _serialize(args) {
+    var data = super._serialize(args);
+
     return data;
   }
 
-  deserialize(data) {
-    super.deserialize(data);
+  _deserialize(data) {
+    super._deserialize(data);
   }
 
   get classname() {
@@ -51567,13 +52356,14 @@ Wick.SoundAsset = class extends Wick.FileAsset {
     this._waveform = null;
   }
 
-  serialize(args) {
-    var data = super.serialize(args);
+  _serialize(args) {
+    var data = super._serialize(args);
+
     return data;
   }
 
-  deserialize(data) {
-    super.deserialize(data);
+  _deserialize(data) {
+    super._deserialize(data);
   }
 
   get classname() {
@@ -51783,13 +52573,14 @@ Wick.SVGAsset = class extends Wick.FileAsset {
     super(args);
   }
 
-  serialize(args) {
-    var data = super.serialize(args);
+  _serialize(args) {
+    var data = super._serialize(args);
+
     return data;
   }
 
-  deserialize(data) {
-    super.deserialize(data);
+  _deserialize(data) {
+    super._deserialize(data);
   }
 
   get classname() {
@@ -51898,8 +52689,9 @@ Wick.Tickable = class extends Wick.Base {
     this._cachedScripts = {};
   }
 
-  deserialize(data) {
-    super.deserialize(data);
+  _deserialize(data) {
+    super._deserialize(data);
+
     this._onscreen = false;
     this._onscreenLastTick = false;
     this._mouseState = 'out';
@@ -51910,8 +52702,9 @@ Wick.Tickable = class extends Wick.Base {
     this._cachedScripts = {};
   }
 
-  serialize(args) {
-    var data = super.serialize(args);
+  _serialize(args) {
+    var data = super._serialize(args);
+
     data.scripts = JSON.parse(JSON.stringify(this._scripts));
     data.cursor = this.cursor;
     return data;
@@ -52108,21 +52901,23 @@ Wick.Tickable = class extends Wick.Base {
   /**
    * Schedule a script to run at the end of the tick.
    * @param {string} name - The name of the script to run. See Tickable.possibleScripts
+   * @param {Object} parameters - An object consisting of key,value pairs which correspond to parameters to pass to the script.
    */
 
 
-  scheduleScript(name) {
+  scheduleScript(name, parameters) {
     if (!this.project) return;
-    this.project.scheduleScript(this.uuid, name);
+    this.project.scheduleScript(this.uuid, name, parameters);
   }
   /**
    * Run the script with the corresponding event name.
    * @param {string} name - The name of the event. See Wick.Tickable.possibleScripts
+   * @param {Object} parameters - An object containing key,value pairs of parameters to send to the script.
    * @returns {object} object containing error info if an error happened. Returns null if there was no error (script ran successfully)
    */
 
 
-  runScript(name) {
+  runScript(name, parameters) {
     if (!Wick.Tickable.possibleScripts.indexOf(name) === -1) {
       console.error(name + ' is not a valid script!');
     } // Don't run scripts if this object is the focus
@@ -52137,7 +52932,7 @@ Wick.Tickable = class extends Wick.Base {
     var eventFnError = null;
     this.getEventFns(name).forEach(eventFn => {
       if (eventFnError) return;
-      eventFnError = this._runFunction(eventFn);
+      eventFnError = this._runFunction(eventFn, name, parameters);
     });
 
     if (eventFnError) {
@@ -52157,7 +52952,7 @@ Wick.Tickable = class extends Wick.Base {
 
       this._cachedScripts[name] = fn;
 
-      var error = this._runFunction(fn);
+      var error = this._runFunction(fn, name, parameters);
 
       if (error) {
         this.project.error = error;
@@ -52260,17 +53055,23 @@ Wick.Tickable = class extends Wick.Base {
 
     this.project.keysDown.forEach(key => {
       this.project.currentKey = key;
-      this.scheduleScript('keydown');
+      this.scheduleScript('keydown', {
+        key: key
+      });
     }); // Key press
 
     this.project.keysJustPressed.forEach(key => {
       this.project.currentKey = key;
-      this.scheduleScript('keypressed');
+      this.scheduleScript('keypressed', {
+        key: key
+      });
     }); // Key released
 
     this.project.keysJustReleased.forEach(key => {
       this.project.currentKey = key;
-      this.scheduleScript('keyreleased');
+      this.scheduleScript('keyreleased', {
+        key: key
+      });
     });
   }
 
@@ -52301,8 +53102,15 @@ Wick.Tickable = class extends Wick.Base {
 
     return fn;
   }
+  /**
+   * _runFunction runs an event function while passing in necessary global and local parameters.
+   * @param {string} fn - Function to run.
+   * @param {string} name - Name of the event function being run (i.e. keyDown) 
+   * @param {Object} parameters - An object of key,value pairs to be passed as parameters to the function.
+   */
 
-  _runFunction(fn) {
+
+  _runFunction(fn, name, parameters) {
     var error = null; // Attach API methods
 
     var globalAPI = new GlobalAPI(this);
@@ -52312,7 +53120,17 @@ Wick.Tickable = class extends Wick.Base {
         name: otherObject.identifier,
         fn: otherObject
       };
-    }));
+    })); // Add in parameters, if necessary.
+
+    if (parameters) {
+      Object.keys(parameters).forEach(parameter => {
+        apiMembers.push({
+          name: parameter,
+          fn: parameters[parameter]
+        });
+      });
+    }
+
     apiMembers.forEach(apiMember => {
       window[apiMember.name] = apiMember.fn;
     }); // These are currently hacked in here for performance reasons...
@@ -52386,10 +53204,7 @@ Wick.Tickable = class extends Wick.Base {
       if (!isNaN(lineInt)) {
         lineNumber = lineInt - 2;
         lineNumber = lineInt;
-
-        if (platform.name === 'Firefox') {
-          lineNumber = lineNumber - 2;
-        }
+        lineNumber = lineNumber - 2;
       }
     });
     return lineNumber;
@@ -52436,13 +53251,13 @@ Wick.Frame = class extends Wick.Tickable {
     this._soundID = null;
     this._soundVolume = 1.0;
     this._soundLoop = false;
-    this._cropSoundOffsetMS = 0; // milliseconds.
-
+    this._soundStart = 0;
     this._originalLayerIndex = -1;
   }
 
-  serialize(args) {
-    var data = super.serialize(args);
+  _serialize(args) {
+    var data = super._serialize(args);
+
     data.start = this.start;
     data.end = this.end;
     data.sound = this._soundAssetUUID;
@@ -52452,8 +53267,9 @@ Wick.Frame = class extends Wick.Tickable {
     return data;
   }
 
-  deserialize(data) {
-    super.deserialize(data);
+  _deserialize(data) {
+    super._deserialize(data);
+
     this.start = data.start;
     this.end = data.end;
     this._soundAssetUUID = data.sound;
@@ -52558,7 +53374,7 @@ Wick.Frame = class extends Wick.Tickable {
     }
 
     var options = {
-      seekMS: this.playheadSoundOffsetMS + this.cropSoundOffsetMS,
+      seekMS: this.playheadSoundOffsetMS + this.soundStart,
       volume: this.soundVolume,
       loop: this.soundLoop
     };
@@ -52603,12 +53419,12 @@ Wick.Frame = class extends Wick.Tickable {
    */
 
 
-  get cropSoundOffsetMS() {
-    return this._cropSoundOffsetMS;
+  get soundStart() {
+    return this._soundStart;
   }
 
-  set cropSoundOffsetMS(val) {
-    this._cropSoundOffsetMS = val;
+  set soundStart(val) {
+    this._soundStart = val;
   }
   /**
    * When should the sound start, in milliseconds.
@@ -52970,23 +53786,6 @@ Wick.Frame = class extends Wick.Tickable {
     this.parentLayer.addFrame(rightHalf);
   }
   /**
-   * Insert a blank frame into this frame using the parent timeline's playhead position.
-   * @returns {Wick.Frame} the newly added blank frame.
-   */
-
-
-  insertBlankFrame() {
-    var playheadPosition = this.parentTimeline.playheadPosition; // Cut this frame
-
-    this.cut(); // Add a blank frame where this frame was cut
-
-    var blankFrame = new Wick.Frame({
-      start: playheadPosition
-    });
-    this.parentLayer.addFrame(blankFrame);
-    return blankFrame;
-  }
-  /**
    * Extend this frame by one and push all frames right of this frame to the right.
    */
 
@@ -53148,6 +53947,7 @@ Wick.Clip = class extends Wick.Tickable {
     this.timeline.activeLayer.addFrame(new Wick.Frame());
     this._transformation = args.transformation || new Wick.Transformation();
     this.cursor = 'default';
+    this._isClone = false;
     /* If objects are passed in, add them to the clip and reposition them */
 
     if (args.objects) {
@@ -53157,15 +53957,17 @@ Wick.Clip = class extends Wick.Tickable {
     this._clones = [];
   }
 
-  serialize(args) {
-    var data = super.serialize(args);
+  _serialize(args) {
+    var data = super._serialize(args);
+
     data.transformation = this.transformation.values;
     data.timeline = this._timeline;
     return data;
   }
 
-  deserialize(data) {
-    super.deserialize(data);
+  _deserialize(data) {
+    super._deserialize(data);
+
     this.transformation = new Wick.Transformation(data.transformation);
     this._timeline = data.timeline;
     this._clones = [];
@@ -53203,6 +54005,15 @@ Wick.Clip = class extends Wick.Tickable {
 
   get isFocus() {
     return this.project && this === this.project.focus;
+  }
+  /**
+   * Check if a Clip is a clone of another object.
+   * @type {boolean}
+   */
+
+
+  get isClone() {
+    return this._isClone;
   }
   /**
    * The timeline of the clip.
@@ -53447,7 +54258,8 @@ Wick.Clip = class extends Wick.Tickable {
 
 
   hitTest(other) {
-    return this.bounds.intersects(other.bounds);
+    // TODO: Refactor so that getting bounds does not rely on the view
+    return this.view.absoluteBounds.intersects(other.view.absoluteBounds);
   }
   /**
    * The bounding box of the clip.
@@ -53456,7 +54268,8 @@ Wick.Clip = class extends Wick.Tickable {
 
 
   get bounds() {
-    return this.view.group.bounds;
+    // TODO: Refactor so that getting bounds does not rely on the view
+    return this.view.bounds;
   }
   /**
    * The X position of the clip.
@@ -53495,6 +54308,8 @@ Wick.Clip = class extends Wick.Tickable {
   }
 
   set scaleX(scaleX) {
+    if (scaleX === 0) scaleX = 0.001; // Protects against NaN issues
+
     this.transformation.scaleX = scaleX;
   }
   /**
@@ -53508,6 +54323,8 @@ Wick.Clip = class extends Wick.Tickable {
   }
 
   set scaleY(scaleY) {
+    if (scaleY === 0) scaleY = 0.001; // Protects against NaN issues
+
     this.transformation.scaleY = scaleY;
   }
   /**
@@ -53577,6 +54394,7 @@ Wick.Clip = class extends Wick.Tickable {
 
     this._clones.push(clone);
 
+    clone._isClone = true;
     return clone;
   }
   /**
@@ -53709,13 +54527,14 @@ Wick.Button = class extends Wick.Clip {
     this.addScript('mouseclick', '');
   }
 
-  serialize(args) {
-    var data = super.serialize(args);
+  _serialize(args) {
+    var data = super._serialize(args);
+
     return data;
   }
 
-  deserialize(data) {
-    super.deserialize(data);
+  _deserialize(data) {
+    super._deserialize(data);
   }
 
   get classname() {
@@ -54016,17 +54835,37 @@ Wick.Tool = class {
   /**
    * Adds a paper.Path to the active frame's paper.Layer.
    * @param {paper.Path} path - the path to add
+   * @param {Wick.Frame} frame - (optional) the frame to add the path to.
    */
 
 
-  addPathToProject(path) {
-    // Automatically add a frame is there isn't one
+  addPathToProject(path, frame) {
     if (!this.project.activeFrame) {
+      // Automatically add a frame is there isn't one
       this.project.insertBlankFrame();
       this.project.view.render();
     }
 
-    if (path) this.paper.project.activeLayer.addChild(path);
+    if (!path) {
+      console.error("Warning: addPathToProject: path is null/undefined");
+      return;
+    }
+
+    if (frame && frame !== this.project.activeFrame) {
+      /* If the path must be added to a frame other than the active frame,
+       * convert the paper.js path into a Wick path and add it to the given frame. */
+      var wickPath = new Wick.Path({
+        json: path.exportJSON({
+          asString: false
+        })
+      });
+      frame.addPath(wickPath);
+    } else {
+      /* Otherwise, directly add the paper.js path to the paper.js project.
+         This is signifigantly faster than creating the Wick path, as this
+         method does not require a re-render of the canvas. */
+      this.paper.project.activeLayer.addChild(path);
+    }
   }
 
 };
@@ -54069,17 +54908,20 @@ Wick.Tools.Brush = class extends Wick.Tool {
     this.BRUSH_STABILIZER_LEVEL = 3;
     this.POTRACE_RESOLUTION = 1.0;
     this.MIN_PRESSURE = 0.14;
-    this.croquis;
-    this.croquisDOMElement;
-    this.croquisBrush;
-    this.cachedCursor;
-    this.lastPressure;
+    this.croquis = null;
+    this.croquisDOMElement = null;
+    this.croquisBrush = null;
+    this.cachedCursor = null;
+    this.lastPressure = null;
     this.errorOccured = false;
     this._isInProgress = false;
+    this._croquisStartTimeout = null; // These are used to crop the final path image.
+
     this.strokeBounds = new paper.Rectangle();
-    this._croquisStartTimeout = null;
     this._lastMousePoint = new paper.Point(0, 0);
-    this._lastMousePressure = 1;
+    this._lastMousePressure = 1; // The frame that the brush started the current stroke on.
+
+    this._currentDrawingFrame = null;
   }
 
   get cursor() {// the brush cursor is done in a custom way using _regenCursor().
@@ -54090,6 +54932,8 @@ Wick.Tools.Brush = class extends Wick.Tool {
   }
 
   onActivate(e) {
+    if (this._isInProgress) this.finishStrokeEarly();
+
     if (!this.croquis) {
       this.croquis = new Croquis();
       this.croquis.setCanvasSize(500, 500);
@@ -54117,7 +54961,7 @@ Wick.Tools.Brush = class extends Wick.Tool {
 
   onDeactivate(e) {
     // This prevents croquis from leaving stuck brush strokes on the screen.
-    this.discard();
+    this.finishStrokeEarly();
   }
 
   onMouseMove(e) {
@@ -54129,6 +54973,8 @@ Wick.Tools.Brush = class extends Wick.Tool {
   }
 
   onMouseDown(e) {
+    if (this._isInProgress) this.discard();
+    this._currentDrawingFrame = this.project.activeFrame;
     clearTimeout(this._croquisStartTimeout);
     this._isInProgress = true;
 
@@ -54177,64 +55023,20 @@ Wick.Tools.Brush = class extends Wick.Tool {
 
   onMouseUp(e) {
     if (!this._isInProgress) return;
-    this._isInProgress = false; // Forward mouse event to croquis canvas
+    this._isInProgress = false;
 
     var point = this._croquisToPaperPoint(e.point);
 
-    this._updateStrokeBounds(point); // This prevents cropping out edges of the brush stroke
-
-
-    this.strokeBounds = this.strokeBounds.expand(this._getRealBrushSize());
+    this._calculateStrokeBounds(point);
 
     try {
       this.croquis.up(point.x, point.y, this.lastPressure);
     } catch (e) {
       this.handleBrushError(e);
       return;
-    } // Give croquis just a little bit to get the canvas ready...
+    }
 
-
-    this.errorOccured = false;
-    var strokeBounds = this.strokeBounds.clone();
-    this._croquisStartTimeout = setTimeout(() => {
-      // Retrieve Croquis canvas
-      var canvas = this.paper.view._element.parentElement.getElementsByClassName('croquis-layer-canvas')[1];
-
-      if (!canvas) {
-        console.warn("Croquis canvas was not found in the canvas container. Something very bad has happened.");
-        this.handleBrushError('misingCroquisCanvas');
-        return;
-      } // Rip image data out of Croquis.js canvas
-      // (and crop out empty space using strokeBounds - this massively speeds up potrace)
-
-
-      var croppedCanvas = document.createElement("canvas");
-      var croppedCanvasCtx = croppedCanvas.getContext("2d");
-      croppedCanvas.width = strokeBounds.width;
-      croppedCanvas.height = strokeBounds.height;
-      if (strokeBounds.x < 0) strokeBounds.x = 0;
-      if (strokeBounds.y < 0) strokeBounds.y = 0;
-      croppedCanvasCtx.drawImage(canvas, strokeBounds.x, strokeBounds.y, strokeBounds.width, strokeBounds.height, 0, 0, croppedCanvas.width, croppedCanvas.height); // Run potrace and add the resulting path to the project
-
-      var svg = potrace.fromImage(croppedCanvas).toSVG(1 / this.POTRACE_RESOLUTION / this.paper.view.zoom);
-      var potracePath = this.paper.project.importSVG(svg);
-      potracePath.fillColor = this.getSetting('fillColor').rgba;
-      potracePath.position.x += this.paper.view.bounds.x;
-      potracePath.position.y += this.paper.view.bounds.y;
-      potracePath.position.x += strokeBounds.x / this.paper.view.zoom;
-      potracePath.position.y += strokeBounds.y / this.paper.view.zoom;
-      potracePath.remove();
-      potracePath.closed = true;
-      potracePath.children[0].closed = true;
-      potracePath.children[0].applyMatrix = true;
-      this.addPathToProject(potracePath.children[0]); // We're done potracing using the current croquis canvas, reset the stroke bounds
-
-      this._resetStrokeBounds(point); // Clear croquis canvas
-
-
-      this.croquis.clearLayer();
-      this.fireEvent('canvasModified');
-    }, Wick.Tools.Brush.CROQUIS_WAIT_AMT_MS);
+    this._potraceCroquisCanvas(point);
   }
   /**
    * The current amount of pressure applied to the paper js canvas this tool belongs to.
@@ -54288,6 +55090,23 @@ Wick.Tools.Brush = class extends Wick.Tool {
     setTimeout(() => {
       this.croquis.clearLayer();
     }, 10);
+  }
+  /**
+   * Force the current stroke to be finished, and add the stroke to the project.
+   */
+
+
+  finishStrokeEarly() {
+    if (!this._isInProgress) return;
+    this._isInProgress = false; // Hide the croquis canvas so that the current stroke is never seen on the new frame.
+
+    this.croquisDOMElement.style.opacity = 0; // "Give up" on the current stroke by forcing a mouseup
+
+    this.croquis.up(this._lastMousePoint.x, this._lastMousePoint.y, this._lastMousePressure); // Add path to project
+
+    this._calculateStrokeBounds(this._lastMousePoint);
+
+    this._potraceCroquisCanvas(this._lastMousePoint);
   }
   /* Generate a new circle cursor based on the brush size. */
 
@@ -54359,6 +55178,61 @@ Wick.Tools.Brush = class extends Wick.Tool {
   _updateLastMouseState(point, pressure) {
     this._lastMousePoint = new paper.Point(point.x, point.y);
     this._lastMousePressure = this.pressure;
+  }
+
+  _calculateStrokeBounds(point) {
+    // Forward mouse event to croquis canvas
+    this._updateStrokeBounds(point); // This prevents cropping out edges of the brush stroke
+
+
+    this.strokeBounds = this.strokeBounds.expand(this._getRealBrushSize());
+  }
+  /* Create a paper.js path by potracing the croquis canvas, and add the resulting path to the project. */
+
+
+  _potraceCroquisCanvas(point) {
+    this.errorOccured = false;
+    var strokeBounds = this.strokeBounds.clone(); // Give croquis just a little bit to get the canvas ready...
+
+    this._croquisStartTimeout = setTimeout(() => {
+      // Retrieve Croquis canvas
+      var canvas = this.paper.view._element.parentElement.getElementsByClassName('croquis-layer-canvas')[1];
+
+      if (!canvas) {
+        console.warn("Croquis canvas was not found in the canvas container. Something very bad has happened.");
+        this.handleBrushError('misingCroquisCanvas');
+        return;
+      } // Rip image data out of Croquis.js canvas
+      // (and crop out empty space using strokeBounds - this massively speeds up potrace)
+
+
+      var croppedCanvas = document.createElement("canvas");
+      var croppedCanvasCtx = croppedCanvas.getContext("2d");
+      croppedCanvas.width = strokeBounds.width;
+      croppedCanvas.height = strokeBounds.height;
+      if (strokeBounds.x < 0) strokeBounds.x = 0;
+      if (strokeBounds.y < 0) strokeBounds.y = 0;
+      croppedCanvasCtx.drawImage(canvas, strokeBounds.x, strokeBounds.y, strokeBounds.width, strokeBounds.height, 0, 0, croppedCanvas.width, croppedCanvas.height); // Run potrace and add the resulting path to the project
+
+      var svg = potrace.fromImage(croppedCanvas).toSVG(1 / this.POTRACE_RESOLUTION / this.paper.view.zoom);
+      var potracePath = this.paper.project.importSVG(svg);
+      potracePath.fillColor = this.getSetting('fillColor').rgba;
+      potracePath.position.x += this.paper.view.bounds.x;
+      potracePath.position.y += this.paper.view.bounds.y;
+      potracePath.position.x += strokeBounds.x / this.paper.view.zoom;
+      potracePath.position.y += strokeBounds.y / this.paper.view.zoom;
+      potracePath.remove();
+      potracePath.closed = true;
+      potracePath.children[0].closed = true;
+      potracePath.children[0].applyMatrix = true;
+      this.addPathToProject(potracePath.children[0], this._currentDrawingFrame); // We're done potracing using the current croquis canvas, reset the stroke bounds
+
+      this._resetStrokeBounds(point); // Clear croquis canvas
+
+
+      this.croquis.clearLayer();
+      this.fireEvent('canvasModified');
+    }, Wick.Tools.Brush.CROQUIS_WAIT_AMT_MS);
   }
 
 };
@@ -55129,6 +56003,7 @@ Wick.Tools.Interact = class extends Wick.Tool {
     this._lastKeyDown = null;
     this._mouseIsDown = false;
     this._mousePosition = new paper.Point(0, 0);
+    this._mouseTargets = [];
   }
 
   onActivate(e) {}
@@ -55144,10 +56019,12 @@ Wick.Tools.Interact = class extends Wick.Tool {
   }
 
   onMouseDown(e) {
+    this._mousePosition = e.point;
     this._mouseIsDown = true;
   }
 
   onMouseUp(e) {
+    this._mousePosition = e.point;
     this._mouseIsDown = false;
   }
 
@@ -55182,6 +56059,18 @@ Wick.Tools.Interact = class extends Wick.Tool {
   }
 
   get mouseTargets() {
+    return this._mouseTargets;
+  }
+
+  get doubleClickEnabled() {
+    return false;
+  }
+  /**
+   * Use the current position of the mouse to determine which object(s) are under the mouse
+   */
+
+
+  determineMouseTargets() {
     var targets = [];
     var hitResult = this.paper.project.hitTest(this.mousePosition, {
       fill: true,
@@ -55225,11 +56114,7 @@ Wick.Tools.Interact = class extends Wick.Tool {
       }
     }
 
-    return targets;
-  }
-
-  get doubleClickEnabled() {
-    return false;
+    this._mouseTargets = targets;
   }
 
 };
@@ -56659,6 +57544,7 @@ class SelectionWidget {
 
   set width(width) {
     var d = width / this.width;
+    if (d === 0) d = 0.001;
     this.scaleSelection(new paper.Point(d, 1.0));
   }
   /**
@@ -57666,6 +58552,7 @@ Wick.View.Project = class extends Wick.View {
     this._svgCanvas = null;
     this._svgBackgroundLayer = null;
     this._svgBordersLayer = null;
+    this._svgGUILayer = null;
     this._pan = {
       x: 0,
       y: 0
@@ -57904,9 +58791,13 @@ Wick.View.Project = class extends Wick.View {
     this._svgBordersLayer = new paper.Layer();
     this._svgBordersLayer.name = 'wick_project_borders';
 
-    this._svgBordersLayer.addChildren(this._generateSVGBorders());
-
     this._svgBordersLayer.remove();
+
+    this._svgGUILayer = new paper.Layer();
+    this._svgGUILayer.locked = true;
+    this._svgGUILayer.name = 'wick_project_gui';
+
+    this._svgGUILayer.remove();
 
     this.paper.project.clear();
   }
@@ -57961,21 +58852,33 @@ Wick.View.Project = class extends Wick.View {
 
 
     this.model.focus.timeline.view.render();
-    this.model.focus.timeline.view.onionSkinnedFramesLayers.forEach(layer => {
-      this.paper.project.addLayer(layer);
-    });
-    this.model.focus.timeline.view.activeFrameLayers.forEach(layer => {
+    this.model.focus.timeline.view.frameLayers.forEach(layer => {
       this.paper.project.addLayer(layer);
 
-      if (this.model.project && this.model.project.activeFrame && layer.data.wickType === 'paths' && layer.data.wickUUID === this.model.project.activeFrame.uuid) {
+      if (this.model.project && this.model.project.activeFrame && !layer.locked && layer.data.wickType === 'paths' && layer.data.wickUUID === this.model.project.activeFrame.uuid) {
         layer.activate();
       }
     }); // Render selection
 
     this.model.selection.view.render();
-    this.paper.project.addLayer(this.model.selection.view.layer); // Render black bars (for published projects)
+    this.paper.project.addLayer(this.model.selection.view.layer); // Render GUI Layer
+
+    this._svgGUILayer.removeChildren();
+
+    this._svgGUILayer.locked = true;
+
+    if (this.model.showClipBorders && !this.model.playing && !this.model.publishedMode) {
+      this._svgGUILayer.addChildren(this._generateClipBorders());
+
+      this.paper.project.addLayer(this._svgGUILayer);
+    } // Render black bars (for published projects)
+
 
     if (this.model.publishedMode) {
+      this._svgBordersLayer.removeChildren();
+
+      this._svgBordersLayer.addChildren(this._generateSVGBorders());
+
       this.paper.project.addLayer(this._svgBordersLayer);
     }
   }
@@ -58007,10 +58910,6 @@ Wick.View.Project = class extends Wick.View {
 
 
   _generateSVGBorders() {
-    // Do not render the offscreen borders if the project isn't in published mode
-    if (!this.model.publishedMode) {
-      return [];
-    }
     /**
      * +----------------------------+
      * |             top            +
@@ -58022,8 +58921,6 @@ Wick.View.Project = class extends Wick.View {
      * |           bottom           +
      * +----------------------------+
      */
-
-
     var borderMin = -10000,
         borderMax = 10000;
     return [// top
@@ -58057,6 +58954,20 @@ Wick.View.Project = class extends Wick.View {
     var wr = w / this.model.width;
     var hr = h / this.model.height;
     return Math.min(wr, hr);
+  }
+
+  _generateClipBorders() {
+    var clipBorders = [];
+    this.model.activeFrames.forEach(frame => {
+      var clips = frame.clips.filter(clip => {
+        return !clip.isSelected;
+      });
+      clips.forEach(clip => {
+        var clipBorder = clip.view.generateBorder();
+        clipBorders.push(clipBorder);
+      });
+    });
+    return clipBorders;
   }
 
   _applyZoomAndPanChangesFromPaper() {
@@ -58304,14 +59215,40 @@ Wick.View.Selection = class extends Wick.View {
  * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
  */
 Wick.View.Clip = class extends Wick.View {
+  static get BORDER_STROKE_WIDTH() {
+    return 2;
+  }
+
+  static get BORDER_STROKE_COLOR_NORMAL() {
+    return '#2636E1';
+  }
+
+  static get BORDER_STROKE_COLOR_HAS_CODE() {
+    return '#01C094';
+  }
+
+  static get BORDER_STROKE_COLOR_HAS_CODE_ERROR() {
+    return '#E61E07';
+  }
   /**
    * Creates a new Button view.
    */
+
+
   constructor() {
     super();
     this.group = new this.paper.Group();
     this.group.remove();
     this.group.applyMatrix = false;
+    this._bounds = new paper.Rectangle();
+  }
+
+  get bounds() {
+    return this._bounds;
+  }
+
+  get absoluteBounds() {
+    return this.group.bounds;
   }
 
   render() {
@@ -58322,13 +59259,12 @@ Wick.View.Clip = class extends Wick.View {
     this.group.data.wickUUID = this.model.uuid; // Add frame views from timeline
 
     this.group.removeChildren();
-    this.model.timeline.view.activeFrameLayers.forEach(layer => {
-      this.group.addChild(layer);
-    });
-    this.model.timeline.view.onionSkinnedFramesLayers.forEach(layer => {
+    this.model.timeline.view.frameLayers.forEach(layer => {
       this.group.addChild(layer);
     }); // Update transformations
 
+    this.group.matrix.set(new paper.Matrix());
+    this._bounds = this.group.bounds.clone();
     this.group.pivot = new this.paper.Point(0, 0);
     this.group.position.x = this.model.transformation.x;
     this.group.position.y = this.model.transformation.y;
@@ -58336,6 +59272,40 @@ Wick.View.Clip = class extends Wick.View {
     this.group.scaling.y = this.model.transformation.scaleY;
     this.group.rotation = this.model.transformation.rotation;
     this.group.opacity = this.model.transformation.opacity;
+  }
+
+  generateBorder() {
+    var group = new this.paper.Group({
+      insert: false
+    });
+    group.locked = true;
+    group.data.wickType = 'clip_border_' + this.model.uuid;
+    var bounds = this.bounds; // Change border colors based on if the Clip caused an error
+
+    var strokeColor = Wick.View.Clip.BORDER_STROKE_COLOR_NORMAL;
+
+    if (this.model.project.error && this.model.project.error.uuid === this.model.uuid) {
+      strokeColor = Wick.View.Clip.BORDER_STROKE_COLOR_HAS_CODE_ERROR;
+    } else if (this.model.hasContentfulScripts) {
+      strokeColor = Wick.View.Clip.BORDER_STROKE_COLOR_HAS_CODE;
+    }
+
+    var border = new paper.Path.Rectangle({
+      name: 'border',
+      from: bounds.topLeft,
+      to: bounds.bottomRight,
+      strokeWidth: Wick.View.Clip.BORDER_STROKE_WIDTH / this.paper.view.zoom,
+      strokeColor: strokeColor,
+      insert: false
+    });
+    group.addChild(border);
+    group.pivot = new this.paper.Point(0, 0);
+    group.position.x = this.model.transformation.x;
+    group.position.y = this.model.transformation.y;
+    group.scaling.x = this.model.transformation.scaleX;
+    group.scaling.y = this.model.transformation.scaleY;
+    group.rotation = this.model.transformation.rotation;
+    return group;
   }
 
 };
@@ -58379,26 +59349,20 @@ Wick.View.Button = class extends Wick.View.Clip {};
 Wick.View.Timeline = class extends Wick.View {
   constructor(wickTimeline) {
     super();
-    this.activeFrameLayers = [];
-    this.onionSkinnedFramesLayers = [];
+    this.frameLayers = [];
     this.activeFrameContainers = [];
   }
 
   render() {
-    this.activeFrameLayers = [];
-    this.onionSkinnedFramesLayers = [];
-
-    this._getLayersInOrder().forEach(layer => {
-      layer.view.render();
-      this.activeFrameLayers = this.activeFrameLayers.concat(layer.view.activeFrameLayers);
-      this.onionSkinnedFramesLayers = this.onionSkinnedFramesLayers.concat(layer.view.onionSkinnedFramesLayers);
-    });
-  }
-
-  _getLayersInOrder() {
-    return this.model.layers.filter(layer => {
+    this.frameLayers = [];
+    var layersInRenderOrder = this.model.layers.filter(layer => {
       return layer.project.publishedMode || !layer.hidden;
     }).reverse();
+    layersInRenderOrder.forEach(layer => {
+      layer.view.render();
+      this.frameLayers = this.frameLayers.concat(layer.view.onionSkinnedFramesLayers);
+      this.frameLayers = this.frameLayers.concat(layer.view.activeFrameLayers);
+    });
   }
 
 };
@@ -59765,8 +60729,13 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement {
       var frameLengthMS = 1 / framerate * this.model.length * 1000;
       var frameLengthPx = this.model.length * this.gridCellWidth;
       var cropPx = frameLengthMS / soundLengthMS * 1200; // base waveform image size: 1200px
+      // Determining Pxls/milliseconds to shift waveform.
 
-      ctx.drawImage(waveform, 0, 0, cropPx, waveform.height, 0, 0, frameLengthPx, this.gridCellHeight);
+      var msPerFrame = 1000 / framerate;
+      var pxPerMS = msPerFrame / this.gridCellWidth;
+      var shiftSoundStart = -(this.model.soundStart * (1 / pxPerMS));
+      var volumeCropAmt = waveform.height / 2 * (1 - 1 / this.model.soundVolume);
+      ctx.drawImage(waveform, 0, volumeCropAmt, cropPx, waveform.height - volumeCropAmt * 2, shiftSoundStart, 0, frameLengthPx, this.gridCellHeight);
     } else if (this.model.tweens.length > 0) {
       // Tweens
       this.model.tweens.forEach(tween => {
@@ -60515,7 +61484,7 @@ Wick.GUIElement.LayerButton = class extends Wick.GUIElement.Button {
     var fillColor;
 
     if (this.mouseState == 'down') {
-      this._tooltip.label = this.fillColor = Wick.GUIElement.LAYER_BUTTON_MOUSEDOWN_COLOR;
+      fillColor = Wick.GUIElement.LAYER_BUTTON_MOUSEDOWN_COLOR;
     } else if (this.mouseState == 'over') {
       fillColor = Wick.GUIElement.LAYER_BUTTON_HOVER_COLOR;
     } else if (isToggled) {
@@ -62291,10 +63260,14 @@ Wick.GUIElement.TweenGhost = class extends Wick.GUIElement.Ghost {
 
         <script>
           window.addEventListener('load', function() {
+              window.runBundledProject();
+          }, false);
+
+          window.runBundledProject = () => {
               Wick.WickFile.fromWickFile(window.INJECTED_WICKPROJECT_DATA, project => {
                   project.inject(document.getElementById('wick-canvas-container'));
               }, 'base64');
-          }, false);
+          }
         </script>
 
         <style>

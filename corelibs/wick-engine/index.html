@@ -59,11 +59,27 @@
         }
 
         #preloader {
+            position: absolute;
+            left: 0px;
+            top: 0px;
             width: 100%;
             height: 100%;
             margin: 0px;
             background-color: #1EE29A;
             font-family: sans-serif;
+            transform-origin: 50% 50%;
+        }
+
+        /* Make Flashy slightly larger if the resolution of the screen is big enough */
+        @media (min-width: 1200px) {
+            #preloader {
+                transform: scale(1.5, 1.5);
+            }
+        }
+        @media (min-height: 1200px) {
+            #preloader {
+                transform: scale(2.0, 2.0);
+            }
         }
 
         #loading-bar {
