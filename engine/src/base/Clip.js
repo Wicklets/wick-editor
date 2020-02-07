@@ -40,6 +40,7 @@ Wick.Clip = class extends Wick.Tickable {
         this.cursor = 'default';
 
         this._isClone = false;
+        this._sourceClipUUID = null;
 
         /* If objects are passed in, add them to the clip and reposition them */
         if(args.objects) {
@@ -104,6 +105,13 @@ Wick.Clip = class extends Wick.Tickable {
      */
     get isClone () {
         return this._isClone;
+    }
+
+    /**
+     * The uuid of the clip that this clip was cloned from.
+     */
+    get sourceClipUUID () {
+        return this._sourceClipUUID;
     }
 
     /**
@@ -462,6 +470,7 @@ Wick.Clip = class extends Wick.Tickable {
         this.parentFrame.addClip(clone);
         this._clones.push(clone);
         clone._isClone = true;
+        clone._sourceClipUUID = this.uuid;
         return clone;
     }
 

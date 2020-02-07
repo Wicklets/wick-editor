@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.1.28";
+var WICK_ENGINE_BUILD_VERSION = "2020.2.7";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -53090,7 +53090,7 @@ Wick.Tickable = class extends Wick.Base {
   /**
    * _runFunction runs an event function while passing in necessary global and local parameters.
    * @param {string} fn - Function to run.
-   * @param {string} name - Name of the event function being run (i.e. keyDown) 
+   * @param {string} name - Name of the event function being run (i.e. keyDown)
    * @param {Object} parameters - An object of key,value pairs to be passed as parameters to the function.
    */
 
@@ -53164,7 +53164,7 @@ Wick.Tickable = class extends Wick.Base {
       name: name !== undefined ? name : '',
       lineNumber: this._generateLineNumberFromStackTrace(error.stack),
       message: error.message,
-      uuid: this.uuid
+      uuid: this.isClone ? this.sourceClipUUID : this.uuid
     };
   }
 
@@ -53933,6 +53933,7 @@ Wick.Clip = class extends Wick.Tickable {
     this._transformation = args.transformation || new Wick.Transformation();
     this.cursor = 'default';
     this._isClone = false;
+    this._sourceClipUUID = null;
     /* If objects are passed in, add them to the clip and reposition them */
 
     if (args.objects) {
@@ -53999,6 +54000,14 @@ Wick.Clip = class extends Wick.Tickable {
 
   get isClone() {
     return this._isClone;
+  }
+  /**
+   * The uuid of the clip that this clip was cloned from.
+   */
+
+
+  get sourceClipUUID() {
+    return this._sourceClipUUID;
   }
   /**
    * The timeline of the clip.
@@ -54380,6 +54389,7 @@ Wick.Clip = class extends Wick.Tickable {
     this._clones.push(clone);
 
     clone._isClone = true;
+    clone._sourceClipUUID = this.uuid;
     return clone;
   }
   /**

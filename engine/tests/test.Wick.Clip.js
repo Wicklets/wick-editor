@@ -1248,6 +1248,25 @@ describe('Wick.Clip', function() {
                 expect(project.activeFrame.clips[2]).to.equal(original.__clone2);
                 expect(project.activeFrame.clips[3]).to.equal(original.__clone3);
             });
+
+            it ('errors from clones should use the original clips uuid', function () {
+                var project = new Wick.Project();
+
+                var original = new Wick.Clip({identifier: 'original'});
+                project.activeFrame.addClip(original);
+
+                original.addScript('default', 'this.__cloneOfMyself = this.clone(); this.__cloneFromCloneArray = this.clones[0];');
+                original.addScript('update', 'if(this.isClone) { this.causeAnError(); }');
+
+                var error;
+                error = project.tick();
+                expect(error).to.equal(null);
+                error = project.tick();
+                expect(error).to.equal(null);
+                error = project.tick();
+                expect(error).to.not.equal(null);
+                expect(error.uui).to.not.equal(original.uuid);
+            });
         })
 
         it('clips should have access to global API', function() {

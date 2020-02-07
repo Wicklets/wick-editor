@@ -470,7 +470,7 @@ Wick.Tickable = class extends Wick.Base {
     /**
      * _runFunction runs an event function while passing in necessary global and local parameters.
      * @param {string} fn - Function to run.
-     * @param {string} name - Name of the event function being run (i.e. keyDown) 
+     * @param {string} name - Name of the event function being run (i.e. keyDown)
      * @param {Object} parameters - An object of key,value pairs to be passed as parameters to the function.
      */
     _runFunction (fn, name, parameters) {
@@ -543,7 +543,7 @@ Wick.Tickable = class extends Wick.Base {
             name: name !== undefined ? name : '',
             lineNumber: this._generateLineNumberFromStackTrace(error.stack),
             message: error.message,
-            uuid: this.uuid,
+            uuid: this.isClone ? this.sourceClipUUID : this.uuid,
         }
     }
 
