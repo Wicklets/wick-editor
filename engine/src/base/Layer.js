@@ -135,6 +135,14 @@ Wick.Layer = class extends Wick.Base {
     }
 
     /**
+     * Adds a tween to the active frame of this layer (if one exists).
+     * @param {Wick.Tween} tween - the tween to add
+     */
+    addTween (tween) {
+        this.activeFrame && this.activeFrame.addChild(tween);
+    }
+
+    /**
      * Adds a frame to the layer. If there is an existing frame where the new frame is
      * inserted, then the existing frame will be cut, and the new frame will fill the
      * gap created by that cut.

@@ -44740,20 +44740,31 @@ Wick.Clipboard = class {
 
     this._originalObjects = objects.map(object => {
       return object;
-    }); // Shift frames so that they copy from the relative position of the first frame
+    }); // Shift frames and tweens so that they copy from the relative position of the first frame
 
     var startPlayheadPosition = Number.MAX_SAFE_INTEGER;
     exportedData.forEach(data => {
-      if (data.object.classname !== 'Frame') return;
+      if (data.object.classname === 'Frame') {
+        if (data.object.start < startPlayheadPosition) {
+          startPlayheadPosition = data.object.start;
+        }
+      }
 
-      if (data.object.start < startPlayheadPosition) {
-        startPlayheadPosition = data.object.start;
+      if (data.object.classname === 'Tween') {
+        if (data.object.playheadPosition < startPlayheadPosition) {
+          startPlayheadPosition = data.object.playheadPosition;
+        }
       }
     });
     exportedData.forEach(data => {
-      if (data.object.classname !== 'Frame') return;
-      data.object.start -= startPlayheadPosition - 1;
-      data.object.end -= startPlayheadPosition - 1;
+      if (data.object.classname === 'Frame') {
+        data.object.start -= startPlayheadPosition - 1;
+        data.object.end -= startPlayheadPosition - 1;
+      }
+
+      if (data.object.classname === 'Tween') {
+        data.object.playheadPosition -= startPlayheadPosition - 1;
+      }
     }); // Set the new clipboard data
 
     this.clipboardData = exportedData;
@@ -44797,6 +44808,12 @@ Wick.Clipboard = class {
         object._originalLayerIndex += layerIndicesMoved;
         object.start += project.focus.timeline.playheadPosition - 1;
         object.end += project.focus.timeline.playheadPosition - 1;
+      } // Paste tweens at the position of the playhead
+
+
+      if (object instanceof Wick.Tween) {
+        object._originalLayerIndex += layerIndicesMoved;
+        object.playheadPosition += project.focus.timeline.playheadPosition - 1;
       }
 
       project.addObject(object);
@@ -47861,6 +47878,15 @@ Wick.Layer = class extends Wick.Base {
     this.resolveGaps([frame]);
   }
   /**
+   * Adds a tween to the active frame of this layer (if one exists).
+   * @param {Wick.Tween} tween - the tween to add
+   */
+
+
+  addTween(tween) {
+    this.activeFrame && this.activeFrame.addChild(tween);
+  }
+  /**
    * Adds a frame to the layer. If there is an existing frame where the new frame is
    * inserted, then the existing frame will be cut, and the new frame will fill the
    * gap created by that cut.
@@ -49448,7 +49474,7 @@ Wick.Project = class extends Wick.Base {
     } else if (object instanceof Wick.Layer) {
       this.activeTimeline.addLayer(object);
     } else if (object instanceof Wick.Tween) {
-      this.activeFrame.addTween(object);
+      this.activeTimeline.addTween(object);
     } else {
       return false;
     }
@@ -50796,6 +50822,21 @@ Wick.Timeline = class extends Wick.Base {
     }
   }
   /**
+   * Adds a tween to a frame on this timeline.
+   * @param {Wick.Tween} tween - the tween to add.
+   */
+
+
+  addTween(tween) {
+    if (tween.originalLayerIndex >= this.layers.length) return;
+
+    if (tween.originalLayerIndex === -1) {
+      this.activeLayer.addTween(tween);
+    } else {
+      this.layers[tween.originalLayerIndex].addTween(tween);
+    }
+  }
+  /**
    * Remmoves a layer from the timeline.
    * @param {Wick.Layer} layer - The layer to remove.
    */
@@ -51098,6 +51139,7 @@ Wick.Tween = class extends Wick.Base {
     this.transformation = args.transformation || new Wick.Transformation();
     this.fullRotations = args.fullRotations === undefined ? 0 : args.fullRotations;
     this.easingType = args.easingType || 'none';
+    this._originalLayerIndex = -1;
   }
   /**
    * Create a tween by interpolating two existing tweens.
@@ -51151,6 +51193,7 @@ Wick.Tween = class extends Wick.Base {
     data.transformation = this.transformation.values;
     data.fullRotations = this.fullRotations;
     data.easingType = this.easingType;
+    data.originalLayerIndex = this.layerIndex !== -1 ? this.layerIndex : this._originalLayerIndex;
     return data;
   }
 
@@ -51161,6 +51204,7 @@ Wick.Tween = class extends Wick.Base {
     this.transformation = new Wick.Transformation(data.transformation);
     this.fullRotations = data.fullRotations;
     this.easingType = data.easingType;
+    this._originalLayerIndex = data.originalLayerIndex;
   }
   /**
    * The playhead position of the tween.
@@ -51233,6 +51277,16 @@ Wick.Tween = class extends Wick.Base {
     if (playheadPosition < 1 || playheadPosition > this.parentFrame.length) {
       this.remove();
     }
+  }
+  /**
+   * The index of the parent layer of this tween.
+   * @type {number}
+   */
+
+
+  get layerIndex() {
+    console.log(this.parentFrame);
+    return this.parentLayer.index;
   }
   /* retrieve Tween.js easing functions by name */
 

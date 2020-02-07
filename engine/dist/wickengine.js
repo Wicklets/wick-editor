@@ -16794,7 +16794,7 @@ var Base64ArrayBuffer = (function () {
 })();
 
 // https://stackoverflow.com/questions/14224535/scaling-between-two-number-ranges
-function convertRange( value, r1, r2 ) { 
+function convertRange( value, r1, r2 ) {
     return ( value - r1[ 0 ] ) * ( r2[ 1 ] - r2[ 0 ] ) / ( r1[ 1 ] - r1[ 0 ] ) + r2[ 0 ];
 }
 /* croquis.js */
@@ -26074,8 +26074,8 @@ var floodfill = (function() {
         // Use the default sound sprite (plays the full audio length).
         sprite = '__default';
 
-        // Check if there is a single paused sound that isn't ended. 
-        // If there is, play that sound. If not, continue as usual.  
+        // Check if there is a single paused sound that isn't ended.
+        // If there is, play that sound. If not, continue as usual.
         if (!self._playLock) {
           var num = 0;
           for (var i=0; i<self._sounds.length; i++) {
@@ -27834,7 +27834,7 @@ var floodfill = (function() {
 
 /*!
  *  Spatial Plugin - Adds support for stereo and 3D audio where Web Audio is supported.
- *  
+ *
  *  howler.js v2.1.1
  *  howlerjs.com
  *
@@ -32769,8 +32769,8 @@ exports.prepareContent = function(name, inputData, isBinary, isOptimizedBinarySt
 
     // if inputData is already a promise, this flatten it.
     var promise = external.Promise.resolve(inputData).then(function(data) {
-        
-        
+
+
         var isBlob = support.blob && (data instanceof Blob || ['[object File]', '[object Blob]'].indexOf(Object.prototype.toString.call(data)) !== -1);
 
         if (isBlob && typeof FileReader !== "undefined") {
@@ -33629,7 +33629,7 @@ $export.P = 8;   // proto
 $export.B = 16;  // bind
 $export.W = 32;  // wrap
 $export.U = 64;  // safe
-$export.R = 128; // real proto method for `library` 
+$export.R = 128; // real proto method for `library`
 module.exports = $export;
 },{"./_core":40,"./_ctx":41,"./_global":46,"./_hide":47}],45:[function(require,module,exports){
 module.exports = function(exec){
@@ -44734,26 +44734,38 @@ Wick.Clipboard = class {
       this._copyLayerIndex = Math.min(this._copyLayerIndex, i);
     }); // Make deep copies of every object
 
+		console.log(objects)
     var exportedData = objects.map(object => {
       return object.export();
     }); // Save references to the original objects
 
     this._originalObjects = objects.map(object => {
       return object;
-    }); // Shift frames so that they copy from the relative position of the first frame
+    }); // Shift frames and tweens so that they copy from the relative position of the first frame
 
     var startPlayheadPosition = Number.MAX_SAFE_INTEGER;
     exportedData.forEach(data => {
-      if (data.object.classname !== 'Frame') return;
+      if (data.object.classname === 'Frame') {
+        if (data.object.start < startPlayheadPosition) {
+          startPlayheadPosition = data.object.start;
+        }
+      }
 
-      if (data.object.start < startPlayheadPosition) {
-        startPlayheadPosition = data.object.start;
+      if (data.object.classname === 'Tween') {
+        if (data.object.playheadPosition < startPlayheadPosition) {
+          startPlayheadPosition = data.object.playheadPosition;
+        }
       }
     });
     exportedData.forEach(data => {
-      if (data.object.classname !== 'Frame') return;
-      data.object.start -= startPlayheadPosition - 1;
-      data.object.end -= startPlayheadPosition - 1;
+      if (data.object.classname === 'Frame') {
+        data.object.start -= startPlayheadPosition - 1;
+        data.object.end -= startPlayheadPosition - 1;
+      }
+
+      if (data.object.classname === 'Tween') {
+        data.object.playheadPosition -= startPlayheadPosition - 1;
+      }
     }); // Set the new clipboard data
 
     this.clipboardData = exportedData;
@@ -44797,6 +44809,12 @@ Wick.Clipboard = class {
         object._originalLayerIndex += layerIndicesMoved;
         object.start += project.focus.timeline.playheadPosition - 1;
         object.end += project.focus.timeline.playheadPosition - 1;
+      } // Paste tweens at the position of the playhead
+
+
+      if (object instanceof Wick.Tween) {
+        object._originalLayerIndex += layerIndicesMoved;
+        object.playheadPosition += project.focus.timeline.playheadPosition - 1;
       }
 
       project.addObject(object);
@@ -47861,6 +47879,15 @@ Wick.Layer = class extends Wick.Base {
     this.resolveGaps([frame]);
   }
   /**
+   * Adds a tween to the active frame of this layer (if one exists).
+   * @param {Wick.Tween} tween - the tween to add
+   */
+
+
+  addTween(tween) {
+    this.activeFrame && this.activeFrame.addChild(tween);
+  }
+  /**
    * Adds a frame to the layer. If there is an existing frame where the new frame is
    * inserted, then the existing frame will be cut, and the new frame will fill the
    * gap created by that cut.
@@ -49448,7 +49475,7 @@ Wick.Project = class extends Wick.Base {
     } else if (object instanceof Wick.Layer) {
       this.activeTimeline.addLayer(object);
     } else if (object instanceof Wick.Tween) {
-      this.activeFrame.addTween(object);
+      this.activeTimeline.addTween(object);
     } else {
       return false;
     }
@@ -50796,6 +50823,21 @@ Wick.Timeline = class extends Wick.Base {
     }
   }
   /**
+   * Adds a tween to a frame on this timeline.
+   * @param {Wick.Tween} tween - the tween to add.
+   */
+
+
+  addTween(tween) {
+    if (tween.originalLayerIndex >= this.layers.length) return;
+
+    if (tween.originalLayerIndex === -1) {
+      this.activeLayer.addTween(tween);
+    } else {
+      this.layers[tween.originalLayerIndex].addTween(tween);
+    }
+  }
+  /**
    * Remmoves a layer from the timeline.
    * @param {Wick.Layer} layer - The layer to remove.
    */
@@ -51098,6 +51140,7 @@ Wick.Tween = class extends Wick.Base {
     this.transformation = args.transformation || new Wick.Transformation();
     this.fullRotations = args.fullRotations === undefined ? 0 : args.fullRotations;
     this.easingType = args.easingType || 'none';
+    this._originalLayerIndex = -1;
   }
   /**
    * Create a tween by interpolating two existing tweens.
@@ -51151,6 +51194,7 @@ Wick.Tween = class extends Wick.Base {
     data.transformation = this.transformation.values;
     data.fullRotations = this.fullRotations;
     data.easingType = this.easingType;
+    data.originalLayerIndex = this.layerIndex !== -1 ? this.layerIndex : this._originalLayerIndex;
     return data;
   }
 
@@ -51161,6 +51205,7 @@ Wick.Tween = class extends Wick.Base {
     this.transformation = new Wick.Transformation(data.transformation);
     this.fullRotations = data.fullRotations;
     this.easingType = data.easingType;
+    this._originalLayerIndex = data.originalLayerIndex;
   }
   /**
    * The playhead position of the tween.
@@ -51233,6 +51278,16 @@ Wick.Tween = class extends Wick.Base {
     if (playheadPosition < 1 || playheadPosition > this.parentFrame.length) {
       this.remove();
     }
+  }
+  /**
+   * The index of the parent layer of this tween.
+   * @type {number}
+   */
+
+
+  get layerIndex() {
+    console.log(this.parentFrame);
+    return this.parentLayer.index;
   }
   /* retrieve Tween.js easing functions by name */
 

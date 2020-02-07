@@ -1330,7 +1330,7 @@ Wick.Project = class extends Wick.Base {
         } else if (object instanceof Wick.Layer) {
             this.activeTimeline.addLayer(object);
         } else if (object instanceof Wick.Tween) {
-            this.activeFrame.addTween(object);
+            this.activeTimeline.addTween(object);
         } else {
             return false;
         }
