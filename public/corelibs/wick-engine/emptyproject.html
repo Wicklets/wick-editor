@@ -49639,7 +49639,7 @@ Wick.Project = class extends Wick.Base {
 
 
   get canDraw() {
-    return !this.activeLayer.locked && !this.activeLayer.hidden && this.activeFrame.tweens.length === 0;
+    return !this.activeLayer.locked && !this.activeLayer.hidden;
   }
   /**
    * Loads all Assets in the project's asset library. This must be called after opening a project.

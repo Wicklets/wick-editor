@@ -1483,8 +1483,7 @@ Wick.Project = class extends Wick.Base {
      */
     get canDraw () {
         return !this.activeLayer.locked
-            && !this.activeLayer.hidden
-            && this.activeFrame.tweens.length === 0;
+            && !this.activeLayer.hidden;
     }
 
     /**
