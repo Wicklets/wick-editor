@@ -185,8 +185,15 @@ Wick.Tween = class extends Wick.Base {
      * @type {number}
      */
     get layerIndex () {
-        console.log(this.parentFrame)
-        return this.parentLayer.index;
+        return this.parentLayer ? this.parentLayer.index : -1;
+    }
+
+    /**
+     * The index of the layer that this tween last belonged to. Used when copying and pasting tweens.
+     * @type {number}
+     */
+    get originalLayerIndex () {
+        return this._originalLayerIndex;
     }
 
      /* retrieve Tween.js easing functions by name */

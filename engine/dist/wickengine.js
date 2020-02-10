@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.2.7";
+var WICK_ENGINE_BUILD_VERSION = "2020.2.10";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -16794,7 +16794,7 @@ var Base64ArrayBuffer = (function () {
 })();
 
 // https://stackoverflow.com/questions/14224535/scaling-between-two-number-ranges
-function convertRange( value, r1, r2 ) {
+function convertRange( value, r1, r2 ) { 
     return ( value - r1[ 0 ] ) * ( r2[ 1 ] - r2[ 0 ] ) / ( r1[ 1 ] - r1[ 0 ] ) + r2[ 0 ];
 }
 /* croquis.js */
@@ -26074,8 +26074,8 @@ var floodfill = (function() {
         // Use the default sound sprite (plays the full audio length).
         sprite = '__default';
 
-        // Check if there is a single paused sound that isn't ended.
-        // If there is, play that sound. If not, continue as usual.
+        // Check if there is a single paused sound that isn't ended. 
+        // If there is, play that sound. If not, continue as usual.  
         if (!self._playLock) {
           var num = 0;
           for (var i=0; i<self._sounds.length; i++) {
@@ -27834,7 +27834,7 @@ var floodfill = (function() {
 
 /*!
  *  Spatial Plugin - Adds support for stereo and 3D audio where Web Audio is supported.
- *
+ *  
  *  howler.js v2.1.1
  *  howlerjs.com
  *
@@ -32769,8 +32769,8 @@ exports.prepareContent = function(name, inputData, isBinary, isOptimizedBinarySt
 
     // if inputData is already a promise, this flatten it.
     var promise = external.Promise.resolve(inputData).then(function(data) {
-
-
+        
+        
         var isBlob = support.blob && (data instanceof Blob || ['[object File]', '[object Blob]'].indexOf(Object.prototype.toString.call(data)) !== -1);
 
         if (isBlob && typeof FileReader !== "undefined") {
@@ -33629,7 +33629,7 @@ $export.P = 8;   // proto
 $export.B = 16;  // bind
 $export.W = 32;  // wrap
 $export.U = 64;  // safe
-$export.R = 128; // real proto method for `library`
+$export.R = 128; // real proto method for `library` 
 module.exports = $export;
 },{"./_core":40,"./_ctx":41,"./_global":46,"./_hide":47}],45:[function(require,module,exports){
 module.exports = function(exec){
@@ -44727,14 +44727,13 @@ Wick.Clipboard = class {
 
     this._copyLayerIndex = Infinity;
     objects.filter(object => {
-      return object instanceof Wick.Frame;
+      return object instanceof Wick.Frame || object instanceof Wick.Tween;
     }).map(frame => {
       return frame.parentLayer.index;
     }).forEach(i => {
       this._copyLayerIndex = Math.min(this._copyLayerIndex, i);
     }); // Make deep copies of every object
 
-		console.log(objects)
     var exportedData = objects.map(object => {
       return object.export();
     }); // Save references to the original objects
@@ -49625,7 +49624,7 @@ Wick.Project = class extends Wick.Base {
 
 
   get canDraw() {
-    return !this.activeLayer.locked && !this.activeLayer.hidden;
+    return !this.activeLayer.locked && !this.activeLayer.hidden && this.activeFrame.tweens.length === 0;
   }
   /**
    * Loads all Assets in the project's asset library. This must be called after opening a project.
@@ -51286,8 +51285,16 @@ Wick.Tween = class extends Wick.Base {
 
 
   get layerIndex() {
-    console.log(this.parentFrame);
-    return this.parentLayer.index;
+    return this.parentLayer ? this.parentLayer.index : -1;
+  }
+  /**
+   * The index of the layer that this tween last belonged to. Used when copying and pasting tweens.
+   * @type {number}
+   */
+
+
+  get originalLayerIndex() {
+    return this._originalLayerIndex;
   }
   /* retrieve Tween.js easing functions by name */
 
@@ -53546,7 +53553,7 @@ Wick.Frame = class extends Wick.Tickable {
     return this.parentLayer ? this.parentLayer.index : -1;
   }
   /**
-   * The index of the layer that this frame last belonged to. Useful when copying and pasting frames!
+   * The index of the layer that this frame last belonged to. Used when copying and pasting frames.
    * @type {number}
    */
 

@@ -407,7 +407,7 @@ describe('Wick.Clipboard', function() {
 
         project.activeTimeline.layers[0].addFrame(frameA);
         project.activeTimeline.layers[1].addFrame(frameB);
-        project.activeTimeline.layers[1].addFrame(frameC);
+        project.activeTimeline.layers[2].addFrame(frameC);
 
         var tweenA = new Wick.Tween({playheadPosition: 1});
         var tweenB = new Wick.Tween({playheadPosition: 1});

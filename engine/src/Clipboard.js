@@ -76,7 +76,8 @@ Wick.Clipboard = class {
         // Keep track of the topmost layer of the selection (we use this later to position frames)
         this._copyLayerIndex = Infinity;
         objects.filter(object => {
-            return object instanceof Wick.Frame;
+            return (object instanceof Wick.Frame)
+                || (object instanceof Wick.Tween);
         }).map(frame => {
             return frame.parentLayer.index;
         }).forEach(i => {

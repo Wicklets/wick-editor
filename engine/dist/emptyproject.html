@@ -14,7 +14,7 @@
         <!-- The Wick Engine build is injected here during the engine build step (see gulpfile.js) -->
         <script>
             /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.2.7";
+var WICK_ENGINE_BUILD_VERSION = "2020.2.10";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -44742,7 +44742,7 @@ Wick.Clipboard = class {
 
     this._copyLayerIndex = Infinity;
     objects.filter(object => {
-      return object instanceof Wick.Frame;
+      return object instanceof Wick.Frame || object instanceof Wick.Tween;
     }).map(frame => {
       return frame.parentLayer.index;
     }).forEach(i => {
@@ -49639,7 +49639,7 @@ Wick.Project = class extends Wick.Base {
 
 
   get canDraw() {
-    return !this.activeLayer.locked && !this.activeLayer.hidden;
+    return !this.activeLayer.locked && !this.activeLayer.hidden && this.activeFrame.tweens.length === 0;
   }
   /**
    * Loads all Assets in the project's asset library. This must be called after opening a project.
@@ -51300,8 +51300,16 @@ Wick.Tween = class extends Wick.Base {
 
 
   get layerIndex() {
-    console.log(this.parentFrame);
-    return this.parentLayer.index;
+    return this.parentLayer ? this.parentLayer.index : -1;
+  }
+  /**
+   * The index of the layer that this tween last belonged to. Used when copying and pasting tweens.
+   * @type {number}
+   */
+
+
+  get originalLayerIndex() {
+    return this._originalLayerIndex;
   }
   /* retrieve Tween.js easing functions by name */
 
@@ -53560,7 +53568,7 @@ Wick.Frame = class extends Wick.Tickable {
     return this.parentLayer ? this.parentLayer.index : -1;
   }
   /**
-   * The index of the layer that this frame last belonged to. Useful when copying and pasting frames!
+   * The index of the layer that this frame last belonged to. Used when copying and pasting frames.
    * @type {number}
    */
 
