@@ -1369,7 +1369,7 @@ Wick.Project = class extends Wick.Base {
         } else if (object instanceof Wick.Layer) {
             this.activeTimeline.addLayer(object);
         } else if (object instanceof Wick.Tween) {
-            this.activeFrame.addTween(object);
+            this.activeTimeline.addTween(object);
         } else {
             return false;
         }
@@ -1521,7 +1521,8 @@ Wick.Project = class extends Wick.Base {
      * @type {boolean}
      */
     get canDraw () {
-        return !this.activeLayer.locked && !this.activeLayer.hidden;
+        return !this.activeLayer.locked
+            && !this.activeLayer.hidden;
     }
 
     /**

@@ -47,6 +47,8 @@ Wick.Tween = class extends Wick.Base {
         this.transformation = args.transformation || new Wick.Transformation();
         this.fullRotations = args.fullRotations === undefined ? 0 : args.fullRotations;
         this.easingType = args.easingType || 'none';
+
+        this._originalLayerIndex = -1;
     }
 
     /**
@@ -95,6 +97,8 @@ Wick.Tween = class extends Wick.Base {
         data.fullRotations = this.fullRotations;
         data.easingType = this.easingType;
 
+        data.originalLayerIndex = this.layerIndex !== -1 ? this.layerIndex : this._originalLayerIndex;
+
         return data;
     }
 
@@ -105,6 +109,8 @@ Wick.Tween = class extends Wick.Base {
         this.transformation = new Wick.Transformation(data.transformation);
         this.fullRotations = data.fullRotations;
         this.easingType = data.easingType;
+
+        this._originalLayerIndex = data.originalLayerIndex;
     }
 
     /**
@@ -172,6 +178,22 @@ Wick.Tween = class extends Wick.Base {
         if(playheadPosition < 1 || playheadPosition > this.parentFrame.length) {
             this.remove();
         }
+    }
+
+    /**
+     * The index of the parent layer of this tween.
+     * @type {number}
+     */
+    get layerIndex () {
+        return this.parentLayer ? this.parentLayer.index : -1;
+    }
+
+    /**
+     * The index of the layer that this tween last belonged to. Used when copying and pasting tweens.
+     * @type {number}
+     */
+    get originalLayerIndex () {
+        return this._originalLayerIndex;
     }
 
      /* retrieve Tween.js easing functions by name */

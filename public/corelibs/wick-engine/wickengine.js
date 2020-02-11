@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.2.2.16.19.48";
+var WICK_ENGINE_BUILD_VERSION = "2020.2.11.10.15.18";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -44727,7 +44727,7 @@ Wick.Clipboard = class {
 
     this._copyLayerIndex = Infinity;
     objects.filter(object => {
-      return object instanceof Wick.Frame;
+      return object instanceof Wick.Frame || object instanceof Wick.Tween;
     }).map(frame => {
       return frame.parentLayer.index;
     }).forEach(i => {
@@ -44740,20 +44740,31 @@ Wick.Clipboard = class {
 
     this._originalObjects = objects.map(object => {
       return object;
-    }); // Shift frames so that they copy from the relative position of the first frame
+    }); // Shift frames and tweens so that they copy from the relative position of the first frame
 
     var startPlayheadPosition = Number.MAX_SAFE_INTEGER;
     exportedData.forEach(data => {
-      if (data.object.classname !== 'Frame') return;
+      if (data.object.classname === 'Frame') {
+        if (data.object.start < startPlayheadPosition) {
+          startPlayheadPosition = data.object.start;
+        }
+      }
 
-      if (data.object.start < startPlayheadPosition) {
-        startPlayheadPosition = data.object.start;
+      if (data.object.classname === 'Tween') {
+        if (data.object.playheadPosition < startPlayheadPosition) {
+          startPlayheadPosition = data.object.playheadPosition;
+        }
       }
     });
     exportedData.forEach(data => {
-      if (data.object.classname !== 'Frame') return;
-      data.object.start -= startPlayheadPosition - 1;
-      data.object.end -= startPlayheadPosition - 1;
+      if (data.object.classname === 'Frame') {
+        data.object.start -= startPlayheadPosition - 1;
+        data.object.end -= startPlayheadPosition - 1;
+      }
+
+      if (data.object.classname === 'Tween') {
+        data.object.playheadPosition -= startPlayheadPosition - 1;
+      }
     }); // Set the new clipboard data
 
     this.clipboardData = exportedData;
@@ -44797,6 +44808,12 @@ Wick.Clipboard = class {
         object._originalLayerIndex += layerIndicesMoved;
         object.start += project.focus.timeline.playheadPosition - 1;
         object.end += project.focus.timeline.playheadPosition - 1;
+      } // Paste tweens at the position of the playhead
+
+
+      if (object instanceof Wick.Tween) {
+        object._originalLayerIndex += layerIndicesMoved;
+        object.playheadPosition += project.focus.timeline.playheadPosition - 1;
       }
 
       project.addObject(object);
@@ -47866,6 +47883,15 @@ Wick.Layer = class extends Wick.Base {
     this.resolveGaps([frame]);
   }
   /**
+   * Adds a tween to the active frame of this layer (if one exists).
+   * @param {Wick.Tween} tween - the tween to add
+   */
+
+
+  addTween(tween) {
+    this.activeFrame && this.activeFrame.addChild(tween);
+  }
+  /**
    * Adds a frame to the layer. If there is an existing frame where the new frame is
    * inserted, then the existing frame will be cut, and the new frame will fill the
    * gap created by that cut.
@@ -49493,7 +49519,7 @@ Wick.Project = class extends Wick.Base {
     } else if (object instanceof Wick.Layer) {
       this.activeTimeline.addLayer(object);
     } else if (object instanceof Wick.Tween) {
-      this.activeFrame.addTween(object);
+      this.activeTimeline.addTween(object);
     } else {
       return false;
     }
@@ -50883,6 +50909,21 @@ Wick.Timeline = class extends Wick.Base {
     }
   }
   /**
+   * Adds a tween to a frame on this timeline.
+   * @param {Wick.Tween} tween - the tween to add.
+   */
+
+
+  addTween(tween) {
+    if (tween.originalLayerIndex >= this.layers.length) return;
+
+    if (tween.originalLayerIndex === -1) {
+      this.activeLayer.addTween(tween);
+    } else {
+      this.layers[tween.originalLayerIndex].addTween(tween);
+    }
+  }
+  /**
    * Remmoves a layer from the timeline.
    * @param {Wick.Layer} layer - The layer to remove.
    */
@@ -51185,6 +51226,7 @@ Wick.Tween = class extends Wick.Base {
     this.transformation = args.transformation || new Wick.Transformation();
     this.fullRotations = args.fullRotations === undefined ? 0 : args.fullRotations;
     this.easingType = args.easingType || 'none';
+    this._originalLayerIndex = -1;
   }
   /**
    * Create a tween by interpolating two existing tweens.
@@ -51238,6 +51280,7 @@ Wick.Tween = class extends Wick.Base {
     data.transformation = this.transformation.values;
     data.fullRotations = this.fullRotations;
     data.easingType = this.easingType;
+    data.originalLayerIndex = this.layerIndex !== -1 ? this.layerIndex : this._originalLayerIndex;
     return data;
   }
 
@@ -51248,6 +51291,7 @@ Wick.Tween = class extends Wick.Base {
     this.transformation = new Wick.Transformation(data.transformation);
     this.fullRotations = data.fullRotations;
     this.easingType = data.easingType;
+    this._originalLayerIndex = data.originalLayerIndex;
   }
   /**
    * The playhead position of the tween.
@@ -51320,6 +51364,24 @@ Wick.Tween = class extends Wick.Base {
     if (playheadPosition < 1 || playheadPosition > this.parentFrame.length) {
       this.remove();
     }
+  }
+  /**
+   * The index of the parent layer of this tween.
+   * @type {number}
+   */
+
+
+  get layerIndex() {
+    return this.parentLayer ? this.parentLayer.index : -1;
+  }
+  /**
+   * The index of the layer that this tween last belonged to. Used when copying and pasting tweens.
+   * @type {number}
+   */
+
+
+  get originalLayerIndex() {
+    return this._originalLayerIndex;
   }
   /* retrieve Tween.js easing functions by name */
 
@@ -53185,7 +53247,7 @@ Wick.Tickable = class extends Wick.Base {
   /**
    * _runFunction runs an event function while passing in necessary global and local parameters.
    * @param {string} fn - Function to run.
-   * @param {string} name - Name of the event function being run (i.e. keyDown) 
+   * @param {string} name - Name of the event function being run (i.e. keyDown)
    * @param {Object} parameters - An object of key,value pairs to be passed as parameters to the function.
    */
 
@@ -53259,7 +53321,7 @@ Wick.Tickable = class extends Wick.Base {
       name: name !== undefined ? name : '',
       lineNumber: this._generateLineNumberFromStackTrace(error.stack),
       message: error.message,
-      uuid: this.uuid
+      uuid: this.isClone ? this.sourceClipUUID : this.uuid
     };
   }
 
@@ -53586,7 +53648,7 @@ Wick.Frame = class extends Wick.Tickable {
     return this.parentLayer ? this.parentLayer.index : -1;
   }
   /**
-   * The index of the layer that this frame last belonged to. Useful when copying and pasting frames!
+   * The index of the layer that this frame last belonged to. Used when copying and pasting frames.
    * @type {number}
    */
 
@@ -54067,6 +54129,7 @@ Wick.Clip = class extends Wick.Tickable {
     this._transformation = args.transformation || new Wick.Transformation();
     this.cursor = 'default';
     this._isClone = false;
+    this._sourceClipUUID = null;
     /* If objects are passed in, add them to the clip and reposition them */
 
     if (args.objects) {
@@ -54138,6 +54201,14 @@ Wick.Clip = class extends Wick.Tickable {
 
   get isClone() {
     return this._isClone;
+  }
+  /**
+   * The uuid of the clip that this clip was cloned from.
+   */
+
+
+  get sourceClipUUID() {
+    return this._sourceClipUUID;
   }
   /**
    * The timeline of the clip.
@@ -54627,6 +54698,7 @@ Wick.Clip = class extends Wick.Tickable {
     this._clones.push(clone);
 
     clone._isClone = true;
+    clone._sourceClipUUID = this.uuid;
     return clone;
   }
   /**

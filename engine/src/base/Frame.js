@@ -280,7 +280,7 @@ Wick.Frame = class extends Wick.Tickable {
     }
 
     /**
-     * The index of the layer that this frame last belonged to. Useful when copying and pasting frames!
+     * The index of the layer that this frame last belonged to. Used when copying and pasting frames.
      * @type {number}
      */
     get originalLayerIndex () {

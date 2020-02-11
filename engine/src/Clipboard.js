@@ -76,7 +76,8 @@ Wick.Clipboard = class {
         // Keep track of the topmost layer of the selection (we use this later to position frames)
         this._copyLayerIndex = Infinity;
         objects.filter(object => {
-            return object instanceof Wick.Frame;
+            return (object instanceof Wick.Frame)
+                || (object instanceof Wick.Tween);
         }).map(frame => {
             return frame.parentLayer.index;
         }).forEach(i => {
@@ -93,18 +94,28 @@ Wick.Clipboard = class {
             return object;
         });
 
-        // Shift frames so that they copy from the relative position of the first frame
+        // Shift frames and tweens so that they copy from the relative position of the first frame
         var startPlayheadPosition = Number.MAX_SAFE_INTEGER;
         exportedData.forEach(data => {
-            if(data.object.classname !== 'Frame') return;
-            if(data.object.start < startPlayheadPosition) {
-                startPlayheadPosition = data.object.start;
+            if(data.object.classname === 'Frame') {
+                if(data.object.start < startPlayheadPosition) {
+                    startPlayheadPosition = data.object.start;
+                }
+            }
+            if(data.object.classname === 'Tween') {
+                if(data.object.playheadPosition < startPlayheadPosition) {
+                    startPlayheadPosition = data.object.playheadPosition;
+                }
             }
         });
         exportedData.forEach(data => {
-            if(data.object.classname !== 'Frame') return;
-            data.object.start -= startPlayheadPosition - 1;
-            data.object.end -= startPlayheadPosition - 1;
+            if(data.object.classname === 'Frame') {
+                data.object.start -= startPlayheadPosition - 1;
+                data.object.end -= startPlayheadPosition - 1;
+            }
+            if(data.object.classname === 'Tween') {
+                data.object.playheadPosition -= startPlayheadPosition - 1;
+            }
         });
 
         // Set the new clipboard data
@@ -149,6 +160,12 @@ Wick.Clipboard = class {
                 object._originalLayerIndex += layerIndicesMoved;
                 object.start += project.focus.timeline.playheadPosition - 1;
                 object.end += project.focus.timeline.playheadPosition - 1;
+            }
+
+            // Paste tweens at the position of the playhead
+            if(object instanceof Wick.Tween) {
+                object._originalLayerIndex += layerIndicesMoved;
+                object.playheadPosition += project.focus.timeline.playheadPosition - 1;
             }
 
             project.addObject(object);

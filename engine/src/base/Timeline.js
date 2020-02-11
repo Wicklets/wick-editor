@@ -217,6 +217,20 @@ Wick.Timeline = class extends Wick.Base {
     }
 
     /**
+     * Adds a tween to a frame on this timeline.
+     * @param {Wick.Tween} tween - the tween to add.
+     */
+    addTween (tween) {
+        if(tween.originalLayerIndex >= this.layers.length) return;
+
+        if(tween.originalLayerIndex === -1) {
+            this.activeLayer.addTween(tween);
+        } else {
+            this.layers[tween.originalLayerIndex].addTween(tween);
+        }
+    }
+
+    /**
      * Remmoves a layer from the timeline.
      * @param {Wick.Layer} layer - The layer to remove.
      */
