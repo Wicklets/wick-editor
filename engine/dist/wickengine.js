@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.2.10";
+var WICK_ENGINE_BUILD_VERSION = "2020.2.11";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -59015,7 +59015,9 @@ Wick.View.Project = class extends Wick.View {
 
   _generateClipBorders() {
     var clipBorders = [];
-    this.model.activeFrames.forEach(frame => {
+    this.model.activeFrames.filter(frame => {
+      return !frame.parentLayer.hidden;
+    }).forEach(frame => {
       var clips = frame.clips.filter(clip => {
         return !clip.isSelected;
       });
