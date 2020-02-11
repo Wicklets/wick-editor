@@ -471,7 +471,9 @@ Wick.View.Project = class extends Wick.View {
     _generateClipBorders () {
         var clipBorders = [];
 
-        this.model.activeFrames.forEach(frame => {
+        this.model.activeFrames.filter(frame => {
+            return !frame.parentLayer.hidden;
+        }).forEach(frame => {
             var clips = frame.clips.filter(clip => {
                 return !clip.isSelected;
             });
