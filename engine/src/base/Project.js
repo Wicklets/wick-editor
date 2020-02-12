@@ -73,6 +73,8 @@ Wick.Project = class extends Wick.Base {
         this._publishedMode = false;
         this._showClipBorders = true;
 
+        this._userErrorCallback = () => {};
+
         this._tools = {
             brush: new Wick.Tools.Brush(),
             cursor: new Wick.Tools.Cursor(),
@@ -114,8 +116,8 @@ Wick.Project = class extends Wick.Base {
     }
 
     /**
-     * Used to initialize the state of elements within the project. Should only be called after 
-     * deserialization of project and all objects within the project. 
+     * Used to initialize the state of elements within the project. Should only be called after
+     * deserialization of project and all objects within the project.
      */
     initialize () {
         // Fixing all clip positions... This should be done in an internal method when the project is done loading...
@@ -163,6 +165,23 @@ Wick.Project = class extends Wick.Base {
 
     get classname () {
         return 'Project';
+    }
+
+    /**
+     * Assign a function to be called when a user error happens (not script
+     * errors - errors such as drawing tool errors, invalid selection props, etc)
+     * @param {Function} fn - the function to call when errors happen
+     */
+    onError (fn) {
+        this._userErrorCallback = fn;
+    }
+
+    /**
+     * Called when an error occurs to forward to the onError function
+     * @param {String} message - the message to display for the error
+     */
+    errorOccured (message) {
+        this._userErrorCallback(message);
     }
 
     /**
@@ -464,10 +483,10 @@ Wick.Project = class extends Wick.Base {
             // Reset pan and zoom and clear selection on focus change
             this.recenter();
         } else {
-            // Make sure the single frame 
+            // Make sure the single frame
             focus.timeline.clips.forEach(subclip => {
                 subclip.applySingleFramePosition();
-            }); 
+            });
         }
 
 

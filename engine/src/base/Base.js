@@ -290,7 +290,10 @@ Wick.Base = class {
         if(this._identiferNameIsPartOfWickAPI(identifier)) return;
 
         // Make sure the identifier is a valid js variable name
-        if(!isVarName(identifier)) return;
+        if(!isVarName(identifier)) {
+            this.project && this.project.errorOccured('Identifier must be a valid variable name.');
+            return;
+        }
 
         // Make sure the identifier is not a reserved word in js
         if(reserved.check(identifier)) return;

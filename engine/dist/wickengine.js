@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.2.11.12.43.27";
+var WICK_ENGINE_BUILD_VERSION = "2020.2.12.8.52.49";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -47456,7 +47456,11 @@ Wick.Base = class {
 
     if (this._identiferNameIsPartOfWickAPI(identifier)) return; // Make sure the identifier is a valid js variable name
 
-    if (!isVarName(identifier)) return; // Make sure the identifier is not a reserved word in js
+    if (!isVarName(identifier)) {
+      this.project && this.project.errorOccured('Identifier must be a valid variable name.');
+      return;
+    } // Make sure the identifier is not a reserved word in js
+
 
     if (reserved.check(identifier)) return; // Ensure no objects with duplicate identifiers can exist
 
@@ -48150,6 +48154,9 @@ Wick.Project = class extends Wick.Base {
     this._muted = false;
     this._publishedMode = false;
     this._showClipBorders = true;
+
+    this._userErrorCallback = () => {};
+
     this._tools = {
       brush: new Wick.Tools.Brush(),
       cursor: new Wick.Tools.Cursor(),
@@ -48190,8 +48197,8 @@ Wick.Project = class extends Wick.Base {
     this.history.pushState(Wick.History.StateType.ONLY_VISIBLE_OBJECTS);
   }
   /**
-   * Used to initialize the state of elements within the project. Should only be called after 
-   * deserialization of project and all objects within the project. 
+   * Used to initialize the state of elements within the project. Should only be called after
+   * deserialization of project and all objects within the project.
    */
 
 
@@ -48235,6 +48242,25 @@ Wick.Project = class extends Wick.Base {
 
   get classname() {
     return 'Project';
+  }
+  /**
+   * Assign a function to be called when a user error happens (not script
+   * errors - errors such as drawing tool errors, invalid selection props, etc)
+   * @param {Function} fn - the function to call when errors happen
+   */
+
+
+  onError(fn) {
+    this._userErrorCallback = fn;
+  }
+  /**
+   * Called when an error occurs to forward to the onError function
+   * @param {String} message - the message to display for the error
+   */
+
+
+  errorOccured(message) {
+    this._userErrorCallback(message);
   }
   /**
    * The width of the project.
@@ -48561,7 +48587,7 @@ Wick.Project = class extends Wick.Base {
 
       this.recenter();
     } else {
-      // Make sure the single frame 
+      // Make sure the single frame
       focus.timeline.clips.forEach(subclip => {
         subclip.applySingleFramePosition();
       });
@@ -56279,9 +56305,7 @@ Wick.Tools.FillBucket = class extends Wick.Tool {
         },
         onError: message => {
           this.setCursor('default');
-          this.fireEvent('error', {
-            message: message
-          });
+          this.project.errorOccured(message);
         }
       });
     }, 50);
@@ -56566,9 +56590,7 @@ Wick.Tools.None = class extends Wick.Tool {
       return;
     }
 
-    this.fireEvent('error', {
-      message: message
-    });
+    this.project.errorOccured(message);
   }
 
   onMouseDrag(e) {}
@@ -59055,9 +59077,6 @@ Wick.View.Project = class extends Wick.View {
       });
       tool.on('eyedropperPickedColor', e => {
         this.fireEvent('eyedropperPickedColor', e);
-      });
-      tool.on('error', e => {
-        this.fireEvent('error', e);
       });
     }
 
