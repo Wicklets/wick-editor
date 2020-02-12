@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.2.12.8.52.49";
+var WICK_ENGINE_BUILD_VERSION = "2020.2.12.12.27.10";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -50782,7 +50782,7 @@ Wick.Timeline = class extends Wick.Base {
 
   set playheadPosition(playheadPosition) {
     // Automatically clear selection when any playhead in the project moves
-    if (this.project && this._playheadPosition !== playheadPosition && this.isFocus) {
+    if (this.project && this._playheadPosition !== playheadPosition && this.parentClip.isFocus) {
       this.project.selection.clear('Canvas');
     }
 
