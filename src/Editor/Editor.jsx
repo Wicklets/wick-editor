@@ -153,6 +153,7 @@ class Editor extends EditorCore {
     ReactGA.pageview(window.location.pathname + window.location.search);
     // Initialize "live" engine state
     this.project = new window.Wick.Project();
+    this.attachErrorHandlers();
     this.paper = window.paper;
 
     // Initialize local storage

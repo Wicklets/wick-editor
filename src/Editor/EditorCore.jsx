@@ -1060,6 +1060,9 @@ class EditorCore extends Component {
     this.project = project || new window.Wick.Project();
     this.project.selection.clear();
 
+    // Attach error handling messages
+    this.attachErrorHandlers();
+
     this.projectDidChange();
     this.hideWaitOverlay();
     this.project.view.prerender();
@@ -1134,6 +1137,28 @@ class EditorCore extends Component {
       });
 
     return true;
+  }
+
+  /**
+   * Attach toast messages to the engine error handler.
+   */
+  attachErrorHandlers = () => {
+    this.project.onError(message => {
+      console.log(message)
+      if(message === 'OUT_OF_BOUNDS' || message === 'LEAKY_HOLE') {
+        this.toast('The shape you are trying to fill has a gap.', 'warning');
+      } else if (message === 'NO_PATHS') {
+        this.toast('There is no hole to fill.', 'warning');
+      } else if (message === 'CLICK_NOT_ALLOWED_LAYER_LOCKED') {
+        this.toast('The layer you are trying to draw onto is locked.', 'warning');
+      } else if (message === 'CLICK_NOT_ALLOWED_LAYER_HIDDEN') {
+        this.toast('The layer you are trying to draw onto is hidden.', 'warning');
+      } else if (message === 'CLICK_NOT_ALLOWED_NO_FRAME') {
+        this.toast('There is no frame to draw onto.', 'warning');
+      } else {
+        this.toast(message, 'warning');
+      }
+    });
   }
 
   /**
