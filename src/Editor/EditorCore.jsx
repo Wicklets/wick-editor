@@ -809,14 +809,15 @@ class EditorCore extends Component {
 
     // Add all successfully uploaded assets
     for(var i = 0; i < acceptedFiles.length; i++) {
-      if(file is a gif) {
+      console.log(acceptedFiles[i])
+      if(acceptedFiles[i].type === 'image/gif') {
         // this must happen first
-        images = gif.splitIntoimages();
+        /*images = gif.splitIntoimages();
         for(i++) {
           imageassets.push(this.importFileAsAsset(images[i]));
-        }
-        // now this must happen (be careful async)
-        engine.createGIFAsset(imageassets)
+        }*/
+        // now this must happen (be careful, async)
+        //engine.createGIFAsset(imageassets)
       } else {
         var file = acceptedFiles[i];
         this.importFileAsAsset(file);

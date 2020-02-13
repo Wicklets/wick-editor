@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.2.13.14.11.29";
+var WICK_ENGINE_BUILD_VERSION = "2020.2.13.14.25.57";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -52012,7 +52012,8 @@ Wick.FileAsset = class extends Wick.Asset {
     let soundExtensions = Wick.SoundAsset.getValidExtensions();
     let fontExtensions = Wick.FontAsset.getValidExtensions();
     let clipExtensions = Wick.ClipAsset.getValidExtensions();
-    return imageExtensions.concat(soundExtensions).concat(fontExtensions).concat(clipExtensions);
+    let gifExtensions = Wick.GIFAsset.getValidExtensions();
+    return imageExtensions.concat(soundExtensions).concat(fontExtensions).concat(clipExtensions).concat(gifExtensions);
   }
   /**
    * Create a new FileAsset.
