@@ -27,7 +27,8 @@ Wick.FileAsset = class extends Wick.Asset {
         let soundTypes = Wick.SoundAsset.getValidMIMETypes();
         let fontTypes = Wick.FontAsset.getValidMIMETypes();
         let clipTypes = Wick.ClipAsset.getValidMIMETypes();
-        return imageTypes.concat(soundTypes).concat(fontTypes).concat(clipTypes);
+        let gifTypes = Wick.GIFAsset.getValidMIMETypes();
+        return imageTypes.concat(soundTypes).concat(fontTypes).concat(clipTypes).concat(gifTypes);
     }
 
     /**
