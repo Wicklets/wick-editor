@@ -23,6 +23,7 @@ import queryString from 'query-string';
 import { saveAs } from 'file-saver';
 import VideoExport from './export/VideoExport';
 import GIFExport from './export/GIFExport';
+import GIFImport from './import/GIFImport';
 import timeStamp from './Util/DataFunctions/timestamp';
 
 class EditorCore extends Component {
@@ -809,15 +810,20 @@ class EditorCore extends Component {
 
     // Add all successfully uploaded assets
     for(var i = 0; i < acceptedFiles.length; i++) {
-      console.log(acceptedFiles[i])
       if(acceptedFiles[i].type === 'image/gif') {
-        // this must happen first
-        /*images = gif.splitIntoimages();
-        for(i++) {
-          imageassets.push(this.importFileAsAsset(images[i]));
-        }*/
-        // now this must happen (be careful, async)
-        //engine.createGIFAsset(imageassets)
+        var gifArgs = {};
+        GIFImport.importGIFIntoProject({
+            gifFile: acceptedFiles[i],
+            project: this.project,
+            onProgress: (percent) => {
+                console.log('GIFImport onProgress: ' + percent);
+            },
+            onFinish: (gifAsset) => {
+                console.log('GIFImport onFinish:')
+                console.log(gifAsset)
+                this.project.addAsset(gifAsset);
+                this.projectDidChange();
+            }});
       } else {
         var file = acceptedFiles[i];
         this.importFileAsAsset(file);
