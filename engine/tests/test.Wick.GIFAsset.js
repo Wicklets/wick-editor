@@ -9,11 +9,11 @@ describe('Wick.GIFAsset', function() {
             });
             var image2 = new Wick.ImageAsset({
                 filename: 'test.png',
-                src: TestUtils.TEST_IMG_SRC_PNG
+                src: TestUtils.TEST_IMG_SRC_PNG_2
             });
             var image3 = new Wick.ImageAsset({
                 filename: 'test.png',
-                src: TestUtils.TEST_IMG_SRC_PNG
+                src: TestUtils.TEST_IMG_SRC_PNG_3
             });
 
             project.addAsset(image1);
@@ -30,8 +30,15 @@ describe('Wick.GIFAsset', function() {
                         var frame1 = layer.getFrameAtPlayheadPosition(1);
                         var frame2 = layer.getFrameAtPlayheadPosition(2);
                         var frame3 = layer.getFrameAtPlayheadPosition(3);
-                        console.log(frame1.paths[0])
-                        //expect(instance.timeline.layers[0].frames[0].paths[0]).to.equal(3);
+                        expect(frame1).to.not.equal(frame2);
+                        expect(frame2).to.not.equal(frame3);
+                        expect(frame1).to.not.equal(frame3);
+                        expect(frame1.paths.length).to.equal(1);
+                        expect(frame2.paths.length).to.equal(1);
+                        expect(frame3.paths.length).to.equal(1);
+                        expect(frame1.paths[0].json[1].source).to.equal('asset:'+image1.uuid);
+                        expect(frame2.paths[0].json[1].source).to.equal('asset:'+image2.uuid);
+                        expect(frame3.paths[0].json[1].source).to.equal('asset:'+image3.uuid);
                         done();
                     }, project);
                 });

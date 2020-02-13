@@ -45,12 +45,13 @@ Wick.GIFAsset = class extends Wick.ClipAsset {
         clip.activeFrame.remove();
 
         var imagesCreatedCount = 0;
-        for(var i = 0; i < images.length; i++) {
-            // Create a frame for every image
-            clip.activeLayer.addFrame(new Wick.Frame({start: i+1}));
-            images[i].createInstance(imagePath => {
-                clip.activeLayer.getFrameAtPlayheadPosition(i).addPath(imagePath);
-
+        var processNextImage = () => {
+            images[imagesCreatedCount].createInstance(imagePath => {
+                // Create a frame for every image
+                var frame = new Wick.Frame({start: imagesCreatedCount+1});
+                frame.addPath(imagePath);
+                clip.activeLayer.addFrame(frame);
+                
                 // Check if all images have been created
                 imagesCreatedCount++;
                 if(imagesCreatedCount === images.length) {
@@ -58,9 +59,13 @@ Wick.GIFAsset = class extends Wick.ClipAsset {
                         clip.remove();
                         callback(clipAsset);
                     });
+                } else {
+                    processNextImage();
                 }
             });
         }
+
+        processNextImage();
     }
 
     /**

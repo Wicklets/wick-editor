@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.2.13.13.45.33";
+var WICK_ENGINE_BUILD_VERSION = "2020.2.13.14.11.29";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -52551,13 +52551,14 @@ Wick.GIFAsset = class extends Wick.ClipAsset {
     clip.activeFrame.remove();
     var imagesCreatedCount = 0;
 
-    for (var i = 0; i < images.length; i++) {
-      // Create a frame for every image
-      clip.activeLayer.addFrame(new Wick.Frame({
-        start: i + 1
-      }));
-      images[i].createInstance(imagePath => {
-        clip.activeLayer.getFrameAtPlayheadPosition(i).addPath(imagePath); // Check if all images have been created
+    var processNextImage = () => {
+      images[imagesCreatedCount].createInstance(imagePath => {
+        // Create a frame for every image
+        var frame = new Wick.Frame({
+          start: imagesCreatedCount + 1
+        });
+        frame.addPath(imagePath);
+        clip.activeLayer.addFrame(frame); // Check if all images have been created
 
         imagesCreatedCount++;
 
@@ -52566,9 +52567,13 @@ Wick.GIFAsset = class extends Wick.ClipAsset {
             clip.remove();
             callback(clipAsset);
           });
+        } else {
+          processNextImage();
         }
       });
-    }
+    };
+
+    processNextImage();
   }
   /**
    * Create a new GIFAsset.
