@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.2.13.10.28.10";
+var WICK_ENGINE_BUILD_VERSION = "2020.2.13.13.45.33";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -52398,6 +52398,32 @@ Wick.ClipAsset = class extends Wick.FileAsset {
     return ['.wickobj'];
   }
   /**
+   * Creates a ClipAsset from the data of a given Clip.
+   * @param {Wick.Clip} - the clip to use as a source
+   * @param {function} callback -
+   */
+
+
+  static fromClip(clip, project, callback) {
+    project.addObject(clip);
+    Wick.WickObjectFile.toWickObjectFile(clip, 'blob', file => {
+      // Convert blob to dataURL
+      var a = new FileReader();
+
+      a.onload = e => {
+        // Create ClipAsset
+        var clipAsset = new Wick.ClipAsset({
+          filename: (clip.identifier || 'clip') + '.wickobj',
+          src: e.target.result
+        });
+        clip.remove();
+        callback(clipAsset);
+      };
+
+      a.readAsDataURL(file);
+    });
+  }
+  /**
    * Create a new ClipAsset.
    * @param {object} args
    */
@@ -52520,7 +52546,30 @@ Wick.GIFAsset = class extends Wick.ClipAsset {
    */
 
 
-  static fromImages(images, callback) {}
+  static fromImages(images, project, callback) {
+    var clip = new Wick.Clip();
+    clip.activeFrame.remove();
+    var imagesCreatedCount = 0;
+
+    for (var i = 0; i < images.length; i++) {
+      // Create a frame for every image
+      clip.activeLayer.addFrame(new Wick.Frame({
+        start: i + 1
+      }));
+      images[i].createInstance(imagePath => {
+        clip.activeLayer.getFrameAtPlayheadPosition(i).addPath(imagePath); // Check if all images have been created
+
+        imagesCreatedCount++;
+
+        if (imagesCreatedCount === images.length) {
+          Wick.ClipAsset.fromClip(clip, project, clipAsset => {
+            clip.remove();
+            callback(clipAsset);
+          });
+        }
+      });
+    }
+  }
   /**
    * Create a new GIFAsset.
    * @param {object} args

@@ -40,8 +40,27 @@ Wick.GIFAsset = class extends Wick.ClipAsset {
      * @param {Wick.ImageAsset} images -
      * @param {function} callback -
      */
-    static fromImages (images, callback) {
+    static fromImages (images, project, callback) {
+        var clip = new Wick.Clip();
+        clip.activeFrame.remove();
 
+        var imagesCreatedCount = 0;
+        for(var i = 0; i < images.length; i++) {
+            // Create a frame for every image
+            clip.activeLayer.addFrame(new Wick.Frame({start: i+1}));
+            images[i].createInstance(imagePath => {
+                clip.activeLayer.getFrameAtPlayheadPosition(i).addPath(imagePath);
+
+                // Check if all images have been created
+                imagesCreatedCount++;
+                if(imagesCreatedCount === images.length) {
+                    Wick.ClipAsset.fromClip(clip, project, clipAsset => {
+                        clip.remove();
+                        callback(clipAsset);
+                    });
+                }
+            });
+        }
     }
 
     /**

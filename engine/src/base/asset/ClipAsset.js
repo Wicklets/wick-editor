@@ -36,6 +36,29 @@ Wick.ClipAsset = class extends Wick.FileAsset {
     }
 
     /**
+     * Creates a ClipAsset from the data of a given Clip.
+     * @param {Wick.Clip} - the clip to use as a source
+     * @param {function} callback -
+     */
+    static fromClip (clip, project, callback) {
+        project.addObject(clip);
+        Wick.WickObjectFile.toWickObjectFile(clip, 'blob', file => {
+            // Convert blob to dataURL
+            var a = new FileReader();
+            a.onload = (e) => {
+                // Create ClipAsset
+                var clipAsset = new Wick.ClipAsset({
+                    filename: (clip.identifier || 'clip') + '.wickobj',
+                    src: e.target.result,
+                });
+                clip.remove();
+                callback(clipAsset);
+            }
+            a.readAsDataURL(file);
+        });
+    }
+
+    /**
      * Create a new ClipAsset.
      * @param {object} args
      */

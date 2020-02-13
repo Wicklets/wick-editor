@@ -47,4 +47,21 @@ describe('Wick.ImageAsset', function() {
             expect(copy.MIMEType).to.equal('image/png');
         });
     });
+
+    describe('#createInstance', function () {
+        it('should create image path without errors', function (done) {
+            var project = new Wick.Project();
+
+            var imageAsset = new Wick.ImageAsset({
+                filename: 'foo.png',
+                src: TestUtils.TEST_IMG_SRC_PNG,
+            });
+            project.addAsset(imageAsset);
+
+            imageAsset.createInstance(path => {
+                expect(path.view.item.bounds.width).to.equal(100);
+                done();
+            });
+        });
+    })
 });
