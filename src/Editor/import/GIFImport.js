@@ -8,62 +8,18 @@ class GIFImport {
     a.onload = (e) => {
       var buf = e.target.result;
 
+      var dataURLs = [];
+
       const wasmDecoder = new fastgif.Decoder();
       wasmDecoder.decode(buf).then(decoded => {
-        console.log(decoded)
-      });
-    }
-    a.readAsArrayBuffer(gifFile);
-  }
-  /*
-  static importGIFIntoProject (args) {
-    let { gifFile, project, onProgress, onFinish } = args;
-
-    onProgress('Decoding GIF', 10);
-    console.log('Decoding GIF...');
-    console.log(gifFile);
-
-    var a = new FileReader();
-    a.onload = (e) => {
-        var arrayBuffer = e.target.result;
-
-        var gif = new window.GIF(arrayBuffer);
-        var frames = gif.decompressFrames(true);
-
-        var frameImageData;
-        var dataURLs = [];
-
         var tempCanvas = document.createElement('canvas');
         var tempCtx = tempCanvas.getContext('2d');
-        // full gif canvas
-        var gifCanvas = document.createElement('canvas');
-        var gifCtx = gifCanvas.getContext('2d');
-
-        gifCanvas.style.position = 'absolute';
-        gifCanvas.style.left = '0px';
-        gifCanvas.style.top = '0px';
-        //document.body.appendChild(gifCanvas);
-
-        frames.forEach(frame => {
-            var dims = frame.dims;
-
-          	if(!frameImageData || dims.width != frameImageData.width || dims.height != frameImageData.height){
-            		tempCanvas.width = dims.width;
-            		tempCanvas.height = dims.height;
-                gifCanvas.width = dims.width;
-	              gifCanvas.height = dims.height;
-            		frameImageData = tempCtx.createImageData(dims.width, dims.height);
-          	}
-
-            // set the patch data as an override
-          	frameImageData.data.set(frame.patch);
-
-          	// draw the patch back over the canvas
-          	tempCtx.putImageData(frameImageData, 0, 0);
-
-          	gifCtx.drawImage(tempCanvas, dims.left, dims.top);
-            dataURLs.push(gifCanvas.toDataURL());
-        })
+        decoded.forEach(frame => {
+          tempCanvas.width = frame.imageData.width;
+          tempCanvas.height = frame.imageData.height;
+          tempCtx.putImageData(frame.imageData, 0, 0);
+          dataURLs.push(tempCanvas.toDataURL());
+        });
 
         var imageAssets = [];
         dataURLs.forEach(dataURL => {
@@ -79,10 +35,10 @@ class GIFImport {
                 onFinish(gifAsset);
             });
         })
+      });
     }
     a.readAsArrayBuffer(gifFile);
   }
-  */
 }
 
 export default GIFImport;
