@@ -1,4 +1,21 @@
+import * as fastgif from './fastgif.js';
+
 class GIFImport {
+  static importGIFIntoProject (args) {
+    let { gifFile, project, onProgress, onFinish } = args;
+
+    var a = new FileReader();
+    a.onload = (e) => {
+      var buf = e.target.result;
+
+      const wasmDecoder = new fastgif.Decoder();
+      wasmDecoder.decode(buf).then(decoded => {
+        console.log(decoded)
+      });
+    }
+    a.readAsArrayBuffer(gifFile);
+  }
+  /*
   static importGIFIntoProject (args) {
     let { gifFile, project, onProgress, onFinish } = args;
 
@@ -65,6 +82,7 @@ class GIFImport {
     }
     a.readAsArrayBuffer(gifFile);
   }
+  */
 }
 
 export default GIFImport;
