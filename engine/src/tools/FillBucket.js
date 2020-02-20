@@ -81,9 +81,7 @@ Wick.Tools.FillBucket = class extends Wick.Tool {
                 },
                 onError: (message) => {
                     this.setCursor('default');
-                    this.fireEvent('error', {
-                        message: message,
-                    });
+                    this.project.errorOccured(message);
                 }
             });
         }, 50);

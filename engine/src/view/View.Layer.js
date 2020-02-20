@@ -73,14 +73,18 @@ Wick.View.Layer = class extends Wick.View {
             }).forEach(frame => {
                 frame.view.render();
 
+                var onionTintColor = '#ffffff';
+
                 this.onionSkinnedFramesLayers.push(frame.view.pathsLayer);
                 this.onionSkinnedFramesLayers.push(frame.view.clipsLayer);
 
                 var seek = 0;
                 if(frame.midpoint < playheadPosition) {
                     seek = onionSkinSeekBackwards;
+                    onionTintColor = '#0000ff';
                 } else if(frame.midpoint > playheadPosition) {
                     seek = onionSkinSeekForwards;
+                    onionTintColor = '#33ff33';
                 }
                 var dist = frame.distanceFrom(playheadPosition);
                 var onionMult = ((seek - dist) + 1) / seek;
@@ -91,6 +95,12 @@ Wick.View.Layer = class extends Wick.View {
                 frame.view.pathsLayer.locked = true;
                 frame.view.clipsLayer.opacity = opacity;
                 frame.view.pathsLayer.opacity = opacity;
+
+                if(this.model.project.onionSkinStyle === 'outlines') {
+                    frame.view.pathsLayer.fillColor = 'rgba(0,0,0,0)';
+                    frame.view.pathsLayer.strokeWidth = 2;
+                    frame.view.pathsLayer.strokeColor = onionTintColor;
+                }
             });
         }
     }

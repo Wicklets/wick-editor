@@ -14,7 +14,7 @@
         <!-- The Wick Engine build is injected here during the engine build step (see gulpfile.js) -->
         <script>
             /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.2.20";
+var WICK_ENGINE_BUILD_VERSION = "2020.2.20.16.16.33";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -47250,6 +47250,11 @@ Wick.Base = class {
       uuid: data.uuid
     });
     object.deserialize(data);
+
+    if (data.classname === 'Project') {
+      object.initialize();
+    }
+
     return object;
   }
   /**
@@ -47466,7 +47471,11 @@ Wick.Base = class {
 
     if (this._identiferNameIsPartOfWickAPI(identifier)) return; // Make sure the identifier is a valid js variable name
 
-    if (!isVarName(identifier)) return; // Make sure the identifier is not a reserved word in js
+    if (!isVarName(identifier)) {
+      this.project && this.project.errorOccured('Identifier must be a valid variable name.');
+      return;
+    } // Make sure the identifier is not a reserved word in js
+
 
     if (reserved.check(identifier)) return; // Ensure no objects with duplicate identifiers can exist
 
@@ -48135,6 +48144,7 @@ Wick.Project = class extends Wick.Base {
     this.onionSkinEnabled = false;
     this.onionSkinSeekBackwards = 1;
     this.onionSkinSeekForwards = 1;
+    this._onionSkinStyle = 'full_color';
     this.selection = new Wick.Selection();
     this.history = new Wick.History();
     this.clipboard = new Wick.Clipboard();
@@ -48159,6 +48169,9 @@ Wick.Project = class extends Wick.Base {
     this._muted = false;
     this._publishedMode = false;
     this._showClipBorders = true;
+
+    this._userErrorCallback = () => {};
+
     this._tools = {
       brush: new Wick.Tools.Brush(),
       cursor: new Wick.Tools.Cursor(),
@@ -48198,6 +48211,18 @@ Wick.Project = class extends Wick.Base {
     this.history.project = this;
     this.history.pushState(Wick.History.StateType.ONLY_VISIBLE_OBJECTS);
   }
+  /**
+   * Used to initialize the state of elements within the project. Should only be called after
+   * deserialization of project and all objects within the project.
+   */
+
+
+  initialize() {
+    // Fixing all clip positions... This should be done in an internal method when the project is done loading...
+    this.activeFrame.clips.forEach(clip => {
+      clip.applySingleFramePosition();
+    });
+  }
 
   _deserialize(data) {
     super._deserialize(data);
@@ -48223,6 +48248,7 @@ Wick.Project = class extends Wick.Base {
     data.onionSkinEnabled = this.onionSkinEnabled;
     data.onionSkinSeekForwards = this.onionSkinSeekForwards;
     data.onionSkinSeekBackwards = this.onionSkinSeekBackwards;
+    data.onionSkinStyle = this.onionSkinStyle;
     data.focus = this.focus.uuid; // Save some metadata which will eventually end up in the wick file
 
     data.metadata = Wick.WickFile.generateMetaData();
@@ -48231,6 +48257,25 @@ Wick.Project = class extends Wick.Base {
 
   get classname() {
     return 'Project';
+  }
+  /**
+   * Assign a function to be called when a user error happens (not script
+   * errors - errors such as drawing tool errors, invalid selection props, etc)
+   * @param {Function} fn - the function to call when errors happen
+   */
+
+
+  onError(fn) {
+    this._userErrorCallback = fn;
+  }
+  /**
+   * Called when an error occurs to forward to the onError function
+   * @param {String} message - the message to display for the error
+   */
+
+
+  errorOccured(message) {
+    this._userErrorCallback(message);
   }
   /**
    * The width of the project.
@@ -48292,6 +48337,26 @@ Wick.Project = class extends Wick.Base {
 
   set backgroundColor(backgroundColor) {
     this._backgroundColor = backgroundColor;
+  }
+  /**
+   * The render style of the onion skinned frames.
+   * "full_color": Objects on onion skinned frames are rendered fully
+   * "outlines": Only the strokes of objects on onion skinned frames are rendered
+   * @type {String}
+   */
+
+
+  get onionSkinStyle() {
+    return this._onionSkinStyle;
+  }
+
+  set onionSkinStyle(onionSkinStyle) {
+    if (onionSkinStyle !== 'full_color' && onionSkinStyle !== 'outlines') {
+      console.warn('Wick.Project.onionSkinStyle: Invalid style. Valid styles: "full_color" or "outlines"');
+      return;
+    }
+
+    this._onionSkinStyle = onionSkinStyle;
   }
   /**
    * The timeline of the active clip.
@@ -48532,9 +48597,15 @@ Wick.Project = class extends Wick.Base {
 
       focus.timeline.clips.forEach(subclip => {
         subclip.timeline.playheadPosition = 1;
+        subclip.applySingleFramePosition(); // Make sure to visualize single frame clips properly.
       }); // Reset pan and zoom and clear selection on focus change
 
       this.recenter();
+    } else {
+      // Make sure the single frame
+      focus.timeline.clips.forEach(subclip => {
+        subclip.applySingleFramePosition();
+      });
     }
   }
   /**
@@ -49024,7 +49095,7 @@ Wick.Project = class extends Wick.Base {
       clip.x = x;
       clip.y = y;
       callback(clip);
-    });
+    }, this);
   }
   /**
    * Creates a symbol from the objects currently selected.
@@ -49754,7 +49825,7 @@ Wick.Selection = class extends Wick.Base {
 
 
   get allAttributeNames() {
-    return ["strokeWidth", "fillColor", "strokeColor", "name", "filename", "fontSize", "fontFamily", "fontWeight", "fontStyle", "src", "frameLength", "x", "y", "originX", "originY", "width", "height", "rotation", "opacity", "sound", "soundVolume", "soundStart", "identifier", "easingType", "scaleX", "scaleY"];
+    return ["strokeWidth", "fillColor", "strokeColor", "name", "filename", "fontSize", "fontFamily", "fontWeight", "fontStyle", "src", "frameLength", "x", "y", "originX", "originY", "width", "height", "rotation", "opacity", "sound", "soundVolume", "soundStart", "identifier", "easingType", "scaleX", "scaleY", "animationType", "singleFrameNumber"];
   }
   /**
    * Add a wick object to the selection.
@@ -50008,6 +50079,47 @@ Wick.Selection = class extends Wick.Base {
 
   set pivotPoint(pivotPoint) {
     this._pivotPoint = pivotPoint;
+  }
+  /**
+   * The animation type of a clip.
+   * @type {string}
+   */
+
+
+  get animationType() {
+    if (this.getSelectedObject() && this.selectionType === 'clip') {
+      return this.getSelectedObject().animationType;
+    } else {
+      return null;
+    }
+  }
+
+  set animationType(newType) {
+    if (this.getSelectedObject()) {
+      this.getSelectedObject().animationType = newType;
+    } else {
+      console.error("Cannot set the animation type of multiple objects...");
+    }
+  }
+  /**
+   * If a clip is set to singleFrame, this number will be used to determine that frame.
+   */
+
+
+  get singleFrameNumber() {
+    if (this.getSelectedObject() && this.selectionType === 'clip') {
+      return this.getSelectedObject().singleFrameNumber;
+    } else {
+      return null;
+    }
+  }
+
+  set singleFrameNumber(frame) {
+    if (this.getSelectedObject()) {
+      this.getSelectedObject().singleFrameNumber = frame;
+    } else {
+      console.error("Cannot set singleFrameNumber of multiple objects...");
+    }
   }
   /**
    * The position of the selection.
@@ -50688,7 +50800,7 @@ Wick.Timeline = class extends Wick.Base {
 
   set playheadPosition(playheadPosition) {
     // Automatically clear selection when any playhead in the project moves
-    if (this.project && this._playheadPosition !== playheadPosition) {
+    if (this.project && this._playheadPosition !== playheadPosition && this.parentClip.isFocus) {
       this.project.selection.clear('Canvas');
     }
 
@@ -50701,6 +50813,7 @@ Wick.Timeline = class extends Wick.Base {
 
     this.activeFrames.forEach(frame => {
       frame.applyTweenTransforms();
+      frame.updateClipTimelinesForAnimationType();
     });
   }
   /**
@@ -52366,6 +52479,14 @@ Wick.ClipAsset = class extends Wick.FileAsset {
 
 
   createInstance(callback, project) {
+    if (!callback) {
+      console.warn("Cannot create clip instance without callback.");
+    }
+
+    if (!project) {
+      console.warn("Cannot create clip instance without project reference.");
+    }
+
     Wick.WickObjectFile.fromWickObjectFile(this.src, data => {
       var clip = Wick.Base.import(data, project).copy();
       callback(clip);
@@ -53812,6 +53933,26 @@ Wick.Frame = class extends Wick.Tickable {
     }
   }
   /**
+   * Applies single frame positions to timelines if necessary.
+   */
+
+
+  applyClipSingleFramePositions() {
+    this.clips.forEach(clip => {
+      clip.applySingleFramePosition();
+    });
+  }
+  /**
+   * Update all clip timelines for their animation type.
+   */
+
+
+  updateClipTimelinesForAnimationType() {
+    this.clips.forEach(clip => {
+      clip.updateTimelineForAnimationType();
+    });
+  }
+  /**
    * The asset of the sound attached to this frame, if one exists
    * @returns {Wick.Asset[]}
    */
@@ -53999,17 +54140,36 @@ Wick.Frame = class extends Wick.Tickable {
  */
 Wick.Clip = class extends Wick.Tickable {
   /**
+   * Returns a list of all possible animation types for this object.
+   * @returns {Object} - An object containing keys that represent the animation type a a key and a human-readable version of the animation type as a value.
+   */
+  static get animationTypes() {
+    return {
+      'loop': 'Loop',
+      'sync': 'Sync',
+      'single': 'Single Frame',
+      'playOnce': 'Play Once'
+    };
+  }
+  /**
    * Create a new clip.
    * @param {string} identifier - The identifier of the new clip.
    * @param {Wick.Path|Wick.Clip[]} objects - Optional. A list of objects to add to the clip.
    * @param {Wick.Transformation} transformation - Optional. The initial transformation of the clip.
    */
+
+
   constructor(args) {
     if (!args) args = {};
     super(args);
     this.timeline = new Wick.Timeline();
     this.timeline.addLayer(new Wick.Layer());
     this.timeline.activeLayer.addFrame(new Wick.Frame());
+    this._animationType = 'loop'; // Can be one of loop, oneFrame, single
+
+    this._singleFrameNumber = 1; // Default to 1, this value is only used if the animation type is single
+
+    this._playedOnce = false;
     this._transformation = args.transformation || new Wick.Transformation();
     this.cursor = 'default';
     this._isClone = false;
@@ -54028,6 +54188,8 @@ Wick.Clip = class extends Wick.Tickable {
 
     data.transformation = this.transformation.values;
     data.timeline = this._timeline;
+    data.animationType = this._animationType;
+    data.singleFrameNumber = this._singleFrameNumber;
     return data;
   }
 
@@ -54036,6 +54198,9 @@ Wick.Clip = class extends Wick.Tickable {
 
     this.transformation = new Wick.Transformation(data.transformation);
     this._timeline = data.timeline;
+    this._animationType = data.animationType || 'loop';
+    this._singleFrameNumber = data.singleFrameNumber || 1;
+    this._playedOnce = false;
     this._clones = [];
   }
 
@@ -54107,6 +54272,80 @@ Wick.Clip = class extends Wick.Tickable {
     this.addChild(timeline);
   }
   /**
+   * The animation type of the clip. Must be of a type represented within animationTypes;
+   * @type {string}
+   */
+
+
+  get animationType() {
+    return this._animationType;
+  }
+
+  set animationType(animationType) {
+    // Default to loop if an invalid animation type is passed in.
+    if (!Wick.Clip.animationTypes[animationType]) {
+      console.error("Animation type:" + animationType + " is invalid for clips! Defaulting to Loop.");
+      this._animationType = 'loop';
+    } else {
+      this._animationType = animationType;
+
+      if (animationType === 'single') {
+        this.applySingleFramePosition();
+      } else if (animationType === 'sync') {
+        this.applySyncPosition();
+      } else {
+        this.timeline.playheadPosition = 1; // Reset timeline position if we are not on single frame.
+      }
+    }
+  }
+  /**
+   * The frame to display when animation type is set to singleFrame.
+   * @type {number}
+   */
+
+
+  get singleFrameNumber() {
+    if (this.animationType !== 'single') {
+      return null;
+    } else {
+      return this._singleFrameNumber;
+    }
+  }
+
+  set singleFrameNumber(frame) {
+    // Constrain to be within the length of the clip.
+    if (frame < 1) {
+      frame = 1;
+    } else if (frame > this.timeline.length) {
+      frame = this.timeline.length;
+    }
+
+    this._singleFrameNumber = frame;
+    this.applySingleFramePosition();
+  }
+  /**
+   * The frame to display when the clip has an animationType of "sync";
+   */
+
+
+  get syncFrame() {
+    let timelineOffset = this.parentClip.timeline.playheadPosition - this.parentFrame.start;
+    return timelineOffset % this.timeline.length + 1;
+  }
+  /**
+   * Returns true if the clip has been played through fully once.
+   * @type {boolean}
+   */
+
+
+  get playedOnce() {
+    return this._playedOnce;
+  }
+
+  set playedOnce(bool) {
+    return this._playedOnce = bool;
+  }
+  /**
    * The active layer of the clip's timeline.
    * @type {Wick.Layer}
    */
@@ -54162,6 +54401,40 @@ Wick.Clip = class extends Wick.Tickable {
     return this.namedChildren.filter(child => {
       return child.onScreen;
     });
+  }
+  /**
+   * Updates the frame's single frame positions if necessary. Only works if the
+   * clip's animationType is 'single'.
+   */
+
+
+  applySingleFramePosition() {
+    if (this.animationType === 'single') {
+      // Ensure that the single frame we've chosen is reflected no matter what.
+      this.timeline.playheadPosition = this.singleFrameNumber;
+    }
+  }
+  /**
+   * Updates the clip's 
+   */
+
+
+  applySyncPosition() {
+    if (this.animationType === 'sync') {
+      this.timeline.playheadPosition = this.syncFrame;
+    }
+  }
+  /**
+   * Updates the timeline of the clip based on the animation type of the clip.
+   */
+
+
+  updateTimelineForAnimationType() {
+    if (this.animationType === 'single') {
+      this.applySingleFramePosition();
+    } else if (this.animationType === 'sync') {
+      this.applySyncPosition();
+    }
   }
   /**
    * Remove this clip from its parent frame.
@@ -54518,7 +54791,21 @@ Wick.Clip = class extends Wick.Tickable {
   _onActive() {
     super._onActive();
 
-    this.timeline.advance();
+    if (this.animationType === 'loop') {
+      this.timeline.advance();
+    } else if (this.animationType === 'single') {
+      this.timeline.playheadPosition = this.singleFrameNumber;
+    } else if (this.animationType === 'playOnce') {
+      if (!this.playedOnce) {
+        if (this.timeline.playheadPosition === this.timeline.length) {
+          this.playedOnce = true;
+        } else {
+          this.timeline.advance();
+        }
+      }
+    } else if (this.animationType === 'sync') {
+      this.timeline.playheadPosition = this.syncFrame;
+    }
 
     this._tickChildren();
   }
@@ -56036,9 +56323,7 @@ Wick.Tools.FillBucket = class extends Wick.Tool {
         },
         onError: message => {
           this.setCursor('default');
-          this.fireEvent('error', {
-            message: message
-          });
+          this.project.errorOccured(message);
         }
       });
     }, 50);
@@ -56323,9 +56608,7 @@ Wick.Tools.None = class extends Wick.Tool {
       return;
     }
 
-    this.fireEvent('error', {
-      message: message
-    });
+    this.project.errorOccured(message);
   }
 
   onMouseDrag(e) {}
@@ -58813,9 +59096,6 @@ Wick.View.Project = class extends Wick.View {
       tool.on('eyedropperPickedColor', e => {
         this.fireEvent('eyedropperPickedColor', e);
       });
-      tool.on('error', e => {
-        this.fireEvent('error', e);
-      });
     }
 
     this.model.tools.none.activate();
@@ -59510,14 +59790,17 @@ Wick.View.Layer = class extends Wick.View {
         return !frame.inPosition(playheadPosition) && frame.inRange(playheadPosition - onionSkinSeekBackwards, playheadPosition + onionSkinSeekForwards);
       }).forEach(frame => {
         frame.view.render();
+        var onionTintColor = '#ffffff';
         this.onionSkinnedFramesLayers.push(frame.view.pathsLayer);
         this.onionSkinnedFramesLayers.push(frame.view.clipsLayer);
         var seek = 0;
 
         if (frame.midpoint < playheadPosition) {
           seek = onionSkinSeekBackwards;
+          onionTintColor = '#0000ff';
         } else if (frame.midpoint > playheadPosition) {
           seek = onionSkinSeekForwards;
+          onionTintColor = '#33ff33';
         }
 
         var dist = frame.distanceFrom(playheadPosition);
@@ -59528,6 +59811,12 @@ Wick.View.Layer = class extends Wick.View {
         frame.view.pathsLayer.locked = true;
         frame.view.clipsLayer.opacity = opacity;
         frame.view.pathsLayer.opacity = opacity;
+
+        if (this.model.project.onionSkinStyle === 'outlines') {
+          frame.view.pathsLayer.fillColor = 'rgba(0,0,0,0)';
+          frame.view.pathsLayer.strokeWidth = 2;
+          frame.view.pathsLayer.strokeColor = onionTintColor;
+        }
       });
     }
   }

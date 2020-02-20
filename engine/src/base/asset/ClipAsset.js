@@ -93,6 +93,9 @@ Wick.ClipAsset = class extends Wick.FileAsset {
      * @param {function} callback - called when the Clip is done loading.
      */
     createInstance (callback, project) {
+        if (!callback) { console.warn("Cannot create clip instance without callback.") }
+        if (!project) { console.warn("Cannot create clip instance without project reference.") }
+
         Wick.WickObjectFile.fromWickObjectFile(this.src, data => {
             var clip = Wick.Base.import(data, project).copy();
             callback(clip);

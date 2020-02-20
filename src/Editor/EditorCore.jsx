@@ -138,6 +138,18 @@ class EditorCore extends Component {
   }
 
   /**
+   * Returns all animation types available
+   * @returns {Object[]} - Animation types listed as objects with label and value keys.
+   */
+  getClipAnimationTypes = () => {
+    let outputTypes = [];
+    Object.keys(window.Wick.Clip.animationTypes).forEach(key => {
+      outputTypes.push({label: window.Wick.Clip.animationTypes[key], value: key});
+    });
+    return outputTypes;
+  }
+
+  /**
    * Shrinks the brush/eraser size by a given amount.
    */
   changeBrushSize = (amt) => {
@@ -654,7 +666,6 @@ class EditorCore extends Component {
    * Finish the current nudging operation
    */
   finishNudgingObject = () => {
-    console.log('finishNudgingObject');
     this.projectDidChange();
   }
 
@@ -742,9 +753,9 @@ class EditorCore extends Component {
         this.projectDidChange();
       });
     } else if (obj instanceof window.Wick.ClipAsset) {
-      this.project.createClipInstanceFromAsset(window.Wick.ObjectCache.getObjectByUUID(uuid), dropPoint.x, dropPoint.y, clip => {
-        this.projectDidChange();
-      });
+        this.project.createClipInstanceFromAsset(window.Wick.ObjectCache.getObjectByUUID(uuid), dropPoint.x, dropPoint.y, clip => {
+          this.projectDidChange();
+        });
     } else {
       console.error('object is not an ImageAsset or a ClipAsset')
     }
@@ -930,7 +941,6 @@ class EditorCore extends Component {
       this.updateToast(toastID, {
         type: 'success',
         text: "Successfully created .mp4 file." });
-      console.log(sequenceBlobZip);
       saveAs(sequenceBlobZip, this.project.name +'_imageSequence.zip');
     }
 
@@ -1050,6 +1060,9 @@ class EditorCore extends Component {
     this.project = project || new window.Wick.Project();
     this.project.selection.clear();
 
+    // Attach error handling messages
+    this.attachErrorHandlers();
+
     this.projectDidChange();
     this.hideWaitOverlay();
     this.project.view.prerender();
@@ -1124,6 +1137,28 @@ class EditorCore extends Component {
       });
 
     return true;
+  }
+
+  /**
+   * Attach toast messages to the engine error handler.
+   */
+  attachErrorHandlers = () => {
+    this.project.onError(message => {
+      console.log(message)
+      if(message === 'OUT_OF_BOUNDS' || message === 'LEAKY_HOLE') {
+        this.toast('The shape you are trying to fill has a gap.', 'warning');
+      } else if (message === 'NO_PATHS') {
+        this.toast('There is no hole to fill.', 'warning');
+      } else if (message === 'CLICK_NOT_ALLOWED_LAYER_LOCKED') {
+        this.toast('The layer you are trying to draw onto is locked.', 'warning');
+      } else if (message === 'CLICK_NOT_ALLOWED_LAYER_HIDDEN') {
+        this.toast('The layer you are trying to draw onto is hidden.', 'warning');
+      } else if (message === 'CLICK_NOT_ALLOWED_NO_FRAME') {
+        this.toast('There is no frame to draw onto.', 'warning');
+      } else {
+        this.toast(message, 'warning');
+      }
+    });
   }
 
   /**

@@ -13,7 +13,15 @@ let mainWindow;
 
 function createWindow() {
     // Create the browser window.
-    mainWindow = new BrowserWindow({width: 1280, height: 800});
+    mainWindow = new BrowserWindow({
+      width: 1280,
+      height: 800,
+      webPreferences: {
+        // This is required for HTML Preview to work.
+        // See: https://www.electronjs.org/docs/api/window-open#using-chromes-windowopen-implementation
+        nativeWindowOpen: true,
+      }
+    });
 
     // and load the index.html of the app.
     const startUrl = process.env.ELECTRON_START_URL || url.format({

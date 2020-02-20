@@ -65,6 +65,7 @@ class Editor extends EditorCore {
     // "Live" editor states
     this.project = null;
     this.paper = null;
+    this.editorVersion = "1.17";
 
     // GUI state
     this.state = {
@@ -92,7 +93,7 @@ class Editor extends EditorCore {
       renderStatusMessage: "",
       customHotKeys: {},
       colorPickerType: "swatches",
-      lastColorsUsed: ["#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF"]
+      lastColorsUsed: ["#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF"],
     };
 
     // Catch all errors that happen in the editor.
@@ -152,6 +153,7 @@ class Editor extends EditorCore {
     ReactGA.pageview(window.location.pathname + window.location.search);
     // Initialize "live" engine state
     this.project = new window.Wick.Project();
+    this.attachErrorHandlers();
     this.paper = window.paper;
 
     // Initialize local storage
@@ -800,6 +802,7 @@ class Editor extends EditorCore {
                     changeColorPickerType={this.changeColorPickerType}
                     updateLastColors={this.updateLastColors}
                     lastColorsUsed={this.state.lastColorsUsed}
+                    editorVersion={this.editorVersion}
                   />
                   {/* Header */}
                   <DockedPanel showOverlay={this.state.previewPlaying}>
@@ -933,6 +936,7 @@ class Editor extends EditorCore {
                                 changeColorPickerType={this.changeColorPickerType}
                                 updateLastColors={this.updateLastColors}
                                 lastColorsUsed={this.state.lastColorsUsed}
+                                getClipAnimationTypes={this.getClipAnimationTypes}
                               />
                             </DockedPanel>
                           </ReflexElement>

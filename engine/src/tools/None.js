@@ -56,9 +56,7 @@ Wick.Tools.None = class extends Wick.Tool {
            return;
         }
 
-        this.fireEvent('error', {
-            message: message,
-        });
+        this.project.errorOccured(message);
     }
 
     onMouseDrag (e) {

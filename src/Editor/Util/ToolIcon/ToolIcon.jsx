@@ -129,6 +129,11 @@ import iconCopyForward from 'resources/tool-icons/copyForward.svg';
 import iconSplit from 'resources/tool-icons/split.svg';
 import iconLayerTween from 'resources/tool-icons/layerTween.svg';
 
+// Marks
+import mascotMarkDark from 'resources/logo-icons/mascot-mark-dark.svg';
+import mascotMark from 'resources/logo-icons/mascot-mark.svg';
+import mascot from 'resources/logo-icons/mascot.svg';
+
 var classNames = require('classnames');
 
 class ToolIcon extends Component {
@@ -231,6 +236,9 @@ class ToolIcon extends Component {
       "spectrum": iconSpectrum,
       "swatches": iconSwatches,
       "group": iconGroup,
+      "mascotmark": mascotMark,
+      "mascotmarkdark": mascotMarkDark,
+      "mascot": mascot,
     }
   }
 

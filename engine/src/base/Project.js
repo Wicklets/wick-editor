@@ -45,6 +45,7 @@ Wick.Project = class extends Wick.Base {
         this.onionSkinEnabled = false;
         this.onionSkinSeekBackwards = 1;
         this.onionSkinSeekForwards = 1;
+        this._onionSkinStyle = 'full_color';
 
         this.selection = new Wick.Selection();
         this.history = new Wick.History();
@@ -71,6 +72,8 @@ Wick.Project = class extends Wick.Base {
         this._muted = false;
         this._publishedMode = false;
         this._showClipBorders = true;
+
+        this._userErrorCallback = () => {};
 
         this._tools = {
             brush: new Wick.Tools.Brush(),
@@ -112,6 +115,17 @@ Wick.Project = class extends Wick.Base {
         this.history.pushState(Wick.History.StateType.ONLY_VISIBLE_OBJECTS);
     }
 
+    /**
+     * Used to initialize the state of elements within the project. Should only be called after
+     * deserialization of project and all objects within the project.
+     */
+    initialize () {
+        // Fixing all clip positions... This should be done in an internal method when the project is done loading...
+        this.activeFrame.clips.forEach(clip => {
+            clip.applySingleFramePosition();
+        });
+    }
+
     _deserialize (data) {
         super._deserialize(data);
 
@@ -139,6 +153,7 @@ Wick.Project = class extends Wick.Base {
         data.onionSkinEnabled = this.onionSkinEnabled
         data.onionSkinSeekForwards = this.onionSkinSeekForwards;
         data.onionSkinSeekBackwards = this.onionSkinSeekBackwards;
+        data.onionSkinStyle = this.onionSkinStyle;
 
         data.focus = this.focus.uuid;
 
@@ -150,6 +165,23 @@ Wick.Project = class extends Wick.Base {
 
     get classname () {
         return 'Project';
+    }
+
+    /**
+     * Assign a function to be called when a user error happens (not script
+     * errors - errors such as drawing tool errors, invalid selection props, etc)
+     * @param {Function} fn - the function to call when errors happen
+     */
+    onError (fn) {
+        this._userErrorCallback = fn;
+    }
+
+    /**
+     * Called when an error occurs to forward to the onError function
+     * @param {String} message - the message to display for the error
+     */
+    errorOccured (message) {
+        this._userErrorCallback(message);
     }
 
     /**
@@ -207,6 +239,24 @@ Wick.Project = class extends Wick.Base {
 
     set backgroundColor (backgroundColor) {
         this._backgroundColor = backgroundColor;
+    }
+
+    /**
+     * The render style of the onion skinned frames.
+     * "full_color": Objects on onion skinned frames are rendered fully
+     * "outlines": Only the strokes of objects on onion skinned frames are rendered
+     * @type {String}
+     */
+    get onionSkinStyle () {
+        return this._onionSkinStyle;
+    }
+
+    set onionSkinStyle (onionSkinStyle) {
+        if(onionSkinStyle !== 'full_color' && onionSkinStyle !== 'outlines') {
+            console.warn('Wick.Project.onionSkinStyle: Invalid style. Valid styles: "full_color" or "outlines"');
+            return;
+        }
+        this._onionSkinStyle = onionSkinStyle;
     }
 
     /**
@@ -426,12 +476,20 @@ Wick.Project = class extends Wick.Base {
 
             // Reset timelines of subclips of the newly focused clip
             focus.timeline.clips.forEach(subclip => {
-                subclip.timeline.playheadPosition = 1;
+                subclip.timeline.playheadPosition =  1;
+                subclip.applySingleFramePosition(); // Make sure to visualize single frame clips properly.
             });
 
             // Reset pan and zoom and clear selection on focus change
             this.recenter();
+        } else {
+            // Make sure the single frame
+            focus.timeline.clips.forEach(subclip => {
+                subclip.applySingleFramePosition();
+            });
         }
+
+
     }
 
     /**
@@ -882,7 +940,7 @@ Wick.Project = class extends Wick.Base {
             clip.x = x;
             clip.y = y;
             callback(clip);
-        });
+        }, this);
     }
 
     /**

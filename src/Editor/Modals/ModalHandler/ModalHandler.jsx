@@ -28,6 +28,8 @@ import GeneralWarning from '../GeneralWarning/GeneralWarning';
 import ExportMedia from '../ExportMedia/ExportMedia';
 import SettingsModal from '../SettingsModal/SettingsModal';
 import BuiltinLibrary from '../BuiltinLibrary/BuiltinLibrary';
+import EditorInfo from '../EditorInfo/EditorInfo';
+import OpenSourceNotices from '../OpenSourceNotices/OpenSourceNotices';
 
 class ModalHandler extends Component {
   render() {
@@ -57,6 +59,7 @@ class ModalHandler extends Component {
           openModal={this.props.openModal}
           toggle={this.props.closeActiveModal}
           open={this.props.activeModalName === 'WelcomeMessage'}
+          editorVersion={this.props.editorVersion}
         />
         <ExportOptions
           openModal={this.props.openModal}
@@ -110,6 +113,17 @@ class ModalHandler extends Component {
           project={this.props.project}
           importFileAsAsset={this.props.importFileAsAsset}
         />
+        <EditorInfo
+          openModal={this.props.openModal}
+          toggle={this.props.closeActiveModal}
+          open={this.props.activeModalName === 'EditorInfo'} 
+          editorVersion={this.props.editorVersion}
+        />
+        <OpenSourceNotices
+          openModal={this.props.openModal}
+          toggle={this.props.closeActiveModal}
+          open={this.props.activeModalName === 'OpenSourceNotices'}
+          />
       </div>
     );
   }

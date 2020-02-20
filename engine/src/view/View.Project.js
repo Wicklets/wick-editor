@@ -237,10 +237,7 @@ Wick.View.Project = class extends Wick.View {
             });
             tool.on('eyedropperPickedColor', (e) => {
                 this.fireEvent('eyedropperPickedColor', e);
-            })
-            tool.on('error', (e) => {
-                this.fireEvent('error', e);
-            })
+            });
         }
 
         this.model.tools.none.activate();

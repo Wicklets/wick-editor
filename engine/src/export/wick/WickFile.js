@@ -78,7 +78,9 @@ Wick.WickFile = class {
                     var object = Wick.Base.fromData(data);
                     Wick.ObjectCache.addObject(object);
                 }
+
                 var project = Wick.Base.fromData(projectData.project);
+
                 Wick.ObjectCache.addObject(project);
 
                 var loadedAssetCount = 0;

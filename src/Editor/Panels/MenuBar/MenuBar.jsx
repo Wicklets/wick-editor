@@ -21,6 +21,8 @@ import React, { Component } from 'react';
 import './_menubar.scss';
 import MenuBarButton from './MenuBarButton/MenuBarButton';
 import ToolIcon from 'Editor/Util/ToolIcon/ToolIcon';
+import MenuBarIconButton from './MenuBarIconButton/MenuBarIconButton';
+import ActionButton from 'Editor/Util/ActionButton/ActionButton';
 
 class MenuBar extends Component {
 
@@ -31,6 +33,12 @@ class MenuBar extends Component {
   render() {
     return(
       <div className="docked-pane menu-bar">
+        <MenuBarIconButton
+          id="tool-information-button"
+          tooltip="Editor Information"
+          action={() => this.props.openModal('EditorInfo')}
+          icon="mascotmark"
+          />
         <div className="menu-bar-project-name" onClick={() => this.props.openModal('ProjectSettings')}>
           {this.props.projectName}
         </div>
@@ -52,11 +60,11 @@ class MenuBar extends Component {
             action={this.props.exportProjectAsWickFile}
             color='save'
           />
-          <div
-            className="project-settings-preview"
-            onClick={() => this.props.openModal('SettingsModal')}>
-            <ToolIcon name='gear' />
-          </div>
+          <MenuBarIconButton
+            icon="gear"
+            action={() => this.props.openModal('SettingsModal')}
+            tooltip="Editor Settings"
+            id="editor-settings-button" />
         </div>
       </div>
     )
