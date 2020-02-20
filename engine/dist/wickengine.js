@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.2.11";
+var WICK_ENGINE_BUILD_VERSION = "2020.2.20";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -48903,6 +48903,9 @@ Wick.Project = class extends Wick.Base {
   extendFramesAndPushOtherFrames(frames) {
     frames.forEach(frame => {
       frame.extendAndPushOtherFrames();
+      frame.clips.forEach(clip => {
+        this.extendFramesAndPushOtherFrames(clip.timeline.activeFrames);
+      });
     });
   }
   /**

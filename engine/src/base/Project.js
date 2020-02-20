@@ -782,6 +782,9 @@ Wick.Project = class extends Wick.Base {
     extendFramesAndPushOtherFrames (frames) {
         frames.forEach(frame => {
             frame.extendAndPushOtherFrames();
+            frame.clips.forEach(clip => {
+                this.extendFramesAndPushOtherFrames(clip.timeline.activeFrames);
+            })
         });
     }
 
