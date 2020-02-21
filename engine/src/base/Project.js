@@ -841,6 +841,7 @@ Wick.Project = class extends Wick.Base {
         frames.forEach(frame => {
             frame.extendAndPushOtherFrames();
             frame.clips.forEach(clip => {
+                if(clip.animationType !== 'sync') return;
                 this.extendFramesAndPushOtherFrames(clip.timeline.activeFrames);
             })
         });
@@ -864,6 +865,10 @@ Wick.Project = class extends Wick.Base {
     shrinkFramesAndPullOtherFrames (frames) {
         frames.forEach(frame => {
             frame.shrinkAndPullOtherFrames();
+            frame.clips.forEach(clip => {
+                if(clip.animationType !== 'sync') return;
+                this.shrinkFramesAndPullOtherFrames(clip.timeline.activeFrames);
+            })
         });
     }
 
