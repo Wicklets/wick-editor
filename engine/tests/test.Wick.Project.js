@@ -663,7 +663,7 @@ describe('Wick.Project', function() {
 
             project.play({
                 onError: error => {
-                expect(error.message).to.equal('thisWillCauseAnError is not defined');
+                    expect(error.message).to.equal('thisWillCauseAnError is not defined');
                     done();
                 }
             });
@@ -697,7 +697,6 @@ describe('Wick.Project', function() {
 
             project.play({
                 onError: error => {
-                    project.stop();
                     expect(error.uuid).to.equal(project.activeFrame.uuid);
                     expect(error.name).to.equal("load");
                     expect(error.lineNumber).to.equal(1);
@@ -719,7 +718,6 @@ describe('Wick.Project', function() {
 
             project.play({
                 onError: error => {
-                    project.stop();
                     expect(error.uuid).to.equal(clip.activeFrame.uuid);
                     expect(error.name).to.equal("load");
                     expect(error.lineNumber).to.equal(1);
@@ -787,6 +785,25 @@ describe('Wick.Project', function() {
                     delete window.tempArea;
                     done();
                 }
+            });
+        });
+
+        it('should catch errors from unload scripts when the project is stopped', function (done) {
+            var project = new Wick.Project();
+
+            var rootLevelClip = new Wick.Clip();
+            rootLevelClip.addScript('unload', 'thisWillCauseAnError();');
+            project.activeFrame.addClip(rootLevelClip);
+
+            project.play({
+                onAfterTick: () => {
+                    project.stop();
+                    console.log(project.error)
+                    done();
+                },
+                onError: () => {
+                    console.log('a')
+                },
             });
         });
 

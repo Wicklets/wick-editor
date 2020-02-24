@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.2.12.12.27.10";
+var WICK_ENGINE_BUILD_VERSION = "2020.2.24.16.8.25";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -49260,64 +49260,13 @@ Wick.Project = class extends Wick.Base {
   }
 
   set error(error) {
-    this._error = error;
-  }
-  /**
-   * Ticks the project.
-   * @returns {object} An object containing information about an error, if one occured while running scripts. Null otherwise.
-   */
-
-
-  tick() {
-    this.root._identifier = 'Project'; // Process input
-
-    this._mousePosition = this.tools.interact.mousePosition;
-    this._isMouseDown = this.tools.interact.mouseIsDown;
-    this._keysDown = this.tools.interact.keysDown;
-    this._currentKey = this.tools.interact.lastKeyDown;
-    this._mouseTargets = this.tools.interact.mouseTargets; // Reset scripts before ticking
-
-    this._scriptSchedule = []; // Tick the focused clip
-
-    this.focus._attachChildClipReferences();
-
-    this.focus.tick(); // Run scripts in schedule, in order based on Tickable.possibleScripts.
-
-    this._error = null;
-    Wick.Tickable.possibleScripts.forEach(scriptOrderName => {
-      this._scriptSchedule.forEach(scheduledScript => {
-        // Stop early if an error was thrown in the last script ran.
-        if (this._error) {
-          return;
-        }
-
-        var {
-          uuid,
-          name,
-          parameters
-        } = scheduledScript; // Make sure we only run the script based on the current iteration through possibleScripts
-
-        if (name !== scriptOrderName) {
-          return;
-        } // Run the script on the corresponding object!
-
-
-        Wick.ObjectCache.getObjectByUUID(uuid).runScript(name, parameters);
-      });
-    }); // Save the current keysDown
-
-    this._lastMousePosition = {
-      x: this._mousePosition.x,
-      y: this._mousePosition.y
-    };
-    this._keysLastDown = [].concat(this._keysDown);
-    this.view.render();
-
-    if (this._error) {
-      return this._error;
-    } else {
-      return null;
+    // Don't replace an existing error with a new error
+    // (The error can only be cleared, by setting it to null)
+    if (this._error && error) {
+      return;
     }
+
+    this._error = error;
   }
   /**
    * Schedules a script to be run at the end of the current tick.
@@ -49332,6 +49281,30 @@ Wick.Project = class extends Wick.Base {
       uuid: uuid,
       name: name,
       parameters: parameters
+    });
+  }
+  /**
+   * Run scripts in schedule, in order based on Tickable.possibleScripts.
+   */
+
+
+  runScheduledScripts() {
+    this._error = null;
+    Wick.Tickable.possibleScripts.forEach(scriptOrderName => {
+      this._scriptSchedule.forEach(scheduledScript => {
+        var {
+          uuid,
+          name,
+          parameters
+        } = scheduledScript; // Make sure we only run the script based on the current iteration through possibleScripts
+
+        if (name !== scriptOrderName) {
+          return;
+        } // Run the script on the corresponding object!
+
+
+        Wick.ObjectCache.getObjectByUUID(uuid).runScript(name, parameters);
+      });
     });
   }
   /**
@@ -49357,6 +49330,7 @@ Wick.Project = class extends Wick.Base {
     if (!args.onError) args.onError = () => {};
     if (!args.onBeforeTick) args.onBeforeTick = () => {};
     if (!args.onAfterTick) args.onAfterTick = () => {};
+    window._scriptOnErrorCallback = args.onError;
     this._playing = true;
     this.view.paper.view.autoUpdate = false;
 
@@ -49374,13 +49348,47 @@ Wick.Project = class extends Wick.Base {
       this.view.paper.view.update();
 
       if (error) {
-        args.onError(error);
         this.stop();
         return;
       }
 
       args.onAfterTick();
     }, 1000 / this.framerate);
+  }
+  /**
+   * Ticks the project.
+   * @returns {object} An object containing information about an error, if one occured while running scripts. Null otherwise.
+   */
+
+
+  tick() {
+    this.root._identifier = 'Project'; // Process input
+
+    this._mousePosition = this.tools.interact.mousePosition;
+    this._isMouseDown = this.tools.interact.mouseIsDown;
+    this._keysDown = this.tools.interact.keysDown;
+    this._currentKey = this.tools.interact.lastKeyDown;
+    this._mouseTargets = this.tools.interact.mouseTargets; // Reset scripts before ticking
+
+    this._scriptSchedule = []; // Tick the focused clip
+
+    this.focus._attachChildClipReferences();
+
+    this.focus.tick();
+    this.runScheduledScripts(); // Save the current keysDown
+
+    this._lastMousePosition = {
+      x: this._mousePosition.x,
+      y: this._mousePosition.y
+    };
+    this._keysLastDown = [].concat(this._keysDown);
+    this.view.render();
+
+    if (this._error) {
+      return this._error;
+    } else {
+      return null;
+    }
   }
   /**
    * Stop playing the project.
@@ -49393,9 +49401,10 @@ Wick.Project = class extends Wick.Base {
 
     this.getAllFrames().forEach(frame => {
       frame.clips.forEach(clip => {
-        clip.runScript('unload');
+        clip.scheduleScript('unload');
       });
     });
+    this.runScheduledScripts();
     this.stopAllSounds();
     clearInterval(this._tickIntervalID);
     this._tickIntervalID = null; // Loading the snapshot to restore project state also moves the playhead back to where it was originally.
@@ -49414,9 +49423,13 @@ Wick.Project = class extends Wick.Base {
 
       this.selection.clear();
       this.selection.select(errorObj);
+
+      window._scriptOnErrorCallback(this.error);
     } else {
       this.focus.timeline.playheadPosition = currentPlayhead;
     }
+
+    delete window._scriptOnErrorCallback;
   }
   /**
    * Inject the project into an element on a webpage and start playing the project.

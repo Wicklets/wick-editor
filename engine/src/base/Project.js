@@ -1107,7 +1107,96 @@ Wick.Project = class extends Wick.Base {
     }
 
     set error (error) {
+        // Don't replace an existing error with a new error
+        // (The error can only be cleared, by setting it to null)
+        if(this._error && error) {
+            return;
+        }
         this._error = error;
+    }
+
+    /**
+     * Schedules a script to be run at the end of the current tick.
+     * @param {string} uuid - the UUID of the object running the script.
+     * @param {string} name - the name of the script to run, see Tickable.possibleScripts.
+     * @param {Object} parameters - An object of key,value pairs to send as parameters to the script which runs.
+     */
+    scheduleScript (uuid, name, parameters) {
+        this._scriptSchedule.push({
+            uuid: uuid,
+            name: name,
+            parameters: parameters,
+        });
+    }
+
+    /**
+     * Run scripts in schedule, in order based on Tickable.possibleScripts.
+     */
+    runScheduledScripts () {
+        this._error = null;
+        Wick.Tickable.possibleScripts.forEach(scriptOrderName => {
+            this._scriptSchedule.forEach(scheduledScript => {
+                var {uuid, name, parameters} = scheduledScript;
+
+                // Make sure we only run the script based on the current iteration through possibleScripts
+                if(name !== scriptOrderName) {
+                    return;
+                }
+
+                // Run the script on the corresponding object!
+                Wick.ObjectCache.getObjectByUUID(uuid).runScript(name, parameters);
+            });
+        });
+    }
+
+    /**
+     * Checks if the project is currently playing.
+     * @type {boolean}
+     */
+    get playing () {
+        return this._playing;
+    }
+
+    /**
+     * Start playing the project.
+     * Arguments: onError: Called when a script error occurs during a tick.
+     *            onBeforeTick: Called before every tick
+     *            onAfterTick: Called after every tick
+     * @param {object} args - Optional arguments
+     */
+    play (args) {
+        if(!args) args = {};
+        if(!args.onError) args.onError = () => {};
+        if(!args.onBeforeTick) args.onBeforeTick = () => {};
+        if(!args.onAfterTick) args.onAfterTick = () => {};
+
+        window._scriptOnErrorCallback = args.onError;
+
+        this._playing = true;
+        this.view.paper.view.autoUpdate = false;
+
+        if(this._tickIntervalID) {
+            this.stop();
+        }
+
+        this.history.saveSnapshot('state-before-play');
+
+        this.selection.clear();
+
+        // Start tick loop
+        this._tickIntervalID = setInterval(() => {
+            args.onBeforeTick();
+
+            this.tools.interact.determineMouseTargets();
+            var error = this.tick();
+            this.view.paper.view.update();
+            if(error) {
+                this.stop();
+                return;
+            }
+
+            args.onAfterTick();
+        }, 1000 / this.framerate);
     }
 
     /**
@@ -1133,26 +1222,7 @@ Wick.Project = class extends Wick.Base {
         this.focus._attachChildClipReferences();
         this.focus.tick();
 
-        // Run scripts in schedule, in order based on Tickable.possibleScripts.
-        this._error = null;
-        Wick.Tickable.possibleScripts.forEach(scriptOrderName => {
-            this._scriptSchedule.forEach(scheduledScript => {
-                // Stop early if an error was thrown in the last script ran.
-                if(this._error) {
-                    return;
-                }
-
-                var {uuid, name, parameters} = scheduledScript;
-
-                // Make sure we only run the script based on the current iteration through possibleScripts
-                if(name !== scriptOrderName) {
-                    return;
-                }
-
-                // Run the script on the corresponding object!
-                Wick.ObjectCache.getObjectByUUID(uuid).runScript(name, parameters);
-            });
-        });
+        this.runScheduledScripts();
 
         // Save the current keysDown
         this._lastMousePosition = {x: this._mousePosition.x, y: this._mousePosition.y};
@@ -1168,69 +1238,6 @@ Wick.Project = class extends Wick.Base {
     }
 
     /**
-     * Schedules a script to be run at the end of the current tick.
-     * @param {string} uuid - the UUID of the object running the script.
-     * @param {string} name - the name of the script to run, see Tickable.possibleScripts.
-     * @param {Object} parameters - An object of key,value pairs to send as parameters to the script which runs.
-     */
-    scheduleScript (uuid, name, parameters) {
-        this._scriptSchedule.push({
-            uuid: uuid,
-            name: name,
-            parameters: parameters,
-        });
-    }
-
-    /**
-     * Checks if the project is currently playing.
-     * @type {boolean}
-     */
-    get playing () {
-        return this._playing;
-    }
-
-    /**
-     * Start playing the project.
-     * Arguments: onError: Called when a script error occurs during a tick.
-     *            onBeforeTick: Called before every tick
-     *            onAfterTick: Called after every tick
-     * @param {object} args - Optional arguments
-     */
-    play (args) {
-        if(!args) args = {};
-        if(!args.onError) args.onError = () => {};
-        if(!args.onBeforeTick) args.onBeforeTick = () => {};
-        if(!args.onAfterTick) args.onAfterTick = () => {};
-
-        this._playing = true;
-        this.view.paper.view.autoUpdate = false;
-
-        if(this._tickIntervalID) {
-            this.stop();
-        }
-
-        this.history.saveSnapshot('state-before-play');
-
-        this.selection.clear();
-
-        // Start tick loop
-        this._tickIntervalID = setInterval(() => {
-            args.onBeforeTick();
-
-            this.tools.interact.determineMouseTargets();
-            var error = this.tick();
-            this.view.paper.view.update();
-            if(error) {
-                args.onError(error);
-                this.stop();
-                return;
-            }
-
-            args.onAfterTick();
-        }, 1000 / this.framerate);
-    }
-
-    /**
      * Stop playing the project.
      */
     stop () {
@@ -1240,9 +1247,10 @@ Wick.Project = class extends Wick.Base {
         // Run unload scripts on all objects
         this.getAllFrames().forEach(frame => {
             frame.clips.forEach(clip => {
-                clip.runScript('unload');
+                clip.scheduleScript('unload');
             });
         });
+        this.runScheduledScripts();
 
         this.stopAllSounds();
 
@@ -1267,9 +1275,13 @@ Wick.Project = class extends Wick.Base {
             // Select the object that caused the error
             this.selection.clear();
             this.selection.select(errorObj);
+
+            window._scriptOnErrorCallback(this.error);
         } else {
             this.focus.timeline.playheadPosition = currentPlayhead;
         }
+
+        delete window._scriptOnErrorCallback;
     }
 
     /**
