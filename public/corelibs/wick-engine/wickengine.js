@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.3.9.9.30.46";
+var WICK_ENGINE_BUILD_VERSION = "2020.3.9.17.19.59";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -52292,16 +52292,20 @@ Wick.ImageAsset = class extends Wick.FileAsset {
 
   constructor(args) {
     super(args);
+    this.isGifImage = false;
   }
 
   _serialize(args) {
     var data = super._serialize(args);
 
+    data.isGifImage = this.isGifImage;
     return data;
   }
 
   _deserialize(data) {
     super._deserialize(data);
+
+    this.isGifImage = data.isGifImage;
   }
 
   get classname() {
@@ -52499,11 +52503,6 @@ Wick.ClipAsset = class extends Wick.FileAsset {
 
     Wick.WickObjectFile.fromWickObjectFile(this.src, data => {
       var clip = Wick.Base.import(data, project).copy();
-      console.log(clip);
-      clip.timeline.getAllFrames(true).forEach(frame => {
-        frame.view.render();
-        console.log(frame);
-      });
       callback(clip);
     });
   }
@@ -52558,6 +52557,7 @@ Wick.GIFAsset = class extends Wick.ClipAsset {
     var imagesCreatedCount = 0;
 
     var processNextImage = () => {
+      images[imagesCreatedCount].isGifImage = true;
       images[imagesCreatedCount].createInstance(imagePath => {
         // Create a frame for every image
         var frame = new Wick.Frame({
@@ -53917,7 +53917,12 @@ Wick.Frame = class extends Wick.Tickable {
       clip.remove();
     }
 
-    this.addChild(clip);
+    this.addChild(clip); // Pre-render the clip's frames
+    // (this fixes an issue where clips created from ClipAssets would be "missing" frames)
+
+    clip.timeline.getAllFrames(true).forEach(frame => {
+      frame.view.render();
+    });
   }
   /**
    * Remove a clip from the frame.
@@ -60159,7 +60164,7 @@ Wick.View.Frame = class extends Wick.View {
  */
 Wick.View.Path = class extends Wick.View {
   /**
-   * Create a frame view.
+   * Create a path view.
    */
   constructor() {
     super();
@@ -60225,17 +60230,19 @@ Wick.View.Path = class extends Wick.View {
     } // Get image source from assets
 
 
+    var cachedImg = null;
+
     if (json[0] === 'Raster' && json[1].source.startsWith('asset:')) {
       var assetUUID = json[1].source.split(':')[1];
-      json[1].source = this.model.project.getAssetByUUID(assetUUID).src;
+      var imageAsset = this.model.project.getAssetByUUID(assetUUID);
+      json[1].source = imageAsset.src;
     } // Import JSON data into paper.js
 
 
     this._item = this.paper.importJSON(json);
 
-    this._item.remove();
+    this._item.remove(); // Check if we need to recover the UUID from the paper path
 
-    console.log(this._item.bounds); // Check if we need to recover the UUID from the paper path
 
     if (this._item.data.wickUUID) {
       this.model.uuid = this._item.data.wickUUID;

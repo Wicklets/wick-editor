@@ -37,15 +37,15 @@ describe('Wick.GIFAsset', function() {
                         expect(frame1.paths.length).to.equal(1);
                         expect(frame2.paths.length).to.equal(1);
                         expect(frame3.paths.length).to.equal(1);
-                        //expect(frame1.paths[0].json[1].source).to.equal('asset:'+image1.uuid);
-                        //expect(frame2.paths[0].json[1].source).to.equal('asset:'+image2.uuid);
-                        //expect(frame3.paths[0].json[1].source).to.equal('asset:'+image3.uuid);
-                        console.log(frame1.paths[0].json[1].source)
-                        console.log(frame2.paths[0].json[1].source)
-                        console.log(frame3.paths[0].json[1].source)
-                        console.log(frame1.paths[0].bounds)
-                        console.log(frame2.paths[0].bounds)
-                        console.log(frame3.paths[0].bounds)
+                        expect(frame1.paths[0].json[1].source).to.equal(TestUtils.TEST_IMG_SRC_PNG);
+                        expect(frame2.paths[0].json[1].source).to.equal(TestUtils.TEST_IMG_SRC_PNG_2);
+                        expect(frame3.paths[0].json[1].source).to.equal(TestUtils.TEST_IMG_SRC_PNG_3);
+                        expect(frame1.paths[0].bounds.width).to.equal(100);
+                        expect(frame1.paths[0].bounds.height).to.equal(100);
+                        expect(frame2.paths[0].bounds.width).to.equal(100);
+                        expect(frame2.paths[0].bounds.height).to.equal(100);
+                        expect(frame3.paths[0].bounds.width).to.equal(100);
+                        expect(frame3.paths[0].bounds.height).to.equal(100);
                         done();
                     }, project);
                 });

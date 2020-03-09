@@ -46,6 +46,7 @@ Wick.GIFAsset = class extends Wick.ClipAsset {
 
         var imagesCreatedCount = 0;
         var processNextImage = () => {
+            images[imagesCreatedCount].isGifImage = true;
             images[imagesCreatedCount].createInstance(imagePath => {
                 // Create a frame for every image
                 var frame = new Wick.Frame({start: imagesCreatedCount+1});

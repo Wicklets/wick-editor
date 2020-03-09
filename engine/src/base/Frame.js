@@ -354,6 +354,12 @@ Wick.Frame = class extends Wick.Tickable {
             clip.remove();
         }
         this.addChild(clip);
+
+        // Pre-render the clip's frames
+        // (this fixes an issue where clips created from ClipAssets would be "missing" frames)
+        clip.timeline.getAllFrames(true).forEach(frame => {
+            frame.view.render();
+        });
     }
 
     /**
@@ -514,7 +520,7 @@ Wick.Frame = class extends Wick.Tickable {
      */
     updateClipTimelinesForAnimationType () {
         this.clips.forEach(clip => {
-            clip.updateTimelineForAnimationType(); 
+            clip.updateTimelineForAnimationType();
         })
     }
 

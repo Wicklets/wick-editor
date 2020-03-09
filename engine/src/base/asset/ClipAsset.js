@@ -121,11 +121,6 @@ Wick.ClipAsset = class extends Wick.FileAsset {
 
         Wick.WickObjectFile.fromWickObjectFile(this.src, data => {
             var clip = Wick.Base.import(data, project).copy();
-            console.log(clip)
-            clip.timeline.getAllFrames(true).forEach(frame => {
-                frame.view.render();
-                console.log(frame)
-            });
             callback(clip);
         });
     }

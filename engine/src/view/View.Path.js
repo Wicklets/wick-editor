@@ -83,15 +83,16 @@ Wick.View.Path = class extends Wick.View {
         }
 
         // Get image source from assets
+        var cachedImg = null;
         if(json[0] === 'Raster' && json[1].source.startsWith('asset:')) {
             var assetUUID = json[1].source.split(':')[1];
-            json[1].source = this.model.project.getAssetByUUID(assetUUID).src;
+            var imageAsset = this.model.project.getAssetByUUID(assetUUID);
+            json[1].source = imageAsset.src;
         }
 
         // Import JSON data into paper.js
         this._item = this.paper.importJSON(json);
         this._item.remove();
-        console.log(this._item.bounds)
 
         // Check if we need to recover the UUID from the paper path
         if(this._item.data.wickUUID) {
