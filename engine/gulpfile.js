@@ -85,6 +85,7 @@ gulp.task("default", function() {
       'src/base/asset/FontAsset.js',
       'src/base/asset/ImageAsset.js',
       'src/base/asset/ClipAsset.js',
+      'src/base/asset/GIFAsset.js',
       'src/base/asset/SoundAsset.js',
       'src/base/asset/SVGAsset.js',
       'src/base/Tickable.js',

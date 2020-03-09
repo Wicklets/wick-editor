@@ -14,7 +14,7 @@
         <!-- The Wick Engine build is injected here during the engine build step (see gulpfile.js) -->
         <script>
             /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.2.24.16.8.25";
+var WICK_ENGINE_BUILD_VERSION = "2020.3.9.17.21.48";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -52025,7 +52025,8 @@ Wick.FileAsset = class extends Wick.Asset {
     let soundTypes = Wick.SoundAsset.getValidMIMETypes();
     let fontTypes = Wick.FontAsset.getValidMIMETypes();
     let clipTypes = Wick.ClipAsset.getValidMIMETypes();
-    return imageTypes.concat(soundTypes).concat(fontTypes).concat(clipTypes);
+    let gifTypes = Wick.GIFAsset.getValidMIMETypes();
+    return imageTypes.concat(soundTypes).concat(fontTypes).concat(clipTypes).concat(gifTypes);
   }
   /**
    * Returns all valid extensions types for files which can be attempted to be
@@ -52039,7 +52040,8 @@ Wick.FileAsset = class extends Wick.Asset {
     let soundExtensions = Wick.SoundAsset.getValidExtensions();
     let fontExtensions = Wick.FontAsset.getValidExtensions();
     let clipExtensions = Wick.ClipAsset.getValidExtensions();
-    return imageExtensions.concat(soundExtensions).concat(fontExtensions).concat(clipExtensions);
+    let gifExtensions = Wick.GIFAsset.getValidExtensions();
+    return imageExtensions.concat(soundExtensions).concat(fontExtensions).concat(clipExtensions).concat(gifExtensions);
   }
   /**
    * Create a new FileAsset.
@@ -52318,16 +52320,20 @@ Wick.ImageAsset = class extends Wick.FileAsset {
 
   constructor(args) {
     super(args);
+    this.isGifImage = false;
   }
 
   _serialize(args) {
     var data = super._serialize(args);
 
+    data.isGifImage = this.isGifImage;
     return data;
   }
 
   _deserialize(data) {
     super._deserialize(data);
+
+    this.isGifImage = data.isGifImage;
   }
 
   get classname() {
@@ -52425,6 +52431,32 @@ Wick.ClipAsset = class extends Wick.FileAsset {
     return ['.wickobj'];
   }
   /**
+   * Creates a ClipAsset from the data of a given Clip.
+   * @param {Wick.Clip} - the clip to use as a source
+   * @param {function} callback -
+   */
+
+
+  static fromClip(clip, project, callback) {
+    project.addObject(clip);
+    Wick.WickObjectFile.toWickObjectFile(clip, 'blob', file => {
+      // Convert blob to dataURL
+      var a = new FileReader();
+
+      a.onload = e => {
+        // Create ClipAsset
+        var clipAsset = new Wick.ClipAsset({
+          filename: (clip.identifier || 'clip') + '.wickobj',
+          src: e.target.result
+        });
+        clip.remove();
+        callback(clipAsset);
+      };
+
+      a.readAsDataURL(file);
+    });
+  }
+  /**
    * Create a new ClipAsset.
    * @param {object} args
    */
@@ -52448,7 +52480,7 @@ Wick.ClipAsset = class extends Wick.FileAsset {
     return 'ClipAsset';
   }
   /**
-   * A list of Wick Clips that use this ClipAsset as their image source.
+   * A list of Wick Clips that use this ClipAsset as their source.
    * @returns {Wick.Clip[]}
    */
 
@@ -52501,6 +52533,139 @@ Wick.ClipAsset = class extends Wick.FileAsset {
       var clip = Wick.Base.import(data, project).copy();
       callback(clip);
     });
+  }
+
+};
+/*
+ * Copyright 2019 WICKLETS LLC
+ *
+ * This file is part of Wick Engine.
+ *
+ * Wick Engine is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Wick Engine is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+ */
+Wick.GIFAsset = class extends Wick.ClipAsset {
+  /**
+   * Returns all valid MIME types for files which can be converted to GIFAssets.
+   * @return {string[]} Array of strings of MIME types in the form MediaType/Subtype.
+   */
+  static getValidMIMETypes() {
+    return ['image/gif'];
+  }
+  /**
+   * Returns all valid extensions types for files which can be attempted to be
+   * converted to GIFAssets.
+   * @return  {string[]} Array of strings representing extensions.
+   */
+
+
+  static getValidExtensions() {
+    return ['.gif'];
+  }
+  /**
+   * Create a new GIFAsset from a series of images.
+   * @param {Wick.ImageAsset} images -
+   * @param {function} callback -
+   */
+
+
+  static fromImages(images, project, callback) {
+    var clip = new Wick.Clip();
+    clip.activeFrame.remove();
+    var imagesCreatedCount = 0;
+
+    var processNextImage = () => {
+      images[imagesCreatedCount].isGifImage = true;
+      images[imagesCreatedCount].createInstance(imagePath => {
+        // Create a frame for every image
+        var frame = new Wick.Frame({
+          start: imagesCreatedCount + 1
+        });
+        frame.addPath(imagePath);
+        clip.activeLayer.addFrame(frame); // Check if all images have been created
+
+        imagesCreatedCount++;
+
+        if (imagesCreatedCount === images.length) {
+          Wick.ClipAsset.fromClip(clip, project, clipAsset => {
+            clip.remove();
+            callback(clipAsset);
+          });
+        } else {
+          processNextImage();
+        }
+      });
+    };
+
+    processNextImage();
+  }
+  /**
+   * Create a new GIFAsset.
+   * @param {object} args
+   */
+
+
+  constructor(args) {
+    super(args);
+  }
+
+  _serialize(args) {
+    var data = super._serialize(args);
+
+    return data;
+  }
+
+  _deserialize(data) {
+    super._deserialize(data);
+  }
+
+  get classname() {
+    return 'GIFAsset';
+  }
+  /**
+   * A list of objects that use this asset as their source.
+   * @returns {Wick.Clip[]}
+   */
+
+
+  getInstances() {
+    return []; // TODO
+  }
+  /**
+   * Check if there are any objects in the project that use this asset.
+   * @returns {boolean}
+   */
+
+
+  hasInstances() {
+    return false; // TODO
+  }
+  /**
+   * Removes all objects using this asset as their source from the project.
+   * @returns {boolean}
+   */
+
+
+  removeAllInstances() {} // TODO
+
+  /**
+   * Load data in the asset
+   */
+
+
+  load(callback) {
+    // We don't need to do anything here, the data for ClipAssets/GIFAssets is just json
+    callback();
   }
 
 };
@@ -53780,7 +53945,12 @@ Wick.Frame = class extends Wick.Tickable {
       clip.remove();
     }
 
-    this.addChild(clip);
+    this.addChild(clip); // Pre-render the clip's frames
+    // (this fixes an issue where clips created from ClipAssets would be "missing" frames)
+
+    clip.timeline.getAllFrames(true).forEach(frame => {
+      frame.view.render();
+    });
   }
   /**
    * Remove a clip from the frame.
@@ -60022,7 +60192,7 @@ Wick.View.Frame = class extends Wick.View {
  */
 Wick.View.Path = class extends Wick.View {
   /**
-   * Create a frame view.
+   * Create a path view.
    */
   constructor() {
     super();
@@ -60088,9 +60258,12 @@ Wick.View.Path = class extends Wick.View {
     } // Get image source from assets
 
 
+    var cachedImg = null;
+
     if (json[0] === 'Raster' && json[1].source.startsWith('asset:')) {
       var assetUUID = json[1].source.split(':')[1];
-      json[1].source = this.model.project.getAssetByUUID(assetUUID).src;
+      var imageAsset = this.model.project.getAssetByUUID(assetUUID);
+      json[1].source = imageAsset.src;
     } // Import JSON data into paper.js
 
 

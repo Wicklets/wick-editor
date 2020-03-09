@@ -19,7 +19,7 @@
 
 Wick.View.Path = class extends Wick.View {
     /**
-     * Create a frame view.
+     * Create a path view.
      */
     constructor () {
         super();
@@ -83,9 +83,11 @@ Wick.View.Path = class extends Wick.View {
         }
 
         // Get image source from assets
+        var cachedImg = null;
         if(json[0] === 'Raster' && json[1].source.startsWith('asset:')) {
             var assetUUID = json[1].source.split(':')[1];
-            json[1].source = this.model.project.getAssetByUUID(assetUUID).src;
+            var imageAsset = this.model.project.getAssetByUUID(assetUUID);
+            json[1].source = imageAsset.src;
         }
 
         // Import JSON data into paper.js

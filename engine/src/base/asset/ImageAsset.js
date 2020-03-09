@@ -42,15 +42,19 @@ Wick.ImageAsset = class extends Wick.FileAsset {
      */
     constructor (args) {
         super(args);
+
+        this.isGifImage = false;
     }
 
     _serialize (args) {
         var data = super._serialize(args);
+        data.isGifImage = this.isGifImage;
         return data;
     }
 
     _deserialize (data) {
         super._deserialize(data);
+        this.isGifImage = data.isGifImage;
     }
 
     get classname () {

@@ -25,6 +25,45 @@ describe('Wick.ClipAsset', function() {
             }, project);
         });
     });
+
+    describe('#fromClip', function () {
+        it('should create ClipAsset correctly', function(done) {
+            var project = new Wick.Project();
+            var sourceClip = new Wick.Clip();
+            Wick.ClipAsset.fromClip(sourceClip, project, clipAsset => {
+                project.addAsset(clipAsset);
+                clipAsset.createInstance(instance => {
+                    expect(instance instanceof Wick.Clip).to.equal(true);
+                    done();
+                }, project);
+            });
+        });
+
+        it('should create ClipAsset correctly (clip with images)', function(done) {
+            var project = new Wick.Project();
+
+            var image = new Wick.ImageAsset({
+                filename: 'test.png',
+                src: TestUtils.TEST_IMG_SRC_PNG
+            });
+            project.addAsset(image);
+
+            project.loadAssets(() => {
+                var sourceClip = new Wick.Clip();
+                image.createInstance(imagePath => {
+                    sourceClip.activeFrame.addPath(imagePath);
+                    Wick.ClipAsset.fromClip(sourceClip, project, clipAsset => {
+                        clipAsset.createInstance(clip => {
+                            expect(clip instanceof Wick.Clip).to.equal(true);
+                            expect(clip.activeFrame.paths.length).to.equal(1);
+                            expect(clip.activeFrame.paths[0].json[1].source).to.equal('asset:'+image.uuid);
+                        }, project);
+                        done();
+                    });
+                });
+            });
+        });
+    });
 /*
     describe('#serialize', function () {
         it('should serialize correctly', function() {
