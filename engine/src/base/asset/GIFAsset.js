@@ -51,7 +51,7 @@ Wick.GIFAsset = class extends Wick.ClipAsset {
                 var frame = new Wick.Frame({start: imagesCreatedCount+1});
                 frame.addPath(imagePath);
                 clip.activeLayer.addFrame(frame);
-                
+
                 // Check if all images have been created
                 imagesCreatedCount++;
                 if(imagesCreatedCount === images.length) {

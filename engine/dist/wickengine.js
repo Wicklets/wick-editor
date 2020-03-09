@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.2.13.14.25.57";
+var WICK_ENGINE_BUILD_VERSION = "2020.3.9.9.30.46";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -52499,6 +52499,11 @@ Wick.ClipAsset = class extends Wick.FileAsset {
 
     Wick.WickObjectFile.fromWickObjectFile(this.src, data => {
       var clip = Wick.Base.import(data, project).copy();
+      console.log(clip);
+      clip.timeline.getAllFrames(true).forEach(frame => {
+        frame.view.render();
+        console.log(frame);
+      });
       callback(clip);
     });
   }
@@ -60228,8 +60233,9 @@ Wick.View.Path = class extends Wick.View {
 
     this._item = this.paper.importJSON(json);
 
-    this._item.remove(); // Check if we need to recover the UUID from the paper path
+    this._item.remove();
 
+    console.log(this._item.bounds); // Check if we need to recover the UUID from the paper path
 
     if (this._item.data.wickUUID) {
       this.model.uuid = this._item.data.wickUUID;

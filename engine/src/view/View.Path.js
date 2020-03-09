@@ -19,7 +19,7 @@
 
 Wick.View.Path = class extends Wick.View {
     /**
-     * Create a frame view.
+     * Create a path view.
      */
     constructor () {
         super();
@@ -91,6 +91,7 @@ Wick.View.Path = class extends Wick.View {
         // Import JSON data into paper.js
         this._item = this.paper.importJSON(json);
         this._item.remove();
+        console.log(this._item.bounds)
 
         // Check if we need to recover the UUID from the paper path
         if(this._item.data.wickUUID) {
