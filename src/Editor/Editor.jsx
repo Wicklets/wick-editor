@@ -860,6 +860,7 @@ class Editor extends EditorCore {
                                   createImageFromAsset={this.createImageFromAsset}
                                   toast={this.toast}
                                   onEyedropperPickedColor={this.onEyedropperPickedColor}
+                                  createAssets={this.createAssets}
                                   onRef={ref => this.canvasComponent = ref}
                                 />
                                 <CanvasTransforms

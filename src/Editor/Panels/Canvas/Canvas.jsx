@@ -81,7 +81,13 @@ const canvasTarget = {
   drop(props, monitor, component) {
     const dropLocation = monitor.getClientOffset();
     let draggedItem = monitor.getItem();
-    props.createImageFromAsset(draggedItem.uuid, dropLocation.x, dropLocation.y);
+    if(draggedItem.files) {
+      // Dropped a file from native filesystem
+      props.createAssets(draggedItem.files, []);
+    } else {
+      // Dropped an asset from the asset library
+      props.createImageFromAsset(draggedItem.uuid, dropLocation.x, dropLocation.y);
+    }
   }
 }
 
