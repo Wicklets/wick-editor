@@ -32,6 +32,8 @@ class GIFImport {
         });
         project.loadAssets(() => {
             window.Wick.GIFAsset.fromImages(imageAssets, project, gifAsset => {
+                gifAsset.name = gifFile.name;
+                gifAsset.filename = gifFile.name;
                 onFinish(gifAsset);
             });
         })
