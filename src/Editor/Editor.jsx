@@ -861,6 +861,7 @@ class Editor extends EditorCore {
                                   toast={this.toast}
                                   onEyedropperPickedColor={this.onEyedropperPickedColor}
                                   createAssets={this.createAssets}
+                                  importProjectAsWickFile={this.importProjectAsWickFile}
                                   onRef={ref => this.canvasComponent = ref}
                                 />
                                 <CanvasTransforms
