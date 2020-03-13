@@ -81,7 +81,20 @@ const canvasTarget = {
   drop(props, monitor, component) {
     const dropLocation = monitor.getClientOffset();
     let draggedItem = monitor.getItem();
-    props.createImageFromAsset(draggedItem.uuid, dropLocation.x, dropLocation.y);
+    if(draggedItem.files && draggedItem.files.length > 0) {
+      // Dropped a file from native filesystem
+      if(draggedItem.files[0].name.endsWith('.wick')) {
+        // Wick Project (.wick file)
+        var file = draggedItem.files[0];
+        props.importProjectAsWickFile(file);
+      } else {
+        // Assets (images, sounds, etc)
+        props.createAssets(draggedItem.files, []);
+      }
+    } else {
+      // Dropped an asset from the asset library
+      props.createImageFromAsset(draggedItem.uuid, dropLocation.x, dropLocation.y);
+    }
   }
 }
 
