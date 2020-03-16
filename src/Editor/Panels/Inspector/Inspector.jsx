@@ -591,7 +591,7 @@ class Inspector extends Component {
             tooltip="Frame Number"
             val={this.getSelectionAttribute('singleFrameNumber')}
             onChange={(val) => this.setSelectionAttribute('singleFrameNumber', val)} />
-          } 
+          }
       </div>
     )
   }
@@ -609,6 +609,16 @@ class Inspector extends Component {
           isSearchable={true}
           onChange={(val) => {this.setSelectionAttribute('easingType', val.value)}} />
       </div>
+    );
+  }
+
+  renderTweenFullRotations = () => {
+    return (
+      <InspectorNumericInput
+        tooltip="Full Rotations"
+        val={this.getSelectionAttribute('fullRotations')}
+        onChange={(val) => this.setSelectionAttribute('fullRotations', val)}
+        id="inspector-full-rotation" />
     );
   }
 
@@ -659,6 +669,7 @@ class Inspector extends Component {
     return (
       <div className="inspector-content">
         {this.renderTweenEasingType()}
+        {this.renderTweenFullRotations()}
       </div>
      );
   }
@@ -669,6 +680,7 @@ class Inspector extends Component {
   renderMultiTween = () => {
     return ( <div className="inspector-content">
       {this.renderTweenEasingType()}
+      {this.renderTweenFullRotations()}
     </div> );
   }
 
@@ -766,7 +778,7 @@ class Inspector extends Component {
       <div className="inspector-content">
         {this.renderAnimationType()}
       </div>
-    ); 
+    );
   }
 
   /**

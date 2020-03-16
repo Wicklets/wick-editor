@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.3.10.15.53.1";
+var WICK_ENGINE_BUILD_VERSION = "2020.3.16.15.3.12";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -49820,7 +49820,7 @@ Wick.Selection = class extends Wick.Base {
 
 
   get allAttributeNames() {
-    return ["strokeWidth", "fillColor", "strokeColor", "name", "filename", "fontSize", "fontFamily", "fontWeight", "fontStyle", "src", "frameLength", "x", "y", "originX", "originY", "width", "height", "rotation", "opacity", "sound", "soundVolume", "soundStart", "identifier", "easingType", "scaleX", "scaleY", "animationType", "singleFrameNumber"];
+    return ["strokeWidth", "fillColor", "strokeColor", "name", "filename", "fontSize", "fontFamily", "fontWeight", "fontStyle", "src", "frameLength", "x", "y", "originX", "originY", "width", "height", "rotation", "opacity", "sound", "soundVolume", "soundStart", "identifier", "easingType", "fullRotations", "scaleX", "scaleY", "animationType", "singleFrameNumber"];
   }
   /**
    * Add a wick object to the selection.
@@ -50563,6 +50563,19 @@ Wick.Selection = class extends Wick.Base {
     return this._setSingleAttribute('easingType', easingType);
   }
   /**
+   * The amount of rotations to perform during a tween. Positive value = clockwise rotation.
+   * @type {Number}
+   */
+
+
+  get fullRotations() {
+    return this._getSingleAttribute('fullRotations');
+  }
+
+  set fullRotations(fullRotations) {
+    return this._setSingleAttribute('fullRotations', fullRotations);
+  }
+  /**
    * The filename of the selected asset.
    * @type {string}
    */
@@ -51290,15 +51303,13 @@ Wick.Tween = class extends Wick.Base {
 
       if (propName === 'rotation') {
         // Constrain rotation values to range of -180 to 180
-        while (valA < -180) valA += 360;
+        // (Disabled for now - a bug in paper.js clamps these for us)
 
-        while (valB < -180) valB += 360;
-
-        while (valA > 180) valA -= 360;
-
-        while (valB > 180) valB -= 360; // Convert full rotations to 360 degree amounts
-
-
+        /*while(valA < -180) valA += 360;
+        while(valB < -180) valB += 360;
+        while(valA > 180) valA -= 360;
+        while(valB > 180) valB -= 360;*/
+        // Convert full rotations to 360 degree amounts
         valB += tweenA.fullRotations * 360;
       }
 
@@ -60094,6 +60105,7 @@ Wick.View.Frame = class extends Wick.View {
 
     this.clipsLayer.children.forEach(child => {
       var wickClip = Wick.ObjectCache.getObjectByUUID(child.data.wickUUID);
+      console.log(child.rotation);
       wickClip.transformation = new Wick.Transformation({
         x: child.position.x,
         y: child.position.y,

@@ -102,6 +102,7 @@ Wick.Selection = class extends Wick.Base {
             "soundStart",
             "identifier",
             "easingType",
+            "fullRotations",
             "scaleX",
             "scaleY",
             "animationType",
@@ -384,7 +385,7 @@ Wick.Selection = class extends Wick.Base {
         } else {
             console.error("Cannot set singleFrameNumber of multiple objects...");
         }
-        
+
     }
 
     /**
@@ -792,6 +793,18 @@ Wick.Selection = class extends Wick.Base {
 
     set easingType (easingType) {
         return this._setSingleAttribute('easingType', easingType);
+    }
+
+    /**
+     * The amount of rotations to perform during a tween. Positive value = clockwise rotation.
+     * @type {Number}
+     */
+    get fullRotations () {
+        return this._getSingleAttribute('fullRotations');
+    }
+
+    set fullRotations (fullRotations) {
+        return this._setSingleAttribute('fullRotations', fullRotations);
     }
 
     /**
