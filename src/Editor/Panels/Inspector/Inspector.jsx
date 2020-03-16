@@ -614,11 +614,13 @@ class Inspector extends Component {
 
   renderTweenFullRotations = () => {
     return (
-      <InspectorNumericInput
-        tooltip="Full Rotations"
-        val={this.getSelectionAttribute('fullRotations')}
-        onChange={(val) => this.setSelectionAttribute('fullRotations', val)}
-        id="inspector-full-rotation" />
+      <div className="inspector-item">
+        <InspectorNumericInput
+          tooltip="Full Rotations"
+          val={this.getSelectionAttribute('fullRotations')}
+          onChange={(val) => this.setSelectionAttribute('fullRotations', val)}
+          id="inspector-full-rotation" />
+      </div>
     );
   }
 
