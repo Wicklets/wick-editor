@@ -153,21 +153,28 @@ class ActionMapInterface extends Object {
         tooltip: 'Canvas Actions',
         action: this.editor.toggleCanvasActions,
         id: 'action-show-more-canvas-options',
-      }, 
+      },
       convertSelectionToButton: {
         icon: 'convertToButton',
         tooltip: 'Make Button',
         action: this.editor.createButtonFromSelection,
         id: 'action-convert-selection-to-button',
         color: 'blue'
-      }, 
+      },
       convertSelectionToClip: {
         icon: 'convertToClip',
         tooltip: 'Make Clip',
         action: this.editor.createClipFromSelection,
         id: 'action-convert-selection-to-clip',
         color: 'active-blue'
-      }, 
+      },
+      addAssetToCanvas: {
+        icon: 'convertToClip',
+        tooltip: 'Add asset to canvas',
+        action: this.editor.createInstanceOfSelectedAsset,
+        id: 'action-create-instance-of-selected-asset',
+        color: 'active-blue'
+      },
     }
   }
 }

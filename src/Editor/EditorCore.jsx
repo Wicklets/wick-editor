@@ -735,17 +735,23 @@ class EditorCore extends Component {
 
   /**
    * Creates an image from an asset's uuid and places it on the canvas.
-   * @param {string} uuid The UUID of the desired asset.
-   * @param {number} x    The x location of the image after creation in relation to the window.
-   * @param {number} y    The y location of the image after creation in relation to the window.
+   * @param {string} uuid - The UUID of the desired asset.
+   * @param {number} x - The x location of the image after creation in relation to the window.
+   * @param {number} y - The y location of the image after creation in relation to the window.
+   * @param {boolean} isCanvasSpace - If not set to true, x and y will be converted from screen space to canvas space
    */
-  createImageFromAsset = (uuid, x, y) => {
+  createImageFromAsset = (uuid, x, y, isCanvasSpace) => {
     // convert screen position to wick project position
     let paper = this.project.view.paper;
-    let canvasPosition = paper.project.view.element.getBoundingClientRect();
-    x -= canvasPosition.x;
-    y -= canvasPosition.y;
-    let dropPoint = paper.view.viewToProject(new window.paper.Point(x,y));
+    let dropPoint = new paper.Point();
+    if(isCanvasSpace) {
+      dropPoint = new paper.Point(x,y);
+    } else {
+      let canvasPosition = paper.project.view.element.getBoundingClientRect();
+      x -= canvasPosition.x;
+      y -= canvasPosition.y;
+      dropPoint = paper.view.viewToProject(new window.paper.Point(x,y));
+    }
 
     let obj = window.Wick.ObjectCache.getObjectByUUID(uuid);
 
@@ -760,6 +766,15 @@ class EditorCore extends Component {
     } else {
       console.error('object is not an ImageAsset or a ClipAsset')
     }
+  }
+
+ /**
+  * Creates an instance of the selected asset at the center of the canvas
+  */
+  createInstanceOfSelectedAsset = () => {
+    let uuid = this.project.selection.getSelectedObject().uuid;
+    var asset = this.project.getAssetByUUID(uuid);
+    this.createImageFromAsset(uuid, this.project.width/2, this.project.height/2, true);
   }
 
  /**
