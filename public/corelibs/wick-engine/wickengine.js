@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.3.16.15.3.12";
+var WICK_ENGINE_BUILD_VERSION = "2020.3.17.12.55.54";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -60105,7 +60105,6 @@ Wick.View.Frame = class extends Wick.View {
 
     this.clipsLayer.children.forEach(child => {
       var wickClip = Wick.ObjectCache.getObjectByUUID(child.data.wickUUID);
-      console.log(child.rotation);
       wickClip.transformation = new Wick.Transformation({
         x: child.position.x,
         y: child.position.y,
