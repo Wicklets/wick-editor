@@ -388,7 +388,6 @@ class Inspector extends Component {
           id="inspector-image-preview" />
       );
     } else if (selectionType === 'soundasset') {
-      console.log('!!')
       return (
         <InspectorSoundPreview
           src={this.getSelectionAttribute('src')}
