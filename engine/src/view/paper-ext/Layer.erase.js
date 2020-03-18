@@ -29,7 +29,6 @@
 
     // Splits a CompoundPath with multiple CW children into individual pieces
     function splitCompoundPath (compoundPath) {
-
         // Create lists of 'holes' (CCW children) and 'parts' (CW children)
         var holes = [];
         var parts = [];
@@ -45,6 +44,7 @@
         });
 
         // Find hole ownership for each 'part'
+        var resolvedHoles = [];
         parts.forEach(function (part) {
             var cmp;
             holes.forEach(function (hole) {
@@ -55,6 +55,7 @@
                         cmp.addChild(part.clone({insert:false}));
                     }
                     cmp.addChild(hole);
+                    resolvedHoles.push(hole);
                 }
                 if(cmp) {
                     cmp.fillColor = compoundPath.fillColor;
@@ -63,6 +64,15 @@
                 }
             });
         });
+
+        // If any holes could not find a path to be a part of, turn them into their own paths
+        holes.filter(hole => {
+            return resolvedHoles.indexOf(hole) === -1;
+        }).forEach(hole => {
+            hole.clockwise = !hole.clockwise;
+            paper.project.activeLayer.addChild(hole);
+        });
+
         compoundPath.remove();
     }
 

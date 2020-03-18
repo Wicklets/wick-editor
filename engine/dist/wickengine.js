@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.3.18.12.37.6";
+var WICK_ENGINE_BUILD_VERSION = "2020.3.18.15.53.44";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -57486,6 +57486,7 @@ Wick.Tools.Zoom = class extends Wick.Tool {
       }
     }); // Find hole ownership for each 'part'
 
+    var resolvedHoles = [];
     parts.forEach(function (part) {
       var cmp;
       holes.forEach(function (hole) {
@@ -57501,6 +57502,7 @@ Wick.Tools.Zoom = class extends Wick.Tool {
           }
 
           cmp.addChild(hole);
+          resolvedHoles.push(hole);
         }
 
         if (cmp) {
@@ -57509,6 +57511,13 @@ Wick.Tools.Zoom = class extends Wick.Tool {
           part.remove();
         }
       });
+    }); // If any holes could not find a path to be a part of, turn them into their own paths
+
+    holes.filter(hole => {
+      return resolvedHoles.indexOf(hole) === -1;
+    }).forEach(hole => {
+      hole.clockwise = !hole.clockwise;
+      paper.project.activeLayer.addChild(hole);
     });
     compoundPath.remove();
   }
