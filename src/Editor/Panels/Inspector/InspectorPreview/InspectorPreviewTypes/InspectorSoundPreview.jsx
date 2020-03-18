@@ -17,28 +17,25 @@
  * along with Wick Editor.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-@import 'Editor/_wickbrand.scss';
-@import 'Editor/Panels/Inspector/_inspector.scss';
+import React, { Component } from 'react';
 
-.inspector-image-preview {
-  height: 100px;
-  width: auto;
+import InspectorPreview from 'Editor/Panels/Inspector/InspectorPreview/InspectorPreview';
+
+class InspectorSoundPreview extends Component {
+  render() {
+    return(
+        <InspectorPreview
+          icon={this.props.icon}
+          preview={true}
+          info={
+            {
+              type: "sound",
+              src: this.props.src
+            }
+          }
+        />
+    )
+  }
 }
 
-.inspector-image-preview-container {
-  width: 100%;
-  height: 100px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: $inspector-padding;
-  margin-top: $inspector-padding;
-}
-
-.inspector-sound-preview {
-
-}
-
-.inspector-sound-preview-container {
-  margin: 5px;
-}
+export default InspectorSoundPreview

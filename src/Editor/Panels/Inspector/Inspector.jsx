@@ -32,6 +32,7 @@ import InspectorSelector from './InspectorRow/InspectorRowTypes/InspectorSelecto
 import InspectorColorNumericInput from './InspectorRow/InspectorRowTypes/InspectorColorNumericInput';
 import InspectorActionButton from './InspectorActionButton/InspectorActionButton';
 import InspectorImagePreview from './InspectorPreview/InspectorPreviewTypes/InspectorImagePreview';
+import InspectorSoundPreview from './InspectorPreview/InspectorPreviewTypes/InspectorSoundPreview';
 import InspectorScriptWindow from './InspectorScriptWindow/InspectorScriptWindow';
 
 class Inspector extends Component {
@@ -378,12 +379,22 @@ class Inspector extends Component {
   /**
    * Renders an inspector row allowing viewing of the selection's src image.
    */
-  renderImagePreview = () => {
-    return (
-      <InspectorImagePreview
-        src={this.getSelectionAttribute('src')}
-        id="inspector-image-preview" />
-    )
+  renderAssetPreview = () => {
+    let selectionType = this.props.getSelectionType();
+    if(selectionType === 'imageasset') {
+      return (
+        <InspectorImagePreview
+          src={this.getSelectionAttribute('src')}
+          id="inspector-image-preview" />
+      );
+    } else if (selectionType === 'soundasset') {
+      console.log('!!')
+      return (
+        <InspectorSoundPreview
+          src={this.getSelectionAttribute('src')}
+          id="inspector-sound-preview" />
+      );
+    }
   }
 
   /**
@@ -834,7 +845,7 @@ class Inspector extends Component {
       <div className="inspector-content">
         {this.renderName()}
         {this.renderFilename()}
-        {this.renderImagePreview()}
+        {this.renderAssetPreview()}
       </div>
     )
   }

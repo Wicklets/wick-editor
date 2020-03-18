@@ -14,7 +14,7 @@
         <!-- The Wick Engine build is injected here during the engine build step (see gulpfile.js) -->
         <script>
             /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.3.17.12.55.54";
+var WICK_ENGINE_BUILD_VERSION = "2020.3.18.12.37.6";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -50591,7 +50591,7 @@ Wick.Selection = class extends Wick.Base {
     return this._setSingleAttribute('fullRotations', fullRotations);
   }
   /**
-   * The filename of the selected asset.
+   * The filename of the selected asset. Read only.
    * @type {string}
    */
 
@@ -50600,13 +50600,22 @@ Wick.Selection = class extends Wick.Base {
     return this._getSingleAttribute('filename');
   }
   /**
-   * True if the selection is scriptable.
+   * True if the selection is scriptable. Read only.
    * @type {boolean}
    */
 
 
   get isScriptable() {
     return this.numObjects === 1 && this.getSelectedObjects()[0].isScriptable;
+  }
+  /**
+   * The source (dataURL) of the selected ImageAsset or SoundAsset. Read only.
+   * @type {string}
+   */
+
+
+  get src() {
+    return this.numObjects === 1 && this.getSelectedObjects()[0].src;
   }
   /**
    * Get a list of only the farthest right frames on each layer.

@@ -808,7 +808,7 @@ Wick.Selection = class extends Wick.Base {
     }
 
     /**
-     * The filename of the selected asset.
+     * The filename of the selected asset. Read only.
      * @type {string}
      */
     get filename () {
@@ -816,11 +816,19 @@ Wick.Selection = class extends Wick.Base {
     }
 
     /**
-     * True if the selection is scriptable.
+     * True if the selection is scriptable. Read only.
      * @type {boolean}
      */
     get isScriptable () {
         return this.numObjects === 1 && this.getSelectedObjects()[0].isScriptable;
+    }
+
+    /**
+     * The source (dataURL) of the selected ImageAsset or SoundAsset. Read only.
+     * @type {string}
+     */
+    get src () {
+        return this.numObjects === 1 && this.getSelectedObjects()[0].src;
     }
 
     /**
