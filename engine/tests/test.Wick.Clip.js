@@ -454,33 +454,6 @@ describe('Wick.Clip', function() {
             }
         });
 
-        it('scripts should stop execution after error', function() {
-            var project = new Wick.Project();
-
-            var clip = new Wick.Clip();
-            project.addObject(clip);
-
-            clip.timeline.addLayer(new Wick.Layer());
-            clip.timeline.layers[0].addFrame(new Wick.Frame());
-
-            var childA = new Wick.Clip();
-            childA.addScript('load', 'this.__scriptDidRun = true;');
-            clip.timeline.layers[0].frames[0].addClip(childA);
-
-            var childB = new Wick.Clip();
-            childB.addScript('load', 'this.__scriptDidRun = true;thisCausesAnError();');
-            clip.timeline.layers[0].frames[0].addClip(childB);
-
-            var childC = new Wick.Clip();
-            childC.addScript('load', 'this.__scriptDidRun = true;');
-            clip.timeline.layers[0].frames[0].addClip(childC);
-
-            var result = project.tick();
-            expect(childA.__scriptDidRun).to.equal(true);
-            expect(childB.__scriptDidRun).to.equal(true);
-            expect(childC.__scriptDidRun).to.equal(undefined);
-        });
-
         it('unload script should run if clip stops being visible', function() {
             window.tempHolder = [];
 
@@ -960,7 +933,7 @@ describe('Wick.Clip', function() {
                 })));
                 project.activeFrame.addClip(clip);
                 clip.view.render();// This is needed for now, as width/height are calculated in the view
-                
+
                 clip.width = 100;
                 expect(clip.width).to.equal(100);
                 clip.width = 0;

@@ -1253,7 +1253,7 @@ describe('Wick.Project', function() {
             project.activeFrame.end = 12;
 
             project.generateAudioTrack({}, audioBuffer => {
-                expect(audioBuffer.length).to.equal(44100 * 1);
+                expect(audioBuffer.length).to.equal(48000 * 1);
                 done();
             });
         });
@@ -1271,7 +1271,7 @@ describe('Wick.Project', function() {
             project.activeFrame.end = 6;
 
             project.generateAudioTrack({}, audioBuffer => {
-                expect(audioBuffer.length).to.equal(44100 * 0.5);
+                expect(audioBuffer.length).to.equal(48000 * 0.5);
                 done();
             });
         });
@@ -1294,7 +1294,7 @@ describe('Wick.Project', function() {
             frame2.sound = sound;
 
             project.generateAudioTrack({}, audioBuffer => {
-                expect(audioBuffer.length).to.equal(44100 * 1.0);
+                expect(audioBuffer.length).to.equal(48000 * 1.0);
                 done();
             });
         });
