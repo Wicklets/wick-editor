@@ -61,7 +61,9 @@ Wick.Tools.FillBucket = class extends Wick.Tool {
                 point: e.point,
                 bgColor: new paper.Color(this.project.backgroundColor.hex),
                 gapFillAmount: this.getSetting('gapFillAmount'),
-                layers: this.project.activeFrames.map(frame => {
+                layers: this.project.activeFrames.filter(frame => {
+                    return !frame.parentLayer.hidden;
+                }).map(frame => {
                     return frame.view.pathsLayer;
                 }),
                 onFinish: (path) => {

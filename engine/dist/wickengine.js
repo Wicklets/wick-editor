@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.3.18.15.53.44";
+var WICK_ENGINE_BUILD_VERSION = "2020.3.19.14.39.41";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -56485,7 +56485,9 @@ Wick.Tools.FillBucket = class extends Wick.Tool {
         point: e.point,
         bgColor: new paper.Color(this.project.backgroundColor.hex),
         gapFillAmount: this.getSetting('gapFillAmount'),
-        layers: this.project.activeFrames.map(frame => {
+        layers: this.project.activeFrames.filter(frame => {
+          return !frame.parentLayer.hidden;
+        }).map(frame => {
           return frame.view.pathsLayer;
         }),
         onFinish: path => {

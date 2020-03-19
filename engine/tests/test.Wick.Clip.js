@@ -960,8 +960,7 @@ describe('Wick.Clip', function() {
                 })));
                 project.activeFrame.addClip(clip);
                 clip.view.render();// This is needed for now, as width/height are calculated in the view
-
-                console.log(clip.width)
+                
                 clip.width = 100;
                 expect(clip.width).to.equal(100);
                 clip.width = 0;
@@ -1592,7 +1591,7 @@ describe('Wick.Clip', function() {
                         done();
                     }
                 }
-            }); 
+            });
         });
 
         it ('should animate correctly as a single frame clip', function (done) {
@@ -1622,7 +1621,7 @@ describe('Wick.Clip', function() {
                         done();
                     }
                 }
-            }); 
+            });
         });
 
         it ('should animate correctly as a playOnce clip', function (done) {
@@ -1655,7 +1654,7 @@ describe('Wick.Clip', function() {
                     if (totalTicks === 7) {
                         project.stop();
                         done();
-                    }                    
+                    }
                 }
             });
         });
@@ -1680,14 +1679,14 @@ describe('Wick.Clip', function() {
 
             project.play({
                 onAfterTick: () => {
-                    expect(clip.timeline.playheadPosition).to.equal((totalTicks % 3) + 1); 
+                    expect(clip.timeline.playheadPosition).to.equal((totalTicks % 3) + 1);
 
                     totalTicks += 1;
 
                     if (totalTicks === 7) {
                         project.stop();
                         done();
-                    }                    
+                    }
                 }
             });
         });
@@ -1711,20 +1710,20 @@ describe('Wick.Clip', function() {
             clip.animationType = 'single';
             clip.singleFrameNumber = 3;
 
-            
+
 
             let totalTicks = 0;
 
             project.play({
                 onAfterTick: () => {
-                    expect(clip.timeline.playheadPosition).to.equal(3); 
+                    expect(clip.timeline.playheadPosition).to.equal(3);
 
                     totalTicks += 1;
 
                     if (totalTicks === 7) {
                         project.stop();
                         done();
-                    }                    
+                    }
                 }
             });
         });
@@ -1747,20 +1746,20 @@ describe('Wick.Clip', function() {
 
             clip.animationType = 'sync';
 
-            
+
 
             let totalTicks = 0;
 
             project.play({
                 onAfterTick: () => {
-                    expect(clip.timeline.playheadPosition).to.equal((totalTicks % 3) + 1); 
+                    expect(clip.timeline.playheadPosition).to.equal((totalTicks % 3) + 1);
 
                     totalTicks += 1;
 
                     if (totalTicks === 7) {
                         project.stop();
                         done();
-                    }                    
+                    }
                 }
             });
         });
@@ -1886,7 +1885,7 @@ describe('Wick.Clip', function() {
             project.activeTimeline.playheadPosition = 6;
             expect(project.activeTimeline.playheadPosition).to.equal(6);
             expect(clip.timeline.playheadPosition).to.equal(3);
-        }); 
+        });
 
         it ('should maintain animationType state when loaded from a save file', function (done) {
             Wick.ObjectCache.clear();
