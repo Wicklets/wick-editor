@@ -811,7 +811,6 @@ class EditorCore extends Component {
     // Add all successfully uploaded assets
     for(var i = 0; i < acceptedFiles.length; i++) {
       if(acceptedFiles[i].type === 'image/gif') {
-        var gifArgs = {};
         GIFImport.importGIFIntoProject({
             gifFile: acceptedFiles[i],
             project: this.project,
@@ -853,10 +852,10 @@ class EditorCore extends Component {
     window.Wick.HTMLPreview.previewProject(this.project, previewWindow => {
       this.hideWaitOverlay();
       if (previewWindow) {
-        let toastID = this.toast('Project preview window opened.', 'info', {autoClose: false});
+        this.toast('Project preview window opened.', 'info', {autoClose: false});
       } else {
         // If pop ups are disabled, previewWindow will be null.
-        let toastID = this.toast('Could not open a preview window. Try disabling your popup blocker!', 'error', {autoClose: false});
+        this.toast('Could not open a preview window. Try disabling your popup blocker!', 'error', {autoClose: false});
       }
     });
   }

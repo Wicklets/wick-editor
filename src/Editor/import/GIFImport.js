@@ -2,7 +2,7 @@ import * as fastgif from './fastgif.js';
 
 class GIFImport {
   static importGIFIntoProject (args) {
-    let { gifFile, project, onProgress, onFinish } = args;
+    let { gifFile, project, onFinish } = args;
 
     var a = new FileReader();
     a.onload = (e) => {
