@@ -506,8 +506,23 @@ class EditorCore extends Component {
    * @returns {object[]} The objects that were deleted.
    */
   deleteSelectedObjects = () => {
-    this.project.deleteSelectedObjects();
-    this.projectDidChange();
+    if(this.project.selection.location === 'AssetLibrary') {
+      this.openWarningModal({
+        description: "Any objects in the project that are using this asset will also be deleted.",
+        title: "Delete this asset?",
+        acceptAction: (() => {
+          this.project.deleteSelectedObjects();
+          this.projectDidChange();
+        }),
+        cancelAction: (() => {}),
+        finalAction: (() => {}),
+        acceptText: "Delete",
+        cancelText: "Cancel",
+      });
+    } else {
+      this.project.deleteSelectedObjects();
+      this.projectDidChange();
+    }
   }
 
   /**
@@ -1102,24 +1117,21 @@ class EditorCore extends Component {
   }
 
   openNewProjectConfirmation = () => {
-      this.setState({
-        warningModalInfo: {
-          description: "You will lose any unsaved changes to the current project.",
-          title: "Open a New Project?",
-          acceptText: "Accept",
-          cancelText: "Cancel",
-          acceptAction: (() => {
-            setTimeout(() => {
-              this.setupNewProject();
-            }, 100)
-          }),
-          cancelAction: (() => {}),
-          finalAction: (() => {
+    this.openWarningModal({
+      description: "You will lose any unsaved changes to the current project.",
+      title: "Open a New Project?",
+      acceptAction: (() => {
+        setTimeout(() => {
+          this.setupNewProject();
+        }, 100)
+      }),
+      cancelAction: (() => {}),
+      finalAction: (() => {
 
-          })
-        }
-      });
-      this.openModal('GeneralWarning');
+      }),
+      acceptText: "Accept",
+      cancelText: "Cancel",
+    });
   }
 
   showAutosavedProjects = () => {

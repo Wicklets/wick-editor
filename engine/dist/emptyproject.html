@@ -14,7 +14,7 @@
         <!-- The Wick Engine build is injected here during the engine build step (see gulpfile.js) -->
         <script>
             /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.3.19.14.39.41";
+var WICK_ENGINE_BUILD_VERSION = "2020.3.20.13.12.45";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -52366,7 +52366,15 @@ Wick.ImageAsset = class extends Wick.FileAsset {
 
 
   getInstances() {
-    return []; // TODO
+    var paths = [];
+    this.project.getAllFrames().forEach(frame => {
+      frame.paths.forEach(path => {
+        if (path.getLinkedAssets().indexOf(this) !== -1) {
+          paths.push(path);
+        }
+      });
+    });
+    return paths;
   }
   /**
    * Check if there are any objects in the project that use this asset.
@@ -52375,7 +52383,7 @@ Wick.ImageAsset = class extends Wick.FileAsset {
 
 
   hasInstances() {
-    return false; // TODO
+    return this.getInstances().length > 0;
   }
   /**
    * Removes all paths using this asset as their image source from the project.
@@ -52383,8 +52391,11 @@ Wick.ImageAsset = class extends Wick.FileAsset {
    */
 
 
-  removeAllInstances() {} // TODO
-
+  removeAllInstances() {
+    this.getInstances().forEach(path => {
+      path.remove();
+    });
+  }
   /**
    * Load data in the asset
    */

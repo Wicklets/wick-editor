@@ -66,7 +66,15 @@ Wick.ImageAsset = class extends Wick.FileAsset {
      * @returns {Wick.Path[]}
      */
     getInstances () {
-        return []; // TODO
+        var paths = [];
+        this.project.getAllFrames().forEach(frame => {
+            frame.paths.forEach(path => {
+                if(path.getLinkedAssets().indexOf(this) !== -1) {
+                    paths.push(path);
+                }
+            });
+        });
+        return paths;
     }
 
     /**
@@ -74,7 +82,7 @@ Wick.ImageAsset = class extends Wick.FileAsset {
      * @returns {boolean}
      */
     hasInstances () {
-        return false; // TODO
+        return this.getInstances().length > 0;
     }
 
     /**
@@ -82,7 +90,9 @@ Wick.ImageAsset = class extends Wick.FileAsset {
      * @returns {boolean}
      */
     removeAllInstances () {
-        // TODO
+        this.getInstances().forEach(path => {
+            path.remove();
+        });
     }
 
     /**
