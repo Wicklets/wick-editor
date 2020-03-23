@@ -21,6 +21,7 @@
 
 $menu-bar-height: 40px;
 $toolbox-height: 40px;
+$medium-toolbox-height: 80px;
 
 body {
   overflow: hidden;
@@ -31,8 +32,16 @@ body {
   height: $toolbox-height;
 }
 
+#medium-toolbox-container {
+  height: $medium-toolbox-height;
+}
+
 #editor-canvas-timeline-panel {
   height: calc(100% - #{$toolbox-height});
+}
+
+#medium-editor-canvas-timeline-panel {
+  height: calc(100% - #{$medium-toolbox-height});
 }
 
 #editor {

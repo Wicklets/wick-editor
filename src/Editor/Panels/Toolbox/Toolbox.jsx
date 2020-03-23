@@ -27,6 +27,10 @@ import ToolButton from './ToolButton/ToolButton';
 import ToolSettings from './ToolSettings/ToolSettings';
 import CanvasActions from './CanvasActions/CanvasActions';
 
+import Measure from 'react-measure';
+
+var classNames = require('classnames');
+
 class Toolbox extends Component {
   constructor(props) {
     super(props);
@@ -34,6 +38,14 @@ class Toolbox extends Component {
     this.state = {
       openSettings: null,
       moreCanvasActionsPopoverOpen: false,
+      dimensions: {
+        width: -1,
+        height: -1,
+      },
+      scroll: {
+        width: -1,
+        height: -1, 
+      }
     }
 
     this.toolButtonProps = {
@@ -74,10 +86,9 @@ class Toolbox extends Component {
     );
   }
 
-  render() {
-    return(
-      <div
-        className="tool-box">
+  renderToolButtons = () => {
+    return (
+      <div className="tool-collection-container">
         <ToolButton {...this.toolButtonProps} name='cursor' tooltip="Cursor (C)" />
         <ToolButton {...this.toolButtonProps} name='brush' tooltip="Brush (B)" />
         <ToolButton {...this.toolButtonProps} name='pencil' tooltip="Pencil (P)" />
@@ -89,58 +100,75 @@ class Toolbox extends Component {
         <ToolButton {...this.toolButtonProps} name='text' tooltip="Text (T)" />
         <ToolButton {...this.toolButtonProps} name='fillbucket' tooltip="Fill Bucket (F)" />
         <ToolButton {...this.toolButtonProps} name='eyedropper' tooltip="Eyedropper (D)" />
+      </div>
+    )
+  }
+
+  renderColorPickers = () => {
+    return (
+      <div className="tool-collection-container">
+        <div className="color-container toolbox-item" id="fill-color-picker-container">
+          <WickInput
+            type="color"
+            color={this.props.getToolSetting('fillColor').rgba}
+            onChange={(color) => {
+              this.props.setToolSetting('fillColor', new window.Wick.Color(color));
+            }}
+            id="tool-box-fill-color"
+            tooltipID="tool-box-fill-color"
+            tooltip="Fill Color"
+            placement="bottom"
+            colorPickerType={this.props.colorPickerType}
+            changeColorPickerType={this.props.changeColorPickerType}
+            updateLastColors={this.props.updateLastColors}
+            lastColorsUsed={this.props.lastColorsUsed}
+            />
+        </div>
+        <div className="color-container toolbox-item" id="stroke-color-picker-container">
+          <WickInput
+            type="color"
+            color= {this.props.getToolSetting('strokeColor').rgba}
+            onChange={(color) => {
+              this.props.setToolSetting('strokeColor', new window.Wick.Color(color));
+            }}
+            id="tool-box-stroke-color"
+            tooltipID="tool-box-stroke-color"
+            tooltip="Stroke Color"
+            placement="bottom"
+            stroke={true}
+            colorPickerType={this.props.colorPickerType}
+            changeColorPickerType={this.props.changeColorPickerType}
+            lastColorsUsed={this.props.lastColorsUsed}
+            />
+        </div>
+      </div>
+    )
+  }
+  
+  renderLargeToolbox = () => {
+    return (
+      <div className={classNames("tool-box", "large-tool-box")}>
+        {this.renderToolButtons()}
 
         <ToolboxBreak className="toolbox-item"/>
 
-        <div className="color-container toolbox-item" id="fill-color-picker-container">
-            <WickInput
-              type="color"
-              color={this.props.getToolSetting('fillColor').rgba}
-              onChange={(color) => {
-                this.props.setToolSetting('fillColor', new window.Wick.Color(color));
-              }}
-              id="tool-box-fill-color"
-              tooltipID="tool-box-fill-color"
-              tooltip="Fill Color"
-              placement="bottom"
-              colorPickerType={this.props.colorPickerType}
-              changeColorPickerType={this.props.changeColorPickerType}
-              updateLastColors={this.props.updateLastColors}
-              lastColorsUsed={this.props.lastColorsUsed}
-              />
-          </div>
-          <div className="color-container toolbox-item" id="stroke-color-picker-container">
-            <WickInput
-              type="color"
-              color= {this.props.getToolSetting('strokeColor').rgba}
-              onChange={(color) => {
-                this.props.setToolSetting('strokeColor', new window.Wick.Color(color));
-              }}
-              id="tool-box-stroke-color"
-              tooltipID="tool-box-stroke-color"
-              tooltip="Stroke Color"
-              placement="bottom"
-              stroke={true}
-              colorPickerType={this.props.colorPickerType}
-              changeColorPickerType={this.props.changeColorPickerType}
-              lastColorsUsed={this.props.lastColorsUsed}
-              />
-          </div>
+        {this.renderColorPickers()}
 
-          <ToolboxBreak className="toolbox-item"/>
+        <ToolboxBreak className="toolbox-item"/>
 
-          <ToolSettings
-            activeTool={this.props.activeToolName}
-            getToolSetting={this.props.getToolSetting}
-            setToolSetting={this.props.setToolSetting}
-            getToolSettingRestrictions={this.props.getToolSettingRestrictions} />
+        <ToolSettings
+          activeTool={this.props.activeToolName}
+          getToolSetting={this.props.getToolSetting}
+          setToolSetting={this.props.setToolSetting}
+          getToolSettingRestrictions={this.props.getToolSettingRestrictions} />
 
-      <div className="toolbox-actions-right-container">
-        <div className="toolbox-actions-right">
-          <div id="more-canvas-actions-popover-button">
-            {this.renderToolButtonFromAction(this.props.editorActions.showMoreCanvasActions)}
-            <CanvasActions {...this.props} />
-          </div>
+        <div className="toolbox-actions-right-container">
+          <div className="toolbox-actions-right">
+
+            <div id="more-canvas-actions-popover-button">
+              {this.renderToolButtonFromAction(this.props.editorActions.showMoreCanvasActions)}
+              <CanvasActions {...this.props} />
+            </div>
 
           {this.renderToolButtonFromAction(this.props.editorActions.delete)}
           {this.renderToolButtonFromAction(this.props.editorActions.copy)}
@@ -150,6 +178,52 @@ class Toolbox extends Component {
         </div>
       </div>
     </div>
+    )
+      
+  }
+
+  renderMediumToolbox = () => {
+    return (
+      <div className={classNames("medium-tool-box", "tool-box")}>
+        <div className="medium-toolbox-row">
+          {this.renderToolButtons()}
+          <ToolboxBreak className="toolbox-item"/>
+          {this.renderColorPickers()}
+        </div>
+        <div className="medium-toolbox-row">
+          <ToolSettings
+            activeTool={this.props.activeToolName}
+            getToolSetting={this.props.getToolSetting}
+            setToolSetting={this.props.setToolSetting}
+            getToolSettingRestrictions={this.props.getToolSettingRestrictions} />
+        </div>
+
+      </div>
+    )
+  }
+
+  render() {
+    const { width } = this.state.dimensions;
+
+    const sizeToSwap = 900;
+
+    return(
+      <Measure
+        bounds
+        onResize={contentRect => {
+          this.setState({ 
+            dimensions: contentRect.bounds,
+            scroll: contentRect.scroll,
+           });
+        }}
+      >
+        {({ measureRef }) => (
+          <div ref={measureRef} className="tool-box-container">
+            {width > sizeToSwap && this.renderLargeToolbox()}
+            {width <= sizeToSwap && this.renderMediumToolbox()}
+          </div>
+      )}
+    </Measure>
     )
   }
 }
