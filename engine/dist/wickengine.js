@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.3.20.13.12.45";
+var WICK_ENGINE_BUILD_VERSION = "2020.3.20.15.54.5";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -52325,20 +52325,20 @@ Wick.ImageAsset = class extends Wick.FileAsset {
 
   constructor(args) {
     super(args);
-    this.isGifImage = false;
+    this.gifAssetUUID = null;
   }
 
   _serialize(args) {
     var data = super._serialize(args);
 
-    data.isGifImage = this.isGifImage;
+    data.gifAssetUUID = this.gifAssetUUID;
     return data;
   }
 
   _deserialize(data) {
     super._deserialize(data);
 
-    this.isGifImage = data.isGifImage;
+    this.gifAssetUUID = data.gifAssetUUID;
   }
 
   get classname() {
@@ -52407,6 +52407,15 @@ Wick.ImageAsset = class extends Wick.FileAsset {
     Wick.Path.createImagePath(this, path => {
       callback(path);
     });
+  }
+  /**
+   * Is this image part of a GIF?
+   * @type {boolean}
+   */
+
+
+  get isGifImage() {
+    return this.gifAssetUUID;
   }
 
 };
@@ -52511,7 +52520,7 @@ Wick.ClipAsset = class extends Wick.FileAsset {
 
 
   hasInstances() {
-    return false; // TODO
+    return this.getInstances().length > 0;
   }
   /**
    * Removes all Clips using this asset as their source from the project.
@@ -52519,8 +52528,21 @@ Wick.ClipAsset = class extends Wick.FileAsset {
    */
 
 
-  removeAllInstances() {} // TODO
+  removeAllInstances() {
+    this.getInstances().forEach(instance => {
+      instance.remove();
+    }); // Also remove any ImageAssets that are part of this clip, and are GIF frames
 
+    this.project.getAllFrames().forEach(frame => {
+      frame.paths.forEach(path => {
+        var images = path.getLinkedAssets();
+
+        if (images.length > 0 && images[0].gifAssetUUID === this.uuid) {
+          images[0].remove();
+        }
+      });
+    });
+  }
   /**
    * Load data in the asset
    */
@@ -52601,7 +52623,6 @@ Wick.GIFAsset = class extends Wick.ClipAsset {
     var imagesCreatedCount = 0;
 
     var processNextImage = () => {
-      images[imagesCreatedCount].isGifImage = true;
       images[imagesCreatedCount].createInstance(imagePath => {
         // Create a frame for every image
         var frame = new Wick.Frame({
@@ -52614,6 +52635,10 @@ Wick.GIFAsset = class extends Wick.ClipAsset {
 
         if (imagesCreatedCount === images.length) {
           Wick.ClipAsset.fromClip(clip, project, clipAsset => {
+            // Attach a reference to the resulting clip to all images
+            images.forEach(image => {
+              image.gifAssetUUID = clip.uuid;
+            });
             clip.remove();
             callback(clipAsset);
           });

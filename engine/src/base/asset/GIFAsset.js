@@ -46,7 +46,6 @@ Wick.GIFAsset = class extends Wick.ClipAsset {
 
         var imagesCreatedCount = 0;
         var processNextImage = () => {
-            images[imagesCreatedCount].isGifImage = true;
             images[imagesCreatedCount].createInstance(imagePath => {
                 // Create a frame for every image
                 var frame = new Wick.Frame({start: imagesCreatedCount+1});
@@ -57,6 +56,11 @@ Wick.GIFAsset = class extends Wick.ClipAsset {
                 imagesCreatedCount++;
                 if(imagesCreatedCount === images.length) {
                     Wick.ClipAsset.fromClip(clip, project, clipAsset => {
+                        // Attach a reference to the resulting clip to all images
+                        images.forEach(image => {
+                            image.gifAssetUUID = clip.uuid;
+                        });
+
                         clip.remove();
                         callback(clipAsset);
                     });

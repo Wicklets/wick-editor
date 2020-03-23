@@ -52,4 +52,35 @@ describe('Wick.GIFAsset', function() {
             });
         });
     });
+
+    describe('#removeAllInstances', function () {
+        it('should remove ImageAssets that are part of the GIFAsset on deletion of the GIFAsset', function(done) {
+            var project = new Wick.Project();
+
+            var image1 = new Wick.ImageAsset({
+                filename: 'test.png',
+                src: TestUtils.TEST_IMG_SRC_PNG
+            });
+            var image2 = new Wick.ImageAsset({
+                filename: 'test.png',
+                src: TestUtils.TEST_IMG_SRC_PNG_2
+            });
+            var image3 = new Wick.ImageAsset({
+                filename: 'test.png',
+                src: TestUtils.TEST_IMG_SRC_PNG_3
+            });
+
+            project.addAsset(image1);
+            project.addAsset(image2);
+            project.addAsset(image3);
+
+            project.loadAssets(() => {
+                Wick.GIFAsset.fromImages([image1, image2, image3], project, gifAsset => {
+                    project.addAsset(gifAsset);
+                    gifAsset.remove();
+                    expect(project.assets.length).to.equal(0);
+                });
+            });
+        });
+    });
 });
