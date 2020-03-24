@@ -27,8 +27,6 @@ import ToolButton from './ToolButton/ToolButton';
 import ToolSettings from './ToolSettings/ToolSettings';
 import CanvasActions from './CanvasActions/CanvasActions';
 
-import Measure from 'react-measure';
-
 var classNames = require('classnames');
 
 class Toolbox extends Component {
@@ -38,14 +36,6 @@ class Toolbox extends Component {
     this.state = {
       openSettings: null,
       moreCanvasActionsPopoverOpen: false,
-      dimensions: {
-        width: -1,
-        height: -1,
-      },
-      scroll: {
-        width: -1,
-        height: -1, 
-      }
     }
 
     this.toolButtonProps = {
@@ -111,9 +101,7 @@ class Toolbox extends Component {
           <WickInput
             type="color"
             color={this.props.getToolSetting('fillColor').rgba}
-            onChange={(color) => {
-              this.props.setToolSetting('fillColor', new window.Wick.Color(color));
-            }}
+            onChange={(color) => {this.props.setToolSetting('fillColor', new window.Wick.Color(color));}}
             id="tool-box-fill-color"
             tooltipID="tool-box-fill-color"
             tooltip="Fill Color"
@@ -128,9 +116,7 @@ class Toolbox extends Component {
           <WickInput
             type="color"
             color= {this.props.getToolSetting('strokeColor').rgba}
-            onChange={(color) => {
-              this.props.setToolSetting('strokeColor', new window.Wick.Color(color));
-            }}
+            onChange={(color) => {this.props.setToolSetting('strokeColor', new window.Wick.Color(color));}}
             id="tool-box-stroke-color"
             tooltipID="tool-box-stroke-color"
             tooltip="Stroke Color"
@@ -203,27 +189,12 @@ class Toolbox extends Component {
   }
 
   render() {
-    const { width } = this.state.dimensions;
 
-    const sizeToSwap = 900;
-
-    return(
-      <Measure
-        bounds
-        onResize={contentRect => {
-          this.setState({ 
-            dimensions: contentRect.bounds,
-            scroll: contentRect.scroll,
-           });
-        }}
-      >
-        {({ measureRef }) => (
-          <div ref={measureRef} className="tool-box-container">
-            {width > sizeToSwap && this.renderLargeToolbox()}
-            {width <= sizeToSwap && this.renderMediumToolbox()}
-          </div>
-      )}
-    </Measure>
+    return (
+      <div className="tool-box-container">
+        {this.props.renderSize === 'large' && this.renderLargeToolbox()}
+        {this.props.renderSize === 'medium' && this.renderMediumToolbox()}
+      </div>
     )
   }
 }

@@ -28,19 +28,19 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-#toolbox-container {
+.toolbox-container {
   height: $toolbox-height;
 }
 
-#medium-toolbox-container {
+.toolbox-container-medium {
   height: $medium-toolbox-height;
 }
 
-#editor-canvas-timeline-panel {
+.editor-canvas-timeline-panel {
   height: calc(100% - #{$toolbox-height});
 }
 
-#medium-editor-canvas-timeline-panel {
+.editor-canvas-timeline-panel-medium {
   height: calc(100% - #{$medium-toolbox-height});
 }
 

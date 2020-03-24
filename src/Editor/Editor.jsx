@@ -92,6 +92,8 @@ class Editor extends EditorCore {
       customHotKeys: {},
       colorPickerType: "swatches",
       lastColorsUsed: ["#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF"],
+      renderMediumWidth: 1200,
+      renderSmallWidth: 800,
     };
 
     // Catch all errors that happen in the editor.
@@ -723,12 +725,26 @@ class Editor extends EditorCore {
     }
   }
 
+  /**
+   * Returns a string representing the render size elements should use in the editor.
+   * @returns {String} "large", "medium" or "small" depending on the width of the window.
+   */
+  getRenderSize = () => {
+    if (window.innerWidth > this.state.renderMediumWidth) {
+      return "large";
+    } else if (window.innerWidth > this.state.renderSmallWidth) {
+      return "medium";
+    } else {
+      return "small";
+    }
+  }
+
   render = () => {
     // Create some references to the project and editor to make debugging in the console easier:
     window.project = this.project;
     window.editor = this;
 
-    let renderMobile = window.innerWidth < 640;
+    let renderSize = this.getRenderSize();
 
     return (
       <EditorWrapper editor={this}>
@@ -753,13 +769,13 @@ class Editor extends EditorCore {
         {/* Main Editor Panel */}
 
         <div id="editor-body">
-          <div className={classNames({"mobile-editor-body": renderMobile})} id="flexible-container">
+          <div className={classNames({"mobile-editor-body": (renderSize === "small")})} id="flexible-container">
             {/*App*/}
             <ReflexContainer windowResizeAware={true} orientation="vertical">
               {/* Middle Panel */}
               <ReflexElement {...this.resizeProps}>
                 {/*Toolbox*/}
-                <div id="toolbox-container">
+                <div className={classNames("toolbox-container", {'toolbox-container-medium': renderSize === 'medium'}, {'toolbox-container-small': renderSize === 'small'})}>
                   <DockedPanel showOverlay={this.state.previewPlaying}>
                     <Toolbox
                       project={this.state.project}
@@ -777,10 +793,11 @@ class Editor extends EditorCore {
                       changeColorPickerType={this.changeColorPickerType}
                       updateLastColors={this.updateLastColors}
                       lastColorsUsed={this.state.lastColorsUsed}
+                      renderSize={renderSize}
                     />
                   </DockedPanel>
                 </div>
-                <div id="editor-canvas-timeline-panel">
+                <div className={classNames("editor-canvas-timeline-panel", {'editor-canvas-timeline-panel-medium': renderSize === 'medium'}, {'editor-canvas-timeline-panel-small': renderSize === 'small'})}>
                   <ReflexContainer windowResizeAware={true} orientation="horizontal">
                     {/*Canvas*/}
                     <ReflexElement {...this.resizeProps}>
@@ -838,8 +855,8 @@ class Editor extends EditorCore {
               </ReflexElement>
 
               {/* Right Sidebar */}
-              {!renderMobile && <ReflexSplitter {...this.resizeProps}/>}
-              {!renderMobile &&
+              {!(renderSize === "small") && <ReflexSplitter {...this.resizeProps}/>}
+              {!(renderSize === "small") &&
 
                 <ReflexElement
                 size={250}
