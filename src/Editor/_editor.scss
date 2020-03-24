@@ -36,11 +36,21 @@ body {
   height: $medium-toolbox-height;
 }
 
+// Small not yet implemented, defaults to medium size. 
+.toolbox-container-small {
+  height: $medium-toolbox-height;
+}
+
 .editor-canvas-timeline-panel {
   height: calc(100% - #{$toolbox-height});
 }
 
 .editor-canvas-timeline-panel-medium {
+  height: calc(100% - #{$medium-toolbox-height});
+}
+
+// Small not yet implemented, defaults to medium size. 
+.editor-canvas-timeline-panel-small {
   height: calc(100% - #{$medium-toolbox-height});
 }
 

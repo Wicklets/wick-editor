@@ -130,10 +130,30 @@ class Toolbox extends Component {
       </div>
     )
   }
+
+  renderCanvasActions = () => {
+    return (
+      <div className="toolbox-actions-right-container">
+        <div className="toolbox-actions-right">
+
+          <div id="more-canvas-actions-popover-button">
+            {this.renderToolButtonFromAction(this.props.editorActions.showMoreCanvasActions)}
+            <CanvasActions {...this.props} />
+          </div>
+
+        {this.renderToolButtonFromAction(this.props.editorActions.delete)}
+        {this.renderToolButtonFromAction(this.props.editorActions.copy)}
+        {this.renderToolButtonFromAction(this.props.editorActions.paste)}
+        {this.renderToolButtonFromAction(this.props.editorActions.undo)}
+        {this.renderToolButtonFromAction(this.props.editorActions.redo)}
+      </div>
+    </div>
+    )
+  }
   
   renderLargeToolbox = () => {
     return (
-      <div className={classNames("tool-box", "large-tool-box")}>
+      <div className={classNames("tool-box", "tool-box-large")}>
         {this.renderToolButtons()}
 
         <ToolboxBreak className="toolbox-item"/>
@@ -148,29 +168,15 @@ class Toolbox extends Component {
           setToolSetting={this.props.setToolSetting}
           getToolSettingRestrictions={this.props.getToolSettingRestrictions} />
 
-        <div className="toolbox-actions-right-container">
-          <div className="toolbox-actions-right">
-
-            <div id="more-canvas-actions-popover-button">
-              {this.renderToolButtonFromAction(this.props.editorActions.showMoreCanvasActions)}
-              <CanvasActions {...this.props} />
-            </div>
-
-          {this.renderToolButtonFromAction(this.props.editorActions.delete)}
-          {this.renderToolButtonFromAction(this.props.editorActions.copy)}
-          {this.renderToolButtonFromAction(this.props.editorActions.paste)}
-          {this.renderToolButtonFromAction(this.props.editorActions.undo)}
-          {this.renderToolButtonFromAction(this.props.editorActions.redo)}
-        </div>
+        {this.renderCanvasActions()}
       </div>
-    </div>
     )
       
   }
 
   renderMediumToolbox = () => {
     return (
-      <div className={classNames("medium-tool-box", "tool-box")}>
+      <div className={classNames("tool-box", "tool-box-medium")}>
         <div className="medium-toolbox-row">
           {this.renderToolButtons()}
           <ToolboxBreak className="toolbox-item"/>
@@ -182,8 +188,9 @@ class Toolbox extends Component {
             getToolSetting={this.props.getToolSetting}
             setToolSetting={this.props.setToolSetting}
             getToolSettingRestrictions={this.props.getToolSettingRestrictions} />
+            {this.renderCanvasActions()}
         </div>
-
+        
       </div>
     )
   }
@@ -192,8 +199,7 @@ class Toolbox extends Component {
 
     return (
       <div className="tool-box-container">
-        {this.props.renderSize === 'large' && this.renderLargeToolbox()}
-        {this.props.renderSize === 'medium' && this.renderMediumToolbox()}
+        {this.props.renderSize === 'large' ? this.renderLargeToolbox() : this.renderMediumToolbox()}
       </div>
     )
   }
