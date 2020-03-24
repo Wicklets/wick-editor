@@ -49,7 +49,7 @@ Wick.Clip = class extends Wick.Tickable {
         this.timeline.activeLayer.addFrame(new Wick.Frame());
         this._animationType = 'loop'; // Can be one of loop, oneFrame, single
         this._singleFrameNumber = 1; // Default to 1, this value is only used if the animation type is single
-        this._playedOnce = false; 
+        this._playedOnce = false;
 
         this._transformation = args.transformation || new Wick.Transformation();
 
@@ -85,8 +85,8 @@ Wick.Clip = class extends Wick.Tickable {
         this._timeline = data.timeline;
         this._animationType = data.animationType || 'loop';
         this._singleFrameNumber = data.singleFrameNumber || 1;
-        
-        this._playedOnce = false; 
+
+        this._playedOnce = false;
 
         this._clones = [];
     }
@@ -174,7 +174,7 @@ Wick.Clip = class extends Wick.Tickable {
                 this.applySyncPosition();
             } else {
                 this.timeline.playheadPosition = 1; // Reset timeline position if we are not on single frame.
-            } 
+            }
         }
     }
 
@@ -289,7 +289,7 @@ Wick.Clip = class extends Wick.Tickable {
     }
 
     /**
-     * Updates the clip's 
+     * Updates the clip's playhead position if the Clip is in sync mode
      */
     applySyncPosition () {
         if (this.animationType === 'sync') {
@@ -622,6 +622,39 @@ Wick.Clip = class extends Wick.Tickable {
             return [this];
         } else {
             return [this].concat(this.parentClip.lineage);
+        }
+    }
+
+    /**
+     * Add a placeholder path to this clip to ensure the Clip is always selectable when rendered.
+     */
+    ensureFirstFrameIsContentful () {
+        var firstLayerExists = this.timeline.activeLayer;
+        if(!firstLayerExists) {
+            this.timeline.addLayer(new Wick.Layer());
+        }
+
+        var firstFrameExists = this.timeline.getFramesAtPlayheadPosition(1).length > 0;
+        if(!firstFrameExists) {
+            this.timeline.activeLayer.addFrame(new Wick.Frame({start:1}));
+        }
+
+        var firstFramesAreContentful = false;
+        this.timeline.getFramesAtPlayheadPosition(1).forEach(frame => {
+            if(frame.contentful) {
+                firstFramesAreContentful = true;
+            }
+        });
+
+        if(!firstFramesAreContentful) {
+            var frame = this.timeline.getFramesAtPlayheadPosition(1)[0];
+            var rect = new paper.Path.Rectangle({
+                from: [-5, -5],
+                to: [5, 5],
+                fillColor: 'rgba(0,0,0,0.0001)',
+            });
+            rect.remove();
+            frame.addPath(new Wick.Path({path:rect}));
         }
     }
 

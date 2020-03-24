@@ -43,18 +43,18 @@ Wick.ImageAsset = class extends Wick.FileAsset {
     constructor (args) {
         super(args);
 
-        this.isGifImage = false;
+        this.gifAssetUUID = null;
     }
 
     _serialize (args) {
         var data = super._serialize(args);
-        data.isGifImage = this.isGifImage;
+        data.gifAssetUUID = this.gifAssetUUID;
         return data;
     }
 
     _deserialize (data) {
         super._deserialize(data);
-        this.isGifImage = data.isGifImage;
+        this.gifAssetUUID = data.gifAssetUUID;
     }
 
     get classname () {
@@ -117,5 +117,13 @@ Wick.ImageAsset = class extends Wick.FileAsset {
         Wick.Path.createImagePath(this, path => {
             callback(path);
         });
+    }
+
+    /**
+     * Is this image part of a GIF?
+     * @type {boolean}
+     */
+    get isGifImage () {
+        return this.gifAssetUUID;
     }
 }

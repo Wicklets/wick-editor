@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.3.20.13.12.45";
+var WICK_ENGINE_BUILD_VERSION = "2020.3.24.13.4.17";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -51481,6 +51481,7 @@ Wick.Path = class extends Wick.Base {
   /**
    * Create a Wick Path.
    * @param {array} json - Path data exported from paper.js using exportJSON({asString:false}).
+   * @param {Paper.Path} path - A Paper.js Path object to use as this Path's svg data. Optional if json was not passed in.
    */
   constructor(args) {
     if (!args) args = {};
@@ -51488,7 +51489,11 @@ Wick.Path = class extends Wick.Base {
     this._fontStyle = 'normal';
     this._fontWeight = 400;
 
-    if (args.json) {
+    if (args.path) {
+      this.json = args.path.exportJSON({
+        asString: false
+      });
+    } else if (args.json) {
       this.json = args.json;
     } else {
       this.json = new paper.Path({
@@ -52325,20 +52330,20 @@ Wick.ImageAsset = class extends Wick.FileAsset {
 
   constructor(args) {
     super(args);
-    this.isGifImage = false;
+    this.gifAssetUUID = null;
   }
 
   _serialize(args) {
     var data = super._serialize(args);
 
-    data.isGifImage = this.isGifImage;
+    data.gifAssetUUID = this.gifAssetUUID;
     return data;
   }
 
   _deserialize(data) {
     super._deserialize(data);
 
-    this.isGifImage = data.isGifImage;
+    this.gifAssetUUID = data.gifAssetUUID;
   }
 
   get classname() {
@@ -52407,6 +52412,15 @@ Wick.ImageAsset = class extends Wick.FileAsset {
     Wick.Path.createImagePath(this, path => {
       callback(path);
     });
+  }
+  /**
+   * Is this image part of a GIF?
+   * @type {boolean}
+   */
+
+
+  get isGifImage() {
+    return this.gifAssetUUID;
   }
 
 };
@@ -52511,7 +52525,7 @@ Wick.ClipAsset = class extends Wick.FileAsset {
 
 
   hasInstances() {
-    return false; // TODO
+    return this.getInstances().length > 0;
   }
   /**
    * Removes all Clips using this asset as their source from the project.
@@ -52519,8 +52533,21 @@ Wick.ClipAsset = class extends Wick.FileAsset {
    */
 
 
-  removeAllInstances() {} // TODO
+  removeAllInstances() {
+    this.getInstances().forEach(instance => {
+      instance.remove();
+    }); // Also remove any ImageAssets that are part of this clip, and are GIF frames
 
+    this.project.getAllFrames().forEach(frame => {
+      frame.paths.forEach(path => {
+        var images = path.getLinkedAssets();
+
+        if (images.length > 0 && images[0].gifAssetUUID === this.uuid) {
+          images[0].remove();
+        }
+      });
+    });
+  }
   /**
    * Load data in the asset
    */
@@ -52601,7 +52628,6 @@ Wick.GIFAsset = class extends Wick.ClipAsset {
     var imagesCreatedCount = 0;
 
     var processNextImage = () => {
-      images[imagesCreatedCount].isGifImage = true;
       images[imagesCreatedCount].createInstance(imagePath => {
         // Create a frame for every image
         var frame = new Wick.Frame({
@@ -52614,6 +52640,10 @@ Wick.GIFAsset = class extends Wick.ClipAsset {
 
         if (imagesCreatedCount === images.length) {
           Wick.ClipAsset.fromClip(clip, project, clipAsset => {
+            // Attach a reference to the resulting clip to all images
+            images.forEach(image => {
+              image.gifAssetUUID = clip.uuid;
+            });
             clip.remove();
             callback(clipAsset);
           });
@@ -54611,7 +54641,7 @@ Wick.Clip = class extends Wick.Tickable {
     }
   }
   /**
-   * Updates the clip's 
+   * Updates the clip's playhead position if the Clip is in sync mode
    */
 
 
@@ -54969,6 +54999,46 @@ Wick.Clip = class extends Wick.Tickable {
       return [this];
     } else {
       return [this].concat(this.parentClip.lineage);
+    }
+  }
+  /**
+   * Add a placeholder path to this clip to ensure the Clip is always selectable when rendered.
+   */
+
+
+  ensureFirstFrameIsContentful() {
+    var firstLayerExists = this.timeline.activeLayer;
+
+    if (!firstLayerExists) {
+      this.timeline.addLayer(new Wick.Layer());
+    }
+
+    var firstFrameExists = this.timeline.getFramesAtPlayheadPosition(1).length > 0;
+
+    if (!firstFrameExists) {
+      this.timeline.activeLayer.addFrame(new Wick.Frame({
+        start: 1
+      }));
+    }
+
+    var firstFramesAreContentful = false;
+    this.timeline.getFramesAtPlayheadPosition(1).forEach(frame => {
+      if (frame.contentful) {
+        firstFramesAreContentful = true;
+      }
+    });
+
+    if (!firstFramesAreContentful) {
+      var frame = this.timeline.getFramesAtPlayheadPosition(1)[0];
+      var rect = new paper.Path.Rectangle({
+        from: [-5, -5],
+        to: [5, 5],
+        fillColor: 'rgba(0,0,0,0.0001)'
+      });
+      rect.remove();
+      frame.addPath(new Wick.Path({
+        path: rect
+      }));
     }
   }
 
@@ -59816,7 +59886,10 @@ Wick.View.Clip = class extends Wick.View {
   }
 
   render() {
-    // Render timeline view
+    // Prevent an unselectable object from being rendered
+    // due to a clip having no content on the first frame.
+    this.model.ensureFirstFrameIsContentful(); // Render timeline view
+
     this.model.timeline.view.render(); // Add some debug info to the paper group
 
     this.group.data.wickType = 'clip';

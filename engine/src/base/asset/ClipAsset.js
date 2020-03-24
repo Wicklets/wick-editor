@@ -92,7 +92,7 @@ Wick.ClipAsset = class extends Wick.FileAsset {
      * @returns {boolean}
      */
     hasInstances () {
-        return false; // TODO
+        return this.getInstances().length > 0;
     }
 
     /**
@@ -100,7 +100,19 @@ Wick.ClipAsset = class extends Wick.FileAsset {
      * @returns {boolean}
      */
     removeAllInstances () {
-        // TODO
+        this.getInstances().forEach(instance => {
+            instance.remove();
+        });
+
+        // Also remove any ImageAssets that are part of this clip, and are GIF frames
+        this.project.getAllFrames().forEach(frame => {
+            frame.paths.forEach(path => {
+                var images = path.getLinkedAssets();
+                if(images.length > 0 && images[0].gifAssetUUID === this.uuid) {
+                    images[0].remove();
+                }
+            });
+        });
     }
 
     /**
