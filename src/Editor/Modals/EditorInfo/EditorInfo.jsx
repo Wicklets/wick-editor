@@ -37,7 +37,8 @@ class WelcomeModal extends Component {
                     <div className="editor-info-icon">
                         <ToolIcon name="mascot"/>
                     </div>
-                    <div className="editor-info-version">Wick Editor Version {this.props.editorVersion}</div>
+                    <div className="editor-info-name">Wick Editor</div>
+                    <div className="editor-info-version">Version {this.props.editorVersion}</div>
                     <div className="editor-info-link"><a href="https://www.wickeditor.com/#/terms-and-conditions">Terms and Conditions</a></div>
                     <div className="editor-info-link"><a href="https://www.wickeditor.com/#/privacy-policy">Privacy Policy</a></div>
                     <div className="editor-info-link"><a href="https://www.wickeditor.com/#/cookie-policy">Cookie Policy</a></div>
