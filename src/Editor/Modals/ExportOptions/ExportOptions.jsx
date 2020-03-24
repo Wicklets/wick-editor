@@ -26,6 +26,8 @@ import TabbedInterface from 'Editor/Util/TabbedInterface/TabbedInterface';
 
 import './_exportoptions.scss';
 
+let classNames=require("classnames"); 
+
 class ExportOptions extends Component {
   constructor (props) {
     super(props);
@@ -33,6 +35,10 @@ class ExportOptions extends Component {
     this.state = {
       name: this.props.projectName || '',
       subTab: 'Animation',
+      exportWidth: 720,
+      exportHeight: 405,
+      blackBars: true,
+      showAdvanced: true,
     }
   }
 
@@ -80,63 +86,81 @@ class ExportOptions extends Component {
     });
   }
 
+  toggleAdvancedOptionsCheckbox = () => {
+    this.setState({
+      showAdvanced: !this.state.showAdvanced,
+    })
+  }
+
   // Renders the body of the "Animation" tab.
   renderAnimatedInfo = () => {
     return (
-      <div className="export-info-container">
-        <div className="export-info-item">
-          <ObjectInfo
-            className="export-object-info"
-            title="Animated GIF"
-            rows={[
-              {
-                text: "Creates a .gif file",
-                icon: "check"
-              },
-              {
-                text: "No Sound",
-                icon: "cancel",
-              },
-              {
-                text: "No Code is Run",
-                icon: "cancel"
-              },
-            ]} />
-          <div className="export-modal-button-container">
-          <ActionButton
-            color='gray-green'
-            action={() => { this.createAndToggle("GIF") }}
-            text="Export GIF"
-            />
+      <div>
+        <div className="export-info-container">
+          <div className="export-info-item">
+            <ObjectInfo
+              className="export-object-info"
+              title="Animated GIF"
+              rows={[
+                {
+                  text: "Creates a .gif file",
+                  icon: "check"
+                },
+                {
+                  text: "No Sound",
+                  icon: "cancel",
+                },
+                {
+                  text: "No Code is Run",
+                  icon: "cancel"
+                },
+              ]} />
+            <div className="export-modal-button-container">
+              <ActionButton
+                color='gray-green'
+                action={() => { this.createAndToggle("GIF") }}
+                text="Export GIF"
+                />
+            </div>
+          </div>
+          <div className="export-info-item">
+            <ObjectInfo
+              className="export-object-info"
+              title="Video (Beta)"
+              rows={[
+                {
+                  text: "Creates an .mp4 file",
+                  icon: "check"
+                },
+                {
+                  text: "Has Sound",
+                  icon: "check",
+                },
+                {
+                  text: "No code is run",
+                  icon: "cancel"
+                },
+              ]}/>
+            <div className="export-modal-button-container">
+              <ActionButton
+                color='gray-green'
+                action={() => { this.createAndToggle("VIDEO") }}
+                text="Export Video (Beta)"
+                />
+            </div>
           </div>
         </div>
-        <div className="export-info-item">
-          <ObjectInfo
-            className="export-object-info"
-            title="Video (Beta)"
-            rows={[
-              {
-                text: "Creates an .mp4 file",
-                icon: "check"
-              },
-              {
-                text: "Has Sound",
-                icon: "check",
-              },
-              {
-                text: "No code is run",
-                icon: "cancel"
-              },
-            ]}/>
-          <div className="export-modal-button-container">
-          <ActionButton
-            color='gray-green'
-            action={() => { this.createAndToggle("VIDEO") }}
-            text="Export Video (Beta)"
-            />
+        <div className="export-modal-advanced-options">
+          <div className="export-modal-advanced-checkbox-container">
+            <WickInput 
+              type="checkbox" 
+              checked={this.state.showAdvanced} 
+              onChange={this.toggleAdvancedOptionsCheckbox} 
+              label="Show Advanced Options"/>
           </div>
         </div>
       </div>
+
     );
   }
 
@@ -241,7 +265,7 @@ class ExportOptions extends Component {
       <WickModal
       open={this.props.open}
       toggle={this.props.toggle}
-      className="export-modal-body"
+      className={classNames("export-modal-body", {"advanced-options": (this.state.showAdvanced && this.state.subTab === "Animation")})}
       overlayClassName="export-modal-overlay">
         <div id="export-modal-interior-content">
           <div id="export-modal-title">Export</div>

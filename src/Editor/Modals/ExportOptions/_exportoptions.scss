@@ -26,6 +26,12 @@ $info-left-margin: 12px;
   min-width: 240px;  
   height: 320px;
   padding: 20px; 
+  transition: height .5s, width .5s;
+  transition-timing-function: ease-in-out;
+}
+
+.export-modal-body.advanced-options {
+  height: 400px; 
 }
 
 #export-modal-title {
@@ -109,4 +115,16 @@ $info-left-margin: 12px;
   align-items: flex-end;
   justify-content: left;
   overflow: auto; 
+}
+
+.export-modal-advanced-options {
+  display: flex;
+  align-items: center;
+
+}
+
+.export-modal-advanced-checkbox-container {
+  margin-top: 8px;
+  display: flex;
+  margin-left: auto;
 }
