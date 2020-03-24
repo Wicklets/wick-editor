@@ -30,6 +30,8 @@ body {
 
 .toolbox-container {
   height: $toolbox-height;
+  transition-timing-function: ease-in-out;
+  transition: width .5s, height .5s; 
 }
 
 .toolbox-container-medium {
@@ -43,6 +45,8 @@ body {
 
 .editor-canvas-timeline-panel {
   height: calc(100% - #{$toolbox-height});
+  transition-timing-function: ease-in-out;
+  transition: width .5s, height .5s; 
 }
 
 .editor-canvas-timeline-panel-medium {

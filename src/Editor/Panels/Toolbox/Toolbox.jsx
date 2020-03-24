@@ -181,6 +181,7 @@ class Toolbox extends Component {
           {this.renderToolButtons()}
           <ToolboxBreak className="toolbox-item"/>
           {this.renderColorPickers()}
+          <ToolboxBreak className="toolbox-item"/>
         </div>
         <div className="medium-toolbox-row">
           <ToolSettings
