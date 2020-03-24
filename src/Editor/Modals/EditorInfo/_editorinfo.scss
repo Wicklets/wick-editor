@@ -1,7 +1,7 @@
 
 .editor-info-modal-container {
     width: 250px;
-    height: 300px;
+    height: 325px;
 }
 
 .editor-info-icon {
@@ -11,6 +11,14 @@
     margin-bottom: 8px;
 }
 
+.editor-info-name {
+    font-size: 24px; 
+    color: white;
+    text-align: center;
+}
+
 .editor-info-version {
     color: white;
+    justify-content: center;
+    text-align: center;
 }

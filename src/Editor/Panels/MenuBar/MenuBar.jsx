@@ -20,9 +20,7 @@
 import React, { Component } from 'react';
 import './_menubar.scss';
 import MenuBarButton from './MenuBarButton/MenuBarButton';
-import ToolIcon from 'Editor/Util/ToolIcon/ToolIcon';
 import MenuBarIconButton from './MenuBarIconButton/MenuBarIconButton';
-import ActionButton from 'Editor/Util/ActionButton/ActionButton';
 
 class MenuBar extends Component {
 
