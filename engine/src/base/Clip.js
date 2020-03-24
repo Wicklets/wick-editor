@@ -653,10 +653,10 @@ Wick.Clip = class extends Wick.Tickable {
         if(!firstFramesAreContentful) {
             var frame = this.timeline.getFramesAtPlayheadPosition(1)[0];
             // Generate checkerboard pattern
-            /*
+
             var tileSize = 3;
-            for(var x = 0; x < 6; x++) {
-                for(var y = 0; y < 6; y++) {
+            for(var x = 0; x < 3; x++) {
+                for(var y = 0; y < 3; y++) {
                     var rect = new paper.Path.Rectangle({
                         from: [x*tileSize, y*tileSize],
                         to: [x*tileSize+tileSize, y*tileSize+tileSize],
@@ -666,9 +666,9 @@ Wick.Clip = class extends Wick.Tickable {
                     frame.addPath(new Wick.Path({path:rect}));
                 }
             }
-            */
+
             // Generate X
-            var xSize = 10;
+            /*var xSize = 10;
             var line1 = new paper.Path.Line({
                 from: [-xSize,-xSize],
                 to: [xSize,xSize],
@@ -683,7 +683,7 @@ Wick.Clip = class extends Wick.Tickable {
                 strokeColor: 'red',
             });
             line2.remove();
-            frame.addPath(new Wick.Path({path:line2}));
+            frame.addPath(new Wick.Path({path:line2}));*/
         }
     }
 

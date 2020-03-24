@@ -14,7 +14,7 @@
         <!-- The Wick Engine build is injected here during the engine build step (see gulpfile.js) -->
         <script>
             /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.3.24.15.30.17";
+var WICK_ENGINE_BUILD_VERSION = "2020.3.24.16.10.54";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -55049,41 +55049,38 @@ Wick.Clip = class extends Wick.Tickable {
     if (!firstFramesAreContentful) {
       var frame = this.timeline.getFramesAtPlayheadPosition(1)[0]; // Generate checkerboard pattern
 
-      /*
       var tileSize = 3;
-      for(var x = 0; x < 6; x++) {
-          for(var y = 0; y < 6; y++) {
-              var rect = new paper.Path.Rectangle({
-                  from: [x*tileSize, y*tileSize],
-                  to: [x*tileSize+tileSize, y*tileSize+tileSize],
-                  fillColor: (x+y)%2 === 0 ? 'white' : 'black',
-              });
-              rect.remove();
-              frame.addPath(new Wick.Path({path:rect}));
-          }
-      }
-      */
-      // Generate X
 
-      var xSize = 10;
+      for (var x = 0; x < 3; x++) {
+        for (var y = 0; y < 3; y++) {
+          var rect = new paper.Path.Rectangle({
+            from: [x * tileSize, y * tileSize],
+            to: [x * tileSize + tileSize, y * tileSize + tileSize],
+            fillColor: (x + y) % 2 === 0 ? 'white' : 'black'
+          });
+          rect.remove();
+          frame.addPath(new Wick.Path({
+            path: rect
+          }));
+        }
+      } // Generate X
+
+      /*var xSize = 10;
       var line1 = new paper.Path.Line({
-        from: [-xSize, -xSize],
-        to: [xSize, xSize],
-        strokeColor: 'red'
+          from: [-xSize,-xSize],
+          to: [xSize,xSize],
+          strokeColor: 'red',
       });
       line1.remove();
-      frame.addPath(new Wick.Path({
-        path: line1
-      }));
-      var line2 = new paper.Path.Line({
-        from: [xSize, -xSize],
-        to: [-xSize, xSize],
-        strokeColor: 'red'
+      frame.addPath(new Wick.Path({path:line1}));
+       var line2 = new paper.Path.Line({
+          from: [xSize,-xSize],
+          to: [-xSize,xSize],
+          strokeColor: 'red',
       });
       line2.remove();
-      frame.addPath(new Wick.Path({
-        path: line2
-      }));
+      frame.addPath(new Wick.Path({path:line2}));*/
+
     }
   }
 
