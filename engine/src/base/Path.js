@@ -24,6 +24,7 @@ Wick.Path = class extends Wick.Base {
     /**
      * Create a Wick Path.
      * @param {array} json - Path data exported from paper.js using exportJSON({asString:false}).
+     * @param {Paper.Path} path - A Paper.js Path object to use as this Path's svg data. Optional if json was not passed in.
      */
     constructor (args) {
         if(!args) args = {};
@@ -32,7 +33,9 @@ Wick.Path = class extends Wick.Base {
         this._fontStyle = 'normal';
         this._fontWeight = 400;
 
-        if(args.json) {
+        if(args.path) {
+            this.json = args.path.exportJSON({asString:false});
+        } else if(args.json) {
             this.json = args.json;
         } else {
             this.json = new paper.Path({insert:false}).exportJSON({asString:false});

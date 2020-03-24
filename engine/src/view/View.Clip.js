@@ -56,6 +56,10 @@ Wick.View.Clip = class extends Wick.View {
     }
 
     render () {
+        // Prevent an unselectable object from being rendered
+        // due to a clip having no content on the first frame.
+        this.model.ensureFirstFrameIsContentful();
+
         // Render timeline view
         this.model.timeline.view.render();
 
