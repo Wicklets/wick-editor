@@ -37,8 +37,25 @@ class ExportOptions extends Component {
       subTab: 'Animation',
       exportWidth: 720,
       exportHeight: 405,
+      exportResolution: "custom",
       blackBars: true,
-      showAdvanced: true,
+      showAdvanced: false,
+    }
+
+    // If size is not represented, default to "custom".
+    this.advancedSizes = {
+      "1080p": {
+        width: 1920,
+        height: 1080, 
+      },
+      "720p": {
+        width: 1080,
+        height: 720,
+      },
+      "480p": {
+        width: 720,
+        height: 480
+      }
     }
   }
 
@@ -92,6 +109,13 @@ class ExportOptions extends Component {
     })
   }
 
+  updateExportSize = (width, height) => {
+    this.setState({
+      exportWidth: width,
+      exportHeight: height,
+    });
+  }
+
   // Renders the body of the "Animation" tab.
   renderAnimatedInfo = () => {
     return (
@@ -102,18 +126,9 @@ class ExportOptions extends Component {
               className="export-object-info"
               title="Animated GIF"
               rows={[
-                {
-                  text: "Creates a .gif file",
-                  icon: "check"
-                },
-                {
-                  text: "No Sound",
-                  icon: "cancel",
-                },
-                {
-                  text: "No Code is Run",
-                  icon: "cancel"
-                },
+                { text: "Creates a .gif file", icon: "check" },
+                { text: "No Sound",            icon: "cancel" },
+                { text: "No Code is Run",      icon: "cancel" },
               ]} />
             <div className="export-modal-button-container">
               <ActionButton
@@ -128,18 +143,9 @@ class ExportOptions extends Component {
               className="export-object-info"
               title="Video (Beta)"
               rows={[
-                {
-                  text: "Creates an .mp4 file",
-                  icon: "check"
-                },
-                {
-                  text: "Has Sound",
-                  icon: "check",
-                },
-                {
-                  text: "No code is run",
-                  icon: "cancel"
-                },
+                { text: "Creates an .mp4 file", icon: "check" },
+                { text: "Has Sound",            icon: "check" },
+                { text: "No Code is Run",       icon: "cancel"},
               ]}/>
             <div className="export-modal-button-container">
               <ActionButton
@@ -156,8 +162,38 @@ class ExportOptions extends Component {
               type="checkbox" 
               checked={this.state.showAdvanced} 
               onChange={this.toggleAdvancedOptionsCheckbox} 
-              label="Show Advanced Options"/>
+              label="Use Advanced Options"/>
           </div>
+          {this.state.showAdvanced &&
+            <div className="export-modal-advanced-options-content">
+            
+            <div className="export-modal-advanced-option-title">
+              Resolution
+            </div>
+            
+            <WickInput
+                type="select"
+                value={this.state.exportResolution}
+                options={Object.keys(this.advancedSizes).concat(['custom'])} />
+            <div className="export-modal-resolution-inputs"> 
+              <div className="export-modal-resolution-input-container">
+                <WickInput
+                  type="numeric"
+                  value={this.state.exportWidth}
+                  onChange={(val) => {this.updateExportSize(val, this.state.exportHeight)}}
+                  />
+              </div>
+              x
+              <div className="export-modal-resolution-input-container">
+                <WickInput
+                  type="numeric"
+                  value={this.state.exportHeight}
+                  onChange={(val) => {this.updateExportSize(this.state.exportWidth, val)}}
+                  />
+              </div>
+            </div>
+          </div>
+          }
         </div>
       </div>
 
@@ -173,18 +209,9 @@ class ExportOptions extends Component {
             className="export-object-info"
             title="ZIP Archive"
             rows={[
-              {
-                text: "Fully Interactive",
-                icon: "check"
-              },
-              {
-                text: "Works on other sites",
-                icon: "check"
-              },
-              {
-                text: "Exports a .zip file",
-                icon: "check",
-              }
+              { text: "Fully Interactive",    icon: "check" },
+              { text: "Works on other sites", icon: "check" },
+              { text: "Exports a .zip file",  icon: "check" }
             ]}>
           </ObjectInfo>
           <div className="export-modal-button-container">
@@ -200,18 +227,9 @@ class ExportOptions extends Component {
             className="export-object-info"
             title="HTML"
             rows={[
-              {
-                text: "1-Click open",
-                icon: "check"
-              },
-              {
-                text: "Easily share projects",
-                icon: "check"
-              },
-              {
-                text: "Exports a .html file",
-                icon: "check",
-              }
+              { text: "1-Click open",           icon: "check" },
+              { text: "Easily share projects",  icon: "check" },
+              { text: "Exports a .html file",   icon: "check" }
             ]}>
           </ObjectInfo>
           <div className="export-modal-button-container">
@@ -265,7 +283,7 @@ class ExportOptions extends Component {
       <WickModal
       open={this.props.open}
       toggle={this.props.toggle}
-      className={classNames("export-modal-body", {"advanced-options": (this.state.showAdvanced && this.state.subTab === "Animation")})}
+      className={classNames("export-modal-body", {"advanced-options": (this.state.showAdvanced && (this.state.subTab === "Animation"))})}
       overlayClassName="export-modal-overlay">
         <div id="export-modal-interior-content">
           <div id="export-modal-title">Export</div>
@@ -276,7 +294,9 @@ class ExportOptions extends Component {
               onChange={this.updateExportName}
               placeholder={this.placeholderName} />
           </div>
-          <TabbedInterface tabNames={["Animation", "Interactive", "Images"]}>
+          <TabbedInterface 
+            tabNames={["Animation", "Interactive", "Images"]} 
+            onTabSelect={this.setSubTab}>
             {this.renderAnimatedInfo()}
             {this.renderInteractiveInfo()}
             {this.renderImageInfo()}

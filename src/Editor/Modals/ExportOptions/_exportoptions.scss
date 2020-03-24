@@ -32,6 +32,7 @@ $info-left-margin: 12px;
 
 .export-modal-body.advanced-options {
   height: 400px; 
+  overflow: auto; 
 }
 
 #export-modal-title {
@@ -119,12 +120,27 @@ $info-left-margin: 12px;
 
 .export-modal-advanced-options {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+}
 
+.export-modal-advanced-option-title {
+  color: white;
+  font-size: 18px;
 }
 
 .export-modal-advanced-checkbox-container {
   margin-top: 8px;
   display: flex;
   margin-left: auto;
+}
+
+.export-modal-resolution-inputs {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.export-modal-resolution-input-container {
+  width: 25%;
+  margin-left: 4px;
 }
