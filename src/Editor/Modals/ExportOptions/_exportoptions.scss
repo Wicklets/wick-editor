@@ -32,7 +32,6 @@ $info-left-margin: 12px;
 
 .export-modal-body.advanced-options {
   height: 400px; 
-  overflow: auto; 
 }
 
 #export-modal-title {
@@ -141,6 +140,23 @@ $info-left-margin: 12px;
 }
 
 .export-modal-resolution-input-container {
-  width: 25%;
+  width: 50%;
+}
+
+.export-modal-resolution-dropdown-container {
+  width: 50%;
+}
+
+.export-modal-resolution-inputs-container {
+  margin-left: 8px; 
+  display: flex;
+  width: 50%;
+  text-align: center;
+}
+
+.export-modal-x-symbol {
+  text-align: center;
+  vertical-align: center;
   margin-left: 4px;
+  margin-right: 4px;
 }

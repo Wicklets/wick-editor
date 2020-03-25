@@ -35,12 +35,14 @@ class ExportOptions extends Component {
     this.state = {
       name: this.props.projectName || '',
       subTab: 'Animation',
-      exportWidth: 720,
-      exportHeight: 405,
-      exportResolution: "custom",
+      exportWidth: 1920,
+      exportHeight: 1080,
+      exportResolution: "1080p",
       blackBars: true,
       showAdvanced: false,
     }
+
+    this.customSizeTag = "custom";
 
     // If size is not represented, default to "custom".
     this.advancedSizes = {
@@ -57,6 +59,14 @@ class ExportOptions extends Component {
         height: 480
       }
     }
+  }
+
+  resetCustomSize = () => {
+    this.setState({
+      exportResolution: this.customSizeTag,
+      exportWidth: 720,
+      exportHeight: 405,
+    });
   }
 
   componentDidUpdate = (prevProps) => {
@@ -110,10 +120,36 @@ class ExportOptions extends Component {
   }
 
   updateExportSize = (width, height) => {
+
+    let res = this.customSizeTag;
+
+    Object.keys(this.advancedSizes).forEach(key => {
+      let size = this.advancedSizes[key];
+      if (size.width === width && size.height === height) {
+        res = key;
+      }
+    });
+
     this.setState({
+      exportResolution: res,
       exportWidth: width,
       exportHeight: height,
     });
+  }
+
+  updateExportResolutionType = (val) => {
+    let value = val.value;
+
+    if (value === this.customSizeTag) {
+      this.resetCustomSize();
+    } else if (this.advancedSizes[value]) {
+      let dimensions = this.advancedSizes[value];
+      this.setState({
+        exportResolution: value,
+        exportWidth: dimensions.width,
+        exportHeight: dimensions.height,
+      });
+    }
   }
 
   // Renders the body of the "Animation" tab.
@@ -171,25 +207,32 @@ class ExportOptions extends Component {
               Resolution
             </div>
             
-            <WickInput
-                type="select"
-                value={this.state.exportResolution}
-                options={Object.keys(this.advancedSizes).concat(['custom'])} />
             <div className="export-modal-resolution-inputs"> 
-              <div className="export-modal-resolution-input-container">
+              <div className="export-modal-resolution-dropdown-container">
                 <WickInput
-                  type="numeric"
-                  value={this.state.exportWidth}
-                  onChange={(val) => {this.updateExportSize(val, this.state.exportHeight)}}
-                  />
+                  type="select"
+                  value={this.state.exportResolution}
+                  options={Object.keys(this.advancedSizes).concat([this.customSizeTag])}
+                  onChange={(val) => {this.updateExportResolutionType(val)}} />
               </div>
-              x
-              <div className="export-modal-resolution-input-container">
-                <WickInput
-                  type="numeric"
-                  value={this.state.exportHeight}
-                  onChange={(val) => {this.updateExportSize(this.state.exportWidth, val)}}
-                  />
+              <div className="export-modal-resolution-inputs-container">
+                <div className="export-modal-resolution-input-container">
+                  <WickInput
+                    type="numeric"
+                    value={this.state.exportWidth}
+                    onChange={(val) => {this.updateExportSize(val, this.state.exportHeight)}}
+                    />
+                </div>
+                <div className="export-modal-x-symbol">
+                  x
+                </div>
+                <div className="export-modal-resolution-input-container">
+                  <WickInput
+                    type="numeric"
+                    value={this.state.exportHeight}
+                    onChange={(val) => {this.updateExportSize(this.state.exportWidth, val)}}
+                    />
+                </div>
               </div>
             </div>
           </div>
