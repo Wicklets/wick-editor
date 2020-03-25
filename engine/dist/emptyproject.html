@@ -14,7 +14,7 @@
         <!-- The Wick Engine build is injected here during the engine build step (see gulpfile.js) -->
         <script>
             /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.3.24.16.6.0";
+var WICK_ENGINE_BUILD_VERSION = "2020.3.25.13.14.6";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -49594,7 +49594,8 @@ Wick.Project = class extends Wick.Base {
     if (!args.imageType) args.imageType = 'image/png';
     if (!args.onProgress) args.onProgress = () => {};
     if (!args.onFinish) args.onFinish = () => {};
-    if (!args.zoom) args.zoom = 1;
+    if (!args.width) args.width = this.width;
+    if (!args.height) args.height = this.height;
     var renderCopy = this;
     var oldCanvasContainer = this.view.canvasContainer;
     this.history.saveSnapshot('before-gif-render');
@@ -49604,18 +49605,25 @@ Wick.Project = class extends Wick.Base {
     this.tick(); // Put the project canvas inside a div that's the same size as the project so the frames render at the correct resolution.
 
     let container = window.document.createElement('div');
-    container.style.width = 2000; //(renderCopy.width /window.devicePixelRatio*args.zoom)+'px';
-
-    container.style.height = 2000; //(renderCopy.height/window.devicePixelRatio*args.zoom)+'px';
-
+    container.style.width = args.width / window.devicePixelRatio + 'px';
+    container.style.height = args.height / window.devicePixelRatio + 'px';
     window.document.body.appendChild(container);
     renderCopy.view.canvasContainer = container;
-    renderCopy.view.resize(); // Set the initial state of the project.
+    renderCopy.view.resize(); // Calculate the zoom needed to fit the project into the requested container width/height
+
+    var zoom = 1;
+
+    if (args.height < args.width) {
+      zoom = args.height / this.height;
+    } else {
+      zoom = args.width / this.width;
+    } // Set the initial state of the project.
+
 
     renderCopy.focus = renderCopy.root;
     renderCopy.focus.timeline.playheadPosition = 1;
     renderCopy.onionSkinEnabled = false;
-    renderCopy.zoom = args.zoom / window.devicePixelRatio;
+    renderCopy.zoom = zoom / window.devicePixelRatio;
     renderCopy.pan = {
       x: 0,
       y: 0
