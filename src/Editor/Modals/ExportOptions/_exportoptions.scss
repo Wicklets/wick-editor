@@ -119,12 +119,44 @@ $info-left-margin: 12px;
 
 .export-modal-advanced-options {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+}
 
+.export-modal-advanced-option-title {
+  color: white;
+  font-size: 18px;
 }
 
 .export-modal-advanced-checkbox-container {
   margin-top: 8px;
   display: flex;
   margin-left: auto;
+}
+
+.export-modal-resolution-inputs {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.export-modal-resolution-input-container {
+  width: 50%;
+}
+
+.export-modal-resolution-dropdown-container {
+  width: 50%;
+}
+
+.export-modal-resolution-inputs-container {
+  margin-left: 8px; 
+  display: flex;
+  width: 50%;
+  text-align: center;
+}
+
+.export-modal-x-symbol {
+  text-align: center;
+  vertical-align: center;
+  margin-left: 4px;
+  margin-right: 4px;
 }
