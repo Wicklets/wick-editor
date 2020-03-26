@@ -268,7 +268,9 @@ Wick.Frame = class extends Wick.Tickable {
      * @type {boolean}
      */
     get contentful () {
-        return this.paths.length > 0 || this.clips.length > 0;
+        return this.paths.filter(path => {
+            return !path.view.item.data._isPlaceholder;
+        }).length > 0 || this.clips.length > 0;
     }
 
     /**

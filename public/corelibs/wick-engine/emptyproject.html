@@ -14,7 +14,7 @@
         <!-- The Wick Engine build is injected here during the engine build step (see gulpfile.js) -->
         <script>
             /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.3.24.16.10.54";
+var WICK_ENGINE_BUILD_VERSION = "2020.3.26.12.46.11";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -53916,7 +53916,9 @@ Wick.Frame = class extends Wick.Tickable {
 
 
   get contentful() {
-    return this.paths.length > 0 || this.clips.length > 0;
+    return this.paths.filter(path => {
+      return !path.view.item.data._isPlaceholder;
+    }).length > 0 || this.clips.length > 0;
   }
   /**
    * The index of the parent layer.
@@ -55036,8 +55038,14 @@ Wick.Clip = class extends Wick.Tickable {
       this.timeline.activeLayer.addFrame(new Wick.Frame({
         start: 1
       }));
-    } // Check if first frame is contentful
+    } // Clear placeholders
 
+
+    var frame = this.timeline.getFramesAtPlayheadPosition(1)[0];
+    frame.paths.forEach(path => {
+      if (!path.view.item.data._isPlaceholder) return;
+      path.remove();
+    }); // Check if first frame is contentful
 
     var firstFramesAreContentful = false;
     this.timeline.getFramesAtPlayheadPosition(1).forEach(frame => {
@@ -55047,40 +55055,33 @@ Wick.Clip = class extends Wick.Tickable {
     }); // Ensure first frame is contentful
 
     if (!firstFramesAreContentful) {
-      var frame = this.timeline.getFramesAtPlayheadPosition(1)[0]; // Generate checkerboard pattern
+      // Clear placeholders
+      var frame = this.timeline.getFramesAtPlayheadPosition(1)[0];
+      frame.paths.forEach(path => {
+        path.remove();
+      }); // Generate crosshair
 
-      var tileSize = 3;
-
-      for (var x = 0; x < 3; x++) {
-        for (var y = 0; y < 3; y++) {
-          var rect = new paper.Path.Rectangle({
-            from: [x * tileSize, y * tileSize],
-            to: [x * tileSize + tileSize, y * tileSize + tileSize],
-            fillColor: (x + y) % 2 === 0 ? 'white' : 'black'
-          });
-          rect.remove();
-          frame.addPath(new Wick.Path({
-            path: rect
-          }));
-        }
-      } // Generate X
-
-      /*var xSize = 10;
+      var size = 10;
       var line1 = new paper.Path.Line({
-          from: [-xSize,-xSize],
-          to: [xSize,xSize],
-          strokeColor: 'red',
+        from: [0, -size],
+        to: [0, size],
+        strokeColor: '#AAA'
       });
       line1.remove();
-      frame.addPath(new Wick.Path({path:line1}));
-       var line2 = new paper.Path.Line({
-          from: [xSize,-xSize],
-          to: [-xSize,xSize],
-          strokeColor: 'red',
+      line1.data._isPlaceholder = true;
+      frame.addPath(new Wick.Path({
+        path: line1
+      }));
+      var line2 = new paper.Path.Line({
+        from: [-size, 0],
+        to: [size, 0],
+        strokeColor: '#AAA'
       });
       line2.remove();
-      frame.addPath(new Wick.Path({path:line2}));*/
-
+      line2.data._isPlaceholder = true;
+      frame.addPath(new Wick.Path({
+        path: line2
+      }));
     }
   }
 
@@ -59601,22 +59602,30 @@ Wick.View.Project = class extends Wick.View {
     new paper.Path.Rectangle({
       from: new paper.Point(borderMin, borderMin),
       to: new paper.Point(borderMax, 0),
-      fillColor: 'black'
+      fillColor: 'black',
+      strokeWidth: 1,
+      strokeColor: 'black'
     }), // bottom
     new paper.Path.Rectangle({
       from: new paper.Point(borderMin, this.model.height),
       to: new paper.Point(borderMax, borderMax),
-      fillColor: 'black'
+      fillColor: 'black',
+      strokeWidth: 1,
+      strokeColor: 'black'
     }), // left
     new paper.Path.Rectangle({
       from: new paper.Point(borderMin, 0),
       to: new paper.Point(0, this.model.height),
-      fillColor: 'black'
+      fillColor: 'black',
+      strokeWidth: 1,
+      strokeColor: 'black'
     }), // right
     new paper.Path.Rectangle({
       from: new paper.Point(this.model.width, 0),
       to: new paper.Point(borderMax, borderMax),
-      fillColor: 'black'
+      fillColor: 'black',
+      strokeWidth: 1,
+      strokeColor: 'black'
     })];
   }
 

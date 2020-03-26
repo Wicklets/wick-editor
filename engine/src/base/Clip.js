@@ -641,6 +641,13 @@ Wick.Clip = class extends Wick.Tickable {
             this.timeline.activeLayer.addFrame(new Wick.Frame({start:1}));
         }
 
+        // Clear placeholders
+        var frame = this.timeline.getFramesAtPlayheadPosition(1)[0];
+        frame.paths.forEach(path => {
+            if(!path.view.item.data._isPlaceholder) return;
+            path.remove();
+        });
+
         // Check if first frame is contentful
         var firstFramesAreContentful = false;
         this.timeline.getFramesAtPlayheadPosition(1).forEach(frame => {
@@ -651,39 +658,31 @@ Wick.Clip = class extends Wick.Tickable {
 
         // Ensure first frame is contentful
         if(!firstFramesAreContentful) {
+            // Clear placeholders
             var frame = this.timeline.getFramesAtPlayheadPosition(1)[0];
-            // Generate checkerboard pattern
+            frame.paths.forEach(path => {
+                path.remove();
+            });
 
-            var tileSize = 3;
-            for(var x = 0; x < 3; x++) {
-                for(var y = 0; y < 3; y++) {
-                    var rect = new paper.Path.Rectangle({
-                        from: [x*tileSize, y*tileSize],
-                        to: [x*tileSize+tileSize, y*tileSize+tileSize],
-                        fillColor: (x+y)%2 === 0 ? 'white' : 'black',
-                    });
-                    rect.remove();
-                    frame.addPath(new Wick.Path({path:rect}));
-                }
-            }
-
-            // Generate X
-            /*var xSize = 10;
+            // Generate crosshair
+            var size = 10;
             var line1 = new paper.Path.Line({
-                from: [-xSize,-xSize],
-                to: [xSize,xSize],
-                strokeColor: 'red',
+                from: [0,-size],
+                to: [0,size],
+                strokeColor: '#AAA',
             });
             line1.remove();
+            line1.data._isPlaceholder = true;
             frame.addPath(new Wick.Path({path:line1}));
 
             var line2 = new paper.Path.Line({
-                from: [xSize,-xSize],
-                to: [-xSize,xSize],
-                strokeColor: 'red',
+                from: [-size,0],
+                to: [size,0],
+                strokeColor: '#AAA',
             });
             line2.remove();
-            frame.addPath(new Wick.Path({path:line2}));*/
+            line2.data._isPlaceholder = true;
+            frame.addPath(new Wick.Path({path:line2}));
         }
     }
 
