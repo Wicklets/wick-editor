@@ -85,8 +85,11 @@ import ModalHandler from './Modals/ModalHandler/ModalHandler';
                         changeColorPickerType={this.props.editor.changeColorPickerType}
                         updateLastColors={this.props.editor.updateLastColors}
                         lastColorsUsed={this.props.editor.state.lastColorsUsed}
-                        editorVersion={this.props.editor.editorVersion} />
-
+                        editorVersion={this.props.editor.editorVersion}
+                        useCustomOnionSkinningColors={this.props.editor.state.useCustomOnionSkinningColors}
+                        customOnionSkinningColors={this.props.editor.state.customOnionSkinningColors} 
+                        changeOnionSkinningColors={this.props.editor.changeOnionSkinningColors}
+                        />
                 {this.props.children}
                 </div>
             </ErrorBoundary>

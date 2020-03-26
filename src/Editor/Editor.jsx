@@ -49,6 +49,7 @@ import AssetLibrary from './Panels/AssetLibrary/AssetLibrary';
 import PopOutCodeEditor from './PopOuts/PopOutCodeEditor/PopOutCodeEditor';
 
 import EditorWrapper from './EditorWrapper';
+import { resetIdCounter } from 'react-tabs';
 
 
 var classNames = require('classnames');
@@ -95,6 +96,11 @@ class Editor extends EditorCore {
       renderMediumWidth: 1200,
       renderSmallWidth: 800,
       exporting: false,
+      useCustomOnionSkinningColors: false,
+      customOnionSkinningColors: {
+        backward: "#000000", 
+        forward: "#000000",
+      }
     };
 
     // Catch all errors that happen in the editor.
@@ -502,6 +508,21 @@ class Editor extends EditorCore {
       this.selectObject(obj)
       this.projectDidChange();
     }
+  }
+
+  /**
+   * Update the onion skinning colors in the editor.
+   * @param {object} colors An object with colors to be used for onion skinning. colors.backward is used for previous frames. colors.forward is used for following frames.
+   */
+  changeOnionSkinningColors = (colors) => {
+    if (!colors) return; // ignore change if no colors are passed.
+
+    this.setState({
+      onionSkinningColors: {
+        backward: colors.backward || this.state.onionSkinningColors.backward,
+        forward: colors.forward || this.state.onionSkinningColors.forward,
+      }
+    }); 
   }
 
   /**

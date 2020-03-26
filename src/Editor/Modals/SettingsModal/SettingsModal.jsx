@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Editor.
  *
@@ -21,6 +21,7 @@ import React, { Component } from 'react';
 import WickModal from 'Editor/Modals/WickModal/WickModal';
 import TabbedInterface from 'Editor/Util/TabbedInterface/TabbedInterface';
 import ProjectSettings from './ProjectSettings/ProjectSettings';
+import EditorSettings from './EditorSettings/EditorSettings';
 import KeyboardShortcuts from './KeyboardShortcuts/KeyboardShortcuts';
 
 import './_settingsmodal.scss';
@@ -56,7 +57,7 @@ class SettingsModal extends Component {
           Settings
         </div>
         <div className="settings-modal-body">
-          <TabbedInterface tabNames={["Project", "Shortcuts"]} >
+          <TabbedInterface tabNames={["Project", "Shortcuts", "Editor"]} >
             <ProjectSettings
               project={this.props.project}
               updateProjectSettings={this.props.updateProjectSettings}
@@ -70,6 +71,16 @@ class SettingsModal extends Component {
               customHotKeys={this.props.customHotKeys}
               keyMap={this.props.keyMap}
               keyMapGroups={this.props.keyMapGroups} />
+            <EditorSettings 
+              customOnionSkinningColors={this.props.customOnionSkinningColors}
+              useCustomOnionSkinningColors={this.props.useCustomOnionSkinningColors}
+              changeOnionSkinningColors={this.props.changeOnionSkinningColors}
+              onionSkinningColors={this.props.onionSkinningColors}
+              colorPickerType={this.props.colorPickerType}
+              changeColorPickerType={this.props.changeColorPickerType}
+              updateLastColors={this.props.updateLastColors}
+              lastColorsUsed={this.props.lastColorsUsed}/>
+            />
           </TabbedInterface>
         </div>
       </WickModal>
