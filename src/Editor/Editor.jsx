@@ -94,6 +94,7 @@ class Editor extends EditorCore {
       lastColorsUsed: ["#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF"],
       renderMediumWidth: 1200,
       renderSmallWidth: 800,
+      exporting: false,
     };
 
     // Catch all errors that happen in the editor.
@@ -760,7 +761,9 @@ class Editor extends EditorCore {
               openNewProjectConfirmation={this.openNewProjectConfirmation}
               exportProjectAsWickFile={this.exportProjectAsWickFile}
               importProjectAsWickFile={this.importProjectAsWickFile}
+              exporting={this.state.exporting}
               toast={this.toast}
+              openExportMedia={() => {this.openModal('ExportMedia')}}
               openExportOptions={() => {this.openModal('ExportOptions')}}
             />
           </DockedPanel>

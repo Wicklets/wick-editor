@@ -32,8 +32,6 @@ class FFMPEG {
     this._worker = new Worker("corelibs/video/worker-asm.js");
     this._worker.onmessage = (e) => {
       var msg = e.data;
-      console.log('from worker:' + msg.type + ':');
-      console.log(msg.data);
       switch (msg.type) {
         case "ready":
           this._isReady = true;
@@ -41,6 +39,7 @@ class FFMPEG {
         case "run":
           break;
         case "stdout":
+          //console.log(msg.data);
           break;
         case "stderr":
           break;
@@ -87,7 +86,7 @@ class VideoExport {
     if(!args.onFinish) console.error('VideoExport: onFinish is required.');
 
     args.onProgress('Rendering video frames', 10);
-    this._generateVideoFile(args.project, videoFiles => {
+    this._generateVideoFile(args, videoFiles => {
       args.onProgress('Rendering audio track', 33);
       this._generateAudioFiles(args.project, audioFiles => {
         args.onProgress('Mixing video and audio', 66);
@@ -108,15 +107,23 @@ class VideoExport {
     return this._ffmpegInstance;
   }
 
-  static _generateImageFiles (project, callback) {
+  static _generateImageFiles (args, callback) {
+    let project = args.project;
     var imageFiles = [];
 
     // Get frame images from project, send to the video worker.
     let frameNumber = 0;
+
     project.generateImageSequence({
       imageType: 'image/jpeg',
+      width: args.width,
+      height: args.height,
       onProgress: (currentFrame, numTotalFrames) => {
-        console.log('rendering frame: ' + currentFrame + '/' + numTotalFrames);
+        let message = 'Rendering Frame: ' + currentFrame + '/' + numTotalFrames; 
+        let progress = currentFrame/numTotalFrames;
+        if (args.onProgress) {
+          args.onProgress(message, progress * 33);
+        }
       },
       onFinish: images => {
         // Load frame images into the web worker's memory
@@ -156,8 +163,10 @@ class VideoExport {
     });
   }
 
-  static _generateVideoFile (project, callback) {
-    this._generateImageFiles(project, imageFiles => {
+  static _generateVideoFile (args, callback) {
+    let project = args.project
+    this._generateImageFiles(args, imageFiles => {
+      args.onProgress("Combining Images into Video",33);
       this._ffmpeg.onDone = videoData => {
         let videoFiles = [{
           name: 'video-no-sound.mp4',
@@ -172,10 +181,13 @@ class VideoExport {
           filterv = 'setpts='+(6/project.framerate)+'*PTS, ' + filterv;
       }
 
+      let width = args.width || project.width;
+      let height = args.height || project.height;
+
       this._ffmpeg.run([
         '-r', '' + Math.max(6, project.framerate),
         '-f', 'image2',
-        '-s', project.width + "x" + project.height,
+        '-s', width + "x" + height,
         '-i', 'frame%12d.jpeg',
         '-vcodec', 'mpeg4',
         '-q:v', '10', //10=good quality, 31=bad quality
@@ -192,7 +204,7 @@ class VideoExport {
       let videoAndAudioFiles = audioFiles.concat(videoFiles);
       this._ffmpeg.onDone = videoWithSoundData => {
         callback(videoWithSoundData);
-      };
+      }
       this._ffmpeg.run([
         '-i', 'video-no-sound.mp4',
         '-i', 'audiotrack.wav',
