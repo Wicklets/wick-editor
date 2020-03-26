@@ -1044,6 +1044,8 @@ class EditorCore extends Component {
     // this.showWaitOverlay('Rendering video...');
     VideoExport.renderVideo({
       project: this.project,
+      width: args.width,
+      height: args.height,
       onProgress: onProgress,
       onError: () => {
         this.hideWaitOverlay();
