@@ -1419,6 +1419,8 @@ Wick.Project = class extends Wick.Base {
         if(!args.imageType) args.imageType = 'image/png';
         if(!args.onProgress) args.onProgress = () => {};
         if(!args.onFinish) args.onFinish = () => {};
+        if(!args.width) args.width = this.width;
+        if(!args.height) args.height = this.height;
 
         var renderCopy = this;
 
@@ -1432,17 +1434,25 @@ Wick.Project = class extends Wick.Base {
 
         // Put the project canvas inside a div that's the same size as the project so the frames render at the correct resolution.
         let container = window.document.createElement('div');
-        container.style.width = (renderCopy.width/window.devicePixelRatio)+'px';
-        container.style.height = (renderCopy.height/window.devicePixelRatio)+'px';
+        container.style.width  = (args.width /window.devicePixelRatio)+'px';
+        container.style.height = (args.height/window.devicePixelRatio)+'px';
         window.document.body.appendChild(container);
         renderCopy.view.canvasContainer = container;
         renderCopy.view.resize();
+
+        // Calculate the zoom needed to fit the project into the requested container width/height
+        var zoom = 1;
+        if (args.height < args.width) {
+            zoom = args.height / this.height;
+        } else {
+            zoom = args.width / this.width;
+        }
 
         // Set the initial state of the project.
         renderCopy.focus = renderCopy.root;
         renderCopy.focus.timeline.playheadPosition = 1;
         renderCopy.onionSkinEnabled = false;
-        renderCopy.zoom = 1 / window.devicePixelRatio;
+        renderCopy.zoom = zoom / window.devicePixelRatio;
         renderCopy.pan = {x: 0, y: 0};
 
         //renderCopy.tick();

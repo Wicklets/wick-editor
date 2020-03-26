@@ -47,6 +47,21 @@ var TestUtils = {
         }
     ],
 
+    TEST_PATH_JSON_GREEN_SQUARE : [
+        "Path",
+        {
+            "applyMatrix":true,
+            "segments":[
+                [100,150],
+                [100,100],
+                [150,100],
+                [150,150]
+            ],
+            "closed":true,
+            "fillColor":[0,1,0]
+        }
+    ],
+
     TEST_SVG_CIRCLE : '<svg xmlns="http://www.w3.org/2000/svg" height="100" width="100"><circle cx="50" cy="50" r="50" stroke="black" stroke-width="3" fill="red" /></svg>',
 
     // https://dev.w3.org/SVG/tools/svgweb/samples/svg-files/caution.svg

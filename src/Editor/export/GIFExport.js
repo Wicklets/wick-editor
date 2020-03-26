@@ -9,12 +9,15 @@ class GIFExport {
 
     onProgress("Creating Gif", 10);
 
+    let width = args.width || project.width;
+    let height = args.height || project.height;
+
     // Initialize GIF.js
     let gif = new window.GIF({
       workers: 2,
       quality: 5,
-      width: project.width,
-      height: project.height,
+      width: width,
+      height: height,
       workerScript: process.env.PUBLIC_URL + "/corelibs/gif/gif.worker.js",
     });
 
@@ -40,6 +43,8 @@ class GIFExport {
 
     // Get frame images from project, add to GIF.js
     project.generateImageSequence({
+      width: width,
+      height: height,
       onFinish: combineImageSequence,
       onProgress: updateProgress,
     });

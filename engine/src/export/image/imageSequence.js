@@ -49,6 +49,8 @@ Wick.ImageSequence = class {
         }
 
         project.generateImageSequence({
+            width: args.width,
+            height: args.height,
             onFinish: buildZip,
             onProgress: onProgress,
         });
