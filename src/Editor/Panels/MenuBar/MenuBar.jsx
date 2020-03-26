@@ -41,23 +41,28 @@ class MenuBar extends Component {
           {this.props.projectName}
         </div>
         <div className="menu-bar-actions-container">
+
           <MenuBarButton
             text="new"
             action={this.props.openNewProjectConfirmation}
           />
+
           <MenuBarButton
             text="open"
             action={this.props.openProjectFileDialog}
           />
+
           <MenuBarButton
             text="export"
             action={() => {this.props.exporting ? this.props.openExportMedia() : this.props.openExportOptions()}}
           />
+
           <MenuBarButton
             text="save"
             action={this.props.exportProjectAsWickFile}
             color='save'
           />
+          
           <MenuBarIconButton
             icon="gear"
             action={() => this.props.openModal('SettingsModal')}

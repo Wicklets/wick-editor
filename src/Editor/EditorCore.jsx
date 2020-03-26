@@ -788,7 +788,6 @@ class EditorCore extends Component {
   */
   createInstanceOfSelectedAsset = () => {
     let uuid = this.project.selection.getSelectedObject().uuid;
-    var asset = this.project.getAssetByUUID(uuid);
     this.createImageFromAsset(uuid, this.project.width/2, this.project.height/2, true);
   }
 
@@ -949,6 +948,8 @@ class EditorCore extends Component {
     }
 
     GIFExport.createAnimatedGIFFromProject({
+      width: args.width,
+      height: args.height,
       project: this.project,
       onFinish: onFinish,
       onError: onError,
@@ -964,8 +965,9 @@ class EditorCore extends Component {
     this.openModal('ExportMedia');
     this.setState({
       renderProgress: 0,
-      renderType: "video",
+      renderType: "image sequence",
       renderStatusMessage: "Creating image sequence.",
+      exporting: true,
     });
 
     let toastID = this.toast('Exporting image sequence...', 'info');
@@ -980,18 +982,23 @@ class EditorCore extends Component {
     }
 
     let onError = (message) => {
-      console.error("Video Render had an error with message: ", message);
+      console.error("Image Render had an error with message: ", message);
     }
 
     let onFinish = (sequenceBlobZip) => {
       this.updateToast(toastID, {
         type: 'success',
-        text: "Successfully created .mp4 file." });
+        text: "Successfully created image sequence." });
       saveAs(sequenceBlobZip, this.project.name +'_imageSequence.zip');
+      this.setState({
+        exporting: false,
+      })
     }
 
     window.Wick.ImageSequence.toPNGSequence({
       project: this.project,
+      width: args.width,
+      height: args.height,
       onProgress: onProgress,
       onError: () => {
         this.hideWaitOverlay();
@@ -1061,9 +1068,9 @@ class EditorCore extends Component {
   /**
    * Export the current project as a bundled standalone ZIP that can be uploaded to itch/newgrounds/etc.
    */
-  exportProjectAsStandaloneZip = (name) => {
+  exportProjectAsStandaloneZip = (args) => {
     let toastID = this.toast('Exporting project as ZIP...', 'info');
-    let outputName = name || this.project.name;
+    let outputName = args.name || this.project.name;
     window.Wick.ZIPExport.bundleProject(this.project, blob => {
       this.updateToast(toastID, {
         type: 'success',
@@ -1075,9 +1082,9 @@ class EditorCore extends Component {
   /**
    * Export the current project as a bundled standalone HTML file.
    */
-  exportProjectAsStandaloneHTML = (name) => {
+  exportProjectAsStandaloneHTML = (args) => {
     let toastID = this.toast('Exporting project as HTML...', 'info');
-    let outputName = name || this.project.name;
+    let outputName = args.name || this.project.name;
     window.Wick.HTMLExport.bundleProject(this.project, html => {
       this.updateToast(toastID, {
         type: 'success',

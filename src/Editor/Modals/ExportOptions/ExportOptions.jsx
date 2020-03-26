@@ -158,6 +158,57 @@ class ExportOptions extends Component {
     }
   }
 
+  renderAdvancedOptions = () => {
+    return (
+      <div className="export-modal-advanced-options">
+        <div className="export-modal-advanced-checkbox-container">
+          <WickInput 
+            type="checkbox" 
+            checked={this.state.useAdvanced} 
+            onChange={this.toggleAdvancedOptionsCheckbox} 
+            label="Use Advanced Options"/>
+        </div>
+        {this.state.useAdvanced &&
+          <div className="export-modal-advanced-options-content">
+          
+          <div className="export-modal-advanced-option-title">
+            Resolution
+          </div>
+          
+          <div className="export-modal-resolution-inputs"> 
+            <div className="export-modal-resolution-dropdown-container">
+              <WickInput
+                type="select"
+                value={this.state.exportResolution}
+                options={Object.keys(this.advancedSizes).concat([this.customSizeTag])}
+                onChange={(val) => {this.updateExportResolutionType(val)}} />
+            </div>
+            <div className="export-modal-resolution-inputs-container">
+              <div className="export-modal-resolution-input-container">
+                <WickInput
+                  type="numeric"
+                  value={this.state.exportWidth}
+                  onChange={(val) => {this.updateExportSize(val, this.state.exportHeight)}}
+                  />
+              </div>
+              <div className="export-modal-x-symbol">
+                x
+              </div>
+              <div className="export-modal-resolution-input-container">
+                <WickInput
+                  type="numeric"
+                  value={this.state.exportHeight}
+                  onChange={(val) => {this.updateExportSize(this.state.exportWidth, val)}}
+                  />
+              </div>
+            </div>
+          </div>
+        </div>
+        }
+      </div>
+    )
+  }
+
   // Renders the body of the "Animation" tab.
   renderAnimatedInfo = () => {
     return (
@@ -198,52 +249,7 @@ class ExportOptions extends Component {
             </div>
           </div>
         </div>
-        <div className="export-modal-advanced-options">
-          <div className="export-modal-advanced-checkbox-container">
-            <WickInput 
-              type="checkbox" 
-              checked={this.state.useAdvanced} 
-              onChange={this.toggleAdvancedOptionsCheckbox} 
-              label="Use Advanced Options"/>
-          </div>
-          {this.state.useAdvanced &&
-            <div className="export-modal-advanced-options-content">
-            
-            <div className="export-modal-advanced-option-title">
-              Resolution
-            </div>
-            
-            <div className="export-modal-resolution-inputs"> 
-              <div className="export-modal-resolution-dropdown-container">
-                <WickInput
-                  type="select"
-                  value={this.state.exportResolution}
-                  options={Object.keys(this.advancedSizes).concat([this.customSizeTag])}
-                  onChange={(val) => {this.updateExportResolutionType(val)}} />
-              </div>
-              <div className="export-modal-resolution-inputs-container">
-                <div className="export-modal-resolution-input-container">
-                  <WickInput
-                    type="numeric"
-                    value={this.state.exportWidth}
-                    onChange={(val) => {this.updateExportSize(val, this.state.exportHeight)}}
-                    />
-                </div>
-                <div className="export-modal-x-symbol">
-                  x
-                </div>
-                <div className="export-modal-resolution-input-container">
-                  <WickInput
-                    type="numeric"
-                    value={this.state.exportHeight}
-                    onChange={(val) => {this.updateExportSize(this.state.exportWidth, val)}}
-                    />
-                </div>
-              </div>
-            </div>
-          </div>
-          }
-        </div>
+        {this.renderAdvancedOptions()}
       </div>
 
     );
@@ -322,6 +328,7 @@ class ExportOptions extends Component {
               text="Export Image Sequence"
               />
             </div>
+            {this.renderAdvancedOptions()}
           </div>
         </div>
       );
@@ -332,7 +339,7 @@ class ExportOptions extends Component {
       <WickModal
       open={this.props.open}
       toggle={this.props.toggle}
-      className={classNames("export-modal-body", {"advanced-options": (this.state.useAdvanced && (this.state.subTab === "Animation"))})}
+      className={classNames("export-modal-body", {"advanced-options": (this.state.useAdvanced && (this.state.subTab === "Animation" || this.state.subTab === "Images"))})}
       overlayClassName="export-modal-overlay">
         <div id="export-modal-interior-content">
           <div id="export-modal-title">Export</div>

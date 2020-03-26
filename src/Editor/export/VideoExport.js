@@ -114,7 +114,6 @@ class VideoExport {
     // Get frame images from project, send to the video worker.
     let frameNumber = 0;
 
-    console.log(args);
     project.generateImageSequence({
       imageType: 'image/jpeg',
       width: args.width,

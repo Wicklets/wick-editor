@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.3.25.13.14.6";
+var WICK_ENGINE_BUILD_VERSION = "2020.3.26.13.35.53";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -47093,6 +47093,8 @@ Wick.ImageSequence = class {
     };
 
     project.generateImageSequence({
+      width: args.width,
+      height: args.height,
       onFinish: buildZip,
       onProgress: onProgress
     });
