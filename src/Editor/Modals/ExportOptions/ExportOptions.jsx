@@ -39,7 +39,7 @@ class ExportOptions extends Component {
       exportHeight: 1080,
       exportResolution: "1080p",
       blackBars: true,
-      showAdvanced: false,
+      useAdvanced: false,
     }
 
     this.customSizeTag = "custom";
@@ -84,18 +84,24 @@ class ExportOptions extends Component {
   createAndToggle = (type) => {
     let name = this.state.name !== "" ? this.state.name : (type);
 
+    let args = {
+      name: name, 
+      width:  this.state.useAdvanced ? this.state.exportWidth : undefined,
+      height: this.state.useAdvanced ? this.state.exportHeight : undefined,
+    }
+
     if (type === 'GIF') {
-      this.props.exportProjectAsGif(name);
+      this.props.exportProjectAsGif(args);
     } else if (type === 'VIDEO') {
-      this.props.exportProjectAsVideo(name);
+      this.props.exportProjectAsVideo(args);
     } else if (type === 'ZIP') {
-      this.props.exportProjectAsStandaloneZip(name);
+      this.props.exportProjectAsStandaloneZip(args);
       this.props.toggle();
     } else if (type === 'HTML') {
-      this.props.exportProjectAsStandaloneHTML(name);
+      this.props.exportProjectAsStandaloneHTML(args);
       this.props.toggle();
     } else if (type === 'IMAGE_SEQUENCE') {
-      this.props.exportProjectAsImageSequence(name);
+      this.props.exportProjectAsImageSequence(args);
       this.props.toggle();
     }
   }
@@ -115,7 +121,7 @@ class ExportOptions extends Component {
 
   toggleAdvancedOptionsCheckbox = () => {
     this.setState({
-      showAdvanced: !this.state.showAdvanced,
+      useAdvanced: !this.state.useAdvanced,
     })
   }
 
@@ -196,11 +202,11 @@ class ExportOptions extends Component {
           <div className="export-modal-advanced-checkbox-container">
             <WickInput 
               type="checkbox" 
-              checked={this.state.showAdvanced} 
+              checked={this.state.useAdvanced} 
               onChange={this.toggleAdvancedOptionsCheckbox} 
               label="Use Advanced Options"/>
           </div>
-          {this.state.showAdvanced &&
+          {this.state.useAdvanced &&
             <div className="export-modal-advanced-options-content">
             
             <div className="export-modal-advanced-option-title">
@@ -326,7 +332,7 @@ class ExportOptions extends Component {
       <WickModal
       open={this.props.open}
       toggle={this.props.toggle}
-      className={classNames("export-modal-body", {"advanced-options": (this.state.showAdvanced && (this.state.subTab === "Animation"))})}
+      className={classNames("export-modal-body", {"advanced-options": (this.state.useAdvanced && (this.state.subTab === "Animation"))})}
       overlayClassName="export-modal-overlay">
         <div id="export-modal-interior-content">
           <div id="export-modal-title">Export</div>

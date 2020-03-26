@@ -51,7 +51,7 @@ class MenuBar extends Component {
           />
           <MenuBarButton
             text="export"
-            action={this.props.openExportOptions}
+            action={() => {this.props.exporting ? this.props.openExportMedia() : this.props.openExportOptions()}}
           />
           <MenuBarButton
             text="save"

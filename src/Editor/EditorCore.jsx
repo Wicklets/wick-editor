@@ -917,7 +917,7 @@ class EditorCore extends Component {
   /**
    * Export the current project as an animated GIF.
    */
-  exportProjectAsAnimatedGIF = (name) => {
+  exportProjectAsAnimatedGIF = (args) => {
     // Open export media loading bar modal.
     this.openModal('ExportMedia');
     this.setState({
@@ -927,7 +927,7 @@ class EditorCore extends Component {
     });
 
     // this.showWaitOverlay();
-    let outputName = name || this.project.name;
+    let outputName = args.name || this.project.name;
     let toastID = this.toast('Exporting animated GIF...', 'info');
 
     let onProgress = (message, progress) => {
@@ -960,7 +960,7 @@ class EditorCore extends Component {
   /**
    * Export the current project as an image sequence
    */
-  exportProjectAsImageSequence = () => {
+  exportProjectAsImageSequence = (args) => {
     this.openModal('ExportMedia');
     this.setState({
       renderProgress: 0,
@@ -1007,13 +1007,14 @@ class EditorCore extends Component {
   /**
    * Export the current project as a video.
    */
-  exportProjectAsVideo = () => {
+  exportProjectAsVideo = (args) => {
     // Open export media loading bar modal.
     this.openModal('ExportMedia');
     this.setState({
       renderProgress: 0,
       renderType: "video",
       renderStatusMessage: "Creating video.",
+      exporting: true,
     });
 
     let toastID = this.toast('Exporting video...', 'info');
@@ -1034,6 +1035,10 @@ class EditorCore extends Component {
         type: 'success',
         text: "Successfully created .mp4 file." });
       console.log("Video Render Complete: ", message);
+
+      this.setState({
+        exporting: false,
+      });
     }
 
     // this.showWaitOverlay('Rendering video...');
