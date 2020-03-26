@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.3.26.12.46.11";
+var WICK_ENGINE_BUILD_VERSION = "2020.3.26.14.53.31";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -55008,40 +55008,41 @@ Wick.Clip = class extends Wick.Tickable {
    */
 
 
-  ensureFirstFrameIsContentful() {
+  ensureActiveFrameIsContentful() {
     // Ensure layer exists
     var firstLayerExists = this.timeline.activeLayer;
 
     if (!firstLayerExists) {
       this.timeline.addLayer(new Wick.Layer());
-    } // Ensure frame exists
+    } // Ensure active frame exists
 
 
-    var firstFrameExists = this.timeline.getFramesAtPlayheadPosition(1).length > 0;
+    var playheadPosition = this.timeline.playheadPosition;
+    var activeFrameExists = this.timeline.getFramesAtPlayheadPosition(playheadPosition).length > 0;
 
-    if (!firstFrameExists) {
+    if (!activeFrameExists) {
       this.timeline.activeLayer.addFrame(new Wick.Frame({
-        start: 1
+        start: playheadPosition
       }));
     } // Clear placeholders
 
 
-    var frame = this.timeline.getFramesAtPlayheadPosition(1)[0];
+    var frame = this.timeline.getFramesAtPlayheadPosition(playheadPosition)[0];
     frame.paths.forEach(path => {
       if (!path.view.item.data._isPlaceholder) return;
       path.remove();
-    }); // Check if first frame is contentful
+    }); // Check if active frame is contentful
 
     var firstFramesAreContentful = false;
-    this.timeline.getFramesAtPlayheadPosition(1).forEach(frame => {
+    this.timeline.getFramesAtPlayheadPosition(playheadPosition).forEach(frame => {
       if (frame.contentful) {
         firstFramesAreContentful = true;
       }
-    }); // Ensure first frame is contentful
+    }); // Ensure active frame is contentful
 
     if (!firstFramesAreContentful) {
       // Clear placeholders
-      var frame = this.timeline.getFramesAtPlayheadPosition(1)[0];
+      var frame = this.timeline.getFramesAtPlayheadPosition(playheadPosition)[0];
       frame.paths.forEach(path => {
         path.remove();
       }); // Generate crosshair
@@ -59587,30 +59588,22 @@ Wick.View.Project = class extends Wick.View {
     new paper.Path.Rectangle({
       from: new paper.Point(borderMin, borderMin),
       to: new paper.Point(borderMax, 0),
-      fillColor: 'black',
-      strokeWidth: 1,
-      strokeColor: 'black'
+      fillColor: 'black'
     }), // bottom
     new paper.Path.Rectangle({
       from: new paper.Point(borderMin, this.model.height),
       to: new paper.Point(borderMax, borderMax),
-      fillColor: 'black',
-      strokeWidth: 1,
-      strokeColor: 'black'
+      fillColor: 'black'
     }), // left
     new paper.Path.Rectangle({
       from: new paper.Point(borderMin, 0),
       to: new paper.Point(0, this.model.height),
-      fillColor: 'black',
-      strokeWidth: 1,
-      strokeColor: 'black'
+      fillColor: 'black'
     }), // right
     new paper.Path.Rectangle({
       from: new paper.Point(this.model.width, 0),
       to: new paper.Point(borderMax, borderMax),
-      fillColor: 'black',
-      strokeWidth: 1,
-      strokeColor: 'black'
+      fillColor: 'black'
     })];
   }
 
@@ -59924,7 +59917,7 @@ Wick.View.Clip = class extends Wick.View {
   render() {
     // Prevent an unselectable object from being rendered
     // due to a clip having no content on the first frame.
-    this.model.ensureFirstFrameIsContentful(); // Render timeline view
+    this.model.ensureActiveFrameIsContentful(); // Render timeline view
 
     this.model.timeline.view.render(); // Add some debug info to the paper group
 
@@ -60214,7 +60207,18 @@ Wick.View.Frame = class extends Wick.View {
     if (!args) args = {};
     this.pathsLayer.data.wickUUID = this.model.uuid;
     this.pathsLayer.data.wickType = 'paths';
-    this.pathsLayer.removeChildren();
+    this.pathsLayer.removeChildren(); // Remove placeholder paths if
+    // 1) this frame is focused, or
+    // 2) the project is playing
+
+    if (this.model.parentClip.isFocus || this.model.project.playing) {
+      this.model.paths.forEach(path => {
+        if (path.view.item.data._isPlaceholder) {
+          path.remove();
+        }
+      });
+    }
+
     this.model.paths.forEach(path => {
       path.view.render();
       this.pathsLayer.addChild(path.view.item);

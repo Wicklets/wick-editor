@@ -628,38 +628,39 @@ Wick.Clip = class extends Wick.Tickable {
     /**
      * Add a placeholder path to this clip to ensure the Clip is always selectable when rendered.
      */
-    ensureFirstFrameIsContentful () {
+    ensureActiveFrameIsContentful () {
         // Ensure layer exists
         var firstLayerExists = this.timeline.activeLayer;
         if(!firstLayerExists) {
             this.timeline.addLayer(new Wick.Layer());
         }
 
-        // Ensure frame exists
-        var firstFrameExists = this.timeline.getFramesAtPlayheadPosition(1).length > 0;
-        if(!firstFrameExists) {
-            this.timeline.activeLayer.addFrame(new Wick.Frame({start:1}));
+        // Ensure active frame exists
+        var playheadPosition = this.timeline.playheadPosition;
+        var activeFrameExists = this.timeline.getFramesAtPlayheadPosition(playheadPosition).length > 0;
+        if(!activeFrameExists) {
+            this.timeline.activeLayer.addFrame(new Wick.Frame({start:playheadPosition}));
         }
 
         // Clear placeholders
-        var frame = this.timeline.getFramesAtPlayheadPosition(1)[0];
+        var frame = this.timeline.getFramesAtPlayheadPosition(playheadPosition)[0];
         frame.paths.forEach(path => {
             if(!path.view.item.data._isPlaceholder) return;
             path.remove();
         });
 
-        // Check if first frame is contentful
+        // Check if active frame is contentful
         var firstFramesAreContentful = false;
-        this.timeline.getFramesAtPlayheadPosition(1).forEach(frame => {
+        this.timeline.getFramesAtPlayheadPosition(playheadPosition).forEach(frame => {
             if(frame.contentful) {
                 firstFramesAreContentful = true;
             }
         });
 
-        // Ensure first frame is contentful
+        // Ensure active frame is contentful
         if(!firstFramesAreContentful) {
             // Clear placeholders
-            var frame = this.timeline.getFramesAtPlayheadPosition(1)[0];
+            var frame = this.timeline.getFramesAtPlayheadPosition(playheadPosition)[0];
             frame.paths.forEach(path => {
                 path.remove();
             });
