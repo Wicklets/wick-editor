@@ -1182,11 +1182,11 @@ describe('Wick.Project', function() {
                 },
                 onFinish: images => {
                     images.forEach(image => {
-                        //expect(image.width).to.equal(project.width);
-                        //expect(image.height).to.equal(project.height);
+                        expect(image.width).to.equal(project.width);
+                        expect(image.height).to.equal(project.height);
 
                         var imageName = document.createElement('p');
-                        imageName.innerHTML = 'render 1x zoom frame ' + images.indexOf(image);
+                        imageName.innerHTML = 'zoom 1x, frame ' + images.indexOf(image);
                         document.body.appendChild(imageName);
                         document.body.appendChild(image);
                     });
@@ -1199,7 +1199,7 @@ describe('Wick.Project', function() {
             });
         });
 
-        it('should export correct images (with zoom)', function (done) {
+        it('should export correct images (zoom 2x, same aspect ratio)', function (done) {
             var project = new Wick.Project();
             project.backgroundColor = new Wick.Color('#FF00FF');
             project.activeLayer.addFrame(new Wick.Frame({start: 2}));
@@ -1218,7 +1218,8 @@ describe('Wick.Project', function() {
             var onProgressCallsResult = [];
 
             project.generateImageSequence({
-                zoom: 2,
+                width: project.width * 2,
+                height: project.height * 2,
                 onProgress: (current, max) => {
                     onProgressCallsResult.push([current,max]);
                 },
@@ -1228,7 +1229,93 @@ describe('Wick.Project', function() {
                         expect(image.height).to.equal(project.height * 2);
 
                         var imageName = document.createElement('p');
-                        imageName.innerHTML = 'render 2x zoom frame ' + images.indexOf(image);
+                        imageName.innerHTML = 'zoom 2x, same aspect ratio, frame ' + images.indexOf(image);
+                        document.body.appendChild(imageName);
+                        document.body.appendChild(image);
+                    });
+                    expect(images.length).to.equal(3);
+
+                    expect(onProgressCallsResult).to.deep.equal(onProgressCallsCorrect);
+
+                    done();
+                }
+            });
+        });
+
+        it('should export correct images (square aspect ratio, 720p project)', function (done) {
+            var project = new Wick.Project();
+            project.backgroundColor = new Wick.Color('#FF00FF');
+            project.activeLayer.addFrame(new Wick.Frame({start: 2}));
+            project.activeLayer.addFrame(new Wick.Frame({start: 3}));
+
+            let path1 = new Wick.Path({json: TestUtils.TEST_PATH_JSON_RED_SQUARE});
+            let path2 = new Wick.Path({json: TestUtils.TEST_PATH_JSON_BLUE_SQUARE});
+            let path3 = new Wick.Path({json: TestUtils.TEST_PATH_JSON_GREEN_SQUARE});
+
+            project.activeFrame.addPath(path1);
+            project.activeLayer.frames[1].addPath(path2);
+            project.activeLayer.frames[2].addPath(path3);
+
+            // for testing is onProgress works (this is kind of hacky and weird to test...)
+            var onProgressCallsCorrect = [[1,3],[2,3],[3,3]];
+            var onProgressCallsResult = [];
+
+            project.generateImageSequence({
+                width: 1000,
+                height: 1000,
+                onProgress: (current, max) => {
+                    onProgressCallsResult.push([current,max]);
+                },
+                onFinish: images => {
+                    images.forEach(image => {
+                        expect(image.width).to.equal(1000);
+                        expect(image.height).to.equal(1000);
+
+                        var imageName = document.createElement('p');
+                        imageName.innerHTML = 'square aspect ratio, 720p project, frame ' + images.indexOf(image);
+                        document.body.appendChild(imageName);
+                        document.body.appendChild(image);
+                    });
+                    expect(images.length).to.equal(3);
+
+                    expect(onProgressCallsResult).to.deep.equal(onProgressCallsCorrect);
+
+                    done();
+                }
+            });
+        });
+
+        it('should export correct images (super wide aspect ratio, 720p project)', function (done) {
+            var project = new Wick.Project();
+            project.backgroundColor = new Wick.Color('#FF00FF');
+            project.activeLayer.addFrame(new Wick.Frame({start: 2}));
+            project.activeLayer.addFrame(new Wick.Frame({start: 3}));
+
+            let path1 = new Wick.Path({json: TestUtils.TEST_PATH_JSON_RED_SQUARE});
+            let path2 = new Wick.Path({json: TestUtils.TEST_PATH_JSON_BLUE_SQUARE});
+            let path3 = new Wick.Path({json: TestUtils.TEST_PATH_JSON_GREEN_SQUARE});
+
+            project.activeFrame.addPath(path1);
+            project.activeLayer.frames[1].addPath(path2);
+            project.activeLayer.frames[2].addPath(path3);
+
+            // for testing is onProgress works (this is kind of hacky and weird to test...)
+            var onProgressCallsCorrect = [[1,3],[2,3],[3,3]];
+            var onProgressCallsResult = [];
+
+            project.generateImageSequence({
+                width: 2000,
+                height: 500,
+                onProgress: (current, max) => {
+                    onProgressCallsResult.push([current,max]);
+                },
+                onFinish: images => {
+                    images.forEach(image => {
+                        expect(image.width).to.equal(2000);
+                        expect(image.height).to.equal(500);
+
+                        var imageName = document.createElement('p');
+                        imageName.innerHTML = 'super wide aspect ratio, 720p project, frame ' + images.indexOf(image);
                         document.body.appendChild(imageName);
                         document.body.appendChild(image);
                     });
