@@ -424,30 +424,39 @@ Wick.View.Project = class extends Wick.View {
 
         var borderMin = -10000,
             borderMax = 10000;
+        var strokeOffset = 0.5; // prevents gaps between border rects
         return [
             // top
             new paper.Path.Rectangle({
                 from: new paper.Point(borderMin, borderMin),
-                to: new paper.Point(borderMax, 0),
+                to: new paper.Point(borderMax, -strokeOffset),
                 fillColor: 'black',
+                strokeWidth: 1,
+                strokeColor: 'black',
             }),
             // bottom
             new paper.Path.Rectangle({
-                from: new paper.Point(borderMin, this.model.height),
+                from: new paper.Point(borderMin, this.model.height+strokeOffset),
                 to: new paper.Point(borderMax, borderMax),
                 fillColor: 'black',
+                strokeWidth: 1,
+                strokeColor: 'black',
             }),
             // left
             new paper.Path.Rectangle({
-                from: new paper.Point(borderMin, 0),
-                to: new paper.Point(0, this.model.height),
+                from: new paper.Point(borderMin, -strokeOffset),
+                to: new paper.Point(-strokeOffset, this.model.height+strokeOffset),
                 fillColor: 'black',
+                strokeWidth: 1,
+                strokeColor: 'black',
             }),
             // right
             new paper.Path.Rectangle({
-                from: new paper.Point(this.model.width, 0),
+                from: new paper.Point(this.model.width+strokeOffset, -strokeOffset),
                 to: new paper.Point(borderMax, borderMax),
                 fillColor: 'black',
+                strokeWidth: 1,
+                strokeColor: 'black',
             }),
         ];
     }
