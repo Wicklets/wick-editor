@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.3.26.15.11.40";
+var WICK_ENGINE_BUILD_VERSION = "2020.3.26.16.2.8";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -44619,7 +44619,7 @@ TWEEN.Interpolation = {
 /* https://github.com/kelektiv/node-uuid */
 !function(r){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=r();else if("function"==typeof define&&define.amd)define([],r);else{var e;e="undefined"!=typeof window?window:"undefined"!=typeof global?global:"undefined"!=typeof self?self:this,e.uuidv4=r()}}(function(){return function r(e,n,t){function o(f,u){if(!n[f]){if(!e[f]){var a="function"==typeof require&&require;if(!u&&a)return a(f,!0);if(i)return i(f,!0);var d=new Error("Cannot find module '"+f+"'");throw d.code="MODULE_NOT_FOUND",d}var p=n[f]={exports:{}};e[f][0].call(p.exports,function(r){var n=e[f][1][r];return o(n?n:r)},p,p.exports,r,e,n,t)}return n[f].exports}for(var i="function"==typeof require&&require,f=0;f<t.length;f++)o(t[f]);return o}({1:[function(r,e,n){function t(r,e){var n=e||0,t=o;return t[r[n++]]+t[r[n++]]+t[r[n++]]+t[r[n++]]+"-"+t[r[n++]]+t[r[n++]]+"-"+t[r[n++]]+t[r[n++]]+"-"+t[r[n++]]+t[r[n++]]+"-"+t[r[n++]]+t[r[n++]]+t[r[n++]]+t[r[n++]]+t[r[n++]]+t[r[n++]]}for(var o=[],i=0;i<256;++i)o[i]=(i+256).toString(16).substr(1);e.exports=t},{}],2:[function(r,e,n){var t="undefined"!=typeof crypto&&crypto.getRandomValues.bind(crypto)||"undefined"!=typeof msCrypto&&msCrypto.getRandomValues.bind(msCrypto);if(t){var o=new Uint8Array(16);e.exports=function(){return t(o),o}}else{var i=new Array(16);e.exports=function(){for(var r,e=0;e<16;e++)0===(3&e)&&(r=4294967296*Math.random()),i[e]=r>>>((3&e)<<3)&255;return i}}},{}],3:[function(r,e,n){function t(r,e,n){var t=e&&n||0;"string"==typeof r&&(e="binary"===r?new Array(16):null,r=null),r=r||{};var f=r.random||(r.rng||o)();if(f[6]=15&f[6]|64,f[8]=63&f[8]|128,e)for(var u=0;u<16;++u)e[t+u]=f[u];return e||i(f)}var o=r("./lib/rng"),i=r("./lib/bytesToUuid");e.exports=t},{"./lib/bytesToUuid":1,"./lib/rng":2}]},{},[3])(3)});
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -44650,7 +44650,7 @@ console.log('Wick Engine version "' + Wick.version + '" is available.'); // Ensu
 
 window.Wick = Wick;
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -44833,7 +44833,7 @@ Wick.Clipboard = class {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -44915,7 +44915,7 @@ Wick.Color = class {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -45045,7 +45045,7 @@ Wick.FileCache = class {
 };
 Wick.FileCache._files = {};
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -45274,7 +45274,7 @@ Wick.History = class {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -45440,7 +45440,7 @@ WickObjectCache = class {
 };
 Wick.ObjectCache = new WickObjectCache();
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -45505,7 +45505,7 @@ Wick.Transformation = class {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -45691,7 +45691,7 @@ Wick.ToolSettings = class {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -46068,7 +46068,7 @@ GlobalAPI.Random = class {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -46111,7 +46111,7 @@ Wick.ExportUtils = class {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -46318,7 +46318,7 @@ Wick.AudioTrack = class {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -46547,7 +46547,7 @@ Wick.AutoSave = class {
 };
 Wick.AutoSave.ENABLE_PERF_TIMERS = false;
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -46882,7 +46882,7 @@ Wick.WickFile.Alpha = class {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -46956,7 +46956,7 @@ Wick.WickObjectFile = class {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -46996,7 +46996,7 @@ Wick.HTMLExport = class {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -47041,7 +47041,7 @@ Wick.HTMLPreview = class {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -47102,7 +47102,7 @@ Wick.ImageSequence = class {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -47166,7 +47166,7 @@ Wick.ZIPExport = class {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -47747,7 +47747,7 @@ Wick.Base = class {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -48085,7 +48085,7 @@ Wick.Layer = class extends Wick.Base {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -49749,7 +49749,7 @@ Wick.Project = class extends Wick.Base {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -50755,7 +50755,7 @@ Wick.Selection = class extends Wick.Base {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -51252,7 +51252,7 @@ Wick.Timeline = class extends Wick.Base {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -51469,7 +51469,7 @@ Wick.Tween = class extends Wick.Base {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -51944,7 +51944,7 @@ Wick.Path = class extends Wick.Base {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -52021,7 +52021,7 @@ Wick.Asset = class extends Wick.Base {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -52161,7 +52161,7 @@ Wick.FileAsset = class extends Wick.Asset {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -52299,7 +52299,7 @@ Wick.FontAsset = class extends Wick.FileAsset {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -52438,7 +52438,7 @@ Wick.ImageAsset = class extends Wick.FileAsset {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -52593,7 +52593,7 @@ Wick.ClipAsset = class extends Wick.FileAsset {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -52729,7 +52729,7 @@ Wick.GIFAsset = class extends Wick.ClipAsset {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -52948,7 +52948,7 @@ Wick.SoundAsset = class extends Wick.FileAsset {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -53052,7 +53052,7 @@ Wick.SVGAsset = class extends Wick.FileAsset {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -53635,7 +53635,7 @@ Wick.Tickable = class extends Wick.Base {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -54358,7 +54358,7 @@ Wick.Frame = class extends Wick.Tickable {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -55151,7 +55151,7 @@ Wick.Clip = class extends Wick.Tickable {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -55252,7 +55252,7 @@ Wick.Button = class extends Wick.Clip {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -55541,7 +55541,7 @@ Wick.Tool = class {
 };
 Wick.Tools = {};
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -55907,7 +55907,7 @@ Wick.Tools.Brush = class extends Wick.Tool {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -56257,7 +56257,7 @@ Wick.Tools.Cursor = class extends Wick.Tool {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -56347,7 +56347,7 @@ Wick.Tools.Ellipse = class extends Wick.Tool {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -56450,7 +56450,7 @@ Wick.Tools.Eraser = class extends Wick.Tool {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -56552,7 +56552,7 @@ Wick.Tools.Eyedropper = class extends Wick.Tool {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -56645,7 +56645,7 @@ Wick.Tools.FillBucket = class extends Wick.Tool {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -56789,7 +56789,7 @@ Wick.Tools.Interact = class extends Wick.Tool {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -56866,7 +56866,7 @@ Wick.Tools.Line = class extends Wick.Tool {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -56927,7 +56927,7 @@ Wick.Tools.None = class extends Wick.Tool {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -56983,7 +56983,7 @@ Wick.Tools.Pan = class extends Wick.Tool {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -57176,7 +57176,7 @@ Wick.Tools.PathCursor = class extends Wick.Tool {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -57267,7 +57267,7 @@ Wick.Tools.Pencil = class extends Wick.Tool {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -57362,7 +57362,7 @@ Wick.Tools.Rectangle = class extends Wick.Tool {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -57475,7 +57475,7 @@ Wick.Tools.Text = class extends Wick.Tool {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -57567,7 +57567,7 @@ Wick.Tools.Zoom = class extends Wick.Tool {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Paper.js-drawing-tools.
  *
@@ -57746,7 +57746,7 @@ Wick.Tools.Zoom = class extends Wick.Tool {
   });
 })();
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Paper.js-drawing-tools.
  *
@@ -58011,7 +58011,7 @@ Wick.Tools.Zoom = class extends Wick.Tool {
   });
 })();
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -58116,7 +58116,7 @@ paper.PaperScope.inject({
   OrderingUtils: PaperJSOrderingUtils
 });
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -58672,7 +58672,7 @@ paper.PaperScope.inject({
   SelectionWidget: SelectionWidget
 });
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Paper.js-drawing-tools.
  *
@@ -58842,7 +58842,7 @@ paper.PaperScope.inject({
   SelectionBox: paper.SelectionBox
 });
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Paper.js-drawing-tools.
  *
@@ -58900,7 +58900,7 @@ paper.Path.inject({
   }
 });
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Paper.js-drawing-tools.
  *
@@ -58985,7 +58985,7 @@ paper.Path.inject({
   });
 })();
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Paper.js-drawing-tools.
  *
@@ -59019,7 +59019,7 @@ paper.View.inject({
   }
 });
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Paper.js-drawing-tools.
  *
@@ -59041,7 +59041,7 @@ paper.View.inject({
   }
 });
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Paper.js-drawing-tools.
  *
@@ -59063,7 +59063,7 @@ paper.View.inject({
   }
 });
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -59162,7 +59162,7 @@ Wick.View = class {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -59676,7 +59676,7 @@ Wick.View.Project = class extends Wick.View {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -59883,7 +59883,7 @@ Wick.View.Selection = class extends Wick.View {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -59999,7 +59999,7 @@ Wick.View.Clip = class extends Wick.View {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -60018,7 +60018,7 @@ Wick.View.Clip = class extends Wick.View {
  */
 Wick.View.Button = class extends Wick.View.Clip {};
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -60056,7 +60056,7 @@ Wick.View.Timeline = class extends Wick.View {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -60155,7 +60155,7 @@ Wick.View.Layer = class extends Wick.View {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -60336,7 +60336,7 @@ Wick.View.Frame = class extends Wick.View {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -60469,7 +60469,7 @@ Wick.View.Path = class extends Wick.View {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -60800,7 +60800,7 @@ Wick.GUIElement.SCROLLBAR_MARGIN = 3;
 Wick.GUIElement.SCROLLBAR_BORDER_RADIUS = 6;
 Wick.GUIElement.AUTO_SCROLL_SPEED = 0.17;
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -60843,7 +60843,7 @@ Wick.GUIElement.Button = class extends Wick.GUIElement {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -60908,7 +60908,7 @@ Wick.GUIElement.Ghost = class extends Wick.GUIElement {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -60967,7 +60967,7 @@ Wick.GUIElement.Icons = class {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -61028,7 +61028,7 @@ Wick.GUIElement.ActionButton = class extends Wick.GUIElement.Button {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -61159,7 +61159,7 @@ Wick.GUIElement.ActionButtonsContainer = class extends Wick.GUIElement {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -61217,7 +61217,7 @@ Wick.GUIElement.Breadcrumbs = class extends Wick.GUIElement {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -61301,7 +61301,7 @@ Wick.GUIElement.BreadcrumbsButton = class extends Wick.GUIElement.Button {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -61539,7 +61539,7 @@ Wick.GUIElement.Frame = class extends Wick.GUIElement {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -61668,7 +61668,7 @@ Wick.GUIElement.FrameEdgeGhost = class extends Wick.GUIElement.Ghost {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -61768,7 +61768,7 @@ Wick.GUIElement.FrameGhost = class extends Wick.GUIElement.Ghost {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -61991,7 +61991,7 @@ Wick.GUIElement.FramesContainer = class extends Wick.GUIElement {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -62143,7 +62143,7 @@ Wick.GUIElement.Layer = class extends Wick.GUIElement {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -62229,7 +62229,7 @@ Wick.GUIElement.LayerButton = class extends Wick.GUIElement.Button {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -62291,7 +62291,7 @@ Wick.GUIElement.LayerCreateLabel = class extends Wick.GUIElement {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -62337,7 +62337,7 @@ Wick.GUIElement.LayersContainer = class extends Wick.GUIElement {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -62467,7 +62467,7 @@ Wick.GUIElement.NumberLine = class extends Wick.GUIElement {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -62553,7 +62553,7 @@ Wick.GUIElement.OnionSkinRange = class extends Wick.GUIElement {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -62635,7 +62635,7 @@ Wick.GUIElement.Playhead = class extends Wick.GUIElement {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -62769,7 +62769,7 @@ Wick.GUIElement.PopupMenu = class extends Wick.GUIElement {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -63283,7 +63283,7 @@ Wick.GUIElement.Project = class extends Wick.GUIElement {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -63369,7 +63369,7 @@ Wick.GUIElement.Scrollbar = class extends Wick.GUIElement {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -63448,7 +63448,7 @@ Wick.GUIElement.ScrollbarGrabber = class extends Wick.GUIElement {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -63535,7 +63535,7 @@ Wick.GUIElement.SelectionBox = class extends Wick.GUIElement.Ghost {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -63641,7 +63641,7 @@ Wick.GUIElement.Timeline = class extends Wick.GUIElement {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -63704,7 +63704,7 @@ Wick.GUIElement.Tooltip = class extends Wick.GUIElement {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
@@ -63879,7 +63879,7 @@ Wick.GUIElement.Tween = class extends Wick.GUIElement {
 
 };
 /*
- * Copyright 2019 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Engine.
  *
