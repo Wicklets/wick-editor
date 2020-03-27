@@ -37,9 +37,12 @@ class EditorSettings extends Component {
     return (
       <div className="editor-settings-modal-body">
         <div className="editor-settings-group">
-          <div className="editor-settings-title">Onion Skinning Colors</div>
-          
+          <div className="editor-settings-group-title">Onion Skinning Colors</div>
+
+          <div className="editor-settings-color-containers-row">
             <div className="editor-settings-color-container">
+              B: 
+
               <WickInput
               type="color"
               id="editor-settings-backward-color-picker"
@@ -54,6 +57,8 @@ class EditorSettings extends Component {
             </div>
 
             <div className="editor-settings-color-container">
+              F:
+
               <WickInput
               type="color"
               id="editor-settings-forward-color-picker"
@@ -66,6 +71,7 @@ class EditorSettings extends Component {
               updateLastColors={this.props.updateLastColors}
               lastColorsUsed={this.props.lastColorsUsed} />
             </div>
+          </div>
         </div>
       </div>
     )

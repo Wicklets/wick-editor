@@ -518,9 +518,9 @@ class Editor extends EditorCore {
     if (!colors) return; // ignore change if no colors are passed.
 
     this.setState({
-      onionSkinningColors: {
-        backward: colors.backward || this.state.onionSkinningColors.backward,
-        forward: colors.forward || this.state.onionSkinningColors.forward,
+      customOnionSkinningColors: {
+        backward: colors.backward || this.state.customOnionSkinningColors.backward,
+        forward: colors.forward || this.state.customOnionSkinningColors.forward,
       }
     }); 
   }

@@ -24,12 +24,31 @@
   height: 100%;
 }
 
-.editor-settings-color-container {
-  width: 40%;
-  height: 100%;
+.editor-settings-group {
+  margin-top: 8px;
+  display: flex;
+  flex-flow: column;
+  width: 100%;
+  height: 60px;
 }
 
-.editor-settings-group {
-  width: 100%;
-  height: 50px;
+.editor-settings-color-containers-row {
+  display: flex;
+  flex: 1 1 auto;
+  justify-content: space-between;
+}
+
+.editor-settings-color-container {
+  display: flex;
+  width: 50%;
+  height: 100%;
+  flex: 0 1 auto;
+  color: $editor-modal-text-gray;
+  flex-direction: row;
+  margin-left: 4px;
+}
+
+.editor-settings-group-title {
+  font-size: 20px;
+  color: $editor-modal-text-gray;
 }
