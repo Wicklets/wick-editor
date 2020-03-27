@@ -481,7 +481,7 @@ Wick.Project = class extends Wick.Base {
             });
 
             // Reset pan and zoom and clear selection on focus change
-            this.recenter();
+            this.resetZoomAndPan();
         } else {
             // Make sure the single frame
             focus.timeline.clips.forEach(subclip => {
@@ -1315,9 +1315,20 @@ Wick.Project = class extends Wick.Base {
     }
 
     /**
-     * Resets zoom and pan.
+     * Sets zoom and pan such that the canvas fits in the window, with some padding.
      */
     recenter () {
+        this.pan = {x: 0, y: 0};
+
+        var paddingResize = 0.96;
+        this.zoom = this.view.calculateFitZoom();
+        this.zoom *= paddingResize;
+    }
+
+    /**
+     * Resets zoom and pan (zoom resets to 1.0, pan resets to (0,0)).
+     */
+    resetZoomAndPan () {
         this.pan = {x: 0, y: 0};
         this.zoom = 1;
     }

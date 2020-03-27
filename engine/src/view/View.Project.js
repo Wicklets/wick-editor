@@ -103,6 +103,16 @@ Wick.View.Project = class extends Wick.View {
     }
 
     /**
+     * Get the current width/height of the canvas.
+     */
+    get canvasDimensions () {
+        return {
+            width: this._svgCanvas.offsetWidth,
+            height: this._svgCanvas.offsetHeight,
+        };
+    }
+
+    /**
      * The zoom amount. 1 = 100% zoom
      */
     get zoom () {
@@ -209,6 +219,23 @@ Wick.View.Project = class extends Wick.View {
         this.model.focus.timeline.activeFrames.forEach(frame => {
             frame.view.applyChanges();
         });
+    }
+
+    /**
+     * Returns how much the zoom level must be to optimally fit the canvas inside a div.
+     * @type {Number}
+     */
+    calculateFitZoom () {
+        var w = 0;
+        var h = 0;
+
+        w = this.paper.view.viewSize.width;
+        h = this.paper.view.viewSize.height;
+
+        var wr = w / this.model.width;
+        var hr = h / this.model.height;
+
+        return Math.min(wr, hr);
     }
 
     _setupTools () {
@@ -318,7 +345,7 @@ Wick.View.Project = class extends Wick.View {
         } else if (this._fitMode === 'fill') {
             // Fill mode: Try to fit the wick project's canvas inside the container canvas by
             // scaling it as much as possible without changing the project's original aspect ratio
-            this.paper.view.zoom = this._calculateFitZoom();
+            this.paper.view.zoom = this.calculateFitZoom();
         }
         var pan = this._pan;
         this.paper.view.center = new paper.Point(-pan.x, -pan.y);
@@ -459,19 +486,6 @@ Wick.View.Project = class extends Wick.View {
                 strokeColor: 'black',
             }),
         ];
-    }
-
-    _calculateFitZoom () {
-        var w = 0;
-        var h = 0;
-
-        w = this.paper.view.viewSize.width;
-        h = this.paper.view.viewSize.height;
-
-        var wr = w / this.model.width;
-        var hr = h / this.model.height;
-
-        return Math.min(wr, hr);
     }
 
     _generateClipBorders () {
