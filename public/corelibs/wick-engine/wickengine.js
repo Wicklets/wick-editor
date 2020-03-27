@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.3.27.12.44.35";
+var WICK_ENGINE_BUILD_VERSION = "2020.3.27.16.4.44";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -45525,53 +45525,83 @@ Wick.Transformation = class {
 Wick.ToolSettings = class {
   static get DEFAULT_SETTINGS() {
     return [{
+      type: 'color',
       name: 'fillColor',
       default: new Wick.Color('#000000')
     }, {
+      type: 'color',
       name: 'strokeColor',
       default: new Wick.Color('#000000')
     }, {
+      type: "number",
       name: 'strokeWidth',
       default: 1,
       min: 0,
       max: 100,
       step: 1
     }, {
+      type: "number",
       name: 'brushSize',
       default: 10,
       min: 1,
       max: 100,
       step: 1
     }, {
+      type: "number",
       name: 'eraserSize',
       default: 10,
       min: 1,
       max: 100,
       step: 1
     }, {
+      type: "number",
       name: 'cornerRadius',
       default: 0,
       min: 0,
       max: 100,
       step: 1
     }, {
+      type: "number",
       name: 'brushStabilizerWeight',
       default: 20,
       min: 0,
       max: 100,
       step: 1
     }, {
+      type: "boolean",
       name: 'pressureEnabled',
       default: false
     }, {
+      type: "boolean",
       name: 'relativeBrushSize',
       default: true
     }, {
+      type: "number",
       name: 'gapFillAmount',
       default: 1,
       min: 0,
       max: 5,
       step: 1
+    }, {
+      type: "choice",
+      name: 'onionSkinStyle',
+      default: 'outlines',
+      options: ['full_color', 'outlines']
+    }, {
+      type: "number",
+      name: 'onionSkinOutlineWidth',
+      default: 2,
+      min: 1,
+      max: 25,
+      step: .1
+    }, {
+      type: 'color',
+      name: 'backwardOnionSkinTint',
+      default: new Wick.Color('rgba(255, 0, 0, .5)')
+    }, {
+      type: 'color',
+      name: 'forwardOnionSkinTint',
+      default: new Wick.Color('rgba(0, 0, 255, .5)')
     }];
   }
   /**
@@ -45607,24 +45637,31 @@ Wick.ToolSettings = class {
     if (!args) console.error('createSetting: args is required');
     if (!args.name) console.error('createSetting: args.name is required');
     if (args.default === undefined) console.error('createSetting: args.default is required');
-    let name = args.name; // Create a default setting to start.
+    let name = args.name;
+    let type = args.type; // Create a default setting to start.
 
     this._settings[args.name] = {
+      type: args.type,
       name: args.name,
       value: args.default,
       default: args.default,
       min: args.min,
-      max: args.max
+      max: args.max,
+      step: args.step,
+      options: args.options
     }; // Get stored tool setting if it exists.
 
     localforage.getItem(this.getStorageKey(name)).then(value => {
       if (value) {
         this._settings[args.name] = {
+          type: args.type,
           name: args.name,
-          value: value,
+          value: type === 'color' ? new window.Wick.Color(value) : value,
           default: args.default,
           min: args.min,
-          max: args.max
+          max: args.max,
+          step: args.step,
+          options: args.options
         };
       }
     });
@@ -45637,7 +45674,8 @@ Wick.ToolSettings = class {
 
 
   setSetting(name, value) {
-    var setting = this._settings[name]; // Check to make sure there's no type mismatch
+    var setting = this._settings[name];
+    if (!setting) return; // Check to make sure there's no type mismatch
 
     if (typeof value !== typeof setting.value) {
       console.warn('Warning: Wick.ToolSettings: Type mismatch while setting ' + name);
@@ -45661,7 +45699,11 @@ Wick.ToolSettings = class {
 
     this._fireOnSettingsChanged(name, value);
 
-    localforage.setItem(this.getStorageKey(name), value);
+    if (setting.type === 'color') {
+      localforage.setItem(this.getStorageKey(name), value.rgba);
+    } else {
+      localforage.setItem(this.getStorageKey(name), value);
+    }
   }
   /**
    * Retrieve a value in the settings.
@@ -45671,13 +45713,18 @@ Wick.ToolSettings = class {
 
   getSetting(name) {
     var setting = this._settings[name];
-    if (!setting) console.error("ToolSettings.getSetting: invalid setting: " + name);
+
+    if (!setting) {
+      console.error("ToolSettings.getSetting: invalid setting: " + name);
+      return;
+    }
+
     return setting.value;
   }
   /**
    * Returns an object with the setting restrictions for a provided setting.
    * @param {String} name name of tool setting
-   * @returns {Object} an object containing the values min, max and step where appropriate.
+   * @returns {Object} an object containing the values min, max, step and options where appropriate.
    */
 
 
@@ -45687,7 +45734,8 @@ Wick.ToolSettings = class {
     return {
       min: setting.min,
       max: setting.max,
-      step: setting.step
+      step: setting.step,
+      options: setting.options
     };
   }
   /**
@@ -48160,8 +48208,6 @@ Wick.Project = class extends Wick.Base {
     this.onionSkinEnabled = false;
     this.onionSkinSeekBackwards = 1;
     this.onionSkinSeekForwards = 1;
-    this._onionSkinStyle = 'full_color';
-    this._onionSkinStyles = ['full_color', 'outlines'];
     this.selection = new Wick.Selection();
     this.history = new Wick.History();
     this.clipboard = new Wick.Clipboard();
@@ -48265,7 +48311,6 @@ Wick.Project = class extends Wick.Base {
     data.onionSkinEnabled = this.onionSkinEnabled;
     data.onionSkinSeekForwards = this.onionSkinSeekForwards;
     data.onionSkinSeekBackwards = this.onionSkinSeekBackwards;
-    data.onionSkinStyle = this.onionSkinStyle;
     data.focus = this.focus.uuid; // Save some metadata which will eventually end up in the wick file
 
     data.metadata = Wick.WickFile.generateMetaData();
@@ -48354,35 +48399,6 @@ Wick.Project = class extends Wick.Base {
 
   set backgroundColor(backgroundColor) {
     this._backgroundColor = backgroundColor;
-  }
-  /**
-   * The render style of the onion skinned frames.
-   * "full_color": Objects on onion skinned frames are rendered fully
-   * "outlines": Only the strokes of objects on onion skinned frames are rendered
-   * @type {String}
-   */
-
-
-  get onionSkinStyle() {
-    return this._onionSkinStyle;
-  }
-
-  set onionSkinStyle(onionSkinStyle) {
-    if (onionSkinStyle !== 'full_color' && onionSkinStyle !== 'outlines') {
-      console.warn('Wick.Project.onionSkinStyle: Invalid style. Valid styles: "full_color" or "outlines"');
-      return;
-    }
-
-    this._onionSkinStyle = onionSkinStyle;
-  }
-  /**
-   * An array of all possible onion skinning styles for the project.
-   * @type {String[]}
-   */
-
-
-  get onionSkinStyles() {
-    return this._onionSkinStyles;
   }
   /**
    * The timeline of the active clip.
@@ -60125,6 +60141,8 @@ Wick.View.Layer = class extends Wick.View {
   }
 
   addOnionSkin() {
+    var onionSkinSeekBackwards = this.model.project.onionSkinSeekBackwards;
+    var onionSkinSeekForwards = this.model.project.onionSkinSeekForwards;
     var playheadPosition = this.model.project.focus.timeline.playheadPosition;
     this.model.frames.filter(frame => {
       return !frame.inPosition(playheadPosition) && frame.inRange(playheadPosition - onionSkinSeekBackwards, playheadPosition + onionSkinSeekForwards);
@@ -60136,18 +60154,19 @@ Wick.View.Layer = class extends Wick.View {
   onionSkinFrame(frame) {
     var onionSkinSeekBackwards = this.model.project.onionSkinSeekBackwards;
     var onionSkinSeekForwards = this.model.project.onionSkinSeekForwards;
+    var playheadPosition = this.model.project.focus.timeline.playheadPosition;
     frame.view.render();
-    var onionTintColor = '#ffffff';
     this.onionSkinnedFramesLayers.push(frame.view.pathsLayer);
     this.onionSkinnedFramesLayers.push(frame.view.clipsLayer);
-    var seek = 1; // Should replace midpoint with start, a frame can be onion skinned while it's midpoint is behind or in front of the playhead position.
+    var seek = 1;
+    var onionTintColor = new window.Wick.Color("#ffffff"); // Should replace midpoint with start, a frame can be onion skinned while it's midpoint is behind or in front of the playhead position.
 
     if (frame.midpoint < playheadPosition) {
       seek = onionSkinSeekBackwards;
-      onionTintColor = '#0000ff';
+      onionTintColor = this.model.project.toolSettings.getSetting('backwardOnionSkinTint').rgba;
     } else if (frame.midpoint > playheadPosition) {
       seek = onionSkinSeekForwards;
-      onionTintColor = '#33ff33';
+      onionTintColor = this.model.project.toolSettings.getSetting('forwardOnionSkinTint').rgba;
     }
 
     var dist = frame.distanceFrom(playheadPosition);
@@ -60158,10 +60177,17 @@ Wick.View.Layer = class extends Wick.View {
     frame.view.pathsLayer.locked = true;
     frame.view.clipsLayer.opacity = opacity;
     frame.view.pathsLayer.opacity = opacity;
+    /**
+     * The render style of the onion skinned frames.
+     * "full_color": Objects on onion skinned frames are rendered fully
+     * "outlines": Only the strokes of objects on onion skinned frames are rendered
+     * @type {String}
+     */
 
-    if (this.model.project.onionSkinStyle === 'outlines') {
-      frame.view.pathsLayer.fillColor = 'rgba(0,0,0,0)';
-      frame.view.pathsLayer.strokeWidth = 2;
+    if (this.model.project.toolSettings.getSetting('onionSkinStyle') === 'outlines') {
+      frame.view.pathsLayer.fillColor = 'rgba(0,0,0,0)'; // Make the fills transparent.
+
+      frame.view.pathsLayer.strokeWidth = this.model.project.toolSettings.getSetting('onionSkinOutlineWidth');
       frame.view.pathsLayer.strokeColor = onionTintColor;
     }
   }

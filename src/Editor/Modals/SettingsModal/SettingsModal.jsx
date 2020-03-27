@@ -72,14 +72,12 @@ class SettingsModal extends Component {
               keyMap={this.props.keyMap}
               keyMapGroups={this.props.keyMapGroups} />
             <EditorSettings 
-              customOnionSkinningColors={this.props.customOnionSkinningColors}
-              useCustomOnionSkinningColors={this.props.useCustomOnionSkinningColors}
-              changeOnionSkinningColors={this.props.changeOnionSkinningColors}
-              onionSkinningColors={this.props.onionSkinningColors}
               colorPickerType={this.props.colorPickerType}
               changeColorPickerType={this.props.changeColorPickerType}
               updateLastColors={this.props.updateLastColors}
-              lastColorsUsed={this.props.lastColorsUsed}/>
+              lastColorsUsed={this.props.lastColorsUsed}
+              getToolSetting={this.props.getToolSetting}
+              setToolSetting={this.props.setToolSetting}/>
             />
           </TabbedInterface>
         </div>

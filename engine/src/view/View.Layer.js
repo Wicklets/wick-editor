@@ -32,6 +32,8 @@ Wick.View.Layer = class extends Wick.View {
     }
 
     addOnionSkin () {
+        var onionSkinSeekBackwards = this.model.project.onionSkinSeekBackwards;
+        var onionSkinSeekForwards = this.model.project.onionSkinSeekForwards;
         var playheadPosition = this.model.project.focus.timeline.playheadPosition;
 
         this.model.frames.filter(frame => {
@@ -46,23 +48,26 @@ Wick.View.Layer = class extends Wick.View {
     onionSkinFrame (frame) {
         var onionSkinSeekBackwards = this.model.project.onionSkinSeekBackwards;
         var onionSkinSeekForwards = this.model.project.onionSkinSeekForwards;
+        var playheadPosition = this.model.project.focus.timeline.playheadPosition;
 
         frame.view.render();
 
-        var onionTintColor = '#ffffff';
+    
 
         this.onionSkinnedFramesLayers.push(frame.view.pathsLayer);
         this.onionSkinnedFramesLayers.push(frame.view.clipsLayer);
 
         var seek = 1;
 
+        var onionTintColor = new window.Wick.Color("#ffffff");
+
         // Should replace midpoint with start, a frame can be onion skinned while it's midpoint is behind or in front of the playhead position.
         if(frame.midpoint < playheadPosition) {
             seek = onionSkinSeekBackwards;
-            onionTintColor = '#0000ff';
+            onionTintColor = this.model.project.toolSettings.getSetting('backwardOnionSkinTint').rgba;
         } else if(frame.midpoint > playheadPosition) {
             seek = onionSkinSeekForwards;
-            onionTintColor = '#33ff33';
+            onionTintColor = this.model.project.toolSettings.getSetting('forwardOnionSkinTint').rgba;
         }
 
         var dist = frame.distanceFrom(playheadPosition);
@@ -75,9 +80,16 @@ Wick.View.Layer = class extends Wick.View {
         frame.view.clipsLayer.opacity = opacity;
         frame.view.pathsLayer.opacity = opacity;
 
-        if(this.model.project.onionSkinStyle === 'outlines') {
-            frame.view.pathsLayer.fillColor = 'rgba(0,0,0,0)';
-            frame.view.pathsLayer.strokeWidth = 2;
+        /**
+         * The render style of the onion skinned frames.
+         * "full_color": Objects on onion skinned frames are rendered fully
+         * "outlines": Only the strokes of objects on onion skinned frames are rendered
+         * @type {String}
+         */
+
+        if(this.model.project.toolSettings.getSetting('onionSkinStyle') === 'outlines') {
+            frame.view.pathsLayer.fillColor = 'rgba(0,0,0,0)'; // Make the fills transparent.
+            frame.view.pathsLayer.strokeWidth = this.model.project.toolSettings.getSetting('onionSkinOutlineWidth');
             frame.view.pathsLayer.strokeColor = onionTintColor;
         }
     }

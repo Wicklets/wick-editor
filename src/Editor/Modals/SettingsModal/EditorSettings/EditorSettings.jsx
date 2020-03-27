@@ -48,8 +48,8 @@ class EditorSettings extends Component {
               id="editor-settings-backward-color-picker"
               disableAlpha={true}
               placement={'bottom'}
-              color={this.props.customOnionSkinningColors.backward}
-              onChange={(col) => {this.props.changeOnionSkinningColors({backward: col})}}
+              color={this.props.getToolSetting('backwardOnionSkinTint').rgba}
+              onChange={(color) => {this.props.setToolSetting('backwardOnionSkinTint', new window.Wick.Color(color))}}
               colorPickerType={this.props.colorPickerType}
               changeColorPickerType={this.props.changeColorPickerType}
               updateLastColors={this.props.updateLastColors}
@@ -64,8 +64,8 @@ class EditorSettings extends Component {
               id="editor-settings-forward-color-picker"
               disableAlpha={true}
               placement={'bottom'}
-              color={this.props.customOnionSkinningColors.forward}
-              onChange={(col) => {this.props.changeOnionSkinningColors({forward: col})}}
+              color={this.props.getToolSetting('forwardOnionSkinTint').rgba}
+              onChange={(color) => {this.props.setToolSetting('forwardOnionSkinTint', new window.Wick.Color(color))}}
               colorPickerType={this.props.colorPickerType}
               changeColorPickerType={this.props.changeColorPickerType}
               updateLastColors={this.props.updateLastColors}

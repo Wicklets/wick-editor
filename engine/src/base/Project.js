@@ -45,8 +45,6 @@ Wick.Project = class extends Wick.Base {
         this.onionSkinEnabled = false;
         this.onionSkinSeekBackwards = 1;
         this.onionSkinSeekForwards = 1;
-        this._onionSkinStyle = 'full_color';
-        this._onionSkinStyles = ['full_color', 'outlines'];
 
         this.selection = new Wick.Selection();
         this.history = new Wick.History();
@@ -154,7 +152,6 @@ Wick.Project = class extends Wick.Base {
         data.onionSkinEnabled = this.onionSkinEnabled
         data.onionSkinSeekForwards = this.onionSkinSeekForwards;
         data.onionSkinSeekBackwards = this.onionSkinSeekBackwards;
-        data.onionSkinStyle = this.onionSkinStyle;
 
         data.focus = this.focus.uuid;
 
@@ -240,32 +237,6 @@ Wick.Project = class extends Wick.Base {
 
     set backgroundColor (backgroundColor) {
         this._backgroundColor = backgroundColor;
-    }
-
-    /**
-     * The render style of the onion skinned frames.
-     * "full_color": Objects on onion skinned frames are rendered fully
-     * "outlines": Only the strokes of objects on onion skinned frames are rendered
-     * @type {String}
-     */
-    get onionSkinStyle () {
-        return this._onionSkinStyle;
-    }
-
-    set onionSkinStyle (onionSkinStyle) {
-        if(onionSkinStyle !== 'full_color' && onionSkinStyle !== 'outlines') {
-            console.warn('Wick.Project.onionSkinStyle: Invalid style. Valid styles: "full_color" or "outlines"');
-            return;
-        }
-        this._onionSkinStyle = onionSkinStyle;
-    }
-
-    /**
-     * An array of all possible onion skinning styles for the project.
-     * @type {String[]}
-     */
-    get onionSkinStyles () {
-        return this._onionSkinStyles;
     }
 
     /**

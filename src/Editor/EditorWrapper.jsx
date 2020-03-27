@@ -86,9 +86,8 @@ import ModalHandler from './Modals/ModalHandler/ModalHandler';
                         updateLastColors={this.props.editor.updateLastColors}
                         lastColorsUsed={this.props.editor.state.lastColorsUsed}
                         editorVersion={this.props.editor.editorVersion}
-                        useCustomOnionSkinningColors={this.props.editor.state.useCustomOnionSkinningColors}
-                        customOnionSkinningColors={this.props.editor.state.customOnionSkinningColors} 
-                        changeOnionSkinningColors={this.props.editor.changeOnionSkinningColors}
+                        getToolSetting={this.props.editor.getToolSetting}
+                        setToolSetting={this.props.editor.setToolSetting}
                         />
                 {this.props.children}
                 </div>

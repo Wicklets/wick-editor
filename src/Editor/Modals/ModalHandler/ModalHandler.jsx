@@ -105,9 +105,8 @@ class ModalHandler extends Component {
           changeColorPickerType={this.props.changeColorPickerType}
           updateLastColors={this.props.updateLastColors}
           lastColorsUsed={this.props.lastColorsUsed}
-          customOnionSkinningColors={this.props.customOnionSkinningColors}
-          useCustomOnionSkinningColors={this.props.useCustomOnionSkinningColors}
-          changeOnionSkinningColors={this.props.changeOnionSkinningColors}
+          getToolSetting={this.props.getToolSetting}
+          setToolSetting={this.props.setToolSetting}
         />
         <BuiltinLibrary
           openModal={this.props.openModal}
