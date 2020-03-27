@@ -98,8 +98,8 @@ class Editor extends EditorCore {
       exporting: false,
       useCustomOnionSkinningColors: false,
       customOnionSkinningColors: {
-        backward: "#000000", 
-        forward: "#000000",
+        backward: "rgba(0, 255, 0, .3)", 
+        forward: "rgba(255, 0, 0, .3)",
       }
     };
 

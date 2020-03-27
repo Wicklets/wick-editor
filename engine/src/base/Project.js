@@ -46,6 +46,7 @@ Wick.Project = class extends Wick.Base {
         this.onionSkinSeekBackwards = 1;
         this.onionSkinSeekForwards = 1;
         this._onionSkinStyle = 'full_color';
+        this._onionSkinStyles = ['full_color', 'outlines'];
 
         this.selection = new Wick.Selection();
         this.history = new Wick.History();
@@ -257,6 +258,14 @@ Wick.Project = class extends Wick.Base {
             return;
         }
         this._onionSkinStyle = onionSkinStyle;
+    }
+
+    /**
+     * An array of all possible onion skinning styles for the project.
+     * @type {String[]}
+     */
+    get onionSkinStyles () {
+        return this._onionSkinStyles;
     }
 
     /**

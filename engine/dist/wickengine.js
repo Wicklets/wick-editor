@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.3.26.15.11.40";
+var WICK_ENGINE_BUILD_VERSION = "2020.3.27.12.44.35";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -45589,7 +45589,17 @@ Wick.ToolSettings = class {
     });
   }
   /**
-   *
+   * Returns the appropriate key to use to store a tool setting by name.
+   * @param {String} settingName name of tool setting.
+   * @returns {String} Key to be used.
+   */
+
+
+  getStorageKey(settingName) {
+    return "WICK.TOOLSETTINGS." + settingName;
+  }
+  /**
+   * Creates the tool settings at the start of the editor. Will open with previously used settings if they exist.
    */
 
 
@@ -45597,13 +45607,27 @@ Wick.ToolSettings = class {
     if (!args) console.error('createSetting: args is required');
     if (!args.name) console.error('createSetting: args.name is required');
     if (args.default === undefined) console.error('createSetting: args.default is required');
+    let name = args.name; // Create a default setting to start.
+
     this._settings[args.name] = {
       name: args.name,
       value: args.default,
       default: args.default,
       min: args.min,
       max: args.max
-    };
+    }; // Get stored tool setting if it exists.
+
+    localforage.getItem(this.getStorageKey(name)).then(value => {
+      if (value) {
+        this._settings[args.name] = {
+          name: args.name,
+          value: value,
+          default: args.default,
+          min: args.min,
+          max: args.max
+        };
+      }
+    });
   }
   /**
    * Update a value in the settings.
@@ -45636,6 +45660,8 @@ Wick.ToolSettings = class {
     setting.value = value;
 
     this._fireOnSettingsChanged(name, value);
+
+    localforage.setItem(this.getStorageKey(name), value);
   }
   /**
    * Retrieve a value in the settings.
@@ -45649,7 +45675,9 @@ Wick.ToolSettings = class {
     return setting.value;
   }
   /**
-   *
+   * Returns an object with the setting restrictions for a provided setting.
+   * @param {String} name name of tool setting
+   * @returns {Object} an object containing the values min, max and step where appropriate.
    */
 
 
@@ -45663,7 +45691,8 @@ Wick.ToolSettings = class {
     };
   }
   /**
-   *
+   * Returns an array containing all settings with all information.
+   * @returns {Object[]} Array of settings objects.
    */
 
 
@@ -45677,7 +45706,7 @@ Wick.ToolSettings = class {
     return allSettings;
   }
   /**
-   *
+   * Receives a call back that will be provided the name and value of the setting that was changed.
    */
 
 
@@ -48132,6 +48161,7 @@ Wick.Project = class extends Wick.Base {
     this.onionSkinSeekBackwards = 1;
     this.onionSkinSeekForwards = 1;
     this._onionSkinStyle = 'full_color';
+    this._onionSkinStyles = ['full_color', 'outlines'];
     this.selection = new Wick.Selection();
     this.history = new Wick.History();
     this.clipboard = new Wick.Clipboard();
@@ -48344,6 +48374,15 @@ Wick.Project = class extends Wick.Base {
     }
 
     this._onionSkinStyle = onionSkinStyle;
+  }
+  /**
+   * An array of all possible onion skinning styles for the project.
+   * @type {String[]}
+   */
+
+
+  get onionSkinStyles() {
+    return this._onionSkinStyles;
   }
   /**
    * The timeline of the active clip.
@@ -60085,6 +60124,48 @@ Wick.View.Layer = class extends Wick.View {
     this.activeFrameContainers = [];
   }
 
+  addOnionSkin() {
+    var playheadPosition = this.model.project.focus.timeline.playheadPosition;
+    this.model.frames.filter(frame => {
+      return !frame.inPosition(playheadPosition) && frame.inRange(playheadPosition - onionSkinSeekBackwards, playheadPosition + onionSkinSeekForwards);
+    }).forEach(frame => {
+      this.onionSkinFrame(frame);
+    });
+  }
+
+  onionSkinFrame(frame) {
+    var onionSkinSeekBackwards = this.model.project.onionSkinSeekBackwards;
+    var onionSkinSeekForwards = this.model.project.onionSkinSeekForwards;
+    frame.view.render();
+    var onionTintColor = '#ffffff';
+    this.onionSkinnedFramesLayers.push(frame.view.pathsLayer);
+    this.onionSkinnedFramesLayers.push(frame.view.clipsLayer);
+    var seek = 1; // Should replace midpoint with start, a frame can be onion skinned while it's midpoint is behind or in front of the playhead position.
+
+    if (frame.midpoint < playheadPosition) {
+      seek = onionSkinSeekBackwards;
+      onionTintColor = '#0000ff';
+    } else if (frame.midpoint > playheadPosition) {
+      seek = onionSkinSeekForwards;
+      onionTintColor = '#33ff33';
+    }
+
+    var dist = frame.distanceFrom(playheadPosition);
+    var onionMult = (seek - dist + 1) / seek;
+    onionMult = Math.min(1, Math.max(0, onionMult));
+    var opacity = onionMult * Wick.View.Layer.BASE_ONION_OPACITY;
+    frame.view.clipsLayer.locked = true;
+    frame.view.pathsLayer.locked = true;
+    frame.view.clipsLayer.opacity = opacity;
+    frame.view.pathsLayer.opacity = opacity;
+
+    if (this.model.project.onionSkinStyle === 'outlines') {
+      frame.view.pathsLayer.fillColor = 'rgba(0,0,0,0)';
+      frame.view.pathsLayer.strokeWidth = 2;
+      frame.view.pathsLayer.strokeColor = onionTintColor;
+    }
+  }
+
   render() {
     // Add active frame layers
     this.activeFrameLayers = [];
@@ -60109,47 +60190,12 @@ Wick.View.Layer = class extends Wick.View {
       } else {
         layer.locked = this.model.locked;
       }
-    }); // Add onion skinned frame layers
+    }); // Add onion skinning, if necessary.
 
     this.onionSkinnedFramesLayers = [];
 
-    if (this.model.project && !this.model.project.playing && this.model.parentClip.isFocus && this.model.project.onionSkinEnabled) {
-      var playheadPosition = this.model.project.focus.timeline.playheadPosition;
-      var onionSkinEnabled = this.model.project.onionSkinEnabled;
-      var onionSkinSeekBackwards = this.model.project.onionSkinSeekBackwards;
-      var onionSkinSeekForwards = this.model.project.onionSkinSeekForwards;
-      this.model.frames.filter(frame => {
-        return !frame.inPosition(playheadPosition) && frame.inRange(playheadPosition - onionSkinSeekBackwards, playheadPosition + onionSkinSeekForwards);
-      }).forEach(frame => {
-        frame.view.render();
-        var onionTintColor = '#ffffff';
-        this.onionSkinnedFramesLayers.push(frame.view.pathsLayer);
-        this.onionSkinnedFramesLayers.push(frame.view.clipsLayer);
-        var seek = 0;
-
-        if (frame.midpoint < playheadPosition) {
-          seek = onionSkinSeekBackwards;
-          onionTintColor = '#0000ff';
-        } else if (frame.midpoint > playheadPosition) {
-          seek = onionSkinSeekForwards;
-          onionTintColor = '#33ff33';
-        }
-
-        var dist = frame.distanceFrom(playheadPosition);
-        var onionMult = (seek - dist + 1) / seek;
-        onionMult = Math.min(1, Math.max(0, onionMult));
-        var opacity = onionMult * Wick.View.Layer.BASE_ONION_OPACITY;
-        frame.view.clipsLayer.locked = true;
-        frame.view.pathsLayer.locked = true;
-        frame.view.clipsLayer.opacity = opacity;
-        frame.view.pathsLayer.opacity = opacity;
-
-        if (this.model.project.onionSkinStyle === 'outlines') {
-          frame.view.pathsLayer.fillColor = 'rgba(0,0,0,0)';
-          frame.view.pathsLayer.strokeWidth = 2;
-          frame.view.pathsLayer.strokeColor = onionTintColor;
-        }
-      });
+    if (this.model.project && this.model.project.onionSkinEnabled && !this.model.project.playing && this.model.parentClip.isFocus) {
+      this.addOnionSkin();
     }
   }
 

@@ -67,7 +67,13 @@ Wick.ToolSettings = class {
             min: 0,
             max: 5,
             step: 1,
-        }];
+        },{
+            name: 'backwardOnionSkinColor',
+            default: new Wick.Color('rgba(255, 0, 0, .5)')
+        }, {
+            name: 'forwardOnionSkinColor',
+            default: new Wick.Color('rgba(0, 0, 255, .5)')
+        },];
     }
 
     /**
@@ -83,13 +89,25 @@ Wick.ToolSettings = class {
     }
 
     /**
-     *
+     * Returns the appropriate key to use to store a tool setting by name.
+     * @param {String} settingName name of tool setting.
+     * @returns {String} Key to be used.
+     */
+    getStorageKey (settingName) {
+        return "WICK.TOOLSETTINGS."+settingName;
+    }
+
+    /**
+     * Creates the tool settings at the start of the editor. Will open with previously used settings if they exist.
      */
     createSetting (args) {
         if(!args) console.error('createSetting: args is required');
         if(!args.name) console.error('createSetting: args.name is required');
         if(args.default === undefined) console.error('createSetting: args.default is required');
 
+        let name = args.name;
+
+        // Create a default setting to start.
         this._settings[args.name] = {
             name: args.name,
             value: args.default,
@@ -97,6 +115,20 @@ Wick.ToolSettings = class {
             min: args.min,
             max: args.max,
         };
+
+        // Get stored tool setting if it exists.
+        localforage.getItem(this.getStorageKey(name)).then( (value) => {
+            if (value) {
+                this._settings[args.name] = {
+                    name: args.name,
+                    value: value,
+                    default: args.default,
+                    min: args.min,
+                    max: args.max,
+                };
+            }
+        });
+
     }
 
     /**
@@ -127,6 +159,8 @@ Wick.ToolSettings = class {
         setting.value = value;
 
         this._fireOnSettingsChanged(name, value);
+
+        localforage.setItem(this.getStorageKey(name), value)
     }
 
     /**
@@ -140,7 +174,9 @@ Wick.ToolSettings = class {
     }
 
     /**
-     *
+     * Returns an object with the setting restrictions for a provided setting.
+     * @param {String} name name of tool setting
+     * @returns {Object} an object containing the values min, max and step where appropriate.
      */
     getSettingRestrictions (name) {
         var setting = this._settings[name];
@@ -153,7 +189,8 @@ Wick.ToolSettings = class {
     }
 
     /**
-     *
+     * Returns an array containing all settings with all information.
+     * @returns {Object[]} Array of settings objects.
      */
     getAllSettings () {
         var allSettings = [];
@@ -164,7 +201,7 @@ Wick.ToolSettings = class {
     }
 
     /**
-     *
+     * Receives a call back that will be provided the name and value of the setting that was changed.
      */
     onSettingsChanged (callback) {
         this._onSettingsChangedCallback = callback;
