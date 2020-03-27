@@ -79,7 +79,7 @@ Wick.View.Frame = class extends Wick.View {
         // 2) the project is playing
         if(this.model.parentClip.isFocus || this.model.project.playing) {
             this.model.paths.forEach(path => {
-                if(path.view.item.data._isPlaceholder) {
+                if(path.isPlaceholder) {
                     path.remove();
                 }
             });
@@ -157,6 +157,7 @@ Wick.View.Frame = class extends Wick.View {
             wickPath.fontWeight = originalWickPath ? originalWickPath.fontWeight : 400;
             wickPath.fontStyle = originalWickPath ? originalWickPath.fontStyle : 'normal';
             wickPath.identifier = originalWickPath ? originalWickPath.identifier : null;
+            wickPath.isPlaceholder = originalWickPath ? originalWickPath.isPlaceholder : false;
             child.name = wickPath.uuid;
         });
     }

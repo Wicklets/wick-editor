@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.3.26.16.2.8";
+var WICK_ENGINE_BUILD_VERSION = "2020.3.27.15.36.12";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -48587,7 +48587,7 @@ Wick.Project = class extends Wick.Base {
         subclip.applySingleFramePosition(); // Make sure to visualize single frame clips properly.
       }); // Reset pan and zoom and clear selection on focus change
 
-      this.recenter();
+      this.resetZoomAndPan();
     } else {
       // Make sure the single frame
       focus.timeline.clips.forEach(subclip => {
@@ -49464,11 +49464,25 @@ Wick.Project = class extends Wick.Base {
     });
   }
   /**
-   * Resets zoom and pan.
+   * Sets zoom and pan such that the canvas fits in the window, with some padding.
    */
 
 
   recenter() {
+    this.pan = {
+      x: 0,
+      y: 0
+    };
+    var paddingResize = 0.96;
+    this.zoom = this.view.calculateFitZoom();
+    this.zoom *= paddingResize;
+  }
+  /**
+   * Resets zoom and pan (zoom resets to 1.0, pan resets to (0,0)).
+   */
+
+
+  resetZoomAndPan() {
     this.pan = {
       x: 0,
       y: 0
@@ -51501,6 +51515,7 @@ Wick.Path = class extends Wick.Base {
     super(args);
     this._fontStyle = 'normal';
     this._fontWeight = 400;
+    this._isPlaceholder = args.isPlaceholder;
 
     if (args.path) {
       this.json = args.path.exportJSON({
@@ -51575,6 +51590,7 @@ Wick.Path = class extends Wick.Base {
 
     data.fontStyle = this._fontStyle;
     data.fontWeight = this._fontWeight;
+    data.isPlaceholder = this._isPlaceholder;
     return data;
   }
 
@@ -51584,6 +51600,7 @@ Wick.Path = class extends Wick.Base {
     this.json = data.json;
     this._fontStyle = data.fontStyle || 'normal';
     this._fontWeight = data.fontWeight || 400;
+    this._isPlaceholder = data.isPlaceholder;
   }
   /**
    *
@@ -51940,6 +51957,19 @@ Wick.Path = class extends Wick.Base {
     });
     flatPath.fillColor = this.strokeColor;
     return flatPath;
+  }
+  /**
+   * Is this path used as a placeholder for preventing empty clips?
+   * @type {bool}
+   */
+
+
+  set isPlaceholder(isPlaceholder) {
+    this._isPlaceholder = isPlaceholder;
+  }
+
+  get isPlaceholder() {
+    return this._isPlaceholder;
   }
 
 };
@@ -55042,7 +55072,7 @@ Wick.Clip = class extends Wick.Tickable {
 
     var frame = this.timeline.getFramesAtPlayheadPosition(playheadPosition)[0];
     frame.paths.forEach(path => {
-      if (!path.view.item.data._isPlaceholder) return;
+      if (!path.isPlaceholder) return;
       path.remove();
     }); // Check if active frame is contentful
 
@@ -55067,9 +55097,9 @@ Wick.Clip = class extends Wick.Tickable {
         strokeColor: '#AAA'
       });
       line1.remove();
-      line1.data._isPlaceholder = true;
       frame.addPath(new Wick.Path({
-        path: line1
+        path: line1,
+        isPlaceholder: true
       }));
       var line2 = new paper.Path.Line({
         from: [-size, 0],
@@ -55077,9 +55107,9 @@ Wick.Clip = class extends Wick.Tickable {
         strokeColor: '#AAA'
       });
       line2.remove();
-      line2.data._isPlaceholder = true;
       frame.addPath(new Wick.Path({
-        path: line2
+        path: line2,
+        isPlaceholder: true
       }));
     }
   }
@@ -59266,6 +59296,17 @@ Wick.View.Project = class extends Wick.View {
     return this._svgCanvas;
   }
   /**
+   * Get the current width/height of the canvas.
+   */
+
+
+  get canvasDimensions() {
+    return {
+      width: this._svgCanvas.offsetWidth,
+      height: this._svgCanvas.offsetHeight
+    };
+  }
+  /**
    * The zoom amount. 1 = 100% zoom
    */
 
@@ -59385,6 +59426,21 @@ Wick.View.Project = class extends Wick.View {
       frame.view.applyChanges();
     });
   }
+  /**
+   * Returns how much the zoom level must be to optimally fit the canvas inside a div.
+   * @type {Number}
+   */
+
+
+  calculateFitZoom() {
+    var w = 0;
+    var h = 0;
+    w = this.paper.view.viewSize.width;
+    h = this.paper.view.viewSize.height;
+    var wr = w / this.model.width;
+    var hr = h / this.model.height;
+    return Math.min(wr, hr);
+  }
 
   _setupTools() {
     // This is a hacky way to create scroll-to-zoom functionality.
@@ -59501,7 +59557,7 @@ Wick.View.Project = class extends Wick.View {
     } else if (this._fitMode === 'fill') {
       // Fill mode: Try to fit the wick project's canvas inside the container canvas by
       // scaling it as much as possible without changing the project's original aspect ratio
-      this.paper.view.zoom = this._calculateFitZoom();
+      this.paper.view.zoom = this.calculateFitZoom();
     }
 
     var pan = this._pan;
@@ -59628,16 +59684,6 @@ Wick.View.Project = class extends Wick.View {
       strokeWidth: 1,
       strokeColor: 'black'
     })];
-  }
-
-  _calculateFitZoom() {
-    var w = 0;
-    var h = 0;
-    w = this.paper.view.viewSize.width;
-    h = this.paper.view.viewSize.height;
-    var wr = w / this.model.width;
-    var hr = h / this.model.height;
-    return Math.min(wr, hr);
   }
 
   _generateClipBorders() {
@@ -60236,7 +60282,7 @@ Wick.View.Frame = class extends Wick.View {
 
     if (this.model.parentClip.isFocus || this.model.project.playing) {
       this.model.paths.forEach(path => {
-        if (path.view.item.data._isPlaceholder) {
+        if (path.isPlaceholder) {
           path.remove();
         }
       });
@@ -60310,6 +60356,7 @@ Wick.View.Frame = class extends Wick.View {
       wickPath.fontWeight = originalWickPath ? originalWickPath.fontWeight : 400;
       wickPath.fontStyle = originalWickPath ? originalWickPath.fontStyle : 'normal';
       wickPath.identifier = originalWickPath ? originalWickPath.identifier : null;
+      wickPath.isPlaceholder = originalWickPath ? originalWickPath.isPlaceholder : false;
       child.name = wickPath.uuid;
     });
   } // Helper function for SVG import (paper.js imports SVGs as one big group.)

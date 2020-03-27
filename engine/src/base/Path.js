@@ -32,6 +32,7 @@ Wick.Path = class extends Wick.Base {
 
         this._fontStyle = 'normal';
         this._fontWeight = 400;
+        this._isPlaceholder = args.isPlaceholder;
 
         if(args.path) {
             this.json = args.path.exportJSON({asString:false});
@@ -98,6 +99,7 @@ Wick.Path = class extends Wick.Base {
 
         data.fontStyle = this._fontStyle;
         data.fontWeight = this._fontWeight;
+        data.isPlaceholder = this._isPlaceholder;
 
         return data;
     }
@@ -107,6 +109,7 @@ Wick.Path = class extends Wick.Base {
         this.json = data.json;
         this._fontStyle = data.fontStyle || 'normal';
         this._fontWeight = data.fontWeight || 400;
+        this._isPlaceholder = data.isPlaceholder;
     }
 
     /**
@@ -436,5 +439,17 @@ Wick.Path = class extends Wick.Base {
         flatPath.fillColor = this.strokeColor;
 
         return flatPath;
+    }
+
+    /**
+     * Is this path used as a placeholder for preventing empty clips?
+     * @type {bool}
+     */
+    set isPlaceholder (isPlaceholder) {
+        this._isPlaceholder = isPlaceholder;
+    }
+
+    get isPlaceholder () {
+        return this._isPlaceholder;
     }
 }

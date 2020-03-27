@@ -645,7 +645,7 @@ Wick.Clip = class extends Wick.Tickable {
         // Clear placeholders
         var frame = this.timeline.getFramesAtPlayheadPosition(playheadPosition)[0];
         frame.paths.forEach(path => {
-            if(!path.view.item.data._isPlaceholder) return;
+            if(!path.isPlaceholder) return;
             path.remove();
         });
 
@@ -673,8 +673,7 @@ Wick.Clip = class extends Wick.Tickable {
                 strokeColor: '#AAA',
             });
             line1.remove();
-            line1.data._isPlaceholder = true;
-            frame.addPath(new Wick.Path({path:line1}));
+            frame.addPath(new Wick.Path({path: line1, isPlaceholder: true}));
 
             var line2 = new paper.Path.Line({
                 from: [-size,0],
@@ -682,8 +681,7 @@ Wick.Clip = class extends Wick.Tickable {
                 strokeColor: '#AAA',
             });
             line2.remove();
-            line2.data._isPlaceholder = true;
-            frame.addPath(new Wick.Path({path:line2}));
+            frame.addPath(new Wick.Path({path: line2, isPlaceholder: true}));
         }
     }
 
