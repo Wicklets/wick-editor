@@ -57,8 +57,8 @@ Wick.SVGAsset = class extends Wick.FileAsset {
     }
 
     /**
-     * A list of Wick Paths that use this SVGAsset as their image source.
-     * @returns {Wick.Path[]}
+     * A list of Wick Paths, Clips and Layers that use this SVGAsset as their image source.
+     * @returns {Wick.Asset[]}
      */
     getInstances() {
         return []; // TODO
@@ -69,11 +69,11 @@ Wick.SVGAsset = class extends Wick.FileAsset {
      * @returns {boolean}
      */
     hasInstances() {
-        return false; // TODO
+        return false;
     }
 
     /**
-     * Removes all Paths using this asset as their source from the project.
+     * Removes all Items using this asset as their source from the project.
      * @returns {boolean}
      */
     removeAllInstances() {
@@ -100,28 +100,44 @@ Wick.SVGAsset = class extends Wick.FileAsset {
         // 'Group', 'Layer', 'Path', 'CompoundPath', 'Shape', 'Raster', 'SymbolItem', 'PointText'
         // I think path automatically handles this, but maybe not layer or group
         var wickItem = NULL;
+
         //There are two ways of adding children in wicks. some classes take addObjects other classes have addChild
         // Groups (clips) and layers do this differently so they must be handled separately
         if (item instanceof paper.Group) {
             wickItem = new Wick.Clip();
             var wickObjects = Wick.Base[];
             item.children.forEach(childItem => {
-                wickObjects.addChild(walkItems(childItem));
+                ///This should be clips and paths not layers
+                var walkItem = walkItems(childItem);
+                if (walkItem instanceof Wick.Layer) {
+                    console.error("SVG Import: Clip has a child that is a layer, this should never happen. ignoring.");
+                } else {
+                    wickObjects.addChild(walkItem);
+                }
             });
             wickItem.addObjects(wickObjects);
             //add the clip  to the project
-            project.addObject(wickItem);
+            //project.addObject(wickItem);
         } else if (item instanceof paper.Layer) {
             wickItem = new Wick.Layer();
-            item.children.forEach(childItem => {
-                wickItem.activeFrame.addChild(walkItems(childItem));
-            });
+            //do we do project.addObject or project.timeline.addLayer for correctness, we have to adjust the active layer on the timeline anyhow
+            //project.addObject(wickItem);
             // If we've just added a layer set it to be the active layer
-            project.timeline.activeLayerIndex = project.timeline.layers.count - 1;
-            //add the layer  to the project
-            project.addObject(wickItem);
+            //project.timeline.activeLayerIndex = project.timeline.layers.count - 1;
+            //TODO: Find out how multiple layers are handled
+            item.children.forEach(childItem => {
+                wickChildItem = walkItems(childItem);
+                if (wickChildItem instanceof Wick.Clip) {
+                    wickItem.activeFrame.addClip(wickChildItem);
+                } else if (wickChildItem instanceof Wick.Path) {
+                    wickItem.activeFrame.addPath(wickChildItem);
+                } else if (wickChildItem instanceof Wick.Layer) {
+                    console.error("SVG Import: Error importing, nested layers.ignoring.");
+                }
+            })
+
         } else if (item instanceof paper.Shape) {
-            //TODO: Throw an error saying to call _breakAppartShapesRecursivly because this should never happen
+            console.error("SVG Import: Item is an instance of a shape. This should never happen as all shapes should be converted to paths when we call paperProject.importSVG(data, options.expandShapes = true);");
         } else {
             //'Path', 'CompoundPath', 'Raster', 'SymbolItem', 'PointText' all handled by Path which takes the loaded paper object expressed as JSON to load
             wickItem = new Wick.Path({
@@ -150,18 +166,18 @@ Wick.SVGAsset = class extends Wick.FileAsset {
         /**
          * Creates a new Wick SVG that uses this asset's data.
          * @param {function} callback - called when the SVG is done loading.
-         * @param {Wick.Project} project
          */
-    createInstance(callback, project) {
+    createInstance(callback) {
         // needs to take a base64 encoded string.
         //we need a viewSVG and an SVG object that extends base by the looks of things.
         Wick.SVGFile.fromSVGFile(this.src, data => {
-            var paperProject = new paper.Project(project.view.paper.view); //will this do, it should really be an invisible temporary view. maybe an SVGView
-            var node = paperProject.importSVG(data, options.expandShapes = true);
+            var paperProject = new paper.Project(this.project.view.paper.view); //will this do, it should really be an invisible temporary view. maybe an SVGView
+            var item = paperProject.importSVG(data, options.expandShapes = true);
             // this shouldn't be needed because we set options.expandShapes = true
-            _breakAppartShapesRecursively(node)
-            wickItem = walkItems(project, node);
-            node.remove(); //do we actually need to do this
+            //_breakAppartShapesRecursively(item)
+            wickItem = walkItems(project, item);
+            //node.remove(); //do we actually need to do this
+            project.addAsset(this);
             callback(wickItem);
         });
     }

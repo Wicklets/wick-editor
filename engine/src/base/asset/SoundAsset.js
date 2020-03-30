@@ -22,7 +22,7 @@ Wick.SoundAsset = class extends Wick.FileAsset {
      * Returns valid MIME types for a Sound Asset.
      * @returns {string[]} Array of strings representing MIME types in the form audio/Subtype.
      */
-    static getValidMIMETypes () {
+    static getValidMIMETypes() {
         let mp3Types = ['audio/mp3', 'audio/mpeg3', 'audio/x-mpeg-3', 'audio/mpeg', 'video/mpeg', 'video/x-mpeg']
         let oggTypes = ['audio/ogg', 'video/ogg', 'application/ogg']
         let wavTypes = ['audio/wave', 'audio/wav', 'audio/x-wav', 'audio/x-pn-wav']
@@ -33,29 +33,29 @@ Wick.SoundAsset = class extends Wick.FileAsset {
      * Returns valid extensions for a sound asset.
      * @returns {string[]} Array of strings representing valid
      */
-    static getValidExtensions () {
+    static getValidExtensions() {
         return ['.mp3', '.ogg', '.wav'];
     }
 
     /**
      * Creates a new SoundAsset.
      */
-    constructor (args) {
+    constructor(args) {
         super(args);
 
         this._waveform = null;
     }
 
-    _serialize (args) {
+    _serialize(args) {
         var data = super._serialize(args);
         return data;
     }
 
-    _deserialize (data) {
+    _deserialize(data) {
         super._deserialize(data);
     }
 
-    get classname () {
+    get classname() {
         return 'SoundAsset';
     }
 
@@ -66,14 +66,14 @@ Wick.SoundAsset = class extends Wick.FileAsset {
      * @param {boolean} loop - if set to true, the sound will loop
      * @return {number} The id of the sound instance that was played.
      */
-    play (options) {
-        if(!options) options = {};
-        if(options.seekMS === undefined) options.seekMS = 0;
-        if(options.volume === undefined) options.volume = 1.0;
-        if(options.loop === undefined) options.loop = false;
+    play(options) {
+        if (!options) options = {};
+        if (options.seekMS === undefined) options.seekMS = 0;
+        if (options.volume === undefined) options.volume = 1.0;
+        if (options.loop === undefined) options.loop = false;
 
         // don't do anything if the project is muted...
-        if(this.project.muted) {
+        if (this.project.muted) {
             return;
         }
 
@@ -90,13 +90,13 @@ Wick.SoundAsset = class extends Wick.FileAsset {
      * Stops this asset's sound.
      * @param {number} id - (optional) the ID of the instance to stop. If ID is not given, every instance of this sound will stop.
      */
-    stop (id) {
+    stop(id) {
         // Howl instance was never created, sound has never played yet, so do nothing
-        if(!this._howl) {
+        if (!this._howl) {
             return;
         }
 
-        if(id === undefined) {
+        if (id === undefined) {
             this._howl.stop();
         } else {
             this._howl.stop(id);
@@ -107,18 +107,19 @@ Wick.SoundAsset = class extends Wick.FileAsset {
      * The length of the sound in seconds
      * @type {number}
      */
-    get duration () {
+    get duration() {
         return this._howl.duration();
     }
 
     /**
      * A list of Wick Paths that use this font as their fontFamily.
-     * @returns {Wick.Path[]}
+     * TODO: update this text, it's a sound not a font
+
      */
-    getInstances () {
+    getInstances() {
         var frames = [];
         this.project.getAllFrames().forEach(frame => {
-            if(frame._soundAssetUUID === this.uuid) {
+            if (frame._soundAssetUUID === this.uuid) {
                 frames.push(frame);
             }
         });
@@ -129,14 +130,14 @@ Wick.SoundAsset = class extends Wick.FileAsset {
      * Check if there are any objects in the project that use this asset.
      * @returns {boolean}
      */
-    hasInstances () {
+    hasInstances() {
         return this.getInstances().length > 0;
     }
 
     /**
      * Remove the sound from any frames in the project that use this asset as their sound.
      */
-    removeAllInstances () {
+    removeAllInstances() {
         this.getInstances().forEach(frame => {
             frame.removeSound();
         });
@@ -145,7 +146,7 @@ Wick.SoundAsset = class extends Wick.FileAsset {
     /**
      * Loads data about the sound into the asset.
      */
-    load (callback) {
+    load(callback) {
         this._generateWaveform(() => {
             this._waitForHowlLoad(() => {
                 callback();
@@ -157,13 +158,13 @@ Wick.SoundAsset = class extends Wick.FileAsset {
      * Image of the waveform of this sound.
      * @type {Image}
      */
-    get waveform () {
+    get waveform() {
         return this._waveform;
     }
 
-    get _howl () {
+    get _howl() {
         // Lazily create howler instance
-        if(!this._howlInstance) {
+        if (!this._howlInstance) {
             // This fixes OGGs in firefox, as video/ogg is sometimes set as the MIMEType, which Howler doesn't like.
             var srcFixed = this.src;
             srcFixed = this.src.replace('video/ogg', 'audio/ogg');
@@ -175,8 +176,8 @@ Wick.SoundAsset = class extends Wick.FileAsset {
         return this._howlInstance;
     }
 
-    _waitForHowlLoad (callback) {
-        if(this._howl.state() === 'loaded') {
+    _waitForHowlLoad(callback) {
+        if (this._howl.state() === 'loaded') {
             callback();
         } else {
             this._howl.on('load', () => {
@@ -185,8 +186,8 @@ Wick.SoundAsset = class extends Wick.FileAsset {
         }
     }
 
-    _generateWaveform (callback) {
-        if(this._waveform) {
+    _generateWaveform(callback) {
+        if (this._waveform) {
             callback();
             return;
         }

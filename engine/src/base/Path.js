@@ -25,17 +25,17 @@ Wick.Path = class extends Wick.Base {
      * Create a Wick Path.
      * @param {array} json - Path data exported from paper.js using exportJSON({asString:false}).
      */
-    constructor (args) {
-        if(!args) args = {};
+    constructor(args) {
+        if (!args) args = {};
         super(args);
 
         this._fontStyle = 'normal';
         this._fontWeight = 400;
 
-        if(args.json) {
+        if (args.json) {
             this.json = args.json;
         } else {
-            this.json = new paper.Path({insert:false}).exportJSON({asString:false});
+            this.json = new paper.Path({ insert: false }).exportJSON({ asString: false });
         }
     }
 
@@ -44,7 +44,7 @@ Wick.Path = class extends Wick.Base {
      * @param {Wick.ImageAsset} asset - The asset from which the image src will be loaded from
      * @param {Function} callback - A function that will be called when the image is done loading.
      */
-    static createImagePath (asset, callback) {
+    static createImagePath(asset, callback) {
         var img = new Image();
         img.src = asset.src;
         img.onload = () => {
@@ -61,7 +61,7 @@ Wick.Path = class extends Wick.Base {
      * Create a path (synchronously) containing an image from an ImageAsset.
      * @param {Wick.ImageAsset} asset - The asset from which the image src will be loaded from
      */
-    static createImagePathSync (asset) {
+    static createImagePathSync(asset) {
         var raster = new paper.Raster(asset.src);
         raster.remove();
         var path = new Wick.Path({
@@ -70,23 +70,23 @@ Wick.Path = class extends Wick.Base {
         return path;
     }
 
-    get classname () {
+    get classname() {
         return 'Path';
     }
 
-    _serialize (args) {
+    _serialize(args) {
         var data = super._serialize(args);
 
         data.json = this.json;
         delete data.json[1].data;
 
         // optimization: replace dataurls with asset uuids
-        if(data.json[0] === 'Raster' && data.json[1].source.startsWith('data:')) {
-            if(!this.project) {
+        if (data.json[0] === 'Raster' && data.json[1].source.startsWith('data:')) {
+            if (!this.project) {
                 console.warn('Could not replace raster image source with asset UUID, path does not belong to a project.');
             } else {
                 this.project.getAssets('Image').forEach(imageAsset => {
-                    if(imageAsset.src === data.json[1].source) {
+                    if (imageAsset.src === data.json[1].source) {
                         data.json[1].source = 'asset:' + imageAsset.uuid;
                     }
                 })
@@ -99,7 +99,7 @@ Wick.Path = class extends Wick.Base {
         return data;
     }
 
-    _deserialize (data) {
+    _deserialize(data) {
         super._deserialize(data);
         this.json = data.json;
         this._fontStyle = data.fontStyle || 'normal';
@@ -109,7 +109,7 @@ Wick.Path = class extends Wick.Base {
     /**
      *
      */
-    get onScreen () {
+    get onScreen() {
         return this.parent.onScreen;
     }
 
@@ -117,10 +117,10 @@ Wick.Path = class extends Wick.Base {
      * The type of path that this path is. Can be 'path', 'text', or 'image'
      * @returns {string}
      */
-    get pathType () {
-        if(this.view.item instanceof paper.TextItem) {
+    get pathType() {
+        if (this.view.item instanceof paper.TextItem) {
             return 'text';
-        } else if(this.view.item instanceof paper.Raster) {
+        } else if (this.view.item instanceof paper.Raster) {
             return 'image';
         } else {
             return 'path';
@@ -131,11 +131,11 @@ Wick.Path = class extends Wick.Base {
      * Path data exported from paper.js using exportJSON({asString:false}).
      * @type {object}
      */
-    get json () {
+    get json() {
         return this._json;
     }
 
-    set json (json) {
+    set json(json) {
         this._json = json;
         this.view.render();
     }
@@ -144,7 +144,7 @@ Wick.Path = class extends Wick.Base {
      * The bounding box of the path.
      * @type {object}
      */
-    get bounds () {
+    get bounds() {
         var paperBounds = this.view.item.bounds;
         return {
             top: paperBounds.top,
@@ -160,11 +160,11 @@ Wick.Path = class extends Wick.Base {
      * The position of the path.
      * @type {number}
      */
-    get x () {
+    get x() {
         return this.view.item.position.x;
     }
 
-    set x (x) {
+    set x(x) {
         this.view.item.position.x = x;
         this.json = this.view.exportJSON();
     }
@@ -173,11 +173,11 @@ Wick.Path = class extends Wick.Base {
      * The position of the path.
      * @type {number}
      */
-    get y () {
+    get y() {
         return this.view.item.position.y;
     }
 
-    set y (y) {
+    set y(y) {
         this.view.item.position.y = y;
         this.json = this.view.exportJSON();
     }
@@ -186,11 +186,11 @@ Wick.Path = class extends Wick.Base {
      * The fill color of the path.
      * @type {paper.Color}
      */
-    get fillColor () {
+    get fillColor() {
         return this.view.item.fillColor || new paper.Color();
     }
 
-    set fillColor (fillColor) {
+    set fillColor(fillColor) {
         this.view.item.fillColor = fillColor;
         this.json = this.view.exportJSON();
     }
@@ -199,11 +199,11 @@ Wick.Path = class extends Wick.Base {
      * The stroke color of the path.
      * @type {paper.Color}
      */
-    get strokeColor () {
+    get strokeColor() {
         return this.view.item.strokeColor || new paper.Color();
     }
 
-    set strokeColor (strokeColor) {
+    set strokeColor(strokeColor) {
         this.view.item.strokeColor = strokeColor;
         this.json = this.view.exportJSON();
     }
@@ -212,11 +212,11 @@ Wick.Path = class extends Wick.Base {
      * The stroke width of the path.
      * @type {number}
      */
-    get strokeWidth () {
+    get strokeWidth() {
         return this.view.item.strokeWidth;
     }
 
-    set strokeWidth (strokeWidth) {
+    set strokeWidth(strokeWidth) {
         this.view.item.strokeWidth = strokeWidth;
         this.json = this.view.exportJSON();
     }
@@ -225,14 +225,14 @@ Wick.Path = class extends Wick.Base {
      * The opacity of the path.
      * @type {number}
      */
-    get opacity () {
-        if(this.view.item.opacity === undefined || this.view.item.opacity === null) {
+    get opacity() {
+        if (this.view.item.opacity === undefined || this.view.item.opacity === null) {
             return 1.0;
         }
         return this.view.item.opacity;
     }
 
-    set opacity (opacity) {
+    set opacity(opacity) {
         this.view.item.opacity = opacity;
         this.json = this.view.exportJSON();
     }
@@ -241,11 +241,11 @@ Wick.Path = class extends Wick.Base {
      * The font family of the path.
      * @type {string}
      */
-    get fontFamily () {
+    get fontFamily() {
         return this.view.item.fontFamily
     }
 
-    set fontFamily (fontFamily) {
+    set fontFamily(fontFamily) {
         this.view.item.fontFamily = fontFamily;
         this.fontWeight = 400;
         this.fontStyle = 'normal';
@@ -256,11 +256,11 @@ Wick.Path = class extends Wick.Base {
      * The font size of the path.
      * @type {number}
      */
-    get fontSize () {
+    get fontSize() {
         return this.view.item.fontSize;
     }
 
-    set fontSize (fontSize) {
+    set fontSize(fontSize) {
         this.view.item.fontSize = fontSize;
         this.view.item.leading = fontSize * 1.2;
         this.json = this.view.exportJSON();
@@ -270,12 +270,12 @@ Wick.Path = class extends Wick.Base {
      * The font weight of the path.
      * @type {number}
      */
-    get fontWeight () {
+    get fontWeight() {
         return this._fontWeight;
     }
 
-    set fontWeight (fontWeight) {
-        if(typeof fontWeight === 'string') {
+    set fontWeight(fontWeight) {
+        if (typeof fontWeight === 'string') {
             console.error('fontWeight must be a number.');
             return;
         }
@@ -286,11 +286,11 @@ Wick.Path = class extends Wick.Base {
      * The font style of the path ('italic' or 'oblique').
      * @type {string}
      */
-    get fontStyle () {
+    get fontStyle() {
         return this._fontStyle;
     }
 
-    set fontStyle (fontStyle) {
+    set fontStyle(fontStyle) {
         this._fontStyle = fontStyle;
     }
 
@@ -298,18 +298,18 @@ Wick.Path = class extends Wick.Base {
      * The content of the text.
      * @type {string}
      */
-    get textContent () {
+    get textContent() {
         return this.view.item.content;
     }
 
-    set textContent (textContent) {
+    set textContent(textContent) {
         this.view.item.content = textContent;
     }
 
     /**
      * API function to change the textContent of dynamic text paths.
      */
-    setText (newTextContent) {
+    setText(newTextContent) {
         this.textContent = newTextContent;
     }
 
@@ -317,20 +317,21 @@ Wick.Path = class extends Wick.Base {
      * Check if this path is a dynamic text object.
      * @type {boolean}
      */
-    get isDynamicText () {
-        return this.pathType === 'text'
-            && this.identifier !== null;
+    get isDynamicText() {
+        return this.pathType === 'text' &&
+            this.identifier !== null;
     }
 
     /**
      * The image asset that this path uses, if this path is a Raster path.
      * @returns {Wick.Asset[]}
      */
-    getLinkedAssets () {
+    //should this also return the SVGAsset if the path is loaded from an SVGAsset
+    getLinkedAssets() {
         var linkedAssets = [];
 
         var data = this.serialize(); // just need the asset uuid...
-        if(data.json[0] === 'Raster') {
+        if (data.json[0] === 'Raster') {
             var uuid = data.json[1].source.split(':')[1];
             linkedAssets.push(this.project.getAssetByUUID(uuid));
         }
@@ -341,7 +342,7 @@ Wick.Path = class extends Wick.Base {
     /**
      * Removes this path from its parent frame.
      */
-    remove () {
+    remove() {
         this.parentFrame.removePath(this);
     }
 
@@ -350,7 +351,7 @@ Wick.Path = class extends Wick.Base {
      * @param {Wick.Path[]} paths - an array containing the paths to process.
      * @returns {Wick.Path} The path resulting from the boolean unite.
      */
-    static unite (paths) {
+    static unite(paths) {
         return Wick.Path.booleanOp(paths, 'unite');
     }
 
@@ -359,7 +360,7 @@ Wick.Path = class extends Wick.Base {
      * @param {Wick.Path[]} paths - an array containing the paths to process.
      * @returns {Wick.Path} The path resulting from the boolean subtraction.
      */
-    static subtract (paths) {
+    static subtract(paths) {
         return Wick.Path.booleanOp(paths, 'subtract');
     }
 
@@ -368,7 +369,7 @@ Wick.Path = class extends Wick.Base {
      * @param {Wick.Path[]} paths - an array containing the paths to process.
      * @returns {Wick.Path} The path resulting from the boolean intersection.
      */
-    static intersect (paths) {
+    static intersect(paths) {
         return Wick.Path.booleanOp(paths, 'intersect');
     }
 
@@ -377,20 +378,20 @@ Wick.Path = class extends Wick.Base {
      * @param {Wick.Path[]} paths - a list of paths to perform the boolean operation on.
      * @param {string} booleanOpName - the name of the boolean operation to perform. Currently supports "unite", "subtract", and "intersect"
      */
-    static booleanOp (paths, booleanOpName) {
-        if(!booleanOpName) {
+    static booleanOp(paths, booleanOpName) {
+        if (!booleanOpName) {
             console.error('Wick.Path.booleanOp: booleanOpName is required');
         }
-        if(booleanOpName !== 'unite' && booleanOpName !== 'subtract' && booleanOpName !== 'intersect') {
+        if (booleanOpName !== 'unite' && booleanOpName !== 'subtract' && booleanOpName !== 'intersect') {
             console.error('Wick.Path.booleanOp: unsupported booleanOpName: ' + booleanOpName);
         }
 
-        if(!paths || paths.length === 0) {
+        if (!paths || paths.length === 0) {
             console.error('Wick.Path.booleanOp: a non-empty list of paths is required');
         }
 
         // Single path? Nothing to do.
-        if(paths.length === 1) {
+        if (paths.length === 1) {
             return paths[0];
         }
 
@@ -399,16 +400,16 @@ Wick.Path = class extends Wick.Base {
             return path.view.item;
         });
 
-        var result = paths[0].clone({insert:false});
+        var result = paths[0].clone({ insert: false });
         paths.forEach(path => {
-            if(path === paths[0]) return;
+            if (path === paths[0]) return;
 
             result = result[booleanOpName](path);
             result.remove();
         });
 
         var resultWickPath = new Wick.Path({
-            json: result.exportJSON({asString:false}),
+            json: result.exportJSON({ asString: false }),
         });
         return resultWickPath;
     }
@@ -417,17 +418,17 @@ Wick.Path = class extends Wick.Base {
      * Converts a stroke into fill. Only works with paths that have a strokeWidth and strokeColor, and have no fillColor. Does nothing otherwise.
      * @returns {Wick.Path} A flattened version of this path. Can be null if the path cannot be flattened.
      */
-    flatten () {
-        if(this.fillColor || !this.strokeColor || !this.strokeWidth) {
+    flatten() {
+        if (this.fillColor || !this.strokeColor || !this.strokeWidth) {
             return null;
         }
 
-        if(!(this instanceof paper.Path)) {
+        if (!(this instanceof paper.Path)) {
             return null;
         }
 
         var flatPath = new Wick.Path({
-            json: this.view.item.flatten().exportJSON({asString:false}),
+            json: this.view.item.flatten().exportJSON({ asString: false }),
         });
 
         flatPath.fillColor = this.strokeColor;

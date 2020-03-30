@@ -18,39 +18,33 @@
  */
 
 Wick.Asset = class extends Wick.Base {
+
     /**
      * Creates a new Wick Asset.
      * @param {string} name - the name of the asset
      */
-    constructor (args) {
-        if(!args) args = {};
+    constructor(args) {
+        if (!args) args = {};
         super(args);
 
         this.name = args.name;
     }
 
-    _serialize (args) {
+    _serialize(args) {
         var data = super._serialize(args);
         data.name = this.name;
         return data;
     }
 
-    _deserialize (data) {
+    _deserialize(data) {
         super._deserialize(data);
         this.name = data.name;
     }
 
     /**
-     * Removes this asset from the project.
-     */
-    remove () {
-        this.project.removeAsset(this);
-    }
-
-    /**
      * A list of all objects using this asset.
      */
-    getInstances () {
+    getInstances() {
         // Implemented by subclasses
     }
 
@@ -58,18 +52,18 @@ Wick.Asset = class extends Wick.Base {
      * Check if there are any objects in the project that use this asset.
      * @returns {boolean}
      */
-    hasInstances () {
+    hasInstances() {
         // Implemented by sublasses
     }
 
     /**
      * Remove all instances of this asset from the project. (Implemented by ClipAsset, ImageAsset, and SoundAsset)
      */
-    removeAllInstances () {
+    removeAllInstances() {
         // Implemented by sublasses
     }
 
-    get classname () {
+    get classname() {
         return 'Asset';
     }
 }

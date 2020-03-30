@@ -22,7 +22,7 @@ Wick.ClipAsset = class extends Wick.FileAsset {
      * Returns all valid MIME types for files which can be converted to ClipAssets.
      * @return {string[]} Array of strings of MIME types in the form MediaType/Subtype.
      */
-    static getValidMIMETypes () {
+    static getValidMIMETypes() {
         return ['application/json', 'application/octet-stream'];
     }
 
@@ -31,7 +31,7 @@ Wick.ClipAsset = class extends Wick.FileAsset {
      * converted to ClipAssets.
      * @return  {string[]} Array of strings representing extensions.
      */
-    static getValidExtensions () {
+    static getValidExtensions() {
         return ['.wickobj']
     }
 
@@ -39,20 +39,20 @@ Wick.ClipAsset = class extends Wick.FileAsset {
      * Create a new ClipAsset.
      * @param {object} args
      */
-    constructor (args) {
+    constructor(args) {
         super(args);
     }
 
-    _serialize (args) {
+    _serialize(args) {
         var data = super._serialize(args);
         return data;
     }
 
-    _deserialize (data) {
+    _deserialize(data) {
         super._deserialize(data);
     }
 
-    get classname () {
+    get classname() {
         return 'ClipAsset';
     }
 
@@ -60,7 +60,7 @@ Wick.ClipAsset = class extends Wick.FileAsset {
      * A list of Wick Clips that use this ClipAsset as their image source.
      * @returns {Wick.Clip[]}
      */
-    getInstances () {
+    getInstances() {
         return []; // TODO
     }
 
@@ -68,7 +68,7 @@ Wick.ClipAsset = class extends Wick.FileAsset {
      * Check if there are any objects in the project that use this asset.
      * @returns {boolean}
      */
-    hasInstances () {
+    hasInstances() {
         return false; // TODO
     }
 
@@ -76,14 +76,14 @@ Wick.ClipAsset = class extends Wick.FileAsset {
      * Removes all Clips using this asset as their source from the project.
      * @returns {boolean}
      */
-    removeAllInstances () {
+    removeAllInstances() {
         // TODO
     }
 
     /**
      * Load data in the asset
      */
-    load (callback) {
+    load(callback) {
         // We don't need to do anything here, the data for ClipAssets is just json
         callback();
     }
@@ -92,9 +92,9 @@ Wick.ClipAsset = class extends Wick.FileAsset {
      * Creates a new Wick Clip that uses this asset's data.
      * @param {function} callback - called when the Clip is done loading.
      */
-    createInstance (callback, project) {
+    createInstance(callback) {
         Wick.WickObjectFile.fromWickObjectFile(this.src, data => {
-            var clip = Wick.Base.import(data, project).copy();
+            var clip = Wick.Base.import(data, this.project).copy();
             callback(clip);
         });
     }
