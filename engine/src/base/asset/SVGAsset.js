@@ -93,7 +93,7 @@ Wick.SVGAsset = class extends Wick.FileAsset {
      * @param {function} callback - called when the Path is done loading.
      */
     walkItems(project, item) {
-
+        //TODO: Actually create layers and groups
         // create paths for all the path items, this also needs to be done for the following item.className=:
         // 'Group', 'Layer', 'Path', 'CompoundPath', 'Shape', 'Raster', 'SymbolItem', 'PointText'
         // I think path automatically handles this, but maybe not layer or group
@@ -115,7 +115,7 @@ Wick.SVGAsset = class extends Wick.FileAsset {
     createInstance(callback, project) {
         // TODO
         // needs to take a base64 encoded string.
-        /we need a viewSVG and an SVG object that extends base by the looks of things.
+        //we need a viewSVG and an SVG object that extends base by the looks of things.
         Wick.SVGFile.fromSVGFile(this.src, data => {
             var paperProject = new paper.Project(project.view.paper.view);
             var item = paperProject.importSVG(data, options.expandShapes = true);
