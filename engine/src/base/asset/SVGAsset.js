@@ -91,7 +91,7 @@ Wick.SVGAsset = class extends Wick.FileAsset {
         /**
          * Walks through the items tree creating the apprptiate wick object for each node
          * @param {Paper.Project} project - called when the Path is done loading.
-         * @param {Paper.Node} item - called when the Path is done loading.
+         * @param {Paper.Item} item - called when the Path is done loading.
          */
         @returns { Wick.Base }
 
@@ -110,7 +110,7 @@ Wick.SVGAsset = class extends Wick.FileAsset {
 
                 //There are two ways of adding children in wicks. some classes take addObjects other classes have addChild
                 var wickObjects = Wick.Base[];
-                node.children.forEach(childItem => {
+                item.children.forEach(childItem => {
                         if (wickItem instanceof Wick.Layer) {
                             wickItem.activeFrame.addChild(walkItems(childItem));
                         } else if (wickItem instanceof Wick.Clip) {
@@ -140,10 +140,10 @@ Wick.SVGAsset = class extends Wick.FileAsset {
 
             /**
              * Walks through the items tree creating the appropriate wick object for each node     
-             * @param {Paper.Node} item - called when the Path is done loading.
+             * @param {Paper.Item} item - called when the Path is done loading.
              */
             _breakAppartShapesRecursively(item) {
-                    node.applyMatrix = true;
+                    item.applyMatrix = true;
                     if (item instanceof paper.Group || item instanceof paper.Layer) {
                         item.children.forEach(childItem => {
                             _breakAppartShapesRecursively(childItem);
@@ -157,19 +157,19 @@ Wick.SVGAsset = class extends Wick.FileAsset {
                 /**
                  * Creates a new Wick SVG that uses this asset's data.
                  * @param {function} callback - called when the Path is done loading.
+                 * @param {Wick.Project} project
                  */
             createInstance(callback, project) {
                 // needs to take a base64 encoded string.
                 //we need a viewSVG and an SVG object that extends base by the looks of things.
                 Wick.SVGFile.fromSVGFile(this.src, data => {
-                    var paperProject = new paper.Project(project.view.paper.view);
+                    var paperProject = new paper.Project(project.view.paper.view); //will this do, it should really be an invisible temporary view. maybe an SVGView
                     var node = paperProject.importSVG(data, options.expandShapes = true);
                     // this shouldn't be needed because we set options.expandShapes = true
                     _breakAppartShapesRecursively(node)
                     wickItem = walkItems(project, node);
                     node.remove(); //do we actually need to do this
                     callback(wickItem);
-
                 });
             }
         }
