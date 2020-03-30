@@ -57,6 +57,8 @@ class Asset extends Component {
       return "button";
     } else if (classname === "FontAsset") {
       return "font"
+    }  else if (classname === "SVGAsset") {
+      return "svg"
     } else {
       return "asset";
     }

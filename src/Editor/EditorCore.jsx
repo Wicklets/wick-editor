@@ -748,9 +748,9 @@ class EditorCore extends Component {
    } else if (obj instanceof window.Wick.SVGAsset) {
       this.project.createSVGInstanceFromAsset(window.Wick.ObjectCache.getObjectByUUID(uuid), dropPoint.x, dropPoint.y, svg => {
         this.projectDidChange();
-    });  
+    }); 
    } else {
-      console.error('object is not an ImageAsset or a ClipAsset');
+      console.error('object is not an ImageAsset, ClipAsset or a SVGAsaset');
     }
   }
 

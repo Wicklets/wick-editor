@@ -46692,7 +46692,7 @@ Wick.WickFile = class {
     var assetsFolder = zip.folder("assets"); // Populate assets folder with files
 
     project.getAssets().filter(asset => {
-      return asset instanceof Wick.ImageAsset || asset instanceof Wick.SoundAsset || asset instanceof Wick.FontAsset || asset instanceof Wick.ClipAsset;
+      return asset instanceof Wick.ImageAsset || asset instanceof Wick.SoundAsset || asset instanceof Wick.FontAsset || asset instanceof Wick.ClipAsset || asset instanceof Wick.SVGAsset;
     }).forEach(asset => {
       // Create file from asset dataurl, add it to assets folder
       var fileExtension = asset.MIMEType.split('/')[1];
@@ -48389,7 +48389,7 @@ Wick.Project = class extends Wick.Base {
 
 
   get assets() {
-    return this.getChildren(['ImageAsset', 'SoundAsset', 'ClipAsset', 'FontAsset']);
+    return this.getChildren(['ImageAsset', 'SoundAsset', 'ClipAsset', 'FontAsset', 'SVGAsset']);
   }
   /**
    * Adds an asset to the project.
@@ -48645,6 +48645,7 @@ Wick.Project = class extends Wick.Base {
     let soundTypes = Wick.SoundAsset.getValidMIMETypes();
     let fontTypes = Wick.FontAsset.getValidMIMETypes();
     let clipTypes = Wick.ClipAsset.getValidMIMETypes(); // Fix missing mimetype for wickobj files
+    let svgTypes = Wick.SVGAsset.getValidMIMETypes(); // Fix missing mimetype for wickobj files
 
     var type = file.type;
 
@@ -48662,6 +48663,8 @@ Wick.Project = class extends Wick.Base {
       asset = new Wick.FontAsset();
     } else if (clipTypes.indexOf(type) !== -1) {
       asset = new Wick.ClipAsset();
+    } else if (svgTypes.indexOf(type) !== -1) {
+      asset = new Wick.SVGAsset();
     }
 
     if (asset === undefined) {
@@ -48674,6 +48677,8 @@ Wick.Project = class extends Wick.Base {
       console.log(fontTypes);
       console.warn('supported clip file types:');
       console.log(clipTypes);
+      console.warn('supported SVG file types:');
+      console.log(svgTypes);
       callback(null);
       return;
     }
@@ -51901,7 +51906,8 @@ Wick.FileAsset = class extends Wick.Asset {
     let soundTypes = Wick.SoundAsset.getValidMIMETypes();
     let fontTypes = Wick.FontAsset.getValidMIMETypes();
     let clipTypes = Wick.ClipAsset.getValidMIMETypes();
-    return imageTypes.concat(soundTypes).concat(fontTypes).concat(clipTypes);
+    let svgTypes = Wick.SVGAsset.getValidMIMETypes();
+    return imageTypes.concat(soundTypes).concat(fontTypes).concat(clipTypes).concat(svgTypes);
   }
   /**
    * Returns all valid extensions types for files which can be attempted to be
@@ -51915,7 +51921,8 @@ Wick.FileAsset = class extends Wick.Asset {
     let soundExtensions = Wick.SoundAsset.getValidExtensions();
     let fontExtensions = Wick.FontAsset.getValidExtensions();
     let clipExtensions = Wick.ClipAsset.getValidExtensions();
-    return imageExtensions.concat(soundExtensions).concat(fontExtensions).concat(clipExtensions);
+    let svgExtensions = Wick.SVGAsset.getValidExtensions();
+    return imageExtensions.concat(soundExtensions).concat(fontExtensions).concat(clipExtensions).concat(svgExtensions);
   }
   /**
    * Create a new FileAsset.
