@@ -32,10 +32,17 @@
   height: 60px;
 }
 
+.editor-settings-row {
+  height: 40px;
+  color: white;
+  margin-top: 4px; 
+}
+
 .editor-settings-color-containers-row {
   display: flex;
   flex: 1 1 auto;
   justify-content: space-between;
+  height: 30px;
 }
 
 .editor-settings-color-container {
@@ -43,6 +50,7 @@
   width: 50%;
   height: 100%;
   flex: 0 1 auto;
+  align-items: center;
   color: $editor-modal-text-gray;
   flex-direction: row;
   margin-left: 4px;
@@ -52,3 +60,8 @@
   font-size: 20px;
   color: $editor-modal-text-gray;
 }
+
+.editor-settings-group {
+  color: white;
+}
+

@@ -80,8 +80,8 @@ Wick.ToolSettings = class {
         }, {
             type: "choice",
             name: 'onionSkinStyle',
-            default: 'outlines',
-            options: ['full_color', 'outlines']
+            default: 'standard',
+            options: ['standard', 'outlines']
         }, {
             type: "number",
             name: 'onionSkinOutlineWidth',

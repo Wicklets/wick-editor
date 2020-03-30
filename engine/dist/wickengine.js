@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.3.27.16.4.44";
+var WICK_ENGINE_BUILD_VERSION = "2020.3.30.17.16.16";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -45585,8 +45585,8 @@ Wick.ToolSettings = class {
     }, {
       type: "choice",
       name: 'onionSkinStyle',
-      default: 'outlines',
-      options: ['full_color', 'outlines']
+      default: 'standard',
+      options: ['standard', 'outlines']
     }, {
       type: "number",
       name: 'onionSkinOutlineWidth',
@@ -60179,7 +60179,7 @@ Wick.View.Layer = class extends Wick.View {
     frame.view.pathsLayer.opacity = opacity;
     /**
      * The render style of the onion skinned frames.
-     * "full_color": Objects on onion skinned frames are rendered fully
+     * "standard": Objects on onion skinned frames are rendered fully
      * "outlines": Only the strokes of objects on onion skinned frames are rendered
      * @type {String}
      */

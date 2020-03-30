@@ -82,7 +82,7 @@ Wick.View.Layer = class extends Wick.View {
 
         /**
          * The render style of the onion skinned frames.
-         * "full_color": Objects on onion skinned frames are rendered fully
+         * "standard": Objects on onion skinned frames are rendered fully
          * "outlines": Only the strokes of objects on onion skinned frames are rendered
          * @type {String}
          */
