@@ -22,18 +22,18 @@ Wick.View.Frame = class extends Wick.View {
      * A multiplier for the resolution for the rasterization process.
      * E.g. a multiplier of 2 will make a path 100 pixels wide rasterize into an image 200 pixels wide.
      */
-    static get RASTERIZE_RESOLUTION_MODIFIER () {
+    static get RASTERIZE_RESOLUTION_MODIFIER() {
         return 1;
     }
 
-    static get RASTERIZE_RESOLUTION_MODIFIER_FOR_DEVICE () {
+    static get RASTERIZE_RESOLUTION_MODIFIER_FOR_DEVICE() {
         return Wick.View.Frame.RASTERIZE_RESOLUTION_MODIFIER / window.devicePixelRatio;
     }
 
     /**
      * Create a frame view.
      */
-    constructor () {
+    constructor() {
         super();
 
         this.clipsLayer = new this.paper.Layer();
@@ -46,7 +46,7 @@ Wick.View.Frame = class extends Wick.View {
     /**
      * Write the changes made to the view to the frame.
      */
-    applyChanges () {
+    applyChanges() {
         this._applyClipChanges();
         this._applyPathChanges();
     }
@@ -55,19 +55,19 @@ Wick.View.Frame = class extends Wick.View {
      * Import SVG data into the paper.js layer, and updates the Frame's json data.
      * @param {string} svg - the SVG data to parse and import.
      */
-    importSVG (svg) {
+    importSVG(svg) {
         var importedItem = this.pathsLayer.importSVG(svg);
         this._recursiveBreakApart(importedItem);
         this._applyPathChanges();
     }
 
-    render () {
+    render() {
         this._renderPaths();
         this._renderClips();
     }
 
-    _renderPaths (args) {
-        if(!args) args = {};
+    _renderPaths(args) {
+        if (!args) args = {};
 
         this.pathsLayer.data.wickUUID = this.model.uuid;
         this.pathsLayer.data.wickType = 'paths';
@@ -80,7 +80,7 @@ Wick.View.Frame = class extends Wick.View {
         });
     }
 
-    _renderClips () {
+    _renderClips() {
         this.clipsLayer.data.wickUUID = this.model.uuid;
         this.clipsLayer.data.wickType = 'clips';
 
@@ -92,7 +92,7 @@ Wick.View.Frame = class extends Wick.View {
         });
     }
 
-    _applyClipChanges () {
+    _applyClipChanges() {
         // Reorder clips
         var clips = this.model.clips.concat([]);
         clips.forEach(clip => {
@@ -118,7 +118,7 @@ Wick.View.Frame = class extends Wick.View {
         });
     }
 
-    _applyPathChanges () {
+    _applyPathChanges() {
         // NOTE:
         // This could be optimized by updating existing paths instead of completely clearing the frame children.
 
@@ -141,7 +141,7 @@ Wick.View.Frame = class extends Wick.View {
         }).forEach(child => {
             var originalWickPath = child.data.wickUUID ? Wick.ObjectCache.getObjectByUUID(child.data.wickUUID) : null;
             var pathJSON = Wick.View.Path.exportJSON(child);
-            var wickPath = new Wick.Path({json:pathJSON});
+            var wickPath = new Wick.Path({ json: pathJSON });
             this.model.addPath(wickPath);
             wickPath.fontWeight = originalWickPath ? originalWickPath.fontWeight : 400;
             wickPath.fontStyle = originalWickPath ? originalWickPath.fontStyle : 'normal';
@@ -151,16 +151,16 @@ Wick.View.Frame = class extends Wick.View {
     }
 
     // Helper function for SVG import (paper.js imports SVGs as one big group.)
-    _recursiveBreakApart (item) {
+    _recursiveBreakApart(item) {
         item.applyMatrix = true;
 
-        if(item instanceof paper.Shape) {
+        if (item instanceof paper.Shape) {
             var path = item.toPath();
             item.parent.addChild(path);
             item.remove();
         }
-
-        if(item instanceof paper.Group) {
+        //I think  paper.Group should be a clip and not add it's children to the parent
+        if (item instanceof paper.Group) {
             var children = item.removeChildren();
             item.parent.addChildren(children);
             item.remove();
@@ -169,5 +169,6 @@ Wick.View.Frame = class extends Wick.View {
                 this._recursiveBreakApart(child);
             });
         }
+        //TODO: Layers
     }
 }
