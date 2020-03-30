@@ -100,75 +100,69 @@ Wick.SVGAsset = class extends Wick.FileAsset {
         // 'Group', 'Layer', 'Path', 'CompoundPath', 'Shape', 'Raster', 'SymbolItem', 'PointText'
         // I think path automatically handles this, but maybe not layer or group
         var wickItem = NULL;
-
-        if (item.classname instanceof paper.Group || item instanceof paper.Layer) {
-            if (item instanceof paper.Group) {
-                wickItem = new Wick.Clip()
-            } else if (item instanceof paper.Layer) { // this is always going to be a layer if it's ot a group but put the if in for compleatness
-                wickItem = new Wick.Layer()
-            }
-
-            //There are two ways of adding children in wicks. some classes take addObjects other classes have addChild
-            if (wickItem instanceof Wick.Layer) {
-                item.children.forEach(childItem => {
-                        wickItem.activeFrame.addChild(walkItems(childItem));
-                    })
-                    // If we've just added a layer set it to be the active layer
-                project.timeline.activeLayerIndex = project.timeline.layers.count - 1;
-            } else if (wickItem instanceof Wick.Clip) {
-                var wickObjects = Wick.Base[];
-                item.children.forEach(childItem => {
-                    wickObjects.addChild(walkItems(childItem));
-                })
-                wickItem.addObjects(wickObjects);
-            }
-        }
-        //add the layer or the clip to the project
-        project.addObject(wickItem);
-
-    } else
-    if (node instanceof paper.Shape) {
-        //TODO: Throw an error saying to call _breakAppartShapesRecursivly because this should never happen
-    } else {
-        wickItem = new Wick.Path({
-            json: node.exportJSON();
-        })
-    }
-    return wickItem;
-}
-
-/**
- * Walks through the items tree creating the appropriate wick object for each node
- * @param {Paper.Item} item - the item to turn into paths
- */
-_breakAppartShapesRecursively(item) {
-        item.applyMatrix = true;
-        if (item instanceof paper.Group || item instanceof paper.Layer) {
+        //There are two ways of adding children in wicks. some classes take addObjects other classes have addChild
+        // Groups (clips) and layers do this differently so they must be handled separately
+        if (item instanceof paper.Group) {
+            wickItem = new Wick.Clip();
+            var wickObjects = Wick.Base[];
             item.children.forEach(childItem => {
-                _breakAppartShapesRecursively(childItem);
+                wickObjects.addChild(walkItems(childItem));
+            });
+            wickItem.addObjects(wickObjects);
+            //add the clip  to the project
+            project.addObject(wickItem);
+        } else if (item instanceof paper.Layer) {
+            wickItem = new Wick.Layer();
+            item.children.forEach(childItem => {
+                wickItem.activeFrame.addChild(walkItems(childItem));
+            });
+            // If we've just added a layer set it to be the active layer
+            project.timeline.activeLayerIndex = project.timeline.layers.count - 1;
+            //add the layer  to the project
+            project.addObject(wickItem);
+        } else if (item instanceof paper.Shape) {
+            //TODO: Throw an error saying to call _breakAppartShapesRecursivly because this should never happen
+        } else {
+            //'Path', 'CompoundPath', 'Raster', 'SymbolItem', 'PointText' all handled by Path which takes the loaded paper object expressed as JSON to load
+            wickItem = new Wick.Path({
+                json: item.exportJSON();
             })
-        } else if (item instanceof paper.Shape) { //This should have been done automatically by the import options, spo shouldn't be needed
-            var path = item.toPath();
-            item.parent.addChild(path);
-            item.remove();
         }
+        return wickItem;
     }
+
     /**
-     * Creates a new Wick SVG that uses this asset's data.
-     * @param {function} callback - called when the SVG is done loading.
-     * @param {Wick.Project} project
+     * Walks through the items tree creating the appropriate wick object for each node
+     * @param {Paper.Item} item - the item to turn into paths
      */
-createInstance(callback, project) {
-    // needs to take a base64 encoded string.
-    //we need a viewSVG and an SVG object that extends base by the looks of things.
-    Wick.SVGFile.fromSVGFile(this.src, data => {
-        var paperProject = new paper.Project(project.view.paper.view); //will this do, it should really be an invisible temporary view. maybe an SVGView
-        var node = paperProject.importSVG(data, options.expandShapes = true);
-        // this shouldn't be needed because we set options.expandShapes = true
-        _breakAppartShapesRecursively(node)
-        wickItem = walkItems(project, node);
-        node.remove(); //do we actually need to do this
-        callback(wickItem);
-    });
-}
+    _breakAppartShapesRecursively(item) {
+            item.applyMatrix = true;
+            if (item instanceof paper.Group || item instanceof paper.Layer) {
+                item.children.forEach(childItem => {
+                    _breakAppartShapesRecursively(childItem);
+                })
+            } else if (item instanceof paper.Shape) { //This should have been done automatically by the import options, spo shouldn't be needed
+                var path = item.toPath();
+                item.parent.addChild(path);
+                item.remove();
+            }
+        }
+        /**
+         * Creates a new Wick SVG that uses this asset's data.
+         * @param {function} callback - called when the SVG is done loading.
+         * @param {Wick.Project} project
+         */
+    createInstance(callback, project) {
+        // needs to take a base64 encoded string.
+        //we need a viewSVG and an SVG object that extends base by the looks of things.
+        Wick.SVGFile.fromSVGFile(this.src, data => {
+            var paperProject = new paper.Project(project.view.paper.view); //will this do, it should really be an invisible temporary view. maybe an SVGView
+            var node = paperProject.importSVG(data, options.expandShapes = true);
+            // this shouldn't be needed because we set options.expandShapes = true
+            _breakAppartShapesRecursively(node)
+            wickItem = walkItems(project, node);
+            node.remove(); //do we actually need to do this
+            callback(wickItem);
+        });
+    }
 }
