@@ -107,6 +107,7 @@ class ModalHandler extends Component {
           lastColorsUsed={this.props.lastColorsUsed}
           getToolSetting={this.props.getToolSetting}
           setToolSetting={this.props.setToolSetting}
+          getToolSettingRestrictions={this.props.getToolSettingRestrictions}
         />
         <BuiltinLibrary
           openModal={this.props.openModal}

@@ -37,41 +37,54 @@ class EditorSettings extends Component {
     return (
       <div className="editor-settings-modal-body">
         <div className="editor-settings-group">
-          <div className="editor-settings-group-title">Onion Skinning Colors</div>
-
-          <div className="editor-settings-color-containers-row">
-            <div className="editor-settings-color-container">
-              B: 
-
-              <WickInput
-              type="color"
-              id="editor-settings-backward-color-picker"
-              disableAlpha={true}
-              placement={'bottom'}
-              color={this.props.getToolSetting('backwardOnionSkinTint').rgba}
-              onChange={(color) => {this.props.setToolSetting('backwardOnionSkinTint', new window.Wick.Color(color))}}
-              colorPickerType={this.props.colorPickerType}
-              changeColorPickerType={this.props.changeColorPickerType}
-              updateLastColors={this.props.updateLastColors}
-              lastColorsUsed={this.props.lastColorsUsed} />
-            </div>
-
-            <div className="editor-settings-color-container">
-              F:
-
-              <WickInput
-              type="color"
-              id="editor-settings-forward-color-picker"
-              disableAlpha={true}
-              placement={'bottom'}
-              color={this.props.getToolSetting('forwardOnionSkinTint').rgba}
-              onChange={(color) => {this.props.setToolSetting('forwardOnionSkinTint', new window.Wick.Color(color))}}
-              colorPickerType={this.props.colorPickerType}
-              changeColorPickerType={this.props.changeColorPickerType}
-              updateLastColors={this.props.updateLastColors}
-              lastColorsUsed={this.props.lastColorsUsed} />
-            </div>
+          <div className="editor-settings-group-title">Onion Skinning</div>
+          <div className="editor-settings-row">
+            Style:
+            <WickInput
+              type="select"
+              id="editor-settings-onion-skinning-type"
+              value={this.props.getToolSetting('onionSkinStyle')}
+              options={this.props.getToolSettingRestrictions('onionSkinStyle').options}
+              onChange={(val) => {this.props.setToolSetting('onionSkinStyle', val.value)}}/>
           </div>
+
+          {
+            this.props.getToolSetting('onionSkinStyle') === 'outlines' &&
+            <div className="editor-settings-color-containers-row">
+              <div className="editor-settings-color-container">
+                B: 
+
+                <WickInput
+                type="color"
+                id="editor-settings-backward-color-picker"
+                disableAlpha={true}
+                placement={'bottom'}
+                color={this.props.getToolSetting('backwardOnionSkinTint').rgba}
+                onChange={(color) => {this.props.setToolSetting('backwardOnionSkinTint', new window.Wick.Color(color))}}
+                colorPickerType={this.props.colorPickerType}
+                changeColorPickerType={this.props.changeColorPickerType}
+                updateLastColors={this.props.updateLastColors}
+                lastColorsUsed={this.props.lastColorsUsed} />
+              </div>
+
+              <div className="editor-settings-color-container">
+                F:
+
+                <WickInput
+                type="color"
+                id="editor-settings-forward-color-picker"
+                disableAlpha={true}
+                placement={'bottom'}
+                color={this.props.getToolSetting('forwardOnionSkinTint').rgba}
+                onChange={(color) => {this.props.setToolSetting('forwardOnionSkinTint', new window.Wick.Color(color))}}
+                colorPickerType={this.props.colorPickerType}
+                changeColorPickerType={this.props.changeColorPickerType}
+                updateLastColors={this.props.updateLastColors}
+                lastColorsUsed={this.props.lastColorsUsed} />
+              </div>
+            </div>
+          }
+          
         </div>
       </div>
     )

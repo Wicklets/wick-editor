@@ -77,7 +77,8 @@ class SettingsModal extends Component {
               updateLastColors={this.props.updateLastColors}
               lastColorsUsed={this.props.lastColorsUsed}
               getToolSetting={this.props.getToolSetting}
-              setToolSetting={this.props.setToolSetting}/>
+              setToolSetting={this.props.setToolSetting}
+              getToolSettingRestrictions={this.props.getToolSettingRestrictions}/>
             />
           </TabbedInterface>
         </div>

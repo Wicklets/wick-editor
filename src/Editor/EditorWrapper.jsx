@@ -88,6 +88,7 @@ import ModalHandler from './Modals/ModalHandler/ModalHandler';
                         editorVersion={this.props.editor.editorVersion}
                         getToolSetting={this.props.editor.getToolSetting}
                         setToolSetting={this.props.editor.setToolSetting}
+                        getToolSettingRestrictions={this.props.editor.getToolSettingRestrictions}
                         />
                 {this.props.children}
                 </div>
