@@ -540,6 +540,7 @@ Wick.Project = class extends Wick.Base {
         let soundTypes = Wick.SoundAsset.getValidMIMETypes();
         let fontTypes = Wick.FontAsset.getValidMIMETypes();
         let clipTypes = Wick.ClipAsset.getValidMIMETypes();
+        let svgTypes = Wick.SVGAsset.getValidMIMETypes();
 
         // Fix missing mimetype for wickobj files
         var type = file.type;
@@ -556,6 +557,8 @@ Wick.Project = class extends Wick.Base {
             asset = new Wick.FontAsset();
         } else if (clipTypes.indexOf(type) !== -1) {
             asset = new Wick.ClipAsset();
+        } else if (svgTypes.indexOf(type) !== -1) {
+            asset = new Wick.SVGAsset();
         }
 
         if (asset === undefined) {
