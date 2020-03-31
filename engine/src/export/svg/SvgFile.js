@@ -35,15 +35,32 @@ Wick.SVGFile = class {
         //var fr = new FileReader();
         //load the SVG, converting objexts to paths
         // Convert to blob if needed
+
+        //var para = window.document.createElement("P"); // Create a <p> element
+        //para.innerText = "svgFile.classname " + '\n' + typeof svgFile + '\n'; // Insert text
+        //window.document.body.appendChild(para); // Appe
+
         if (typeof svgFile === 'string') {
+            //para = window.document.createElement("P"); // Create a <p> element
+            //para.innerText = "svgFile" + '\n' + svgFile + '\n'; // Insert text
+            //window.document.body.appendChild(para); // Append <p> to <body>
             svgFile = Wick.ExportUtils.dataURItoBlob(svgFile);
+            //para = window.document.createElement("P"); // Create a <p> element
+            //para.innerText = "svgFile" + '\n' + svgFile + '\n'; // Insert text
+            //window.document.body.appendChild(para); // Append <p> to <body>
         }
+
 
         var fr = new FileReader();
 
-        fr.onload = () => {
-            console.error(fr.result);
+        fr.onload = function() {
+            //para = window.document.createElement("div"); // Create a <p> element
+            // para.innerText = "result1" + '\n' + fr.result + '\n'; // Insert text
+            //window.document.body.appendChild(para); //
             callback(fr.result);
+            //para = window.document.createElement("div"); // Create a <p> element
+            //para.innerText = "result1" + '\n' + fr.result + '\n'; // Insert text
+            //window.document.body.appendChild(para); //
         };
 
         fr.readAsText(svgFile);

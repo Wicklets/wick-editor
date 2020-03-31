@@ -90,59 +90,58 @@ Wick.SVGAsset = class extends Wick.FileAsset {
     }
 
     /**
-     * Walks through the items tree creating the apprptiate wick object for each node
-     * @param {Paper.Project} project - called when the Path is done loading.
-     * @param {Paper.Item} item - called when the Path is done loading.
+     * Walks through the items tree creating the apprptiate wick object for each node*
+     * @param {paper.Item} item - called when the Path is done loading.
      * @returns {Wick.Base}
      */
-    walkItems(project, item) {
+    walkItems(item) {
             // create paths for all the path items, this also needs to be done for the following item.className=:
             // 'Group', 'Layer', 'Path', 'CompoundPath', 'Shape', 'Raster', 'SymbolItem', 'PointText'
             // I think path automatically handles this, but maybe not layer or group
-            var wickItem = NULL;
-            console.error("Walk items"); //There are two ways of adding children in wicks. some classes take addObjects other classes have addChild
-            // Groups (clips) and layers do this differently so they must be handled separately
+            var wickItem = null;
+			    // Groups (clips) and layers do this differently so they must be handled separately
 
-            if (item instanceof paper.Group) {
+			    if (item instanceof paper.Layer) {
+      				wickItem = new Wick.Layer();
+ 			      // If we've just added a layer set it to be the active layer
+
+			      //TODO: Find out how multiple layers are handled
+					var frame = new Wick.Frame();
+					wickItem.addFrame(frame);
+			    	item.children.forEach(childItem => {
+			        	var wickChildItem = this.walkItems(childItem);
+
+			        if (wickChildItem instanceof Wick.Clip) {
+			          frame.addClip(wickChildItem);
+			        } else if (wickChildItem instanceof Wick.Path) {
+
+			          frame.addPath(wickChildItem);
+			        } else if (wickChildItem instanceof Wick.Layer) {
+
+			          console.error("SVG Import: Error importing, nested layers.ignoring."); // Insert text
+
+			        } else {
+
+			          console.error("SVG Import: Unknown item type.".concat(wickChildItem.classname)); // Insert text
+
+			        }
+      			});
+           } else if (item instanceof paper.Group) {
                 wickItem = new Wick.Clip();
-                console.error("SVG Import: Adding a clip.");
+
                 var wickObjects = [];
                 item.children.forEach(childItem => {
                     ///This should be clips and paths not layers
-                    var walkItem = walkItems(childItem);
+                    var walkItem = this.walkItems(childItem);
 
                     if (walkItem instanceof Wick.Layer) {
-                        console.error("SVG Import: Clip has a child that is a layer, this should never happen. ignoring.");
+						console.error("SVG Import: Clip has a child that is a layer, this should never happen. ignoring."); // Insert text
                     } else {
                         wickObjects.push(walkItem);
-                        console.error("SVG Import: Adding a child to the clip.".concat(walkItem.classname));
                     }
                 });
                 wickItem.addObjects(wickObjects); //add the clip  to the project
-                //project.addObject(wickItem);
-            } else if (item instanceof paper.Layer) {
-                wickItem = new Wick.Layer();
-                console.error("SVG Import: Adding a layer."); //do we do project.addObject or project.timeline.addLayer for correctness, we have to adjust the active layer on the timeline anyhow
-                //project.addObject(wickItem);
-                // If we've just added a layer set it to be the active layer
-                //project.timeline.activeLayerIndex = project.timeline.layers.count - 1;
-                //TODO: Find out how multiple layers are handled
 
-                item.children.forEach(childItem => {
-                    wickChildItem = walkItems(childItem);
-
-                    if (wickChildItem instanceof Wick.Clip) {
-                        console.error("SVG Import: Adding a clip to the layer.");
-                        wickItem.activeFrame.addClip(wickChildItem);
-                    } else if (wickChildItem instanceof Wick.Path) {
-                        console.error("SVG Import: Adding a path to the layer.");
-                        wickItem.activeFrame.addPath(wickChildItem);
-                    } else if (wickChildItem instanceof Wick.Layer) {
-                        console.error("SVG Import: Error importing, nested layers.ignoring.");
-                    } else {
-                        console.error("SVG Import: Unknown item type.".concat(wickChildItem.classname));
-                    }
-                });
             } else if (item instanceof paper.Shape) {
                 console.error("SVG Import: Item is an instance of a shape. This should never happen as all shapes should be converted to paths when we call paperProject.importSVG(data, options.expandShapes = true);");
             } else {
@@ -150,7 +149,6 @@ Wick.SVGAsset = class extends Wick.FileAsset {
                 wickItem = new Wick.Path({
                     json: item.exportJSON()
                 });
-                console.error("SVG Import: New Path.");
             }
 
             return wickItem;
@@ -182,30 +180,49 @@ Wick.SVGAsset = class extends Wick.FileAsset {
     createInstance(callback) {
         // needs to take a base64 encoded string.
         //we need a viewSVG and an SVG object that extends base by the looks of things.
-        console.log("createInstancelog");
-        console.warn("createInstancewarn");
-        console.error("createInstance");
-        console.error("Wick.SVGFile.fromSVGFile", this.src);
-        Wick.SVGFile.fromSVGFile(this.src, data => {
+/*
+        var myPath = new paper.Path();
+		myPath.strokeColor = 'black';
+		myPath.add(new paper.Point(0, 0));
+		myPath.add(new paper.Point(100, 50));
+		var anItem = this.walkItems(myPath);
+		this.project.addObject(anItem);
+		var myLayer = new paper.Layer();
+		var secondPath = new paper.Path.Circle(new paper.Point(150, 50), 35);
+		secondPath.fillColor = 'green';
+		var aLayer = this.walkItems(myLayer);
+		this.project.addObject(aLayer);
 
-            var paperScope = new paper.PaperScope(); // Create dummy paper.js instance so we can access paper classes
 
-            var canvas = window.document.createElement('canvas');
+		// Create two circle shaped paths:
+		var firstPath = new paper.Path.Circle(new paper.Point(80, 50), 35);
+		var secondPath = new paper.Path.Circle(new paper.Point(120, 50), 35);
+		var group = new paper.Group([firstPath, secondPath]);
+		// Change the fill color of the items contained within the group:
+		group.style = {
+			fillColor: 'red',
+			strokeColor: 'black'
+		};
+		var agroup = this.walkItems(group);
+		this.project.addObject(agroup);
 
-            paperScope.setup(canvas);
+*/
 
-            var paperProject = paperScope.Project; //new paper.Project(this.project.view.paper.view); //will this do, it should really be an invisible temporary view. maybe an SVGView
 
-            var item = paperProject.importSVG(data, options.expandShapes = true); // this shouldn't be needed because we set options.expandShapes = true
-            //_breakAppartShapesRecursively(item)
 
-            wickItem = walkItems(this.project, item); //node.remove(); //do we actually need to do this
+        var importSVG = function(data) {
 
-            project.addAsset(this);
-            paperScope.view.update();
+            var item = paper.project.importSVG(data, { expandShapes: true });
+
+            var wickItem = this.walkItems(item);
+
+            this.project.addObject(wickItem);
+            this.project.addAsset(this);
             this.project.view.paper.view.update();
             callback(wickItem);
-        });
+
+        }
+        Wick.SVGFile.fromSVGFile(this.src, importSVG);
     }
 
 };

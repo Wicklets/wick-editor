@@ -66,6 +66,7 @@ gulp.task("default", function() {
             'src/export/wick/WickFile.js',
             'src/export/wick/WickFile.Alpha.js',
             'src/export/wickobj/WickObjectFile.js',
+            'src/export/svg/SVGFile.js',
             'src/export/html/HTMLExport.js',
             'src/export/html/HTMLPreview.js',
             'src/export/image/ImageSequence.js',
