@@ -199,14 +199,51 @@ class KeyboardShortcuts extends Component {
 
   // Initiate custom hotkey change locally.
   changeKey = (actionName, sequenceIndex, sequence) => {
+    let actions = [];
+
+    let keyCommand = sequence.id.toLowerCase();
+
     let newAction = {
       actionName: actionName, 
       index: sequenceIndex,
-      sequence: sequence.id,
+      sequence: keyCommand,
     }
 
+    actions.push(newAction);
+
+    // Check if we have overwritten any previous keys and make that change. Remove duplicates if they exist.
+    Object.keys(this.props.keyMap).forEach(key => {
+      let action = this.props.keyMap[key];
+
+      if (action.sequences && action.sequences.length > 0) {
+        if ((typeof action.sequences[0] === "string") && action.sequences[0].toLowerCase() === keyCommand) {
+          // Remove Sequence
+          let act1 = {
+            actionName: key, 
+            index: 0,
+            sequence: "",
+          }
+
+          actions.push(act1);
+        } else if (action.sequences && action.sequences.length > 1) {
+          if ((typeof action.sequences[1] === "string") && action.sequences[1].toLowerCase() === keyCommand) {
+            // Remove Sequence
+            let act2 = {
+              actionName: key, 
+              index: 1,
+              sequence: "",
+            }
+  
+            actions.push(act2);
+          }
+        }
+      }
+    })
+
+
+
     this.setState(prevState => ({
-        newActions: prevState.newActions.concat([newAction])
+        newActions: prevState.newActions.concat(actions)
       })
     )
 
