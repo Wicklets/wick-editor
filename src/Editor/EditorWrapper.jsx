@@ -86,7 +86,8 @@ import ModalHandler from './Modals/ModalHandler/ModalHandler';
                         updateLastColors={this.props.editor.updateLastColors}
                         lastColorsUsed={this.props.editor.state.lastColorsUsed}
                         editorVersion={this.props.editor.editorVersion} 
-                        toast={this.props.editor.toast}/>
+                        toast={this.props.editor.toast}
+                        createCombinedHotKeyMap={this.props.editor.createCombinedHotKeyMap}/>
 
                 {this.props.children}
                 </div>

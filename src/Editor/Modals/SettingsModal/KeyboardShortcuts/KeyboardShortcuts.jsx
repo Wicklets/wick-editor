@@ -226,7 +226,6 @@ class KeyboardShortcuts extends Component {
           }
 
           actions.push(act);
-
           this.props.toast('Key Command Overwritten: ' + action.name +'. Please reset this key command.', 'warning');
         }
 
@@ -234,12 +233,21 @@ class KeyboardShortcuts extends Component {
       });
     })
 
+    // Check if this sequence will override a newly added sequence.
+    let newActionsArray = this.state.newActions.concat([]);
+    for (var i=0; i<newActionsArray.length; i++) {
+      let action = newActionsArray[i];
+      if (action.sequence === keyCommand) {
+        
+        newActionsArray.splice(i, 1);
+        this.props.toast('Key Command Overwritten: ' + action.name +'. Please reset this key command.', 'warning');
+        break;
+      }
+    }
 
-
-    this.setState(prevState => ({
-        newActions: prevState.newActions.concat(actions)
-      })
-    )
+    this.setState({
+      newActions: newActionsArray.concat(actions), 
+    });
 
     this.stopEditingKey();
   } 

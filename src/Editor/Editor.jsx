@@ -649,9 +649,16 @@ class Editor extends EditorCore {
     return keyObj;
   }
 
+  /**
+   * Creates a combined key map from a key map object and key array .
+   */
+  createCombinedHotKeyMap = (hotKeyMap, hotKeyArray) => {
+    return this.combineHotKeys(hotKeyMap, hotKeyArray);
+  }
+
   // Expects array of hotkey objects
   addCustomHotKeys = (newHotKeys) => {
-    let combined = this.combineHotKeys(this.state.customHotKeys, this.convertHotkeyArray(newHotKeys));
+    let combined = this.createCombinedHotKeyMap(this.state.customHotKeys, newHotKeys);
 
     this.syncHotKeys(combined);
   }

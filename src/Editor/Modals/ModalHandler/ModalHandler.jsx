@@ -106,6 +106,7 @@ class ModalHandler extends Component {
           updateLastColors={this.props.updateLastColors}
           lastColorsUsed={this.props.lastColorsUsed}
           toast={this.props.toast}
+          createCombinedHotKeyMap={this.props.createCombinedHotKeyMap}
         />
         <BuiltinLibrary
           openModal={this.props.openModal}

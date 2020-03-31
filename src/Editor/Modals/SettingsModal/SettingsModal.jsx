@@ -70,7 +70,8 @@ class SettingsModal extends Component {
               customHotKeys={this.props.customHotKeys}
               keyMap={this.props.keyMap}
               keyMapGroups={this.props.keyMapGroups}
-              toast={this.props.toast} />
+              toast={this.props.toast} 
+              createCombinedHotKeyMap={this.props.createCombinedHotKeyMap}/>
           </TabbedInterface>
         </div>
       </WickModal>
