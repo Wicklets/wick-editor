@@ -215,29 +215,23 @@ class KeyboardShortcuts extends Component {
     Object.keys(this.props.keyMap).forEach(key => {
       let action = this.props.keyMap[key];
 
-      if (action.sequences && action.sequences.length > 0) {
-        if ((typeof action.sequences[0] === "string") && action.sequences[0].toLowerCase() === keyCommand) {
+      let index = 0;
+      action.sequences.forEach(seq => {
+        if (typeof seq === "string" && seq.toLowerCase() === keyCommand) {
           // Remove Sequence
-          let act1 = {
+          let act = {
             actionName: key, 
-            index: 0,
+            index: index,
             sequence: "",
           }
 
-          actions.push(act1);
-        } else if (action.sequences && action.sequences.length > 1) {
-          if ((typeof action.sequences[1] === "string") && action.sequences[1].toLowerCase() === keyCommand) {
-            // Remove Sequence
-            let act2 = {
-              actionName: key, 
-              index: 1,
-              sequence: "",
-            }
-  
-            actions.push(act2);
-          }
+          actions.push(act);
+
+          this.props.toast('Key Command Overwritten: ' + action.name +'. Please reset this key command.', 'warning');
         }
-      }
+
+        index += 1;
+      });
     })
 
 

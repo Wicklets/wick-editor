@@ -69,7 +69,8 @@ class SettingsModal extends Component {
               resetCustomHotKeys={this.props.resetCustomHotKeys}
               customHotKeys={this.props.customHotKeys}
               keyMap={this.props.keyMap}
-              keyMapGroups={this.props.keyMapGroups} />
+              keyMapGroups={this.props.keyMapGroups}
+              toast={this.props.toast} />
           </TabbedInterface>
         </div>
       </WickModal>

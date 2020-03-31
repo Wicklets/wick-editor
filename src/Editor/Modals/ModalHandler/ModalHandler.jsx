@@ -105,6 +105,7 @@ class ModalHandler extends Component {
           changeColorPickerType={this.props.changeColorPickerType}
           updateLastColors={this.props.updateLastColors}
           lastColorsUsed={this.props.lastColorsUsed}
+          toast={this.props.toast}
         />
         <BuiltinLibrary
           openModal={this.props.openModal}

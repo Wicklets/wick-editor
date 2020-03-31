@@ -85,7 +85,8 @@ import ModalHandler from './Modals/ModalHandler/ModalHandler';
                         changeColorPickerType={this.props.editor.changeColorPickerType}
                         updateLastColors={this.props.editor.updateLastColors}
                         lastColorsUsed={this.props.editor.state.lastColorsUsed}
-                        editorVersion={this.props.editor.editorVersion} />
+                        editorVersion={this.props.editor.editorVersion} 
+                        toast={this.props.editor.toast}/>
 
                 {this.props.children}
                 </div>
