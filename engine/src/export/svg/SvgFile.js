@@ -20,23 +20,33 @@
 /**
  * Utility class for creating and parsing wickobject files.
  */
-Wick.SvgFile = class {
+Wick.SVGFile = class {
     /**
      * Create a project from a wick file.
-     * @param {Blob | string} wickObjectFile - WickObject file containing object data (can be a Blob or a dataURL string)
+     * @param {Blob | string} svgFile - WickObject file containing object data (can be a Blob or a dataURL string)
      * @param {function} callback - Function called when the object is done being loaded
      */
-    static fromSvgFile (svgFile, callback) {
+    static fromSVGFile(svgFile, callback) {
         // Convert to blob if needed
         //if(typeof svgFile === 'string') {
         //    svgFile = Wick.ExportUtils.dataURItoBlob(svgFile);
         //}
 
         //var fr = new FileReader();
-		//load the SVG, converting objexts to paths
-        var item = paper.project.importSVG(svgFile, options.expandShapes = true, options.onLoad=(var item, var svg) => {
-            callback(svg);
-        });
+        //load the SVG, converting objexts to paths
+        // Convert to blob if needed
+        if (typeof svgFile === 'string') {
+            svgFile = Wick.ExportUtils.dataURItoBlob(svgFile);
+        }
+
+        var fr = new FileReader();
+
+        fr.onload = () => {
+            console.error(fr.result);
+            callback(fr.result);
+        };
+
+        fr.readAsText(svgFile);
         //enumbertae all the paths that have been loaded, exporting as JSON and then that being used to creating a new wicks path for every item... also need to deal with asasets
 
 
@@ -47,14 +57,14 @@ Wick.SvgFile = class {
      * @param {Wick.Project} clip - the clip to create a wickobject file from
      * @param {string} format - Can be 'blob' or 'dataurl'.
      */
-    static toSvgFile (clip, format, callback) {
-        if(!format) format = 'blob';
+    static toSVGFile(clip, format, callback) {
+        if (!format) format = 'blob';
 
         var data = clip.export();
         var json = JSON.stringify(data);
-        var blob = new Blob([json], {type: "application/json"});
+        var blob = new Blob([json], { type: "application/json" });
 
-        if(format === 'blob') {
+        if (format === 'blob') {
             callback(blob);
         } else if (format === 'dataurl') {
             var fr = new FileReader();

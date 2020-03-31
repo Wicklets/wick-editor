@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.2.11";
+var WICK_ENGINE_BUILD_VERSION = "2020.3.31";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -46903,6 +46903,85 @@ Wick.WickFile.Alpha = class {
 /**
  * Utility class for creating and parsing wickobject files.
  */
+Wick.SVGFile = class {
+    /**
+     * Create a project from a wick file.
+     * @param {Blob | string} svgFile - WickObject file containing object data (can be a Blob or a dataURL string)
+     * @param {function} callback - Function called when the object is done being loaded
+     */
+    static fromSVGFile(svgFile, callback) {
+        // Convert to blob if needed
+        //if(typeof svgFile === 'string') {
+        //    svgFile = Wick.ExportUtils.dataURItoBlob(svgFile);
+        //}
+
+        //var fr = new FileReader();
+        //load the SVG, converting objexts to paths
+        // Convert to blob if needed
+        if (typeof svgFile === 'string') {
+            svgFile = Wick.ExportUtils.dataURItoBlob(svgFile);
+        }
+
+        var fr = new FileReader();
+
+        fr.onload = () => {
+            console.error(fr.result);
+            callback(fr.result);
+        };
+
+        fr.readAsText(svgFile);
+        //enumbertae all the paths that have been loaded, exporting as JSON and then that being used to creating a new wicks path for every item... also need to deal with asasets
+
+
+    }
+
+    /**
+     * Create a wick file from the project.
+     * @param {Wick.Project} clip - the clip to create a wickobject file from
+     * @param {string} format - Can be 'blob' or 'dataurl'.
+     */
+    static toSVGFile(clip, format, callback) {
+        if (!format) format = 'blob';
+
+        var data = clip.export();
+        var json = JSON.stringify(data);
+        var blob = new Blob([json], { type: "application/json" });
+
+        if (format === 'blob') {
+            callback(blob);
+        } else if (format === 'dataurl') {
+            var fr = new FileReader();
+            fr.onload = function(e) {
+                callback(e.target.result);
+            };
+            fr.readAsDataURL(blob);
+        } else {
+            console.error('toWickObjectFile: invalid format: ' + format);
+        }
+    }
+}
+/*
+ * Copyright 2019 WICKLETS LLC
+ *
+ * This file is part of Wick Engine.
+ *
+ * Wick Engine is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Wick Engine is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+/**
+ * Utility class for creating and parsing wickobject files.
+ */
 Wick.WickObjectFile = class {
   /**
    * Create a project from a wick file.
@@ -47181,10 +47260,10 @@ Wick.ZIPExport = class {
  * You should have received a copy of the GNU General Public License
  * along with Wick Engine.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 /**
  * The base class for all objects within the Wick Engine.
  */
+
 Wick.Base = class {
   /**
    * Creates a Base object.
@@ -48644,7 +48723,7 @@ Wick.Project = class extends Wick.Base {
     let imageTypes = Wick.ImageAsset.getValidMIMETypes();
     let soundTypes = Wick.SoundAsset.getValidMIMETypes();
     let fontTypes = Wick.FontAsset.getValidMIMETypes();
-    let clipTypes = Wick.ClipAsset.getValidMIMETypes(); // Fix missing mimetype for wickobj files
+    let clipTypes = Wick.ClipAsset.getValidMIMETypes();
     let svgTypes = Wick.SVGAsset.getValidMIMETypes(); // Fix missing mimetype for wickobj files
 
     var type = file.type;
@@ -49014,6 +49093,23 @@ Wick.Project = class extends Wick.Base {
     });
   }
   /**
+   * Adds an instance of a clip asset to the active frame.
+   * @param {Wick.Asset} asset - the asset to create the SVG file instance from
+   * @param {number} x - the x position to import the SVG file at
+   * @param {number} y - the y position to import the SVG file at
+   * @param {function} callback - the function to call after the path is created.
+   */
+
+
+  createSVGInstanceFromAsset(asset, x, y, callback) {
+    asset.createInstance(svg => {
+      this.addObject(svg);
+      svg.x = x;
+      svg.y = y;
+      callback(svg);
+    });
+  }
+  /**
    * Creates a symbol from the objects currently selected.
    * @param {string} identifier - the identifier to give the new symbol
    * @param {string} type - "Clip" or "Button"
@@ -49045,23 +49141,6 @@ Wick.Project = class extends Wick.Base {
     this.selection.clear();
     this.selection.select(clip);
   }
-
-	/**
-	 * Adds an instance of a clip asset to the active frame.
-	 * @param {Wick.Asset} asset - the asset to create the SVG file instance from
-	 * @param {number} x - the x position to import the SVG file at
-	 * @param {number} y - the y position to import the SVG file at
-	 * @param {function} callback - the function to call after the path is created.
-	 */
-	createSVGInstanceFromAsset(asset, x, y, callback) {
-		  asset.createInstance(svg => {
-			  project.addObject(svg);
-			  //this.addObject(svg);
-			  //svg.x = x;
-			  //svg.y = y;
-			  callback(svg);
-		  });
-	}
   /**
    * Breaks selected clips into their children clips and paths.
    */
@@ -49971,6 +50050,8 @@ Wick.Selection = class extends Wick.Base {
         return 'imageasset';
       } else if (selection.getSelectedObjects()[0] instanceof window.Wick.SoundAsset) {
         return 'soundasset';
+      } else if (selection.getSelectedObjects()[0] instanceof window.Wick.SVGAsset) {
+        return 'svgasset';
       } else {
         return 'multiassetmixed';
       }
@@ -51681,6 +51762,7 @@ Wick.Path = class extends Wick.Base {
    * The image asset that this path uses, if this path is a Raster path.
    * @returns {Wick.Asset[]}
    */
+  //should this also return the SVGAsset if the path is loaded from an SVGAsset
 
 
   getLinkedAssets() {
@@ -51846,10 +51928,10 @@ Wick.Asset = class extends Wick.Base {
    * Removes this asset from the project.
    */
 
+    remove() {
+      this.project.removeAsset(this);
+    }
 
-  remove() {
-    this.project.removeAsset(this);
-  }
   /**
    * A list of all objects using this asset.
    */
@@ -52371,9 +52453,9 @@ Wick.ClipAsset = class extends Wick.FileAsset {
    */
 
 
-  createInstance(callback, project) {
+  createInstance(callback) {
     Wick.WickObjectFile.fromWickObjectFile(this.src, data => {
-      var clip = Wick.Base.import(data, project).copy();
+      var clip = Wick.Base.import(data, this.project).copy();
       callback(clip);
     });
   }
@@ -52498,6 +52580,7 @@ Wick.SoundAsset = class extends Wick.FileAsset {
   }
   /**
    * A list of Wick Paths that use this font as their fontFamily.
+   * TODO: update this text, it's a sound not a font
    * @returns {Wick.Path[]}
    */
 
@@ -52658,7 +52741,8 @@ Wick.SVGAsset = class extends Wick.FileAsset {
     return 'SVGAsset';
   }
   /**
-   * A list of Wick Paths that use this SVGAsset as their image source.
+   * A list of Wick Paths, Clips and Layers that use this SVGAsset as their image source.
+   * I think this should return Assets not Paths
    * @returns {Wick.Path[]}
    */
 
@@ -52676,7 +52760,7 @@ Wick.SVGAsset = class extends Wick.FileAsset {
     return false; // TODO
   }
   /**
-   * Removes all Paths using this asset as their source from the project.
+   * Removes all Items using this asset as their source from the project.
    * @returns {boolean}
    */
 
@@ -52693,12 +52777,124 @@ Wick.SVGAsset = class extends Wick.FileAsset {
     callback();
   }
   /**
-   * Creates a new Wick Path that uses this asset's data.
-   * @param {function} callback - called when the Path is done loading.
+   * Walks through the items tree creating the apprptiate wick object for each node
+   * @param {Paper.Project} project - called when the Path is done loading.
+   * @param {Paper.Item} item - called when the Path is done loading.
+   * @returns {Wick.Base}
    */
 
 
-  createInstance(callback, project) {// TODO
+  walkItems(project, item) {
+    // create paths for all the path items, this also needs to be done for the following item.className=:
+    // 'Group', 'Layer', 'Path', 'CompoundPath', 'Shape', 'Raster', 'SymbolItem', 'PointText'
+    // I think path automatically handles this, but maybe not layer or group
+    var wickItem = NULL;
+    console.error("Walk items"); //There are two ways of adding children in wicks. some classes take addObjects other classes have addChild
+    // Groups (clips) and layers do this differently so they must be handled separately
+
+    if (item instanceof paper.Group) {
+      wickItem = new Wick.Clip();
+      console.error("SVG Import: Adding a clip.");
+      var wickObjects = [];
+      item.children.forEach(childItem => {
+        ///This should be clips and paths not layers
+        var walkItem = walkItems(childItem);
+
+        if (walkItem instanceof Wick.Layer) {
+          console.error("SVG Import: Clip has a child that is a layer, this should never happen. ignoring.");
+        } else {
+          wickObjects.push(walkItem);
+          console.error("SVG Import: Adding a child to the clip.".concat(walkItem.classname));
+        }
+      });
+      wickItem.addObjects(wickObjects); //add the clip  to the project
+      //project.addObject(wickItem);
+    } else if (item instanceof paper.Layer) {
+      wickItem = new Wick.Layer();
+      console.error("SVG Import: Adding a layer."); //do we do project.addObject or project.timeline.addLayer for correctness, we have to adjust the active layer on the timeline anyhow
+      //project.addObject(wickItem);
+      // If we've just added a layer set it to be the active layer
+      //project.timeline.activeLayerIndex = project.timeline.layers.count - 1;
+      //TODO: Find out how multiple layers are handled
+
+      item.children.forEach(childItem => {
+        wickChildItem = walkItems(childItem);
+
+        if (wickChildItem instanceof Wick.Clip) {
+          console.error("SVG Import: Adding a clip to the layer.");
+          wickItem.activeFrame.addClip(wickChildItem);
+        } else if (wickChildItem instanceof Wick.Path) {
+          console.error("SVG Import: Adding a path to the layer.");
+          wickItem.activeFrame.addPath(wickChildItem);
+        } else if (wickChildItem instanceof Wick.Layer) {
+          console.error("SVG Import: Error importing, nested layers.ignoring.");
+        } else {
+          console.error("SVG Import: Unknown item type.".concat(wickChildItem.classname));
+        }
+      });
+    } else if (item instanceof paper.Shape) {
+      console.error("SVG Import: Item is an instance of a shape. This should never happen as all shapes should be converted to paths when we call paperProject.importSVG(data, options.expandShapes = true);");
+    } else {
+      //'Path', 'CompoundPath', 'Raster', 'SymbolItem', 'PointText' all handled by Path which takes the loaded paper object expressed as JSON to load
+      wickItem = new Wick.Path({
+        json: item.exportJSON()
+      });
+      console.error("SVG Import: New Path.");
+    }
+
+    return wickItem;
+  }
+  /**
+   * Walks through the items tree creating the appropriate wick object for each node
+   * @param {Paper.Item} item - the item to turn into paths
+   */
+
+
+  _breakAppartShapesRecursively(item) {
+    item.applyMatrix = true;
+
+    if (item instanceof paper.Group || item instanceof paper.Layer) {
+      item.children.forEach(childItem => {
+        _breakAppartShapesRecursively(childItem);
+      });
+    } else if (item instanceof paper.Shape) {
+      //This should have been done automatically by the import options, spo shouldn't be needed
+      var path = item.toPath();
+      item.parent.addChild(path);
+      item.remove();
+    }
+  }
+  /**
+   * Creates a new Wick SVG that uses this asset's data.
+   * @param {function} callback - called when the SVG is done loading.
+   */
+  createInstance(callback) {
+    // needs to take a base64 encoded string.
+    //we need a viewSVG and an SVG object that extends base by the looks of things.
+    console.log("createInstancelog");
+    console.warn("createInstancewarn");
+    console.error("createInstance");
+    console.error("Wick.SVGFile.fromSVGFile", this.src);
+    Wick.SVGFile.fromSVGFile(this.src, data => {
+
+	var paperScope = new paper.PaperScope(); // Create dummy paper.js instance so we can access paper classes
+
+	var canvas = window.document.createElement('canvas');
+
+    paperScope.setup(canvas);
+
+      var paperProject = paperScope.Project;//new paper.Project(this.project.view.paper.view); //will this do, it should really be an invisible temporary view. maybe an SVGView
+
+      var item = paperProject.importSVG(data, options.expandShapes = true); // this shouldn't be needed because we set options.expandShapes = true
+      //_breakAppartShapesRecursively(item)
+
+      wickItem = walkItems(this.project, item); //node.remove(); //do we actually need to do this
+
+      project.addAsset(this);
+      paperScope.view.update();
+      this.project.view.paper.view.update();
+      callback(wickItem);
+    });
   }
 
 };
@@ -52729,7 +52925,7 @@ Wick.Tickable = class extends Wick.Base {
    * Debugging feature. Logs errors as they happen
    */
   static get LOG_ERRORS() {
-    return false;
+    return true;
   }
   /**
    * Returns a list of all possible events for this object.
@@ -59696,7 +59892,8 @@ Wick.View.Frame = class extends Wick.View {
       var path = item.toPath();
       item.parent.addChild(path);
       item.remove();
-    }
+    } //I think  paper.Group should be a clip and not add it's children to the parent
+
 
     if (item instanceof paper.Group) {
       var children = item.removeChildren();
@@ -59705,7 +59902,8 @@ Wick.View.Frame = class extends Wick.View {
       children.forEach(child => {
         this._recursiveBreakApart(child);
       });
-    }
+    } //TODO: Layers
+
   }
 
 };

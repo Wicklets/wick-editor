@@ -61,15 +61,17 @@ class Inspector extends Component {
       "multiassetmixed": this.renderAsset,
       "multisoundasset": this.renderAsset,
       "multiimageasset": this.renderAsset,
+      "svgasset": this.renderAsset,
+      "multisvgasset": this.renderAsset,
     }
 
     /**
      * Which actions should be shown for which selection types.
      */
     this.actionRules = {
-      'breakApart': ["clip", "button",],
-      'convertSelectionToButton': ["path", "text", "image", "multipath", "multiclip", "multicanvas"],
-      'convertSelectionToClip': ["path", "text", "image", "multipath", "multiclip", "multicanvas"],
+      'breakApart': ["clip", "button", "svg"],
+      'convertSelectionToButton': ["path", "text", "image", "multipath", "multiclip", "multicanvas", "svg"],
+      'convertSelectionToClip': ["path", "text", "image", "multipath", "multiclip", "multicanvas", "svg"],
       'editTimeline': ["clip", "button"],
     }
 
@@ -95,6 +97,8 @@ class Inspector extends Component {
       "multiassetmixed": "Multi-Asset",
       "multisoundasset": "Multi-Asset Sound",
       "multiimageasset": "Multi-Asset Image",
+      "svgasset": "SVG Asset",
+      "multisvgasset": "Multi-Asset SVG",
       "unknown": "Unknown",
     }
   }

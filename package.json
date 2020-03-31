@@ -8,6 +8,7 @@
     "base64-arraybuffer": "^0.2.0",
     "bootstrap": "^4.1.3",
     "classnames": "^2.2.6",
+    "debug": "^4.1.1",
     "file-saver": "^2.0.0",
     "gh-pages": "^2.0.1",
     "gulp": "^4.0.2",
@@ -51,7 +52,8 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build && cp CNAME_editor ./build/CNAME",
-    "build-engine": "cd engine; mkdir dist/; gulp; cp -a dist/. ../public/corelibs/wick-engine/",
+    "build-engine": "cd engine; mkdir dist; gulp; cp -a dist/. ../public/corelibs/wick-engine/",
+    "build-engine-windows": "cd engine && mkdir dist\\ && gulp && cp -a dist\\. ..\\public\\corelibs\\wick-engine\\",
     "build-electron-macos": "electron-packager . 'Wick Editor' --ignore=node_modules --icon=public/icon.icns--platform=darwin --out build-electron --overwrite",
     "build-electron-windows": "electron-packager . wickwindows --ignore=node_modules --icon=public/icon.ico --platform=win32 --out build-electron --overwrite",
     "build-ios": "cp -r build/* build-ios/WebViewExample/local_html",

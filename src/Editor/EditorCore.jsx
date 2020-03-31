@@ -738,14 +738,17 @@ class EditorCore extends Component {
     let obj = window.Wick.ObjectCache.getObjectByUUID(uuid);
 
     if (obj instanceof window.Wick.ImageAsset) {
+      console.error('window.Wick.ImageAsset');
       this.project.createImagePathFromAsset(window.Wick.ObjectCache.getObjectByUUID(uuid), dropPoint.x, dropPoint.y, path => {
         this.projectDidChange();
     });
    } else if (obj instanceof window.Wick.ClipAsset) {
+    console.error('window.Wick.ClipAsset');
       this.project.createClipInstanceFromAsset(window.Wick.ObjectCache.getObjectByUUID(uuid), dropPoint.x, dropPoint.y, clip => {
         this.projectDidChange();
     });
    } else if (obj instanceof window.Wick.SVGAsset) {
+    console.error('window.Wick.SVGAsset');
       this.project.createSVGInstanceFromAsset(window.Wick.ObjectCache.getObjectByUUID(uuid), dropPoint.x, dropPoint.y, svg => {
         this.projectDidChange();
     }); 

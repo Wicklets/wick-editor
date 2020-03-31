@@ -53,15 +53,20 @@ import PopOutCodeEditor from './PopOuts/PopOutCodeEditor/PopOutCodeEditor';
 import ErrorBoundary from './Util/ErrorBoundary';
 import ErrorPage from './Util/ErrorPage';
 
-var classNames = require('classnames');
+//import Wick from 'Wick';
+//var wicksengine = require('wickengine');
 
+
+var classNames = require('classnames');
+//var wickengine = require('../../public/corelibs/wick-engine/wickengine');
 class Editor extends EditorCore {
   constructor () {
     super();
 
     // Set path for engine dependencies
+    // eslint-disable-next-line no-undef
     window.Wick.resourcepath = 'corelibs/wick-engine/';
-
+    
     // "Live" editor states
     this.project = null;
     this.paper = null;
