@@ -452,12 +452,12 @@ Wick.View.Project = class extends Wick.View {
         var borderMin = -10000,
             borderMax = 10000;
         var strokeOffset = 0.5; // prevents gaps between border rects
-        return [
+        var borderPieces = [
             // top
             new paper.Path.Rectangle({
                 from: new paper.Point(borderMin, borderMin),
                 to: new paper.Point(borderMax, -strokeOffset),
-                fillColor: 'black',
+                fillColor: 'pink',
                 strokeWidth: 1,
                 strokeColor: 'black',
             }),
@@ -465,7 +465,7 @@ Wick.View.Project = class extends Wick.View {
             new paper.Path.Rectangle({
                 from: new paper.Point(borderMin, this.model.height+strokeOffset),
                 to: new paper.Point(borderMax, borderMax),
-                fillColor: 'black',
+                fillColor: 'pink',
                 strokeWidth: 1,
                 strokeColor: 'black',
             }),
@@ -473,7 +473,7 @@ Wick.View.Project = class extends Wick.View {
             new paper.Path.Rectangle({
                 from: new paper.Point(borderMin, -strokeOffset),
                 to: new paper.Point(-strokeOffset, this.model.height+strokeOffset),
-                fillColor: 'black',
+                fillColor: 'pink',
                 strokeWidth: 1,
                 strokeColor: 'black',
             }),
@@ -481,11 +481,21 @@ Wick.View.Project = class extends Wick.View {
             new paper.Path.Rectangle({
                 from: new paper.Point(this.model.width+strokeOffset, -strokeOffset),
                 to: new paper.Point(borderMax, borderMax),
-                fillColor: 'black',
+                fillColor: 'pink',
                 strokeWidth: 1,
                 strokeColor: 'black',
             }),
         ];
+
+        var border = new paper.Group();
+        border.applyMatrix = false;
+        border.addChildren(borderPieces);
+
+        // Adjust borders based on zoom/pan (this fixes borders hiding things while using a vcam)
+        border.scaling = new paper.Point(this.model.zoom, this.model.zoom);
+        border.position = new paper.Point(-this.model.pan.x, -this.model.pan.y);
+
+        return border;
     }
 
     _generateClipBorders () {

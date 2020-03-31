@@ -1291,7 +1291,7 @@ Wick.Project = class extends Wick.Base {
     inject (element) {
         this.view.canvasContainer = element;
         this.view.fitMode = 'fill';
-        this.view.canvasBGColor = '#000000';
+        this.view.canvasBGColor = this.backgroundColor.hex;
 
         window.onresize = function () {
             project.view.resize();

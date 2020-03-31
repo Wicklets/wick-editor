@@ -63,6 +63,7 @@ gulp.task("default", function() {
       'src/ObjectCache.js',
       'src/Transformation.js',
       'src/GlobalAPI.js',
+      'src/builtinassets/BuiltinAssets.js',
       'src/export/ExportUtils.js',
       'src/export/audio/AudioTrack.js',
       'src/export/autosave/AutoSave.js',
