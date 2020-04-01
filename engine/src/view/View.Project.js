@@ -347,6 +347,7 @@ Wick.View.Project = class extends Wick.View {
             // scaling it as much as possible without changing the project's original aspect ratio
             this.paper.view.zoom = this.model.zoom * this.calculateFitZoom() * window.devicePixelRatio;
         }
+
         var pan = this._pan;
         this.paper.view.center = new paper.Point(-pan.x, -pan.y);
 
@@ -463,7 +464,7 @@ Wick.View.Project = class extends Wick.View {
             }),
             // bottom
             new paper.Path.Rectangle({
-                from: new paper.Point(borderMin, this.model.height+strokeOffset),
+                from: new paper.Point(borderMin, (this.model.height*window.devicePixelRatio)+strokeOffset),
                 to: new paper.Point(borderMax, borderMax),
                 fillColor: 'pink',
                 strokeWidth: 1,
@@ -472,14 +473,14 @@ Wick.View.Project = class extends Wick.View {
             // left
             new paper.Path.Rectangle({
                 from: new paper.Point(borderMin, -strokeOffset),
-                to: new paper.Point(-strokeOffset, this.model.height+strokeOffset),
+                to: new paper.Point(-strokeOffset, (this.model.height*window.devicePixelRatio)+strokeOffset),
                 fillColor: 'pink',
                 strokeWidth: 1,
                 strokeColor: 'black',
             }),
             // right
             new paper.Path.Rectangle({
-                from: new paper.Point(this.model.width+strokeOffset, -strokeOffset),
+                from: new paper.Point((this.model.width*window.devicePixelRatio)+strokeOffset, -strokeOffset),
                 to: new paper.Point(borderMax, borderMax),
                 fillColor: 'pink',
                 strokeWidth: 1,
