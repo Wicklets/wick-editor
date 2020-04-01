@@ -345,7 +345,7 @@ Wick.View.Project = class extends Wick.View {
         } else if (this._fitMode === 'fill') {
             // Fill mode: Try to fit the wick project's canvas inside the container canvas by
             // scaling it as much as possible without changing the project's original aspect ratio
-            this.paper.view.zoom = this.calculateFitZoom();
+            this.paper.view.zoom = this.model.zoom * this.calculateFitZoom() * window.devicePixelRatio;
         }
         var pan = this._pan;
         this.paper.view.center = new paper.Point(-pan.x, -pan.y);
