@@ -113,7 +113,7 @@ class VideoExport {
           '-f', 'image2',
           '-s', project.width + "x" + project.height,
           inputs,
-          '-vcodec', 'mpeg4',
+          '-c:v', 'libx264',
           '-q:v', '10', //10=good quality, 31=bad quality
           '-filter:v', filterv,
           'out.mp4',
