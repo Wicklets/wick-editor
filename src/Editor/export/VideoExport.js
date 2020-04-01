@@ -8,7 +8,7 @@ class VideoExport {
      */
     static renderVideo = async (args) => {
       const worker = createWorker({
-          logger: ({ message }) => console.log(message),
+          logger: ({message}) => console.log(message),
       });
 
       args.worker = worker;
@@ -95,8 +95,11 @@ class VideoExport {
           await worker.write(name, data);
       }
 
+      let inputs = '-i frame%12d.jpeg';
+
       if (audio) {
           await worker.write('audio.wav', audio);
+          inputs += ' -i audio.wav';
       }
 
       // Slow down the video if the framerate is less than 6 (framerate <6 causes a corrupted video to render)
@@ -109,8 +112,7 @@ class VideoExport {
           '-r', '' + Math.max(6, project.framerate),
           '-f', 'image2',
           '-s', project.width + "x" + project.height,
-          '-i', 'frame%12d.jpeg',
-          '-i', 'audio.wav',
+          inputs,
           '-vcodec', 'mpeg4',
           '-q:v', '10', //10=good quality, 31=bad quality
           '-filter:v', filterv,
