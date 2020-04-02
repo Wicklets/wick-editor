@@ -458,7 +458,7 @@ Wick.View.Project = class extends Wick.View {
             new paper.Path.Rectangle({
                 from: new paper.Point(borderMin, borderMin),
                 to: new paper.Point(borderMax, -strokeOffset),
-                fillColor: 'pink',
+                fillColor: 'black',
                 strokeWidth: 1,
                 strokeColor: 'black',
             }),
@@ -466,7 +466,7 @@ Wick.View.Project = class extends Wick.View {
             new paper.Path.Rectangle({
                 from: new paper.Point(borderMin, (this.model.height*window.devicePixelRatio)+strokeOffset),
                 to: new paper.Point(borderMax, borderMax),
-                fillColor: 'pink',
+                fillColor: 'black',
                 strokeWidth: 1,
                 strokeColor: 'black',
             }),
@@ -474,7 +474,7 @@ Wick.View.Project = class extends Wick.View {
             new paper.Path.Rectangle({
                 from: new paper.Point(borderMin, -strokeOffset),
                 to: new paper.Point(-strokeOffset, (this.model.height*window.devicePixelRatio)+strokeOffset),
-                fillColor: 'pink',
+                fillColor: 'black',
                 strokeWidth: 1,
                 strokeColor: 'black',
             }),
@@ -482,7 +482,7 @@ Wick.View.Project = class extends Wick.View {
             new paper.Path.Rectangle({
                 from: new paper.Point((this.model.width*window.devicePixelRatio)+strokeOffset, -strokeOffset),
                 to: new paper.Point(borderMax, borderMax),
-                fillColor: 'pink',
+                fillColor: 'black',
                 strokeWidth: 1,
                 strokeColor: 'black',
             }),
