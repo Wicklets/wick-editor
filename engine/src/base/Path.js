@@ -33,6 +33,7 @@ Wick.Path = class extends Wick.Base {
         this._fontStyle = 'normal';
         this._fontWeight = 400;
         this._isPlaceholder = args.isPlaceholder;
+        this._originalStyle = null;
 
         if(args.path) {
             this.json = args.path.exportJSON({asString:false});
@@ -298,6 +299,18 @@ Wick.Path = class extends Wick.Base {
 
     set fontStyle (fontStyle) {
         this._fontStyle = fontStyle;
+    }
+
+    /**
+     * The original style of the path (used to recover the path's style if it was changed by a custom onion skin style)
+     * @type {object}
+     */
+    get originalStyle () {
+        return this._originalStyle;
+    }
+
+    set originalStyle (originalStyle) {
+        this._originalStyle = originalStyle;
     }
 
     /**

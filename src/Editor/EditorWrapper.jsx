@@ -87,8 +87,11 @@ import ModalHandler from './Modals/ModalHandler/ModalHandler';
                         lastColorsUsed={this.props.editor.state.lastColorsUsed}
                         editorVersion={this.props.editor.editorVersion} 
                         toast={this.props.editor.toast}
-                        createCombinedHotKeyMap={this.props.editor.createCombinedHotKeyMap}/>
-
+                        createCombinedHotKeyMap={this.props.editor.createCombinedHotKeyMap}
+                        getToolSetting={this.props.editor.getToolSetting}
+                        setToolSetting={this.props.editor.setToolSetting}
+                        getToolSettingRestrictions={this.props.editor.getToolSettingRestrictions}
+                        />
                 {this.props.children}
                 </div>
             </ErrorBoundary>

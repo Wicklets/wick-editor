@@ -19,27 +19,49 @@
 
  @import 'Editor/_wickbrand.scss';
 
- $settings-modal-height: 375px;
- $settings-title-height: 32px;
- $modal-margin: 15px;
- $settings-body-height: $settings-modal-height - $settings-title-height - (2 * $modal-margin);
-
-.settings-modal-title {
-    height: $settings-title-height;
-    min-height: $settings-title-height; 
-    font-size: 18px;
-    color: $editor-modal-text-gray;
-    font-weight: bold; 
-    text-align: left;
-    width: 100%;
+.editor-settings-modal-body {
+  width: 100%;
+  height: 100%;
 }
 
-.settings-modal-body {
-    width: 100%;
-    height: $settings-body-height;
+.editor-settings-group {
+  margin-top: 8px;
+  display: flex;
+  flex-flow: column;
+  width: 100%;
+  height: 60px;
 }
 
-.settings-modal-container {
-    width: 500px;
-    height: $settings-modal-height;
+.editor-settings-row {
+  height: 40px;
+  color: white;
+  margin-top: 4px; 
 }
+
+.editor-settings-color-containers-row {
+  display: flex;
+  flex: 1 1 auto;
+  justify-content: space-between;
+  height: 30px;
+}
+
+.editor-settings-color-container {
+  display: flex;
+  width: 50%;
+  height: 100%;
+  flex: 0 1 auto;
+  align-items: center;
+  color: $editor-modal-text-gray;
+  flex-direction: row;
+  margin-left: 4px;
+}
+
+.editor-settings-group-title {
+  font-size: 20px;
+  color: $editor-modal-text-gray;
+}
+
+.editor-settings-group {
+  color: white;
+}
+

@@ -1,5 +1,5 @@
 /*
- * Copyright 2028 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Editor.
  *
@@ -21,6 +21,7 @@ import React, { Component } from 'react';
 import WickModal from 'Editor/Modals/WickModal/WickModal';
 import TabbedInterface from 'Editor/Util/TabbedInterface/TabbedInterface';
 import ProjectSettings from './ProjectSettings/ProjectSettings';
+import EditorSettings from './EditorSettings/EditorSettings';
 import KeyboardShortcuts from './KeyboardShortcuts/KeyboardShortcuts';
 
 import './_settingsmodal.scss';
@@ -56,7 +57,7 @@ class SettingsModal extends Component {
           Settings
         </div>
         <div className="settings-modal-body">
-          <TabbedInterface tabNames={["Project", "Shortcuts"]} >
+          <TabbedInterface tabNames={["Project", "Shortcuts", "Editor"]} >
             <ProjectSettings
               project={this.props.project}
               updateProjectSettings={this.props.updateProjectSettings}
@@ -72,6 +73,15 @@ class SettingsModal extends Component {
               keyMapGroups={this.props.keyMapGroups}
               toast={this.props.toast} 
               createCombinedHotKeyMap={this.props.createCombinedHotKeyMap}/>
+            <EditorSettings 
+              colorPickerType={this.props.colorPickerType}
+              changeColorPickerType={this.props.changeColorPickerType}
+              updateLastColors={this.props.updateLastColors}
+              lastColorsUsed={this.props.lastColorsUsed}
+              getToolSetting={this.props.getToolSetting}
+              setToolSetting={this.props.setToolSetting}
+              getToolSettingRestrictions={this.props.getToolSettingRestrictions}/>
+            />
           </TabbedInterface>
         </div>
       </WickModal>

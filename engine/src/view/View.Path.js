@@ -107,6 +107,21 @@ Wick.View.Path = class extends Wick.View {
             // https://github.com/paperjs/paper.js/issues/937
             this._item.fontWeight = this.model.fontWeight + ' ' + this.model.fontStyle;
         }
+
+        // Apply onion skin style
+        // (This is done here in the Path code because we actually change the style of the path
+        // if the current onion skin mode is set to "outlines")
+        if(this.parentFrame.onionSkinned && this.model.project.toolSettings.getSetting('onionSkinStyle') === 'outline') {
+            this.item.data.originalStyle = {
+                strokeColor: path.strokeColor,
+                fillColor: path.fillColor,
+                strokeWidth: path.strokeWidth,
+            };
+            
+            frame.view.pathsLayer.fillColor = 'rgba(0,0,0,0)'; // Make the fills transparent.
+            frame.view.pathsLayer.strokeWidth = this.model.project.toolSettings.getSetting('onionSkinOutlineWidth');
+            frame.view.pathsLayer.strokeColor = onionTintColor;
+        }
     }
 
     /**
@@ -120,6 +135,12 @@ Wick.View.Path = class extends Wick.View {
      * Export a path as paper.js Path json data.
      */
     static exportJSON (item) {
+        // Recover original style (if needed - only neccesary if style was overritten by custom onion skin style)
+        if(item.data.originalStyle) {
+            item.strokeColor = item.data.originalStyle.strokeColor;
+            item.fillColor = item.data.originalStyle.fillColor;
+            item.strokeWidth = item.data.originalStyle.strokeWidth;
+        }
         return item.exportJSON({asString:false});
     }
 }

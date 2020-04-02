@@ -153,6 +153,7 @@ Wick.View.Frame = class extends Wick.View {
             var originalWickPath = child.data.wickUUID ? Wick.ObjectCache.getObjectByUUID(child.data.wickUUID) : null;
             var pathJSON = Wick.View.Path.exportJSON(child);
             var wickPath = new Wick.Path({json:pathJSON});
+
             this.model.addPath(wickPath);
             wickPath.fontWeight = originalWickPath ? originalWickPath.fontWeight : 400;
             wickPath.fontStyle = originalWickPath ? originalWickPath.fontStyle : 'normal';

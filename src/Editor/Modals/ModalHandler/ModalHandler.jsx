@@ -107,6 +107,9 @@ class ModalHandler extends Component {
           lastColorsUsed={this.props.lastColorsUsed}
           toast={this.props.toast}
           createCombinedHotKeyMap={this.props.createCombinedHotKeyMap}
+          getToolSetting={this.props.getToolSetting}
+          setToolSetting={this.props.setToolSetting}
+          getToolSettingRestrictions={this.props.getToolSettingRestrictions}
         />
         <BuiltinLibrary
           openModal={this.props.openModal}
