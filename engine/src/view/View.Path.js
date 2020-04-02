@@ -111,13 +111,13 @@ Wick.View.Path = class extends Wick.View {
         // Apply onion skin style
         // (This is done here in the Path code because we actually change the style of the path
         // if the current onion skin mode is set to "outlines")
-        if(this.parentFrame.onionSkinned && this.model.project.toolSettings.getSetting('onionSkinStyle') === 'outline') {
+        if(this.model.parentFrame && this.model.parentFrame.onionSkinned && this.model.project.toolSettings.getSetting('onionSkinStyle') === 'outline') {
             this.item.data.originalStyle = {
                 strokeColor: path.strokeColor,
                 fillColor: path.fillColor,
                 strokeWidth: path.strokeWidth,
             };
-            
+
             frame.view.pathsLayer.fillColor = 'rgba(0,0,0,0)'; // Make the fills transparent.
             frame.view.pathsLayer.strokeWidth = this.model.project.toolSettings.getSetting('onionSkinOutlineWidth');
             frame.view.pathsLayer.strokeColor = onionTintColor;

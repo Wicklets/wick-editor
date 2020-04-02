@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.4.2.16.33.40";
+var WICK_ENGINE_BUILD_VERSION = "2020.4.2.16.46.20";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -46200,7 +46200,7 @@ BuiltinAssets = class {
       }));
     });
     var vcamScript = "";
-    vcamScript += "// Wick VCam Beta v0.0\n";
+    vcamScript += "// Wick VCam Beta v0.01\n";
     vcamScript += "\n";
     vcamScript += "// Make the VCam invisible\n";
     vcamScript += "this.opacity = 0;\n";
@@ -59799,28 +59799,28 @@ Wick.View.Project = class extends Wick.View {
     new paper.Path.Rectangle({
       from: new paper.Point(borderMin, borderMin),
       to: new paper.Point(borderMax, -strokeOffset),
-      fillColor: 'pink',
+      fillColor: 'black',
       strokeWidth: 1,
       strokeColor: 'black'
     }), // bottom
     new paper.Path.Rectangle({
       from: new paper.Point(borderMin, this.model.height * window.devicePixelRatio + strokeOffset),
       to: new paper.Point(borderMax, borderMax),
-      fillColor: 'pink',
+      fillColor: 'black',
       strokeWidth: 1,
       strokeColor: 'black'
     }), // left
     new paper.Path.Rectangle({
       from: new paper.Point(borderMin, -strokeOffset),
       to: new paper.Point(-strokeOffset, this.model.height * window.devicePixelRatio + strokeOffset),
-      fillColor: 'pink',
+      fillColor: 'black',
       strokeWidth: 1,
       strokeColor: 'black'
     }), // right
     new paper.Path.Rectangle({
       from: new paper.Point(this.model.width * window.devicePixelRatio + strokeOffset, -strokeOffset),
       to: new paper.Point(borderMax, borderMax),
-      fillColor: 'pink',
+      fillColor: 'black',
       strokeWidth: 1,
       strokeColor: 'black'
     })];
@@ -60662,7 +60662,7 @@ Wick.View.Path = class extends Wick.View {
     // if the current onion skin mode is set to "outlines")
 
 
-    if (this.parentFrame.onionSkinned && this.model.project.toolSettings.getSetting('onionSkinStyle') === 'outline') {
+    if (this.model.parentFrame && this.model.parentFrame.onionSkinned && this.model.project.toolSettings.getSetting('onionSkinStyle') === 'outline') {
       this.item.data.originalStyle = {
         strokeColor: path.strokeColor,
         fillColor: path.fillColor,
