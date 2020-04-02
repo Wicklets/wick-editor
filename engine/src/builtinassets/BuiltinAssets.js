@@ -57,7 +57,7 @@ BuiltinAssets = class {
         });
 
         var vcamScript = "";
-        vcamScript += "// Wick VCam Beta v0.0\n";
+        vcamScript += "// Wick VCam Beta v0.01\n";
         vcamScript += "\n";
         vcamScript += "// Make the VCam invisible\n";
         vcamScript += "this.opacity = 0;\n";
@@ -66,7 +66,6 @@ BuiltinAssets = class {
         vcamScript += "project.project.zoom = 1/this.scaleX;\n";
         vcamScript += "project.project.pan.x = -(this.x - project.width/2);\n";
         vcamScript += "project.project.pan.y = -(this.y - project.height/2);\n";
-
         vcam.addScript('update', vcamScript);
 
         return vcam;
