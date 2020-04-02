@@ -1,4 +1,5 @@
 const { createWorker } = require('@ffmpeg/ffmpeg');
+const { setLogging } = require('@ffmpeg/ffmpeg');
 var b64toBuff = require('base64-arraybuffer');
 var toWav = require('audiobuffer-to-wav')
 
@@ -7,6 +8,7 @@ class VideoExport {
      * project, onProgress, onError, onFinish;
      */
     static renderVideo = async (args) => {
+      setLogging(true);
       const worker = createWorker({
           logger: ({message}) => console.log(message),
       });
@@ -41,8 +43,9 @@ class VideoExport {
      * Stores all frames of the project in the ffmpegjs memfs filesystem.
      */
     static _generateProjectImages = async (args) => {
-        
+
       let { project, onProgress } = args;
+      let dimensions = VideoExport._ensureValidDimensions(args.width || project.width, args.height || project.width);
 
       onProgress && onProgress('Rendering Images', 33);
 
@@ -53,6 +56,9 @@ class VideoExport {
           let frameNumber = 0;
           project.generateImageSequence({
               imageType: 'image/jpeg',
+
+              width: dimensions.width,
+              height: dimensions.height,
 
               onProgress: (currentFrame, numTotalFrames) => {
                 let progress = 33 + (currentFrame/numTotalFrames) * 20;
@@ -73,7 +79,7 @@ class VideoExport {
 
                 // Store name and buffer in memfs appropriate object.
                 imageData.push({name:name, data:new Uint8Array(buffer)});
-                
+
                 // Increase frame number.
                 frameNumber += 1;
               });
@@ -90,7 +96,7 @@ class VideoExport {
       onProgress("Rendering Final Video", 85);
 
       for (let i=0; i<images.length; i++) {
-          let image = images[i]; 
+          let image = images[i];
           let { name, data } = image;
           await worker.write(name, data);
       }
@@ -108,10 +114,16 @@ class VideoExport {
           filterv = 'setpts='+(6/project.framerate)+'*PTS, ' + filterv;
       }
 
+      let dimensions = {
+          width: args.width || project.width,
+          height: args.height || project.height,
+      };
+      dimensions = VideoExport._ensureValidDimensions(dimensions.width, dimensions.height);
+
       let command = [
           '-r', '' + Math.max(6, project.framerate),
           '-f', 'image2',
-          '-s', project.width + "x" + project.height,
+          '-s', dimensions.width + "x" + dimensions.height,
           inputs,
           '-c:v', 'libx264',
           '-q:v', '10', //10=good quality, 31=bad quality
@@ -124,7 +136,7 @@ class VideoExport {
 
         // Remove Data from worker when done.
         for (let i=0; i<images.length; i++) {
-          let image = images[i]; 
+          let image = images[i];
           let { name } = image;
           await worker.remove(name);
         }
@@ -138,12 +150,33 @@ class VideoExport {
         if(!(data instanceof Uint8Array)) {
           data = new Uint8Array(data);
         }
-    
+
         let blob = new Blob([data]);
         onProgress("Video Render Complete", 100);
         onFinish();
 
         window.saveAs(blob, project.name+'.mp4');
+    }
+
+    // ffmpeg does not like odd numbers in the video width/height.
+    // this chops off pixels to ensure an even width/height
+    // this may be an issue specifically with the h264 codec:
+    // https://stackoverflow.com/questions/20847674/ffmpeg-libx264-height-not-divisible-by-2
+    static _ensureValidDimensions (width, height) {
+        var newWidth = width;
+        var newHeight = height;
+
+        if(newWidth % 2 === 1) {
+            newWidth -= 1;
+        }
+        if(newHeight % 2 === 1) {
+            newHeight -= 1;
+        }
+
+        return {
+            width: newWidth,
+            height: newHeight
+        };
     }
 }
 
