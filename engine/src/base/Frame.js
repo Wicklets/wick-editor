@@ -26,8 +26,8 @@ Wick.Frame = class extends Wick.Tickable {
      * @param {number} start - The start of the frame. Optional, defaults to 1.
      * @param {number} end - The end of the frame. Optional, defaults to be the same as start.
      */
-    constructor (args) {
-        if(!args) args = {};
+    constructor(args) {
+        if (!args) args = {};
         super(args);
 
         this.start = args.start || 1;
@@ -42,7 +42,7 @@ Wick.Frame = class extends Wick.Tickable {
         this._originalLayerIndex = -1;
     }
 
-    _serialize (args) {
+    _serialize(args) {
         var data = super._serialize(args);
 
         data.start = this.start;
@@ -57,7 +57,7 @@ Wick.Frame = class extends Wick.Tickable {
         return data;
     }
 
-    _deserialize (data) {
+    _deserialize(data) {
         super._deserialize(data);
 
         this.start = data.start;
@@ -70,7 +70,7 @@ Wick.Frame = class extends Wick.Tickable {
         this._originalLayerIndex = data.originalLayerIndex;
     }
 
-    get classname () {
+    get classname() {
         return 'Frame';
     }
 
@@ -78,11 +78,11 @@ Wick.Frame = class extends Wick.Tickable {
      * The length of the frame.
      * @type {number}
      */
-    get length () {
+    get length() {
         return this.end - this.start + 1;
     }
 
-    set length (length) {
+    set length(length) {
         length = Math.max(1, length);
         var diff = length - this.length;
         this.end += diff;
@@ -92,7 +92,7 @@ Wick.Frame = class extends Wick.Tickable {
      * The midpoint of the frame.
      * @type {number}
      */
-    get midpoint () {
+    get midpoint() {
         return this.start + (this.end - this.start) / 2;
     }
 
@@ -100,8 +100,8 @@ Wick.Frame = class extends Wick.Tickable {
      * Is true if the frame is currently visible.
      * @type {boolean}
      */
-    get onScreen () {
-        if(!this.parent) return true;
+    get onScreen() {
+        if (!this.parent) return true;
         return this.inPosition(this.parentTimeline.playheadPosition) && this.parentClip.onScreen;
     }
 
@@ -109,12 +109,12 @@ Wick.Frame = class extends Wick.Tickable {
      * The sound attached to the frame.
      * @type {Wick.SoundAsset}
      */
-    get sound () {
+    get sound() {
         var uuid = this._soundAssetUUID;
         return uuid ? this.project.getAssetByUUID(uuid) : null;
     }
 
-    set sound (soundAsset) {
+    set sound(soundAsset) {
         this._soundAssetUUID = soundAsset.uuid;
     }
 
@@ -122,11 +122,11 @@ Wick.Frame = class extends Wick.Tickable {
      * The volume of the sound attached to the frame.
      * @type {number}
      */
-    get soundVolume () {
+    get soundVolume() {
         return this._soundVolume
     }
 
-    set soundVolume (soundVolume) {
+    set soundVolume(soundVolume) {
         this._soundVolume = soundVolume;
     }
 
@@ -134,26 +134,26 @@ Wick.Frame = class extends Wick.Tickable {
      * Whether or not the sound loops.
      * @type {boolean}
      */
-    get soundLoop () {
+    get soundLoop() {
         return this._soundLoop;
     }
 
-    set soundLoop (soundLoop) {
+    set soundLoop(soundLoop) {
         this._soundLoop = soundLoop;
     }
 
     /**
      * Removes the sound attached to this frame.
      */
-    removeSound () {
+    removeSound() {
         this._soundAssetUUID = null;
     }
 
     /**
      * Plays the sound attached to this frame.
      */
-    playSound () {
-        if(!this.sound) {
+    playSound() {
+        if (!this.sound) {
             return;
         }
 
@@ -168,8 +168,8 @@ Wick.Frame = class extends Wick.Tickable {
     /**
      * Stops the sound attached to this frame.
      */
-    stopSound () {
-        if(this.sound) {
+    stopSound() {
+        if (this.sound) {
             this.sound.stop(this._soundID);
             this._soundID = null;
         }
@@ -179,7 +179,7 @@ Wick.Frame = class extends Wick.Tickable {
      * Check if the sound on this frame is playing.
      * @returns {boolean} true if the sound is playing
      */
-    isSoundPlaying () {
+    isSoundPlaying() {
         return this._soundID !== null;
     }
 
@@ -187,7 +187,7 @@ Wick.Frame = class extends Wick.Tickable {
      * The amount of time, in milliseconds, that the frame's sound should play before stopping.
      * @type {number}
      */
-    get playheadSoundOffsetMS () {
+    get playheadSoundOffsetMS() {
         var offsetFrames = this.parentTimeline.playheadPosition - this.start;
         var offsetMS = (1000 / this.project.framerate) * offsetFrames;
         return offsetMS;
@@ -199,11 +199,11 @@ Wick.Frame = class extends Wick.Tickable {
      * in the track. THIS DOES NOT DETERMINE WHEN A SOUND PLAYS.
      * @type {number}
      */
-    get soundStart () {
+    get soundStart() {
         return this._soundStart;
     }
 
-    set soundStart (val) {
+    set soundStart(val) {
         this._soundStart = val;
     }
 
@@ -211,23 +211,23 @@ Wick.Frame = class extends Wick.Tickable {
      * When should the sound start, in milliseconds.
      * @type {number}
      */
-    get soundStartMS () {
-        return (1000/this.project.framerate) * (this.start - 1);
+    get soundStartMS() {
+        return (1000 / this.project.framerate) * (this.start - 1);
     }
 
     /**
      * When should the sound end, in milliseconds.
      * @type {number}
      */
-    get soundEndMS () {
-        return (1000/this.project.framerate) * this.end;
+    get soundEndMS() {
+        return (1000 / this.project.framerate) * this.end;
     }
 
     /**
      * The paths on the frame.
      * @type {Wick.Path[]}
      */
-    get paths () {
+    get paths() {
         return this.getChildren('Path');
     }
 
@@ -235,7 +235,7 @@ Wick.Frame = class extends Wick.Tickable {
      * The paths that are text and have identifiers, for dynamic text.
      * @type {Wick.Path[]}
      */
-    get dynamicTextPaths () {
+    get dynamicTextPaths() {
         return this.paths.filter(path => {
             return path.isDynamicText;
         });
@@ -245,15 +245,15 @@ Wick.Frame = class extends Wick.Tickable {
      * The clips on the frame.
      * @type {Wick.Clip[]}
      */
-    get clips () {
-        return this.getChildren(['Clip','Button']);
+    get clips() {
+        return this.getChildren(['Clip', 'Button']);
     }
 
     /**
      * The tweens on this frame.
      * @type {Wick.Tween[]}
      */
-    get tweens () {
+    get tweens() {
         // Ensure no tweens are outside of this frame's length.
         var tweens = this.getChildren('Tween')
         tweens.forEach(tween => {
@@ -267,7 +267,7 @@ Wick.Frame = class extends Wick.Tickable {
      * True if there are clips or paths on the frame.
      * @type {boolean}
      */
-    get contentful () {
+    get contentful() {
         return this.paths.length > 0 || this.clips.length > 0;
     }
 
@@ -275,7 +275,7 @@ Wick.Frame = class extends Wick.Tickable {
      * The index of the parent layer.
      * @type {number}
      */
-    get layerIndex () {
+    get layerIndex() {
         return this.parentLayer ? this.parentLayer.index : -1;
     }
 
@@ -283,14 +283,14 @@ Wick.Frame = class extends Wick.Tickable {
      * The index of the layer that this frame last belonged to. Used when copying and pasting frames.
      * @type {number}
      */
-    get originalLayerIndex () {
+    get originalLayerIndex() {
         return this._originalLayerIndex;
     }
 
     /**
      * Removes this frame from its parent layer.
      */
-    remove () {
+    remove() {
         this.parent.removeFrame(this);
     }
 
@@ -299,9 +299,9 @@ Wick.Frame = class extends Wick.Tickable {
      * @param {number} playheadPosition - the position of the playhead.
      * @return {boolean}
      */
-    inPosition (playheadPosition) {
-        return this.start <= playheadPosition
-            && this.end >= playheadPosition;
+    inPosition(playheadPosition) {
+        return this.start <= playheadPosition &&
+            this.end >= playheadPosition;
     }
 
     /**
@@ -310,11 +310,11 @@ Wick.Frame = class extends Wick.Tickable {
      * @param {number} end - the end of the range to check.
      * @return {boolean}
      */
-    inRange (start, end) {
-        return this.inPosition(start)
-            || this.inPosition(end)
-            || (this.start >= start && this.start <= end)
-            || (this.end >= start && this.end <= end);
+    inRange(start, end) {
+        return this.inPosition(start) ||
+            this.inPosition(end) ||
+            (this.start >= start && this.start <= end) ||
+            (this.end >= start && this.end <= end);
     }
 
     /**
@@ -323,7 +323,7 @@ Wick.Frame = class extends Wick.Tickable {
      * @param {number} end - the end of the range to check.
      * @return {boolean}
      */
-    containedWithin (start, end) {
+    containedWithin(start, end) {
         return this.start >= start && this.end <= end;
     }
 
@@ -331,16 +331,16 @@ Wick.Frame = class extends Wick.Tickable {
      * The number of frames that this frame is from a given playhead position.
      * @param {number} playheadPosition
      */
-    distanceFrom (playheadPosition) {
+    distanceFrom(playheadPosition) {
         // playhead position is inside frame, distance is zero.
-        if(this.start <= playheadPosition && this.end >= playheadPosition) {
+        if (this.start <= playheadPosition && this.end >= playheadPosition) {
             return 0;
         }
 
         // otherwise, find the distance from the nearest end
         if (this.start >= playheadPosition) {
             return this.start - playheadPosition;
-        } else if(this.end <= playheadPosition) {
+        } else if (this.end <= playheadPosition) {
             return playheadPosition - this.end;
         }
     }
@@ -349,8 +349,8 @@ Wick.Frame = class extends Wick.Tickable {
      * Add a clip to the frame.
      * @param {Wick.Clip} clip - the clip to add.
      */
-    addClip (clip) {
-        if(clip.parent) {
+    addClip(clip) {
+        if (clip.parent) {
             clip.remove();
         }
         this.addChild(clip);
@@ -360,7 +360,7 @@ Wick.Frame = class extends Wick.Tickable {
      * Remove a clip from the frame.
      * @param {Wick.Clip} clip - the clip to remove.
      */
-    removeClip (clip) {
+    removeClip(clip) {
         this.removeChild(clip);
     }
 
@@ -368,8 +368,8 @@ Wick.Frame = class extends Wick.Tickable {
      * Add a path to the frame.
      * @param {Wick.Path} path - the path to add.
      */
-    addPath (path) {
-        if(path.parent) {
+    addPath(path) {
+        if (path.parent) {
             path.remove();
         }
         this.addChild(path);
@@ -379,7 +379,7 @@ Wick.Frame = class extends Wick.Tickable {
      * Remove a path from the frame.
      * @param {Wick.Path} path - the path to remove.
      */
-    removePath (path) {
+    removePath(path) {
         this.removeChild(path);
     }
 
@@ -387,10 +387,10 @@ Wick.Frame = class extends Wick.Tickable {
      * Add a tween to the frame.
      * @param {Wick.Tween} tween - the tween to add.
      */
-    addTween (tween) {
+    addTween(tween) {
         // New tweens eat existing tweens.
         var otherTween = this.getTweenAtPosition(tween.playheadPosition);
-        if(otherTween) {
+        if (otherTween) {
             otherTween.remove();
         }
 
@@ -401,17 +401,17 @@ Wick.Frame = class extends Wick.Tickable {
     /**
      * Automatically creates a tween at the current playhead position. Converts all objects into one clip if needed.
      */
-    createTween () {
+    createTween() {
         // Don't make a tween if one already exits
         var playheadPosition = this.getRelativePlayheadPosition();
-        if(this.getTweenAtPosition(playheadPosition)) {
+        if (this.getTweenAtPosition(playheadPosition)) {
             return;
         }
 
         // If more than one object exists on the frame, or if there is only one path, create a clip from those objects
         var numClips = this.clips.length;
         var numPaths = this.paths.length;
-        if((numClips === 0 && numPaths === 1) || numClips + numPaths > 1) {
+        if ((numClips === 0 && numPaths === 1) || numClips + numPaths > 1) {
             var allObjects = this.paths.concat(this.clips);
             var center = this.project.selection.view._getObjectsBounds(allObjects).center;
             var clip = new Wick.Clip({
@@ -436,14 +436,14 @@ Wick.Frame = class extends Wick.Tickable {
      * Remove a tween from the frame.
      * @param {Wick.Tween} tween - the tween to remove.
      */
-    removeTween (tween) {
+    removeTween(tween) {
         this.removeChild(tween);
     }
 
     /**
      * Remove all tweens from this frame.
      */
-    removeAllTweens (tween) {
+    removeAllTweens(tween) {
         this.tweens.forEach(tween => {
             tween.remove();
         });
@@ -454,7 +454,7 @@ Wick.Frame = class extends Wick.Tickable {
      * @param {number} playheadPosition - the playhead position to look for tweens at.
      * @returns {Wick.Tween} the tween at the given playhead position.
      */
-    getTweenAtPosition (playheadPosition) {
+    getTweenAtPosition(playheadPosition) {
         return this.tweens.find(tween => {
             return tween.playheadPosition === playheadPosition;
         }) || null;
@@ -464,13 +464,13 @@ Wick.Frame = class extends Wick.Tickable {
      * The tween being used to transform the objects on the frame.
      * @returns {Wick.Tween} tween - the active tween. Null if there is no active tween.
      */
-    getActiveTween () {
-        if(!this.parentTimeline) return null;
+    getActiveTween() {
+        if (!this.parentTimeline) return null;
 
         var playheadPosition = this.getRelativePlayheadPosition();
 
         var tween = this.getTweenAtPosition(playheadPosition);
-        if(tween) {
+        if (tween) {
             return tween;
         }
 
@@ -491,9 +491,9 @@ Wick.Frame = class extends Wick.Tickable {
     /**
      * Applies the transformation of current tween to the objects on the frame.
      */
-    applyTweenTransforms () {
+    applyTweenTransforms() {
         var tween = this.getActiveTween();
-        if(tween) {
+        if (tween) {
             this.clips.forEach(clip => {
                 tween.applyTransformsToClip(clip);
             });
@@ -504,10 +504,10 @@ Wick.Frame = class extends Wick.Tickable {
      * The asset of the sound attached to this frame, if one exists
      * @returns {Wick.Asset[]}
      */
-    getLinkedAssets () {
+    getLinkedAssets() {
         var linkedAssets = [];
 
-        if(this.sound) {
+        if (this.sound) {
             linkedAssets.push(this.sound);
         }
 
@@ -517,16 +517,16 @@ Wick.Frame = class extends Wick.Tickable {
     /**
      * Cut this frame in half using the parent timeline's playhead position.
      */
-    cut () {
+    cut() {
         // Can't cut a frame that doesn't beolong to a timeline + layer
-        if(!this.parentTimeline) return;
+        if (!this.parentTimeline) return;
 
         // Can't cut a frame with length 1
-        if(this.length === 1) return;
+        if (this.length === 1) return;
 
         // Can't cut a frame that isn't under the playhead
         var playheadPosition = this.parentTimeline.playheadPosition;
-        if(!this.inPosition(playheadPosition)) return;
+        if (!this.inPosition(playheadPosition)) return;
 
         // Create right half (leftover) frame
         var rightHalf = this.copy();
@@ -545,7 +545,7 @@ Wick.Frame = class extends Wick.Tickable {
     /**
      * Extend this frame by one and push all frames right of this frame to the right.
      */
-    extendAndPushOtherFrames () {
+    extendAndPushOtherFrames() {
         this.parentLayer.getFramesInRange(this.end + 1, Infinity).forEach(frame => {
             frame.start += 1;
             frame.end += 1;
@@ -556,8 +556,8 @@ Wick.Frame = class extends Wick.Tickable {
     /**
      * Shrink this frame by one and pull all frames left of this frame to the left.
      */
-    shrinkAndPullOtherFrames () {
-        if(this.length === 1) return;
+    shrinkAndPullOtherFrames() {
+        if (this.length === 1) return;
 
         this.parentLayer.getFramesInRange(this.end + 1, Infinity).forEach(frame => {
             frame.start -= 1;
@@ -570,15 +570,15 @@ Wick.Frame = class extends Wick.Tickable {
      * Import SVG data into this frame. SVGs containing mulitple paths will be split into multiple Wick Paths.
      * @param {string} svg - the SVG data to parse and import.
      */
-    importSVG (svg) {
-        this.view.importSVG(svg);
-    }
+    //importSVG (svg) {
+    //    this.view.importSVG(svg);
+    //}
 
     /**
      * Get the position of this frame in relation to the parent timeline's playhead position.
      * @returns {number}
      */
-    getRelativePlayheadPosition () {
+    getRelativePlayheadPosition() {
         return this.parentTimeline.playheadPosition - this.start + 1;
     }
 
@@ -586,13 +586,13 @@ Wick.Frame = class extends Wick.Tickable {
      * Find the first tween on this frame that exists behind the given playhead position.
      * @returns {Wick.Tween}
      */
-    seekTweenBehind (playheadPosition) {
+    seekTweenBehind(playheadPosition) {
         var seekBackwardsPosition = playheadPosition;
         var seekBackwardsTween = null;
         while (seekBackwardsPosition > 0) {
             seekBackwardsTween = this.getTweenAtPosition(seekBackwardsPosition);
             seekBackwardsPosition--;
-            if(seekBackwardsTween) break;
+            if (seekBackwardsTween) break;
         }
         return seekBackwardsTween;
     }
@@ -601,48 +601,48 @@ Wick.Frame = class extends Wick.Tickable {
      * Find the first tween on this frame that exists past the given playhead position.
      * @returns {Wick.Tween}
      */
-    seekTweenInFront (playheadPosition) {
+    seekTweenInFront(playheadPosition) {
         var seekForwardsPosition = playheadPosition;
         var seekForwardsTween = null;
         while (seekForwardsPosition <= this.end) {
             seekForwardsTween = this.getTweenAtPosition(seekForwardsPosition);
             seekForwardsPosition++;
-            if(seekForwardsTween) break;
+            if (seekForwardsTween) break;
         }
         return seekForwardsTween;
     }
 
-    _onInactive () {
+    _onInactive() {
         super._onInactive();
         this._tickChildren();
     }
 
-    _onActivated () {
+    _onActivated() {
         super._onActivated();
         this.playSound();
         this._tickChildren();
     }
 
-    _onActive () {
+    _onActive() {
         super._onActive();
         this._tickChildren();
     }
 
-    _onDeactivated () {
+    _onDeactivated() {
         super._onDeactivated();
         this.stopSound();
         this._tickChildren();
     }
 
-    _tickChildren () {
+    _tickChildren() {
         this.clips.forEach(clip => {
             clip.tick();
         });
     }
 
-    _attachChildClipReferences () {
+    _attachChildClipReferences() {
         this.clips.forEach(clip => {
-            if(clip.identifier) {
+            if (clip.identifier) {
                 this[clip.identifier] = clip;
                 clip._attachChildClipReferences();
             }

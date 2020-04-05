@@ -51,15 +51,15 @@ Wick.View.Frame = class extends Wick.View {
         this._applyPathChanges();
     }
 
-    /**
-     * Import SVG data into the paper.js layer, and updates the Frame's json data.
-     * @param {string} svg - the SVG data to parse and import.
-     */
-    importSVG(svg) {
-        var importedItem = this.pathsLayer.importSVG(svg);
-        this._recursiveBreakApart(importedItem);
-        this._applyPathChanges();
-    }
+    ///**
+    // * Import SVG data into the paper.js layer, and updates the Frame's json data.
+    // * @param {string} svg - the SVG data to parse and import.
+    // */
+    //importSVG(svg) {
+    //    var importedItem = this.pathsLayer.importSVG(svg);
+    //    this._recursiveBreakApart(importedItem);
+    //    this._applyPathChanges();
+    //}
 
     render() {
         this._renderPaths();
@@ -151,24 +151,24 @@ Wick.View.Frame = class extends Wick.View {
     }
 
     // Helper function for SVG import (paper.js imports SVGs as one big group.)
-    _recursiveBreakApart(item) {
-        item.applyMatrix = true;
+    //_recursiveBreakApart(item) {
+    //   item.applyMatrix = true;
+    //
+    //   if (item instanceof paper.Shape) {
+    //       var path = item.toPath();
+    //      item.parent.addChild(path);
+    //       item.remove();
+    //  }
+    //I think  paper.Group should be a clip and not add it's children to the parent
+    // if (item instanceof paper.Group) {
+    //    var children = item.removeChildren();
+    //    item.parent.addChildren(children);
+    //    item.remove();
 
-        if (item instanceof paper.Shape) {
-            var path = item.toPath();
-            item.parent.addChild(path);
-            item.remove();
-        }
-        //I think  paper.Group should be a clip and not add it's children to the parent
-        if (item instanceof paper.Group) {
-            var children = item.removeChildren();
-            item.parent.addChildren(children);
-            item.remove();
-
-            children.forEach(child => {
-                this._recursiveBreakApart(child);
-            });
-        }
-        //TODO: Layers
-    }
+    //    children.forEach(child => {
+    //        this._recursiveBreakApart(child);
+    //    });
+    //}
+    ////TODO: Layers
+}
 }
