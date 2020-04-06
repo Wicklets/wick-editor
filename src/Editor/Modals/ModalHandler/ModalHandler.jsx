@@ -68,6 +68,7 @@ class ModalHandler extends Component {
           exportProjectAsStandaloneHTML={this.props.exportProjectAsStandaloneHTML}
           exportProjectAsVideo={this.props.exportProjectAsVideo}
           exportProjectAsImageSequence={this.props.exportProjectAsImageSequence}
+          exportProjectAsImageSVG={this.props.exportProjectAsImageSVG}
           open={this.props.activeModalName === 'ExportOptions'}
           projectName={this.props.project.name}
           />

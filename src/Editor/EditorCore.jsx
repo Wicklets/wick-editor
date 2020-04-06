@@ -26,6 +26,7 @@ import GIFExport from './export/GIFExport';
 import timeStamp from './Util/DataFunctions/timestamp';
 
 class EditorCore extends Component {
+
   /**
    * Returns the name of the active tool.
    * @returns {string} The string representation active tool name.
@@ -738,22 +739,15 @@ class EditorCore extends Component {
     let obj = window.Wick.ObjectCache.getObjectByUUID(uuid);
 
     if (obj instanceof window.Wick.ImageAsset) {
-      console.error('window.Wick.ImageAsset');
       this.project.createImagePathFromAsset(window.Wick.ObjectCache.getObjectByUUID(uuid), dropPoint.x, dropPoint.y, path => {
         this.projectDidChange();
-    });
-   } else if (obj instanceof window.Wick.ClipAsset) {
-    console.error('window.Wick.ClipAsset');
+      });
+    } else if (obj instanceof window.Wick.ClipAsset) {
       this.project.createClipInstanceFromAsset(window.Wick.ObjectCache.getObjectByUUID(uuid), dropPoint.x, dropPoint.y, clip => {
         this.projectDidChange();
-    });
-   } else if (obj instanceof window.Wick.SVGAsset) {
-    console.error('window.Wick.SVGAsset');
-      this.project.createSVGInstanceFromAsset(window.Wick.ObjectCache.getObjectByUUID(uuid), dropPoint.x, dropPoint.y, svg => {
-        this.projectDidChange();
-    }); 
-   } else {
-      console.error('object is not an ImageAsset, ClipAsset or a SVGAsaset');
+      });
+    } else {
+      console.error('object is not an ImageAsset or a ClipAsset')
     }
   }
 
@@ -986,20 +980,40 @@ class EditorCore extends Component {
         text: "Successfully created .mp4 file." });
       console.log("Video Render Complete: ", message);
     }
-
-    // this.showWaitOverlay('Rendering video...');
-    VideoExport.renderVideo({
-      project: this.project,
-      onProgress: onProgress,
-      onError: () => {
-        this.hideWaitOverlay();
-        onError();
-      },
-      onFinish: () => {
-        this.hideWaitOverlay();
-        onFinish();
-      },
+  }
+    /**
+   * Export the current project as a video.
+   */
+  
+  exportProjectAsImageSVG = () => {
+    // Open export media loading bar modal.
+    this.openModal('ExportMedia');
+    this.setState({
+      renderProgress: 0,
+      renderType: "svg",
+      renderStatusMessage: "Creating svg.",
     });
+
+    let toastID = this.toast('Exporting svg...', 'info');
+
+    let onError = (message) => {
+      console.error("SVG builder had an error with message: ", message);
+    }
+
+    let onFinish = (file) => {
+      this.updateToast(toastID, {
+        type: 'success',
+        text: "Successfully saved .wick file." });
+        saveAs(file, this.project.name + timeStamp() + '.svg');
+        this.hideWaitOverlay();
+    }
+    
+    // this.showWaitOverlay('Rendering video...');
+    window.Wick.SVGFile.toSVGFile(this.project.activeTimeline,
+       onError,file => {
+        this.hideWaitOverlay();
+        onFinish(file);
+      });
   }
 
   /**
@@ -1095,7 +1109,7 @@ class EditorCore extends Component {
   /**
    * Parses a URL passed into the editor using ?project=file.wick in the URL. URLs must be encoded with encodeURIComponent.
    */
-  tryToParseProjectURL () {
+  tryToParseProjectURL = () => {
     // Retrieve URL
     var urlParams = queryString.parse(window.location.search);
     var urlParam = urlParams.project;

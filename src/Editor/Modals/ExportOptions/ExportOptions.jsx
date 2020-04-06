@@ -64,6 +64,10 @@ class ExportOptions extends Component {
     } else if (type === 'IMAGE_SEQUENCE') {
       this.props.exportProjectAsImageSequence(name);
       this.props.toggle();
+    } else if (type === 'IMAGE_SVG') {
+      this.props.exportProjectAsImageSVG(name);
+      this.props.toggle();
+      
     }
   }
 
@@ -229,6 +233,32 @@ class ExportOptions extends Component {
               color='gray-green'
               action={() => { this.createAndToggle('IMAGE_SEQUENCE') }}
               text="Export Image Sequence"
+              />
+            </div>
+          </div>
+          <div className="wide-export-info-item">
+            <ObjectInfo
+              className="export-object-info"
+              title="Image SVG"
+              rows={[
+                {
+                  text: "Creates a .svg file of the current frame",
+                  icon: "check"
+                },
+                {
+                  text: "Animations",
+                  icon: "cancel",
+                },
+                {
+                  text: "Scripts",
+                  icon: "cancel"
+                },
+              ]} />
+            <div className="export-modal-button-container">
+            <ActionButton
+              color='gray-green'
+              action={() => { this.createAndToggle('IMAGE_SVG') }}
+              text="Export Image SVG"
               />
             </div>
           </div>

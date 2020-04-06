@@ -18,26 +18,26 @@
  */
 
 Wick.View.Clip = class extends Wick.View {
-    static get BORDER_STROKE_WIDTH() {
+    static get BORDER_STROKE_WIDTH () {
         return 2;
     }
 
-    static get BORDER_STROKE_COLOR_NORMAL() {
+    static get BORDER_STROKE_COLOR_NORMAL () {
         return '#2636E1';
     }
 
-    static get BORDER_STROKE_COLOR_HAS_CODE() {
+    static get BORDER_STROKE_COLOR_HAS_CODE () {
         return '#01C094';
     }
 
-    static get BORDER_STROKE_COLOR_HAS_CODE_ERROR() {
+    static get BORDER_STROKE_COLOR_HAS_CODE_ERROR () {
         return '#E61E07';
     }
 
     /**
      * Creates a new Button view.
      */
-    constructor() {
+    constructor () {
         super();
 
         this.group = new this.paper.Group();
@@ -47,15 +47,15 @@ Wick.View.Clip = class extends Wick.View {
         this._bounds = new paper.Rectangle();
     }
 
-    get bounds() {
+    get bounds () {
         return this._bounds;
     }
 
-    get absoluteBounds() {
+    get absoluteBounds () {
         return this.group.bounds;
     }
 
-    render() {
+    render () {
         // Render timeline view
         this.model.timeline.view.render();
 
@@ -73,7 +73,7 @@ Wick.View.Clip = class extends Wick.View {
         this.group.matrix.set(new paper.Matrix());
         this._bounds = this.group.bounds.clone();
 
-        this.group.pivot = new this.paper.Point(0, 0);
+        this.group.pivot = new this.paper.Point(0,0);
         this.group.position.x = this.model.transformation.x;
         this.group.position.y = this.model.transformation.y;
         this.group.scaling.x = this.model.transformation.scaleX;
@@ -82,8 +82,8 @@ Wick.View.Clip = class extends Wick.View {
         this.group.opacity = this.model.transformation.opacity;
     }
 
-    generateBorder() {
-        var group = new this.paper.Group({ insert: false });
+    generateBorder () {
+        var group = new this.paper.Group({insert:false});
         group.locked = true;
         group.data.wickType = 'clip_border_' + this.model.uuid;
 
@@ -91,9 +91,9 @@ Wick.View.Clip = class extends Wick.View {
 
         // Change border colors based on if the Clip caused an error
         var strokeColor = Wick.View.Clip.BORDER_STROKE_COLOR_NORMAL;
-        if (this.model.project.error && this.model.project.error.uuid === this.model.uuid) {
+        if(this.model.project.error && this.model.project.error.uuid === this.model.uuid) {
             strokeColor = Wick.View.Clip.BORDER_STROKE_COLOR_HAS_CODE_ERROR;
-        } else if (this.model.hasContentfulScripts) {
+        } else if(this.model.hasContentfulScripts) {
             strokeColor = Wick.View.Clip.BORDER_STROKE_COLOR_HAS_CODE;
         }
 
@@ -107,7 +107,7 @@ Wick.View.Clip = class extends Wick.View {
         });
         group.addChild(border);
 
-        group.pivot = new this.paper.Point(0, 0);
+        group.pivot = new this.paper.Point(0,0);
         group.position.x = this.model.transformation.x;
         group.position.y = this.model.transformation.y;
         group.scaling.x = this.model.transformation.scaleX;

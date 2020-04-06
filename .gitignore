@@ -3,6 +3,7 @@
 # dependencies
 /node_modules
 */node_modules
+/node_module.lnk
 
 # testing
 /coverage
@@ -23,3 +24,10 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+
+#dist is the compliled engine so shouldn't really be under source control as it is a product of the source
+/dist/*
+
+/engine/dist/*
+
+/public/corelibs/wick-editot/*

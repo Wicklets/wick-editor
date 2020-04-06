@@ -1528,4 +1528,11 @@ Wick.Project = class extends Wick.Base {
             });
         });
     }
+
+    /*
+     * @return {string} - the project in SVG, (should we turn it into base64 or a blob or something?)
+     */
+    //toSVG(callback) {
+    //    this.activetimeline.exportSVG();
+    //}
 }

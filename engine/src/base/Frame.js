@@ -570,10 +570,11 @@ Wick.Frame = class extends Wick.Tickable {
      * Import SVG data into this frame. SVGs containing mulitple paths will be split into multiple Wick Paths.
      * @param {string} svg - the SVG data to parse and import.
      */
-    //importSVG (svg) {
-    //    this.view.importSVG(svg);
-    //}
-
+    /*
+    importSVG (svg) {
+        this.view.importSVG(svg);
+    }
+    */
     /**
      * Get the position of this frame in relation to the parent timeline's playhead position.
      * @returns {number}
