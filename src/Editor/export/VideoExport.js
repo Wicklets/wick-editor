@@ -45,7 +45,7 @@ class VideoExport {
     static _generateProjectImages = async (args) => {
 
       let { project, onProgress } = args;
-      let dimensions = VideoExport._ensureValidDimensions(args.width || project.width, args.height || project.width);
+      let dimensions = VideoExport._ensureValidDimensions(args.width || project.width, args.height || project.height);
 
       onProgress && onProgress('Rendering Images', 33);
 
