@@ -27,7 +27,8 @@ BuiltinAssets = class {
         var defaultVcamWH = {width: 720, height: 480};
         var defaultCrosshairSize = 75;
 
-        var vcamPaths = [
+        // Vcam outline (hidden when project plays)
+        var vcamBorderPaths = [
             // Cam border
             new paper.Path.Rectangle({
                 from: new paper.Point(-defaultVcamWH.width/2, -defaultVcamWH.height/2),
@@ -52,21 +53,87 @@ BuiltinAssets = class {
             }),
         ];
 
-        vcamPaths.forEach(vcamPath => {
+        vcamBorderPaths.forEach(vcamPath => {
             vcam.activeFrame.addPath(new Wick.Path({path:vcamPath}));
         });
 
+        // Vcam black borders (only visible when project is playing and showBlackBorders is set to true)
+        var borderSize = 10000;
+        var blackBorderPaths = [
+            // Black border top
+            new paper.Path.Rectangle({
+                from: new paper.Point(-borderSize, -borderSize),
+                to: new paper.Point(borderSize, -defaultVcamWH.height/2),
+                strokeWidth: 1,
+                strokeColor: '#000',
+                fillColor: '#000',
+            }),
+            // Black border bottom
+            new paper.Path.Rectangle({
+                from: new paper.Point(-borderSize, defaultVcamWH.height/2),
+                to: new paper.Point(borderSize, borderSize),
+                strokeWidth: 1,
+                strokeColor: '#000',
+                fillColor: '#000',
+            }),
+            // Black border left
+            new paper.Path.Rectangle({
+                from: new paper.Point(-borderSize, -borderSize),
+                to: new paper.Point(-defaultVcamWH.width/2, borderSize),
+                strokeWidth: 1,
+                strokeColor: '#000',
+                fillColor: '#000',
+            }),
+            // Black border right
+            new paper.Path.Rectangle({
+                from: new paper.Point(defaultVcamWH.width/2, -borderSize),
+                to: new paper.Point(borderSize, borderSize),
+                strokeWidth: 1,
+                strokeColor: '#000',
+                fillColor: '#000',
+            }),
+        ];
+
+        vcam.activeLayer.addFrame(new Wick.Frame({start:2}));
+        blackBorderPaths.forEach(vcamPath => {
+            vcam.activeLayer.getFrameAtPlayheadPosition(2).addPath(new Wick.Path({path:vcamPath}));
+        });
+
+        // Blank frame
+        vcam.activeLayer.addFrame(new Wick.Frame({start:3}))
+
+        // Build script
         var vcamScript = "";
-        vcamScript += "// Wick VCam Beta v0.01\n";
+        vcamScript += "// Wick VCam Beta v0.02\n";
         vcamScript += "\n";
-        vcamScript += "// Make the VCam invisible\n";
-        vcamScript += "this.opacity = 0;\n";
+        vcamScript += "// (optional) set this value to true if you want black bars to\n";
+        vcamScript += "// render if the vcam is a different aspect ratio than the project\n";
+        vcamScript += "this.showBlackBorders = true;\n";
         vcamScript += "\n";
+        vcamScript += "// Save original size of the vcam\n";
+        vcamScript += "this.origBounds = this.origBounds || {\n";
+        vcamScript += "    width: this.bounds.width,\n";
+        vcamScript += "    height: this.bounds.height,\n";
+        vcamScript += "}\n";
+        vcamScript += "// Hide vcam outline and show black borders (if enabled)\n";
+        vcamScript += "this.gotoAndStop(this.showBlackBorders ? 2 : 3);\n";
+        vcamScript += "\n";
+        vcamScript += "// Hide the projects black bars if needed (the vcam will render its own)\n";
+        vcamScript += "this.project.renderBlackBars = false;";
         vcamScript += "// Adjust pan and zoom so that only what is inside the vcam is visible\n";
-        vcamScript += "project.project.zoom = 1/this.scaleX;\n";
-        vcamScript += "project.project.pan.x = -(this.x - project.width/2);\n";
-        vcamScript += "project.project.pan.y = -(this.y - project.height/2);\n";
+        vcamScript += "var w = 0;\n";
+        vcamScript += "var h = 0;\n";
+        vcamScript += "w = this.project.view.canvasDimensions.width;\n";
+        vcamScript += "h = this.project.view.canvasDimensions.height;\n";
+        vcamScript += "var wr = w / this.origBounds.width/this.scaleX;\n";
+        vcamScript += "var hr = h / this.origBounds.height/this.scaleY;\n";
+        vcamScript += "this.project.zoom = Math.min(wr, hr);\n";
+        vcamScript += "this.project.pan.x = -(this.x - project.width/2);\n";
+        vcamScript += "this.project.pan.y = -(this.y - project.height/2);\n";
+        vcamScript += "this.project.rotation = -this.rotation;\n";
+        vcamScript += "\n";
         vcam.addScript('update', vcamScript);
+        vcam.removeScript('default');
 
         return vcam;
     }

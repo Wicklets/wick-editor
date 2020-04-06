@@ -41,6 +41,7 @@ Wick.Project = class extends Wick.Base {
 
         this.pan = {x: 0, y: 0};
         this.zoom = 1.0;
+        this.rotation = 0.0;
 
         this.onionSkinEnabled = false;
         this.onionSkinSeekBackwards = 1;
@@ -138,6 +139,11 @@ Wick.Project = class extends Wick.Base {
 
         this._hideCursor = false;
         this._muted = false;
+        this._renderBlackBars = true;
+
+        // reset rotation, but not pan/zoom.
+        // not resetting pan/zoom is convenient when preview playing.
+        this.rotation = 0;
     }
 
     _serialize (args) {
@@ -1048,9 +1054,24 @@ Wick.Project = class extends Wick.Base {
 
     /**
      * Is the project currently muted?
+     * @type {boolean}
      */
     get muted () {
         return this._muted;
+    }
+
+    /**
+     * Should the project render black bars around the canvas area?
+     * (These only show up if the size of the window/element that the project
+     * is inside is a different size than the project dimensions).
+     * @type {boolean}
+     */
+    get renderBlackBars () {
+        return this._renderBlackBars;
+    }
+
+    set renderBlackBars (renderBlackBars) {
+        this._renderBlackBars = renderBlackBars;
     }
 
     /**

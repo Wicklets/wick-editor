@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.4.2.16.46.20";
+var WICK_ENGINE_BUILD_VERSION = "2020.4.6.15.31.21";
 /*!
  * Paper.js v0.11.8 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -46173,8 +46173,9 @@ BuiltinAssets = class {
       width: 720,
       height: 480
     };
-    var defaultCrosshairSize = 75;
-    var vcamPaths = [// Cam border
+    var defaultCrosshairSize = 75; // Vcam outline (hidden when project plays)
+
+    var vcamBorderPaths = [// Cam border
     new paper.Path.Rectangle({
       from: new paper.Point(-defaultVcamWH.width / 2, -defaultVcamWH.height / 2),
       to: new paper.Point(defaultVcamWH.width / 2, defaultVcamWH.height / 2),
@@ -46194,22 +46195,86 @@ BuiltinAssets = class {
       strokeWidth: 1,
       strokeColor: '#000'
     })];
-    vcamPaths.forEach(vcamPath => {
+    vcamBorderPaths.forEach(vcamPath => {
       vcam.activeFrame.addPath(new Wick.Path({
         path: vcamPath
       }));
-    });
+    }); // Vcam black borders (only visible when project is playing and showBlackBorders is set to true)
+
+    var borderSize = 10000;
+    var blackBorderPaths = [// Black border top
+    new paper.Path.Rectangle({
+      from: new paper.Point(-borderSize, -borderSize),
+      to: new paper.Point(borderSize, -defaultVcamWH.height / 2),
+      strokeWidth: 1,
+      strokeColor: '#000',
+      fillColor: '#000'
+    }), // Black border bottom
+    new paper.Path.Rectangle({
+      from: new paper.Point(-borderSize, defaultVcamWH.height / 2),
+      to: new paper.Point(borderSize, borderSize),
+      strokeWidth: 1,
+      strokeColor: '#000',
+      fillColor: '#000'
+    }), // Black border left
+    new paper.Path.Rectangle({
+      from: new paper.Point(-borderSize, -borderSize),
+      to: new paper.Point(-defaultVcamWH.width / 2, borderSize),
+      strokeWidth: 1,
+      strokeColor: '#000',
+      fillColor: '#000'
+    }), // Black border right
+    new paper.Path.Rectangle({
+      from: new paper.Point(defaultVcamWH.width / 2, -borderSize),
+      to: new paper.Point(borderSize, borderSize),
+      strokeWidth: 1,
+      strokeColor: '#000',
+      fillColor: '#000'
+    })];
+    vcam.activeLayer.addFrame(new Wick.Frame({
+      start: 2
+    }));
+    blackBorderPaths.forEach(vcamPath => {
+      vcam.activeLayer.getFrameAtPlayheadPosition(2).addPath(new Wick.Path({
+        path: vcamPath
+      }));
+    }); // Blank frame
+
+    vcam.activeLayer.addFrame(new Wick.Frame({
+      start: 3
+    })); // Build script
+
     var vcamScript = "";
-    vcamScript += "// Wick VCam Beta v0.01\n";
+    vcamScript += "// Wick VCam Beta v0.02\n";
     vcamScript += "\n";
-    vcamScript += "// Make the VCam invisible\n";
-    vcamScript += "this.opacity = 0;\n";
+    vcamScript += "// (optional) set this value to true if you want black bars to\n";
+    vcamScript += "// render if the vcam is a different aspect ratio than the project\n";
+    vcamScript += "this.showBlackBorders = true;\n";
     vcamScript += "\n";
+    vcamScript += "// Save original size of the vcam\n";
+    vcamScript += "this.origBounds = this.origBounds || {\n";
+    vcamScript += "    width: this.bounds.width,\n";
+    vcamScript += "    height: this.bounds.height,\n";
+    vcamScript += "}\n";
+    vcamScript += "// Hide vcam outline and show black borders (if enabled)\n";
+    vcamScript += "this.gotoAndStop(this.showBlackBorders ? 2 : 3);\n";
+    vcamScript += "\n";
+    vcamScript += "// Hide the projects black bars if needed (the vcam will render its own)\n";
+    vcamScript += "this.project.renderBlackBars = false;";
     vcamScript += "// Adjust pan and zoom so that only what is inside the vcam is visible\n";
-    vcamScript += "project.project.zoom = 1/this.scaleX;\n";
-    vcamScript += "project.project.pan.x = -(this.x - project.width/2);\n";
-    vcamScript += "project.project.pan.y = -(this.y - project.height/2);\n";
+    vcamScript += "var w = 0;\n";
+    vcamScript += "var h = 0;\n";
+    vcamScript += "w = this.project.view.canvasDimensions.width;\n";
+    vcamScript += "h = this.project.view.canvasDimensions.height;\n";
+    vcamScript += "var wr = w / this.origBounds.width/this.scaleX;\n";
+    vcamScript += "var hr = h / this.origBounds.height/this.scaleY;\n";
+    vcamScript += "this.project.zoom = Math.min(wr, hr);\n";
+    vcamScript += "this.project.pan.x = -(this.x - project.width/2);\n";
+    vcamScript += "this.project.pan.y = -(this.y - project.height/2);\n";
+    vcamScript += "this.project.rotation = -this.rotation;\n";
+    vcamScript += "\n";
     vcam.addScript('update', vcamScript);
+    vcam.removeScript('default');
     return vcam;
   }
 
@@ -48276,6 +48341,7 @@ Wick.Project = class extends Wick.Base {
       y: 0
     };
     this.zoom = 1.0;
+    this.rotation = 0.0;
     this.onionSkinEnabled = false;
     this.onionSkinSeekBackwards = 1;
     this.onionSkinSeekForwards = 1;
@@ -48369,6 +48435,10 @@ Wick.Project = class extends Wick.Base {
     this._focus = data.focus;
     this._hideCursor = false;
     this._muted = false;
+    this._renderBlackBars = true; // reset rotation, but not pan/zoom.
+    // not resetting pan/zoom is convenient when preview playing.
+
+    this.rotation = 0;
   }
 
   _serialize(args) {
@@ -49344,11 +49414,27 @@ Wick.Project = class extends Wick.Base {
   }
   /**
    * Is the project currently muted?
+   * @type {boolean}
    */
 
 
   get muted() {
     return this._muted;
+  }
+  /**
+   * Should the project render black bars around the canvas area?
+   * (These only show up if the size of the window/element that the project
+   * is inside is a different size than the project dimensions).
+   * @type {boolean}
+   */
+
+
+  get renderBlackBars() {
+    return this._renderBlackBars;
+  }
+
+  set renderBlackBars(renderBlackBars) {
+    this._renderBlackBars = renderBlackBars;
   }
   /**
    * In "Published Mode", all layers will be rendered even if they are set to be hidden.
@@ -59701,7 +59787,8 @@ Wick.View.Project = class extends Wick.View {
     }
 
     var pan = this._pan;
-    this.paper.view.center = new paper.Point(-pan.x, -pan.y); // Generate background layer
+    this.paper.view.center = new paper.Point(-pan.x, -pan.y);
+    this.paper.view.rotation = this.model.rotation; // Generate background layer
 
     this._svgBackgroundLayer.removeChildren();
 
@@ -59744,7 +59831,7 @@ Wick.View.Project = class extends Wick.View {
     } // Render black bars (for published projects)
 
 
-    if (this.model.publishedMode) {
+    if (this.model.publishedMode && this.model.renderBlackBars) {
       this._svgBordersLayer.removeChildren();
 
       this._svgBordersLayer.addChildren(this._generateSVGBorders());

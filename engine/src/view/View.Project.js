@@ -350,6 +350,7 @@ Wick.View.Project = class extends Wick.View {
 
         var pan = this._pan;
         this.paper.view.center = new paper.Point(-pan.x, -pan.y);
+        this.paper.view.rotation = this.model.rotation;
 
         // Generate background layer
         this._svgBackgroundLayer.removeChildren();
@@ -392,7 +393,7 @@ Wick.View.Project = class extends Wick.View {
         }
 
         // Render black bars (for published projects)
-        if(this.model.publishedMode) {
+        if(this.model.publishedMode && this.model.renderBlackBars) {
             this._svgBordersLayer.removeChildren();
             this._svgBordersLayer.addChildren(this._generateSVGBorders());
             this.paper.project.addLayer(this._svgBordersLayer);
