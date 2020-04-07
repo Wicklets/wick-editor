@@ -31,74 +31,12 @@ Wick.View.Layer = class extends Wick.View {
         this.activeFrameContainers = [];
     }
 
-    addOnionSkin () {
-        var onionSkinSeekBackwards = this.model.project.onionSkinSeekBackwards;
-        var onionSkinSeekForwards = this.model.project.onionSkinSeekForwards;
-        var playheadPosition = this.model.project.focus.timeline.playheadPosition;
-
-        this.model.frames.filter(frame => {
-            return !frame.inPosition(playheadPosition)
-                && frame.inRange(playheadPosition - onionSkinSeekBackwards,
-                                 playheadPosition + onionSkinSeekForwards);
-        }).forEach(frame => {
-            this.onionSkinFrame(frame);
-        });
-    }
-
-    onionSkinFrame (frame) {
-        var onionSkinSeekBackwards = this.model.project.onionSkinSeekBackwards;
-        var onionSkinSeekForwards = this.model.project.onionSkinSeekForwards;
-        var playheadPosition = this.model.project.focus.timeline.playheadPosition;
-
-        frame.view.render();
-
-    
-
-        this.onionSkinnedFramesLayers.push(frame.view.pathsLayer);
-        this.onionSkinnedFramesLayers.push(frame.view.clipsLayer);
-
-        var seek = 1;
-
-        var onionTintColor = new window.Wick.Color("#ffffff");
-
-        // Should replace midpoint with start, a frame can be onion skinned while it's midpoint is behind or in front of the playhead position.
-        if(frame.midpoint < playheadPosition) {
-            seek = onionSkinSeekBackwards;
-            onionTintColor = this.model.project.toolSettings.getSetting('backwardOnionSkinTint').rgba;
-        } else if(frame.midpoint > playheadPosition) {
-            seek = onionSkinSeekForwards;
-            onionTintColor = this.model.project.toolSettings.getSetting('forwardOnionSkinTint').rgba;
-        }
-
-        var dist = frame.distanceFrom(playheadPosition);
-        var onionMult = ((seek - dist) + 1) / seek;
-        onionMult = Math.min(1, Math.max(0, onionMult));
-        var opacity = onionMult * Wick.View.Layer.BASE_ONION_OPACITY;
-
-        frame.view.clipsLayer.locked = true;
-        frame.view.pathsLayer.locked = true;
-        frame.view.clipsLayer.opacity = opacity;
-        frame.view.pathsLayer.opacity = opacity;
-
-        /**
-         * The render style of the onion skinned frames.
-         * "standard": Objects on onion skinned frames are rendered fully
-         * "outlines": Only the strokes of objects on onion skinned frames are rendered
-         * @type {String}
-         */
-
-        if(this.model.project.toolSettings.getSetting('onionSkinStyle') === 'outlines') {
-            frame.view.pathsLayer.fillColor = 'rgba(0,0,0,0)'; // Make the fills transparent.
-            frame.view.pathsLayer.strokeWidth = this.model.project.toolSettings.getSetting('onionSkinOutlineWidth');
-            frame.view.pathsLayer.strokeColor = onionTintColor;
-        }
-    }
-
     render () {
         // Add active frame layers
         this.activeFrameLayers = [];
         var frame = this.model.activeFrame;
         if(frame) {
+            frame.onionSkinned = false;
             frame.view.render();
 
             this.activeFrameLayers.push(frame.view.pathsLayer);
@@ -124,12 +62,55 @@ Wick.View.Layer = class extends Wick.View {
         // Add onion skinning, if necessary.
         this.onionSkinnedFramesLayers = [];
 
-        if (this.model.project && 
+        if (this.model.project &&
             this.model.project.onionSkinEnabled &&
             !this.model.project.playing &&
-            this.model.parentClip.isFocus){ 
+            this.model.parentClip.isFocus){
                 this.addOnionSkin();
         }
 
+    }
+
+    addOnionSkin () {
+        var onionSkinSeekBackwards = this.model.project.onionSkinSeekBackwards;
+        var onionSkinSeekForwards = this.model.project.onionSkinSeekForwards;
+        var playheadPosition = this.model.project.focus.timeline.playheadPosition;
+
+        this.model.frames.filter(frame => {
+            return !frame.inPosition(playheadPosition)
+                && frame.inRange(playheadPosition - onionSkinSeekBackwards,
+                                 playheadPosition + onionSkinSeekForwards);
+        }).forEach(frame => {
+            frame.onionSkinned = true;
+            this.onionSkinFrame(frame);
+        });
+    }
+
+    onionSkinFrame (frame) {
+        var onionSkinSeekBackwards = this.model.project.onionSkinSeekBackwards;
+        var onionSkinSeekForwards = this.model.project.onionSkinSeekForwards;
+        var playheadPosition = this.model.project.focus.timeline.playheadPosition;
+
+        frame.view.render();
+
+        this.onionSkinnedFramesLayers.push(frame.view.pathsLayer);
+        this.onionSkinnedFramesLayers.push(frame.view.clipsLayer);
+
+        var seek = 1;
+        if(frame.midpoint < playheadPosition) {
+            seek = onionSkinSeekBackwards;
+        } else if(frame.midpoint > playheadPosition) {
+            seek = onionSkinSeekForwards;
+        }
+
+        var dist = frame.distanceFrom(playheadPosition);
+        var onionMult = ((seek - dist) + 1) / seek;
+        onionMult = Math.min(1, Math.max(0, onionMult));
+        var opacity = onionMult * Wick.View.Layer.BASE_ONION_OPACITY;
+
+        frame.view.clipsLayer.locked = true;
+        frame.view.pathsLayer.locked = true;
+        frame.view.clipsLayer.opacity = opacity;
+        frame.view.pathsLayer.opacity = opacity;
     }
 }

@@ -38,11 +38,19 @@ Wick.Color = class {
         return this._color.red;
     }
 
+    set r (r) {
+        this._color.red = r;
+    }
+
     /**
      *
      */
     get g () {
         return this._color.green;
+    }
+
+    set g (g) {
+        this._color.green = g;
     }
 
     /**
@@ -52,11 +60,19 @@ Wick.Color = class {
         return this._color.blue;
     }
 
+    set b (b) {
+        this._color.blue = b;
+    }
+
     /**
      *
      */
     get a () {
         return this._color.alpha;
+    }
+
+    set a (a) {
+        this._color.alpha = a;
     }
 
     /**
@@ -71,5 +87,34 @@ Wick.Color = class {
      */
     get rgba () {
         return this._color.toCSS();
+    }
+
+    /**
+     *
+     */
+    add (color) {
+        var newColor = new Wick.Color();
+        newColor.r = this.r + color.r;
+        newColor.g = this.g + color.g;
+        newColor.b = this.b + color.b;
+        return newColor;
+    }
+
+    /**
+     *
+     */
+    multiply (n) {
+        var newColor = new Wick.Color();
+        newColor.r = this.r * n;
+        newColor.g = this.g * n;
+        newColor.b = this.b * n;
+        return newColor;
+    }
+
+    /**
+     *
+     */
+    static average (a, b) {
+        return a.multiply(0.5).add(b.multiply(0.5));
     }
 }

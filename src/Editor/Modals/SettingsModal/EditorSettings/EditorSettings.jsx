@@ -22,12 +22,12 @@ import React, { Component } from 'react';
 import './_editorsettings.scss';
 import WickInput from 'Editor/Util/WickInput/WickInput';
 
-var classNames = require('classnames'); 
+var classNames = require('classnames');
 
 class EditorSettings extends Component {
   constructor () {
     super();
-   
+
     this.state = {
 
     }
@@ -47,12 +47,12 @@ class EditorSettings extends Component {
               onChange={(val) => {this.props.setToolSetting('onionSkinStyle', val.value)}}/>
 
           {
-            this.props.getToolSetting('onionSkinStyle') === 'outlines' &&
+            this.props.getToolSetting('onionSkinStyle') !== 'standard' &&
             <div className="editor-settings-row">
               Outline Colors:
               <div className="editor-settings-color-containers-row">
                 <div className="editor-settings-color-container">
-                  B: 
+                  B:
 
                   <WickInput
                   type="color"
@@ -85,7 +85,7 @@ class EditorSettings extends Component {
               </div>
             </div>
           }
-          
+
         </div>
       </div>
     )

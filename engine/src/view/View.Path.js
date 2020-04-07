@@ -110,17 +110,42 @@ Wick.View.Path = class extends Wick.View {
 
         // Apply onion skin style
         // (This is done here in the Path code because we actually change the style of the path
-        // if the current onion skin mode is set to "outlines")
-        if(this.model.parentFrame && this.model.parentFrame.onionSkinned && this.model.project.toolSettings.getSetting('onionSkinStyle') === 'outline') {
-            this.item.data.originalStyle = {
-                strokeColor: path.strokeColor,
-                fillColor: path.fillColor,
-                strokeWidth: path.strokeWidth,
+        // if the current onion skin mode is set to "outlines" or "tint")
+        var onionSkinStyle = this.model.project && this.model.project.toolSettings.getSetting('onionSkinStyle');
+        if(this.model.parentFrame && this.model.parentFrame.onionSkinned) {
+            this.item.data.originalStyle = this.item.data.originalStyle || {
+                strokeColor: this.item.strokeColor,
+                fillColor: this.item.fillColor,
+                strokeWidth: this.item.strokeWidth,
             };
 
-            frame.view.pathsLayer.fillColor = 'rgba(0,0,0,0)'; // Make the fills transparent.
-            frame.view.pathsLayer.strokeWidth = this.model.project.toolSettings.getSetting('onionSkinOutlineWidth');
-            frame.view.pathsLayer.strokeColor = onionTintColor;
+            var frame = this.model.parentFrame;
+            var playheadPosition = this.model.project.focus.timeline.playheadPosition;
+
+            var onionTintColor = new Wick.Color("#ffffff");
+            if(frame.midpoint < playheadPosition) {
+                onionTintColor = this.model.project.toolSettings.getSetting('backwardOnionSkinTint').rgba;
+            } else if(frame.midpoint > playheadPosition) {
+                onionTintColor = this.model.project.toolSettings.getSetting('forwardOnionSkinTint').rgba;
+            }
+
+            if(onionSkinStyle === 'standard') {
+                // We don't have to do anything!
+            } else if (onionSkinStyle === 'outlines') {
+                this.item.fillColor = 'rgba(0,0,0,0)'; // Make the fills transparent.
+                this.item.strokeWidth = this.model.project.toolSettings.getSetting('onionSkinOutlineWidth');
+                this.item.strokeColor = onionTintColor;
+            } else if (onionSkinStyle === 'tint') {
+                if(this.item.fillColor) this.item.fillColor = Wick.Color.average(new Wick.Color(this.item.fillColor.toCSS()), new Wick.Color(onionTintColor)).rgba;
+                if(this.item.strokeColor) this.item.strokeColor = Wick.Color.average(new Wick.Color(this.item.strokeColor.toCSS()), new Wick.Color(onionTintColor)).rgba;
+            }
+        } else {
+            if(this.item.data.originalStyle) {
+                this.item.strokeColor = this.item.data.originalStyle.strokeColor;
+                this.item.fillColor = this.item.data.originalStyle.fillColor;
+                this.item.strokeWidth = this.item.data.originalStyle.strokeWidth;
+            }
+            delete this.item.data.originalStyle;
         }
     }
 

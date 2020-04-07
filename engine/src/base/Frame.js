@@ -32,6 +32,7 @@ Wick.Frame = class extends Wick.Tickable {
 
         this.start = args.start || 1;
         this.end = args.end || this.start;
+        this.onionSkinned = false;
 
         this._soundAssetUUID = null;
         this._soundID = null;

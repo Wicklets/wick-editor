@@ -78,10 +78,16 @@ Wick.ToolSettings = class {
             max: 5,
             step: 1,
         }, {
+        /**
+         * The render style of the onion skinned frames.
+         * "standard": Objects on onion skinned frames are rendered fully
+         * "outlines": Only the strokes of objects on onion skinned frames are rendered
+         * "tint": Objects are rendered fully but with a slight tint 
+         */
             type: "choice",
             name: 'onionSkinStyle',
             default: 'standard',
-            options: ['standard', 'outlines']
+            options: ['standard', 'outlines', 'tint']
         }, {
             type: "number",
             name: 'onionSkinOutlineWidth',
@@ -170,7 +176,7 @@ Wick.ToolSettings = class {
     setSetting (name, value) {
         var setting = this._settings[name];
 
-        if (!setting) return; 
+        if (!setting) return;
 
         // Check to make sure there's no type mismatch
         if((typeof value) !== (typeof setting.value)) {
