@@ -53,10 +53,10 @@
     "url-parse": "^1.4.7"
   },
   "build": {
-    "afterSign": "electron-builder-notarize",
     "appId": "com.wicklets.wickEditor",
     "productName": "Wick Editor",
     "icon": "public/icon.icns",
+    "afterSign": "electron-builder-notarize",
     "mac": {
       "category": "public.app-category.entertainment",
       "hardenedRuntime": true,
@@ -105,6 +105,7 @@
     "not op_mini all"
   ],
   "devDependencies": {
+    "dotenv": "^8.2.0",
     "electron": "^6.0.10",
     "electron-builder": "^22.4.1",
     "electron-builder-notarize": "^1.1.2",
