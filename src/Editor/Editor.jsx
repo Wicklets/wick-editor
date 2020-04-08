@@ -49,7 +49,8 @@ import AssetLibrary from './Panels/AssetLibrary/AssetLibrary';
 import PopOutCodeEditor from './PopOuts/PopOutCodeEditor/PopOutCodeEditor';
 
 import EditorWrapper from './EditorWrapper';
-import { resetIdCounter } from 'react-tabs';
+
+const autoUpdater = require("electron-updater");
 
 
 var classNames = require('classnames');
@@ -215,6 +216,11 @@ class Editor extends EditorCore {
     this.onWindowResize();
     if(!this.tryToParseProjectURL()) {
       this.showAutosavedProjects();
+    }
+
+    // Electron Auto Update check.
+    if (window && window.process && window.process.type) {
+      autoUpdater.checkForUpdatesAndNotify();
     }
   }
 
