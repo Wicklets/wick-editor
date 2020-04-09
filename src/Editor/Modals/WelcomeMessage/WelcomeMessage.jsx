@@ -62,7 +62,7 @@ class WelcomeModal extends Component {
   renderPatreonSupporters = (className) => {
     return  (
       <div className={classNames("supporter-list-container", className)}>
-        <a className="welcome-modal-highlight" target="_blank" rel="noopener noreferrer" href="https://www.patreon.com/WickEditor">Patreon Supporters</a>
+        <a className="welcome-modal-highlight" target="_blank" rel="noopener noreferrer" href="https://www.patreon.com/WickEditor">Become a Patreon Supporter!</a>
         <div className="supporter-list">
           {this.patreonSupporters.join(", ")}
         </div>

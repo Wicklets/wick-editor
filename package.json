@@ -4,6 +4,11 @@
   "author": "Wicklets LLC",
   "private": true,
   "homepage": "./",
+  "main": "./public/electron.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Wicklets/wick-editor.git"
+  },
   "dependencies": {
     "@ffmpeg/ffmpeg": "^0.7.0",
     "audiobuffer-to-wav": "^1.0.0",
@@ -93,7 +98,8 @@
     "engine-tests": "cd engine; python -m SimpleHTTPServer 9999",
     "postinstall": "electron-builder install-app-deps",
     "build-packages": "electron-builder --mac --windows --linux",
-    "release": ""
+    "build-mac": "npm run build; electron-builder --mac", 
+    "release": "electron-builder --mac --windows --linux --publish always"
   },
   "eslintConfig": {
     "extends": "react-app"
