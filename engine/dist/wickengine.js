@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.4.7.16.30.45";
+var WICK_ENGINE_BUILD_VERSION = "2020.4.10.15.51.40";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -46299,7 +46299,7 @@ Wick.ToolSettings = class {
        * The render style of the onion skinned frames.
        * "standard": Objects on onion skinned frames are rendered fully
        * "outlines": Only the strokes of objects on onion skinned frames are rendered
-       * "tint": Objects are rendered fully but with a slight tint 
+       * "tint": Objects are rendered fully but with a slight tint
        */
       type: "choice",
       name: 'onionSkinStyle',
@@ -46320,6 +46320,11 @@ Wick.ToolSettings = class {
       type: 'color',
       name: 'forwardOnionSkinTint',
       default: new Wick.Color('rgba(0, 0, 255, .5)')
+    }, {
+      type: "choice",
+      name: 'brushMode',
+      default: 'none',
+      options: ['none', 'behind', 'inside']
     }];
   }
   /**
@@ -56485,6 +56490,19 @@ Wick.Tool = class {
 
 
   addPathToProject(path, frame) {
+    // Avoid adding empty paths
+    if (!path) {
+      return;
+    }
+
+    if (path instanceof paper.Path && path.segments.length === 0) {
+      return;
+    }
+
+    if (path instanceof paper.CompoundPath && path.children.length === 0) {
+      return;
+    }
+
     if (!this.project.activeFrame) {
       // Automatically add a frame is there isn't one
       this.project.insertBlankFrame();
@@ -56870,7 +56888,12 @@ Wick.Tools.Brush = class extends Wick.Tool {
       potracePath.closed = true;
       potracePath.children[0].closed = true;
       potracePath.children[0].applyMatrix = true;
-      this.addPathToProject(potracePath.children[0], this._currentDrawingFrame); // We're done potracing using the current croquis canvas, reset the stroke bounds
+      var result = potracePath.children[0]; // Do special brush mode action
+
+      var brushMode = this.getSetting('brushMode');
+      result = this._applyBrushMode(brushMode, result, this._currentDrawingFrame.view.pathsLayer); // Done! Add the path to the project
+
+      this.addPathToProject(result, this._currentDrawingFrame); // We're done potracing using the current croquis canvas, reset the stroke bounds
 
       this._resetStrokeBounds(point); // Clear croquis canvas
 
@@ -56878,6 +56901,46 @@ Wick.Tools.Brush = class extends Wick.Tool {
       this.croquis.clearLayer();
       this.fireEvent('canvasModified');
     }, Wick.Tools.Brush.CROQUIS_WAIT_AMT_MS);
+  }
+
+  _applyBrushMode(mode, path, layer) {
+    if (!mode) {
+      console.warn('_applyBrushMode: Invalid brush mode: ' + mode);
+      console.warn('Valid brush modes are "inside" and "outside".');
+      return;
+    }
+
+    if (mode === 'none') {
+      return path;
+    }
+
+    var booleanOpName = {
+      'inside': 'intersect',
+      'outside': 'subtract'
+    }[mode];
+    var mask = null;
+    layer.children.forEach(otherPath => {
+      if (otherPath === mask) return;
+
+      if (mask) {
+        mask = mask.unite(otherPath);
+        mask.remove();
+      } else {
+        mask = otherPath;
+      }
+    });
+
+    if (!mask) {
+      // Nothing to mask with
+      return path;
+    }
+
+    var result = path.clone({
+      insert: false
+    });
+    result = result[booleanOpName](mask);
+    result.remove();
+    return result;
   }
 
 };

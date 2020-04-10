@@ -82,7 +82,7 @@ Wick.ToolSettings = class {
          * The render style of the onion skinned frames.
          * "standard": Objects on onion skinned frames are rendered fully
          * "outlines": Only the strokes of objects on onion skinned frames are rendered
-         * "tint": Objects are rendered fully but with a slight tint 
+         * "tint": Objects are rendered fully but with a slight tint
          */
             type: "choice",
             name: 'onionSkinStyle',
@@ -103,7 +103,12 @@ Wick.ToolSettings = class {
             type: 'color',
             name: 'forwardOnionSkinTint',
             default: new Wick.Color('rgba(0, 0, 255, .5)'),
-        },];
+        },{
+            type: "choice",
+            name: 'brushMode',
+            default: 'none',
+            options: ['none', 'behind', 'inside']
+        }];
     }
 
     /**
@@ -165,7 +170,6 @@ Wick.ToolSettings = class {
                 };
             }
         });
-
     }
 
     /**
