@@ -143,96 +143,17 @@ Wick.Timeline = class extends Wick.Base {
     }
 
     /*
-     * converts a Wick object tree into a paper onject tree then exports the svg
+     * exports the project as an SVG file
      * @onError {function(message)}
      * @returns {string} - the SVG for the current view in string form (maybe this should be base64 or a blob or something)
      */
     exportSVG(onError) {
-            //put it all in a paper group then use paper's function to export as svg.
-            // itterate over the Wick projecgt tree turning it into a paper item tree
-            // baseChildren could take a pair opf values to make code modifications less error prone in the future, but this works ok for now.
-            // parents have to remain decoupled from their children eecause otherwise you'd be assigning paper parents to Wick children and a whole lot of crap would happen
-            var baseChild = new class {
-                set timeline(wickTimeline) {
-                    this._timeline = wickTimeline;
-                }
-                getChildren() {
-                    return this._timeline.layers;
-                }
-            };
 
-            baseChild.timeline = this;
-            baseChild.paperClass = paper.Group;
-            var parentChildStack = [];
-            // it can be asserted that both parentStack and baseChildren have the same number of elements. Testing that invariasnt may aid debugging.
-            var newPaperParent = new paper.Layer();
-            var paperRoot = newPaperParent;
-            //var newPaperInstance = new baseChild.paperClass();
-            //newPaperParent.addChild(newPaperInstance);
-            baseChild.getChildren().forEach(child => {
-                parentChildStack.push({ parent: newPaperParent, child: child });
-            });
-            var itemChild = null;
-            while (itemParentChild = parentChildStack.pop()) {
-                newPaperParent = itemParentChild.parent;
-                itemChild = itemParentChild.child;
-
-                if (itemChild instanceof Wick.Path) {
-                    paperPath = new paper.Path();
-                    paperPath.importJSON(itemChild.json)
-                    newPaperParent.addChild(paperPath)
-                } else {
-                    baseChild = undefined;
-
-                    if (itemChild instanceof Wick.Frame) {
-                        baseChild = new class {
-                            set itemChild(wickItemchild) {
-                                this._itemChild = wickItemchild;
-                            }
-                            getChildren() {
-                                return this._itemChild.layers;
-                            }
-                        };
-                        baseChild.itemChild = itemChild;
-                        baseChild.paperClass = paper.Group;
-                    } else if (itemChild instanceof Wick.Clip) {
-                        baseChild.getChildren = itemChild.getChildren
-                        baseChild.paperClass = paper.Group;
-                    } else if (itemChild instanceof Wick.Layer) {
-                        baseChild.getChildren = itemChild.getChildren;
-                        baseChild.paperClass = paper.Layer;
-                    } else if (itemChild instanceof Wick.Selection) {
-                        // we should be able top handle ecporting selections to SVG, but exporting selections doesn't happen anywhere else in the code.
-                        baseChild.getChildren = itemChild.GetChildren;
-                        baseChild.paperClass = paper.Group;
-                    } else {
-                        //unexpected type so thow an errror
-                        console.error("Unexpected type found in project tree");
-                        if (onError) {
-                            onError("Unexpected type found in project tree");
-                        }
-                        return null;
-                    }
-                    var itemChildren = baseChild.getChildren();
-                    //set to 0 to trim empty items or -1 to include empty items
-                    if (itemChildren.length > -1) {
-                        var newPaperInstance = new baseChild.paperClass();
-                        newPaperParent.addChild(newPaperInstance);
-                        itemChildren.reverse().forEach(child => {
-                            parentStack.push(newPaperInstance);
-                            baseChildren.push(child);
-                        })
-                    } //else do nothing and just skip over this one
-                }
-            }
-            //export to svg turning match shapes to on so that the friendlyest svg is created.
-            // also imbed any images that are to be exported.
-            var svgOutput = paperRoot.exportSVG({ asString: true, matchShapes: true, embedImages: true });
-            paperRoot.remove();
+            var svgOutput = paper.project.exportSVG({ asString: true, matchShapes: true, embedImages: true });
             return svgOutput;
         }
         //this.project.paper.
-        //paperGruop = new paper.Group
+        //paperGroup = new paper.Group
         /**
          * The active frame, determined by the playhead position.
          * @type {Wick.Frame}
