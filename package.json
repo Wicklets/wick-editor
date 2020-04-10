@@ -62,7 +62,17 @@
     "productName": "Wick Editor",
     "icon": "public/icon.icns",
     "afterSign": "electron-builder-notarize",
+    "files": [
+      "./build/**/*",
+      "./public/electron.js"
+    ],
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "license": "build/license_en.txt"
+    },
     "mac": {
+      "target": "pkg",
       "category": "public.app-category.entertainment",
       "hardenedRuntime": true,
       "gatekeeperAssess": false,
@@ -71,6 +81,9 @@
     },
     "dmg": {
       "icon": false
+    },
+    "pkg": {
+      "license": "./build/license_en.txt"
     },
     "linux": {
       "target": [
@@ -98,7 +111,8 @@
     "engine-tests": "cd engine; python -m SimpleHTTPServer 9999",
     "postinstall": "electron-builder install-app-deps",
     "build-packages": "electron-builder --mac --windows --linux",
-    "package-mac": "npm run build; electron-builder --mac", 
+    "package-mac": "npm run build; electron-builder --mac",
+    "package-windows": "npm run build; electron-builder --windows",
     "release": "electron-builder --mac --windows --linux --publish always"
   },
   "eslintConfig": {

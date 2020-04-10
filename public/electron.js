@@ -1,4 +1,5 @@
 const electron = require('electron');
+const autoUpdater = require("electron-updater");
 // Module to control application life.
 const app = electron.app;
 // Module to create native browser window.
@@ -51,6 +52,8 @@ function createWindow() {
       e.preventDefault();
       electron.shell.openExternal(url);
     });
+
+    mainWindow.setMenu(null); // Disable the file menu in favor of the in-app menu.
 }
 
 // This method will be called when Electron has finished
@@ -58,6 +61,7 @@ function createWindow() {
 // Some APIs can only be used after this event occurs.
 app.on('ready', () => {
     createWindow();
+    autoUpdater.checkForUpdatesAndNotify();
 });
 
 // Quit when all windows are closed.

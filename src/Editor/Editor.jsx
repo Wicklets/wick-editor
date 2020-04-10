@@ -50,9 +50,6 @@ import PopOutCodeEditor from './PopOuts/PopOutCodeEditor/PopOutCodeEditor';
 
 import EditorWrapper from './EditorWrapper';
 
-// Required for electron builds.
-const autoUpdater = require("electron-updater"); // Used for auto updating.
-
 
 var classNames = require('classnames');
 
@@ -217,12 +214,6 @@ class Editor extends EditorCore {
     this.onWindowResize();
     if(!this.tryToParseProjectURL()) {
       this.showAutosavedProjects();
-    }
-
-    // Electron Auto Update check.
-    console.log("Component mounted");
-    if (window && window.process && window.process.type) {
-      autoUpdater.checkForUpdatesAndNotify();
     }
   }
 
