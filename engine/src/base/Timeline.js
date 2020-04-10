@@ -161,36 +161,28 @@ Wick.Timeline = class extends Wick.Base {
                 }
             };
 
-
-            //baseChild.setTimeline = function(tl) {
-            //    this.timeline = tl;
-            //}
             baseChild.timeline = this;
-
             baseChild.paperClass = paper.Group;
-            var parentStack = [];
-            var baseChildren = [];
+            var parentChildStack = [];
             // it can be asserted that both parentStack and baseChildren have the same number of elements. Testing that invariasnt may aid debugging.
             var newPaperParent = new paper.Layer();
             var paperRoot = newPaperParent;
             //var newPaperInstance = new baseChild.paperClass();
             //newPaperParent.addChild(newPaperInstance);
             baseChild.getChildren().forEach(child => {
-                parentStack.push(newPaperParent);
-                baseChildren.push(child);
+                parentChildStack.push({ parent: newPaperParent, child: child });
             });
             var itemChild = null;
-            while (itemChild = baseChildren.pop()) { //} !== undefined) {
-                newPaperParent = parentStack.pop();
+            while (itemParentChild = parentChildStack.pop()) {
+                newPaperParent = itemParentChild.parent;
+                itemChild = itemParentChild.child;
+
                 if (itemChild instanceof Wick.Path) {
                     paperPath = new paper.Path();
                     paperPath.importJSON(itemChild.json)
                     newPaperParent.addChild(paperPath)
                 } else {
-                    baseChild = function() {
-                            console.error("basechild not set");
-                        }
-                        //baseChild = string;
+                    baseChild = undefined;
 
                     if (itemChild instanceof Wick.Frame) {
                         baseChild = new class {
@@ -210,7 +202,7 @@ Wick.Timeline = class extends Wick.Base {
                         baseChild.getChildren = itemChild.getChildren;
                         baseChild.paperClass = paper.Layer;
                     } else if (itemChild instanceof Wick.Selection) {
-                        // we should be able top hsndle ecporting selections to SVG, but exporting selections doesn't happen anywhere else in the code.
+                        // we should be able top handle ecporting selections to SVG, but exporting selections doesn't happen anywhere else in the code.
                         baseChild.getChildren = itemChild.GetChildren;
                         baseChild.paperClass = paper.Group;
                     } else {
@@ -218,7 +210,6 @@ Wick.Timeline = class extends Wick.Base {
                         console.error("Unexpected type found in project tree");
                         if (onError) {
                             onError("Unexpected type found in project tree");
-
                         }
                         return null;
                     }
@@ -227,12 +218,11 @@ Wick.Timeline = class extends Wick.Base {
                     if (itemChildren.length > -1) {
                         var newPaperInstance = new baseChild.paperClass();
                         newPaperParent.addChild(newPaperInstance);
-                        itemChildren.forEach(child => {
+                        itemChildren.reverse().forEach(child => {
                             parentStack.push(newPaperInstance);
                             baseChildren.push(child);
                         })
                     } //else do nothing and just skip over this one
-
                 }
             }
             //export to svg turning match shapes to on so that the friendlyest svg is created.

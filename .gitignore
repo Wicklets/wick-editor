@@ -30,4 +30,4 @@ yarn-error.log*
 
 /engine/dist/*
 
-/public/corelibs/wick-editot/*
+/public/corelibs/wick-engine
