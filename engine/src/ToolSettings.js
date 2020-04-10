@@ -118,9 +118,8 @@ Wick.ToolSettings = class {
         this._settings = {};
         this._onSettingsChangedCallback = () => {};
 
-        Wick.ToolSettings.DEFAULT_SETTINGS.forEach(setting => {
-            this.createSetting(setting);
-        });
+        this.resetAllSettings();
+        this.loadSettingsFromLocalstorage();
     }
 
     /**
@@ -154,22 +153,6 @@ Wick.ToolSettings = class {
             step: args.step,
             options: args.options,
         };
-
-        // Get stored tool setting if it exists.
-        localforage.getItem(this.getStorageKey(name)).then( (value) => {
-            if (value) {
-                this._settings[args.name] = {
-                    type: args.type,
-                    name: args.name,
-                    value: type === 'color' ? new window.Wick.Color(value) : value,
-                    default: args.default,
-                    min: args.min,
-                    max: args.max,
-                    step: args.step,
-                    options: args.options,
-                };
-            }
-        });
     }
 
     /**
@@ -259,6 +242,38 @@ Wick.ToolSettings = class {
      */
     onSettingsChanged (callback) {
         this._onSettingsChangedCallback = callback;
+    }
+
+    /**
+     * Reset settings to the deafults.
+     */
+    resetAllSettings () {
+        Wick.ToolSettings.DEFAULT_SETTINGS.forEach(setting => {
+            this.createSetting(setting);
+        });
+    }
+
+    /**
+     * Load settings from localstorage if they exist.
+     */
+    loadSettingsFromLocalstorage () {
+        Wick.ToolSettings.DEFAULT_SETTINGS.forEach(setting => {
+            // Get stored tool setting if it exists.
+            localforage.getItem(this.getStorageKey(name)).then( (value) => {
+                if (value) {
+                    this._settings[args.name] = {
+                        type: args.type,
+                        name: args.name,
+                        value: type === 'color' ? new window.Wick.Color(value) : value,
+                        default: args.default,
+                        min: args.min,
+                        max: args.max,
+                        step: args.step,
+                        options: args.options,
+                    };
+                }
+            });
+        });
     }
 
     _fireOnSettingsChanged (name, value) {

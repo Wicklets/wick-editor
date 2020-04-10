@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.4.10.15.51.40";
+var WICK_ENGINE_BUILD_VERSION = "2020.4.10.16.11.19";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -46337,9 +46337,8 @@ Wick.ToolSettings = class {
 
     this._onSettingsChangedCallback = () => {};
 
-    Wick.ToolSettings.DEFAULT_SETTINGS.forEach(setting => {
-      this.createSetting(setting);
-    });
+    this.resetAllSettings();
+    this.loadSettingsFromLocalstorage();
   }
   /**
    * Returns the appropriate key to use to store a tool setting by name.
@@ -46372,22 +46371,7 @@ Wick.ToolSettings = class {
       max: args.max,
       step: args.step,
       options: args.options
-    }; // Get stored tool setting if it exists.
-
-    localforage.getItem(this.getStorageKey(name)).then(value => {
-      if (value) {
-        this._settings[args.name] = {
-          type: args.type,
-          name: args.name,
-          value: type === 'color' ? new window.Wick.Color(value) : value,
-          default: args.default,
-          min: args.min,
-          max: args.max,
-          step: args.step,
-          options: args.options
-        };
-      }
-    });
+    };
   }
   /**
    * Update a value in the settings.
@@ -46483,6 +46467,40 @@ Wick.ToolSettings = class {
 
   onSettingsChanged(callback) {
     this._onSettingsChangedCallback = callback;
+  }
+  /**
+   * Reset settings to the deafults.
+   */
+
+
+  resetAllSettings() {
+    Wick.ToolSettings.DEFAULT_SETTINGS.forEach(setting => {
+      this.createSetting(setting);
+    });
+  }
+  /**
+   * Load settings from localstorage if they exist.
+   */
+
+
+  loadSettingsFromLocalstorage() {
+    Wick.ToolSettings.DEFAULT_SETTINGS.forEach(setting => {
+      // Get stored tool setting if it exists.
+      localforage.getItem(this.getStorageKey(name)).then(value => {
+        if (value) {
+          this._settings[args.name] = {
+            type: args.type,
+            name: args.name,
+            value: type === 'color' ? new window.Wick.Color(value) : value,
+            default: args.default,
+            min: args.min,
+            max: args.max,
+            step: args.step,
+            options: args.options
+          };
+        }
+      });
+    });
   }
 
   _fireOnSettingsChanged(name, value) {
