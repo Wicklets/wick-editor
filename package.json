@@ -98,7 +98,7 @@
     "engine-tests": "cd engine; python -m SimpleHTTPServer 9999",
     "postinstall": "electron-builder install-app-deps",
     "build-packages": "electron-builder --mac --windows --linux",
-    "build-mac": "npm run build; electron-builder --mac", 
+    "package-mac": "npm run build; electron-builder --mac", 
     "release": "electron-builder --mac --windows --linux --publish always"
   },
   "eslintConfig": {
