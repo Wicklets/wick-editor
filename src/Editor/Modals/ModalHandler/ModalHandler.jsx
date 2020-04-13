@@ -71,6 +71,7 @@ class ModalHandler extends Component {
           exportProjectAsStandaloneHTML={this.props.exportProjectAsStandaloneHTML}
           exportProjectAsVideo={this.props.exportProjectAsVideo}
           exportProjectAsImageSequence={this.props.exportProjectAsImageSequence}
+          exportProjectAsAudioTrack={this.props.exportProjectAsAudioTrack}
           open={this.props.activeModalName === 'ExportOptions'}
           projectName={this.props.project.name}
           />
@@ -121,7 +122,7 @@ class ModalHandler extends Component {
         <EditorInfo
           openModal={this.props.openModal}
           toggle={this.props.closeActiveModal}
-          open={this.props.activeModalName === 'EditorInfo'} 
+          open={this.props.activeModalName === 'EditorInfo'}
           editorVersion={this.props.editorVersion}
         />
         <OpenSourceNotices

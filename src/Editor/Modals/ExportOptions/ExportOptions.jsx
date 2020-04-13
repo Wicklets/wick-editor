@@ -26,7 +26,7 @@ import TabbedInterface from 'Editor/Util/TabbedInterface/TabbedInterface';
 
 import './_exportoptions.scss';
 
-let classNames=require("classnames"); 
+let classNames=require("classnames");
 
 class ExportOptions extends Component {
   constructor (props) {
@@ -48,7 +48,7 @@ class ExportOptions extends Component {
     this.advancedSizes = {
       "1080p": {
         width: 1920,
-        height: 1080, 
+        height: 1080,
       },
       "720p": {
         width: 1080,
@@ -85,7 +85,7 @@ class ExportOptions extends Component {
     let name = this.state.name !== "" ? this.state.name : (type);
 
     let args = {
-      name: name, 
+      name: name,
       width:  this.state.useAdvanced ? this.state.exportWidth : undefined,
       height: this.state.useAdvanced ? this.state.exportHeight : undefined,
     }
@@ -102,6 +102,9 @@ class ExportOptions extends Component {
       this.props.toggle();
     } else if (type === 'IMAGE_SEQUENCE') {
       this.props.exportProjectAsImageSequence(args);
+      this.props.toggle();
+    } else if (type === 'AUDIO_TRACK') {
+      this.props.exportProjectAsAudioTrack(args);
       this.props.toggle();
     }
   }
@@ -162,20 +165,20 @@ class ExportOptions extends Component {
     return (
       <div className="export-modal-advanced-options">
         <div className="export-modal-advanced-checkbox-container">
-          <WickInput 
-            type="checkbox" 
-            checked={this.state.useAdvanced} 
-            onChange={this.toggleAdvancedOptionsCheckbox} 
+          <WickInput
+            type="checkbox"
+            checked={this.state.useAdvanced}
+            onChange={this.toggleAdvancedOptionsCheckbox}
             label="Use Advanced Options"/>
         </div>
         {this.state.useAdvanced &&
           <div className="export-modal-advanced-options-content">
-          
+
           <div className="export-modal-advanced-option-title">
             Resolution
           </div>
-          
-          <div className="export-modal-resolution-inputs"> 
+
+          <div className="export-modal-resolution-inputs">
             <div className="export-modal-resolution-dropdown-container">
               <WickInput
                 type="select"
@@ -334,6 +337,36 @@ class ExportOptions extends Component {
       );
     }
 
+  renderAudioInfo () {
+    return (
+      <div className="export-info-container">
+        <div className="wide-export-info-item">
+          <ObjectInfo
+            className="export-object-info"
+            title="Audio Track"
+            rows={[
+              {
+                text: "Creates a .wav file of all audio in the project",
+                icon: "check"
+              },
+              {
+                text: "No Code is Run",
+                icon: "cancel"
+              },
+            ]} />
+          <div className="export-modal-button-container">
+          <ActionButton
+            color='gray-green'
+            action={() => { this.createAndToggle('AUDIO_TRACK') }}
+            text="Export Audio Track"
+            />
+          </div>
+          {this.renderAdvancedOptions()}
+        </div>
+      </div>
+    );
+  }
+
   render() {
     return (
       <WickModal
@@ -350,12 +383,13 @@ class ExportOptions extends Component {
               onChange={this.updateExportName}
               placeholder={this.placeholderName} />
           </div>
-          <TabbedInterface 
-            tabNames={["Animation", "Interactive", "Images"]} 
+          <TabbedInterface
+            tabNames={["Animation", "Interactive", "Images", "Audio Track"]}
             onTabSelect={this.setSubTab}>
             {this.renderAnimatedInfo()}
             {this.renderInteractiveInfo()}
             {this.renderImageInfo()}
+            {this.renderAudioInfo()}
           </TabbedInterface>
         </div>
       </WickModal>

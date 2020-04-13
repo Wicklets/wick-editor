@@ -1,3 +1,5 @@
+import AudioExport from './AudioExport';
+
 const { createWorker } = require('@ffmpeg/ffmpeg');
 const { setLogging } = require('@ffmpeg/ffmpeg');
 var b64toBuff = require('base64-arraybuffer');
@@ -22,21 +24,11 @@ class VideoExport {
     }
 
     static _generateAudioFile = async (args) => {
-
       let {project, onProgress} = args;
 
       onProgress && onProgress('Generating Audio Track...', 10);
 
-      return new Promise (resolve => {
-          project.generateAudioTrack({}, audioBuffer => {
-              if(!audioBuffer) {
-                resolve();
-              } else {
-                var wavBuffer = toWav(audioBuffer);
-                resolve(new Uint8Array(wavBuffer));
-              }
-            });
-      });
+      return AudioExport.generateAudioFile(args);
     }
 
     /**

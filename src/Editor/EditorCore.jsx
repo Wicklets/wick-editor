@@ -24,6 +24,7 @@ import { saveAs } from 'file-saver';
 import VideoExport from './export/VideoExport';
 import GIFExport from './export/GIFExport';
 import GIFImport from './import/GIFImport';
+import AudioExport from './export/AudioExport';
 import timeStamp from './Util/DataFunctions/timestamp';
 
 class EditorCore extends Component {
@@ -1090,6 +1091,18 @@ class EditorCore extends Component {
         type: 'success',
         text: "Successfully created .html file." });
       saveAs(new Blob([html], {type: "text/plain"}), outputName + '.html');
+    });
+  }
+
+  /**
+   * Exports the audio of a Wick project's audio as a single track in an audio file.
+   */
+  exportProjectAsAudioTrack = (args) => {
+    AudioExport.generateAudioFile({
+      project: this.project,
+    }).then((result) => {
+      console.log(result);
+      saveAs(new Blob([result]), 'audiotrack.wav');
     });
   }
 

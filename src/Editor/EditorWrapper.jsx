@@ -19,7 +19,7 @@
 
 import React from 'react';
 import ErrorBoundary from './Util/ErrorBoundary';
-import { Slide } from 'react-toastify'; 
+import { Slide } from 'react-toastify';
 import { ToastContainer } from 'react-toastify';
 import { GlobalHotKeys } from 'react-hotkeys';
 import ErrorPage from './Util/ErrorPage';
@@ -30,7 +30,7 @@ import ModalHandler from './Modals/ModalHandler/ModalHandler';
  * This component is designed to wrap the editor and provide all necessary global interactions.
  */
  class EditorWrapper extends React.Component {
-     
+
     render () {
         return (
             <ErrorBoundary
@@ -69,6 +69,7 @@ import ModalHandler from './Modals/ModalHandler/ModalHandler';
                         exportProjectAsStandaloneZip={this.props.editor.exportProjectAsStandaloneZip}
                         exportProjectAsStandaloneHTML={this.props.editor.exportProjectAsStandaloneHTML}
                         exportProjectAsImageSequence={this.props.editor.exportProjectAsImageSequence}
+                        exportProjectAsAudioTrack={this.props.editor.exportProjectAsAudioTrack}
                         warningModalInfo={this.props.editor.state.warningModalInfo}
                         loadAutosavedProject={this.props.editor.loadAutosavedProject}
                         clearAutoSavedProject={this.props.editor.clearAutoSavedProject}
@@ -85,7 +86,7 @@ import ModalHandler from './Modals/ModalHandler/ModalHandler';
                         changeColorPickerType={this.props.editor.changeColorPickerType}
                         updateLastColors={this.props.editor.updateLastColors}
                         lastColorsUsed={this.props.editor.state.lastColorsUsed}
-                        editorVersion={this.props.editor.editorVersion} 
+                        editorVersion={this.props.editor.editorVersion}
                         toast={this.props.editor.toast}
                         createCombinedHotKeyMap={this.props.editor.createCombinedHotKeyMap}
                         getToolSetting={this.props.editor.getToolSetting}
