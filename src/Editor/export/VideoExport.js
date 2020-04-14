@@ -5,14 +5,17 @@ const { setLogging } = require('@ffmpeg/ffmpeg');
 var b64toBuff = require('base64-arraybuffer');
 var toWav = require('audiobuffer-to-wav')
 
+var ENABLE_LOGGING = false;
+
 class VideoExport {
     /**
      * project, onProgress, onError, onFinish;
      */
     static renderVideo = async (args) => {
-      setLogging(true);
+      setLogging(ENABLE_LOGGING);
+      let logger = ENABLE_LOGGING ? (({message}) => console.log(message)) : (()=>{});
       const worker = createWorker({
-          logger: ({message}) => console.log(message),
+          logger: logger,
       });
 
       args.worker = worker;
@@ -114,9 +117,10 @@ class VideoExport {
 
       let command = [
           '-r', '' + Math.max(6, project.framerate),
-          '-f', 'image2',
           '-s', dimensions.width + "x" + dimensions.height,
           inputs,
+          '-profile:v', 'main',
+          '-pix_fmt', 'yuv420p',
           '-c:v', 'libx264',
           '-q:v', '10', //10=good quality, 31=bad quality
           '-filter:v', filterv,

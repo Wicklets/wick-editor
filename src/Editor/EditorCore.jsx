@@ -1101,7 +1101,6 @@ class EditorCore extends Component {
     AudioExport.generateAudioFile({
       project: this.project,
     }).then((result) => {
-      console.log(result);
       saveAs(new Blob([result]), 'audiotrack.wav');
     });
   }
