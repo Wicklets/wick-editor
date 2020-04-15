@@ -942,10 +942,14 @@ class EditorCore extends Component {
     }
 
     let onFinish = (gifBlob) => {
+      saveAs(gifBlob, outputName + '.gif');
       this.updateToast(toastID, {
         type: 'success',
         text: "Successfully created .gif file." });
-      saveAs(gifBlob, outputName + '.gif');
+      this.setState({
+        renderStatusMessage: 'Finished exporting GIF.',
+        renderProgress: 100
+      });
     }
 
     GIFExport.createAnimatedGIFFromProject({

@@ -22,7 +22,7 @@ class GIFExport {
     });
 
     gif.on('finished', (gif) => {
-      onProgress('Finished GIF export', 100);
+      onProgress('Saving GIF file (this may take a while)...', 99);
       onFinish(gif);
     });
 
@@ -31,6 +31,7 @@ class GIFExport {
         // Add frame to gif.
         gif.addFrame(image, {delay: 1000/project.framerate});
       });
+      onProgress('Rendering GIF file (this may take a while)...', 99);
       gif.render(); // Finalize gif render.
     }
 
