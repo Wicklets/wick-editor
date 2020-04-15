@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.4.15.13.19.3";
+var WICK_ENGINE_BUILD_VERSION = "2020.4.15.15.30.19";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -56941,8 +56941,14 @@ Wick.Tools.Brush = class extends Wick.Tool {
       if (otherPath === mask) return;
 
       if (mask) {
-        mask = mask.unite(otherPath);
-        mask.remove();
+        var newMask = mask.unite(otherPath);
+
+        if (newMask.children && newMask.children.length === 0 || newMask.segments && newMask.segments.length === 0) {// Ignore boolean ops that result in empty paths
+        } else {
+          mask = newMask;
+        }
+
+        newMask.remove();
       } else {
         mask = otherPath;
       }

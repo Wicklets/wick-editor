@@ -395,8 +395,16 @@ Wick.Tools.Brush = class extends Wick.Tool {
         layer.children.forEach(otherPath => {
             if(otherPath === mask) return;
             if(mask) {
-                mask = mask.unite(otherPath);
-                mask.remove();
+                var newMask = mask.unite(otherPath);
+
+                if((newMask.children && newMask.children.length === 0) ||
+                   (newMask.segments && newMask.segments.length === 0)) {
+                    // Ignore boolean ops that result in empty paths
+                } else {
+                    mask = newMask;
+                }
+                
+                newMask.remove();
             } else {
                 mask = otherPath;
             }
