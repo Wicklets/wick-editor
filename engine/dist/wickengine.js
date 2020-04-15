@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.4.10.16.11.19";
+var WICK_ENGINE_BUILD_VERSION = "2020.4.15.13.19.3";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -60583,7 +60583,7 @@ Wick.View.Project = class extends Wick.View {
     } else if (this._fitMode === 'fill') {
       // Fill mode: Try to fit the wick project's canvas inside the container canvas by
       // scaling it as much as possible without changing the project's original aspect ratio
-      this.paper.view.zoom = this.model.zoom * this.calculateFitZoom() * window.devicePixelRatio;
+      this.paper.view.zoom = this.model.zoom * this.calculateFitZoom();
     }
 
     var pan = this._pan;
@@ -60691,7 +60691,7 @@ Wick.View.Project = class extends Wick.View {
       strokeColor: 'black'
     }), // bottom
     new paper.Path.Rectangle({
-      from: new paper.Point(borderMin, this.model.height * window.devicePixelRatio + strokeOffset),
+      from: new paper.Point(borderMin, this.model.height + strokeOffset),
       to: new paper.Point(borderMax, borderMax),
       fillColor: 'black',
       strokeWidth: 1,
@@ -60699,13 +60699,13 @@ Wick.View.Project = class extends Wick.View {
     }), // left
     new paper.Path.Rectangle({
       from: new paper.Point(borderMin, -strokeOffset),
-      to: new paper.Point(-strokeOffset, this.model.height * window.devicePixelRatio + strokeOffset),
+      to: new paper.Point(-strokeOffset, this.model.height + strokeOffset),
       fillColor: 'black',
       strokeWidth: 1,
       strokeColor: 'black'
     }), // right
     new paper.Path.Rectangle({
-      from: new paper.Point(this.model.width * window.devicePixelRatio + strokeOffset, -strokeOffset),
+      from: new paper.Point(this.model.width + strokeOffset, -strokeOffset),
       to: new paper.Point(borderMax, borderMax),
       fillColor: 'black',
       strokeWidth: 1,
