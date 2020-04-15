@@ -125,7 +125,7 @@ You'll need:
 
 1) An API Key ID
 2) An API Key Issuer ID
-3) A certificate .p8 file saved to your ~/private_keys directory.
+3) A Windows Code Signing certificate (.p12 file) saved to your ~/private_keys directory and password.
 4) A Developer ID Application Certificate (Saved to your keychain).
 5) A Developer ID Installer Certificate (Saved to your keychain).
 
@@ -135,7 +135,7 @@ We obtained code signing certificates from [SSL.com](https://www.ssl.com). Reach
 
 Step 1. Building:
 
-1.1) Run `API_KEY_ID="..." API_KEY_ISSUER_ID="..." npm run build-packages`
+1.1) Run `API_KEY_ID="..." API_KEY_ISSUER_ID="..." WIN_CSC_LINK="~/PATH/TO/CERTIFICATE.p12" WIN_CSC_KEY_PASSWORD="PASSWORD" npm run build-packages`
 
  Ensure you provide the correct API key information as variables, or the Mac applications will not properly sign and notarize. If the certificates are installed correctly, they should automatically be used.
 
