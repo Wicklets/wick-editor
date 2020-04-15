@@ -26,12 +26,15 @@ function createWindow() {
       }
     });
 
+    mainWindow.autoUpdater = autoUpdater;
+
     // and load the index.html of the app.
     const startUrl = process.env.ELECTRON_START_URL || url.format({
             pathname: path.join(__dirname, '/../build/index.html'),
             protocol: 'file:',
             slashes: true
         });
+
     mainWindow.loadURL(startUrl);
 
     // Emitted when the window is closed.
@@ -61,7 +64,7 @@ function createWindow() {
 // Some APIs can only be used after this event occurs.
 app.on('ready', () => {
     createWindow();
-    autoUpdater.checkForUpdatesAndNotify();
+    autoUpdater.autoUpdater.checkForUpdatesAndNotify();
 });
 
 // Quit when all windows are closed.

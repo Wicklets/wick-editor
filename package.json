@@ -62,6 +62,7 @@
     "productName": "Wick Editor",
     "icon": "public/icon.icns",
     "afterSign": "electron-builder-notarize",
+    "copyright": "© 2016-2020 Wicklets LLC",
     "files": [
       "./build/**/*",
       "./public/electron.js"
@@ -72,7 +73,10 @@
       "license": "build/license_en.txt"
     },
     "mac": {
-      "target": "pkg",
+      "target": [
+        "pkg",
+        "dmg"
+      ],
       "category": "public.app-category.entertainment",
       "hardenedRuntime": true,
       "gatekeeperAssess": false,
@@ -112,8 +116,7 @@
     "postinstall": "electron-builder install-app-deps",
     "build-packages": "electron-builder --mac --windows --linux",
     "package-mac": "npm run build; electron-builder --mac",
-    "package-windows": "npm run build; electron-builder --windows",
-    "release": "electron-builder --mac --windows --linux --publish always"
+    "package-windows": "npm run build; electron-builder --windows"
   },
   "eslintConfig": {
     "extends": "react-app"
