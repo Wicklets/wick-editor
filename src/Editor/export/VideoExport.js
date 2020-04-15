@@ -13,9 +13,13 @@ class VideoExport {
      */
     static renderVideo = async (args) => {
       setLogging(ENABLE_LOGGING);
-      let logger = ENABLE_LOGGING ? (({message}) => console.log(message)) : (()=>{});
       const worker = createWorker({
-          logger: logger,
+          logger: ({message}) => {
+              if(ENABLE_LOGGING) {
+                  console.log(message);
+              }
+              VideoExport._parseProgressMessage(message, args);
+          },
       });
 
       args.worker = worker;
@@ -173,6 +177,24 @@ class VideoExport {
             width: newWidth,
             height: newHeight
         };
+    }
+
+    static _parseProgressMessage (message, args) {
+        if(!message) return
+        if(!message.includes('pts_time:')) return;
+
+        var time;
+
+        time = message.split('pts_time');
+        if(!time) return;
+        time = time[1];
+        if(!time) return;
+        time = time.split('pos');
+        if(!time) return;
+        time = time[0];
+        if(!time) return;
+
+        args.onProgress('Rendered ' + time + ' seconds', 85);
     }
 }
 

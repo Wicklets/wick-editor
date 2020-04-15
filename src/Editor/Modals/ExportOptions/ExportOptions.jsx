@@ -102,7 +102,6 @@ class ExportOptions extends Component {
       this.props.toggle();
     } else if (type === 'IMAGE_SEQUENCE') {
       this.props.exportProjectAsImageSequence(args);
-      this.props.toggle();
     } else if (type === 'AUDIO_TRACK') {
       this.props.exportProjectAsAudioTrack(args);
       this.props.toggle();
