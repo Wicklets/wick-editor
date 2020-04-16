@@ -101,84 +101,11 @@ Wick Editor is under the GNU v3 Public License. See the [LICENSE](LICENSE.md) fo
 
 
 
-## Bundling the Desktop App 
+## Building and Releasing the Desktop App 
 
-### Building for Mac, Windows and Linux
+Please refer to this Wiki entry for information on our dektop build processes! [https://github.com/Wicklets/wick-editor/wiki/Building-Desktop-Editors-for-Release](https://github.com/Wicklets/wick-editor/wiki/Building-Desktop-Editors-for-Release).
 
-This build process uses [electron-builder](https://www.electron.build/) and uses code from a series of tutorials. We are not build experts, so here are the steps that we follow to package our applications. This process is confusing as heck, so don't be afraid to reach out for help.
-
-We perform manual releases of the Wick Editor Desktop Applications. 
-
-Note: We have only run this build process on our Mac development machines, results will almost certainly be different on Windows and you will not be able to sign/notarize the mac builds described below on Windows.
-
-Part 0. Requirements:
-
-You'll need to have XCode developer tools installer and have the ability to run the `xcrun` command in your terminal.
-
-Part 1. Certificates: 
-
-a) Apple Ceritifcates:
-
-Before starting the build process, the developer that is building the desktop applications needs to obtain the appropriate certificates for signing the apps. Contact [Luca (Luxapodular)](mailto:luca@wickeditor.com) if you are on the Wicklets or Wick Editor team, you'll need to be added as a member of our organization on the [Apple Developer Program](https://developer.apple.com).
-
-You'll need: 
-
-1) An API Key ID
-2) An API Key Issuer ID
-3) A Windows Code Signing certificate (.p12 file) saved to your ~/private_keys directory and password.
-4) A Developer ID Application Certificate (Saved to your keychain).
-5) A Developer ID Installer Certificate (Saved to your keychain).
-
-b) Windows Code Signing Certificates
-
-We obtained code signing certificates from [SSL.com](https://www.ssl.com). Reach out to Luca to receive a certificate file if you are authorized to receive one.
-
-Step 1. Building:
-
-1.1) Run `API_KEY_ID="..." API_KEY_ISSUER_ID="..." WIN_CSC_LINK="~/PATH/TO/CERTIFICATE.p12" WIN_CSC_KEY_PASSWORD="PASSWORD" npm run build-packages`
-
- Ensure you provide the correct API key information as variables, or the Mac applications will not properly sign and notarize. If the certificates are installed correctly, they should automatically be used.
-
-1.2) You should have several built installers and packages in the wick-editor/dist directory.
-
-Step 2. Testing Installers and Apps:
-
-2.1) The EXE and .dmg should be done! With a properly installed Code Signing Certifactes, you should have to do nothing else. 
-
-2.2) The .pkg installer on the other hand will not be signed and notarized (Yes, the app inside the pkg is signed and notarized. If anyone know how to automate this process, please drop us a line!) Test this by uploading the .pkg to a service like Google Drive, then downloading and attempting to run the installer. You should receive a notice that says it is from an unidentified developer. 
-
-2.3) Ensure that the apps at least run in the .dmg/.app before continuing.
-
-Step 3. Signing and Notarizing Installers for MacOS:
-
-3.1) Sign the PKG.
-
-Run `productsign --sign 'Developer ID Installer: NAME (1234ABCDEFG)' ./dist/NAME_OF_.pkg ./dist/NAME_OF_SIGNED.pkg`
-
-3.2) Notarize your PKG.
-
-Run `xcrun altool --notarize-app --primary-bundle-id "com.wickeditor.wickeditorinstaller" --username "developerAccountEmail@email.com" --password "app-pass-word-abcd" --file "~/FULL/PATH/TO/SIGNED/PKG/Installer.pkg"`
-
-This command will take time! When the file has been uploaded, you should receive an ID that looks like this.
-
-`RequestUUID = 181638fb-a618-2298-bff0-47fa79f01326`
-
-Keep track of that ID.
-
-3.3) Check that the status of notarization.
-
-This will take some time as you are sending the .pkg to apple to be notarized (often 3-10 minutes). You will not receive feedback unless you ping apple's servers.
-
-Run `xcrun altool --notarization-info REQUEST_UUID "developerAccountEmail@email.com" --password "app-pass-word-abcd"`
-
-And you will receive either an 'in-progress' or 'success' message.
-
-If you see a success message, you're done! Ping again in a minute or two if you get an 'in-progress' message.
-
-References for Mac Signing and Notarization (Genuinely, without these resources I wuld have been lost.)
-1. [Samuel Meuli - "Notarizing your Electron App"](https://samuelmeuli.com/blog/2019-12-28-notarizing-your-electron-app/)
-2. [Samuel Meuli - "Packaging and Publishing your Electron App"](https://samuelmeuli.com/blog/2019-04-07-packaging-and-publishing-an-electron-app/)
-3. [Davide Barranca - "Notarizing Installers for MacOS Catalina"](https://www.davidebarranca.com/2019/04/notarizing-installers-for-macos-catalina/)
+If you are familiar with electron-builder, electron-packager, or have experience building desktop electron apps for production, we could use your help! Please message us or open an issue.
 
 ## Testing Support From
 
