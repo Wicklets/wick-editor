@@ -82,14 +82,6 @@ To deploy, you'll need to have push access to this repo.
 
 1) Run `npm run prerelease-deploy`
 
-### Bundling the Electron App (Desktop App)
-
-This build process uses [electron-packager](https://github.com/electron/electron-packager) and uses code from this tutorial: [Building an Electron application with create-react-app](https://www.freecodecamp.org/news/building-an-electron-application-with-create-react-app-97945861647c/).
-
-1) Run `npm run build`
-
-2) Run `electron-build-macos` and/or `electron-build-windows`
-
 ## Support
 
 <a href="https://www.patreon.com/WickEditor">
@@ -107,6 +99,15 @@ Wick Editor is under the GNU v3 Public License. See the [LICENSE](LICENSE.md) fo
 * [Follow on Twitter](https://twitter.com/wickeditor)
 * [Follow on Facebook](https://www.facebook.com/wickeditor/)
 
+
+
+## Building and Releasing the Desktop App 
+
+Please refer to this Wiki entry for information on our dektop build processes! [https://github.com/Wicklets/wick-editor/wiki/Building-Desktop-Editors-for-Release](https://github.com/Wicklets/wick-editor/wiki/Building-Desktop-Editors-for-Release).
+
+If you are familiar with electron-builder, electron-packager, or have experience building desktop electron apps for production, we could use your help! Please message us or open an issue.
+
 ## Testing Support From
 
 <a href="https://www.browserstack.com/"><img src=".github/images/browserstack.svg" alt="Browser Stack" width="25%"></a>
+

@@ -1,4 +1,5 @@
 const electron = require('electron');
+const autoUpdater = require("electron-updater");
 // Module to control application life.
 const app = electron.app;
 // Module to create native browser window.
@@ -16,6 +17,8 @@ function createWindow() {
     mainWindow = new BrowserWindow({
       width: 1280,
       height: 800,
+      minWidth: 400,
+      minHeight: 400,
       webPreferences: {
         // This is required for HTML Preview to work.
         // See: https://www.electronjs.org/docs/api/window-open#using-chromes-windowopen-implementation
@@ -23,12 +26,15 @@ function createWindow() {
       }
     });
 
+    mainWindow.autoUpdater = autoUpdater;
+
     // and load the index.html of the app.
     const startUrl = process.env.ELECTRON_START_URL || url.format({
             pathname: path.join(__dirname, '/../build/index.html'),
             protocol: 'file:',
             slashes: true
         });
+
     mainWindow.loadURL(startUrl);
 
     // Emitted when the window is closed.
@@ -44,12 +50,22 @@ function createWindow() {
         mainWindow.destroy();
         app.quit();
     });
+
+    mainWindow.webContents.on('new-window', function(e, url) {
+      e.preventDefault();
+      electron.shell.openExternal(url);
+    });
+
+    mainWindow.setMenu(null); // Disable the file menu in favor of the in-app menu.
 }
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', createWindow);
+app.on('ready', () => {
+    createWindow();
+    autoUpdater.autoUpdater.checkForUpdatesAndNotify();
+});
 
 // Quit when all windows are closed.
 app.on('window-all-closed', function () {

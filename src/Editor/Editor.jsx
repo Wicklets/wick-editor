@@ -49,7 +49,6 @@ import AssetLibrary from './Panels/AssetLibrary/AssetLibrary';
 import PopOutCodeEditor from './PopOuts/PopOutCodeEditor/PopOutCodeEditor';
 
 import EditorWrapper from './EditorWrapper';
-import { resetIdCounter } from 'react-tabs';
 
 
 var classNames = require('classnames');
