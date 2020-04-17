@@ -51,6 +51,10 @@ import iconPoint from 'resources/tool-icons/point.svg';
 import iconBrushPressure from 'resources/tool-icons/brushpressure.png';
 import iconRelativeBrushSize from 'resources/tool-icons/relativebrush.png';
 
+import iconBrushModeNone from 'resources/tool-icons/brush-mode-none.png';
+import iconBrushModeInside from 'resources/tool-icons/brush-mode-inside.png';
+import iconBrushModeOutside from 'resources/tool-icons/brush-mode-outside.png';
+
 // Actions
 import iconAction from 'resources/tool-icons/action.svg';
 import iconDuplicate from 'resources/tool-icons/duplicate.svg';
@@ -239,6 +243,9 @@ class ToolIcon extends Component {
       "mascotmark": mascotMark,
       "mascotmarkdark": mascotMarkDark,
       "mascot": mascot,
+      "brushmodenone": iconBrushModeNone,
+      "brushmodeinside": iconBrushModeInside,
+      "brushmodeoutside": iconBrushModeOutside,
     }
   }
 

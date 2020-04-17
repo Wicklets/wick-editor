@@ -19,8 +19,15 @@
 
 @import 'Editor/_wickbrand.scss';
 
- .popup-menu-popover {
-   background-color: $editor-primary;
-   border: 2px solid $editor-primary-outline;
-   max-width: 375px;
- }
+.popup-menu-popover {
+  background-color: $editor-primary;
+  border: 2px solid $editor-primary-outline;
+  max-width: 375px;
+}
+
+.actions-container {
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
