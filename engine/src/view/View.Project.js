@@ -241,7 +241,7 @@ Wick.View.Project = class extends Wick.View {
     _setupTools () {
         // This is a hacky way to create scroll-to-zoom functionality.
         // (Using https://github.com/jquery/jquery-mousewheel for cross-browser mousewheel event)
-        if(!this.model.publishedMode) {
+        if(!this.model.isPublished) {
             $(this._svgCanvas).on('mousewheel', e => {
                 e.preventDefault();
                 var d = e.deltaY * e.deltaFactor * 0.001;
@@ -387,13 +387,13 @@ Wick.View.Project = class extends Wick.View {
         // Render GUI Layer
         this._svgGUILayer.removeChildren();
         this._svgGUILayer.locked = true;
-        if(this.model.showClipBorders && !this.model.playing && !this.model.publishedMode) {
+        if(this.model.showClipBorders && !this.model.playing && !this.model.isPublished) {
             this._svgGUILayer.addChildren(this._generateClipBorders());
             this.paper.project.addLayer(this._svgGUILayer);
         }
 
         // Render black bars (for published projects)
-        if(this.model.publishedMode && this.model.renderBlackBars) {
+        if(this.model.isPublished && this.model.renderBlackBars) {
             this._svgBordersLayer.removeChildren();
             this._svgBordersLayer.addChildren(this._generateSVGBorders());
             this.paper.project.addLayer(this._svgBordersLayer);
@@ -454,18 +454,27 @@ Wick.View.Project = class extends Wick.View {
         var borderMin = -10000,
             borderMax = 10000;
         var strokeOffset = 0.5; // prevents gaps between border rects
+
+        var bottom = this.model.height;
+        var right = this.model.width;
+
+        if (this.model.publishedMode === "imageSequence") {
+            bottom *= window.devicePixelRatio;
+            right *= window.devicePixelRatio;
+        }
+
         var borderPieces = [
             // top
             new paper.Path.Rectangle({
                 from: new paper.Point(borderMin, borderMin),
-                to: new paper.Point(borderMax, -strokeOffset),
+                to: new paper.Point(borderMax, strokeOffset),
                 fillColor: 'black',
                 strokeWidth: 1,
                 strokeColor: 'black',
             }),
             // bottom
             new paper.Path.Rectangle({
-                from: new paper.Point(borderMin, (this.model.height)+strokeOffset),
+                from: new paper.Point(borderMin, (bottom)-strokeOffset),
                 to: new paper.Point(borderMax, borderMax),
                 fillColor: 'black',
                 strokeWidth: 1,
@@ -474,14 +483,14 @@ Wick.View.Project = class extends Wick.View {
             // left
             new paper.Path.Rectangle({
                 from: new paper.Point(borderMin, -strokeOffset),
-                to: new paper.Point(-strokeOffset, (this.model.height)+strokeOffset),
+                to: new paper.Point(-strokeOffset, (bottom)+strokeOffset),
                 fillColor: 'black',
                 strokeWidth: 1,
                 strokeColor: 'black',
             }),
             // right
             new paper.Path.Rectangle({
-                from: new paper.Point((this.model.width)+strokeOffset, -strokeOffset),
+                from: new paper.Point((right)+strokeOffset, -strokeOffset),
                 to: new paper.Point(borderMax, borderMax),
                 fillColor: 'black',
                 strokeWidth: 1,

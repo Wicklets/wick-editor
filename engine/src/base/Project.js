@@ -70,7 +70,7 @@ Wick.Project = class extends Wick.Base {
 
         this._hideCursor = false;
         this._muted = false;
-        this._publishedMode = false;
+        this._publishedMode = false; // Review the publishedMode setter for rules.
         this._showClipBorders = true;
 
         this._userErrorCallback = () => {};
@@ -1084,7 +1084,20 @@ Wick.Project = class extends Wick.Base {
     }
 
     set publishedMode (publishedMode) {
+        let validModes = [false, "interactive", "imageSequence"];
+        
+        if (validModes.indexOf(publishedMode) === -1) {
+            throw new Error("Published Mode: " + publishedMode + " is invalid. Must be one of type: " + validModes);
+        }
+
         this._publishedMode = publishedMode;
+    }
+
+    /**
+     * Returns true if the project is published, false otherwise.
+     */
+    get isPublished () {
+        return this.publishedMode !== false;
     }
 
     /**
@@ -1303,7 +1316,7 @@ Wick.Project = class extends Wick.Base {
         this.focus = this.root;
         this.focus.timeline.playheadPosition = 1;
 
-        this.publishedMode = true;
+        this.publishedMode = "interactive";
         this.play({
             onAfterTick: (() => {
                 this.view.render();
@@ -1441,7 +1454,7 @@ Wick.Project = class extends Wick.Base {
         this.history.saveSnapshot('before-gif-render');
         this.mute();
         this.selection.clear();
-        this.publishedMode = true;
+        this.publishedMode = "imageSequence";
         this.tick();
 
         // Put the project canvas inside a div that's the same size as the project so the frames render at the correct resolution.
