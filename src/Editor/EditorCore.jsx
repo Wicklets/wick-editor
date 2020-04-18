@@ -746,7 +746,11 @@ class EditorCore extends Component {
       this.project.createClipInstanceFromAsset(window.Wick.ObjectCache.getObjectByUUID(uuid), dropPoint.x, dropPoint.y, clip => {
         this.projectDidChange();
       });
-    } else {
+    } else if (obj instanceof window.Wick.SVGAsset) {
+      this.project.createSVGInstanceFromAsset(window.Wick.ObjectCache.getObjectByUUID(uuid), dropPoint.x, dropPoint.y, svg => {
+        this.projectDidChange();
+      });
+    }else {
       console.error('object is not an ImageAsset or a ClipAsset')
     }
   }

@@ -897,9 +897,9 @@ Wick.Project = class extends Wick.Base {
     createSVGInstanceFromAsset(asset, x, y, callback) {
         asset.createInstance(svg => {
             this.addObject(svg);
-            this.addObject(svg);
             svg.x = x;
             svg.y = y;
+            //this.addObject(svg);
             callback(svg);
         });
     }
