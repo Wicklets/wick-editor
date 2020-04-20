@@ -483,7 +483,7 @@ class Editor extends EditorCore {
    * @param {boolean} state - Optional. True will open the canvas actions menu, false will close.
    */
   toggleCanvasActions = (state) => {
-    if (state === undefined || (typeof variable !== "boolean")) {
+    if (state === undefined || (typeof state !== "boolean")) {
       state = !this.state.showCanvasActions;
     }
 
@@ -497,7 +497,7 @@ class Editor extends EditorCore {
    * @param {boolean} state - Optional. True will open the brush modes menu, false will close.
    */
   toggleBrushModes = (state) => {
-    if (state === undefined || (typeof variable !== "boolean")) {
+    if (state === undefined || (typeof state !== "boolean")) {
       state = !this.state.showBrushModes;
     }
 
