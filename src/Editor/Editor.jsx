@@ -74,6 +74,7 @@ class Editor extends EditorCore {
       codeEditorOpen: false,
       scriptToEdit: "default",
       showCanvasActions: false,
+      showBrushModes: false,
       showCodeErrors: false,
       inspectorSize: 250,
       timelineSize: 175,
@@ -97,7 +98,7 @@ class Editor extends EditorCore {
       exporting: false,
       useCustomOnionSkinningColors: false,
       customOnionSkinningColors: {
-        backward: "rgba(0, 255, 0, .3)", 
+        backward: "rgba(0, 255, 0, .3)",
         forward: "rgba(255, 0, 0, .3)",
       }
     };
@@ -482,12 +483,26 @@ class Editor extends EditorCore {
    * @param {boolean} state - Optional. True will open the canvas actions menu, false will close.
    */
   toggleCanvasActions = (state) => {
-    if (state === undefined || (typeof variable !== "boolean")) {
+    if (state === undefined || (typeof state !== "boolean")) {
       state = !this.state.showCanvasActions;
     }
 
     this.setState({
       showCanvasActions: state,
+    });
+  }
+
+  /**
+   * Opens and closes the brush modes popover.
+   * @param {boolean} state - Optional. True will open the brush modes menu, false will close.
+   */
+  toggleBrushModes = (state) => {
+    if (state === undefined || (typeof state !== "boolean")) {
+      state = !this.state.showBrushModes;
+    }
+
+    this.setState({
+      showBrushModes: state,
     });
   }
 
@@ -521,7 +536,7 @@ class Editor extends EditorCore {
         backward: colors.backward || this.state.customOnionSkinningColors.backward,
         forward: colors.forward || this.state.customOnionSkinningColors.forward,
       }
-    }); 
+    });
   }
 
   /**
@@ -818,7 +833,9 @@ class Editor extends EditorCore {
                       editorActions={this.actionMapInterface.editorActions}
                       getToolSettingRestrictions={this.getToolSettingRestrictions}
                       showCanvasActions={this.state.showCanvasActions}
+                      showBrushModes={this.state.showBrushModes}
                       toggleCanvasActions={this.toggleCanvasActions}
+                      toggleBrushModes={this.toggleBrushModes}
                       colorPickerType={this.state.colorPickerType}
                       changeColorPickerType={this.changeColorPickerType}
                       updateLastColors={this.updateLastColors}

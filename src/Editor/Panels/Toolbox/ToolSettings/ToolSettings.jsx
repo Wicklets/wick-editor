@@ -20,6 +20,7 @@
 import React, { Component } from 'react';
 
 import ToolSettingsInput from './ToolSettingsInput/ToolSettingsInput';
+import PopupMenu from 'Editor/Util/PopupMenu/PopupMenu';
 
 import './_toolsettings.scss';
 
@@ -72,6 +73,7 @@ class ToolSettings extends Component {
         {this.renderBrushSmoothing()}
         {this.renderEnablePressure()}
         {this.renderEnableRelativeBrushSize()}
+        {this.renderBrushMode()}
       </div>
     );
   }
@@ -152,6 +154,48 @@ class ToolSettings extends Component {
         type='checkbox'
         value={this.getToolSetting('relativeBrushSize')}
         onChange={() => this.setToolSetting('relativeBrushSize', !this.getToolSetting('relativeBrushSize'))}/>
+    )
+  }
+
+  renderBrushMode = () => {
+    return (
+        <div id="brush-modes-popover-button">
+          <ToolSettingsInput
+            name='Brush Modes'
+            icon='brushmodenone'
+            type='checkbox'
+            value={this.props.showBrushModes}
+            onChange={this.props.toggleBrushModes}/>
+          <PopupMenu
+            isOpen={this.props.showBrushModes && !this.props.previewPlaying}
+            toggle={this.props.toggleBrushModes}
+            target="brush-modes-popover-button"
+            className={"more-canvas-actions-popover"}
+          >
+            <div className="brush-modes-widget">
+              <div className='actions-container'>
+                <ToolSettingsInput
+                  name='None'
+                  icon='brushmodenone'
+                  type='checkbox'
+                  value={this.props.getToolSetting('brushMode') === 'none'}
+                  onChange={() => this.props.setToolSetting('brushMode', 'none')}/>
+                <ToolSettingsInput
+                  name='Inside'
+                  icon='brushmodeinside'
+                  type='checkbox'
+                  value={this.props.getToolSetting('brushMode') === 'inside'}
+                  onChange={() => this.props.setToolSetting('brushMode', 'inside')}/>
+                <ToolSettingsInput
+                  name='Outside'
+                  icon='brushmodeoutside'
+                  type='checkbox'
+                  value={this.props.getToolSetting('brushMode') === 'outside'}
+                  onChange={() => this.props.setToolSetting('brushMode', 'outside')}/>
+              </div>
+            </div>
+          </PopupMenu>
+        </div>
     )
   }
 

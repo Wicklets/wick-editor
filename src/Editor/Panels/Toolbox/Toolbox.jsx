@@ -150,7 +150,7 @@ class Toolbox extends Component {
     </div>
     )
   }
-  
+
   renderLargeToolbox = () => {
     return (
       <div className={classNames("tool-box", "tool-box-large")}>
@@ -166,12 +166,16 @@ class Toolbox extends Component {
           activeTool={this.props.activeToolName}
           getToolSetting={this.props.getToolSetting}
           setToolSetting={this.props.setToolSetting}
-          getToolSettingRestrictions={this.props.getToolSettingRestrictions} />
+          getToolSettingRestrictions={this.props.getToolSettingRestrictions}
+          toggleBrushModes={this.props.toggleBrushModes}
+          showCanvasActions={this.props.showCanvasActions}
+          showBrushModes={this.props.showBrushModes}
+        />
 
         {this.renderCanvasActions()}
       </div>
     )
-      
+
   }
 
   renderMediumToolbox = () => {
@@ -188,10 +192,13 @@ class Toolbox extends Component {
             activeTool={this.props.activeToolName}
             getToolSetting={this.props.getToolSetting}
             setToolSetting={this.props.setToolSetting}
-            getToolSettingRestrictions={this.props.getToolSettingRestrictions} />
+            getToolSettingRestrictions={this.props.getToolSettingRestrictions}
+            toggleBrushModes={this.props.toggleBrushModes}
+            showCanvasActions={this.props.showCanvasActions}
+            showBrushModes={this.props.showBrushModes}/>
             {this.renderCanvasActions()}
         </div>
-        
+
       </div>
     )
   }

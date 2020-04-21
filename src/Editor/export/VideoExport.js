@@ -12,11 +12,15 @@ class VideoExport {
      * project, onProgress, onError, onFinish;
      */
     static renderVideo = async (args) => {
+      let fullLog = "";
+
       setLogging(ENABLE_LOGGING);
       const worker = createWorker({
           logger: ({message}) => {
               if(ENABLE_LOGGING) {
                   console.log(message);
+              } else {
+                  fullLog += message + "\n";
               }
               VideoExport._parseProgressMessage(message, args);
           },

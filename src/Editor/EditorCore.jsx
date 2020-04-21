@@ -49,6 +49,11 @@ class EditorCore extends Component {
         this.project.toolSettings.setSetting('fillColor', new window.Wick.Color(color));
       };
 
+      // We must manually close the brush modes popup here, because otherwise the page
+      // will crash because the popup can no longer find the brush modes toggle button
+      // on the page.
+      this.toggleBrushModes(false);
+
       this.projectDidChange();
     }
   }
