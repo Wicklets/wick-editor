@@ -410,7 +410,7 @@ Wick.Project = class extends Wick.Base {
 
     /**
      * A list of all "fontFamily" in the asset library.
-     * @returns {[string]}
+     * @returns {string[]}
      */
     getFonts () {
         return this.getAssets('Font').map(asset => {

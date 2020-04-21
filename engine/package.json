@@ -8,7 +8,7 @@
     "test": "tests"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "generate-docs": "jsdoc -c jsdocs.json -r src/ -d docs/"
   },
   "repository": {
     "type": "git",
@@ -27,6 +27,7 @@
     "gulp-concat": "^2.6.1",
     "gulp-header": "^2.0.5",
     "gulp-rename": "^1.4.0",
-    "gulp-uglify": "^3.0.1"
+    "gulp-uglify": "^3.0.1",
+    "jsdoc": "^3.6.4"
   }
 }
