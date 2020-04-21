@@ -3,9 +3,11 @@ import AudioExport from './AudioExport';
 const { createWorker } = require('@ffmpeg/ffmpeg');
 const { setLogging } = require('@ffmpeg/ffmpeg');
 var b64toBuff = require('base64-arraybuffer');
-var toWav = require('audiobuffer-to-wav')
 
 var ENABLE_LOGGING = false;
+var EXPORT_IMAGE_START = 10;
+var EXPORT_AUDIO_START = 40;
+var EXPORT_VIDEO_START = 70;
 
 class VideoExport {
     /**
@@ -25,15 +27,19 @@ class VideoExport {
       args.worker = worker;
 
       await worker.load();
-      let audio = await VideoExport._generateAudioFile(args);
       let images = await VideoExport._generateProjectImages(args);
+
+      let soundInfo = [...args.project.soundsPlayed]; // Make a deepcopy of the sound info.
+      args.soundInfo = soundInfo;
+
+      let audio = await VideoExport._generateAudioFile(args);
       await VideoExport._generateVideo({images:images, audio:audio, args});
     }
 
     static _generateAudioFile = async (args) => {
       let {project, onProgress} = args;
 
-      onProgress && onProgress('Generating Audio Track...', 10);
+      onProgress && onProgress('Generating Audio Track...', EXPORT_AUDIO_START);
 
       return AudioExport.generateAudioFile(args);
     }
@@ -46,7 +52,7 @@ class VideoExport {
       let { project, onProgress } = args;
       let dimensions = VideoExport._ensureValidDimensions(args.width || project.width, args.height || project.height);
 
-      onProgress && onProgress('Rendering Images', 33);
+      onProgress && onProgress('Rendering Images', EXPORT_IMAGE_START);
 
       return new Promise( resolve => {
           let imageData = [];
@@ -60,13 +66,13 @@ class VideoExport {
               height: dimensions.height,
 
               onProgress: (currentFrame, numTotalFrames) => {
-                let progress = 33 + (currentFrame/numTotalFrames) * 20;
+                let progress = EXPORT_IMAGE_START + (currentFrame/numTotalFrames) * 20;
                 onProgress('Rendering Frame ' + currentFrame + '/' + numTotalFrames, progress);
               },
 
               onFinish: (images) => {
                 // Load frame images into the web worker's memory
-                onProgress('Converting Frames' , 70);
+                onProgress('Converting Frames' , EXPORT_AUDIO_START);
                 images.forEach(image => {
                 // Create Name and array buffer of frame image.
                 let paddedNum = (frameNumber + '').padStart(12, '0');
@@ -92,7 +98,7 @@ class VideoExport {
     static _generateVideo = async ({images, audio, args}) => {
       let { project, onProgress, onFinish, worker } = args;
 
-      onProgress("Rendering Final Video", 85);
+      onProgress("Rendering Final Video", EXPORT_VIDEO_START);
 
       for (let i=0; i<images.length; i++) {
           let image = images[i];
@@ -152,7 +158,7 @@ class VideoExport {
         }
 
         let blob = new Blob([data]);
-        onProgress("Video Render Complete", 100);
+        onProgress("Video Render Complete: Downloading...", 90);
         onFinish();
 
         window.saveAs(blob, project.name+'.mp4');
@@ -194,7 +200,7 @@ class VideoExport {
         time = time[0];
         if(!time) return;
 
-        args.onProgress('Rendered ' + time + ' seconds', 85);
+        args.onProgress('Rendered' + time + ' seconds', 85);
     }
 }
 

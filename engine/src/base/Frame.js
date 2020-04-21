@@ -162,8 +162,10 @@ Wick.Frame = class extends Wick.Tickable {
             seekMS: this.playheadSoundOffsetMS + this.soundStart,
             volume: this.soundVolume,
             loop: this.soundLoop,
+            frame: this,
         };
-        this._soundID = this.sound.play(options);
+
+        this._soundID = this.project.playSoundFromAsset(this.sound, options);
     }
 
     /**
@@ -222,6 +224,18 @@ Wick.Frame = class extends Wick.Tickable {
      */
     get soundEndMS () {
         return (1000/this.project.framerate) * this.end;
+    }
+
+    /**
+     * Returns the frame's start position in relation to the root timeline.
+     */
+    get projectFrameStart () {
+        if (this.parentClip.isRoot) {
+            return this.start;
+        } else {
+            let val = this.start + this.parentClip.parentFrame.projectFrameStart - 1;
+            return val;
+        }
     }
 
     /**

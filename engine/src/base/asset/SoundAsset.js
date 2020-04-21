@@ -61,7 +61,7 @@ Wick.SoundAsset = class extends Wick.FileAsset {
 
     /**
      * Plays this asset's sound.
-     * @param {number} seekMS - the amount of time in milliseconds to start the sound at.
+     * @param {number} seekMS - the amount of time in milliseconds into the sound the sound should start at.
      * @param {number} volume - the volume of the sound, from 0.0 - 1.0
      * @param {boolean} loop - if set to true, the sound will loop
      * @return {number} The id of the sound instance that was played.
