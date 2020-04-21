@@ -26,4 +26,4 @@ yarn-debug.log*
 yarn-error.log*
 
 # docs
-/docs/*
+engine/docs/*
