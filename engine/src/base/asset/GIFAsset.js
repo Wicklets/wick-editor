@@ -99,7 +99,8 @@ Wick.GIFAsset = class extends Wick.ClipAsset {
      * @returns {Wick.Clip[]}
      */
     getInstances () {
-        return []; // TODO
+        // Inherited from ClipAsset
+        return super.getInstances();
     }
 
     /**
@@ -107,7 +108,8 @@ Wick.GIFAsset = class extends Wick.ClipAsset {
      * @returns {boolean}
      */
     hasInstances () {
-        return false; // TODO
+        // Inherited from ClipAsset
+        return super.hasInstances();
     }
 
     /**
@@ -115,7 +117,8 @@ Wick.GIFAsset = class extends Wick.ClipAsset {
      * @returns {boolean}
      */
     removeAllInstances () {
-        // TODO
+        // Inherited from ClipAsset
+        super.removeAllInstances();
     }
 
     /**

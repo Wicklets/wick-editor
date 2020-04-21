@@ -58,6 +58,8 @@ Wick.Clip = class extends Wick.Tickable {
         this._isClone = false;
         this._sourceClipUUID = null;
 
+        this._assetSourceUUID = null;
+
         /* If objects are passed in, add them to the clip and reposition them */
         if(args.objects) {
             this.addObjects(args.objects);
@@ -74,6 +76,7 @@ Wick.Clip = class extends Wick.Tickable {
         data.timeline = this._timeline;
         data.animationType = this._animationType;
         data.singleFrameNumber = this._singleFrameNumber;
+        data.assetSourceUUID = this._assetSourceUUID;
 
         return data;
     }
@@ -85,6 +88,7 @@ Wick.Clip = class extends Wick.Tickable {
         this._timeline = data.timeline;
         this._animationType = data.animationType || 'loop';
         this._singleFrameNumber = data.singleFrameNumber || 1;
+        this._assetSourceUUID = data.assetSourceUUID;
 
         this._playedOnce = false;
 
@@ -135,6 +139,17 @@ Wick.Clip = class extends Wick.Tickable {
      */
     get sourceClipUUID () {
         return this._sourceClipUUID;
+    }
+
+    /**
+     * The uuid of the ClipAsset that this clip was created from.
+     */
+    get assetSourceUUID () {
+        return this._assetSourceUUID;
+    }
+
+    set assetSourceUUID (assetSourceUUID) {
+        this._assetSourceUUID = assetSourceUUID;
     }
 
     /**

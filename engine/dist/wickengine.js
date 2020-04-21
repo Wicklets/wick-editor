@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.4.15.15.30.19";
+var WICK_ENGINE_BUILD_VERSION = "2020.4.21.13.10.27";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -47639,8 +47639,10 @@ Wick.WickFile = class {
     if (format !== 'blob' && format !== 'base64') {
       console.error('WickFile.toWickFile: invalid format: ' + format);
       return;
-    }
+    } // Delete unused assets before export (minimizes filesize)
 
+
+    project.cleanupUnusedAssets();
     var zip = new JSZip(); // Create assets folder
 
     var assetsFolder = zip.folder("assets"); // Populate assets folder with files
@@ -50713,6 +50715,18 @@ Wick.Project = class extends Wick.Base {
       });
     });
   }
+  /**
+   * Remove assets from the project that are never used.
+   */
+
+
+  cleanupUnusedAssets() {
+    this.assets.forEach(asset => {
+      if (!asset.hasInstances()) {
+        asset.remove();
+      }
+    });
+  }
 
 };
 /*
@@ -53526,7 +53540,15 @@ Wick.ClipAsset = class extends Wick.FileAsset {
 
 
   getInstances() {
-    return []; // TODO
+    var clips = [];
+    this.project.getAllFrames().forEach(frame => {
+      frame.clips.forEach(clip => {
+        if (clip.assetSourceUUID === this.uuid) {
+          clips.push(clip);
+        }
+      });
+    });
+    return clips;
   }
   /**
    * Check if there are any objects in the project that use this asset.
@@ -53584,6 +53606,7 @@ Wick.ClipAsset = class extends Wick.FileAsset {
 
     Wick.WickObjectFile.fromWickObjectFile(this.src, data => {
       var clip = Wick.Base.import(data, project).copy();
+      clip.assetSourceUUID = this.uuid;
       callback(clip);
     });
   }
@@ -53695,7 +53718,8 @@ Wick.GIFAsset = class extends Wick.ClipAsset {
 
 
   getInstances() {
-    return []; // TODO
+    // Inherited from ClipAsset
+    return super.getInstances();
   }
   /**
    * Check if there are any objects in the project that use this asset.
@@ -53704,7 +53728,8 @@ Wick.GIFAsset = class extends Wick.ClipAsset {
 
 
   hasInstances() {
-    return false; // TODO
+    // Inherited from ClipAsset
+    return super.hasInstances();
   }
   /**
    * Removes all objects using this asset as their source from the project.
@@ -53712,8 +53737,10 @@ Wick.GIFAsset = class extends Wick.ClipAsset {
    */
 
 
-  removeAllInstances() {} // TODO
-
+  removeAllInstances() {
+    // Inherited from ClipAsset
+    super.removeAllInstances();
+  }
   /**
    * Load data in the asset
    */
@@ -55413,6 +55440,7 @@ Wick.Clip = class extends Wick.Tickable {
     this.cursor = 'default';
     this._isClone = false;
     this._sourceClipUUID = null;
+    this._assetSourceUUID = null;
     /* If objects are passed in, add them to the clip and reposition them */
 
     if (args.objects) {
@@ -55429,6 +55457,7 @@ Wick.Clip = class extends Wick.Tickable {
     data.timeline = this._timeline;
     data.animationType = this._animationType;
     data.singleFrameNumber = this._singleFrameNumber;
+    data.assetSourceUUID = this._assetSourceUUID;
     return data;
   }
 
@@ -55439,6 +55468,7 @@ Wick.Clip = class extends Wick.Tickable {
     this._timeline = data.timeline;
     this._animationType = data.animationType || 'loop';
     this._singleFrameNumber = data.singleFrameNumber || 1;
+    this._assetSourceUUID = data.assetSourceUUID;
     this._playedOnce = false;
     this._clones = [];
   }
@@ -55492,6 +55522,18 @@ Wick.Clip = class extends Wick.Tickable {
 
   get sourceClipUUID() {
     return this._sourceClipUUID;
+  }
+  /**
+   * The uuid of the ClipAsset that this clip was created from.
+   */
+
+
+  get assetSourceUUID() {
+    return this._assetSourceUUID;
+  }
+
+  set assetSourceUUID(assetSourceUUID) {
+    this._assetSourceUUID = assetSourceUUID;
   }
   /**
    * The timeline of the clip.

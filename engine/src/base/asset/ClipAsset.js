@@ -84,7 +84,15 @@ Wick.ClipAsset = class extends Wick.FileAsset {
      * @returns {Wick.Clip[]}
      */
     getInstances () {
-        return []; // TODO
+        var clips = [];
+        this.project.getAllFrames().forEach(frame => {
+            frame.clips.forEach(clip => {
+                if(clip.assetSourceUUID === this.uuid) {
+                    clips.push(clip);
+                }
+            });
+        });
+        return clips;
     }
 
     /**
@@ -133,6 +141,7 @@ Wick.ClipAsset = class extends Wick.FileAsset {
 
         Wick.WickObjectFile.fromWickObjectFile(this.src, data => {
             var clip = Wick.Base.import(data, project).copy();
+            clip.assetSourceUUID = this.uuid;
             callback(clip);
         });
     }
