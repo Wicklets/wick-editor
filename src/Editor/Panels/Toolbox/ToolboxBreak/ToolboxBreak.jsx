@@ -1,6 +1,6 @@
 
 /*
- * Copyright 2028 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Editor.
  *
