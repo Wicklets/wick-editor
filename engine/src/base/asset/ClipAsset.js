@@ -125,6 +125,7 @@ Wick.ClipAsset = class extends Wick.FileAsset {
 
     /**
      * Load data in the asset
+     * @param {function} callback - function to call when the data is done being loaded.
      */
     load (callback) {
         // We don't need to do anything here, the data for ClipAssets is just json

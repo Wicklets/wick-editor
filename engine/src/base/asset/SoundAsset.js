@@ -39,6 +39,7 @@ Wick.SoundAsset = class extends Wick.FileAsset {
 
     /**
      * Creates a new SoundAsset.
+     * @param {object} args - Asset constructor args. see constructor for Wick.Asset
      */
     constructor (args) {
         super(args);
@@ -144,6 +145,7 @@ Wick.SoundAsset = class extends Wick.FileAsset {
 
     /**
      * Loads data about the sound into the asset.
+     * @param {function} callback - function to call when the data is done being loaded.
      */
     load (callback) {
         this._generateWaveform(() => {

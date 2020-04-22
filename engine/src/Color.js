@@ -32,7 +32,8 @@ Wick.Color = class {
     }
 
     /**
-     *
+     * The red value of the color. Ranges from 0.0 to 1.0.
+     * @type {Number}
      */
     get r () {
         return this._color.red;
@@ -43,7 +44,8 @@ Wick.Color = class {
     }
 
     /**
-     *
+     * The green value of the color. Ranges from 0.0 to 1.0.
+     * @type {Number}
      */
     get g () {
         return this._color.green;
@@ -54,7 +56,8 @@ Wick.Color = class {
     }
 
     /**
-     *
+     * The blue value of the color. Ranges from 0.0 to 1.0.
+     * @type {Number}
      */
     get b () {
         return this._color.blue;
@@ -65,7 +68,8 @@ Wick.Color = class {
     }
 
     /**
-     *
+     * The alpha value of the color. Ranges from 0.0 to 1.0.
+     * @type {Number}
      */
     get a () {
         return this._color.alpha;
@@ -76,21 +80,24 @@ Wick.Color = class {
     }
 
     /**
-     *
+     * The color as a hex string. Example: "#AABBCC"
+     * @type {String}
      */
     get hex () {
         return this._color.toCSS(true);
     }
 
     /**
-     *
+     * The color as an rgba string. Example: "rgba(r,g,b,a)"
      */
     get rgba () {
         return this._color.toCSS();
     }
 
     /**
-     *
+     * Adds together the r, g, and b values of both colors and produces a new color.
+     * @param {Wick.Color} color - the color to add to this color
+     * @returns {Wick.Color} the resulting color
      */
     add (color) {
         var newColor = new Wick.Color();
@@ -101,7 +108,9 @@ Wick.Color = class {
     }
 
     /**
-     *
+     * Multiplies the r, g, and b values of both colors to produce a new color.
+     * @param {Wick.Color} color - the color to multiply with this color
+     * @returns {Wick.Color} the resulting color
      */
     multiply (n) {
         var newColor = new Wick.Color();
@@ -112,9 +121,12 @@ Wick.Color = class {
     }
 
     /**
-     *
+     * Averages the r, g, and b values of two colors.
+     * @param {Wick.Color} colorA - a color to average with another color (order does not matter)
+     * @param {Wick.Color} colorB - a color to average with another color (order does not matter)
+     * @returns {Wick.Color} The resulting averaged color.
      */
-    static average (a, b) {
-        return a.multiply(0.5).add(b.multiply(0.5));
+    static average (colorA, colorB) {
+        return colorA.multiply(0.5).add(colorB.multiply(0.5));
     }
 }

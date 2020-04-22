@@ -23,7 +23,7 @@
 Wick.Clip = class extends Wick.Tickable {
     /**
      * Returns a list of all possible animation types for this object.
-     * @returns {Object} - An object containing keys that represent the animation type a a key and a human-readable version of the animation type as a value.
+     * @type {Object} - An object containing keys that represent the animation type a a key and a human-readable version of the animation type as a value.
      */
     static get animationTypes () {
         return {
@@ -121,6 +121,7 @@ Wick.Clip = class extends Wick.Tickable {
 
     /**
      * Determines whether or not the clip is the currently focused clip in the project.
+     * @type {boolean}
      */
     get isFocus () {
         return this.project && this === this.project.focus;
@@ -136,6 +137,7 @@ Wick.Clip = class extends Wick.Tickable {
 
     /**
      * The uuid of the clip that this clip was cloned from.
+     * @type {string}
      */
     get sourceClipUUID () {
         return this._sourceClipUUID;
@@ -143,6 +145,7 @@ Wick.Clip = class extends Wick.Tickable {
 
     /**
      * The uuid of the ClipAsset that this clip was created from.
+     * @type {string}
      */
     get assetSourceUUID () {
         return this._assetSourceUUID;
@@ -219,6 +222,7 @@ Wick.Clip = class extends Wick.Tickable {
 
     /**
      * The frame to display when the clip has an animationType of "sync";
+     * @type {number}
      */
     get syncFrame () {
         let timelineOffset = this.parentClip.timeline.playheadPosition - this.parentFrame.start;
@@ -293,8 +297,7 @@ Wick.Clip = class extends Wick.Tickable {
     }
 
     /**
-     * Updates the frame's single frame positions if necessary. Only works if the
-     * clip's animationType is 'single'.
+     * Updates the frame's single frame positions if necessary. Only works if the clip's animationType is 'single'.
      */
     applySingleFramePosition () {
         if (this.animationType === 'single') {
@@ -432,8 +435,7 @@ Wick.Clip = class extends Wick.Tickable {
     }
 
     /**
-     * Returns the name of the frame which is currently active. If multiple frames are active, returns the
-     * name of the first active frame.
+     * Returns the name of the frame which is currently active. If multiple frames are active, returns the name of the first active frame.
      * @returns {string} Active Frame name. If the active frame does not have an identifier, returns empty string.
      */
     get currentFrameName () {
@@ -624,7 +626,7 @@ Wick.Clip = class extends Wick.Tickable {
     /**
      * This is a stopgap to prevent users from using setText with a Clip.
      */
-    setText (newTextContent) {
+    setText () {
         throw new Error('setText() can only be used with text objects.');
     }
 
