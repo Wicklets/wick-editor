@@ -100,13 +100,14 @@ Wick.SVGAsset = class extends Wick.FileAsset {
             // I think path automatically handles this, but maybe not layer or group
             var wickItem = null; // Groups (clips) and layers do this differently so they must be handled separately
 
-            if (item instanceof paper.Layer) {
+            if (item instanceof paper.Layer || (item.name !== null && item.name.startsWith("layer") && item instanceof paper.Group)) {
                 wickItem = new Wick.Layer(); // If we've just added a layer set it to be the active layer
                 //TODO: Find out how multiple layers are handled
 
                 var frame = new Wick.Frame();
                 wickItem.addFrame(frame);
-                item.children.forEach(childItem => {
+                var groupChildren = Array.from(item.children); //prevent any side effects
+                groupChildren.forEach(childItem => {
                     var wickChildItem = Wick.SVGAsset.walkItems(childItem).copy();
 
                     if (wickChildItem instanceof Wick.Clip) {
@@ -114,7 +115,8 @@ Wick.SVGAsset = class extends Wick.FileAsset {
                     } else if (wickChildItem instanceof Wick.Path) {
                         frame.addPath(wickChildItem);
                     } else if (wickChildItem instanceof Wick.Layer) {
-                        console.error("SVG Import: Error importing, nested layers.ignoring."); // Insert text
+                        frame.addLayer(wickChildItem);
+                        //console.error("SVG Import: Error importing, nested layers.ignoring."); // Insert text
                     } else {
                         console.error("SVG Import: Unknown item type.".concat(wickChildItem.classname)); // Insert text
                     }
@@ -122,22 +124,30 @@ Wick.SVGAsset = class extends Wick.FileAsset {
             } else if (item instanceof paper.Group) {
                 wickItem = new Wick.Clip();
                 var wickObjects = [];
-                var groupChildren = Array.from(item.children);
+                var layers = [];
+                var groupChildren = Array.from(item.children); //prevent any side effects
                 groupChildren.forEach(childItem => {
+                    var clipActiveLayer = wickItem.activeLayer;
                     ///This should be clips and paths not layers
                     var walkItem = Wick.SVGAsset.walkItems(childItem).copy();
 
                     if (walkItem instanceof Wick.Layer) {
-                        console.error("SVG Import: Clip has a child that is a layer, this should never happen. ignoring."); // Insert text
+                        //console.error("SVG Import: Clip has a child that is a layer, this should never happen. ignoring."); // Insert text
+                        layers.push(walkItem);
+                        clipActiveLayer.activate();
                     } else {
                         wickObjects.push(walkItem);
                     }
                 });
-                wickItem.addObjects(wickObjects); //add the clip  to the project
+                wickItem.addObjects(wickObjects); //add the items to the project
+                // add layers after onjects so the objexts don't get bound to the new layer
+                var layersCopy = Array.from(layers); //prevent any side effects
+                layersCopy.forEach(layer => {
+                    wickItem.timeline.addLayer(layer);
+                });
             } else if (item instanceof paper.Shape) {
                 //console.error("SVG Import: Item is an instance of a shape. This should never happen as all shapes should be converted to paths when we call paperProject.importSVG(data, options.expandShapes = true);");
-                wickItem = new Wick.Path({
-                    //json: item.clone().toPath().exportJSON()
+                wickItem = new Wick.Path({ //json: item.clone().toPath().exportJSON()
                 });
             } else {
                 //'Path', 'CompoundPath', 'Raster', 'SymbolItem', 'PointText' all handled by Path which takes the loaded paper object expressed as JSON to load
@@ -154,7 +164,7 @@ Wick.SVGAsset = class extends Wick.FileAsset {
          */
 
     /**
-     * Walks through the items tree creating the appropriate wick object for each node     
+     * Walks through the items tree converting shapes into paths. This should be possible to do in the walkitems routine
      * @param {Paper.Item} item - called when the Path is done loading.
      */
     static _breakAppartShapesRecursively(item) {
@@ -166,8 +176,10 @@ Wick.SVGAsset = class extends Wick.FileAsset {
             })
         } else if (item instanceof paper.Shape) { //This should have been done automatically by the import options, spo shouldn't be needed
             var path = item.toPath();
-            item.parent.addChild(path);
-            item.remove();
+            //item.parent.addChild(path);
+            //path.insertAbove(item);
+            //item.remove();
+            item.replaceWith(path);
         }
     }
 
