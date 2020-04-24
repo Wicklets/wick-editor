@@ -33,6 +33,7 @@ class VideoExport {
       args.soundInfo = soundInfo;
 
       let audio = await VideoExport._generateAudioFile(args);
+
       await VideoExport._generateVideo({images:images, audio:audio, args});
     }
 

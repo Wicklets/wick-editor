@@ -86,19 +86,24 @@ Wick.AudioTrack = class {
         let audiobuffers = [];
 
         let mergeAudio = () => {
+            onProgress && onProgress("Merging Audio");
+
             let mergedAudioBuffer = this.mergeBuffers(audiobuffers, ctx, onProgress);
             callback(mergedAudioBuffer);
         }
 
         projectAudioInfo.forEach((audioInfo,i) => {
-            onProgress && onProgress("Creating Audio " + (i+1) + "/" + projectAudioInfo.length, (i+1)/projectAudioInfo.length);
 
             this.base64ToAudioBuffer(audioInfo.src, ctx, audiobuffer => {
                 let startSeconds = audioInfo.start / 1000;
                 let endSeconds = audioInfo.end / 1000;
                 let lengthSeconds = endSeconds - startSeconds;
+
                 let croppedAudioBuffer = this.cropAudioBuffer(audiobuffer, lengthSeconds, ctx);
+
                 let delayedAudiobuffer = this.addStartDelayToAudioBuffer(croppedAudioBuffer, startSeconds, ctx);
+
+                onProgress && onProgress("Creating Audio " + (i+1) + "/" + projectAudioInfo.length, (i+1)/projectAudioInfo.length);
 
                 audiobuffers.push(delayedAudiobuffer);
                 if (audiobuffers.length >= projectAudioInfo.length) {
@@ -191,10 +196,15 @@ Wick.AudioTrack = class {
      * @param {AudioContext} ctx - An AudioContext instance
      */
     static addStartDelayToAudioBuffer (originalBuffer, delaySeconds, ctx) {
+
         // Create buffer with a length equal to the original buffer's length plus the requested delay
+
+        let lengthOfDelay = ctx.sampleRate * delaySeconds;
+        let lengthOfOriginalSound = ctx.sampleRate * originalBuffer.duration;
+
         var delayedBuffer = ctx.createBuffer(
             originalBuffer.numberOfChannels,
-            ctx.sampleRate * originalBuffer.duration + ctx.sampleRate * delaySeconds,
+            lengthOfDelay + lengthOfOriginalSound,
             ctx.sampleRate,
         );
 
@@ -206,10 +216,9 @@ Wick.AudioTrack = class {
 
             // Copy samples from the original buffer to the delayed buffer with an offset equal to the delay
             var delayOffset = ctx.sampleRate * delaySeconds;
-            for (var i = 0; i < delayedBufferChannelData.length; i++) {
-                delayedBufferChannelData[i + delayOffset] = originalBufferChannelData[i];
-            }
-            delayedBuffer.getChannelData(srcChannel).set(delayedBufferChannelData, 0);
+            
+            // Copy in the data from the original buffer into the delayed buffer, starting at the delayed position.
+            delayedBuffer.getChannelData(srcChannel).set(originalBufferChannelData, delayOffset);
         }
 
         return delayedBuffer;

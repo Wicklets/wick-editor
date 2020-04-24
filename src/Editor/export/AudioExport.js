@@ -1,5 +1,6 @@
-var b64toBuff = require('base64-arraybuffer');
 var toWav = require('audiobuffer-to-wav')
+
+window.toWavFunc = toWav;
 
 class AudioExport {
     static generateAudioFile = async (args) => {
