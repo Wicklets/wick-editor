@@ -50,7 +50,7 @@ Wick.Project = class extends Wick.Base {
         this.history = new Wick.History();
         this.clipboard = new Wick.Clipboard();
 
-        this.root = new Wick.Clip();
+        this.root = new Wick.Clip({ project: this });
         this.root._identifier = 'Project';
 
         this.focus = this.root;

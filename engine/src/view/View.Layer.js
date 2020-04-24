@@ -18,11 +18,11 @@
  */
 
 Wick.View.Layer = class extends Wick.View {
-    static get BASE_ONION_OPACITY () {
+    static get BASE_ONION_OPACITY() {
         return 0.35;
     }
 
-    constructor (wickLayer) {
+    constructor(wickLayer) {
         super();
 
         this.activeFrameLayers = [];
@@ -31,27 +31,24 @@ Wick.View.Layer = class extends Wick.View {
         this.activeFrameContainers = [];
     }
 
-    render () {
+    render() {
         // Add active frame layers
         this.activeFrameLayers = [];
         var frame = this.model.activeFrame;
-        if(frame) {
+        if (frame) {
             frame.view.render();
 
-            this.activeFrameLayers.push(frame.view.pathsLayer);
-            this.activeFrameLayers.push(frame.view.clipsLayer);
+            this.activeFrameLayers.push(frame.view.objectsLayer);
 
-            frame.view.clipsLayer.locked = false;
-            frame.view.pathsLayer.locked = false;
-            frame.view.clipsLayer.opacity = 1.0;
-            frame.view.pathsLayer.opacity = 1.0;
+            frame.view.objectsLayer.locked = false;
+            frame.view.objectsLayer.opacity = 1.0;
         }
 
         // Disable mouse events on layers if they are locked.
         // (However, this is ignored while the project is playing so the interact tool always works.)
         // (This is also ignored for layers which are inside clips and not the current focus.)
         this.activeFrameLayers.forEach(layer => {
-            if(this.model.project.playing || !this.model.parentClip.isFocus) {
+            if (this.model.project.playing || !this.model.parentClip.isFocus) {
                 layer.locked = false;
             } else {
                 layer.locked = this.model.locked;
@@ -60,26 +57,25 @@ Wick.View.Layer = class extends Wick.View {
 
         // Add onion skinned frame layers
         this.onionSkinnedFramesLayers = [];
-        if(this.model.project && !this.model.project.playing && this.model.parentClip.isFocus && this.model.project.onionSkinEnabled) {
+        if (this.model.project && !this.model.project.playing && this.model.parentClip.isFocus && this.model.project.onionSkinEnabled) {
             var playheadPosition = this.model.project.focus.timeline.playheadPosition;
             var onionSkinEnabled = this.model.project.onionSkinEnabled;
             var onionSkinSeekBackwards = this.model.project.onionSkinSeekBackwards;
             var onionSkinSeekForwards = this.model.project.onionSkinSeekForwards;
 
             this.model.frames.filter(frame => {
-                return !frame.inPosition(playheadPosition)
-                    && frame.inRange(playheadPosition - onionSkinSeekBackwards,
-                                     playheadPosition + onionSkinSeekForwards);
+                return !frame.inPosition(playheadPosition) &&
+                    frame.inRange(playheadPosition - onionSkinSeekBackwards,
+                        playheadPosition + onionSkinSeekForwards);
             }).forEach(frame => {
                 frame.view.render();
 
-                this.onionSkinnedFramesLayers.push(frame.view.pathsLayer);
-                this.onionSkinnedFramesLayers.push(frame.view.clipsLayer);
+                this.onionSkinnedFramesLayers.push(frame.view.objectsLayer);
 
                 var seek = 0;
-                if(frame.midpoint < playheadPosition) {
+                if (frame.midpoint < playheadPosition) {
                     seek = onionSkinSeekBackwards;
-                } else if(frame.midpoint > playheadPosition) {
+                } else if (frame.midpoint > playheadPosition) {
                     seek = onionSkinSeekForwards;
                 }
                 var dist = frame.distanceFrom(playheadPosition);
@@ -87,10 +83,8 @@ Wick.View.Layer = class extends Wick.View {
                 onionMult = Math.min(1, Math.max(0, onionMult));
                 var opacity = onionMult * Wick.View.Layer.BASE_ONION_OPACITY;
 
-                frame.view.clipsLayer.locked = true;
-                frame.view.pathsLayer.locked = true;
-                frame.view.clipsLayer.opacity = opacity;
-                frame.view.pathsLayer.opacity = opacity;
+                frame.view.objectsLayer.locked = true;
+                frame.view.objectsLayer.opacity = opacity;
             });
         }
     }

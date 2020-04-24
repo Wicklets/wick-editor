@@ -18,46 +18,46 @@
  */
 
 Wick.View.Project = class extends Wick.View {
-    static get DEFAULT_CANVAS_BG_COLOR () {
+    static get DEFAULT_CANVAS_BG_COLOR() {
         return 'rgb(187, 187, 187)';
     }
 
-    static get VALID_FIT_MODES () {
+    static get VALID_FIT_MODES() {
         return ['center', 'fill'];
     }
 
-    static get VALID_RENDER_MODES () {
+    static get VALID_RENDER_MODES() {
         return ['svg', 'webgl'];
     }
 
-    static get ORIGIN_CROSSHAIR_COLOR () {
+    static get ORIGIN_CROSSHAIR_COLOR() {
         return '#CCCCCC';
     }
 
-    static get ORIGIN_CROSSHAIR_SIZE () {
+    static get ORIGIN_CROSSHAIR_SIZE() {
         return 100;
     }
 
-    static get ORIGIN_CROSSHAIR_THICKNESS () {
+    static get ORIGIN_CROSSHAIR_THICKNESS() {
         return 1;
     }
 
-    static get ZOOM_MIN () {
+    static get ZOOM_MIN() {
         return 0.1;
     }
 
-    static get ZOOM_MAX () {
+    static get ZOOM_MAX() {
         return 10.0;
     }
 
-    static get PAN_LIMIT () {
+    static get PAN_LIMIT() {
         return 10000;
     }
 
     /*
      * Create a new Project View.
      */
-    constructor (model) {
+    constructor(model) {
         super(model);
 
         this._fitMode = null;
@@ -71,7 +71,7 @@ Wick.View.Project = class extends Wick.View {
         this._svgBordersLayer = null;
         this._svgGUILayer = null;
 
-        this._pan = {x: 0, y: 0};
+        this._pan = { x: 0, y: 0 };
         this._zoom = 1;
     }
 
@@ -82,8 +82,8 @@ Wick.View.Project = class extends Wick.View {
      *
      * Note: For these changes to be reflected after setting fitMode, you must call Project.View.resize().
      */
-    set fitMode (fitMode) {
-        if(Wick.View.Project.VALID_FIT_MODES.indexOf(fitMode) === -1) {
+    set fitMode(fitMode) {
+        if (Wick.View.Project.VALID_FIT_MODES.indexOf(fitMode) === -1) {
             console.error("Invalid fitMode: " + fitMode);
             console.error("Supported fitModes: " + Wick.View.Project.VALID_FIT_MODES.join(','));
         } else {
@@ -91,49 +91,49 @@ Wick.View.Project = class extends Wick.View {
         }
     }
 
-    get fitMode () {
+    get fitMode() {
         return this._fitMode;
     }
 
     /**
      * The current canvas being rendered to.
      */
-    get canvas () {
+    get canvas() {
         return this._svgCanvas;
     }
 
     /**
      * The zoom amount. 1 = 100% zoom
      */
-    get zoom () {
+    get zoom() {
         return this._zoom;
     }
 
-    set zoom (zoom) {
+    set zoom(zoom) {
         this._zoom = zoom;
     }
 
     /**
      * The amount to pan the view. (0,0) is the center.
      */
-    get pan () {
+    get pan() {
         var pan = {
             x: -this.paper.view.center.x,
             y: -this.paper.view.center.y,
         };
-        if(this.model.focus.isRoot) {
+        if (this.model.focus.isRoot) {
             pan.x += this.model.width / 2;
             pan.y += this.model.height / 2;
         }
         return pan;
     }
 
-    set pan (pan) {
+    set pan(pan) {
         this._pan = {
             x: pan.x,
             y: pan.y,
         };
-        if(this.model.focus.isRoot) {
+        if (this.model.focus.isRoot) {
             this._pan.x -= this.model.width / 2;
             this._pan.y -= this.model.height / 2;
         }
@@ -142,29 +142,29 @@ Wick.View.Project = class extends Wick.View {
     /*
      * The element to insert the project's canvas into.
      */
-    set canvasContainer (canvasContainer) {
+    set canvasContainer(canvasContainer) {
         this._canvasContainer = canvasContainer;
     }
 
-    get canvasContainer () {
+    get canvasContainer() {
         return this._canvasContainer;
     }
 
     /**
      * The background color of the canvas.
      */
-    set canvasBGColor (canvasBGColor) {
+    set canvasBGColor(canvasBGColor) {
         this._canvasBGColor = canvasBGColor;
     }
 
-    get canvasBGColor () {
+    get canvasBGColor() {
         return this._canvasBGColor;
     }
 
     /**
      * Render the view.
      */
-    render () {
+    render() {
         this.zoom = this.model.zoom;
         this.pan = this.model.pan;
 
@@ -179,7 +179,7 @@ Wick.View.Project = class extends Wick.View {
     /**
      * Render all frames in the project to make sure everything is loaded correctly.
      */
-    prerender () {
+    prerender() {
         this.render();
         this.model.getAllFrames().forEach(frame => {
             frame.view.render();
@@ -190,8 +190,8 @@ Wick.View.Project = class extends Wick.View {
      * Resize the canvas to fit it's container div.
      * Resize is called automatically before each render, but you must call it if you manually change the size of the container div.
      */
-    resize () {
-        if(!this.canvasContainer) return;
+    resize() {
+        if (!this.canvasContainer) return;
 
         var containerWidth = this.canvasContainer.offsetWidth;
         var containerHeight = this.canvasContainer.offsetHeight;
@@ -203,7 +203,7 @@ Wick.View.Project = class extends Wick.View {
     /**
      * Write the SVG data in the view to the project.
      */
-    applyChanges () {
+    applyChanges() {
         this.model.selection.view.applyChanges();
 
         this.model.focus.timeline.activeFrames.forEach(frame => {
@@ -211,10 +211,10 @@ Wick.View.Project = class extends Wick.View {
         });
     }
 
-    _setupTools () {
+    _setupTools() {
         // This is a hacky way to create scroll-to-zoom functionality.
         // (Using https://github.com/jquery/jquery-mousewheel for cross-browser mousewheel event)
-        if(!this.model.publishedMode) {
+        if (!this.model.publishedMode) {
             $(this._svgCanvas).on('mousewheel', e => {
                 e.preventDefault();
                 var d = e.deltaY * e.deltaFactor * 0.001;
@@ -246,11 +246,11 @@ Wick.View.Project = class extends Wick.View {
         this.model.tools.none.activate();
     }
 
-    _displayCanvasInContainer (canvas) {
-        if(!this.canvasContainer) return;
+    _displayCanvasInContainer(canvas) {
+        if (!this.canvasContainer) return;
 
-        if(canvas !== this.canvasContainer.children[0]) {
-            if(this.canvasContainer.children.length === 0) {
+        if (canvas !== this.canvasContainer.children[0]) {
+            if (this.canvasContainer.children.length === 0) {
                 this.canvasContainer.appendChild(canvas);
             } else {
                 this.canvasContainer.innerHTML = '';
@@ -260,8 +260,8 @@ Wick.View.Project = class extends Wick.View {
         }
     }
 
-    _updateCanvasContainerBGColor () {
-        if(this.model.focus === this.model.root) {
+    _updateCanvasContainerBGColor() {
+        if (this.model.focus === this.model.root) {
             // We're in the root timeline, use the color given to us from the user (or use a default)
             this.canvas.style.backgroundColor = this.canvasBGColor || Wick.View.Project.DEFAULT_CANVAS_BG_COLOR;
         } else {
@@ -270,8 +270,8 @@ Wick.View.Project = class extends Wick.View {
         }
     }
 
-    _buildSVGCanvas () {
-        if(this._svgCanvas) return;
+    _buildSVGCanvas() {
+        if (this._svgCanvas) return;
 
         this._svgCanvas = document.createElement('canvas');
         this._svgCanvas.style.width = '100%';
@@ -296,19 +296,19 @@ Wick.View.Project = class extends Wick.View {
         this.paper.project.clear();
     }
 
-    _renderSVGCanvas () {
+    _renderSVGCanvas() {
         this.paper.project.clear();
 
         // Lazily setup tools
-        if(!this._toolsSetup) {
+        if (!this._toolsSetup) {
             this._toolsSetup = true;
             this._setupTools();
         }
 
-        if(this.model.project.playing) {
+        if (this.model.project.playing) {
             // Enable interact tool if the project is running
             this.model.tools.interact.activate();
-        } else if(!this.model.canDraw && this.model.activeTool.isDrawingTool) {
+        } else if (!this.model.canDraw && this.model.activeTool.isDrawingTool) {
             // Disable drawing tools if there's no frame to edit
             this.model.tools.none.activate();
         } else {
@@ -316,7 +316,7 @@ Wick.View.Project = class extends Wick.View {
         }
 
         // Update zoom and pan
-        if(this._fitMode === 'center') {
+        if (this._fitMode === 'center') {
             this.paper.view.zoom = this.model.zoom;
         } else if (this._fitMode === 'fill') {
             // Fill mode: Try to fit the wick project's canvas inside the container canvas by
@@ -331,7 +331,7 @@ Wick.View.Project = class extends Wick.View {
         this._svgBackgroundLayer.locked = true;
         this.paper.project.addLayer(this._svgBackgroundLayer);
 
-        if(this.model.focus.isRoot) {
+        if (this.model.focus.isRoot) {
             // We're in the root timeline, render the canvas normally
             var stage = this._generateSVGCanvasStage();
             this._svgBackgroundLayer.addChild(stage);
@@ -345,11 +345,11 @@ Wick.View.Project = class extends Wick.View {
         this.model.focus.timeline.view.render();
         this.model.focus.timeline.view.frameLayers.forEach(layer => {
             this.paper.project.addLayer(layer);
-            if(this.model.project &&
-               this.model.project.activeFrame &&
-               !layer.locked &&
-               layer.data.wickType === 'paths' &&
-               layer.data.wickUUID === this.model.project.activeFrame.uuid) {
+            if (this.model.project &&
+                this.model.project.activeFrame &&
+                !layer.locked &&
+                (layer.data.wickType === 'paths' || layer.data.wickType === 'clipsandpaths') &&
+                layer.data.wickUUID === this.model.project.activeFrame.uuid) {
                 layer.activate();
             }
         });
@@ -361,22 +361,22 @@ Wick.View.Project = class extends Wick.View {
         // Render GUI Layer
         this._svgGUILayer.removeChildren();
         this._svgGUILayer.locked = true;
-        if(this.model.showClipBorders && !this.model.playing && !this.model.publishedMode) {
+        if (this.model.showClipBorders && !this.model.playing && !this.model.publishedMode) {
             this._svgGUILayer.addChildren(this._generateClipBorders());
             this.paper.project.addLayer(this._svgGUILayer);
         }
 
         // Render black bars (for published projects)
-        if(this.model.publishedMode) {
+        if (this.model.publishedMode) {
             this._svgBordersLayer.removeChildren();
             this._svgBordersLayer.addChildren(this._generateSVGBorders());
             this.paper.project.addLayer(this._svgBordersLayer);
         }
     }
 
-    _generateSVGCanvasStage () {
+    _generateSVGCanvasStage() {
         var stage = new paper.Path.Rectangle(
-            new this.paper.Point(0,0),
+            new this.paper.Point(0, 0),
             new this.paper.Point(this.model.width, this.model.height),
         );
         stage.remove();
@@ -385,19 +385,19 @@ Wick.View.Project = class extends Wick.View {
         return stage;
     }
 
-    _generateSVGOriginCrosshair () {
-        var originCrosshair = new this.paper.Group({insert:false});
+    _generateSVGOriginCrosshair() {
+        var originCrosshair = new this.paper.Group({ insert: false });
 
         var vertical = new paper.Path.Line(
-            new this.paper.Point(0,-Wick.View.Project.ORIGIN_CROSSHAIR_SIZE),
-            new this.paper.Point(0,Wick.View.Project.ORIGIN_CROSSHAIR_SIZE)
+            new this.paper.Point(0, -Wick.View.Project.ORIGIN_CROSSHAIR_SIZE),
+            new this.paper.Point(0, Wick.View.Project.ORIGIN_CROSSHAIR_SIZE)
         );
         vertical.strokeColor = Wick.View.Project.ORIGIN_CROSSHAIR_COLOR;
         vertical.strokeWidth = Wick.View.Project.ORIGIN_CROSSHAIR_THICKNESS / this.paper.view.zoom;
 
         var horizontal = new paper.Path.Line(
-            new this.paper.Point(-Wick.View.Project.ORIGIN_CROSSHAIR_SIZE,0),
-            new this.paper.Point(Wick.View.Project.ORIGIN_CROSSHAIR_SIZE,0)
+            new this.paper.Point(-Wick.View.Project.ORIGIN_CROSSHAIR_SIZE, 0),
+            new this.paper.Point(Wick.View.Project.ORIGIN_CROSSHAIR_SIZE, 0)
         );
         horizontal.strokeColor = Wick.View.Project.ORIGIN_CROSSHAIR_COLOR;
         horizontal.strokeWidth = Wick.View.Project.ORIGIN_CROSSHAIR_THICKNESS / this.paper.view.zoom;
@@ -412,7 +412,7 @@ Wick.View.Project = class extends Wick.View {
     }
 
     /* Renders the off-screen borders that hide content out of the project bounds. */
-    _generateSVGBorders () {
+    _generateSVGBorders() {
         /**
          * +----------------------------+
          * |             top            +
@@ -455,7 +455,7 @@ Wick.View.Project = class extends Wick.View {
         ];
     }
 
-    _calculateFitZoom () {
+    _calculateFitZoom() {
         var w = 0;
         var h = 0;
 
@@ -468,7 +468,7 @@ Wick.View.Project = class extends Wick.View {
         return Math.min(wr, hr);
     }
 
-    _generateClipBorders () {
+    _generateClipBorders() {
         var clipBorders = [];
 
         this.model.activeFrames.filter(frame => {
@@ -486,15 +486,15 @@ Wick.View.Project = class extends Wick.View {
         return clipBorders;
     }
 
-    _applyZoomAndPanChangesFromPaper () {
+    _applyZoomAndPanChangesFromPaper() {
         // limit zoom to min and max
         this.paper.view.zoom = Math.min(Wick.View.Project.ZOOM_MAX, this.paper.view.zoom);
         this.paper.view.zoom = Math.max(Wick.View.Project.ZOOM_MIN, this.paper.view.zoom);
 
         // limit pan
-        this.pan.x = Math.min( Wick.View.Project.PAN_LIMIT, this.pan.x);
+        this.pan.x = Math.min(Wick.View.Project.PAN_LIMIT, this.pan.x);
         this.pan.x = Math.max(-Wick.View.Project.PAN_LIMIT, this.pan.x);
-        this.pan.y = Math.min( Wick.View.Project.PAN_LIMIT, this.pan.y);
+        this.pan.y = Math.min(Wick.View.Project.PAN_LIMIT, this.pan.y);
         this.pan.y = Math.max(-Wick.View.Project.PAN_LIMIT, this.pan.y);
 
         this.model.pan = {

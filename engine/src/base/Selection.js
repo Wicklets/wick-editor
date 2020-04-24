@@ -170,9 +170,18 @@ Wick.Selection = class extends Wick.Base {
      * @param {string} filter - A location or a type (see SELECTABLE_OBJECT_TYPES and LOCATION_NAMES)
      */
     clear(filter) {
-        this.project.selection.getSelectedObjects(filter).forEach(object => {
-            this.deselect(object);
-        });
+        if (filter === undefined) {
+            this.project.selection.getSelectedObjects().forEach(object => {
+                if (object !== null) {
+                    this.deselect(object);
+                } //else object is no longer in cache, this happens sometimes when loading up an autosave project
+            });
+            this._selectedObjectsUUIDs = [];
+        } else {
+            this.project.selection.getSelectedObjects(filter).forEach(object => {
+                this.deselect(object);
+            });
+        }
     }
 
     /**

@@ -57,8 +57,7 @@ var classNames = require('classnames');
 
 class Editor extends EditorCore {
   constructor () {
-    super();
-
+    super();    
     // Set path for engine dependencies
     window.Wick.resourcepath = 'corelibs/wick-engine/';
 

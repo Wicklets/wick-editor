@@ -49,10 +49,10 @@ Wick.Base = class {
 
         this._classname = this.classname;
 
-        this._children = {};
+        this._children = [];
         this._childrenData = null;
         this._parent = null;
-        this._project = this.classname === 'Project' ? this : null;
+        this._project = this.classname === 'Project' ? this : args.project ? args.project : null;
 
         this.needsAutosave = true;
         this._cachedSerializeData = null;
@@ -125,7 +125,7 @@ Wick.Base = class {
         this._uuid = data.uuid;
         this._identifier = data.identifier;
         this._name = data.name;
-        this._children = {};
+        this._children = [];
         this._childrenData = data.children;
 
         // Clear any custom attributes set by scripts
@@ -355,20 +355,27 @@ Wick.Base = class {
 
         if (classname instanceof Array) {
             var children = [];
-            classname.forEach(classnameSeek => {
-                children = children.concat(this.getChildren(classnameSeek));
-            });
+
+            if (this._children !== undefined) {
+                this._children.forEach(child => {
+                    if (classname.indexOf(child.classname) !== -1) {
+                        children.push(child)
+                    }
+                })
+            }
             return children;
         } else if (classname === undefined) {
             // Retrieve all children if no classname was given
-            var allChildren = [];
-            for (var classnameSeek in this._children) {
-                allChildren = allChildren.concat(this._children[classnameSeek]);
-            }
-            return allChildren;
+            return Array.from(this._children);
         } else {
             // Retrieve children by classname
-            return this._children[classname] || [];
+            var children = [];
+            this._children.forEach(child => {
+                if (child.classname === classname) {
+                    children.push(child);
+                }
+            });
+            return children || [];
         }
     }
 
@@ -448,14 +455,14 @@ Wick.Base = class {
     addChild(child) {
         var classname = child.classname;
 
-        if (!this._children[classname]) {
-            this._children[classname] = [];
+        if (!this._children) {
+            this._children = [];
         }
 
         child._parent = this;
         child._setProject(this.project);
 
-        this._children[classname].push(child);
+        this._children.push(child);
     }
 
     /**
@@ -465,14 +472,14 @@ Wick.Base = class {
     removeChild(child) {
         var classname = child.classname;
 
-        if (!this._children[classname]) {
+        if (!this._children) {
             return;
         }
 
         child._parent = null;
         child._project = null;
 
-        this._children[classname] = this._children[classname].filter(seekChild => {
+        this._children = this._children.filter(seekChild => {
             return seekChild !== child;
         });
     }
@@ -514,7 +521,9 @@ Wick.Base = class {
     _setProject(project) {
         this._project = project;
         this.getChildren().forEach(child => {
-            child._setProject(project);
+            if (child instanceof Wick.Base) {
+                child._setProject(project);
+            }
         });
     }
 

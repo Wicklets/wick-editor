@@ -250,6 +250,14 @@ Wick.Frame = class extends Wick.Tickable {
     }
 
     /**
+     * The drawable objectson the frame.
+     * @type {Wick.Base[]}
+     */
+    get drawable() {
+        return this.getChildren(['Clip', 'Button', 'Path']);
+    }
+
+    /**
      * The tweens on this frame.
      * @type {Wick.Tween[]}
      */
@@ -268,7 +276,7 @@ Wick.Frame = class extends Wick.Tickable {
      * @type {boolean}
      */
     get contentful() {
-        return this.paths.length > 0 || this.clips.length > 0;
+        return this.drawable.length > 0;
     }
 
     /**
