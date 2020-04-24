@@ -8,7 +8,7 @@
     "test": "tests"
   },
   "scripts": {
-    "generate-docs": "jsdoc -c jsdocs.json -r src/ -d docs/"
+    "generate-docs": "jsdoc -c jsdocs.json -r src/ -d docs/; cp -r docs/* ../../wick-editor-docs/; cd ../../wick-editor-docs; git add .; git commit -m 'update docs'; git push --force;"
   },
   "repository": {
     "type": "git",
