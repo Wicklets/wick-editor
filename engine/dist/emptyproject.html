@@ -14,7 +14,7 @@
         <!-- The Wick Engine build is injected here during the engine build step (see gulpfile.js) -->
         <script>
             /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.4.27.14.38.56";
+var WICK_ENGINE_BUILD_VERSION = "2020.4.27.15.47.27";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -47130,12 +47130,11 @@ Wick.AudioTrack = class {
     if (!args.onProgress) args.onProgress = (frame, maxFrames) => {};
 
     let genBuffer = audioInfo => {
-      console.log(audioInfo);
       if (!audioInfo) args.callback(null);
 
       if (audioInfo.length === 0) {
         // No audio in the project, no AudioBuffer to create
-        args.audioInfocallback(null);
+        args.callback(null);
         return;
       }
 
@@ -47175,7 +47174,6 @@ Wick.AudioTrack = class {
       let i = 0;
       let mergedAudioBuffer = audiobuffers.reduce((buffer1, buffer2) => {
         let buf = this.mergeBuffers([buffer1, buffer2], ctx, onProgress);
-        console.log("Reduce " + i, buffer1, buffer2, buf);
         i += 1;
         return buf;
       });
@@ -47233,17 +47231,17 @@ Wick.AudioTrack = class {
     var out = ac.createBuffer(maxChannels, ac.sampleRate * maxDuration, ac.sampleRate);
 
     for (var i = 0; i < buffers.length; i++) {
-      // onProgress("Merging Audio " + (j+1) + "/" + buffers.length, (j+1) + "/" + buffers.length);
-      // Go through each channel of the new audio source and copy that data into the output buffer.
+      onProgress("Merging Audio " + (i + 1) + "/" + buffers.length, i + 1 + "/" + buffers.length); // Go through each channel of the new audio source and copy that data into the output buffer.
+
       for (var srcChannel = 0; srcChannel < buffers[i].numberOfChannels; srcChannel++) {
         var outt = out.getChannelData(srcChannel);
         var inn = buffers[i].getChannelData(srcChannel);
 
         for (let j = 0; j < inn.length; j++) {
-          let val = inn[j];
+          let val = inn[j]; // Some sounds may have corrupted data... don't copy that over.
 
           if (val) {
-            outt[j] += inn[j];
+            outt[j] += val;
           }
         }
 

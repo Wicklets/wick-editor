@@ -52,7 +52,7 @@ Wick.AudioTrack = class {
 
             if(audioInfo.length === 0) {
                 // No audio in the project, no AudioBuffer to create
-                args.audioInfocallback(null);
+                args.callback(null);
                 return;
             }
 
@@ -185,7 +185,7 @@ Wick.AudioTrack = class {
                         outt[j] += val;
                     }
                 }
-                
+
                 out.getChannelData(srcChannel).set(outt, 0);
             }
         }
