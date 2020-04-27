@@ -77,7 +77,7 @@ Wick.View.Frame = class extends Wick.View {
         // Remove placeholder paths if
         // 1) this frame is focused, or
         // 2) the project is playing
-        if(this.model.parentClip.isFocus || this.model.project.playing) {
+        if(this.model.parentClip.isFocus || (this.model.project&&this.model.project.playing)) {
             this.model.paths.forEach(path => {
                 if(path.isPlaceholder) {
                     path.remove();
