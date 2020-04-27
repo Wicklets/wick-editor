@@ -1031,6 +1031,7 @@ Wick.Project = class extends Wick.Base {
         }
 
         let soundInfo = {
+            playheadPosition: playheadPosition,
             start: soundStartMS,
             end: soundEndMS, 
             offset: seekMS,

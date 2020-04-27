@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.4.24.11.1.23";
+var WICK_ENGINE_BUILD_VERSION = "2020.4.27.14.38.56";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -47115,6 +47115,7 @@ Wick.AudioTrack = class {
     if (!args.onProgress) args.onProgress = (frame, maxFrames) => {};
 
     let genBuffer = audioInfo => {
+      console.log(audioInfo);
       if (!audioInfo) args.callback(null);
 
       if (audioInfo.length === 0) {
@@ -47153,11 +47154,21 @@ Wick.AudioTrack = class {
 
     let mergeAudio = () => {
       onProgress && onProgress("Merging Audio");
-      let mergedAudioBuffer = this.mergeBuffers(audiobuffers, ctx, onProgress);
+      audiobuffers.sort((a, b) => {
+        return a.duration - b.duration;
+      });
+      let i = 0;
+      let mergedAudioBuffer = audiobuffers.reduce((buffer1, buffer2) => {
+        let buf = this.mergeBuffers([buffer1, buffer2], ctx, onProgress);
+        console.log("Reduce " + i, buffer1, buffer2, buf);
+        i += 1;
+        return buf;
+      });
       callback(mergedAudioBuffer);
     };
 
-    projectAudioInfo.forEach((audioInfo, i) => {
+    for (let i = 0; i < projectAudioInfo.length; i++) {
+      let audioInfo = projectAudioInfo[i];
       this.base64ToAudioBuffer(audioInfo.src, ctx, audiobuffer => {
         let startSeconds = audioInfo.start / 1000;
         let endSeconds = audioInfo.end / 1000;
@@ -47171,7 +47182,7 @@ Wick.AudioTrack = class {
           mergeAudio();
         }
       });
-    });
+    }
   }
   /*
    * Merges multiple audiobuffers into a single audiobuffer.
@@ -47184,7 +47195,12 @@ Wick.AudioTrack = class {
     // original function from:
     // https://github.com/meandavejustice/merge-audio-buffers/blob/master/index.js
     var maxChannels = 0;
-    var maxDuration = 0;
+    var maxDuration = 0; // Send back an empty buffer if no information was sent in.
+
+    if (!buffers || buffers && buffers.length === 0) {
+      return ac.createBuffer(2, 1000, 48000);
+    } // Review the incoming audio to determine output buffer size.
+
 
     for (let i = 0; i < buffers.length; i++) {
       onProgress("Reviewing Audio " + (i + 1) + "/" + buffers.length, i + 1 + "/" + buffers.length);
@@ -47196,19 +47212,24 @@ Wick.AudioTrack = class {
       if (buffers[i].duration > maxDuration) {
         maxDuration = buffers[i].duration;
       }
-    }
+    } // Create new output buffer.
+
 
     var out = ac.createBuffer(maxChannels, ac.sampleRate * maxDuration, ac.sampleRate);
 
-    for (var j = 0; j < buffers.length; j++) {
-      onProgress("Merging Audio " + (j + 1) + "/" + buffers.length, j + 1 + "/" + buffers.length);
-
-      for (var srcChannel = 0; srcChannel < buffers[j].numberOfChannels; srcChannel++) {
+    for (var i = 0; i < buffers.length; i++) {
+      // onProgress("Merging Audio " + (j+1) + "/" + buffers.length, (j+1) + "/" + buffers.length);
+      // Go through each channel of the new audio source and copy that data into the output buffer.
+      for (var srcChannel = 0; srcChannel < buffers[i].numberOfChannels; srcChannel++) {
         var outt = out.getChannelData(srcChannel);
-        var inn = buffers[j].getChannelData(srcChannel);
+        var inn = buffers[i].getChannelData(srcChannel);
 
-        for (let i = 0; i < inn.length; i++) {
-          outt[i] += inn[i];
+        for (let j = 0; j < inn.length; j++) {
+          let val = inn[j];
+
+          if (val) {
+            outt[j] += inn[j];
+          }
         }
 
         out.getChannelData(srcChannel).set(outt, 0);
@@ -50148,6 +50169,7 @@ Wick.Project = class extends Wick.Base {
     }
 
     let soundInfo = {
+      playheadPosition: playheadPosition,
       start: soundStartMS,
       end: soundEndMS,
       offset: seekMS,

@@ -87,12 +87,24 @@ Wick.AudioTrack = class {
 
         let mergeAudio = () => {
             onProgress && onProgress("Merging Audio");
+            audiobuffers.sort((a,b) => {return(a.duration - b.duration)})
 
-            let mergedAudioBuffer = this.mergeBuffers(audiobuffers, ctx, onProgress);
+            let i=0;
+
+            let mergedAudioBuffer = audiobuffers.reduce((buffer1, buffer2) => {
+                let buf = this.mergeBuffers([buffer1, buffer2], ctx, onProgress);
+                
+                i += 1;
+
+                return buf;
+            });
+
             callback(mergedAudioBuffer);
         }
 
-        projectAudioInfo.forEach((audioInfo,i) => {
+        for (let i=0; i<projectAudioInfo.length; i++) {
+
+            let audioInfo = projectAudioInfo[i];
 
             this.base64ToAudioBuffer(audioInfo.src, ctx, audiobuffer => {
                 let startSeconds = audioInfo.start / 1000;
@@ -106,11 +118,14 @@ Wick.AudioTrack = class {
                 onProgress && onProgress("Creating Audio " + (i+1) + "/" + projectAudioInfo.length, (i+1)/projectAudioInfo.length);
 
                 audiobuffers.push(delayedAudiobuffer);
+
                 if (audiobuffers.length >= projectAudioInfo.length) {
                     mergeAudio();
                 }
             });
-        });
+
+        }
+
     }
 
     /*
@@ -125,6 +140,16 @@ Wick.AudioTrack = class {
         var maxChannels = 0;
         var maxDuration = 0;
 
+        // Send back an empty buffer if no information was sent in.
+        if (!buffers || (buffers && buffers.length === 0)) {
+            return ac.createBuffer(
+                2,
+                1000,
+                48000,
+            )
+        }
+
+        // Review the incoming audio to determine output buffer size.
         for (let i = 0; i < buffers.length; i++) {
             onProgress("Reviewing Audio " + (i+1) + "/" + buffers.length, (i+1) + "/" + buffers.length)
 
@@ -137,21 +162,30 @@ Wick.AudioTrack = class {
             }
         }
 
+        // Create new output buffer.
         var out = ac.createBuffer(
             maxChannels,
             ac.sampleRate * maxDuration,
             ac.sampleRate
         );
 
-        for (var j = 0; j < buffers.length; j++) {
-            onProgress("Merging Audio " + (j+1) + "/" + buffers.length, (j+1) + "/" + buffers.length);
+        for (var i = 0; i < buffers.length; i++) {
+            onProgress("Merging Audio " + (i+1) + "/" + buffers.length, (i+1) + "/" + buffers.length);
 
-            for (var srcChannel = 0; srcChannel < buffers[j].numberOfChannels; srcChannel++) {
+            // Go through each channel of the new audio source and copy that data into the output buffer.
+            for (var srcChannel = 0; srcChannel < buffers[i].numberOfChannels; srcChannel++) {
                 var outt = out.getChannelData(srcChannel);
-                var inn = buffers[j].getChannelData(srcChannel);
-                for (let i = 0; i < inn.length; i++) {
-                    outt[i] += inn[i];
+                var inn = buffers[i].getChannelData(srcChannel);
+
+                for (let j = 0; j < inn.length; j++) {
+                    let val = inn[j];
+
+                    // Some sounds may have corrupted data... don't copy that over.
+                    if (val) {
+                        outt[j] += val;
+                    }
                 }
+                
                 out.getChannelData(srcChannel).set(outt, 0);
             }
         }
