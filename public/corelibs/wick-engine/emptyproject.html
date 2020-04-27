@@ -14,7 +14,7 @@
         <!-- The Wick Engine build is injected here during the engine build step (see gulpfile.js) -->
         <script>
             /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.4.27.16.20.49";
+var WICK_ENGINE_BUILD_VERSION = "2020.4.27.16.21.15";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -47131,58 +47131,83 @@ Wick.AudioTrack = class {
   }
   /**
    * Generate an AudioBuffer of all the project's sounds as one audio track.
-   * @param {Function} callback -
+   * Can take sound information from a generated sequence.
+   * @param {Object} args - callback, onProgress, soundInfo
    */
 
 
-  toAudioBuffer(callback) {
-    var audioInfo = this.project.getAudioInfo();
+  toAudioBuffer(args) {
+    if (!args) args = {};
+    if (!args.callback) args.callback = () => {};
+    if (!args.onProgress) args.onProgress = (frame, maxFrames) => {};
 
-    if (audioInfo.length === 0) {
-      // No audio in the project, no AudioBuffer to create
-      callback(null);
-      return;
+    let genBuffer = audioInfo => {
+      if (!audioInfo) args.callback(null);
+
+      if (audioInfo.length === 0) {
+        // No audio in the project, no AudioBuffer to create
+        args.callback(null);
+        return;
+      }
+
+      Wick.AudioTrack.generateProjectAudioBuffer(audioInfo, audioArraybuffer => {
+        args.callback(audioArraybuffer);
+      }, args.onProgress);
+    }; // If audio information is passed in from a previous render, use that. Otherwise, render it again.
+
+
+    if (args.soundInfo) {
+      genBuffer(args.soundInfo);
+    } else {
+      this.project.generateAudioSequence({
+        onFinish: genBuffer,
+        onProgress: args.onProgress
+      });
     }
-
-    Wick.AudioTrack.generateProjectAudioBuffer(audioInfo, audioArraybuffer => {
-      callback(audioArraybuffer);
-    });
   }
   /**
    * Create an AudioBuffer from given sounds.
-   * @param {object} projectAudioInfo - info generated from Wick.Project.getAudioInfo
+   * @param {object[]} projectAudioInfo - infor generated on sounds played in the project.
    * @param {Function} callback - callback to recieve the generated AudioBuffer
+   * @param {Function} onProgress(message, progress) - A function which receive a message.
    */
 
 
-  static generateProjectAudioBuffer(projectAudioInfo, callback) {
+  static generateProjectAudioBuffer(projectAudioInfo, callback, onProgress) {
     window.AudioContext = window.AudioContext || window.webkitAudioContext;
     var ctx = new AudioContext();
     let audiobuffers = [];
 
-    let prepareNextAudioInfo = () => {
-      if (projectAudioInfo.length === 0) {
-        mergeAudio();
-      } else {
-        var audioInfo = projectAudioInfo.pop();
-        this.base64ToAudioBuffer(audioInfo.src, ctx, audiobuffer => {
-          let startSeconds = audioInfo.start / 1000;
-          let endSeconds = audioInfo.end / 1000;
-          let lengthSeconds = endSeconds - startSeconds;
-          let croppedAudioBuffer = this.cropAudioBuffer(audiobuffer, lengthSeconds, ctx);
-          let delayedAudiobuffer = this.addStartDelayToAudioBuffer(croppedAudioBuffer, startSeconds, ctx);
-          audiobuffers.push(delayedAudiobuffer);
-          prepareNextAudioInfo();
-        });
-      }
-    };
-
     let mergeAudio = () => {
-      let mergedAudioBuffer = this.mergeBuffers(audiobuffers, ctx);
+      onProgress && onProgress("Merging Audio");
+      audiobuffers.sort((a, b) => {
+        return a.duration - b.duration;
+      });
+      let i = 0;
+      let mergedAudioBuffer = audiobuffers.reduce((buffer1, buffer2) => {
+        let buf = this.mergeBuffers([buffer1, buffer2], ctx, onProgress);
+        i += 1;
+        return buf;
+      });
       callback(mergedAudioBuffer);
     };
 
-    prepareNextAudioInfo();
+    for (let i = 0; i < projectAudioInfo.length; i++) {
+      let audioInfo = projectAudioInfo[i];
+      this.base64ToAudioBuffer(audioInfo.src, ctx, audiobuffer => {
+        let startSeconds = audioInfo.start / 1000;
+        let endSeconds = audioInfo.end / 1000;
+        let lengthSeconds = endSeconds - startSeconds;
+        let croppedAudioBuffer = this.cropAudioBuffer(audiobuffer, lengthSeconds, ctx);
+        let delayedAudiobuffer = this.addStartDelayToAudioBuffer(croppedAudioBuffer, startSeconds, ctx);
+        onProgress && onProgress("Creating Audio " + (i + 1) + "/" + projectAudioInfo.length, (i + 1) / projectAudioInfo.length);
+        audiobuffers.push(delayedAudiobuffer);
+
+        if (audiobuffers.length >= projectAudioInfo.length) {
+          mergeAudio();
+        }
+      });
+    }
   }
   /*
    * Merges multiple audiobuffers into a single audiobuffer.
@@ -47191,13 +47216,20 @@ Wick.AudioTrack = class {
    */
 
 
-  static mergeBuffers(buffers, ac) {
+  static mergeBuffers(buffers, ac, onProgress) {
     // original function from:
     // https://github.com/meandavejustice/merge-audio-buffers/blob/master/index.js
     var maxChannels = 0;
-    var maxDuration = 0;
+    var maxDuration = 0; // Send back an empty buffer if no information was sent in.
+
+    if (!buffers || buffers && buffers.length === 0) {
+      return ac.createBuffer(2, 1000, 48000);
+    } // Review the incoming audio to determine output buffer size.
+
 
     for (let i = 0; i < buffers.length; i++) {
+      onProgress("Reviewing Audio " + (i + 1) + "/" + buffers.length, i + 1 + "/" + buffers.length);
+
       if (buffers[i].numberOfChannels > maxChannels) {
         maxChannels = buffers[i].numberOfChannels;
       }
@@ -47205,17 +47237,24 @@ Wick.AudioTrack = class {
       if (buffers[i].duration > maxDuration) {
         maxDuration = buffers[i].duration;
       }
-    }
+    } // Create new output buffer.
+
 
     var out = ac.createBuffer(maxChannels, ac.sampleRate * maxDuration, ac.sampleRate);
 
-    for (var j = 0; j < buffers.length; j++) {
-      for (var srcChannel = 0; srcChannel < buffers[j].numberOfChannels; srcChannel++) {
-        var outt = out.getChannelData(srcChannel);
-        var inn = buffers[j].getChannelData(srcChannel);
+    for (var i = 0; i < buffers.length; i++) {
+      onProgress("Merging Audio " + (i + 1) + "/" + buffers.length, i + 1 + "/" + buffers.length); // Go through each channel of the new audio source and copy that data into the output buffer.
 
-        for (let i = 0; i < inn.length; i++) {
-          outt[i] += inn[i];
+      for (var srcChannel = 0; srcChannel < buffers[i].numberOfChannels; srcChannel++) {
+        var outt = out.getChannelData(srcChannel);
+        var inn = buffers[i].getChannelData(srcChannel);
+
+        for (let j = 0; j < inn.length; j++) {
+          let val = inn[j]; // Some sounds may have corrupted data... don't copy that over.
+
+          if (val) {
+            outt[j] += val;
+          }
         }
 
         out.getChannelData(srcChannel).set(outt, 0);
@@ -47260,20 +47299,18 @@ Wick.AudioTrack = class {
 
   static addStartDelayToAudioBuffer(originalBuffer, delaySeconds, ctx) {
     // Create buffer with a length equal to the original buffer's length plus the requested delay
-    var delayedBuffer = ctx.createBuffer(originalBuffer.numberOfChannels, ctx.sampleRate * originalBuffer.duration + ctx.sampleRate * delaySeconds, ctx.sampleRate); // For each channel in the audiobuffer...
+    let lengthOfDelay = ctx.sampleRate * delaySeconds;
+    let lengthOfOriginalSound = ctx.sampleRate * originalBuffer.duration;
+    var delayedBuffer = ctx.createBuffer(originalBuffer.numberOfChannels, lengthOfDelay + lengthOfOriginalSound, ctx.sampleRate); // For each channel in the audiobuffer...
 
     for (var srcChannel = 0; srcChannel < originalBuffer.numberOfChannels; srcChannel++) {
       // Retrieve sample data...
       var delayedBufferChannelData = delayedBuffer.getChannelData(srcChannel);
       var originalBufferChannelData = originalBuffer.getChannelData(srcChannel); // Copy samples from the original buffer to the delayed buffer with an offset equal to the delay
 
-      var delayOffset = ctx.sampleRate * delaySeconds;
+      var delayOffset = ctx.sampleRate * delaySeconds; // Copy in the data from the original buffer into the delayed buffer, starting at the delayed position.
 
-      for (var i = 0; i < delayedBufferChannelData.length; i++) {
-        delayedBufferChannelData[i + delayOffset] = originalBufferChannelData[i];
-      }
-
-      delayedBuffer.getChannelData(srcChannel).set(delayedBufferChannelData, 0);
+      delayedBuffer.getChannelData(srcChannel).set(originalBufferChannelData, delayOffset);
     }
 
     return delayedBuffer;
@@ -49136,6 +49173,8 @@ Wick.Project = class extends Wick.Base {
       y: 0
     };
     this._isMouseDown = false;
+    this.soundsPlayed = []; // List of all sounds that have been played during this play through of the project.
+
     this._mouseTargets = [];
     this._keysDown = [];
     this._keysLastDown = [];
@@ -49178,6 +49217,7 @@ Wick.Project = class extends Wick.Base {
       if (name === 'fillColor') {
         this.selection.fillColor = value.rgba;
       } else if (name === 'strokeColor') {
+        f;
         this.selection.strokeColor = value.rgba;
       }
     });
@@ -50137,8 +50177,51 @@ Wick.Project = class extends Wick.Base {
     } else if (!(asset instanceof Wick.SoundAsset)) {
       console.warn('playSound(): Asset is not a sound: "' + assetName + '"');
     } else {
-      return asset.play(options);
+      return this.playSoundFromAsset(asset, options);
     }
+  }
+  /**
+   * Generates information for a single sound that is being played.
+   * @param {Wick.Asset} asset - Asset to be played.
+   * @param {Object} options - Options including start (ms), end (ms), offset (ms), src (sound source), filetype (string).
+   */
+
+
+  generateSoundInfo(asset, options) {
+    let playheadPosition = this.focus.timeline.playheadPosition;
+    let soundStartMS = 1000 / this.framerate * (playheadPosition - 1); // Adjust by one to account for sounds on frame 1 starting at 0ms.
+
+    let soundEndMS = 0;
+    let seekMS = options.seekMS || 0;
+
+    if (options.frame) {
+      let soundLengthInFrames = options.frame.end - (options.frame.start - 1);
+      soundEndMS = soundStartMS + 1000 / this.framerate * soundLengthInFrames;
+    } else {
+      soundEndMS = soundStartMS + asset.length * 1000;
+    }
+
+    let soundInfo = {
+      playheadPosition: playheadPosition,
+      start: soundStartMS,
+      end: soundEndMS,
+      offset: seekMS,
+      src: asset.src,
+      filetype: asset.fileExtension,
+      name: asset.name
+    };
+    return soundInfo;
+  }
+  /**
+   * Plays a sound from a presented asset.
+   * @param {Wick.SoundAsset} asset - Name of the sound asset to play.
+   */
+
+
+  playSoundFromAsset(asset, options) {
+    let soundInfo = this.generateSoundInfo(asset, options);
+    this.soundsPlayed.push(soundInfo);
+    return asset.play(options);
   }
   /**
    * Stops sound(s) currently playing.
@@ -50225,7 +50308,7 @@ Wick.Project = class extends Wick.Base {
   }
 
   set publishedMode(publishedMode) {
-    let validModes = [false, "interactive", "imageSequence"];
+    let validModes = [false, "interactive", "imageSequence", "audioSequence"];
 
     if (validModes.indexOf(publishedMode) === -1) {
       throw new Error("Published Mode: " + publishedMode + " is invalid. Must be one of type: " + validModes);
@@ -50631,7 +50714,7 @@ Wick.Project = class extends Wick.Base {
     renderCopy.pan = {
       x: 0,
       y: 0
-    }; //renderCopy.tick();
+    }; // renderCopy.tick();
     // We need full control over when paper.js renders, if we leave autoUpdate on, it's possible to lose frames if paper.js doesnt automatically render as fast as we are generating the images.
     // (See paper.js docs for info about autoUpdate)
 
@@ -50670,6 +50753,68 @@ Wick.Project = class extends Wick.Base {
       frameImage.src = renderCopy.view.canvas.toDataURL(args.imageType);
     };
 
+    this.resetSoundsPlayed();
+    renderFrame();
+  }
+
+  resetSoundsPlayed() {
+    this.soundsPlayed = [];
+  }
+  /**
+   * Play the project through to generate an audio track.
+   */
+
+
+  generateAudioSequence(args) {
+    if (!args) args = {};
+    if (!args.onProgress) args.onProgress = (frame, maxFrames) => {};
+    if (!args.onFinish) args.onFinish = output => {};
+    var renderCopy = this;
+    var oldCanvasContainer = this.view.canvasContainer;
+    this.history.saveSnapshot('before-audio-render');
+    this.mute();
+    this.selection.clear();
+    this.publishedMode = "audioSequence";
+    this.tick(); // Put the project canvas inside a div that's the same size as the project so the frames render at the correct resolution.
+
+    let container = window.document.createElement('div');
+    container.style.width = args.width / window.devicePixelRatio + 'px';
+    container.style.height = args.height / window.devicePixelRatio + 'px';
+    window.document.body.appendChild(container);
+    renderCopy.view.canvasContainer = container;
+    renderCopy.view.resize(); // Set the initial state of the project.
+
+    renderCopy.focus = renderCopy.root;
+    renderCopy.focus.timeline.playheadPosition = 1;
+    renderCopy.tick(); // We need full control over when paper.js renders, if we leave autoUpdate on, it's possible to lose frames if paper.js doesnt automatically render as fast as we are generating the images.
+    // (See paper.js docs for info about autoUpdate)
+
+    renderCopy.view.paper.view.autoUpdate = false;
+    var numMaxFrameImages = renderCopy.focus.timeline.length;
+
+    var renderFrame = () => {
+      var currentPos = renderCopy.focus.timeline.playheadPosition;
+      args.onProgress(currentPos, numMaxFrameImages);
+
+      if (currentPos >= numMaxFrameImages) {
+        // reset autoUpdate back to normal
+        renderCopy.view.paper.view.autoUpdate = true;
+        this.view.canvasContainer = oldCanvasContainer;
+        this.view.resize();
+        this.history.loadSnapshot('before-audio-render');
+        this.publishedMode = false;
+        this.view.render();
+        window.document.body.removeChild(container);
+        args.onFinish(this.soundsPlayed);
+      } else {
+        var oldPlayhead = renderCopy.activeTimeline.playheadPosition;
+        renderCopy.tick();
+        renderCopy.activeTimeline.playheadPosition = oldPlayhead + 1;
+        renderFrame();
+      }
+    };
+
+    this.resetSoundsPlayed();
     renderFrame();
   }
   /**
@@ -50698,15 +50843,17 @@ Wick.Project = class extends Wick.Base {
   }
   /**
    * Generate an audiobuffer containing all the project's sounds merged together.
-   * @param {object} args - placeholder for future options, not currently used
+   * @param {object} args - takes soundInfo (list of soundInfo to use for audioGeneration).
    * @param {Function} callback - callback used to recieve the final audiobuffer.
    */
 
 
   generateAudioTrack(args, callback) {
     var audioTrack = new Wick.AudioTrack(this);
-    audioTrack.toAudioBuffer(audioBuffer => {
-      callback(audioBuffer);
+    audioTrack.toAudioBuffer({
+      callback: audioBuffer => callback(audioBuffer),
+      soundInfo: args.soundInfo ? args.soundInfo : undefined,
+      onProgress: args.onProgress
     });
   }
   /**
@@ -53865,7 +54012,7 @@ Wick.SoundAsset = class extends Wick.FileAsset {
   }
   /**
    * Plays this asset's sound.
-   * @param {number} seekMS - the amount of time in milliseconds to start the sound at.
+   * @param {number} seekMS - the amount of time in milliseconds into the sound the sound should start at.
    * @param {number} volume - the volume of the sound, from 0.0 - 1.0
    * @param {boolean} loop - if set to true, the sound will loop
    * @return {number} The id of the sound instance that was played.
@@ -54872,9 +55019,10 @@ Wick.Frame = class extends Wick.Tickable {
     var options = {
       seekMS: this.playheadSoundOffsetMS + this.soundStart,
       volume: this.soundVolume,
-      loop: this.soundLoop
+      loop: this.soundLoop,
+      frame: this
     };
-    this._soundID = this.sound.play(options);
+    this._soundID = this.project.playSoundFromAsset(this.sound, options);
   }
   /**
    * Stops the sound attached to this frame.
@@ -54939,6 +55087,19 @@ Wick.Frame = class extends Wick.Tickable {
 
   get soundEndMS() {
     return 1000 / this.project.framerate * this.end;
+  }
+  /**
+   * Returns the frame's start position in relation to the root timeline.
+   */
+
+
+  get projectFrameStart() {
+    if (this.parentClip.isRoot) {
+      return this.start;
+    } else {
+      let val = this.start + this.parentClip.parentFrame.projectFrameStart - 1;
+      return val;
+    }
   }
   /**
    * The paths on the frame.

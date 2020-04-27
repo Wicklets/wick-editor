@@ -39,54 +39,94 @@ Wick.AudioTrack = class {
 
     /**
      * Generate an AudioBuffer of all the project's sounds as one audio track.
-     * @param {Function} callback -
+     * Can take sound information from a generated sequence.
+     * @param {Object} args - callback, onProgress, soundInfo
      */
-    toAudioBuffer (callback) {
-        var audioInfo = this.project.getAudioInfo();
-        if(audioInfo.length === 0) {
-            // No audio in the project, no AudioBuffer to create
-            callback(null);
-            return;
+    toAudioBuffer (args) {
+        if (!args) args = {}; 
+        if (!args.callback) args.callback = () => {}
+        if (!args.onProgress) args.onProgress = (frame, maxFrames) => {}
+
+        let genBuffer = (audioInfo) => {
+            if (!audioInfo) args.callback(null);
+
+            if(audioInfo.length === 0) {
+                // No audio in the project, no AudioBuffer to create
+                args.callback(null);
+                return;
+            }
+
+            Wick.AudioTrack.generateProjectAudioBuffer(audioInfo, audioArraybuffer => {
+                args.callback(audioArraybuffer);
+            },
+            args.onProgress);
         }
-        Wick.AudioTrack.generateProjectAudioBuffer(audioInfo, audioArraybuffer => {
-            callback(audioArraybuffer);
-        });
+
+        // If audio information is passed in from a previous render, use that. Otherwise, render it again.
+        if (args.soundInfo) {
+            genBuffer(args.soundInfo);
+        } else {
+            this.project.generateAudioSequence({
+                onFinish: genBuffer,
+                onProgress: args.onProgress,
+            });
+        }
+        
     }
 
     /**
      * Create an AudioBuffer from given sounds.
-     * @param {object} projectAudioInfo - info generated from Wick.Project.getAudioInfo
+     * @param {object[]} projectAudioInfo - infor generated on sounds played in the project.
      * @param {Function} callback - callback to recieve the generated AudioBuffer
+     * @param {Function} onProgress(message, progress) - A function which receive a message.
      */
-    static generateProjectAudioBuffer (projectAudioInfo, callback) {
+    static generateProjectAudioBuffer (projectAudioInfo, callback, onProgress) {
         window.AudioContext = window.AudioContext || window.webkitAudioContext;
         var ctx = new AudioContext();
 
         let audiobuffers = [];
 
-        let prepareNextAudioInfo = () => {
-            if(projectAudioInfo.length === 0) {
-                mergeAudio();
-            } else {
-                var audioInfo = projectAudioInfo.pop();
-                this.base64ToAudioBuffer(audioInfo.src, ctx, audiobuffer => {
-                    let startSeconds = audioInfo.start / 1000;
-                    let endSeconds = audioInfo.end / 1000;
-                    let lengthSeconds = endSeconds - startSeconds;
-                    let croppedAudioBuffer = this.cropAudioBuffer(audiobuffer, lengthSeconds, ctx);
-                    let delayedAudiobuffer = this.addStartDelayToAudioBuffer(croppedAudioBuffer, startSeconds, ctx);
-                    audiobuffers.push(delayedAudiobuffer);
-                    prepareNextAudioInfo();
-                });
-            }
-        }
-
         let mergeAudio = () => {
-            let mergedAudioBuffer = this.mergeBuffers(audiobuffers, ctx);
+            onProgress && onProgress("Merging Audio");
+            audiobuffers.sort((a,b) => {return(a.duration - b.duration)})
+
+            let i=0;
+
+            let mergedAudioBuffer = audiobuffers.reduce((buffer1, buffer2) => {
+                let buf = this.mergeBuffers([buffer1, buffer2], ctx, onProgress);
+                
+                i += 1;
+
+                return buf;
+            });
+
             callback(mergedAudioBuffer);
         }
 
-        prepareNextAudioInfo();
+        for (let i=0; i<projectAudioInfo.length; i++) {
+
+            let audioInfo = projectAudioInfo[i];
+
+            this.base64ToAudioBuffer(audioInfo.src, ctx, audiobuffer => {
+                let startSeconds = audioInfo.start / 1000;
+                let endSeconds = audioInfo.end / 1000;
+                let lengthSeconds = endSeconds - startSeconds;
+
+                let croppedAudioBuffer = this.cropAudioBuffer(audiobuffer, lengthSeconds, ctx);
+
+                let delayedAudiobuffer = this.addStartDelayToAudioBuffer(croppedAudioBuffer, startSeconds, ctx);
+
+                onProgress && onProgress("Creating Audio " + (i+1) + "/" + projectAudioInfo.length, (i+1)/projectAudioInfo.length);
+
+                audiobuffers.push(delayedAudiobuffer);
+
+                if (audiobuffers.length >= projectAudioInfo.length) {
+                    mergeAudio();
+                }
+            });
+
+        }
+
     }
 
     /*
@@ -94,36 +134,63 @@ Wick.AudioTrack = class {
      * @param {AudioBuffer[]} buffers - the AudioBuffers to merge together
      * @param {AudioContext} ac - An AudioContext instance
      */
-    static mergeBuffers(buffers, ac) {
+    static mergeBuffers(buffers, ac, onProgress) {
         // original function from:
         // https://github.com/meandavejustice/merge-audio-buffers/blob/master/index.js
 
         var maxChannels = 0;
         var maxDuration = 0;
+
+        // Send back an empty buffer if no information was sent in.
+        if (!buffers || (buffers && buffers.length === 0)) {
+            return ac.createBuffer(
+                2,
+                1000,
+                48000,
+            )
+        }
+
+        // Review the incoming audio to determine output buffer size.
         for (let i = 0; i < buffers.length; i++) {
+            onProgress("Reviewing Audio " + (i+1) + "/" + buffers.length, (i+1) + "/" + buffers.length)
+
             if (buffers[i].numberOfChannels > maxChannels) {
                 maxChannels = buffers[i].numberOfChannels;
             }
+
             if (buffers[i].duration > maxDuration) {
                 maxDuration = buffers[i].duration;
             }
         }
+
+        // Create new output buffer.
         var out = ac.createBuffer(
             maxChannels,
             ac.sampleRate * maxDuration,
             ac.sampleRate
         );
 
-        for (var j = 0; j < buffers.length; j++) {
-            for (var srcChannel = 0; srcChannel < buffers[j].numberOfChannels; srcChannel++) {
+        for (var i = 0; i < buffers.length; i++) {
+            onProgress("Merging Audio " + (i+1) + "/" + buffers.length, (i+1) + "/" + buffers.length);
+
+            // Go through each channel of the new audio source and copy that data into the output buffer.
+            for (var srcChannel = 0; srcChannel < buffers[i].numberOfChannels; srcChannel++) {
                 var outt = out.getChannelData(srcChannel);
-                var inn = buffers[j].getChannelData(srcChannel);
-                for (let i = 0; i < inn.length; i++) {
-                    outt[i] += inn[i];
+                var inn = buffers[i].getChannelData(srcChannel);
+
+                for (let j = 0; j < inn.length; j++) {
+                    let val = inn[j];
+
+                    // Some sounds may have corrupted data... don't copy that over.
+                    if (val) {
+                        outt[j] += val;
+                    }
                 }
+
                 out.getChannelData(srcChannel).set(outt, 0);
             }
         }
+
         return out;
     }
 
@@ -164,10 +231,15 @@ Wick.AudioTrack = class {
      * @param {AudioContext} ctx - An AudioContext instance
      */
     static addStartDelayToAudioBuffer (originalBuffer, delaySeconds, ctx) {
+
         // Create buffer with a length equal to the original buffer's length plus the requested delay
+
+        let lengthOfDelay = ctx.sampleRate * delaySeconds;
+        let lengthOfOriginalSound = ctx.sampleRate * originalBuffer.duration;
+
         var delayedBuffer = ctx.createBuffer(
             originalBuffer.numberOfChannels,
-            ctx.sampleRate * originalBuffer.duration + ctx.sampleRate * delaySeconds,
+            lengthOfDelay + lengthOfOriginalSound,
             ctx.sampleRate,
         );
 
@@ -179,10 +251,9 @@ Wick.AudioTrack = class {
 
             // Copy samples from the original buffer to the delayed buffer with an offset equal to the delay
             var delayOffset = ctx.sampleRate * delaySeconds;
-            for (var i = 0; i < delayedBufferChannelData.length; i++) {
-                delayedBufferChannelData[i + delayOffset] = originalBufferChannelData[i];
-            }
-            delayedBuffer.getChannelData(srcChannel).set(delayedBufferChannelData, 0);
+            
+            // Copy in the data from the original buffer into the delayed buffer, starting at the delayed position.
+            delayedBuffer.getChannelData(srcChannel).set(originalBufferChannelData, delayOffset);
         }
 
         return delayedBuffer;
