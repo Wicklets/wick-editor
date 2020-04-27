@@ -341,7 +341,8 @@ Wick.Base = class {
     }
 
     /**
-     *
+     * Returns a single child of this object with a given classname.
+     * @param {string} classname - the classname to use
      */
     getChild (classname) {
         return this.getChildren(classname)[0];
@@ -484,6 +485,10 @@ Wick.Base = class {
         });
     }
 
+    /**
+     * Assets attached to this object.
+     * @returns {Wick.Base[]}
+     */
     getLinkedAssets () {
         // Implemented by Wick.Frame and Wick.Clip
         return [];

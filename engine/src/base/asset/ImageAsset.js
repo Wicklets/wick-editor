@@ -38,7 +38,7 @@ Wick.ImageAsset = class extends Wick.FileAsset {
 
     /**
      * Create a new ImageAsset.
-     * @param {object} args
+     * @param {object} args - Asset constructor args. see constructor for Wick.Asset
      */
     constructor (args) {
         super(args);
@@ -97,6 +97,7 @@ Wick.ImageAsset = class extends Wick.FileAsset {
 
     /**
      * Load data in the asset
+     * @param {function} callback - function to call when the data is done being loaded.
      */
     load (callback) {
         // Try to get paper.js to cache the image src.
@@ -120,7 +121,7 @@ Wick.ImageAsset = class extends Wick.FileAsset {
     }
 
     /**
-     * Is this image part of a GIF?
+     * Is this image asset part of a GIF? (if this is set to true, this asset won't appear in the asset library GUI)
      * @type {boolean}
      */
     get isGifImage () {

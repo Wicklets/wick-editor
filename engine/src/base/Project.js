@@ -410,7 +410,7 @@ Wick.Project = class extends Wick.Base {
 
     /**
      * A list of all "fontFamily" in the asset library.
-     * @returns {[string]}
+     * @returns {string[]}
      */
     getFonts () {
         return this.getAssets('Font').map(asset => {
@@ -1609,6 +1609,17 @@ Wick.Project = class extends Wick.Base {
                     callback();
                 }
             });
+        });
+    }
+
+    /**
+     * Remove assets from the project that are never used.
+     */
+    cleanupUnusedAssets () {
+        this.assets.forEach(asset => {
+            if(!asset.hasInstances()) {
+                asset.remove();
+            }
         });
     }
 }

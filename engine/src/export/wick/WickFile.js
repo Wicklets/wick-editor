@@ -133,6 +133,9 @@ Wick.WickFile = class {
             return;
         }
 
+        // Delete unused assets before export (minimizes filesize)
+        project.cleanupUnusedAssets();
+
         var zip = new JSZip();
 
         // Create assets folder

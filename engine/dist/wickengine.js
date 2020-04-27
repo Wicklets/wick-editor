@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.4.16.12.51.19";
+var WICK_ENGINE_BUILD_VERSION = "2020.4.27.16.20.49";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -45529,7 +45529,8 @@ Wick.Color = class {
     }
   }
   /**
-   *
+   * The red value of the color. Ranges from 0.0 to 1.0.
+   * @type {Number}
    */
 
 
@@ -45541,7 +45542,8 @@ Wick.Color = class {
     this._color.red = r;
   }
   /**
-   *
+   * The green value of the color. Ranges from 0.0 to 1.0.
+   * @type {Number}
    */
 
 
@@ -45553,7 +45555,8 @@ Wick.Color = class {
     this._color.green = g;
   }
   /**
-   *
+   * The blue value of the color. Ranges from 0.0 to 1.0.
+   * @type {Number}
    */
 
 
@@ -45565,7 +45568,8 @@ Wick.Color = class {
     this._color.blue = b;
   }
   /**
-   *
+   * The alpha value of the color. Ranges from 0.0 to 1.0.
+   * @type {Number}
    */
 
 
@@ -45577,7 +45581,8 @@ Wick.Color = class {
     this._color.alpha = a;
   }
   /**
-   *
+   * The color as a hex string. Example: "#AABBCC"
+   * @type {String}
    */
 
 
@@ -45585,7 +45590,7 @@ Wick.Color = class {
     return this._color.toCSS(true);
   }
   /**
-   *
+   * The color as an rgba string. Example: "rgba(r,g,b,a)"
    */
 
 
@@ -45593,7 +45598,9 @@ Wick.Color = class {
     return this._color.toCSS();
   }
   /**
-   *
+   * Adds together the r, g, and b values of both colors and produces a new color.
+   * @param {Wick.Color} color - the color to add to this color
+   * @returns {Wick.Color} the resulting color
    */
 
 
@@ -45605,7 +45612,9 @@ Wick.Color = class {
     return newColor;
   }
   /**
-   *
+   * Multiplies the r, g, and b values of both colors to produce a new color.
+   * @param {Wick.Color} color - the color to multiply with this color
+   * @returns {Wick.Color} the resulting color
    */
 
 
@@ -45617,12 +45626,15 @@ Wick.Color = class {
     return newColor;
   }
   /**
-   *
+   * Averages the r, g, and b values of two colors.
+   * @param {Wick.Color} colorA - a color to average with another color (order does not matter)
+   * @param {Wick.Color} colorB - a color to average with another color (order does not matter)
+   * @returns {Wick.Color} The resulting averaged color.
    */
 
 
-  static average(a, b) {
-    return a.multiply(0.5).add(b.multiply(0.5));
+  static average(colorA, colorB) {
+    return colorA.multiply(0.5).add(colorB.multiply(0.5));
   }
 
 };
@@ -47639,8 +47651,10 @@ Wick.WickFile = class {
     if (format !== 'blob' && format !== 'base64') {
       console.error('WickFile.toWickFile: invalid format: ' + format);
       return;
-    }
+    } // Delete unused assets before export (minimizes filesize)
 
+
+    project.cleanupUnusedAssets();
     var zip = new JSZip(); // Create assets folder
 
     var assetsFolder = zip.folder("assets"); // Populate assets folder with files
@@ -48464,7 +48478,8 @@ Wick.Base = class {
     this._guiElement = guiElement;
   }
   /**
-   *
+   * Returns a single child of this object with a given classname.
+   * @param {string} classname - the classname to use
    */
 
 
@@ -48622,6 +48637,11 @@ Wick.Base = class {
       return seekChild !== child;
     });
   }
+  /**
+   * Assets attached to this object.
+   * @returns {Wick.Base[]}
+   */
+
 
   getLinkedAssets() {
     // Implemented by Wick.Frame and Wick.Clip
@@ -49465,7 +49485,7 @@ Wick.Project = class extends Wick.Base {
   }
   /**
    * A list of all "fontFamily" in the asset library.
-   * @returns {[string]}
+   * @returns {string[]}
    */
 
 
@@ -50726,6 +50746,18 @@ Wick.Project = class extends Wick.Base {
           callback();
         }
       });
+    });
+  }
+  /**
+   * Remove assets from the project that are never used.
+   */
+
+
+  cleanupUnusedAssets() {
+    this.assets.forEach(asset => {
+      if (!asset.hasInstances()) {
+        asset.remove();
+      }
     });
   }
 
@@ -52572,7 +52604,7 @@ Wick.Path = class extends Wick.Base {
     this._isPlaceholder = data.isPlaceholder;
   }
   /**
-   *
+   * Determines if this Path is visible in the project.
    */
 
 
@@ -53141,10 +53173,6 @@ Wick.FileAsset = class extends Wick.Asset {
       this.MIMEType = this._MIMETypeOfString(src);
     }
   }
-  /**
-   * Loads data about the file into the asset.
-   */
-
 
   load(callback) {
     callback();
@@ -53209,6 +53237,7 @@ Wick.FontAsset = class extends Wick.FileAsset {
   }
   /**
    * The default font to use if a font couldn't load, or if a FontAsset was deleted
+   * @type {string}
    */
 
 
@@ -53217,6 +53246,7 @@ Wick.FontAsset = class extends Wick.FileAsset {
   }
   /**
    * Create a new FontAsset.
+   * @param {object} args - Asset constructor args. see constructor for Wick.Asset
    */
 
 
@@ -53239,6 +53269,7 @@ Wick.FontAsset = class extends Wick.FileAsset {
   }
   /**
    * Loads the font into the window.
+   * @param {function} callback - function to call when the font is done being loaded.
    */
 
 
@@ -53300,7 +53331,7 @@ Wick.FontAsset = class extends Wick.FileAsset {
     });
   }
   /**
-   *
+   * The name of the font that this FontAsset represents.
    * @type {string}
    */
 
@@ -53349,7 +53380,7 @@ Wick.ImageAsset = class extends Wick.FileAsset {
   }
   /**
    * Create a new ImageAsset.
-   * @param {object} args
+   * @param {object} args - Asset constructor args. see constructor for Wick.Asset
    */
 
 
@@ -53413,6 +53444,7 @@ Wick.ImageAsset = class extends Wick.FileAsset {
   }
   /**
    * Load data in the asset
+   * @param {function} callback - function to call when the data is done being loaded.
    */
 
 
@@ -53439,7 +53471,7 @@ Wick.ImageAsset = class extends Wick.FileAsset {
     });
   }
   /**
-   * Is this image part of a GIF?
+   * Is this image asset part of a GIF? (if this is set to true, this asset won't appear in the asset library GUI)
    * @type {boolean}
    */
 
@@ -53541,7 +53573,15 @@ Wick.ClipAsset = class extends Wick.FileAsset {
 
 
   getInstances() {
-    return []; // TODO
+    var clips = [];
+    this.project.getAllFrames().forEach(frame => {
+      frame.clips.forEach(clip => {
+        if (clip.assetSourceUUID === this.uuid) {
+          clips.push(clip);
+        }
+      });
+    });
+    return clips;
   }
   /**
    * Check if there are any objects in the project that use this asset.
@@ -53575,6 +53615,7 @@ Wick.ClipAsset = class extends Wick.FileAsset {
   }
   /**
    * Load data in the asset
+   * @param {function} callback - function to call when the data is done being loaded.
    */
 
 
@@ -53599,6 +53640,7 @@ Wick.ClipAsset = class extends Wick.FileAsset {
 
     Wick.WickObjectFile.fromWickObjectFile(this.src, data => {
       var clip = Wick.Base.import(data, project).copy();
+      clip.assetSourceUUID = this.uuid;
       callback(clip);
     });
   }
@@ -53642,8 +53684,8 @@ Wick.GIFAsset = class extends Wick.ClipAsset {
   }
   /**
    * Create a new GIFAsset from a series of images.
-   * @param {Wick.ImageAsset} images -
-   * @param {function} callback -
+   * @param {Wick.ImageAsset} images - The ImageAssets, in order of where they will appear in the timeline, which are used to create a ClipAsset
+   * @param {function} callback - Fuction to be called when the asset is done being created
    */
 
 
@@ -53682,7 +53724,7 @@ Wick.GIFAsset = class extends Wick.ClipAsset {
   }
   /**
    * Create a new GIFAsset.
-   * @param {object} args
+   * @param {object} args - Asset args, see Wick.Asset constructor
    */
 
 
@@ -53710,7 +53752,8 @@ Wick.GIFAsset = class extends Wick.ClipAsset {
 
 
   getInstances() {
-    return []; // TODO
+    // Inherited from ClipAsset
+    return super.getInstances();
   }
   /**
    * Check if there are any objects in the project that use this asset.
@@ -53719,7 +53762,8 @@ Wick.GIFAsset = class extends Wick.ClipAsset {
 
 
   hasInstances() {
-    return false; // TODO
+    // Inherited from ClipAsset
+    return super.hasInstances();
   }
   /**
    * Removes all objects using this asset as their source from the project.
@@ -53727,8 +53771,10 @@ Wick.GIFAsset = class extends Wick.ClipAsset {
    */
 
 
-  removeAllInstances() {} // TODO
-
+  removeAllInstances() {
+    // Inherited from ClipAsset
+    super.removeAllInstances();
+  }
   /**
    * Load data in the asset
    */
@@ -53780,6 +53826,7 @@ Wick.SoundAsset = class extends Wick.FileAsset {
   }
   /**
    * Creates a new SoundAsset.
+   * @param {object} args - Asset constructor args. see constructor for Wick.Asset
    */
 
 
@@ -53893,6 +53940,7 @@ Wick.SoundAsset = class extends Wick.FileAsset {
   }
   /**
    * Loads data about the sound into the asset.
+   * @param {function} callback - function to call when the data is done being loaded.
    */
 
 
@@ -55395,7 +55443,7 @@ Wick.Frame = class extends Wick.Tickable {
 Wick.Clip = class extends Wick.Tickable {
   /**
    * Returns a list of all possible animation types for this object.
-   * @returns {Object} - An object containing keys that represent the animation type a a key and a human-readable version of the animation type as a value.
+   * @type {Object} - An object containing keys that represent the animation type a a key and a human-readable version of the animation type as a value.
    */
   static get animationTypes() {
     return {
@@ -55428,6 +55476,7 @@ Wick.Clip = class extends Wick.Tickable {
     this.cursor = 'default';
     this._isClone = false;
     this._sourceClipUUID = null;
+    this._assetSourceUUID = null;
     /* If objects are passed in, add them to the clip and reposition them */
 
     if (args.objects) {
@@ -55444,6 +55493,7 @@ Wick.Clip = class extends Wick.Tickable {
     data.timeline = this._timeline;
     data.animationType = this._animationType;
     data.singleFrameNumber = this._singleFrameNumber;
+    data.assetSourceUUID = this._assetSourceUUID;
     return data;
   }
 
@@ -55454,6 +55504,7 @@ Wick.Clip = class extends Wick.Tickable {
     this._timeline = data.timeline;
     this._animationType = data.animationType || 'loop';
     this._singleFrameNumber = data.singleFrameNumber || 1;
+    this._assetSourceUUID = data.assetSourceUUID;
     this._playedOnce = false;
     this._clones = [];
   }
@@ -55485,6 +55536,7 @@ Wick.Clip = class extends Wick.Tickable {
   }
   /**
    * Determines whether or not the clip is the currently focused clip in the project.
+   * @type {boolean}
    */
 
 
@@ -55502,11 +55554,25 @@ Wick.Clip = class extends Wick.Tickable {
   }
   /**
    * The uuid of the clip that this clip was cloned from.
+   * @type {string}
    */
 
 
   get sourceClipUUID() {
     return this._sourceClipUUID;
+  }
+  /**
+   * The uuid of the ClipAsset that this clip was created from.
+   * @type {string}
+   */
+
+
+  get assetSourceUUID() {
+    return this._assetSourceUUID;
+  }
+
+  set assetSourceUUID(assetSourceUUID) {
+    this._assetSourceUUID = assetSourceUUID;
   }
   /**
    * The timeline of the clip.
@@ -55579,6 +55645,7 @@ Wick.Clip = class extends Wick.Tickable {
   }
   /**
    * The frame to display when the clip has an animationType of "sync";
+   * @type {number}
    */
 
 
@@ -55657,8 +55724,7 @@ Wick.Clip = class extends Wick.Tickable {
     });
   }
   /**
-   * Updates the frame's single frame positions if necessary. Only works if the
-   * clip's animationType is 'single'.
+   * Updates the frame's single frame positions if necessary. Only works if the clip's animationType is 'single'.
    */
 
 
@@ -55802,8 +55868,7 @@ Wick.Clip = class extends Wick.Tickable {
     this.timeline.gotoPrevFrame();
   }
   /**
-   * Returns the name of the frame which is currently active. If multiple frames are active, returns the
-   * name of the first active frame.
+   * Returns the name of the frame which is currently active. If multiple frames are active, returns the name of the first active frame.
    * @returns {string} Active Frame name. If the active frame does not have an identifier, returns empty string.
    */
 
@@ -56013,7 +56078,7 @@ Wick.Clip = class extends Wick.Tickable {
    */
 
 
-  setText(newTextContent) {
+  setText() {
     throw new Error('setText() can only be used with text objects.');
   }
   /**
@@ -61346,7 +61411,7 @@ Wick.View.Frame = class extends Wick.View {
     // 1) this frame is focused, or
     // 2) the project is playing
 
-    if (this.model.parentClip.isFocus || this.model.project.playing) {
+    if (this.model.parentClip.isFocus || this.model.project && this.model.project.playing) {
       this.model.paths.forEach(path => {
         if (path.isPlaceholder) {
           path.remove();

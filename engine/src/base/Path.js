@@ -114,7 +114,7 @@ Wick.Path = class extends Wick.Base {
     }
 
     /**
-     *
+     * Determines if this Path is visible in the project.
      */
     get onScreen () {
         return this.parent.onScreen;

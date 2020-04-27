@@ -37,8 +37,8 @@ Wick.GIFAsset = class extends Wick.ClipAsset {
 
     /**
      * Create a new GIFAsset from a series of images.
-     * @param {Wick.ImageAsset} images -
-     * @param {function} callback -
+     * @param {Wick.ImageAsset} images - The ImageAssets, in order of where they will appear in the timeline, which are used to create a ClipAsset
+     * @param {function} callback - Fuction to be called when the asset is done being created
      */
     static fromImages (images, project, callback) {
         var clip = new Wick.Clip();
@@ -75,7 +75,7 @@ Wick.GIFAsset = class extends Wick.ClipAsset {
 
     /**
      * Create a new GIFAsset.
-     * @param {object} args
+     * @param {object} args - Asset args, see Wick.Asset constructor
      */
     constructor (args) {
         super(args);
@@ -99,7 +99,8 @@ Wick.GIFAsset = class extends Wick.ClipAsset {
      * @returns {Wick.Clip[]}
      */
     getInstances () {
-        return []; // TODO
+        // Inherited from ClipAsset
+        return super.getInstances();
     }
 
     /**
@@ -107,7 +108,8 @@ Wick.GIFAsset = class extends Wick.ClipAsset {
      * @returns {boolean}
      */
     hasInstances () {
-        return false; // TODO
+        // Inherited from ClipAsset
+        return super.hasInstances();
     }
 
     /**
@@ -115,7 +117,8 @@ Wick.GIFAsset = class extends Wick.ClipAsset {
      * @returns {boolean}
      */
     removeAllInstances () {
-        // TODO
+        // Inherited from ClipAsset
+        super.removeAllInstances();
     }
 
     /**

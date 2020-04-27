@@ -1,5 +1,5 @@
 /*
- * Copyright 2028 WICKLETS LLC
+ * Copyright 2020 WICKLETS LLC
  *
  * This file is part of Wick Editor.
  *
@@ -52,6 +52,7 @@ class EditorCore extends Component {
       // We must manually close the brush modes popup here, because otherwise the page
       // will crash because the popup can no longer find the brush modes toggle button
       // on the page.
+      // See: https://github.com/reactstrap/reactstrap/issues/894
       this.toggleBrushModes(false);
 
       this.projectDidChange();
