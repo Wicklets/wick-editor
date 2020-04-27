@@ -1526,7 +1526,7 @@ Wick.Project = class extends Wick.Base {
         renderCopy.zoom = zoom / window.devicePixelRatio;
         renderCopy.pan = {x: 0, y: 0};
 
-        renderCopy.tick();
+        // renderCopy.tick();
 
         // We need full control over when paper.js renders, if we leave autoUpdate on, it's possible to lose frames if paper.js doesnt automatically render as fast as we are generating the images.
         // (See paper.js docs for info about autoUpdate)

@@ -71,6 +71,7 @@ Wick.AudioTrack = class {
                 onProgress: args.onProgress,
             });
         }
+        
     }
 
     /**
