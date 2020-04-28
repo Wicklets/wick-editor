@@ -174,6 +174,7 @@ Wick.SoundAsset = class extends Wick.FileAsset {
                 src: [srcFixed]
             });
         }
+        
         return this._howlInstance;
     }
 

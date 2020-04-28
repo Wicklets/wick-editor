@@ -108,13 +108,19 @@ Wick.AudioTrack = class {
             let audioInfo = projectAudioInfo[i];
 
             this.base64ToAudioBuffer(audioInfo.src, ctx, audiobuffer => {
+
+                let offset = audioInfo.offset || 0; // Milliseconds to offset.
+                let offsetSeconds = offset / 1000; // Adjust to seconds.
+
                 let startSeconds = audioInfo.start / 1000;
                 let endSeconds = audioInfo.end / 1000;
                 let lengthSeconds = endSeconds - startSeconds;
+                let volume = audioInfo.volume || 1;
 
-                let croppedAudioBuffer = this.cropAudioBuffer(audiobuffer, lengthSeconds, ctx);
-
-                let delayedAudiobuffer = this.addStartDelayToAudioBuffer(croppedAudioBuffer, startSeconds, ctx);
+                let shiftedAudioBuffer = this.offsetAudioBuffer(audiobuffer, offsetSeconds, ctx);
+                let croppedAudioBuffer = this.cropAudioBuffer(shiftedAudioBuffer, lengthSeconds, ctx);
+                let volumeAdjustedAudioBuffer = this.adjustBufferVolume(croppedAudioBuffer, volume, ctx);
+                let delayedAudiobuffer = this.addStartDelayToAudioBuffer(volumeAdjustedAudioBuffer, startSeconds, ctx);
 
                 onProgress && onProgress("Creating Audio " + (i+1) + "/" + projectAudioInfo.length, (i+1)/projectAudioInfo.length);
 
@@ -195,10 +201,58 @@ Wick.AudioTrack = class {
     }
 
     /**
+     * Offsets an audio buffer by a number of seconds.
+     * @param {audioBuffer} originalBuffer - Buffer to offset.
+     * @param {Number} offsetSeconds - Number of seconds to offset. Can be negative.
+     * @param {AudioContext} ctx - Context to use.
+     * @returns {audioBuffer} - A copy of the audio buffer, offset by the provided number of seconds.
+     */
+    static offsetAudioBuffer(originalBuffer, offsetSeconds, ctx) {
+        // Create a blank buffer with the length of the original buffer.
+        var offsetBuffer = ctx.createBuffer(
+            originalBuffer.numberOfChannels,
+            originalBuffer.length,
+            ctx.sampleRate,
+        );
+
+        let copyto = 0;
+        let copyfrom = 0;
+
+        if (offsetSeconds < 0) {
+            copyto = (-1 * offsetSeconds) * ctx.sampleRate;
+        } else {
+            copyfrom = offsetSeconds * ctx.sampleRate;
+        }
+
+        // Copy buffer information.
+        for (var srcChannel = 0; srcChannel < offsetBuffer.numberOfChannels; srcChannel++) {
+            // Retrieve sample data...
+            var offsetBufferChannelData = offsetBuffer.getChannelData(srcChannel);
+            var originalBufferChannelData = originalBuffer.getChannelData(srcChannel);
+
+            // Copy samples from the original buffer to the adjusted buffer, adjusting for the number of seconds to offset.
+            for (var i=0; i < offsetBufferChannelData.length; i++) {
+                if ((i + copyfrom) > originalBufferChannelData.length) {
+                    break;
+                } else if ((i + copyto) > offsetBufferChannelData.length) {
+                    break;
+                } 
+                offsetBufferChannelData[i + copyto] = originalBufferChannelData[i + copyfrom];
+            }
+            
+            offsetBuffer.getChannelData(srcChannel).set(offsetBufferChannelData, 0);
+        }
+
+        return offsetBuffer;
+
+    }
+
+    /**
      * Crops an AudioBuffer to a given length.
      * @param {AudioBuffer} originalBuffer - the buffer to crop
      * @param {number} delaySeconds - the time, in seconds, to crop the sound at
      * @param {AudioContext} ctx - An AudioContext instance
+     * @returns {AudioBuffer} - The a copy of the buffer, cropped to the specified length.
      */
     static cropAudioBuffer (originalBuffer, lengthSeconds, ctx) {
         // Create a blank buffer with a length of the crop amount
@@ -222,6 +276,40 @@ Wick.AudioTrack = class {
         }
 
         return croppedBuffer;
+    }
+
+    /**
+     * Adjusts the volume of an audio buffer.
+     * @param {*} originalBuffer - The original buffer to adjust.
+     * @param {*} volume - A value between 0 and +Infinity. Values above 1 may cause clipping.
+     * @param {*} ctx - The audio context to use for buffer generation.
+     * @returns {AudioBuffer} - Adjusted audio buffer with new volume.
+     */
+    static adjustBufferVolume (originalBuffer, volume, ctx) {
+        // Create a blank buffer with the length of the original buffer.
+        var adjustedBuffer = ctx.createBuffer(
+            originalBuffer.numberOfChannels,
+            originalBuffer.length,
+            ctx.sampleRate,
+        );
+
+        // Volume should be at least 0.
+        volume = Math.max(volume, 0);
+
+        for (var srcChannel = 0; srcChannel < adjustedBuffer.numberOfChannels; srcChannel++) {
+            // Retrieve sample data...
+            var adjustedBufferChannelData = adjustedBuffer.getChannelData(srcChannel);
+            var originalBufferChannelData = originalBuffer.getChannelData(srcChannel);
+
+            // Copy samples from the original buffer to the adjusted buffer, adjusting for volume.
+            for (var i = 0; i < adjustedBufferChannelData.length; i++) {
+                adjustedBufferChannelData[i] = originalBufferChannelData[i] * volume;
+            }
+            
+            adjustedBuffer.getChannelData(srcChannel).set(adjustedBufferChannelData, 0);
+        }
+
+        return adjustedBuffer;
     }
 
     /**
