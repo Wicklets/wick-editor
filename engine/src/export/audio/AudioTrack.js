@@ -200,6 +200,13 @@ Wick.AudioTrack = class {
         return out;
     }
 
+    /**
+     * Offsets an audio buffer by a number of seconds.
+     * @param {audioBuffer} originalBuffer - Buffer to offset.
+     * @param {Number} offsetSeconds - Number of seconds to offset. Can be negative.
+     * @param {AudioContext} ctx - Context to use.
+     * @returns {audioBuffer} - A copy of the audio buffer, offset by the provided number of seconds.
+     */
     static offsetAudioBuffer(originalBuffer, offsetSeconds, ctx) {
         // Create a blank buffer with the length of the original buffer.
         var offsetBuffer = ctx.createBuffer(
