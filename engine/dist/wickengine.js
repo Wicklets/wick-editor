@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.4.28.12.3.10";
+var WICK_ENGINE_BUILD_VERSION = "2020.4.28.14.34.35";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -50232,6 +50232,8 @@ Wick.Project = class extends Wick.Base {
 
 
   generateSoundInfo(asset, options) {
+    if (!asset) return {};
+    if (!options) options = {};
     let playheadPosition = this.focus.timeline.playheadPosition;
     let soundStartMS = 1000 / this.framerate * (playheadPosition - 1); // Adjust by one to account for sounds on frame 1 starting at 0ms.
 
@@ -50242,7 +50244,7 @@ Wick.Project = class extends Wick.Base {
       let soundLengthInFrames = options.frame.end - (options.frame.start - 1);
       soundEndMS = soundStartMS + 1000 / this.framerate * soundLengthInFrames;
     } else {
-      soundEndMS = soundStartMS + asset.length * 1000;
+      soundEndMS = soundStartMS + asset.duration * 1000;
     }
 
     let soundInfo = {
@@ -50253,7 +50255,9 @@ Wick.Project = class extends Wick.Base {
       src: asset.src,
       filetype: asset.fileExtension,
       name: asset.name,
-      volume: options.volume || 1
+      volume: options.volume || 1,
+      playedFrom: options.playedFrom || undefined // uuid of object that played the sound.
+
     };
     return soundInfo;
   }
@@ -50733,8 +50737,8 @@ Wick.Project = class extends Wick.Base {
     this.history.saveSnapshot('before-gif-render');
     this.mute();
     this.selection.clear();
-    this.publishedMode = "imageSequence";
-    this.tick(); // Put the project canvas inside a div that's the same size as the project so the frames render at the correct resolution.
+    this.publishedMode = "imageSequence"; // this.tick();
+    // Put the project canvas inside a div that's the same size as the project so the frames render at the correct resolution.
 
     let container = window.document.createElement('div');
     container.style.width = args.width / window.devicePixelRatio + 'px';
