@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.4.27.15.54.9";
+var WICK_ENGINE_BUILD_VERSION = "2020.4.28.10.5.29";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -47171,8 +47171,10 @@ Wick.AudioTrack = class {
         let startSeconds = audioInfo.start / 1000;
         let endSeconds = audioInfo.end / 1000;
         let lengthSeconds = endSeconds - startSeconds;
+        let volume = audioInfo.volume || 1;
         let croppedAudioBuffer = this.cropAudioBuffer(audiobuffer, lengthSeconds, ctx);
-        let delayedAudiobuffer = this.addStartDelayToAudioBuffer(croppedAudioBuffer, startSeconds, ctx);
+        let volumeAdjustedAudioBuffer = this.adjustBufferVolume(croppedAudioBuffer, volume, ctx);
+        let delayedAudiobuffer = this.addStartDelayToAudioBuffer(volumeAdjustedAudioBuffer, startSeconds, ctx);
         onProgress && onProgress("Creating Audio " + (i + 1) + "/" + projectAudioInfo.length, (i + 1) / projectAudioInfo.length);
         audiobuffers.push(delayedAudiobuffer);
 
@@ -47241,6 +47243,7 @@ Wick.AudioTrack = class {
    * @param {AudioBuffer} originalBuffer - the buffer to crop
    * @param {number} delaySeconds - the time, in seconds, to crop the sound at
    * @param {AudioContext} ctx - An AudioContext instance
+   * @returns {AudioBuffer} - The a copy of the buffer, cropped to the specified length.
    */
 
 
@@ -47261,6 +47264,35 @@ Wick.AudioTrack = class {
     }
 
     return croppedBuffer;
+  }
+  /**
+   * Adjusts the volume of an audio buffer.
+   * @param {*} originalBuffer - The original buffer to adjust.
+   * @param {*} volume - A value between 0 and +Infinity. Values above 1 may cause clipping.
+   * @param {*} ctx - The audio context to use for buffer generation.
+   * @returns {AudioBuffer} - Adjusted audio buffer with new volume.
+   */
+
+
+  static adjustBufferVolume(originalBuffer, volume, ctx) {
+    // Create a blank buffer with the length of the original buffer.
+    var adjustedBuffer = ctx.createBuffer(originalBuffer.numberOfChannels, originalBuffer.length, ctx.sampleRate); // Volume should be at least 0.
+
+    volume = Math.max(volume, 0);
+
+    for (var srcChannel = 0; srcChannel < adjustedBuffer.numberOfChannels; srcChannel++) {
+      // Retrieve sample data...
+      var adjustedBufferChannelData = adjustedBuffer.getChannelData(srcChannel);
+      var originalBufferChannelData = originalBuffer.getChannelData(srcChannel); // Copy samples from the original buffer to the adjusted buffer, adjusting for volume.
+
+      for (var i = 0; i < adjustedBufferChannelData.length; i++) {
+        adjustedBufferChannelData[i] = originalBufferChannelData[i] * volume;
+      }
+
+      adjustedBuffer.getChannelData(srcChannel).set(adjustedBufferChannelData, 0);
+    }
+
+    return adjustedBuffer;
   }
   /**
    * Adds silence to the beginning of an AudioBuffer with a given length.
@@ -50173,7 +50205,8 @@ Wick.Project = class extends Wick.Base {
       offset: seekMS,
       src: asset.src,
       filetype: asset.fileExtension,
-      name: asset.name
+      name: asset.name,
+      volume: options.volume || 1
     };
     return soundInfo;
   }

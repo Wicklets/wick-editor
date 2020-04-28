@@ -1038,6 +1038,7 @@ Wick.Project = class extends Wick.Base {
             src: asset.src,
             filetype: asset.fileExtension,
             name: asset.name,
+            volume: options.volume || 1,
         }
         return soundInfo
     }
