@@ -108,12 +108,17 @@ Wick.AudioTrack = class {
             let audioInfo = projectAudioInfo[i];
 
             this.base64ToAudioBuffer(audioInfo.src, ctx, audiobuffer => {
+
+                let offset = audioInfo.offset || 0; // Milliseconds to offset.
+                let offsetSeconds = offset / 1000; // Adjust to seconds.
+
                 let startSeconds = audioInfo.start / 1000;
                 let endSeconds = audioInfo.end / 1000;
                 let lengthSeconds = endSeconds - startSeconds;
                 let volume = audioInfo.volume || 1;
 
-                let croppedAudioBuffer = this.cropAudioBuffer(audiobuffer, lengthSeconds, ctx);
+                let shiftedAudioBuffer = this.offsetAudioBuffer(audiobuffer, offsetSeconds, ctx);
+                let croppedAudioBuffer = this.cropAudioBuffer(shiftedAudioBuffer, lengthSeconds, ctx);
                 let volumeAdjustedAudioBuffer = this.adjustBufferVolume(croppedAudioBuffer, volume, ctx);
                 let delayedAudiobuffer = this.addStartDelayToAudioBuffer(volumeAdjustedAudioBuffer, startSeconds, ctx);
 
@@ -193,6 +198,46 @@ Wick.AudioTrack = class {
         }
 
         return out;
+    }
+
+    static offsetAudioBuffer(originalBuffer, offsetSeconds, ctx) {
+        // Create a blank buffer with the length of the original buffer.
+        var offsetBuffer = ctx.createBuffer(
+            originalBuffer.numberOfChannels,
+            originalBuffer.length,
+            ctx.sampleRate,
+        );
+
+        let copyto = 0;
+        let copyfrom = 0;
+
+        if (offsetSeconds < 0) {
+            copyto = (-1 * offsetSeconds) * ctx.sampleRate;
+        } else {
+            copyfrom = offsetSeconds * ctx.sampleRate;
+        }
+
+        // Copy buffer information.
+        for (var srcChannel = 0; srcChannel < offsetBuffer.numberOfChannels; srcChannel++) {
+            // Retrieve sample data...
+            var offsetBufferChannelData = offsetBuffer.getChannelData(srcChannel);
+            var originalBufferChannelData = originalBuffer.getChannelData(srcChannel);
+
+            // Copy samples from the original buffer to the adjusted buffer, adjusting for the number of seconds to offset.
+            for (var i=0; i < offsetBufferChannelData.length; i++) {
+                if ((i + copyfrom) > originalBufferChannelData.length) {
+                    break;
+                } else if ((i + copyto) > offsetBufferChannelData.length) {
+                    break;
+                } 
+                offsetBufferChannelData[i + copyto] = originalBufferChannelData[i + copyfrom];
+            }
+            
+            offsetBuffer.getChannelData(srcChannel).set(offsetBufferChannelData, 0);
+        }
+
+        return offsetBuffer;
+
     }
 
     /**
