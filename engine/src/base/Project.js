@@ -1599,7 +1599,6 @@ Wick.Project = class extends Wick.Base {
         this.mute();
         this.selection.clear();
         this.publishedMode = "audioSequence";
-        this.tick();
 
         // Put the project canvas inside a div that's the same size as the project so the frames render at the correct resolution.
         let container = window.document.createElement('div');

@@ -133,8 +133,9 @@ Wick.WickFile = class {
             return;
         }
 
+        // This can cause issues if clips or sounds are used in code.
         // Delete unused assets before export (minimizes filesize)
-        project.cleanupUnusedAssets();
+        // project.cleanupUnusedAssets();
 
         var zip = new JSZip();
 

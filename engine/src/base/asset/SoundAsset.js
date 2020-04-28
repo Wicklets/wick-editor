@@ -113,8 +113,8 @@ Wick.SoundAsset = class extends Wick.FileAsset {
     }
 
     /**
-     * A list of Wick Paths that use this font as their fontFamily.
-     * @returns {Wick.Path[]}
+     * A list of frames that use this sound.
+     * @returns {Wick.Frame[]}
      */
     getInstances () {
         var frames = [];

@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.4.28.14.50.57";
+var WICK_ENGINE_BUILD_VERSION = "2020.4.28.15.12.0";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -47767,10 +47767,11 @@ Wick.WickFile = class {
     if (format !== 'blob' && format !== 'base64') {
       console.error('WickFile.toWickFile: invalid format: ' + format);
       return;
-    } // Delete unused assets before export (minimizes filesize)
+    } // This can cause issues if clips or sounds are used in code.
+    // Delete unused assets before export (minimizes filesize)
+    // project.cleanupUnusedAssets();
 
 
-    project.cleanupUnusedAssets();
     var zip = new JSZip(); // Create assets folder
 
     var assetsFolder = zip.folder("assets"); // Populate assets folder with files
@@ -50843,8 +50844,7 @@ Wick.Project = class extends Wick.Base {
     this.history.saveSnapshot('before-audio-render');
     this.mute();
     this.selection.clear();
-    this.publishedMode = "audioSequence";
-    this.tick(); // Put the project canvas inside a div that's the same size as the project so the frames render at the correct resolution.
+    this.publishedMode = "audioSequence"; // Put the project canvas inside a div that's the same size as the project so the frames render at the correct resolution.
 
     let container = window.document.createElement('div');
     container.style.width = args.width / window.devicePixelRatio + 'px';
@@ -54136,8 +54136,8 @@ Wick.SoundAsset = class extends Wick.FileAsset {
     return this._howl.duration();
   }
   /**
-   * A list of Wick Paths that use this font as their fontFamily.
-   * @returns {Wick.Path[]}
+   * A list of frames that use this sound.
+   * @returns {Wick.Frame[]}
    */
 
 
