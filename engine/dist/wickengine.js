@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.4.28.11.56.51";
+var WICK_ENGINE_BUILD_VERSION = "2020.4.28.12.3.10";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -47243,6 +47243,14 @@ Wick.AudioTrack = class {
 
     return out;
   }
+  /**
+   * Offsets an audio buffer by a number of seconds.
+   * @param {audioBuffer} originalBuffer - Buffer to offset.
+   * @param {Number} offsetSeconds - Number of seconds to offset. Can be negative.
+   * @param {AudioContext} ctx - Context to use.
+   * @returns {audioBuffer} - A copy of the audio buffer, offset by the provided number of seconds.
+   */
+
 
   static offsetAudioBuffer(originalBuffer, offsetSeconds, ctx) {
     // Create a blank buffer with the length of the original buffer.
@@ -54915,6 +54923,7 @@ Wick.Frame = class extends Wick.Tickable {
     data.sound = this._soundAssetUUID;
     data.soundVolume = this._soundVolume;
     data.soundLoop = this._soundLoop;
+    data.soundStart = this._soundStart;
     data.originalLayerIndex = this.layerIndex !== -1 ? this.layerIndex : this._originalLayerIndex;
     return data;
   }
@@ -54927,6 +54936,7 @@ Wick.Frame = class extends Wick.Tickable {
     this._soundAssetUUID = data.sound;
     this._soundVolume = data.soundVolume === undefined ? 1.0 : data.soundVolume;
     this._soundLoop = data.soundLoop === undefined ? false : data.soundLoop;
+    this._soundStart = data.soundStart === undefined ? 0 : data.soundStart;
     this._originalLayerIndex = data.originalLayerIndex;
   }
 

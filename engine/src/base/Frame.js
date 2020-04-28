@@ -52,6 +52,7 @@ Wick.Frame = class extends Wick.Tickable {
         data.sound = this._soundAssetUUID;
         data.soundVolume = this._soundVolume;
         data.soundLoop = this._soundLoop;
+        data.soundStart = this._soundStart;
 
         data.originalLayerIndex = this.layerIndex !== -1 ? this.layerIndex : this._originalLayerIndex;
 
@@ -67,6 +68,7 @@ Wick.Frame = class extends Wick.Tickable {
         this._soundAssetUUID = data.sound;
         this._soundVolume = data.soundVolume === undefined ? 1.0 : data.soundVolume;
         this._soundLoop = data.soundLoop === undefined ? false : data.soundLoop;
+        this._soundStart = data.soundStart === undefined ? 0 : data.soundStart;
 
         this._originalLayerIndex = data.originalLayerIndex;
     }
