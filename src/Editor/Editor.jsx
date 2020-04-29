@@ -100,7 +100,8 @@ class Editor extends EditorCore {
       customOnionSkinningColors: {
         backward: "rgba(0, 255, 0, .3)",
         forward: "rgba(255, 0, 0, .3)",
-      }
+      }, 
+      onionSkinningWasOn: false,
     };
 
     // Catch all errors that happen in the editor.

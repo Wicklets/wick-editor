@@ -14,7 +14,7 @@
         <!-- The Wick Engine build is injected here during the engine build step (see gulpfile.js) -->
         <script>
             /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.4.28.15.12.0";
+var WICK_ENGINE_BUILD_VERSION = "2020.4.29.12.56.15";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -54973,7 +54973,6 @@ Wick.Frame = class extends Wick.Tickable {
     super(args);
     this.start = args.start || 1;
     this.end = args.end || this.start;
-    this.onionSkinned = false;
     this._soundAssetUUID = null;
     this._soundID = null;
     this._soundVolume = 1.0;
@@ -55083,6 +55082,28 @@ Wick.Frame = class extends Wick.Tickable {
 
   set soundLoop(soundLoop) {
     this._soundLoop = soundLoop;
+  }
+  /**
+   * True if this frame should currently be onion skinned.
+   */
+
+
+  get onionSkinned() {
+    if (!this.project.onionSkinEnabled) {
+      return false;
+    } // Don't onion skin if we're in the playhead's position.
+
+
+    var playheadPosition = this.project.focus.timeline.playheadPosition;
+
+    if (this.inPosition(playheadPosition)) {
+      return false;
+    } // Determine if we're in onion skinning range.
+
+
+    var onionSkinSeekBackwards = this.project.onionSkinSeekBackwards;
+    var onionSkinSeekForwards = this.project.onionSkinSeekForwards;
+    return this.inRange(playheadPosition - onionSkinSeekBackwards, playheadPosition + onionSkinSeekForwards);
   }
   /**
    * Removes the sound attached to this frame.
@@ -61527,7 +61548,6 @@ Wick.View.Layer = class extends Wick.View {
     var frame = this.model.activeFrame;
 
     if (frame) {
-      frame.onionSkinned = false;
       frame.view.render();
       this.activeFrameLayers.push(frame.view.pathsLayer);
       this.activeFrameLayers.push(frame.view.clipsLayer);
@@ -61556,13 +61576,9 @@ Wick.View.Layer = class extends Wick.View {
   }
 
   addOnionSkin() {
-    var onionSkinSeekBackwards = this.model.project.onionSkinSeekBackwards;
-    var onionSkinSeekForwards = this.model.project.onionSkinSeekForwards;
-    var playheadPosition = this.model.project.focus.timeline.playheadPosition;
     this.model.frames.filter(frame => {
-      return !frame.inPosition(playheadPosition) && frame.inRange(playheadPosition - onionSkinSeekBackwards, playheadPosition + onionSkinSeekForwards);
+      return frame.onionSkinned;
     }).forEach(frame => {
-      frame.onionSkinned = true;
       this.onionSkinFrame(frame);
     });
   }

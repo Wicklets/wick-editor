@@ -32,7 +32,6 @@ Wick.Frame = class extends Wick.Tickable {
 
         this.start = args.start || 1;
         this.end = args.end || this.start;
-        this.onionSkinned = false;
 
         this._soundAssetUUID = null;
         this._soundID = null;
@@ -143,6 +142,28 @@ Wick.Frame = class extends Wick.Tickable {
 
     set soundLoop (soundLoop) {
         this._soundLoop = soundLoop;
+    }
+
+    /**
+     * True if this frame should currently be onion skinned.
+     */
+    get onionSkinned () {
+        if (!this.project.onionSkinEnabled) {
+            return false;
+        }
+
+        // Don't onion skin if we're in the playhead's position.
+        var playheadPosition = this.project.focus.timeline.playheadPosition;
+        if (this.inPosition(playheadPosition)) {
+            return false;
+        }
+
+        // Determine if we're in onion skinning range.
+        var onionSkinSeekBackwards = this.project.onionSkinSeekBackwards;
+        var onionSkinSeekForwards = this.project.onionSkinSeekForwards;
+        return this.inRange(playheadPosition - onionSkinSeekBackwards,
+                            playheadPosition + onionSkinSeekForwards);
+
     }
 
     /**
