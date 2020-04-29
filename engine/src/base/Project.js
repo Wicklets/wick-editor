@@ -43,7 +43,7 @@ Wick.Project = class extends Wick.Base {
         this.zoom = 1.0;
         this.rotation = 0.0;
 
-        this.onionSkinEnabled = false;
+        this._onionSkinEnabled = false;
         this.onionSkinSeekBackwards = 1;
         this.onionSkinSeekForwards = 1;
 
@@ -632,6 +632,45 @@ Wick.Project = class extends Wick.Base {
         }
 
         reader.readAsDataURL(file);
+    }
+
+    /**
+     * True if onion skinning is on. False otherwise.
+     */
+    get onionSkinEnabled () {
+        return this._onionSkinEnabled;
+    }
+
+    set onionSkinEnabled (bool) {
+        if (typeof bool !== "boolean") return;
+
+        // Get all onion skinned frames, if we're turning off onion skinning.
+        let onionSkinnedFrames = [];
+        if (!bool) onionSkinnedFrames = this.getAllOnionSkinnedFrames();
+
+        this._onionSkinEnabled = bool;
+
+        // Rerender any onion skinned frames.
+        onionSkinnedFrames.forEach(frame => {
+            frame.view.render();
+        });
+    }
+
+    /**
+     * Returns all frames that should currently be onion skinned.
+     * @returns {Wick.Frame[]} Array of Wick frames that sould be onion skinned.
+     */
+    getAllOnionSkinnedFrames () {
+        let onionSkinnedFrames = [];
+        this.activeTimeline.layers.forEach(layer => {
+            let frames = layer.frames.filter(frame => {
+                return frame.onionSkinned;
+            }); 
+
+            onionSkinnedFrames = onionSkinnedFrames.concat(frames);
+        });
+
+        return onionSkinnedFrames;
     }
 
     /**
