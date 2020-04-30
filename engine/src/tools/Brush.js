@@ -361,7 +361,11 @@ Wick.Tools.Brush = class extends Wick.Tool {
 
             // Do special brush mode action
             var brushMode = this.getSetting('brushMode');
-            result = this._applyBrushMode(brushMode, result, this._currentDrawingFrame.view.pathsLayer);
+            if(this._currentDrawingFrame && this._currentDrawingFrame.view) {
+                // Don't apply brush mode if there is no frame to draw on
+                // (the frame is added during addPathToProject)
+                result = this._applyBrushMode(brushMode, result, this._currentDrawingFrame.view.pathsLayer);
+            }
 
             // Done! Add the path to the project
             this.addPathToProject(result, this._currentDrawingFrame);
@@ -403,7 +407,7 @@ Wick.Tools.Brush = class extends Wick.Tool {
                 } else {
                     mask = newMask;
                 }
-                
+
                 newMask.remove();
             } else {
                 mask = otherPath;
