@@ -36,7 +36,6 @@ Wick.View.Layer = class extends Wick.View {
         this.activeFrameLayers = [];
         var frame = this.model.activeFrame;
         if(frame) {
-            frame.onionSkinned = false;
             frame.view.render();
 
             this.activeFrameLayers.push(frame.view.pathsLayer);
@@ -72,16 +71,9 @@ Wick.View.Layer = class extends Wick.View {
     }
 
     addOnionSkin () {
-        var onionSkinSeekBackwards = this.model.project.onionSkinSeekBackwards;
-        var onionSkinSeekForwards = this.model.project.onionSkinSeekForwards;
-        var playheadPosition = this.model.project.focus.timeline.playheadPosition;
-
         this.model.frames.filter(frame => {
-            return !frame.inPosition(playheadPosition)
-                && frame.inRange(playheadPosition - onionSkinSeekBackwards,
-                                 playheadPosition + onionSkinSeekForwards);
+            return frame.onionSkinned;
         }).forEach(frame => {
-            frame.onionSkinned = true;
             this.onionSkinFrame(frame);
         });
     }

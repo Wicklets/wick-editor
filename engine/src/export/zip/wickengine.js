@@ -57863,7 +57863,7 @@ Wick.View.Timeline = class extends Wick.View {
 
   _getLayersInOrder() {
     return this.model.layers.filter(layer => {
-      return layer.project.publishedMode || !layer.hidden;
+      return layer.project.isPublished || !layer.hidden;
     }).reverse();
   }
 

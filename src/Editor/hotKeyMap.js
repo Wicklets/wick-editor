@@ -552,7 +552,7 @@ class HotKeyInterface extends Object {
   // ** ** 0 {String} (Hotkey string sequence)
   // ** ** 1 {String} (Hotkey string sequence)
   setCustomHotKeys = (customHotKeys) => {
-    if (customHotKeys === undefined) return; // Ignore operation if customHotKeys is not set.
+    if (!customHotKeys) return; // Ignore operation if customHotKeys is not set.
     this.customHotKeys = customHotKeys;
   }
 
@@ -590,6 +590,7 @@ class HotKeyInterface extends Object {
     if (isMac) {
       replacement = "cmd"
     }
+
     Object.keys(keyMap).forEach((actionName) => {
 
       // Set default attributes...
@@ -617,10 +618,12 @@ class HotKeyInterface extends Object {
       // Update keymap with new attributes.
       if (customKeys[actionName]) {
         let customSequences = customKeys[actionName];
-        if (customSequences[0]) {
+
+        if (customSequences[0] || customSequences[0] === "") {
           newKeyMap[actionName].sequences[0] = customSequences[0];
         }
-        if (customSequences[1]) {
+
+        if (customSequences[1] || customSequences[1] === "") {
           newKeyMap[actionName].sequences[1] = customSequences[1];
         }
       }

@@ -1,12 +1,18 @@
-var b64toBuff = require('base64-arraybuffer');
 var toWav = require('audiobuffer-to-wav')
+
+window.toWavFunc = toWav;
 
 class AudioExport {
     static generateAudioFile = async (args) => {
-        let {project, onProgress} = args;
+        let {project, onProgress, soundInfo} = args;
+
+        let audioArgs = {
+            soundInfo: soundInfo,
+            onProgress: onProgress,
+        };
 
         return new Promise (resolve => {
-            project.generateAudioTrack({}, audioBuffer => {
+            project.generateAudioTrack(audioArgs, audioBuffer => {
                 if(!audioBuffer) {
                     resolve();
                 } else {

@@ -1324,6 +1324,13 @@ class EditorCore extends Component {
    */
   togglePreviewPlaying = () => {
     if(this.processingAction) return;
+
+    let onionSkinningWasOn = false;
+    if (!this.state.previewPlaying && this.project.onionSkinEnabled) {
+      this.toggleOnionSkin();
+      onionSkinningWasOn = true;
+    }
+
     this.showWaitOverlay();
     this.processingAction = true;
 
@@ -1333,10 +1340,17 @@ class EditorCore extends Component {
       this.project.selection.clear();
     }
 
+    // Turn onion skinning back on if it was turned off.
+    if (this.state.previewPlaying && this.state.onionSkinningWasOn && !this.project.onionSkinEnabled) {
+      this.toggleOnionSkin();
+    }
+
     this.setState({
       previewPlaying: !this.state.previewPlaying,
       showCodeErrors: false,
+      onionSkinningWasOn: onionSkinningWasOn,
     });
+
     this.hideWaitOverlay();
     this.processingAction = false;
   }

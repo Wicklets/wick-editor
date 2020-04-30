@@ -100,7 +100,8 @@ class Editor extends EditorCore {
       customOnionSkinningColors: {
         backward: "rgba(0, 255, 0, .3)",
         forward: "rgba(255, 0, 0, .3)",
-      }
+      }, 
+      onionSkinningWasOn: false,
     };
 
     // Catch all errors that happen in the editor.
@@ -177,6 +178,10 @@ class Editor extends EditorCore {
       (customHotKeys) => {
         if (!customHotKeys) customHotKeys = {}; // Ensure we never send a null hotkey setting.
         this.hotKeyInterface.setCustomHotKeys(customHotKeys);
+
+        this.setState({
+          customHotKeys: customHotKeys,
+        });
       }
     );
 
@@ -651,9 +656,18 @@ class Editor extends EditorCore {
     });
   }
 
-  // Any elements that are in hotkeys 2 will overwrite items by same name in hotkeys1.
+  /**
+   *  Combines two custom hotkey objects into a single custom hotkey object.
+   *  Any hotkeys in hotkeys2 will overwrite hotkeys1.
+   * @param {Object} hotkeys1 - Custom hotkey map.
+   * @param {Object} hotkeys2 - Custom hotkey map.
+   * @returns {Object} - Combined custom hotkey map.
+   **/ 
+  
+  
   combineHotKeys = (hotkeys1, hotkeys2) => {
     // Try to combine all keys
+
     let newHotKeys = {...hotkeys1, ...hotkeys2};
 
     let keys1 = Object.keys(hotkeys1);
@@ -669,6 +683,9 @@ class Editor extends EditorCore {
     return newHotKeys;
   }
 
+  /**
+   * Converts an array of hotkeys to a custom hotkey object.
+   */
   convertHotkeyArray = (hotkeys) => {
     let keyObj = {};
 
@@ -685,22 +702,29 @@ class Editor extends EditorCore {
   }
 
   /**
-   * Creates a combined key map from a key map object and key array .
+   * Creates a combined key map from a key map object and key array.
    */
   createCombinedHotKeyMap = (hotKeyMap, hotKeyArray) => {
-    return this.combineHotKeys(hotKeyMap, hotKeyArray);
+    return this.combineHotKeys(hotKeyMap, this.convertHotkeyArray(hotKeyArray));
   }
 
-  // Expects array of hotkey objects
+  /**
+   * Takes an array of hot key objects. Combines these with existing custom hot keys and syncs the editor
+   * to these new hot keys. 
+   */
   addCustomHotKeys = (newHotKeys) => {
     let combined = this.createCombinedHotKeyMap(this.state.customHotKeys, newHotKeys);
 
     this.syncHotKeys(combined);
   }
 
+  /**
+   * Takes a hotkeys object and sets these as the custom hot keys.
+   */
   syncHotKeys = (hotkeys) => {
     this.hotKeyInterface.setCustomHotKeys(hotkeys);
     localForage.setItem(this.customHotKeysKey, hotkeys);
+
     this.setState({
       customHotKeys: hotkeys
     });
