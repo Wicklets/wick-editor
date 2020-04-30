@@ -22,8 +22,6 @@ import React, { Component } from 'react';
 import './_editorsettings.scss';
 import WickInput from 'Editor/Util/WickInput/WickInput';
 
-var classNames = require('classnames');
-
 class EditorSettings extends Component {
   constructor () {
     super();

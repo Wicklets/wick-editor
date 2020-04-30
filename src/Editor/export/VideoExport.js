@@ -14,15 +14,12 @@ class VideoExport {
      * project, onProgress, onError, onFinish;
      */
     static renderVideo = async (args) => {
-      let fullLog = "";
 
       setLogging(ENABLE_LOGGING);
       const worker = createWorker({
           logger: ({message}) => {
               if(ENABLE_LOGGING) {
                   console.log(message);
-              } else {
-                  fullLog += message + "\n";
               }
               VideoExport._parseProgressMessage(message, args);
           },
@@ -42,7 +39,7 @@ class VideoExport {
     }
 
     static _generateAudioFile = async (args) => {
-      let {project, onProgress} = args;
+      let {onProgress} = args;
 
       onProgress && onProgress('Generating Audio Track...', EXPORT_AUDIO_START);
 
@@ -143,7 +140,7 @@ class VideoExport {
         ]
 
         await worker.run(command.join(" "), {output: 'out.mp4'});
-        const { data } = await worker.read('out.mp4');
+        let { data } = await worker.read('out.mp4');
 
         // Remove Data from worker when done.
         for (let i=0; i<images.length; i++) {
