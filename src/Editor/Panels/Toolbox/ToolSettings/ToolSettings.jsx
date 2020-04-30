@@ -158,11 +158,20 @@ class ToolSettings extends Component {
   }
 
   renderBrushMode = () => {
+    let brushModeIcon = 'brushmodenone';
+    let brushMode = this.props.getToolSetting('brushMode');
+
+    if (brushMode === 'inside') {
+      brushModeIcon = 'brushmodeinside';
+    } else if (brushMode === 'outside') {
+      brushModeIcon = 'brushmodeoutside';
+    }
+
     return (
         <div id="brush-modes-popover-button">
           <ToolSettingsInput
             name='Brush Modes'
-            icon='brushmodenone'
+            icon={brushModeIcon}
             type='checkbox'
             value={this.props.showBrushModes}
             onChange={this.props.toggleBrushModes}/>
@@ -170,8 +179,7 @@ class ToolSettings extends Component {
             isOpen={this.props.showBrushModes && !this.props.previewPlaying}
             toggle={this.props.toggleBrushModes}
             target="brush-modes-popover-button"
-            className={"more-canvas-actions-popover"}
-          >
+            className={"more-canvas-actions-popover"}>
             <div className="brush-modes-widget">
               <div className='actions-container'>
                 <ToolSettingsInput
