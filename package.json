@@ -52,6 +52,7 @@
     "scripts": {
         "start": "react-scripts start",
         "build": "react-scripts build && cp CNAME_editor ./build/CNAME",
+        "lint-engine": "cd engine; eslint src/**",
         "build-engine": "cd engine; mkdir dist; gulp; cp -a dist/. ../public/corelibs/wick-engine/",
         "build-engine-windows": "cd engine & mkdir dist  2>nul &    gulp & xcopy /EY dist\\. ..\\public\\corelibs\\wick-engine\\",
         "build-electron-macos": "electron-packager . 'Wick Editor' --ignore=node_modules --icon=public/icon.icns--platform=darwin --out build-electron --overwrite",

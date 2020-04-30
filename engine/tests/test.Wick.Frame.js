@@ -669,29 +669,6 @@ describe('Wick.Frame', function() {
         });
     });
 
-    describe('#importSVG', function () {
-        it('should import SVGs correctly', function () {
-            var project = new Wick.Project();
-            var frame = new Wick.Frame({start: 2});
-
-            frame.importSVG(TestUtils.TEST_SVG_CIRCLE);
-
-            expect(frame.paths.length).to.equal(1);
-            expect(frame.paths[0].bounds.width).to.equal(100);
-            expect(frame.paths[0].bounds.height).to.equal(100);
-        });
-
-        it('(bug) imported paths should be converted from shapes to paths', function () {
-            var project = new Wick.Project();
-            var frame = new Wick.Frame({start: 2});
-
-            frame.importSVG(TestUtils.TEST_SVG_CIRCLE);
-
-            expect(frame.paths.length).to.equal(1);
-            expect(frame.paths[0].view.item instanceof paper.Path).to.equal(true);
-        });
-    });
-
     describe('#length', function () {
         it('length should be able to be set', function () {
             var project = new Wick.Project();
