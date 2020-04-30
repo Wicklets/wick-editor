@@ -619,20 +619,16 @@ class HotKeyInterface extends Object {
       if (customKeys[actionName]) {
         let customSequences = customKeys[actionName];
 
-        console.log("Copyin, ", actionName);
-        console.log(customSequences);
-
-        if (customSequences[0]) {
+        if (customSequences[0] || customSequences[0] === "") {
           newKeyMap[actionName].sequences[0] = customSequences[0];
         }
 
-        if (customSequences[1]) {
+        if (customSequences[1] || customSequences[1] === "") {
           newKeyMap[actionName].sequences[1] = customSequences[1];
         }
       }
     });
 
-    console.log(newKeyMap);
     return newKeyMap;
   }
 

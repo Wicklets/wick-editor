@@ -178,6 +178,10 @@ class Editor extends EditorCore {
       (customHotKeys) => {
         if (!customHotKeys) customHotKeys = {}; // Ensure we never send a null hotkey setting.
         this.hotKeyInterface.setCustomHotKeys(customHotKeys);
+
+        this.setState({
+          customHotKeys: customHotKeys,
+        });
       }
     );
 
@@ -664,11 +668,7 @@ class Editor extends EditorCore {
   combineHotKeys = (hotkeys1, hotkeys2) => {
     // Try to combine all keys
 
-    console.log("h1", hotkeys1);
-    console.log("h2", hotkeys2);
     let newHotKeys = {...hotkeys1, ...hotkeys2};
-
-    console.log(newHotKeys);
 
     let keys1 = Object.keys(hotkeys1);
     let keys2 = Object.keys(hotkeys2);
@@ -705,7 +705,6 @@ class Editor extends EditorCore {
    * Creates a combined key map from a key map object and key array.
    */
   createCombinedHotKeyMap = (hotKeyMap, hotKeyArray) => {
-    console.log(hotKeyMap, hotKeyArray); 
     return this.combineHotKeys(hotKeyMap, this.convertHotkeyArray(hotKeyArray));
   }
 
@@ -714,9 +713,7 @@ class Editor extends EditorCore {
    * to these new hot keys. 
    */
   addCustomHotKeys = (newHotKeys) => {
-    console.log("new", newHotKeys);
     let combined = this.createCombinedHotKeyMap(this.state.customHotKeys, newHotKeys);
-    console.log("combined", combined);
 
     this.syncHotKeys(combined);
   }
@@ -725,8 +722,6 @@ class Editor extends EditorCore {
    * Takes a hotkeys object and sets these as the custom hot keys.
    */
   syncHotKeys = (hotkeys) => {
-
-    console.log("Syncing", hotkeys);
     this.hotKeyInterface.setCustomHotKeys(hotkeys);
     localForage.setItem(this.customHotKeysKey, hotkeys);
 
