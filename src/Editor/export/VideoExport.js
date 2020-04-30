@@ -204,8 +204,12 @@ class VideoExport {
         if(!time) return;
         time = time[0];
         if(!time) return;
+        time = time.replace(":", "");
+        if(!time) return;
+        let timeNumber = Number(time);
+        timeNumber = timeNumber.toFixed(2);
 
-        args.onProgress('Rendered' + time + ' seconds', 85);
+        args.onProgress('Rendered: ' + timeNumber + ' seconds', 85);
     }
 }
 
