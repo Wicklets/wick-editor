@@ -52,10 +52,20 @@ Wick.History = class {
     /**
      * Push the current state of the ObjectCache to the undo stack.
      * @param {number} filter - the filter to choose which objects to serialize. See Wick.History.StateType
+     * @param {string} actionName - Optional: Name of the action conducted to generate this state. If no name is presented, "Unknown Action" is presented in its place.
      */
-    pushState (filter) {
+    pushState (filter, actionName) {
         this._redoStack = [];
-        this._undoStack.push(this._generateState(filter));
+
+        let stateObject = {
+            state: this._generateState(filter), 
+            actionName: actionName || "Unknown Action",
+        }
+
+        console.log("Pushing", stateObject);
+
+        this._undoStack.push(stateObject);
+        console.log(this._undoStack);
     }
 
     /**
@@ -70,8 +80,20 @@ Wick.History = class {
         var lastState = this._undoStack.pop();
         this._redoStack.push(lastState);
 
-        var currentState = this._undoStack[this._undoStack.length - 1];
+        var currentStateObject = this._undoStack[this._undoStack.length - 1];
+
+        // 1.17.1 History update, pull actual state information out, aside from names.
+        var currentState = currentStateObject; 
+
+        console.log(currentStateObject);
+
+        if (currentStateObject.state) {
+            currentState = currentStateObject.state;
+        }
+
         this._recoverState(currentState);
+
+        console.log(this._undoStack);
 
         return true;
     }

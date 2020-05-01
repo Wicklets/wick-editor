@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.4.29.14.24.52";
+var WICK_ENGINE_BUILD_VERSION = "2020.5.1.14.36.30";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -45823,13 +45823,21 @@ Wick.History = class {
   /**
    * Push the current state of the ObjectCache to the undo stack.
    * @param {number} filter - the filter to choose which objects to serialize. See Wick.History.StateType
+   * @param {string} actionName - Optional: Name of the action conducted to generate this state. If no name is presented, "Unknown Action" is presented in its place.
    */
 
 
-  pushState(filter) {
+  pushState(filter, actionName) {
     this._redoStack = [];
+    let stateObject = {
+      state: this._generateState(filter),
+      actionName: actionName || "Unknown Action"
+    };
+    console.log("Pushing", stateObject);
 
-    this._undoStack.push(this._generateState(filter));
+    this._undoStack.push(stateObject);
+
+    console.log(this._undoStack);
   }
   /**
    * Pop the last state in the undo stack off and apply the new last state to the project.
@@ -45846,10 +45854,18 @@ Wick.History = class {
 
     this._redoStack.push(lastState);
 
-    var currentState = this._undoStack[this._undoStack.length - 1];
+    var currentStateObject = this._undoStack[this._undoStack.length - 1]; // 1.17.1 History update, pull actual state information out, aside from names.
+
+    var currentState = currentStateObject;
+    console.log(currentStateObject);
+
+    if (currentStateObject.state) {
+      currentState = currentStateObject.state;
+    }
 
     this._recoverState(currentState);
 
+    console.log(this._undoStack);
     return true;
   }
   /**
@@ -57293,7 +57309,13 @@ Wick.Tools.Brush = class extends Wick.Tool {
       var result = potracePath.children[0]; // Do special brush mode action
 
       var brushMode = this.getSetting('brushMode');
-      result = this._applyBrushMode(brushMode, result, this._currentDrawingFrame.view.pathsLayer); // Done! Add the path to the project
+
+      if (this._currentDrawingFrame && this._currentDrawingFrame.view) {
+        // Don't apply brush mode if there is no frame to draw on
+        // (the frame is added during addPathToProject)
+        result = this._applyBrushMode(brushMode, result, this._currentDrawingFrame.view.pathsLayer);
+      } // Done! Add the path to the project
+
 
       this.addPathToProject(result, this._currentDrawingFrame); // We're done potracing using the current croquis canvas, reset the stroke bounds
 
@@ -57516,8 +57538,11 @@ Wick.Tools.Cursor = class extends Wick.Tool {
         return item.data.wickUUID;
       }).forEach(item => {
         this._selectItem(item);
-      });
-      this.fireEvent('canvasModified');
+      }); // Only modify the canvas if you actually selected something.
+
+      if (this.selectionBox.items.length > 0) {
+        this.fireEvent('canvasModified');
+      }
     } else if (this._selection.numObjects > 0) {
       if (this.__isDragging) {
         this.__isDragging = false;

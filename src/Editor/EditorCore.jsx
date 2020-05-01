@@ -55,7 +55,7 @@ class EditorCore extends Component {
       // See: https://github.com/reactstrap/reactstrap/issues/894
       this.toggleBrushModes(false);
 
-      this.projectDidChange();
+      this.projectDidChange({ actionName: "Set Active Tool: " + newTool });
     }
   }
 
@@ -64,7 +64,7 @@ class EditorCore extends Component {
    */
   toggleClipBorders = () => {
     this.project.showClipBorders = !this.project.showClipBorders;
-    this.projectDidChange();
+    this.projectDidChange({ actionName: "Toggle Clip Borders"});
   }
 
   /**
@@ -72,7 +72,7 @@ class EditorCore extends Component {
    */
   activateLastTool = () => {
     this.project.activeTool = this.lastUsedTool;
-    this.projectDidChange();
+    this.projectDidChange({ actionName: "Activate Last Tool" });
   }
 
   /**
@@ -102,7 +102,7 @@ class EditorCore extends Component {
    */
   recenterCanvas = () => {
     this.project.recenter();
-    this.projectDidChange(true);
+    this.projectDidChange( {skipHistory: true} );
   }
 
   /**
@@ -135,7 +135,7 @@ class EditorCore extends Component {
    */
   setToolSetting = (name, value) => {
     this.project.toolSettings.setSetting(name, value);
-    this.projectDidChange();
+    this.projectDidChange({actionName: "Change Tool Setting " + name + ":" + value });
   }
 
   /**

@@ -242,7 +242,7 @@ class Editor extends EditorCore {
 
     if(!this.state.previewPlaying && prevState.previewPlaying) {
       this.project.stop();
-      this.projectDidChange();
+      this.projectDidChange({actionName:"Stop Project"});
     }
   }
 
@@ -525,7 +525,7 @@ class Editor extends EditorCore {
       let obj = window.Wick.ObjectCache.getObjectByUUID(uuid);
       this.setFocusObject(obj.parentClip);
       this.selectObject(obj)
-      this.projectDidChange();
+      this.projectDidChange({actionName:"Show Code Errors"});
     }
   }
 
@@ -552,12 +552,14 @@ class Editor extends EditorCore {
   projectDidChange = (options) => {
     if(!options) options = {};
 
+    if (!options.actionName) { options.name = "Unknown Action" };
+
     // Request an autosave, so a save will happen sometime later.
     this.requestAutosave();
 
     // Save state to history if needed
     if(!options.skipHistory) {
-      this.project.history.pushState(window.Wick.History.StateType.ONLY_VISIBLE_OBJECTS);
+      this.project.history.pushState(window.Wick.History.StateType.ONLY_VISIBLE_OBJECTS, options.actionName);
     }
 
     // Render engine
@@ -565,6 +567,7 @@ class Editor extends EditorCore {
     this.project.guiElement.draw();
 
     // Force react to render
+    // TODO: Determine a non-hack way to do this.
     this.setState({
       project: ''+Math.random(),
     });
