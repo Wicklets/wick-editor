@@ -11,11 +11,8 @@ describe('Wick.View.Frame', function() {
             var frame = project.activeFrame;
             frame.view.render(frame);
 
-            expect(frame.view.clipsLayer instanceof paper.Layer).to.equal(true);
-            expect(frame.view.pathsLayer instanceof paper.Layer).to.equal(true);
-
-            expect(frame.view.clipsLayer.children.length).to.equal(0);
-            expect(frame.view.pathsLayer.children.length).to.equal(0);
+            expect(frame.view.objectsLayer instanceof paper.Layer).to.equal(true);
+            expect(frame.view.objectsLayer.children.length).to.equal(0);
         });
 
         it('should create correctly named layers', function() {
@@ -23,8 +20,7 @@ describe('Wick.View.Frame', function() {
             var frame = project.activeFrame;
             frame.view.render(frame);
 
-            expect(frame.view.clipsLayer.data.wickUUID).to.equal(frame.uuid);
-            expect(frame.view.pathsLayer.data.wickUUID).to.equal(frame.uuid);
+            expect(frame.view.objectsLayer.data.wickUUID).to.equal(frame.uuid);
         });
 
         it('should create paper.js layer with SVG from frame SVG', function() {
@@ -41,10 +37,10 @@ describe('Wick.View.Frame', function() {
 
             frame.view.render(frame);
 
-            expect(frame.view.pathsLayer.children.length).to.equal(3);
-            expect(frame.view.pathsLayer.children[0].strokeColor.toCSS(true)).to.equal('#ff0000');
-            expect(frame.view.pathsLayer.children[1].strokeColor.toCSS(true)).to.equal('#0000ff');
-            expect(frame.view.pathsLayer.children[2].strokeColor.toCSS(true)).to.equal('#00ff00');
+            expect(frame.view.objectsLayer.children.length).to.equal(3);
+            expect(frame.view.objectsLayer.children[0].strokeColor.toCSS(true)).to.equal('#ff0000');
+            expect(frame.view.objectsLayer.children[1].strokeColor.toCSS(true)).to.equal('#0000ff');
+            expect(frame.view.objectsLayer.children[2].strokeColor.toCSS(true)).to.equal('#00ff00');
         });
 
         it('should create paper.js layer with layers for groups from frame', function() {
@@ -82,8 +78,7 @@ describe('Wick.View.Frame', function() {
 
             frame.view.render(frame);
 
-            expect(frame.view.pathsLayer.children.length).to.equal(0);
-            expect(frame.view.clipsLayer.children.length).to.equal(3);
+            expect(frame.view.objectsLayer.children.length).to.equal(3);
         });
 
         it('should create groups with correct placement from clips', function() {
@@ -119,20 +114,20 @@ describe('Wick.View.Frame', function() {
 
             frame.view.render(frame);
 
-            expect(frame.view.pathsLayer.children[0].bounds.x).to.equal(0);
-            expect(frame.view.pathsLayer.children[0].bounds.y).to.equal(0);
-            expect(frame.view.pathsLayer.children[0].bounds.width).to.equal(100);
-            expect(frame.view.pathsLayer.children[0].bounds.height).to.equal(100);
+            expect(frame.view.objectsLayer.children[2].bounds.x).to.equal(0);
+            expect(frame.view.objectsLayer.children[2].bounds.y).to.equal(0);
+            expect(frame.view.objectsLayer.children[2].bounds.width).to.equal(100);
+            expect(frame.view.objectsLayer.children[2].bounds.height).to.equal(100);
 
-            expect(frame.view.clipsLayer.children[0].bounds.x).to.equal(100);
-            expect(frame.view.clipsLayer.children[0].bounds.y).to.equal(0);
-            expect(frame.view.clipsLayer.children[0].bounds.width).to.equal(100);
-            expect(frame.view.clipsLayer.children[0].bounds.height).to.equal(100);
+            expect(frame.view.objectsLayer.children[0].bounds.x).to.equal(100);
+            expect(frame.view.objectsLayer.children[0].bounds.y).to.equal(0);
+            expect(frame.view.objectsLayer.children[0].bounds.width).to.equal(100);
+            expect(frame.view.objectsLayer.children[0].bounds.height).to.equal(100);
 
-            expect(frame.view.clipsLayer.children[1].bounds.x).to.equal(200);
-            expect(frame.view.clipsLayer.children[1].bounds.y).to.equal(0);
-            expect(frame.view.clipsLayer.children[1].bounds.width).to.equal(100);
-            expect(frame.view.clipsLayer.children[1].bounds.height).to.equal(100);
+            expect(frame.view.objectsLayer.children[1].bounds.x).to.equal(200);
+            expect(frame.view.objectsLayer.children[1].bounds.y).to.equal(0);
+            expect(frame.view.objectsLayer.children[1].bounds.width).to.equal(100);
+            expect(frame.view.objectsLayer.children[1].bounds.height).to.equal(100);
         });
     });
 
@@ -151,10 +146,10 @@ describe('Wick.View.Frame', function() {
 
             frame.view.render(frame);
 
-            frame.view.pathsLayer.children[0].fillColor = '#aabbcc';
-            frame.view.pathsLayer.children[1].fillColor = '#ddeeff';
-            frame.view.pathsLayer.children[2].fillColor = '#112233';
-            frame.view.pathsLayer.addChild(new paper.Path({fillColor:'#abcdef'}));
+            frame.view.objectsLayer.children[0].fillColor = '#aabbcc';
+            frame.view.objectsLayer.children[1].fillColor = '#ddeeff';
+            frame.view.objectsLayer.children[2].fillColor = '#112233';
+            frame.view.objectsLayer.addChild(new paper.Path({fillColor:'#abcdef'}));
             frame.view.applyChanges();
             expect(frame.paths[0].view.item.fillColor.toCSS(true)).to.equal('#aabbcc');
             expect(frame.paths[1].view.item.fillColor.toCSS(true)).to.equal('#ddeeff');
@@ -175,7 +170,7 @@ describe('Wick.View.Frame', function() {
             frame.addClip(clipC);
 
             frame.view.render(frame);
-            frame.view.clipsLayer.children[0].insertAbove(frame.view.clipsLayer.children[2]);
+            frame.view.objectsLayer.children[0].insertAbove(frame.view.objectsLayer.children[2]);
 
             frame.view.applyChanges();
 
@@ -197,7 +192,7 @@ describe('Wick.View.Frame', function() {
             frame.addClip(clipC);
 
             frame.view.render(frame);
-            frame.view.clipsLayer.children[1].remove();
+            frame.view.objectsLayer.children[1].remove();
 
             frame.view.applyChanges(frame, frame.view.clipsLayer);
 
@@ -223,12 +218,12 @@ describe('Wick.View.Frame', function() {
 
             frame.view.render(frame);
 
-            frame.view.clipsLayer.children[0].position.x = 100;
-            frame.view.clipsLayer.children[0].position.y = 200;
-            frame.view.clipsLayer.children[0].scaling.x = 1.5;
-            frame.view.clipsLayer.children[0].scaling.y = 2.5;
-            frame.view.clipsLayer.children[0].rotation = 90;
-            frame.view.clipsLayer.children[0].opacity = 0.5;
+            frame.view.objectsLayer.children[0].position.x = 100;
+            frame.view.objectsLayer.children[0].position.y = 200;
+            frame.view.objectsLayer.children[0].scaling.x = 1.5;
+            frame.view.objectsLayer.children[0].scaling.y = 2.5;
+            frame.view.objectsLayer.children[0].rotation = 90;
+            frame.view.objectsLayer.children[0].opacity = 0.5;
             frame.view.applyChanges(frame, frame.view.clipsLayer);
 
             expect(frame.clips[0].transformation.x).to.equal(100);

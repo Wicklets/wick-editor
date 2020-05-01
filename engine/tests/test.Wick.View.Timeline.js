@@ -23,28 +23,20 @@ describe('Wick.View.Timeline', function() {
 
             timeline.view.render();
 
-            expect(timeline.view.frameLayers.length).to.equal(6);
+            expect(timeline.view.frameLayers.length).to.equal(3);
             expect(timeline.view.frameLayers[0] instanceof paper.Layer).to.equal(true);
             expect(timeline.view.frameLayers[1] instanceof paper.Layer).to.equal(true);
             expect(timeline.view.frameLayers[2] instanceof paper.Layer).to.equal(true);
-            expect(timeline.view.frameLayers[3] instanceof paper.Layer).to.equal(true);
-            expect(timeline.view.frameLayers[4] instanceof paper.Layer).to.equal(true);
-            expect(timeline.view.frameLayers[5] instanceof paper.Layer).to.equal(true);
-            expect(timeline.view.frameLayers[4].data.wickUUID).to.equal(timeline.layers[0].frames[0].uuid);
-            expect(timeline.view.frameLayers[5].data.wickUUID).to.equal(timeline.layers[0].frames[0].uuid);
-            expect(timeline.view.frameLayers[2].data.wickUUID).to.equal(timeline.layers[1].frames[0].uuid);
-            expect(timeline.view.frameLayers[3].data.wickUUID).to.equal(timeline.layers[1].frames[0].uuid);
             expect(timeline.view.frameLayers[0].data.wickUUID).to.equal(timeline.layers[2].frames[0].uuid);
-            expect(timeline.view.frameLayers[1].data.wickUUID).to.equal(timeline.layers[2].frames[0].uuid);
+            expect(timeline.view.frameLayers[1].data.wickUUID).to.equal(timeline.layers[1].frames[0].uuid);
+            expect(timeline.view.frameLayers[2].data.wickUUID).to.equal(timeline.layers[0].frames[0].uuid);
 
             timeline.playheadPosition = 2;
             timeline.view.render();
 
-            expect(timeline.view.frameLayers.length).to.equal(2);
+            expect(timeline.view.frameLayers.length).to.equal(1);
             expect(timeline.view.frameLayers[0] instanceof paper.Layer).to.equal(true);
-            expect(timeline.view.frameLayers[1] instanceof paper.Layer).to.equal(true);
             expect(timeline.view.frameLayers[0].data.wickUUID).to.equal(timeline.layers[0].frames[1].uuid);
-            expect(timeline.view.frameLayers[1].data.wickUUID).to.equal(timeline.layers[0].frames[1].uuid);
         });
 
         it('should render hidden layers if project publishedMode is set to true', function() {

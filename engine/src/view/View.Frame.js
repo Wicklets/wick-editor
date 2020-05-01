@@ -44,33 +44,13 @@ Wick.View.Frame = class extends Wick.View {
     /**
      * Write the changes made to the view to the frame.
      */
-    /*
-    applyChanges() {
-        this._applyClipChanges();
-        this._applyPathChanges();
-    }
-
-    render() {
-        //this._renderPaths();
-        this._renderObjects();
-    }
-
-    _renderObjects() {
-        this.objectsLayer.data.wickUUID = this.model.uuid;
-        this.objectsLayer.data.wickType = 'clipsandpaths';
-
-        this.objectsLayer.removeChildren();
-
-        this.model.drawable.forEach(object => {
-            object.view.render();
-            this.objectsLayer.addChild(object.view.group);
-        });
-    }*/
-
     applyChanges() {
         this._applyDrawableChanges();
     }
 
+    /**
+     * Update the view based on the model
+     */
     render() {
         this._renderObjects();
     }
