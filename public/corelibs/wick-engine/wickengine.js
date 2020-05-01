@@ -1,5 +1,5 @@
 /*Wick Engine https://github.com/Wicklets/wick-engine*/
-var WICK_ENGINE_BUILD_VERSION = "2020.5.1.16.3.14";
+var WICK_ENGINE_BUILD_VERSION = "2020.5.1.17.14.57";
 /*!
  * Paper.js v0.12.4 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -56655,7 +56655,7 @@ Wick.Clip = class extends Wick.Tickable {
         path.remove();
       }); // Generate crosshair
 
-      var size = 10;
+      var size = Wick.View.Clip.PLACEHOLDER_SIZE;
       var line1 = new paper.Path.Line({
         from: [0, -size],
         to: [0, size],
@@ -61610,6 +61610,10 @@ Wick.View.Clip = class extends Wick.View {
 
   static get BORDER_STROKE_COLOR_HAS_CODE_ERROR() {
     return '#E61E07';
+  }
+
+  static get PLACEHOLDER_SIZE() {
+    return 10;
   }
   /**
    * Creates a new Button view.

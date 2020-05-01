@@ -53,7 +53,7 @@ describe('Wick.GIFAsset', function() {
         });
     });
 
-    describe('#removeAllInstances', function () {
+    describe('#removeAsset', function () {
         it('should remove ImageAssets that are part of the GIFAsset on deletion of the GIFAsset', function(done) {
             var project = new Wick.Project();
 
@@ -78,7 +78,7 @@ describe('Wick.GIFAsset', function() {
                 Wick.GIFAsset.fromImages([image1, image2, image3], project, gifAsset => {
                     project.addAsset(gifAsset);
                     project.removeAsset(gifAsset);
-                    expect(project.assets.length).to.equal(0);
+                    expect(project.assets.length).to.equal(3);
                 });
             });
         });

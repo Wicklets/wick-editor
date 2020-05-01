@@ -683,7 +683,7 @@ Wick.Clip = class extends Wick.Tickable {
             });
 
             // Generate crosshair
-            var size = 10;
+            var size = Wick.View.Clip.PLACEHOLDER_SIZE;
             var line1 = new paper.Path.Line({
                 from: [0,-size],
                 to: [0,size],

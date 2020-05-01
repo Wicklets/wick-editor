@@ -34,6 +34,10 @@ Wick.View.Clip = class extends Wick.View {
         return '#E61E07';
     }
 
+    static get PLACEHOLDER_SIZE () {
+        return 10;
+    }
+
     /**
      * Creates a new Button view.
      */
