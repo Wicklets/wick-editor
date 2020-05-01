@@ -49,7 +49,7 @@ describe('Wick.View.Layer', function() {
             layer.addFrame(new Wick.Frame({start:2}));
             layer.addFrame(new Wick.Frame({start:3}));
 
-            // Two frames, two layers each (paths+clips layers)
+            // Two frames = two layers
             layer.view.render();
             expect(layer.view.onionSkinnedFramesLayers.length).to.equal(2);
 

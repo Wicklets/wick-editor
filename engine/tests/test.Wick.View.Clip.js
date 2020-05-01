@@ -22,7 +22,7 @@ describe('Wick.View.Clip', function() {
             expect(clip.view.group instanceof paper.Group).to.equal(true);
             expect(clip.view.group.data.wickUUID).to.equal(clip.uuid);
             expect(clip.view.group.data.wickType).to.equal('clip');
-            expect(clip.view.group.children.length).to.equal(0);
+            expect(clip.view.group.children.length).to.equal(1); // only the placeholder should exist
         });
 
         it('should create paper group from populated wick clip', function() {

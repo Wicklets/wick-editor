@@ -148,7 +148,7 @@ Wick.Frame = class extends Wick.Tickable {
      * True if this frame should currently be onion skinned.
      */
     get onionSkinned () {
-        if (!this.project.onionSkinEnabled) {
+        if (!this.project || !this.project.onionSkinEnabled) {
             return false;
         }
 

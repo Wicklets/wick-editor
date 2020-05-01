@@ -64,7 +64,7 @@ Wick.Tools.FillBucket = class extends Wick.Tool {
                 layers: this.project.activeFrames.filter(frame => {
                     return !frame.parentLayer.hidden;
                 }).map(frame => {
-                    return frame.view.pathsLayer;
+                    return frame.view.objectsLayer;
                 }),
                 onFinish: (path) => {
                     this.setCursor('default');
